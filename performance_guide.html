@@ -6,7 +6,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
@@ -339,19 +339,19 @@
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
   <section id="performance-guide">
-<h1>Performance Guide<a class="headerlink" href="#performance-guide" title="Permalink to this headline">¶</a></h1>
+<h1>Performance Guide<a class="headerlink" href="#performance-guide" title="Permalink to this heading">¶</a></h1>
 <p>In case you’re interested in optimizing the memory usage, latency or throughput of a PyTorch model served with TorchServe, this is the guide for you.</p>
 <section id="optimizing-pytorch">
-<h2>Optimizing PyTorch<a class="headerlink" href="#optimizing-pytorch" title="Permalink to this headline">¶</a></h2>
+<h2>Optimizing PyTorch<a class="headerlink" href="#optimizing-pytorch" title="Permalink to this heading">¶</a></h2>
 <p>There are many tricks to optimize PyTorch models for production including but not limited to distillation, quantization, fusion, pruning, setting environment variables and we encourage you to benchmark and see what works best for you. An experimental tool that may make this process is easier is https://github.com/pytorch/serve/tree/master/experimental/torchprep</p>
 <p>In general it’s hard to optimize models and the easiest approach can be exporting to some runtime like ORT, TensorRT, IPEX, FasterTransformer and we have many examples for how to integrate these runtimes in https://github.com/pytorch/serve/tree/master/examples. If your favorite runtime is not supported please feel free to open a PR.</p>
 </section>
 <section id="optimizing-torchserve">
-<h2>Optimizing TorchServe<a class="headerlink" href="#optimizing-torchserve" title="Permalink to this headline">¶</a></h2>
+<h2>Optimizing TorchServe<a class="headerlink" href="#optimizing-torchserve" title="Permalink to this heading">¶</a></h2>
 <p>The main settings you should vary if you’re trying to improve the performance of TorchServe from the <code class="docutils literal notranslate"><span class="pre">config.properties</span></code> are the <code class="docutils literal notranslate"><span class="pre">batch_size</span></code> and <code class="docutils literal notranslate"><span class="pre">batch_delay</span></code>. A larger batch size means a higher throughput at the cost of lower latency.</p>
 <p>The second most important settings are  number of workers and number of gpus which will have a dramatic impact on CPU and GPU performance. To configure them:</p>
 <section id="concurrency-and-number-of-workers">
-<h3>Concurrency And Number of Workers<a class="headerlink" href="#concurrency-and-number-of-workers" title="Permalink to this headline">¶</a></h3>
+<h3>Concurrency And Number of Workers<a class="headerlink" href="#concurrency-and-number-of-workers" title="Permalink to this heading">¶</a></h3>
 <p>TorchServe exposes configurations that allow the user to configure the number of worker threads on CPU and GPUs. There is an important config property that can speed up the server depending on the workload.
 <em>Note: the following property has bigger impact under heavy workloads.</em></p>
 <p><strong>CPU</strong>: there is a config property called <code class="docutils literal notranslate"><span class="pre">workers</span></code> which sets the number of worker threads for a model. The best value to set <code class="docutils literal notranslate"><span class="pre">workers</span></code> to is to start with <code class="docutils literal notranslate"><span class="pre">num</span> <span class="pre">physical</span> <span class="pre">cores</span> <span class="pre">/</span> <span class="pre">2</span></code> and increase it as much possible after setting <code class="docutils literal notranslate"><span class="pre">torch.set_num_threads(1)</span></code> in your handler.</p>
@@ -362,14 +362,14 @@
 </section>
 </section>
 <section id="benchmarking">
-<h2>Benchmarking<a class="headerlink" href="#benchmarking" title="Permalink to this headline">¶</a></h2>
+<h2>Benchmarking<a class="headerlink" href="#benchmarking" title="Permalink to this heading">¶</a></h2>
 <p>To make comparing various model and TorchServe configurations easier to compare, we’ve added a few helper scripts that output performance data like p50, p90, p99 latency in a clean report here and mostly require you to determine some configuration either via JSON or YAML https://github.com/pytorch/serve/tree/master/benchmarks.</p>
 <p>If you’d like to run performance benchmarks locally https://github.com/pytorch/serve/tree/master/benchmarks</p>
 <p>If you’d like to run performance benchmarks using an automated suite on AWS https://github.com/pytorch/serve/tree/master/benchmarks/automated</p>
 <p>For the most part the core TorchServe team uses local benchmarks for experiments and the automated benchmarks for official releases.</p>
 </section>
 <section id="profiling">
-<h2>Profiling<a class="headerlink" href="#profiling" title="Permalink to this headline">¶</a></h2>
+<h2>Profiling<a class="headerlink" href="#profiling" title="Permalink to this heading">¶</a></h2>
 <p>TorchServe has native support for the PyTorch profiler which will help you find performance bottlenecks in your code.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">export</span> <span class="n">ENABLE_TORCH_PROFILER</span><span class="o">=</span><span class="n">TRUE</span>
 </pre></div>
@@ -440,6 +440,7 @@
          <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
          <script src="_static/jquery.js"></script>
          <script src="_static/underscore.js"></script>
+         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
          <script src="_static/doctools.js"></script>
          <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.js"></script>
          <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/contrib/auto-render.min.js"></script>

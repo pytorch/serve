@@ -6,7 +6,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
@@ -341,9 +341,9 @@
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
   <section id="custom-service">
-<h1><span class="section-number">6. </span>Custom Service<a class="headerlink" href="#custom-service" title="Permalink to this headline">¶</a></h1>
+<h1><span class="section-number">6. </span>Custom Service<a class="headerlink" href="#custom-service" title="Permalink to this heading">¶</a></h1>
 <section id="contents-of-this-document">
-<h2><span class="section-number">6.1. </span>Contents of this Document<a class="headerlink" href="#contents-of-this-document" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">6.1. </span>Contents of this Document<a class="headerlink" href="#contents-of-this-document" title="Permalink to this heading">¶</a></h2>
 <ul class="simple">
 <li><p><a class="reference external" href="#custom-handlers">Custom handlers</a></p></li>
 <li><p><a class="reference external" href="#creating-a-model-archive-with-an-entry-point">Creating model archive with entry point</a></p></li>
@@ -352,7 +352,7 @@
 </ul>
 </section>
 <section id="custom-handlers">
-<h2><span class="section-number">6.2. </span>Custom handlers<a class="headerlink" href="#custom-handlers" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">6.2. </span>Custom handlers<a class="headerlink" href="#custom-handlers" title="Permalink to this heading">¶</a></h2>
 <p>Customize the behavior of TorchServe by writing a Python script that you package with
 the model when you use the model archiver. TorchServe executes this code when it runs.</p>
 <p>Provide a custom script to:</p>
@@ -369,11 +369,11 @@ the model when you use the model archiver. TorchServe executes this code when it
 model_name, model_dir, manifest, batch_size, gpu etc.</p></li>
 </ul>
 <section id="start-with-basehandler">
-<h3><span class="section-number">6.2.1. </span>Start with BaseHandler!<a class="headerlink" href="#start-with-basehandler" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">6.2.1. </span>Start with BaseHandler!<a class="headerlink" href="#start-with-basehandler" title="Permalink to this heading">¶</a></h3>
 <p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/ts/torch_handler/base_handler.py">BaseHandler</a> implements most of the functionality you need. You can derive a new class from it, as shown in the examples and default handlers. Most of the time, you’ll only need to override <code class="docutils literal notranslate"><span class="pre">preprocess</span></code> or <code class="docutils literal notranslate"><span class="pre">postprocess</span></code>.</p>
 </section>
 <section id="custom-handler-with-module-level-entry-point">
-<h3><span class="section-number">6.2.2. </span>Custom handler with <code class="docutils literal notranslate"><span class="pre">module</span></code> level entry point<a class="headerlink" href="#custom-handler-with-module-level-entry-point" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">6.2.2. </span>Custom handler with <code class="docutils literal notranslate"><span class="pre">module</span></code> level entry point<a class="headerlink" href="#custom-handler-with-module-level-entry-point" title="Permalink to this heading">¶</a></h3>
 <p>The custom handler file must define a module level function that acts as an entry point for execution.
 The function can have any name, but it must accept the following parameters and return prediction results.</p>
 <p>The signature of a entry point function is:</p>
@@ -421,7 +421,7 @@ Typically, you want code for model initialization to run at model load time.
 You can find out more about these and other TorchServe APIs in <a class="reference internal" href="management_api.html"><span class="doc">TorchServe Management API</span></a> and <a class="reference internal" href="inference_api.html"><span class="doc">TorchServe Inference API</span></a></p>
 </section>
 <section id="custom-handler-with-class-level-entry-point">
-<h3><span class="section-number">6.2.3. </span>Custom handler with <code class="docutils literal notranslate"><span class="pre">class</span></code> level entry point<a class="headerlink" href="#custom-handler-with-class-level-entry-point" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">6.2.3. </span>Custom handler with <code class="docutils literal notranslate"><span class="pre">class</span></code> level entry point<a class="headerlink" href="#custom-handler-with-class-level-entry-point" title="Permalink to this heading">¶</a></h3>
 <p>You can create custom handler by having class with any name, but it must have an <code class="docutils literal notranslate"><span class="pre">initialize</span></code> and a <code class="docutils literal notranslate"><span class="pre">handle</span></code> method.</p>
 <p>NOTE - If you plan to have multiple classes in same python module/file then make sure that handler class is the first in the list</p>
 <p>The signature of a entry point class and functions is:</p>
@@ -475,9 +475,9 @@ You can find out more about these and other TorchServe APIs in <a class="referen
 </div>
 </section>
 <section id="advanced-custom-handlers">
-<h3><span class="section-number">6.2.4. </span>Advanced custom handlers<a class="headerlink" href="#advanced-custom-handlers" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">6.2.4. </span>Advanced custom handlers<a class="headerlink" href="#advanced-custom-handlers" title="Permalink to this heading">¶</a></h3>
 <section id="returning-custom-error-codes">
-<h4><span class="section-number">6.2.4.1. </span>Returning custom error codes<a class="headerlink" href="#returning-custom-error-codes" title="Permalink to this headline">¶</a></h4>
+<h4><span class="section-number">6.2.4.1. </span>Returning custom error codes<a class="headerlink" href="#returning-custom-error-codes" title="Permalink to this heading">¶</a></h4>
 <p>To return a custom error code back to the user via custom handler with <code class="docutils literal notranslate"><span class="pre">module</span></code> level entry point.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ts.utils.util</span> <span class="kn">import</span> <span class="n">PredictionException</span>
 <span class="k">def</span> <span class="nf">handle</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
@@ -501,7 +501,7 @@ You can find out more about these and other TorchServe APIs in <a class="referen
 </div>
 </section>
 <section id="writing-a-custom-handler-from-scratch-for-prediction-and-explanations-request">
-<h4><span class="section-number">6.2.4.2. </span>Writing a custom handler from scratch for Prediction and Explanations Request<a class="headerlink" href="#writing-a-custom-handler-from-scratch-for-prediction-and-explanations-request" title="Permalink to this headline">¶</a></h4>
+<h4><span class="section-number">6.2.4.2. </span>Writing a custom handler from scratch for Prediction and Explanations Request<a class="headerlink" href="#writing-a-custom-handler-from-scratch-for-prediction-and-explanations-request" title="Permalink to this heading">¶</a></h4>
 <p><em>You should generally derive from BaseHandler and ONLY override methods whose behavior needs to change!</em> As you can see in the examples, most of the time you only need to override <code class="docutils literal notranslate"><span class="pre">preprocess</span></code> or <code class="docutils literal notranslate"><span class="pre">postprocess</span></code></p>
 <p>Nonetheless, you are able to write a class from scratch. Below is an example. Basically, it follows a typical Init-Pre-Infer-Post pattern to create maintainable custom handler.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># custom handler file</span>
@@ -585,7 +585,7 @@ You can find out more about these and other TorchServe APIs in <a class="referen
 <p>Refer <a class="reference external" href="https://github.com/pytorch/serve/blob/master/examples/text_to_speech_synthesizer/waveglow_handler.py">waveglow_handler</a> for more details.</p>
 </section>
 <section id="captum-explanations-for-custom-handler">
-<h4><span class="section-number">6.2.4.3. </span>Captum explanations for custom handler<a class="headerlink" href="#captum-explanations-for-custom-handler" title="Permalink to this headline">¶</a></h4>
+<h4><span class="section-number">6.2.4.3. </span>Captum explanations for custom handler<a class="headerlink" href="#captum-explanations-for-custom-handler" title="Permalink to this heading">¶</a></h4>
 <p>Torchserve returns the captum explanations for Image Classification, Text Classification and BERT models. It is achieved by placing the below request:
 <code class="docutils literal notranslate"><span class="pre">POST</span> <span class="pre">/explanations/{model_name}</span></code></p>
 <p>The explanations are written as a part of the explain_handle method of base handler. The base handler invokes this explain_handle_method. The arguments that are passed to the explain handle methods are the pre-processed data and the raw data. It invokes the get insights function of the custom handler that returns the captum attributions. The user should write his own get_insights functionality to get the explanations</p>
@@ -656,7 +656,7 @@ The user should define their get_insights method for custom handler to get Captu
 </div>
 </section>
 <section id="extend-default-handlers">
-<h4><span class="section-number">6.2.4.4. </span>Extend default handlers<a class="headerlink" href="#extend-default-handlers" title="Permalink to this headline">¶</a></h4>
+<h4><span class="section-number">6.2.4.4. </span>Extend default handlers<a class="headerlink" href="#extend-default-handlers" title="Permalink to this heading">¶</a></h4>
 <p>TorchServe has following default handlers.</p>
 <ul class="simple">
 <li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/ts/torch_handler/image_classifier.py">image_classifier</a></p></li>
@@ -692,7 +692,7 @@ The user should define their get_insights method for custom handler to get Captu
 </section>
 </section>
 <section id="creating-a-model-archive-with-an-entry-point">
-<h2><span class="section-number">6.3. </span>Creating a model archive with an entry point<a class="headerlink" href="#creating-a-model-archive-with-an-entry-point" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">6.3. </span>Creating a model archive with an entry point<a class="headerlink" href="#creating-a-model-archive-with-an-entry-point" title="Permalink to this heading">¶</a></h2>
 <p>TorchServe identifies the entry point to the custom service from a manifest file.
 When you create the model archive, specify the location of the entry point by using the <code class="docutils literal notranslate"><span class="pre">--handler</span></code> option.</p>
 <p>The <a class="reference external" href="https://github.com/pytorch/serve/tree/master/model-archiver">model-archiver</a> tool enables you to create a model archive that TorchServe can serve.</p>
@@ -712,7 +712,7 @@ By default it uses the default python distribution of the system.</p>
 </div>
 </section>
 <section id="handling-model-execution-on-multiple-gpus">
-<h2><span class="section-number">6.4. </span>Handling model execution on multiple GPUs<a class="headerlink" href="#handling-model-execution-on-multiple-gpus" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">6.4. </span>Handling model execution on multiple GPUs<a class="headerlink" href="#handling-model-execution-on-multiple-gpus" title="Permalink to this heading">¶</a></h2>
 <p>TorchServe scales backend workers on vCPUs or GPUs. In case of multiple GPUs TorchServe selects the gpu device in round-robin fashion and passes on this device id to the model handler in context object.
 User should use this GPU ID for creating pytorch device object to ensure that all the workers are not created in the same GPU.
 The following code snippet can be used in model handler to create the PyTorch device object:</p>
@@ -733,7 +733,7 @@ The following code snippet can be used in model handler to create the PyTorch de
 </div>
 </section>
 <section id="installing-model-specific-python-dependencies">
-<h2><span class="section-number">6.5. </span>Installing model specific python dependencies<a class="headerlink" href="#installing-model-specific-python-dependencies" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">6.5. </span>Installing model specific python dependencies<a class="headerlink" href="#installing-model-specific-python-dependencies" title="Permalink to this heading">¶</a></h2>
 <p>Custom models/handlers may depend on different python packages which are not installed by-default as a part of <code class="docutils literal notranslate"><span class="pre">TorchServe</span></code> setup.</p>
 <p>Following steps allows user to supply a list of custom python packages to be installed by <code class="docutils literal notranslate"><span class="pre">TorchServe</span></code> for seamless model serving.</p>
 <ol class="simple">
@@ -824,6 +824,7 @@ The following code snippet can be used in model handler to create the PyTorch de
          <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
          <script src="_static/jquery.js"></script>
          <script src="_static/underscore.js"></script>
+         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
          <script src="_static/doctools.js"></script>
          <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.js"></script>
          <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/contrib/auto-render.min.js"></script>

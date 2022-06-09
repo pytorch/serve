@@ -6,7 +6,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
@@ -341,9 +341,9 @@
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
   <section id="batch-inference-with-torchserve">
-<h1><span class="section-number">3. </span>Batch Inference with TorchServe<a class="headerlink" href="#batch-inference-with-torchserve" title="Permalink to this headline">¶</a></h1>
+<h1><span class="section-number">3. </span>Batch Inference with TorchServe<a class="headerlink" href="#batch-inference-with-torchserve" title="Permalink to this heading">¶</a></h1>
 <section id="contents-of-this-document">
-<h2><span class="section-number">3.1. </span>Contents of this Document<a class="headerlink" href="#contents-of-this-document" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">3.1. </span>Contents of this Document<a class="headerlink" href="#contents-of-this-document" title="Permalink to this heading">¶</a></h2>
 <ul class="simple">
 <li><p><a class="reference external" href="#introduction">Introduction</a></p></li>
 <li><p><a class="reference external" href="#prerequisites">Prerequisites</a></p></li>
@@ -354,7 +354,7 @@
 </ul>
 </section>
 <section id="introduction">
-<h2><span class="section-number">3.2. </span>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">3.2. </span>Introduction<a class="headerlink" href="#introduction" title="Permalink to this heading">¶</a></h2>
 <p>Batch inference is a process of aggregating inference requests and sending this aggregated requests through the ML/DL framework for inference all at once.
 TorchServe was designed to natively support batching of incoming inference requests. This functionality enables you to use your host resources optimally,
 because most ML/DL frameworks are optimized for batch requests.
@@ -362,7 +362,7 @@ This optimal use of host resources in turn reduces the operational expense of ho
 <p>In this document we show an example of how to use batch inference in Torchserve when serving models locally or using docker containers.</p>
 </section>
 <section id="prerequisites">
-<h2><span class="section-number">3.3. </span>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">3.3. </span>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this heading">¶</a></h2>
 <p>Before jumping into this document, read the following docs:</p>
 <ol class="simple">
 <li><p><a class="reference internal" href="README.html"><span class="doc">What is TorchServe?</span></a></p></li>
@@ -370,11 +370,11 @@ This optimal use of host resources in turn reduces the operational expense of ho
 </ol>
 </section>
 <section id="batch-inference-with-torchserve-s-default-handlers">
-<h2><span class="section-number">3.4. </span>Batch Inference with TorchServe’s default handlers<a class="headerlink" href="#batch-inference-with-torchserve-s-default-handlers" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">3.4. </span>Batch Inference with TorchServe’s default handlers<a class="headerlink" href="#batch-inference-with-torchserve-s-default-handlers" title="Permalink to this heading">¶</a></h2>
 <p>TorchServe’s default handlers support batch inference out of box except for <code class="docutils literal notranslate"><span class="pre">text_classifier</span></code> handler.</p>
 </section>
 <section id="batch-inference-with-torchserve-using-resnet-152-model">
-<h2><span class="section-number">3.5. </span>Batch Inference with TorchServe using ResNet-152 model<a class="headerlink" href="#batch-inference-with-torchserve-using-resnet-152-model" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">3.5. </span>Batch Inference with TorchServe using ResNet-152 model<a class="headerlink" href="#batch-inference-with-torchserve-using-resnet-152-model" title="Permalink to this heading">¶</a></h2>
 <p>To support batch inference, TorchServe needs the following:</p>
 <ol class="simple">
 <li><p>TorchServe model configuration: Configure <code class="docutils literal notranslate"><span class="pre">batch_size</span></code> and <code class="docutils literal notranslate"><span class="pre">max_batch_delay</span></code> by using the  “POST /models” management API or settings in config.properties.
@@ -383,7 +383,7 @@ TorchServe needs to know the maximum batch size that the model can handle and th
 </ol>
 <p>For a full working example of a custom model handler with batch processing, see <a class="reference external" href="https://github.com/pytorch/serve/blob/master/examples/Huggingface_Transformers/Transformer_handler_generalized.py">Hugging face transformer generalized handler</a></p>
 <section id="torchserve-model-configuration">
-<h3><span class="section-number">3.5.1. </span>TorchServe Model Configuration<a class="headerlink" href="#torchserve-model-configuration" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">3.5.1. </span>TorchServe Model Configuration<a class="headerlink" href="#torchserve-model-configuration" title="Permalink to this heading">¶</a></h3>
 <p>Started from Torchserve 0.4.1, there are two methods to configure TorchServe to use the batching feature:</p>
 <ol class="simple">
 <li><p>provide the batch configuration information through <a class="reference internal" href="management_api.html"><span class="doc">POST /models API</span></a>.</p></li>
@@ -424,14 +424,14 @@ The frontend then tries to aggregate the batch-size number of requests and send 
 </section>
 </section>
 <section id="demo-to-configure-torchserve-resnet-152-model-with-batch-supported-model">
-<h2><span class="section-number">3.6. </span>Demo to configure TorchServe ResNet-152 model with batch-supported model<a class="headerlink" href="#demo-to-configure-torchserve-resnet-152-model-with-batch-supported-model" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">3.6. </span>Demo to configure TorchServe ResNet-152 model with batch-supported model<a class="headerlink" href="#demo-to-configure-torchserve-resnet-152-model-with-batch-supported-model" title="Permalink to this heading">¶</a></h2>
 <p>In this section lets bring up model server and launch Resnet-152 model, which uses the default <code class="docutils literal notranslate"><span class="pre">image_classifier</span></code> handler for batch inferencing.</p>
 <section id="setup-torchserve-and-torch-model-archiver">
-<h3><span class="section-number">3.6.1. </span>Setup TorchServe and Torch Model Archiver<a class="headerlink" href="#setup-torchserve-and-torch-model-archiver" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">3.6.1. </span>Setup TorchServe and Torch Model Archiver<a class="headerlink" href="#setup-torchserve-and-torch-model-archiver" title="Permalink to this heading">¶</a></h3>
 <p>First things first, follow the main <a class="reference internal" href="README.html"><span class="doc">Readme</span></a> and install all the required packages including <code class="docutils literal notranslate"><span class="pre">torchserve</span></code>.</p>
 </section>
 <section id="batch-inference-of-resnet-152-configured-with-managment-api">
-<h3><span class="section-number">3.6.2. </span>Batch inference of Resnet-152 configured with managment API<a class="headerlink" href="#batch-inference-of-resnet-152-configured-with-managment-api" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">3.6.2. </span>Batch inference of Resnet-152 configured with managment API<a class="headerlink" href="#batch-inference-of-resnet-152-configured-with-managment-api" title="Permalink to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>Start the model server. In this example, we are starting the model server to run on inference port 8080 and management port 8081.</p></li>
 </ul>
@@ -518,7 +518,7 @@ $ torchserve --start --model-store model_store
 </ul>
 </section>
 <section id="batch-inference-of-resnet-152-configured-through-config-properties">
-<h3><span class="section-number">3.6.3. </span>Batch inference of Resnet-152 configured through config.properties<a class="headerlink" href="#batch-inference-of-resnet-152-configured-through-config-properties" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">3.6.3. </span>Batch inference of Resnet-152 configured through config.properties<a class="headerlink" href="#batch-inference-of-resnet-152-configured-through-config-properties" title="Permalink to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>Here, we first set the <code class="docutils literal notranslate"><span class="pre">batch_size</span></code> and <code class="docutils literal notranslate"><span class="pre">max_batch_delay</span></code>  in the config.properties, make sure the mar file is located in the model-store and the version in the models setting is consistent with version of the mar file created. To read more about configurations please refer to this <a class="reference internal" href="configuration.html"><span class="doc">document</span></a>.</p></li>
 </ul>
@@ -611,10 +611,10 @@ models={\
 </section>
 </section>
 <section id="demo-to-configure-torchserve-resnet-152-model-with-batch-supported-model-using-docker">
-<h2><span class="section-number">3.7. </span>Demo to configure TorchServe ResNet-152 model with batch-supported model using Docker<a class="headerlink" href="#demo-to-configure-torchserve-resnet-152-model-with-batch-supported-model-using-docker" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">3.7. </span>Demo to configure TorchServe ResNet-152 model with batch-supported model using Docker<a class="headerlink" href="#demo-to-configure-torchserve-resnet-152-model-with-batch-supported-model-using-docker" title="Permalink to this heading">¶</a></h2>
 <p>Here, we show how to register a model with batch inference support when serving the model using docker contianers. We set the <code class="docutils literal notranslate"><span class="pre">batch_size</span></code> and <code class="docutils literal notranslate"><span class="pre">max_batch_delay</span></code>  in the config.properties similar to the previous section which is being used by <a class="reference external" href="../docker/dockerd-entrypoint.sh">dockered_entrypoint.sh</a>.</p>
 <section id="batch-inference-of-resnet-152-using-docker-contianer">
-<h3><span class="section-number">3.7.1. </span>Batch inference of Resnet-152 using docker contianer<a class="headerlink" href="#batch-inference-of-resnet-152-using-docker-contianer" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">3.7.1. </span>Batch inference of Resnet-152 using docker contianer<a class="headerlink" href="#batch-inference-of-resnet-152-using-docker-contianer" title="Permalink to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>Set the batch <code class="docutils literal notranslate"><span class="pre">batch_size</span></code> and <code class="docutils literal notranslate"><span class="pre">max_batch_delay</span></code>  in the config.properties as referenced in the <a class="reference external" href="../docker/dockerd-entrypoint.sh">dockered_entrypoint.sh</a></p></li>
 </ul>
@@ -793,6 +793,7 @@ models={\
          <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
          <script src="_static/jquery.js"></script>
          <script src="_static/underscore.js"></script>
+         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
          <script src="_static/doctools.js"></script>
          <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.js"></script>
          <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/contrib/auto-render.min.js"></script>

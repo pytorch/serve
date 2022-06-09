@@ -6,7 +6,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
@@ -345,12 +345,12 @@
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
   <section id="ts-metrics-package">
-<h1>ts.metrics package<a class="headerlink" href="#ts-metrics-package" title="Permalink to this headline">¶</a></h1>
+<h1>ts.metrics package<a class="headerlink" href="#ts-metrics-package" title="Permalink to this heading">¶</a></h1>
 <section id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading">¶</a></h2>
 </section>
 <section id="module-ts.metrics.dimension">
-<span id="ts-metrics-dimension-module"></span><h2>ts.metrics.dimension module<a class="headerlink" href="#module-ts.metrics.dimension" title="Permalink to this headline">¶</a></h2>
+<span id="ts-metrics-dimension-module"></span><h2>ts.metrics.dimension module<a class="headerlink" href="#module-ts.metrics.dimension" title="Permalink to this heading">¶</a></h2>
 <p>Dimension class for model server metrics</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="ts.metrics.dimension.Dimension">
@@ -367,7 +367,7 @@
 
 </section>
 <section id="module-ts.metrics.metric">
-<span id="ts-metrics-metric-module"></span><h2>ts.metrics.metric module<a class="headerlink" href="#module-ts.metrics.metric" title="Permalink to this headline">¶</a></h2>
+<span id="ts-metrics-metric-module"></span><h2>ts.metrics.metric module<a class="headerlink" href="#module-ts.metrics.metric" title="Permalink to this heading">¶</a></h2>
 <p>Metric class for model server</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="ts.metrics.metric.Metric">
@@ -385,7 +385,7 @@
 <span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/metrics/metric.html#Metric.update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.metrics.metric.Metric.update" title="Permalink to this definition">¶</a></dt>
 <dd><p>Update function for Metric class</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – metric to be updated</p>
 </dd>
 </dl>
@@ -395,16 +395,16 @@
 
 </section>
 <section id="module-ts.metrics.metric_collector">
-<span id="ts-metrics-metric-collector-module"></span><h2>ts.metrics.metric_collector module<a class="headerlink" href="#module-ts.metrics.metric_collector" title="Permalink to this headline">¶</a></h2>
+<span id="ts-metrics-metric-collector-module"></span><h2>ts.metrics.metric_collector module<a class="headerlink" href="#module-ts.metrics.metric_collector" title="Permalink to this heading">¶</a></h2>
 <p>Single start point for system metrics and process metrics script</p>
 </section>
 <section id="module-ts.metrics.metric_encoder">
-<span id="ts-metrics-metric-encoder-module"></span><h2>ts.metrics.metric_encoder module<a class="headerlink" href="#module-ts.metrics.metric_encoder" title="Permalink to this headline">¶</a></h2>
+<span id="ts-metrics-metric-encoder-module"></span><h2>ts.metrics.metric_encoder module<a class="headerlink" href="#module-ts.metrics.metric_encoder" title="Permalink to this heading">¶</a></h2>
 <p>Metric Encoder class for json dumps</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="ts.metrics.metric_encoder.MetricEncoder">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ts.metrics.metric_encoder.</span></span><span class="sig-name descname"><span class="pre">MetricEncoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skipkeys</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ensure_ascii</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check_circular</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_nan</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort_keys</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">separators</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/metrics/metric_encoder.html#MetricEncoder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.metrics.metric_encoder.MetricEncoder" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">json.encoder.JSONEncoder</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">JSONEncoder</span></code></p>
 <p>Encoder class for json encoding Metric Object</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="ts.metrics.metric_encoder.MetricEncoder.default">
@@ -416,7 +416,7 @@
 
 </section>
 <section id="module-ts.metrics.metrics_store">
-<span id="ts-metrics-metrics-store-module"></span><h2>ts.metrics.metrics_store module<a class="headerlink" href="#module-ts.metrics.metrics_store" title="Permalink to this headline">¶</a></h2>
+<span id="ts-metrics-metrics-store-module"></span><h2>ts.metrics.metrics_store module<a class="headerlink" href="#module-ts.metrics.metrics_store" title="Permalink to this heading">¶</a></h2>
 <p>Metrics collection module</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="ts.metrics.metrics_store.MetricsStore">
@@ -428,7 +428,7 @@
 <span class="sig-name descname"><span class="pre">add_counter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dimensions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/metrics/metrics_store.html#MetricsStore.add_counter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.metrics.metrics_store.MetricsStore.add_counter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add a counter metric or increment an existing counter metric</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – metric name</p></li>
 <li><p><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – value of metric</p></li>
@@ -456,7 +456,7 @@
 <span class="sig-name descname"><span class="pre">add_metric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dimensions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/metrics/metrics_store.html#MetricsStore.add_metric"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.metrics.metrics_store.MetricsStore.add_metric" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add a metric which is generic with custom metrics</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – metric name</p></li>
 <li><p><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – value of metric</p></li>
@@ -473,7 +473,7 @@
 <span class="sig-name descname"><span class="pre">add_percent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dimensions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/metrics/metrics_store.html#MetricsStore.add_percent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.metrics.metrics_store.MetricsStore.add_percent" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add a percentage based metric</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – metric name</p></li>
 <li><p><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – value of metric</p></li>
@@ -489,7 +489,7 @@
 <span class="sig-name descname"><span class="pre">add_size</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'MB'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dimensions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/metrics/metrics_store.html#MetricsStore.add_size"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.metrics.metrics_store.MetricsStore.add_size" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add a size based metric</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – metric name</p></li>
 <li><p><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – value of metric</p></li>
@@ -506,7 +506,7 @@
 <span class="sig-name descname"><span class="pre">add_time</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ms'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dimensions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/metrics/metrics_store.html#MetricsStore.add_time"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.metrics.metrics_store.MetricsStore.add_time" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add a time based metric like latency, default unit is ‘ms’</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – metric name</p></li>
 <li><p><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – value of metric</p></li>
@@ -522,17 +522,17 @@
 
 </section>
 <section id="module-ts.metrics.process_memory_metric">
-<span id="ts-metrics-process-memory-metric-module"></span><h2>ts.metrics.process_memory_metric module<a class="headerlink" href="#module-ts.metrics.process_memory_metric" title="Permalink to this headline">¶</a></h2>
+<span id="ts-metrics-process-memory-metric-module"></span><h2>ts.metrics.process_memory_metric module<a class="headerlink" href="#module-ts.metrics.process_memory_metric" title="Permalink to this heading">¶</a></h2>
 <p>Collect process memory usage metrics  here
 Pass a json, collection of pids and gpuID</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="ts.metrics.process_memory_metric.check_process_mem_usage">
 <span class="sig-prename descclassname"><span class="pre">ts.metrics.process_memory_metric.</span></span><span class="sig-name descname"><span class="pre">check_process_mem_usage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stdin</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/metrics/process_memory_metric.html#check_process_mem_usage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.metrics.process_memory_metric.check_process_mem_usage" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>mem_utilization</strong></p>
 </dd>
-<dt class="field-even">Return type</dt>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)">float</a></p>
 </dd>
 </dl>
@@ -548,20 +548,20 @@ Pass a json, collection of pids and gpuID</p>
 
 </section>
 <section id="module-ts.metrics.system_metrics">
-<span id="ts-metrics-system-metrics-module"></span><h2>ts.metrics.system_metrics module<a class="headerlink" href="#module-ts.metrics.system_metrics" title="Permalink to this headline">¶</a></h2>
+<span id="ts-metrics-system-metrics-module"></span><h2>ts.metrics.system_metrics module<a class="headerlink" href="#module-ts.metrics.system_metrics" title="Permalink to this heading">¶</a></h2>
 <p>Module to collect system metrics for front-end</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="ts.metrics.system_metrics.collect_all">
 <span class="sig-prename descclassname"><span class="pre">ts.metrics.system_metrics.</span></span><span class="sig-name descname"><span class="pre">collect_all</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mod</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_of_gpu</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/metrics/system_metrics.html#collect_all"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.metrics.system_metrics.collect_all" title="Permalink to this definition">¶</a></dt>
 <dd><p>Collect all system metrics.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>mod</strong> – </p></li>
 <li><p><strong>num_of_gpu</strong> – </p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p></p>
 </dd>
 </dl>
@@ -592,10 +592,10 @@ Pass a json, collection of pids and gpuID</p>
 <span class="sig-prename descclassname"><span class="pre">ts.metrics.system_metrics.</span></span><span class="sig-name descname"><span class="pre">gpu_utilization</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_of_gpu</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/metrics/system_metrics.html#gpu_utilization"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.metrics.system_metrics.gpu_utilization" title="Permalink to this definition">¶</a></dt>
 <dd><p>Collect gpu metrics.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>num_of_gpu</strong> – </p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p></p>
 </dd>
 </dl>
@@ -618,7 +618,7 @@ Pass a json, collection of pids and gpuID</p>
 
 </section>
 <section id="module-ts.metrics.unit">
-<span id="ts-metrics-unit-module"></span><h2>ts.metrics.unit module<a class="headerlink" href="#module-ts.metrics.unit" title="Permalink to this headline">¶</a></h2>
+<span id="ts-metrics-unit-module"></span><h2>ts.metrics.unit module<a class="headerlink" href="#module-ts.metrics.unit" title="Permalink to this heading">¶</a></h2>
 <p>Module to define Unit mappings</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="ts.metrics.unit.Units">
@@ -629,7 +629,7 @@ Pass a json, collection of pids and gpuID</p>
 
 </section>
 <section id="module-ts.metrics">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-ts.metrics" title="Permalink to this headline">¶</a></h2>
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-ts.metrics" title="Permalink to this heading">¶</a></h2>
 <p>This is a folder for all python worker metrics.</p>
 </section>
 </section>
@@ -708,6 +708,7 @@ Pass a json, collection of pids and gpuID</p>
          <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
          <script src="../_static/jquery.js"></script>
          <script src="../_static/underscore.js"></script>
+         <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
          <script src="../_static/doctools.js"></script>
          <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.js"></script>
          <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/contrib/auto-render.min.js"></script>

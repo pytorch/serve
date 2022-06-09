@@ -6,7 +6,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
@@ -341,9 +341,9 @@
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
   <section id="torchserve-metrics">
-<h1><span class="section-number">9. </span>TorchServe Metrics<a class="headerlink" href="#torchserve-metrics" title="Permalink to this headline">¶</a></h1>
+<h1><span class="section-number">9. </span>TorchServe Metrics<a class="headerlink" href="#torchserve-metrics" title="Permalink to this heading">¶</a></h1>
 <section id="contents-of-this-document">
-<h2><span class="section-number">9.1. </span>Contents of this document<a class="headerlink" href="#contents-of-this-document" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">9.1. </span>Contents of this document<a class="headerlink" href="#contents-of-this-document" title="Permalink to this heading">¶</a></h2>
 <ul class="simple">
 <li><p><a class="reference external" href="#introduction">Introduction</a></p></li>
 <li><p><a class="reference external" href="#system-metrics">System metrics</a></p></li>
@@ -353,7 +353,7 @@
 </ul>
 </section>
 <section id="introduction">
-<h2><span class="section-number">9.2. </span>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">9.2. </span>Introduction<a class="headerlink" href="#introduction" title="Permalink to this heading">¶</a></h2>
 <p>TorchServe collects system level metrics in regular intervals, and also provides an API to collect custom metrics.
 Metrics collected by metrics are logged and can be aggregated by metric agents.
 The system level metrics are collected every minute. Metrics defined by the custom service code can be collected per request or per a batch of requests.
@@ -366,7 +366,7 @@ Metrics are collected by default at:</p>
 <p>The location of log files and metric files can be configured in the <a class="reference external" href="https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/log4j2.xml">log4j2.xml</a> file</p>
 </section>
 <section id="system-metrics">
-<h2><span class="section-number">9.3. </span>System Metrics<a class="headerlink" href="#system-metrics" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">9.3. </span>System Metrics<a class="headerlink" href="#system-metrics" title="Permalink to this heading">¶</a></h2>
 <table border="1" class="docutils">
 <thead>
 <tr>
@@ -458,7 +458,7 @@ Metrics are collected by default at:</p>
 </tbody>
 </table></section>
 <section id="formatting">
-<h2><span class="section-number">9.4. </span>Formatting<a class="headerlink" href="#formatting" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">9.4. </span>Formatting<a class="headerlink" href="#formatting" title="Permalink to this heading">¶</a></h2>
 <p>TorchServe emits metrics to log files by default. The metrics are formatted in a <a class="reference external" href="https://github.com/etsy/statsd">StatsD</a> like format.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>CPUUtilization.Percent:0.0<span class="p">|</span><span class="c1">#Level:Host|#hostname:my_machine_name</span>
 MemoryUsed.Megabytes:13840.328125<span class="p">|</span><span class="c1">#Level:Host|#hostname:my_machine_name   </span>
@@ -510,7 +510,7 @@ EOE
 </div>
 </section>
 <section id="custom-metrics-api">
-<h2><span class="section-number">9.5. </span>Custom Metrics API<a class="headerlink" href="#custom-metrics-api" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">9.5. </span>Custom Metrics API<a class="headerlink" href="#custom-metrics-api" title="Permalink to this heading">¶</a></h2>
 <p>TorchServe enables the custom service code to emit metrics that are then logged by the system.</p>
 <p>The custom service code is provided with a <a class="reference external" href="https://github.com/pytorch/serve/blob/master/ts/context.py">context</a> of the current request with a metrics object:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Access context metrics as follows</span>
@@ -519,7 +519,7 @@ EOE
 </div>
 <p>All metrics are collected within the context.</p>
 <section id="create-dimension-object-s">
-<h3><span class="section-number">9.5.1. </span>Create dimension object(s)<a class="headerlink" href="#create-dimension-object-s" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">9.5.1. </span>Create dimension object(s)<a class="headerlink" href="#create-dimension-object-s" title="Permalink to this heading">¶</a></h3>
 <p>Dimensions for metrics can be defined as objects</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ts.metrics.dimension</span> <span class="kn">import</span> <span class="n">Dimension</span>
 
@@ -535,7 +535,7 @@ EOE
 <p><strong>NOTE:</strong> Metric functions below accept a list of dimensions</p>
 </section>
 <section id="add-generic-metrics">
-<h3><span class="section-number">9.5.2. </span>Add generic metrics<a class="headerlink" href="#add-generic-metrics" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">9.5.2. </span>Add generic metrics<a class="headerlink" href="#add-generic-metrics" title="Permalink to this heading">¶</a></h3>
 <p>One can add metrics with generic units using the following function.</p>
 <p>Function API</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">add_metric</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">unit</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
@@ -565,7 +565,7 @@ EOE
 </div>
 </section>
 <section id="add-time-based-metrics">
-<h3><span class="section-number">9.5.3. </span>Add time-based metrics<a class="headerlink" href="#add-time-based-metrics" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">9.5.3. </span>Add time-based metrics<a class="headerlink" href="#add-time-based-metrics" title="Permalink to this heading">¶</a></h3>
 <p>Add time-based by invoking the following method:</p>
 <p>Function API</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">add_time</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;ms&#39;</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
@@ -598,7 +598,7 @@ EOE
 </div>
 </section>
 <section id="add-size-based-metrics">
-<h3><span class="section-number">9.5.4. </span>Add size-based metrics<a class="headerlink" href="#add-size-based-metrics" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">9.5.4. </span>Add size-based metrics<a class="headerlink" href="#add-size-based-metrics" title="Permalink to this heading">¶</a></h3>
 <p>Add size-based metrics by invoking the following method:</p>
 <p>Function API</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">add_size</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;MB&#39;</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
@@ -631,7 +631,7 @@ EOE
 </div>
 </section>
 <section id="add-percentage-based-metrics">
-<h3><span class="section-number">9.5.5. </span>Add Percentage based metrics<a class="headerlink" href="#add-percentage-based-metrics" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">9.5.5. </span>Add Percentage based metrics<a class="headerlink" href="#add-percentage-based-metrics" title="Permalink to this heading">¶</a></h3>
 <p>Percentage based metrics can be added by invoking the following method</p>
 <p>Function API</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">add_percent</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
@@ -660,7 +660,7 @@ EOE
 </div>
 </section>
 <section id="add-counter-based-metrics">
-<h3><span class="section-number">9.5.6. </span>Add counter-based metrics<a class="headerlink" href="#add-counter-based-metrics" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">9.5.6. </span>Add counter-based metrics<a class="headerlink" href="#add-counter-based-metrics" title="Permalink to this heading">¶</a></h3>
 <p>Percentage based metrics can be added by invoking the following method</p>
 <p>Function API</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">add_counter</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
@@ -699,7 +699,7 @@ EOE
 </div>
 </section>
 <section id="log-custom-metrics">
-<h3><span class="section-number">9.5.7. </span>Log custom metrics<a class="headerlink" href="#log-custom-metrics" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">9.5.7. </span>Log custom metrics<a class="headerlink" href="#log-custom-metrics" title="Permalink to this heading">¶</a></h3>
 <p>Following sample code can be used to log the custom metrics created in the model’s custom handler:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">metric</span> <span class="ow">in</span> <span class="n">metrics</span><span class="o">.</span><span class="n">store</span><span class="p">:</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;[METRICS]</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">metric</span><span class="p">))</span>
@@ -788,6 +788,7 @@ EOE
          <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
          <script src="_static/jquery.js"></script>
          <script src="_static/underscore.js"></script>
+         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
          <script src="_static/doctools.js"></script>
          <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.js"></script>
          <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/contrib/auto-render.min.js"></script>

@@ -6,7 +6,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
@@ -339,7 +339,7 @@
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
   <section id="faq-s">
-<h1>FAQ’S<a class="headerlink" href="#faq-s" title="Permalink to this headline">¶</a></h1>
+<h1>FAQ’S<a class="headerlink" href="#faq-s" title="Permalink to this heading">¶</a></h1>
 <p>Contents of this document.</p>
 <ul class="simple">
 <li><p><a class="reference external" href="#general">General</a></p></li>
@@ -349,17 +349,17 @@
 <li><p><a class="reference external" href="#model-archiver">Model-archiver</a></p></li>
 </ul>
 <section id="general">
-<h2>General<a class="headerlink" href="#general" title="Permalink to this headline">¶</a></h2>
+<h2>General<a class="headerlink" href="#general" title="Permalink to this heading">¶</a></h2>
 <p>Relevant documents.</p>
 <ul class="simple">
 <li><p><a class="reference external" href="https://github.com/pytorch/serve#torchserve">Torchserve readme</a></p></li>
 </ul>
 <section id="does-torchserve-api-s-follow-some-rest-api-standard">
-<h3>Does Torchserve API’s follow some REST API standard?<a class="headerlink" href="#does-torchserve-api-s-follow-some-rest-api-standard" title="Permalink to this headline">¶</a></h3>
+<h3>Does Torchserve API’s follow some REST API standard?<a class="headerlink" href="#does-torchserve-api-s-follow-some-rest-api-standard" title="Permalink to this heading">¶</a></h3>
 <p>Torchserve API’s are compliant with the <a class="reference external" href="https://swagger.io/specification/">OpenAPI specification 3.0</a>.</p>
 </section>
 <section id="how-to-use-torchserve-in-production">
-<h3>How to use Torchserve in production?<a class="headerlink" href="#how-to-use-torchserve-in-production" title="Permalink to this headline">¶</a></h3>
+<h3>How to use Torchserve in production?<a class="headerlink" href="#how-to-use-torchserve-in-production" title="Permalink to this heading">¶</a></h3>
 <p>Depending on your use case, you will be able to deploy torchserve in production using following mechanisms.</p>
 <blockquote>
 <div><p>Standalone deployment. Refer <a class="reference external" href="../docker/README">TorchServe docker documentation</a> or <a class="reference external" href="../docs/README">TorchServe documentation</a>
@@ -367,25 +367,25 @@ Cloud based deployment. Refer <a class="reference external" href="../kubernetes/
 </div></blockquote>
 </section>
 <section id="what-s-difference-between-torchserve-and-a-python-web-app-using-web-frameworks-like-flask-django">
-<h3>What’s difference between Torchserve and a python web app using web frameworks like Flask, Django?<a class="headerlink" href="#what-s-difference-between-torchserve-and-a-python-web-app-using-web-frameworks-like-flask-django" title="Permalink to this headline">¶</a></h3>
+<h3>What’s difference between Torchserve and a python web app using web frameworks like Flask, Django?<a class="headerlink" href="#what-s-difference-between-torchserve-and-a-python-web-app-using-web-frameworks-like-flask-django" title="Permalink to this heading">¶</a></h3>
 <p>Torchserve’s main purpose is to serve models via http REST APIs, Torchserve is not a Flask app and it uses netty engine for serving http requests.</p>
 <p>Relevant issues: [<a class="reference external" href="https://github.com/pytorch/serve/issues/581">581</a>,<a class="reference external" href="https://github.com/pytorch/serve/issues/569">569</a>]</p>
 </section>
 <section id="are-there-any-sample-models-available">
-<h3>Are there any sample Models available?<a class="headerlink" href="#are-there-any-sample-models-available" title="Permalink to this headline">¶</a></h3>
+<h3>Are there any sample Models available?<a class="headerlink" href="#are-there-any-sample-models-available" title="Permalink to this heading">¶</a></h3>
 <p>Various models are provided in Torchserve out of the box. Checkout out Torchserve <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/model_zoo.md">Model Zoo</a> for list of all available models. You can also check out the <a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples">examples</a> folder.</p>
 </section>
 <section id="does-torchserve-support-other-models-based-on-programming-languages-other-than-python">
-<h3>Does Torchserve support other models based on programming languages other than python?<a class="headerlink" href="#does-torchserve-support-other-models-based-on-programming-languages-other-than-python" title="Permalink to this headline">¶</a></h3>
+<h3>Does Torchserve support other models based on programming languages other than python?<a class="headerlink" href="#does-torchserve-support-other-models-based-on-programming-languages-other-than-python" title="Permalink to this heading">¶</a></h3>
 <p>No, As of now only python based models are supported.</p>
 </section>
 <section id="what-benefits-does-torchserve-have-over-aws-multi-model-server">
-<h3>What benefits does Torchserve have over AWS Multi-Model-Server?<a class="headerlink" href="#what-benefits-does-torchserve-have-over-aws-multi-model-server" title="Permalink to this headline">¶</a></h3>
+<h3>What benefits does Torchserve have over AWS Multi-Model-Server?<a class="headerlink" href="#what-benefits-does-torchserve-have-over-aws-multi-model-server" title="Permalink to this heading">¶</a></h3>
 <p>Torchserve is derived from Multi-Model-Server. However, Torchserve is specifically tuned for Pytorch models. It also has new features like Snapshot and model versioning.</p>
 </section>
 </section>
 <section id="deployment-and-config">
-<h2>Deployment and config<a class="headerlink" href="#deployment-and-config" title="Permalink to this headline">¶</a></h2>
+<h2>Deployment and config<a class="headerlink" href="#deployment-and-config" title="Permalink to this heading">¶</a></h2>
 <p>Relevant documents.</p>
 <ul class="simple">
 <li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/configuration.md">Torchserve configuration</a></p></li>
@@ -394,114 +394,114 @@ Cloud based deployment. Refer <a class="reference external" href="../kubernetes/
 <li><p><a class="reference external" href="../docker/README">Docker</a></p></li>
 </ul>
 <section id="can-i-run-torchserve-apis-on-ports-other-than-the-default-8080-8081">
-<h3>Can I run Torchserve APIs on ports other than the default 8080 &amp; 8081?<a class="headerlink" href="#can-i-run-torchserve-apis-on-ports-other-than-the-default-8080-8081" title="Permalink to this headline">¶</a></h3>
+<h3>Can I run Torchserve APIs on ports other than the default 8080 &amp; 8081?<a class="headerlink" href="#can-i-run-torchserve-apis-on-ports-other-than-the-default-8080-8081" title="Permalink to this heading">¶</a></h3>
 <p>Yes, Torchserve API ports are configurable using a properties file or environment variable.
 Refer <a class="reference internal" href="configuration.html"><span class="doc">configuration.md</span></a> for more details.</p>
 </section>
 <section id="how-can-i-resolve-model-specific-python-dependency">
-<h3>How can I resolve model specific python dependency?<a class="headerlink" href="#how-can-i-resolve-model-specific-python-dependency" title="Permalink to this headline">¶</a></h3>
+<h3>How can I resolve model specific python dependency?<a class="headerlink" href="#how-can-i-resolve-model-specific-python-dependency" title="Permalink to this heading">¶</a></h3>
 <p>You can provide a <code class="docutils literal notranslate"><span class="pre">requirements.txt</span></code> while creating a mar file using “–requirements-file/ -r” flag. Also, you can add dependency files using “–extra-files” flag.
 Refer <a class="reference internal" href="configuration.html"><span class="doc">configuration.md</span></a> for more details.</p>
 </section>
 <section id="can-i-deploy-torchserve-in-kubernetes">
-<h3>Can I deploy Torchserve in Kubernetes?<a class="headerlink" href="#can-i-deploy-torchserve-in-kubernetes" title="Permalink to this headline">¶</a></h3>
+<h3>Can I deploy Torchserve in Kubernetes?<a class="headerlink" href="#can-i-deploy-torchserve-in-kubernetes" title="Permalink to this heading">¶</a></h3>
 <p>Yes, you can deploy Torchserve in Kubernetes using Helm charts.
 Refer <a class="reference external" href="../kubernetes/README">Kubernetes deployment </a> for more details.</p>
 </section>
 <section id="can-i-deploy-torchserve-with-aws-elb-and-aws-asg">
-<h3>Can I deploy Torchserve with AWS ELB and AWS ASG?<a class="headerlink" href="#can-i-deploy-torchserve-with-aws-elb-and-aws-asg" title="Permalink to this headline">¶</a></h3>
+<h3>Can I deploy Torchserve with AWS ELB and AWS ASG?<a class="headerlink" href="#can-i-deploy-torchserve-with-aws-elb-and-aws-asg" title="Permalink to this heading">¶</a></h3>
 <p>Yes, you can deploy Torchserve on a multi-node ASG AWS EC2 cluster. There is a cloud formation template available <a class="reference external" href="https://github.com/pytorch/serve/blob/master/cloudformation/ec2-asg.yaml">here</a> for this type of deployment. Refer <a class="reference external" href="https://github.com/pytorch/serve/tree/master/cloudformation#multi-node-ec2-deployment-behind-elastic-loadbalancer-elb"> Multi-node EC2 deployment behind Elastic LoadBalancer (ELB)</a> more details.</p>
 </section>
 <section id="how-can-i-backup-and-restore-torchserve-state">
-<h3>How can I backup and restore Torchserve state?<a class="headerlink" href="#how-can-i-backup-and-restore-torchserve-state" title="Permalink to this headline">¶</a></h3>
+<h3>How can I backup and restore Torchserve state?<a class="headerlink" href="#how-can-i-backup-and-restore-torchserve-state" title="Permalink to this heading">¶</a></h3>
 <p>TorchServe preserves server runtime configuration across sessions such that a TorchServe instance experiencing either a planned or unplanned service stop can restore its state upon restart. These saved runtime configuration files can be used for backup and restore.
 Refer <a class="reference external" href="snapshot.md#torchserve-model-snapshot">TorchServe model snapshot</a> for more details.</p>
 </section>
 <section id="how-can-i-build-a-torchserve-image-from-source">
-<h3>How can I build a Torchserve image from source?<a class="headerlink" href="#how-can-i-build-a-torchserve-image-from-source" title="Permalink to this headline">¶</a></h3>
+<h3>How can I build a Torchserve image from source?<a class="headerlink" href="#how-can-i-build-a-torchserve-image-from-source" title="Permalink to this heading">¶</a></h3>
 <p>Torchserve has a utility <a class="reference external" href="../docker/build_image.sh">script</a> for creating docker images, the docker image can be hardware-based CPU or GPU compatible. A Torchserve docker image could be CUDA version specific as well.</p>
 <p>All these docker images can be created using <code class="docutils literal notranslate"><span class="pre">build_image.sh</span></code> with appropriate options.</p>
 <p>Run <code class="docutils literal notranslate"><span class="pre">./build_image.sh</span> <span class="pre">--help</span></code> for all available options.</p>
 <p>Refer <a class="reference external" href="../docker/README.md#create-torchserve-docker-image">Create Torchserve docker image from source</a> for more details.</p>
 </section>
 <section id="how-to-build-a-torchserve-image-for-a-specific-branch-or-commit-id">
-<h3>How to build a Torchserve image for a specific branch or commit id?<a class="headerlink" href="#how-to-build-a-torchserve-image-for-a-specific-branch-or-commit-id" title="Permalink to this headline">¶</a></h3>
+<h3>How to build a Torchserve image for a specific branch or commit id?<a class="headerlink" href="#how-to-build-a-torchserve-image-for-a-specific-branch-or-commit-id" title="Permalink to this heading">¶</a></h3>
 <p>To create a Docker image for a specific branch, use the following command:</p>
 <p><code class="docutils literal notranslate"><span class="pre">./build_image.sh</span> <span class="pre">-b</span> <span class="pre">&lt;branch_name&gt;/&lt;commit_id&gt;</span></code></p>
 <p>To create a Docker image for a specific branch and specific tag, use the following command:</p>
 <p><code class="docutils literal notranslate"><span class="pre">./build_image.sh</span> <span class="pre">-b</span> <span class="pre">&lt;branch_name&gt;</span> <span class="pre">-t</span> <span class="pre">&lt;tagname:latest&gt;</span></code></p>
 </section>
 <section id="what-is-the-difference-between-image-created-using-dockerfile-and-image-created-using-dockerfile-dev">
-<h3>What is the difference between image created using Dockerfile and image created using Dockerfile.dev?<a class="headerlink" href="#what-is-the-difference-between-image-created-using-dockerfile-and-image-created-using-dockerfile-dev" title="Permalink to this headline">¶</a></h3>
+<h3>What is the difference between image created using Dockerfile and image created using Dockerfile.dev?<a class="headerlink" href="#what-is-the-difference-between-image-created-using-dockerfile-and-image-created-using-dockerfile-dev" title="Permalink to this heading">¶</a></h3>
 <p>The image created using Dockerfile.dev has Torchserve installed from source where as image created using Dockerfile has Torchserve installed from PyPi distribution.</p>
 </section>
 </section>
 <section id="api">
-<h2>API<a class="headerlink" href="#api" title="Permalink to this headline">¶</a></h2>
+<h2>API<a class="headerlink" href="#api" title="Permalink to this heading">¶</a></h2>
 <p>Relevant documents</p>
 <ul class="simple">
 <li><p><a class="reference internal" href="rest_api.html"><span class="doc">Torchserve Rest API</span></a></p></li>
 </ul>
 <section id="what-can-i-use-other-than-curl-to-make-requests-to-torchserve">
-<h3>What can I use other than <em>curl</em> to make requests to Torchserve?<a class="headerlink" href="#what-can-i-use-other-than-curl-to-make-requests-to-torchserve" title="Permalink to this headline">¶</a></h3>
+<h3>What can I use other than <em>curl</em> to make requests to Torchserve?<a class="headerlink" href="#what-can-i-use-other-than-curl-to-make-requests-to-torchserve" title="Permalink to this heading">¶</a></h3>
 <p>You can use any tool like Postman, Insomnia or even use a python script to do so. Find sample python script <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/default_handlers.md#torchserve-default-inference-handlers">here</a>.</p>
 </section>
 <section id="how-can-i-add-a-custom-api-to-an-existing-framework">
-<h3>How can I add a custom API to an existing framework?<a class="headerlink" href="#how-can-i-add-a-custom-api-to-an-existing-framework" title="Permalink to this headline">¶</a></h3>
+<h3>How can I add a custom API to an existing framework?<a class="headerlink" href="#how-can-i-add-a-custom-api-to-an-existing-framework" title="Permalink to this heading">¶</a></h3>
 <p>You can add a custom API using <strong>plugins SDK</strong> available in Torchserve.
 Refer to <a class="reference external" href="../serving-sdk">serving sdk</a> and <a class="reference external" href="../plugins">plugins</a> for more details.</p>
 </section>
 <section id="how-can-pass-multiple-images-in-inference-request-call-to-my-model">
-<h3>How can pass multiple images in Inference request call to my model?<a class="headerlink" href="#how-can-pass-multiple-images-in-inference-request-call-to-my-model" title="Permalink to this headline">¶</a></h3>
+<h3>How can pass multiple images in Inference request call to my model?<a class="headerlink" href="#how-can-pass-multiple-images-in-inference-request-call-to-my-model" title="Permalink to this heading">¶</a></h3>
 <p>You can provide multiple data in a single inference request to your custom handler as a key-value pair in the <code class="docutils literal notranslate"><span class="pre">data</span></code> object.
 Refer <a class="reference external" href="https://github.com/pytorch/serve/issues/529#issuecomment-658012913">this</a> for more details.</p>
 </section>
 </section>
 <section id="handler">
-<h2>Handler<a class="headerlink" href="#handler" title="Permalink to this headline">¶</a></h2>
+<h2>Handler<a class="headerlink" href="#handler" title="Permalink to this heading">¶</a></h2>
 <p>Relevant documents</p>
 <ul class="simple">
 <li><p><a class="reference external" href="default_handlers.md#torchserve-default-inference-handlers">Default handlers</a></p></li>
 <li><p><a class="reference external" href="custom_service.md#custom-handlers">Custom Handlers</a></p></li>
 </ul>
 <section id="how-do-i-return-an-image-output-for-a-model">
-<h3>How do I return an image output for a model?<a class="headerlink" href="#how-do-i-return-an-image-output-for-a-model" title="Permalink to this headline">¶</a></h3>
+<h3>How do I return an image output for a model?<a class="headerlink" href="#how-do-i-return-an-image-output-for-a-model" title="Permalink to this heading">¶</a></h3>
 <p>You would have to write a custom handler and modify the postprocessing to return the image
 Refer <a class="reference external" href="custom_service.md#custom-handlers">custom service documentation</a> for more details.</p>
 </section>
 <section id="how-to-enhance-the-default-handlers">
-<h3>How to enhance the default handlers?<a class="headerlink" href="#how-to-enhance-the-default-handlers" title="Permalink to this headline">¶</a></h3>
+<h3>How to enhance the default handlers?<a class="headerlink" href="#how-to-enhance-the-default-handlers" title="Permalink to this heading">¶</a></h3>
 <p>Write a custom handler that extends the default handler and just override the methods to be tuned.
 Refer <a class="reference external" href="custom_service.md#custom-handlers">custom service documentation</a> for more details.</p>
 </section>
 <section id="do-i-always-have-to-write-a-custom-handler-or-are-there-default-ones-that-i-can-use">
-<h3>Do I always have to write a custom handler or are there default ones that I can use?<a class="headerlink" href="#do-i-always-have-to-write-a-custom-handler-or-are-there-default-ones-that-i-can-use" title="Permalink to this headline">¶</a></h3>
+<h3>Do I always have to write a custom handler or are there default ones that I can use?<a class="headerlink" href="#do-i-always-have-to-write-a-custom-handler-or-are-there-default-ones-that-i-can-use" title="Permalink to this heading">¶</a></h3>
 <p>Yes, you can deploy your model with no-code/ zero code by using builtin default handlers.
 Refer <a class="reference external" href="default_handlers.md#torchserve-default-inference-handlers">default handlers</a> for more details.</p>
 </section>
 <section id="is-it-possible-to-deploy-hugging-face-models">
-<h3>Is it possible to deploy Hugging Face models?<a class="headerlink" href="#is-it-possible-to-deploy-hugging-face-models" title="Permalink to this headline">¶</a></h3>
+<h3>Is it possible to deploy Hugging Face models?<a class="headerlink" href="#is-it-possible-to-deploy-hugging-face-models" title="Permalink to this heading">¶</a></h3>
 <p>Yes, you can deploy Hugging Face models using a custom handler.
 Refer <a class="reference external" href="https://github.com/pytorch/serve/blob/master/examples/Huggingface_Transformers/README.md">HuggingFace_Transformers</a> for example.</p>
 </section>
 </section>
 <section id="model-archiver">
-<h2>Model-archiver<a class="headerlink" href="#model-archiver" title="Permalink to this headline">¶</a></h2>
+<h2>Model-archiver<a class="headerlink" href="#model-archiver" title="Permalink to this heading">¶</a></h2>
 <p>Relevant documents</p>
 <ul class="simple">
 <li><p><a class="reference external" href="../model-archiver/README.md#torch-model-archiver-for-torchserve">Model-archiver </a></p></li>
 <li><p><a class="reference external" href="../docker/README">Docker Readme</a></p></li>
 </ul>
 <section id="what-is-a-mar-file">
-<h3>What is a mar file?<a class="headerlink" href="#what-is-a-mar-file" title="Permalink to this headline">¶</a></h3>
+<h3>What is a mar file?<a class="headerlink" href="#what-is-a-mar-file" title="Permalink to this heading">¶</a></h3>
 <p>A mar file is a zip file consisting of all model artifacts with the “.mar” extension. The cmd-line utility <code class="docutils literal notranslate"><span class="pre">torch-model-archiver</span></code> is used to create a mar file.</p>
 </section>
 <section id="how-can-create-mar-file-using-torchserve-docker-container">
-<h3>How can create mar file using Torchserve docker container?<a class="headerlink" href="#how-can-create-mar-file-using-torchserve-docker-container" title="Permalink to this headline">¶</a></h3>
+<h3>How can create mar file using Torchserve docker container?<a class="headerlink" href="#how-can-create-mar-file-using-torchserve-docker-container" title="Permalink to this heading">¶</a></h3>
 <p>Yes, you create your mar file using a Torchserve container. Follow the steps given <a class="reference external" href="../docker/README.md#create-torch-model-archiver-from-container">here</a>.</p>
 </section>
 <section id="can-i-add-multiple-serialized-files-in-single-mar-file">
-<h3>Can I add multiple serialized files in single mar file?<a class="headerlink" href="#can-i-add-multiple-serialized-files-in-single-mar-file" title="Permalink to this headline">¶</a></h3>
+<h3>Can I add multiple serialized files in single mar file?<a class="headerlink" href="#can-i-add-multiple-serialized-files-in-single-mar-file" title="Permalink to this heading">¶</a></h3>
 <p>Currently <code class="docutils literal notranslate"><span class="pre">torch-model-archiver</span></code> allows supplying only one serialized file with <code class="docutils literal notranslate"><span class="pre">--serialized-file</span></code> parameter while creating the mar. However, you can supply any number and any type of file with <code class="docutils literal notranslate"><span class="pre">--extra-files</span></code> flag. All the files supplied in the mar file are available in <code class="docutils literal notranslate"><span class="pre">model_dir</span></code> location which can be accessed through the context object supplied to the handler’s entry point.</p>
 <p>Sample code snippet:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">properties</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">system_properties</span>
@@ -512,17 +512,17 @@ Refer <a class="reference external" href="https://github.com/pytorch/serve/blob/
 Relevant issues: [<a class="reference external" href="https://github.com/pytorch/serve/issues/633">#633</a>]</p>
 </section>
 <section id="can-i-download-and-register-model-using-s3-presigned-v4-url">
-<h3>Can I download and register model using s3 presigned v4 url?<a class="headerlink" href="#can-i-download-and-register-model-using-s3-presigned-v4-url" title="Permalink to this headline">¶</a></h3>
+<h3>Can I download and register model using s3 presigned v4 url?<a class="headerlink" href="#can-i-download-and-register-model-using-s3-presigned-v4-url" title="Permalink to this heading">¶</a></h3>
 <p>You can use both s3 v2 and v4 signature URLs.
 Note: For v4 type replace <code class="docutils literal notranslate"><span class="pre">&amp;</span></code> characters in model url with its URL encoding character in the curl command i.e.<code class="docutils literal notranslate"><span class="pre">%26</span></code>.</p>
 <p>Relevant issues: [<a class="reference external" href="https://github.com/pytorch/serve/issues/669">#669</a>]</p>
 </section>
 <section id="can-i-host-a-model-on-s3">
-<h3>Can I host a model on s3<a class="headerlink" href="#can-i-host-a-model-on-s3" title="Permalink to this headline">¶</a></h3>
+<h3>Can I host a model on s3<a class="headerlink" href="#can-i-host-a-model-on-s3" title="Permalink to this heading">¶</a></h3>
 <p>A mar file can be used either locally or be publicly available via http. An S3 URI starting with s3:// will not work but that very same file can be made public and available in the s3 console or aws cli to instead get a public object URL starting with https://</p>
 </section>
 <section id="how-to-set-a-model-s-batch-size-on-sagemaker-key-parameters-for-torchserve-performance-tuning">
-<h3>How to set a model’s batch size on SageMaker?  Key parameters for TorchServe performance tuning.<a class="headerlink" href="#how-to-set-a-model-s-batch-size-on-sagemaker-key-parameters-for-torchserve-performance-tuning" title="Permalink to this headline">¶</a></h3>
+<h3>How to set a model’s batch size on SageMaker?  Key parameters for TorchServe performance tuning.<a class="headerlink" href="#how-to-set-a-model-s-batch-size-on-sagemaker-key-parameters-for-torchserve-performance-tuning" title="Permalink to this heading">¶</a></h3>
 <p><a class="reference external" href="https://github.com/lxning/torchserve_perf/blob/master/torchserve_perf.ipynb">TorchServe performance tuning example</a></p>
 </section>
 </section>
@@ -625,6 +625,7 @@ Note: For v4 type replace <code class="docutils literal notranslate"><span class
          <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
          <script src="_static/jquery.js"></script>
          <script src="_static/underscore.js"></script>
+         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
          <script src="_static/doctools.js"></script>
          <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.js"></script>
          <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/contrib/auto-render.min.js"></script>

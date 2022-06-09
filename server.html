@@ -6,7 +6,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
@@ -341,9 +341,9 @@
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
   <section id="running-torchserve">
-<h1><span class="section-number">12. </span>Running TorchServe<a class="headerlink" href="#running-torchserve" title="Permalink to this headline">¶</a></h1>
+<h1><span class="section-number">12. </span>Running TorchServe<a class="headerlink" href="#running-torchserve" title="Permalink to this heading">¶</a></h1>
 <section id="contents-of-this-document">
-<h2><span class="section-number">12.1. </span>Contents of this Document<a class="headerlink" href="#contents-of-this-document" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">12.1. </span>Contents of this Document<a class="headerlink" href="#contents-of-this-document" title="Permalink to this heading">¶</a></h2>
 <ul class="simple">
 <li><p><a class="reference external" href="#overview">Overview</a></p></li>
 <li><p><a class="reference external" href="#technical-details">Technical Details</a></p></li>
@@ -353,12 +353,12 @@
 </ul>
 </section>
 <section id="overview">
-<h2><span class="section-number">12.2. </span>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">12.2. </span>Overview<a class="headerlink" href="#overview" title="Permalink to this heading">¶</a></h2>
 <p>TorchServe can be used for many types of inference in production settings. It provides an easy-to-use command line interface and utilizes  <a class="reference internal" href="rest_api.html"><span class="doc">REST based APIs</span></a> handle state prediction requests.</p>
 <p>For example, you want to make an app that lets your users snap a picture, and it will tell them what objects were detected in the scene and predictions on what the objects might be. You can use TorchServe to serve a prediction endpoint for a object detection and identification model that intakes images, then returns predictions. You can also modify TorchServe behavior with custom services and run multiple models. There are examples of custom services in the <a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples">examples</a> folder.</p>
 </section>
 <section id="technical-details">
-<h2><span class="section-number">12.3. </span>Technical Details<a class="headerlink" href="#technical-details" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">12.3. </span>Technical Details<a class="headerlink" href="#technical-details" title="Permalink to this heading">¶</a></h2>
 <p>Now that you have a high level view of TorchServe, let’s get a little into the weeds. TorchServe takes a Pytorch deep learning model and it wraps it in a set of REST APIs. Currently it comes with a built-in web server that you run from command line. This command line call takes in the single or multiple models you want to serve, along with additional optional parameters controlling the port, host, and logging. TorchServe supports running custom services to handle the specific inference handling logic. These are covered in more detail in the <a class="reference internal" href="custom_service.html"><span class="doc">custom service</span></a> documentation.</p>
 <p>To try out TorchServe serving now, you can load the custom MNIST model, with this example:</p>
 <ul class="simple">
@@ -373,11 +373,11 @@
 </ul>
 </section>
 <section id="model-files">
-<h2><span class="section-number">12.4. </span>Model Files<a class="headerlink" href="#model-files" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">12.4. </span>Model Files<a class="headerlink" href="#model-files" title="Permalink to this heading">¶</a></h2>
 <p>The rest of this topic focuses on serving model files without much discussion on the model files themselves, where they come from, and how they’re made. Long story short: it’s a zip archive with the parameters, weights, and metadata that define a model that has been trained already. If you want to know more about the model files, take a look at the <a class="reference external" href="https://github.com/pytorch/serve/tree/master/model-archiver">model-archiver documentation</a>.</p>
 </section>
 <section id="command-line-interface">
-<h2><span class="section-number">12.5. </span>Command Line Interface<a class="headerlink" href="#command-line-interface" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">12.5. </span>Command Line Interface<a class="headerlink" href="#command-line-interface" title="Permalink to this heading">¶</a></h2>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ torchserve --help
 usage: torchserve <span class="o">[</span>-h<span class="o">]</span> <span class="o">[</span>-v <span class="p">|</span> --version<span class="o">]</span>
                           <span class="o">[</span>--start<span class="o">]</span>
@@ -418,7 +418,7 @@ optional arguments:
 </pre></div>
 </div>
 <section id="arguments">
-<h3><span class="section-number">12.5.1. </span>Arguments:<a class="headerlink" href="#arguments" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">12.5.1. </span>Arguments:<a class="headerlink" href="#arguments" title="Permalink to this heading">¶</a></h3>
 <p>Example where no models are loaded at start time:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>torchserve --model-store /models
 </pre></div>
@@ -445,9 +445,9 @@ b) to load all the models in model store set model value to “all”</p>
 </section>
 </section>
 <section id="advanced-features">
-<h2><span class="section-number">12.6. </span>Advanced Features<a class="headerlink" href="#advanced-features" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">12.6. </span>Advanced Features<a class="headerlink" href="#advanced-features" title="Permalink to this heading">¶</a></h2>
 <section id="custom-services">
-<h3><span class="section-number">12.6.1. </span>Custom Services<a class="headerlink" href="#custom-services" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">12.6.1. </span>Custom Services<a class="headerlink" href="#custom-services" title="Permalink to this heading">¶</a></h3>
 <p>This topic is covered in much more detail on the <a class="reference internal" href="custom_service.html"><span class="doc">custom service documentation page</span></a>, but let’s talk about how you start up your TorchServe server using a custom service and why you might want one.
 Let’s say you have a model named <code class="docutils literal notranslate"><span class="pre">super-fancy-net.mar</span></code> in <code class="docutils literal notranslate"><span class="pre">/models</span></code> folder, which can detect a lot of things, but you want an API endpoint that detects only hotdogs. You would use a name that makes sense for it, such as the “not-hot-dog” API. In this case we might invoke TorchServe like this:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>torchserve --start --model-store /models --models not-hot-dog<span class="o">=</span>super-fancy-net.mar
@@ -456,7 +456,7 @@ Let’s say you have a model named <code class="docutils literal notranslate"><s
 <p>This would serve a prediction endpoint at <code class="docutils literal notranslate"><span class="pre">predictions/not-hot-dog/</span></code> and run your custom service code in the archive, the manifest in archive would point to the entry point.</p>
 </section>
 <section id="serving-multiple-models-with-torchserve">
-<h3><span class="section-number">12.6.2. </span>Serving Multiple Models with TorchServe<a class="headerlink" href="#serving-multiple-models-with-torchserve" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">12.6.2. </span>Serving Multiple Models with TorchServe<a class="headerlink" href="#serving-multiple-models-with-torchserve" title="Permalink to this heading">¶</a></h3>
 <p>Example loading all models available in <code class="docutils literal notranslate"><span class="pre">model_store</span></code> while starting TorchServe:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>torchserve --start --model-store /models --models all
 </pre></div>
@@ -471,7 +471,7 @@ Let’s say you have a model named <code class="docutils literal notranslate"><s
 </div>
 </section>
 <section id="logging-and-metrics">
-<h3><span class="section-number">12.6.3. </span>Logging and Metrics<a class="headerlink" href="#logging-and-metrics" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">12.6.3. </span>Logging and Metrics<a class="headerlink" href="#logging-and-metrics" title="Permalink to this heading">¶</a></h3>
 <p>For details on logging see the <a class="reference internal" href="logging.html"><span class="doc">logging documentation</span></a>. For details on metrics see the <a class="reference internal" href="metrics.html"><span class="doc">metrics documentation</span></a>.</p>
 </section>
 </section>
@@ -555,6 +555,7 @@ Let’s say you have a model named <code class="docutils literal notranslate"><s
          <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
          <script src="_static/jquery.js"></script>
          <script src="_static/underscore.js"></script>
+         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
          <script src="_static/doctools.js"></script>
          <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.js"></script>
          <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/contrib/auto-render.min.js"></script>

@@ -6,7 +6,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
@@ -343,7 +343,7 @@
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
   <section id="management-api">
-<h1>Management API<a class="headerlink" href="#management-api" title="Permalink to this headline">¶</a></h1>
+<h1>Management API<a class="headerlink" href="#management-api" title="Permalink to this heading">¶</a></h1>
 <p>TorchServe provides the following APIs that allows you to manage workflows at runtime:</p>
 <ol class="simple">
 <li><p><a class="reference external" href="#register-a-workflow">Register a workflow</a></p></li>
@@ -353,7 +353,7 @@
 </ol>
 <p>The Workflow Management API listens on port 8081 and is only accessible from localhost by default. To change the default setting, see <a class="reference internal" href="configuration.html"><span class="doc">TorchServe Configuration</span></a>.</p>
 <section id="register-a-workflow">
-<h2>Register a workflow<a class="headerlink" href="#register-a-workflow" title="Permalink to this headline">¶</a></h2>
+<h2>Register a workflow<a class="headerlink" href="#register-a-workflow" title="Permalink to this heading">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">POST</span> <span class="pre">/workflows</span></code></p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">url</span></code> - Workflow archive download url. Supports the following locations:</p>
@@ -374,7 +374,7 @@
 <p>The workflow registration API parses the workflow specification file (.yaml) supplied in the workflow archive(.war) and registers all the models specified in the DAG with TorchServe using the provided configuration in the specification.</p>
 </section>
 <section id="describe-workflow">
-<h2>Describe workflow<a class="headerlink" href="#describe-workflow" title="Permalink to this headline">¶</a></h2>
+<h2>Describe workflow<a class="headerlink" href="#describe-workflow" title="Permalink to this heading">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/workflows/{workflow_name}</span></code></p>
 <p>Use the Describe Workflow API to get detail of a workflow:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl http://localhost:8081/workflows/myworkflow
@@ -393,7 +393,7 @@
 </div>
 </section>
 <section id="unregister-a-workflow">
-<h2>Unregister a workflow<a class="headerlink" href="#unregister-a-workflow" title="Permalink to this headline">¶</a></h2>
+<h2>Unregister a workflow<a class="headerlink" href="#unregister-a-workflow" title="Permalink to this heading">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">DELETE</span> <span class="pre">/workflows/{workflow_name}</span></code></p>
 <p>Use the Unregister Workflow API to free up system resources by unregistering a workflow from TorchServe:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl -X DELETE http://localhost:8081/workflows/myworkflow
@@ -405,7 +405,7 @@
 </div>
 </section>
 <section id="list-workflows">
-<h2>List workflows<a class="headerlink" href="#list-workflows" title="Permalink to this headline">¶</a></h2>
+<h2>List workflows<a class="headerlink" href="#list-workflows" title="Permalink to this heading">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/models</span></code></p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">limit</span></code> - (optional) the maximum number of items to return. It is passed as a query parameter. The default value is <code class="docutils literal notranslate"><span class="pre">100</span></code>.</p></li>
@@ -504,6 +504,7 @@
          <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
          <script src="_static/jquery.js"></script>
          <script src="_static/underscore.js"></script>
+         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
          <script src="_static/doctools.js"></script>
          <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.js"></script>
          <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/contrib/auto-render.min.js"></script>

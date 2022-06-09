@@ -6,7 +6,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
@@ -341,7 +341,7 @@
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
   <section id="request-envelopes">
-<h1><span class="section-number">11. </span>Request Envelopes<a class="headerlink" href="#request-envelopes" title="Permalink to this headline">¶</a></h1>
+<h1><span class="section-number">11. </span>Request Envelopes<a class="headerlink" href="#request-envelopes" title="Permalink to this heading">¶</a></h1>
 <p>Many model serving systems provide a signature for request bodies. Examples include:</p>
 <ul class="simple">
 <li><p><a class="reference external" href="https://docs.seldon.io/projects/seldon-core/en/v1.1.0/graph/protocols.html">Seldon</a></p></li>
@@ -351,14 +351,14 @@
 <p>Data scientists use these multi-framework systems to manage deployments of many different models, possibly written in different languages and frameworks. The platforms offer additional analytics on top of model serving, including skew detection, explanations and A/B testing. These platforms need a well-structured signature in order to both standardize calls across different frameworks and to understand the input data. To simplify support for many frameworks, though, these platforms will simply pass the request body along to the underlying model server.</p>
 <p>Torchserve currently has no fixed request body signature. Envelopes allow you to automatically translate from the fixed signature required for your model orchestrator to a flat Python list.</p>
 <section id="usage">
-<h2><span class="section-number">11.1. </span>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">11.1. </span>Usage<a class="headerlink" href="#usage" title="Permalink to this heading">¶</a></h2>
 <ol class="simple">
 <li><p>When you write a handler, always expect a plain Python list containing data ready to go into <code class="docutils literal notranslate"><span class="pre">preprocess</span></code>. Crucially, you should assume that your handler code looks the same locally or in your model orchestrator.</p></li>
 <li><p>When you deploy Torchserve behind a model orchestrator, make sure to set the corresponding <code class="docutils literal notranslate"><span class="pre">service_envelope</span></code> in your <code class="docutils literal notranslate"><span class="pre">config.properties</span></code> file. For example, if you’re using Google Cloud AI Platform, which has a JSON format, you’d add <code class="docutils literal notranslate"><span class="pre">service_envelope=json</span></code> to your <code class="docutils literal notranslate"><span class="pre">config.properties</span></code> file.</p></li>
 </ol>
 </section>
 <section id="contributing">
-<h2><span class="section-number">11.2. </span>Contributing<a class="headerlink" href="#contributing" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">11.2. </span>Contributing<a class="headerlink" href="#contributing" title="Permalink to this heading">¶</a></h2>
 <p>Add new files under <a class="reference external" href="https://github.com/pytorch/serve/tree/master/ts/torch_handler">ts/torch_handler/request_envelope</a>. Only include one class per file. The key used in <code class="docutils literal notranslate"><span class="pre">config.properties</span></code> will be the name of the .py file you write your class in.</p>
 </section>
 </section>
@@ -429,6 +429,7 @@
          <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
          <script src="_static/jquery.js"></script>
          <script src="_static/underscore.js"></script>
+         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
          <script src="_static/doctools.js"></script>
          <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.js"></script>
          <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/contrib/auto-render.min.js"></script>

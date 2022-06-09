@@ -6,7 +6,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
@@ -343,7 +343,7 @@
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
   <section id="management-api">
-<h1>Management API<a class="headerlink" href="#management-api" title="Permalink to this headline">¶</a></h1>
+<h1>Management API<a class="headerlink" href="#management-api" title="Permalink to this heading">¶</a></h1>
 <p>TorchServe provides the following APIs that allows you to manage models at runtime:</p>
 <ol class="simple">
 <li><p><a class="reference external" href="#register-a-model">Register a model</a></p></li>
@@ -356,7 +356,7 @@
 <p>The Management API listens on port 8081 and is only accessible from localhost by default. To change the default setting, see <a class="reference internal" href="configuration.html"><span class="doc">TorchServe Configuration</span></a>.</p>
 <p>Similar to the <a class="reference internal" href="inference_api.html"><span class="doc">Inference API</span></a>, the Management API provides a <a class="reference external" href="#api-description">API description</a> to describe management APIs with the OpenAPI 3.0 specification.</p>
 <section id="register-a-model">
-<h2>Register a model<a class="headerlink" href="#register-a-model" title="Permalink to this headline">¶</a></h2>
+<h2>Register a model<a class="headerlink" href="#register-a-model" title="Permalink to this heading">¶</a></h2>
 <p>This API follows the <a class="reference external" href="https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/proto/management.proto">ManagementAPIsService.RegisterModel</a> gRPC API.</p>
 <p><code class="docutils literal notranslate"><span class="pre">POST</span> <span class="pre">/models</span></code></p>
 <ul class="simple">
@@ -383,7 +383,7 @@
 </pre></div>
 </div>
 <section id="encrypted-model-serving">
-<h3>Encrypted model serving<a class="headerlink" href="#encrypted-model-serving" title="Permalink to this headline">¶</a></h3>
+<h3>Encrypted model serving<a class="headerlink" href="#encrypted-model-serving" title="Permalink to this heading">¶</a></h3>
 <p>If you’d like to serve an encrypted model then you need to setup <a class="reference external" href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/UsingKMSEncryption.html">S3 SSE-KMS</a> with the following environment variables:</p>
 <ul class="simple">
 <li><p>AWS_ACCESS_KEY_ID</p></li>
@@ -453,7 +453,7 @@ you can choose between synchronous or asynchronous call to make sure initial wor
 </section>
 </section>
 <section id="scale-workers">
-<h2>Scale workers<a class="headerlink" href="#scale-workers" title="Permalink to this headline">¶</a></h2>
+<h2>Scale workers<a class="headerlink" href="#scale-workers" title="Permalink to this heading">¶</a></h2>
 <p>This API follows the <a class="reference external" href="https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/proto/management.proto">ManagementAPIsService.ScaleWorker</a> gRPC API. It returns the status of a model in the ModelServer.</p>
 <p><code class="docutils literal notranslate"><span class="pre">PUT</span> <span class="pre">/models/{model_name}</span></code></p>
 <ul class="simple">
@@ -510,7 +510,7 @@ you can choose between synchronous or asynchronous call to make sure initial wor
 </div>
 </section>
 <section id="describe-model">
-<h2>Describe model<a class="headerlink" href="#describe-model" title="Permalink to this headline">¶</a></h2>
+<h2>Describe model<a class="headerlink" href="#describe-model" title="Permalink to this heading">¶</a></h2>
 <p>This API follows the <a class="reference external" href="../frontend/server/src/main/resources/proto/management.proto">ManagementAPIsService.DescribeModel</a> gRPC API. It returns the status of a model in the ModelServer.</p>
 <p><code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/models/{model_name}</span></code></p>
 <p>Use the Describe Model API to get detail runtime status of default version of a model:</p>
@@ -742,7 +742,7 @@ or
 </div>
 </section>
 <section id="unregister-a-model">
-<h2>Unregister a model<a class="headerlink" href="#unregister-a-model" title="Permalink to this headline">¶</a></h2>
+<h2>Unregister a model<a class="headerlink" href="#unregister-a-model" title="Permalink to this heading">¶</a></h2>
 <p>This API follows the <a class="reference external" href="https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/proto/management.proto">ManagementAPIsService.UnregisterModel</a> gRPC API. It returns the status of a model in the ModelServer.</p>
 <p><code class="docutils literal notranslate"><span class="pre">DELETE</span> <span class="pre">/models/{model_name}/{version}</span></code></p>
 <p>Use the Unregister Model API to free up system resources by unregistering specific version of a model from TorchServe:</p>
@@ -755,7 +755,7 @@ or
 </div>
 </section>
 <section id="list-models">
-<h2>List models<a class="headerlink" href="#list-models" title="Permalink to this headline">¶</a></h2>
+<h2>List models<a class="headerlink" href="#list-models" title="Permalink to this heading">¶</a></h2>
 <p>This API follows the <a class="reference external" href="https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/proto/management.proto">ManagementAPIsService.ListModels</a> gRPC API. It returns the status of a model in the ModelServer.</p>
 <p><code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/models</span></code></p>
 <ul class="simple">
@@ -786,7 +786,7 @@ or
 </div>
 </section>
 <section id="api-description">
-<h2>API Description<a class="headerlink" href="#api-description" title="Permalink to this headline">¶</a></h2>
+<h2>API Description<a class="headerlink" href="#api-description" title="Permalink to this heading">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">OPTIONS</span> <span class="pre">/</span></code></p>
 <p>To view a full list of inference and management APIs, you can use following command:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># To view all inference APIs:</span>
@@ -804,7 +804,7 @@ curl -X OPTIONS http://localhost:8081
 </ul>
 </section>
 <section id="set-default-version">
-<h2>Set Default Version<a class="headerlink" href="#set-default-version" title="Permalink to this headline">¶</a></h2>
+<h2>Set Default Version<a class="headerlink" href="#set-default-version" title="Permalink to this heading">¶</a></h2>
 <p>This API follows the <a class="reference external" href="https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/proto/management.proto">ManagementAPIsService.SetDefault</a> gRPC API. It returns the status of a model in the ModelServer.</p>
 <p><code class="docutils literal notranslate"><span class="pre">PUT</span> <span class="pre">/models/{model_name}/{version}/set-default</span></code></p>
 <p>To set any registered version of a model as default version use:</p>
@@ -889,6 +889,7 @@ curl -X OPTIONS http://localhost:8081
          <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
          <script src="_static/jquery.js"></script>
          <script src="_static/underscore.js"></script>
+         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
          <script src="_static/doctools.js"></script>
          <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.js"></script>
          <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/contrib/auto-render.min.js"></script>

@@ -6,7 +6,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
@@ -345,9 +345,9 @@
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
   <section id="ts-torch-handler-package">
-<h1>ts.torch_handler package<a class="headerlink" href="#ts-torch-handler-package" title="Permalink to this headline">¶</a></h1>
+<h1>ts.torch_handler package<a class="headerlink" href="#ts-torch-handler-package" title="Permalink to this heading">¶</a></h1>
 <section id="subpackages">
-<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this heading">¶</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="ts.torch_handler.request_envelope.html">ts.torch_handler.request_envelope package</a><ul>
@@ -390,16 +390,16 @@
 </div>
 </section>
 <section id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading">¶</a></h2>
 </section>
 <section id="module-ts.torch_handler.base_handler">
-<span id="ts-torch-handler-base-handler-module"></span><h2>ts.torch_handler.base_handler module<a class="headerlink" href="#module-ts.torch_handler.base_handler" title="Permalink to this headline">¶</a></h2>
+<span id="ts-torch-handler-base-handler-module"></span><h2>ts.torch_handler.base_handler module<a class="headerlink" href="#module-ts.torch_handler.base_handler" title="Permalink to this heading">¶</a></h2>
 <p>Base default handler to load torchscript or eager mode [state_dict] models
 Also, provides handle method per torch serve custom model specification</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="ts.torch_handler.base_handler.BaseHandler">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ts.torch_handler.base_handler.</span></span><span class="sig-name descname"><span class="pre">BaseHandler</span></span><a class="reference internal" href="../_modules/ts/torch_handler/base_handler.html#BaseHandler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.torch_handler.base_handler.BaseHandler" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></a></p>
 <p>Base default handler to load torchscript or eager mode [state_dict] models
 Also, provides handle method per torch serve custom model specification</p>
 <dl class="py method">
@@ -407,10 +407,10 @@ Also, provides handle method per torch serve custom model specification</p>
 <span class="sig-name descname"><span class="pre">describe_handle</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/torch_handler/base_handler.html#BaseHandler.describe_handle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.torch_handler.base_handler.BaseHandler.describe_handle" title="Permalink to this definition">¶</a></dt>
 <dd><p>Customized describe handler</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>A dictionary response.</p>
 </dd>
-<dt class="field-even">Return type</dt>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)">dict</a></p>
 </dd>
 </dl>
@@ -421,16 +421,16 @@ Also, provides handle method per torch serve custom model specification</p>
 <span class="sig-name descname"><span class="pre">explain_handle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_preprocess</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raw_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/torch_handler/base_handler.html#BaseHandler.explain_handle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.torch_handler.base_handler.BaseHandler.explain_handle" title="Permalink to this definition">¶</a></dt>
 <dd><p>Captum explanations handler</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>data_preprocess</strong> (<em>Torch Tensor</em>) – Preprocessed data to be used for captum</p></li>
 <li><p><strong>raw_data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.10)"><em>list</em></a>) – The unprocessed data to get target from the request</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>A dictionary response with the explanations response.</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)">dict</a></p>
 </dd>
 </dl>
@@ -444,17 +444,17 @@ Also, provides handle method per torch serve custom model specification</p>
 </dd>
 </dl>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.10)"><em>list</em></a>) – The input data that needs to be made a prediction request on.</p></li>
 <li><p><strong>context</strong> (<a class="reference internal" href="ts.html#ts.context.Context" title="ts.context.Context"><em>Context</em></a>) – It is a JSON Object containing information pertaining to
 the model artefacts parameters.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Returns a list of dictionary with the predicted response.</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.10)">list</a></p>
 </dd>
 </dl>
@@ -466,16 +466,16 @@ the model artefacts parameters.</p></li>
 <dd><p>The Inference Function is used to make a prediction call on the given input request.
 The user needs to override the inference function to customize it.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>data</strong> (<em>Torch Tensor</em>) – A Torch Tensor is passed to make the Inference Request.</p></li>
 <li><p><strong>shape.</strong> (<em>The shape should match the model input</em>) – </p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>The Predicted Torch Tensor is returned in this function.</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Torch Tensor</p>
 </dd>
 </dl>
@@ -489,13 +489,13 @@ The user needs to override the inference function to customize it.</p>
 </dd>
 </dl>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>context</strong> (<em>context</em>) – It is a JSON Object containing information</p></li>
 <li><p><strong>parameters.</strong> (<em>pertaining to the model artifacts</em>) – </p></li>
 </ul>
 </dd>
-<dt class="field-even">Raises</dt>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="(in Python v3.10)"><strong>RuntimeError</strong></a> – Raises the Runtime error when the model.py is missing</p>
 </dd>
 </dl>
@@ -507,13 +507,13 @@ The user needs to override the inference function to customize it.</p>
 <dd><p>The post process function makes use of the output from the inference and converts into a
 Torchserve supported response output.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>data</strong> (<em>Torch Tensor</em>) – The torch tensor received from the prediction output of the model.</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>The post process function returns a list of the predicted output.</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>List</p>
 </dd>
 </dl>
@@ -529,10 +529,10 @@ The user needs to override to customize the pre-processing</p>
 </dd>
 </dl>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Returns the tensor data of the input</p>
 </dd>
-<dt class="field-even">Return type</dt>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>tensor</p>
 </dd>
 </dl>
@@ -542,11 +542,11 @@ The user needs to override to customize the pre-processing</p>
 
 </section>
 <section id="module-ts.torch_handler.contractions">
-<span id="ts-torch-handler-contractions-module"></span><h2>ts.torch_handler.contractions module<a class="headerlink" href="#module-ts.torch_handler.contractions" title="Permalink to this headline">¶</a></h2>
+<span id="ts-torch-handler-contractions-module"></span><h2>ts.torch_handler.contractions module<a class="headerlink" href="#module-ts.torch_handler.contractions" title="Permalink to this heading">¶</a></h2>
 <p>contraction map for text classification models.</p>
 </section>
 <section id="module-ts.torch_handler.densenet_handler">
-<span id="ts-torch-handler-densenet-handler-module"></span><h2>ts.torch_handler.densenet_handler module<a class="headerlink" href="#module-ts.torch_handler.densenet_handler" title="Permalink to this headline">¶</a></h2>
+<span id="ts-torch-handler-densenet-handler-module"></span><h2>ts.torch_handler.densenet_handler module<a class="headerlink" href="#module-ts.torch_handler.densenet_handler" title="Permalink to this heading">¶</a></h2>
 <p>Module for image classification default handler</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="ts.torch_handler.densenet_handler.DenseNetHandler">
@@ -581,13 +581,13 @@ and returns the name of object in that image.</p>
 <span class="sig-prename descclassname"><span class="pre">ts.torch_handler.densenet_handler.</span></span><span class="sig-name descname"><span class="pre">list_classes_from_module</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent_class</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/torch_handler/densenet_handler.html#list_classes_from_module"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.torch_handler.densenet_handler.list_classes_from_module" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parse user defined module to get all model service classes in it.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>module</strong> – </p></li>
 <li><p><strong>parent_class</strong> – </p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>List of model service class definitions</p>
 </dd>
 </dl>
@@ -595,25 +595,25 @@ and returns the name of object in that image.</p>
 
 </section>
 <section id="ts-torch-handler-image-classifier-module">
-<h2>ts.torch_handler.image_classifier module<a class="headerlink" href="#ts-torch-handler-image-classifier-module" title="Permalink to this headline">¶</a></h2>
+<h2>ts.torch_handler.image_classifier module<a class="headerlink" href="#ts-torch-handler-image-classifier-module" title="Permalink to this heading">¶</a></h2>
 </section>
 <section id="ts-torch-handler-image-segmenter-module">
-<h2>ts.torch_handler.image_segmenter module<a class="headerlink" href="#ts-torch-handler-image-segmenter-module" title="Permalink to this headline">¶</a></h2>
+<h2>ts.torch_handler.image_segmenter module<a class="headerlink" href="#ts-torch-handler-image-segmenter-module" title="Permalink to this heading">¶</a></h2>
 </section>
 <section id="ts-torch-handler-object-detector-module">
-<h2>ts.torch_handler.object_detector module<a class="headerlink" href="#ts-torch-handler-object-detector-module" title="Permalink to this headline">¶</a></h2>
+<h2>ts.torch_handler.object_detector module<a class="headerlink" href="#ts-torch-handler-object-detector-module" title="Permalink to this heading">¶</a></h2>
 </section>
 <section id="ts-torch-handler-text-classifier-module">
-<h2>ts.torch_handler.text_classifier module<a class="headerlink" href="#ts-torch-handler-text-classifier-module" title="Permalink to this headline">¶</a></h2>
+<h2>ts.torch_handler.text_classifier module<a class="headerlink" href="#ts-torch-handler-text-classifier-module" title="Permalink to this heading">¶</a></h2>
 </section>
 <section id="ts-torch-handler-text-handler-module">
-<h2>ts.torch_handler.text_handler module<a class="headerlink" href="#ts-torch-handler-text-handler-module" title="Permalink to this headline">¶</a></h2>
+<h2>ts.torch_handler.text_handler module<a class="headerlink" href="#ts-torch-handler-text-handler-module" title="Permalink to this heading">¶</a></h2>
 </section>
 <section id="ts-torch-handler-vision-handler-module">
-<h2>ts.torch_handler.vision_handler module<a class="headerlink" href="#ts-torch-handler-vision-handler-module" title="Permalink to this headline">¶</a></h2>
+<h2>ts.torch_handler.vision_handler module<a class="headerlink" href="#ts-torch-handler-vision-handler-module" title="Permalink to this heading">¶</a></h2>
 </section>
 <section id="module-ts.torch_handler">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-ts.torch_handler" title="Permalink to this headline">¶</a></h2>
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-ts.torch_handler" title="Permalink to this heading">¶</a></h2>
 </section>
 </section>
 
@@ -693,6 +693,7 @@ and returns the name of object in that image.</p>
          <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
          <script src="../_static/jquery.js"></script>
          <script src="../_static/underscore.js"></script>
+         <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
          <script src="../_static/doctools.js"></script>
          <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.js"></script>
          <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/contrib/auto-render.min.js"></script>

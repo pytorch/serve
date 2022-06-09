@@ -6,7 +6,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
@@ -341,7 +341,7 @@
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
   <section id="troubleshooting-guide">
-<h1><span class="section-number">2. </span>Troubleshooting Guide<a class="headerlink" href="#troubleshooting-guide" title="Permalink to this headline">¶</a></h1>
+<h1><span class="section-number">2. </span>Troubleshooting Guide<a class="headerlink" href="#troubleshooting-guide" title="Permalink to this heading">¶</a></h1>
 <p>Refer to this section for common issues faced while deploying your Pytorch models using Torchserve and their corresponding troubleshooting steps.</p>
 <ul class="simple">
 <li><p><a class="reference external" href="#deployment-and-config-issues">Deployment and config issues</a></p></li>
@@ -350,20 +350,20 @@
 <li><p><a class="reference external" href="#model-archiver">Model-archiver</a></p></li>
 </ul>
 <section id="deployment-and-config-issues">
-<h2><span class="section-number">2.1. </span>Deployment and config issues<a class="headerlink" href="#deployment-and-config-issues" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">2.1. </span>Deployment and config issues<a class="headerlink" href="#deployment-and-config-issues" title="Permalink to this heading">¶</a></h2>
 <section id="failed-to-bind-to-address-http-127-0-0-1-8080-port-8080-8081-already-in-use">
-<h3><span class="section-number">2.1.1. </span>“Failed to bind to address: http://127.0.0.1:8080”, port 8080/8081 already in use.<a class="headerlink" href="#failed-to-bind-to-address-http-127-0-0-1-8080-port-8080-8081-already-in-use" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">2.1.1. </span>“Failed to bind to address: http://127.0.0.1:8080”, port 8080/8081 already in use.<a class="headerlink" href="#failed-to-bind-to-address-http-127-0-0-1-8080-port-8080-8081-already-in-use" title="Permalink to this heading">¶</a></h3>
 <p>Usually, the port number 8080/8081 is already used by some other application or service, it can be verified by using cmd <code class="docutils literal notranslate"><span class="pre">ss</span> <span class="pre">-ntl</span> <span class="pre">|</span> <span class="pre">grep</span> <span class="pre">8080</span></code>. There are two ways to troubleshoot this issue either kill the process which is using port 8080/8081 or run Torchserve on different ports other than 8080 &amp; 8081.</p>
 <p>Refer <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/configuration.md">configuration.md</a> for more details.</p>
 <p>Relevant issues: [<a class="reference external" href="https://github.com/pytorch/serve/issues/542">542</a>]</p>
 </section>
 <section id="java-lang-nosuchmethoderror-when-starting-torchserve-473">
-<h3><span class="section-number">2.1.2. </span>“java.lang.NoSuchMethodError” when starting Torchserve.[<a class="reference external" href="https://github.com/pytorch/serve/issues/473">473</a>]<a class="headerlink" href="#java-lang-nosuchmethoderror-when-starting-torchserve-473" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">2.1.2. </span>“java.lang.NoSuchMethodError” when starting Torchserve.[<a class="reference external" href="https://github.com/pytorch/serve/issues/473">473</a>]<a class="headerlink" href="#java-lang-nosuchmethoderror-when-starting-torchserve-473" title="Permalink to this heading">¶</a></h3>
 <p>This error usually occurs when Java 11 is not installed or used. Java 11 is required by Torchserve and older java versions are not supported.</p>
 <p>Relevant issues: [<a class="reference external" href="https://github.com/pytorch/serve/issues/473">#473</a>]</p>
 </section>
 <section id="unable-to-send-big-files-for-inference-request">
-<h3><span class="section-number">2.1.3. </span>Unable to send big files for inference request?<a class="headerlink" href="#unable-to-send-big-files-for-inference-request" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">2.1.3. </span>Unable to send big files for inference request?<a class="headerlink" href="#unable-to-send-big-files-for-inference-request" title="Permalink to this heading">¶</a></h3>
 <p>The default max request size and response size is roughly 6.5 Mb. Hence any file size greater than 6.5mb cannot be uploaded.
 To resolve this update <code class="docutils literal notranslate"><span class="pre">max_request_size</span></code> and <code class="docutils literal notranslate"><span class="pre">max_response_size</span></code> in a config.properties file and start torchserve with this config file.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cat config.properties
@@ -378,58 +378,58 @@ Relevant issues: [<a class="reference external" href="https://github.com/pytorch
 </section>
 </section>
 <section id="snapshot-related-issues">
-<h2><span class="section-number">2.2. </span>Snapshot related issues<a class="headerlink" href="#snapshot-related-issues" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">2.2. </span>Snapshot related issues<a class="headerlink" href="#snapshot-related-issues" title="Permalink to this heading">¶</a></h2>
 <section id="how-to-disable-snapshot-feature">
-<h3><span class="section-number">2.2.1. </span>How to disable Snapshot feature?<a class="headerlink" href="#how-to-disable-snapshot-feature" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">2.2.1. </span>How to disable Snapshot feature?<a class="headerlink" href="#how-to-disable-snapshot-feature" title="Permalink to this heading">¶</a></h3>
 <p>By default, the snapshot feature is enabled. To disable snapshot feature start torchserve using –ncs flag or specify config file using –ts-config path/to/config
 Relevant issues:[<a class="reference external" href="https://github.com/pytorch/serve/issues/383">#383</a>, <a class="reference external" href="https://github.com/pytorch/serve/issues/512">#512</a>]</p>
 </section>
 <section id="torchserve-stopped-after-restart-with-invalidsnapshotexception-exception">
-<h3><span class="section-number">2.2.2. </span>Torchserve stopped after restart with “InvalidSnapshotException” exception.<a class="headerlink" href="#torchserve-stopped-after-restart-with-invalidsnapshotexception-exception" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">2.2.2. </span>Torchserve stopped after restart with “InvalidSnapshotException” exception.<a class="headerlink" href="#torchserve-stopped-after-restart-with-invalidsnapshotexception-exception" title="Permalink to this heading">¶</a></h3>
 <p>Torchserve when restarted uses the last snapshot config file to restore its state of models and their number of workers. When “InvalidSnapshotException” is thrown then the model store is in an inconsistent state as compared with the snapshot. To resolve this the snapshot config files can be removed or torchserve can be started with specific config file using –ts-config path/to/config.
 Refer <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/snapshot.md">snapshot.md</a> for more details.</p>
 </section>
 <section id="where-are-snapshot-config-files-stored">
-<h3><span class="section-number">2.2.3. </span>Where are snapshot config files stored?<a class="headerlink" href="#where-are-snapshot-config-files-stored" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">2.2.3. </span>Where are snapshot config files stored?<a class="headerlink" href="#where-are-snapshot-config-files-stored" title="Permalink to this heading">¶</a></h3>
 <p>The snapshots are by default in <code class="docutils literal notranslate"><span class="pre">{LOG_LOCATION}\config</span></code> directory, where <code class="docutils literal notranslate"><span class="pre">{LOG_LOCATION}</span></code> is a system environment variable that can be used by TorchServe. If this variable is not set, the snapshot is stored in <code class="docutils literal notranslate"><span class="pre">.\log\config</span></code> directory
 Refer <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/snapshot.md">snapshot.md</a> for more details.</p>
 </section>
 <section id="how-to-change-temp-directory">
-<h3><span class="section-number">2.2.4. </span>How to change Temp Directory?<a class="headerlink" href="#how-to-change-temp-directory" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">2.2.4. </span>How to change Temp Directory?<a class="headerlink" href="#how-to-change-temp-directory" title="Permalink to this heading">¶</a></h3>
 <p>You can export TEMP environment variable to the desired path. This path will be used by TorchServe to extract the model-archives content.
 Relevant issues: [<a class="reference external" href="https://github.com/pytorch/serve/issues/654">#654</a>]</p>
 </section>
 </section>
 <section id="api-related-issues">
-<h2><span class="section-number">2.3. </span>API related issues<a class="headerlink" href="#api-related-issues" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">2.3. </span>API related issues<a class="headerlink" href="#api-related-issues" title="Permalink to this heading">¶</a></h2>
 <section id="register-model-failed-with-exception-conflictstatusexception-error-code-409">
-<h3><span class="section-number">2.3.1. </span>Register model: Failed with exception “ConflictStatusException” &amp; error code 409.<a class="headerlink" href="#register-model-failed-with-exception-conflictstatusexception-error-code-409" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">2.3.1. </span>Register model: Failed with exception “ConflictStatusException” &amp; error code 409.<a class="headerlink" href="#register-model-failed-with-exception-conflictstatusexception-error-code-409" title="Permalink to this heading">¶</a></h3>
 <p>This gives a clear message that the model we are trying to register conflicts with an already existing model. To resolve this change the model version when creating a mar file or register a model with a different name.
 Relevant issues: [<a class="reference external" href="https://github.com/pytorch/serve/issues/500">#500</a>]</p>
 </section>
 <section id="register-model-failed-with-exception-downloadmodelexception-error-code-400">
-<h3><span class="section-number">2.3.2. </span>Register model: Failed with exception “DownloadModelException” &amp; error code 400.<a class="headerlink" href="#register-model-failed-with-exception-downloadmodelexception-error-code-400" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">2.3.2. </span>Register model: Failed with exception “DownloadModelException” &amp; error code 400.<a class="headerlink" href="#register-model-failed-with-exception-downloadmodelexception-error-code-400" title="Permalink to this heading">¶</a></h3>
 <p>Torchserve was unable to download the mar file in this case. To resolve this check whether the given URL is accessible publicly.</p>
 </section>
 <section id="register-model-failed-with-exception-modelnotfoundexception-error-code-404">
-<h3><span class="section-number">2.3.3. </span>Register model: Failed with exception “ModelNotFoundException” &amp; error code 404.<a class="headerlink" href="#register-model-failed-with-exception-modelnotfoundexception-error-code-404" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">2.3.3. </span>Register model: Failed with exception “ModelNotFoundException” &amp; error code 404.<a class="headerlink" href="#register-model-failed-with-exception-modelnotfoundexception-error-code-404" title="Permalink to this heading">¶</a></h3>
 <p>In this case, Torchserve was unable to locate a given mar file in the model store directory. To resolve this check whether the given mar file exists in the model store. Check the mar file name in the POST request to register the model.</p>
 </section>
 <section id="inference-request-failed-with-exception-serviceunavailableexception-error-code-503">
-<h3><span class="section-number">2.3.4. </span>Inference request: Failed with exception “ServiceUnavailableException” &amp; error code 503.<a class="headerlink" href="#inference-request-failed-with-exception-serviceunavailableexception-error-code-503" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">2.3.4. </span>Inference request: Failed with exception “ServiceUnavailableException” &amp; error code 503.<a class="headerlink" href="#inference-request-failed-with-exception-serviceunavailableexception-error-code-503" title="Permalink to this heading">¶</a></h3>
 <p>In this case, the model is registered but there no workers spawned for the model. Use the scale-up API to increase the number of workers. You can verify the number of workers using
 <code class="docutils literal notranslate"><span class="pre">curl</span> <span class="pre">-X</span> <span class="pre">GET&quot;http://localhost:8081/models/&lt;model_name&gt;&quot;</span> </code></p>
 </section>
 </section>
 <section id="model-archiver">
-<h2><span class="section-number">2.4. </span>Model-archiver<a class="headerlink" href="#model-archiver" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">2.4. </span>Model-archiver<a class="headerlink" href="#model-archiver" title="Permalink to this heading">¶</a></h2>
 <section id="how-can-add-model-specific-custom-dependency">
-<h3><span class="section-number">2.4.1. </span>How can add model  specific custom dependency?<a class="headerlink" href="#how-can-add-model-specific-custom-dependency" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">2.4.1. </span>How can add model  specific custom dependency?<a class="headerlink" href="#how-can-add-model-specific-custom-dependency" title="Permalink to this heading">¶</a></h3>
 <p>You can add your dependency files using <code class="docutils literal notranslate"><span class="pre">--extra-files</span></code> flag while creating a mar file. These dependency files can be of any type like zip, egg, json etc. You may have to write a custom handler to use these files as required.</p>
 <p>Relevant issues: [<a class="reference external" href="https://github.com/pytorch/serve/issues/566">#566</a>]</p>
 </section>
 <section id="how-can-i-resolve-model-specific-python-dependency">
-<h3><span class="section-number">2.4.2. </span>How can I resolve model specific python dependency?<a class="headerlink" href="#how-can-i-resolve-model-specific-python-dependency" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">2.4.2. </span>How can I resolve model specific python dependency?<a class="headerlink" href="#how-can-i-resolve-model-specific-python-dependency" title="Permalink to this heading">¶</a></h3>
 <p>You can provide a requirements.txt while creating a mar file using “–requirements-file/ -r” flag. You can refer to the <a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/text_to_speech_synthesizer">waveglow text-to-speech-synthesizer</a> example</p>
 <ul class="simple">
 <li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/examples/text_to_speech_synthesizer/create_mar.sh">waveglow mar creation script</a></p></li>
@@ -439,12 +439,12 @@ Relevant issues: [<a class="reference external" href="https://github.com/pytorch
 Refer <a class="reference external" href="https://github.com/pytorch/serve/blob/master/model-archiver/README.md#torch-model-archiver-command-line-interface">Torch model archiver cli</a> for more details.</p>
 </section>
 <section id="i-have-added-requirements-txt-in-my-mar-file-but-the-packages-listed-are-not-getting-installed">
-<h3><span class="section-number">2.4.3. </span>I have added  requirements.txt in my mar file but the packages listed are not getting installed.<a class="headerlink" href="#i-have-added-requirements-txt-in-my-mar-file-but-the-packages-listed-are-not-getting-installed" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">2.4.3. </span>I have added  requirements.txt in my mar file but the packages listed are not getting installed.<a class="headerlink" href="#i-have-added-requirements-txt-in-my-mar-file-but-the-packages-listed-are-not-getting-installed" title="Permalink to this heading">¶</a></h3>
 <p>By default model specific custom python packages feature is disabled, enable this by setting install_py_dep_per_model to true.
 Refer <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/configuration.md#allow-model-specific-custom-python-packages">Allow model specific custom python packages</a> for more details.</p>
 </section>
 <section id="backend-worker-monitoring-thread-interrupted-or-backend-worker-process-died-error">
-<h3><span class="section-number">2.4.4. </span>Backend worker monitoring thread interrupted or backend worker process died error.<a class="headerlink" href="#backend-worker-monitoring-thread-interrupted-or-backend-worker-process-died-error" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">2.4.4. </span>Backend worker monitoring thread interrupted or backend worker process died error.<a class="headerlink" href="#backend-worker-monitoring-thread-interrupted-or-backend-worker-process-died-error" title="Permalink to this heading">¶</a></h3>
 <p>This issue is moslty occurs when the model fails to initialize, which may be due to erroneous code in handler’s initialize function. This error is also observed when there is missing package/module.</p>
 <p>Relevant issues: [<a class="reference external" href="https://github.com/pytorch/serve/issues/667">#667</a>, <a class="reference external" href="https://github.com/pytorch/serve/issues/537">#537</a>]</p>
 </section>
@@ -542,6 +542,7 @@ Refer <a class="reference external" href="https://github.com/pytorch/serve/blob/
          <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
          <script src="_static/jquery.js"></script>
          <script src="_static/underscore.js"></script>
+         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
          <script src="_static/doctools.js"></script>
          <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.js"></script>
          <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/contrib/auto-render.min.js"></script>

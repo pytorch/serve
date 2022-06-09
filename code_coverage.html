@@ -6,7 +6,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
@@ -341,9 +341,9 @@
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
   <section id="code-coverage">
-<h1><span class="section-number">4. </span>Code Coverage<a class="headerlink" href="#code-coverage" title="Permalink to this headline">¶</a></h1>
+<h1><span class="section-number">4. </span>Code Coverage<a class="headerlink" href="#code-coverage" title="Permalink to this heading">¶</a></h1>
 <section id="to-check-branch-stability-run-the-sanity-suite-as-follows">
-<h2><span class="section-number">4.1. </span>To check branch stability run the sanity suite as follows<a class="headerlink" href="#to-check-branch-stability-run-the-sanity-suite-as-follows" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">4.1. </span>To check branch stability run the sanity suite as follows<a class="headerlink" href="#to-check-branch-stability-run-the-sanity-suite-as-follows" title="Permalink to this heading">¶</a></h2>
 <ul>
 <li><p>Install dependencies (if not already installed)
 For CPU:</p>
@@ -369,7 +369,7 @@ For CPU:</p>
 </ul>
 </section>
 <section id="to-run-frontend-build-suite-run-following-command">
-<h2><span class="section-number">4.2. </span>To run frontend build suite run following command<a class="headerlink" href="#to-run-frontend-build-suite-run-following-command" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">4.2. </span>To run frontend build suite run following command<a class="headerlink" href="#to-run-frontend-build-suite-run-following-command" title="Permalink to this heading">¶</a></h2>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>frontend/gradlew -p frontend clean build
 </pre></div>
 </div>
@@ -383,20 +383,20 @@ For CPU:</p>
 <p>The reports are generated at following path : <code class="docutils literal notranslate"><span class="pre">frontend/server/build/reports</span></code></p>
 </section>
 <section id="to-run-backend-pytest-suite-run-following-command">
-<h2><span class="section-number">4.3. </span>To run backend pytest suite run following command<a class="headerlink" href="#to-run-backend-pytest-suite-run-following-command" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">4.3. </span>To run backend pytest suite run following command<a class="headerlink" href="#to-run-backend-pytest-suite-run-following-command" title="Permalink to this heading">¶</a></h2>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python -m pytest --cov-report html:htmlcov --cov<span class="o">=</span>ts/ ts/tests/unit_tests/
 </pre></div>
 </div>
 <p>The reports are generated at following path : <code class="docutils literal notranslate"><span class="pre">htmlcov/</span></code></p>
 </section>
 <section id="to-run-python-linting-on-ts-package-run-following-command">
-<h2><span class="section-number">4.4. </span>To run python linting on <code class="docutils literal notranslate"><span class="pre">ts</span></code> package run following command<a class="headerlink" href="#to-run-python-linting-on-ts-package-run-following-command" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">4.4. </span>To run python linting on <code class="docutils literal notranslate"><span class="pre">ts</span></code> package run following command<a class="headerlink" href="#to-run-python-linting-on-ts-package-run-following-command" title="Permalink to this heading">¶</a></h2>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pylint -rn --rcfile<span class="o">=</span>./ts/tests/pylintrc ts/.
 </pre></div>
 </div>
 </section>
 <section id="to-run-pytest-suite-on-model-archiver-run-following-command">
-<h2><span class="section-number">4.5. </span>To run pytest suite on model-archiver run following command<a class="headerlink" href="#to-run-pytest-suite-on-model-archiver-run-following-command" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">4.5. </span>To run pytest suite on model-archiver run following command<a class="headerlink" href="#to-run-pytest-suite-on-model-archiver-run-following-command" title="Permalink to this heading">¶</a></h2>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> model-archiver
 python -m pytest --cov-report html:htmlcov_ut --cov<span class="o">=</span>model_archiver/ model_archiver/tests/unit_tests/
 </pre></div>
@@ -404,7 +404,7 @@ python -m pytest --cov-report html:htmlcov_ut --cov<span class="o">=</span>model
 <p>The reports are generated at following path : <code class="docutils literal notranslate"><span class="pre">model-archiver/htmlcov_ut/</span></code></p>
 </section>
 <section id="to-run-it-suite-on-model-archiver-run-following-command">
-<h2><span class="section-number">4.6. </span>To run IT suite on model-archiver run following command<a class="headerlink" href="#to-run-it-suite-on-model-archiver-run-following-command" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">4.6. </span>To run IT suite on model-archiver run following command<a class="headerlink" href="#to-run-it-suite-on-model-archiver-run-following-command" title="Permalink to this heading">¶</a></h2>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> model-archiver
 pip install .
 python -m pytest --cov-report html:htmlcov_it --cov<span class="o">=</span>model_archiver/ model_archiver/tests/integ_tests/
@@ -414,9 +414,9 @@ python -m pytest --cov-report html:htmlcov_it --cov<span class="o">=</span>model
 <p><strong>Note</strong>: All the above commands needs to be excuted from serve home</p>
 </section>
 <section id="to-run-the-markdown-link-check-run-following-command">
-<h2><span class="section-number">4.7. </span>To run the markdown link check run following command<a class="headerlink" href="#to-run-the-markdown-link-check-run-following-command" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">4.7. </span>To run the markdown link check run following command<a class="headerlink" href="#to-run-the-markdown-link-check-run-following-command" title="Permalink to this heading">¶</a></h2>
 <section id="install-markdown-link-checker-dependencies">
-<h3><span class="section-number">4.7.1. </span>Install markdown link checker dependencies<a class="headerlink" href="#install-markdown-link-checker-dependencies" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">4.7.1. </span>Install markdown link checker dependencies<a class="headerlink" href="#install-markdown-link-checker-dependencies" title="Permalink to this heading">¶</a></h3>
 <p>Run following commands to install node and <a class="reference external" href="https://github.com/tcort/markdown-link-check/"><code class="docutils literal notranslate"><span class="pre">markdown-link-check</span></code></a> npm package.</p>
 <ul class="simple">
 <li><p>Install node</p></li>
@@ -520,6 +520,7 @@ python -m pytest --cov-report html:htmlcov_it --cov<span class="o">=</span>model
          <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
          <script src="_static/jquery.js"></script>
          <script src="_static/underscore.js"></script>
+         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
          <script src="_static/doctools.js"></script>
          <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.js"></script>
          <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/contrib/auto-render.min.js"></script>

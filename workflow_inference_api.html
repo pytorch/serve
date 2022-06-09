@@ -6,7 +6,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
@@ -343,18 +343,18 @@
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
   <section id="workflow-inference-api">
-<h1>Workflow Inference API<a class="headerlink" href="#workflow-inference-api" title="Permalink to this headline">¶</a></h1>
+<h1>Workflow Inference API<a class="headerlink" href="#workflow-inference-api" title="Permalink to this heading">¶</a></h1>
 <p>Workflow Inference API is listening on port 8080 and only accessible from localhost by default. To change the default setting, see <a class="reference internal" href="configuration.html"><span class="doc">TorchServe Configuration</span></a>.</p>
 <p>The TorchServe server supports the following APIs:</p>
 <ul class="simple">
 <li><p><a class="reference external" href="#predictions-api">Predictions API</a> - Gets predictions from the served model</p></li>
 </ul>
 <section id="predictions-api">
-<h2>Predictions API<a class="headerlink" href="#predictions-api" title="Permalink to this headline">¶</a></h2>
+<h2>Predictions API<a class="headerlink" href="#predictions-api" title="Permalink to this heading">¶</a></h2>
 <p>To get predictions from a workflow, make a REST call to <code class="docutils literal notranslate"><span class="pre">/wfpredict/{workflow_name}</span></code>:</p>
 <p><code class="docutils literal notranslate"><span class="pre">POST</span> <span class="pre">/wfpredict/{workflow_name}</span></code></p>
 <section id="curl-example">
-<h3>curl Example<a class="headerlink" href="#curl-example" title="Permalink to this headline">¶</a></h3>
+<h3>curl Example<a class="headerlink" href="#curl-example" title="Permalink to this heading">¶</a></h3>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl -O https://raw.githubusercontent.com/pytorch/serve/master/docs/images/kitten_small.jpg
 
 curl http://localhost:8080/wfpredict/myworkflow -T kitten_small.jpg
@@ -433,6 +433,7 @@ curl http://localhost:8080/wfpredict/myworkflow -T kitten_small.jpg
          <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
          <script src="_static/jquery.js"></script>
          <script src="_static/underscore.js"></script>
+         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
          <script src="_static/doctools.js"></script>
          <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.js"></script>
          <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/contrib/auto-render.min.js"></script>

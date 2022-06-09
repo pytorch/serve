@@ -6,7 +6,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
@@ -343,9 +343,9 @@
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
   <section id="ts-package">
-<h1>ts package<a class="headerlink" href="#ts-package" title="Permalink to this headline">¶</a></h1>
+<h1>ts package<a class="headerlink" href="#ts-package" title="Permalink to this heading">¶</a></h1>
 <section id="subpackages">
-<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this heading">¶</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="ts.metrics.html">ts.metrics package</a><ul>
@@ -423,10 +423,10 @@
 </div>
 </section>
 <section id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading">¶</a></h2>
 </section>
 <section id="module-ts.arg_parser">
-<span id="ts-arg-parser-module"></span><h2>ts.arg_parser module<a class="headerlink" href="#module-ts.arg_parser" title="Permalink to this headline">¶</a></h2>
+<span id="ts-arg-parser-module"></span><h2>ts.arg_parser module<a class="headerlink" href="#module-ts.arg_parser" title="Permalink to this heading">¶</a></h2>
 <p>This module parses the arguments given through the torchserve command-line. This is used by model-server
 at runtime.</p>
 <dl class="py class">
@@ -457,7 +457,7 @@ TODO : Add readme url</p>
 
 </section>
 <section id="module-ts.context">
-<span id="ts-context-module"></span><h2>ts.context module<a class="headerlink" href="#module-ts.context" title="Permalink to this headline">¶</a></h2>
+<span id="ts-context-module"></span><h2>ts.context module<a class="headerlink" href="#module-ts.context" title="Permalink to this heading">¶</a></h2>
 <p>Context object of incoming request</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="ts.context.Context">
@@ -590,7 +590,7 @@ Some fixed during load times and some</p>
 
 </section>
 <section id="module-ts.model_loader">
-<span id="ts-model-loader-module"></span><h2>ts.model_loader module<a class="headerlink" href="#module-ts.model_loader" title="Permalink to this headline">¶</a></h2>
+<span id="ts-model-loader-module"></span><h2>ts.model_loader module<a class="headerlink" href="#module-ts.model_loader" title="Permalink to this heading">¶</a></h2>
 <p>Model loader.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="ts.model_loader.ModelLoader">
@@ -602,7 +602,7 @@ Some fixed during load times and some</p>
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">handler</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gpu_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">envelope</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limit_max_image_pixels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/model_loader.html#ModelLoader.load"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.model_loader.ModelLoader.load" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load model from file.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>model_name</strong> – </p></li>
 <li><p><strong>model_dir</strong> – </p></li>
@@ -613,7 +613,7 @@ Some fixed during load times and some</p>
 <li><p><strong>limit_max_image_pixels</strong> – </p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Model</p>
 </dd>
 </dl>
@@ -635,14 +635,14 @@ Some fixed during load times and some</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="ts.model_loader.TsModelLoader">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ts.model_loader.</span></span><span class="sig-name descname"><span class="pre">TsModelLoader</span></span><a class="reference internal" href="../_modules/ts/model_loader.html#TsModelLoader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.model_loader.TsModelLoader" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#ts.model_loader.ModelLoader" title="ts.model_loader.ModelLoader"><code class="xref py py-class docutils literal notranslate"><span class="pre">ts.model_loader.ModelLoader</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#ts.model_loader.ModelLoader" title="ts.model_loader.ModelLoader"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelLoader</span></code></a></p>
 <p>TorchServe 1.0 Model Loader</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="ts.model_loader.TsModelLoader.load">
 <span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">handler</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gpu_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">envelope</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limit_max_image_pixels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/model_loader.html#TsModelLoader.load"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.model_loader.TsModelLoader.load" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load TorchServe 1.0 model from file.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>model_name</strong> – </p></li>
 <li><p><strong>model_dir</strong> – </p></li>
@@ -653,7 +653,7 @@ Some fixed during load times and some</p>
 <li><p><strong>limit_max_image_pixels</strong> – </p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p></p>
 </dd>
 </dl>
@@ -663,7 +663,7 @@ Some fixed during load times and some</p>
 
 </section>
 <section id="module-ts.model_server">
-<span id="ts-model-server-module"></span><h2>ts.model_server module<a class="headerlink" href="#module-ts.model_server" title="Permalink to this headline">¶</a></h2>
+<span id="ts-model-server-module"></span><h2>ts.model_server module<a class="headerlink" href="#module-ts.model_server" title="Permalink to this heading">¶</a></h2>
 <p>File to define the entry point to Model Server</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="ts.model_server.load_properties">
@@ -680,7 +680,7 @@ Some fixed during load times and some</p>
 
 </section>
 <section id="module-ts.model_service_worker">
-<span id="ts-model-service-worker-module"></span><h2>ts.model_service_worker module<a class="headerlink" href="#module-ts.model_service_worker" title="Permalink to this headline">¶</a></h2>
+<span id="ts-model-service-worker-module"></span><h2>ts.model_service_worker module<a class="headerlink" href="#module-ts.model_service_worker" title="Permalink to this heading">¶</a></h2>
 <p>ModelServiceWorker is the worker that is started by the MMS front-end.
 Communication message format: binary encoding</p>
 <dl class="py class">
@@ -693,10 +693,10 @@ Communication message format: binary encoding</p>
 <span class="sig-name descname"><span class="pre">handle_connection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cl_socket</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/model_service_worker.html#TorchModelServiceWorker.handle_connection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.model_service_worker.TorchModelServiceWorker.handle_connection" title="Permalink to this definition">¶</a></dt>
 <dd><p>Handle socket connection.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>cl_socket</strong> – </p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p></p>
 </dd>
 </dl>
@@ -719,10 +719,10 @@ Communication message format: binary encoding</p>
 </div></blockquote>
 <p>}</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>load_model_request</strong> – </p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p></p>
 </dd>
 </dl>
@@ -739,7 +739,7 @@ Communication message format: binary encoding</p>
 
 </section>
 <section id="module-ts.service">
-<span id="ts-service-module"></span><h2>ts.service module<a class="headerlink" href="#module-ts.service" title="Permalink to this headline">¶</a></h2>
+<span id="ts-service-module"></span><h2>ts.service module<a class="headerlink" href="#module-ts.service" title="Permalink to this heading">¶</a></h2>
 <p>CustomService class definitions</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="ts.service.Service">
@@ -781,10 +781,10 @@ Communication message format: binary encoding</p>
 </dl>
 <p>}</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>batch</strong> – </p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p></p>
 </dd>
 </dl>
@@ -797,7 +797,7 @@ Communication message format: binary encoding</p>
 <span class="sig-prename descclassname"><span class="pre">ts.service.</span></span><span class="sig-name descname"><span class="pre">emit_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metrics</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/service.html#emit_metrics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.service.emit_metrics" title="Permalink to this definition">¶</a></dt>
 <dd><p>Emit the metrics in the provided Dictionary</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>metrics</strong> (<em>A dictionary of all</em>) – </p></li>
 <li><p><strong>metrics</strong> – </p></li>
@@ -810,11 +810,11 @@ Communication message format: binary encoding</p>
 
 </section>
 <section id="module-ts.version">
-<span id="ts-version-module"></span><h2>ts.version module<a class="headerlink" href="#module-ts.version" title="Permalink to this headline">¶</a></h2>
+<span id="ts-version-module"></span><h2>ts.version module<a class="headerlink" href="#module-ts.version" title="Permalink to this heading">¶</a></h2>
 <p>This is the current version of TorchServe</p>
 </section>
 <section id="module-ts">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-ts" title="Permalink to this headline">¶</a></h2>
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-ts" title="Permalink to this heading">¶</a></h2>
 <p>This module does the following:
 a. Starts model-server.
 b. Creates end-points based on the configured models.
@@ -897,6 +897,7 @@ d. Waits for servicing inference requests.</p>
          <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
          <script src="../_static/jquery.js"></script>
          <script src="../_static/underscore.js"></script>
+         <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
          <script src="../_static/doctools.js"></script>
          <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.js"></script>
          <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/contrib/auto-render.min.js"></script>

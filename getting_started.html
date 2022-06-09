@@ -6,7 +6,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
@@ -339,16 +339,16 @@
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
   <section id="getting-started">
-<h1>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h1>
+<h1>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this heading">¶</a></h1>
 <section id="install-torchserve-and-torch-model-archiver">
-<h2>Install TorchServe and torch-model-archiver<a class="headerlink" href="#install-torchserve-and-torch-model-archiver" title="Permalink to this headline">¶</a></h2>
+<h2>Install TorchServe and torch-model-archiver<a class="headerlink" href="#install-torchserve-and-torch-model-archiver" title="Permalink to this heading">¶</a></h2>
 <ol>
 <li><p>Install dependencies</p>
 <p>Note: For Conda, Python 3.8 is required to run Torchserve.</p>
 </li>
 </ol>
 <section id="for-debian-based-systems-macos">
-<h3>For Debian Based Systems/ MacOS<a class="headerlink" href="#for-debian-based-systems-macos" title="Permalink to this headline">¶</a></h3>
+<h3>For Debian Based Systems/ MacOS<a class="headerlink" href="#for-debian-based-systems-macos" title="Permalink to this heading">¶</a></h3>
 <ul>
 <li><p>For CPU</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python ./ts_scripts/install_dependencies.py
@@ -364,7 +364,7 @@
 <p>Note: PyTorch 1.9+ will not support cu92 and cu101. So TorchServe only supports cu92 and cu101 up to PyTorch 1.8.1.</p>
 </section>
 <section id="for-windows">
-<h3>For Windows<a class="headerlink" href="#for-windows" title="Permalink to this headline">¶</a></h3>
+<h3>For Windows<a class="headerlink" href="#for-windows" title="Permalink to this heading">¶</a></h3>
 <p>Refer to the documentation <a class="reference external" href="docs/torchserve_on_win_native">here</a>.</p>
 </section>
 <li><p>Install torchserve, torch-model-archiver and torch-workflow-archiver</p>
@@ -380,7 +380,7 @@
 </section>
 <p>Now you are ready to <a class="reference external" href="#serve-a-model">package and serve models with TorchServe</a>.</p>
 <section id="serve-a-model">
-<h2>Serve a model<a class="headerlink" href="#serve-a-model" title="Permalink to this headline">¶</a></h2>
+<h2>Serve a model<a class="headerlink" href="#serve-a-model" title="Permalink to this heading">¶</a></h2>
 <p>This section shows a simple example of serving a model with TorchServe. To complete this example, you must have already <a class="reference external" href="#install-torchserve-and-torch-model-archiver">installed TorchServe and the model archiver</a>.</p>
 <p>To run this example, clone the TorchServe repository:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git clone https://github.com/pytorch/serve.git
@@ -389,7 +389,7 @@
 <p>Then run the following steps from the parent directory of the root of the repository.
 For example, if you cloned the repository into <code class="docutils literal notranslate"><span class="pre">/home/my_path/serve</span></code>, run the steps from <code class="docutils literal notranslate"><span class="pre">/home/my_path</span></code>.</p>
 <section id="store-a-model">
-<h3>Store a Model<a class="headerlink" href="#store-a-model" title="Permalink to this headline">¶</a></h3>
+<h3>Store a Model<a class="headerlink" href="#store-a-model" title="Permalink to this heading">¶</a></h3>
 <p>To serve a model with TorchServe, first archive the model as a MAR file. You can use the model archiver to package a model.
 You can also create model stores to store your archived models.</p>
 <ol>
@@ -412,7 +412,7 @@ You can also create model stores to store your archived models.</p>
 <p>For more information about the model archiver, see <a class="reference external" href="model-archiver/README">Torch Model archiver for TorchServe</a></p>
 </section>
 <section id="start-torchserve-to-serve-the-model">
-<h3>Start TorchServe to serve the model<a class="headerlink" href="#start-torchserve-to-serve-the-model" title="Permalink to this headline">¶</a></h3>
+<h3>Start TorchServe to serve the model<a class="headerlink" href="#start-torchserve-to-serve-the-model" title="Permalink to this heading">¶</a></h3>
 <p>After you archive and store the model, use the <code class="docutils literal notranslate"><span class="pre">torchserve</span></code> command to serve the model.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>torchserve --start --ncs --model-store model_store --models densenet161.mar
 </pre></div>
@@ -421,10 +421,10 @@ You can also create model stores to store your archived models.</p>
 <p><strong>Note</strong>: If you specify model(s) when you run TorchServe, it automatically scales backend workers to the number equal to available vCPUs (if you run on a CPU instance) or to the number of available GPUs (if you run on a GPU instance). In case of powerful hosts with a lot of compute resources (vCPUs or GPUs), this start up and autoscaling process might take considerable time. If you want to minimize TorchServe start up time you should avoid registering and scaling the model during start up time and move that to a later point by using corresponding <a class="reference external" href="docs/management_api.md#register-a-model">Management API</a>, which allows finer grain control of the resources that are allocated for any particular model).</p>
 </section>
 <section id="get-predictions-from-a-model">
-<h3>Get predictions from a model<a class="headerlink" href="#get-predictions-from-a-model" title="Permalink to this headline">¶</a></h3>
+<h3>Get predictions from a model<a class="headerlink" href="#get-predictions-from-a-model" title="Permalink to this heading">¶</a></h3>
 <p>To test the model server, send a request to the server’s <code class="docutils literal notranslate"><span class="pre">predictions</span></code> API. TorchServe supports all <a class="reference external" href="docs/inference_api">inference</a> and <a class="reference external" href="docs/management_api">management</a> api’s through both <a class="reference external" href="docs/grpc_api">gRPC</a> and <a class="reference external" href="docs/rest_api">HTTP/REST</a>.</p>
 <section id="using-grpc-apis-through-python-client">
-<h4>Using GRPC APIs through python client<a class="headerlink" href="#using-grpc-apis-through-python-client" title="Permalink to this headline">¶</a></h4>
+<h4>Using GRPC APIs through python client<a class="headerlink" href="#using-grpc-apis-through-python-client" title="Permalink to this heading">¶</a></h4>
 <ul class="simple">
 <li><p>Install grpc python dependencies :</p></li>
 </ul>
@@ -445,7 +445,7 @@ You can also create model stores to store your archived models.</p>
 </div>
 </section>
 <section id="using-rest-apis">
-<h4>Using REST APIs<a class="headerlink" href="#using-rest-apis" title="Permalink to this headline">¶</a></h4>
+<h4>Using REST APIs<a class="headerlink" href="#using-rest-apis" title="Permalink to this heading">¶</a></h4>
 <p>As an example we’ll download the below cute kitten with</p>
 <p><img alt="kitten" src="_images/kitten_small.jpg" /></p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl -O https://raw.githubusercontent.com/pytorch/serve/master/docs/images/kitten_small.jpg
@@ -480,25 +480,25 @@ You can also create model stores to store your archived models.</p>
 </section>
 </section>
 <section id="stop-torchserve">
-<h3>Stop TorchServe<a class="headerlink" href="#stop-torchserve" title="Permalink to this headline">¶</a></h3>
+<h3>Stop TorchServe<a class="headerlink" href="#stop-torchserve" title="Permalink to this heading">¶</a></h3>
 <p>To stop the currently running TorchServe instance, run:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>torchserve --stop
 </pre></div>
 </div>
 </section>
 <section id="inspect-the-logs">
-<h3>Inspect the logs<a class="headerlink" href="#inspect-the-logs" title="Permalink to this headline">¶</a></h3>
+<h3>Inspect the logs<a class="headerlink" href="#inspect-the-logs" title="Permalink to this heading">¶</a></h3>
 <p>All the logs you’ve seen as output to stdout related to model registration, management, inference are recorded in the <code class="docutils literal notranslate"><span class="pre">/logs</span></code> folder.</p>
 <p>High level performance data like Throughput or Percentile Precision can be generated with <a class="reference external" href="benchmark/README">Benchmark</a> and visualized in a report.</p>
 </section>
 <section id="install-torchserve-for-development">
-<h3>Install TorchServe for development<a class="headerlink" href="#install-torchserve-for-development" title="Permalink to this headline">¶</a></h3>
+<h3>Install TorchServe for development<a class="headerlink" href="#install-torchserve-for-development" title="Permalink to this heading">¶</a></h3>
 <p>If you plan to develop with TorchServe and change some source code, you must install it from source code.</p>
 <p>Ensure that you have <code class="docutils literal notranslate"><span class="pre">python3</span></code> installed, and the user has access to the site-packages or <code class="docutils literal notranslate"><span class="pre">~/.local/bin</span></code> is added to the <code class="docutils literal notranslate"><span class="pre">PATH</span></code> environment variable.</p>
 <p>Run the following script from the top of the source directory.</p>
 <p>NOTE: This script uninstalls existing <code class="docutils literal notranslate"><span class="pre">torchserve</span></code>, <code class="docutils literal notranslate"><span class="pre">torch-model-archiver</span></code> and <code class="docutils literal notranslate"><span class="pre">torch-workflow-archiver</span></code> installations</p>
 <section id="id1">
-<h4>For Debian Based Systems/ MacOS<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h4>
+<h4>For Debian Based Systems/ MacOS<a class="headerlink" href="#id1" title="Permalink to this heading">¶</a></h4>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">./</span><span class="n">ts_scripts</span><span class="o">/</span><span class="n">install_dependencies</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">environment</span><span class="o">=</span><span class="n">dev</span>
 <span class="n">python</span> <span class="o">./</span><span class="n">ts_scripts</span><span class="o">/</span><span class="n">install_from_src</span><span class="o">.</span><span class="n">py</span>
 </pre></div>
@@ -506,7 +506,7 @@ You can also create model stores to store your archived models.</p>
 <p>Use <code class="docutils literal notranslate"><span class="pre">--cuda</span></code> flag with <code class="docutils literal notranslate"><span class="pre">install_dependencies.py</span></code> for installing cuda version specific dependencies. Possible values are <code class="docutils literal notranslate"><span class="pre">cu111</span></code>, <code class="docutils literal notranslate"><span class="pre">cu102</span></code>, <code class="docutils literal notranslate"><span class="pre">cu101</span></code>, <code class="docutils literal notranslate"><span class="pre">cu92</span></code></p>
 </section>
 <section id="id2">
-<h4>For Windows<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h4>
+<h4>For Windows<a class="headerlink" href="#id2" title="Permalink to this heading">¶</a></h4>
 <p>Refer to the documentation <a class="reference external" href="docs/torchserve_on_win_native">here</a>.</p>
 <p>For information about the model archiver, see <a class="reference external" href="model-archiver/README">detailed documentation</a>.</p>
 </section>
@@ -591,6 +591,7 @@ You can also create model stores to store your archived models.</p>
          <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
          <script src="_static/jquery.js"></script>
          <script src="_static/underscore.js"></script>
+         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
          <script src="_static/doctools.js"></script>
          <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.js"></script>
          <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/contrib/auto-render.min.js"></script>

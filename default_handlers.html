@@ -6,7 +6,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
@@ -341,10 +341,10 @@
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
   <section id="torchserve-default-inference-handlers">
-<h1><span class="section-number">7. </span>TorchServe default inference handlers<a class="headerlink" href="#torchserve-default-inference-handlers" title="Permalink to this headline">¶</a></h1>
+<h1><span class="section-number">7. </span>TorchServe default inference handlers<a class="headerlink" href="#torchserve-default-inference-handlers" title="Permalink to this heading">¶</a></h1>
 <p>TorchServe provides following inference handlers out of box. It’s expected that the models consumed by each support batched inference.</p>
 <section id="image-classifier">
-<h2><span class="section-number">7.1. </span>image_classifier<a class="headerlink" href="#image-classifier" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">7.1. </span>image_classifier<a class="headerlink" href="#image-classifier" title="Permalink to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Description : Handles image classification models trained on the ImageNet dataset.</p></li>
 <li><p>Input : RGB image</p></li>
@@ -353,7 +353,7 @@
 <p>For more details see <a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/image_classifier">examples</a></p>
 </section>
 <section id="image-segmenter">
-<h2><span class="section-number">7.2. </span>image_segmenter<a class="headerlink" href="#image-segmenter" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">7.2. </span>image_segmenter<a class="headerlink" href="#image-segmenter" title="Permalink to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Description : Handles image segmentation models trained on the ImageNet dataset.</p></li>
 <li><p>Input : RGB image</p></li>
@@ -362,7 +362,7 @@
 <p>For more details see <a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/image_segmenter">examples</a></p>
 </section>
 <section id="object-detector">
-<h2><span class="section-number">7.3. </span>object_detector<a class="headerlink" href="#object-detector" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">7.3. </span>object_detector<a class="headerlink" href="#object-detector" title="Permalink to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Description : Handles object detection models.</p></li>
 <li><p>Input : RGB image</p></li>
@@ -372,7 +372,7 @@
 <p>For more details see <a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/object_detector">examples</a></p>
 </section>
 <section id="text-classifier">
-<h2><span class="section-number">7.4. </span>text_classifier<a class="headerlink" href="#text-classifier" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">7.4. </span>text_classifier<a class="headerlink" href="#text-classifier" title="Permalink to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Description : Handles models trained on the AG_NEWS dataset.</p></li>
 <li><p>Input : text file</p></li>
@@ -382,9 +382,9 @@
 <p>For a more comprehensive list of available handlers make sure to check out the <a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples">examples page</a></p>
 </section>
 <section id="common-features">
-<h2><span class="section-number">7.5. </span>Common features<a class="headerlink" href="#common-features" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">7.5. </span>Common features<a class="headerlink" href="#common-features" title="Permalink to this heading">¶</a></h2>
 <section id="index-to-name-json">
-<h3><span class="section-number">7.5.1. </span>index_to_name.json<a class="headerlink" href="#index-to-name-json" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">7.5.1. </span>index_to_name.json<a class="headerlink" href="#index-to-name-json" title="Permalink to this heading">¶</a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">image_classifier</span></code>, <code class="docutils literal notranslate"><span class="pre">text_classifier</span></code> and <code class="docutils literal notranslate"><span class="pre">object_detector</span></code> can all automatically map from numeric classes (0,1,2…) to friendly strings. To do this, simply include in your model archive a file, <code class="docutils literal notranslate"><span class="pre">index_to_name.json</span></code>, that contains a mapping of class number (as a string) to friendly name (also as a string). You can see some examples here:</p>
 <ul class="simple">
 <li><p><a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/image_classifier/index_to_name.json">image_classifier</a></p></li>
@@ -393,7 +393,7 @@
 </ul>
 </section>
 <section id="contributing">
-<h3><span class="section-number">7.5.2. </span>Contributing<a class="headerlink" href="#contributing" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">7.5.2. </span>Contributing<a class="headerlink" href="#contributing" title="Permalink to this heading">¶</a></h3>
 <p>We welcome new contributed handlers, if your usecase isn’t covered by one of the existing default handlers please follow the below steps to contribute it</p>
 <ol class="simple">
 <li><p>Write a new class derived from <a class="reference external" href="https://github.com/pytorch/serve/blob/master/ts/torch_handler/base_handler.py">BaseHandler</a>. Add it as a separate file in <code class="docutils literal notranslate"><span class="pre">ts/torch_handler/</span></code></p></li>
@@ -477,6 +477,7 @@
          <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
          <script src="_static/jquery.js"></script>
          <script src="_static/underscore.js"></script>
+         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
          <script src="_static/doctools.js"></script>
          <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.js"></script>
          <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/contrib/auto-render.min.js"></script>

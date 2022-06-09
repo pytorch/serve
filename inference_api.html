@@ -6,7 +6,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
@@ -343,7 +343,7 @@
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
   <section id="inference-api">
-<h1>Inference API<a class="headerlink" href="#inference-api" title="Permalink to this headline">¶</a></h1>
+<h1>Inference API<a class="headerlink" href="#inference-api" title="Permalink to this heading">¶</a></h1>
 <p>Inference API is listening on port 8080 and only accessible from localhost by default. To change the default setting, see <a class="reference internal" href="configuration.html"><span class="doc">TorchServe Configuration</span></a>.</p>
 <p>The TorchServe server supports the following APIs:</p>
 <ul class="simple">
@@ -355,7 +355,7 @@
 <li><p><a class="reference external" href="#kserve-explanations-api">KServe Explanations API</a> - Gets explanations of the served model from KServe</p></li>
 </ul>
 <section id="api-description">
-<h2>API Description<a class="headerlink" href="#api-description" title="Permalink to this headline">¶</a></h2>
+<h2>API Description<a class="headerlink" href="#api-description" title="Permalink to this heading">¶</a></h2>
 <p>To view a full list of inference APIs, you can use following command:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl -X OPTIONS http://localhost:8080
 </pre></div>
@@ -366,7 +366,7 @@
 </ul>
 </section>
 <section id="health-check-api">
-<h2>Health check API<a class="headerlink" href="#health-check-api" title="Permalink to this headline">¶</a></h2>
+<h2>Health check API<a class="headerlink" href="#health-check-api" title="Permalink to this heading">¶</a></h2>
 <p>This API follows the <a class="reference external" href="https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/proto/inference.proto">InferenceAPIsService.Ping</a> gRPC API. It returns the status of a model in the ModelServer.</p>
 <p>TorchServe supports a <code class="docutils literal notranslate"><span class="pre">ping</span></code> API that you can call to check the health status of a running TorchServe server:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl http://localhost:8080/ping
@@ -380,14 +380,14 @@
 </div>
 </section>
 <section id="predictions-api">
-<h2>Predictions API<a class="headerlink" href="#predictions-api" title="Permalink to this headline">¶</a></h2>
+<h2>Predictions API<a class="headerlink" href="#predictions-api" title="Permalink to this heading">¶</a></h2>
 <p>This API follows the <a class="reference external" href="https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/proto/inference.proto">InferenceAPIsService.Predictions</a> gRPC API. It returns the status of a model in the ModelServer.</p>
 <p>To get predictions from the default version of each loaded model, make a REST call to <code class="docutils literal notranslate"><span class="pre">/predictions/{model_name}</span></code>:</p>
 <ul class="simple">
 <li><p>POST /predictions/{model_name}</p></li>
 </ul>
 <section id="curl-example">
-<h3>curl Example<a class="headerlink" href="#curl-example" title="Permalink to this headline">¶</a></h3>
+<h3>curl Example<a class="headerlink" href="#curl-example" title="Permalink to this heading">¶</a></h3>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl -O https://raw.githubusercontent.com/pytorch/serve/master/docs/images/kitten_small.jpg
 
 curl http://localhost:8080/predictions/resnet-18 -T kitten_small.jpg
@@ -414,7 +414,7 @@ import requests
 </section>
 </section>
 <section id="id1">
-<h2>curl Example<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<h2>curl Example<a class="headerlink" href="#id1" title="Permalink to this heading">¶</a></h2>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl -O https://raw.githubusercontent.com/pytorch/serve/master/docs/images/kitten_small.jpg
 
 curl http://localhost:8080/predictions/resnet-18/2.0 -T kitten_small.jpg
@@ -433,14 +433,14 @@ curl http://localhost:8080/predictions/resnet-18/2.0 -F <span class="s2">&quot;d
 </div>
 </section>
 <section id="explanations-api">
-<h2>Explanations API<a class="headerlink" href="#explanations-api" title="Permalink to this headline">¶</a></h2>
+<h2>Explanations API<a class="headerlink" href="#explanations-api" title="Permalink to this heading">¶</a></h2>
 <p>Torchserve makes use of Captum’s functionality to return the explanations of the models that is served.</p>
 <p>To get explanations from the default version of each loaded model, make a REST call to <code class="docutils literal notranslate"><span class="pre">/explanations/{model_name}</span></code>:</p>
 <ul class="simple">
 <li><p>POST /explanations/{model_name}</p></li>
 </ul>
 <section id="id2">
-<h3>curl example<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<h3>curl example<a class="headerlink" href="#id2" title="Permalink to this heading">¶</a></h3>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl http://127.0.0.1:8080/explanations/mnist -T examples/image_classifier/mnist/test_data/0.png
 </pre></div>
 </div>
@@ -468,14 +468,14 @@ curl http://localhost:8080/predictions/resnet-18/2.0 -F <span class="s2">&quot;d
 </section>
 </section>
 <section id="kserve-inference-api">
-<h2>KServe Inference API<a class="headerlink" href="#kserve-inference-api" title="Permalink to this headline">¶</a></h2>
+<h2>KServe Inference API<a class="headerlink" href="#kserve-inference-api" title="Permalink to this heading">¶</a></h2>
 <p>Torchserve makes use of KServe Inference API to return the predictions of the models that is served.</p>
 <p>To get predictions from the loaded model, make a REST call to <code class="docutils literal notranslate"><span class="pre">/v1/models/{model_name}:predict</span></code>:</p>
 <ul class="simple">
 <li><p>POST /v1/models/{model_name}:predict</p></li>
 </ul>
 <section id="id3">
-<h3>curl example<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
+<h3>curl example<a class="headerlink" href="#id3" title="Permalink to this heading">¶</a></h3>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span> curl -H <span class="s2">&quot;Content-Type: application/json&quot;</span> --data @kubernetes/kserve/kf_request_json/v1/mnist.json http://127.0.0.1:8080/v1/models/mnist:predict
 </pre></div>
 </div>
@@ -490,14 +490,14 @@ curl http://localhost:8080/predictions/resnet-18/2.0 -F <span class="s2">&quot;d
 </section>
 </section>
 <section id="kserve-explanations-api">
-<h2>KServe Explanations API<a class="headerlink" href="#kserve-explanations-api" title="Permalink to this headline">¶</a></h2>
+<h2>KServe Explanations API<a class="headerlink" href="#kserve-explanations-api" title="Permalink to this heading">¶</a></h2>
 <p>Torchserve makes use of KServe API spec to return the explanations for the the models that it served.</p>
 <p>To get explanations from the loaded model, make a REST call to <code class="docutils literal notranslate"><span class="pre">/v1/models/{model_name}:explain</span></code>:</p>
 <ul class="simple">
 <li><p>/v1/models/{model_name}:explain</p></li>
 </ul>
 <section id="id4">
-<h3>curl example<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
+<h3>curl example<a class="headerlink" href="#id4" title="Permalink to this heading">¶</a></h3>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span> curl -H <span class="s2">&quot;Content-Type: application/json&quot;</span> --data @kubernetes/kserve/kf_request_json/v1/mnist.json http://127.0.0.1:8080/v1/models/mnist:explain
 </pre></div>
 </div>
@@ -611,6 +611,7 @@ curl http://localhost:8080/predictions/resnet-18/2.0 -F <span class="s2">&quot;d
          <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
          <script src="_static/jquery.js"></script>
          <script src="_static/underscore.js"></script>
+         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
          <script src="_static/doctools.js"></script>
          <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.js"></script>
          <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/contrib/auto-render.min.js"></script>

@@ -6,7 +6,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
@@ -339,14 +339,14 @@
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
   <section id="torchserve-internals">
-<h1>TorchServe internals<a class="headerlink" href="#torchserve-internals" title="Permalink to this headline">¶</a></h1>
+<h1>TorchServe internals<a class="headerlink" href="#torchserve-internals" title="Permalink to this heading">¶</a></h1>
 <p>TorchServe was designed a multi model inferencing framework. A production grade inferencing framework needs both APIs to request inferences but also APIs to manage models all the while keeping track of logs. TorchServe manages several worker processes that are dynamically assigned to different models with the behavior of those workers determined by a handler file and a model store where weights are loaded from.</p>
 </section>
 <section id="torchserve-architecture">
-<h1>TorchServe Architecture<a class="headerlink" href="#torchserve-architecture" title="Permalink to this headline">¶</a></h1>
+<h1>TorchServe Architecture<a class="headerlink" href="#torchserve-architecture" title="Permalink to this heading">¶</a></h1>
 <p><img alt="Architecture Diagram" src="https://user-images.githubusercontent.com/880376/83180095-c44cc600-a0d7-11ea-97c1-23abb4cdbe4d.jpg" /></p>
 <section id="terminology">
-<h2>Terminology:<a class="headerlink" href="#terminology" title="Permalink to this headline">¶</a></h2>
+<h2>Terminology:<a class="headerlink" href="#terminology" title="Permalink to this heading">¶</a></h2>
 <ul class="simple">
 <li><p><strong>Frontend</strong>: The request/response handling component of TorchServe. This portion of the serving component handles both request/response coming from clients and manages the lifecycles of the models.</p></li>
 <li><p><strong>Model Workers</strong>: These workers are responsible for running the actual inference on the models.</p></li>
@@ -357,7 +357,7 @@
 </section>
 </section>
 <section id="pytorch-serve-directories-and-what-they-do">
-<h1>pytorch/serve directories and what they do<a class="headerlink" href="#pytorch-serve-directories-and-what-they-do" title="Permalink to this headline">¶</a></h1>
+<h1>pytorch/serve directories and what they do<a class="headerlink" href="#pytorch-serve-directories-and-what-they-do" title="Permalink to this heading">¶</a></h1>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">.github</span></code>: CI for docs and nightly builds</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">benchmarks</span></code>: tools to benchmark torchserve on reference models</p></li>
@@ -378,11 +378,11 @@
 </ul>
 </section>
 <section id="important-files-for-the-core-torchserve-engine">
-<h1>Important files for the core TorchServe engine<a class="headerlink" href="#important-files-for-the-core-torchserve-engine" title="Permalink to this headline">¶</a></h1>
+<h1>Important files for the core TorchServe engine<a class="headerlink" href="#important-files-for-the-core-torchserve-engine" title="Permalink to this heading">¶</a></h1>
 <p>Frontend means the Java part of the code (potentially C++)</p>
 <p>And backend is the Python code (most Pytorch specific stuff)</p>
 <section id="backend-python">
-<h2>Backend (Python)<a class="headerlink" href="#backend-python" title="Permalink to this headline">¶</a></h2>
+<h2>Backend (Python)<a class="headerlink" href="#backend-python" title="Permalink to this heading">¶</a></h2>
 <p>https://github.com/pytorch/serve/blob/master/ts/arg_parser.py#L64</p>
 <ul class="simple">
 <li><p>Arg parser controls config/not workflow and can also setup a model service worker with a custom socket</p></li>
@@ -406,7 +406,7 @@
 </ul>
 </section>
 <section id="frontend-java">
-<h2>Frontend (Java)<a class="headerlink" href="#frontend-java" title="Permalink to this headline">¶</a></h2>
+<h2>Frontend (Java)<a class="headerlink" href="#frontend-java" title="Permalink to this heading">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">../gradlew</span> <span class="pre">startServer</span></code></p>
 <p>https://github.com/pytorch/serve/blob/8903ca1fb059eab3c1e8eccdee1376d4ff52fb67/frontend/server/src/main/java/org/pytorch/serve/wlm/WorkerStateListener.java</p>
 <ul class="simple">
@@ -521,6 +521,7 @@
          <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
          <script src="_static/jquery.js"></script>
          <script src="_static/underscore.js"></script>
+         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
          <script src="_static/doctools.js"></script>
          <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.js"></script>
          <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/contrib/auto-render.min.js"></script>

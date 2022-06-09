@@ -6,7 +6,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
@@ -341,12 +341,12 @@
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
   <section id="torchserve-workflows">
-<h1><span class="section-number">17. </span>TorchServe Workflows<a class="headerlink" href="#torchserve-workflows" title="Permalink to this headline">¶</a></h1>
+<h1><span class="section-number">17. </span>TorchServe Workflows<a class="headerlink" href="#torchserve-workflows" title="Permalink to this heading">¶</a></h1>
 <p>TorchServe can be used for serving ensemble of Pytorch models packaged as mar files and Python functions through Workflow APIs.</p>
 <p>It utilizes <a class="reference internal" href="rest_api.html"><span class="doc">REST based APIs</span></a> for workflow management and predictions.</p>
 <p>A Workflow is served on TorchServe using a workflow-archive(.war) which comprises of following:</p>
 <section id="workflow-specification-file">
-<h2><span class="section-number">17.1. </span>Workflow Specification file<a class="headerlink" href="#workflow-specification-file" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">17.1. </span>Workflow Specification file<a class="headerlink" href="#workflow-specification-file" title="Permalink to this heading">¶</a></h2>
 <p>A workflow specification is a YAML file which provides the details of the models to be executed and a DAG for defining data flow.</p>
 <p>The YAML file is split into a few sections</p>
 <ol class="simple">
@@ -388,7 +388,7 @@
 </pre></div>
 </div>
 <section id="workflow-models">
-<h3><span class="section-number">17.1.1. </span>Workflow Models<a class="headerlink" href="#workflow-models" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">17.1.1. </span>Workflow Models<a class="headerlink" href="#workflow-models" title="Permalink to this heading">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">models</span></code> section of the workflow specification defines the models used in the workflow. It uses the following syntax:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">models</span><span class="p">:</span>
     <span class="o">&lt;</span><span class="n">model_name</span><span class="o">&gt;</span><span class="p">:</span>
@@ -397,7 +397,7 @@
 </div>
 </section>
 <section id="workflow-model-properties">
-<h3><span class="section-number">17.1.2. </span>Workflow model properties<a class="headerlink" href="#workflow-model-properties" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">17.1.2. </span>Workflow model properties<a class="headerlink" href="#workflow-model-properties" title="Permalink to this heading">¶</a></h3>
 <p>User can define following workflow model properties:</p>
 <table border="1" class="docutils">
 <thead>
@@ -443,10 +443,10 @@
 </section>
 </section>
 <section id="workflow-dag">
-<h2><span class="section-number">17.2. </span>Workflow DAG<a class="headerlink" href="#workflow-dag" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">17.2. </span>Workflow DAG<a class="headerlink" href="#workflow-dag" title="Permalink to this heading">¶</a></h2>
 <p>User can define the dataflow of a workflow using the <code class="docutils literal notranslate"><span class="pre">dag</span></code> section of the workflow specification. The <code class="docutils literal notranslate"><span class="pre">dag</span></code> consists of the model names defined in the <code class="docutils literal notranslate"><span class="pre">model</span></code> section and python function names which are implemented in the workflow-archive’s handler file.</p>
 <section id="sequential-dag">
-<h3><span class="section-number">17.2.1. </span>Sequential DAG<a class="headerlink" href="#sequential-dag" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">17.2.1. </span>Sequential DAG<a class="headerlink" href="#sequential-dag" title="Permalink to this heading">¶</a></h3>
 <p>Eg.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">dag</span><span class="p">:</span>
   <span class="n">function1</span> <span class="p">:</span> <span class="p">[</span><span class="n">model1</span><span class="p">]</span>
@@ -460,7 +460,7 @@
 </div>
 </section>
 <section id="parallel-dag">
-<h3><span class="section-number">17.2.2. </span>Parallel DAG<a class="headerlink" href="#parallel-dag" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">17.2.2. </span>Parallel DAG<a class="headerlink" href="#parallel-dag" title="Permalink to this heading">¶</a></h3>
 <p>E.g</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">dag</span><span class="p">:</span>
   <span class="n">pre_processing</span><span class="p">:</span> <span class="p">[</span><span class="n">model1</span><span class="p">,</span> <span class="n">model2</span><span class="p">]</span>
@@ -479,7 +479,7 @@
 </section>
 </section>
 <section id="handler-file">
-<h2><span class="section-number">17.3. </span>Handler file<a class="headerlink" href="#handler-file" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">17.3. </span>Handler file<a class="headerlink" href="#handler-file" title="Permalink to this heading">¶</a></h2>
 <p>A handler file (python) is supplied in the workflow archive (.war) and consists of all the functions used in the workflow dag.</p>
 <p>Eg.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">preprocess</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
@@ -491,14 +491,14 @@
 </div>
 </section>
 <section id="related-docs">
-<h2><span class="section-number">17.4. </span>Related docs<a class="headerlink" href="#related-docs" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">17.4. </span>Related docs<a class="headerlink" href="#related-docs" title="Permalink to this heading">¶</a></h2>
 <ul class="simple">
 <li><p><a class="reference internal" href="workflow_inference_api.html"><span class="doc">workflow_inference_api.md</span></a></p></li>
 <li><p><a class="reference internal" href="workflow_management_api.html"><span class="doc">workflow_management_api.md</span></a></p></li>
 </ul>
 </section>
 <section id="known-issues">
-<h2><span class="section-number">17.5. </span>Known issues<a class="headerlink" href="#known-issues" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">17.5. </span>Known issues<a class="headerlink" href="#known-issues" title="Permalink to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Each workflow dag node (model/function) will receive input as bytes</p></li>
 <li><p>Only following output types are supported by workflow models/functions : String, Int, List, Dict of String, int, Json serializable objects, byte array and Torch Tensors</p></li>
@@ -587,6 +587,7 @@
          <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
          <script src="_static/jquery.js"></script>
          <script src="_static/underscore.js"></script>
+         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
          <script src="_static/doctools.js"></script>
          <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.js"></script>
          <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/contrib/auto-render.min.js"></script>
