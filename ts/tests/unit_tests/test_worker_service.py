@@ -19,6 +19,18 @@ class TestService:
             {"name": "xyz", "value": "abc", "contentType": "text/csv"}
         ], "data": b""}
     ]
+    data_array1 = [
+        {"requestId": b"123", "parameters": [
+            {"name": "xyz", "value": "abc1", "contentType": "text/plain"},
+            {"name": "xyz", "value": "abc2", "contentType": "text/csv"}
+        ], "data": b""}
+    ]
+    data_array2 = [
+        {"requestId": b"123", "parameters": [
+            {"name": "xyz[]", "value": "abc1", "contentType": "text/plain"},
+            {"name": "xyz[]", "value": "abc2", "contentType": "text/csv"}
+        ], "data": b""}
+    ]
 
     @pytest.fixture()
     def service(self, mocker):
@@ -40,6 +52,18 @@ class TestService:
         headers, input_batch, req_to_id_map = service.retrieve_data_for_inference(self.data)
         assert headers[0].get_request_property("xyz").get("content-type") == "text/csv"
         assert input_batch[0] == {"xyz": "abc"}
+        assert req_to_id_map == {0: "123"}
+
+    def test_array_req1(self, service):
+        headers, input_batch, req_to_id_map = service.retrieve_data_for_inference(self.data_array1)
+        assert headers[0].get_request_property("xyz").get("content-type") == ["text/plain", "text/csv"]
+        assert input_batch[0] == {"xyz": ["abc1", "abc2"]}
+        assert req_to_id_map == {0: "123"}
+
+    def test_array_req2(self, service):
+        headers, input_batch, req_to_id_map = service.retrieve_data_for_inference(self.data_array2)
+        assert headers[0].get_request_property("xyz").get("content-type") == ["text/plain", "text/csv"]
+        assert input_batch[0] == {"xyz": ["abc1", "abc2"]}
         assert req_to_id_map == {0: "123"}
 
 

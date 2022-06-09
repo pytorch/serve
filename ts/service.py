@@ -64,8 +64,25 @@ class Service(object):
             model_in = dict()
             # Parameter level headers are updated here. multipart/form-data can have multiple headers.
             for parameter in parameters:
-                model_in.update({parameter["name"]: parameter["value"]})
-                model_in_headers.update({parameter["name"]: {"content-type": parameter["contentType"]}})
+                parameter_name = parameter["name"]
+                if parameter_name.endswith("[]"):
+                    parameter_name = parameter_name[:len(parameter_name) - 2]
+                if parameter_name in model_in:
+                    parameter_value = model_in[parameter_name]
+                    if not isinstance(parameter_value, list):
+                        parameter_value = [parameter_value]
+                    parameter_value.append(parameter["value"])
+
+                    content_types = model_in_headers[parameter_name]['content-type']
+                    if not isinstance(content_types, list):
+                        content_types = [content_types]
+                    content_types.append(parameter["contentType"])
+                    header_value = {"content-type": content_types}
+                else:
+                    parameter_value = parameter["value"]
+                    header_value = {"content-type": parameter["contentType"]}
+                model_in.update({parameter_name: parameter_value})
+                model_in_headers.update({parameter_name: header_value})
 
             # Request level headers are populated here
             if request_batch.get("headers") is not None:
