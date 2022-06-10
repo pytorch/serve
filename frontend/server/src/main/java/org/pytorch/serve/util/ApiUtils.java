@@ -377,7 +377,8 @@ public final class ApiUtils {
         for (WorkerThread worker : workers) {
             String workerId = worker.getWorkerId();
             long startTime = worker.getStartTime();
-            boolean isRunning = worker.isRunning() && worker.getState() == WorkerState.WORKER_MODEL_LOADED;
+            boolean isRunning =
+                    worker.isRunning() && worker.getState() == WorkerState.WORKER_MODEL_LOADED;
             int gpuId = worker.getGpuId();
             long memory = worker.getMemory();
             int pid = worker.getPid();
