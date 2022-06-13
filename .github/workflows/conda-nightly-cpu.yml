@@ -1,0 +1,40 @@
+name: Push conda nightly
+
+on:
+  # run every day at 11:15am
+  schedule:
+    - cron:  '15 11 * * *'
+jobs:
+  nightly:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macOS-latest, windows-latest]
+    steps:
+      - name: Setup Conda
+        uses: s-weigand/setup-conda@v1
+      - run: conda --version
+      - run: conda install -y conda-build
+      - name: Setup Java 11
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'zulu'
+          java-version: '11'
+      - name: Java Debugging
+        run: |
+          which javac
+      - name: Checkout TorchServe
+        uses: actions/checkout@v2
+      - name: Install dependencies
+        run: python ts_scripts/install_dependencies.py --environment=dev
+      - name: Build torchserve wheel
+        run: python binaries/build.py
+      - name: Build all packages
+        run: python binaries/conda/build_packages.py
+      - name: Upload files
+        env:
+          ANACONDA_API_TOKEN: ${{ secrets.ANACONDA_TOKEN }}
+        run: conda config --set anaconda_upload yes
+      - name: Selectively build packages
+        run: python binaries/conda/build_packages.py --ts-wheel=dist/torchserve-*.whl --ma-wheel=model-archiver/dist/torch_model_archiver-*.whl --wa-wheel=workflow-archiver/dist/torch_workflow_archiver-*.whl
