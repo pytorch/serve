@@ -331,6 +331,7 @@ The above ModelHandler class should have the following methods with captum funct
 #### Extend default handlers
 
 TorchServe has following default handlers.
+- [base_handler](https://github.com/pytorch/serve/blob/master/ts/torch_handler/base_handler.py)
 - [image_classifier](https://github.com/pytorch/serve/blob/master/ts/torch_handler/image_classifier.py)
 - [image_segmenter](https://github.com/pytorch/serve/blob/master/ts/torch_handler/image_segmenter.py)
 - [object_detector](https://github.com/pytorch/serve/blob/master/ts/torch_handler/object_detector.py)

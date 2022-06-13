@@ -25,6 +25,7 @@ archiving_options = {
 
 
 model_handlers = {
+        'base_handler': 'tables',
         'text_classifier': 'text',
         'image_classifier': 'vision',
         'object_detector': 'vision',
