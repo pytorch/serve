@@ -125,10 +125,12 @@ class ModelExportUtils(object):
             os.makedirs(d)
 
     @staticmethod
-    def copy_artifacts(model_name, **kwargs):
+    def copy_artifacts(model_name, keep_extra_root=False, **kwargs):
         """
         copy model artifacts in a common model directory for archiving
         :param model_name: name of model being archived
+        :param keep_extra_root: Default to False.
+                                whether to keep root directory for `extra_files` to copy.
         :param kwargs: key value pair of files to be copied in archive
         :return:
         """
@@ -150,13 +152,20 @@ class ModelExportUtils(object):
                         if os.path.isfile(file):
                             shutil.copy2(file, model_path)
                         elif os.path.isdir(file) and file != model_path:
-                            for item in os.listdir(file):
-                                src = os.path.join(file, item)
-                                dst = os.path.join(model_path, item)
-                                if os.path.isfile(src):
-                                    shutil.copy2(src, dst)
-                                elif os.path.isdir(src):
-                                    shutil.copytree(src, dst, False, None)
+                            if keep_extra_root:
+                                src_basename = os.path.basename(os.path.abspath(file))
+                                dst = os.path.join(model_path, src_basename)
+                                if os.path.exists(dst):
+                                    raise FileExistsError('maybe directory names repeated', src_basename)
+                                shutil.copytree(file, dst)
+                            else:
+                                for item in os.listdir(file):
+                                    src = os.path.join(file, item)
+                                    dst = os.path.join(model_path, item)
+                                    if os.path.isfile(src):
+                                        shutil.copy2(src, dst)
+                                    elif os.path.isdir(src):
+                                        shutil.copytree(src, dst, False, None)
                         else:
                             raise ValueError(f"Invalid extra file given {file}")
                 else:

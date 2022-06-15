@@ -96,6 +96,12 @@ class ArgParser(object):
                                         'This is the default archiving format. Models archived in this format\n'
                                         'will be readily hostable on native TorchServe.\n')
 
+        parser_export.add_argument('--keep-extra-root',
+                                   required=False,
+                                   action='store_true',
+                                   help='When the --keep-extra-root flags are specified, the directorys specified by\n'
+                                        '--extra-files will be copied from the root name or to drop the root name')
+
         parser_export.add_argument('-f', '--force',
                                    required=False,
                                    action='store_true',

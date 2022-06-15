@@ -33,7 +33,8 @@ def package_model(args, manifest):
         artifact_files = {'model_file': model_file, 'serialized_file': serialized_file, 'handler': handler,
                           'extra_files': extra_files, 'requirements-file': requirements_file}
 
-        model_path = ModelExportUtils.copy_artifacts(model_name, **artifact_files)
+        model_path = ModelExportUtils.copy_artifacts(model_name, keep_extra_root=args.keep_extra_root,
+                                                     **artifact_files)
 
         # Step 2 : Zip 'em all up
         ModelExportUtils.archive(export_file_path, model_name, model_path, manifest, args.archive_format)
