@@ -8,17 +8,19 @@ import logging
 import string
 import unicodedata
 from abc import ABC
+
+from captum.attr import LayerIntegratedGradients
 import torch
 import torch.nn.functional as F
 from torchtext.data.utils import get_tokenizer
-from captum.attr import LayerIntegratedGradients
+
 from .base_handler import BaseHandler
 from .contractions import CONTRACTION_MAP
+from ..utils.util import CLEANUP_REGEX
 
 logger = logging.getLogger(__name__)
 
 
-CLEANUP_REGEX = re.compile("<.*?>|&([a-z0-9]+|#[0-9]{1,6}|#x[0-9a-f]{1,6});")
 CONTRACTIONS_PATTERN = re.compile(
     "({})".format("|".join(CONTRACTION_MAP.keys())),
     flags=re.IGNORECASE | re.DOTALL,
