@@ -28,13 +28,9 @@ jobs:
         uses: actions/checkout@v2
       - name: Install dependencies
         run: python ts_scripts/install_dependencies.py --environment=dev
-      - name: Build torchserve wheel
-        run: python binaries/build.py
-      - name: Build all packages
-        run: python binaries/conda/build_packages.py
-      - name: Upload files
-        env:
-          ANACONDA_API_TOKEN: ${{ secrets.ANACONDA_TOKEN }}
+      - name: conda config for auto-upload
         run: conda config --set anaconda_upload yes
-      - name: Selectively build packages
-        run: python binaries/conda/build_packages.py --ts-wheel=dist/torchserve-*.whl --ma-wheel=model-archiver/dist/torch_model_archiver-*.whl --wa-wheel=workflow-archiver/dist/torch_workflow_archiver-*.whl
+      - name: Build conda package
+        env:
+          ANACONDA_API_TOKEN: ${{ secrets.CONDA_NIGHTLY_TOKEN }}
+        run: python binaries/build.py --nightly

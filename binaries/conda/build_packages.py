@@ -2,6 +2,7 @@ import os
 import sys
 import argparse
 import subprocess
+from datetime import date
 
 conda_build_dir = os.path.dirname(os.path.abspath(__file__))
 REPO_ROOT = os.path.join(conda_build_dir, "..", "..")
@@ -45,7 +46,7 @@ def install_miniconda():
     os.system(f"{CONDA_BINARY} init")
 
 
-def conda_build(ts_wheel_path, ma_wheel_path, wa_wheel_path):
+def conda_build(ts_wheel_path, ma_wheel_path, wa_wheel_path, nightly=False):
     """
     Build conda packages for different python versions
     """
@@ -61,6 +62,12 @@ def conda_build(ts_wheel_path, ma_wheel_path, wa_wheel_path):
         ma_version = ''.join(ma_vf.read().split())
     with open(os.path.join(REPO_ROOT, "workflow-archiver", "workflow_archiver", "version.txt")) as wa_vf:
         wa_version = ''.join(wa_vf.read().split())
+
+    if nightly:
+        todays_date = date.today().strftime("%Y%m%d")
+        ts_version +=  ".dev" + todays_date
+        ma_version += ".dev" + todays_date
+        wa_version += ".dev" + todays_date
 
     os.environ["TORCHSERVE_VERSION"] = ts_version
     os.environ["TORCH_MODEL_ARCHIVER_VERSION"] = ma_version
@@ -94,6 +101,7 @@ if __name__ == "__main__":
     parser.add_argument("--ma-wheel", type=str, required=False, help="torch-model-archiver wheel path")
     parser.add_argument("--wa-wheel", type=str, required=False, help="torch-workflow-archiver wheel path")
     parser.add_argument("--install-conda-dependencies", action="store_true", required=False, help="specify to install miniconda and conda-build")
+    parser.add_argument("--nightly", action="store_true", required=False, help="specify to install miniconda and conda-build")
     args = parser.parse_args()
     
     if args.install_conda_dependencies:
@@ -101,4 +109,4 @@ if __name__ == "__main__":
         install_conda_build()
         
     if all([args.ts_wheel, args.ma_wheel, args.wa_wheel]):
-        conda_build(args.ts_wheel, args.ma_wheel, args.wa_wheel)
+        conda_build(args.ts_wheel, args.ma_wheel, args.wa_wheel, args.nightly)

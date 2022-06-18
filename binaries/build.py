@@ -13,7 +13,7 @@ from ts_scripts.utils import is_conda_env, is_conda_build_env
 from binaries.conda.build_packages import conda_build, install_miniconda, install_conda_build
 
 
-def build():
+def build(args):
     
     print("## Started torchserve, model-archiver and workflow-archiver build")
     create_wheel_cmd = "python setup.py bdist_wheel --release --universal"
@@ -51,7 +51,7 @@ def build():
     if not is_conda_build_env():
         install_conda_build()
 
-    conda_build_exit_code = conda_build(ts_wheel_path, ma_wheel_path, wa_wheel_path)
+    conda_build_exit_code = conda_build(ts_wheel_path, ma_wheel_path, wa_wheel_path, args.nightly)
     
     # If any one of the steps fail, exit with error
     if ts_build_exit_code != 0:
@@ -65,5 +65,8 @@ def build():
 
 
 if __name__ == "__main__":
-    
-    build()
+    parser = argparse.ArgumentParser(description="Build for torchserve, torch-model-archiver and torch-workflow-archiver")
+    parser.add_argument("--nightly", action="store_true", required=False, help="specify nightly is being built")
+    args = parser.parse_args()
+
+    build(args)
