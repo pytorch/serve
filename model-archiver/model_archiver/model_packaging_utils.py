@@ -125,6 +125,30 @@ class ModelExportUtils(object):
             os.makedirs(d)
 
     @staticmethod
+    def __copy_dir(file, out_dir, keep_extra_root):
+        if keep_extra_root:
+            src_basename = os.path.basename(os.path.abspath(file))
+            dst = os.path.join(out_dir, src_basename)
+            if os.path.exists(dst):
+                logging.error('Maybe renaming some files')
+                raise FileExistsError('maybe directory names repeated', src_basename)
+            shutil.copytree(file, dst)
+            return
+        
+        # compatible with old method
+        try:
+            for item in os.listdir(file):
+                src = os.path.join(file, item)
+                dst = os.path.join(out_dir, item)
+                if os.path.isfile(src):
+                    shutil.copy2(src, dst)
+                elif os.path.isdir(src):
+                    shutil.copytree(src, dst, False, None)
+        except FileExistsError:
+            logging.error('Maybe running with `--keep-extra-root` or rename the files')
+            raise
+
+    @staticmethod
     def copy_artifacts(model_name, keep_extra_root=False, **kwargs):
         """
         copy model artifacts in a common model directory for archiving
@@ -152,20 +176,7 @@ class ModelExportUtils(object):
                         if os.path.isfile(file):
                             shutil.copy2(file, model_path)
                         elif os.path.isdir(file) and file != model_path:
-                            if keep_extra_root:
-                                src_basename = os.path.basename(os.path.abspath(file))
-                                dst = os.path.join(model_path, src_basename)
-                                if os.path.exists(dst):
-                                    raise FileExistsError('maybe directory names repeated', src_basename)
-                                shutil.copytree(file, dst)
-                            else:
-                                for item in os.listdir(file):
-                                    src = os.path.join(file, item)
-                                    dst = os.path.join(model_path, item)
-                                    if os.path.isfile(src):
-                                        shutil.copy2(src, dst)
-                                    elif os.path.isdir(src):
-                                        shutil.copytree(src, dst, False, None)
+                            ModelExportUtils.__copy_dir(file, model_path, keep_extra_root)
                         else:
                             raise ValueError(f"Invalid extra file given {file}")
                 else:
