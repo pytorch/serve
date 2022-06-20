@@ -2,19 +2,20 @@
 Module for text classification with scriptable tokenizer
 DOES NOT SUPPORT BATCH!
 """
-from abc import ABC
 import logging
+from abc import ABC
 
 import torch
 import torch.nn.functional as F
+
 # Necessary to successfully load the model (see https://github.com/pytorch/text/issues/1793)
-import torchtext  # pylint: disable=unused-import
+import torchtext  # nopycln: import
 
 from ts.torch_handler.base_handler import BaseHandler
-from ts.utils.util import map_class_to_label, CLEANUP_REGEX
-
+from ts.utils.util import CLEANUP_REGEX, map_class_to_label
 
 logger = logging.getLogger(__name__)
+
 
 def remove_html_tags(text):
     """
@@ -23,10 +24,14 @@ def remove_html_tags(text):
     clean_text = CLEANUP_REGEX.sub("", text)
     return clean_text
 
-class TextClassifier(BaseHandler, ABC):
+
+class CustomTextClassifier(BaseHandler, ABC):
     """
     TextClassifier handler class. This handler takes a text (string) and
     as input and returns the classification text based on the model vocabulary.
+    Because the predefined TextHandler in ts/torch_handler defines unnecessary
+    steps like loading a vocabulary file for the tokenizer, we define our handler
+    starting from BaseHandler.
     """
 
     def preprocess(self, data):
@@ -50,8 +55,9 @@ class TextClassifier(BaseHandler, ABC):
 
         line = data[0]
         text = line.get("data") or line.get("body")
+        # Decode text if not a str but bytes or bytearray
         if isinstance(text, (bytes, bytearray)):
-            text = text.decode('utf-8')
+            text = text.decode("utf-8")
 
         text = remove_html_tags(text)
         text = text.lower()
