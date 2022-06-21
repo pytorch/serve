@@ -1,5 +1,6 @@
 import importlib
 import os
+import sys
 from argparse import Namespace
 
 import pytest
@@ -15,6 +16,9 @@ EXAMPLE_ROOT_DIR = os.path.join(
 
 @pytest.fixture
 def model():
+    """
+    Rebuild XLMR model from training script but with reduces layer count to speed up unit test
+    """
     num_classes = 2
     input_dim = 768
     """
@@ -55,22 +59,18 @@ def model():
 
 
 @pytest.fixture
-def mar_file(model, tmp_path, mocker):
-    model_file_path = os.path.join(tmp_path, "model.pt")
-    jit_file_path = os.path.join(tmp_path, "model_jit.pt")
-    mar_file_path = os.path.join(tmp_path, "scriptable_tokenizer.mar")
-
+def script_tokenizer_and_model(mocker, model):
+    """
+    This loads the source from script_tokenizer_and_model.py script and executes main
+    We do this through import lib instead of just running the script to inject our smaller model
+    """
     script_path = os.path.join(EXAMPLE_ROOT_DIR, "script_tokenizer_and_model.py")
-
-    torch.save(model.state_dict(), model_file_path)
 
     loader = importlib.machinery.SourceFileLoader(
         "script_tokenizer_and_model", script_path
     )
     spec = importlib.util.spec_from_loader("script_tokenizer_and_model", loader)
     script_tokenizer_and_model = importlib.util.module_from_spec(spec)
-
-    import sys
 
     sys.modules["script_tokenizer_and_model"] = script_tokenizer_and_model
 
@@ -79,10 +79,35 @@ def mar_file(model, tmp_path, mocker):
         "script_tokenizer_and_model.XLMR_BASE_ENCODER.get_model", return_value=model
     )
 
+    yield script_tokenizer_and_model
+
+    del sys.modules["script_tokenizer_and_model"]
+
+
+@pytest.fixture
+def jit_file_path(model, script_tokenizer_and_model, tmp_path):
+    """
+    Create model and jit scripted model
+    """
+    # Define paths
+    model_file_path = os.path.join(tmp_path, "model.pt")
+    jit_file_path = os.path.join(tmp_path, "model_jit.pt")
+
+    torch.save(model.state_dict(), model_file_path)
+
     script_tokenizer_and_model.main(
         Namespace(input_file=model_file_path, output_file=jit_file_path)
     )
 
+    yield jit_file_path
+
+    # Clean up files
+    os.remove(model_file_path)
+    os.remove(jit_file_path)
+
+
+@pytest.fixture
+def archiver():
     loader = importlib.machinery.SourceFileLoader(
         "archiver",
         os.path.join(
@@ -92,9 +117,21 @@ def mar_file(model, tmp_path, mocker):
     spec = importlib.util.spec_from_loader("archiver", loader)
     archiver = importlib.util.module_from_spec(spec)
 
-    import sys
-
     sys.modules["archiver"] = archiver
+
+    loader.exec_module(archiver)
+
+    yield archiver
+
+    del sys.modules["archiver"]
+
+
+@pytest.fixture
+def mar_file_path(tmp_path, mocker, jit_file_path, archiver):
+    """
+    Create mar file and return file path.
+    """
+    mar_file_path = os.path.join(tmp_path, "scriptable_tokenizer.mar")
 
     args = Namespace(
         model_name="scriptable_tokenizer",
@@ -110,12 +147,11 @@ def mar_file(model, tmp_path, mocker):
         archive_format="default",
     )
 
-    loader.exec_module(archiver)
     mock = mocker.MagicMock()
     mock.parse_args = mocker.MagicMock(return_value=args)
     mocker.patch("archiver.ArgParser.export_model_args_parser", return_value=mock)
 
-    # Using ZIP_STORED instead of ZIP_DEFLATED reduces test runtime by 44 secs
+    # Using ZIP_STORED instead of ZIP_DEFLATED reduces test runtime from 54 secs to 10 secs
     from zipfile import ZIP_STORED, ZipFile
 
     mocker.patch(
@@ -129,10 +165,9 @@ def mar_file(model, tmp_path, mocker):
 
     yield mar_file_path
 
-    os.remove(model_file_path)
-    os.remove(jit_file_path)
+    # Clean up files
     os.remove(mar_file_path)
 
 
-def test_inference(mar_file):
+def test_inference(mar_file_path):
     pass
