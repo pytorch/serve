@@ -102,8 +102,11 @@ def jit_file_path(model, script_tokenizer_and_model, tmp_path):
     yield jit_file_path
 
     # Clean up files
-    os.remove(model_file_path)
-    os.remove(jit_file_path)
+    try:
+        os.remove(model_file_path)
+        os.remove(jit_file_path)
+    except OSError:
+        pass
 
 
 @pytest.fixture
@@ -166,7 +169,10 @@ def mar_file_path(tmp_path, mocker, jit_file_path, archiver):
     yield mar_file_path
 
     # Clean up files
-    os.remove(mar_file_path)
+    try:
+        os.remove(mar_file_path)
+    except OSError:
+        pass
 
 
 def test_inference(mar_file_path):
