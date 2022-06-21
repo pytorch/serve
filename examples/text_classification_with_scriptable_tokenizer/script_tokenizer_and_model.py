@@ -55,12 +55,7 @@ class TokenizerModelAdapter(nn.Module):
         return tokens
 
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Combine tokenzier and model.")
-    parser.add_argument("input_file", type=str)
-    parser.add_argument("output_file", type=str)
-
-    args = parser.parse_args()
+def main(args):
 
     # Chain preprocessing steps as defined during training.
     text_transform = T.Sequential(
@@ -98,3 +93,12 @@ if __name__ == "__main__":
     combi_model_jit = torch.jit.script(combi_model)
 
     torch.jit.save(combi_model_jit, args.output_file)
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Combine tokenzier and model.")
+    parser.add_argument("input_file", type=str)
+    parser.add_argument("output_file", type=str)
+
+    args = parser.parse_args()
+    main(args)
