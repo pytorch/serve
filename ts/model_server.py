@@ -3,16 +3,19 @@ File to define the entry point to Model Server
 """
 
 import os
+import platform
 import re
 import subprocess
 import sys
 import tempfile
 from builtins import str
-import platform
 
 import psutil
-from ts.version import __version__
+
 from ts.arg_parser import ArgParser
+from ts.version import __version__
+
+TS_NOT_RUNNING_MSG = "TorchServe is not currently running."
 
 
 def start():
@@ -33,7 +36,7 @@ def start():
         return
     if args.stop:
         if pid is None:
-            print("TorchServe is not currently running.")
+            print(TS_NOT_RUNNING_MSG)
         else:
             try:
                 parent = psutil.Process(pid)
