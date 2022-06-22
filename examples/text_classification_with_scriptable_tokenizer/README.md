@@ -33,6 +33,7 @@ Subsequently, we need to add the command ```torch.save(model.state_dict(), "mode
 python sst2_classification_non_distributed.py
 ```
 
+A pretrained ```model.pt``` is also available for download [here](https://bert-mar-file.s3.us-west-2.amazonaws.com/text_classification_with_scriptable_tokenizer/model.pt).
 The trained model can then be combined and compiled with TorchScript using the script_tokenizer_and_model.py script. Here ```model.pt``` are the model weights saved after training and ```model_jit.pt``` is the combination of tokenizer and model compiled with TorchScript.
 
 ```bash
