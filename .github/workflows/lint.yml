@@ -40,5 +40,6 @@ jobs:
         run: |
           echo "You need to lint your code with pre-commit"
           echo "pip install pre-commit" 
-          echo "from serve/ run pre-commit install"
+          echo "cd serve/"
+          echo "pre-commit install"
           echo "pre-commit will lint your code for you, so git add and commit those new changes and this check should become green"
