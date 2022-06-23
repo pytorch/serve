@@ -17,9 +17,8 @@ snapshot_file = os.path.join(REPO_ROOT, "test", "config_kf.properties")
 def setup_module(module):
     test_utils.torchserve_cleanup()
     response = requests.get("https://torchserve.pytorch.org/mar_files/mnist.mar", allow_redirects=True)
-    open(os.path.join(test_utils.MODEL_STORE, "mnist.mar"), 'wb').write(response.content)
-
-    #### $$$$$ Close Open!
+    with open(os.path.join(test_utils.MODEL_STORE, "mnist.mar"), 'wb') as f:
+        f.write(response.content)
 
 
 def teardown_module(module):

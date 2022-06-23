@@ -49,9 +49,8 @@ def set_custom_handler(handler_name):
             "https://download.pytorch.org/models/resnet152-394f9c45.pth", allow_redirects=True
         )
         assert response.status_code == 200
-        open(serialized_file, "wb").write(response.content)
-
-        #### $$$$$ Close open!
+        with open(serialized_file, "wb") as f:
+            f.write(response.content)
 
     ## Generate mar file
     cmd = test_utils.model_archiver_command_builder(
