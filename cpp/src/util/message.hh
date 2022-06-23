@@ -1,6 +1,8 @@
-#pragma once
 
-#incldue <string>
+#ifndef CPP_UTIL_MESSAGE_HH_
+#define CPP_UTIL_MESSAGE_HH_
+
+#include <string>
 
 namespace torchserve {
   class Status {
@@ -8,6 +10,9 @@ namespace torchserve {
     std::string message;
   };
 
+  class LoadRequest {
+    
+  }
   class InferenceRequest {
 
   };

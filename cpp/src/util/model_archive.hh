@@ -1,7 +1,10 @@
-#pragma once
+#ifndef CPP_UTIL_MODEL_ARCHIVE_HH_
+#define CPP_UTIL_MODEL_ARCHIVE_HH_
 
+#include <fmt/format.h>
 #include <map>
 #include <string>
+#include <stdexcept>
 
 namespace torchserve {
   enum RuntimeType {
@@ -12,7 +15,7 @@ namespace torchserve {
     LSP
   };
 
-  const std::map<std::string, RuntimeType> runtimeType_mapping = {
+  const std::map<std::string, RuntimeType> runtime_type_table = {
     {"python", PYTHON},
     {"python2", PYTHON2},
     {"python3", PYTHON3},
@@ -20,12 +23,11 @@ namespace torchserve {
     {"libtorch_scripted_process", LSP}
   };
 
-  RuntimeType get_runtime_type_from_string(const std::string &type_lower_case) {
-    std::map<std::string, RuntimeType>::const_iterator it = runtimeType_mapping.find(type_lower_case);
+  RuntimeType GetRuntimeType(const std::string& type_lower_case) {
+    std::map<std::string, RuntimeType>::const_iterator it = runtime_type_table.find(type_lower_case);
     
-    if (it == runtimeType_mapping.end()) {
-      // logger error
-      
+    if (it == runtime_type_table.end()) {
+      throw std::invalid_argument(fmt::format("invalid runtime type: {}", type_lower_case));
     }
     return it->second;
   }
@@ -67,3 +69,4 @@ class ModelArchive {
     std::string &url, bool s3SseKmsEnabled);
   };
 }  // namespace torchserve
+#endif // CPP_UTIL_MODEL_ARCHIVE_HH_
