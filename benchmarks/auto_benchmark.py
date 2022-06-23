@@ -231,7 +231,7 @@ def execute(command, wait=False, stdout=None, stderr=None, shell=True):
 
 def get_torchserve_version():
     # fetch the torchserve version from version.txt file
-    with open(CWD + '/ts/version.txt', 'r') as file:
+    with open(os.path.join(CWD, 'ts', 'version.txt'), 'r') as file:
         version = file.readline().rstrip()
     return version
 
