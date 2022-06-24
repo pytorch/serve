@@ -21,6 +21,20 @@ pip install torchserve torch-model-archiver torch-workflow-archiver
 pip install torchserve-nightly torch-model-archiver-nightly torch-workflow-archiver-nightly
 ```
 
+### 🚀 Quick start with TorchServe (conda)
+
+```
+# Install dependencies
+# cuda is optional
+python ./ts_scripts/install_dependencies.py --cuda=cu111
+
+# Latest release
+conda install -c pytorch torchserve torch-model-archiver torch-workflow-archiver
+
+# Nightly build
+conda install -c pytorch-nightly torchserve torch-model-archiver torch-workflow-archiver
+```
+
 [Getting started guide](docs/getting_started.md)
 
 ### 🐳 Quick Start with Docker
@@ -104,7 +118,7 @@ To learn more about how to contribute, see the contributor guide [here](https://
 </a>
 
 Made with [contrib.rocks](https://contrib.rocks).
-## ⚖️ Disclaimer 
+## ⚖️ Disclaimer
 This repository is jointly operated and maintained by Amazon, Meta and a number of individual contributors listed in the [CONTRIBUTORS](https://github.com/pytorch/serve/graphs/contributors) file. For questions directed at Meta, please send an email to opensource@fb.com. For questions directed at Amazon, please send an email to torchserve@amazon.com. For all other questions, please open up an issue in this repository [here](https://github.com/pytorch/serve/issues).
 
 *TorchServe acknowledges the [Multi Model Server (MMS)](https://github.com/awslabs/multi-model-server) project from which it was derived*

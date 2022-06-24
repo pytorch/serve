@@ -18,6 +18,20 @@ if os.name == "nt":
     CONDA_BINARY = "conda"
 
 
+def add_nightly_suffix(ts_version, ma_version, wa_version):
+    """
+    Add date suffix to the version number
+    """
+
+    # Get today's date
+    todays_date = date.today().strftime("%Y%m%d")
+
+    ts_version += ".dev" + todays_date
+    ma_version += ".dev" + todays_date
+    wa_version += ".dev" + todays_date
+    return ts_version, ma_version, wa_version
+
+
 def install_conda_build():
     """
     Install conda-build, required to create conda packages
@@ -80,10 +94,9 @@ def conda_build(ts_wheel_path, ma_wheel_path, wa_wheel_path, nightly=False):
         wa_version = "".join(wa_vf.read().split())
 
     if nightly:
-        todays_date = date.today().strftime("%Y%m%d")
-        ts_version += ".dev" + todays_date
-        ma_version += ".dev" + todays_date
-        wa_version += ".dev" + todays_date
+        ts_version, ma_version, wa_version = add_nightly_suffix(
+            ts_version, ma_version, wa_version
+        )
 
     os.environ["TORCHSERVE_VERSION"] = ts_version
     os.environ["TORCH_MODEL_ARCHIVER_VERSION"] = ma_version
@@ -137,7 +150,7 @@ if __name__ == "__main__":
         "--nightly",
         action="store_true",
         required=False,
-        help="specify to install miniconda and conda-build",
+        help="specify conda nightly is being built",
     )
     args = parser.parse_args()
 
