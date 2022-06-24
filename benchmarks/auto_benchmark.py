@@ -3,10 +3,10 @@ import datetime
 import os
 import ruamel.yaml
 import shutil
+from subprocess import Popen
 from utils import gen_model_config_json
 from utils import gen_md_report
 from utils import gen_metrics_json
-from subprocess import Popen
 
 CWD = os.getcwd()
 MODEL_JSON_CONFIG_PATH = CWD + '/model_json_config'
