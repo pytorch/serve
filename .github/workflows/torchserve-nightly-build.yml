@@ -6,6 +6,7 @@ on:
     - cron:  '15 11 * * *'
 jobs:
   nightly:
+    # creates workflows for the 3 OS: ubuntu, macOS & windows
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -34,18 +35,21 @@ jobs:
       - name: Push torchserve nightly
         env:
           PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
+        # skip pushing PyPI nightly binaries for macOS & windows
         if: matrix.os == 'ubuntu-latest'
         run: ts_scripts/push_nightly.sh torchserve-nightly
       - name: Push model-archiver nightly
         env:
           PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
         working-directory: model-archiver
+        # skip pushing PyPI nightly binaries for macOS & windows
         if: matrix.os == 'ubuntu-latest'
         run: ../ts_scripts/push_nightly.sh torch-model-archiver-nightly
       - name: Push workflow archiver nightly
         env:
           PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
         working-directory: workflow-archiver
+        # skip pushing PyPI nightly binaries for macOS & windows
         if: matrix.os == 'ubuntu-latest'
         run: ../ts_scripts/push_nightly.sh torch-workflow-archiver-nightly
       - name: conda config for auto-upload
