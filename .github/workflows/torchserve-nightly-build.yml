@@ -27,9 +27,6 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: '11'
-      - name: Java Debugging
-        run: |
-          which javac
       - name: Push nightly
         env:
           PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
