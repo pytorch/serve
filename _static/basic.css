@@ -237,16 +237,6 @@ a.headerlink {
     visibility: hidden;
 }
 
-a.brackets:before,
-span.brackets > a:before{
-    content: "[";
-}
-
-a.brackets:after,
-span.brackets > a:after {
-    content: "]";
-}
-
 h1:hover > a.headerlink,
 h2:hover > a.headerlink,
 h3:hover > a.headerlink,
@@ -334,14 +324,18 @@ aside.sidebar {
 p.sidebar-title {
     font-weight: bold;
 }
+nav.contents,
+aside.topic,
 
-div.admonition, div.topic, aside.topic, blockquote {
+div.admonition, div.topic, blockquote {
     clear: left;
 }
 
 /* -- topics ---------------------------------------------------------------- */
+nav.contents,
+aside.topic,
 
-div.topic, aside.topic {
+div.topic {
     border: 1px solid #ccc;
     padding: 7px;
     margin: 10px 0 10px 0;
@@ -379,16 +373,20 @@ div.body p.centered {
 
 div.sidebar > :last-child,
 aside.sidebar > :last-child,
-div.topic > :last-child,
+nav.contents > :last-child,
 aside.topic > :last-child,
+
+div.topic > :last-child,
 div.admonition > :last-child {
     margin-bottom: 0;
 }
 
 div.sidebar::after,
 aside.sidebar::after,
-div.topic::after,
+nav.contents::after,
 aside.topic::after,
+
+div.topic::after,
 div.admonition::after,
 blockquote::after {
     display: block;
