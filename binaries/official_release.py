@@ -2,6 +2,8 @@
 # TODO: KFP, Conda
 # TODO: Simplify the way dry_run works
 # TODO: should credentials be environment variables or explicitly passed? (I worry about printing credentials to stdout)
+# TODO: Find a way to retag conda binaries
+# TODO: Make sure retag.sh script works for pypi
 
 import argparse
 from typing import Tuple, List, Dict
@@ -80,11 +82,15 @@ def tag_binaries(nightly_binaries : Tuple[str, str], official_release_version : 
 
     def tag_pypi_binaries():
         for package, nightly_binary in zip(PACKAGES, nightly_binaries["pypi"]):
-            try_and_handle(f"NEW_VERSION={package}_{official_release_version} ./{CURRENT_FILE_PATH}/pip/retag_pypi_binary.sh {nightly_binary}")
-        
+            try_and_handle(f"NEW_VERSION={official_release_version} ./{CURRENT_FILE_PATH}/pip/retag_pypi_binary.sh {nightly_binary}")
+
+        # TODO: Check if this naming convention is correct
+        # TODO: It is certainly not, need the full name including .whl otherwise can't run twine upload unless I use wildcard matching        
         return [f"{package}_{official_release_version}" for package in PACKAGES]
 
     def tag_conda_binaries():
+        # TODO: Conda also does 
+
         return NotImplementedError
 
     def tag_docker_kfp_binaries():
@@ -98,6 +104,7 @@ def tag_binaries(nightly_binaries : Tuple[str, str], official_release_version : 
 
     return binaries_to_promote
 
+# TODO: turn credentials into environment variables instead
 def promote_binaries(binaries_to_promote : Dict[str, List[str]], PYPI_CREDENTIALS : str, CONDA_CREDENTIALS : str, DOCKER_CREDENTIALS : str) -> None:
     def promote_docker_binaries():
         try_and_handle(f"docker login --username pytorchbot -password {DOCKER_CREDENTIALS}")
