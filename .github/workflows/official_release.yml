@@ -1,6 +1,7 @@
 name: Make an official release (dangerous script)
 
 # Workflow can only be dispatched manually
+# Require manual approval before a release https://devblogs.microsoft.com/devops/i-need-manual-approvers-for-github-actions-and-i-got-them-now/
 on: 
   workflow_dispatch:
      inputs:
