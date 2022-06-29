@@ -12,7 +12,7 @@ curl http://127.0.0.1:8080/predictions/bert -T input.txt
 ```
 # Install dependencies
 # cuda is optional
-python ./ts_scripts/install_dependencies.py --cuda=cu111
+python ./ts_scripts/install_dependencies.py --cuda=cu102
 
 # Latest release
 pip install torchserve torch-model-archiver torch-workflow-archiver
@@ -26,7 +26,7 @@ pip install torchserve-nightly torch-model-archiver-nightly torch-workflow-archi
 ```
 # Install dependencies
 # cuda is optional
-python ./ts_scripts/install_dependencies.py --cuda=cu111
+python ./ts_scripts/install_dependencies.py --cuda=cu102
 
 # Latest release
 conda install -c pytorch torchserve torch-model-archiver torch-workflow-archiver
