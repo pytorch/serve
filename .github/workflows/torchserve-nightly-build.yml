@@ -31,7 +31,7 @@ jobs:
           java-version: '11'
       - name: conda config for auto-upload
         run: conda config --set anaconda_upload yes
-      - name: Build conda nightly binaries and push
+      - name: Build PyPI & conda nightly binaries and push conda binaries
         env:
           ANACONDA_API_TOKEN: ${{ secrets.CONDA_NIGHTLY_TOKEN }}
         run: python binaries/build.py --nightly
