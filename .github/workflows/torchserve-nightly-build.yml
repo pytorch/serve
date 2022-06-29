@@ -34,10 +34,10 @@ jobs:
       - name: Build PyPI & conda nightly binaries and push conda binaries
         env:
           ANACONDA_API_TOKEN: ${{ secrets.CONDA_NIGHTLY_TOKEN }}
-        run: python binaries/build.py --nightly
+        run: python binaries/build.py --upload-conda-packages --nightly
       - name: Push PyPI nightly binaries
         env:
-          PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
+          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
         # skip pushing PyPI nightly binaries for macOS & windows as the binaries have the same name
         if: matrix.os == 'ubuntu-latest'
-        run: python binaries/upload.py --upload-pypi-packages --pypi-token "$PYPI_TOKEN"
+        run: python binaries/upload.py --upload-pypi-packages

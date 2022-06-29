@@ -18,9 +18,9 @@ if os.name == "nt":
     CONDA_BINARY = "conda"
 
 
-def add_nightly_suffix(ts_version, ma_version, wa_version):
+def add_nightly_suffix_conda(ts_version, ma_version, wa_version):
     """
-    Add date suffix to the version number
+    Add date suffix to the conda version number
     """
 
     # Get today's date
@@ -72,7 +72,7 @@ def install_miniconda():
     os.system(f"{CONDA_BINARY} init")
 
 
-def conda_build(ts_wheel_path, ma_wheel_path, wa_wheel_path, nightly=False):
+def conda_build(ts_wheel_path, ma_wheel_path, wa_wheel_path, conda_nightly=False):
     """
     Build conda packages for different python versions
     """
@@ -93,8 +93,8 @@ def conda_build(ts_wheel_path, ma_wheel_path, wa_wheel_path, nightly=False):
     ) as wa_vf:
         wa_version = "".join(wa_vf.read().split())
 
-    if nightly:
-        ts_version, ma_version, wa_version = add_nightly_suffix(
+    if conda_nightly:
+        ts_version, ma_version, wa_version = add_nightly_suffix_conda(
             ts_version, ma_version, wa_version
         )
 

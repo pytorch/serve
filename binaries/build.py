@@ -59,7 +59,10 @@ def build(args):
         install_conda_build()
 
     conda_build_exit_code = conda_build(
-        ts_wheel_path, ma_wheel_path, wa_wheel_path, args.nightly
+        ts_wheel_path,
+        ma_wheel_path,
+        wa_wheel_path,
+        args.nightly and args.upload_conda_packages,
     )
 
     # If any one of the steps fail, exit with error
@@ -76,6 +79,12 @@ def build(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Build for torchserve, torch-model-archiver and torch-workflow-archiver"
+    )
+    parser.add_argument(
+        "--upload-conda-packages",
+        action="store_true",
+        required=False,
+        help="Specify whether to upload conda packages",
     )
     parser.add_argument(
         "--nightly",

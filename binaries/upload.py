@@ -23,10 +23,9 @@ WA_WHEEL_PATH = glob.glob(os.path.join(REPO_ROOT, "workflow-archiver", "dist"))[
 PACKAGES = ["torchserve", "model-archiver", "workflow-archiver"]
 
 
-def upload_pypi_packages(pypi_token=None, test_pypi=False):
+def upload_pypi_packages(test_pypi=False):
     """
     Takes a list of path values and uploads them to pypi using twine, using token stored in environment variable
-    optionally pypi_token can be passed as an argument
     """
     os.system(f"pip3 install twine -q")
 
@@ -34,11 +33,11 @@ def upload_pypi_packages(pypi_token=None, test_pypi=False):
     for dist_path in [TS_WHEEL_PATH, MA_WHEEL_PATH, WA_WHEEL_PATH]:
         if test_pypi:
             exit_code = os.system(
-                f"twine upload --username __token__ --password {pypi_token} {dist_path}/* --repository-url https://test.pypi.org/legacy/ --verbose"
+                f"twine upload {dist_path}/* --username __token__ --repository-url https://test.pypi.org/legacy/ --verbose"
             )
         else:
             exit_code = os.system(
-                f"set -ex ; twine upload --username __token__ --password {pypi_token} {dist_path}/* --verbose"
+                f"set -ex ; twine upload --username __token__ {dist_path}/* --verbose"
             )
         if exit_code != 0:
             sys.exit(f"twine upload for path {dist_path} failed")
@@ -96,13 +95,6 @@ if __name__ == "__main__":
         help="Specify whether to upload pypi packages",
     )
     parser.add_argument(
-        "--pypi-token",
-        action="store",
-        type=str,
-        required=False,
-        help="PyPI token for uploading binaries",
-    )
-    parser.add_argument(
         "--test-pypi",
         action="store_true",
         required=False,
@@ -114,7 +106,7 @@ if __name__ == "__main__":
         upload_conda_packages()
 
     if args.upload_pypi_packages:
-        upload_pypi_packages(args.pypi_token, args.test_pypi)
+        upload_pypi_packages(args.test_pypi)
 
     if any([args.upload_conda_packages, args.upload_pypi_packages]):
         print(f"Upload script complete")
