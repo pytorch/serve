@@ -35,6 +35,11 @@ jobs:
             pre-commit run --files $file
           done
           
-      - name: Required modifications
+      - name: What to do if this action fails
         if: ${{ failure() }}
-        run: git --no-pager diff
+        run: |
+          echo "You need to lint your code with pre-commit"
+          echo "pip install pre-commit" 
+          echo "cd serve/"
+          echo "pre-commit install"
+          echo "pre-commit will lint your code for you, so git add and commit those new changes and this check should become green"
