@@ -29,32 +29,15 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: '11'
-      - name: Java Debugging
-        run: |
-          which javac
-      - name: Push torchserve nightly
-        env:
-          PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
-        # skip pushing PyPI nightly binaries for macOS & windows
-        if: matrix.os == 'ubuntu-latest'
-        run: ts_scripts/push_nightly.sh torchserve-nightly
-      - name: Push model-archiver nightly
-        env:
-          PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
-        working-directory: model-archiver
-        # skip pushing PyPI nightly binaries for macOS & windows
-        if: matrix.os == 'ubuntu-latest'
-        run: ../ts_scripts/push_nightly.sh torch-model-archiver-nightly
-      - name: Push workflow archiver nightly
-        env:
-          PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
-        working-directory: workflow-archiver
-        # skip pushing PyPI nightly binaries for macOS & windows
-        if: matrix.os == 'ubuntu-latest'
-        run: ../ts_scripts/push_nightly.sh torch-workflow-archiver-nightly
       - name: conda config for auto-upload
         run: conda config --set anaconda_upload yes
-      - name: Build conda nighly and push
+      - name: Build conda nightly binaries and push
         env:
           ANACONDA_API_TOKEN: ${{ secrets.CONDA_NIGHTLY_TOKEN }}
         run: python binaries/build.py --nightly
+      - name: Push PyPI nightly binaries
+        env:
+          PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
+        # skip pushing PyPI nightly binaries for macOS & windows as the binaries have the same name
+        if: matrix.os == 'ubuntu-latest'
+        run: python binaries/upload.py --upload-pypi-packages --pypi-token "$PYPI_TOKEN"
