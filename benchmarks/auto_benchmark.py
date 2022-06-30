@@ -1,3 +1,7 @@
+# TODO: I need to run the directory setup in docker image here instead of calling image in apache bench script
+# TODO: Should I create my own Dockerfile by pulling a nightly one from dockerhub and then running my scripts?
+# TODO: Do I ssh into docker machine and run benchmarks myself
+
 import argparse
 import datetime
 import os
@@ -24,7 +28,6 @@ class BenchmarkConfig:
         self.bm_config = {
             "version": f"torchserve-nightly=={yesterday.year}.{yesterday.month}.{yesterday.day}",
             "hardware": "cpu",
-            "docker_runtime": "",
         }
 
     def ts_version(self, version):
@@ -42,9 +45,6 @@ class BenchmarkConfig:
 
     def hardware(self, hw):
         self.bm_config["hardware"] = hw
-
-    def docker_runtime(self, docker_runtime):
-        self.bm_config["docker_runtime"] = docker_runtime
 
     def metrics_cmd(self, cmd):
         cmd_options = []
@@ -89,7 +89,6 @@ class BenchmarkConfig:
             "ts_version": self.ts_version,
             "models": self.models,
             "hardware": self.hardware,
-            "docker_runtime": self.docker_runtime,
             "metrics_cmd": self.metrics_cmd,
             "report_cmd": lambda v: v,
         }
@@ -133,6 +132,10 @@ def benchmark_env_setup(bm_config, skip_ts_install):
 def install_torchserve(skip_ts_install, hw, ts_version):
     if skip_ts_install:
         return
+    
+    # Docker image
+    if ts_version.startswith("pytorch"):
+        return 
 
     # git checkout branch if it is needed
     cmd = "git checkout master && git reset --hard && git clean -dffx . && git pull --rebase"
@@ -190,7 +193,7 @@ def run_benchmark(bm_config):
             # call benchmark-ab.py
             shutil.rmtree(TS_LOGS_PATH, ignore_errors=True)
             shutil.rmtree(BENCHMARK_TMP_PATH, ignore_errors=True)
-            cmd = f"python {os.path.join('benchmarks', 'benchmark-ab.py')} --tmp_dir {os.path.join(os.sep, 'tmp')} --report_location {os.path.join(os.sep, 'tmp')}  --config_properties {os.path.join('benchmarks', 'config.properties')} --config {os.path.join(bm_config['model_config_path'], model_json_config)}"
+            cmd = f"python {os.path.join('benchmarks', 'benchmark-ab.py')} --tmp_dir {os.path.join(os.sep, 'tmp')} --report_location {os.path.join(os.sep, 'tmp')}  --config_properties {os.path.join('benchmarks', 'properties', 'config.properties')} --config {os.path.join(bm_config['model_config_path'], model_json_config)}"
             execute(cmd, wait=True)
 
             # generate stats metrics from ab_report.csv

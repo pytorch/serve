@@ -97,7 +97,7 @@ def json_provider(file_path, cmd_name):
 @click.option(
     "--config_properties",
     "-cp",
-    default="config.properties",
+    default=f"{os.path.join('properties', 'config.properties')}",
     help="config.properties path, Default config.properties",
 )
 @click.option(

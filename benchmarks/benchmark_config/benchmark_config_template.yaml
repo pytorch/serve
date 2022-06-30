@@ -2,6 +2,7 @@
 #  - branch : "master"
 #  - nightly: "2022.3.16"
 #  - release: "0.5.3"
+#  - docker: "pytorch/torchserve-nightly:latest-cpu"
 # Nightly build will be installed if "ts_version" is not specifiged
 ts_version:
     branch: &ts_version "master"

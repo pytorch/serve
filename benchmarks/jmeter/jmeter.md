@@ -2,22 +2,22 @@
 
 ## Installation
 
-It assumes that you have followed quick start/installation section and have required pre-requisites i.e. python3, java and docker [if needed]. If not then please refer [quick start](../README.md) for setup.
+It assumes that you have followed quick start/installation section and have required pre-requisites i.e. python3, java and docker [if needed]. If not then please refer [quick start](../../README.md) for setup.
 
 ### Ubuntu
 
-We have provided an `install_dependencies.sh` script to install everything needed to execute the benchmark on user's Ubuntu environment. First clone the TorchServe repository:
+We have provided an `install_scripts/install_dependencies.sh` script to install everything needed to execute the benchmark on user's Ubuntu environment. First clone the TorchServe repository:
 
 ```bash
 git clone https://github.com/pytorch/serve.git
 ```
 Now execute this script as below.
-On CPU based instance, use `./install_dependencies.sh`.
-On GPU based instance, use `./install_dependencies.sh True`.
+On CPU based instance, use `./install_scripts/install_dependencies.sh`.
+On GPU based instance, use `./install_scripts/install_dependencies.sh True`.
 
 ### MacOS
 
-For mac, you should have python3 and java installed. If you wish to run the default benchmarks featuring a docker-based instance of TorchServe, you will need to install docker as well. Finally, you will need to install jmeter with plugins which can be accomplished by running `mac_install_dependencies.sh`.
+For mac, you should have python3 and java installed. If you wish to run the default benchmarks featuring a docker-based instance of TorchServe, you will need to install docker as well. Finally, you will need to install jmeter with plugins which can be accomplished by running `./install_scripts/mac_install_dependencies.sh`.
 
 The benchmarking script requires the following to run:
 - python3
@@ -27,14 +27,14 @@ The benchmarking script requires the following to run:
 
 ### Windows
 
-For Windows, you should have python3 and java(OpenJDK-11) installed. You will need to install jmeter with plugins which can be accomplished by running `python windows_install_dependencies.py <Path to install jmeter>`. For example:
+For Windows, you should have python3 and java(OpenJDK-11) installed. You will need to install jmeter with plugins which can be accomplished by running `python install_scripts\windows_install_dependencies.py <Path to install jmeter>`. For example:
 ```bash
-python3 windows_install_dependencies.py "C:\\Program Files"
+python3 install_scripts\windows_install_dependencies.py "C:\\Program Files"
 ```
 
 ## Models
 
-The pre-trained models for the benchmark can be mostly found in the [TorchServe model zoo](../docs/model_zoo.md). We currently support the following:
+The pre-trained models for the benchmark can be mostly found in the [TorchServe model zoo](../../docs/model_zoo.md). We currently support the following:
 - [resnet: ResNet-18 (Default)](https://torchserve.pytorch.org/mar_files/resnet-18.mar)
 - [squeezenet: SqueezeNet V1.1](https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar)
 
@@ -53,7 +53,7 @@ We also support compound benchmarks:
 
 #### Using pre-build docker image
 
-* You can specify, docker image using --docker option. You must create docker by following steps given [here](../docker/README.md).
+* You can specify, docker image using --docker option. You must create docker by following steps given [here](../../docker/README.md).
 
 ```bash
 cd serve/benchmarks
@@ -71,7 +71,7 @@ NOTE - '--docker' and '--ts' are mutually exclusive options
 
 #### Using local TorchServe instance:
 
-* Install TorchServe using the [install guide](../README.md#install-torchserve-and-torch-model-archiver)
+* Install TorchServe using the [install guide](../../README.md#install-torchserve-and-torch-model-archiver)
 * Start TorchServe using following command :
 
 ```bash
@@ -179,11 +179,11 @@ The benchmarks can also be used to analyze the backend performance using cProfil
 
     Using local TorchServe instance:
 
-    * Install TorchServe using the [install guide](../README.md#install-torchserve-and-torch-model-archiver)
+    * Install TorchServe using the [install guide](../../README.md#install-torchserve-and-torch-model-archiver)
     
     By using external docker container for TorchServe:
 
-    * Create a [docker container for TorchServe](../docker/README.md).
+    * Create a [docker container for TorchServe](../../docker/README.md).
 
 2. Set environment variable and start Torchserve
 

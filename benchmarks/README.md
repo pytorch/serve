@@ -6,7 +6,7 @@ We currently support benchmarking with JMeter & Apache Bench. One can also profi
 
 * [Benchmarking with Apache Bench](#benchmarking-with-apache-bench)
 * [Auto Benchmarking with Apache Bench](#Auto-Benchmarking-with-Apache-Bench)
-* [Benchmarking and Profiling with JMeter](jmeter.md)
+* [Benchmarking and Profiling with JMeter](jmeter/jmeter.md)
 
 # Benchmarking with Apache Bench
 
@@ -153,7 +153,7 @@ The reports are generated at location "/tmp/benchmark/"
 | AB | [squeezenet1_1](https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar) | 10 | 100 | 0 | 15.66 | 512 | 1191 | 2024 | 638.695 | 0 | 196.57 | 270.9 | 106.53|
 
 ### Sample latency graph
-![](predict_latency.png)
+![](img/predict_latency.png)
 
 # Auto Benchmarking with Apache Bench
 `auto_benchmark.py` runs Apache Bench on a set of models and generates an easy to read `report.md` once [Apach bench installation](https://github.com/pytorch/serve/tree/master/benchmarks#installation-1) is done.
@@ -183,7 +183,7 @@ optional arguments:
 python benchmarks/auto_benchmark.py --input benchmarks/benchmark_config_template.yaml --skip true
 ```
 
-- [benchmark_config_template.yaml](benchmark_config_template.yaml) is a config template yaml file for benchmark automation. Users can add test plans in "models" and create their own benchmark_config.yaml.
+- [benchmark_config_template.yaml](benchmark_config/benchmark_config_template.yaml) is a config template yaml file for benchmark automation. Users can add test plans in "models" and create their own benchmark_config.yaml.
 
 - Benchmark automation results are stored in local `/tmp/ts_benchmark`. `/tmp/ts_benchmark/report.md` is the final report. [Here](https://github.com/pytorch/serve/blob/master/benchmarks/sample_report.md) is a sample final report. Each test case's logs are stored in a separate directory under `/tmp/ts_benchmark`. For example:
 ```
