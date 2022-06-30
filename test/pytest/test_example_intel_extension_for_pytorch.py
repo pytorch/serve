@@ -17,7 +17,7 @@ INFERENCE_API = "http://localhost:8080"
 cpuinfo = CPUinfo()
 NUM_CORES = cpuinfo.physical_core_nums()
 
-#
+
 def setup_module():
     test_utils.torchserve_cleanup()
     response = requests.get(
