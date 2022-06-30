@@ -47,8 +47,8 @@ Started from Torchserve 0.4.1, there are two methods to configure TorchServe to 
 
 The configuration properties that we are interested in are the following:
 
-1. `batch_size`: This is the maximum batch size in `ms` that a model is expected to handle.
-2. `max_batch_delay`: This is the maximum batch delay time TorchServe waits to receive `batch_size` number of requests. If TorchServe doesn't receive `batch_size` number of
+1. `batch_size`: This is the maximum batch size that a model is expected to handle.
+2. `max_batch_delay`: This is the maximum batch delay time in `ms` TorchServe waits to receive `batch_size` number of requests. If TorchServe doesn't receive `batch_size` number of
 requests before this timer time's out, it sends what ever requests that were received to the model `handler`.
 
 Let's look at an example using this configuration through management API:
