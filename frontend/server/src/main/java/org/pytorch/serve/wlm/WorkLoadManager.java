@@ -93,13 +93,7 @@ public class WorkLoadManager {
      * workers.
      */
     public boolean isLauncherRestartWorkers(int currentWorkers) {
-        boolean isRestart;
-        if (configManager.isCPULauncherEnabled() && currentWorkers > 0) {
-            isRestart = true;
-        } else {
-            isRestart = false;
-        }
-        return isRestart;
+        return configManager.isCPULauncherEnabled() && currentWorkers > 0;
     }
 
     public CompletableFuture<Integer> modelChanged(
