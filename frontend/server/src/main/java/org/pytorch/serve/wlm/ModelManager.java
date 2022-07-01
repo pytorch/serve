@@ -74,6 +74,7 @@ public final class ModelManager {
                 1,
                 100,
                 configManager.getDefaultResponseTimeout(),
+                configManager.getDefaultQueueTimeout(),
                 defaultModelName,
                 false,
                 false,
@@ -112,6 +113,7 @@ public final class ModelManager {
             int batchSize,
             int maxBatchDelay,
             int responseTimeout,
+            int queueTimeout,
             String defaultModelName,
             boolean ignoreDuplicate,
             boolean isWorkflowModel,
@@ -135,7 +137,7 @@ public final class ModelManager {
         }
 
         Model tempModel =
-                createModel(archive, batchSize, maxBatchDelay, responseTimeout, isWorkflowModel);
+                createModel(archive, batchSize, maxBatchDelay, responseTimeout, queueTimeout, isWorkflowModel);
 
         String versionId = archive.getModelVersion();
 
@@ -263,6 +265,7 @@ public final class ModelManager {
             int batchSize,
             int maxBatchDelay,
             int responseTimeout,
+            int queueTimeout,
             boolean isWorkflowModel) {
         Model model = new Model(archive, configManager.getJobQueueSize());
 
@@ -284,6 +287,12 @@ public final class ModelManager {
                         archive.getModelVersion(),
                         Model.RESPONSE_TIMEOUT,
                         responseTimeout));
+        model.setQueueTimeout(
+                configManager.getJsonIntValue(
+                        archive.getModelName(),
+                        archive.getModelVersion(),
+                        Model.QUEUE_TIMEOUT,
+                        queueTimeout));
         model.setWorkflowModel(isWorkflowModel);
 
         return model;

@@ -169,6 +169,7 @@ public class EnsembleTest {
                                     "test.war",
                                     "file:///Users/demo/git/serve/frontend/server/src/test/resources/test.war",
                                     300,
+                                    300,
                                     true);
         } catch (Exception e) {
             System.out.println(e.getMessage());

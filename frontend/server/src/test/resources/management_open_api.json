@@ -225,7 +225,7 @@
           {
             "in": "query",
             "name": "max_batch_delay",
-            "description": "Maximum delay for batch aggregation, default: 100.",
+            "description": "Maximum delay in ms for batch aggregation, default: 100.",
             "required": false,
             "schema": {
               "type": "integer",
@@ -236,6 +236,16 @@
             "in": "query",
             "name": "response_timeout",
             "description": "Maximum time, in seconds, the TorchServe waits for a response from the model inference code, default: 120.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": "2"
+            }
+          },
+          {
+            "in": "query",
+            "name": "queue_timeout",
+            "description": "Maximum time, in milliseconds, a prediction request can stay in queue before being considered stale, default: 120.",
             "required": false,
             "schema": {
               "type": "integer",

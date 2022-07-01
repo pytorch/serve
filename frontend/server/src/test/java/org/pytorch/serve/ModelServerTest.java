@@ -26,7 +26,9 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
@@ -36,6 +38,8 @@ import org.pytorch.serve.http.ErrorResponse;
 import org.pytorch.serve.http.StatusResponse;
 import org.pytorch.serve.http.messages.DescribeModelResponse;
 import org.pytorch.serve.http.messages.ListModelsResponse;
+import org.pytorch.serve.job.Job;
+import org.pytorch.serve.job.RestJob;
 import org.pytorch.serve.metrics.Dimension;
 import org.pytorch.serve.metrics.Metric;
 import org.pytorch.serve.metrics.MetricManager;
@@ -44,6 +48,8 @@ import org.pytorch.serve.snapshot.InvalidSnapshotException;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.ConnectorType;
 import org.pytorch.serve.util.JsonUtils;
+import org.pytorch.serve.util.messages.RequestInput;
+import org.pytorch.serve.util.messages.WorkerCommands;
 import org.pytorch.serve.wlm.Model;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -2028,6 +2034,19 @@ public class ModelServerTest {
         Assert.assertNotNull(channel);
         TestUtils.unregisterModel(channel, "noopversioned", "1.11", false);
         TestUtils.unregisterModel(channel, "noopversioned", "1.2.1", false);
+    }
+
+    @Test
+    public void testAddToBatchIfNotStale() {
+        Map<String, Job> jobs = new HashMap<>();
+        Job job = new RestJob(null, "modelA", "1", WorkerCommands.PREDICT, new RequestInput("2"));
+        long timeoutInNs = 1000;
+        long nowInNs = job.getBegin() + timeoutInNs + 10;
+        Assert.assertFalse(Model.addToBatchIfNotStale(job, jobs, nowInNs, timeoutInNs));
+        Assert.assertTrue(jobs.isEmpty());
+        nowInNs = job.getBegin() + timeoutInNs - 10;
+        Assert.assertTrue(Model.addToBatchIfNotStale(job, jobs, nowInNs, timeoutInNs));
+        Assert.assertEquals(jobs.size(), 1);
     }
 
     private void testLoadModel(String url, String modelName, String version)

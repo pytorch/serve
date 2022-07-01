@@ -1,5 +1,6 @@
 package org.pytorch.serve.wlm;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.gson.JsonObject;
 import java.io.File;
 import java.util.Map;
@@ -27,6 +28,7 @@ public class Model {
     public static final String BATCH_SIZE = "batchSize";
     public static final String MAX_BATCH_DELAY = "maxBatchDelay";
     public static final String RESPONSE_TIMEOUT = "responseTimeout";
+    public static final String QUEUE_TIMEOUT = "queueTimeout";
     public static final String DEFAULT_VERSION = "defaultVersion";
     public static final String MAR_NAME = "marName";
 
@@ -39,6 +41,7 @@ public class Model {
     private int maxBatchDelay;
     private ReentrantLock lock;
     private int responseTimeout;
+    private int queueTimeout;
     private ModelVersionName modelVersionName;
 
     private boolean isWorkflowModel;
@@ -73,6 +76,7 @@ public class Model {
         modelInfo.addProperty(BATCH_SIZE, getBatchSize());
         modelInfo.addProperty(MAX_BATCH_DELAY, getMaxBatchDelay());
         modelInfo.addProperty(RESPONSE_TIMEOUT, getResponseTimeout());
+        modelInfo.addProperty(QUEUE_TIMEOUT, getQueueTimeout());
 
         return modelInfo;
     }
@@ -82,6 +86,7 @@ public class Model {
         maxWorkers = modelInfo.get(MAX_WORKERS).getAsInt();
         maxBatchDelay = modelInfo.get(MAX_BATCH_DELAY).getAsInt();
         responseTimeout = modelInfo.get(RESPONSE_TIMEOUT).getAsInt();
+        queueTimeout = modelInfo.get(QUEUE_TIMEOUT).getAsInt();
         batchSize = modelInfo.get(BATCH_SIZE).getAsInt();
     }
 
@@ -197,10 +202,14 @@ public class Model {
             long maxDelay = maxBatchDelay;
             jobsQueue = jobsDb.get(DEFAULT_DATA_QUEUE);
 
+            long requestTimeoutNs = queueTimeout * (long) 1E6;
             Job j = jobsQueue.poll(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
-            logger.trace("get first job: {}", Objects.requireNonNull(j).getJobId());
+            if (j != null) {
+                if (addToBatchIfNotStale(j, jobsRepo, System.nanoTime(), requestTimeoutNs)) {
+                    logger.trace("get first job: {}", j.getJobId());
+                }
+            }
 
-            jobsRepo.put(j.getJobId(), j);
             // describe request job batch size always is 1
             if (j.getCmd() == WorkerCommands.DESCRIBE) {
                 return;
@@ -220,7 +229,7 @@ public class Model {
                 }
                 maxDelay -= end - begin;
                 begin = end;
-                jobsRepo.put(j.getJobId(), j);
+                addToBatchIfNotStale(j, jobsRepo, System.nanoTime(), requestTimeoutNs);
                 if (maxDelay <= 0) {
                     break;
                 }
@@ -231,6 +240,16 @@ public class Model {
                 lock.unlock();
             }
         }
+    }
+
+    @VisibleForTesting
+    public static boolean addToBatchIfNotStale(Job job, Map<String, Job> jobsRepo, long nowInNs, long timeoutInNs) {
+        if ((nowInNs - job.getBegin()) >= timeoutInNs) {
+            logger.trace("Discarding job {} because it is stale", job.getJobId());
+            return false;
+        }
+        jobsRepo.put(job.getJobId(), job);
+        return true;
     }
 
     public int incrFailedInfReqs() {
@@ -247,5 +266,13 @@ public class Model {
 
     public void setResponseTimeout(int responseTimeout) {
         this.responseTimeout = responseTimeout;
+    }
+
+    public int getQueueTimeout() {
+        return ConfigManager.getInstance().isDebug() ? Integer.MAX_VALUE : queueTimeout;
+    }
+
+    public void setQueueTimeout(int queueTimeout) {
+        this.queueTimeout = queueTimeout;
     }
 }

@@ -121,9 +121,14 @@ public final class ApiUtils {
         int maxBatchDelay = registerModelRequest.getMaxBatchDelay();
         int initialWorkers = registerModelRequest.getInitialWorkers();
         int responseTimeout = registerModelRequest.getResponseTimeout();
+        int queueTimeout = registerModelRequest.getQueueTimeout();
         boolean s3SseKms = registerModelRequest.getS3SseKms();
         if (responseTimeout == -1) {
             responseTimeout = ConfigManager.getInstance().getDefaultResponseTimeout();
+        }
+
+        if (queueTimeout == -1) {
+            queueTimeout = ConfigManager.getInstance().getDefaultQueueTimeout();
         }
 
         Manifest.RuntimeType runtimeType = null;
@@ -143,6 +148,7 @@ public final class ApiUtils {
                 batchSize,
                 maxBatchDelay,
                 responseTimeout,
+                queueTimeout,
                 initialWorkers,
                 registerModelRequest.getSynchronous(),
                 false,
@@ -157,6 +163,7 @@ public final class ApiUtils {
             int batchSize,
             int maxBatchDelay,
             int responseTimeout,
+            int queueTimeout,
             int initialWorkers,
             boolean isSync,
             boolean isWorkflowModel,
@@ -176,6 +183,7 @@ public final class ApiUtils {
                             batchSize,
                             maxBatchDelay,
                             responseTimeout,
+                            queueTimeout,
                             null,
                             false,
                             isWorkflowModel,

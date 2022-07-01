@@ -32,6 +32,9 @@ public class RegisterModelRequest {
     @SerializedName("response_timeout")
     private int responseTimeout;
 
+    @SerializedName("queue_timeout")
+    private int queueTimeout;
+
     @SerializedName("url")
     private String modelUrl;
 
@@ -51,6 +54,7 @@ public class RegisterModelRequest {
                         ConfigManager.getInstance().getConfiguredDefaultWorkersPerModel());
         synchronous = Boolean.parseBoolean(NettyUtils.getParameter(decoder, "synchronous", "true"));
         responseTimeout = NettyUtils.getIntParameter(decoder, "response_timeout", -1);
+        queueTimeout = NettyUtils.getIntParameter(decoder, "queue_timeout", -1);
         modelUrl = NettyUtils.getParameter(decoder, "url", null);
         s3SseKms = Boolean.parseBoolean(NettyUtils.getParameter(decoder, "s3_sse_kms", "false"));
     }
@@ -67,6 +71,7 @@ public class RegisterModelRequest {
                         ConfigManager.getInstance().getConfiguredDefaultWorkersPerModel());
         synchronous = request.getSynchronous();
         responseTimeout = GRPCUtils.getRegisterParam(request.getResponseTimeout(), -1);
+        queueTimeout = GRPCUtils.getRegisterParam(request.getQueueTimeout(), -1);
         modelUrl = GRPCUtils.getRegisterParam(request.getUrl(), null);
         s3SseKms = request.getS3SseKms();
     }
@@ -77,6 +82,7 @@ public class RegisterModelRequest {
         synchronous = true;
         initialWorkers = ConfigManager.getInstance().getConfiguredDefaultWorkersPerModel();
         responseTimeout = -1;
+        queueTimeout = -1;
         s3SseKms = false;
     }
 
@@ -110,6 +116,10 @@ public class RegisterModelRequest {
 
     public Integer getResponseTimeout() {
         return responseTimeout;
+    }
+
+    public Integer getQueueTimeout() {
+        return queueTimeout;
     }
 
     public String getModelUrl() {
