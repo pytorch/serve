@@ -32,3 +32,7 @@ instances.yaml.backup
 
 ## Models 
 *.pt
+
+# cpp
+cpp/_build
+cpp/third-party
