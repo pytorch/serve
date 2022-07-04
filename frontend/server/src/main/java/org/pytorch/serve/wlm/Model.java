@@ -242,7 +242,8 @@ public class Model {
     }
 
     @VisibleForTesting
-    public static boolean addToBatchIfNotStale(Job job, Map<String, Job> jobsRepo, long nowInNs, long timeoutInNs) {
+    public static boolean addToBatchIfNotStale(
+            Job job, Map<String, Job> jobsRepo, long nowInNs, long timeoutInNs) {
         if ((nowInNs - job.getBegin()) >= timeoutInNs) {
             logger.trace("Discarding job {} because it is stale", job.getJobId());
             return false;
