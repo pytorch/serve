@@ -76,5 +76,7 @@ public class ConfigManagerTest {
         Assert.assertEquals("false", configManager.getEnableEnvVarsConfig());
         Assert.assertEquals(4, configManager.getJsonIntValue("noop", "1.0", "batchSize", 1));
         Assert.assertEquals(4, configManager.getJsonIntValue("vgg16", "1.0", "maxWorkers", 1));
+        Assert.assertEquals(100, configManager.getJsonIntValue("vgg16", "1.0", "queueTimeout", 1));
+        Assert.assertEquals("100", configManager.getProperty("default_queue_timeout", "1"));
     }
 }

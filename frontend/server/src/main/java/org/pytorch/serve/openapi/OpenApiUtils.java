@@ -271,13 +271,19 @@ public final class OpenApiUtils {
                         "max_batch_delay",
                         "integer",
                         "100",
-                        "Maximum delay for batch aggregation, default: 100."));
+                        "Maximum delay in ms for batch aggregation, default: 100."));
         operation.addParameter(
                 new QueryParameter(
                         "response_timeout",
                         "integer",
                         "2",
                         "Maximum time, in seconds, the TorchServe waits for a response from the model inference code, default: 120."));
+        operation.addParameter(
+                new QueryParameter(
+                        "queue_timeout",
+                        "integer",
+                        "2",
+                        "Maximum time, in milliseconds, a prediction request can stay in queue before being considered stale, default: 120."));
         operation.addParameter(
                 new QueryParameter(
                         "initial_workers",
