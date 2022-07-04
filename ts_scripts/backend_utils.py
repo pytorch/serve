@@ -17,5 +17,5 @@ def test_torchserve():
     print(f"## In directory: {os.getcwd()} | Executing command: {ts_test_cmd}")
     ts_test_error_code = os.system(ts_test_cmd)
 
-    if  ts_test_error_code != 0:
+    if ts_test_error_code != 0:
         sys.exit("## TorchServe Pytests Failed !")
