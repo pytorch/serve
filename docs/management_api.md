@@ -13,6 +13,8 @@ The Management API listens on port 8081 and is only accessible from localhost by
 
 Similar to the [Inference API](inference_api.md), the Management API provides a [API description](#api-description) to describe management APIs with the OpenAPI 3.0 specification.
 
+Alternatively if you want to use KServe, TorchServe  supports both v1 and v2 api. For more details please look into this [README.md](../kubernetes/kserve/README.md).
+
 ## Register a model
 
 This API follows the [ManagementAPIsService.RegisterModel](https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/proto/management.proto) gRPC API.
