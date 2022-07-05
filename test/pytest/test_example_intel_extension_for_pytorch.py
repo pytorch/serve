@@ -80,8 +80,15 @@ def test_single_worker_affinity():
         response.status_code == 200
     ), "single-worker inference with core pinning failed"
 
-    affinity = get_worker_affinity(NUM_CORES, num_workers, worker_idx)
-    assert affinity in open(TS_LOG).read(), "workers are not correctly pinned to cores"
+    launcher_available = (
+        "CPU launcher is enabled but launcher is not available. Proceeding without launcher."
+        not in open(TS_LOG).read()
+    )
+    if launcher_available:
+        affinity = get_worker_affinity(NUM_CORES, num_workers, worker_idx)
+        assert (
+            affinity in open(TS_LOG).read()
+        ), "workers are not correctly pinned to cores"
 
 
 def test_multi_worker_affinity():
@@ -98,11 +105,18 @@ def test_multi_worker_affinity():
         response.status_code == 200
     ), "multi-worker inference with core pinning failed"
 
-    for worker_idx in range(num_workers):
-        curr_worker_affinity = get_worker_affinity(NUM_CORES, num_workers, worker_idx)
-        assert (
-            curr_worker_affinity in open(TS_LOG).read()
-        ), "workers are not correctly pinned to cores"
+    launcher_available = (
+        "CPU launcher is enabled but launcher is not available. Proceeding without launcher."
+        not in open(TS_LOG).read()
+    )
+    if launcher_available:
+        for worker_idx in range(num_workers):
+            curr_worker_affinity = get_worker_affinity(
+                NUM_CORES, num_workers, worker_idx
+            )
+            assert (
+                curr_worker_affinity in open(TS_LOG).read()
+            ), "workers are not correctly pinned to cores"
 
 
 def test_worker_scale_up_affinity():
@@ -126,13 +140,18 @@ def test_worker_scale_up_affinity():
         response.status_code == 200
     ), "scaled up workers inference with core pinning failed"
 
-    for worker_idx in range(scaled_up_num_workers):
-        curr_worker_affinity = get_worker_affinity(
-            NUM_CORES, scaled_up_num_workers, worker_idx
-        )
-        assert (
-            curr_worker_affinity in open(TS_LOG).read()
-        ), "workers are not correctly pinned to cores"
+    launcher_available = (
+        "CPU launcher is enabled but launcher is not available. Proceeding without launcher."
+        not in open(TS_LOG).read()
+    )
+    if launcher_available:
+        for worker_idx in range(scaled_up_num_workers):
+            curr_worker_affinity = get_worker_affinity(
+                NUM_CORES, scaled_up_num_workers, worker_idx
+            )
+            assert (
+                curr_worker_affinity in open(TS_LOG).read()
+            ), "workers are not correctly pinned to cores"
 
 
 def test_worker_scale_down_affinity():
@@ -156,10 +175,15 @@ def test_worker_scale_down_affinity():
         response.status_code == 200
     ), "scaled down workers inference with core pinning failed"
 
-    for worker_idx in range(scaled_down_num_workers):
-        curr_worker_affinity = get_worker_affinity(
-            NUM_CORES, scaled_down_num_workers, worker_idx
-        )
-        assert (
-            curr_worker_affinity in open(TS_LOG).read()
-        ), "workers are not correctly pinned to cores"
+    launcher_available = (
+        "CPU launcher is enabled but launcher is not available. Proceeding without launcher."
+        not in open(TS_LOG).read()
+    )
+    if launcher_available:
+        for worker_idx in range(scaled_down_num_workers):
+            curr_worker_affinity = get_worker_affinity(
+                NUM_CORES, scaled_down_num_workers, worker_idx
+            )
+            assert (
+                curr_worker_affinity in open(TS_LOG).read()
+            ), "workers are not correctly pinned to cores"
