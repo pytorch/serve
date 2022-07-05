@@ -27,17 +27,16 @@ def upload_pypi_packages(test_pypi=False):
     """
     Takes a list of path values and uploads them to pypi using twine, using token stored in environment variable
     """
-    os.system(f"pip3 install twine -q")
 
     # Note: TWINE_USERNAME and TWINE_PASSWORD are expected to be set in the environment
     for dist_path in [TS_WHEEL_PATH, MA_WHEEL_PATH, WA_WHEEL_PATH]:
         if test_pypi:
             exit_code = os.system(
-                f"twine upload {dist_path}/* --username __token__ --repository-url https://test.pypi.org/legacy/ --verbose"
+                f"set -ex ; twine upload {dist_path}/* --username __token__ --repository-url https://test.pypi.org/legacy/"
             )
         else:
             exit_code = os.system(
-                f"set -ex ; twine upload --username __token__ {dist_path}/* --verbose"
+                f"set -ex ; twine upload --username __token__ {dist_path}/*"
             )
         if exit_code != 0:
             sys.exit(f"twine upload for path {dist_path} failed")
@@ -65,7 +64,6 @@ def upload_conda_packages():
             ):
                 print(f"Uploading to anaconda package: {name}")
                 anaconda_upload_command = f"anaconda -t {anaconda_token} upload --user {CONDA_USER} {file_path} --force"
-                print(f"cmd={anaconda_upload_command}")
 
                 exit_code = os.system(anaconda_upload_command)
 

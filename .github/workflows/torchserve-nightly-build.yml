@@ -9,7 +9,7 @@ jobs:
     # creates workflows for the 3 OS: ubuntu, macOS & windows
     runs-on: ${{ matrix.os }}
     strategy:
-      fail-fast: false
+      fail-fast: true
       matrix:
         os: [ubuntu-latest, macOS-latest, windows-latest]
     steps:

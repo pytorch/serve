@@ -18,7 +18,7 @@ if os.name == "nt":
     CONDA_BINARY = "conda"
 
 
-def add_nightly_suffix_conda(ts_version, ma_version, wa_version):
+def add_nightly_suffix_conda(binary_name: str) -> str:
     """
     Add date suffix to the conda version number
     """
@@ -26,10 +26,7 @@ def add_nightly_suffix_conda(ts_version, ma_version, wa_version):
     # Get today's date
     todays_date = date.today().strftime("%Y%m%d")
 
-    ts_version += ".dev" + todays_date
-    ma_version += ".dev" + todays_date
-    wa_version += ".dev" + todays_date
-    return ts_version, ma_version, wa_version
+    return binary_name + ".dev" + todays_date
 
 
 def install_conda_build():
@@ -94,9 +91,10 @@ def conda_build(ts_wheel_path, ma_wheel_path, wa_wheel_path, conda_nightly=False
         wa_version = "".join(wa_vf.read().split())
 
     if conda_nightly:
-        ts_version, ma_version, wa_version = add_nightly_suffix_conda(
-            ts_version, ma_version, wa_version
-        )
+        ts_version, ma_version, wa_version = [
+            add_nightly_suffix_conda(binary_name)
+            for binary_name in [ts_version, ma_version, wa_version]
+        ]
 
     os.environ["TORCHSERVE_VERSION"] = ts_version
     os.environ["TORCH_MODEL_ARCHIVER_VERSION"] = ma_version
