@@ -271,7 +271,7 @@ public final class OpenApiUtils {
                         "max_batch_delay",
                         "integer",
                         "100",
-                        "Maximum delay in ms for batch aggregation, default: 100."));
+                        "Maximum delay, in milliseconds, for batch aggregation, default: 100."));
         operation.addParameter(
                 new QueryParameter(
                         "response_timeout",

@@ -225,7 +225,7 @@
           {
             "in": "query",
             "name": "max_batch_delay",
-            "description": "Maximum delay in ms for batch aggregation, default: 100.",
+            "description": "Maximum delay, in milliseconds, for batch aggregation, default: 100.",
             "required": false,
             "schema": {
               "type": "integer",
