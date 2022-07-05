@@ -43,7 +43,7 @@ Refer to [torchserve docker](docker/README.md) for details.
   * [Kubeflow](https://v0-5.kubeflow.org/docs/components/pytorchserving/)
   * [MLflow](https://github.com/mlflow/mlflow-torchserve)
   * [Sagemaker](https://aws.amazon.com/blogs/machine-learning/serving-pytorch-models-in-production-with-the-amazon-sagemaker-native-torchserve-integration/)
-  * [Kserve](https://kserve.github.io/website/modelserving/v1beta1/torchserve/) (Supports both v1 and v2 api)
+  * [Kserve](https://kserve.github.io/website/modelserving/v1beta1/torchserve/): Supports both v1 and v2 API
   * [Vertex AI](https://cloud.google.com/blog/topics/developers-practitioners/pytorch-google-cloud-how-deploy-pytorch-models-vertex-ai)
 * Export your model for optimized inference. Torchscript out of the box, [ORT](https://discuss.pytorch.org/t/deploying-onnx-model-with-torchserve/97725/2), [IPEX](https://github.com/pytorch/serve/tree/master/examples/intel_extension_for_pytorch), [TensorRT](https://github.com/pytorch/serve/issues/1243), [FasterTransformer](https://github.com/pytorch/serve/tree/master/examples/FasterTransformer_HuggingFace_Bert)
 * [Performance Guide](docs/performance_guide.md): builtin support to optimize, benchmark and profile PyTorch and TorchServe performance
