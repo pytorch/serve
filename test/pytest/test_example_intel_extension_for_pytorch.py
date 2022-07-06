@@ -1,6 +1,8 @@
 import json
 import os
+import platform
 
+import pytest
 import requests
 import test_utils
 from intel_extension_for_pytorch.cpu.launch import CPUinfo
@@ -65,6 +67,9 @@ def scale_workers_with_core_pinning(scaled_num_workers):
     return response
 
 
+@pytest.mark.skipif(
+    platform.system() == "Windows", reason="Windows platform is not supported"
+)
 def test_single_worker_affinity():
     num_workers = 1
     worker_idx = 0
@@ -91,6 +96,9 @@ def test_single_worker_affinity():
         ), "workers are not correctly pinned to cores"
 
 
+@pytest.mark.skipif(
+    platform.system() == "Windows", reason="Windows platform is not supported"
+)
 def test_multi_worker_affinity():
     num_workers = 4
     setup_torchserve()
@@ -119,6 +127,9 @@ def test_multi_worker_affinity():
             ), "workers are not correctly pinned to cores"
 
 
+@pytest.mark.skipif(
+    platform.system() == "Windows", reason="Windows platform is not supported"
+)
 def test_worker_scale_up_affinity():
     initial_num_workers = 2
     setup_torchserve()
@@ -154,6 +165,9 @@ def test_worker_scale_up_affinity():
             ), "workers are not correctly pinned to cores"
 
 
+@pytest.mark.skipif(
+    platform.system() == "Windows", reason="Windows platform is not supported"
+)
 def test_worker_scale_down_affinity():
     initial_num_workers = 4
     setup_torchserve()
