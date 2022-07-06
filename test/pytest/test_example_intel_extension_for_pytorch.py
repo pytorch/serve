@@ -15,7 +15,7 @@ TS_LOG = "./logs/ts_log.log"
 MANAGEMENT_API = "http://localhost:8081"
 INFERENCE_API = "http://localhost:8080"
 
-ipex_installed_and_launcher_available = False
+ipex_launcher_available = False
 cmd = [
     "python",
     "-m",
@@ -25,7 +25,7 @@ cmd = [
 ]
 r = subprocess.run(cmd)
 if r.returncode == 0:
-    ipex_installed_and_launcher_available = True
+    ipex_launcher_available = True
 
 
 def setup_module():
@@ -81,7 +81,7 @@ def scale_workers_with_core_pinning(scaled_num_workers):
 
 
 @pytest.mark.skipif(
-    not ipex_installed_and_launcher_available,
+    not ipex_launcher_available,
     reason="Make sure intel-extension-for-pytorch is installed",
 )
 def test_single_worker_affinity():
@@ -104,7 +104,7 @@ def test_single_worker_affinity():
 
 
 @pytest.mark.skipif(
-    not ipex_installed_and_launcher_available,
+    not ipex_launcher_available,
     reason="Make sure intel-extension-for-pytorch is installed",
 )
 def test_multi_worker_affinity():
@@ -129,7 +129,7 @@ def test_multi_worker_affinity():
 
 
 @pytest.mark.skipif(
-    not ipex_installed_and_launcher_available,
+    not ipex_launcher_available,
     reason="Make sure intel-extension-for-pytorch is installed",
 )
 def test_worker_scale_up_affinity():
@@ -161,7 +161,7 @@ def test_worker_scale_up_affinity():
 
 
 @pytest.mark.skipif(
-    not ipex_installed_and_launcher_available,
+    not ipex_launcher_available,
     reason="Make sure intel-extension-for-pytorch is installed",
 )
 def test_worker_scale_down_affinity():
