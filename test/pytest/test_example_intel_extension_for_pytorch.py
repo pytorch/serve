@@ -16,6 +16,7 @@ INFERENCE_API = "http://localhost:8080"
 
 ipex_installed = False
 try:
+    import intel_extension_for_pytorch as ipex
     ipex_installed = True
 except ImportError as error:
     pass
