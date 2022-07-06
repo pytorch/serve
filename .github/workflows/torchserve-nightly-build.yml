@@ -16,12 +16,11 @@ jobs:
       - name: Setup Conda
         uses: s-weigand/setup-conda@v1
       - run: conda --version
-      - run: conda install -y conda-build
+      - run: conda install -y conda-build anaconda-client
       - name: Checkout TorchServe
         uses: actions/checkout@v2
       - name: Install dependencies
         run: |
-          pip install twine
           python ts_scripts/install_dependencies.py --environment=dev
           pip install -e .
       - name: Setup Java 11

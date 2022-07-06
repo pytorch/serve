@@ -33,6 +33,14 @@ def install_conda_build():
     """
     Install conda-build, required to create conda packages
     """
+
+    # Check if conda binary already exists
+    exit_code = os.system(f"conda --version")
+    if exit_code == 0:
+        print(
+            f"'conda' already present on the system. Proceeding without a fresh conda installation."
+        )
+        return
     os.system(f"{CONDA_BINARY} install python=3.8 conda-build anaconda-client -y")
 
 

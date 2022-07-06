@@ -10,3 +10,4 @@ numpy; sys_platform != 'win32'
 numpy==1.19.3; sys_platform == 'win32' #see https://tinyurl.com/y3dm3h86
 nvgpu; sys_platform != 'win32'
 nvgpu==0.8.0; sys_platform == 'win32'
+twine
