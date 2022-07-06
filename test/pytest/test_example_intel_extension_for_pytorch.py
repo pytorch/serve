@@ -16,13 +16,7 @@ MANAGEMENT_API = "http://localhost:8081"
 INFERENCE_API = "http://localhost:8080"
 
 ipex_launcher_available = False
-cmd = [
-    "python",
-    "-m",
-    "intel_extension_for_pytorch.cpu.launch",
-    "--no_python",
-    "hostname",
-]
+cmd = ["python", "-m", "intel_extension_for_pytorch.cpu.launch", "--no_python", "ls"]
 r = subprocess.run(cmd)
 if r.returncode == 0:
     ipex_launcher_available = True
