@@ -391,8 +391,8 @@ TorchServe needs to know the maximum batch size that the model can handle and th
 </ol>
 <p>The configuration properties that we are interested in are the following:</p>
 <ol class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">batch_size</span></code>: This is the maximum batch size in <code class="docutils literal notranslate"><span class="pre">ms</span></code> that a model is expected to handle.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">max_batch_delay</span></code>: This is the maximum batch delay time TorchServe waits to receive <code class="docutils literal notranslate"><span class="pre">batch_size</span></code> number of requests. If TorchServe doesn’t receive <code class="docutils literal notranslate"><span class="pre">batch_size</span></code> number of
+<li><p><code class="docutils literal notranslate"><span class="pre">batch_size</span></code>: This is the maximum batch size that a model is expected to handle.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">max_batch_delay</span></code>: This is the maximum batch delay time in <code class="docutils literal notranslate"><span class="pre">ms</span></code> TorchServe waits to receive <code class="docutils literal notranslate"><span class="pre">batch_size</span></code> number of requests. If TorchServe doesn’t receive <code class="docutils literal notranslate"><span class="pre">batch_size</span></code> number of
 requests before this timer time’s out, it sends what ever requests that were received to the model <code class="docutils literal notranslate"><span class="pre">handler</span></code>.</p></li>
 </ol>
 <p>Let’s look at an example using this configuration through management API:</p>
