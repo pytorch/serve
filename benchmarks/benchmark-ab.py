@@ -345,7 +345,7 @@ def docker_torchserve_start():
     inference_port = urlparse(execution_params["inference_url"]).port
     management_port = urlparse(execution_params["management_url"]).port
     docker_run_cmd = (
-        f"docker run {execution_params['docker_runtime']} {backend_profiling} --name ts --user root -p "
+        f"docker run {backend_profiling} --name ts --user root -p "
         f"{inference_port}:{inference_port} -p {management_port}:{management_port} "
         f"-v {execution_params['tmp_dir']}:/tmp {enable_gpu} -itd {docker_image} "
         f'"torchserve --start --model-store /home/model-server/model-store '

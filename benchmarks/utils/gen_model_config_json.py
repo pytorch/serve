@@ -32,6 +32,7 @@ MODEL_CONFIG_KEY = {
     "input",
     "processors",
     "exec_env",
+    "image"
     "docker_runtime"
 }
 

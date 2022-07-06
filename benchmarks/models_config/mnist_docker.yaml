@@ -18,6 +18,7 @@ mnist:
         backend_profiling: False
         exec_env: "docker"
         docker_runtime: "pytorch/torchserve-nightly:latest-gpu"
+        image: "pytorch/torchserve-nightly:latest-gpu"
         processors:
             - "cpu"
             - "gpus": "all"
