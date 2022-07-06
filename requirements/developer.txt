@@ -12,3 +12,4 @@ pyspelling
 pygit2==1.6.1
 pyspelling
 pre-commit
+twine
