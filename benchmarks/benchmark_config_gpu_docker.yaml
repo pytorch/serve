@@ -5,7 +5,7 @@
 #  - docker: "pytorch/torchserve-nightly:latest-gpu"
 # Nightly build will be installed if "ts_version" is not specifiged
 ts_version:
-   docker: &ts_version "pytorch/torchserve-nightly:latest-gpu"
+   docker: &ts_version "pytorch/torchserve:latest-gpu"
 
 # a list of model configure yaml files defined in benchmarks/models_config
 # or a list of model configure yaml files with full path
