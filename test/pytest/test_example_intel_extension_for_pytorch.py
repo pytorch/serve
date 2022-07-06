@@ -1,11 +1,9 @@
 import json
 import os
-import platform
 
 import pytest
 import requests
 import test_utils
-from intel_extension_for_pytorch.cpu.launch import CPUinfo
 from test_handler import run_inference_using_url_with_data
 
 REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../")
@@ -16,8 +14,11 @@ TS_LOG = "./logs/ts_log.log"
 MANAGEMENT_API = "http://localhost:8081"
 INFERENCE_API = "http://localhost:8080"
 
-cpuinfo = CPUinfo()
-NUM_CORES = cpuinfo.physical_core_nums()
+ipex_installed = False
+try:
+    ipex_installed = True
+except ImportError as error:
+    pass
 
 
 def setup_module():
@@ -36,7 +37,12 @@ def setup_torchserve():
     )
 
 
-def get_worker_affinity(num_cores, num_workers, worker_idx):
+def get_worker_affinity(num_workers, worker_idx):
+    from intel_extension_for_pytorch.cpu.launch import CPUinfo
+
+    cpuinfo = CPUinfo()
+    num_cores = cpuinfo.physical_core_nums()
+
     num_cores_per_worker = num_cores // num_workers
     start = worker_idx * num_cores_per_worker
     end = (worker_idx + 1) * num_cores_per_worker - 1
@@ -68,7 +74,7 @@ def scale_workers_with_core_pinning(scaled_num_workers):
 
 
 @pytest.mark.skipif(
-    platform.system() == "Windows", reason="Windows platform is not supported"
+    not ipex_installed, reason="Make sure intel-extension-for-pytorch is installed"
 )
 def test_single_worker_affinity():
     num_workers = 1
@@ -90,14 +96,14 @@ def test_single_worker_affinity():
         not in open(TS_LOG).read()
     )
     if launcher_available:
-        affinity = get_worker_affinity(NUM_CORES, num_workers, worker_idx)
+        affinity = get_worker_affinity(num_workers, worker_idx)
         assert (
             affinity in open(TS_LOG).read()
         ), "workers are not correctly pinned to cores"
 
 
 @pytest.mark.skipif(
-    platform.system() == "Windows", reason="Windows platform is not supported"
+    not ipex_installed, reason="Make sure intel-extension-for-pytorch is installed"
 )
 def test_multi_worker_affinity():
     num_workers = 4
@@ -119,16 +125,14 @@ def test_multi_worker_affinity():
     )
     if launcher_available:
         for worker_idx in range(num_workers):
-            curr_worker_affinity = get_worker_affinity(
-                NUM_CORES, num_workers, worker_idx
-            )
+            curr_worker_affinity = get_worker_affinity(num_workers, worker_idx)
             assert (
                 curr_worker_affinity in open(TS_LOG).read()
             ), "workers are not correctly pinned to cores"
 
 
 @pytest.mark.skipif(
-    platform.system() == "Windows", reason="Windows platform is not supported"
+    not ipex_installed, reason="Make sure intel-extension-for-pytorch is installed"
 )
 def test_worker_scale_up_affinity():
     initial_num_workers = 2
@@ -158,7 +162,7 @@ def test_worker_scale_up_affinity():
     if launcher_available:
         for worker_idx in range(scaled_up_num_workers):
             curr_worker_affinity = get_worker_affinity(
-                NUM_CORES, scaled_up_num_workers, worker_idx
+                scaled_up_num_workers, worker_idx
             )
             assert (
                 curr_worker_affinity in open(TS_LOG).read()
@@ -166,7 +170,7 @@ def test_worker_scale_up_affinity():
 
 
 @pytest.mark.skipif(
-    platform.system() == "Windows", reason="Windows platform is not supported"
+    not ipex_installed, reason="Make sure intel-extension-for-pytorch is installed"
 )
 def test_worker_scale_down_affinity():
     initial_num_workers = 4
@@ -196,7 +200,7 @@ def test_worker_scale_down_affinity():
     if launcher_available:
         for worker_idx in range(scaled_down_num_workers):
             curr_worker_affinity = get_worker_affinity(
-                NUM_CORES, scaled_down_num_workers, worker_idx
+                scaled_down_num_workers, worker_idx
             )
             assert (
                 curr_worker_affinity in open(TS_LOG).read()
