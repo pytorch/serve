@@ -1,1 +1,0 @@
-docker run pytorch/torchserve-nightly:latest-gpu  --name ts --user root -p 8080:8080 -p 8081:8081 -v /tmp:/tmp --gpus all -itd pytorch/torchserve:latest-gpu "torchserve --start --model-store /home/model-server/model-store \--workflow-store /home/model-server/wf-store --ts-config /tmp/benchmark/conf/config.properties > /tmp/benchmark/logs/model_metrics.log"
