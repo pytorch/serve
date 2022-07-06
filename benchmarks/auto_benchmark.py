@@ -34,7 +34,13 @@ class BenchmarkConfig:
                 self.bm_config["version"] = "torchserve-nightly=={}".format(v)
             elif k == "release":
                 self.bm_config["version"] = "torchserve=={}".format(v)
+            elif k == "docker":
+                self.bm_config["version"] = v
             break
+        
+        # TODO: Version is correctly identified here
+        print("=======================================")
+        print(f"TS_VERSION {self.bm_config['version']}")
 
     def models(self, model_files):
         self.bm_config["models"] = model_files
@@ -95,9 +101,6 @@ class BenchmarkConfig:
             '{}/cpu'.format(MODEL_JSON_CONFIG_PATH) \
                 if self.bm_config["hardware"] == 'cpu' \
                 else '{}/gpu'.format(MODEL_JSON_CONFIG_PATH)
-
-        if self.skip_ts_install:
-            self.bm_config["version"] = get_torchserve_version()
 
         if report_cmd:
             self.report_cmd(report_cmd)
@@ -174,6 +177,7 @@ def run_benchmark(bm_config):
             # call benchmark-ab.py
             shutil.rmtree(TS_LOGS_PATH, ignore_errors=True)
             shutil.rmtree(BENCHMARK_TMP_PATH, ignore_errors=True)
+            
             cmd = 'python ./benchmarks/benchmark-ab.py --tmp_dir /tmp --report_location /tmp --config_properties ' \
                   './benchmarks/config.properties --config {}/{}'\
                 .format(bm_config["model_config_path"], model_json_config)
@@ -228,12 +232,6 @@ def execute(command, wait=False, stdout=None, stderr=None, shell=True):
     if wait:
         cmd.wait()
     return cmd
-
-def get_torchserve_version():
-    # fetch the torchserve version from version.txt file
-    with open(CWD + '/ts/version.txt', 'r') as file:
-        version = file.readline().rstrip()
-    return version
 
 def main():
     parser = argparse.ArgumentParser()

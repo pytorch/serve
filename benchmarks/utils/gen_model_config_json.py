@@ -30,7 +30,9 @@ MODEL_CONFIG_KEY = {
     "concurrency",
     "workers",
     "input",
-    "processors"
+    "processors",
+    "exec_env",
+    "docker_runtime"
 }
 
 def convert_yaml_to_json(yaml_file_path, output_dir):
