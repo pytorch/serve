@@ -1,5 +1,6 @@
 import json
 import os
+import subprocess
 
 import pytest
 import requests
@@ -14,12 +15,17 @@ TS_LOG = "./logs/ts_log.log"
 MANAGEMENT_API = "http://localhost:8081"
 INFERENCE_API = "http://localhost:8080"
 
-ipex_installed = False
-try:
-    import intel_extension_for_pytorch as ipex
-    ipex_installed = True
-except ImportError as error:
-    pass
+ipex_installed_and_launcher_available = False
+cmd = [
+    "python",
+    "-m",
+    "intel_extension_for_pytorch.cpu.launch",
+    "--no_python",
+    "hostname",
+]
+r = subprocess.run(cmd)
+if r.returncode == 0:
+    ipex_installed_and_launcher_available = True
 
 
 def setup_module():
@@ -75,7 +81,8 @@ def scale_workers_with_core_pinning(scaled_num_workers):
 
 
 @pytest.mark.skipif(
-    not ipex_installed, reason="Make sure intel-extension-for-pytorch is installed"
+    not ipex_installed_and_launcher_available,
+    reason="Make sure intel-extension-for-pytorch is installed",
 )
 def test_single_worker_affinity():
     num_workers = 1
@@ -92,19 +99,13 @@ def test_single_worker_affinity():
         response.status_code == 200
     ), "single-worker inference with core pinning failed"
 
-    launcher_available = (
-        "CPU launcher is enabled but launcher is not available. Proceeding without launcher."
-        not in open(TS_LOG).read()
-    )
-    if launcher_available:
-        affinity = get_worker_affinity(num_workers, worker_idx)
-        assert (
-            affinity in open(TS_LOG).read()
-        ), "workers are not correctly pinned to cores"
+    affinity = get_worker_affinity(num_workers, worker_idx)
+    assert affinity in open(TS_LOG).read(), "workers are not correctly pinned to cores"
 
 
 @pytest.mark.skipif(
-    not ipex_installed, reason="Make sure intel-extension-for-pytorch is installed"
+    not ipex_installed_and_launcher_available,
+    reason="Make sure intel-extension-for-pytorch is installed",
 )
 def test_multi_worker_affinity():
     num_workers = 4
@@ -120,20 +121,16 @@ def test_multi_worker_affinity():
         response.status_code == 200
     ), "multi-worker inference with core pinning failed"
 
-    launcher_available = (
-        "CPU launcher is enabled but launcher is not available. Proceeding without launcher."
-        not in open(TS_LOG).read()
-    )
-    if launcher_available:
-        for worker_idx in range(num_workers):
-            curr_worker_affinity = get_worker_affinity(num_workers, worker_idx)
-            assert (
-                curr_worker_affinity in open(TS_LOG).read()
-            ), "workers are not correctly pinned to cores"
+    for worker_idx in range(num_workers):
+        curr_worker_affinity = get_worker_affinity(num_workers, worker_idx)
+        assert (
+            curr_worker_affinity in open(TS_LOG).read()
+        ), "workers are not correctly pinned to cores"
 
 
 @pytest.mark.skipif(
-    not ipex_installed, reason="Make sure intel-extension-for-pytorch is installed"
+    not ipex_installed_and_launcher_available,
+    reason="Make sure intel-extension-for-pytorch is installed",
 )
 def test_worker_scale_up_affinity():
     initial_num_workers = 2
@@ -156,22 +153,16 @@ def test_worker_scale_up_affinity():
         response.status_code == 200
     ), "scaled up workers inference with core pinning failed"
 
-    launcher_available = (
-        "CPU launcher is enabled but launcher is not available. Proceeding without launcher."
-        not in open(TS_LOG).read()
-    )
-    if launcher_available:
-        for worker_idx in range(scaled_up_num_workers):
-            curr_worker_affinity = get_worker_affinity(
-                scaled_up_num_workers, worker_idx
-            )
-            assert (
-                curr_worker_affinity in open(TS_LOG).read()
-            ), "workers are not correctly pinned to cores"
+    for worker_idx in range(scaled_up_num_workers):
+        curr_worker_affinity = get_worker_affinity(scaled_up_num_workers, worker_idx)
+        assert (
+            curr_worker_affinity in open(TS_LOG).read()
+        ), "workers are not correctly pinned to cores"
 
 
 @pytest.mark.skipif(
-    not ipex_installed, reason="Make sure intel-extension-for-pytorch is installed"
+    not ipex_installed_and_launcher_available,
+    reason="Make sure intel-extension-for-pytorch is installed",
 )
 def test_worker_scale_down_affinity():
     initial_num_workers = 4
@@ -194,15 +185,8 @@ def test_worker_scale_down_affinity():
         response.status_code == 200
     ), "scaled down workers inference with core pinning failed"
 
-    launcher_available = (
-        "CPU launcher is enabled but launcher is not available. Proceeding without launcher."
-        not in open(TS_LOG).read()
-    )
-    if launcher_available:
-        for worker_idx in range(scaled_down_num_workers):
-            curr_worker_affinity = get_worker_affinity(
-                scaled_down_num_workers, worker_idx
-            )
-            assert (
-                curr_worker_affinity in open(TS_LOG).read()
-            ), "workers are not correctly pinned to cores"
+    for worker_idx in range(scaled_down_num_workers):
+        curr_worker_affinity = get_worker_affinity(scaled_down_num_workers, worker_idx)
+        assert (
+            curr_worker_affinity in open(TS_LOG).read()
+        ), "workers are not correctly pinned to cores"
