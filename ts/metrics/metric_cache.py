@@ -8,12 +8,13 @@ naming and unit testing
 """
 import sys
 import yaml
-import logging
+import psutil
 
-from metric import Metric
+from ts.metrics.metric import Metric
+from ts.metrics.dimension import Dimension
 
 
-class MetricsCaching:
+class MetricsCache:
     def __init__(self, yaml_file):
         """
         Constructor for MetricsCaching class
@@ -30,7 +31,7 @@ class MetricsCaching:
         self.backend_cache = {}  # hash table to store the Metric objects
         self.yaml_file = yaml_file
 
-    def add_metric(self, metric_name: str, unit: str, dimensions: list, metric_type: str) -> None:
+    def add_metric(self, metric_name: str, unit: str, dimensions: list, metric_type: str, value=0) -> None:
         """
         Create a new metric and add into cache
 
@@ -43,11 +44,14 @@ class MetricsCaching:
         dimensions: list
             list of dimension objects
         metric_type: str
+            Type of metric
+        value: int, float
+            value of metric
 
         """
 
-        if not (isinstance(metric_type, str) or isinstance(unit, str) or isinstance(dimensions, list) or isinstance(
-                metric_type, str)):
+        if not isinstance(metric_name, str) or not isinstance(unit, str) or not isinstance(dimensions, list) or not \
+                isinstance(metric_type, str):
             raise TypeError(f"metric_name must be a str, unit must be a str, "
                             f"dimensions must be a list of str, metric type must be a str")
 
@@ -57,7 +61,7 @@ class MetricsCaching:
         dims_str = "-".join([str(d) for d in dimensions])
 
         self.backend_cache[f"{metric_type}-{metric_name}-{dims_str}"] = Metric(name=metric_name,
-                                                                               value=0,
+                                                                               value=value,
                                                                                unit=unit,
                                                                                dimensions=dimensions,
                                                                                metric_type=metric_type)
@@ -140,7 +144,7 @@ class MetricsCaching:
             Parsed portion of the yaml file
 
         """
-        if not model_metrics_table:
+        if not isinstance(model_metrics_table, dict):
             print(f"model metrics is None and does not exist")
             sys.exit(1)
 
@@ -172,17 +176,21 @@ class MetricsCaching:
 
 if __name__ == "__main__":
     # YAML to cache
-    backend_cache_obj = MetricsCaching("../tests/metrics_yaml_testing/metrics.yaml")
+    backend_cache_obj = MetricsCache("../tests/metrics_yaml_testing/metrics.yaml")
     backend_cache_obj.yaml_to_cache()
 
-    # get metric method
-    gauge_metric = backend_cache_obj.get_metric("gauge-None-model_name-host")
-    print("GAUGE")
-    print(gauge_metric.name)
-    print(gauge_metric.metric_type)
-    print("END OF GAUGE")
-    # add metric method
-    backend_cache_obj.add_metric(metric_name="new", unit="ms", dimensions=["filler"], metric_type="type")
+    # Adding 1 host metric (CPUUtil) and 1 model metric (# of inferences),
+    # update the metric,
+    # and add to MetricsCache
+    dimension = [Dimension('Level', 'Host')]  # FIXME should this be default if no dimensions are specified? idk
+    # FIXME should i also use the existing Dimension class? probably yes
+    cpu_util_data = psutil.cpu_percent()
+    backend_cache_obj.add_metric(metric_name="CPUUtilization", value=cpu_util_data, unit="percent",
+                                 dimensions=dimension, metric_type="CPUUtilizationType")
+    print("================")
+    print(f"CPU UTIL METRIC")
+    cpu_util_metric = backend_cache_obj.get_metric("CPUUtilizationType-CPUUtilization-Level:Host")
+    print(cpu_util_metric)
+    cpu_util_metric.update(2.48)
+    print(cpu_util_metric)
 
-    new_metric = backend_cache_obj.get_metric("type-new-filler")
-    print(new_metric.name)

@@ -4,28 +4,28 @@ dimensions:
 
 ts_metrics:
   counter:
-    - name:
+    - name: counter_name
       unit: ms
       dimensions: [model_name, host]
   gauge:
-    - name:
+    - name: gauge_name
       unit: ms
       dimensions: [model_name, host]
   histogram:
-    - name:
+    - name: histogram_name
       unit: ms
       dimensions: [model_name, host]
 
 model_metrics:
   counter:
-    - name:
+    - name: counter_name
       unit: ms
       dimensions: [model_name, host]
   gauge:
-    - name:
+    - name: gauge_name
       unit: ms
       dimensions: [model_name, host]
   histogram:
-    - name:
+    - name: histogram_name
       unit: ms
       dimensions: [model_name, host]
