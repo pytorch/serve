@@ -98,10 +98,10 @@ class MetricsCaching:
             stream = open(self.yaml_file, "r", encoding="utf-8")
             yml_dict = yaml.safe_load(stream)
         except yaml.YAMLError as exc:
-            print(f"Error parsing file. {exc}")
+            print(f"Error parsing file: {exc}")
             sys.exit(1)
         except IOError as io_err:
-            print(f"Error reading file. {io_err}")
+            print(f"Error reading file: {io_err}")
             sys.exit(1)
         except Exception as err:
             print(f"General error: {err}")
@@ -172,7 +172,7 @@ class MetricsCaching:
 
 if __name__ == "__main__":
     # YAML to cache
-    backend_cache_obj = MetricsCaching("metrics_yaml_testing/metrics.yaml")
+    backend_cache_obj = MetricsCaching("../tests/metrics_yaml_testing/metrics.yaml")
     backend_cache_obj.yaml_to_cache()
 
     # get metric method

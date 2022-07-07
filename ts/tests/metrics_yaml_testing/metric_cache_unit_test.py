@@ -5,7 +5,7 @@ import unittest
 import sys
 import yaml
 
-sys.path.append("..")
+sys.path.append("../../metrics")
 from metric_cache import MetricsCaching
 
 
@@ -114,10 +114,6 @@ class TestParseYaml(unittest.TestCase):
                                                        'name': None,
                                                        'unit': 'ms'}]}}
         self.assertEqual(actual_dict, expected_dict)
-
-    def test_parse_medium_yaml(self):
-        metrics_cache_obj = MetricsCaching("medium_10kb.yaml")
-        self.assertIsNotNone(metrics_cache_obj._parse_yaml_file())
 
     def test_parse_yaml_errors(self):
         metrics_cache_obj = MetricsCaching("metric_errors.yaml")
