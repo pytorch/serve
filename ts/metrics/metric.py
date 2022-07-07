@@ -20,7 +20,7 @@ class Metric(object):
     """
 
     def __init__(self, name, value,
-                 unit, dimensions, request_id=None, metric_method=None):
+                 unit, dimensions, request_id=None, metric_method=None, metric_type=None):
         """
         Constructor for Metric class
 
@@ -50,6 +50,7 @@ class Metric(object):
         self.value = value
         self.dimensions = dimensions
         self.request_id = request_id
+        self.metric_type = metric_type
 
     def update(self, value):
         """

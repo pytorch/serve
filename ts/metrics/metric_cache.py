@@ -3,6 +3,8 @@
 2. Create Metric objects based off of the model_metrics yaml data
 3. Create hash table with key being metricType_metricName_dimensions
 and value being the respective Metric object created in the previous step
+
+naming and unit testing
 """
 import sys
 import yaml
@@ -44,15 +46,21 @@ class MetricsCaching:
 
         """
 
+        if not (isinstance(metric_type, str) or isinstance(unit, str) or isinstance(dimensions, list) or isinstance(
+                metric_type, str)):
+            raise TypeError(f"metric_name must be a str, unit must be a str, "
+                            f"dimensions must be a list of str, metric type must be a str")
+
         print(f"Adding metric with fields of: metric name - {metric_name}, unit - {unit}, dimensions - {dimensions}, "
               f"metric type - {metric_type}")
 
-        dims_str = "__".join([str(d) for d in dimensions])
+        dims_str = "-".join([str(d) for d in dimensions])
 
-        self.backend_cache[f"{metric_type}_{metric_name}_{dims_str}"] = Metric(name=metric_name,
+        self.backend_cache[f"{metric_type}-{metric_name}-{dims_str}"] = Metric(name=metric_name,
                                                                                value=0,
                                                                                unit=unit,
-                                                                               dimensions=dimensions)
+                                                                               dimensions=dimensions,
+                                                                               metric_type=metric_type)
         print("Successfully added metric.")
 
     def get_metric(self, metric_key: str) -> Metric:
@@ -65,6 +73,10 @@ class MetricsCaching:
             Key to identify a Metric object within the cache
 
         """
+        if not isinstance(metric_key, str):
+            print(f"Only string types are acceptable as argument.")
+            sys.exit(1)
+
         print(f"Getting metric {metric_key}")
         metric_obj = self.backend_cache.get(metric_key)
         if metric_obj:
@@ -78,15 +90,22 @@ class MetricsCaching:
         """
         Parse yaml file using PyYAML library.
         """
+        if not self.yaml_file:
+            print("No yaml file detected.")
+            sys.exit(1)
         yml_dict = None
-        stream = open(self.yaml_file, "r", encoding="utf-8")
         try:
+            stream = open(self.yaml_file, "r", encoding="utf-8")
             yml_dict = yaml.safe_load(stream)
-        except yaml.YAMLError as exc:  # TODO find more errors in UT
-            logging.error(exc)
+        except yaml.YAMLError as exc:
+            print(f"Error parsing file. {exc}")
+            sys.exit(1)
+        except IOError as io_err:
+            print(f"Error reading file. {io_err}")
             sys.exit(1)
         except Exception as err:
-            logging.warning(f"Bad config file - {err}")
+            print(f"General error: {err}")
+            sys.exit(1)
 
         return yml_dict
 
@@ -100,11 +119,12 @@ class MetricsCaching:
             section of yaml file to be parsed
 
         """
-        print(f"Parsing {yaml_section} section of yaml file...")
         yaml_hash_table = self._parse_yaml_file()
+
+        print(f"Parsing {yaml_section} section of yaml file...")
         try:
             model_metrics_table = yaml_hash_table[yaml_section]
-        except Exception as err:  # TODO find more errors in UT. Find specific key error for this line
+        except KeyError as err:
             print(f"'{yaml_section}' key not found in yaml file - {err}")
             sys.exit(1)
         print(f"Successfully parsed {yaml_section} section of yaml file")
@@ -120,6 +140,9 @@ class MetricsCaching:
             Parsed portion of the yaml file
 
         """
+        if not model_metrics_table:
+            print(f"model metrics is None and does not exist")
+            sys.exit(1)
 
         print("Creating Metric objects")
         for metric_type, metric_attributes_list in model_metrics_table.items():
@@ -131,8 +154,8 @@ class MetricsCaching:
                     metric_name = metric_dict["name"]
                     unit = metric_dict["unit"]
                     dimensions = metric_dict["dimensions"]
-                except Exception as err:  # TODO find more errors in UT
-                    print(f"{err}")
+                except KeyError as err:
+                    print(f"Key not found: {err}")
                     sys.exit(1)
 
             self.add_metric(metric_name=metric_name, unit=unit, dimensions=dimensions, metric_type=metric_type)
@@ -153,11 +176,13 @@ if __name__ == "__main__":
     backend_cache_obj.yaml_to_cache()
 
     # get metric method
-    gauge_metric = backend_cache_obj.get_metric("gauge_None_model_name__host")
+    gauge_metric = backend_cache_obj.get_metric("gauge-None-model_name-host")
+    print("GAUGE")
     print(gauge_metric.name)
-
+    print(gauge_metric.metric_type)
+    print("END OF GAUGE")
     # add metric method
     backend_cache_obj.add_metric(metric_name="new", unit="ms", dimensions=["filler"], metric_type="type")
 
-    new_metric = backend_cache_obj.get_metric("type_new_filler")
+    new_metric = backend_cache_obj.get_metric("type-new-filler")
     print(new_metric.name)
