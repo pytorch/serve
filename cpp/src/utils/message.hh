@@ -7,11 +7,11 @@
 namespace torchserve {
   // TODO: expand to support model instance, large model (ref: ModelConfig in config.hh)
   struct LoadModelRequest {
-    const std::string& model_path;	// /path/to/model/file
-    const std::string& model_name;
+    const std::string model_path;	// /path/to/model/file
+    const std::string model_name;
     int gpu_id;						// None if CPU else gpu_id
-    const std::string& handler;		// Expected to be null for cpp backend
-    const std::string& envelope;	// name of wrapper/unwrapper of request data if provided
+    const std::string handler;		// Expected to be null for cpp backend
+    const std::string envelope;	// name of wrapper/unwrapper of request data if provided
     int batch_size;
     bool limit_max_image_pixels;	// limit pillow image max_image_pixels
 
@@ -23,9 +23,9 @@ namespace torchserve {
       const std::string& envelope,
       int batch_size,
       bool limit_max_image_pixels
-    ) : model_path(model_path), model_name(model_name), gpu_id(gpu_id), 
-    handler(handler), envelope(envelope), batch_size(batch_size), 
-    limit_max_image_pixels(limit_max_image_pixels) {}
+    ) : model_path{model_path}, model_name{model_name}, gpu_id{gpu_id}, 
+    handler{handler}, envelope{envelope}, batch_size{batch_size}, 
+    limit_max_image_pixels{limit_max_image_pixels} {}
   };
 
   struct LoadModelResponse {

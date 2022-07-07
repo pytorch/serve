@@ -16,6 +16,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
 
 include_directories(${Torch_INCLUDE_DIRS})
 include_directories(${FOLLY_INCLUDE_DIRS})
+include_directories(${GTEST_INCLUDE_DIRS})
 
 include_directories("${CMAKE_INSTALL_PREFIX}/_deps")
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
@@ -25,3 +26,4 @@ set(FOLLY_LIBRARIES Folly::folly)
 # add subdirectories in src
 add_subdirectory(src/utils)
 add_subdirectory(src/backends)
+add_subdirectory(test)

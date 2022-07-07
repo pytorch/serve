@@ -20,6 +20,7 @@ target_include_directories(ts_backends_core PUBLIC ${TS_BACKENDS_CORE_SRC_DIR})
 target_link_libraries(ts_backends_core PRIVATE ts_utils ts_backends_protocol ${FOLLY_LIBRARIES})
 
 # build library ts_backend_torch_scripted
+# TODO: shared lib
 set(TS_BACKENDS_TORCH_SCRIPTED_SOURCE_FILES "")
 list(APPEND TS_BACKENDS_TORCH_SCRIPTED_SOURCE_FILES ${TS_BACKENDS_TORCH_SCRIPTED_SRC_DIR}/torch_scripted_backend.cc)
 add_library(ts_backends_torch_scripted ${TS_BACKENDS_TORCH_SCRIPTED_SOURCE_FILES})
@@ -45,3 +46,4 @@ target_include_directories(model_worker_socket PRIVATE
 )
 target_link_libraries(model_worker_socket 
   PRIVATE ts_backends_core ts_backends_protocol ts_backends_torch_scripted ${FOLLY_LIBRARIES})
+install(TARGETS model_worker_socket DESTINATION ${torchserve_cpp_SOURCE_DIR}/_build/bin)

@@ -16,7 +16,7 @@ namespace torchserve {
 
     std::pair<
     std::unique_ptr<torchserve::LoadModelResponse>, std::shared_ptr<torchserve::ModelInstance>> 
-    LoadModelInternal(std::shared_ptr<torchserve::LoadModelRequest> load_model_request);
+    LoadModelInternal(std::shared_ptr<torchserve::LoadModelRequest> load_model_request) override;
 
     private:
     torch::Device GetTorchDevice(
@@ -33,7 +33,7 @@ namespace torchserve {
       std::shared_ptr<torchserve::LoadModelRequest> load_model_request);
 
     std::shared_ptr<torchserve::InferenceResponse> Predict(
-      std::unique_ptr<torchserve::InferenceRequest> inference_request) {
+      std::unique_ptr<torchserve::InferenceRequest> inference_request) override {
       // TODO; impl.
       return std::make_shared<torchserve::InferenceResponse>();
     };

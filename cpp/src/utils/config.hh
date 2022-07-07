@@ -4,6 +4,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <stdexcept>
 
 #include "src/utils/model_archive.hh"
 

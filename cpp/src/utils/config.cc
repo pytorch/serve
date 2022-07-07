@@ -25,4 +25,4 @@ namespace torchserve {
     // eg. torchserve/backends/torch_scripted/1.11/libtorch_scripted_cpu_backend.so
     return fmt::format("lib{}_{}_backend.so", it->second->name, device_type);
   }
-}
+} //namespace torchserve

@@ -11,7 +11,11 @@
 #include "src/utils/model_archive.hh"
 
 namespace torchserve {
-    // TorchServe ModelInstance Interface
+  /**
+   * @brief TorchServe ModelInstance Interface
+   * ModelInstance <=> Service:
+   *  https://github.com/pytorch/serve/blob/master/ts/service.py#L21
+   */
   class ModelInstance {
     public:
     ModelInstance() {};
@@ -28,6 +32,7 @@ namespace torchserve {
   };
 
   /**
+   * @brief TorchServe Backend Interface
    * Note:
    * Any framework should implement its own backend which includes:
    * 1. Implement class Backend
@@ -40,8 +45,6 @@ namespace torchserve {
    * - A worker is associated with one model instance.
    * - A model instance is one model loaded on CPU or GPU.
    */
-
-  // TorchServe Backend Interface
   class Backend {
     public:
     enum ModelInstanceStatus {

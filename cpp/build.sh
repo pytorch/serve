@@ -172,6 +172,7 @@ function build() {
   #-DCMAKE_PREFIX_PATH="$(python -c 'import torch; print(torch.utils.cmake_prefix_path)');$DEPS_DIR;$FOLLY_CMAKE_DIR;"   \
   cmake                                                                                       \
     -DCMAKE_PREFIX_PATH="$DEPS_DIR;$FOLLY_CMAKE_DIR;$DEPS_DIR/libtorch"                       \
+    -DCMAKE_INSTALL_PREFIX="$PREFIX"                                                          \
     "$MAYBE_BUILD_QUIC"                                                                       \
     "$MAYBE_BUILD_TESTS"                                                                      \
     "$MAYBE_BUILD_SHARED_LIBS"                                                                \
@@ -181,9 +182,9 @@ function build() {
     ..
 
   export LIBRARY_PATH=${LIBRARY_PATH}:/usr/local/opt/icu4c/lib
-  make -j "$JOBS"
+  make -j "$JOBS" 
   echo -e "${COLOR_GREEN}torchserve_cpp build is complete. To run unit test: \
-  #  cd _build/ && make test ${COLOR_OFF}"
+  ./_build/test/torchserve_cpp_test ${COLOR_OFF}"
 }
 
 # Parse args
@@ -192,7 +193,7 @@ WITH_QUIC=false
 INSTALL_DEPENDENCIES=false
 PREFIX=""
 COMPILER_FLAGS=""
-USAGE="./build.sh [-j num_jobs] [-q|--with-quic] [-p|--prefix] [-x|--compiler-flags] [--no-fetch-dependencies]"
+USAGE="./build.sh [-j num_jobs] [-q|--with-quic] [-p|--prefix] [-x|--compiler-flags]"
 while [ "$1" != "" ]; do
   case $1 in
     -j | --jobs ) shift

@@ -1,8 +1,7 @@
 #include <fmt/format.h>
+#include <memory>
 
 #include "src/backends/torch_scripted/torch_scripted_backend.hh"
-
-
 namespace torchserve {
   std::pair<
   std::unique_ptr<torchserve::LoadModelResponse>, 
@@ -21,20 +20,22 @@ namespace torchserve {
           torch::jit::load(load_model_request->model_path));
       }
     } catch (const c10::Error& e) {
-      LOG(ERROR) << "error loading the model";
+      LOG(ERROR) << "loading the model: " 
+      << load_model_request->model_path 
+      << ", error: " << e.msg();
       return std::make_pair(
         std::make_unique<torchserve::LoadModelResponse>(
           // TODO: check existing 
           500,
           2,
-         "OK"),
+          e.msg()),
          nullptr);
     }
     auto model_instance = std::make_shared<torchserve::TorchScritpedModelInstance>();
     model_instance->Initialize(module, load_model_request);
     return std::make_pair(
       std::make_unique<torchserve::LoadModelResponse>(
-        // TODO: check existing 
+        // TODO: check current response msg content
         200,
         2,
         "OK"),
