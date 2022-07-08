@@ -5,33 +5,60 @@
 #include "src/utils/model_archive.hh"
 
 namespace torchserve {
-  std::shared_ptr<torchserve::Manifest> Manifest::LoadManifest(
-    const std::string& manifest_json_file) {
-    auto manifest_stream = std::move(torchserve::FileSystem::GetStream(manifest_json_file));
-    std::string str((std::istreambuf_iterator<char>(*manifest_stream)), 
-    std::istreambuf_iterator<char>(*manifest_stream));
-    std::shared_ptr<torchserve::Manifest> ret = std::shared_ptr<torchserve::Manifest>();
+  void Manifest::Initialize(
+    const std::string& manifest_json_file_path) {
     try {
+      auto manifest_stream = torchserve::FileSystem::GetStream(manifest_json_file_path);
+      std::string str((std::istreambuf_iterator<char>(*manifest_stream)), std::istreambuf_iterator<char>());
+
       auto val = folly::parseJson(str);
-      ret->create_on = std::move(val[torchserve::Manifest::kCreateOn].asString());
-      ret->description = std::move(val[torchserve::Manifest::kDescription].asString());
-      ret->archiver_version = std::move(val[torchserve::Manifest::kArchiverVersion].asString());
-      ret->runtime_type = std::move(val[torchserve::Manifest::kRuntimeType].asString());
       auto model = val[torchserve::Manifest::kModel];
-      ret->model.model_name = std::move(model[torchserve::Manifest::kModelName].asString());
-      ret->model.model_version = std::move(model[torchserve::Manifest::kModelVersion].asString());
-      ret->model.workflow_name = std::move(model[torchserve::Manifest::kWorkflowName].asString());
-      ret->model.description = std::move(model[torchserve::Manifest::kDescription].asString());
-      ret->model.handler = std::move(model[torchserve::Manifest::kHandler].asString());
-      ret->model.serialized_file = std::move(model[torchserve::Manifest::kSerializedFile].asString());
-      ret->model.model_file = std::move(model[torchserve::Manifest::kModelFile].asString());
-      ret->model.extensions = std::move(model[torchserve::Manifest::kExtensions].asString());
-      ret->model.requirements_file = std::move(model[torchserve::Manifest::kReqirementsFile].asString());
-      ret->model.spec_file = std::move(model[torchserve::Manifest::kSpecFile].asString());
-    } catch (const std::exception& e) {
-      LOG(ERROR) << "Failed to parse: " << manifest_json_file << ", error: " << e.what();
-      throw e;
+      if (model == NULL) {
+        LOG(FATAL) << "Item: model is not defined in " << manifest_json_file_path;
+      }
+
+      SetValue(model, torchserve::Manifest::kModel_Handler, model_.handler, true);
+      if (!SetValue(
+        model, torchserve::Manifest::kModel_SerializedFile, 
+        model_.serialized_file, false) && 
+        !SetValue(model, torchserve::Manifest::kModel_ModelFile, 
+        model_.model_file, false)) {
+          LOG(FATAL) << "Item: " << torchserve::Manifest::kModel_SerializedFile 
+          << " and item : " << torchserve::Manifest::kModel_ModelFile 
+          << " not defined in " << manifest_json_file_path;
+      }
+
+      SetValue(model, torchserve::Manifest::kModel_ModelName, model_.model_name, false);
+      SetValue(model, torchserve::Manifest::kModel_ModelVersion, model_.model_version, false);
+      SetValue(model, torchserve::Manifest::kModel_WorkflowName, model_.workflow_name, false);
+      SetValue(model, torchserve::Manifest::kModel_Description, model_.description, false);
+      
+      SetValue(model, torchserve::Manifest::kModel_Extensions, model_.extensions, false);
+      SetValue(model, torchserve::Manifest::kModel_ReqirementsFile, model_.requirements_file, false);
+      SetValue(model, torchserve::Manifest::kModel_SpecFile, model_.spec_file, false);
+
+      SetValue(val, torchserve::Manifest::kCreateOn, create_on_, false);
+      SetValue(val, torchserve::Manifest::kArchiverVersion, archiver_version_, false);
+      SetValue(val, torchserve::Manifest::kRuntimeType, runtime_type_, false);
+    } catch (const std::invalid_argument& e) {
+      LOG(ERROR) << "Failed to init Manifest from: " << manifest_json_file_path << ", error: " << e.what();
     }
-    return ret;
+  }
+
+  bool Manifest::SetValue(
+    const folly::dynamic& source, 
+    const std::string& key, 
+    std::string& dest, 
+    bool required) {
+    try {
+      dest = source[key].asString();
+    } catch (const std::out_of_range& e) {
+      if (required) {
+        LOG(FATAL) << "Item: " << key << " not defined.";
+      } else {
+        return false;
+      }
+    }
+    return true;
   }
 } // //namespace torchserve
