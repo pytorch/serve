@@ -33,22 +33,20 @@ def build_dist_whl(nightly=False):
         create_wheel_cmd = "python setup.py bdist_wheel --release --universal"
 
     for binary in binaries:
-        if "serve" in binary:
-            cur_dir = REPO_ROOT
-        else:
-            cur_dir = REPO_ROOT + "/" + binary[len("torch-") :]
+
+        cur_dir = (
+            REPO_ROOT
+            if "serve" in binary
+            else os.path.join(REPO_ROOT, "/", binary[len("torch-") :])
+        )
+
         os.chdir(cur_dir)
 
-        if nightly:
-            cur_wheel_cmd = (
-                create_wheel_cmd
-                + "--override-name "
-                + binary
-                + "-nightly"
-                + " bdist_wheel"
-            )
-        else:
-            cur_wheel_cmd = create_wheel_cmd
+        cur_wheel_cmd = (
+            create_wheel_cmd + "--override-name " + binary + "-nightly" + " bdist_wheel"
+            if nightly
+            else create_wheel_cmd
+        )
 
         # Build wheel
         print(f"## In directory: {os.getcwd()} | Executing command: {cur_wheel_cmd}")
@@ -56,7 +54,7 @@ def build_dist_whl(nightly=False):
 
         # If any one of the steps fail, exit with error
         if build_exit_code != 0:
-            sys.exit("## {} build Failed !".format(binary))
+            sys.exit(f"## {binary} build Failed !")
 
 
 def build(args):
