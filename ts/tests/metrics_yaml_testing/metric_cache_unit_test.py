@@ -4,9 +4,9 @@ Unit testing for MetricsCache class and yaml parsing.
 import unittest
 import sys
 import yaml
-
-sys.path.append("../../metrics")
-from metric_cache import MetricsCache
+from ts.metrics.metric import Metric
+from ts.metrics.dimension import Dimension
+from ts.metrics.metric_cache import MetricsCache
 
 
 class TestAddMetrics(unittest.TestCase):
@@ -18,7 +18,28 @@ class TestAddMetrics(unittest.TestCase):
                                      dimensions=["dim1", "dim2"],
                                      metric_type="type")
 
-        self.assertTrue(True if "type-new_metric-dim1-dim2" in metrics_cache_obj.backend_cache else False)
+        self.assertTrue(True if "type-new_metric-dim1:dim2" in metrics_cache_obj.backend_cache else False)
+
+    def test_add_metric_dimensions_correct_obj_pass(self):
+        metrics_cache_obj = MetricsCache("metrics.yaml")
+        metrics_cache_obj.add_metric(metric_name="new_metric",
+                                     unit="ms",
+                                     dimensions=[Dimension("hello", "world")],
+                                     metric_type="type")
+
+        for key, metric in metrics_cache_obj.backend_cache.items():
+
+            for dimensions_list in metric.dimensions:
+                self.assertTrue(isinstance(dimensions_list, Dimension))
+
+    def test_add_metric_dimensions_correct_obj_fail(self):
+        metrics_cache_obj = MetricsCache("metrics.yaml")
+
+        with self.assertRaises(TypeError):
+            metrics_cache_obj.add_metric(metric_name="new_metric",
+                                         unit="ms",
+                                         dimensions=Dimension("hello", "world"),
+                                         metric_type="type")
 
     def test_add_metric_fail_metric_name(self):
         metrics_cache_obj = MetricsCache("metrics.yaml")
@@ -78,7 +99,7 @@ class TestGetMetrics(unittest.TestCase):
                                      dimensions=["dim1", "dim2"],
                                      metric_type="type")
 
-        temp_metrics = metrics_cache_obj.get_metric("type-new_metric-dim1-dim2")
+        temp_metrics = metrics_cache_obj.get_metric("type-new_metric-dim1:dim2")
         self.assertEquals("new_metric", temp_metrics.name)
 
     def test_get_metric_fail_not_exist(self):
@@ -89,12 +110,12 @@ class TestGetMetrics(unittest.TestCase):
                                      metric_type="type")
 
         with self.assertRaises(SystemExit):
-            metrics_cache_obj.get_metric("type-new_metric-dim1-dim3")
+            metrics_cache_obj.get_metric("type-new_metric-dim1:dim3")
 
     def test_get_metric_fail_invalid_type(self):
         metrics_cache_obj = MetricsCache("metrics.yaml")
         with self.assertRaises(SystemExit):
-            metrics_cache_obj.get_metric(["type-new_metric-dim1-dim3"])
+            metrics_cache_obj.get_metric(["type-new_metric-dim1:dim3"])
 
 
 class TestParseYaml(unittest.TestCase):
@@ -168,9 +189,9 @@ class TestYamlCacheUtil(unittest.TestCase):
         metrics_cache_obj = MetricsCache("metrics.yaml")
         model_metrics_table = metrics_cache_obj._parse_specific_metric()
         metrics_cache_obj._yaml_to_cache_util(model_metrics_table)
-        self.assertEquals(['counter-counter_name-model_name-host',
-                           'gauge-gauge_name-model_name-host',
-                           'histogram-histogram_name-model_name-host'], list(metrics_cache_obj.backend_cache.keys()))
+        self.assertEquals(['counter-counter_name-model_name:host',
+                           'gauge-gauge_name-model_name:host',
+                           'histogram-histogram_name-model_name:host'], list(metrics_cache_obj.backend_cache.keys()))
 
     def test_yaml_to_cache_util_fail_missing_fields(self):
         metrics_cache_obj = MetricsCache("metrics_missing_types.yaml")

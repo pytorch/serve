@@ -42,7 +42,7 @@ class MetricsCache:
         unit: str
             unit can be one of ms, percent, count, MB, GB or a generic string
         dimensions: list
-            list of dimension objects
+            list of dimension objects/strings read from yaml file
         metric_type: str
             Type of metric
         value: int, float
@@ -54,6 +54,20 @@ class MetricsCache:
                 isinstance(metric_type, str):
             raise TypeError(f"metric_name must be a str, unit must be a str, "
                             f"dimensions must be a list of str, metric type must be a str")
+
+        # transforming Dimensions list into list of Dimension objects if not already
+        if isinstance(dimensions[0], Dimension):  # this is ideal format
+            pass
+        # FIXME expecting even number of dimensions list - is this a correct assumption?
+        elif len(dimensions) % 2 == 0 and isinstance(dimensions[0], str):
+            temp_dimensions = []
+            for i in range(len(dimensions)):
+                if i % 2 == 0:
+                    temp_dimensions.append(Dimension(name=dimensions[i], value=dimensions[i+1]))
+            dimensions = temp_dimensions
+        else:
+            raise ValueError(f"Dimensions list is expected to be an even number if the list of dimensions"
+                             f" is made up of strings.")
 
         print(f"Adding metric with fields of: metric name - {metric_name}, unit - {unit}, dimensions - {dimensions}, "
               f"metric type - {metric_type}")
@@ -182,7 +196,7 @@ if __name__ == "__main__":
     # Adding 1 host metric (CPUUtil) and 1 model metric (# of inferences),
     # update the metric,
     # and add to MetricsCache
-    dimension = [Dimension('Level', 'Host')]  # FIXME should this be default if no dimensions are specified? idk
+    dimension = [Dimension('Level', 'Host')]
     # FIXME should i also use the existing Dimension class? probably yes
     cpu_util_data = psutil.cpu_percent()
     backend_cache_obj.add_metric(metric_name="CPUUtilization", value=cpu_util_data, unit="percent",
@@ -193,4 +207,3 @@ if __name__ == "__main__":
     print(cpu_util_metric)
     cpu_util_metric.update(2.48)
     print(cpu_util_metric)
-
