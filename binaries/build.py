@@ -22,7 +22,7 @@ def build_dist_whl(nightly=False):
     nightly is an optional argument to build nightlies
     """
 
-    binaries = ["torchserve", "model-archiver", "workflow-archiver"]
+    binaries = ["torchserve", "torch-model-archiver", "torch-workflow-archiver"]
     if nightly:
         print(
             "## Started torchserve, model-archiver and workflow-archiver nightly build"
@@ -36,7 +36,7 @@ def build_dist_whl(nightly=False):
         if "serve" in binary:
             cur_dir = REPO_ROOT
         else:
-            cur_dir = REPO_ROOT + "/" + binary
+            cur_dir = REPO_ROOT + "/" + binary[len("torch-") :]
         os.chdir(cur_dir)
 
         if nightly:
