@@ -39,7 +39,7 @@ def build_nighly_whl():
 
         # If any one of the steps fail, exit with error
         if build_exit_code != 0:
-            sys.exit("## {%s} Nightly Build Failed !".format(binary))
+            sys.exit("## {} nightly Build Failed !".format(binary))
 
 
 def build(args):
@@ -63,6 +63,14 @@ def build(args):
         os.chdir("workflow-archiver")
         print(f"## In directory: {os.getcwd()} | Executing command: {create_wheel_cmd}")
         wa_build_exit_code = os.system(create_wheel_cmd)
+
+        # If any one of the steps fail, exit with error
+        if ts_build_exit_code != 0:
+            sys.exit("## Torchserve Build Failed !")
+        if ma_build_exit_code != 0:
+            sys.exit("## Model archiver Build Failed !")
+        if wa_build_exit_code != 0:
+            sys.exit("## Workflow archiver build failed !")
     else:
         build_nighly_whl()
 
@@ -94,13 +102,7 @@ def build(args):
         args.nightly and args.upload_conda_packages,
     )
 
-    # If any one of the steps fail, exit with error
-    if ts_build_exit_code != 0:
-        sys.exit("## Torchserve Build Failed !")
-    if ma_build_exit_code != 0:
-        sys.exit("## Model archiver Build Failed !")
-    if wa_build_exit_code != 0:
-        sys.exit("## Workflow archiver build failed !")
+    # If conda build fails, exit with error
     if conda_build_exit_code != 0:
         sys.exit("## Conda Build Failed !")
 
