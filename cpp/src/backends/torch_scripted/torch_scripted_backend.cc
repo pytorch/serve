@@ -7,17 +7,22 @@ namespace torchserve {
   std::unique_ptr<torchserve::LoadModelResponse>, 
   std::shared_ptr<torchserve::ModelInstance>> 
   TorchScriptedBackend::LoadModelInternal(
-    std::shared_ptr<torchserve::LoadModelRequest> load_model_request) {
+    std::shared_ptr<torchserve::LoadModelRequest> load_model_request,
+    std::shared_ptr<torchserve::Manifest> manifest) {
     std::shared_ptr<torch::jit::script::Module> module;
     try {
       if (load_model_request->gpu_id != -1) {
         module = std::make_shared<torch::jit::script::Module>(
           torch::jit::load(
+            fmt::format("{}/{}", 
             load_model_request->model_path, 
+            manifest->GetModel().serialized_file),
             GetTorchDevice(load_model_request)));
       } else {
         module = std::make_shared<torch::jit::script::Module>(
-          torch::jit::load(load_model_request->model_path));
+          torch::jit::load(fmt::format("{}/{}", 
+            load_model_request->model_path, 
+            manifest->GetModel().serialized_file)));
       }
     } catch (const c10::Error& e) {
       LOG(ERROR) << "loading the model: " 

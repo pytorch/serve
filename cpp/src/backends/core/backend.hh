@@ -61,16 +61,19 @@ namespace torchserve {
 
     virtual 
     std::pair<std::unique_ptr<torchserve::LoadModelResponse>, std::shared_ptr<ModelInstance>> 
-    LoadModelInternal(std::shared_ptr<torchserve::LoadModelRequest> load_model_request) = 0;
+    LoadModelInternal(
+      std::shared_ptr<torchserve::LoadModelRequest> load_model_request,
+      std::shared_ptr<torchserve::Manifest> manifest) = 0;
 
     protected:
+    std::shared_ptr<torchserve::Manifest> manifest_;
     // key: model_instance_id
     // value: model_instance_status
-    std::map<std::string, torchserve::Backend::ModelInstanceStatus> model_instance_status;
+    std::map<std::string, torchserve::Backend::ModelInstanceStatus> model_instance_status_;
 
     // key: model_instance_id
     // value: model_instance    
-    std::map<std::string, std::shared_ptr<torchserve::ModelInstance>> model_instance_table;
+    std::map<std::string, std::shared_ptr<torchserve::ModelInstance>> model_instance_table_;
   };
 
   class ModelWorker {

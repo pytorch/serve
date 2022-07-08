@@ -10,8 +10,7 @@
 namespace torchserve {
   // TODO: limit to upper case "LDP", "LSP", ...
   using RuntimeType = std::string;
-  
-  class Manifest {
+    class Manifest {
     public:
     inline static const std::string kModel_ModelName = "modelName";
     inline static const std::string kModel_ModelVersion = "modelVersion";
@@ -56,6 +55,10 @@ namespace torchserve {
     const Model& GetModel() {
       return model_;
     };
+
+    void SetHandler(const std::string& handler) {
+      model_.handler = handler;
+    }
 
     private:
     bool SetValue(

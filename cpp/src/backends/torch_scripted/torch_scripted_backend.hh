@@ -7,6 +7,7 @@
 
 #include "src/backends/core/backend.hh"
 #include "src/utils/message.hh"
+#include "src/utils/model_archive.hh"
 
 namespace torchserve {
   class TorchScriptedBackend final : public Backend {
@@ -16,7 +17,9 @@ namespace torchserve {
 
     std::pair<
     std::unique_ptr<torchserve::LoadModelResponse>, std::shared_ptr<torchserve::ModelInstance>> 
-    LoadModelInternal(std::shared_ptr<torchserve::LoadModelRequest> load_model_request) override;
+    LoadModelInternal(
+      std::shared_ptr<torchserve::LoadModelRequest> load_model_request,
+      std::shared_ptr<torchserve::Manifest> manifest) override;
 
     private:
     torch::Device GetTorchDevice(
