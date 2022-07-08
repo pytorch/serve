@@ -16,11 +16,21 @@ from binaries.conda.build_packages import (
 from ts_scripts.utils import is_conda_build_env, is_conda_env
 
 
-def build_nighly_whl():
+def build_dist_whl(nightly=False):
+    """
+    Function to build the wheel files for torchserve, model-archiver and workflow-archiver
+    nightly is an optional argument to build nightlies
+    """
 
     binaries = ["torchserve", "model-archiver", "workflow-archiver"]
-    print("## Started torchserve, model-archiver and workflow-archiver nightly build")
-    create_wheel_cmd = "python setup.py "
+    if nightly:
+        print(
+            "## Started torchserve, model-archiver and workflow-archiver nightly build"
+        )
+        create_wheel_cmd = "python setup.py "
+    else:
+        print("## Started torchserve, model-archiver and workflow-archiver build")
+        create_wheel_cmd = "python setup.py bdist_wheel --release --universal"
 
     for binary in binaries:
         if "serve" in binary:
@@ -29,50 +39,30 @@ def build_nighly_whl():
             cur_dir = REPO_ROOT + "/" + binary
         os.chdir(cur_dir)
 
-        cur_wheel_cmd = (
-            create_wheel_cmd + "--override-name " + binary + "-nightly" + " bdist_wheel"
-        )
+        if nightly:
+            cur_wheel_cmd = (
+                create_wheel_cmd
+                + "--override-name "
+                + binary
+                + "-nightly"
+                + " bdist_wheel"
+            )
+        else:
+            cur_wheel_cmd = create_wheel_cmd
 
-        # Build nightly wheel
+        # Build wheel
         print(f"## In directory: {os.getcwd()} | Executing command: {cur_wheel_cmd}")
         build_exit_code = os.system(cur_wheel_cmd)
 
         # If any one of the steps fail, exit with error
         if build_exit_code != 0:
-            sys.exit("## {} nightly Build Failed !".format(binary))
+            sys.exit("## {} build Failed !".format(binary))
 
 
 def build(args):
 
-    if not args.nightly:
-        print("## Started torchserve, model-archiver and workflow-archiver build")
-        create_wheel_cmd = "python setup.py bdist_wheel --release --universal"
-
-        # Build torchserve wheel
-        print(f"## In directory: {os.getcwd()} | Executing command: {create_wheel_cmd}")
-        ts_build_exit_code = os.system(create_wheel_cmd)
-
-        # Build model archiver wheel
-        os.chdir("model-archiver")
-        print(f"## In directory: {os.getcwd()} | Executing command: {create_wheel_cmd}")
-        ma_build_exit_code = os.system(create_wheel_cmd)
-
-        os.chdir(REPO_ROOT)
-
-        # Build workflow archiver wheel
-        os.chdir("workflow-archiver")
-        print(f"## In directory: {os.getcwd()} | Executing command: {create_wheel_cmd}")
-        wa_build_exit_code = os.system(create_wheel_cmd)
-
-        # If any one of the steps fail, exit with error
-        if ts_build_exit_code != 0:
-            sys.exit("## Torchserve Build Failed !")
-        if ma_build_exit_code != 0:
-            sys.exit("## Model archiver Build Failed !")
-        if wa_build_exit_code != 0:
-            sys.exit("## Workflow archiver build failed !")
-    else:
-        build_nighly_whl()
+    # Build dist wheel files
+    build_dist_whl(args.nightly)
 
     os.chdir(REPO_ROOT)
 
