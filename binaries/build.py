@@ -37,7 +37,7 @@ def build_dist_whl(nightly=False):
         cur_dir = (
             REPO_ROOT
             if "serve" in binary
-            else os.path.join(REPO_ROOT, "/", binary[len("torch-") :])
+            else os.path.join(REPO_ROOT, binary[len("torch-") :])
         )
 
         os.chdir(cur_dir)
