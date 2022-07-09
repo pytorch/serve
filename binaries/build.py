@@ -16,14 +16,13 @@ from binaries.conda.build_packages import (
 from ts_scripts.utils import is_conda_build_env, is_conda_env
 
 
-def build_dist_whl(nightly=False):
+def build_dist_whl(args):
     """
     Function to build the wheel files for torchserve, model-archiver and workflow-archiver
-    nightly is an optional argument to build nightlies
     """
 
     binaries = ["torchserve", "torch-model-archiver", "torch-workflow-archiver"]
-    if nightly:
+    if args.nightly:
         print(
             "## Started torchserve, model-archiver and workflow-archiver nightly build"
         )
@@ -44,7 +43,7 @@ def build_dist_whl(nightly=False):
 
         cur_wheel_cmd = (
             create_wheel_cmd + "--override-name " + binary + "-nightly" + " bdist_wheel"
-            if nightly
+            if args.nightly
             else create_wheel_cmd
         )
 
@@ -60,7 +59,7 @@ def build_dist_whl(nightly=False):
 def build(args):
 
     # Build dist wheel files
-    build_dist_whl(args.nightly)
+    build_dist_whl(args)
 
     os.chdir(REPO_ROOT)
 

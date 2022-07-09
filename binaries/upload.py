@@ -23,14 +23,14 @@ WA_WHEEL_PATH = glob.glob(os.path.join(REPO_ROOT, "workflow-archiver", "dist"))[
 PACKAGES = ["torchserve", "model-archiver", "workflow-archiver"]
 
 
-def upload_pypi_packages(test_pypi=False):
+def upload_pypi_packages(args):
     """
     Takes a list of path values and uploads them to pypi using twine, using token stored in environment variable
     """
 
     # Note: TWINE_USERNAME and TWINE_PASSWORD are expected to be set in the environment
     for dist_path in [TS_WHEEL_PATH, MA_WHEEL_PATH, WA_WHEEL_PATH]:
-        if test_pypi:
+        if args.test_pypi:
             exit_code = os.system(
                 f"set -ex ; twine upload {dist_path}/* --username __token__ --repository-url https://test.pypi.org/legacy/"
             )
@@ -41,7 +41,7 @@ def upload_pypi_packages(test_pypi=False):
         if exit_code != 0:
             sys.exit(f"twine upload for path {dist_path} failed")
 
-    if test_pypi:
+    if args.test_pypi:
         print(
             f"All packages uploaded to test.pypi.org successfully. Please install package as 'pip install -i https://test.pypi.org/simple/ <package-name>'"
         )
@@ -104,7 +104,7 @@ if __name__ == "__main__":
         upload_conda_packages()
 
     if args.upload_pypi_packages:
-        upload_pypi_packages(args.test_pypi)
+        upload_pypi_packages(args)
 
     if any([args.upload_conda_packages, args.upload_pypi_packages]):
         print(f"Upload script complete")
