@@ -3,19 +3,22 @@
 """
 Base module for all vision handlers
 """
-from abc import ABC
-import io
 import base64
+import io
+from abc import ABC
+
 import torch
-from PIL import Image
 from captum.attr import IntegratedGradients
-from .base_handler import BaseHandler
+from PIL import Image
+
+from ts.torch_handler.base_handler import BaseHandler
 
 
 class VisionHandler(BaseHandler, ABC):
     """
     Base class for all vision handlers
     """
+
     def initialize(self, context):
         super().initialize(context)
         self.ig = IntegratedGradients(self.model)
