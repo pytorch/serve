@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
 
 # Copy pasted from script by @seemethere https://github.com/seemethere/dotfiles/blob/a0ff2bb869abc5c7641f03f196b03c6a81142c2b/bin/retag_pypi_binary.sh
+# And adapted to work with conda bz2
 
 # Usage is:
-# $ NEW_VERSION="my_cool_new_version" retag_pypi_binary.sh <path_to_whl_file> <path_to_multiple_whl_files>
+# $ NEW_VERSION="my_cool_new_version" retag_pypi_binary.sh <path_to_whl_file> <path_to_multiple_bz2_files>
 
-# Will output a whl in your current directory
+# Will output a bz2 in your current directory
 
 set -eou pipefail
 set -ex
