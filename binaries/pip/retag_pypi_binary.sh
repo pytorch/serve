@@ -8,6 +8,7 @@
 # Will output a whl in your current directory
 
 set -eou pipefail
+set -ex
 shopt -s globstar
 
 OUTPUT_DIR=${OUTPUT_DIR:-$(pwd)}
@@ -34,6 +35,12 @@ for whl_file in "$@"; do
     original_version=$(grep '^Version:' "${whl_dir}"/*/METADATA | cut -d' ' -f2)
     # Remove all suffixed +bleh versions
     new_whl_file=${OUTPUT_DIR}/$(basename "${whl_file/${original_version}/${NEW_VERSION}}")
+
+    # Strip out _nightly suffix from version if it exists
+    nightly_suffix="_nightly"
+    new_whl_file=${OUTPUT_DIR}/$(basename "${new_whl_file/${nightly_suffix}/}")
+
+
     dist_info_folder=$(find "${whl_dir}" -type d -name '*.dist-info' | head -1)
     basename_dist_info_folder=$(basename "${dist_info_folder}")
     dirname_dist_info_folder=$(dirname "${dist_info_folder}")
