@@ -32,9 +32,15 @@ for whl_file in "$@"; do
         unzip -q "${whl_file}" -d "${whl_dir}"
     )
     original_version=$(grep '^Version:' "${whl_dir}"/*/METADATA | cut -d' ' -f2)
+    
     # Remove all suffixed +bleh versions
     new_whl_file=${OUTPUT_DIR}/$(basename "${whl_file/${original_version}/${NEW_VERSION}}")
     dist_info_folder=$(find "${whl_dir}" -type d -name '*.dist-info' | head -1)
+
+    # Remove _nightly suffix from package name
+    nightly_suffix="_nightly"
+    new_whl_file=${OUTPUT_DIR}/$(basename "${new_whl_file/${nightly_suffix}/}")
+    
     basename_dist_info_folder=$(basename "${dist_info_folder}")
     dirname_dist_info_folder=$(dirname "${dist_info_folder}")
     (
