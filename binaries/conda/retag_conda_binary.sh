@@ -38,7 +38,7 @@ for whl_file in "$@"; do
     new_whl_file=${OUTPUT_DIR}/$(basename "${whl_file/${original_version}/${NEW_VERSION}}")
     dist_info_folder=$(find "${whl_dir}" -type d -name '*.dist-info' | head -1)
 
-    # Remove _nightly suffix from package name
+    # Remove dev and date suffix from nightly build
     nightly_suffix=".dev[0-9]*"
     new_whl_file=${OUTPUT_DIR}/$(basename "${new_whl_file/${nightly_suffix}/}")
     
