@@ -23,6 +23,7 @@ fi
 
 
 tmp_dir="$(mktemp -d)"
+rm -rf lib/ bin/ info/ 
 trap 'rm -rf ${tmp_dir}' EXIT
 
 for whl_file in "$@"; do
@@ -34,13 +35,18 @@ for whl_file in "$@"; do
         tar -xf "${whl_file}" --directory "${whl_dir}"
     )
     original_version=$(grep '^Version:' "${whl_dir}"/lib/python*/site-packages/torch*/METADATA | cut -d' ' -f2)
+
+    # # Strip extra binary information
+    b_suffix="b*"
+    original_version=${original_version/${b_suffix}/}
     
     # Remove all suffixed +bleh versions
-    new_whl_file=${OUTPUT_DIR}/$(basename "${whl_file/${original_version}/${NEW_VERSION}}")
+    
+    new_whl_file=${whl_file/${original_version}/${NEW_VERSION}}
     dist_info_folder=$(find "${whl_dir}" -type d -name '*.dist-info' | head -1)
 
     # Remove dev and date suffix from nightly build
-    nightly_suffix=".dev[0-9]*"
+    nightly_suffix=".dev[0-9]+"
     new_whl_file=${OUTPUT_DIR}/$(basename "${new_whl_file/${nightly_suffix}/}")
     
     basename_dist_info_folder=$(basename "${dist_info_folder}")
@@ -52,6 +58,6 @@ for whl_file in "$@"; do
         # Example: torch-1.8.0+cpu.dist-info => torch-1.8.0.dist-info
         mv "${dist_info_folder}" "${dirname_dist_info_folder}/${basename_dist_info_folder/${original_version}/${NEW_VERSION}}"
         cd "${whl_dir}"
-        tar -cjvf "${new_whl_file}" .
+        tar -cjSf "${new_whl_file}.tar.bz2" .
     )
 done
