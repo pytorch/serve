@@ -86,7 +86,7 @@ def build(args):
         ts_wheel_path,
         ma_wheel_path,
         wa_wheel_path,
-        args.nightly and args.upload_conda_packages,
+        args.nightly,
     )
 
     # If conda build fails, exit with error

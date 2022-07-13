@@ -52,28 +52,23 @@ def upload_conda_packages():
     Takes a list of path values and uploads them to anaconda.org using conda upload, using token stored in environment variable
     """
 
-    # Identify *.tar.bz2 files to upload
-    anaconda_token = os.getenv(CONDA_TOKEN_ENV_VARIABLE)
-
     for root, _, files in os.walk(CONDA_PACKAGES_PATH):
         for name in files:
             file_path = os.path.join(root, name)
-            print(file_path)
+
+            # Identify *.tar.bz2 files to upload
             if any(word in file_path for word in PACKAGES) and file_path.endswith(
                 "tar.bz2"
             ):
                 print(f"Uploading to anaconda package: {name}")
-                anaconda_upload_command = f"anaconda -t {anaconda_token} upload --user {CONDA_USER} {file_path} --force"
-
+                anaconda_upload_command = f"anaconda upload {file_path} --force"
                 exit_code = os.system(anaconda_upload_command)
 
                 if exit_code != 0:
                     print(f"Anaconda package upload failed for pacakge {name}")
                     return exit_code
 
-    print(
-        f"All packages uploaded to anaconda successfully under the channel {CONDA_USER}"
-    )
+    print(f"All packages uploaded to anaconda successfully")
 
 
 if __name__ == "__main__":

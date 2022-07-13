@@ -28,12 +28,12 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: '11'
-      - name: conda config for auto-upload
-        run: conda config --set anaconda_upload yes
-      - name: Build PyPI & conda nightly binaries and push conda binaries
+      - name: Build PyPI & conda nightly binaries
+        run: python binaries/build.py --upload-conda-packages --nightly
+      - name: Push conda nightly binaries
         env:
           ANACONDA_API_TOKEN: ${{ secrets.CONDA_NIGHTLY_TOKEN }}
-        run: python binaries/build.py --upload-conda-packages --nightly
+        run: python binaries/upload.py --upload-conda-packages
       - name: Push PyPI nightly binaries
         env:
           TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
