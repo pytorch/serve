@@ -33,11 +33,10 @@ def build_dist_whl(args):
 
     for binary in binaries:
 
-        cur_dir = (
-            REPO_ROOT
-            if "serve" in binary
-            else os.path.join(REPO_ROOT, binary[len("torch-") :])
-        )
+        if "serve" in binary:
+            cur_dir = REPO_ROOT
+        else:
+            cur_dir = os.path.join(REPO_ROOT, binary[len("torch-") :])
 
         os.chdir(cur_dir)
 
