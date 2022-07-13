@@ -52,6 +52,7 @@ def upload_conda_packages():
     Takes a list of path values and uploads them to anaconda.org using conda upload, using token stored in environment variable
     """
 
+    # Set ANACONDA_API_TOKEN before calling this function
     for root, _, files in os.walk(CONDA_PACKAGES_PATH):
         for name in files:
             file_path = os.path.join(root, name)
