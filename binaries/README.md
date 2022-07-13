@@ -78,7 +78,7 @@
      ##### Windows:
      Conda install is currently not supported. Please use pip install command instead.
 
-# Building TorchServe, Torch-Model-Archiver & Torch-WorkFlow nightly binaries
+# Building TorchServe, Torch-Model-Archiver & Torch-WorkFlow-Archiver nightly binaries
 1. Make sure all the dependencies are installed
    ##### Linux and MacOs:
    ```bash
