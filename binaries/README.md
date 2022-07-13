@@ -92,7 +92,7 @@
    > For GPU with Cuda 10.2, make sure add the `--cuda cu102` arg to the above command
 
 
-2. To build a `torchserve`, `torch-model-archiver` & `torch-workflow-archiver` wheel execute:
+2. To build a `torchserve`, `torch-model-archiver` & `torch-workflow-archiver` nightly wheel execute:
    ##### Linux and MacOs:
    ```bash
    python binaries/build.py --nightly
@@ -130,7 +130,7 @@
    #### Conda binaries
    - The binary has the format `<binary_name>-<version>.dev<YYYYMMDD>-py<xx>_0.tar.bz2`
    - For example: `torchserve-0.6.0.dev20220713-py39_0.tar.bz2`
-   - This is similar to the format of other nightly binaries at https://anaconda.org/pytorch-nightly/repo
+   - This is similar to the format of other pytorch domain nightly binaries at https://anaconda.org/pytorch-nightly/repo
 
 # Uploading packages for testing to a personal account
 1. Export the following environment variables for TestPypi and anaconda.org authentication
