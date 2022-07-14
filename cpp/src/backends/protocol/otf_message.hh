@@ -4,6 +4,7 @@
 #include <chrono>
 #include <ctime>
 #include <string>
+#include <variant>
 #include <vector>
 
 #include "src/utils/message.hh"
@@ -27,20 +28,13 @@ namespace torchserve {
 
   class OTFMessage {
     public:
-    union RequestMessage {
-      std::shared_ptr<LoadModelRequest> load_request;
-      std::shared_ptr<InferenceRequest[]> infer_request_batch;
-      RequestMessage() {};
-      ~RequestMessage() {};
-    };
     static byte_buffer CreateLoadModelResponse(StatusCode code, const std::string& message);
-    static std::pair<char, RequestMessage> RetrieveMsg(Socket conn); 
-    
-    private:
+    static char RetrieveCmd(Socket conn); 
     static std::shared_ptr<LoadModelRequest> RetrieveLoadMsg(Socket conn);
     // TODO: impl.
-    static std::shared_ptr<InferenceRequest[]> RetrieveInferenceMsg(Socket conn);
+    static std::vector<std::shared_ptr<InferenceRequest>> RetrieveInferenceMsg(Socket conn);
     
+    private:
     static void RetrieveBuffer(Socket conn, size_t length, char *data);     
     static int RetrieveInt(Socket conn);
     static bool RetrieveBool(Socket conn);

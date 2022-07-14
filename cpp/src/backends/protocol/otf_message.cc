@@ -18,22 +18,11 @@ namespace torchserve {
     return response_byte_buffer;
   }
 
-  std::pair<char, OTFMessage::RequestMessage> OTFMessage::RetrieveMsg(Socket conn) {
+  char OTFMessage::RetrieveCmd(Socket conn) {
     char* data = new char[1];
     RetrieveBuffer(conn, 1, data);
-    char cmd = data[0];
-    OTFMessage::RequestMessage msg;
-    if (cmd == LOAD_MSG) {
-      msg.load_request = RetrieveLoadMsg(conn);
-    } else if (cmd == PREDICT_MSG) {
-      //TODO: call msg = RetrieveInferenceMsg(conn);
-      std::time_t end_time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-      LOG(INFO) << "Backend received inference at: " << std::ctime(&end_time);
-    } else {
-      LOG(ERROR) << "Invalid command: " << cmd;
-    }
-    return std::make_pair(cmd, msg);
-  } 
+    return data[0];
+  }
 
   std::shared_ptr<LoadModelRequest> OTFMessage::RetrieveLoadMsg(Socket conn) {
     /**

@@ -2,8 +2,10 @@
 #ifndef TS_CPP_UTILS_MESSAGE_HH_
 #define TS_CPP_UTILS_MESSAGE_HH_
 
+#include <folly/dynamic.h>
 #include <map>
 #include <string>
+#include <variant>
 #include <vector>
 
 namespace torchserve {
@@ -47,18 +49,17 @@ namespace torchserve {
     code(code), length(length), buf(buf) {};
   };
 
+  using ParameterValue = std::variant<
+    std::string,                           // str_value
+    folly::dynamic,                        // json_value
+    std::vector<std::byte>                 // bytes_value
+  >;             
   struct InferenceRequest {
     struct Header {
       std::string name;
       std::vector<std::byte> value;
     };
-    union ParameterValue {
-      std::string str_value;
-      std::map<std::string, std::string> json_value;
-      std::vector<std::byte> bytes_value;
-      ParameterValue() {};
-      ~ParameterValue() {};
-    };
+
     struct Parameter {
       std::string name;
       std::string content_type;

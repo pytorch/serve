@@ -105,11 +105,25 @@ namespace torchserve {
     return nullptr;
   }
 
+/*
+    char cmd = data[0];
+    OTFMessage::RequestMessage msg;
+    if (cmd == LOAD_MSG) {
+      msg.load_request = RetrieveLoadMsg(conn);
+    } else if (cmd == PREDICT_MSG) {
+      //TODO: call msg = RetrieveInferenceMsg(conn);
+      std::time_t end_time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+      LOG(INFO) << "Backend received inference at: " << std::ctime(&end_time);
+    } else {
+      LOG(ERROR) << "Invalid command: " << cmd;
+    }
+    return std::make_pair(cmd, msg);
+  } 
+  */
   [[noreturn]] void SocketModelWorker::Run() {
     LOG(INFO) << "Handle connection";
     while (true) {
-      auto request = torchserve::OTFMessage::RetrieveMsg(client_socket_);
-      char cmd = request.first;
+      char cmd  = torchserve::OTFMessage::RetrieveCmd(client_socket_);
     
       if (cmd == 'I') {
         LOG(INFO) << "INFER request received";
@@ -117,7 +131,7 @@ namespace torchserve {
       } else if (cmd == 'L') {
         LOG(INFO) << "LOAD request received";
         // TODO: error handling
-        auto response = backend_->LoadModel(std::move(request.second.load_request));
+        auto response = backend_->LoadModel(torchserve::OTFMessage::RetrieveLoadMsg(client_socket_));
         model_instance_ = response.second;
       } else {
         LOG(ERROR) << "Received unknown command: " << cmd;
