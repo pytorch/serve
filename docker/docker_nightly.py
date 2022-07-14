@@ -6,17 +6,17 @@ def get_nightly_version():
     today = date.today()
     return today.strftime("%Y.%m.%d")
 
-if __name__ == "__main__":
 
-    def try_and_handle(cmd, dry_run = False):
-        if dry_run:
-            print(f"Executing command: {cmd}")
-        else:
-            try:
-                subprocess.run([cmd], shell=True, check = True)
-            except subprocess.CalledProcessError as e:
-                raise(e)
-    
+def try_and_handle(cmd, dry_run = False):
+    if dry_run:
+        print(f"Executing command: {cmd}")
+    else:
+        try:
+            subprocess.run([cmd], shell=True, check = True)
+        except subprocess.CalledProcessError as e:
+            raise(e)
+
+if __name__ == "__main__":
     failed_commands = []
     parser = argparse.ArgumentParser()
     parser.add_argument("--organization", type=str, default="pytorch", help="The name of the Dockerhub organization where the images will be pushed")
