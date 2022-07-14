@@ -27,13 +27,19 @@ namespace torchserve {
 
   class OTFMessage {
     public:
+    union RequestMessage {
+      std::shared_ptr<LoadModelRequest> load_request;
+      std::shared_ptr<InferenceRequest[]> infer_request_batch;
+      RequestMessage() {};
+      ~RequestMessage() {};
+    };
     static byte_buffer CreateLoadModelResponse(StatusCode code, const std::string& message);
-    static std::pair<char, std::shared_ptr<void>> RetrieveMsg(Socket conn); 
+    static std::pair<char, RequestMessage> RetrieveMsg(Socket conn); 
     
     private:
     static std::shared_ptr<LoadModelRequest> RetrieveLoadMsg(Socket conn);
     // TODO: impl.
-    static std::shared_ptr<InferenceRequest> RetrieveInferenceMsg(Socket conn);
+    static std::shared_ptr<InferenceRequest[]> RetrieveInferenceMsg(Socket conn);
     
     static void RetrieveBuffer(Socket conn, size_t length, char *data);     
     static int RetrieveInt(Socket conn);

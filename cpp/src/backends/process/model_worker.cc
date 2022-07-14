@@ -117,8 +117,7 @@ namespace torchserve {
       } else if (cmd == 'L') {
         LOG(INFO) << "LOAD request received";
         // TODO: error handling
-        auto load_model_request = std::static_pointer_cast<torchserve::LoadModelRequest>(request.second);
-        auto response = backend_->LoadModel(std::move(load_model_request));
+        auto response = backend_->LoadModel(std::move(request.second.load_request));
         model_instance_ = response.second;
       } else {
         LOG(ERROR) << "Received unknown command: " << cmd;
