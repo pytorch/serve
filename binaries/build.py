@@ -13,7 +13,7 @@ from binaries.conda.build_packages import (
     install_conda_build,
     install_miniconda,
 )
-from ts_scripts.utils import is_conda_build_env, is_conda_env
+from ts_scripts.utils import is_conda_build_env, is_conda_env, try_and_handle
 
 
 def build_dist_whl(args):
@@ -48,11 +48,7 @@ def build_dist_whl(args):
 
         # Build wheel
         print(f"## In directory: {os.getcwd()} | Executing command: {cur_wheel_cmd}")
-        build_exit_code = os.system(cur_wheel_cmd)
-
-        # If any one of the steps fail, exit with error
-        if build_exit_code != 0:
-            sys.exit(f"## {binary} build Failed !")
+        try_and_handle(cur_wheel_cmd)
 
 
 def build(args):

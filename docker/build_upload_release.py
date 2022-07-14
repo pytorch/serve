@@ -1,8 +1,7 @@
 from argparse import ArgumentParser
 
 from ts import version
-
-from .docker_nightly import try_and_handle
+from ts_scripts.utils import try_and_handle
 
 if __name__ == "__main__":
     parser = ArgumentParser()
@@ -38,7 +37,7 @@ if __name__ == "__main__":
         dry_run,
     )
     try_and_handle(
-        f"docker tag {organization}/torchserve:latest {organization}/torchserve:{version()}-gpu",
+        f"docker tag {organization}/torchserve:latest-gpu {organization}/torchserve:{version()}-gpu",
         dry_run,
     )
 
