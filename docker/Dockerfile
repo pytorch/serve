@@ -34,7 +34,7 @@ RUN --mount=type=cache,id=apt-dev,target=/var/cache/apt \
     python3.8-distutils \
     python3.8-venv \
     python3-venv \
-    openjdk-11-jre-headless \
+    openjdk-17-jdk \
     curl \
     && rm -rf /var/lib/apt/lists/* \
     && cd /tmp \
@@ -84,7 +84,7 @@ RUN --mount=type=cache,target=/var/cache/apt \
     python3.8 \
     python3.8-distutils \
     python3.8-dev \
-    openjdk-11-jre-headless \
+    openjdk-17-jdk \
     build-essential \
     && rm -rf /var/lib/apt/lists/* \
     && cd /tmp
