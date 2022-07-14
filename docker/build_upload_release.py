@@ -23,29 +23,30 @@ if __name__ == "__main__":
 
     # Upload pytorch/torchserve docker binaries
     try_and_handle(
-        f"./build_image.sh -bt dev -g -cv -t pytorch/torchserve:latest", dry_run
+        f"./build_image.sh -bt dev -g -cv -t {organization}/torchserve:latest", dry_run
     )
     try_and_handle(
-        f"./build_image.sh -bt dev -g -cv 102 -t pytorch/torchserve:latest-gpu", dry_run
-    )
-    try_and_handle(
-        f"docker tag {organization}/torchserve-latest pytorch/torchserve:latest-cpu",
+        f"./build_image.sh -bt dev -g -cv 102 -t {organization}/torchserve:latest-gpu",
         dry_run,
     )
     try_and_handle(
-        f"docker tag pytorch/torchserve:latest pytorch/torchserve:{version()}-cpu",
+        f"docker tag {organization}/torchserve-latest {organization}/torchserve:latest-cpu",
         dry_run,
     )
     try_and_handle(
-        f"docker tag pytorch/torchserve:latest pytorch/torchserve:{version()}-gpu",
+        f"docker tag {organization}/torchserve:latest {organization}/torchserve:{version()}-cpu",
+        dry_run,
+    )
+    try_and_handle(
+        f"docker tag {organization}/torchserve:latest {organization}/torchserve:{version()}-gpu",
         dry_run,
     )
 
     for image in [
-        "pytorch/torchserve:latest",
-        "pytorch/torchserve:latest-cpu",
-        "pytorch/torchserve:latest-gpu",
-        f"pytorch/torchserve:{version()}-cpu",
-        f"pytorch/torchserve:{version()}-gpu",
+        f"{organization}/torchserve:latest",
+        f"{organization}/torchserve:latest-cpu",
+        f"{organization}/torchserve:latest-gpu",
+        f"{organization}/torchserve:{version()}-cpu",
+        f"{organization}/torchserve:{version()}-gpu",
     ]:
         try_and_handle(f"docker push {image}")
