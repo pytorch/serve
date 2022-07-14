@@ -98,12 +98,6 @@ if __name__ == "__main__":
         description="Build for torchserve, torch-model-archiver and torch-workflow-archiver"
     )
     parser.add_argument(
-        "--upload-conda-packages",
-        action="store_true",
-        required=False,
-        help="Specify whether to upload conda packages",
-    )
-    parser.add_argument(
         "--nightly",
         action="store_true",
         required=False,

@@ -29,7 +29,7 @@ jobs:
           distribution: 'zulu'
           java-version: '11'
       - name: Build PyPI & conda nightly binaries
-        run: python binaries/build.py --upload-conda-packages --nightly
+        run: python binaries/build.py --nightly
       - name: Push conda nightly binaries
         env:
           ANACONDA_API_TOKEN: ${{ secrets.CONDA_NIGHTLY_TOKEN }}
