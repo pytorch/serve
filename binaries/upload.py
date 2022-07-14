@@ -2,7 +2,9 @@
 import argparse
 import glob
 import os
-import sys
+
+from serve.docker.docker_nightly import try_and_handle
+from ts_scripts.utils import try_and_handle
 
 # The following environment variables are expected to be populated in the shell environment
 PYPI_USERNAME_ENV_VARIABLE = "TWINE_USERNAME"
@@ -27,19 +29,19 @@ def upload_pypi_packages(args):
     """
     Takes a list of path values and uploads them to pypi using twine, using token stored in environment variable
     """
+    dry_run = args.dry_run
 
     # Note: TWINE_USERNAME and TWINE_PASSWORD are expected to be set in the environment
     for dist_path in [TS_WHEEL_PATH, MA_WHEEL_PATH, WA_WHEEL_PATH]:
         if args.test_pypi:
-            exit_code = os.system(
-                f"set -ex ; twine upload {dist_path}/* --username __token__ --repository-url https://test.pypi.org/legacy/"
+            try_and_handle(
+                f"set -ex ; twine upload {dist_path}/* --username __token__ --repository-url https://test.pypi.org/legacy/",
+                dry_run,
             )
         else:
-            exit_code = os.system(
-                f"set -ex ; twine upload --username __token__ {dist_path}/*"
+            try_and_handle(
+                f"set -ex ; twine upload --username __token__ {dist_path}/*", dry_run
             )
-        if exit_code != 0:
-            sys.exit(f"twine upload for path {dist_path} failed")
 
     if args.test_pypi:
         print(
@@ -47,10 +49,11 @@ def upload_pypi_packages(args):
         )
 
 
-def upload_conda_packages():
+def upload_conda_packages(args):
     """
     Takes a list of path values and uploads them to anaconda.org using conda upload, using token stored in environment variable
     """
+    dry_run = args.dry_run
 
     # Set ANACONDA_API_TOKEN before calling this function
     for root, _, files in os.walk(CONDA_PACKAGES_PATH):
@@ -63,7 +66,7 @@ def upload_conda_packages():
             ):
                 print(f"Uploading to anaconda package: {name}")
                 anaconda_upload_command = f"anaconda upload {file_path} --force"
-                exit_code = os.system(anaconda_upload_command)
+                exit_code = try_and_handle(anaconda_upload_command, dry_run)
 
                 if exit_code != 0:
                     print(f"Anaconda package upload failed for pacakge {name}")
@@ -94,15 +97,16 @@ if __name__ == "__main__":
         required=False,
         help="Specify whether to upload to test PyPI",
     )
+
+    parser.add_argument(
+        "--dry_run",
+        action="store_true",
+        help="dry_run will print the commands that will be run without running them",
+    )
     args = parser.parse_args()
 
     if args.upload_conda_packages:
-        upload_conda_packages()
+        upload_conda_packages(args)
 
     if args.upload_pypi_packages:
         upload_pypi_packages(args)
-
-    if any([args.upload_conda_packages, args.upload_pypi_packages]):
-        print(f"Upload script complete")
-    else:
-        print(f"No packages uploaded")

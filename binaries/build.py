@@ -103,6 +103,13 @@ if __name__ == "__main__":
         required=False,
         help="specify nightly is being built",
     )
+
+    parser.add_argument(
+        "--dry_run",
+        action="store_true",
+        help="dry_run will print the commands that will be run without running them",
+    )
+
     args = parser.parse_args()
 
     build(args)
