@@ -23,7 +23,7 @@ if __name__ == "__main__":
 
     # Upload pytorch/torchserve docker binaries
     try_and_handle(
-        f"./build_image.sh -bt dev -g -cv -t {organization}/torchserve:latest", dry_run
+        f"./build_image.sh -bt dev -t {organization}/torchserve:latest", dry_run
     )
     try_and_handle(
         f"./build_image.sh -bt dev -g -cv 102 -t {organization}/torchserve:latest-gpu",

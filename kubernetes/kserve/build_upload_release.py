@@ -34,7 +34,7 @@ if __name__ == "__main__":
     organization = args.organization
 
     try_and_handle(
-        f"./build_image.sh  -t {organization}/torchserve-kfs:{version()}", dry_run
+        f"./build_image.sh -t {organization}/torchserve-kfs:{version()}", dry_run
     )
     try_and_handle(
         f"./build_image.sh -g -t {organization}/torchserve-kfs:{version()}-gpu", dry_run
