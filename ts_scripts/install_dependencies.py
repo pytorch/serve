@@ -2,7 +2,6 @@ import os
 import platform
 import argparse
 import sys
-from pathlib import Path
 from print_env_info import run_and_parse_first_match
 
 REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
