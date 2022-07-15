@@ -1,4 +1,3 @@
-# Not sure I can assume ts is installed on the dev machine, alternative is reading ts/version.txt
 from argparse import ArgumentParser
 
 from ts_scripts.utils import check_ts_version, try_and_handle
