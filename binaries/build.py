@@ -28,7 +28,7 @@ def build_dist_whl(args):
         create_wheel_cmd = "python setup.py "
     else:
         print("## Started torchserve, model-archiver and workflow-archiver build")
-        create_wheel_cmd = "python setup.py bdist_wheel --release --universal"
+        create_wheel_cmd = "python setup.py bdist_wheel --release"
 
     for binary in binaries:
 
