@@ -36,7 +36,7 @@ def upload_pypi_packages(args, WHL_PATHS):
             try_and_handle(f"twine upload --username __token__ {dist_path}/*", dry_run)
 
 
-# TODO: to make dry_run work need to mock a fake os path for CONDA_PACKAGES_PATH
+# TODO: Mock some file paths to make conda dry run work
 def upload_conda_packages(args, PACKAGES, CONDA_PACKAGES_PATH):
     """
     Takes a list of path values and uploads them to anaconda.org using conda upload, using token stored in environment variable
