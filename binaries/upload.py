@@ -35,11 +35,12 @@ def upload_pypi_packages(args, WHL_PATHS):
             try_and_handle(f"twine upload --username __token__ {dist_path}/*", dry_run)
 
 
-# TODO: Add a staging environment for conda
 # TODO: to make dry_run work need to mock a fake os path for CONDA_PACKAGES_PATH
 def upload_conda_packages(args, PACKAGES, CONDA_PACKAGES_PATH):
     """
     Takes a list of path values and uploads them to anaconda.org using conda upload, using token stored in environment variable
+    If you'd like to upload to a staging environment make sure to pass in your personal credentials when you anaconda login instead
+    of the pytorch credentials
     """
     # Set ANACONDA_API_TOKEN before calling this function
     for root, _, files in os.walk(CONDA_PACKAGES_PATH):
