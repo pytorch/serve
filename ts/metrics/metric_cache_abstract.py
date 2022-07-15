@@ -100,3 +100,34 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
                                                                        dimensions=dimensions,
                                                                        metric_type=metric_type)
         print("Successfully added metric.")
+
+    def flush(self):
+        """
+        Implement retries for flush method.
+        """
+        flush_success = False
+        num_tries = 5
+
+        for i in range(num_tries):
+            if flush_success:
+                break
+            else:
+                # if method runs successfully, then it means method  passed, otherwise it would exit if method failed
+                self._flush_util()
+                flush_success = True
+
+    def _flush_util(self):
+        """
+        Emit all metrics to frontend and reset all metrics value to 0 if successful
+        """
+        try:
+            # emit metrics to the frontend
+            pass
+
+            # reset metric values to 0
+            for metric in self.cache:
+                metric.value = 0
+
+        except Exception as exc:
+            print(f"Failed to emit metrics to front end: {exc}")
+            sys.exit(1)
