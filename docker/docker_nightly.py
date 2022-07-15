@@ -1,20 +1,8 @@
 from datetime import date
 import argparse
 import subprocess
-
-def get_nightly_version():
-    today = date.today()
-    return today.strftime("%Y.%m.%d")
-
-
-def try_and_handle(cmd, dry_run = False):
-    if dry_run:
-        print(f"Executing command: {cmd}")
-    else:
-        try:
-            subprocess.run([cmd], shell=True, check = True)
-        except subprocess.CalledProcessError as e:
-            raise(e)
+from ts_scripts.utils import try_and_handle
+from setup import get_nightly_version
 
 if __name__ == "__main__":
     failed_commands = []
