@@ -1,7 +1,9 @@
 
 
+# Beware this is a dangerous script 👻
 name: Make an official Release
 
+# Requires manual trigger
 on: workflow_dispatch
 
 jobs:
@@ -34,7 +36,7 @@ jobs:
       - name: Push conda nightly binaries
         env:
           ANACONDA_API_TOKEN: ${{ secrets.CONDA_NIGHTLY_TOKEN }}
-        run: python binaries/upload.py
+        run: python binaries/upload.py --upload-conda-packages
       - name: Push PyPI binaries
         env:
           TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
