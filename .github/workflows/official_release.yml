@@ -15,6 +15,12 @@ jobs:
         os: [ubuntu-latest, macOS-latest, windows-latest]
     name: Test changed-files
     steps:
+      - uses: trstringer/manual-approval@v1
+        with:
+          secret: ${{ github.TOKEN }}
+          approvers: msaroufim,lxning
+          minimum-approvals: 2
+          issue-title: "Offical Release"
       - name: Setup Conda
         uses: s-weigand/setup-conda@v1
       - run: conda --version
