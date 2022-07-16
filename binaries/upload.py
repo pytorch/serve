@@ -46,7 +46,7 @@ def upload_conda_packages(args, PACKAGES, CONDA_PACKAGES_PATH):
                 anaconda_upload_command = f"anaconda upload {file_path} --force"
                 exit_code = os.system(anaconda_upload_command)
                 if exit_code != 0:
-                    print(f"Anaconda package upload failed for pacakge {name}")
+                    print(f"Anaconda package upload failed for package {name}")
                     return exit_code
     print(f"All packages uploaded to anaconda successfully")
 
