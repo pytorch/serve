@@ -10,15 +10,6 @@ sys.path.append(REPO_ROOT)
 
 from ts_scripts.utils import try_and_handle
 
-# The following environment variables are expected to be populated in the shell environment
-# TODO: Where are these 4 parametrs actually used?
-PYPI_USERNAME_ENV_VARIABLE = "TWINE_USERNAME"
-PYPI_PASSWORD_ENV_VARIABLE = "TWINE_PASSWORD"
-
-CONDA_TOKEN_ENV_VARIABLE = "CONDA_TOKEN"
-CONDA_USER = "torchserve-staging"
-
-
 def upload_pypi_packages(args, WHL_PATHS):
     """
     Takes a list of path values and uploads them to pypi using twine, using token stored in environment variable
