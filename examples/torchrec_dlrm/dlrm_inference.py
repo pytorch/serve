@@ -1,68 +1,11 @@
-#!/usr/bin/env python3
-# Copyright (c) Meta Platforms, Inc. and affiliates.
-# All rights reserved.
-#
-# This source code is licensed under the BSD-style license found in the
-# LICENSE file in the root directory of this source tree.
-
 import argparse
-import logging
 import sys
-from dataclasses import dataclass
 from typing import List
 
 import torch
-from dlrm_predict_single_gpu import DLRMPredictSingleGPUFactory
 from torch.utils.data import DataLoader
 from torchrec.datasets.criteo import DEFAULT_CAT_NAMES, DEFAULT_INT_NAMES
 from torchrec.datasets.random import RandomRecDataset
-from torchrec.inference.modules import quantize_embeddings
-from torchrec.models.dlrm import DLRM
-from torchrec.modules.embedding_configs import EmbeddingBagConfig
-from torchrec.modules.embedding_modules import EmbeddingBagCollection
-
-logger: logging.Logger = logging.getLogger(__name__)
-
-
-@dataclass
-class DLRMModelConfig:
-    dense_arch_layer_sizes: List[int]
-    dense_in_features: int
-    embedding_dim: int
-    id_list_features_keys: List[str]
-    num_embeddings_per_feature: List[int]
-    num_embeddings: int
-    over_arch_layer_sizes: List[int]
-
-
-def create_predict_module(model_config: DLRMModelConfig) -> torch.nn.Module:
-    default_cuda_rank = 0
-    device = torch.device("cuda", default_cuda_rank)
-    torch.cuda.set_device(device)
-
-    eb_configs = [
-        EmbeddingBagConfig(
-            name=f"t_{feature_name}",
-            embedding_dim=model_config.embedding_dim,
-            num_embeddings=model_config.num_embeddings_per_feature[feature_idx],
-            feature_names=[feature_name],
-        )
-        for feature_idx, feature_name in enumerate(model_config.id_list_features_keys)
-    ]
-    ebc = EmbeddingBagCollection(tables=eb_configs, device=torch.device("meta"))
-
-    module = DLRM(
-        embedding_bag_collection=ebc,
-        dense_in_features=model_config.dense_in_features,
-        dense_arch_layer_sizes=model_config.dense_arch_layer_sizes,
-        over_arch_layer_sizes=model_config.over_arch_layer_sizes,
-        # id_list_features_keys=model_config.id_list_features_keys,
-        dense_device=device,
-    )
-
-    module = quantize_embeddings(module, dtype=torch.qint8, inplace=True)
-
-    return module
 
 
 def parse_args(argv: List[str]) -> argparse.Namespace:
@@ -112,11 +55,7 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
         default=len(DEFAULT_INT_NAMES),
         help="Number of dense features.",
     )
-    parser.add_argument(
-        "--output_path",
-        type=str,
-        help="Output path of model package.",
-    )
+
     return parser.parse_args(argv)
 
 
@@ -132,23 +71,6 @@ def main(argv: List[str]) -> None:
     """
 
     args = parse_args(argv)
-
-    model_config = DLRMModelConfig(
-        dense_arch_layer_sizes=list(map(int, args.dense_arch_layer_sizes.split(","))),
-        dense_in_features=args.num_dense_features,
-        embedding_dim=args.embedding_dim,
-        id_list_features_keys=args.sparse_feature_names.split(","),
-        num_embeddings_per_feature=list(
-            map(int, args.num_embeddings_per_feature.split(","))
-        ),
-        num_embeddings=None,
-        over_arch_layer_sizes=list(map(int, args.over_arch_layer_sizes.split(","))),
-    )
-
-    model = DLRMPredictSingleGPUFactory(model_config).create_predict_module(
-        world_size=1
-    )
-    # model = DLRMPredictFactory(model_config).create_predict_module(world_size=1)
 
     dl = DataLoader(
         RandomRecDataset(
@@ -166,9 +88,11 @@ def main(argv: List[str]) -> None:
         num_workers=0,
     )
 
-    batch = next(iter(dl))
+    model = torch.load("dlrm.pt")
 
     device = torch.device("cuda", 0)
+
+    batch = next(iter(dl))
 
     input_data = {
         "float_features": batch.dense_features.to(device),
@@ -178,11 +102,7 @@ def main(argv: List[str]) -> None:
 
     print(input_data)
 
-    model = model.copy(device)
-
     print(model(input_data))
-
-    torch.save(model, "dlrm.pt")
 
 
 if __name__ == "__main__":
