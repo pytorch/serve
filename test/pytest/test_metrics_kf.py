@@ -11,7 +11,9 @@ import json
 import test_utils
 
 NUM_STARTUP_CFG = 0
-REPO_ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../"))
+REPO_ROOT = os.path.normpath(
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../")
+)
 snapshot_file = os.path.join(REPO_ROOT, "test", "config_kf.properties")
 
 def setup_module(module):

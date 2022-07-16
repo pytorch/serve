@@ -15,7 +15,9 @@ import requests
 import test_utils
 from concurrent import futures
 
-REPO_ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../"))
+REPO_ROOT = os.path.normpath(
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../")
+)
 data_file_mnist = os.path.join(REPO_ROOT, "examples", "image_classifier", "mnist", "test_data", "1.png")
 data_file_resnet = os.path.join(
     REPO_ROOT, "examples", "image_classifier", "resnet_152_batch", "images", "kitten.jpg"
