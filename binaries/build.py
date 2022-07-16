@@ -47,7 +47,12 @@ def build_dist_whl(args):
 
         # Build wheel
         print(f"## In directory: {os.getcwd()} | Executing command: {cur_wheel_cmd}")
-        try_and_handle(cur_wheel_cmd, args.dry_run)
+        
+        if not args.dry_run:
+            build_exit_code = os.system(cur_wheel_cmd)
+            # If any one of the steps fail, exit with error
+            if build_exit_code != 0:
+                sys.exit(f"## {binary} build Failed !")
 
 
 def build(args):
