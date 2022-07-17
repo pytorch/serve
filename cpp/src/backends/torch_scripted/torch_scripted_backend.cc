@@ -1,7 +1,8 @@
 #include <fmt/format.h>
 #include <memory>
 
-#include "src/backends/torch_scripted/torch_scripted_backend.hh"
+#include "src/backends/torch_handler/base_handler.hh"
+
 namespace torchserve {
   std::pair<
   std::unique_ptr<torchserve::LoadModelResponse>, 
@@ -36,8 +37,14 @@ namespace torchserve {
           e.msg()),
          nullptr);
     }
-    auto model_instance = std::make_shared<torchserve::TorchScritpedModelInstance>();
-    model_instance->Initialize(module, load_model_request);
+    /**
+     * @brief 
+     * TODO: 
+     * - load handler shared lib defined in manifest
+     * - create model_instance object from the handler
+     */
+    auto model_instance = std::make_shared<torchserve::TorchBaseHandler>(
+      module, load_model_request, manifest);
     return std::make_pair(
       std::make_unique<torchserve::LoadModelResponse>(
         // TODO: check current response msg content
@@ -61,16 +68,6 @@ namespace torchserve {
     return torch::Device(torch::kCUDA, load_model_request->gpu_id);
   }
   
-  void TorchScritpedModelInstance::Initialize(
-    std::shared_ptr<torch::jit::script::Module> model, 
-    std::shared_ptr<torchserve::LoadModelRequest> load_model_request) {
-    load_model_request_ = load_model_request;
-    model_ = model;
-    // TODO: set instance_id_ after LoadModelRequest is extended to support 
-    // device type: CPU, GPU or others
-  }
-
-
   // This is the entry point function of libtorch_scripted_backend_xxx.so
   std::shared_ptr<torchserve::Backend> CreateBackend() {
     return std::make_shared<TorchScriptedBackend>();

@@ -17,6 +17,7 @@ namespace torchserve {
      */
     manifest_ = std::make_shared<torchserve::Manifest>();
     manifest_->Initialize(fmt::format("{}/MAR-INF/MANIFEST.json", load_model_request->model_path));
+    
     return LoadModelInternal(std::move(load_model_request), manifest_);
   }
 }

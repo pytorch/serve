@@ -18,21 +18,43 @@ namespace torchserve {
    */
   class ModelInstance {
     public:
-    ModelInstance() {};
-    ~ModelInstance() {};
+    ModelInstance(
+      std::shared_ptr<torchserve::LoadModelRequest> load_model_request,
+      std::shared_ptr<torchserve::Manifest> manifest) :
+      load_model_request_(load_model_request), manifest_(manifest) {
+      // TODO: set instance_id_ after LoadModelRequest is extended to support 
+      // device type: CPU, GPU or others
+    };
+    virtual ~ModelInstance() {};
 
     virtual std::shared_ptr<torchserve::InferenceResponse> Predict(
       std::unique_ptr<torchserve::InferenceRequest> inference_request) = 0;
+
+    std::shared_ptr<torchserve::Manifest> GetManifest() {
+      return manifest_;
+    };
+
+    std::shared_ptr<torchserve::LoadModelRequest> GetLoadModelRequest() {
+      return load_model_request_;
+    };
+
+    const std::string& GetInstanceId() {
+      return instance_id_;
+    };
 
     protected:
     // instance_id naming convention:
     // device_type + ":" + device_id (or object id)
     std::string instance_id_;
     std::shared_ptr<torchserve::LoadModelRequest> load_model_request_;
+    std::shared_ptr<torchserve::Manifest> manifest_;
   };
 
   /**
    * @brief TorchServe Backend Interface
+   * Backend <=> ModelLoader:
+   * https://github.com/pytorch/serve/blob/master/ts/model_loader.py#L28
+   * 
    * Note:
    * Any framework should implement its own backend which includes:
    * 1. Implement class Backend

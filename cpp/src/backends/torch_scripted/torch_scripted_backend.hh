@@ -26,22 +26,19 @@ namespace torchserve {
       std::shared_ptr<torchserve::LoadModelRequest> load_model_request);
   };
 
-  class TorchScritpedModelInstance final : public ModelInstance {
+  class TorchScritpedModelInstance : public ModelInstance {
     public:
-    TorchScritpedModelInstance() {};
-    ~TorchScritpedModelInstance() {};
-
-    void Initialize(
+    TorchScritpedModelInstance(
       std::shared_ptr<torch::jit::script::Module> model, 
-      std::shared_ptr<torchserve::LoadModelRequest> load_model_request);
+      std::shared_ptr<torchserve::LoadModelRequest> load_model_request,
+      std::shared_ptr<torchserve::Manifest> manifest) :
+      ModelInstance(load_model_request, manifest), model_(model) {};
+    virtual ~TorchScritpedModelInstance() {};
 
-    std::shared_ptr<torchserve::InferenceResponse> Predict(
-      std::unique_ptr<torchserve::InferenceRequest> inference_request) override {
-      // TODO; impl.
-      return std::make_shared<torchserve::InferenceResponse>();
-    };
+    virtual std::shared_ptr<torchserve::InferenceResponse> Predict(
+      std::unique_ptr<torchserve::InferenceRequest> inference_request) = 0;
 
-    private:
+    protected:
     std::shared_ptr<torch::jit::script::Module> model_;
   };
 } // namespace torchserve
