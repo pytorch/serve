@@ -8,61 +8,18 @@
 import argparse
 import logging
 import sys
-from dataclasses import dataclass
 from typing import List
 
 import torch
+
+# from dlrm_predict import DLRMPredictFactory
+from dlrm_predict import DLRMModelConfig
 from dlrm_predict_single_gpu import DLRMPredictSingleGPUFactory
 from torch.utils.data import DataLoader
 from torchrec.datasets.criteo import DEFAULT_CAT_NAMES, DEFAULT_INT_NAMES
 from torchrec.datasets.random import RandomRecDataset
-from torchrec.inference.modules import quantize_embeddings
-from torchrec.models.dlrm import DLRM
-from torchrec.modules.embedding_configs import EmbeddingBagConfig
-from torchrec.modules.embedding_modules import EmbeddingBagCollection
 
 logger: logging.Logger = logging.getLogger(__name__)
-
-
-@dataclass
-class DLRMModelConfig:
-    dense_arch_layer_sizes: List[int]
-    dense_in_features: int
-    embedding_dim: int
-    id_list_features_keys: List[str]
-    num_embeddings_per_feature: List[int]
-    num_embeddings: int
-    over_arch_layer_sizes: List[int]
-
-
-def create_predict_module(model_config: DLRMModelConfig) -> torch.nn.Module:
-    default_cuda_rank = 0
-    device = torch.device("cuda", default_cuda_rank)
-    torch.cuda.set_device(device)
-
-    eb_configs = [
-        EmbeddingBagConfig(
-            name=f"t_{feature_name}",
-            embedding_dim=model_config.embedding_dim,
-            num_embeddings=model_config.num_embeddings_per_feature[feature_idx],
-            feature_names=[feature_name],
-        )
-        for feature_idx, feature_name in enumerate(model_config.id_list_features_keys)
-    ]
-    ebc = EmbeddingBagCollection(tables=eb_configs, device=torch.device("meta"))
-
-    module = DLRM(
-        embedding_bag_collection=ebc,
-        dense_in_features=model_config.dense_in_features,
-        dense_arch_layer_sizes=model_config.dense_arch_layer_sizes,
-        over_arch_layer_sizes=model_config.over_arch_layer_sizes,
-        # id_list_features_keys=model_config.id_list_features_keys,
-        dense_device=device,
-    )
-
-    module = quantize_embeddings(module, dtype=torch.qint8, inplace=True)
-
-    return module
 
 
 def parse_args(argv: List[str]) -> argparse.Namespace:
@@ -182,7 +139,7 @@ def main(argv: List[str]) -> None:
 
     print(model(input_data))
 
-    torch.save(model, "dlrm.pt")
+    # torch.save(model, "dlrm.pt")
 
 
 if __name__ == "__main__":
