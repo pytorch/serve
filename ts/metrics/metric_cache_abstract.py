@@ -6,6 +6,8 @@ Currently, abstract class has the methods for getting a metric and adding a metr
 """
 import abc
 import sys
+import psutil
+import logging
 
 from ts.metrics.metric import Metric
 from ts.metrics.dimension import Dimension
@@ -39,16 +41,16 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
 
         """
         if not isinstance(metric_key, str):
-            print(f"Only string types are acceptable as argument.")
+            logging.error(f"Only string types are acceptable as argument.")
             sys.exit(1)
 
-        print(f"Getting metric {metric_key}")
+        logging.info(f"Getting metric {metric_key}")
         metric_obj = self.cache.get(metric_key)
         if metric_obj:
-            print("Successfully received metric")
+            logging.info("Successfully received metric")
             return metric_obj
         else:
-            print("Metric does not exist.")
+            logging.info("Metric does not exist.")
             sys.exit(1)
 
     def add_metric(self, metric_name: str, unit: str, dimensions: list, metric_type: str, value=0) -> None:
@@ -89,8 +91,8 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
             raise ValueError(f"Dimensions list is expected to be an even number if the list of dimensions"
                              f" is made up of strings.")
 
-        print(f"Adding metric with fields of: metric name - {metric_name}, unit - {unit}, dimensions - {dimensions}, "
-              f"metric type - {metric_type}")
+        logging.debug(f"Adding metric with fields of: metric name - {metric_name}, unit - {unit}, "
+                      f"dimensions - {dimensions}, metric type - {metric_type}")
 
         dims_str = "-".join([str(d) for d in dimensions])
 
@@ -99,35 +101,57 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
                                                                        unit=unit,
                                                                        dimensions=dimensions,
                                                                        metric_type=metric_type)
-        print("Successfully added metric.")
+        logging.info("Successfully added metric.")
 
-    def flush(self):
+    def _add_all_system_metrics(self):
         """
-        Implement retries for flush method.
+        Add all system metrics
         """
-        flush_success = False
-        num_tries = 5
+        dimension = [Dimension('Level', 'Host')]
 
-        for i in range(num_tries):
-            if flush_success:
-                break
-            else:
-                # if method runs successfully, then it means method  passed, otherwise it would exit if method failed
-                self._flush_util()
-                flush_success = True
+        # using different dimensions for variation’s sake
+        dimension_gpu = [Dimension('Level', 'Host'), Dimension("device_id", "DID")]
 
-    def _flush_util(self):
+        # Adding CPU Utilization metric
+        data = psutil.cpu_percent()
+        self.add_metric(metric_name="CPUUtilization", value=data, unit="percent",
+                        dimensions=dimension, metric_type="CPUUtilizationType")
+
+        # Adding Memory Used metric
+        data = psutil.virtual_memory().used / (1024 * 1024)  # in MB
+        self.add_metric(metric_name="MemoryUsed", value=data, unit="MB",
+                        dimensions=dimension, metric_type="MemoryUsedType")
+
+        # Adding Memory Available metric
+        data = psutil.virtual_memory().available / (1024 * 1024)  # in MB
+        self.add_metric(metric_name="MemoryAvailable", value=data, unit="MB",
+                        dimensions=dimension, metric_type="MemoryAvailableType")
+
+        # Adding Memory Utilization metric
+        data = psutil.virtual_memory().percent
+        self.add_metric(metric_name="MemoryUtilization", value=data, unit="percent",
+                        dimensions=dimension, metric_type="MemoryUtilizationType")
+
+        # Adding Disk Usage metric
+        data = psutil.disk_usage('/').used / (1024 * 1024 * 1024)  # in GB
+        self.add_metric(metric_name="DiskUsage", value=data, unit="GB",
+                        dimensions=dimension, metric_type="DiskUsageType")
+
+        # Adding Disk Utilization metric
+        data = psutil.disk_usage('/').percent
+        self.add_metric(metric_name="DiskUtilization", value=data, unit="percent",
+                        dimensions=dimension, metric_type="DiskUtilizationType")
+
+        # Adding Disk Available metric
+        data = psutil.disk_usage('/').free / (1024 * 1024 * 1024)  # in GB
+        self.add_metric(metric_name="DiskAvailable", value=data, unit="GB",
+                        dimensions=dimension_gpu, metric_type="DiskAvailableType")
+
+    def emit_metrics_to_log(self):
         """
-        Emit all metrics to frontend and reset all metrics value to 0 if successful
+        Emit metrics to log statements.
         """
-        try:
-            # emit metrics to the frontend
-            pass
-
-            # reset metric values to 0
-            for metric in self.cache:
-                metric.value = 0
-
-        except Exception as exc:
-            print(f"Failed to emit metrics to front end: {exc}")
-            sys.exit(1)
+        self._add_all_system_metrics()
+        logging.getLogger().setLevel(level=logging.DEBUG)
+        for metric_key, metric in self.cache.items():
+            logging.info(metric)

@@ -3,10 +3,9 @@ Metrics Cache class for YAML file parsing.
 """
 import sys
 import yaml
-import psutil
 import os
+import logging
 
-from ts.metrics.dimension import Dimension
 from ts.metrics.metric_cache_abstract import MetricCacheAbstract
 
 
@@ -43,20 +42,20 @@ class MetricsCacheYaml(MetricCacheAbstract):
         Parse yaml file using PyYAML library.
         """
         if not self.file:
-            print("No yaml file detected.")
+            logging.error("No yaml file detected.")
             sys.exit(1)
         yml_dict = None
         try:
             stream = open(self.file, "r", encoding="utf-8")
             yml_dict = yaml.safe_load(stream)
         except yaml.YAMLError as exc:
-            print(f"Error parsing file: {exc}")
+            logging.error(f"Error parsing file: {exc}")
             sys.exit(1)
         except IOError as io_err:
-            print(f"Error reading file: {io_err}")
+            logging.error(f"Error reading file: {io_err}")
             sys.exit(1)
         except Exception as err:
-            print(f"General error: {err}")
+            logging.error(f"General error: {err}")
             sys.exit(1)
 
         return yml_dict
@@ -73,13 +72,13 @@ class MetricsCacheYaml(MetricCacheAbstract):
         """
         yaml_hash_table = self._parse_yaml_file()
 
-        print(f"Parsing {yaml_section} section of yaml file...")
+        logging.debug(f"Parsing {yaml_section} section of yaml file...")
         try:
             model_metrics_table = yaml_hash_table[yaml_section]
         except KeyError as err:
-            print(f"'{yaml_section}' key not found in yaml file - {err}")
+            logging.error(f"'{yaml_section}' key not found in yaml file - {err}")
             sys.exit(1)
-        print(f"Successfully parsed {yaml_section} section of yaml file")
+        logging.info(f"Successfully parsed {yaml_section} section of yaml file")
         return model_metrics_table
 
     def _yaml_to_cache_util(self, model_metrics_table: dict) -> None:
@@ -93,10 +92,10 @@ class MetricsCacheYaml(MetricCacheAbstract):
 
         """
         if not isinstance(model_metrics_table, dict):
-            print(f"model metrics is None and does not exist")
+            logging.error(f"model metrics is None and does not exist")
             sys.exit(1)
 
-        print("Creating Metric objects")
+        logging.info("Creating Metric objects")
         for metric_type, metric_attributes_list in model_metrics_table.items():
             metric_name = None
             unit = None
@@ -107,12 +106,12 @@ class MetricsCacheYaml(MetricCacheAbstract):
                     unit = metric_dict["unit"]
                     dimensions = metric_dict["dimensions"]
                 except KeyError as err:
-                    print(f"Key not found: {err}")
+                    logging.error(f"Key not found: {err}")
                     sys.exit(1)
 
             self.add_metric(metric_name=metric_name, unit=unit, dimensions=dimensions, metric_type=metric_type)
 
-        print("Completed creating Metric objects")
+        logging.info("Completed creating Metric objects")
 
     def yaml_to_cache(self):
         """
@@ -126,18 +125,4 @@ if __name__ == "__main__":
     # YAML to cache
     backend_cache_obj = MetricsCacheYaml("../tests/metrics_yaml_testing/metrics.yaml")
     backend_cache_obj.yaml_to_cache()
-
-    # Adding 1 host metric (CPUUtil) and 1 model metric (# of inferences),
-    # update the metric,
-    # and add to MetricsCache
-    dimension = [Dimension('Level', 'Host')]
-
-    cpu_util_data = psutil.cpu_percent()
-    backend_cache_obj.add_metric(metric_name="CPUUtilization", value=cpu_util_data, unit="percent",
-                                 dimensions=dimension, metric_type="CPUUtilizationType")
-    print("================")
-    print(f"CPU UTIL METRIC")
-    cpu_util_metric = backend_cache_obj.get_metric("CPUUtilizationType-CPUUtilization-Level:Host")
-    print(cpu_util_metric)
-    cpu_util_metric.update(2.48)
-    print(cpu_util_metric)
+    backend_cache_obj.emit_metrics_to_log()
