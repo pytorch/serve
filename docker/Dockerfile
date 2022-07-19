@@ -2,17 +2,17 @@
 #
 # This file can build images for cpu and gpu env. By default it builds image for CPU.
 # Use following option to build image for cuda/GPU: --build-arg BASE_IMAGE=nvidia/cuda:10.1-cudnn7-runtime-ubuntu18.04
-# Here is complete command for GPU/cuda - 
+# Here is complete command for GPU/cuda -
 # $ DOCKER_BUILDKIT=1 docker build --file Dockerfile --build-arg BASE_IMAGE=nvidia/cuda:10.1-cudnn7-runtime-ubuntu18.04 -t torchserve:latest .
 #
 # Following comments have been shamelessly copied from https://github.com/pytorch/pytorch/blob/master/Dockerfile
-# 
+#
 # NOTE: To build this you will need a docker version > 18.06 with
 #       experimental enabled and DOCKER_BUILDKIT=1
 #
 #       If you do not use buildkit you are not going to have a good time
 #
-#       For reference: 
+#       For reference:
 #           https://docs.docker.com/develop/develop-images/build_enhancements/
 
 
@@ -42,7 +42,7 @@ RUN --mount=type=cache,id=apt-dev,target=/var/cache/apt \
     && python3.8 get-pip.py
 
 
-RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.8 1 \ 
+RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.8 1 \
     && update-alternatives --install /usr/local/bin/pip pip /usr/local/bin/pip3.8 1
 
 RUN python3.8 -m venv /home/venv
@@ -84,6 +84,8 @@ RUN --mount=type=cache,target=/var/cache/apt \
     python3.8 \
     python3.8-distutils \
     python3.8-dev \
+    # using openjdk-17-jdk due to circular dependency(ca-certificates) bug in openjdk-17-jre-headless debian package
+    # https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1009905
     openjdk-17-jdk \
     build-essential \
     && rm -rf /var/lib/apt/lists/* \
