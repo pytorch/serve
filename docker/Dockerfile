@@ -39,7 +39,8 @@ RUN --mount=type=cache,id=apt-dev,target=/var/cache/apt \
     && rm -rf /var/lib/apt/lists/* \
     && cd /tmp \
     && curl -O https://bootstrap.pypa.io/get-pip.py \
-    && python3.8 get-pip.py
+    && python3.8 get-pip.py \
+    && rm -rf /tmp/*
 
 
 RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.8 1 \ 
@@ -71,11 +72,11 @@ RUN TORCH_VER=$(curl --silent --location https://pypi.org/pypi/torch/json | pyth
     else \
         python -m pip install --no-cache-dir torch==$TORCH_VER+cpu torchvision==$TORCH_VISION_VER+cpu -f https://download.pytorch.org/whl/torch_stable.html; \
     fi
-RUN python -m pip install -U setuptools && python -m pip install --no-cache-dir captum torchtext torch-model-archiver
+RUN python -m pip install --no-cache-dir captum torchtext
 
 COPY . tmp/serve
 
-RUN python -m pip install tmp/serve/ && rm -r tmp/serve
+RUN python -m pip install --no-cache-dir tmp/serve/ tmp/serve/model-archiver
 
 # Final image for production
 FROM ${BASE_IMAGE} AS runtime-image
@@ -91,7 +92,7 @@ RUN --mount=type=cache,target=/var/cache/apt \
     openjdk-11-jre-headless \
     build-essential \
     && rm -rf /var/lib/apt/lists/* \
-    && cd /tmp
+    && rm -rf /tmp/*
 
 RUN useradd -m model-server \
     && mkdir -p /home/model-server/tmp
