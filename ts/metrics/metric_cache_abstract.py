@@ -6,7 +6,6 @@ Currently, abstract class has the methods for getting a metric and adding a metr
 """
 import abc
 import sys
-import psutil
 import logging
 
 from ts.metrics.metric import Metric
@@ -103,55 +102,10 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
                                                                        metric_type=metric_type)
         logging.info("Successfully added metric.")
 
-    def _add_all_system_metrics(self):
-        """
-        Add all system metrics
-        """
-        dimension = [Dimension('Level', 'Host')]
-
-        # using different dimensions for variation’s sake
-        dimension_gpu = [Dimension('Level', 'Host'), Dimension("device_id", "DID")]
-
-        # Adding CPU Utilization metric
-        data = psutil.cpu_percent()
-        self.add_metric(metric_name="CPUUtilization", value=data, unit="percent",
-                        dimensions=dimension, metric_type="CPUUtilizationType")
-
-        # Adding Memory Used metric
-        data = psutil.virtual_memory().used / (1024 * 1024)  # in MB
-        self.add_metric(metric_name="MemoryUsed", value=data, unit="MB",
-                        dimensions=dimension, metric_type="MemoryUsedType")
-
-        # Adding Memory Available metric
-        data = psutil.virtual_memory().available / (1024 * 1024)  # in MB
-        self.add_metric(metric_name="MemoryAvailable", value=data, unit="MB",
-                        dimensions=dimension, metric_type="MemoryAvailableType")
-
-        # Adding Memory Utilization metric
-        data = psutil.virtual_memory().percent
-        self.add_metric(metric_name="MemoryUtilization", value=data, unit="percent",
-                        dimensions=dimension, metric_type="MemoryUtilizationType")
-
-        # Adding Disk Usage metric
-        data = psutil.disk_usage('/').used / (1024 * 1024 * 1024)  # in GB
-        self.add_metric(metric_name="DiskUsage", value=data, unit="GB",
-                        dimensions=dimension, metric_type="DiskUsageType")
-
-        # Adding Disk Utilization metric
-        data = psutil.disk_usage('/').percent
-        self.add_metric(metric_name="DiskUtilization", value=data, unit="percent",
-                        dimensions=dimension, metric_type="DiskUtilizationType")
-
-        # Adding Disk Available metric
-        data = psutil.disk_usage('/').free / (1024 * 1024 * 1024)  # in GB
-        self.add_metric(metric_name="DiskAvailable", value=data, unit="GB",
-                        dimensions=dimension_gpu, metric_type="DiskAvailableType")
-
     def emit_metrics_to_log(self):
         """
         Emit metrics to log statements.
         """
-        self._add_all_system_metrics()
         logging.getLogger().setLevel(level=logging.DEBUG)
         for metric_key, metric in self.cache.items():
-            logging.info(metric)
+            print(f"{metric}")

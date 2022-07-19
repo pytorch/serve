@@ -123,6 +123,6 @@ class MetricsCacheYaml(MetricCacheAbstract):
 
 if __name__ == "__main__":
     # YAML to cache
-    backend_cache_obj = MetricsCacheYaml("../tests/metrics_yaml_testing/metrics.yaml")
+    backend_cache_obj = MetricsCacheYaml("../tests/unit_tests/metrics_yaml_testing/metrics.yaml")
     backend_cache_obj.yaml_to_cache()
     backend_cache_obj.emit_metrics_to_log()
