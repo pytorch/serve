@@ -76,7 +76,7 @@ RUN python -m pip install --no-cache-dir captum torchtext
 
 COPY . tmp/serve
 
-RUN python -m pip install --no-cache-dir tmp/serve/ tmp/serve/model-archiver
+RUN python -m pip install --no-cache-dir tmp/serve/ tmp/serve/model-archiver tmp/serve/workflow-archiver
 
 # Final image for production
 FROM ${BASE_IMAGE} AS runtime-image
