@@ -27,6 +27,7 @@ import org.pytorch.serve.util.JsonUtils;
 import org.pytorch.serve.workflow.messages.DescribeWorkflowResponse;
 import org.pytorch.serve.workflow.messages.ListWorkflowResponse;
 import org.testng.Assert;
+import org.testng.SkipException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -102,10 +103,9 @@ public class WorkflowTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testDescribeWorkflow"})
-    public void testWorkflowPrediction() throws InterruptedException {
-        if (System.getProperty("os.name").startsWith("Windows")) {
-            Assert.assertEquals("Test Skipped", "Test Skipped");
-            return;
+    public void testWorkflowPrediction() throws Exception {
+        if (System.getProperty("os.name").startsWith("Win")) {
+            throw new SkipException("Test skipped on Windows");
         }
         Channel channel = TestUtils.getInferenceChannel(configManager);
         TestUtils.setResult(null);
@@ -237,10 +237,9 @@ public class WorkflowTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testRegisterWorkflowConflict"})
-    public void testRegisterWorkflowMalformedUrl() throws InterruptedException {
-        if (System.getProperty("os.name").startsWith("Windows")) {
-            Assert.assertEquals("Test Skipped", "Test Skipped");
-            return;
+    public void testRegisterWorkflowMalformedUrl() throws Exception {
+        if (System.getProperty("os.name").startsWith("Win")) {
+            throw new SkipException("Test skipped on Windows");
         }
         Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
@@ -263,10 +262,9 @@ public class WorkflowTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testRegisterWorkflowMalformedUrl"})
-    public void testRegisterWorkflowConnectionFailed() throws InterruptedException {
-        if (System.getProperty("os.name").startsWith("Windows")) {
-            Assert.assertEquals("Test Skipped", "Test Skipped");
-            return;
+    public void testRegisterWorkflowConnectionFailed() throws Exception {
+        if (System.getProperty("os.name").startsWith("Win")) {
+            throw new SkipException("Test skipped on Windows");
         }
         Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
