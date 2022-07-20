@@ -105,6 +105,7 @@ public class WorkflowTest {
     public void testWorkflowPrediction() throws InterruptedException {
         if (System.getProperty("os.name") == "Windows") {
             Assert.assertEquals("Test Skipped", "Test Skipped");
+            return;
         }
         Channel channel = TestUtils.getInferenceChannel(configManager);
         TestUtils.setResult(null);
@@ -239,6 +240,7 @@ public class WorkflowTest {
     public void testRegisterWorkflowMalformedUrl() throws InterruptedException {
         if (System.getProperty("os.name") == "Windows") {
             Assert.assertEquals("Test Skipped", "Test Skipped");
+            return;
         }
         Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);

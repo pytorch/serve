@@ -1136,6 +1136,7 @@ public class ModelServerTest {
     public void testLoadingMemoryError() throws InterruptedException {
         if (System.getProperty("os.name") == "Windows") {
             Assert.assertEquals("Test Skipped", "Test Skipped");
+            return;
         }
 
         Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
@@ -1345,6 +1346,7 @@ public class ModelServerTest {
     public void testInvalidInferenceUri() throws InterruptedException {
         if (System.getProperty("os.name") == "Windows") {
             Assert.assertEquals("Test Skipped", "Test Skipped");
+            return;
         }
         Channel channel = TestUtils.connect(ConnectorType.INFERENCE_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
@@ -1366,6 +1368,7 @@ public class ModelServerTest {
     public void testInvalidDescribeModel() throws InterruptedException {
         if (System.getProperty("os.name") == "Windows") {
             Assert.assertEquals("Test Skipped", "Test Skipped");
+            return;
         }
         Channel channel = TestUtils.connect(ConnectorType.INFERENCE_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
@@ -1385,6 +1388,7 @@ public class ModelServerTest {
     public void testInvalidPredictionsUri() throws InterruptedException {
         if (System.getProperty("os.name") == "Windows") {
             Assert.assertEquals("Test Skipped", "Test Skipped");
+            return;
         }
         Channel channel = TestUtils.connect(ConnectorType.INFERENCE_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
@@ -1518,6 +1522,7 @@ public class ModelServerTest {
     public void testDescribeModelVersionNotFound() throws InterruptedException {
         if (System.getProperty("os.name") == "Windows") {
             Assert.assertEquals("Test Skipped", "Test Skipped");
+            return;
         }
         Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
@@ -1598,6 +1603,7 @@ public class ModelServerTest {
     public void testRegisterModelConflict() throws InterruptedException {
         if (System.getProperty("os.name") == "Windows") {
             Assert.assertEquals("Test Skipped", "Test Skipped");
+            return;
         }
         Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
@@ -1756,6 +1762,7 @@ public class ModelServerTest {
     public void testUnregisterModelNotFound() throws InterruptedException {
         if (System.getProperty("os.name") == "Windows") {
             Assert.assertEquals("Test Skipped", "Test Skipped");
+            return;
         }
         Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
@@ -1821,6 +1828,7 @@ public class ModelServerTest {
     public void testScaleModelFailure() throws InterruptedException {
         if (System.getProperty("os.name") == "Windows") {
             Assert.assertEquals("Test Skipped", "Test Skipped");
+            return;
         }
 
         Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
