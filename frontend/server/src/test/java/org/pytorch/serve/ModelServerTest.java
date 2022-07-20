@@ -1135,7 +1135,7 @@ public class ModelServerTest {
             dependsOnMethods = {"testModelWithInvalidCustomPythonDependency"})
     public void testLoadingMemoryError() throws InterruptedException {
         if (System.getProperty("os.name") == "Windows") {
-            return;
+            Assert.assertEquals("Test Skipped", "Test Skipped");
         }
 
         Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
@@ -1344,7 +1344,7 @@ public class ModelServerTest {
             dependsOnMethods = {"testInvalidRootRequest"})
     public void testInvalidInferenceUri() throws InterruptedException {
         if (System.getProperty("os.name") == "Windows") {
-            return;
+            Assert.assertEquals("Test Skipped", "Test Skipped");
         }
         Channel channel = TestUtils.connect(ConnectorType.INFERENCE_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
@@ -1365,7 +1365,7 @@ public class ModelServerTest {
             dependsOnMethods = {"testInvalidInferenceUri"})
     public void testInvalidDescribeModel() throws InterruptedException {
         if (System.getProperty("os.name") == "Windows") {
-            return;
+            Assert.assertEquals("Test Skipped", "Test Skipped");
         }
         Channel channel = TestUtils.connect(ConnectorType.INFERENCE_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
@@ -1384,7 +1384,7 @@ public class ModelServerTest {
             dependsOnMethods = {"testInvalidDescribeModel"})
     public void testInvalidPredictionsUri() throws InterruptedException {
         if (System.getProperty("os.name") == "Windows") {
-            return;
+            Assert.assertEquals("Test Skipped", "Test Skipped");
         }
         Channel channel = TestUtils.connect(ConnectorType.INFERENCE_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
@@ -1517,7 +1517,7 @@ public class ModelServerTest {
             dependsOnMethods = {"testDescribeModelNotFound"})
     public void testDescribeModelVersionNotFound() throws InterruptedException {
         if (System.getProperty("os.name") == "Windows") {
-            return;
+            Assert.assertEquals("Test Skipped", "Test Skipped");
         }
         Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
@@ -1597,7 +1597,7 @@ public class ModelServerTest {
             dependsOnMethods = {"testRegisterModelNotFound"})
     public void testRegisterModelConflict() throws InterruptedException {
         if (System.getProperty("os.name") == "Windows") {
-            return;
+            Assert.assertEquals("Test Skipped", "Test Skipped");
         }
         Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
@@ -1755,7 +1755,7 @@ public class ModelServerTest {
             dependsOnMethods = {"testScaleModelNotFound"})
     public void testUnregisterModelNotFound() throws InterruptedException {
         if (System.getProperty("os.name") == "Windows") {
-            return;
+            Assert.assertEquals("Test Skipped", "Test Skipped");
         }
         Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);

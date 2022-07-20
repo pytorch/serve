@@ -104,7 +104,7 @@ public class WorkflowTest {
             dependsOnMethods = {"testDescribeWorkflow"})
     public void testWorkflowPrediction() throws InterruptedException {
         if (System.getProperty("os.name") == "Windows") {
-            return;
+            Assert.assertEquals("Test Skipped", "Test Skipped");
         }
         Channel channel = TestUtils.getInferenceChannel(configManager);
         TestUtils.setResult(null);
@@ -238,7 +238,7 @@ public class WorkflowTest {
             dependsOnMethods = {"testRegisterWorkflowConflict"})
     public void testRegisterWorkflowMalformedUrl() throws InterruptedException {
         if (System.getProperty("os.name") == "Windows") {
-            return;
+            Assert.assertEquals("Test Skipped", "Test Skipped");
         }
         Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
