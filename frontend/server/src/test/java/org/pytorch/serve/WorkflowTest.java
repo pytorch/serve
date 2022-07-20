@@ -472,7 +472,10 @@ public class WorkflowTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testPredictionMemoryError"})
-    public void testLoadingMemoryError() throws InterruptedException {
+    public void testLoadingMemoryError() throws Exception {
+        if (System.getProperty("os.name").startsWith("Win")) {
+            throw new SkipException("Test skipped on Windows");
+        }
         Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
         TestUtils.setResult(null);
