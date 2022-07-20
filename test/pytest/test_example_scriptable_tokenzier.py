@@ -114,8 +114,8 @@ def script_tokenizer_and_model(session_mocker, model):
     del sys.modules["script_tokenizer_and_model"]
 
 
-@pytest.fixture(scope="module")
-def jit_file_path(model, script_tokenizer_and_model, work_dir):
+@pytest.fixture(scope="module", name="jit_file_path")
+def script_and_export_model(model, script_tokenizer_and_model, work_dir):
     """
     Create model and jit scripted model
     """
@@ -139,8 +139,8 @@ def jit_file_path(model, script_tokenizer_and_model, work_dir):
         pass
 
 
-@pytest.fixture(scope="module")
-def mar_file_path(work_dir, session_mocker, jit_file_path, model_archiver):
+@pytest.fixture(scope="module", name="mar_file_path")
+def create_mar_file(work_dir, session_mocker, jit_file_path, model_archiver):
     """
     Create mar file and return file path.
     """
@@ -189,35 +189,9 @@ def mar_file_path(work_dir, session_mocker, jit_file_path, model_archiver):
         pass
 
 
-@pytest.fixture(scope="module")
-def model_store(work_dir):
-    model_store_path = os.path.join(work_dir, "model_store")
-    os.makedirs(model_store_path, exist_ok=True)
-
-    yield model_store_path
-
-    try:
-        shutil.rmtree(model_store_path)
-    except OSError:
-        pass
-
-
-@pytest.fixture(scope="module")
-def torchserve(model_store):
-    test_utils.torchserve_cleanup()
-
-    test_utils.start_torchserve(
-        model_store=model_store, no_config_snapshots=True, gen_mar=False
-    )
-
-    yield
-
-    test_utils.torchserve_cleanup()
-
-
 # Registering the module needs to be function scope until https://github.com/pytorch/text/issues/1849 is resolved
-@pytest.fixture(scope="function")
-def model_name(mar_file_path, model_store, torchserve):
+@pytest.fixture(scope="function", name="model_name")
+def register_model(mar_file_path, model_store, torchserve):
     shutil.copy(mar_file_path, model_store)
 
     file_name = os.path.split(mar_file_path)[-1]

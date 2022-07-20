@@ -1,8 +1,10 @@
 import importlib
 import os
+import shutil
 import sys
 
 import pytest
+import test_utils
 
 CURR_FILE_PATH = os.path.dirname(os.path.realpath(__file__))
 REPO_ROOT_DIR = os.path.normpath(os.path.join(CURR_FILE_PATH, "..", ".."))
@@ -26,3 +28,30 @@ def model_archiver():
     yield archiver
 
     del sys.modules["archiver"]
+
+
+@pytest.fixture(scope="module")
+def model_store(tmp_path_factory):
+    work_dir = tmp_path_factory.mktemp("work_dir")
+    model_store_path = os.path.join(work_dir, "model_store")
+    os.makedirs(model_store_path, exist_ok=True)
+
+    yield model_store_path
+
+    try:
+        shutil.rmtree(model_store_path)
+    except OSError:
+        pass
+
+
+@pytest.fixture(scope="module")
+def torchserve(model_store):
+    test_utils.torchserve_cleanup()
+
+    test_utils.start_torchserve(
+        model_store=model_store, no_config_snapshots=True, gen_mar=False
+    )
+
+    yield
+
+    test_utils.torchserve_cleanup()
