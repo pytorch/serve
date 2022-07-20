@@ -27,6 +27,7 @@ import org.pytorch.serve.util.JsonUtils;
 import org.pytorch.serve.workflow.messages.DescribeWorkflowResponse;
 import org.pytorch.serve.workflow.messages.ListWorkflowResponse;
 import org.testng.Assert;
+import org.testng.SkipException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -103,6 +104,9 @@ public class WorkflowTest {
             alwaysRun = true,
             dependsOnMethods = {"testDescribeWorkflow"})
     public void testWorkflowPrediction() throws InterruptedException {
+        if (System.getProperty("os.name") == "Windows") {
+            throw new SkipException("Skipping test on Windows");
+        }
         Channel channel = TestUtils.getInferenceChannel(configManager);
         TestUtils.setResult(null);
         TestUtils.setLatch(new CountDownLatch(1));
@@ -234,6 +238,9 @@ public class WorkflowTest {
             alwaysRun = true,
             dependsOnMethods = {"testRegisterWorkflowConflict"})
     public void testRegisterWorkflowMalformedUrl() throws InterruptedException {
+        if (System.getProperty("os.name") == "Windows") {
+            throw new SkipException("Skipping test on Windows");
+        }
         Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
 
