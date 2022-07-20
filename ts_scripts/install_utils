@@ -14,11 +14,10 @@ install_java_deps()
 {
   set +e
   JAVA_VERSION=$(java -version 2>&1 | head -1 | cut -d'"' -f2 | sed '/^1\./s///' | cut -d'.' -f1)
-	if [ "$JAVA_VERSION" != "11" ]
+	if [ "$JAVA_VERSION" != "17" ]
   then
     if [[ "$OSTYPE" == "darwin"* ]]; then
-      brew tap AdoptOpenJDK/openjdk
-      brew cask install adoptopenjdk11
+      brew install openjdk@17
     else
       sudo apt-get install -y openjdk-17-jdk
     fi
