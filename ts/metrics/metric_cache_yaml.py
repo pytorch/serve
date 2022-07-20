@@ -5,6 +5,7 @@ import sys
 import yaml
 import os
 import logging
+import argparse
 
 from ts.metrics.metric_cache_abstract import MetricCacheAbstract
 
@@ -100,16 +101,17 @@ class MetricsCacheYaml(MetricCacheAbstract):
             metric_name = None
             unit = None
             dimensions = None
-            for metric_dict in metric_attributes_list:
-                try:
-                    metric_name = metric_dict["name"]
-                    unit = metric_dict["unit"]
-                    dimensions = metric_dict["dimensions"]
-                except KeyError as err:
-                    logging.error(f"Key not found: {err}")
-                    sys.exit(1)
 
-            self.add_metric(metric_name=metric_name, unit=unit, dimensions=dimensions, metric_type=metric_type)
+            for metric_type_dict in metric_attributes_list:  # dict of all metrics specific to one metric type
+                for metric_name, individual_metric_dict in metric_type_dict.items():  # individual metric entries
+                    try:
+                        metric_name = metric_name
+                        unit = individual_metric_dict["unit"]
+                        dimensions = individual_metric_dict["dimensions"]
+                        self.add_metric(metric_name=metric_name, unit=unit, dimensions=dimensions, metric_type=metric_type)
+                    except KeyError as err:
+                        logging.error(f"Key not found: {err}")
+                        sys.exit(1)
 
         logging.info("Completed creating Metric objects")
 
@@ -122,7 +124,15 @@ class MetricsCacheYaml(MetricCacheAbstract):
 
 
 if __name__ == "__main__":
-    # YAML to cache
-    backend_cache_obj = MetricsCacheYaml("../tests/unit_tests/metrics_yaml_testing/metrics.yaml")
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--file",
+        help="YAML File to be parsed",
+        type=str,
+        required=True
+    )
+    arguments = parser.parse_args()
+
+    backend_cache_obj = MetricsCacheYaml(arguments.file)
     backend_cache_obj.yaml_to_cache()
     backend_cache_obj.emit_metrics_to_log()

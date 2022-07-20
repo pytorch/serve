@@ -140,24 +140,25 @@ class TestParseYaml:
         metrics_cache_obj = MetricsCacheYaml("metrics.yaml")
         actual_dict = metrics_cache_obj._parse_yaml_file()
         expected_dict = {'dimensions': {'host': 'host', 'model_name': 'model_name'},
-                         'model_metrics': {'counter': [{'dimensions': ['model_name', 'host'],
-                                                        'name': 'counter_name',
-                                                        'unit': 'ms'}],
-                                           'gauge': [{'dimensions': ['model_name', 'host'],
-                                                      'name': 'gauge_name',
-                                                      'unit': 'ms'}],
-                                           'histogram': [{'dimensions': ['model_name', 'host'],
-                                                          'name': 'histogram_name',
-                                                          'unit': 'ms'}]},
-                         'ts_metrics': {'counter': [{'dimensions': ['model_name', 'host'],
-                                                     'name': 'counter_name',
-                                                     'unit': 'ms'}],
-                                        'gauge': [{'dimensions': ['model_name', 'host'],
-                                                   'name': 'gauge_name',
-                                                   'unit': 'ms'}],
-                                        'histogram': [{'dimensions': ['model_name', 'host'],
-                                                       'name': 'histogram_name',
-                                                       'unit': 'ms'}]}}
+                         'model_metrics': {'counter': [{'InferenceTimeInMS': {'dimensions': ['model_name',
+                                                                                             'host'],
+                                                                              'unit': 'ms'}},
+                                                       {'NumberOfMetrics': {'dimensions': ['model_name',
+                                                                                           'host'],
+                                                                            'unit': 'count'}}],
+                                           'gauge': [{'GaugeModelMetricNameExample': {'dimensions': ['model_name',
+                                                                                                     'host'],
+                                                                                      'unit': 'ms'}}],
+                                           'histogram': [
+                                               {'HistogramModelMetricNameExample': {'dimensions': ['model_name',
+                                                                                                   'host'],
+                                                                                    'unit': 'ms'}}]},
+                         'ts_metrics': {'counter': [{'name': {'dimensions': ['model_name', 'host'],
+                                                              'unit': 'ms'}}],
+                                        'gauge': [{'name': {'dimensions': ['model_name', 'host'],
+                                                            'unit': 'ms'}}],
+                                        'histogram': [{'name': {'dimensions': ['model_name', 'host'],
+                                                                'unit': 'ms'}}]}}
         assert actual_dict == expected_dict
 
     def test_yaml_file_passing(self):
@@ -171,13 +172,11 @@ class TestParseYaml:
         assert str(exc_info.value) == "File passed must be a valid string path that exists."
 
     def test_yaml_file_non_yaml_extension_fail(self):
-
         with pytest.raises(TypeError) as exc_info:
             MetricsCacheYaml("metric_cache_unit_test.py")
         assert str(exc_info.value) == "Inputted file does not have a valid yaml file extension."
 
     def test_yaml_file_non_exist_fail(self):
-
         with pytest.raises(TypeError) as exc_info:
             MetricsCacheYaml("doesnt_exist.yaml")
         assert str(exc_info.value) == "File passed must be a valid string path that exists."
@@ -217,9 +216,10 @@ class TestYamlCacheUtil:
         metrics_cache_obj = MetricsCacheYaml("metrics.yaml")
         model_metrics_table = metrics_cache_obj._parse_specific_metric()
         metrics_cache_obj._yaml_to_cache_util(model_metrics_table)
-        assert ['counter-counter_name-model_name:host',
-                'gauge-gauge_name-model_name:host',
-                'histogram-histogram_name-model_name:host'] == list(metrics_cache_obj.cache.keys())
+        assert ['counter-InferenceTimeInMS-model_name:host',
+                'counter-NumberOfMetrics-model_name:host',
+                'gauge-GaugeModelMetricNameExample-model_name:host',
+                'histogram-HistogramModelMetricNameExample-model_name:host'] == list(metrics_cache_obj.cache.keys())
 
     def test_yaml_to_cache_util_fail_missing_fields(self):
         metrics_cache_obj = MetricsCacheYaml("metrics_missing_types.yaml")

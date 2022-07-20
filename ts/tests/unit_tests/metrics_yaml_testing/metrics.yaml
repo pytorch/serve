@@ -4,28 +4,33 @@ dimensions:
 
 ts_metrics:
   counter:
-    - name: counter_name
-      unit: ms
-      dimensions: [model_name, host]
+    - name:
+        unit: ms
+        dimensions: [model_name, host]
   gauge:
-    - name: gauge_name
-      unit: ms
-      dimensions: [model_name, host]
+    - name:
+        unit: ms
+        dimensions: [model_name, host]
   histogram:
-    - name: histogram_name
-      unit: ms
-      dimensions: [model_name, host]
+    - name:
+        unit: ms
+        dimensions: [model_name, host]
 
 model_metrics:
   counter:
-    - name: counter_name
-      unit: ms
-      dimensions: [model_name, host]
+    - InferenceTimeInMS:
+        unit: ms
+        dimensions: [model_name, host]
+    - NumberOfMetrics:
+        unit: count
+        dimensions: [model_name, host]
   gauge:
-    - name: gauge_name
-      unit: ms
-      dimensions: [model_name, host]
+    - GaugeModelMetricNameExample:
+        unit: ms
+        dimensions: [model_name, host]
   histogram:
-    - name: histogram_name
-      unit: ms
-      dimensions: [model_name, host]
+    - HistogramModelMetricNameExample:
+        unit: ms
+        dimensions: [model_name, host]
+
+

@@ -106,6 +106,5 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
         """
         Emit metrics to log statements.
         """
-        logging.getLogger().setLevel(level=logging.DEBUG)
         for metric_key, metric in self.cache.items():
             print(f"{metric}")

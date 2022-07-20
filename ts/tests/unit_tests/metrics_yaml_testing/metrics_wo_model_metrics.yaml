@@ -4,15 +4,14 @@ dimensions:
 
 ts_metrics:
   counter:
-    - name: counter_name
-      unit: ms
-      dimensions: [model_name, host]
+    - name:
+        unit: ms
+        dimensions: [model_name, host]
   gauge:
-    - name: gauge_name
-      unit: ms
-      dimensions: [model_name, host]
+    - name:
+        unit: ms
+        dimensions: [model_name, host]
   histogram:
-    - name: histogram_name
-      unit: ms
-      dimensions: [model_name, host]
-
+    - name:
+        unit: ms
+        dimensions: [model_name, host]
