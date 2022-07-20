@@ -1819,6 +1819,10 @@ public class ModelServerTest {
             alwaysRun = true,
             dependsOnMethods = {"testUnregisterModelTimeout"})
     public void testScaleModelFailure() throws InterruptedException {
+        if (System.getProperty("os.name") == "Windows") {
+            Assert.assertEquals("Test Skipped", "Test Skipped");
+        }
+
         Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
 
