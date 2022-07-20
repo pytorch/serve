@@ -2041,7 +2041,10 @@ public class ModelServerTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testSetInvalidDefaultVersion"})
-    public void testUnregisterModelFailure() throws InterruptedException {
+    public void testUnregisterModelFailure() throws Exception {
+        if (System.getProperty("os.name").startsWith("Win")) {
+            throw new SkipException("Test skipped on Windows");
+        }
         Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
         TestUtils.setResult(null);
