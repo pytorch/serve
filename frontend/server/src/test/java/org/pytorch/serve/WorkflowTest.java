@@ -103,7 +103,7 @@ public class WorkflowTest {
             alwaysRun = true,
             dependsOnMethods = {"testDescribeWorkflow"})
     public void testWorkflowPrediction() throws InterruptedException {
-        if (System.getProperty("os.name") == "Windows") {
+        if (System.getProperty("os.name").startsWith("Windows")) {
             Assert.assertEquals("Test Skipped", "Test Skipped");
             return;
         }
@@ -238,7 +238,7 @@ public class WorkflowTest {
             alwaysRun = true,
             dependsOnMethods = {"testRegisterWorkflowConflict"})
     public void testRegisterWorkflowMalformedUrl() throws InterruptedException {
-        if (System.getProperty("os.name") == "Windows") {
+        if (System.getProperty("os.name").startsWith("Windows")) {
             Assert.assertEquals("Test Skipped", "Test Skipped");
             return;
         }

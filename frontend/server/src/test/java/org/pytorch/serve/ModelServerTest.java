@@ -1134,7 +1134,7 @@ public class ModelServerTest {
             alwaysRun = true,
             dependsOnMethods = {"testModelWithInvalidCustomPythonDependency"})
     public void testLoadingMemoryError() throws InterruptedException {
-        if (System.getProperty("os.name") == "Windows") {
+        if (System.getProperty("os.name").startsWith("Windows")) {
             Assert.assertEquals("Test Skipped", "Test Skipped");
             return;
         }
@@ -1344,7 +1344,7 @@ public class ModelServerTest {
             alwaysRun = true,
             dependsOnMethods = {"testInvalidRootRequest"})
     public void testInvalidInferenceUri() throws InterruptedException {
-        if (System.getProperty("os.name") == "Windows") {
+        if (System.getProperty("os.name").startsWith("Windows")) {
             Assert.assertEquals("Test Skipped", "Test Skipped");
             return;
         }
@@ -1366,7 +1366,7 @@ public class ModelServerTest {
             alwaysRun = true,
             dependsOnMethods = {"testInvalidInferenceUri"})
     public void testInvalidDescribeModel() throws InterruptedException {
-        if (System.getProperty("os.name") == "Windows") {
+        if (System.getProperty("os.name").startsWith("Windows")) {
             Assert.assertEquals("Test Skipped", "Test Skipped");
             return;
         }
@@ -1386,7 +1386,7 @@ public class ModelServerTest {
             alwaysRun = true,
             dependsOnMethods = {"testInvalidDescribeModel"})
     public void testInvalidPredictionsUri() throws InterruptedException {
-        if (System.getProperty("os.name") == "Windows") {
+        if (System.getProperty("os.name").startsWith("Windows")) {
             Assert.assertEquals("Test Skipped", "Test Skipped");
             return;
         }
@@ -1520,7 +1520,7 @@ public class ModelServerTest {
             alwaysRun = true,
             dependsOnMethods = {"testDescribeModelNotFound"})
     public void testDescribeModelVersionNotFound() throws InterruptedException {
-        if (System.getProperty("os.name") == "Windows") {
+        if (System.getProperty("os.name").startsWith("Windows")) {
             Assert.assertEquals("Test Skipped", "Test Skipped");
             return;
         }
@@ -1601,7 +1601,7 @@ public class ModelServerTest {
             alwaysRun = true,
             dependsOnMethods = {"testRegisterModelNotFound"})
     public void testRegisterModelConflict() throws InterruptedException {
-        if (System.getProperty("os.name") == "Windows") {
+        if (System.getProperty("os.name").startsWith("Windows")) {
             Assert.assertEquals("Test Skipped", "Test Skipped");
             return;
         }
@@ -1760,7 +1760,7 @@ public class ModelServerTest {
             alwaysRun = true,
             dependsOnMethods = {"testScaleModelNotFound"})
     public void testUnregisterModelNotFound() throws InterruptedException {
-        if (System.getProperty("os.name") == "Windows") {
+        if (System.getProperty("os.name").startsWith("Windows")) {
             Assert.assertEquals("Test Skipped", "Test Skipped");
             return;
         }
@@ -1826,7 +1826,7 @@ public class ModelServerTest {
             alwaysRun = true,
             dependsOnMethods = {"testUnregisterModelTimeout"})
     public void testScaleModelFailure() throws InterruptedException {
-        if (System.getProperty("os.name") == "Windows") {
+        if (System.getProperty("os.name").startsWith("Windows")) {
             Assert.assertEquals("Test Skipped", "Test Skipped");
             return;
         }
