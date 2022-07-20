@@ -46,7 +46,6 @@ import org.pytorch.serve.util.ConnectorType;
 import org.pytorch.serve.util.JsonUtils;
 import org.pytorch.serve.wlm.Model;
 import org.testng.Assert;
-import org.testng.SkipException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
@@ -1136,7 +1135,7 @@ public class ModelServerTest {
             dependsOnMethods = {"testModelWithInvalidCustomPythonDependency"})
     public void testLoadingMemoryError() throws InterruptedException {
         if (System.getProperty("os.name") == "Windows") {
-            throw new SkipException("Skipping test on Windows");
+            return;
         }
 
         Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
@@ -1345,7 +1344,7 @@ public class ModelServerTest {
             dependsOnMethods = {"testInvalidRootRequest"})
     public void testInvalidInferenceUri() throws InterruptedException {
         if (System.getProperty("os.name") == "Windows") {
-            throw new SkipException("Skipping test on Windows");
+            return;
         }
         Channel channel = TestUtils.connect(ConnectorType.INFERENCE_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
@@ -1366,7 +1365,7 @@ public class ModelServerTest {
             dependsOnMethods = {"testInvalidInferenceUri"})
     public void testInvalidDescribeModel() throws InterruptedException {
         if (System.getProperty("os.name") == "Windows") {
-            throw new SkipException("Skipping test on Windows");
+            return;
         }
         Channel channel = TestUtils.connect(ConnectorType.INFERENCE_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
@@ -1385,7 +1384,7 @@ public class ModelServerTest {
             dependsOnMethods = {"testInvalidDescribeModel"})
     public void testInvalidPredictionsUri() throws InterruptedException {
         if (System.getProperty("os.name") == "Windows") {
-            throw new SkipException("Skipping test on Windows");
+            return;
         }
         Channel channel = TestUtils.connect(ConnectorType.INFERENCE_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
@@ -1518,7 +1517,7 @@ public class ModelServerTest {
             dependsOnMethods = {"testDescribeModelNotFound"})
     public void testDescribeModelVersionNotFound() throws InterruptedException {
         if (System.getProperty("os.name") == "Windows") {
-            throw new SkipException("Skipping test on Windows");
+            return;
         }
         Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
@@ -1598,7 +1597,7 @@ public class ModelServerTest {
             dependsOnMethods = {"testRegisterModelNotFound"})
     public void testRegisterModelConflict() throws InterruptedException {
         if (System.getProperty("os.name") == "Windows") {
-            throw new SkipException("Skipping test on Windows");
+            return;
         }
         Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
@@ -1756,7 +1755,7 @@ public class ModelServerTest {
             dependsOnMethods = {"testScaleModelNotFound"})
     public void testUnregisterModelNotFound() throws InterruptedException {
         if (System.getProperty("os.name") == "Windows") {
-            throw new SkipException("Skipping test on Windows");
+            return;
         }
         Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
