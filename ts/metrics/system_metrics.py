@@ -4,7 +4,10 @@ Module to collect system metrics for front-end
 import logging
 import types
 from builtins import str
+
 import psutil
+import pynvml
+
 from ts.metrics.dimension import Dimension
 from ts.metrics.metric import Metric
 
@@ -60,6 +63,7 @@ def gpu_utilization(num_of_gpu):
     # pylint: disable=import-outside-toplevel
     import nvgpu
     from nvgpu import list_gpus
+
     # pylint: enable=wrong-import-position
     # pylint: enable=import-outside-toplevel
 
@@ -69,7 +73,12 @@ def gpu_utilization(num_of_gpu):
         system_metrics.append(Metric('GPUMemoryUtilization', value['mem_used_percent'], 'percent', dimension_gpu))
         system_metrics.append(Metric('GPUMemoryUsed', value['mem_used'], 'MB', dimension_gpu))
 
-    statuses = list_gpus.device_statuses()
+    try:
+        statuses = list_gpus.device_statuses()
+    except pynvml.nvml.NVMLError_NotSupported:
+        logging.warning('gpu device monitoring not supported')
+        statuses = []
+
     for idx, status in enumerate(statuses):
         dimension_gpu = [Dimension('Level', 'Host'), Dimension("device_id", idx)]
         system_metrics.append(Metric('GPUUtilization', status['utilization'], 'percent', dimension_gpu))
