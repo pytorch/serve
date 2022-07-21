@@ -80,7 +80,6 @@ if __name__ == "__main__":
         help="dry_run will print the commands that will be run without running them. Only works for pypi now",
     )
     args = parser.parse_args()
-    print(args)
 
     PACKAGES = ["torchserve", "model-archiver", "workflow-archiver"]
     CONDA_PACKAGES_PATH = os.path.join(REPO_ROOT, "binaries", "conda", "output")
