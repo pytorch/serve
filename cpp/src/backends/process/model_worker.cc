@@ -113,6 +113,7 @@ namespace torchserve {
       if (cmd == 'I') {
         LOG(INFO) << "INFER request received";
         // TODO: impl.
+        // model_instance_.predict();
       } else if (cmd == 'L') {
         LOG(INFO) << "LOAD request received";
         // TODO: error handling
@@ -123,4 +124,4 @@ namespace torchserve {
       }
     }
   }
-}
+} // namespace torchserve

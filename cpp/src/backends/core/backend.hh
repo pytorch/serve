@@ -76,7 +76,7 @@ namespace torchserve {
     };
 
     Backend() {};
-    ~Backend() {};
+    virtual ~Backend() {};
 
     std::pair<std::unique_ptr<torchserve::LoadModelResponse>, std::shared_ptr<ModelInstance>> 
     LoadModel(std::shared_ptr<torchserve::LoadModelRequest> load_model_request);

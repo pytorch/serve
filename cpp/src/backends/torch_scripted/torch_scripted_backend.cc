@@ -1,7 +1,7 @@
 #include <fmt/format.h>
 #include <memory>
 
-#include "src/backends/torch_handler/base_handler.hh"
+#include "src/backends/torch_scripted/torch_scripted_backend.hh"
 
 namespace torchserve {
   std::pair<
@@ -43,7 +43,7 @@ namespace torchserve {
      * - load handler shared lib defined in manifest
      * - create model_instance object from the handler
      */
-    auto model_instance = std::make_shared<torchserve::TorchBaseHandler>(
+    auto model_instance = std::make_shared<torchserve::TorchScritpedModelInstance>(
       module, load_model_request, manifest);
     return std::make_pair(
       std::make_unique<torchserve::LoadModelResponse>(
@@ -67,9 +67,23 @@ namespace torchserve {
 
     return torch::Device(torch::kCUDA, load_model_request->gpu_id);
   }
-  
-  // This is the entry point function of libtorch_scripted_backend_xxx.so
-  std::shared_ptr<torchserve::Backend> CreateBackend() {
-    return std::make_shared<TorchScriptedBackend>();
+
+  std::shared_ptr<torchserve::InferenceResponse> TorchScritpedModelInstance::Predict(
+    std::unique_ptr<torchserve::InferenceRequest> inference_request) {
+    return handler_->Handle(
+      std::move(inference_request), 
+      [model = model_](std::vector<torch::jit::IValue> inputs) -> torch::Tensor {
+        return model->forward(inputs).toTensor();
+      });
   }
-} //namespace
+} //namespace torchserve
+
+extern "C" {
+  torchserve::Backend* createBackend() {
+    return new torchserve::TorchScriptedBackend();
+  }
+
+  void deleteBackend(torchserve::Backend* p) {
+    delete p;
+  }
+}

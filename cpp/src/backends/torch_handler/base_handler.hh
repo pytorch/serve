@@ -1,9 +1,11 @@
 #ifndef TS_CPP_BACKENDS_TORCH_HANDLER_BASE_HANDLER_HH_
 #define TS_CPP_BACKENDS_TORCH_HANDLER_BASE_HANDLER_HH_
 
-#include <memory>
+#include <torch/script.h>
+#include <torch/torch.h>
+#include <functional>
 
-#include "src/backends/torch_scripted/torch_scripted_backend.hh"
+#include "src/backends/core/backend.hh"
 
 namespace torchserve {
   /**
@@ -14,14 +16,19 @@ namespace torchserve {
    * TorchBaseHandler is not responsible for loading model since it is derived from
    * TorchScritpedModelInstance.
    */
-  class TorchBaseHandler : public TorchScritpedModelInstance {
+  class TorchBaseHandler {
     public:
-    TorchBaseHandler(
-      std::shared_ptr<torch::jit::script::Module> model, 
-      std::shared_ptr<torchserve::LoadModelRequest> load_model_request,
-      std::shared_ptr<torchserve::Manifest> manifest) : 
-      TorchScritpedModelInstance(model, load_model_request, manifest) {};
+    TorchBaseHandler() {};
     virtual ~TorchBaseHandler() {};
+
+    void Initialize(std::shared_ptr<torchserve::ModelInstance> model_instance);
+
+    virtual std::vector<torch::jit::IValue> Preprocess(
+      std::unique_ptr<torchserve::InferenceRequest> inference_request) = 0;
+    
+    virtual std::shared_ptr<torchserve::InferenceResponse> Postprocess(
+      torch::Tensor data) = 0;
+
 
     /**
      * @brief 
@@ -30,9 +37,12 @@ namespace torchserve {
      * @param inference_request 
      * @return std::shared_ptr<torchserve::InferenceResponse> 
      */
-    std::shared_ptr<torchserve::InferenceResponse> Predict(
-      std::unique_ptr<torchserve::InferenceRequest> inference_request) {
-      return std::make_shared<torchserve::InferenceResponse>();
+    std::shared_ptr<torchserve::InferenceResponse> Handle(
+      std::unique_ptr<torchserve::InferenceRequest> inference_request,
+      std::function<torch::Tensor(std::vector<torch::jit::IValue> inputs)> infer_func) {
+        auto inputs = Preprocess(std::move(inference_request));
+        auto output = infer_func(inputs);
+        return Postprocess(output);
     };
   };
 } // namespace torchserve
