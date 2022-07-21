@@ -169,9 +169,11 @@ function build() {
   # Build torchserve_cpp with cmake
   cd "$BWD" || exit
   # TODO: wait for torch bug
-  #-DCMAKE_PREFIX_PATH="$(python -c 'import torch; print(torch.utils.cmake_prefix_path)');$DEPS_DIR;$FOLLY_CMAKE_DIR;"   \
+  # -DCMAKE_PREFIX_PATH="$(python -c 'import torch; print(torch.utils.cmake_prefix_path)');$DEPS_DIR;$FOLLY_CMAKE_DIR;"   \
+  # -DCMAKE_PREFIX_PATH="$DEPS_DIR;$FOLLY_CMAKE_DIR;$DEPS_DIR/libtorch"                       \
+  FOLLY_CMAKE_DIR=$DEPS_DIR/folly-build/installed
   cmake                                                                                       \
-    -DCMAKE_PREFIX_PATH="$DEPS_DIR;$FOLLY_CMAKE_DIR;$DEPS_DIR/libtorch"                       \
+    -DCMAKE_PREFIX_PATH="$(python -c 'import torch; print(torch.utils.cmake_prefix_path)');$DEPS_DIR;$FOLLY_CMAKE_DIR;"   \
     -DCMAKE_INSTALL_PREFIX="$PREFIX"                                                          \
     "$MAYBE_BUILD_QUIC"                                                                       \
     "$MAYBE_BUILD_TESTS"                                                                      \
@@ -248,6 +250,6 @@ mkdir -p "$DEPS_DIR"
 # Must execute from the directory containing this script
 cd "$(dirname "$0")"
 
-FOLLY_CMAKE_DIR="$(install_folly)"
-install_libtorch
+install_folly
+#install_libtorch
 build
