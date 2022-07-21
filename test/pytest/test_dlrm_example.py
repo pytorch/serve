@@ -1,3 +1,6 @@
+"""
+Unit test for the TorchRec DLRM example
+"""
 import json
 import shutil
 import sys
@@ -16,14 +19,22 @@ REPO_ROOT_DIR = CURR_FILE_PATH.parent.parent
 EXAMPLE_ROOT_DIR = REPO_ROOT_DIR.joinpath("examples", "torchrec_dlrm")
 SIMPLE_MODEL_FACTORY_PY = CURR_FILE_PATH.joinpath("test_data", "dlrm_model.py")
 
-EXPECTED_RESULT_BS_2 = [
-    {"default": [pytest.approx(0.1051536425948143), pytest.approx(0.10522478073835373)]}
-]
-EXPECTED_RESULT_BS_1 = [{"default": [pytest.approx(0.1051536425948143)]}]
 
+# The test cases and expected results used for the unittests with batch size one and two.
+EXPECTED_RESULTS = [
+    [{"default": [pytest.approx(0.1051536425948143)]}],
+    [
+        {
+            "default": [
+                pytest.approx(0.1051536425948143),
+                pytest.approx(0.10522478073835373),
+            ]
+        }
+    ],
+]
 TEST_CASES = [
-    ("dlrm_bs_1.json", EXPECTED_RESULT_BS_1),
-    ("dlrm_bs_2.json", EXPECTED_RESULT_BS_2),
+    ("dlrm_bs_1.json", EXPECTED_RESULTS[0]),
+    ("dlrm_bs_2.json", EXPECTED_RESULTS[1]),
 ]
 
 

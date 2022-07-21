@@ -1,3 +1,9 @@
+"""
+This fectory creates a DLRM model with the Torchrec library compatible with the Criteo dataset format.
+For this example we use an untrained model. More information on how to train this model can be found at
+https://github.com/facebookresearch/dlrm/tree/main/torchrec_dlrm/
+"""
+
 from dataclasses import dataclass
 from typing import List
 
@@ -68,8 +74,10 @@ def create_default_model_config():
 class DLRMFactory(type):
     def __new__(cls, model_config=None):
 
+        # We use only a single GPU for this example
         world_size = 1
 
+        # If we do not provide a model config we use the default one compatible with the Criteo dataset
         if not model_config:
             model_config = create_default_model_config()
 
@@ -88,6 +96,7 @@ class DLRMFactory(type):
                 model_config.id_list_features_keys
             )
         ]
+        # Creates an EmbeddingBagCollection without allocating any memory
         ebc = EmbeddingBagCollection(tables=eb_configs, device=torch.device("meta"))
 
         module = DLRM(
