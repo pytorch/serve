@@ -40,5 +40,13 @@ jobs:
           python torchserve_sanity.py
       - name: mvn install
         run: cd serving-sdk/ && mvn clean install -q && cd ../
+        
+      # Any coverage.xml will be picked up by this step
+      # Just make sure each coverage.xml is in a different folder
+      - name: Upload codecov
+        run : |
+          curl -Os https://uploader.codecov.io/latest/linux/codecov
+          chmod +x codecov
+          ./codecov
 
 
