@@ -1,180 +1,177 @@
+import importlib
 import json
 import os
+import shutil
+import sys
+from argparse import Namespace
+from dataclasses import dataclass
+from pathlib import Path
+from typing import List
 
 import pytest
+import requests
+import test_utils
 import torch
+from torchrec.datasets.criteo import DEFAULT_CAT_NAMES, DEFAULT_INT_NAMES
 
 from ts.torch_handler.unit_tests.test_utils.mock_context import MockContext
 
-CURR_FILE_PATH = os.path.dirname(os.path.realpath(__file__))
-REPO_ROOT_DIR = os.path.normpath(os.path.join(CURR_FILE_PATH, "..", ".."))
-EXAMPLE_ROOT_DIR = os.path.join(REPO_ROOT_DIR, "examples", "torchrec_dlrm")
+CURR_FILE_PATH = Path(__file__).parent
+REPO_ROOT_DIR = CURR_FILE_PATH.parent.parent
+EXAMPLE_ROOT_DIR = REPO_ROOT_DIR.joinpath("examples", "torchrec_dlrm")
+
+EXPECTED_RESULT_BS_2 = [
+    {"default": [pytest.approx(0.1051536425948143), pytest.approx(0.10522478073835373)]}
+]
+EXPECTED_RESULT_BS_1 = [{"default": [pytest.approx(0.1051536425948143)]}]
+
+TEST_CASES = [
+    ("dlrm_bs_1.json", EXPECTED_RESULT_BS_1),
+    ("dlrm_bs_2.json", EXPECTED_RESULT_BS_2),
+]
 
 
-def check_dlrm_result(res, gt):
-    assert isinstance(res, dict)
-    assert "default" in res
-    assert res["default"] == list([pytest.approx(b) for b in gt["default"]])
+@pytest.fixture(scope="module")
+def work_dir(tmp_path_factory):
+    return tmp_path_factory.mktemp("work_dir")
 
 
-def test_handler(monkeypatch, mocker):
+def simple_dlrm_factory():
+    @dataclass
+    class DLRMModelConfig:
+        dense_arch_layer_sizes: List[int]
+        dense_in_features: int
+        embedding_dim: int
+        id_list_features_keys: List[str]
+        num_embeddings_per_feature: List[int]
+        over_arch_layer_sizes: List[int]
+
+    return DLRMModelConfig(
+        dense_arch_layer_sizes=[32, 16, 8],
+        dense_in_features=len(DEFAULT_INT_NAMES),
+        embedding_dim=8,
+        id_list_features_keys=DEFAULT_CAT_NAMES,
+        num_embeddings_per_feature=len(DEFAULT_CAT_NAMES)
+        * [
+            3,
+        ],
+        over_arch_layer_sizes=[32, 32, 16, 1],
+    )
+
+
+@pytest.fixture(scope="module", name="serialized_file")
+def create_serialized_file(work_dir, session_mocker):
+    script_path = EXAMPLE_ROOT_DIR / "create_dlrm_mar.py"
+
+    loader = importlib.machinery.SourceFileLoader(
+        "create_dlrm_mar", script_path.as_posix()
+    )
+    spec = importlib.util.spec_from_loader("create_dlrm_mar", loader)
+    create_dlrm_mar = importlib.util.module_from_spec(spec)
+
+    sys.modules["create_dlrm_mar"] = create_dlrm_mar
+
+    loader.exec_module(create_dlrm_mar)
+
+    session_mocker.patch(
+        "dlrm_factory.create_default_model_config", simple_dlrm_factory
+    )
+
+    MODEL_PT_FILE = work_dir / "dlrm.pt"
+
+    torch.manual_seed(42 * 42)
+    create_dlrm_mar.create_pt_file(MODEL_PT_FILE)
+
+    return MODEL_PT_FILE
+
+
+@pytest.fixture(scope="module", name="mar_file_path")
+def create_mar_file(work_dir, session_mocker, serialized_file, model_archiver):
+    """
+    Create mar file and return file path.
+    """
+    model_name = "scriptable_tokenizer_untrained"
+
+    mar_file_path = os.path.join(work_dir, model_name + ".mar")
+
+    args = Namespace(
+        model_name=model_name,
+        version="1.0",
+        serialized_file=str(serialized_file),
+        model_file=CURR_FILE_PATH.joinpath("test_data", "dlrm_model.py").as_posix(),
+        handler=EXAMPLE_ROOT_DIR.joinpath("dlrm_handler.py").as_posix(),
+        extra_files=EXAMPLE_ROOT_DIR.joinpath("dlrm_factory.py").as_posix(),
+        export_path=work_dir,
+        requirements_file=None,
+        runtime="python",
+        force=False,
+        archive_format="default",
+    )
+
+    print(args)
+
+    mock = session_mocker.MagicMock()
+    mock.parse_args = session_mocker.MagicMock(return_value=args)
+    session_mocker.patch(
+        "archiver.ArgParser.export_model_args_parser", return_value=mock
+    )
+
+    # Using ZIP_STORED instead of ZIP_DEFLATED reduces test runtime from 54 secs to 10 secs
+    from zipfile import ZIP_STORED, ZipFile
+
+    session_mocker.patch(
+        "model_archiver.model_packaging_utils.zipfile.ZipFile",
+        lambda x, y, _: ZipFile(x, y, ZIP_STORED),
+    )
+
+    model_archiver.generate_model_archive()
+
+    assert os.path.exists(mar_file_path)
+
+    yield mar_file_path
+
+    # Clean up files
+    try:
+        os.remove(mar_file_path)
+    except OSError:
+        pass
+
+
+@pytest.fixture(scope="module", name="model_name")
+def register_model(mar_file_path, model_store, torchserve):
+    shutil.copy(mar_file_path, model_store)
+
+    file_name = os.path.split(mar_file_path)[-1]
+
+    model_name = os.path.splitext(file_name)[0]
+
+    test_utils.reg_resp = test_utils.register_model(model_name, file_name)
+
+    yield model_name
+
+    test_utils.unregister_model(model_name)
+
+
+@pytest.mark.parametrize(("file", "expected_result"), TEST_CASES)
+def test_handler(monkeypatch, mocker, file, expected_result):
     monkeypatch.syspath_prepend(EXAMPLE_ROOT_DIR)
+    mocker.patch("dlrm_factory.create_default_model_config", simple_dlrm_factory)
 
-    from handler import TorchRecDLRMHandler
+    from dlrm_handler import TorchRecDLRMHandler
 
     handler = TorchRecDLRMHandler()
     ctx = MockContext(
         model_pt_file=None,
-        model_dir=EXAMPLE_ROOT_DIR,
+        model_dir=EXAMPLE_ROOT_DIR.as_posix(),
         model_file="dlrm_factory.py",
     )
 
     torch.manual_seed(42 * 42)
     handler.initialize(ctx)
 
-    # Batch szie 2
-    data = {
-        "float_features": [
-            [
-                -0.8904874324798584,
-                -0.5702090859413147,
-                -0.13531066477298737,
-                -1.8298695087432861,
-                0.18680641055107117,
-                -0.5029279589653015,
-                0.20502178370952606,
-                0.11757952719926834,
-                -0.5099042654037476,
-                0.29294583201408386,
-                -0.17700502276420593,
-                -1.6512247323989868,
-                0.7418987154960632,
-            ],
-            [
-                1.1390568017959595,
-                -2.0782198905944824,
-                -1.6261157989501953,
-                -1.472241759300232,
-                0.012050889432430267,
-                -1.8349215984344482,
-                1.9130446910858154,
-                -0.5165563225746155,
-                -1.3125498294830322,
-                -1.6539082527160645,
-                0.1867174506187439,
-                -0.3760676383972168,
-                0.42102983593940735,
-            ],
-        ],
-        "id_list_features.lengths": [
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-        ],
-        "id_list_features.values": [
-            42412881,
-            1107019,
-            14556,
-            29122,
-            6732,
-            9711,
-            4978,
-            1945,
-            4614,
-            82,
-            1,
-            2,
-            2585,
-            4772,
-            1224,
-            777,
-            38,
-            34,
-            4928528,
-            18233101,
-            831084,
-            438459,
-            38202,
-            251387,
-            5,
-            3,
-            99,
-            555,
-            5694,
-            2608,
-            46,
-            77,
-            1,
-            1,
-            373,
-            935,
-            12,
-            12,
-            20073534,
-            26813373,
-            478696,
-            1519603,
-            36774469,
-            4455968,
-            10594,
-            383035,
-            7647,
-            10260,
-            4,
-            9,
-            6,
-            11,
-        ],
-    }
+    # Batch size 2
+    with open(Path(CURR_FILE_PATH) / "test_data" / file) as f:
+        data = json.load(f)
 
     x = mocker.Mock(get=lambda x: json.dumps(data))
 
@@ -182,92 +179,19 @@ def test_handler(monkeypatch, mocker):
     x = handler.inference(x)
     x = handler.postprocess(x)
 
-    check_dlrm_result(
-        json.loads(x), {"default": [-0.0376037061214447, -0.037387914955616]}
-    )
+    assert x == expected_result
 
-    # Batch size 1
 
-    data = {
-        "float_features": [
-            [
-                0.015471375547349453,
-                0.20300938189029694,
-                -1.3055355548858643,
-                -0.7300364971160889,
-                0.06900127977132797,
-                0.5859290957450867,
-                1.3041515350341797,
-                -0.6238508820533752,
-                1.4023090600967407,
-                -1.16234290599823,
-                -0.19111162424087524,
-                0.8572622537612915,
-                -0.2385675013065338,
-            ]
-        ],
-        "id_list_features.lengths": [
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-        ],
-        "id_list_features.values": [
-            45821459,
-            29807,
-            12033,
-            3092,
-            4119,
-            2,
-            6527,
-            194,
-            34,
-            8190138,
-            397269,
-            204955,
-            4,
-            914,
-            3472,
-            45,
-            3,
-            809,
-            1,
-            3026630,
-            9850984,
-            14193736,
-            4706,
-            7013,
-            71,
-            6,
-        ],
-    }
+@pytest.mark.parametrize(("file", "expected_result"), TEST_CASES)
+def test_inference_with_untrained_model(model_name, file, expected_result):
 
-    x = mocker.Mock(get=lambda x: json.dumps(data))
+    with open(Path(CURR_FILE_PATH) / "test_data" / file, "rb") as f:
+        response = requests.post(
+            url=f"http://localhost:8080/predictions/{model_name}", data=f
+        )
 
-    x = handler.preprocess([x])
-    x = handler.inference(x)
-    x = handler.postprocess(x)
+    assert response.status_code == 200
 
-    check_dlrm_result(json.loads(x), {"default": [-0.037986066192388535]})
+    result_entries = json.loads(response.text)
+
+    assert [result_entries] == expected_result

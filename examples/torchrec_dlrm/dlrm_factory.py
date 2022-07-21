@@ -66,11 +66,12 @@ def create_default_model_config():
 
 
 class DLRMFactory(type):
-    def __new__(cls, *args, **kwargs):
+    def __new__(cls, model_config=None):
 
         world_size = 1
 
-        model_config = create_default_model_config()
+        if not model_config:
+            model_config = create_default_model_config()
 
         default_cuda_rank = 0
         device = torch.device("cuda", default_cuda_rank)

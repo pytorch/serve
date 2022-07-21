@@ -140,4 +140,4 @@ class TorchRecDLRMHandler(BaseHandler, ABC):
         if data.shape[0] == 1:
             res["default"] = [res["default"]]
 
-        return json.dumps(res)
+        return [res]
