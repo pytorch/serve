@@ -1,6 +1,6 @@
 # TorchServe
 
-TorchServe is a performant, flexible and easy to use tool for serving PyTorch eager mode and torschripted models.
+TorchServe is a performant, flexible and easy to use tool for serving PyTorch eager mode and torchscripted models.
 
 ## Basic Features
 
@@ -43,7 +43,7 @@ TorchServe is a performant, flexible and easy to use tool for serving PyTorch ea
 * [Advanced configuration](configuration.md) - Describes advanced TorchServe configurations.
 * [A/B test models](https://github.com/pytorch/serve/blob/master/docs/use_cases.md#serve-models-for-ab-testing) - A/B test your models for regressions before shipping them to production
 * [Custom Service](custom_service.md) - Describes how to develop custom inference services.
-* [Encrypted model serving](management_api.md/encrypted-model-serving) - S3 server side model encryption via KMS
+* [Encrypted model serving](https://github.com/pytorch/serve/blob/master/docs/management_api.md#encrypted-model-serving) - S3 server side model encryption via KMS
 * [Snapshot serialization](https://github.com/pytorch/serve/blob/master/plugins/docs/ddb_endpoint.md) - Serialize model artifacts to AWS Dynamo DB
 * [Benchmarking and Profiling](https://github.com/pytorch/serve/tree/master/benchmarks#torchserve-model-server-benchmarking) - Use JMeter or Apache Bench to benchmark your models and TorchServe itself
 * [TorchServe on Kubernetes](https://github.com/pytorch/serve/blob/master/kubernetes/README.md#torchserve-on-kubernetes) -  Demonstrates a Torchserve deployment in Kubernetes using Helm Chart supported in both Azure Kubernetes Service and Google Kubernetes service

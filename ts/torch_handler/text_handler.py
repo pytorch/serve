@@ -2,23 +2,25 @@
 Base module for all text based default handler.
 Contains various text based utility methods
 """
+import logging
 import os
 import re
-import logging
 import string
 import unicodedata
 from abc import ABC
+
 import torch
 import torch.nn.functional as F
-from torchtext.data.utils import get_tokenizer
 from captum.attr import LayerIntegratedGradients
+from torchtext.data.utils import get_tokenizer
+
+from ..utils.util import CLEANUP_REGEX
 from .base_handler import BaseHandler
 from .contractions import CONTRACTION_MAP
 
 logger = logging.getLogger(__name__)
 
 
-CLEANUP_REGEX = re.compile("<.*?>|&([a-z0-9]+|#[0-9]{1,6}|#x[0-9a-f]{1,6});")
 CONTRACTIONS_PATTERN = re.compile(
     "({})".format("|".join(CONTRACTION_MAP.keys())),
     flags=re.IGNORECASE | re.DOTALL,
@@ -45,13 +47,17 @@ class TextHandler(BaseHandler, ABC):
         """
         super().initialize(context)
         self.initialized = False
-        source_vocab = self.manifest['model']['sourceVocab'] if 'sourceVocab' in self.manifest['model'] else None
+        source_vocab = (
+            self.manifest["model"]["sourceVocab"]
+            if "sourceVocab" in self.manifest["model"]
+            else None
+        )
         if source_vocab:
             # Backward compatibility
             self.source_vocab = torch.load(source_vocab)
         else:
             self.source_vocab = torch.load(self.get_source_vocab_path(context))
-        #Captum initialization
+        # Captum initialization
         self.lig = LayerIntegratedGradients(self.model, self.model.embedding)
         self.initialized = True
 
@@ -63,8 +69,10 @@ class TextHandler(BaseHandler, ABC):
         if os.path.isfile(source_vocab_path):
             return source_vocab_path
         else:
-            raise Exception('Missing the source_vocab file. Refer default handler '
-                            'documentation for details on using text_handler.')
+            raise Exception(
+                "Missing the source_vocab file. Refer default handler "
+                "documentation for details on using text_handler."
+            )
 
     def _expand_contractions(self, text):
         """

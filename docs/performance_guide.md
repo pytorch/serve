@@ -24,11 +24,7 @@ ValueToSet = (Number of Hardware GPUs) / (Number of Unique Models)
 ## Benchmarking
 To make comparing various model and TorchServe configurations easier to compare, we've added a few helper scripts that output performance data like p50, p90, p99 latency in a clean report here and mostly require you to determine some configuration either via JSON or YAML https://github.com/pytorch/serve/tree/master/benchmarks.
 
-If you'd like to run performance benchmarks locally https://github.com/pytorch/serve/tree/master/benchmarks
-
-If you'd like to run performance benchmarks using an automated suite on AWS https://github.com/pytorch/serve/tree/master/benchmarks/automated
-
-For the most part the core TorchServe team uses local benchmarks for experiments and the automated benchmarks for official releases.
+If you'd like to run performance benchmarks checkout https://github.com/pytorch/serve/tree/master/benchmarks
 
 ## Profiling
 TorchServe has native support for the PyTorch profiler which will help you find performance bottlenecks in your code.
