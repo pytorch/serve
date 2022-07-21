@@ -255,7 +255,7 @@
 
   ## Setup PersistentVolume backed by EFS
 
-  Torchserve Helm Chart needs a PersistentVolume with a PVC label `model-store-claim` prepared with a specific folder structure shown below. This PersistentVolume contains the snapshot & model files which are shared between multiple pods of the torchserve deployment.
+  Torchserve Helm Chart needs a PersistentVolume with a PVC label `model-store-claim` prepared with a specific folder  structure shown below. This PersistentVolume contains the snapshot & model files which are shared between multiple pods of the torchserve deployment.
 
       model-server/
       ├── config
@@ -266,20 +266,55 @@
 
   **Create EFS Volume for the EKS Cluster**
 
-  This section describes steps to prepare a EFS backed PersistentVolume that would be used by the TS Helm Chart. To prepare a EFS volume as a shareifjccgiced model / config store we have to create a EFS file system, Security Group, Ingress rule, Mount Targets to enable EFS communicate across NAT of the EKS cluster. 
+  This section describes steps to prepare a EFS backed PersistentVolume that would be used by the TS Helm Chart. To prepare a EFS volume as a shared model / config store we have to create a EFS file system, Security Group, Ingress rule, Mount Targets to enable EFS communicate across NAT of the EKS cluster. 
 
-  The heavy lifting for these steps is performed by ``setup_efs.sh`` script. To run the script, Update the following variables in `setup_efs.sh`
+  The heavy lifting for these steps is performed by `setup_efs.sh` script. To run the script, Update the following variables in `setup_efs.sh`
 
   ```bash
   CLUSTER_NAME=TorchserveCluster # EKS TS Cluser Name
   MOUNT_TARGET_GROUP_NAME="eks-efs-group"
   ```
 
+  Create an IAM policy and role:
+  ```bash
+  # Download policy
+  curl -o iam-policy-example.json https://raw.githubusercontent.com/kubernetes-sigs/aws-efs-csi-driver/master/docs/iam-policy-example.json
+  
+  # Create policy
+  aws iam create-policy \
+    --policy-name AmazonEKS_EFS_CSI_Driver_Policy \
+    --policy-document file://iam-policy-example.json
+
+  # create service account and iam role
+  eksctl create iamserviceaccount \
+    --cluster TorchserveCluster \
+    --namespace kube-system \
+    --name efs-csi-controller-sa \
+    --attach-policy-arn arn:aws:iam::111122223333:policy/AmazonEKS_EFS_CSI_Driver_Policy \
+    --approve \
+    --region <region-code>
+  ```
+
+  Install the Amazon EFS CSI driver with the following command:
+  
+  ```bash
+  helm repo add aws-efs-csi-driver https://kubernetes-sigs.github.io/aws-efs-csi-driver/
+
+  helm repo update
+  ```
+  Install a release of the driver using the Helm chart. Replace the repository address with the cluster's [container image address](https://docs.aws.amazon.com/eks/latest/userguide/add-ons-images.html).
+
+  ```bash
+  helm upgrade -i aws-efs-csi-driver aws-efs-csi-driver/aws-efs-csi-driver \
+    --namespace kube-system \
+    --set image.repository=<registry-code>.dkr.ecr.<region-code>.amazonaws.com/eks/aws-efs-csi-driver \
+    --set controller.serviceAccount.create=false \
+    --set controller.serviceAccount.name=efs-csi-controller-sa
+  ```
+
   Then run `source ./setup_efs.sh`. This would also set all the env variables which might be used for deletion at a later time
 
   The output of the script should look similar to,
-
-  
 
   ```bash
   Configuring TorchserveCluster
@@ -361,77 +396,37 @@
   Succesfully created EFS & Mountpoints
   ```
 
-  
-
   Upon completion of the script it would emit a EFS volume DNS Name similar to `fs-ab1cd.efs.us-west-2.amazonaws.com` where `fs-ab1cd` is the EFS filesystem id.
-
-  
 
   You should be able to see a Security Group in your AWS Console with Inbound Rules to a NFS (Port 2049)
 
-  
-
   ![security_group](images/security_group.png)
-
-  
 
   You should also find Mount Points in your EFS console for every region where there is a Node in the Node Group.
 
-  
 
   ![](images/efs_mount.png)
 
-  
+  Create a storage class file with below specs.
 
-  
-
-  **Prepare PersistentVolume for Deployment**
-
-  We use the [ELF Provisioner Helm Chart](https://github.com/helm/charts/tree/master/stable/efs-provisioner) to create a PersistentVolume backed by EFS. Run the following command to set this up.
-
-  ```bash
-  helm repo add stable https://charts.helm.sh/stable
-  helm repo update
-  helm install stable/efs-provisioner --set efsProvisioner.efsFileSystemId=YOUR-EFS-FS-ID --set efsProvisioner.awsRegion=us-west-2 --set efsProvisioner.reclaimPolicy=Retain --generate-name
-  ```
-
-  
-
-  you should get an output similar to 
-
-  
-
-  ```bash
-  NAME: efs-provisioner-1596010253
-  LAST DEPLOYED: Wed Jul 29 08:10:56 2020
-  NAMESPACE: default
-  STATUS: deployed
-  REVISION: 1
-  TEST SUITE: None
-  NOTES:
-  You can provision an EFS-backed persistent volume with a persistent volume claim like below:
-  
-  kind: PersistentVolumeClaim
-  apiVersion: v1
+  ```yaml
+  kind: StorageClass
+  apiVersion: storage.k8s.io/v1
   metadata:
-    name: my-efs-vol-1
-    annotations:
-      volume.beta.kubernetes.io/storage-class: aws-efs
-  spec:
-    storageClassName: aws-efs
-    accessModes:
-      - ReadWriteMany
-    resources:
-      requests:
-        storage: 1Mi
-  
+    name: efs-sc
+  provisioner: efs.csi.aws.com
+  parameters:
+    provisioningMode: efs-ap
+    fileSystemId: <file-system-id>
+    directoryPerms: "700"
+    gidRangeStart: "1000" # optional
+    gidRangeEnd: "2000" # optional
+    basePath: "/dynamic_provisioning" # optional
+  ```  
+
+  ```bash
+  kubectl apply -f storageclass.yaml
   ```
-
-  
-
-  Verify that your EFS Provisioner installation is succesfull by invoking ```kubectl get pods```. Your output should look similar to,
-
-  
 
   ```bash
   ubuntu@ip-172-31-50-36:~/serve/kubernetes$ kubectl get pods
