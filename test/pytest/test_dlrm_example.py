@@ -1,24 +1,20 @@
-import importlib
 import json
-import os
 import shutil
 import sys
 from argparse import Namespace
-from dataclasses import dataclass
 from pathlib import Path
-from typing import List
 
 import pytest
 import requests
 import test_utils
 import torch
-from torchrec.datasets.criteo import DEFAULT_CAT_NAMES, DEFAULT_INT_NAMES
 
 from ts.torch_handler.unit_tests.test_utils.mock_context import MockContext
 
 CURR_FILE_PATH = Path(__file__).parent
 REPO_ROOT_DIR = CURR_FILE_PATH.parent.parent
 EXAMPLE_ROOT_DIR = REPO_ROOT_DIR.joinpath("examples", "torchrec_dlrm")
+SIMPLE_MODEL_FACTORY_PY = CURR_FILE_PATH.joinpath("test_data", "dlrm_model.py")
 
 EXPECTED_RESULT_BS_2 = [
     {"default": [pytest.approx(0.1051536425948143), pytest.approx(0.10522478073835373)]}
@@ -36,46 +32,28 @@ def work_dir(tmp_path_factory):
     return tmp_path_factory.mktemp("work_dir")
 
 
-def simple_dlrm_factory():
-    @dataclass
-    class DLRMModelConfig:
-        dense_arch_layer_sizes: List[int]
-        dense_in_features: int
-        embedding_dim: int
-        id_list_features_keys: List[str]
-        num_embeddings_per_feature: List[int]
-        over_arch_layer_sizes: List[int]
-
-    return DLRMModelConfig(
-        dense_arch_layer_sizes=[32, 16, 8],
-        dense_in_features=len(DEFAULT_INT_NAMES),
-        embedding_dim=8,
-        id_list_features_keys=DEFAULT_CAT_NAMES,
-        num_embeddings_per_feature=len(DEFAULT_CAT_NAMES)
-        * [
-            3,
-        ],
-        over_arch_layer_sizes=[32, 32, 16, 1],
+@pytest.fixture(scope="module", name="model_config")
+def get_simple_dlrm_model_config(monkeysession):
+    """
+    Helper fixture to create a simpler DLRM model which is also used in the MAR file
+    """
+    monkeysession.syspath_prepend(EXAMPLE_ROOT_DIR)
+    simple_model_factory = test_utils.load_module_from_py_file(
+        SIMPLE_MODEL_FACTORY_PY.as_posix()
     )
+    yield simple_model_factory.simple_dlrm_model_config
 
 
 @pytest.fixture(scope="module", name="serialized_file")
-def create_serialized_file(work_dir, session_mocker):
+def create_serialized_file(work_dir, session_mocker, model_config):
+    """
+    This fixture creates the the simplified DLRM model and saves its satte_dict to disk.
+    """
     script_path = EXAMPLE_ROOT_DIR / "create_dlrm_mar.py"
-
-    loader = importlib.machinery.SourceFileLoader(
-        "create_dlrm_mar", script_path.as_posix()
-    )
-    spec = importlib.util.spec_from_loader("create_dlrm_mar", loader)
-    create_dlrm_mar = importlib.util.module_from_spec(spec)
-
+    create_dlrm_mar = test_utils.load_module_from_py_file(script_path.as_posix())
     sys.modules["create_dlrm_mar"] = create_dlrm_mar
 
-    loader.exec_module(create_dlrm_mar)
-
-    session_mocker.patch(
-        "dlrm_factory.create_default_model_config", simple_dlrm_factory
-    )
+    session_mocker.patch("dlrm_factory.create_default_model_config", model_config)
 
     MODEL_PT_FILE = work_dir / "dlrm.pt"
 
@@ -92,13 +70,13 @@ def create_mar_file(work_dir, session_mocker, serialized_file, model_archiver):
     """
     model_name = "scriptable_tokenizer_untrained"
 
-    mar_file_path = os.path.join(work_dir, model_name + ".mar")
+    mar_file_path = Path(work_dir).joinpath(model_name + ".mar")
 
     args = Namespace(
         model_name=model_name,
         version="1.0",
         serialized_file=str(serialized_file),
-        model_file=CURR_FILE_PATH.joinpath("test_data", "dlrm_model.py").as_posix(),
+        model_file=SIMPLE_MODEL_FACTORY_PY.as_posix(),
         handler=EXAMPLE_ROOT_DIR.joinpath("dlrm_handler.py").as_posix(),
         extra_files=EXAMPLE_ROOT_DIR.joinpath("dlrm_factory.py").as_posix(),
         export_path=work_dir,
@@ -107,8 +85,6 @@ def create_mar_file(work_dir, session_mocker, serialized_file, model_archiver):
         force=False,
         archive_format="default",
     )
-
-    print(args)
 
     mock = session_mocker.MagicMock()
     mock.parse_args = session_mocker.MagicMock(return_value=args)
@@ -126,24 +102,24 @@ def create_mar_file(work_dir, session_mocker, serialized_file, model_archiver):
 
     model_archiver.generate_model_archive()
 
-    assert os.path.exists(mar_file_path)
+    assert mar_file_path.exists()
 
-    yield mar_file_path
+    yield mar_file_path.as_posix()
 
     # Clean up files
-    try:
-        os.remove(mar_file_path)
-    except OSError:
-        pass
+    mar_file_path.unlink(missing_ok=True)
 
 
 @pytest.fixture(scope="module", name="model_name")
 def register_model(mar_file_path, model_store, torchserve):
+    """
+    Register the model in torchserve
+    """
     shutil.copy(mar_file_path, model_store)
 
-    file_name = os.path.split(mar_file_path)[-1]
+    file_name = Path(mar_file_path).name
 
-    model_name = os.path.splitext(file_name)[0]
+    model_name = Path(file_name).stem
 
     test_utils.reg_resp = test_utils.register_model(model_name, file_name)
 
@@ -153,9 +129,12 @@ def register_model(mar_file_path, model_store, torchserve):
 
 
 @pytest.mark.parametrize(("file", "expected_result"), TEST_CASES)
-def test_handler(monkeypatch, mocker, file, expected_result):
+def test_handler(monkeypatch, mocker, file, expected_result, model_config):
+    """
+    Test dlrm handler as standalone entity with specified test cases
+    """
     monkeypatch.syspath_prepend(EXAMPLE_ROOT_DIR)
-    mocker.patch("dlrm_factory.create_default_model_config", simple_dlrm_factory)
+    mocker.patch("dlrm_factory.create_default_model_config", model_config)
 
     from dlrm_handler import TorchRecDLRMHandler
 
@@ -184,6 +163,9 @@ def test_handler(monkeypatch, mocker, file, expected_result):
 
 @pytest.mark.parametrize(("file", "expected_result"), TEST_CASES)
 def test_inference_with_untrained_model(model_name, file, expected_result):
+    """
+    Full circle test with torchserve
+    """
 
     with open(Path(CURR_FILE_PATH) / "test_data" / file, "rb") as f:
         response = requests.post(
