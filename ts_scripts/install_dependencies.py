@@ -128,12 +128,7 @@ class Darwin(Common):
             out = get_brew_version()
             if out == "N/A":
                 sys.exit("**Error: Homebrew not installed...")
-
-            os.system("brew tap AdoptOpenJDK/openjdk")
-            if out >= "2.7":
-                os.system("brew install --cask adoptopenjdk11")
-            else:
-                os.system("brew cask install adoptopenjdk11")
+            os.system("brew install openjdk@17")
 
     def install_nodejs(self):
         os.system("brew unlink node")
