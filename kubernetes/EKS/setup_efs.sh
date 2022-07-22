@@ -1,7 +1,7 @@
 #!/bin/bash
 
-CLUSTER_NAME=kf-operator
-MOUNT_TARGET_GROUP_NAME="eks-efs-group-sg-1"
+CLUSTER_NAME=TorchserveCluster
+MOUNT_TARGET_GROUP_NAME="eks-efs-group"
 REGION="us-west-2"
 
 # Fetch VPC ID / CIDR Block for the EKS Cluster

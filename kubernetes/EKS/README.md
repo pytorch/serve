@@ -270,6 +270,8 @@
 
   The heavy lifting for these steps is performed by `setup_efs.sh` script. To run the script, Update the following variables in `setup_efs.sh`
 
+  Note: 
+
   ```bash
   CLUSTER_NAME=TorchserveCluster # EKS TS Cluser Name
   MOUNT_TARGET_GROUP_NAME="eks-efs-group"
@@ -290,7 +292,7 @@
     --cluster TorchserveCluster \
     --namespace kube-system \
     --name efs-csi-controller-sa \
-    --attach-policy-arn arn:aws:iam::111122223333:policy/AmazonEKS_EFS_CSI_Driver_Policy \
+    --attach-policy-arn <policy-arn> \
     --approve \
     --region <region-code>
   ```
@@ -304,6 +306,8 @@
   ```
   Install a release of the driver using the Helm chart. Replace the repository address with the cluster's [container image address](https://docs.aws.amazon.com/eks/latest/userguide/add-ons-images.html).
 
+  :warning: The [efs-provisioner](https://github.com/helm/charts/tree/master/stable/efs-provisioner) is no longer maintained and migrating to aws-efs-csi driver. Copied steps for pv creation from https://docs.aws.amazon.com/eks/latest/userguide/efs-csi.html
+  
   ```bash
   helm upgrade -i aws-efs-csi-driver aws-efs-csi-driver/aws-efs-csi-driver \
     --namespace kube-system \
@@ -424,19 +428,20 @@
     basePath: "/dynamic_provisioning" # optional
   ```  
 
+  Note: Refer [Dynamic Provisioning](https://github.com/kubernetes-sigs/aws-efs-csi-driver/blob/master/examples/kubernetes/dynamic_provisioning/README.md) for more information.
+  
   ```bash
   kubectl apply -f storageclass.yaml
   ```
 
   ```bash
-  ubuntu@ip-172-31-50-36:~/serve/kubernetes$ kubectl get pods
+  ubuntu@ip-172-31-50-36:~/serve/kubernetes$ kubectl get pods -n kube-system | grep efs-csi-controller
   NAME                                          READY   STATUS    RESTARTS   AGE
-  efs-provisioner-1596010253-6c459f95bb-v68bm   1/1     Running   0          109s
+  efs-csi-controller-7f4dbcd46b-gwvn7    3/3     Running   0          22h
+  efs-csi-controller-7f4dbcd46b-jtdfb    3/3     Running   0          22h
   ```
 
  Update `templates/efs_pv_claim.yaml` - `resources.request.storage` with the size of your PVC claim based on the size of the models you plan to use.  Now run, ```kubectl apply -f templates/efs_pv_claim.yaml```. This would also create a pod named `pod/model-store-pod` with PersistentVolume mounted so that we can copy the MAR / config files in the same folder structure described above. 
-
-  
 
   Your output should look similar to,
 
