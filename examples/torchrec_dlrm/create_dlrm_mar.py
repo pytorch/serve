@@ -17,6 +17,7 @@ def create_pt_file(output_file: str) -> None:
 
 
 def main():
+    print(f"Creating DLRM model and saving state_dict to {MODEL_PT_FILE}")
     create_pt_file(MODEL_PT_FILE)
 
     cmd = [
@@ -29,7 +30,9 @@ def main():
         "--force",
     ]
 
+    print("Archiving model into dlrm.mar")
     os.system(" ".join(cmd))
+    print("Done")
 
 
 if __name__ == "__main__":

@@ -3,6 +3,7 @@ Handler for Torchrec DLRM based recommendation system
 """
 import json
 import logging
+import os
 from abc import ABC
 
 import torch
@@ -18,6 +19,56 @@ class TorchRecDLRMHandler(BaseHandler, ABC):
     """
     Handler for TorchRec DLRM example
     """
+
+    def initialize(self, context):
+        """Initialize function loads the model.pt file and initialized the model object.
+           This version creates and initialized the model on cpu fist and transfers to gpu in a second step to prevent GPU OOM.
+        Args:
+            context (context): It is a JSON Object containing information
+            pertaining to the model artifacts parameters.
+        Raises:
+            RuntimeError: Raises the Runtime error when the model.py is missing
+        """
+        properties = context.system_properties
+
+        # Set device to cpu to prevent GPU OOM errors
+        self.device = "cpu"
+        self.manifest = context.manifest
+
+        model_dir = properties.get("model_dir")
+        model_pt_path = None
+        if "serializedFile" in self.manifest["model"]:
+            serialized_file = self.manifest["model"]["serializedFile"]
+            model_pt_path = os.path.join(model_dir, serialized_file)
+
+        # model def file
+        model_file = self.manifest["model"].get("modelFile", "")
+
+        if not model_file:
+            raise RuntimeError("model.py not specified")
+
+        logger.debug("Loading eager model")
+        self.model = self._load_pickled_model(model_dir, model_file, model_pt_path)
+
+        self.map_location = (
+            "cuda"
+            if torch.cuda.is_available() and properties.get("gpu_id") is not None
+            else "cpu"
+        )
+
+        self.device = torch.device(
+            self.map_location + ":" + str(properties.get("gpu_id"))
+            if torch.cuda.is_available() and properties.get("gpu_id") is not None
+            else self.map_location
+        )
+
+        self.model.to(self.device)
+
+        self.model.eval()
+
+        logger.debug("Model file %s loaded successfully", model_pt_path)
+
+        self.initialized = True
 
     def preprocess(self, data):
         """
@@ -35,9 +86,10 @@ class TorchRecDLRMHandler(BaseHandler, ABC):
         """
 
         line = data[0]
-        json_data = line.get("data") or line.get("body")
+        batch = line.get("data") or line.get("body")
 
-        batch = json.loads(json_data)
+        if not isinstance(batch, dict):
+            batch = json.loads(batch)
 
         # This is the dense feature part
         assert "float_features" in batch

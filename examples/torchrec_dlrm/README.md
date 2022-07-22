@@ -1,7 +1,7 @@
 
 ### TorchRec DLRM Example
 
-This example shows how to serve a Deep Learning Recommendation Model (DLRM) with TorchRec on a single GPU (CPU is currently not yet supported by this example).
+This example shows how to serve a Deep Learning Recommendation Model (DLRM) with TorchRec on a single GPU (CPU is currently not yet supported by this example). It requres at least 15GB of free GPU memory to run.
 The DLRM is an open source model for personalization and recommendation use cases published by Meta. More informatino can be found in this [paper](https://arxiv.org/abs/1906.00091) and this [blog post](https://ai.facebook.com/blog/dlrm-an-advanced-open-source-deep-learning-recommendation-model/).
 TorchRec is Meta's open source library for recommender systems in Pytorch. More information on TorchRec can be found in the [official docs](https://pytorch.org/torchrec/).
 

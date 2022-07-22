@@ -173,7 +173,7 @@ def test_handler(monkeypatch, mocker, file, expected_result, model_config):
 
 
 @pytest.mark.parametrize(("file", "expected_result"), TEST_CASES)
-def test_inference_with_untrained_model(model_name, file, expected_result):
+def test_inference_with_untrained_model_post_as_text(model_name, file, expected_result):
     """
     Full circle test with torchserve
     """
@@ -181,6 +181,25 @@ def test_inference_with_untrained_model(model_name, file, expected_result):
     with open(Path(CURR_FILE_PATH) / "test_data" / file, "rb") as f:
         response = requests.post(
             url=f"http://localhost:8080/predictions/{model_name}", data=f
+        )
+
+    assert response.status_code == 200
+
+    result_entries = json.loads(response.text)
+
+    assert [result_entries] == expected_result
+
+
+@pytest.mark.parametrize(("file", "expected_result"), TEST_CASES)
+def test_inference_with_untrained_model_post_as_json(model_name, file, expected_result):
+    """
+    Full circle test with torchserve
+    """
+
+    with open(Path(CURR_FILE_PATH) / "test_data" / file, "rb") as f:
+        json_data = json.load(f)
+        response = requests.post(
+            url=f"http://localhost:8080/predictions/{model_name}", json=json_data
         )
 
     assert response.status_code == 200
