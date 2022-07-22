@@ -120,6 +120,8 @@ class DLRMFactory(type):
 
         module = quantize_embeddings(module, dtype=torch.qint8, inplace=True)
 
+        # The planner will decide how the model memory will be allocated.
+        # In case of multiple GPU (not part of this example) it decides how to split the model between the GPUs
         plan = EmbeddingShardingPlanner(
             topology=Topology(
                 world_size=world_size,
@@ -129,6 +131,7 @@ class DLRMFactory(type):
             constraints=constraints,
         ).plan(module, sharders)
 
+        # This step brings it all together and finally allocates the memory for the model
         module = trec_dist.DistributedModelParallel(
             module=module,
             device=device,

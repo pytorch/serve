@@ -1,18 +1,43 @@
 
 ### TorchRec DLRM Example
 
-This example shows how to serve a Deep Learning Recommendation Model (DLRM) model with TorchRec on a single GPU (CPU is currently not yet supported by this example).
-The DLRM model is an open source model for personalization and recommender use cases published by Meta. More informatino can be found in this [paper](https://arxiv.org/abs/1906.00091) and this [blog post](https://ai.facebook.com/blog/dlrm-an-advanced-open-source-deep-learning-recommendation-model/).
+This example shows how to serve a Deep Learning Recommendation Model (DLRM) with TorchRec on a single GPU (CPU is currently not yet supported by this example).
+The DLRM is an open source model for personalization and recommendation use cases published by Meta. More informatino can be found in this [paper](https://arxiv.org/abs/1906.00091) and this [blog post](https://ai.facebook.com/blog/dlrm-an-advanced-open-source-deep-learning-recommendation-model/).
 TorchRec is Meta's open source library for recommender systems in Pytorch. More information on TorchRec can be found in the [official docs](https://pytorch.org/torchrec/).
-Creates an DLRM model with TorchRec and runs an inference.
 
-Create model:
+In this example we will first create and archive the DLRM into a mar file which is subsequently registered in a TorchService instance. Finally, we run an inferent using curl.
+
+To create the model and archive it we simple need to run
 
 ```
-python dlrm_single_gpu.py --num_embeddings_per_feature "45833188,36746,17245,7413,20243,3,7114,1441,62,29275261,1572176,345138,10,2209,11267,128,4,974,14,48937457,11316796,40094537,452104,12606,104,35"
+python create_dlrm_mar.py
 ```
 
-Load model and run inference :
+This will instanciate the model and save the state_dict into dlrm.pt which is then used by the model-archiver to create the mar file.
+To register the model we need to move the mar file into the model_store folder of our choice.
+
 ```
-python dlrm_inference.py  --num_embeddings_per_feature "45833188,36746,17245,7413,20243,3,7114,1441,62,29275261,1572176,345138,10,2209,11267,128,4,974,14,48937457,11316796,40094537,452104,12606,104,35"
+mkdir model_store
+mv dlrm.mar model_store
+```
+
+Then we can start TorchServe with:
+
+```
+torchserve --start --model-store model_store --models dlrm=dlrm.mar
+```
+
+To query the model we can then run:
+
+```
+curl -H "Content-Type: application/json" --data @sample_data.json http://127.0.0.1:8080/predictions/dlrm
+```
+
+Out output should look like this:
+```
+{
+    "default": [
+        0.1051536425948143
+    ]
+}
 ```
