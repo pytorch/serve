@@ -37,7 +37,11 @@ TEST_CASES = [
     ("dlrm_bs_2.json", EXPECTED_RESULTS[1]),
 ]
 
-pytestmark = pytest.mark.skipif(not torch.cuda.is_available(), reason="tests only if CUDA is available")
+
+pytestmark = pytest.mark.skipif(
+    not torch.cuda.is_available(), reason="tests only if CUDA is available"
+)
+
 
 @pytest.fixture(scope="module")
 def work_dir(tmp_path_factory):
