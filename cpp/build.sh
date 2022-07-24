@@ -124,6 +124,22 @@ function install_folly() {
   echo "$FOLLY_BUILD_DIR/installed"
 }
 
+function install_kineto() {
+  KINETO_SRC_DIR=$BASE_DIR/third-party/kineto
+  #KINETO_BUILD_DIR=$DEPS_DIR/kineto-build
+
+  if [ ! -d "$KINETO_SRC_DIR" ] ; then
+    echo -e "${COLOR_GREEN}[ INFO ] Cloning kineto repo ${COLOR_OFF}"
+    git clone --recursive https://github.com/pytorch/kineto.git "$KINETO_SRC_DIR"
+    cd $KINETO_SRC_DIR/libkineto
+    mkdir build && cd build
+    cmake ..
+    make install
+  fi
+
+  cd "$BWD" || exit
+}
+
 function install_libtorch() {
   if [ ! -d "$DEPS_DIR/libtorch" ] ; then
     echo -e "libtorch XXXXXX"
@@ -251,5 +267,6 @@ mkdir -p "$DEPS_DIR"
 cd "$(dirname "$0")"
 
 install_folly
+install_kineto
 #install_libtorch
 build
