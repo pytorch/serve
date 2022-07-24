@@ -11,21 +11,8 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v2
-    - name: Dependencies
-      run: |
-        echo `python3 --version`
-        sudo apt-get install -y python-setuptools
-        python3 -m pip install --upgrade pip
-        python3 -m pip install -U sphinx
-        python3 -m pip install setuptools
-        python3 -m pip install torch
-        git clone https://github.com/pytorch/pytorch_sphinx_theme
-        python3 -m pip install -e pytorch_sphinx_theme
-        python3 -m pip install recommonmark
-        python3 -m pip install katex
-        python3 -m pip install sphinxcontrib.katex
-        python3 -m pip install sphinx_markdown_tables
-        python3 -m pip install torchserve torch-model-archiver torch-workflow-archiver
+    - name: Install Dependencies
+      run: pip install -r docs/sphinx/requirements.txt
     - name: Build the docset
       run: cd ./docs/sphinx ; export PATH=$PATH:$(python3 -m site --user-base)/bin/ ; make html
       id: build
