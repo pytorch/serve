@@ -12,7 +12,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
     - name: Install Dependencies
-      run: pip install -r docs/sphinx/requirements.txt
+      run: pip install -r ./docs/sphinx/requirements.txt
     - name: Build the docset
       run: cd ./docs/sphinx ; export PATH=$PATH:$(python3 -m site --user-base)/bin/ ; make html
       id: build
