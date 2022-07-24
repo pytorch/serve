@@ -12,7 +12,6 @@ set(TEST_BINARY ${CMAKE_PROJECT_NAME}_test)
 set(TS_TEST_SRC_DIR "${torchserve_cpp_SOURCE_DIR}/test/")
 file(GLOB_RECURSE TEST_SOURCES LIST_DIRECTORIES false *.cc *.hh)
 
-#add_executable(${TEST_BINARY} ${torchserve_cpp_SOURCE_DIR}/src/backends/torch_scripted/torch_scripted_backend_test.cc)
 add_executable(${TEST_BINARY} ${TEST_SOURCES})
 target_link_libraries(${TEST_BINARY} gtest_main ts_backends_torch_scripted ts_utils)
 

@@ -16,7 +16,7 @@ namespace torchserve {
     }
   }
 
-  template <typename T>
+  template <class T>
   std::shared_ptr<T>	DLLoader<T>::GetInstance() {
     using createClass = T *(*)();
 	  using deleteClass = void (*)(T *);
@@ -33,7 +33,7 @@ namespace torchserve {
       LOG(ERROR) << dlerror();
     }
 
-    return std::shared_ptr(
+    return std::shared_ptr<T>(
       create_func(),
       [delete_func](T* p) {
         delete_func(p);
