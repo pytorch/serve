@@ -5,10 +5,12 @@ on:
 jobs:
   build_docs_job:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: [3.8]
     steps:
+    - name: Setup Python 3.8
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
+        architecture: x64
     - name: Checkout
       uses: actions/checkout@v2
     - name: Install Dependencies
@@ -17,7 +19,9 @@ jobs:
         pip install -e pytorch_sphinx_theme
         pip install -r ./docs/sphinx/requirements.txt
     - name: Build the docset
-      run: cd ./docs/sphinx ; export PATH=$PATH:$(python3 -m site --user-base)/bin/ ; make html
+      run: |
+        cd ./docs/sphinxexport
+        make html
       id: build
     - name: Deploy
       uses: JamesIves/github-pages-deploy-action@releases/v3
