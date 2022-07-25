@@ -29,7 +29,6 @@ jobs:
         with:
           python-version: 3.8
           architecture: x64
-          cache: 'pip'
       - name: Setup Java 11
         uses: actions/setup-java@v2
         with:
