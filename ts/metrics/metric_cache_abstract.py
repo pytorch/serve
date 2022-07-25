@@ -14,6 +14,8 @@ from ts.metrics.dimension import Dimension
 
 class MetricCacheAbstract(metaclass=abc.ABCMeta):
     def __init__(self, file):
+        # FIXME should file parameter be optional? do i need to pass in
+        # FIXME request_ids, model_name like in metric store?
         """
         Constructor for MetricsCaching class
 
@@ -100,11 +102,4 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
                                                                        unit=unit,
                                                                        dimensions=dimensions,
                                                                        metric_type=metric_type)
-        logging.info("Successfully added metric.")
-
-    def emit_metrics_to_log(self):
-        """
-        Emit metrics to log statements.
-        """
-        for metric_key, metric in self.cache.items():
-            print(f"{metric}")
+        logging.info(f"Successfully added {metric_name} metric to cache.")

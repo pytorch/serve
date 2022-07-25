@@ -8,6 +8,7 @@ import logging
 import argparse
 
 from ts.metrics.metric_cache_abstract import MetricCacheAbstract
+from ts.service import emit_metrics
 
 
 class MetricsCacheYaml(MetricCacheAbstract):
@@ -47,8 +48,10 @@ class MetricsCacheYaml(MetricCacheAbstract):
             sys.exit(1)
         yml_dict = None
         try:
+            logging.debug(f"Reading in yaml file...")
             stream = open(self.file, "r", encoding="utf-8")
             yml_dict = yaml.safe_load(stream)
+            logging.info(f"Successfully loaded yaml file.")
         except yaml.YAMLError as exc:
             logging.error(f"Error parsing file: {exc}")
             sys.exit(1)
@@ -82,22 +85,22 @@ class MetricsCacheYaml(MetricCacheAbstract):
         logging.info(f"Successfully parsed {yaml_section} section of yaml file")
         return model_metrics_table
 
-    def _yaml_to_cache_util(self, model_metrics_table: dict) -> None:
+    def _yaml_to_cache_util(self, specific_metrics_table: dict) -> None:
         """
         Create Metric objects based off of the model_metrics yaml data and add to hash table
 
         Parameters
         ----------
-        model_metrics_table: dict
+        specific_metrics_table: dict
             Parsed portion of the yaml file
 
         """
-        if not isinstance(model_metrics_table, dict):
-            logging.error(f"model metrics is None and does not exist")
+        if not isinstance(specific_metrics_table, dict):
+            logging.error(f"metrics section is None and does not exist")
             sys.exit(1)
 
         logging.info("Creating Metric objects")
-        for metric_type, metric_attributes_list in model_metrics_table.items():
+        for metric_type, metric_attributes_list in specific_metrics_table.items():
             metric_name = None
             unit = None
             dimensions = None
@@ -108,22 +111,28 @@ class MetricsCacheYaml(MetricCacheAbstract):
                         metric_name = metric_name
                         unit = individual_metric_dict["unit"]
                         dimensions = individual_metric_dict["dimensions"]
-                        self.add_metric(metric_name=metric_name, unit=unit, dimensions=dimensions, metric_type=metric_type)
+                        self.add_metric(metric_name=metric_name,
+                                        unit=unit,
+                                        dimensions=dimensions,
+                                        metric_type=metric_type
+                                        )
+
                     except KeyError as err:
                         logging.error(f"Key not found: {err}")
                         sys.exit(1)
+        logging.info(f"Successfully created Metric objects.")
 
-        logging.info("Completed creating Metric objects")
-
-    def yaml_to_cache(self):
+    def parse_yaml_to_cache(self):
         """
         Parses specific portion of yaml file and creates Metrics objects and adds to the cache
         """
-        model_metrics_table = self._parse_specific_metric()
-        self._yaml_to_cache_util(model_metrics_table=model_metrics_table)
+        specific_metrics_table = self._parse_specific_metric()
+        self._yaml_to_cache_util(specific_metrics_table=specific_metrics_table)
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.DEBUG)
+
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--file",
@@ -134,5 +143,5 @@ if __name__ == "__main__":
     arguments = parser.parse_args()
 
     backend_cache_obj = MetricsCacheYaml(arguments.file)
-    backend_cache_obj.yaml_to_cache()
-    backend_cache_obj.emit_metrics_to_log()
+    backend_cache_obj.parse_yaml_to_cache()
+    emit_metrics(backend_cache_obj.cache)

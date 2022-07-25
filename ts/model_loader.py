@@ -11,6 +11,7 @@ from abc import ABCMeta, abstractmethod
 from builtins import str
 
 from ts.metrics.metrics_store import MetricsStore
+from ts.metrics.metric_cache_yaml import MetricsCacheYaml
 from ts.service import Service
 from .utils.util import list_classes_from_module
 
@@ -89,6 +90,8 @@ class TsModelLoader(ModelLoader):
         logging.debug("Loading model - working dir: %s", os.getcwd())
         # TODO: Request ID is not given. UUID is a temp UUID.
         metrics = MetricsStore(uuid.uuid4(), model_name)
+        # FIXME: how to get yaml file that is parsed as an arg passed into object
+        # metrics = MetricsCacheYaml(yaml_file=None)
         manifest_file = os.path.join(model_dir, "MAR-INF/MANIFEST.json")
         manifest = None
         if os.path.exists(manifest_file):

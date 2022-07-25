@@ -15,7 +15,7 @@ from ts.arg_parser import ArgParser
 from ts.model_loader import ModelLoaderFactory
 from ts.protocol.otf_message_handler import retrieve_msg, create_load_model_response
 from ts.service import emit_metrics
-
+from ts.metrics.metric_cache_yaml import MetricsCacheYaml
 MAX_FAILURE_THRESHOLD = 5
 SOCKET_ACCEPT_TIMEOUT = 30.0
 DEBUG = False
@@ -30,6 +30,10 @@ class TorchModelServiceWorker(object):
 
     def __init__(self, s_type=None, s_name=None, host_addr=None, port_num=None):
         self.sock_type = s_type
+
+        # TODO: add Metrics Cache object here
+        self.backend_cache = MetricsCacheYaml(None)
+
         if s_type == "unix":
             if s_name is None:
                 raise ValueError("Wrong arguments passed. No socket name given.")

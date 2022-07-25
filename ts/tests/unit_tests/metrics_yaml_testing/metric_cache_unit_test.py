@@ -238,6 +238,22 @@ class TestYamlCacheUtil:
         with pytest.raises(SystemExit):
             metrics_cache_obj._yaml_to_cache_util(model_metrics_table)
 
+    def test_yaml_to_cache_util_fail_empty_dimensions(self):
+        metrics_cache_obj = MetricsCacheYaml("metrics_empty_fields.yml")
+        model_metrics_table = metrics_cache_obj._parse_specific_metric()
+        with pytest.raises(TypeError):
+            metrics_cache_obj._yaml_to_cache_util(model_metrics_table)
+
+
+class TestYamlCache:
+    def test_yaml_to_cache_pass(self):
+        metrics_cache_obj = MetricsCacheYaml("metrics.yaml")
+        metrics_cache_obj.parse_yaml_to_cache()
+        assert ['counter-InferenceTimeInMS-model_name:host',
+                'counter-NumberOfMetrics-model_name:host',
+                'gauge-GaugeModelMetricNameExample-model_name:host',
+                'histogram-HistogramModelMetricNameExample-model_name:host'] == list(metrics_cache_obj.cache.keys())
+
 
 if __name__ == '__main__':
     pytest.main()
