@@ -30,27 +30,20 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: '11'
-          cache: 'gradle'
-      - uses: actions/setup-node@v3
+      - name: Setup NodeJS
+        uses: actions/setup-node@v3
         with:
           node-version: 16
-          cache: 'npm'
-      - name: Cache dependencies
-        id: cache-dependencies
-        uses: actions/cache@v3
-        with:
-          path: /
-          key: dependencies
+
       - name: Install dependencies
-        if: steps.cache-dependencies.outputs.cache-hit != 'true' 
-	run: |
-          python ts_scripts/install_dependencies.py --environment=dev
+        run: python ts_scripts/install_dependencies.py --environment=dev
+
       - name: Torchserve Sanity
-        run: | 
-          python torchserve_sanity.py
+        run: python torchserve_sanity.py
+
       - name: mvn install
         run: cd serving-sdk/ && mvn clean install -q && cd ../
-        
+
       # Any coverage.xml will be picked up by this step
       # Just make sure each coverage.xml is in a different folder
       - name: Upload codecov
@@ -59,5 +52,3 @@ jobs:
           curl -Os https://uploader.codecov.io/latest/linux/codecov
           chmod +x codecov
           ./codecov
-
-

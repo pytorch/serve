@@ -11,7 +11,7 @@ on:
 concurrency:
   group: ci-gpu-${{ github.workflow }}-${{ github.ref == 'refs/heads/master' && github.run_number || github.ref }}
   cancel-in-progress: true
-  
+
 jobs:
   ci-gpu:
     runs-on: [self-hosted, ci-gpu]
@@ -35,22 +35,17 @@ jobs:
           distribution: 'zulu'
           java-version: '11'
           cache: 'gradle'
-      - uses: actions/setup-node@v3
+      - name: Setup NodeJS
+        uses: actions/setup-node@v3
         with:
           node-version: 16
           cache: 'npm'
       - name: Checkout TorchServe
         uses: actions/checkout@v2
-      - name: Cache dependencies
-        id: cache-dependencies
-        uses: actions/cache@v3
-        with:
-          path: /
-          key: dependencies
+
       - name: Install dependencies
         if: steps.cache-dependencies.outputs.cache-hit != 'true'
-	run: |
-          python ts_scripts/install_dependencies.py --environment=dev --cuda=cu102
+        run: python ts_scripts/install_dependencies.py --environment=dev --cuda=cu102
       - name: Torchserve Sanity
         run: python torchserve_sanity.py
       - name: mvn install
@@ -63,4 +58,3 @@ jobs:
           curl -Os https://uploader.codecov.io/latest/linux/codecov
           chmod +x codecov
           ./codecov
-
