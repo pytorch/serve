@@ -20,7 +20,7 @@ jobs:
         pip install -r ./docs/sphinx/requirements.txt
     - name: Build the docset
       run: |
-        cd ./docs/sphinxexport
+        cd ./docs/sphinx
         make html
       id: build
     - name: Deploy
