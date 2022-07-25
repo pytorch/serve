@@ -44,42 +44,26 @@ def test_sanity():
 
     print("## Started sanity tests")
 
-    resnet18_model = {"name": "resnet-18", "inputs": ["examples/image_classifier/kitten.jpg"],
-                      "handler": "image_classifier"}
-
     bert_token_classification_no_torchscript_model = {"name": "bert_token_classification_no_torchscript",
          "inputs": ["examples/Huggingface_Transformers/Token_classification_artifacts/sample_text.txt"],
          "handler": "custom"}
 
-    bert_seqc_without_torchscript_model = {"name": "bert_seqc_without_torchscript",
-         "inputs": ["examples/Huggingface_Transformers/Seq_classification_artifacts/sample_text.txt"],
-         "handler": "custom"}
- 
     models_to_validate = [
-        {"name": "fastrcnn", "inputs": ["examples/object_detector/persons.jpg"], "handler": "object_detector"},
         {"name": "fcn_resnet_101",
          "inputs": ["docs/images/blank_image.jpg", "examples/image_segmenter/persons.jpg"],
          "handler": "image_segmenter"},
         {"name": "my_text_classifier_v4", "inputs": ["examples/text_classification/sample_text.txt"],
          "handler": "text_classification"},
         resnet18_model,
-        {"name": "my_text_classifier_scripted_v3", "inputs": ["examples/text_classification/sample_text.txt"],
-         "handler": "text_classification"},
         {"name": "alexnet_scripted", "inputs": ["examples/image_classifier/kitten.jpg"], "handler": "image_classifier"},
         {"name": "fcn_resnet_101_scripted", "inputs": ["examples/image_segmenter/persons.jpg"],
          "handler": "image_segmenter"},
         {"name": "distill_bert_qa_eager",
          "inputs": ["examples/Huggingface_Transformers/QA_artifacts/sample_text.txt"], "handler": "custom"},
-        {"name": "bert_token_classification_no_torchscript",
-         "inputs": ["examples/Huggingface_Transformers/Token_classification_artifacts/sample_text.txt"],
-         "handler": "custom"},
-        {"name": "bert_seqc_without_torchscript",
-         "inputs": ["examples/Huggingface_Transformers/Seq_classification_artifacts/sample_text.txt"],
-         "handler": "custom"}
     ]
 
     if(not sys.platform.startswith('win')):
-        models_to_validate.extend((bert_token_classification_no_torchscript_model, bert_seqc_without_torchscript_model))
+        models_to_validate.extend((bert_token_classification_no_torchscript_model))
 
     ts_log_file = os.path.join("logs", "ts_console.log")
     is_gpu_instance = utils.is_gpu_instance()

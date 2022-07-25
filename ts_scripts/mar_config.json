@@ -8,14 +8,6 @@
     "extra_files": "examples/object_detector/index_to_name.json"
   },
   {
-    "model_name": "alexnet",
-    "version": "1.0",
-    "model_file": "examples/image_classifier/alexnet/model.py",
-    "serialized_file_remote": "alexnet-owt-7be5be79.pth",
-    "handler": "image_classifier",
-    "extra_files": "examples/image_classifier/index_to_name.json"
-  },
-  {
     "model_name": "densenet161",
     "version": "1.0",
     "model_file": "examples/image_classifier/densenet_161/model.py",
@@ -63,14 +55,6 @@
     "extra_files": "examples/image_classifier/index_to_name.json"
   },
   {
-    "model_name": "deeplabv3_resnet_101_eager",
-    "version": "1.0",
-    "model_file": "examples/image_segmenter/deeplabv3/model.py",
-    "serialized_file_remote": "deeplabv3_resnet101_coco-586e9e4e.pth",
-    "handler": "image_segmenter",
-    "extra_files": "examples/image_segmenter/deeplabv3/deeplabv3.py,examples/image_segmenter/deeplabv3/intermediate_layer_getter.py,examples/image_segmenter/deeplabv3/fcn.py"
-  },
-  {
     "model_name": "fcn_resnet_101",
     "version": "1.0",
     "model_file": "examples/image_segmenter/fcn/model.py",
@@ -78,12 +62,4 @@
     "handler": "image_segmenter",
     "extra_files": "examples/image_segmenter/fcn/fcn.py,examples/image_segmenter/fcn/intermediate_layer_getter.py"
   },
-  {
-    "model_name": "maskrcnn",
-    "version": "1.0",
-    "model_file": "examples/object_detector/maskrcnn/model.py",
-    "serialized_file_remote": "maskrcnn_resnet50_fpn_coco-bf2d0c1e.pth",
-    "handler": "object_detector",
-    "extra_files": "examples/object_detector/index_to_name.json"
-  }
 ]

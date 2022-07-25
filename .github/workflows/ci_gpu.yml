@@ -36,6 +36,16 @@ jobs:
           java-version: '11'
       - name: Checkout TorchServe
         uses: actions/checkout@v2
+      - name: Cache dependencies
+        id: cache-dependencies
+        uses: actions/cache@v3
+        with:
+          path: .
+          key: dependencies
+      - name: Install dependencies
+        if: steps.cache-dependencies.outputs.cache-hit != 'true'
+        run: |
+          python ts_scripts/install_dependencies.py --environment=dev
       - name: Install dependencies
         run: |
           python ts_scripts/install_dependencies.py --environment=dev --cuda=cu102
