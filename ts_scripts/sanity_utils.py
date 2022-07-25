@@ -47,6 +47,9 @@ def test_sanity():
     bert_token_classification_no_torchscript_model = {"name": "bert_token_classification_no_torchscript",
          "inputs": ["examples/Huggingface_Transformers/Token_classification_artifacts/sample_text.txt"],
          "handler": "custom"}
+    
+    resnet18_model = {"name": "resnet-18", "inputs": ["examples/image_classifier/kitten.jpg"],
+                    "handler": "image_classifier"}
 
     models_to_validate = [
         {"name": "fcn_resnet_101",
@@ -63,7 +66,7 @@ def test_sanity():
     ]
 
     if(not sys.platform.startswith('win')):
-        models_to_validate.extend((bert_token_classification_no_torchscript_model))
+        models_to_validate.extend(bert_token_classification_no_torchscript_model∂)
 
     ts_log_file = os.path.join("logs", "ts_console.log")
     is_gpu_instance = utils.is_gpu_instance()
