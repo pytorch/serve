@@ -66,7 +66,7 @@ def test_sanity():
     ]
 
     if(not sys.platform.startswith('win')):
-        models_to_validate.extend(bert_token_classification_no_torchscript_model∂)
+        models_to_validate.extend(bert_token_classification_no_torchscript_model)
 
     ts_log_file = os.path.join("logs", "ts_console.log")
     is_gpu_instance = utils.is_gpu_instance()
