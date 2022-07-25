@@ -36,7 +36,7 @@ jobs:
         id: cache-dependencies
         uses: actions/cache@v3
         with:
-          path: .
+          path: /
           key: ${{ runner.os }}-dependencies
       - name: Install dependencies
         if: steps.cache-dependencies.outputs.cache-hit != 'true'

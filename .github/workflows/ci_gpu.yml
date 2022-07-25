@@ -40,7 +40,7 @@ jobs:
         id: cache-dependencies
         uses: actions/cache@v3
         with:
-          path: .
+          path: /
           key: dependencies
       - name: Install dependencies
         run: |
