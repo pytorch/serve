@@ -25,21 +25,18 @@ jobs:
         with:
           python-version: 3.8
           architecture: x64
+          cache: 'pip'
       - name: Setup Java 11
         uses: actions/setup-java@v2
         with:
           distribution: 'zulu'
           java-version: '11'
-      - name: Checkout TorchServe
-        uses: actions/checkout@v2
-      - name: Cache dependencies
-        id: cache-dependencies
-        uses: actions/cache@v3
+          cache: 'gradle'
+      - uses: actions/setup-node@v3
         with:
-          path: /
-          key: ${{ runner.os }}-dependencies
+          node-version: 16
+          cache: 'npm'
       - name: Install dependencies
-        if: steps.cache-dependencies.outputs.cache-hit != 'true'
         run: |
           python ts_scripts/install_dependencies.py --environment=dev
       - name: Torchserve Sanity
