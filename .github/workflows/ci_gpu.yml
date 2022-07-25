@@ -39,12 +39,10 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 16
-          cache: 'npm'
       - name: Checkout TorchServe
         uses: actions/checkout@v2
 
       - name: Install dependencies
-        if: steps.cache-dependencies.outputs.cache-hit != 'true'
         run: python ts_scripts/install_dependencies.py --environment=dev --cuda=cu102
       - name: Torchserve Sanity
         run: python torchserve_sanity.py
