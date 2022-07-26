@@ -61,5 +61,5 @@
     "serialized_file_remote": "fcn_resnet101_coco-7ecb50ca.pth",
     "handler": "image_segmenter",
     "extra_files": "examples/image_segmenter/fcn/fcn.py,examples/image_segmenter/fcn/intermediate_layer_getter.py"
-  },
+  }
 ]
