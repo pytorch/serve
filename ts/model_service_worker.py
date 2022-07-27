@@ -28,11 +28,12 @@ class TorchModelServiceWorker(object):
     Backend worker to handle Model Server's python service code
     """
 
-    def __init__(self, s_type=None, s_name=None, host_addr=None, port_num=None):
+    def __init__(self, s_type=None, s_name=None, host_addr=None, port_num=None,
+                 yaml_file="../tests/unit_tests/metrics_yaml_testing/metrics.yaml"):
         self.sock_type = s_type
 
-        # TODO: add Metrics Cache object here
-        self.backend_cache = MetricsCacheYaml(None)
+        # TODO: add Metrics Cache object here, (add file arg to Java side which will be pass to here)
+        self.metrics_cache_obj = MetricsCacheYaml(yaml_file)
 
         if s_type == "unix":
             if s_name is None:
@@ -113,6 +114,7 @@ class TorchModelServiceWorker(object):
                 batch_size,
                 envelope,
                 limit_max_image_pixels,
+                TorchModelServiceWorker.metrics_cache_obj  # FIXME: how to call pass metrics cache obj
             )
 
             logging.debug("Model %s loaded.", model_name)
@@ -154,7 +156,9 @@ class TorchModelServiceWorker(object):
                 and service.context is not None
                 and service.context.metrics is not None
             ):
+
                 emit_metrics(service.context.metrics.store)
+                # emit_metrics(list(service.context.metrics.cache.values()))
 
     def run_server(self):
         """

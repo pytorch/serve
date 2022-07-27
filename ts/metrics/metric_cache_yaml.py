@@ -9,6 +9,7 @@ import argparse
 
 from ts.metrics.metric_cache_abstract import MetricCacheAbstract
 from ts.service import emit_metrics
+from ts.metrics.dimension import Dimension
 
 
 class MetricsCacheYaml(MetricCacheAbstract):
@@ -43,6 +44,7 @@ class MetricsCacheYaml(MetricCacheAbstract):
         """
         Parse yaml file using PyYAML library.
         """
+        # TODO: look into standard doc convention for private methods in python
         if not self.file:
             logging.error("No yaml file detected.")
             sys.exit(1)
@@ -66,7 +68,7 @@ class MetricsCacheYaml(MetricCacheAbstract):
 
     def _parse_specific_metric(self, yaml_section="model_metrics") -> dict:
         """
-        Returns model_metrics portion of yaml file in a dict
+        Returns specified portion of yaml file in a dict
 
         Parameters
         ----------
@@ -78,12 +80,12 @@ class MetricsCacheYaml(MetricCacheAbstract):
 
         logging.debug(f"Parsing {yaml_section} section of yaml file...")
         try:
-            model_metrics_table = yaml_hash_table[yaml_section]
+            metrics_table = yaml_hash_table[yaml_section]
         except KeyError as err:
             logging.error(f"'{yaml_section}' key not found in yaml file - {err}")
             sys.exit(1)
         logging.info(f"Successfully parsed {yaml_section} section of yaml file")
-        return model_metrics_table
+        return metrics_table
 
     def _yaml_to_cache_util(self, specific_metrics_table: dict) -> None:
         """
@@ -99,6 +101,9 @@ class MetricsCacheYaml(MetricCacheAbstract):
             logging.error(f"metrics section is None and does not exist")
             sys.exit(1)
 
+        # get dimensions dictionary from yaml file
+        dimensions_dict = self._parse_specific_metric("dimensions")
+
         logging.info("Creating Metric objects")
         for metric_type, metric_attributes_list in specific_metrics_table.items():
             metric_name = None
@@ -108,9 +113,15 @@ class MetricsCacheYaml(MetricCacheAbstract):
             for metric_type_dict in metric_attributes_list:  # dict of all metrics specific to one metric type
                 for metric_name, individual_metric_dict in metric_type_dict.items():  # individual metric entries
                     try:
+                        dimensions = []
                         metric_name = metric_name
                         unit = individual_metric_dict["unit"]
-                        dimensions = individual_metric_dict["dimensions"]
+                        dimensions_list = individual_metric_dict["dimensions"]
+
+                        # Create dimensions objects and add to list to be passed to add_metric
+                        for dimension in dimensions_list:
+                            dimensions.append(Dimension(dimension, dimensions_dict[dimension]))
+
                         self.add_metric(metric_name=metric_name,
                                         unit=unit,
                                         dimensions=dimensions,
@@ -129,6 +140,57 @@ class MetricsCacheYaml(MetricCacheAbstract):
         specific_metrics_table = self._parse_specific_metric()
         self._yaml_to_cache_util(specific_metrics_table=specific_metrics_table)
 
+    def add_metric(self, metric_name: str, unit: str, dimensions: list, metric_type: str, value=0) -> None:
+        """
+        Create a new metric and add into cache
+
+            Using dimensions that are based on the yaml file specified
+
+        Parameters
+        ----------
+        metric_name: str
+            Name of metric
+        unit: str
+            unit can be one of ms, percent, count, MB, GB or a generic string
+        dimensions: list
+            list of dimension objects/strings read from yaml file
+        metric_type: str
+            Type of metric
+        value: int, float
+            value of metric
+        """
+
+        if not isinstance(dimensions, list) or not dimensions:
+            raise TypeError("Dimensions has to be a list of string (which will be converted to list of Dimensions)"
+                            "/list of Dimension objects and cannot be empty/None")
+
+        # if dimensions are list of strings, convert them to Dimension objects based on yaml file.
+        if isinstance(dimensions[0], str):
+            dimensions_list = dimensions
+            dimensions = []
+
+            try:
+                # get dimensions dictionary from yaml file
+                dimensions_dict = self._parse_specific_metric("dimensions")
+
+                # Create dimensions objects and add to list to be passed to add_metric
+                for dimension in dimensions_list:
+                    dimensions.append(Dimension(dimension, dimensions_dict[dimension]))
+            except Exception as err:
+                raise KeyError(f"Dimension not found: {err}")
+
+        elif isinstance(dimensions[0], Dimension):
+            pass
+        else:
+            raise TypeError(f"Dimensions have to either be a list of strings "
+                            f"(which will be converted to list of Dimension objects) or a list of Dimension objects.")
+
+        super().add_metric(metric_name=metric_name,
+                           unit=unit,
+                           dimensions=dimensions,
+                           metric_type=metric_type,
+                           value=value)
+
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
@@ -144,4 +206,4 @@ if __name__ == "__main__":
 
     backend_cache_obj = MetricsCacheYaml(arguments.file)
     backend_cache_obj.parse_yaml_to_cache()
-    emit_metrics(backend_cache_obj.cache)
+    emit_metrics(list(backend_cache_obj.cache.values()))

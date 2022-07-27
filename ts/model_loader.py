@@ -74,6 +74,7 @@ class TsModelLoader(ModelLoader):
         batch_size,
         envelope=None,
         limit_max_image_pixels=True,
+        metrics_cache_obj=None
     ):
         """
         Load TorchServe 1.0 model from file.
@@ -85,13 +86,12 @@ class TsModelLoader(ModelLoader):
         :param batch_size:
         :param envelope:
         :param limit_max_image_pixels:
+        :param metrics_cache_obj: Metrics Cache object
         :return:
         """
         logging.debug("Loading model - working dir: %s", os.getcwd())
         # TODO: Request ID is not given. UUID is a temp UUID.
-        metrics = MetricsStore(uuid.uuid4(), model_name)
-        # FIXME: how to get yaml file that is parsed as an arg passed into object
-        # metrics = MetricsCacheYaml(yaml_file=None)
+        # metrics = MetricsStore(uuid.uuid4(), model_name) TODO to delete
         manifest_file = os.path.join(model_dir, "MAR-INF/MANIFEST.json")
         manifest = None
         if os.path.exists(manifest_file):
@@ -150,7 +150,9 @@ class TsModelLoader(ModelLoader):
             batch_size,
             limit_max_image_pixels,
         )
-        service.context.metrics = metrics
+        # service.context.metrics = metrics
+        service.context.metrics = metrics_cache_obj
+
         initialize_fn(service.context)
 
         return service

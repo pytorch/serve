@@ -14,8 +14,7 @@ from ts.metrics.dimension import Dimension
 
 class MetricCacheAbstract(metaclass=abc.ABCMeta):
     def __init__(self, file):
-        # FIXME should file parameter be optional? do i need to pass in
-        # FIXME request_ids, model_name like in metric store?
+        # FIXME do i need to pass in request_ids, model_name like in metric store?
         """
         Constructor for MetricsCaching class
 
@@ -74,32 +73,54 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
         """
 
         if not isinstance(metric_name, str) or not isinstance(unit, str) or not isinstance(dimensions, list) or not \
-                isinstance(metric_type, str):
+                isinstance(metric_type, str) or not isinstance(value, (float, int)):
             raise TypeError(f"metric_name must be a str, unit must be a str, "
-                            f"dimensions must be a list of str, metric type must be a str")
+                            f"dimensions must be a list of Dimension objects, "
+                            f"metric type must be a str, value must be a int/float")
 
-        # transforming Dimensions list into list of Dimension objects if not already
-        if isinstance(dimensions[0], Dimension):  # this is ideal format
-            pass
-        # FIXME expecting even number of dimensions list - is this a correct assumption?
-        elif len(dimensions) % 2 == 0 and isinstance(dimensions[0], str):
-            temp_dimensions = []
-            for i in range(len(dimensions)):
-                if i % 2 == 0:
-                    temp_dimensions.append(Dimension(name=dimensions[i], value=dimensions[i + 1]))
-            dimensions = temp_dimensions
-        else:
-            raise ValueError(f"Dimensions list is expected to be an even number if the list of dimensions"
-                             f" is made up of strings.")
+        if not isinstance(dimensions[0], Dimension):
+            raise TypeError(f"Dimensions list is expected to be made up of Dimension objects.")
+
+        self._inspect_naming_convention(metric_name, unit, dimensions, metric_type, value)
 
         logging.debug(f"Adding metric with fields of: metric name - {metric_name}, unit - {unit}, "
                       f"dimensions - {dimensions}, metric type - {metric_type}")
 
         dims_str = "-".join([str(d) for d in dimensions])
-
         self.cache[f"{metric_type}-{metric_name}-{dims_str}"] = Metric(name=metric_name,
                                                                        value=value,
                                                                        unit=unit,
                                                                        dimensions=dimensions,
                                                                        metric_type=metric_type)
+
         logging.info(f"Successfully added {metric_name} metric to cache.")
+
+    @staticmethod
+    def _inspect_naming_convention(*metric_arg) -> None:
+        """
+        Inspect naming convention for each argument being used to create a Metric object.
+
+            Checking to ensure that certain symbols are not used in args so that Metric strings can be created without
+            ambiguity.
+
+        Parameters
+        ----------
+        metric_arg: str/list
+        """
+
+        def _check_individual_arg(delim, arg) -> None:
+            """
+            Checking an individual argument
+            """
+            if delim in str(arg):
+                logging.warning(f"There is a '-' symbol found in {arg} argument. "
+                                f"Please refrain from using the "
+                                f"'-' as it is used as the delimiter in the Metric object string.")
+
+        delimiter = "-"
+        for individual_metric_arg in metric_arg:
+            if isinstance(individual_metric_arg, list):  # list of Dimension objects
+                for dimension in individual_metric_arg:
+                    _check_individual_arg(delimiter, dimension.__str__())
+            else:  # should always be string type
+                _check_individual_arg(delimiter, individual_metric_arg)

@@ -20,7 +20,7 @@ model_metrics:
   counter:
     - InferenceTimeInMS:
         unit: ms
-        dimensions: [model_name, host]
+        dimensions: [fake_model, host]
     - NumberOfMetrics:
         unit: count
         dimensions: [model_name]
