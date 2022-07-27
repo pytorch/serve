@@ -39,7 +39,11 @@ jobs:
         run: |
           python torchserve_sanity.py
       - name: mvn install
-        run: cd serving-sdk/ && mvn clean install -q && cd ../
+        run: |
+            if [[ ${{ matrix.os }} = 'ubuntu-latest' ]]; then
+              source /etc/profile.d/maven.sh
+            fi;
+            cd serving-sdk/ && mvn clean install -q && cd ../
 
       # Any coverage.xml will be picked up by this step
       # Just make sure each coverage.xml is in a different folder

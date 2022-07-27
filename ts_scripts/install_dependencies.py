@@ -101,7 +101,22 @@ class Linux(Common):
         os.system(f"rm -rf libgit2-1.3.0 && rm libgit2-1.3.0.tar.gz")
 
     def install_maven(self):
-        os.system(f"{self.sudo_cmd}apt-get install -y maven")
+        # default maven version that comes with apt install is 3.6 which is incomaptible with jdk17
+        # https://askubuntu.com/questions/1367854/when-compiling-a-project-maven-throws-an-error
+        # therefore, we need to manually install maven version 3.8.6 that is compatible with 3.8.6
+        MAVEN_VERSION = "3.8.6"
+        MAVEN_CONFIG_FILE = "/etc/profile.d/maven.sh"
+        os.system(f"wget https://apache.org/dist/maven/maven-3/{MAVEN_VERSION}/binaries/apache-maven-{MAVEN_VERSION}-bin.tar.gz -P /tmp")
+        os.system(f"{self.sudo_cmd}tar xf /tmp/apache-maven-*.tar.gz -C /opt")
+        os.system(f"{self.sudo_cmd}rm /tmp/apache-maven-*-bin.tar.gz")
+        os.system(f"{self.sudo_cmd}ln -s /opt/apache-maven-{MAVEN_VERSION} /opt/maven")
+        with open("maven.sh", "w") as file:
+            file.write("export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64\n")
+            file.write("export M2_HOME=/opt/maven\n")
+            file.write("export MAVEN_HOME=/opt/maven\n")
+            file.write("export PATH=${M2_HOME}/bin:${PATH}")
+        os.system(f"{self.sudo_cmd}mv maven.sh {MAVEN_CONFIG_FILE}")
+        os.system(f"{self.sudo_cmd}chmod +x {MAVEN_CONFIG_FILE}")
 
 
 class Windows(Common):
