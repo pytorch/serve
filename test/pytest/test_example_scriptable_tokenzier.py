@@ -38,7 +38,7 @@ def model():
     from torchtext.models.roberta.bundler import (
         _TEXT_BUCKET,
         RobertaEncoderConf,
-        RobertaModelBundle,
+        RobertaBundle,
         T,
         load_state_dict_from_url,
         urljoin,
@@ -46,7 +46,7 @@ def model():
 
     torch.manual_seed(42)
 
-    XLMR_BASE_ENCODER = RobertaModelBundle(
+    XLMR_BASE_ENCODER = RobertaBundle(
         _path=urljoin(_TEXT_BUCKET, "xlmr.base.encoder.pt"),
         _encoder_conf=RobertaEncoderConf(vocab_size=250002, num_encoder_layers=1),
         transform=lambda: T.Sequential(
