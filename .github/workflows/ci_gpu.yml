@@ -43,10 +43,7 @@ jobs:
         run: python torchserve_sanity.py
       - name: mvn install
         run: |
-            if [[ ${{ matrix.os }} = 'ubuntu-latest' ]]; then
-              echo "sourcing maven config file"
-              source /etc/profile.d/maven.sh
-            fi;
+            source /etc/profile.d/maven.sh
             cd serving-sdk/ && mvn clean install -q && cd ../
 
       # Any coverage.xml will be picked up by this step
