@@ -41,6 +41,7 @@ jobs:
       - name: mvn install
         run: |
             if [[ ${{ matrix.os }} = 'ubuntu-latest' ]]; then
+              echo "sourcing maven config file"
               source /etc/profile.d/maven.sh
             fi;
             cd serving-sdk/ && mvn clean install -q && cd ../
