@@ -90,10 +90,11 @@ if __name__ == "__main__":
 
         model = TorchserveModel(model_name, inference_address,
                                 management_address, model_dir)
+        model.load()
         models.append(model)
+    registeredModels = TSModelRepository(inference_address, management_address, model_dir)
     ModelServer(
-        registered_models=TSModelRepository(inference_address,
-                                            management_address, model_dir),
+        registered_models=registeredModels,
         http_port=8080,
         grpc_port=7070,
     ).start(models)

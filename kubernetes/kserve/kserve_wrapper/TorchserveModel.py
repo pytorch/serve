@@ -3,9 +3,11 @@
 import json
 from typing import Dict
 import logging
+import pathlib
 from importlib.metadata import version
 import kserve
 import tornado.web
+from kserve.model import ModelMissingError, InferenceError
 
 if version('kserve') >= '0.8.0':
     from kserve.model import Model as Model
@@ -121,3 +123,16 @@ class TorchserveModel(Model):
         if response.code != 200:
             raise tornado.web.HTTPError(status_code=response.code, reason=response.body)
         return json.loads(response.body)
+
+    def load(self) -> bool:
+        # model_path = pathlib.Path(kserve.Storage.download(self.model_dir))
+        model_path = '/home/ubuntu/models/model-store'
+        paths = list(pathlib.Path(model_path).glob('*.mar'))
+        existing_paths = [path for path in paths if path.exists()]
+        if len(existing_paths) == 0:
+            raise ModelMissingError(model_path)
+        elif len(existing_paths) > 1:
+            raise RuntimeError('More than one model file is detected, '
+                               f'Only one is allowed within model_dir: {existing_paths}')
+        self.ready = True
+        return self.ready
