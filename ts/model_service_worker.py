@@ -15,7 +15,7 @@ from ts.arg_parser import ArgParser
 from ts.model_loader import ModelLoaderFactory
 from ts.protocol.otf_message_handler import retrieve_msg, create_load_model_response
 from ts.service import emit_metrics
-from ts.metrics.metric_cache_yaml import MetricsCacheYaml
+
 MAX_FAILURE_THRESHOLD = 5
 SOCKET_ACCEPT_TIMEOUT = 30.0
 DEBUG = False
@@ -28,12 +28,8 @@ class TorchModelServiceWorker(object):
     Backend worker to handle Model Server's python service code
     """
 
-    def __init__(self, s_type=None, s_name=None, host_addr=None, port_num=None,
-                 yaml_file="../tests/unit_tests/metrics_yaml_testing/metrics.yaml"):
+    def __init__(self, s_type=None, s_name=None, host_addr=None, port_num=None):
         self.sock_type = s_type
-
-        # TODO: add Metrics Cache object here, (add file arg to Java side which will be pass to here)
-        self.metrics_cache_obj = MetricsCacheYaml(yaml_file)
 
         if s_type == "unix":
             if s_name is None:
@@ -113,8 +109,7 @@ class TorchModelServiceWorker(object):
                 gpu,
                 batch_size,
                 envelope,
-                limit_max_image_pixels,
-                TorchModelServiceWorker.metrics_cache_obj  # FIXME: how to call pass metrics cache obj
+                limit_max_image_pixels
             )
 
             logging.debug("Model %s loaded.", model_name)

@@ -74,7 +74,6 @@ class TsModelLoader(ModelLoader):
         batch_size,
         envelope=None,
         limit_max_image_pixels=True,
-        metrics_cache_obj=None
     ):
         """
         Load TorchServe 1.0 model from file.
@@ -92,6 +91,9 @@ class TsModelLoader(ModelLoader):
         logging.debug("Loading model - working dir: %s", os.getcwd())
         # TODO: Request ID is not given. UUID is a temp UUID.
         # metrics = MetricsStore(uuid.uuid4(), model_name) TODO to delete
+        # for now hard code yaml file path
+        metrics = MetricsCacheYaml(yaml_file="../ts/tests/unit_tests/metrics_yaml_testing/metrics.yaml")
+
         manifest_file = os.path.join(model_dir, "MAR-INF/MANIFEST.json")
         manifest = None
         if os.path.exists(manifest_file):
@@ -150,8 +152,7 @@ class TsModelLoader(ModelLoader):
             batch_size,
             limit_max_image_pixels,
         )
-        # service.context.metrics = metrics
-        service.context.metrics = metrics_cache_obj
+        service.context.metrics = metrics
 
         initialize_fn(service.context)
 

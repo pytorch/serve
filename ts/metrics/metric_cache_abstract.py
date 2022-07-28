@@ -7,6 +7,7 @@ Currently, abstract class has the methods for getting a metric and adding a metr
 import abc
 import sys
 import logging
+import ts.metrics.metric_cache_errors as merrors
 
 from ts.metrics.metric import Metric
 from ts.metrics.dimension import Dimension
@@ -14,7 +15,6 @@ from ts.metrics.dimension import Dimension
 
 class MetricCacheAbstract(metaclass=abc.ABCMeta):
     def __init__(self, file):
-        # FIXME do i need to pass in request_ids, model_name like in metric store?
         """
         Constructor for MetricsCaching class
 
@@ -41,17 +41,15 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
 
         """
         if not isinstance(metric_key, str):
-            logging.error(f"Only string types are acceptable as argument.")
-            sys.exit(1)
+            raise merrors.MetricsCacheTypeError(f"Only string types are acceptable as argument.")
 
         logging.info(f"Getting metric {metric_key}")
         metric_obj = self.cache.get(metric_key)
         if metric_obj:
-            logging.info("Successfully received metric")
+            logging.debug("Successfully received metric")
             return metric_obj
         else:
-            logging.info("Metric does not exist.")
-            sys.exit(1)
+            raise merrors.MetricsCacheKeyError(f"Metric key {metric_key} does not exist.")
 
     def add_metric(self, metric_name: str, unit: str, dimensions: list, metric_type: str, value=0) -> None:
         """
@@ -74,24 +72,24 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
 
         if not isinstance(metric_name, str) or not isinstance(unit, str) or not isinstance(dimensions, list) or not \
                 isinstance(metric_type, str) or not isinstance(value, (float, int)):
-            raise TypeError(f"metric_name must be a str, unit must be a str, "
-                            f"dimensions must be a list of Dimension objects, "
-                            f"metric type must be a str, value must be a int/float")
+            raise merrors.MetricsCacheTypeError(f"metric_name must be a str, unit must be a str, "
+                                                f"dimensions must be a list of Dimension objects, "
+                                                f"metric type must be a str, value must be a int/float")
 
         if not isinstance(dimensions[0], Dimension):
-            raise TypeError(f"Dimensions list is expected to be made up of Dimension objects.")
+            raise merrors.MetricsCacheTypeError(f"Dimensions list is expected to be made up of Dimension objects.")
 
         self._inspect_naming_convention(metric_name, unit, dimensions, metric_type, value)
 
         logging.debug(f"Adding metric with fields of: metric name - {metric_name}, unit - {unit}, "
                       f"dimensions - {dimensions}, metric type - {metric_type}")
 
-        dims_str = "-".join([str(d) for d in dimensions])
-        self.cache[f"{metric_type}-{metric_name}-{dims_str}"] = Metric(name=metric_name,
-                                                                       value=value,
-                                                                       unit=unit,
-                                                                       dimensions=dimensions,
-                                                                       metric_type=metric_type)
+        dims_str = ",".join([str(d) for d in dimensions])
+        self.cache[f"[{metric_type}]-[{metric_name}]-[{dims_str}]"] = Metric(name=metric_name,
+                                                                             value=value,
+                                                                             unit=unit,
+                                                                             dimensions=dimensions,
+                                                                             metric_type=metric_type)
 
         logging.info(f"Successfully added {metric_name} metric to cache.")
 

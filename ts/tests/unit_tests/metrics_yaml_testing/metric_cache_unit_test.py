@@ -1,9 +1,9 @@
 """
 Unit testing for MetricsCacheYaml class and yaml parsing.
 """
-import sys
-
 import pytest
+import ts.metrics.metric_cache_errors as merrors
+
 from ts.metrics.dimension import Dimension
 from ts.metrics.metric_cache_yaml import MetricsCacheYaml
 
@@ -17,7 +17,7 @@ class TestAddMetrics:
                                      dimensions=["model_name", "host"],
                                      metric_type="type")
 
-        assert "type-new_metric-model_name:example_model_name-host:example_host_name" in metrics_cache_obj.cache
+        assert "[type]-[new_metric]-[model_name:example_model_name,host:example_host_name]" in metrics_cache_obj.cache
 
     def test_add_metric_duplicate_passing(self):
         metrics_cache_obj = MetricsCacheYaml("metrics.yaml")
@@ -26,10 +26,10 @@ class TestAddMetrics:
                                      dimensions=["model_name", "host"],
                                      metric_type="type")
 
-        assert "type-new_metric-model_name:example_model_name-host:example_host_name" in metrics_cache_obj.cache
+        assert "[type]-[new_metric]-[model_name:example_model_name,host:example_host_name]" in metrics_cache_obj.cache
 
-        metric = metrics_cache_obj.get_metric("type-new_metric-model_name:example_"
-                                              "model_name-host:example_host_name")
+        metric = metrics_cache_obj.get_metric("[type]-[new_metric]-[model_name:example_"
+                                              "model_name,host:example_host_name]")
         assert metric.value == 0
 
         metrics_cache_obj.add_metric(metric_name="new_metric",
@@ -38,8 +38,8 @@ class TestAddMetrics:
                                      metric_type="type",
                                      value=42.5)
 
-        metric = metrics_cache_obj.get_metric("type-new_metric-model_name:example_"
-                                              "model_name-host:example_host_name")
+        metric = metrics_cache_obj.get_metric("[type]-[new_metric]-[model_name:example_"
+                                              "model_name,host:example_host_name]")
         assert metric.value == 42.5
 
     def test_add_metric_dimensions_correct_obj_pass(self):
@@ -57,7 +57,7 @@ class TestAddMetrics:
     def test_add_metric_dimensions_correct_obj_fail(self):
         metrics_cache_obj = MetricsCacheYaml("metrics.yaml")
 
-        with pytest.raises(TypeError) as exc_info:
+        with pytest.raises(merrors.MetricsCacheTypeError) as exc_info:
             metrics_cache_obj.add_metric(metric_name="new_metric",
                                          unit="ms",
                                          dimensions=Dimension("hello", "world"),
@@ -68,7 +68,7 @@ class TestAddMetrics:
 
     def test_add_metric_fail_metric_name(self):
         metrics_cache_obj = MetricsCacheYaml("metrics.yaml")
-        with pytest.raises(TypeError) as exc_info:
+        with pytest.raises(merrors.MetricsCacheTypeError) as exc_info:
             metrics_cache_obj.add_metric(metric_name=42,
                                          unit="ms",
                                          dimensions=["model_name", "host"],
@@ -80,7 +80,7 @@ class TestAddMetrics:
 
     def test_add_metric_fail_unit(self):
         metrics_cache_obj = MetricsCacheYaml("metrics.yaml")
-        with pytest.raises(TypeError) as exc_info:
+        with pytest.raises(merrors.MetricsCacheTypeError) as exc_info:
             metrics_cache_obj.add_metric(metric_name="bar",
                                          unit=["foo"],
                                          dimensions=["model_name", "host"],
@@ -92,7 +92,7 @@ class TestAddMetrics:
 
     def test_add_metric_fail_dimensions(self):
         metrics_cache_obj = MetricsCacheYaml("metrics.yaml")
-        with pytest.raises(TypeError) as exc_info:
+        with pytest.raises(merrors.MetricsCacheTypeError) as exc_info:
             metrics_cache_obj.add_metric(metric_name="bar",
                                          unit="ms",
                                          dimensions="sink",
@@ -103,7 +103,7 @@ class TestAddMetrics:
 
     def test_add_metric_fail_dimensions_none(self):
         metrics_cache_obj = MetricsCacheYaml("metrics.yaml")
-        with pytest.raises(TypeError) as exc_info:
+        with pytest.raises(merrors.MetricsCacheTypeError) as exc_info:
             metrics_cache_obj.add_metric(metric_name="bar",
                                          unit="ms",
                                          dimensions=None,
@@ -114,7 +114,7 @@ class TestAddMetrics:
 
     def test_add_metric_fail_type(self):
         metrics_cache_obj = MetricsCacheYaml("metrics.yaml")
-        with pytest.raises(TypeError) as exc_info:
+        with pytest.raises(merrors.MetricsCacheTypeError) as exc_info:
             metrics_cache_obj.add_metric(metric_name="bar",
                                          unit="ms",
                                          dimensions=["model_name", "host"],
@@ -126,7 +126,7 @@ class TestAddMetrics:
 
     def test_add_metric_fail_type_unit(self):
         metrics_cache_obj = MetricsCacheYaml("metrics.yaml")
-        with pytest.raises(TypeError) as exc_info:
+        with pytest.raises(merrors.MetricsCacheTypeError) as exc_info:
             metrics_cache_obj.add_metric(metric_name="bar",
                                          unit=["ms"],
                                          dimensions=["model_name", "host"],
@@ -146,8 +146,8 @@ class TestGetMetrics:
                                      dimensions=["model_name", "host"],
                                      metric_type="type")
 
-        temp_metrics = metrics_cache_obj.get_metric("type-new_metric-model_name:"
-                                                    "example_model_name-host:example_host_name")
+        temp_metrics = metrics_cache_obj.get_metric("[type]-[new_metric]-[model_name:"
+                                                    "example_model_name,host:example_host_name]")
         assert "new_metric" == temp_metrics.name
         assert isinstance(temp_metrics.dimensions, list)
         assert "Milliseconds" == temp_metrics.unit
@@ -160,13 +160,17 @@ class TestGetMetrics:
                                      dimensions=["model_name", "host"],
                                      metric_type="type")
 
-        with pytest.raises(SystemExit):
-            metrics_cache_obj.get_metric("type-new_metric-dim1:dim3")
+        with pytest.raises(merrors.MetricsCacheKeyError) as exc_info:
+            metrics_cache_obj.get_metric("[type]-[new_metric]-[dim1:dim3]")
+
+        assert str(exc_info.value) == "'Metric key [type]-[new_metric]-[dim1:dim3] does not exist.'"
 
     def test_get_metric_fail_invalid_type(self):
         metrics_cache_obj = MetricsCacheYaml("metrics.yaml")
-        with pytest.raises(SystemExit):
+        with pytest.raises(merrors.MetricsCacheTypeError) as exc_info:
             metrics_cache_obj.get_metric(["type-new_metric-dim1:dim3"])
+
+        assert str(exc_info.value) == "Only string types are acceptable as argument."
 
 
 class TestParseYaml:
@@ -202,24 +206,28 @@ class TestParseYaml:
         assert "metrics.yaml" == metrics_cache_obj.file
 
     def test_yaml_file_none_fail(self):
-        with pytest.raises(TypeError) as exc_info:
+        with pytest.raises(merrors.MetricsCacheTypeError) as exc_info:
             MetricsCacheYaml(None)
         assert str(exc_info.value) == "File passed must be a valid string path that exists."
 
     def test_yaml_file_non_yaml_extension_fail(self):
-        with pytest.raises(TypeError) as exc_info:
+        with pytest.raises(merrors.MetricsCacheTypeError) as exc_info:
             MetricsCacheYaml("metric_cache_unit_test.py")
         assert str(exc_info.value) == "Inputted file does not have a valid yaml file extension."
 
     def test_yaml_file_non_exist_fail(self):
-        with pytest.raises(TypeError) as exc_info:
+        with pytest.raises(merrors.MetricsCacheTypeError) as exc_info:
             MetricsCacheYaml("doesnt_exist.yaml")
         assert str(exc_info.value) == "File passed must be a valid string path that exists."
 
     def test_parse_yaml_errors(self):
         metrics_cache_obj = MetricsCacheYaml("metric_errors.yaml")
-        with pytest.raises(SystemExit):
+        with pytest.raises(merrors.MetricsCachePyYamlError) as exc_info:
             metrics_cache_obj._parse_yaml_file()
+        assert str(exc_info.value) == 'Error parsing file: Error parsing file: while parsing a block mapping\n ' \
+                                      ' in "metric_errors.yaml", line 1, column 1\n' \
+                                      "expected <block end>, but found '<block mapping start>'\n" \
+                                      '  in "metric_errors.yaml", line 51, column 3'
 
 
 class TestParseModelMetrics:
@@ -233,13 +241,17 @@ class TestParseModelMetrics:
 
     def test_fail_parse_model_metrics(self):
         metrics_cache_obj = MetricsCacheYaml("metrics_wo_model_metrics.yaml")
-        with pytest.raises(SystemExit):
+        with pytest.raises(merrors.MetricsCacheKeyError) as exc_info:
             metrics_cache_obj._parse_specific_metric()
+        assert str(exc_info) == '<ExceptionInfo MetricsCacheKeyError("\'model_metrics\' key not found in yaml ' \
+                                'file - \'model_metrics\'") tblen=2>'
 
     def test_fail_parse_none(self):
         metrics_cache_obj = MetricsCacheYaml("metrics_wo_model_metrics.yaml")
-        with pytest.raises(SystemExit):
+        with pytest.raises(merrors.MetricsCacheKeyError) as exc_info:
             metrics_cache_obj._parse_specific_metric(None)
+        assert str(exc_info) == '<ExceptionInfo MetricsCacheKeyError("\'None\' key not found in yaml file - ' \
+                                'None") tblen=2>'
 
     def test_fail_parse_missing_fields(self):
         metrics_cache_obj = MetricsCacheYaml("metrics_model_empty.yaml")
@@ -251,44 +263,52 @@ class TestYamlCacheUtil:
         metrics_cache_obj = MetricsCacheYaml("metrics.yaml")
         model_metrics_table = metrics_cache_obj._parse_specific_metric()
         metrics_cache_obj._yaml_to_cache_util(model_metrics_table)
-        assert ['counter-InferenceTimeInMS-model_name:example_model_name-host:example_host_name',
-                'counter-NumberOfMetrics-model_name:example_model_name',
-                'gauge-GaugeModelMetricNameExample-model_name:example_model_name-host:example_host_name',
-                'histogram-HistogramModelMetricNameExample-model_name:example_model_name-host:example_host_name'] \
+        assert ['[counter]-[InferenceTimeInMS]-[model_name:example_model_name,host:example_host_name]',
+                '[counter]-[NumberOfMetrics]-[model_name:example_model_name]',
+                '[gauge]-[GaugeModelMetricNameExample]-[model_name:example_model_name,host:example_host_name]',
+                '[histogram]-[HistogramModelMetricNameExample]-[model_name:example_model_name,host:example_host_name]']\
                == list(metrics_cache_obj.cache.keys())
 
     def test_yaml_to_cache_util_fail_missing_fields(self):
         metrics_cache_obj = MetricsCacheYaml("metrics_missing_types.yaml")
         model_metrics_table = metrics_cache_obj._parse_specific_metric()
-        with pytest.raises(SystemExit):
+        with pytest.raises(merrors.MetricsCacheKeyError) as exc_info:
             metrics_cache_obj._yaml_to_cache_util(model_metrics_table)
+        assert str(exc_info) == '<ExceptionInfo MetricsCacheKeyError("Key not found: \'unit\'") tblen=2>'
 
     def test_yaml_to_cache_util_fail_none(self):
         metrics_cache_obj = MetricsCacheYaml("metrics_missing_types.yaml")
-        with pytest.raises(SystemExit):
+        with pytest.raises(merrors.MetricsCacheTypeError) as exc_info:
             metrics_cache_obj._yaml_to_cache_util(None)
+        assert str(exc_info) == "<ExceptionInfo MetricsCacheTypeError('metrics section is None and does not " \
+            "exist') tblen=2>"
 
     def test_yaml_to_cache_util_fail_empty_section(self):
         metrics_cache_obj = MetricsCacheYaml("metrics_model_empty.yaml")
         model_metrics_table = metrics_cache_obj._parse_specific_metric()
-        with pytest.raises(SystemExit):
+        with pytest.raises(merrors.MetricsCacheTypeError) as exc_info:
             metrics_cache_obj._yaml_to_cache_util(model_metrics_table)
+        assert str(exc_info) == "<ExceptionInfo MetricsCacheTypeError('metrics section is None and does not " \
+            "exist') tblen=2>"
 
     def test_yaml_to_cache_util_fail_empty_dimensions(self):
         metrics_cache_obj = MetricsCacheYaml("metrics_empty_fields.yml")
         model_metrics_table = metrics_cache_obj._parse_specific_metric()
-        with pytest.raises(TypeError):
+        with pytest.raises(merrors.MetricsCacheTypeError) as exc_info:
             metrics_cache_obj._yaml_to_cache_util(model_metrics_table)
+        assert str(exc_info) == '<ExceptionInfo MetricsCacheTypeError("Dimension list cannot be empty: ' \
+ '\'NoneType\' object is not iterable") tblen=2>'
 
 
 class TestYamlCache:
     def test_yaml_to_cache_pass(self):
         metrics_cache_obj = MetricsCacheYaml("metrics.yaml")
         metrics_cache_obj.parse_yaml_to_cache()
-        assert ['counter-InferenceTimeInMS-model_name:example_model_name-host:example_host_name',
-                'counter-NumberOfMetrics-model_name:example_model_name',
-                'gauge-GaugeModelMetricNameExample-model_name:example_model_name-host:example_host_name',
-                'histogram-HistogramModelMetricNameExample-model_name:example_model_name-host:example_host_name'] == list(
+        assert ['[counter]-[InferenceTimeInMS]-[model_name:example_model_name,host:example_host_name]',
+                '[counter]-[NumberOfMetrics]-[model_name:example_model_name]',
+                '[gauge]-[GaugeModelMetricNameExample]-[model_name:example_model_name,host:example_host_name]',
+                '[histogram]-[HistogramModelMetricNameExample]-[model_name:example_model_name,host:example_host_name]']\
+               == list(
             metrics_cache_obj.cache.keys())
 
 
@@ -296,25 +316,25 @@ class TestManualAddMetricDimensions:
     def test_dimensions_metric_add_dimensions_custom_pass(self):
         metrics_cache_obj = MetricsCacheYaml("metrics.yaml")
         metrics_cache_obj.add_metric("TempName", "count", [Dimension("MyDim", "MyDimValue")], "counter", 13.3)
-        assert list(metrics_cache_obj.cache.keys()) == ["counter-TempName-MyDim:MyDimValue"]
+        assert list(metrics_cache_obj.cache.keys()) == ["[counter]-[TempName]-[MyDim:MyDimValue]"]
 
     def test_dimensions_metric_add_dimensions_yaml_pass(self):
         metrics_cache_obj = MetricsCacheYaml("metrics.yaml")
         metrics_cache_obj.add_metric("TempName", "count", ["model_name"], "counter", 13.3)
-        assert list(metrics_cache_obj.cache.keys()) == ["counter-TempName-model_name:example_model_name"]
+        assert list(metrics_cache_obj.cache.keys()) == ["[counter]-[TempName]-[model_name:example_model_name]"]
 
     def test_dimensions_metric_add_dimensions_and_yaml_pass(self):
         metrics_cache_obj = MetricsCacheYaml("metrics.yaml")
         metrics_cache_obj.add_metric("TempName", "count", ["model_name"], "counter", 13.3)
         metrics_cache_obj.parse_yaml_to_cache()
-        assert list(metrics_cache_obj.cache.keys()) == ['counter-TempName-model_name:example_model_name',
-                                                        'counter-InferenceTimeInMS-model_name:'
-                                                        'example_model_name-host:example_host_name',
-                                                        'counter-NumberOfMetrics-model_name:example_model_name',
-                                                        'gauge-GaugeModelMetricNameExample-model_name:example_'
-                                                        'model_name-host:example_host_name',
-                                                        'histogram-HistogramModelMetricNameExample-'
-                                                        'model_name:example_model_name-host:example_host_name']
+        assert list(metrics_cache_obj.cache.keys()) == ['[counter]-[TempName]-[model_name:example_model_name]',
+                                                        '[counter]-[InferenceTimeInMS]-[model_name:'
+                                                        'example_model_name,host:example_host_name]',
+                                                        '[counter]-[NumberOfMetrics]-[model_name:example_model_name]',
+                                                        '[gauge]-[GaugeModelMetricNameExample]-[model_name:example_'
+                                                        'model_name,host:example_host_name]',
+                                                        '[histogram]-[HistogramModelMetricNameExample]-'
+                                                        '[model_name:example_model_name,host:example_host_name]']
 
     def test_dimensions_metric_add_dimensions_yaml_nonexistent(self):
         metrics_cache_obj = MetricsCacheYaml("metrics.yaml")
@@ -324,14 +344,15 @@ class TestManualAddMetricDimensions:
 
     def test_dimensions_metric_dimension_not_present(self):
         metrics_cache_obj = MetricsCacheYaml("metrics_mismatching_dims.yaml")
-        with pytest.raises(SystemExit):
+        with pytest.raises(merrors.MetricsCacheKeyError) as exc_info:
             metrics_cache_obj.parse_yaml_to_cache()
+        assert str(exc_info.value) == '"Key not found: \'fake_model\'"'
 
     def test_dimensions_metric_dimension_warning_name_naming_convention(self, caplog):
         metrics_cache_obj = MetricsCacheYaml("metrics_mismatching_dims.yaml")
         metrics_cache_obj.add_metric("Temp-Name", "count", ["model_name"], "counter", 13.3)
 
-        assert "WARNING  root:metric_cache_abstract.py:116 There is a '-' symbol found in Temp-Name argument. " \
+        assert "WARNING  root:metric_cache_abstract.py:114 There is a '-' symbol found in Temp-Name argument. " \
                "Please refrain from using the '-' as it is used as the delimiter in the Metric object string.\n" \
                == caplog.text
 
@@ -339,7 +360,7 @@ class TestManualAddMetricDimensions:
         metrics_cache_obj = MetricsCacheYaml("metrics_mismatching_dims.yaml")
         metrics_cache_obj.add_metric("TempName", "count-unit", ["model_name"], "counter", 13.3)
 
-        assert "WARNING  root:metric_cache_abstract.py:116 There is a '-' symbol found in count-unit argument. " \
+        assert "WARNING  root:metric_cache_abstract.py:114 There is a '-' symbol found in count-unit argument. " \
                "Please refrain from using the '-' as it is used as the delimiter in the Metric object string.\n" \
                == caplog.text
 
@@ -347,7 +368,7 @@ class TestManualAddMetricDimensions:
         metrics_cache_obj = MetricsCacheYaml("metrics_mismatching_dims.yaml")
         metrics_cache_obj.add_metric("TempName", "count", [Dimension("hello-world", "foo")], "counter", 13.3)
 
-        assert "WARNING  root:metric_cache_abstract.py:116 There is a '-' symbol found in hello-world:foo argument. " \
+        assert "WARNING  root:metric_cache_abstract.py:114 There is a '-' symbol found in hello-world:foo argument. " \
                "Please refrain from using the '-' as it is used as the delimiter in the Metric object string.\n" \
                == caplog.text
 
@@ -355,7 +376,7 @@ class TestManualAddMetricDimensions:
         metrics_cache_obj = MetricsCacheYaml("metrics_mismatching_dims.yaml")
         metrics_cache_obj.add_metric("TempName", "count", [Dimension("helloworld", "foo-bar")], "counter", 13.3)
 
-        assert "WARNING  root:metric_cache_abstract.py:116 There is a '-' symbol found in helloworld:foo-bar argument. " \
+        assert "WARNING  root:metric_cache_abstract.py:114 There is a '-' symbol found in helloworld:foo-bar argument. " \
                "Please refrain from using the '-' as it is used as the delimiter in the Metric object string.\n" \
                == caplog.text
 
@@ -363,7 +384,7 @@ class TestManualAddMetricDimensions:
         metrics_cache_obj = MetricsCacheYaml("metrics_mismatching_dims.yaml")
         metrics_cache_obj.add_metric("TempName", "count", [Dimension("helloworld", "foobar")], "counter-type", 13.3)
 
-        assert "WARNING  root:metric_cache_abstract.py:116 There is a '-' symbol found in counter-type argument. " \
+        assert "WARNING  root:metric_cache_abstract.py:114 There is a '-' symbol found in counter-type argument. " \
                "Please refrain from using the '-' as it is used as the delimiter in the Metric object string.\n" \
                == caplog.text
 

@@ -1,11 +1,11 @@
 """
 Metrics Cache class for YAML file parsing.
 """
-import sys
 import yaml
 import os
 import logging
 import argparse
+import ts.metrics.metric_cache_errors as merrors
 
 from ts.metrics.metric_cache_abstract import MetricCacheAbstract
 from ts.service import emit_metrics
@@ -28,7 +28,7 @@ class MetricsCacheYaml(MetricCacheAbstract):
         yaml_file_extensions = [".yaml", ".yml"]
         extension_bool = False
         if not yaml_file or not isinstance(yaml_file, str) or not os.path.exists(yaml_file):
-            raise TypeError(f"File passed must be a valid string path that exists.")
+            raise merrors.MetricsCacheTypeError(f"File passed must be a valid string path that exists.")
 
         for extension in yaml_file_extensions:
             if yaml_file.endswith(extension):
@@ -36,7 +36,7 @@ class MetricsCacheYaml(MetricCacheAbstract):
                 break
 
         if not extension_bool:
-            raise TypeError(f"Inputted file does not have a valid yaml file extension.")
+            raise merrors.MetricsCacheTypeError(f"Inputted file does not have a valid yaml file extension.")
 
         super().__init__(yaml_file)
 
@@ -46,8 +46,8 @@ class MetricsCacheYaml(MetricCacheAbstract):
         """
         # TODO: look into standard doc convention for private methods in python
         if not self.file:
-            logging.error("No yaml file detected.")
-            sys.exit(1)
+            raise merrors.MetricsCacheTypeError("No yaml file detected.")
+
         yml_dict = None
         try:
             logging.debug(f"Reading in yaml file...")
@@ -55,14 +55,11 @@ class MetricsCacheYaml(MetricCacheAbstract):
             yml_dict = yaml.safe_load(stream)
             logging.info(f"Successfully loaded yaml file.")
         except yaml.YAMLError as exc:
-            logging.error(f"Error parsing file: {exc}")
-            sys.exit(1)
+            raise merrors.MetricsCachePyYamlError(f"Error parsing file: {exc}")
         except IOError as io_err:
-            logging.error(f"Error reading file: {io_err}")
-            sys.exit(1)
+            raise merrors.MetricsCacheIOError(f"Error reading file: {io_err}")
         except Exception as err:
-            logging.error(f"General error: {err}")
-            sys.exit(1)
+            raise merrors.GeneralMetricsCacheError(f"General error found: {err}")
 
         return yml_dict
 
@@ -82,8 +79,7 @@ class MetricsCacheYaml(MetricCacheAbstract):
         try:
             metrics_table = yaml_hash_table[yaml_section]
         except KeyError as err:
-            logging.error(f"'{yaml_section}' key not found in yaml file - {err}")
-            sys.exit(1)
+            raise merrors.MetricsCacheKeyError(f"'{yaml_section}' key not found in yaml file - {err}")
         logging.info(f"Successfully parsed {yaml_section} section of yaml file")
         return metrics_table
 
@@ -98,8 +94,7 @@ class MetricsCacheYaml(MetricCacheAbstract):
 
         """
         if not isinstance(specific_metrics_table, dict):
-            logging.error(f"metrics section is None and does not exist")
-            sys.exit(1)
+            raise merrors.MetricsCacheTypeError(f"metrics section is None and does not exist")
 
         # get dimensions dictionary from yaml file
         dimensions_dict = self._parse_specific_metric("dimensions")
@@ -128,9 +123,11 @@ class MetricsCacheYaml(MetricCacheAbstract):
                                         metric_type=metric_type
                                         )
 
-                    except KeyError as err:
-                        logging.error(f"Key not found: {err}")
-                        sys.exit(1)
+                    except KeyError as k_err:
+                        raise merrors.MetricsCacheKeyError(f"Key not found: {k_err}")
+                    except TypeError as t_err:
+                        raise merrors.MetricsCacheTypeError(f"Dimension list cannot be empty: {t_err}")
+
         logging.info(f"Successfully created Metric objects.")
 
     def parse_yaml_to_cache(self):
@@ -161,29 +158,30 @@ class MetricsCacheYaml(MetricCacheAbstract):
         """
 
         if not isinstance(dimensions, list) or not dimensions:
-            raise TypeError("Dimensions has to be a list of string (which will be converted to list of Dimensions)"
-                            "/list of Dimension objects and cannot be empty/None")
+            raise merrors.MetricsCacheTypeError("Dimensions has to be a list of string "
+                                                "(which will be converted to list of Dimensions)"
+                                                "/list of Dimension objects and cannot be empty/None")
 
         # if dimensions are list of strings, convert them to Dimension objects based on yaml file.
         if isinstance(dimensions[0], str):
             dimensions_list = dimensions
             dimensions = []
 
-            try:
-                # get dimensions dictionary from yaml file
-                dimensions_dict = self._parse_specific_metric("dimensions")
+            # get dimensions dictionary from yaml file
+            dimensions_dict = self._parse_specific_metric("dimensions")
 
+            try:
                 # Create dimensions objects and add to list to be passed to add_metric
                 for dimension in dimensions_list:
                     dimensions.append(Dimension(dimension, dimensions_dict[dimension]))
             except Exception as err:
-                raise KeyError(f"Dimension not found: {err}")
+                raise merrors.MetricsCacheKeyError(f"Dimension not found: {err}")
 
         elif isinstance(dimensions[0], Dimension):
             pass
         else:
-            raise TypeError(f"Dimensions have to either be a list of strings "
-                            f"(which will be converted to list of Dimension objects) or a list of Dimension objects.")
+            raise merrors.MetricsCacheTypeError(f"Dimensions have to either be a list of strings "
+                                                f"(which will be converted to list of Dimension objects) or a list of Dimension objects.")
 
         super().add_metric(metric_name=metric_name,
                            unit=unit,
@@ -206,4 +204,8 @@ if __name__ == "__main__":
 
     backend_cache_obj = MetricsCacheYaml(arguments.file)
     backend_cache_obj.parse_yaml_to_cache()
+    for key, value in backend_cache_obj.cache.items():
+        print(key)
+        print(value)
+    # print(backend_cache_obj.cache.keys())
     emit_metrics(list(backend_cache_obj.cache.values()))
