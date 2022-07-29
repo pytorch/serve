@@ -15,8 +15,6 @@ jobs:
       uses: actions/checkout@v2
     - name: Install Dependencies
       run: |
-        git clone https://github.com/pytorch/pytorch_sphinx_theme
-        pip install -e pytorch_sphinx_theme
         pip install -r ./docs/sphinx/requirements.txt
     - name: Build the docset
       run: |
