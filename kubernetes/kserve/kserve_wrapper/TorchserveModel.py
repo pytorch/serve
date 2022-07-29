@@ -125,8 +125,7 @@ class TorchserveModel(Model):
         return json.loads(response.body)
 
     def load(self) -> bool:
-        # model_path = pathlib.Path(kserve.Storage.download(self.model_dir))
-        model_path = '/home/ubuntu/models/model-store'
+        model_path = pathlib.Path(kserve.Storage.download(self.model_dir))
         paths = list(pathlib.Path(model_path).glob('*.mar'))
         existing_paths = [path for path in paths if path.exists()]
         if len(existing_paths) == 0:
