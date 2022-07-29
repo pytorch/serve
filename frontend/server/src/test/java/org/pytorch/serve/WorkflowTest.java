@@ -103,7 +103,7 @@ public class WorkflowTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testDescribeWorkflow"})
-    public void testWorkflowPrediction() throws Exception {
+    public void testWorkflowPrediction() throws InterruptedException, SkipException {
         if (System.getProperty("os.name").startsWith("Win")) {
             throw new SkipException("Test skipped on Windows");
         }
@@ -472,7 +472,7 @@ public class WorkflowTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testPredictionMemoryError"})
-    public void testLoadingMemoryError() throws Exception {
+    public void testLoadingMemoryError() throws InterruptedException, SkipException {
         if (System.getProperty("os.name").startsWith("Win")) {
             throw new SkipException("Test skipped on Windows");
         }

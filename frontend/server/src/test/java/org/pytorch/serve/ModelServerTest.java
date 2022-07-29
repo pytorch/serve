@@ -1134,7 +1134,7 @@ public class ModelServerTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testModelWithInvalidCustomPythonDependency"})
-    public void testLoadingMemoryError() throws Exception {
+    public void testLoadingMemoryError() throws InterruptedException, SkipException {
         if (System.getProperty("os.name").startsWith("Win")) {
             throw new SkipException("Test skipped on Windows");
         }
@@ -1343,7 +1343,7 @@ public class ModelServerTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testInvalidRootRequest"})
-    public void testInvalidInferenceUri() throws Exception {
+    public void testInvalidInferenceUri() throws InterruptedException, SkipException {
         if (System.getProperty("os.name").startsWith("Win")) {
             throw new SkipException("Test skipped on Windows");
         }
@@ -1364,7 +1364,7 @@ public class ModelServerTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testInvalidInferenceUri"})
-    public void testInvalidDescribeModel() throws Exception {
+    public void testInvalidDescribeModel() throws InterruptedException, SkipException {
         if (System.getProperty("os.name").startsWith("Win")) {
             throw new SkipException("Test skipped on Windows");
         }
@@ -1383,7 +1383,7 @@ public class ModelServerTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testInvalidDescribeModel"})
-    public void testInvalidPredictionsUri() throws Exception {
+    public void testInvalidPredictionsUri() throws InterruptedException, SkipException {
         if (System.getProperty("os.name").startsWith("Win")) {
             throw new SkipException("Test skipped on Windows");
         }
@@ -1461,7 +1461,7 @@ public class ModelServerTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testInvalidManagementUri"})
-    public void testInvalidModelsMethod() throws Exception {
+    public void testInvalidModelsMethod() throws InterruptedException, SkipException {
         if (System.getProperty("os.name").startsWith("Win")) {
             throw new SkipException("Test skipped on Windows");
         }
@@ -1519,7 +1519,7 @@ public class ModelServerTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testDescribeModelNotFound"})
-    public void testDescribeModelVersionNotFound() throws Exception {
+    public void testDescribeModelVersionNotFound() throws InterruptedException, SkipException {
         if (System.getProperty("os.name").startsWith("Win")) {
             throw new SkipException("Test skipped on Windows");
         }
@@ -1599,7 +1599,7 @@ public class ModelServerTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testRegisterModelNotFound"})
-    public void testRegisterModelConflict() throws Exception {
+    public void testRegisterModelConflict() throws InterruptedException, SkipException {
         if (System.getProperty("os.name").startsWith("Win")) {
             throw new SkipException("Test skipped on Windows");
         }
@@ -1757,7 +1757,7 @@ public class ModelServerTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testScaleModelNotFound"})
-    public void testUnregisterModelNotFound() throws Exception {
+    public void testUnregisterModelNotFound() throws InterruptedException, SkipException {
         if (System.getProperty("os.name").startsWith("Win")) {
             throw new SkipException("Test skipped on Windows");
         }
@@ -1822,7 +1822,7 @@ public class ModelServerTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testUnregisterModelTimeout"})
-    public void testScaleModelFailure() throws Exception {
+    public void testScaleModelFailure() throws InterruptedException, SkipException {
         if (System.getProperty("os.name").startsWith("Win")) {
             throw new SkipException("Test skipped on Windows");
         }
@@ -2041,7 +2041,7 @@ public class ModelServerTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testSetInvalidDefaultVersion"})
-    public void testUnregisterModelFailure() throws Exception {
+    public void testUnregisterModelFailure() throws InterruptedException, SkipException {
         if (System.getProperty("os.name").startsWith("Win")) {
             throw new SkipException("Test skipped on Windows");
         }
