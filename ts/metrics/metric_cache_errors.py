@@ -38,7 +38,7 @@ class MetricsCacheTypeError(TypeError):
 
 class MetricsCacheValueError(ValueError):
     """
-    Type error wrapper
+    Value error wrapper
     """
     def __init__(self, message):
         super().__init__(f"{message}")
@@ -46,7 +46,7 @@ class MetricsCacheValueError(ValueError):
 
 class MetricsCacheKeyError(KeyError):
     """
-    Type error wrapper
+    Key error wrapper
     """
     def __init__(self, message):
         super().__init__(f"{message}")

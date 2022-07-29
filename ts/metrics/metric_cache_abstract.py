@@ -5,7 +5,6 @@ Implemented in the case it is decided that another file format is better in the 
 Currently, abstract class has the methods for getting a metric and adding a metric to the cache.
 """
 import abc
-import sys
 import logging
 import ts.metrics.metric_cache_errors as merrors
 
@@ -98,7 +97,7 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
         """
         Inspect naming convention for each argument being used to create a Metric object.
 
-            Checking to ensure that certain symbols are not used in args so that Metric strings can be created without
+            Checking to ensure that certain symbols (- / []) are not used in args so that Metric strings can be created without
             ambiguity.
 
         Parameters
@@ -106,19 +105,20 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
         metric_arg: str/list
         """
 
-        def _check_individual_arg(delim, arg) -> None:
+        def _check_individual_arg(delimiters: list, arg: str) -> None:
             """
-            Checking an individual argument
+            Checking and validating an individual argument
             """
-            if delim in str(arg):
-                logging.warning(f"There is a '-' symbol found in {arg} argument. "
-                                f"Please refrain from using the "
-                                f"'-' as it is used as the delimiter in the Metric object string.")
+            for delim in delimiters:
+                if delim in str(arg):
+                        logging.warning(f"There is a '{delim}' symbol found in {arg} argument. "
+                                        f"Please refrain from using the "
+                                        f"'{delim}' as it is used as the delimiter in the Metric object string.")
 
-        delimiter = "-"
+        delimiters = ["-", "[", "]"]
         for individual_metric_arg in metric_arg:
             if isinstance(individual_metric_arg, list):  # list of Dimension objects
                 for dimension in individual_metric_arg:
-                    _check_individual_arg(delimiter, dimension.__str__())
+                    _check_individual_arg(delimiters, dimension.__str__())
             else:  # should always be string type
-                _check_individual_arg(delimiter, individual_metric_arg)
+                _check_individual_arg(delimiters, individual_metric_arg)

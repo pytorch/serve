@@ -44,7 +44,6 @@ class MetricsCacheYaml(MetricCacheAbstract):
         """
         Parse yaml file using PyYAML library.
         """
-        # TODO: look into standard doc convention for private methods in python
         if not self.file:
             raise merrors.MetricsCacheTypeError("No yaml file detected.")
 
@@ -130,7 +129,7 @@ class MetricsCacheYaml(MetricCacheAbstract):
 
         logging.info(f"Successfully created Metric objects.")
 
-    def parse_yaml_to_cache(self):
+    def parse_yaml_to_cache(self) -> None:
         """
         Parses specific portion of yaml file and creates Metrics objects and adds to the cache
         """
@@ -181,7 +180,8 @@ class MetricsCacheYaml(MetricCacheAbstract):
             pass
         else:
             raise merrors.MetricsCacheTypeError(f"Dimensions have to either be a list of strings "
-                                                f"(which will be converted to list of Dimension objects) or a list of Dimension objects.")
+                                                f"(which will be converted to list of Dimension objects)"
+                                                f" or a list of Dimension objects.")
 
         super().add_metric(metric_name=metric_name,
                            unit=unit,
