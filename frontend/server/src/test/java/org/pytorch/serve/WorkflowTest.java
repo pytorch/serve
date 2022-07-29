@@ -237,7 +237,7 @@ public class WorkflowTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testRegisterWorkflowConflict"})
-    public void testRegisterWorkflowMalformedUrl() throws Exception {
+    public void testRegisterWorkflowMalformedUrl() throws InterruptedException, SkipException {
         if (System.getProperty("os.name").startsWith("Win")) {
             throw new SkipException("Test skipped on Windows");
         }
@@ -262,7 +262,7 @@ public class WorkflowTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testRegisterWorkflowMalformedUrl"})
-    public void testRegisterWorkflowConnectionFailed() throws Exception {
+    public void testRegisterWorkflowConnectionFailed() throws InterruptedException, SkipException {
         if (System.getProperty("os.name").startsWith("Win")) {
             throw new SkipException("Test skipped on Windows");
         }
