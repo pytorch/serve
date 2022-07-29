@@ -40,9 +40,13 @@ jobs:
           python torchserve_sanity.py
       - name: mvn install
         run: |
-            echo mvn -version
-            cd serving-sdk/ && mvn clean install -q && cd ../
-
+            cd serving-sdk
+            if [[ ${{ matrix.os }} = 'windows-latest' ]]; then
+              .\mvnw.cmd clean install -q
+            else
+              ./mvnw clean install -q
+            fi;
+            cd ../
       # Any coverage.xml will be picked up by this step
       # Just make sure each coverage.xml is in a different folder
       - name: Upload codecov
