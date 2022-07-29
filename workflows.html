@@ -6,11 +6,11 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>17. TorchServe Workflows &mdash; PyTorch/Serve master documentation</title>
+  <title>18. TorchServe Workflows &mdash; PyTorch/Serve master documentation</title>
   
 
   
@@ -36,7 +36,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="&lt;no title&gt;" href="apis.html" />
-    <link rel="prev" title="16. Torchserve Use Cases" href="use_cases.html" />
+    <link rel="prev" title="17. Torchserve Use Cases" href="use_cases.html" />
   <!-- Google Analytics -->
   
   <!-- End Google Analytics -->
@@ -244,10 +244,11 @@
 <li class="toctree-l1"><a class="reference internal" href="request_envelopes.html">11. Request Envelopes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="server.html">12. Running TorchServe</a></li>
 <li class="toctree-l1"><a class="reference internal" href="snapshot.html">13. TorchServe model snapshot</a></li>
-<li class="toctree-l1"><a class="reference internal" href="torchserve_on_win_native.html">14. TorchServe on Windows</a></li>
-<li class="toctree-l1"><a class="reference internal" href="torchserve_on_wsl.html">15. TorchServe on Windows Subsystem for Linux (WSL)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="use_cases.html">16. Torchserve Use Cases</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">17. TorchServe Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sphinx/requirements.html">14. cf. https://github.com/ryanfox/sphinx-markdown-tables/issues/36</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torchserve_on_win_native.html">15. TorchServe on Windows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torchserve_on_wsl.html">16. TorchServe on Windows Subsystem for Linux (WSL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="use_cases.html">17. Torchserve Use Cases</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">18. TorchServe Workflows</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Service APIs:</span></p>
 <ul>
@@ -308,7 +309,7 @@
       </li>
 
         
-      <li><span class="section-number">17. </span>TorchServe Workflows</li>
+      <li><span class="section-number">18. </span>TorchServe Workflows</li>
     
     
       <li class="pytorch-breadcrumbs-aside">
@@ -341,12 +342,12 @@
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
   <section id="torchserve-workflows">
-<h1><span class="section-number">17. </span>TorchServe Workflows<a class="headerlink" href="#torchserve-workflows" title="Permalink to this heading">¶</a></h1>
+<h1><span class="section-number">18. </span>TorchServe Workflows<a class="headerlink" href="#torchserve-workflows" title="Permalink to this heading">¶</a></h1>
 <p>TorchServe can be used for serving ensemble of Pytorch models packaged as mar files and Python functions through Workflow APIs.</p>
 <p>It utilizes <a class="reference internal" href="rest_api.html"><span class="doc">REST based APIs</span></a> for workflow management and predictions.</p>
 <p>A Workflow is served on TorchServe using a workflow-archive(.war) which comprises of following:</p>
 <section id="workflow-specification-file">
-<h2><span class="section-number">17.1. </span>Workflow Specification file<a class="headerlink" href="#workflow-specification-file" title="Permalink to this heading">¶</a></h2>
+<h2><span class="section-number">18.1. </span>Workflow Specification file<a class="headerlink" href="#workflow-specification-file" title="Permalink to this heading">¶</a></h2>
 <p>A workflow specification is a YAML file which provides the details of the models to be executed and a DAG for defining data flow.</p>
 <p>The YAML file is split into a few sections</p>
 <ol class="simple">
@@ -388,7 +389,7 @@
 </pre></div>
 </div>
 <section id="workflow-models">
-<h3><span class="section-number">17.1.1. </span>Workflow Models<a class="headerlink" href="#workflow-models" title="Permalink to this heading">¶</a></h3>
+<h3><span class="section-number">18.1.1. </span>Workflow Models<a class="headerlink" href="#workflow-models" title="Permalink to this heading">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">models</span></code> section of the workflow specification defines the models used in the workflow. It uses the following syntax:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">models</span><span class="p">:</span>
     <span class="o">&lt;</span><span class="n">model_name</span><span class="o">&gt;</span><span class="p">:</span>
@@ -397,7 +398,7 @@
 </div>
 </section>
 <section id="workflow-model-properties">
-<h3><span class="section-number">17.1.2. </span>Workflow model properties<a class="headerlink" href="#workflow-model-properties" title="Permalink to this heading">¶</a></h3>
+<h3><span class="section-number">18.1.2. </span>Workflow model properties<a class="headerlink" href="#workflow-model-properties" title="Permalink to this heading">¶</a></h3>
 <p>User can define following workflow model properties:</p>
 <table border="1" class="docutils">
 <thead>
@@ -443,10 +444,10 @@
 </section>
 </section>
 <section id="workflow-dag">
-<h2><span class="section-number">17.2. </span>Workflow DAG<a class="headerlink" href="#workflow-dag" title="Permalink to this heading">¶</a></h2>
+<h2><span class="section-number">18.2. </span>Workflow DAG<a class="headerlink" href="#workflow-dag" title="Permalink to this heading">¶</a></h2>
 <p>User can define the dataflow of a workflow using the <code class="docutils literal notranslate"><span class="pre">dag</span></code> section of the workflow specification. The <code class="docutils literal notranslate"><span class="pre">dag</span></code> consists of the model names defined in the <code class="docutils literal notranslate"><span class="pre">model</span></code> section and python function names which are implemented in the workflow-archive’s handler file.</p>
 <section id="sequential-dag">
-<h3><span class="section-number">17.2.1. </span>Sequential DAG<a class="headerlink" href="#sequential-dag" title="Permalink to this heading">¶</a></h3>
+<h3><span class="section-number">18.2.1. </span>Sequential DAG<a class="headerlink" href="#sequential-dag" title="Permalink to this heading">¶</a></h3>
 <p>Eg.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">dag</span><span class="p">:</span>
   <span class="n">function1</span> <span class="p">:</span> <span class="p">[</span><span class="n">model1</span><span class="p">]</span>
@@ -460,7 +461,7 @@
 </div>
 </section>
 <section id="parallel-dag">
-<h3><span class="section-number">17.2.2. </span>Parallel DAG<a class="headerlink" href="#parallel-dag" title="Permalink to this heading">¶</a></h3>
+<h3><span class="section-number">18.2.2. </span>Parallel DAG<a class="headerlink" href="#parallel-dag" title="Permalink to this heading">¶</a></h3>
 <p>E.g</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">dag</span><span class="p">:</span>
   <span class="n">pre_processing</span><span class="p">:</span> <span class="p">[</span><span class="n">model1</span><span class="p">,</span> <span class="n">model2</span><span class="p">]</span>
@@ -479,7 +480,7 @@
 </section>
 </section>
 <section id="handler-file">
-<h2><span class="section-number">17.3. </span>Handler file<a class="headerlink" href="#handler-file" title="Permalink to this heading">¶</a></h2>
+<h2><span class="section-number">18.3. </span>Handler file<a class="headerlink" href="#handler-file" title="Permalink to this heading">¶</a></h2>
 <p>A handler file (python) is supplied in the workflow archive (.war) and consists of all the functions used in the workflow dag.</p>
 <p>Eg.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">preprocess</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
@@ -491,14 +492,14 @@
 </div>
 </section>
 <section id="related-docs">
-<h2><span class="section-number">17.4. </span>Related docs<a class="headerlink" href="#related-docs" title="Permalink to this heading">¶</a></h2>
+<h2><span class="section-number">18.4. </span>Related docs<a class="headerlink" href="#related-docs" title="Permalink to this heading">¶</a></h2>
 <ul class="simple">
 <li><p><a class="reference internal" href="workflow_inference_api.html"><span class="doc">workflow_inference_api.md</span></a></p></li>
 <li><p><a class="reference internal" href="workflow_management_api.html"><span class="doc">workflow_management_api.md</span></a></p></li>
 </ul>
 </section>
 <section id="known-issues">
-<h2><span class="section-number">17.5. </span>Known issues<a class="headerlink" href="#known-issues" title="Permalink to this heading">¶</a></h2>
+<h2><span class="section-number">18.5. </span>Known issues<a class="headerlink" href="#known-issues" title="Permalink to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Each workflow dag node (model/function) will receive input as bytes</p></li>
 <li><p>Only following output types are supported by workflow models/functions : String, Int, List, Dict of String, int, Json serializable objects, byte array and Torch Tensors</p></li>
@@ -521,7 +522,7 @@
         <a href="apis.html" class="btn btn-neutral float-right" title="&lt;no title&gt;" accesskey="n" rel="next">Next <img src="_static/images/chevron-right-orange.svg" class="next-page"></a>
       
       
-        <a href="use_cases.html" class="btn btn-neutral" title="16. Torchserve Use Cases" accesskey="p" rel="prev"><img src="_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
+        <a href="use_cases.html" class="btn btn-neutral" title="17. Torchserve Use Cases" accesskey="p" rel="prev"><img src="_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
       
     </div>
   
@@ -553,20 +554,20 @@
           <div class="pytorch-right-menu" id="pytorch-right-menu">
             <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
               <ul>
-<li><a class="reference internal" href="#">17. TorchServe Workflows</a><ul>
-<li><a class="reference internal" href="#workflow-specification-file">17.1. Workflow Specification file</a><ul>
-<li><a class="reference internal" href="#workflow-models">17.1.1. Workflow Models</a></li>
-<li><a class="reference internal" href="#workflow-model-properties">17.1.2. Workflow model properties</a></li>
+<li><a class="reference internal" href="#">18. TorchServe Workflows</a><ul>
+<li><a class="reference internal" href="#workflow-specification-file">18.1. Workflow Specification file</a><ul>
+<li><a class="reference internal" href="#workflow-models">18.1.1. Workflow Models</a></li>
+<li><a class="reference internal" href="#workflow-model-properties">18.1.2. Workflow model properties</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#workflow-dag">17.2. Workflow DAG</a><ul>
-<li><a class="reference internal" href="#sequential-dag">17.2.1. Sequential DAG</a></li>
-<li><a class="reference internal" href="#parallel-dag">17.2.2. Parallel DAG</a></li>
+<li><a class="reference internal" href="#workflow-dag">18.2. Workflow DAG</a><ul>
+<li><a class="reference internal" href="#sequential-dag">18.2.1. Sequential DAG</a></li>
+<li><a class="reference internal" href="#parallel-dag">18.2.2. Parallel DAG</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#handler-file">17.3. Handler file</a></li>
-<li><a class="reference internal" href="#related-docs">17.4. Related docs</a></li>
-<li><a class="reference internal" href="#known-issues">17.5. Known issues</a></li>
+<li><a class="reference internal" href="#handler-file">18.3. Handler file</a></li>
+<li><a class="reference internal" href="#related-docs">18.4. Related docs</a></li>
+<li><a class="reference internal" href="#known-issues">18.5. Known issues</a></li>
 </ul>
 </li>
 </ul>
