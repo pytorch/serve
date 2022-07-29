@@ -9,7 +9,6 @@ sphinx-markdown-tables==0.0.15
 torchserve
 torch-model-archiver
 torch-workflow-archiver
+-e git+https://github.com/pytorch/pytorch_sphinx_theme.git#egg=pytorch_sphinx_theme
 
-# Also make sure to manually install - pytorch sphinx does not have a pypi repo
-# git clone https://github.com/pytorch/pytorch_sphinx_theme
-# python3 -m pip install -e pytorch_sphinx_theme
+
