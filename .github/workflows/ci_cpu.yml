@@ -26,7 +26,7 @@ jobs:
           python-version: 3.8
           architecture: x64
       - name: Setup Java 17
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
           java-version: '17'
@@ -40,10 +40,7 @@ jobs:
           python torchserve_sanity.py
       - name: mvn install
         run: |
-            if [[ ${{ matrix.os }} = 'ubuntu-latest' ]]; then
-              echo "sourcing maven config file"
-              source /etc/profile.d/maven.sh
-            fi;
+            echo mvn -version
             cd serving-sdk/ && mvn clean install -q && cd ../
 
       # Any coverage.xml will be picked up by this step
