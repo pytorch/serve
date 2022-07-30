@@ -5,6 +5,8 @@ This example shows how to serve a Deep Learning Recommendation Model (DLRM) with
 The DLRM is an open source model for personalization and recommendation use cases published by Meta. More informatino can be found in this [paper](https://arxiv.org/abs/1906.00091) and this [blog post](https://ai.facebook.com/blog/dlrm-an-advanced-open-source-deep-learning-recommendation-model/).
 TorchRec is Meta's open source library for recommender systems in Pytorch. More information on TorchRec can be found in the [official docs](https://pytorch.org/torchrec/).
 
+--- **This example requires CUDA version >= 11.3**  ---
+
 In this example we will first create and archive the DLRM into a mar file which is subsequently registered in a TorchService instance. Finally, we run an inferent using curl.
 
 To create the model and archive it we simple need to run

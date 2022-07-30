@@ -39,7 +39,9 @@ TEST_CASES = [
 
 
 pytestmark = pytest.mark.skipif(
-    not torch.cuda.is_available(), reason="tests only if CUDA is available"
+    (not torch.cuda.is_available())
+    or (tuple(map(int, torch.version.cuda.split("."))) < (11, 3)),
+    reason="CUDA is not available or CUDA version is <11.3",
 )
 
 
