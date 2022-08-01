@@ -78,6 +78,7 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
         if not isinstance(dimensions[0], Dimension):
             raise merrors.MetricsCacheTypeError(f"Dimensions list is expected to be made up of Dimension objects.")
 
+        # Make sure that the passed arguments follow a valid naming convention (doesn't contain certain characters)
         self._inspect_naming_convention(metric_name, unit, dimensions, metric_type, value)
 
         logging.debug(f"Adding metric with fields of: metric name - {metric_name}, unit - {unit}, "
@@ -115,10 +116,11 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
                                         f"Please refrain from using the "
                                         f"'{delim}' as it is used as the delimiter in the Metric object string.")
 
-        delimiters = ["-", "[", "]"]
+        delimiters = ["-", "[", "]"]  # list of symbols that should not be included in any Metric arguments
+
         for individual_metric_arg in metric_arg:
             if isinstance(individual_metric_arg, list):  # list of Dimension objects
                 for dimension in individual_metric_arg:
                     _check_individual_arg(delimiters, dimension.__str__())
-            else:  # should always be string type
+            else:  # should always be every other Metric argument (and should all be string parsable)
                 _check_individual_arg(delimiters, individual_metric_arg)

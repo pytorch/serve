@@ -176,7 +176,7 @@ class MetricsCacheYaml(MetricCacheAbstract):
             except Exception as err:
                 raise merrors.MetricsCacheKeyError(f"Dimension not found: {err}")
 
-        elif isinstance(dimensions[0], Dimension):
+        elif isinstance(dimensions[0], Dimension):  # if already list of Dimension objects, then do nothing
             pass
         else:
             raise merrors.MetricsCacheTypeError(f"Dimensions have to either be a list of strings "
