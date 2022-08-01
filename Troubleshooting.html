@@ -360,7 +360,7 @@
 </section>
 <section id="java-lang-nosuchmethoderror-when-starting-torchserve-473">
 <h3><span class="section-number">2.1.2. </span>“java.lang.NoSuchMethodError” when starting Torchserve.[<a class="reference external" href="https://github.com/pytorch/serve/issues/473">473</a>]<a class="headerlink" href="#java-lang-nosuchmethoderror-when-starting-torchserve-473" title="Permalink to this heading">¶</a></h3>
-<p>This error usually occurs when Java 11 is not installed or used. Java 11 is required by Torchserve and older java versions are not supported.</p>
+<p>This error usually occurs when Java 17 is not installed or used. Java 17 is required by Torchserve and older java versions are not supported.</p>
 <p>Relevant issues: [<a class="reference external" href="https://github.com/pytorch/serve/issues/473">#473</a>]</p>
 </section>
 <section id="unable-to-send-big-files-for-inference-request">
@@ -434,7 +434,7 @@ Relevant issues: [<a class="reference external" href="https://github.com/pytorch
 <p>You can provide a requirements.txt while creating a mar file using “–requirements-file/ -r” flag. You can refer to the <a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/text_to_speech_synthesizer">waveglow text-to-speech-synthesizer</a> example</p>
 <ul class="simple">
 <li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/examples/text_to_speech_synthesizer/create_mar.sh">waveglow mar creation script</a></p></li>
-<li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/examples/text_to_speech_synthesizer/waveglow_handler.py#L57">waveglow handler</a></p></li>
+<li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/2d9c7ccc316f592374943a1963c1057bbe232c9e/examples/text_to_speech_synthesizer/waveglow_handler.py#L49">waveglow handler</a></p></li>
 </ul>
 <p>Relevant issues: [<a class="reference external" href="https://github.com/pytorch/serve/issues/566">#566</a>]
 Refer <a class="reference external" href="https://github.com/pytorch/serve/blob/master/model-archiver/README.md#torch-model-archiver-command-line-interface">Torch model archiver cli</a> for more details.</p>
