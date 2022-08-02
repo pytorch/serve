@@ -28,7 +28,7 @@ class MetricsCacheYaml(MetricCacheAbstract):
         yaml_file_extensions = [".yaml", ".yml"]
         extension_bool = False
         if not yaml_file or not isinstance(yaml_file, str) or not os.path.exists(yaml_file):
-            raise merrors.MetricsCacheTypeError(f"File passed must be a valid string path that exists.")
+            raise merrors.MetricsCacheTypeError(f"File {yaml_file} does not exist.")
 
         for extension in yaml_file_extensions:
             if yaml_file.endswith(extension):
@@ -36,7 +36,7 @@ class MetricsCacheYaml(MetricCacheAbstract):
                 break
 
         if not extension_bool:
-            raise merrors.MetricsCacheTypeError(f"Inputted file does not have a valid yaml file extension.")
+            raise merrors.MetricsCacheTypeError(f"Inputted file {yaml_file} does not have a valid yaml file extension.")
 
         super().__init__(yaml_file)
 
@@ -54,11 +54,11 @@ class MetricsCacheYaml(MetricCacheAbstract):
             yml_dict = yaml.safe_load(stream)
             logging.info(f"Successfully loaded yaml file.")
         except yaml.YAMLError as exc:
-            raise merrors.MetricsCachePyYamlError(f"Error parsing file: {exc}")
+            raise merrors.MetricsCachePyYamlError(f"Error parsing file {self.file}: {exc}")
         except IOError as io_err:
-            raise merrors.MetricsCacheIOError(f"Error reading file: {io_err}")
+            raise merrors.MetricsCacheIOError(f"Error reading file {self.file}: {io_err}")
         except Exception as err:
-            raise merrors.GeneralMetricsCacheError(f"General error found: {err}")
+            raise merrors.GeneralMetricsCacheError(f"General error found in file {self.file}: {err}")
 
         return yml_dict
 
@@ -93,7 +93,7 @@ class MetricsCacheYaml(MetricCacheAbstract):
 
         """
         if not isinstance(specific_metrics_table, dict):
-            raise merrors.MetricsCacheTypeError(f"metrics section is None and does not exist")
+            raise merrors.MetricsCacheTypeError(f"{specific_metrics_table} section is None and does not exist")
 
         # get dimensions dictionary from yaml file
         dimensions_dict = self._parse_specific_metric("dimensions")

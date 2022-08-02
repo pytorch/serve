@@ -152,8 +152,8 @@ class TorchModelServiceWorker(object):
                 and service.context.metrics is not None
             ):
 
-                emit_metrics(service.context.metrics.store)
-                # emit_metrics(list(service.context.metrics.cache.values()))
+                service.context.metrics.parse_yaml_to_cache()
+                emit_metrics(list(service.context.metrics.cache.values()))
 
     def run_server(self):
         """

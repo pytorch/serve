@@ -45,7 +45,7 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
         logging.info(f"Getting metric {metric_key}")
         metric_obj = self.cache.get(metric_key)
         if metric_obj:
-            logging.debug("Successfully received metric")
+            logging.debug(f"Successfully received metric {metric_key}")
             return metric_obj
         else:
             raise merrors.MetricsCacheKeyError(f"Metric key {metric_key} does not exist.")

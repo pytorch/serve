@@ -207,23 +207,25 @@ class TestParseYaml:
     def test_yaml_file_none_fail(self):
         with pytest.raises(merrors.MetricsCacheTypeError) as exc_info:
             MetricsCacheYaml(None)
-        assert str(exc_info.value) == "File passed must be a valid string path that exists."
+        assert str(exc_info.value) == "File None does not exist."
 
     def test_yaml_file_non_yaml_extension_fail(self):
         with pytest.raises(merrors.MetricsCacheTypeError) as exc_info:
             MetricsCacheYaml("metric_cache_unit_test.py")
-        assert str(exc_info.value) == "Inputted file does not have a valid yaml file extension."
+        assert str(exc_info.value) == "Inputted file metric_cache_unit_test.py " \
+                                      "does not have a valid yaml file extension."
 
     def test_yaml_file_non_exist_fail(self):
         with pytest.raises(merrors.MetricsCacheTypeError) as exc_info:
             MetricsCacheYaml("doesnt_exist.yaml")
-        assert str(exc_info.value) == "File passed must be a valid string path that exists."
+        assert str(exc_info.value) == "File doesnt_exist.yaml does not exist."
 
     def test_parse_yaml_errors(self):
         metrics_cache_obj = MetricsCacheYaml("metric_errors.yaml")
         with pytest.raises(merrors.MetricsCachePyYamlError) as exc_info:
             metrics_cache_obj._parse_yaml_file()
-        assert str(exc_info.value) == 'Error parsing file: Error parsing file: while parsing a block mapping\n ' \
+        assert str(exc_info.value) == 'Error parsing file: Error parsing file metric_errors.yaml: ' \
+                                      'while parsing a block mapping\n ' \
                                       ' in "metric_errors.yaml", line 1, column 1\n' \
                                       "expected <block end>, but found '<block mapping start>'\n" \
                                       '  in "metric_errors.yaml", line 51, column 3'
@@ -280,7 +282,7 @@ class TestYamlCacheUtil:
         metrics_cache_obj = MetricsCacheYaml("metrics_missing_types.yaml")
         with pytest.raises(merrors.MetricsCacheTypeError) as exc_info:
             metrics_cache_obj._yaml_to_cache_util(None)
-        assert str(exc_info) == "<ExceptionInfo MetricsCacheTypeError('metrics section is None and does not " \
+        assert str(exc_info) == "<ExceptionInfo MetricsCacheTypeError('None section is None and does not " \
                                 "exist') tblen=2>"
 
     def test_yaml_to_cache_util_fail_empty_section(self):
@@ -288,7 +290,7 @@ class TestYamlCacheUtil:
         model_metrics_table = metrics_cache_obj._parse_specific_metric()
         with pytest.raises(merrors.MetricsCacheTypeError) as exc_info:
             metrics_cache_obj._yaml_to_cache_util(model_metrics_table)
-        assert str(exc_info) == "<ExceptionInfo MetricsCacheTypeError('metrics section is None and does not " \
+        assert str(exc_info) == "<ExceptionInfo MetricsCacheTypeError('None section is None and does not " \
                                 "exist') tblen=2>"
 
     def test_yaml_to_cache_util_fail_empty_dimensions(self):
@@ -352,7 +354,7 @@ class TestManualAddMetricDimensions:
         metrics_cache_obj = MetricsCacheYaml("metrics_mismatching_dims.yaml")
         metrics_cache_obj.add_metric("Temp-Name", "count", ["model_name"], "counter", 13.3)
 
-        assert caplog.text == "WARNING  root:metric_cache_abstract.py:114 There is a " \
+        assert caplog.text == "WARNING  root:metric_cache_abstract.py:115 There is a " \
                               "'-' symbol found in Temp-Name argument. " \
                "Please refrain from using the '-' as it is used as the delimiter in the Metric object string.\n" \
 
@@ -361,7 +363,7 @@ class TestManualAddMetricDimensions:
         metrics_cache_obj = MetricsCacheYaml("metrics_mismatching_dims.yaml")
         metrics_cache_obj.add_metric("TempName", "count-unit", ["model_name"], "counter", 13.3)
 
-        assert caplog.text == "WARNING  root:metric_cache_abstract.py:114 There is a '-' symbol " \
+        assert caplog.text == "WARNING  root:metric_cache_abstract.py:115 There is a '-' symbol " \
                               "found in count-unit argument. " \
                "Please refrain from using the '-' as it is used as the delimiter in the Metric object string.\n" \
 
@@ -370,7 +372,7 @@ class TestManualAddMetricDimensions:
         metrics_cache_obj = MetricsCacheYaml("metrics_mismatching_dims.yaml")
         metrics_cache_obj.add_metric("TempName", "count", [Dimension("hello-world", "foo")], "counter", 13.3)
 
-        assert caplog.text == "WARNING  root:metric_cache_abstract.py:114 There is a '-' symbol" \
+        assert caplog.text == "WARNING  root:metric_cache_abstract.py:115 There is a '-' symbol" \
                               " found in hello-world:foo argument. " \
                "Please refrain from using the '-' as it is used as the delimiter in the Metric object string.\n" \
 
@@ -379,7 +381,7 @@ class TestManualAddMetricDimensions:
         metrics_cache_obj = MetricsCacheYaml("metrics_mismatching_dims.yaml")
         metrics_cache_obj.add_metric("TempName", "count", [Dimension("helloworld", "foo-bar")], "counter", 13.3)
 
-        assert caplog.text == "WARNING  root:metric_cache_abstract.py:114 There is a '-' symbol" \
+        assert caplog.text == "WARNING  root:metric_cache_abstract.py:115 There is a '-' symbol" \
                               " found in helloworld:foo-bar argument. " \
                "Please refrain from using the '-' as it is used as the delimiter in the Metric object string.\n" \
 
@@ -388,7 +390,7 @@ class TestManualAddMetricDimensions:
         metrics_cache_obj = MetricsCacheYaml("metrics_mismatching_dims.yaml")
         metrics_cache_obj.add_metric("TempName", "count", [Dimension("helloworld", "foobar")], "counter-type", 13.3)
 
-        assert caplog.text == "WARNING  root:metric_cache_abstract.py:114 There is a '-' " \
+        assert caplog.text == "WARNING  root:metric_cache_abstract.py:115 There is a '-' " \
                               "symbol found in counter-type argument. " \
                "Please refrain from using the '-' as it is used as the delimiter in the Metric object string.\n" \
 
@@ -397,13 +399,13 @@ class TestManualAddMetricDimensions:
         metrics_cache_obj = MetricsCacheYaml("metrics_mismatching_dims.yaml")
         metrics_cache_obj.add_metric("[TempName]", "count", [Dimension("helloworld", "foobar")], "counter-type", 13.3)
 
-        assert caplog.text == "WARNING  root:metric_cache_abstract.py:114 There is a '[' symbol found in " \
+        assert caplog.text == "WARNING  root:metric_cache_abstract.py:115 There is a '[' symbol found in " \
                               "[TempName] argument. Please refrain from using the '[' as it is used as the " \
                               'delimiter in the Metric object string.\n' \
-                              "WARNING  root:metric_cache_abstract.py:114 There is a ']' symbol found in " \
+                              "WARNING  root:metric_cache_abstract.py:115 There is a ']' symbol found in " \
                               "[TempName] argument. Please refrain from using the ']' as it is used as the " \
                               'delimiter in the Metric object string.\n' \
-                              "WARNING  root:metric_cache_abstract.py:114 There is a '-' symbol found in " \
+                              "WARNING  root:metric_cache_abstract.py:115 There is a '-' symbol found in " \
                               "counter-type argument. Please refrain from using the '-' as it is used as " \
                               'the delimiter in the Metric object string.\n'""
 

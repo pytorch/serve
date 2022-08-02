@@ -85,15 +85,13 @@ class TsModelLoader(ModelLoader):
         :param batch_size:
         :param envelope:
         :param limit_max_image_pixels:
-        :param metrics_cache_obj: Metrics Cache object
         :return:
         """
         logging.debug("Loading model - working dir: %s", os.getcwd())
-        # TODO: Request ID is not given. UUID is a temp UUID.
-        # metrics = MetricsStore(uuid.uuid4(), model_name) TODO to delete
-        # for now hard code yaml file path
-        metrics = MetricsCacheYaml(yaml_file="../ts/tests/unit_tests/metrics_yaml_testing/metrics.yaml")
 
+        # for now hard code yaml file path to pass into Metrics Cache object
+        file_path = self._get_full_file_path("metrics.yaml")
+        metrics = MetricsCacheYaml(yaml_file=file_path)
         manifest_file = os.path.join(model_dir, "MAR-INF/MANIFEST.json")
         manifest = None
         if os.path.exists(manifest_file):
@@ -204,3 +202,12 @@ class TsModelLoader(ModelLoader):
             )
 
         return model_service.handle, model_service.initialize
+
+    def _get_full_file_path(self, file_path: str):
+        for root, dirs, files in os.walk("."):
+            if file_path in files:
+                rel_path = os.path.join(root, file_path)
+                full_path = os.path.abspath(rel_path)
+                return full_path
+
+        return None
