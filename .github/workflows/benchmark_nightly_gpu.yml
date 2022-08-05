@@ -40,6 +40,6 @@ jobs:
         uses: rishabhgupta/git-action-issue@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          title: Daily CI failed
+          title: Nightly GPU benchmark failed
           body:  Commit ${{ github.sha }} daily scheduled [CI run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) failed, please check why
           assignees: ''
