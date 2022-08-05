@@ -13,7 +13,7 @@ from ts.metrics.dimension import Dimension
 
 
 class MetricsCacheYaml(MetricCacheAbstract):
-    def __init__(self, yaml_file):
+    def __init__(self, yaml_file, model_name):
         """
         Constructor for MetricsCachingYaml class
 
@@ -23,6 +23,9 @@ class MetricsCacheYaml(MetricCacheAbstract):
         ----------
         yaml_file: str
             Name of yaml file to be parsed
+
+        model_name: str
+            Name of the model in use
 
         """
         yaml_file_extensions = [".yaml", ".yml"]
@@ -38,29 +41,27 @@ class MetricsCacheYaml(MetricCacheAbstract):
         if not extension_bool:
             raise merrors.MetricsCacheTypeError(f"Inputted file {yaml_file} does not have a valid yaml file extension.")
 
-        super().__init__(yaml_file)
+        super().__init__(yaml_file, model_name)
 
-    def _parse_yaml_file(self) -> dict:
+        self._parse_yaml_file()
+
+    def _parse_yaml_file(self) -> None:
         """
         Parse yaml file using PyYAML library.
         """
         if not self.file:
             raise merrors.MetricsCacheTypeError("No yaml file detected.")
 
-        yml_dict = None
         try:
-            logging.debug(f"Reading in yaml file...")
             stream = open(self.file, "r", encoding="utf-8")
-            yml_dict = yaml.safe_load(stream)
-            logging.info(f"Successfully loaded yaml file.")
+            self._parsed_file = yaml.safe_load(stream)
+            logging.info(f"Successfully loaded {self.file}.")
         except yaml.YAMLError as exc:
             raise merrors.MetricsCachePyYamlError(f"Error parsing file {self.file}: {exc}")
         except IOError as io_err:
             raise merrors.MetricsCacheIOError(f"Error reading file {self.file}: {io_err}")
         except Exception as err:
             raise merrors.GeneralMetricsCacheError(f"General error found in file {self.file}: {err}")
-
-        return yml_dict
 
     def _parse_specific_metric(self, yaml_section="model_metrics") -> dict:
         """
@@ -72,11 +73,10 @@ class MetricsCacheYaml(MetricCacheAbstract):
             section of yaml file to be parsed
 
         """
-        yaml_hash_table = self._parse_yaml_file()
 
         logging.debug(f"Parsing {yaml_section} section of yaml file...")
         try:
-            metrics_table = yaml_hash_table[yaml_section]
+            metrics_table = self._parsed_file[yaml_section]
         except KeyError as err:
             raise merrors.MetricsCacheKeyError(f"'{yaml_section}' key not found in yaml file - {err}")
         logging.info(f"Successfully parsed {yaml_section} section of yaml file")
@@ -126,8 +126,6 @@ class MetricsCacheYaml(MetricCacheAbstract):
                         raise merrors.MetricsCacheKeyError(f"Key not found: {k_err}")
                     except TypeError as t_err:
                         raise merrors.MetricsCacheTypeError(f"Dimension list cannot be empty: {t_err}")
-
-        logging.info(f"Successfully created Metric objects.")
 
     def parse_yaml_to_cache(self) -> None:
         """

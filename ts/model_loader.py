@@ -91,7 +91,7 @@ class TsModelLoader(ModelLoader):
 
         # for now hard code yaml file path to pass into Metrics Cache object
         file_path = "/Users/josax/serve/ts/tests/unit_tests/metrics_yaml_testing/metrics.yaml"
-        metrics = MetricsCacheYaml(yaml_file=file_path)
+        metrics = MetricsCacheYaml(yaml_file=file_path, model_name)
         manifest_file = os.path.join(model_dir, "MAR-INF/MANIFEST.json")
         manifest = None
         if os.path.exists(manifest_file):

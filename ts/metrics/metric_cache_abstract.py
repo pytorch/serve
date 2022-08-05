@@ -13,7 +13,7 @@ from ts.metrics.dimension import Dimension
 
 
 class MetricCacheAbstract(metaclass=abc.ABCMeta):
-    def __init__(self, file):
+    def __init__(self, file, model_name):
         """
         Constructor for MetricsCaching class
 
@@ -28,6 +28,157 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
         """
         self.cache = {}
         self.file = file
+        self.model_name = model_name
+
+    def _add_or_update(self, name, value, unit, metric_type=None, dimensions=None, error_metric_bool=False):
+        """
+        Add a metric key value pair
+
+        Parameters
+        ----------
+        name : str
+            metric name
+        value: int, float
+            value of metric
+        unit: str
+            unit of metric
+        value: int, float, str
+            value of metric
+        metric_type: str, optional
+            indicates type of metric operation if it is defined, creates default metric type if not defined
+        dimensions: list, optional
+            list of Dimension objects
+        """
+        # IF req_id is none error Metric
+        if dimensions is None:
+            dimensions = list()
+        elif not isinstance(dimensions, list):
+            raise merrors.MetricsCacheValueError("Please provide a list of Dimension objects.")
+        if error_metric_bool:
+            dimensions.append(Dimension("Level", "Error"))
+        else:
+            dimensions.append(Dimension("ModelName", self.model_name))
+            dimensions.append(Dimension("Level", "Model"))
+
+        # Cache the metric with a unique key
+        dims_str = ",".join([str(d) for d in dimensions])
+        metric_key = f"[{metric_type}]-[{name}]-[{dims_str}]"
+
+        if metric_key not in self.cache:
+            self.add_metric(metric_name=name, unit=unit, dimensions=dimensions, metric_type=metric_type, value=value)
+        else:
+            existing_metric = self.get_metric(metric_key=metric_key)
+            existing_metric.update(value)
+
+    def add_counter(self, name, value, idx=None, dimensions=None, metric_type="counter"):
+        """
+        Add a counter metric or increment an existing counter metric
+            Default metric type is counter
+        Parameters
+        ----------
+        name : str
+            metric name
+        value: int
+            value of metric
+        idx: int
+            request_id index in batch
+        dimensions: list
+            list of dimensions for the metric
+        metric_type: str
+           type for defining different operations, defaulted to counter metric type for Counter metrics
+        """
+        unit = 'count'
+        self._add_or_update(name=name, value=value, unit=unit, metric_type=metric_type, dimensions=dimensions)
+
+    def add_time(self, name, value, idx=None, unit='ms', dimensions=None, metric_type="gauge"):
+        """
+        Add a time based metric like latency, default unit is 'ms'
+            Default metric type is gauge
+
+        Parameters
+        ----------
+        name : str
+            metric name
+        value: int
+            value of metric
+        idx: int
+            request_id index in batch
+        unit: str
+            unit of metric,  default here is ms, s is also accepted
+        dimensions: list
+            list of dimensions for the metric
+        metric_type: str
+           type for defining different operations, defaulted to gauge metric type for Time metrics
+        """
+        if unit not in ['ms', 's']:
+            raise merrors.MetricsCacheValueError("the unit for a timed metric should be one of ['ms', 's']")
+        self._add_or_update(name=name, value=value, unit=unit, metric_type=metric_type, dimensions=dimensions)
+
+    def add_size(self, name, value, idx=None, unit='MB', dimensions=None, metric_type="gauge"):
+        """
+        Add a size based metric
+            Default metric type is gauge
+
+        Parameters
+        ----------
+        name : str
+            metric name
+        value: int, float
+            value of metric
+        idx: int
+            request_id index in batch
+        unit: str
+            unit of metric, default here is 'MB', 'kB', 'GB' also supported
+        dimensions: list
+            list of dimensions for the metric
+        metric_type: str
+           type for defining different operations, defaulted to gauge metric type for Size metrics
+        """
+        if unit not in ['MB', 'kB', 'GB', 'B']:
+            raise ValueError("The unit for size based metric is one of ['MB','kB', 'GB', 'B']")
+        self._add_or_update(name=name, value=value, unit=unit, metric_type=metric_type, dimensions=dimensions)
+
+    def add_percent(self, name, value, idx=None, dimensions=None, metric_type="gauge"):
+        """
+        Add a percentage based metric
+            Default metric type is gauge
+
+        Parameters
+        ----------
+        name : str
+            metric name
+        value: int, float
+            value of metric
+        idx: int
+            request_id index in batch
+        dimensions: list
+            list of dimensions for the metric
+        metric_type: str
+           type for defining different operations, defaulted to gauge metric type for Percent metrics
+        """
+        unit = 'percent'
+        self._add_or_update(name=name, value=value, unit=unit, metric_type=metric_type, dimensions=dimensions)
+
+    def add_error(self, name, value, dimensions=None, metric_type="counter"):
+        """
+        Add an Error Metric
+            Default metric type is counter
+
+        Parameters
+        ----------
+        name : str
+            metric name
+        value: int, float
+            value of metric, in this case a str
+        dimensions: list
+            list of dimensions for the metric
+        metric_type: str
+           type for defining different operations, defaulted to counter metric type for Error metrics
+        """
+        unit = ''
+        # noinspection PyTypeChecker
+        self._add_or_update(name=name, value=value, unit=unit, metric_type=metric_type, dimensions=dimensions,
+                            error_metric_bool=True)
 
     def get_metric(self, metric_key: str) -> Metric:
         """
@@ -91,7 +242,7 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
                                                                              dimensions=dimensions,
                                                                              metric_type=metric_type)
 
-        logging.info(f"Successfully added {metric_name} metric to cache.")
+        logging.info(f"Successfully added {metric_name} Metric object to cache.")
 
     @staticmethod
     def _inspect_naming_convention(*metric_arg) -> None:

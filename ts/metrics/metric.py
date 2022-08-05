@@ -62,7 +62,7 @@ class Metric(object):
             metric to be updated
         """
 
-        if self.metric_method == 'counter':
+        if self.metric_method == 'counter' or self.metric_type == 'counter': # metric_method should be not used
             self.value += value
         else:
             self.value = value
