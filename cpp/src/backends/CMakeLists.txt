@@ -24,7 +24,7 @@ target_link_libraries(ts_backends_core PRIVATE ts_utils ts_backends_protocol ${F
 set(TS_BACKENDS_TORCH_SCRIPTED_SOURCE_FILES "")
 list(APPEND TS_BACKENDS_TORCH_SCRIPTED_SOURCE_FILES ${TS_BACKENDS_TORCH_SCRIPTED_SRC_DIR}/torch_scripted_backend.cc)
 add_library(ts_backends_torch_scripted ${TS_BACKENDS_TORCH_SCRIPTED_SOURCE_FILES})
-target_include_directories(ts_backends_torch_scripted PUBLIC ${TS_BACKENDS_TORCH_SCRIPTED_SRC_DIR})
+target_include_directories(ts_backends_torch_scripted PUBLIC ${TS_BACKENDS_TORCH_SCRIPTED_SRC_DIR} ${TORCH_INCLUDE_DIRS})
 target_link_libraries(ts_backends_torch_scripted PUBLIC ts_utils ts_backends_core ${TORCH_LIBRARIES}) 
 
 # build library ts_backend_torch_deploy

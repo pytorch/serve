@@ -6,43 +6,48 @@
 #include <torch/torch.h>
 
 #include "src/backends/core/backend.hh"
-#include "src/backends/torch_handler/base_handler.hh"
+#include "src/backends/torch_scripted/handler/base_handler.hh"
+#include "src/utils/dl_loader.hh"
 #include "src/utils/message.hh"
 #include "src/utils/model_archive.hh"
 
 namespace torchserve {
-  class TorchScriptedBackend final : public Backend {
-    public:
-    TorchScriptedBackend() {};
-    ~TorchScriptedBackend() {};
+  namespace torchscripted {
+    class Backend final : public torchserve::Backend {
+      public:
+      Backend() {};
+      ~Backend() {};
 
-    std::pair<
-    std::unique_ptr<torchserve::LoadModelResponse>, std::shared_ptr<torchserve::ModelInstance>> 
-    LoadModelInternal(
-      std::shared_ptr<torchserve::LoadModelRequest> load_model_request,
-      std::shared_ptr<torchserve::Manifest> manifest) override;
+      bool Initialize(const std::string& model_path) override;
 
-    private:
-    torch::Device GetTorchDevice(
-      std::shared_ptr<torchserve::LoadModelRequest> load_model_request);
-  };
+      std::pair<
+      std::unique_ptr<torchserve::LoadModelResponse>, std::shared_ptr<torchserve::ModelInstance>> 
+      LoadModelInternal(
+        std::shared_ptr<torchserve::LoadModelRequest> load_model_request) override;
+      
+      private:
+      void LoadHandler();
+      
+      std::unique_ptr<torchserve::DLLoader<BaseHandler>> dl_loader_;
+      std::shared_ptr<BaseHandler> handler_;
+    };
 
-  class TorchScritpedModelInstance final: public ModelInstance {
-    public:
-    TorchScritpedModelInstance(
-      std::shared_ptr<torch::jit::script::Module> model, 
-      std::shared_ptr<torchserve::LoadModelRequest> load_model_request,
-      std::shared_ptr<torchserve::Manifest> manifest) :
-      ModelInstance(load_model_request, manifest), model_(model) {};
-    ~TorchScritpedModelInstance() {};
+    class ModelInstance final: public torchserve::ModelInstance {
+      public:
+      ModelInstance(
+        const std::string& instance_id,
+        std::shared_ptr<torch::jit::script::Module> model, 
+        std::shared_ptr<torchserve::torchscripted::BaseHandler> handler) :
+        torchserve::ModelInstance(instance_id), model_(model), handler_(handler) {};
+      ~ModelInstance() {};
 
-    std::shared_ptr<torchserve::InferenceResponse> Predict(
-      std::unique_ptr<torchserve::InferenceRequest> inference_request) override;
+      std::shared_ptr<torchserve::InferenceResponse> Predict(
+        const torchserve::InferenceRequestBatch& inference_request_batch) override;
 
-    private:
-    std::shared_ptr<torch::jit::script::Module> model_;
-    std::shared_ptr<torchserve::TorchBaseHandler> handler_;
-
-  };
+      private:
+      std::shared_ptr<torch::jit::script::Module> model_;
+      std::shared_ptr<torchserve::torchscripted::BaseHandler> handler_;
+    };
+  } // namespace torchscripted
 } // namespace torchserve
 #endif // TS_CPP_BACKENDS_TORCH_SCRIPTED_TORCH_SCRIPTED_BACKEND_HH_

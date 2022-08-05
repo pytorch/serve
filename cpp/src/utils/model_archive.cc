@@ -5,7 +5,7 @@
 #include "src/utils/model_archive.hh"
 
 namespace torchserve {
-  void Manifest::Initialize(
+  bool Manifest::Initialize(
     const std::string& manifest_json_file_path) {
     try {
       auto manifest_stream = torchserve::FileSystem::GetStream(manifest_json_file_path);
@@ -14,7 +14,7 @@ namespace torchserve {
       auto val = folly::parseJson(str);
       auto model = val[torchserve::Manifest::kModel];
       if (model == NULL) {
-        LOG(FATAL) << "Item: model is not defined in " << manifest_json_file_path;
+        LOG(ERROR) << "Item: model is not defined in " << manifest_json_file_path;
       }
 
       SetValue(model, torchserve::Manifest::kModel_Handler, model_.handler, true);
@@ -23,7 +23,7 @@ namespace torchserve {
         model_.serialized_file, false) && 
         !SetValue(model, torchserve::Manifest::kModel_ModelFile, 
         model_.model_file, false)) {
-          LOG(FATAL) << "Item: " << torchserve::Manifest::kModel_SerializedFile 
+          LOG(ERROR) << "Item: " << torchserve::Manifest::kModel_SerializedFile 
           << " and item : " << torchserve::Manifest::kModel_ModelFile 
           << " not defined in " << manifest_json_file_path;
       }
@@ -42,7 +42,9 @@ namespace torchserve {
       SetValue(val, torchserve::Manifest::kRuntimeType, runtime_type_, false);
     } catch (const std::invalid_argument& e) {
       LOG(ERROR) << "Failed to init Manifest from: " << manifest_json_file_path << ", error: " << e.what();
+      return false;
     }
+    return true;
   }
 
   bool Manifest::SetValue(
@@ -54,7 +56,7 @@ namespace torchserve {
       dest = source[key].asString();
     } catch (const std::out_of_range& e) {
       if (required) {
-        LOG(FATAL) << "Item: " << key << " not defined.";
+        LOG(ERROR) << "Item: " << key << " not defined.";
       } else {
         return false;
       }

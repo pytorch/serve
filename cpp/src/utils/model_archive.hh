@@ -26,8 +26,9 @@ namespace torchserve {
     inline static const std::string kArchiverVersion = "archiverVersion";
     inline static const std::string kRuntimeType = "runtime";
     inline static const std::string kModel = "model";
+    inline static const char kHandler_Delimiter = ':';
 
-    void Initialize(const std::string& manifest_json_file_path);
+    bool Initialize(const std::string& manifest_json_file_path);
 
     struct Model {
       std::string model_name;

@@ -11,6 +11,8 @@ DEFINE_string(host, "127.0.0.1", "");
 DEFINE_string(port, "9000", "");
 DEFINE_string(runtime_type, "LSP", "model runtime type");
 DEFINE_string(device_type, "cpu", "cpu, or gpu");
+// TODO: discuss multiple backends support
+DEFINE_string(model_path, "", "model path");
 
 int main(int argc, char* argv[]) {
   gflags::ParseCommandLineFlags(&argc, &argv, true);
@@ -24,7 +26,7 @@ int main(int argc, char* argv[]) {
   torchserve::SocketServer server = torchserve::SocketServer::GetInstance();
 
   server.Initialize(FLAGS_socket_type, FLAGS_socket_name, 
-  FLAGS_host, FLAGS_port, FLAGS_runtime_type, FLAGS_device_type);
+  FLAGS_host, FLAGS_port, FLAGS_runtime_type, FLAGS_device_type, FLAGS_model_path);
 
   server.Run();
 

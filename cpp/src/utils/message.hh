@@ -1,14 +1,17 @@
-
 #ifndef TS_CPP_UTILS_MESSAGE_HH_
 #define TS_CPP_UTILS_MESSAGE_HH_
 
 #include <folly/dynamic.h>
 #include <map>
+#include <memory>
 #include <string>
 #include <variant>
 #include <vector>
 
 namespace torchserve {
+  #define CONTENT_TYPE_JSON "application/json"
+  #define CONTENT_TYPE_TEXT "text"
+  
   // TODO: expand to support model instance, large model (ref: ModelConfig in config.hh)
   struct LoadModelRequest {
     // /path/to/model/file
@@ -52,23 +55,25 @@ namespace torchserve {
   using ParameterValue = std::variant<
     std::string,                           // str_value
     folly::dynamic,                        // json_value
-    std::vector<std::byte>                 // bytes_value
+    std::vector<std::byte>,                // bytes_value
+    std::vector<float>                     // a list of number
   >;             
   struct InferenceRequest {
-    struct Header {
-      std::string name;
-      std::vector<std::byte> value;
-    };
-
-    struct Parameter {
-      std::string name;
-      std::string content_type;
-      std::vector<ParameterValue> values;
-    };
+    /**
+     * @brief 
+     * - all of the pairs <parameter_name, value_content_type> are also stored 
+     * in the Header
+     * - key: header_name
+     * - value: header_value
+     */
+    using Header = std::map<std::string, std::string>;
+    using Parameter = std::map<std::string, std::vector<std::byte>>;
+      
     std::string request_id;
-    std::vector<Header> request_headers;
-    std::vector<Parameter> parameters;
+    Header headers;
+    Parameter parameters;
   };
+  using InferenceRequestBatch = std::vector<std::unique_ptr<InferenceRequest>>;
 
   struct InferenceResponse {
     // TODO: definition

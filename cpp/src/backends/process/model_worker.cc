@@ -8,7 +8,8 @@ namespace torchserve {
     const std::string& host_addr,
     const std::string& port_num,
     const torchserve::RuntimeType& runtime_type,
-    torchserve::DeviceType device_type) {
+    torchserve::DeviceType device_type,
+    const std::string& model_path) {
     unsigned short socket_family;
     socket_family = AF_INET;
     if (socket_type == "unix") {
@@ -40,7 +41,10 @@ namespace torchserve {
     if (server_socket_ == -1) {
         LOG(FATAL) << "Failed to create socket descriptor. errno: " << errno;
     }
-    backend_ = CreateBackend(runtime_type, device_type);
+    
+    if (!CreateBackend(runtime_type, model_path)) {
+      LOG(FATAL) << "Failed to create backend, model_path: " << model_path;
+    }
   }
 
   void SocketServer::Run() {
@@ -91,18 +95,14 @@ namespace torchserve {
     }
   }
 
-  std::shared_ptr<torchserve::Backend> SocketServer::CreateBackend(
+  bool SocketServer::CreateBackend(
     const torchserve::RuntimeType& runtime_type,
-    torchserve::DeviceType device_type) {
-    /**
-     * @brief 
-     * TODO: Dynamically create backend from the corresponding shared lib 
-     * by calling GetBackendLibPath
-     */
+    const std::string& model_path) {
     if (runtime_type == "LDP") {
-      return std::make_shared<TorchScriptedBackend>();
+      backend_ = std::make_shared<torchserve::torchscripted::Backend>();
+      return backend_->Initialize(model_path);
     }
-    return nullptr;
+    return false;
   }
 
   [[noreturn]] void SocketModelWorker::Run() {

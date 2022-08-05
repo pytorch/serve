@@ -1,14 +1,14 @@
 #ifndef TS_CPP_BACKENDS_CORE_BACKEND_HH_
 #define TS_CPP_BACKENDS_CORE_BACKEND_HH_
 
-#include <fmt/format.h>
+#include <atomic>
+#include <filesystem>
 #include <memory>
 #include <stdexcept>
 #include <utility>
 
 #include "src/utils/config.hh"
 #include "src/utils/message.hh"
-#include "src/utils/model_archive.hh"
 
 namespace torchserve {
   /**
@@ -18,25 +18,11 @@ namespace torchserve {
    */
   class ModelInstance {
     public:
-    ModelInstance(
-      std::shared_ptr<torchserve::LoadModelRequest> load_model_request,
-      std::shared_ptr<torchserve::Manifest> manifest) :
-      load_model_request_(load_model_request), manifest_(manifest) {
-      // TODO: set instance_id_ after LoadModelRequest is extended to support 
-      // device type: CPU, GPU or others
-    };
+    ModelInstance(const std::string& instance_id) : instance_id_(instance_id) {};
     virtual ~ModelInstance() {};
 
     virtual std::shared_ptr<torchserve::InferenceResponse> Predict(
-      std::unique_ptr<torchserve::InferenceRequest> inference_request) = 0;
-
-    std::shared_ptr<torchserve::Manifest> GetManifest() {
-      return manifest_;
-    };
-
-    std::shared_ptr<torchserve::LoadModelRequest> GetLoadModelRequest() {
-      return load_model_request_;
-    };
+      const torchserve::InferenceRequestBatch& inference_request_batch) = 0;
 
     const std::string& GetInstanceId() {
       return instance_id_;
@@ -46,8 +32,6 @@ namespace torchserve {
     // instance_id naming convention:
     // device_type + ":" + device_id (or object id)
     std::string instance_id_;
-    std::shared_ptr<torchserve::LoadModelRequest> load_model_request_;
-    std::shared_ptr<torchserve::Manifest> manifest_;
   };
 
   /**
@@ -78,16 +62,24 @@ namespace torchserve {
     Backend() {};
     virtual ~Backend() {};
 
+    virtual bool Initialize(const std::string& model_path) {
+      manifest_ = std::make_shared<torchserve::Manifest>();
+      // TODO: windows
+      return manifest_->Initialize(fmt::format("{}/MAR-INF/MANIFEST.json", model_path));
+    };
+
     std::pair<std::unique_ptr<torchserve::LoadModelResponse>, std::shared_ptr<ModelInstance>> 
     LoadModel(std::shared_ptr<torchserve::LoadModelRequest> load_model_request);
 
     virtual 
     std::pair<std::unique_ptr<torchserve::LoadModelResponse>, std::shared_ptr<ModelInstance>> 
     LoadModelInternal(
-      std::shared_ptr<torchserve::LoadModelRequest> load_model_request,
-      std::shared_ptr<torchserve::Manifest> manifest) = 0;
+      std::shared_ptr<torchserve::LoadModelRequest> load_model_request) = 0;
 
     protected:
+    std::string BuildModelInstanceId(std::shared_ptr<torchserve::LoadModelRequest>& load_model_request);
+
+
     std::shared_ptr<torchserve::Manifest> manifest_;
     // key: model_instance_id
     // value: model_instance_status
@@ -96,6 +88,8 @@ namespace torchserve {
     // key: model_instance_id
     // value: model_instance    
     std::map<std::string, std::shared_ptr<torchserve::ModelInstance>> model_instance_table_;
+
+    std::atomic_uint16_t model_instance_count_ = 0;
   };
 
   class ModelWorker {

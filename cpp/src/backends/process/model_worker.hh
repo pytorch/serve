@@ -37,15 +37,16 @@ namespace torchserve {
       const std::string& host_addr,
       const std::string& port_num,
       const torchserve::RuntimeType& runtime_type,
-      torchserve::DeviceType device_type);
+      torchserve::DeviceType device_type,
+      const std::string& model_path);
     
     void Run();
 
     private:
     SocketServer() {};
-    std::shared_ptr<torchserve::Backend> CreateBackend(
+    bool CreateBackend(
       const torchserve::RuntimeType& runtime_type,
-      torchserve::DeviceType device_type);
+      const std::string& model_path);
 
     // TODO; impl.
     //short MAX_FAILURE_THRESHOLD = 5;

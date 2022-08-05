@@ -13,7 +13,7 @@ namespace torchserve {
    * 
    * @tparam T 
    */
-  template  <class T>
+  template <class T>
   class DLLoader {
     public:
     DLLoader(
@@ -24,21 +24,27 @@ namespace torchserve {
       create_object_func_name_(create_object_func_name),
       delete_object_func_name_(delete_object_func_name),
       handle_(nullptr) {};
-    ~DLLoader() = default;
+    ~DLLoader() {
+      CloseDL();
+    };
 
     void OpenDL() {
       if (!(handle_ = dlopen(lib_path_.c_str(), RTLD_NOW | RTLD_LAZY))) {
-				LOG(ERROR) << dlerror();
+				LOG(ERROR) << "Failed to open lib:" << lib_path_ << ", error:" << dlerror();
 			}
     };
 
     void CloseDL() {
-      if (dlclose(handle_) != 0) {
-        LOG(ERROR) << dlerror();
+      if (handle_ != nullptr && dlclose(handle_) != 0) {
+        LOG(ERROR) << "Failed to close lib:" << lib_path_ << ", error:" << dlerror();
       }
     };
 
     std::shared_ptr<T>	GetInstance() {
+      if (handle_ == nullptr) {
+        return std::shared_ptr<T>(nullptr);
+      }
+
       using createClass = T *(*)();
 	    using deleteClass = void (*)(T *);
 
@@ -52,7 +58,6 @@ namespace torchserve {
         CloseDL();
         LOG(ERROR) << dlerror();
       }
-      std::cout << "ready" << std::endl;
       
       return std::shared_ptr<T>(
         create_func(),

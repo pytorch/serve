@@ -126,7 +126,6 @@ function install_folly() {
 
 function install_kineto() {
   KINETO_SRC_DIR=$BASE_DIR/third-party/kineto
-  #KINETO_BUILD_DIR=$DEPS_DIR/kineto-build
 
   if [ ! -d "$KINETO_SRC_DIR" ] ; then
     echo -e "${COLOR_GREEN}[ INFO ] Cloning kineto repo ${COLOR_OFF}"
