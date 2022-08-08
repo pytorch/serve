@@ -11,7 +11,7 @@ on:
 concurrency:
   group: ci-gpu-${{ github.workflow }}-${{ github.ref == 'refs/heads/master' && github.run_number || github.ref }}
   cancel-in-progress: true
-  
+
 jobs:
   ci-gpu:
     runs-on: [self-hosted, ci-gpu]
@@ -29,11 +29,11 @@ jobs:
         with:
           python-version: 3.8
           architecture: x64
-      - name: Setup Java 11
-        uses: actions/setup-java@v2
+      - name: Setup Java 17
+        uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
-          java-version: '11'
+          java-version: '17'
       - name: Checkout TorchServe
         uses: actions/checkout@v2
       - name: Install dependencies
@@ -42,5 +42,13 @@ jobs:
       - name: Torchserve Sanity
         run: python torchserve_sanity.py
       - name: mvn install
-        run: cd serving-sdk/ && mvn clean install -q && cd ../
+        run: |
+            cd serving-sdk/ && ./mvnw clean install -q && cd ../
 
+      # Any coverage.xml will be picked up by this step
+      # Just make sure each coverage.xml is in a different folder
+      - name: Upload codecov
+        run : |
+          curl -Os https://uploader.codecov.io/latest/linux/codecov
+          chmod +x codecov
+          ./codecov
