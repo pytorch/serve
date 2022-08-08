@@ -12,7 +12,7 @@
 
  - [Windows Subsystem for Linux Installation Guide for Windows 10](https://docs.microsoft.com/en-us/windows/wsl/install-win10)
  - [Windows Subsystem for Linux Installation Guide for Windows Server 2019](https://docs.microsoft.com/en-us/windows/wsl/install-on-server)
- 
+
 
 ## Install from binaries
 
@@ -24,10 +24,10 @@ echo 'export PATH=$HOME/.local/bin:$PATH' >> ~/.bashrc
 source ~/.bashrc
 ```
 
-1. Install JDK 11
+1. Install JDK 17
 
 ```bash
-sudo apt-get install openjdk-11-jdk
+sudo apt-get install openjdk-17-jdk
 ```
 
 1. Install Dependencies
