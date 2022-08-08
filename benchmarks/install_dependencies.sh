@@ -13,7 +13,7 @@ sudo apt-get install -y \
         python3-dev \
         python-psutil \
         python3-pip \
-        openjdk-11-jdk \
+        openjdk-17-jdk \
         g++ \
         curl \
         vim \
