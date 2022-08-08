@@ -1,11 +1,10 @@
 #ifndef TS_CPP_UTILS_MESSAGE_HH_
 #define TS_CPP_UTILS_MESSAGE_HH_
 
-#include <folly/dynamic.h>
+#include <cstddef>
 #include <map>
 #include <memory>
 #include <string>
-#include <variant>
 #include <vector>
 
 namespace torchserve {
@@ -52,12 +51,6 @@ namespace torchserve {
     code(code), length(length), buf(buf) {};
   };
 
-  using ParameterValue = std::variant<
-    std::string,                           // str_value
-    folly::dynamic,                        // json_value
-    std::vector<std::byte>,                // bytes_value
-    std::vector<float>                     // a list of number
-  >;             
   struct InferenceRequest {
     /**
      * @brief 
@@ -66,14 +59,23 @@ namespace torchserve {
      * - key: header_name
      * - value: header_value
      */
-    using Header = std::map<std::string, std::string>;
-    using Parameter = std::map<std::string, std::vector<std::byte>>;
+    using Headers = std::map<std::string, std::string>;
+    using Parameters = std::map<std::string, std::vector<std::byte>>;
       
     std::string request_id;
-    Header headers;
-    Parameter parameters;
+    Headers headers;
+    Parameters parameters;
   };
-  using InferenceRequestBatch = std::vector<std::unique_ptr<InferenceRequest>>;
+  
+  struct InferenceRequestBatch {
+    /**
+     * @brief 
+     *  Ref: https://github.com/pytorch/serve/blob/master/ts/service.py#L36
+     */
+    std::vector<std::string> batch_request_id_;
+    std::vector<InferenceRequest::Headers> batch_headers_;
+    std::vector<InferenceRequest::Parameters> batch_parameters;
+  };
 
   struct InferenceResponse {
     // TODO: definition
@@ -81,6 +83,15 @@ namespace torchserve {
     int length;
     const std::string buf;
     InferenceResponse() {};
+  };
+
+  class Converter {
+    public:
+    static void StrToBytes(const std::string& str, std::vector<std::byte> bytes) {
+      for (auto& ch : str) {
+        bytes.emplace_back(std::byte(ch));
+      }
+    }
   };
 } // namespace torchserve
 #endif // TS_CPP_UTILS_MESSAGE_HH_

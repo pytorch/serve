@@ -19,7 +19,7 @@ namespace torchserve {
   }
 
   std::string Backend::BuildModelInstanceId(
-    std::shared_ptr<torchserve::LoadModelRequest>& load_model_request) {
+    std::shared_ptr<torchserve::LoadModelRequest> load_model_request) {
     std::string device_type("cpu");
     if (load_model_request->gpu_id >= 0) {
       device_type = "gpu";
@@ -32,4 +32,4 @@ namespace torchserve {
       model_instance_count_.fetch_add(1)
     );
   }
-}
+} // namespace torchserve

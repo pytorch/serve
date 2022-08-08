@@ -5,6 +5,7 @@
 #include <filesystem>
 #include <memory>
 #include <stdexcept>
+#include <tuple>
 #include <utility>
 
 #include "src/utils/config.hh"
@@ -22,7 +23,7 @@ namespace torchserve {
     virtual ~ModelInstance() {};
 
     virtual std::shared_ptr<torchserve::InferenceResponse> Predict(
-      const torchserve::InferenceRequestBatch& inference_request_batch) = 0;
+      torchserve::InferenceRequestBatch batch) = 0;
 
     const std::string& GetInstanceId() {
       return instance_id_;
@@ -77,7 +78,7 @@ namespace torchserve {
       std::shared_ptr<torchserve::LoadModelRequest> load_model_request) = 0;
 
     protected:
-    std::string BuildModelInstanceId(std::shared_ptr<torchserve::LoadModelRequest>& load_model_request);
+    std::string BuildModelInstanceId(std::shared_ptr<torchserve::LoadModelRequest> load_model_request);
 
 
     std::shared_ptr<torchserve::Manifest> manifest_;

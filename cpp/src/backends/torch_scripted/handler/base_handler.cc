@@ -2,16 +2,18 @@
 
 namespace torchserve {
   namespace torchscripted {
-    std::shared_ptr<torch::jit::script::Module> BaseHandler::LoadModel(
+    std::pair<std::shared_ptr<torch::jit::script::Module>, torch::Device> 
+    BaseHandler::LoadModel(
       std::shared_ptr<torchserve::LoadModelRequest> load_model_request) {
-      std::shared_ptr<torch::jit::script::Module> module;
       try {
-        module = std::make_shared<torch::jit::script::Module>(torch::jit::load(
+        auto device = GetTorchDevice(load_model_request);
+        auto module = std::make_shared<torch::jit::script::Module>(torch::jit::load(
           // TODO: windows
           fmt::format("{}/{}", 
           load_model_request->model_path, 
           manifest->GetModel().serialized_file),
-          GetTorchDevice(load_model_request)));
+          device));
+        return std::make_pair(module, device);
         /*
         if (load_model_request->gpu_id != -1) {
           module = std::make_shared<torch::jit::script::Module>(
@@ -35,14 +37,6 @@ namespace torchserve {
         << load_model_request->gpu_id
         << ", error: " << e.msg();
         throw e;
-      }
-    }
-
-    std::vector<torch::jit::IValue> BaseHandler::Preprocess(
-      const torchserve::InferenceRequestBatch& inference_request_batch) {
-      std::vector<std::vector<std::byte>&> batch;
-      for(const auto& inference_request : inference_request_batch) {
-        batch.emplace(inference_request->)
       }
     }
 

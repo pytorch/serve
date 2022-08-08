@@ -1,11 +1,15 @@
 #ifndef TS_CPP_UTILS_MODEL_ARCHIVE_HH_
 #define TS_CPP_UTILS_MODEL_ARCHIVE_HH_
 
-#include <fmt/format.h>
 #include <folly/dynamic.h>
+#include <fmt/format.h>
+#include <folly/json.h>
 #include <map>
 #include <memory>
 #include <string>
+#include <glog/logging.h>
+
+#include "src/utils/file_system.hh"
 
 namespace torchserve {
   // TODO: limit to upper case "LDP", "LSP", ...
@@ -17,6 +21,7 @@ namespace torchserve {
     inline static const std::string kModel_WorkflowName = "workflowName";
     inline static const std::string kModel_Description = "description";
     inline static const std::string kModel_Handler = "handler";
+    inline static const std::string kModel_Envelope = "envelope";
     inline static const std::string kModel_SerializedFile = "serializedFile";
     inline static const std::string kModel_ModelFile = "modelFile";
     inline static const std::string kModel_Extensions = "extensions";
@@ -37,6 +42,7 @@ namespace torchserve {
       std::string workflow_name;  
       std::string description;
       std::string handler;
+      std::string envelope;
       std::string serialized_file;
       std::string model_file;
       std::string extensions;

@@ -4,6 +4,7 @@
 #include <torch/script.h>
 #include <torch/torch.h>
 #include <functional>
+#include <utility>
 
 #include "src/backends/core/backend.hh"
 
@@ -29,11 +30,12 @@ namespace torchserve {
         manifest_ = manifest;
       };
 
-      virtual std::shared_ptr<torch::jit::script::Module> LoadModel(
+      virtual std::pair<std::shared_ptr<torch::jit::script::Module>, torch::Device> 
+      LoadModel(
         std::shared_ptr<torchserve::LoadModelRequest> load_model_request);
 
       virtual std::vector<torch::jit::IValue> Preprocess(
-        const torchserve::InferenceRequestBatch& inference_request_batch) = 0;
+        torchserve::InferenceRequestBatch batch) = 0;
       
       virtual std::shared_ptr<torchserve::InferenceResponse> Postprocess(
         torch::Tensor data) = 0;
@@ -41,7 +43,6 @@ namespace torchserve {
       virtual torch::Tensor Predict(
         std::shared_ptr<torch::jit::script::Module> model,
         std::vector<torch::jit::IValue> inputs) = 0;
-
 
       /**
        * @brief 
@@ -52,7 +53,8 @@ namespace torchserve {
        */
       std::shared_ptr<torchserve::InferenceResponse> Handle(
         std::shared_ptr<torch::jit::script::Module> model,
-        const torchserve::InferenceRequestBatch& inference_request_batch) {
+        torch::Device device,
+        torchserve::InferenceRequestBatch batch) {
         auto inputs = Preprocess(inference_request_batch);
         auto output = Predict(model, inputs);
         return Postprocess(output);

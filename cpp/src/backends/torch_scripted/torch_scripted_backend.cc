@@ -1,7 +1,3 @@
-#include <fmt/format.h>
-#include <memory>
-
-#include "src/backends/torch_scripted/handler/handler_factory.hh"
 #include "src/backends/torch_scripted/torch_scripted_backend.hh"
 
 namespace torchserve {
@@ -15,6 +11,9 @@ namespace torchserve {
         return false;
       }
       handler_->Initialize(model_path, manifest_);
+
+      // TODO: support request envelope: 
+      // https://github.com/pytorch/serve/tree/master/ts/torch_handler/request_envelope
       return true;
     }
 
@@ -41,9 +40,9 @@ namespace torchserve {
     Backend::LoadModelInternal(
       std::shared_ptr<torchserve::LoadModelRequest> load_model_request) {
       try {
-        std::shared_ptr<torch::jit::script::Module> model = handler_->LoadModel(load_model_request);
+        auto result = handler_->LoadModel(load_model_request);
         auto model_instance = std::make_shared<ModelInstance>(
-          BuildModelInstanceId(load_model_request), model, handler_);
+          BuildModelInstanceId(load_model_request), result.first, handler_, result.second), ;
         return std::make_pair(
           std::make_unique<torchserve::LoadModelResponse>(
             // TODO: check current response msg content
@@ -63,7 +62,7 @@ namespace torchserve {
     }
 
     std::shared_ptr<torchserve::InferenceResponse> ModelInstance::Predict(
-      const torchserve::InferenceRequestBatch& inference_request_batch) {
+      torchserve::InferenceRequestBatch batch) {
       return handler_->Handle(model_, inference_request_batch);
     }
   } // namespace torchscripted

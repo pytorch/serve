@@ -1,7 +1,3 @@
-#include <folly/json.h>
-#include <glog/logging.h>
-
-#include "src/utils/file_system.hh"
 #include "src/utils/model_archive.hh"
 
 namespace torchserve {
@@ -36,6 +32,7 @@ namespace torchserve {
       SetValue(model, torchserve::Manifest::kModel_Extensions, model_.extensions, false);
       SetValue(model, torchserve::Manifest::kModel_ReqirementsFile, model_.requirements_file, false);
       SetValue(model, torchserve::Manifest::kModel_SpecFile, model_.spec_file, false);
+      SetValue(model, torchserve::Manifest::kModel_Envelope, model_.envelope, false);
 
       SetValue(val, torchserve::Manifest::kCreateOn, create_on_, false);
       SetValue(val, torchserve::Manifest::kArchiverVersion, archiver_version_, false);
