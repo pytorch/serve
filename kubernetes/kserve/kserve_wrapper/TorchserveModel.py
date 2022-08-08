@@ -1,15 +1,16 @@
 """ The torchserve side inference end-points request are handled to
     return a KServe side response """
 import json
-from typing import Dict
 import logging
 import pathlib
 from importlib.metadata import version
+from typing import Dict
+
 import kserve
 import tornado.web
-from kserve.model import ModelMissingError, InferenceError
+from kserve.model import ModelMissingError
 
-if version('kserve') >= '0.8.0':
+if version("kserve") >= "0.8.0":
     from kserve.model import Model as Model
 else:
     from kserve.kfmodel import KFModel as Model
@@ -126,12 +127,14 @@ class TorchserveModel(Model):
 
     def load(self) -> bool:
         model_path = pathlib.Path(kserve.Storage.download(self.model_dir))
-        paths = list(pathlib.Path(model_path).glob('*.mar'))
+        paths = list(pathlib.Path(model_path).glob("*.mar"))
         existing_paths = [path for path in paths if path.exists()]
         if len(existing_paths) == 0:
             raise ModelMissingError(model_path)
         elif len(existing_paths) > 1:
-            raise RuntimeError('More than one model file is detected, '
-                               f'Only one is allowed within model_dir: {existing_paths}')
+            raise RuntimeError(
+                "More than one model file is detected, "
+                f"Only one is allowed within model_dir: {existing_paths}"
+            )
         self.ready = True
         return self.ready
