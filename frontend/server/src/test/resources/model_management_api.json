@@ -2,7 +2,7 @@
   "openapi": "3.0.1",
   "info": {
     "title": "RESTful Management API for: noop",
-    "version": "0.6.0"
+    "version": "%s"
   },
   "paths": {
     "/models/{model_name}": {
