@@ -315,10 +315,14 @@ def _retrieve_input_data(conn):
     if content_type == "application/json" and (decode_req is None or decode_req == "true"):
         try:
             model_input["value"] = json.loads(value.decode("utf-8"))
-        except JSONDecodeError:
-            logging.info(f"{value} could not be decoded as JSON")
+        except (JSONDecodeError, UnicodeDecodeError) as e:
+            logging.info(f"Exception {e} thrown on value: {value})
     elif content_type.startswith("text") and (decode_req is None or decode_req == "true"):
-        model_input["value"] = value.decode("utf-8")
+        try:
+            model_input["value"] = value.decode("utf-8")
+        except JSONDecodeError as e:
+            logging.info(f"Exception {e} thrown on value: {value})
+            
     else:
         model_input["value"] = value
     return model_input
