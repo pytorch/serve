@@ -325,7 +325,7 @@ def _retrieve_input_data(conn):
     ):
         try:
             model_input["value"] = value.decode("utf-8")
-        except JSONDecodeError as e:
+        except UnicodeDecodeError as e:
             logging.info(f"Exception {e} thrown on value: {value}")
 
     else:
