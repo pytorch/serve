@@ -317,6 +317,8 @@ def _retrieve_input_data(conn):
     ):
         try:
             model_input["value"] = json.loads(value.decode("utf-8"))
+            return model_input
+
         except Exception as e:
             logging.info(f"Exception {e} thrown on value: {value}")
     elif content_type.startswith("text") and (
@@ -324,9 +326,12 @@ def _retrieve_input_data(conn):
     ):
         try:
             model_input["value"] = value.decode("utf-8")
+            return model_input
+
         except Exception as e:
             logging.info(f"Exception {e} thrown on value: {value}")
 
     else:
         model_input["value"] = value
-    return model_input
+        return model_input
+    return None
