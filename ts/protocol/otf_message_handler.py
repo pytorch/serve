@@ -317,21 +317,22 @@ def _retrieve_input_data(conn):
     ):
         try:
             model_input["value"] = json.loads(value.decode("utf-8"))
-            return model_input
 
         except Exception as e:
+            model_input["value"] = value
             logging.exception(e)
+            
     elif content_type.startswith("text") and (
         decode_req is None or decode_req == "true"
     ):
         try:
             model_input["value"] = value.decode("utf-8")
-            return model_input
 
         except Exception as e:
+            model_input["value"] = value
             logging.exception(e)
 
     else:
         model_input["value"] = value
-        return model_input
-    return None
+        
+    return model_input
