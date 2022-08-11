@@ -1,0 +1,45 @@
+name: Lint
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Test changed-files
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # OR "2" -> To retrieve the preceding commit.
+
+      - name: Install lint utilities
+        run: |
+          pip install pre-commit
+          pre-commit install      
+
+      - name: Get specific changed files
+        id: changed-files-specific
+        uses: tj-actions/changed-files@v20.1
+        with:
+          files: | 
+            **/*.py
+  
+      - name: Lint all changed files
+        run: |
+          for file in ${{ steps.changed-files-specific.outputs.all_changed_files }}; do
+            pre-commit run --files $file
+          done
+          
+      - name: What to do if this action fails
+        if: ${{ failure() }}
+        run: |
+          echo "You need to lint your code with pre-commit"
+          echo "pip install pre-commit" 
+          echo "cd serve/"
+          echo "pre-commit install"
+          echo "pre-commit will lint your code for you, so git add and commit those new changes and this check should become green"
