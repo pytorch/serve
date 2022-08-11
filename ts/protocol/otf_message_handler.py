@@ -9,7 +9,6 @@ import struct
 import sys
 import time
 from builtins import bytearray, bytes
-from json.decoder import JSONDecodeError
 
 import torch
 
@@ -318,14 +317,14 @@ def _retrieve_input_data(conn):
     ):
         try:
             model_input["value"] = json.loads(value.decode("utf-8"))
-        except (JSONDecodeError, UnicodeDecodeError) as e:
+        except Exception as e:
             logging.info(f"Exception {e} thrown on value: {value}")
     elif content_type.startswith("text") and (
         decode_req is None or decode_req == "true"
     ):
         try:
             model_input["value"] = value.decode("utf-8")
-        except UnicodeDecodeError as e:
+        except Exception as e:
             logging.info(f"Exception {e} thrown on value: {value}")
 
     else:
