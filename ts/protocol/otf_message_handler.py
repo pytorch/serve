@@ -320,7 +320,7 @@ def _retrieve_input_data(conn):
             return model_input
 
         except Exception as e:
-            logging.info(f"Exception {e} thrown on value: {value}")
+            logging.exception(e)
     elif content_type.startswith("text") and (
         decode_req is None or decode_req == "true"
     ):
@@ -329,7 +329,7 @@ def _retrieve_input_data(conn):
             return model_input
 
         except Exception as e:
-            logging.info(f"Exception {e} thrown on value: {value}")
+            logging.exception(e)
 
     else:
         model_input["value"] = value
