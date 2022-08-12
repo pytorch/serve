@@ -320,8 +320,11 @@ def _retrieve_input_data(conn):
 
         except Exception as e:
             model_input["value"] = value
-            logging.warning("Failed json decoding of input data. Forwarding encoded payload", exc_info=True)
-            
+            logging.warning(
+                "Failed json decoding of input data. Forwarding encoded payload",
+                exc_info=True,
+            )
+
     elif content_type.startswith("text") and (
         decode_req is None or decode_req == "true"
     ):
@@ -330,9 +333,12 @@ def _retrieve_input_data(conn):
 
         except Exception as e:
             model_input["value"] = value
-            logging.warning("Failed utf-8 decoding of input data. Forwarding encoded payload", exc_info=True)
+            logging.warning(
+                "Failed utf-8 decoding of input data. Forwarding encoded payload",
+                exc_info=True,
+            )
 
     else:
         model_input["value"] = value
-        
+
     return model_input
