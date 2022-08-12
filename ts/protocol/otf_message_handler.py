@@ -330,7 +330,7 @@ def _retrieve_input_data(conn):
 
         except Exception as e:
             model_input["value"] = value
-            logging.exception(e)
+            logging.warning("Failed utf-8 decoding of input data. Forwarding encoded payload", exc_info=True)
 
     else:
         model_input["value"] = value
