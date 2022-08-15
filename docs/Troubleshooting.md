@@ -16,7 +16,7 @@ Refer [configuration.md](https://github.com/pytorch/serve/blob/master/docs/confi
 Relevant issues: [[542](https://github.com/pytorch/serve/issues/542)]
 
 #### "java.lang.NoSuchMethodError" when starting Torchserve.[[473](https://github.com/pytorch/serve/issues/473)]
-This error usually occurs when Java 11 is not installed or used. Java 11 is required by Torchserve and older java versions are not supported.
+This error usually occurs when Java 17 is not installed or used. Java 17 is required by Torchserve and older java versions are not supported.
 
 Relevant issues: [[#473](https://github.com/pytorch/serve/issues/473)]
 
@@ -35,7 +35,7 @@ Relevant issues: [[#335](https://github.com/pytorch/serve/issues/335)]
 
 ###  Snapshot related issues
 #### How to disable Snapshot feature?
-By default, the snapshot feature is enabled. To disable snapshot feature start torchserve using --ncs flag or specify config file using --ts-config path/to/config 
+By default, the snapshot feature is enabled. To disable snapshot feature start torchserve using --ncs flag or specify config file using --ts-config path/to/config
 Relevant issues:[[#383](https://github.com/pytorch/serve/issues/383), [#512](https://github.com/pytorch/serve/issues/512)]
 
 #### Torchserve stopped after restart with "InvalidSnapshotException" exception.
@@ -77,7 +77,7 @@ Relevant issues: [[#566](https://github.com/pytorch/serve/issues/566)]
 You can provide a requirements.txt while creating a mar file using "--requirements-file/ -r" flag. You can refer to the [waveglow text-to-speech-synthesizer](https://github.com/pytorch/serve/tree/master/examples/text_to_speech_synthesizer) example
 
 -   [waveglow mar creation script](https://github.com/pytorch/serve/blob/master/examples/text_to_speech_synthesizer/create_mar.sh)
--   [waveglow handler](https://github.com/pytorch/serve/blob/master/examples/text_to_speech_synthesizer/waveglow_handler.py#L57)
+-   [waveglow handler](https://github.com/pytorch/serve/blob/2d9c7ccc316f592374943a1963c1057bbe232c9e/examples/text_to_speech_synthesizer/waveglow_handler.py#L49)
 
 Relevant issues: [[#566](https://github.com/pytorch/serve/issues/566)]
 Refer [Torch model archiver cli](https://github.com/pytorch/serve/blob/master/model-archiver/README.md#torch-model-archiver-command-line-interface) for more details.

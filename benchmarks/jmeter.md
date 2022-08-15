@@ -27,7 +27,7 @@ The benchmarking script requires the following to run:
 
 ### Windows
 
-For Windows, you should have python3 and java(OpenJDK-11) installed. You will need to install jmeter with plugins which can be accomplished by running `python windows_install_dependencies.py <Path to install jmeter>`. For example:
+For Windows, you should have python3 and java(OpenJDK-17) installed. You will need to install jmeter with plugins which can be accomplished by running `python windows_install_dependencies.py <Path to install jmeter>`. For example:
 ```bash
 python3 windows_install_dependencies.py "C:\\Program Files"
 ```
@@ -173,14 +173,14 @@ The benchmarks can be used in conjunction with standard profiling tools such as 
 Once you have stopped recording, you should be able to analyze the data. One useful section to examine is CPU views > Call Tree and CPU views > Hot Spots to see where the processor time is going.
 
 ## Backend
-The benchmarks can also be used to analyze the backend performance using cProfile. To benchmark a backend code, 
+The benchmarks can also be used to analyze the backend performance using cProfile. To benchmark a backend code,
 
 1. Install Torchserve
 
     Using local TorchServe instance:
 
     * Install TorchServe using the [install guide](../README.md#install-torchserve-and-torch-model-archiver)
-    
+
     By using external docker container for TorchServe:
 
     * Create a [docker container for TorchServe](../docker/README.md).
@@ -204,7 +204,7 @@ The benchmarks can also be used to analyze the backend performance using cProfil
     ```
 
 4. Visualize SnakeViz results.
- 
+
     To visualize the profiling data using `snakeviz` use following commands:
 
     ```bash
@@ -213,4 +213,4 @@ The benchmarks can also be used to analyze the backend performance using cProfil
     ```
     ![](snake_viz.png)
 
-    It should start up a web server on your machine and automatically open the page. Note that tha above command will fail if executed on a server where no browser is installed. The backend profiling should generate a visualization similar to the pic shown above. 
+    It should start up a web server on your machine and automatically open the page. Note that tha above command will fail if executed on a server where no browser is installed. The backend profiling should generate a visualization similar to the pic shown above.
