@@ -6,7 +6,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
@@ -229,7 +229,7 @@
               
             
             
-              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+              <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="index.html">1. TorchServe</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Troubleshooting.html">2. Troubleshooting Guide</a></li>
@@ -250,7 +250,7 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">17. Torchserve Use Cases</a></li>
 <li class="toctree-l1"><a class="reference internal" href="workflows.html">18. TorchServe Workflows</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Service APIs:</span></p>
+<p class="caption"><span class="caption-text">Service APIs:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="grpc_api.html">TorchServe gRPC API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="inference_api.html">Inference API</a></li>
@@ -260,7 +260,7 @@
 <li class="toctree-l1"><a class="reference internal" href="workflow_inference_api.html">Workflow Inference API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="workflow_management_api.html">Management API</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Developer APIs:</span></p>
+<p class="caption"><span class="caption-text">Developer APIs:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="api/ts.html">ts package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api/ts.torch_handler.request_envelope.html">ts.torch_handler.request_envelope package</a></li>
@@ -342,7 +342,7 @@
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
   <section id="torchserve-use-cases">
-<h1><span class="section-number">17. </span>Torchserve Use Cases<a class="headerlink" href="#torchserve-use-cases" title="Permalink to this heading">¶</a></h1>
+<h1><span class="section-number">17. </span>Torchserve Use Cases<a class="headerlink" href="#torchserve-use-cases" title="Permalink to this headline">¶</a></h1>
 <p>Torchserve can be used for different use cases. In order to make it convenient for users, some of them have been documented here.
 These use-cases assume you have pre-trained model(s) and <code class="docutils literal notranslate"><span class="pre">torchserve</span></code>, <code class="docutils literal notranslate"><span class="pre">torch-model-archiver</span></code> is installed on your target system.
 This should help you in moving your development environment model to production/serving environment.</p>
@@ -360,7 +360,7 @@ This should help you in moving your development environment model to production/
 <li><p>Please refer <a class="reference internal" href="custom_service.html"><span class="doc">custom handlers</span></a> to understand custom handlers.</p></li>
 </ul>
 <section id="use-cases">
-<h2><span class="section-number">17.1. </span>Use Cases<a class="headerlink" href="#use-cases" title="Permalink to this heading">¶</a></h2>
+<h2><span class="section-number">17.1. </span>Use Cases<a class="headerlink" href="#use-cases" title="Permalink to this headline">¶</a></h2>
 <p><a class="reference external" href="#deploy-pytorch-eager-mode-model">Serve pytorch eager mode model</a></p>
 <p><a class="reference external" href="#deploy-pytorch-scripted-mode-model">Serve pytorch scripted mode model</a></p>
 <p><a class="reference external" href="#serve-readymade-models-on-torchserve-model-zoo">Serve ready made models on torchserve model zoo</a></p>
@@ -370,7 +370,7 @@ This should help you in moving your development environment model to production/
 <p><a class="reference external" href="#serve-custom-models-with-third-party-dependency">Serve custom models with third party dependency</a></p>
 <p><a class="reference external" href="#serve-models-for-ab-testing">Serve models for A/B testing</a></p>
 <section id="deploy-pytorch-eager-mode-model">
-<h3><span class="section-number">17.1.1. </span>Deploy pytorch eager mode model<a class="headerlink" href="#deploy-pytorch-eager-mode-model" title="Permalink to this heading">¶</a></h3>
+<h3><span class="section-number">17.1.1. </span>Deploy pytorch eager mode model<a class="headerlink" href="#deploy-pytorch-eager-mode-model" title="Permalink to this headline">¶</a></h3>
 <p><strong>Steps to deploy your model(s)</strong></p>
 <ul>
 <li><p>Create MAR file for <a class="reference external" href="../examples/README.md#creating-mar-file-for-eager-mode-model">torch eager model</a></p>
@@ -405,7 +405,7 @@ This should help you in moving your development environment model to production/
 </ul>
 </section>
 <section id="deploy-pytorch-scripted-mode-model">
-<h3><span class="section-number">17.1.2. </span>Deploy pytorch scripted mode model<a class="headerlink" href="#deploy-pytorch-scripted-mode-model" title="Permalink to this heading">¶</a></h3>
+<h3><span class="section-number">17.1.2. </span>Deploy pytorch scripted mode model<a class="headerlink" href="#deploy-pytorch-scripted-mode-model" title="Permalink to this headline">¶</a></h3>
 <p><strong>Prerequisites</strong></p>
 <ul class="simple">
 <li><p>Assuming you have a torchscripted model if not then follow instructions in this <a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/image_classifier/densenet_161">example</a> to save your eager mode model as scripted model.</p></li>
@@ -448,8 +448,8 @@ This should help you in moving your development environment model to production/
 </ul>
 </section>
 <section id="serve-readymade-models-on-torchserve-model-zoo">
-<h3><span class="section-number">17.1.3. </span>Serve readymade models on torchserve model zoo<a class="headerlink" href="#serve-readymade-models-on-torchserve-model-zoo" title="Permalink to this heading">¶</a></h3>
-<p>This use case demostrates deployment of <a class="reference external" href="https://pytorch.org/hub/">torch hub</a> based <code class="docutils literal notranslate"><span class="pre">vision</span></code> models (classifier, object detector, segmenter) available on <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/model_zoo.md">torchserve model zoo</a>.
+<h3><span class="section-number">17.1.3. </span>Serve readymade models on torchserve model zoo<a class="headerlink" href="#serve-readymade-models-on-torchserve-model-zoo" title="Permalink to this headline">¶</a></h3>
+<p>This use case demostrates deployment of <a class="reference external" href="https://pytorch.org/hub/">torch hub</a> based <code class="docutils literal notranslate"><span class="pre">vision</span></code> models (classifier, object detector, segmenter) available on <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/model_zoo">torchserve model zoo</a>.
 Use these steps to deploy <strong>publically hosted</strong> models as well.</p>
 <p><strong>Steps to deploy your model(s)</strong></p>
 <ul class="simple">
@@ -476,7 +476,7 @@ Use these steps to deploy <strong>publically hosted</strong> models as well.</p>
 </ul>
 </section>
 <section id="secure-model-serving">
-<h3><span class="section-number">17.1.4. </span>Secure model serving<a class="headerlink" href="#secure-model-serving" title="Permalink to this heading">¶</a></h3>
+<h3><span class="section-number">17.1.4. </span>Secure model serving<a class="headerlink" href="#secure-model-serving" title="Permalink to this headline">¶</a></h3>
 <p>This use case demonstrates torchserve deployment for secure model serving.
 The example taken here uses eager mode model however you can also deploy scripted models.</p>
 <p><strong>Steps to deploy your model(s)</strong></p>
@@ -520,7 +520,7 @@ The example taken here uses eager mode model however you can also deploy scripte
 </ul>
 </section>
 <section id="serve-models-on-gpus">
-<h3><span class="section-number">17.1.5. </span>Serve models on GPUs<a class="headerlink" href="#serve-models-on-gpus" title="Permalink to this heading">¶</a></h3>
+<h3><span class="section-number">17.1.5. </span>Serve models on GPUs<a class="headerlink" href="#serve-models-on-gpus" title="Permalink to this headline">¶</a></h3>
 <p>This use case demonstrates torchserve deployment on GPU.
 The example taken here uses scripted mode model however you can also deploy eager models.</p>
 <p><strong>Prerequisites</strong></p>
@@ -565,7 +565,7 @@ e.g. number_of_gpu=2</p></li>
 </ul>
 </section>
 <section id="serve-custom-models-with-no-third-party-dependency">
-<h3><span class="section-number">17.1.6. </span>Serve custom models with no third party dependency<a class="headerlink" href="#serve-custom-models-with-no-third-party-dependency" title="Permalink to this heading">¶</a></h3>
+<h3><span class="section-number">17.1.6. </span>Serve custom models with no third party dependency<a class="headerlink" href="#serve-custom-models-with-no-third-party-dependency" title="Permalink to this headline">¶</a></h3>
 <p>This use case demonstrates torchserve deployment for custom models with no python dependency apart from pytorch and related libs.
 The example taken here uses scripted mode model however you can also deploy eager models.</p>
 <p><strong>Prerequisites</strong></p>
@@ -574,7 +574,7 @@ The example taken here uses scripted mode model however you can also deploy eage
 </ul>
 <p><strong>Steps to deploy your model(s)</strong></p>
 <ul>
-<li><p>Create <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/custom_service.md">&lt;your_custom_handler_py_file&gt;</a></p></li>
+<li><p>Create <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/custom_service">&lt;your_custom_handler_py_file&gt;</a></p></li>
 <li><p>Create MAR file for <a class="reference external" href="../examples#creating-mar-file-for-torchscript-mode-model">torch scripted model</a></p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">torch</span><span class="o">-</span><span class="n">model</span><span class="o">-</span><span class="n">archiver</span> <span class="o">--</span><span class="n">model</span><span class="o">-</span><span class="n">name</span> <span class="o">&lt;</span><span class="n">your_model_name</span><span class="o">&gt;</span> <span class="o">--</span><span class="n">version</span> <span class="mf">1.0</span>  <span class="o">--</span><span class="n">serialized</span><span class="o">-</span><span class="n">file</span> <span class="o">&lt;</span><span class="n">your_model_name</span><span class="o">&gt;.</span><span class="n">pt</span> <span class="o">--</span><span class="n">extra</span><span class="o">-</span><span class="n">files</span> <span class="o">./</span><span class="n">index_to_name</span><span class="o">.</span><span class="n">json</span> <span class="o">--</span><span class="n">handler</span> <span class="o">&lt;**</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">your_custom_handler_py_file</span><span class="o">**&gt;</span>
 <span class="n">mkdir</span> <span class="n">model</span><span class="o">-</span><span class="n">store</span>
@@ -610,7 +610,7 @@ The example taken here uses scripted mode model however you can also deploy eage
 </ul>
 </section>
 <section id="serve-custom-models-with-third-party-dependency">
-<h3><span class="section-number">17.1.7. </span>Serve custom models with third party dependency<a class="headerlink" href="#serve-custom-models-with-third-party-dependency" title="Permalink to this heading">¶</a></h3>
+<h3><span class="section-number">17.1.7. </span>Serve custom models with third party dependency<a class="headerlink" href="#serve-custom-models-with-third-party-dependency" title="Permalink to this headline">¶</a></h3>
 <p>This use case demonstrates torchserve deployment for custom models with python dependency apart from pytorch and related libs.
 The example taken here uses scripted mode model however you can also deploy eager models.</p>
 <p><strong>Prerequisites</strong></p>
@@ -619,7 +619,7 @@ The example taken here uses scripted mode model however you can also deploy eage
 </ul>
 <p><strong>Steps to deploy your model(s)</strong></p>
 <ul>
-<li><p>Create <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/custom_service.md">&lt;your_custom_handler_py_file&gt;</a> which uses third party python package such as <a class="reference external" href="https://github.com/pytorch/fairseq">fairseq</a> for pretrained NMT models</p></li>
+<li><p>Create <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/custom_service">&lt;your_custom_handler_py_file&gt;</a> which uses third party python package such as <a class="reference external" href="https://github.com/pytorch/fairseq">fairseq</a> for pretrained NMT models</p></li>
 <li><p>Create a requirements.txt file with an entry for <code class="docutils literal notranslate"><span class="pre">fairseq</span></code> python package name in it</p></li>
 <li><p>Create MAR file for <a class="reference external" href="../examples#creating-mar-file-for-torchscript-mode-model">torch scripted model</a> with requirements.txt</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">torch</span><span class="o">-</span><span class="n">model</span><span class="o">-</span><span class="n">archiver</span> <span class="o">--</span><span class="n">model</span><span class="o">-</span><span class="n">name</span> <span class="o">&lt;</span><span class="n">your_model_name</span><span class="o">&gt;</span> <span class="o">--</span><span class="n">version</span> <span class="mf">1.0</span>  <span class="o">--</span><span class="n">serialized</span><span class="o">-</span><span class="n">file</span> <span class="o">&lt;</span><span class="n">your_model_name</span><span class="o">&gt;.</span><span class="n">pt</span> <span class="o">--</span><span class="n">extra</span><span class="o">-</span><span class="n">files</span> <span class="o">./</span><span class="n">index_to_name</span><span class="o">.</span><span class="n">json</span> <span class="o">--</span><span class="n">handler</span> <span class="o">&lt;**</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">your_custom_handler_py_file</span><span class="o">**&gt;</span> <span class="o">--</span><span class="n">requirements</span><span class="o">-</span><span class="n">file</span> <span class="o">&lt;</span><span class="n">your_requirements_txt</span><span class="o">&gt;</span>
@@ -657,7 +657,7 @@ The example taken here uses scripted mode model however you can also deploy eage
 </ul>
 </section>
 <section id="serve-models-for-ab-testing">
-<h3><span class="section-number">17.1.8. </span>Serve models for AB testing<a class="headerlink" href="#serve-models-for-ab-testing" title="Permalink to this heading">¶</a></h3>
+<h3><span class="section-number">17.1.8. </span>Serve models for AB testing<a class="headerlink" href="#serve-models-for-ab-testing" title="Permalink to this headline">¶</a></h3>
 <p>This use case demonstrates serving two or more versions of same model using version API. It is an extension of any of the above use cases.</p>
 <p><strong>Prerequisites</strong></p>
 <ul class="simple">
@@ -690,7 +690,7 @@ OR
 </ul>
 <p><strong>Examples and References</strong></p>
 <ul class="simple">
-<li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/management_api.md">Model management APIs</a></p></li>
+<li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/management_api">Model management APIs</a></p></li>
 </ul>
 </section>
 </section>
@@ -771,7 +771,6 @@ OR
          <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
          <script src="_static/jquery.js"></script>
          <script src="_static/underscore.js"></script>
-         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
          <script src="_static/doctools.js"></script>
          <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.js"></script>
          <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/contrib/auto-render.min.js"></script>

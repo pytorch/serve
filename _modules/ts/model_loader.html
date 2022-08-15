@@ -226,7 +226,7 @@
               
             
             
-              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+              <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../index.html">1. TorchServe</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../Troubleshooting.html">2. Troubleshooting Guide</a></li>
@@ -247,7 +247,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../use_cases.html">17. Torchserve Use Cases</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../workflows.html">18. TorchServe Workflows</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Service APIs:</span></p>
+<p class="caption"><span class="caption-text">Service APIs:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../grpc_api.html">TorchServe gRPC API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../inference_api.html">Inference API</a></li>
@@ -257,7 +257,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../workflow_inference_api.html">Workflow Inference API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../workflow_management_api.html">Management API</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Developer APIs:</span></p>
+<p class="caption"><span class="caption-text">Developer APIs:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../api/ts.html">ts package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../api/ts.torch_handler.request_envelope.html">ts.torch_handler.request_envelope package</a></li>
@@ -345,13 +345,13 @@
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">uuid</span>
-<span class="kn">from</span> <span class="nn">abc</span> <span class="k">import</span> <span class="n">ABCMeta</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABCMeta</span><span class="p">,</span> <span class="n">abstractmethod</span>
 
-<span class="kn">from</span> <span class="nn">builtins</span> <span class="k">import</span> <span class="nb">str</span>
+<span class="kn">from</span> <span class="nn">builtins</span> <span class="kn">import</span> <span class="nb">str</span>
 
-<span class="kn">from</span> <span class="nn">ts.metrics.metrics_store</span> <span class="k">import</span> <span class="n">MetricsStore</span>
-<span class="kn">from</span> <span class="nn">ts.service</span> <span class="k">import</span> <span class="n">Service</span>
-<span class="kn">from</span> <span class="nn">.utils.util</span> <span class="k">import</span> <span class="n">list_classes_from_module</span>
+<span class="kn">from</span> <span class="nn">ts.metrics.metrics_store</span> <span class="kn">import</span> <span class="n">MetricsStore</span>
+<span class="kn">from</span> <span class="nn">ts.service</span> <span class="kn">import</span> <span class="n">Service</span>
+<span class="kn">from</span> <span class="nn">.utils.util</span> <span class="kn">import</span> <span class="n">list_classes_from_module</span>
 
 
 <div class="viewcode-block" id="ModelLoaderFactory"><a class="viewcode-back" href="../../api/ts.html#ts.model_loader.ModelLoaderFactory">[docs]</a><span class="k">class</span> <span class="nc">ModelLoaderFactory</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -588,7 +588,6 @@
          <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
          <script src="../../_static/jquery.js"></script>
          <script src="../../_static/underscore.js"></script>
-         <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
          <script src="../../_static/doctools.js"></script>
          <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.js"></script>
          <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/contrib/auto-render.min.js"></script>

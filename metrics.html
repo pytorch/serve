@@ -6,7 +6,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
@@ -229,7 +229,7 @@
               
             
             
-              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+              <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="index.html">1. TorchServe</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Troubleshooting.html">2. Troubleshooting Guide</a></li>
@@ -250,7 +250,7 @@
 <li class="toctree-l1"><a class="reference internal" href="use_cases.html">17. Torchserve Use Cases</a></li>
 <li class="toctree-l1"><a class="reference internal" href="workflows.html">18. TorchServe Workflows</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Service APIs:</span></p>
+<p class="caption"><span class="caption-text">Service APIs:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="grpc_api.html">TorchServe gRPC API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="inference_api.html">Inference API</a></li>
@@ -260,7 +260,7 @@
 <li class="toctree-l1"><a class="reference internal" href="workflow_inference_api.html">Workflow Inference API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="workflow_management_api.html">Management API</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Developer APIs:</span></p>
+<p class="caption"><span class="caption-text">Developer APIs:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="api/ts.html">ts package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api/ts.torch_handler.request_envelope.html">ts.torch_handler.request_envelope package</a></li>
@@ -342,9 +342,9 @@
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
   <section id="torchserve-metrics">
-<h1><span class="section-number">9. </span>TorchServe Metrics<a class="headerlink" href="#torchserve-metrics" title="Permalink to this heading">¶</a></h1>
+<h1><span class="section-number">9. </span>TorchServe Metrics<a class="headerlink" href="#torchserve-metrics" title="Permalink to this headline">¶</a></h1>
 <section id="contents-of-this-document">
-<h2><span class="section-number">9.1. </span>Contents of this document<a class="headerlink" href="#contents-of-this-document" title="Permalink to this heading">¶</a></h2>
+<h2><span class="section-number">9.1. </span>Contents of this document<a class="headerlink" href="#contents-of-this-document" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p><a class="reference external" href="#introduction">Introduction</a></p></li>
 <li><p><a class="reference external" href="#system-metrics">System metrics</a></p></li>
@@ -354,7 +354,7 @@
 </ul>
 </section>
 <section id="introduction">
-<h2><span class="section-number">9.2. </span>Introduction<a class="headerlink" href="#introduction" title="Permalink to this heading">¶</a></h2>
+<h2><span class="section-number">9.2. </span>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
 <p>TorchServe collects system level metrics in regular intervals, and also provides an API to collect custom metrics.
 Metrics collected by metrics are logged and can be aggregated by metric agents.
 The system level metrics are collected every minute. Metrics defined by the custom service code can be collected per request or per a batch of requests.
@@ -367,7 +367,7 @@ Metrics are collected by default at:</p>
 <p>The location of log files and metric files can be configured in the <a class="reference external" href="https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/log4j2.xml">log4j2.xml</a> file</p>
 </section>
 <section id="system-metrics">
-<h2><span class="section-number">9.3. </span>System Metrics<a class="headerlink" href="#system-metrics" title="Permalink to this heading">¶</a></h2>
+<h2><span class="section-number">9.3. </span>System Metrics<a class="headerlink" href="#system-metrics" title="Permalink to this headline">¶</a></h2>
 <table border="1" class="docutils">
 <thead>
 <tr>
@@ -459,43 +459,43 @@ Metrics are collected by default at:</p>
 </tbody>
 </table></section>
 <section id="formatting">
-<h2><span class="section-number">9.4. </span>Formatting<a class="headerlink" href="#formatting" title="Permalink to this heading">¶</a></h2>
+<h2><span class="section-number">9.4. </span>Formatting<a class="headerlink" href="#formatting" title="Permalink to this headline">¶</a></h2>
 <p>TorchServe emits metrics to log files by default. The metrics are formatted in a <a class="reference external" href="https://github.com/etsy/statsd">StatsD</a> like format.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>CPUUtilization.Percent:0.0<span class="p">|</span><span class="c1">#Level:Host|#hostname:my_machine_name</span>
 MemoryUsed.Megabytes:13840.328125<span class="p">|</span><span class="c1">#Level:Host|#hostname:my_machine_name   </span>
 </pre></div>
 </div>
-<p>To enable metric logging in JSON format, set “patternlayout” as “JSONPatternLayout” in <a class="reference external" href="https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/log4j2.xml">log4j2.xml</a> (See sample <a class="reference external" href="https://github.com/pytorch/serve/blob/master/frontend/server/src/test/resources/log4j2-json.xml">log4j2-json.xml</a>). For information, see <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/logging.md">Logging in Torchserve</a>.</p>
+<p>To enable metric logging in JSON format, set “patternlayout” as “JSONPatternLayout” in <a class="reference external" href="https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/log4j2.xml">log4j2.xml</a> (See sample <a class="reference external" href="https://github.com/pytorch/serve/blob/master/frontend/server/src/test/resources/log4j2-json.xml">log4j2-json.xml</a>). For information, see <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/logging">Logging in Torchserve</a>.</p>
 <p>After you enable JSON log formatting, logs will look as follows:</p>
-<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-  <span class="nt">&quot;MetricName&quot;</span><span class="p">:</span> <span class="s2">&quot;DiskAvailable&quot;</span><span class="p">,</span>
-  <span class="nt">&quot;Value&quot;</span><span class="p">:</span> <span class="s2">&quot;108.15547180175781&quot;</span><span class="p">,</span>
-  <span class="nt">&quot;Unit&quot;</span><span class="p">:</span> <span class="s2">&quot;Gigabytes&quot;</span><span class="p">,</span>
-  <span class="nt">&quot;Dimensions&quot;</span><span class="p">:</span> <span class="p">[</span>
-    <span class="p">{</span>
-      <span class="nt">&quot;Name&quot;</span><span class="p">:</span> <span class="s2">&quot;Level&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;Value&quot;</span><span class="p">:</span> <span class="s2">&quot;Host&quot;</span>
-    <span class="p">}</span>
-  <span class="p">],</span>
-  <span class="nt">&quot;HostName&quot;</span><span class="p">:</span> <span class="s2">&quot;my_machine_name&quot;</span>
-<span class="p">}</span>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="nt">&quot;MetricName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;DiskAvailable&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nt">&quot;Value&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;108.15547180175781&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nt">&quot;Unit&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Gigabytes&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nt">&quot;Dimensions&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
+<span class="w">    </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="nt">&quot;Name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Level&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">      </span><span class="nt">&quot;Value&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Host&quot;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">  </span><span class="p">],</span><span class="w"></span>
+<span class="w">  </span><span class="nt">&quot;HostName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;my_machine_name&quot;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
-<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-  <span class="nt">&quot;MetricName&quot;</span><span class="p">:</span> <span class="s2">&quot;DiskUsage&quot;</span><span class="p">,</span>
-  <span class="nt">&quot;Value&quot;</span><span class="p">:</span> <span class="s2">&quot;124.13163757324219&quot;</span><span class="p">,</span>
-  <span class="nt">&quot;Unit&quot;</span><span class="p">:</span> <span class="s2">&quot;Gigabytes&quot;</span><span class="p">,</span>
-  <span class="nt">&quot;Dimensions&quot;</span><span class="p">:</span> <span class="p">[</span>
-    <span class="p">{</span>
-      <span class="nt">&quot;Name&quot;</span><span class="p">:</span> <span class="s2">&quot;Level&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;Value&quot;</span><span class="p">:</span> <span class="s2">&quot;Host&quot;</span>
-    <span class="p">}</span>
-  <span class="p">],</span>
-  <span class="nt">&quot;HostName&quot;</span><span class="p">:</span> <span class="s2">&quot;my_machine_name&quot;</span>
-<span class="p">}</span>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="nt">&quot;MetricName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;DiskUsage&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nt">&quot;Value&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;124.13163757324219&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nt">&quot;Unit&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Gigabytes&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nt">&quot;Dimensions&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
+<span class="w">    </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="nt">&quot;Name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Level&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">      </span><span class="nt">&quot;Value&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Host&quot;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">  </span><span class="p">],</span><span class="w"></span>
+<span class="w">  </span><span class="nt">&quot;HostName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;my_machine_name&quot;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
-<p>To enable metric logging in QLog format, set “patternlayout” as “QLogLayout” in <a class="reference external" href="https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/log4j2.xml">log4j2.xml</a> (See sample <a class="reference external" href="https://github.com/pytorch/serve/blob/master/frontend/server/src/test/resources/log4j2-qlog.xml">log4j2-qlog.xml</a>). For information, see <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/logging.md">Logging in Torchserve</a>.</p>
+<p>To enable metric logging in QLog format, set “patternlayout” as “QLogLayout” in <a class="reference external" href="https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/log4j2.xml">log4j2.xml</a> (See sample <a class="reference external" href="https://github.com/pytorch/serve/blob/master/frontend/server/src/test/resources/log4j2-qlog.xml">log4j2-qlog.xml</a>). For information, see <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/logging">Logging in Torchserve</a>.</p>
 <p>After you enable QLogsetupModelDependencies formatting, logs will look as follows:</p>
 <div class="highlight-qlog notranslate"><div class="highlight"><pre><span></span>HostName=abc.com
 StartTime=1646686978
@@ -511,7 +511,7 @@ EOE
 </div>
 </section>
 <section id="custom-metrics-api">
-<h2><span class="section-number">9.5. </span>Custom Metrics API<a class="headerlink" href="#custom-metrics-api" title="Permalink to this heading">¶</a></h2>
+<h2><span class="section-number">9.5. </span>Custom Metrics API<a class="headerlink" href="#custom-metrics-api" title="Permalink to this headline">¶</a></h2>
 <p>TorchServe enables the custom service code to emit metrics that are then logged by the system.</p>
 <p>The custom service code is provided with a <a class="reference external" href="https://github.com/pytorch/serve/blob/master/ts/context.py">context</a> of the current request with a metrics object:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Access context metrics as follows</span>
@@ -520,7 +520,7 @@ EOE
 </div>
 <p>All metrics are collected within the context.</p>
 <section id="create-dimension-object-s">
-<h3><span class="section-number">9.5.1. </span>Create dimension object(s)<a class="headerlink" href="#create-dimension-object-s" title="Permalink to this heading">¶</a></h3>
+<h3><span class="section-number">9.5.1. </span>Create dimension object(s)<a class="headerlink" href="#create-dimension-object-s" title="Permalink to this headline">¶</a></h3>
 <p>Dimensions for metrics can be defined as objects</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ts.metrics.dimension</span> <span class="kn">import</span> <span class="n">Dimension</span>
 
@@ -536,10 +536,10 @@ EOE
 <p><strong>NOTE:</strong> Metric functions below accept a list of dimensions</p>
 </section>
 <section id="add-generic-metrics">
-<h3><span class="section-number">9.5.2. </span>Add generic metrics<a class="headerlink" href="#add-generic-metrics" title="Permalink to this heading">¶</a></h3>
+<h3><span class="section-number">9.5.2. </span>Add generic metrics<a class="headerlink" href="#add-generic-metrics" title="Permalink to this headline">¶</a></h3>
 <p>One can add metrics with generic units using the following function.</p>
 <p>Function API</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">add_metric</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">unit</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">add_metric</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">unit</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add a metric which is generic with custom metrics</span>
 
@@ -566,10 +566,10 @@ EOE
 </div>
 </section>
 <section id="add-time-based-metrics">
-<h3><span class="section-number">9.5.3. </span>Add time-based metrics<a class="headerlink" href="#add-time-based-metrics" title="Permalink to this heading">¶</a></h3>
+<h3><span class="section-number">9.5.3. </span>Add time-based metrics<a class="headerlink" href="#add-time-based-metrics" title="Permalink to this headline">¶</a></h3>
 <p>Add time-based by invoking the following method:</p>
 <p>Function API</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">add_time</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;ms&#39;</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">add_time</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;ms&#39;</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add a time based metric like latency, default unit is &#39;ms&#39;</span>
 
@@ -594,15 +594,15 @@ EOE
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Add inference time</span>
 <span class="c1"># dimensions = [dim1, dim2, dim3, ..., dimN]</span>
 <span class="c1"># Assuming batch size  is 1 for example</span>
-<span class="n">metrics</span><span class="o">.</span><span class="n">add_time</span><span class="p">(</span><span class="s1">&#39;InferenceTime&#39;</span><span class="p">,</span> <span class="n">end_time</span><span class="o">-</span><span class="n">start_time</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="s1">&#39;ms&#39;</span><span class="p">,</span> <span class="n">dimensions</span><span class="p">)</span>
+<span class="n">metrics</span><span class="o">.</span><span class="n">add_time</span><span class="p">(</span><span class="s1">&#39;InferenceTime&#39;</span><span class="p">,</span> <span class="n">end_time</span><span class="o">-</span><span class="n">start_time</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;ms&#39;</span><span class="p">,</span> <span class="n">dimensions</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
 <section id="add-size-based-metrics">
-<h3><span class="section-number">9.5.4. </span>Add size-based metrics<a class="headerlink" href="#add-size-based-metrics" title="Permalink to this heading">¶</a></h3>
+<h3><span class="section-number">9.5.4. </span>Add size-based metrics<a class="headerlink" href="#add-size-based-metrics" title="Permalink to this headline">¶</a></h3>
 <p>Add size-based metrics by invoking the following method:</p>
 <p>Function API</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">add_size</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;MB&#39;</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">add_size</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;MB&#39;</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add a size based metric</span>
 
@@ -627,15 +627,15 @@ EOE
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Add Image size as a metric</span>
 <span class="c1"># dimensions = [dim1, dim2, dim3, ..., dimN]</span>
 <span class="c1"># Assuming batch size 1</span>
-<span class="n">metrics</span><span class="o">.</span><span class="n">add_size</span><span class="p">(</span><span class="s1">&#39;SizeOfImage&#39;</span><span class="p">,</span> <span class="n">img_size</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="s1">&#39;MB&#39;</span><span class="p">,</span> <span class="n">dimensions</span><span class="p">)</span>
+<span class="n">metrics</span><span class="o">.</span><span class="n">add_size</span><span class="p">(</span><span class="s1">&#39;SizeOfImage&#39;</span><span class="p">,</span> <span class="n">img_size</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;MB&#39;</span><span class="p">,</span> <span class="n">dimensions</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
 <section id="add-percentage-based-metrics">
-<h3><span class="section-number">9.5.5. </span>Add Percentage based metrics<a class="headerlink" href="#add-percentage-based-metrics" title="Permalink to this heading">¶</a></h3>
+<h3><span class="section-number">9.5.5. </span>Add Percentage based metrics<a class="headerlink" href="#add-percentage-based-metrics" title="Permalink to this headline">¶</a></h3>
 <p>Percentage based metrics can be added by invoking the following method</p>
 <p>Function API</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">add_percent</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">add_percent</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add a percentage based metric</span>
 
@@ -656,15 +656,15 @@ EOE
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Add MemoryUtilization as a metric</span>
 <span class="c1"># dimensions = [dim1, dim2, dim3, ..., dimN]</span>
 <span class="c1"># Assuming batch size 1</span>
-<span class="n">metrics</span><span class="o">.</span><span class="n">add_percent</span><span class="p">(</span><span class="s1">&#39;MemoryUtilization&#39;</span><span class="p">,</span> <span class="n">utilization_percent</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="n">dimensions</span><span class="p">)</span>
+<span class="n">metrics</span><span class="o">.</span><span class="n">add_percent</span><span class="p">(</span><span class="s1">&#39;MemoryUtilization&#39;</span><span class="p">,</span> <span class="n">utilization_percent</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">dimensions</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
 <section id="add-counter-based-metrics">
-<h3><span class="section-number">9.5.6. </span>Add counter-based metrics<a class="headerlink" href="#add-counter-based-metrics" title="Permalink to this heading">¶</a></h3>
+<h3><span class="section-number">9.5.6. </span>Add counter-based metrics<a class="headerlink" href="#add-counter-based-metrics" title="Permalink to this headline">¶</a></h3>
 <p>Percentage based metrics can be added by invoking the following method</p>
 <p>Function API</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">add_counter</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">add_counter</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add a counter metric or increment an existing counter metric</span>
 
@@ -687,20 +687,20 @@ EOE
 <span class="c1"># Assuming batch size 1</span>
 
 <span class="c1"># Create a counter with name &#39;LoopCount&#39; and dimensions, initial value</span>
-<span class="n">metrics</span><span class="o">.</span><span class="n">add_counter</span><span class="p">(</span><span class="s1">&#39;LoopCount&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="n">dimensions</span><span class="p">)</span>
+<span class="n">metrics</span><span class="o">.</span><span class="n">add_counter</span><span class="p">(</span><span class="s1">&#39;LoopCount&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">dimensions</span><span class="p">)</span>
 
 <span class="c1"># Increment counter by 2 </span>
-<span class="n">metrics</span><span class="o">.</span><span class="n">add_counter</span><span class="p">(</span><span class="s1">&#39;LoopCount&#39;</span><span class="p">,</span> <span class="mi">2</span> <span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="n">dimensions</span><span class="p">)</span>
+<span class="n">metrics</span><span class="o">.</span><span class="n">add_counter</span><span class="p">(</span><span class="s1">&#39;LoopCount&#39;</span><span class="p">,</span> <span class="mi">2</span> <span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">dimensions</span><span class="p">)</span>
 
 <span class="c1"># Decrement counter by 1</span>
-<span class="n">metrics</span><span class="o">.</span><span class="n">add_counter</span><span class="p">(</span><span class="s1">&#39;LoopCount&#39;</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="n">dimensions</span><span class="p">)</span>
+<span class="n">metrics</span><span class="o">.</span><span class="n">add_counter</span><span class="p">(</span><span class="s1">&#39;LoopCount&#39;</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">dimensions</span><span class="p">)</span>
 
 <span class="c1"># Final counter value in this case is 2</span>
 </pre></div>
 </div>
 </section>
 <section id="log-custom-metrics">
-<h3><span class="section-number">9.5.7. </span>Log custom metrics<a class="headerlink" href="#log-custom-metrics" title="Permalink to this heading">¶</a></h3>
+<h3><span class="section-number">9.5.7. </span>Log custom metrics<a class="headerlink" href="#log-custom-metrics" title="Permalink to this headline">¶</a></h3>
 <p>Following sample code can be used to log the custom metrics created in the model’s custom handler:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">metric</span> <span class="ow">in</span> <span class="n">metrics</span><span class="o">.</span><span class="n">store</span><span class="p">:</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;[METRICS]</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">metric</span><span class="p">))</span>
@@ -789,7 +789,6 @@ EOE
          <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
          <script src="_static/jquery.js"></script>
          <script src="_static/underscore.js"></script>
-         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
          <script src="_static/doctools.js"></script>
          <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.js"></script>
          <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/contrib/auto-render.min.js"></script>

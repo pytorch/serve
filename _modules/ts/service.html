@@ -226,7 +226,7 @@
               
             
             
-              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+              <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../index.html">1. TorchServe</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../Troubleshooting.html">2. Troubleshooting Guide</a></li>
@@ -247,7 +247,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../use_cases.html">17. Torchserve Use Cases</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../workflows.html">18. TorchServe Workflows</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Service APIs:</span></p>
+<p class="caption"><span class="caption-text">Service APIs:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../grpc_api.html">TorchServe gRPC API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../inference_api.html">Inference API</a></li>
@@ -257,7 +257,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../workflow_inference_api.html">Workflow Inference API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../workflow_management_api.html">Management API</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Developer APIs:</span></p>
+<p class="caption"><span class="caption-text">Developer APIs:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../api/ts.html">ts package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../api/ts.torch_handler.request_envelope.html">ts.torch_handler.request_envelope package</a></li>
@@ -345,13 +345,13 @@
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">time</span>
 
-<span class="kn">from</span> <span class="nn">builtins</span> <span class="k">import</span> <span class="nb">str</span>
+<span class="kn">from</span> <span class="nn">builtins</span> <span class="kn">import</span> <span class="nb">str</span>
 
 <span class="kn">import</span> <span class="nn">ts</span>
-<span class="kn">from</span> <span class="nn">ts.context</span> <span class="k">import</span> <span class="n">Context</span><span class="p">,</span> <span class="n">RequestProcessor</span>
-<span class="kn">from</span> <span class="nn">ts.metrics.metrics_store</span> <span class="k">import</span> <span class="n">MetricsStore</span>
-<span class="kn">from</span> <span class="nn">ts.protocol.otf_message_handler</span> <span class="k">import</span> <span class="n">create_predict_response</span>
-<span class="kn">from</span> <span class="nn">ts.utils.util</span> <span class="k">import</span> <span class="n">PredictionException</span>
+<span class="kn">from</span> <span class="nn">ts.context</span> <span class="kn">import</span> <span class="n">Context</span><span class="p">,</span> <span class="n">RequestProcessor</span>
+<span class="kn">from</span> <span class="nn">ts.metrics.metrics_store</span> <span class="kn">import</span> <span class="n">MetricsStore</span>
+<span class="kn">from</span> <span class="nn">ts.protocol.otf_message_handler</span> <span class="kn">import</span> <span class="n">create_predict_response</span>
+<span class="kn">from</span> <span class="nn">ts.utils.util</span> <span class="kn">import</span> <span class="n">PredictionException</span>
 
 <span class="n">PREDICTION_METRIC</span> <span class="o">=</span> <span class="s1">&#39;PredictionTime&#39;</span>
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
@@ -362,7 +362,7 @@
 <span class="sd">    Wrapper for custom entry_point</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_name</span><span class="p">,</span> <span class="n">model_dir</span><span class="p">,</span> <span class="n">manifest</span><span class="p">,</span> <span class="n">entry_point</span><span class="p">,</span> <span class="n">gpu</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">limit_max_image_pixels</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_name</span><span class="p">,</span> <span class="n">model_dir</span><span class="p">,</span> <span class="n">manifest</span><span class="p">,</span> <span class="n">entry_point</span><span class="p">,</span> <span class="n">gpu</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">limit_max_image_pixels</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_context</span> <span class="o">=</span> <span class="n">Context</span><span class="p">(</span><span class="n">model_name</span><span class="p">,</span> <span class="n">model_dir</span><span class="p">,</span> <span class="n">manifest</span><span class="p">,</span>
                                 <span class="n">batch_size</span><span class="p">,</span> <span class="n">gpu</span><span class="p">,</span> <span class="n">ts</span><span class="o">.</span><span class="n">__version__</span><span class="p">,</span> <span class="n">limit_max_image_pixels</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_entry_point</span> <span class="o">=</span> <span class="n">entry_point</span>
@@ -528,7 +528,6 @@
          <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
          <script src="../../_static/jquery.js"></script>
          <script src="../../_static/underscore.js"></script>
-         <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
          <script src="../../_static/doctools.js"></script>
          <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.js"></script>
          <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/contrib/auto-render.min.js"></script>

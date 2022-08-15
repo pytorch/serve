@@ -6,7 +6,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
@@ -229,7 +229,7 @@
               
             
             
-              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+              <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="index.html">1. TorchServe</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Troubleshooting.html">2. Troubleshooting Guide</a></li>
@@ -250,7 +250,7 @@
 <li class="toctree-l1"><a class="reference internal" href="use_cases.html">17. Torchserve Use Cases</a></li>
 <li class="toctree-l1"><a class="reference internal" href="workflows.html">18. TorchServe Workflows</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Service APIs:</span></p>
+<p class="caption"><span class="caption-text">Service APIs:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="grpc_api.html">TorchServe gRPC API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="inference_api.html">Inference API</a></li>
@@ -260,7 +260,7 @@
 <li class="toctree-l1"><a class="reference internal" href="workflow_inference_api.html">Workflow Inference API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="workflow_management_api.html">Management API</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Developer APIs:</span></p>
+<p class="caption"><span class="caption-text">Developer APIs:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="api/ts.html">ts package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api/ts.torch_handler.request_envelope.html">ts.torch_handler.request_envelope package</a></li>
@@ -342,9 +342,9 @@
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
   <section id="torchserve-on-windows">
-<h1><span class="section-number">15. </span>TorchServe on Windows<a class="headerlink" href="#torchserve-on-windows" title="Permalink to this heading">¶</a></h1>
+<h1><span class="section-number">15. </span>TorchServe on Windows<a class="headerlink" href="#torchserve-on-windows" title="Permalink to this headline">¶</a></h1>
 <section id="contents-of-this-document">
-<h2><span class="section-number">15.1. </span>Contents of this Document<a class="headerlink" href="#contents-of-this-document" title="Permalink to this heading">¶</a></h2>
+<h2><span class="section-number">15.1. </span>Contents of this Document<a class="headerlink" href="#contents-of-this-document" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p><a class="reference external" href="#prerequisites">Prerequisites</a></p></li>
 <li><p><a class="reference external" href="#install-from-binaries">Install from binaries</a></p></li>
@@ -352,7 +352,7 @@
 </ul>
 </section>
 <section id="prerequisites">
-<h2><span class="section-number">15.2. </span>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this heading">¶</a></h2>
+<h2><span class="section-number">15.2. </span>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p>At present, it has only been certified on windows server 2019 however should work fine on Windows 10.</p></li>
 <li><p>Make sure you are an admin user or have admin rights</p></li>
@@ -378,7 +378,7 @@ e.g.</p></li>
 </ul>
 </section>
 <section id="install-from-binaries">
-<h2><span class="section-number">15.3. </span>Install from binaries<a class="headerlink" href="#install-from-binaries" title="Permalink to this heading">¶</a></h2>
+<h2><span class="section-number">15.3. </span>Install from binaries<a class="headerlink" href="#install-from-binaries" title="Permalink to this headline">¶</a></h2>
 <p>NOTE At present, wheels for windows are not available on PyPi. However following steps can also be used if you have prebuilt torchserve wheel for windows.</p>
 <ul class="simple">
 <li><p>Start ‘Anaconda Powershell Prompt’ (APP) as Admin User i.e. By right click on APP and run following commands</p></li>
@@ -400,7 +400,7 @@ e.g.</p></li>
 </ul>
 </section>
 <section id="install-from-source">
-<h2><span class="section-number">15.4. </span>Install from source<a class="headerlink" href="#install-from-source" title="Permalink to this heading">¶</a></h2>
+<h2><span class="section-number">15.4. </span>Install from source<a class="headerlink" href="#install-from-source" title="Permalink to this headline">¶</a></h2>
 <ul>
 <li><p>Ensure that system or user profile environment variable name <code class="docutils literal notranslate"><span class="pre">JAVA_HOME</span></code> with value as <code class="docutils literal notranslate"><span class="pre">&lt;your-openjdk17-path&gt;</span></code> path is present.</p></li>
 <li><p>Install <a class="reference external" href="https://support.microsoft.com/en-in/help/2977003/the-latest-supported-visual-c-downloads">Microsoft Visual C++ Redistributable for Visual Studio 2015, 2017 and 2019</a></p>
@@ -414,14 +414,14 @@ e.g. C:\Program Files\NVIDIA Corporation\NVSMI, add this path to <code class="do
 <li><p><code class="docutils literal notranslate"><span class="pre">cd</span> <span class="pre">serve</span></code></p></li>
 </ul>
 <section id="for-production-usage-use-commands-below">
-<h3><span class="section-number">15.4.1. </span>For production usage, use commands below:<a class="headerlink" href="#for-production-usage-use-commands-below" title="Permalink to this heading">¶</a></h3>
+<h3><span class="section-number">15.4.1. </span>For production usage, use commands below:<a class="headerlink" href="#for-production-usage-use-commands-below" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">.\ts_scripts\install_dependencies.py</span> <span class="pre">--environment=prod</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">.\ts_scripts\install_from_src.py</span></code></p></li>
 </ul>
 </section>
 <section id="for-development-purposes-use-commands-below">
-<h3><span class="section-number">15.4.2. </span>For development purposes, use commands below:<a class="headerlink" href="#for-development-purposes-use-commands-below" title="Permalink to this heading">¶</a></h3>
+<h3><span class="section-number">15.4.2. </span>For development purposes, use commands below:<a class="headerlink" href="#for-development-purposes-use-commands-below" title="Permalink to this headline">¶</a></h3>
 <p>If you plan to develop with TorchServe and change some source code, commands below will help.
 The install_dependencies script installs few extra dependencies which are needed for development and testing.</p>
 <ul class="simple">
@@ -431,7 +431,7 @@ The install_dependencies script installs few extra dependencies which are needed
 </section>
 </section>
 <section id="troubleshooting">
-<h2><span class="section-number">15.5. </span>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permalink to this heading">¶</a></h2>
+<h2><span class="section-number">15.5. </span>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p>If you are building from source then you may have to change the port number for inference, management and metrics apis as specified in <code class="docutils literal notranslate"><span class="pre">frontend/server/src/test/resources/config.properties</span></code>,
 all files in <code class="docutils literal notranslate"><span class="pre">frontend/server/src/test/resources/snapshot/*</span></code> and <code class="docutils literal notranslate"><span class="pre">frontend/server/src/main/java/org/pytorch/serve/util/ConfigManager.java</span></code></p></li>
@@ -515,7 +515,6 @@ Refer to this <a class="reference external" href="https://stackoverflow.com/ques
          <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
          <script src="_static/jquery.js"></script>
          <script src="_static/underscore.js"></script>
-         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
          <script src="_static/doctools.js"></script>
          <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.js"></script>
          <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/contrib/auto-render.min.js"></script>

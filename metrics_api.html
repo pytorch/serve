@@ -6,7 +6,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
@@ -229,7 +229,7 @@
               
             
             
-              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+              <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="index.html">1. TorchServe</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Troubleshooting.html">2. Troubleshooting Guide</a></li>
@@ -250,7 +250,7 @@
 <li class="toctree-l1"><a class="reference internal" href="use_cases.html">17. Torchserve Use Cases</a></li>
 <li class="toctree-l1"><a class="reference internal" href="workflows.html">18. TorchServe Workflows</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Service APIs:</span></p>
+<p class="caption"><span class="caption-text">Service APIs:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="grpc_api.html">TorchServe gRPC API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="inference_api.html">Inference API</a></li>
@@ -260,7 +260,7 @@
 <li class="toctree-l1"><a class="reference internal" href="workflow_inference_api.html">Workflow Inference API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="workflow_management_api.html">Management API</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Developer APIs:</span></p>
+<p class="caption"><span class="caption-text">Developer APIs:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="api/ts.html">ts package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api/ts.torch_handler.request_envelope.html">ts.torch_handler.request_envelope package</a></li>
@@ -344,58 +344,58 @@
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
   <section id="metrics-api">
-<h1>Metrics API<a class="headerlink" href="#metrics-api" title="Permalink to this heading">¶</a></h1>
+<h1>Metrics API<a class="headerlink" href="#metrics-api" title="Permalink to this headline">¶</a></h1>
 <p>Metrics API is listening on port 8082 and only accessible from localhost by default. To change the default setting, see <a class="reference internal" href="configuration.html"><span class="doc">TorchServe Configuration</span></a>. The default metrics endpoint returns Prometheus formatted metrics. You can query metrics using curl requests or point a <a class="reference external" href="#prometheus-server">Prometheus Server</a> to the endpoint and use <a class="reference external" href="#grafana">Grafana</a> for dashboards.</p>
 <p>By default these APIs are enable however same can be disabled by setting <code class="docutils literal notranslate"><span class="pre">enable_metrics_api=false</span></code> in torchserve config.properties file.
 For details refer <a class="reference internal" href="configuration.html"><span class="doc">Torchserve config</span></a> docs.</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">curl http://127.0.0.1:8082/metrics</span>
 
-<span class="gp">#</span> HELP ts_inference_latency_microseconds Cumulative inference duration in microseconds
-<span class="gp">#</span> TYPE ts_inference_latency_microseconds counter
+<span class="gp"># </span>HELP ts_inference_latency_microseconds Cumulative inference duration <span class="k">in</span> microseconds
+<span class="gp"># </span>TYPE ts_inference_latency_microseconds counter
 <span class="go">ts_inference_latency_microseconds{uuid=&quot;d5f84dfb-fae8-4f92-b217-2f385ca7470b&quot;,model_name=&quot;noopversioned&quot;,model_version=&quot;1.11&quot;,} 1990.348</span>
 <span class="go">ts_inference_latency_microseconds{uuid=&quot;d5f84dfb-fae8-4f92-b217-2f385ca7470b&quot;,model_name=&quot;noop&quot;,model_version=&quot;default&quot;,} 2032.411</span>
-<span class="gp">#</span> HELP ts_inference_requests_total Total number of inference requests.
-<span class="gp">#</span> TYPE ts_inference_requests_total counter
+<span class="gp"># </span>HELP ts_inference_requests_total Total number of inference requests.
+<span class="gp"># </span>TYPE ts_inference_requests_total counter
 <span class="go">ts_inference_requests_total{uuid=&quot;d5f84dfb-fae8-4f92-b217-2f385ca7470b&quot;,model_name=&quot;noopversioned&quot;,model_version=&quot;1.11&quot;,} 1.0</span>
 <span class="go">ts_inference_requests_total{uuid=&quot;d5f84dfb-fae8-4f92-b217-2f385ca7470b&quot;,model_name=&quot;noop&quot;,model_version=&quot;default&quot;,} 1.0</span>
-<span class="gp">#</span> HELP ts_queue_latency_microseconds Cumulative queue duration in microseconds
-<span class="gp">#</span> TYPE ts_queue_latency_microseconds counter
+<span class="gp"># </span>HELP ts_queue_latency_microseconds Cumulative queue duration <span class="k">in</span> microseconds
+<span class="gp"># </span>TYPE ts_queue_latency_microseconds counter
 <span class="go">ts_queue_latency_microseconds{uuid=&quot;d5f84dfb-fae8-4f92-b217-2f385ca7470b&quot;,model_name=&quot;noopversioned&quot;,model_version=&quot;1.11&quot;,} 364.884</span>
 <span class="go">ts_queue_latency_microseconds{uuid=&quot;d5f84dfb-fae8-4f92-b217-2f385ca7470b&quot;,model_name=&quot;noop&quot;,model_version=&quot;default&quot;,} 82.349</span>
 </pre></div>
 </div>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">curl &quot;http://127.0.0.1:8082/metrics?name[]=ts_inference_latency_microseconds&amp;name[]=ts_queue_latency_microseconds&quot; --globoff</span>
 
-<span class="gp">#</span> HELP ts_inference_latency_microseconds Cumulative inference duration in microseconds
-<span class="gp">#</span> TYPE ts_inference_latency_microseconds counter
+<span class="gp"># </span>HELP ts_inference_latency_microseconds Cumulative inference duration <span class="k">in</span> microseconds
+<span class="gp"># </span>TYPE ts_inference_latency_microseconds counter
 <span class="go">ts_inference_latency_microseconds{uuid=&quot;d5f84dfb-fae8-4f92-b217-2f385ca7470b&quot;,model_name=&quot;noopversioned&quot;,model_version=&quot;1.11&quot;,} 1990.348</span>
 <span class="go">ts_inference_latency_microseconds{uuid=&quot;d5f84dfb-fae8-4f92-b217-2f385ca7470b&quot;,model_name=&quot;noop&quot;,model_version=&quot;default&quot;,} 2032.411</span>
-<span class="gp">#</span> HELP ts_queue_latency_microseconds Cumulative queue duration in microseconds
-<span class="gp">#</span> TYPE ts_queue_latency_microseconds counter
+<span class="gp"># </span>HELP ts_queue_latency_microseconds Cumulative queue duration <span class="k">in</span> microseconds
+<span class="gp"># </span>TYPE ts_queue_latency_microseconds counter
 <span class="go">ts_queue_latency_microseconds{uuid=&quot;d5f84dfb-fae8-4f92-b217-2f385ca7470b&quot;,model_name=&quot;noopversioned&quot;,model_version=&quot;1.11&quot;,} 364.884</span>
 <span class="go">ts_queue_latency_microseconds{uuid=&quot;d5f84dfb-fae8-4f92-b217-2f385ca7470b&quot;,model_name=&quot;noop&quot;,model_version=&quot;default&quot;,} 82.349</span>
 </pre></div>
 </div>
 <section id="prometheus-server">
-<h2>Prometheus server<a class="headerlink" href="#prometheus-server" title="Permalink to this heading">¶</a></h2>
+<h2>Prometheus server<a class="headerlink" href="#prometheus-server" title="Permalink to this headline">¶</a></h2>
 <p>To view these metrics on a Prometheus server, download and install using the instructions <a class="reference external" href="https://prometheus.io/download/#prometheus">here</a>. Create a minimal <code class="docutils literal notranslate"><span class="pre">prometheus.yml</span></code> config file as below and run <code class="docutils literal notranslate"><span class="pre">./prometheus</span> <span class="pre">--config.file=prometheus.yml</span></code>.</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">global</span><span class="p">:</span>
-  <span class="nt">scrape_interval</span><span class="p">:</span>     <span class="l l-Scalar l-Scalar-Plain">15s</span>
-  <span class="nt">evaluation_interval</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">15s</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">global</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">scrape_interval</span><span class="p">:</span><span class="w">     </span><span class="l l-Scalar l-Scalar-Plain">15s</span><span class="w"></span>
+<span class="w">  </span><span class="nt">evaluation_interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">15s</span><span class="w"></span>
 
-<span class="nt">scrape_configs</span><span class="p">:</span>
-  <span class="p p-Indicator">-</span> <span class="nt">job_name</span><span class="p">:</span> <span class="s">&#39;prometheus&#39;</span>
-    <span class="nt">static_configs</span><span class="p">:</span>
-    <span class="p p-Indicator">-</span> <span class="nt">targets</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="s">&#39;localhost:9090&#39;</span><span class="p p-Indicator">]</span>
-  <span class="p p-Indicator">-</span> <span class="nt">job_name</span><span class="p">:</span> <span class="s">&#39;torchserve&#39;</span>
-    <span class="nt">static_configs</span><span class="p">:</span>
-    <span class="p p-Indicator">-</span> <span class="nt">targets</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="s">&#39;localhost:8082&#39;</span><span class="p p-Indicator">]</span> <span class="c1">#TorchServe metrics endpoint</span>
+<span class="nt">scrape_configs</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">job_name</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;prometheus&#39;</span><span class="w"></span>
+<span class="w">    </span><span class="nt">static_configs</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">targets</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&#39;localhost:9090&#39;</span><span class="p p-Indicator">]</span><span class="w"></span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">job_name</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;torchserve&#39;</span><span class="w"></span>
+<span class="w">    </span><span class="nt">static_configs</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">targets</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&#39;localhost:8082&#39;</span><span class="p p-Indicator">]</span><span class="w"> </span><span class="c1">#TorchServe metrics endpoint</span><span class="w"></span>
 </pre></div>
 </div>
 <p>Navigate to http://localhost:9090/ on a browser to execute queries and create graphs</p>
 <img width="1231" alt="PrometheusServer" src="https://user-images.githubusercontent.com/880376/86984450-806fc680-c143-11ea-9ae2-f2ef42f24f4c.png"></section>
 <section id="grafana">
-<h2>Grafana<a class="headerlink" href="#grafana" title="Permalink to this heading">¶</a></h2>
+<h2>Grafana<a class="headerlink" href="#grafana" title="Permalink to this headline">¶</a></h2>
 <p>Once you have the Torchserve and Prometheus servers running, you can further <a class="reference external" href="https://prometheus.io/docs/visualization/grafana/">setup</a> Grafana, point it to Prometheus server and navigate to http://localhost:3000/ to create dashboards and graphs.</p>
 <p>You can use command given below to start Grafana -
 <code class="docutils literal notranslate"><span class="pre">sudo</span> <span class="pre">systemctl</span> <span class="pre">daemon-reload</span> <span class="pre">&amp;&amp;</span> <span class="pre">sudo</span> <span class="pre">systemctl</span> <span class="pre">enable</span> <span class="pre">grafana-server</span> <span class="pre">&amp;&amp;</span> <span class="pre">sudo</span> <span class="pre">systemctl</span> <span class="pre">start</span> <span class="pre">grafana-server</span></code></p>
@@ -468,7 +468,6 @@ For details refer <a class="reference internal" href="configuration.html"><span 
          <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
          <script src="_static/jquery.js"></script>
          <script src="_static/underscore.js"></script>
-         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
          <script src="_static/doctools.js"></script>
          <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.js"></script>
          <script src="https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/contrib/auto-render.min.js"></script>
