@@ -34,13 +34,13 @@ NOTES
 ### Deploy pytorch eager mode model
 
 **Steps to deploy your model(s)**
-- Create MAR file for [torch eager model](../examples/README.md#creating-mar-file-for-eager-mode-model)
+- Create MAR file for [torch eager model](https://github.com/pytorch/serve/tree/master/examples#creating-mar-file-for-eager-mode-model)
     ```
     torch-model-archiver --model-name <your_model_name> --version 1.0 --model-file <your_model_file>.py --serialized-file <your_model_name>.pth --handler <default_handler> --extra-files ./index_to_name.json
     mkdir model_store
     mv <your_model_name>.mar model_store/
     ```
-    - Docker - It is possible to build MAR file directly on docker, refer [this](../docker/README.md#create-torch-model-archiver-from-container) for details.
+    - Docker - It is possible to build MAR file directly on docker, refer [this](https://github.com/pytorch/serve/blob/master/docker/README.md#create-torch-model-archiver-from-container) for details.
 - Place MAR file in a new directory name it as `model-store` (this can be any name)
     - Docker -  Make sure that MAR file is being copied in volume/directory shared while starting torchserve docker image
 - Start torchserve with following command - `torchserve --start --ncs --model-store <model_store or your_model_store_dir>`
