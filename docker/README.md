@@ -33,7 +33,7 @@ Use `build_image.sh` script to build the docker images. The script builds the `p
 |-g, --gpu|Build image with GPU based ubuntu base image|
 |-bt, --buildtype|Which type of docker image to build. Can be one of : production, dev, codebuild|
 |-t, --tag|Tag name for image. If not specified, script uses torchserve default tag names.|
-|-cv, --cudaversion| Specify to cuda version to use. Supported values `cu92`, `cu101`, `cu102`, `cu111`, `cu113`. Default `cu102`|
+|-cv, --cudaversion| Specify to cuda version to use. Supported values `cu92`, `cu101`, `cu102`, `cu111`, `cu113`, `cu116`. Default `cu102`|
 |-ipex, --build-with-ipex| Specify to build with intel_extension_for_pytorch. If not specified, script builds without intel_extension_for_pytorch.|
 |--codebuild| Set if you need [AWS CodeBuild](https://aws.amazon.com/codebuild/)|
 
@@ -48,7 +48,7 @@ Creates a docker image with publicly available `torchserve` and `torch-model-arc
 ./build_image.sh
 ```
 
- - To create a GPU based image with cuda 10.2. Options are `cu92`, `cu101`, `cu102`, `cu111`, `cu113`
+ - To create a GPU based image with cuda 10.2. Options are `cu92`, `cu101`, `cu102`, `cu111`, `cu113`, `cu116`
 
   ```bash
   ./build_image.sh -g -cv cu102
