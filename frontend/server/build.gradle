@@ -11,6 +11,10 @@ dependencies {
     testImplementation "org.testng:testng:${testng_version}"
 }
 
+processResources.dependsOn('generateProto')
+processTestResources.dependsOn('generateTestProto')
+jar.dependsOn(':archive:jar')
+
 apply from: file("${project.rootProject.projectDir}/tools/gradle/proto.gradle")
 apply from: file("${project.rootProject.projectDir}/tools/gradle/launcher.gradle")
 
