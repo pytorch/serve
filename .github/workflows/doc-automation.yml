@@ -28,3 +28,11 @@ jobs:
           BRANCH: gh-pages # The branch the action should deploy to.
           FOLDER: docs/sphinx/build/html
           CLEAN_EXCLUDE: '["_config.yml"]'
+    - name: Open issue on failure
+      if: ${{ failure() && github.event_name  == 'schedule' }}
+      uses: rishabhgupta/git-action-issue@v2
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        title: Doc automation failed
+        body:  Commit ${{ github.sha }} daily scheduled [CI run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) failed, please check why
+        assignees: ''
