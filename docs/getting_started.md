@@ -14,7 +14,7 @@
         python ./ts_scripts/install_dependencies.py
         ```
         
-     - For GPU with Cuda 10.2. Options are `cu92`, `cu101`, `cu102`, `cu111`, `cu113`
+     - For GPU with Cuda 10.2. Options are `cu92`, `cu101`, `cu102`, `cu111`, `cu113`, `cu116`
 
        ```bash
        python ./ts_scripts/install_dependencies.py --cuda=cu102
