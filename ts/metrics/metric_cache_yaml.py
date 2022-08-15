@@ -13,7 +13,7 @@ from ts.metrics.dimension import Dimension
 
 
 class MetricsCacheYaml(MetricCacheAbstract):
-    def __init__(self, yaml_file, model_name):
+    def __init__(self, request_ids, model_name, yaml_file):
         """
         Constructor for MetricsCachingYaml class
 
@@ -41,7 +41,10 @@ class MetricsCacheYaml(MetricCacheAbstract):
         if not extension_bool:
             raise merrors.MetricsCacheTypeError(f"Inputted file {yaml_file} does not have a valid yaml file extension.")
 
-        super().__init__(yaml_file, model_name)
+        super().__init__(request_ids=request_ids,
+                         model_name=model_name,
+                         file=yaml_file
+                         )
 
         self._parse_yaml_file()
 
@@ -134,7 +137,8 @@ class MetricsCacheYaml(MetricCacheAbstract):
         specific_metrics_table = self._parse_specific_metric()
         self._yaml_to_cache_util(specific_metrics_table=specific_metrics_table)
 
-    def add_metric(self, metric_name: str, unit: str, dimensions: list, metric_type: str, value=0) -> None:
+    def add_metric(self, metric_name: str, unit: str, dimensions: list, metric_type: str, request_id: str = None,
+                   value=0) -> None:
         """
         Create a new metric and add into cache
 
@@ -185,6 +189,7 @@ class MetricsCacheYaml(MetricCacheAbstract):
                            unit=unit,
                            dimensions=dimensions,
                            metric_type=metric_type,
+                           request_id=request_id,
                            value=value)
 
 
@@ -200,7 +205,7 @@ if __name__ == "__main__":
     )
     arguments = parser.parse_args()
 
-    backend_cache_obj = MetricsCacheYaml(arguments.file)
+    backend_cache_obj = MetricsCacheYaml(None, "ModelName", arguments.file)
     backend_cache_obj.parse_yaml_to_cache()
     for key, value in backend_cache_obj.cache.items():
         print(key)

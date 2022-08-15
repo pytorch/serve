@@ -127,14 +127,24 @@ class Service(object):
 
 def emit_metrics(metrics):
     """
-    Emit the metrics in the provided Dictionary
+    Emit the metrics in the provided Dictionary/list/Metric object
 
     Parameters
     ----------
-    metrics: Dictionary
-    A dictionary of all metrics, when key is metric_name
-    value is a metric object
+    metrics: list, dict, Metric
+        list of Metric objects or
+        dictionary with key value pairs of metric name and Metric objects or
+        a single Metric object
     """
     if metrics:
-        for met in metrics:
-            logger.info("[METRICS]%s", str(met))
+        if isinstance(metrics, list):
+            for met in metrics:
+                logger.info("[METRICS]%s", str(met))
+        elif isinstance(metrics, dict):
+            for _metric_name, metric_obj in metrics.items():
+                logger.info("[METRICS]%s", str(metric_obj))
+        else:  # assuming that the arg being passed is a single Metric object
+            logger.info("[METRICS]%s", str(metrics))
+    else:
+        logger.warning(f"Metrics '{metrics}' are not provided.")
+

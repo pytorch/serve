@@ -90,6 +90,11 @@ class ArgParser(object):
                             type=str,
                             help='If \'sock-type\' is \'tcp\' this is expected to have the host port to bind on')
 
+        parser.add_argument('--metrics-log',
+                            dest="metrics_log",
+                            type=str,
+                            help='(Yaml) File to be passed for metrics configuration.')
+
         return parser
 
     @staticmethod

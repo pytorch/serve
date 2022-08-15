@@ -65,6 +65,8 @@ public final class ConfigManager {
     private static final String TS_NETTY_CLIENT_THREADS = "netty_client_threads";
     private static final String TS_JOB_QUEUE_SIZE = "job_queue_size";
     private static final String TS_NUMBER_OF_GPU = "number_of_gpu";
+    private static final String TS_METRICS_LOG = "metrics_log";
+    // TODO write getter for the added static variable
 
     // IPEX config option that can be set at config.properties
     private static final String TS_IPEX_ENABLE = "ipex_enable";
@@ -361,6 +363,10 @@ public final class ConfigManager {
 
     public int getNumberOfGpu() {
         return getIntProperty(TS_NUMBER_OF_GPU, 0);
+    }
+
+    public String getMetricsLog() {
+        return getProperty(TS_METRICS_LOG, null); //TODO replace null with default yaml file in future
     }
 
     public String getTsDefaultServiceHandler() {

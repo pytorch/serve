@@ -28,7 +28,7 @@ class TorchModelServiceWorker(object):
     Backend worker to handle Model Server's python service code
     """
 
-    def __init__(self, s_type=None, s_name=None, host_addr=None, port_num=None):
+    def __init__(self, s_type=None, s_name=None, host_addr=None, port_num=None, metrics_log=None):
         self.sock_type = s_type
 
         if s_type == "unix":
@@ -54,6 +54,7 @@ class TorchModelServiceWorker(object):
         logging.info("Listening on port: %s", s_name)
         socket_family = socket.AF_INET if s_type == "tcp" else socket.AF_UNIX
         self.sock = socket.socket(socket_family, socket.SOCK_STREAM)
+        self.metrics_log = metrics_log
 
     @staticmethod
     def load_model(load_model_request):
@@ -101,6 +102,10 @@ class TorchModelServiceWorker(object):
             if "limitMaxImagePixels" in load_model_request:
                 limit_max_image_pixels = bool(load_model_request["limitMaxImagePixels"])
 
+            metrics_log = None
+            if "metricsLog" in load_model_request:  # FIXME where is this and what is load_model_request?
+                metrics_log = load_model_request["metricsLog"]
+
             model_loader = ModelLoaderFactory.get_model_loader()
             service = model_loader.load(
                 model_name,
@@ -109,7 +114,8 @@ class TorchModelServiceWorker(object):
                 gpu,
                 batch_size,
                 envelope,
-                limit_max_image_pixels
+                limit_max_image_pixels,
+                metrics_log
             )
 
             logging.debug("Model %s loaded.", model_name)
@@ -153,7 +159,7 @@ class TorchModelServiceWorker(object):
             ):
 
                 service.context.metrics.parse_yaml_to_cache()
-                emit_metrics(list(service.context.metrics.cache.values()))
+                emit_metrics(service.context.metrics.cache)
 
     def run_server(self):
         """
@@ -201,6 +207,7 @@ if __name__ == "__main__":
         sock_type = args.sock_type
         host = args.host
         port = args.port
+        metrics_log = args.metrics_log
 
         if BENCHMARK:
             import cProfile
@@ -209,7 +216,7 @@ if __name__ == "__main__":
             pr.disable()
             pr.dump_stats("/tmp/tsPythonProfile.prof")
 
-        worker = TorchModelServiceWorker(sock_type, socket_name, host, port)
+        worker = TorchModelServiceWorker(sock_type, socket_name, host, port, metrics_log)
         worker.run_server()
         if BENCHMARK:
             pr.disable()
