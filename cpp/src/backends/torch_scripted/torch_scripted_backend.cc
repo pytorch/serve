@@ -43,27 +43,39 @@ namespace torchserve {
         auto result = handler_->LoadModel(load_model_request);
         auto model_instance = std::make_shared<ModelInstance>(
           BuildModelInstanceId(load_model_request), result.first, handler_, result.second), ;
+        std::string message = fmt::format("loaded model {}", load_model_request->model_name);
         return std::make_pair(
           std::make_unique<torchserve::LoadModelResponse>(
             // TODO: check current response msg content
             200,
-            2,
-            "OK"),
+            message.size(),
+            message),
             model_instance);
       } catch (const c10::Error& e) {
         return std::make_pair(
           std::make_unique<torchserve::LoadModelResponse>(
             // TODO: check existing 
             500,
-            2,
+            e.msg().size(),
             e.msg()),
           nullptr);
       }
     }
 
-    std::shared_ptr<torchserve::InferenceResponse> ModelInstance::Predict(
-      torchserve::InferenceRequestBatch batch) {
-      return handler_->Handle(model_, inference_request_batch);
+    torchserve::InferenceResponseBatch ModelInstance::Predict(
+      torchserve::InferenceRequestBatch request_batch) {
+      torchserve::InferenceResponseBatch response_batch;      
+      for (const auto& request : request_batch) {
+        response_batch[request.request_id] = 
+          std::make_shared<torchserve::InferenceResponse>(request.request_id);
+      }
+      handler_->Handle(
+        model_, 
+        device_,
+        inference_request_batch, 
+        inference_response_batch);
+
+      return response_batch;
     }
   } // namespace torchscripted
 } //namespace torchserve

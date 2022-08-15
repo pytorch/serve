@@ -22,7 +22,7 @@ namespace torchserve {
     ModelInstance(const std::string& instance_id) : instance_id_(instance_id) {};
     virtual ~ModelInstance() {};
 
-    virtual std::shared_ptr<torchserve::InferenceResponse> Predict(
+    virtual std::shared_ptr<torchserve::InferenceResponseBatch> Predict(
       torchserve::InferenceRequestBatch batch) = 0;
 
     const std::string& GetInstanceId() {

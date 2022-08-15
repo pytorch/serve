@@ -4,6 +4,7 @@
 #include <torch/script.h>
 #include <torch/torch.h>
 #include <functional>
+#include <map>
 #include <utility>
 
 #include "src/backends/core/backend.hh"
@@ -25,24 +26,32 @@ namespace torchserve {
 
       virtual void Initialize(
         const std::string& model_path,
-        const std::shared_ptr<torchserve::Manifest>& manifest) {
+        std::shared_ptr<torchserve::Manifest>& manifest) {
         model_path_ = model_path;
         manifest_ = manifest;
       };
 
       virtual std::pair<std::shared_ptr<torch::jit::script::Module>, torch::Device> 
       LoadModel(
-        std::shared_ptr<torchserve::LoadModelRequest> load_model_request);
+        std::shared_ptr<torchserve::LoadModelRequest>& load_model_request);
 
       virtual std::vector<torch::jit::IValue> Preprocess(
-        torchserve::InferenceRequestBatch batch) = 0;
+        const torch::Device& device,
+        std::map<uint8_t, std::string>& idx_to_req_i,
+        std::shared_ptr<torchserve::InferenceRequestBatch>& request_batch,
+        std::shared_ptr<torchserve::InferenceResponseBatch>& response_batch) = 0;
       
-      virtual std::shared_ptr<torchserve::InferenceResponse> Postprocess(
-        torch::Tensor data) = 0;
-
       virtual torch::Tensor Predict(
-        std::shared_ptr<torch::jit::script::Module> model,
-        std::vector<torch::jit::IValue> inputs) = 0;
+        std::shared_ptr<torch::jit::script::Module> model, 
+        torch::Tensor& inputs,
+        const torch::Device& device,
+        std::map<uint8_t, std::string>& idx_to_req_i,
+        std::shared_ptr<torchserve::InferenceResponseBatch>& response_batch) = 0;
+
+      virtual void Postprocess(
+        const torch::Tensor& data,
+        std::map<uint8_t, std::string>& idx_to_req_i,
+        std::shared_ptr<torchserve::InferenceResponseBatch>& response_batch) = 0;
 
       /**
        * @brief 
@@ -51,18 +60,20 @@ namespace torchserve {
        * @param inference_request 
        * @return std::shared_ptr<torchserve::InferenceResponse> 
        */
-      std::shared_ptr<torchserve::InferenceResponse> Handle(
-        std::shared_ptr<torch::jit::script::Module> model,
-        torch::Device device,
-        torchserve::InferenceRequestBatch batch) {
-        auto inputs = Preprocess(inference_request_batch);
-        auto output = Predict(model, inputs);
-        return Postprocess(output);
+      void Handle(
+        std::shared_ptr<torch::jit::script::Module>& model,
+        const torch::Device& device,
+        std::shared_ptr<torchserve::InferenceRequestBatch>& request_batch,
+        std::shared_ptr<torchserve::InferenceResponseBatch>& response_batch) {
+        std::map<uint8_t, std::string> idx_to_req_id;
+        auto inputs = Preprocess(device, idx_to_req_id, request_batch, response_batch);
+        auto outputs = Predict(model, inputs, device, idx_to_req_id, response_batch);
+        Postprocess(outputs, idx_to_req_id, response_batch);
       }
 
       protected:
       torch::Device GetTorchDevice(
-        std::shared_ptr<torchserve::LoadModelRequest> load_model_request);
+        std::shared_ptr<torchserve::LoadModelRequest>& load_model_request);
 
       std::shared_ptr<torchserve::Manifest> manifest_;
       std::string model_path_;

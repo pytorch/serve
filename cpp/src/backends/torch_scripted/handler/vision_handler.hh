@@ -4,7 +4,9 @@
 #include <cstddef>
 #include <folly/base64.h>
 #include <folly/json.h>
+#include <sstream>
 #include <torch/script.h>
+#include <torch/serialize.h>
 #include <torch/torch.h>
 #include <vector>
 #include "src/utils/message.hh"
@@ -16,15 +18,23 @@ namespace torchserve {
       VisionHandler() {};
       ~VisionHandler() {};
       
-      std::vector<torch::jit::IValue> Preprocess(
-        const torchserve::InferenceRequestBatch& batch) override;
+      virtual std::vector<torch::jit::IValue> Preprocess(
+        const torch::Device& device,
+        std::map<uint8_t, std::string>& idx_to_req_i,
+        std::shared_ptr<torchserve::InferenceRequestBatch>& request_batch,
+        std::shared_ptr<torchserve::InferenceResponseBatch>& response_batch) override;
       
-      std::shared_ptr<torchserve::InferenceResponse> Postprocess(
-        torch::Tensor data) override;
-
       virtual torch::Tensor Predict(
-        std::shared_ptr<torch::jit::script::Module> model,
-        std::vector<torch::jit::IValue> inputs) override;
+        std::shared_ptr<torch::jit::script::Module> model, 
+        torch::Tensor& inputs,
+        const torch::Device& device,
+        std::map<uint8_t, std::string>& idx_to_req_id,
+        std::shared_ptr<torchserve::InferenceResponseBatch>& response_batch) override;
+
+      virtual void Postprocess(
+        const torch::Tensor& data,
+        std::map<uint8_t, std::string>& idx_to_req_i,
+        std::shared_ptr<torchserve::InferenceResponseBatch>& response_batch) override;
     };
   } // torchscripted
 } // namespace torchserve

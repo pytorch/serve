@@ -44,8 +44,8 @@ namespace torchserve {
         torchserve::ModelInstance(instance_id), model_(model), handler_(handler), device_(device) {};
       ~ModelInstance() {};
 
-      std::shared_ptr<torchserve::InferenceResponse> Predict(
-        torchserve::InferenceRequestBatch batch) override;
+      std::shared_ptr<torchserve::InferenceResponseBatch> Predict(
+        torchserve::InferenceRequestBatch request_batch) override;
 
       private:
       torch::Device device_;

@@ -10,6 +10,9 @@
 namespace torchserve {
   #define CONTENT_TYPE_JSON "application/json"
   #define CONTENT_TYPE_TEXT "text"
+
+  #define DATA_TYPE_STRING "string"
+  #define DATA_TYPE_BYTES "bytes"
   
   // TODO: expand to support model instance, large model (ref: ModelConfig in config.hh)
   struct LoadModelRequest {
@@ -60,37 +63,49 @@ namespace torchserve {
      * - value: header_value
      */
     using Headers = std::map<std::string, std::string>;
-    using Parameters = std::map<std::string, std::vector<std::byte>>;
+    using Parameters = std::map<std::string, std::vector<std::byte>>>;
       
     std::string request_id;
     Headers headers;
     Parameters parameters;
+
+    InferenceRequest() {};
   };
-  
-  struct InferenceRequestBatch {
-    /**
-     * @brief 
-     *  Ref: https://github.com/pytorch/serve/blob/master/ts/service.py#L36
-     */
-    std::vector<std::string> batch_request_id_;
-    std::vector<InferenceRequest::Headers> batch_headers_;
-    std::vector<InferenceRequest::Parameters> batch_parameters;
-  };
+  // Ref: Ref: https://github.com/pytorch/serve/blob/master/ts/service.py#L36
+  using InferenceRequestBatch = std::vector<InferenceRequest>;
 
   struct InferenceResponse {
-    // TODO: definition
+    using Headers = std::map<std::string, std::string>;
+
     int code;
-    int length;
-    const std::string buf;
-    InferenceResponse() {};
+    std::string request_id;
+    // msg data_dtype must be added in headers
+    Headers headers;
+    std::vector<std::byte>> msg;
+
+    InferenceResponse(const std::string& request_id) : request_id(request_id) {};
+
+    void SetResponse(
+      int code,
+      const std::string& header_key,
+      const std::string& header_val,
+      const std::string& message) {
+      code = code;
+      headers[header_key] = header_val;
+      msg = torchserve::Converter::StrToBytes(message);
+    };
   };
+  // Ref: https://github.com/pytorch/serve/blob/master/ts/service.py#L105
+  using InferenceResponseBatch = std::map<std::string, std::shared_ptr<InferenceResponse>>;
 
   class Converter {
     public:
-    static void StrToBytes(const std::string& str, std::vector<std::byte> bytes) {
+    static std::vector<std::byte> StrToBytes(const std::string& str) {
+      std::vector<std::byte> str_bytes;
       for (auto& ch : str) {
-        bytes.emplace_back(std::byte(ch));
+        str_bytes.emplace_back(std::byte(ch));
       }
+      return str_bytes;
     }
   };
 } // namespace torchserve

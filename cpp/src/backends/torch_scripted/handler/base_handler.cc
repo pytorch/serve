@@ -4,7 +4,7 @@ namespace torchserve {
   namespace torchscripted {
     std::pair<std::shared_ptr<torch::jit::script::Module>, torch::Device> 
     BaseHandler::LoadModel(
-      std::shared_ptr<torchserve::LoadModelRequest> load_model_request) {
+      std::shared_ptr<torchserve::LoadModelRequest>& load_model_request) {
       try {
         auto device = GetTorchDevice(load_model_request);
         auto module = std::make_shared<torch::jit::script::Module>(torch::jit::load(
