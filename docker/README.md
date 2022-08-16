@@ -1,3 +1,6 @@
+### Deprecation notice:
+[Dockerfile.neuron.dev](https://github.com/pytorch/serve/blob/master/docker/Dockerfile.neuron.dev) has been deprecated. Please refer to [deep learning containers](https://github.com/aws/deep-learning-containers/blob/master/available_images.md) repository for neuron torchserve containers.
+
 ## Contents of this Document
 
 * [Prerequisites](#prerequisites)
@@ -12,7 +15,7 @@
 * For base Ubuntu with GPU, install following nvidia container toolkit and driver-
   * [Nvidia container toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#installing-on-ubuntu-and-debian)
   * [Nvidia driver](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/install-nvidia-driver.html)
-  
+
 * NOTE - Dockerfiles have not been tested on windows native platform.
 
 ## First things first
@@ -283,7 +286,7 @@ You may want to consider the following aspects / docker options when deploying t
   The current ulimit values can be viewed by executing ```ulimit -a```. A more exhaustive set of options for resource constraining can be found in the Docker Documentation [here](https://docs.docker.com/config/containers/resource_constraints/), [here](https://docs.docker.com/engine/reference/commandline/run/#set-ulimits-in-container---ulimit) and [here](https://docs.docker.com/engine/reference/run/#runtime-constraints-on-resources)
 * Exposing specific ports / volumes between the host & docker env.
 
-    *  ```-p8080:8080 -p8081:8081 -p 8082:8082 -p 7070:7070 -p 7071:7071 ``` 
+    *  ```-p8080:8080 -p8081:8081 -p 8082:8082 -p 7070:7070 -p 7071:7071 ```
        TorchServe uses default ports 8080 / 8081 / 8082 for REST based inference, management & metrics APIs and 7070 / 7071 for gRPC APIs. You may want to expose these ports to the host for HTTP & gRPC Requests between Docker & Host.
     * The model store is passed to torchserve with the --model-store option. You may want to consider using a shared volume if you prefer pre populating models in model-store directory.
 
@@ -298,5 +301,5 @@ docker run --rm --shm-size=1g \
         -p8082:8082 \
         -p7070:7070 \
         -p7071:7071 \
-        --mount type=bind,source=/path/to/model/store,target=/tmp/models <container> torchserve --model-store=/tmp/models 
+        --mount type=bind,source=/path/to/model/store,target=/tmp/models <container> torchserve --model-store=/tmp/models
 ```
