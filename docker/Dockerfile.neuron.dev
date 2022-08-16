@@ -1,13 +1,18 @@
+## THIS DOCKERFILE HAS BEEN DEPRECATED ##
+# please refer to deep learning containers repository for torchserve containers
+# to run on inferentia processors which has up to date drivers
+# https://github.com/aws/deep-learning-containers/blob/master/available_images.md
+
 # syntax = docker/dockerfile:experimental
 #
 # Following comments have been shamelessly copied from https://github.com/pytorch/pytorch/blob/master/Dockerfile
-# 
+#
 # NOTE: To build this you will need a docker version > 18.06 with
 #       experimental enabled and DOCKER_BUILDKIT=1
 #
 #       If you do not use buildkit you are not going to have a good time
 #
-#       For reference: 
+#       For reference:
 #           https://docs.docker.com/develop/develop-images/build_enhancements/
 
 ARG BASE_IMAGE=ubuntu:18.04
@@ -74,7 +79,7 @@ RUN if [ "$MACHINE_TYPE" = "gpu" ]; then export USE_CUDA=1; fi \
     && chown -R model-server /home/model-server \
     && cp docker/config.properties /home/model-server/config.properties \
     && mkdir /home/model-server/model-store && chown -R model-server /home/model-server/model-store \
-    && pip install torch-neuron 'neuron-cc[tensorflow]' --extra-index-url=https://pip.repos.neuron.amazonaws.com 
+    && pip install torch-neuron 'neuron-cc[tensorflow]' --extra-index-url=https://pip.repos.neuron.amazonaws.com
 
 EXPOSE 8080 8081 8082 7070 7071
 USER model-server
