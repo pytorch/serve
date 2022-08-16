@@ -89,7 +89,7 @@ class TsModelLoader(ModelLoader):
         logging.debug("Loading model - working dir: %s", os.getcwd())
         # TODO: Request ID is not given. UUID is a temp UUID.
         metrics = MetricsStore(uuid.uuid4(), model_name)
-        manifest_file = os.path.join(model_dir, "MAR-INF/MANIFEST.json")
+        manifest_file = os.path.join(model_dir, "MAR-INF", "MANIFEST.json")
         manifest = None
         if os.path.exists(manifest_file):
             with open(manifest_file) as f:
