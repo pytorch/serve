@@ -46,6 +46,7 @@ import org.pytorch.serve.util.ConnectorType;
 import org.pytorch.serve.util.JsonUtils;
 import org.pytorch.serve.wlm.Model;
 import org.testng.Assert;
+import org.testng.SkipException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
@@ -62,6 +63,7 @@ public class ModelServerTest {
     private String listManagementApisResult;
     private String listMetricsApisResult;
     private String noopApiResult;
+    private String noopManagementApiResult;
 
     static {
         TestUtils.init();
@@ -97,6 +99,11 @@ public class ModelServerTest {
 
         try (InputStream is = new FileInputStream("src/test/resources/describe_api.json")) {
             noopApiResult = IOUtils.toString(is, StandardCharsets.UTF_8.name());
+        }
+
+        try (InputStream is = new FileInputStream("src/test/resources/model_management_api.json")) {
+            noopManagementApiResult =
+                    String.format(IOUtils.toString(is, StandardCharsets.UTF_8.name()), version);
         }
     }
 
@@ -192,11 +199,26 @@ public class ModelServerTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testDescribeApi"})
+    public void testModelManagementApi() throws InterruptedException {
+        Channel channel = TestUtils.getManagementChannel(configManager);
+        TestUtils.setResult(null);
+        TestUtils.setLatch(new CountDownLatch(1));
+        TestUtils.describeModelManagementApi(channel, "noop");
+        TestUtils.getLatch().await();
+
+        Assert.assertEquals(
+                TestUtils.getResult().replaceAll("(\\\\r|\r\n|\n|\n\r)", "\r"),
+                noopManagementApiResult.replaceAll("(\\\\r|\r\n|\n|\n\r)", "\r"));
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testModelManagementApi"})
     public void testInitialWorkers() throws InterruptedException {
         Channel channel = TestUtils.getManagementChannel(configManager);
         TestUtils.setResult(null);
         TestUtils.setLatch(new CountDownLatch(1));
-        TestUtils.describeModel(channel, "noop", null);
+        TestUtils.describeModel(channel, "noop", null, false);
         TestUtils.getLatch().await();
         DescribeModelResponse[] resp =
                 JsonUtils.GSON.fromJson(TestUtils.getResult(), DescribeModelResponse[].class);
@@ -222,7 +244,7 @@ public class ModelServerTest {
         Channel channel = TestUtils.getManagementChannel(configManager);
         TestUtils.setResult(null);
         TestUtils.setLatch(new CountDownLatch(1));
-        TestUtils.describeModel(channel, "noop_v1.0", null);
+        TestUtils.describeModel(channel, "noop_v1.0", null, false);
         TestUtils.getLatch().await();
         DescribeModelResponse[] resp =
                 JsonUtils.GSON.fromJson(TestUtils.getResult(), DescribeModelResponse[].class);
@@ -234,6 +256,23 @@ public class ModelServerTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testLoadNoopModel"})
+    public void testDescribeModelCustomizedNoWorker() throws InterruptedException {
+        Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
+        Assert.assertNotNull(channel);
+
+        HttpRequest req =
+                new DefaultFullHttpRequest(
+                        HttpVersion.HTTP_1_1, HttpMethod.GET, "/models/noop_v1.0?customized=true");
+        channel.writeAndFlush(req).sync();
+        channel.closeFuture().sync();
+
+        ErrorResponse resp = JsonUtils.GSON.fromJson(TestUtils.getResult(), ErrorResponse.class);
+        Assert.assertEquals(resp.getCode(), HttpResponseStatus.SERVICE_UNAVAILABLE.code());
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testDescribeModelCustomizedNoWorker"})
     public void testSyncScaleNoopModel() throws InterruptedException {
         testSyncScaleModel("noop_v1.0", null);
     }
@@ -264,7 +303,7 @@ public class ModelServerTest {
             alwaysRun = true,
             dependsOnMethods = {"testListModels"})
     public void testDescribeNoopModel() throws InterruptedException {
-        testDescribeModel("noop_v1.0", null, "1.11");
+        testDescribeModel("noop_v1.0", null, false, "1.11");
     }
 
     @Test(
@@ -292,21 +331,22 @@ public class ModelServerTest {
             alwaysRun = true,
             dependsOnMethods = {"testLoadNoopV2ModelWithInitialWorkers"})
     public void testDescribeDefaultModelVersion() throws InterruptedException {
-        testDescribeModel("noopversioned", null, "1.11");
+        testDescribeModel("noopversioned", null, false, "1.11");
     }
 
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testDescribeDefaultModelVersion"})
     public void testDescribeAllModelVersion() throws InterruptedException {
-        testDescribeModel("noopversioned", "all", "1.2.1");
+        testDescribeModel("noopversioned", "all", false, "1.2.1");
+        testDescribeModel("noopversioned", "all", true, "1.2.1");
     }
 
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testDescribeAllModelVersion"})
     public void testDescribeSpecificModelVersion() throws InterruptedException {
-        testDescribeModel("noopversioned", "1.11", "1.11");
+        testDescribeModel("noopversioned", "1.11", false, "1.11");
     }
 
     @Test(
@@ -401,11 +441,43 @@ public class ModelServerTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testNoopPrediction"})
-    public void testLoadModelWithNakedDirModelArchive() throws InterruptedException {
+    public void testLoadModelWithNakedDirNoVersionModelArchive() throws InterruptedException {
         String operatingSystem = System.getProperty("os.name").toLowerCase();
         if (!operatingSystem.contains("win")) {
             Channel channel = TestUtils.getManagementChannel(configManager);
             testUnregisterModel("noop", null);
+            TestUtils.setResult(null);
+            TestUtils.setLatch(new CountDownLatch(1));
+            DefaultFullHttpRequest req =
+                    new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, "/models");
+            req.headers().add("Content-Type", "application/json");
+            req.content()
+                    .writeCharSequence(
+                            "{'url':'"
+                                    + configManager.getModelStore()
+                                    + "/noop_no_archive_no_version/noop/"
+                                    + "', 'model_name':'noop', 'initial_workers':'1', 'synchronous':'true'}",
+                            CharsetUtil.UTF_8);
+            HttpUtil.setContentLength(req, req.content().readableBytes());
+            channel.writeAndFlush(req);
+            TestUtils.getLatch().await();
+
+            StatusResponse resp =
+                    JsonUtils.GSON.fromJson(TestUtils.getResult(), StatusResponse.class);
+            Assert.assertEquals(
+                    resp.getStatus(),
+                    "Model \"noop\" Version: 1.0 registered with 1 initial workers");
+        }
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testLoadModelWithNakedDirNoVersionModelArchive"})
+    public void testLoadModelWithNakedDirModelArchive() throws InterruptedException {
+        String operatingSystem = System.getProperty("os.name").toLowerCase();
+        if (!operatingSystem.contains("win")) {
+            Channel channel = TestUtils.getManagementChannel(configManager);
+            testUnregisterModel("noop", "1.0");
             TestUtils.setResult(null);
             TestUtils.setLatch(new CountDownLatch(1));
             DefaultFullHttpRequest req =
@@ -785,6 +857,25 @@ public class ModelServerTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testPredictionsDecodeRequest"})
+    public void testNoopCustomized() throws InterruptedException {
+        testLoadModelWithInitialWorkers("noop-customized.mar", "noop-customized", "1.0");
+
+        Channel channel = TestUtils.getManagementChannel(configManager);
+        TestUtils.setResult(null);
+        TestUtils.setLatch(new CountDownLatch(1));
+        TestUtils.describeModel(channel, "noop-customized", "1.0", true);
+        TestUtils.getLatch().await();
+        DescribeModelResponse[] resp =
+                JsonUtils.GSON.fromJson(TestUtils.getResult(), DescribeModelResponse[].class);
+        Assert.assertEquals(
+                resp[0].getCustomizedMetadata(), "{\n  \"data1\": \"1\",\n  \"data2\": \"2\"\n}");
+
+        testUnregisterModel("noop-customized", "1.0");
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testNoopCustomized"})
     public void testPredictionsDoNotDecodeRequest()
             throws InterruptedException, NoSuchFieldException, IllegalAccessException {
         Channel inferChannel = TestUtils.getInferenceChannel(configManager);
@@ -954,7 +1045,7 @@ public class ModelServerTest {
         TestUtils.setResult(null);
         TestUtils.setLatch(new CountDownLatch(1));
 
-        TestUtils.describeModel(mgmtChannel, "noop_default_model_workers", null);
+        TestUtils.describeModel(mgmtChannel, "noop_default_model_workers", null, false);
         TestUtils.getLatch().await();
 
         DescribeModelResponse[] resp =
@@ -1064,7 +1155,11 @@ public class ModelServerTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testModelWithInvalidCustomPythonDependency"})
-    public void testLoadingMemoryError() throws InterruptedException {
+    public void testLoadingMemoryError() throws InterruptedException, SkipException {
+        if (System.getProperty("os.name").startsWith("Win")) {
+            throw new SkipException("Test skipped on Windows");
+        }
+
         Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
         TestUtils.setResult(null);
@@ -1269,7 +1364,10 @@ public class ModelServerTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testInvalidRootRequest"})
-    public void testInvalidInferenceUri() throws InterruptedException {
+    public void testInvalidInferenceUri() throws InterruptedException, SkipException {
+        if (System.getProperty("os.name").startsWith("Win")) {
+            throw new SkipException("Test skipped on Windows");
+        }
         Channel channel = TestUtils.connect(ConnectorType.INFERENCE_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
 
@@ -1287,7 +1385,10 @@ public class ModelServerTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testInvalidInferenceUri"})
-    public void testInvalidDescribeModel() throws InterruptedException {
+    public void testInvalidDescribeModel() throws InterruptedException, SkipException {
+        if (System.getProperty("os.name").startsWith("Win")) {
+            throw new SkipException("Test skipped on Windows");
+        }
         Channel channel = TestUtils.connect(ConnectorType.INFERENCE_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
 
@@ -1303,7 +1404,10 @@ public class ModelServerTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testInvalidDescribeModel"})
-    public void testInvalidPredictionsUri() throws InterruptedException {
+    public void testInvalidPredictionsUri() throws InterruptedException, SkipException {
+        if (System.getProperty("os.name").startsWith("Win")) {
+            throw new SkipException("Test skipped on Windows");
+        }
         Channel channel = TestUtils.connect(ConnectorType.INFERENCE_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
 
@@ -1378,7 +1482,10 @@ public class ModelServerTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testInvalidManagementUri"})
-    public void testInvalidModelsMethod() throws InterruptedException {
+    public void testInvalidModelsMethod() throws InterruptedException, SkipException {
+        if (System.getProperty("os.name").startsWith("Win")) {
+            throw new SkipException("Test skipped on Windows");
+        }
         Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
 
@@ -1433,7 +1540,10 @@ public class ModelServerTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testDescribeModelNotFound"})
-    public void testDescribeModelVersionNotFound() throws InterruptedException {
+    public void testDescribeModelVersionNotFound() throws InterruptedException, SkipException {
+        if (System.getProperty("os.name").startsWith("Win")) {
+            throw new SkipException("Test skipped on Windows");
+        }
         Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
 
@@ -1510,7 +1620,10 @@ public class ModelServerTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testRegisterModelNotFound"})
-    public void testRegisterModelConflict() throws InterruptedException {
+    public void testRegisterModelConflict() throws InterruptedException, SkipException {
+        if (System.getProperty("os.name").startsWith("Win")) {
+            throw new SkipException("Test skipped on Windows");
+        }
         Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
 
@@ -1665,7 +1778,10 @@ public class ModelServerTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testScaleModelNotFound"})
-    public void testUnregisterModelNotFound() throws InterruptedException {
+    public void testUnregisterModelNotFound() throws InterruptedException, SkipException {
+        if (System.getProperty("os.name").startsWith("Win")) {
+            throw new SkipException("Test skipped on Windows");
+        }
         Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
 
@@ -1727,7 +1843,11 @@ public class ModelServerTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testUnregisterModelTimeout"})
-    public void testScaleModelFailure() throws InterruptedException {
+    public void testScaleModelFailure() throws InterruptedException, SkipException {
+        if (System.getProperty("os.name").startsWith("Win")) {
+            throw new SkipException("Test skipped on Windows");
+        }
+
         Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
 
@@ -1942,7 +2062,10 @@ public class ModelServerTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testSetInvalidDefaultVersion"})
-    public void testUnregisterModelFailure() throws InterruptedException {
+    public void testUnregisterModelFailure() throws InterruptedException, SkipException {
+        if (System.getProperty("os.name").startsWith("Win")) {
+            throw new SkipException("Test skipped on Windows");
+        }
         Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
         TestUtils.setResult(null);
@@ -2008,12 +2131,13 @@ public class ModelServerTest {
         }
     }
 
-    private void testDescribeModel(String modelName, String requestVersion, String expectedVersion)
+    private void testDescribeModel(
+            String modelName, String requestVersion, boolean customized, String expectedVersion)
             throws InterruptedException {
         Channel channel = TestUtils.getManagementChannel(configManager);
         TestUtils.setResult(null);
         TestUtils.setLatch(new CountDownLatch(1));
-        TestUtils.describeModel(channel, modelName, requestVersion);
+        TestUtils.describeModel(channel, modelName, requestVersion, customized);
         TestUtils.getLatch().await();
 
         DescribeModelResponse[] resp =

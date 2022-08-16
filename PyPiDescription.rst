@@ -1,8 +1,8 @@
 Project Description
 ===================
 
-TorchServe (PyTorch model server) is a flexible and easy to use tool for
-serving deep learning models exported from `PyTorch <http://pytorch.org/>`__.
+TorchServe is a flexible and easy to use tool for
+serving `PyTorch <http://pytorch.org/>`__ models in production.
 
 Use the TorchServe CLI, or the pre-configured Docker images, to start a
 service that sets up HTTP endpoints to handle model inference requests.

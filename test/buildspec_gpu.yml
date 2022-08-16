@@ -1,0 +1,29 @@
+# Build Spec for AWS CodeBuild CI
+
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.8
+    commands:
+      # Workaround from https://github.com/NVIDIA/nvidia-docker/issues/1632
+      - apt-get install wget
+      - apt-key del 7fa2af80
+      - wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/cuda-keyring_1.0-1_all.deb
+      - dpkg -i cuda-keyring_1.0-1_all.deb
+      - apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/3bf863cc.pub
+      - apt-get update
+      - apt-get install sudo -y
+      - curl -O https://bootstrap.pypa.io/get-pip.py && python get-pip.py
+      - update-alternatives --install /usr/local/bin/pip pip /usr/local/bin/pip3 1
+      - python ts_scripts/install_dependencies.py --cuda=cu102 --environment=dev
+
+  build:
+    commands:
+      - /bin/bash -c "set -eo pipefail; python test/regression_tests.py 2>&1 | tee /tmp/test_exec.log"
+
+artifacts:
+  files:
+    - /tmp/test_exec.log
+  name: TS-NIGHTLY-REGRESSION-$(date +%Y-%m-%d) 

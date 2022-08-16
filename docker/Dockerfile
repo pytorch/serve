@@ -2,17 +2,17 @@
 #
 # This file can build images for cpu and gpu env. By default it builds image for CPU.
 # Use following option to build image for cuda/GPU: --build-arg BASE_IMAGE=nvidia/cuda:10.1-cudnn7-runtime-ubuntu18.04
-# Here is complete command for GPU/cuda - 
+# Here is complete command for GPU/cuda -
 # $ DOCKER_BUILDKIT=1 docker build --file Dockerfile --build-arg BASE_IMAGE=nvidia/cuda:10.1-cudnn7-runtime-ubuntu18.04 -t torchserve:latest .
 #
 # Following comments have been shamelessly copied from https://github.com/pytorch/pytorch/blob/master/Dockerfile
-# 
+#
 # NOTE: To build this you will need a docker version > 18.06 with
 #       experimental enabled and DOCKER_BUILDKIT=1
 #
 #       If you do not use buildkit you are not going to have a good time
 #
-#       For reference: 
+#       For reference:
 #           https://docs.docker.com/develop/develop-images/build_enhancements/
 
 
@@ -23,26 +23,33 @@ ARG BASE_IMAGE=ubuntu:18.04
 ENV PYTHONUNBUFFERED TRUE
 
 RUN --mount=type=cache,id=apt-dev,target=/var/cache/apt \
+    #apt --fix-broken -y install && \
     apt-get update && \
+    apt remove python-pip  python3-pip && \
     DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
     ca-certificates \
     g++ \
-    python3-dev \
-    python3-distutils \
+    python3.8 \
+    python3.8-dev \
+    python3.8-distutils \
+    python3.8-venv \
     python3-venv \
-    openjdk-11-jre-headless \
+    openjdk-17-jdk \
     curl \
     && rm -rf /var/lib/apt/lists/* \
     && cd /tmp \
     && curl -O https://bootstrap.pypa.io/get-pip.py \
-    && python3 get-pip.py
+    && python3.8 get-pip.py
 
-RUN python3 -m venv /home/venv
+
+RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.8 1 \
+    && update-alternatives --install /usr/local/bin/pip pip /usr/local/bin/pip3.8 1
+
+RUN python3.8 -m venv /home/venv
 
 ENV PATH="/home/venv/bin:$PATH"
 
-RUN update-alternatives --install /usr/bin/python python /usr/bin/python3 1 \
-    && update-alternatives --install /usr/local/bin/pip pip /usr/local/bin/pip3 1
+RUN python -m pip install -U pip setuptools
 
 # This is only useful for cuda env
 RUN export USE_CUDA=1
@@ -54,16 +61,17 @@ RUN TORCH_VER=$(curl --silent --location https://pypi.org/pypi/torch/json | pyth
     if echo "$BASE_IMAGE" | grep -q "cuda:"; then \
         # Install CUDA version specific binary when CUDA version is specified as a build arg
         if [ "$CUDA_VERSION" ]; then \
-            pip install --no-cache-dir torch==$TORCH_VER+$CUDA_VERSION torchvision==$TORCH_VISION_VER+$CUDA_VERSION -f https://download.pytorch.org/whl/torch_stable.html; \
+            python -m pip install --no-cache-dir torch==$TORCH_VER+$CUDA_VERSION torchvision==$TORCH_VISION_VER+$CUDA_VERSION -f https://download.pytorch.org/whl/torch_stable.html; \
         # Install the binary with the latest CUDA version support
         else \
-            pip install --no-cache-dir torch torchvision; \
-        fi \
+            python -m pip install --no-cache-dir torch torchvision; \
+        fi; \
+        python -m pip install --no-cache-dir -r https://raw.githubusercontent.com/pytorch/serve/master/requirements/common.txt; \
     # Install the CPU binary
     else \
-        pip install --no-cache-dir torch==$TORCH_VER+cpu torchvision==$TORCH_VISION_VER+cpu -f https://download.pytorch.org/whl/torch_stable.html; \
+        python -m pip install --no-cache-dir torch==$TORCH_VER+cpu torchvision==$TORCH_VISION_VER+cpu -f https://download.pytorch.org/whl/torch_stable.html; \
     fi
-RUN pip install --no-cache-dir captum torchtext torchserve torch-model-archiver
+RUN python -m pip install -U setuptools && python -m pip install --no-cache-dir captum torchtext torchserve torch-model-archiver
 
 # Final image for production
 FROM ${BASE_IMAGE} AS runtime-image
@@ -73,10 +81,12 @@ ENV PYTHONUNBUFFERED TRUE
 RUN --mount=type=cache,target=/var/cache/apt \
     apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
-    python3 \
-    python3-distutils \
-    python3-dev \
-    openjdk-11-jre-headless \
+    python3.8 \
+    python3.8-distutils \
+    python3.8-dev \
+    # using openjdk-17-jdk due to circular dependency(ca-certificates) bug in openjdk-17-jre-headless debian package
+    # https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1009905
+    openjdk-17-jdk \
     build-essential \
     && rm -rf /var/lib/apt/lists/* \
     && cd /tmp

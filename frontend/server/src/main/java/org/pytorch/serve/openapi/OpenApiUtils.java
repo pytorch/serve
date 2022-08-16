@@ -34,8 +34,8 @@ public final class OpenApiUtils {
         return JsonUtils.GSON_PRETTY.toJson(openApi);
     }
     /**
-     * The /v1/models/{model_name}:predict prediction api is used to access torchserve from
-     * kfserving v1 predictor
+     * The /v1/models/{model_name}:predict prediction api is used to access torchserve from kserve
+     * v1 protocol and /v2/models/{model_name}/infer is for kserve v2 protocol.
      */
     private static void listInferenceApis(OpenApi openApi) {
         openApi.addPath("/", getApiDescriptionPath("apiDescription", false));
@@ -67,6 +67,22 @@ public final class OpenApiUtils {
         openApi.addPath("/prediction/" + modelName, getModelPath(modelName));
         openApi.addPath("/v1/models/{model_name}:predict", getModelPath(modelName));
         openApi.addPath("/v2/models/{model_name}/infer", getModelPath(modelName));
+
+        return JsonUtils.GSON_PRETTY.toJson(openApi);
+    }
+
+    public static String getModelManagementApi(Model model) {
+        String modelName = model.getModelName();
+        OpenApi openApi = new OpenApi();
+        Info info = new Info();
+        info.setTitle("RESTful Management API for: " + modelName);
+        ConfigManager config = ConfigManager.getInstance();
+        info.setVersion(config.getProperty("version", null));
+        openApi.setInfo(info);
+
+        openApi.addPath("/models/{model_name}", getModelManagerPath(false));
+        openApi.addPath("/models/{model_name}/{model_version}", getModelManagerPath(true));
+        openApi.addPath("/models/{model_name}/{model_version}/set-default", getSetDefaultPath());
 
         return JsonUtils.GSON_PRETTY.toJson(openApi);
     }

@@ -8,8 +8,8 @@ The TorchServe server supports the following APIs:
 * [Health check API](#health-check-api) - Gets the health status of the running server
 * [Predictions API](#predictions-api) - Gets predictions from the served model
 * [Explanations API](#explanations-api) - Gets the explanations from the served model
-* [KFServing Inference API](#kfserving-inference-api) - Gets predictions of the served model from KFServing side
-* [KFServing Explanations API](#kfserving-explanations-api) - Gets explanations of the served model from KFServing
+* [KServe Inference API](#kserve-inference-api) - Gets predictions of the served model from KServe
+* [KServe Explanations API](#kserve-explanations-api) - Gets explanations of the served model from KServe
 
 ## API Description
 
@@ -37,7 +37,7 @@ If the server is running, the response is:
 
 ```json
 {
-  "health": "healthy!"
+  "status": "Healthy"
 }
 ```
 
@@ -61,6 +61,16 @@ or:
 curl http://localhost:8080/predictions/resnet-18 -F "data=@kitten_small.jpg"
 ```
 
+To get predictions from the loaded model which expects multiple inputs
+```bash
+curl http://localhost:8080/predictions/squeezenet1_1 -F 'data=@docs/images/dogs-before.jpg' -F 'data=@docs/images/kitten_small.jpg'
+
+or:
+
+import requests
+
+res = requests.post("http://localhost:8080/predictions/squeezenet1_1", files={'data': open('docs/images/dogs-before.jpg', 'rb'), 'data': open('docs/images/kitten_small.jpg', 'rb')})
+```
 To get predictions from a specific version of each loaded model, make a REST call to `/predictions/{model_name}/{version}`:
 
 * POST /predictions/{model_name}/{version}
@@ -120,9 +130,9 @@ The result is a json that gives you the explanations for the input image
   ]
 ```
 
-## KFServing Inference API
+## KServe Inference API
 
-Torchserve makes use of KFServing Inference API to return the predictions of the models that is served.
+Torchserve makes use of KServe Inference API to return the predictions of the models that is served.
 
 To get predictions from the loaded model, make a REST call to `/v1/models/{model_name}:predict`:
 
@@ -130,7 +140,7 @@ To get predictions from the loaded model, make a REST call to `/v1/models/{model
 
 ### curl example
 ```bash
- curl -H "Content-Type: application/json" --data @kubernetes/kfserving/kf_request_json/mnist.json http://127.0.0.1:8080/v1/models/mnist:predict
+ curl -H "Content-Type: application/json" --data @kubernetes/kserve/kf_request_json/v1/mnist.json http://127.0.0.1:8080/v1/models/mnist:predict
 ```
 
 The result is a json that gives you the predictions for the input json
@@ -142,9 +152,9 @@ The result is a json that gives you the predictions for the input json
 }
 ```
 
-## KFServing Explanations API
+## KServe Explanations API
 
-Torchserve makes use of KFServing API spec to return the explanations for the the models that it served.
+Torchserve makes use of KServe API spec to return the explanations for the the models that it served.
 
 To get explanations from the loaded model, make a REST call to `/v1/models/{model_name}:explain`:
 
@@ -152,7 +162,7 @@ To get explanations from the loaded model, make a REST call to `/v1/models/{mode
 
 ### curl example
 ```bash
- curl -H "Content-Type: application/json" --data @kubernetes/kfserving/kf_request_json/mnist.json http://127.0.0.1:8080/v1/models/mnist:explain
+ curl -H "Content-Type: application/json" --data @kubernetes/kserve/kf_request_json/v1/mnist.json http://127.0.0.1:8080/v1/models/mnist:explain
 ```
 
 The result is a json that gives you the explanations for the input json

@@ -1,16 +1,20 @@
 import os
 import requests
 import json
+import logging
 import test_utils
 import numpy as np
 import ast 
 import pytest
-REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../")
-snapshot_file_kf = os.path.join(REPO_ROOT,"test/config_kf.properties")
-snapshot_file_tf = os.path.join(REPO_ROOT,"test/config_ts.properties")
-data_file_mnist = os.path.join(REPO_ROOT, 'examples/image_classifier/mnist/test_data/1.png')
-input_json_mnist = os.path.join(REPO_ROOT, "kubernetes/kfserving/kf_request_json/mnist.json")
-input_json_mmf = os.path.join(REPO_ROOT, "examples/MMF-activity-recognition/372CC.info.json")
+import torch
+REPO_ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../"))
+snapshot_file_kf = os.path.join(REPO_ROOT, "test", "config_kf.properties")
+snapshot_file_tf = os.path.join(REPO_ROOT,"test", "config_ts.properties")
+data_file_mnist = os.path.join(REPO_ROOT, "examples", "image_classifier", "mnist", "test_data", "1.png")
+input_json_mnist = os.path.join(REPO_ROOT, "kubernetes", "kserve", "kf_request_json", "v1", "mnist.json")
+input_json_mmf = os.path.join(REPO_ROOT, "examples", "MMF-activity-recognition", "372CC.info.json")
+logger = logging.getLogger(__name__)
+
 
 def getAPIS(snapshot_file):
     MANAGEMENT_API = "http://127.0.0.1:8081"
@@ -34,7 +38,8 @@ TF_MANAGEMENT_API, TF_INFERENCE_API = getAPIS(snapshot_file_tf)
 def setup_module(module):
     test_utils.torchserve_cleanup()
     response = requests.get("https://torchserve.pytorch.org/mar_files/mnist.mar", allow_redirects=True)
-    open(test_utils.MODEL_STORE + "/mnist.mar", 'wb').write(response.content)
+    with open(os.path.join(test_utils.MODEL_STORE, "mnist.mar"), 'wb') as f:
+        f.write(response.content)
 
 def teardown_module(module):
     test_utils.torchserve_cleanup()
@@ -173,9 +178,9 @@ def test_mnist_model_register_and_inference_on_valid_model_explain():
     test_utils.unregister_model("mnist")
 
 
-def test_kfserving_mnist_model_register_and_inference_on_valid_model():
+def test_kserve_mnist_model_register_and_inference_on_valid_model():
     """
-    Validates that snapshot.cfg is created when management apis are invoked for kfserving.
+    Validates that snapshot.cfg is created when management apis are invoked for kserve.
     """
     test_utils.start_torchserve(snapshot_file = snapshot_file_kf)
     test_utils.register_model('mnist', 'mnist.mar')
@@ -191,7 +196,8 @@ def test_kfserving_mnist_model_register_and_inference_on_valid_model():
     test_utils.unregister_model("mnist")
 
 
-def test_kfserving_mnist_model_register_scale_inference_with_non_existent_handler():
+def test_kserve_mnist_model_register_scale_inference_with_non_existent_handler(
+):
     response = mnist_model_register_using_non_existent_handler_then_scale_up()
     mnist_list = json.loads(response.content)
     assert len(mnist_list[0]['workers']) > 1
@@ -201,7 +207,7 @@ def test_kfserving_mnist_model_register_scale_inference_with_non_existent_handle
         data = json.loads(s)
 
     response = run_inference_using_url_with_data_json(KF_INFERENCE_API + '/v1/models/mnist:predict', data)
-    
+
     if response is None:
         assert True, "Inference failed as the handler is non existent"
     else:
@@ -210,9 +216,9 @@ def test_kfserving_mnist_model_register_scale_inference_with_non_existent_handle
                           "despite passing non existent handler"
 
 
-def test_kfserving_mnist_model_register_and_inference_on_valid_model_explain():
+def test_kserve_mnist_model_register_and_inference_on_valid_model_explain():
     """
-    Validates the kfserving model explanations.
+    Validates the kserve model explanations.
     """
     test_utils.start_torchserve(snapshot_file = snapshot_file_kf)
     test_utils.register_model('mnist', 'mnist.mar')
@@ -238,8 +244,8 @@ def test_huggingface_bert_batch_inference():
     )
     test_utils.start_torchserve(no_config_snapshots=True)
     test_utils.register_model_with_params(params)
-    input_text = os.path.join(REPO_ROOT, 'examples/Huggingface_Transformers/Seq_classification_artifacts/sample_text.txt')
-    
+    input_text = os.path.join(REPO_ROOT, 'examples', 'Huggingface_Transformers', 'Seq_classification_artifacts', 'sample_text.txt')
+
     # Make 2 curl requests in parallel with &
     # curl --header \"X-Forwarded-For: 1.2.3.4\" won't work since you can't access local host anymore
     response = os.popen(f"curl http://127.0.0.1:8080/predictions/BERTSeqClassification -T {input_text} & curl http://127.0.0.1:8080/predictions/BERTSeqClassification -T {input_text}")
@@ -252,7 +258,7 @@ def test_huggingface_bert_batch_inference():
 
 @pytest.mark.skip(reason="MMF doesn't support PT 1.10 yet")
 def test_MMF_activity_recognition_model_register_and_inference_on_valid_model():
-  
+
     test_utils.start_torchserve(snapshot_file = snapshot_file_tf)
     test_utils.register_model('MMF_activity_recognition_v2', 'https://torchserve.pytorch.org/mar_files/MMF_activity_recognition_v2.mar')
     os.system('wget https://mmfartifacts.s3-us-west-2.amazonaws.com/372CC.mp4 -P ../../examples/MMF-activity-recognition')
@@ -271,3 +277,29 @@ def test_MMF_activity_recognition_model_register_and_inference_on_valid_model():
     response = [n.strip() for n in response]
     assert response == ['Sitting at a table','Someone is sneezing','Watching a laptop or something on a laptop']
     test_utils.unregister_model("MMF_activity_recognition_v2")
+
+def test_huggingface_bert_model_parallel_inference():
+    number_of_gpus = torch.cuda.device_count()
+    check = os.popen(f"curl http://localhost:8081/models")
+    print(check)
+    if number_of_gpus > 1:
+        batch_size = 1
+        batch_delay = 5000 # 10 seconds
+        params = (
+            ('model_name', 'Textgeneration'),
+            ('url', 'https://bert-mar-file.s3.us-west-2.amazonaws.com/Textgeneration.mar'),
+            ('initial_workers', '1'),
+            ('batch_size', str(batch_size)),
+            ('max_batch_delay', str(batch_delay))
+        )
+        test_utils.start_torchserve(no_config_snapshots=True)
+        test_utils.register_model_with_params(params)
+        input_text = os.path.join(REPO_ROOT, 'examples', 'Huggingface_Transformers', 'Text_gen_artifacts', 'sample_text_captum_input.txt')
+        
+        response = os.popen(f"curl http://127.0.0.1:8080/predictions/Textgeneration -T {input_text}")
+        response = response.read()
+        
+        assert  'Bloomberg has decided to publish a new report on the global economy' in response
+        test_utils.unregister_model('Textgeneration')
+    else:
+        logger.info("Running model parallel inference requuires more than one gpu, number of available gpus on thi machine is: ", number_of_gpus)

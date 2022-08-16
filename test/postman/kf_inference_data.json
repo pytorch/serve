@@ -4,7 +4,7 @@
     "model_name":"mnist",
     "worker":1,
     "synchronous":"true",
-    "file":"../kubernetes/kfserving/kf_request_json/mnist.json",
+    "file":"../kubernetes/kserve/kf_request_json/v1/mnist.json",
     "content-type":"application/json",
     "expected":{
         "predictions": [

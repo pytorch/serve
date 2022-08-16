@@ -125,7 +125,7 @@ public final class ModelManager {
             manifest.getModel().setModelVersion("1.0");
             manifest.getModel().setModelName(modelName);
             manifest.getModel().setHandler(new File(handler).getName());
-
+            manifest.getModel().setEnvelope(configManager.getTsServiceEnvelope());
             File f = new File(handler.substring(0, handler.lastIndexOf(':')));
             archive = new ModelArchive(manifest, url, f.getParentFile(), true);
         } else {
@@ -169,12 +169,13 @@ public final class ModelManager {
                         configManager.getModelStore(),
                         url,
                         s3SseKms);
+        Manifest.Model model = archive.getManifest().getModel();
         if (modelName == null || modelName.isEmpty()) {
             if (archive.getModelName() == null || archive.getModelName().isEmpty()) {
-                archive.getManifest().getModel().setModelName(defaultModelName);
+                model.setModelName(defaultModelName);
             }
         } else {
-            archive.getManifest().getModel().setModelName(modelName);
+            model.setModelName(modelName);
         }
 
         if (runtime != null) {
@@ -182,12 +183,16 @@ public final class ModelManager {
         }
 
         if (handler != null) {
-            archive.getManifest().getModel().setHandler(handler);
+            model.setHandler(handler);
         } else if (archive.getHandler() == null || archive.getHandler().isEmpty()) {
-            archive.getManifest().getModel().setHandler(configManager.getTsDefaultServiceHandler());
+            model.setHandler(configManager.getTsDefaultServiceHandler());
         }
 
-        archive.getManifest().getModel().setEnvelope(configManager.getTsServiceEnvelope());
+        model.setEnvelope(configManager.getTsServiceEnvelope());
+
+        if (model.getModelVersion() == null) {
+            model.setModelVersion("1.0");
+        }
 
         archive.validate();
 

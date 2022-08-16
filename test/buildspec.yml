@@ -4,10 +4,14 @@ version: 0.2
 
 phases:
   install:
+    runtime-versions:
+      python: 3.8
     commands:
       - apt-get update
       - apt-get install sudo -y
-      - python ts_scripts/install_dependencies.py --cuda=cu101 --environment=dev
+      - curl -O https://bootstrap.pypa.io/get-pip.py && python get-pip.py
+      - update-alternatives --install /usr/local/bin/pip pip /usr/local/bin/pip3 1
+      - python ts_scripts/install_dependencies.py --environment=dev
 
   build:
     commands:
@@ -16,4 +20,4 @@ phases:
 artifacts:
   files:
     - /tmp/test_exec.log
-  name: TS-NIGHTLY-REGRESSION-$(date +%Y-%m-%d) 
+  name: TS-NIGHTLY-REGRESSION-$(date +%Y-%m-%d)

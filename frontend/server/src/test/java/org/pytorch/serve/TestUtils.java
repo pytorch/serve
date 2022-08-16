@@ -57,10 +57,13 @@ public final class TestUtils {
     private TestUtils() {}
 
     public static void init() {
+        System.out.println("init");
         // set up system properties for local IDE debug
+        System.out.println("tsConfigFile1: " + System.getProperty("tsConfigFile"));
         if (System.getProperty("tsConfigFile") == null) {
             System.setProperty("tsConfigFile", "src/test/resources/config.properties");
         }
+        System.out.println("tsConfigFile2: " + System.getProperty("tsConfigFile"));
         if (System.getProperty("METRICS_LOCATION") == null) {
             System.setProperty("METRICS_LOCATION", "build/logs");
         }
@@ -260,10 +263,21 @@ public final class TestUtils {
         channel.writeAndFlush(req);
     }
 
-    public static void describeModel(Channel channel, String modelName, String version) {
+    public static void describeModelManagementApi(Channel channel, String modelName) {
+        HttpRequest req =
+                new DefaultFullHttpRequest(
+                        HttpVersion.HTTP_1_1, HttpMethod.OPTIONS, "/models/" + modelName);
+        channel.writeAndFlush(req);
+    }
+
+    public static void describeModel(
+            Channel channel, String modelName, String version, boolean customized) {
         String requestURL = "/models/" + modelName;
         if (version != null) {
             requestURL += "/" + version;
+        }
+        if (customized) {
+            requestURL += "?customized=true";
         }
 
         HttpRequest req =

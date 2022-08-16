@@ -303,7 +303,7 @@
 				"body": {
 					"mode": "file",
 					"file": {
-						"src": "../kubernetes/kfserving/kf_request_json/mnist.json"
+						"src": "../kubernetes/kserve/kf_request_json/v1/mnist.json"
 					},
 					"options": {
 						"raw": {
@@ -324,7 +324,7 @@
 						"mnist:predict"
 					]
 				},
-				"description": "Runs an inference test for Mnist model with kfserving envelope"
+				"description": "Runs an inference test for Mnist model with kserve envelope"
 			},
 			"response": []
 		},
@@ -355,7 +355,7 @@
 				"body": {
 					"mode": "file",
 					"file": {
-						"src": "../kubernetes/kfserving/kf_request_json/mnist.json"
+						"src": "../kubernetes/kserve/kf_request_json/v1/mnist.json"
 					},
 					"options": {
 						"raw": {
@@ -376,7 +376,7 @@
 						"mnist:explain"
 					]
 				},
-				"description": "Runs an inference test for Mnist model with kfserving envelope"
+				"description": "Runs an inference test for Mnist model with kserve envelope"
 			},
 			"response": []
 		},

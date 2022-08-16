@@ -4,9 +4,7 @@ Module to collect system metrics for front-end
 import logging
 import types
 from builtins import str
-
 import psutil
-
 from ts.metrics.dimension import Dimension
 from ts.metrics.metric import Metric
 
@@ -48,19 +46,51 @@ def disk_available():
     data = psutil.disk_usage('/').free / (1024 * 1024 * 1024)  # in GB
     system_metrics.append(Metric('DiskAvailable', data, 'GB', dimension))
 
+def gpu_utilization(num_of_gpu):
+    """
+        Collect gpu metrics.
 
-def collect_all(mod):
+        :param num_of_gpu:
+        :return:
+        """
+    if num_of_gpu <= 0:
+        return
+
+    # pylint: disable=wrong-import-position
+    # pylint: disable=import-outside-toplevel
+    import nvgpu
+    from nvgpu import list_gpus
+    # pylint: enable=wrong-import-position
+    # pylint: enable=import-outside-toplevel
+
+    info = nvgpu.gpu_info()
+    for value in info:
+        dimension_gpu = [Dimension('Level', 'Host'), Dimension("device_id", value['index'])]
+        system_metrics.append(Metric('GPUMemoryUtilization', value['mem_used_percent'], 'percent', dimension_gpu))
+        system_metrics.append(Metric('GPUMemoryUsed', value['mem_used'], 'MB', dimension_gpu))
+
+    statuses = list_gpus.device_statuses()
+    for idx, status in enumerate(statuses):
+        dimension_gpu = [Dimension('Level', 'Host'), Dimension("device_id", idx)]
+        system_metrics.append(Metric('GPUUtilization', status['utilization'], 'percent', dimension_gpu))
+
+def collect_all(mod, num_of_gpu):
     """
     Collect all system metrics.
 
     :param mod:
+    :param num_of_gpu:
     :return:
     """
+
     members = dir(mod)
     for i in members:
         value = getattr(mod, i)
         if isinstance(value, types.FunctionType) and value.__name__ not in ('collect_all', 'log_msg'):
-            value()
+            if value.__name__ == "gpu_utilization":
+                value(num_of_gpu)
+            else:
+                value()
 
     for met in system_metrics:
         logging.info(str(met))

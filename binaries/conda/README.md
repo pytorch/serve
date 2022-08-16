@@ -15,3 +15,10 @@
    ```
 
 The built conda packages are available in the `output` directory
+
+## Anaconda copy
+
+Anaconda packages are both OS specific and python version specific so copying them one by one from a test/staging environment like https://anaconda.org/pytorch/torchserve/ to an official environment like https://anaconda.org/torchserve-staging can be fiddly
+
+Instead you can run `anaconda copy torchserve-staging/<package>/<version_number> --to-owner pytorch`
+

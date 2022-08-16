@@ -3,7 +3,7 @@
    "model_name": "mnist",
    "worker": 1,
    "synchronous": "true",
-   "file": "../kubernetes/kfserving/kf_request_json/mnist_v2.json",
+   "file": "../kubernetes/kserve/kf_request_json/v2/mnist/mnist_v2_tensor.json",
    "content-type": "application/json",
    "expected": {
       "id":"d3b15cad-50a2-4eaf-80ce-8b0a428bd298","model_name":"mnist","model_version":"1.0","outputs":[{"name":"predict","shape":[],"datatype":"INT64","data":[1]}]

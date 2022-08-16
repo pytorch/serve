@@ -11,13 +11,16 @@ import json
 import test_utils
 
 NUM_STARTUP_CFG = 0
-REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../")
-snapshot_file = os.path.join(REPO_ROOT,"test/config_kf.properties")
+REPO_ROOT = os.path.normpath(
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../")
+)
+snapshot_file = os.path.join(REPO_ROOT, "test", "config_kf.properties")
 
 def setup_module(module):
     test_utils.torchserve_cleanup()
     response = requests.get("https://torchserve.pytorch.org/mar_files/mnist.mar", allow_redirects=True)
-    open(test_utils.MODEL_STORE + "/mnist.mar", 'wb').write(response.content)
+    with open(os.path.join(test_utils.MODEL_STORE, "mnist.mar"), 'wb') as f:
+        f.write(response.content)
 
 
 def teardown_module(module):
@@ -156,7 +159,7 @@ def test_async_logging():
     async_config_file = test_utils.ROOT_DIR + 'async-log-config.properties'
     with open(async_config_file, "w+") as f:
         f.write("async_logging=true")
-        f.write("service_envelope=kfserving")
+        f.write("service_envelope=kserve")
     test_utils.start_torchserve(snapshot_file=async_config_file)
     assert len(glob.glob('logs/access_log.log')) == 1
     assert len(glob.glob('logs/model_log.log')) == 1
@@ -173,7 +176,7 @@ def test_async_logging_non_boolean():
     async_config_file = test_utils.ROOT_DIR + 'async-log-config.properties'
     with open(async_config_file, "w+") as f:
         f.write("async_logging=2")
-        f.write("service_envelope=kfserving")
+        f.write("service_envelope=kserve")
     test_utils.start_torchserve(snapshot_file=async_config_file)
     assert len(glob.glob('logs/access_log.log')) == 1
     assert len(glob.glob('logs/model_log.log')) == 1

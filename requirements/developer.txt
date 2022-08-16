@@ -4,10 +4,13 @@ pytest
 pylint==2.6.0
 pytest-mock
 pytest-cov
-nvgpu; sys_platform != 'win32'
-nvgpu==0.8.0; sys_platform == 'win32'
 grpcio
 protobuf
 grpcio-tools
 transformers==4.11.0
+pyspelling
 pygit2==1.6.1
+pyspelling
+pre-commit
+twine
+intel_extension_for_pytorch; sys_platform != 'win32' and sys_platform != 'darwin'

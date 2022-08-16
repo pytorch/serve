@@ -1,0 +1,17 @@
+matrix:
+- name: Markdown
+  apsell:
+    lang: en
+    d: en_US
+  dictionary:
+    wordlists:
+    - ts_scripts/spellcheck_conf/wordlist.txt
+    output: ts_scripts/spellcheck_conf/wordlist.dic
+    encoding: utf-8
+  pipeline:
+  - pyspelling.filters.markdown:
+      markdown_extensions:
+      - markdown.extensions.extra:
+  sources:
+  - 'docs/*.md'
+  - 'examples/*/*.md'

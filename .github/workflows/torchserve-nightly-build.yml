@@ -1,0 +1,50 @@
+name: Push torchserve nightly
+
+on:
+  # run every day at 11:15am
+  schedule:
+    - cron:  '15 11 * * *'
+jobs:
+  nightly:
+    # creates workflows for the 3 OS: ubuntu, macOS & windows
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: true
+      matrix:
+        os: [ubuntu-latest, macOS-latest, windows-latest]
+    steps:
+      - name: Setup Conda
+        uses: s-weigand/setup-conda@v1
+      - run: conda --version
+      - run: conda install -y conda-build anaconda-client
+      - name: Checkout TorchServe
+        uses: actions/checkout@v2
+      - name: Install dependencies
+        run: |
+          python ts_scripts/install_dependencies.py --environment=dev
+          pip install -e .
+      - name: Setup Java 17
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+      - name: Build PyPI & conda nightly binaries
+        run: python binaries/build.py --nightly
+      - name: Push conda nightly binaries
+        env:
+          ANACONDA_API_TOKEN: ${{ secrets.CONDA_NIGHTLY_TOKEN }}
+        run: python binaries/upload.py --upload-conda-packages
+      - name: Push PyPI nightly binaries
+        env:
+          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+        # skip pushing PyPI nightly binaries for macOS & windows as the binaries have the same name
+        if: matrix.os == 'ubuntu-latest'
+        run: python binaries/upload.py --upload-pypi-packages
+      - name: Open issue on failure
+        if: ${{ failure() && github.event_name  == 'schedule' }}
+        uses: rishabhgupta/git-action-issue@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          title: Nightly Build failed
+          body:  Commit ${{ github.sha }} daily scheduled [CI run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) failed, please check why
+          assignees: ''
