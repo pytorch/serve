@@ -39,18 +39,18 @@ namespace torchserve {
       ModelInstance(
         const std::string& instance_id,
         std::shared_ptr<torch::jit::script::Module> model, 
-        std::shared_ptr<torchserve::torchscripted::BaseHandler> handler, 
+        std::shared_ptr<torchserve::torchscripted::BaseHandler>& handler, 
         std::shared_ptr<torch::Device> device) :
         torchserve::ModelInstance(instance_id), model_(model), handler_(handler), device_(device) {};
       ~ModelInstance() {};
 
       std::shared_ptr<torchserve::InferenceResponseBatch> Predict(
-        torchserve::InferenceRequestBatch request_batch) override;
+        std::shared_ptr<torchserve::InferenceRequestBatch> request_batch) override;
 
       private:
-      torch::Device device_;
       std::shared_ptr<torch::jit::script::Module> model_;
       std::shared_ptr<torchserve::torchscripted::BaseHandler> handler_;
+      std::shared_ptr<torch::Device> device_;
     };
   } // namespace torchscripted
 } // namespace torchserve

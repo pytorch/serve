@@ -31,20 +31,20 @@ namespace torchserve {
         manifest_ = manifest;
       };
 
-      virtual std::pair<std::shared_ptr<torch::jit::script::Module>, torch::Device> 
+      virtual std::pair<std::shared_ptr<torch::jit::script::Module>, std::shared_ptr<torch::Device>>
       LoadModel(
         std::shared_ptr<torchserve::LoadModelRequest>& load_model_request);
 
       virtual std::vector<torch::jit::IValue> Preprocess(
-        const torch::Device& device,
+        std::shared_ptr<torch::Device>& device,
         std::map<uint8_t, std::string>& idx_to_req_i,
         std::shared_ptr<torchserve::InferenceRequestBatch>& request_batch,
         std::shared_ptr<torchserve::InferenceResponseBatch>& response_batch) = 0;
       
       virtual torch::Tensor Predict(
         std::shared_ptr<torch::jit::script::Module> model, 
-        torch::Tensor& inputs,
-        const torch::Device& device,
+        std::vector<torch::jit::IValue>& inputs,
+        std::shared_ptr<torch::Device>& device,
         std::map<uint8_t, std::string>& idx_to_req_i,
         std::shared_ptr<torchserve::InferenceResponseBatch>& response_batch) = 0;
 
@@ -62,7 +62,7 @@ namespace torchserve {
        */
       void Handle(
         std::shared_ptr<torch::jit::script::Module>& model,
-        const torch::Device& device,
+        std::shared_ptr<torch::Device>& device,
         std::shared_ptr<torchserve::InferenceRequestBatch>& request_batch,
         std::shared_ptr<torchserve::InferenceResponseBatch>& response_batch) {
         std::map<uint8_t, std::string> idx_to_req_id;
@@ -72,7 +72,7 @@ namespace torchserve {
       }
 
       protected:
-      torch::Device GetTorchDevice(
+      std::shared_ptr<torch::Device> GetTorchDevice(
         std::shared_ptr<torchserve::LoadModelRequest>& load_model_request);
 
       std::shared_ptr<torchserve::Manifest> manifest_;

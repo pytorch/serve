@@ -14,6 +14,17 @@ namespace torchserve {
   #define DATA_TYPE_STRING "string"
   #define DATA_TYPE_BYTES "bytes"
   
+  class Converter {
+    public:
+    static std::vector<std::byte> StrToBytes(const std::string& str) {
+      std::vector<std::byte> str_bytes;
+      for (auto& ch : str) {
+        str_bytes.emplace_back(std::byte(ch));
+      }
+      return str_bytes;
+    }
+  };
+  
   // TODO: expand to support model instance, large model (ref: ModelConfig in config.hh)
   struct LoadModelRequest {
     // /path/to/model/file
@@ -63,7 +74,7 @@ namespace torchserve {
      * - value: header_value
      */
     using Headers = std::map<std::string, std::string>;
-    using Parameters = std::map<std::string, std::vector<std::byte>>>;
+    using Parameters = std::map<std::string, std::vector<std::byte>>;
       
     std::string request_id;
     Headers headers;
@@ -81,32 +92,21 @@ namespace torchserve {
     std::string request_id;
     // msg data_dtype must be added in headers
     Headers headers;
-    std::vector<std::byte>> msg;
+    std::vector<std::byte> msg;
 
     InferenceResponse(const std::string& request_id) : request_id(request_id) {};
 
     void SetResponse(
-      int code,
-      const std::string& header_key,
-      const std::string& header_val,
-      const std::string& message) {
-      code = code;
-      headers[header_key] = header_val;
-      msg = torchserve::Converter::StrToBytes(message);
+      int new_code,
+      const std::string& new_header_key,
+      const std::string& new_header_val,
+      const std::string& new_msg) {
+      code = new_code;
+      headers[new_header_key] = new_header_val;
+      msg = torchserve::Converter::StrToBytes(new_msg);
     };
   };
   // Ref: https://github.com/pytorch/serve/blob/master/ts/service.py#L105
   using InferenceResponseBatch = std::map<std::string, std::shared_ptr<InferenceResponse>>;
-
-  class Converter {
-    public:
-    static std::vector<std::byte> StrToBytes(const std::string& str) {
-      std::vector<std::byte> str_bytes;
-      for (auto& ch : str) {
-        str_bytes.emplace_back(std::byte(ch));
-      }
-      return str_bytes;
-    }
-  };
 } // namespace torchserve
 #endif // TS_CPP_UTILS_MESSAGE_HH_

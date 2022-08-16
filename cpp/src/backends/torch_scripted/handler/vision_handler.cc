@@ -3,7 +3,7 @@
 namespace torchserve {
   namespace torchscripted {
     std::vector<torch::jit::IValue> VisionHandler::Preprocess(
-      const torch::Device& device,
+      std::shared_ptr<torch::Device>& device,
       std::map<uint8_t, std::string>& idx_to_req_i,
       std::shared_ptr<torchserve::InferenceRequestBatch>& request_batch,
       std::shared_ptr<torchserve::InferenceResponseBatch>& response_batch)  {
@@ -46,9 +46,15 @@ namespace torchserve {
             // case2: the image is sent as bytesarray
             //torch::serialize::InputArchive archive;
             //archive.load_from(std::istringstream iss(std::string(data_it->second)));
+            /*
             std::istringstream iss(std::string(data_it->second.begin(), data_it->second.end()));
             torch::serialize::InputArchive archive;
-            images.emplace_back(archive.load_from(iss).to(torch::Device device));
+            images.emplace_back(archive.load_from(iss, torch::Device device);
+            */
+            std::vector<char> bytes(
+              static_cast<char>data_it->second.begin(), 
+              static_cast<char>data_it->second.end());
+            images.emplace_back(torch::pickle_load(bytes).toTensor().to(*device));
             idx_to_req_i[idx++] = request.request_id;
           } else if (dtype_it->second == "List") {
             // case3: the image is a list
@@ -79,7 +85,7 @@ namespace torchserve {
     torch::Tensor VisionHandler::Predict(
       std::shared_ptr<torch::jit::script::Module> model, 
       torch::Tensor& inputs,
-      const torch::Device& device,
+      std::shared_ptr<torch::Device>& device,
       std::map<uint8_t, std::string>& idx_to_req_i,
       std::shared_ptr<torchserve::InferenceResponseBatch>& response_batch) {
       try {
@@ -106,15 +112,14 @@ namespace torchserve {
       for (const auto& kv : idx_to_req_id) {
         try {
           std::ostringstream oss;
-          torch::serialize::OutputArchive archive;
-          data[kv.first].save(archive);
-          archive.save_to(oss);
+          torch::save(data[kv.first], oss);
           auto response = (*response_batch)[kv.second];
           response->SetResponse(
             200,
             "data_tpye",
             torchserve::DATA_TYPE_BYTES,
             oss.str());
+            oss.close();
           );
         } catch (std::runtime_error& e) {
           LOG(ERROR) << "Failed to load tensor for request id:" << request.request_id 

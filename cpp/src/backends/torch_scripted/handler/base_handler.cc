@@ -2,7 +2,7 @@
 
 namespace torchserve {
   namespace torchscripted {
-    std::pair<std::shared_ptr<torch::jit::script::Module>, torch::Device> 
+    std::pair<std::shared_ptr<torch::jit::script::Module>, std::shared_ptr<torch::Device>> 
     BaseHandler::LoadModel(
       std::shared_ptr<torchserve::LoadModelRequest>& load_model_request) {
       try {
@@ -40,7 +40,7 @@ namespace torchserve {
       }
     }
 
-    torch::Device BaseHandler::GetTorchDevice(
+    std::shared_ptr<torch::Device> BaseHandler::GetTorchDevice(
       std::shared_ptr<torchserve::LoadModelRequest> load_model_request) {
       /**
        * @brief 
@@ -48,10 +48,10 @@ namespace torchserve {
        * - device type: CPU, GPU or others
        */
       if (load_model_request->gpu_id < 0) {
-        return torch::kCPU;
+        return std::make_shared<torch::Device>(torch::kCPU);
       } 
 
-      return torch::Device(torch::kCUDA, load_model_request->gpu_id);
+      return std::make_shared<torch::Device>(torch::kCUDA, load_model_request->gpu_id);
     }
   } // namespace torchscripted
 } // namespace torchserve

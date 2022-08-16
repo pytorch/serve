@@ -2,7 +2,7 @@
 #define TS_CPP_BACKENDS_TORCH_SCRIPTED_HANDLER_VISION_HANDLER_HH_
 
 #include <cstddef>
-#include <folly/base64.h>
+//#include <folly/base64.h>
 #include <folly/json.h>
 #include <sstream>
 #include <torch/script.h>
@@ -19,15 +19,15 @@ namespace torchserve {
       ~VisionHandler() {};
       
       virtual std::vector<torch::jit::IValue> Preprocess(
-        const torch::Device& device,
+        std::shared_ptr<torch::Device>& device,
         std::map<uint8_t, std::string>& idx_to_req_i,
         std::shared_ptr<torchserve::InferenceRequestBatch>& request_batch,
         std::shared_ptr<torchserve::InferenceResponseBatch>& response_batch) override;
       
       virtual torch::Tensor Predict(
         std::shared_ptr<torch::jit::script::Module> model, 
-        torch::Tensor& inputs,
-        const torch::Device& device,
+        std::vector<torch::jit::IValue>& inputs,
+        std::shared_ptr<torch::Device>& device,
         std::map<uint8_t, std::string>& idx_to_req_id,
         std::shared_ptr<torchserve::InferenceResponseBatch>& response_batch) override;
 
