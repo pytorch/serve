@@ -40,3 +40,11 @@ jobs:
         # skip pushing PyPI nightly binaries for macOS & windows as the binaries have the same name
         if: matrix.os == 'ubuntu-latest'
         run: python binaries/upload.py --upload-pypi-packages
+      - name: Open issue on failure
+        if: ${{ failure() && github.event_name  == 'schedule' }}
+        uses: rishabhgupta/git-action-issue@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          title: Nightly Build failed
+          body:  Commit ${{ github.sha }} daily scheduled [CI run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) failed, please check why
+          assignees: ''
