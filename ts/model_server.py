@@ -92,7 +92,7 @@ def start():
         platform_path_separator = {"Windows": "", "Darwin": ".:", "Linux": ".:"}
         class_path = "{}{}".format(
             platform_path_separator[platform.system()],
-            os.path.join(ts_home, "ts/frontend/*"),
+            os.path.join(ts_home, "ts", "frontend", "*"),
         )
 
         if ts_conf_file and os.path.isfile(ts_conf_file):

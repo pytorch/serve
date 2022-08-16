@@ -6,7 +6,7 @@ import test_utils
 from urllib import parse
 
 
-management_data_json = "/../postman/management_data.json"
+management_data_json = "../postman/management_data.json"
 
 
 def setup_module(module):
@@ -92,7 +92,7 @@ def test_management_apis():
         "describe": "DescribeModel"
     }
 
-    with open(os.path.dirname(__file__) + management_data_json, 'rb') as f:
+    with open(os.path.join(os.path.dirname(__file__), management_data_json), 'rb') as f:
         test_data = json.loads(f.read())
 
     for item in test_data:
