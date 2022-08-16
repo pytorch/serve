@@ -24,11 +24,11 @@ namespace torchserve {
       return str_bytes;
     }
   };
-  
+
   // TODO: expand to support model instance, large model (ref: ModelConfig in config.hh)
   struct LoadModelRequest {
     // /path/to/model/file
-    const std::string model_path;	
+    const std::string model_dir;	
     const std::string model_name;
     // Existing: -1 if CPU else gpu_id
     // TODO: 
@@ -44,14 +44,14 @@ namespace torchserve {
     bool limit_max_image_pixels;	
 
     LoadModelRequest(
-      const std::string& model_path,
+      const std::string& model_dir,
       const std::string& model_name,
       int gpu_id,
       const std::string& handler,
       const std::string& envelope,
       int batch_size,
       bool limit_max_image_pixels
-    ) : model_path{model_path}, model_name{model_name}, gpu_id{gpu_id}, 
+    ) : model_dir{model_dir}, model_name{model_name}, gpu_id{gpu_id}, 
     handler{handler}, envelope{envelope}, batch_size{batch_size}, 
     limit_max_image_pixels{limit_max_image_pixels} {}
   };

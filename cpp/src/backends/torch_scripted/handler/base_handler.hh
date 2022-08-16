@@ -25,9 +25,9 @@ namespace torchserve {
       virtual ~BaseHandler() {};
 
       virtual void Initialize(
-        const std::string& model_path,
+        const std::string& model_dir,
         std::shared_ptr<torchserve::Manifest>& manifest) {
-        model_path_ = model_path;
+        model_dir_ = model_dir;
         manifest_ = manifest;
       };
 
@@ -76,7 +76,7 @@ namespace torchserve {
         std::shared_ptr<torchserve::LoadModelRequest>& load_model_request);
 
       std::shared_ptr<torchserve::Manifest> manifest_;
-      std::string model_path_;
+      std::string model_dir_;
     };
   } // namespace torchscripted
 } // namespace torchserve

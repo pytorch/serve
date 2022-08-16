@@ -38,7 +38,7 @@ namespace torchserve {
       const std::string& port_num,
       const torchserve::RuntimeType& runtime_type,
       torchserve::DeviceType device_type,
-      const std::string& model_path);
+      const std::string& model_dir);
     
     void Run();
 
@@ -46,7 +46,7 @@ namespace torchserve {
     SocketServer() {};
     bool CreateBackend(
       const torchserve::RuntimeType& runtime_type,
-      const std::string& model_path);
+      const std::string& model_dir);
 
     // TODO; impl.
     //short MAX_FAILURE_THRESHOLD = 5;

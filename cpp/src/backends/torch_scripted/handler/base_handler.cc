@@ -10,7 +10,7 @@ namespace torchserve {
         auto module = std::make_shared<torch::jit::script::Module>(torch::jit::load(
           // TODO: windows
           fmt::format("{}/{}", 
-          load_model_request->model_path, 
+          load_model_request->model_dir, 
           manifest->GetModel().serialized_file),
           device));
         return std::make_pair(module, device);
@@ -20,13 +20,13 @@ namespace torchserve {
             torch::jit::load(
               // TODO: windows
               fmt::format("{}/{}", 
-              load_model_request->model_path, 
+              load_model_request->model_dir, 
               manifest->GetModel().serialized_file),
               GetTorchDevice(load_model_request)));
         } else {
           module = std::make_shared<torch::jit::script::Module>(
             torch::jit::load(fmt::format("{}/{}", 
-              load_model_request->model_path, 
+              load_model_request->model_dir, 
               manifest->GetModel().serialized_file)));
         }
         */

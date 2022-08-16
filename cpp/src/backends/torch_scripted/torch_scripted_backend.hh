@@ -20,7 +20,7 @@ namespace torchserve {
       Backend() {};
       ~Backend() {};
 
-      bool Initialize(const std::string& model_path) override;
+      bool Initialize(const std::string& model_dir) override;
 
       std::pair<
       std::unique_ptr<torchserve::LoadModelResponse>, std::shared_ptr<torchserve::ModelInstance>> 

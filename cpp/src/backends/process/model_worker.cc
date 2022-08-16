@@ -9,7 +9,7 @@ namespace torchserve {
     const std::string& port_num,
     const torchserve::RuntimeType& runtime_type,
     torchserve::DeviceType device_type,
-    const std::string& model_path) {
+    const std::string& model_dir) {
     unsigned short socket_family;
     socket_family = AF_INET;
     if (socket_type == "unix") {
@@ -42,8 +42,8 @@ namespace torchserve {
         LOG(FATAL) << "Failed to create socket descriptor. errno: " << errno;
     }
     
-    if (!CreateBackend(runtime_type, model_path)) {
-      LOG(FATAL) << "Failed to create backend, model_path: " << model_path;
+    if (!CreateBackend(runtime_type, model_dir)) {
+      LOG(FATAL) << "Failed to create backend, model_dir: " << model_dir;
     }
   }
 
@@ -97,10 +97,10 @@ namespace torchserve {
 
   bool SocketServer::CreateBackend(
     const torchserve::RuntimeType& runtime_type,
-    const std::string& model_path) {
+    const std::string& model_dir) {
     if (runtime_type == "LDP") {
       backend_ = std::make_shared<torchserve::torchscripted::Backend>();
-      return backend_->Initialize(model_path);
+      return backend_->Initialize(model_dir);
     }
     return false;
   }

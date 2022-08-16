@@ -63,10 +63,10 @@ namespace torchserve {
     Backend() {};
     virtual ~Backend() {};
 
-    virtual bool Initialize(const std::string& model_path) {
+    virtual bool Initialize(const std::string& model_dir) {
       manifest_ = std::make_shared<torchserve::Manifest>();
       // TODO: windows
-      return manifest_->Initialize(fmt::format("{}/MAR-INF/MANIFEST.json", model_path));
+      return manifest_->Initialize(fmt::format("{}/MAR-INF/MANIFEST.json", model_dir));
     };
 
     std::pair<std::unique_ptr<torchserve::LoadModelResponse>, std::shared_ptr<ModelInstance>> 

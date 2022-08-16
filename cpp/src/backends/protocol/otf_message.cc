@@ -50,7 +50,7 @@ namespace torchserve {
     length = RetrieveInt(conn);
     data = new char[length];
     RetrieveBuffer(conn, length, data);
-    std::string model_path(data, length);
+    std::string model_dir(data, length);
     delete[] data;
 
     // Batch Size
@@ -78,7 +78,7 @@ namespace torchserve {
     auto limit_max_image_pixels = RetrieveBool(conn);
 
     LOG(INFO) << "Model Name: " << model_name;
-    LOG(INFO) << "Model path: " << model_path;
+    LOG(INFO) << "Model path: " << model_dir;
     LOG(INFO) << "Batch size: " << batch_size;
     LOG(INFO) << "Handler: " << handler;
     LOG(INFO) << "GPU_id: " << gpu_id;
@@ -86,7 +86,7 @@ namespace torchserve {
     LOG(INFO) << "Limit max image pixels: " << limit_max_image_pixels;
 
     return std::make_shared<LoadModelRequest>(
-      model_path, model_name, gpu_id, handler, 
+      model_dir, model_name, gpu_id, handler, 
       envelope, batch_size, limit_max_image_pixels);
   }
 

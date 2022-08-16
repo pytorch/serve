@@ -2,15 +2,15 @@
 
 namespace torchserve {
   namespace torchscripted {
-    bool Backend::Initialize(const std::string& model_path) {
-      if (!torchserve::Backend::Initialize(model_path)) {
+    bool Backend::Initialize(const std::string& model_dir) {
+      if (!torchserve::Backend::Initialize(model_dir)) {
         return false;
       }
       LoadHandler();
       if (handler_ == nullptr) {
         return false;
       }
-      handler_->Initialize(model_path, manifest_);
+      handler_->Initialize(model_dir, manifest_);
 
       // TODO: support request envelope: 
       // https://github.com/pytorch/serve/tree/master/ts/torch_handler/request_envelope
