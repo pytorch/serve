@@ -29,6 +29,7 @@ import org.pytorch.serve.http.messages.KFV1ModelReadyResponse;
 import org.pytorch.serve.http.messages.ListModelsResponse;
 import org.pytorch.serve.http.messages.RegisterModelRequest;
 import org.pytorch.serve.job.RestJob;
+import org.pytorch.serve.openapi.OpenApiUtils;
 import org.pytorch.serve.servingsdk.ModelServerEndpoint;
 import org.pytorch.serve.util.ApiUtils;
 import org.pytorch.serve.util.JsonUtils;
@@ -92,6 +93,15 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
                     }
                 } else if (HttpMethod.DELETE.equals(method)) {
                     handleUnregisterModel(ctx, segments[2], modelVersion);
+                } else if (HttpMethod.OPTIONS.equals(method)) {
+                    ModelManager modelManager = ModelManager.getInstance();
+                    Model model = modelManager.getModel(segments[2], modelVersion);
+                    if (model == null) {
+                        throw new ModelNotFoundException("Model not found: " + segments[2]);
+                    }
+
+                    String resp = OpenApiUtils.getModelManagementApi(model);
+                    NettyUtils.sendJsonResponse(ctx, resp);
                 } else {
                     throw new MethodNotAllowedException();
                 }

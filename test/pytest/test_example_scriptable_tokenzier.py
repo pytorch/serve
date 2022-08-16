@@ -5,18 +5,33 @@ import shutil
 import sys
 import time
 from argparse import Namespace
+from pathlib import Path
 
 import pytest
 import requests
 import test_utils
 import torch
-from torchtext.models import RobertaClassificationHead
+from test_utils import REPO_ROOT
 
-CURR_FILE_PATH = os.path.dirname(os.path.realpath(__file__))
-REPO_ROOT_DIR = os.path.normpath(os.path.join(CURR_FILE_PATH, "..", ".."))
+from ts.torch_handler.unit_tests.test_utils.mock_context import MockContext
+
 EXAMPLE_ROOT_DIR = os.path.join(
-    REPO_ROOT_DIR, "examples", "text_classification_with_scriptable_tokenizer"
+    REPO_ROOT, "examples", "text_classification_with_scriptable_tokenizer"
 )
+
+EXPECTED_RESULT_EMPTY_STRING = [
+    {
+        "0": pytest.approx(0.5625126361846924, 1e-3),
+        "1": pytest.approx(0.43748739361763, 1e-3),
+    }
+]
+
+EXPECTED_RESULT_SAMPLE_TEXT = [
+    {
+        "0": pytest.approx(0.5138629078865051, 1e-3),
+        "1": pytest.approx(0.4861370921134949, 1e-3),
+    }
+]
 
 
 @pytest.fixture(scope="module")
@@ -31,22 +46,25 @@ def model():
     """
     num_classes = 2
     input_dim = 768
-    """
-    This reduces runtime by 3 seconds. Maybe not worth it.
-    """
+
     # Would be more elegant to mock RobertaEncoderConf and default num_encoder_layers to 1 but I failed do far
+    from torchtext.models import RobertaClassificationHead
     from torchtext.models.roberta.bundler import (
         _TEXT_BUCKET,
         RobertaEncoderConf,
-        RobertaModelBundle,
         T,
         load_state_dict_from_url,
         urljoin,
     )
 
+    try:
+        import torchtext.models.roberta.bundler.RobertaModelBundle as RobertaBundle
+    except ImportError:
+        from torchtext.models.roberta.bundler import RobertaBundle
+
     torch.manual_seed(42)
 
-    XLMR_BASE_ENCODER = RobertaModelBundle(
+    XLMR_BASE_ENCODER = RobertaBundle(
         _path=urljoin(_TEXT_BUCKET, "xlmr.base.encoder.pt"),
         _encoder_conf=RobertaEncoderConf(vocab_size=250002, num_encoder_layers=1),
         transform=lambda: T.Sequential(
@@ -96,8 +114,8 @@ def script_tokenizer_and_model(session_mocker, model):
     del sys.modules["script_tokenizer_and_model"]
 
 
-@pytest.fixture(scope="module")
-def jit_file_path(model, script_tokenizer_and_model, work_dir):
+@pytest.fixture(scope="module", name="jit_file_path")
+def script_and_export_model(model, script_tokenizer_and_model, work_dir):
     """
     Create model and jit scripted model
     """
@@ -121,28 +139,8 @@ def jit_file_path(model, script_tokenizer_and_model, work_dir):
         pass
 
 
-@pytest.fixture(scope="module")
-def archiver():
-    loader = importlib.machinery.SourceFileLoader(
-        "archiver",
-        os.path.join(
-            REPO_ROOT_DIR, "model-archiver", "model_archiver", "model_packaging.py"
-        ),
-    )
-    spec = importlib.util.spec_from_loader("archiver", loader)
-    archiver = importlib.util.module_from_spec(spec)
-
-    sys.modules["archiver"] = archiver
-
-    loader.exec_module(archiver)
-
-    yield archiver
-
-    del sys.modules["archiver"]
-
-
-@pytest.fixture(scope="module")
-def mar_file_path(work_dir, session_mocker, jit_file_path, archiver):
+@pytest.fixture(scope="module", name="mar_file_path")
+def create_mar_file(work_dir, session_mocker, jit_file_path, model_archiver):
     """
     Create mar file and return file path.
     """
@@ -178,7 +176,7 @@ def mar_file_path(work_dir, session_mocker, jit_file_path, archiver):
         lambda x, y, _: ZipFile(x, y, ZIP_STORED),
     )
 
-    archiver.generate_model_archive()
+    model_archiver.generate_model_archive()
 
     assert os.path.exists(mar_file_path)
 
@@ -191,34 +189,9 @@ def mar_file_path(work_dir, session_mocker, jit_file_path, archiver):
         pass
 
 
-@pytest.fixture(scope="module")
-def model_store(work_dir):
-    model_store_path = os.path.join(work_dir, "model_store")
-    os.makedirs(model_store_path, exist_ok=True)
-
-    yield model_store_path
-
-    try:
-        shutil.rmtree(model_store_path)
-    except OSError:
-        pass
-
-
-@pytest.fixture(scope="module")
-def torchserve(model_store):
-    test_utils.torchserve_cleanup()
-
-    test_utils.start_torchserve(
-        model_store=model_store, no_config_snapshots=True, gen_mar=False
-    )
-
-    yield
-
-    test_utils.torchserve_cleanup()
-
-
-@pytest.fixture(scope="module")
-def model_name(mar_file_path, model_store, torchserve):
+# Registering the module needs to be function scope until https://github.com/pytorch/text/issues/1849 is resolved
+@pytest.fixture(scope="function", name="model_name")
+def register_model(mar_file_path, model_store, torchserve):
     shutil.copy(mar_file_path, model_store)
 
     file_name = os.path.split(mar_file_path)[-1]
@@ -237,6 +210,45 @@ def test_file():
     return os.path.join(EXAMPLE_ROOT_DIR, "sample_text.txt")
 
 
+def test_handler(monkeypatch, mocker, jit_file_path, test_file):
+    monkeypatch.syspath_prepend(EXAMPLE_ROOT_DIR)
+
+    # We need to recreate the handler to avoid running into https://github.com/pytorch/text/issues/1849
+    def create_and_call_handler(input_text):
+
+        from handler import CustomTextClassifier
+
+        handler = CustomTextClassifier()
+        ctx = MockContext(
+            model_pt_file=Path(jit_file_path).name,
+            model_dir=Path(jit_file_path).parent,
+            model_file=None,
+        )
+
+        torch.manual_seed(42)
+        handler.initialize(ctx)
+
+        # Try empty string
+        x = mocker.Mock(get=lambda _: input_text)
+
+        x = handler.preprocess([x])
+        x = handler.inference(x)
+        x = handler.postprocess(x)
+        return x
+
+    res = create_and_call_handler("")
+
+    assert res == EXPECTED_RESULT_EMPTY_STRING
+
+    # Try sample text
+    with open(test_file, "rb") as f:
+        sample_text = f.readline()
+
+    res = create_and_call_handler(sample_text)
+
+    assert res == EXPECTED_RESULT_SAMPLE_TEXT
+
+
 def test_inference_with_untrained_model_and_sample_text(model_name, test_file):
 
     with open(test_file, "rb") as f:
@@ -252,8 +264,8 @@ def test_inference_with_untrained_model_and_sample_text(model_name, test_file):
     assert "Positive" in result_entries
 
     # We're using an untrained model for the unit test, so results do not make sense but should be consistent
-    assert float(result_entries["Negative"]) == pytest.approx(0.6339209079742432, 1e-3)
-    assert float(result_entries["Positive"]) == pytest.approx(0.36607906222343445, 1e-3)
+    assert float(result_entries["Negative"]) == EXPECTED_RESULT_SAMPLE_TEXT[0]["0"]
+    assert float(result_entries["Positive"]) == EXPECTED_RESULT_SAMPLE_TEXT[0]["1"]
 
 
 def test_inference_with_untrained_model_and_empty_string(model_name):
@@ -272,8 +284,8 @@ def test_inference_with_untrained_model_and_empty_string(model_name):
     assert "Positive" in result_entries
 
     # We're using an untrained model for the unit test, so results do not make sense but should be consistent
-    assert float(result_entries["Negative"]) == pytest.approx(0.6082412600517273, 1e-3)
-    assert float(result_entries["Positive"]) == pytest.approx(0.3917587101459503, 1e-3)
+    assert float(result_entries["Negative"]) == EXPECTED_RESULT_EMPTY_STRING[0]["0"]
+    assert float(result_entries["Positive"]) == EXPECTED_RESULT_EMPTY_STRING[0]["1"]
 
 
 def test_inference_with_pretrained_model(model_store, test_file, torchserve):
