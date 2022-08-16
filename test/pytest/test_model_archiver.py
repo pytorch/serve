@@ -12,7 +12,8 @@ MODEL_SFILE_NAME = 'resnet18-f37072fd.pth'
 def setup_module(module):
     test_utils.torchserve_cleanup()
     response = requests.get('https://download.pytorch.org/models/' + MODEL_SFILE_NAME, allow_redirects=True)
-    open(test_utils.MODEL_STORE + "/" + MODEL_SFILE_NAME, 'wb').write(response.content)
+    with open(os.path.join(test_utils.MODEL_STORE, MODEL_SFILE_NAME), 'wb') as f:
+        f.write(response.content)
 
 
 def teardown_module(module):
@@ -23,10 +24,10 @@ def create_resnet_archive(model_name="resnset-18", version="1.0", force=False):
     cmd = test_utils.model_archiver_command_builder(
         model_name,
         version,
-        "{}/examples/image_classifier/resnet_18/model.py".format(test_utils.CODEBUILD_WD),
-        "{}resnet18-f37072fd.pth".format(test_utils.MODEL_STORE),
+        os.path.join(test_utils.CODEBUILD_WD, "examples", "image_classifier", "resnet_18", "model.py"),
+        os.path.join(test_utils.MODEL_STORE, "resnet18-f37072fd.pth"),
         "image_classifier",
-        "{}/examples/image_classifier/index_to_name.json".format(test_utils.CODEBUILD_WD),
+        os.path.join(test_utils.CODEBUILD_WD, "examples", "image_classifier", "index_to_name.json"),
         force
     )
     print(cmd)
@@ -36,7 +37,7 @@ def create_resnet_archive(model_name="resnset-18", version="1.0", force=False):
 
 
 def clean_mar_file(mar_name):
-    path = "{}{}".format(test_utils.MODEL_STORE, mar_name)
+    path = os.path.join(test_utils.MODEL_STORE, mar_name)
     if os.path.exists(path):
         os.remove(path)
 
@@ -120,10 +121,10 @@ def test_model_archiver_without_handler_flag():
     cmd = test_utils.model_archiver_command_builder(
         "resnet-18",
         "1.0",
-        "{}/examples/image_classifier/resnet_18/model.py".format(test_utils.CODEBUILD_WD),
-        "{}/resnet18-f37072fd.pth".format(test_utils.MODEL_STORE),
+        os.path.join(test_utils.CODEBUILD_WD, "examples", "image_classifier", "resnet_18", "model.py"),
+        os.path.join(test_utils.MODEL_STORE, "resnet18-f37072fd.pth"),
         None,
-        "{}/examples/image_classifier/index_to_name.json".format(test_utils.CODEBUILD_WD)
+        os.path.join(test_utils.CODEBUILD_WD, "examples", "image_classifier", "index_to_name.json")
     )
     cmd = cmd.split(" ")
     try:
@@ -138,10 +139,10 @@ def test_model_archiver_without_model_name_flag():
     cmd = test_utils.model_archiver_command_builder(
         None,
         "1.0",
-        "{}/examples/image_classifier/resnet_18/model.py".format(test_utils.CODEBUILD_WD),
-        "{}/resnet18-f37072fd.pth".format(test_utils.MODEL_STORE),
+        os.path.join(test_utils.CODEBUILD_WD, "examples", "image_classifier", "resnet_18", "model.py"),
+        os.path.join(test_utils.MODEL_STORE, "resnet18-f37072fd.pth"),
         "image_classifier",
-        "{}/examples/image_classifier/index_to_name.json".format(test_utils.CODEBUILD_WD)
+        os.path.join(test_utils.CODEBUILD_WD, "examples", "image_classifier", "index_to_name.json")
     )
     cmd = cmd.split(" ")
     assert (0 != subprocess.run(cmd).returncode), "Mar file couldn't be created." \
@@ -153,9 +154,9 @@ def test_model_archiver_without_model_file_flag():
         "resnet-18",
         "1.0",
         None,
-        "{}/resnet18-f37072fd.pth".format(test_utils.MODEL_STORE),
+        os.path.join(test_utils.MODEL_STORE, "resnet18-f37072fd.pth"),
         "image_classifier",
-        "{}/examples/image_classifier/index_to_name.json".format(test_utils.CODEBUILD_WD),
+        os.path.join(test_utils.CODEBUILD_WD, "examples", "image_classifier", "index_to_name.json"),
         True
     )
 
@@ -171,10 +172,10 @@ def test_model_archiver_without_serialized_flag():
     cmd = test_utils.model_archiver_command_builder(
         "resnet-18",
         "1.0",
-        "{}/examples/image_classifier/resnet_18/model.py".format(test_utils.CODEBUILD_WD),
+        os.path.join(test_utils.CODEBUILD_WD, "examples", "image_classifier", "resnet_18", "model.py"),
         None,
         "image_classifier",
-        "{}/examples/image_classifier/index_to_name.json".format(test_utils.CODEBUILD_WD)
+        os.path.join(test_utils.CODEBUILD_WD, "examples", "image_classifier", "index_to_name.json")
     )
 
     cmd = cmd.split(" ")

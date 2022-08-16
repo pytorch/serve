@@ -7,12 +7,12 @@ import numpy as np
 import ast 
 import pytest
 import torch
-REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../")
-snapshot_file_kf = os.path.join(REPO_ROOT,"test/config_kf.properties")
-snapshot_file_tf = os.path.join(REPO_ROOT,"test/config_ts.properties")
-data_file_mnist = os.path.join(REPO_ROOT, 'examples/image_classifier/mnist/test_data/1.png')
-input_json_mnist = os.path.join(REPO_ROOT, "kubernetes/kserve/kf_request_json/v1/mnist.json")
-input_json_mmf = os.path.join(REPO_ROOT, "examples/MMF-activity-recognition/372CC.info.json")
+REPO_ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../"))
+snapshot_file_kf = os.path.join(REPO_ROOT, "test", "config_kf.properties")
+snapshot_file_tf = os.path.join(REPO_ROOT,"test", "config_ts.properties")
+data_file_mnist = os.path.join(REPO_ROOT, "examples", "image_classifier", "mnist", "test_data", "1.png")
+input_json_mnist = os.path.join(REPO_ROOT, "kubernetes", "kserve", "kf_request_json", "v1", "mnist.json")
+input_json_mmf = os.path.join(REPO_ROOT, "examples", "MMF-activity-recognition", "372CC.info.json")
 logger = logging.getLogger(__name__)
 
 
@@ -38,7 +38,8 @@ TF_MANAGEMENT_API, TF_INFERENCE_API = getAPIS(snapshot_file_tf)
 def setup_module(module):
     test_utils.torchserve_cleanup()
     response = requests.get("https://torchserve.pytorch.org/mar_files/mnist.mar", allow_redirects=True)
-    open(test_utils.MODEL_STORE + "/mnist.mar", 'wb').write(response.content)
+    with open(os.path.join(test_utils.MODEL_STORE, "mnist.mar"), 'wb') as f:
+        f.write(response.content)
 
 def teardown_module(module):
     test_utils.torchserve_cleanup()
@@ -243,7 +244,7 @@ def test_huggingface_bert_batch_inference():
     )
     test_utils.start_torchserve(no_config_snapshots=True)
     test_utils.register_model_with_params(params)
-    input_text = os.path.join(REPO_ROOT, 'examples/Huggingface_Transformers/Seq_classification_artifacts/sample_text.txt')
+    input_text = os.path.join(REPO_ROOT, 'examples', 'Huggingface_Transformers', 'Seq_classification_artifacts', 'sample_text.txt')
 
     # Make 2 curl requests in parallel with &
     # curl --header \"X-Forwarded-For: 1.2.3.4\" won't work since you can't access local host anymore
@@ -293,7 +294,7 @@ def test_huggingface_bert_model_parallel_inference():
         )
         test_utils.start_torchserve(no_config_snapshots=True)
         test_utils.register_model_with_params(params)
-        input_text = os.path.join(REPO_ROOT, 'examples/Huggingface_Transformers/Text_gen_artifacts/sample_text_captum_input.txt')
+        input_text = os.path.join(REPO_ROOT, 'examples', 'Huggingface_Transformers', 'Text_gen_artifacts', 'sample_text_captum_input.txt')
         
         response = os.popen(f"curl http://127.0.0.1:8080/predictions/Textgeneration -T {input_text}")
         response = response.read()

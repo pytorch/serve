@@ -13,7 +13,7 @@ rm_dir("PyTorch")
 download_save("https://github.com/nvidia/DeepLearningExamples/archive/torchhub.zip", TMP_DIR)
 shutil.unpack_archive(os.path.join(TMP_DIR, "torchhub.zip"), extract_dir=TMP_DIR)
 rm_file("tacotron.zip")
-shutil.copytree(os.path.join(TMP_DIR, "DeepLearningExamples-torchhub/PyTorch/SpeechSynthesis/"),
+shutil.copytree(os.path.join(TMP_DIR, "DeepLearningExamples-torchhub", "PyTorch", "SpeechSynthesis"),
                 "PyTorch/SpeechSynthesis/")
 shutil.make_archive("tacotron", "zip", base_dir="PyTorch")
 download_save("https://api.ngc.nvidia.com/v2/models/nvidia/tacotron2pyt_fp32/versions/1/files/"
