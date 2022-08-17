@@ -104,6 +104,6 @@ class PredictionException(Exception):
         super().__init__(message)
 
     def __str__(self):
-        return "message : error_code".format(
+        return "{message} : {error_code}".format(
             message=self.message, error_code=self.error_code
         )
