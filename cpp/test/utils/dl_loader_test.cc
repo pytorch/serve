@@ -24,7 +24,6 @@ namespace torchserve {
     }
 
     void TearDown() override {
-      dl_loader_->CloseDL();
       delete dl_loader_;
     }
 
