@@ -54,14 +54,15 @@ namespace torchserve {
        * @brief 
        * Ref: https://github.com/pytorch/serve/blob/master/ts/torch_handler/vision_handler.py#L27
        */
-      std::vector<torch::jit::IValue> images;
+      std::vector<torch::jit::IValue> batch_ivalue;
+      std::vector<torch::Tensor> batch_tensors;
       uint8_t idx = 0;
       for (auto& request : *request_batch) {
-        auto data_it = request.parameters.find("data");
-        auto dtype_it = request.headers.find("data_dtype");
+        auto data_it = request.parameters.find(torchserve::PayloadType::kPARAMETER_NAME_DATA);
+        auto dtype_it = request.headers.find(torchserve::PayloadType::kHEADER_NAME_DATA_TYPE);
         if (data_it == request.parameters.end()) {
-          data_it = request.parameters.find("body");
-          dtype_it = request.headers.find("body_dtype");
+          data_it = request.parameters.find(torchserve::PayloadType::kPARAMETER_NAME_BODY);
+          dtype_it = request.headers.find(torchserve::PayloadType::kHEADER_NAME_BODY_TYPE);
         }
 
         if (data_it == request.parameters.end() || 
@@ -85,7 +86,7 @@ namespace torchserve {
         */
 
         try {
-          if (dtype_it->second == "Bytes") {
+          if (dtype_it->second == torchserve::PayloadType::kDATA_TYPE_BYTES) {
             // case2: the image is sent as bytesarray
             //torch::serialize::InputArchive archive;
             //archive.load_from(std::istringstream iss(std::string(data_it->second)));
@@ -93,11 +94,14 @@ namespace torchserve {
             std::istringstream iss(std::string(data_it->second.begin(), data_it->second.end()));
             torch::serialize::InputArchive archive;
             images.emplace_back(archive.load_from(iss, torch::Device device);
-            */
+            
             std::vector<char> bytes(
               static_cast<char>(*data_it->second.begin()), 
               static_cast<char>(*data_it->second.end()));
+            
             images.emplace_back(torch::pickle_load(bytes).toTensor().to(*device));
+            */
+            batch_tensors.emplace_back(torch::pickle_load(data_it->second).toTensor().to(*device));
             idx_to_req_id[idx++] = request.request_id;
           } else if (dtype_it->second == "List") {
             // case3: the image is a list
@@ -124,13 +128,14 @@ namespace torchserve {
           throw e;
         }
       }
-      return images;
+      batch_ivalue.emplace_back(torch::stack(batch_tensors).to(*device));
+      return batch_ivalue;
     }
 
-    torch::Tensor BaseHandler::Predict(
+    torch::Tensor BaseHandler::Inference(
       std::shared_ptr<torch::jit::script::Module> model, 
       std::vector<torch::jit::IValue>& inputs,
-      //std::shared_ptr<torch::Device>& device,
+      std::shared_ptr<torch::Device>& device,
       std::map<uint8_t, std::string>& idx_to_req_id,
       std::shared_ptr<torchserve::InferenceResponseBatch>& response_batch) {
       try {
@@ -144,7 +149,7 @@ namespace torchserve {
             500, 
             "data_tpye", 
             torchserve::PayloadType::kDATA_TYPE_STRING,
-            "runtime_error, failed to predict");
+            "runtime_error, failed to inference");
         }
         throw e;
       }
@@ -156,15 +161,12 @@ namespace torchserve {
       std::shared_ptr<torchserve::InferenceResponseBatch>& response_batch) {
       for (const auto& kv : idx_to_req_id) {
         try {
-          std::ostringstream oss;
-          torch::save(data[kv.first], oss);
           auto response = (*response_batch)[kv.second];
           response->SetResponse(
             200,
             "data_tpye",
             torchserve::PayloadType::kDATA_TYPE_BYTES,
-            oss.str()
-          );
+            torch::pickle_save(data[kv.first]));
         } catch (const std::runtime_error& e) {
           LOG(ERROR) << "Failed to load tensor for request id:" << kv.second  
           << ", error: " << e.what();
@@ -173,17 +175,17 @@ namespace torchserve {
             500, 
             "data_tpye", 
             torchserve::PayloadType::kDATA_TYPE_STRING,
-            "runtime_error, failed to load tensor");
+            "runtime_error, failed to postprocess tensor");
             throw e;
         } catch (const c10::Error& e) {
-          LOG(ERROR) << "Failed to load tensor for request id:" << kv.second 
+          LOG(ERROR) << "Failed to postprocess tensor for request id:" << kv.second 
           << ", c10 error: " << e.msg();
           auto response = (*response_batch)[kv.second];
           response->SetResponse(
             500, 
             "data_tpye", 
             torchserve::PayloadType::kDATA_TYPE_STRING,
-            "c10 error, failed to load tensor");
+            "c10 error, failed to postprocess tensor");
           throw e;
         }
       }
@@ -191,7 +193,6 @@ namespace torchserve {
   } // namespace torchscripted
 } // namespace torchserve
 
-/**
 #if defined(__linux__) || defined(__APPLE__)
 extern "C" {
   torchserve::torchscripted::BaseHandler *allocatorBaseHandler() {
@@ -203,4 +204,3 @@ extern "C" {
   }
 }
 #endif
-*/

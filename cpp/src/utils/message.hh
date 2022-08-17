@@ -10,6 +10,12 @@
 namespace torchserve {
   class PayloadType {
     public:
+    inline static const std::string kPARAMETER_NAME_DATA = "data";
+    inline static const std::string kPARAMETER_NAME_BODY = "body";
+
+    inline static const std::string kHEADER_NAME_DATA_TYPE = "data_dtype";
+    inline static const std::string kHEADER_NAME_BODY_TYPE = "body_dtype";
+
     inline static const std::string kCONTENT_TYPE_JSON = "application/json";
     inline static const std::string kCONTENT_TYPE_TEXT = "text";
     inline static const std::string kDATA_TYPE_STRING = "string";
@@ -24,6 +30,11 @@ namespace torchserve {
         str_bytes.emplace_back(std::byte(ch));
       }
       return str_bytes;
+    };
+
+    static std::vector<char> StrToVector(const std::string& str) {
+      std::vector<char> vec_char(str.begin(), str.end());
+      return vec_char;
     }
   };
 
@@ -76,7 +87,7 @@ namespace torchserve {
      * - value: header_value
      */
     using Headers = std::map<std::string, std::string>;
-    using Parameters = std::map<std::string, std::vector<std::byte>>;
+    using Parameters = std::map<std::string, std::vector<char>>;
       
     std::string request_id;
     Headers headers;
@@ -94,7 +105,7 @@ namespace torchserve {
     std::string request_id;
     // msg data_dtype must be added in headers
     Headers headers;
-    std::vector<std::byte> msg;
+    std::vector<char> msg;
 
     InferenceResponse(const std::string& request_id) : request_id(request_id) {};
 
@@ -105,7 +116,17 @@ namespace torchserve {
       const std::string& new_msg) {
       code = new_code;
       headers[new_header_key] = new_header_val;
-      msg = torchserve::Converter::StrToBytes(new_msg);
+      msg = torchserve::Converter::StrToVector(new_msg);
+    };
+
+    void SetResponse(
+      int new_code,
+      const std::string& new_header_key,
+      const std::string& new_header_val,
+      const std::vector<char>& new_msg) {
+      code = new_code;
+      headers[new_header_key] = new_header_val;
+      msg = std::move(new_msg);
     };
   };
   // Ref: https://github.com/pytorch/serve/blob/master/ts/service.py#L105
