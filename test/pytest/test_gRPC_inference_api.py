@@ -7,7 +7,7 @@ import test_gRPC_utils
 import test_utils
 
 
-inference_data_json = "/../postman/inference_data.json"
+inference_data_json = "../postman/inference_data.json"
 
 
 def setup_module(module):
@@ -42,7 +42,7 @@ def __infer(stub, model_name, model_input):
 
 
 def test_inference_apis():
-    with open(os.path.dirname(__file__) + inference_data_json, 'rb') as f:
+    with open(os.path.join(os.path.dirname(__file__), inference_data_json), 'rb') as f:
         test_data = json.loads(f.read())
 
     for item in test_data:
@@ -61,7 +61,7 @@ def test_inference_apis():
 
         print(response.msg)
 
-        model_input = os.path.dirname(__file__) + "/../" + item['file']
+        model_input = os.path.join(os.path.dirname(__file__), "..", item['file'])
         prediction = __infer(test_gRPC_utils.get_inference_stub(), item['model_name'], model_input)
 
         print("Prediction is : ", str(prediction))

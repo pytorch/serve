@@ -16,7 +16,7 @@ REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../")
 sys.path.append(REPO_ROOT)
 from ts_scripts import marsgen as mg
 
-ROOT_DIR = f"{tempfile.gettempdir()}/workspace/"
+ROOT_DIR = os.path.join(tempfile.gettempdir(), "workspace")
 MODEL_STORE = path.join(ROOT_DIR, "model_store/")
 CODEBUILD_WD = path.abspath(path.join(__file__, "../../.."))
 
@@ -86,20 +86,24 @@ def unregister_model(model_name):
 
 def delete_mar_file_from_model_store(model_store=None, model_mar=None):
     model_store = (
-        model_store if (model_store is not None) else f"{ROOT_DIR}/model_store/"
+        model_store
+        if (model_store is not None)
+        else os.path.join(ROOT_DIR, "model_store")
     )
     if model_mar is not None:
         for f in glob.glob(path.join(model_store, model_mar + "*")):
             os.remove(f)
 
 
-environment_json = "/../postman/environment.json"
+environment_json = "../postman/environment.json"
 mar_file_table = {}
 
 
 def crate_mar_file_table():
     if not mar_file_table:
-        with open(os.path.dirname(__file__) + environment_json, "rb") as f:
+        with open(
+            os.path.join(os.path.dirname(__file__), *environment_json.split("/")), "rb"
+        ) as f:
             env = json.loads(f.read())
         for item in env["values"]:
             if item["key"].startswith("mar_path_"):

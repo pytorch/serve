@@ -23,11 +23,11 @@ jobs:
         run: |
           python ts_scripts/install_dependencies.py --environment=dev
           pip install -e .
-      - name: Setup Java 11
+      - name: Setup Java 17
         uses: actions/setup-java@v2
         with:
           distribution: 'zulu'
-          java-version: '11'
+          java-version: '17'
       - name: Build PyPI & conda nightly binaries
         run: python binaries/build.py --nightly
       - name: Push conda nightly binaries
@@ -40,3 +40,11 @@ jobs:
         # skip pushing PyPI nightly binaries for macOS & windows as the binaries have the same name
         if: matrix.os == 'ubuntu-latest'
         run: python binaries/upload.py --upload-pypi-packages
+      - name: Open issue on failure
+        if: ${{ failure() && github.event_name  == 'schedule' }}
+        uses: rishabhgupta/git-action-issue@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          title: Nightly Build failed
+          body:  Commit ${{ github.sha }} daily scheduled [CI run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) failed, please check why
+          assignees: ''
