@@ -2,15 +2,16 @@
 Util files for TorchServe
 """
 import inspect
-import os
-import json
 import itertools
+import json
 import logging
+import os
 import re
 
 logger = logging.getLogger(__name__)
 
 CLEANUP_REGEX = re.compile("<.*?>|&([a-z0-9]+|#[0-9]{1,6}|#x[0-9a-f]{1,6});")
+
 
 def list_classes_from_module(module, parent_class=None):
     """
@@ -22,13 +23,20 @@ def list_classes_from_module(module, parent_class=None):
     """
 
     # Parsing the module to get all defined classes
-    classes = [cls[1] for cls in inspect.getmembers(module, lambda member: inspect.isclass(member) and
-                                                    member.__module__ == module.__name__)]
+    classes = [
+        cls[1]
+        for cls in inspect.getmembers(
+            module,
+            lambda member: inspect.isclass(member)
+            and member.__module__ == module.__name__,
+        )
+    ]
     # filter classes that is subclass of parent_class
     if parent_class is not None:
         return [c for c in classes if issubclass(c, parent_class)]
 
     return classes
+
 
 def load_label_mapping(mapping_file_path):
     """
@@ -36,17 +44,23 @@ def load_label_mapping(mapping_file_path):
     Used in BaseHandler.
     """
     if not os.path.isfile(mapping_file_path):
-        logger.warning('Missing the index_to_name.json file. Inference output will not include class name.')
+        logger.warning(
+            "'index_to_name.json' file is missing. Inference output will not include class name."
+        )
         return None
 
     with open(mapping_file_path) as f:
         mapping = json.load(f)
     if not isinstance(mapping, dict):
-        raise Exception('index_to_name mapping should be in "class":"label" json format')
+        raise Exception(
+            'index_to_name mapping should be in "class":"label" json format'
+        )
 
     # Older examples had a different syntax than others. This code accommodates those.
-    if 'object_type_names' in mapping and isinstance(mapping['object_type_names'], list):
-        mapping = {str(k): v for k, v in enumerate(mapping['object_type_names'])}
+    if "object_type_names" in mapping and isinstance(
+        mapping["object_type_names"], list
+    ):
+        mapping = {str(k): v for k, v in enumerate(mapping["object_type_names"])}
         return mapping
 
     for key, value in mapping.items():
@@ -54,9 +68,10 @@ def load_label_mapping(mapping_file_path):
         if isinstance(new_value, list):
             new_value = value[-1]
         if not isinstance(new_value, str):
-            raise Exception('labels in index_to_name must be either str or [str]')
+            raise Exception("labels in index_to_name must be either str or [str]")
         mapping[key] = new_value
     return mapping
+
 
 def map_class_to_label(probs, mapping=None, lbl_classes=None):
     """
@@ -64,9 +79,9 @@ def map_class_to_label(probs, mapping=None, lbl_classes=None):
     { friendly class name -> probability }
     """
     if not (isinstance(probs, list) and isinstance(probs, list)):
-        raise Exception('Convert classes to list before doing mapping')
+        raise Exception("Convert classes to list before doing mapping")
     if mapping is not None and not isinstance(mapping, dict):
-        raise Exception('Mapping must be a dict')
+        raise Exception("Mapping must be a dict")
 
     if lbl_classes is None:
         lbl_classes = itertools.repeat(range(len(probs[0])), len(probs))
@@ -81,6 +96,7 @@ def map_class_to_label(probs, mapping=None, lbl_classes=None):
 
     return results
 
+
 class PredictionException(Exception):
     def __init__(self, message, error_code=500):
         self.message = message
@@ -88,4 +104,6 @@ class PredictionException(Exception):
         super().__init__(message)
 
     def __str__(self):
-        return "message : error_code".format(message=self.message, error_code=self.error_code)
+        return "message : error_code".format(
+            message=self.message, error_code=self.error_code
+        )
