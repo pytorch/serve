@@ -1,5 +1,5 @@
 """
-Util files for TorchServe
+Utility functions for TorchServe
 """
 import inspect
 import itertools
@@ -45,15 +45,16 @@ def load_label_mapping(mapping_file_path):
     """
     if not os.path.isfile(mapping_file_path):
         logger.warning(
-            "'index_to_name.json' file is missing. Inference output will not include class name."
+            f"{mapping_file_path!r} is missing. Inference output will not include class name."
         )
         return None
 
     with open(mapping_file_path) as f:
         mapping = json.load(f)
+
     if not isinstance(mapping, dict):
         raise Exception(
-            'index_to_name mapping should be in "class":"label" json format'
+            'index->name JSON mapping should be in "class": "label" format.'
         )
 
     # Older examples had a different syntax than others. This code accommodates those.
@@ -68,7 +69,9 @@ def load_label_mapping(mapping_file_path):
         if isinstance(new_value, list):
             new_value = value[-1]
         if not isinstance(new_value, str):
-            raise Exception("labels in index_to_name must be either str or [str]")
+            raise Exception(
+                "labels in index->name mapping must be either str or List[str]"
+            )
         mapping[key] = new_value
     return mapping
 
@@ -80,6 +83,7 @@ def map_class_to_label(probs, mapping=None, lbl_classes=None):
     """
     if not isinstance(probs, list):
         raise Exception("Convert classes to list before doing mapping")
+
     if mapping is not None and not isinstance(mapping, dict):
         raise Exception("Mapping must be a dict")
 
@@ -104,6 +108,4 @@ class PredictionException(Exception):
         super().__init__(message)
 
     def __str__(self):
-        return "{message} : {error_code}".format(
-            message=self.message, error_code=self.error_code
-        )
+        return f"{self.message} : {self.error_code}"
