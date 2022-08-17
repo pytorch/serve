@@ -63,6 +63,7 @@ public class ModelServerTest {
     private String listManagementApisResult;
     private String listMetricsApisResult;
     private String noopApiResult;
+    private String noopManagementApiResult;
 
     static {
         TestUtils.init();
@@ -98,6 +99,11 @@ public class ModelServerTest {
 
         try (InputStream is = new FileInputStream("src/test/resources/describe_api.json")) {
             noopApiResult = IOUtils.toString(is, StandardCharsets.UTF_8.name());
+        }
+
+        try (InputStream is = new FileInputStream("src/test/resources/model_management_api.json")) {
+            noopManagementApiResult =
+                    String.format(IOUtils.toString(is, StandardCharsets.UTF_8.name()), version);
         }
     }
 
@@ -193,6 +199,21 @@ public class ModelServerTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testDescribeApi"})
+    public void testModelManagementApi() throws InterruptedException {
+        Channel channel = TestUtils.getManagementChannel(configManager);
+        TestUtils.setResult(null);
+        TestUtils.setLatch(new CountDownLatch(1));
+        TestUtils.describeModelManagementApi(channel, "noop");
+        TestUtils.getLatch().await();
+
+        Assert.assertEquals(
+                TestUtils.getResult().replaceAll("(\\\\r|\r\n|\n|\n\r)", "\r"),
+                noopManagementApiResult.replaceAll("(\\\\r|\r\n|\n|\n\r)", "\r"));
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testModelManagementApi"})
     public void testInitialWorkers() throws InterruptedException {
         Channel channel = TestUtils.getManagementChannel(configManager);
         TestUtils.setResult(null);
