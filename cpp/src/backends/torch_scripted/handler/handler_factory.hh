@@ -4,7 +4,6 @@
 #include <map>
 #include <memory>
 #include "src/backends/torch_scripted/handler/base_handler.hh"
-#include "src/backends/torch_scripted/handler/vision_handler.hh"
 
 namespace torchserve {
   namespace torchscripted {
@@ -26,7 +25,7 @@ namespace torchserve {
 
       private:
       std::map<std::string, std::shared_ptr<BaseHandler>(*)()> handlers_ = {
-        {"VisionHandler", []() -> std::shared_ptr<BaseHandler> {return std::make_shared<VisionHandler>();}}
+        {"BaseHandler", []() -> std::shared_ptr<BaseHandler> {return std::make_shared<BaseHandler>();}}
       };
       HandlerFactory() {};
     };

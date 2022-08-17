@@ -22,8 +22,7 @@ namespace torchserve {
 
       bool Initialize(const std::string& model_dir) override;
 
-      std::pair<
-      std::unique_ptr<torchserve::LoadModelResponse>, std::shared_ptr<torchserve::ModelInstance>> 
+      std::pair<std::unique_ptr<torchserve::LoadModelResponse>, std::shared_ptr<torchserve::ModelInstance>> 
       LoadModelInternal(
         std::shared_ptr<torchserve::LoadModelRequest> load_model_request) override;
       

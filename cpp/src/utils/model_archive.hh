@@ -12,10 +12,12 @@
 #include "src/utils/file_system.hh"
 
 namespace torchserve {
-  // TODO: limit to upper case "LDP", "LSP", ...
-  using RuntimeType = std::string;
-    class Manifest {
+  
+  class Manifest {
     public:
+    // TODO: limit to upper case "LDP", "LSP", ...
+    using RuntimeType = std::string;
+
     inline static const std::string kModel_ModelName = "modelName";
     inline static const std::string kModel_ModelVersion = "modelVersion";
     inline static const std::string kModel_WorkflowName = "workflowName";

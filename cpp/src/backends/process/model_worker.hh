@@ -36,7 +36,7 @@ namespace torchserve {
       const std::string& socket_name,
       const std::string& host_addr,
       const std::string& port_num,
-      const torchserve::RuntimeType& runtime_type,
+      const torchserve::Manifest::RuntimeType& runtime_type,
       torchserve::DeviceType device_type,
       const std::string& model_dir);
     
@@ -45,7 +45,7 @@ namespace torchserve {
     private:
     SocketServer() {};
     bool CreateBackend(
-      const torchserve::RuntimeType& runtime_type,
+      const torchserve::Manifest::RuntimeType& runtime_type,
       const std::string& model_dir);
 
     // TODO; impl.

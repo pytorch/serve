@@ -40,7 +40,7 @@ namespace torchserve {
     // Normal model has multiple model instances, each model instance has one device id.
     std::vector<short> device_ids;
     // The runtime type.
-    RuntimeType runtime_type;
+    torchserve::Manifest::RuntimeType runtime_type;
     // The model's manifest.
     Manifest manifest;
   };
@@ -85,7 +85,7 @@ namespace torchserve {
      * @return std::string 
      */
     const std::string GetBackendLibPath(
-      const RuntimeType& runtime_type, 
+      const torchserve::Manifest::RuntimeType& runtime_type, 
       DeviceType device_type,
       const std::string& version);
 

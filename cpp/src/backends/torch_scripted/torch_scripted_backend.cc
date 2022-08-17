@@ -42,11 +42,10 @@ namespace torchserve {
       try {
         auto result = handler_->LoadModel(load_model_request);
         auto model_instance = std::make_shared<ModelInstance>(
-          BuildModelInstanceId(
-            load_model_request), 
-            std::move(result.first), 
-            handler_, 
-            std::move(result.second));
+          BuildModelInstanceId(load_model_request), 
+          std::move(result.first), 
+          handler_, 
+          std::move(result.second));
         std::string message = fmt::format("loaded model {}", load_model_request->model_name);
         return std::make_pair(
           std::make_unique<torchserve::LoadModelResponse>(
@@ -62,7 +61,7 @@ namespace torchserve {
             500,
             e.msg().size(),
             e.msg()),
-          nullptr);
+            nullptr);
       }
     }
 

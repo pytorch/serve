@@ -7,7 +7,7 @@ namespace torchserve {
     const std::string& socket_name,
     const std::string& host_addr,
     const std::string& port_num,
-    const torchserve::RuntimeType& runtime_type,
+    const torchserve::Manifest::RuntimeType& runtime_type,
     torchserve::DeviceType device_type,
     const std::string& model_dir) {
     unsigned short socket_family;
@@ -96,7 +96,7 @@ namespace torchserve {
   }
 
   bool SocketServer::CreateBackend(
-    const torchserve::RuntimeType& runtime_type,
+    const torchserve::Manifest::RuntimeType& runtime_type,
     const std::string& model_dir) {
     if (runtime_type == "LDP") {
       backend_ = std::make_shared<torchserve::torchscripted::Backend>();

@@ -12,7 +12,7 @@ namespace torchserve {
   }
 
   const std::string BackendFrameworkConfig::GetBackendLibPath(
-      const RuntimeType& runtime_type, 
+      const torchserve::Manifest::RuntimeType& runtime_type, 
       DeviceType device_type,
       const std::string& version) {
     auto it = runtime_to_framework_map_.find(runtime_type);

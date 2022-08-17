@@ -8,12 +8,14 @@
 #include <vector>
 
 namespace torchserve {
-  #define CONTENT_TYPE_JSON "application/json"
-  #define CONTENT_TYPE_TEXT "text"
+  class PayloadType {
+    public:
+    inline static const std::string kCONTENT_TYPE_JSON = "application/json";
+    inline static const std::string kCONTENT_TYPE_TEXT = "text";
+    inline static const std::string kDATA_TYPE_STRING = "string";
+    inline static const std::string kDATA_TYPE_BYTES = "bytes";
+  };
 
-  #define DATA_TYPE_STRING "string"
-  #define DATA_TYPE_BYTES "bytes"
-  
   class Converter {
     public:
     static std::vector<std::byte> StrToBytes(const std::string& str) {
