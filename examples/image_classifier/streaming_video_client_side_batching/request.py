@@ -1,7 +1,6 @@
 import requests
 import json
 import base64
-import io
 import argparse
 import numpy as np
 from threading import Thread
@@ -11,7 +10,7 @@ import cv2
 
 
 
-def read_frame(args):
+def read_frames(args):
 
     # Create a VideoCapture object and read from input file
     # If the input is the camera, pass 0 instead of the video file name
@@ -57,14 +56,14 @@ def read_frame(args):
     # Closes all the frames
     cv2.destroyAllWindows()
 
-def flush_frames(payload, snd_cnt):
+def send_frames(payload, snd_cnt):
     snd_cnt += len(payload)
     payload = json.dumps(payload)
     response = requests.post(api, data=payload, headers=headers)
 
-    return snd_cnt
+    return (response, snd_cnt)
 
-def send_frame(args):
+def batch_and_send_frames(args):
 
   # Initialize variables
   count = 0
@@ -91,7 +90,7 @@ def send_frame(args):
           count += 1 
 
       if count >= args.batch_size:
-          snd_cnt = flush_frames(payload, snd_cnt)
+          response, snd_cnt = send_frames(payload, snd_cnt)
 
           # Calculate FPS
           end_time = time.time()
@@ -105,10 +104,11 @@ def send_frame(args):
           count = 0 
           payload = {}
       
-      # Sleep for 10 ms before trying to process next frame
+      # Sleep for 10 ms before trying to send next batch of frames
       time.sleep(0.01)
 
-  snd_cnt = flush_frames(payload, snd_cnt)
+  # Send any remaining frames
+  _, snd_cnt = send_frames(payload, snd_cnt)
   print("With Batch Size {}, FPS at frame number {} is {:.1f}".format(args.batch_size, snd_cnt, fps))
 
 if __name__ == "__main__":
@@ -123,7 +123,7 @@ if __name__ == "__main__":
     api = 'http://localhost:8080/predictions/resnet-18'
     headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
 
-    thread1 = Thread(target=read_frame, args=(args,))
-    thread2 = Thread(target=send_frame, args=(args,))
+    thread1 = Thread(target=read_frames, args=(args,))
+    thread2 = Thread(target=batch_and_send_frames, args=(args,))
     thread1.start()
     thread2.start()
