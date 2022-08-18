@@ -16,6 +16,7 @@ def read_frame(args):
     # Create a VideoCapture object and read from input file
     # If the input is the camera, pass 0 instead of the video file name
 
+    # If Reading a camera, we convert to int
     try:
         device  = int(args.input)
     except:
@@ -35,20 +36,10 @@ def read_frame(args):
       ret, frame = cap.read()
       if ret == True:
     
-        # Display the resulting frame
-        #cv2.imshow('Frame',frame)
-        # Press Q on keyboard to  exit
-        if cv2.waitKey(25) & 0xFF == ord('q'):
-          break
-    
-        #frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-    
-        #data = bytearray(frame)
-    
+        # Encode the frame into byte data
         data = cv2.imencode('.jpg', frame)[1].tobytes()
         queue.append(data)
         frame_cnt += 1
-        #print("Read Length of queue is {} , frame_cnt is {}".format(len(queue), frame_cnt))
 
         time.sleep(1.0/30)
     
@@ -57,6 +48,7 @@ def read_frame(args):
         break
 
     print("Done reading {} frames".format(frame_cnt)) 
+
     # When everything done, release the video capture object
     cap.release()
     
