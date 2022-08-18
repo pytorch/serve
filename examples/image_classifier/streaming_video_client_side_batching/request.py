@@ -41,7 +41,9 @@ def read_frame(args):
         queue.append(data)
         frame_cnt += 1
 
-        time.sleep(1.0/30)
+        # For videos, add a sleep so that we read at 30 FPS
+        if not isinstance(device, int):
+            time.sleep(1.0/30)
     
       # Break the loop
       else: 
@@ -80,7 +82,7 @@ def send_frame(args):
               print("Length of queue is {} , snd_cnt is {}".format(len(queue), snd_cnt))
               break
 
-
+      # Batch the frames into a dict payload
       while queue and count < args.batch_size:
           data = queue.popleft()
           im_b64 = base64.b64encode(data).decode("utf8")
@@ -89,15 +91,20 @@ def send_frame(args):
 
       if count >= args.batch_size:
           snd_cnt = flush_frames(payload, snd_cnt)
+
+          # Calculate FPS
           end_time = time.time()
           fps = 1.0*args.batch_size/(end_time - start_time)
           if snd_cnt%20 == 0:
             print("With Batch Size {}, FPS at frame number {} is {:.1f}".format(args.batch_size, snd_cnt, fps))
             #print(response.content.decode("UTF-8"))
+
+          # Reset for next batch
           start_time = time.time()
           count = 0 
           payload = {}
       
+      # Sleep for 10 ms before trying to process next frame
       time.sleep(0.01)
 
   snd_cnt = flush_frames(payload, snd_cnt)
