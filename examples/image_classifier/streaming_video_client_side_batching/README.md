@@ -1,5 +1,11 @@
 #### Sample commands to create a resnet-18 eager mode model archive, register it on TorchServe and run inference on a streaming video
 
+In this example, we are using OpenCV to send frames on the client side.
+Install opencv with the following command
+```
+pip install opencv-python
+```
+
 Run the commands given in following steps from the parent directory of the root of the repository. For example, if you cloned the repository into /home/my_path/serve, run the steps from /home/my_path
 
 ```bash
