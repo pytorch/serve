@@ -29,6 +29,13 @@ target_include_directories(ts_backends_torch_scripted PUBLIC
   ${TS_BACKENDS_TORCH_SCRIPTED_SRC_DIR} ${TS_BACKENDS_TORCH_SCRIPTED_SRC_DIR}/handler ${TORCH_INCLUDE_DIRS})
 target_link_libraries(ts_backends_torch_scripted PUBLIC ts_utils ts_backends_core ${TORCH_LIBRARIES}) 
 
+set(MNIST_SOURCE_FILES "")
+list(APPEND MNIST_SOURCE_FILES ${TS_BACKENDS_TORCH_SCRIPTED_SRC_DIR}/handler/mnist_handler.cc)
+add_library(mnist_handler SHARED ${MNIST_SOURCE_FILES})
+target_include_directories(mnist_handler PUBLIC 
+  ${TS_BACKENDS_TORCH_SCRIPTED_SRC_DIR} ${TS_BACKENDS_TORCH_SCRIPTED_SRC_DIR}/handler ${TORCH_INCLUDE_DIRS})
+target_link_libraries(mnist_handler PUBLIC ts_backends_torch_scripted ts_utils ts_backends_core ${TORCH_LIBRARIES}) 
+
 # build library ts_backend_torch_deploy
 #set(TS_BACKENDS_TORCH_DEPLOY_SOURCE_FILES "")
 #add_library(ts_backends_torch_deploy SHARED ${TS_BACKENDS_TORCH_DEPLOY_SOURCE_FILES})

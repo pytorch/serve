@@ -162,6 +162,7 @@ namespace torchserve {
       for (const auto& kv : idx_to_req_id) {
         try {
           auto response = (*response_batch)[kv.second];
+          auto msg = torch::argmax(data[kv.first]).to(torch::kFloat32);
           response->SetResponse(
             200,
             "data_tpye",
@@ -192,15 +193,3 @@ namespace torchserve {
     }
   } // namespace torchscripted
 } // namespace torchserve
-
-#if defined(__linux__) || defined(__APPLE__)
-extern "C" {
-  torchserve::torchscripted::BaseHandler *allocatorBaseHandler() {
-    return new torchserve::torchscripted::BaseHandler();
-  }
-  
-  void deleterBaseHandler(torchserve::torchscripted::BaseHandler *p) {
-    delete p;
-  }
-}
-#endif

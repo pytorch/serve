@@ -52,6 +52,7 @@ namespace torchserve {
     auto inference_response_batch = load_model_result.second->Predict(inference_request_batch);
     for (const auto& kv : *inference_response_batch) {
       ASSERT_EQ(kv.second->code, 200);
+      std::cerr << "rt:" << torch::pickle_load(kv.second->msg);
     }
   }
 } //namespace
