@@ -66,7 +66,7 @@ def flush_frames(payload, snd_cnt):
 
 def send_frame(args):
 
-  
+  # Initialize variables
   count = 0
   exit_cnt = 0
   payload = {}
@@ -76,6 +76,7 @@ def send_frame(args):
 
   while True:
 
+      # Exit condition for the while loop. Need a better logic
       if len(queue) == 0:
           exit_cnt += 1
           if exit_cnt >= 1000:
