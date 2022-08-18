@@ -11,6 +11,7 @@ from builtins import str
 import ts
 from ts.context import Context, RequestProcessor
 from ts.metrics.metrics_store import MetricsStore
+from ts.metrics.metric import Metric
 from ts.protocol.otf_message_handler import create_predict_response
 from ts.utils.util import PredictionException
 
@@ -127,7 +128,9 @@ class Service(object):
 
 def emit_metrics(metrics):
     """
-    Emit the metrics in the provided Dictionary/list/Metric object
+    Emit the metrics in the provided Dictionary/list/Metric object if the Metric has a non-zero value.
+        Then reset metric values
+
 
     Parameters
     ----------
@@ -136,15 +139,23 @@ def emit_metrics(metrics):
         dictionary with key value pairs of metric name and Metric objects or
         a single Metric object
     """
-    if metrics:
-        if isinstance(metrics, list):
-            for met in metrics:
-                logger.info("[METRICS]%s", str(met))
-        elif isinstance(metrics, dict):
-            for _metric_name, metric_obj in metrics.items():
-                logger.info("[METRICS]%s", str(metric_obj))
-        else:  # assuming that the arg being passed is a single Metric object
-            logger.info("[METRICS]%s", str(metrics))
-    else:
-        logger.warning(f"Metrics '{metrics}' are not provided.")
+    def _emit_metrics_util(metric):
+        if isinstance(metric, Metric) and metric.is_updated:
+            logger.info("[METRICS]%s", str(metric))  # after flushing Metric, reset Metric value
+            metric.reset()
+        else:
+            logger.warning(f"'{metric}' is not an Metric object / its value has not been updated.")
+
+    if not metrics:
+        logger.warning(f"Metrics '{metrics}' are not valid.")
+
+    if isinstance(metrics, list):
+        for met in metrics:
+            _emit_metrics_util(met)
+    elif isinstance(metrics, dict):
+        for _metric_name, metric_obj in metrics.items():
+            _emit_metrics_util(metric_obj)
+    elif isinstance(metrics, Metric):  # assuming that the arg being passed is a single Metric object
+        _emit_metrics_util(metrics)
+
 

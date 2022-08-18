@@ -64,11 +64,14 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
         # IF req_id is none error Metric
         if dimensions is None or not dimensions:
             dimensions = list()
-        elif not isinstance(dimensions, list):
+        if not isinstance(dimensions, list):
             raise merrors.MetricsCacheValueError("Please provide a list of Dimension objects.")
 
+        # using a copy to not alter the original dimensions list when Metrics are added
+        dimensions = dimensions.copy()
         # don't add duplicate Dimension objects
         pre_dims_str = [str(d) for d in dimensions]
+
         if req_id is None:
             if not self._check_matching_dims("Level", "Error", pre_dims_str):
                 dimensions.append(Dimension("Level", "Error"))
@@ -79,7 +82,6 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
                 dimensions.append(Dimension("Level", "Model"))
 
         dims_str = ",".join([str(d) for d in dimensions])
-
         # convert metric enum into string
         metric_type = metric_type.value
 
@@ -121,7 +123,7 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
         ----------
         name : str
             metric name
-        value: int
+        value: int or float
             value of metric
         idx: int
             request_id index in batch

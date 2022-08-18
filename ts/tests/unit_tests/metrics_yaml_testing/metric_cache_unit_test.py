@@ -8,6 +8,7 @@ import ts.metrics.metric_cache_errors as merrors
 
 from ts.metrics.dimension import Dimension
 from ts.metrics.metric_cache_yaml import MetricsCacheYaml
+from ts.metrics.metrics_store import MetricsStore
 from ts.metrics.metric_type_enums import MetricTypes
 from ts.metrics.metric import Metric
 from ts.service import emit_metrics
@@ -572,57 +573,74 @@ class TestAdditionalMetricMethods:
 class TestEmitMetrics:
     def test_emit_metrics_list_none(self, caplog):
         emit_metrics(None)
-        assert "Metrics 'None' are not provided." in caplog.text
+        assert "Metrics 'None' are not valid." in caplog.text
 
     def test_emit_metrics_list_empty(self, caplog):
         metrics = []
         emit_metrics(metrics)
-        assert "Metrics '[]' are not provided." in caplog.text
+        assert "Metrics '[]' are not valid." in caplog.text
 
     def test_emit_metrics_list_single(self, caplog):
         caplog.set_level("INFO")
         metrics = ["some_string"]
         emit_metrics(metrics)
-        assert "[METRICS]some_string" in caplog.text
+        assert "'some_string' is not an Metric object / its value has not been updated." in caplog.text
 
     def test_emit_metrics_list_multiple(self, caplog):
         caplog.set_level("INFO")
         metrics = ["some_string", "another_string"]
         emit_metrics(metrics)
-        assert "[METRICS]some_string" in caplog.text
-        assert "[METRICS]another_string" in caplog.text
+        assert "'some_string' is not an Metric object / its value has not been updated." in caplog.text
+        assert "'another_string' is not an Metric object / its value has not been updated." in caplog.text
 
     def test_emit_metrics_dict_empty(self, caplog):
         emit_metrics({})
-        assert "Metrics '{}' are not provided." in caplog.text
+        assert "Metrics '{}' are not valid." in caplog.text
 
     def test_emit_metrics_dict_single(self, caplog):
         caplog.set_level("INFO")
         metrics = {"Metric_name": "Metric_STRING"}
         emit_metrics(metrics)
-        assert "[METRICS]Metric_STRING" in caplog.text
+        assert "'Metric_STRING' is not an Metric object / its value has not been updated." in caplog.text
 
     def test_emit_metrics_dict_multiple(self, caplog):
         metrics_cache_obj = MetricsCacheYaml(uuid.uuid4(), "Foo", "metrics.yaml")
         metrics_cache_obj.parse_yaml_to_cache()
 
+        for i, metric in enumerate(list(metrics_cache_obj.cache.values())):
+            inc = i + 1
+            metric.update(inc + (inc / 10))
+
         caplog.set_level("INFO")
         emit_metrics(metrics_cache_obj.cache)
-        assert "[METRICS]InferenceTimeInMS.Milliseconds:0|#model_name:example_model_name," \
+
+        assert "[METRICS]InferenceTimeInMS.Milliseconds:1.1|#model_name:example_model_name," \
                "host:example_host_name|#hostname:" in caplog.text
-        assert "[METRICS]NumberOfMetrics.Count:0|#model_name:example_model_name|" \
+        assert "[METRICS]NumberOfMetrics.Count:2.2|#model_name:example_model_name|" \
                "#hostname:" in caplog.text
-        assert "[METRICS]GaugeModelMetricNameExample.Milliseconds:0|#model_name:example_model_name," \
+        assert "[METRICS]GaugeModelMetricNameExample.Milliseconds:3.3|#model_name:example_model_name," \
                "host:example_host_name|#hostname:" in caplog.text
-        assert "[METRICS]HistogramModelMetricNameExample.Milliseconds:0|#model_name:example_model_name," \
+        assert "[METRICS]HistogramModelMetricNameExample.Milliseconds:4.4|#model_name:example_model_name," \
                "host:example_host_name|#hostname:" in caplog.text
+
+    def test_emit_metrics_reset(self, caplog):
+        metrics_cache_obj = MetricsCacheYaml(uuid.uuid4(), "Foo", "metrics.yaml")
+        metrics_cache_obj.parse_yaml_to_cache()
+
+        for i, metric in enumerate(list(metrics_cache_obj.cache.values())):
+            inc = i + 1
+            metric.update(inc + (inc / 10))
+
+        caplog.set_level("INFO")
+        emit_metrics(metrics_cache_obj.cache)
 
     def test_emit_metrics_metric_single(self, caplog):
         metric = Metric(name="NewMetric", value=12, unit="ms", dimensions=[Dimension("hello", "world")],
                         metric_type="counter")
+        metric.update(2.5)
         caplog.set_level("INFO")
         emit_metrics(metric)
-        assert "[METRICS]NewMetric.Milliseconds:12|#hello:world|#hostname:" in caplog.text
+        assert "[METRICS]NewMetric.Milliseconds:14.5|#hello:world|#hostname:" in caplog.text
 
 
 class TestIncrementDecrementMetrics:
@@ -688,7 +706,96 @@ class TestIncrementDecrementMetrics:
         metrics_cache_obj.add_error('LoopCountError', -2, dimensions)
 
         metric = metrics_cache_obj.get_metric('[counter]-[LoopCountError]-[foo:bar,Level:Error]')
+        assert len(metrics_cache_obj.cache) == 1
         assert metric.value == 4
+
+    def test_add_counter_existing_implementation(self, caplog):
+        metrics_cache_obj = MetricsStore(uuid.uuid4(), "Foo")
+        dimensions = [Dimension("foo", "bar")]
+
+        # Create a counter with name 'LoopCount' and dimensions, initial value
+        metrics_cache_obj.add_counter('LoopCountError', 1, None, dimensions)
+
+        # Increment counter by 2
+        metrics_cache_obj.add_counter('LoopCountError', 2, None, dimensions)
+
+        # Decrement counter by 1
+        metrics_cache_obj.add_counter('LoopCountError', -1, None, dimensions)
+
+        assert len(metrics_cache_obj.cache) == 3
+
+
+class TestAPIAndYamlParse:
+    def test_yaml_then_api(self, caplog):
+        dimensions = [Dimension("foo", "bar")]
+
+        metrics_cache_obj = MetricsCacheYaml(uuid.uuid4(), "Foo", "metrics_api.yaml")
+        metrics_cache_obj.parse_yaml_to_cache()
+
+        metrics_cache_obj.add_counter('InferenceTimeInMS', 2.7)
+
+        metrics_cache_obj.add_size('GaugeModelMetricNameExample', 25.12)
+        # Create a counter with name 'LoopCount' and dimensions, initial value
+        metrics_cache_obj.add_error('LoopCountError', 5, dimensions)
+        metrics_cache_obj.add_size('GaugeModelMetricNameExample', 1.42)
+        metrics_cache_obj.add_counter('InferenceTimeInMS', -2.7)
+
+        assert len(metrics_cache_obj.cache) == 5
+
+        counter_metric = metrics_cache_obj.get_metric("[counter]-[InferenceTimeInMS]-[ModelName:Foo,Level:Model]")
+        assert counter_metric.value == 0
+        assert counter_metric.is_updated is True
+
+        gauge_metric = metrics_cache_obj.get_metric("[gauge]-[GaugeModelMetricNameExample]-[ModelName:Foo,Level:Model]")
+        assert gauge_metric.value == 1.42
+
+        caplog.set_level("INFO")
+        emit_metrics(metrics_cache_obj.cache)
+
+        assert "InferenceTimeInMS.Milliseconds:0.0|#ModelName:Foo,Level:Model|" in caplog.text
+        assert "GaugeModelMetricNameExample.Milliseconds:1.42|#ModelName:Foo,Level:Model|" in caplog.text
+        assert "LoopCountError.:5|#foo:bar,Level:Error" in caplog.text
+
+    def test_api_then_yaml(self, caplog):
+        dimensions = [Dimension("foo", "bar")]
+
+        metrics_cache_obj = MetricsCacheYaml(uuid.uuid4(), "Foo", "metrics_api.yaml")
+
+        metrics_cache_obj.add_counter('InferenceTimeInMS', 5)
+        metrics_cache_obj.add_counter('InferenceTimeInMS', -2)
+        metrics_cache_obj.add_size('GaugeModelMetricNameExample', 0)
+
+        counter_metric = metrics_cache_obj.get_metric("[counter]-[InferenceTimeInMS]-[ModelName:Foo,Level:Model]")
+        assert counter_metric.value == 3
+        assert counter_metric.is_updated is True
+
+        caplog.set_level("INFO")
+        emit_metrics(metrics_cache_obj.cache)
+        caplog_list = caplog.text.split("\n")
+        for entry in caplog_list:
+            if "WARNING" in entry:
+                assert "GaugeModelMetricNameExample.Megabytes:0|#ModelName:Foo,Level:Model|" in caplog.text
+            if "INFO" in entry:
+                assert "InferenceTimeInMS.Count:3|#ModelName:Foo,Level:Model|" in caplog.text
+
+        assert counter_metric.value == 0
+        assert counter_metric.is_updated is False
+        assert "InferenceTimeInMS.Count:0|#ModelName:Foo,Level:Model|" in str(counter_metric)
+        # now parsing the yaml file after adding some Metrics via API
+        # will override previously created Metric objects if the Metric type, Metric name, dimensions, Model Name match
+        metrics_cache_obj.parse_yaml_to_cache()
+
+        assert len(metrics_cache_obj.cache) == 4
+
+        counter_metric = metrics_cache_obj.get_metric("[counter]-[InferenceTimeInMS]-[ModelName:Foo,Level:Model]")
+        assert counter_metric.value == 0
+        assert counter_metric.is_updated is False
+
+        gauge_metric = metrics_cache_obj.get_metric("[gauge]-[GaugeModelMetricNameExample]-[ModelName:Foo,Level:Model]")
+        assert gauge_metric.value == 0
+
+        assert "InferenceTimeInMS.Count:0|#ModelName:Foo,Level:Model|" not in str(counter_metric)
+        assert "InferenceTimeInMS.Milliseconds:0|#ModelName:Foo,Level:Model" in str(counter_metric)
 
 
 if __name__ == '__main__':

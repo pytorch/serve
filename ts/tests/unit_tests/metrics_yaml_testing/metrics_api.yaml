@@ -1,0 +1,36 @@
+dimensions:
+  ModelName: "Foo"
+  Level: "Model"
+
+ts_metrics:
+  counter:
+    - name:
+        unit: ms
+        dimensions: [ModelName, Level]
+  gauge:
+    - name:
+        unit: ms
+        dimensions: [ModelName, Level]
+  histogram:
+    - name:
+        unit: ms
+        dimensions: [ModelName, Level]
+
+model_metrics:
+  counter:
+    - InferenceTimeInMS:
+        unit: ms
+        dimensions: [ModelName, Level]
+    - NumberOfMetrics:
+        unit: count
+        dimensions: [ModelName]
+  gauge:
+    - GaugeModelMetricNameExample:
+        unit: ms
+        dimensions: [ModelName, Level]
+  histogram:
+    - HistogramModelMetricNameExample:
+        unit: ms
+        dimensions: [ModelName, Level]
+
+

@@ -51,6 +51,7 @@ class Metric(object):
         self.dimensions = dimensions
         self.request_id = request_id
         self.metric_type = metric_type
+        self.is_updated = False if value == 0 else True
 
     def update(self, value):
         """
@@ -62,10 +63,18 @@ class Metric(object):
             metric to be updated
         """
 
-        if self.metric_method == 'counter' or self.metric_type == 'counter': # metric_method should be not used
+        if self.metric_method == 'counter' or self.metric_type == 'counter':  # metric_method should be not used
             self.value += value
         else:
             self.value = value
+        self.is_updated = True
+
+    def reset(self):
+        """
+        Reset Metric value to 0 and reset is_updated flag to False
+        """
+        self.value = 0
+        self.is_updated = False
 
     def __str__(self):
         dims = ",".join([str(d) for d in self.dimensions])

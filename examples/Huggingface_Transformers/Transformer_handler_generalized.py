@@ -5,6 +5,7 @@ import os
 import ast
 import torch
 import transformers
+import time
 from transformers import (
     AutoModelForSequenceClassification,
     AutoTokenizer,
@@ -16,6 +17,7 @@ from transformers import GPT2TokenizerFast
 
 from ts.torch_handler.base_handler import BaseHandler
 from captum.attr import LayerIntegratedGradients
+from ts.service import emit_metrics
 
 logger = logging.getLogger(__name__)
 logger.info("Transformers version %s", transformers.__version__)
@@ -38,6 +40,30 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
             ctx (context): It is a JSON Object containing information
             pertaining to the model artefacts parameters.
         """
+        start_time = time.time()
+        logging.warning("IN METRICS CUSTOM HANDLER")
+
+        metrics = ctx.metrics
+        metrics.parse_yaml_to_cache()
+        time.sleep(3)
+        stop_time = time.time()
+        metrics.add_time(
+            "HandlerTime", round((stop_time - start_time) * 1000, 2), None, "ms"
+        )
+        metrics.add_counter(
+            "HandlerSeparateCounter", round((stop_time - start_time) * 1000, 2), None, "ms"
+        )
+        metrics.add_counter(
+            "HandlerSeparateCounter", 2.5, None, "ms"
+        )
+        metrics.add_counter(
+            "HandlerSeparateCounter", -1.3, None, "ms"
+        )
+        metrics.add_counter(
+            "HandlerCounter", -1.3, None, "ms"
+        )
+        emit_metrics(metrics.cache)
+
         self.manifest = ctx.manifest
         properties = ctx.system_properties
         model_dir = properties.get("model_dir")
