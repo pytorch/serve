@@ -57,7 +57,8 @@ namespace torchserve {
     enum ModelInstanceStatus {
       NOT_INIT,
       INIT,
-      READY
+      READY,
+      FAILED
     };
 
     Backend() {};
@@ -76,6 +77,10 @@ namespace torchserve {
     std::pair<std::unique_ptr<torchserve::LoadModelResponse>, std::shared_ptr<ModelInstance>> 
     LoadModelInternal(
       std::shared_ptr<torchserve::LoadModelRequest> load_model_request) = 0;
+
+    ModelInstanceStatus GetModelInstanceStatus(const std::string& model_instance_id);
+
+    std::shared_ptr<torchserve::ModelInstance> GetModelInstance(const std::string& model_instance_id);
 
     protected:
     std::string BuildModelInstanceId(std::shared_ptr<torchserve::LoadModelRequest> load_model_request);

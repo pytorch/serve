@@ -32,4 +32,21 @@ namespace torchserve {
       model_instance_count_.fetch_add(1)
     );
   }
+
+
+  torchserve::Backend::ModelInstanceStatus Backend::GetModelInstanceStatus(const std::string& model_instance_id) {
+    auto status = model_instance_status_.find(model_instance_id);
+    if (status == model_instance_status_.end()) {
+      return torchserve::Backend::ModelInstanceStatus::NOT_INIT;
+    }
+    return status->second;
+  }
+
+  std::shared_ptr<torchserve::ModelInstance> Backend::GetModelInstance(const std::string& model_instance_id) {
+    auto model_instance = model_instance_table_.find(model_instance_id);
+    if (model_instance == model_instance_table_.end()) {
+      return nullptr;
+    }
+    return model_instance->second;
+  }
 } // namespace torchserve

@@ -32,7 +32,7 @@ namespace torchserve {
     static char RetrieveCmd(Socket conn); 
     static std::shared_ptr<LoadModelRequest> RetrieveLoadMsg(Socket conn);
     // TODO: impl.
-    static std::vector<std::shared_ptr<InferenceRequest>> RetrieveInferenceMsg(Socket conn);
+    static std::shared_ptr<torchserve::InferenceRequestBatch> RetrieveInferenceMsg(Socket conn);
     
     private:
     static void RetrieveBuffer(Socket conn, size_t length, char *data);     

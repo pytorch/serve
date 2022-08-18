@@ -112,8 +112,10 @@ namespace torchserve {
     
       if (cmd == 'I') {
         LOG(INFO) << "INFER request received";
-        // TODO: impl.
-        // model_instance_.predict();
+        if (model_instance_ == nullptr) {
+          LOG(ERROR) << "Model is not loaded yet, not able to process this inference request.";
+        }
+        //model_instance_->Predict(torchserve::OTFMessage::RetrieveInferenceMsg(client_socket_));
       } else if (cmd == 'L') {
         LOG(INFO) << "LOAD request received";
         // TODO: error handling

@@ -39,13 +39,17 @@ namespace torchserve {
     std::shared_ptr<torchserve::ModelInstance>> 
     Backend::LoadModelInternal(
       std::shared_ptr<torchserve::LoadModelRequest> load_model_request) {
+      std::string model_instance_id = BuildModelInstanceId(load_model_request);
       try {
+        model_instance_status_[model_instance_id] = torchserve::Backend::ModelInstanceStatus::INIT;
         auto result = handler_->LoadModel(load_model_request);
         auto model_instance = std::make_shared<ModelInstance>(
-          BuildModelInstanceId(load_model_request), 
+          model_instance_id, 
           std::move(result.first), 
           handler_, 
           std::move(result.second));
+        model_instance_status_[model_instance_id] = torchserve::Backend::ModelInstanceStatus::READY;
+        model_instance_table_[model_instance_id] = model_instance;
         std::string message = fmt::format("loaded model {}", load_model_request->model_name);
         return std::make_pair(
           std::make_unique<torchserve::LoadModelResponse>(
@@ -55,6 +59,7 @@ namespace torchserve {
             message),
             model_instance);
       } catch (const c10::Error& e) {
+        model_instance_status_[model_instance_id] = torchserve::Backend::ModelInstanceStatus::FAILED;
         return std::make_pair(
           std::make_unique<torchserve::LoadModelResponse>(
             // TODO: check existing 

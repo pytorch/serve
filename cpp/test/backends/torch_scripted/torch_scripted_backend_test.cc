@@ -21,6 +21,7 @@ namespace torchserve {
         1,
         false
       );
+      
     };
     std::shared_ptr<torchserve::Backend> backend_;
     std::shared_ptr<torchserve::LoadModelRequest> load_model_request_;
