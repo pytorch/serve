@@ -54,7 +54,7 @@ Yes, you can deploy Torchserve in Kubernetes using Helm charts.
 Refer [Kubernetes deployment ](../kubernetes/README.md) for more details.
 
 ### Can I deploy Torchserve with AWS ELB and AWS ASG?
-Yes, you can deploy Torchserve on a multi-node ASG AWS EC2 cluster. There is a cloud formation template available [here](https://github.com/pytorch/serve/blob/master/cloudformation/ec2-asg.yaml) for this type of deployment. Refer [ Multi-node EC2 deployment behind Elastic LoadBalancer (ELB)](https://github.com/pytorch/serve/tree/master/cloudformation#multi-node-ec2-deployment-behind-elastic-loadbalancer-elb) more details.
+Yes, you can deploy Torchserve on a multi-node ASG AWS EC2 cluster. There is a cloud formation template available [here](https://github.com/pytorch/serve/blob/master/examples/cloudformation/ec2-asg.yaml) for this type of deployment. Refer [ Multi-node EC2 deployment behind Elastic LoadBalancer (ELB)](https://github.com/pytorch/serve/blob/master/examples/cloudformation#multi-node-ec2-deployment-behind-elastic-loadbalancer-elb) more details.
 
 ### How can I backup and restore Torchserve state?
 TorchServe preserves server runtime configuration across sessions such that a TorchServe instance experiencing either a planned or unplanned service stop can restore its state upon restart. These saved runtime configuration files can be used for backup and restore.
