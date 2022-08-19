@@ -250,7 +250,6 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
         if not isinstance(metric_key, str):
             raise merrors.MetricsCacheTypeError(f"Only string types are acceptable as argument.")
 
-        logging.info(f"Getting metric {metric_key}")
         metric_obj = self.cache.get(metric_key)
         if metric_obj:
             logging.debug(f"Successfully received metric {metric_key}")
