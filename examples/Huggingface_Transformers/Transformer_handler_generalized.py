@@ -41,26 +41,22 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
             pertaining to the model artefacts parameters.
         """
         start_time = time.time()
-        logging.warning("IN METRICS CUSTOM HANDLER")
 
         metrics = ctx.metrics
-        metrics.parse_yaml_to_cache()
         time.sleep(3)
         stop_time = time.time()
         metrics.add_time(
             "HandlerTime", round((stop_time - start_time) * 1000, 2), None, "ms"
         )
+
         metrics.add_counter(
-            "HandlerSeparateCounter", round((stop_time - start_time) * 1000, 2), None, "ms"
+            "HandlerSeparateCounter", 2.5
         )
         metrics.add_counter(
-            "HandlerSeparateCounter", 2.5, None, "ms"
+            "HandlerSeparateCounter", -1.3
         )
         metrics.add_counter(
-            "HandlerSeparateCounter", -1.3, None, "ms"
-        )
-        metrics.add_counter(
-            "HandlerCounter", -1.3, None, "ms"
+            "HandlerCounter", -1.3
         )
         emit_metrics(metrics.cache)
 

@@ -10,8 +10,10 @@ import os
 import platform
 import socket
 import sys
+import uuid
 
 from ts.arg_parser import ArgParser
+from ts.metrics.metric_cache_yaml import MetricsCacheYaml
 from ts.model_loader import ModelLoaderFactory
 from ts.protocol.otf_message_handler import retrieve_msg, create_load_model_response
 from ts.service import emit_metrics
@@ -54,7 +56,7 @@ class TorchModelServiceWorker(object):
         logging.info("Listening on port: %s", s_name)
         socket_family = socket.AF_INET if s_type == "tcp" else socket.AF_UNIX
         self.sock = socket.socket(socket_family, socket.SOCK_STREAM)
-        self.metrics_log = metrics_log
+        TorchModelServiceWorker.metrics_log = metrics_log  # make a static attribute instead of class attribute
 
     @staticmethod
     def load_model(load_model_request):
@@ -102,10 +104,10 @@ class TorchModelServiceWorker(object):
             if "limitMaxImagePixels" in load_model_request:
                 limit_max_image_pixels = bool(load_model_request["limitMaxImagePixels"])
 
-            metrics_log = None
-            if "metricsLog" in load_model_request:  # FIXME where is this and what is load_model_request?
-                metrics_log = load_model_request["metricsLog"]
-
+            # Look into static variables a bit more
+            metrics = MetricsCacheYaml(uuid.uuid4(),
+                                       model_name=model_name,
+                                       yaml_file=TorchModelServiceWorker.metrics_log)
             model_loader = ModelLoaderFactory.get_model_loader()
             service = model_loader.load(
                 model_name,
@@ -115,7 +117,7 @@ class TorchModelServiceWorker(object):
                 batch_size,
                 envelope,
                 limit_max_image_pixels,
-                metrics_log
+                metrics
             )
 
             logging.debug("Model %s loaded.", model_name)
@@ -157,6 +159,7 @@ class TorchModelServiceWorker(object):
                 and service.context is not None
                 and service.context.metrics is not None
             ):
+                metrics = service.context.metrics
 
                 service.context.metrics.parse_yaml_to_cache()
                 emit_metrics(service.context.metrics.cache)

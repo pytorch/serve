@@ -10,7 +10,7 @@ from abc import ABCMeta, abstractmethod
 
 from builtins import str
 
-from ts.metrics.metrics_store import MetricsStore
+from ts.metrics.metric_cache_abstract import MetricCacheAbstract
 from ts.metrics.metric_cache_yaml import MetricsCacheYaml
 from ts.service import Service
 from .utils.util import list_classes_from_module
@@ -74,7 +74,7 @@ class TsModelLoader(ModelLoader):
         batch_size,
         envelope=None,
         limit_max_image_pixels=True,
-        metrics_log=None
+        metrics: MetricCacheAbstract = None
     ):
         """
         Load TorchServe 1.0 model from file.
@@ -86,16 +86,16 @@ class TsModelLoader(ModelLoader):
         :param batch_size:
         :param envelope:
         :param limit_max_image_pixels:
-        :param metrics_log:
+        :param metrics: MetricCacheAbstract object
         :return:
         """
         logging.debug("Loading model - working dir: %s", os.getcwd())
 
         # for now hard code yaml file path to pass into Metrics Cache object
-        # FIXME how to get path from model_service_worker
-        metrics_log = "/Users/josax/serve/ts/tests/unit_tests/metrics_yaml_testing/metrics.yaml"
-        # TODO tech debt - Request ID is not given.UUID is a temp UUID.
-        metrics = MetricsCacheYaml(request_ids=uuid.uuid4(), model_name=model_name, yaml_file=metrics_log)
+        # # FIXME how to get path from model_service_worker
+        # metrics_log = "/Users/josax/serve/ts/tests/unit_tests/metrics_yaml_testing/metrics.yaml"
+        # # TODO tech debt - Request ID is not given.UUID is a temp UUID.
+        # metrics = MetricsCacheYaml(request_ids=uuid.uuid4(), model_name=model_name, yaml_file=metrics_log)
 
         manifest_file = os.path.join(model_dir, "MAR-INF/MANIFEST.json")
         manifest = None
