@@ -122,6 +122,7 @@ class MetricsCacheYaml(MetricCacheAbstract):
                         self.add_metric(metric_name=metric_name,
                                         unit=unit,
                                         dimensions=dimensions,
+                                        request_id=self.request_ids,
                                         metric_type=metric_type
                                         )
 
@@ -154,6 +155,8 @@ class MetricsCacheYaml(MetricCacheAbstract):
             list of dimension objects/strings read from yaml file
         metric_type: str
             Type of metric
+        request_id: str
+            Request id which is currently a UUID
         value: int, float
             value of metric
         """
