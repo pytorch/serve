@@ -143,8 +143,6 @@ def emit_metrics(metrics):
         if isinstance(metric, Metric) and metric.is_updated:
             logger.info("[METRICS]%s", str(metric))  # after flushing Metric, reset Metric value
             metric.reset()
-        else:
-            logger.warning(f"'{metric}' is not an Metric object / its value has not been updated.")
 
     if not metrics:
         logger.warning(f"Metrics '{metrics}' are not valid.")

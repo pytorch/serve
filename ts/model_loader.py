@@ -91,12 +91,6 @@ class TsModelLoader(ModelLoader):
         """
         logging.debug("Loading model - working dir: %s", os.getcwd())
 
-        # for now hard code yaml file path to pass into Metrics Cache object
-        # # FIXME how to get path from model_service_worker
-        # metrics_log = "/Users/josax/serve/ts/tests/unit_tests/metrics_yaml_testing/metrics.yaml"
-        # # TODO tech debt - Request ID is not given.UUID is a temp UUID.
-        # metrics = MetricsCacheYaml(request_ids=uuid.uuid4(), model_name=model_name, yaml_file=metrics_log)
-
         manifest_file = os.path.join(model_dir, "MAR-INF/MANIFEST.json")
         manifest = None
         if os.path.exists(manifest_file):

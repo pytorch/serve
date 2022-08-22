@@ -154,15 +154,14 @@ class TorchModelServiceWorker(object):
             else:
                 raise ValueError("Received unknown command: {}".format(cmd))
 
-            if (
-                service is not None
-                and service.context is not None
-                and service.context.metrics is not None
-            ):
-                metrics = service.context.metrics
-
-                service.context.metrics.parse_yaml_to_cache()
-                emit_metrics(service.context.metrics.cache)
+            # having to move this bit into load_model method
+            # if (
+            #     service is not None
+            #     and service.context is not None
+            #     and service.context.metrics is not None
+            # ):
+            #     service.context.metrics.parse_yaml_to_cache()
+            #     emit_metrics(service.context.metrics.cache)
 
     def run_server(self):
         """
