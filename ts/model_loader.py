@@ -150,6 +150,7 @@ class TsModelLoader(ModelLoader):
             limit_max_image_pixels,
         )
         service.context.metrics = metrics
+        service.context.metrics.parse_yaml_to_cache()
 
         initialize_fn(service.context)
 
