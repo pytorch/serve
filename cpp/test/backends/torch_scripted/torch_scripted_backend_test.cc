@@ -17,7 +17,8 @@ namespace torchserve {
       std::shared_ptr<torchserve::LoadModelRequest> load_model_request,
       const std::string& model_dir,
       const std::string& inference_input_file_path,
-      const std::string& inference_request_id_prefix
+      const std::string& inference_request_id_prefix,
+      int inference_expect_code
     ) {
       backend_->Initialize(model_dir);
       auto result = backend_->LoadModel(std::move(load_model_request));
@@ -42,7 +43,7 @@ namespace torchserve {
       
       auto inference_response_batch = backend_->GetModelInstance()->Predict(inference_request_batch);
       for (const auto& kv : *inference_response_batch) {
-        ASSERT_EQ(kv.second->code, 200);
+        ASSERT_EQ(kv.second->code, inference_expect_code);
       }
     };
 
@@ -63,7 +64,8 @@ namespace torchserve {
       ),
       "test/resources/torchscript_model/mnist/base_handler",
       "test/resources/torchscript_model/mnist/0_png.pt",
-      "mnist_ts"
+      "mnist_ts", 
+      200
     );
   }
 
@@ -80,7 +82,8 @@ namespace torchserve {
       ),
       "test/resources/torchscript_model/mnist/mnist_handler",
       "test/resources/torchscript_model/mnist/0_png.pt",
-      "mnist_ts"
+      "mnist_ts", 
+      200
     );
   }
 } //namespace
