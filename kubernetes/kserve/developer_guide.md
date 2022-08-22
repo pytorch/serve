@@ -146,6 +146,21 @@ curl http://localhost:8080/v1/models/mnist:predict -d @./mnist.json
 ```
 
 ```bash
+# v2 protocol
+cd serve/kubernetes/kserve/kf_request_json/v2/mnist
+# Infer request
+curl http://localhost:8080/v2/models/mnist/infer -d @./mnist_v2_bytes.json
+```
+
+```json
+{"id": "7a02adc8-e1f2-4218-a2ad-f4a29dfa9b16", "model_name": "mnist", "model_version": "1.0", "outputs": [{"name": "predict", "shape": [], "datatype": "INT64", "data": [0]}]}
+```
+
+### Make explain request
+
+```bash
+# v1 protocol
+cd serve/kubernetes/kserve/kf_request_json/v1
 # Explain request
 curl http://localhost:8080/v1/models/mnist:explain -d @./mnist.json
 ```
@@ -161,15 +176,6 @@ curl http://localhost:8080/v1/models/mnist:explain -d @./mnist.json
 ```bash
 # v2 protocol
 cd serve/kubernetes/kserve/kf_request_json/v2/mnist
-# Infer request
-curl http://localhost:8080/v2/models/mnist/infer -d @./mnist_v2_bytes.json
-```
-
-```json
-{"id": "7a02adc8-e1f2-4218-a2ad-f4a29dfa9b16", "model_name": "mnist", "model_version": "1.0", "outputs": [{"name": "predict", "shape": [], "datatype": "INT64", "data": [0]}]}
-```
-
-```bash
 # Explain request
 curl http://localhost:8080/v1/models/mnist/explain -d @./mnist_v2_bytes.json
 ```
