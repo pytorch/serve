@@ -11,35 +11,16 @@ namespace torchserve {
     protected:
     void SetUp() {
       backend_ = std::make_shared<torchserve::torchscripted::Backend>();
-
-      load_model_request_base_ = std::make_shared<torchserve::LoadModelRequest>(
-        "test/resources/torchscript_model/mnist/base_handler",
-        "mnist_scripted_v2",
-        -1,
-        "",
-        "",
-        1,
-        false
-      );
-
-      load_model_request_mnist_ = std::make_shared<torchserve::LoadModelRequest>(
-        "test/resources/torchscript_model/mnist/mnist_handler",
-        "mnist_scripted_v2",
-        -1,
-        "",
-        "",
-        1,
-        false
-      );
-    };
+    }
 
     void LoadPredict(
+      std::shared_ptr<torchserve::LoadModelRequest> load_model_request,
       const std::string& model_dir,
       const std::string& inference_input_file_path,
       const std::string& inference_request_id_prefix
     ) {
       backend_->Initialize(model_dir);
-      auto result = backend_->LoadModel(std::move(load_model_request_base_));
+      auto result = backend_->LoadModel(std::move(load_model_request));
       ASSERT_EQ(result->code, 200);
 
       std::ifstream input(inference_input_file_path, std::ios::in | std::ios::binary);
@@ -67,12 +48,19 @@ namespace torchserve {
 
     uint8_t batch_size_ = 2;
     std::shared_ptr<torchserve::Backend> backend_;
-    std::shared_ptr<torchserve::LoadModelRequest> load_model_request_base_;
-    std::shared_ptr<torchserve::LoadModelRequest> load_model_request_mnist_;
   };
 
   TEST_F(TorchScriptedBackendTest, TestLoadPredictBase) {
     this->LoadPredict(
+      std::make_shared<torchserve::LoadModelRequest>(
+        "test/resources/torchscript_model/mnist/mnist_handler",
+        "mnist_scripted_v2",
+        -1,
+        "",
+        "",
+        1,
+        false
+      ),
       "test/resources/torchscript_model/mnist/base_handler",
       "test/resources/torchscript_model/mnist/0_png.pt",
       "mnist_ts"
@@ -81,6 +69,15 @@ namespace torchserve {
 
   TEST_F(TorchScriptedBackendTest, TestLoadPredictMnist) {
     this->LoadPredict(
+      std::make_shared<torchserve::LoadModelRequest>(
+        "test/resources/torchscript_model/mnist/mnist_handler",
+        "mnist_scripted_v2",
+        -1,
+        "",
+        "",
+        1,
+        false
+      ),
       "test/resources/torchscript_model/mnist/mnist_handler",
       "test/resources/torchscript_model/mnist/0_png.pt",
       "mnist_ts"
