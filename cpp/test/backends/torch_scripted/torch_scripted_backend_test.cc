@@ -55,22 +55,14 @@ namespace torchserve {
 
     auto inference_request_batch = std::make_shared<torchserve::InferenceRequestBatch>();
     (*inference_request_batch).emplace_back(inference_request);
-    auto model_instance = backend_->GetModelInstance();
-    //auto inference_response_batch = backend_->GetModelInstance()->Predict(inference_request_batch);
-    if (model_instance) {
-      std::cerr << "model_instance exist" << "\n";
-    } else {
-      std::cerr << "no model_instance exist" << "\n";
-    }
-    auto inference_response_batch = model_instance->Predict(inference_request_batch);
+    auto inference_response_batch = backend_->GetModelInstance()->Predict(inference_request_batch);
     for (const auto& kv : *inference_response_batch) {
       ASSERT_EQ(kv.second->code, 200);
-      std::cerr << "rt:" << torch::pickle_load(kv.second->msg);
     }
   }
 
   TEST_F(TorchScriptedBackendTest, TestPredictMnist) {
-    backend_->Initialize("test/resources/torchscript_model/mnist/base_handler");
+    backend_->Initialize("test/resources/torchscript_model/mnist/mnist_handler");
     auto result = backend_->LoadModel(std::move(load_model_request_mnist_));
     ASSERT_EQ(result->code, 200);
 
@@ -88,17 +80,9 @@ namespace torchserve {
 
     auto inference_request_batch = std::make_shared<torchserve::InferenceRequestBatch>();
     (*inference_request_batch).emplace_back(inference_request);
-    auto model_instance = backend_->GetModelInstance();
-    //auto inference_response_batch = backend_->GetModelInstance()->Predict(inference_request_batch);
-    if (model_instance) {
-      std::cerr << "model_instance exist" << "\n";
-    } else {
-      std::cerr << "no model_instance exist" << "\n";
-    }
-    auto inference_response_batch = model_instance->Predict(inference_request_batch);
+    auto inference_response_batch = backend_->GetModelInstance()->Predict(inference_request_batch);
     for (const auto& kv : *inference_response_batch) {
       ASSERT_EQ(kv.second->code, 200);
-      std::cerr << "rt:" << torch::pickle_load(kv.second->msg);
     }
   }
 } //namespace
