@@ -72,7 +72,6 @@ namespace torchserve {
 
     private:
     Socket client_socket_;
-    std::shared_ptr<torchserve::ModelInstance> model_instance_;
     std::shared_ptr<torchserve::Backend> backend_;
   };
 } // namespace torchserve

@@ -6,8 +6,8 @@ namespace torchserve {
       if (!torchserve::Backend::Initialize(model_dir)) {
         return false;
       }
-      LoadHandler();
-      if (handler_ == nullptr) {
+      LoadHandler(model_dir);
+      if (!handler_) {
         return false;
       }
       handler_->Initialize(model_dir, manifest_);
@@ -17,14 +17,21 @@ namespace torchserve {
       return true;
     }
 
-    void Backend::LoadHandler() {
+    void Backend::LoadHandler(const std::string& model_dir) {
       const std::string& handler_str = manifest_->GetModel().handler;
       std::size_t delimiter_pos = handler_str.find(manifest_->kHandler_Delimiter);
       if (delimiter_pos != std::string::npos) {
-        std::string lib_path = handler_str.substr(0, delimiter_pos);
+        #ifdef __APPLE__
+          std::string lib_path = 
+            fmt::format("{}/{}.dylib", model_dir, handler_str.substr(0, delimiter_pos));
+        #else 
+          std::string lib_path = 
+            fmt::format("{}/{}.so", model_dir, handler_str.substr(0, delimiter_pos));
+        #endif
         std::string handler_class_name = handler_str.substr(delimiter_pos + 1);
         std::string allocator_func = fmt::format("allocator{}", handler_class_name);
         std::string deleter_func = fmt::format("deleter{}", handler_class_name);
+        
         dl_loader_ = std::make_unique<torchserve::DLLoader<BaseHandler>>(
           lib_path, allocator_func, deleter_func);
         dl_loader_->OpenDL();
@@ -34,39 +41,44 @@ namespace torchserve {
       }
     }
 
-    std::pair<
-    std::unique_ptr<torchserve::LoadModelResponse>, 
-    std::shared_ptr<torchserve::ModelInstance>> 
-    Backend::LoadModelInternal(
+    std::unique_ptr<torchserve::LoadModelResponse> Backend::LoadModelInternal(
       std::shared_ptr<torchserve::LoadModelRequest> load_model_request) {
       std::string model_instance_id = BuildModelInstanceId(load_model_request);
       try {
-        model_instance_status_[model_instance_id] = torchserve::Backend::ModelInstanceStatus::INIT;
+        model_instance_table_[model_instance_id] = {
+          torchserve::Backend::ModelInstanceStatus::INIT,
+          std::shared_ptr<torchserve::ModelInstance>(nullptr)
+        };
+        
         auto result = handler_->LoadModel(load_model_request);
-        auto model_instance = std::make_shared<ModelInstance>(
-          model_instance_id, 
-          std::move(result.first), 
-          handler_, 
-          std::move(result.second));
-        model_instance_status_[model_instance_id] = torchserve::Backend::ModelInstanceStatus::READY;
-        model_instance_table_[model_instance_id] = model_instance;
+        SetModelInstanceInfo(
+          model_instance_id,
+          torchserve::Backend::ModelInstanceStatus::READY,
+          std::make_shared<torchserve::torchscripted::ModelInstance>(
+            model_instance_id, 
+            std::move(result.first), 
+            handler_, 
+            std::move(result.second))
+        );
+        
+        ready_model_instance_ids_.emplace_back(model_instance_id);
         std::string message = fmt::format("loaded model {}", load_model_request->model_name);
-        return std::make_pair(
-          std::make_unique<torchserve::LoadModelResponse>(
+        return std::make_unique<torchserve::LoadModelResponse>(
             // TODO: check current response msg content
             200,
             message.size(),
-            message),
-            model_instance);
+            message);
       } catch (const c10::Error& e) {
-        model_instance_status_[model_instance_id] = torchserve::Backend::ModelInstanceStatus::FAILED;
-        return std::make_pair(
-          std::make_unique<torchserve::LoadModelResponse>(
-            // TODO: check existing 
-            500,
-            e.msg().size(),
-            e.msg()),
-            nullptr);
+        SetModelInstanceInfo(
+          model_instance_id,
+          torchserve::Backend::ModelInstanceStatus::FAILED,
+          std::shared_ptr<torchserve::ModelInstance>(nullptr)
+        );
+        return std::make_unique<torchserve::LoadModelResponse>(
+          // TODO: check existing 
+          500,
+          e.msg().size(),
+          e.msg());
       }
     }
 

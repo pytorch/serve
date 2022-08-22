@@ -4,15 +4,20 @@
 #include <atomic>
 #include <filesystem>
 #include <memory>
+#include <queue>
 #include <stdexcept>
+#include <stdlib.h>
+#include <time.h>
 #include <tuple>
 #include <utility>
+
 
 #include "src/utils/config.hh"
 #include "src/utils/message.hh"
 
 namespace torchserve {
   /**
+   * 
    * @brief TorchServe ModelInstance Interface
    * ModelInstance <=> Service:
    *  https://github.com/pytorch/serve/blob/master/ts/service.py#L21
@@ -61,50 +66,59 @@ namespace torchserve {
       FAILED
     };
 
-    Backend() {};
-    virtual ~Backend() {};
+    struct ModelInstanceInfo {
+      ModelInstanceStatus status;
+      std::shared_ptr<torchserve::ModelInstance> model_instance;
+    };
+
+    Backend() = default;
+    virtual ~Backend() = default;
 
     virtual bool Initialize(const std::string& model_dir) {
+      srand(time(0));
       manifest_ = std::make_shared<torchserve::Manifest>();
       // TODO: windows
       return manifest_->Initialize(fmt::format("{}/MAR-INF/MANIFEST.json", model_dir));
     };
 
-    std::pair<std::unique_ptr<torchserve::LoadModelResponse>, std::shared_ptr<ModelInstance>> 
-    LoadModel(std::shared_ptr<torchserve::LoadModelRequest> load_model_request);
+    std::unique_ptr<torchserve::LoadModelResponse> LoadModel(
+      std::shared_ptr<torchserve::LoadModelRequest> load_model_request);
 
     virtual 
-    std::pair<std::unique_ptr<torchserve::LoadModelResponse>, std::shared_ptr<ModelInstance>> 
-    LoadModelInternal(
+    std::unique_ptr<torchserve::LoadModelResponse>LoadModelInternal(
       std::shared_ptr<torchserve::LoadModelRequest> load_model_request) = 0;
 
     ModelInstanceStatus GetModelInstanceStatus(const std::string& model_instance_id);
 
     std::shared_ptr<torchserve::ModelInstance> GetModelInstance(const std::string& model_instance_id);
+    std::shared_ptr<torchserve::ModelInstance> GetModelInstance();
+
+    void SetModelInstanceInfo(
+      const std::string& model_instance_id,
+      ModelInstanceStatus new_status,
+      std::shared_ptr<torchserve::ModelInstance> new_model_instance);
 
     protected:
     std::string BuildModelInstanceId(std::shared_ptr<torchserve::LoadModelRequest> load_model_request);
 
-
     std::shared_ptr<torchserve::Manifest> manifest_;
-    // key: model_instance_id
-    // value: model_instance_status
-    std::map<std::string, torchserve::Backend::ModelInstanceStatus> model_instance_status_;
 
     // key: model_instance_id
-    // value: model_instance    
-    std::map<std::string, std::shared_ptr<torchserve::ModelInstance>> model_instance_table_;
+    // value: model_instance_info 
+    std::map<std::string, ModelInstanceInfo> model_instance_table_;
+
+    std::vector<std::string> ready_model_instance_ids_;
 
     std::atomic_uint16_t model_instance_count_ = 0;
+
+    private:
+    std::size_t Random();
   };
 
   class ModelWorker {
     public:
     ModelWorker() {};
     ~ModelWorker();
-
-    private:
-    std::shared_ptr<torchserve::ModelInstance> model_instance_;
   };
 }  // namespace torchserve
 #endif // TS_CPP_BACKENDS_CORE_BACKEND_HH_

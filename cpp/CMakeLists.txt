@@ -26,4 +26,5 @@ set(FOLLY_LIBRARIES Folly::folly)
 # add subdirectories in src
 add_subdirectory(src/utils)
 add_subdirectory(src/backends)
+add_subdirectory(src/examples)
 add_subdirectory(test)

@@ -23,8 +23,8 @@ namespace torchserve {
      */
     class BaseHandler {
       public:
-      BaseHandler() {};
-      virtual ~BaseHandler() {};
+      BaseHandler() = default;
+      virtual ~BaseHandler() = default;
 
       virtual void Initialize(
         const std::string& model_dir,
@@ -75,7 +75,7 @@ namespace torchserve {
         } catch (...) {
           LOG(ERROR) << "Failed to handle this batch";
         }
-      }
+      };
 
       protected:
       std::shared_ptr<torch::Device> GetTorchDevice(

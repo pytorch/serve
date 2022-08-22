@@ -11,11 +11,9 @@ namespace torchserve {
     protected:
     void SetUp() override {
       #ifdef __APPLE__
-      lib_path_ = "./_build/src/utils/libfoo.dylib";
-      #endif
-      
-      #ifdef __linux__
-      lib_path_ = "./_build/src/utils/libfoo.so";
+        lib_path_ = "./_build/src/utils/libfoo.dylib";
+      #elif __linux__
+        lib_path_ = "./_build/src/utils/libfoo.so";
       #endif
       
       dl_loader_ = new torchserve::DLLoader<IFoo>(lib_path_);

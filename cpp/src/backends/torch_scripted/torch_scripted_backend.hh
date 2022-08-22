@@ -17,18 +17,17 @@ namespace torchserve {
   namespace torchscripted {
     class Backend final : public torchserve::Backend {
       public:
-      Backend() {};
-      ~Backend() {};
+      Backend() = default;
+      ~Backend() = default;
 
       bool Initialize(const std::string& model_dir) override;
 
-      std::pair<std::unique_ptr<torchserve::LoadModelResponse>, std::shared_ptr<torchserve::ModelInstance>> 
-      LoadModelInternal(
+      std::unique_ptr<torchserve::LoadModelResponse> LoadModelInternal(
         std::shared_ptr<torchserve::LoadModelRequest> load_model_request) override;
-      
+
       private:
-      void LoadHandler();
-      
+      void LoadHandler(const std::string& model_dir);
+
       std::unique_ptr<torchserve::DLLoader<BaseHandler>> dl_loader_;
       std::shared_ptr<BaseHandler> handler_;
     };
@@ -41,7 +40,7 @@ namespace torchserve {
         std::shared_ptr<torchserve::torchscripted::BaseHandler>& handler, 
         std::shared_ptr<torch::Device> device) :
         torchserve::ModelInstance(instance_id), model_(model), handler_(handler), device_(device) {};
-      ~ModelInstance() {};
+      ~ModelInstance() = default;
 
       std::shared_ptr<torchserve::InferenceResponseBatch> Predict(
         std::shared_ptr<torchserve::InferenceRequestBatch> request_batch) override;

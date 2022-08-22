@@ -1,8 +1,8 @@
 #include "src/backends/core/backend.hh"
 
 namespace torchserve {
-  std::pair<std::unique_ptr<torchserve::LoadModelResponse>, std::shared_ptr<torchserve::ModelInstance>> 
-  Backend::LoadModel(std::shared_ptr<torchserve::LoadModelRequest> load_model_request) {
+  std::unique_ptr<torchserve::LoadModelResponse> Backend::LoadModel(
+    std::shared_ptr<torchserve::LoadModelRequest> load_model_request) {
     /**
      * TODO: 
      * in multi-thread, this function is called by workers.
@@ -25,28 +25,53 @@ namespace torchserve {
       device_type = "gpu";
     }
     return fmt::format(
-      "{}:{}:{}:{}", 
-      load_model_request->model_name,
+      "{}:{}:{}", 
       device_type,
       load_model_request->gpu_id,
       model_instance_count_.fetch_add(1)
     );
   }
 
+  void Backend::SetModelInstanceInfo(
+    const std::string& model_instance_id,
+    ModelInstanceStatus new_status,
+    std::shared_ptr<torchserve::ModelInstance> new_model_instance) {
+    model_instance_table_[model_instance_id].status = new_status;
+    model_instance_table_[model_instance_id].model_instance = std::move(new_model_instance);
+  }
+
 
   torchserve::Backend::ModelInstanceStatus Backend::GetModelInstanceStatus(const std::string& model_instance_id) {
-    auto status = model_instance_status_.find(model_instance_id);
-    if (status == model_instance_status_.end()) {
+    auto model_instance_info = model_instance_table_.find(model_instance_id);
+    if (model_instance_info == model_instance_table_.end()) {
       return torchserve::Backend::ModelInstanceStatus::NOT_INIT;
     }
-    return status->second;
+    return model_instance_info->second.status;
   }
 
   std::shared_ptr<torchserve::ModelInstance> Backend::GetModelInstance(const std::string& model_instance_id) {
-    auto model_instance = model_instance_table_.find(model_instance_id);
-    if (model_instance == model_instance_table_.end()) {
-      return nullptr;
+    auto model_instance_info = model_instance_table_.find(model_instance_id);
+    if (model_instance_info == model_instance_table_.end()) {
+      return std::shared_ptr<torchserve::ModelInstance>(nullptr);
     }
-    return model_instance->second;
+    return model_instance_info->second.model_instance;
+  }
+
+  std::shared_ptr<torchserve::ModelInstance> Backend::GetModelInstance() {
+    if (ready_model_instance_ids_.empty()) {
+      return std::shared_ptr<torchserve::ModelInstance>(nullptr);
+    }
+   
+    auto model_instance_info = model_instance_table_.find(ready_model_instance_ids_[Random()]);
+    return model_instance_info->second.model_instance;
+  }
+
+  std::size_t Backend::Random() {
+    std::size_t size = ready_model_instance_ids_.size();
+    if (size == 1) {
+      return 0;
+    } else {
+      return rand() % size;
+    }
   }
 } // namespace torchserve

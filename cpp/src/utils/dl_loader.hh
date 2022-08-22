@@ -25,7 +25,7 @@ namespace torchserve {
       delete_object_func_name_(delete_object_func_name),
       handle_(nullptr) {};
     ~DLLoader() {
-      CloseDL();
+      //CloseDL();
     };
 
     void OpenDL() {
@@ -35,9 +35,11 @@ namespace torchserve {
     };
 
     void CloseDL() {
+      std::cerr << "CloseDL start" << "\n";
       if (handle_ != nullptr && dlclose(handle_) != 0) {
         LOG(ERROR) << "Failed to close lib:" << lib_path_ << ", error:" << dlerror();
       }
+      std::cerr << "CloseDL done" << "\n";
     };
 
     std::shared_ptr<T>	GetInstance() {
@@ -47,18 +49,24 @@ namespace torchserve {
 
       using createClass = T *(*)();
 	    using deleteClass = void (*)(T *);
+      char* error;
 
-      auto create_func = reinterpret_cast<createClass>(
+      createClass create_func = reinterpret_cast<createClass>(
         dlsym(handle_, create_object_func_name_.c_str()));
-      
-      auto delete_func = reinterpret_cast<deleteClass>(
-        dlsym(handle_, delete_object_func_name_.c_str()));
-      
-      if (!create_func || !delete_func) {
+      if ((error = dlerror()) != NULL)  {
+        LOG(ERROR) << "create_func, error:" << error;
         CloseDL();
-        LOG(ERROR) << dlerror();
+        return std::shared_ptr<T>(nullptr);
       }
-      
+
+      deleteClass delete_func = reinterpret_cast<deleteClass>(
+        dlsym(handle_, delete_object_func_name_.c_str()));
+      if ((error = dlerror()) != NULL)  {
+        LOG(ERROR) << "delete_func, error:" << error;
+        CloseDL();
+        return std::shared_ptr<T>(nullptr);
+      }
+
       return std::shared_ptr<T>(
         create_func(),
         [delete_func](T *p) {
