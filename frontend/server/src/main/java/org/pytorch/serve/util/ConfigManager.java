@@ -939,3 +939,4 @@ public final class ConfigManager {
             this.snapshotDisabled = snapshotDisabled;
         }
     }
+}
