@@ -115,7 +115,6 @@ namespace torchserve {
             "data_tpye", 
             torchserve::PayloadType::kDATA_TYPE_STRING,
             "runtime_error, failed to load tensor");
-            throw e;
         } catch (const c10::Error& e) {
           LOG(ERROR) << "Failed to load tensor for request id:" << request.request_id 
           << ", c10 error: " << e.msg();
@@ -125,10 +124,12 @@ namespace torchserve {
             "data_tpye", 
             torchserve::PayloadType::kDATA_TYPE_STRING,
             "c10 error, failed to load tensor");
-          throw e;
         }
       }
-      batch_ivalue.emplace_back(torch::stack(batch_tensors).to(*device));
+      if (!batch_tensors.empty()) {
+        batch_ivalue.emplace_back(torch::stack(batch_tensors).to(*device));
+      }
+      
       return batch_ivalue;
     }
 
@@ -177,7 +178,6 @@ namespace torchserve {
             "data_tpye", 
             torchserve::PayloadType::kDATA_TYPE_STRING,
             "runtime_error, failed to postprocess tensor");
-            throw e;
         } catch (const c10::Error& e) {
           LOG(ERROR) << "Failed to postprocess tensor for request id:" << kv.second 
           << ", c10 error: " << e.msg();
@@ -187,7 +187,6 @@ namespace torchserve {
             "data_tpye", 
             torchserve::PayloadType::kDATA_TYPE_STRING,
             "c10 error, failed to postprocess tensor");
-          throw e;
         }
       }
     }

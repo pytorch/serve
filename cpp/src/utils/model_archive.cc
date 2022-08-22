@@ -40,6 +40,8 @@ namespace torchserve {
     } catch (const std::invalid_argument& e) {
       LOG(ERROR) << "Failed to init Manifest from: " << manifest_json_file_path << ", error: " << e.what();
       return false;
+    } catch (...) {
+      LOG(ERROR) << "Failed to init Manifest from: " << manifest_json_file_path;
     }
     return true;
   }

@@ -51,7 +51,7 @@ namespace torchserve {
     std::shared_ptr<torchserve::Backend> backend_;
   };
 
-  TEST_F(TorchScriptedBackendTest, TestLoadPredictBase) {
+  TEST_F(TorchScriptedBackendTest, TestLoadPredictBaseHandler) {
     this->LoadPredict(
       std::make_shared<torchserve::LoadModelRequest>(
         "test/resources/torchscript_model/mnist/mnist_handler",
@@ -69,7 +69,7 @@ namespace torchserve {
     );
   }
 
-  TEST_F(TorchScriptedBackendTest, TestLoadPredictMnist) {
+  TEST_F(TorchScriptedBackendTest, TestLoadPredictMnistHandler) {
     this->LoadPredict(
       std::make_shared<torchserve::LoadModelRequest>(
         "test/resources/torchscript_model/mnist/mnist_handler",
@@ -86,4 +86,49 @@ namespace torchserve {
       200
     );
   }
+
+  TEST_F(TorchScriptedBackendTest, TestBackendInitWrongModelDir) {
+    auto result = backend_->Initialize("test/resources/torchscript_model/mnist");
+    ASSERT_EQ(result, false);
+  }
+
+  TEST_F(TorchScriptedBackendTest, TestBackendInitWrongHandler) {
+    auto result = backend_->Initialize("test/resources/torchscript_model/mnist/wrong_handler");
+    ASSERT_EQ(result, false);
+  }
+
+  TEST_F(TorchScriptedBackendTest, TestLoadModelFailure) {
+    backend_->Initialize("test/resources/torchscript_model/mnist/wrong_model");
+    auto result = backend_->LoadModel(
+      std::make_shared<torchserve::LoadModelRequest>(
+        "test/resources/torchscript_model/mnist/wrong_model",
+        "mnist_scripted_v2",
+        -1,
+        "",
+        "",
+        1,
+        false
+      )
+    );
+    ASSERT_EQ(result->code, 500);
+  }
+
+  TEST_F(TorchScriptedBackendTest, TestLoadPredictMnistHandlerFailure) {
+    this->LoadPredict(
+      std::make_shared<torchserve::LoadModelRequest>(
+        "test/resources/torchscript_model/mnist/mnist_handler",
+        "mnist_scripted_v2",
+        -1,
+        "",
+        "",
+        1,
+        false
+      ),
+      "test/resources/torchscript_model/mnist/mnist_handler",
+      "test/resources/torchscript_model/mnist/0.png",
+      "mnist_ts", 
+      500
+    );
+  }
+
 } //namespace
