@@ -24,9 +24,7 @@ namespace torchserve {
       create_object_func_name_(create_object_func_name),
       delete_object_func_name_(delete_object_func_name),
       handle_(nullptr) {};
-    ~DLLoader() {
-      //CloseDL();
-    };
+    ~DLLoader() = default;
 
     void OpenDL() {
       if (!(handle_ = dlopen(lib_path_.c_str(), RTLD_NOW | RTLD_LAZY))) {

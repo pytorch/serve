@@ -18,7 +18,11 @@ namespace torchserve {
     class Backend final : public torchserve::Backend {
       public:
       Backend() = default;
-      ~Backend() = default;
+      ~Backend() {
+        if (dl_loader_ && handler_) {
+          handler_.reset();
+        }
+      };
 
       bool Initialize(const std::string& model_dir) override;
 
