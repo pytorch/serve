@@ -2,7 +2,10 @@
 #define TS_CPP_UTILS_FILE_SYSTEM_HH_
 
 #include <fstream>
+#include <fmt/format.h>
+#include <stdexcept>
 #include <string>
+
 
 namespace torchserve {
   class FileSystem {
