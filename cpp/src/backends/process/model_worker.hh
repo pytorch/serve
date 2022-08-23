@@ -3,8 +3,7 @@
 
 #include <arpa/inet.h>
 #include <cstdio>
-#include <filesystem>
-#include <glog/logging.h>
+#include <experimental/filesystem>
 #include <netinet/in.h>
 #include <string>
 #include <sys/socket.h>
@@ -16,6 +15,7 @@
 #include "src/backends/core/backend.hh"
 #include "src/backends/protocol/otf_message.hh"
 #include "src/utils/config.hh"
+#include "src/utils/logging.hh"
 #include "src/utils/model_archive.hh"
 
 namespace torchserve {

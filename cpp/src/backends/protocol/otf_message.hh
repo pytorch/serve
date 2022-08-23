@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "src/utils/message.hh"
+#include "src/utils/logging.hh"
 
 namespace torchserve {
   using Socket = int;

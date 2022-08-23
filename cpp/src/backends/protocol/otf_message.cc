@@ -1,6 +1,5 @@
 #include <arpa/inet.h>
 #include <sys/socket.h>
-#include <glog/logging.h>
 
 #include "src/backends/protocol/otf_message.hh"
 
@@ -62,7 +61,7 @@ namespace torchserve {
     RetrieveBuffer(conn, length, data);
     std::string handler(data, length);
     delete[] data;
-    LOG(INFO) << "Received handler in message, will be ignored: " << handler;
+    TS_LOGF(INFO, "Received handler in message, will be ignored: {}", handler);
 
     // GPU ID
     auto gpu_id = RetrieveInt(conn);
@@ -77,13 +76,13 @@ namespace torchserve {
     // Limit max image pixels
     auto limit_max_image_pixels = RetrieveBool(conn);
 
-    LOG(INFO) << "Model Name: " << model_name;
-    LOG(INFO) << "Model path: " << model_dir;
-    LOG(INFO) << "Batch size: " << batch_size;
-    LOG(INFO) << "Handler: " << handler;
-    LOG(INFO) << "GPU_id: " << gpu_id;
-    LOG(INFO) << "Envelope: " << envelope;
-    LOG(INFO) << "Limit max image pixels: " << limit_max_image_pixels;
+    TS_LOGF(INFO, "Model Name: {}", model_name);
+    TS_LOGF(INFO, "Model dir: {}", model_dir);
+    TS_LOGF(INFO, "Batch size: {}", batch_size);
+    TS_LOGF(INFO, "Handler: {}", handler);
+    TS_LOGF(INFO, "GPU_id: {}", gpu_id);
+    TS_LOGF(INFO, "Envelope: {}", envelope);
+    TS_LOGF(INFO, "Limit max image pixels: {}", limit_max_image_pixels);
 
     return std::make_shared<LoadModelRequest>(
       model_dir, model_name, gpu_id, handler, 
@@ -95,7 +94,7 @@ namespace torchserve {
     while (length > 0) {
       ssize_t pkt_size = recv(conn, pkt, length, 0);
       if (pkt_size == 0) {
-        LOG(INFO) << "Frontend disconnected.";
+        TS_LOG(INFO, "Frontend disconnected.");
         exit(0);
       }
       pkt += pkt_size;

@@ -13,15 +13,12 @@ DEFINE_string(runtime_type, "LSP", "model runtime type");
 DEFINE_string(device_type, "cpu", "cpu, or gpu");
 // TODO: discuss multiple backends support
 DEFINE_string(model_dir, "", "model path");
+// TODO: change to file based config
+DEFINE_string(logger_config, "INFO:consoleLogger;consoleLogger=stream:stream=stdout,async=true", "Logging config");
 
 int main(int argc, char* argv[]) {
   gflags::ParseCommandLineFlags(&argc, &argv, true);
-
-  // Init logging
-  google::InitGoogleLogging("ts_cpp_backend");
-  FLAGS_logtostderr = 1;
-  // TODO: Set logging format same as python worker
-  LOG(INFO) << "Initializing Libtorch backend worker...";
+  torchserve::Logger::InitLogger(FLAGS_logger_config);
 
   torchserve::SocketServer server = torchserve::SocketServer::GetInstance();
 
