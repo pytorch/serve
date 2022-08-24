@@ -43,9 +43,9 @@ namespace torchserve {
       TS_LOGF(FATAL, "Failed to create socket descriptor. errno: {}", errno);
     }
     
-    // if (!CreateBackend(runtime_type, model_dir)) {
-    //   TS_LOGF(FATAL, "Failed to create backend, model_dir: {}", model_dir);
-    // }
+    if (!CreateBackend(runtime_type, model_dir)) {
+      TS_LOGF(FATAL, "Failed to create backend, model_dir: {}", model_dir);
+    }
   }
 
   void SocketServer::Run() {
@@ -99,7 +99,7 @@ namespace torchserve {
   bool SocketServer::CreateBackend(
     const torchserve::Manifest::RuntimeType& runtime_type,
     const std::string& model_dir) {
-    if (runtime_type == "LDP") {
+    if (runtime_type == "LSP") {
       backend_ = std::make_shared<torchserve::torchscripted::Backend>();
       return backend_->Initialize(model_dir);
     }
@@ -107,7 +107,7 @@ namespace torchserve {
   }
 
   [[noreturn]] void SocketModelWorker::Run() {
-    LOG(INFO) << "Handle connection";
+    TS_LOG(INFO, "Handle connection");
     while (true) {
       char cmd  = torchserve::OTFMessage::RetrieveCmd(client_socket_);
 
@@ -122,7 +122,13 @@ namespace torchserve {
       } else if (cmd == 'L') {
         TS_LOG(INFO, "LOAD request received");
         // TODO: error handling
-        auto response = backend_->LoadModel(torchserve::OTFMessage::RetrieveLoadMsg(client_socket_));
+        auto backend_response = backend_->LoadModel(torchserve::OTFMessage::RetrieveLoadMsg(client_socket_));
+        char *data = new char[sizeof(LoadModelResponse)];
+        torchserve::OTFMessage::CreateLoadModelResponse(std::move(backend_response), data);
+        if(!torchserve::OTFMessage::SendAll(client_socket_, data, sizeof(LoadModelResponse))) {
+          TS_LOG(ERROR, "Error writing response to socket");
+        }
+        delete[] data;
       } else {
         TS_LOGF(ERROR, "Received unknown command: {}", cmd);
       }

@@ -15,18 +15,16 @@ namespace torchserve {
           *device));
         return std::make_pair(module, device);
       } catch (const c10::Error& e) {
-        LOG(ERROR) << "loading the model: " 
-        << load_model_request->model_name 
-        << ", device id:" 
-        << load_model_request->gpu_id
-        << ", error: " << e.msg();
+        TS_LOGF(ERROR, "loading the model: {}, device id: {}, error: {}",
+                load_model_request->model_name,
+                load_model_request->gpu_id,
+                e.msg());
         throw e;
       } catch (const std::runtime_error& e) {
-        LOG(ERROR) << "loading the model: " 
-        << load_model_request->model_name 
-        << ", device id:" 
-        << load_model_request->gpu_id
-        << ", error1: " << e.what();
+        TS_LOGF(ERROR, "loading the model: {}, device id: {}, error: {}",
+                load_model_request->model_name,
+                load_model_request->gpu_id,
+                e.what());
         throw e;
       }
     }
@@ -67,7 +65,7 @@ namespace torchserve {
 
         if (data_it == request.parameters.end() || 
           dtype_it == request.headers.end()) {
-          LOG(ERROR) << "Empty payload for request id:" << request.request_id;
+          TS_LOGF(ERROR, "Empty payload for request id: {}", request.request_id);
           auto response = (*response_batch)[request.request_id];
           response->SetResponse(500, "data_tpye", torchserve::PayloadType::kCONTENT_TYPE_TEXT, "Empty payload");
           continue;
@@ -79,8 +77,9 @@ namespace torchserve {
             auto b64decoded_str = folly::base64Decode(data_it->second);
             torchserve::Converter::StrToBytes(b64decoded_str, image);
           } catch (folly::base64_decode_error e) {
-            LOG(ERROR) << "Failed to base64Decode for request id:" << request.request_id 
-            << ", error: " << e.what();
+            TS_LOGF(ERROR, "Failed to base64Decode for request id: {}, error: {}",
+                    request.request_id,
+                    e.what());
           }
         }
         */
@@ -107,8 +106,9 @@ namespace torchserve {
             // case3: the image is a list
           }
         } catch (const std::runtime_error& e) {
-          LOG(ERROR) << "Failed to load tensor for request id:" << request.request_id 
-          << ", error: " << e.what();
+          TS_LOGF(ERROR, "Failed to load tensor for request id: {}, error: {}",
+                  request.request_id,
+                  e.what());
           auto response = (*response_batch)[request.request_id];
           response->SetResponse(
             500, 
@@ -116,8 +116,9 @@ namespace torchserve {
             torchserve::PayloadType::kDATA_TYPE_STRING,
             "runtime_error, failed to load tensor");
         } catch (const c10::Error& e) {
-          LOG(ERROR) << "Failed to load tensor for request id:" << request.request_id 
-          << ", c10 error: " << e.msg();
+          TS_LOGF(ERROR, "Failed to load tensor for request id: {}, c10 error: {}",
+                  request.request_id,
+                  e.msg());
           auto response = (*response_batch)[request.request_id];
           response->SetResponse(
             500, 
@@ -143,7 +144,7 @@ namespace torchserve {
         torch::NoGradGuard no_grad;
         return model->forward(inputs).toTensor();
       } catch (const std::runtime_error& e) {
-        LOG(ERROR) << "Failed to predict, error:" << e.what();
+        TS_LOGF(ERROR, "Failed to predict, error: {}", e.what());
         for (auto& kv : idx_to_req_id) {
           auto response = (*response_batch)[kv.second];
           response->SetResponse(
@@ -170,8 +171,9 @@ namespace torchserve {
             torchserve::PayloadType::kDATA_TYPE_BYTES,
             torch::pickle_save(data[kv.first]));
         } catch (const std::runtime_error& e) {
-          LOG(ERROR) << "Failed to load tensor for request id:" << kv.second  
-          << ", error: " << e.what();
+          TS_LOGF(ERROR, "Failed to load tensor for request id: {}, error: {}",
+                  kv.second,
+                  e.what());
           auto response = (*response_batch)[kv.second];
           response->SetResponse(
             500, 
@@ -179,8 +181,9 @@ namespace torchserve {
             torchserve::PayloadType::kDATA_TYPE_STRING,
             "runtime_error, failed to postprocess tensor");
         } catch (const c10::Error& e) {
-          LOG(ERROR) << "Failed to postprocess tensor for request id:" << kv.second 
-          << ", c10 error: " << e.msg();
+          TS_LOGF(ERROR, "Failed to postprocess tensor for request id: {}, error: {}",
+                  kv.second,
+                  e.msg());
           auto response = (*response_batch)[kv.second];
           response->SetResponse(
             500, 

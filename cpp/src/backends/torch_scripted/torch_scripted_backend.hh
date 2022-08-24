@@ -10,6 +10,7 @@
 #include "src/backends/torch_scripted/handler/base_handler.hh"
 #include "src/backends/torch_scripted/handler/handler_factory.hh"
 #include "src/utils/dl_loader.hh"
+#include "src/utils/logging.hh"
 #include "src/utils/message.hh"
 #include "src/utils/model_archive.hh"
 

@@ -7,8 +7,8 @@
 #include <map>
 #include <memory>
 #include <string>
-#include <glog/logging.h>
 
+#include "src/utils/logging.hh"
 #include "src/utils/file_system.hh"
 
 namespace torchserve {

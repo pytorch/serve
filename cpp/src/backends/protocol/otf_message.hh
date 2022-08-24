@@ -13,7 +13,6 @@
 namespace torchserve {
   using Socket = int;
   using StatusCode = int;
-  typedef std::vector<std::byte> byte_buffer;
 
   //https://docs.python.org/3/library/struct.html#format-characters
   #define BOOL_STD_SIZE 1
@@ -29,7 +28,8 @@ namespace torchserve {
 
   class OTFMessage {
     public:
-    static byte_buffer CreateLoadModelResponse(StatusCode code, const std::string& message);
+    static bool SendAll(Socket conn, char *data, size_t length);
+    static void CreateLoadModelResponse(std::unique_ptr<torchserve::LoadModelResponse> response, char* data);
     static char RetrieveCmd(Socket conn); 
     static std::shared_ptr<LoadModelRequest> RetrieveLoadMsg(Socket conn);
     // TODO: impl.

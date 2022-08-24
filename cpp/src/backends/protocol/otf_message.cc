@@ -4,17 +4,37 @@
 #include "src/backends/protocol/otf_message.hh"
 
 namespace torchserve {
-  byte_buffer OTFMessage::CreateLoadModelResponse(StatusCode code, const std::string& message) {
-    LoadModelResponse response = {
-      code, 
-      static_cast<int>(message.length()), 
-      message
-    };
-    std::byte msg[sizeof(LoadModelResponse)];
-    std::memcpy(msg, &response, sizeof(LoadModelResponse));
-    byte_buffer response_byte_buffer;
-    std::copy(response_byte_buffer.begin(), response_byte_buffer.end(), msg);
-    return response_byte_buffer;
+  bool OTFMessage::SendAll(Socket conn, char *data, size_t length) {
+    char* pkt = data;
+    while (length > 0) {
+      ssize_t pkt_size = send(conn, pkt, length, 0);
+      if (pkt_size < 0) {
+        return false;
+      }
+      pkt += pkt_size;
+      length -= pkt_size;
+    }
+    return true;
+  }
+
+  void OTFMessage::CreateLoadModelResponse(std::unique_ptr<torchserve::LoadModelResponse> response, char* data) {
+    char* p = data;
+    // Serialize response code
+    int32_t s_code = htonl(response->code);
+    memcpy(p, &s_code, sizeof(s_code));
+    p += sizeof(s_code);
+    // Serialize response message length
+    int32_t resp_length = htonl(response->length);
+    memcpy(p, &resp_length, sizeof(resp_length));
+    p += sizeof(resp_length);
+    // Serialize response message
+    strcpy(p, response->buf.c_str());
+    p += response->length;
+    // Expectation from frontend deserializer is a -1
+    // at the end of a LoadModelResponse
+    int32_t no_predict = htonl(response->predictions);
+    memcpy(p, &no_predict, sizeof(no_predict));
+    p += sizeof(no_predict);
   }
 
   char OTFMessage::RetrieveCmd(Socket conn) {
