@@ -65,7 +65,7 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         # getting existing Metric parsed from yaml file and updating
         # create key for user in getmetric method, pass arguments that are necessary
         histogram_example_metric = metrics.get_metric(MetricTypes.histogram,
-                                                      "HistogramModelMetricNameExample]",
+                                                      "HistogramModelMetricNameExample",
                                                       ["ModelName", "Level"])
         histogram_example_metric.update(4.6)
 
