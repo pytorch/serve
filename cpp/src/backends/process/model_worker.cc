@@ -65,7 +65,7 @@ namespace torchserve {
       // TODO: Fix truncation of socket name to 14 chars when casting
       srv_sock_address = reinterpret_cast<sockaddr*>(&sock_addr);
     } else {
-      TS_LOG(INFO, "Binding to udp socket");
+      TS_LOG(INFO, "Binding to tcp socket");
       sockaddr_in sock_addr{};
       std::memset(&sock_addr, 0, sizeof(sock_addr));
       sock_addr.sin_family = AF_INET;
@@ -123,12 +123,9 @@ namespace torchserve {
         TS_LOG(INFO, "LOAD request received");
         // TODO: error handling
         auto backend_response = backend_->LoadModel(torchserve::OTFMessage::RetrieveLoadMsg(client_socket_));
-        char *data = new char[sizeof(LoadModelResponse)];
-        torchserve::OTFMessage::CreateLoadModelResponse(std::move(backend_response), data);
-        if(!torchserve::OTFMessage::SendAll(client_socket_, data, sizeof(LoadModelResponse))) {
+        if (!torchserve::OTFMessage::SendLoadModelResponse(client_socket_, std::move(backend_response))) {
           TS_LOG(ERROR, "Error writing response to socket");
         }
-        delete[] data;
       } else {
         TS_LOGF(ERROR, "Received unknown command: {}", cmd);
       }

@@ -37,6 +37,16 @@ namespace torchserve {
     p += sizeof(no_predict);
   }
 
+  bool OTFMessage::SendLoadModelResponse(Socket client_socket_, std::unique_ptr<torchserve::LoadModelResponse> response) {
+    char *data = new char[sizeof(LoadModelResponse)];
+    torchserve::OTFMessage::CreateLoadModelResponse(std::move(response), data);
+    if(!torchserve::OTFMessage::SendAll(client_socket_, data, sizeof(LoadModelResponse))) {
+      return false;
+    }
+    delete[] data;
+    return true;
+  }
+
   char OTFMessage::RetrieveCmd(Socket conn) {
     char* data = new char[1];
     RetrieveBuffer(conn, 1, data);

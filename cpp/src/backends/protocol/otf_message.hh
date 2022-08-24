@@ -30,6 +30,7 @@ namespace torchserve {
     public:
     static bool SendAll(Socket conn, char *data, size_t length);
     static void CreateLoadModelResponse(std::unique_ptr<torchserve::LoadModelResponse> response, char* data);
+    static bool SendLoadModelResponse(Socket conn, std::unique_ptr<torchserve::LoadModelResponse> response);
     static char RetrieveCmd(Socket conn); 
     static std::shared_ptr<LoadModelRequest> RetrieveLoadMsg(Socket conn);
     // TODO: impl.
