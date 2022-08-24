@@ -40,7 +40,7 @@ RUN --mount=type=cache,id=apt-dev,target=/var/cache/apt \
     python3.8-distutils \
    # python3-venv \
     build-essential \
-    openjdk-11-jdk \
+    openjdk-17-jdk \
     curl \
     vim \
     numactl \ 
@@ -84,10 +84,10 @@ CMD ["serve"]
 
 # Build CodeBuild Image
 FROM compile-image AS codebuild-image
-ENV JAVA_VERSION=11 \
-  JAVA_HOME="/usr/lib/jvm/java-11-openjdk-amd64" \
-  JDK_HOME="/usr/lib/jvm/java-11-openjdk-amd64" \
-  JRE_HOME="/usr/lib/jvm/java-11-openjdk-amd64" \
+ENV JAVA_VERSION=17 \
+  JAVA_HOME="/usr/lib/jvm/java-17-openjdk-amd64" \
+  JDK_HOME="/usr/lib/jvm/java-17-openjdk-amd64" \
+  JRE_HOME="/usr/lib/jvm/java-17-openjdk-amd64" \
   ANT_VERSION=1.10.3 \
   MAVEN_HOME="/opt/maven" \
   MAVEN_VERSION=3.5.4 \
