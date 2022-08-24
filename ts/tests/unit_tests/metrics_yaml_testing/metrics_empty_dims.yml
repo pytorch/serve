@@ -1,0 +1,43 @@
+dimensions:
+  model_name: "example_model_name"
+  host: "example_host_name"
+  ModelName: "my_tc"
+  Level: "Model"
+
+ts_metrics:
+  counter:
+    - name:
+        unit: ms
+        dimensions: [model_name, host]
+  gauge:
+    - name:
+        unit: ms
+        dimensions: [model_name, host]
+  histogram:
+    - name:
+        unit: ms
+        dimensions: [model_name, host]
+
+model_metrics:
+  counter:
+    - InferenceTimeInMS:
+        unit: ms
+        dimensions:
+    - NumberOfMetrics:
+        unit: count
+        dimensions: [model_name, host]
+  gauge:
+    - GaugeModelMetricNameExample:
+        unit: ms
+        dimensions: [ModelName, Level]
+  histogram:
+    - HistogramModelMetricNameExample:
+        unit: ms
+        dimensions: []
+    - HistogramModelMetricNameExample:
+        unit: ms
+        dimensions: []
+    - AnotherHistogram:
+        unit: ms
+        dimensions: []
+

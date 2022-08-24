@@ -140,9 +140,12 @@ def emit_metrics(metrics):
         a single Metric object
     """
     def _emit_metrics_util(metric):
-        if isinstance(metric, Metric) and metric.is_updated:
-            logger.info("[METRICS]%s", str(metric))  # after flushing Metric, reset Metric value
-            metric.reset()
+        if isinstance(metric, Metric):
+            if metric.is_updated:
+                logger.info("[METRICS]%s", str(metric))  # after flushing Metric, reset Metric value
+                metric.reset()
+        else:
+            logger.warning(f"'{metric}' is not a valid Metric object.")
 
     if not metrics:
         logger.warning(f"Metrics '{metrics}' are not valid.")

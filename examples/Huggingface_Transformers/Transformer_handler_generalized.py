@@ -16,6 +16,7 @@ from transformers import (
 from transformers import GPT2TokenizerFast
 
 from ts.torch_handler.base_handler import BaseHandler
+from ts.metrics.metric_type_enums import MetricTypes
 from captum.attr import LayerIntegratedGradients
 from ts.service import emit_metrics
 
@@ -61,16 +62,17 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
 
         metrics.add_counter("InferenceTimeInMS", 2.78)  # adding counter metric via API
 
-        histogram_example_metric = metrics.get_metric("[histogram]-[HistogramModelMetricNameExample]-[ModelName:my_tc,Level:Model]")  # getting existing Metric parsed from yaml file and updating
+        # getting existing Metric parsed from yaml file and updating
+        # create key for user in getmetric method, pass arguments that are necessary
+        histogram_example_metric = metrics.get_metric(MetricTypes.histogram,
+                                                      "HistogramModelMetricNameExample]",
+                                                      ["ModelName", "Level"])
         histogram_example_metric.update(4.6)
 
         metrics.add_size("GaugeModelMetricNameExample", 42.5)  # adding gauge metric
 
-        logging.info("EMITTING METRICS FIRST TIME")
         emit_metrics(metrics.cache)
-        logging.info("EMITTING METRICS A SECOND TIME (should be empty)")
-        emit_metrics(metrics.cache)
-        logging.info("END OF EMITTING METRICS A SECOND TIME")
+
 
         self.manifest = ctx.manifest
         properties = ctx.system_properties

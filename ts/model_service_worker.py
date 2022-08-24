@@ -154,15 +154,6 @@ class TorchModelServiceWorker(object):
             else:
                 raise ValueError("Received unknown command: {}".format(cmd))
 
-            # having to move this bit into load_model method
-            # if (
-            #     service is not None
-            #     and service.context is not None
-            #     and service.context.metrics is not None
-            # ):
-            #     service.context.metrics.parse_yaml_to_cache()
-            #     emit_metrics(service.context.metrics.cache)
-
     def run_server(self):
         """
         Run the backend worker process and listen on a socket

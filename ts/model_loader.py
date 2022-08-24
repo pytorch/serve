@@ -5,12 +5,10 @@ import importlib
 import json
 import logging
 import os
-import uuid
 from abc import ABCMeta, abstractmethod
 
 from builtins import str
 
-from ts.metrics.metric_cache_abstract import MetricCacheAbstract
 from ts.metrics.metric_cache_yaml import MetricsCacheYaml
 from ts.service import Service
 from .utils.util import list_classes_from_module
@@ -74,7 +72,7 @@ class TsModelLoader(ModelLoader):
         batch_size,
         envelope=None,
         limit_max_image_pixels=True,
-        metrics: MetricCacheAbstract = None
+        metrics: MetricsCacheYaml = None
     ):
         """
         Load TorchServe 1.0 model from file.
@@ -86,7 +84,7 @@ class TsModelLoader(ModelLoader):
         :param batch_size:
         :param envelope:
         :param limit_max_image_pixels:
-        :param metrics: MetricCacheAbstract object
+        :param metrics: MetricCacheYaml object
         :return:
         """
         logging.debug("Loading model - working dir: %s", os.getcwd())

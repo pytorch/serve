@@ -62,12 +62,12 @@ class Metric(object):
         value : int, float
             metric to be updated
         """
-
+        previous_value = self.value
         if self.metric_method == 'counter' or self.metric_type == 'counter':  # metric_method should be not used
             self.value += value
         else:
             self.value = value
-        self.is_updated = True
+        self.is_updated = True if previous_value != self.value else False
 
     def reset(self):
         """

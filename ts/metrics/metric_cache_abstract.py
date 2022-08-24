@@ -33,11 +33,16 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
         self.file = file
 
     @staticmethod
-    def _check_matching_dims(key, value, dims) -> bool:
+    def _check_matching_dims(key, dims) -> bool:
         """
         Check to see if key value string pair already in list of dim strings
         """
-        return f"{key}:{value}" in dims
+        is_present = False
+        for dim in dims:
+            key_dim = dim.split(":")[0]
+            if key == key_dim:
+                is_present = True
+        return is_present
 
     def _add_or_update(self, name: str, value: int or float, req_id, unit: str, metric_type: MetricTypes = None,
                        dimensions: list = None):
@@ -73,27 +78,29 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
         pre_dims_str = [str(d) for d in dimensions]
 
         if req_id is None:
-            if not self._check_matching_dims("Level", "Error", pre_dims_str):
+            if not self._check_matching_dims("Level", pre_dims_str):
                 dimensions.append(Dimension("Level", "Error"))
         else:
-            if not self._check_matching_dims("ModelName", self.model_name, pre_dims_str):
+            if not self._check_matching_dims("ModelName", pre_dims_str):
                 dimensions.append(Dimension("ModelName", self.model_name))
-            if not self._check_matching_dims("Level", "Model", pre_dims_str):
+            if not self._check_matching_dims("Level", pre_dims_str):
                 dimensions.append(Dimension("Level", "Model"))
 
         dims_str = ",".join([str(d) for d in dimensions])
         # convert metric enum into string
-        metric_type = metric_type.value
 
         # Cache the metric with a unique key
-        metric_key = f"[{metric_type}]-[{name}]-[{dims_str}]"
+        metric_key = f"[{metric_type.value}]-[{name}]-[{dims_str}]"
 
         if metric_key not in self.cache:
-            self.add_metric(metric_name=name, unit=unit, dimensions=dimensions, metric_type=metric_type,
-                            request_id=req_id,
-                            value=value)
+            self.cache[metric_key] = Metric(name=name,
+                                            value=value,
+                                            unit=unit,
+                                            dimensions=dimensions,
+                                            request_id=req_id,
+                                            metric_type=metric_type.value)
         else:
-            existing_metric = self.get_metric(metric_key=metric_key)
+            existing_metric = self.get_metric(metric_type=metric_type, metric_name=name, dimensions=dims_str)
             existing_metric.update(value)
 
     def _get_req(self, idx):
@@ -237,18 +244,24 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
         self._add_or_update(name=name, value=value, req_id=None, unit=unit, metric_type=metric_type,
                             dimensions=dimensions)
 
-    def get_metric(self, metric_key: str) -> Metric:
+    def get_metric(self, metric_type: MetricTypes, metric_name: str, dimensions: list or str) -> Metric:
         """
-        Get a metric from cache
+        Get a Metric from cache.
+            Ask user for required requirements to form metric key to retrieve Metric.
 
         Parameters
         ----------
-        metric_key: str
-            Key to identify a Metric object within the cache
+        metric_type: str
+            Type of metric: use MetricTypes enum to specify
+
+        metric_name: str
+            Name of metric
+
+        dimensions: list or str
+            list of dimension keys which should be strings
 
         """
-        if not isinstance(metric_key, str):
-            raise merrors.MetricsCacheTypeError(f"Only string types are acceptable as argument.")
+        metric_key = f"[{metric_type.value}]-[{metric_name}]-[{dimensions}]"
 
         metric_obj = self.cache.get(metric_key)
         if metric_obj:
@@ -257,8 +270,8 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
         else:
             raise merrors.MetricsCacheKeyError(f"Metric key {metric_key} does not exist.")
 
-    def add_metric(self, metric_name: str, unit: str, dimensions: list, metric_type: str, request_id: str = None,
-                   value: int or float = 0) -> None:
+    def add_metric(self, metric_name: str, value: int or float, unit: str, idx=None, dimensions: list = None,
+                   metric_type: MetricTypes = MetricTypes.counter) -> None:
         """
         Create a new metric and add into cache
 
@@ -270,37 +283,30 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
             unit can be one of ms, percent, count, MB, GB or a generic string
         dimensions: list
             list of dimension objects/strings read from yaml file
-        metric_type: str
+        metric_type: MetricTypes
             Type of metric
-        request_id: str
+        idx: int
             req_id of metric
         value: int, float
             value of metric
 
         """
-
-        if not isinstance(metric_name, str) or not isinstance(unit, str) or not isinstance(dimensions, list) or not \
-                isinstance(metric_type, str) or not isinstance(value, (float, int)):
+        req_id = self._get_req(idx)
+        if not isinstance(metric_name, str) or not isinstance(unit, str) or not \
+                isinstance(metric_type, MetricTypes) or not isinstance(value, (float, int)):
             raise merrors.MetricsCacheTypeError(f"metric_name must be a str, unit must be a str, "
-                                                f"dimensions must be a list of Dimension objects, "
-                                                f"metric type must be a str, value must be a int/float")
+                                                f"dimensions should be a list of Dimension objects/None, "
+                                                f"metric type must be a MetricTypes enum, value must be a int/float")
 
-        if not isinstance(dimensions[0], Dimension):
+        # dimensions either has to be a list of Dimensions or empty list / None
+        if dimensions and not isinstance(dimensions, list) and not isinstance(dimensions[0], Dimension):
             raise merrors.MetricsCacheTypeError(f"Dimensions list is expected to be made up of Dimension objects.")
 
         # Make sure that the passed arguments follow a valid naming convention (doesn't contain certain characters)
         self._inspect_naming_convention(metric_name, unit, dimensions, metric_type, value)
 
-        logging.debug(f"Adding metric with fields of: metric name - {metric_name}, unit - {unit}, "
-                      f"dimensions - {dimensions}, metric type - {metric_type}")
-
-        dims_str = ",".join([str(d) for d in dimensions])
-        self.cache[f"[{metric_type}]-[{metric_name}]-[{dims_str}]"] = Metric(name=metric_name,
-                                                                             value=value,
-                                                                             unit=unit,
-                                                                             dimensions=dimensions,
-                                                                             request_id=request_id,
-                                                                             metric_type=metric_type)
+        self._add_or_update(name=metric_name, value=value, req_id=req_id, unit=unit, metric_type=metric_type,
+                            dimensions=dimensions)
 
         logging.info(f"Successfully added {metric_name} Metric object to cache.")
 

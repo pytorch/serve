@@ -4,11 +4,10 @@ Metrics Cache class for YAML file parsing.
 import yaml
 import os
 import logging
-import argparse
 import ts.metrics.metric_cache_errors as merrors
 
 from ts.metrics.metric_cache_abstract import MetricCacheAbstract
-from ts.service import emit_metrics
+from ts.metrics.metric_type_enums import MetricTypes
 from ts.metrics.dimension import Dimension
 
 
@@ -76,8 +75,6 @@ class MetricsCacheYaml(MetricCacheAbstract):
             section of yaml file to be parsed
 
         """
-
-        logging.debug(f"Parsing {yaml_section} section of yaml file...")
         try:
             metrics_table = self._parsed_file[yaml_section]
         except KeyError as err:
@@ -100,12 +97,16 @@ class MetricsCacheYaml(MetricCacheAbstract):
 
         # get dimensions dictionary from yaml file
         dimensions_dict = self._parse_specific_metric("dimensions")
-
         logging.info("Creating Metric objects")
         for metric_type, metric_attributes_list in specific_metrics_table.items():
             metric_name = None
             unit = None
             dimensions = None
+
+            try:  # get metric type as enum
+                metric_type_enum = MetricTypes(metric_type)
+            except Exception as exc:
+                raise merrors.MetricsCacheKeyError(f"Enum does not exist: {exc}")
 
             for metric_type_dict in metric_attributes_list:  # dict of all metrics specific to one metric type
                 for metric_name, individual_metric_dict in metric_type_dict.items():  # individual metric entries
@@ -116,20 +117,21 @@ class MetricsCacheYaml(MetricCacheAbstract):
                         dimensions_list = individual_metric_dict["dimensions"]
 
                         # Create dimensions objects and add to list to be passed to add_metric
-                        for dimension in dimensions_list:
-                            dimensions.append(Dimension(dimension, dimensions_dict[dimension]))
+                        if dimensions_list:
+                            for dimension in dimensions_list:
+                                dimensions.append(Dimension(dimension, dimensions_dict[dimension]))
 
                         self.add_metric(metric_name=metric_name,
+                                        value=0,
                                         unit=unit,
                                         dimensions=dimensions,
-                                        request_id=self.request_ids,
-                                        metric_type=metric_type
+                                        metric_type=metric_type_enum
                                         )
 
                     except KeyError as k_err:
                         raise merrors.MetricsCacheKeyError(f"Key not found: {k_err}")
                     except TypeError as t_err:
-                        raise merrors.MetricsCacheTypeError(f"Dimension list cannot be empty: {t_err}")
+                        raise merrors.MetricsCacheTypeError(f"{t_err}")
 
     def parse_yaml_to_cache(self) -> None:
         """
@@ -138,8 +140,8 @@ class MetricsCacheYaml(MetricCacheAbstract):
         specific_metrics_table = self._parse_specific_metric()
         self._yaml_to_cache_util(specific_metrics_table=specific_metrics_table)
 
-    def add_metric(self, metric_name: str, unit: str, dimensions: list, metric_type: str, request_id: str = None,
-                   value=0) -> None:
+    def add_metric(self, metric_name: str, value: int or float, unit: str, idx=None, dimensions: list = None,
+                   metric_type: MetricTypes = MetricTypes.counter) -> None:
         """
         Create a new metric and add into cache
 
@@ -153,21 +155,25 @@ class MetricsCacheYaml(MetricCacheAbstract):
             unit can be one of ms, percent, count, MB, GB or a generic string
         dimensions: list
             list of dimension objects/strings read from yaml file
-        metric_type: str
+        metric_type: MetricTypes
             Type of metric
-        request_id: str
+        idx: str
             Request id which is currently a UUID
         value: int, float
             value of metric
         """
 
-        if not isinstance(dimensions, list) or not dimensions:
+        if dimensions and not isinstance(dimensions, list):
             raise merrors.MetricsCacheTypeError("Dimensions has to be a list of string "
                                                 "(which will be converted to list of Dimensions)"
                                                 "/list of Dimension objects and cannot be empty/None")
 
+        # if already list of Dimension objects/None, then do nothing
+        if not dimensions or isinstance(dimensions[0], Dimension):
+            pass
+
         # if dimensions are list of strings, convert them to Dimension objects based on yaml file.
-        if isinstance(dimensions[0], str):
+        elif isinstance(dimensions[0], str):
             dimensions_list = dimensions
             dimensions = []
 
@@ -181,37 +187,54 @@ class MetricsCacheYaml(MetricCacheAbstract):
             except Exception as err:
                 raise merrors.MetricsCacheKeyError(f"Dimension not found: {err}")
 
-        elif isinstance(dimensions[0], Dimension):  # if already list of Dimension objects, then do nothing
-            pass
         else:
             raise merrors.MetricsCacheTypeError(f"Dimensions have to either be a list of strings "
                                                 f"(which will be converted to list of Dimension objects)"
                                                 f" or a list of Dimension objects.")
 
         super().add_metric(metric_name=metric_name,
+                           value=value,
                            unit=unit,
+                           idx=idx,
                            dimensions=dimensions,
-                           metric_type=metric_type,
-                           request_id=request_id,
-                           value=value)
+                           metric_type=metric_type)
+
+    def get_metric(self, metric_type: MetricTypes, metric_name: str, dimensions: list or str):
+        """
+        Get a Metric from cache.
+            Ask user for required requirements to form metric key to retrieve Metric.
+
+        Parameters
+        ----------
+        metric_type: str
+            Type of metric: use MetricTypes enum to specify
+
+        metric_name: str
+            Name of metric
+
+        dimensions: list or str
+            list of dimension keys which should be strings, or the complete log of dimensions
+
+        """
+        dims_str = None
+        if not isinstance(metric_type, MetricTypes) or not isinstance(metric_name, str):
+            raise merrors.MetricsCacheTypeError(f"metric_type must be MetricTypes enum, metric_name must be a str.")
+
+        if isinstance(dimensions, str):
+            dims_str = dimensions
+        elif isinstance(dimensions, list):
+            dimensions_dict = self._parse_specific_metric("dimensions")
+            complete_dimensions = []
+            for dimension in dimensions:
+                try:
+                    complete_dimensions.append(Dimension(dimension, dimensions_dict[dimension]))
+                except Exception as err:
+                    merrors.MetricsCacheKeyError(f"{dimension} key does not exist in {self.file}: {err}")
+            dims_str = ",".join([str(d) for d in complete_dimensions])
+        else:
+            merrors.MetricsCacheTypeError(f"{dimensions} is expected to be a string (complete Dimensions log line) "
+                                          f"or list of strings (list of Dimension keys)")
+        return super().get_metric(metric_type, metric_name, dims_str)
 
 
-if __name__ == "__main__":
-    logging.basicConfig(level=logging.DEBUG)
 
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--file",
-        help="YAML File to be parsed",
-        type=str,
-        required=True
-    )
-    arguments = parser.parse_args()
-
-    backend_cache_obj = MetricsCacheYaml(None, "ModelName", arguments.file)
-    backend_cache_obj.parse_yaml_to_cache()
-    for key, value in backend_cache_obj.cache.items():
-        print(key)
-        print(value)
-    # print(backend_cache_obj.cache.keys())
-    emit_metrics(list(backend_cache_obj.cache.values()))
