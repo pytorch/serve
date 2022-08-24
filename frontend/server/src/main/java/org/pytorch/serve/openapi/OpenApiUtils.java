@@ -71,6 +71,22 @@ public final class OpenApiUtils {
         return JsonUtils.GSON_PRETTY.toJson(openApi);
     }
 
+    public static String getModelManagementApi(Model model) {
+        String modelName = model.getModelName();
+        OpenApi openApi = new OpenApi();
+        Info info = new Info();
+        info.setTitle("RESTful Management API for: " + modelName);
+        ConfigManager config = ConfigManager.getInstance();
+        info.setVersion(config.getProperty("version", null));
+        openApi.setInfo(info);
+
+        openApi.addPath("/models/{model_name}", getModelManagerPath(false));
+        openApi.addPath("/models/{model_name}/{model_version}", getModelManagerPath(true));
+        openApi.addPath("/models/{model_name}/{model_version}/set-default", getSetDefaultPath());
+
+        return JsonUtils.GSON_PRETTY.toJson(openApi);
+    }
+
     private static Path getApiDescriptionPath(String operationID, boolean legacy) {
         Schema schema = new Schema("object");
         schema.addProperty("openapi", new Schema("string"), true);

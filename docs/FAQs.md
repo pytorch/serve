@@ -15,8 +15,8 @@ Torchserve API's are compliant with the [OpenAPI specification 3.0](https://swag
 
 ### How to use Torchserve in production?
 Depending on your use case, you will be able to deploy torchserve in production using following mechanisms.
-> Standalone deployment. Refer [TorchServe docker documentation](../docker/README.md) or [TorchServe documentation](../docs/README.md)
-> Cloud based deployment. Refer [TorchServe kubernetes documentation](../kubernetes/README.md) or [TorchServe cloudformation documentation](../cloudformation/README.md)
+> Standalone deployment. Refer [TorchServe docker documentation](https://github.com/pytorch/serve/tree/master/docker#readme) or [TorchServe documentation](https://github.com/pytorch/serve/tree/master/docs#readme)
+> Cloud based deployment. Refer [TorchServe kubernetes documentation](https://github.com/pytorch/serve/tree/master/kubernetes#readme) or [TorchServe cloudformation documentation](../cloudformation/README.md)
 
 
 ### What's difference between Torchserve and a python web app using web frameworks like Flask, Django?
