@@ -366,8 +366,7 @@ public final class ConfigManager {
 
     // TODO replace null with default yaml file in future
     public String getMetricsLog() {
-        return getProperty(TS_METRICS_LOG,
-        "/home/ubuntu/josax_fork/serve/ts/tests/unit_tests/metrics_yaml_testing/metrics.yaml");
+        return getProperty(TS_METRICS_LOG, "/home/ubuntu/josax_fork/serve/ts/tests/unit_tests/metrics_yaml_testing/metrics.yaml");
     }
 
     public String getTsDefaultServiceHandler() {
