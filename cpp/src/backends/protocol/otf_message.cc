@@ -106,13 +106,13 @@ namespace torchserve {
     // Limit max image pixels
     auto limit_max_image_pixels = RetrieveBool(conn);
 
-    TS_LOGF(INFO, "Model Name: {}", model_name);
-    TS_LOGF(INFO, "Model dir: {}", model_dir);
-    TS_LOGF(INFO, "Batch size: {}", batch_size);
-    TS_LOGF(INFO, "Handler: {}", handler);
-    TS_LOGF(INFO, "GPU_id: {}", gpu_id);
-    TS_LOGF(INFO, "Envelope: {}", envelope);
-    TS_LOGF(INFO, "Limit max image pixels: {}", limit_max_image_pixels);
+    TS_LOGF(DEBUG, "Model Name: {}", model_name);
+    TS_LOGF(DEBUG, "Model dir: {}", model_dir);
+    TS_LOGF(DEBUG, "Batch size: {}", batch_size);
+    TS_LOGF(DEBUG, "Handler: {}", handler);
+    TS_LOGF(DEBUG, "GPU_id: {}", gpu_id);
+    TS_LOGF(DEBUG, "Envelope: {}", envelope);
+    TS_LOGF(DEBUG, "Limit max image pixels: {}", limit_max_image_pixels);
 
     return std::make_shared<LoadModelRequest>(
       model_dir, model_name, gpu_id, handler, 

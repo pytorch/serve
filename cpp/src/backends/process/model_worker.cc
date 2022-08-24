@@ -88,7 +88,7 @@ namespace torchserve {
       socklen_t len = sizeof(client_sock_address);
       auto client_sock = accept(server_socket_, (sockaddr *)&client_sock_address, &len);
       if (client_sock < 0) {
-          TS_LOGF(FATAL, "Failed to accept client. errno: {}", errno);
+        TS_LOGF(FATAL, "Failed to accept client. errno: {}", errno);
       }
       TS_LOGF(INFO, "Connection accepted: {}", socket_name_);
       auto model_worker = std::make_unique<torchserve::SocketModelWorker>(client_sock, backend_);
