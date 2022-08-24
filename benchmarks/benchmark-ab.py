@@ -398,7 +398,9 @@ def prepare_common_dependency():
         execution_params["config_properties"],
         os.path.join(execution_params["tmp_dir"], "benchmark", "conf"),
     )
-    shutil.copyfile(input, os.path.join(execution_params["tmp_dir"], "benchmark", "input"))
+    shutil.copyfile(
+        input, os.path.join(execution_params["tmp_dir"], "benchmark", "input")
+    )
 
 
 def getAPIS():
@@ -505,11 +507,16 @@ def generate_csv_output():
     artifacts["TS latency P90"] = extract_entity(data, "90%", -1)
     artifacts["TS latency P99"] = extract_entity(data, "99%", -1)
     artifacts["TS latency mean"] = extract_entity(data, "Time per request:.*mean\)", -3)
-    artifacts["TS error rate"] = (
-        int(artifacts["TS failed requests"]) / execution_params["requests"] * 100
-    )
+    if isinstance(artifacts["TS failed requests"], type(None)):
+        artifacts["TS error rate"] = None
+    else:
+        artifacts["TS error rate"] = (
+            int(artifacts["TS failed requests"]) / execution_params["requests"] * 100
+        )
 
-    with open(os.path.join(execution_params["tmp_dir"], "benchmark", "predict.txt")) as f:
+    with open(
+        os.path.join(execution_params["tmp_dir"], "benchmark", "predict.txt")
+    ) as f:
         lines = f.readlines()
         lines.sort(key=float)
         artifacts["Model_p50"] = lines[line50].strip()
