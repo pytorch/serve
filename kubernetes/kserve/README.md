@@ -39,6 +39,8 @@ DOCKER_BUILDKIT=1 docker build -f Dockerfile.dev -t pytorch/torchserve-kfs:lates
 ## Running Torchserve inference service in KServe cluster
 ### Create Kubernetes cluster with eksctl
 
+- Install eksctl - https://docs.aws.amazon.com/eks/latest/userguide/eksctl.html
+
 ```yaml
 apiVersion: eksctl.io/v1alpha5
 kind: ClusterConfig
@@ -127,7 +129,16 @@ Please note that, the port for inference address should be set at 8085 since KSe
 
 - Step - 3 : Create PV, PVC and PV pods in KServe
 
+  For EFS backed volume refer - https://github.com/pytorch/serve/tree/master/kubernetes/EKS#setup-persistentvolume-backed-by-efs
+
+
 Follow the instructions below for creating a PV and copying the config files
+
+- Create volume
+
+  EBS volume creation: https://docs.aws.amazon.com/cli/latest/reference/ec2/create-volume.html
+
+  For PV and PVC refer: https://kubernetes.io/docs/concepts/storage/persistent-volumes/
 
 - Create PV
 
