@@ -15,8 +15,7 @@ import uuid
 from ts.arg_parser import ArgParser
 from ts.metrics.metric_cache_yaml import MetricsCacheYaml
 from ts.model_loader import ModelLoaderFactory
-from ts.protocol.otf_message_handler import retrieve_msg, create_load_model_response
-from ts.service import emit_metrics
+from ts.protocol.otf_message_handler import create_load_model_response, retrieve_msg
 
 MAX_FAILURE_THRESHOLD = 5
 SOCKET_ACCEPT_TIMEOUT = 30.0
@@ -30,7 +29,9 @@ class TorchModelServiceWorker(object):
     Backend worker to handle Model Server's python service code
     """
 
-    def __init__(self, s_type=None, s_name=None, host_addr=None, port_num=None, metrics_log=None):
+    def __init__(
+        self, s_type=None, s_name=None, host_addr=None, port_num=None, metrics_log=None
+    ):
         self.sock_type = s_type
 
         if s_type == "unix":
@@ -56,7 +57,7 @@ class TorchModelServiceWorker(object):
         logging.info("Listening on port: %s", s_name)
         socket_family = socket.AF_INET if s_type == "tcp" else socket.AF_UNIX
         self.sock = socket.socket(socket_family, socket.SOCK_STREAM)
-        TorchModelServiceWorker.metrics_log = metrics_log  # make a static attribute instead of class attribute
+        TorchModelServiceWorker.metrics_log = metrics_log
 
     @staticmethod
     def load_model(load_model_request):
@@ -104,10 +105,18 @@ class TorchModelServiceWorker(object):
             if "limitMaxImagePixels" in load_model_request:
                 limit_max_image_pixels = bool(load_model_request["limitMaxImagePixels"])
 
-            # Look into static variables a bit more
-            metrics = MetricsCacheYaml(uuid.uuid4(),
-                                       model_name=model_name,
-                                       yaml_file=TorchModelServiceWorker.metrics_log)
+            try:
+                metrics = MetricsCacheYaml(
+                    uuid.uuid4(),
+                    model_name=model_name,
+                    yaml_file=TorchModelServiceWorker.metrics_log,
+                )
+            except TypeError:
+                logging.warning(
+                    "Model metrics are not being read. "
+                    "To enable, please pass in a valid path to a metrics.yaml file."
+                )
+
             model_loader = ModelLoaderFactory.get_model_loader()
             service = model_loader.load(
                 model_name,
@@ -117,7 +126,7 @@ class TorchModelServiceWorker(object):
                 batch_size,
                 envelope,
                 limit_max_image_pixels,
-                metrics
+                metrics,
             )
 
             logging.debug("Model %s loaded.", model_name)
@@ -209,7 +218,9 @@ if __name__ == "__main__":
             pr.disable()
             pr.dump_stats("/tmp/tsPythonProfile.prof")
 
-        worker = TorchModelServiceWorker(sock_type, socket_name, host, port, metrics_log)
+        worker = TorchModelServiceWorker(
+            sock_type, socket_name, host, port, metrics_log
+        )
         worker.run_server()
         if BENCHMARK:
             pr.disable()

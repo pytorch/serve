@@ -6,11 +6,11 @@ import json
 import logging
 import os
 from abc import ABCMeta, abstractmethod
-
 from builtins import str
 
 from ts.metrics.metric_cache_yaml import MetricsCacheYaml
 from ts.service import Service
+
 from .utils.util import list_classes_from_module
 
 
@@ -72,7 +72,7 @@ class TsModelLoader(ModelLoader):
         batch_size,
         envelope=None,
         limit_max_image_pixels=True,
-        metrics: MetricsCacheYaml = None
+        metrics: MetricsCacheYaml = None,
     ):
         """
         Load TorchServe 1.0 model from file.
@@ -149,7 +149,6 @@ class TsModelLoader(ModelLoader):
         )
         service.context.metrics = metrics
         service.context.metrics.parse_yaml_to_cache()
-
         initialize_fn(service.context)
 
         return service
@@ -200,4 +199,3 @@ class TsModelLoader(ModelLoader):
             )
 
         return model_service.handle, model_service.initialize
-
