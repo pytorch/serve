@@ -1,6 +1,6 @@
 """
 This fectory creates a DLRM model with the Torchrec library compatible with the Criteo dataset format.
-For this example we use an untrained model. More information on how to train this model can be found at
+For this example we use an untrained model(model with random weights). More information on how to train this model can be found at
 https://github.com/facebookresearch/dlrm/tree/main/torchrec_dlrm/
 """
 
