@@ -64,7 +64,7 @@ Below are some useful `cpu_launcher_args` to note. Italic values are default if 
 3. Node id: [`--node_id`]
    * Launcher by default uses all NUMA nodes. Limit memory access to local memories on the Nth Numa node to avoid Non-Uniform Memory Access (NUMA).
 
-Refer to [Launch Script Usage Guide](https://github.com/intel-innersource/frameworks.ai.pytorch.ipex-cpu/blob/cpu-device/docs/tutorials/performance_tuning/launch_script.md) for a full list of tunable configuration of launcher. And refer to [Performance Tuning Guide](./tuning_guide.md) for more details.
+Refer to [Launch Script Usage Guide](https://github.com/intel-innersource/frameworks.ai.pytorch.ipex-cpu/blob/cpu-device/docs/tutorials/performance_tuning/launch_script.md) for a full list of tunable configuration of launcher. And refer to [Performance Tuning Guide](https://github.com/intel-innersource/frameworks.ai.pytorch.ipex-cpu/blob/cpu-device/docs/tutorials/performance_tuning/tuning_guide.md) for more details.
 
 ### Launcher Core Pinning to Boost Performance of TorchServe Multi Worker Inference 
 When running [multi-worker inference](https://pytorch.org/serve/management_api.html#scale-workers) with Torchserve, launcher pin cores to workers to boost performance. Internally, launcher equally divides the number of cores by the number of workers such that each worker is pinned to assigned cores. Doing so avoids core overlap among workers which can signficantly boost performance for TorchServe multi-worker inference. For example, assume running 4 workers on a machine with Intel(R) Xeon(R) Platinum 8180 CPU, 2 sockets, 28 cores per socket, 2 threads per core. Launcher will bind worker 0 to cores 0-13, worker 1 to cores 14-27, worker 2 to cores 28-41, and worker 3 to cores 42-55. 
