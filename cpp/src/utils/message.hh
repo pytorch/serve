@@ -104,6 +104,12 @@ namespace torchserve {
     Parameters parameters;
 
     InferenceRequest() {};
+
+    InferenceRequest(
+      const std::string request_id,
+      const Headers headers,
+      const Parameters parameters
+    ) : request_id(request_id), headers(headers), parameters(parameters) {};
   };
   // Ref: Ref: https://github.com/pytorch/serve/blob/master/ts/service.py#L36
   using InferenceRequestBatch = std::vector<InferenceRequest>;

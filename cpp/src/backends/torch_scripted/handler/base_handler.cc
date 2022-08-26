@@ -67,7 +67,7 @@ namespace torchserve {
           dtype_it == request.headers.end()) {
           TS_LOGF(ERROR, "Empty payload for request id: {}", request.request_id);
           auto response = (*response_batch)[request.request_id];
-          response->SetResponse(500, "data_tpye", torchserve::PayloadType::kCONTENT_TYPE_TEXT, "Empty payload");
+          response->SetResponse(500, "data_type", torchserve::PayloadType::kCONTENT_TYPE_TEXT, "Empty payload");
           continue;
         } 
         /*
@@ -112,7 +112,7 @@ namespace torchserve {
           auto response = (*response_batch)[request.request_id];
           response->SetResponse(
             500, 
-            "data_tpye", 
+            "data_type",
             torchserve::PayloadType::kDATA_TYPE_STRING,
             "runtime_error, failed to load tensor");
         } catch (const c10::Error& e) {
@@ -122,7 +122,7 @@ namespace torchserve {
           auto response = (*response_batch)[request.request_id];
           response->SetResponse(
             500, 
-            "data_tpye", 
+            "data_type",
             torchserve::PayloadType::kDATA_TYPE_STRING,
             "c10 error, failed to load tensor");
         }
@@ -149,7 +149,7 @@ namespace torchserve {
           auto response = (*response_batch)[kv.second];
           response->SetResponse(
             500, 
-            "data_tpye", 
+            "data_type",
             torchserve::PayloadType::kDATA_TYPE_STRING,
             "runtime_error, failed to inference");
         }
@@ -167,7 +167,7 @@ namespace torchserve {
           auto msg = torch::argmax(data[kv.first]).to(torch::kFloat32);
           response->SetResponse(
             200,
-            "data_tpye",
+            "data_type",
             torchserve::PayloadType::kDATA_TYPE_BYTES,
             torch::pickle_save(data[kv.first]));
         } catch (const std::runtime_error& e) {
@@ -177,7 +177,7 @@ namespace torchserve {
           auto response = (*response_batch)[kv.second];
           response->SetResponse(
             500, 
-            "data_tpye", 
+            "data_type",
             torchserve::PayloadType::kDATA_TYPE_STRING,
             "runtime_error, failed to postprocess tensor");
         } catch (const c10::Error& e) {
@@ -187,7 +187,7 @@ namespace torchserve {
           auto response = (*response_batch)[kv.second];
           response->SetResponse(
             500, 
-            "data_tpye", 
+            "data_type",
             torchserve::PayloadType::kDATA_TYPE_STRING,
             "c10 error, failed to postprocess tensor");
         }

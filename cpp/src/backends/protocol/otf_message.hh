@@ -27,6 +27,17 @@ namespace torchserve {
     static std::shared_ptr<LoadModelRequest> RetrieveLoadMsg(const ISocket& client_socket_);
     // TODO: impl.
     static std::shared_ptr<torchserve::InferenceRequestBatch> RetrieveInferenceMsg(ISocket& client_socket_);
+    static bool SendInferenceResponse(Socket client_socket_, std::shared_ptr<InferenceResponseBatch> inference_response_batch);
+    static void EncodeInferenceResponse(std::shared_ptr<InferenceResponseBatch> inference_response_batch, std::vector<char>& data_buffer);
+
+    private:
+    static std::shared_ptr<InferenceRequest> RetrieveInferenceRequest(Socket conn);
+    static void RetrieveInferenceRequestHeader(Socket conn, InferenceRequest::Headers& inference_request_headers, bool& is_valid);
+    static void RetrieveInferenceRequestParameter(Socket conn, InferenceRequest::Headers& inference_request_headers,
+                                                  InferenceRequest::Parameters& inference_request_parameters, bool& is_valid);
+    static void AppendIntegerToCharVector(std::vector<char>& dest_vector, const int32_t& source_integer);
+    static void AppendOTFStringToCharVector(std::vector<char>& dest_vector, const std::string& source_string);
+    static std::shared_ptr<std::string> RetrieveStringBuffer(Socket conn, int length);
   };
 } // namespace torchserve
 #endif // TS_CPP_BACKENDS_PROTOCOL_OTF_MESSAGE_HH_
