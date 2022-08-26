@@ -15,7 +15,7 @@ Here we show how to use TorchServe with Intel® Extension for PyTorch*.
 
 
 ## Install Intel® Extension for PyTorch*
-Refer to the documentation [here](../installation.md).
+Refer to the documentation [here](https://github.com/intel-innersource/frameworks.ai.pytorch.ipex-cpu/blob/cpu-device/docs/tutorials/installation.md).
 
 ## Serving model with Intel® Extension for PyTorch*
 After installation, all it needs to use TorchServe with Intel® Extension for PyTorch* is to enable it in `config.properties`.
@@ -25,7 +25,7 @@ ipex_enable=true
 Once Intel® Extension for PyTorch* is enabled, deploying PyTorch model follows the same procedure shown [here](https://pytorch.org/serve/use_cases.html). TorchServe with Intel® Extension for PyTorch* can deploy any model and do inference.
 
 ## TorchServe with Launcher
-Launcher is a script to automate the process of tunining configuration setting on Intel hardware to boost performance. Tuning configurations such as OMP_NUM_THREADS, thread affinity, memory allocator can have a dramatic effect on performance. Refer to [Performance Tuning Guide](./tuning_guide.md) and [Launch Script Usage Guide](./launch_script.md) for details on performance tuning with launcher.
+Launcher is a script to automate the process of tunining configuration setting on Intel hardware to boost performance. Tuning configurations such as OMP_NUM_THREADS, thread affinity, memory allocator can have a dramatic effect on performance. Refer to [Performance Tuning Guide](https://github.com/intel-innersource/frameworks.ai.pytorch.ipex-cpu/blob/cpu-device/docs/tutorials/performance_tuning/tuning_guide.md) and [Launch Script Usage Guide](https://github.com/intel-innersource/frameworks.ai.pytorch.ipex-cpu/blob/cpu-device/docs/tutorials/performance_tuning/launch_script.md) for details on performance tuning with launcher.
 
 All it needs to use TorchServe with launcher is to set its configuration in `config.properties`.
 
@@ -64,7 +64,7 @@ Below are some useful `cpu_launcher_args` to note. Italic values are default if 
 3. Node id: [`--node_id`]
    * Launcher by default uses all NUMA nodes. Limit memory access to local memories on the Nth Numa node to avoid Non-Uniform Memory Access (NUMA).
 
-Refer to [Launch Script Usage Guide](./launch_script.md) for a full list of tunable configuration of launcher. And refer to [Performance Tuning Guide](./tuning_guide.md) for more details.
+Refer to [Launch Script Usage Guide](https://github.com/intel-innersource/frameworks.ai.pytorch.ipex-cpu/blob/cpu-device/docs/tutorials/performance_tuning/launch_script.md) for a full list of tunable configuration of launcher. And refer to [Performance Tuning Guide](./tuning_guide.md) for more details.
 
 ### Launcher Core Pinning to Boost Performance of TorchServe Multi Worker Inference 
 When running [multi-worker inference](https://pytorch.org/serve/management_api.html#scale-workers) with Torchserve, launcher pin cores to workers to boost performance. Internally, launcher equally divides the number of cores by the number of workers such that each worker is pinned to assigned cores. Doing so avoids core overlap among workers which can signficantly boost performance for TorchServe multi-worker inference. For example, assume running 4 workers on a machine with Intel(R) Xeon(R) Platinum 8180 CPU, 2 sockets, 28 cores per socket, 2 threads per core. Launcher will bind worker 0 to cores 0-13, worker 1 to cores 14-27, worker 2 to cores 28-41, and worker 3 to cores 42-55. 
@@ -91,7 +91,7 @@ cpu_launcher_enable=true
 ```
 
 ## Creating and Exporting INT8 model for Intel® Extension for PyTorch*
-Intel® Extension for PyTorch* supports both eager and torchscript mode. In this section, we show how to deploy INT8 model for Intel® Extension for PyTorch*. Refer to [here](../tutorials/features/int8.md) for more details on Intel® Extension for PyTorch* optimizations for quantization.
+Intel® Extension for PyTorch* supports both eager and torchscript mode. In this section, we show how to deploy INT8 model for Intel® Extension for PyTorch*. Refer to [here](https://github.com/intel-innersource/frameworks.ai.pytorch.ipex-cpu/blob/cpu-device/docs/tutorials/features/int8.md) for more details on Intel® Extension for PyTorch* optimizations for quantization.
 
 ### 1. Creating a serialized file 
 First create `.pt` serialized file using Intel® Extension for PyTorch* INT8 inference. Here we show two examples with BERT and ResNet50. 
