@@ -1,13 +1,13 @@
 
 ### TorchRec DLRM Example
 
-This example shows how to serve a Deep Learning Recommendation Model (DLRM) with TorchRec on a single GPU (CPU is currently not yet supported by this example). It requres at least 15GB of free GPU memory to run.
-The DLRM is an open source model for personalization and recommendation use cases published by Meta. More informatino can be found in this [paper](https://arxiv.org/abs/1906.00091) and this [blog post](https://ai.facebook.com/blog/dlrm-an-advanced-open-source-deep-learning-recommendation-model/).
+This example shows how to serve a Deep Learning Recommendation Model (DLRM) with TorchRec on a single GPU (CPU is currently not yet supported by this example). It requires at least 15GB of free GPU memory to run.
+The DLRM is an open source model for personalization and recommendation use cases published by Meta. More information can be found in this [paper](https://arxiv.org/abs/1906.00091) and this [blog post](https://ai.facebook.com/blog/dlrm-an-advanced-open-source-deep-learning-recommendation-model/).
 TorchRec is Meta's open source library for recommender systems in Pytorch. More information on TorchRec can be found in the [official docs](https://pytorch.org/torchrec/).
 
 --- **This example requires CUDA version >= 11.3**  ---
 
-In this example we will first create and archive the DLRM into a mar file which is subsequently registered in a TorchService instance. Finally, we run an inferent using curl.
+In this example we will first create and archive the DLRM into a mar file which is subsequently registered in a TorchServe instance. Finally, we run inference using curl.
 
 To create the model and archive it we simple need to run
 
@@ -15,7 +15,7 @@ To create the model and archive it we simple need to run
 python create_dlrm_mar.py
 ```
 
-This will instanciate the model and save the state_dict into dlrm.pt which is then used by the model-archiver to create the mar file.
+This will instantiate the model and save the state_dict into dlrm.pt which is then used by the model-archiver to create the mar file.
 To register the model we need to move the mar file into the model_store folder of our choice.
 
 ```
@@ -35,7 +35,8 @@ To query the model we can then run:
 curl -H "Content-Type: application/json" --data @sample_data.json http://127.0.0.1:8080/predictions/dlrm
 ```
 
-Out output should look like this:
+The output of the model is the probability of a click ( based on the features) More details can be found [here](https://github.com/facebookresearch/dlrm)
+Our output should look like this:
 ```
 {
     "default": [

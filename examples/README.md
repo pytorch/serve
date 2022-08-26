@@ -130,6 +130,6 @@ The following example demonstrates how to create and serve a complex neural mach
 * [Neural machine Translation workflow](Workflows/nmt_transformers_pipeline)
 
 ## Serving Torchrec DLRM (Recommender Model)
-This example shows how to deploy a Deep Learning Recommendation Model (DLRM) with TorchRec
+This example shows how to deploy a Deep Learning Recommendation Model (DLRM) with [TorchRec](https://github.com/pytorch/torchrec)
 
 * [Torchrec DLRM](torchrec_dlrm)
