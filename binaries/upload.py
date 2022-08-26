@@ -10,6 +10,7 @@ sys.path.append(REPO_ROOT)
 
 from ts_scripts.utils import try_and_handle
 
+
 def upload_pypi_packages(args, WHL_PATHS):
     """
     Takes a list of path values and uploads them to pypi using twine, using token stored in environment variable
