@@ -16,7 +16,6 @@ We would also benchmark the REST API calls in time units and compare the model p
 The latest changes are reflected in [this repo](https://github.com/tripathiarpan20/HF-torchserve-pipeline)
 
 ## References
-* https://github.com/pytorch/serve
 * https://github.com/huggingface/transformers
 * https://github.com/huggingface/optimum
 * https://huggingface.co/docs/transformers/main_classes/pipelines
@@ -27,9 +26,3 @@ The latest changes are reflected in [this repo](https://github.com/tripathiarpan
 * https://github.com/aws-samples/amazon-sagemaker-endpoint-deployment-of-siamese-network-with-torchserve
 * https://github.com/cceyda/lit-NER
 * https://github.com/tescal2/TorchServeOnAWS
-
-## Support
-There are many ways to support an open-source work, ⭐ing it is one of them. 
-
-## Issues
-In case of bugs or queries, raise an Issue, or even better, raise a PR with fixes.
