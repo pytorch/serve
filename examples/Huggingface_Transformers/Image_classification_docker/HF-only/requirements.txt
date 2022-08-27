@@ -1,0 +1,2 @@
+#Assuming that this `requirements.txt` file is run by a Cloud instance that already comes with PyTorch and Torchserve preinstalled
+transformers
