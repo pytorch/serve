@@ -402,6 +402,12 @@
 
   Upon completion of the script it would emit a EFS volume DNS Name similar to `fs-ab1cd.efs.us-west-2.amazonaws.com` where `fs-ab1cd` is the EFS filesystem id.
 
+  Create a bash variable with the file system id
+  
+  ```bash
+  export FS_ID=fs-ab1cd
+  ```
+
   You should be able to see a Security Group in your AWS Console with Inbound Rules to a NFS (Port 2049)
 
   ![security_group](images/security_group.png)
@@ -421,7 +427,7 @@
   provisioner: efs.csi.aws.com
   parameters:
     provisioningMode: efs-ap
-    fileSystemId: <file-system-id>
+    fileSystemId: $FS_ID
     directoryPerms: "700"
     gidRangeStart: "1000" # optional
     gidRangeEnd: "2000" # optional
