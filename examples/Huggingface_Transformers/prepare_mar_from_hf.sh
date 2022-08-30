@@ -28,7 +28,7 @@ do
             shift 2
             ;;
         -t|--task)
-            sed -i "s/task=\".*/task=\"$2\"/g" scripts/torchserve_vitxxsmall_handler.py
+            sed -i "s/task=\".*/task=\"$2\"/g" $HANDLER_PATH
             shift 2
             ;;
         -n|--model-name)
