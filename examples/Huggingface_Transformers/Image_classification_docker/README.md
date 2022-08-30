@@ -37,7 +37,7 @@ handlerPath="$WORKDIR/scripts/mobilevit_handler.py"
 cd $ROOT/serve/examples/Huggingface_Transformers && chmod +x create_hf_handler.sh && ./create_hf_handler.sh -t $task -o $handlerPath
 
 #Download the model from HF hub and create model archive
-cd $ROOT/serve/examples/Huggingface_Transformers && chmod +x prepare_mar_from_hf.sh && ./prepare_mar_from_hf.sh -p $handlerPath -t $task -n $modelName -f $framework -r $reqTxt -d $WORKDIR -u $repoUrl
+cd $ROOT/serve/examples/Huggingface_Transformers && chmod +x prepare_mar_from_hf.sh && ./prepare_mar_from_hf.sh -p $handlerPath -n $modelName -f $framework -r $reqTxt -d $WORKDIR -u $repoUrl
 
 cd $WORKDIR
 ```

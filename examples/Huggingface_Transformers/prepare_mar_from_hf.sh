@@ -11,7 +11,6 @@ do
         -h|--help)
             echo "options:"
             echo "-p, --handler-path Path to the handler .py file for creating model archive"
-            echo "-t, --task specify task for the pipeline supported by HF Hub model"
             echo "-n, --model-name specify name for locally saved model repo"
             echo "-f, --framework specify the framework for the loaded model available in the repo, should be either \"pt\" or \"tf\""
             echo "-r, --requirements Path to the requirements.txt file, it MUST include `huggingface` as a dependency"
@@ -25,10 +24,6 @@ do
                 echo "Enter a valid output path that ends with `.py`"
                 exit 1
             fi
-            shift 2
-            ;;
-        -t|--task)
-            sed -i "s/task=\".*/task=\"$2\"/g" $HANDLER_PATH
             shift 2
             ;;
         -n|--model-name)
