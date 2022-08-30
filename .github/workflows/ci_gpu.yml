@@ -24,6 +24,9 @@ jobs:
           cd ..
           pwd
           rm -rf _tool
+      - name: Checkout TorchServe
+        uses: actions/checkout@v2
+
       - name: Setup Python 3.8
         uses: actions/setup-python@v2
         with:
@@ -36,9 +39,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
-          java-version: '17'
-      - name: Checkout TorchServe
-        uses: actions/checkout@v2
+          java-version: '17'          
       - name: Install dependencies
         run: |
           python ts_scripts/install_dependencies.py --environment=dev --cuda=cu102
