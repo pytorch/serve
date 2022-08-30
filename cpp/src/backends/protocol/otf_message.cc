@@ -17,7 +17,7 @@ namespace torchserve {
     return true;
   }
 
-  void OTFMessage::CreateLoadModelResponse(std::unique_ptr<torchserve::LoadModelResponse> response, char* data) {
+  void OTFMessage::EncodeLoadModelResponse(std::unique_ptr<torchserve::LoadModelResponse> response, char* data) {
     char* p = data;
     // Serialize response code
     int32_t s_code = htonl(response->code);
@@ -39,12 +39,10 @@ namespace torchserve {
 
   bool OTFMessage::SendLoadModelResponse(Socket client_socket_, std::unique_ptr<torchserve::LoadModelResponse> response) {
     char *data = new char[sizeof(LoadModelResponse)];
-    torchserve::OTFMessage::CreateLoadModelResponse(std::move(response), data);
-    if(!torchserve::OTFMessage::SendAll(client_socket_, data, sizeof(LoadModelResponse))) {
-      return false;
-    }
+    torchserve::OTFMessage::EncodeLoadModelResponse(std::move(response), data);
+    bool status = torchserve::OTFMessage::SendAll(client_socket_, data, sizeof(LoadModelResponse));
     delete[] data;
-    return true;
+    return status;
   }
 
   char OTFMessage::RetrieveCmd(Socket conn) {
