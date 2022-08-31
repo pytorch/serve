@@ -105,17 +105,11 @@ class TorchModelServiceWorker(object):
             if "limitMaxImagePixels" in load_model_request:
                 limit_max_image_pixels = bool(load_model_request["limitMaxImagePixels"])
 
-            try:
-                metrics = MetricsCacheYaml(
-                    uuid.uuid4(),
-                    model_name=model_name,
-                    yaml_file=TorchModelServiceWorker.metrics_log,
-                )
-            except TypeError:
-                logging.warning(
-                    "Model metrics are not being read. "
-                    "To enable, please pass in a valid path to a metrics.yaml file."
-                )
+            metrics = MetricsCacheYaml(
+                uuid.uuid4(),
+                model_name=model_name,
+                yaml_file=TorchModelServiceWorker.metrics_log,
+            )
 
             model_loader = ModelLoaderFactory.get_model_loader()
             service = model_loader.load(

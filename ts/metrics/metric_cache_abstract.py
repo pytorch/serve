@@ -6,10 +6,10 @@ Currently, abstract class has the methods for getting a metric and adding a metr
 """
 import abc
 import logging
-import ts.metrics.metric_cache_errors as merrors
 
-from ts.metrics.metric import Metric
+import ts.metrics.metric_cache_errors as merrors
 from ts.metrics.dimension import Dimension
+from ts.metrics.metric import Metric
 from ts.metrics.metric_type_enums import MetricTypes
 
 
@@ -44,8 +44,15 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
                 is_present = True
         return is_present
 
-    def _add_or_update(self, name: str, value: int or float, req_id, unit: str, metric_type: MetricTypes = None,
-                       dimensions: list = None):
+    def _add_or_update(
+        self,
+        name: str,
+        value: int or float,
+        req_id,
+        unit: str,
+        metric_type: MetricTypes = None,
+        dimensions: list = None,
+    ):
         """
         Add a metric key value pair
 
@@ -68,9 +75,11 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
         """
         # IF req_id is none error Metric
         if dimensions is None or not dimensions:
-            dimensions = list()
+            dimensions = []
         if not isinstance(dimensions, list):
-            raise merrors.MetricsCacheValueError("Please provide a list of Dimension objects.")
+            raise merrors.MetricsCacheValueError(
+                "Please provide a list of Dimension objects."
+            )
 
         # using a copy to not alter the original dimensions list when Metrics are added
         dimensions = dimensions.copy()
@@ -93,14 +102,18 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
         metric_key = f"[{metric_type.value}]-[{name}]-[{dims_str}]"
 
         if metric_key not in self.cache:
-            self.cache[metric_key] = Metric(name=name,
-                                            value=value,
-                                            unit=unit,
-                                            dimensions=dimensions,
-                                            request_id=req_id,
-                                            metric_type=metric_type.value)
+            self.cache[metric_key] = Metric(
+                name=name,
+                value=value,
+                unit=unit,
+                dimensions=dimensions,
+                request_id=req_id,
+                metric_type=metric_type.value,
+            )
         else:
-            existing_metric = self.get_metric(metric_type=metric_type, metric_name=name, dimensions=dims_str)
+            existing_metric = self.get_metric(
+                metric_type=metric_type, metric_name=name, dimensions=dims_str
+            )
             existing_metric.update(value)
 
     def _get_req(self, idx):
@@ -116,13 +129,19 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
         # check if request id for the metric is given, if so use it else have a list of all.
         req_id = self.request_ids
         if isinstance(req_id, dict):
-            req_id = ','.join(self.request_ids.values())
+            req_id = ",".join(self.request_ids.values())
         if idx is not None and self.request_ids is not None and idx in self.request_ids:
             req_id = self.request_ids[idx]
         return req_id
 
-    def add_counter(self, name: str, value: int or float, idx=None, dimensions: list = None,
-                    metric_type: MetricTypes = MetricTypes.counter):
+    def add_counter(
+        self,
+        name: str,
+        value: int or float,
+        idx=None,
+        dimensions: list = None,
+        metric_type: MetricTypes = MetricTypes.counter,
+    ):
         """
         Add a counter metric or increment an existing counter metric
             Default metric type is counter
@@ -136,16 +155,29 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
             request_id index in batch
         dimensions: list
             list of dimensions for the metric
-        metric_type: str
+        metric_type: MetricTypes
            type for defining different operations, defaulted to counter metric type for Counter metrics
         """
-        unit = 'count'
+        unit = "count"
         req_id = self._get_req(idx)
-        self._add_or_update(name=name, value=value, req_id=req_id, unit=unit, metric_type=metric_type,
-                            dimensions=dimensions)
+        self._add_or_update(
+            name=name,
+            value=value,
+            req_id=req_id,
+            unit=unit,
+            metric_type=metric_type,
+            dimensions=dimensions,
+        )
 
-    def add_time(self, name: str, value: int or float, idx=None, unit: str = 'ms', dimensions: list = None,
-                 metric_type: MetricTypes = MetricTypes.gauge):
+    def add_time(
+        self,
+        name: str,
+        value: int or float,
+        idx=None,
+        unit: str = "ms",
+        dimensions: list = None,
+        metric_type: MetricTypes = MetricTypes.gauge,
+    ):
         """
         Add a time based metric like latency, default unit is 'ms'
             Default metric type is gauge
@@ -162,17 +194,32 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
             unit of metric,  default here is ms, s is also accepted
         dimensions: list
             list of dimensions for the metric
-        metric_type: str
+        metric_type: MetricTypes
            type for defining different operations, defaulted to gauge metric type for Time metrics
         """
-        if unit not in ['ms', 's']:
-            raise merrors.MetricsCacheValueError("the unit for a timed metric should be one of ['ms', 's']")
+        if unit not in ["ms", "s"]:
+            raise merrors.MetricsCacheValueError(
+                "the unit for a timed metric should be one of ['ms', 's']"
+            )
         req_id = self._get_req(idx)
-        self._add_or_update(name=name, value=value, req_id=req_id, unit=unit, metric_type=metric_type,
-                            dimensions=dimensions)
+        self._add_or_update(
+            name=name,
+            value=value,
+            req_id=req_id,
+            unit=unit,
+            metric_type=metric_type,
+            dimensions=dimensions,
+        )
 
-    def add_size(self, name: str, value: int or float, idx=None, unit: str = 'MB', dimensions: list = None,
-                 metric_type: MetricTypes = MetricTypes.gauge):
+    def add_size(
+        self,
+        name: str,
+        value: int or float,
+        idx=None,
+        unit: str = "MB",
+        dimensions: list = None,
+        metric_type: MetricTypes = MetricTypes.gauge,
+    ):
         """
         Add a size based metric
             Default metric type is gauge
@@ -189,17 +236,31 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
             unit of metric, default here is 'MB', 'kB', 'GB' also supported
         dimensions: list
             list of dimensions for the metric
-        metric_type: str
+        metric_type: MetricTypes
            type for defining different operations, defaulted to gauge metric type for Size metrics
         """
-        if unit not in ['MB', 'kB', 'GB', 'B']:
-            raise ValueError("The unit for size based metric is one of ['MB','kB', 'GB', 'B']")
+        if unit not in ["MB", "kB", "GB", "B"]:
+            raise ValueError(
+                "The unit for size based metric is one of ['MB','kB', 'GB', 'B']"
+            )
         req_id = self._get_req(idx)
-        self._add_or_update(name=name, value=value, req_id=req_id, unit=unit, metric_type=metric_type,
-                            dimensions=dimensions)
+        self._add_or_update(
+            name=name,
+            value=value,
+            req_id=req_id,
+            unit=unit,
+            metric_type=metric_type,
+            dimensions=dimensions,
+        )
 
-    def add_percent(self, name: str, value: int or float, idx=None, dimensions: list = None,
-                    metric_type: MetricTypes = MetricTypes.gauge):
+    def add_percent(
+        self,
+        name: str,
+        value: int or float,
+        idx=None,
+        dimensions: list = None,
+        metric_type: MetricTypes = MetricTypes.gauge,
+    ):
         """
         Add a percentage based metric
             Default metric type is gauge
@@ -214,16 +275,27 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
             request_id index in batch
         dimensions: list
             list of dimensions for the metric
-        metric_type: str
+        metric_type: MetricTypes
            type for defining different operations, defaulted to gauge metric type for Percent metrics
         """
-        unit = 'percent'
+        unit = "percent"
         req_id = self._get_req(idx)
-        self._add_or_update(name=name, value=value, req_id=req_id, unit=unit, metric_type=metric_type,
-                            dimensions=dimensions)
+        self._add_or_update(
+            name=name,
+            value=value,
+            req_id=req_id,
+            unit=unit,
+            metric_type=metric_type,
+            dimensions=dimensions,
+        )
 
-    def add_error(self, name: str, value: int or float, dimensions: list = None,
-                  metric_type: MetricTypes = MetricTypes.counter):
+    def add_error(
+        self,
+        name: str,
+        value: int or float,
+        dimensions: list = None,
+        metric_type: MetricTypes = MetricTypes.counter,
+    ):
         """
         Add an Error Metric
             Default metric type is counter
@@ -236,22 +308,30 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
             value of metric, in this case a str
         dimensions: list
             list of dimensions for the metric
-        metric_type: str
+        metric_type: MetricTypes
            type for defining different operations, defaulted to counter metric type for Error metrics
         """
-        unit = ''
+        unit = ""
         # noinspection PyTypeChecker
-        self._add_or_update(name=name, value=value, req_id=None, unit=unit, metric_type=metric_type,
-                            dimensions=dimensions)
+        self._add_or_update(
+            name=name,
+            value=value,
+            req_id=None,
+            unit=unit,
+            metric_type=metric_type,
+            dimensions=dimensions,
+        )
 
-    def get_metric(self, metric_type: MetricTypes, metric_name: str, dimensions: list or str) -> Metric:
+    def get_metric(
+        self, metric_type: MetricTypes, metric_name: str, dimensions: list or str
+    ) -> Metric:
         """
         Get a Metric from cache.
             Ask user for required requirements to form metric key to retrieve Metric.
 
         Parameters
         ----------
-        metric_type: str
+        metric_type: MetricTypes
             Type of metric: use MetricTypes enum to specify
 
         metric_name: str
@@ -268,45 +348,74 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
             logging.debug(f"Successfully received metric {metric_key}")
             return metric_obj
         else:
-            raise merrors.MetricsCacheKeyError(f"Metric key {metric_key} does not exist.")
+            raise merrors.MetricsCacheKeyError(
+                f"Metric key {metric_key} does not exist."
+            )
 
-    def add_metric(self, metric_name: str, value: int or float, unit: str, idx=None, dimensions: list = None,
-                   metric_type: MetricTypes = MetricTypes.counter) -> None:
+    def add_metric(
+        self,
+        metric_name: str,
+        value: int or float,
+        unit: str,
+        idx=None,
+        dimensions: list = None,
+        metric_type: MetricTypes = MetricTypes.counter,
+    ) -> None:
         """
-        Create a new metric and add into cache
+        Create a new metric and add into cache.
+            Add a metric which is generic with custom metrics
 
         Parameters
         ----------
         metric_name: str
             Name of metric
-        unit: str
-            unit can be one of ms, percent, count, MB, GB or a generic string
-        dimensions: list
-            list of dimension objects/strings read from yaml file
-        metric_type: MetricTypes
-            Type of metric
-        idx: int
-            req_id of metric
         value: int, float
             value of metric
-
+        unit: str
+            unit of metric
+        idx: int
+            request_id index in batch
+        dimensions: list
+            list of dimensions for the metric
+        metric_type: MetricTypes
+            Type of metric
         """
         req_id = self._get_req(idx)
-        if not isinstance(metric_name, str) or not isinstance(unit, str) or not \
-                isinstance(metric_type, MetricTypes) or not isinstance(value, (float, int)):
-            raise merrors.MetricsCacheTypeError(f"metric_name must be a str, unit must be a str, "
-                                                f"dimensions should be a list of Dimension objects/None, "
-                                                f"metric type must be a MetricTypes enum, value must be a int/float")
+        if (
+            not isinstance(metric_name, str)
+            or not isinstance(unit, str)
+            or not isinstance(metric_type, MetricTypes)
+            or not isinstance(value, (float, int))
+        ):
+            raise merrors.MetricsCacheTypeError(
+                f"metric_name must be a str, unit must be a str, "
+                f"dimensions should be a list of Dimension objects/None, "
+                f"metric type must be a MetricTypes enum, value must be a int/float"
+            )
 
         # dimensions either has to be a list of Dimensions or empty list / None
-        if dimensions and not isinstance(dimensions, list) and not isinstance(dimensions[0], Dimension):
-            raise merrors.MetricsCacheTypeError(f"Dimensions list is expected to be made up of Dimension objects.")
+        if (
+            dimensions
+            and not isinstance(dimensions, list)
+            and not isinstance(dimensions[0], Dimension)
+        ):
+            raise merrors.MetricsCacheTypeError(
+                f"Dimensions list is expected to be made up of Dimension objects."
+            )
 
         # Make sure that the passed arguments follow a valid naming convention (doesn't contain certain characters)
-        self._inspect_naming_convention(metric_name, unit, dimensions, metric_type, value)
+        self._inspect_naming_convention(
+            metric_name, unit, dimensions, metric_type, value
+        )
 
-        self._add_or_update(name=metric_name, value=value, req_id=req_id, unit=unit, metric_type=metric_type,
-                            dimensions=dimensions)
+        self._add_or_update(
+            name=metric_name,
+            value=value,
+            req_id=req_id,
+            unit=unit,
+            metric_type=metric_type,
+            dimensions=dimensions,
+        )
 
         logging.info(f"Successfully added {metric_name} Metric object to cache.")
 
@@ -329,11 +438,17 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
             """
             for delim in delimiters:
                 if delim in str(arg):
-                    logging.warning(f"There is a '{delim}' symbol found in {arg} argument. "
-                                    f"Please refrain from using the "
-                                    f"'{delim}' as it is used as the delimiter in the Metric object string.")
+                    logging.warning(
+                        f"There is a '{delim}' symbol found in {arg} argument. "
+                        f"Please refrain from using the "
+                        f"'{delim}' as it is used as the delimiter in the Metric object string."
+                    )
 
-        delimiters = ["-", "[", "]"]  # list of symbols that should not be included in any Metric arguments
+        delimiters = [
+            "-",
+            "[",
+            "]",
+        ]  # list of symbols that should not be included in any Metric arguments
 
         for individual_metric_arg in metric_arg:
             if isinstance(individual_metric_arg, list):  # list of Dimension objects
