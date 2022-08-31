@@ -33,6 +33,9 @@ reqTxt="$ROOT/serve/requirements/developer.txt"
 #Path to the to-be-created handler file specific to the task
 handlerPath="$WORKDIR/scripts/mobilevit_handler.py"
 
+#Copy base requirments txt file required by $reqTxt
+cp $ROOT/serve/requirements/common.txt $ROOT/serve/examples/Huggingface_Transformers/
+
 #Create the specific handler .py file for the task at specified path
 cd $ROOT/serve/examples/Huggingface_Transformers && chmod +x create_hf_handler.sh && ./create_hf_handler.sh -t $task -f $framework -o $handlerPath
 

@@ -45,7 +45,7 @@ class HFPipelineHandler(BaseHandler):
         Takes a list of raw inference requests received via POST requests, preprocesses and returns the output as a list
         '''
         def __call__(self, data):
-            if self.map_to_postproc_fn[task] is not None:
+            if self.map_to_preproc_fn[task] is not None:
                 return map(self.map_to_preproc_fn[task] ,data)
             else:
                 return data
@@ -68,7 +68,7 @@ class HFPipelineHandler(BaseHandler):
     class HFPipelinePostprocessFactory:
         '''
             `map_to_postproc_fn` returns a function for the task that can postprocess a single inference output to convert it to serializeable form with proper JSON formatting,
-            if no postprocessing is required, `map_to_postproc_fn` returns None
+            else if no postprocessing is required, `map_to_postproc_fn` returns None
         '''
         def __init__(self):
             self.map_to_postproc_fn = {

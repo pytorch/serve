@@ -41,8 +41,8 @@ do
         -u|--hf-hub-link)
             HF_REPO_URL="$2"
             git lfs install
-            git clone $HF_REPO_URL HF-models/$MODEL_NAME/
-            cd HF-models/$MODEL_NAME/ && git lfs install && git lfs pull && cd ../..
+            git clone $HF_REPO_URL $WORKDIR/HF-models/$MODEL_NAME/
+            cd $WORKDIR/HF-models/$MODEL_NAME/ && git lfs install && git lfs pull && cd ../..
             touch dummy_file.pth
             torch-model-archiver --model-name $MODEL_NAME --serialized-file dummy_file.pth --version 1.0 --handler $HANDLER_PATH --export-path $WORKDIR/model-store -r $REQ
             rm -f dummy_file.pth
