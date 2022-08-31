@@ -41,3 +41,5 @@ do
             sed -i "s/task=\".*/task=\"$TASK\"/g" $2 && sed -i "s/framework=\".*/framework=\"$FRAMEWORK\"/g" $2
             shift 2
             ;;
+    esac
+done

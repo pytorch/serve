@@ -19,7 +19,7 @@ cd $ROOT/serve/docker && ./build_image.sh -bt production -t torchserve-cpu-prod 
 #Run the Docker container with shared volume between machine and container in a working directory
 WORKDIR="$ROOT/serve/examples/Huggingface_Transformers/Image_classification_docker"
 cd $WORKDIR && mkdir -p HF-models && mkdir -p model-store
-docker run -d --rm -it --shm-size=50g -p 8080:8080 -p 8081:8081 --name torchserve-cpu-prod --mount type=bind,source=$WORKDIR/scripts/config.properties,target=/home/model-server/config.properties --mount type=bind,source=$(WORKDIR)/model-store,target=/home/model-server/model-store --mount type=bind,source=$WORKDIR/HF-models,target=/home/model-server/HF-models torchserve-cpu-prod torchserve --ncs --model-store=/home/model-server/model-store --ts-config config.properties
+docker run -d --rm -it --shm-size=50g -p 8080:8080 -p 8081:8081 --name torchserve-cpu-prod --mount type=bind,source=$WORKDIR/scripts/config.properties,target=/home/model-server/config.properties --mount type=bind,source=$WORKDIR/model-store,target=/home/model-server/model-store --mount type=bind,source=$WORKDIR/HF-models,target=/home/model-server/HF-models torchserve-cpu-prod torchserve --ncs --model-store=/home/model-server/model-store --ts-config config.properties
 
 
 modelName="vitxxsmall"
@@ -157,7 +157,8 @@ curl -v -X PUT "http://localhost:8081/models/vitxxsmall?max_worker=4"
 
 Example of a command to send inference requests to the registered models:
 ```
-time curl -X POST http://localhost:8080/predictions/vitxxsmall -T /root/pickleriiiick.png
+curl https://pbs.twimg.com/media/FM9MjZaUcAE7Wv1.png -o dog.png
+time curl -X POST http://localhost:8080/predictions/vitxxsmall -T dog.png
 ```
 
 

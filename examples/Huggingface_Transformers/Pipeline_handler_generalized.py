@@ -30,66 +30,63 @@ except:
     print("Enter a task supported by 🤗 pipeline")
     exit(0)
 
-class HFPipelinePreprocessFactory:
-    def __init__(self):
-        '''
-        `map_to_preproc_fn` returns a function for the task that can preprocess a single raw inference request
-        '''
-        self.map_to_preproc_fn = {
-            "image-classification":self.preprocess_image_classification_single,
-            "sentiment-analysis":self.preprocess_sentiment_analysis_single
-        }
-        pass
-    '''
-    Takes a list of raw inference requests received via POST requests, preprocesses and returns the output as a list
-    '''
-    def __call__(self, data):
-        if self.map_to_postproc_fn[task] is not None:
-            return map(self.map_to_preproc_fn[task] ,data)
-        else:
-            return data
-    def preprocess_image_classification_single(self, file):
-        image = file.get("data") or file.get("body")
-        if isinstance(image, str):
-            # if the image is a string of bytesarray.
-            image = base64.b64decode(image)
-        # If the image is sent as bytesarray
-        if isinstance(image, (bytearray, bytes)):
-            image = Image.open(io.BytesIO(image))
-        return image
-
-    #Function to read .txt file and convert it into a string
-    def preprocess_sentiment_analysis_single(self, file):
-        with open(file, 'r') as file:
-            readfile = file.read().replace('\n', '')
-        return readfile
-    
-
-
-class HFPipelinePostprocessFactory:
-    '''
-        `map_to_postproc_fn` returns a function for the task that can postprocess a single inference output to convert it to serializeable form with proper JSON formatting,
-        if no postprocessing is required, `map_to_postproc_fn` returns None
-    '''
-    def __init__(self):
-        self.map_to_postproc_fn = {
-            "image-classification":None,
-            "sentiment-analysis":None
-        }
-        pass 
-    def __call__(self, data):
-        if self.map_to_postproc_fn[task] is not None:
-            return map(self.map_to_postproc_fn[task], data)
-        else:
-            return data
-
-
 class HFPipelineHandler(BaseHandler):
+    class HFPipelinePreprocessFactory:
+        def __init__(self):
+            '''
+            `map_to_preproc_fn` returns a function for the task that can preprocess a single raw inference request
+            '''
+            self.map_to_preproc_fn = {
+                "image-classification":self.preprocess_image_classification_single,
+                "sentiment-analysis":self.preprocess_sentiment_analysis_single
+            }
+            pass
+        '''
+        Takes a list of raw inference requests received via POST requests, preprocesses and returns the output as a list
+        '''
+        def __call__(self, data):
+            if self.map_to_postproc_fn[task] is not None:
+                return map(self.map_to_preproc_fn[task] ,data)
+            else:
+                return data
+        def preprocess_image_classification_single(self, file):
+            image = file.get("data") or file.get("body")
+            if isinstance(image, str):
+                # if the image is a string of bytesarray.
+                image = base64.b64decode(image)
+            # If the image is sent as bytesarray
+            if isinstance(image, (bytearray, bytes)):
+                image = Image.open(io.BytesIO(image))
+            return image
+
+        #Function to read .txt file and convert it into a string
+        def preprocess_sentiment_analysis_single(self, file):
+            with open(file, 'r') as file:
+                readfile = file.read().replace('\n', '')
+            return readfile
+
+    class HFPipelinePostprocessFactory:
+        '''
+            `map_to_postproc_fn` returns a function for the task that can postprocess a single inference output to convert it to serializeable form with proper JSON formatting,
+            if no postprocessing is required, `map_to_postproc_fn` returns None
+        '''
+        def __init__(self):
+            self.map_to_postproc_fn = {
+                "image-classification":None,
+                "sentiment-analysis":None
+            }
+            pass 
+        def __call__(self, data):
+            if self.map_to_postproc_fn[task] is not None:
+                return map(self.map_to_postproc_fn[task], data)
+            else:
+                return data
+    
     def __init__(self):
         super().__init__()
         self.tokenizer = None
-        self.preprocess_factory = HFPipelinePreprocessFactory()
-        self.postprocess_factory = HFPipelinePostprocessFactory()
+        self.preprocess_factory = self.HFPipelinePreprocessFactory()
+        self.postprocess_factory = self.HFPipelinePostprocessFactory()
 
 
     def load_model(self, device_id, model_name, hf_models_folder = "/home/model-server/HF-models"):
