@@ -2,7 +2,7 @@
 HF_REPO_URL=""
 MODEL_NAME=""
 HANDLER_PATH=""
-REQ=""
+# REQ=""
 WORKDIR=""
 #TODO: Add condition to give error if $HANDLER_PATH in `prepare_mar_from_hf.sh` does not end with .py
 for arg in "$@"
@@ -12,7 +12,7 @@ do
             echo "options:"
             echo "-p, --handler-path Path to the handler .py file for creating model archive"
             echo "-n, --model-name specify name for locally saved model repo"
-            echo "-r, --requirements Path to the requirements.txt file, it MUST include `huggingface` as a dependency"
+            # echo "-r, --requirements Path to the requirements.txt file, it MUST include `huggingface` as a dependency"
             echo "-d, --workdir Path to the directory that contains the `model-store` directory"
             echo "-u, --hf-hub-link specify the link to the repo available in HF model hub"
             exit 0
@@ -30,10 +30,10 @@ do
             echo "MODEL_NAME is $MODEL_NAME"
             shift 2
             ;;
-        -r|--requirements)
-            REQ="$2"
-            shift 2
-            ;;
+        # -r|--requirements)
+        #     REQ="$2"
+        #     shift 2
+        #     ;;
         -d|--workdir)
             WORKDIR="$2"
             shift 2
@@ -44,7 +44,8 @@ do
             git clone $HF_REPO_URL $WORKDIR/HF-models/$MODEL_NAME/
             cd $WORKDIR/HF-models/$MODEL_NAME/ && git lfs install && git lfs pull && cd ../..
             touch dummy_file.pth
-            torch-model-archiver --model-name $MODEL_NAME --serialized-file dummy_file.pth --version 1.0 --handler $HANDLER_PATH --export-path $WORKDIR/model-store -r $REQ
+            echo "transformers==4.21.2" > transformers_req.txt
+            torch-model-archiver --model-name $MODEL_NAME --serialized-file dummy_file.pth --version 1.0 --handler $HANDLER_PATH --export-path $WORKDIR/model-store -r transformers_req.txt
             rm -f dummy_file.pth
             shift 2
             ;;

@@ -28,7 +28,6 @@ task="image-classification"
 #should be either "pt" (for PyTorch) or "tf" (for Tensorflow) and the .pt or .tf file should be present in `HF-models/$modelName` folder
 framework="pt"       
 repoUrl="https://huggingface.co/apple/mobilevit-xx-small"
-reqTxt="$ROOT/serve/requirements/developer.txt"
 
 #Path to the to-be-created handler file specific to the task
 handlerPath="$WORKDIR/scripts/mobilevit_handler.py"
@@ -40,7 +39,7 @@ cp $ROOT/serve/requirements/common.txt $ROOT/serve/examples/Huggingface_Transfor
 cd $ROOT/serve/examples/Huggingface_Transformers && chmod +x create_hf_handler.sh && ./create_hf_handler.sh -t $task -f $framework -o $handlerPath
 
 #Download the model from HF hub and create model archive
-cd $ROOT/serve/examples/Huggingface_Transformers && chmod +x prepare_mar_from_hf.sh && ./prepare_mar_from_hf.sh -p $handlerPath -n $modelName -r $reqTxt -d $WORKDIR -u $repoUrl
+cd $ROOT/serve/examples/Huggingface_Transformers && chmod +x prepare_mar_from_hf.sh && ./prepare_mar_from_hf.sh -p $handlerPath -n $modelName -d $WORKDIR -u $repoUrl
 
 cd $WORKDIR
 ```
@@ -118,7 +117,8 @@ cd $ROOT/serve/examples/Huggingface_Transformers && chmod +x create_hf_handler.s
 
 
 touch dummy_file.pth
-torch-model-archiver --model-name vitxxsmall --serialized-file dummy_file.pth --version 1.0 --handler $WORKDIR/scripts/mobilevit_handler.py --export-path $WORKDIR/model-store -r $ROOT/serve/requirements/developer.txt
+echo "transformers==4.21.2" > transformers_req.txt
+torch-model-archiver --model-name vitxxsmall --serialized-file dummy_file.pth --version 1.0 --handler $WORKDIR/scripts/mobilevit_handler.py --export-path $WORKDIR/model-store -r transformers_req.txt
 rm -f dummy_file.pth
 ```
 
