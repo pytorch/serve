@@ -34,10 +34,10 @@ reqTxt="$ROOT/serve/requirements/developer.txt"
 handlerPath="$WORKDIR/scripts/mobilevit_handler.py"
 
 #Create the specific handler .py file for the task at specified path
-cd $ROOT/serve/examples/Huggingface_Transformers && chmod +x create_hf_handler.sh && ./create_hf_handler.sh -t $task -o $handlerPath
+cd $ROOT/serve/examples/Huggingface_Transformers && chmod +x create_hf_handler.sh && ./create_hf_handler.sh -t $task -f $framework -o $handlerPath
 
 #Download the model from HF hub and create model archive
-cd $ROOT/serve/examples/Huggingface_Transformers && chmod +x prepare_mar_from_hf.sh && ./prepare_mar_from_hf.sh -p $handlerPath -n $modelName -f $framework -r $reqTxt -d $WORKDIR -u $repoUrl
+cd $ROOT/serve/examples/Huggingface_Transformers && chmod +x prepare_mar_from_hf.sh && ./prepare_mar_from_hf.sh -p $handlerPath -n $modelName -r $reqTxt -d $WORKDIR -u $repoUrl
 
 cd $WORKDIR
 ```
@@ -78,8 +78,9 @@ docker images
 Run the Torchserve server container with Docker and archived model (refer to [this](https://github.com/pytorch/serve/tree/master/docker#create-torch-model-archiver-from-container) and [this](https://github.com/pytorch/serve/blob/fd4e3e8b72bed67c1e83141265157eed975fec95/docs/use_cases.md#secure-model-serving) for more details):
 
 ```
-cd $ROOT/serve/examples/Huggingface_Transformers/Image_classification_docker && mkdir -p HF-models && mkdir -p model-store
-docker run -d --rm -it --shm-size=50g -p 8080:8080 -p 8081:8081 --name torchserve-cpu-prod --mount type=bind,source=$(pwd)/scripts/config.properties,target=/home/model-server/config.properties --mount type=bind,source=$(pwd)/model-store,target=/home/model-server/model-store --mount type=bind,source=$(pwd)/HF-models,target=/home/model-server/HF-models torchserve-cpu-prod torchserve --ncs --model-store=/home/model-server/model-store --ts-config /home/model-server/config.properties
+WORKDIR="$ROOT/serve/examples/Huggingface_Transformers/Image_classification_docker"
+cd $WORKDIR && mkdir -p HF-models && mkdir -p model-store
+docker run -d --rm -it --shm-size=50g -p 8080:8080 -p 8081:8081 --name torchserve-cpu-prod --mount type=bind,source=$WORKDIR/scripts/config.properties,target=/home/model-server/config.properties --mount type=bind,source=$WORKDIR/model-store,target=/home/model-server/model-store --mount type=bind,source=$WORKDIR/HF-models,target=/home/model-server/HF-models torchserve-cpu-prod torchserve --ncs --model-store=/home/model-server/model-store --ts-config /home/model-server/config.properties
 ```
 
 Check whether the server was started properly (keep trying repeatedly for a few seconds while server boots up):
@@ -98,8 +99,8 @@ pip install git-lfs
 
 Download the 🤗 model repo with git-lfs ([example](https://huggingface.co/apple/mobilevit-xx-small)) along with all the model dependencies like checkpoints, vocabulary, config etc:
 ```
-git clone https://huggingface.co/apple/mobilevit-xx-small HF-models/vitxxsmall/
-git lfs install && cd HF-models/vitxxsmall/ && git lfs install && git lfs pull && cd ../..
+git clone https://huggingface.co/apple/mobilevit-xx-small $WORKDIR/HF-models/vitxxsmall/
+git lfs install && cd HF-models/vitxxsmall/ && git lfs install && git lfs pull && cd $WORKDIR
 ```
 
 ⚠️ **IMPORTANT NOTE** ⚠️: The folder in which the 🤗 model repo is cloned & the name of the `.mar` file should be EXACTLY the same, this constraint was necessary to register new models with `curl POST` requests flexibly (i.e, during server intialization as well as afterwards).
@@ -110,12 +111,11 @@ Create a Torchserve model archive file by creating and using the model handler f
 **NOTE:** Here, we are not giving a pretrained checkpoint as a `.pth` file, hence the `--serialized-file` option is redundant as we do not use the context in our handler. 
 ```
 #Create the specific handler .py file for the task at specified path
-chmod +x $ROOT/serve/examples/Huggingface_Transformers/create_hf_handler.sh
-$ROOT/serve/examples/Huggingface_Transformers/create_hf_handler.sh -t "image-classification" -o scripts/mobilevit_handler.py
+cd $ROOT/serve/examples/Huggingface_Transformers && chmod +x create_hf_handler.sh && ./create_hf_handler.sh -t "image-classification" -f "pt" -o $WORKDIR/scripts/mobilevit_handler.py
 
 
 touch dummy_file.pth
-torch-model-archiver --model-name vitxxsmall --serialized-file dummy_file.pth --version 1.0 --handler scripts/mobilevit_handler.py --export-path model-store -r $ROOT/serve/requirements/developer.txt
+torch-model-archiver --model-name vitxxsmall --serialized-file dummy_file.pth --version 1.0 --handler $WORKDIR/scripts/mobilevit_handler.py --export-path $WORKDIR/model-store -r $ROOT/serve/requirements/developer.txt
 rm -f dummy_file.pth
 ```
 

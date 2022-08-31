@@ -12,7 +12,6 @@ do
             echo "options:"
             echo "-p, --handler-path Path to the handler .py file for creating model archive"
             echo "-n, --model-name specify name for locally saved model repo"
-            echo "-f, --framework specify the framework for the loaded model available in the repo, should be either \"pt\" or \"tf\""
             echo "-r, --requirements Path to the requirements.txt file, it MUST include `huggingface` as a dependency"
             echo "-d, --workdir Path to the directory that contains the `model-store` directory"
             echo "-u, --hf-hub-link specify the link to the repo available in HF model hub"
@@ -29,10 +28,6 @@ do
         -n|--model-name)
             MODEL_NAME="$2"
             echo "MODEL_NAME is $MODEL_NAME"
-            shift 2
-            ;;
-        -f|--framework)
-            sed -i "s/framework=\".*/framework=\"$2\"/g" $HANDLER_PATH
             shift 2
             ;;
         -r|--requirements)
