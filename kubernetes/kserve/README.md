@@ -2,7 +2,7 @@
 
 The documentation covers the steps to run Torchserve inside the KServe environment for the mnist model.
 
-Currently, KServe supports the Inference API for all the existing models but text to speech synthesizer and it's explain API works for the eager models of MNIST,BERT and text classification only.
+Currently, KServe supports the Inference API for all the existing models but text to speech synthesizer and its explain API works for the eager models of MNIST,BERT and text classification only.
 
 ### Docker Image Dev Build
 
