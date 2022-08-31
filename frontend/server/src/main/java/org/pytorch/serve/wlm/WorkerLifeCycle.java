@@ -124,8 +124,8 @@ public class WorkerLifeCycle {
         argl.add(connector.isUds() ? "--sock-name" : "--port");
         argl.add(connector.getSocketPath());
 
-        argl.add("--metrics-log");
-        argl.add(configManager.getMetricsLog());
+        argl.add("--metrics-config");
+        argl.add(configManager.getMetricsConfig());
 
         String[] envp =
                 EnvironmentUtils.getEnvString(

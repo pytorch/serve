@@ -28,6 +28,7 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
 
         """
         self.cache = {}
+        self.store = []
         self.request_ids = request_ids
         self.model_name = model_name
         self.file = file
@@ -102,7 +103,7 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
         metric_key = f"[{metric_type.value}]-[{name}]-[{dims_str}]"
 
         if metric_key not in self.cache:
-            self.cache[metric_key] = Metric(
+            metric = Metric(
                 name=name,
                 value=value,
                 unit=unit,
@@ -110,6 +111,9 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
                 request_id=req_id,
                 metric_type=metric_type.value,
             )
+            self.cache[metric_key] = metric
+            self.store.append(metric)
+
         else:
             existing_metric = self.get_metric(
                 metric_type=metric_type, metric_name=name, dimensions=dims_str

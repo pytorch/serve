@@ -364,8 +364,32 @@ public final class ConfigManager {
         return getIntProperty(TS_NUMBER_OF_GPU, 0);
     }
 
-    public String getMetricsLog() {
-        return getProperty(TS_METRICS_LOG, System.getProperty("user.dir"));
+    public String getMetricsConfig() {
+        // Getting absolute path of working directory, and finding the metrics_default yaml.
+        // Assumptions are that users are running torchserve within the serve directory, and that the name of the
+        // serve directory is still 'serve' (i.e. users did not rename serve)
+
+        String basePath = System.getProperty("user.dir");
+        String yamlModulePath = "/frontend/server/src/test/resources/metrics_default.yaml";
+
+        String[] basePathList = basePath.split("/");
+        List<String> serveBasePath = new ArrayList<String>();
+        for (int i = 0; i < basePathList.length; i++)
+        {
+            String directory = basePathList[i];
+            if (directory.equals("serve"))
+            {
+                serveBasePath.add(directory);
+                break;
+            }
+            else
+            {
+                serveBasePath.add(directory);
+            }
+        }
+        String serveBasePathString = String.join("/", serveBasePath);
+        String yamlAbsolutePath = serveBasePathString + yamlModulePath;
+        return getProperty(TS_METRICS_LOG, yamlAbsolutePath);
     }
 
     public String getTsDefaultServiceHandler() {
