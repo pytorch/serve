@@ -30,7 +30,12 @@ class TorchModelServiceWorker(object):
     """
 
     def __init__(
-        self, s_type=None, s_name=None, host_addr=None, port_num=None, metrics_log=None
+        self,
+        s_type=None,
+        s_name=None,
+        host_addr=None,
+        port_num=None,
+        metrics_config=None,
     ):
         self.sock_type = s_type
 
@@ -57,7 +62,7 @@ class TorchModelServiceWorker(object):
         logging.info("Listening on port: %s", s_name)
         socket_family = socket.AF_INET if s_type == "tcp" else socket.AF_UNIX
         self.sock = socket.socket(socket_family, socket.SOCK_STREAM)
-        TorchModelServiceWorker.metrics_log = metrics_log
+        TorchModelServiceWorker.metrics_config = metrics_config
 
     @staticmethod
     def load_model(load_model_request):
@@ -108,7 +113,7 @@ class TorchModelServiceWorker(object):
             metrics = MetricsCacheYaml(
                 uuid.uuid4(),
                 model_name=model_name,
-                yaml_file=TorchModelServiceWorker.metrics_log,
+                yaml_file=TorchModelServiceWorker.metrics_config,
             )
 
             model_loader = ModelLoaderFactory.get_model_loader()
@@ -203,7 +208,7 @@ if __name__ == "__main__":
         sock_type = args.sock_type
         host = args.host
         port = args.port
-        metrics_log = args.metrics_log
+        metrics_config = args.metrics_config
 
         if BENCHMARK:
             import cProfile
@@ -213,7 +218,7 @@ if __name__ == "__main__":
             pr.dump_stats("/tmp/tsPythonProfile.prof")
 
         worker = TorchModelServiceWorker(
-            sock_type, socket_name, host, port, metrics_log
+            sock_type, socket_name, host, port, metrics_config
         )
         worker.run_server()
         if BENCHMARK:

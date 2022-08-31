@@ -184,18 +184,18 @@ parse the backend metrics from the yaml file.
 1. Create a `metrics.yaml` file to parse metrics from OR utilize default [metrics_default.yaml](https://github.com/pytorch/serve/blob/master/frontend/server/src/test/resources/metrics_default.yaml)
 
 
-2. Set `metrics_log` argument equal to the yaml file path in the `config.properties` being used:
+2. Set `metrics_config` argument equal to the yaml file path in the `config.properties` being used:
     ```properties
     ...
     ...
     # enable_metrics_api=false
     workflow_store=../archive/src/test/resources/workflows
-    metrics_log=../../../ts/tests/unit_tests/metrics_yaml_testing/metrics.yaml
+    metrics_config=../../../ts/tests/unit_tests/metrics_yaml_testing/metrics.yaml
     ...
     ...
     ```
 
-   If a `metrics_log` argument is not specified, the default yaml file will be used.
+   If a `metrics_config` argument is not specified, the default yaml file will be used.
 
 
 3. Run torchserve and specify the path of the `config.properties` after the `ts-config` flag:
