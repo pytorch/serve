@@ -1,9 +1,13 @@
 #include "logging.hh"
 
 namespace torchserve {
+  void Logger::InitDefaultLogger() {
+    auto config = folly::parseLogConfig("INFO:consoleLogger;consoleLogger=stream:stream=stdout,async=true");
+    folly::LoggerDB::get().resetConfig(config);
+  }
   void Logger::InitLogger(const std::string& logger_config) {
-    folly::LoggerDB::get().registerHandlerFactory(std::make_unique<folly::FileHandlerFactory>());
     auto config = folly::parseLogConfig(logger_config);
+    folly::LoggerDB::get().registerHandlerFactory(std::make_unique<folly::FileHandlerFactory>());
     folly::LoggerDB::get().resetConfig(config);
   }
 

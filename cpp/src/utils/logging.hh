@@ -44,6 +44,7 @@ namespace torchserve {
   public:
     Logger();
     virtual ~Logger() = 0;
+    static void InitDefaultLogger();
     static void InitLogger(const std::string& logger_config);
 
     template <typename... Args>

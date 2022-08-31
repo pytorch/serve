@@ -28,7 +28,7 @@ function install_dependencies_linux() {
     flex \
     bison \
     libgflags-dev \
-    libgoogle-glog-dev \
+    google-mock \
     libkrb5-dev \
     libsasl2-dev \
     libnuma-dev \
@@ -61,7 +61,7 @@ function install_dependencies_mac() {
     boost                    \
     double-conversion        \
     gflags                   \
-    glog                     \
+    googletest               \
     gperf                    \
     libevent                 \
     lz4                      \
@@ -75,7 +75,7 @@ function install_dependencies_mac() {
     boost                   \
     double-conversion       \
     gflags                  \
-    glog                    \
+    googletest              \
     gperf                   \
     libevent                \
     lz4                     \
