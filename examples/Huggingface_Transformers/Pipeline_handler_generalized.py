@@ -18,7 +18,8 @@ from transformers import pipeline
 #Reference: https://huggingface.co/docs/transformers/main_classes/pipelines#transformers.pipeline.task
 pipeline_supported_tasks= [
     "image-classification",
-    "sentiment-analysis"
+    "sentiment-analysis",
+    "text-classification"
 ]
 
 task="<PLACEHOLDER>"
@@ -38,7 +39,8 @@ class HFPipelineHandler(BaseHandler):
             '''
             self.map_to_preproc_fn = {
                 "image-classification":self.preprocess_image_classification_single,
-                "sentiment-analysis":self.preprocess_sentiment_analysis_single
+                "sentiment-analysis":self.preprocess_sentiment_analysis_single,
+                "text-classification":self.preprocess_sentiment_analysis_single
             }
             pass
         '''
@@ -61,9 +63,11 @@ class HFPipelineHandler(BaseHandler):
 
         #Function to read .txt file and convert it into a string
         def preprocess_sentiment_analysis_single(self, file):
-            with open(file, 'r') as file:
-                readfile = file.read().replace('\n', '')
-            return readfile
+            text = file.get("data") or file.get("body")
+            # Decode text if not a str but bytes or bytearray
+            if isinstance(text, (bytes, bytearray)):
+                text = text.decode("utf-8", errors='ignore')
+            return text
 
     class HFPipelinePostprocessFactory:
         '''
@@ -73,7 +77,8 @@ class HFPipelineHandler(BaseHandler):
         def __init__(self):
             self.map_to_postproc_fn = {
                 "image-classification":None,
-                "sentiment-analysis":None
+                "sentiment-analysis":None,
+                "text-classification":None
             }
             pass 
         def __call__(self, data):
