@@ -7,7 +7,7 @@
 * Decide a model name (variable `$modelName` below) for the task (variable `$task` below) supported by a 🤗 model that supports the task (its repo link as variable `$repoUrl` below), then run the below commands to download the models and create the `.mar` file:
 ```
 #Setup
-pip install torch-model-archiver
+pip install torch-model-archiver git-lfs
 ROOT=$(pwd)
 git clone https://github.com/pytorch/serve.git
 

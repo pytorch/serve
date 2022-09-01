@@ -100,7 +100,7 @@ class HFPipelineHandler(BaseHandler):
 
         print("Creating pipeline")
         pipe = pipeline(task=task, framework=framework, model=model_folder, device = device_id)
-        print("Successfully loaded DistilBERT model from HF hub")
+        print("Successfully loaded HF model from folder: {hf_models_folder}/{model_name}")
         return pipe
 
     def initialize(self, context):
