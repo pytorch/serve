@@ -13,12 +13,15 @@ import tempfile
 from builtins import str
 
 import psutil
+from retrying import retry
 
 from ts.arg_parser import ArgParser
 from ts.version import __version__
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
+
+TS_NAMESPACE = "org.pytorch.serve.ModelServer"
 
 
 def start():
@@ -135,7 +138,7 @@ def start():
         cmd.append("-cp")
         cmd.append(class_path)
 
-        cmd.append("org.pytorch.serve.ModelServer")
+        cmd.append(TS_NAMESPACE)
 
         # model-server.jar command line parameters
         cmd.append("--python")
@@ -193,7 +196,6 @@ def start():
                 pf.write(str(pid))
             if args.foreground:
                 process.wait()
-            _add_sigterm_handler(pid)
         except OSError as e:
             if e.errno == 2:
                 logger.info(
@@ -202,15 +204,37 @@ def start():
             else:
                 logger.info("start java frontend failed:", sys.exc_info())
 
+        ts_process = _retrieve_ts_server_process()
+        _add_sigterm_handler(ts_process)
+        ts_process.wait()
 
-def _add_sigterm_handler(pid):
+
+def _add_sigterm_handler(ts_process):
     def _terminate(signo, frame):  # pylint: disable=unused-argument
         try:
-            os.kill(pid, signal.SIGTERM)
+            os.kill(ts_process.pid, signal.SIGTERM)
         except OSError:
             pass
 
     signal.signal(signal.SIGTERM, _terminate)
+
+
+# retry for 10 seconds
+@retry(stop_max_delay=10 * 1000)
+def _retrieve_ts_server_process():
+    ts_server_processes = []
+
+    for process in psutil.process_iter():
+        if TS_NAMESPACE in process.cmdline():
+            ts_server_processes.append(process)
+
+    if not ts_server_processes:
+        raise Exception("Torchserve model server was unsuccessfully started")
+
+    if len(ts_server_processes) > 1:
+        raise Exception("multiple ts model servers are not supported")
+
+    return ts_server_processes[0]
 
 
 def load_properties(file_path):
