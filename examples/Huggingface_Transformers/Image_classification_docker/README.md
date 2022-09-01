@@ -57,24 +57,23 @@ pip install torch-model-archiver
 Follow the [Docker installation guide](https://docs.docker.com/engine/install/) in case it is not installed.
 
 ## Running the Torchserve server
-Navigate to the current folder after cloning this repo: 
-
+Cloning the repo: 
 ```
 ROOT=$(pwd)
 git clone https://github.com/pytorch/serve.git
 ```
 
-Build a Torchserve CPU Docker container (or GPU/IPEX containers following the [original guide](https://github.com/pytorch/serve/tree/master/docker#create-torchserve-docker-image)):  
+Building a Torchserve CPU Docker container (or GPU/IPEX containers following the [original guide](https://github.com/pytorch/serve/tree/master/docker#create-torchserve-docker-image)):  
 ```
 cd $ROOT/serve/docker && ./build_image.sh -bt production -t torchserve-cpu-prod && cd $ROOT
 ```
 
-Check whether the Torchserve image is present in the list of Docker images:
+Checking whether the Torchserve image is present in the list of Docker images:
 ```
 docker images
 ```
 
-Run the Torchserve server container with Docker and archived model (refer to [this](https://github.com/pytorch/serve/tree/master/docker#create-torch-model-archiver-from-container) and [this](https://github.com/pytorch/serve/blob/fd4e3e8b72bed67c1e83141265157eed975fec95/docs/use_cases.md#secure-model-serving) for more details):
+Running the Torchserve server container with Docker while binding Model store & HF model directories (refer to [this](https://github.com/pytorch/serve/tree/master/docker#create-torch-model-archiver-from-container) for more details):
 
 ```
 WORKDIR="$ROOT/serve/examples/Huggingface_Transformers/Image_classification_docker"
@@ -82,21 +81,21 @@ cd $WORKDIR && mkdir -p HF-models && mkdir -p model-store
 docker run -d --rm -it --shm-size=50g -p 8080:8080 -p 8081:8081 --name torchserve-cpu-prod --mount type=bind,source=$WORKDIR/scripts/config.properties,target=/home/model-server/config.properties --mount type=bind,source=$WORKDIR/model-store,target=/home/model-server/model-store --mount type=bind,source=$WORKDIR/HF-models,target=/home/model-server/HF-models torchserve-cpu-prod torchserve --ncs --model-store=/home/model-server/model-store --ts-config /home/model-server/config.properties
 ```
 
-Check whether the server was started properly (keep trying repeatedly for a few seconds while server boots up):
+Checking whether the server was started properly after waiting for a few seconds:
 ```
 curl http://127.0.0.1:8080/ping
 #OR
 curl http://127.0.0.1:8081/models/
 ```
 
-Install git-lfs to be able to download 🤗 models from the hub:
+Installing git-lfs to be able to download 🤗 models from the hub:
 ```
 pip install git-lfs
 ```
 
 ## Registering a 🤗 model from the [hub](https://huggingface.co/models)
 
-Download the 🤗 model repo with git-lfs ([example](https://huggingface.co/apple/mobilevit-xx-small)) along with all the model dependencies like checkpoints, vocabulary, config etc:
+Downloading the 🤗 model repo with git-lfs ([example](https://huggingface.co/apple/mobilevit-xx-small)) along with all the model dependencies like checkpoints, vocabulary, config etc:
 ```
 git clone https://huggingface.co/apple/mobilevit-xx-small $WORKDIR/HF-models/vitxxsmall/
 git lfs install && cd HF-models/vitxxsmall/ && git lfs install && git lfs pull && cd $WORKDIR
@@ -105,7 +104,7 @@ git lfs install && cd HF-models/vitxxsmall/ && git lfs install && git lfs pull &
 ⚠️ **IMPORTANT NOTE** ⚠️: The folder in which the 🤗 model repo is cloned & the name of the `.mar` file should be EXACTLY the same, this constraint was necessary to register new models with `curl POST` requests flexibly (i.e, during server intialization as well as afterwards).
 
 
-Create a Torchserve model archive file by creating and using the model handler file (`scripts/mobilevit_handler.py` in our example) along with relevant dependencies in `developer.txt` (including 🤗 transformers).  
+Creating a Torchserve model archive file by creating and using the model handler file (`scripts/mobilevit_handler.py` in our example) along with relevant dependencies in `developer.txt` (including 🤗 transformers).  
 
 **NOTE:** Here, we are not giving a pretrained checkpoint as a `.pth` file, hence the `--serialized-file` option is redundant as we do not use the context in our handler. 
 ```
@@ -116,6 +115,7 @@ cd $ROOT/serve/examples/Huggingface_Transformers && chmod +x create_hf_handler.s
 touch dummy_file.pth
 echo "transformers==4.21.2" > transformers_req.txt
 torch-model-archiver --model-name vitxxsmall --serialized-file dummy_file.pth --version 1.0 --handler $WORKDIR/scripts/mobilevit_handler.py --export-path $WORKDIR/model-store -r transformers_req.txt
+cd $WORKDIR
 rm -f dummy_file.pth
 ```
 
@@ -137,7 +137,7 @@ cat logs/model_log.log
 
 ## Managing registered models
 
-Run the following commands to check the registered models :
+Running the following commands to check the registered models :
 ```
 curl http://127.0.0.1:8081/models/
 
@@ -162,4 +162,4 @@ time curl -X POST http://localhost:8080/predictions/vitxxsmall -T dog.png
 ```
 
 
-However, in real scenarios, the registered model would receive many concurrent requests and hence, we need a better benchmarking approach. We provide several utilities that can be used to perform real-time benchmarking even with custom metrics ([reference](https://github.com/pytorch/serve/tree/master/benchmarks#torchserve-model-server-benchmarking)).  
+However, in real scenarios, the registered model would receive many concurrent requests and hence, we need a better benchmarking approach. Several utilities are provided that can be used to perform real-time benchmarking even with custom metrics ([reference](https://github.com/pytorch/serve/tree/master/benchmarks#torchserve-model-server-benchmarking)).  

@@ -46,6 +46,7 @@ do
             touch dummy_file.pth
             echo "transformers==4.21.2" > transformers_req.txt
             torch-model-archiver --model-name $MODEL_NAME --serialized-file dummy_file.pth --version 1.0 --handler $HANDLER_PATH --export-path $WORKDIR/model-store -r transformers_req.txt
+            cd $WORKDIR
             rm -f dummy_file.pth
             shift 2
             ;;
