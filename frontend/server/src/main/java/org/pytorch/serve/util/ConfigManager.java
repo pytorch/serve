@@ -374,16 +374,12 @@ public final class ConfigManager {
 
         String[] basePathList = basePath.split("/");
         List<String> serveBasePath = new ArrayList<String>();
-        for (int i = 0; i < basePathList.length; i++)
-        {
+        for (int i = 0; i < basePathList.length; i++) {
             String directory = basePathList[i];
-            if (directory.equals("serve"))
-            {
+            if ("serve".equals(directory)) {
                 serveBasePath.add(directory);
                 break;
-            }
-            else
-            {
+            } else {
                 serveBasePath.add(directory);
             }
         }
