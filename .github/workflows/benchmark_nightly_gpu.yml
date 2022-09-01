@@ -1,13 +1,13 @@
 name: Benchmark torchserve gpu nightly
 
-
 on:
-  # run every day at 2:15am
   schedule:
     - cron:  '15 02 * * *'
+  pull_request:
 
 jobs:
   nightly:
+    if: ${{ (github.repository_owner == 'pytorch' && contains(github.event.pull_request.body, 'RUN_BENCHMARK')) || github.event_name  == 'schedule' }}
     runs-on: [self-hosted, gpu]
     timeout-minutes: 1320
     steps:

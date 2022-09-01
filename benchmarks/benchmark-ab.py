@@ -507,7 +507,7 @@ def generate_csv_output():
     artifacts["TS latency P90"] = extract_entity(data, "90%", -1)
     artifacts["TS latency P99"] = extract_entity(data, "99%", -1)
     artifacts["TS latency mean"] = extract_entity(data, "Time per request:.*mean\)", -3)
-    if isinstance(artifacts["TS failed requests"], type(None)):
+    if artifacts["TS failed requests"] in [None, "", 0]:
         artifacts["TS error rate"] = 0.0
     else:
         artifacts["TS error rate"] = (
