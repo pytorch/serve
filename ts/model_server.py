@@ -2,17 +2,23 @@
 File to define the entry point to Model Server
 """
 
+import logging
 import os
+import platform
 import re
+import signal
 import subprocess
 import sys
 import tempfile
 from builtins import str
-import platform
 
 import psutil
-from ts.version import __version__
+
 from ts.arg_parser import ArgParser
+from ts.version import __version__
+
+TS_NAMESPACE = "org.pytorch.serve.ModelServer"
+logger = logging.getLogger()
 
 
 def start():
@@ -29,29 +35,29 @@ def start():
 
     # pylint: disable=too-many-nested-blocks
     if args.version:
-        print("TorchServe Version is {}".format(__version__))
+        logger.info("TorchServe Version is {}".format(__version__))
         return
     if args.stop:
         if pid is None:
-            print("TorchServe is not currently running.")
+            logger.info("TorchServe is not currently running.")
         else:
             try:
                 parent = psutil.Process(pid)
                 parent.terminate()
-                print("TorchServe has stopped.")
+                logger.info("TorchServe has stopped.")
             except (OSError, psutil.Error):
-                print("TorchServe already stopped.")
+                logger.info("TorchServe already stopped.")
             os.remove(pid_file)
     else:
         if pid is not None:
             try:
                 psutil.Process(pid)
-                print(
+                logger.info(
                     "TorchServe is already running, please use torchserve --stop to stop TorchServe."
                 )
                 sys.exit(1)
             except psutil.Error:
-                print("Removing orphan pid file.")
+                logger.info("Removing orphan pid file.")
                 os.remove(pid_file)
 
         java_home = os.environ.get("JAVA_HOME")
@@ -62,7 +68,7 @@ def start():
         if args.log_config:
             log_config = os.path.realpath(args.log_config)
             if not os.path.isfile(log_config):
-                print("--log-config file not found: {}".format(log_config))
+                logger.info("--log-config file not found: {}".format(log_config))
                 sys.exit(1)
 
             cmd.append("-Dlog4j.configurationFile=file://{}".format(log_config))
@@ -70,7 +76,7 @@ def start():
         tmp_dir = os.environ.get("TEMP")
         if tmp_dir:
             if not os.path.isdir(tmp_dir):
-                print(
+                logger.info(
                     "Invalid temp directory: {}, please check TEMP environment variable.".format(
                         tmp_dir
                     )
@@ -85,7 +91,7 @@ def start():
         ts_conf_file = None
         if ts_config:
             if not os.path.isfile(ts_config):
-                print("--ts-config file not found: {}".format(ts_config))
+                logger.info("--ts-config file not found: {}".format(ts_config))
                 sys.exit(1)
             ts_conf_file = ts_config
 
@@ -99,7 +105,7 @@ def start():
             props = load_properties(ts_conf_file)
             vm_args = props.get("vmargs")
             if vm_args:
-                print(
+                logger.info(
                     "Warning: TorchServe is using non-default JVM parameters: {}".format(
                         vm_args
                     )
@@ -141,18 +147,20 @@ def start():
 
         if args.model_store:
             if not os.path.isdir(args.model_store):
-                print("--model-store directory not found: {}".format(args.model_store))
+                logger.info(
+                    "--model-store directory not found: {}".format(args.model_store)
+                )
                 sys.exit(1)
 
             cmd.append("-s")
             cmd.append(args.model_store)
         else:
-            print("Missing mandatory parameter --model-store")
+            logger.info("Missing mandatory parameter --model-store")
             sys.exit(1)
 
         if args.workflow_store:
             if not os.path.isdir(args.workflow_store):
-                print(
+                logger.info(
                     "--workflow-store directory not found: {}".format(
                         args.workflow_store
                     )
@@ -175,7 +183,7 @@ def start():
                 pattern = re.compile(r"(.+=)?http(s)?://.+", re.IGNORECASE)
                 for model_url in args.models:
                     if not pattern.match(model_url) and model_url != "ALL":
-                        print("--model-store is required to load model locally.")
+                        logger.info("--model-store is required to load model locally.")
                         sys.exit(1)
 
         try:
@@ -185,11 +193,24 @@ def start():
                 pf.write(str(pid))
             if args.foreground:
                 process.wait()
+            _add_sigterm_handler(pid)
         except OSError as e:
             if e.errno == 2:
-                print("java not found, please make sure JAVA_HOME is set properly.")
+                logger.info(
+                    "java not found, please make sure JAVA_HOME is set properly."
+                )
             else:
-                print("start java frontend failed:", sys.exc_info())
+                logger.info("start java frontend failed:", sys.exc_info())
+
+
+def _add_sigterm_handler(pid):
+    def _terminate(signo, frame):  # pylint: disable=unused-argument
+        try:
+            os.kill(pid, signal.SIGTERM)
+        except OSError:
+            pass
+
+    signal.signal(signal.SIGTERM, _terminate)
 
 
 def load_properties(file_path):
