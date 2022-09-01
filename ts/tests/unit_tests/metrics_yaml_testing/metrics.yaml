@@ -34,5 +34,3 @@ model_metrics:
     - HistogramModelMetricNameExample:
         unit: ms
         dimensions: [ModelName, Level]
-
-

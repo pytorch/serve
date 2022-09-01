@@ -374,17 +374,27 @@ public final class ConfigManager {
 
         String[] basePathList = basePath.split("/");
         List<String> serveBasePath = new ArrayList<String>();
+        int serveIndex = basePathList.length;
+
         for (int i = 0; i < basePathList.length; i++) {
             String directory = basePathList[i];
             if ("serve".equals(directory)) {
-                serveBasePath.add(directory);
-                break;
-            } else {
-                serveBasePath.add(directory);
+                serveIndex = i;
             }
         }
+
+        if (serveIndex == basePathList.length) {
+            serveIndex--;
+        }
+
+        for (int j = 0; j < serveIndex + 1; j++) {
+            String directory = basePathList[j];
+            serveBasePath.add(directory);
+        }
+
         String serveBasePathString = String.join("/", serveBasePath);
         String yamlAbsolutePath = serveBasePathString + yamlModulePath;
+
         return getProperty(TS_METRICS_CONFIG, yamlAbsolutePath);
     }
 

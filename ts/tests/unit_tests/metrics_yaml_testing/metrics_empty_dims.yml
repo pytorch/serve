@@ -40,4 +40,3 @@ model_metrics:
     - AnotherHistogram:
         unit: ms
         dimensions: []
-
