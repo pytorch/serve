@@ -51,7 +51,7 @@ namespace torchserve {
     // TODO; impl.
     //short MAX_FAILURE_THRESHOLD = 5;
     //float SOCKET_ACCEPT_TIMEOUT = 30.0f;
-    Socket server_socket_;
+    int server_socket_;
     std::string socket_type_;
     std::string socket_name_;
     ushort port_;
@@ -60,13 +60,9 @@ namespace torchserve {
 
   class SocketModelWorker {
     public:
-    SocketModelWorker(Socket client_socket, std::shared_ptr<torchserve::Backend> backend) : 
+    SocketModelWorker(int client_socket, std::shared_ptr<torchserve::Backend> backend) : 
     client_socket_(client_socket), backend_(backend) {};
-    ~SocketModelWorker() {
-      if (client_socket_ >= 0) {
-        close(client_socket_);
-      }
-    };
+    ~SocketModelWorker() = default;
 
     [[noreturn]] void Run();
 

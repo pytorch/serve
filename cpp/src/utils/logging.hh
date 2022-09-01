@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <string>
+#include <stdexcept>
 #include <vector>
 #include <folly/init/Init.h>
 #include <folly/logging/Init.h>
@@ -46,6 +47,8 @@ namespace torchserve {
     virtual ~Logger() = 0;
     static void InitDefaultLogger();
     static void InitLogger(const std::string& logger_config);
+    // TODO: Add Initializer for file based config parsing
+    // static void InitLogger(const std::filesystem::path& logconfig_file_path);
 
     template <typename... Args>
     static void Log(LogLevel level,

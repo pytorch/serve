@@ -6,8 +6,18 @@ namespace torchserve {
     folly::LoggerDB::get().resetConfig(config);
   }
   void Logger::InitLogger(const std::string& logger_config) {
-    auto config = folly::parseLogConfig(logger_config);
-    folly::LoggerDB::get().registerHandlerFactory(std::make_unique<folly::FileHandlerFactory>());
+    folly::LogConfig config;
+    try {
+      config = folly::parseLogConfig(logger_config);
+      folly::LoggerDB::get().registerHandlerFactory(std::make_unique<folly::FileHandlerFactory>());
+    } catch(const std::range_error& e) {
+      // Do nothing if a FileHandler has already been registered
+      if (std::strcmp(e.what(), "a LogHandlerFactory for the type \"file\" already exists") != 0) {
+        throw e;
+      }
+    } catch(const folly::LogConfigParseError& e) {
+      throw std::invalid_argument("Failed to parse logging config");
+    }
     folly::LoggerDB::get().resetConfig(config);
   }
 

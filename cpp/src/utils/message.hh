@@ -67,6 +67,15 @@ namespace torchserve {
     ) : model_dir{model_dir}, model_name{model_name}, gpu_id{gpu_id}, 
     handler{handler}, envelope{envelope}, batch_size{batch_size}, 
     limit_max_image_pixels{limit_max_image_pixels} {}
+
+    bool operator==(const LoadModelRequest& other) {
+      return this->model_dir == other.model_dir &&
+             this->model_name == other.model_name &&
+             this->gpu_id == other.gpu_id &&
+             this->handler == other.handler &&
+             this->batch_size == other.batch_size &&
+             this->limit_max_image_pixels == other.limit_max_image_pixels;
+    }
   };
 
   struct LoadModelResponse {

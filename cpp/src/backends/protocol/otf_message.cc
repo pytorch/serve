@@ -1,22 +1,6 @@
-#include <arpa/inet.h>
-#include <sys/socket.h>
-
 #include "src/backends/protocol/otf_message.hh"
 
 namespace torchserve {
-  bool OTFMessage::SendAll(Socket conn, char *data, size_t length) {
-    char* pkt = data;
-    while (length > 0) {
-      ssize_t pkt_size = send(conn, pkt, length, 0);
-      if (pkt_size < 0) {
-        return false;
-      }
-      pkt += pkt_size;
-      length -= pkt_size;
-    }
-    return true;
-  }
-
   void OTFMessage::EncodeLoadModelResponse(std::unique_ptr<torchserve::LoadModelResponse> response, char* data) {
     char* p = data;
     // Serialize response code
@@ -37,21 +21,21 @@ namespace torchserve {
     p += sizeof(no_predict);
   }
 
-  bool OTFMessage::SendLoadModelResponse(Socket client_socket_, std::unique_ptr<torchserve::LoadModelResponse> response) {
+  bool OTFMessage::SendLoadModelResponse(const ISocket& client_socket_, std::unique_ptr<torchserve::LoadModelResponse> response) {
     char *data = new char[sizeof(LoadModelResponse)];
     torchserve::OTFMessage::EncodeLoadModelResponse(std::move(response), data);
-    bool status = torchserve::OTFMessage::SendAll(client_socket_, data, sizeof(LoadModelResponse));
+    bool status = client_socket_.SendAll(sizeof(LoadModelResponse), data);
     delete[] data;
     return status;
   }
 
-  char OTFMessage::RetrieveCmd(Socket conn) {
+  char OTFMessage::RetrieveCmd(const ISocket& client_socket_) {
     char* data = new char[1];
-    RetrieveBuffer(conn, 1, data);
+    client_socket_.RetrieveBuffer(1, data);
     return data[0];
   }
 
-  std::shared_ptr<LoadModelRequest> OTFMessage::RetrieveLoadMsg(Socket conn) {
+  std::shared_ptr<LoadModelRequest> OTFMessage::RetrieveLoadMsg(const ISocket& client_socket_) {
     /**
      * @brief 
      * MSG Frame Format:
@@ -67,42 +51,42 @@ namespace torchserve {
     char* data;
 
     // Model Name
-    length = RetrieveInt(conn);
+    length = client_socket_.RetrieveInt();
     data = new char[length];
-    RetrieveBuffer(conn, length, data);
+    client_socket_.RetrieveBuffer(length, data);
     std::string model_name(data, length);
     delete[] data;
 
     // Model Path
-    length = RetrieveInt(conn);
+    length = client_socket_.RetrieveInt();
     data = new char[length];
-    RetrieveBuffer(conn, length, data);
+    client_socket_.RetrieveBuffer(length, data);
     std::string model_dir(data, length);
     delete[] data;
 
     // Batch Size
-    auto batch_size = RetrieveInt(conn);
+    auto batch_size = client_socket_.RetrieveInt();
 
     // Handler Name (Not used)
-    length = RetrieveInt(conn);
+    length = client_socket_.RetrieveInt();
     data = new char[length];
-    RetrieveBuffer(conn, length, data);
+    client_socket_.RetrieveBuffer(length, data);
     std::string handler(data, length);
     delete[] data;
     TS_LOGF(INFO, "Received handler in message, will be ignored: {}", handler);
 
     // GPU ID
-    auto gpu_id = RetrieveInt(conn);
+    auto gpu_id = client_socket_.RetrieveInt();
 
     // Envelope
-    length = RetrieveInt(conn);
+    length = client_socket_.RetrieveInt();
     data = new char[length];
-    RetrieveBuffer(conn, length, data);
+    client_socket_.RetrieveBuffer(length, data);
     std::string envelope(data, length);
     delete[] data;
 
     // Limit max image pixels
-    auto limit_max_image_pixels = RetrieveBool(conn);
+    auto limit_max_image_pixels = client_socket_.RetrieveBool();
 
     TS_LOGF(DEBUG, "Model Name: {}", model_name);
     TS_LOGF(DEBUG, "Model dir: {}", model_dir);
@@ -115,35 +99,5 @@ namespace torchserve {
     return std::make_shared<LoadModelRequest>(
       model_dir, model_name, gpu_id, handler, 
       envelope, batch_size, limit_max_image_pixels);
-  }
-
-  void OTFMessage::RetrieveBuffer(Socket conn, size_t length, char *data) {
-    char* pkt = data;
-    while (length > 0) {
-      ssize_t pkt_size = recv(conn, pkt, length, 0);
-      if (pkt_size == 0) {
-        TS_LOG(INFO, "Frontend disconnected.");
-        exit(0);
-      }
-      pkt += pkt_size;
-      length -= pkt_size;
-    }
-  }
-
-  int OTFMessage::RetrieveInt(Socket conn) {
-    // TODO: check network - host byte-order is correct: ntohl() and htonl() <arpa/inet.h>
-    char data[INT_STD_SIZE];
-    int value;
-    RetrieveBuffer(conn, INT_STD_SIZE, data);
-    std::memcpy(&value, data, INT_STD_SIZE);
-    return ntohl(value);
-  }
-
-  bool OTFMessage::RetrieveBool(Socket conn) {
-    char data[BOOL_STD_SIZE];
-    bool value;
-    RetrieveBuffer(conn, BOOL_STD_SIZE, data);
-    std::memcpy(&value, data, BOOL_STD_SIZE);
-    return value;
   }
 } //namespace torchserve
