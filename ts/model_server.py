@@ -17,8 +17,8 @@ import psutil
 from ts.arg_parser import ArgParser
 from ts.version import __version__
 
-TS_NAMESPACE = "org.pytorch.serve.ModelServer"
 logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 
 def start():
