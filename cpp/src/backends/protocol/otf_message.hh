@@ -3,6 +3,7 @@
 
 #include <chrono>
 #include <ctime>
+#include <optional>
 #include <string>
 #include <variant>
 
@@ -37,7 +38,7 @@ namespace torchserve {
                                                   InferenceRequest::Parameters& inference_request_parameters, bool& is_valid);
     static void AppendIntegerToCharVector(std::vector<char>& dest_vector, const int32_t& source_integer);
     static void AppendOTFStringToCharVector(std::vector<char>& dest_vector, const std::string& source_string);
-    static std::shared_ptr<std::string> RetrieveStringBuffer(Socket conn, int length);
+    static std::shared_ptr<std::string> RetrieveStringBuffer(Socket conn, std::optional<int> length);
   };
 } // namespace torchserve
 #endif // TS_CPP_BACKENDS_PROTOCOL_OTF_MESSAGE_HH_

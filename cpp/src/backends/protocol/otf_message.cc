@@ -113,22 +113,32 @@ namespace torchserve {
         break;
       }
 
-      // TODO: use move?
-      inference_requests->push_back(*inference_request);
+      inference_requests->push_back(std::move(*inference_request));
+    }
+
+    for (auto request : *inference_requests) {
+      LOG(INFO) << "req id: " << request.request_id;
+      for (auto header : request.headers) {
+        LOG(INFO) << header.first << ", " << header.second;
+      }
+
+      for(auto param : request.parameters) {
+        LOG(INFO) << std::string(param.first.begin(), param.first.end()) << ": "
+        << std::string(param.second.begin(), param.second.end());
+      }
     }
 
     return inference_requests;
   }
 
   std::shared_ptr<InferenceRequest> OTFMessage::RetrieveInferenceRequest(Socket conn) {
-    int length;
     // fetch request id
-    length = RetrieveInt(conn);
+    int length = RetrieveInt(conn);
     if (length == -1) {
       return nullptr;
     }
 
-    auto request_id = RetrieveStringBuffer(conn, length);
+    auto request_id = RetrieveStringBuffer(conn, std::make_optional(length));
 
     // fetch headers
     InferenceRequest::Headers headers{};
@@ -164,10 +174,8 @@ namespace torchserve {
       return;
     }
 
-    auto parameter_name = RetrieveStringBuffer(conn, length);
-
-    length = RetrieveInt(conn);
-    auto content_type = RetrieveStringBuffer(conn, length);
+    auto parameter_name = RetrieveStringBuffer(conn, std::make_optional(length));
+    auto content_type = RetrieveStringBuffer(conn, std::nullopt);
 
     length = RetrieveInt(conn);
     data = new char[length];
@@ -180,20 +188,15 @@ namespace torchserve {
   }
 
   void OTFMessage::RetrieveInferenceRequestHeader(Socket conn, InferenceRequest::Headers& inference_request_headers, bool& is_valid) {
-    int length;
-
-    length = RetrieveInt(conn);
+    int length = RetrieveInt(conn);
 
     if (length == -1) {
       is_valid = false;
       return;
     }
 
-    auto header_name = RetrieveStringBuffer(conn, length);
-
-    length = RetrieveInt(conn);
-    auto header_value = RetrieveStringBuffer(conn, length);
-
+    auto header_name = RetrieveStringBuffer(conn, std::make_optional(length));
+    auto header_value = RetrieveStringBuffer(conn, std::nullopt);
     inference_request_headers[*header_name] = *header_value;
   }
 
@@ -249,8 +252,8 @@ namespace torchserve {
     AppendIntegerToCharVector(data_buffer, end_of_response_code);
   }
 
-  // TODO: pass length as optional argument
-  std::shared_ptr<std::string> OTFMessage::RetrieveStringBuffer(Socket conn, int length) {
+  std::shared_ptr<std::string> OTFMessage::RetrieveStringBuffer(Socket conn, std::optional<int> length_opt) {
+    int length = length_opt ? length_opt.value() : RetrieveInt(conn);
     char* data = new char[length];
     RetrieveBuffer(conn, length, data);
     auto string_data = std::make_shared<std::string>(data, length);
