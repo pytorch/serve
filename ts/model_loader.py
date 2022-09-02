@@ -106,27 +106,8 @@ class TsModelLoader(ModelLoader):
                     handler
                 )
             )
-        if function_name is None:
-            function_name = "handle"
-
-        if hasattr(module, function_name):
-            entry_point = getattr(module, function_name)
-            service = Service(
-                model_name,
-                model_dir,
-                manifest,
-                entry_point,
-                gpu_id,
-                batch_size,
-                limit_max_image_pixels,
-                metrics_cache,
-            )
-
-        envelope_class = None
-        if envelope is not None:
-            envelope_class = self._load_default_envelope(envelope)
-
         function_name = function_name or "handle"
+
         if hasattr(module, function_name):
             entry_point, initialize_fn = self._get_function_entry_point(
                 module, function_name
@@ -134,9 +115,12 @@ class TsModelLoader(ModelLoader):
         else:
             entry_point, initialize_fn = self._get_class_entry_point(module)
 
-        if envelope_class is not None:
-            envelope_instance = envelope_class(entry_point)
-            entry_point = envelope_instance.handle
+        if envelope is not None:
+
+            envelope_class = self._load_default_envelope(envelope)
+            if envelope_class is not None:
+                envelope_instance = envelope_class(entry_point)
+                entry_point = envelope_instance.handle
 
         service = Service(
             model_name,
