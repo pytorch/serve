@@ -99,7 +99,7 @@ namespace torchserve {
     TS_LOGF(DEBUG, "Limit max image pixels: {}", limit_max_image_pixels);
 
     return std::make_shared<LoadModelRequest>(
-      model_path, model_name, gpu_id, handler,
+      model_dir, model_name, gpu_id, handler,
       envelope, batch_size, limit_max_image_pixels);
   }
 
@@ -117,25 +117,11 @@ namespace torchserve {
       inference_requests->push_back(*inference_request);
     }
 
-    for (auto request : *inference_requests) {
-      LOG(INFO) << "req id: " << request.request_id;
-      for (auto header : request.headers) {
-        LOG(INFO) << header.first << ", " << header.second;
-      }
-
-      for(auto param : request.parameters) {
-        LOG(INFO) << std::string(param.first.begin(), param.first.end()) << ": "
-        << std::string(param.second.begin(), param.second.end());
-      }
-
-    }
     return inference_requests;
   }
 
   std::shared_ptr<InferenceRequest> OTFMessage::RetrieveInferenceRequest(Socket conn) {
     int length;
-    char* data;
-
     // fetch request id
     length = RetrieveInt(conn);
     if (length == -1) {

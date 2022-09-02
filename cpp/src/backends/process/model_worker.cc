@@ -42,7 +42,7 @@ namespace torchserve {
     if (server_socket_ == -1) {
       TS_LOGF(FATAL, "Failed to create socket descriptor. errno: {}", errno);
     }
-    
+
     if (!CreateBackend(runtime_type, model_dir)) {
       TS_LOGF(FATAL, "Failed to create backend, model_dir: {}", model_dir);
     }
