@@ -103,12 +103,12 @@ namespace torchserve {
       envelope, batch_size, limit_max_image_pixels);
   }
 
-  std::shared_ptr<torchserve::InferenceRequestBatch> OTFMessage::RetrieveInferenceMsg(Socket conn) {
+  std::shared_ptr<torchserve::InferenceRequestBatch> OTFMessage::RetrieveInferenceMsg(const ISocket& client_socket_) {
     std::shared_ptr<torchserve::InferenceRequestBatch> inference_requests(new InferenceRequestBatch);
 
     while (true)
     {
-      auto inference_request = RetrieveInferenceRequest(conn);
+      auto inference_request = RetrieveInferenceRequest(client_socket_);
       if (inference_request == nullptr) {
         break;
       }
@@ -116,35 +116,23 @@ namespace torchserve {
       inference_requests->push_back(std::move(*inference_request));
     }
 
-    for (auto request : *inference_requests) {
-      LOG(INFO) << "req id: " << request.request_id;
-      for (auto header : request.headers) {
-        LOG(INFO) << header.first << ", " << header.second;
-      }
-
-      for(auto param : request.parameters) {
-        LOG(INFO) << std::string(param.first.begin(), param.first.end()) << ": "
-        << std::string(param.second.begin(), param.second.end());
-      }
-    }
-
     return inference_requests;
   }
 
-  std::shared_ptr<InferenceRequest> OTFMessage::RetrieveInferenceRequest(Socket conn) {
+  std::shared_ptr<InferenceRequest> OTFMessage::RetrieveInferenceRequest(const ISocket& client_socket_) {
     // fetch request id
-    int length = RetrieveInt(conn);
+    int length = client_socket_.RetrieveInt();
     if (length == -1) {
       return nullptr;
     }
 
-    auto request_id = RetrieveStringBuffer(conn, std::make_optional(length));
+    auto request_id = RetrieveStringBuffer(client_socket_, std::make_optional(length));
 
     // fetch headers
     InferenceRequest::Headers headers{};
     bool is_valid = true;
     while (true) {
-      RetrieveInferenceRequestHeader(conn, headers, is_valid);
+      RetrieveInferenceRequestHeader(client_socket_, headers, is_valid);
       if (!is_valid) {
         break;
       }
@@ -154,7 +142,7 @@ namespace torchserve {
     InferenceRequest::Parameters parameters{};
     is_valid = true;
     while (true) {
-      RetrieveInferenceRequestParameter(conn, headers, parameters, is_valid);
+      RetrieveInferenceRequestParameter(client_socket_, headers, parameters, is_valid);
       if (!is_valid) {
         break;
       }
@@ -163,23 +151,23 @@ namespace torchserve {
     return std::make_shared<InferenceRequest>(*request_id, headers, parameters);
   }
 
-  void OTFMessage::RetrieveInferenceRequestParameter(Socket conn, InferenceRequest::Headers& inference_request_headers,
+  void OTFMessage::RetrieveInferenceRequestParameter(const ISocket& client_socket_, InferenceRequest::Headers& inference_request_headers,
                                                   InferenceRequest::Parameters& inference_request_parameters, bool& is_valid) {
     int length;
     char* data;
 
-    length = RetrieveInt(conn);
+    length = client_socket_.RetrieveInt();
     if (length == -1) {
       is_valid = false;
       return;
     }
 
-    auto parameter_name = RetrieveStringBuffer(conn, std::make_optional(length));
-    auto content_type = RetrieveStringBuffer(conn, std::nullopt);
+    auto parameter_name = RetrieveStringBuffer(client_socket_, std::make_optional(length));
+    auto content_type = RetrieveStringBuffer(client_socket_, std::nullopt);
 
-    length = RetrieveInt(conn);
+    length = client_socket_.RetrieveInt();
     data = new char[length];
-    RetrieveBuffer(conn, length, data);
+    client_socket_.RetrieveBuffer(length, data);
     std::vector<char> value(data, data + length);
     delete[] data;
 
@@ -187,23 +175,23 @@ namespace torchserve {
     inference_request_headers[*parameter_name + CONTENT_TYPE_SUFFIX] = *content_type;
   }
 
-  void OTFMessage::RetrieveInferenceRequestHeader(Socket conn, InferenceRequest::Headers& inference_request_headers, bool& is_valid) {
-    int length = RetrieveInt(conn);
+  void OTFMessage::RetrieveInferenceRequestHeader(const ISocket& client_socket_, InferenceRequest::Headers& inference_request_headers, bool& is_valid) {
+    int length = client_socket_.RetrieveInt();
 
     if (length == -1) {
       is_valid = false;
       return;
     }
 
-    auto header_name = RetrieveStringBuffer(conn, std::make_optional(length));
-    auto header_value = RetrieveStringBuffer(conn, std::nullopt);
+    auto header_name = RetrieveStringBuffer(client_socket_, std::make_optional(length));
+    auto header_value = RetrieveStringBuffer(client_socket_, std::nullopt);
     inference_request_headers[*header_name] = *header_value;
   }
 
-  bool OTFMessage::SendInferenceResponse(Socket client_socket_, std::shared_ptr<InferenceResponseBatch> inference_response_batch) {
+  bool OTFMessage::SendInferenceResponse(const ISocket& client_socket_, std::shared_ptr<InferenceResponseBatch> inference_response_batch) {
     std::vector<char> data_buffer = {};
     OTFMessage::EncodeInferenceResponse(inference_response_batch, data_buffer);
-    return OTFMessage::SendAll(client_socket_, data_buffer.data(), data_buffer.size());
+    return client_socket_.SendAll(data_buffer.size(), data_buffer.data());
   }
 
   void OTFMessage::EncodeInferenceResponse(std::shared_ptr<InferenceResponseBatch> inference_response_batch, std::vector<char>& data_buffer) {
@@ -252,10 +240,10 @@ namespace torchserve {
     AppendIntegerToCharVector(data_buffer, end_of_response_code);
   }
 
-  std::shared_ptr<std::string> OTFMessage::RetrieveStringBuffer(Socket conn, std::optional<int> length_opt) {
-    int length = length_opt ? length_opt.value() : RetrieveInt(conn);
+  std::shared_ptr<std::string> OTFMessage::RetrieveStringBuffer(const ISocket& client_socket_, std::optional<int> length_opt) {
+    int length = length_opt ? length_opt.value() : client_socket_.RetrieveInt();
     char* data = new char[length];
-    RetrieveBuffer(conn, length, data);
+    client_socket_.RetrieveBuffer(length, data);
     auto string_data = std::make_shared<std::string>(data, length);
     delete[] data;
     return string_data;
