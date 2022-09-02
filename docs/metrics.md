@@ -121,7 +121,8 @@ class MetricTypes(enum.Enum):
 
 ## Central metrics YAML file definition
 
-TorchServe defines metrics in a `metrics.yaml` file, including both frontend metrics (i.e. `ts_metrics`) and backend metrics (i.e. `model_metrics`).
+TorchServe defines metrics in a [metrics_default.yaml](https://github.com/pytorch/serve/blob/master/frontend/server/src/test/resources/metrics_default.yaml)
+file, including both frontend metrics (i.e. `ts_metrics`) and backend metrics (i.e. `model_metrics`).
 When TorchServe is started, the metrics definition is loaded in the frontend and backend cache separately.
 The backend flushes the metrics cache once a load model or inference request is completed.
 
@@ -166,6 +167,11 @@ model_metrics:  # backend metrics
         unit: ms
         dimensions: [ModelName, Level]
 ```
+
+
+These are the default metrics within the yaml file, but the user can either delete them to their liking / ignore them altogether, because these metrics will not be emitted
+unless they are edited.
+
 
 ### How it works
 

@@ -5,6 +5,7 @@ import com.google.gson.reflect.TypeToken;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,6 +40,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
@@ -545,11 +547,11 @@ public final class ConfigManager {
         } else {
             SelfSignedCertificate ssc = new SelfSignedCertificate();
             privateKey = ssc.key();
-            chain = new X509Certificate[] {ssc.cert()};
+            chain = new X509Certificate[]{ssc.cert()};
         }
 
         return SslContextBuilder.forServer(privateKey, chain)
-                .protocols(new String[] {"TLSv1.2"})
+                .protocols(new String[]{"TLSv1.2"})
                 .ciphers(supportedCiphers)
                 .build();
     }
@@ -828,7 +830,8 @@ public final class ConfigManager {
 
     private void setModelConfig() {
         String modelConfigStr = prop.getProperty(MODEL_CONFIG, null);
-        Type type = new TypeToken<Map<String, Map<String, JsonObject>>>() {}.getType();
+        Type type = new TypeToken<Map<String, Map<String, JsonObject>>>() {
+        }.getType();
 
         if (modelConfigStr != null) {
             this.modelConfig = JsonUtils.GSON.fromJson(modelConfigStr, type);
@@ -870,7 +873,8 @@ public final class ConfigManager {
         private boolean snapshotDisabled;
         private String workflowStore;
 
-        public Arguments() {}
+        public Arguments() {
+        }
 
         public Arguments(CommandLine cmd) {
             tsConfigFile = cmd.getOptionValue("ts-config-file");
