@@ -7,17 +7,17 @@
 * Decide a model name (variable `$modelName` below) for the task (variable `$task` below) supported by a 🤗 model that supports the task (its repo link as variable `$repoUrl` below), then run the below commands to download the models and create the `.mar` file:
 ```
 #Setup
-pip install torch-model-archiver git-lfs
-ROOT=$(pwd)
+pip install torch-model-archiver
+CLONEDIR=$(pwd)
 git clone https://github.com/pytorch/serve.git
 
 #Creating Torchserve Docker image
-cd $ROOT/serve/docker && ./build_image.sh -bt production -t torchserve-cpu-prod && cd $ROOT
+cd $CLONEDIR/serve/docker && ./build_image.sh -bt production -t torchserve-cpu-prod && cd $CLONEDIR
 
 #Edit the $WORKDIR/scripts/config.properties file to adjust Torchserve launch parameters
 
 #Run the Docker container with shared volume between machine and container in a working directory
-WORKDIR="$ROOT/serve/examples/Huggingface_Transformers/Image_classification_docker"
+WORKDIR="$CLONEDIR/serve/examples/Huggingface_Transformers/Image_classification_docker"
 cd $WORKDIR && mkdir -p HF-models && mkdir -p model-store
 docker run -d --rm -it --shm-size=50g -p 8080:8080 -p 8081:8081 --name torchserve-cpu-prod --mount type=bind,source=$WORKDIR/scripts/config.properties,target=/home/model-server/config.properties --mount type=bind,source=$WORKDIR/model-store,target=/home/model-server/model-store --mount type=bind,source=$WORKDIR/HF-models,target=/home/model-server/HF-models torchserve-cpu-prod torchserve --ncs --model-store=/home/model-server/model-store --ts-config config.properties
 
@@ -33,10 +33,10 @@ repoUrl="https://huggingface.co/apple/mobilevit-xx-small"
 handlerPath="$WORKDIR/scripts/mobilevit_handler.py"
 
 #Create the specific handler .py file for the task at specified path
-cd $ROOT/serve/examples/Huggingface_Transformers && chmod +x create_hf_handler.sh && ./create_hf_handler.sh -t $task -f $framework -o $handlerPath
+cd $CLONEDIR/serve/examples/Huggingface_Transformers && chmod +x create_hf_handler.sh && ./create_hf_handler.sh -t $task -f $framework -o $handlerPath
 
 #Download the model from HF hub and create model archive
-cd $ROOT/serve/examples/Huggingface_Transformers && chmod +x prepare_mar_from_hf.sh && ./prepare_mar_from_hf.sh -p $handlerPath -n $modelName -d $WORKDIR -u $repoUrl
+cd $CLONEDIR/serve/examples/Huggingface_Transformers && chmod +x prepare_mar_from_hf.sh && ./prepare_mar_from_hf.sh -p $handlerPath -n $modelName -d $WORKDIR -u $repoUrl
 
 cd $WORKDIR
 ```
@@ -59,13 +59,13 @@ Follow the [Docker installation guide](https://docs.docker.com/engine/install/) 
 ## Running the Torchserve server
 Cloning the repo: 
 ```
-ROOT=$(pwd)
+CLONEDIR=$(pwd)
 git clone https://github.com/pytorch/serve.git
 ```
 
 Building a Torchserve CPU Docker container (or GPU/IPEX containers following the [original guide](https://github.com/pytorch/serve/tree/master/docker#create-torchserve-docker-image)):  
 ```
-cd $ROOT/serve/docker && ./build_image.sh -bt production -t torchserve-cpu-prod && cd $ROOT
+cd $CLONEDIR/serve/docker && ./build_image.sh -bt production -t torchserve-cpu-prod && cd $CLONEDIR
 ```
 
 Checking whether the Torchserve image is present in the list of Docker images:
@@ -76,7 +76,7 @@ docker images
 Running the Torchserve server container with Docker while binding Model store & HF model directories (refer to [this](https://github.com/pytorch/serve/tree/master/docker#create-torch-model-archiver-from-container) for more details):
 
 ```
-WORKDIR="$ROOT/serve/examples/Huggingface_Transformers/Image_classification_docker"
+WORKDIR="$CLONEDIR/serve/examples/Huggingface_Transformers/Image_classification_docker"
 cd $WORKDIR && mkdir -p HF-models && mkdir -p model-store
 docker run -d --rm -it --shm-size=50g -p 8080:8080 -p 8081:8081 --name torchserve-cpu-prod --mount type=bind,source=$WORKDIR/scripts/config.properties,target=/home/model-server/config.properties --mount type=bind,source=$WORKDIR/model-store,target=/home/model-server/model-store --mount type=bind,source=$WORKDIR/HF-models,target=/home/model-server/HF-models torchserve-cpu-prod torchserve --ncs --model-store=/home/model-server/model-store --ts-config /home/model-server/config.properties
 ```
@@ -109,7 +109,7 @@ Creating a Torchserve model archive file by creating and using the model handler
 **NOTE:** Here, we are not giving a pretrained checkpoint as a `.pth` file, hence the `--serialized-file` option is redundant as we do not use the context in our handler. 
 ```
 #Create the specific handler .py file for the task at specified path
-cd $ROOT/serve/examples/Huggingface_Transformers && chmod +x create_hf_handler.sh && ./create_hf_handler.sh -t "image-classification" -f "pt" -o $WORKDIR/scripts/mobilevit_handler.py
+cd $CLONEDIR/serve/examples/Huggingface_Transformers && chmod +x create_hf_handler.sh && ./create_hf_handler.sh -t "image-classification" -f "pt" -o $WORKDIR/scripts/mobilevit_handler.py
 
 
 touch dummy_file.pth

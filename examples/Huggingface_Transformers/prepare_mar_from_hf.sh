@@ -2,9 +2,7 @@
 HF_REPO_URL=""
 MODEL_NAME=""
 HANDLER_PATH=""
-# REQ=""
 WORKDIR=""
-#TODO: Add condition to give error if $HANDLER_PATH in `prepare_mar_from_hf.sh` does not end with .py
 for arg in "$@"
 do
     case $arg in
@@ -12,7 +10,6 @@ do
             echo "options:"
             echo "-p, --handler-path Path to the handler .py file for creating model archive"
             echo "-n, --model-name specify name for locally saved model repo"
-            # echo "-r, --requirements Path to the requirements.txt file, it MUST include `huggingface` as a dependency"
             echo "-d, --workdir Path to the directory that contains the `model-store` directory"
             echo "-u, --hf-hub-link specify the link to the repo available in HF model hub"
             exit 0
@@ -30,10 +27,6 @@ do
             echo "MODEL_NAME is $MODEL_NAME"
             shift 2
             ;;
-        # -r|--requirements)
-        #     REQ="$2"
-        #     shift 2
-        #     ;;
         -d|--workdir)
             WORKDIR="$2"
             shift 2

@@ -10,10 +10,13 @@ import torch
 import base64
 import io
 from PIL import Image
+import logging
 
 from ts.torch_handler.base_handler import BaseHandler
 from transformers import pipeline
 
+logger = logging.getLogger(__name__)
+logger.info("Transformers version %s", transformers.__version__)
 
 #Reference: https://huggingface.co/docs/transformers/main_classes/pipelines#transformers.pipeline.task
 pipeline_supported_tasks= [
@@ -28,11 +31,11 @@ framework="<PLACEHOLDER>"
 try:
     assert task in pipeline_supported_tasks
 except:
-    print("Enter a task supported by 🤗 pipeline")
+    logger.info("Enter a task supported by 🤗 pipeline")
     exit(0)
 
 class HFPipelineHandler(BaseHandler):
-    class HFPipelinePreprocessFactory:
+    class HFPipelinePreprocessDispatcher:
         def __init__(self):
             '''
             `map_to_preproc_fn` returns a function for the task that can preprocess a single raw inference request
@@ -69,7 +72,7 @@ class HFPipelineHandler(BaseHandler):
                 text = text.decode("utf-8", errors='ignore')
             return text
 
-    class HFPipelinePostprocessFactory:
+    class HFPipelinePostprocessDispatcher:
         '''
             `map_to_postproc_fn` returns a function for the task that can postprocess a single inference output to convert it to serializeable form with proper JSON formatting,
             else if no postprocessing is required, `map_to_postproc_fn` returns None
@@ -90,17 +93,17 @@ class HFPipelineHandler(BaseHandler):
     def __init__(self):
         super().__init__()
         self.tokenizer = None
-        self.preprocess_factory = self.HFPipelinePreprocessFactory()
-        self.postprocess_factory = self.HFPipelinePostprocessFactory()
+        self.preprocess_dispatcher = self.HFPipelinePreprocessDispatcher()
+        self.postprocess_dispatcher = self.HFPipelinePostprocessDispatcher()
 
 
     def load_model(self, device_id, model_name, hf_models_folder = "/home/model-server/HF-models"):
-        print('Entered `load_model` function')
+        logger.info('Entered `load_model` function')
         model_folder = os.path.join(hf_models_folder, model_name)
 
-        print("Creating pipeline")
+        logger.info("Creating pipeline")
         pipe = pipeline(task=task, framework=framework, model=model_folder, device = device_id)
-        print("Successfully loaded HF model from folder: {hf_models_folder}/{model_name}")
+        logger.info("Successfully loaded DistilBERT model from HF hub")
         return pipe
 
     def initialize(self, context):
@@ -143,30 +146,21 @@ class HFPipelineHandler(BaseHandler):
 
         #Assuming `data` to be List of txt files, where each txt file contains a single raw inference request input
 
-        print('Preprocessing raw inference requests')
-        data = self.preprocess_factory(data)
-        print('Successfully preprocessed raw inference requests')
+        logger.info('Preprocessing raw inference requests')
+        data = self.preprocess_dispatcher(data)
+        logger.info('Successfully preprocessed raw inference requests')
         
         return list(data)
 
     def inference(self, data):
-        print(f"Data received by `inference` function is: {data}")
+        logger.info(f"Data received by `inference` function is: {data}")
         preds = self.model(data)
-
-        
-        '''
-        `preds` is something like this for MobileViT XX Small pipeline predictions for 1 inference request:
-        [[{'score': 0.5584330558776855, 'label': 'remote control, remote'}, 
-        {'score': 0.11318826675415039, 'label': 'joystick'}, 
-        {'score': 0.08971238136291504, 'label': 'mouse, computer mouse'}, 
-        {'score': 0.027173032984137535, 'label': 'ocarina, sweet potato'}, 
-        {'score': 0.019073771312832832, 'label': 'pick, plectrum, plectron'}]]
-        '''
 
         return preds
 
     def postprocess(self, data):
-        data = self.postprocess_factory(data)
+        data = self.postprocess_dispatcher(data)
+        
         return data
 
     
