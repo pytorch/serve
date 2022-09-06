@@ -10,7 +10,7 @@ import logging
 import ts.metrics.metric_cache_errors as merrors
 from ts.metrics.dimension import Dimension
 from ts.metrics.metric import Metric
-from ts.metrics.metric_type_enums import MetricTypes
+from ts.metrics.metric_type_enum import MetricTypes
 
 
 class MetricCacheAbstract(metaclass=abc.ABCMeta):
@@ -51,7 +51,7 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
         value: int or float,
         req_id,
         unit: str,
-        metric_type: MetricTypes = None,
+        metric_type: MetricTypes,
         dimensions: list = None,
     ):
         """
@@ -67,9 +67,7 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
             request id
         unit: str
             unit of metric
-        value: int, float, str
-            value of metric
-        metric_type: str, optional
+        metric_type: MetricTypes
             indicates type of metric operation if it is defined, creates default metric type if not defined
         dimensions: list, optional
             list of Dimension objects

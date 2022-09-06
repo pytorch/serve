@@ -10,7 +10,7 @@ import ts.metrics.metric_cache_errors as merrors
 from ts.metrics.dimension import Dimension
 from ts.metrics.metric import Metric
 from ts.metrics.metric_cache_yaml import MetricsCacheYaml
-from ts.metrics.metric_type_enums import MetricTypes
+from ts.metrics.metric_type_enum import MetricTypes
 from ts.metrics.metrics_store import MetricsStore
 from ts.service import emit_metrics
 

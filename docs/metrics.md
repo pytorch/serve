@@ -107,7 +107,7 @@ EOE
 ## Metric Types
 
 TorchServe Metrics is introducing [Metric Types](https://github.com/pytorch/serve/blob/master/ts/metrics/metric_type_enums.py)
-that are in line with the Prometheus API metric types.
+that are in line with the [Prometheus API](https://github.com/prometheus/client_python) metric types.
 
 Metric types are an attribute of Metric objects.
 Users will be restricted to the existing metric types when adding metrics via Metrics API.
@@ -575,14 +575,13 @@ This custom metrics information is logged in the `model_metrics.log` file config
 This example utilizes the feature of parsing metrics from a YAML file, adding and updating metrics and their values via Metrics API,
 updating metrics that have been parsed from the YAML file via Metrics API, and finally emitting all metrics that have been updated.
 
-
 ```python
 from ts.service import emit_metrics
-from ts.metrics.metric_type_enums import MetricTypes
+from ts.metrics.metric_type_enum import MetricTypes
+
 
 class CustomHandlerExample:
     def initialize(self, ctx):
-
         metrics = ctx.metrics  # initializing metrics to the context.metrics
 
         # Setting a sleep for examples' sake

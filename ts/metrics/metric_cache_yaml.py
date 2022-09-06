@@ -9,7 +9,7 @@ import yaml
 import ts.metrics.metric_cache_errors as merrors
 from ts.metrics.dimension import Dimension
 from ts.metrics.metric_cache_abstract import MetricCacheAbstract
-from ts.metrics.metric_type_enums import MetricTypes
+from ts.metrics.metric_type_enum import MetricTypes
 
 
 class MetricsCacheYaml(MetricCacheAbstract):

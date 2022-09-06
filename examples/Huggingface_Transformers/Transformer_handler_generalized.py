@@ -17,7 +17,7 @@ from transformers import (
     GPT2TokenizerFast,
 )
 
-from ts.metrics.metric_type_enums import MetricTypes
+from ts.metrics.metric_type_enum import MetricTypes
 from ts.service import emit_metrics
 from ts.torch_handler.base_handler import BaseHandler
 

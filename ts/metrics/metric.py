@@ -86,24 +86,10 @@ class Metric(object):
     def __str__(self):
         dims = ",".join([str(d) for d in self.dimensions])
         if self.request_id:
-            return "{}.{}:{}|#{}|#hostname:{},{},{}".format(
-                self.name,
-                self.unit,
-                self.value,
-                dims,
-                socket.gethostname(),
-                int(time.time()),
-                self.request_id,
-            )
+            return f"{self.name}.{self.unit}:{self.value}|#{dims}|#hostname:{socket.gethostname()}," \
+                   f"{int(time.time())},{self.request_id}"
 
-        return "{}.{}:{}|#{}|#hostname:{},{}".format(
-            self.name,
-            self.unit,
-            self.value,
-            dims,
-            socket.gethostname(),
-            int(time.time()),
-        )
+        return f"{self.name}.{self.unit}:{self.value}|#{dims}|#hostname:{socket.gethostname()},{int(time.time())}"
 
     def to_dict(self):
         """
