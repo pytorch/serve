@@ -1,13 +1,15 @@
 name: Benchmark torchserve gpu nightly
 
+
 on:
   # run every day at 2:15am
   schedule:
     - cron:  '15 02 * * *'
+
 jobs:
   nightly:
     runs-on: [self-hosted, gpu]
-    timeout-minutes: 1320 
+    timeout-minutes: 1320
     steps:
       - name: Clean up previous run
         run: |
@@ -34,7 +36,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: nightly gpu artifact
-          path: /tmp/ts_benchmark 
+          path: /tmp/ts_benchmark
       - name: Open issue on failure
         if: ${{ failure() && github.event_name  == 'schedule' }}
         uses: rishabhgupta/git-action-issue@v2
