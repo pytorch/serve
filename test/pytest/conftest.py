@@ -9,6 +9,10 @@ import test_utils
 CURR_FILE_PATH = os.path.dirname(os.path.realpath(__file__))
 REPO_ROOT_DIR = os.path.normpath(os.path.join(CURR_FILE_PATH, "..", ".."))
 
+# Exclude the following tests from regression tests
+collect_ignore = []
+collect_ignore.append("test_example_torchrec_dlrm.py")
+
 
 @pytest.fixture(scope="module")
 def model_archiver():

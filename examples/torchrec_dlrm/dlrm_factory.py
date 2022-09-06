@@ -4,11 +4,10 @@ For this example we use an untrained model(model with random weights). More info
 https://github.com/facebookresearch/dlrm/tree/main/torchrec_dlrm/
 """
 
-from dataclasses import dataclass
-from typing import List
 
 import torch
 import torchrec.distributed as trec_dist
+from dlrm_model_config import DLRMModelConfig
 from torchrec.datasets.criteo import DEFAULT_CAT_NAMES, DEFAULT_INT_NAMES
 from torchrec.distributed.embedding_types import EmbeddingComputeKernel
 from torchrec.distributed.planner import (
@@ -25,14 +24,6 @@ from torchrec.modules.embedding_modules import EmbeddingBagCollection
 
 
 def create_default_model_config():
-    @dataclass
-    class DLRMModelConfig:
-        dense_arch_layer_sizes: List[int]
-        dense_in_features: int
-        embedding_dim: int
-        id_list_features_keys: List[str]
-        num_embeddings_per_feature: List[int]
-        over_arch_layer_sizes: List[int]
 
     return DLRMModelConfig(
         dense_arch_layer_sizes=[512, 256, 64],

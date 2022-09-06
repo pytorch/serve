@@ -96,7 +96,9 @@ def create_mar_file(work_dir, session_mocker, serialized_file, model_archiver):
         serialized_file=str(serialized_file),
         model_file=SIMPLE_MODEL_FACTORY_PY.as_posix(),
         handler=EXAMPLE_ROOT_DIR.joinpath("dlrm_handler.py").as_posix(),
-        extra_files=EXAMPLE_ROOT_DIR.joinpath("dlrm_factory.py").as_posix(),
+        extra_files=EXAMPLE_ROOT_DIR.joinpath("dlrm_factory.py").as_posix()
+        + ","
+        + EXAMPLE_ROOT_DIR.joinpath("dlrm_model_config.py").as_posix(),
         export_path=work_dir,
         requirements_file=None,
         runtime="python",

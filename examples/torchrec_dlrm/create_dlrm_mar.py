@@ -26,6 +26,7 @@ def main():
         "--version 1.0",
         f"--serialized-file {MODEL_PT_FILE}",
         "--model-file dlrm_factory.py",
+        "--extra-files dlrm_model_config.py",
         "--handler dlrm_handler.py",
         "--force",
     ]

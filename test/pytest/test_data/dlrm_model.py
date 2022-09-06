@@ -1,7 +1,5 @@
-from dataclasses import dataclass
-from typing import List
-
 from dlrm_factory import DLRMFactory
+from dlrm_model_config import DLRMModelConfig
 from torchrec.datasets.criteo import DEFAULT_CAT_NAMES, DEFAULT_INT_NAMES
 
 
@@ -9,15 +7,6 @@ def simple_dlrm_model_config():
     """
     This simplified configuration is used during unittesting.
     """
-
-    @dataclass
-    class DLRMModelConfig:
-        dense_arch_layer_sizes: List[int]
-        dense_in_features: int
-        embedding_dim: int
-        id_list_features_keys: List[str]
-        num_embeddings_per_feature: List[int]
-        over_arch_layer_sizes: List[int]
 
     return DLRMModelConfig(
         dense_arch_layer_sizes=[32, 16, 8],
