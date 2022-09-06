@@ -86,8 +86,10 @@ class Metric(object):
     def __str__(self):
         dims = ",".join([str(d) for d in self.dimensions])
         if self.request_id:
-            return f"{self.name}.{self.unit}:{self.value}|#{dims}|#hostname:{socket.gethostname()}," \
-                   f"{int(time.time())},{self.request_id}"
+            return (
+                f"{self.name}.{self.unit}:{self.value}|#{dims}|#hostname:{socket.gethostname()},"
+                f"{int(time.time())},{self.request_id}"
+            )
 
         return f"{self.name}.{self.unit}:{self.value}|#{dims}|#hostname:{socket.gethostname()},{int(time.time())}"
 

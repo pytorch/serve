@@ -2,7 +2,6 @@ import ast
 import json
 import logging
 import os
-import time
 from abc import ABC
 
 import torch
@@ -17,8 +16,6 @@ from transformers import (
     GPT2TokenizerFast,
 )
 
-from ts.metrics.metric_type_enum import MetricTypes
-from ts.service import emit_metrics
 from ts.torch_handler.base_handler import BaseHandler
 
 logger = logging.getLogger(__name__)
@@ -42,34 +39,6 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
             ctx (context): It is a JSON Object containing information
             pertaining to the model artefacts parameters.
         """
-        start_time = time.time()
-
-        metrics = ctx.metrics
-        time.sleep(3)
-        stop_time = time.time()
-        metrics.add_time(
-            "HandlerTime", round((stop_time - start_time) * 1000, 2), None, "ms"
-        )
-
-        metrics.add_counter("HandlerSeparateCounter", 2.5)
-        metrics.add_counter("HandlerSeparateCounter", -1.3)
-        metrics.add_counter("HandlerCounter", 21.3)
-
-        metrics.add_counter("InferenceTimeInMS", 2.78)  # adding counter metric via API
-
-        # getting existing Metric parsed from yaml file and updating
-        # create key for user in getmetric method, pass arguments that are necessary
-        histogram_example_metric = metrics.get_metric(
-            MetricTypes.histogram,
-            "HistogramModelMetricNameExample",
-            ["ModelName", "Level"],
-        )
-        histogram_example_metric.update(4.6)
-
-        metrics.add_size("GaugeModelMetricNameExample", 42.5)  # adding gauge metric
-
-        emit_metrics(metrics.cache)
-
         self.manifest = ctx.manifest
         properties = ctx.system_properties
         model_dir = properties.get("model_dir")
