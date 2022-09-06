@@ -94,7 +94,7 @@ class TorchRecDLRMHandler(BaseHandler, ABC):
         # This is the dense feature part
         assert "float_features" in batch
         # The sparse input consists of a length vector and the values.
-        # The length vector contains the number of elements which are part fo the sam entry in the linear list provided as input.
+        # The length vector contains the number of elements which are part fo the same entry in the linear list provided as input.
         assert "id_list_features.lengths" in batch
         assert "id_list_features.values" in batch
 
