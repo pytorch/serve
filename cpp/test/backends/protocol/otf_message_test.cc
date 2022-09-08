@@ -103,4 +103,103 @@ namespace torchserve {
     ASSERT_TRUE(*load_model_request == expected);
     delete client_socket;
   }
+
+  TEST(OTFMessageTest, TestEncodeSuccessInferenceResponse) {
+    std::string request_id = "d22dd8d8-0abf";
+    auto inference_response = std::make_shared<InferenceResponse>(request_id);
+    inference_response->SetResponse(
+        200,
+        "data_type",
+        "string",
+        "sample_message"
+    );
+    auto inference_response_batch = std::make_shared<InferenceResponseBatch>();
+
+    (*inference_response_batch)[request_id] = inference_response;
+    std::vector<char> data_buffer{};
+    OTFMessage::EncodeInferenceResponse(inference_response_batch, data_buffer);
+    const char* expectedResponse = "\x00\x00\x00\xc8\x00\x00\x00\x12Prediction success\x00\x00\x00\rd22dd8d8-0abf\x00\x00\x00\x00\x00\x00\x00\xc8\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\tdata_type\x00\x00\x00\x06string\x00\x00\x00\x0esample_message\xff\xff\xff\xff";
+    EXPECT_TRUE(0 == std::memcmp(data_buffer.data(), expectedResponse, data_buffer.size()));
+  }
+
+  TEST(OTFMessageTest, TestEncodeFailureInferenceResponse) {
+    std::string request_id = "d22dd8d8-0abf";
+    auto inference_response = std::make_shared<InferenceResponse>(request_id);
+    inference_response->SetResponse(
+        500,
+        "data_type",
+        "string",
+        "response_failure_message"
+    );
+    auto inference_response_batch = std::make_shared<InferenceResponseBatch>();
+
+    (*inference_response_batch)[request_id] = inference_response;
+    std::vector<char> data_buffer{};
+    OTFMessage::EncodeInferenceResponse(inference_response_batch, data_buffer);
+    TS_LOG(ERROR, "result_size: {}", data_buffer.size());
+    const char* expectedResponse = "\x00\x00\x01\xf4\x00\x00\x00\x18response_failure_message\x00\x00\x00\rd22dd8d8-0abf\x00\x00\x00\x00\x00\x00\x01\xf4\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\tdata_type\x00\x00\x00\x06string\x00\x00\x00\x18response_failure_message\xff\xff\xff\xff";
+    EXPECT_TRUE(0 == std::memcmp(data_buffer.data(), expectedResponse, data_buffer.size()));
+  }
+
+  TEST(OTFMessageTest, TestRetrieveInferenceMsg) {
+    MockSocket *client_socket = new MockSocket();
+    EXPECT_CALL(*client_socket, RetrieveInt())
+                .Times(9)
+                // request_id length
+                .WillOnce(::testing::Return(4))
+                // header_key length
+                .WillOnce(::testing::Return(4))
+                // header_value length
+                .WillOnce(::testing::Return(4))
+                // end of headers
+                .WillOnce(::testing::Return(-1))
+                // parameter_name length
+                .WillOnce(::testing::Return(4))
+                // content_type length
+                .WillOnce(::testing::Return(4))
+                // value length
+                .WillOnce(::testing::Return(4))
+                // end of parameters
+                .WillOnce(::testing::Return(-1))
+                // end of request
+                .WillOnce(::testing::Return(-1));
+
+    EXPECT_CALL(*client_socket, RetrieveBuffer(testing::_, testing::_))
+                .Times(6)
+                .WillOnce(testing::Invoke([=](size_t length, char* data) {
+                  ASSERT_EQ(length, 4);
+                  strcpy(data, "reqi");
+                }))
+                .WillOnce(testing::Invoke([=](size_t length, char* data) {
+                  ASSERT_EQ(length, 4);
+                  strcpy(data, "heak");
+                }))
+                .WillOnce(testing::Invoke([=](size_t length, char* data) {
+                  ASSERT_EQ(length, 4);
+                  strcpy(data, "heav");
+                }))
+                .WillOnce(testing::Invoke([=](size_t length, char* data) {
+                  ASSERT_EQ(length, 4);
+                  strcpy(data, "parn");
+                }))
+                .WillOnce(testing::Invoke([=](size_t length, char* data) {
+                  ASSERT_EQ(length, 4);
+                  strcpy(data, "cont");
+                }))
+                .WillOnce(testing::Invoke([=](size_t length, char* data) {
+                  ASSERT_EQ(length, 4);
+                  strcpy(data, "valu");
+                }));
+    auto batch_inference_request = OTFMessage::RetrieveInferenceMsg(*client_socket);
+    auto inference_request = batch_inference_request->at(0);
+    ASSERT_EQ(batch_inference_request->size(), 1);
+    ASSERT_EQ(inference_request.headers.size(), 3);
+    ASSERT_EQ(inference_request.parameters.size(), 1);
+    ASSERT_EQ(inference_request.request_id, "reqi");
+    ASSERT_EQ(inference_request.headers["heak"], "heav");
+    ASSERT_EQ(inference_request.headers["data_dtype"], "bytes");
+    ASSERT_EQ(inference_request.headers["parn:contentType"], "cont");
+    ASSERT_EQ(torchserve::Converter::VectorToStr(inference_request.parameters["parn"]), "valu");
+    delete client_socket;
+  }
 }

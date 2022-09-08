@@ -26,7 +26,6 @@ namespace torchserve {
     static bool SendLoadModelResponse(const ISocket& client_socket_, std::unique_ptr<torchserve::LoadModelResponse> response);
     static char RetrieveCmd(const ISocket& client_socket_);
     static std::shared_ptr<LoadModelRequest> RetrieveLoadMsg(const ISocket& client_socket_);
-    // TODO: impl.
     static std::shared_ptr<torchserve::InferenceRequestBatch> RetrieveInferenceMsg(const ISocket& client_socket_);
     static bool SendInferenceResponse(const ISocket& client_socket_, std::shared_ptr<InferenceResponseBatch> inference_response_batch);
     static void EncodeInferenceResponse(std::shared_ptr<InferenceResponseBatch> inference_response_batch, std::vector<char>& data_buffer);

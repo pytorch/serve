@@ -36,6 +36,11 @@ namespace torchserve {
       std::vector<char> vec_char(str.begin(), str.end());
       return vec_char;
     }
+
+    static std::string VectorToStr(const std::vector<char>& vec_char) {
+      std::string str(vec_char.begin(), vec_char.end());
+      return str;
+    }
   };
 
   // TODO: expand to support model instance, large model (ref: ModelConfig in config.hh)

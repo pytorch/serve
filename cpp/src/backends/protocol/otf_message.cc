@@ -138,6 +138,10 @@ namespace torchserve {
       }
     }
 
+    // use default data_type of bytes for now
+    // TODO: handle data_type more broadly once backend support is added
+    headers[torchserve::PayloadType::kHEADER_NAME_DATA_TYPE] = torchserve::PayloadType::kDATA_TYPE_BYTES;
+
     // fetch parameters
     InferenceRequest::Parameters parameters{};
     is_valid = true;
@@ -149,6 +153,19 @@ namespace torchserve {
     }
 
     return std::make_shared<InferenceRequest>(*request_id, headers, parameters);
+  }
+
+  void OTFMessage::RetrieveInferenceRequestHeader(const ISocket& client_socket_, InferenceRequest::Headers& inference_request_headers, bool& is_valid) {
+    int length = client_socket_.RetrieveInt();
+
+    if (length == -1) {
+      is_valid = false;
+      return;
+    }
+
+    auto header_name = RetrieveStringBuffer(client_socket_, std::make_optional(length));
+    auto header_value = RetrieveStringBuffer(client_socket_, std::nullopt);
+    inference_request_headers[*header_name] = *header_value;
   }
 
   void OTFMessage::RetrieveInferenceRequestParameter(const ISocket& client_socket_, InferenceRequest::Headers& inference_request_headers,
@@ -175,19 +192,6 @@ namespace torchserve {
     inference_request_headers[*parameter_name + CONTENT_TYPE_SUFFIX] = *content_type;
   }
 
-  void OTFMessage::RetrieveInferenceRequestHeader(const ISocket& client_socket_, InferenceRequest::Headers& inference_request_headers, bool& is_valid) {
-    int length = client_socket_.RetrieveInt();
-
-    if (length == -1) {
-      is_valid = false;
-      return;
-    }
-
-    auto header_name = RetrieveStringBuffer(client_socket_, std::make_optional(length));
-    auto header_value = RetrieveStringBuffer(client_socket_, std::nullopt);
-    inference_request_headers[*header_name] = *header_value;
-  }
-
   bool OTFMessage::SendInferenceResponse(const ISocket& client_socket_, std::shared_ptr<InferenceResponseBatch> inference_response_batch) {
     std::vector<char> data_buffer = {};
     OTFMessage::EncodeInferenceResponse(inference_response_batch, data_buffer);
@@ -196,15 +200,21 @@ namespace torchserve {
 
   void OTFMessage::EncodeInferenceResponse(std::shared_ptr<InferenceResponseBatch> inference_response_batch, std::vector<char>& data_buffer) {
     // frontend decoder - https://github.com/pytorch/serve/blob/master/frontend/server/src/main/java/org/pytorch/serve/util/codec/ModelResponseDecoder.java#L20
+
+    auto batch_response_status = std::make_pair(200, std::string("Prediction success"));
+    for (auto const& [request_id, inference_response] : *inference_response_batch) {
+        if (inference_response->code != 200) {
+          batch_response_status = std::make_pair(inference_response->code, torchserve::Converter::VectorToStr(inference_response->msg));
+          break;
+        }
+    }
+
     // status code
-    // TODO: fetch failed responde code iterating through the batch if present
-    int32_t code = htonl(200);
+    int32_t code = htonl(batch_response_status.first);
     AppendIntegerToCharVector(data_buffer, code);
 
-    // message - leaving it empty for now.
-    // TODO: model message for entire batch somehow to be backward compatible?
-    int32_t message_size = htonl(0);
-    AppendIntegerToCharVector(data_buffer, message_size);
+    // message
+    AppendOTFStringToCharVector(data_buffer, batch_response_status.second);
 
     // for each response in the batch
     for(auto const& [request_id, inference_response] : *inference_response_batch) {
