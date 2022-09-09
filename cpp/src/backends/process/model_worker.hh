@@ -15,6 +15,7 @@
 
 #include "src/backends/core/backend.hh"
 #include "src/backends/protocol/otf_message.hh"
+#include "src/backends/torch_scripted/torch_scripted_backend.hh"
 #include "src/utils/config.hh"
 #include "src/utils/model_archive.hh"
 

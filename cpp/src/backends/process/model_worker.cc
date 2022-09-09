@@ -1,5 +1,4 @@
 #include "src/backends/process/model_worker.hh"
-#include "src/backends/torch_scripted/torch_scripted_backend.hh"
 
 namespace torchserve {
   void SocketServer::Initialize(
