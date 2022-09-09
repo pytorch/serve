@@ -384,6 +384,11 @@ Cloud based deployment. Refer <a class="reference external" href="https://github
 <h3>What benefits does Torchserve have over AWS Multi-Model-Server?<a class="headerlink" href="#what-benefits-does-torchserve-have-over-aws-multi-model-server" title="Permalink to this headline">¶</a></h3>
 <p>Torchserve is derived from Multi-Model-Server. However, Torchserve is specifically tuned for Pytorch models. It also has new features like Snapshot and model versioning.</p>
 </section>
+<section id="how-to-decode-international-language-in-inference-response-on-client-side">
+<h3>How to decode international language in inference response on client side?<a class="headerlink" href="#how-to-decode-international-language-in-inference-response-on-client-side" title="Permalink to this headline">¶</a></h3>
+<p>By default, Torchserve uses utf-8 to encode if the inference response is string. So client can use utf-8 to decode.</p>
+<p>If a model converts international language string to bytes, client needs to use the codec mechanism specified by the model such as in https://github.com/pytorch/serve/blob/master/examples/nmt_transformer/model_handler_generalized.py#L55</p>
+</section>
 </section>
 <section id="deployment-and-config">
 <h2>Deployment and config<a class="headerlink" href="#deployment-and-config" title="Permalink to this headline">¶</a></h2>
@@ -571,6 +576,7 @@ Note: For v4 type replace <code class="docutils literal notranslate"><span class
 <li><a class="reference internal" href="#are-there-any-sample-models-available">Are there any sample Models available?</a></li>
 <li><a class="reference internal" href="#does-torchserve-support-other-models-based-on-programming-languages-other-than-python">Does Torchserve support other models based on programming languages other than python?</a></li>
 <li><a class="reference internal" href="#what-benefits-does-torchserve-have-over-aws-multi-model-server">What benefits does Torchserve have over AWS Multi-Model-Server?</a></li>
+<li><a class="reference internal" href="#how-to-decode-international-language-in-inference-response-on-client-side">How to decode international language in inference response on client side?</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#deployment-and-config">Deployment and config</a><ul>
