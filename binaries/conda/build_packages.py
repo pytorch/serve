@@ -2,6 +2,8 @@ import argparse
 import os
 from datetime import date
 
+from ts_scripts.utils import try_and_handle
+
 conda_build_dir = os.path.dirname(os.path.abspath(__file__))
 REPO_ROOT = os.path.join(conda_build_dir, "..", "..")
 MINICONDA_DOWNLOAD_URL = (
@@ -29,7 +31,7 @@ def add_nightly_suffix_conda(binary_name: str) -> str:
     return binary_name + ".dev" + todays_date
 
 
-def install_conda_build():
+def install_conda_build(dry_run):
     """
     Install conda-build, required to create conda packages
     """
@@ -41,10 +43,12 @@ def install_conda_build():
             f"'conda' already present on the system. Proceeding without a fresh conda installation."
         )
         return
-    os.system(f"{CONDA_BINARY} install python=3.8 conda-build anaconda-client -y")
+    try_and_handle(
+        f"{CONDA_BINARY} install python=3.8 conda-build anaconda-client -y", dry_run
+    )
 
 
-def install_miniconda():
+def install_miniconda(dry_run):
     """
     Installs miniconda, a slimmer anaconda installation to build conda packages
     """
@@ -62,22 +66,27 @@ def install_miniconda():
         )
         return
 
-    os.system(f"rm -rf $HOME/miniconda")
-    exit_code = os.system(f"wget {MINICONDA_DOWNLOAD_URL} -O ~/miniconda.sh")
-    if exit_code != 0:
-        print(f"miniconda download failed")
-        return exit_code
-    os.system(f"bash ~/miniconda.sh -f -b -p $HOME/miniconda")
-    os.system(f"echo 'export PATH=$HOME/miniconda/bin:$PATH' >> ~/.bashrc")
-    os.system(f"ln -s $HOME/miniconda/bin/activate $HOME/miniconda/condabin/activate")
-    os.system(
-        f"ln -s $HOME/miniconda/bin/deactivate $HOME/miniconda/condabin/deactivate"
+    try_and_handle(f"rm -rf $HOME/miniconda", dry_run)
+    try_and_handle(f"wget {MINICONDA_DOWNLOAD_URL} -O ~/miniconda.sh", dry_run)
+
+    try_and_handle(f"bash ~/miniconda.sh -f -b -p $HOME/miniconda", dry_run)
+    try_and_handle(
+        f"echo 'export PATH=$HOME/miniconda/bin:$PATH' >> ~/.bashrc", dry_run
+    )
+    try_and_handle(
+        f"ln -s $HOME/miniconda/bin/activate $HOME/miniconda/condabin/activate", dry_run
+    )
+    try_and_handle(
+        f"ln -s $HOME/miniconda/bin/deactivate $HOME/miniconda/condabin/deactivate",
+        dry_run,
     )
 
-    os.system(f"{CONDA_BINARY} init")
+    try_and_handle(f"{CONDA_BINARY} init", dry_run)
 
 
-def conda_build(ts_wheel_path, ma_wheel_path, wa_wheel_path, conda_nightly=False):
+def conda_build(
+    ts_wheel_path, ma_wheel_path, wa_wheel_path, conda_nightly=False, dry_run=False
+):
     """
     Build conda packages for different python versions
     """
@@ -123,10 +132,8 @@ def conda_build(ts_wheel_path, ma_wheel_path, wa_wheel_path, conda_nightly=False
             output_dir = os.path.join(conda_build_dir, "output")
             cmd = f"{CONDA_BINARY} build --output-folder {output_dir} --python={pyv} {pkg}"
             print(f"## In directory: {os.getcwd()}; Executing command: {cmd}")
-            exit_code = os.system(cmd)
-            if exit_code != 0:
-                print("## Conda Build Failed !")
-                return exit_code
+            if not dry_run:
+                os.system(cmd)
     return 0  # Used for sys.exit(0) --> to indicate successful system exit
 
 
@@ -158,11 +165,20 @@ if __name__ == "__main__":
         required=False,
         help="specify conda nightly is being built",
     )
+
+    parser.add_argument(
+        "--dry_run",
+        action="store_true",
+        help="dry_run will print the commands that will be run without running them",
+    )
+
     args = parser.parse_args()
 
     if args.install_conda_dependencies:
-        install_miniconda()
-        install_conda_build()
+        install_miniconda(args.dry_run)
+        install_conda_build(args.dry_run)
 
     if all([args.ts_wheel, args.ma_wheel, args.wa_wheel]):
-        conda_build(args.ts_wheel, args.ma_wheel, args.wa_wheel, args.nightly)
+        conda_build(
+            args.ts_wheel, args.ma_wheel, args.wa_wheel, args.nightly, args.dry_run
+        )
