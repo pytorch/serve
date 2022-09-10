@@ -34,6 +34,15 @@ public class InferenceImpl extends InferenceAPIsServiceImplBase {
 
     @Override
     public void ping(Empty request, StreamObserver<TorchServeHealthResponse> responseObserver) {
+        ((ServerCallStreamObserver<TorchServeHealthResponse>) responseObserver)
+                .setOnCancelHandler(
+                        () -> {
+                            logger.warn("grpc client call already cancelled");
+                            responseObserver.onError(
+                                    io.grpc.Status.CANCELLED
+                                            .withDescription("call already cancelled")
+                                            .asRuntimeException());
+                        });
         Runnable r =
                 () -> {
                     String response = ApiUtils.getWorkerStatus();
@@ -44,17 +53,8 @@ public class InferenceImpl extends InferenceAPIsServiceImplBase {
                                                     new StatusResponse(
                                                             response, HttpURLConnection.HTTP_OK)))
                                     .build();
-                    if (((ServerCallStreamObserver<TorchServeHealthResponse>) responseObserver)
-                            .isCancelled()) {
-                        logger.warn("grpc client call already cancelled");
-                        responseObserver.onError(
-                                io.grpc.Status.CANCELLED
-                                        .withDescription("call already cancelled")
-                                        .asRuntimeException());
-                    } else {
-                        responseObserver.onNext(reply);
-                        responseObserver.onCompleted();
-                    }
+                    responseObserver.onNext(reply);
+                    responseObserver.onCompleted();
                 };
         ApiUtils.getTorchServeHealth(r);
     }
@@ -62,6 +62,15 @@ public class InferenceImpl extends InferenceAPIsServiceImplBase {
     @Override
     public void predictions(
             PredictionsRequest request, StreamObserver<PredictionResponse> responseObserver) {
+        ((ServerCallStreamObserver<PredictionResponse>) responseObserver)
+                .setOnCancelHandler(
+                        () -> {
+                            logger.warn("grpc client call already cancelled");
+                            responseObserver.onError(
+                                    io.grpc.Status.CANCELLED
+                                            .withDescription("call already cancelled")
+                                            .asRuntimeException());
+                        });
         String modelName = request.getModelName();
         String modelVersion = request.getModelVersion();
 

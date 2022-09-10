@@ -36,6 +36,15 @@ public class ManagementImpl extends ManagementAPIsServiceImplBase {
     @Override
     public void describeModel(
             DescribeModelRequest request, StreamObserver<ManagementResponse> responseObserver) {
+        ((ServerCallStreamObserver<ManagementResponse>) responseObserver)
+                .setOnCancelHandler(
+                        () -> {
+                            logger.warn("grpc client call already cancelled");
+                            responseObserver.onError(
+                                    io.grpc.Status.CANCELLED
+                                            .withDescription("call already cancelled")
+                                            .asRuntimeException());
+                        });
         String requestId = UUID.randomUUID().toString();
         RequestInput input = new RequestInput(requestId);
         String modelName = request.getModelName();
@@ -71,6 +80,15 @@ public class ManagementImpl extends ManagementAPIsServiceImplBase {
     @Override
     public void listModels(
             ListModelsRequest request, StreamObserver<ManagementResponse> responseObserver) {
+        ((ServerCallStreamObserver<ManagementResponse>) responseObserver)
+                .setOnCancelHandler(
+                        () -> {
+                            logger.warn("grpc client call already cancelled");
+                            responseObserver.onError(
+                                    io.grpc.Status.CANCELLED
+                                            .withDescription("call already cancelled")
+                                            .asRuntimeException());
+                        });
         int limit = request.getLimit();
         int pageToken = request.getNextPageToken();
 
@@ -81,6 +99,15 @@ public class ManagementImpl extends ManagementAPIsServiceImplBase {
     @Override
     public void registerModel(
             RegisterModelRequest request, StreamObserver<ManagementResponse> responseObserver) {
+        ((ServerCallStreamObserver<ManagementResponse>) responseObserver)
+                .setOnCancelHandler(
+                        () -> {
+                            logger.warn("grpc client call already cancelled");
+                            responseObserver.onError(
+                                    io.grpc.Status.CANCELLED
+                                            .withDescription("call already cancelled")
+                                            .asRuntimeException());
+                        });
         org.pytorch.serve.http.messages.RegisterModelRequest registerModelRequest =
                 new org.pytorch.serve.http.messages.RegisterModelRequest(request);
 
@@ -102,6 +129,15 @@ public class ManagementImpl extends ManagementAPIsServiceImplBase {
     @Override
     public void scaleWorker(
             ScaleWorkerRequest request, StreamObserver<ManagementResponse> responseObserver) {
+        ((ServerCallStreamObserver<ManagementResponse>) responseObserver)
+                .setOnCancelHandler(
+                        () -> {
+                            logger.warn("grpc client call already cancelled");
+                            responseObserver.onError(
+                                    io.grpc.Status.CANCELLED
+                                            .withDescription("call already cancelled")
+                                            .asRuntimeException());
+                        });
         int minWorkers = GRPCUtils.getRegisterParam(request.getMinWorker(), 1);
         int maxWorkers = GRPCUtils.getRegisterParam(request.getMaxWorker(), minWorkers);
         String modelName = GRPCUtils.getRegisterParam(request.getModelName(), null);
@@ -132,6 +168,15 @@ public class ManagementImpl extends ManagementAPIsServiceImplBase {
     @Override
     public void setDefault(
             SetDefaultRequest request, StreamObserver<ManagementResponse> responseObserver) {
+        ((ServerCallStreamObserver<ManagementResponse>) responseObserver)
+                .setOnCancelHandler(
+                        () -> {
+                            logger.warn("grpc client call already cancelled");
+                            responseObserver.onError(
+                                    io.grpc.Status.CANCELLED
+                                            .withDescription("call already cancelled")
+                                            .asRuntimeException());
+                        });
         String modelName = request.getModelName();
         String newModelVersion = request.getModelVersion();
 
@@ -146,6 +191,15 @@ public class ManagementImpl extends ManagementAPIsServiceImplBase {
     @Override
     public void unregisterModel(
             UnregisterModelRequest request, StreamObserver<ManagementResponse> responseObserver) {
+        ((ServerCallStreamObserver<ManagementResponse>) responseObserver)
+                .setOnCancelHandler(
+                        () -> {
+                            logger.warn("grpc client call already cancelled");
+                            responseObserver.onError(
+                                    io.grpc.Status.CANCELLED
+                                            .withDescription("call already cancelled")
+                                            .asRuntimeException());
+                        });
         try {
             String modelName = request.getModelName();
             if (modelName == null || ("").equals(modelName)) {
@@ -172,16 +226,8 @@ public class ManagementImpl extends ManagementAPIsServiceImplBase {
 
     private void sendResponse(StreamObserver<ManagementResponse> responseObserver, String msg) {
         ManagementResponse reply = ManagementResponse.newBuilder().setMsg(msg).build();
-        if (((ServerCallStreamObserver<ManagementResponse>) responseObserver).isCancelled()) {
-            logger.warn("grpc client call already cancelled");
-            responseObserver.onError(
-                    io.grpc.Status.CANCELLED
-                            .withDescription("call already cancelled")
-                            .asRuntimeException());
-        } else {
-            responseObserver.onNext(reply);
-            responseObserver.onCompleted();
-        }
+        responseObserver.onNext(reply);
+        responseObserver.onCompleted();
     }
 
     private void sendErrorResponse(
