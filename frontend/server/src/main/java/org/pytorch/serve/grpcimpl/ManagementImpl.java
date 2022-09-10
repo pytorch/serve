@@ -1,6 +1,7 @@
 package org.pytorch.serve.grpcimpl;
 
 import io.grpc.Status;
+import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
@@ -26,8 +27,11 @@ import org.pytorch.serve.util.GRPCUtils;
 import org.pytorch.serve.util.JsonUtils;
 import org.pytorch.serve.util.messages.RequestInput;
 import org.pytorch.serve.wlm.ModelManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ManagementImpl extends ManagementAPIsServiceImplBase {
+    private static final Logger logger = LoggerFactory.getLogger(ManagementImpl.class);
 
     @Override
     public void describeModel(
@@ -168,8 +172,16 @@ public class ManagementImpl extends ManagementAPIsServiceImplBase {
 
     private void sendResponse(StreamObserver<ManagementResponse> responseObserver, String msg) {
         ManagementResponse reply = ManagementResponse.newBuilder().setMsg(msg).build();
-        responseObserver.onNext(reply);
-        responseObserver.onCompleted();
+        if (((ServerCallStreamObserver<ManagementResponse>) responseObserver).isCancelled()) {
+            logger.warn("grpc client call already cancelled");
+            responseObserver.onError(
+                    io.grpc.Status.CANCELLED
+                            .withDescription("call already cancelled")
+                            .asRuntimeException());
+        } else {
+            responseObserver.onNext(reply);
+            responseObserver.onCompleted();
+        }
     }
 
     private void sendErrorResponse(

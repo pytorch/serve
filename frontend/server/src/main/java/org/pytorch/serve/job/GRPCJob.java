@@ -2,6 +2,7 @@ package org.pytorch.serve.job;
 
 import com.google.protobuf.ByteString;
 import io.grpc.Status;
+import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
 import java.util.ArrayList;
 import java.util.Map;
@@ -29,8 +30,8 @@ public class GRPCJob extends Job {
             LoggerFactory.getLogger(ConfigManager.MODEL_SERVER_METRICS_LOGGER);
     private static final Dimension DIMENSION = new Dimension("Level", "Host");
 
-    private StreamObserver<PredictionResponse> predictionResponseObserver;
-    private StreamObserver<ManagementResponse> managementResponseObserver;
+    private ServerCallStreamObserver<PredictionResponse> predictionResponseObserver;
+    private ServerCallStreamObserver<ManagementResponse> managementResponseObserver;
 
     public GRPCJob(
             StreamObserver<PredictionResponse> predictionResponseObserver,
@@ -39,7 +40,8 @@ public class GRPCJob extends Job {
             WorkerCommands cmd,
             RequestInput input) {
         super(modelName, version, cmd, input);
-        this.predictionResponseObserver = predictionResponseObserver;
+        this.predictionResponseObserver =
+                (ServerCallStreamObserver<PredictionResponse>) predictionResponseObserver;
     }
 
     public GRPCJob(
@@ -48,7 +50,8 @@ public class GRPCJob extends Job {
             String version,
             RequestInput input) {
         super(modelName, version, WorkerCommands.DESCRIBE, input);
-        this.managementResponseObserver = managementResponseObserver;
+        this.managementResponseObserver =
+                (ServerCallStreamObserver<ManagementResponse>) managementResponseObserver;
     }
 
     @Override
@@ -63,8 +66,16 @@ public class GRPCJob extends Job {
         if (this.getCmd() == WorkerCommands.PREDICT) {
             PredictionResponse reply =
                     PredictionResponse.newBuilder().setPrediction(output).build();
-            predictionResponseObserver.onNext(reply);
-            predictionResponseObserver.onCompleted();
+            if (predictionResponseObserver.isCancelled()) {
+                logger.warn("grpc client call already cancelled");
+                predictionResponseObserver.onError(
+                        io.grpc.Status.CANCELLED
+                                .withDescription("call already cancelled")
+                                .asRuntimeException());
+            } else {
+                predictionResponseObserver.onNext(reply);
+                predictionResponseObserver.onCompleted();
+            }
 
             logger.debug(
                     "Waiting time ns: {}, Backend time ns: {}",
@@ -91,8 +102,15 @@ public class GRPCJob extends Job {
                 }
                 String resp = JsonUtils.GSON_PRETTY.toJson(respList);
                 ManagementResponse reply = ManagementResponse.newBuilder().setMsg(resp).build();
-                managementResponseObserver.onNext(reply);
-                managementResponseObserver.onCompleted();
+                if (managementResponseObserver.isCancelled()) {
+                    managementResponseObserver.onError(
+                            io.grpc.Status.CANCELLED
+                                    .withDescription("call already cancelled")
+                                    .asRuntimeException());
+                } else {
+                    managementResponseObserver.onNext(reply);
+                    managementResponseObserver.onCompleted();
+                }
             } catch (ModelNotFoundException | ModelVersionNotFoundException e) {
                 ManagementImpl.sendErrorResponse(managementResponseObserver, Status.NOT_FOUND, e);
             }

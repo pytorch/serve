@@ -3,6 +3,7 @@ package org.pytorch.serve.grpcimpl;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Empty;
 import io.grpc.Status;
+import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
 import java.net.HttpURLConnection;
 import java.util.Map;
@@ -25,8 +26,11 @@ import org.pytorch.serve.util.messages.InputParameter;
 import org.pytorch.serve.util.messages.RequestInput;
 import org.pytorch.serve.util.messages.WorkerCommands;
 import org.pytorch.serve.wlm.ModelManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class InferenceImpl extends InferenceAPIsServiceImplBase {
+    private static final Logger logger = LoggerFactory.getLogger(InferenceImpl.class);
 
     @Override
     public void ping(Empty request, StreamObserver<TorchServeHealthResponse> responseObserver) {
@@ -40,8 +44,17 @@ public class InferenceImpl extends InferenceAPIsServiceImplBase {
                                                     new StatusResponse(
                                                             response, HttpURLConnection.HTTP_OK)))
                                     .build();
-                    responseObserver.onNext(reply);
-                    responseObserver.onCompleted();
+                    if (((ServerCallStreamObserver<TorchServeHealthResponse>) responseObserver)
+                            .isCancelled()) {
+                        logger.warn("grpc client call already cancelled");
+                        responseObserver.onError(
+                                io.grpc.Status.CANCELLED
+                                        .withDescription("call already cancelled")
+                                        .asRuntimeException());
+                    } else {
+                        responseObserver.onNext(reply);
+                        responseObserver.onCompleted();
+                    }
                 };
         ApiUtils.getTorchServeHealth(r);
     }
