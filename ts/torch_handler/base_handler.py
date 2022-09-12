@@ -52,7 +52,7 @@ class BaseHandler(abc.ABC):
         self.device = None
         self.initialized = False
         self.context = None
-        self.manifest = None
+        self.manifest = {}
         self.map_location = None
         self.explain = False
         self.target = 0
@@ -164,7 +164,7 @@ class BaseHandler(abc.ABC):
             model.load_state_dict(state_dict)
         return model
 
-    def preprocess(self, data: List[Any]) -> List[Tensor]:
+    def preprocess(self, data: List[Any]) -> Tensor:
         """
         Preprocess function to convert the request input to a tensor(Torchserve supported format).
         The user needs to override to customize the pre-processing
@@ -177,7 +177,7 @@ class BaseHandler(abc.ABC):
         """
         return torch.as_tensor(data, device=self.device)
 
-    def inference(self, data: List[Tensor], *args, **kwargs) -> List[Tensor]:
+    def inference(self, data: Tensor, *args, **kwargs) -> Tensor:
         """
         The Inference Function is used to make a prediction call on the given input request.
         The user needs to override the inference function to customize it.
@@ -194,7 +194,7 @@ class BaseHandler(abc.ABC):
             results = self.model(marshalled_data, *args, **kwargs)
         return results
 
-    def postprocess(self, data: List[Tensor]) -> List[Any]:
+    def postprocess(self, data: Tensor) -> List[Any]:
         """
         The post process function makes use of the output from the inference and converts into a
         Torchserve supported response output.
@@ -343,7 +343,7 @@ class BaseHandler(abc.ABC):
                 return True
         return False
 
-    def describe_handle(self) -> None:
+    def describe_handle(self):
         """Customized describe handler
 
         Returns:
