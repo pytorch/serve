@@ -69,7 +69,7 @@ jobs:
           for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
             sources="-S $file $sources"
           done
-          pyspelling -c $GITHUB_WORKSPACE/ts_scripts/spellcheck_conf/spellcheck.yaml $sources
+        run: pyspelling -c $GITHUB_WORKSPACE/ts_scripts/spellcheck_conf/spellcheck.yaml $sources
 
       - name: In the case of misspellings
         if: ${{ failure() }}
