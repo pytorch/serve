@@ -13,9 +13,9 @@ from ts_scripts.utils import check_python_version
 def install_from_src(dev=False):
     for binary in [".", "model-archiver", "workflow-archiver"]:
         cmd = (
-            f"pip install --force-reinstall -e {binary}"
+            f"pip install --force-reinstall --upgrade -e {binary}"
             if dev
-            else f"pip install --force-reinstall {binary}"
+            else f"pip install --force-reinstall --upgrade {binary}"
         )
         print(f"## In directory {os.getcwd()} | Executing command {cmd}")
         os.system(cmd)
