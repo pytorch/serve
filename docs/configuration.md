@@ -78,9 +78,9 @@ TorchServe doesn't support authentication natively. To avoid unauthorized access
 The inference API is listening on port 8080. The management API is listening on port 8081. Both expect HTTP requests. These are the default ports.
 See [Enable SSL](#enable-ssl) to configure HTTPS.
 
-* `inference_address`: Inference API binding address. Default: http://127.0.0.1:8080
-* `management_address`: Management API binding address. Default: http://127.0.0.1:8081
-* `metrics_address`: Metrics API binding address. Default: http://127.0.0.1:8082
+* `inference_address`: Inference API binding address. Default: `http://127.0.0.1:8080`
+* `management_address`: Management API binding address. Default: `http://127.0.0.1:8081`
+* `metrics_address`: Metrics API binding address. Default: `http://127.0.0.1:8082`
 * To run predictions on models on a public IP address, specify the IP address as `0.0.0.0`.
   To run predictions on models on a specific IP address, specify the IP address and port.
 

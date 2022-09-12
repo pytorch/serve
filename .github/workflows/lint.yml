@@ -24,6 +24,8 @@ jobs:
 
       - name: Check links in all markdown files
         uses: gaurav-nelson/github-action-markdown-link-check@1.0.14
+        with:
+          use-verbose-mode: 'yes'
 
       - name: Get changed files
         id: changed-files
