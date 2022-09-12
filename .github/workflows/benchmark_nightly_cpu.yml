@@ -4,10 +4,11 @@ on:
   # run every day at 2:15am
   schedule:
     - cron:  '15 02 * * *'
+
 jobs:
   nightly:
     runs-on: [self-hosted, cpu]
-    timeout-minutes: 1320 
+    timeout-minutes: 1320
     steps:
       - name: Clean up previous run
         run: |
@@ -34,4 +35,12 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: nightly cpu artifact
-          path: /tmp/ts_benchmark 
+          path: /tmp/ts_benchmark
+      - name: Open issue on failure
+        if: ${{ failure() && github.event_name  == 'schedule' }}
+        uses: rishabhgupta/git-action-issue@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          title: Nightly CPU benchmark failed
+          body:  Commit ${{ github.sha }} daily scheduled [CI run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) failed, please check why
+          assignees: ''

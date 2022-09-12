@@ -21,6 +21,7 @@ public class WorkerLifeCycle {
     private static final Logger logger = LoggerFactory.getLogger(WorkerLifeCycle.class);
 
     private ConfigManager configManager;
+    private ModelManager modelManager = ModelManager.getInstance();
     private Model model;
     private int pid = -1;
     private Process process;
@@ -30,10 +31,14 @@ public class WorkerLifeCycle {
     private ReaderThread errReader;
     private ReaderThread outReader;
     private String launcherArgs;
+    private int numWorker;
+    private int currNumRunningWorkers;
 
     public WorkerLifeCycle(ConfigManager configManager, Model model) {
         this.configManager = configManager;
         this.model = model;
+        this.numWorker = model.getMinWorkers();
+        this.currNumRunningWorkers = modelManager.getNumRunningWorkers(model.getModelVersionName());
     }
 
     public Process getProcess() {
@@ -44,8 +49,6 @@ public class WorkerLifeCycle {
         ArrayList<String> arrlist = new ArrayList<String>();
         arrlist.add("-m");
         arrlist.add("intel_extension_for_pytorch.cpu.launch");
-        arrlist.add("--ninstance");
-        arrlist.add("1");
         if (launcherArgs != null && launcherArgs.length() > 1) {
             String[] argarray = launcherArgs.split(" ");
             for (int i = 0; i < argarray.length; i++) {
@@ -99,6 +102,16 @@ public class WorkerLifeCycle {
             if (launcherAvailable) {
                 ArrayList<String> args = launcherArgsToList();
                 argl.addAll(args);
+
+                // multi-worker core pinning
+                if (this.numWorker > 1) {
+                    argl.add("--ninstances");
+                    argl.add(String.valueOf(this.numWorker));
+                    argl.add("--instance_idx");
+                    // instance_idx is 0-indexed
+                    argl.add(String.valueOf(this.currNumRunningWorkers));
+                }
+
             } else {
                 logger.warn(
                         "CPU launcher is enabled but launcher is not available. Proceeding without launcher.");

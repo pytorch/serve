@@ -23,7 +23,7 @@ def iterate_subdir(input_dir, output, hw, ts_version):
 
     for model in models.keys():
         mdFile.new_header(level=2, title=model)
-        files = os.path.join('{}/{}_*/ab_report.csv'.format(input_dir, model))
+        files = os.path.join(input_dir, f'{model}_*', 'ab_report.csv')
         files = glob.glob(files)
         files.sort()
         df = pd.concat(map(pd.read_csv, files), ignore_index=True)
