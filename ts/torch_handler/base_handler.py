@@ -4,16 +4,22 @@ Also, provides handle method per torch serve custom model specification
 """
 
 import abc
+import importlib.util
 import logging
 import os
-import importlib.util
 import time
+from typing import Any, List, Tuple
+
 import torch
 from pkg_resources import packaging
+from torch import ScriptModule, Tensor
+
+from ts import Context
+
 from ..utils.util import list_classes_from_module, load_label_mapping
 
 if packaging.version.parse(torch.__version__) >= packaging.version.parse("1.8.1"):
-    from torch.profiler import profile, record_function, ProfilerActivity
+    from torch.profiler import ProfilerActivity, profile, record_function
 
     PROFILER_AVAILABLE = True
 else:
@@ -52,7 +58,7 @@ class BaseHandler(abc.ABC):
         self.target = 0
         self.profiler_args = {}
 
-    def initialize(self, context):
+    def initialize(self, context: Context) -> None:
         """Initialize function loads the model.pt file and initialized the model object.
            First try to load torchscript else load eager mode state_dict based model.
 
@@ -110,7 +116,7 @@ class BaseHandler(abc.ABC):
 
         self.initialized = True
 
-    def _load_torchscript_model(self, model_pt_path):
+    def _load_torchscript_model(self, model_pt_path: str) -> ScriptModule:
         """Loads the PyTorch model and returns the NN model object.
 
         Args:
@@ -121,7 +127,7 @@ class BaseHandler(abc.ABC):
         """
         return torch.jit.load(model_pt_path, map_location=self.device)
 
-    def _load_pickled_model(self, model_dir, model_file, model_pt_path):
+    def _load_pickled_model(self, model_dir: str, model_file: str, model_pt_path: str):
         """
         Loads the pickle file from the given model path.
 
@@ -158,7 +164,7 @@ class BaseHandler(abc.ABC):
             model.load_state_dict(state_dict)
         return model
 
-    def preprocess(self, data):
+    def preprocess(self, data: List[Any]) -> List[Tensor]:
         """
         Preprocess function to convert the request input to a tensor(Torchserve supported format).
         The user needs to override to customize the pre-processing
@@ -171,7 +177,7 @@ class BaseHandler(abc.ABC):
         """
         return torch.as_tensor(data, device=self.device)
 
-    def inference(self, data, *args, **kwargs):
+    def inference(self, data: List[Tensor], *args, **kwargs) -> List[Tensor]:
         """
         The Inference Function is used to make a prediction call on the given input request.
         The user needs to override the inference function to customize it.
@@ -188,7 +194,7 @@ class BaseHandler(abc.ABC):
             results = self.model(marshalled_data, *args, **kwargs)
         return results
 
-    def postprocess(self, data):
+    def postprocess(self, data: List[Tensor]) -> List[Any]:
         """
         The post process function makes use of the output from the inference and converts into a
         Torchserve supported response output.
@@ -202,7 +208,7 @@ class BaseHandler(abc.ABC):
 
         return data.tolist()
 
-    def handle(self, data, context):
+    def handle(self, data: List[Any], context: Context):
         """Entry point for default handler. It takes the data from the input request and returns
            the predicted outcome for the input.
 
@@ -249,7 +255,7 @@ class BaseHandler(abc.ABC):
         )
         return output
 
-    def _infer_with_profiler(self, data):
+    def _infer_with_profiler(self, data: List[Any]) -> Tuple[List[Tensor], Any]:
         """Custom method to generate pytorch profiler traces for preprocess/inference/postprocess
 
         Args:
@@ -281,9 +287,7 @@ class BaseHandler(abc.ABC):
             self.profiler_args[
                 "on_trace_ready"
             ] = torch.profiler.tensorboard_trace_handler(result_path)
-            logger.info(
-                "Saving chrome trace to : %s", result_path
-            )
+            logger.info("Saving chrome trace to : %s", result_path)
 
         with profile(**self.profiler_args) as prof:
             with record_function("preprocess"):
@@ -300,7 +304,7 @@ class BaseHandler(abc.ABC):
         logger.info(prof.key_averages().table(sort_by="cpu_time_total", row_limit=10))
         return output, prof
 
-    def explain_handle(self, data_preprocess, raw_data):
+    def explain_handle(self, data_preprocess: Tensor, raw_data: List[Any]):
         """Captum explanations handler
 
         Args:
@@ -326,20 +330,20 @@ class BaseHandler(abc.ABC):
         output_explain = self.get_insights(data_preprocess, inputs, target)
         return output_explain
 
-    def _is_explain(self):
+    def _is_explain(self) -> bool:
         if self.context and self.context.get_request_header(0, "explain"):
             if self.context.get_request_header(0, "explain") == "True":
                 self.explain = True
                 return True
         return False
 
-    def _is_describe(self):
+    def _is_describe(self) -> bool:
         if self.context and self.context.get_request_header(0, "describe"):
             if self.context.get_request_header(0, "describe") == "True":
                 return True
         return False
 
-    def describe_handle(self):
+    def describe_handle(self) -> None:
         """Customized describe handler
 
         Returns:
