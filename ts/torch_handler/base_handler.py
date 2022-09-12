@@ -9,6 +9,7 @@ import logging
 import os
 import pathlib
 import time
+from abc import abstractmethod
 from typing import Any, List, Tuple, TypeVar
 
 import torch
@@ -49,7 +50,6 @@ class BaseHandler(abc.ABC):
     """
 
     def __init__(self):
-        self.model = None
         self.mapping = None
         self.device = None
         self.initialized = False
@@ -128,7 +128,9 @@ class BaseHandler(abc.ABC):
         """
         return torch.jit.load(model_pt_path, map_location=self.device)
 
-    def _load_pickled_model(self, model_dir: str, model_file: str, model_pt_path: str):
+    def _load_pickled_model(
+        self, model_dir: PathLike, model_file: PathLike, model_pt_path: PathLike
+    ):
         """
         Loads the pickle file from the given model path.
 
@@ -165,7 +167,7 @@ class BaseHandler(abc.ABC):
             model.load_state_dict(state_dict)
         return model
 
-    def preprocess(self, data: List[Any]) -> Tensor:
+    def preprocess(self, data) -> Tensor:
         """
         Preprocess function to convert the request input to a tensor(Torchserve supported format).
         The user needs to override to customize the pre-processing
@@ -195,7 +197,7 @@ class BaseHandler(abc.ABC):
             results = self.model(marshalled_data, *args, **kwargs)
         return results
 
-    def postprocess(self, data: Tensor) -> List[Any]:
+    def postprocess(self, data: Tensor) -> Any:
         """
         The post process function makes use of the output from the inference and converts into a
         Torchserve supported response output.
@@ -324,14 +326,14 @@ class BaseHandler(abc.ABC):
         if isinstance(row, dict):
             logger.info("Getting data and target")
             inputs = row.get("data") or row.get("body")
-            target = int(row.get("target"))
+            target = int(row.get("target"))  # type: ignore
             if not target:
                 target = 0
 
         output_explain = self.get_insights(data_preprocess, inputs, target)
         return output_explain
 
-    def get_insights(self, inputs, target):
+    def get_insights(self, data_preprocess, inputs, target):
         return NotImplementedError(
             "Derived class needs to implement get_insights() function"
         )
@@ -349,6 +351,7 @@ class BaseHandler(abc.ABC):
                 return True
         return False
 
+    @abstractmethod
     def describe_handle(self):
         """Customized describe handler
 
@@ -356,5 +359,5 @@ class BaseHandler(abc.ABC):
             dict : A dictionary response.
         """
         # pylint: disable=unnecessary-pass
-        pass
+        return NotImplementedError("Implement describe_handle() in the derived class")
         # pylint: enable=unnecessary-pass
