@@ -13,7 +13,7 @@ from abc import abstractmethod
 from typing import Any, List, Tuple, TypeVar
 
 import torch
-from pkg_resources import packaging
+from pkg_resources import packaging  # type: ignore
 from torch import ScriptModule, Tensor
 
 from ts.context import Context
@@ -147,11 +147,11 @@ class BaseHandler(abc.ABC):
         Returns:
             serialized model file: Returns the pickled pytorch model file
         """
-        model_def_path = os.path.join(model_dir, model_file)
+        model_def_path = os.path.join(model_dir, model_file)  # type: ignore
         if not os.path.isfile(model_def_path):
             raise RuntimeError("Missing the model.py file")
 
-        module = importlib.import_module(model_file.split(".")[0])
+        module = importlib.import_module(model_file.split(".")[0])  # type: ignore
         model_class_definitions = list_classes_from_module(module)
         if len(model_class_definitions) != 1:
             raise ValueError(
@@ -242,7 +242,7 @@ class BaseHandler(abc.ABC):
                 )
         else:
             if self._is_describe():
-                output = [self.describe_handle()]
+                output = [self.describe_handle()]  # type: ignore
             else:
                 data_preprocess = self.preprocess(data)
 
@@ -333,6 +333,7 @@ class BaseHandler(abc.ABC):
         output_explain = self.get_insights(data_preprocess, inputs, target)
         return output_explain
 
+    @abstractmethod
     def get_insights(self, data_preprocess, inputs, target):
         return NotImplementedError(
             "Derived class needs to implement get_insights() function"
