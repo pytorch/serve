@@ -10,7 +10,7 @@ from ts_scripts import print_env_info as build_hdr_printer
 from ts_scripts.utils import check_python_version
 
 
-def install_binaries(dev):
+def install_from_src(dev):
     for binary in [".", "model-archiver", "workflow-archiver"]:
         cmd = (
             f"pip install --force-reinstall -e {binary}"
@@ -35,4 +35,4 @@ if __name__ == "__main__":
 
     git_branch = Repository(".").head.shorthand
     build_hdr_printer.main(git_branch)
-    install_binaries(args.environment == "dev")
+    install_from_src(args.environment == "dev")
