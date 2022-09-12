@@ -10,7 +10,7 @@ from ts_scripts import print_env_info as build_hdr_printer
 from ts_scripts.utils import check_python_version
 
 
-def install_from_src(dev):
+def install_from_src(dev=False):
     for binary in [".", "model-archiver", "workflow-archiver"]:
         cmd = (
             f"pip install --force-reinstall -e {binary}"
