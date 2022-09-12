@@ -11,7 +11,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    name: Lint changed-files
+    name: Lint changed files
     steps:
       - uses: actions/checkout@v3
         with:
@@ -71,7 +71,7 @@ jobs:
           for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
             sources="-S $file $sources"
           done
-        run: pyspelling -c $GITHUB_WORKSPACE/ts_scripts/spellcheck_conf/spellcheck.yaml $sources
+          pyspelling -c $GITHUB_WORKSPACE/ts_scripts/spellcheck_conf/spellcheck.yaml $sources
 
       - name: In the case of misspellings
         if: ${{ failure() }}
