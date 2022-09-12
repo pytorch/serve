@@ -12,6 +12,6 @@ matrix:
   - pyspelling.filters.markdown:
       markdown_extensions:
       - markdown.extensions.extra:
-  sources:
-  - 'docs/*.md'
-  - 'examples/*/*.md'
+  # sources:
+  # - 'docs/*.md'
+  # - 'examples/*/*.md'

@@ -606,7 +606,7 @@ mmf
 multimodal
 preprocessed
 batchsize
-downlaod
+download
 fastertransformer
 ngc
 deeplearningexamples

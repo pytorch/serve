@@ -25,16 +25,16 @@ jobs:
       - name: Check links in all markdown files
         uses: gaurav-nelson/github-action-markdown-link-check@1.0.14
 
-      - name: Get specific changed files
-        id: changed-files-specific
-        uses: tj-actions/changed-files@v20.1
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v29.0.4
         with:
           files: | 
             **/*.py
   
       - name: Lint all changed files
         run: |
-          for file in ${{ steps.changed-files-specific.outputs.all_changed_files }}; do
+          for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
             pre-commit run --files $file
           done
           
@@ -56,6 +56,23 @@ jobs:
           sudo apt-get install aspell aspell-en
           pip install pyspelling
 
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v29.0.4
+        with:
+          files: | 
+            **/*.md
+
       - name: Check spellings
         run: |
-          pyspelling -c $GITHUB_WORKSPACE/ts_scripts/spellcheck_conf/spellcheck.yaml
+          sources=""
+          for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
+            sources="-S $file $sources"
+          done
+          pyspelling -c $GITHUB_WORKSPACE/ts_scripts/spellcheck_conf/spellcheck.yaml $sources
+
+      - name: In the case of misspellings
+        if: ${{ failure() }}
+        run: |
+          echo "Please fix the misspellings. If you are sure about some of them, "
+          echo "so append those to `ts_scripts/spellcheck_conf/wordlist.txt`"
