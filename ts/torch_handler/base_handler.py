@@ -37,6 +37,8 @@ if os.environ.get("TS_IPEX_ENABLE", "false") == "true":
 
 try:
     import onnxruntime
+
+    onnx_enabled = True
 except ImportError as error:
     logger.warning("proceeding without onnxruntime")
 

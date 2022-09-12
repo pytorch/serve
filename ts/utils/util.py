@@ -48,14 +48,15 @@ def load_model_config(model_config_path):
         logger.warning(
             f"Could not find {model_config_path}. No custom optimizations will be used"
         )
+        return None
 
-        with open(model_config_path) as f:
-            model_config = json.load(f)
+    with open(model_config_path) as f:
+        model_config = json.load(f)
 
-        if not isinstance(model_config, dict):
-            raise Exception("Model configuration is not a valid JSON")
+    if not isinstance(model_config, dict):
+        raise Exception("Model configuration is not a valid JSON")
 
-        return model_config
+    return model_config
 
 
 def load_label_mapping(mapping_file_path):
