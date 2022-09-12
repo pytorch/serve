@@ -7,14 +7,15 @@ import abc
 import importlib.util
 import logging
 import os
+import pathlib
 import time
-from typing import Any, List, Tuple
+from typing import Any, List, Tuple, TypeVar
 
 import torch
 from pkg_resources import packaging
 from torch import ScriptModule, Tensor
 
-from ts import Context
+from ts.context import Context
 
 from ..utils.util import list_classes_from_module, load_label_mapping
 
@@ -26,6 +27,7 @@ else:
     PROFILER_AVAILABLE = False
 
 
+PathLike = TypeVar("PathLike", str, pathlib.Path, None)
 logger = logging.getLogger(__name__)
 
 ipex_enabled = False
@@ -58,7 +60,7 @@ class BaseHandler(abc.ABC):
         self.target = 0
         self.profiler_args = {}
 
-    def initialize(self, context: Context) -> None:
+    def initialize(self, context: Context):
         """Initialize function loads the model.pt file and initialized the model object.
            First try to load torchscript else load eager mode state_dict based model.
 
@@ -84,7 +86,6 @@ class BaseHandler(abc.ABC):
         self.manifest = context.manifest
 
         model_dir = properties.get("model_dir")
-        model_pt_path = None
         if "serializedFile" in self.manifest["model"]:
             serialized_file = self.manifest["model"]["serializedFile"]
             model_pt_path = os.path.join(model_dir, serialized_file)
@@ -116,7 +117,7 @@ class BaseHandler(abc.ABC):
 
         self.initialized = True
 
-    def _load_torchscript_model(self, model_pt_path: str) -> ScriptModule:
+    def _load_torchscript_model(self, model_pt_path: PathLike) -> ScriptModule:
         """Loads the PyTorch model and returns the NN model object.
 
         Args:
@@ -255,7 +256,7 @@ class BaseHandler(abc.ABC):
         )
         return output
 
-    def _infer_with_profiler(self, data: List[Any]) -> Tuple[List[Tensor], Any]:
+    def _infer_with_profiler(self, data: List[Any]) -> Tuple[Tensor, Any]:
         """Custom method to generate pytorch profiler traces for preprocess/inference/postprocess
 
         Args:
@@ -323,12 +324,17 @@ class BaseHandler(abc.ABC):
         if isinstance(row, dict):
             logger.info("Getting data and target")
             inputs = row.get("data") or row.get("body")
-            target = row.get("target")
+            target = int(row.get("target"))
             if not target:
                 target = 0
 
         output_explain = self.get_insights(data_preprocess, inputs, target)
         return output_explain
+
+    def get_insights(self, inputs, target):
+        return NotImplementedError(
+            "Derived class needs to implement get_insights() function"
+        )
 
     def _is_explain(self) -> bool:
         if self.context and self.context.get_request_header(0, "explain"):
