@@ -9,7 +9,7 @@ on:
       - master
 
 jobs:
-  build:
+  pre-commit:
     runs-on: ubuntu-latest
     name: Test changed-files
     steps:
@@ -20,26 +20,48 @@ jobs:
       - name: Install lint utilities
         run: |
           pip install pre-commit
-          pre-commit install      
+          pre-commit install
 
       - name: Get specific changed files
         id: changed-files-specific
         uses: tj-actions/changed-files@v20.1
         with:
-          files: | 
+          files: |
             **/*.py
-  
+
       - name: Lint all changed files
         run: |
           for file in ${{ steps.changed-files-specific.outputs.all_changed_files }}; do
             pre-commit run --files $file
           done
-          
+
       - name: What to do if this action fails
         if: ${{ failure() }}
         run: |
           echo "You need to lint your code with pre-commit"
-          echo "pip install pre-commit" 
+          echo "pip install pre-commit"
           echo "cd serve/"
           echo "pre-commit install"
           echo "pre-commit will lint your code for you, so git add and commit those new changes and this check should become green"
+  mypy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout torchserve
+        uses: actions/checkout@v3
+      - name: Install dependencies
+        run: |
+          pip install mypy
+      - name: Run mypy
+        env:
+          MYPY_FORCE_COLOR: 1
+          TERM: xterm-color
+        run: |
+          set -eux
+          STATUS=
+          if ! mypy --config=mypy.ini; then
+            STATUS=fail
+          fi
+          if [ -n "$STATUS" ]; then
+            echo 'Please fix the above mypy warnings.'
+            false
+          fi
