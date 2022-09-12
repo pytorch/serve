@@ -4,16 +4,18 @@ Also, provides handle method per torch serve custom model specification
 """
 
 import abc
+import importlib.util
 import logging
 import os
-import importlib.util
 import time
+
 import torch
 from pkg_resources import packaging
+
 from ..utils.util import list_classes_from_module, load_label_mapping
 
 if packaging.version.parse(torch.__version__) >= packaging.version.parse("1.8.1"):
-    from torch.profiler import profile, record_function, ProfilerActivity
+    from torch.profiler import ProfilerActivity, profile, record_function
 
     PROFILER_AVAILABLE = True
 else:
@@ -33,6 +35,11 @@ if os.environ.get("TS_IPEX_ENABLE", "false") == "true":
             "IPEX is enabled but intel-extension-for-pytorch is not installed. Proceeding without IPEX."
         )
 
+try:
+    import onnxruntime
+except:
+    logger.warning("proceeding without onnxruntime")
+
 
 class BaseHandler(abc.ABC):
     """
@@ -46,6 +53,7 @@ class BaseHandler(abc.ABC):
         self.device = None
         self.initialized = False
         self.context = None
+        self.model_pt_path = None
         self.manifest = None
         self.map_location = None
         self.explain = False
@@ -78,37 +86,58 @@ class BaseHandler(abc.ABC):
         self.manifest = context.manifest
 
         model_dir = properties.get("model_dir")
-        model_pt_path = None
+        self.model_pt_path = None
         if "serializedFile" in self.manifest["model"]:
             serialized_file = self.manifest["model"]["serializedFile"]
-            model_pt_path = os.path.join(model_dir, serialized_file)
+            self.model_pt_path = os.path.join(model_dir, serialized_file)
 
         # model def file
         model_file = self.manifest["model"].get("modelFile", "")
 
         if model_file:
             logger.debug("Loading eager model")
-            self.model = self._load_pickled_model(model_dir, model_file, model_pt_path)
+            self.model = self._load_pickled_model(
+                model_dir, model_file, self.model_pt_path
+            )
             self.model.to(self.device)
-        else:
+            self.model.eval()
+
+        elif self.model_pt_path.endswith(".pt"):
             logger.debug("Loading torchscript model")
-            if not os.path.isfile(model_pt_path):
-                raise RuntimeError("Missing the model.pt file")
+            self.model = self._load_torchscript_model(self.model_pt_path)
+            self.model.eval()
 
-            self.model = self._load_torchscript_model(model_pt_path)
+        elif self.model_pt_path.endswith(".onnx"):
+            logger.debug("Loading onnx model")
+            self.model = self._load_onnx_model(self.model_pt_path)
 
-        self.model.eval()
+        else:
+            raise RuntimeError("No model weights could be loaded")
+
         if ipex_enabled:
             self.model = self.model.to(memory_format=torch.channels_last)
             self.model = ipex.optimize(self.model)
 
-        logger.debug("Model file %s loaded successfully", model_pt_path)
+        logger.debug("Model file %s loaded successfully", self.model_pt_path)
 
         # Load class mapping for classifiers
         mapping_file_path = os.path.join(model_dir, "index_to_name.json")
         self.mapping = load_label_mapping(mapping_file_path)
 
         self.initialized = True
+
+    def _load_onnx_model(self, model_onnx_path):
+        """Loads the ONNX model and returns an ORT inference sesion
+
+        Args:
+            model_onnx_path (str): denotes the to the .onnx file
+
+        Returns:
+            (Inference Session) : Loads the model object.
+        """
+
+        # TODO: How to do GPU support
+        return onnxruntime.InferenceSession(model_onnx_path)
 
     def _load_torchscript_model(self, model_pt_path):
         """Loads the PyTorch model and returns the NN model object.
@@ -185,7 +214,10 @@ class BaseHandler(abc.ABC):
         """
         marshalled_data = data.to(self.device)
         with torch.no_grad():
-            results = self.model(marshalled_data, *args, **kwargs)
+            if self.model_pt_path.endswith("onnx"):
+                self.model.run(None, data, *args, **kwargs)
+            else:
+                results = self.model(marshalled_data, *args, **kwargs)
         return results
 
     def postprocess(self, data):
@@ -281,9 +313,7 @@ class BaseHandler(abc.ABC):
             self.profiler_args[
                 "on_trace_ready"
             ] = torch.profiler.tensorboard_trace_handler(result_path)
-            logger.info(
-                "Saving chrome trace to : %s", result_path
-            )
+            logger.info("Saving chrome trace to : %s", result_path)
 
         with profile(**self.profiler_args) as prof:
             with record_function("preprocess"):
