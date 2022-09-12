@@ -11,7 +11,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    name: Test changed-files
+    name: Lint changed-files
     steps:
       - uses: actions/checkout@v3
         with:
@@ -20,7 +20,10 @@ jobs:
       - name: Install lint utilities
         run: |
           pip install pre-commit
-          pre-commit install      
+          pre-commit install
+
+      - name: Check links in all markdown files
+        uses: gaurav-nelson/github-action-markdown-link-check@1.0.14
 
       - name: Get specific changed files
         id: changed-files-specific
@@ -43,3 +46,16 @@ jobs:
           echo "cd serve/"
           echo "pre-commit install"
           echo "pre-commit will lint your code for you, so git add and commit those new changes and this check should become green"
+  spellcheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get install aspell aspell-en
+          pip install pyspelling
+
+      - name: Check spellings
+        run: |
+          pyspelling -c $GITHUB_WORKSPACE/ts_scripts/spellcheck_conf/spellcheck.yaml

@@ -304,5 +304,3 @@ run_markdown_link_checker(){
   set -e
   exit $STATUS
 }
-
-"$@"

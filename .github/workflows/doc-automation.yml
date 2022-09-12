@@ -21,10 +21,6 @@ jobs:
         cd ./docs/sphinx
         make html
       id: build
-    - name: Check links in all markdown files
-      run: bash ./ts_scripts/install_utils run_markdown_link_checker
-    - name: Fix typos in the docs
-      run: bash ./ts_scripts/spellcheck.sh
     - name: Deploy
       uses: JamesIves/github-pages-deploy-action@releases/v3
       with:
