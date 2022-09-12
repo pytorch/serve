@@ -12,7 +12,7 @@ import time
 import torch
 from pkg_resources import packaging
 
-from ..utils.util import list_classes_from_module, load_label_mapping
+from ..utils.util import list_classes_from_module, load_label_mapping, load_model_config
 
 if packaging.version.parse(torch.__version__) >= packaging.version.parse("1.8.1"):
     from torch.profiler import ProfilerActivity, profile, record_function
@@ -37,7 +37,7 @@ if os.environ.get("TS_IPEX_ENABLE", "false") == "true":
 
 try:
     import onnxruntime
-except:
+except ImportError as error:
     logger.warning("proceeding without onnxruntime")
 
 
@@ -124,6 +124,9 @@ class BaseHandler(abc.ABC):
         mapping_file_path = os.path.join(model_dir, "index_to_name.json")
         self.mapping = load_label_mapping(mapping_file_path)
 
+        model_config_path = os.path.join(model_dir, "model_config.json")
+        self.model_config = load_model_config(model_config_path)
+
         self.initialized = True
 
     def _load_onnx_model(self, model_onnx_path):
@@ -136,7 +139,7 @@ class BaseHandler(abc.ABC):
             (Inference Session) : Loads the model object.
         """
 
-        # TODO: How to do GPU support
+        # ORT defaults to cuda:0 if GPU available otherwise CPU
         return onnxruntime.InferenceSession(model_onnx_path)
 
     def _load_torchscript_model(self, model_pt_path):
