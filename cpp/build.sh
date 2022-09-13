@@ -205,6 +205,11 @@ function build() {
     PREFIX=$BWD
   fi
 
+  MAYBE_CUDA_COMPILER=""
+  if [ "$CUDA" != "" ]; then
+    MAYBE_CUDA_COMPILER='-DCMAKE_CUDA_COMPILER="/usr/local/cuda/bin/nvcc"'
+  fi
+
   # Build torchserve_cpp with cmake
   cd "$BWD" || exit
   FOLLY_CMAKE_DIR=$DEPS_DIR/folly-build/installed
@@ -218,6 +223,7 @@ function build() {
     "$MAYBE_OVERRIDE_CXX_FLAGS"                                                               \
     "$MAYBE_USE_STATIC_DEPS"                                                                  \
     "$MAYBE_LIB_FUZZING_ENGINE"                                                               \
+    "$MAYBE_CUDA_COMPILER"                                                                    \
     ..
 
     if [ "$CUDA" = "cu102" ] || [ "$CUDA" = "cu113" ] || [ "$CUDA" = "cu116" ]; then
