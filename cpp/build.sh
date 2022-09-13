@@ -159,20 +159,20 @@ function install_libtorch() {
       echo -e "${COLOR_GREEN}[ INFO ] Install libtorch on Linux ${COLOR_OFF}"
       if [ "$CUDA" = "cu102" ]; then
         wget https://download.pytorch.org/libtorch/cu102/libtorch-cxx11-abi-shared-with-deps-1.12.1%2Bcu102.zip
-        unzip libtorch-cxx11-abi-shared-with-deps-1.12.1%2Bcu102.zip
-        rm libtorch-cxx11-abi-shared-with-deps-1.12.1%2Bcu102.zip
+        unzip libtorch-cxx11-abi-shared-with-deps-1.12.1+cu102.zip
+        rm libtorch-cxx11-abi-shared-with-deps-1.12.1+cu102.zip
       elif [ "$CUDA" = "cu113" ]; then
         wget https://download.pytorch.org/libtorch/cu113/libtorch-cxx11-abi-shared-with-deps-1.12.1%2Bcu113.zip
-        unzip libtorch-cxx11-abi-shared-with-deps-1.12.1%2Bcu113.zip
-        rm libtorch-cxx11-abi-shared-with-deps-1.12.1%2Bcu113.zip
+        unzip libtorch-cxx11-abi-shared-with-deps-1.12.1+cu113.zip
+        rm libtorch-cxx11-abi-shared-with-deps-1.12.1+cu113.zip
       elif [ "$CUDA" = "cu116" ]; then
         wget https://download.pytorch.org/libtorch/cu116/libtorch-cxx11-abi-shared-with-deps-1.12.1%2Bcu116.zip
-        unzip libtorch-cxx11-abi-shared-with-deps-1.12.1%2Bcu116.zip
-        rm libtorch-cxx11-abi-shared-with-deps-1.12.1%2Bcu116.zip
+        unzip libtorch-cxx11-abi-shared-with-deps-1.12.1+cu116.zip
+        rm libtorch-cxx11-abi-shared-with-deps-1.12.1+cu116.zip
       else
         wget https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.12.1%2Bcpu.zip
-        unzip libtorch-cxx11-abi-shared-with-deps-1.12.1%2Bcpu.zip
-        rm libtorch-cxx11-abi-shared-with-deps-1.12.1%2Bcpu.zip
+        unzip libtorch-cxx11-abi-shared-with-deps-1.12.1+cpu.zip
+        rm libtorch-cxx11-abi-shared-with-deps-1.12.1+cpu.zip
       fi
     elif [ "$PLATFORM" = "Windows" ]; then
       echo -e "${COLOR_GREEN}[ INFO ] Install libtorch on Mac ${COLOR_OFF}"
