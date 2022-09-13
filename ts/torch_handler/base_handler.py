@@ -105,15 +105,18 @@ class BaseHandler(abc.ABC):
             self.model.to(self.device)
             self.model.eval()
 
+        # Convert your model by following instructions: https://pytorch.org/tutorials/intermediate/nvfuser_intro_tutorial.html
         elif self.model_pt_path.endswith(".pt"):
             logger.info("Loading torchscript model")
             self.model = self._load_torchscript_model(self.model_pt_path)
             self.model.eval()
 
-        elif self.model_pt_path.endswith(".ts") and tensorrt_enabled:
+        # Convert your model by following instructions: https://pytorch.org/TensorRT/getting_started/getting_started_with_python_api.html#getting-started-with-python-api
+        elif self.model_pt_path.endswith(".ts"):
             logger.info("Loading tensorRT model")
             self.model = self._load_torchscript_model(self.model_pt_path)
 
+        # Convert your model by following instructions: https://pytorch.org/tutorials/advanced/super_resolution_with_onnxruntime.html
         elif self.model_pt_path.endswith(".onnx") and onnx_enabled:
             logger.info("Loading onnx model")
             self.model = self._load_onnx_model(self.model_pt_path)
