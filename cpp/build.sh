@@ -21,6 +21,9 @@ function detect_platform() {
 
 function install_dependencies_linux() {
   sudo apt-get install -yq \
+    autoconf \
+    automake \
+
     git \
     cmake \
     m4 \
@@ -50,7 +53,8 @@ function install_dependencies_linux() {
     zlib1g-dev \
     binutils-dev \
     libsodium-dev \
-    libdouble-conversion-dev
+    libdouble-conversion-dev \
+    ninja-build
 }
 
 function install_dependencies_mac() {
@@ -111,12 +115,13 @@ function install_folly() {
   if [ ! -d "$FOLLY_BUILD_DIR" ] ; then
     echo -e "${COLOR_GREEN}[ INFO ] Building Folly ${COLOR_OFF}"
     cd $FOLLY_SRC_DIR
-    ./build/fbcode_builder/getdeps.py install-system-deps --recursive
+    sudo ./build/fbcode_builder/getdeps.py install-system-deps --recursive
 
-    python ./build/fbcode_builder/getdeps.py \
+    python ./build/fbcode_builder/getdeps.py build \
     --allow-system-packages \
     --scratch-path $FOLLY_BUILD_DIR \
-    build
+    --extra-cmake-defines='{"CMAKE_CXX_FLAGS": "-fPIC -D_GLIBCXX_USE_CXX11_ABI=1"}'
+
     echo -e "${COLOR_GREEN}[ INFO ] Folly is installed ${COLOR_OFF}"
   fi
 
