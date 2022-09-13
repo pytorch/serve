@@ -40,6 +40,7 @@ try:
 
     onnx_enabled = True
 except ImportError as error:
+    onnx_enabled = False
     logger.warning("proceeding without onnxruntime")
 
 
@@ -105,12 +106,16 @@ class BaseHandler(abc.ABC):
             self.model.eval()
 
         elif self.model_pt_path.endswith(".pt"):
-            logger.debug("Loading torchscript model")
+            logger.info("Loading torchscript model")
             self.model = self._load_torchscript_model(self.model_pt_path)
             self.model.eval()
 
-        elif self.model_pt_path.endswith(".onnx"):
-            logger.debug("Loading onnx model")
+        elif self.model_pt_path.endswith(".ts") and tensorrt_enabled:
+            logger.info("Loading tensorRT model")
+            self.model = self._load_torchscript_model(self.model_pt_path)
+
+        elif self.model_pt_path.endswith(".onnx") and onnx_enabled:
+            logger.info("Loading onnx model")
             self.model = self._load_onnx_model(self.model_pt_path)
 
         else:
