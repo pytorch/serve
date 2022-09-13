@@ -211,7 +211,7 @@ function build() {
 
   MAYBE_CUDA_COMPILER=""
   if [ "$CUDA" != "" ]; then
-    MAYBE_CUDA_COMPILER='-DCMAKE_CUDA_COMPILER="/usr/local/cuda/bin/nvcc"'
+    MAYBE_CUDA_COMPILER='-DCMAKE_CUDA_COMPILER=/usr/local/cuda/bin/nvcc'
   fi
 
   # Build torchserve_cpp with cmake
