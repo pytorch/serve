@@ -46,8 +46,9 @@ curl -H "Content-Type: application/json" --data @sample_data.json http://127.0.0
 ```sample_data.json``` is an example of input in the format of criteo [dataset](https://ailab.criteo.com/download-criteo-1tb-click-logs-dataset/).
 This has 13 integer features(dense) and 26 categorical features(sparse)
 
-The output of the model is the log odds of a click ( based on the features) More details can be found [here](https://github.com/facebookresearch/dlrm)
-Our output should look like this:
+The output of the model is the log odds of a click ( based on the features) More details can be found [here](https://github.com/facebookresearch/dlrm).
+
+The output should look like this:
 ```
 {
     "score":  0.1051536425948143
