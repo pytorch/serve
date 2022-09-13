@@ -123,7 +123,7 @@ function install_folly() {
     fi
     $SUDO ./build/fbcode_builder/getdeps.py install-system-deps --recursive
 
-    $SUDO python ./build/fbcode_builder/getdeps.py build \
+    $SUDO ./build/fbcode_builder/getdeps.py build \
     --allow-system-packages \
     --scratch-path $FOLLY_BUILD_DIR \
     --extra-cmake-defines='{"CMAKE_CXX_FLAGS": "-fPIC -D_GLIBCXX_USE_CXX11_ABI=1"}'
