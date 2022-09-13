@@ -113,10 +113,10 @@ function install_folly() {
     cd $FOLLY_SRC_DIR
     ./build/fbcode_builder/getdeps.py install-system-deps --recursive
 
-    python ./build/fbcode_builder/getdeps.py build \
+    python ./build/fbcode_builder/getdeps.py \
     --allow-system-packages \
     --scratch-path $FOLLY_BUILD_DIR \
-    --extra-cmake-defines='{"CMAKE_CXX_FLAGS": "-fPIC -D_GLIBCXX_USE_CXX11_ABI=1"}'
+    build
     echo -e "${COLOR_GREEN}[ INFO ] Folly is installed ${COLOR_OFF}"
   fi
 
@@ -140,18 +140,31 @@ function install_kineto() {
 }
 
 function install_libtorch() {
-  if [ ! -d "$DEPS_DIR/libtorch" ] ; then
-    echo -e "libtorch XXXXXX"
+  if [ "$PLATFORM" = "Mac" ]; then
+    echo -e "${COLOR_GREEN}[ INFO ] Skip install libtorch on Linux ${COLOR_OFF}"
+  elif [ ! -d "$DEPS_DIR/libtorch" ] ; then
     cd "$DEPS_DIR" || exit
     if [ "$PLATFORM" = "Linux" ]; then
-      # TODO: install CPU, GPU + CUDA
       echo -e "${COLOR_GREEN}[ INFO ] Install libtorch on Linux ${COLOR_OFF}"
-    elif [ "$PLATFORM" = "Mac" ]; then
+      if [ "$CUDA" = "cu102" ]; then
+        wget https://download.pytorch.org/libtorch/cu102/libtorch-cxx11-abi-shared-with-deps-1.12.1%2Bcu102.zip
+        unzip libtorch-cxx11-abi-shared-with-deps-1.12.1%2Bcu102.zip
+        rm libtorch-cxx11-abi-shared-with-deps-1.12.1%2Bcu102.zip
+      elif [ "$CUDA" = "cu113" ]; then
+        wget https://download.pytorch.org/libtorch/cu113/libtorch-cxx11-abi-shared-with-deps-1.12.1%2Bcu113.zip
+        unzip libtorch-cxx11-abi-shared-with-deps-1.12.1%2Bcu113.zip
+        rm libtorch-cxx11-abi-shared-with-deps-1.12.1%2Bcu113.zip
+      elif [ "$CUDA" = "cu116" ]; then
+        wget https://download.pytorch.org/libtorch/cu116/libtorch-cxx11-abi-shared-with-deps-1.12.1%2Bcu116.zip
+        unzip libtorch-cxx11-abi-shared-with-deps-1.12.1%2Bcu116.zip
+        rm libtorch-cxx11-abi-shared-with-deps-1.12.1%2Bcu116.zip
+      else
+        wget https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.12.1%2Bcpu.zip
+        unzip libtorch-cxx11-abi-shared-with-deps-1.12.1%2Bcpu.zip
+        rm libtorch-cxx11-abi-shared-with-deps-1.12.1%2Bcpu.zip
+      fi
+    elif [ "$PLATFORM" = "Windows" ]; then
       echo -e "${COLOR_GREEN}[ INFO ] Install libtorch on Mac ${COLOR_OFF}"
-      wget https://download.pytorch.org/libtorch/cpu/libtorch-macos-1.12.0.zip
-      unzip libtorch-macos-1.12.0.zip
-      rm libtorch-macos-1.12.0.zip
-    else
       # TODO: Windows
       echo -e "${COLOR_RED}[ ERROR ] Unknown platform: $PLATFORM ${COLOR_OFF}"
       exit 1
@@ -183,11 +196,24 @@ function build() {
 
   # Build torchserve_cpp with cmake
   cd "$BWD" || exit
-  # TODO: wait for torch bug
-  # -DCMAKE_PREFIX_PATH="$(python -c 'import torch; print(torch.utils.cmake_prefix_path)');$DEPS_DIR;$FOLLY_CMAKE_DIR;"   \
-  # -DCMAKE_PREFIX_PATH="$DEPS_DIR;$FOLLY_CMAKE_DIR;$DEPS_DIR/libtorch"                       \
   FOLLY_CMAKE_DIR=$DEPS_DIR/folly-build/installed
-  cmake                                                                                       \
+  if [ "$PLATFORM" = "Linux" ]; then
+    cmake                                                                                     \
+    -DCMAKE_PREFIX_PATH="$DEPS_DIR;$FOLLY_CMAKE_DIR;$DEPS_DIR/libtorch"                       \
+    -DCMAKE_INSTALL_PREFIX="$PREFIX"                                                          \
+    "$MAYBE_BUILD_QUIC"                                                                       \
+    "$MAYBE_BUILD_TESTS"                                                                      \
+    "$MAYBE_BUILD_SHARED_LIBS"                                                                \
+    "$MAYBE_OVERRIDE_CXX_FLAGS"                                                               \
+    "$MAYBE_USE_STATIC_DEPS"                                                                  \
+    "$MAYBE_LIB_FUZZING_ENGINE"                                                               \
+    ..
+
+    if [ "$CUDA" = "cu102" ] || [ "$CUDA" = "cu113" ] || [ "$CUDA" = "cu116" ]; then
+      export LD_LIBRARY_PATHH=${LD_LIBRARY_PATH}:/usr/local/cuda/bin/nvcc
+    fi
+  elif [ "$PLATFORM" = "Mac" ]; then
+    cmake                                                                                     \
     -DCMAKE_PREFIX_PATH="$(python -c 'import torch; print(torch.utils.cmake_prefix_path)');$DEPS_DIR;$FOLLY_CMAKE_DIR;"   \
     -DCMAKE_INSTALL_PREFIX="$PREFIX"                                                          \
     "$MAYBE_BUILD_QUIC"                                                                       \
@@ -198,10 +224,30 @@ function build() {
     "$MAYBE_LIB_FUZZING_ENGINE"                                                               \
     ..
 
-  export LIBRARY_PATH=${LIBRARY_PATH}:/usr/local/opt/icu4c/lib
+    export LIBRARY_PATH=${LIBRARY_PATH}:/usr/local/opt/icu4c/lib
+  else
+    # TODO: Windows
+    echo -e "${COLOR_RED}[ ERROR ] Unknown platform: $PLATFORM ${COLOR_OFF}"
+    exit 1
+  fi 
+  
   make -j "$JOBS" 
   echo -e "${COLOR_GREEN}torchserve_cpp build is complete. To run unit test: \
   ./_build/test/torchserve_cpp_test ${COLOR_OFF}"
+
+  if [ -f "$DEPS_DIR/../src/examples/libmnist_handler.dylib" ]; then
+    mv $DEPS_DIR/../src/examples/libmnist_handler.dylib $DEPS_DIR/../../test/resources/torchscript_model/mnist/mnist_handler/libmnist_handler.dylib
+  elif [ -f "$DEPS_DIR/../src/examples/libmnist_handler.so" ]; then
+    mv $DEPS_DIR/../src/examples/libmnist_handler.so $DEPS_DIR/../../test/resources/torchscript_model/mnist/mnist_handler/libmnist_handler.so
+  fi
+
+  cd $DEPS_DIR/../..
+  if [ -f "$DEPS_DIR/../test/torchserve_cpp_test" ]; then
+    $DEPS_DIR/../test/torchserve_cpp_test
+  else
+    echo -e "${COLOR_RED}[ ERROR ] _build/test/torchserve_cpp_test not exist ${COLOR_OFF}"
+    exit 1
+  fi
 }
 
 # Parse args
@@ -210,12 +256,15 @@ WITH_QUIC=false
 INSTALL_DEPENDENCIES=false
 PREFIX=""
 COMPILER_FLAGS=""
-USAGE="./build.sh [-j num_jobs] [-q|--with-quic] [-p|--prefix] [-x|--compiler-flags]"
+USAGE="./build.sh [-j num_jobs] [-cu cu102|cu113|cu116] [-q|--with-quic] [-p|--prefix] [-x|--compiler-flags]"
 while [ "$1" != "" ]; do
   case $1 in
     -j | --jobs ) shift
                   JOBS=$1
                   ;;
+    -cu | --cuda-version ) shift
+                  CUDA=$1
+                  ;;              
     -q | --with-quic )
                   WITH_QUIC=true
                   ;;
@@ -267,5 +316,5 @@ cd "$(dirname "$0")"
 
 install_folly
 install_kineto
-#install_libtorch
+install_libtorch
 build
