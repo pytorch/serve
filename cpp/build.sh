@@ -114,10 +114,16 @@ function install_folly() {
 
   if [ ! -d "$FOLLY_BUILD_DIR" ] ; then
     echo -e "${COLOR_GREEN}[ INFO ] Building Folly ${COLOR_OFF}"
-    cd $FOLLY_SRC_DIR
-    sudo ./build/fbcode_builder/getdeps.py install-system-deps --recursive
+    cd $FOLLY_SRC_DIR 
 
-    python ./build/fbcode_builder/getdeps.py build \
+    if [ "$PLATFORM" = "Linux" ]; then
+      SUDO="sudo"
+    elif [ "$PLATFORM" = "Mac" ]; then
+      SUDO=""
+    fi
+    $SUDO ./build/fbcode_builder/getdeps.py install-system-deps --recursive
+
+    $SUDO python ./build/fbcode_builder/getdeps.py build \
     --allow-system-packages \
     --scratch-path $FOLLY_BUILD_DIR \
     --extra-cmake-defines='{"CMAKE_CXX_FLAGS": "-fPIC -D_GLIBCXX_USE_CXX11_ABI=1"}'
