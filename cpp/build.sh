@@ -267,13 +267,14 @@ WITH_QUIC=false
 INSTALL_DEPENDENCIES=false
 PREFIX=""
 COMPILER_FLAGS=""
-USAGE="./build.sh [-j num_jobs] [-cu cu102|cu113|cu116] [-q|--with-quic] [-p|--prefix] [-x|--compiler-flags]"
+CUDA=""
+USAGE="./build.sh [-j num_jobs] [-g cu102|cu113|cu116] [-q|--with-quic] [-p|--prefix] [-x|--compiler-flags]"
 while [ "$1" != "" ]; do
   case $1 in
     -j | --jobs ) shift
                   JOBS=$1
                   ;;
-    -cu | --cuda-version ) shift
+    -g | --cuda-version ) shift
                   CUDA=$1
                   ;;              
     -q | --with-quic )
