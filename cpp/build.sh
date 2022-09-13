@@ -136,15 +136,19 @@ function install_folly() {
 }
 
 function install_kineto() {
-  KINETO_SRC_DIR=$BASE_DIR/third-party/kineto
+  if [ "$PLATFORM" = "Linux" ]; then
+    echo -e "${COLOR_GREEN}[ INFO ] Skip install kineto on Linux ${COLOR_OFF}"
+  elif  "$PLATFORM" = "Mac" ]; then
+    KINETO_SRC_DIR=$BASE_DIR/third-party/kineto
 
-  if [ ! -d "$KINETO_SRC_DIR" ] ; then
-    echo -e "${COLOR_GREEN}[ INFO ] Cloning kineto repo ${COLOR_OFF}"
-    git clone --recursive https://github.com/pytorch/kineto.git "$KINETO_SRC_DIR"
-    cd $KINETO_SRC_DIR/libkineto
-    mkdir build && cd build
-    cmake ..
-    make install
+    if [ ! -d "$KINETO_SRC_DIR" ] ; then
+      echo -e "${COLOR_GREEN}[ INFO ] Cloning kineto repo ${COLOR_OFF}"
+      git clone --recursive https://github.com/pytorch/kineto.git "$KINETO_SRC_DIR"
+      cd $KINETO_SRC_DIR/libkineto
+      mkdir build && cd build
+      cmake ..
+      make install
+    fi
   fi
 
   cd "$BWD" || exit
