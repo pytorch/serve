@@ -106,9 +106,9 @@ class BaseHandler(abc.ABC):
         if ipex_enabled:
             cfg_file_path = os.path.join(model_dir, "ipex_config.yaml")
             self.cfg = CONFIGURATIONS["ipex"](cfg_file_path).get_usr_cfg(cfg_file_path)
-            self.optimization = OPTIMIZATIONS["ipex"](self.model, self.cfg)
+            self.optimization = OPTIMIZATIONS["ipex"](self.cfg)
             
-            self.model = self.optimization.optimize()
+            self.model = self.optimization.optimize(self.model)
             self.dtype == self.optimization.dtype
             
         logger.debug("Model file %s loaded successfully", model_pt_path)

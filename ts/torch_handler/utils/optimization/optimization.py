@@ -11,9 +11,9 @@ def optimization_registry(cls):
     return cls
 
 class Optimization(object):
-    def __init__(self, model):
-        self.model = model
+    def __init__(self, cfg):
+        self.cfg = cfg
         
     @abstractmethod
     def optimize(self, model : torch.nn.Module, **kwargs) -> torch.nn.Module:
-        raise NotImplementedError("This is an abstract base class, you need to call or create your own/")
+        raise NotImplementedError("This is an abstract base class, you need to call or create your own.")
