@@ -68,7 +68,6 @@ public final class ConfigManager {
 
     // IPEX config option that can be set at config.properties
     private static final String TS_IPEX_ENABLE = "ipex_enable";
-    // launcher config option that can be set at config.properties 
     private static final String TS_CPU_LAUNCHER_ENABLE = "cpu_launcher_enable";
     private static final String TS_CPU_LAUNCHER_ARGS = "cpu_launcher_args";
 
@@ -700,7 +699,6 @@ public final class ConfigManager {
         HashMap<String, String> config = new HashMap<>();
         // Append properties used by backend worker here
         config.put("TS_DECODE_INPUT_REQUEST", prop.getProperty(TS_DECODE_INPUT_REQUEST, "true"));
-        
         config.put("TS_IPEX_ENABLE", prop.getProperty(TS_IPEX_ENABLE, "false"));
         
         return config;
