@@ -6,12 +6,12 @@ Here we show how to use TorchServe with Intel® Extension for PyTorch*.
 <sup>1. While Intel® Extension for PyTorch* benefits all platforms, platforms with AVX512 benefit the most. </sup>
 
 ## Contents of this Document
-* [Install Intel® Extension for PyTorch*](#install-intel®-extension-for-pytorch*)
-* [Serving model with Intel® Extension for PyTorch*](#serving-model-with-intel®-extension-for-pytorch*)
+* [Install Intel® Extension for PyTorch*](#install-intel-extension-for-pytorch)
+* [Serving model with Intel® Extension for PyTorch*](#serving-model-with-intel-extension-for-pytorch)
 * [TorchServe with Launcher](#torchserve-with-launcher)
 * [Creating and Exporting INT8 model for Intel® Extension for PyTorch*](#creating-and-exporting-int8-model-for-intel-extension-for-pytorch)
 * [Benchmarking with Launcher](#benchmarking-with-launcher)
-* [Performance Boost with Intel® Extension for PyTorch* and Launcher](#performance-boost-with-intel®-extension-for-pytorch*-and-launcher)
+* [Performance Boost with Intel® Extension for PyTorch* and Launcher](#performance-boost-with-intel-extension-for-pytorch-and-launcher)
 
 
 ## Install Intel® Extension for PyTorch*
@@ -309,12 +309,12 @@ Use the following command to reproduce the results.
 python benchmark-ab.py --url {modelUrl} --input {inputPath} --concurrency 1
 ```
 
-For example, run the following command to reproduce latency performance of ResNet50 with data type of Intel® Extension for PyTorch* int8 and batch size of 1. Refer to [Creating and Exporting INT8 model for Intel® Extension for PyTorch*](#creating-and-exporting-int8-model-for-intel®-extension-for-pytorch*) for steps to creating ```rn50_ipex_int8.mar``` file for ResNet50 with Intel® Extension for PyTorch* int8 data type.
+For example, run the following command to reproduce latency performance of ResNet50 with data type of Intel® Extension for PyTorch* int8 and batch size of 1. Refer to [Creating and Exporting INT8 model for Intel® Extension for PyTorch*](#creating-and-exporting-int8-model-for-intel-extension-for-pytorch) for steps to creating ```rn50_ipex_int8.mar``` file for ResNet50 with Intel® Extension for PyTorch* int8 data type.
 ```
 python benchmark-ab.py --url 'file:///model_store/rn50_ipex_int8.mar' --concurrency 1
 ```
 
-For example, run the following command to reproduce latency performance of BERT with data type of Intel® Extension for PyTorch* int8 and batch size of 1. Refer to [Creating and Exporting INT8 model for Intel® Extension for PyTorch*](#creating-and-exporting-int8-model-for-intel®-extension-for-pytorch*) for steps to creating ```bert_ipex_int8.mar``` file for BERT with Intel® Extension for PyTorch* int8 data type.
+For example, run the following command to reproduce latency performance of BERT with data type of Intel® Extension for PyTorch* int8 and batch size of 1. Refer to [Creating and Exporting INT8 model for Intel® Extension for PyTorch*](#creating-and-exporting-int8-model-for-intel-extension-for-pytorch) for steps to creating ```bert_ipex_int8.mar``` file for BERT with Intel® Extension for PyTorch* int8 data type.
 ```
 python benchmark-ab.py --url 'file:///model_store/bert_ipex_int8.mar' --input '../examples/Huggingface_Transformers/Seq_classification_artifacts/sample_text_captum_input.txt' --concurrency 1
 ```
