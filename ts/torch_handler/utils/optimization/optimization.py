@@ -16,4 +16,4 @@ class Optimization(object):
         
     @abstractmethod
     def optimize(self, model : torch.nn.Module, **kwargs) -> torch.nn.Module:
-        raise NotImplementedError("This is an abstract base class, you need to call or create your own runtime")
+        raise NotImplementedError("This is an abstract base class, you need to call or create your own/")

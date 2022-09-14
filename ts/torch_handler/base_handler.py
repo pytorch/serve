@@ -11,7 +11,8 @@ import time
 import torch
 from pkg_resources import packaging
 from ..utils.util import list_classes_from_module, load_label_mapping
-from ..utils.optimization import OPTIMIZATIONS
+from ts.torch_handler.utils.optimization import OPTIMIZATIONS
+from ts.torch_handler.utils.conf import CONFIGURATIONS
 
 if packaging.version.parse(torch.__version__) >= packaging.version.parse("1.8.1"):
     from torch.profiler import profile, record_function, ProfilerActivity
@@ -55,7 +56,9 @@ class BaseHandler(abc.ABC):
         self.explain = False
         self.target = 0
         self.profiler_args = {}
+        self.cfg = None 
         self.optimization = None
+        self.dtype = None
 
     def initialize(self, context):
         """Initialize function loads the model.pt file and initialized the model object.
@@ -104,10 +107,14 @@ class BaseHandler(abc.ABC):
 
         self.model.eval()
         
-        if ipex_enabled or onednn_graph_fusion_enabled:
-            self.optimization = OPTIMIZATIONS["ipex"](self.model, ipex_enabled, onednn_graph_fusion_enabled)
+        if ipex_enabled:
+            cfg_file_path = os.path.join(model_dir, "ipex_config.yaml")
+            self.cfg = CONFIGURATIONS["ipex"](cfg_file_path).get_usr_cfg(cfg_file_path)
+            self.optimization = OPTIMIZATIONS["ipex"](self.model, self.cfg)
+            
             self.model = self.optimization.optimize()
-
+            self.dtype == self.optimization.dtype
+            
         logger.debug("Model file %s loaded successfully", model_pt_path)
 
         # Load class mapping for classifiers
@@ -190,7 +197,7 @@ class BaseHandler(abc.ABC):
             Torch Tensor : The Predicted Torch Tensor is returned in this function.
         """
         marshalled_data = data.to(self.device)
-        with torch.no_grad():
+        with torch.cpu.amp.autocast(ipex_enabled and self.dtype == 'bfloat16'), torch.no_grad():
             results = self.model(marshalled_data, *args, **kwargs)
         return results
 
@@ -244,17 +251,7 @@ class BaseHandler(abc.ABC):
                 data_preprocess = self.preprocess(data)
 
                 if not self._is_explain():
-                    if ipex_enabled:
-                        if self.optimization.channel_last == "true":
-                            data_preprocess = data_preprocess.contiguous(memory_format=torch.channels_last)
-                        if self.optimization.dtype == "bfloat16":
-                            with torch.cpu.amp.autocast():
-                                output = self.inference(data_preprocess)
-                        else: # float32 or int8
-                            output = self.inference(data_preprocess)
-                    else:
-                        output = self.inference(data_preprocess)
-                        
+                    output = self.inference(data_preprocess)    
                     output = self.postprocess(output)
                 else:
                     output = self.explain_handle(data_preprocess, data)
@@ -306,16 +303,7 @@ class BaseHandler(abc.ABC):
                 data_preprocess = self.preprocess(data)
             if not self._is_explain():
                 with record_function("inference"):
-                    if ipex_enabled:
-                        if self.optimization.channel_last == "true":
-                            data_preprocess = data_preprocess.contiguous(memory_format=torch.channels_last)
-                        if self.optimization.dtype == "bfloat16":
-                            with torch.cpu.amp.autocast():
-                                output = self.inference(data_preprocess)
-                        else: # float32 or int8
-                            output = self.inference(data_preprocess)
-                    else:
-                        output = self.inference(data_preprocess)
+                    output = self.inference(data_preprocess)
                 with record_function("postprocess"):
                     output = self.postprocess(output)
             else:
