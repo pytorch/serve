@@ -230,8 +230,8 @@ curl -v -H "Host: ${SERVICE_HOSTNAME}" http://${INGRESS_HOST}:${INGRESS_PORT}/v2
 
 Refer the individual Readmes for KServe :
 
-- [BERT](https://github.com/kserve/kserve/tree/master/docs/samples/v1beta1/torchserve/bert#readme)
-- [MNIST](https://github.com/kserve/kserve/blob/master/docs/samples/v1beta1/torchserve/README.md)
+* [BERT](https://github.com/kserve/kserve/blob/master/docs/samples/v1beta1/custom/torchserve/bert-sample/hugging-face-bert-sample.md)
+* [MNIST](https://github.com/kserve/kserve/blob/master/docs/samples/v1beta1/torchserve/README.md)
 
 Sample input JSON file for v1 and v2 protocols 
 

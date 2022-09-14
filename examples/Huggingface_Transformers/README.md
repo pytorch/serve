@@ -291,7 +291,7 @@ curl -X POST http://127.0.0.1:8080/predictions/BERTSeqClassification  -T ./Seq_c
 
 ### Captum Explanations for Visual Insights
 
-The [Captum Explanations for Visual Insights Notebook](../../captum/Captum_visualization_for_bert.ipynb) provides a visual example for how model interpretations can help
+The [Captum Explanations for Visual Insights Notebook](https://github.com/pytorch/serve/tree/master/examples/captum/Captum_visualization_for_bert.ipynb) provides a visual example for how model interpretations can help
 
 Known issues: 
 * Captum does't work well for batched inputs and may result in timeouts
@@ -356,5 +356,5 @@ To get an explanation: `curl -X POST http://127.0.0.1:8080/explanations/Textgene
 
 ### Running KServe
 
-[BERT Readme for KServe](https://github.com/kserve/kserve/blob/master/docs/samples/v1beta1/torchserve/bert/README.md).
+[BERT Readme for KServe](https://github.com/kserve/kserve/blob/master/docs/samples/v1beta1/custom/torchserve/bert-sample/hugging-face-bert-sample.md).
 [End to End KServe document](https://github.com/pytorch/serve/blob/master/kubernetes/kserve/README.md).

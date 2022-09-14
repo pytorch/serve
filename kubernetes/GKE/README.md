@@ -93,13 +93,13 @@ git clone https://github.com/pytorch/serve.git
 cd serve/kubernetes/GKE
 ```
 
-**_NOTE:_** By default the helm chart installs GPU version of torchserve. Follow steps in section [2.2](####-2.2-For-CPU-setup) for running in a CPU only cluster. For GPU setup section [2.2](####-2.2-For-CPU-setup) can be skipped.
+**_NOTE:_** By default the helm chart installs GPU version of torchserve. Follow steps in section [2.2](#2\.2-for-cpu-setup) for running in a CPU only cluster. For GPU setup section [2.2](#2\.2-for-cpu-setup) can be skipped.
 
 #### 2.2 For CPU setup
 
 * Change torchserve image in Helm/values.yaml to the CPU version
 * Set `n_gpu` to `0` in Helm/values.yaml
-* Skip NVIDIA plugin installation in section [2.3](#####-2.3-Install-NVIDIA-device-plugin)
+* Skip NVIDIA plugin installation in section [2.3](#2\.3-install-nvidia-device-plugin)
   
 #### 2.3 Install NVIDIA device plugin
 
@@ -169,7 +169,7 @@ Replace storage size and server IP in pv_pvc.yaml with the server IP got from ab
 kubectl apply -f templates/pv_pvc.yaml -n default
 ```
 
-Verify that the PVC / PV is created by excuting.
+Verify that the PVC / PV is created by executing.
 
 ```bash
 kubectl get pvc,pv -n default
@@ -277,7 +277,7 @@ Possible errors in this step may be a result of
 
 You should able be able to find the following resources at the end of this step in the respective Gcoud consoles
 
-* GKE -> Cluser in the Gcloud Console
+* GKE -> Cluster in the Gcloud Console
 
 #### 4.2 Troubleshooting NFS Persitant Volume Creation
 
