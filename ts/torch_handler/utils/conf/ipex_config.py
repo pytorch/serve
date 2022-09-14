@@ -44,8 +44,8 @@ torchscript_schema = Schema({
 def _valid_dtype(data):
     data = data.lower()
     assert data in DTYPES, "dtype {} is NOT supported".format(data)
-    #if data == 'bfloat16': 
-    #    assert is_bf16_supported(), "You've selected bfloat16 dtype, but bfloat16 dot-product hardware accelerator is not supported in your current hardware. Please select float32 or int8 dtype, or switch to bfloat16 supported hardware."
+    if data == 'bfloat16': 
+        assert is_bf16_supported(), "You've selected bfloat16 dtype, but bfloat16 dot-product hardware accelerator is not supported in your current hardware. Please select float32 or int8 dtype, or switch to bfloat16 supported hardware."
     return data 
 
 def is_bf16_supported():

@@ -35,10 +35,6 @@ if os.environ.get("TS_IPEX_ENABLE", "false") == "true":
             "IPEX is enabled but intel-extension-for-pytorch is not installed. Proceeding without IPEX."
         )
 
-onednn_graph_fusion_enabled = False 
-if os.environ.get("TS_ONEDNN_GRAPH_FUSION_ENABLE", "false") == "true":
-    onednn_graph_fusion_enabled = True
-
 class BaseHandler(abc.ABC):
     """
     Base default handler to load torchscript or eager mode [state_dict] models
@@ -251,7 +247,7 @@ class BaseHandler(abc.ABC):
                 data_preprocess = self.preprocess(data)
 
                 if not self._is_explain():
-                    output = self.inference(data_preprocess)    
+                    output = self.inference(data_preprocess)
                     output = self.postprocess(output)
                 else:
                     output = self.explain_handle(data_preprocess, data)
