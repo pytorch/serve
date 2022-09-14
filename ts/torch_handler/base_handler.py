@@ -193,7 +193,7 @@ class BaseHandler(abc.ABC):
             Torch Tensor : The Predicted Torch Tensor is returned in this function.
         """
         marshalled_data = data.to(self.device)
-        with torch.cpu.amp.autocast(ipex_enabled and self.dtype == 'bfloat16'), torch.no_grad():
+        with torch.cpu.amp.autocast(enabled=ipex_enabled and self.dtype == 'bfloat16'), torch.no_grad():
             results = self.model(marshalled_data, *args, **kwargs)
         return results
 
