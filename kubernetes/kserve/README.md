@@ -228,7 +228,7 @@ For v2 protocol
 curl -v -H "Host: ${SERVICE_HOSTNAME}" http://${INGRESS_HOST}:${INGRESS_PORT}/v2/models/mnist-kf/explain -d ./kf_request_json/v2/mnist/mnist_v2_bytes.json
 ```
 
-Refer the individual Readmes for KServe :
+Refer the individual readmes for KServe :
 
 * [BERT](https://github.com/kserve/kserve/blob/master/docs/samples/v1beta1/custom/torchserve/bert-sample/hugging-face-bert-sample.md)
 * [MNIST](https://github.com/kserve/kserve/blob/master/docs/samples/v1beta1/torchserve/README.md)

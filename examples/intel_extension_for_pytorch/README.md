@@ -6,12 +6,12 @@ Here we show how to use TorchServe with Intel® Extension for PyTorch*.
 <sup>1. While Intel® Extension for PyTorch* benefits all platforms, platforms with AVX512 benefit the most. </sup>
 
 ## Contents of this Document
-* [Install Intel® Extension for PyTorch*](#install-intel-extension-for-pytorch)
-* [Serving model with Intel® Extension for PyTorch*](#serving-model-with-intel-extension-for-pytorch)
+* [Install Intel® Extension for PyTorch*](https://github.com/pytorch/serve/blob/master/examples/intel_extension_for_pytorch/README.md#install-intel-extension-for-pytorch)
+* [Serving model with Intel® Extension for PyTorch*](https://github.com/pytorch/serve/blob/master/examples/intel_extension_for_pytorch/README.md#serving-model-with-intel-extension-for-pytorch)
 * [TorchServe with Launcher](#torchserve-with-launcher)
-* [Creating and Exporting INT8 model for Intel® Extension for PyTorch*](#creating-and-exporting-int8-model-for-intel-extension-for-pytorch)
+* [Creating and Exporting INT8 model for Intel® Extension for PyTorch*](https://github.com/pytorch/serve/blob/master/examples/intel_extension_for_pytorch/README.md#creating-and-exporting-int8-model-for-intel-extension-for-pytorch)
 * [Benchmarking with Launcher](#benchmarking-with-launcher)
-* [Performance Boost with Intel® Extension for PyTorch* and Launcher](#performance-boost-with-intel-extension-for-pytorch-and-launcher)
+* [Performance Boost with Intel® Extension for PyTorch* and Launcher](https://github.com/pytorch/serve/blob/master/examples/intel_extension_for_pytorch/README.md#performance-boost-with-intel-extension-for-pytorch-and-launcher)
 
 
 ## Install Intel® Extension for PyTorch*

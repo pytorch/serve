@@ -51,7 +51,7 @@ ts    us-west1  1.16.13-gke.401  34.83.140.167  n1-standard-4  1.16.13-gke.401  
 
 For running a cluster with GPU accelerator use `--accelerator type=,count=`
 
-The below command creates a cluster with a single n1-standard-4 node with and nvidia-testla-t4 GPU accelerator.
+The below command creates a cluster with a single n1-standard-4 node with and nvidia-tesla-t4 GPU accelerator.
 
 ```bash
 gcloud container clusters create torchserve --machine-type n1-standard-4 --accelerator type=nvidia-tesla-t4,count=1 --num-nodes 1
@@ -148,7 +148,7 @@ cd GKE
 helm install mynfs ./nfs-provisioner/
 ```
 
-```kubectl get pods``` should show something similiar to:
+```kubectl get pods``` should show something similar to:
 
 ```bash
 NAME                                             READY   STATUS    RESTARTS   AGE
@@ -199,7 +199,7 @@ Your output should look similar to
 pod/model-store-pod created
 ```
 
-Verify that the pod is created by excuting.
+Verify that the pod is created by executing.
 
 ```bash
 kubectl get po
@@ -275,13 +275,13 @@ Possible errors in this step may be a result of
 * IAM limits.
 * Quota restrictions during cluster creation - [GKE Quotas](https://cloud.google.com/compute/quotas)
 
-You should able be able to find the following resources at the end of this step in the respective Gcoud consoles
+You should able be able to find the following resources at the end of this step in the respective Gcloud consoles
 
 * GKE -> Cluster in the Gcloud Console
 
-#### 4.2 Troubleshooting NFS Persitant Volume Creation
+#### 4.2 Troubleshooting NFS Persistent Volume Creation
 
-Possible error in this step may be a result of one of the following. Your pod my be struck in *Init / Creating* forever / persitant volume claim may be in *Pending* forever.
+Possible error in this step may be a result of one of the following. Your pod my be struck in *Init / Creating* forever / persistent volume claim may be in *Pending* forever.
 
 * Storage disk not created / wrong storage disk name.
 

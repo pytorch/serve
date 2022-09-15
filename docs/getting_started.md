@@ -93,7 +93,7 @@ After you execute the `torchserve` command above, TorchServe runs on your host, 
 
 ### Get predictions from a model
 
-To test the model server, send a request to the server's `predictions` API. TorchServe supports all [inference](./inference_api.md) and [management](./management_api.md) api's through both [gRPC](./grpc_api.md) and [HTTP/REST](./rest_api.md).
+To test the model server, send a request to the server's `predictions` API. TorchServe supports all [inference](./inference_api.md) and [management](./management_api.md) apis through both [gRPC](./grpc_api.md) and [HTTP/REST](./rest_api.md).
 
 #### Using GRPC APIs through python client
 
