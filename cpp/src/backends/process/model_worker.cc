@@ -121,7 +121,7 @@ namespace torchserve {
         } else {
           auto response = model_instance->Predict(torchserve::OTFMessage::RetrieveInferenceMsg(client_socket_));
           if(!torchserve::OTFMessage::SendInferenceResponse(client_socket_, response)) {
-            LOG(ERROR) << "Error writing inference response to socket";
+            TS_LOG(ERROR, "Error writing inference response to socket");
          }
         }
       } else if (cmd == 'L') {

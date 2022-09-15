@@ -142,7 +142,7 @@ namespace torchserve {
   }
 
   TEST(OTFMessageTest, TestRetrieveInferenceMsg) {
-    MockSocket *client_socket = new MockSocket();
+    auto client_socket = std::make_shared<MockSocket>();
     EXPECT_CALL(*client_socket, RetrieveInt())
                 .Times(9)
                 // request_id length
@@ -200,6 +200,5 @@ namespace torchserve {
     ASSERT_EQ(inference_request.headers["data_dtype"], "bytes");
     ASSERT_EQ(inference_request.headers["parn:contentType"], "cont");
     ASSERT_EQ(torchserve::Converter::VectorToStr(inference_request.parameters["parn"]), "valu");
-    delete client_socket;
   }
 }
