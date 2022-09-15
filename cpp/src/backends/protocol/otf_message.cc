@@ -16,7 +16,7 @@ namespace torchserve {
     p += response->length;
     // Expectation from frontend deserializer is a -1
     // at the end of a LoadModelResponse
-    int32_t no_predict = htonl(response->predictions);
+    int32_t no_predict = htonl(-1);
     memcpy(p, &no_predict, sizeof(no_predict));
     p += sizeof(no_predict);
   }
