@@ -24,7 +24,7 @@ namespace torchserve {
   }
 
   TEST(OTFMessageTest, TestRetrieveMsgLoadGpu) {
-    MockSocket *client_socket = new MockSocket();
+    std::unique_ptr<MockSocket> client_socket = std::make_unique<MockSocket>();
     LoadModelRequest expected("model_path", "测试", 1, "handler", "envelope", 1, false);
     EXPECT_CALL(*client_socket, RetrieveInt())
                 .Times(6)
@@ -64,11 +64,11 @@ namespace torchserve {
                 }));
     auto load_model_request = OTFMessage::RetrieveLoadMsg(*client_socket);
     ASSERT_TRUE(*load_model_request == expected);
-    delete client_socket;
+    client_socket.reset();
   }
 
   TEST(OTFMessageTest, TestRetrieveMsgLoadNoGpu) {
-    MockSocket *client_socket = new MockSocket();
+    std::unique_ptr<MockSocket> client_socket = std::make_unique<MockSocket>();
     LoadModelRequest expected("model_path", "model_name", -1, "handler", "envelope", 1, true);
     EXPECT_CALL(*client_socket, RetrieveInt())
                 .Times(6)
@@ -101,7 +101,7 @@ namespace torchserve {
                 }));
     auto load_model_request = OTFMessage::RetrieveLoadMsg(*client_socket);
     ASSERT_TRUE(*load_model_request == expected);
-    delete client_socket;
+    client_socket.reset();
   }
 
   TEST(OTFMessageTest, TestEncodeSuccessInferenceResponse) {
