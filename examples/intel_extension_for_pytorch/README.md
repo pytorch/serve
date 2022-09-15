@@ -25,7 +25,7 @@ ipex_enable=true
 Once Intel® Extension for PyTorch* is enabled, deploying PyTorch model follows the same procedure shown [here](https://pytorch.org/serve/use_cases.html). TorchServe with Intel® Extension for PyTorch* can deploy any model and do inference.
 
 ## TorchServe with Launcher
-Launcher is a script to automate the process of tunining configuration setting on Intel hardware to boost performance. Tuning configurations such as OMP_NUM_THREADS, thread affinity, memory allocator can have a dramatic effect on performance. Refer to [Performance Tuning Guide](https://github.com/intel/intel-extension-for-pytorch/blob/master/docs/tutorials/performance_tuning/tuning_guide.md) and [Launch Script Usage Guide](https://github.com/intel/intel-extension-for-pytorch/blob/master/docs/tutorials/performance_tuning/launch_script.md) for details on performance tuning with launcher.
+Launcher is a script to automate the process of tuning configuration setting on Intel hardware to boost performance. Tuning configurations such as OMP_NUM_THREADS, thread affinity, memory allocator can have a dramatic effect on performance. Refer to [Performance Tuning Guide](https://github.com/intel/intel-extension-for-pytorch/blob/master/docs/tutorials/performance_tuning/tuning_guide.md) and [Launch Script Usage Guide](https://github.com/intel/intel-extension-for-pytorch/blob/master/docs/tutorials/performance_tuning/launch_script.md) for details on performance tuning with launcher.
 
 All it needs to use TorchServe with launcher is to set its configuration in `config.properties`.
 
@@ -67,7 +67,7 @@ Below are some useful `cpu_launcher_args` to note. Italic values are default if 
 Refer to [Launch Script Usage Guide](https://github.com/intel/intel-extension-for-pytorch/blob/master/docs/tutorials/performance_tuning/launch_script.md) for a full list of tunable configuration of launcher. And refer to [Performance Tuning Guide](https://github.com/intel/intel-extension-for-pytorch/blob/master/docs/tutorials/performance_tuning/tuning_guide.md) for more details.
 
 ### Launcher Core Pinning to Boost Performance of TorchServe Multi Worker Inference 
-When running [multi-worker inference](https://pytorch.org/serve/management_api.html#scale-workers) with Torchserve, launcher pin cores to workers to boost performance. Internally, launcher equally divides the number of cores by the number of workers such that each worker is pinned to assigned cores. Doing so avoids core overlap among workers which can signficantly boost performance for TorchServe multi-worker inference. For example, assume running 4 workers on a machine with Intel(R) Xeon(R) Platinum 8180 CPU, 2 sockets, 28 cores per socket, 2 threads per core. Launcher will bind worker 0 to cores 0-13, worker 1 to cores 14-27, worker 2 to cores 28-41, and worker 3 to cores 42-55. 
+When running [multi-worker inference](https://pytorch.org/serve/management_api.html#scale-workers) with Torchserve, launcher pin cores to workers to boost performance. Internally, launcher equally divides the number of cores by the number of workers such that each worker is pinned to assigned cores. Doing so avoids core overlap among workers which can significantly boost performance for TorchServe multi-worker inference. For example, assume running 4 workers on a machine with Intel(R) Xeon(R) Platinum 8180 CPU, 2 sockets, 28 cores per socket, 2 threads per core. Launcher will bind worker 0 to cores 0-13, worker 1 to cores 14-27, worker 2 to cores 28-41, and worker 3 to cores 42-55. 
 
 CPU usage is shown below. 4 main worker threads were launched, each launching 14 threads affinitized to the assigned physical cores.
 ![26](https://user-images.githubusercontent.com/93151422/170373651-fd8a0363-febf-4528-bbae-e1ddef119358.gif)
@@ -171,7 +171,7 @@ torch.jit.save(model, 'rn50_int8_jit.pt')
 ```
 
 ### 2. Creating a Model Archive 
-Once the serialized file ( `.pt`) is created, it can be used with `torch-model-archiver` as ususal. 
+Once the serialized file ( `.pt`) is created, it can be used with `torch-model-archiver` as usual.
 
 Use the following command to package `rn50_int8_jit.pt` into `rn50_ipex_int8.mar`.  
 ```
