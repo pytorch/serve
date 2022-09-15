@@ -87,10 +87,9 @@ namespace torchserve {
     int code;
     int length;
     const std::string buf;
-    int predictions; // Always -1 to be backward compatible
 
     LoadModelResponse(int code, int length, const std::string buf) : 
-    code(code), length(length), buf(buf), predictions(-1) {};
+    code(code), length(length), buf(buf) {};
   };
 
   struct InferenceRequest {
