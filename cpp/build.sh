@@ -61,7 +61,6 @@ function install_dependencies_mac() {
     boost                    \
     double-conversion        \
     gflags                   \
-    googletest               \
     gperf                    \
     libevent                 \
     lz4                      \
@@ -75,7 +74,6 @@ function install_dependencies_mac() {
     boost                   \
     double-conversion       \
     gflags                  \
-    googletest              \
     gperf                   \
     libevent                \
     lz4                     \
