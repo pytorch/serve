@@ -12,6 +12,7 @@ namespace torchserve {
     while (length > 0) {
       ssize_t pkt_size = send(client_socket_, pkt, length, 0);
       if (pkt_size < 0) {
+        TS_LOGF(INFO, "Error sending data to socket. errno: ", errno);
         return false;
       }
       pkt += pkt_size;
@@ -28,6 +29,9 @@ namespace torchserve {
         TS_LOG(INFO, "Frontend disconnected.");
         close(client_socket_);
         exit(0);
+      }
+      if (pkt_size < 0) {
+        TS_LOGF(FATAL, "Error recieving data from socket. errno: ", errno);
       }
       pkt += pkt_size;
       length -= pkt_size;
