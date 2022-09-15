@@ -6,7 +6,7 @@
 * [System metrics](#system-metrics)
 * [Formatting](#formatting)
 * [Custom Metrics API](#custom-metrics-api)
-* [Logging the custom metrics](#logging-the-custom-metrics)
+* [Logging the custom metrics](#logging-custom-metrics)
 
 ## Introduction
 

@@ -309,12 +309,12 @@ Use the following command to reproduce the results.
 python benchmark-ab.py --url {modelUrl} --input {inputPath} --concurrency 1
 ```
 
-For example, run the following command to reproduce latency performance of ResNet50 with data type of Intel® Extension for PyTorch* int8 and batch size of 1. Refer to [Creating and Exporting INT8 model for Intel® Extension for PyTorch*](#creating-and-exporting-int8-model-for-intel-extension-for-pytorch) for steps to creating ```rn50_ipex_int8.mar``` file for ResNet50 with Intel® Extension for PyTorch* int8 data type.
+For example, run the following command to reproduce latency performance of ResNet50 with data type of Intel® Extension for PyTorch* int8 and batch size of 1. Refer to [Creating and Exporting INT8 model for Intel® Extension for PyTorch*](https://github.com/pytorch/serve/blob/master/examples/intel_extension_for_pytorch/README.md#creating-and-exporting-int8-model-for-intel-extension-for-pytorch) for steps to creating ```rn50_ipex_int8.mar``` file for ResNet50 with Intel® Extension for PyTorch* int8 data type.
 ```
 python benchmark-ab.py --url 'file:///model_store/rn50_ipex_int8.mar' --concurrency 1
 ```
 
-For example, run the following command to reproduce latency performance of BERT with data type of Intel® Extension for PyTorch* int8 and batch size of 1. Refer to [Creating and Exporting INT8 model for Intel® Extension for PyTorch*](#creating-and-exporting-int8-model-for-intel-extension-for-pytorch) for steps to creating ```bert_ipex_int8.mar``` file for BERT with Intel® Extension for PyTorch* int8 data type.
+For example, run the following command to reproduce latency performance of BERT with data type of Intel® Extension for PyTorch* int8 and batch size of 1. Refer to [Creating and Exporting INT8 model for Intel® Extension for PyTorch*](https://github.com/pytorch/serve/blob/master/examples/intel_extension_for_pytorch/README.md#creating-and-exporting-int8-model-for-intel-extension-for-pytorch) for steps to creating ```bert_ipex_int8.mar``` file for BERT with Intel® Extension for PyTorch* int8 data type.
 ```
 python benchmark-ab.py --url 'file:///model_store/bert_ipex_int8.mar' --input '../examples/Huggingface_Transformers/Seq_classification_artifacts/sample_text_captum_input.txt' --concurrency 1
 ```

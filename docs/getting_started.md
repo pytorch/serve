@@ -24,12 +24,12 @@
 
     #### For Windows
 
-    Refer to the documentation [here](docs/torchserve_on_win_native.md).
+    Refer to the documentation [here](./torchserve_on_win_native.md).
 
 2. Install torchserve, torch-model-archiver and torch-workflow-archiver
 
     For [Conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install)  
-    Note: Conda packages are not supported for Windows. Refer to the documentation [here](docs/torchserve_on_win_native.md).
+    Note: Conda packages are not supported for Windows. Refer to the documentation [here](./torchserve_on_win_native.md).
     ```
     conda install torchserve torch-model-archiver torch-workflow-archiver -c pytorch
     ```
