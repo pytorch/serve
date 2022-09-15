@@ -16,14 +16,19 @@ namespace torchserve {
   }
 
   TEST(LoggingTest, TestIncorrectLogInitialization) {
-    std::string logger_config="INVALID_CONFIG";
-    EXPECT_THROW(torchserve::Logger::InitLogger(logger_config), std::invalid_argument);
+    std::string logger_config_path_str="test/resources/logging/invalid.config";
+    EXPECT_THROW(torchserve::Logger::InitLogger(logger_config_path_str), std::invalid_argument);
+  }
+
+  TEST(LoggingTest, TestJSONConfigLogInitialization) {
+    std::string logger_config_path_str="test/resources/logging/log_json.config";
+    EXPECT_NO_THROW(torchserve::Logger::InitLogger(logger_config_path_str));
   }
 
   TEST(LoggingTest, TestFileLogInitialization) {
-    std::string logfile_path = fmt::format("{}test.log", fs::temp_directory_path().c_str());
-    std::string logger_config = fmt::format("INFO:default; default=file:path={},async=false", logfile_path);
-    torchserve::Logger::InitLogger(logger_config);
+    std::string logfile_path = "test/resources/logging/test.log";
+    std::string logger_config_path_str="test/resources/logging/log_to_file.config";
+    torchserve::Logger::InitLogger(logger_config_path_str);
     std::string log_line("Test");
     TS_LOG(INFO, log_line);
     EXPECT_TRUE(fs::exists(logfile_path));
