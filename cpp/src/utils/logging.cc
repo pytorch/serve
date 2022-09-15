@@ -2,12 +2,17 @@
 
 namespace torchserve {
   void Logger::InitDefaultLogger() {
-    auto config = folly::parseLogConfig("INFO:consoleLogger;consoleLogger=stream:stream=stdout,async=true");
-    folly::LoggerDB::get().resetConfig(config);
+    std::string logger_config_path("./_build/resources/logging.config");
+    InitLogger(logger_config_path);
   }
-  void Logger::InitLogger(const std::string& logger_config) {
+
+  void Logger::InitLogger(const std::string& logger_config_path) {
     folly::LogConfig config;
     try {
+      std::ifstream log_config_file(logger_config_path);
+      std::stringstream buffer;
+      buffer << log_config_file.rdbuf();
+      std::string logger_config(buffer.str());
       config = folly::parseLogConfig(logger_config);
       folly::LoggerDB::get().registerHandlerFactory(std::make_unique<folly::FileHandlerFactory>());
     } catch(const std::range_error& e) {
@@ -16,7 +21,7 @@ namespace torchserve {
         throw e;
       }
     } catch(const folly::LogConfigParseError& e) {
-      throw std::invalid_argument("Failed to parse logging config");
+      throw std::invalid_argument("Failed to parse logging config: " + logger_config_path);
     }
     folly::LoggerDB::get().resetConfig(config);
   }

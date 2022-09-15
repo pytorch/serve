@@ -1,6 +1,8 @@
 #include "src/backends/process/model_worker.hh"
 #include "src/backends/torch_scripted/torch_scripted_backend.hh"
 
+namespace fs = std::experimental::filesystem;
+
 namespace torchserve {
   void SocketServer::Initialize(
     const std::string& socket_type,
@@ -18,8 +20,8 @@ namespace torchserve {
         TS_LOG(FATAL, "Wrong arguments passed. No socket name given.");
       }
 
-      std::experimental::filesystem::path s_name_path(socket_name);
-      if (std::remove(socket_name.c_str()) != 0 && std::experimental::filesystem::exists(s_name_path)) {
+      fs::path s_name_path(socket_name);
+      if (std::remove(socket_name.c_str()) != 0 && fs::exists(s_name_path)) {
         TS_LOGF(FATAL, "socket already in use: {}", socket_name);
       }
       socket_name_ = socket_name;

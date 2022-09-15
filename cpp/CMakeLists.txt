@@ -28,3 +28,5 @@ add_subdirectory(src/utils)
 add_subdirectory(src/backends)
 add_subdirectory(src/examples)
 add_subdirectory(test)
+
+FILE(COPY src/resources/logging.config DESTINATION "${CMAKE_INSTALL_PREFIX}/resources")
