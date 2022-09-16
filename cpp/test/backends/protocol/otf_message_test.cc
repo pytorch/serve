@@ -3,24 +3,36 @@
 #include "mock_socket.hh"
 
 namespace torchserve {
+  TEST(OTFMessageTest, TestRetieveCmd) {
+    auto client_socket = std::make_shared<MockSocket>();
+    EXPECT_CALL(*client_socket, RetrieveBuffer(testing::_, testing::_))
+                .Times(1)
+                .WillOnce(testing::Invoke([=](size_t length, char* data) {
+                  ASSERT_EQ(length, 1);
+                  strcpy(data, "L");
+                }));
+    auto cmd = OTFMessage::RetrieveCmd(*client_socket);
+    ASSERT_EQ(cmd, 'L');
+  }
+
   TEST(OTFMessageTest, TestEncodeLoadModelResponse) {
     std::string message = "model_loaded";
     auto dummyResponse = std::make_unique<torchserve::LoadModelResponse>(
-        200, message.size(), message);
-    char *data = new char[sizeof(LoadModelResponse)];
-    torchserve::OTFMessage::EncodeLoadModelResponse(std::move(dummyResponse), data);
+        200, message);
+    std::vector<char> data_buffer{};
+    torchserve::OTFMessage::EncodeLoadModelResponse(std::move(dummyResponse), data_buffer);
     const char* expectedResponse = "\x00\x00\x00\xc8\x00\x00\x00\x0cmodel_loaded\xff\xff\xff\xff";
-    EXPECT_TRUE(0 == std::memcmp(data, expectedResponse, sizeof(data)));
+    EXPECT_TRUE(0 == std::memcmp(data_buffer.data(), expectedResponse, data_buffer.size()));
   }
 
   TEST(OTFMessageTest, TestUTF8EncodeLoadModelResponse) {
     std::string message = "测试";
     auto dummyResponse = std::make_unique<torchserve::LoadModelResponse>(
-        200, message.size(), message);
-    char *data = new char[sizeof(LoadModelResponse)];
-    torchserve::OTFMessage::EncodeLoadModelResponse(std::move(dummyResponse), data);
+        200, message);
+    std::vector<char> data_buffer{};
+    torchserve::OTFMessage::EncodeLoadModelResponse(std::move(dummyResponse), data_buffer);
     const char* expectedResponse = "\x00\x00\x00\xc8\x00\x00\x00\x06\xe6\xb5\x8b\xe8\xaf\x95\xff\xff\xff\xff";
-    EXPECT_TRUE(0 == std::memcmp(data, expectedResponse, sizeof(data)));
+    EXPECT_TRUE(0 == std::memcmp(data_buffer.data(), expectedResponse, data_buffer.size()));
   }
 
   TEST(OTFMessageTest, TestRetrieveMsgLoadGpu) {

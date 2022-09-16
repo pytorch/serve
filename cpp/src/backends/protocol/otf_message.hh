@@ -22,7 +22,7 @@ namespace torchserve {
 
   class OTFMessage {
     public:
-    static void EncodeLoadModelResponse(std::unique_ptr<torchserve::LoadModelResponse> response, char* data);
+    static void EncodeLoadModelResponse(std::unique_ptr<torchserve::LoadModelResponse> response, std::vector<char>& data_buffer);
     static bool SendLoadModelResponse(const ISocket& client_socket_, std::unique_ptr<torchserve::LoadModelResponse> response);
     static char RetrieveCmd(const ISocket& client_socket_);
     static std::shared_ptr<LoadModelRequest> RetrieveLoadMsg(const ISocket& client_socket_);

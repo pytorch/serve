@@ -7,7 +7,16 @@
 namespace torchserve
 {
  TEST(BackendIntegTest, TestOTFProtocolAndHandler) {
-    MockSocket *client_socket = new MockSocket();
+    auto client_socket = std::make_shared<MockSocket>();
+    // mock socket for load cmd
+    EXPECT_CALL(*client_socket, RetrieveBuffer(testing::_, testing::_))
+                .Times(1)
+                .WillOnce(testing::Invoke([=](size_t length, char* data) {
+                  ASSERT_EQ(length, 1);
+                  strcpy(data, "L");
+                }));
+    auto cmd = OTFMessage::RetrieveCmd(*client_socket);
+    ASSERT_EQ(cmd, 'L');
 
     // mock socket for load model request
     EXPECT_CALL(*client_socket, RetrieveInt())
@@ -67,6 +76,16 @@ namespace torchserve
     
     // send load model response to socket
     torchserve::OTFMessage::SendLoadModelResponse(*client_socket, std::move(load_model_response));
+
+    // mock socket for inference cmd
+    EXPECT_CALL(*client_socket, RetrieveBuffer(testing::_, testing::_))
+                .Times(1)
+                .WillOnce(testing::Invoke([=](size_t length, char* data) {
+                  ASSERT_EQ(length, 1);
+                  strcpy(data, "I");
+                }));
+    cmd = OTFMessage::RetrieveCmd(*client_socket);
+    ASSERT_EQ(cmd, 'I');
 
     // mock socket for inference request
     EXPECT_CALL(*client_socket, RetrieveInt())
@@ -129,7 +148,5 @@ namespace torchserve
     ASSERT_EQ((*inference_response_batch)["reqi"]->code   , 200);
     // send inference response to socket
     torchserve::OTFMessage::SendInferenceResponse(*client_socket, inference_response_batch);
-    
-    delete client_socket;
  }   
 } // namespace torchserve

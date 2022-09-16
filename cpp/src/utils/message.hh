@@ -85,11 +85,10 @@ namespace torchserve {
 
   struct LoadModelResponse {
     int code;
-    int length;
     const std::string buf;
 
-    LoadModelResponse(int code, int length, const std::string buf) : 
-    code(code), length(length), buf(buf) {};
+    LoadModelResponse(int code, const std::string buf) :
+    code(code), buf(buf) {};
   };
 
   struct InferenceRequest {

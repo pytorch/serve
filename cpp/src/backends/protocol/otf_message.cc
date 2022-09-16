@@ -1,40 +1,30 @@
 #include "src/backends/protocol/otf_message.hh"
 
-const std::string CONTENT_TYPE_SUFFIX = ":contentType";
+static const std::string CONTENT_TYPE_SUFFIX = ":contentType";
+static constexpr char NULL_CHAR = '\0';
 
 namespace torchserve {
-  void OTFMessage::EncodeLoadModelResponse(std::unique_ptr<torchserve::LoadModelResponse> response, char* data) {
-    char* p = data;
-    // Serialize response code
-    int32_t s_code = htonl(response->code);
-    memcpy(p, &s_code, sizeof(s_code));
-    p += sizeof(s_code);
-    // Serialize response message length
-    int32_t resp_length = htonl(response->length);
-    memcpy(p, &resp_length, sizeof(resp_length));
-    p += sizeof(resp_length);
-    // Serialize response message
-    strcpy(p, response->buf.c_str());
-    p += response->length;
-    // Expectation from frontend deserializer is a -1
-    // at the end of a LoadModelResponse
-    int32_t no_predict = htonl(-1);
-    memcpy(p, &no_predict, sizeof(no_predict));
-    p += sizeof(no_predict);
+  char OTFMessage::RetrieveCmd(const ISocket& client_socket_) {
+    char cmd;
+    client_socket_.RetrieveBuffer(1, &cmd);
+    return cmd;
+  }
+
+  void OTFMessage::EncodeLoadModelResponse(std::unique_ptr<torchserve::LoadModelResponse> response, std::vector<char>& data_buffer) {
+    // response code
+    int32_t response_code = htonl(response->code);
+    AppendIntegerToCharVector(data_buffer, response_code);
+    // response message
+    AppendOTFStringToCharVector(data_buffer, response->buf);
+    // end of message
+    int32_t end_of_response_code = htonl(-1);
+    AppendIntegerToCharVector(data_buffer, end_of_response_code);
   }
 
   bool OTFMessage::SendLoadModelResponse(const ISocket& client_socket_, std::unique_ptr<torchserve::LoadModelResponse> response) {
-    char *data = new char[sizeof(LoadModelResponse)];
-    torchserve::OTFMessage::EncodeLoadModelResponse(std::move(response), data);
-    bool status = client_socket_.SendAll(sizeof(LoadModelResponse), data);
-    delete[] data;
-    return status;
-  }
-
-  char OTFMessage::RetrieveCmd(const ISocket& client_socket_) {
-    char* data = new char[1];
-    client_socket_.RetrieveBuffer(1, data);
-    return data[0];
+    std::vector<char> data_buffer = {};
+    torchserve::OTFMessage::EncodeLoadModelResponse(std::move(response), data_buffer);
+    return client_socket_.SendAll(data_buffer.size(), data_buffer.data());
   }
 
   std::shared_ptr<LoadModelRequest> OTFMessage::RetrieveLoadMsg(const ISocket& client_socket_) {
@@ -49,58 +39,26 @@ namespace torchserve {
      * | int gpu id |
      * | bool limitMaxImagePixels |
      */
-    int length;
-    char* data;
 
-    // Model Name
-    length = client_socket_.RetrieveInt();
-    data = new char[length];
-    client_socket_.RetrieveBuffer(length, data);
-    std::string model_name(data, length);
-    delete[] data;
-
-    // Model Path
-    length = client_socket_.RetrieveInt();
-    data = new char[length];
-    client_socket_.RetrieveBuffer(length, data);
-    std::string model_dir(data, length);
-    delete[] data;
-
-    // Batch Size
+    auto model_name = RetrieveStringBuffer(client_socket_, std::nullopt);
+    auto model_dir = RetrieveStringBuffer(client_socket_, std::nullopt);
     auto batch_size = client_socket_.RetrieveInt();
-
-    // Handler Name (Not used)
-    length = client_socket_.RetrieveInt();
-    data = new char[length];
-    client_socket_.RetrieveBuffer(length, data);
-    std::string handler(data, length);
-    delete[] data;
-    TS_LOGF(INFO, "Received handler in message, will be ignored: {}", handler);
-
-    // GPU ID
+    auto handler = RetrieveStringBuffer(client_socket_, std::nullopt);
     auto gpu_id = client_socket_.RetrieveInt();
-
-    // Envelope
-    length = client_socket_.RetrieveInt();
-    data = new char[length];
-    client_socket_.RetrieveBuffer(length, data);
-    std::string envelope(data, length);
-    delete[] data;
-
-    // Limit max image pixels
+    auto envelope = RetrieveStringBuffer(client_socket_, std::nullopt);
     auto limit_max_image_pixels = client_socket_.RetrieveBool();
 
-    TS_LOGF(DEBUG, "Model Name: {}", model_name);
-    TS_LOGF(DEBUG, "Model dir: {}", model_dir);
+    TS_LOGF(DEBUG, "Model Name: {}", *model_name);
+    TS_LOGF(DEBUG, "Model dir: {}", *model_dir);
     TS_LOGF(DEBUG, "Batch size: {}", batch_size);
-    TS_LOGF(DEBUG, "Handler: {}", handler);
+    TS_LOGF(DEBUG, "Handler: {}", *handler);
     TS_LOGF(DEBUG, "GPU_id: {}", gpu_id);
-    TS_LOGF(DEBUG, "Envelope: {}", envelope);
+    TS_LOGF(DEBUG, "Envelope: {}", *envelope);
     TS_LOGF(DEBUG, "Limit max image pixels: {}", limit_max_image_pixels);
 
     return std::make_shared<LoadModelRequest>(
-      model_dir, model_name, gpu_id, handler,
-      envelope, batch_size, limit_max_image_pixels);
+      *model_dir, *model_name, gpu_id, *handler,
+      *envelope, batch_size, limit_max_image_pixels);
   }
 
   std::shared_ptr<torchserve::InferenceRequestBatch> OTFMessage::RetrieveInferenceMsg(const ISocket& client_socket_) {
@@ -170,10 +128,7 @@ namespace torchserve {
 
   void OTFMessage::RetrieveInferenceRequestParameter(const ISocket& client_socket_, InferenceRequest::Headers& inference_request_headers,
                                                   InferenceRequest::Parameters& inference_request_parameters, bool& is_valid) {
-    int length;
-    char* data;
-
-    length = client_socket_.RetrieveInt();
+    auto length = client_socket_.RetrieveInt();
     if (length == -1) {
       is_valid = false;
       return;
@@ -183,10 +138,8 @@ namespace torchserve {
     auto content_type = RetrieveStringBuffer(client_socket_, std::nullopt);
 
     length = client_socket_.RetrieveInt();
-    data = new char[length];
-    client_socket_.RetrieveBuffer(length, data);
-    std::vector<char> value(data, data + length);
-    delete[] data;
+    std::vector<char> value(length);
+    client_socket_.RetrieveBuffer(length, value.data());
 
     inference_request_parameters[*parameter_name] = value;
     inference_request_headers[*parameter_name + CONTENT_TYPE_SUFFIX] = *content_type;
@@ -252,17 +205,14 @@ namespace torchserve {
 
   std::shared_ptr<std::string> OTFMessage::RetrieveStringBuffer(const ISocket& client_socket_, std::optional<int> length_opt) {
     int length = length_opt ? length_opt.value() : client_socket_.RetrieveInt();
-    char* data = new char[length];
-    client_socket_.RetrieveBuffer(length, data);
-    auto string_data = std::make_shared<std::string>(data, length);
-    delete[] data;
+    auto string_data = std::make_shared<std::string>(length, NULL_CHAR);
+    client_socket_.RetrieveBuffer(length, string_data->data());
     return string_data;
   }
 
   void OTFMessage::AppendIntegerToCharVector(std::vector<char>& dest_vector, const int32_t& source_integer) {
-    char* code_in_char = new char[sizeof(source_integer)];
-    memcpy(code_in_char, &source_integer, sizeof(source_integer));
-    dest_vector.insert(dest_vector.end(), code_in_char, code_in_char + sizeof(source_integer));
+    dest_vector.resize(dest_vector.size() + sizeof(source_integer));
+    memcpy(&dest_vector.back() + 1 - sizeof(source_integer), &source_integer, sizeof(source_integer));
   }
 
   void OTFMessage::AppendOTFStringToCharVector(std::vector<char>& dest_vector, const std::string& source_string) {

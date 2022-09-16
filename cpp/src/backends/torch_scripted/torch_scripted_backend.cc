@@ -66,7 +66,6 @@ namespace torchserve {
         return std::make_unique<torchserve::LoadModelResponse>(
             // TODO: check current response msg content
             200,
-            message.size(),
             message);
       } catch (const c10::Error& e) {
         SetModelInstanceInfo(
@@ -77,7 +76,6 @@ namespace torchserve {
         return std::make_unique<torchserve::LoadModelResponse>(
           // TODO: check existing 
           500,
-          e.msg().size(),
           e.msg());
       }
     }
