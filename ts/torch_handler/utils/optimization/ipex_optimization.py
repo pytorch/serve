@@ -26,15 +26,6 @@ class IPEXOptimization(Optimization):
             self.torchscript = True 
             self.torchscript_approach = cfg.torchscript.approach
             self.torchscript_example_inputs = cfg.torchscript.example_inputs
-        
-        print("dtype: ", self.dtype)
-        print("channels_last: ", self.channels_last)
-        if self.quantization:
-            print("quantization.approach: ", self.quantization_approach)
-            print("quantization.calibration_dataset: ", type(self.quantization_calibration_dataset))
-        if self.torchscript:
-            print("torchscript.approach: ", self.torchscript_approach)
-            print("torchscript.example_inputs: ", type(self.torchscript_example_inputs))
 
     def optimize(self, model):
         import intel_extension_for_pytorch as ipex
