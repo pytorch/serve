@@ -132,7 +132,8 @@ def conda_build(
             output_dir = os.path.join(conda_build_dir, "output")
             cmd = f"{CONDA_BINARY} build --output-folder {output_dir} --python={pyv} {pkg}"
             print(f"## In directory: {os.getcwd()}; Executing command: {cmd}")
-            try_and_handle(cmd, dry_run)
+            if not dry_run:
+                os.system(cmd)
     return 0  # Used for sys.exit(0) --> to indicate successful system exit
 
 
