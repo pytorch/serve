@@ -26,7 +26,7 @@ jobs:
         uses: gaurav-nelson/github-action-markdown-link-check@1.0.14
         with:
           use-verbose-mode: 'yes'
-          config-file: "$GITHUB_WORKSPACE/ts_scripts/markdown_link_check_config.json"
+          config-file: "ts_scripts/markdown_link_check_config.json"
 
       - name: Get changed files
         id: changed-files
