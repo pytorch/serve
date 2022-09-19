@@ -14,7 +14,7 @@
 * [Serving multi modal framework model](#serving-multi-modal-model)
 * [Serving Image Classification Workflow](#serving-image-classification-workflow)
 * [Serving Neural Machine Translation Workflow](#serving-neural-machine-translation-workflow)
-* [Serving Torchrec DLRM (Recommender Model)](#serving-torchrec-dlrm)
+* [Serving Torchrec DLRM (Recommender Model)](#serving-torchrec-dlrm-recommender-model)
 
 # TorchServe Examples
 

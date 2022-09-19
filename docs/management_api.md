@@ -174,7 +174,7 @@ curl -v -X PUT "http://localhost:8081/models/noop/2.0?min_worker=3&synchronous=t
 
 ## Describe model
 
-This API follows the [ManagementAPIsService.DescribeModel](../frontend/server/src/main/resources/proto/management.proto) gRPC API. It returns the status of a model in the ModelServer.
+This API follows the [ManagementAPIsService.DescribeModel](https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/proto/management.proto) gRPC API. It returns the status of a model in the ModelServer.
 
 `GET /models/{model_name}`
 
