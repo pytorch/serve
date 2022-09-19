@@ -12,20 +12,29 @@ class IPEXOptimization(Optimization):
     def __init__(self, cfg):
         super().__init__(cfg)
         
-        self.dtype = cfg['dtype'] 
-        self.channels_last = cfg['channels_last']
+        self.dtype = cfg.dtype
+        self.channels_last = cfg.channels_last
         
         self.quantization = False 
-        if 'quantization' in cfg:
+        if cfg.quantization.approach is not None:
             self.quantization = True 
-            self.quantization_approach = cfg['quantization']['approach']
-            self.quantization_calibration_dataset = cfg['quantization']['calibration_dataset']
+            self.quantization_approach = cfg.quantization.approach
+            self.quantization_calibration_dataset = cfg.quantization.calibration_dataset
         
         self.torchscript = False 
-        if 'torchscript' in cfg:
+        if cfg.torchscript.approach is not None:
             self.torchscript = True 
-            self.torchscript_approach = cfg['torchscript']['approach'] 
-            self.torchscript_example_inputs = cfg['torchscript']['example_inputs']
+            self.torchscript_approach = cfg.torchscript.approach
+            self.torchscript_example_inputs = cfg.torchscript.example_inputs
+        
+        print("dtype: ", self.dtype)
+        print("channels_last: ", self.channels_last)
+        if self.quantization:
+            print("quantization.approach: ", self.quantization_approach)
+            print("quantization.calibration_dataset: ", type(self.quantization_calibration_dataset))
+        if self.torchscript:
+            print("torchscript.approach: ", self.torchscript_approach)
+            print("torchscript.example_inputs: ", type(self.torchscript_example_inputs))
 
     def optimize(self, model):
         import intel_extension_for_pytorch as ipex
@@ -66,7 +75,7 @@ class IPEXOptimization(Optimization):
         
         # torchscript 
         if self.torchscript:
-            with torch.no_grad():
+            with torch.cpu.amp.autocast(enabled=self.dtype=='bfloat16'), torch.no_grad():
                 if self.torchscript_approach == 'trace':
                     try:
                         model = torch.jit.trace(model, example_inputs=self.torchscript_example_inputs)

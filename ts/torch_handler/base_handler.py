@@ -105,7 +105,7 @@ class BaseHandler(abc.ABC):
         
         if ipex_enabled:
             cfg_file_path = os.path.join(model_dir, "ipex_config.yaml")
-            self.cfg = CONFIGURATIONS["ipex"](cfg_file_path).get_usr_cfg(cfg_file_path)
+            self.cfg = CONFIGURATIONS["ipex"](cfg_file_path)
             self.optimization = OPTIMIZATIONS["ipex"](self.cfg)
             
             self.model = self.optimization.optimize(self.model)
@@ -193,7 +193,7 @@ class BaseHandler(abc.ABC):
             Torch Tensor : The Predicted Torch Tensor is returned in this function.
         """
         marshalled_data = data.to(self.device)
-        with torch.cpu.amp.autocast(enabled=ipex_enabled and self.dtype == 'bfloat16'), torch.no_grad():
+        with torch.cpu.amp.autocast(enabled=self.dtype == 'bfloat16'), torch.no_grad():
             results = self.model(marshalled_data, *args, **kwargs)
         return results
 

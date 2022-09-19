@@ -1,82 +1,103 @@
-from schema import Schema, And, Use, Optional, Or, Hook
 from pathlib import Path
 import copy
 from .config import configuration_registry, Conf
 import subprocess
+import yaml 
 import torch 
+from dataclasses import dataclass, asdict
+import typing as t
 
 DTYPES = ['float32', 'bfloat16', 'int8']
 QUANTIZATION_APPROACHES = ['static', 'dynamic']
 TORCHSCRIPT_APPROACHES = ['trace', 'script']
 
-def _valid_quantization_approach(data):
-    data = data.lower()
-    assert data in QUANTIZATION_APPROACHES, "quantization approach {} is NOT supported".format(data)
-    return data 
+DEFAULT_CFG = {'dtype': 'float32', 
+              'channels_last': True, 
+              'quantization': {'approach': None, 'calibration_dataset': None}, 
+              'torchscript': {'approach': None, 'example_inputs': None}
+              }
 
-def _load_file_path(data):
-    if isinstance(data, str):
-        assert Path(data).exists(), "{} does not exist".format(data)
-        data = torch.load(data)
+def _load_file_path(f):
+    assert Path(f).exists(), "{} does not exist".format(f)
+    data = torch.load(f)
     return data
+
+@dataclass
+class QuantizationConf:
+    approach: str = None
+    calibration_dataset: str = None
     
-quantization_schema = Schema({
-                            Optional('approach', default='static'): And(str, Use(_valid_quantization_approach)),
-                            
-                            'calibration_dataset': And(Or(str, And(list, lambda s: all(isinstance(i, tuple) for i in s)), And(list, lambda s: all(isinstance(i, torch.Tensor) for i in s))), Use(_load_file_path))
-                            })
-
-def _valid_torchscript_approach(data):
-    data = data.lower()
-    assert data in TORCHSCRIPT_APPROACHES, "torchscript approach {} is NOT supported".format(data)
-    return data 
-
-def _valid_torchscript_schema(key, scope, error):
-    if scope[key]['approach'] == 'trace':
-        assert 'example_inputs' in scope[key], "make sure to provide example_inputs with TorchScript trace"
-
-torchscript_schema = Schema({
-                            Optional('approach', default='trace'): And(str, Use(_valid_torchscript_approach)),
-                            
-                            Optional('example_inputs'): And(Or(str, tuple, torch.Tensor), Use(_load_file_path))
-                            })
-
-def _valid_dtype(data):
-    data = data.lower()
-    assert data in DTYPES, "dtype {} is NOT supported".format(data)
-    if data == 'bfloat16': 
-        assert is_bf16_supported(), "You've selected bfloat16 dtype, but bfloat16 dot-product hardware accelerator is not supported in your current hardware. Please select float32 or int8 dtype, or switch to bfloat16 supported hardware."
-    return data 
-
-def is_bf16_supported():
-    proc1 = subprocess.Popen(['lscpu'], stdout=subprocess.PIPE)
-    proc2 = subprocess.Popen(['grep', 'Flags'], stdin=proc1.stdout, stdout=subprocess.PIPE)
-    proc1.stdout.close()
-    out = proc2.communicate()
-    return 'bf16' in str(out)
+    def __post_init__(self):
+        if self.approach is not None:
+            self.approach = self.approach.lower()
+            assert self.approach in QUANTIZATION_APPROACHES, "quantization approach {} is NOT supported".format(self.approach)
         
-def _valid_int8_schema(key, scope, error):
-    if scope[key] == 'int8':
-        assert 'quantization' in scope, "quantization schema must be provided for int8 dtype"
-        assert 'calibration_dataset' in scope['quantization'], "calibration_dataset must be provided for int8 dtype"
-              
-schema = Schema({
-                Hook('dtype', handler=_valid_int8_schema): object,
-                Optional('dtype', default='float32'): And(str, Use(_valid_dtype)),
-                
-                Optional('channels_last', default=True): And(bool, lambda s: s in [True, False]),
+        if self.approach == 'static':
+            assert self.calibration_dataset is not None, "path to calibration_dataset must be provided for static quantization"
+        
+        if self.calibration_dataset is not None:
+            self.calibration_dataset = _load_file_path(self.calibration_dataset)
+            assert all(isinstance(x, tuple) for x in self.calibration_dataset) or all(isinstance(x, torch.Tensor) for x in self.calibration_dataset), "calibration_dataset must be a list of tuple(s) or a list of torch.Tensor(s)"
 
-                Optional('quantization'): quantization_schema, 
-                
-                Hook('torchscript', handler=_valid_torchscript_schema): object,
-                Optional('torchscript'): torchscript_schema
-                })
+@dataclass 
+class TorchscriptConf:
+    approach: str = None
+    example_inputs: str = None
+    
+    def __post_init__(self):
+        if self.approach is not None:
+            self.approach = self.approach.lower()
+            assert self.approach in TORCHSCRIPT_APPROACHES, "torchscript approach {} is NOT supported".format(self.approach)
+        
+        if self.approach == 'trace':
+            assert self.example_inputs is not None, "path to example_inputs must be provided for TorchScript trace"
+        
+        if self.example_inputs is not None:
+            self.example_inputs = _load_file_path(self.example_inputs)
+            assert isinstance(self.example_inputs, tuple) or isinstance(self.example_inputs, torch.Tensor), "example_inputs must be of type tuple or torch.Tensor"
 
+@dataclass
 @configuration_registry
 class IPEXConf(Conf):
-    def __init__(self, cfg_file_path):
-        super().__init__(cfg_file_path)
+    dtype: str = 'float32'
+    channels_last: bool = True
+    quantization: QuantizationConf = QuantizationConf()
+    torchscript: TorchscriptConf = TorchscriptConf()
+        
+    def __post_init__(self):
+        super().__init__(self.cfg_file_path)
+        assert Path(self.cfg_file_path).exists(), "{} does not exist".format(self.cfg_file_path)
+        cfg = self.read_conf(self.cfg_file_path)
+        cfg = self._convert_cfg(cfg, DEFAULT_CFG)
+        
+        self.dtype = cfg['dtype'] 
+        self.channels_last = cfg['channels_last']
+        self.quantization = QuantizationConf(cfg['quantization']['approach'], cfg['quantization']['calibration_dataset'])
+        self.torchscript = TorchscriptConf(cfg['torchscript']['approach'], cfg['torchscript']['example_inputs'])
+        
+        self.dtype = self.dtype.lower()
+        assert self.dtype in DTYPES, "dtype {} is NOT supported".format(self.dtype)
+        
+        if self.dtype == 'int8':
+            assert self.quantization.approach, "quantization approach must be provided for int8 dtype"
+
+        assert isinstance(self.channels_last, bool), "channels last must be type bool"
     
-    def get_usr_cfg(self, cfg_file_path):
-        usr_cfg = schema.validate(self._convert_cfg(self._read_conf(cfg_file_path, schema), copy.deepcopy(schema.validate(dict()))))
-        return usr_cfg 
+    def _convert_cfg(self, src, dst):
+        """Helper function to recursively merge user defined dict into default dict.
+           If the key in src doesn't exist in dst, then add this key and value
+           pair to dst.
+           Otherwise, if the key in src exists in dst, then override the value in dst with the
+           value in src.
+        Args:
+            src (dict): The source dict merged from
+            dst (dict): The source dict merged to
+        Returns:
+            dict: The merged dict from src to dst
+        """
+        for key in src:
+            if isinstance(src[key], dict):
+                self._convert_cfg(src[key], dst[key])
+            else:
+                dst[key] = src[key]
+        return dst 
