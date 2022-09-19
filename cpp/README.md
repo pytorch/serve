@@ -2,7 +2,7 @@
 ## Build & Unit tests
 ### Requirements
 * C++17
-* GCC version: 9.1+
+* GCC version: gcc-9
 ### Commands
 ```
 cd serve/cpp 
