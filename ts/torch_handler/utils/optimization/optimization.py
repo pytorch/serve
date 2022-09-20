@@ -36,7 +36,6 @@ class Optimization(object):
            
         Args:
             model (torch.nn.Module): The model to optimize.
-            
         Returns:
             torch.nn.Module: The optimized model.
         """

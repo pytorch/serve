@@ -33,12 +33,10 @@ class IPEXOptimization(Optimization):
             self.torchscript_example_inputs = cfg.torchscript.example_inputs
 
     def optimize(self, model):
-        """The optimization function. 
-        Apply Intel® Extension for PyTorch* (IPEX) optimizations to the given model (nn.Module).
+        """Apply Intel® Extension for PyTorch* (IPEX) optimizations to the given model (nn.Module).
            
         Args:
-            model (torch.nn.Module): The model to optimize.
-            
+            model (torch.nn.Module): The model to optimize. 
         Returns:
             torch.nn.Module: The optimized model.
         """

@@ -36,7 +36,9 @@ class Conf:
     def read_conf(self, cfg_file_path):
         """Load a configiguration file following yaml syntax.
            Args:
-               cfg_file_path (string): The path to the yaml configuration file.
+               cfg_file_path (str): The path to the yaml configuration file.
+           Returns:
+               dict: the loaded configuration file 
         """
         with open(cfg_file_path, 'r') as f:
             content = f.read()
