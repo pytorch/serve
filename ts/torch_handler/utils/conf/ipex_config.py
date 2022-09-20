@@ -113,5 +113,3 @@ class IPEXConf(Conf):
             else:
                 dst[key] = src[key]
         return dst
-
-IPEXConf('/nfs/site/home/minjeanc/ipex_optimization/ipex_config.yaml')
