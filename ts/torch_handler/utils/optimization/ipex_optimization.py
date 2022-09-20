@@ -20,9 +20,7 @@ class IPEXOptimization(Optimization):
         self.dtype = cfg.dtype
         self.channels_last = cfg.channels_last
         
-        self.quantization = False 
-        if cfg.quantization.approach is not None:
-            self.quantization = True 
+        if self.dtype == 'int8':
             self.quantization_approach = cfg.quantization.approach
             self.quantization_calibration_dataset = cfg.quantization.calibration_dataset
         
@@ -88,13 +86,6 @@ class IPEXOptimization(Optimization):
                         except:
                             logger.error("TorchScript tracing the model failed. Make sure the model is traceable.")
                             exit(-1)
-                else: # script 
-                    try:
-                        model = torch.jit.script(model)
-                    except:
-                        logger.error("TorchScript scripting the model failed. Make sure the model is scriptable.")
-                        exit(-1)
-                    
                 model = torch.jit.freeze(model)
         
         return model

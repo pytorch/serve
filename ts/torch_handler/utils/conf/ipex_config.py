@@ -9,7 +9,7 @@ import typing as t
 
 DTYPES = ['float32', 'bfloat16', 'int8']
 QUANTIZATION_APPROACHES = ['static', 'dynamic']
-TORCHSCRIPT_APPROACHES = ['trace', 'script']
+TORCHSCRIPT_APPROACHES = ['trace']
 
 DEFAULT_CFG = {'dtype': 'float32', 
               'channels_last': True, 
@@ -65,11 +65,11 @@ class IPEXConf(Conf):
         dtype (str): # optional. supported values are float32, bfloat16, int8. default value is float32.
         channels_last (bool): # optional. supported values are True, False. default value is True.
         quantization:
-          approach (str): # optional. supported values are static, dynamic. default value is None.
-          calibration_dataset (str): # optional. path to your calibration dataset if static quantization. default value is None. 
+          approach (str): # mandatory if int8 dtype, otherwise not applicable. supported values are static, dynamic. default value is None.
+          calibration_dataset (str): # mandatory if static approach. path to your calibration dataset if static quantization. default value is None. 
         torchscript:
-          approach (str): # optional. supported values are script, trace. default value is None. 
-          example_inputs (str): # optional. path to your example_inputs if TorchScript trace. default value is None. 
+          approach (str): # optional. supported values is trace. default value is None. 
+          example_inputs (str): # mandatory if trace approach. path to your example_inputs if TorchScript trace. default value is None. 
     """
     dtype: str = 'float32'
     channels_last: bool = True
@@ -83,18 +83,18 @@ class IPEXConf(Conf):
         cfg = self._convert_cfg(cfg, DEFAULT_CFG)
         
         self.dtype = cfg['dtype'] 
-        self.channels_last = cfg['channels_last']
-        self.quantization = QuantizationConf(cfg['quantization']['approach'], cfg['quantization']['calibration_dataset'])
-        self.torchscript = TorchscriptConf(cfg['torchscript']['approach'], cfg['torchscript']['example_inputs'])
         
         self.dtype = self.dtype.lower()
         assert self.dtype in DTYPES, "dtype {} is NOT supported".format(self.dtype)
+        assert bool(self.dtype == 'int8') == bool(cfg['quantization']['approach'] is not None), "quantization approach must be provided for INT8 dtype, and quantization is supported for INT8 dtype only"
         
-        if self.dtype == 'int8':
-            assert self.quantization.approach, "quantization approach must be provided for int8 dtype"
-
+        self.channels_last = cfg['channels_last']
+        
         assert isinstance(self.channels_last, bool), "channels last must be type bool"
-    
+
+        self.quantization = QuantizationConf(cfg['quantization']['approach'], cfg['quantization']['calibration_dataset'])
+        self.torchscript = TorchscriptConf(cfg['torchscript']['approach'], cfg['torchscript']['example_inputs'])
+        
     def _convert_cfg(self, src, dst):
         """Helper function to recursively merge user defined dict into default dict.
            If the key in src doesn't exist in dst, then add this key and value
@@ -112,4 +112,6 @@ class IPEXConf(Conf):
                 self._convert_cfg(src[key], dst[key])
             else:
                 dst[key] = src[key]
-        return dst 
+        return dst
+
+IPEXConf('/nfs/site/home/minjeanc/ipex_optimization/ipex_config.yaml')
