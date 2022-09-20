@@ -9,6 +9,11 @@ logger = logging.getLogger(__name__)
 
 @optimization_registry
 class IPEXOptimization(Optimization):
+    """The Intel® Extension for PyTorch* (IPEX) Optimization.
+    
+    Args:
+        cfg (Conf): the optimization configuration.
+    """
     def __init__(self, cfg):
         super().__init__(cfg)
         
@@ -28,6 +33,15 @@ class IPEXOptimization(Optimization):
             self.torchscript_example_inputs = cfg.torchscript.example_inputs
 
     def optimize(self, model):
+        """The optimization function. 
+        Apply Intel® Extension for PyTorch* (IPEX) optimizations to the given model (nn.Module).
+           
+        Args:
+            model (torch.nn.Module): The model to optimize.
+            
+        Returns:
+            torch.nn.Module: The optimized model.
+        """
         import intel_extension_for_pytorch as ipex
         
         # channel last 

@@ -59,6 +59,18 @@ class TorchscriptConf:
 @dataclass
 @configuration_registry
 class IPEXConf(Conf):
+    """The Intel® Extension for PyTorch* (IPEX) optimization configuration.
+    
+    Attributes:
+        dtype (str): # optional. supported values are float32, bfloat16, int8. default value is float32.
+        channels_last (bool): # optional. supported values are True, False. default value is True.
+        quantization:
+          approach (str): # optional. supported values are static, dynamic. default value is None.
+          calibration_dataset (str): # optional. path to your calibration dataset if static quantization. default value is None. 
+        torchscript:
+          approach (str): # optional. supported values are script, trace. default value is None. 
+          example_inputs (str): # optional. path to your example_inputs if TorchScript trace. default value is None. 
+    """
     dtype: str = 'float32'
     channels_last: bool = True
     quantization: QuantizationConf = QuantizationConf()
