@@ -2,6 +2,7 @@ set(TS_BACKENDS_SRC_DIR "${torchserve_cpp_SOURCE_DIR}/src/backends")
 set(TS_BACKENDS_CORE_SRC_DIR "${TS_BACKENDS_SRC_DIR}/core")
 set(TS_BACKENDS_PROTOCOL_SRC_DIR "${TS_BACKENDS_SRC_DIR}/protocol")
 set(TS_BACKENDS_PROCESS_SRC_DIR "${TS_BACKENDS_SRC_DIR}/process")
+set(TS_BACKENDS_METRICS_SRC_DIR "${TS_BACKENDS_SRC_DIR}/metrics")
 set(TS_BACKENDS_TORCH_SCRIPTED_SRC_DIR "${TS_BACKENDS_SRC_DIR}/torch_scripted")
 set(TS_BACKENDS_TORCH_DEPLOY_SRC_DIR "${TS_BACKENDS_SRC_DIR}/torch_deploy")
 
@@ -13,6 +14,16 @@ add_library(ts_backends_protocol SHARED ${TS_BACKENDS_PROTOCOL_SOURCE_FILES})
 target_include_directories(ts_backends_protocol PUBLIC ${TS_BACKENDS_PROTOCOL_SRC_DIR})
 target_link_libraries(ts_backends_protocol PRIVATE ts_utils ${FOLLY_LIBRARIES})
 install(TARGETS ts_backends_protocol DESTINATION ${torchserve_cpp_SOURCE_DIR}/_build/libs)
+
+# build library ts_backends_metrics
+set(TS_BACKENDS_METRICS_SOURCE_FILES "")
+list(APPEND TS_BACKENDS_METRICS_SOURCE_FILES ${TS_BACKENDS_METRICS_SRC_DIR}/units.cc)
+list(APPEND TS_BACKENDS_METRICS_SOURCE_FILES ${TS_BACKENDS_METRICS_SRC_DIR}/dimension.cc)
+list(APPEND TS_BACKENDS_METRICS_SOURCE_FILES ${TS_BACKENDS_METRICS_SRC_DIR}/metric.cc)
+add_library(ts_backends_metrics STATIC ${TS_BACKENDS_METRICS_SOURCE_FILES})
+target_include_directories(ts_backends_metrics PUBLIC ${TS_BACKENDS_METRICS_SRC_DIR})
+target_include_directories(ts_backends_metrics PRIVATE ${Boost_INCLUDE_DIRS})
+target_link_libraries(ts_backends_metrics PRIVATE ${Boost_LIBRARIES})
 
 # build library ts_backend_core
 set(TS_BACKENDS_CORE_SOURCE_FILES "")
