@@ -22,6 +22,7 @@ class IPEXOptimization(Optimization):
         
         if self.dtype == 'int8':
             self.quantization_approach = cfg.quantization.approach
+            self.quantization_example_inputs = cfg.quantization.example_inputs
             self.quantization_calibration_dataset = cfg.quantization.calibration_dataset
         
         self.torchscript = False 
@@ -55,24 +56,20 @@ class IPEXOptimization(Optimization):
             if self.quantization_approach == 'static':
                 qconfig = ipex.quantization.default_static_qconfig
                 
-                # prepare and calibrate 
-                model = prepare(model, qconfig, example_inputs=self.quantization_calibration_dataset[0], inplace=False)
+                # prepare 
+                model = prepare(model, qconfig, example_inputs=self.quantization_example_inputs, inplace=False)
+                
+                # calibrate
                 for x in self.quantization_calibration_dataset:
-                    if isinstance(x, torch.Tensor):
-                        x = (x,)
                     model(*x)
-                
-                # convert 
-                model = convert(model)
-                
-            else: # dynamic 
+            else: # dynamic
                 qconfig = ipex.quantization.default_dynamic_qconfig
                 
                 # prepare
-                model = prepare(model, qconfig, example_inputs=self.quantization_calibration_dataset[0])
+                model = prepare(model, qconfig, example_inputs=self.quantization_example_inputs)
             
-                # convert and deploy 
-                model = convert(model)
+            # convert 
+            model = convert(model)
         
         # torchscript 
         if self.torchscript:

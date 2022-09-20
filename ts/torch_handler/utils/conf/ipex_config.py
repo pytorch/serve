@@ -13,31 +13,45 @@ TORCHSCRIPT_APPROACHES = ['trace']
 
 DEFAULT_CFG = {'dtype': 'float32', 
               'channels_last': True, 
-              'quantization': {'approach': None, 'calibration_dataset': None}, 
+              'quantization': {'approach': None, 'example_inputs': None, 'calibration_dataset': None}, 
               'torchscript': {'approach': None, 'example_inputs': None}
               }
-
+    
 def _load_file_path(f):
     assert Path(f).exists(), "{} does not exist".format(f)
     data = torch.load(f)
     return data
 
+def _make_tuple(x):
+    if isinstance(x, (torch.Tensor, dict)):
+        return (x,)
+    elif not isinstance(x, tuple):
+        return tuple(x)
+    return x
+        
 @dataclass
 class QuantizationConf:
     approach: str = None
+    example_inputs: str = None
     calibration_dataset: str = None
     
     def __post_init__(self):
         if self.approach is not None:
             self.approach = self.approach.lower()
             assert self.approach in QUANTIZATION_APPROACHES, "quantization approach {} is NOT supported".format(self.approach)
+            
+            assert self.example_inputs is not None, "path to example_inputs must be provided for quantization"
+            self.example_inputs = _load_file_path(self.example_inputs)
+            assert isinstance(self.example_inputs, (tuple, torch.Tensor, dict)), "example_inputs must be of type tuple or torch.Tensor"
+            self.example_inputs = _make_tuple(self.example_inputs)
         
         if self.approach == 'static':
             assert self.calibration_dataset is not None, "path to calibration_dataset must be provided for static quantization"
         
         if self.calibration_dataset is not None:
             self.calibration_dataset = _load_file_path(self.calibration_dataset)
-            assert all(isinstance(x, tuple) for x in self.calibration_dataset) or all(isinstance(x, torch.Tensor) for x in self.calibration_dataset), "calibration_dataset must be a list of tuple(s) or a list of torch.Tensor(s)"
+            assert all(isinstance(x, (tuple, torch.Tensor, dict)) for x in self.calibration_dataset), "calibration_dataset must be a list of tuple(s) or a list of torch.Tensor(s)"
+            self.calibration_dataset = [_make_tuple(x) for x in self.calibration_dataset]
 
 @dataclass 
 class TorchscriptConf:
@@ -54,7 +68,8 @@ class TorchscriptConf:
         
         if self.example_inputs is not None:
             self.example_inputs = _load_file_path(self.example_inputs)
-            assert isinstance(self.example_inputs, tuple) or isinstance(self.example_inputs, torch.Tensor), "example_inputs must be of type tuple or torch.Tensor"
+            assert isinstance(self.example_inputs, (tuple, torch.Tensor, dict)), "example_inputs must be of type tuple or torch.Tensor"
+            self.example_inputs = _make_tuple(self.example_inputs)
 
 @dataclass
 @configuration_registry
@@ -66,10 +81,11 @@ class IPEXConf(Conf):
         channels_last (bool): # optional. supported values are True, False. default value is True.
         quantization:
           approach (str): # mandatory if int8 dtype, otherwise not applicable. supported values are static, dynamic. default value is None.
-          calibration_dataset (str): # mandatory if static approach. path to your calibration dataset if static quantization. default value is None. 
+          example_inputs (str):  # mandatory if int8 quantization. path to your example_inputs .pt file containing tuple or torch.Tensor. default value is None. 
+          calibration_dataset (str): # mandatory if approach is static. path to your calibration dataset .pt file containing a list of tuple or a list of torch.Tensor. default value is None. 
         torchscript:
-          approach (str): # optional. supported values is trace. default value is None. 
-          example_inputs (str): # mandatory if trace approach. path to your example_inputs if TorchScript trace. default value is None. 
+          approach (str): # optional. supported value is trace. default value is None. 
+          example_inputs (str): # mandatory if approach is trace. path to your example_inputs .pt file containing tuple or torch.Tensor. default value is None. 
     """
     dtype: str = 'float32'
     channels_last: bool = True
@@ -92,7 +108,7 @@ class IPEXConf(Conf):
         
         assert isinstance(self.channels_last, bool), "channels last must be type bool"
 
-        self.quantization = QuantizationConf(cfg['quantization']['approach'], cfg['quantization']['calibration_dataset'])
+        self.quantization = QuantizationConf(cfg['quantization']['approach'], cfg['quantization']['example_inputs'], cfg['quantization']['calibration_dataset'])
         self.torchscript = TorchscriptConf(cfg['torchscript']['approach'], cfg['torchscript']['example_inputs'])
         
     def _convert_cfg(self, src, dst):
