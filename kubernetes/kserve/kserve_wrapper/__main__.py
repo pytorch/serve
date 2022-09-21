@@ -94,6 +94,9 @@ if __name__ == "__main__":
         model = TorchserveModel(
             model_name, inference_address, management_address, model_dir
         )
+        # By default model.load() is called on first request. Enabling load all
+        # model in TS config.properties, all models are loaded at start and the
+        # below method sets status to true for the models.
         model.load()
         models.append(model)
     registeredModels = TSModelRepository(

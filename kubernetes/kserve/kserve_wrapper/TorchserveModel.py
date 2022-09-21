@@ -126,6 +126,9 @@ class TorchserveModel(Model):
         return json.loads(response.body)
 
     def load(self) -> bool:
+        """This method validates model availabilty in the model directory
+        and sets ready flag to true.
+        """
         model_path = pathlib.Path(kserve.Storage.download(self.model_dir))
         paths = list(pathlib.Path(model_path).glob("*.mar"))
         existing_paths = [path for path in paths if path.exists()]
