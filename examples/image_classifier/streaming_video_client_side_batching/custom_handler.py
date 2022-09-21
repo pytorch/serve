@@ -1,12 +1,13 @@
-import torch
-from torchvision.utils import save_image
-from ts.torch_handler.image_classifier import ImageClassifier
-import torch.nn.functional as F
-from ts.utils.util  import map_class_to_label
-from io import BytesIO
-from PIL import Image
-import io
 import base64
+import io
+
+import torch
+import torch.nn.functional as F
+from PIL import Image
+
+from ts.torch_handler.image_classifier import ImageClassifier
+from ts.utils.util import map_class_to_label
+
 
 class ModelHandler(ImageClassifier):
     def __init__(self):
@@ -35,7 +36,6 @@ class ModelHandler(ImageClassifier):
 
         return torch.stack(images).to(self.device)
 
-
     def postprocess(self, data):
 
         ps = F.softmax(data, dim=1)
@@ -43,6 +43,6 @@ class ModelHandler(ImageClassifier):
         probs = probs.tolist()
         classes = classes.tolist()
         result = []
-        output =  map_class_to_label(probs, self.mapping, classes)
+        output = map_class_to_label(probs, self.mapping, classes)
         result.append(output)
         return result
