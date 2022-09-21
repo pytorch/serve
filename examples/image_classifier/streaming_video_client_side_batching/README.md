@@ -55,6 +55,19 @@ Length of queue is 0 , snd_cnt is 375
 With Batch Size 1, FPS at frame number 375 is 28.9
 ```
 
+If we print the response from TorchServe, we should see the following output
+```
+[
+  {
+    "tabby": 0.5186409950256348,
+    "tiger_cat": 0.29040342569351196,
+    "Egyptian_cat": 0.10797449946403503,
+    "lynx": 0.01395314373075962,
+    "bucket": 0.006002399604767561
+  }
+]
+```
+
 To set batch_size = 10, we use the following command
 ```
 python examples/image_classifier/streaming_video_client_side_batching/request.py --batch_size 10
