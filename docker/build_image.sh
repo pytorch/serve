@@ -107,6 +107,7 @@ do
             BASE_IMAGE="nvidia/cuda:11.1.0-cudnn8-runtime-ubuntu20.04"
           elif [[ $UBUNTU_VERSION == "ubuntu20.04" ]];
           then
+            echo "Using CPU image"
             BASE_IMAGE="ubuntu:20.04"
           else
             echo "Ubuntu and CUDA version combination is not supported"
