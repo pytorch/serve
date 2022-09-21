@@ -79,6 +79,7 @@ def batch_and_send_frames(args):
         # Exit condition for the while loop. Need a better logic
         if len(queue) == 0:
             exit_cnt += 1
+            # By trial and error, 1000 seemed to work best
             if exit_cnt >= 1000:
                 print(
                     "Length of queue is {} , snd_cnt is {}".format(len(queue), snd_cnt)
