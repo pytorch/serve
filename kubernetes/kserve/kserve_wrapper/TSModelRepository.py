@@ -1,14 +1,16 @@
 """ The repository to serve the Torchserve Models in the kserve side"""
 import logging
 from importlib.metadata import version
+
 import kserve
 
-if version('kserve') >= '0.8.0':
+if version("kserve") >= "0.8.0":
     from kserve.model_repository import ModelRepository as ModelRepository
 else:
     from kserve.kfmodel_repository import KFModelRepository as ModelRepository
 
 logging.basicConfig(level=kserve.constants.KSERVE_LOGLEVEL)
+
 
 class TSModelRepository(ModelRepository):
     """A repository of kserve KFModels
@@ -16,8 +18,8 @@ class TSModelRepository(ModelRepository):
         KFModelRepository (object): The parameters from the KFModelRepository is passed
         as inputs to the TSModel Repository.
     """
-    def __init__(self, inference_address: str, management_address: str,
-                 model_dir: str):
+
+    def __init__(self, inference_address: str, management_address: str, model_dir: str):
         """The Inference Address, Management Address and the Model Directory from the kserve
         side is initialized here.
 
