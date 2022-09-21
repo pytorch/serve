@@ -29,6 +29,36 @@ mv resnet-18.mar model_store/
 torchserve --start --model-store model_store --models resnet-18=resnet-18.mar
 python examples/image_classifier/streaming_video_client_side_batching/request.py
 ```
+The default batch size is 1.
+On the client side, we should see the following output
+```
+With Batch Size 1, FPS at frame number 20 is 25.1
+With Batch Size 1, FPS at frame number 40 is 27.8
+With Batch Size 1, FPS at frame number 60 is 22.4
+With Batch Size 1, FPS at frame number 80 is 28.2
+With Batch Size 1, FPS at frame number 100 is 22.4
+With Batch Size 1, FPS at frame number 120 is 28.2
+With Batch Size 1, FPS at frame number 140 is 27.9
+With Batch Size 1, FPS at frame number 160 is 22.1
+With Batch Size 1, FPS at frame number 180 is 28.4
+With Batch Size 1, FPS at frame number 200 is 22.0
+With Batch Size 1, FPS at frame number 220 is 29.1
+With Batch Size 1, FPS at frame number 240 is 28.4
+With Batch Size 1, FPS at frame number 260 is 29.2
+With Batch Size 1, FPS at frame number 280 is 28.6
+With Batch Size 1, FPS at frame number 300 is 28.5
+With Batch Size 1, FPS at frame number 320 is 29.0
+With Batch Size 1, FPS at frame number 340 is 28.9
+With Batch Size 1, FPS at frame number 360 is 27.7
+Done reading 375 frames
+Length of queue is 0 , snd_cnt is 375
+With Batch Size 1, FPS at frame number 375 is 28.9
+```
+
+To set batch_size = 10, we use the following command
+```
+python examples/image_classifier/streaming_video_client_side_batching/request.py --batch_size 10
+```
 
 If you have a camera connected, you can run inference on streaming video from the camera as follows
 
