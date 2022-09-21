@@ -1,10 +1,23 @@
-#### Sample commands to create a resnet-18 eager mode model archive, register it on TorchServe and run inference on a streaming video
+# Streaming Video Inference with client-side batching
+
+To use TorchServe's dynamic batching feature, please refer to [resnet_152_batch](https://github.com/pytorch/serve/tree/examples/streaming_video/examples/image_classifier/resnet_152_batch)
+
+For some near real-time streaming video applications, there might be a need for batching on the application side.
+This example shows how this can be achieved using TorchServe.
+
+On the client side, we have one thread for reading frames from a video source and another thread which batches(size n) the read frames and sends the request to TorchServe for image classification inference.
+To send the batched data, we create a json payload of n frames.
+On the TorchServe side, we read the json payload and preprocess the n frames. The postprocess function in the handler returns the output as a list of length 1.
+
+### Client application using [OpenCV](https://opencv.org/)
 
 In this example, we are using OpenCV to send frames on the client side.
-Install opencv with the following command
+Install OpenCV with the following command
 ```
 pip install opencv-python
 ```
+
+### Create a resnet-18 eager mode model archive, register it on TorchServe and run inference on a streaming video
 
 Run the commands given in following steps from the parent directory of the root of the repository. For example, if you cloned the repository into /home/my_path/serve, run the steps from /home/my_path
 
@@ -22,4 +35,3 @@ If you have a camera connected, you can run inference on streaming video from th
 ```
 python examples/image_classifier/streaming_video_client_side_batching/request.py --batch_size 10 --input 0
 ```
-

@@ -15,3 +15,4 @@ matrix:
   sources:
   - 'docs/*.md'
   - 'examples/*/*.md'
+  - 'examples/*/*/*.md'
