@@ -29,17 +29,13 @@ def start():
     if os.path.isfile(pid_file):
         with open(pid_file, "r") as f:
             pid = int(f.readline())
-
-            if pid:
-                try:
-                    process_from_pid_file = psutil.Process(pid)
-                    pid = (
-                        pid if TS_NAMESPACE in process_from_pid_file.cmdline() else None
-                    )
-                except psutil.Error:
-                    pid = None
-                    print("Removing orphan pid file.")
-                    os.remove(pid_file)
+            try:
+                process_from_pid_file = psutil.Process(pid)
+                pid = pid if TS_NAMESPACE in process_from_pid_file.cmdline() else None
+            except psutil.Error:
+                pid = None
+                print("Removing orphan pid file.")
+                os.remove(pid_file)
     # pylint: disable=too-many-nested-blocks
     if args.version:
         print("TorchServe Version is {}".format(__version__))
