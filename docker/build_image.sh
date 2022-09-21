@@ -96,7 +96,6 @@ do
         # CUDA 10 is not supported on Ubuntu 20.04
         -ub|--ubuntu)
           UBUNTU_VERSION="$2"
-          echo $UBUNTU_VERSION
           if [[ $CUDA_VERSION == "cu116"  &&  $UBUNTU_VERSION == "ubuntu20.04" ]];
           then 
             BASE_IMAGE="nvidia/cuda:11.6.0-cudnn8-runtime-ubuntu20.04"
@@ -111,6 +110,8 @@ do
             BASE_IMAGE="ubuntu:20.04"
           else
             echo "Ubuntu and CUDA version combination is not supported"
+            echo $UBUNTU_VERSION
+            echo $CUDA_VERSION
             exit 1 
           fi
           shift
