@@ -214,6 +214,6 @@ If you need to run your benchmarks on a specific cloud or hardware infrastructur
 The high level approach
 1. Create a cloud instance in your favorite cloud provider
 2. Configure it so it can talk to github actions by running some shell commands listed here https://docs.github.com/en/actions/hosting-your-own-runners/adding-self-hosted-runners
-3. Tag your instances in https://github.com/pytorch/serve/settings/actions/runners
+3. Tag your instances in the runners tab on Github
 3. In the `.yml` make sure to use `runs-on [self-hosted, your_tag]`
 4. Inspect the results in https://github.com/pytorch/serve/actions and download the artifacts for further analysis
