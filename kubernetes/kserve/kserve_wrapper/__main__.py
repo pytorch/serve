@@ -2,12 +2,12 @@
 import json
 import logging
 from importlib.metadata import version
-import kserve
 
+import kserve
 from TorchserveModel import TorchserveModel
 from TSModelRepository import TSModelRepository
 
-if version('kserve') >= '0.8.0':
+if version("kserve") >= "0.8.0":
     from kserve.model_server import ModelServer
 else:
     from kserve.kfserver import KFServer as ModelServer
@@ -74,26 +74,36 @@ def parse_config():
         model_store = DEFAULT_MODEL_STORE
     logging.info(
         "Wrapper : Model names %s, inference address %s, management address %s, model store %s",
-        model_names, inference_address, management_address, model_store)
+        model_names,
+        inference_address,
+        management_address,
+        model_store,
+    )
 
     return model_names, inference_address, management_address, model_store
 
 
 if __name__ == "__main__":
 
-    model_names, inference_address, management_address, model_dir = parse_config(
-    )
+    model_names, inference_address, management_address, model_dir = parse_config()
 
     models = []
 
     for model_name in model_names:
 
-        model = TorchserveModel(model_name, inference_address,
-                                management_address, model_dir)
+        model = TorchserveModel(
+            model_name, inference_address, management_address, model_dir
+        )
+        # By default model.load() is called on first request. Enabling load all
+        # model in TS config.properties, all models are loaded at start and the
+        # below method sets status to true for the models.
+        model.load()
         models.append(model)
+    registeredModels = TSModelRepository(
+        inference_address, management_address, model_dir
+    )
     ModelServer(
-        registered_models=TSModelRepository(inference_address,
-                                            management_address, model_dir),
+        registered_models=registeredModels,
         http_port=8080,
         grpc_port=7070,
     ).start(models)
