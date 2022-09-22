@@ -40,7 +40,12 @@ jobs:
         run: |
           python ts_scripts/install_dependencies.py --environment=dev --cuda=cu102
       - name: Torchserve Sanity
-        run: python torchserve_sanity.py
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 60
+          max_attempts: 3
+          command: |
+            python torchserve_sanity.py
       - name: mvn install
         run: |
             cd serving-sdk/ && ./mvnw clean install -q && cd ../
