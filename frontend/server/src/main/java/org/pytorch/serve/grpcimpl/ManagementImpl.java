@@ -1,6 +1,7 @@
 package org.pytorch.serve.grpcimpl;
 
 import io.grpc.Status;
+import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
@@ -26,12 +27,24 @@ import org.pytorch.serve.util.GRPCUtils;
 import org.pytorch.serve.util.JsonUtils;
 import org.pytorch.serve.util.messages.RequestInput;
 import org.pytorch.serve.wlm.ModelManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ManagementImpl extends ManagementAPIsServiceImplBase {
+    private static final Logger logger = LoggerFactory.getLogger(ManagementImpl.class);
 
     @Override
     public void describeModel(
             DescribeModelRequest request, StreamObserver<ManagementResponse> responseObserver) {
+        ((ServerCallStreamObserver<ManagementResponse>) responseObserver)
+                .setOnCancelHandler(
+                        () -> {
+                            logger.warn("grpc client call already cancelled");
+                            responseObserver.onError(
+                                    io.grpc.Status.CANCELLED
+                                            .withDescription("call already cancelled")
+                                            .asRuntimeException());
+                        });
         String requestId = UUID.randomUUID().toString();
         RequestInput input = new RequestInput(requestId);
         String modelName = request.getModelName();
@@ -67,6 +80,15 @@ public class ManagementImpl extends ManagementAPIsServiceImplBase {
     @Override
     public void listModels(
             ListModelsRequest request, StreamObserver<ManagementResponse> responseObserver) {
+        ((ServerCallStreamObserver<ManagementResponse>) responseObserver)
+                .setOnCancelHandler(
+                        () -> {
+                            logger.warn("grpc client call already cancelled");
+                            responseObserver.onError(
+                                    io.grpc.Status.CANCELLED
+                                            .withDescription("call already cancelled")
+                                            .asRuntimeException());
+                        });
         int limit = request.getLimit();
         int pageToken = request.getNextPageToken();
 
@@ -77,6 +99,15 @@ public class ManagementImpl extends ManagementAPIsServiceImplBase {
     @Override
     public void registerModel(
             RegisterModelRequest request, StreamObserver<ManagementResponse> responseObserver) {
+        ((ServerCallStreamObserver<ManagementResponse>) responseObserver)
+                .setOnCancelHandler(
+                        () -> {
+                            logger.warn("grpc client call already cancelled");
+                            responseObserver.onError(
+                                    io.grpc.Status.CANCELLED
+                                            .withDescription("call already cancelled")
+                                            .asRuntimeException());
+                        });
         org.pytorch.serve.http.messages.RegisterModelRequest registerModelRequest =
                 new org.pytorch.serve.http.messages.RegisterModelRequest(request);
 
@@ -98,6 +129,15 @@ public class ManagementImpl extends ManagementAPIsServiceImplBase {
     @Override
     public void scaleWorker(
             ScaleWorkerRequest request, StreamObserver<ManagementResponse> responseObserver) {
+        ((ServerCallStreamObserver<ManagementResponse>) responseObserver)
+                .setOnCancelHandler(
+                        () -> {
+                            logger.warn("grpc client call already cancelled");
+                            responseObserver.onError(
+                                    io.grpc.Status.CANCELLED
+                                            .withDescription("call already cancelled")
+                                            .asRuntimeException());
+                        });
         int minWorkers = GRPCUtils.getRegisterParam(request.getMinWorker(), 1);
         int maxWorkers = GRPCUtils.getRegisterParam(request.getMaxWorker(), minWorkers);
         String modelName = GRPCUtils.getRegisterParam(request.getModelName(), null);
@@ -128,6 +168,15 @@ public class ManagementImpl extends ManagementAPIsServiceImplBase {
     @Override
     public void setDefault(
             SetDefaultRequest request, StreamObserver<ManagementResponse> responseObserver) {
+        ((ServerCallStreamObserver<ManagementResponse>) responseObserver)
+                .setOnCancelHandler(
+                        () -> {
+                            logger.warn("grpc client call already cancelled");
+                            responseObserver.onError(
+                                    io.grpc.Status.CANCELLED
+                                            .withDescription("call already cancelled")
+                                            .asRuntimeException());
+                        });
         String modelName = request.getModelName();
         String newModelVersion = request.getModelVersion();
 
@@ -142,6 +191,15 @@ public class ManagementImpl extends ManagementAPIsServiceImplBase {
     @Override
     public void unregisterModel(
             UnregisterModelRequest request, StreamObserver<ManagementResponse> responseObserver) {
+        ((ServerCallStreamObserver<ManagementResponse>) responseObserver)
+                .setOnCancelHandler(
+                        () -> {
+                            logger.warn("grpc client call already cancelled");
+                            responseObserver.onError(
+                                    io.grpc.Status.CANCELLED
+                                            .withDescription("call already cancelled")
+                                            .asRuntimeException());
+                        });
         try {
             String modelName = request.getModelName();
             if (modelName == null || ("").equals(modelName)) {
