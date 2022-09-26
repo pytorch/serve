@@ -564,7 +564,7 @@ This is used in conjunction with <code class="docutils literal notranslate"><spa
 <section id="config-model">
 <h3><span class="section-number">5.3.13. </span>Config model<a class="headerlink" href="#config-model" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">models</span></code>: Use this to set configuration of each model. The value is presented in json format.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">models</span></code>: Use this to set configurations specific to a model. The value is presented in json format.</p></li>
 </ul>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
     <span class="s2">&quot;modelName&quot;</span><span class="p">:</span> <span class="p">{</span>
@@ -578,15 +578,15 @@ This is used in conjunction with <code class="docutils literal notranslate"><spa
 </pre></div>
 </div>
 <p>A model’s parameters are defined in <a class="reference external" href="https://github.com/pytorch/serve/blob/master/frontend/server/src/main/java/org/pytorch/serve/wlm/Model.java#L24">model source code</a></p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">minWorkers</span><span class="p">:</span> <span class="n">the</span> <span class="n">minimum</span> <span class="n">number</span> <span class="n">of</span> <span class="n">workers</span> <span class="n">of</span> <span class="n">a</span> <span class="n">model</span>
-<span class="n">maxWorkers</span><span class="p">:</span> <span class="n">the</span> <span class="n">maximum</span> <span class="n">number</span> <span class="n">of</span> <span class="n">workers</span> <span class="n">of</span> <span class="n">a</span> <span class="n">model</span>
-<span class="n">batchSize</span><span class="p">:</span> <span class="n">the</span> <span class="n">batch</span> <span class="n">size</span> <span class="n">of</span> <span class="n">a</span> <span class="n">model</span>
-<span class="n">maxBatchDelay</span><span class="p">:</span> <span class="n">the</span> <span class="n">maximum</span> <span class="n">dalay</span> <span class="ow">in</span> <span class="n">msec</span> <span class="n">of</span> <span class="n">a</span> <span class="n">batch</span> <span class="n">of</span> <span class="n">a</span> <span class="n">model</span>
-<span class="n">responseTimeout</span><span class="p">:</span> <span class="n">the</span> <span class="n">timeout</span> <span class="ow">in</span> <span class="n">msec</span> <span class="n">of</span> <span class="n">a</span> <span class="n">model</span><span class="s1">&#39;s response</span>
-<span class="n">defaultVersion</span><span class="p">:</span> <span class="n">the</span> <span class="n">default</span> <span class="n">version</span> <span class="n">of</span> <span class="n">a</span> <span class="n">model</span>
-<span class="n">marName</span><span class="p">:</span> <span class="n">the</span> <span class="n">mar</span> <span class="n">file</span> <span class="n">name</span> <span class="n">of</span> <span class="n">a</span> <span class="n">model</span>
-</pre></div>
-</div>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">minWorkers</span></code>: the minimum number of workers of a model</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">maxWorkers</span></code>: the maximum number of workers of a model</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">batchSize</span></code>: the batch size of a model</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">maxBatchDelay</span></code>: the maximum delay in msec of a batch of a model</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">responseTimeout</span></code>: the timeout in msec of a specific model’s response. This setting takes priority over <code class="docutils literal notranslate"><span class="pre">default_response_timeout</span></code> which is a default timeout over all models</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">defaultVersion</span></code>: the default version of a model</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">marName</span></code>: the mar file name of a model</p></li>
+</ul>
 <p>A model’s configuration example</p>
 <div class="highlight-properties notranslate"><div class="highlight"><pre><span></span><span class="na">models</span><span class="o">=</span><span class="s">{\</span>
 <span class="s">  &quot;noop&quot;: {\</span>
@@ -625,7 +625,7 @@ This is used in conjunction with <code class="docutils literal notranslate"><spa
 <li><p><code class="docutils literal notranslate"><span class="pre">default_workers_per_model</span></code>: Number of workers to create for each model that loaded at startup time. Default: available GPUs in system or number of logical processors available to the JVM.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">job_queue_size</span></code>: Number inference jobs that frontend will queue before backend can serve. Default: 100.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">async_logging</span></code>: Enable asynchronous logging for higher throughput, log output may be delayed if this is enabled. Default: false.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">default_response_timeout</span></code>: Timeout, in seconds, used for model’s backend workers before they are deemed unresponsive and rebooted. Default: 120 seconds.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">default_response_timeout</span></code>: Timeout, in seconds, used for all models backend workers before they are deemed unresponsive and rebooted. Default: 120 seconds.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">unregister_model_timeout</span></code>: Timeout, in seconds, used when handling an unregister model request when cleaning a process before it is deemed unresponsive and an error response is sent. Default: 120 seconds.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">decode_input_request</span></code>: Configuration to let backend workers to decode requests, when the content type is known.
 If this is set to “true”, backend workers do “Bytearray to JSON object” conversion when the content type is “application/json” and
