@@ -3,10 +3,10 @@ import datetime
 import os
 import ruamel.yaml
 import shutil
+from subprocess import Popen
 from utils import gen_model_config_json
 from utils import gen_md_report
 from utils import gen_metrics_json
-from subprocess import Popen
 
 CWD = os.getcwd()
 MODEL_JSON_CONFIG_PATH = CWD + '/model_json_config'
@@ -231,7 +231,7 @@ def execute(command, wait=False, stdout=None, stderr=None, shell=True):
 
 def get_torchserve_version():
     # fetch the torchserve version from version.txt file
-    with open(CWD + '/ts/version.txt', 'r') as file:
+    with open(os.path.join(CWD, 'ts', 'version.txt'), 'r') as file:
         version = file.readline().rstrip()
     return version
 

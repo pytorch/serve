@@ -33,14 +33,14 @@ class ModelHandler(BaseHandler):
             ("cpu", torch.device("cpu"), False)
 
         # If not already extracted, Extract model source code
-        if not os.path.exists(model_dir + "/models"):
-            with zipfile.ZipFile(model_dir + "/" + MODELSZIP, "r") as zip_ref:
+        if not os.path.exists(os.path.join(model_dir, "models")):
+            with zipfile.ZipFile(os.path.join(model_dir, MODELSZIP), "r") as zip_ref:
                 zip_ref.extractall(model_dir)
 
         # Load Model
         from models.DCGAN import DCGAN
         self.dcgan_model = DCGAN(useGPU=self.use_gpu, storeAVG=self.store_avg)
-        state_dict = torch.load(model_dir + "/" + CHECKPOINT, map_location=self.map_location)
+        state_dict = torch.load(os.path.join(model_dir, CHECKPOINT), map_location=self.map_location)
         self.dcgan_model.load_state_dict(state_dict)
 
         self.initialized = True

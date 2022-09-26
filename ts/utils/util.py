@@ -6,8 +6,11 @@ import os
 import json
 import itertools
 import logging
+import re
 
 logger = logging.getLogger(__name__)
+
+CLEANUP_REGEX = re.compile("<.*?>|&([a-z0-9]+|#[0-9]{1,6}|#x[0-9a-f]{1,6});")
 
 def list_classes_from_module(module, parent_class=None):
     """

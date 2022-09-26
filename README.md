@@ -12,13 +12,27 @@ curl http://127.0.0.1:8080/predictions/bert -T input.txt
 ```
 # Install dependencies
 # cuda is optional
-python ./ts_scripts/install_dependencies.py --cuda=cu111
+python ./ts_scripts/install_dependencies.py --cuda=cu102
 
 # Latest release
 pip install torchserve torch-model-archiver torch-workflow-archiver
 
 # Nightly build
 pip install torchserve-nightly torch-model-archiver-nightly torch-workflow-archiver-nightly
+```
+
+### 🚀 Quick start with TorchServe (conda)
+
+```
+# Install dependencies
+# cuda is optional
+python ./ts_scripts/install_dependencies.py --cuda=cu102
+
+# Latest release
+conda install -c pytorch torchserve torch-model-archiver torch-workflow-archiver
+
+# Nightly build
+conda install -c pytorch-nightly torchserve torch-model-archiver torch-workflow-archiver
 ```
 
 [Getting started guide](docs/getting_started.md)
@@ -43,7 +57,7 @@ Refer to [torchserve docker](docker/README.md) for details.
   * [Kubeflow](https://v0-5.kubeflow.org/docs/components/pytorchserving/)
   * [MLflow](https://github.com/mlflow/mlflow-torchserve)
   * [Sagemaker](https://aws.amazon.com/blogs/machine-learning/serving-pytorch-models-in-production-with-the-amazon-sagemaker-native-torchserve-integration/)
-  * [Kserve](https://kserve.github.io/website/modelserving/v1beta1/torchserve/)
+  * [Kserve](https://kserve.github.io/website/0.8/modelserving/v1beta1/torchserve/): Supports both v1 and v2 API
   * [Vertex AI](https://cloud.google.com/blog/topics/developers-practitioners/pytorch-google-cloud-how-deploy-pytorch-models-vertex-ai)
 * Export your model for optimized inference. Torchscript out of the box, [ORT](https://discuss.pytorch.org/t/deploying-onnx-model-with-torchserve/97725/2), [IPEX](https://github.com/pytorch/serve/tree/master/examples/intel_extension_for_pytorch), [TensorRT](https://github.com/pytorch/serve/issues/1243), [FasterTransformer](https://github.com/pytorch/serve/tree/master/examples/FasterTransformer_HuggingFace_Bert)
 * [Performance Guide](docs/performance_guide.md): builtin support to optimize, benchmark and profile PyTorch and TorchServe performance
@@ -76,8 +90,6 @@ We welcome all contributions!
 
 To learn more about how to contribute, see the contributor guide [here](https://github.com/pytorch/serve/blob/master/CONTRIBUTING.md).
 
-To file a bug or request a feature, please file a GitHub issue. For filing pull requests, please use the template [here](https://github.com/pytorch/serve/blob/master/pull_request_template.md).
-
 ## 📰 News
 * [Grokking Intel CPU PyTorch performance from first principles: a TorchServe case study](https://pytorch.org/tutorials/intermediate/torchserve_with_ipex.html)
 * [Case Study: Amazon Ads Uses PyTorch and AWS Inferentia to Scale Models for Ads Processing](https://pytorch.org/blog/amazon-ads-case-study/)
@@ -106,7 +118,7 @@ To file a bug or request a feature, please file a GitHub issue. For filing pull 
 </a>
 
 Made with [contrib.rocks](https://contrib.rocks).
-## ⚖️ Disclaimer 
+## ⚖️ Disclaimer
 This repository is jointly operated and maintained by Amazon, Meta and a number of individual contributors listed in the [CONTRIBUTORS](https://github.com/pytorch/serve/graphs/contributors) file. For questions directed at Meta, please send an email to opensource@fb.com. For questions directed at Amazon, please send an email to torchserve@amazon.com. For all other questions, please open up an issue in this repository [here](https://github.com/pytorch/serve/issues).
 
 *TorchServe acknowledges the [Multi Model Server (MMS)](https://github.com/awslabs/multi-model-server) project from which it was derived*
