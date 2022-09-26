@@ -171,7 +171,7 @@ kubectl cp mnist.mar model-store-pod:/pv/model-store/ -c model-store -n kserve-t
 kubectl cp config.properties model-store-pod:/pv/config/ -c model-store -n kserve-test
 ```
 
-Refer link for other [storage options](https://github.com/kserve/kserve/tree/master/docs/samples/storagehttps://github.com/kserve/kserve/tree/master/docs/samples/storage)
+Refer link for other [storage options](https://github.com/kserve/kserve/tree/master/docs/samples/storage)
 
 - Step - 5 : Create the Inference Service
 
