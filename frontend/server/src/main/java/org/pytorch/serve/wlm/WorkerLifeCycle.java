@@ -204,10 +204,9 @@ public class WorkerLifeCycle {
         argl.add(modelPath.getAbsolutePath());
 
         String[] envp =
-                EnvironmentUtils.getEnvString(
-                        workingDir.getAbsolutePath(),
-                        modelPath.getAbsolutePath(),
-                        model.getModelArchive().getManifest().getModel().getHandler());
+                EnvironmentUtils.getCppEnvString(
+                        new File(workingDir, "cpp/libs").getAbsolutePath()
+                );
 
         try {
             latch = new CountDownLatch(1);
