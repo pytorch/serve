@@ -1,5 +1,8 @@
 """ The torchserve side inference end-points request are handled to
     return a KServe side response """
+import os
+import time
+import requests
 import json
 import logging
 import pathlib
@@ -19,6 +22,7 @@ logging.basicConfig(level=kserve.constants.KSERVE_LOGLEVEL)
 
 REGISTER_URL_FORMAT = "{0}/models?initial_workers=1&url={1}"
 UNREGISTER_URL_FORMAT = "{0}/models/{1}"
+READINESS_URL_FORMAT = "{0}/models/{1}"
 
 PREDICTOR_URL_FORMAT = "http://{0}/v1/models/{1}:predict"
 EXPLAINER_URL_FORMAT = "http://{0}/v1/models/{1}:explain"
@@ -139,5 +143,42 @@ class TorchserveModel(Model):
                 "More than one model file is detected, "
                 f"Only one is allowed within model_dir: {existing_paths}"
             )
-        self.ready = True
+
+        num_try = 0
+        model_load_max_try = int(os.environ.get('MODEL_LOAD_MAX_TRY', 10))
+        model_load_delay = int(os.environ.get('MODEL_LOAD_DELAY', 30))
+        model_load_timeout = int(os.environ.get('MODEL_LOAD_TIMEOUT', 5))
+
+        while num_try < model_load_max_try and not self.ready:
+            num_try = num_try + 1
+            logging.info(f'Loading {self.name} .. {num_try} of {model_load_max_try} tries..')
+
+            try:
+                response = requests.get(
+                    READINESS_URL_FORMAT.format(self.management_address, self.name),
+                    timeout=model_load_timeout
+                ).json()
+
+                default_verison = response[0]
+                workers = default_verison['workers']
+                workers_status = [worker['id'] for worker in workers if worker['status']=='READY']
+
+                if len(workers_status) == len(workers_status):
+                    logging.info(f'The model {self.name} is ready')
+                    self.ready = True
+
+            except (requests.ConnectionError, 
+                    requests.Timeout, 
+                    requests.ConnectTimeout, 
+                    requests.ReadTimeout) as e:
+                logging.info(f'The model {self.name} is not ready')
+
+            except Exception as e:
+                logging.info(e)
+                logging.info(f'Failed loading model {self.name}')
+                break
+
+            logging.info(f'Sleep {model_load_delay} seconds for load {self.name}..')
+            time.sleep(model_load_delay)
+
         return self.ready
