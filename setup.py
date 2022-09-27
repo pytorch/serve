@@ -42,6 +42,10 @@ build_plugins_command = {
     'Darwin': 'plugins/gradlew -p plugins clean bS',
     'Linux': 'plugins/gradlew -p plugins clean bS'
 }
+build_cpp_command = {
+    "Darwin": "cpp/build.sh",
+    "Linux": "cpp/build.sh"
+}
 
 
 def pypi_description():
@@ -139,6 +143,43 @@ class BuildPlugins(Command):
             assert 0, "build failed"
 
         self.run_command('build_py')
+
+
+
+class BuildCPP(setuptools.command.build_py.build_py):
+    """
+    Class defined to run cpp build.
+    """
+    description = 'Build Model Server CPP'
+    source_server_file = os.path.abspath(
+        'cpp/_build/libs/server-1.0.jar')
+    dest_file_name = os.path.abspath('ts/frontend/model-server.jar')
+
+    # noinspection PyMethodMayBeStatic
+    def run(self):
+        """
+        Actual method called to run the build command
+        :return:
+        """
+        front_end_bin_dir = os.path.abspath('.') + '/ts/frontend'
+        try:
+            os.mkdir(front_end_bin_dir)
+        except OSError as exc:
+            if exc.errno == errno.EEXIST and os.path.isdir(front_end_bin_dir):
+                pass
+            else:
+                raise
+
+        if os.path.exists(self.source_server_file):
+            os.remove(self.source_server_file)
+
+        try:
+            subprocess.check_call(build_frontend_command[platform.system()],
+                                  shell=True)
+        except OSError:
+            assert 0, "build failed"
+        copy2(self.source_server_file, self.dest_file_name)
+
 
 
 if __name__ == '__main__':

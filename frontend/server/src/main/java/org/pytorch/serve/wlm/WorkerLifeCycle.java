@@ -178,6 +178,66 @@ public class WorkerLifeCycle {
         }
     }
 
+    private void startWorkerCPP(int port)
+            throws WorkerInitializationException, InterruptedException {
+        File workingDir = new File(configManager.getModelServerHome());
+        File modelPath;
+        setPort(port);
+        try {
+            modelPath = model.getModelDir().getCanonicalFile();
+        } catch (IOException e) {
+            throw new WorkerInitializationException("Failed get TS home directory", e);
+        }
+
+        ArrayList<String> argl = new ArrayList<String>();
+        argl.add(EnvironmentUtils.getPythonRunTime(model));
+
+
+        argl.add(new File(workingDir, "ts/model_service_worker.py").getAbsolutePath());
+        argl.add("--sock-type");
+        argl.add(connector.getSocketType());
+        argl.add(connector.isUds() ? "--sock-name" : "--port");
+        argl.add(connector.getSocketPath());
+
+        String[] envp =
+                EnvironmentUtils.getEnvString(
+                        workingDir.getAbsolutePath(),
+                        modelPath.getAbsolutePath(),
+                        model.getModelArchive().getManifest().getModel().getHandler());
+
+        try {
+            latch = new CountDownLatch(1);
+
+            String[] args = argl.toArray(new String[argl.size()]);
+            logger.debug("Worker cmdline: {}", argl.toString());
+
+            synchronized (this) {
+                process = Runtime.getRuntime().exec(args, envp, modelPath);
+
+                String threadName =
+                        "W-" + port + '-' + model.getModelVersionName().getVersionedModelName();
+                errReader = new ReaderThread(threadName, process.getErrorStream(), true, this);
+                outReader = new ReaderThread(threadName, process.getInputStream(), false, this);
+                errReader.start();
+                outReader.start();
+            }
+
+            if (latch.await(2, TimeUnit.MINUTES)) {
+                if (!success) {
+                    throw new WorkerInitializationException("Backend stream closed.");
+                }
+                return;
+            }
+            throw new WorkerInitializationException("Backend worker startup time out.");
+        } catch (IOException e) {
+            throw new WorkerInitializationException("Failed start worker process", e);
+        } finally {
+            if (!success) {
+                exit();
+            }
+        }
+    }
+
     public synchronized void terminateIOStreams() {
         if (errReader != null) {
             logger.warn("terminateIOStreams() threadName={}", errReader.getName());
