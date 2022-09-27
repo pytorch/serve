@@ -87,9 +87,11 @@ public class WorkerLifeCycle {
         switch (model.getRuntimeType()) {
             case LSP:
                 logger.info("LSP startWorker");
+                startWorkerCPP(port, "LSP");
                 break;
             case LDP:
                 logger.info("LDP startWorker");
+                startWorkerCPP(port, "LDP");
                 break;
             default:
                 startWorkerPython(port);
@@ -178,7 +180,7 @@ public class WorkerLifeCycle {
         }
     }
 
-    private void startWorkerCPP(int port)
+    private void startWorkerCPP(int port, String runtimeType)
             throws WorkerInitializationException, InterruptedException {
         File workingDir = new File(configManager.getModelServerHome());
         File modelPath;
@@ -197,7 +199,9 @@ public class WorkerLifeCycle {
         argl.add(connector.isUds() ? "--sock_name" : "--port");
         argl.add(connector.getSocketPath());
         argl.add("--runtime_type");
-        argl.add()
+        argl.add(runtimeType);
+        argl.add("--model_dir");
+        argl.add(modelPath.getAbsolutePath());
 
         String[] envp =
                 EnvironmentUtils.getEnvString(

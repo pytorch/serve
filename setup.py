@@ -23,7 +23,7 @@ import platform
 import subprocess
 import sys
 from datetime import date
-from shutil import copy2, rmtree
+from shutil import copy2, copytree, rmtree
 
 import setuptools.command.build_py
 from setuptools import setup, find_packages, Command
@@ -145,15 +145,17 @@ class BuildPlugins(Command):
         self.run_command('build_py')
 
 
-
 class BuildCPP(setuptools.command.build_py.build_py):
     """
     Class defined to run cpp build.
     """
     description = 'Build Model Server CPP'
-    source_server_file = os.path.abspath(
-        'cpp/_build/libs/server-1.0.jar')
-    dest_file_name = os.path.abspath('ts/frontend/model-server.jar')
+    source_bin_dir = os.path.abspath(
+        'cpp/_build/bin')
+    dest_bin_dir = os.path.abspath('ts/cpp/bin')
+    source_lib_dir = os.path.abspath(
+        'cpp/_build/lib')
+    dest_lib_dir = os.path.abspath('ts/cpp/lib')
 
     # noinspection PyMethodMayBeStatic
     def run(self):
@@ -161,25 +163,17 @@ class BuildCPP(setuptools.command.build_py.build_py):
         Actual method called to run the build command
         :return:
         """
-        front_end_bin_dir = os.path.abspath('.') + '/ts/frontend'
-        try:
-            os.mkdir(front_end_bin_dir)
-        except OSError as exc:
-            if exc.errno == errno.EEXIST and os.path.isdir(front_end_bin_dir):
-                pass
-            else:
-                raise
-
-        if os.path.exists(self.source_server_file):
-            os.remove(self.source_server_file)
+        cpp_dir = os.path.abspath('.') + '/ts/cpp/'
+        if os.path.isdir(cpp_dir):
+            rmtree(cpp_dir)
 
         try:
-            subprocess.check_call(build_frontend_command[platform.system()],
+            subprocess.check_call(build_cpp_command[platform.system()],
                                   shell=True)
         except OSError:
             assert 0, "build failed"
-        copy2(self.source_server_file, self.dest_file_name)
-
+        copytree(self.source_bin_dir, self.dest_bin_dir)
+        copytree(self.source_lib_dir, self.dest_lib_dir)
 
 
 if __name__ == '__main__':
