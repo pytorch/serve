@@ -13,12 +13,12 @@ message PredictionsRequest {
     // Version of model to run prediction on.
     string model_version = 2; //optional
 
-    // input data for model prediction
+    // Input data for model prediction
     map<string, bytes> input = 3; //required
 }
 
 message PredictionResponse {
-    // TorchServe health
+    // Response content for prediction
     bytes prediction = 1;
 }
 
@@ -28,6 +28,7 @@ message TorchServeHealthResponse {
 }
 
 service InferenceAPIsService {
+    // Check health status of the TorchServe server.
     rpc Ping(google.protobuf.Empty) returns (TorchServeHealthResponse) {}
 
     // Predictions entry point to get inference using default model version.
