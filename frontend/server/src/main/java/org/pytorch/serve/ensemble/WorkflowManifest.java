@@ -122,10 +122,10 @@ public class WorkflowManifest {
         PYTHON2("python2"),
         @SerializedName("python3")
         PYTHON3("python3"),
-        @SerializedName("libtorch_scripted_process")
-        LSP("libtorch_scripted_process"),
-        @SerializedName("libtorch_deploy_process")
-        LDP("libtorch_deploy_process");
+        @SerializedName("LSP")
+        LSP("LSP"),
+        @SerializedName("LDP")
+        LDP("LDP");
 
         String value;
 

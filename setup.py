@@ -154,7 +154,7 @@ class BuildCPP(setuptools.command.build_py.build_py):
         'cpp/_build/bin')
     dest_bin_dir = os.path.abspath('ts/cpp/bin')
     source_lib_dir = os.path.abspath(
-        'cpp/_build/lib')
+        'cpp/_build/libs')
     dest_lib_dir = os.path.abspath('ts/cpp/lib')
 
     # noinspection PyMethodMayBeStatic

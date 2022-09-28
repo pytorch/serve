@@ -38,7 +38,7 @@ public class WorkerLifeCycleTest {
     }
 
     @Test
-    public void testStartWorkerMnist()
+    public void testStartWorkerPythonMnist()
             throws ModelException, IOException, DownloadArchiveException,
                     WorkerInitializationException, InterruptedException {
         ModelArchive archiveMnist =
@@ -47,6 +47,21 @@ public class WorkerLifeCycleTest {
         Model modelMnist = new Model(archiveMnist, 100);
         Assert.assertEquals(archiveMnist.getModelName(), "mnist_ts");
         Assert.assertEquals(archiveMnist.getModelVersion(), "1.0");
+        WorkerLifeCycle workerLifeCycleMnist = new WorkerLifeCycle(configManager, modelMnist);
+        workerLifeCycleMnist.startWorker(configManager.getInitialWorkerPort());
+    }
+
+    @Test
+    public void testStartWorkerCppMnist()
+            throws ModelException, IOException, DownloadArchiveException,
+                    WorkerInitializationException, InterruptedException {
+        ModelArchive archiveMnist =
+                ModelArchive.downloadModel(
+                        ALLOWED_URLS_LIST, configManager.getModelStore(), "mnist_scripted.mar");
+        Model modelMnist = new Model(archiveMnist, 100);
+        Assert.assertEquals(archiveMnist.getModelName(), "mnist_ts");
+        Assert.assertEquals(archiveMnist.getModelVersion(), "1.0");
+
         modelMnist.setRuntimeType(
                 configManager.getJsonRuntimeTypeValue(
                         archiveMnist.getModelName(),
@@ -54,7 +69,8 @@ public class WorkerLifeCycleTest {
                         Model.RUNTIME_TYPE,
                         archiveMnist.getManifest().getRuntime()));
         Assert.assertEquals(modelMnist.getRuntimeType().getValue(), LSP.getValue());
+
         WorkerLifeCycle workerLifeCycleMnist = new WorkerLifeCycle(configManager, modelMnist);
-        workerLifeCycleMnist.startWorker(configManager.getInitialWorkerPort());
+        // workerLifeCycleMnist.startWorker(configManager.getInitialWorkerPort());
     }
 }

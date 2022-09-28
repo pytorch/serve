@@ -75,9 +75,7 @@ public final class EnvironmentUtils {
         HashMap<String, String> environment = new HashMap<>(System.getenv());
         environment.putAll(configManager.getBackendConfiguration());
 
-        if (!libPath.contains("site-packages") && !libPath.contains("dist-packages")) {
-            cppPath.append(libPath);
-        }
+        cppPath.append(libPath);
 
         String os = System.getProperty("os.name").toLowerCase();
         if (os.indexOf("win") >= 0) {

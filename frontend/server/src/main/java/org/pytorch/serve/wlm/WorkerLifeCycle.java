@@ -193,7 +193,17 @@ public class WorkerLifeCycle {
 
         ArrayList<String> argl = new ArrayList<String>();
 
-        argl.add(new File(workingDir, "cpp/bin/model_worker_socket").getAbsolutePath());
+        File cppBackendBin = new File(workingDir, "cpp/_build/bin/model_worker_socket");
+        File cppBackendLib = new File(workingDir, "cpp/_build/libs");
+        if (!cppBackendBin.exists()) {
+            cppBackendBin = new File(workingDir, "cpp/bin/model_worker_socket");
+            cppBackendLib = new File(workingDir, "cpp/lib");
+            if (!cppBackendBin.exists()) {
+                throw new WorkerInitializationException("model_worker_socket not found");
+            }
+        }
+
+        argl.add(cppBackendBin.getAbsolutePath());
         argl.add("--sock_type");
         argl.add(connector.getSocketType());
         argl.add(connector.isUds() ? "--sock_name" : "--port");
@@ -203,10 +213,7 @@ public class WorkerLifeCycle {
         argl.add("--model_dir");
         argl.add(modelPath.getAbsolutePath());
 
-        String[] envp =
-                EnvironmentUtils.getCppEnvString(
-                        new File(workingDir, "cpp/libs").getAbsolutePath()
-                );
+        String[] envp = EnvironmentUtils.getCppEnvString(cppBackendLib.getAbsolutePath());
 
         try {
             latch = new CountDownLatch(1);
