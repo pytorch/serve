@@ -35,6 +35,7 @@ import org.pytorch.serve.util.messages.WorkerCommands;
 import org.pytorch.serve.wlm.Model;
 import org.pytorch.serve.wlm.ModelManager;
 import org.pytorch.serve.wlm.ModelVersionedRefs;
+import org.pytorch.serve.wlm.WorkerState;
 import org.pytorch.serve.wlm.WorkerThread;
 
 public final class ApiUtils {
@@ -376,7 +377,8 @@ public final class ApiUtils {
         for (WorkerThread worker : workers) {
             String workerId = worker.getWorkerId();
             long startTime = worker.getStartTime();
-            boolean isRunning = worker.isRunning();
+            boolean isRunning =
+                    worker.isRunning() && worker.getState() == WorkerState.WORKER_MODEL_LOADED;
             int gpuId = worker.getGpuId();
             long memory = worker.getMemory();
             int pid = worker.getPid();

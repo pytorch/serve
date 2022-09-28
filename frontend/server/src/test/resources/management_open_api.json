@@ -208,7 +208,9 @@
               "enum": [
                 "PYTHON",
                 "PYTHON2",
-                "PYTHON3"
+                "PYTHON3",
+                "LSP",
+                "LDP"
               ]
             }
           },

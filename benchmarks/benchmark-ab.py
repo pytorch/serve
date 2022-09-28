@@ -385,10 +385,10 @@ def prepare_common_dependency():
         ignore_errors=True,
     )
     os.makedirs(
-        os.path.join(execution_params["tmp_dir"], "benchmark/conf"), exist_ok=True
+        os.path.join(execution_params["tmp_dir"], "benchmark", "conf"), exist_ok=True
     )
     os.makedirs(
-        os.path.join(execution_params["tmp_dir"], "benchmark/logs"), exist_ok=True
+        os.path.join(execution_params["tmp_dir"], "benchmark", "logs"), exist_ok=True
     )
     os.makedirs(
         os.path.join(execution_params["report_location"], "benchmark"), exist_ok=True
@@ -396,9 +396,11 @@ def prepare_common_dependency():
 
     shutil.copy(
         execution_params["config_properties"],
-        os.path.join(execution_params["tmp_dir"], "benchmark/conf/"),
+        os.path.join(execution_params["tmp_dir"], "benchmark", "conf"),
     )
-    shutil.copyfile(input, os.path.join(execution_params["tmp_dir"], "benchmark/input"))
+    shutil.copyfile(
+        input, os.path.join(execution_params["tmp_dir"], "benchmark", "input")
+    )
 
 
 def getAPIS():
@@ -426,10 +428,10 @@ def update_exec_params(input_param):
         if default_ab_params[k] != input_param[k]:
             execution_params[k] = input_param[k]
     execution_params["result_file"] = os.path.join(
-        execution_params["tmp_dir"], "benchmark/result.txt"
+        execution_params["tmp_dir"], "benchmark", "result.txt"
     )
     execution_params["metric_log"] = os.path.join(
-        execution_params["tmp_dir"], "benchmark/logs/model_metrics.log"
+        execution_params["tmp_dir"], "benchmark", "logs", "model_metrics.log"
     )
 
     getAPIS()
@@ -505,11 +507,16 @@ def generate_csv_output():
     artifacts["TS latency P90"] = extract_entity(data, "90%", -1)
     artifacts["TS latency P99"] = extract_entity(data, "99%", -1)
     artifacts["TS latency mean"] = extract_entity(data, "Time per request:.*mean\)", -3)
-    artifacts["TS error rate"] = (
-        int(artifacts["TS failed requests"]) / execution_params["requests"] * 100
-    )
+    if isinstance(artifacts["TS failed requests"], type(None)):
+        artifacts["TS error rate"] = 0.0
+    else:
+        artifacts["TS error rate"] = (
+            int(artifacts["TS failed requests"]) / execution_params["requests"] * 100
+        )
 
-    with open(os.path.join(execution_params["tmp_dir"], "benchmark/predict.txt")) as f:
+    with open(
+        os.path.join(execution_params["tmp_dir"], "benchmark", "predict.txt")
+    ) as f:
         lines = f.readlines()
         lines.sort(key=float)
         artifacts["Model_p50"] = lines[line50].strip()
@@ -528,7 +535,7 @@ def generate_csv_output():
             artifacts[m.split(".txt")[0] + "_mean"] = df["data"].values.mean().round(2)
 
     with open(
-        os.path.join(execution_params["report_location"], "benchmark/ab_report.csv"),
+        os.path.join(execution_params["report_location"], "benchmark", "ab_report.csv"),
         "w",
     ) as csv_file:
         csvwriter = csv.writer(csv_file)
@@ -549,7 +556,7 @@ def extract_entity(data, pattern, index, delim=" "):
 def generate_latency_graph():
     click.secho("*Preparing graphs...", fg="green")
     df = pd.read_csv(
-        os.path.join(execution_params["tmp_dir"], "benchmark/predict.txt"),
+        os.path.join(execution_params["tmp_dir"], "benchmark", "predict.txt"),
         header=None,
         names=["latency"],
     )
