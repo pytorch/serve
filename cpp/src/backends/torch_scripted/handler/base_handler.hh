@@ -8,6 +8,7 @@
 #include <memory>
 #include <utility>
 
+#include "src/utils/logging.hh"
 #include "src/utils/message.hh"
 #include "src/utils/model_archive.hh"
 
@@ -73,7 +74,7 @@ namespace torchserve {
           auto outputs = Inference(model, inputs, device, idx_to_req_id, response_batch);
           Postprocess(outputs, idx_to_req_id, response_batch);
         } catch (...) {
-          LOG(ERROR) << "Failed to handle this batch";
+          TS_LOG(ERROR, "Failed to handle this batch");
         }
       };
 

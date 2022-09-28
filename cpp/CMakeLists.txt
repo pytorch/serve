@@ -6,11 +6,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -W -Wall -Wextra -fPIC -D_GLIBCXX_USE_CXX11_ABI=1")
 
+# set(CMAKE_BUILD_TYPE Debug)
 find_package(Boost REQUIRED)
 find_package(folly REQUIRED)
 find_package(fmt REQUIRED)
 find_package(gflags REQUIRED)
-find_package(glog REQUIRED)
 find_package(Torch REQUIRED)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
 
@@ -28,3 +28,6 @@ add_subdirectory(src/utils)
 add_subdirectory(src/backends)
 add_subdirectory(src/examples)
 add_subdirectory(test)
+
+FILE(COPY src/resources/logging.config DESTINATION "${CMAKE_INSTALL_PREFIX}/resources")
+

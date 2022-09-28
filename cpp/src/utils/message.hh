@@ -36,6 +36,11 @@ namespace torchserve {
       std::vector<char> vec_char(str.begin(), str.end());
       return vec_char;
     }
+
+    static std::string VectorToStr(const std::vector<char>& vec_char) {
+      std::string str(vec_char.begin(), vec_char.end());
+      return str;
+    }
   };
 
   // TODO: expand to support model instance, large model (ref: ModelConfig in config.hh)
@@ -67,15 +72,23 @@ namespace torchserve {
     ) : model_dir{model_dir}, model_name{model_name}, gpu_id{gpu_id}, 
     handler{handler}, envelope{envelope}, batch_size{batch_size}, 
     limit_max_image_pixels{limit_max_image_pixels} {}
+
+    bool operator==(const LoadModelRequest& other) {
+      return this->model_dir == other.model_dir &&
+             this->model_name == other.model_name &&
+             this->gpu_id == other.gpu_id &&
+             this->handler == other.handler &&
+             this->batch_size == other.batch_size &&
+             this->limit_max_image_pixels == other.limit_max_image_pixels;
+    }
   };
 
   struct LoadModelResponse {
     int code;
-    int length;
     const std::string buf;
 
-    LoadModelResponse(int code, int length, const std::string buf) : 
-    code(code), length(length), buf(buf) {};
+    LoadModelResponse(int code, const std::string buf) :
+    code(code), buf(buf) {};
   };
 
   struct InferenceRequest {
@@ -94,6 +107,12 @@ namespace torchserve {
     Parameters parameters;
 
     InferenceRequest() {};
+
+    InferenceRequest(
+      const std::string request_id,
+      const Headers headers,
+      const Parameters parameters
+    ) : request_id(request_id), headers(headers), parameters(parameters) {};
   };
   // Ref: Ref: https://github.com/pytorch/serve/blob/master/ts/service.py#L36
   using InferenceRequestBatch = std::vector<InferenceRequest>;
