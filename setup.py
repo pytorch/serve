@@ -23,7 +23,7 @@ import platform
 import subprocess
 import sys
 from datetime import date
-from shutil import copy2, rmtree
+from shutil import copy2, copytree, rmtree
 
 import setuptools.command.build_py
 from setuptools import setup, find_packages, Command
@@ -41,6 +41,10 @@ build_plugins_command = {
     'Windows': '.\\plugins\\gradlew.bat -p plugins clean bS',
     'Darwin': 'plugins/gradlew -p plugins clean bS',
     'Linux': 'plugins/gradlew -p plugins clean bS'
+}
+build_cpp_command = {
+    "Darwin": "cpp/build.sh",
+    "Linux": "cpp/build.sh"
 }
 
 
@@ -139,6 +143,37 @@ class BuildPlugins(Command):
             assert 0, "build failed"
 
         self.run_command('build_py')
+
+
+class BuildCPP(setuptools.command.build_py.build_py):
+    """
+    Class defined to run cpp build.
+    """
+    description = 'Build Model Server CPP'
+    source_bin_dir = os.path.abspath(
+        'cpp/_build/bin')
+    dest_bin_dir = os.path.abspath('ts/cpp/bin')
+    source_lib_dir = os.path.abspath(
+        'cpp/_build/libs')
+    dest_lib_dir = os.path.abspath('ts/cpp/lib')
+
+    # noinspection PyMethodMayBeStatic
+    def run(self):
+        """
+        Actual method called to run the build command
+        :return:
+        """
+        cpp_dir = os.path.abspath('.') + '/ts/cpp/'
+        if os.path.isdir(cpp_dir):
+            rmtree(cpp_dir)
+
+        try:
+            subprocess.check_call(build_cpp_command[platform.system()],
+                                  shell=True)
+        except OSError:
+            assert 0, "build failed"
+        copytree(self.source_bin_dir, self.dest_bin_dir)
+        copytree(self.source_lib_dir, self.dest_lib_dir)
 
 
 if __name__ == '__main__':

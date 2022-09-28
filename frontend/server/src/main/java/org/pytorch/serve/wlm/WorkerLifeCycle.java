@@ -21,6 +21,7 @@ public class WorkerLifeCycle {
     private static final Logger logger = LoggerFactory.getLogger(WorkerLifeCycle.class);
 
     private ConfigManager configManager;
+    private ModelManager modelManager = ModelManager.getInstance();
     private Model model;
     private int pid = -1;
     private Process process;
@@ -30,10 +31,14 @@ public class WorkerLifeCycle {
     private ReaderThread errReader;
     private ReaderThread outReader;
     private String launcherArgs;
+    private int numWorker;
+    private int currNumRunningWorkers;
 
     public WorkerLifeCycle(ConfigManager configManager, Model model) {
         this.configManager = configManager;
         this.model = model;
+        this.numWorker = model.getMinWorkers();
+        this.currNumRunningWorkers = modelManager.getNumRunningWorkers(model.getModelVersionName());
     }
 
     public Process getProcess() {
@@ -44,8 +49,6 @@ public class WorkerLifeCycle {
         ArrayList<String> arrlist = new ArrayList<String>();
         arrlist.add("-m");
         arrlist.add("intel_extension_for_pytorch.cpu.launch");
-        arrlist.add("--ninstance");
-        arrlist.add("1");
         if (launcherArgs != null && launcherArgs.length() > 1) {
             String[] argarray = launcherArgs.split(" ");
             for (int i = 0; i < argarray.length; i++) {
@@ -81,6 +84,23 @@ public class WorkerLifeCycle {
     }
 
     public void startWorker(int port) throws WorkerInitializationException, InterruptedException {
+        switch (model.getRuntimeType()) {
+            case LSP:
+                logger.info("LSP startWorker");
+                startWorkerCPP(port, "LSP");
+                break;
+            case LDP:
+                logger.info("LDP startWorker");
+                startWorkerCPP(port, "LDP");
+                break;
+            default:
+                startWorkerPython(port);
+                break;
+        }
+    }
+
+    private void startWorkerPython(int port)
+            throws WorkerInitializationException, InterruptedException {
         File workingDir = new File(configManager.getModelServerHome());
         File modelPath;
         setPort(port);
@@ -99,6 +119,16 @@ public class WorkerLifeCycle {
             if (launcherAvailable) {
                 ArrayList<String> args = launcherArgsToList();
                 argl.addAll(args);
+
+                // multi-worker core pinning
+                if (this.numWorker > 1) {
+                    argl.add("--ninstances");
+                    argl.add(String.valueOf(this.numWorker));
+                    argl.add("--instance_idx");
+                    // instance_idx is 0-indexed
+                    argl.add(String.valueOf(this.currNumRunningWorkers));
+                }
+
             } else {
                 logger.warn(
                         "CPU launcher is enabled but launcher is not available. Proceeding without launcher.");
@@ -116,6 +146,74 @@ public class WorkerLifeCycle {
                         workingDir.getAbsolutePath(),
                         modelPath.getAbsolutePath(),
                         model.getModelArchive().getManifest().getModel().getHandler());
+
+        try {
+            latch = new CountDownLatch(1);
+
+            String[] args = argl.toArray(new String[argl.size()]);
+            logger.debug("Worker cmdline: {}", argl.toString());
+
+            synchronized (this) {
+                process = Runtime.getRuntime().exec(args, envp, modelPath);
+
+                String threadName =
+                        "W-" + port + '-' + model.getModelVersionName().getVersionedModelName();
+                errReader = new ReaderThread(threadName, process.getErrorStream(), true, this);
+                outReader = new ReaderThread(threadName, process.getInputStream(), false, this);
+                errReader.start();
+                outReader.start();
+            }
+
+            if (latch.await(2, TimeUnit.MINUTES)) {
+                if (!success) {
+                    throw new WorkerInitializationException("Backend stream closed.");
+                }
+                return;
+            }
+            throw new WorkerInitializationException("Backend worker startup time out.");
+        } catch (IOException e) {
+            throw new WorkerInitializationException("Failed start worker process", e);
+        } finally {
+            if (!success) {
+                exit();
+            }
+        }
+    }
+
+    private void startWorkerCPP(int port, String runtimeType)
+            throws WorkerInitializationException, InterruptedException {
+        File workingDir = new File(configManager.getModelServerHome());
+        File modelPath;
+        setPort(port);
+        try {
+            modelPath = model.getModelDir().getCanonicalFile();
+        } catch (IOException e) {
+            throw new WorkerInitializationException("Failed get TS home directory", e);
+        }
+
+        ArrayList<String> argl = new ArrayList<String>();
+
+        File cppBackendBin = new File(workingDir, "cpp/_build/bin/model_worker_socket");
+        File cppBackendLib = new File(workingDir, "cpp/_build/libs");
+        if (!cppBackendBin.exists()) {
+            cppBackendBin = new File(workingDir, "cpp/bin/model_worker_socket");
+            cppBackendLib = new File(workingDir, "cpp/lib");
+            if (!cppBackendBin.exists()) {
+                throw new WorkerInitializationException("model_worker_socket not found");
+            }
+        }
+
+        argl.add(cppBackendBin.getAbsolutePath());
+        argl.add("--sock_type");
+        argl.add(connector.getSocketType());
+        argl.add(connector.isUds() ? "--sock_name" : "--port");
+        argl.add(connector.getSocketPath());
+        argl.add("--runtime_type");
+        argl.add(runtimeType);
+        argl.add("--model_dir");
+        argl.add(modelPath.getAbsolutePath());
+
+        String[] envp = EnvironmentUtils.getCppEnvString(cppBackendLib.getAbsolutePath());
 
         try {
             latch = new CountDownLatch(1);

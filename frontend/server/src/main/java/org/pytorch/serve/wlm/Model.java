@@ -11,6 +11,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 import org.apache.commons.io.FilenameUtils;
+import org.pytorch.serve.archive.model.Manifest;
 import org.pytorch.serve.archive.model.ModelArchive;
 import org.pytorch.serve.job.Job;
 import org.pytorch.serve.util.ConfigManager;
@@ -29,6 +30,7 @@ public class Model {
     public static final String RESPONSE_TIMEOUT = "responseTimeout";
     public static final String DEFAULT_VERSION = "defaultVersion";
     public static final String MAR_NAME = "marName";
+    public static final String RUNTIME_TYPE = "runtimeType";
 
     private static final Logger logger = LoggerFactory.getLogger(Model.class);
 
@@ -40,8 +42,8 @@ public class Model {
     private ReentrantLock lock;
     private int responseTimeout;
     private ModelVersionName modelVersionName;
-
     private boolean isWorkflowModel;
+    private Manifest.RuntimeType runtimeType;
 
     // Total number of subsequent inference request failures
     private AtomicInteger failedInfReqs;
@@ -61,6 +63,7 @@ public class Model {
         modelVersionName =
                 new ModelVersionName(
                         this.modelArchive.getModelName(), this.modelArchive.getModelVersion());
+        runtimeType = modelArchive.getManifest().getRuntime();
     }
 
     public JsonObject getModelState(boolean isDefaultVersion) {
@@ -73,6 +76,7 @@ public class Model {
         modelInfo.addProperty(BATCH_SIZE, getBatchSize());
         modelInfo.addProperty(MAX_BATCH_DELAY, getMaxBatchDelay());
         modelInfo.addProperty(RESPONSE_TIMEOUT, getResponseTimeout());
+        modelInfo.addProperty(RUNTIME_TYPE, getRuntimeType().getValue());
 
         return modelInfo;
     }
@@ -83,6 +87,7 @@ public class Model {
         maxBatchDelay = modelInfo.get(MAX_BATCH_DELAY).getAsInt();
         responseTimeout = modelInfo.get(RESPONSE_TIMEOUT).getAsInt();
         batchSize = modelInfo.get(BATCH_SIZE).getAsInt();
+        runtimeType = Manifest.RuntimeType.fromValue(modelInfo.get(RUNTIME_TYPE).getAsString());
     }
 
     public String getModelName() {
@@ -147,6 +152,14 @@ public class Model {
 
     public void setWorkflowModel(boolean workflowModel) {
         isWorkflowModel = workflowModel;
+    }
+
+    public Manifest.RuntimeType getRuntimeType() {
+        return this.runtimeType;
+    }
+
+    public void setRuntimeType(Manifest.RuntimeType runtimeType) {
+        this.runtimeType = runtimeType;
     }
 
     public void addJob(String threadId, Job job) {

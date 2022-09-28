@@ -4,6 +4,7 @@
 * [Serving torchvision image classification models](#serving-image-classification-models)
 * [Serving custom model with custom service handler](#serving-custom-model-with-custom-service-handler)
 * [Serving text classification model](#serving-text-classification-model)
+* [Serving text classification model with scriptable tokenizer](#serving-text-classification-model-with-scriptable-tokenzier)
 * [Serving object detection model](#serving-object-detection-model)
 * [Serving image segmentation model](#serving-image-segmentation-model)
 * [Serving huggingface transformers model](#serving-huggingface-transformers)
@@ -13,6 +14,7 @@
 * [Serving multi modal framework model](#Serving-Multi-modal-model)
 * [Serving Image Classification Workflow](#serving-image-classification-workflow)
 * [Serving Neural Machine Translation Workflow](#serving-neural-machine-translation-workflow)
+* [Serving Torchrec DLRM (Recommender Model)](#serving-torchrec-dlrm)
 
 # TorchServe Examples
 
@@ -48,7 +50,7 @@ Following are the steps to create a torch-model-archive (.mar) to execute an eag
 
     ```bash
     torch-model-archiver --model-name <model_name> --version <model_version_number> --serialized-file <path_to_executable_script_module> --extra-files <path_to_index_to_name_json_file> --handler <path_to_custom_handler_or_default_handler_name>
-    ```  
+    ```
 
 ## Serving image classification models
 The following example demonstrates how to create image classifier model archive, serve it on TorchServe and run image prediction using TorchServe's default image_classifier handler :
@@ -66,6 +68,11 @@ The following example demonstrates how to create and serve a custom NN model wit
 The following example demonstrates how to create and serve a custom text_classification NN model with default text_classifer handler provided by TorchServe :
 
 * [Text classification example](text_classification)
+
+## Serving text classification model with scriptable tokenzier
+
+This example shows how to combine a text classification model with a scriptable tokenizer into a single, scripted artifact to serve with TorchServe. A scriptable tokenizer is a tokenizer compatible with TorchScript.
+* [Scriptable Tokenizer example with scriptable tokenizer](text_classification_with_scriptable_tokenizer)
 
 ## Serving object detection model
 
@@ -121,3 +128,8 @@ The following example demonstrates how to create and serve a complex image class
 The following example demonstrates how to create and serve a complex neural machine translation workflow
 
 * [Neural machine Translation workflow](Workflows/nmt_transformers_pipeline)
+
+## Serving Torchrec DLRM (Recommender Model)
+This example shows how to deploy a Deep Learning Recommendation Model (DLRM) with [TorchRec](https://github.com/pytorch/torchrec)
+
+* [Torchrec DLRM](torchrec_dlrm)

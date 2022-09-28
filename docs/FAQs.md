@@ -15,8 +15,8 @@ Torchserve API's are compliant with the [OpenAPI specification 3.0](https://swag
 
 ### How to use Torchserve in production?
 Depending on your use case, you will be able to deploy torchserve in production using following mechanisms.
-> Standalone deployment. Refer [TorchServe docker documentation](../docker/README.md) or [TorchServe documentation](../docs/README.md)
-> Cloud based deployment. Refer [TorchServe kubernetes documentation](../kubernetes/README.md) or [TorchServe cloudformation documentation](../cloudformation/README.md)
+> Standalone deployment. Refer [TorchServe docker documentation](https://github.com/pytorch/serve/tree/master/docker#readme) or [TorchServe documentation](https://github.com/pytorch/serve/tree/master/docs#readme)
+> Cloud based deployment. Refer [TorchServe kubernetes documentation](https://github.com/pytorch/serve/tree/master/kubernetes#readme) or [TorchServe cloudformation documentation](../cloudformation/README.md)
 
 
 ### What's difference between Torchserve and a python web app using web frameworks like Flask, Django?
@@ -32,6 +32,11 @@ No, As of now only python based models are supported.
 
 ### What benefits does Torchserve have over AWS Multi-Model-Server?
 Torchserve is derived from Multi-Model-Server. However, Torchserve is specifically tuned for Pytorch models. It also has new features like Snapshot and model versioning.
+
+### How to decode international language in inference response on client side?
+By default, Torchserve uses utf-8 to encode if the inference response is string. So client can use utf-8 to decode. 
+
+If a model converts international language string to bytes, client needs to use the codec mechanism specified by the model such as in https://github.com/pytorch/serve/blob/master/examples/nmt_transformer/model_handler_generalized.py#L55
 
 ## Deployment and config
 Relevant documents.

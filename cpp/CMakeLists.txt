@@ -4,7 +4,7 @@ project(torchserve_cpp VERSION 0.1)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_CXX_EXTENSIONS OFF)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -W -Wall -Wextra")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -W -Wall -Wextra -fPIC -D_GLIBCXX_USE_CXX11_ABI=1")
 
 # set(CMAKE_BUILD_TYPE Debug)
 find_package(Boost REQUIRED)
@@ -30,3 +30,4 @@ add_subdirectory(src/examples)
 add_subdirectory(test)
 
 FILE(COPY src/resources/logging.config DESTINATION "${CMAKE_INSTALL_PREFIX}/resources")
+

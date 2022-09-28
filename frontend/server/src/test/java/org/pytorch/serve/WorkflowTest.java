@@ -27,6 +27,7 @@ import org.pytorch.serve.util.JsonUtils;
 import org.pytorch.serve.workflow.messages.DescribeWorkflowResponse;
 import org.pytorch.serve.workflow.messages.ListWorkflowResponse;
 import org.testng.Assert;
+import org.testng.SkipException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -102,7 +103,10 @@ public class WorkflowTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testDescribeWorkflow"})
-    public void testWorkflowPrediction() throws InterruptedException {
+    public void testWorkflowPrediction() throws InterruptedException, SkipException {
+        if (System.getProperty("os.name").startsWith("Win")) {
+            throw new SkipException("Test skipped on Windows");
+        }
         Channel channel = TestUtils.getInferenceChannel(configManager);
         TestUtils.setResult(null);
         TestUtils.setLatch(new CountDownLatch(1));
@@ -233,7 +237,10 @@ public class WorkflowTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testRegisterWorkflowConflict"})
-    public void testRegisterWorkflowMalformedUrl() throws InterruptedException {
+    public void testRegisterWorkflowMalformedUrl() throws InterruptedException, SkipException {
+        if (System.getProperty("os.name").startsWith("Win")) {
+            throw new SkipException("Test skipped on Windows");
+        }
         Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
 
@@ -255,7 +262,10 @@ public class WorkflowTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testRegisterWorkflowMalformedUrl"})
-    public void testRegisterWorkflowConnectionFailed() throws InterruptedException {
+    public void testRegisterWorkflowConnectionFailed() throws InterruptedException, SkipException {
+        if (System.getProperty("os.name").startsWith("Win")) {
+            throw new SkipException("Test skipped on Windows");
+        }
         Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
 
@@ -462,7 +472,10 @@ public class WorkflowTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testPredictionMemoryError"})
-    public void testLoadingMemoryError() throws InterruptedException {
+    public void testLoadingMemoryError() throws InterruptedException, SkipException {
+        if (System.getProperty("os.name").startsWith("Win")) {
+            throw new SkipException("Test skipped on Windows");
+        }
         Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
         TestUtils.setResult(null);

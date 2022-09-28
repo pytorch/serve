@@ -121,7 +121,11 @@ public class WorkflowManifest {
         @SerializedName("python2")
         PYTHON2("python2"),
         @SerializedName("python3")
-        PYTHON3("python3");
+        PYTHON3("python3"),
+        @SerializedName("LSP")
+        LSP("LSP"),
+        @SerializedName("LDP")
+        LDP("LDP");
 
         String value;
 

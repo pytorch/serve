@@ -11,6 +11,8 @@ dist/
 .github/.DS_Store
 .DS_Store
 frontend/server/src/main/java/org/pytorch/serve/grpc/
+serving-sdk/target
+plugins/.gradle
 *.pem
 *.backup
 docs/sphinx/src/
@@ -30,7 +32,7 @@ test/config.properties
 instances.yaml
 instances.yaml.backup
 
-## Models 
+## Models
 *.pt
 
 # cpp
