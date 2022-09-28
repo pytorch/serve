@@ -9,9 +9,9 @@ from ts.torch_handler.image_classifier import ImageClassifier
 from ts.utils.util import map_class_to_label
 
 
-class ModelHandler(ImageClassifier):
+class StreamingVideoHandler(ImageClassifier):
     def __init__(self):
-        super(ModelHandler, self).__init__()
+        super(StreamingVideoHandler, self).__init__()
 
     def preprocess(self, data):
 
@@ -42,6 +42,8 @@ class ModelHandler(ImageClassifier):
         probs, classes = torch.topk(ps, self.topk, dim=1)
         probs = probs.tolist()
         classes = classes.tolist()
+
+        # Return a list of 1 element of the batch output
         result = []
         output = map_class_to_label(probs, self.mapping, classes)
         result.append(output)
