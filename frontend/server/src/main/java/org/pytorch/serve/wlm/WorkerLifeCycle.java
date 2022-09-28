@@ -212,6 +212,10 @@ public class WorkerLifeCycle {
         argl.add(runtimeType);
         argl.add("--model_dir");
         argl.add(modelPath.getAbsolutePath());
+        if (ConfigManager.getInstance().getTsCppLogConfig() != null) {
+            argl.add("--logger_config_path");
+            argl.add(ConfigManager.getInstance().getTsCppLogConfig());
+        }
 
         String[] envp = EnvironmentUtils.getCppEnvString(cppBackendLib.getAbsolutePath());
 

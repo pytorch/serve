@@ -440,7 +440,7 @@ public final class ConfigManager {
     }
 
     public String getTsCppLogConfig() {
-        return prop.getProperty(TS_CPP_LOG_CONFIG);
+        return prop.getProperty(TS_CPP_LOG_CONFIG, null);
     }
 
     public String getModelSnapshot() {
