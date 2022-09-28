@@ -11,6 +11,7 @@ list(APPEND TS_BACKENDS_PROTOCOL_SOURCE_FILES ${TS_BACKENDS_PROTOCOL_SRC_DIR}/ot
 add_library(ts_backends_protocol SHARED ${TS_BACKENDS_PROTOCOL_SOURCE_FILES})
 target_include_directories(ts_backends_protocol PUBLIC ${TS_BACKENDS_PROTOCOL_SRC_DIR})
 target_link_libraries(ts_backends_protocol PRIVATE ts_utils ${FOLLY_LIBRARIES})
+install(TARGETS ts_backends_protocol DESTINATION ${torchserve_cpp_SOURCE_DIR}/_build/libs)
 
 # build library ts_backend_core
 set(TS_BACKENDS_CORE_SOURCE_FILES "")
@@ -18,6 +19,7 @@ list(APPEND TS_BACKENDS_CORE_SOURCE_FILES ${TS_BACKENDS_CORE_SRC_DIR}/backend.cc
 add_library(ts_backends_core SHARED ${TS_BACKENDS_CORE_SOURCE_FILES})
 target_include_directories(ts_backends_core PUBLIC ${TS_BACKENDS_CORE_SRC_DIR})
 target_link_libraries(ts_backends_core PRIVATE ts_utils ts_backends_protocol ${FOLLY_LIBRARIES})
+install(TARGETS ts_backends_core DESTINATION ${torchserve_cpp_SOURCE_DIR}/_build/libs)
 
 # build library ts_backend_torch_scripted
 set(TS_BACKENDS_TORCH_SCRIPTED_SOURCE_FILES "")
@@ -27,7 +29,7 @@ add_library(ts_backends_torch_scripted SHARED ${TS_BACKENDS_TORCH_SCRIPTED_SOURC
 target_include_directories(ts_backends_torch_scripted PUBLIC 
   ${TS_BACKENDS_TORCH_SCRIPTED_SRC_DIR} ${TS_BACKENDS_TORCH_SCRIPTED_SRC_DIR}/handler ${TORCH_INCLUDE_DIRS})
 target_link_libraries(ts_backends_torch_scripted PUBLIC ts_utils ts_backends_core ${TORCH_LIBRARIES}) 
-#install(TARGETS ts_backends_torch_scripted DEFINITIONS ${torchserve_cpp_SOURCE_DIR}/_build/lib)
+install(TARGETS ts_backends_torch_scripted DESTINATION ${torchserve_cpp_SOURCE_DIR}/_build/libs)
 
 # build library ts_backend_torch_deploy
 #set(TS_BACKENDS_TORCH_DEPLOY_SOURCE_FILES "")
