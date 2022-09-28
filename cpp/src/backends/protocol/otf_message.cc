@@ -62,7 +62,7 @@ namespace torchserve {
   }
 
   std::shared_ptr<torchserve::InferenceRequestBatch> OTFMessage::RetrieveInferenceMsg(const ISocket& client_socket_) {
-    std::shared_ptr<torchserve::InferenceRequestBatch> inference_requests(new InferenceRequestBatch);
+    auto inference_requests = std::make_shared<InferenceRequestBatch>(InferenceRequestBatch{});
 
     while (true)
     {
@@ -81,6 +81,7 @@ namespace torchserve {
     // fetch request id
     int length = client_socket_.RetrieveInt();
     if (length == -1) {
+      TS_LOG(ERROR, "Invalid request_id received. Aborting inference request");
       return nullptr;
     }
 
