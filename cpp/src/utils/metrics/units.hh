@@ -7,7 +7,7 @@
 namespace torchserve {
     class Units {
         public:
-        static std::string GetUnitMapping(const std::string& unit);
+        static const std::string GetUnitMapping(const std::string& unit);
 
         private:
         static const std::unordered_map<std::string, std::string> unit_mapping;

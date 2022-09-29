@@ -7,7 +7,8 @@ namespace torchserve {
     class Dimension {
         public:
         Dimension(const std::string& name, const std::string& value);
-        std::string ToString() const;
+        const std::string GetName() const;
+        const std::string GetValue() const;
 
         private:
         const std::string name;

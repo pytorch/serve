@@ -1,4 +1,4 @@
-#include "src/backends/metrics/units.hh"
+#include "src/utils/metrics/units.hh"
 
 namespace torchserve {
     const std::unordered_map<std::string, std::string> Units::unit_mapping {
@@ -13,7 +13,7 @@ namespace torchserve {
         { "", "unit" }
     };
 
-    std::string Units::GetUnitMapping(const std::string& unit) {
+    const std::string Units::GetUnitMapping(const std::string& unit) {
         auto mapping = Units::unit_mapping.find(unit);
         return mapping == Units::unit_mapping.end() ? unit : mapping->second;
     }

@@ -1,7 +1,7 @@
 #include <string>
 #include <gtest/gtest.h>
 
-#include "src/backends/metrics/units.hh"
+#include "src/utils/metrics/units.hh"
 
 namespace torchserve {
     TEST(UnitsTest, TestGetExistingUnitMapping) {
