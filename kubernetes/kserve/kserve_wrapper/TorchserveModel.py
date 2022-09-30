@@ -145,7 +145,7 @@ class TorchserveModel(Model):
             )
 
         num_try = 0
-        customized_value = os.environ.get('IS_CUSTOMIZED', 'false')
+        model_load_customized = os.environ.get('MODEL_LOAD_CUSTOMIZED', 'false')
         model_load_max_try = int(os.environ.get('MODEL_LOAD_MAX_TRY', 10))
         model_load_delay = int(os.environ.get('MODEL_LOAD_DELAY', 30))
         model_load_timeout = int(os.environ.get('MODEL_LOAD_TIMEOUT', 5))
@@ -155,7 +155,7 @@ class TorchserveModel(Model):
 
             try:
                 response = requests.get(
-                    READINESS_URL_FORMAT.format(self.management_address, self.name, customized_value),
+                    READINESS_URL_FORMAT.format(self.management_address, self.name, model_load_customized),
                     timeout=model_load_timeout
                 ).json()
 
@@ -168,7 +168,7 @@ class TorchserveModel(Model):
                 if len(workers_status) > 0:
                     worker_ready = True
 
-                self.ready = worker_ready if customized_value == 'false' \
+                self.ready = worker_ready if model_load_customized == 'false' \
                     else worker_ready and 'customizedMetadata' in default_verison
 
             except (requests.ConnectionError, 
