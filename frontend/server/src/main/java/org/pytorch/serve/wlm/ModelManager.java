@@ -99,7 +99,7 @@ public final class ModelManager {
             modelManager.setDefaultVersion(modelName, versionId);
         }
 
-        logger.info("Model {} loaded.", tempModel.getModelName());
+        logger.info("Model {} loaded, updating next", tempModel.getModelName());
 
         updateModel(modelName, versionId, true);
     }
@@ -149,7 +149,7 @@ public final class ModelManager {
 
         setupModelDependencies(tempModel);
 
-        logger.info("Model {} loaded.", tempModel.getModelName());
+        logger.info("Model {} loaded. runtime: {}", tempModel.getModelName(), runtime);
 
         return archive;
     }
@@ -162,7 +162,7 @@ public final class ModelManager {
             String defaultModelName,
             boolean s3SseKms)
             throws ModelException, IOException, DownloadArchiveException {
-
+        logger.info("downloading model");
         ModelArchive archive =
                 ModelArchive.downloadModel(
                         configManager.getAllowedUrls(),

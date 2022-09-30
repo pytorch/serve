@@ -94,6 +94,7 @@ public class WorkerLifeCycle {
                 startWorkerCPP(port, "LDP");
                 break;
             default:
+                logger.info("starting python worker, runtime: {}", model.getRuntimeType());
                 startWorkerPython(port);
                 break;
         }
