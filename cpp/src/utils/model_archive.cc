@@ -10,7 +10,7 @@ namespace torchserve {
       auto val = folly::parseJson(str);
       auto model = val[torchserve::Manifest::kModel];
       if (model == NULL) {
-        LOG(ERROR) << "Item: model is not defined in " << manifest_json_file_path;
+        TS_LOGF(ERROR, "Item: model is not defined in {}", manifest_json_file_path);
       }
 
       SetValue(model, torchserve::Manifest::kModel_Handler, model_.handler, true);
@@ -19,9 +19,10 @@ namespace torchserve {
         model_.serialized_file, false) && 
         !SetValue(model, torchserve::Manifest::kModel_ModelFile, 
         model_.model_file, false)) {
-          LOG(ERROR) << "Item: " << torchserve::Manifest::kModel_SerializedFile 
-          << " and item : " << torchserve::Manifest::kModel_ModelFile 
-          << " not defined in " << manifest_json_file_path;
+          TS_LOGF(ERROR, "Item: {} and item : {} not defined in {}",
+                  torchserve::Manifest::kModel_SerializedFile,
+                  torchserve::Manifest::kModel_ModelFile,
+                  manifest_json_file_path);
       }
 
       SetValue(model, torchserve::Manifest::kModel_ModelName, model_.model_name, false);
@@ -38,10 +39,10 @@ namespace torchserve {
       SetValue(val, torchserve::Manifest::kArchiverVersion, archiver_version_, false);
       SetValue(val, torchserve::Manifest::kRuntimeType, runtime_type_, false);
     } catch (const std::invalid_argument& e) {
-      LOG(ERROR) << "Failed to init Manifest from: " << manifest_json_file_path << ", error: " << e.what();
+      TS_LOGF(ERROR, "Failed to init Manifest from: {}, error: ", manifest_json_file_path, e.what());
       return false;
     } catch (...) {
-      LOG(ERROR) << "Failed to init Manifest from: " << manifest_json_file_path;
+      TS_LOGF(ERROR, "Failed to init Manifest from: {}", manifest_json_file_path);
     }
     return true;
   }
@@ -55,7 +56,7 @@ namespace torchserve {
       dest = source[key].asString();
     } catch (const std::out_of_range& e) {
       if (required) {
-        LOG(ERROR) << "Item: " << key << " not defined.";
+        TS_LOGF(ERROR, "Item: {} not defined.", key);
       } else {
         return false;
       }

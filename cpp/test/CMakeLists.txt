@@ -13,7 +13,7 @@ set(TS_TEST_SRC_DIR "${torchserve_cpp_SOURCE_DIR}/test/")
 file(GLOB_RECURSE TEST_SOURCES LIST_DIRECTORIES false *.cc *.hh)
 
 add_executable(${TEST_BINARY} ${TEST_SOURCES})
-target_link_libraries(${TEST_BINARY} gtest_main ts_backends_torch_scripted ts_utils)
+target_link_libraries(${TEST_BINARY} gtest_main gmock_main ts_backends_torch_scripted ts_backends_protocol ts_utils)
 
 include(GoogleTest)
 gtest_discover_tests(${TEST_BINARY})

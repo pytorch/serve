@@ -1,0 +1,152 @@
+#include <gtest/gtest.h>
+
+#include "src/backends/process/model_worker.hh"
+#include "src/backends/torch_scripted/torch_scripted_backend.hh"
+#include "protocol/mock_socket.hh"
+
+namespace torchserve
+{
+ TEST(BackendIntegTest, TestOTFProtocolAndHandler) {
+    auto client_socket = std::make_shared<MockSocket>();
+    // mock socket for load cmd
+    EXPECT_CALL(*client_socket, RetrieveBuffer(testing::_, testing::_))
+                .Times(1)
+                .WillOnce(testing::Invoke([=](size_t length, char* data) {
+                  ASSERT_EQ(length, 1);
+                  strcpy(data, "L");
+                }));
+    auto cmd = OTFMessage::RetrieveCmd(*client_socket);
+    ASSERT_EQ(cmd, 'L');
+
+    // mock socket for load model request
+    EXPECT_CALL(*client_socket, RetrieveInt())
+                .Times(6)
+                // model_name length
+                .WillOnce(::testing::Return(5))
+                // model_path length
+                .WillOnce(::testing::Return(51))
+                // batch_size
+                .WillOnce(::testing::Return(1))
+                // handler length
+                .WillOnce(::testing::Return(11))
+                // gpu_id
+                .WillOnce(::testing::Return(-1))
+                // envelope length
+                .WillOnce(::testing::Return(0));
+    EXPECT_CALL(*client_socket, RetrieveBool())
+                .Times(1)
+                .WillOnce(::testing::Return(true));
+    EXPECT_CALL(*client_socket, RetrieveBuffer(testing::_, testing::_))
+                .Times(4)
+                // model_name
+                .WillOnce(testing::Invoke([=](size_t length, char* data) {
+                  ASSERT_EQ(length, 5);
+                  strcpy(data, "mnist");
+                }))
+                .WillOnce(testing::Invoke([=](size_t length, char* data) {
+                  ASSERT_EQ(length, 51);
+                  strcpy(data, "test/resources/torchscript_model/mnist/base_handler");
+                }))
+                .WillOnce(testing::Invoke([=](size_t length, char* data) {
+                  ASSERT_EQ(length, 11);
+                  strcpy(data, "BaseHandler");
+                }))
+                .WillOnce(testing::Invoke([=](size_t length, char* data) {
+                  ASSERT_EQ(length, 0);
+                  strcpy(data, "");
+                }));
+
+    EXPECT_CALL(*client_socket, SendAll(testing::_, testing::_))
+                .Times(1);
+    auto load_model_request = OTFMessage::RetrieveLoadMsg(*client_socket);
+    ASSERT_EQ(load_model_request->model_dir, "test/resources/torchscript_model/mnist/base_handler");
+    ASSERT_EQ(load_model_request->model_name, "mnist");
+    ASSERT_EQ(load_model_request->envelope, "");
+    ASSERT_EQ(load_model_request->model_name, "mnist");
+    ASSERT_EQ(load_model_request->batch_size, 1);
+    ASSERT_EQ(load_model_request->gpu_id, -1);
+
+    // initialize backend
+    auto backend = std::make_shared<torchserve::torchscripted::Backend>();
+    backend->Initialize("test/resources/torchscript_model/mnist/base_handler");
+
+    //load the model
+    auto load_model_response = backend->LoadModel(load_model_request);
+    ASSERT_EQ(load_model_response->code, 200);
+    
+    // send load model response to socket
+    torchserve::OTFMessage::SendLoadModelResponse(*client_socket, std::move(load_model_response));
+
+    // mock socket for inference cmd
+    EXPECT_CALL(*client_socket, RetrieveBuffer(testing::_, testing::_))
+                .Times(1)
+                .WillOnce(testing::Invoke([=](size_t length, char* data) {
+                  ASSERT_EQ(length, 1);
+                  strcpy(data, "I");
+                }));
+    cmd = OTFMessage::RetrieveCmd(*client_socket);
+    ASSERT_EQ(cmd, 'I');
+
+    // mock socket for inference request
+    EXPECT_CALL(*client_socket, RetrieveInt())
+                .Times(7)
+                // request_id length
+                .WillOnce(::testing::Return(4))
+                // end of headers
+                .WillOnce(::testing::Return(-1))
+                // parameter_name length
+                .WillOnce(::testing::Return(4))
+                // content_type length
+                .WillOnce(::testing::Return(4))
+                // value length
+                .WillOnce(::testing::Return(3883))
+                // end of parameters
+                .WillOnce(::testing::Return(-1))
+                // end of request
+                .WillOnce(::testing::Return(-1));
+
+    EXPECT_CALL(*client_socket, RetrieveBuffer(testing::_, testing::_))
+                .Times(4)
+                .WillOnce(testing::Invoke([=](size_t length, char* data) {
+                    ASSERT_EQ(length, 4);
+                    strcpy(data, "reqi");
+                }))
+                .WillOnce(testing::Invoke([=](size_t length, char* data) {
+                    ASSERT_EQ(length, 4);
+                    strcpy(data, "data");
+                }))
+                .WillOnce(testing::Invoke([=](size_t length, char* data) {
+                    ASSERT_EQ(length, 4);
+                    strcpy(data, "cont");
+                }))
+                .WillOnce(testing::Invoke([=](size_t length, char* data) {
+                    ASSERT_EQ(length, 3883);
+                    // strcpy(data, "valu");
+                    std::ifstream input("test/resources/torchscript_model/mnist/0_png.pt", std::ios::in | std::ios::binary);
+                    std::vector<char> image(
+                        (std::istreambuf_iterator<char>(input)),
+                        (std::istreambuf_iterator<char>()));
+                    memcpy(data, image.data(), 3883);
+                    input.close();
+                }));
+
+    EXPECT_CALL(*client_socket, SendAll(testing::_, testing::_))
+                .Times(1);
+    auto batch_inference_request = OTFMessage::RetrieveInferenceMsg(*client_socket);
+    auto inference_request = batch_inference_request->at(0);
+    ASSERT_EQ(batch_inference_request->size(), 1);
+    ASSERT_EQ(inference_request.headers.size(), 2);
+    ASSERT_EQ(inference_request.parameters.size(), 1);
+    ASSERT_EQ(inference_request.request_id, "reqi");
+    ASSERT_EQ(inference_request.headers["data_dtype"], "bytes");
+    ASSERT_EQ(inference_request.headers["data:contentType"], "cont");
+    ASSERT_EQ(inference_request.parameters["data"].size(), 3883);
+    
+    // call handler to run inference
+    auto inference_response_batch = backend->GetModelInstance()->Predict(batch_inference_request);
+    ASSERT_EQ(inference_response_batch->size(), 1);
+    ASSERT_EQ((*inference_response_batch)["reqi"]->code   , 200);
+    // send inference response to socket
+    torchserve::OTFMessage::SendInferenceResponse(*client_socket, inference_response_batch);
+ }   
+} // namespace torchserve

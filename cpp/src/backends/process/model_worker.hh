@@ -3,8 +3,7 @@
 
 #include <arpa/inet.h>
 #include <cstdio>
-#include <filesystem>
-#include <glog/logging.h>
+#include <experimental/filesystem>
 #include <netinet/in.h>
 #include <string>
 #include <sys/socket.h>
@@ -17,6 +16,7 @@
 #include "src/backends/protocol/otf_message.hh"
 #include "src/backends/torch_scripted/torch_scripted_backend.hh"
 #include "src/utils/config.hh"
+#include "src/utils/logging.hh"
 #include "src/utils/model_archive.hh"
 
 namespace torchserve {
@@ -52,7 +52,7 @@ namespace torchserve {
     // TODO; impl.
     //short MAX_FAILURE_THRESHOLD = 5;
     //float SOCKET_ACCEPT_TIMEOUT = 30.0f;
-    Socket server_socket_;
+    int server_socket_;
     std::string socket_type_;
     std::string socket_name_;
     ushort port_;
@@ -61,13 +61,9 @@ namespace torchserve {
 
   class SocketModelWorker {
     public:
-    SocketModelWorker(Socket client_socket, std::shared_ptr<torchserve::Backend> backend) : 
+    SocketModelWorker(int client_socket, std::shared_ptr<torchserve::Backend> backend) : 
     client_socket_(client_socket), backend_(backend) {};
-    ~SocketModelWorker() {
-      if (client_socket_ >= 0) {
-        close(client_socket_);
-      }
-    };
+    ~SocketModelWorker() = default;
 
     [[noreturn]] void Run();
 
