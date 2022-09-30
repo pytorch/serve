@@ -22,7 +22,7 @@ logging.basicConfig(level=kserve.constants.KSERVE_LOGLEVEL)
 
 REGISTER_URL_FORMAT = "{0}/models?initial_workers=1&url={1}"
 UNREGISTER_URL_FORMAT = "{0}/models/{1}"
-READINESS_URL_FORMAT = "{0}/models/{1}"
+READINESS_URL_FORMAT = "{0}/models/{1}?customized={2}"
 
 PREDICTOR_URL_FORMAT = "http://{0}/v1/models/{1}:predict"
 EXPLAINER_URL_FORMAT = "http://{0}/v1/models/{1}:explain"
@@ -145,27 +145,31 @@ class TorchserveModel(Model):
             )
 
         num_try = 0
+        customized_value = os.environ.get('IS_CUSTOMIZED', 'false')
         model_load_max_try = int(os.environ.get('MODEL_LOAD_MAX_TRY', 10))
         model_load_delay = int(os.environ.get('MODEL_LOAD_DELAY', 30))
         model_load_timeout = int(os.environ.get('MODEL_LOAD_TIMEOUT', 5))
-
         while num_try < model_load_max_try and not self.ready:
             num_try = num_try + 1
             logging.info(f'Loading {self.name} .. {num_try} of {model_load_max_try} tries..')
 
             try:
                 response = requests.get(
-                    READINESS_URL_FORMAT.format(self.management_address, self.name),
+                    READINESS_URL_FORMAT.format(self.management_address, self.name, customized_value),
                     timeout=model_load_timeout
                 ).json()
 
                 default_verison = response[0]
+
                 workers = default_verison['workers']
                 workers_status = [worker['id'] for worker in workers if worker['status']=='READY']
 
-                if len(workers_status) == len(workers_status):
-                    logging.info(f'The model {self.name} is ready')
-                    self.ready = True
+                worker_ready = False
+                if len(workers_status) > 0:
+                    worker_ready = True
+
+                self.ready = worker_ready if customized_value == 'false' \
+                    else worker_ready and 'customizedMetadata' in default_verison
 
             except (requests.ConnectionError, 
                     requests.Timeout, 
@@ -181,4 +185,7 @@ class TorchserveModel(Model):
             logging.info(f'Sleep {model_load_delay} seconds for load {self.name}..')
             time.sleep(model_load_delay)
 
+        if self.ready:
+            logging.info(f'The model {self.name} is ready')
+        
         return self.ready
