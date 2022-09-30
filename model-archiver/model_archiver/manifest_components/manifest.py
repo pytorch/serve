@@ -11,6 +11,8 @@ class RuntimeType(Enum):
     PYTHON = "python"
     PYTHON2 = "python2"
     PYTHON3 = "python3"
+    LDP = "LDP"
+    LSP = "LSP"
 
 
 class Manifest(object):

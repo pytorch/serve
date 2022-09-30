@@ -9,12 +9,14 @@ import os
 import re
 import zipfile
 import shutil
+import sys
 import tarfile
 import tempfile
 from io import BytesIO
 from .model_archiver_error import ModelArchiverError
 
 from .manifest_components.manifest import Manifest
+from .manifest_components.manifest import RuntimeType
 from .manifest_components.model import Model
 
 archiving_options = {
@@ -125,7 +127,7 @@ class ModelExportUtils(object):
             os.makedirs(d)
 
     @staticmethod
-    def copy_artifacts(model_name, **kwargs):
+    def copy_artifacts(model_name, runtime, **kwargs):
         """
         copy model artifacts in a common model directory for archiving
         :param model_name: name of model being archived
@@ -139,11 +141,27 @@ class ModelExportUtils(object):
         for file_type, path in kwargs.items():
             if path:
                 if file_type == "handler":
-                    if path in model_handlers.keys():
-                        continue
 
-                    if '.py' not in path:
-                        path = (path.split(':')[0] if ':' in path else path) + '.py'
+                    if (
+                        runtime == RuntimeType.PYTHON.value or
+                        runtime == RuntimeType.PYTHON2.value or
+                        runtime == RuntimeType.PYTHON3.value
+                    ):
+                        if path in model_handlers.keys():
+                            continue
+
+                        if '.py' not in path:
+                            path = (path.split(':')[0] if ':' in path else path) + '.py'
+                    elif (
+                        runtime == RuntimeType.LSP.value
+                    ):
+                        if path == "BaseHandler":
+                            continue
+
+                        if sys.platform.startswith('linux'):
+                            path = (path.split(':')[0] if ':' in path else path) + '.so'
+                        elif sys.platform.startswith('darwin'):
+                            path = (path.split(':')[0] if ':' in path else path) + '.dylib'
 
                 if file_type == "extra_files":
                     for file in path.split(","):

@@ -39,7 +39,7 @@ def package_model(args, manifest):
             "requirements-file": requirements_file,
         }
 
-        model_path = ModelExportUtils.copy_artifacts(model_name, **artifact_files)
+        model_path = ModelExportUtils.copy_artifacts(model_name, args.runtime, **artifact_files)
 
         # Step 2 : Zip 'em all up
         ModelExportUtils.archive(
