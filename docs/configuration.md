@@ -216,7 +216,7 @@ Set nvidia environment variables. For example:
 		     This is used in conjunction with `enable_metrics_api` option above.
 
 ### Config model
-* `models`: Use this to set configuration of each model. The value is presented in json format.
+* `models`: Use this to set configurations specific to a model. The value is presented in json format.
 ```
 {
     "modelName": {
@@ -229,15 +229,16 @@ Set nvidia environment variables. For example:
 }
 ```
 A model's parameters are defined in [model source code](https://github.com/pytorch/serve/blob/master/frontend/server/src/main/java/org/pytorch/serve/wlm/Model.java#L24)
-```
-minWorkers: the minimum number of workers of a model
-maxWorkers: the maximum number of workers of a model
-batchSize: the batch size of a model
-maxBatchDelay: the maximum dalay in msec of a batch of a model
-responseTimeout: the timeout in msec of a model's response
-defaultVersion: the default version of a model
-marName: the mar file name of a model
-```
+
+
+* `minWorkers`: the minimum number of workers of a model
+* `maxWorkers`: the maximum number of workers of a model
+* `batchSize`: the batch size of a model
+* `maxBatchDelay`: the maximum delay in msec of a batch of a model
+* `responseTimeout`: the timeout in msec of a specific model's response. This setting takes priority over `default_response_timeout` which is a default timeout over all models
+* `defaultVersion`: the default version of a model
+* `marName`: the mar file name of a model
+
 A model's configuration example 
 ```properties
 models={\
@@ -276,7 +277,7 @@ Most of the following properties are designed for performance tuning. Adjusting 
 * `default_workers_per_model`: Number of workers to create for each model that loaded at startup time. Default: available GPUs in system or number of logical processors available to the JVM.
 * `job_queue_size`: Number inference jobs that frontend will queue before backend can serve. Default: 100.
 * `async_logging`: Enable asynchronous logging for higher throughput, log output may be delayed if this is enabled. Default: false.
-* `default_response_timeout`: Timeout, in seconds, used for model's backend workers before they are deemed unresponsive and rebooted. Default: 120 seconds.
+* `default_response_timeout`: Timeout, in seconds, used for all models backend workers before they are deemed unresponsive and rebooted. Default: 120 seconds.
 * `unregister_model_timeout`: Timeout, in seconds, used when handling an unregister model request when cleaning a process before it is deemed unresponsive and an error response is sent. Default: 120 seconds.
 * `decode_input_request`: Configuration to let backend workers to decode requests, when the content type is known.
 If this is set to "true", backend workers do "Bytearray to JSON object" conversion when the content type is "application/json" and
