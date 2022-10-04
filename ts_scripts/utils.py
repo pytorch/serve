@@ -26,7 +26,7 @@ def is_conda_env():
 
 
 def check_python_version():
-    req_version = (3, 6)
+    req_version = (3, 8)
     cur_version = sys.version_info
 
     if not (

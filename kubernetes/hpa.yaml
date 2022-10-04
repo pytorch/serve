@@ -1,5 +1,5 @@
 kind: HorizontalPodAutoscaler
-apiVersion: autoscaling/v2beta1
+apiVersion: autoscaling/v2beta2
 metadata:
   name: torchserve
 spec:
@@ -13,5 +13,8 @@ spec:
   metrics:
   - type: External
     external:
-      metricName: ts_queue_latency_microseconds
-      targetValue: "7000000m"
+      metric:
+        name: ts_queue_latency_microseconds
+      target:
+        type: Value
+        value: 7000000m
