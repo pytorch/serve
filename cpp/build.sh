@@ -136,7 +136,7 @@ function install_folly() {
 function install_kineto() {
   if [ "$PLATFORM" = "Linux" ]; then
     echo -e "${COLOR_GREEN}[ INFO ] Skip install kineto on Linux ${COLOR_OFF}"
-  elif  "$PLATFORM" = "Mac" ]; then
+  elif [ "$PLATFORM" = "Mac" ]; then
     KINETO_SRC_DIR=$BASE_DIR/third-party/kineto
 
     if [ ! -d "$KINETO_SRC_DIR" ] ; then
