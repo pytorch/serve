@@ -204,9 +204,9 @@ public class WorkerLifeCycle {
         }
 
         argl.add(cppBackendBin.getAbsolutePath());
-        argl.add("--socket_type");
+        argl.add("--sock_type");
         argl.add(connector.getSocketType());
-        argl.add(connector.isUds() ? "--socket_name" : "--port");
+        argl.add(connector.isUds() ? "--sock_name" : "--port");
         argl.add(connector.getSocketPath());
         argl.add("--runtime_type");
         argl.add(runtimeType);
