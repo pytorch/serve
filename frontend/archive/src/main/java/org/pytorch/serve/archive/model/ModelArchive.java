@@ -44,7 +44,6 @@ public class ModelArchive {
             List<String> allowedUrls, String modelStore, String url, boolean s3SseKmsEnabled)
             throws ModelException, FileAlreadyExistsException, IOException,
                     DownloadArchiveException {
-        logger.info("modelStore: {}, url: {}", modelStore, url);
         if (modelStore == null) {
             throw new ModelNotFoundException("Model store has not been configured.");
         }
@@ -55,7 +54,6 @@ public class ModelArchive {
 
         String marFileName = FilenameUtils.getName(url);
         File modelLocation = new File(modelStore, marFileName);
-        logger.info("marfilename: {}, modelLocation:{}", marFileName, modelLocation.getAbsolutePath());
         try {
             ArchiveUtils.downloadArchive(
                     allowedUrls, modelLocation, marFileName, url, s3SseKmsEnabled);
@@ -68,7 +66,6 @@ public class ModelArchive {
         }
 
         if (modelLocation.isFile()) {
-            logger.info("model lcoation is file");
             try (InputStream is = Files.newInputStream(modelLocation.toPath())) {
                 File unzipDir = ZipUtils.unzip(is, null, "models");
                 return load(url, unzipDir, true);
@@ -76,13 +73,11 @@ public class ModelArchive {
         }
 
         if (new File(url).isDirectory()) {
-            logger.info("new file url is directory");
             // handle the case that the input url is a directory.
             // the input of url is "/xxx/model_store/modelXXX" or
             // "xxxx/yyyyy/modelXXX".
             return load(url, new File(url), false);
         } else if (modelLocation.exists()) {
-            logger.info("model location exists");
             // handle the case that "/xxx/model_store/modelXXX" is directory.
             // the input of url is modelXXX when torchserve is started
             // with snapshot or with parameter --models modelXXX
@@ -97,16 +92,13 @@ public class ModelArchive {
         boolean failed = true;
         try {
             File manifestFile = new File(dir, "MAR-INF/" + MANIFEST_FILE);
-            logger.info("manifest file: {}", manifestFile.getAbsolutePath());
             Manifest manifest = null;
             if (manifestFile.exists()) {
-                logger.info("manifest file exists");
                 manifest = ArchiveUtils.readFile(manifestFile, Manifest.class);
             } else {
-                logger.info("manifest does not file exist");
                 manifest = new Manifest();
             }
-            logger.info("manifest runtime: {}", manifest.getRuntime());
+
             failed = false;
             return new ModelArchive(manifest, url, dir, extracted);
         } finally {

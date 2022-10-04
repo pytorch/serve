@@ -3,15 +3,16 @@
 
 #include <iostream>
 #include <dlfcn.h>
-#include <glog/logging.h>
 #include <memory>
 #include <string>
+
+#include "src/utils/logging.hh"
 
 namespace torchserve {
   /**
    * @brief DLLoader is the implementation of loading shared library for Unix.
-   * 
-   * @tparam T 
+   *
+   * @tparam T
    */
   template <class T>
   class DLLoader {
@@ -20,7 +21,7 @@ namespace torchserve {
       const std::string& lib_path,
       const std::string& create_object_func_name = "allocator",
       const std::string& delete_object_func_name = "deleter") :
-      lib_path_(lib_path), 
+      lib_path_(lib_path),
       create_object_func_name_(create_object_func_name),
       delete_object_func_name_(delete_object_func_name),
       handle_(nullptr) {};
@@ -28,14 +29,14 @@ namespace torchserve {
 
     void OpenDL() {
       if (!(handle_ = dlopen(lib_path_.c_str(), RTLD_NOW | RTLD_LAZY))) {
-				LOG(ERROR) << "Failed to open lib:" << lib_path_ << ", error:" << dlerror();
+				TS_LOGF(ERROR, "Failed to open lib: {}, error: {}", lib_path_, dlerror());
 			}
     };
 
     void CloseDL() {
       std::cerr << "CloseDL start" << "\n";
       if (handle_ != nullptr && dlclose(handle_) != 0) {
-        LOG(ERROR) << "Failed to close lib:" << lib_path_ << ", error:" << dlerror();
+        TS_LOGF(ERROR, "Failed to close lib: {}, error: {}", lib_path_, dlerror());
       }
       std::cerr << "CloseDL done" << "\n";
     };
@@ -52,7 +53,7 @@ namespace torchserve {
       createClass create_func = reinterpret_cast<createClass>(
         dlsym(handle_, create_object_func_name_.c_str()));
       if ((error = dlerror()) != NULL)  {
-        LOG(ERROR) << "create_func, error:" << error;
+        TS_LOGF(ERROR,"create_func, error: {}", error);
         CloseDL();
         return std::shared_ptr<T>(nullptr);
       }
@@ -60,7 +61,7 @@ namespace torchserve {
       deleteClass delete_func = reinterpret_cast<deleteClass>(
         dlsym(handle_, delete_object_func_name_.c_str()));
       if ((error = dlerror()) != NULL)  {
-        LOG(ERROR) << "delete_func, error:" << error;
+        TS_LOGF(ERROR, "delete_func, error: {}", error);
         CloseDL();
         return std::shared_ptr<T>(nullptr);
       }
