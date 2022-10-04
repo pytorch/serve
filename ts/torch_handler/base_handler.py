@@ -24,25 +24,6 @@ else:
 
 logger = logging.getLogger(__name__)
 
-ipex_enabled = False
-if os.environ.get("TS_IPEX_ENABLE", "false") == "true":
-    try:
-        import intel_extension_for_pytorch as ipex
-
-        ipex_enabled = True
-    except ImportError as error:
-        logger.warning(
-            "IPEX is enabled but intel-extension-for-pytorch is not installed. Proceeding without IPEX."
-        )
-
-try:
-    import onnxruntime
-
-    onnx_enabled = True
-except ImportError as error:
-    onnx_enabled = False
-    logger.warning("proceeding without onnxruntime")
-
 
 class BaseHandler(abc.ABC):
     """
@@ -75,6 +56,25 @@ class BaseHandler(abc.ABC):
             RuntimeError: Raises the Runtime error when the model.py is missing
 
         """
+        ipex_enabled = False
+        if os.environ.get("TS_IPEX_ENABLE", "false") == "true":
+            try:
+                import intel_extension_for_pytorch as ipex
+
+                ipex_enabled = True
+            except ImportError as error:
+                logger.warning(
+                    "IPEX is enabled but intel-extension-for-pytorch is not installed. Proceeding without IPEX."
+                )
+
+        try:
+            import onnxruntime
+
+            onnx_enabled = True
+        except ImportError as error:
+            onnx_enabled = False
+            logger.warning("proceeding without onnxruntime")
+
         properties = context.system_properties
         self.map_location = (
             "cuda"
