@@ -1,5 +1,5 @@
-#ifndef TS_CPP_BACKENDS_METRICS_UNITS_HH_
-#define TS_CPP_BACKENDS_METRICS_UNITS_HH_
+#ifndef TS_CPP_UTILS_METRICS_UNITS_HH_
+#define TS_CPP_UTILS_METRICS_UNITS_HH_
 
 #include <string>
 #include <unordered_map>
@@ -14,4 +14,4 @@ namespace torchserve {
     };
 } // namespace torchserve
 
-#endif // TS_CPP_BACKENDS_METRICS_UNITS_HH_
+#endif // TS_CPP_UTILS_METRICS_UNITS_HH_

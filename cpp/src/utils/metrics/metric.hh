@@ -1,5 +1,5 @@
-#ifndef TS_CPP_BACKENDS_METRICS_METRIC_HH_
-#define TS_CPP_BACKENDS_METRICS_METRIC_HH_
+#ifndef TS_CPP_UTILS_METRICS_METRIC_HH_
+#define TS_CPP_UTILS_METRICS_METRIC_HH_
 
 #include <string>
 #include <vector>
@@ -47,4 +47,4 @@ namespace torchserve {
     };
 } // namespace torchserve
 
-#endif // TS_CPP_BACKENDS_METRICS_METRIC_HH_
+#endif // TS_CPP_UTILS_METRICS_METRIC_HH_

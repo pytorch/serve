@@ -1,5 +1,5 @@
-#ifndef TS_CPP_BACKENDS_METRICS_DIMENSION_HH_
-#define TS_CPP_BACKENDS_METRICS_DIMENSION_HH_
+#ifndef TS_CPP_UTILS_METRICS_DIMENSION_HH_
+#define TS_CPP_UTILS_METRICS_DIMENSION_HH_
 
 #include <string>
 
@@ -16,4 +16,4 @@ namespace torchserve {
     };
 } // namespace torchserve
 
-#endif // TS_CPP_BACKENDS_METRICS_DIMENSION_HH_
+#endif // TS_CPP_UTILS_METRICS_DIMENSION_HH_
