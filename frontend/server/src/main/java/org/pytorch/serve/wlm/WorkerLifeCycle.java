@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
 public class WorkerLifeCycle {
 
     private static final Logger logger = LoggerFactory.getLogger(WorkerLifeCycle.class);
-    private static final Pattern PATTERN =
+    private static final Pattern PID_LOG_PATTERN =
             Pattern.compile(".*\\[PID\\](\\d+)$");
 
     private ConfigManager configManager;
@@ -339,7 +339,7 @@ public class WorkerLifeCycle {
                         continue;
                     }
 
-                    Matcher matcher = PATTERN.matcher(result);
+                    Matcher matcher = PID_LOG_PATTERN.matcher(result);
                     if (result.endsWith("Torch worker started.")) {
                         lifeCycle.setSuccess(true);
                     } else if (matcher.matches()) {
