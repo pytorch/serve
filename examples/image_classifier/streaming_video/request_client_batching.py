@@ -105,7 +105,7 @@ def batch_and_send_frames(args):
                         args.batch_size, snd_cnt, fps
                     )
                 )
-                # print(response.content.decode("UTF-8"))
+                print(response.content.decode("UTF-8"))
 
             # Reset for next batch
             start_time = time.time()
@@ -131,7 +131,7 @@ if __name__ == "__main__":
         "--batch_size",
         help="Batch frames on client side for inference",
         type=int,
-        default=1,
+        default=4,
     )
     parser.add_argument(
         "--input",
