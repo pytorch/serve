@@ -13,6 +13,7 @@ namespace torchserve {
     const std::string& model_dir) {
     unsigned short socket_family;
     socket_family = AF_INET;
+    socket_type_ = socket_type;
     if (socket_type == "unix") {
       socket_family = AF_UNIX;
       if (socket_name.empty()) {
