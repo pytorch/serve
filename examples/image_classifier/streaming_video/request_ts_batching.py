@@ -1,12 +1,11 @@
 import argparse
-import base64
-import json
 import time
 from collections import deque
+from concurrent.futures import as_completed
 from threading import Thread
 
 import cv2
-import requests
+from requests_futures.sessions import FuturesSession
 
 
 def read_frames(args):
@@ -56,10 +55,10 @@ def read_frames(args):
     cv2.destroyAllWindows()
 
 
-def send_frames(payload, snd_cnt):
-    snd_cnt += len(payload)
-    payload = json.dumps(payload)
-    response = requests.post(api, data=payload, headers=headers)
+def send_frames(payload, snd_cnt, session):
+    snd_cnt += 1
+
+    response = session.post(api, data=payload)
 
     return (response, snd_cnt)
 
@@ -73,6 +72,9 @@ def batch_and_send_frames(args):
     snd_cnt = 0
     start_time = time.time()
     fps = 0
+    session = FuturesSession()
+    futures = []
+    log_cnt = 20
 
     while True:
 
@@ -89,23 +91,29 @@ def batch_and_send_frames(args):
         # Batch the frames into a dict payload
         while queue and count < args.batch_size:
             data = queue.popleft()
-            im_b64 = base64.b64encode(data).decode("utf8")
-            payload[str(count)] = im_b64
+            payload = data
             count += 1
 
         if count >= args.batch_size:
-            response, snd_cnt = send_frames(payload, snd_cnt)
+            response, snd_cnt = send_frames(payload, snd_cnt, session)
+            futures.append(response)
 
             # Calculate FPS
             end_time = time.time()
             fps = 1.0 * args.batch_size / (end_time - start_time)
-            if snd_cnt % 20 == 0:
+            if snd_cnt % log_cnt == 0:
                 print(
                     "With Batch Size {}, FPS at frame number {} is {:.1f}".format(
                         args.batch_size, snd_cnt, fps
                     )
                 )
-                # print(response.content.decode("UTF-8"))
+
+                # Printing the response
+                for response in list(as_completed(futures))[-4:]:
+                    print(response.result().content.decode("utf-8"))
+
+                # Cleaning up futures in case futures becomes too large
+                del futures[:log_cnt]
 
             # Reset for next batch
             start_time = time.time()
@@ -116,7 +124,7 @@ def batch_and_send_frames(args):
         time.sleep(0.01)
 
     # Send any remaining frames
-    _, snd_cnt = send_frames(payload, snd_cnt)
+    _, snd_cnt = send_frames(payload, snd_cnt, session)
     print(
         "With Batch Size {}, FPS at frame number {} is {:.1f}".format(
             args.batch_size, snd_cnt, fps
@@ -129,9 +137,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--batch_size",
-        help="Batch frames on client side for inference",
+        help="Batch frames on TorchServe side for inference",
         type=int,
-        default=1,
+        default=4,
     )
     parser.add_argument(
         "--input",
@@ -141,7 +149,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
     queue = deque([])
     api = "http://localhost:8080/predictions/resnet-18"
-    headers = {"Content-type": "application/json", "Accept": "text/plain"}
 
     thread1 = Thread(target=read_frames, args=(args,))
     thread2 = Thread(target=batch_and_send_frames, args=(args,))
