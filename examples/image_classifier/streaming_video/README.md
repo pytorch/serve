@@ -20,7 +20,7 @@ Install OpenCV with the following command
 pip install opencv-python
 ```
 
-To make use of TorchServe's dynamic batching feature, we need to send asychronous http requests. Hence, we are using [requests-futures](https://github.com/ross/requests-futures) in this example.
+To make use of TorchServe's dynamic batching feature, we need to send asynchronous http requests. Hence, we are using [requests-futures](https://github.com/ross/requests-futures) in this example.
 Install requests-futures with the following command
 ```
 pip install requests-future
@@ -28,7 +28,7 @@ pip install requests-future
 
 ## With TorchServe batching
 
-On the client side, we have one thread for reading frames from a video source and another thread which sends the read frames as httprequest to TorchServe for image classification inference. We are using an asynchronous http requests as we want to make use of TorchServe batching.
+On the client side, we have one thread for reading frames from a video source and another thread which sends the read frames as http request to TorchServe for image classification inference. We are using an asynchronous http requests as we want to make use of TorchServe batching.
 We send one frame in each request and let TorchServe handle the batching
 TorchServe is setup to process batch size of 4 in this example.
 TorchServe receives individual requests, batches the requests to make a single inference request and sends out individual responses to the requests received.
