@@ -42,17 +42,7 @@ spec:
       volumes:
       - name: persistent-storage
         persistentVolumeClaim:
-          claimName: model-store-claim
-      initContainers:
-      - name: volume-ownership
-        image: alpine:3
-        command:
-        - chown
-        - root:{{ .Values.securityContext.groupId }}
-        - {{ .Values.torchserve.pvd_mount }}
-        volumeMounts:
-        - name: persistent-storage
-          mountPath: {{ .Values.torchserve.pvd_mount }}
+          claimName: {{ .Values.persistentVolume.name }}
       containers:
       - name: torchserve
         image: {{ .Values.torchserve_image }}
@@ -73,6 +63,3 @@ spec:
             cpu: {{ .Values.torchserve.n_cpu }}
             memory: {{ .Values.torchserve.memory_limit }}
             nvidia.com/gpu: {{ .Values.torchserve.n_gpu }}
-          requests:
-            cpu: {{ .Values.torchserve.n_cpu }}
-            memory: {{ .Values.torchserve.memory_request }}
