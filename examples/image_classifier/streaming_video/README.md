@@ -26,6 +26,59 @@ pip install requests-future
 
 ## With TorchServe batching
 
+On the client side, we have one thread for reading frames from a video source and another thread which sends the read frames as httprequest to TorchServe for image classification inference. We are using an asynchronous http requests as we want to make use of TorchServe batching.
+We send one frame in each request and let TorchServe handle the batching
+TorchServe is setup to process batch size of 4 in this example.
+TorchServe receives individual requests, batches the requests to make a single inference request and sends out individual responses to the requests received.
+
+
+### Create a resnet-18 eager mode model archive, register it on TorchServe and run inference on a streaming video
+
+Run the commands given in following steps from the parent directory of the root of the repository. For example, if you cloned the repository into /home/my_path/serve, run the steps from /home/my_path
+
+```bash
+python examples/image_classifier/streaming_video/create_mar_file_batch.py
+
+torchserve --start --model-store model_store --models resnet-18=resnet-18.mar --ts-config examples/image_classifier/streaming_video/config.properties
+
+python examples/image_classifier/streaming_video/request_ts_batching.py
+```
+
+The default batch size is 4.
+On the client side, we should see the following output
+
+```bash
+With Batch Size 4, FPS at frame number 20 is 24.7
+{
+  "tabby": 0.5186409950256348,
+  "tiger_cat": 0.29040342569351196,
+  "Egyptian_cat": 0.10797449946403503,
+  "lynx": 0.01395314373075962,
+  "bucket": 0.006002397276461124
+}
+{
+  "tabby": 0.5186409950256348,
+  "tiger_cat": 0.29040342569351196,
+  "Egyptian_cat": 0.10797449946403503,
+  "lynx": 0.01395314373075962,
+  "bucket": 0.006002397276461124
+}
+{
+  "tabby": 0.5186409950256348,
+  "tiger_cat": 0.29040342569351196,
+  "Egyptian_cat": 0.10797449946403503,
+  "lynx": 0.01395314373075962,
+  "bucket": 0.006002397276461124
+}
+{
+  "tabby": 0.5186409950256348,
+  "tiger_cat": 0.29040342569351196,
+  "Egyptian_cat": 0.10797449946403503,
+  "lynx": 0.01395314373075962,
+  "bucket": 0.006002397276461124
+}
+```
+
 ## With client-side batching
 
 On the client side, we have one thread for reading frames from a video source and another thread which batches(size n) the read frames and sends the request to TorchServe for image classification inference.
