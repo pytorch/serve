@@ -36,7 +36,7 @@ TorchServe receives individual requests, batches the requests to make a single i
 
 ### Create a resnet-18 eager mode model archive, register it on TorchServe and run inference on a streaming video
 
-Run the commands given in following steps from the parent directory of the root of the repository. For example, if you cloned the repository into /home/my_path/serve, run the steps from /home/my_path
+Run the commands given in following steps from the parent directory of the root of the repository. For example, if you cloned the repository into `/home/my_path/serve`, run the steps from `/home/my_path`
 
 ```bash
 python examples/image_classifier/streaming_video/create_mar_file_batch.py
@@ -90,7 +90,7 @@ On the TorchServe side, we read the json payload and preprocess the n frames. Th
 
 ### Create a resnet-18 eager mode model archive, register it on TorchServe and run inference on a streaming video
 
-Run the commands given in following steps from the parent directory of the root of the repository. For example, if you cloned the repository into /home/my_path/serve, run the steps from /home/my_path
+Run the commands given in following steps from the parent directory of the root of the repository. For example, if you cloned the repository into `/home/my_path/serve`, run the steps from `/home/my_path`
 
 ```bash
 python examples/image_classifier/streaming_video/create_mar_file.py
@@ -137,11 +137,11 @@ With Batch Size 4, FPS at frame number 20 is 26.3
 
 To set batch_size = 10, we use the following command
 ```
-python examples/image_classifier/streaming_video_client_side_batching/request.py --batch_size 10
+python examples/image_classifier/streaming_video_client_side_batching/request_client_batching.py --batch_size 10
 ```
 
 If you have a camera connected, you can run inference on streaming video from the camera as follows
 
 ```
-python examples/image_classifier/streaming_video_client_side_batching/request.py --batch_size 10 --input 0
+python examples/image_classifier/streaming_video_client_side_batching/request_client_batching.py --batch_size 10 --input 0
 ```
