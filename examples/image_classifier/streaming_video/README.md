@@ -1,13 +1,12 @@
-# Streaming Video Inference with client-side batching
+# Streaming Video Inference
 
-To use TorchServe's dynamic batching feature, please refer to [resnet_152_batch](https://github.com/pytorch/serve/tree/examples/streaming_video/examples/image_classifier/resnet_152_batch)
+Consider a use-case where we have cameras connected to edge devices. These devices are connected to a compute cluster where TorchServe is running. Each edge device has a computer vision pipeline running, where we read frames from the camera and we need to perform tasks as Image Classification, Pose Estimation, Activity Recognition etc on the read frames.
 
-For some near real-time streaming video applications, there might be a need for batching on the application side.
-This example shows how this can be achieved using TorchServe.
+The architecture diagram is shown below
 
-On the client side, we have one thread for reading frames from a video source and another thread which batches(size n) the read frames and sends the request to TorchServe for image classification inference.
-To send the batched data, we create a json payload of n frames.
-On the TorchServe side, we read the json payload and preprocess the n frames. The postprocess function in the handler returns the output as a list of length 1.
+[Architecture](architecture/arch.png)
+
+[CV Pipeline](architecture/cv_pipeline.png)
 
 ### Client application using [OpenCV](https://opencv.org/)
 
@@ -17,17 +16,30 @@ Install OpenCV with the following command
 pip install opencv-python
 ```
 
+To make use of TorchServe's dynamic batching feature, we need to send asychronous http requests. Hence, we are using [requests-futures](https://github.com/ross/requests-futures) in this example.
+Install requests-futures with the following command
+```
+pip install requests-future
+```
+
+## With client-side batching
+
+For some near real-time streaming video applications, there might be a need for batching on the application side.
+This example shows how this can be achieved using TorchServe.
+
+On the client side, we have one thread for reading frames from a video source and another thread which batches(size n) the read frames and sends the request to TorchServe for image classification inference.
+To send the batched data, we create a json payload of n frames.
+On the TorchServe side, we read the json payload and preprocess the n frames. The postprocess function in the handler returns the output as a list of length 1.
+
+
 ### Create a resnet-18 eager mode model archive, register it on TorchServe and run inference on a streaming video
 
 Run the commands given in following steps from the parent directory of the root of the repository. For example, if you cloned the repository into /home/my_path/serve, run the steps from /home/my_path
 
 ```bash
-wget https://download.pytorch.org/models/resnet18-f37072fd.pth
-torch-model-archiver --model-name resnet-18 --version 1.0 --model-file ./examples/image_classifier/streaming_video_client_side_batching/model.py --serialized-file resnet18-f37072fd.pth --handler ./examples/image_classifier/streaming_video_client_side_batching/custom_handler.py --extra-files ./examples/image_classifier/index_to_name.json
-mkdir model_store
-mv resnet-18.mar model_store/
+python examples/image_classifier/streaming_video/create_mar_file.py
 torchserve --start --model-store model_store --models resnet-18=resnet-18.mar
-python examples/image_classifier/streaming_video_client_side_batching/request.py
+python examples/image_classifier/streaming_video/request_client_batching.py
 ```
 The default batch size is 1.
 On the client side, we should see the following output
