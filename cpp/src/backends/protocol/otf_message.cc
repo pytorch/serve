@@ -48,14 +48,6 @@ namespace torchserve {
     auto envelope = RetrieveStringBuffer(client_socket_, std::nullopt);
     auto limit_max_image_pixels = client_socket_.RetrieveBool();
 
-    TS_LOGF(DEBUG, "Model Name: {}", *model_name);
-    TS_LOGF(DEBUG, "Model dir: {}", *model_dir);
-    TS_LOGF(DEBUG, "Batch size: {}", batch_size);
-    TS_LOGF(DEBUG, "Handler: {}", *handler);
-    TS_LOGF(DEBUG, "GPU_id: {}", gpu_id);
-    TS_LOGF(DEBUG, "Envelope: {}", *envelope);
-    TS_LOGF(DEBUG, "Limit max image pixels: {}", limit_max_image_pixels);
-
     return std::make_shared<LoadModelRequest>(
       *model_dir, *model_name, gpu_id, *handler,
       *envelope, batch_size, limit_max_image_pixels);
