@@ -11,8 +11,8 @@ import time
 import torch
 from pkg_resources import packaging
 from ..utils.util import list_classes_from_module, load_label_mapping
-from ts.torch_handler.utils.optimization import OPTIMIZATIONS
 from ts.torch_handler.utils.conf import CONFIGURATIONS
+from ts.torch_handler.utils.optimization import OPTIMIZATIONS
 
 if packaging.version.parse(torch.__version__) >= packaging.version.parse("1.8.1"):
     from torch.profiler import profile, record_function, ProfilerActivity
@@ -105,11 +105,12 @@ class BaseHandler(abc.ABC):
         
         if ipex_enabled:
             cfg_file_path = os.path.join(model_dir, "ipex_config.yaml")
-            self.cfg = CONFIGURATIONS["ipex"](cfg_file_path)
-            self.optimization = OPTIMIZATIONS["ipex"](self.cfg)
-            
-            self.model = self.optimization.optimize(self.model)
-            self.dtype == self.optimization.dtype
+            if os.path.exists(cfg_file_path):
+                self.cfg = CONFIGURATIONS["ipex"](cfg_file_path)
+                self.dtype = self.cfg.dtype
+                self.optimization = OPTIMIZATIONS["ipex"](self.cfg)
+                
+                self.model = self.optimization.optimize(self.model)
             
         logger.debug("Model file %s loaded successfully", model_pt_path)
 

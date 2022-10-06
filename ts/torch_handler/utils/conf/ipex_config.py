@@ -5,71 +5,12 @@ import subprocess
 import yaml 
 import torch 
 from dataclasses import dataclass, asdict
-import typing as t
 
-DTYPES = ['float32', 'bfloat16', 'int8']
-QUANTIZATION_APPROACHES = ['static', 'dynamic']
-TORCHSCRIPT_APPROACHES = ['trace']
+DTYPES = ['float32', 'bfloat16']
 
 DEFAULT_CFG = {'dtype': 'float32', 
-              'channels_last': True, 
-              'quantization': {'approach': None, 'example_inputs': None, 'calibration_dataset': None}, 
-              'torchscript': {'approach': None, 'example_inputs': None}
+              'channels_last': True
               }
-    
-def _load_file_path(f):
-    assert Path(f).exists(), "{} does not exist".format(f)
-    data = torch.load(f)
-    return data
-
-def _make_tuple(x):
-    if isinstance(x, (torch.Tensor, dict)):
-        return (x,)
-    elif not isinstance(x, tuple):
-        return tuple(x)
-    return x
-        
-@dataclass
-class QuantizationConf:
-    approach: str = None
-    example_inputs: str = None
-    calibration_dataset: str = None
-    
-    def __post_init__(self):
-        if self.approach is not None:
-            self.approach = self.approach.lower()
-            assert self.approach in QUANTIZATION_APPROACHES, "quantization approach {} is NOT supported".format(self.approach)
-            
-            assert self.example_inputs is not None, "path to example_inputs must be provided for quantization"
-            self.example_inputs = _load_file_path(self.example_inputs)
-            assert isinstance(self.example_inputs, (tuple, torch.Tensor, dict)), "example_inputs must be of type tuple or torch.Tensor"
-            self.example_inputs = _make_tuple(self.example_inputs)
-        
-        if self.approach == 'static':
-            assert self.calibration_dataset is not None, "path to calibration_dataset must be provided for static quantization"
-        
-        if self.calibration_dataset is not None:
-            self.calibration_dataset = _load_file_path(self.calibration_dataset)
-            assert all(isinstance(x, (tuple, torch.Tensor, dict)) for x in self.calibration_dataset), "calibration_dataset must be a list of tuple(s) or a list of torch.Tensor(s)"
-            self.calibration_dataset = [_make_tuple(x) for x in self.calibration_dataset]
-
-@dataclass 
-class TorchscriptConf:
-    approach: str = None
-    example_inputs: str = None
-    
-    def __post_init__(self):
-        if self.approach is not None:
-            self.approach = self.approach.lower()
-            assert self.approach in TORCHSCRIPT_APPROACHES, "torchscript approach {} is NOT supported".format(self.approach)
-        
-        if self.approach == 'trace':
-            assert self.example_inputs is not None, "path to example_inputs must be provided for TorchScript trace"
-        
-        if self.example_inputs is not None:
-            self.example_inputs = _load_file_path(self.example_inputs)
-            assert isinstance(self.example_inputs, (tuple, torch.Tensor, dict)), "example_inputs must be of type tuple or torch.Tensor"
-            self.example_inputs = _make_tuple(self.example_inputs)
 
 @dataclass
 @configuration_registry
@@ -79,40 +20,24 @@ class IPEXConf(Conf):
     Attributes:
         dtype (str): # optional. supported values are float32, bfloat16, int8. default value is float32.
         channels_last (bool): # optional. supported values are True, False. default value is True.
-        quantization:
-          approach (str): # mandatory if int8 dtype, otherwise not applicable. supported values are static, dynamic. default value is None.
-          example_inputs (str):  # mandatory if int8 quantization. path to your example_inputs .pt file containing tuple or torch.Tensor. default value is None. 
-          calibration_dataset (str): # mandatory if approach is static. path to your calibration dataset .pt file containing a list of tuple or a list of torch.Tensor. default value is None. 
-        torchscript:
-          approach (str): # optional. supported value is trace. default value is None. 
-          example_inputs (str): # mandatory if approach is trace. path to your example_inputs .pt file containing tuple or torch.Tensor. default value is None. 
     """
     dtype: str = 'float32'
     channels_last: bool = True
-    quantization: QuantizationConf = QuantizationConf()
-    torchscript: TorchscriptConf = TorchscriptConf()
         
     def __post_init__(self):
         super().__init__(self.cfg_file_path)
         assert Path(self.cfg_file_path).exists(), "{} does not exist".format(self.cfg_file_path)
         cfg = self.read_conf(self.cfg_file_path)
-        cfg = self._convert_cfg(cfg, DEFAULT_CFG)
-        
-        self.dtype = cfg['dtype'] 
-        
+        cfg = self._convert_cfg(cfg, copy.copy(DEFAULT_CFG))
+        self.dtype = cfg['dtype']
         self.dtype = self.dtype.lower()
         assert self.dtype in DTYPES, "dtype {} is NOT supported".format(self.dtype)
-        assert bool(self.dtype == 'int8') == bool(cfg['quantization']['approach'] is not None), "quantization approach must be provided for INT8 dtype, and quantization is supported for INT8 dtype only"
         
         self.channels_last = cfg['channels_last']
-        
         assert isinstance(self.channels_last, bool), "channels last must be type bool"
-
-        self.quantization = QuantizationConf(cfg['quantization']['approach'], cfg['quantization']['example_inputs'], cfg['quantization']['calibration_dataset'])
-        self.torchscript = TorchscriptConf(cfg['torchscript']['approach'], cfg['torchscript']['example_inputs'])
         
     def _convert_cfg(self, src, dst):
-        """Helper function to recursively merge user defined dict into default dict.
+        """Helper function to merge user defined dict into default dict.
            If the key in src doesn't exist in dst, then add this key and value
            pair to dst.
            Otherwise, if the key in src exists in dst, then override the value in dst with the
@@ -124,8 +49,7 @@ class IPEXConf(Conf):
             dict: The merged dict from src to dst
         """
         for key in src:
-            if isinstance(src[key], dict):
-                self._convert_cfg(src[key], dst[key])
-            else:
-                dst[key] = src[key]
+            if key in dst:
+                if dst[key] != src[key]:
+                    dst[key] = src[key]
         return dst
