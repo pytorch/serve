@@ -73,7 +73,6 @@ namespace torchserve {
     // fetch request id
     int length = client_socket_.RetrieveInt();
     if (length == -1) {
-      TS_LOG(ERROR, "Invalid request_id received. Aborting inference request");
       return nullptr;
     }
 
