@@ -121,7 +121,7 @@ def batch_and_send_frames(args):
             payload = {}
 
         # Sleep for 10 ms before trying to send next batch of frames
-        time.sleep(0.01)
+        time.sleep(args.sleep)
 
     # Send any remaining frames
     _, snd_cnt = send_frames(payload, snd_cnt, session)
@@ -146,7 +146,15 @@ if __name__ == "__main__":
         help="Path to video file or device id",
         default="examples/image_classifier/streaming_video/data/sample_video.mp4",
     )
+    parser.add_argument(
+        "--sleep",
+        help="Sleep between 2 subsequent requests in seconds",
+        type=float,
+        default=0.01,
+    )
     args = parser.parse_args()
+
+    # Read frames are placed here and then processed
     queue = deque([])
     api = "http://localhost:8080/predictions/resnet-18"
 
