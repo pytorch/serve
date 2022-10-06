@@ -66,7 +66,6 @@ def send_frames(payload, snd_cnt, session):
 def batch_and_send_frames(args):
 
     # Initialize variables
-    count = 0
     exit_cnt = 0
     payload = {}
     snd_cnt = 0
@@ -75,6 +74,7 @@ def batch_and_send_frames(args):
     session = FuturesSession()
     futures = []
     log_cnt = 20
+    payload = None
 
     while True:
 
@@ -88,19 +88,16 @@ def batch_and_send_frames(args):
                 )
                 break
 
-        # Batch the frames into a dict payload
-        while queue and count < args.batch_size:
-            data = queue.popleft()
-            payload = data
-            count += 1
+        # If queue is not empty, send one frame at a time
+        if queue:
+            payload = queue.popleft()
 
-        if count >= args.batch_size:
             response, snd_cnt = send_frames(payload, snd_cnt, session)
             futures.append(response)
 
             # Calculate FPS
             end_time = time.time()
-            fps = 1.0 * args.batch_size / (end_time - start_time)
+            fps = 1.0 / (end_time - start_time)
             if snd_cnt % log_cnt == 0:
                 print(
                     "With Batch Size {}, FPS at frame number {} is {:.1f}".format(
@@ -117,8 +114,7 @@ def batch_and_send_frames(args):
 
             # Reset for next batch
             start_time = time.time()
-            count = 0
-            payload = {}
+            payload = None
 
         # Sleep for 10 ms before trying to send next batch of frames
         time.sleep(args.sleep)
