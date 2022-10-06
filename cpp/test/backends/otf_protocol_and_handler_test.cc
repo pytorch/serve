@@ -113,7 +113,7 @@ namespace torchserve
                 }))
                 .WillOnce(testing::Invoke([=](size_t length, char* data) {
                     ASSERT_EQ(length, 4);
-                    strcpy(data, "data");
+                    strcpy(data, "body");
                 }))
                 .WillOnce(testing::Invoke([=](size_t length, char* data) {
                     ASSERT_EQ(length, 4);
@@ -138,9 +138,9 @@ namespace torchserve
     ASSERT_EQ(inference_request.headers.size(), 2);
     ASSERT_EQ(inference_request.parameters.size(), 1);
     ASSERT_EQ(inference_request.request_id, "reqi");
-    ASSERT_EQ(inference_request.headers["data_dtype"], "bytes");
-    ASSERT_EQ(inference_request.headers["data:contentType"], "cont");
-    ASSERT_EQ(inference_request.parameters["data"].size(), 3883);
+    ASSERT_EQ(inference_request.headers["body_dtype"], "bytes");
+    ASSERT_EQ(inference_request.headers["body:contentType"], "cont");
+    ASSERT_EQ(inference_request.parameters["body"].size(), 3883);
     
     // call handler to run inference
     auto inference_response_batch = backend->GetModelInstance()->Predict(batch_inference_request);

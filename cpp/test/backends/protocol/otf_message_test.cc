@@ -209,7 +209,7 @@ namespace torchserve {
     ASSERT_EQ(inference_request.parameters.size(), 1);
     ASSERT_EQ(inference_request.request_id, "reqi");
     ASSERT_EQ(inference_request.headers["heak"], "heav");
-    ASSERT_EQ(inference_request.headers["data_dtype"], "bytes");
+    ASSERT_EQ(inference_request.headers["body_dtype"], "bytes");
     ASSERT_EQ(inference_request.headers["parn:contentType"], "cont");
     ASSERT_EQ(torchserve::Converter::VectorToStr(inference_request.parameters["parn"]), "valu");
   }

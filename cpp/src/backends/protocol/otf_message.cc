@@ -90,7 +90,9 @@ namespace torchserve {
 
     // use default data_type of bytes for now
     // TODO: handle data_type more broadly once backend support is added
-    headers[torchserve::PayloadType::kHEADER_NAME_DATA_TYPE] = torchserve::PayloadType::kDATA_TYPE_BYTES;
+    // This needs to be set based on some parameter from the frontend
+    // And requires changes to the frontend and python backend
+    headers[torchserve::PayloadType::kHEADER_NAME_BODY_TYPE] = torchserve::PayloadType::kDATA_TYPE_BYTES;
 
     // fetch parameters
     InferenceRequest::Parameters parameters{};
