@@ -1,6 +1,7 @@
 import argparse
 import glob
 import os
+import subprocess
 import sys
 
 # To help discover local modules
@@ -49,7 +50,7 @@ def build_dist_whl(args):
         print(f"## In directory: {os.getcwd()} | Executing command: {cur_wheel_cmd}")
 
         if not args.dry_run:
-            build_exit_code = os.system(cur_wheel_cmd)
+            build_exit_code = subprocess.run(cur_wheel_cmd)
             # If any one of the steps fail, exit with error
             if build_exit_code != 0:
                 sys.exit(f"## {binary} build Failed !")

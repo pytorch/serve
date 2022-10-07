@@ -1,5 +1,6 @@
 import argparse
 import os
+import subprocess
 from datetime import date
 
 from ts_scripts.utils import try_and_handle
@@ -11,7 +12,7 @@ MINICONDA_DOWNLOAD_URL = (
 )
 CONDA_BINARY = (
     os.popen("which conda").read().strip()
-    if os.system(f"conda --version") == 0
+    if subprocess.run(f"conda --version") == 0
     else f"$HOME/miniconda/condabin/conda"
 )
 
@@ -37,7 +38,7 @@ def install_conda_build(dry_run):
     """
 
     # Check if conda binary already exists
-    exit_code = os.system(f"conda --version")
+    exit_code = subprocess.run(f"conda --version")
     if exit_code == 0:
         print(
             f"'conda' already present on the system. Proceeding without a fresh conda installation."
@@ -54,7 +55,7 @@ def install_miniconda(dry_run):
     """
 
     # Check if conda binary already exists
-    exit_code = os.system(f"conda --version")
+    exit_code = subprocess.run(f"conda --version")
     if exit_code == 0:
         print(
             f"'conda' already present on the system. Proceeding without a fresh minconda installation."
@@ -133,7 +134,7 @@ def conda_build(
             cmd = f"{CONDA_BINARY} build --output-folder {output_dir} --python={pyv} {pkg}"
             print(f"## In directory: {os.getcwd()}; Executing command: {cmd}")
             if not dry_run:
-                os.system(cmd)
+                subprocess.run(cmd)
     return 0  # Used for sys.exit(0) --> to indicate successful system exit
 
 

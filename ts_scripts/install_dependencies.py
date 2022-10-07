@@ -1,5 +1,6 @@
 import argparse
 import os
+import subprocess
 import platform
 import sys
 
@@ -35,29 +36,29 @@ class Common:
                 )
                 sys.exit(1)
             else:
-                os.system(
+                subprocess.run(
                     f"{sys.executable} -m pip install -U -r requirements/torch_{cuda_version}_{platform.system().lower()}.txt"
                 )
         else:
-            os.system(
+            subprocess.run(
                 f"{sys.executable} -m pip install -U -r requirements/torch_{platform.system().lower()}.txt"
             )
 
     def install_python_packages(self, cuda_version, requirements_file_path):
         check = "where" if platform.system() == "Windows" else "which"
-        if os.system(f"{check} conda") == 0:
+        if subprocess.run(f"{check} conda") == 0:
             # conda install command should run before the pip install commands
             # as it may reinstall the packages with different versions
-            os.system("conda install -y conda-build")
+            subprocess.run("conda install -y conda-build")
 
         self.install_torch_packages(cuda_version)
-        os.system(f"{sys.executable} -m pip install -U pip setuptools")
+        subprocess.run(f"{sys.executable} -m pip install -U pip setuptools")
         # developer.txt also installs packages from common.txt
-        os.system(f"{sys.executable} -m pip install -U -r {requirements_file_path}")
+        subprocess.run(f"{sys.executable} -m pip install -U -r {requirements_file_path}")
         # If conda is available install conda-build package
 
     def install_node_packages(self):
-        os.system(
+        subprocess.run(
             f"{self.sudo_cmd}npm install -g newman newman-reporter-htmlextra markdown-link-check"
         )
 
@@ -75,30 +76,30 @@ class Linux(Common):
         self.sudo_cmd = "" if os.geteuid() == 0 else self.sudo_cmd
 
         if args.force:
-            os.system(f"{self.sudo_cmd}apt-get update")
+            subprocess.run(f"{self.sudo_cmd}apt-get update")
 
     def install_java(self):
-        if os.system("javac --version") != 0 or args.force:
-            os.system(f"{self.sudo_cmd}apt-get install -y openjdk-17-jdk")
+        if subprocess.run("javac --version") != 0 or args.force:
+            subprocess.run(f"{self.sudo_cmd}apt-get install -y openjdk-17-jdk")
 
     def install_nodejs(self):
-        if os.system("node -v") != 0 or args.force:
-            os.system(
+        if subprocess.run("node -v") != 0 or args.force:
+            subprocess.run(
                 f"{self.sudo_cmd}curl -sL https://deb.nodesource.com/setup_14.x | {self.sudo_cmd}bash -"
             )
-            os.system(f"{self.sudo_cmd}apt-get install -y nodejs")
+            subprocess.run(f"{self.sudo_cmd}apt-get install -y nodejs")
 
     def install_wget(self):
-        if os.system("wget --version") != 0 or args.force:
-            os.system(f"{self.sudo_cmd}apt-get install -y wget")
+        if subprocess.run("wget --version") != 0 or args.force:
+            subprocess.run(f"{self.sudo_cmd}apt-get install -y wget")
 
     def install_libgit2(self):
-        os.system(
+        subprocess.run(
             f"wget https://github.com/libgit2/libgit2/archive/refs/tags/v1.3.0.tar.gz -O libgit2-1.3.0.tar.gz"
         )
-        os.system(f"tar xzf libgit2-1.3.0.tar.gz")
-        os.system(f"cd libgit2-1.3.0 && cmake . && make && sudo make install && cd ..")
-        os.system(f"rm -rf libgit2-1.3.0 && rm libgit2-1.3.0.tar.gz")
+        subprocess.run(f"tar xzf libgit2-1.3.0.tar.gz")
+        subprocess.run(f"cd libgit2-1.3.0 && cmake . && make && sudo make install && cd ..")
+        subprocess.run(f"rm -rf libgit2-1.3.0 && rm libgit2-1.3.0.tar.gz")
 
 
 class Windows(Common):
@@ -121,23 +122,23 @@ class Darwin(Common):
         super().__init__()
 
     def install_java(self):
-        if os.system("javac -version") != 0 or args.force:
+        if subprocess.run("javac -version") != 0 or args.force:
             out = get_brew_version()
             if out == "N/A":
                 sys.exit("**Error: Homebrew not installed...")
-            os.system("brew install openjdk@17")
+            subprocess.run("brew install openjdk@17")
 
     def install_nodejs(self):
-        os.system("brew unlink node")
-        os.system("brew install node@14")
-        os.system("brew link --overwrite node@14")
+        subprocess.run("brew unlink node")
+        subprocess.run("brew install node@14")
+        subprocess.run("brew link --overwrite node@14")
 
     def install_node_packages(self):
-        os.system(f"{self.sudo_cmd} ./ts_scripts/mac_npm_deps")
+        subprocess.run(f"{self.sudo_cmd} ./ts_scripts/mac_npm_deps")
 
     def install_wget(self):
-        if os.system("wget --version") != 0 or args.force:
-            os.system("brew install wget")
+        if subprocess.run("wget --version") != 0 or args.force:
+            subprocess.run("brew install wget")
 
 
 def install_dependencies(cuda_version=None):

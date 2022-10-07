@@ -1,12 +1,11 @@
-import sys
-import os
+import subprocess
 import pandas as pd
 from pathlib import Path
 
-os.system('wget https://ai2-public-datasets.s3-us-west-2.amazonaws.com/charades/Charades_v1_480.zip')
-os.system('wget https://ai2-public-datasets.s3-us-west-2.amazonaws.com/charades/Charades.zip')
-os.system('unzip Charades_v1_480.zip')
-os.system('unzip Charades.zip')
+subprocess.run('wget https://ai2-public-datasets.s3-us-west-2.amazonaws.com/charades/Charades_v1_480.zip')
+subprocess.run('wget https://ai2-public-datasets.s3-us-west-2.amazonaws.com/charades/Charades.zip')
+subprocess.run('unzip Charades_v1_480.zip')
+subprocess.run('unzip Charades.zip')
 
 def make_charades_df(csv_path, video_dir, classes_file):
     # load the csv

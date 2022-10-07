@@ -1,4 +1,5 @@
 import os
+import subprocess
 import platform
 import sys
 import time
@@ -43,7 +44,7 @@ def start_torchserve(
         print(f"## Console logs redirected to file: {log_file}")
         cmd += f" >> {log_file}"
     print(f"## In directory: {os.getcwd()} | Executing command: {cmd}")
-    status = os.system(cmd)
+    status = subprocess.run(cmd)
     if status == 0:
         print("## Successfully started TorchServe")
         time.sleep(wait_for)
@@ -57,7 +58,7 @@ def stop_torchserve(wait_for=10):
     print("## Stopping TorchServe")
     cmd = f"{torchserve_command[platform.system()]} --stop"
     print(f"## In directory: {os.getcwd()} | Executing command: {cmd}")
-    status = os.system(cmd)
+    status = subprocess.run(cmd)
     if status == 0:
         print("## Successfully stopped TorchServe")
         time.sleep(wait_for)
@@ -106,7 +107,7 @@ def generate_grpc_client_stubs():
     cmd = "python -m grpc_tools.protoc --proto_path=frontend/server/src/main/resources/proto/ --python_out=ts_scripts " \
           "--grpc_python_out=ts_scripts frontend/server/src/main/resources/proto/inference.proto " \
           "frontend/server/src/main/resources/proto/management.proto"
-    status = os.system(cmd)
+    status = subprocess.run(cmd)
     if status != 0:
         print("Could not generate gRPC client stubs")
         sys.exit(1)

@@ -1,5 +1,6 @@
 import glob
 import os
+import subprocess
 import shutil
 import sys
 
@@ -109,7 +110,7 @@ def trigger_management_tests():
     ts.start_torchserve(ncs=True,
                         model_store=MODEL_STORE_DIR,
                         log_file=TS_CONSOLE_LOG_FILE)
-    EXIT_CODE = os.system(
+    EXIT_CODE = subprocess.run(
         f"newman run -e {POSTMAN_ENV_FILE} {POSTMAN_COLLECTION_MANAGEMENT} -d {POSTMAN_MANAGEMENT_DATA_FILE} -r cli,htmlextra --reporter-htmlextra-export {ARTIFACTS_MANAGEMENT_DIR}/{REPORT_FILE} --verbose"
     )
     ts.stop_torchserve()
@@ -123,7 +124,7 @@ def trigger_inference_tests():
     ts.start_torchserve(ncs=True,
                         model_store=MODEL_STORE_DIR,
                         log_file=TS_CONSOLE_LOG_FILE)
-    EXIT_CODE = os.system(
+    EXIT_CODE = subprocess.run(
         f"newman run -e {POSTMAN_ENV_FILE} {POSTMAN_COLLECTION_INFERENCE} -d {POSTMAN_INFERENCE_DATA_FILE} -r cli,htmlextra --reporter-htmlextra-export {ARTIFACTS_INFERENCE_DIR}/{REPORT_FILE} --verbose"
     )
     ts.stop_torchserve()
@@ -138,7 +139,7 @@ def trigger_workflow_tests():
                         model_store=MODEL_STORE_DIR,
                         workflow_store=MODEL_STORE_DIR,
                         log_file=TS_CONSOLE_LOG_FILE)
-    EXIT_CODE = os.system(
+    EXIT_CODE = subprocess.run(
         f"newman run -e {POSTMAN_ENV_FILE} {POSTMAN_COLLECTION_WORKFLOW} -d {POSTMAN_WORKFLOW_DATA_FILE} -r cli,htmlextra --reporter-htmlextra-export {ARTIFACTS_WORKFLOW_MANAGEMENT_DIR}/{REPORT_FILE} --verbose"
     )
     ts.stop_torchserve()
@@ -153,7 +154,7 @@ def trigger_workflow_inference_tests():
                         model_store=MODEL_STORE_DIR,
                         workflow_store=MODEL_STORE_DIR,
                         log_file=TS_CONSOLE_LOG_FILE)
-    EXIT_CODE = os.system(
+    EXIT_CODE = subprocess.run(
         f"newman run -e {POSTMAN_ENV_FILE} {POSTMAN_COLLECTION_WORKFLOW_INFERENCE} -d {POSTMAN_WORKFLOW_INFERENCE_DATA_FILE} -r cli,htmlextra --reporter-htmlextra-export {ARTIFACTS_WORKFLOW_INFERENCE_DIR}/{REPORT_FILE} --verbose"
     )
     ts.stop_torchserve()
@@ -168,7 +169,7 @@ def trigger_explanation_tests():
     ts.start_torchserve(ncs=True,
                         model_store=MODEL_STORE_DIR,
                         log_file=TS_CONSOLE_LOG_FILE)
-    EXIT_CODE = os.system(
+    EXIT_CODE = subprocess.run(
         f"newman run -e {POSTMAN_ENV_FILE} {POSTMAN_COLLECTION_EXPLANATION} -d {POSTMAN_EXPLANATION_DATA_FILE} -r cli,htmlextra --reporter-htmlextra-export {ARTIFACTS_INFERENCE_DIR}/{REPORT_FILE} --verbose"
     )
     ts.stop_torchserve()
@@ -189,7 +190,7 @@ def trigger_incr_timeout_inference_tests():
                         model_store=MODEL_STORE_DIR,
                         config_file="config.properties",
                         log_file=TS_CONSOLE_LOG_FILE)
-    EXIT_CODE = os.system(
+    EXIT_CODE = subprocess.run(
         f"newman run -e {POSTMAN_ENV_FILE} {POSTMAN_COLLECTION_INFERENCE} -d {POSTMAN_INCRSD_TIMEOUT_INFERENCE_DATA_FILE} -r cli,htmlextra --reporter-htmlextra-export {ARTIFACTS_INCRSD_TIMEOUT_INFERENCE_DIR}/{REPORT_FILE} --verbose"
     )
     ts.stop_torchserve()
@@ -206,7 +207,7 @@ def trigger_https_tests():
                         model_store=MODEL_STORE_DIR,
                         config_file=TS_CONFIG_FILE_HTTPS,
                         log_file=TS_CONSOLE_LOG_FILE)
-    EXIT_CODE = os.system(
+    EXIT_CODE = subprocess.run(
         f"newman run --insecure -e {POSTMAN_ENV_FILE} {POSTMAN_COLLECTION_HTTPS} -r cli,htmlextra --reporter-htmlextra-export {ARTIFACTS_HTTPS_DIR}/{REPORT_FILE} --verbose"
     )
     ts.stop_torchserve()
@@ -227,7 +228,7 @@ def trigger_management_tests_kf():
                         model_store=MODEL_STORE_DIR,
                         config_file="config.properties",
                         log_file=TS_CONSOLE_LOG_FILE)
-    EXIT_CODE = os.system(
+    EXIT_CODE = subprocess.run(
         f"newman run -e {POSTMAN_ENV_FILE} {POSTMAN_COLLECTION_MANAGEMENT} -d {POSTMAN_MANAGEMENT_DATA_FILE} -r cli,htmlextra --reporter-htmlextra-export {ARTIFACTS_MANAGEMENT_DIR_KF}/{REPORT_FILE} --verbose"
     )
     ts.stop_torchserve()
@@ -248,7 +249,7 @@ def trigger_inference_tests_kf():
                         model_store=MODEL_STORE_DIR,
                         config_file="config.properties",
                         log_file=TS_CONSOLE_LOG_FILE)
-    EXIT_CODE = os.system(
+    EXIT_CODE = subprocess.run(
         f"newman run -e {POSTMAN_ENV_FILE} {POSTMAN_COLLECTION_INFERENCE_KF} -d {POSTMAN_INFERENCE_DATA_FILE_KF} -r cli,htmlextra --reporter-htmlextra-export {ARTIFACTS_INFERENCE_DIR_KF}/{REPORT_FILE} --verbose"
     )
     ts.stop_torchserve()
@@ -264,7 +265,7 @@ def trigger_https_tests_kf():
                         model_store=MODEL_STORE_DIR,
                         config_file=TS_CONFIG_FILE_HTTPS_KF,
                         log_file=TS_CONSOLE_LOG_FILE)
-    EXIT_CODE = os.system(
+    EXIT_CODE = subprocess.run(
         f"newman run --insecure -e {POSTMAN_ENV_FILE} {POSTMAN_COLLECTION_HTTPS_KF} -r cli,htmlextra --reporter-htmlextra-export {ARTIFACTS_HTTPS_DIR_KF}/{REPORT_FILE} --verbose"
     )
     ts.stop_torchserve()
@@ -284,7 +285,7 @@ def trigger_inference_tests_kfv2():
                         model_store=MODEL_STORE_DIR,
                         config_file="config.properties",
                         log_file=TS_CONSOLE_LOG_FILE)
-    EXIT_CODE = os.system(
+    EXIT_CODE = subprocess.run(
         f"newman run -e {POSTMAN_ENV_FILE} {POSTMAN_COLLECTION_INFERENCE_KFV2} -d {POSTMAN_INFERENCE_DATA_FILE_KFV2} -r cli,htmlextra --reporter-htmlextra-export {ARTIFACTS_INFERENCE_DIR_KFV2}/{REPORT_FILE} --verbose"
     )
     ts.stop_torchserve()
@@ -300,7 +301,7 @@ def trigger_https_tests_kfv2():
                         model_store=MODEL_STORE_DIR,
                         config_file=TS_CONFIG_FILE_HTTPS_KFV2,
                         log_file=TS_CONSOLE_LOG_FILE)
-    EXIT_CODE = os.system(
+    EXIT_CODE = subprocess.run(
         f"newman run --insecure -e {POSTMAN_ENV_FILE} {POSTMAN_COLLECTION_HTTPS_KFV2} -r cli,htmlextra --reporter-htmlextra-export {ARTIFACTS_HTTPS_DIR_KFV2}/{REPORT_FILE} --verbose"
     )
     ts.stop_torchserve()

@@ -1,5 +1,6 @@
 import os
 import tempfile
+import subprocess
 import sys
 import urllib.request
 from ts_scripts.shell_utils import rm_file
@@ -37,7 +38,7 @@ def generate_densenet_test_model_archive():
                 --handler {handler} \
                 --force"
     print(f"## In directory: {os.getcwd()} | Executing command: {cmd}")
-    sys_exit_code = os.system(cmd)
+    sys_exit_code = subprocess.run(cmd)
     os.remove(serialized_file_path)
     os.chdir(REPO_ROOT)
     return sys_exit_code
@@ -49,13 +50,13 @@ def run_pytest():
     cmd = "python -m grpc_tools.protoc --proto_path=../../frontend/server/src/main/resources/proto/" \
           " --python_out=. --grpc_python_out=. ../../frontend/server/src/main/resources/proto/inference.proto" \
           " ../../frontend/server/src/main/resources/proto/management.proto"
-    status = os.system(cmd)
+    status = subprocess.run(cmd)
     if status != 0:
         print("Could not generate gRPC client stubs")
         sys.exit(1)
     cmd = "python -m pytest -v ./"
     print(f"## In directory: {os.getcwd()} | Executing command: {cmd}")
-    status = os.system(cmd)
+    status = subprocess.run(cmd)
     rm_file('*_pb2*.py', True)
     return status
 

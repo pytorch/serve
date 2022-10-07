@@ -1,5 +1,6 @@
 import argparse
 import os
+import subprocess
 import sys
 
 # To help discover local modules
@@ -18,7 +19,7 @@ def install_from_src(dev=False):
             else f"pip install --force-reinstall {binary}"
         )
         print(f"## In directory {os.getcwd()} | Executing command {cmd}")
-        os.system(cmd)
+        subprocess.run(cmd)
 
 
 if __name__ == "__main__":

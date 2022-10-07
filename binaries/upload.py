@@ -2,6 +2,7 @@
 import argparse
 import glob
 import os
+import subprocess
 import sys
 
 # To help discover local modules
@@ -45,7 +46,7 @@ def upload_conda_packages(args, PACKAGES, CONDA_PACKAGES_PATH):
             ):
                 print(f"Uploading to anaconda package: {name}")
                 anaconda_upload_command = f"anaconda upload {file_path} --force"
-                exit_code = os.system(anaconda_upload_command)
+                exit_code = subprocess.run(anaconda_upload_command)
                 if exit_code != 0:
                     print(f"Anaconda package upload failed for package {name}")
                     return exit_code

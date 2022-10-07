@@ -1,4 +1,5 @@
 import os
+import subprocess
 import sys
 import nvgpu
 import glob
@@ -19,7 +20,7 @@ def run_markdown_link_checker():
     for mdfile in glob.glob("**/*.md", recursive=True):
         cmd = f"markdown-link-check {mdfile} --config link_check_config.json"
         print(f"## In directory: {os.getcwd()} | Executing command: {cmd}")
-        status = os.system(cmd)
+        status = subprocess.run(cmd)
         if status != 0:
             print(f"## Broken links in file: {mdfile}")
             result = False
@@ -106,7 +107,7 @@ def test_sanity():
         mar_set_list_str = [str(s) for s in mg.mar_set]
         mar_set_str = ",".join(mar_set_list_str)
         register_model_grpc_cmd = f"python ts_scripts/torchserve_grpc_client.py register {model_name} {mar_set_str}"
-        status = os.system(register_model_grpc_cmd)
+        status = subprocess.run(register_model_grpc_cmd)
 
         if status != 0:
             print("## Failed to register model with torchserve")
@@ -116,7 +117,7 @@ def test_sanity():
 
         for input in model_inputs:
             infer_model_grpc_cmd = f"python ts_scripts/torchserve_grpc_client.py infer {model_name} {input}"
-            status = os.system(infer_model_grpc_cmd)
+            status = subprocess.run(infer_model_grpc_cmd)
             if status != 0:
                 print(f"## Failed to run inference on {model_name} model")
                 sys.exit(1)
@@ -124,7 +125,7 @@ def test_sanity():
                 print(f"## Successfully ran inference on {model_name} model.")
 
         unregister_model_grpc_cmd = f"python ts_scripts/torchserve_grpc_client.py unregister {model_name}"
-        status = os.system(unregister_model_grpc_cmd)
+        status = subprocess.run(unregister_model_grpc_cmd)
 
         if status != 0:
             print(f"## Failed to unregister {model_name}")
