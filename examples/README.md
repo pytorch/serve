@@ -15,7 +15,7 @@
 * [Serving Image Classification Workflow](#serving-image-classification-workflow)
 * [Serving Neural Machine Translation Workflow](#serving-neural-machine-translation-workflow)
 * [Serving Torchrec DLRM (Recommender Model)](#serving-torchrec-dlrm)
-* [Serving Image Classifier model for streaming video)](#serving-image-classifier-model-for-streaming-video)
+* [Serving Image Classifier model for streaming video](#serving-image-classifier-model-for-streaming-video)
 
 # TorchServe Examples
 
