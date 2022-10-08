@@ -2,6 +2,7 @@
 This script downloads the Resnet-18 model and packs it into a TorchServe mar file
 """
 
+import argparse
 import os
 import shutil
 
@@ -18,16 +19,29 @@ def download_pth_file(output_file: str) -> None:
 
 
 def create_mar():
-    cmd = [
-        "torch-model-archiver",
-        "--model-name resnet-18",
-        "--version 1.0",
-        f"--serialized-file {MODEL_PTH_FILE}",
-        "--model-file examples/image_classifier/streaming_video/model.py",
-        "--extra-files examples/image_classifier/index_to_name.json",
-        "--handler examples/image_classifier/streaming_video/custom_handler.py",
-        "--force",
-    ]
+
+    if args.client_batching:
+        cmd = [
+            "torch-model-archiver",
+            "--model-name resnet-18",
+            "--version 1.0",
+            f"--serialized-file {MODEL_PTH_FILE}",
+            "--model-file examples/image_classifier/streaming_video/model.py",
+            "--extra-files examples/image_classifier/index_to_name.json",
+            "--handler examples/image_classifier/streaming_video/streaming_video_handler.py",
+            "--force",
+        ]
+    else:
+        cmd = [
+            "torch-model-archiver",
+            "--model-name resnet-18",
+            "--version 1.0",
+            f"--serialized-file {MODEL_PTH_FILE}",
+            "--model-file examples/image_classifier/streaming_video/model.py",
+            "--extra-files examples/image_classifier/index_to_name.json",
+            "--handler image_classifier",
+            "--force",
+        ]
 
     print(f"Archiving resnet-18 model into {MAR_FILE}")
     os.system(" ".join(cmd))
@@ -48,4 +62,13 @@ def main():
 
 
 if __name__ == "__main__":
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--client-batching",
+        help="To use client side batching methodology",
+        action="store_true",
+    )
+    args = parser.parse_args()
+
     main()

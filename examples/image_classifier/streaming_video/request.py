@@ -1,10 +1,13 @@
 import argparse
+import base64
+import json
 import time
 from collections import deque
 from concurrent.futures import as_completed
 from threading import Thread
 
 import cv2
+import requests
 from requests_futures.sessions import FuturesSession
 
 
@@ -56,25 +59,42 @@ def read_frames(args):
 
 
 def send_frames(payload, snd_cnt, session):
-    snd_cnt += 1
 
-    response = session.post(api, data=payload)
+    if args.client_batching:
+        snd_cnt += len(payload)
+        payload = json.dumps(payload)
+        response = requests.post(api, data=payload, headers=headers)
+    else:
+        snd_cnt += 1
+        response = session.post(api, data=payload)
 
     return (response, snd_cnt)
+
+
+def calculate_fps(start_time, snd_cnt):
+
+    end_time = time.time()
+    if args.client_batching:
+        fps = 1.0 * args.batch_size / (end_time - start_time)
+    else:
+        fps = 1.0 / (end_time - start_time)
+
+    print(
+        "With Batch Size {}, FPS at frame number {} is {:.1f}".format(
+            args.batch_size, snd_cnt, fps
+        )
+    )
+    return fps
 
 
 def batch_and_send_frames(args):
 
     # Initialize variables
-    exit_cnt = 0
-    payload = {}
-    snd_cnt = 0
+    count, exit_cnt, snd_cnt, log_cnt = 0, 0, 0, 20
+    payload, futures = {}, []
     start_time = time.time()
     fps = 0
     session = FuturesSession()
-    futures = []
-    log_cnt = 20
-    payload = None
 
     while True:
 
@@ -88,33 +108,51 @@ def batch_and_send_frames(args):
                 )
                 break
 
-        # If queue is not empty, send one frame at a time
-        if queue:
-            payload = queue.popleft()
+        if args.client_batching:
+            # Batch the frames into a dict payload
+            while queue and count < args.batch_size:
+                data = queue.popleft()
+                im_b64 = base64.b64encode(data).decode("utf8")
+                payload[str(count)] = im_b64
+                count += 1
 
-            response, snd_cnt = send_frames(payload, snd_cnt, session)
-            futures.append(response)
+            if count >= args.batch_size:
 
-            # Calculate FPS
-            end_time = time.time()
-            fps = 1.0 / (end_time - start_time)
-            if snd_cnt % log_cnt == 0:
-                print(
-                    "With Batch Size {}, FPS at frame number {} is {:.1f}".format(
-                        args.batch_size, snd_cnt, fps
-                    )
-                )
+                response, snd_cnt = send_frames(payload, snd_cnt, session)
 
-                # Printing the response
-                for response in list(as_completed(futures))[-4:]:
-                    print(response.result().content.decode("utf-8"))
+                if snd_cnt % log_cnt == 0:
+                    # Calculate FPS
+                    fps = calculate_fps(start_time, snd_cnt)
 
-                # Cleaning up futures in case futures becomes too large
-                del futures[:log_cnt]
+                    # Printing the response
+                    print(response.content.decode("UTF-8"))
 
-            # Reset for next batch
-            start_time = time.time()
-            payload = None
+                # Reset for next batch
+                start_time = time.time()
+                payload = {}
+                count = 0
+        else:
+            # If queue is not empty, send one frame at a time
+            if queue:
+                payload = queue.popleft()
+
+                response, snd_cnt = send_frames(payload, snd_cnt, session)
+                futures.append(response)
+
+                if snd_cnt % log_cnt == 0:
+                    # Calculate FPS
+                    fps = calculate_fps(start_time, snd_cnt)
+
+                    # Printing the response
+                    for response in list(as_completed(futures))[-4:]:
+                        print(response.result().content.decode("utf-8"))
+
+                    # Cleaning up futures in case futures becomes too large
+                    del futures[:log_cnt]
+
+                # Reset for next batch
+                start_time = time.time()
+                payload = None
 
         # Sleep for 10 ms before trying to send next batch of frames
         time.sleep(args.sleep)
@@ -143,6 +181,11 @@ if __name__ == "__main__":
         default="examples/image_classifier/streaming_video/data/sample_video.mp4",
     )
     parser.add_argument(
+        "--client-batching",
+        help="To use client side batching methodology",
+        action="store_true",
+    )
+    parser.add_argument(
         "--sleep",
         help="Sleep between 2 subsequent requests in seconds",
         type=float,
@@ -153,6 +196,7 @@ if __name__ == "__main__":
     # Read frames are placed here and then processed
     queue = deque([])
     api = "http://localhost:8080/predictions/resnet-18"
+    headers = {"Content-type": "application/json", "Accept": "text/plain"}
 
     thread1 = Thread(target=read_frames, args=(args,))
     thread2 = Thread(target=batch_and_send_frames, args=(args,))

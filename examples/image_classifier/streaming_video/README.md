@@ -39,11 +39,11 @@ TorchServe receives individual requests, batches the requests to make a single i
 Run the commands given in following steps from the parent directory of the root of the repository. For example, if you cloned the repository into `/home/my_path/serve`, run the steps from `/home/my_path`
 
 ```bash
-python examples/image_classifier/streaming_video/create_mar_file_batch.py
+python examples/image_classifier/streaming_video/create_mar_file.py
 
 torchserve --start --model-store model_store --models resnet-18=resnet-18.mar --ts-config examples/image_classifier/streaming_video/config.properties
 
-python examples/image_classifier/streaming_video/request_ts_batching.py
+python examples/image_classifier/streaming_video/request.py
 ```
 
 The default batch size is 4.
@@ -93,11 +93,11 @@ On the TorchServe side, we read the json payload and preprocess the n frames. Th
 Run the commands given in following steps from the parent directory of the root of the repository. For example, if you cloned the repository into `/home/my_path/serve`, run the steps from `/home/my_path`
 
 ```bash
-python examples/image_classifier/streaming_video/create_mar_file.py
+python examples/image_classifier/streaming_video/create_mar_file.py --client-batching
 
 torchserve --start --model-store model_store --models resnet-18=resnet-18.mar
 
-python examples/image_classifier/streaming_video/request_client_batching.py
+python examples/image_classifier/streaming_video/request.py --client-batching
 ```
 The default batch size is 4.
 On the client side, we should see the following output
