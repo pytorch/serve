@@ -3,7 +3,15 @@
 
 #include <arpa/inet.h>
 #include <cstdio>
+
+#if __has_include(<filesystem>)
+#include <filesystem>
+#elif __has_include(<experimental/filesystem>)
 #include <experimental/filesystem>
+#else
+#error require filesystem
+#endif
+
 #include <netinet/in.h>
 #include <string>
 #include <sys/socket.h>

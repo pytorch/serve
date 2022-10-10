@@ -1,11 +1,26 @@
 #include <gtest/gtest.h>
+
+#if __has_include(<filesystem>)
+#include <filesystem>
+#elif __has_include(<experimental/filesystem>)
 #include <experimental/filesystem>
+#else
+#error require filesystem
+#endif
+
 #include <fmt/format.h>
 #include <fstream>
 
 #include "src/utils/logging.hh"
 
+namespace fs = std::filesystem;
+#if __cpp_lib_filesystem >= 201703
+namespace fs = std::filesystem;
+#elif __cpp_lib_experimental_filesystem >= 201406
 namespace fs = std::experimental::filesystem;
+#else
+#error require filesystem
+#endif
 
 namespace torchserve {
   void Cleanup(const std::string& logfile_path) {
