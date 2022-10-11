@@ -5,9 +5,10 @@
 #include <filesystem>
 #include <memory>
 #include <queue>
+#include <random>
 #include <stdexcept>
-#include <stdlib.h>
-#include <time.h>
+//#include <stdlib.h>
+//#include <time.h>
 #include <tuple>
 #include <utility>
 
@@ -75,7 +76,7 @@ namespace torchserve {
     virtual ~Backend() = default;
 
     virtual bool Initialize(const std::string& model_dir) {
-      srand(time(0));
+      random_generator_.seed(time(0));
       manifest_ = std::make_shared<torchserve::Manifest>();
       // TODO: windows
       return manifest_->Initialize(fmt::format("{}/MAR-INF/MANIFEST.json", model_dir));
@@ -111,8 +112,11 @@ namespace torchserve {
 
     std::atomic_uint16_t model_instance_count_ = 0;
 
+    
     private:
     std::size_t Random();
+
+    std::mt19937 random_generator_;
   };
 
   class ModelWorker {

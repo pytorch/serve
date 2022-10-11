@@ -22,7 +22,15 @@ namespace torchserve {
     }
     
     // TODO: add lib path prefix and version
-    // eg. torchserve/backends/torch_scripted/1.11/libtorch_scripted_cpu_backend.so
-    return fmt::format("lib{}_{}_backend.so", it->second->name, device_type);
+    // eg. torchserve/backends/torch_scripted/1.11/libts_backends_torch_scripted.so
+    #ifdef __APPLE__
+      if (device_type == "gpu") {
+        throw std::invalid_argument(fmt::format(
+          "Invalid device type: {}", device_type));
+      }
+      return fmt::format("{}/lib{}_{}_backend.dylib", version, it->second->name, device_type);
+    #else 
+      return fmt::format("{}/lib{}_{}_backend.so", version, it->second->name, device_type);
+    #endif
   }
 } //namespace torchserve

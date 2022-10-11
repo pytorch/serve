@@ -67,11 +67,12 @@ namespace torchserve {
   }
 
   std::size_t Backend::Random() {
-    std::size_t size = ready_model_instance_ids_.size();
+    auto size = ready_model_instance_ids_.size();
     if (size == 1) {
       return 0;
     } else {
-      return rand() % size;
+      std::uniform_int_distribution<> uint_distribution_(0, size - 1);
+      return uint_distribution_(random_generator_);
     }
   }
 } // namespace torchserve

@@ -76,7 +76,7 @@ namespace torchserve {
      * @brief Get the Libso object
      * TODO: TorchServe cpp backend shared lib naming convention:
      * - torchserve/backends/{framework_name}/{version}/lib{framework_name}_{device_type}_backend.so
-     * eg. torchserve/backends/torch_scripted/1.11/libtorch_scripted_cpu_backend.so
+     * eg. torchserve/backends/torch_scripted/1.11/libts_backends_torch_scripted.so
      * 
      * - framework_name follows the name in src/backends/{framework_name}/
      * eg. src/backends/torch_scripted
