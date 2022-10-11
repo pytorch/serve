@@ -179,7 +179,7 @@ if __name__ == "__main__":
         extras_require={
             "onnx": ["onnxruntime"],
             "ipex": ["intel_extension_for_pytorch"],
-            "tensorrt": ["torch2trt"],
+            "tensorrt": ["torch2trt","nvidia-pyindex","nvidia-tensorrt"],
         },
         entry_points={"console_scripts": ["torchserve=ts.model_server:start"]},
         include_package_data=True,
