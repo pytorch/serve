@@ -1,11 +1,11 @@
 #include <gtest/gtest.h>
-#include <experimental/filesystem>
+#include <filesystem>
 #include <fmt/format.h>
 #include <fstream>
 
 #include "src/utils/logging.hh"
 
-namespace fs = std::experimental::filesystem;
+namespace fs = std::filesystem;
 
 namespace torchserve {
   void Cleanup(const std::string& logfile_path) {
