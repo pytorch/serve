@@ -1,15 +1,13 @@
 #include <gtest/gtest.h>
-#include <experimental/filesystem>
+#include <filesystem>
 #include <fmt/format.h>
 #include <fstream>
 
 #include "src/utils/logging.hh"
 
-namespace fs = std::experimental::filesystem;
-
 namespace torchserve {
   void Cleanup(const std::string& logfile_path) {
-    if (!fs::remove(logfile_path)) {
+    if (!std::filesystem::remove(logfile_path)) {
       std::cout << "Failed to delete test log file" << logfile_path << std::endl;
     };
     torchserve::Logger::InitDefaultLogger();
@@ -31,7 +29,7 @@ namespace torchserve {
     torchserve::Logger::InitLogger(logger_config_path_str);
     std::string log_line("Test");
     TS_LOG(INFO, log_line);
-    EXPECT_TRUE(fs::exists(logfile_path));
+    EXPECT_TRUE(std::filesystem::exists(logfile_path));
 
     std::string contents;
     std::ifstream logfile(logfile_path);
