@@ -140,6 +140,9 @@ namespace torchserve {
       std::shared_ptr<torch::Device>& device,
       std::map<uint8_t, std::string>& idx_to_req_id,
       std::shared_ptr<torchserve::InferenceResponseBatch>& response_batch) {
+      if (device == nullptr) {
+        TS_LOG(WARN, "device is nullptr");
+      }
       try {
         torch::NoGradGuard no_grad;
         return model->forward(inputs).toTensor();
