@@ -9,7 +9,7 @@ namespace torchserve {
                 .Times(1)
                 .WillOnce(testing::Invoke([=](size_t length, char* data) {
                   ASSERT_EQ(length, 1);
-                  strcpy(data, "L");
+                  strncpy(data, "L", length);
                 }));
     auto cmd = OTFMessage::RetrieveCmd(*client_socket);
     ASSERT_EQ(cmd, 'L');
@@ -60,19 +60,19 @@ namespace torchserve {
                 // model_name
                 .WillOnce(testing::Invoke([=](size_t length, char* data) {
                   ASSERT_EQ(length, 6);
-                  strcpy(data, "测试");
+                  strncpy(data, "测试", length);
                 }))
                 .WillOnce(testing::Invoke([=](size_t length, char* data) {
                   ASSERT_EQ(length, 10);
-                  strcpy(data, "model_path");
+                  strncpy(data, "model_path", length);
                 }))
                 .WillOnce(testing::Invoke([=](size_t length, char* data) {
                   ASSERT_EQ(length, 7);
-                  strcpy(data, "handler");
+                  strncpy(data, "handler", length);
                 }))
                 .WillOnce(testing::Invoke([=](size_t length, char* data) {
                   ASSERT_EQ(length, 8);
-                  strcpy(data, "envelope");
+                  strncpy(data, "envelope", length);
                 }));
     auto load_model_request = OTFMessage::RetrieveLoadMsg(*client_socket);
     ASSERT_TRUE(*load_model_request == expected);
@@ -97,19 +97,19 @@ namespace torchserve {
                 .Times(4)
                 .WillOnce(testing::Invoke([=](size_t length, char* data) {
                   ASSERT_EQ(length, 10);
-                  strcpy(data, "model_name");
+                  strncpy(data, "model_name", length);
                 }))
                 .WillOnce(testing::Invoke([=](size_t length, char* data) {
                   ASSERT_EQ(length, 10);
-                  strcpy(data, "model_path");
+                  strncpy(data, "model_path", length);
                 }))
                 .WillOnce(testing::Invoke([=](size_t length, char* data) {
                   ASSERT_EQ(length, 7);
-                  strcpy(data, "handler");
+                  strncpy(data, "handler", length);
                 }))
                 .WillOnce(testing::Invoke([=](size_t length, char* data) {
                   ASSERT_EQ(length, 8);
-                  strcpy(data, "envelope");
+                  strncpy(data, "envelope", length);
                 }));
     auto load_model_request = OTFMessage::RetrieveLoadMsg(*client_socket);
     ASSERT_TRUE(*load_model_request == expected);
@@ -180,27 +180,27 @@ namespace torchserve {
                 .Times(6)
                 .WillOnce(testing::Invoke([=](size_t length, char* data) {
                   ASSERT_EQ(length, 4);
-                  strcpy(data, "reqi");
+                  strncpy(data, "reqi", length);
                 }))
                 .WillOnce(testing::Invoke([=](size_t length, char* data) {
                   ASSERT_EQ(length, 4);
-                  strcpy(data, "heak");
+                  strncpy(data, "heak", length);
                 }))
                 .WillOnce(testing::Invoke([=](size_t length, char* data) {
                   ASSERT_EQ(length, 4);
-                  strcpy(data, "heav");
+                  strncpy(data, "heav", length);
                 }))
                 .WillOnce(testing::Invoke([=](size_t length, char* data) {
                   ASSERT_EQ(length, 4);
-                  strcpy(data, "parn");
+                  strncpy(data, "parn", length);
                 }))
                 .WillOnce(testing::Invoke([=](size_t length, char* data) {
                   ASSERT_EQ(length, 4);
-                  strcpy(data, "cont");
+                  strncpy(data, "cont", length);
                 }))
                 .WillOnce(testing::Invoke([=](size_t length, char* data) {
                   ASSERT_EQ(length, 4);
-                  strcpy(data, "valu");
+                  strncpy(data, "valu", length);
                 }));
     auto batch_inference_request = OTFMessage::RetrieveInferenceMsg(*client_socket);
     auto inference_request = batch_inference_request->at(0);

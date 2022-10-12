@@ -31,7 +31,6 @@ function install_dependencies_linux() {
     flex \
     bison \
     libgflags-dev \
-    google-mock \
     libkrb5-dev \
     libsasl2-dev \
     libnuma-dev \
@@ -54,17 +53,27 @@ function install_dependencies_linux() {
     binutils-dev \
     libsodium-dev \
     libdouble-conversion-dev \
-    ninja-build
+    ninja-build \
+    clang-tidy
 }
 
 function install_dependencies_mac() {
+  # install the default dependencies from homebrew
+  brew install -f            \
+    llvm
+
+  ln -s "$(brew --prefix llvm)/bin/clang-format" "/usr/local/bin/clang-format"
+  ln -s "$(brew --prefix llvm)/bin/clang-tidy" "/usr/local/bin/clang-tidy"
+  ln -s "$(brew --prefix llvm)/bin/clang-apply-replacements" "/usr/local/bin/clang-apply-replacements"
+}
+
+function install_dependencies_mac_ori() {
   # install the default dependencies from homebrew
   brew install -f            \
     cmake                    \
     m4                       \
     boost                    \
     double-conversion        \
-    gflags                   \
     gperf                    \
     libevent                 \
     lz4                      \
@@ -77,14 +86,17 @@ function install_dependencies_mac() {
     cmake                   \
     boost                   \
     double-conversion       \
-    gflags                  \
     gperf                   \
     libevent                \
     lz4                     \
     snappy                  \
     openssl                 \
     xz                      \
-    libsodium
+    libsodium                   
+
+  #ln -s "$(brew --prefix llvm)/bin/clang-format" "/usr/local/bin/clang-format"
+  #ln -s "$(brew --prefix llvm)/bin/clang-tidy" "/usr/local/bin/clang-tidy"
+  #ln -s "$(brew --prefix llvm)/bin/clang-apply-replacements" "/usr/local/bin/clang-apply-replacements"
 }
 
 function install_dependencies() {
@@ -177,7 +189,7 @@ function install_libtorch() {
         rm libtorch-cxx11-abi-shared-with-deps-1.12.1+cpu.zip
       fi
     elif [ "$PLATFORM" = "Windows" ]; then
-      echo -e "${COLOR_GREEN}[ INFO ] Install libtorch on Mac ${COLOR_OFF}"
+      echo -e "${COLOR_GREEN}[ INFO ] Install libtorch on Windows ${COLOR_OFF}"
       # TODO: Windows
       echo -e "${COLOR_RED}[ ERROR ] Unknown platform: $PLATFORM ${COLOR_OFF}"
       exit 1
@@ -277,7 +289,7 @@ INSTALL_DEPENDENCIES=false
 PREFIX=""
 COMPILER_FLAGS=""
 CUDA=""
-USAGE="./build.sh [-j num_jobs] [-g cu102|cu113|cu116] [-q|--with-quic] [-p|--prefix] [-x|--compiler-flags]"
+USAGE="./build.sh [-j num_jobs] [-g cu102|cu113|cu116] [-q|--with-quic] [--install-dependencies] [-p|--prefix] [-x|--compiler-flags]"
 while [ "$1" != "" ]; do
   case $1 in
     -j | --jobs ) shift
@@ -289,8 +301,8 @@ while [ "$1" != "" ]; do
     -q | --with-quic )
                   WITH_QUIC=true
                   ;;
-    --no-install-dependencies )
-                  INSTALL_DEPENDENCIES=false
+    --install-dependencies )
+                  INSTALL_DEPENDENCIES=true
           ;;
     -t | --no-tests )
                   NO_BUILD_TESTS=true

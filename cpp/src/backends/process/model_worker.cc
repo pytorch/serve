@@ -2,6 +2,7 @@
 
 namespace fs = std::filesystem;
 
+
 namespace torchserve {
   void SocketServer::Initialize(
     const std::string& socket_type,
@@ -14,6 +15,10 @@ namespace torchserve {
     unsigned short socket_family;
     socket_family = AF_INET;
     socket_type_ = socket_type;
+    if (device_type != "cpu" && device_type != "gpu") {
+      TS_LOGF(WARN, "Invalid device type: {}", device_type);
+    }
+
     if (socket_type == "unix") {
       socket_family = AF_UNIX;
       if (socket_name.empty()) {
@@ -64,7 +69,7 @@ namespace torchserve {
       sockaddr_un sock_addr{};
       std::memset(&sock_addr, 0, sizeof(sock_addr));
       sock_addr.sun_family = AF_UNIX;
-      std::strcpy(sock_addr.sun_path, socket_name_.c_str());
+      std::strncpy(sock_addr.sun_path, socket_name_.c_str(), sizeof(sock_addr.sun_path));
       srv_sock_address = reinterpret_cast<sockaddr*>(&sock_addr);
       name_len = SUN_LEN(&sock_addr);
     } else {

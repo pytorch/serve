@@ -7,6 +7,7 @@
 
 namespace fs = std::filesystem;
 
+
 namespace torchserve {
   void Cleanup(const std::string& logfile_path) {
     if (!fs::remove(logfile_path)) {

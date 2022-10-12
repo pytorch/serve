@@ -80,17 +80,17 @@ public final class EnvironmentUtils {
         String os = System.getProperty("os.name").toLowerCase();
         if (os.indexOf("win") >= 0) {
             if (System.getenv("PATH") != null) {
-                cppPath.append(System.getenv("PATH")).append(File.pathSeparatorChar);
+                cppPath.append(File.pathSeparatorChar).append(System.getenv("PATH"));
             }
             environment.put("PATH", cppPath.toString());
         } else if (os.indexOf("mac") >= 0) {
             if (System.getenv("DYLD_LIBRARY_PATH") != null) {
-                cppPath.append(System.getenv("DYLD_LIBRARY_PATH")).append(File.pathSeparatorChar);
+                cppPath.append(File.pathSeparatorChar).append(System.getenv("DYLD_LIBRARY_PATH"));
             }
             environment.put("DYLD_LIBRARY_PATH", cppPath.toString());
         } else {
             if (System.getenv("LD_LIBRARY_PATH") != null) {
-                cppPath.append(System.getenv("LD_LIBRARY_PATH")).append(File.pathSeparatorChar);
+                cppPath.append(File.pathSeparatorChar).append(System.getenv("LD_LIBRARY_PATH"));
             }
             environment.put("LD_LIBRARY_PATH", cppPath.toString());
         }
