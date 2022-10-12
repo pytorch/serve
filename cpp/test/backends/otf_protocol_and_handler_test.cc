@@ -13,7 +13,7 @@ namespace torchserve
                 .Times(1)
                 .WillOnce(testing::Invoke([=](size_t length, char* data) {
                   ASSERT_EQ(length, 1);
-                  strcpy(data, "L");
+                  strncpy(data, "L", length);
                 }));
     auto cmd = OTFMessage::RetrieveCmd(*client_socket);
     ASSERT_EQ(cmd, 'L');
@@ -41,19 +41,19 @@ namespace torchserve
                 // model_name
                 .WillOnce(testing::Invoke([=](size_t length, char* data) {
                   ASSERT_EQ(length, 5);
-                  strcpy(data, "mnist");
+                  strncpy(data, "mnist", length);
                 }))
                 .WillOnce(testing::Invoke([=](size_t length, char* data) {
                   ASSERT_EQ(length, 51);
-                  strcpy(data, "test/resources/torchscript_model/mnist/base_handler");
+                  strncpy(data, "test/resources/torchscript_model/mnist/base_handler", length);
                 }))
                 .WillOnce(testing::Invoke([=](size_t length, char* data) {
                   ASSERT_EQ(length, 11);
-                  strcpy(data, "BaseHandler");
+                  strncpy(data, "BaseHandler", length);
                 }))
                 .WillOnce(testing::Invoke([=](size_t length, char* data) {
                   ASSERT_EQ(length, 0);
-                  strcpy(data, "");
+                  strncpy(data, "", length);
                 }));
 
     EXPECT_CALL(*client_socket, SendAll(testing::_, testing::_))
@@ -82,7 +82,7 @@ namespace torchserve
                 .Times(1)
                 .WillOnce(testing::Invoke([=](size_t length, char* data) {
                   ASSERT_EQ(length, 1);
-                  strcpy(data, "I");
+                  strncpy(data, "I", length);
                 }));
     cmd = OTFMessage::RetrieveCmd(*client_socket);
     ASSERT_EQ(cmd, 'I');
@@ -109,19 +109,19 @@ namespace torchserve
                 .Times(4)
                 .WillOnce(testing::Invoke([=](size_t length, char* data) {
                     ASSERT_EQ(length, 4);
-                    strcpy(data, "reqi");
+                    strncpy(data, "reqi", length);
                 }))
                 .WillOnce(testing::Invoke([=](size_t length, char* data) {
                     ASSERT_EQ(length, 4);
-                    strcpy(data, "data");
+                    strncpy(data, "data", length);
                 }))
                 .WillOnce(testing::Invoke([=](size_t length, char* data) {
                     ASSERT_EQ(length, 4);
-                    strcpy(data, "cont");
+                    strncpy(data, "cont", length);
                 }))
                 .WillOnce(testing::Invoke([=](size_t length, char* data) {
                     ASSERT_EQ(length, 3883);
-                    // strcpy(data, "valu");
+                    // strncpy(data, "valu", length);
                     std::ifstream input("test/resources/torchscript_model/mnist/0_png.pt", std::ios::in | std::ios::binary);
                     std::vector<char> image(
                         (std::istreambuf_iterator<char>(input)),

@@ -12,7 +12,7 @@ namespace torchserve {
     unsigned short socket_family;
     socket_family = AF_INET;
     if (device_type != "cpu" && device_type != "gpu") {
-      TS_LOG(WARN, "Invalid device type: {}", device_type);
+      TS_LOGF(WARN, "Invalid device type: {}", device_type);
     }
 
     if (socket_type == "unix") {
@@ -64,7 +64,7 @@ namespace torchserve {
       sockaddr_un sock_addr{};
       std::memset(&sock_addr, 0, sizeof(sock_addr));
       sock_addr.sun_family = AF_UNIX;
-      std::strcpy(sock_addr.sun_path, socket_name_.c_str());
+      std::strncpy(sock_addr.sun_path, socket_name_.c_str(), sizeof(sock_addr.sun_path));
       // TODO: Fix truncation of socket name to 14 chars when casting
       srv_sock_address = reinterpret_cast<sockaddr*>(&sock_addr);
     } else {
