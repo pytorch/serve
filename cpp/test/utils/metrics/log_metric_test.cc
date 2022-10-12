@@ -1,6 +1,6 @@
 #include <string>
 #include <map>
-#include <experimental/filesystem>
+#include <filesystem>
 #include <fstream>
 #include <regex>
 #include <gtest/gtest.h>
@@ -28,7 +28,7 @@ namespace torchserve {
         }
 
         void TearDown() {
-            if (!std::experimental::filesystem::remove(logfile_path)) {
+            if (!std::filesystem::remove(logfile_path)) {
                 std::cout << "Failed to delete test metric log file" << logfile_path << std::endl;
             };
             torchserve::Logger::InitDefaultLogger();
