@@ -154,7 +154,7 @@ function install_kineto() {
 
 function install_libtorch() {
   if [ "$PLATFORM" = "Mac" ]; then
-    echo -e "${COLOR_GREEN}[ INFO ] Skip install libtorch on Linux ${COLOR_OFF}"
+    echo -e "${COLOR_GREEN}[ INFO ] Skip install libtorch on Mac ${COLOR_OFF}"
   elif [ ! -d "$DEPS_DIR/libtorch" ] ; then
     cd "$DEPS_DIR" || exit
     if [ "$PLATFORM" = "Linux" ]; then

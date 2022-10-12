@@ -19,6 +19,12 @@
 #include "src/utils/logging.hh"
 #include "src/utils/model_archive.hh"
 
+#if defined(WIN32) || defined(_WIN32)
+#define PATH_SEPARATOR "\\"
+#else
+#define PATH_SEPARATOR "/"
+#endif
+
 namespace torchserve {
   class SocketServer {
     public:
