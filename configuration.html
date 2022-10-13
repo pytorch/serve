@@ -116,12 +116,16 @@
                   <span class="dropdown-title">torchvision</span>
                   <p></p>
                 </a>
-                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/torchrec">
-                  <span class="dropdown-title">TorchRec</span>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/torcharrow">
+                  <span class="dropdown-title">torcharrow</span>
                   <p></p>
                 </a>
                 <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/data">
                   <span class="dropdown-title">TorchData</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/torchrec">
+                  <span class="dropdown-title">TorchRec</span>
                   <p></p>
                 </a>
                 <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/serve/">
@@ -149,13 +153,25 @@
                   <span class="dropdown-title">About</span>
                   <p>Learn about PyTorch’s features and capabilities</p>
                 </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/foundation">
+                  <span class="dropdown-title">PyTorch Foundation</span>
+                  <p>Learn about the PyTorch foundation</p>
+                </a>
                 <a class="nav-dropdown-item" href="https://pytorch.org/#community-module">
                   <span class="dropdown-title">Community</span>
                   <p>Join the PyTorch developer community to contribute, learn, and get your questions answered.</p>
                 </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/community-stories">
+                  <span class="dropdown-title">Community Stories</span>
+                  <p>Learn how our community solves real, everyday machine learning problems with PyTorch.</p>
+                </a>
                 <a class="nav-dropdown-item" href="https://pytorch.org/resources">
                   <span class="dropdown-title">Developer Resources</span>
                   <p>Find resources and get questions answered</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/events">
+                  <span class="dropdown-title">Events</span>
+                  <p>Find events, webinars, and podcasts</p>
                 </a>
                 <a class="nav-dropdown-item" href="https://discuss.pytorch.org/" target="_blank">
                   <span class="dropdown-title">Forums</span>
@@ -424,9 +440,9 @@ The following values are valid:</p>
 The inference API is listening on port 8080. The management API is listening on port 8081. Both expect HTTP requests. These are the default ports.
 See <a class="reference external" href="#enable-ssl">Enable SSL</a> to configure HTTPS.</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">inference_address</span></code>: Inference API binding address. Default: http://127.0.0.1:8080</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">management_address</span></code>: Management API binding address. Default: http://127.0.0.1:8081</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">metrics_address</span></code>: Metrics API binding address. Default: http://127.0.0.1:8082</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">inference_address</span></code>: Inference API binding address. Default: <code class="docutils literal notranslate"><span class="pre">http://127.0.0.1:8080</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">management_address</span></code>: Management API binding address. Default: <code class="docutils literal notranslate"><span class="pre">http://127.0.0.1:8081</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">metrics_address</span></code>: Metrics API binding address. Default: <code class="docutils literal notranslate"><span class="pre">http://127.0.0.1:8082</span></code></p></li>
 <li><p>To run predictions on models on a public IP address, specify the IP address as <code class="docutils literal notranslate"><span class="pre">0.0.0.0</span></code>.
 To run predictions on models on a specific IP address, specify the IP address and port.</p></li>
 </ul>
@@ -637,7 +653,7 @@ the backend workers convert “Bytearray to utf-8 string” when the Content-Typ
 <li><p><code class="docutils literal notranslate"><span class="pre">max_response_size</span></code> : The maximum allowable response size that the Torchserve sends, in bytes. Default: 6553500</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">limit_max_image_pixels</span></code> : Default value is true (Use default <a class="reference external" href="https://pillow.readthedocs.io/en/stable/reference/Image.html#PIL.Image.MAX_IMAGE_PIXELS">PIL.Image.MAX_IMAGE_PIXELS</a>). If this is set to “false”, set PIL.Image.MAX_IMAGE_PIXELS = None in backend default vision handler for large image payload.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">allowed_urls</span></code> : Comma separated regex of allowed source URL(s) from where models can be registered. Default: “file://.<em>|http(s)?://.</em>” (all URLs and local file system)
-eg : To allow base URLs <code class="docutils literal notranslate"><span class="pre">https://s3.amazonaws.com/</span></code> and <code class="docutils literal notranslate"><span class="pre">https://torchserve.pytorch.org/</span></code> use the following regex string <code class="docutils literal notranslate"><span class="pre">allowed_urls=https://s3.amazonaws.com/.*,https://torchserve.pytorch.org/.*</span></code></p></li>
+e.g. : To allow base URLs <code class="docutils literal notranslate"><span class="pre">https://s3.amazonaws.com/</span></code> and <code class="docutils literal notranslate"><span class="pre">https://torchserve.pytorch.org/</span></code> use the following regex string <code class="docutils literal notranslate"><span class="pre">allowed_urls=https://s3.amazonaws.com/.*,https://torchserve.pytorch.org/.*</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">workflow_store</span></code> : Path of workflow store directory. Defaults to model store directory.</p></li>
 </ul>
 <p><strong>NOTE</strong></p>
@@ -645,7 +661,7 @@ eg : To allow base URLs <code class="docutils literal notranslate"><span class="
 <ul>
 <li><p>set <code class="docutils literal notranslate"><span class="pre">enable_envvars_config</span></code> to true in config.properties</p></li>
 <li><p>export environment variable for property as<code class="docutils literal notranslate"><span class="pre">TS_&lt;PROPERTY_NAME&gt;</span></code>.</p>
-<p>eg: to set inference_address property run cmd
+<p>e.g.: to set inference_address property run cmd
 <code class="docutils literal notranslate"><span class="pre">export</span> <span class="pre">TS_INFERENCE_ADDRESS=&quot;http://127.0.0.1:8082&quot;</span></code>.</p>
 </li>
 </ul>
@@ -884,13 +900,9 @@ eg : To allow base URLs <code class="docutils literal notranslate"><span class="
           <li>
             <a href="https://pytorch.org/ecosystem">Ecosystem</a>
           </li>
-
+            
           <li>
             <a href="https://pytorch.org/mobile">Mobile</a>
-          </li>
-
-          <li>
-            <a href="https://pytorch.org/hub">PyTorch Hub</a>
           </li>
 
           <li>
@@ -923,6 +935,18 @@ eg : To allow base URLs <code class="docutils literal notranslate"><span class="
             </li>
 
             <li>
+              <a href="https://pytorch.org/torcharrow">torcharrow</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/data">TorchData</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/torchrec">TorchRec</a>
+            </li>
+
+            <li>
               <a href="https://pytorch.org/serve/">TorchServe</a>
             </li>
 
@@ -938,18 +962,15 @@ eg : To allow base URLs <code class="docutils literal notranslate"><span class="
           <li class="resources-mobile-menu-title">
             Resources
           </li>
-
-          <ul class="resources-mobile-menu-items">
-            <li>
-              <a href="https://pytorch.org/resources">Developer Resources</a>
-            </li>
+            
+           <ul class="resources-mobile-menu-items">
 
             <li>
               <a href="https://pytorch.org/features">About</a>
             </li>
 
             <li>
-              <a href="https://pytorch.org/hub">Models (Beta)</a>
+              <a href="https://pytorch.org/foundation">PyTorch Foundation</a>
             </li>
 
             <li>
@@ -957,7 +978,23 @@ eg : To allow base URLs <code class="docutils literal notranslate"><span class="
             </li>
 
             <li>
+              <a href="https://pytorch.org/community-stories">Community Stories</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/resources">Developer Resources</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/events">Events</a>
+            </li>
+
+            <li>
               <a href="https://discuss.pytorch.org/">Forums</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/hub">Models (Beta)</a>
             </li>
           </ul>
 

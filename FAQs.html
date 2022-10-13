@@ -114,12 +114,16 @@
                   <span class="dropdown-title">torchvision</span>
                   <p></p>
                 </a>
-                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/torchrec">
-                  <span class="dropdown-title">TorchRec</span>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/torcharrow">
+                  <span class="dropdown-title">torcharrow</span>
                   <p></p>
                 </a>
                 <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/data">
                   <span class="dropdown-title">TorchData</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/torchrec">
+                  <span class="dropdown-title">TorchRec</span>
                   <p></p>
                 </a>
                 <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/serve/">
@@ -147,13 +151,25 @@
                   <span class="dropdown-title">About</span>
                   <p>Learn about PyTorch’s features and capabilities</p>
                 </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/foundation">
+                  <span class="dropdown-title">PyTorch Foundation</span>
+                  <p>Learn about the PyTorch foundation</p>
+                </a>
                 <a class="nav-dropdown-item" href="https://pytorch.org/#community-module">
                   <span class="dropdown-title">Community</span>
                   <p>Join the PyTorch developer community to contribute, learn, and get your questions answered.</p>
                 </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/community-stories">
+                  <span class="dropdown-title">Community Stories</span>
+                  <p>Learn how our community solves real, everyday machine learning problems with PyTorch.</p>
+                </a>
                 <a class="nav-dropdown-item" href="https://pytorch.org/resources">
                   <span class="dropdown-title">Developer Resources</span>
                   <p>Find resources and get questions answered</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/events">
+                  <span class="dropdown-title">Events</span>
+                  <p>Find events, webinars, and podcasts</p>
                 </a>
                 <a class="nav-dropdown-item" href="https://discuss.pytorch.org/" target="_blank">
                   <span class="dropdown-title">Forums</span>
@@ -364,7 +380,7 @@
 <p>Depending on your use case, you will be able to deploy torchserve in production using following mechanisms.</p>
 <blockquote>
 <div><p>Standalone deployment. Refer <a class="reference external" href="https://github.com/pytorch/serve/tree/master/docker#readme">TorchServe docker documentation</a> or <a class="reference external" href="https://github.com/pytorch/serve/tree/master/docs#readme">TorchServe documentation</a>
-Cloud based deployment. Refer <a class="reference external" href="https://github.com/pytorch/serve/tree/master/kubernetes#readme">TorchServe kubernetes documentation</a> or <a class="reference external" href="../cloudformation/README">TorchServe cloudformation documentation</a></p>
+Cloud based deployment. Refer <a class="reference external" href="https://github.com/pytorch/serve/tree/master/kubernetes#readme">TorchServe kubernetes documentation</a> or <a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/cloudformation/README">TorchServe cloudformation documentation</a></p>
 </div></blockquote>
 </section>
 <section id="what-s-difference-between-torchserve-and-a-python-web-app-using-web-frameworks-like-flask-django">
@@ -416,7 +432,7 @@ Refer <a class="reference external" href="../kubernetes/README">Kubernetes deplo
 </section>
 <section id="can-i-deploy-torchserve-with-aws-elb-and-aws-asg">
 <h3>Can I deploy Torchserve with AWS ELB and AWS ASG?<a class="headerlink" href="#can-i-deploy-torchserve-with-aws-elb-and-aws-asg" title="Permalink to this headline">¶</a></h3>
-<p>Yes, you can deploy Torchserve on a multi-node ASG AWS EC2 cluster. There is a cloud formation template available <a class="reference external" href="https://github.com/pytorch/serve/blob/master/cloudformation/ec2-asg.yaml">here</a> for this type of deployment. Refer <a class="reference external" href="https://github.com/pytorch/serve/tree/master/cloudformation#multi-node-ec2-deployment-behind-elastic-loadbalancer-elb"> Multi-node EC2 deployment behind Elastic LoadBalancer (ELB)</a> more details.</p>
+<p>Yes, you can deploy Torchserve on a multi-node ASG AWS EC2 cluster. There is a cloud formation template available <a class="reference external" href="https://github.com/pytorch/serve/blob/master/examples/cloudformation/ec2-asg.yaml">here</a> for this type of deployment. Refer <a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/cloudformation/README.md#multi-node-ec2-deployment-behind-elastic-loadbalancer-elb"> Multi-node EC2 deployment behind Elastic LoadBalancer (ELB)</a> more details.</p>
 </section>
 <section id="how-can-i-backup-and-restore-torchserve-state">
 <h3>How can I backup and restore Torchserve state?<a class="headerlink" href="#how-can-i-backup-and-restore-torchserve-state" title="Permalink to this headline">¶</a></h3>
@@ -776,13 +792,9 @@ Note: For v4 type replace <code class="docutils literal notranslate"><span class
           <li>
             <a href="https://pytorch.org/ecosystem">Ecosystem</a>
           </li>
-
+            
           <li>
             <a href="https://pytorch.org/mobile">Mobile</a>
-          </li>
-
-          <li>
-            <a href="https://pytorch.org/hub">PyTorch Hub</a>
           </li>
 
           <li>
@@ -815,6 +827,18 @@ Note: For v4 type replace <code class="docutils literal notranslate"><span class
             </li>
 
             <li>
+              <a href="https://pytorch.org/torcharrow">torcharrow</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/data">TorchData</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/torchrec">TorchRec</a>
+            </li>
+
+            <li>
               <a href="https://pytorch.org/serve/">TorchServe</a>
             </li>
 
@@ -830,18 +854,15 @@ Note: For v4 type replace <code class="docutils literal notranslate"><span class
           <li class="resources-mobile-menu-title">
             Resources
           </li>
-
-          <ul class="resources-mobile-menu-items">
-            <li>
-              <a href="https://pytorch.org/resources">Developer Resources</a>
-            </li>
+            
+           <ul class="resources-mobile-menu-items">
 
             <li>
               <a href="https://pytorch.org/features">About</a>
             </li>
 
             <li>
-              <a href="https://pytorch.org/hub">Models (Beta)</a>
+              <a href="https://pytorch.org/foundation">PyTorch Foundation</a>
             </li>
 
             <li>
@@ -849,7 +870,23 @@ Note: For v4 type replace <code class="docutils literal notranslate"><span class
             </li>
 
             <li>
+              <a href="https://pytorch.org/community-stories">Community Stories</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/resources">Developer Resources</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/events">Events</a>
+            </li>
+
+            <li>
               <a href="https://discuss.pytorch.org/">Forums</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/hub">Models (Beta)</a>
             </li>
           </ul>
 

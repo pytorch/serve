@@ -116,12 +116,16 @@
                   <span class="dropdown-title">torchvision</span>
                   <p></p>
                 </a>
-                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/torchrec">
-                  <span class="dropdown-title">TorchRec</span>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/torcharrow">
+                  <span class="dropdown-title">torcharrow</span>
                   <p></p>
                 </a>
                 <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/data">
                   <span class="dropdown-title">TorchData</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/torchrec">
+                  <span class="dropdown-title">TorchRec</span>
                   <p></p>
                 </a>
                 <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/serve/">
@@ -149,13 +153,25 @@
                   <span class="dropdown-title">About</span>
                   <p>Learn about PyTorch’s features and capabilities</p>
                 </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/foundation">
+                  <span class="dropdown-title">PyTorch Foundation</span>
+                  <p>Learn about the PyTorch foundation</p>
+                </a>
                 <a class="nav-dropdown-item" href="https://pytorch.org/#community-module">
                   <span class="dropdown-title">Community</span>
                   <p>Join the PyTorch developer community to contribute, learn, and get your questions answered.</p>
                 </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/community-stories">
+                  <span class="dropdown-title">Community Stories</span>
+                  <p>Learn how our community solves real, everyday machine learning problems with PyTorch.</p>
+                </a>
                 <a class="nav-dropdown-item" href="https://pytorch.org/resources">
                   <span class="dropdown-title">Developer Resources</span>
                   <p>Find resources and get questions answered</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/events">
+                  <span class="dropdown-title">Events</span>
+                  <p>Find events, webinars, and podcasts</p>
                 </a>
                 <a class="nav-dropdown-item" href="https://discuss.pytorch.org/" target="_blank">
                   <span class="dropdown-title">Forums</span>
@@ -350,8 +366,8 @@
 <li><p><a class="reference external" href="#prerequisites">Prerequisites</a></p></li>
 <li><p><a class="reference external" href="#batch-inference-with-torchserves-default-handlers">Batch Inference with TorchServe’s default handlers</a></p></li>
 <li><p><a class="reference external" href="#batch-inference-with-torchserve-using-resnet-152-model">Batch Inference with TorchServe using ResNet-152 model</a></p></li>
-<li><p><a class="reference external" href="#demo-to-configure-torchServe-resNet-152-model-with-batch-supported-model">Demo to configure TorchServe ResNet-152 model with batch-supported model</a></p></li>
-<li><p><a class="reference external" href="#demo-to-configure-torchServe-resNet-152-model-with-batch-supported-model-using-docker">Demo to configure TorchServe ResNet-152 model with batch-supported model using Docker</a></p></li>
+<li><p><a class="reference external" href="#demo-to-configure-torchserve-resnet-152-model-with-batch-supported-model">Demo to configure TorchServe ResNet-152 model with batch-supported model</a></p></li>
+<li><p><a class="reference external" href="#demo-to-configure-torchserve-resnet-152-model-with-batch-supported-model-using-docker">Demo to configure TorchServe ResNet-152 model with batch-supported model using Docker</a></p></li>
 </ul>
 </section>
 <section id="introduction">
@@ -431,8 +447,8 @@ The frontend then tries to aggregate the batch-size number of requests and send 
 <h3><span class="section-number">3.6.1. </span>Setup TorchServe and Torch Model Archiver<a class="headerlink" href="#setup-torchserve-and-torch-model-archiver" title="Permalink to this headline">¶</a></h3>
 <p>First things first, follow the main <a class="reference internal" href="README.html"><span class="doc">Readme</span></a> and install all the required packages including <code class="docutils literal notranslate"><span class="pre">torchserve</span></code>.</p>
 </section>
-<section id="batch-inference-of-resnet-152-configured-with-managment-api">
-<h3><span class="section-number">3.6.2. </span>Batch inference of Resnet-152 configured with managment API<a class="headerlink" href="#batch-inference-of-resnet-152-configured-with-managment-api" title="Permalink to this headline">¶</a></h3>
+<section id="batch-inference-of-resnet-152-configured-with-management-api">
+<h3><span class="section-number">3.6.2. </span>Batch inference of Resnet-152 configured with management API<a class="headerlink" href="#batch-inference-of-resnet-152-configured-with-management-api" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p>Start the model server. In this example, we are starting the model server to run on inference port 8080 and management port 8081.</p></li>
 </ul>
@@ -613,9 +629,9 @@ models={\
 </section>
 <section id="demo-to-configure-torchserve-resnet-152-model-with-batch-supported-model-using-docker">
 <h2><span class="section-number">3.7. </span>Demo to configure TorchServe ResNet-152 model with batch-supported model using Docker<a class="headerlink" href="#demo-to-configure-torchserve-resnet-152-model-with-batch-supported-model-using-docker" title="Permalink to this headline">¶</a></h2>
-<p>Here, we show how to register a model with batch inference support when serving the model using docker contianers. We set the <code class="docutils literal notranslate"><span class="pre">batch_size</span></code> and <code class="docutils literal notranslate"><span class="pre">max_batch_delay</span></code>  in the config.properties similar to the previous section which is being used by <a class="reference external" href="../docker/dockerd-entrypoint.sh">dockered_entrypoint.sh</a>.</p>
-<section id="batch-inference-of-resnet-152-using-docker-contianer">
-<h3><span class="section-number">3.7.1. </span>Batch inference of Resnet-152 using docker contianer<a class="headerlink" href="#batch-inference-of-resnet-152-using-docker-contianer" title="Permalink to this headline">¶</a></h3>
+<p>Here, we show how to register a model with batch inference support when serving the model using docker containers. We set the <code class="docutils literal notranslate"><span class="pre">batch_size</span></code> and <code class="docutils literal notranslate"><span class="pre">max_batch_delay</span></code>  in the config.properties similar to the previous section which is being used by <a class="reference external" href="../docker/dockerd-entrypoint.sh">dockered_entrypoint.sh</a>.</p>
+<section id="batch-inference-of-resnet-152-using-docker-container">
+<h3><span class="section-number">3.7.1. </span>Batch inference of Resnet-152 using docker container<a class="headerlink" href="#batch-inference-of-resnet-152-using-docker-container" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p>Set the batch <code class="docutils literal notranslate"><span class="pre">batch_size</span></code> and <code class="docutils literal notranslate"><span class="pre">max_batch_delay</span></code>  in the config.properties as referenced in the <a class="reference external" href="../docker/dockerd-entrypoint.sh">dockered_entrypoint.sh</a></p></li>
 </ul>
@@ -766,12 +782,12 @@ models={\
 </li>
 <li><a class="reference internal" href="#demo-to-configure-torchserve-resnet-152-model-with-batch-supported-model">3.6. Demo to configure TorchServe ResNet-152 model with batch-supported model</a><ul>
 <li><a class="reference internal" href="#setup-torchserve-and-torch-model-archiver">3.6.1. Setup TorchServe and Torch Model Archiver</a></li>
-<li><a class="reference internal" href="#batch-inference-of-resnet-152-configured-with-managment-api">3.6.2. Batch inference of Resnet-152 configured with managment API</a></li>
+<li><a class="reference internal" href="#batch-inference-of-resnet-152-configured-with-management-api">3.6.2. Batch inference of Resnet-152 configured with management API</a></li>
 <li><a class="reference internal" href="#batch-inference-of-resnet-152-configured-through-config-properties">3.6.3. Batch inference of Resnet-152 configured through config.properties</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#demo-to-configure-torchserve-resnet-152-model-with-batch-supported-model-using-docker">3.7. Demo to configure TorchServe ResNet-152 model with batch-supported model using Docker</a><ul>
-<li><a class="reference internal" href="#batch-inference-of-resnet-152-using-docker-contianer">3.7.1. Batch inference of Resnet-152 using docker contianer</a></li>
+<li><a class="reference internal" href="#batch-inference-of-resnet-152-using-docker-container">3.7.1. Batch inference of Resnet-152 using docker container</a></li>
 </ul>
 </li>
 </ul>
@@ -938,13 +954,9 @@ models={\
           <li>
             <a href="https://pytorch.org/ecosystem">Ecosystem</a>
           </li>
-
+            
           <li>
             <a href="https://pytorch.org/mobile">Mobile</a>
-          </li>
-
-          <li>
-            <a href="https://pytorch.org/hub">PyTorch Hub</a>
           </li>
 
           <li>
@@ -977,6 +989,18 @@ models={\
             </li>
 
             <li>
+              <a href="https://pytorch.org/torcharrow">torcharrow</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/data">TorchData</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/torchrec">TorchRec</a>
+            </li>
+
+            <li>
               <a href="https://pytorch.org/serve/">TorchServe</a>
             </li>
 
@@ -992,18 +1016,15 @@ models={\
           <li class="resources-mobile-menu-title">
             Resources
           </li>
-
-          <ul class="resources-mobile-menu-items">
-            <li>
-              <a href="https://pytorch.org/resources">Developer Resources</a>
-            </li>
+            
+           <ul class="resources-mobile-menu-items">
 
             <li>
               <a href="https://pytorch.org/features">About</a>
             </li>
 
             <li>
-              <a href="https://pytorch.org/hub">Models (Beta)</a>
+              <a href="https://pytorch.org/foundation">PyTorch Foundation</a>
             </li>
 
             <li>
@@ -1011,7 +1032,23 @@ models={\
             </li>
 
             <li>
+              <a href="https://pytorch.org/community-stories">Community Stories</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/resources">Developer Resources</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/events">Events</a>
+            </li>
+
+            <li>
               <a href="https://discuss.pytorch.org/">Forums</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/hub">Models (Beta)</a>
             </li>
           </ul>
 

@@ -116,12 +116,16 @@
                   <span class="dropdown-title">torchvision</span>
                   <p></p>
                 </a>
-                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/torchrec">
-                  <span class="dropdown-title">TorchRec</span>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/torcharrow">
+                  <span class="dropdown-title">torcharrow</span>
                   <p></p>
                 </a>
                 <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/data">
                   <span class="dropdown-title">TorchData</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/torchrec">
+                  <span class="dropdown-title">TorchRec</span>
                   <p></p>
                 </a>
                 <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/serve/">
@@ -149,13 +153,25 @@
                   <span class="dropdown-title">About</span>
                   <p>Learn about PyTorch’s features and capabilities</p>
                 </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/foundation">
+                  <span class="dropdown-title">PyTorch Foundation</span>
+                  <p>Learn about the PyTorch foundation</p>
+                </a>
                 <a class="nav-dropdown-item" href="https://pytorch.org/#community-module">
                   <span class="dropdown-title">Community</span>
                   <p>Join the PyTorch developer community to contribute, learn, and get your questions answered.</p>
                 </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/community-stories">
+                  <span class="dropdown-title">Community Stories</span>
+                  <p>Learn how our community solves real, everyday machine learning problems with PyTorch.</p>
+                </a>
                 <a class="nav-dropdown-item" href="https://pytorch.org/resources">
                   <span class="dropdown-title">Developer Resources</span>
                   <p>Find resources and get questions answered</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/events">
+                  <span class="dropdown-title">Events</span>
+                  <p>Find events, webinars, and podcasts</p>
                 </a>
                 <a class="nav-dropdown-item" href="https://discuss.pytorch.org/" target="_blank">
                   <span class="dropdown-title">Forums</span>
@@ -353,7 +369,7 @@
 <section id="deployment-and-config-issues">
 <h2><span class="section-number">2.1. </span>Deployment and config issues<a class="headerlink" href="#deployment-and-config-issues" title="Permalink to this headline">¶</a></h2>
 <section id="failed-to-bind-to-address-http-127-0-0-1-8080-port-8080-8081-already-in-use">
-<h3><span class="section-number">2.1.1. </span>“Failed to bind to address: http://127.0.0.1:8080”, port 8080/8081 already in use.<a class="headerlink" href="#failed-to-bind-to-address-http-127-0-0-1-8080-port-8080-8081-already-in-use" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">2.1.1. </span>“Failed to bind to address: <code class="docutils literal notranslate"><span class="pre">http://127.0.0.1:8080</span></code>”, port 8080/8081 already in use.<a class="headerlink" href="#failed-to-bind-to-address-http-127-0-0-1-8080-port-8080-8081-already-in-use" title="Permalink to this headline">¶</a></h3>
 <p>Usually, the port number 8080/8081 is already used by some other application or service, it can be verified by using cmd <code class="docutils literal notranslate"><span class="pre">ss</span> <span class="pre">-ntl</span> <span class="pre">|</span> <span class="pre">grep</span> <span class="pre">8080</span></code>. There are two ways to troubleshoot this issue either kill the process which is using port 8080/8081 or run Torchserve on different ports other than 8080 &amp; 8081.</p>
 <p>Refer <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/configuration">configuration.md</a> for more details.</p>
 <p>Relevant issues: [<a class="reference external" href="https://github.com/pytorch/serve/issues/542">542</a>]</p>
@@ -446,7 +462,7 @@ Refer <a class="reference external" href="https://github.com/pytorch/serve/blob/
 </section>
 <section id="backend-worker-monitoring-thread-interrupted-or-backend-worker-process-died-error">
 <h3><span class="section-number">2.4.4. </span>Backend worker monitoring thread interrupted or backend worker process died error.<a class="headerlink" href="#backend-worker-monitoring-thread-interrupted-or-backend-worker-process-died-error" title="Permalink to this headline">¶</a></h3>
-<p>This issue is moslty occurs when the model fails to initialize, which may be due to erroneous code in handler’s initialize function. This error is also observed when there is missing package/module.</p>
+<p>This issue mostly occurs when the model fails to initialize, which may be due to erroneous code in handler’s initialize function. This error is also observed when there is missing package/module.</p>
 <p>Relevant issues: [<a class="reference external" href="https://github.com/pytorch/serve/issues/667">#667</a>, <a class="reference external" href="https://github.com/pytorch/serve/issues/537">#537</a>]</p>
 </section>
 </section>
@@ -497,7 +513,7 @@ Refer <a class="reference external" href="https://github.com/pytorch/serve/blob/
               <ul>
 <li><a class="reference internal" href="#">2. Troubleshooting Guide</a><ul>
 <li><a class="reference internal" href="#deployment-and-config-issues">2.1. Deployment and config issues</a><ul>
-<li><a class="reference internal" href="#failed-to-bind-to-address-http-127-0-0-1-8080-port-8080-8081-already-in-use">2.1.1. “Failed to bind to address: http://127.0.0.1:8080”, port 8080/8081 already in use.</a></li>
+<li><a class="reference internal" href="#failed-to-bind-to-address-http-127-0-0-1-8080-port-8080-8081-already-in-use">2.1.1. “Failed to bind to address: <code class="docutils literal notranslate"><span class="pre">http://127.0.0.1:8080</span></code>”, port 8080/8081 already in use.</a></li>
 <li><a class="reference internal" href="#java-lang-nosuchmethoderror-when-starting-torchserve-473">2.1.2. “java.lang.NoSuchMethodError” when starting Torchserve.[473]</a></li>
 <li><a class="reference internal" href="#unable-to-send-big-files-for-inference-request">2.1.3. Unable to send big files for inference request?</a></li>
 </ul>
@@ -687,13 +703,9 @@ Refer <a class="reference external" href="https://github.com/pytorch/serve/blob/
           <li>
             <a href="https://pytorch.org/ecosystem">Ecosystem</a>
           </li>
-
+            
           <li>
             <a href="https://pytorch.org/mobile">Mobile</a>
-          </li>
-
-          <li>
-            <a href="https://pytorch.org/hub">PyTorch Hub</a>
           </li>
 
           <li>
@@ -726,6 +738,18 @@ Refer <a class="reference external" href="https://github.com/pytorch/serve/blob/
             </li>
 
             <li>
+              <a href="https://pytorch.org/torcharrow">torcharrow</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/data">TorchData</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/torchrec">TorchRec</a>
+            </li>
+
+            <li>
               <a href="https://pytorch.org/serve/">TorchServe</a>
             </li>
 
@@ -741,18 +765,15 @@ Refer <a class="reference external" href="https://github.com/pytorch/serve/blob/
           <li class="resources-mobile-menu-title">
             Resources
           </li>
-
-          <ul class="resources-mobile-menu-items">
-            <li>
-              <a href="https://pytorch.org/resources">Developer Resources</a>
-            </li>
+            
+           <ul class="resources-mobile-menu-items">
 
             <li>
               <a href="https://pytorch.org/features">About</a>
             </li>
 
             <li>
-              <a href="https://pytorch.org/hub">Models (Beta)</a>
+              <a href="https://pytorch.org/foundation">PyTorch Foundation</a>
             </li>
 
             <li>
@@ -760,7 +781,23 @@ Refer <a class="reference external" href="https://github.com/pytorch/serve/blob/
             </li>
 
             <li>
+              <a href="https://pytorch.org/community-stories">Community Stories</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/resources">Developer Resources</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/events">Events</a>
+            </li>
+
+            <li>
               <a href="https://discuss.pytorch.org/">Forums</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/hub">Models (Beta)</a>
             </li>
           </ul>
 

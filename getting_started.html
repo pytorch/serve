@@ -114,12 +114,16 @@
                   <span class="dropdown-title">torchvision</span>
                   <p></p>
                 </a>
-                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/torchrec">
-                  <span class="dropdown-title">TorchRec</span>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/torcharrow">
+                  <span class="dropdown-title">torcharrow</span>
                   <p></p>
                 </a>
                 <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/data">
                   <span class="dropdown-title">TorchData</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/torchrec">
+                  <span class="dropdown-title">TorchRec</span>
                   <p></p>
                 </a>
                 <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/serve/">
@@ -147,13 +151,25 @@
                   <span class="dropdown-title">About</span>
                   <p>Learn about PyTorch’s features and capabilities</p>
                 </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/foundation">
+                  <span class="dropdown-title">PyTorch Foundation</span>
+                  <p>Learn about the PyTorch foundation</p>
+                </a>
                 <a class="nav-dropdown-item" href="https://pytorch.org/#community-module">
                   <span class="dropdown-title">Community</span>
                   <p>Join the PyTorch developer community to contribute, learn, and get your questions answered.</p>
                 </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/community-stories">
+                  <span class="dropdown-title">Community Stories</span>
+                  <p>Learn how our community solves real, everyday machine learning problems with PyTorch.</p>
+                </a>
                 <a class="nav-dropdown-item" href="https://pytorch.org/resources">
                   <span class="dropdown-title">Developer Resources</span>
                   <p>Find resources and get questions answered</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/events">
+                  <span class="dropdown-title">Events</span>
+                  <p>Find events, webinars, and podcasts</p>
                 </a>
                 <a class="nav-dropdown-item" href="https://discuss.pytorch.org/" target="_blank">
                   <span class="dropdown-title">Forums</span>
@@ -366,10 +382,10 @@
 </section>
 <section id="for-windows">
 <h3>For Windows<a class="headerlink" href="#for-windows" title="Permalink to this headline">¶</a></h3>
-<p>Refer to the documentation <a class="reference external" href="docs/torchserve_on_win_native">here</a>.</p>
+<p>Refer to the documentation <a class="reference internal" href="torchserve_on_win_native.html"><span class="doc">here</span></a>.</p>
 </section>
 <li><p>Install torchserve, torch-model-archiver and torch-workflow-archiver</p>
-<p>For <a class="reference external" href="https://docs.conda.io/projects/conda/en/latest/user-guide/install">Conda</a><br />Note: Conda packages are not supported for Windows. Refer to the documentation <a class="reference external" href="docs/torchserve_on_win_native">here</a>.</p>
+<p>For <a class="reference external" href="https://docs.conda.io/projects/conda/en/latest/user-guide/install">Conda</a><br />Note: Conda packages are not supported for Windows. Refer to the documentation <a class="reference internal" href="torchserve_on_win_native.html"><span class="doc">here</span></a>.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">install</span> <span class="n">torchserve</span> <span class="n">torch</span><span class="o">-</span><span class="n">model</span><span class="o">-</span><span class="n">archiver</span> <span class="n">torch</span><span class="o">-</span><span class="n">workflow</span><span class="o">-</span><span class="n">archiver</span> <span class="o">-</span><span class="n">c</span> <span class="n">pytorch</span>
 </pre></div>
 </div>
@@ -410,7 +426,7 @@ You can also create model stores to store your archived models.</p>
 </div>
 </li>
 </ol>
-<p>For more information about the model archiver, see <a class="reference external" href="model-archiver/README">Torch Model archiver for TorchServe</a></p>
+<p>For more information about the model archiver, see <a class="reference external" href="https://github.com/pytorch/serve/tree/master/model-archiver/README">Torch Model archiver for TorchServe</a></p>
 </section>
 <section id="start-torchserve-to-serve-the-model">
 <h3>Start TorchServe to serve the model<a class="headerlink" href="#start-torchserve-to-serve-the-model" title="Permalink to this headline">¶</a></h3>
@@ -419,11 +435,11 @@ You can also create model stores to store your archived models.</p>
 </pre></div>
 </div>
 <p>After you execute the <code class="docutils literal notranslate"><span class="pre">torchserve</span></code> command above, TorchServe runs on your host, listening for inference requests.</p>
-<p><strong>Note</strong>: If you specify model(s) when you run TorchServe, it automatically scales backend workers to the number equal to available vCPUs (if you run on a CPU instance) or to the number of available GPUs (if you run on a GPU instance). In case of powerful hosts with a lot of compute resources (vCPUs or GPUs), this start up and autoscaling process might take considerable time. If you want to minimize TorchServe start up time you should avoid registering and scaling the model during start up time and move that to a later point by using corresponding <a class="reference external" href="docs/management_api.md#register-a-model">Management API</a>, which allows finer grain control of the resources that are allocated for any particular model).</p>
+<p><strong>Note</strong>: If you specify model(s) when you run TorchServe, it automatically scales backend workers to the number equal to available vCPUs (if you run on a CPU instance) or to the number of available GPUs (if you run on a GPU instance). In case of powerful hosts with a lot of compute resources (vCPUs or GPUs), this start up and autoscaling process might take considerable time. If you want to minimize TorchServe start up time you should avoid registering and scaling the model during start up time and move that to a later point by using corresponding <a class="reference external" href="./management_api.md#register-a-model">Management API</a>, which allows finer grain control of the resources that are allocated for any particular model).</p>
 </section>
 <section id="get-predictions-from-a-model">
 <h3>Get predictions from a model<a class="headerlink" href="#get-predictions-from-a-model" title="Permalink to this headline">¶</a></h3>
-<p>To test the model server, send a request to the server’s <code class="docutils literal notranslate"><span class="pre">predictions</span></code> API. TorchServe supports all <a class="reference external" href="docs/inference_api">inference</a> and <a class="reference external" href="docs/management_api">management</a> api’s through both <a class="reference external" href="docs/grpc_api">gRPC</a> and <a class="reference external" href="docs/rest_api">HTTP/REST</a>.</p>
+<p>To test the model server, send a request to the server’s <code class="docutils literal notranslate"><span class="pre">predictions</span></code> API. TorchServe supports all <a class="reference internal" href="inference_api.html"><span class="doc">inference</span></a> and <a class="reference internal" href="management_api.html"><span class="doc">management</span></a> apis through both <a class="reference internal" href="grpc_api.html"><span class="doc">gRPC</span></a> and <a class="reference internal" href="rest_api.html"><span class="doc">HTTP/REST</span></a>.</p>
 <section id="using-grpc-apis-through-python-client">
 <h4>Using GRPC APIs through python client<a class="headerlink" href="#using-grpc-apis-through-python-client" title="Permalink to this headline">¶</a></h4>
 <ul class="simple">
@@ -439,7 +455,7 @@ You can also create model stores to store your archived models.</p>
 </pre></div>
 </div>
 <ul class="simple">
-<li><p>Run inference using a sample client <a class="reference external" href="ts_scripts/torchserve_grpc_client.py">gRPC python client</a></p></li>
+<li><p>Run inference using a sample client <a class="reference external" href="https://github.com/pytorch/serve/blob/master/ts_scripts/torchserve_grpc_client.py">gRPC python client</a></p></li>
 </ul>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python ts_scripts/torchserve_grpc_client.py infer densenet161 examples/image_classifier/kitten.jpg
 </pre></div>
@@ -477,7 +493,7 @@ You can also create model stores to store your archived models.</p>
 </pre></div>
 </div>
 <p>All interactions with the endpoint will be logged in the <code class="docutils literal notranslate"><span class="pre">logs/</span></code> directory, so make sure to check it out!</p>
-<p>Now you’ve seen how easy it can be to serve a deep learning model with TorchServe! <a class="reference external" href="docs/server">Would you like to know more?</a></p>
+<p>Now you’ve seen how easy it can be to serve a deep learning model with TorchServe! <a class="reference internal" href="server.html"><span class="doc">Would you like to know more?</span></a></p>
 </section>
 </section>
 <section id="stop-torchserve">
@@ -490,7 +506,7 @@ You can also create model stores to store your archived models.</p>
 <section id="inspect-the-logs">
 <h3>Inspect the logs<a class="headerlink" href="#inspect-the-logs" title="Permalink to this headline">¶</a></h3>
 <p>All the logs you’ve seen as output to stdout related to model registration, management, inference are recorded in the <code class="docutils literal notranslate"><span class="pre">/logs</span></code> folder.</p>
-<p>High level performance data like Throughput or Percentile Precision can be generated with <a class="reference external" href="benchmark/README">Benchmark</a> and visualized in a report.</p>
+<p>High level performance data like Throughput or Percentile Precision can be generated with <a class="reference external" href="https://github.com/pytorch/serve/tree/master/benchmarks/README">Benchmark</a> and visualized in a report.</p>
 </section>
 <section id="install-torchserve-for-development">
 <h3>Install TorchServe for development<a class="headerlink" href="#install-torchserve-for-development" title="Permalink to this headline">¶</a></h3>
@@ -508,8 +524,8 @@ You can also create model stores to store your archived models.</p>
 </section>
 <section id="id2">
 <h4>For Windows<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h4>
-<p>Refer to the documentation <a class="reference external" href="docs/torchserve_on_win_native">here</a>.</p>
-<p>For information about the model archiver, see <a class="reference external" href="model-archiver/README">detailed documentation</a>.</p>
+<p>Refer to the documentation <a class="reference internal" href="torchserve_on_win_native.html"><span class="doc">here</span></a>.</p>
+<p>For information about the model archiver, see <a class="reference external" href="https://github.com/pytorch/serve/tree/master/model-archiver/README">detailed documentation</a>.</p>
 </section>
 </section>
 </section>
@@ -736,13 +752,9 @@ You can also create model stores to store your archived models.</p>
           <li>
             <a href="https://pytorch.org/ecosystem">Ecosystem</a>
           </li>
-
+            
           <li>
             <a href="https://pytorch.org/mobile">Mobile</a>
-          </li>
-
-          <li>
-            <a href="https://pytorch.org/hub">PyTorch Hub</a>
           </li>
 
           <li>
@@ -775,6 +787,18 @@ You can also create model stores to store your archived models.</p>
             </li>
 
             <li>
+              <a href="https://pytorch.org/torcharrow">torcharrow</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/data">TorchData</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/torchrec">TorchRec</a>
+            </li>
+
+            <li>
               <a href="https://pytorch.org/serve/">TorchServe</a>
             </li>
 
@@ -790,18 +814,15 @@ You can also create model stores to store your archived models.</p>
           <li class="resources-mobile-menu-title">
             Resources
           </li>
-
-          <ul class="resources-mobile-menu-items">
-            <li>
-              <a href="https://pytorch.org/resources">Developer Resources</a>
-            </li>
+            
+           <ul class="resources-mobile-menu-items">
 
             <li>
               <a href="https://pytorch.org/features">About</a>
             </li>
 
             <li>
-              <a href="https://pytorch.org/hub">Models (Beta)</a>
+              <a href="https://pytorch.org/foundation">PyTorch Foundation</a>
             </li>
 
             <li>
@@ -809,7 +830,23 @@ You can also create model stores to store your archived models.</p>
             </li>
 
             <li>
+              <a href="https://pytorch.org/community-stories">Community Stories</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/resources">Developer Resources</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/events">Events</a>
+            </li>
+
+            <li>
               <a href="https://discuss.pytorch.org/">Forums</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/hub">Models (Beta)</a>
             </li>
           </ul>
 

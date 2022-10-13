@@ -116,12 +116,16 @@
                   <span class="dropdown-title">torchvision</span>
                   <p></p>
                 </a>
-                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/torchrec">
-                  <span class="dropdown-title">TorchRec</span>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/torcharrow">
+                  <span class="dropdown-title">torcharrow</span>
                   <p></p>
                 </a>
                 <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/data">
                   <span class="dropdown-title">TorchData</span>
+                  <p></p>
+                </a>
+                <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/torchrec">
+                  <span class="dropdown-title">TorchRec</span>
                   <p></p>
                 </a>
                 <a class="doc-dropdown-option nav-dropdown-item" href="https://pytorch.org/serve/">
@@ -149,13 +153,25 @@
                   <span class="dropdown-title">About</span>
                   <p>Learn about PyTorch’s features and capabilities</p>
                 </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/foundation">
+                  <span class="dropdown-title">PyTorch Foundation</span>
+                  <p>Learn about the PyTorch foundation</p>
+                </a>
                 <a class="nav-dropdown-item" href="https://pytorch.org/#community-module">
                   <span class="dropdown-title">Community</span>
                   <p>Join the PyTorch developer community to contribute, learn, and get your questions answered.</p>
                 </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/community-stories">
+                  <span class="dropdown-title">Community Stories</span>
+                  <p>Learn how our community solves real, everyday machine learning problems with PyTorch.</p>
+                </a>
                 <a class="nav-dropdown-item" href="https://pytorch.org/resources">
                   <span class="dropdown-title">Developer Resources</span>
                   <p>Find resources and get questions answered</p>
+                </a>
+                <a class="nav-dropdown-item" href="https://pytorch.org/events">
+                  <span class="dropdown-title">Events</span>
+                  <p>Find events, webinars, and podcasts</p>
                 </a>
                 <a class="nav-dropdown-item" href="https://discuss.pytorch.org/" target="_blank">
                   <span class="dropdown-title">Forums</span>
@@ -359,7 +375,7 @@
 <li><p><a class="reference internal" href="logging.html"><span class="doc">Logging</span></a> - How to configure logging</p></li>
 <li><p><a class="reference internal" href="metrics.html"><span class="doc">Metrics</span></a> - How to configure metrics</p></li>
 <li><p><a class="reference internal" href="metrics_api.html"><span class="doc">Prometheus and Grafana metrics</span></a> - How to configure metrics API with Prometheus formatted metrics in a Grafana dashboard</p></li>
-<li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/captum/Captum_visualization_for_bert.ipynb">Captum Explanations</a> - Built in support for Captum explanations for both text and images</p></li>
+<li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/examples/captum/Captum_visualization_for_bert.ipynb">Captum Explanations</a> - Built in support for Captum explanations for both text and images</p></li>
 <li><p><a class="reference internal" href="batch_inference_with_ts.html"><span class="doc">Batch inference with TorchServe</span></a> - How to create and serve a model with batch inference in TorchServe</p></li>
 <li><p><a class="reference internal" href="workflows.html"><span class="doc">Workflows</span></a> - How to create workflows to compose Pytorch models and Python functions in sequential and parallel pipelines</p></li>
 </ul>
@@ -378,7 +394,7 @@
 <ul class="simple">
 <li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/examples/Huggingface_Transformers/Transformer_handler_generalized.py">HuggingFace Language Model</a> - This handler takes an input sentence and can return sequence classifications, token classifications or Q&amp;A answers</p></li>
 <li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/examples/MMF-activity-recognition/handler.py">Multi Modal Framework</a> - Build and deploy a classifier that combines text, audio and video input data</p></li>
-<li><p><a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/Workflows/nmt_tranformers_pipeline">Dual Translation Workflow</a> -</p></li>
+<li><p><a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/Workflows/nmt_transformers_pipeline">Dual Translation Workflow</a> -</p></li>
 <li><p><a class="reference internal" href="model_zoo.html"><span class="doc">Model Zoo</span></a> - List of pre-trained model archives ready to be served for inference with TorchServe.</p></li>
 <li><p><a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples">Examples</a> - Many examples of how to package and deploy models with TorchServe</p></li>
 <li><p><a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/Workflows">Workflow Examples</a> - Examples of how to compose models in a workflow with TorchServe</p></li>
@@ -390,7 +406,7 @@
 <li><p><a class="reference internal" href="configuration.html"><span class="doc">Advanced configuration</span></a> - Describes advanced TorchServe configurations.</p></li>
 <li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/use_cases.md#serve-models-for-ab-testing">A/B test models</a> - A/B test your models for regressions before shipping them to production</p></li>
 <li><p><a class="reference internal" href="custom_service.html"><span class="doc">Custom Service</span></a> - Describes how to develop custom inference services.</p></li>
-<li><p><a class="reference external" href="management_api.md/encrypted-model-serving">Encrypted model serving</a> - S3 server side model encryption via KMS</p></li>
+<li><p><a class="reference external" href="management_api.md#encrypted-model-serving">Encrypted model serving</a> - S3 server side model encryption via KMS</p></li>
 <li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/plugins/docs/ddb_endpoint">Snapshot serialization</a> - Serialize model artifacts to AWS Dynamo DB</p></li>
 <li><p><a class="reference external" href="https://github.com/pytorch/serve/tree/master/benchmarks#torchserve-model-server-benchmarking">Benchmarking and Profiling</a> - Use JMeter or Apache Bench to benchmark your models and TorchServe itself</p></li>
 <li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/kubernetes/README.md#torchserve-on-kubernetes">TorchServe on Kubernetes</a> -  Demonstrates a Torchserve deployment in Kubernetes using Helm Chart supported in both Azure Kubernetes Service and Google Kubernetes service</p></li>
@@ -612,13 +628,9 @@
           <li>
             <a href="https://pytorch.org/ecosystem">Ecosystem</a>
           </li>
-
+            
           <li>
             <a href="https://pytorch.org/mobile">Mobile</a>
-          </li>
-
-          <li>
-            <a href="https://pytorch.org/hub">PyTorch Hub</a>
           </li>
 
           <li>
@@ -651,6 +663,18 @@
             </li>
 
             <li>
+              <a href="https://pytorch.org/torcharrow">torcharrow</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/data">TorchData</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/torchrec">TorchRec</a>
+            </li>
+
+            <li>
               <a href="https://pytorch.org/serve/">TorchServe</a>
             </li>
 
@@ -666,18 +690,15 @@
           <li class="resources-mobile-menu-title">
             Resources
           </li>
-
-          <ul class="resources-mobile-menu-items">
-            <li>
-              <a href="https://pytorch.org/resources">Developer Resources</a>
-            </li>
+            
+           <ul class="resources-mobile-menu-items">
 
             <li>
               <a href="https://pytorch.org/features">About</a>
             </li>
 
             <li>
-              <a href="https://pytorch.org/hub">Models (Beta)</a>
+              <a href="https://pytorch.org/foundation">PyTorch Foundation</a>
             </li>
 
             <li>
@@ -685,7 +706,23 @@
             </li>
 
             <li>
+              <a href="https://pytorch.org/community-stories">Community Stories</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/resources">Developer Resources</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/events">Events</a>
+            </li>
+
+            <li>
               <a href="https://discuss.pytorch.org/">Forums</a>
+            </li>
+
+            <li>
+              <a href="https://pytorch.org/hub">Models (Beta)</a>
             </li>
           </ul>
 
