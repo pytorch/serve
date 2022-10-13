@@ -4,7 +4,7 @@
     "fallbackRetryDelay": "10s",
     "httpHeaders": [ 
         {
-          "urls": ["https://docs.github.com/"],
+          "urls": ["https://docs.github.com/", "https://help.github.com/"],
           "headers": {
             "Accept-Encoding": "zstd, br, gzip, deflate"
           }
