@@ -27,7 +27,7 @@ If you installed using pip, then you need install Pyav :
 
 `pip install av`
 
-MMF currently is using Transformers 3.4.0, in case you have other version installed in your environment, this would be the best instead of installing it directly, add the MMF Github and 'av', in the requirements.txt and pass it to the model archiver using -r flag. You can read more about serving models with thrid party dependencies [here](https://github.com/pytorch/serve/tree/master/docs/use_cases.md#serve-custom-models-with-third-party-dependency).
+MMF currently is using Transformers 3.4.0, in case you have other version installed in your environment, this would be the best instead of installing it directly, add the MMF Github and 'av', in the requirements.txt and pass it to the model archiver using -r flag. You can read more about serving models with third party dependencies [here](https://github.com/pytorch/serve/tree/master/docs/use_cases.md#serve-custom-models-with-third-party-dependency).
 
 ***Note, MMF currently does not support Pytorch 1.10, please make sure you are using Pytorch 1.9***
 
