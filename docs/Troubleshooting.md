@@ -88,6 +88,6 @@ Refer [Allow model specific custom python packages](https://github.com/pytorch/s
 
 
 #### Backend worker monitoring thread interrupted or backend worker process died error.
-This issue is moslty occurs when the model fails to initialize, which may be due to erroneous code in handler's initialize function. This error is also observed when there is missing package/module.
+This issue mostly occurs when the model fails to initialize, which may be due to erroneous code in handler's initialize function. This error is also observed when there is missing package/module.
 
 Relevant issues: [[#667](https://github.com/pytorch/serve/issues/667), [#537](https://github.com/pytorch/serve/issues/537)]

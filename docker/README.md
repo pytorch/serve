@@ -29,7 +29,7 @@ cd serve/docker
 # Create TorchServe docker image
 
 Use `build_image.sh` script to build the docker images. The script builds the `production`, `dev` and `codebuild` docker images.
-| Parameter | Desciption |
+| Parameter | Description |
 |------|------|
 |-h, --help|Show script help|
 |-b, --branch_name|Specify a branch name to use. Default: master |
@@ -271,7 +271,7 @@ torch-model-archiver --model-name densenet161 --version 1.0 --model-file /home/m
 
 Refer [torch-model-archiver](../model-archiver/README.md) for details.
 
-6. desnet161.mar file should be present at /home/model-server/model-store
+6. densenet161.mar file should be present at /home/model-server/model-store
 
 # Running TorchServe in a Production Docker Environment.
 
