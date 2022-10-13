@@ -16,6 +16,7 @@ plugins/.gradle
 *.pem
 *.backup
 docs/sphinx/src/
+ts_scripts/spellcheck_conf/wordlist.dic
 
 # Postman files
 test/artifacts/
