@@ -177,7 +177,7 @@ if __name__ == "__main__":
         },
         install_requires=requirements,
         extras_require={
-            "onnx": ["onnxruntime"],
+            "onnx": ["onnxruntime","torch-ort"],
             "ipex": ["intel_extension_for_pytorch"],
             "tensorrt": ["torch2trt","nvidia-pyindex","nvidia-tensorrt"],
         },
