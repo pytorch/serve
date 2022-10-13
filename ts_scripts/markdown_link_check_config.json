@@ -1,5 +1,13 @@
 {
     "retryOn429": true,
     "retryCount": 5,
-    "fallbackRetryDelay": "10s"
+    "fallbackRetryDelay": "10s",
+    "httpHeaders": [ 
+        {
+          "urls": ["https://docs.github.com/"],
+          "headers": {
+            "Accept-Encoding": "zstd, br, gzip, deflate"
+          }
+        }
+      ]
 }
