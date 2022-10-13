@@ -5,6 +5,7 @@ from abc import ABC
 import torch
 import transformers
 from diffusers import StableDiffusionPipeline
+from torchvision import transforms
 
 from ts.torch_handler.base_handler import BaseHandler
 
@@ -40,7 +41,7 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         )
         # Loading the model and tokenizer from checkpoint and config files based on the user's choice of mode
         # further setup config can be added.
-        with zipfile.ZipFile(model_dir + "model.zip", "r") as zip_ref:
+        with zipfile.ZipFile(model_dir + "/model.zip", "r") as zip_ref:
             zip_ref.extractall(model_dir + "/model")
 
         self.pipe = StableDiffusionPipeline.from_pretrained(model_dir + "/model")
@@ -57,6 +58,7 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         Returns:
             list : The preprocess function returns a list of Tensor for the size of the word tokens.
         """
+        inputs = []
         for idx, data in enumerate(requests):
             input_text = data.get("data")
             if input_text is None:
@@ -64,9 +66,10 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
             if isinstance(input_text, (bytes, bytearray)):
                 input_text = input_text.decode("utf-8")
             logger.info("Received text: '%s'", input_text)
-        return input_text
+            inputs.append(input_text)
+        return inputs
 
-    def inference(self, input_text):
+    def inference(self, inputs):
         """Predict the class (or classes) of the received text using the
         serialized transformers checkpoint.
         Args:
@@ -78,12 +81,11 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         # Handling inference for sequence_classification.
         generator = torch.Generator("cuda").manual_seed(1024)
         image = self.pipe(
-            input_text, guidance_scale=7.5, num_inference_steps=50, generator=generator
+            inputs, guidance_scale=7.5, num_inference_steps=50, generator=generator
         ).images[0]
         inferences.append(image)
 
-        logger.info("Model predicted: '%s'", image)
-        print("Generated text", inferences)
+        logger.info("Generated image: '%s'", image)
         return inferences
 
     def postprocess(self, inference_output):
@@ -93,4 +95,12 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         Returns:
             (list): Returns a list of the Predictions and Explanations.
         """
-        return inference_output
+        images = []
+        transform = transforms.Compose(
+            [
+                transforms.ToTensor(),
+            ]
+        )
+        for image in inference_output:
+            images.append(transform(image))
+        return images
