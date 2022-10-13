@@ -12,13 +12,13 @@ The KServe wrapper files were created to enable the Torchserve integration with 
 
 2. The TorchserveModel.py file contains the methods to handle the request and response that comes from the Torchserve side and passes it on to the KServe side.
 
-3. TSModelRepository.py file contains the intialize method for the parameters that gets passed on to the Torchservemodel.py.
+3. TSModelRepository.py file contains the initialize method for the parameters that gets passed on to the Torchservemodel.py.
 
 ## The Local Testing of KServe Wrapper for MNIST
 
 Run KFServer locally to test it before creating a docker image.
 Torchserve makes use of port 8085 and the kfserver runs at port 8080
-We will hit kfserve , which inturn hit torch serve for inference and explanations request.
+We will hit kfserve , which in turn hits torch serve for inference and explanations request.
 Follow the below steps to serve the MNIST Model :
 
 - Step 1 : Install python3.6.9
@@ -202,7 +202,7 @@ Response:
 
 - Step 1: Follow the same steps from to 10 as what was done for MNIST.
 
-- Step 2: Use this config.properties- Change the mode_snaphot to bert
+- Step 2: Use this config.properties- Change the mode_snapshot to bert
 
 ```bash
 inference_address=http://0.0.0.0:8085

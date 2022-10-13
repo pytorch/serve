@@ -25,7 +25,7 @@ The following table describes all the parameters for the Helm Chart.
 | `image`            | Torchserve Serving image | `pytorch/torchserve:latest-gpu` |
 | `inference_port`   | TS Inference port        | `8080`                          |
 | `management_port`  | TS Management port       | `8081`                          |
-| `metrics_port`     | TS Mertics port          | `8082`                          |
+| `metrics_port`     | TS Metrics port          | `8082`                          |
 | `replicas`         | K8S deployment replicas  | `1`                             |
 | `model-store`      | EFS mountpath            | `/home/model-server/shared/`    |
 | `persistence.size` | Storage size to request  | `1Gi`                           |
@@ -78,7 +78,7 @@ REVISION: 1
 TEST SUITE: None
 ```
 
-Verify that torchserve has succesfully started by executing ```kubectl exec pod/torchserve-fff -- cat logs/ts_log.log``` on your torchserve pod. You can get this id by lookingup `kubectl get po --all-namespaces`
+Verify that torchserve has successfully started by executing ```kubectl exec pod/torchserve-fff -- cat logs/ts_log.log``` on your torchserve pod. You can get this id by lookingup `kubectl get po --all-namespaces`
 
 Your output should should look similar to
 
@@ -93,7 +93,7 @@ Current directory: /home/model-server
 
 ## Test Torchserve Installation
 
-Fetch the Load Balancer Extenal IP by executing
+Fetch the Load Balancer External IP by executing
 
 ```bash
 kubectl get svc
@@ -272,7 +272,7 @@ Follow the link for log aggregation with EFK Stack.\
 * You may inspect the values by running ``helm list`` and `helm get all ts` to verify if the values used for the installation.
 * You can uninstall / reinstall the helm chart by executing  `helm uninstall ts` and `helm install ts .`
 * `helm install ts .` fails with `Error: create: failed to create: Request entity too large: limit is 3145728` or `invalid: data: Too long: must have at most 1048576 characters`.
-  * Ensure that you dont have any stale files in your kubernetes directory where you are executing the command. If so, move them out of the directory or add them to .helmignore file.
+  * Ensure that you don't have any stale files in your kubernetes directory where you are executing the command. If so, move them out of the directory or add them to .helmignore file.
 * `kubectl get svc` does't show my torchserve service
   * Try reinstalling the helm chart by executing `helm uninstall ts` and `helm install ts .`
 * "Error: unable to build kubernetes objects from release manifest: unable to recognize “”: no matches for kind “ClusterConfig” in version “eksctl.io/v1alpha5”"
