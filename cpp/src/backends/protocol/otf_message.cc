@@ -48,14 +48,6 @@ namespace torchserve {
     auto envelope = RetrieveStringBuffer(client_socket_, std::nullopt);
     auto limit_max_image_pixels = client_socket_.RetrieveBool();
 
-    TS_LOGF(DEBUG, "Model Name: {}", *model_name);
-    TS_LOGF(DEBUG, "Model dir: {}", *model_dir);
-    TS_LOGF(DEBUG, "Batch size: {}", batch_size);
-    TS_LOGF(DEBUG, "Handler: {}", *handler);
-    TS_LOGF(DEBUG, "GPU_id: {}", gpu_id);
-    TS_LOGF(DEBUG, "Envelope: {}", *envelope);
-    TS_LOGF(DEBUG, "Limit max image pixels: {}", limit_max_image_pixels);
-
     return std::make_shared<LoadModelRequest>(
       *model_dir, *model_name, gpu_id, *handler,
       *envelope, batch_size, limit_max_image_pixels);
@@ -81,7 +73,6 @@ namespace torchserve {
     // fetch request id
     int length = client_socket_.RetrieveInt();
     if (length == -1) {
-      TS_LOG(ERROR, "Invalid request_id received. Aborting inference request");
       return nullptr;
     }
 
@@ -99,7 +90,9 @@ namespace torchserve {
 
     // use default data_type of bytes for now
     // TODO: handle data_type more broadly once backend support is added
-    headers[torchserve::PayloadType::kHEADER_NAME_DATA_TYPE] = torchserve::PayloadType::kDATA_TYPE_BYTES;
+    // This needs to be set based on some parameter from the frontend
+    // And requires changes to the frontend and python backend
+    headers[torchserve::PayloadType::kHEADER_NAME_BODY_TYPE] = torchserve::PayloadType::kDATA_TYPE_BYTES;
 
     // fetch parameters
     InferenceRequest::Parameters parameters{};

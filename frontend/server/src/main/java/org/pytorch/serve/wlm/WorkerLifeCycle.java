@@ -9,6 +9,8 @@ import java.util.Scanner;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.pytorch.serve.metrics.Metric;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.Connector;
@@ -19,6 +21,8 @@ import org.slf4j.LoggerFactory;
 public class WorkerLifeCycle {
 
     private static final Logger logger = LoggerFactory.getLogger(WorkerLifeCycle.class);
+    private static final Pattern PID_LOG_PATTERN =
+            Pattern.compile(".*\\[PID\\](\\d+)$");
 
     private ConfigManager configManager;
     private ModelManager modelManager = ModelManager.getInstance();
@@ -335,10 +339,11 @@ public class WorkerLifeCycle {
                         continue;
                     }
 
-                    if ("Torch worker started.".equals(result)) {
+                    Matcher matcher = PID_LOG_PATTERN.matcher(result);
+                    if (result.endsWith("Torch worker started.")) {
                         lifeCycle.setSuccess(true);
-                    } else if (result.startsWith("[PID]")) {
-                        lifeCycle.setPid(Integer.parseInt(result.substring("[PID]".length())));
+                    } else if (matcher.matches()) {
+                        lifeCycle.setPid(Integer.parseInt(matcher.group(1)));
                     }
                     if (error) {
                         loggerModelOutput.warn(result);

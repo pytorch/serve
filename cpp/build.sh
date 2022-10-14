@@ -148,7 +148,7 @@ function install_folly() {
 function install_kineto() {
   if [ "$PLATFORM" = "Linux" ]; then
     echo -e "${COLOR_GREEN}[ INFO ] Skip install kineto on Linux ${COLOR_OFF}"
-  elif  [ "$PLATFORM" = "Mac" ]; then
+  elif [ "$PLATFORM" = "Mac" ]; then
     KINETO_SRC_DIR=$BASE_DIR/third-party/kineto
 
     if [ ! -d "$KINETO_SRC_DIR" ] ; then
@@ -166,7 +166,7 @@ function install_kineto() {
 
 function install_libtorch() {
   if [ "$PLATFORM" = "Mac" ]; then
-    echo -e "${COLOR_GREEN}[ INFO ] Skip install libtorch on Linux ${COLOR_OFF}"
+    echo -e "${COLOR_GREEN}[ INFO ] Skip install libtorch on Mac ${COLOR_OFF}"
   elif [ ! -d "$DEPS_DIR/libtorch" ] ; then
     cd "$DEPS_DIR" || exit
     if [ "$PLATFORM" = "Linux" ]; then
