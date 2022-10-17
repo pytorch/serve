@@ -8,14 +8,14 @@ Set access token generated form Huggingface in `Download_model.py` file
 python Download_model.py
 ```
 
-### Compress downloaded model
+### Step 2: Compress downloaded model
 
 ```bash
 cd Diffusion_model
 zip -r ../model.zip *
 ```
 
-### Generate MAR file
+### Step 3: Generate MAR file
 
 Navigate back to `diffusers` directory.
 
@@ -23,13 +23,13 @@ Navigate back to `diffusers` directory.
 torch-model-archiver --model-name stable-diffusion --version 1.0 --handler stable_diffusion_handler.py --extra-files model.zip -r requirements.txt
 ```
 
-### Start torchserve
+### Step 4: Start torchserve
 
 ```bash
 torchserve --start --ts-config config.properties
 ```
 
-### Run inference
+### Step 5: Run inference
 
 ```bash
 curl -v http://localhost:8080/predictions/stable-diffusion -T sample.txt > output.txt
@@ -37,7 +37,7 @@ curl -v http://localhost:8080/predictions/stable-diffusion -T sample.txt > outpu
 
 Note: `sample_v1.json` and `sample_v2.json` are kserve inputs.
 
-### Restore image
+### Step 6: Restore image
 
 ```python
 import json
