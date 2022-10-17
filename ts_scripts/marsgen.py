@@ -75,6 +75,10 @@ def generate_mars(mar_config=MAR_CONFIG_FILE_PATH, model_store_dir=MODEL_STORE_D
             elif model.get("serialized_file_local") and model["serialized_file_local"]:
                 serialized_file_path = model["serialized_file_local"]
 
+            model_file = None
+            if model.get("model_file") and model["model_file"]:
+                model_file = model["model_file"]
+
             handler = None
             if model.get("handler") and model["handler"]:
                 handler = model["handler"]
@@ -99,7 +103,7 @@ def generate_mars(mar_config=MAR_CONFIG_FILE_PATH, model_store_dir=MODEL_STORE_D
             if model.get("export_path") and model["export_path"]:
                 export_path = model["export_path"]
 
-            cmd = model_archiver_command_builder(model["model_name"], model["version"], model["model_file"],
+            cmd = model_archiver_command_builder(model["model_name"], model["version"], model_file,
                                                  serialized_file_path, handler, extra_files,
                                                  runtime, archive_format, requirements_file, export_path)
             print(f"## In directory: {os.getcwd()} | Executing command: {cmd}\n")

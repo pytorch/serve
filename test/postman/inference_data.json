@@ -203,6 +203,14 @@
         "expected":"0"
     },
     {
+      "url":"{{mar_path_mnist_base_cpp}}",
+      "model_name":"mnist_base_cpp",
+      "worker":1,
+      "synchronous":"true",
+      "file":"../cpp/test/resources/torchscript_model/mnist/0_png.pt",
+      "content-type":"binary"
+    },
+    {
         "url":"{{mar_path_fastrcnn}}",
         "model_name":"fastrcnn",
         "worker":1,

@@ -53,6 +53,11 @@
 			"enabled": true
 		},
 		{
+			"key": "mar_path_mnist_base_cpp",
+			"value": "mnist_base_cpp.mar",
+			"enabled": true
+		},
+		{
 			"key": "mar_path_vgg16",
 			"value": "vgg16.mar",
 			"enabled": true

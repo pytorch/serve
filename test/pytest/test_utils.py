@@ -117,6 +117,7 @@ def model_archiver_command_builder(
     serialized_file=None,
     handler=None,
     extra_files=None,
+    runtime=None,
     force=False,
 ):
     cmd = "torch-model-archiver"
@@ -138,6 +139,9 @@ def model_archiver_command_builder(
 
     if extra_files:
         cmd += " --extra-files {0}".format(extra_files)
+
+    if runtime:
+        cmd += " --runtime {0}".format(runtime)
 
     if force:
         cmd += " --force"

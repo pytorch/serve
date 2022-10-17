@@ -91,6 +91,8 @@
 							"        pm.expect(validators[validator](actual_obj, expected_obj)).to.be.true;",
 							"    });",
 							"",
+							"} else if (type_response === \"binary\") {",
+							"    console.log(\"Ignoring response body validation for binary content\")",
 							"}",
 							"",
 							"function get_tolerance_value(expected_val) {",

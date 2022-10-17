@@ -144,8 +144,10 @@ namespace torchserve
     
     // call handler to run inference
     auto inference_response_batch = backend->GetModelInstance()->Predict(batch_inference_request);
+    auto prediction = torch::pickle_load((*inference_response_batch)["reqi"]->msg).toTensor().item<float>();
     ASSERT_EQ(inference_response_batch->size(), 1);
     ASSERT_EQ((*inference_response_batch)["reqi"]->code   , 200);
+    ASSERT_EQ(prediction, 0.0);
     // send inference response to socket
     torchserve::OTFMessage::SendInferenceResponse(*client_socket, inference_response_batch);
  }   
