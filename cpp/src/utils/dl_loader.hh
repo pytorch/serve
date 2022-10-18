@@ -28,7 +28,8 @@ namespace torchserve {
     ~DLLoader() = default;
 
     void OpenDL() {
-      if (!(handle_ = dlopen(lib_path_.c_str(), RTLD_NOW | RTLD_LAZY))) {
+      handle_ = dlopen(lib_path_.c_str(), RTLD_NOW | RTLD_LAZY);
+      if (!handle_) {
 				TS_LOGF(ERROR, "Failed to open lib: {}, error: {}", lib_path_, dlerror());
 			}
     };
@@ -48,11 +49,12 @@ namespace torchserve {
 
       using createClass = T *(*)();
 	    using deleteClass = void (*)(T *);
-      char* error;
+      char* error = nullptr;
 
       createClass create_func = reinterpret_cast<createClass>(
         dlsym(handle_, create_object_func_name_.c_str()));
-      if ((error = dlerror()) != NULL)  {
+      error = dlerror();
+      if (error != nullptr)  {
         TS_LOGF(ERROR,"create_func, error: {}", error);
         CloseDL();
         return std::shared_ptr<T>(nullptr);
@@ -60,7 +62,8 @@ namespace torchserve {
 
       deleteClass delete_func = reinterpret_cast<deleteClass>(
         dlsym(handle_, delete_object_func_name_.c_str()));
-      if ((error = dlerror()) != NULL)  {
+      error = dlerror();
+      if (error != nullptr) {
         TS_LOGF(ERROR, "delete_func, error: {}", error);
         CloseDL();
         return std::shared_ptr<T>(nullptr);

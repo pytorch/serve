@@ -6,8 +6,10 @@
 namespace mnist {
   class MnistHandler : public torchserve::torchscripted::BaseHandler {
     public:
+    // NOLINTBEGIN(bugprone-exception-escape)
     MnistHandler() = default;
-    ~MnistHandler() = default;
+    // NOLINTEND(bugprone-exception-escape)
+    ~MnistHandler() override = default;
 
     void Postprocess(
       const torch::Tensor& data,

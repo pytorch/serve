@@ -67,10 +67,12 @@ namespace torchserve {
       FAILED
     };
 
+    // NOLINTBEGIN(cppcoreguidelines-pro-type-member-init)
     struct ModelInstanceInfo {
       ModelInstanceStatus status;
       std::shared_ptr<torchserve::ModelInstance> model_instance;
     };
+    // NOLINTEND(cppcoreguidelines-pro-type-member-init)
 
     Backend() = default;
     virtual ~Backend() = default;

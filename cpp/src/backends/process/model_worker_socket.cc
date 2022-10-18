@@ -17,15 +17,19 @@ DEFINE_string(model_dir, "", "model path");
 DEFINE_string(logger_config_path, "./_build/resources/logging.config", "Logging config file path");
 
 int main(int argc, char* argv[]) {
-  gflags::ParseCommandLineFlags(&argc, &argv, true);
-  torchserve::Logger::InitLogger(FLAGS_logger_config_path);
+  try {
+    gflags::ParseCommandLineFlags(&argc, &argv, true);
+    torchserve::Logger::InitLogger(FLAGS_logger_config_path);
 
-  torchserve::SocketServer server = torchserve::SocketServer::GetInstance();
+    torchserve::SocketServer server = torchserve::SocketServer::GetInstance();
+    server.Initialize(FLAGS_socket_type, FLAGS_socket_name, 
+    FLAGS_host, FLAGS_port, FLAGS_runtime_type, FLAGS_device_type, FLAGS_model_dir);
 
-  server.Initialize(FLAGS_socket_type, FLAGS_socket_name, 
-  FLAGS_host, FLAGS_port, FLAGS_runtime_type, FLAGS_device_type, FLAGS_model_dir);
+    server.Run();
 
-  server.Run();
+    gflags::ShutDownCommandLineFlags();
+  } catch(...) {
+    std::cout << "cpp backend failed to start\n";
+  }
 
-  gflags::ShutDownCommandLineFlags();
 }

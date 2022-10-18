@@ -35,8 +35,10 @@ namespace torchserve {
     inline static const std::string kModel = "model";
     inline static const char kHandler_Delimiter = ':';
 
-    bool Initialize(const std::string& manifest_json_file_path);
-
+    // Due to https://github.com/llvm/llvm-project/issues/54668, 
+    // so ignore bugprone-exception-escape
+    // NOLINTBEGIN(bugprone-exception-escape)
+    Manifest() = default;
     struct Model {
       std::string model_name;
       std::string model_version;
@@ -51,16 +53,22 @@ namespace torchserve {
       std::string requirements_file;
       std::string spec_file;
     };
+    // NOLINTEND(bugprone-exception-escape)
+
+    bool Initialize(const std::string& manifest_json_file_path);
 
     const std::string& GetCreatOn() {
       return create_on_;
     };
+
     const std::string& GetArchiverVersion() {
       return archiver_version_;
     };
+
     const std::string& GetRuntimeType() {
       return runtime_type_;
     };
+
     const Model& GetModel() {
       return model_;
     };
@@ -68,7 +76,7 @@ namespace torchserve {
     void SetHandler(const std::string& handler) {
       model_.handler = handler;
     }
-
+    
     private:
     bool SetValue(
       const folly::dynamic& source, 
@@ -81,6 +89,7 @@ namespace torchserve {
     RuntimeType runtime_type_;
     Model model_;
   };
+  
 
   class ModelArchive {
     public:

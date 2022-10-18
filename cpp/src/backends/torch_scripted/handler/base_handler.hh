@@ -24,7 +24,9 @@ namespace torchserve {
      */
     class BaseHandler {
       public:
+      // NOLINTBEGIN(bugprone-exception-escape)
       BaseHandler() = default;
+      // NOLINTEND(bugprone-exception-escape)
       virtual ~BaseHandler() = default;
 
       virtual void Initialize(

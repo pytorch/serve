@@ -7,7 +7,7 @@ namespace torchserve {
   class Foo : public IFoo {
     public:
     Foo() = default;
-    ~Foo() = default;
+    ~Foo() override = default;
 
     int add(int x, int y) override;
   };

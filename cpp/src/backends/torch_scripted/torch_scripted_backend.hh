@@ -19,7 +19,7 @@ namespace torchserve {
     class Backend final : public torchserve::Backend {
       public:
       Backend() = default;
-      ~Backend() {
+      ~Backend() override {
         if (dl_loader_ && handler_) {
           handler_.reset();
         }
@@ -45,7 +45,7 @@ namespace torchserve {
         std::shared_ptr<torchserve::torchscripted::BaseHandler>& handler, 
         std::shared_ptr<torch::Device> device) :
         torchserve::ModelInstance(instance_id), model_(model), handler_(handler), device_(device) {};
-      ~ModelInstance() = default;
+      ~ModelInstance() override = default;
 
       std::shared_ptr<torchserve::InferenceResponseBatch> Predict(
         std::shared_ptr<torchserve::InferenceRequestBatch> request_batch) override;

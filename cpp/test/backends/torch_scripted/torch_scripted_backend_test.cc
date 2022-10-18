@@ -9,7 +9,7 @@
 namespace torchserve {
   class TorchScriptedBackendTest : public ::testing::Test {
     protected:
-    void SetUp() {
+    void SetUp() override {
       backend_ = std::make_shared<torchserve::torchscripted::Backend>();
     }
 

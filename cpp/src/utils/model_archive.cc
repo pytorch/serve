@@ -56,11 +56,11 @@ namespace torchserve {
       dest = source[key].asString();
     } catch (const std::out_of_range& e) {
       if (required) {
-        TS_LOGF(ERROR, "Item: {} not defined.", key);
+        TS_LOGF(ERROR, "Item: {} not defined. error: {}", key, e.what());
       } else {
         return false;
       }
-    }
+    } 
     return true;
   }
 } // //namespace torchserve

@@ -71,7 +71,7 @@ namespace torchserve {
     if (size == 1) {
       return 0;
     } else {
-      std::uniform_int_distribution<> uint_distribution_(0, size - 1);
+      std::uniform_int_distribution<unsigned int> uint_distribution_(0, size - 1);
       return uint_distribution_(random_generator_);
     }
   }

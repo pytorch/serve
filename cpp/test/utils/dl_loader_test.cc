@@ -26,7 +26,7 @@ namespace torchserve {
     }
 
     std::string lib_path_;
-    torchserve::DLLoader<IFoo>* dl_loader_;
+    torchserve::DLLoader<IFoo>* dl_loader_ = nullptr;
   };
   
   TEST_F(DLLoaderTest, TestGetInstance) {

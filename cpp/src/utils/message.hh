@@ -91,6 +91,9 @@ namespace torchserve {
     code(code), buf(buf) {};
   };
 
+  // Due to https://github.com/llvm/llvm-project/issues/54668, 
+  // so ignore bugprone-exception-escape
+  // NOLINTBEGIN(bugprone-exception-escape)
   struct InferenceRequest {
     /**
      * @brief 
@@ -105,14 +108,16 @@ namespace torchserve {
     std::string request_id;
     Headers headers;
     Parameters parameters;
-
+    
     InferenceRequest() {};
-
+    
     InferenceRequest(
-      const std::string request_id,
-      const Headers headers,
-      const Parameters parameters
+      const std::string& request_id,
+      const Headers& headers,
+      const Parameters& parameters
     ) : request_id(request_id), headers(headers), parameters(parameters) {};
+    // NOLINTEND(bugprone-exception-escape)
+
   };
   // Ref: Ref: https://github.com/pytorch/serve/blob/master/ts/service.py#L36
   using InferenceRequestBatch = std::vector<InferenceRequest>;
@@ -120,7 +125,7 @@ namespace torchserve {
   struct InferenceResponse {
     using Headers = std::map<std::string, std::string>;
 
-    int code;
+    int code = 200;
     std::string request_id;
     // msg data_dtype must be added in headers
     Headers headers;
@@ -145,7 +150,7 @@ namespace torchserve {
       const std::vector<char>& new_msg) {
       code = new_code;
       headers[new_header_key] = new_header_val;
-      msg = std::move(new_msg);
+      msg = new_msg;
     };
   };
   // Ref: https://github.com/pytorch/serve/blob/master/ts/service.py#L105
