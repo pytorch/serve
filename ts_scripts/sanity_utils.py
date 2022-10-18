@@ -3,7 +3,7 @@ import sys
 import nvgpu
 import glob
 from ts_scripts import marsgen as mg
-
+import subprocess
 
 REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 sys.path.append(REPO_ROOT)
