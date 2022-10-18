@@ -2,31 +2,26 @@
 #define TS_CPP_UTILS_METRICS_LOG_METRIC_HH_
 
 #include <string>
-#include <tuple>
-#include <vector>
+#include <set>
 #include <map>
 
 #include "src/utils/metrics/metric.hh"
-#include "src/utils/metrics/emitter.hh"
 
 namespace torchserve {
-    // Value entry for log metric consisting of <metric_value, timestamp, request_id>
-    typedef std::tuple<double, std::uint64_t, std::string> LogMetricValue;
-
-    class LogMetric : public Metric, public Emitter {
+    class TSLogMetric : public IMetric {
         public:
-        LogMetric(const std::string& name, const std::string& unit,
-                  const std::map<std::string, std::string>& dimensions, const MetricType& type);
-        void Update(const double& value, const std::string& request_id = "");
-        void Reset();
-        void Emit();
+        TSLogMetric(const MetricType& type, const std::string& name, const std::string& unit,
+                    const std::set<std::string>& dimension_names) :
+                    IMetric(type, name, unit, dimension_names) {}
+        void AddOrUpdate(const std::map<std::string, std::string>& dimension_values, const double& value);
+        void AddOrUpdate(const std::map<std::string, std::string>& dimension_values,
+                         const std::string& request_id, const double& value);
 
         private:
-        const std::string name;
-        const std::string unit;
-        const std::map<std::string, std::string> dimensions;
-        const MetricType type;
-        std::vector<LogMetricValue> values;
+        void ValidateDimensionValues(const std::map<std::string, std::string>& dimension_values);
+        void ValidateMetricValue(const double& value);
+        void Emit(const std::map<std::string, std::string>& dimension_values, const double& value,
+                  const std::string& request_id);
     };
 } // namespace torchserve
 
