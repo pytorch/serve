@@ -7,7 +7,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -W -Wall -Wextra -fPIC -D_GLIBCXX_USE_CXX11_ABI=1")
  
 find_program(CLANG_TIDY_EXE NAMES "clang-tidy" REQUIRED)
-set(CMAKE_CXX_CLANG_TIDY "${CLANG_TIDY_EXE}")
+set(CMAKE_CXX_CLANG_TIDY "${CLANG_TIDY_EXE};-config-file=${CMAKE_CURRENT_SOURCE_DIR}/.clang-tidy")
 
 find_package(Boost REQUIRED)
 find_package(folly REQUIRED)
