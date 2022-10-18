@@ -10,10 +10,6 @@ Checks: >
   -bugprone-lambda-function-name,
   -bugprone-reserved-identifier,
   cppcoreguidelines-*,
-  -cppcoreguidelines-avoid-c-arrays,
-  -cppcoreguidelines-init-variables,
-  -cppcoreguidelines-pro-type-member-init,
-  -cppcoreguidelines-pro-type-member-init,
   -cppcoreguidelines-avoid-magic-numbers,
   -cppcoreguidelines-avoid-non-const-global-variables,
   -cppcoreguidelines-interfaces-global-init,
@@ -45,6 +41,5 @@ Checks: >
   -performance-unnecessary-value-param
 HeaderFilterRegex: '.*'
 AnalyzeTemporaryDtors: false
-FormatStyle: 'google'
 #WarningsAsErrors: '*'
 ...

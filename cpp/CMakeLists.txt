@@ -5,9 +5,25 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -W -Wall -Wextra -fPIC -D_GLIBCXX_USE_CXX11_ABI=1")
- 
+
 find_program(CLANG_TIDY_EXE NAMES "clang-tidy" REQUIRED)
-set(CMAKE_CXX_CLANG_TIDY "${CLANG_TIDY_EXE};-config-file=${CMAKE_CURRENT_SOURCE_DIR}/.clang-tidy")
+set(CMAKE_CXX_CLANG_TIDY "${CLANG_TIDY_EXE}")
+
+find_program(CLANG_FORMAT_EXE NAMES "clang-format" REQUIRED)
+if(CLANG_FORMAT_EXE)
+  file(GLOB_RECURSE ALL_CXX_SOURCE_FILES
+    ${PROJECT_SOURCE_DIR}/src/*.cc
+    ${PROJECT_SOURCE_DIR}/src/*.hh
+    ${PROJECT_SOURCE_DIR}/test/*.cc
+    ${PROJECT_SOURCE_DIR}/test/*.hh
+  )
+
+  add_custom_target(format
+    COMMAND 
+      ${CLANG_FORMAT_EXE} -i -style=google ${ALL_CXX_SOURCE_FILES}
+  )
+endif()
+
 
 find_package(Boost REQUIRED)
 find_package(folly REQUIRED)
