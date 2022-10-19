@@ -1,13 +1,16 @@
 #include "src/backends/process/model_worker.hh"
 
+namespace fs = std::filesystem;
+
 namespace torchserve {
 void SocketServer::Initialize(
     const std::string& socket_type, const std::string& socket_name,
     const std::string& host_addr, const std::string& port_num,
     const torchserve::Manifest::RuntimeType& runtime_type,
     torchserve::DeviceType device_type, const std::string& model_dir) {
-  unsigned short socket_family;
+  unsigned short socket_family = 0;
   socket_family = AF_INET;
+  socket_type_ = socket_type;
   if (device_type != "cpu" && device_type != "gpu") {
     TS_LOGF(WARN, "Invalid device type: {}", device_type);
   }
@@ -57,7 +60,8 @@ void SocketServer::Run() {
     TS_LOGF(FATAL, "Failed to setsockopt. errno: {}", errno);
   }
 
-  sockaddr *srv_sock_address, client_sock_address{};
+  sockaddr *srv_sock_address = nullptr, client_sock_address{};
+  socklen_t name_len = 0;
   if (socket_type_ == "unix") {
     TS_LOG(INFO, "Binding to unix socket");
     sockaddr_un sock_addr{};
@@ -65,8 +69,8 @@ void SocketServer::Run() {
     sock_addr.sun_family = AF_UNIX;
     std::strncpy(sock_addr.sun_path, socket_name_.c_str(),
                  sizeof(sock_addr.sun_path));
-    // TODO: Fix truncation of socket name to 14 chars when casting
     srv_sock_address = reinterpret_cast<sockaddr*>(&sock_addr);
+    name_len = SUN_LEN(&sock_addr);
   } else {
     TS_LOG(INFO, "Binding to tcp socket");
     sockaddr_in sock_addr{};
@@ -75,6 +79,7 @@ void SocketServer::Run() {
     sock_addr.sin_port = port_;
     sock_addr.sin_addr.s_addr = inet_addr(socket_name_.c_str());
     srv_sock_address = reinterpret_cast<sockaddr*>(&sock_addr);
+    name_len = sizeof(*srv_sock_address);
   }
 
   if (bind(server_socket_, srv_sock_address, sizeof(*srv_sock_address)) < 0) {
