@@ -26,7 +26,6 @@ jobs:
         if: matrix.os == 'macOS-latest'
         run: |
             brew install libtorch
-            brew link --overwrite pytorch
       - name: Build
         run: |
-          cd cpp && ./build.sh
+          cd cpp && ./build.sh --install-dependencies
