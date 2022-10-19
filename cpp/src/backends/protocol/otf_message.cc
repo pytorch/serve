@@ -5,7 +5,7 @@ static constexpr char NULL_CHAR = '\0';
 
 namespace torchserve {
 char OTFMessage::RetrieveCmd(const ISocket& client_socket_) {
-  char cmd;
+  char cmd{};
   client_socket_.RetrieveBuffer(1, &cmd);
   return cmd;
 }
