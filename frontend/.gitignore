@@ -4,3 +4,5 @@
 *.iml
 build
 libs
+archive/bin
+server/bin

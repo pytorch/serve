@@ -7,7 +7,7 @@ model locally using kserve.
 
 Clone [pytorch/serve](https://github.com/pytorch/serve) repository.
 
-Copy the [Transformer_handler_generalized_v2.py](Transformer_handler_generalized_v2.py) handler file to `examples/Huggingface_Transformers` folder
+Copy the [Transformer_kserve_handler.py](https://github.com/kserve/kserve/blob/master/docs/samples/v1beta1/torchserve/v2/bert/sequence_classification/Transformer_kserve_handler.py) handler file to `examples/Huggingface_Transformers` folder
 
 Navigate to `examples/Huggingface_Transformers`
 

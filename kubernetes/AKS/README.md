@@ -78,7 +78,7 @@ Your output should look similar to
 
 ```persistentvolumeclaim/model-store-claim created```
 
-Verify that the PVC / PV is created by excuting.
+Verify that the PVC / PV is created by executing.
 
 ```kubectl get pvc,pv```
 
@@ -102,7 +102,7 @@ Your output should look similar to
 
 ```pod/model-store-pod created```
 
-Verify that the pod is created by excuting.
+Verify that the pod is created by executing.
 
 ```kubectl get po```
 
@@ -180,9 +180,9 @@ torchserve-75f5b67469-5hnsn        1/1     Running   0          2m36s
 
 ### 3 Test Torchserve Installation
 
-#### 3.1 Fetch the Load Balancer Extenal IP
+#### 3.1 Fetch the Load Balancer External IP
 
-Fetch the Load Balancer Extenal IP by executing.
+Fetch the Load Balancer External IP by executing.
 
 ```kubectl get svc```
 
@@ -302,7 +302,7 @@ az group delete --name myResourceGroup --yes --no-wait
   
   **Troubleshooting Azure resource for AKS cluster creation**
   
-  * Check AKS availble region, https://azure.microsoft.com/en-us/global-infrastructure/services/?products=kubernetes-service
+  * Check AKS available region, https://azure.microsoft.com/en-us/global-infrastructure/services/?products=kubernetes-service
   * Check AKS quota and VM size limitation, https://docs.microsoft.com/en-us/azure/aks/quotas-skus-regions
   * Check whether your subscription has enough quota to create AKS cluster, https://docs.microsoft.com/en-us/azure/networking/check-usage-against-limits
   
