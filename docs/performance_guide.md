@@ -1,7 +1,7 @@
 # Performance Guide
 In case you're interested in optimizing the memory usage, latency or throughput of a PyTorch model served with TorchServe, this is the guide for you.
 ## Optimizing PyTorch
-There are many tricks to optimize PyTorch models for production including but not limited to distillation, quantization, fusion, pruning, setting environment variables and we encourage you to benchmark and see what works best for you. An experimental tool that may make this process is easier is https://github.com/pytorch/serve/tree/master/experimental/torchprep
+There are many tricks to optimize PyTorch models for production including but not limited to distillation, quantization, fusion, pruning, setting environment variables and we encourage you to benchmark and see what works best for you. An experimental tool that may make this process easier is https://pypi.org/project/torchprep.
 
 In general it's hard to optimize models and the easiest approach can be exporting to some runtime like ORT, TensorRT, IPEX, FasterTransformer and we have many examples for how to integrate these runtimes in https://github.com/pytorch/serve/tree/master/examples. If your favorite runtime is not supported please feel free to open a PR.
 

@@ -5,7 +5,7 @@ The benchmarks measure the performance of TorchServe on various models and bench
 We currently support benchmarking with JMeter & Apache Bench. One can also profile backend code with snakeviz.
 
 * [Benchmarking with Apache Bench](#benchmarking-with-apache-bench)
-* [Auto Benchmarking with Apache Bench](#Auto-Benchmarking-with-Apache-Bench)
+* [Auto Benchmarking with Apache Bench](#auto-benchmarking-with-apache-bench)
 * [Benchmarking and Profiling with JMeter](jmeter.md)
 
 # Benchmarking with Apache Bench
@@ -32,7 +32,7 @@ Apache Bench is available on Mac by default. You can test by running ```ab -h```
 
 * Windows
     - Download apache binaries from [Apache Lounge](https://www.apachelounge.com/download/)
-    - Extract and place the contents at some location eg: `C:\Program Files\`
+    - Extract and place the contents at some location e.g.: `C:\Program Files\`
     - Add this path `C:\Program Files\Apache24\bin`to the environment variable PATH.
     NOTE - You may need to  install Visual C++ Redistributable for Visual Studio 2015-2019.
 
@@ -156,7 +156,7 @@ The reports are generated at location "/tmp/benchmark/"
 ![](predict_latency.png)
 
 # Auto Benchmarking with Apache Bench
-`auto_benchmark.py` runs Apache Bench on a set of models and generates an easy to read `report.md` once [Apach bench installation](https://github.com/pytorch/serve/tree/master/benchmarks#installation-1) is done.
+`auto_benchmark.py` runs Apache Bench on a set of models and generates an easy to read `report.md` once [Apache bench installation](https://github.com/pytorch/serve/tree/master/benchmarks#installation-1) is done.
 
 ## How does the auto benchmark script work?
 Auto Benchmarking is tool to allow users to run multiple test cases together and generates final report. Internally, the workflow is:
@@ -214,6 +214,6 @@ If you need to run your benchmarks on a specific cloud or hardware infrastructur
 The high level approach
 1. Create a cloud instance in your favorite cloud provider
 2. Configure it so it can talk to github actions by running some shell commands listed here https://docs.github.com/en/actions/hosting-your-own-runners/adding-self-hosted-runners
-3. Tag your instances in https://github.com/pytorch/serve/settings/actions/runners
+3. Tag your instances in the runners tab on Github
 3. In the `.yml` make sure to use `runs-on [self-hosted, your_tag]`
 4. Inspect the results in https://github.com/pytorch/serve/actions and download the artifacts for further analysis

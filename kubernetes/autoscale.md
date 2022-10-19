@@ -1,6 +1,6 @@
 # Autoscaler 
 
-Setup Kubernetes HPA(Horizontal Pod Autoscaler) for Torchserve, tuned for torchserve metrics. This uses Prometheus as metrics collector and Prometheus Adapter as mertrics server, serving Torchserve metrics for HPA.
+Setup Kubernetes HPA(Horizontal Pod Autoscaler) for Torchserve, tuned for torchserve metrics. This uses Prometheus as metrics collector and Prometheus Adapter as metrics server, serving Torchserve metrics for HPA.
 
 ## Steps
 
@@ -31,7 +31,7 @@ prometheus-server.default.svc.cluster.local
 ...
 ```
 
-### 3. Install Prometheus Adapater
+### 3. Install Prometheus Adapter
 
 - Update Prometheus url and port in adapter.yaml. Use the url given in prometheus installation output.
 
