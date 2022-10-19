@@ -263,6 +263,7 @@ function build() {
   fi 
   
   make -j "$JOBS" 
+  make format
   make install
   echo -e "${COLOR_GREEN}torchserve_cpp build is complete. To run unit test: \
   ./_build/test/torchserve_cpp_test ${COLOR_OFF}"
