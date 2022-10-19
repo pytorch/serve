@@ -22,7 +22,11 @@ jobs:
     steps:
       - name: Checkout TorchServe
         uses: actions/checkout@v2
+      - name: Install libtorch - macOS
+        if: matrix.os == 'macOS-latest'
+        run: |
+            brew install libtorch
+            brew link --overwrite pytorch
       - name: Build
         run: |
-          git branch
           cd cpp && ./build.sh
