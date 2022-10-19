@@ -6,8 +6,8 @@
 * [Prerequisites](#prerequisites)
 * [Batch Inference with TorchServe's default handlers](#batch-inference-with-torchserves-default-handlers)
 * [Batch Inference with TorchServe using ResNet-152 model](#batch-inference-with-torchserve-using-resnet-152-model)  
-* [Demo to configure TorchServe ResNet-152 model with batch-supported model](#demo-to-configure-torchServe-resNet-152-model-with-batch-supported-model)
-* [Demo to configure TorchServe ResNet-152 model with batch-supported model using Docker](#demo-to-configure-torchServe-resNet-152-model-with-batch-supported-model-using-docker)
+* [Demo to configure TorchServe ResNet-152 model with batch-supported model](#demo-to-configure-torchserve-resnet-152-model-with-batch-supported-model)
+* [Demo to configure TorchServe ResNet-152 model with batch-supported model using Docker](#demo-to-configure-torchserve-resnet-152-model-with-batch-supported-model-using-docker)
 
 ## Introduction
 
@@ -90,7 +90,7 @@ In this section lets bring up model server and launch Resnet-152 model, which us
 
 First things first, follow the main [Readme](../README.md) and install all the required packages including `torchserve`.
 
-### Batch inference of Resnet-152 configured with managment API
+### Batch inference of Resnet-152 configured with management API
 
 * Start the model server. In this example, we are starting the model server to run on inference port 8080 and management port 8081.
 
@@ -258,9 +258,9 @@ curl http://localhost:8081/models/resnet-152-batch_v2
     ```
 ## Demo to configure TorchServe ResNet-152 model with batch-supported model using Docker
 
-Here, we show how to register a model with batch inference support when serving the model using docker contianers. We set the `batch_size` and `max_batch_delay`  in the config.properties similar to the previous section which is being used by [dockered_entrypoint.sh](../docker/dockerd-entrypoint.sh).
+Here, we show how to register a model with batch inference support when serving the model using docker containers. We set the `batch_size` and `max_batch_delay`  in the config.properties similar to the previous section which is being used by [dockered_entrypoint.sh](../docker/dockerd-entrypoint.sh).
 
-### Batch inference of Resnet-152 using docker contianer
+### Batch inference of Resnet-152 using docker container
 
 * Set the batch `batch_size` and `max_batch_delay`  in the config.properties as referenced in the [dockered_entrypoint.sh](../docker/dockerd-entrypoint.sh)
 
