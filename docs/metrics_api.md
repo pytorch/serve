@@ -52,13 +52,13 @@ scrape_configs:
     static_configs:
     - targets: ['localhost:8082'] #TorchServe metrics endpoint
 ```
-Navigate to http://localhost:9090/ on a browser to execute queries and create graphs 
+Navigate to `http://localhost:9090/` on a browser to execute queries and create graphs 
 
 <img width="1231" alt="PrometheusServer" src="https://user-images.githubusercontent.com/880376/86984450-806fc680-c143-11ea-9ae2-f2ef42f24f4c.png">
 
 #### Grafana
 
-Once you have the Torchserve and Prometheus servers running, you can further [setup](https://prometheus.io/docs/visualization/grafana/) Grafana, point it to Prometheus server and navigate to http://localhost:3000/ to create dashboards and graphs.
+Once you have the Torchserve and Prometheus servers running, you can further [setup](https://prometheus.io/docs/visualization/grafana/) Grafana, point it to Prometheus server and navigate to `http://localhost:3000/` to create dashboards and graphs.
 
 You can use command given below to start Grafana - 
 `sudo systemctl daemon-reload && sudo systemctl enable grafana-server && sudo systemctl start grafana-server`

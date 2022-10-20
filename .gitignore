@@ -11,9 +11,12 @@ dist/
 .github/.DS_Store
 .DS_Store
 frontend/server/src/main/java/org/pytorch/serve/grpc/
+serving-sdk/target
+plugins/.gradle
 *.pem
 *.backup
 docs/sphinx/src/
+ts_scripts/spellcheck_conf/wordlist.dic
 
 # Postman files
 test/artifacts/
@@ -30,5 +33,5 @@ test/config.properties
 instances.yaml
 instances.yaml.backup
 
-## Models 
+## Models
 *.pt
