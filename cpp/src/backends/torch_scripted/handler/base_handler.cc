@@ -166,7 +166,6 @@ void BaseHandler::Postprocess(
   for (const auto& kv : idx_to_req_id) {
     try {
       auto response = (*response_batch)[kv.second];
-      auto msg = torch::argmax(data[kv.first]).to(torch::kFloat32);
       response->SetResponse(200, "data_type",
                             torchserve::PayloadType::kDATA_TYPE_BYTES,
                             torch::pickle_save(data[kv.first]));
