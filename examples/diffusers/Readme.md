@@ -10,20 +10,27 @@ python Download_model.py
 
 ### Step 2: Compress downloaded model
 
+**_NOTE:_** Install Zip cli tool
+
+Navigate back to model directory.
+
 ```bash
+
 cd Diffusion_model
 zip -r ../model.zip *
 ```
 
 ### Step 3: Generate MAR file
 
-Navigate back to `diffusers` directory.
+Navigate up one level to `diffusers` directory.
 
 ```bash
 torch-model-archiver --model-name stable-diffusion --version 1.0 --handler stable_diffusion_handler.py --extra-files model.zip -r requirements.txt
 ```
 
 ### Step 4: Start torchserve
+
+Update config.properties and start torchserve
 
 ```bash
 torchserve --start --ts-config config.properties
@@ -32,23 +39,11 @@ torchserve --start --ts-config config.properties
 ### Step 5: Run inference
 
 ```bash
-curl -v http://localhost:8080/predictions/stable-diffusion -T sample.txt > output.txt
+python query.py --url "http://localhost:8080/predictions/stable-diffusion" --prompt "a photo of an astronaut riding a horse on mars"
 ```
 
-Note: `sample_v1.json` and `sample_v2.json` are kserve inputs.
+The output file `output.jpg` is the image generated.
 
-### Step 6: Restore image
-
-```python
-import json
-from PIL import Image
-import numpy as np
-
-# read file
-with open('example.json', 'r') as myfile:
-    data=myfile.read()
-
-# parse file
-json_data = json.loads(data)
-new_image = Image.fromarray(np.array(json.loads(json_data["predictions"]), dtype='uint8'))
-```
+**_NOTE:_** For KServe implementation use the below inputs for v1 and v2 protocols.
+Kserve v1 protocol - `sample_v1.json`
+Kserve v2 protocol - `sample_v2.json`
