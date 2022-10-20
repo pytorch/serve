@@ -7,9 +7,9 @@ void MnistHandler::Postprocess(
   for (const auto& kv : idx_to_req_id) {
     try {
       auto response = (*response_batch)[kv.second];
-      response->SetResponse(
-          200, "data_tpye", torchserve::PayloadType::kDATA_TYPE_BYTES,
-          torch::pickle_save(torch::argmax(data[kv.first].softmax(0))));
+      response->SetResponse(200, "data_tpye",
+                            torchserve::PayloadType::kDATA_TYPE_BYTES,
+                            torch::pickle_save(torch::argmax(data[kv.first])));
     } catch (const std::runtime_error& e) {
       LOG(ERROR) << "Failed to load tensor for request id:" << kv.second
                  << ", error: " << e.what();
