@@ -19,7 +19,7 @@ if(CLANG_FORMAT_EXE)
   )
 
   add_custom_target(format
-    COMMAND 
+    COMMAND
       ${CLANG_FORMAT_EXE} -i -style=google ${ALL_CXX_SOURCE_FILES}
   )
 endif()
@@ -30,6 +30,7 @@ find_package(folly REQUIRED)
 find_package(fmt REQUIRED)
 find_package(gflags REQUIRED)
 find_package(Torch REQUIRED)
+find_package(yaml-cpp REQUIRED)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
 
 include_directories(${TORCH_INCLUDE_DIRS})
@@ -49,4 +50,3 @@ add_subdirectory(src/examples)
 add_subdirectory(test)
 
 FILE(COPY src/resources/logging.config DESTINATION "${CMAKE_INSTALL_PREFIX}/resources")
-

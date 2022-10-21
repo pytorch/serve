@@ -1,0 +1,4 @@
+dimensions:
+  - &model model_name
+  - &host ""
+  - &level level

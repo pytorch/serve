@@ -1,0 +1,16 @@
+dimensions:
+  - &model model_name
+  - &host host_name
+  - &level level
+
+ts_metrics:
+  counter:
+    - name: TestMetric
+      unit: count
+      dimensions: [*model, *host]
+
+model_metrics:
+  counter:
+    - name: TestMetric
+      unit: count
+      dimensions: [*model, *level]
