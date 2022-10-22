@@ -147,10 +147,20 @@ TEST(BackendIntegTest, TestOTFProtocolAndHandler) {
   auto inference_response_batch =
       backend->GetModelInstance()->Predict(batch_inference_request);
   auto prediction =
-    torch::pickle_load((*inference_response_batch)["reqi"]->msg).toTensor().item<float>();
+      torch::pickle_load((*inference_response_batch)["reqi"]->msg).toTensor();
+  std::vector<float> expected_result = {0.0000,   -28.5285, -22.8017, -32.5117,
+                                        -33.5584, -29.8429, -25.7716, -25.9097,
+                                        -27.6592, -24.5729};
+  auto tensor_options = torch::TensorOptions().dtype(at::kFloat);
+  auto expected_tensor =
+      torch::from_blob(expected_result.data(),
+                       {static_cast<long long>(expected_result.size())},
+                       tensor_options)
+          .clone();
   ASSERT_EQ(inference_response_batch->size(), 1);
   ASSERT_EQ((*inference_response_batch)["reqi"]->code, 200);
-  ASSERT_EQ(prediction, 0.0);
+  ASSERT_EQ(torch::allclose(prediction, expected_tensor), true);
+
   // send inference response to socket
   torchserve::OTFMessage::SendInferenceResponse(*client_socket,
                                                 inference_response_batch);

@@ -168,7 +168,7 @@ void BaseHandler::Postprocess(
       auto response = (*response_batch)[kv.second];
       response->SetResponse(200, "data_type",
                             torchserve::PayloadType::kDATA_TYPE_BYTES,
-                            torch::pickle_save(msg));
+                            torch::pickle_save(data[kv.first]));
     } catch (const std::runtime_error& e) {
       TS_LOGF(ERROR, "Failed to load tensor for request id: {}, error: {}",
               kv.second, e.what());
