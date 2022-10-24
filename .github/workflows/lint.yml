@@ -70,9 +70,13 @@ jobs:
         run: |
           sources=""
           for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
-            sources+=" -S $file"
+            sources="${sources} -S $file"
           done
-          pyspelling -c $GITHUB_WORKSPACE/ts_scripts/spellcheck_conf/spellcheck.yaml --name Markdown $sources
+          if [ ! "$sources" ]; then
+            echo "No files to spellcheck"
+          else
+            pyspelling -c $GITHUB_WORKSPACE/ts_scripts/spellcheck_conf/spellcheck.yaml --name Markdown $sources
+          fi
 
       - name: In the case of misspellings
         if: ${{ failure() }}
