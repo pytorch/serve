@@ -53,8 +53,8 @@
 			"enabled": true
 		},
 		{
-			"key": "mar_path_mnist_base_cpp",
-			"value": "mnist_base_cpp.mar",
+			"key": "mar_path_mnist_custom_cpp",
+			"value": "mnist_custom_cpp.mar",
 			"enabled": true
 		},
 		{
