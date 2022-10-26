@@ -15,7 +15,7 @@
 * [Serving Image Classification Workflow](#serving-image-classification-workflow)
 * [Serving Neural Machine Translation Workflow](#serving-neural-machine-translation-workflow)
 * [Serving Torchrec DLRM (Recommender Model)](#serving-torchrec-dlrm)
-* [Serving Image Classifier model for streaming video](#serving-image-classifier-model-for-streaming-video)
+* [Serving Image Classifier model for on-premise near real-time video](#serving-image-classifier-model-for-on-premise-near-real-time-video)
 
 # TorchServe Examples
 
@@ -135,8 +135,8 @@ This example shows how to deploy a Deep Learning Recommendation Model (DLRM) wit
 
 * [Torchrec DLRM](torchrec_dlrm)
 
-## Serving Image Classifier Model for Streaming Video
+## Serving Image Classifier Model for on-premise near real-time Video
 
-The following example demonstrates how to serve an image classification model with batching for streaming video
+The following example demonstrates how to serve an image classification model with batching for near real-time video
 
-* [Streaming Video Batched Image Classification](image_classifier/streaming_video)
+* [Near Real-Time Video Batched Image Classification](image_classifier/near_real_time_video)
