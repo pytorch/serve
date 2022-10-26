@@ -26,9 +26,9 @@ def create_mar():
             "--model-name resnet-18",
             "--version 1.0",
             f"--serialized-file {MODEL_PTH_FILE}",
-            "--model-file examples/image_classifier/streaming_video/model.py",
+            "--model-file examples/image_classifier/near_real_time_video/model.py",
             "--extra-files examples/image_classifier/index_to_name.json",
-            "--handler examples/image_classifier/streaming_video/streaming_video_handler.py",
+            "--handler examples/image_classifier/near_real_time_video/near_real_time_video_handler.py",
             "--force",
         ]
     else:
@@ -37,7 +37,7 @@ def create_mar():
             "--model-name resnet-18",
             "--version 1.0",
             f"--serialized-file {MODEL_PTH_FILE}",
-            "--model-file examples/image_classifier/streaming_video/model.py",
+            "--model-file examples/image_classifier/near_real_time_video/model.py",
             "--extra-files examples/image_classifier/index_to_name.json",
             "--handler image_classifier",
             "--force",

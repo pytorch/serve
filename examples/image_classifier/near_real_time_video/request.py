@@ -178,7 +178,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--input",
         help="Path to video file or device id",
-        default="examples/image_classifier/streaming_video/data/sample_video.mp4",
+        default="examples/image_classifier/near_real_time_video/data/sample_video.mp4",
     )
     parser.add_argument(
         "--client-batching",

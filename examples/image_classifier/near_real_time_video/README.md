@@ -1,4 +1,4 @@
-# Streaming Video Inference
+# On-premise Near Real-Time Video Inference
 
 Consider a use-case where we have cameras connected to edge devices. These devices are connected to a compute cluster where TorchServe is running. Each edge device has a computer vision pipeline running, where we read frames from the camera and we need to perform tasks as Image Classification, Pose Estimation, Activity Recognition etc on the read frames. In order to make efficient use of hardware resources, we might want to do batching of the frames for efficient inference
 
@@ -34,16 +34,16 @@ TorchServe is setup to process batch size of 4 in this example.
 TorchServe receives individual requests, batches the requests to make a single inference request and sends out individual responses to the requests received.
 
 
-### Create a resnet-18 eager mode model archive, register it on TorchServe and run inference on a streaming video
+### Create a resnet-18 eager mode model archive, register it on TorchServe and run inference on a real time video
 
 Run the commands given in following steps from the parent directory of the root of the repository. For example, if you cloned the repository into `/home/my_path/serve`, run the steps from `/home/my_path`
 
 ```bash
-python examples/image_classifier/streaming_video/create_mar_file.py
+python examples/image_classifier/near_real_time_video/create_mar_file.py
 
-torchserve --start --model-store model_store --models resnet-18=resnet-18.mar --ts-config examples/image_classifier/streaming_video/config.properties
+torchserve --start --model-store model_store --models resnet-18=resnet-18.mar --ts-config examples/image_classifier/near_real_time_video/config.properties
 
-python examples/image_classifier/streaming_video/request.py
+python examples/image_classifier/near_real_time_video/request.py
 ```
 
 The default batch size is 4.
@@ -88,16 +88,16 @@ To send the batched data, we create a json payload of n frames.
 On the TorchServe side, we read the json payload and preprocess the n frames. The postprocess function in the handler returns the output as a list of length 1.
 
 
-### Create a resnet-18 eager mode model archive, register it on TorchServe and run inference on a streaming video
+### Create a resnet-18 eager mode model archive, register it on TorchServe and run inference on a real time video
 
 Run the commands given in following steps from the parent directory of the root of the repository. For example, if you cloned the repository into `/home/my_path/serve`, run the steps from `/home/my_path`
 
 ```bash
-python examples/image_classifier/streaming_video/create_mar_file.py --client-batching
+python examples/image_classifier/near_real_time_video/create_mar_file.py --client-batching
 
 torchserve --start --model-store model_store --models resnet-18=resnet-18.mar
 
-python examples/image_classifier/streaming_video/request.py --client-batching
+python examples/image_classifier/near_real_time_video/request.py --client-batching
 ```
 The default batch size is 4.
 On the client side, we should see the following output
@@ -137,11 +137,11 @@ With Batch Size 4, FPS at frame number 20 is 26.3
 
 To set batch_size = 10, we use the following command
 ```
-python examples/image_classifier/streaming_video_client_side_batching/request_client_batching.py --batch_size 10
+python examples/image_classifier/near_real_time_video/request.py --client-batching --batch_size 10
 ```
 
-If you have a camera connected, you can run inference on streaming video from the camera as follows
+If you have a camera connected, you can run inference on real time video from the camera as follows
 
 ```
-python examples/image_classifier/streaming_video_client_side_batching/request_client_batching.py --batch_size 10 --input 0
+python examples/image_classifier/near_real_time_video/request.py --client-batching --batch_size 10 --input 0
 ```

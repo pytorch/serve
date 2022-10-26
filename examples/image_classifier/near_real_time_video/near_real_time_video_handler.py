@@ -9,9 +9,9 @@ from ts.torch_handler.image_classifier import ImageClassifier
 from ts.utils.util import map_class_to_label
 
 
-class StreamingVideoHandler(ImageClassifier):
+class NearRealTimeVideoHandler(ImageClassifier):
     def __init__(self):
-        super(StreamingVideoHandler, self).__init__()
+        super(NearRealTimeVideoHandler, self).__init__()
 
     def preprocess(self, data):
 
