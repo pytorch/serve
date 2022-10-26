@@ -283,6 +283,12 @@ function build() {
   fi
 }
 
+function symlink_torch_libs() {
+  if [ "$PLATFORM" = "Linux" ]; then
+    ln -sf ${DEPS_DIR}/libtorch/lib/*.so* ${BUILD_DIR}/libs/
+  fi
+}
+
 # Parse args
 JOBS=8
 WITH_QUIC=false
@@ -352,3 +358,4 @@ install_folly
 install_kineto
 install_libtorch
 build
+symlink_torch_libs
