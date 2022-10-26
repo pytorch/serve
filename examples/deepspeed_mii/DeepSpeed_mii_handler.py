@@ -61,7 +61,7 @@ class DeepSpeedMIIHandler(BaseHandler, ABC):
             mii_config=mii_configs,
         )
         self.pipe.to(self.device)
-        logger.info("Diffusion model from path %s loaded successfully", model_dir)
+        logger.info("Model from path %s loaded successfully", model_dir)
 
         self.initialized = True
 
@@ -92,9 +92,14 @@ class DeepSpeedMIIHandler(BaseHandler, ABC):
             list : It returns a list of the generate images for the input text
         """
         # Handling inference for sequence_classification.
-        generator = torch.Generator("cuda").manual_seed(1024)
+        generator = torch.Generator(self.device).manual_seed(1024)
         inferences = self.pipe(
-            inputs, guidance_scale=7.5, num_inference_steps=50, generator=generator
+            inputs,
+            guidance_scale=self.setup_config["model_config"]["guidance_scale"],
+            num_inference_steps=self.setup_config["model_config"][
+                "num_inference_steps"
+            ],
+            generator=generator,
         ).images
 
         logger.info("Generated image: '%s'", inferences)
