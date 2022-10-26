@@ -1,5 +1,5 @@
 """
-Unit test for streaming video example
+Unit test for near real-time video example
 """
 import json
 import os
@@ -18,7 +18,7 @@ from ts.torch_handler.unit_tests.test_utils.mock_context import MockContext
 CURR_FILE_PATH = Path(__file__).parent
 REPO_ROOT_DIR = CURR_FILE_PATH.parent.parent
 EXAMPLE_ROOT_DIR = REPO_ROOT_DIR.joinpath(
-    "examples", "image_classifier", "streaming_video"
+    "examples", "image_classifier", "near_real_time_video"
 )
 MODEL_PTH_FILE = "resnet18-f37072fd.pth"
 
