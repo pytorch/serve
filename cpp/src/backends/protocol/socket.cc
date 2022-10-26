@@ -41,18 +41,18 @@ void Socket::RetrieveBuffer(size_t length, char* data) const {
 int Socket::RetrieveInt() const {
   // TODO: check network - host byte-order is correct: ntohl() and htonl()
   // <arpa/inet.h>
-  char data[INT_STD_SIZE];
-  int value;
-  RetrieveBuffer(INT_STD_SIZE, data);
-  std::memcpy(&value, data, INT_STD_SIZE);
+  std::array<char, INT_STD_SIZE> int_buffer{};
+  int value{};
+  RetrieveBuffer(INT_STD_SIZE, int_buffer.data());
+  std::memcpy(&value, int_buffer.data(), INT_STD_SIZE);
   return ntohl(value);
 };
 
 bool Socket::RetrieveBool() const {
-  char data[BOOL_STD_SIZE];
-  bool value;
-  RetrieveBuffer(BOOL_STD_SIZE, data);
-  std::memcpy(&value, data, BOOL_STD_SIZE);
+  std::array<char, BOOL_STD_SIZE> bool_buffer{};
+  bool value{};
+  RetrieveBuffer(BOOL_STD_SIZE, bool_buffer.data());
+  std::memcpy(&value, bool_buffer.data(), BOOL_STD_SIZE);
   return value;
 };
 }  // namespace torchserve
