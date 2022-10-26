@@ -135,7 +135,7 @@ This example shows how to deploy a Deep Learning Recommendation Model (DLRM) wit
 
 * [Torchrec DLRM](torchrec_dlrm)
 
-## Serving Image Classifier Model for on-premise near real-time Video
+## Serving Image Classifier Model for on-premise near real-time video
 
 The following example demonstrates how to serve an image classification model with batching for near real-time video
 
