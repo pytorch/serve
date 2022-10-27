@@ -49,4 +49,4 @@ torchserve --start --ts-config config.properties
 python query.py --url "http://localhost:8080/predictions/stable-diffusion" --prompt "a photo of an astronaut riding a horse on mars"
 ```
 
-The output file `output.jpg` is the image generated.
+The image generated will be written to a file `output-20221027213010.jpg`.
