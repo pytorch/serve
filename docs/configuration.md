@@ -78,9 +78,9 @@ TorchServe doesn't support authentication natively. To avoid unauthorized access
 The inference API is listening on port 8080. The management API is listening on port 8081. Both expect HTTP requests. These are the default ports.
 See [Enable SSL](#enable-ssl) to configure HTTPS.
 
-* `inference_address`: Inference API binding address. Default: http://127.0.0.1:8080
-* `management_address`: Management API binding address. Default: http://127.0.0.1:8081
-* `metrics_address`: Metrics API binding address. Default: http://127.0.0.1:8082
+* `inference_address`: Inference API binding address. Default: `http://127.0.0.1:8080`
+* `management_address`: Management API binding address. Default: `http://127.0.0.1:8081`
+* `metrics_address`: Metrics API binding address. Default: `http://127.0.0.1:8082`
 * To run predictions on models on a public IP address, specify the IP address as `0.0.0.0`.
   To run predictions on models on a specific IP address, specify the IP address and port.
 
@@ -216,7 +216,7 @@ Set nvidia environment variables. For example:
 		     This is used in conjunction with `enable_metrics_api` option above.
 
 ### Config model
-* `models`: Use this to set configuration of each model. The value is presented in json format.
+* `models`: Use this to set configurations specific to a model. The value is presented in json format.
 ```
 {
     "modelName": {
@@ -229,15 +229,16 @@ Set nvidia environment variables. For example:
 }
 ```
 A model's parameters are defined in [model source code](https://github.com/pytorch/serve/blob/master/frontend/server/src/main/java/org/pytorch/serve/wlm/Model.java#L24)
-```
-minWorkers: the minimum number of workers of a model
-maxWorkers: the maximum number of workers of a model
-batchSize: the batch size of a model
-maxBatchDelay: the maximum dalay in msec of a batch of a model
-responseTimeout: the timeout in msec of a model's response
-defaultVersion: the default version of a model
-marName: the mar file name of a model
-```
+
+
+* `minWorkers`: the minimum number of workers of a model
+* `maxWorkers`: the maximum number of workers of a model
+* `batchSize`: the batch size of a model
+* `maxBatchDelay`: the maximum delay in msec of a batch of a model
+* `responseTimeout`: the timeout in msec of a specific model's response. This setting takes priority over `default_response_timeout` which is a default timeout over all models
+* `defaultVersion`: the default version of a model
+* `marName`: the mar file name of a model
+
 A model's configuration example 
 ```properties
 models={\
@@ -276,7 +277,7 @@ Most of the following properties are designed for performance tuning. Adjusting 
 * `default_workers_per_model`: Number of workers to create for each model that loaded at startup time. Default: available GPUs in system or number of logical processors available to the JVM.
 * `job_queue_size`: Number inference jobs that frontend will queue before backend can serve. Default: 100.
 * `async_logging`: Enable asynchronous logging for higher throughput, log output may be delayed if this is enabled. Default: false.
-* `default_response_timeout`: Timeout, in seconds, used for model's backend workers before they are deemed unresponsive and rebooted. Default: 120 seconds.
+* `default_response_timeout`: Timeout, in seconds, used for all models backend workers before they are deemed unresponsive and rebooted. Default: 120 seconds.
 * `unregister_model_timeout`: Timeout, in seconds, used when handling an unregister model request when cleaning a process before it is deemed unresponsive and an error response is sent. Default: 120 seconds.
 * `decode_input_request`: Configuration to let backend workers to decode requests, when the content type is known.
 If this is set to "true", backend workers do "Bytearray to JSON object" conversion when the content type is "application/json" and
@@ -288,7 +289,7 @@ the backend workers convert "Bytearray to utf-8 string" when the Content-Type of
 * `max_response_size` : The maximum allowable response size that the Torchserve sends, in bytes. Default: 6553500
 * `limit_max_image_pixels` : Default value is true (Use default [PIL.Image.MAX_IMAGE_PIXELS](https://pillow.readthedocs.io/en/stable/reference/Image.html#PIL.Image.MAX_IMAGE_PIXELS)). If this is set to "false", set PIL.Image.MAX_IMAGE_PIXELS = None in backend default vision handler for large image payload. 
 * `allowed_urls` : Comma separated regex of allowed source URL(s) from where models can be registered. Default: "file://.*|http(s)?://.*" (all URLs and local file system)
-eg : To allow base URLs `https://s3.amazonaws.com/` and `https://torchserve.pytorch.org/` use the following regex string `allowed_urls=https://s3.amazonaws.com/.*,https://torchserve.pytorch.org/.*`
+e.g. : To allow base URLs `https://s3.amazonaws.com/` and `https://torchserve.pytorch.org/` use the following regex string `allowed_urls=https://s3.amazonaws.com/.*,https://torchserve.pytorch.org/.*`
 * `workflow_store` : Path of workflow store directory. Defaults to model store directory.
 
 **NOTE**
@@ -297,7 +298,7 @@ All the above config properties can be set using environment variable as follows
 - set `enable_envvars_config` to true in config.properties
 - export environment variable for property as`TS_<PROPERTY_NAME>`. 
 
-  eg: to set inference_address property run cmd
+  e.g.: to set inference_address property run cmd
   `export TS_INFERENCE_ADDRESS="http://127.0.0.1:8082"`.
 
 ---

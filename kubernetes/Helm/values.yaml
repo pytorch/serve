@@ -9,13 +9,12 @@ torchserve:
   inference_port: 8080
   metrics_port: 8082
   pvd_mount: /home/model-server/shared/
-  n_gpu: 1
-  n_cpu: 1
-  memory_limit: 4Gi
-  memory_request: 1Gi
+  n_gpu: 4
+  n_cpu: 16
+  memory_limit: 32Gi
 
 deployment:
   replicas: 1
 
-persitant_volume:
-  size: 1Gi
+persistentVolume:
+  name: efs-claim
