@@ -1,5 +1,6 @@
 import argparse
 import json
+from datetime import datetime
 
 import numpy as np
 import requests
@@ -13,7 +14,10 @@ parser.add_argument(
     "--prompt", type=str, required=True, help="Prompt for image generation"
 )
 parser.add_argument(
-    "--filename", type=str, default="output.jpg", help="Filename of output image"
+    "--filename",
+    type=str,
+    default="output-{}.jpg".format(str(datetime.now().strftime("%Y%m%d%H%M%S"))),
+    help="Filename of output image",
 )
 args = parser.parse_args()
 
