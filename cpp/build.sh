@@ -54,7 +54,8 @@ function install_dependencies_linux() {
     libsodium-dev \
     libdouble-conversion-dev \
     ninja-build \
-    clang-tidy
+    clang-tidy \
+    clang-format
 }
 
 function install_dependencies_mac() {
@@ -92,7 +93,7 @@ function install_dependencies_mac_ori() {
     snappy                  \
     openssl                 \
     xz                      \
-    libsodium                   
+    libsodium
 
   #ln -s "$(brew --prefix llvm)/bin/clang-format" "/usr/local/bin/clang-format"
   #ln -s "$(brew --prefix llvm)/bin/clang-tidy" "/usr/local/bin/clang-tidy"
@@ -124,7 +125,7 @@ function install_folly() {
 
   if [ ! -d "$FOLLY_BUILD_DIR" ] ; then
     echo -e "${COLOR_GREEN}[ INFO ] Building Folly ${COLOR_OFF}"
-    cd $FOLLY_SRC_DIR 
+    cd $FOLLY_SRC_DIR
 
     if [ "$PLATFORM" = "Linux" ]; then
       SUDO="sudo"
@@ -193,7 +194,7 @@ function install_libtorch() {
       # TODO: Windows
       echo -e "${COLOR_RED}[ ERROR ] Unknown platform: $PLATFORM ${COLOR_OFF}"
       exit 1
-    fi 
+    fi
     echo -e "${COLOR_GREEN}[ INFO ] libtorch is installed ${COLOR_OFF}"
   fi
 
@@ -260,9 +261,9 @@ function build() {
     # TODO: Windows
     echo -e "${COLOR_RED}[ ERROR ] Unknown platform: $PLATFORM ${COLOR_OFF}"
     exit 1
-  fi 
-  
-  make -j "$JOBS" 
+  fi
+
+  make -j "$JOBS"
   make format
   make install
   echo -e "${COLOR_GREEN}torchserve_cpp build is complete. To run unit test: \
@@ -304,7 +305,7 @@ while [ "$1" != "" ]; do
                   ;;
     -g | --cuda-version ) shift
                   CUDA=$1
-                  ;;              
+                  ;;
     -q | --with-quic )
                   WITH_QUIC=true
                   ;;
