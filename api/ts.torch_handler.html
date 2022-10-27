@@ -416,7 +416,7 @@ Also, provides handle method per torch serve custom model specification</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="ts.torch_handler.base_handler.BaseHandler">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">ts.torch_handler.base_handler.</span></span><span class="sig-name descname"><span class="pre">BaseHandler</span></span><a class="reference internal" href="../_modules/ts/torch_handler/base_handler.html#BaseHandler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.torch_handler.base_handler.BaseHandler" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></a></p>
 <p>Base default handler to load torchscript or eager mode [state_dict] models
 Also, provides handle method per torch serve custom model specification</p>
 <dl class="py method">
@@ -428,7 +428,7 @@ Also, provides handle method per torch serve custom model specification</p>
 <dd class="field-odd"><p>A dictionary response.</p>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)">dict</a></p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)">dict</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -441,14 +441,14 @@ Also, provides handle method per torch serve custom model specification</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>data_preprocess</strong> (<em>Torch Tensor</em>) – Preprocessed data to be used for captum</p></li>
-<li><p><strong>raw_data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.10)"><em>list</em></a>) – The unprocessed data to get target from the request</p></li>
+<li><p><strong>raw_data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><em>list</em></a>) – The unprocessed data to get target from the request</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>A dictionary response with the explanations response.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)">dict</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)">dict</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -463,7 +463,7 @@ Also, provides handle method per torch serve custom model specification</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.10)"><em>list</em></a>) – The input data that needs to be made a prediction request on.</p></li>
+<li><p><strong>data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><em>list</em></a>) – The input data that needs to be made a prediction request on.</p></li>
 <li><p><strong>context</strong> (<a class="reference internal" href="ts.html#ts.context.Context" title="ts.context.Context"><em>Context</em></a>) – It is a JSON Object containing information pertaining to
 the model artefacts parameters.</p></li>
 </ul>
@@ -472,7 +472,7 @@ the model artefacts parameters.</p></li>
 <dd class="field-even"><p>Returns a list of dictionary with the predicted response.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.10)">list</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)">list</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -513,7 +513,7 @@ The user needs to override the inference function to customize it.</p>
 </ul>
 </dd>
 <dt class="field-even">Raises</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="(in Python v3.10)"><strong>RuntimeError</strong></a> – Raises the Runtime error when the model.py is missing</p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="(in Python v3.11)"><strong>RuntimeError</strong></a> – Raises the Runtime error when the model.py is missing</p>
 </dd>
 </dl>
 </dd></dl>
@@ -568,7 +568,7 @@ The user needs to override to customize the pre-processing</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="ts.torch_handler.densenet_handler.DenseNetHandler">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">ts.torch_handler.densenet_handler.</span></span><span class="sig-name descname"><span class="pre">DenseNetHandler</span></span><a class="reference internal" href="../_modules/ts/torch_handler/densenet_handler.html#DenseNetHandler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.torch_handler.densenet_handler.DenseNetHandler" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>DenseNetHandler handler class. This handler takes an image
 and returns the name of object in that image.</p>
 <dl class="py method">
