@@ -197,14 +197,13 @@ public class WorkerLifeCycle {
 
         ArrayList<String> argl = new ArrayList<String>();
 
-        File cppBackendBin = new File(workingDir, "cpp/_build/bin/model_worker_socket");
-        File cppBackendLib = new File(workingDir, "cpp/_build/libs");
+        File cppBackendBin = new File(workingDir, "ts/cpp/bin/model_worker_socket");
+        File cppBackendLib = new File(workingDir, "ts/cpp/lib");
         if (!cppBackendBin.exists()) {
-            cppBackendBin = new File(workingDir, "cpp/bin/model_worker_socket");
-            cppBackendLib = new File(workingDir, "cpp/lib");
-            if (!cppBackendBin.exists()) {
-                throw new WorkerInitializationException("model_worker_socket not found");
-            }
+            throw new WorkerInitializationException("model_worker_socket not found");
+        }
+        if (!cppBackendLib.exists()) {
+            throw new WorkerInitializationException("model_worker cpp library not found");
         }
 
         argl.add(cppBackendBin.getAbsolutePath());
@@ -216,9 +215,11 @@ public class WorkerLifeCycle {
         argl.add(runtimeType);
         argl.add("--model_dir");
         argl.add(modelPath.getAbsolutePath());
+        argl.add("--logger_config_path");
         if (ConfigManager.getInstance().getTsCppLogConfig() != null) {
-            argl.add("--logger_config_path");
             argl.add(ConfigManager.getInstance().getTsCppLogConfig());
+        } else {
+            argl.add("ts/cpp/resources/logging.config");
         }
 
         String[] envp = EnvironmentUtils.getCppEnvString(cppBackendLib.getAbsolutePath());

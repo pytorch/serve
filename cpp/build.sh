@@ -2,6 +2,8 @@
 
 # Obtain the base directory this script resides in.
 BASE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+echo "BASE_DIR=${BASE_DIR}"
+echo "bash0=${BASH_SOURCE[0]}"
 
 # Useful constants
 COLOR_RED="\033[0;31m"
@@ -60,16 +62,6 @@ function install_dependencies_linux() {
 function install_dependencies_mac() {
   # install the default dependencies from homebrew
   brew install -f            \
-    llvm
-
-  ln -s "$(brew --prefix llvm)/bin/clang-format" "/usr/local/bin/clang-format"
-  ln -s "$(brew --prefix llvm)/bin/clang-tidy" "/usr/local/bin/clang-tidy"
-  ln -s "$(brew --prefix llvm)/bin/clang-apply-replacements" "/usr/local/bin/clang-apply-replacements"
-}
-
-function install_dependencies_mac_ori() {
-  # install the default dependencies from homebrew
-  brew install -f            \
     cmake                    \
     m4                       \
     boost                    \
@@ -80,7 +72,8 @@ function install_dependencies_mac_ori() {
     snappy                   \
     xz                       \
     openssl                  \
-    libsodium
+    libsodium                \
+    llvm
 
   brew link                 \
     cmake                   \
@@ -92,11 +85,11 @@ function install_dependencies_mac_ori() {
     snappy                  \
     openssl                 \
     xz                      \
-    libsodium                   
+    libsodium                 
 
-  #ln -s "$(brew --prefix llvm)/bin/clang-format" "/usr/local/bin/clang-format"
-  #ln -s "$(brew --prefix llvm)/bin/clang-tidy" "/usr/local/bin/clang-tidy"
-  #ln -s "$(brew --prefix llvm)/bin/clang-apply-replacements" "/usr/local/bin/clang-apply-replacements"
+  ln -s "$(brew --prefix llvm)/bin/clang-format" "/usr/local/bin/clang-format"
+  ln -s "$(brew --prefix llvm)/bin/clang-tidy" "/usr/local/bin/clang-tidy"
+  ln -s "$(brew --prefix llvm)/bin/clang-apply-replacements" "/usr/local/bin/clang-apply-replacements"
 }
 
 function install_dependencies() {
@@ -132,7 +125,7 @@ function install_folly() {
       SUDO=""
     fi
     $SUDO ./build/fbcode_builder/getdeps.py install-system-deps --recursive
-
+    
     $SUDO ./build/fbcode_builder/getdeps.py build \
     --allow-system-packages \
     --scratch-path $FOLLY_BUILD_DIR \
@@ -227,9 +220,10 @@ function build() {
   # Build torchserve_cpp with cmake
   cd "$BWD" || exit
   FOLLY_CMAKE_DIR=$DEPS_DIR/folly-build/installed
+  find $FOLLY_CMAKE_DIR -name "lib*.*"  -exec cp "{}" $LIBS_DIR \;
   if [ "$PLATFORM" = "Linux" ]; then
     cmake                                                                                     \
-    -DCMAKE_PREFIX_PATH="$DEPS_DIR;$FOLLY_CMAKE_DIR;$DEPS_DIR/libtorch"                       \
+    -DCMAKE_PREFIX_PATH="$DEPS_DIR;$FOLLY_CMAKE_DIR;$LIBS_DIR/libtorch"                       \
     -DCMAKE_INSTALL_PREFIX="$PREFIX"                                                          \
     "$MAYBE_BUILD_QUIC"                                                                       \
     "$MAYBE_BUILD_TESTS"                                                                      \
@@ -241,7 +235,7 @@ function build() {
     ..
 
     if [ "$CUDA" = "cu102" ] || [ "$CUDA" = "cu113" ] || [ "$CUDA" = "cu116" ]; then
-      export LD_LIBRARY_PATHH=${LD_LIBRARY_PATH}:/usr/local/cuda/bin/nvcc
+      export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/cuda/bin/nvcc
     fi
   elif [ "$PLATFORM" = "Mac" ]; then
     cmake                                                                                     \
@@ -333,7 +327,7 @@ if [ -n "$COMPILER_FLAGS" ] ; then
   MAYBE_OVERRIDE_CXX_FLAGS="-DCMAKE_CXX_FLAGS=$COMPILER_FLAGS"
 fi
 
-BUILD_DIR=_build
+BUILD_DIR=$BASE_DIR/_build
 if [ ! -d "$BUILD_DIR" ] ; then
   mkdir -p $BUILD_DIR
 fi
@@ -343,10 +337,12 @@ trap 'cd $BASE_DIR' EXIT
 cd $BUILD_DIR || exit
 BWD=$(pwd)
 DEPS_DIR=$BWD/_deps
+LIBS_DIR=$BWD/libs
 mkdir -p "$DEPS_DIR"
+mkdir -p "$LIBS_DIR"
 
 # Must execute from the directory containing this script
-cd "$(dirname "$0")"
+cd $BASE_DIR
 
 install_folly
 install_kineto

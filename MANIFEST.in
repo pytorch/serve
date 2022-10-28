@@ -1,4 +1,7 @@
 include ts/frontend/model-server.jar
+recursive-include ts/cpp/bin *
+recursive-include ts/cpp/lib *
+include ts/cpp/src/resources/logging.config
 include PyPiDescription.rst
 include ts/configs/*
 include ts/version.txt

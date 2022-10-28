@@ -1,5 +1,21 @@
 # TorchServe CPP (Experimental Release)
-## Build & Unit tests
+## Installation and Run
+### Install TorchServe
+```
+cd serve
+python ts_scripts/install_from_src.py
+```
+### Set Environment Var
+#### On Mac
+```
+export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:$(python -c 'import torch; print(torch.utils.cmake_prefix_path)')/../../lib
+```
+### Run TorchServe
+```
+torchserve torchserve --ncs --start --model-store model_store
+```
+
+## Dev Build & Unit tests
 ### Requirements
 * C++17
 * GCC version: gcc-9
