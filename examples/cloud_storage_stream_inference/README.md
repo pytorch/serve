@@ -98,7 +98,7 @@ pip install s3fs
 python stream_inference.py
 ```
 This example -
-- Reads **amazon_review_polarity_csv.tar.gz** file from MinIO usign S3 API
+- Reads **amazon_review_polarity_csv.tar.gz** file from MinIO using S3 API
 - Reads **test.csv** file from the tar file
 - Extracts customer review string
 - Creates a torchserve batch inference REST API requests with customer review string and sends it to torchserve for inference
