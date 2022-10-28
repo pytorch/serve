@@ -6,7 +6,7 @@
 ### Commands
 ```
 cd serve/cpp 
-./build.sh
+./build.sh [-j num_jobs] [-g cu102|cu113|cu116] [-q|--with-quic] [--install-dependencies] [-p|--prefix] [-x|--compiler-flags]
 ```
 ## Backend
 TorchServe cpp backend can run as a process, which is similar to [TorchServe Python backend](https://github.com/pytorch/serve/tree/master/ts). By default, TorchServe supports torch scripted model in cpp backend. [src/backends/core/backend.hh](https://github.com/pytorch/serve/blob/cpp_backend/cpp/src/backends/core/backend.hh) defines the APIs of backend to support multiple different platforms such as MxNet, ONNX and so on. 
