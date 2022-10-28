@@ -1,20 +1,4 @@
 # TorchServe CPP (Experimental Release)
-## Installation and Run
-### Install TorchServe
-```
-cd serve
-python ts_scripts/install_from_src.py
-```
-### Set Environment Var
-#### On Mac
-```
-export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:$(python -c 'import torch; print(torch.utils.cmake_prefix_path)')/../../lib
-```
-### Run TorchServe
-```
-torchserve torchserve --ncs --start --model-store model_store
-```
-
 ## Dev Build & Unit tests
 ### Requirements
 * C++17
@@ -68,5 +52,27 @@ image = image_processing(image)
 torch.save(image, "0_png.pt")
 ```
 * Run model registration and prediction: [Using basehandler](https://github.com/pytorch/serve/blob/cpp_backend/cpp/test/backends/torch_scripted/torch_scripted_backend_test.cc#L54) or [Using customized handler](https://github.com/pytorch/serve/blob/cpp_backend/cpp/test/backends/torch_scripted/torch_scripted_backend_test.cc#L72).
+## Installation and Run
+### Install TorchServe
+```
+cd serve
+python ts_scripts/install_from_src.py
+```
+### Set Environment Var
+#### On Mac
+```
+export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:$(python -c 'import torch; print(torch.utils.cmake_prefix_path)')/../../lib
+```
+#### On Ubuntu
+```
+cd serve
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(pwd)/cpp/_build/_deps/libtorch/lib
+```
+### Run TorchServe
+```
+torchserve torchserve --ncs --start --model-store model_store
+```
+
+
 
 

@@ -55,7 +55,8 @@ function install_dependencies_linux() {
     libsodium-dev \
     libdouble-conversion-dev \
     ninja-build \
-    clang-tidy
+    clang-tidy \
+    clang-format
 }
 
 function install_dependencies_mac() {
