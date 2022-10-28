@@ -13,7 +13,7 @@ Filesystem Spec (fsspec) is a project to provide a unified pythonic interface to
   - Main objective of this example is to show the process of reading data from a cloud storage provider and send batch inference request to a model deployed using torchserve. **We're not concerned with the accuracy of predictions.**
   - In this example we're going to run pre-trained distilbert model with torchserve and do text classification by reading input data using S3 API and fsspec and making REST API call to torchserve for batch inference.
   - We're going to use Amazon reviews dataset which contains customer reviews along with title and label.
-  - We'll be taking customer review text and predict if the review is positive or negative usign pre-trained distilbert model.
+  - We'll be taking customer review text and predict if the review is positive or negative using pre-trained distilbert model.
   - We'll be using MinIO https://min.io/ as AWS S3 proxy to store Amazon reviews dataset tar file. MinIO is a High Performance Object Storage released under GNU Affero General Public License v3.0. It is API compatible with Amazon S3 cloud storage service. It can handle unstructured data such as photos, videos, log files, backups, and container images with the maximum supported object size of 5TB.
 
 ## Steps
