@@ -25,7 +25,6 @@ function install_dependencies_linux() {
   sudo apt-get install -yq \
     autoconf \
     automake \
-
     git \
     cmake \
     m4 \
@@ -223,7 +222,7 @@ function build() {
   find $FOLLY_CMAKE_DIR -name "lib*.*"  -exec cp "{}" $LIBS_DIR \;
   if [ "$PLATFORM" = "Linux" ]; then
     cmake                                                                                     \
-    -DCMAKE_PREFIX_PATH="$DEPS_DIR;$FOLLY_CMAKE_DIR;$LIBS_DIR/libtorch"                       \
+    -DCMAKE_PREFIX_PATH="$DEPS_DIR;$FOLLY_CMAKE_DIR;$DEPS_DIR/libtorch"                       \
     -DCMAKE_INSTALL_PREFIX="$PREFIX"                                                          \
     "$MAYBE_BUILD_QUIC"                                                                       \
     "$MAYBE_BUILD_TESTS"                                                                      \
