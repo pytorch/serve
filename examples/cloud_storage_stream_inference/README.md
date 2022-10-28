@@ -19,7 +19,7 @@ Filesystem Spec (fsspec) is a project to provide a unified pythonic interface to
 ## Steps
 
 1) Install MinIO -  https://hub.docker.com/r/minio/minio/.
-
+<!-- markdown-link-check-disable -->
 2) Download Amazon reviews dataset tar file (amazon_review_polarity_csv.tar.gz) by going to the following URL in browser - https://drive.google.com/uc?export=download&id=0Bz8a_Dbh9QhbaW12WVVZS2drcnM
 
 3) Start MinIO server
