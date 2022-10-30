@@ -1,8 +1,10 @@
 # Running Stable diffusion model using Microsoft DeepSpeed-MII in Torchserve.
 
+[Model Paper](https://arxiv.org/abs/2112.10752)
+
 ### Step 1: Download model
 
-Login into huggingface repo with acesstoken by running the below command
+Login into huggingface hub with token by running the below command
 
 ```bash
 huggingface-cli login
