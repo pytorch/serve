@@ -977,6 +977,12 @@ De
 ec
 VQA
 xxxx
+Affero
+MinIO
+fs
+fsspec
+minioadmin
+pythonic
 DeepSpeed
 MII
 deepspeed
