@@ -1,4 +1,4 @@
-# Running Stable diffusion model using Huggingface diffusers in Torchserve.
+# Running Stable diffusion model using Huggingface Diffusers in Torchserve.
 
 ### Step 1: Download model
 
