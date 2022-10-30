@@ -12,7 +12,7 @@ Below are the prerequisites should be met.
 
 ## Steps to run Torchserve with Kserve
 
-### Generating marfile and config.propertiest file
+### Generating marfile and config.properties file
 
 Navigate to the cloned serve repo and run
 
@@ -20,7 +20,7 @@ Navigate to the cloned serve repo and run
 torch-model-archiver --model-name mnist_kf --version 1.0 --model-file examples/image_classifier/mnist/mnist.py --serialized-file examples/image_classifier/mnist/mnist_cnn.pt --handler  examples/image_classifier/mnist/mnist_handler.py
 ```
 
-The above command genereates mnist_kf.mar
+The above command generates mnist_kf.mar
 
 Copy the below contents to config.properties and change the model_store path
 
