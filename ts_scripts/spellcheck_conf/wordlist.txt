@@ -616,3 +616,5 @@ NVidia
 WaveGlow
 huggingface
 torchServe
+Diffusers
+diffusers
