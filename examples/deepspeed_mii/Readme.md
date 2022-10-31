@@ -20,6 +20,12 @@ The script prints the path where the model is downloaded as below.
 
 `downloaded_model/models--bert-base-uncased/snapshots/5546055f03398095e385d7dc625e636cc8910bf2/`
 
+#### Run Stable Diffusion model with DeepSpeed-MII
+
+```bash
+python deepspeed_mii_stable_diffusion.py --model_path downloaded_model/models--bert-base-uncased/snapshots/5546055f03398095e385d7dc625e636cc8910bf2/ --prompt "a dog chaing a cat"
+```
+
 ### Step 2: Compress downloaded model
 
 **_NOTE:_** Install Zip cli tool
@@ -38,6 +44,10 @@ Navigate up to `deepspeed_mii` directory.
 ```bash
 torch-model-archiver --model-name stable-diffusion --version 1.0 --handler DeepSpeed_mii_handler.py --extra-files model.zip -r requirements.txt
 ```
+
+**_NOTE:_** Refer `deepspeed_mii_stable_diffusion.py` file for using DeepSpeed-MII without the gRPC server.
+
+[Huggingface Stable Diffusion](https://huggingface.co/blog/stable_diffusion)
 
 ### Step 4: Start torchserve
 
