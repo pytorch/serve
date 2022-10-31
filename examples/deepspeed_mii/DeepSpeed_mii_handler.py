@@ -55,8 +55,8 @@ class DeepSpeedMIIHandler(BaseHandler, ABC):
             task_name=self.setup_config["task_name"],
             model_name=model_dir + "/model",
             model_path=model_dir + "/model",
-            ds_optimize=self.setup_config["ds_optimize"].capitalize(),
-            ds_zero=self.setup_config["ds_zero"].capitalize(),
+            ds_optimize=self.setup_config["ds_optimize"],
+            ds_zero=self.setup_config["ds_zero"],
             provider=provider,
             mii_config=mii_configs,
         )
