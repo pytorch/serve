@@ -14,16 +14,16 @@
 namespace torchserve {
 class TSLogMetricTest : public ::testing::Test {
  protected:
-  const std::string logfile_path{"test/resources/logging/test.log"};
+  const std::string logfile_path{"test/utils/metrics/metrics_test.log"};
   const std::string logger_config_path_str{
-      "test/resources/logging/log_to_file.config"};
+      "test/resources/metrics/log_to_file.config"};
   const std::string metric_name{"test_metric"};
   const std::vector<std::string> metric_dimension_names{"level", "model_name"};
   const std::vector<std::string> metric_dimension_values{"model", "test_model"};
   const std::string metric_request_id{"test_request_id"};
   const std::regex metric_log_regex{
-      std::regex("^.*\\[METRICS\\].*\\..*\\:(\\-?([0-9]+\\.)?[0-9]+)\\|#.*\\|#"
-                 "hostname\\:.*,[0-9]+(,.*)?$")};
+      std::regex("\\s*([\\w\\s]+)\\.([\\w\\s]+):([0-9\\-,.e]+)\\|#([^|]*)\\|#"
+                 "hostname:([^,]+),([^,]+)(,(.*))?")};
 
   void SetUp() override {
     std::filesystem::remove(logfile_path);
@@ -61,8 +61,8 @@ class TSLogMetricTest : public ::testing::Test {
     const std::vector<std::string> metric_logs = GetMetricLogs();
     for (const auto& log : metric_logs) {
       std::smatch match;
-      if (std::regex_match(log.begin(), log.end(), match, metric_log_regex)) {
-        metric_values.push_back(std::stod(match[1]));
+      if (std::regex_search(log, match, metric_log_regex)) {
+        metric_values.push_back(std::stod(match[3]));
       }
     }
 
@@ -114,13 +114,17 @@ TEST_F(TSLogMetricTest, TestTSLogMetricEmitWithRequestId) {
                           metric_dimension_names);
   test_metric.AddOrUpdate(metric_dimension_values, metric_request_id, 1.5);
   const std::vector<std::string> metric_logs = GetMetricLogs();
-  const std::string expected_metric_log_pattern =
-      "^.*\\[METRICS\\]test_metric\\.Milliseconds\\:1\\.5\\|#level\\:model,"
-      "model_name\\:test_model\\"
-      "|#hostname\\:.*,[0-9]+,test_request_id?$";
   ASSERT_EQ(metric_logs.size(), 1);
-  ASSERT_THAT(metric_logs[0],
-              ::testing::MatchesRegex(expected_metric_log_pattern));
+
+  std::smatch match;
+  if (!std::regex_search(metric_logs[0], match, metric_log_regex)) {
+    FAIL();
+  }
+  ASSERT_EQ(match[1], "test_metric");
+  ASSERT_EQ(match[2], "Milliseconds");
+  ASSERT_EQ(match[3], "1.5");
+  ASSERT_EQ(match[4], "level:model,model_name:test_model");
+  ASSERT_EQ(match[8], "test_request_id");
 }
 
 TEST_F(TSLogMetricTest, TestTSLogMetricEmitWithoutRequestId) {
@@ -128,13 +132,17 @@ TEST_F(TSLogMetricTest, TestTSLogMetricEmitWithoutRequestId) {
                           metric_dimension_names);
   test_metric.AddOrUpdate(metric_dimension_values, 1.5);
   const std::vector<std::string> metric_logs = GetMetricLogs();
-  const std::string expected_metric_log_pattern =
-      "^.*\\[METRICS\\]test_metric\\.Milliseconds\\:1\\.5\\|#level\\:model,"
-      "model_name\\:test_model\\"
-      "|#hostname\\:.*,[0-9]+$";
   ASSERT_EQ(metric_logs.size(), 1);
-  ASSERT_THAT(metric_logs[0],
-              ::testing::MatchesRegex(expected_metric_log_pattern));
+
+  std::smatch match;
+  if (!std::regex_search(metric_logs[0], match, metric_log_regex)) {
+    FAIL();
+  }
+  ASSERT_EQ(match[1], "test_metric");
+  ASSERT_EQ(match[2], "Milliseconds");
+  ASSERT_EQ(match[3], "1.5");
+  ASSERT_EQ(match[4], "level:model,model_name:test_model");
+  ASSERT_EQ(match[8], "");
 }
 
 TEST_F(TSLogMetricTest, TestTSLogMetricEmitWithIncorrectDimensionData) {
