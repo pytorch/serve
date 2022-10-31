@@ -33,13 +33,16 @@ parser.add_argument(
     "--model_path",
     "-o",
     type=dir_path,
+    default="model",
     required=True,
     help="Output directory for downloaded model files",
 )
 parser.add_argument(
     "--model_name", "-m", type=hf_model, required=True, help="HuggingFace model name"
 )
-parser.add_argument("--revision", "-r", type=str, required=True, help="Revision")
+parser.add_argument(
+    "--revision", "-r", type=str, default="main", required=True, help="Revision"
+)
 args = parser.parse_args()
 
 snapshot_path = snapshot_download(

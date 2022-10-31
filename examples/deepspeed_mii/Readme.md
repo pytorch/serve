@@ -1,5 +1,7 @@
 # Running Stable diffusion model using Microsoft DeepSpeed-MII in Torchserve.
 
+This document briefs on serving HG Stable diffusion model with Microsoft DeepSpeed-MII in Torchserve. With DeepSpeed-MII there has been significant progress in system optimizations for DL model inference, drastically reducing both latency and cost.
+
 [Model Paper](https://arxiv.org/abs/2112.10752)
 
 ### Step 1: Download model
@@ -22,10 +24,10 @@ The script prints the path where the model is downloaded as below.
 
 **_NOTE:_** Install Zip cli tool
 
-Navigate to the path got from the above script.
+Navigate to the path got from the above script. Here it is
 
 ```bash
-cd %path-returned-by-above-script%
+cd downloaded_model/models--bert-base-uncased/snapshots/5546055f03398095e385d7dc625e636cc8910bf2/
 zip -r /serve/examples/deepspeed_mii/model.zip *
 ```
 
