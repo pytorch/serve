@@ -125,7 +125,7 @@ class ArgParser(object):
             "--metrics-config",
             dest="metrics_config",
             type=str,
-            help="(Yaml) File to be passed for metrics configuration.",
+            help="Metrics configuration file",
         )
 
         return parser

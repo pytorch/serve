@@ -14,7 +14,7 @@ from ts.metrics.metric_type_enum import MetricTypes
 
 
 class MetricCacheAbstract(metaclass=abc.ABCMeta):
-    def __init__(self, request_ids, model_name, file):
+    def __init__(self, request_ids, model_name, config_file):
         """
         Constructor for MetricsCaching class
 
@@ -23,7 +23,7 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
 
         Parameters
         ----------
-        file: str
+        config_file: str
             Name of file to be parsed
 
         """
@@ -31,7 +31,7 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
         self.store = []
         self.request_ids = request_ids
         self.model_name = model_name
-        self.file = file
+        self.config_file = config_file
 
     @staticmethod
     def _check_matching_dims(key, dims) -> bool:
@@ -80,8 +80,6 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
                 "Please provide a list of Dimension objects."
             )
 
-        # using a copy to not alter the original dimensions list when Metrics are added
-        dimensions = dimensions.copy()
         # don't add duplicate Dimension objects
         pre_dims_str = [str(d) for d in dimensions]
 
@@ -89,15 +87,12 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
             if not self._check_matching_dims("Level", pre_dims_str):
                 dimensions.append(Dimension("Level", "Error"))
         else:
-            if not self._check_matching_dims("ModelName", pre_dims_str):
-                dimensions.append(Dimension("ModelName", self.model_name))
+            if not self._check_matching_dims("model_name", pre_dims_str):
+                dimensions.append(Dimension("model_name", self.model_name))
             if not self._check_matching_dims("Level", pre_dims_str):
-                dimensions.append(Dimension("Level", "Model"))
+                dimensions.append(Dimension("Level", "host"))
 
         dims_str = ",".join([str(d) for d in dimensions])
-        # convert metric enum into string
-
-        # Cache the metric with a unique key
         metric_key = f"[{metric_type.value}]-[{name}]-[{dims_str}]"
 
         if metric_key not in self.cache:
@@ -142,7 +137,7 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
         value: int or float,
         idx=None,
         dimensions: list = None,
-        metric_type: MetricTypes = MetricTypes.counter,
+        metric_type: MetricTypes = MetricTypes.COUNTER,
     ):
         """
         Add a counter metric or increment an existing counter metric
@@ -178,7 +173,7 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
         idx=None,
         unit: str = "ms",
         dimensions: list = None,
-        metric_type: MetricTypes = MetricTypes.gauge,
+        metric_type: MetricTypes = MetricTypes.GAUGE,
     ):
         """
         Add a time based metric like latency, default unit is 'ms'
@@ -220,7 +215,7 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
         idx=None,
         unit: str = "MB",
         dimensions: list = None,
-        metric_type: MetricTypes = MetricTypes.gauge,
+        metric_type: MetricTypes = MetricTypes.GAUGE,
     ):
         """
         Add a size based metric
@@ -261,7 +256,7 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
         value: int or float,
         idx=None,
         dimensions: list = None,
-        metric_type: MetricTypes = MetricTypes.gauge,
+        metric_type: MetricTypes = MetricTypes.GAUGE,
     ):
         """
         Add a percentage based metric
@@ -296,7 +291,7 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
         name: str,
         value: int or float,
         dimensions: list = None,
-        metric_type: MetricTypes = MetricTypes.counter,
+        metric_type: MetricTypes = MetricTypes.COUNTER,
     ):
         """
         Add an Error Metric
@@ -361,7 +356,7 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
         unit: str,
         idx=None,
         dimensions: list = None,
-        metric_type: MetricTypes = MetricTypes.counter,
+        metric_type: MetricTypes = MetricTypes.COUNTER,
     ) -> None:
         """
         Create a new metric and add into cache.

@@ -113,7 +113,7 @@ class TorchModelServiceWorker(object):
             metrics = MetricsCacheYaml(
                 uuid.uuid4(),
                 model_name=model_name,
-                yaml_file=TorchModelServiceWorker.metrics_config,
+                config_file=TorchModelServiceWorker.metrics_config,
             )
 
             model_loader = ModelLoaderFactory.get_model_loader()

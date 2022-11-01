@@ -5,6 +5,6 @@ import enum
 
 
 class MetricTypes(enum.Enum):
-    counter = "counter"
-    gauge = "gauge"
-    histogram = "histogram"
+    COUNTER = "counter"
+    GAUGE = "gauge"
+    HISTOGRAM = "histogram"
