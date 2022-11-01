@@ -75,9 +75,8 @@ class DiffusersHandler(BaseHandler, ABC):
             list : It returns a list of the generate images for the input text
         """
         # Handling inference for sequence_classification.
-        generator = torch.Generator("cuda").manual_seed(1024)
         inferences = self.pipe(
-            inputs, guidance_scale=7.5, num_inference_steps=50, generator=generator
+            inputs, guidance_scale=7.5, num_inference_steps=50
         ).images
 
         logger.info("Generated image: '%s'", inferences)
