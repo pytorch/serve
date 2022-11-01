@@ -62,10 +62,15 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
 
         self.model = BloomForCausalLM.from_pretrained(
             model_dir + "/model",
-            low_cpu_mem_usage=True,
+            revision=self.setup_config["revision"],
+            max_memory={
+                int(key) if key.isnumeric() else key: value
+                for key, value in self.setup_config["max_memory"].items()
+            },
+            low_cpu_mem_usage=self.setup_config["low_cpu_mem_usage"],
             device_map=self.setup_config["device_map"],
             offload_folder=self.setup_config["offload_folder"],
-            offload_state_dict=self.setup_config["offload_state_dict"].capitalize(),
+            offload_state_dict=self.setup_config["offload_state_dict"],
             torch_dtype=TORCH_DTYPES[self.setup_config["torch_dtype"]],
         )
 
@@ -129,12 +134,11 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         Returns:
             list : It returns a list of the predicted value for the input text
         """
-        (input_ids_batch,) = input_batch
+        (input_ids_batch, _) = input_batch
         inferences = []
         input_ids_batch = input_ids_batch.to(self.device)
-        self.model.to(self.device)
         outputs = self.model.generate(
-            input_ids_batch, do_sample=True, max_new_tokens=30
+            input_ids_batch, do_sample=True, max_length=50, top_p=0.95, top_k=60
         )
         for i, _ in enumerate(outputs):
             inferences.append(
