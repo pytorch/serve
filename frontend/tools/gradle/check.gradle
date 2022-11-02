@@ -7,8 +7,8 @@ pmd {
 }
 tasks.withType(Pmd){
     reports{
-        xml.enabled=true
-        html.enabled=true
+        xml.required=true
+        html.required=true
     }
 }
 
@@ -28,8 +28,8 @@ checkstyleMain {
 tasks.withType(Checkstyle) {
     exclude '**/grpc/**'
     reports {
-        xml.enabled false
-        html.enabled true
+        xml.required=false
+        html.required=true
     }
 }
 
@@ -40,8 +40,8 @@ jacoco {
 jacocoTestReport {
     group = "Reporting"
     reports {
-        xml.enabled true
-        csv.enabled false
+        xml.required=true
+        csv.required=false
     }
 }
 
