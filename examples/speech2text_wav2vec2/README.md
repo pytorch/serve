@@ -2,12 +2,12 @@
 In this example we will use a pretrained Wav2Vec2 model for Speech2Text using the `transformers` library: https://huggingface.co/docs/transformers/model_doc/wav2vec2 and serve it using torchserve.
 
 ### Prerequisites
-Apart from the usual torch and torchserve, we need to install `torchaudio` and `transformers`.
+Apart from the usual dependencies as shown here: `https://github.com/pytorch/serve/blob/master/docs/getting_started.md`, we need to install `torchaudio` and `transformers`.
 
-In case you haven't installed the necessary components yet, you can follow these steps which should give you all necessary prerequisites:
-* Install binary dependencies for torch server as specified in the first step of: https://github.com/pytorch/serve/blob/master/docs/getting_started.md
+You can install these into your current environment or follow these steps which should give you all necessary prerequisites from scratch:
 * Install miniconda: https://docs.conda.io/en/latest/miniconda.html
-* Install further packages with `conda env create -f environment.yml`
+* run `python ../../ts_scripts/install_dependencies.py` to install binary dependencies
+* Install all needed packages with `conda env create -f environment.yml`
 * Activate conda environment: `conda activate wav2vec2env`
 
 ### Prepare model and run server
