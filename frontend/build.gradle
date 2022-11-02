@@ -19,6 +19,7 @@ allprojects {
 
     repositories {
         mavenCentral()
+        jcenter()
     }
 
     apply plugin: 'idea'
