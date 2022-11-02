@@ -11,15 +11,16 @@ class Wav2VecHandler(object):
         self.model = None
         self.processor = None
         self.device = None
-        self.manifest = None
+        # Sampling rate for Wav2Vec model must be 16k
         self.expected_sampling_rate = 16_000
 
     def initialize(self, context):
         """Initialize properties and load model"""
         self._context = context
-        self.manifest = context.manifest
         self.initialized = True
         properties = context.system_properties
+
+        # See https://pytorch.org/serve/custom_service.html#handling-model-execution-on-multiple-gpus
         self.device = torch.device("cuda:" + str(properties.get("gpu_id")) if torch.cuda.is_available() else "cpu")
 
         model_dir = properties.get("model_dir")
