@@ -1,12 +1,38 @@
 # TorchServe CPP (Experimental Release)
-## Dev Build & Unit tests
-### Requirements
+## Requirements
 * C++17
 * GCC version: gcc-9
-### Commands
+## Dev Build & Unit tests
+### Dev Build Commands
 ```
 cd serve/cpp 
-./build.sh [-j num_jobs] [-g cu102|cu113|cu116] [-q|--with-quic] [--install-dependencies] [-p|--prefix] [-x|--compiler-flags]
+./build.sh [-g cu102|cu113|cu116] [--install-dependencies]
+```
+## Installation and Run
+### Install TorchServe
+```
+## For CPU
+cd serve
+python ts_scripts/install_from_src.py
+
+## For GPU (Temporary)
+cd serve/cpp
+./build.sh -g cu116 --install-dependencies
+python ts_scripts/install_from_src.py
+```
+### Set Environment Var
+#### On Mac
+```
+export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:$(python -c 'import torch; print(torch.utils.cmake_prefix_path)')/../../lib
+```
+#### On Ubuntu
+```
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(pwd)/cpp/_build/_deps/libtorch/lib
+```
+### Run TorchServe
+```
+cd serve
+torchserve torchserve --ncs --start --model-store model_store
 ```
 ## Backend
 TorchServe cpp backend can run as a process, which is similar to [TorchServe Python backend](https://github.com/pytorch/serve/tree/master/ts). By default, TorchServe supports torch scripted model in cpp backend. [src/backends/core/backend.hh](https://github.com/pytorch/serve/blob/cpp_backend/cpp/src/backends/core/backend.hh) defines the APIs of backend to support multiple different platforms such as MxNet, ONNX and so on. 
@@ -52,26 +78,7 @@ image = image_processing(image)
 torch.save(image, "0_png.pt")
 ```
 * Run model registration and prediction: [Using basehandler](https://github.com/pytorch/serve/blob/cpp_backend/cpp/test/backends/torch_scripted/torch_scripted_backend_test.cc#L54) or [Using customized handler](https://github.com/pytorch/serve/blob/cpp_backend/cpp/test/backends/torch_scripted/torch_scripted_backend_test.cc#L72).
-## Installation and Run
-### Install TorchServe
-```
-cd serve
-python ts_scripts/install_from_src.py
-```
-### Set Environment Var
-#### On Mac
-```
-export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:$(python -c 'import torch; print(torch.utils.cmake_prefix_path)')/../../lib
-```
-#### On Ubuntu
-```
-cd serve
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(pwd)/cpp/_build/_deps/libtorch/lib
-```
-### Run TorchServe
-```
-torchserve torchserve --ncs --start --model-store model_store
-```
+
 
 
 
