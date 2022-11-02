@@ -119,7 +119,8 @@ class MetricsCacheYaml(MetricCacheAbstract):
                         # Create dimensions objects and add to list to be passed to add_metric
                         if dimensions_list:
                             for k, v in dimensions_dict.items():
-                                dimensions.append(Dimension(k, v))
+                                if v in dimensions_list:
+                                    dimensions.append(Dimension(k, v))
 
                         self.add_metric(
                             metric_name=metric_name,
@@ -170,7 +171,6 @@ class MetricsCacheYaml(MetricCacheAbstract):
         value: int, float
             value of metric
         """
-        logging.info("ADD_METRICS")
         if dimensions and not isinstance(dimensions, list):
             raise merrors.MetricsCacheTypeError(
                 "Dimensions has to be a list of string "
@@ -189,11 +189,9 @@ class MetricsCacheYaml(MetricCacheAbstract):
             dimensions_dict = self._parse_metrics_section("dimensions")
             try:
                 # Create dimensions objects and add to list to be passed to add_metric
-                logging.info("ADDING METRICS")
                 for k, v in dimensions_dict.items():
-                    logging.info(f"k: {k} v: {v}")
-                    dimensions.append(Dimension(k, v))
-                logging.info("DONE METRICS")
+                    if k in dimensions_list:
+                        dimensions.append(Dimension(k, v))
             except Exception as err:
                 raise merrors.MetricsCacheKeyError(f"Dimension not found: {err}")
         else:
@@ -231,7 +229,6 @@ class MetricsCacheYaml(MetricCacheAbstract):
             list of dimension keys which should be strings, or the complete log of dimensions
 
         """
-        logging.info("GET_METRICS")
         dims_str = None
         if not isinstance(metric_type, MetricTypes) or not isinstance(metric_name, str):
             raise merrors.MetricsCacheTypeError(
@@ -244,15 +241,9 @@ class MetricsCacheYaml(MetricCacheAbstract):
             dimensions_dict = self._parse_metrics_section("dimensions")
             complete_dimensions = []
             for k, v in dimensions_dict.items():
-                logging.info("GETTING METRICS")
-                try:
+                if k in dimensions:
                     complete_dimensions.append(Dimension(k, v))
-                except Exception as err:
-                    merrors.MetricsCacheKeyError(
-                        f"{k} key does not exist in {self.config_file}: {err}"
-                    )
             dims_str = ",".join([str(d) for d in complete_dimensions])
-            logging.info("GOT METRICS")
         else:
             merrors.MetricsCacheTypeError(
                 f"{dimensions} is expected to be a string (complete Dimensions log line) "

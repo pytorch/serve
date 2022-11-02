@@ -87,8 +87,8 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
             if not self._check_matching_dims("Level", pre_dims_str):
                 dimensions.append(Dimension("Level", "Error"))
         else:
-            if not self._check_matching_dims("model_name", pre_dims_str):
-                dimensions.append(Dimension("model_name", self.model_name))
+            if not self._check_matching_dims("ModelName", pre_dims_str):
+                dimensions.append(Dimension("ModelName", self.model_name))
             if not self._check_matching_dims("Level", pre_dims_str):
                 dimensions.append(Dimension("Level", "host"))
 

@@ -1,5 +1,5 @@
 dimensions:
-  model_name: &model_name "foo"
+  ModelName: &model_name "foo"
   Level: &level "host"
 
 ts_metrics:
