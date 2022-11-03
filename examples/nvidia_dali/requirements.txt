@@ -1,0 +1,2 @@
+nvidia-dali-cuda110==1.18.0
+--extra-index-url https://developer.download.nvidia.com/compute/redist
