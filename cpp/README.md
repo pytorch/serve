@@ -2,32 +2,25 @@
 ## Requirements
 * C++17
 * GCC version: gcc-9
-## Dev Build & Unit tests
-### Dev Build Commands
+## Installation and Run
+### Installation
 ```
+## Dev Build
 cd serve/cpp 
 ./build.sh [-g cu102|cu113|cu116] [--install-dependencies]
-```
-## Installation and Run
-### Install TorchServe
-```
-## For CPU
-cd serve
-python ts_scripts/install_from_src.py
 
-## For GPU (Temporary)
-cd serve/cpp
-./build.sh -g cu116 --install-dependencies
+## Installation
+cd serve
 python ts_scripts/install_from_src.py
 ```
 ### Set Environment Var
 #### On Mac
 ```
-export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:$(python -c 'import torch; print(torch.utils.cmake_prefix_path)')/../../lib
+export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:$(python -c 'import torch; print(torch.utils.cmake_prefix_path)')/../../lib:$(python -c 'import site; print(site.getsitepackages()[0])')/ts/cpp/lib
 ```
 #### On Ubuntu
 ```
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(pwd)/cpp/_build/_deps/libtorch/lib
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(pwd)/cpp/_build/_deps/libtorch/lib:$(python -c 'import site; print(site.getsitepackages()[0])')/ts/cpp/lib
 ```
 ### Run TorchServe
 ```
