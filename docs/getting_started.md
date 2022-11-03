@@ -185,7 +185,7 @@ NOTE: This script uninstalls existing `torchserve`, `torch-model-archiver` and `
 
 ```
 python ./ts_scripts/install_dependencies.py --environment=dev
-python ./ts_scripts/install_from_src.py
+python ./ts_scripts/install_from_src.py --environment=dev
 ```
 
 Use `--cuda` flag with `install_dependencies.py` for installing cuda version specific dependencies. Possible values are `cu111`, `cu102`, `cu101`, `cu92`
