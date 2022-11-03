@@ -3,11 +3,7 @@ import datetime
 from functools import partial
 
 import aiohttp
-import matplotlib.pyplot as plt
-import numpy as np
 import torch
-from torch.utils.data.datapipes.utils.decoder import imagehandler
-from torchvision import datasets, transforms
 
 from torchdata.datapipes.iter import Decompressor, FileLister, FileOpener
 
