@@ -88,8 +88,8 @@ void SocketServer::Run() {
     TS_LOGF(FATAL, "Failed to listen on socket. errno: {}", errno);
   }
   TS_LOG(INFO, "Socket bind successful");
-  TS_LOGF(INFO, "[PID] {}", getpid());
-  TS_LOG(INFO, "Torchserve worker started.");
+  TS_LOGF(INFO, "[PID]{}", getpid());
+  TS_LOG(INFO, "Torch worker started.");
 
   while (true) {
     socklen_t len = sizeof(client_sock_address);
