@@ -16,7 +16,7 @@ BATCH_TOTAL_TASKS = 100
 # Stop sending infrence request after making TOTAL_INFERENCE_CALLS
 TOTAL_INFERENCE_CALLS = BATCH_TOTAL_TASKS * 2
 # MNIST image size
-IMAGE_SIZE = (28,28)
+IMAGE_SIZE = (28, 28)
 
 # Loop through the dataset
 async def iterate_dataset():
@@ -33,8 +33,8 @@ async def iterate_dataset():
     label_stream.read(8)
 
     # Reading one batch information from the image_stream
-    n_bytes = IMAGE_SIZE[0]*IMAGE_SIZE[1]*BATCH_SIZE
-    for buffer in iter(partial(image_stream.read, n_bytes), b''):
+    n_bytes = IMAGE_SIZE[0] * IMAGE_SIZE[1] * BATCH_SIZE
+    for buffer in iter(partial(image_stream.read, n_bytes), b""):
         batch = torch.frombuffer(buffer, dtype=torch.uint8).to(torch.float32, copy=True)
         # reshaping the batch
         batch = batch.reshape(1, 1, IMAGE_SIZE[0], IMAGE_SIZE[1])
@@ -42,16 +42,12 @@ async def iterate_dataset():
         true_label = torch.frombuffer(label_stream.read(1), dtype=torch.uint8)
         if len(tasks) <= BATCH_TOTAL_TASKS:
             tasks.append(
-                send_inference_request(
-                    aiohttp_client_session, batch, true_label
-                )
+                send_inference_request(aiohttp_client_session, batch, true_label)
             )
         else:
             # Once we've TOTAL_TASKS send all inference request in short time to allow
             # torchserver to do batch inference
-            print(
-                f"Total inference calls sent so far {len(tasks)}."
-            )
+            print(f"Total inference calls sent so far {len(tasks)}.")
             result = await asyncio.gather(*tasks)
             if total_completed_tasks > TOTAL_INFERENCE_CALLS:
                 print(
@@ -59,23 +55,25 @@ async def iterate_dataset():
                 )
             tasks = []
             tasks.append(
-                send_inference_request(
-                    aiohttp_client_session, batch, true_label
-                )
+                send_inference_request(aiohttp_client_session, batch, true_label)
             )
 
         total_completed_tasks = total_completed_tasks + 1
 
     await aiohttp_client_session.close()
 
+
 async def send_inference_request(aiohttp_session, image, true_label):
     """
     This functions call inference REST API with image.
     """
-    data = {'image': image.tolist()}
+    data = {"image": image.tolist()}
     async with aiohttp_session.post(MODEL_URL, json=data) as resp:
         resp_text = await resp.text()
-        print(datetime.datetime.now(), f"- Model prediction Class {resp_text} True Class: {true_label}")
+        print(
+            datetime.datetime.now(),
+            f"- Model prediction Class {resp_text} True Class: {true_label}",
+        )
         return resp_text
 
 
@@ -89,6 +87,7 @@ def MNIST():
     image_dp = Decompressor(image_dp)
 
     return image_dp, label_dp
+
 
 if __name__ == "__main__":
     asyncio.run(iterate_dataset())

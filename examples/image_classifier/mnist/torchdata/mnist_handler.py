@@ -2,7 +2,6 @@ import numpy as np
 import torch
 from torch.profiler import ProfilerActivity
 from torchvision import transforms
-
 from ts.torch_handler.image_classifier import ImageClassifier
 
 
@@ -17,20 +16,18 @@ class MNISTDigitClassifier(ImageClassifier):
     def __init__(self):
         super(MNISTDigitClassifier, self).__init__()
         self.profiler_args = {
-            "activities" : [ProfilerActivity.CPU],
+            "activities": [ProfilerActivity.CPU],
             "record_shapes": True,
         }
 
     def preprocess(self, data):
-        """ Preprocess the data, fetches the image from the request body and converts to torch tensor.
+        """Preprocess the data, fetches the image from the request body and converts to torch tensor.
         Args:
             data (list): Image to be sent to the model for inference.
         Returns:
             tensor: A torch tensor
         """
-        return torch.as_tensor(data[0]['body']['image'])
-
-
+        return torch.as_tensor(data[0]["body"]["image"])
 
     def postprocess(self, data):
         """The post process of MNIST converts the predicted output response to a label.
