@@ -219,7 +219,7 @@ public class WorkerLifeCycle {
         if (ConfigManager.getInstance().getTsCppLogConfig() != null) {
             argl.add(ConfigManager.getInstance().getTsCppLogConfig());
         } else {
-            argl.add("ts/cpp/resources/logging.config");
+            argl.add(configManager.getModelServerHome() + "/ts/cpp/resources/logging.config");
         }
 
         String[] envp = EnvironmentUtils.getCppEnvString(cppBackendLib.getAbsolutePath());
