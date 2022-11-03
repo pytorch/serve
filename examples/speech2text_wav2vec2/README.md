@@ -22,4 +22,6 @@ Now let's start the server and try it out with our example file!
 torchserve --start --model-store model_store --models Wav2Vec2=Wav2Vec2.mar --ncs
 # Once the server is running, let's try it with:
 curl -X POST http://127.0.0.1:8080/predictions/Wav2Vec2 --data-binary '@./sample.wav' -H "Content-Type: audio/basic"
+# Which will happily return:
+I HAD THAT CURIOSITY BESIDE ME AT THIS MOMENT%
 ```
