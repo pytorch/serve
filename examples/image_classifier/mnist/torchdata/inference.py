@@ -1,11 +1,15 @@
 import asyncio
 import datetime
+from functools import partial
 
 import aiohttp
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
+from torch.utils.data.datapipes.utils.decoder import imagehandler
 from torchvision import datasets, transforms
+
+from torchdata.datapipes.iter import Decompressor, FileLister, FileOpener
 
 # Batch_Size to kept 1 and letting torchserver to do batch inference
 BATCH_SIZE = 1
@@ -15,25 +19,31 @@ MODEL_URL = "http://127.0.0.1:8080/predictions/mnist"
 BATCH_TOTAL_TASKS = 100
 # Stop sending infrence request after making TOTAL_INFERENCE_CALLS
 TOTAL_INFERENCE_CALLS = BATCH_TOTAL_TASKS * 2
-
-#transform the images to tensor. Normalize the images as well.
-image_transform = transforms.Compose([
-        transforms.ToTensor(),
-        transforms.Normalize((0.1307,), (0.3081,))
-    ])
-
-# Load the dataset and set train flag to False.
-testset = datasets.MNIST('./MNIST_dataset', download=True, train=False, transform=image_transform)
-
-# Creating the dataloader.
-inference_dataset = torch.utils.data.DataLoader(testset, batch_size=BATCH_SIZE, shuffle=True)
+# MNIST image size
+IMAGE_SIZE = (28,28)
 
 # Loop through the dataset
 async def iterate_dataset():
     aiohttp_client_session = aiohttp.ClientSession()
     tasks = []
     total_completed_tasks = 0
-    for batch, true_label in iter(inference_dataset):
+    image_dp, label_dp = MNIST()
+
+    _, image_stream = next(iter(image_dp))
+    _, label_stream = next(iter(label_dp))
+
+    # ignoring first 16 bytes from image_stream and first 8 bytes from label_stream.
+    image_stream.read(16)
+    label_stream.read(8)
+
+    # Reading one batch information from the image_stream
+    n_bytes = IMAGE_SIZE[0]*IMAGE_SIZE[1]*BATCH_SIZE
+    for buffer in iter(partial(image_stream.read, n_bytes), b''):
+        batch = torch.frombuffer(buffer, dtype=torch.uint8).to(torch.float32, copy=True)
+        # reshaping the batch
+        batch = batch.reshape(1, 1, IMAGE_SIZE[0], IMAGE_SIZE[1])
+        # reading the true label
+        true_label = torch.frombuffer(label_stream.read(1), dtype=torch.uint8)
         if len(tasks) <= BATCH_TOTAL_TASKS:
             tasks.append(
                 send_inference_request(
@@ -69,8 +79,20 @@ async def send_inference_request(aiohttp_session, image, true_label):
     data = {'image': image.tolist()}
     async with aiohttp_session.post(MODEL_URL, json=data) as resp:
         resp_text = await resp.text()
-        print(datetime.datetime.now(), f"- Model prediction Class {resp_text} Actual Class: {true_label}")
+        print(datetime.datetime.now(), f"- Model prediction Class {resp_text} True Class: {true_label}")
         return resp_text
+
+
+def MNIST():
+    label_dp = FileLister("./mnist_dataset/t10k-labels-idx1-ubyte.gz")
+    label_dp = FileOpener(label_dp, mode="b")
+    label_dp = Decompressor(label_dp)
+
+    image_dp = FileLister("./mnist_dataset/t10k-images-idx3-ubyte.gz")
+    image_dp = FileOpener(image_dp, mode="b")
+    image_dp = Decompressor(image_dp)
+
+    return image_dp, label_dp
 
 if __name__ == "__main__":
     asyncio.run(iterate_dataset())

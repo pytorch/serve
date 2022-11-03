@@ -12,8 +12,17 @@ https://github.com/pytorch/examples/tree/master/mnist
 
 # Prerequisites
 Install aiohttp package
-```
+```bash
 pip install aiohttp
+```
+
+Download MNIST dataset
+```bash
+cd examples/image_classifier/mnist/torchdata
+mkdir mnist_dataset
+
+wget http://yann.lecun.com/exdb/mnist/t10k-images-idx3-ubyte.gz -P ./mnist_dataset
+wget http://yann.lecun.com/exdb/mnist/t10k-labels-idx1-ubyte.gz -P ./mnist_dataset
 ```
 
 # Serve a custom model on TorchServe
@@ -37,7 +46,7 @@ Run the commands given in following steps from the parent directory of the root 
 
 * Step - 3: Run `inference.py` script that loads MNIST dataset using torchdata and sends REST API requests to torchserve for inference.
     ```bash
-    python examples/image_classifier/mnist/torchdata/inference.py
+    python inference.py
     ```
 
 ### Running KServe
