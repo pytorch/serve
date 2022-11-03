@@ -9,7 +9,7 @@ def parse_args():
     import argparse
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--save", default="./model_repository/model.dali")
+    parser.add_argument("--save", default="./model.dali")
     parser.add_argument("--config", default="dali_config.json")
     return parser.parse_args()
 

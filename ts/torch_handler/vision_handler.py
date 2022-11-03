@@ -12,11 +12,16 @@ from abc import ABC
 import numpy as np
 import torch
 from captum.attr import IntegratedGradients
-from nvidia.dali.pipeline import Pipeline
-from nvidia.dali.plugin.pytorch import DALIGenericIterator, LastBatchPolicy
 from PIL import Image
 
 from .base_handler import BaseHandler
+
+if (
+    "DALI_PREPROCESSING" in os.environ
+    and os.environ["DALI_PREPROCESSING"].lower() == "true"
+):
+    from nvidia.dali.pipeline import Pipeline
+    from nvidia.dali.plugin.pytorch import DALIGenericIterator, LastBatchPolicy
 
 
 class VisionHandler(BaseHandler, ABC):
@@ -40,22 +45,25 @@ class VisionHandler(BaseHandler, ABC):
         ):
 
             self.model_dir = properties.get("model_dir")
-            config_file = open(self.model_dir + "/dali_config.json")
-            self.configs = json.load(config_file)
+            dali_config_file = open(self.model_dir + "/dali_config.json")
+            self.dali_configs = json.load(dali_config_file)
 
     def dali_preprocess(self, data):
         batch_tensor = []
-        batch_size = self.configs["batch_size"]
-        num_threads = self.configs["num_threads"]
-        device_id = self.configs["device_id"]
-        prefetch_queue_depth = self.configs["prefetch_queue_depth"]
+        batch_size = self.dali_configs["batch_size"]
+        num_threads = self.dali_configs["num_threads"]
+        device_id = self.dali_configs["device_id"]
+        prefetch_queue_depth = self.dali_configs["prefetch_queue_depth"]
 
         input_byte_arrays = [i["body"] if "body" in i else i["data"] for i in data]
         for byte_array in input_byte_arrays:
             np_image = np.frombuffer(byte_array, dtype=np.uint8)
             batch_tensor.append(np_image)  # we can use numpy
 
-        filename = self.model_dir + "/model.dali"
+        dali_file = [
+            file for file in os.listdir(self.model_dir) if file.endswith(".dali")
+        ]
+        filename = self.model_dir + "/" + dali_file[0]
         pipe = Pipeline.deserialize(filename=filename)
         pipe._max_batch_size = batch_size
         pipe._num_threads = num_threads

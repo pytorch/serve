@@ -21,8 +21,12 @@ pip install -r requirements.txt
 In DALI, any data processing task has a central object called Pipeline.
 Refer to [NVIDIA-DALI](https://github.com/NVIDIA/DALI) for more details on DALI pipeline.
 
-Navigate to `cd ./serve/examples/nvidia_dali`. Run the python file which serializes the Dali Pipeline and saves the file as `./serve/examples/nvidia_dali/model_repository/model.dali`
+Navigate to `cd ./serve/examples/nvidia_dali`.
 
+
+Run the python file which serializes the Dali Pipeline and saves it to `model.dali`
+
+**__Note__**: Makesure the serialized file should have the extension .dali
 
 ```bash
 python serialiize_dali_pipeline.py --config dali_config.json
@@ -38,10 +42,10 @@ wget https://download.pytorch.org/models/resnet18-f37072fd.pth
 
 ### Create model-archive file
 
-The following command will create a .mar extension file where we also include the model.dali file and dali_config.json file in it.
+The following command will create a .mar extension file where we also include the `model.dali` file and `dali_config.json` file in it.
 
 ```bash
-torch-model-archiver --model-name resnet-18 --version 1.0 --model-file ./examples/image_classifier/resnet_18/model.py --serialized-file resnet18-f37072fd.pth --handler image_classifier --extra-files ./examples/image_classifier/index_to_name.json,./examples/nvidia_dali/model_repository/model.dali,./examples/nvidia_dali/dali_config.json
+torch-model-archiver --model-name resnet-18 --version 1.0 --model-file ./examples/image_classifier/resnet_18/model.py --serialized-file resnet18-f37072fd.pth --handler image_classifier --extra-files ./examples/image_classifier/index_to_name.json,./examples/nvidia_dali/model.dali,./examples/nvidia_dali/dali_config.json
 ```
 
 Create a new directory `model_store` and move the model-archive file
