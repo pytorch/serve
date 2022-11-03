@@ -983,3 +983,5 @@ fs
 fsspec
 minioadmin
 pythonic
+Diffusers
+diffusers
