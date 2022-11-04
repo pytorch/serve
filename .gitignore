@@ -21,6 +21,7 @@ docs/sphinx/src/
 test/artifacts/
 test/logs/
 test/model_store/
+*model_store/
 test/ts_console.log
 test/config.properties
 
@@ -34,3 +35,4 @@ instances.yaml.backup
 
 ## Models
 *.pt
+*.onnx
