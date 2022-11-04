@@ -13,3 +13,7 @@ pygit2==1.6.1
 pyspelling
 pre-commit
 twine
+intel_extension_for_pytorch; sys_platform != 'win32' and sys_platform != 'darwin'
+onnx
+onnx-runtime
+numpy

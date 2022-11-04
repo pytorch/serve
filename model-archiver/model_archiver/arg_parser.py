@@ -42,9 +42,8 @@ class ArgParser(object):
             type=str,
             default=None,
             help="Path to .pt or .pth file containing state_dict in case of eager mode\n"
-            "or an executable ScriptModule in case of TorchScript\n"
-            "or a .onnx file in the case of ORT."
-            "or a .ts file in the case of tensorRT",
+            "or an executable ScriptModule in case of TorchScript or TensorRT\n"
+            "or a .onnx file in the case of ORT.",
         )
 
         parser_export.add_argument(

@@ -177,9 +177,8 @@ if __name__ == "__main__":
         },
         install_requires=requirements,
         extras_require={
-            "onnx": ["onnxruntime","torch-ort"],
+            "onnx": ["numpy", "onnx","onnx-runtime"],
             "ipex": ["intel_extension_for_pytorch"],
-            "tensorrt": ["torch2trt","nvidia-pyindex","nvidia-tensorrt"],
         },
         entry_points={"console_scripts": ["torchserve=ts.model_server:start"]},
         include_package_data=True,

@@ -8,6 +8,7 @@ import importlib.util
 import logging
 import os
 import time
+import psutil
 
 import torch
 from pkg_resources import packaging
@@ -69,7 +70,8 @@ class BaseHandler(abc.ABC):
 
         try:
             import onnxruntime
-
+            import onnx
+            import numpy as np
             onnx_enabled = True
         except ImportError as error:
             onnx_enabled = False
@@ -106,19 +108,15 @@ class BaseHandler(abc.ABC):
             self.model.eval()
 
         # Convert your model by following instructions: https://pytorch.org/tutorials/intermediate/nvfuser_intro_tutorial.html
+        # For TensorRT support follow instructions here: https://pytorch.org/TensorRT/getting_started/getting_started_with_python_api.html#getting-started-with-python-api
         elif self.model_pt_path.endswith(".pt"):
-            logger.info("Loading torchscript model")
+            logger.info(f"Loading torchscript model from {model_pt_path}")
             self.model = self._load_torchscript_model(self.model_pt_path)
             self.model.eval()
 
-        # Convert your model by following instructions: https://pytorch.org/TensorRT/getting_started/getting_started_with_python_api.html#getting-started-with-python-api
-        elif self.model_pt_path.endswith(".ts"):
-            logger.info("Loading tensorRT model")
-            self.model = self._load_torchscript_model(self.model_pt_path)
-
         # Convert your model by following instructions: https://pytorch.org/tutorials/advanced/super_resolution_with_onnxruntime.html
         elif self.model_pt_path.endswith(".onnx") and onnx_enabled:
-            logger.info("Loading onnx model")
+            logger.info(f"Loading onnx model from {model_pt_path}")
             self.model = self._load_onnx_model(self.model_pt_path)
 
         else:
@@ -134,9 +132,6 @@ class BaseHandler(abc.ABC):
         mapping_file_path = os.path.join(model_dir, "index_to_name.json")
         self.mapping = load_label_mapping(mapping_file_path)
 
-        model_config_path = os.path.join(model_dir, "model_config.json")
-        self.model_config = load_model_config(model_config_path)
-
         self.initialized = True
 
     def _load_onnx_model(self, model_onnx_path):
@@ -150,7 +145,16 @@ class BaseHandler(abc.ABC):
         """
 
         # ORT defaults to cuda:0 if GPU available otherwise CPU
-        return onnxruntime.InferenceSession(model_onnx_path)
+        # Find the right backend provider
+        providers = ['CUDAExecutionProvider', 'CPUExecutionProvider'] if self.map_location == "cuda" else ['CPUExecutionProvider']
+
+        # Set the right inference options, we can add more options here depending on what people want
+        sess_options = ort.SessionOptions()
+        sess_options.intra_op_num_threads=psutil.cpu_count(logical=True)
+
+        # Start an inference session
+        ort_session = ort.InferenceSession(model_path, providers=providers, sess_options=sess_options)
+        return ort_session
 
     def _load_torchscript_model(self, model_pt_path):
         """Loads the PyTorch model and returns the NN model object.
@@ -225,11 +229,13 @@ class BaseHandler(abc.ABC):
         Returns:
             Torch Tensor : The Predicted Torch Tensor is returned in this function.
         """
-        marshalled_data = data.to(self.device)
         with torch.no_grad():
-            if self.model_pt_path.endswith("onnx"):
-                self.model.run(None, data, *args, **kwargs)
+            if isinstance(self.model, ort.InferenceSession):
+                data = data.numpy().astype(np.float32) 
+                # TODO: Should we make this "modelInput configurable"
+                outputs = ort_session.run(None,{"modelInput": data})[0]
             else:
+                marshalled_data = data.to(self.device)
                 results = self.model(marshalled_data, *args, **kwargs)
         return results
 
@@ -293,6 +299,7 @@ class BaseHandler(abc.ABC):
             "HandlerTime", round((stop_time - start_time) * 1000, 2), None, "ms"
         )
         return output
+
 
     def _infer_with_profiler(self, data):
         """Custom method to generate pytorch profiler traces for preprocess/inference/postprocess

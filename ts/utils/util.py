@@ -37,28 +37,6 @@ def list_classes_from_module(module, parent_class=None):
 
     return classes
 
-
-def load_model_config(model_config_path):
-    """
-    Load a JSON model configuration used to pass parameters to runtimes
-    """
-
-    # TODO: Remove code duplication with load_label_mapping()
-    if not os.path.isfile(model_config_path):
-        logger.warning(
-            f"Could not find {model_config_path}. No custom optimizations will be used"
-        )
-        return None
-
-    with open(model_config_path) as f:
-        model_config = json.load(f)
-
-    if not isinstance(model_config, dict):
-        raise Exception("Model configuration is not a valid JSON")
-
-    return model_config
-
-
 def load_label_mapping(mapping_file_path):
     """
     Load a JSON mapping { class ID -> friendly class name }.
