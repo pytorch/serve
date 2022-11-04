@@ -8,12 +8,12 @@ import importlib.util
 import logging
 import os
 import time
-import psutil
 
+import psutil
 import torch
 from pkg_resources import packaging
 
-from ..utils.util import list_classes_from_module, load_label_mapping, load_model_config
+from ..utils.util import list_classes_from_module, load_label_mapping
 
 if packaging.version.parse(torch.__version__) >= packaging.version.parse("1.8.1"):
     from torch.profiler import ProfilerActivity, profile, record_function
@@ -68,15 +68,6 @@ class BaseHandler(abc.ABC):
                     "IPEX is enabled but intel-extension-for-pytorch is not installed. Proceeding without IPEX."
                 )
 
-        try:
-            import onnxruntime
-            import onnx
-            import numpy as np
-            onnx_enabled = True
-        except ImportError as error:
-            onnx_enabled = False
-            logger.warning("proceeding without onnxruntime")
-
         properties = context.system_properties
         self.map_location = (
             "cuda"
@@ -95,6 +86,15 @@ class BaseHandler(abc.ABC):
         if "serializedFile" in self.manifest["model"]:
             serialized_file = self.manifest["model"]["serializedFile"]
             self.model_pt_path = os.path.join(model_dir, serialized_file)
+
+        if self.model_pt_path.endswith("onnx"):
+            try:
+                import numpy as np
+
+                onnx_enabled = True
+            except ImportError as error:
+                onnx_enabled = False
+                logger.warning("proceeding without onnxruntime")
 
         # model def file
         model_file = self.manifest["model"].get("modelFile", "")
@@ -146,14 +146,20 @@ class BaseHandler(abc.ABC):
 
         # ORT defaults to cuda:0 if GPU available otherwise CPU
         # Find the right backend provider
-        providers = ['CUDAExecutionProvider', 'CPUExecutionProvider'] if self.map_location == "cuda" else ['CPUExecutionProvider']
+        providers = (
+            ["CUDAExecutionProvider", "CPUExecutionProvider"]
+            if self.map_location == "cuda"
+            else ["CPUExecutionProvider"]
+        )
 
         # Set the right inference options, we can add more options here depending on what people want
         sess_options = ort.SessionOptions()
-        sess_options.intra_op_num_threads=psutil.cpu_count(logical=True)
+        sess_options.intra_op_num_threads = psutil.cpu_count(logical=True)
 
         # Start an inference session
-        ort_session = ort.InferenceSession(model_path, providers=providers, sess_options=sess_options)
+        ort_session = ort.InferenceSession(
+            model_path, providers=providers, sess_options=sess_options
+        )
         return ort_session
 
     def _load_torchscript_model(self, model_pt_path):
@@ -231,9 +237,9 @@ class BaseHandler(abc.ABC):
         """
         with torch.no_grad():
             if isinstance(self.model, ort.InferenceSession):
-                data = data.numpy().astype(np.float32) 
+                data = data.numpy().astype(np.float32)
                 # TODO: Should we make this "modelInput configurable"
-                outputs = ort_session.run(None,{"modelInput": data})[0]
+                outputs = ort_session.run(None, {"modelInput": data})[0]
             else:
                 marshalled_data = data.to(self.device)
                 results = self.model(marshalled_data, *args, **kwargs)
@@ -299,7 +305,6 @@ class BaseHandler(abc.ABC):
             "HandlerTime", round((stop_time - start_time) * 1000, 2), None, "ms"
         )
         return output
-
 
     def _infer_with_profiler(self, data):
         """Custom method to generate pytorch profiler traces for preprocess/inference/postprocess
