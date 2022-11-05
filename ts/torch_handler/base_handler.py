@@ -9,7 +9,6 @@ import logging
 import os
 import time
 
-import psutil
 import torch
 from pkg_resources import packaging
 
@@ -90,8 +89,10 @@ class BaseHandler(abc.ABC):
         if self.model_pt_path.endswith("onnx"):
             try:
                 import numpy as np
+                import onnxruntime as ort
 
                 onnx_enabled = True
+                logger.info("ONNX enabled")
             except ImportError as error:
                 onnx_enabled = False
                 logger.warning("proceeding without onnxruntime")
@@ -110,14 +111,27 @@ class BaseHandler(abc.ABC):
         # Convert your model by following instructions: https://pytorch.org/tutorials/intermediate/nvfuser_intro_tutorial.html
         # For TensorRT support follow instructions here: https://pytorch.org/TensorRT/getting_started/getting_started_with_python_api.html#getting-started-with-python-api
         elif self.model_pt_path.endswith(".pt"):
-            logger.info(f"Loading torchscript model from {model_pt_path}")
             self.model = self._load_torchscript_model(self.model_pt_path)
             self.model.eval()
 
         # Convert your model by following instructions: https://pytorch.org/tutorials/advanced/super_resolution_with_onnxruntime.html
         elif self.model_pt_path.endswith(".onnx") and onnx_enabled:
-            logger.info(f"Loading onnx model from {model_pt_path}")
-            self.model = self._load_onnx_model(self.model_pt_path)
+            # self.model = self._load_onnx_model(self.model_pt_path)
+            providers = (
+                ["CUDAExecutionProvider", "CPUExecutionProvider"]
+                if self.map_location == "cuda"
+                else ["CPUExecutionProvider"]
+            )
+
+            # Set the right inference options, we can add more options here depending on what people want
+            sess_options = ort.SessionOptions()
+            # sess_options.intra_op_num_threads = psutil.cpu_count(logical=True)
+
+            # Start an inference session
+            ort_session = ort.InferenceSession(
+                self.model_pt_path, providers=providers, sess_options=sess_options
+            )
+            self.model = ort_session
 
         else:
             raise RuntimeError("No model weights could be loaded")
@@ -154,11 +168,11 @@ class BaseHandler(abc.ABC):
 
         # Set the right inference options, we can add more options here depending on what people want
         sess_options = ort.SessionOptions()
-        sess_options.intra_op_num_threads = psutil.cpu_count(logical=True)
+        # sess_options.intra_op_num_threads = psutil.cpu_count(logical=True)
 
         # Start an inference session
         ort_session = ort.InferenceSession(
-            model_path, providers=providers, sess_options=sess_options
+            model_onnx_path, providers=providers, sess_options=sess_options
         )
         return ort_session
 
@@ -240,6 +254,7 @@ class BaseHandler(abc.ABC):
                 data = data.numpy().astype(np.float32)
                 # TODO: Should we make this "modelInput configurable"
                 outputs = ort_session.run(None, {"modelInput": data})[0]
+                print(f"ORT OUTPUTS {outputs}")
             else:
                 marshalled_data = data.to(self.device)
                 results = self.model(marshalled_data, *args, **kwargs)

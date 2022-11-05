@@ -16,6 +16,7 @@ class ToyModel(torch.nn.Module):
         return x
 
 
+# For a custom model you still need to manually author your converter, as far as I can tell there isn't a nice out of the box that exists
 def test_convert_to_onnx():
     model = ToyModel()
     dummy_input = torch.randn(1, 1)
@@ -42,13 +43,21 @@ def test_convert_to_onnx():
     )
 
 
+def test_model_packaging_and_start():
+    subprocess.run("mkdir model_store", shell=True)
+    subprocess.run(
+        "torch-model-archiver -f --model-name onnx --version 1.0 --serialized-file linear.onnx --export-path model_store --handler base_handler",
+        shell=True,
+    )
+    subprocess.run(
+        "torchserve --start --ncs --model-store model_store --models onnx.mar",
+        shell=True,
+    )
+
+
 def test_inference():
     subprocess.run(
-        "torch-model-archiver --model-name onnx --version 1.0 --serialized-file linear.onnx --export-path model_store --handler base_handler"
+        "curl -X POST http://127.0.0.1:8080/predictions/onnx --data-binary '1' -H",
+        shell=True,
     )
-    subprocess.run(
-        "torchserve --start --ncs --model-store model_store --models onnx.mar"
-    )
-    subprocess.run(
-        'curl -H "Content-Type: application/json" --data @examples/Huggingface_Transformers/bert_ts.json http://127.0.0.1:8080/explanations/onnx'
-    )
+    subprocess.run("torchserve --stop", shell=True)
