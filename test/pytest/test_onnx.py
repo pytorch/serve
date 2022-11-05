@@ -57,7 +57,7 @@ def test_model_packaging_and_start():
 
 def test_inference():
     subprocess.run(
-        "curl -X POST http://127.0.0.1:8080/predictions/onnx --data-binary '1' -H",
+        "curl -X POST http://127.0.0.1:8080/predictions/onnx --data-binary '1'",
         shell=True,
     )
     subprocess.run("torchserve --stop", shell=True)

@@ -88,7 +88,7 @@ class BaseHandler(abc.ABC):
 
         if self.model_pt_path.endswith("onnx"):
             try:
-                import numpy as np
+                # import numpy as np
                 import onnxruntime as ort
 
                 onnx_enabled = True
@@ -235,6 +235,7 @@ class BaseHandler(abc.ABC):
         Returns:
             tensor: Returns the tensor data of the input
         """
+
         return torch.as_tensor(data, device=self.device)
 
     def inference(self, data, *args, **kwargs):
@@ -250,11 +251,10 @@ class BaseHandler(abc.ABC):
             Torch Tensor : The Predicted Torch Tensor is returned in this function.
         """
         with torch.no_grad():
-            if isinstance(self.model, ort.InferenceSession):
-                data = data.numpy().astype(np.float32)
-                # TODO: Should we make this "modelInput configurable"
-                outputs = ort_session.run(None, {"modelInput": data})[0]
-                print(f"ORT OUTPUTS {outputs}")
+            if hasattr(self.model, "run"):
+                data = data.to(torch.float32).cpu().numpy()
+                # TODO: Should we make this "modelInput configurable", feels complicated
+                results = self.model.run(None, {"modelInput": data})[0]
             else:
                 marshalled_data = data.to(self.device)
                 results = self.model(marshalled_data, *args, **kwargs)
@@ -307,6 +307,8 @@ class BaseHandler(abc.ABC):
             if self._is_describe():
                 output = [self.describe_handle()]
             else:
+                # What's a better way to do this
+                data = torch.randn(1, 1)
                 data_preprocess = self.preprocess(data)
 
                 if not self._is_explain():
