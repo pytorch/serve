@@ -44,7 +44,7 @@ def handler_cache(host, port, db, maxsize=128):
             )
             value_str = r.get(key)
             if value_str is not None:
-                return pickle.loads(value_str)  # might need to decode
+                return pickle.loads(value_str)
             value = func(*args, **kwds)
             # Randomly remove one entry if maxsize is reached
             if r.dbsize() >= maxsize:
