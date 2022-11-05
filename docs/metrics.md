@@ -6,7 +6,7 @@
 * [System metrics](#system-metrics)
 * [Formatting](#formatting)
 * [Custom Metrics API](#custom-metrics-api)
-* [Logging the custom metrics](#logging-the-custom-metrics)
+* [Logging the custom metrics](#logging-custom-metrics)
 
 ## Introduction
 
@@ -323,7 +323,7 @@ metrics.add_counter('LoopCount', -1, None, dimensions)
 
 ```
 
-### Log custom metrics
+## Logging custom metrics
 
 Following sample code can be used to log the custom metrics created in the model's custom handler:
 

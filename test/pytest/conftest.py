@@ -9,6 +9,11 @@ import test_utils
 CURR_FILE_PATH = os.path.dirname(os.path.realpath(__file__))
 REPO_ROOT_DIR = os.path.normpath(os.path.join(CURR_FILE_PATH, "..", ".."))
 
+# Exclude the following tests from regression tests
+collect_ignore = []
+collect_ignore.append("test_example_torchrec_dlrm.py")
+collect_ignore.append("test_example_streaming_video.py")
+
 
 @pytest.fixture(scope="module")
 def model_archiver():
@@ -55,3 +60,15 @@ def torchserve(model_store):
     yield
 
     test_utils.torchserve_cleanup()
+
+
+@pytest.fixture(scope="session")
+def monkeysession(request):
+    """
+    This fixture lets us create monkey patches in session scope like altering the Python path.
+    """
+    from _pytest.monkeypatch import MonkeyPatch
+
+    mpatch = MonkeyPatch()
+    yield mpatch
+    mpatch.undo()
