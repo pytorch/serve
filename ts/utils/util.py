@@ -81,6 +81,9 @@ def map_class_to_label(probs, mapping=None, lbl_classes=None):
     Given a list of classes & probabilities, return a dictionary of
     { friendly class name -> probability }
     """
+    if not isinstance(probs, list):
+        raise Exception("Convert classes to list before doing mapping")
+        
     if mapping is not None and not isinstance(mapping, dict):
         raise Exception("Mapping must be a dict")
 
