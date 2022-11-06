@@ -30,7 +30,7 @@ def _no_op_decorator(func):
 
 
 def handler_cache(host, port, db, maxsize=128):
-    """Decorator for handler's handle() method that cache input/output to a redis database.
+    """Decorator for handler's handle() method that cache input/output to a Redis database.
 
     A typical usage would be:
 
@@ -49,7 +49,7 @@ def handler_cache(host, port, db, maxsize=128):
         r.ping()
     except redis.exceptions.ConnectionError:
         logging.error(
-            f"Cannot connect to a redis server, ensure a server is running on {host}:{port}."
+            f"Cannot connect to a Redis server, ensure a server is running on {host}:{port}."
         )
         return _no_op_decorator
 
