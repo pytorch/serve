@@ -13,7 +13,9 @@ The example will be based on the [MNIST classifier example](https://github.com/p
     pip install redis
     ```
 
-We will assume a Redis server is started on `localhost` at port `6379`.
+Note that if the pre-requisites are not met, a no op decorator will be used and no exceptions will be raised.
+
+We will now assume a Redis server is started on `localhost` at port `6379`. 
 
 ### Using the `ts.utils.redis_cache.handler_cache` decorator
 
