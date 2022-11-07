@@ -6,14 +6,18 @@ The example will be based on the [MNIST classifier example](https://github.com/p
 
 ### Pre-requisites
 
-- Redis is installed on your system and a server running. Follow the [Redis getting started guide](https://redis.io/docs/getting-started/) to set up a Redis server.
+- Redis is installed on your system. Follow the [Redis getting started guide](https://redis.io/docs/getting-started/) to install Redis.
 
+  Start a Redis server using (the server will be started on `localhost:6379` by default):
+  ```bash
+  redis-server
+  # optionally specify the port:
+  # redis-server --port 6379
+  ```
 - The [Python Redis interface](https://github.com/redis/redis-py) is installed:
     ```bash
     pip install redis
     ```
-
-We will assume a Redis server is started on `localhost` at port `6379`.
 
 ### Using the `ts.utils.redis_cache.handler_cache` decorator
 
