@@ -24,7 +24,7 @@ The downloaded model is around 14GB.
 
 **_NOTE:_** Install Zip cli tool
 
-Navigate to the path got from the above script. Here it is
+Navigate to the path got from the above script. In this example it is
 
 ```bash
 cd model/models--bigscience-bloom-7b1/snapshots/5546055f03398095e385d7dc625e636cc8910bf2/
