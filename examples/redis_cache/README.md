@@ -19,6 +19,8 @@ The example will be based on the [MNIST classifier example](https://github.com/p
     pip install redis
     ```
 
+Note that if the pre-requisites are not met, a no op decorator will be used and no exceptions will be raised.
+
 ### Using the `ts.utils.redis_cache.handler_cache` decorator
 
 The decorator's usage is similar to that of the built-in `functools.lru_cache`.
