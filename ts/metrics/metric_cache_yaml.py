@@ -12,7 +12,7 @@ from ts.metrics.metric_type_enum import MetricTypes
 
 
 class MetricsCacheYaml(MetricCacheAbstract):
-    def __init__(self, request_ids, model_name, config_file):
+    def __init__(self, request_ids, model_name, config_file_path):
         """
         Constructor for MetricsCachingYaml class
 
@@ -23,40 +23,40 @@ class MetricsCacheYaml(MetricCacheAbstract):
         model_name: str
             Name of the model in use
 
-        config_file: str
+        config_file_path: str
             Path of yaml file to be parsed
 
         """
         try:
-            os.path.exists(config_file)
+            os.path.exists(config_file_path)
         except Exception as exc:
-            raise merrors.MetricsCacheTypeError(f"File {config_file} does not exist: {exc}")
+            raise merrors.MetricsCacheTypeError(f"File {config_file_path} does not exist: {exc}")
 
-        super().__init__(request_ids=request_ids, model_name=model_name, config_file=config_file)
+        super().__init__(request_ids=request_ids, model_name=model_name, config_file_path=config_file_path)
         self._parse_yaml_file()
 
     def _parse_yaml_file(self) -> None:
         """
         Parse yaml file using PyYAML library.
         """
-        if not self.config_file:
+        if not self.config_file_path:
             raise merrors.MetricsCacheTypeError("Config file not initialized")
 
         try:
-            stream = open(self.config_file, "r", encoding="utf-8")
+            stream = open(self.config_file_path, "r", encoding="utf-8")
             self._parsed_file = yaml.safe_load(stream)
-            logging.info(f"Successfully loaded {self.config_file}.")
+            logging.info(f"Successfully loaded {self.config_file_path}.")
         except yaml.YAMLError as exc:
             raise merrors.MetricsCachePyYamlError(
-                f"Error parsing file {self.config_file}: {exc}"
+                f"Error parsing file {self.config_file_path}: {exc}"
             )
         except IOError as io_err:
             raise merrors.MetricsCacheIOError(
-                f"Error reading file {self.config_file}: {io_err}"
+                f"Error reading file {self.config_file_path}: {io_err}"
             )
         except Exception as err:
             raise merrors.GeneralMetricsCacheError(
-                f"General error found in file {self.config_file}: {err}"
+                f"General error found in file {self.config_file_path}: {err}"
             )
 
     def _parse_metrics_section(self, metrics_section="model_metrics") -> dict:

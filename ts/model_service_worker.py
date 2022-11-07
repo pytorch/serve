@@ -13,7 +13,7 @@ import sys
 import uuid
 
 from ts.arg_parser import ArgParser
-from ts.metrics.metric_cache_yaml import MetricsCacheYaml
+from ts.metrics.metric_cache_yaml_impl import MetricsCacheYamlImpl
 from ts.model_loader import ModelLoaderFactory
 from ts.protocol.otf_message_handler import create_load_model_response, retrieve_msg
 
@@ -62,10 +62,13 @@ class TorchModelServiceWorker(object):
         logging.info("Listening on port: %s", s_name)
         socket_family = socket.AF_INET if s_type == "tcp" else socket.AF_UNIX
         self.sock = socket.socket(socket_family, socket.SOCK_STREAM)
-        TorchModelServiceWorker.metrics_config = metrics_config
+        self.metrics = MetricsCacheYamlImpl(config_file_path=metrics_config)
+        if self.metrics:
+            self.metrics.initialize_cache()
+        else:
+            logging.info("Failed to initialize metrics. Starting worker without metrics")
 
-    @staticmethod
-    def load_model(load_model_request):
+    def load_model(self, load_model_request):
         """
         Expected command
         {
@@ -110,12 +113,6 @@ class TorchModelServiceWorker(object):
             if "limitMaxImagePixels" in load_model_request:
                 limit_max_image_pixels = bool(load_model_request["limitMaxImagePixels"])
 
-            metrics = MetricsCacheYaml(
-                uuid.uuid4(),
-                model_name=model_name,
-                config_file=TorchModelServiceWorker.metrics_config,
-            )
-
             model_loader = ModelLoaderFactory.get_model_loader()
             service = model_loader.load(
                 model_name,
@@ -125,7 +122,7 @@ class TorchModelServiceWorker(object):
                 batch_size,
                 envelope,
                 limit_max_image_pixels,
-                metrics,
+                self.metrics
             )
 
             logging.debug("Model %s loaded.", model_name)

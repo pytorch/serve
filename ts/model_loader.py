@@ -8,7 +8,7 @@ import os
 from abc import ABCMeta, abstractmethod
 from builtins import str
 
-from ts.metrics.metric_cache_yaml import MetricsCacheYaml
+from ts.metrics.metric_cache_yaml_impl import MetricsCacheYamlImpl
 from ts.service import Service
 
 from .utils.util import list_classes_from_module
@@ -72,7 +72,7 @@ class TsModelLoader(ModelLoader):
         batch_size,
         envelope=None,
         limit_max_image_pixels=True,
-        metrics: MetricsCacheYaml = None,
+        metrics: MetricsCacheYamlImpl = None,
     ):
         """
         Load TorchServe 1.0 model from file.
@@ -84,11 +84,10 @@ class TsModelLoader(ModelLoader):
         :param batch_size:
         :param envelope:
         :param limit_max_image_pixels:
-        :param metrics: MetricCacheYaml object
+        :param metrics: MetricsCacheYamlImpl object
         :return:
         """
         logging.debug("Loading model - working dir: %s", os.getcwd())
-
         manifest_file = os.path.join(model_dir, "MAR-INF", "MANIFEST.json")
         manifest = None
         if os.path.exists(manifest_file):
@@ -120,6 +119,7 @@ class TsModelLoader(ModelLoader):
                 gpu_id,
                 batch_size,
                 limit_max_image_pixels,
+                metrics,
             )
 
         envelope_class = None
@@ -146,9 +146,9 @@ class TsModelLoader(ModelLoader):
             gpu_id,
             batch_size,
             limit_max_image_pixels,
+            metrics,
         )
         service.context.metrics = metrics
-        service.context.metrics.parse_yaml_to_cache()
         initialize_fn(service.context)
 
         return service

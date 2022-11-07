@@ -11,6 +11,7 @@ import ts.metrics.metric_cache_errors as merrors
 from ts.metrics.dimension import Dimension
 from ts.metrics.metric import Metric
 from ts.metrics.metric_cache_yaml import MetricsCacheYaml
+from ts.metrics.metric_cache_yaml_impl import MetricsCacheYamlImpl
 from ts.metrics.metric_type_enum import MetricTypes
 from ts.metrics.metrics_store import MetricsStore
 from ts.service import emit_metrics
@@ -20,381 +21,196 @@ dir_path = os.path.dirname(os.path.realpath(__file__))
 
 class TestAddMetrics:
     def test_add_metric_passing(self):
-        metrics_cache_obj = MetricsCacheYaml(
-            uuid.uuid4(), "ModelNameExample", os.path.join(dir_path, "metrics.yaml")
-        )
+        metrics_cache_obj = MetricsCacheYamlImpl(os.path.join(dir_path, "metrics.yaml"))
         metrics_cache_obj.add_metric(
-            metric_name="new_metric",
-            value=123.5,
+            metric_name="test_add_metric_passing",
             unit="ms",
-            dimensions=["ModelName", "host"],
+            dimension_names=["ModelName", "Host"],
             metric_type=MetricTypes.GAUGE,
         )
+        assert MetricTypes.GAUGE in metrics_cache_obj.cache.keys()
+        assert "test_add_metric_passing" in metrics_cache_obj.cache[MetricTypes.GAUGE].keys()
 
-        assert (
-            "[gauge]-[new_metric]-[ModelName:model_name,host:example_host_name,Level:host]"
-            in metrics_cache_obj.cache
-        )
-
-    def test_add_metric_duplicate_passing(self):
-        metrics_cache_obj = MetricsCacheYaml(
-            uuid.uuid4(), "ModelNameExample", os.path.join(dir_path, "metrics.yaml")
-        )
+    def test_add_metric_duplicate_passing(self, caplog):
+        caplog.set_level("INFO")
+        metrics_cache_obj = MetricsCacheYamlImpl(os.path.join(dir_path, "metrics.yaml"))
         metrics_cache_obj.add_metric(
-            metric_name="new_metric",
-            value=123.5,
+            metric_name="test_add_metric_duplicate_passing",
             unit="ms",
-            dimensions=["ModelName"],
+            dimension_names=["ModelName"],
             metric_type=MetricTypes.GAUGE,
         )
-
-        assert (
-            "[gauge]-[new_metric]-[ModelName:model_name,Level:host]"
-            in metrics_cache_obj.cache
-        )
-
-        metric = metrics_cache_obj.get_metric(
-            MetricTypes.GAUGE, "new_metric", "ModelName:model_name,Level:host"
-        )
-        assert metric.value == 123.5
-
+        assert MetricTypes.GAUGE in metrics_cache_obj.cache.keys()
+        assert "test_add_metric_duplicate_passing" in metrics_cache_obj.cache[MetricTypes.GAUGE].keys()
+        metric = metrics_cache_obj.get_metric("test_add_metric_duplicate_passing", MetricTypes.GAUGE)
+        metric.add_or_update(123.5, ["dummy_model"])
+        assert "123.5" in caplog.text
         metrics_cache_obj.add_metric(
-            metric_name="new_metric",
+            metric_name="test_add_metric_duplicate_passing",
             unit="ms",
-            dimensions=["ModelName"],
-            metric_type=MetricTypes.GAUGE,
-            value=42.5,
-        )
-        metric = metrics_cache_obj.get_metric(
-            MetricTypes.GAUGE, "new_metric", "ModelName:model_name,Level:host"
-        )
-        assert metric.value == 42.5
-
-    def test_add_metric_dimensions_correct_obj_pass(self):
-        metrics_cache_obj = MetricsCacheYaml(
-            uuid.uuid4(), "ModelNameExample", os.path.join(dir_path, "metrics.yaml")
-        )
-        metrics_cache_obj.add_metric(
-            metric_name="new_metric",
-            value=123.5,
-            unit="ms",
-            dimensions=[Dimension("hello", "world")],
+            dimension_names=["ModelName"],
             metric_type=MetricTypes.GAUGE,
         )
-
-        for key, metric in metrics_cache_obj.cache.items():
-            for dimensions_list in metric.dimensions:
-                assert isinstance(dimensions_list, Dimension)
-
-    def test_add_metric_dimensions_correct_obj_fail(self):
-        metrics_cache_obj = MetricsCacheYaml(
-            uuid.uuid4(), "ModelNameExample", os.path.join(dir_path, "metrics.yaml")
-        )
-
-        with pytest.raises(merrors.MetricsCacheTypeError) as exc_info:
-            metrics_cache_obj.add_metric(
-                metric_name="new_metric",
-                value=123.5,
-                unit="ms",
-                dimensions=Dimension("hello", "world"),
-                metric_type=MetricTypes.GAUGE,
-            )
-        assert (
-            str(exc_info.value) == "Dimensions has to be a list of string "
-            "(which will be converted to list of Dimensions)/list of "
-            "Dimension objects and cannot be empty/None"
-        )
+        metric = metrics_cache_obj.get_metric("test_add_metric_duplicate_passing", MetricTypes.GAUGE)
+        metric.add_or_update(42.5, ["dummy_model"])
+        assert "42.5" in caplog.text
 
     def test_add_metric_fail_metric_name(self):
-        metrics_cache_obj = MetricsCacheYaml(
-            uuid.uuid4(), "ModelNameExample", os.path.join(dir_path, "metrics.yaml")
-        )
+        metrics_cache_obj = MetricsCacheYamlImpl(os.path.join(dir_path, "metrics.yaml"))
         with pytest.raises(merrors.MetricsCacheTypeError) as exc_info:
             metrics_cache_obj.add_metric(
                 metric_name=42,
-                value=123.5,
                 unit="ms",
-                dimensions=["model_name", "host"],
+                dimension_names=["ModelName", "Host"],
                 metric_type=MetricTypes.GAUGE,
             )
         assert (
             str(exc_info.value) == "metric_name must be a str, "
             "unit must be a str, "
             "dimensions should be a list of "
-            "Dimension objects/None, metric type must be a MetricTypes enum, "
-            "value must be a int/float"
+            "Dimension objects/None, metric type must be a MetricTypes enum"
         )
 
     def test_add_metric_fail_unit(self):
-        metrics_cache_obj = MetricsCacheYaml(
-            uuid.uuid4(), "ModelNameExample", os.path.join(dir_path, "metrics.yaml")
-        )
+        metrics_cache_obj = MetricsCacheYamlImpl(os.path.join(dir_path, "metrics.yaml"))
         with pytest.raises(merrors.MetricsCacheTypeError) as exc_info:
             metrics_cache_obj.add_metric(
-                metric_name="bar",
-                value=123.5,
+                metric_name="test_add_metric_fail_unit",
                 unit=["foo"],
-                dimensions=["model_name", "host"],
+                dimension_names=["ModelName", "Host"],
                 metric_type=MetricTypes.GAUGE,
             )
         assert (
             str(exc_info.value) == "metric_name must be a str, "
             "unit must be a str, "
             "dimensions should be a list of "
-            "Dimension objects/None, metric type must be a MetricTypes enum, "
-            "value must be a int/float"
+            "Dimension objects/None, metric type must be a MetricTypes enum"
         )
 
     def test_add_metric_fail_dimensions(self):
-        metrics_cache_obj = MetricsCacheYaml(
-            uuid.uuid4(), "ModelNameExample", os.path.join(dir_path, "metrics.yaml")
-        )
+        metrics_cache_obj = MetricsCacheYamlImpl(os.path.join(dir_path, "metrics.yaml"))
         with pytest.raises(merrors.MetricsCacheTypeError) as exc_info:
             metrics_cache_obj.add_metric(
-                metric_name="bar",
-                value=123.5,
+                metric_name="test_add_metric_fail_dimensions",
                 unit="ms",
-                dimensions="sink",
+                dimension_names="ModelName",
                 metric_type=MetricTypes.GAUGE,
             )
         assert (
-            str(exc_info.value) == "Dimensions has to be a list of string "
-            "(which will be converted to list of Dimensions)/list of Dimension"
-            " objects and cannot be empty/None"
+            str(exc_info.value) == "`dimension_names` should be a list of dimension name strings."
         )
 
     def test_add_metric_fail_type(self):
-        metrics_cache_obj = MetricsCacheYaml(
-            uuid.uuid4(), "ModelNameExample", os.path.join(dir_path, "metrics.yaml")
-        )
+        metrics_cache_obj = MetricsCacheYamlImpl(os.path.join(dir_path, "metrics.yaml"))
         with pytest.raises(merrors.MetricsCacheTypeError) as exc_info:
             metrics_cache_obj.add_metric(
-                metric_name="bar",
-                value=123.5,
+                metric_name="test_add_metric_fail_type",
                 unit="ms",
-                dimensions=["model_name", "host"],
+                dimension_names=["ModelName", "Host"],
                 metric_type={"key": 42},
             )
         assert (
             str(exc_info.value) == "metric_name must be a str, "
             "unit must be a str, "
             "dimensions should be a list of "
-            "Dimension objects/None, metric type must be a MetricTypes enum, "
-            "value must be a int/float"
+            "Dimension objects/None, metric type must be a MetricTypes enum"
         )
 
     def test_add_metric_fail_type_unit(self):
-        metrics_cache_obj = MetricsCacheYaml(
-            uuid.uuid4(), "ModelNameExample", os.path.join(dir_path, "metrics.yaml")
-        )
+        metrics_cache_obj = MetricsCacheYamlImpl(os.path.join(dir_path, "metrics.yaml"))
         with pytest.raises(merrors.MetricsCacheTypeError) as exc_info:
             metrics_cache_obj.add_metric(
                 metric_name="bar",
-                value=123.5,
                 unit=["ms"],
-                dimensions=["model_name", "host"],
+                dimension_names=["model_name", "host"],
                 metric_type={"key": 42},
             )
         assert (
             str(exc_info.value) == "metric_name must be a str, "
             "unit must be a str, "
             "dimensions should be a list of "
-            "Dimension objects/None, metric type must be a MetricTypes enum, "
-            "value must be a int/float"
+            "Dimension objects/None, metric type must be a MetricTypes enum"
         )
 
 
 class TestGetMetrics:
     def test_get_metric_passing(self):
-        metrics_cache_obj = MetricsCacheYaml(
-            uuid.uuid4(), "ModelNameExample", os.path.join(dir_path, "metrics.yaml")
-        )
+        metrics_cache_obj = MetricsCacheYamlImpl(os.path.join(dir_path, "metrics.yaml"))
         metrics_cache_obj.add_metric(
-            metric_name="new_metric",
-            value=123.5,
+            metric_name="test_get_metric_passing",
             unit="ms",
-            dimensions=["ModelName", "host"],
+            dimension_names=["ModelName", "Host"],
             metric_type=MetricTypes.GAUGE,
         )
-
         temp_metrics = metrics_cache_obj.get_metric(
+            "test_get_metric_passing",
             MetricTypes.GAUGE,
-            "new_metric",
-            "ModelName:model_name,host:example_host_name,Level:host",
         )
-        assert temp_metrics.name == "new_metric"
-        assert isinstance(temp_metrics.dimensions, list)
+        assert temp_metrics.metric_name == "test_get_metric_passing"
+        assert isinstance(temp_metrics.dimension_names, list)
         assert temp_metrics.unit == "Milliseconds"
-        assert temp_metrics.value == 123.5
 
-    def test_get_metric_dimensions_list_passing(self):
-        metrics_cache_obj = MetricsCacheYaml(
-            uuid.uuid4(), "ModelNameExample", os.path.join(dir_path, "metrics.yaml")
-        )
+    def test_get_metric_invalid_metric_type(self):
+        metrics_cache_obj = MetricsCacheYamlImpl(os.path.join(dir_path, "metrics.yaml"))
         metrics_cache_obj.add_metric(
-            metric_name="new_metric",
-            value=123.5,
+            metric_name="test_get_metric_invalid_metric_type",
             unit="ms",
-            dimensions=["host", "ModelName", "Level"],
+            dimension_names=["ModelName", "Host"],
             metric_type=MetricTypes.GAUGE,
         )
-
-        temp_metrics = metrics_cache_obj.get_metric(
-            MetricTypes.GAUGE, "new_metric", ["host", "ModelName", "Level"]
-        )
-        assert temp_metrics.name == "new_metric"
-        assert isinstance(temp_metrics.dimensions, list)
-        assert temp_metrics.unit == "Milliseconds"
-        assert temp_metrics.value == 123.5
-
-    def test_get_metric_dimensions_list_nonexist(self):
-        metrics_cache_obj = MetricsCacheYaml(
-            uuid.uuid4(), "ModelNameExample", os.path.join(dir_path, "metrics.yaml")
-        )
-        metrics_cache_obj.add_metric(
-            metric_name="new_metric",
-            value=123.5,
-            unit="ms",
-            dimensions=["host", "ModelName", "Level"],
-            metric_type=MetricTypes.GAUGE,
-        )
-
         with pytest.raises(merrors.MetricsCacheKeyError) as exc_info:
-            metrics_cache_obj.get_metric(
-                MetricTypes.GAUGE, "new_metric", ["host", "ModelNames", "Level"]
-            )
-
+            metrics_cache_obj.get_metric("test_get_metric_invalid_metric_type", MetricTypes.COUNTER)
         assert (
             str(exc_info.value)
-            == "'Metric key [gauge]-[new_metric]-[host:example_host_name,Level:host] "
-            "does not exist.'"
-        )
-
-    def test_get_metric_dimensions_list_none(self):
-        metrics_cache_obj = MetricsCacheYaml(
-            uuid.uuid4(), "ModelNameExample", os.path.join(dir_path, "metrics.yaml")
-        )
-        metrics_cache_obj.add_metric(
-            metric_name="new_metric",
-            value=123.5,
-            unit="ms",
-            dimensions=["host", "ModelName", "Level"],
-            metric_type=MetricTypes.GAUGE,
-        )
-
-        with pytest.raises(merrors.MetricsCacheKeyError) as exc_info:
-            metrics_cache_obj.get_metric(MetricTypes.GAUGE, "new_metric", None)
-
-        assert (
-            str(exc_info.value) == "'Metric key [gauge]-[new_metric]-[None] "
-            "does not exist.'"
-        )
-
-    def test_get_metric_dimensions_list_empty(self):
-        metrics_cache_obj = MetricsCacheYaml(
-            uuid.uuid4(), "ModelNameExample", os.path.join(dir_path, "metrics.yaml")
-        )
-        metrics_cache_obj.add_metric(
-            metric_name="new_metric",
-            value=123.5,
-            unit="ms",
-            dimensions=["host", "ModelName", "Level"],
-            metric_type=MetricTypes.GAUGE,
-        )
-
-        with pytest.raises(merrors.MetricsCacheKeyError) as exc_info:
-            metrics_cache_obj.get_metric(MetricTypes.GAUGE, "new_metric", [])
-
-        assert (
-            str(exc_info.value) == "'Metric key [gauge]-[new_metric]-[] "
-            "does not exist.'"
-        )
-
-    def test_get_metric_fail_not_exist(self):
-        metrics_cache_obj = MetricsCacheYaml(
-            uuid.uuid4(), "ModelNameExample", os.path.join(dir_path, "metrics.yaml")
-        )
-        metrics_cache_obj.add_metric(
-            metric_name="new_metric",
-            value=123.5,
-            unit="ms",
-            dimensions=["ModelName", "host"],
-            metric_type=MetricTypes.GAUGE,
-        )
-
-        with pytest.raises(merrors.MetricsCacheKeyError) as exc_info:
-            metrics_cache_obj.get_metric(MetricTypes.GAUGE, "new_metric", "dim1:dim3")
-
-        assert (
-            str(exc_info.value)
-            == "'Metric key [gauge]-[new_metric]-[dim1:dim3] does not exist.'"
+            == '"Metric of type \'MetricTypes.COUNTER\' and '
+               'name \'test_get_metric_invalid_metric_type\' doesn\'t exist"'
         )
 
     def test_get_metric_fail_invalid_type(self):
-        metrics_cache_obj = MetricsCacheYaml(
-            uuid.uuid4(), "ModelNameExample", os.path.join(dir_path, "metrics.yaml")
-        )
+        metrics_cache_obj = MetricsCacheYamlImpl(os.path.join(dir_path, "metrics.yaml"))
         with pytest.raises(merrors.MetricsCacheTypeError) as exc_info:
-            metrics_cache_obj.get_metric(["type-new_metric-dim1:dim3"], None, None)
-
+            metrics_cache_obj.get_metric(["type-new_metric-dim1:dim3"], None)
         assert (
             str(exc_info.value)
             == "metric_type must be MetricTypes enum, metric_name must be a str."
         )
 
     def test_get_metric_fail_invalid_name(self):
-        metrics_cache_obj = MetricsCacheYaml(
-            uuid.uuid4(), "ModelNameExample", os.path.join(dir_path, "metrics.yaml")
-        )
+        metrics_cache_obj = MetricsCacheYamlImpl(os.path.join(dir_path, "metrics.yaml"))
         with pytest.raises(merrors.MetricsCacheTypeError) as exc_info:
-            metrics_cache_obj.get_metric(MetricTypes.GAUGE, None, None)
-
+            metrics_cache_obj.get_metric(None, MetricTypes.GAUGE)
         assert (
             str(exc_info.value)
             == "metric_type must be MetricTypes enum, metric_name must be a str."
         )
 
-    def test_get_metric_fail_invalid_dims(self):
-        metrics_cache_obj = MetricsCacheYaml(
-            uuid.uuid4(), "ModelNameExample", os.path.join(dir_path, "metrics.yaml")
-        )
-        with pytest.raises(merrors.MetricsCacheKeyError) as exc_info:
-            metrics_cache_obj.get_metric(MetricTypes.GAUGE, "something", None)
-
-        assert (
-            str(exc_info.value)
-            == "'Metric key [gauge]-[something]-[None] does not exist.'"
-        )
-
 
 class TestParseYaml:
     def test_parse_expected_yaml(self):
-        metrics_cache_obj = MetricsCacheYaml(
-            uuid.uuid4(), "ModelNameExample", os.path.join(dir_path, "metrics.yaml")
-        )
+        metrics_cache_obj = MetricsCacheYamlImpl(os.path.join(dir_path, "metrics.yaml"))
         expected_dict = {
             "dimensions": {
                 "ModelName": "model_name",
-                "host": "example_host_name",
+                "host": "host_name",
                 "Level": "host"
             },
             "ts_metrics": {
                 "counter": [{
                     "name": {
                         "unit": "ms",
-                        "dimensions": ["model_name", "example_host_name"]
+                        "dimensions": ["model_name", "host_name"]
                     }
                 }],
                 "gauge": [{
                     "name": {
                         "unit": "ms",
-                        "dimensions": ["model_name", "example_host_name"]
+                        "dimensions": ["model_name", "host_name"]
                     }
                 }],
                 "histogram": [{
                     "name": {
                         "unit": "ms",
-                        "dimensions": ["model_name", "example_host_name"]
+                        "dimensions": ["model_name", "host_name"]
                     }
                 }]
             },
@@ -407,7 +223,7 @@ class TestParseYaml:
                 }, {
                     "NumberOfMetrics": {
                         "unit": "count",
-                        "dimensions": ["model_name", "example_host_name"]
+                        "dimensions": ["model_name", "host_name"]
                     }
                 }],
                 "gauge": [{
@@ -427,47 +243,36 @@ class TestParseYaml:
         assert expected_dict == metrics_cache_obj._parsed_file
 
     def test_yaml_file_passing(self):
-        metrics_cache_obj = MetricsCacheYaml(
-            uuid.uuid4(), "ModelNameExample", os.path.join(dir_path, "metrics.yaml")
-        )
-
-        assert metrics_cache_obj.config_file == os.path.join(dir_path, "metrics.yaml")
+        metrics_cache_obj = MetricsCacheYamlImpl(os.path.join(dir_path, "metrics.yaml"))
+        assert metrics_cache_obj.config_file_path == os.path.join(dir_path, "metrics.yaml")
 
     def test_yaml_file_none_fail(self):
         with pytest.raises(merrors.MetricsCacheTypeError) as exc_info:
-            MetricsCacheYaml(None, None, None)
+            MetricsCacheYamlImpl(None)
         assert "stat: path should be string, bytes, os.PathLike or integer, not NoneType" in str(exc_info.value)
 
     def test_yaml_file_non_yaml_extension_fail(self):
         with pytest.raises(merrors.MetricsCachePyYamlError) as exc_info:
-            MetricsCacheYaml(
-                uuid.uuid4(), "ModelNameExample", os.path.join(dir_path, "metric_cache_unit_test.py")
-            )
+            MetricsCacheYamlImpl(os.path.join(dir_path, "metric_cache_unit_test.py"))
         assert "Error parsing file" in str(exc_info.value)
 
     def test_yaml_file_non_exist_fail(self):
         with pytest.raises(merrors.MetricsCacheIOError) as exc_info:
-            MetricsCacheYaml(uuid.uuid4(), "ModelNameExample", os.path.join(dir_path, "doesnt_exist.yaml"))
+            MetricsCacheYamlImpl(os.path.join(dir_path, "doesnt_exist.yaml"))
         assert "No such file or directory" in str(exc_info.value)
 
 
 class TestParseModelMetrics:
     def test_pass_parse_model_metrics(self):
-        metrics_cache_obj = MetricsCacheYaml(
-            uuid.uuid4(), "ModelNameExample", os.path.join(dir_path, "metrics.yaml")
-        )
+        metrics_cache_obj = MetricsCacheYamlImpl(os.path.join(dir_path, "metrics.yaml"))
         assert isinstance(metrics_cache_obj._parse_metrics_section(), dict)
 
     def test_pass_parse_ts_metrics(self):
-        metrics_cache_obj = MetricsCacheYaml(
-            uuid.uuid4(), "ModelNameExample", os.path.join(dir_path, "metrics.yaml")
-        )
+        metrics_cache_obj = MetricsCacheYamlImpl(os.path.join(dir_path, "metrics.yaml"))
         assert isinstance(metrics_cache_obj._parse_metrics_section("ts_metrics"), dict)
 
     def test_fail_parse_model_metrics(self):
-        metrics_cache_obj = MetricsCacheYaml(
-            uuid.uuid4(), "ModelNameExample", os.path.join(dir_path, "metrics_wo_model_metrics.yaml")
-        )
+        metrics_cache_obj = MetricsCacheYamlImpl(os.path.join(dir_path, "metrics_wo_model_metrics.yaml"))
         with pytest.raises(merrors.MetricsCacheKeyError) as exc_info:
             metrics_cache_obj._parse_metrics_section()
         assert (
@@ -477,9 +282,7 @@ class TestParseModelMetrics:
         )
 
     def test_fail_parse_none(self):
-        metrics_cache_obj = MetricsCacheYaml(
-            uuid.uuid4(), "ModelNameExample", os.path.join(dir_path, "metrics_wo_model_metrics.yaml")
-        )
+        metrics_cache_obj = MetricsCacheYamlImpl(os.path.join(dir_path, "metrics_wo_model_metrics.yaml"))
         with pytest.raises(merrors.MetricsCacheKeyError) as exc_info:
             metrics_cache_obj._parse_metrics_section(None)
         assert (
@@ -489,9 +292,7 @@ class TestParseModelMetrics:
         )
 
     def test_fail_parse_missing_fields(self):
-        metrics_cache_obj = MetricsCacheYaml(
-            uuid.uuid4(), "ModelNameExample", os.path.join(dir_path, "metrics_model_empty.yaml")
-        )
+        metrics_cache_obj = MetricsCacheYamlImpl(os.path.join(dir_path, "metrics_model_empty.yaml"))
         assert metrics_cache_obj._parse_metrics_section() is None
 
 
@@ -504,7 +305,7 @@ class TestYamlCacheUtil:
         metrics_cache_obj._yaml_to_cache_util(model_metrics_table)
         assert list(metrics_cache_obj.cache.keys()) == [
             "[counter]-[InferenceTimeInMS]-[ModelName:model_name,Level:host]",
-            "[counter]-[NumberOfMetrics]-[ModelName:model_name,host:example_host_name,Level:host]",
+            "[counter]-[NumberOfMetrics]-[ModelName:model_name,host:host_name,Level:host]",
             "[gauge]-[GaugeModelMetricNameExample]-[ModelName:model_name,Level:host]",
             "[histogram]-[HistogramModelMetricNameExample]-[ModelName:model_name,Level:host]",
         ]
@@ -517,9 +318,9 @@ class TestYamlCacheUtil:
         metrics_cache_obj._yaml_to_cache_util(model_metrics_table)
         assert list(metrics_cache_obj.cache.keys()) == [
             "[counter]-[InferenceTimeInMS]-[ModelName:ModelNameExample,Level:host]",
-            "[counter]-[NumberOfMetrics]-[model_name:example_model_name,host:example_host_name,"
+            "[counter]-[NumberOfMetrics]-[model_name:model_name,host:host_name,"
             "ModelName:ModelNameExample,Level:host]",
-            "[gauge]-[GaugeModelMetricNameExample]-[ModelName:my_tc,Level:Model]",
+            "[gauge]-[GaugeModelMetricNameExample]-[ModelName:ModelName,Level:level]",
             "[histogram]-[HistogramModelMetricNameExample]-[ModelName:ModelNameExample,Level:host]",
             "[histogram]-[AnotherHistogram]-[ModelName:ModelNameExample,Level:host]",
         ]
@@ -570,7 +371,7 @@ class TestYamlCache:
         metrics_cache_obj.parse_yaml_to_cache()
         assert list(metrics_cache_obj.cache.keys()) == [
             "[counter]-[InferenceTimeInMS]-[ModelName:model_name,Level:host]",
-            "[counter]-[NumberOfMetrics]-[ModelName:model_name,host:example_host_name,Level:host]",
+            "[counter]-[NumberOfMetrics]-[ModelName:model_name,host:host_name,Level:host]",
             "[gauge]-[GaugeModelMetricNameExample]-[ModelName:model_name,Level:host]",
             "[histogram]-[HistogramModelMetricNameExample]-[ModelName:model_name,Level:host]",
         ]
@@ -623,7 +424,7 @@ class TestManualAddMetricDimensions:
         assert list(metrics_cache_obj.cache.keys()) == [
             "[counter]-[TempName]-[ModelName:model_name,Level:host]",
             "[counter]-[InferenceTimeInMS]-[ModelName:model_name,Level:host]",
-            "[counter]-[NumberOfMetrics]-[ModelName:model_name,host:example_host_name,Level:host]",
+            "[counter]-[NumberOfMetrics]-[ModelName:model_name,host:host_name,Level:host]",
             "[gauge]-[GaugeModelMetricNameExample]-[ModelName:model_name,Level:host]",
             "[histogram]-[HistogramModelMetricNameExample]-[ModelName:model_name,Level:host]",
         ]
@@ -959,7 +760,7 @@ class TestEmitMetrics:
             "Level:host|#hostname:" in caplog.text
         )
         assert (
-            "[METRICS]NumberOfMetrics.Count:2.2|#ModelName:model_name,host:example_host_name,"
+            "[METRICS]NumberOfMetrics.Count:2.2|#ModelName:model_name,host:host_name,"
             "Level:host|#hostname:" in caplog.text
         )
         assert (
@@ -986,7 +787,7 @@ class TestEmitMetrics:
         )
         assert (
             "[METRICS]NumberOfMetrics.Count:2.2|#ModelName:model_name,"
-            "host:example_host_name,Level:host|#hostname:" in caplog.text
+            "host:host_name,Level:host|#hostname:" in caplog.text
         )
         assert (
             "[METRICS]GaugeModelMetricNameExample.Milliseconds:3.3|#ModelName:model_name,"

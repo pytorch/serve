@@ -14,7 +14,7 @@ from ts.metrics.metric_type_enum import MetricTypes
 
 
 class MetricCacheAbstract(metaclass=abc.ABCMeta):
-    def __init__(self, request_ids, model_name, config_file):
+    def __init__(self, request_ids, model_name, config_file_path):
         """
         Constructor for MetricsCaching class
 
@@ -23,15 +23,15 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
 
         Parameters
         ----------
-        config_file: str
+        config_file_path: str
             Name of file to be parsed
 
         """
-        self.cache = {}
+        self.cache = dict()
         self.store = []
         self.request_ids = request_ids
         self.model_name = model_name
-        self.config_file = config_file
+        self.config_file_path = config_file_path
 
     @staticmethod
     def _check_matching_dims(key, dims) -> bool:

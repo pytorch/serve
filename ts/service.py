@@ -30,6 +30,7 @@ class Service(object):
         gpu,
         batch_size,
         limit_max_image_pixels=True,
+        metrics=None,
     ):
         self._context = Context(
             model_name,
@@ -39,6 +40,7 @@ class Service(object):
             gpu,
             ts.__version__,
             limit_max_image_pixels,
+            metrics,
         )
         self._entry_point = entry_point
 

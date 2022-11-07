@@ -1,6 +1,6 @@
 dimensions:
   ModelName: &ModelName "model_name"
-  host: &host "example_host_name"
+  host: &host "host_name"
   Level: &Level "host"
 
 ts_metrics:
