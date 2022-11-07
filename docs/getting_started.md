@@ -7,20 +7,20 @@
     Note: For Conda, Python 3.8 is required to run Torchserve.
 
     #### For Debian Based Systems/ MacOS
-    
+
      - For CPU
 
         ```bash
         python ./ts_scripts/install_dependencies.py
         ```
-        
+
      - For GPU with Cuda 10.2. Options are `cu92`, `cu101`, `cu102`, `cu111`, `cu113`, `cu116`
 
        ```bash
        python ./ts_scripts/install_dependencies.py --cuda=cu102
        ```
-       
-     Note: PyTorch 1.9+ will not support cu92 and cu101. So TorchServe only supports cu92 and cu101 up to PyTorch 1.8.1.  
+
+     Note: PyTorch 1.9+ will not support cu92 and cu101. So TorchServe only supports cu92 and cu101 up to PyTorch 1.8.1.
 
     #### For Windows
 
@@ -28,12 +28,12 @@
 
 2. Install torchserve, torch-model-archiver and torch-workflow-archiver
 
-    For [Conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install)  
+    For [Conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install)
     Note: Conda packages are not supported for Windows. Refer to the documentation [here](./torchserve_on_win_native.md).
     ```
     conda install torchserve torch-model-archiver torch-workflow-archiver -c pytorch
     ```
-   
+
     For Pip
     ```
     pip install torchserve torch-model-archiver torch-workflow-archiver
@@ -98,7 +98,7 @@ To test the model server, send a request to the server's `predictions` API. Torc
 #### Using GRPC APIs through python client
 
  - Install grpc python dependencies :
- 
+
 ```bash
 pip install -U grpcio protobuf grpcio-tools
 ```
@@ -125,7 +125,7 @@ As an example we'll download the below cute kitten with
 curl -O https://raw.githubusercontent.com/pytorch/serve/master/docs/images/kitten_small.jpg
 ```
 
-And then call the prediction endpoint 
+And then call the prediction endpoint
 
 ```bash
 curl http://127.0.0.1:8080/predictions/densenet161 -T kitten_small.jpg
@@ -171,29 +171,6 @@ All the logs you've seen as output to stdout related to model registration, mana
 High level performance data like Throughput or Percentile Precision can be generated with [Benchmark](https://github.com/pytorch/serve/tree/master/benchmarks/README.md) and visualized in a report.
 
 
-### Install TorchServe for development
+### Contributing
 
-If you plan to develop with TorchServe and change some source code, you must install it from source code.
-
-Ensure that you have `python3` installed, and the user has access to the site-packages or `~/.local/bin` is added to the `PATH` environment variable.
-
-Run the following script from the top of the source directory.
-
-NOTE: This script uninstalls existing `torchserve`, `torch-model-archiver` and `torch-workflow-archiver` installations
-
-#### For Debian Based Systems/ MacOS
-
-```
-python ./ts_scripts/install_dependencies.py --environment=dev
-python ./ts_scripts/install_from_src.py --environment=dev
-```
-
-Use `--cuda` flag with `install_dependencies.py` for installing cuda version specific dependencies. Possible values are `cu111`, `cu102`, `cu101`, `cu92`
-
-#### For Windows
-
-Refer to the documentation [here](./torchserve_on_win_native.md).
-
-For information about the model archiver, see [detailed documentation](https://github.com/pytorch/serve/tree/master/model-archiver/README.md).
-
-
+If you plan to develop with TorchServe and change some source code, follow the [contributing guide](https://github.com/pytorch/serve/blob/master/CONTRIBUTING.md).
