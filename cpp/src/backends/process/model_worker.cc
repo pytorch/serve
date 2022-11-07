@@ -8,8 +8,7 @@ void SocketServer::Initialize(
     const std::string& host_addr, const std::string& port_num,
     const torchserve::Manifest::RuntimeType& runtime_type,
     torchserve::DeviceType device_type, const std::string& model_dir) {
-  unsigned short socket_family = 0;
-  socket_family = AF_INET;
+  unsigned short socket_family = AF_INET;
   socket_type_ = socket_type;
   if (device_type != "cpu" && device_type != "gpu") {
     TS_LOGF(WARN, "Invalid device type: {}", device_type);
@@ -82,15 +81,15 @@ void SocketServer::Run() {
     name_len = sizeof(*srv_sock_address);
   }
 
-  if (bind(server_socket_, srv_sock_address, sizeof(*srv_sock_address)) < 0) {
+  if (bind(server_socket_, srv_sock_address, name_len) < 0) {
     TS_LOGF(FATAL, "Could not bind socket. errno: {}", errno);
   }
   if (listen(server_socket_, 1) == -1) {
     TS_LOGF(FATAL, "Failed to listen on socket. errno: {}", errno);
   }
   TS_LOG(INFO, "Socket bind successful");
-  TS_LOGF(INFO, "[PID] {}", getpid());
-  TS_LOG(INFO, "Torchserve worker started.");
+  TS_LOGF(INFO, "[PID]{}", getpid());
+  TS_LOG(INFO, "Torch worker started.");
 
   while (true) {
     socklen_t len = sizeof(client_sock_address);

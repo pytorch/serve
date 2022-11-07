@@ -113,6 +113,10 @@ class BuildPy(setuptools.command.build_py.build_py):
         self.run_command('build_frontend')
         setuptools.command.build_py.build_py.run(self)
 
+        sys.stderr.flush()
+        self.run_command('build_cpp')
+        setuptools.command.build_py.build_py.run(self)
+
 
 class BuildPlugins(Command):
     description = 'Build Model Server Plugins'
@@ -156,6 +160,10 @@ class BuildCPP(setuptools.command.build_py.build_py):
     source_lib_dir = os.path.abspath(
         'cpp/_build/libs')
     dest_lib_dir = os.path.abspath('ts/cpp/lib')
+    source_resource_dir = os.path.abspath(
+        'cpp/_build/resources')
+    dest_resource_dir = os.path.abspath(
+        'ts/cpp/resources')
 
     # noinspection PyMethodMayBeStatic
     def run(self):
@@ -164,7 +172,7 @@ class BuildCPP(setuptools.command.build_py.build_py):
         :return:
         """
         cpp_dir = os.path.abspath('.') + '/ts/cpp/'
-        if os.path.isdir(cpp_dir):
+        if os.path.exists(cpp_dir):
             rmtree(cpp_dir)
 
         try:
@@ -172,8 +180,10 @@ class BuildCPP(setuptools.command.build_py.build_py):
                                   shell=True)
         except OSError:
             assert 0, "build failed"
+
         copytree(self.source_bin_dir, self.dest_bin_dir)
         copytree(self.source_lib_dir, self.dest_lib_dir)
+        copytree(self.source_resource_dir, self.dest_resource_dir)
 
 
 if __name__ == '__main__':
@@ -208,6 +218,7 @@ if __name__ == '__main__':
         cmdclass={
             'build_frontend': BuildFrontEnd,
             'build_plugins': BuildPlugins,
+            'build_cpp': BuildCPP,
             'build_py': BuildPy,
         },
         install_requires=requirements,

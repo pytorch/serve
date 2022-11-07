@@ -45,7 +45,7 @@ class Logger {
 
   template <typename... Args>
   static void Log(LogLevel level, const char *filename, unsigned int linenumber,
-                  const char *function_name, Args &&...args) {
+                  const char *function_name, Args &&... args) {
     FB_LOG_RAW(Logger::GetInstance(), ConvertTSLogLevelToFollyLogLevel(level),
                filename, linenumber, function_name,
                std::forward<Args>(args)...);
@@ -54,7 +54,7 @@ class Logger {
   template <typename Arg, typename... Args>
   static void Log(LogLevel level, const char *filename, unsigned int linenumber,
                   const char *function_name, const char *fmt, Arg &&arg,
-                  Args &&...args) {
+                  Args &&... args) {
     FB_LOGF_RAW(Logger::GetInstance(), ConvertTSLogLevelToFollyLogLevel(level),
                 filename, linenumber, function_name, fmt,
                 std::forward<Arg>(arg), std::forward<Args>(args)...);
