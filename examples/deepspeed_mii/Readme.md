@@ -11,11 +11,13 @@ Login into huggingface hub with token by running the below command
 ```bash
 huggingface-cli login
 ```
+
 paste the token generated from huggingface hub.
 
 ```bash
 python Download_deepseed_mii_models.py --model_path downloaded_model --model_name CompVis/stable-diffusion-v1-4 --revision main
 ```
+
 The script prints the path where the model is downloaded as below.
 
 `downloaded_model/models--bert-base-uncased/snapshots/5546055f03398095e385d7dc625e636cc8910bf2/`
@@ -45,6 +47,8 @@ Navigate up to `deepspeed_mii` directory.
 torch-model-archiver --model-name stable-diffusion --version 1.0 --handler DeepSpeed_mii_handler.py --extra-files model.zip -r requirements.txt
 ```
 
+DeepSpeed-MII by default support 2 kinds of deployments AzureML and Local deployment. The model optimized by deepspeed MII is served via AzureML endpoint for Azure and gRPC endpoint for local deployment. For Torchserve the internal gRPC server is byepassed and the optimzed model in loaded in handler.
+
 **_NOTE:_** Refer `deepspeed_mii_stable_diffusion.py` file for using DeepSpeed-MII without the gRPC server.
 
 [Huggingface Stable Diffusion](https://huggingface.co/blog/stable_diffusion)
@@ -52,6 +56,10 @@ torch-model-archiver --model-name stable-diffusion --version 1.0 --handler DeepS
 ### Step 4: Start torchserve
 
 Update config.properties and start torchserve
+
+Increase `max_response_size` for image response.
+
+Refer: https://github.com/pytorch/serve/blob/master/docs/configuration.md#other-properties
 
 ```bash
 torchserve --start --ts-config config.properties
