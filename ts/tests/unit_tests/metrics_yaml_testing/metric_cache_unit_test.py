@@ -463,56 +463,6 @@ class TestAdditionalMetricMethods:
         assert "[METRICS]ErrorName.unit:72|#ModelName:hostname" in caplog.text
 
 
-class TestEmitMetrics:
-    def test_emit_metrics_list_none(self, caplog):
-        emit_metrics(None)
-        assert "Metrics 'None' are not valid." in caplog.text
-
-    def test_emit_metrics_list_empty(self, caplog):
-        metrics = []
-        emit_metrics(metrics)
-        assert "Metrics '[]' are not valid." in caplog.text
-
-    def test_emit_metrics_list_single(self, caplog):
-        caplog.set_level("INFO")
-        metrics = ["some_string"]
-        emit_metrics(metrics)
-        assert "'some_string' is not a valid Metric object." in caplog.text
-
-    def test_emit_metrics_list_multiple(self, caplog):
-        caplog.set_level("INFO")
-        metrics = ["some_string", "another_string"]
-        emit_metrics(metrics)
-        assert "'some_string' is not a valid Metric object." in caplog.text
-        assert "'another_string' is not a valid Metric object." in caplog.text
-
-    def test_emit_metrics_dict_empty(self, caplog):
-        emit_metrics({})
-        assert "Metrics '{}' are not valid." in caplog.text
-
-    def test_emit_metrics_dict_single(self, caplog):
-        caplog.set_level("INFO")
-        metrics = {"Metric_name": "Metric_STRING"}
-        emit_metrics(metrics)
-        assert "'Metric_STRING' is not a valid Metric object." in caplog.text
-
-    def test_emit_metrics_metric_single(self, caplog):
-        metric = Metric(
-            name="NewMetric",
-            value=12,
-            unit="ms",
-            dimensions=[Dimension("hello", "world")],
-            metric_method="counter",
-        )
-        metric.update(2.5)
-        caplog.set_level("INFO")
-        emit_metrics(metric)
-        assert (
-            "[METRICS]NewMetric.Milliseconds:14.5|#hello:world|#hostname:"
-            in caplog.text
-        )
-
-
 class TestIncrementDecrementMetrics:
     def test_add_counter_dimensions_empty(self, caplog):
         metrics_cache_obj = MetricsCacheYamlImpl(os.path.join(dir_path, "metrics.yaml"))
