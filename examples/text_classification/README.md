@@ -1,4 +1,4 @@
-# Text Classfication using TorchServe's default text_classifier handler
+# Text Classification using TorchServe's default text_classifier handler
 
 This is an example to create a text classification dataset and train a sentiment model. We have used the following torchtext example to train the model.
 
