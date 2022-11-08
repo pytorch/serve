@@ -28,7 +28,7 @@ class MetricsCacheYamlImpl(MetricCacheAbstract):
         except Exception as exc:
             raise merrors.MetricsCacheTypeError(f"Error loading {config_file_path} file: {exc}")
 
-        super().__init__(request_ids=None, model_name=None, config_file_path=config_file_path)
+        super().__init__(config_file_path=config_file_path)
         self._parse_yaml_file()
 
     def _parse_yaml_file(self) -> None:

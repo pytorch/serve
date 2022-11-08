@@ -13,7 +13,7 @@ from ts.metrics.metric_type_enum import MetricTypes
 
 
 class MetricCacheAbstract(metaclass=abc.ABCMeta):
-    def __init__(self, request_ids, model_name, config_file_path):
+    def __init__(self, config_file_path):
         """
         Constructor for MetricsCaching class
 
@@ -28,8 +28,8 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
         """
         self.cache = dict()
         self.store = []
-        self.request_ids = request_ids
-        self.model_name = model_name
+        self.request_ids = None
+        self.model_name = None
         self.config_file_path = config_file_path
 
     def _update_dims(self, idx, dimensions):
@@ -43,6 +43,28 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
             if "Level" not in dim_names:
                 dimensions.append(Dimension("Level", "Model"))
         return dimensions
+
+    def set_model_name(self, model_name):
+        self.model_name = model_name
+
+    def set_request_ids(self, request_ids):
+        self.request_ids = request_ids
+
+    def _get_req(self, idx):
+        """
+        Provide the request id dimension
+        Parameters
+        ----------
+        idx : int
+            request_id index in batch
+        """
+        # check if request id for the metric is given, if so use it else have a list of all.
+        req_id = self.request_ids
+        if isinstance(req_id, dict):
+            req_id = ','.join(self.request_ids.values())
+        if idx is not None and self.request_ids is not None and idx in self.request_ids:
+            req_id = self.request_ids[idx]
+        return req_id
 
     def add_counter(
         self,
@@ -65,14 +87,10 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
         dimensions: list
             list of dimension names for the metric
         """
-        dimensions = self._update_dims(idx, dimensions)
-        metric = self.add_metric(
-            metric_name=metric_name,
-            unit="count",
-            metric_type=MetricTypes.COUNTER,
-            dimension_names=[dim.name for dim in dimensions],
-        )
-        metric.add_or_update(value, [dim.value for dim in dimensions], idx)
+        req_id = self._get_req(idx)
+        dimensions = self._update_dims(req_id, dimensions)
+        metric = self._get_or_add_metric(metric_name, "count", dimensions, MetricTypes.COUNTER)
+        metric.add_or_update(value, [dim.value for dim in dimensions], req_id)
 
     def add_time(
         self,
@@ -106,14 +124,10 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
             raise merrors.MetricsCacheValueError(
                 "the unit for a timed metric should be one of ['ms', 's']"
             )
-        dimensions = self._update_dims(idx, dimensions)
-        metric = self.add_metric(
-            metric_name=metric_name,
-            unit=unit,
-            metric_type=metric_type,
-            dimension_names=[dim.name for dim in dimensions],
-        )
-        metric.add_or_update(value, [dim.value for dim in dimensions], idx)
+        req_id = self._get_req(idx)
+        dimensions = self._update_dims(req_id, dimensions)
+        metric = self._get_or_add_metric(metric_name, unit, dimensions, metric_type)
+        metric.add_or_update(value, [dim.value for dim in dimensions], req_id)
 
     def add_size(
         self,
@@ -147,14 +161,10 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
             raise ValueError(
                 "The unit for size based metric is one of ['MB','kB', 'GB', 'B']"
             )
-        dimensions = self._update_dims(idx, dimensions)
-        metric = self.add_metric(
-            metric_name=metric_name,
-            unit=unit,
-            metric_type=metric_type,
-            dimension_names=[dim.name for dim in dimensions],
-        )
-        metric.add_or_update(value, [dim.value for dim in dimensions], idx)
+        req_id = self._get_req(idx)
+        dimensions = self._update_dims(req_id, dimensions)
+        metric = self._get_or_add_metric(metric_name, unit, dimensions, metric_type)
+        metric.add_or_update(value, [dim.value for dim in dimensions], req_id)
 
     def add_percent(
         self,
@@ -181,14 +191,10 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
         metric_type MetricTypes
             Type of metric Counter, Gauge, Histogram
         """
-        dimensions = self._update_dims(idx, dimensions)
-        metric = self.add_metric(
-            metric_name=metric_name,
-            unit="percent",
-            metric_type=metric_type,
-            dimension_names=[dim.name for dim in dimensions],
-        )
-        metric.add_or_update(value, [dim.value for dim in dimensions], idx)
+        req_id = self._get_req(idx)
+        dimensions = self._update_dims(req_id, dimensions)
+        metric = self._get_or_add_metric(metric_name, "percent", dimensions, metric_type)
+        metric.add_or_update(value, [dim.value for dim in dimensions], req_id)
 
     def add_error(
         self,
@@ -210,13 +216,21 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
             list of dimension objects for the metric
         """
         dimensions = self._update_dims(None, dimensions)
-        metric = self.add_metric(
-            metric_name=metric_name,
-            unit="",
-            metric_type=MetricTypes.COUNTER,
-            dimension_names=[dim.name for dim in dimensions],
-        )
+        metric = self._get_or_add_metric(metric_name, "", dimensions, MetricTypes.COUNTER)
         metric.add_or_update(value, [dim.value for dim in dimensions])
+
+
+    def _get_or_add_metric(self, metric_name, unit, dimensions, metric_type):
+        try:
+            metric = self.get_metric(metric_name, metric_type)
+        except merrors.MetricsCacheKeyError:
+            metric = self.add_metric(
+                metric_name=metric_name,
+                unit=unit,
+                metric_type=metric_type,
+                dimension_names=[dim.name for dim in dimensions],
+            )
+        return metric
 
     def get_metric(
         self,

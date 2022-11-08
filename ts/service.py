@@ -7,10 +7,8 @@ from builtins import str
 
 import ts
 from ts.context import Context, RequestProcessor
-from ts.metrics.metric import Metric
-from ts.metrics.dimension import Dimension
 from ts.protocol.otf_message_handler import create_predict_response
-from ts.utils.util import PredictionException, get_req
+from ts.utils.util import PredictionException
 
 PREDICTION_METRIC = "PredictionTime"
 logger = logging.getLogger(__name__)
@@ -112,6 +110,8 @@ class Service(object):
 
         self.context.request_ids = req_id_map
         self.context.request_processor = headers
+        metrics = self.context.metrics
+        metrics.set_request_ids(req_id_map)
 
         start_time = time.time()
 
@@ -150,12 +150,7 @@ class Service(object):
             )
 
         duration = round((time.time() - start_time) * 1000, 2)
-        self.context.metrics.add_time(PREDICTION_METRIC,
-                                      duration,
-                                      idx=get_req(None, req_id_map),
-                                      dimensions=[
-                                          Dimension("ModelName", self.context.model_name)
-                                      ])
+        metrics.add_time(PREDICTION_METRIC, duration)
 
         return create_predict_response(
             ret, req_id_map, "Prediction success", 200, context=self.context
