@@ -989,3 +989,4 @@ deepspeed
 mii
 Diffusers
 diffusers
+AzureML

@@ -47,7 +47,7 @@ Navigate up to `deepspeed_mii` directory.
 torch-model-archiver --model-name stable-diffusion --version 1.0 --handler DeepSpeed_mii_handler.py --extra-files model.zip -r requirements.txt
 ```
 
-DeepSpeed-MII by default support 2 kinds of deployments AzureML and Local deployment. The model optimized by deepspeed MII is served via AzureML endpoint for Azure and gRPC endpoint for local deployment. For Torchserve the internal gRPC server is byepassed and the optimzed model in loaded in handler.
+DeepSpeed-MII by default support 2 kinds of deployments AzureML and Local deployment. The model optimized by deepspeed MII is served via AzureML endpoint for Azure and gRPC endpoint for local deployment. For Torchserve the internal gRPC server is bye passed and the optimized model in loaded in handler.
 
 **_NOTE:_** Refer `deepspeed_mii_stable_diffusion.py` file for using DeepSpeed-MII without the gRPC server.
 
