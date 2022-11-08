@@ -154,7 +154,7 @@ class Service(object):
                                       duration,
                                       idx=get_req(None, req_id_map),
                                       dimensions=[
-                                          Dimension("ModeName", self.context.model_name)
+                                          Dimension("ModelName", self.context.model_name)
                                       ])
 
         return create_predict_response(
@@ -164,38 +164,14 @@ class Service(object):
 
 def emit_metrics(metrics):
     """
-    Emit the metrics in the provided Dictionary/list/Metric object if the Metric has a non-zero value.
-        Then reset metric values
-
+    Emit the metrics in the provided Dictionary
 
     Parameters
     ----------
-    metrics: list, dict, Metric
-        list of Metric objects or
-        dictionary with key value pairs of metric name and Metric objects or
-        a single Metric object
+    metrics: Dictionary
+    A dictionary of all metrics, when key is metric_name
+    value is a metric object
     """
-
-    def _emit_metrics_util(metric):
-        if isinstance(metric, Metric):
-            if metric.is_updated:
-                logger.info(
-                    "[METRICS]%s", str(metric)
-                )  # after flushing Metric, reset Metric value
-                metric.reset()
-        else:
-            logger.warning(f"'{metric}' is not a valid Metric object.")
-
-    if not metrics:
-        logger.warning(f"Metrics '{metrics}' are not valid.")
-
-    if isinstance(metrics, list):
+    if metrics:
         for met in metrics:
-            _emit_metrics_util(met)
-    elif isinstance(metrics, dict):
-        for _metric_name, metric_obj in metrics.items():
-            _emit_metrics_util(metric_obj)
-    elif isinstance(
-        metrics, Metric
-    ):  # assuming that the arg being passed is a single Metric object
-        _emit_metrics_util(metrics)
+            logger.info("[METRICS]%s", str(met))
