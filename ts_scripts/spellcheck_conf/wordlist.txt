@@ -977,6 +977,14 @@ De
 ec
 VQA
 xxxx
+Affero
+MinIO
+fs
+fsspec
+minioadmin
+pythonic
+Diffusers
+diffusers
 Largemodels
 bigscience
 mem
