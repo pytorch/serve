@@ -474,7 +474,7 @@ class TestIncrementDecrementMetrics:
         ])
         counter_metric = metrics_cache_obj.get_metric("LoopCount", MetricTypes.COUNTER)
         counter_metric.add_or_update(14, ["test_add_counter_dimensions_empty", "Host"])
-        assert "LoopCount.Count:7|#ModelName:test_add_counter_dimensions_empty,Level:Model|" in caplog.text
+        assert "LoopCount.Count:7|#ModelName:test_add_counter_dimensions_empty,Level:Error|" in caplog.text
         assert "LoopCount.Count:14|#ModelName:test_add_counter_dimensions_empty,Level:Host|" in caplog.text
 
     def test_add_counter_dimensions_filled(self, caplog):
