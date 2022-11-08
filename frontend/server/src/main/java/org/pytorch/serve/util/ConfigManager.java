@@ -365,7 +365,11 @@ public final class ConfigManager {
     }
 
     public String getMetricsConfigPath() {
-        return getCanonicalPath(prop.getProperty(TS_METRICS_CONFIG));
+        String path = getCanonicalPath(prop.getProperty(TS_METRICS_CONFIG));
+        if (path == null) {
+            path = getModelServerHome() + "/ts/configs/metrics.yaml";
+        }
+        return path;
     }
 
     public String getTsDefaultServiceHandler() {
