@@ -62,9 +62,9 @@ class TorchModelServiceWorker(object):
         logging.info("Listening on port: %s", s_name)
         socket_family = socket.AF_INET if s_type == "tcp" else socket.AF_UNIX
         self.sock = socket.socket(socket_family, socket.SOCK_STREAM)
-        self.metrics = MetricsCacheYamlImpl(config_file_path=metrics_config)
-        if self.metrics:
-            self.metrics.initialize_cache()
+        self.metrics_cache = MetricsCacheYamlImpl(config_file_path=metrics_config)
+        if self.metrics_cache:
+            self.metrics_cache.initialize_cache()
         else:
             logging.info("Failed to initialize metrics. Starting worker without metrics")
 
@@ -122,7 +122,7 @@ class TorchModelServiceWorker(object):
                 batch_size,
                 envelope,
                 limit_max_image_pixels,
-                self.metrics
+                self.metrics_cache
             )
 
             logging.debug("Model %s loaded.", model_name)

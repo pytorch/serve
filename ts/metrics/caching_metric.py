@@ -6,14 +6,12 @@ import socket
 import time
 
 from ts.metrics.dimension import Dimension
-from ts.metrics.unit import Units
+from ts.metrics.imetric import IMetric
 from ts.metrics.metric_type_enum import MetricTypes
-
-MetricUnit = Units()
 logger = logging.getLogger(__name__)
 
 
-class CachingMetric(object):
+class CachingMetric(IMetric):
     """
     Class for generating metrics and printing it to stdout of the worker
     """
@@ -44,11 +42,7 @@ class CachingMetric(object):
             Type of metric Counter, Gauge, Histogram
 
         """
-        self.metric_name = metric_name
-        if unit in list(MetricUnit.units.keys()):
-            self.unit = MetricUnit.units[unit]
-        self.dimension_names = dimension_names or []
-        self.metric_type = metric_type
+        super().__init__(metric_name, unit, dimension_names, metric_type)
 
     def _validate_and_get_dimensions(
         self,
@@ -65,7 +59,7 @@ class CachingMetric(object):
         -------
         list of dimension objects or ValueError
         """
-        if not dimension_values or len(dimension_values) != len(self.dimension_names):
+        if dimension_values is None or len(dimension_values) != len(self.dimension_names):
             raise ValueError(
                 f"Dimension values: {dimension_values} should "
                 f"correspond to Dimension names: {self.dimension_names}"
@@ -113,7 +107,7 @@ class CachingMetric(object):
     def add_or_update(
         self,
         value: int or float,
-        dimension_values: list,
+        dimension_values: list = [],
         request_id: str = "",
     ):
         """
@@ -137,7 +131,7 @@ class CachingMetric(object):
             logger.error(
                 f"[METRICS]Failed to update metric with name:"
                 f"{self.metric_name} and dimensions: {dimension_str} "
-                f"with value: {value}.", ex
+                f"with value: {value}: {ex}"
             )
         else:
             self.emit_metrics(request_id, value, dimension_str)

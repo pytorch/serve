@@ -5,7 +5,6 @@ import com.google.gson.reflect.TypeToken;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -40,7 +39,6 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
@@ -366,38 +364,8 @@ public final class ConfigManager {
         return getIntProperty(TS_NUMBER_OF_GPU, 0);
     }
 
-    public String getMetricsConfig() {
-        // Getting absolute path of working directory, and finding the metrics_default yaml.
-        // Assumptions are that users are running torchserve within the serve directory, and that the name of the
-        // serve directory is still 'serve' (i.e. users did not rename serve)
-
-        String basePath = System.getProperty("user.dir");
-        String yamlModulePath = "/frontend/server/src/test/resources/metrics_default.yaml";
-
-        String[] basePathList = basePath.split("/");
-        List<String> serveBasePath = new ArrayList<String>();
-        int serveIndex = basePathList.length;
-
-        for (int i = 0; i < basePathList.length; i++) {
-            String directory = basePathList[i];
-            if ("serve".equals(directory)) {
-                serveIndex = i;
-            }
-        }
-
-        if (serveIndex == basePathList.length) {
-            serveIndex--;
-        }
-
-        for (int j = 0; j < serveIndex + 1; j++) {
-            String directory = basePathList[j];
-            serveBasePath.add(directory);
-        }
-
-        String serveBasePathString = String.join("/", serveBasePath);
-        String yamlAbsolutePath = serveBasePathString + yamlModulePath;
-
-        return getProperty(TS_METRICS_CONFIG, yamlAbsolutePath);
+    public String getMetricsConfigPath() {
+        return getCanonicalPath(prop.getProperty(TS_METRICS_CONFIG));
     }
 
     public String getTsDefaultServiceHandler() {
@@ -547,11 +515,11 @@ public final class ConfigManager {
         } else {
             SelfSignedCertificate ssc = new SelfSignedCertificate();
             privateKey = ssc.key();
-            chain = new X509Certificate[]{ssc.cert()};
+            chain = new X509Certificate[] {ssc.cert()};
         }
 
         return SslContextBuilder.forServer(privateKey, chain)
-                .protocols(new String[]{"TLSv1.2"})
+                .protocols(new String[] {"TLSv1.2"})
                 .ciphers(supportedCiphers)
                 .build();
     }
@@ -619,6 +587,8 @@ public final class ConfigManager {
                 + getCanonicalPath(".")
                 + "\nTemp directory: "
                 + System.getProperty("java.io.tmpdir")
+                + "\nMetrics config path: "
+                + getMetricsConfigPath()
                 + "\nNumber of GPUs: "
                 + getNumberOfGpu()
                 + "\nNumber of CPUs: "
@@ -830,8 +800,7 @@ public final class ConfigManager {
 
     private void setModelConfig() {
         String modelConfigStr = prop.getProperty(MODEL_CONFIG, null);
-        Type type = new TypeToken<Map<String, Map<String, JsonObject>>>() {
-        }.getType();
+        Type type = new TypeToken<Map<String, Map<String, JsonObject>>>() {}.getType();
 
         if (modelConfigStr != null) {
             this.modelConfig = JsonUtils.GSON.fromJson(modelConfigStr, type);
@@ -873,8 +842,7 @@ public final class ConfigManager {
         private boolean snapshotDisabled;
         private String workflowStore;
 
-        public Arguments() {
-        }
+        public Arguments() {}
 
         public Arguments(CommandLine cmd) {
             tsConfigFile = cmd.getOptionValue("ts-config-file");

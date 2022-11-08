@@ -8,7 +8,7 @@ from builtins import str
 import ts
 from ts.context import Context, RequestProcessor
 from ts.metrics.metric import Metric
-from ts.metrics.metrics_store import MetricsStore
+from ts.metrics.dimension import Dimension
 from ts.protocol.otf_message_handler import create_predict_response
 from ts.utils.util import PredictionException
 
@@ -30,7 +30,7 @@ class Service(object):
         gpu,
         batch_size,
         limit_max_image_pixels=True,
-        metrics=None,
+        metrics_cache=None,
     ):
         self._context = Context(
             model_name,
@@ -40,7 +40,7 @@ class Service(object):
             gpu,
             ts.__version__,
             limit_max_image_pixels,
-            metrics,
+            metrics_cache,
         )
         self._entry_point = entry_point
 
@@ -112,8 +112,6 @@ class Service(object):
 
         self.context.request_ids = req_id_map
         self.context.request_processor = headers
-        metrics = MetricsStore(req_id_map, self.context.model_name)
-        self.context.metrics = metrics
 
         start_time = time.time()
 
@@ -152,7 +150,11 @@ class Service(object):
             )
 
         duration = round((time.time() - start_time) * 1000, 2)
-        metrics.add_time(PREDICTION_METRIC, duration)
+        self.context.metrics.add_time(PREDICTION_METRIC, duration,
+                                      dimensions=[
+                                          Dimension("ModelName", self.context.model_name),
+                                          Dimension("Level", "Model")
+                                      ])
 
         return create_predict_response(
             ret, req_id_map, "Prediction success", 200, context=self.context

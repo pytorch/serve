@@ -1,6 +1,6 @@
 dimensions:
-  ModelName: &model_name "foo"
-  Level: &level "host"
+  ModelName: &model_name "model_name"
+  Level: &level "level"
 
 ts_metrics:
   counter:

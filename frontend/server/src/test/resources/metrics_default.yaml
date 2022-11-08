@@ -1,35 +1,34 @@
 dimensions:
-  ModelName: "my_tc"  # customer should edit based on their own models that are being used
-  Level: "Model"
+  ModelName: &model_name "model_name"
+  Level: &level "Model"
 
-# not yet implemented in frontend
 ts_metrics:
   counter:
     - name:
         unit: ms
-        dimensions: [ModelName, Level]
+        dimensions: [*model_name, *level]
   gauge:
     - name:
         unit: ms
-        dimensions: [ModelName, Level]
+        dimensions: [*model_name, *level]
   histogram:
     - name:
         unit: ms
-        dimensions: [ModelName, Level]
+        dimensions: [*model_name, *level]
 
 model_metrics:
   counter:
     - InferenceTimeInMS:
         unit: ms
-        dimensions: [ModelName, Level]
+        dimensions: [*model_name, *level]
     - NumberOfMetrics:
         unit: count
-        dimensions: [ModelName, Level]
+        dimensions: [*model_name, *level]
   gauge:
     - GaugeModelMetricNameExample:
         unit: ms
-        dimensions: [ModelName, Level]
+        dimensions: [*model_name, *level]
   histogram:
     - HistogramModelMetricNameExample:
         unit: ms
-        dimensions: [ModelName, Level]
+        dimensions: [*model_name, *level]

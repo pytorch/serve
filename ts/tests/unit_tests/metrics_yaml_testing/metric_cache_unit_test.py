@@ -1,19 +1,19 @@
 """
 Unit testing for ts/metrics/metric_cache_abstract.py,
-ts/metrics/metric_cache_yaml.py, and emit_metrics() ts/service.py
+ts/metrics/metric_cache_yaml_impl.py, and emit_metrics() ts/service.py
 """
 import json
 import os
 import pytest
 import uuid
-
 import ts.metrics.metric_cache_errors as merrors
+
+from collections import Counter
 from ts.metrics.dimension import Dimension
 from ts.metrics.metric import Metric
-from ts.metrics.metric_cache_yaml import MetricsCacheYaml
+from ts.metrics.caching_metric import CachingMetric
 from ts.metrics.metric_cache_yaml_impl import MetricsCacheYamlImpl
 from ts.metrics.metric_type_enum import MetricTypes
-from ts.metrics.metrics_store import MetricsStore
 from ts.service import emit_metrics
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -296,422 +296,166 @@ class TestParseModelMetrics:
         assert metrics_cache_obj._parse_metrics_section() is None
 
 
-class TestYamlCacheUtil:
+class TestYamlCacheInit:
     def test_yaml_to_cache_util_pass(self):
-        metrics_cache_obj = MetricsCacheYaml(
-            uuid.uuid4(), "ModelNameExample", os.path.join(dir_path, "metrics.yaml")
-        )
-        model_metrics_table = metrics_cache_obj._parse_metrics_section()
-        metrics_cache_obj._yaml_to_cache_util(model_metrics_table)
-        assert list(metrics_cache_obj.cache.keys()) == [
-            "[counter]-[InferenceTimeInMS]-[ModelName:model_name,Level:host]",
-            "[counter]-[NumberOfMetrics]-[ModelName:model_name,host:host_name,Level:host]",
-            "[gauge]-[GaugeModelMetricNameExample]-[ModelName:model_name,Level:host]",
-            "[histogram]-[HistogramModelMetricNameExample]-[ModelName:model_name,Level:host]",
+        metrics_cache_obj = MetricsCacheYamlImpl(os.path.join(dir_path, "metrics.yaml"))
+        metrics_cache_obj.initialize_cache()
+        assert(len(metrics_cache_obj.cache.keys()) == 3)
+        assert metrics_cache_obj.cache_keys() == [
+            "counter:InferenceTimeInMS",
+            "counter:NumberOfMetrics",
+            "gauge:GaugeModelMetricNameExample",
+            "histogram:HistogramModelMetricNameExample"
         ]
 
     def test_yaml_to_cache_empty_dims(self):
-        metrics_cache_obj = MetricsCacheYaml(
-            uuid.uuid4(), "ModelNameExample", os.path.join(dir_path, "metrics_empty_dims.yml")
-        )
-        model_metrics_table = metrics_cache_obj._parse_metrics_section()
-        metrics_cache_obj._yaml_to_cache_util(model_metrics_table)
-        assert list(metrics_cache_obj.cache.keys()) == [
-            "[counter]-[InferenceTimeInMS]-[ModelName:ModelNameExample,Level:host]",
-            "[counter]-[NumberOfMetrics]-[model_name:model_name,host:host_name,"
-            "ModelName:ModelNameExample,Level:host]",
-            "[gauge]-[GaugeModelMetricNameExample]-[ModelName:ModelName,Level:level]",
-            "[histogram]-[HistogramModelMetricNameExample]-[ModelName:ModelNameExample,Level:host]",
-            "[histogram]-[AnotherHistogram]-[ModelName:ModelNameExample,Level:host]",
+        metrics_cache_obj = MetricsCacheYamlImpl(os.path.join(dir_path, "metrics_empty_dims.yml"))
+        metrics_cache_obj.initialize_cache()
+        assert metrics_cache_obj.cache_keys() == [
+            "counter:InferenceTimeInMS",
+            "counter:NumberOfMetrics",
+            "gauge:GaugeModelMetricNameExample",
+            "histogram:HistogramModelMetricNameExample",
+            "histogram:AnotherHistogram"
         ]
+        for metric_type, metric in metrics_cache_obj.cache.items():
+            for k, v in metric.items():
+                if k in [
+                    "HistogramModelMetricNameExample",
+                    "AnotherHistogram",
+                ]:
+                    assert isinstance(v, CachingMetric)
+                    assert v.dimension_names == []
 
     def test_yaml_to_cache_util_fail_missing_fields(self):
-        metrics_cache_obj = MetricsCacheYaml(
-            uuid.uuid4(), "ModelNameExample", os.path.join(dir_path, "metrics_missing_types.yaml")
-        )
-        model_metrics_table = metrics_cache_obj._parse_metrics_section()
+        metrics_cache_obj = MetricsCacheYamlImpl(os.path.join(dir_path, "metrics_missing_types.yaml"))
         with pytest.raises(merrors.MetricsCacheKeyError) as exc_info:
-            metrics_cache_obj._yaml_to_cache_util(model_metrics_table)
+            metrics_cache_obj.initialize_cache()
         assert (
             str(exc_info)
-            == "<ExceptionInfo MetricsCacheKeyError(\"Key not found: 'unit'\") tblen=2>"
-        )
-
-    def test_yaml_to_cache_util_fail_none(self):
-        metrics_cache_obj = MetricsCacheYaml(
-            uuid.uuid4(), "ModelNameExample", os.path.join(dir_path, "metrics_missing_types.yaml")
-        )
-        with pytest.raises(merrors.MetricsCacheTypeError) as exc_info:
-            metrics_cache_obj._yaml_to_cache_util(None)
-        assert (
-            str(exc_info)
-            == "<ExceptionInfo MetricsCacheTypeError('None section is None and does not "
-            "exist') tblen=2>"
+            == "<ExceptionInfo MetricsCacheKeyError(\"Key not found in cache spec: 'unit'\") tblen=2>"
         )
 
     def test_yaml_to_cache_util_fail_empty_section(self):
-        metrics_cache_obj = MetricsCacheYaml(
-            uuid.uuid4(), "ModelNameExample", os.path.join(dir_path, "metrics_model_empty.yaml")
-        )
-        model_metrics_table = metrics_cache_obj._parse_metrics_section()
-        with pytest.raises(merrors.MetricsCacheTypeError) as exc_info:
-            metrics_cache_obj._yaml_to_cache_util(model_metrics_table)
+        metrics_cache_obj = MetricsCacheYamlImpl(os.path.join(dir_path, "metrics_model_empty.yaml"))
+        with pytest.raises(ValueError) as exc_info:
+            metrics_cache_obj.initialize_cache()
         assert (
             str(exc_info)
-            == "<ExceptionInfo MetricsCacheTypeError('None section is None and does not "
-            "exist') tblen=2>"
+            == "<ExceptionInfo ValueError('Missing `model_metrics` specification') tblen=2>"
         )
-
-
-class TestYamlCache:
-    def test_yaml_to_cache_pass(self):
-        metrics_cache_obj = MetricsCacheYaml(
-            uuid.uuid4(), "ModelNameExample", os.path.join(dir_path, "metrics.yaml")
-        )
-        metrics_cache_obj.parse_yaml_to_cache()
-        assert list(metrics_cache_obj.cache.keys()) == [
-            "[counter]-[InferenceTimeInMS]-[ModelName:model_name,Level:host]",
-            "[counter]-[NumberOfMetrics]-[ModelName:model_name,host:host_name,Level:host]",
-            "[gauge]-[GaugeModelMetricNameExample]-[ModelName:model_name,Level:host]",
-            "[histogram]-[HistogramModelMetricNameExample]-[ModelName:model_name,Level:host]",
-        ]
 
 
 class TestManualAddMetricDimensions:
     def test_dimensions_metric_add_dimensions_custom_pass(self):
-        metrics_cache_obj = MetricsCacheYaml(
-            uuid.uuid4(), "ModelNameExample", os.path.join(dir_path, "metrics.yaml")
-        )
+        metrics_cache_obj = MetricsCacheYamlImpl(os.path.join(dir_path, "metrics.yaml"))
         metrics_cache_obj.add_metric(
             "TempName",
-            13.3,
             "count",
-            dimensions=[Dimension("MyDim", "MyDimValue")],
+            dimension_names=["MyDim", "MyDimValue"],
             metric_type=MetricTypes.COUNTER,
         )
-        assert list(metrics_cache_obj.cache.keys()) == [
-            "[counter]-[TempName]-[MyDim:MyDimValue,"
-            "ModelName:ModelNameExample,Level:host]"
-        ]
-
-    def test_dimensions_metric_add_dimensions_yaml_pass(self):
-        metrics_cache_obj = MetricsCacheYaml(
-            uuid.uuid4(), "ModelNameExample", os.path.join(dir_path, "metrics.yaml")
-        )
-        metrics_cache_obj.add_metric(
-            "TempName",
-            13.3,
-            "count",
-            dimensions=["ModelName"],
-            metric_type=MetricTypes.COUNTER,
-        )
-        assert list(metrics_cache_obj.cache.keys()) == [
-            "[counter]-[TempName]-[ModelName:model_name,Level:host]"
-        ]
+        assert list(metrics_cache_obj.cache_keys()) == ["counter:TempName"]
+        for metric_type, metric in metrics_cache_obj.cache.items():
+            for k, v in metric.items():
+                if k == "TempName":
+                    assert isinstance(v, CachingMetric)
+                    assert v.dimension_names == ["MyDim", "MyDimValue"]
 
     def test_dimensions_metric_add_dimensions_and_yaml_pass(self):
-        metrics_cache_obj = MetricsCacheYaml(
-            uuid.uuid4(), "ModelNameExample", os.path.join(dir_path, "metrics.yaml")
-        )
+        metrics_cache_obj = MetricsCacheYamlImpl(os.path.join(dir_path, "metrics.yaml"))
         metrics_cache_obj.add_metric(
             "TempName",
-            13.3,
             "count",
-            dimensions=["ModelName"],
+            dimension_names=["ModelName"],
             metric_type=MetricTypes.COUNTER,
         )
-        metrics_cache_obj.parse_yaml_to_cache()
-        assert list(metrics_cache_obj.cache.keys()) == [
-            "[counter]-[TempName]-[ModelName:model_name,Level:host]",
-            "[counter]-[InferenceTimeInMS]-[ModelName:model_name,Level:host]",
-            "[counter]-[NumberOfMetrics]-[ModelName:model_name,host:host_name,Level:host]",
-            "[gauge]-[GaugeModelMetricNameExample]-[ModelName:model_name,Level:host]",
-            "[histogram]-[HistogramModelMetricNameExample]-[ModelName:model_name,Level:host]",
+        metrics_cache_obj.initialize_cache()
+        assert metrics_cache_obj.cache_keys() == [
+            "counter:TempName",
+            "counter:InferenceTimeInMS",
+            "counter:NumberOfMetrics",
+            "gauge:GaugeModelMetricNameExample",
+            "histogram:HistogramModelMetricNameExample"
         ]
-
-    def test_dimensions_metric_add_dimensions_yaml_nonexistent(self):
-        metrics_cache_obj = MetricsCacheYaml(
-            uuid.uuid4(), "ModelNameExample", os.path.join(dir_path, "metrics.yaml")
-        )
-        metrics_cache_obj.add_metric(
-            "TempName",
-            13.3,
-            "count",
-            dimensions=["not_existing"],
-            metric_type=MetricTypes.COUNTER,
-        )
-        assert list(metrics_cache_obj.cache.keys()) == [
-            "[counter]-[TempName]-[ModelName:ModelNameExample,Level:host]"
-        ]
-
-    def test_dimensions_metric_dimension_warning_name_naming_convention(self, caplog):
-        metrics_cache_obj = MetricsCacheYaml(
-            uuid.uuid4(), "ModelNameExample", os.path.join(dir_path, "metrics_mismatching_dims.yaml")
-        )
-        metrics_cache_obj.add_metric(
-            "Temp-Name",
-            13.3,
-            "count",
-            dimensions=["ModelName"],
-            metric_type=MetricTypes.COUNTER,
-        )
-
-        assert (
-            "There is a '-' symbol found in Temp-Name argument. Please refrain from using the '-' "
-            "as it is used as the delimiter in the Metric object string." in caplog.text
-        )
-
-    def test_dimensions_metric_dimension_warning_unit_naming_convention(self, caplog):
-        metrics_cache_obj = MetricsCacheYaml(
-            uuid.uuid4(), "ModelNameExample", os.path.join(dir_path, "metrics_mismatching_dims.yaml")
-        )
-        metrics_cache_obj.add_metric(
-            "TempName",
-            13.3,
-            "count-unit",
-            dimensions=["ModelName"],
-            metric_type=MetricTypes.COUNTER,
-        )
-
-        assert (
-            "There is a '-' symbol found in count-unit argument. Please refrain from using the '-' as it is used "
-            "as the delimiter in the Metric object string.\n" in caplog.text
-        )
-
-    def test_dimensions_metric_dimension_warning_dim_naming_convention(self, caplog):
-        metrics_cache_obj = MetricsCacheYaml(
-            uuid.uuid4(), "ModelNameExample", os.path.join(dir_path, "metrics_mismatching_dims.yaml")
-        )
-        metrics_cache_obj.add_metric(
-            "TempName",
-            13.3,
-            "count",
-            dimensions=[Dimension("hello-world", "foo")],
-            metric_type=MetricTypes.COUNTER,
-        )
-
-        assert (
-            "There is a '-' symbol found in hello-world:foo argument. Please refrain from using the '-' as it "
-            "is used as the delimiter in the Metric object string.\n" in caplog.text
-        )
-
-    def test_dimensions_metric_dimension_warning_dim_two_naming_convention(
-        self, caplog
-    ):
-        metrics_cache_obj = MetricsCacheYaml(
-            uuid.uuid4(), "ModelNameExample", os.path.join(dir_path, "metrics_mismatching_dims.yaml")
-        )
-        metrics_cache_obj.add_metric(
-            "TempName",
-            13.3,
-            "count",
-            dimensions=[Dimension("helloworld", "foo-bar")],
-            metric_type=MetricTypes.COUNTER,
-        )
-
-        assert (
-            "There is a '-' symbol found in helloworld:foo-bar argument. Please refrain from using the '-' as "
-            "it is used as the delimiter in the Metric object string.\n" in caplog.text
-        )
-
-    def test_dimensions_metric_bracket_naming_convention(self, caplog):
-        metrics_cache_obj = MetricsCacheYaml(
-            uuid.uuid4(), "ModelNameExample", os.path.join(dir_path, "metrics_mismatching_dims.yaml")
-        )
-        metrics_cache_obj.add_metric(
-            "[TempName]",
-            13.3,
-            "count",
-            dimensions=[Dimension("helloworld", "foobar")],
-            metric_type=MetricTypes.COUNTER,
-        )
-        phrases = [
-            "There is a '[' symbol found in [TempName] argument. Please refrain from using the '[' "
-            "as it is used as the delimiter in the Metric object string.",
-            "There is a ']' symbol found in [TempName] argument. Please refrain from using the "
-            "']' as it is used as the delimiter in the Metric object string.",
-        ]
-        for phrase in phrases:
-            assert phrase in caplog.text
 
 
 class TestAdditionalMetricMethods:
-    def test_add_counter_pass(self):
-        metrics_cache_obj = MetricsCacheYaml(
-            uuid.uuid4(), "ModelNameExample", os.path.join(dir_path, "metrics.yaml")
-        )
-        metrics_cache_obj.add_counter("CounterName", 12)
-        metric = metrics_cache_obj.get_metric(
-            MetricTypes.COUNTER, "CounterName", "ModelName:ModelNameExample,Level:host"
-        )
-        for i, dimension in enumerate(metric.dimensions):
-            if i == 0:
-                assert dimension.__str__() == "ModelName:ModelNameExample"
-            if i == 1:
-                assert dimension.__str__() == "Level:host"
-        assert metric.value == 12
-        assert metric.name == "CounterName"
-        assert metric.metric_type == "counter"
-        metrics_cache_obj.add_counter("CounterName", 25)
-        assert metric.value == 37
-        metric.value = 13
-        metric.update(14)
-        assert metric.value == 27
+    def test_add_counter_pass(self, caplog):
+        metrics_cache_obj = MetricsCacheYamlImpl(os.path.join(dir_path, "metrics.yaml"))
+        dimensions = [
+            Dimension("ModelName", "test_add_counter_pass"),
+            Dimension("Level", "Model")
+        ]
+        caplog.set_level("INFO")
+        metrics_cache_obj.add_counter("CounterMetric", 14, dimensions=dimensions)
+        metric = metrics_cache_obj.get_metric("CounterMetric", MetricTypes.COUNTER)
+        assert metric.dimension_names == ["ModelName", "Level"]
+        assert metric.metric_name == "CounterMetric"
+        assert metric.metric_type == MetricTypes.COUNTER
+        assert "[METRICS]CounterMetric.Count:14|#ModelName:test_add_counter_pass" in caplog.text
 
-    def test_add_time_pass(self):
-        metrics_cache_obj = MetricsCacheYaml(
-            uuid.uuid4(), "ModelNameExample", os.path.join(dir_path, "metrics.yaml")
-        )
-        metrics_cache_obj.add_time("TimeName", 14)
-        metric = metrics_cache_obj.get_metric(
-            MetricTypes.GAUGE, "TimeName", "ModelName:ModelNameExample,Level:host"
-        )
-        for i, dimension in enumerate(metric.dimensions):
-            if i == 0:
-                assert dimension.__str__() == "ModelName:ModelNameExample"
-            if i == 1:
-                assert dimension.__str__() == "Level:host"
+    def test_add_time_pass(self, caplog):
+        metrics_cache_obj = MetricsCacheYamlImpl(os.path.join(dir_path, "metrics.yaml"))
+        dimensions = [Dimension("ModelName", "test_add_time_pass")]
+        caplog.set_level("INFO")
+        metrics_cache_obj.add_time("TimeMetric", 17, unit="s", dimensions=dimensions)
+        metric = metrics_cache_obj.get_metric("TimeMetric", MetricTypes.GAUGE)
+        assert metric.metric_name == "TimeMetric"
+        assert metric.metric_type == MetricTypes.GAUGE
+        assert "[METRICS]TimeMetric.Seconds:17|#ModelName:test_add_time_pass" in caplog.text
 
-        assert metric.value == 14
-        assert metric.name == "TimeName"
-        assert metric.metric_type == "gauge"
-        metrics_cache_obj.add_time("TimeName", 25)
-        assert metric.value == 25
-        metric.update(17)
-        assert metric.value == 17
+    def test_add_time_diff_type_pass(self, caplog):
+        metrics_cache_obj = MetricsCacheYamlImpl(os.path.join(dir_path, "metrics.yaml"))
+        caplog.set_level("INFO")
+        metrics_cache_obj.add_time("TimeMetric", 14, unit="ms",
+                                   dimensions=[Dimension("Level", "Model")], metric_type=MetricTypes.HISTOGRAM)
+        metric = metrics_cache_obj.get_metric("TimeMetric", MetricTypes.HISTOGRAM)
+        assert metric.metric_name == "TimeMetric"
+        assert metric.metric_type == MetricTypes.HISTOGRAM
+        assert metric.dimension_names == ["Level"]
+        assert "[METRICS]TimeMetric.Milliseconds:14|#Level:Model" in caplog.text
+        metric.add_or_update(25, ["Model"])
+        assert "[METRICS]TimeMetric.Milliseconds:25|#Level:Model" in caplog.text
 
-    def test_add_time_diff_type_pass(self):
-        metrics_cache_obj = MetricsCacheYaml(
-            uuid.uuid4(), "ModelNameExample", os.path.join(dir_path, "metrics.yaml")
-        )
-        metrics_cache_obj.add_time("TimeName", 14, metric_type=MetricTypes.HISTOGRAM)
-        metric = metrics_cache_obj.get_metric(
-            MetricTypes.HISTOGRAM, "TimeName", "ModelName:ModelNameExample,Level:host"
-        )
-        for i, dimension in enumerate(metric.dimensions):
-            if i == 0:
-                assert dimension.__str__() == "ModelName:ModelNameExample"
-            if i == 1:
-                assert dimension.__str__() == "Level:host"
+    def test_add_size_pass(self, caplog):
+        metrics_cache_obj = MetricsCacheYamlImpl(os.path.join(dir_path, "metrics.yaml"))
+        caplog.set_level("INFO")
+        dimensions = [Dimension("ModelName", "test_add_size_pass")]
+        metrics_cache_obj.add_size("SizeMetric", 25, unit="GB", dimensions=dimensions)
+        metric = metrics_cache_obj.get_metric("SizeMetric", MetricTypes.GAUGE)
+        assert metric.dimension_names == ["ModelName"]
+        assert "[METRICS]SizeMetric.Gigabytes:25|#ModelName:test_add_size_pass" in caplog.text
 
-        assert metric.value == 14
-        assert metric.name == "TimeName"
-        assert metric.metric_type == "histogram"
-        metrics_cache_obj.add_time("TimeName", 25, metric_type=MetricTypes.HISTOGRAM)
-        assert metric.value == 25
-        metric.update(1)
-        assert metric.value == 1
+    def test_add_size_diff_metric_type_pass(self, caplog):
+        metrics_cache_obj = MetricsCacheYamlImpl(os.path.join(dir_path, "metrics.yaml"))
+        caplog.set_level("INFO")
+        dimensions = [Dimension("Level", "test_add_size_diff_metric_type_pass")]
+        metrics_cache_obj.add_size("SizeMetric", 5, unit="kB", dimensions=dimensions, metric_type=MetricTypes.COUNTER)
+        metric = metrics_cache_obj.get_metric("SizeMetric", MetricTypes.COUNTER)
+        assert "[METRICS]SizeMetric.Kilobytes:5|#Level:test_add_size_diff_metric_type_pass" in caplog.text
 
-    def test_add_size_pass(self):
-        metrics_cache_obj = MetricsCacheYaml(
-            uuid.uuid4(), "ModelNameExample", os.path.join(dir_path, "metrics.yaml")
-        )
-        metrics_cache_obj.add_size("SizeName", 11)
-        metric = metrics_cache_obj.get_metric(
-            MetricTypes.GAUGE, "SizeName", "ModelName:ModelNameExample,Level:host"
-        )
-        for i, dimension in enumerate(metric.dimensions):
-            if i == 0:
-                assert dimension.__str__() == "ModelName:ModelNameExample"
-            if i == 1:
-                assert dimension.__str__() == "Level:host"
+    def test_add_percent_pass(self, caplog):
+        metrics_cache_obj = MetricsCacheYamlImpl(os.path.join(dir_path, "metrics.yaml"))
+        caplog.set_level("INFO")
+        metrics_cache_obj.add_percent("PercentMetric", 11)
+        assert "[METRICS]PercentMetric.Percent:11|#|" in caplog.text
+        metric = metrics_cache_obj.get_metric("PercentMetric", MetricTypes.GAUGE)
+        metric.add_or_update(22)
+        assert "[METRICS]PercentMetric.Percent:22|#|" in caplog.text
 
-        assert metric.value == 11
-        assert metric.name == "SizeName"
-        assert metric.metric_type == "gauge"
-        metrics_cache_obj.add_size("SizeName", 25)
-        assert metric.value == 25
-        metric.update(1)
-        assert metric.value == 1
+    def test_add_percent_diff_metric_type_pass(self, caplog):
+        metrics_cache_obj = MetricsCacheYamlImpl(os.path.join(dir_path, "metrics.yaml"))
+        caplog.set_level("INFO")
+        metrics_cache_obj.add_percent("PercentMetric", 72,
+                                      dimensions=[Dimension("Host", "hostname")], metric_type=MetricTypes.HISTOGRAM)
+        assert "[METRICS]PercentMetric.Percent:72|#Host:hostname" in caplog.text
 
-    def test_add_size_diff_metric_type_pass(self):
-        metrics_cache_obj = MetricsCacheYaml(
-            uuid.uuid4(), "ModelNameExample", os.path.join(dir_path, "metrics.yaml")
-        )
-        metrics_cache_obj.add_size("SizeName", 11, metric_type=MetricTypes.COUNTER)
-        metric = metrics_cache_obj.get_metric(
-            MetricTypes.COUNTER, "SizeName", "ModelName:ModelNameExample,Level:host"
-        )
-        for i, dimension in enumerate(metric.dimensions):
-            if i == 0:
-                assert dimension.__str__() == "ModelName:ModelNameExample"
-            if i == 1:
-                assert dimension.__str__() == "Level:host"
-
-        assert metric.value == 11
-        assert metric.name == "SizeName"
-        assert metric.metric_type == "counter"
-        metrics_cache_obj.add_size("SizeName", 5, metric_type=MetricTypes.COUNTER)
-        assert metric.value == 16
-        metric.update(1)
-        assert metric.value == 17
-
-    def test_add_percent_pass(self):
-        metrics_cache_obj = MetricsCacheYaml(uuid.uuid4(), "Foo", os.path.join(dir_path, "metrics.yaml"))
-        metrics_cache_obj.add_percent("PercentName", 12)
-        metric = metrics_cache_obj.get_metric(
-            MetricTypes.GAUGE, "PercentName", "ModelName:Foo,Level:host"
-        )
-        for i, dimension in enumerate(metric.dimensions):
-            if i == 0:
-                assert dimension.__str__() == "ModelName:Foo"
-            if i == 1:
-                assert dimension.__str__() == "Level:host"
-
-        assert metric.value == 12
-        assert metric.name == "PercentName"
-        assert metric.metric_type == "gauge"
-        metrics_cache_obj.add_size("PercentName", 5)
-        assert metric.value == 5
-        metric.update(1)
-        assert metric.value == 1
-
-    def test_add_percent_diff_metric_type_pass(self):
-        metrics_cache_obj = MetricsCacheYaml(uuid.uuid4(), "Foo", os.path.join(dir_path, "metrics.yaml"))
-        metrics_cache_obj.add_percent(
-            "PercentName", 12, metric_type=MetricTypes.HISTOGRAM
-        )
-        metric = metrics_cache_obj.get_metric(
-            MetricTypes.HISTOGRAM, "PercentName", "ModelName:Foo,Level:host"
-        )
-        for i, dimension in enumerate(metric.dimensions):
-            if i == 0:
-                assert dimension.__str__() == "ModelName:Foo"
-            if i == 1:
-                assert dimension.__str__() == "Level:host"
-
-        assert metric.value == 12
-        assert metric.name == "PercentName"
-        assert metric.metric_type == "histogram"
-        metrics_cache_obj.add_size("PercentName", 5)
-        metric_two = metrics_cache_obj.get_metric(
-            MetricTypes.GAUGE, "PercentName", "ModelName:Foo,Level:host"
-        )
-        assert metric_two.value == 5
-        metrics_cache_obj.add_percent(
-            "PercentName", 10, metric_type=MetricTypes.HISTOGRAM
-        )
-        assert metric.value == 10
-        metric.update(1)
-        assert metric.value == 1
-
-    def test_add_error_pass(self):
-        metrics_cache_obj = MetricsCacheYaml(uuid.uuid4(), "Foo", os.path.join(dir_path, "metrics.yaml"))
-        metrics_cache_obj.add_error("ErrorName", 53)
-        metric = metrics_cache_obj.get_metric(
-            MetricTypes.COUNTER, "ErrorName", "Level:Error"
-        )
-        for i, dimension in enumerate(metric.dimensions):
-            if i == 0:
-                assert dimension.__str__() == "Level:Error"
-
-        assert metric.value == 53
-        assert metric.name == "ErrorName"
-        assert metric.metric_type == "counter"
-        metrics_cache_obj.add_error("ErrorName", 10)
-        assert metric.value == 63
-        metric.update(-51)
-        assert metric.value == 12
+    def test_add_error_pass(self, caplog):
+        metrics_cache_obj = MetricsCacheYamlImpl(os.path.join(dir_path, "metrics.yaml"))
+        caplog.set_level("INFO")
+        metrics_cache_obj.add_error("ErrorName", 72, dimensions=[Dimension("ModelName", "hostname")])
+        assert "[METRICS]ErrorName.unit:72|#ModelName:hostname" in caplog.text
 
 
 class TestEmitMetrics:
@@ -747,62 +491,6 @@ class TestEmitMetrics:
         emit_metrics(metrics)
         assert "'Metric_STRING' is not a valid Metric object." in caplog.text
 
-    def test_emit_metrics_dict_multiple(self, caplog):
-        metrics_cache_obj = MetricsCacheYaml(uuid.uuid4(), "foo", os.path.join(dir_path, "metrics.yaml"))
-        metrics_cache_obj.parse_yaml_to_cache()
-        for i, metric in enumerate(list(metrics_cache_obj.cache.values())):
-            inc = i + 1
-            metric.update(inc + (inc / 10))
-        caplog.set_level("INFO")
-        emit_metrics(metrics_cache_obj.cache)
-        assert (
-            "[METRICS]InferenceTimeInMS.Milliseconds:1.1|#ModelName:model_name,"
-            "Level:host|#hostname:" in caplog.text
-        )
-        assert (
-            "[METRICS]NumberOfMetrics.Count:2.2|#ModelName:model_name,host:host_name,"
-            "Level:host|#hostname:" in caplog.text
-        )
-        assert (
-            "[METRICS]GaugeModelMetricNameExample.Milliseconds:3.3|#ModelName:model_name,"
-            "Level:host|#hostname:" in caplog.text
-        )
-        assert (
-            "[METRICS]HistogramModelMetricNameExample.Milliseconds:4.4|#ModelName:model_name,"
-            "Level:host|#hostname:" in caplog.text
-        )
-
-    def test_emit_metrics_reset(self, caplog):
-        metrics_cache_obj = MetricsCacheYaml(uuid.uuid4(), "Foo", os.path.join(dir_path, "metrics.yaml"))
-        metrics_cache_obj.parse_yaml_to_cache()
-        for i, metric in enumerate(list(metrics_cache_obj.cache.values())):
-            inc = i + 1
-            metric.update(inc + (inc / 10))
-        caplog.set_level("INFO")
-        caplog.clear()
-        emit_metrics(metrics_cache_obj.cache)
-        assert (
-            "[METRICS]InferenceTimeInMS.Milliseconds:1.1|#ModelName:model_name,"
-            "Level:host|#hostname:" in caplog.text
-        )
-        assert (
-            "[METRICS]NumberOfMetrics.Count:2.2|#ModelName:model_name,"
-            "host:host_name,Level:host|#hostname:" in caplog.text
-        )
-        assert (
-            "[METRICS]GaugeModelMetricNameExample.Milliseconds:3.3|#ModelName:model_name,"
-            "Level:host|#hostname:" in caplog.text
-        )
-        assert (
-            "[METRICS]HistogramModelMetricNameExample.Milliseconds:4.4|#ModelName:model_name,"
-            "Level:host|#hostname:" in caplog.text
-        )
-        caplog.clear()
-        emit_metrics(
-            metrics_cache_obj.cache
-        )  # ensure there are no metrics being empty since they should all be reset
-        assert "" == caplog.text
-
     def test_emit_metrics_metric_single(self, caplog):
         metric = Metric(
             name="NewMetric",
@@ -821,165 +509,80 @@ class TestEmitMetrics:
 
 
 class TestIncrementDecrementMetrics:
-    def test_add_counter_dimensions_none(self, caplog):
-        metrics_cache_obj = MetricsCacheYaml(uuid.uuid4(), "foo", os.path.join(dir_path, "metrics.yaml"))
-        dimensions = None
-        # Create a counter with name 'LoopCount' and dimensions, initial value
-        metrics_cache_obj.add_counter("LoopCount", 1, None, dimensions)
-        # Increment counter by 2
-        metrics_cache_obj.add_counter("LoopCount", 2, None, dimensions)
-        # Decrement counter by 1
-        metrics_cache_obj.add_counter("LoopCount", -1, None, dimensions)
-        metric = metrics_cache_obj.get_metric(
-            MetricTypes.COUNTER, "LoopCount", "ModelName:foo,Level:host"
-        )
-        assert metric.value == 2
-
     def test_add_counter_dimensions_empty(self, caplog):
-        metrics_cache_obj = MetricsCacheYaml(uuid.uuid4(), "foo", os.path.join(dir_path, "metrics.yaml"))
-        dimensions = []
-        # Create a counter with name 'LoopCount' and dimensions, initial value
-        metrics_cache_obj.add_counter("LoopCount", 1, None, dimensions)
-        # Increment counter by 2
-        metrics_cache_obj.add_counter("LoopCount", 2, None, dimensions)
-        # Decrement counter by 1
-        metrics_cache_obj.add_counter("LoopCount", -1, None, dimensions)
-        metric = metrics_cache_obj.get_metric(
-            MetricTypes.COUNTER, "LoopCount", "ModelName:foo,Level:host"
-        )
-        assert metric.value == 2
+        metrics_cache_obj = MetricsCacheYamlImpl(os.path.join(dir_path, "metrics.yaml"))
+        caplog.set_level("INFO")
+        metrics_cache_obj.add_counter("LoopCount", 7)
+        counter_metric = metrics_cache_obj.get_metric("LoopCount", MetricTypes.COUNTER)
+        counter_metric.add_or_update(14)
+        assert "LoopCount.Count:7|#|" in caplog.text
+        assert "LoopCount.Count:14|#|" in caplog.text
 
     def test_add_counter_dimensions_filled(self, caplog):
-        metrics_cache_obj = MetricsCacheYaml(uuid.uuid4(), "foo", os.path.join(dir_path, "metrics.yaml"))
-        dimensions = [Dimension("foo", "bar")]
-        # Create a counter with name 'LoopCount' and dimensions, initial value
-        metrics_cache_obj.add_counter("LoopCount", 1, None, dimensions)
-        # Increment counter by 2
-        metrics_cache_obj.add_counter("LoopCount", 2, None, dimensions)
-        # Decrement counter by 1
-        metrics_cache_obj.add_counter("LoopCount", -1, None, dimensions)
-        metric = metrics_cache_obj.get_metric(
-            MetricTypes.COUNTER, "LoopCount", "foo:bar,ModelName:foo,Level:host"
-        )
-        assert metric.value == 2
+        metrics_cache_obj = MetricsCacheYamlImpl(os.path.join(dir_path, "metrics.yaml"))
+        caplog.set_level("INFO")
+        dimensions = [
+            Dimension("ModelName", "model_name_a"),
+            Dimension("Level", "level_a")
+        ]
+        metrics_cache_obj.add_counter("LoopCount", 71, dimensions=dimensions)
+        metric = metrics_cache_obj.get_metric("LoopCount", MetricTypes.COUNTER)
+        metric.add_or_update(19, ["model_name_b", "level_b"])
+        assert "LoopCount.Count:71|#ModelName:model_name_a,Level:level_a|" in caplog.text
+        assert "LoopCount.Count:19|#ModelName:model_name_b,Level:level_b|" in caplog.text
 
     def test_add_error_dimensions_filled(self, caplog):
-        metrics_cache_obj = MetricsCacheYaml(uuid.uuid4(), "foo", os.path.join(dir_path, "metrics.yaml"))
-        dimensions = [Dimension("foo", "bar")]
-        # Create a counter with name 'LoopCount' and dimensions, initial value
-        metrics_cache_obj.add_error("LoopCountError", 5, dimensions)
-        # Increment counter by 2
-        metrics_cache_obj.add_error("LoopCountError", 1, dimensions)
-        # Decrement counter by 1
-        metrics_cache_obj.add_error("LoopCountError", -2, dimensions)
-        metric = metrics_cache_obj.get_metric(
-            MetricTypes.COUNTER, "LoopCountError", "foo:bar,Level:Error"
-        )
-        assert len(metrics_cache_obj.cache) == 1
-        assert metric.value == 4
-
-    def test_add_counter_existing_implementation(self, caplog):
-        metrics_cache_obj = MetricsStore(uuid.uuid4(), "foo")
-        dimensions = [Dimension("foo", "bar")]
-        # Create a counter with name 'LoopCount' and dimensions, initial value
-        metrics_cache_obj.add_counter("LoopCountError", 1, None, dimensions)
-        # Increment counter by 2
-        metrics_cache_obj.add_counter("LoopCountError", 2, None, dimensions)
-        # Decrement counter by 1
-        metrics_cache_obj.add_counter("LoopCountError", -1, None, dimensions)
-        assert len(metrics_cache_obj.cache) == 3
+        metrics_cache_obj = MetricsCacheYamlImpl(os.path.join(dir_path, "metrics.yaml"))
+        caplog.set_level("INFO")
+        dimensions = [
+            Dimension("ModelName", "model_name_a"),
+            Dimension("Level", "level_a")
+        ]
+        metrics_cache_obj.add_error("LoopCountError", 2, dimensions=dimensions)
+        metric = metrics_cache_obj.get_metric("LoopCountError", MetricTypes.COUNTER)
+        metric.add_or_update(4, ["model_name_b", "level_b"])
+        assert "LoopCountError.unit:2|#ModelName:model_name_a,Level:level_a|" in caplog.text
+        assert "LoopCountError.unit:4|#ModelName:model_name_b,Level:level_b|" in caplog.text
 
 
 class TestAPIAndYamlParse:
     def test_yaml_then_api(self, caplog):
-        dimensions = [Dimension("foo", "bar")]
-
-        metrics_cache_obj = MetricsCacheYaml(uuid.uuid4(), "foo", os.path.join(dir_path, "metrics_api.yaml"))
-        metrics_cache_obj.parse_yaml_to_cache()
-
-        metrics_cache_obj.add_counter("InferenceTimeInMS", 2.7)
-
-        metrics_cache_obj.add_size("GaugeModelMetricNameExample", 25.12)
-        # Create a counter with name 'LoopCount' and dimensions, initial value
-        metrics_cache_obj.add_error("LoopCountError", 5, dimensions)
-        metrics_cache_obj.add_size("GaugeModelMetricNameExample", 1.42)
-        metrics_cache_obj.add_counter("InferenceTimeInMS", -2.7)
-
-        assert len(metrics_cache_obj.cache) == 5
-
-        counter_metric = metrics_cache_obj.get_metric(
-            MetricTypes.COUNTER, "InferenceTimeInMS", "ModelName:foo,Level:host"
-        )
-        assert counter_metric.value == 0
-        assert counter_metric.is_updated is True
-
-        gauge_metric = metrics_cache_obj.get_metric(
-            MetricTypes.GAUGE,
-            "GaugeModelMetricNameExample",
-            "ModelName:foo,Level:host",
-        )
-        assert gauge_metric.value == 1.42
-
+        metrics_cache_obj = MetricsCacheYamlImpl(os.path.join(dir_path, "metrics_api.yaml"))
+        metrics_cache_obj.initialize_cache()
+        metrics_cache_obj.add_metric("InferenceTimeInMS", "ms", ["ModelName"])
+        metrics_cache_obj.add_metric("GaugeModelMetricNameExample", "MB", ["Level"], MetricTypes.GAUGE)
+        metrics_cache_obj.add_metric("LoopCountError", "")
+        print(metrics_cache_obj.cache_keys())
+        assert len(metrics_cache_obj.cache_keys()) == 5
+        counter_metric = metrics_cache_obj.get_metric("InferenceTimeInMS", MetricTypes.COUNTER)
+        gauge_metric = metrics_cache_obj.get_metric("GaugeModelMetricNameExample", MetricTypes.GAUGE)
+        error_metric = metrics_cache_obj.get_metric("LoopCountError", MetricTypes.COUNTER)
         caplog.set_level("INFO")
-        emit_metrics(metrics_cache_obj.cache)
-        assert (
-            "InferenceTimeInMS.Milliseconds:0.0|#ModelName:foo,Level:host|"
-            in caplog.text
-        )
-        assert (
-            "GaugeModelMetricNameExample.Milliseconds:1.42|#ModelName:foo,Level:host|"
-            in caplog.text
-        )
-        assert "LoopCountError.:5|#foo:bar,Level:Error" in caplog.text
+        counter_metric.add_or_update(2.7, ["test_yaml_then_api"])
+        gauge_metric.add_or_update(25.17, ["model"])
+        error_metric.add_or_update(5)
+        assert "InferenceTimeInMS.Milliseconds:2.7|#ModelName:test_yaml_then_api|" in caplog.text
+        assert "GaugeModelMetricNameExample.Megabytes:25.17|#Level:model|" in caplog.text
+        assert "LoopCountError.unit:5|#|" in caplog.text
 
     def test_api_then_yaml(self, caplog):
-        metrics_cache_obj = MetricsCacheYaml(uuid.uuid4(), "foo", os.path.join(dir_path, "metrics_api.yaml"))
-
-        metrics_cache_obj.add_counter("InferenceTimeInMS", 5)
-        metrics_cache_obj.add_counter("InferenceTimeInMS", -2)
-        metrics_cache_obj.add_size("GaugeModelMetricNameExample", 0)
-
-        counter_metric = metrics_cache_obj.get_metric(
-            MetricTypes.COUNTER, "InferenceTimeInMS", "ModelName:foo,Level:host"
-        )
-        assert counter_metric.value == 3
-        assert counter_metric.is_updated is True
-
+        metrics_cache_obj = MetricsCacheYamlImpl(os.path.join(dir_path, "metrics_api.yaml"))
+        metrics_cache_obj.add_metric("InferenceTimeInMS", "count", ["ModelName"])
+        metrics_cache_obj.add_metric("GaugeModelMetricNameExample", "MB", ["Level"], MetricTypes.GAUGE)
+        counter_metric = metrics_cache_obj.get_metric("InferenceTimeInMS", MetricTypes.COUNTER)
         caplog.set_level("INFO")
-        emit_metrics(metrics_cache_obj.cache)  # resets metrics
-        caplog_list = caplog.text.split("\n")
-        for entry in caplog_list:
-            if "INFO" in entry:
-                assert "InferenceTimeInMS.Count:3|#ModelName:foo,Level:host|" in entry
-
-        assert counter_metric.value == 0
-        assert counter_metric.is_updated is False
-        assert "InferenceTimeInMS.Count:0|#ModelName:foo,Level:host|" in str(
-            counter_metric
-        )
-
-        # now parsing the yaml file after adding some Metrics via API (this should never happen)
-        metrics_cache_obj.parse_yaml_to_cache()
-        assert len(metrics_cache_obj.cache) == 4
-
-        counter_metric = metrics_cache_obj.get_metric(
-            MetricTypes.COUNTER, "InferenceTimeInMS", "ModelName:foo,Level:host"
-        )
-        assert counter_metric.value == 0
-        assert counter_metric.is_updated is False
-
-        gauge_metric = metrics_cache_obj.get_metric(
-            MetricTypes.GAUGE,
-            "GaugeModelMetricNameExample",
-            "ModelName:foo,Level:host",
-        )
-        assert gauge_metric.value == 0
-        assert "InferenceTimeInMS.Count:0|#ModelName:foo,Level:host|" in str(
-            counter_metric
-        )
-        assert "InferenceTimeInMS.Milliseconds:0|#ModelName:foo,Level:host" not in str(
-            counter_metric
-        )
+        counter_metric.add_or_update(24.7, ["test_api_then_yaml"])
+        assert "InferenceTimeInMS.Count:24.7|#ModelName:test_api_then_yaml|" in caplog.text
+        counter_metric.add_or_update(42.5, ["updated"])
+        assert "InferenceTimeInMS.Count:42.5|#ModelName:updated|" in caplog.text
+        metrics_cache_obj.initialize_cache()
+        assert len(metrics_cache_obj.cache_keys()) == 4
+        counter_metric = metrics_cache_obj.get_metric("InferenceTimeInMS", MetricTypes.COUNTER)
+        spec_metric = metrics_cache_obj.get_metric("NumberOfMetrics", MetricTypes.COUNTER)
+        counter_metric.add_or_update(4.1, ["test_api_then_yaml", "model"])
+        spec_metric.add_or_update(2, ["test_api_then_yaml"])
+        assert "InferenceTimeInMS.Milliseconds:4.1|#model_name:test_api_then_yaml,level:model|" in caplog.text
+        assert "NumberOfMetrics.Count:2|#model_name:test_api_then_yaml" in caplog.text
 
 
 if __name__ == "__main__":

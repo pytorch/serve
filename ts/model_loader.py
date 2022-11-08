@@ -72,7 +72,7 @@ class TsModelLoader(ModelLoader):
         batch_size,
         envelope=None,
         limit_max_image_pixels=True,
-        metrics: MetricsCacheYamlImpl = None,
+        metrics_cache: MetricsCacheYamlImpl = None,
     ):
         """
         Load TorchServe 1.0 model from file.
@@ -84,7 +84,7 @@ class TsModelLoader(ModelLoader):
         :param batch_size:
         :param envelope:
         :param limit_max_image_pixels:
-        :param metrics: MetricsCacheYamlImpl object
+        :param metrics_cache: MetricsCacheYamlImpl object
         :return:
         """
         logging.debug("Loading model - working dir: %s", os.getcwd())
@@ -119,7 +119,7 @@ class TsModelLoader(ModelLoader):
                 gpu_id,
                 batch_size,
                 limit_max_image_pixels,
-                metrics,
+                metrics_cache,
             )
 
         envelope_class = None
@@ -146,9 +146,8 @@ class TsModelLoader(ModelLoader):
             gpu_id,
             batch_size,
             limit_max_image_pixels,
-            metrics,
+            metrics_cache,
         )
-        service.context.metrics = metrics
         initialize_fn(service.context)
 
         return service

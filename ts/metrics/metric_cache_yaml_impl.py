@@ -9,6 +9,7 @@ import ts.metrics.metric_cache_errors as merrors
 from ts.metrics.caching_metric import CachingMetric
 from ts.metrics.metric_cache_abstract import MetricCacheAbstract
 from ts.metrics.metric_type_enum import MetricTypes
+logger = logging.getLogger(__name__)
 
 
 class MetricsCacheYamlImpl(MetricCacheAbstract):
@@ -76,7 +77,9 @@ class MetricsCacheYamlImpl(MetricCacheAbstract):
         """
         Create Metric objects based off of the model_metrics data and add to cache
         """
-        metrics_section = self._parse_metrics_section()
+        metrics_section = self._parse_metrics_section("model_metrics")
+        if not metrics_section:
+            raise ValueError("Missing `model_metrics` specification")
         for metric_type, metrics_list in metrics_section.items():
             try:
                 metric_enum = MetricTypes(metric_type)
@@ -84,21 +87,24 @@ class MetricsCacheYamlImpl(MetricCacheAbstract):
                 raise merrors.MetricsCacheKeyError(f"Invalid metric type: {exc}")
 
             for metric in metrics_list:
-                for metric_name, metric_val in metric:
-                    unit = metric_val["unit"]
-                    dimension_names = metric_val["dimensions"]
-                    self.add_metric(
-                        metric_name=metric_name,
-                        unit=unit,
-                        dimension_names=dimension_names,
-                        metric_type=metric_enum,
-                    )
+                try:
+                    for metric_name, metric_val in metric.items():
+                        unit = metric_val["unit"]
+                        dimension_names = metric_val["dimensions"]
+                        self.add_metric(
+                            metric_name=metric_name,
+                            unit=unit,
+                            dimension_names=dimension_names,
+                            metric_type=metric_enum,
+                        )
+                except KeyError as k_err:
+                    raise merrors.MetricsCacheKeyError(f"Key not found in cache spec: {k_err}")
 
     def add_metric(
         self,
         metric_name: str,
         unit: str,
-        dimension_names: list = None,
+        dimension_names: list = [],
         metric_type: MetricTypes = MetricTypes.COUNTER,
     ) -> CachingMetric:
         """
@@ -108,16 +114,12 @@ class MetricsCacheYamlImpl(MetricCacheAbstract):
         ----------
         metric_name str
             Name of metric
-
         unit str
             unit can be one of ms, percent, count, MB, GB or a generic string
-
         dimension_names list
             list of dimension keys which should be strings, or the complete log of dimensions
-
         metric_type MetricTypes
             Type of metric Counter, Gauge, Histogram
-
         Returns
         -------
         newly created Metrics object
@@ -147,7 +149,9 @@ class MetricsCacheYamlImpl(MetricCacheAbstract):
             dimension_names=dimension_names,
             metric_type=metric_type
         )
-        self.cache[metric_type][metric.metric_name] = metric
+        if metric_name in self.cache[metric_type].keys():
+            logging.warning(f"Overriding existing key {metric_type}:{metric_name}")
+        self.cache[metric_type][metric_name] = metric
         return metric
 
     def get_metric(
@@ -182,3 +186,13 @@ class MetricsCacheYamlImpl(MetricCacheAbstract):
             )
         else:
             return metric
+
+    def cache_keys(self):
+        """
+        Testing util method
+        """
+        keys = []
+        for metric_type, metric in self.cache.items():
+            for metric_name in metric.keys():
+                keys.append(f"{metric_type.value}:{metric_name}")
+        return keys
