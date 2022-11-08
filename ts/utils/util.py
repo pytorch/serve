@@ -101,6 +101,25 @@ def map_class_to_label(probs, mapping=None, lbl_classes=None):
     return results
 
 
+def get_req(idx, request_ids):
+    """
+    Provide the request id dimension
+    Parameters
+    ----------
+    idx : int
+        request_id index in batch
+    request_ids : map
+        request_id index in batch
+    """
+    # check if request id for the metric is given, if so use it else have a list of all.
+    req_id = request_ids
+    if isinstance(req_id, dict):
+        req_id = ','.join(request_ids.values())
+    if idx is not None and request_ids is not None and idx in request_ids:
+        req_id = request_ids[idx]
+    return req_id
+
+
 class PredictionException(Exception):
     def __init__(self, message, error_code=500):
         self.message = message

@@ -1,13 +1,14 @@
 """
 Interface for metric class for TS
 """
+import abc
 from ts.metrics.unit import Units
 from ts.metrics.metric_type_enum import MetricTypes
 
 MetricUnit = Units()
 
 
-class IMetric(object):
+class IMetric(metaclass=abc.ABCMeta):
     """
     Class for generating metrics and printing it to stdout of the worker
     """

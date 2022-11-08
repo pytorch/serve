@@ -424,8 +424,8 @@ class TestAdditionalMetricMethods:
         dimensions = [Dimension("ModelName", "test_add_size_pass")]
         metrics_cache_obj.add_size("SizeMetric", 25, unit="GB", dimensions=dimensions)
         metric = metrics_cache_obj.get_metric("SizeMetric", MetricTypes.GAUGE)
-        assert metric.dimension_names == ["ModelName"]
-        assert "[METRICS]SizeMetric.Gigabytes:25|#ModelName:test_add_size_pass" in caplog.text
+        assert metric.dimension_names == ["ModelName", "Level"]
+        assert "[METRICS]SizeMetric.Gigabytes:25|#ModelName:test_add_size_pass,Level:Error" in caplog.text
 
     def test_add_size_diff_metric_type_pass(self, caplog):
         metrics_cache_obj = MetricsCacheYamlImpl(os.path.join(dir_path, "metrics.yaml"))
@@ -438,11 +438,16 @@ class TestAdditionalMetricMethods:
     def test_add_percent_pass(self, caplog):
         metrics_cache_obj = MetricsCacheYamlImpl(os.path.join(dir_path, "metrics.yaml"))
         caplog.set_level("INFO")
-        metrics_cache_obj.add_percent("PercentMetric", 11)
-        assert "[METRICS]PercentMetric.Percent:11|#|" in caplog.text
+        dimensions = [Dimension("ModelName", "test_add_percent_pass")]
+        uid1 = uuid.uuid4()
+        metrics_cache_obj.add_percent("PercentMetric", 11, uid1, dimensions)
+        assert "[METRICS]PercentMetric.Percent:11|#ModelName:test_add_percent_pass,Level:Model|" in caplog.text
+        assert str(uid1) in caplog.text
         metric = metrics_cache_obj.get_metric("PercentMetric", MetricTypes.GAUGE)
-        metric.add_or_update(22)
-        assert "[METRICS]PercentMetric.Percent:22|#|" in caplog.text
+        uid2 = uuid.uuid4()
+        metric.update(22, request_id=uid2, dimensions=dimensions)
+        assert "[METRICS]PercentMetric.Percent:22|#ModelName:test_add_percent_pass,Level:Model|" in caplog.text
+        assert str(uid2) in caplog.text
 
     def test_add_percent_diff_metric_type_pass(self, caplog):
         metrics_cache_obj = MetricsCacheYamlImpl(os.path.join(dir_path, "metrics.yaml"))
@@ -497,7 +502,7 @@ class TestEmitMetrics:
             value=12,
             unit="ms",
             dimensions=[Dimension("hello", "world")],
-            metric_type="counter",
+            metric_method="counter",
         )
         metric.update(2.5)
         caplog.set_level("INFO")
@@ -512,11 +517,13 @@ class TestIncrementDecrementMetrics:
     def test_add_counter_dimensions_empty(self, caplog):
         metrics_cache_obj = MetricsCacheYamlImpl(os.path.join(dir_path, "metrics.yaml"))
         caplog.set_level("INFO")
-        metrics_cache_obj.add_counter("LoopCount", 7)
+        metrics_cache_obj.add_counter("LoopCount", 7, uuid.uuid4(), [
+            Dimension("ModelName", "test_add_counter_dimensions_empty")
+        ])
         counter_metric = metrics_cache_obj.get_metric("LoopCount", MetricTypes.COUNTER)
-        counter_metric.add_or_update(14)
-        assert "LoopCount.Count:7|#|" in caplog.text
-        assert "LoopCount.Count:14|#|" in caplog.text
+        counter_metric.add_or_update(14, ["test_add_counter_dimensions_empty", "Host"])
+        assert "LoopCount.Count:7|#ModelName:test_add_counter_dimensions_empty,Level:Model|" in caplog.text
+        assert "LoopCount.Count:14|#ModelName:test_add_counter_dimensions_empty,Level:Host|" in caplog.text
 
     def test_add_counter_dimensions_filled(self, caplog):
         metrics_cache_obj = MetricsCacheYamlImpl(os.path.join(dir_path, "metrics.yaml"))

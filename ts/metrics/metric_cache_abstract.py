@@ -5,9 +5,9 @@ Implemented in the case it is decided that another file format is better in the 
 Currently, abstract class has the methods for getting a metric and adding a metric to the cache.
 """
 import abc
-import logging
-
 import ts.metrics.metric_cache_errors as merrors
+
+from ts.metrics.dimension import Dimension
 from ts.metrics.imetric import IMetric
 from ts.metrics.metric_type_enum import MetricTypes
 
@@ -32,6 +32,18 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
         self.model_name = model_name
         self.config_file_path = config_file_path
 
+    def _update_dims(self, idx, dimensions):
+        dim_names = [dim.name for dim in dimensions]
+        if idx is None:
+            if "Level" not in dim_names:
+                dimensions.append(Dimension("Level", "Error"))
+        else:
+            if "ModelName" not in dim_names:
+                dimensions.append(Dimension("ModelName", self.model_name))
+            if "Level" not in dim_names:
+                dimensions.append(Dimension("Level", "Model"))
+        return dimensions
+
     def add_counter(
         self,
         metric_name: str,
@@ -53,6 +65,7 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
         dimensions: list
             list of dimension names for the metric
         """
+        dimensions = self._update_dims(idx, dimensions)
         metric = self.add_metric(
             metric_name=metric_name,
             unit="count",
@@ -93,6 +106,7 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
             raise merrors.MetricsCacheValueError(
                 "the unit for a timed metric should be one of ['ms', 's']"
             )
+        dimensions = self._update_dims(idx, dimensions)
         metric = self.add_metric(
             metric_name=metric_name,
             unit=unit,
@@ -133,6 +147,7 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
             raise ValueError(
                 "The unit for size based metric is one of ['MB','kB', 'GB', 'B']"
             )
+        dimensions = self._update_dims(idx, dimensions)
         metric = self.add_metric(
             metric_name=metric_name,
             unit=unit,
@@ -166,6 +181,7 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
         metric_type MetricTypes
             Type of metric Counter, Gauge, Histogram
         """
+        dimensions = self._update_dims(idx, dimensions)
         metric = self.add_metric(
             metric_name=metric_name,
             unit="percent",
@@ -193,6 +209,7 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
         dimensions: list
             list of dimension objects for the metric
         """
+        dimensions = self._update_dims(None, dimensions)
         metric = self.add_metric(
             metric_name=metric_name,
             unit="",

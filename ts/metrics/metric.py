@@ -5,6 +5,8 @@ import socket
 import time
 from builtins import str
 from collections import OrderedDict
+from ts.metrics.caching_metric import CachingMetric
+from ts.metrics.metric_type_enum import MetricTypes
 
 from ts.metrics.unit import Units
 
@@ -24,7 +26,6 @@ class Metric(object):
         dimensions,
         request_id=None,
         metric_method=None,
-        metric_type=None,
     ):
         """
         Constructor for Metric class
@@ -47,16 +48,21 @@ class Metric(object):
            useful for defining different operations, optional
 
         """
-        self.name = name
-        self.unit = unit
-        if unit in list(MetricUnit.units.keys()):
-            self.unit = MetricUnit.units[unit]
+        self.metric_type = MetricTypes.COUNTER
+        self.dimensions = dimensions
+        self.dimension_names = [dim.name for dim in dimensions]
+        self.dimension_values = [dim.value for dim in dimensions]
+        self._caching_metric = CachingMetric(
+            metric_name=name,
+            unit=unit,
+            dimension_names=self.dimension_names,
+            metric_type=self.metric_type,
+        )
+        self.name = self._caching_metric.metric_name
+        self.unit = self._caching_metric.unit
         self.metric_method = metric_method
         self.value = value
-        self.dimensions = dimensions
         self.request_id = request_id
-        self.metric_type = metric_type
-        self.is_updated = False if value == 0 else True
 
     def update(self, value):
         """
@@ -67,21 +73,13 @@ class Metric(object):
         value : int, float
             metric to be updated
         """
-        previous_value = self.value
-        if (
-            self.metric_method == "counter" or self.metric_type == "counter"
-        ):  # metric_method should be not used
-            self.value += value
-        else:
-            self.value = value
-        self.is_updated = previous_value != self.value
+        self._caching_metric.add_or_update(value, self.dimension_values, request_id=self.request_id)
 
     def reset(self):
         """
-        Reset Metric value to 0 and reset is_updated flag to False
+        Reset Metric value to 0
         """
-        self.value = 0
-        self.is_updated = False
+        self._caching_metric.add_or_update(0, self.dimension_values, request_id=self.request_id)
 
     def __str__(self):
         dims = ",".join([str(d) for d in self.dimensions])

@@ -140,15 +140,20 @@ class CachingMetric(IMetric):
         self,
         value: int or float,
         request_id: str = "",
+        dimensions: list = [],
     ):
         """
         BACKWARDS COMPATIBILITY: Update metric value
 
         Parameters
         ----------
-        request_id : str
-            request id to be associated with the metric
         value : int, float
             metric to be updated
+        request_id : str
+            request id to be associated with the metric
+        dimensions : list
+            list of dimension values
         """
-        self.add_or_update(value, [], request_id)
+        logger.warning("Overriding existing dimensions")
+        self.dimension_names = [dim.name for dim in dimensions]
+        self.add_or_update(value, [dim.value for dim in dimensions], request_id)
