@@ -1,4 +1,4 @@
-# Loading large Huggingface models with contrained resources using accelerate
+# Loading large Huggingface models with constrained resources using accelerate
 
 This document briefs on serving large HG models with limited resource using accelerate. This option can be activated with `low_cpu_mem_usage=True`. The model is first created on the Meta device (with empty weights) and the state dict is then loaded inside it (shard by shard in the case of a sharded checkpoint).
 
