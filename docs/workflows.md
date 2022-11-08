@@ -70,7 +70,7 @@ User can define following workflow model properties:
 | max-workers | Number of maximum workers launched for every workflow model | 1 |
 | batch-size | Batch size used for every workflow model | 1 |
 | max-batch-delay | Maximum batch delay time TorchServe waits for every workflow model to receive `batch_size` number of requests.| 50 ms |
-| retry-attempts | Retry attempts for a specific workflow node incase of a failure | 1 |
+| retry-attempts | Retry attempts for a specific workflow node in case of a failure | 1 |
 | timeout-ms | Timeout in MilliSeconds for a given node | 10000 |
 
 These properties can be defined as a global value for every model and can be over-ridden at every model level in workflow specification. Refer the above example for more details.

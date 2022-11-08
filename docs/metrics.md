@@ -8,7 +8,7 @@
 * [Metric Types](#metric-types)
 * [Central metrics yaml file definition](#central-metrics-yaml-file-definition)
 * [Custom Metrics API](#custom-metrics-api)
-* [Log custom metrics](#log-custom-metrics)
+* [Logging custom metrics](#log-custom-metrics)
 * [Metrics YAML Parsing and Metrics API example](#Metrics-YAML-File-Parsing-and-Metrics-API-Custom-Handler-Example)
 
 ## Introduction
@@ -549,7 +549,7 @@ metrics.get_metric(MetricTypes.gauge, "GaugeMetricName", "ModelName:foo,Level:Mo
 ```
 
 
-## Log custom metrics
+## Logging custom metrics
 
 Following sample code can be used to log the custom metrics created in the model's custom handler:
 
