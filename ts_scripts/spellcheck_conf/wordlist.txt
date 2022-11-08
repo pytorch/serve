@@ -987,3 +987,5 @@ DeepSpeed
 MII
 deepspeed
 mii
+Diffusers
+diffusers
