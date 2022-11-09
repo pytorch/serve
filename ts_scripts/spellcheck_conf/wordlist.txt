@@ -983,5 +983,14 @@ fs
 fsspec
 minioadmin
 pythonic
+DeepSpeed
+MII
+deepspeed
+mii
 Diffusers
 diffusers
+AzureML
+Largemodels
+bigscience
+mem
+sharded
