@@ -1,42 +1,42 @@
 dimensions:
-  model_name: &model_name "model_name"
-  host: &host "host_name"
-  ModelName: &ModelName "ModelName"
-  Level: &Level "level"
+  - &model_name "model_name"
+  - &host "host_name"
+  - &ModelName "ModelName"
+  - &Level "level"
 
 ts_metrics:
   counter:
-    - name:
-        unit: ms
-        dimensions: [*model_name, *host]
+    - name: CounterTsMetricExample
+      unit: ms
+      dimensions: [*model_name, *host]
   gauge:
-    - name:
-        unit: ms
-        dimensions: [*model_name, *host]
+    - name: GaugeTsMetricExample
+      unit: ms
+      dimensions: [*model_name, *host]
   histogram:
-    - name:
-        unit: ms
-        dimensions: [*model_name, *host]
+    - name: HistogramTsMetricExample
+      unit: ms
+      dimensions: [*model_name, *host]
 
 model_metrics:
   counter:
-    - InferenceTimeInMS:
-        unit: ms
-        dimensions:
-    - NumberOfMetrics:
-        unit: count
-        dimensions: [*model_name, *host]
+    - name: InferenceTimeInMS
+      unit: ms
+      dimensions:
+    - name: NumberOfMetrics
+      unit: count
+      dimensions: [*model_name, *host]
   gauge:
-    - GaugeModelMetricNameExample:
-        unit: ms
-        dimensions: [*ModelName, *Level]
+    - name: GaugeModelMetricNameExample
+      unit: ms
+      dimensions: [*ModelName, *Level]
   histogram:
-    - HistogramModelMetricNameExample:
-        unit: ms
-        dimensions: []
-    - HistogramModelMetricNameExample:
-        unit: ms
-        dimensions: []
-    - AnotherHistogram:
-        unit: ms
-        dimensions: []
+    - name: HistogramModelMetricNameExample
+      unit: ms
+      dimensions: []
+    - name: HistogramModelMetricNameExample
+      unit: ms
+      dimensions: []
+    - name: AnotherHistogram
+      unit: ms
+      dimensions: []

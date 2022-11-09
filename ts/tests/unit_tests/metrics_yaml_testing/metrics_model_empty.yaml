@@ -1,19 +1,19 @@
 dimensions:
-  model_name: &model_name "model_name"
-  host: &host "host"
+  - &model_name "model_name"
+  - &host "host"
 
 ts_metrics:
   counter:
-    - name:
-        unit: ms
-        dimensions: [*model_name, *host]
+    - name: CounterTsMetricExample
+      unit: ms
+      dimensions: [*model_name, *host]
   gauge:
-    - name:
-        unit: ms
-        dimensions: [*model_name, *host]
+    - name: GaugeTsMetricExample
+      unit: ms
+      dimensions: [*model_name, *host]
   histogram:
-    - name:
-        unit: ms
-        dimensions: [*model_name, *host]
+    - name: HistogramTsMetricExample
+      unit: ms
+      dimensions: [*model_name, *host]
 
 model_metrics:

@@ -2,19 +2,15 @@
 Unit testing for ts/metrics/metric_cache_abstract.py,
 ts/metrics/metric_cache_yaml_impl.py, and emit_metrics() ts/service.py
 """
-import json
 import os
 import pytest
 import uuid
 import ts.metrics.metric_cache_errors as merrors
 
-from collections import Counter
 from ts.metrics.dimension import Dimension
-from ts.metrics.metric import Metric
 from ts.metrics.caching_metric import CachingMetric
 from ts.metrics.metric_cache_yaml_impl import MetricsCacheYamlImpl
 from ts.metrics.metric_type_enum import MetricTypes
-from ts.service import emit_metrics
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
@@ -189,54 +185,57 @@ class TestParseYaml:
     def test_parse_expected_yaml(self):
         metrics_cache_obj = MetricsCacheYamlImpl(os.path.join(dir_path, "metrics.yaml"))
         expected_dict = {
-            "dimensions": {
-                "ModelName": "model_name",
-                "host": "host_name",
-                "Level": "host"
-            },
-            "ts_metrics": {
-                "counter": [{
-                    "name": {
-                        "unit": "ms",
-                        "dimensions": ["model_name", "host_name"]
-                    }
+            "dimensions":
+            [
+                "model_name",
+                "host_name",
+                "host"
+            ],
+            "ts_metrics":
+            {
+                "counter": [
+                {
+                    "name": "CounterTsMetricExample",
+                    "unit": "ms",
+                    "dimensions": ["model_name", "host_name"]
                 }],
-                "gauge": [{
-                    "name": {
-                        "unit": "ms",
-                        "dimensions": ["model_name", "host_name"]
-                    }
+                "gauge": [
+                {
+                    "name": "GaugeTsMetricExample",
+                    "unit": "ms",
+                    "dimensions": ["model_name", "host_name"]
                 }],
-                "histogram": [{
-                    "name": {
-                        "unit": "ms",
-                        "dimensions": ["model_name", "host_name"]
-                    }
+                "histogram": [
+                {
+                    "name": "HistogramTsMetricExample",
+                    "unit": "ms",
+                    "dimensions": ["model_name", "host_name"]
                 }]
             },
-            "model_metrics": {
-                "counter": [{
-                    "InferenceTimeInMS": {
-                        "unit": "ms",
-                        "dimensions": ["model_name", "host"]
-                    }
-                }, {
-                    "NumberOfMetrics": {
-                        "unit": "count",
-                        "dimensions": ["model_name", "host_name"]
-                    }
+            "model_metrics":
+            {
+                "counter": [
+                {
+                    "name": "InferenceTimeInMS",
+                    "unit": "ms",
+                    "dimensions": ["model_name", "host"]
+                },
+                {
+                    "name": "NumberOfMetrics",
+                    "unit": "count",
+                    "dimensions": ["model_name", "host_name"]
                 }],
-                "gauge": [{
-                    "GaugeModelMetricNameExample": {
-                        "unit": "ms",
-                        "dimensions": ["model_name", "host"]
-                    }
+                "gauge": [
+                {
+                    "name": "GaugeModelMetricNameExample",
+                    "unit": "ms",
+                    "dimensions": ["model_name", "host"]
                 }],
-                "histogram": [{
-                    "HistogramModelMetricNameExample": {
-                        "unit": "ms",
-                        "dimensions": ["model_name", "host"]
-                    }
+                "histogram": [
+                {
+                    "name": "HistogramModelMetricNameExample",
+                    "unit": "ms",
+                    "dimensions": ["model_name", "host"]
                 }]
             }
         }

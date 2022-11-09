@@ -114,9 +114,9 @@ Users will be restricted to the existing metric types when adding metrics via Me
 
 ```python
 class MetricTypes(enum.Enum):
-    counter = "counter"
-    gauge = "gauge"
-    histogram = "histogram"
+    COUNTER = "counter"
+    GAUGE = "gauge"
+    HISTOGRAM = "histogram"
 ```
 
 ## Central metrics YAML file definition
@@ -131,72 +131,66 @@ Dynamic updates between the frontend and backend are _not_ currently being handl
 The `metrics.yaml` is formatted with Prometheus metric type terminology:
 
 ```yaml
-dimensions:  # dimensions dict
-  ModelName: "ExampleModelName"
-  Level: "Model"
-  host: "example_host_name"
+dimensions: # dimension aliases
+  - &model_name "ModelName"
+  - &level "Level"
 
 ts_metrics:  # frontend metrics
   counter:  # metric type
-    - NameOfCounterMetric:  # name of metric
-        unit: ms  # unit of metric
-        dimensions: [ModelName, host]  # dimensions of metric (referenced from the above dimensions dict)
+    - name: NameOfCounterMetric  # name of metric
+      unit: ms  # unit of metric
+      dimensions: [*model_name, *level]  # dimension names of metric (referenced from the above dimensions dict)
   gauge:
-    - NameOfGaugeMetric:
-        unit: ms
-        dimensions: [ModelName, host]
+    - name: NameOfGaugeMetric
+      unit: ms
+      dimensions: [*model_name, *level]
   histogram:
-    - NameOfHistogramMetric:
-        unit: ms
-        dimensions: [ModelName, host]
+    - name: NameOfHistogramMetric
+      unit: ms
+      dimensions: [*model_name, *level]
 
 model_metrics:  # backend metrics
   counter:  # metric type
-    - InferenceTimeInMS:  # name of metric
-        unit: ms  # unit of metric
-        dimensions: [ModelName, Level]  # dimensions of metric (referenced from the above dimensions dict)
-    - NumberOfMetrics:
-        unit: count
-        dimensions: [model_name]
+    - name: InferenceTimeInMS  # name of metric
+      unit: ms  # unit of metric
+      dimensions: [*model_name, *level]  # dimension names of metric (referenced from the above dimensions dict)
+    - name: NumberOfMetrics
+      unit: count
+      dimensions: [*model_name]
   gauge:
-    - GaugeModelMetricNameExample:
-        unit: ms
-        dimensions: [ModelName, Level]
+    - name: GaugeModelMetricNameExample
+      unit: ms
+      dimensions: [*model_name, *level]
   histogram:
-    - HistogramModelMetricNameExample:
-        unit: ms
-        dimensions: [ModelName, Level]
+    - name: HistogramModelMetricNameExample
+      unit: ms
+      dimensions: [*model_name, *level]
 ```
 
 
-These are the default metrics within the yaml file, but the user can either delete them to their liking / ignore them altogether, because these metrics will not be emitted
-unless they are edited.
+These are the default metrics within the yaml file, but the user can either delete them to their liking / ignore them altogether, because these metrics will not be emitted unless they are edited.
 
 
 ### How it works
 
-Whenever torchserve starts, the [model_loader](https://github.com/pytorch/serve/blob/master/ts/model_loader.py) initializes
-`service.context.metrics` with the [MetricsCache](https://github.com/pytorch/serve/blob/master/ts/metrics/metric_cache_yaml.py) object.
-The `model_metrics` (backend metrics) section within the specified yaml file will be parsed,
-and Metric objects will be created based on the parsed section and added  that are added to the cache.
+Whenever torchserve starts, the [backend worker](https://github.com/pytorch/serve/blob/master/ts/model_service_worker.py) initializes `service.context.metrics` with the [MetricsCache](https://github.com/pytorch/serve/blob/master/ts/metrics/metric_cache_yaml_impl.py) object. The `model_metrics` (backend metrics) section within the specified yaml file will be parsed, and Metric objects will be created based on the parsed section and added  that are added to the cache.
 
 This is all done internally, so the user does not have to do anything other than specifying the desired yaml file.
 
 *Users have the ability to parse other sections of the yaml file manually, but the primary purpose of this functionality is to
-parse the backend metrics from the yaml file.
+parse the backend metrics from the yaml file.*
 
 ### User Manual - starting TorchServe with a yaml file specified
 
-1. Create a `metrics.yaml` file to parse metrics from OR utilize default [metrics_default.yaml](https://github.com/pytorch/serve/blob/master/frontend/server/src/test/resources/metrics_default.yaml)
+1. Create a `metrics.yaml` file to parse metrics from OR utilize default [metrics_default.yaml](https://github.com/pytorch/serve/blob/master/ts/configs/metrics.yaml)
 
 
 2. Set `metrics_config` argument equal to the yaml file path in the `config.properties` being used:
     ```properties
     ...
     ...
-    # enable_metrics_api=false
     workflow_store=../archive/src/test/resources/workflows
-    metrics_config=../../../ts/tests/unit_tests/metrics_yaml_testing/metrics.yaml
+    metrics_config=/<path>/<to>/<metrics>/<file>/metrics.yaml
     ...
     ...
     ```
@@ -204,10 +198,9 @@ parse the backend metrics from the yaml file.
    If a `metrics_config` argument is not specified, the default yaml file will be used.
 
 
-3. Run torchserve and specify the path of the `config.properties` after the `ts-config` flag:
-   (example using [Huggingface_Transformers](https://github.com/pytorch/serve/tree/master/examples/Huggingface_Transformers))
+3. Run torchserve and specify the path of the `config.properties` after the `ts-config` flag: (example using [Huggingface_Transformers](https://github.com/pytorch/serve/tree/master/examples/Huggingface_Transformers))
 
-   ```torchserve --start --model-store model_store --models my_tc=BERTSeqClassification.mar --ncs --ts-config ../../frontend/server/src/test/resources/config.properties```
+   ```torchserve --start --model-store model_store --models my_tc=BERTSeqClassification.mar --ncs --ts-config /<path>/<to>/<config>/<file>/config.properties```
 
 
 ## Custom Metrics API
@@ -228,12 +221,14 @@ All metrics are collected within the context.
 ### Specifying Metric Types
 
 When adding any metric via Metrics API, users have the ability to override the metric type by specifying the positional argument
-`metric_type=MetricTypes.[counter/gauge/histogram]`.
+`metric_type=MetricTypes.[COUNTER/GAUGE/HISTOGRAM]`.
 
 ```python
-metrics.add_metric("GenericMetric", value=1, ..., metric_type=MetricTypes.gauge)
+metric1 = metrics.add_metric("GenericMetric", unit=unit, dimension_names=["name1", "name2", ...], metric_type=MetricTypes.GAUGE)
+metric.add_or_update(value, dimension_values=["value1", "value2", ...])
 
-metrics.add_counter("CounterMetric", value=1, ..., metric_type=MetricTypes.histogram)
+# Backwards compatible, combines the above two method calls
+metrics.add_counter("CounterMetric", value=1, dimensions=[Dimension("name", "value"), ...])
 ```
 
 
@@ -244,9 +239,9 @@ given some criteria:
 (we will use the following metric as an example)
 ```yaml
   counter:  # metric type
-    - InferenceTimeInMS:  # name of metric
-        unit: ms  # unit of metric
-        dimensions: [ModelName, Level]
+    - name: InferenceTimeInMS  # name of metric
+      unit: ms  # unit of metric
+      dimensions: [ModelName, Level]
 ```
 1. Metric Type has to be the same
    1. The user will have to use a counter-based `add_...` method,
@@ -258,10 +253,9 @@ given some criteria:
 
 
 3. Dimensions should be the same (as well as the same order!)
-   1. All dimensions have to match, and Metric objects that have been parsed from the yaml file also have dimensions that are parsed from the yaml file
+   1. All dimensions have to match, and Metric objects that have been parsed from the yaml file also have dimension names that are parsed from the yaml file
       1. Users can [create their own](#create-dimension-objects) `Dimension` objects to match those in the yaml file dimensions
-      2. if the Metric object has `ModelName` and `Level` dimensions only, it is optional to specify additional dimensions since these are
-      considered [default dimensions](#default-dimensions), so: `add_counter('InferenceTimeInMS', value=2)` or `add_counter('InferenceTimeInMS', value=2, dimensions=["ModelName", "Level"])`
+      2. if the Metric object has `ModelName` and `Level` dimensions only, it is optional to specify additional dimensions since these are considered [default dimensions](#default-dimensions), so: `add_counter('InferenceTimeInMS', value=2)` or `add_counter('InferenceTimeInMS', value=2, dimensions=["ModelName", "Level"])`
       3. if Metric object has additional dimension, just specify the additional dimensions within the API
          1. if metric in yaml had `dimensions: [foo, ModelName, Level]`, then `add_counter(..., dimensions=["foo"])`
          2. `dimensions: [foo, ModelName, Level]` != `dimensions: [ModelName, Level, foo]`
@@ -297,15 +291,15 @@ dimN= Dimension(name_n, value_n)
 
 ### Add generic metrics
 
-**Generic metrics are defaulted to a `counter` metric type**
+**Generic metrics are defaulted to a `COUNTER` metric type**
 
 One can add metrics with generic units using the following function.
 
 Function API
 
 ```python
-    def add_metric(self, metric_name: str, value: int or float, unit: str, idx=None, dimensions: list = None,
-                   metric_type: MetricTypes = MetricTypes.counter) -> None:
+    def add_metric(self, metric_name: str, unit: str, idx=None, dimension_names: list = None,
+                   metric_type: MetricTypes = MetricTypes.COUNTER) -> None:
         """
         Create a new metric and add into cache.
             Add a metric which is generic with custom metrics
@@ -325,33 +319,53 @@ Function API
         metric_type: MetricTypes
             Type of metric
         """
+
+    def add_or_update(
+        self,
+        value: int or float,
+        dimension_values: list = [],
+        request_id: str = "",
+    ):
+        """
+        Update metric value, request id and dimensions
+
+        Parameters
+        ----------
+        value : int, float
+            metric to be updated
+        dimension_values : list
+            list of dimension values
+        request_id : str
+            request id to be associated with the metric
+        """
 ```
 
 ```python
 # Add Distance as a metric
 # dimensions = [dim1, dim2, dim3, ..., dimN]
 # Assuming batch size is 1 for example
-metrics.add_metric('DistanceInKM', distance, 'km', dimensions=dimensions)
+metric = metrics.add_metric('DistanceInKM', unit='km', dimension_names=[...])
+metric.add_or_update(distance, dimension_values=[...])
 ```
 
 ### Add time-based metrics
 
-**Time-based metrics are defaulted to a `gauge` metric type**
+**Time-based metrics are defaulted to a `GAUGE` metric type**
 
 Add time-based by invoking the following method:
 
 Function API
 
 ```python
-    def add_time(self, name: str, value: int or float, idx=None, unit: str = 'ms', dimensions: list = None,
-                 metric_type: MetricTypes = MetricTypes.gauge):
+    def add_time(self, metric_name: str, value: int or float, idx=None, unit: str = 'ms', dimensions: list = None,
+                 metric_type: MetricTypes = MetricTypes.GAUGE):
         """
         Add a time based metric like latency, default unit is 'ms'
             Default metric type is gauge
 
         Parameters
         ----------
-        name : str
+        metric_name : str
             metric name
         value: int
             value of metric
@@ -381,22 +395,22 @@ metrics.add_time('InferenceTime', end_time-start_time, None, 'ms', dimensions)
 
 ### Add size-based metrics
 
-**Size-based metrics are defaulted to a `gauge` metric type**
+**Size-based metrics are defaulted to a `GAUGE` metric type**
 
 Add size-based metrics by invoking the following method:
 
 Function API
 
 ```python
-    def add_size(self, name: str, value: int or float, idx=None, unit: str = 'MB', dimensions: list = None,
-                 metric_type: MetricTypes = MetricTypes.gauge):
+    def add_size(self, metric_name: str, value: int or float, idx=None, unit: str = 'MB', dimensions: list = None,
+                 metric_type: MetricTypes = MetricTypes.GAUGE):
         """
         Add a size based metric
             Default metric type is gauge
 
         Parameters
         ----------
-        name : str
+        metric_name : str
             metric name
         value: int, float
             value of metric
@@ -413,7 +427,7 @@ Function API
 
 Note that the default unit in this case is milliseconds (ms).
 
-**Supported units**: `['MB', 'kB', 'GB']`
+**Supported units**: `['MB', 'kB', 'GB', 'B']`
 
 To add custom size based metrics
 
@@ -426,22 +440,22 @@ metrics.add_size('SizeOfImage', img_size, None, 'MB', dimensions)
 
 ### Add Percentage based metrics
 
-**Percentage-based metrics are defaulted to a `gauge` metric type**
+**Percentage-based metrics are defaulted to a `GAUGE` metric type**
 
 Percentage based metrics can be added by invoking the following method:
 
 Function API
 
 ```python
-    def add_percent(self, name: str, value: int or float, idx=None, dimensions: list = None,
-                    metric_type: MetricTypes = MetricTypes.gauge):
+    def add_percent(self, metric_name: str, value: int or float, idx=None, dimensions: list = None,
+                    metric_type: MetricTypes = MetricTypes.GAUGE):
         """
         Add a percentage based metric
             Default metric type is gauge
 
         Parameters
         ----------
-        name : str
+        metric_name : str
             metric name
         value: int, float
             value of metric
@@ -466,21 +480,21 @@ metrics.add_percent('MemoryUtilization', utilization_percent, None, dimensions)
 
 ### Add counter-based metrics
 
-**Counter-based metrics are defaulted to a `counter` metric type**
+**Counter-based metrics are defaulted to a `COUNTER` metric type**
 
 Counter based metrics can be added by invoking the following method
 
 Function API
 
 ```python
-    def add_counter(self, name: str, value: int or float, idx=None, dimensions: list = None,
-                    metric_type: MetricTypes = MetricTypes.counter):
+    def add_counter(self, metric_name: str, value: int or float, idx=None, dimensions: list = None,
+                    metric_type: MetricTypes = MetricTypes.COUNTER):
         """
         Add a counter metric or increment an existing counter metric
             Default metric type is counter
         Parameters
         ----------
-        name : str
+        metric_name : str
             metric name
         value: int or float
             value of metric
@@ -493,34 +507,12 @@ Function API
         """
 ```
 
-To create, increment and decrement counter-based metrics we can use the following calls:
-
-```python
-# Add Loop Count as a metric
-# dimensions = [dim1, dim2, dim3, ..., dimN]
-# Assuming batch size 1
-
-# Create a counter with name 'LoopCount' and dimensions, initial value
-metrics.add_counter('LoopCount', 1, None, dimensions)
-
-# Increment counter by 2
-metrics.add_counter('LoopCount', 2 , None, dimensions)
-
-# Decrement counter by 1
-metrics.add_counter('LoopCount', -1, None, dimensions)
-
-# Final counter value in this case is 2
-
-```
-
 ### Getting a metric
 
-Users can [get a metric](https://github.com/pytorch/serve/tree/master/ts/metrics/metric_cache_yaml.py#L202)
-from the cache. The Metric object is returned, so the user can access the methods of the Metric:
-(i.e. `Metric.update(value)`, `Metric.__str__`)
+Users can get a metric from the cache. The Metric object is returned, so the user can access the methods of the Metric: (i.e. `Metric.update(value)`, `Metric.__str__`)
 
 ```python
-    def get_metric(self, metric_type: MetricTypes, metric_name: str, dimensions: list or str) -> Metric:
+    def get_metric(self, metric_type: MetricTypes, metric_name: str) -> Metric:
         """
         Get a Metric from cache.
             Ask user for required requirements to form metric key to retrieve Metric.
@@ -533,28 +525,22 @@ from the cache. The Metric object is returned, so the user can access the method
         metric_name: str
             Name of metric
 
-        dimensions: list or str
-            list of dimension keys which should be strings
-
         """
 ```
 
 i.e.
 ```python
-# Method 1: Getting metric of MetricType counter, metric name string, and list of dimension keys derived from YAML file.
-metrics.get_metric(MetricTypes.counter, "MetricName", ["ModelName", "Level"])
+# Method 1: Getting metric of MetricType counter, metric name string
+metrics.get_metric("MetricName", MetricTypes.COUNTER)
 
-# Method 2: Getting metric of MetricType gauge, metric name string, and complete log string of dimensions.
-metrics.get_metric(MetricTypes.gauge, "GaugeMetricName", "ModelName:foo,Level:Model")
+# Method 2: Getting metric of MetricType gauge, metric name string
+metrics.get_metric("GaugeMetricName", MetricTypes.GAUGE)
 ```
 
 
 ## Logging custom metrics
 
 Following sample code can be used to log the custom metrics created in the model's custom handler:
-
-_Metrics will only be emitted if they have value assigned to them.
-In other words, if metrics have an initial value of 0 (which is the default value), the metric will not be emitted._
 
 ```python
 # In Custom Handler
@@ -563,12 +549,10 @@ from ts.service import emit_metrics
 class ExampleCustomHandler(BaseHandler, ABC):
    def initialize(self, ctx):
 
-emit_metrics(metrics.cache)
+context.metrics.add_counter(...)
 ```
 
 This custom metrics information is logged in the `model_metrics.log` file configured through [log4j2.xml](https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/log4j2.xml) file.
-
-**NOTE:** After emitting the metrics, all metric values that have been updated will be reset to 0.
 
 ## Metrics YAML File Parsing and Metrics API Custom Handler Example
 
@@ -594,8 +578,7 @@ class CustomHandlerExample:
             "HandlerTime", round((stop_time - start_time) * 1000, 2), None, "ms"
         )
 
-        # The next two lines will accumulate - the end result is one Metric
-        # name HandlerSeparateCounter with a value of 1.2
+        # Logs the value 2.5 and -1.3 to the frontend
         metrics.add_counter("HandlerSeparateCounter", 2.5)
         metrics.add_counter("HandlerSeparateCounter", -1.3)
 
@@ -613,17 +596,12 @@ class CustomHandlerExample:
         # In this example, we are getting an already existing
         # Metric that had been parsed from the yaml file
         histogram_example_metric = metrics.get_metric(
-            MetricTypes.histogram,
             "HistogramModelMetricNameExample",
-            ["ModelName", "Level"],
+            MetricTypes.histogram,
         )
-        histogram_example_metric.update(4.6)
+        histogram_example_metric.add_or_update(4.6)
 
         # Same idea as the 'metrics.add_counter('InferenceTimeInMS', 2.78)' line,
         # except this time with gauge metric type object
         metrics.add_size("GaugeModelMetricNameExample", 42.5)
-
-        # Emitting the metrics that have been updated to the frontend and
-        # then resetting the Metrics' values afterwards
-        emit_metrics(metrics.cache)
 ```

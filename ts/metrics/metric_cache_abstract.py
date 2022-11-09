@@ -68,7 +68,7 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
 
     def add_counter(
         self,
-        metric_name: str,
+        name: str,
         value: int or float,
         idx: str = None,
         dimensions: list = [],
@@ -78,7 +78,7 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
             Default metric type is counter
         Parameters
         ----------
-        metric_name: str
+        name: str
             metric name
         value: int or float
             value of the metric
@@ -89,12 +89,12 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
         """
         req_id = self._get_req(idx)
         dimensions = self._update_dims(req_id, dimensions)
-        metric = self._get_or_add_metric(metric_name, "count", dimensions, MetricTypes.COUNTER)
+        metric = self._get_or_add_metric(name, "count", dimensions, MetricTypes.COUNTER)
         metric.add_or_update(value, [dim.value for dim in dimensions], req_id)
 
     def add_time(
         self,
-        metric_name: str,
+        name: str,
         value: int or float,
         idx: str = None,
         unit: str = "ms",
@@ -107,7 +107,7 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
 
         Parameters
         ----------
-        metric_name : str
+        name : str
             metric name
         value: int or float
             value of the metric
@@ -126,12 +126,12 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
             )
         req_id = self._get_req(idx)
         dimensions = self._update_dims(req_id, dimensions)
-        metric = self._get_or_add_metric(metric_name, unit, dimensions, metric_type)
+        metric = self._get_or_add_metric(name, unit, dimensions, metric_type)
         metric.add_or_update(value, [dim.value for dim in dimensions], req_id)
 
     def add_size(
         self,
-        metric_name: str,
+        name: str,
         value: int or float,
         idx: str = None,
         unit: str = "MB",
@@ -144,7 +144,7 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
 
         Parameters
         ----------
-        metric_name : str
+        name : str
             metric name
         value: int or float
             value of the metric
@@ -163,12 +163,12 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
             )
         req_id = self._get_req(idx)
         dimensions = self._update_dims(req_id, dimensions)
-        metric = self._get_or_add_metric(metric_name, unit, dimensions, metric_type)
+        metric = self._get_or_add_metric(name, unit, dimensions, metric_type)
         metric.add_or_update(value, [dim.value for dim in dimensions], req_id)
 
     def add_percent(
         self,
-        metric_name: str,
+        name: str,
         value: int or float,
         idx: str = None,
         dimensions: list = [],
@@ -180,7 +180,7 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
 
         Parameters
         ----------
-        metric_name : str
+        name : str
             metric name
         value: int or float
             value of the metric
@@ -193,12 +193,12 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
         """
         req_id = self._get_req(idx)
         dimensions = self._update_dims(req_id, dimensions)
-        metric = self._get_or_add_metric(metric_name, "percent", dimensions, metric_type)
+        metric = self._get_or_add_metric(name, "percent", dimensions, metric_type)
         metric.add_or_update(value, [dim.value for dim in dimensions], req_id)
 
     def add_error(
         self,
-        metric_name: str,
+        name: str,
         value: int or float,
         dimensions: list = [],
     ):
@@ -208,7 +208,7 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
 
         Parameters
         ----------
-        metric_name : str
+        name : str
             metric name
         value: int or float
             value of the metric
@@ -216,7 +216,7 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
             list of dimension objects for the metric
         """
         dimensions = self._update_dims(None, dimensions)
-        metric = self._get_or_add_metric(metric_name, "", dimensions, MetricTypes.COUNTER)
+        metric = self._get_or_add_metric(name, "", dimensions, MetricTypes.COUNTER)
         metric.add_or_update(value, [dim.value for dim in dimensions])
 
 

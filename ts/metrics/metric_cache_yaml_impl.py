@@ -88,15 +88,15 @@ class MetricsCacheYamlImpl(MetricCacheAbstract):
 
             for metric in metrics_list:
                 try:
-                    for metric_name, metric_val in metric.items():
-                        unit = metric_val["unit"]
-                        dimension_names = metric_val["dimensions"]
-                        self.add_metric(
-                            metric_name=metric_name,
-                            unit=unit,
-                            dimension_names=dimension_names,
-                            metric_type=metric_enum,
-                        )
+                    metric_name = metric["name"]
+                    unit = metric["unit"]
+                    dimension_names = metric["dimensions"]
+                    self.add_metric(
+                        metric_name=metric_name,
+                        unit=unit,
+                        dimension_names=dimension_names,
+                        metric_type=metric_enum,
+                    )
                 except KeyError as k_err:
                     raise merrors.MetricsCacheKeyError(f"Key not found in cache spec: {k_err}")
 
