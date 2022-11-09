@@ -90,6 +90,7 @@ class BaseHandler(abc.ABC):
             try:
                 # import numpy as np
                 import onnxruntime as ort
+                import psutil
 
                 onnx_enabled = True
                 logger.info("ONNX enabled")
@@ -115,6 +116,7 @@ class BaseHandler(abc.ABC):
             self.model.eval()
 
         # Convert your model by following instructions: https://pytorch.org/tutorials/advanced/super_resolution_with_onnxruntime.html
+        # TODO(msaroufim): Refactor into utils https://github.com/pytorch/serve/issues/1631
         elif self.model_pt_path.endswith(".onnx") and onnx_enabled:
             # self.model = self._load_onnx_model(self.model_pt_path)
             providers = (
@@ -125,7 +127,7 @@ class BaseHandler(abc.ABC):
 
             # Set the right inference options, we can add more options here depending on what people want
             sess_options = ort.SessionOptions()
-            # sess_options.intra_op_num_threads = psutil.cpu_count(logical=True)
+            sess_options.intra_op_num_threads = psutil.cpu_count(logical=True)
 
             # Start an inference session
             ort_session = ort.InferenceSession(
@@ -147,34 +149,6 @@ class BaseHandler(abc.ABC):
         self.mapping = load_label_mapping(mapping_file_path)
 
         self.initialized = True
-
-    def _load_onnx_model(self, model_onnx_path):
-        """Loads the ONNX model and returns an ORT inference sesion
-
-        Args:
-            model_onnx_path (str): denotes the to the .onnx file
-
-        Returns:
-            (Inference Session) : Loads the model object.
-        """
-
-        # ORT defaults to cuda:0 if GPU available otherwise CPU
-        # Find the right backend provider
-        providers = (
-            ["CUDAExecutionProvider", "CPUExecutionProvider"]
-            if self.map_location == "cuda"
-            else ["CPUExecutionProvider"]
-        )
-
-        # Set the right inference options, we can add more options here depending on what people want
-        sess_options = ort.SessionOptions()
-        # sess_options.intra_op_num_threads = psutil.cpu_count(logical=True)
-
-        # Start an inference session
-        ort_session = ort.InferenceSession(
-            model_onnx_path, providers=providers, sess_options=sess_options
-        )
-        return ort_session
 
     def _load_torchscript_model(self, model_pt_path):
         """Loads the PyTorch model and returns the NN model object.
@@ -251,13 +225,13 @@ class BaseHandler(abc.ABC):
             Torch Tensor : The Predicted Torch Tensor is returned in this function.
         """
         with torch.no_grad():
-            if hasattr(self.model, "run"):
-                data = data.to(torch.float32).cpu().numpy()
-                # TODO: Should we make this "modelInput configurable", feels complicated
-                results = self.model.run(None, {"modelInput": data})[0]
-            else:
-                marshalled_data = data.to(self.device)
-                results = self.model(marshalled_data, *args, **kwargs)
+            # if hasattr(self.model, "run"):
+            #     data = data.to(torch.float32).cpu().numpy()
+            #     # TODO: Should we make this "modelInput configurable", feels complicated
+            #     results = self.model.run(None, {"modelInput": data})[0]
+            # else:
+            marshalled_data = data.to(self.device)
+            results = self.model(marshalled_data, *args, **kwargs)
         return results
 
     def postprocess(self, data):
