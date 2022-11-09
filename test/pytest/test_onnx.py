@@ -3,9 +3,13 @@ import subprocess
 import pytest
 
 try:
+    import onnx
     import torch
     import torch.onnx
 
+    print(
+        onnx.__version__
+    )  # Adding this so onnx import doesn't get removed by pre-commit
     ONNX_ENABLED = True
 except:
     ONNX_ENABLED = False
