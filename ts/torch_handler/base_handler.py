@@ -11,6 +11,8 @@ import time
 import torch
 from pkg_resources import packaging
 from ..utils.util import list_classes_from_module, load_label_mapping
+from .utils import DynamoBackend
+from os import environ
 
 if packaging.version.parse(torch.__version__) >= packaging.version.parse("1.8.1"):
     from torch.profiler import profile, record_function, ProfilerActivity
@@ -21,6 +23,15 @@ else:
 
 
 logger = logging.getLogger(__name__)
+
+# Possible values for backend in utils.py
+if os.environ.get("DYNAMO_BACKEND"):
+    try:
+        import torch._dynamo
+        dynamo_enabled = True
+        torch.backends.cuda.matmul.allow_tf32 = True # Enable tensor cores and idealy get an A10G or A100
+    except ImportError as error:
+        logger.warning("dynamo/inductor are not installed. \n For GPU please run pip3 install numpy --pre torch[dynamo] --force-reinstall --extra-index-url https://download.pytorch.org/whl/nightly/cu117 \n for CPU please run pip3 install --pre torch --extra-index-url https://download.pytorch.org/whl/nightly/cpu")
 
 ipex_enabled = False
 if os.environ.get("TS_IPEX_ENABLE", "false") == "true":
@@ -98,6 +109,8 @@ class BaseHandler(abc.ABC):
             self.model = self._load_torchscript_model(model_pt_path)
 
         self.model.eval()
+        if dynamo_enabled:
+            torch._dynamo.optimize(DynamoBackend.INDUCTOR)(self.model)
         if ipex_enabled:
             self.model = self.model.to(memory_format=torch.channels_last)
             self.model = ipex.optimize(self.model)
