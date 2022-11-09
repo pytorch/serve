@@ -59,12 +59,18 @@ def test_convert_to_onnx():
 def test_model_packaging_and_start():
     subprocess.run("mkdir model_store", shell=True)
     subprocess.run(
-        "torch-model-archiver -f --model-name onnx --version 1.0 --serialized-file linear.onnx --export-path model_store --handler base_handler",
+        "torch-model-archiver -f --model-name onnx --version 1.0 --serialized-file linear.onnx --export-path model_store --handler onnx_handler.py",
         shell=True,
+        check=True,
     )
+
+
+@pytest.mark.skipif(ONNX_ENABLED == False, reason="ONNX is not installed")
+def test_model_start():
     subprocess.run(
         "torchserve --start --ncs --model-store model_store --models onnx.mar",
         shell=True,
+        check=True,
     )
 
 
@@ -74,4 +80,8 @@ def test_inference():
         "curl -X POST http://127.0.0.1:8080/predictions/onnx --data-binary '1'",
         shell=True,
     )
-    subprocess.run("torchserve --stop", shell=True)
+
+
+@pytest.mark.skipif(ONNX_ENABLED == False, reason="ONNX is not installed")
+def test_stop():
+    subprocess.run("torchserve --stop", shell=True, check=True)

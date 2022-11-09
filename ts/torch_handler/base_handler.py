@@ -225,11 +225,6 @@ class BaseHandler(abc.ABC):
             Torch Tensor : The Predicted Torch Tensor is returned in this function.
         """
         with torch.no_grad():
-            # if hasattr(self.model, "run"):
-            #     data = data.to(torch.float32).cpu().numpy()
-            #     # TODO: Should we make this "modelInput configurable", feels complicated
-            #     results = self.model.run(None, {"modelInput": data})[0]
-            # else:
             marshalled_data = data.to(self.device)
             results = self.model(marshalled_data, *args, **kwargs)
         return results
@@ -281,8 +276,6 @@ class BaseHandler(abc.ABC):
             if self._is_describe():
                 output = [self.describe_handle()]
             else:
-                # What's a better way to do this
-                data = torch.randn(1, 1)
                 data_preprocess = self.preprocess(data)
 
                 if not self._is_explain():
