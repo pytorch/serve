@@ -1,3 +1,5 @@
+mode: prometheus
+
 dimensions:
   - &ModelName "model_name"
   - &host "host_name"

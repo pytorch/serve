@@ -66,7 +66,7 @@ class TorchModelServiceWorker(object):
         if self.metrics_cache:
             self.metrics_cache.initialize_cache()
         else:
-            logging.info("Failed to initialize metrics. Starting worker without metrics")
+            raise RuntimeError(f"Failed to initialize metrics from file {metrics_config}")
 
     def load_model(self, load_model_request):
         """

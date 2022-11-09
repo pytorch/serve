@@ -1,3 +1,5 @@
+mode: prometheus
+
 dimensions:
   - &model_name "model_name"
   - &level "level"

@@ -131,6 +131,8 @@ Dynamic updates between the frontend and backend are _not_ currently being handl
 The `metrics.yaml` is formatted with Prometheus metric type terminology:
 
 ```yaml
+mode: prometheus
+
 dimensions: # dimension aliases
   - &model_name "ModelName"
   - &level "Level"

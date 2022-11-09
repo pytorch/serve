@@ -185,6 +185,7 @@ class TestParseYaml:
     def test_parse_expected_yaml(self):
         metrics_cache_obj = MetricsCacheYamlImpl(os.path.join(dir_path, "metrics.yaml"))
         expected_dict = {
+            "mode": "prometheus",
             "dimensions":
             [
                 "model_name",
