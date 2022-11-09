@@ -7,12 +7,15 @@ In general it's hard to optimize models and the easiest approach can be exportin
 
 ### ONNX and ORT support
 
+`pip install torchserve[onnx]`
+
 In particular TorchServe has native support for ONNX models which can be loaded via ORT for both accelerated CPU and GPU inference. ONNX operates a bit differentyl from a regular PyTorch model in that when you're running the conversion you need to explicity set and name your input and output dimensions. See https://github.com/pytorch/serve/blob/master/test/pytest/test_onnx.py for an example. So at a high level what TorchServe allows you to do is
 1. Package serialized ONNX weights `torch-model-archiver --serialized-file model.onnx ...`
 2. Load those weights from `base_handler.py` using `ort_session = ort.InferenceSession(self.model_pt_path, providers=providers, sess_options=sess_options)` which supports reasonable defaults for both CPU and GPU inference
 3. Allow you define custom pre and post processing functions to pass in data in the format your onnx model expects
 
 ### TensorRT and NVfuser support
+
 TorchServe also already supports models optimized via TensorRT. To leverage the TensorRT runtime you can follow examples here https://github.com/pytorch/TensorRT and once you're done you'll have serialized weights which you can load with `torch.jit.load()` https://pytorch.org/TensorRT/getting_started/getting_started_with_python_api.html#getting-started-with-python-api so for all intents and purposes after a conversion there is no difference in how PyTorch treats a Torchscript model vs a TensorRT model. The benefit of using `torch.jit.load()` is that it's now also the default fuser in PyTorch starting from PyTorch `1.12`
 
 ## Optimizing TorchServe
