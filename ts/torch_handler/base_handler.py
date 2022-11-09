@@ -30,7 +30,8 @@ if os.environ.get("DYNAMO_BACKEND"):
         import torch._dynamo
         dynamo_enabled = True
         dynamo_backend = os.environ.get("DYNAMO_BACKEND")
-        torch.backends.cuda.matmul.allow_tf32 = True # Enable tensor cores and idealy get an A10G or A100
+        if torch.cuda.is_available():
+            torch.backends.cuda.matmul.allow_tf32 = True # Enable tensor cores and idealy get an A10G or A100
     except ImportError as error:
         logger.warning("dynamo/inductor are not installed. \n For GPU please run pip3 install numpy --pre torch[dynamo] --force-reinstall --extra-index-url https://download.pytorch.org/whl/nightly/cu117 \n for CPU please run pip3 install --pre torch --extra-index-url https://download.pytorch.org/whl/nightly/cpu")
         dynamo_enabled = False
