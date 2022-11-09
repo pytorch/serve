@@ -110,9 +110,8 @@ class BaseHandler(abc.ABC):
             self.model = self._load_torchscript_model(model_pt_path)
 
         self.model.eval()
-        if dynamo_enabled:
-            # For now just enable inductor by default
-            torch._dynamo.optimize(DynamoBackend.INDUCTOR)(self.model)
+        if dynamo_enabled:                
+            torch._dynamo.optimize(dynamo_backend if dynamo_backend in DynamoBackend else DynamoBackend.INDUCTOR)(self.model)
         if ipex_enabled:
             self.model = self.model.to(memory_format=torch.channels_last)
             self.model = ipex.optimize(self.model)
