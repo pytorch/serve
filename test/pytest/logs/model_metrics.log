@@ -1,0 +1,2 @@
+2022-11-05T00:43:06,740 - HandlerTime.Milliseconds:1642.86|#ModelName:onnx,Level:Model|#hostname:ip-172-31-17-70,requestID:a8a10e79-83b8-4702-8636-b295e3439e15,timestamp:1667608986
+2022-11-05T00:43:06,745 - PredictionTime.Milliseconds:1642.94|#ModelName:onnx,Level:Model|#hostname:ip-172-31-17-70,requestID:a8a10e79-83b8-4702-8636-b295e3439e15,timestamp:1667608986

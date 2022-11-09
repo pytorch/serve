@@ -1,7 +1,14 @@
 import subprocess
 
-import torch
-import torch.onnx
+import pytest
+
+try:
+    import torch
+    import torch.onnx
+
+    ONNX_ENABLED = True
+except:
+    ONNX_ENABLED = False
 
 
 class ToyModel(torch.nn.Module):
@@ -17,6 +24,7 @@ class ToyModel(torch.nn.Module):
 
 
 # For a custom model you still need to manually author your converter, as far as I can tell there isn't a nice out of the box that exists
+@pytest.mark.skipif(ONNX_ENABLED == False, reason="ONNX is not installed")
 def test_convert_to_onnx():
     model = ToyModel()
     dummy_input = torch.randn(1, 1)
@@ -43,6 +51,7 @@ def test_convert_to_onnx():
     )
 
 
+@pytest.mark.skipif(ONNX_ENABLED == False, reason="ONNX is not installed")
 def test_model_packaging_and_start():
     subprocess.run("mkdir model_store", shell=True)
     subprocess.run(
@@ -55,6 +64,7 @@ def test_model_packaging_and_start():
     )
 
 
+@pytest.mark.skipif(ONNX_ENABLED == False, reason="ONNX is not installed")
 def test_inference():
     subprocess.run(
         "curl -X POST http://127.0.0.1:8080/predictions/onnx --data-binary '1'",
