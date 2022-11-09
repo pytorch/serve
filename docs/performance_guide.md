@@ -16,7 +16,7 @@ In particular TorchServe has native support for ONNX models which can be loaded 
 
 ### TensorRT and NVfuser support
 
-TorchServe also already supports models optimized via TensorRT. To leverage the TensorRT runtime you can follow examples here https://github.com/pytorch/TensorRT and once you're done you'll have serialized weights which you can load with `torch.jit.load()` https://pytorch.org/TensorRT/getting_started/getting_started_with_python_api.html#getting-started-with-python-api so for all intents and purposes after a conversion there is no difference in how PyTorch treats a Torchscript model vs a TensorRT model. The benefit of using `torch.jit.load()` is that it's now also the default fuser in PyTorch starting from PyTorch `1.12`
+TorchServe also already supports models optimized via TensorRT. To leverage the TensorRT runtime you can convert your model via https://github.com/pytorch/TensorRT and once you're done you'll have serialized weights which you can load with `torch.jit.load()` https://pytorch.org/TensorRT/getting_started/getting_started_with_python_api.html#getting-started-with-python-api so for all intents and purposes after a conversion there is no difference in how PyTorch treats a Torchscript model vs a TensorRT model. An additional benefit to using `torch.jit.load()` is that it'll let you leverage NVfuser which starting from PyTorch 1.12 is the default fuser for torchscripted models.
 
 ## Optimizing TorchServe
 The main settings you should vary if you're trying to improve the performance of TorchServe from the `config.properties` are the `batch_size` and `batch_delay`. A larger batch size means a higher throughput at the cost of lower latency.
