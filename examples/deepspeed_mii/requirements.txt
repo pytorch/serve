@@ -1,0 +1,3 @@
+transformers
+deepspeed-mii
+numpy
