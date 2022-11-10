@@ -113,7 +113,7 @@ class TorchModelServiceWorker(object):
             if "limitMaxImagePixels" in load_model_request:
                 limit_max_image_pixels = bool(load_model_request["limitMaxImagePixels"])
 
-            self.metrics_cache.set_model_name(model_name)
+            self.metrics_cache.model_name = model_name
             model_loader = ModelLoaderFactory.get_model_loader()
             service = model_loader.load(
                 model_name,

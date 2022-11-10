@@ -60,12 +60,7 @@ class TestAddMetrics:
                 dimension_names=["ModelName", "Host"],
                 metric_type=MetricTypes.GAUGE,
             )
-        assert (
-            str(exc_info.value) == "metric_name must be a str, "
-            "unit must be a str, "
-            "dimensions should be a list of "
-            "Dimension objects/None, metric type must be a MetricTypes enum"
-        )
+        assert str(exc_info.value) == "`metric_name` must be a str"
 
     def test_add_metric_fail_unit(self):
         metrics_cache_obj = MetricsCacheYamlImpl(os.path.join(dir_path, "metrics.yaml"))
@@ -76,12 +71,7 @@ class TestAddMetrics:
                 dimension_names=["ModelName", "Host"],
                 metric_type=MetricTypes.GAUGE,
             )
-        assert (
-            str(exc_info.value) == "metric_name must be a str, "
-            "unit must be a str, "
-            "dimensions should be a list of "
-            "Dimension objects/None, metric type must be a MetricTypes enum"
-        )
+        assert str(exc_info.value) == "`unit` must be a str"
 
     def test_add_metric_fail_dimensions(self):
         metrics_cache_obj = MetricsCacheYamlImpl(os.path.join(dir_path, "metrics.yaml"))
@@ -92,9 +82,7 @@ class TestAddMetrics:
                 dimension_names="ModelName",
                 metric_type=MetricTypes.GAUGE,
             )
-        assert (
-            str(exc_info.value) == "`dimension_names` should be a list of dimension name strings."
-        )
+        assert str(exc_info.value) == "`dimension_names` should be a list of dimension name strings"
 
     def test_add_metric_fail_type(self):
         metrics_cache_obj = MetricsCacheYamlImpl(os.path.join(dir_path, "metrics.yaml"))
@@ -105,12 +93,7 @@ class TestAddMetrics:
                 dimension_names=["ModelName", "Host"],
                 metric_type={"key": 42},
             )
-        assert (
-            str(exc_info.value) == "metric_name must be a str, "
-            "unit must be a str, "
-            "dimensions should be a list of "
-            "Dimension objects/None, metric type must be a MetricTypes enum"
-        )
+        assert str(exc_info.value) == "`metric_type` must be a MetricTypes enum"
 
     def test_add_metric_fail_type_unit(self):
         metrics_cache_obj = MetricsCacheYamlImpl(os.path.join(dir_path, "metrics.yaml"))
@@ -121,12 +104,7 @@ class TestAddMetrics:
                 dimension_names=["model_name", "host"],
                 metric_type={"key": 42},
             )
-        assert (
-            str(exc_info.value) == "metric_name must be a str, "
-            "unit must be a str, "
-            "dimensions should be a list of "
-            "Dimension objects/None, metric type must be a MetricTypes enum"
-        )
+        assert str(exc_info.value) == "`unit` must be a str"
 
 
 class TestGetMetrics:
@@ -165,20 +143,14 @@ class TestGetMetrics:
     def test_get_metric_fail_invalid_type(self):
         metrics_cache_obj = MetricsCacheYamlImpl(os.path.join(dir_path, "metrics.yaml"))
         with pytest.raises(merrors.MetricsCacheTypeError) as exc_info:
-            metrics_cache_obj.get_metric(["type-new_metric-dim1:dim3"], None)
-        assert (
-            str(exc_info.value)
-            == "metric_type must be MetricTypes enum, metric_name must be a str."
-        )
+            metrics_cache_obj.get_metric("type-new_metric-dim1:dim3", None)
+        assert str(exc_info.value) == "`metric_type` must be a MetricTypes enum"
 
     def test_get_metric_fail_invalid_name(self):
         metrics_cache_obj = MetricsCacheYamlImpl(os.path.join(dir_path, "metrics.yaml"))
         with pytest.raises(merrors.MetricsCacheTypeError) as exc_info:
             metrics_cache_obj.get_metric(None, MetricTypes.GAUGE)
-        assert (
-            str(exc_info.value)
-            == "metric_type must be MetricTypes enum, metric_name must be a str."
-        )
+        assert str(exc_info.value) == "`metric_name` must be a str"
 
 
 class TestParseYaml:
@@ -338,11 +310,11 @@ class TestYamlCacheInit:
 
     def test_yaml_to_cache_util_fail_empty_section(self):
         metrics_cache_obj = MetricsCacheYamlImpl(os.path.join(dir_path, "metrics_model_empty.yaml"))
-        with pytest.raises(ValueError) as exc_info:
+        with pytest.raises(merrors.MetricsCacheValueError) as exc_info:
             metrics_cache_obj.initialize_cache()
         assert (
             str(exc_info)
-            == "<ExceptionInfo ValueError('Missing `model_metrics` specification') tblen=2>"
+            == "<ExceptionInfo MetricsCacheValueError('Missing `model_metrics` specification') tblen=2>"
         )
 
 

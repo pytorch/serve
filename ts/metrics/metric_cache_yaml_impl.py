@@ -2,7 +2,6 @@
 Metrics Cache class for creating objects from yaml spec
 """
 import logging
-import os
 import yaml
 
 import ts.metrics.metric_cache_errors as merrors
@@ -23,36 +22,31 @@ class MetricsCacheYamlImpl(MetricCacheAbstract):
         config_file_path: str
             Path of yaml file to be parsed
         """
-        try:
-            os.path.exists(config_file_path)
-        except Exception as exc:
-            raise merrors.MetricsCacheTypeError(f"Error loading {config_file_path} file: {exc}")
-
         super().__init__(config_file_path=config_file_path)
-        self._parse_yaml_file()
+        self._parse_yaml_file(self.config_file_path)
 
-    def _parse_yaml_file(self) -> None:
+    def _parse_yaml_file(self, config_file_path) -> None:
         """
         Parse yaml file using PyYAML library.
         """
-        if not self.config_file_path:
+        if not config_file_path:
             raise merrors.MetricsCacheTypeError("Config file not initialized")
 
         try:
             self._parsed_file = yaml.safe_load(
-                open(self.config_file_path, "r", encoding="utf-8"))
-            logging.info(f"Successfully loaded {self.config_file_path}.")
+                open(config_file_path, "r", encoding="utf-8"))
+            logging.info(f"Successfully loaded {config_file_path}.")
         except yaml.YAMLError as exc:
             raise merrors.MetricsCachePyYamlError(
-                f"Error parsing file {self.config_file_path}: {exc}"
+                f"Error parsing file {config_file_path}: {exc}"
             )
         except IOError as io_err:
             raise merrors.MetricsCacheIOError(
-                f"Error reading file {self.config_file_path}: {io_err}"
+                f"Error reading file {config_file_path}: {io_err}"
             )
         except Exception as err:
             raise merrors.GeneralMetricsCacheError(
-                f"General error found in file {self.config_file_path}: {err}"
+                f"General error found in file {config_file_path}: {err}"
             )
 
     def _parse_metrics_section(self, key="model_metrics") -> dict:
@@ -79,7 +73,7 @@ class MetricsCacheYamlImpl(MetricCacheAbstract):
         """
         metrics_section = self._parse_metrics_section("model_metrics")
         if not metrics_section:
-            raise ValueError("Missing `model_metrics` specification")
+            raise merrors.MetricsCacheValueError("Missing `model_metrics` specification")
         for metric_type, metrics_list in metrics_section.items():
             try:
                 metric_enum = MetricTypes(metric_type)
@@ -124,23 +118,11 @@ class MetricsCacheYamlImpl(MetricCacheAbstract):
         -------
         newly created Metrics object
         """
-        if (
-            not isinstance(metric_name, str)
-            or not isinstance(unit, str)
-            or not isinstance(metric_type, MetricTypes)
-        ):
-            raise merrors.MetricsCacheTypeError(
-                f"metric_name must be a str, unit must be a str, "
-                f"dimensions should be a list of Dimension objects/None, "
-                f"metric type must be a MetricTypes enum"
-            )
-        if (
-            dimension_names
-            and not isinstance(dimension_names, list)
-        ):
-            raise merrors.MetricsCacheTypeError(
-                f"`dimension_names` should be a list of dimension name strings."
-            )
+        self._check_type(metric_name, str, "`metric_name` must be a str")
+        self._check_type(unit, str, "`unit` must be a str")
+        self._check_type(metric_type, MetricTypes, "`metric_type` must be a MetricTypes enum")
+        if dimension_names:
+            self._check_type(dimension_names, list, "`dimension_names` should be a list of dimension name strings")
         if metric_type not in self.cache.keys():
             self.cache[metric_type] = dict()
         metric = CachingMetric(
@@ -174,10 +156,8 @@ class MetricsCacheYamlImpl(MetricCacheAbstract):
         -------
         Metrics object or MetricsCacheKeyError if not found
         """
-        if not isinstance(metric_type, MetricTypes) or not isinstance(metric_name, str):
-            raise merrors.MetricsCacheTypeError(
-                f"metric_type must be MetricTypes enum, metric_name must be a str."
-            )
+        self._check_type(metric_name, str, "`metric_name` must be a str")
+        self._check_type(metric_type, MetricTypes, "`metric_type` must be a MetricTypes enum")
         try:
             metric = self.cache[metric_type][metric_name]
         except KeyError:

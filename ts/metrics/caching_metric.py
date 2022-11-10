@@ -6,12 +6,12 @@ import socket
 import time
 
 from ts.metrics.dimension import Dimension
-from ts.metrics.imetric import IMetric
+from ts.metrics.metric_abstract import MetricAbstract
 from ts.metrics.metric_type_enum import MetricTypes
 logger = logging.getLogger(__name__)
 
 
-class CachingMetric(IMetric):
+class CachingMetric(MetricAbstract):
     """
     Class for generating metrics and printing it to stdout of the worker
     """

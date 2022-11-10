@@ -8,7 +8,7 @@ from ts.metrics.metric_type_enum import MetricTypes
 MetricUnit = Units()
 
 
-class IMetric(metaclass=abc.ABCMeta):
+class MetricAbstract(metaclass=abc.ABCMeta):
     """
     Class for generating metrics and printing it to stdout of the worker
     """
@@ -45,6 +45,7 @@ class IMetric(metaclass=abc.ABCMeta):
         self.dimension_names = dimension_names or []
         self.metric_type = metric_type
 
+    @abc.abstractmethod
     def add_or_update(
         self,
         value: int or float,

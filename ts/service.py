@@ -111,7 +111,7 @@ class Service(object):
         self.context.request_ids = req_id_map
         self.context.request_processor = headers
         metrics = self.context.metrics
-        metrics.set_request_ids(req_id_map)
+        metrics.request_ids = req_id_map
 
         start_time = time.time()
 

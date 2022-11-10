@@ -258,9 +258,6 @@ given some criteria:
    1. All dimensions have to match, and Metric objects that have been parsed from the yaml file also have dimension names that are parsed from the yaml file
       1. Users can [create their own](#create-dimension-objects) `Dimension` objects to match those in the yaml file dimensions
       2. if the Metric object has `ModelName` and `Level` dimensions only, it is optional to specify additional dimensions since these are considered [default dimensions](#default-dimensions), so: `add_counter('InferenceTimeInMS', value=2)` or `add_counter('InferenceTimeInMS', value=2, dimensions=["ModelName", "Level"])`
-      3. if Metric object has additional dimension, just specify the additional dimensions within the API
-         1. if metric in yaml had `dimensions: [foo, ModelName, Level]`, then `add_counter(..., dimensions=["foo"])`
-         2. `dimensions: [foo, ModelName, Level]` != `dimensions: [ModelName, Level, foo]`
 
 
 ### Default dimensions
@@ -514,7 +511,7 @@ Function API
 Users can get a metric from the cache. The Metric object is returned, so the user can access the methods of the Metric: (i.e. `Metric.update(value)`, `Metric.__str__`)
 
 ```python
-    def get_metric(self, metric_type: MetricTypes, metric_name: str) -> Metric:
+    def get_metric(self, metric_name: str, metric_type: MetricTypes) -> Metric:
         """
         Get a Metric from cache.
             Ask user for required requirements to form metric key to retrieve Metric.
@@ -532,10 +529,10 @@ Users can get a metric from the cache. The Metric object is returned, so the use
 
 i.e.
 ```python
-# Method 1: Getting metric of MetricType counter, metric name string
+# Method 1: Getting metric of metric name string, MetricType COUNTER
 metrics.get_metric("MetricName", MetricTypes.COUNTER)
 
-# Method 2: Getting metric of MetricType gauge, metric name string
+# Method 2: Getting metric of metric name string, MetricType GAUGE
 metrics.get_metric("GaugeMetricName", MetricTypes.GAUGE)
 ```
 
