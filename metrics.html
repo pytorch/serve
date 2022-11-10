@@ -365,8 +365,11 @@
 <li><p><a class="reference external" href="#introduction">Introduction</a></p></li>
 <li><p><a class="reference external" href="#system-metrics">System metrics</a></p></li>
 <li><p><a class="reference external" href="#formatting">Formatting</a></p></li>
+<li><p><a class="reference external" href="#metric-types">Metric Types</a></p></li>
+<li><p><a class="reference external" href="#central-metrics-yaml-file-definition">Central metrics yaml file definition</a></p></li>
 <li><p><a class="reference external" href="#custom-metrics-api">Custom Metrics API</a></p></li>
-<li><p><a class="reference external" href="#logging-custom-metrics">Logging the custom metrics</a></p></li>
+<li><p><a class="reference external" href="#log-custom-metrics">Logging custom metrics</a></p></li>
+<li><p><a class="reference external" href="#Metrics-YAML-File-Parsing-and-Metrics-API-Custom-Handler-Example">Metrics YAML Parsing and Metrics API example</a></p></li>
 </ul>
 </section>
 <section id="introduction">
@@ -478,7 +481,7 @@ Metrics are collected by default at:</p>
 <h2><span class="section-number">9.4. </span>Formatting<a class="headerlink" href="#formatting" title="Permalink to this headline">¶</a></h2>
 <p>TorchServe emits metrics to log files by default. The metrics are formatted in a <a class="reference external" href="https://github.com/etsy/statsd">StatsD</a> like format.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>CPUUtilization.Percent:0.0<span class="p">|</span><span class="c1">#Level:Host|#hostname:my_machine_name</span>
-MemoryUsed.Megabytes:13840.328125<span class="p">|</span><span class="c1">#Level:Host|#hostname:my_machine_name   </span>
+MemoryUsed.Megabytes:13840.328125<span class="p">|</span><span class="c1">#Level:Host|#hostname:my_machine_name</span>
 </pre></div>
 </div>
 <p>To enable metric logging in JSON format, set “patternlayout” as “JSONPatternLayout” in <a class="reference external" href="https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/log4j2.xml">log4j2.xml</a> (See sample <a class="reference external" href="https://github.com/pytorch/serve/blob/master/frontend/server/src/test/resources/log4j2-json.xml">log4j2-json.xml</a>). For information, see <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/logging">Logging in Torchserve</a>.</p>
@@ -526,8 +529,96 @@ EOE
 </pre></div>
 </div>
 </section>
+<section id="metric-types">
+<h2><span class="section-number">9.5. </span>Metric Types<a class="headerlink" href="#metric-types" title="Permalink to this headline">¶</a></h2>
+<p>TorchServe Metrics is introducing <a class="reference external" href="https://github.com/pytorch/serve/blob/master/ts/metrics/metric_type_enums.py">Metric Types</a>
+that are in line with the <a class="reference external" href="https://github.com/prometheus/client_python">Prometheus API</a> metric types.</p>
+<p>Metric types are an attribute of Metric objects.
+Users will be restricted to the existing metric types when adding metrics via Metrics API.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MetricTypes</span><span class="p">(</span><span class="n">enum</span><span class="o">.</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">COUNTER</span> <span class="o">=</span> <span class="s2">&quot;counter&quot;</span>
+    <span class="n">GAUGE</span> <span class="o">=</span> <span class="s2">&quot;gauge&quot;</span>
+    <span class="n">HISTOGRAM</span> <span class="o">=</span> <span class="s2">&quot;histogram&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="central-metrics-yaml-file-definition">
+<h2><span class="section-number">9.6. </span>Central metrics YAML file definition<a class="headerlink" href="#central-metrics-yaml-file-definition" title="Permalink to this headline">¶</a></h2>
+<p>TorchServe defines metrics in a <a class="reference external" href="https://github.com/pytorch/serve/blob/master/frontend/server/src/test/resources/metrics_default.yaml">metrics_default.yaml</a>
+file, including both frontend metrics (i.e. <code class="docutils literal notranslate"><span class="pre">ts_metrics</span></code>) and backend metrics (i.e. <code class="docutils literal notranslate"><span class="pre">model_metrics</span></code>).
+When TorchServe is started, the metrics definition is loaded in the frontend and backend cache separately.
+The backend flushes the metrics cache once a load model or inference request is completed.</p>
+<p>Dynamic updates between the frontend and backend are <em>not</em> currently being handled.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">metrics.yaml</span></code> is formatted with Prometheus metric type terminology:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">prometheus</span><span class="w"></span>
+
+<span class="nt">dimensions</span><span class="p">:</span><span class="w"> </span><span class="c1"># dimension aliases</span><span class="w"></span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nl">&amp;model_name</span><span class="w"> </span><span class="s">&quot;ModelName&quot;</span><span class="w"></span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nl">&amp;level</span><span class="w"> </span><span class="s">&quot;Level&quot;</span><span class="w"></span>
+
+<span class="nt">ts_metrics</span><span class="p">:</span><span class="w">  </span><span class="c1"># frontend metrics</span><span class="w"></span>
+<span class="w">  </span><span class="nt">counter</span><span class="p">:</span><span class="w">  </span><span class="c1"># metric type</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NameOfCounterMetric</span><span class="w">  </span><span class="c1"># name of metric</span><span class="w"></span>
+<span class="w">      </span><span class="nt">unit</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ms</span><span class="w">  </span><span class="c1"># unit of metric</span><span class="w"></span>
+<span class="w">      </span><span class="nt">dimensions</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">*model_name</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">*level</span><span class="p p-Indicator">]</span><span class="w">  </span><span class="c1"># dimension names of metric (referenced from the above dimensions dict)</span><span class="w"></span>
+<span class="w">  </span><span class="nt">gauge</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NameOfGaugeMetric</span><span class="w"></span>
+<span class="w">      </span><span class="nt">unit</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ms</span><span class="w"></span>
+<span class="w">      </span><span class="nt">dimensions</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">*model_name</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">*level</span><span class="p p-Indicator">]</span><span class="w"></span>
+<span class="w">  </span><span class="nt">histogram</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NameOfHistogramMetric</span><span class="w"></span>
+<span class="w">      </span><span class="nt">unit</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ms</span><span class="w"></span>
+<span class="w">      </span><span class="nt">dimensions</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">*model_name</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">*level</span><span class="p p-Indicator">]</span><span class="w"></span>
+
+<span class="nt">model_metrics</span><span class="p">:</span><span class="w">  </span><span class="c1"># backend metrics</span><span class="w"></span>
+<span class="w">  </span><span class="nt">counter</span><span class="p">:</span><span class="w">  </span><span class="c1"># metric type</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">InferenceTimeInMS</span><span class="w">  </span><span class="c1"># name of metric</span><span class="w"></span>
+<span class="w">      </span><span class="nt">unit</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ms</span><span class="w">  </span><span class="c1"># unit of metric</span><span class="w"></span>
+<span class="w">      </span><span class="nt">dimensions</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">*model_name</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">*level</span><span class="p p-Indicator">]</span><span class="w">  </span><span class="c1"># dimension names of metric (referenced from the above dimensions dict)</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NumberOfMetrics</span><span class="w"></span>
+<span class="w">      </span><span class="nt">unit</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">count</span><span class="w"></span>
+<span class="w">      </span><span class="nt">dimensions</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">*model_name</span><span class="p p-Indicator">]</span><span class="w"></span>
+<span class="w">  </span><span class="nt">gauge</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">GaugeModelMetricNameExample</span><span class="w"></span>
+<span class="w">      </span><span class="nt">unit</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ms</span><span class="w"></span>
+<span class="w">      </span><span class="nt">dimensions</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">*model_name</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">*level</span><span class="p p-Indicator">]</span><span class="w"></span>
+<span class="w">  </span><span class="nt">histogram</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">HistogramModelMetricNameExample</span><span class="w"></span>
+<span class="w">      </span><span class="nt">unit</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ms</span><span class="w"></span>
+<span class="w">      </span><span class="nt">dimensions</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">*model_name</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">*level</span><span class="p p-Indicator">]</span><span class="w"></span>
+</pre></div>
+</div>
+<p>These are the default metrics within the yaml file, but the user can either delete them to their liking / ignore them altogether, because these metrics will not be emitted unless they are edited.</p>
+<section id="how-it-works">
+<h3><span class="section-number">9.6.1. </span>How it works<a class="headerlink" href="#how-it-works" title="Permalink to this headline">¶</a></h3>
+<p>Whenever torchserve starts, the <a class="reference external" href="https://github.com/pytorch/serve/blob/master/ts/model_service_worker.py">backend worker</a> initializes <code class="docutils literal notranslate"><span class="pre">service.context.metrics</span></code> with the <a class="reference external" href="https://github.com/pytorch/serve/blob/master/ts/metrics/metric_cache_yaml_impl.py">MetricsCache</a> object. The <code class="docutils literal notranslate"><span class="pre">model_metrics</span></code> (backend metrics) section within the specified yaml file will be parsed, and Metric objects will be created based on the parsed section and added  that are added to the cache.</p>
+<p>This is all done internally, so the user does not have to do anything other than specifying the desired yaml file.</p>
+<p><em>Users have the ability to parse other sections of the yaml file manually, but the primary purpose of this functionality is to
+parse the backend metrics from the yaml file.</em></p>
+</section>
+<section id="user-manual-starting-torchserve-with-a-yaml-file-specified">
+<h3><span class="section-number">9.6.2. </span>User Manual - starting TorchServe with a yaml file specified<a class="headerlink" href="#user-manual-starting-torchserve-with-a-yaml-file-specified" title="Permalink to this headline">¶</a></h3>
+<ol>
+<li><p>Create a <code class="docutils literal notranslate"><span class="pre">metrics.yaml</span></code> file to parse metrics from OR utilize default <a class="reference external" href="https://github.com/pytorch/serve/blob/master/ts/configs/metrics.yaml">metrics_default.yaml</a></p></li>
+<li><p>Set <code class="docutils literal notranslate"><span class="pre">metrics_config</span></code> argument equal to the yaml file path in the <code class="docutils literal notranslate"><span class="pre">config.properties</span></code> being used:</p>
+<div class="highlight-properties notranslate"><div class="highlight"><pre><span></span>...
+...
+workflow_store=../archive/src/test/resources/workflows
+metrics_config=/&lt;path&gt;/&lt;to&gt;/&lt;metrics&gt;/&lt;file&gt;/metrics.yaml
+...
+...
+</pre></div>
+</div>
+<p>If a <code class="docutils literal notranslate"><span class="pre">metrics_config</span></code> argument is not specified, the default yaml file will be used.</p>
+</li>
+<li><p>Run torchserve and specify the path of the <code class="docutils literal notranslate"><span class="pre">config.properties</span></code> after the <code class="docutils literal notranslate"><span class="pre">ts-config</span></code> flag: (example using <a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/Huggingface_Transformers">Huggingface_Transformers</a>)</p>
+<p><code class="docutils literal notranslate"><span class="pre">torchserve</span> <span class="pre">--start</span> <span class="pre">--model-store</span> <span class="pre">model_store</span> <span class="pre">--models</span> <span class="pre">my_tc=BERTSeqClassification.mar</span> <span class="pre">--ncs</span> <span class="pre">--ts-config</span> <span class="pre">/&lt;path&gt;/&lt;to&gt;/&lt;config&gt;/&lt;file&gt;/config.properties</span></code></p>
+</li>
+</ol>
+</section>
+</section>
 <section id="custom-metrics-api">
-<h2><span class="section-number">9.5. </span>Custom Metrics API<a class="headerlink" href="#custom-metrics-api" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">9.7. </span>Custom Metrics API<a class="headerlink" href="#custom-metrics-api" title="Permalink to this headline">¶</a></h2>
 <p>TorchServe enables the custom service code to emit metrics that are then logged by the system.</p>
 <p>The custom service code is provided with a <a class="reference external" href="https://github.com/pytorch/serve/blob/master/ts/context.py">context</a> of the current request with a metrics object:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Access context metrics as follows</span>
@@ -535,8 +626,64 @@ EOE
 </pre></div>
 </div>
 <p>All metrics are collected within the context.</p>
+<section id="specifying-metric-types">
+<h3><span class="section-number">9.7.1. </span>Specifying Metric Types<a class="headerlink" href="#specifying-metric-types" title="Permalink to this headline">¶</a></h3>
+<p>When adding any metric via Metrics API, users have the ability to override the metric type by specifying the positional argument
+<code class="docutils literal notranslate"><span class="pre">metric_type=MetricTypes.[COUNTER/GAUGE/HISTOGRAM]</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">metric1</span> <span class="o">=</span> <span class="n">metrics</span><span class="o">.</span><span class="n">add_metric</span><span class="p">(</span><span class="s2">&quot;GenericMetric&quot;</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="n">unit</span><span class="p">,</span> <span class="n">dimension_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;name1&quot;</span><span class="p">,</span> <span class="s2">&quot;name2&quot;</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">metric_type</span><span class="o">=</span><span class="n">MetricTypes</span><span class="o">.</span><span class="n">GAUGE</span><span class="p">)</span>
+<span class="n">metric</span><span class="o">.</span><span class="n">add_or_update</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">dimension_values</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;value1&quot;</span><span class="p">,</span> <span class="s2">&quot;value2&quot;</span><span class="p">,</span> <span class="o">...</span><span class="p">])</span>
+
+<span class="c1"># Backwards compatible, combines the above two method calls</span>
+<span class="n">metrics</span><span class="o">.</span><span class="n">add_counter</span><span class="p">(</span><span class="s2">&quot;CounterMetric&quot;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="p">[</span><span class="n">Dimension</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">),</span> <span class="o">...</span><span class="p">])</span>
+</pre></div>
+</div>
+</section>
+<section id="updating-metrics-parsed-from-the-yaml-file">
+<h3><span class="section-number">9.7.2. </span>Updating Metrics parsed from the yaml file<a class="headerlink" href="#updating-metrics-parsed-from-the-yaml-file" title="Permalink to this headline">¶</a></h3>
+<p>Given the Metrics API, users will also be able to update metrics that have been parsed from the <a class="reference external" href="https://github.com/pytorch/serve/blob/master/frontend/server/src/test/resources/metrics_default.yaml">yaml</a> file
+given some criteria:</p>
+<p>(we will use the following metric as an example)</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="w">  </span><span class="nt">counter</span><span class="p">:</span><span class="w">  </span><span class="c1"># metric type</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">InferenceTimeInMS</span><span class="w">  </span><span class="c1"># name of metric</span><span class="w"></span>
+<span class="w">      </span><span class="nt">unit</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ms</span><span class="w">  </span><span class="c1"># unit of metric</span><span class="w"></span>
+<span class="w">      </span><span class="nt">dimensions</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">ModelName</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">Level</span><span class="p p-Indicator">]</span><span class="w"></span>
+</pre></div>
+</div>
+<ol class="simple">
+<li><p>Metric Type has to be the same</p>
+<ol class="simple">
+<li><p>The user will have to use a counter-based <code class="docutils literal notranslate"><span class="pre">add_...</span></code> method,
+or explicitly set <code class="docutils literal notranslate"><span class="pre">metric_type=MetricTypes.counter</span></code> within the <code class="docutils literal notranslate"><span class="pre">add_...</span></code> method</p></li>
+</ol>
+</li>
+<li><p>Metric Name has to be the same</p>
+<ol class="simple">
+<li><p>If the name of the metric in the YAML file you want to update is <code class="docutils literal notranslate"><span class="pre">InferenceTimeInMS</span></code>, then <code class="docutils literal notranslate"><span class="pre">add_metric(name=&quot;InferenceTimeInMS&quot;,</span> <span class="pre">...)</span></code></p></li>
+</ol>
+</li>
+<li><p>Dimensions should be the same (as well as the same order!)</p>
+<ol class="simple">
+<li><p>All dimensions have to match, and Metric objects that have been parsed from the yaml file also have dimension names that are parsed from the yaml file</p>
+<ol class="simple">
+<li><p>Users can <a class="reference external" href="#create-dimension-objects">create their own</a> <code class="docutils literal notranslate"><span class="pre">Dimension</span></code> objects to match those in the yaml file dimensions</p></li>
+<li><p>if the Metric object has <code class="docutils literal notranslate"><span class="pre">ModelName</span></code> and <code class="docutils literal notranslate"><span class="pre">Level</span></code> dimensions only, it is optional to specify additional dimensions since these are considered <a class="reference external" href="#default-dimensions">default dimensions</a>, so: <code class="docutils literal notranslate"><span class="pre">add_counter('InferenceTimeInMS',</span> <span class="pre">value=2)</span></code> or <code class="docutils literal notranslate"><span class="pre">add_counter('InferenceTimeInMS',</span> <span class="pre">value=2,</span> <span class="pre">dimensions=[&quot;ModelName&quot;,</span> <span class="pre">&quot;Level&quot;])</span></code></p></li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+</section>
+<section id="default-dimensions">
+<h3><span class="section-number">9.7.3. </span>Default dimensions<a class="headerlink" href="#default-dimensions" title="Permalink to this headline">¶</a></h3>
+<p>Metrics will have a couple of default dimensions if not already specified.</p>
+<p>If the metric is a type <code class="docutils literal notranslate"><span class="pre">Gauge</span></code>, <code class="docutils literal notranslate"><span class="pre">Histogram</span></code>, <code class="docutils literal notranslate"><span class="pre">Counter</span></code>, by default it will have:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">ModelName,{name_of_model}</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Level,Model</span></code></p></li>
+</ul>
+</section>
 <section id="create-dimension-object-s">
-<h3><span class="section-number">9.5.1. </span>Create dimension object(s)<a class="headerlink" href="#create-dimension-object-s" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">9.7.4. </span>Create dimension object(s)<a class="headerlink" href="#create-dimension-object-s" title="Permalink to this headline">¶</a></h3>
 <p>Dimensions for metrics can be defined as objects</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ts.metrics.dimension</span> <span class="kn">import</span> <span class="n">Dimension</span>
 
@@ -552,46 +699,74 @@ EOE
 <p><strong>NOTE:</strong> Metric functions below accept a list of dimensions</p>
 </section>
 <section id="add-generic-metrics">
-<h3><span class="section-number">9.5.2. </span>Add generic metrics<a class="headerlink" href="#add-generic-metrics" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">9.7.5. </span>Add generic metrics<a class="headerlink" href="#add-generic-metrics" title="Permalink to this headline">¶</a></h3>
+<p><strong>Generic metrics are defaulted to a <code class="docutils literal notranslate"><span class="pre">COUNTER</span></code> metric type</strong></p>
 <p>One can add metrics with generic units using the following function.</p>
 <p>Function API</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">add_metric</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">unit</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">add_metric</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metric_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">unit</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dimension_names</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                   <span class="n">metric_type</span><span class="p">:</span> <span class="n">MetricTypes</span> <span class="o">=</span> <span class="n">MetricTypes</span><span class="o">.</span><span class="n">COUNTER</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Add a metric which is generic with custom metrics</span>
+<span class="sd">        Create a new metric and add into cache.</span>
+<span class="sd">            Add a metric which is generic with custom metrics</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        name : str</span>
-<span class="sd">            metric name</span>
+<span class="sd">        metric_name: str</span>
+<span class="sd">            Name of metric</span>
 <span class="sd">        value: int, float</span>
 <span class="sd">            value of metric</span>
-<span class="sd">        idx: int</span>
-<span class="sd">            request_id index in batch</span>
 <span class="sd">        unit: str</span>
 <span class="sd">            unit of metric</span>
+<span class="sd">        idx: int</span>
+<span class="sd">            request_id index in batch</span>
 <span class="sd">        dimensions: list</span>
 <span class="sd">            list of dimensions for the metric</span>
+<span class="sd">        metric_type: MetricTypes</span>
+<span class="sd">            Type of metric</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">add_or_update</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">value</span><span class="p">:</span> <span class="nb">int</span> <span class="ow">or</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">dimension_values</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[],</span>
+        <span class="n">request_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update metric value, request id and dimensions</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        value : int, float</span>
+<span class="sd">            metric to be updated</span>
+<span class="sd">        dimension_values : list</span>
+<span class="sd">            list of dimension values</span>
+<span class="sd">        request_id : str</span>
+<span class="sd">            request id to be associated with the metric</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 </pre></div>
 </div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Add Distance as a metric</span>
 <span class="c1"># dimensions = [dim1, dim2, dim3, ..., dimN]</span>
 <span class="c1"># Assuming batch size is 1 for example</span>
-<span class="n">metrics</span><span class="o">.</span><span class="n">add_metric</span><span class="p">(</span><span class="s1">&#39;DistanceInKM&#39;</span><span class="p">,</span> <span class="n">distance</span><span class="p">,</span> <span class="s1">&#39;km&#39;</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="n">dimensions</span><span class="p">)</span>
+<span class="n">metric</span> <span class="o">=</span> <span class="n">metrics</span><span class="o">.</span><span class="n">add_metric</span><span class="p">(</span><span class="s1">&#39;DistanceInKM&#39;</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;km&#39;</span><span class="p">,</span> <span class="n">dimension_names</span><span class="o">=</span><span class="p">[</span><span class="o">...</span><span class="p">])</span>
+<span class="n">metric</span><span class="o">.</span><span class="n">add_or_update</span><span class="p">(</span><span class="n">distance</span><span class="p">,</span> <span class="n">dimension_values</span><span class="o">=</span><span class="p">[</span><span class="o">...</span><span class="p">])</span>
 </pre></div>
 </div>
 </section>
 <section id="add-time-based-metrics">
-<h3><span class="section-number">9.5.3. </span>Add time-based metrics<a class="headerlink" href="#add-time-based-metrics" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">9.7.6. </span>Add time-based metrics<a class="headerlink" href="#add-time-based-metrics" title="Permalink to this headline">¶</a></h3>
+<p><strong>Time-based metrics are defaulted to a <code class="docutils literal notranslate"><span class="pre">GAUGE</span></code> metric type</strong></p>
 <p>Add time-based by invoking the following method:</p>
 <p>Function API</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">add_time</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;ms&#39;</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">add_time</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metric_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span> <span class="ow">or</span> <span class="nb">float</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">unit</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;ms&#39;</span><span class="p">,</span> <span class="n">dimensions</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">metric_type</span><span class="p">:</span> <span class="n">MetricTypes</span> <span class="o">=</span> <span class="n">MetricTypes</span><span class="o">.</span><span class="n">GAUGE</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add a time based metric like latency, default unit is &#39;ms&#39;</span>
+<span class="sd">            Default metric type is gauge</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        name : str</span>
+<span class="sd">        metric_name : str</span>
 <span class="sd">            metric name</span>
 <span class="sd">        value: int</span>
 <span class="sd">            value of metric</span>
@@ -601,6 +776,8 @@ EOE
 <span class="sd">            unit of metric,  default here is ms, s is also accepted</span>
 <span class="sd">        dimensions: list</span>
 <span class="sd">            list of dimensions for the metric</span>
+<span class="sd">        metric_type: MetricTypes</span>
+<span class="sd">           type for defining different operations, defaulted to gauge metric type for Time metrics</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 </pre></div>
 </div>
@@ -615,16 +792,19 @@ EOE
 </div>
 </section>
 <section id="add-size-based-metrics">
-<h3><span class="section-number">9.5.4. </span>Add size-based metrics<a class="headerlink" href="#add-size-based-metrics" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">9.7.7. </span>Add size-based metrics<a class="headerlink" href="#add-size-based-metrics" title="Permalink to this headline">¶</a></h3>
+<p><strong>Size-based metrics are defaulted to a <code class="docutils literal notranslate"><span class="pre">GAUGE</span></code> metric type</strong></p>
 <p>Add size-based metrics by invoking the following method:</p>
 <p>Function API</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">add_size</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;MB&#39;</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">add_size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metric_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span> <span class="ow">or</span> <span class="nb">float</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">unit</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;MB&#39;</span><span class="p">,</span> <span class="n">dimensions</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">metric_type</span><span class="p">:</span> <span class="n">MetricTypes</span> <span class="o">=</span> <span class="n">MetricTypes</span><span class="o">.</span><span class="n">GAUGE</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add a size based metric</span>
+<span class="sd">            Default metric type is gauge</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        name : str</span>
+<span class="sd">        metric_name : str</span>
 <span class="sd">            metric name</span>
 <span class="sd">        value: int, float</span>
 <span class="sd">            value of metric</span>
@@ -634,11 +814,13 @@ EOE
 <span class="sd">            unit of metric, default here is &#39;MB&#39;, &#39;kB&#39;, &#39;GB&#39; also supported</span>
 <span class="sd">        dimensions: list</span>
 <span class="sd">            list of dimensions for the metric</span>
+<span class="sd">        metric_type: MetricTypes</span>
+<span class="sd">           type for defining different operations, defaulted to gauge metric type for Size metrics</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 </pre></div>
 </div>
 <p>Note that the default unit in this case is milliseconds (ms).</p>
-<p><strong>Supported units</strong>: <code class="docutils literal notranslate"><span class="pre">['MB',</span> <span class="pre">'kB',</span> <span class="pre">'GB']</span></code></p>
+<p><strong>Supported units</strong>: <code class="docutils literal notranslate"><span class="pre">['MB',</span> <span class="pre">'kB',</span> <span class="pre">'GB',</span> <span class="pre">'B']</span></code></p>
 <p>To add custom size based metrics</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Add Image size as a metric</span>
 <span class="c1"># dimensions = [dim1, dim2, dim3, ..., dimN]</span>
@@ -648,16 +830,19 @@ EOE
 </div>
 </section>
 <section id="add-percentage-based-metrics">
-<h3><span class="section-number">9.5.5. </span>Add Percentage based metrics<a class="headerlink" href="#add-percentage-based-metrics" title="Permalink to this headline">¶</a></h3>
-<p>Percentage based metrics can be added by invoking the following method</p>
+<h3><span class="section-number">9.7.8. </span>Add Percentage based metrics<a class="headerlink" href="#add-percentage-based-metrics" title="Permalink to this headline">¶</a></h3>
+<p><strong>Percentage-based metrics are defaulted to a <code class="docutils literal notranslate"><span class="pre">GAUGE</span></code> metric type</strong></p>
+<p>Percentage based metrics can be added by invoking the following method:</p>
 <p>Function API</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">add_percent</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">add_percent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metric_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span> <span class="ow">or</span> <span class="nb">float</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dimensions</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                    <span class="n">metric_type</span><span class="p">:</span> <span class="n">MetricTypes</span> <span class="o">=</span> <span class="n">MetricTypes</span><span class="o">.</span><span class="n">GAUGE</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add a percentage based metric</span>
+<span class="sd">            Default metric type is gauge</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        name : str</span>
+<span class="sd">        metric_name : str</span>
 <span class="sd">            metric name</span>
 <span class="sd">        value: int, float</span>
 <span class="sd">            value of metric</span>
@@ -665,6 +850,8 @@ EOE
 <span class="sd">            request_id index in batch</span>
 <span class="sd">        dimensions: list</span>
 <span class="sd">            list of dimensions for the metric</span>
+<span class="sd">        metric_type: MetricTypes</span>
+<span class="sd">           type for defining different operations, defaulted to gauge metric type for Percent metrics</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 </pre></div>
 </div>
@@ -677,53 +864,124 @@ EOE
 </div>
 </section>
 <section id="add-counter-based-metrics">
-<h3><span class="section-number">9.5.6. </span>Add counter-based metrics<a class="headerlink" href="#add-counter-based-metrics" title="Permalink to this headline">¶</a></h3>
-<p>Percentage based metrics can be added by invoking the following method</p>
+<h3><span class="section-number">9.7.9. </span>Add counter-based metrics<a class="headerlink" href="#add-counter-based-metrics" title="Permalink to this headline">¶</a></h3>
+<p><strong>Counter-based metrics are defaulted to a <code class="docutils literal notranslate"><span class="pre">COUNTER</span></code> metric type</strong></p>
+<p>Counter based metrics can be added by invoking the following method</p>
 <p>Function API</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">add_counter</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">add_counter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metric_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span> <span class="ow">or</span> <span class="nb">float</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dimensions</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                    <span class="n">metric_type</span><span class="p">:</span> <span class="n">MetricTypes</span> <span class="o">=</span> <span class="n">MetricTypes</span><span class="o">.</span><span class="n">COUNTER</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add a counter metric or increment an existing counter metric</span>
-
+<span class="sd">            Default metric type is counter</span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        name : str</span>
+<span class="sd">        metric_name : str</span>
 <span class="sd">            metric name</span>
-<span class="sd">        value: int</span>
+<span class="sd">        value: int or float</span>
 <span class="sd">            value of metric</span>
 <span class="sd">        idx: int</span>
 <span class="sd">            request_id index in batch</span>
 <span class="sd">        dimensions: list</span>
 <span class="sd">            list of dimensions for the metric</span>
+<span class="sd">        metric_type: MetricTypes</span>
+<span class="sd">           type for defining different operations, defaulted to counter metric type for Counter metrics</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 </pre></div>
 </div>
-<p>To create, increment and decrement counter-based metrics we can use the following calls:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Add Loop Count as a metric</span>
-<span class="c1"># dimensions = [dim1, dim2, dim3, ..., dimN]</span>
-<span class="c1"># Assuming batch size 1</span>
+</section>
+<section id="getting-a-metric">
+<h3><span class="section-number">9.7.10. </span>Getting a metric<a class="headerlink" href="#getting-a-metric" title="Permalink to this headline">¶</a></h3>
+<p>Users can get a metric from the cache. The Metric object is returned, so the user can access the methods of the Metric: (i.e. <code class="docutils literal notranslate"><span class="pre">Metric.update(value)</span></code>, <code class="docutils literal notranslate"><span class="pre">Metric.__str__</span></code>)</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">get_metric</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metric_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">metric_type</span><span class="p">:</span> <span class="n">MetricTypes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Metric</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get a Metric from cache.</span>
+<span class="sd">            Ask user for required requirements to form metric key to retrieve Metric.</span>
 
-<span class="c1"># Create a counter with name &#39;LoopCount&#39; and dimensions, initial value</span>
-<span class="n">metrics</span><span class="o">.</span><span class="n">add_counter</span><span class="p">(</span><span class="s1">&#39;LoopCount&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">dimensions</span><span class="p">)</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        metric_type: MetricTypes</span>
+<span class="sd">            Type of metric: use MetricTypes enum to specify</span>
 
-<span class="c1"># Increment counter by 2 </span>
-<span class="n">metrics</span><span class="o">.</span><span class="n">add_counter</span><span class="p">(</span><span class="s1">&#39;LoopCount&#39;</span><span class="p">,</span> <span class="mi">2</span> <span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">dimensions</span><span class="p">)</span>
+<span class="sd">        metric_name: str</span>
+<span class="sd">            Name of metric</span>
 
-<span class="c1"># Decrement counter by 1</span>
-<span class="n">metrics</span><span class="o">.</span><span class="n">add_counter</span><span class="p">(</span><span class="s1">&#39;LoopCount&#39;</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">dimensions</span><span class="p">)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+</pre></div>
+</div>
+<p>i.e.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Method 1: Getting metric of metric name string, MetricType COUNTER</span>
+<span class="n">metrics</span><span class="o">.</span><span class="n">get_metric</span><span class="p">(</span><span class="s2">&quot;MetricName&quot;</span><span class="p">,</span> <span class="n">MetricTypes</span><span class="o">.</span><span class="n">COUNTER</span><span class="p">)</span>
 
-<span class="c1"># Final counter value in this case is 2</span>
+<span class="c1"># Method 2: Getting metric of metric name string, MetricType GAUGE</span>
+<span class="n">metrics</span><span class="o">.</span><span class="n">get_metric</span><span class="p">(</span><span class="s2">&quot;GaugeMetricName&quot;</span><span class="p">,</span> <span class="n">MetricTypes</span><span class="o">.</span><span class="n">GAUGE</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
 </section>
 <section id="logging-custom-metrics">
-<h2><span class="section-number">9.6. </span>Logging custom metrics<a class="headerlink" href="#logging-custom-metrics" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">9.8. </span>Logging custom metrics<a class="headerlink" href="#logging-custom-metrics" title="Permalink to this headline">¶</a></h2>
 <p>Following sample code can be used to log the custom metrics created in the model’s custom handler:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">metric</span> <span class="ow">in</span> <span class="n">metrics</span><span class="o">.</span><span class="n">store</span><span class="p">:</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;[METRICS]</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">metric</span><span class="p">))</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># In Custom Handler</span>
+<span class="kn">from</span> <span class="nn">ts.service</span> <span class="kn">import</span> <span class="n">emit_metrics</span>
+
+<span class="k">class</span> <span class="nc">ExampleCustomHandler</span><span class="p">(</span><span class="n">BaseHandler</span><span class="p">,</span> <span class="n">ABC</span><span class="p">):</span>
+   <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">):</span>
+
+<span class="n">context</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">add_counter</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>This custom metrics information is logged in the <code class="docutils literal notranslate"><span class="pre">model_metrics.log</span></code> file configured through <a class="reference external" href="https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/log4j2.xml">log4j2.xml</a> file.</p>
+</section>
+<section id="metrics-yaml-file-parsing-and-metrics-api-custom-handler-example">
+<h2><span class="section-number">9.9. </span>Metrics YAML File Parsing and Metrics API Custom Handler Example<a class="headerlink" href="#metrics-yaml-file-parsing-and-metrics-api-custom-handler-example" title="Permalink to this headline">¶</a></h2>
+<p>This example utilizes the feature of parsing metrics from a YAML file, adding and updating metrics and their values via Metrics API,
+updating metrics that have been parsed from the YAML file via Metrics API, and finally emitting all metrics that have been updated.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ts.service</span> <span class="kn">import</span> <span class="n">emit_metrics</span>
+<span class="kn">from</span> <span class="nn">ts.metrics.metric_type_enum</span> <span class="kn">import</span> <span class="n">MetricTypes</span>
+
+
+<span class="k">class</span> <span class="nc">CustomHandlerExample</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">):</span>
+        <span class="n">metrics</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">metrics</span>  <span class="c1"># initializing metrics to the context.metrics</span>
+
+        <span class="c1"># Setting a sleep for examples&#39; sake</span>
+        <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+        <span class="n">stop_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+        <span class="c1"># Adds a metric that has a metric type of gauge</span>
+        <span class="n">metrics</span><span class="o">.</span><span class="n">add_time</span><span class="p">(</span>
+            <span class="s2">&quot;HandlerTime&quot;</span><span class="p">,</span> <span class="nb">round</span><span class="p">((</span><span class="n">stop_time</span> <span class="o">-</span> <span class="n">start_time</span><span class="p">)</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;ms&quot;</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Logs the value 2.5 and -1.3 to the frontend</span>
+        <span class="n">metrics</span><span class="o">.</span><span class="n">add_counter</span><span class="p">(</span><span class="s2">&quot;HandlerSeparateCounter&quot;</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">)</span>
+        <span class="n">metrics</span><span class="o">.</span><span class="n">add_counter</span><span class="p">(</span><span class="s2">&quot;HandlerSeparateCounter&quot;</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.3</span><span class="p">)</span>
+
+        <span class="c1"># Adding a standard counter metric</span>
+        <span class="n">metrics</span><span class="o">.</span><span class="n">add_counter</span><span class="p">(</span><span class="s2">&quot;HandlerCounter&quot;</span><span class="p">,</span> <span class="mf">21.3</span><span class="p">)</span>
+
+        <span class="c1"># Assume that a metric that has a metric type of counter</span>
+        <span class="c1"># and is named InferenceTimeInMS in the metrics.yaml file.</span>
+        <span class="c1"># Instead of creating a new object with the same name and same parameters,</span>
+        <span class="c1"># this line will update the metric that already exists from the YAML file.</span>
+        <span class="n">metrics</span><span class="o">.</span><span class="n">add_counter</span><span class="p">(</span><span class="s2">&quot;InferenceTimeInMS&quot;</span><span class="p">,</span> <span class="mf">2.78</span><span class="p">)</span>
+
+        <span class="c1"># Another method of updating values -</span>
+        <span class="c1"># using the get_metric + Metric.update method</span>
+        <span class="c1"># In this example, we are getting an already existing</span>
+        <span class="c1"># Metric that had been parsed from the yaml file</span>
+        <span class="n">histogram_example_metric</span> <span class="o">=</span> <span class="n">metrics</span><span class="o">.</span><span class="n">get_metric</span><span class="p">(</span>
+            <span class="s2">&quot;HistogramModelMetricNameExample&quot;</span><span class="p">,</span>
+            <span class="n">MetricTypes</span><span class="o">.</span><span class="n">histogram</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">histogram_example_metric</span><span class="o">.</span><span class="n">add_or_update</span><span class="p">(</span><span class="mf">4.6</span><span class="p">)</span>
+
+        <span class="c1"># Same idea as the &#39;metrics.add_counter(&#39;InferenceTimeInMS&#39;, 2.78)&#39; line,</span>
+        <span class="c1"># except this time with gauge metric type object</span>
+        <span class="n">metrics</span><span class="o">.</span><span class="n">add_size</span><span class="p">(</span><span class="s2">&quot;GaugeModelMetricNameExample&quot;</span><span class="p">,</span> <span class="mf">42.5</span><span class="p">)</span>
+</pre></div>
+</div>
 </section>
 </section>
 
@@ -775,16 +1033,27 @@ EOE
 <li><a class="reference internal" href="#introduction">9.2. Introduction</a></li>
 <li><a class="reference internal" href="#system-metrics">9.3. System Metrics</a></li>
 <li><a class="reference internal" href="#formatting">9.4. Formatting</a></li>
-<li><a class="reference internal" href="#custom-metrics-api">9.5. Custom Metrics API</a><ul>
-<li><a class="reference internal" href="#create-dimension-object-s">9.5.1. Create dimension object(s)</a></li>
-<li><a class="reference internal" href="#add-generic-metrics">9.5.2. Add generic metrics</a></li>
-<li><a class="reference internal" href="#add-time-based-metrics">9.5.3. Add time-based metrics</a></li>
-<li><a class="reference internal" href="#add-size-based-metrics">9.5.4. Add size-based metrics</a></li>
-<li><a class="reference internal" href="#add-percentage-based-metrics">9.5.5. Add Percentage based metrics</a></li>
-<li><a class="reference internal" href="#add-counter-based-metrics">9.5.6. Add counter-based metrics</a></li>
+<li><a class="reference internal" href="#metric-types">9.5. Metric Types</a></li>
+<li><a class="reference internal" href="#central-metrics-yaml-file-definition">9.6. Central metrics YAML file definition</a><ul>
+<li><a class="reference internal" href="#how-it-works">9.6.1. How it works</a></li>
+<li><a class="reference internal" href="#user-manual-starting-torchserve-with-a-yaml-file-specified">9.6.2. User Manual - starting TorchServe with a yaml file specified</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#logging-custom-metrics">9.6. Logging custom metrics</a></li>
+<li><a class="reference internal" href="#custom-metrics-api">9.7. Custom Metrics API</a><ul>
+<li><a class="reference internal" href="#specifying-metric-types">9.7.1. Specifying Metric Types</a></li>
+<li><a class="reference internal" href="#updating-metrics-parsed-from-the-yaml-file">9.7.2. Updating Metrics parsed from the yaml file</a></li>
+<li><a class="reference internal" href="#default-dimensions">9.7.3. Default dimensions</a></li>
+<li><a class="reference internal" href="#create-dimension-object-s">9.7.4. Create dimension object(s)</a></li>
+<li><a class="reference internal" href="#add-generic-metrics">9.7.5. Add generic metrics</a></li>
+<li><a class="reference internal" href="#add-time-based-metrics">9.7.6. Add time-based metrics</a></li>
+<li><a class="reference internal" href="#add-size-based-metrics">9.7.7. Add size-based metrics</a></li>
+<li><a class="reference internal" href="#add-percentage-based-metrics">9.7.8. Add Percentage based metrics</a></li>
+<li><a class="reference internal" href="#add-counter-based-metrics">9.7.9. Add counter-based metrics</a></li>
+<li><a class="reference internal" href="#getting-a-metric">9.7.10. Getting a metric</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#logging-custom-metrics">9.8. Logging custom metrics</a></li>
+<li><a class="reference internal" href="#metrics-yaml-file-parsing-and-metrics-api-custom-handler-example">9.9. Metrics YAML File Parsing and Metrics API Custom Handler Example</a></li>
 </ul>
 </li>
 </ul>
