@@ -362,6 +362,20 @@
 <h2>Optimizing PyTorch<a class="headerlink" href="#optimizing-pytorch" title="Permalink to this headline">¶</a></h2>
 <p>There are many tricks to optimize PyTorch models for production including but not limited to distillation, quantization, fusion, pruning, setting environment variables and we encourage you to benchmark and see what works best for you. An experimental tool that may make this process easier is https://pypi.org/project/torchprep.</p>
 <p>In general it’s hard to optimize models and the easiest approach can be exporting to some runtime like ORT, TensorRT, IPEX, FasterTransformer and we have many examples for how to integrate these runtimes in https://github.com/pytorch/serve/tree/master/examples. If your favorite runtime is not supported please feel free to open a PR.</p>
+<section id="onnx-and-ort-support">
+<h3>ONNX and ORT support<a class="headerlink" href="#onnx-and-ort-support" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">torchserve[onnx]</span></code></p>
+<p>In particular TorchServe has native support for ONNX models which can be loaded via ORT for both accelerated CPU and GPU inference. ONNX operates a bit differentyl from a regular PyTorch model in that when you’re running the conversion you need to explicity set and name your input and output dimensions. See https://github.com/pytorch/serve/blob/master/test/pytest/test_onnx.py for an example. So at a high level what TorchServe allows you to do is</p>
+<ol class="simple">
+<li><p>Package serialized ONNX weights <code class="docutils literal notranslate"><span class="pre">torch-model-archiver</span> <span class="pre">--serialized-file</span> <span class="pre">model.onnx</span> <span class="pre">...</span></code></p></li>
+<li><p>Load those weights from <code class="docutils literal notranslate"><span class="pre">base_handler.py</span></code> using <code class="docutils literal notranslate"><span class="pre">ort_session</span> <span class="pre">=</span> <span class="pre">ort.InferenceSession(self.model_pt_path,</span> <span class="pre">providers=providers,</span> <span class="pre">sess_options=sess_options)</span></code> which supports reasonable defaults for both CPU and GPU inference</p></li>
+<li><p>Allow you define custom pre and post processing functions to pass in data in the format your onnx model expects with a custom handler</p></li>
+</ol>
+</section>
+<section id="tensorrt-and-nvfuser-support">
+<h3>TensorRT and NVfuser support<a class="headerlink" href="#tensorrt-and-nvfuser-support" title="Permalink to this headline">¶</a></h3>
+<p>TorchServe also already supports models optimized via TensorRT. To leverage the TensorRT runtime you can convert your model via https://github.com/pytorch/TensorRT and once you’re done you’ll have serialized weights which you can load with <code class="docutils literal notranslate"><span class="pre">torch.jit.load()</span></code> https://pytorch.org/TensorRT/getting_started/getting_started_with_python_api.html#getting-started-with-python-api so for all intents and purposes after a conversion there is no difference in how PyTorch treats a Torchscript model vs a TensorRT model. An additional benefit to using <code class="docutils literal notranslate"><span class="pre">torch.jit.load()</span></code> is that it’ll let you leverage NVfuser which starting from PyTorch 1.12 is the default fuser for torchscripted models.</p>
+</section>
 </section>
 <section id="optimizing-torchserve">
 <h2>Optimizing TorchServe<a class="headerlink" href="#optimizing-torchserve" title="Permalink to this headline">¶</a></h2>
@@ -428,7 +442,11 @@
             <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
               <ul>
 <li><a class="reference internal" href="#">Performance Guide</a><ul>
-<li><a class="reference internal" href="#optimizing-pytorch">Optimizing PyTorch</a></li>
+<li><a class="reference internal" href="#optimizing-pytorch">Optimizing PyTorch</a><ul>
+<li><a class="reference internal" href="#onnx-and-ort-support">ONNX and ORT support</a></li>
+<li><a class="reference internal" href="#tensorrt-and-nvfuser-support">TensorRT and NVfuser support</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#optimizing-torchserve">Optimizing TorchServe</a><ul>
 <li><a class="reference internal" href="#concurrency-and-number-of-workers">Concurrency And Number of Workers</a></li>
 </ul>
