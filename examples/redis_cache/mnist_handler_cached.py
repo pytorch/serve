@@ -1,5 +1,5 @@
 from examples.image_classifier.mnist.mnist_handler import MNISTDigitClassifier
-from ts.utils.redis_cache import handler_cache
+from examples.redis_cache.redis_cache import handler_cache
 
 
 class MNISTDigitClassifierCached(MNISTDigitClassifier):
