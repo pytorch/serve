@@ -13,7 +13,7 @@ namespace torchserve {
 class LogMetricsCache : public MetricsCache {
  public:
   ~LogMetricsCache() override {}
-  void Initialize(const MetricsConfigurationHandler& config_handler);
+  void Initialize(const MetricsConfigurationHandler& config_handler) override;
   TSLogMetric& GetMetric(const MetricType& type,
                          const std::string& name) override;
 

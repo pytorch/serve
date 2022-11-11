@@ -1,0 +1,37 @@
+dimensions:
+  - &model_name "ModelName"
+  - &level "Level"
+
+ts_metrics:
+  counter:
+    - name: CounterTsMetricExample
+      unit: count
+      dimensions: [*model_name, *level]
+  gauge:
+    - name: GaugeTsMetricExample
+      unit: ms
+      dimensions: [*model_name, *level]
+  histogram:
+    - name: HistogramTsMetricExample
+      unit: ms
+      dimensions: [*model_name, *level]
+
+model_metrics:
+  counter:
+    - name: CounterModelMetricExample
+      unit: count
+      dimensions: [*model_name, *level]
+  gauge:
+    - name: GaugeModelMetricNameExample
+      unit: ms
+      dimensions: [*model_name, *level]
+    - name: HandlerTime
+      unit: ms
+      dimensions: [*model_name, *level]
+    - name: PredictionTime
+      unit: ms
+      dimensions: [*model_name, *level]
+  histogram:
+    - name: HistogramModelMetricNameExample
+      unit: ms
+      dimensions: [*model_name, *level]
