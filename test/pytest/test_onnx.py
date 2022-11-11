@@ -1,10 +1,11 @@
 import subprocess
 
 import pytest
+import torch
+
 
 try:
     import onnx
-    import torch
     import torch.onnx
 
     print(
