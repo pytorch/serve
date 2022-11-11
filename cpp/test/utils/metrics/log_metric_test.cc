@@ -76,8 +76,11 @@ TEST_F(TSLogMetricTest, TestCounterMetric) {
   ASSERT_TRUE(GetMetricValuesFromLogs().empty());
 
   test_metric.AddOrUpdate(metric_dimension_values, 1.0);
-  test_metric.AddOrUpdate(metric_dimension_values, -2.0);
-  test_metric.AddOrUpdate(metric_dimension_values, metric_request_id, -2.5);
+  ASSERT_THROW(test_metric.AddOrUpdate(metric_dimension_values, -2.0),
+               std::invalid_argument);
+  ASSERT_THROW(
+      test_metric.AddOrUpdate(metric_dimension_values, metric_request_id, -2.5),
+      std::invalid_argument);
   test_metric.AddOrUpdate(metric_dimension_values, metric_request_id, 3.5);
   const std::vector<double> expected_metric_values{1.0, 3.5};
   ASSERT_EQ(GetMetricValuesFromLogs(), expected_metric_values);
@@ -148,11 +151,16 @@ TEST_F(TSLogMetricTest, TestTSLogMetricEmitWithoutRequestId) {
 TEST_F(TSLogMetricTest, TestTSLogMetricEmitWithIncorrectDimensionData) {
   TSLogMetric test_metric(MetricType::COUNTER, metric_name, "ms",
                           metric_dimension_names);
-  test_metric.AddOrUpdate(std::vector<std::string>{"model"}, 1.5);
-  test_metric.AddOrUpdate(std::vector<std::string>{"model", ""}, 1.5);
-  test_metric.AddOrUpdate(
-      std::vector<std::string>{"model", "test_model", "extra_dim"}, 1.5);
-  ASSERT_EQ(GetMetricLogs().size(), 3);
+  ASSERT_THROW(test_metric.AddOrUpdate(std::vector<std::string>{"model"}, 1.5),
+               std::invalid_argument);
+  ASSERT_THROW(
+      test_metric.AddOrUpdate(std::vector<std::string>{"model", ""}, 1.5),
+      std::invalid_argument);
+  ASSERT_THROW(
+      test_metric.AddOrUpdate(
+          std::vector<std::string>{"model", "test_model", "extra_dim"}, 1.5),
+      std::invalid_argument);
+  ASSERT_EQ(GetMetricLogs().size(), 0);
   ASSERT_TRUE(GetMetricValuesFromLogs().empty());
 }
 }  // namespace torchserve

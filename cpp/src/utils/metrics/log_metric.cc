@@ -22,12 +22,11 @@ void TSLogMetric::AddOrUpdate(const std::vector<std::string>& dimension_values,
     ValidateDimensionValues(dimension_values);
     ValidateMetricValue(value);
   } catch (const std::invalid_argument& exception) {
-    TS_LOGF(ERROR,
-            "[METRICS]Failed to update metric with name: {} and dimensions: {} "
-            "with value: {}. {}",
-            name, BuildDimensionsString(dimension_values), value,
-            exception.what());
-    return;
+    std::string error_message =
+        "Failed to update metric with name: " + name +
+        " and dimensions: " + BuildDimensionsString(dimension_values) +
+        " with value: " + std::to_string(value) + ". " + exception.what();
+    throw std::invalid_argument(error_message);
   }
 
   Emit(dimension_values, request_id, value);

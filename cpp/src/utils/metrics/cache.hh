@@ -4,12 +4,15 @@
 #include <string>
 #include <vector>
 
+#include "src/utils/metrics/config.hh"
 #include "src/utils/metrics/metric.hh"
 
 namespace torchserve {
 class MetricsCache {
  public:
   virtual ~MetricsCache() {}
+  virtual void Initialize(
+      const MetricsConfigurationHandler& config_handler) = 0;
   virtual IMetric& GetMetric(const MetricType& type,
                              const std::string& name) = 0;
 
