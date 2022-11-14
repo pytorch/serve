@@ -113,6 +113,7 @@ public final class ConfigManager {
     public static final String MODEL_METRICS_LOGGER = "MODEL_METRICS";
     public static final String MODEL_LOGGER = "MODEL_LOG";
     public static final String MODEL_SERVER_METRICS_LOGGER = "TS_METRICS";
+    public static final String MODEL_SERVER_TELEMETRY_LOGGER = "TELEMETRY_METRICS";
 
     public static final String METRIC_FORMAT_PROMETHEUS = "prometheus";
 
@@ -835,6 +836,10 @@ public final class ConfigManager {
             }
         }
         return value;
+    }
+
+    public String getVersion() {
+        return prop.getProperty(VERSION);
     }
 
     public static final class Arguments {

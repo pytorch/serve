@@ -1,6 +1,9 @@
 package org.pytorch.serve.metrics;
 
 import com.google.gson.annotations.SerializedName;
+import org.pytorch.serve.metrics.util.TelemetryMetrics;
+import org.pytorch.serve.util.ConfigManager;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -48,6 +51,16 @@ public class Metric {
         this.unit = unit;
         this.hostName = hostName;
         this.dimensions = Arrays.asList(dimensions);
+        this.timestamp =
+                String.valueOf(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
+    }
+
+    private Metric(telemetryMetricsBuilder builder) {
+        this.metricName = builder.metricName;
+        this.value = builder.value;
+        this.unit = builder.unit;
+        this.hostName = builder.hostName;
+        this.dimensions = builder.dimensions;
         this.timestamp =
                 String.valueOf(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
     }
@@ -158,5 +171,29 @@ public class Metric {
         }
         sb.append(",timestamp:").append(timestamp);
         return sb.toString();
+    }
+
+    public static class telemetryMetricsBuilder {
+        private String metricName;
+        private String hostName;
+        private List<Dimension> dimensions;
+        private final static String value = "1";
+        private final static String unit = "Count";
+        private Dimension modelVersion = new Dimension("TorchServe", ConfigManager.getInstance().getVersion());
+        public telemetryMetricsBuilder(TelemetryMetrics metricName, String hostName, Dimension... dimensions) {
+            this.metricName = metricName.toString();
+            this.hostName = hostName;
+            this.dimensions = new ArrayList<>(Arrays.asList(modelVersion));
+            this.dimensions.addAll(Arrays.asList(dimensions));
+        }
+
+        public telemetryMetricsBuilder dimension (Dimension... dimensions) {
+            this.dimensions.addAll(Arrays.asList(dimensions));
+            return this;
+        }
+
+        public Metric build() {
+            return new Metric(this);
+        }
     }
 }

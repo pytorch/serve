@@ -26,6 +26,7 @@ import org.pytorch.serve.job.Job;
 import org.pytorch.serve.job.RestJob;
 import org.pytorch.serve.metrics.Dimension;
 import org.pytorch.serve.metrics.Metric;
+import org.pytorch.serve.metrics.util.TelemetryMetrics;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.Connector;
 import org.pytorch.serve.util.codec.ModelRequestEncoder;
@@ -43,6 +44,7 @@ public class WorkerThread implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(WorkerThread.class);
     private static final Logger loggerTsMetrics =
             LoggerFactory.getLogger(ConfigManager.MODEL_SERVER_METRICS_LOGGER);
+    private static final Logger telemetryMetrics = LoggerFactory.getLogger(ConfigManager.MODEL_SERVER_TELEMETRY_LOGGER);
 
     private Metric workerLoadTime;
 
@@ -249,11 +251,31 @@ public class WorkerThread implements Runnable {
             }
         } catch (WorkerInitializationException e) {
             logger.error("Backend worker error", e);
+            //TODO: Need more detailed management for ModelServer exception
+            // along with error message and error code mapping
+            telemetryMetrics.info(
+                "{}",
+                new Metric.telemetryMetricsBuilder(
+                    TelemetryMetrics.ModelServerError,
+                    ConfigManager.getInstance().getHostName(),
+                    new Dimension(e.getClass().getCanonicalName(),"-1")).build());
         } catch (OutOfMemoryError oom) {
             logger.error("Out of memory error when creating workers", oom);
             status = HttpURLConnection.HTTP_ENTITY_TOO_LARGE;
+            telemetryMetrics.info(
+                "{}",
+                new Metric.telemetryMetricsBuilder(
+                    TelemetryMetrics.ModelServerError,
+                    ConfigManager.getInstance().getHostName(),
+                    new Dimension(oom.getClass().getCanonicalName(),"-1")).build());
         } catch (Throwable t) {
             logger.warn("Backend worker thread exception.", t);
+            telemetryMetrics.info(
+                "{}",
+                new Metric.telemetryMetricsBuilder(
+                    TelemetryMetrics.ModelServerError,
+                    ConfigManager.getInstance().getHostName(),
+                    new Dimension(t.getClass().getCanonicalName(),"-1")).build());
         } finally {
             // WorkerThread is running in thread pool, the thread will be assigned to next
             // Runnable once this worker is finished. If currentThread keep holding the reference
