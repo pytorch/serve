@@ -5,13 +5,12 @@ import importlib
 import json
 import logging
 import os
-import uuid
 from abc import ABCMeta, abstractmethod
-
 from builtins import str
 
-from ts.metrics.metrics_store import MetricsStore
+from ts.metrics.metric_cache_yaml_impl import MetricsCacheYamlImpl
 from ts.service import Service
+
 from .utils.util import list_classes_from_module
 
 
@@ -73,6 +72,7 @@ class TsModelLoader(ModelLoader):
         batch_size,
         envelope=None,
         limit_max_image_pixels=True,
+        metrics_cache: MetricsCacheYamlImpl = None,
     ):
         """
         Load TorchServe 1.0 model from file.
@@ -84,11 +84,10 @@ class TsModelLoader(ModelLoader):
         :param batch_size:
         :param envelope:
         :param limit_max_image_pixels:
+        :param metrics_cache: MetricsCacheYamlImpl object
         :return:
         """
         logging.debug("Loading model - working dir: %s", os.getcwd())
-        # TODO: Request ID is not given. UUID is a temp UUID.
-        metrics = MetricsStore(uuid.uuid4(), model_name)
         manifest_file = os.path.join(model_dir, "MAR-INF", "MANIFEST.json")
         manifest = None
         if os.path.exists(manifest_file):
@@ -120,6 +119,7 @@ class TsModelLoader(ModelLoader):
                 gpu_id,
                 batch_size,
                 limit_max_image_pixels,
+                metrics_cache,
             )
 
         envelope_class = None
@@ -146,8 +146,8 @@ class TsModelLoader(ModelLoader):
             gpu_id,
             batch_size,
             limit_max_image_pixels,
+            metrics_cache,
         )
-        service.context.metrics = metrics
         initialize_fn(service.context)
 
         return service
