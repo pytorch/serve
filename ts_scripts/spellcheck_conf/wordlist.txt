@@ -999,3 +999,6 @@ fuser
 ort
 sess
 dali
+InferenceTimeInMS
+MetricTypes
+MetricsCache
