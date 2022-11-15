@@ -2,11 +2,11 @@
 
 The NVIDIA Data Loading Library (DALI) is a library for data loading and pre-processing to accelerate deep learning applications. It provides a collection of highly optimized building blocks for loading and processing image, video and audio data.
 
-Here, we serve torchserve models with DALI pipeline for optimizing the pre-processing
+In this example, we use NVIDIA DALI for pre-processing image input for inference in resenet-18 model.
 
 Refer to [NVIDIA-DALI-Documentation](https://docs.nvidia.com/deeplearning/dali/user-guide/docs/index.html) for detailed information
 
-### Install dependencies :
+### Install dependencies
 
 Navigate to `serve/examples/nvidia_dali` directory and run the below command to install the dependencies
 
@@ -21,7 +21,7 @@ Refer to [NVIDIA-DALI](https://github.com/NVIDIA/DALI) for more details on DALI 
 
 Navigate to `cd ./serve/examples/nvidia_dali`.
 
-Change the `dali_config.json`
+Change the `dali_config.json` variables
 
 `batch_size` - Maximum batch size of pipeline.
 
@@ -37,8 +37,8 @@ python serialiize_dali_pipeline.py --config dali_config.json
 
 **__Note__**:
 
-- Makesure the serialized file should have the extension `.dali`
-- The Torchserve batchsize should match the DALI batch size.
+- Make sure that the serialized file has the extension `.dali`
+- The Torchserve batch size should match the DALI batch size.
 
 ### Download the resnet .pth file
 
@@ -63,15 +63,6 @@ mkdir model_store
 mv resnet-18.mar model_store/
 ```
 
-### Set environment for DALI
-
-Run the following command in your terminal to set the environment variable for DALI_PREPROCESSING
-
-```bash
-export DALI_PREPROCESSING=true
-```
-
-
 ### Start the torchserve
 
 ```bash
@@ -84,4 +75,14 @@ Get the inference for a sample image using the below command
 
 ```bash
 curl http://127.0.0.1:8080/predictions/resnet-18 -T ./examples/image_classifier/kitten.jpg
+```
+
+```json
+{
+  "tabby": 0.408751517534256,
+  "tiger_cat": 0.35404905676841736,
+  "Egyptian_cat": 0.12418942898511887,
+  "lynx": 0.025347290560603142,
+  "bucket": 0.011393273249268532
+}
 ```
