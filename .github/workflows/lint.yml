@@ -10,7 +10,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     name: Lint changed files
     steps:
       - uses: actions/checkout@v3
@@ -50,7 +50,7 @@ jobs:
           echo "pre-commit install"
           echo "pre-commit will lint your code for you, so git add and commit those new changes and this check should become green"
   spellcheck:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
 

@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        os: [ubuntu-latest, macOS-latest, windows-latest]
+        os: [ubuntu-20.04, macOS-latest, windows-latest]
     steps:
       - name: Setup Conda
         uses: s-weigand/setup-conda@v1
@@ -38,7 +38,7 @@ jobs:
         env:
           TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
         # skip pushing PyPI nightly binaries for macOS & windows as the binaries have the same name
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.os == 'ubuntu-20.04'
         run: python binaries/upload.py --upload-pypi-packages
       - name: Open issue on failure
         if: ${{ failure() && github.event_name  == 'schedule' }}
