@@ -1,12 +1,10 @@
 # DALI Optimization integration with Torchserve models
 
-
 The NVIDIA Data Loading Library (DALI) is a library for data loading and pre-processing to accelerate deep learning applications. It provides a collection of highly optimized building blocks for loading and processing image, video and audio data.
 
 Here, we serve torchserve models with DALI pipeline for optimizing the pre-processing
 
 Refer to [NVIDIA-DALI-Documentation](https://docs.nvidia.com/deeplearning/dali/user-guide/docs/index.html) for detailed information
-
 
 ### Install dependencies :
 
@@ -23,18 +21,28 @@ Refer to [NVIDIA-DALI](https://github.com/NVIDIA/DALI) for more details on DALI 
 
 Navigate to `cd ./serve/examples/nvidia_dali`.
 
+Change the `dali_config.json`
+
+`batch_size` - Maximum batch size of pipeline.
+
+`num_threads` - Number of CPU threads used by the pipeline.
+
+`device_id` - ID of GPU device used by pipeline.
 
 Run the python file which serializes the Dali Pipeline and saves it to `model.dali`
-
-**__Note__**: Makesure the serialized file should have the extension .dali
 
 ```bash
 python serialiize_dali_pipeline.py --config dali_config.json
 ```
 
-Navigate to `cd serve` directory and run the below commands
+**__Note__**:
+
+- Makesure the serialized file should have the extension `.dali`
+- The Torchserve batchsize should match the DALI batch size.
 
 ### Download the resnet .pth file
+
+Navigate to `serve` directory and run the below commands
 
 ```bash
 wget https://download.pytorch.org/models/resnet18-f37072fd.pth

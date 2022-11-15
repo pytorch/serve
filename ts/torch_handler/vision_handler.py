@@ -16,13 +16,6 @@ from PIL import Image
 
 from .base_handler import BaseHandler
 
-if (
-    "DALI_PREPROCESSING" in os.environ
-    and os.environ["DALI_PREPROCESSING"].lower() == "true"
-):
-    from nvidia.dali.pipeline import Pipeline
-    from nvidia.dali.plugin.pytorch import DALIGenericIterator, LastBatchPolicy
-
 
 class VisionHandler(BaseHandler, ABC):
     """
@@ -37,16 +30,22 @@ class VisionHandler(BaseHandler, ABC):
         self.ig = IntegratedGradients(self.model)
         self.initialized = True
         properties = context.system_properties
+        self.model_dir = properties.get("model_dir")
         if not properties.get("limit_max_image_pixels"):
             Image.MAX_IMAGE_PIXELS = None
-        if (
-            "DALI_PREPROCESSING" in os.environ
-            and os.environ["DALI_PREPROCESSING"].lower() == "true"
-        ):
+        dali_file = [
+            file for file in os.listdir(self.model_dir) if file.endswith(".dali")
+        ]
+        if len(dali_file):
+            self.dali_pipeline_file = os.path.join(self.model_dir, dali_file[0])
+            from nvidia.dali.pipeline import Pipeline
+            from nvidia.dali.plugin.pytorch import DALIGenericIterator, LastBatchPolicy
 
-            self.model_dir = properties.get("model_dir")
-            dali_config_file = open(self.model_dir + "/dali_config.json")
-            self.dali_configs = json.load(dali_config_file)
+            dali_config_file = os.path.join(self.model_dir, "dali_config.json")
+            if not os.path.isfile(dali_config_file):
+                raise RuntimeError("Missing the dali_config.json file.")
+            with open(dali_config_file) as setup_config_file:
+                self.dali_configs = json.load(setup_config_file)
 
     def dali_preprocess(self, data):
         batch_tensor = []
@@ -94,10 +93,7 @@ class VisionHandler(BaseHandler, ABC):
         Returns:
             list : The preprocess function returns the input image as a list of float tensors.
         """
-        if (
-            "DALI_PREPROCESSING" in os.environ
-            and os.environ["DALI_PREPROCESSING"].lower() == "true"
-        ):
+        if os.path.isfile(self.dali_pipeline_file):
             return self.dali_preprocess(data=data)
 
         images = []
