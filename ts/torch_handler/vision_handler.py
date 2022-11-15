@@ -38,9 +38,6 @@ class VisionHandler(BaseHandler, ABC):
         ]
         if len(dali_file):
             self.dali_pipeline_file = os.path.join(self.model_dir, dali_file[0])
-            from nvidia.dali.pipeline import Pipeline
-            from nvidia.dali.plugin.pytorch import DALIGenericIterator, LastBatchPolicy
-
             dali_config_file = os.path.join(self.model_dir, "dali_config.json")
             if not os.path.isfile(dali_config_file):
                 raise RuntimeError("Missing the dali_config.json file.")
@@ -48,11 +45,14 @@ class VisionHandler(BaseHandler, ABC):
                 self.dali_configs = json.load(setup_config_file)
 
     def dali_preprocess(self, data):
+        from nvidia.dali.pipeline import Pipeline
+        from nvidia.dali.plugin.pytorch import DALIGenericIterator, LastBatchPolicy
+
         batch_tensor = []
         batch_size = self.dali_configs["batch_size"]
         num_threads = self.dali_configs["num_threads"]
         device_id = self.dali_configs["device_id"]
-        prefetch_queue_depth = self.dali_configs["prefetch_queue_depth"]
+        prefetch_queue_depth = self.dali_configs["prefetch_queue_depth"] or 2
 
         input_byte_arrays = [i["body"] if "body" in i else i["data"] for i in data]
         for byte_array in input_byte_arrays:
