@@ -2,7 +2,7 @@
 
 The NVIDIA Data Loading Library (DALI) is a library for data loading and pre-processing to accelerate deep learning applications. It provides a collection of highly optimized building blocks for loading and processing image, video and audio data.
 
-In this example, we use NVIDIA DALI for pre-processing image input for inference in resenet-18 model.
+In this example, we use NVIDIA DALI for pre-processing image input for inference in resnet-18 model.
 
 Refer to [NVIDIA-DALI-Documentation](https://docs.nvidia.com/deeplearning/dali/user-guide/docs/index.html) for detailed information
 
