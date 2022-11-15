@@ -50,9 +50,8 @@ Here is an [example](https://github.com/pytorch/serve/tree/cpp_backend/cpp/test/
 * build customized handler shared lib. For example [Mnist handler](https://github.com/pytorch/serve/blob/cpp_backend/cpp/src/examples/image_classifier/mnist).
 * set runtime as "LSP" in model archiver option [--runtime](https://github.com/pytorch/serve/tree/master/model-archiver#arguments) 
 * set handler as "libmnist_handler:MnistHandler" in model archiver option [--handler](https://github.com/pytorch/serve/tree/master/model-archiver#arguments)
-* set --extra-files as "libmnist_handler.dylib" in model archiver option [--extra-files](https://github.com/pytorch/serve/tree/master/model-archiver#arguments)
 ```
-torch-model-archiver --model-name mnist_base --version 1.0 --serialized-file mnist_script.pt --handler libmnist_handler:MnistHandler --runtime LSP
+torch-model-archiver --model-name mnist_handler --version 1.0 --serialized-file mnist_script.pt --handler libmnist_handler:MnistHandler --runtime LSP
 ```
 Here is an [example](https://github.com/pytorch/serve/tree/cpp_backend/cpp/test/resources/torchscript_model/mnist/mnist_handler) of unzipped model mar file.
 ##### Mnist example
