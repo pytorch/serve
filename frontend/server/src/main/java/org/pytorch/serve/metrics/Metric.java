@@ -1,8 +1,6 @@
 package org.pytorch.serve.metrics;
 
 import com.google.gson.annotations.SerializedName;
-import org.pytorch.serve.metrics.util.TelemetryMetrics;
-import org.pytorch.serve.util.ConfigManager;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -10,6 +8,9 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.pytorch.serve.metrics.util.TelemetryMetrics;
+import org.pytorch.serve.util.ConfigManager;
 
 public class Metric {
 
@@ -55,10 +56,10 @@ public class Metric {
                 String.valueOf(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
     }
 
-    private Metric(telemetryMetricsBuilder builder) {
+    private Metric(TelemetryMetricsBuilder builder) {
         this.metricName = builder.metricName;
-        this.value = builder.value;
-        this.unit = builder.unit;
+        this.value = builder.Value;
+        this.unit = builder.Unit;
         this.hostName = builder.hostName;
         this.dimensions = builder.dimensions;
         this.timestamp =
@@ -173,21 +174,21 @@ public class Metric {
         return sb.toString();
     }
 
-    public static class telemetryMetricsBuilder {
+    public static class TelemetryMetricsBuilder {
         private String metricName;
         private String hostName;
         private List<Dimension> dimensions;
-        private final static String value = "1";
-        private final static String unit = "Count";
+        private static final String Value = "1";
+        private static final String Unit = "Count";
         private Dimension modelVersion = new Dimension("TorchServe", ConfigManager.getInstance().getVersion());
-        public telemetryMetricsBuilder(TelemetryMetrics metricName, String hostName, Dimension... dimensions) {
+        public TelemetryMetricsBuilder(TelemetryMetrics metricName, String hostName, Dimension... dimensions) {
             this.metricName = metricName.toString();
             this.hostName = hostName;
             this.dimensions = new ArrayList<>(Arrays.asList(modelVersion));
             this.dimensions.addAll(Arrays.asList(dimensions));
         }
 
-        public telemetryMetricsBuilder dimension (Dimension... dimensions) {
+        public TelemetryMetricsBuilder dimension (Dimension... dimensions) {
             this.dimensions.addAll(Arrays.asList(dimensions));
             return this;
         }

@@ -44,7 +44,7 @@ public class WorkerThread implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(WorkerThread.class);
     private static final Logger loggerTsMetrics =
             LoggerFactory.getLogger(ConfigManager.MODEL_SERVER_METRICS_LOGGER);
-    private static final Logger telemetryMetrics = LoggerFactory.getLogger(ConfigManager.MODEL_SERVER_TELEMETRY_LOGGER);
+    private static final Logger TelemetryMetrics = LoggerFactory.getLogger(ConfigManager.MODEL_SERVER_TELEMETRY_LOGGER);
 
     private Metric workerLoadTime;
 
@@ -253,26 +253,26 @@ public class WorkerThread implements Runnable {
             logger.error("Backend worker error", e);
             //TODO: Need more detailed management for ModelServer exception
             // along with error message and error code mapping
-            telemetryMetrics.info(
+            TelemetryMetrics.info(
                 "{}",
-                new Metric.telemetryMetricsBuilder(
+                new Metric.TelemetryMetricsBuilder(
                     TelemetryMetrics.ModelServerError,
                     ConfigManager.getInstance().getHostName(),
                     new Dimension(e.getClass().getCanonicalName(),"-1")).build());
         } catch (OutOfMemoryError oom) {
             logger.error("Out of memory error when creating workers", oom);
             status = HttpURLConnection.HTTP_ENTITY_TOO_LARGE;
-            telemetryMetrics.info(
+            TelemetryMetrics.info(
                 "{}",
-                new Metric.telemetryMetricsBuilder(
+                new Metric.TelemetryMetricsBuilder(
                     TelemetryMetrics.ModelServerError,
                     ConfigManager.getInstance().getHostName(),
                     new Dimension(oom.getClass().getCanonicalName(),"-1")).build());
         } catch (Throwable t) {
             logger.warn("Backend worker thread exception.", t);
-            telemetryMetrics.info(
+            TelemetryMetrics.info(
                 "{}",
-                new Metric.telemetryMetricsBuilder(
+                new Metric.TelemetryMetricsBuilder(
                     TelemetryMetrics.ModelServerError,
                     ConfigManager.getInstance().getHostName(),
                     new Dimension(t.getClass().getCanonicalName(),"-1")).build());
