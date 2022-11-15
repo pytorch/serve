@@ -206,15 +206,14 @@ function install_yaml_cpp() {
   if [ ! -d "$YAML_CPP_BUILD_DIR" ] ; then
     echo -e "${COLOR_GREEN}[ INFO ] Building yaml-cpp ${COLOR_OFF}"
 
-    mkdir $YAML_CPP_BUILD_DIR
-    cd $YAML_CPP_BUILD_DIR
-
     if [ "$PLATFORM" = "Linux" ]; then
       SUDO="sudo"
     elif [ "$PLATFORM" = "Mac" ]; then
       SUDO=""
     fi
 
+    mkdir $YAML_CPP_BUILD_DIR
+    cd $YAML_CPP_BUILD_DIR
     cmake $YAML_CPP_SRC_DIR -DYAML_BUILD_SHARED_LIBS=ON -DYAML_CPP_BUILD_TESTS=OFF -DCMAKE_CXX_FLAGS="-fPIC"
     make
     $SUDO make install
@@ -317,9 +316,9 @@ function symlink_torch_libs() {
 
 function symlink_yaml_cpp_lib() {
   if [ "$PLATFORM" = "Linux" ]; then
-    ln -sf ${DEPS_DIR}/yaml-cpp-build/*.so* ${BUILD_DIR}/libs/
+    ln -sf ${DEPS_DIR}/yaml-cpp-build/*.so* ${LIBS_DIR}
   elif [ "$PLATFORM" = "Mac" ]; then
-    ln -sf ${DEPS_DIR}/yaml-cpp-build/*.dylib* ${BUILD_DIR}/libs/
+    ln -sf ${DEPS_DIR}/yaml-cpp-build/*.dylib* ${LIBS_DIR}
   fi
 }
 
