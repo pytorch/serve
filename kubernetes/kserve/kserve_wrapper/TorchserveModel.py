@@ -3,17 +3,12 @@
 import json
 import logging
 import pathlib
-from importlib.metadata import version
 from typing import Dict
 
 import kserve
 import tornado.web
+from kserve.model import Model as Model
 from kserve.model import ModelMissingError
-
-if version("kserve") >= "0.8.0":
-    from kserve.model import Model as Model
-else:
-    from kserve.kfmodel import KFModel as Model
 
 logging.basicConfig(level=kserve.constants.KSERVE_LOGLEVEL)
 

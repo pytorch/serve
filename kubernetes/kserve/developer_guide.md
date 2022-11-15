@@ -7,8 +7,8 @@ The documentation covers the steps to run Torchserve along with the KServe for t
 Below are the prerequisites should be met.
 
 - Torchserve >= 0.6.0
-- Torch-model-archiver >= 0.6.0 
-- Kserve >= 0.8.0
+- Torch-model-archiver >= 0.6.0
+- Kserve >= 0.9.0
 
 ## Steps to run Torchserve with Kserve
 
@@ -46,7 +46,7 @@ model_snapshot={"name":"startup.cfg","modelCount":1,"models":{"mnist_kf":{"1.0":
 Enable KServe service envelope
 
 ```bash
-# For v1 protocol 
+# For v1 protocol
 export TS_SERVICE_ENVELOPE=kserve
 # For v2 protocol
 export TS_SERVICE_ENVELOPE=kservev2
@@ -61,36 +61,36 @@ torchserve --start --ts-config config.properties
 Output
 
 ```bash
-2022-08-22T12:47:40,241 [INFO ] main org.pytorch.serve.servingsdk.impl.PluginsManager - Initializing plugins manager...                                                                
-2022-08-22T12:47:40,344 [INFO ] main org.pytorch.serve.ModelServer -                                                                                                                   
-Torchserve version: 0.5.3                                                                                                                                                              
-TS Home: /home/ubuntu/.virtualenvs/base/lib/python3.8/site-packages                                                                                                                    
-Current directory: /home/ubuntu/Repositories                                                                                                                                        
-Temp directory: /tmp                                                                                                                                                                   
-Number of GPUs: 0                                                                                                                                                                      
-Number of CPUs: 8                                                                                                                                                                      
-Max heap size: 3922 M                                                                                                                                                                  
-Python executable: /home/ubuntu/.virtualenvs/base/bin/python                                                                                                                           
-Config file: ./serve/kubernetes/kserve/config.properties                                                                                                                        
-Inference address: http://0.0.0.0:8085                                                                                                                                                 
-Management address: http://0.0.0.0:8085                                                                                                                                                
-Metrics address: http://0.0.0.0:8082                                                                                                                                                   
-Model Store: /home/ubuntu/Repositories/fb/serve                                                                                                                                        
-Initial Models: N/A                                                                                                                                                                    
-Log dir: /home/ubuntu/Repositories/fb/logs                                                                                                                                             
-Metrics dir: /home/ubuntu/Repositories/fb/logs                                                                                                                                         
-Netty threads: 4                                                                                                                                                                       
-Netty client threads: 0                                                                                                                                                                
-Default workers per model: 8                                                                                                                                                           
-Blacklist Regex: N/A                                                                                                                                                                   
-Maximum Response Size: 6553500                                                                                                                                                         
-Maximum Request Size: 6553500                                                                                                                                                          
-Limit Maximum Image Pixels: true                                                                                                                                                       
-Prefer direct buffer: false                                                                                                                                                            
-Allowed Urls: [file://.*|http(s)?://.*]                                                                                                                                                
-Custom python dependency for model allowed: true                                                                                                                                       
-Metrics report format: prometheus                                                                                                                                                      
-Enable metrics API: true                                                                                                                                                               
+2022-08-22T12:47:40,241 [INFO ] main org.pytorch.serve.servingsdk.impl.PluginsManager - Initializing plugins manager...
+2022-08-22T12:47:40,344 [INFO ] main org.pytorch.serve.ModelServer -
+Torchserve version: 0.5.3
+TS Home: /home/ubuntu/.virtualenvs/base/lib/python3.8/site-packages
+Current directory: /home/ubuntu/Repositories
+Temp directory: /tmp
+Number of GPUs: 0
+Number of CPUs: 8
+Max heap size: 3922 M
+Python executable: /home/ubuntu/.virtualenvs/base/bin/python
+Config file: ./serve/kubernetes/kserve/config.properties
+Inference address: http://0.0.0.0:8085
+Management address: http://0.0.0.0:8085
+Metrics address: http://0.0.0.0:8082
+Model Store: /home/ubuntu/Repositories/fb/serve
+Initial Models: N/A
+Log dir: /home/ubuntu/Repositories/fb/logs
+Metrics dir: /home/ubuntu/Repositories/fb/logs
+Netty threads: 4
+Netty client threads: 0
+Default workers per model: 8
+Blacklist Regex: N/A
+Maximum Response Size: 6553500
+Maximum Request Size: 6553500
+Limit Maximum Image Pixels: true
+Prefer direct buffer: false
+Allowed Urls: [file://.*|http(s)?://.*]
+Custom python dependency for model allowed: true
+Metrics report format: prometheus
+Enable metrics API: true
 Workflow Store: /home/ubuntu/Repositories/fb/serve
 Model config: N/A
 2022-08-22T12:47:40,363 [INFO ] main org.pytorch.serve.servingsdk.impl.PluginsManager -  Loading snapshot serializer plugin...
