@@ -37,6 +37,7 @@ class VisionHandler(BaseHandler, ABC):
             file for file in os.listdir(self.model_dir) if file.endswith(".dali")
         ]
         if len(dali_file):
+            self.PREFETCH_QUEUE_DEPTH = 2
             self.dali_pipeline_file = os.path.join(self.model_dir, dali_file[0])
             dali_config_file = os.path.join(self.model_dir, "dali_config.json")
             if not os.path.isfile(dali_config_file):
@@ -52,7 +53,6 @@ class VisionHandler(BaseHandler, ABC):
         batch_size = self.dali_configs["batch_size"]
         num_threads = self.dali_configs["num_threads"]
         device_id = self.dali_configs["device_id"]
-        prefetch_queue_depth = self.dali_configs["prefetch_queue_depth"] or 2
 
         input_byte_arrays = [i["body"] if "body" in i else i["data"] for i in data]
         for byte_array in input_byte_arrays:
@@ -68,7 +68,7 @@ class VisionHandler(BaseHandler, ABC):
         pipe._num_threads = num_threads
         pipe._device_id = device_id
 
-        for _ in range(prefetch_queue_depth):
+        for _ in range(self.PREFETCH_QUEUE_DEPTH):
             pipe.feed_input("my_source", batch_tensor)
 
         datam = DALIGenericIterator(
