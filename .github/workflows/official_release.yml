@@ -27,11 +27,11 @@ jobs:
         run: |
           python ts_scripts/install_dependencies.py --environment=dev
           pip install -e .
-      - name: Setup Java 11
+      - name: Setup Java 17
         uses: actions/setup-java@v2
         with:
           distribution: 'zulu'
-          java-version: '11'
+          java-version: '17'
       - name: Build PyPI & conda binaries
         run: python binaries/build.py
       - name: Push conda binaries
@@ -46,6 +46,7 @@ jobs:
       - name: Login to Docker
         env:
           DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+        if: matrix.os == 'ubuntu-latest'
         run: docker login --username pytorchbot --password "$DOCKER_PASSWORD"
       - name: Build & Upload pytorch/torchserve Docker images
         if: matrix.os == 'ubuntu-latest'

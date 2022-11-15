@@ -9,11 +9,18 @@ import socket
 from collections import namedtuple
 
 import mock
+import os
 import pytest
 from mock import Mock
 
 from ts.model_service_worker import TorchModelServiceWorker
 from ts.service import Service
+
+metrics_config_path = os.path.join(
+    os.path.dirname(os.path.realpath(__file__)),
+    "metrics_yaml_testing",
+    "metrics.yaml"
+)
 
 
 @pytest.fixture()
@@ -35,9 +42,9 @@ def socket_patches(mocker):
 @pytest.fixture()
 def model_service_worker(socket_patches):
     if not sys.platform.startswith("win"):
-        model_service_worker = TorchModelServiceWorker('unix', 'my-socket', None, None)
+        model_service_worker = TorchModelServiceWorker('unix', 'my-socket', None, None, metrics_config_path)
     else:
-        model_service_worker = TorchModelServiceWorker('tcp', 'my-socket', None, port_num=9999)
+        model_service_worker = TorchModelServiceWorker('tcp', 'my-socket', None, 9999, metrics_config_path)
     model_service_worker.sock = socket_patches.socket
     model_service_worker.service = Service('name', 'mpath', 'testmanifest', None, 0, 1)
     return model_service_worker
@@ -59,7 +66,7 @@ class TestInit:
         path_exists.return_value = True
 
         with pytest.raises(Exception, match=r".*socket already in use: sampleSocketName.*"):
-            TorchModelServiceWorker('unix', self.socket_name)
+            TorchModelServiceWorker('unix', self.socket_name, None, None, metrics_config_path)
 
     @pytest.fixture()
     def patches(self, mocker):
@@ -71,7 +78,7 @@ class TestInit:
         return patches
 
     def test_success(self, patches):
-        TorchModelServiceWorker('unix', self.socket_name)
+        TorchModelServiceWorker('unix', self.socket_name, None, None, metrics_config_path)
         patches.remove.assert_called_once_with(self.socket_name)
         patches.socket.assert_called_once_with(socket.AF_UNIX, socket.SOCK_STREAM)
 

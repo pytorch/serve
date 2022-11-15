@@ -1,21 +1,22 @@
-from abc import ABC
+import ast
 import json
 import logging
 import os
-import ast
+from abc import ABC
+
 import torch
 import transformers
+from captum.attr import LayerIntegratedGradients
 from transformers import (
-    AutoModelForSequenceClassification,
-    AutoTokenizer,
-    AutoModelForQuestionAnswering,
-    AutoModelForTokenClassification,
     AutoModelForCausalLM,
+    AutoModelForQuestionAnswering,
+    AutoModelForSequenceClassification,
+    AutoModelForTokenClassification,
+    AutoTokenizer,
+    GPT2TokenizerFast,
 )
-from transformers import GPT2TokenizerFast
 
 from ts.torch_handler.base_handler import BaseHandler
-from captum.attr import LayerIntegratedGradients
 
 logger = logging.getLogger(__name__)
 logger.info("Transformers version %s", transformers.__version__)

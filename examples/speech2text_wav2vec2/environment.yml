@@ -1,0 +1,15 @@
+name: wav2vec2env
+channels:
+  - defaults
+  - pytorch
+  - conda-forge
+dependencies:
+  - python>=3.10
+  - transformers
+  - pytorch
+  - torchaudio
+  - pip
+  - pip:
+    - torch-workflow-archiver
+    - torch-model-archiver 
+    - torchserve 
