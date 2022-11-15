@@ -1,0 +1,5 @@
+model_metrics:
+  histogram:
+    - name: HistogramModelMetricExample
+      unit: ms
+      dimensions: []

@@ -84,7 +84,7 @@ function install_dependencies_mac() {
     snappy                  \
     openssl                 \
     xz                      \
-    libsodium                 
+    libsodium
 
   ln -s "$(brew --prefix llvm)/bin/clang-format" "/usr/local/bin/clang-format"
   ln -s "$(brew --prefix llvm)/bin/clang-tidy" "/usr/local/bin/clang-tidy"
@@ -124,7 +124,7 @@ function install_folly() {
       SUDO=""
     fi
     $SUDO ./build/fbcode_builder/getdeps.py install-system-deps --recursive
-    
+
     $SUDO ./build/fbcode_builder/getdeps.py build \
     --allow-system-packages \
     --scratch-path $FOLLY_BUILD_DIR \
@@ -187,6 +187,38 @@ function install_libtorch() {
       exit 1
     fi
     echo -e "${COLOR_GREEN}[ INFO ] libtorch is installed ${COLOR_OFF}"
+  fi
+
+  cd "$BWD" || exit
+}
+
+function install_yaml_cpp() {
+  YAML_CPP_SRC_DIR=$BASE_DIR/third-party/yaml-cpp
+  YAML_CPP_BUILD_DIR=$DEPS_DIR/yaml-cpp-build
+
+  if [ ! -d "$YAML_CPP_SRC_DIR" ] ; then
+    echo -e "${COLOR_GREEN}[ INFO ] Cloning yaml-cpp repo ${COLOR_OFF}"
+    git clone https://github.com/jbeder/yaml-cpp.git "$YAML_CPP_SRC_DIR"
+    cd $YAML_CPP_SRC_DIR
+    git checkout tags/yaml-cpp-0.7.0
+  fi
+
+  if [ ! -d "$YAML_CPP_BUILD_DIR" ] ; then
+    echo -e "${COLOR_GREEN}[ INFO ] Building yaml-cpp ${COLOR_OFF}"
+
+    if [ "$PLATFORM" = "Linux" ]; then
+      SUDO="sudo"
+    elif [ "$PLATFORM" = "Mac" ]; then
+      SUDO=""
+    fi
+
+    mkdir $YAML_CPP_BUILD_DIR
+    cd $YAML_CPP_BUILD_DIR
+    cmake $YAML_CPP_SRC_DIR -DYAML_BUILD_SHARED_LIBS=ON -DYAML_CPP_BUILD_TESTS=OFF -DCMAKE_CXX_FLAGS="-fPIC"
+    make
+    $SUDO make install
+
+    echo -e "${COLOR_GREEN}[ INFO ] yaml-cpp is installed ${COLOR_OFF}"
   fi
 
   cd "$BWD" || exit
@@ -282,6 +314,14 @@ function symlink_torch_libs() {
   fi
 }
 
+function symlink_yaml_cpp_lib() {
+  if [ "$PLATFORM" = "Linux" ]; then
+    ln -sf ${DEPS_DIR}/yaml-cpp-build/*.so* ${LIBS_DIR}
+  elif [ "$PLATFORM" = "Mac" ]; then
+    ln -sf ${DEPS_DIR}/yaml-cpp-build/*.dylib* ${LIBS_DIR}
+  fi
+}
+
 # Parse args
 JOBS=8
 WITH_QUIC=false
@@ -352,5 +392,7 @@ cd $BASE_DIR
 install_folly
 install_kineto
 install_libtorch
+install_yaml_cpp
 build
 symlink_torch_libs
+symlink_yaml_cpp_lib
