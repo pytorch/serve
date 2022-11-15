@@ -38,8 +38,8 @@ def pipe():
 
 
 def main(filename):
-    config_file = open(args.config)
-    config = json.load(config_file)
+    with open(args.config) as fp:
+        config = json.load(fp)
     batch_size = config["batch_size"]
     num_threads = config["num_threads"]
     device_id = config["device_id"]
