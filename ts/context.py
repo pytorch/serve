@@ -11,7 +11,17 @@ class Context(object):
     Some fixed during load times and some
     """
 
-    def __init__(self, model_name, model_dir, manifest, batch_size, gpu, mms_version, limit_max_image_pixels=True):
+    def __init__(
+        self,
+        model_name,
+        model_dir,
+        manifest,
+        batch_size,
+        gpu,
+        mms_version,
+        limit_max_image_pixels=True,
+        metrics=None,
+    ):
         self.model_name = model_name
         self.manifest = manifest
         self._system_properties = {
@@ -26,6 +36,7 @@ class Context(object):
         self.request_processor = None
         self._metrics = None
         self._limit_max_image_pixels = True
+        self.metrics = metrics
 
     @property
     def system_properties(self):
