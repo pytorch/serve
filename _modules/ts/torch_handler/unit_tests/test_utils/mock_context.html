@@ -358,34 +358,36 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">uuid</span>
+
 <span class="kn">import</span> <span class="nn">torch</span>
+
 <span class="kn">from</span> <span class="nn">ts.metrics.metrics_store</span> <span class="kn">import</span> <span class="n">MetricsStore</span>
 
-<div class="viewcode-block" id="MockContext"><a class="viewcode-back" href="../../../../../api/ts.torch_handler.unit_tests.test_utils.html#ts.torch_handler.unit_tests.test_utils.mock_context.MockContext">[docs]</a><span class="k">class</span> <span class="nc">MockContext</span><span class="p">():</span>
+
+<div class="viewcode-block" id="MockContext"><a class="viewcode-back" href="../../../../../api/ts.torch_handler.unit_tests.test_utils.html#ts.torch_handler.unit_tests.test_utils.mock_context.MockContext">[docs]</a><span class="k">class</span> <span class="nc">MockContext</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Mock class to replicate the context passed into model initialize</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-                 <span class="n">model_pt_file</span><span class="o">=</span><span class="s1">&#39;model.pt&#39;</span><span class="p">,</span>
-                 <span class="n">model_dir</span><span class="o">=</span><span class="s1">&#39;ts/torch_handler/unit_tests/models/tmp&#39;</span><span class="p">,</span>
-                 <span class="n">model_file</span><span class="o">=</span><span class="s1">&#39;model.py&#39;</span><span class="p">,</span>
-                 <span class="n">gpu_id</span><span class="o">=</span><span class="s1">&#39;0&#39;</span><span class="p">,</span>
-                 <span class="n">model_name</span><span class="o">=</span><span class="s2">&quot;mnist&quot;</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">manifest</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">&#39;model&#39;</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">&#39;serializedFile&#39;</span><span class="p">:</span> <span class="n">model_pt_file</span><span class="p">,</span>
-            <span class="p">}</span>
-        <span class="p">}</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">model_pt_file</span><span class="o">=</span><span class="s2">&quot;model.pt&quot;</span><span class="p">,</span>
+        <span class="n">model_dir</span><span class="o">=</span><span class="s2">&quot;ts/torch_handler/unit_tests/models/tmp&quot;</span><span class="p">,</span>
+        <span class="n">model_file</span><span class="o">=</span><span class="s2">&quot;model.py&quot;</span><span class="p">,</span>
+        <span class="n">gpu_id</span><span class="o">=</span><span class="s2">&quot;0&quot;</span><span class="p">,</span>
+        <span class="n">model_name</span><span class="o">=</span><span class="s2">&quot;mnist&quot;</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">manifest</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="p">{}}</span>
+        <span class="k">if</span> <span class="n">model_pt_file</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;model&quot;</span><span class="p">][</span><span class="s2">&quot;serializedFile&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">model_pt_file</span>
 
         <span class="k">if</span> <span class="n">model_file</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">manifest</span><span class="p">[</span><span class="s1">&#39;model&#39;</span><span class="p">][</span><span class="s1">&#39;modelFile&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">model_file</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;model&quot;</span><span class="p">][</span><span class="s2">&quot;modelFile&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">model_file</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">system_properties</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">&#39;model_dir&#39;</span><span class="p">:</span> <span class="n">model_dir</span>
-        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">system_properties</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;model_dir&quot;</span><span class="p">:</span> <span class="n">model_dir</span><span class="p">}</span>
 
         <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="ow">and</span> <span class="n">gpu_id</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">system_properties</span><span class="p">[</span><span class="s1">&#39;gpu_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gpu_id</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">system_properties</span><span class="p">[</span><span class="s2">&quot;gpu_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gpu_id</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">explain</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">metrics</span> <span class="o">=</span> <span class="n">MetricsStore</span><span class="p">(</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">(),</span> <span class="n">model_name</span><span class="p">)</span>

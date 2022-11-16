@@ -353,27 +353,25 @@
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
   <h1>Source code for ts.protocol.otf_message_handler</h1><div class="highlight"><pre>
-<span></span>
-
-<span class="sd">&quot;&quot;&quot;</span>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">OTF Codec</span>
 <span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">io</span>
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">struct</span>
 <span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">io</span>
-<span class="kn">from</span> <span class="nn">builtins</span> <span class="kn">import</span> <span class="nb">bytearray</span>
-<span class="kn">from</span> <span class="nn">builtins</span> <span class="kn">import</span> <span class="nb">bytes</span>
 <span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">builtins</span> <span class="kn">import</span> <span class="nb">bytearray</span><span class="p">,</span> <span class="nb">bytes</span>
+
 <span class="kn">import</span> <span class="nn">torch</span>
 
 <span class="n">bool_size</span> <span class="o">=</span> <span class="mi">1</span>
 <span class="n">int_size</span> <span class="o">=</span> <span class="mi">4</span>
 <span class="n">END_OF_LIST</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
-<span class="n">LOAD_MSG</span> <span class="o">=</span> <span class="sa">b</span><span class="s1">&#39;L&#39;</span>
-<span class="n">PREDICT_MSG</span> <span class="o">=</span> <span class="sa">b</span><span class="s1">&#39;I&#39;</span>
+<span class="n">LOAD_MSG</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">&quot;L&quot;</span>
+<span class="n">PREDICT_MSG</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">&quot;I&quot;</span>
 <span class="n">RESPONSE</span> <span class="o">=</span> <span class="mi">3</span>
 
 
@@ -398,12 +396,12 @@
 
 <div class="viewcode-block" id="encode_response_headers"><a class="viewcode-back" href="../../../api/ts.protocol.html#ts.protocol.otf_message_handler.encode_response_headers">[docs]</a><span class="k">def</span> <span class="nf">encode_response_headers</span><span class="p">(</span><span class="n">resp_hdr_map</span><span class="p">):</span>
     <span class="n">msg</span> <span class="o">=</span> <span class="nb">bytearray</span><span class="p">()</span>
-    <span class="n">msg</span> <span class="o">+=</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s1">&#39;!i&#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">resp_hdr_map</span><span class="p">))</span>
+    <span class="n">msg</span> <span class="o">+=</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s2">&quot;!i&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">resp_hdr_map</span><span class="p">))</span>
     <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">resp_hdr_map</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="n">msg</span> <span class="o">+=</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s1">&#39;!i&#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">k</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)))</span>
-        <span class="n">msg</span> <span class="o">+=</span> <span class="n">k</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
-        <span class="n">msg</span> <span class="o">+=</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s1">&#39;!i&#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)))</span>
-        <span class="n">msg</span> <span class="o">+=</span> <span class="n">v</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+        <span class="n">msg</span> <span class="o">+=</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s2">&quot;!i&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">k</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)))</span>
+        <span class="n">msg</span> <span class="o">+=</span> <span class="n">k</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+        <span class="n">msg</span> <span class="o">+=</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s2">&quot;!i&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)))</span>
+        <span class="n">msg</span> <span class="o">+=</span> <span class="n">v</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">msg</span></div>
 
 
@@ -419,41 +417,41 @@
 <span class="sd">    :return:</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">msg</span> <span class="o">=</span> <span class="nb">bytearray</span><span class="p">()</span>
-    <span class="n">msg</span> <span class="o">+=</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s1">&#39;!i&#39;</span><span class="p">,</span> <span class="n">code</span><span class="p">)</span>
+    <span class="n">msg</span> <span class="o">+=</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s2">&quot;!i&quot;</span><span class="p">,</span> <span class="n">code</span><span class="p">)</span>
 
     <span class="n">buf</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
-    <span class="n">msg</span> <span class="o">+=</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s1">&#39;!i&#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">buf</span><span class="p">))</span>
+    <span class="n">msg</span> <span class="o">+=</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s2">&quot;!i&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">buf</span><span class="p">))</span>
     <span class="n">msg</span> <span class="o">+=</span> <span class="n">buf</span>
 
     <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">req_id_map</span><span class="p">:</span>
-        <span class="n">req_id</span> <span class="o">=</span> <span class="n">req_id_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+        <span class="n">req_id</span> <span class="o">=</span> <span class="n">req_id_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
         <span class="n">msg</span> <span class="o">+=</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s2">&quot;!i&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">req_id</span><span class="p">))</span>
         <span class="n">msg</span> <span class="o">+=</span> <span class="n">req_id</span>
 
         <span class="c1"># Encoding Content-Type</span>
         <span class="k">if</span> <span class="n">context</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">msg</span> <span class="o">+=</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s1">&#39;!i&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>  <span class="c1"># content_type</span>
+            <span class="n">msg</span> <span class="o">+=</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s2">&quot;!i&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>  <span class="c1"># content_type</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">content_type</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">get_response_content_type</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">content_type</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">content_type</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="n">msg</span> <span class="o">+=</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s1">&#39;!i&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>  <span class="c1"># content_type</span>
+                <span class="n">msg</span> <span class="o">+=</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s2">&quot;!i&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>  <span class="c1"># content_type</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">msg</span> <span class="o">+=</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s1">&#39;!i&#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">content_type</span><span class="p">))</span>
-                <span class="n">msg</span> <span class="o">+=</span> <span class="n">content_type</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+                <span class="n">msg</span> <span class="o">+=</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s2">&quot;!i&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">content_type</span><span class="p">))</span>
+                <span class="n">msg</span> <span class="o">+=</span> <span class="n">content_type</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
 
         <span class="c1"># Encoding the per prediction HTTP response code</span>
         <span class="k">if</span> <span class="n">context</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># status code and reason phrase set to none</span>
-            <span class="n">msg</span> <span class="o">+=</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s1">&#39;!i&#39;</span><span class="p">,</span> <span class="n">code</span><span class="p">)</span>
-            <span class="n">msg</span> <span class="o">+=</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s1">&#39;!i&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>  <span class="c1"># No code phrase is returned</span>
+            <span class="n">msg</span> <span class="o">+=</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s2">&quot;!i&quot;</span><span class="p">,</span> <span class="n">code</span><span class="p">)</span>
+            <span class="n">msg</span> <span class="o">+=</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s2">&quot;!i&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>  <span class="c1"># No code phrase is returned</span>
             <span class="c1"># Response headers none</span>
-            <span class="n">msg</span> <span class="o">+=</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s1">&#39;!i&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="n">msg</span> <span class="o">+=</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s2">&quot;!i&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">sc</span><span class="p">,</span> <span class="n">phrase</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">get_response_status</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
             <span class="n">http_code</span> <span class="o">=</span> <span class="n">sc</span> <span class="k">if</span> <span class="n">sc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">200</span>
             <span class="n">http_phrase</span> <span class="o">=</span> <span class="n">phrase</span> <span class="k">if</span> <span class="n">phrase</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
 
-            <span class="n">msg</span> <span class="o">+=</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s1">&#39;!i&#39;</span><span class="p">,</span> <span class="n">http_code</span><span class="p">)</span>
+            <span class="n">msg</span> <span class="o">+=</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s2">&quot;!i&quot;</span><span class="p">,</span> <span class="n">http_code</span><span class="p">)</span>
             <span class="n">msg</span> <span class="o">+=</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s2">&quot;!i&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">http_phrase</span><span class="p">))</span>
             <span class="n">msg</span> <span class="o">+=</span> <span class="n">http_phrase</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
             <span class="c1"># Response headers</span>
@@ -461,35 +459,37 @@
 
         <span class="k">if</span> <span class="n">ret</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">buf</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">&quot;error&quot;</span>
-            <span class="n">msg</span> <span class="o">+=</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s1">&#39;!i&#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">buf</span><span class="p">))</span>
+            <span class="n">msg</span> <span class="o">+=</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s2">&quot;!i&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">buf</span><span class="p">))</span>
             <span class="n">msg</span> <span class="o">+=</span> <span class="n">buf</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">val</span> <span class="o">=</span> <span class="n">ret</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
             <span class="c1"># NOTE: Process bytes/bytearray case before processing the string case.</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="p">(</span><span class="nb">bytes</span><span class="p">,</span> <span class="nb">bytearray</span><span class="p">)):</span>
-                <span class="n">msg</span> <span class="o">+=</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s1">&#39;!i&#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">val</span><span class="p">))</span>
+                <span class="n">msg</span> <span class="o">+=</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s2">&quot;!i&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">val</span><span class="p">))</span>
                 <span class="n">msg</span> <span class="o">+=</span> <span class="n">val</span>
             <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
                 <span class="n">buf</span> <span class="o">=</span> <span class="n">val</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
-                <span class="n">msg</span> <span class="o">+=</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s1">&#39;!i&#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">buf</span><span class="p">))</span>
+                <span class="n">msg</span> <span class="o">+=</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s2">&quot;!i&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">buf</span><span class="p">))</span>
                 <span class="n">msg</span> <span class="o">+=</span> <span class="n">buf</span>
             <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">):</span>
                 <span class="n">buff</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">()</span>
                 <span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">buff</span><span class="p">)</span>
                 <span class="n">buff</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
                 <span class="n">val_bytes</span> <span class="o">=</span> <span class="n">buff</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
-                <span class="n">msg</span> <span class="o">+=</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s1">&#39;!i&#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">val_bytes</span><span class="p">))</span>
+                <span class="n">msg</span> <span class="o">+=</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s2">&quot;!i&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">val_bytes</span><span class="p">))</span>
                 <span class="n">msg</span> <span class="o">+=</span> <span class="n">val_bytes</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">try</span><span class="p">:</span>
                     <span class="n">json_value</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
-                    <span class="n">msg</span> <span class="o">+=</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s1">&#39;!i&#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">json_value</span><span class="p">))</span>
+                    <span class="n">msg</span> <span class="o">+=</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s2">&quot;!i&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">json_value</span><span class="p">))</span>
                     <span class="n">msg</span> <span class="o">+=</span> <span class="n">json_value</span>
                 <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
                     <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Unable to serialize model output.&quot;</span><span class="p">,</span> <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-                    <span class="k">return</span> <span class="n">create_predict_response</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">req_id_map</span><span class="p">,</span> <span class="s2">&quot;Unsupported model output data type.&quot;</span><span class="p">,</span> <span class="mi">503</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="n">create_predict_response</span><span class="p">(</span>
+                        <span class="kc">None</span><span class="p">,</span> <span class="n">req_id_map</span><span class="p">,</span> <span class="s2">&quot;Unsupported model output data type.&quot;</span><span class="p">,</span> <span class="mi">503</span>
+                    <span class="p">)</span>
 
-    <span class="n">msg</span> <span class="o">+=</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s1">&#39;!i&#39;</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># End of list</span>
+    <span class="n">msg</span> <span class="o">+=</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s2">&quot;!i&quot;</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># End of list</span>
     <span class="k">return</span> <span class="n">msg</span></div>
 
 
@@ -502,12 +502,12 @@
 <span class="sd">    :return:</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">msg</span> <span class="o">=</span> <span class="nb">bytearray</span><span class="p">()</span>
-    <span class="n">msg</span> <span class="o">+=</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s1">&#39;!i&#39;</span><span class="p">,</span> <span class="n">code</span><span class="p">)</span>
+    <span class="n">msg</span> <span class="o">+=</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s2">&quot;!i&quot;</span><span class="p">,</span> <span class="n">code</span><span class="p">)</span>
 
     <span class="n">buf</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
-    <span class="n">msg</span> <span class="o">+=</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s1">&#39;!i&#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">buf</span><span class="p">))</span>
+    <span class="n">msg</span> <span class="o">+=</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s2">&quot;!i&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">buf</span><span class="p">))</span>
     <span class="n">msg</span> <span class="o">+=</span> <span class="n">buf</span>
-    <span class="n">msg</span> <span class="o">+=</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s1">&#39;!i&#39;</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># no predictions</span>
+    <span class="n">msg</span> <span class="o">+=</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s2">&quot;!i&quot;</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># no predictions</span>
 
     <span class="k">return</span> <span class="n">msg</span></div>
 
@@ -531,9 +531,11 @@
     <span class="n">data</span> <span class="o">=</span> <span class="n">_retrieve_buffer</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">int_size</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;!i&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
 
+
 <span class="k">def</span> <span class="nf">_retrieve_bool</span><span class="p">(</span><span class="n">conn</span><span class="p">):</span>
     <span class="n">data</span> <span class="o">=</span> <span class="n">_retrieve_buffer</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">bool_size</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;!?&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
 
 <span class="k">def</span> <span class="nf">_retrieve_load_msg</span><span class="p">(</span><span class="n">conn</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -550,7 +552,7 @@
 <span class="sd">    :param conn:</span>
 <span class="sd">    :return:</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">msg</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">length</span> <span class="o">=</span> <span class="n">_retrieve_int</span><span class="p">(</span><span class="n">conn</span><span class="p">)</span>
     <span class="n">msg</span><span class="p">[</span><span class="s2">&quot;modelName&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_retrieve_buffer</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">length</span><span class="p">)</span>
     <span class="n">length</span> <span class="o">=</span> <span class="n">_retrieve_int</span><span class="p">(</span><span class="n">conn</span><span class="p">)</span>
@@ -599,7 +601,7 @@
     <span class="k">if</span> <span class="n">length</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>
 
-    <span class="n">request</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="n">request</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">request</span><span class="p">[</span><span class="s2">&quot;requestId&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_retrieve_buffer</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">length</span><span class="p">)</span>
 
     <span class="n">headers</span> <span class="o">=</span> <span class="p">[]</span>
@@ -634,7 +636,7 @@
     <span class="k">if</span> <span class="n">length</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>
 
-    <span class="n">header</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="n">header</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">header</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_retrieve_buffer</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">length</span><span class="p">)</span>
 
     <span class="n">length</span> <span class="o">=</span> <span class="n">_retrieve_int</span><span class="p">(</span><span class="n">conn</span><span class="p">)</span>
@@ -656,7 +658,7 @@
     <span class="k">if</span> <span class="n">length</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>
 
-    <span class="n">model_input</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="n">model_input</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">model_input</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_retrieve_buffer</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">length</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
 
     <span class="n">length</span> <span class="o">=</span> <span class="n">_retrieve_int</span><span class="p">(</span><span class="n">conn</span><span class="p">)</span>
@@ -665,12 +667,35 @@
 
     <span class="n">length</span> <span class="o">=</span> <span class="n">_retrieve_int</span><span class="p">(</span><span class="n">conn</span><span class="p">)</span>
     <span class="n">value</span> <span class="o">=</span> <span class="n">_retrieve_buffer</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">length</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">content_type</span> <span class="o">==</span> <span class="s2">&quot;application/json&quot;</span> <span class="ow">and</span> <span class="p">(</span><span class="n">decode_req</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">decode_req</span> <span class="o">==</span> <span class="s2">&quot;true&quot;</span><span class="p">):</span>
-        <span class="n">model_input</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
-    <span class="k">elif</span> <span class="n">content_type</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;text&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">decode_req</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">decode_req</span> <span class="o">==</span> <span class="s2">&quot;true&quot;</span><span class="p">):</span>
-        <span class="n">model_input</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">content_type</span> <span class="o">==</span> <span class="s2">&quot;application/json&quot;</span> <span class="ow">and</span> <span class="p">(</span>
+        <span class="n">decode_req</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">decode_req</span> <span class="o">==</span> <span class="s2">&quot;true&quot;</span>
+    <span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">model_input</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">model_input</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;Failed json decoding of input data. Forwarding encoded payload&quot;</span><span class="p">,</span>
+                <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="p">)</span>
+
+    <span class="k">elif</span> <span class="n">content_type</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;text&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span>
+        <span class="n">decode_req</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">decode_req</span> <span class="o">==</span> <span class="s2">&quot;true&quot;</span>
+    <span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">model_input</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">model_input</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;Failed utf-8 decoding of input data. Forwarding encoded payload&quot;</span><span class="p">,</span>
+                <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="p">)</span>
+
     <span class="k">else</span><span class="p">:</span>
         <span class="n">model_input</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
     <span class="k">return</span> <span class="n">model_input</span>
 </pre></div>
 

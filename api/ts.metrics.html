@@ -392,6 +392,12 @@
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Class for generating metrics and printing it to stdout of the worker</p>
 <dl class="py method">
+<dt class="sig sig-object py" id="ts.metrics.metric.Metric.reset">
+<span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/metrics/metric.html#Metric.reset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.metrics.metric.Metric.reset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reset Metric value to 0</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="ts.metrics.metric.Metric.to_dict">
 <span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/metrics/metric.html#Metric.to_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.metrics.metric.Metric.to_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>return an Ordered Dictionary</p>
@@ -439,7 +445,8 @@
 <dt class="sig sig-object py" id="ts.metrics.metrics_store.MetricsStore">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">ts.metrics.metrics_store.</span></span><span class="sig-name descname"><span class="pre">MetricsStore</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request_ids</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/metrics/metrics_store.html#MetricsStore"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.metrics.metrics_store.MetricsStore" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<p>Class for creating, modifying different metrics. And keep them in a dictionary</p>
+<p>DEPRECATED
+Class for creating, modifying different metrics. And keep them in a dictionary</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="ts.metrics.metrics_store.MetricsStore.add_counter">
 <span class="sig-name descname"><span class="pre">add_counter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dimensions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/metrics/metrics_store.html#MetricsStore.add_counter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.metrics.metrics_store.MetricsStore.add_counter" title="Permalink to this definition">¶</a></dt>

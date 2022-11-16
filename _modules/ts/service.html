@@ -353,23 +353,19 @@
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
   <h1>Source code for ts.service</h1><div class="highlight"><pre>
-<span></span>
-
-<span class="sd">&quot;&quot;&quot;</span>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">CustomService class definitions</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">time</span>
-
 <span class="kn">from</span> <span class="nn">builtins</span> <span class="kn">import</span> <span class="nb">str</span>
 
 <span class="kn">import</span> <span class="nn">ts</span>
 <span class="kn">from</span> <span class="nn">ts.context</span> <span class="kn">import</span> <span class="n">Context</span><span class="p">,</span> <span class="n">RequestProcessor</span>
-<span class="kn">from</span> <span class="nn">ts.metrics.metrics_store</span> <span class="kn">import</span> <span class="n">MetricsStore</span>
 <span class="kn">from</span> <span class="nn">ts.protocol.otf_message_handler</span> <span class="kn">import</span> <span class="n">create_predict_response</span>
 <span class="kn">from</span> <span class="nn">ts.utils.util</span> <span class="kn">import</span> <span class="n">PredictionException</span>
 
-<span class="n">PREDICTION_METRIC</span> <span class="o">=</span> <span class="s1">&#39;PredictionTime&#39;</span>
+<span class="n">PREDICTION_METRIC</span> <span class="o">=</span> <span class="s2">&quot;PredictionTime&quot;</span>
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
@@ -378,9 +374,27 @@
 <span class="sd">    Wrapper for custom entry_point</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_name</span><span class="p">,</span> <span class="n">model_dir</span><span class="p">,</span> <span class="n">manifest</span><span class="p">,</span> <span class="n">entry_point</span><span class="p">,</span> <span class="n">gpu</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">limit_max_image_pixels</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_context</span> <span class="o">=</span> <span class="n">Context</span><span class="p">(</span><span class="n">model_name</span><span class="p">,</span> <span class="n">model_dir</span><span class="p">,</span> <span class="n">manifest</span><span class="p">,</span>
-                                <span class="n">batch_size</span><span class="p">,</span> <span class="n">gpu</span><span class="p">,</span> <span class="n">ts</span><span class="o">.</span><span class="n">__version__</span><span class="p">,</span> <span class="n">limit_max_image_pixels</span><span class="p">)</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">model_name</span><span class="p">,</span>
+        <span class="n">model_dir</span><span class="p">,</span>
+        <span class="n">manifest</span><span class="p">,</span>
+        <span class="n">entry_point</span><span class="p">,</span>
+        <span class="n">gpu</span><span class="p">,</span>
+        <span class="n">batch_size</span><span class="p">,</span>
+        <span class="n">limit_max_image_pixels</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">metrics_cache</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_context</span> <span class="o">=</span> <span class="n">Context</span><span class="p">(</span>
+            <span class="n">model_name</span><span class="p">,</span>
+            <span class="n">model_dir</span><span class="p">,</span>
+            <span class="n">manifest</span><span class="p">,</span>
+            <span class="n">batch_size</span><span class="p">,</span>
+            <span class="n">gpu</span><span class="p">,</span>
+            <span class="n">ts</span><span class="o">.</span><span class="n">__version__</span><span class="p">,</span>
+            <span class="n">limit_max_image_pixels</span><span class="p">,</span>
+            <span class="n">metrics_cache</span><span class="p">,</span>
+        <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_entry_point</span> <span class="o">=</span> <span class="n">entry_point</span>
 
     <span class="nd">@property</span>
@@ -412,20 +426,24 @@
         <span class="n">headers</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">input_batch</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">batch_idx</span><span class="p">,</span> <span class="n">request_batch</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">batch</span><span class="p">):</span>
-            <span class="n">req_id</span> <span class="o">=</span> <span class="n">request_batch</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;requestId&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
-            <span class="n">parameters</span> <span class="o">=</span> <span class="n">request_batch</span><span class="p">[</span><span class="s1">&#39;parameters&#39;</span><span class="p">]</span>
-            <span class="n">model_in_headers</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+            <span class="n">req_id</span> <span class="o">=</span> <span class="n">request_batch</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;requestId&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+            <span class="n">parameters</span> <span class="o">=</span> <span class="n">request_batch</span><span class="p">[</span><span class="s2">&quot;parameters&quot;</span><span class="p">]</span>
+            <span class="n">model_in_headers</span> <span class="o">=</span> <span class="p">{}</span>
 
-            <span class="n">model_in</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+            <span class="n">model_in</span> <span class="o">=</span> <span class="p">{}</span>
             <span class="c1"># Parameter level headers are updated here. multipart/form-data can have multiple headers.</span>
             <span class="k">for</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="n">parameters</span><span class="p">:</span>
                 <span class="n">model_in</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">parameter</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]:</span> <span class="n">parameter</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">]})</span>
-                <span class="n">model_in_headers</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">parameter</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]:</span> <span class="p">{</span><span class="s2">&quot;content-type&quot;</span><span class="p">:</span> <span class="n">parameter</span><span class="p">[</span><span class="s2">&quot;contentType&quot;</span><span class="p">]}})</span>
+                <span class="n">model_in_headers</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                    <span class="p">{</span><span class="n">parameter</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]:</span> <span class="p">{</span><span class="s2">&quot;content-type&quot;</span><span class="p">:</span> <span class="n">parameter</span><span class="p">[</span><span class="s2">&quot;contentType&quot;</span><span class="p">]}}</span>
+                <span class="p">)</span>
 
             <span class="c1"># Request level headers are populated here</span>
             <span class="k">if</span> <span class="n">request_batch</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;headers&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">request_batch</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;headers&quot;</span><span class="p">):</span>
-                    <span class="n">model_in_headers</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">h</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">):</span> <span class="n">h</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)})</span>
+                    <span class="n">model_in_headers</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                        <span class="p">{</span><span class="n">h</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">):</span> <span class="n">h</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)}</span>
+                    <span class="p">)</span>
 
             <span class="n">headers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">RequestProcessor</span><span class="p">(</span><span class="n">model_in_headers</span><span class="p">))</span>
             <span class="n">input_batch</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">model_in</span><span class="p">)</span>
@@ -447,8 +465,8 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">request_ids</span> <span class="o">=</span> <span class="n">req_id_map</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">request_processor</span> <span class="o">=</span> <span class="n">headers</span>
-        <span class="n">metrics</span> <span class="o">=</span> <span class="n">MetricsStore</span><span class="p">(</span><span class="n">req_id_map</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">model_name</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">metrics</span> <span class="o">=</span> <span class="n">metrics</span>
+        <span class="n">metrics</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">metrics</span>
+        <span class="n">metrics</span><span class="o">.</span><span class="n">request_ids</span> <span class="o">=</span> <span class="n">req_id_map</span>
 
         <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
 
@@ -466,18 +484,32 @@
             <span class="k">return</span> <span class="n">create_predict_response</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">req_id_map</span><span class="p">,</span> <span class="s2">&quot;Prediction failed&quot;</span><span class="p">,</span> <span class="mi">503</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ret</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;model: </span><span class="si">%s</span><span class="s2">, Invalid return type: </span><span class="si">%s</span><span class="s2">.&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">model_name</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">ret</span><span class="p">))</span>
-            <span class="k">return</span> <span class="n">create_predict_response</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">req_id_map</span><span class="p">,</span> <span class="s2">&quot;Invalid model predict output&quot;</span><span class="p">,</span> <span class="mi">503</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;model: </span><span class="si">%s</span><span class="s2">, Invalid return type: </span><span class="si">%s</span><span class="s2">.&quot;</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">model_name</span><span class="p">,</span>
+                <span class="nb">type</span><span class="p">(</span><span class="n">ret</span><span class="p">),</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="n">create_predict_response</span><span class="p">(</span>
+                <span class="kc">None</span><span class="p">,</span> <span class="n">req_id_map</span><span class="p">,</span> <span class="s2">&quot;Invalid model predict output&quot;</span><span class="p">,</span> <span class="mi">503</span>
+            <span class="p">)</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">input_batch</span><span class="p">):</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;model: </span><span class="si">%s</span><span class="s2">, number of batch response mismatched, expect: </span><span class="si">%d</span><span class="s2">, got: </span><span class="si">%d</span><span class="s2">.&quot;</span><span class="p">,</span>
-                           <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">model_name</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">input_batch</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">ret</span><span class="p">))</span>
-            <span class="k">return</span> <span class="n">create_predict_response</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">req_id_map</span><span class="p">,</span> <span class="s2">&quot;number of batch response mismatched&quot;</span><span class="p">,</span> <span class="mi">503</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;model: </span><span class="si">%s</span><span class="s2">, number of batch response mismatched, expect: </span><span class="si">%d</span><span class="s2">, got: </span><span class="si">%d</span><span class="s2">.&quot;</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">model_name</span><span class="p">,</span>
+                <span class="nb">len</span><span class="p">(</span><span class="n">input_batch</span><span class="p">),</span>
+                <span class="nb">len</span><span class="p">(</span><span class="n">ret</span><span class="p">),</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="n">create_predict_response</span><span class="p">(</span>
+                <span class="kc">None</span><span class="p">,</span> <span class="n">req_id_map</span><span class="p">,</span> <span class="s2">&quot;number of batch response mismatched&quot;</span><span class="p">,</span> <span class="mi">503</span>
+            <span class="p">)</span>
 
         <span class="n">duration</span> <span class="o">=</span> <span class="nb">round</span><span class="p">((</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span><span class="p">)</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
         <span class="n">metrics</span><span class="o">.</span><span class="n">add_time</span><span class="p">(</span><span class="n">PREDICTION_METRIC</span><span class="p">,</span> <span class="n">duration</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">create_predict_response</span><span class="p">(</span><span class="n">ret</span><span class="p">,</span> <span class="n">req_id_map</span><span class="p">,</span> <span class="s2">&quot;Prediction success&quot;</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="n">create_predict_response</span><span class="p">(</span>
+            <span class="n">ret</span><span class="p">,</span> <span class="n">req_id_map</span><span class="p">,</span> <span class="s2">&quot;Prediction success&quot;</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">context</span>
+        <span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="emit_metrics"><a class="viewcode-back" href="../../api/ts.html#ts.service.emit_metrics">[docs]</a><span class="k">def</span> <span class="nf">emit_metrics</span><span class="p">(</span><span class="n">metrics</span><span class="p">):</span>

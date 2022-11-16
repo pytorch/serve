@@ -353,9 +353,7 @@
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
   <h1>Source code for ts.arg_parser</h1><div class="highlight"><pre>
-<span></span>
-
-<span class="sd">&quot;&quot;&quot;</span>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">This module parses the arguments given through the torchserve command-line. This is used by model-server</span>
 <span class="sd">at runtime.</span>
 <span class="sd">&quot;&quot;&quot;</span>
@@ -369,48 +367,71 @@
 <span class="sd">    Argument parser for torchserve and torchserve-export commands</span>
 <span class="sd">    TODO : Add readme url</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
 <div class="viewcode-block" id="ArgParser.ts_parser"><a class="viewcode-back" href="../../api/ts.html#ts.arg_parser.ArgParser.ts_parser">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">ts_parser</span><span class="p">():</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Argument parser for torchserve start service</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">prog</span><span class="o">=</span><span class="s1">&#39;torchserve&#39;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Torchserve&#39;</span><span class="p">)</span>
+        <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">prog</span><span class="o">=</span><span class="s2">&quot;torchserve&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Torchserve&quot;</span><span class="p">)</span>
 
         <span class="n">sub_parse</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_mutually_exclusive_group</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-        <span class="n">sub_parse</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-v&#39;</span><span class="p">,</span> <span class="s1">&#39;--version&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Return TorchServe Version&#39;</span><span class="p">)</span>
-        <span class="n">sub_parse</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--start&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Start the model-server&#39;</span><span class="p">)</span>
-        <span class="n">sub_parse</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--stop&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Stop the model-server&#39;</span><span class="p">)</span>
+        <span class="n">sub_parse</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;-v&quot;</span><span class="p">,</span> <span class="s2">&quot;--version&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Return TorchServe Version&quot;</span>
+        <span class="p">)</span>
+        <span class="n">sub_parse</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--start&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Start the model-server&quot;</span>
+        <span class="p">)</span>
+        <span class="n">sub_parse</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--stop&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Stop the model-server&quot;</span>
+        <span class="p">)</span>
 
-        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--ts-config&#39;</span><span class="p">,</span>
-                            <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;ts_config&#39;</span><span class="p">,</span>
-                            <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Configuration file for model server&#39;</span><span class="p">)</span>
-        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--model-store&#39;</span><span class="p">,</span>
-                            <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                            <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;model_store&#39;</span><span class="p">,</span>
-                            <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Model store location from where local or default models can be loaded&#39;</span><span class="p">)</span>
-        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--workflow-store&#39;</span><span class="p">,</span>
-                            <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                            <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;workflow_store&#39;</span><span class="p">,</span>
-                            <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Workflow store location from where local or default workflows can be loaded&#39;</span><span class="p">)</span>
-        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--models&#39;</span><span class="p">,</span>
-                            <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;MODEL_PATH1 MODEL_NAME=MODEL_PATH2...&#39;</span><span class="p">,</span>
-                            <span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;+&#39;</span><span class="p">,</span>
-                            <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Models to be loaded using [model_name=]model_location format. &#39;</span>
-                                 <span class="s1">&#39;Location can be a HTTP URL or a model archive file  in MODEL_STORE.&#39;</span><span class="p">)</span>
-        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--log-config&#39;</span><span class="p">,</span>
-                            <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;log_config&#39;</span><span class="p">,</span>
-                            <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Log4j configuration file for model server&#39;</span><span class="p">)</span>
-        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--foreground&#39;</span><span class="p">,</span>
-                            <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Run the model server in foreground. If this option is disabled, the model server&#39;</span>
-                                 <span class="s1">&#39; will run in the background.&#39;</span><span class="p">,</span>
-                            <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">)</span>
-        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--no-config-snapshots&#39;</span><span class="p">,</span> <span class="s1">&#39;--ncs&#39;</span><span class="p">,</span>
-                            <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;no_config_snapshots&#39;</span><span class="p">,</span>
-                            <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Prevents to server from storing config snapshot files.&#39;</span><span class="p">,</span>
-                            <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">)</span>
-        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--plugins-path&#39;</span><span class="p">,</span> <span class="s1">&#39;--ppath&#39;</span><span class="p">,</span>
-                            <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;plugins_path&#39;</span><span class="p">,</span>
-                            <span class="n">help</span><span class="o">=</span><span class="s1">&#39;plugin jars to be included in torchserve class path&#39;</span><span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--ts-config&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;ts_config&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Configuration file for model server&quot;</span>
+        <span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--model-store&quot;</span><span class="p">,</span>
+            <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;model_store&quot;</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Model store location from where local or default models can be loaded&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--workflow-store&quot;</span><span class="p">,</span>
+            <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;workflow_store&quot;</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Workflow store location from where local or default workflows can be loaded&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--models&quot;</span><span class="p">,</span>
+            <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;MODEL_PATH1 MODEL_NAME=MODEL_PATH2...&quot;</span><span class="p">,</span>
+            <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;+&quot;</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Models to be loaded using [model_name=]model_location format. &quot;</span>
+            <span class="s2">&quot;Location can be a HTTP URL or a model archive file  in MODEL_STORE.&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--log-config&quot;</span><span class="p">,</span>
+            <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;log_config&quot;</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Log4j configuration file for model server&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--foreground&quot;</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Run the model server in foreground. If this option is disabled, the model server&quot;</span>
+            <span class="s2">&quot; will run in the background.&quot;</span><span class="p">,</span>
+            <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--no-config-snapshots&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;--ncs&quot;</span><span class="p">,</span>
+            <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;no_config_snapshots&quot;</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Prevents to server from storing config snapshot files.&quot;</span><span class="p">,</span>
+            <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--plugins-path&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;--ppath&quot;</span><span class="p">,</span>
+            <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;plugins_path&quot;</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;plugin jars to be included in torchserve class path&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">parser</span></div>
 
@@ -420,30 +441,47 @@
 <span class="sd">        ArgParser for backend worker. Takes the socket name and socket type.</span>
 <span class="sd">        :return:</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">prog</span><span class="o">=</span><span class="s1">&#39;model-server-worker&#39;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Model Server Worker&#39;</span><span class="p">)</span>
-        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--sock-type&#39;</span><span class="p">,</span>
-                            <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                            <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;sock_type&quot;</span><span class="p">,</span>
-                            <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
-                            <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;unix&quot;</span><span class="p">,</span> <span class="s2">&quot;tcp&quot;</span><span class="p">],</span>
-                            <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Socket type the model service worker would use. The options are</span><span class="se">\n</span><span class="s1">&#39;</span>
-                                 <span class="s1">&#39;unix: The model worker expects to unix domain-socket</span><span class="se">\n</span><span class="s1">&#39;</span>
-                                 <span class="s1">&#39;tcp: The model worker expects a host-name and port-number&#39;</span><span class="p">)</span>
+        <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
+            <span class="n">prog</span><span class="o">=</span><span class="s2">&quot;model-server-worker&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Model Server Worker&quot;</span>
+        <span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--sock-type&quot;</span><span class="p">,</span>
+            <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;sock_type&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+            <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;unix&quot;</span><span class="p">,</span> <span class="s2">&quot;tcp&quot;</span><span class="p">],</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Socket type the model service worker would use. The options are</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;unix: The model worker expects to unix domain-socket</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;tcp: The model worker expects a host-name and port-number&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
 
-        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--sock-name&#39;</span><span class="p">,</span>
-                            <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                            <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;sock_name&quot;</span><span class="p">,</span>
-                            <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
-                            <span class="n">help</span><span class="o">=</span><span class="s1">&#39;If </span><span class="se">\&#39;</span><span class="s1">sock-type</span><span class="se">\&#39;</span><span class="s1"> is </span><span class="se">\&#39;</span><span class="s1">unix</span><span class="se">\&#39;</span><span class="s1">, sock-name is expected to be a string. &#39;</span>
-                                 <span class="s1">&#39;Eg: --sock-name </span><span class="se">\&quot;</span><span class="s1">test_sock</span><span class="se">\&quot;</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--sock-name&quot;</span><span class="p">,</span>
+            <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;sock_name&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;If &#39;sock-type&#39; is &#39;unix&#39;, sock-name is expected to be a string. &quot;</span>
+            <span class="s1">&#39;Eg: --sock-name &quot;test_sock&quot;&#39;</span><span class="p">,</span>
+        <span class="p">)</span>
 
-        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--host&#39;</span><span class="p">,</span>
-                            <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
-                            <span class="n">help</span><span class="o">=</span><span class="s1">&#39;If </span><span class="se">\&#39;</span><span class="s1">sock-type</span><span class="se">\&#39;</span><span class="s1"> is </span><span class="se">\&#39;</span><span class="s1">tcp</span><span class="se">\&#39;</span><span class="s1"> this is expected to have a host IP address&#39;</span><span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--host&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;If &#39;sock-type&#39; is &#39;tcp&#39; this is expected to have a host IP address&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
 
-        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--port&#39;</span><span class="p">,</span>
-                            <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
-                            <span class="n">help</span><span class="o">=</span><span class="s1">&#39;If </span><span class="se">\&#39;</span><span class="s1">sock-type</span><span class="se">\&#39;</span><span class="s1"> is </span><span class="se">\&#39;</span><span class="s1">tcp</span><span class="se">\&#39;</span><span class="s1"> this is expected to have the host port to bind on&#39;</span><span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--port&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;If &#39;sock-type&#39; is &#39;tcp&#39; this is expected to have the host port to bind on&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--metrics-config&quot;</span><span class="p">,</span>
+            <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;metrics_config&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Metrics configuration file&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">parser</span></div>
 
