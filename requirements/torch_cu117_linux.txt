@@ -3,7 +3,7 @@
 cython
 wheel
 pillow==9.0.1
-torch==1.13.0+cu116; sys_platform == 'linux'
-torchvision==0.14.0+cu116; sys_platform == 'linux'
+torch==1.13.0+cu117; sys_platform == 'linux'
+torchvision==0.14.0+cu117; sys_platform == 'linux'
 torchtext==0.14.0; sys_platform == 'linux'
-torchaudio==0.13.0+cu116; sys_platform == 'linux'
+torchaudio==0.13.0+cu117; sys_platform == 'linux'

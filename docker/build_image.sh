@@ -68,7 +68,10 @@ do
         # With default ubuntu version 18.04
         -cv|--cudaversion)
           CUDA_VERSION="$2"
-          if [ $CUDA_VERSION == "cu116" ];
+          if [ $CUDA_VERSION == "cu117" ];
+          then
+            BASE_IMAGE="nvidia/cuda:11.7.0-cudnn8-runtime-ubuntu18.04"
+          elif [ $CUDA_VERSION == "cu116" ];
           then
             BASE_IMAGE="nvidia/cuda:11.6.0-cudnn8-runtime-ubuntu18.04"
           elif [ $CUDA_VERSION == "cu113" ];
