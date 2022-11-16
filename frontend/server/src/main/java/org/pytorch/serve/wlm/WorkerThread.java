@@ -26,7 +26,6 @@ import org.pytorch.serve.job.Job;
 import org.pytorch.serve.job.RestJob;
 import org.pytorch.serve.metrics.Dimension;
 import org.pytorch.serve.metrics.Metric;
-import org.pytorch.serve.metrics.util.TelemetryMetrics;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.Connector;
 import org.pytorch.serve.util.codec.ModelRequestEncoder;
@@ -44,7 +43,8 @@ public class WorkerThread implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(WorkerThread.class);
     private static final Logger loggerTsMetrics =
             LoggerFactory.getLogger(ConfigManager.MODEL_SERVER_METRICS_LOGGER);
-    private static final Logger TelemetryMetrics = LoggerFactory.getLogger(ConfigManager.MODEL_SERVER_TELEMETRY_LOGGER);
+    private static final Logger loggerTelemetryMetrics =
+            LoggerFactory.getLogger(ConfigManager.MODEL_SERVER_TELEMETRY_LOGGER);
 
     private Metric workerLoadTime;
 
@@ -179,7 +179,6 @@ public class WorkerThread implements Runnable {
 
         try {
             connect();
-
             while (isRunning()) {
                 req = aggregator.getRequest(workerId, state);
 
@@ -251,31 +250,40 @@ public class WorkerThread implements Runnable {
             }
         } catch (WorkerInitializationException e) {
             logger.error("Backend worker error", e);
-            //TODO: Need more detailed management for ModelServer exception
+            // TODO: Need more detailed management for ModelServer exception
             // along with error message and error code mapping
-            TelemetryMetrics.info(
-                "{}",
-                new Metric.TelemetryMetricsBuilder(
-                    TelemetryMetrics.ModelServerError,
-                    ConfigManager.getInstance().getHostName(),
-                    new Dimension(e.getClass().getCanonicalName(),"-1")).build());
+            loggerTelemetryMetrics.info(
+                    "{}",
+                    new Metric(
+                            "UserScriptError",
+                            "1",
+                            "Count",
+                            ConfigManager.getInstance().getHostName(),
+                            new Dimension("TorchServe", ConfigManager.getInstance().getVersion()),
+                            new Dimension(e.getClass().getCanonicalName(), "-1")));
         } catch (OutOfMemoryError oom) {
             logger.error("Out of memory error when creating workers", oom);
             status = HttpURLConnection.HTTP_ENTITY_TOO_LARGE;
-            TelemetryMetrics.info(
-                "{}",
-                new Metric.TelemetryMetricsBuilder(
-                    TelemetryMetrics.ModelServerError,
-                    ConfigManager.getInstance().getHostName(),
-                    new Dimension(oom.getClass().getCanonicalName(),"-1")).build());
+            loggerTelemetryMetrics.info(
+                    "{}",
+                    new Metric(
+                            "ModelServerError",
+                            "1",
+                            "Count",
+                            ConfigManager.getInstance().getHostName(),
+                            new Dimension("TorchServe", ConfigManager.getInstance().getVersion()),
+                            new Dimension(oom.getClass().getCanonicalName(), "-1")));
         } catch (Throwable t) {
             logger.warn("Backend worker thread exception.", t);
-            TelemetryMetrics.info(
-                "{}",
-                new Metric.TelemetryMetricsBuilder(
-                    TelemetryMetrics.ModelServerError,
-                    ConfigManager.getInstance().getHostName(),
-                    new Dimension(t.getClass().getCanonicalName(),"-1")).build());
+            loggerTelemetryMetrics.info(
+                    "{}",
+                    new Metric(
+                            "ModelServerError",
+                            "1",
+                            "Count",
+                            ConfigManager.getInstance().getHostName(),
+                            new Dimension("TorchServe", ConfigManager.getInstance().getVersion()),
+                            new Dimension(t.getClass().getCanonicalName(), "-1")));
         } finally {
             // WorkerThread is running in thread pool, the thread will be assigned to next
             // Runnable once this worker is finished. If currentThread keep holding the reference

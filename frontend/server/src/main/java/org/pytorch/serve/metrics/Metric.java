@@ -1,16 +1,12 @@
 package org.pytorch.serve.metrics;
 
 import com.google.gson.annotations.SerializedName;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.pytorch.serve.metrics.util.TelemetryMetrics;
-import org.pytorch.serve.util.ConfigManager;
 
 public class Metric {
 
@@ -52,16 +48,6 @@ public class Metric {
         this.unit = unit;
         this.hostName = hostName;
         this.dimensions = Arrays.asList(dimensions);
-        this.timestamp =
-                String.valueOf(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
-    }
-
-    private Metric(TelemetryMetricsBuilder builder) {
-        this.metricName = builder.metricName;
-        this.value = builder.Value;
-        this.unit = builder.Unit;
-        this.hostName = builder.hostName;
-        this.dimensions = builder.dimensions;
         this.timestamp =
                 String.valueOf(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
     }
@@ -172,29 +158,5 @@ public class Metric {
         }
         sb.append(",timestamp:").append(timestamp);
         return sb.toString();
-    }
-
-    public static class TelemetryMetricsBuilder {
-        private String metricName;
-        private String hostName;
-        private List<Dimension> dimensions;
-        private static final String Value = "1";
-        private static final String Unit = "Count";
-        private Dimension modelVersion = new Dimension("TorchServe", ConfigManager.getInstance().getVersion());
-        public TelemetryMetricsBuilder(TelemetryMetrics metricName, String hostName, Dimension... dimensions) {
-            this.metricName = metricName.toString();
-            this.hostName = hostName;
-            this.dimensions = new ArrayList<>(Arrays.asList(modelVersion));
-            this.dimensions.addAll(Arrays.asList(dimensions));
-        }
-
-        public TelemetryMetricsBuilder dimension (Dimension... dimensions) {
-            this.dimensions.addAll(Arrays.asList(dimensions));
-            return this;
-        }
-
-        public Metric build() {
-            return new Metric(this);
-        }
     }
 }

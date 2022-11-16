@@ -58,17 +58,6 @@
 			</Policies>
 			<DefaultRolloverStrategy max="5"/>
 		</RollingFile>
-		<ScriptAppenderSelector name="telemetry_metrics">
-				<Script language="JavaScript"><![CDATA[
-				java.lang.System.getenv("SM_TELEMETRY_LOG") == null ? "null_appender" : "remote_appender";]]>
-		</Script>
-		<AppenderSet>
-				<Null name="null_appender"/>
-		<File name="remote_appender" fileName="${env:SM_TELEMETRY_LOG}">
-				<PatternLayout pattern="%m%n"/>
-		</File>
-		</AppenderSet>
-		</ScriptAppenderSelector>
 	</Appenders>
 	<Loggers>
 		<Logger name="ACCESS_LOG" level="info">
