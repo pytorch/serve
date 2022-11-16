@@ -21,7 +21,7 @@ setup(
     url="https://github.com/kserve/kserve/tree/master/docs/samples/v1beta1/transformer",
     description="Transformer",
     long_description=open("README.md").read(),
-    python_requires=">=3.6",
+    python_requires=">=3.8",
     packages=find_packages("image_transformer"),
     install_requires=[
         "kserve>=0.9.0",
