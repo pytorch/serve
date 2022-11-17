@@ -42,7 +42,7 @@ do
         -g|--gpu)
           MACHINE=gpu
           DOCKER_TAG="pytorch/torchserve:latest-gpu"
-          BASE_IMAGE="nvidia/cuda:11.6.0-cudnn8-runtime-ubuntu18.04"
+          BASE_IMAGE="nvidia/cuda:11.6.0-cudnn8-runtime-ubuntu20.04"
           CUDA_VERSION="cu116"
           shift
           ;;
@@ -65,21 +65,21 @@ do
           BUILD_WITH_IPEX=true
           shift
           ;;
-        # With default ubuntu version 18.04
+        # With default ubuntu version 20.04
         -cv|--cudaversion)
           CUDA_VERSION="$2"
           if [ $CUDA_VERSION == "cu117" ];
           then
-            BASE_IMAGE="nvidia/cuda:11.7.0-cudnn8-runtime-ubuntu18.04"
+            BASE_IMAGE="nvidia/cuda:11.7.0-cudnn8-runtime-ubuntu20.04"
           elif [ $CUDA_VERSION == "cu116" ];
           then
-            BASE_IMAGE="nvidia/cuda:11.6.0-cudnn8-runtime-ubuntu18.04"
+            BASE_IMAGE="nvidia/cuda:11.6.0-cudnn8-runtime-ubuntu20.04"
           elif [ $CUDA_VERSION == "cu113" ];
           then
-            BASE_IMAGE="nvidia/cuda:11.3.0-cudnn8-runtime-ubuntu18.04"
+            BASE_IMAGE="nvidia/cuda:11.3.0-cudnn8-runtime-ubuntu20.04"
           elif [ $CUDA_VERSION == "cu111" ];
           then
-            BASE_IMAGE="nvidia/cuda:11.1.1-cudnn8-runtime-ubuntu18.04"
+            BASE_IMAGE="nvidia/cuda:11.1.1-cudnn8-runtime-ubuntu20.04"
           elif [ $CUDA_VERSION == "cu102" ];
           then
             BASE_IMAGE="nvidia/cuda:10.2-cudnn8-runtime-ubuntu18.04"
@@ -99,7 +99,10 @@ do
         # CUDA 10 is not supported on Ubuntu 20.04
         -ub|--ubuntu)
           UBUNTU_VERSION="$2"
-          if [[ $CUDA_VERSION == "cu116"  &&  $UBUNTU_VERSION == "ubuntu20.04" ]];
+          if [[ $CUDA_VERSION == "cu117"  &&  $UBUNTU_VERSION == "ubuntu20.04" ]];
+          then
+            BASE_IMAGE="nvidia/cuda:11.7.0-cudnn8-runtime-ubuntu20.04"
+          elif [[ $CUDA_VERSION == "cu116"  &&  $UBUNTU_VERSION == "ubuntu20.04" ]];
           then
             BASE_IMAGE="nvidia/cuda:11.6.0-cudnn8-runtime-ubuntu20.04"
           elif [[ $CUDA_VERSION == "cu113" && $UBUNTU_VERSION == "ubuntu20.04" ]];
