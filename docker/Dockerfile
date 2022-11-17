@@ -16,10 +16,10 @@
 #           https://docs.docker.com/develop/develop-images/build_enhancements/
 
 
-ARG BASE_IMAGE=ubuntu:18.04
+ARG BASE_IMAGE=ubuntu:20.04
 
 FROM ${BASE_IMAGE} AS compile-image
-ARG BASE_IMAGE=ubuntu:18.04
+ARG BASE_IMAGE=ubuntu:20.04
 ENV PYTHONUNBUFFERED TRUE
 
 RUN --mount=type=cache,id=apt-dev,target=/var/cache/apt \

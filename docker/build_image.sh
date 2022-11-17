@@ -5,10 +5,10 @@ BRANCH_NAME="master"
 DOCKER_TAG="pytorch/torchserve:latest-cpu"
 BUILD_TYPE="production"
 DOCKER_FILE="Dockerfile"
-BASE_IMAGE="ubuntu:18.04"
+BASE_IMAGE="ubuntu:20.04"
 CUSTOM_TAG=false
 CUDA_VERSION=""
-UBUNTU_VERSION="ubuntu:18.04"
+UBUNTU_VERSION="ubuntu:20.04"
 USE_LOCAL_SERVE_FOLDER=false
 BUILD_WITH_IPEX=false
 
@@ -22,7 +22,7 @@ do
           echo "-g, --gpu specify to use gpu"
           echo "-bt, --buildtype specify to created image for codebuild. Possible values: production, dev, codebuild."
           echo "-cv, --cudaversion specify to cuda version to use"
-          echo "-ub, --ubuntu specify ubuntu version. Possible values: ubuntu:18.04, ubuntu 20.04"
+          echo "-ub, --ubuntu specify ubuntu version. Possible values: ubuntu:20.04"
           echo "-t, --tag specify tag name for docker image"
           echo "-lf, --use-local-serve-folder specify this option for the benchmark image if the current 'serve' folder should be used during automated benchmarks"
           echo "-ipex, --build-with-ipex specify to build with intel_extension_for_pytorch"
