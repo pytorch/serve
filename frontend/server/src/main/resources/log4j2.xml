@@ -77,9 +77,6 @@
 		<Logger name="TS_METRICS" level="all">
 			<AppenderRef ref="ts_metrics"/>
 		</Logger>
-		<Logger name="TELEMETRY_METRICS" level="all">
-				<AppenderRef ref="telemetry_metrics"/>
-		</Logger>
 		<Root level="info">
 			<AppenderRef ref="STDOUT"/>
 			<AppenderRef ref="ts_log"/>
