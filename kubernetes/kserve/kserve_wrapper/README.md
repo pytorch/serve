@@ -26,7 +26,7 @@ Follow the below steps to serve the MNIST Model :
 - Step 2 : Install KServe as below:
 
 ```bash
-pip install kserve==0.9.0
+pip install kserve>=0.9.0
 ```
 
 - Step 4 : Run the Install Dependencies script
