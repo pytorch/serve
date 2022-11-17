@@ -22,7 +22,7 @@ do
           echo "-g, --gpu specify to use gpu"
           echo "-bt, --buildtype specify to created image for codebuild. Possible values: production, dev, codebuild."
           echo "-cv, --cudaversion specify to cuda version to use"
-          echo "-ub, --ubuntu specify ubuntu version. Possible values: ubuntu:20.04, ubuntu 22.04"
+          echo "-ub, --ubuntu specify ubuntu version. Possible values: ubuntu:20.04"
           echo "-t, --tag specify tag name for docker image"
           echo "-lf, --use-local-serve-folder specify this option for the benchmark image if the current 'serve' folder should be used during automated benchmarks"
           echo "-ipex, --build-with-ipex specify to build with intel_extension_for_pytorch"
