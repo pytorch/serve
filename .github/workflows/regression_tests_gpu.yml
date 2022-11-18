@@ -19,6 +19,12 @@ jobs:
           cd ..
           pwd
           rm -rf _tool
+      - name: Check git version
+        run: git --version
+      - name: Update git
+        run: sudo add-apt-repository ppa:git-core/ppa -y && sudo apt-get update && sudo apt-get install git -y
+      - name: Check git version
+        run: git --version
       - name: Setup Python 3.8
         uses: actions/setup-python@v3
         with:
