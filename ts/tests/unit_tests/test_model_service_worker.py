@@ -1,11 +1,9 @@
-
-
 """
 ModelServiceWorker is the worker that is started by the TorchServe front-end.
 """
 
-import sys
 import socket
+import sys
 from collections import namedtuple
 
 import mock
@@ -25,16 +23,20 @@ metrics_config_path = os.path.join(
 
 @pytest.fixture()
 def socket_patches(mocker):
-    Patches = namedtuple('Patches', ['socket'])
-    mock_patch = Patches(mocker.patch('socket.socket'))
+    Patches = namedtuple("Patches", ["socket"])
+    mock_patch = Patches(mocker.patch("socket.socket"))
     mock_patch.socket.recv.side_effect = [
         b"L",
-        b"\x00\x00\x00\x0a", b"model_name",
-        b"\x00\x00\x00\x0a", b"model_path",
+        b"\x00\x00\x00\x0a",
+        b"model_name",
+        b"\x00\x00\x00\x0a",
+        b"model_path",
         b"\x00\x00\x00\x01",
-        b"\x00\x00\x00\x07", b"handler",
+        b"\x00\x00\x00\x07",
+        b"handler",
         b"\x00\x00\x00\x01",
-        b"\x00\x00\x00\x08", b"envelope",
+        b"\x00\x00\x00\x08",
+        b"envelope",
     ]
     return mock_patch
 
@@ -46,12 +48,14 @@ def model_service_worker(socket_patches):
     else:
         model_service_worker = TorchModelServiceWorker('tcp', 'my-socket', None, 9999, metrics_config_path)
     model_service_worker.sock = socket_patches.socket
-    model_service_worker.service = Service('name', 'mpath', 'testmanifest', None, 0, 1)
+    model_service_worker.service = Service("name", "mpath", "testmanifest", None, 0, 1)
     return model_service_worker
 
 
 # noinspection PyClassHasNoInit
-@pytest.mark.skipif(sys.platform.startswith("win"), reason='Skipping linux/darwin specific test cases')
+@pytest.mark.skipif(
+    sys.platform.startswith("win"), reason="Skipping linux/darwin specific test cases"
+)
 class TestInit:
     socket_name = "sampleSocketName"
 
@@ -60,8 +64,8 @@ class TestInit:
             TorchModelServiceWorker()
 
     def test_socket_in_use(self, mocker):
-        remove = mocker.patch('os.remove')
-        path_exists = mocker.patch('os.path.exists')
+        remove = mocker.patch("os.remove")
+        path_exists = mocker.patch("os.path.exists")
         remove.side_effect = OSError()
         path_exists.return_value = True
 
@@ -70,11 +74,8 @@ class TestInit:
 
     @pytest.fixture()
     def patches(self, mocker):
-        Patches = namedtuple('Patches', ['remove', 'socket'])
-        patches = Patches(
-            mocker.patch('os.remove'),
-            mocker.patch('socket.socket')
-        )
+        Patches = namedtuple("Patches", ["remove", "socket"])
+        patches = Patches(mocker.patch("os.remove"), mocker.patch("socket.socket"))
         return patches
 
     def test_success(self, patches):
@@ -109,7 +110,7 @@ class TestRunServer:
     def test_with_run_server_debug(self, socket_patches, model_service_worker, mocker):
         exception = Exception("Some Exception")
         socket_patches.socket.accept.side_effect = exception
-        mocker.patch('ts.model_service_worker.DEBUG', True)
+        mocker.patch("ts.model_service_worker.DEBUG", True)
         model_service_worker.handle_connection = Mock()
 
         with pytest.raises(Exception):
@@ -129,12 +130,12 @@ class TestRunServer:
 
 # noinspection PyClassHasNoInit
 class TestLoadModel:
-    data = {'modelPath': b'mpath', 'modelName': b'name', 'handler': b'handled'}
+    data = {"modelPath": b"mpath", "modelName": b"name", "handler": b"handled"}
 
     @pytest.fixture()
     def patches(self, mocker):
-        Patches = namedtuple('Patches', ['loader'])
-        patches = Patches(mocker.patch('ts.model_service_worker.ModelLoaderFactory'))
+        Patches = namedtuple("Patches", ["loader"])
+        patches = Patches(mocker.patch("ts.model_service_worker.ModelLoaderFactory"))
         return patches
 
     def test_load_model(self, patches, model_service_worker):
@@ -143,27 +144,25 @@ class TestLoadModel:
         patches.loader.get_model_loader.assert_called()
 
     # noinspection PyUnusedLocal
-    @pytest.mark.parametrize('batch_size', [(None, None), ('1', 1)])
-    @pytest.mark.parametrize('gpu', [(None, None), ('2', 2)])
+    @pytest.mark.parametrize("batch_size", [(None, None), ("1", 1)])
+    @pytest.mark.parametrize("gpu", [(None, None), ("2", 2)])
     def test_optional_args(self, patches, model_service_worker, batch_size, gpu):
         data = self.data.copy()
         if batch_size[0]:
-            data['batchSize'] = batch_size[0]
+            data["batchSize"] = batch_size[0]
         if gpu[0]:
-            data['gpu'] = gpu[0]
+            data["gpu"] = gpu[0]
             model_service_worker.load_model(data)
 
 
 # noinspection PyClassHasNoInit
 class TestHandleConnection:
-    data = {'modelPath': b'mpath', 'modelName': b'name', 'handler': b'handled'}
+    data = {"modelPath": b"mpath", "modelName": b"name", "handler": b"handled"}
 
     @pytest.fixture()
     def patches(self, mocker):
         Patches = namedtuple("Patches", ["retrieve_msg"])
-        patches = Patches(
-            mocker.patch("ts.model_service_worker.retrieve_msg")
-        )
+        patches = Patches(mocker.patch("ts.model_service_worker.retrieve_msg"))
         return patches
 
     def test_handle_connection(self, patches, model_service_worker):
