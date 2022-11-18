@@ -5,7 +5,7 @@ on: push
 jobs:
   regression-gpu:
     # creates workflows for the 2 OS: ubuntu & windows
-    runs-on: [self-hosted, ci-gpu-2]
+    runs-on: [self-hosted, ci-gpu]
     strategy:
       fail-fast: false
       matrix:
