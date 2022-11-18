@@ -76,6 +76,8 @@ class BaseHandler {
       auto outputs =
           Inference(model, inputs, device, idx_to_req_id, response_batch);
       Postprocess(outputs, idx_to_req_id, response_batch);
+    } catch (const c10::Error& e) {
+      TS_LOGF(ERROR, "c10 Error: {}", e.msg());
     } catch (...) {
       TS_LOG(ERROR, "Failed to handle this batch");
     }

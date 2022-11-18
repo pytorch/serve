@@ -22,6 +22,11 @@ target_include_directories(ts_backends_core PUBLIC ${TS_BACKENDS_CORE_SRC_DIR})
 target_link_libraries(ts_backends_core PRIVATE ts_utils ts_backends_protocol ${FOLLY_LIBRARIES})
 install(TARGETS ts_backends_core DESTINATION ${torchserve_cpp_SOURCE_DIR}/_build/libs)
 
+#add libtorchtext library
+add_library(torchtext SHARED IMPORTED)
+set_target_properties( torchtext PROPERTIES IMPORTED_LOCATION "${torchserve_cpp_SOURCE_DIR}/../ts/cpp/lib/libtorchtext.so")
+target_link_libraries(torchtext INTERFACE ${TORCH_LIBRARIES})
+
 # build library ts_backend_torch_scripted
 set(TS_BACKENDS_TORCH_SCRIPTED_SOURCE_FILES "")
 list(APPEND TS_BACKENDS_TORCH_SCRIPTED_SOURCE_FILES ${TS_BACKENDS_TORCH_SCRIPTED_SRC_DIR}/torch_scripted_backend.cc)
@@ -29,7 +34,9 @@ list(APPEND TS_BACKENDS_TORCH_SCRIPTED_SOURCE_FILES ${TS_BACKENDS_TORCH_SCRIPTED
 add_library(ts_backends_torch_scripted SHARED ${TS_BACKENDS_TORCH_SCRIPTED_SOURCE_FILES})
 target_include_directories(ts_backends_torch_scripted PUBLIC 
   ${TS_BACKENDS_TORCH_SCRIPTED_SRC_DIR} ${TS_BACKENDS_TORCH_SCRIPTED_SRC_DIR}/handler ${TORCH_INCLUDE_DIRS})
-target_link_libraries(ts_backends_torch_scripted PUBLIC ts_utils ts_backends_core ${TORCH_LIBRARIES}) 
+target_link_libraries(ts_backends_torch_scripted PUBLIC ts_utils ts_backends_core torchtext ${TORCH_LIBRARIES})
+set_target_properties(ts_backends_torch_scripted PROPERTIES LINK_WHAT_YOU_USE "TRUE")
+
 install(TARGETS ts_backends_torch_scripted DESTINATION ${torchserve_cpp_SOURCE_DIR}/_build/libs)
 
 # build library ts_backend_torch_deploy
