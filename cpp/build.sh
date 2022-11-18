@@ -137,6 +137,49 @@ function install_folly() {
   echo "$FOLLY_BUILD_DIR/installed"
 }
 
+function install_libtorchtext() {
+  TORCHTEXT_SRC_DIR=$BASE_DIR/third-party/text
+  TORCHTEXT_BUILD_DIR=$BASE_DIR/third-party/text/examples/libtorchtext/build
+  TORCHTEXT_SO_FILE=$TORCHTEXT_BUILD_DIR/libtorchtext/torchtext/csrc/libtorchtext.so
+  TARGET_SO_FILE=$BASE_DIR/../ts/cpp/lib/libtorchtext.so
+  TEXT_CLASSIFIER_DIR=$BASE_DIR/test/resources/torchscript_model/text_classifier
+  TOKENIZER_PT_FILE=$TEXT_CLASSIFIER_DIR/text_classifier_handler/tokenizer.pt
+
+
+  if [ ! -d "$TORCHTEXT_SRC_DIR" ] ; then
+    echo -e "${COLOR_GREEN}[ INFO ] Cloning torchtext repo ${COLOR_OFF}"
+    git clone https://github.com/mreso/text.git "$TORCHTEXT_SRC_DIR"
+    cd $TORCHTEXT_SRC_DIR
+
+    git submodule update --init --recursive
+
+    git checkout cpp_abi
+  fi
+
+  if [ ! -d "$TORCHTEXT_BUILD_DIR" ] ; then
+    echo -e "${COLOR_GREEN}[ INFO ] Building libtorchtext ${COLOR_OFF}"
+    cd $TORCHTEXT_SRC_DIR/examples/libtorchtext
+
+    TORCHSERVE_CPP_PATH=$BASE_DIR/../ts/cpp/ ./build.sh
+    
+    echo -e "${COLOR_GREEN}[ INFO ] libtorchtext is installed ${COLOR_OFF}"
+  fi
+
+  if [ ! -f "$TARGET_SO_FILE" ] ; then
+    echo -e "${COLOR_GREEN}[ INFO ] Copying libtorchtext.so ${COLOR_OFF}"
+    cp $TORCHTEXT_SO_FILE $TARGET_SO_FILE
+  fi
+
+  if [ ! -f "$TOKENIZER_PT_FILE" ] ; then
+    echo -e "${COLOR_GREEN}[ INFO ] Creating tokenizer.pt ${COLOR_OFF}"
+    python $TEXT_CLASSIFIER_DIR/create_bert.py --tokenizer-file $TOKENIZER_PT_FILE
+    echo -e "${COLOR_GREEN}[ INFO ] tokenizer.pt was created ${COLOR_OFF}"
+  fi
+
+  cd "$BWD" || exit
+  echo "$TORCHTEXT_BUILD_DIR/installed"
+}
+
 function install_kineto() {
   if [ "$PLATFORM" = "Linux" ]; then
     echo -e "${COLOR_GREEN}[ INFO ] Skip install kineto on Linux ${COLOR_OFF}"
@@ -299,6 +342,12 @@ function build() {
     mv $DEPS_DIR/../src/examples/libmnist_handler.so $DEPS_DIR/../../test/resources/torchscript_model/mnist/mnist_handler/libmnist_handler.so
   fi
 
+  if [ -f "$DEPS_DIR/../src/examples/libtext_classifier_handler.dylib" ]; then
+    mv $DEPS_DIR/../src/examples/libtext_classifier_handler.dylib $DEPS_DIR/../../test/resources/torchscript_model/text_classifier/text_classifier_handler/libtext_classifier_handler.dylib
+  elif [ -f "$DEPS_DIR/../src/examples/libtext_classifier_handler.so" ]; then
+    mv $DEPS_DIR/../src/examples/libtext_classifier_handler.so $DEPS_DIR/../../test/resources/torchscript_model/text_classifier/text_classifier_handler/libtext_classifier_handler.so
+  fi
+
   cd $DEPS_DIR/../..
   if [ -f "$DEPS_DIR/../test/torchserve_cpp_test" ]; then
     $DEPS_DIR/../test/torchserve_cpp_test
@@ -392,6 +441,7 @@ cd $BASE_DIR
 install_folly
 install_kineto
 install_libtorch
+install_libtorchtext
 install_yaml_cpp
 build
 symlink_torch_libs
