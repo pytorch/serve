@@ -1,0 +1,26 @@
+name: Run Regression Tests on GPU
+
+on: push
+
+jobs:
+  regression-gpu:
+    # creates workflows for the 2 OS: ubuntu & windows
+    runs-on: [self-hosted, ci-gpu-2]
+    strategy:
+      fail-fast: false
+      matrix:
+        cuda: ["cu116", "cu117"]
+    steps:
+      - name: Setup Python 3.8
+        uses: actions/setup-python@v3
+        with:
+          python-version: 3.8
+          architecture: x64
+      - name: Checkout TorchServe
+        uses: actions/checkout@v3
+      - name: Install dependencies
+        run: |
+          python ts_scripts/install_dependencies.py --environment=dev --cuda=${{ matrix.cuda }}
+      - name: Torchserve Regression Tests
+        run: |
+          python test/regression_tests.py
