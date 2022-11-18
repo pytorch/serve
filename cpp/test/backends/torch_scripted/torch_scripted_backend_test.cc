@@ -109,6 +109,16 @@ TEST_F(TorchScriptedTextClassifierTest, TestTokenizeBaseHandler) {
       "text_classifier_ts", 200);
 }
 
+TEST_F(TorchScriptedBackendTest, TestImageClassifier) {
+  this->LoadPredict(
+      std::make_shared<torchserve::LoadModelRequest>(
+          "test/resources/torchscript_model/image_classification/base_handler",
+          "mnist_scripted_v2", -1, "", "", 1, false),
+      "test/resources/torchscript_model/image_classification/base_handler",
+      "test/resources/torchscript_model/image_classification/input_data.pt",
+      "resnet_18_ts", 200);
+}
+
 TEST_F(TorchScriptedBackendTest, TestLoadPredictBaseHandler) {
   this->LoadPredict(std::make_shared<torchserve::LoadModelRequest>(
                         "test/resources/torchscript_model/mnist/mnist_handler",
