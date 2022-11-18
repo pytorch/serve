@@ -3,7 +3,7 @@ name: Run Regression Tests on CPU
 on: push
 
 jobs:
-  nightly:
+  regression-cpu:
     # creates workflows for the 3 OS: ubuntu, macOS & windows
     runs-on: ${{ matrix.os }}
     strategy:
