@@ -1,10 +1,10 @@
 name: Run Regression Tests on GPU
 
-on: push
+on: workflow_dispatch
 
 jobs:
   regression-gpu:
-    # creates workflows for the 2 OS: ubuntu & windows
+    # creates workflows for CUDA 11.6 & CUDA 11.7 on ubuntu
     runs-on: [self-hosted, ci-gpu]
     strategy:
       fail-fast: false
@@ -19,8 +19,6 @@ jobs:
           cd ..
           pwd
           rm -rf _tool
-      - name: Check git version
-        run: git --version
       - name: Update git
         run: sudo add-apt-repository ppa:git-core/ppa -y && sudo apt-get update && sudo apt-get install git -y
       - name: Check git version
