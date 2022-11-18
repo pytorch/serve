@@ -4,7 +4,7 @@ on: workflow_dipatch
 
 jobs:
   regression-cpu:
-    # creates workflows for the 3 OS: ubuntu, macOS & windows
+    # creates workflows for OS: ubuntu, macOS
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
