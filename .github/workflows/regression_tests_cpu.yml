@@ -1,0 +1,26 @@
+name: Run Regression Tests on CPU
+
+on: workflow_dispatch
+
+jobs:
+  nightly:
+    # creates workflows for the 3 OS: ubuntu, macOS & windows
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: true
+      matrix:
+        os: [ubuntu-20.04, macOS-latest, windows-latest]
+    steps:
+      - name: Setup Python 3.8
+        uses: actions/setup-python@v3
+        with:
+          python-version: 3.8
+          architecture: x64
+      - name: Checkout TorchServe
+        uses: actions/checkout@v3
+      - name: Install dependencies
+        run: |
+          python ts_scripts/install_dependencies.py --environment=dev
+      - name: Torchserve Regression Tests
+        run: |
+          python test/regression_tests.py
