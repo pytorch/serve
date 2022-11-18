@@ -1,0 +1,11 @@
+{
+  "createdOn": "28/07/2020 06:32:08",
+  "runtime": "LSP",
+  "model": {
+    "modelName": "image_classifier_v1",
+    "serializedFile": "model.pt",
+    "handler": "BaseHandler",
+    "modelVersion": "1.0"
+  },
+  "archiverVersion": "0.2.0"
+}
