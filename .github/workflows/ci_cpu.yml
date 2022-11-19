@@ -18,7 +18,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-20.04, macOS-latest, windows-latest]
+        #os: [ubuntu-20.04, macOS-latest, windows-2019]
+        os: [windows-2019]
     steps:
       - name: Setup Python 3.8
         uses: actions/setup-python@v2
@@ -39,11 +40,11 @@ jobs:
         run: |
           python torchserve_sanity.py
       - name: mvn install - unix
-        if: matrix.os != 'windows-latest'
+        if: matrix.os != 'windows-2019'
         run: |
             cd serving-sdk/ && ./mvnw clean install -q && cd ../
       - name: mvn install - windows
-        if: matrix.os == 'windows-latest'
+        if: matrix.os == 'windows-2019'
         run: |
             cd serving-sdk/ && .\mvnw.cmd clean install -q && cd ../
       # Any coverage.xml will be picked up by this step
