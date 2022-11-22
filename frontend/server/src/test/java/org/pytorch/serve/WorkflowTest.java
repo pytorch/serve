@@ -430,7 +430,11 @@ public class WorkflowTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testWorkflowWithInvalidCustomPythonDependencyModel"})
-    public void testPredictionMemoryError() throws InterruptedException {
+    public void testPredictionMemoryError() throws InterruptedException, SkipException {
+        if (System.getProperty("os.name").startsWith("Win")) {
+                throw new SkipException("Test skipped on Windows");
+            }
+
         // Load the model
         Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);

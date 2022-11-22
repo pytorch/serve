@@ -1181,7 +1181,11 @@ public class ModelServerTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testLoadingMemoryError"})
-    public void testPredictionMemoryError() throws InterruptedException {
+    public void testPredictionMemoryError() throws InterruptedException, SkipException {
+        if (System.getProperty("os.name").startsWith("Win")) {
+                throw new SkipException("Test skipped on Windows");
+            }
+
         // Load the model
         Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
@@ -1268,7 +1272,11 @@ public class ModelServerTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testPredictionCustomErrorCode"})
-    public void testErrorBatch() throws InterruptedException {
+    public void testErrorBatch() throws InterruptedException, SkipException {
+        if (System.getProperty("os.name").startsWith("Win")) {
+                throw new SkipException("Test skipped on Windows");
+            }
+
         Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
 
