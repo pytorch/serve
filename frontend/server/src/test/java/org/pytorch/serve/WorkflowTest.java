@@ -381,7 +381,12 @@ public class WorkflowTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testPredictionWorkflowNotFound"})
-    public void testWorkflowWithInvalidFileURI() throws InterruptedException, IOException {
+    public void testWorkflowWithInvalidFileURI()
+            throws InterruptedException, IOException, SkipException {
+        if (System.getProperty("os.name").startsWith("Win")) {
+            throw new SkipException("Test skipped on Windows");
+        }
+
         String invalidFileUrl = "file:///InvalidUrl";
         Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         TestUtils.setHttpStatus(null);
