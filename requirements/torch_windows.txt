@@ -4,4 +4,4 @@ torch==1.13.0; sys_platform == 'win32'
 torchvision==0.14.0; sys_platform == 'win32'
 torchtext==0.14.0; sys_platform == 'win32'
 torchaudio==0.13.0; sys_platform == 'win32'
-pillow==9.0.1
+pillow==9.3.0
