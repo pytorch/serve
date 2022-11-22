@@ -179,6 +179,7 @@ public class WorkerThread implements Runnable {
 
         try {
             connect();
+            
             while (isRunning()) {
                 req = aggregator.getRequest(workerId, state);
 
@@ -250,39 +251,22 @@ public class WorkerThread implements Runnable {
             }
         } catch (WorkerInitializationException e) {
             logger.error("Backend worker error", e);
-            // TODO: Need more detailed management for ModelServer exception
-            // along with error message and error code mapping
-            if (java.lang.System.getenv("SM_TELEMETRY_LOG") != null) {
-                loggerTelemetryMetrics.info(
-                        "UserScriptError.Count:1|#TorchServe:{},{}:-1|#hostname:{},timestamp:{}",
-                        ConfigManager.getInstance().getVersion(),
-                        e.getClass().getCanonicalName(),
-                        ConfigManager.getInstance().getHostName(),
-                        String.valueOf(
-                                TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis())));
-            }
         } catch (OutOfMemoryError oom) {
             logger.error("Out of memory error when creating workers", oom);
             status = HttpURLConnection.HTTP_ENTITY_TOO_LARGE;
             if (java.lang.System.getenv("SM_TELEMETRY_LOG") != null) {
                 loggerTelemetryMetrics.info(
-                        "ModelServerError.Count:1|#TorchServe:{},{}:-1|#hostname:{},timestamp:{}",
+                        "ModelServerError.Count:1|#TorchServe:{},{}:-1",
                         ConfigManager.getInstance().getVersion(),
-                        oom.getClass().getCanonicalName(),
-                        ConfigManager.getInstance().getHostName(),
-                        String.valueOf(
-                                TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis())));
+                        oom.getClass().getCanonicalName());
             }
         } catch (Throwable t) {
             logger.warn("Backend worker thread exception.", t);
             if (java.lang.System.getenv("SM_TELEMETRY_LOG") != null) {
                 loggerTelemetryMetrics.info(
-                        "ModelServerError.Count:1|#TorchServe:{},{}:-1|#hostname:{},timestamp:{}",
+                        "ModelServerError.Count:1|#TorchServe:{},{}:-1",
                         ConfigManager.getInstance().getVersion(),
-                        t.getClass().getCanonicalName(),
-                        ConfigManager.getInstance().getHostName(),
-                        String.valueOf(
-                                TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis())));
+                        t.getClass().getCanonicalName());
             }
         } finally {
             // WorkerThread is running in thread pool, the thread will be assigned to next
