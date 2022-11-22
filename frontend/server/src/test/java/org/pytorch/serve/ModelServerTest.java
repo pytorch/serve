@@ -256,7 +256,11 @@ public class ModelServerTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testLoadNoopModel"})
-    public void testDescribeModelCustomizedNoWorker() throws InterruptedException {
+    public void testDescribeModelCustomizedNoWorker() throws InterruptedException, SkipException {
+        if (System.getProperty("os.name").startsWith("Win")) {
+            throw new SkipException("Test skipped on Windows");
+        }
+
         Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
 
