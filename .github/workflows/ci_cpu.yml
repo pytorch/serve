@@ -2,8 +2,6 @@ name: CI CPU
 
 on:
   push:
-    branches:
-      - master
   pull_request:
     branches:
       - master
