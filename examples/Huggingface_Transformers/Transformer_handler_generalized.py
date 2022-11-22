@@ -64,7 +64,6 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
                 model_dir, "libpyt_fastertransformer.so"
             )
             torch.classes.load_library(faster_transformer_complied_path)
-
         # Loading the model and tokenizer from checkpoint and config files based on the user's choice of mode
         # further setup config can be added.
         if self.setup_config["save_mode"] == "torchscript":
@@ -82,6 +81,15 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
                 self.model = AutoModelForCausalLM.from_pretrained(model_dir)
             else:
                 logger.warning("Missing the operation mode.")
+            #Using the Better Transformer integration to speedup the inference
+            if self.setup_config["BetterTransformer"]:
+                try:
+                    from optimum.bettertransformer import BetterTransformer
+                    self.model = BetterTransformer.transform(self.model)
+                except ImportError as error:
+                logger.warning(
+                    "HuggingFace Optimum is not installed. Proceeding without BetterTransformer"
+                )
             # HF GPT2 models options can be gpt2, gpt2-medium, gpt2-large, gpt2-xl
             # this basically palce different model blocks on different devices,
             # https://github.com/huggingface/transformers/blob/v4.17.0/src/transformers/models/gpt2/modeling_gpt2.py#L962
