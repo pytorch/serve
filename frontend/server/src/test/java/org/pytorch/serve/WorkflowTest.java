@@ -288,7 +288,11 @@ public class WorkflowTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testRegisterWorkflowConnectionFailed"})
-    public void testRegisterWorkflowHttpError() throws InterruptedException {
+    public void testRegisterWorkflowHttpError() throws InterruptedException, SkipException {
+        if (System.getProperty("os.name").startsWith("Win")) {
+            throw new SkipException("Test skipped on Windows");
+        }
+
         Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
 
