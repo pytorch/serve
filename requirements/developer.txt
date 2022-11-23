@@ -9,7 +9,7 @@ protobuf
 grpcio-tools
 transformers==4.11.0
 pyspelling
-pygit2==1.6.1
+pygit2
 pyspelling
 pre-commit
 twine
