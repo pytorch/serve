@@ -1,0 +1,31 @@
+name: Run Regression Tests on CPU
+
+on: workflow_dipatch
+
+jobs:
+  regression-cpu:
+    # creates workflows for OS: ubuntu, macOS
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-20.04, macOS-latest]
+    steps:
+      - name: Setup Python 3.8
+        uses: actions/setup-python@v3
+        with:
+          python-version: 3.8
+          architecture: x64
+      - name: Setup Java 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+      - name: Checkout TorchServe
+        uses: actions/checkout@v3
+      - name: Install dependencies
+        run: |
+          python ts_scripts/install_dependencies.py --environment=dev
+      - name: Torchserve Regression Tests
+        run: |
+          python test/regression_tests.py

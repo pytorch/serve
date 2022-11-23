@@ -29,7 +29,7 @@ hardware: &hardware "gpu"
 metrics_cmd:
     - "cmd": "aws cloudwatch put-metric-data"
     - "--namespace": ["torchserve_benchmark_nightly_", *hardware]
-    - "--region": "us-west-2"
+    - "--region": "us-east-2"
     - "--metric-data": 'file:///tmp/benchmark/logs/stats_metrics.json'
 
 # load report to remote storage or local different path if "report_cmd" is set.
@@ -46,5 +46,5 @@ metrics_cmd:
 report_cmd:
     - "cmd": "aws s3 cp --recursive"
     - "source": '/tmp/ts_benchmark/'
-    - "dest": ['s3://torchserve-model-serving/benchmark/nightly', "today()", *hardware]
+    - "dest": ['s3://torchserve-benchmark/nightly', "today()", *hardware]
 

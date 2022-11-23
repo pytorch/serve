@@ -18,10 +18,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macOS-latest, windows-latest]
+        os: [ubuntu-20.04, macOS-latest, windows-latest]
     steps:
       - name: Setup Python 3.8
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: 3.8
           architecture: x64
@@ -31,7 +31,7 @@ jobs:
           distribution: 'zulu'
           java-version: '17'
       - name: Checkout TorchServe
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Install dependencies
         run: |
           python ts_scripts/install_dependencies.py --environment=dev
@@ -49,7 +49,7 @@ jobs:
       # Any coverage.xml will be picked up by this step
       # Just make sure each coverage.xml is in a different folder
       - name: Upload codecov
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.os == 'ubuntu-20.04'
         run : |
           curl -Os https://uploader.codecov.io/latest/linux/codecov
           chmod +x codecov
