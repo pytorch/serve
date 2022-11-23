@@ -67,6 +67,9 @@ class Common:
     def install_wget(self):
         pass
 
+    def install_rust(self):
+        os.system("curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh")
+
 
 class Linux(Common):
     def __init__(self):
@@ -148,6 +151,7 @@ def install_dependencies(cuda_version=None):
         system.install_wget()
         system.install_nodejs()
         system.install_node_packages()
+        system.install_rust()
 
     if platform.system() == "Linux" and args.environment == "dev":
         system.install_libgit2()
