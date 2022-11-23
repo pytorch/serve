@@ -68,7 +68,9 @@ class Common:
         pass
 
     def install_rust(self):
-        os.system("curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh")
+        os.system(
+            "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y"
+        )
 
 
 class Linux(Common):
