@@ -206,17 +206,10 @@ function install_yaml_cpp() {
   if [ ! -d "$YAML_CPP_BUILD_DIR" ] ; then
     echo -e "${COLOR_GREEN}[ INFO ] Building yaml-cpp ${COLOR_OFF}"
 
-    if [ "$PLATFORM" = "Linux" ]; then
-      SUDO="sudo"
-    elif [ "$PLATFORM" = "Mac" ]; then
-      SUDO=""
-    fi
-
     mkdir $YAML_CPP_BUILD_DIR
     cd $YAML_CPP_BUILD_DIR
     cmake $YAML_CPP_SRC_DIR -DYAML_BUILD_SHARED_LIBS=ON -DYAML_CPP_BUILD_TESTS=OFF -DCMAKE_CXX_FLAGS="-fPIC"
-    make
-    $SUDO make install
+    make install
 
     echo -e "${COLOR_GREEN}[ INFO ] yaml-cpp is installed ${COLOR_OFF}"
   fi
@@ -250,11 +243,12 @@ function build() {
 
   # Build torchserve_cpp with cmake
   cd "$BWD" || exit
+  YAML_CPP_CMAKE_DIR=$DEPS_DIR/yaml-cpp-build
   FOLLY_CMAKE_DIR=$DEPS_DIR/folly-build/installed
-  find $FOLLY_CMAKE_DIR -name "lib*.*"  -exec cp "{}" $LIBS_DIR \;
+  find $FOLLY_CMAKE_DIR -name "lib*.*"  -exec ln -s "{}" $LIBS_DIR/ \;
   if [ "$PLATFORM" = "Linux" ]; then
     cmake                                                                                     \
-    -DCMAKE_PREFIX_PATH="$DEPS_DIR;$FOLLY_CMAKE_DIR;$DEPS_DIR/libtorch"                       \
+    -DCMAKE_PREFIX_PATH="$DEPS_DIR;$FOLLY_CMAKE_DIR;$YAML_CPP_CMAKE_DIR;$DEPS_DIR/libtorch"                       \
     -DCMAKE_INSTALL_PREFIX="$PREFIX"                                                          \
     "$MAYBE_BUILD_QUIC"                                                                       \
     "$MAYBE_BUILD_TESTS"                                                                      \
@@ -270,7 +264,7 @@ function build() {
     fi
   elif [ "$PLATFORM" = "Mac" ]; then
     cmake                                                                                     \
-    -DCMAKE_PREFIX_PATH="$(python -c 'import torch; print(torch.utils.cmake_prefix_path)');$DEPS_DIR;$FOLLY_CMAKE_DIR;"   \
+    -DCMAKE_PREFIX_PATH="$(python -c 'import torch; print(torch.utils.cmake_prefix_path)');$DEPS_DIR;$FOLLY_CMAKE_DIR;$YAML_CPP_CMAKE_DIR"   \
     -DCMAKE_INSTALL_PREFIX="$PREFIX"                                                          \
     "$MAYBE_BUILD_QUIC"                                                                       \
     "$MAYBE_BUILD_TESTS"                                                                      \
