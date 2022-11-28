@@ -106,7 +106,7 @@ EOE
 
 ## Metric Types
 
-TorchServe Metrics is introducing [Metric Types](https://github.com/pytorch/serve/blob/master/ts/metrics/metric_type_enums.py)
+TorchServe Metrics is introducing [Metric Types](https://github.com/pytorch/serve/blob/master/ts/metrics/metric_type_enum.py)
 that are in line with the [Prometheus API](https://github.com/prometheus/client_python) metric types.
 
 Metric types are an attribute of Metric objects.

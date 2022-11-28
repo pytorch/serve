@@ -157,6 +157,7 @@ class ModelExportUtils(object):
 
                 if file_type == "extra_files":
                     for file in path.split(","):
+                        file = file.strip()
                         if os.path.isfile(file):
                             shutil.copy2(file, model_path)
                         elif os.path.isdir(file) and file != model_path:

@@ -998,3 +998,6 @@ NVfuser
 fuser
 ort
 sess
+InferenceTimeInMS
+MetricTypes
+MetricsCache
