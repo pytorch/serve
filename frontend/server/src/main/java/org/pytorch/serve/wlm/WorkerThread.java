@@ -179,7 +179,7 @@ public class WorkerThread implements Runnable {
 
         try {
             connect();
-            
+
             while (isRunning()) {
                 req = aggregator.getRequest(workerId, state);
 
