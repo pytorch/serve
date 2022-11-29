@@ -21,8 +21,8 @@ import org.slf4j.LoggerFactory;
 public class WorkerLifeCycle {
 
     private static final Logger logger = LoggerFactory.getLogger(WorkerLifeCycle.class);
-    private static final Pattern PID_LOG_PATTERN =
-            Pattern.compile(".*\\[PID\\](\\d+)$");
+    private static final Pattern PID_LOG_PATTERN = Pattern.compile(".*\\[PID\\](\\d+)$");
+    private static final String METRIC_LOG_START_SUBSTRING = "[METRICS]";
 
     private ConfigManager configManager;
     private ModelManager modelManager = ModelManager.getInstance();
@@ -221,6 +221,8 @@ public class WorkerLifeCycle {
         } else {
             argl.add(configManager.getModelServerHome() + "/ts/cpp/resources/logging.config");
         }
+        argl.add("--metrics_config_path");
+        argl.add(configManager.getMetricsConfigPath());
 
         String[] envp = EnvironmentUtils.getCppEnvString(cppBackendLib.getAbsolutePath());
 
@@ -330,8 +332,13 @@ public class WorkerLifeCycle {
                     if (result == null) {
                         break;
                     }
-                    if (result.startsWith("[METRICS]")) {
-                        Metric parsedMetric = Metric.parse(result.substring("[METRICS]".length()));
+                    int metricLogStartSubstringIndex = result.indexOf(METRIC_LOG_START_SUBSTRING);
+                    if (metricLogStartSubstringIndex >= 0) {
+                        Metric parsedMetric =
+                                Metric.parse(
+                                        result.substring(
+                                                metricLogStartSubstringIndex
+                                                        + METRIC_LOG_START_SUBSTRING.length()));
                         if (parsedMetric != null) {
                             loggerModelMetrics.info(parsedMetric.toString());
                         } else {
