@@ -206,10 +206,16 @@ function install_yaml_cpp() {
   if [ ! -d "$YAML_CPP_BUILD_DIR" ] ; then
     echo -e "${COLOR_GREEN}[ INFO ] Building yaml-cpp ${COLOR_OFF}"
 
+    if [ "$PLATFORM" = "Linux" ]; then
+      SUDO="sudo"
+    elif [ "$PLATFORM" = "Mac" ]; then
+      SUDO=""
+    fi
+
     mkdir $YAML_CPP_BUILD_DIR
     cd $YAML_CPP_BUILD_DIR
     cmake $YAML_CPP_SRC_DIR -DYAML_BUILD_SHARED_LIBS=ON -DYAML_CPP_BUILD_TESTS=OFF -DCMAKE_CXX_FLAGS="-fPIC"
-    make install
+    $SUDO make install
 
     echo -e "${COLOR_GREEN}[ INFO ] yaml-cpp is installed ${COLOR_OFF}"
   fi

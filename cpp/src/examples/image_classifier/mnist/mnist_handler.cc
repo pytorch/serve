@@ -2,9 +2,10 @@
 
 namespace mnist {
 void MnistHandler::Postprocess(
-    const torch::Tensor& data, std::map<uint8_t, std::string>& idx_to_req_id,
+    const torch::Tensor& data,
+    std::pair<std::string&, std::map<uint8_t, std::string>&>& idx_to_req_id,
     std::shared_ptr<torchserve::InferenceResponseBatch>& response_batch) {
-  for (const auto& kv : idx_to_req_id) {
+  for (const auto& kv : idx_to_req_id.second) {
     try {
       auto response = (*response_batch)[kv.second];
       response->SetResponse(200, "data_tpye",

@@ -27,6 +27,26 @@ BaseHandler::LoadModel(
   }
 }
 
+void BaseHandler::Handle(
+    std::shared_ptr<torch::jit::script::Module>& model,
+    std::shared_ptr<torch::Device>& device,
+    std::shared_ptr<torchserve::InferenceRequestBatch>& request_batch,
+    std::shared_ptr<torchserve::InferenceResponseBatch>& response_batch) {
+  std::string req_ids = "";
+  std::map<uint8_t, std::string> map_idx_to_req_id;
+  std::pair<std::string&, std::map<uint8_t, std::string>&> idx_to_req_id(
+      req_ids, map_idx_to_req_id);
+  try {
+    auto inputs =
+        Preprocess(device, idx_to_req_id, request_batch, response_batch);
+    auto outputs =
+        Inference(model, inputs, device, idx_to_req_id, response_batch);
+    Postprocess(outputs, idx_to_req_id, response_batch);
+  } catch (...) {
+    TS_LOG(ERROR, "Failed to handle this batch");
+  }
+}
+
 std::shared_ptr<torch::Device> BaseHandler::GetTorchDevice(
     std::shared_ptr<torchserve::LoadModelRequest>& load_model_request) {
   /**
@@ -44,7 +64,7 @@ std::shared_ptr<torch::Device> BaseHandler::GetTorchDevice(
 
 std::vector<torch::jit::IValue> BaseHandler::Preprocess(
     std::shared_ptr<torch::Device>& device,
-    std::map<uint8_t, std::string>& idx_to_req_id,
+    std::pair<std::string&, std::map<uint8_t, std::string>&>& idx_to_req_id,
     std::shared_ptr<torchserve::InferenceRequestBatch>& request_batch,
     std::shared_ptr<torchserve::InferenceResponseBatch>& response_batch) {
   /**
@@ -56,6 +76,11 @@ std::vector<torch::jit::IValue> BaseHandler::Preprocess(
   std::vector<torch::Tensor> batch_tensors;
   uint8_t idx = 0;
   for (auto& request : *request_batch) {
+    (*response_batch)[request.request_id] =
+        std::make_shared<torchserve::InferenceResponse>(request.request_id);
+    idx_to_req_id.first += idx_to_req_id.first.empty()
+                               ? request.request_id
+                               : "," + request.request_id;
     auto data_it =
         request.parameters.find(torchserve::PayloadType::kPARAMETER_NAME_DATA);
     auto dtype_it =
@@ -70,10 +95,9 @@ std::vector<torch::jit::IValue> BaseHandler::Preprocess(
     if (data_it == request.parameters.end() ||
         dtype_it == request.headers.end()) {
       TS_LOGF(ERROR, "Empty payload for request id: {}", request.request_id);
-      auto response = (*response_batch)[request.request_id];
-      response->SetResponse(500, "data_type",
-                            torchserve::PayloadType::kCONTENT_TYPE_TEXT,
-                            "Empty payload");
+      (*response_batch)[request.request_id]->SetResponse(
+          500, "data_type", torchserve::PayloadType::kCONTENT_TYPE_TEXT,
+          "Empty payload");
       continue;
     }
     /*
@@ -109,7 +133,7 @@ std::vector<torch::jit::IValue> BaseHandler::Preprocess(
         */
         batch_tensors.emplace_back(
             torch::pickle_load(data_it->second).toTensor().to(*device));
-        idx_to_req_id[idx++] = request.request_id;
+        idx_to_req_id.second[idx++] = request.request_id;
       } else if (dtype_it->second == "List") {
         // case3: the image is a list
       }
@@ -140,7 +164,7 @@ torch::Tensor BaseHandler::Inference(
     std::shared_ptr<torch::jit::script::Module> model,
     std::vector<torch::jit::IValue>& inputs,
     std::shared_ptr<torch::Device>& device,
-    std::map<uint8_t, std::string>& idx_to_req_id,
+    std::pair<std::string&, std::map<uint8_t, std::string>&>& idx_to_req_id,
     std::shared_ptr<torchserve::InferenceResponseBatch>& response_batch) {
   if (device == nullptr) {
     TS_LOG(WARN, "device is nullptr");
@@ -150,7 +174,7 @@ torch::Tensor BaseHandler::Inference(
     return model->forward(inputs).toTensor();
   } catch (const std::runtime_error& e) {
     TS_LOGF(ERROR, "Failed to predict, error: {}", e.what());
-    for (auto& kv : idx_to_req_id) {
+    for (auto& kv : idx_to_req_id.second) {
       auto response = (*response_batch)[kv.second];
       response->SetResponse(500, "data_type",
                             torchserve::PayloadType::kDATA_TYPE_STRING,
@@ -161,9 +185,10 @@ torch::Tensor BaseHandler::Inference(
 }
 
 void BaseHandler::Postprocess(
-    const torch::Tensor& data, std::map<uint8_t, std::string>& idx_to_req_id,
+    const torch::Tensor& data,
+    std::pair<std::string&, std::map<uint8_t, std::string>&>& idx_to_req_id,
     std::shared_ptr<torchserve::InferenceResponseBatch>& response_batch) {
-  for (const auto& kv : idx_to_req_id) {
+  for (const auto& kv : idx_to_req_id.second) {
     try {
       auto response = (*response_batch)[kv.second];
       response->SetResponse(200, "data_type",
