@@ -1,16 +1,11 @@
 """ KServe wrapper to handler inference in the kserve_predictor """
 import json
 import logging
-from importlib.metadata import version
 
 import kserve
+from kserve.model_server import ModelServer
 from TorchserveModel import TorchserveModel
 from TSModelRepository import TSModelRepository
-
-if version("kserve") >= "0.8.0":
-    from kserve.model_server import ModelServer
-else:
-    from kserve.kfserver import KFServer as ModelServer
 
 logging.basicConfig(level=kserve.constants.KSERVE_LOGLEVEL)
 

@@ -21,18 +21,12 @@ Torchserve makes use of port 8085 and the kfserver runs at port 8080
 We will hit kfserve , which in turn hits torch serve for inference and explanations request.
 Follow the below steps to serve the MNIST Model :
 
-- Step 1 : Install python3.6.9
+- Step 1 : Install python3.8
 
-- Step 2 : Clone the KServe Git Repository as below:
-
-```bash
-git clone -b master https://github.com/kserve/kserve
-```
-
-- Step 3 : Install KServe as below:
+- Step 2 : Install KServe as below:
 
 ```bash
-pip install -e ./kserve/python/kserve
+pip install kserve>=0.9.0
 ```
 
 - Step 4 : Run the Install Dependencies script
