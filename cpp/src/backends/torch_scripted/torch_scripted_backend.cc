@@ -75,10 +75,6 @@ std::unique_ptr<torchserve::LoadModelResponse> Backend::LoadModelInternal(
 std::shared_ptr<torchserve::InferenceResponseBatch> ModelInstance::Predict(
     std::shared_ptr<torchserve::InferenceRequestBatch> request_batch) {
   auto response_batch = std::make_shared<torchserve::InferenceResponseBatch>();
-  for (const auto& request : (*request_batch)) {
-    (*response_batch)[request.request_id] =
-        std::make_shared<torchserve::InferenceResponse>(request.request_id);
-  }
   handler_->Handle(model_, device_, request_batch, response_batch);
 
   return response_batch;

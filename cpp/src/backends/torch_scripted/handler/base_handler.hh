@@ -42,7 +42,7 @@ class BaseHandler {
 
   virtual std::vector<torch::jit::IValue> Preprocess(
       std::shared_ptr<torch::Device>& device,
-      std::map<uint8_t, std::string>& idx_to_req_id,
+      std::pair<std::string&, std::map<uint8_t, std::string>&>& idx_to_req_id,
       std::shared_ptr<torchserve::InferenceRequestBatch>& request_batch,
       std::shared_ptr<torchserve::InferenceResponseBatch>& response_batch);
 
@@ -50,11 +50,12 @@ class BaseHandler {
       std::shared_ptr<torch::jit::script::Module> model,
       std::vector<torch::jit::IValue>& inputs,
       std::shared_ptr<torch::Device>& device,
-      std::map<uint8_t, std::string>& idx_to_req_id,
+      std::pair<std::string&, std::map<uint8_t, std::string>&>& idx_to_req_id,
       std::shared_ptr<torchserve::InferenceResponseBatch>& response_batch);
 
   virtual void Postprocess(
-      const torch::Tensor& data, std::map<uint8_t, std::string>& idx_to_req_id,
+      const torch::Tensor& data,
+      std::pair<std::string&, std::map<uint8_t, std::string>&>& idx_to_req_id,
       std::shared_ptr<torchserve::InferenceResponseBatch>& response_batch);
 
   /**
@@ -68,18 +69,7 @@ class BaseHandler {
       std::shared_ptr<torch::jit::script::Module>& model,
       std::shared_ptr<torch::Device>& device,
       std::shared_ptr<torchserve::InferenceRequestBatch>& request_batch,
-      std::shared_ptr<torchserve::InferenceResponseBatch>& response_batch) {
-    try {
-      std::map<uint8_t, std::string> idx_to_req_id;
-      auto inputs =
-          Preprocess(device, idx_to_req_id, request_batch, response_batch);
-      auto outputs =
-          Inference(model, inputs, device, idx_to_req_id, response_batch);
-      Postprocess(outputs, idx_to_req_id, response_batch);
-    } catch (...) {
-      TS_LOG(ERROR, "Failed to handle this batch");
-    }
-  };
+      std::shared_ptr<torchserve::InferenceResponseBatch>& response_batch);
 
  protected:
   std::shared_ptr<torch::Device> GetTorchDevice(
