@@ -7,7 +7,6 @@
 #include <memory>
 
 #include "src/utils/message.hh"
-#include "src/utils/metrics/registry.hh"
 
 namespace torchserve {
 class TorchScriptedBackendTest : public ::testing::Test {
@@ -22,8 +21,6 @@ class TorchScriptedBackendTest : public ::testing::Test {
       const std::string& inference_input_file_path,
       const std::string& inference_request_id_prefix,
       int inference_expect_code) {
-    MetricsRegistry::Initialize("test/resources/metrics/default_config.yaml",
-                                MetricsContext::BACKEND);
     backend_->Initialize(model_dir);
     auto result = backend_->LoadModel(std::move(load_model_request));
     ASSERT_EQ(result->code, 200);

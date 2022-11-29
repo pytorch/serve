@@ -21,9 +21,6 @@ class IMetric {
   virtual ~IMetric() {}
   virtual void AddOrUpdate(const std::vector<std::string>& dimension_values,
                            const double& value) = 0;
-  virtual void AddOrUpdate(const std::vector<std::string>& dimension_values,
-                           const std::string& request_id,
-                           const double& value) = 0;
 
  protected:
   const MetricType type;

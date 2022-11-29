@@ -3,7 +3,6 @@
 #include "protocol/mock_socket.hh"
 #include "src/backends/process/model_worker.hh"
 #include "src/backends/torch_scripted/torch_scripted_backend.hh"
-#include "src/utils/metrics/registry.hh"
 
 namespace torchserve {
 TEST(BackendIntegTest, TestOTFProtocolAndHandler) {
@@ -69,8 +68,6 @@ TEST(BackendIntegTest, TestOTFProtocolAndHandler) {
 
   // initialize backend
   auto backend = std::make_shared<torchserve::torchscripted::Backend>();
-  MetricsRegistry::Initialize("test/resources/metrics/default_config.yaml",
-                              MetricsContext::BACKEND);
   backend->Initialize("test/resources/torchscript_model/mnist/base_handler");
 
   // load the model
