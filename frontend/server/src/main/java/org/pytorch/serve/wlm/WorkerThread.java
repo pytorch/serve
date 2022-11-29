@@ -43,6 +43,8 @@ public class WorkerThread implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(WorkerThread.class);
     private static final Logger loggerTsMetrics =
             LoggerFactory.getLogger(ConfigManager.MODEL_SERVER_METRICS_LOGGER);
+    private static final Logger loggerTelemetryMetrics =
+            LoggerFactory.getLogger(ConfigManager.MODEL_SERVER_TELEMETRY_LOGGER);
 
     private Metric workerLoadTime;
 
@@ -252,8 +254,20 @@ public class WorkerThread implements Runnable {
         } catch (OutOfMemoryError oom) {
             logger.error("Out of memory error when creating workers", oom);
             status = HttpURLConnection.HTTP_ENTITY_TOO_LARGE;
+            if (java.lang.System.getenv("SM_TELEMETRY_LOG") != null) {
+                loggerTelemetryMetrics.info(
+                        "ModelServerError.Count:1|#TorchServe:{},{}:-1",
+                        ConfigManager.getInstance().getVersion(),
+                        oom.getClass().getCanonicalName());
+            }
         } catch (Throwable t) {
             logger.warn("Backend worker thread exception.", t);
+            if (java.lang.System.getenv("SM_TELEMETRY_LOG") != null) {
+                loggerTelemetryMetrics.info(
+                        "ModelServerError.Count:1|#TorchServe:{},{}:-1",
+                        ConfigManager.getInstance().getVersion(),
+                        t.getClass().getCanonicalName());
+            }
         } finally {
             // WorkerThread is running in thread pool, the thread will be assigned to next
             // Runnable once this worker is finished. If currentThread keep holding the reference
