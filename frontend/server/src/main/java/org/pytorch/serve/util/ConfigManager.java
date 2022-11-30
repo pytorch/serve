@@ -66,6 +66,7 @@ public final class ConfigManager {
     private static final String TS_NETTY_CLIENT_THREADS = "netty_client_threads";
     private static final String TS_JOB_QUEUE_SIZE = "job_queue_size";
     private static final String TS_NUMBER_OF_GPU = "number_of_gpu";
+    private static final String TS_METRICS_CONFIG = "metrics_config";
 
     // IPEX config option that can be set at config.properties
     private static final String TS_IPEX_ENABLE = "ipex_enable";
@@ -370,6 +371,14 @@ public final class ConfigManager {
         return getIntProperty(TS_NUMBER_OF_GPU, 0);
     }
 
+    public String getMetricsConfigPath() {
+        String path = getCanonicalPath(prop.getProperty(TS_METRICS_CONFIG));
+        if (path == null) {
+            path = getModelServerHome() + "/ts/configs/metrics.yaml";
+        }
+        return path;
+    }
+
     public String getTsDefaultServiceHandler() {
         return getProperty(TS_DEFAULT_SERVICE_HANDLER, null);
     }
@@ -593,6 +602,8 @@ public final class ConfigManager {
                 + getCanonicalPath(".")
                 + "\nTemp directory: "
                 + System.getProperty("java.io.tmpdir")
+                + "\nMetrics config path: "
+                + getMetricsConfigPath()
                 + "\nNumber of GPUs: "
                 + getNumberOfGpu()
                 + "\nNumber of CPUs: "

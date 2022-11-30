@@ -17,7 +17,7 @@ class TSLogMetric : public IMetric {
   void AddOrUpdate(const std::vector<std::string>& dimension_values,
                    const double& value) override;
   void AddOrUpdate(const std::vector<std::string>& dimension_values,
-                   const std::string& request_id, const double& value);
+                   const std::string& request_id, const double& value) override;
 
  private:
   std::string BuildDimensionsString(

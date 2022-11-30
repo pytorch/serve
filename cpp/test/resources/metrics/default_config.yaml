@@ -1,0 +1,12 @@
+dimensions:
+  - &model_name "ModelName"
+  - &level "Level"
+
+model_metrics:
+  gauge:
+    - name: HandlerTime
+      unit: ms
+      dimensions: [*model_name, *level]
+    - name: PredictionTime
+      unit: ms
+      dimensions: [*model_name, *level]
