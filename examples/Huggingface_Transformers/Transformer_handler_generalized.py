@@ -81,10 +81,11 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
                 self.model = AutoModelForCausalLM.from_pretrained(model_dir)
             else:
                 logger.warning("Missing the operation mode.")
-            #Using the Better Transformer integration to speedup the inference
+            # Using the Better Transformer integration to speedup the inference
             if self.setup_config["BetterTransformer"]:
                 try:
                     from optimum.bettertransformer import BetterTransformer
+
                     self.model = BetterTransformer.transform(self.model)
                 except ImportError as error:
                     logger.warning(
