@@ -124,9 +124,17 @@ class BaseHandler(abc.ABC):
         self.model.eval()
         optimization_config = os.path.join(model_dir, "compile.json")
         backend = load_compiler_config(optimization_config)
+
+        # PT 2.0 support is opt in
         if check_pt2_enabled() and self.backend:
             # Compilation will delay your model initialization
-            torch.compile(self.model, backend=backend)
+            try:
+                torch.compile(self.model, backend=backend)
+                logger.info(f"Compiled {self.model} with backend {backend}")
+            except:
+                logger.warning(
+                    f"Compiling model {self.model} with backend {backend} has failed \n Proceeding without compilation"
+                )
         if ipex_enabled:
             self.model = self.model.to(memory_format=torch.channels_last)
             self.model = ipex.optimize(self.model)
