@@ -47,13 +47,11 @@ def test_metrics(caplog):
     assert 'CorrectCounter' == test_metric.name
     metrics.add_counter('CorrectCounter', 3)
     test_metric = metrics.cache[get_model_key('CorrectCounter', 'count', 'xyz', model_name)]
-    assert test_metric.value == 2
+    assert test_metric.value == 1
     test_metric = metrics.cache[get_model_key('CorrectCounter', 'count', 'hjshfj', model_name)]
     assert test_metric.value == 1
     test_metric = metrics.cache[get_model_key('CorrectCounter', 'count', all_req_ids, model_name)]
-    assert test_metric.value == 4
-    # Check what is emitted is correct
-    emit_metrics(metrics.store)
+    assert test_metric.value == 1
 
     assert "hjshfj" in caplog.text
     assert "ModelName:dummy model" in caplog.text

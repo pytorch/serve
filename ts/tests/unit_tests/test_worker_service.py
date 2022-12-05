@@ -6,6 +6,7 @@ import pytest
 from ts.context import Context
 from ts.service import Service
 from ts.service import emit_metrics
+from ts.metrics.metric_cache_yaml_impl import MetricsCacheYamlImpl
 
 
 # noinspection PyClassHasNoInit
@@ -24,7 +25,9 @@ class TestService:
     def service(self, mocker):
         service = object.__new__(Service)
         service._entry_point = mocker.MagicMock(return_value=['prediction'])
-        service._context = Context(self.model_name, self.model_dir, self.manifest, 1, 0, '1.0')
+        metrics_cache = MetricsCacheYamlImpl(
+            os.path.join(os.path.abspath("ts/tests/unit_tests/metrics_yaml_testing"), "metrics.yaml"))
+        service._context = Context(self.model_name, self.model_dir, self.manifest, 1, 0, '1.0', True, metrics_cache)
         return service
 
     def test_predict(self, service, mocker):

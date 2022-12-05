@@ -235,7 +235,7 @@ A model's parameters are defined in [model source code](https://github.com/pytor
 * `maxWorkers`: the maximum number of workers of a model
 * `batchSize`: the batch size of a model
 * `maxBatchDelay`: the maximum delay in msec of a batch of a model
-* `responseTimeout`: the timeout in msec of a specific model's response. This setting takes priority over `default_response_timeout` which is a default timeout over all models
+* `responseTimeout`: the timeout in sec of a specific model's response. This setting takes priority over `default_response_timeout` which is a default timeout over all models
 * `defaultVersion`: the default version of a model
 * `marName`: the mar file name of a model
 

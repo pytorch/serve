@@ -1,0 +1,43 @@
+name: Run Regression Tests on GPU
+
+on: workflow_dispatch
+
+jobs:
+  regression-gpu:
+    # creates workflows for CUDA 11.6 & CUDA 11.7 on ubuntu
+    runs-on: [self-hosted, ci-gpu]
+    strategy:
+      fail-fast: false
+      matrix:
+        cuda: ["cu116", "cu117"]
+    steps:
+      - name: Clean up previous run
+        run: |
+          echo "Cleaning up previous run"
+          cd $RUNNER_WORKSPACE
+          pwd
+          cd ..
+          pwd
+          rm -rf _tool
+      - name: Update git
+        run: sudo add-apt-repository ppa:git-core/ppa -y && sudo apt-get update && sudo apt-get install git -y
+      - name: Check git version
+        run: git --version
+      - name: Setup Python 3.8
+        uses: actions/setup-python@v3
+        with:
+          python-version: 3.8
+          architecture: x64
+      - name: Setup Java 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+      - name: Checkout TorchServe
+        uses: actions/checkout@v3
+      - name: Install dependencies
+        run: |
+          python ts_scripts/install_dependencies.py --environment=dev --cuda=${{ matrix.cuda }}
+      - name: Torchserve Regression Tests
+        run: |
+          python test/regression_tests.py
