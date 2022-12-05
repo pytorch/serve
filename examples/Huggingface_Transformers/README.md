@@ -309,7 +309,7 @@ When a json file is passed as a request format to the curl, Torchserve unwraps t
 
 ## Speed up inference with Better Transformer
 
-In the setuup_config.json, specify `"BetterTransformer":true,`.
+In the setup_config.json, specify `"BetterTransformer":true,`.
 
 Note: make sure to install [HuggingFace Optimum] `pip install optimum`
 
