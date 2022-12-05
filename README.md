@@ -72,7 +72,8 @@ Refer to [torchserve docker](docker/README.md) for details.
 
 
 ## 🏆 Highlighted Examples
-* [🤗 HuggingFace Transformers](examples/Huggingface_Transformers)
+* [🤗 HuggingFace Transformers](examples/Huggingface_Transformers) with a [Better Transformer Integration](examples/Huggingface_Transformers#Speed-up-inference-with-Better-Transformer)
+
 * [Model parallel inference](examples/Huggingface_Transformers#model-parallelism)
 * [Better Transformer for HuggingFace Transformers](examples/Huggingface_Transformers#Speed-up-inference-with-Better-Transformer)
 * [MultiModal models with MMF](https://github.com/pytorch/serve/tree/master/examples/MMF-activity-recognition) combining text, audio and video
