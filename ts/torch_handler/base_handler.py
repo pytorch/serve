@@ -4,18 +4,22 @@ Also, provides handle method per torch serve custom model specification
 """
 
 import abc
+import importlib.util
 import logging
 import os
-import importlib.util
 import time
+
 import torch
 from pkg_resources import packaging
-from ..utils.util import list_classes_from_module, load_label_mapping
-from .utils import DynamoBackend
-from os import environ
+
+from ..utils.util import (
+    list_classes_from_module,
+    load_compiler_config,
+    load_label_mapping,
+)
 
 if packaging.version.parse(torch.__version__) >= packaging.version.parse("1.8.1"):
-    from torch.profiler import profile, record_function, ProfilerActivity
+    from torch.profiler import ProfilerActivity, profile, record_function
 
     PROFILER_AVAILABLE = True
 else:
@@ -25,17 +29,23 @@ else:
 logger = logging.getLogger(__name__)
 
 # Possible values for backend in utils.py
-if os.environ.get("DYNAMO_BACKEND"):
+def check_pt2_enabled():
     try:
-        import torch._dynamo
-        dynamo_enabled = True
-        dynamo_backend = os.environ.get("DYNAMO_BACKEND")
+        import torch.compile
+
+        pt2_enabled = True
         if torch.cuda.is_available():
-            torch.backends.cuda.matmul.allow_tf32 = True # Enable tensor cores and idealy get an A10G or A100
+            # If Ampere enable tensor cores and ideally get yourself an A10G or A100
+            if torch.cuda.get_device_capability() >= (8, 0):
+                torch.backends.cuda.matmul.allow_tf32 = True
     except ImportError as error:
-        logger.warning("dynamo/inductor are not installed. \n For GPU please run pip3 install numpy --pre torch[dynamo] --force-reinstall --extra-index-url https://download.pytorch.org/whl/nightly/cu117 \n for CPU please run pip3 install --pre torch --extra-index-url https://download.pytorch.org/whl/nightly/cpu")
-        dynamo_enabled = False
-        
+        logger.warning(
+            "dynamo/inductor are not installed. \n For GPU please run pip3 install numpy --pre torch[dynamo] --force-reinstall --extra-index-url https://download.pytorch.org/whl/nightly/cu117 \n for CPU please run pip3 install --pre torch --extra-index-url https://download.pytorch.org/whl/nightly/cpu"
+        )
+        pt2_enabled = False
+    return pt2_enabled
+
+
 ipex_enabled = False
 if os.environ.get("TS_IPEX_ENABLE", "false") == "true":
     try:
@@ -112,8 +122,11 @@ class BaseHandler(abc.ABC):
             self.model = self._load_torchscript_model(model_pt_path)
 
         self.model.eval()
-        if dynamo_enabled:                
-            torch._dynamo.optimize(dynamo_backend if dynamo_backend in DynamoBackend else DynamoBackend.INDUCTOR)(self.model)
+        optimization_config = os.path.join(model_dir, "compile.json")
+        backend = load_compiler_config(optimization_config)
+        if check_pt2_enabled() and self.backend:
+            # Compilation will delay your model initialization
+            torch.compile(self.model, backend=backend)
         if ipex_enabled:
             self.model = self.model.to(memory_format=torch.channels_last)
             self.model = ipex.optimize(self.model)
@@ -297,9 +310,7 @@ class BaseHandler(abc.ABC):
             self.profiler_args[
                 "on_trace_ready"
             ] = torch.profiler.tensorboard_trace_handler(result_path)
-            logger.info(
-                "Saving chrome trace to : %s", result_path
-            )
+            logger.info("Saving chrome trace to : %s", result_path)
 
         with profile(**self.profiler_args) as prof:
             with record_function("preprocess"):
