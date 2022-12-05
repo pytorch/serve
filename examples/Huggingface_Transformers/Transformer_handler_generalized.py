@@ -85,19 +85,16 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
             if self.setup_config["BetterTransformer"]:
                 try:
                     from optimum.bettertransformer import BetterTransformer
-                    is_optimum_available = True
+                    self.model = BetterTransformer.transform(self.model)
                 except ImportError as error:
                 logger.warning(
                     "HuggingFace Optimum is not installed. Proceeding without BetterTransformer"
                 )
-                if is_optimum_available:
-                    try:
-                        self.model = BetterTransformer.transform(self.model)
-                    except RuntimeError as error:
-                    logger.warning(
-                        "HuggingFace Optimum is not supporting this model,for the list of supported models, please refer to this doc, 
-                         https://huggingface.co/docs/optimum/bettertransformer/overview"
-                    )
+                except RuntimeError as error:
+                logger.warning(
+                    "HuggingFace Optimum is not supporting this model,for the list of supported models, please refer to this doc, 
+                     https://huggingface.co/docs/optimum/bettertransformer/overview"
+                )
             # HF GPT2 models options can be gpt2, gpt2-medium, gpt2-large, gpt2-xl
             # this basically palce different model blocks on different devices,
             # https://github.com/huggingface/transformers/blob/v4.17.0/src/transformers/models/gpt2/modeling_gpt2.py#L962
