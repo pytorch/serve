@@ -32,8 +32,7 @@ logger = logging.getLogger(__name__)
 # Possible values for backend in utils.py
 def check_pt2_enabled():
     try:
-        import torch.compile
-
+        import torch._dynamo
         pt2_enabled = True
         if torch.cuda.is_available():
             # If Ampere enable tensor cores and ideally get yourself an A10G or A100
