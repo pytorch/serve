@@ -11,23 +11,29 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 
-tests_require = ['pytest', 'pytest-tornasync', 'mypy']
+tests_require = ["pytest", "pytest-tornasync", "mypy"]
 
 setup(
-    name='image_transformer',
-    version='0.1.0',
-    url=
-    'https://github.com/kserve/kserve/tree/master/docs/samples/v1beta1/transformer',
-    description='Transformer',
-    long_description=open('README.md').read(),
-    python_requires='>=3.6',
+    name="image_transformer",
+    version="0.1.0",
+    url="https://github.com/kserve/kserve/tree/master/docs/samples/v1beta1/transformer",
+    description="Transformer",
+    long_description=open("README.md").read(),
+    python_requires=">=3.8",
     packages=find_packages("image_transformer"),
     install_requires=[
-        "kserve>=0.2.1", "argparse>=1.4.0", "requests>=2.22.0",
-        "joblib>=0.13.2", "pandas>=0.24.2", "numpy>=1.16.3",
-        "kubernetes >= 9.0.0", "torchvision>=0.4.0", "pillow==9.0.1"
+        "kserve>=0.9.0",
+        "argparse>=1.4.0",
+        "requests>=2.22.0",
+        "joblib>=0.13.2",
+        "pandas>=0.24.2",
+        "numpy>=1.16.3",
+        "kubernetes>=9.0.0",
+        "torchvision>=0.6.0",
+        "pillow>=9.0.1",
     ],
     tests_require=tests_require,
-    extras_require={'test': tests_require})
+    extras_require={"test": tests_require},
+)

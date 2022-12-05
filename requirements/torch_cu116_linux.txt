@@ -2,7 +2,7 @@
 --extra-index-url https://download.pytorch.org/whl/cu116
 cython
 wheel
-pillow==9.0.1
+pillow==9.3.0
 torch==1.13.0+cu116; sys_platform == 'linux'
 torchvision==0.14.0+cu116; sys_platform == 'linux'
 torchtext==0.14.0; sys_platform == 'linux'

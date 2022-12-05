@@ -91,7 +91,7 @@ cpu_launcher_enable=true
 ```
 
 ## Creating and Exporting INT8 model for Intel® Extension for PyTorch*
-Intel® Extension for PyTorch* supports both eager and torchscript mode. In this section, we show how to deploy INT8 model for Intel® Extension for PyTorch*. Refer to [here](https://github.com/intel/intel-extension-for-pytorch/blob/master/docs/tutorials/features/int8.md) for more details on Intel® Extension for PyTorch* optimizations for quantization.
+Intel® Extension for PyTorch* supports both eager and torchscript mode. In this section, we show how to deploy INT8 model for Intel® Extension for PyTorch*. Refer to [here](https://github.com/intel/intel-extension-for-pytorch/blob/master/docs/tutorials/features/int8_overview.md) for more details on Intel® Extension for PyTorch* optimizations for quantization.
 
 ### 1. Creating a serialized file 
 First create `.pt` serialized file using Intel® Extension for PyTorch* INT8 inference. Here we show two examples with BERT and ResNet50. 

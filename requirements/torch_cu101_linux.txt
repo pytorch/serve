@@ -2,7 +2,7 @@
 --find-links https://download.pytorch.org/whl/torch_stable.html
 cython
 wheel
-pillow==9.0.1
+pillow==9.3.0
 torch==1.8.1+cu101; sys_platform == 'linux'
 torchvision==0.9.1+cu101; sys_platform == 'linux'
 torchtext==0.9.1; sys_platform == 'linux'
