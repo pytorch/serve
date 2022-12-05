@@ -92,8 +92,7 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
                     )
                 except RuntimeError as error:
                     logger.warning(
-                        "HuggingFace Optimum is not supporting this model,for the list of supported models, please refer to this doc, 
-                         https://huggingface.co/docs/optimum/bettertransformer/overview"
+                        "HuggingFace Optimum is not supporting this model,for the list of supported models, please refer to this doc,https://huggingface.co/docs/optimum/bettertransformer/overview"
                     )
             # HF GPT2 models options can be gpt2, gpt2-medium, gpt2-large, gpt2-xl
             # this basically palce different model blocks on different devices,
