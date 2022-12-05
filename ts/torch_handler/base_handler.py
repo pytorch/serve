@@ -176,14 +176,14 @@ class BaseHandler(abc.ABC):
         backend = load_compiler_config(optimization_config)
 
         # PT 2.0 support is opt in
-        if check_pt2_enabled() and self.backend:
+        if check_pt2_enabled() and backend:
             # Compilation will delay your model initialization
             try:
                 torch.compile(self.model, backend=backend)
-                logger.info(f"Compiled {self.model} with backend {backend}")
+                logger.info(f"Compiled model with backend {backend}")
             except:
                 logger.warning(
-                    f"Compiling model {self.model} with backend {backend} has failed \n Proceeding without compilation"
+                    f"Compiling model model with backend {backend} has failed \n Proceeding without compilation"
                 )
 
         if ipex_enabled:
