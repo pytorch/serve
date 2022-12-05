@@ -998,3 +998,5 @@ NVfuser
 fuser
 ort
 sess
+BetterTransformer
+TransformerEncoder
