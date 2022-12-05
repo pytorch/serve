@@ -7,7 +7,7 @@ PyTorch 2.0 brings more compiler options to PyTorch, for you that should mean be
 Install torchserve with nightly torch binaries
 
 ```
-python ts_scripts/dependencies.py --cuda=cu117 --nightly_torch
+python ts_scripts/install_dependencies.py --cuda=cu117 --nightly_torch
 pip install torchserve torch-model-archiver
 ```
 

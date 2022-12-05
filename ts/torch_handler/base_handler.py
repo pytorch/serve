@@ -119,17 +119,18 @@ class BaseHandler(abc.ABC):
             serialized_file = self.manifest["model"]["serializedFile"]
             self.model_pt_path = os.path.join(model_dir, serialized_file)
 
-        if self.model_pt_path.endswith("onnx"):
-            try:
-                # import numpy as np
-                import onnxruntime as ort
-                import psutil
+        if self.model_pt_path:
+            if self.model_pt_path.endswith("onnx"):
+                try:
+                    # import numpy as np
+                    import onnxruntime as ort
+                    import psutil
 
-                onnx_enabled = True
-                logger.info("ONNX enabled")
-            except ImportError as error:
-                onnx_enabled = False
-                logger.warning("proceeding without onnxruntime")
+                    onnx_enabled = True
+                    logger.info("ONNX enabled")
+                except ImportError as error:
+                    onnx_enabled = False
+                    logger.warning("proceeding without onnxruntime")
 
         # model def file
         model_file = self.manifest["model"].get("modelFile", "")
