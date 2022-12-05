@@ -4,11 +4,11 @@ PyTorch 2.0 brings more compiler options to PyTorch, for you that should mean be
 
 ## Get started
 
-Install torchserve
+Install torchserve with nightly torch binaries
 
 ```
-python ts_scripts/dependencies.py --cuda=cu117 --nightly
-pip install torchserve
+python ts_scripts/dependencies.py --cuda=cu117 --nightly_torch
+pip install torchserve torch-model-archiver
 ```
 
 ## Package your model
