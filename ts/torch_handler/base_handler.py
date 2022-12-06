@@ -179,7 +179,7 @@ class BaseHandler(abc.ABC):
         if check_pt2_enabled() and backend:
             # Compilation will delay your model initialization
             try:
-                torch.compile(self.model, backend=backend)
+                self.model = torch.compile(self.model, backend=backend)
                 logger.info(f"Compiled model with backend {backend}")
             except:
                 logger.warning(
