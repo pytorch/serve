@@ -17,7 +17,7 @@ PyTorch 2.0 supports several compiler backends and you pick which one you want b
 
 `{"pt2" : "inductor"}`
 
-As an example let's expand our getting started gui  de with the only difference being passing in the extra `compile.json` file
+As an example let's expand our getting started guide with the only difference being passing in the extra `compile.json` file
 
 ```
 mkdir model_store
