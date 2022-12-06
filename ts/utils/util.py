@@ -70,7 +70,7 @@ def load_compiler_config(config_file_path):
         return mapping["pt2"]
     else:
         logger.warning(f"{mapping['pt2']} is not a supported backend")
-    return mapping["pt2"]
+    return None
 
 
 def load_label_mapping(mapping_file_path):
