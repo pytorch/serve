@@ -18,7 +18,6 @@ from ..utils.util import (
     load_label_mapping,
 )
 
-
 if packaging.version.parse(torch.__version__) >= packaging.version.parse("1.8.1"):
     from torch.profiler import ProfilerActivity, profile, record_function
 
@@ -33,6 +32,7 @@ logger = logging.getLogger(__name__)
 def check_pt2_enabled():
     try:
         import torch._dynamo
+
         pt2_enabled = True
         if torch.cuda.is_available():
             # If Ampere enable tensor cores which will give better performance
@@ -57,6 +57,7 @@ if os.environ.get("TS_IPEX_ENABLE", "false") == "true":
         logger.warning(
             "IPEX is enabled but intel-extension-for-pytorch is not installed. Proceeding without IPEX."
         )
+
 
 class BaseHandler(abc.ABC):
     """
@@ -180,7 +181,9 @@ class BaseHandler(abc.ABC):
         if check_pt2_enabled() and backend:
             # Compilation will delay your model initialization
             try:
-                self.model = torch.compile(self.model, backend=backend, mode="reduce-overhead")
+                self.model = torch.compile(
+                    self.model, backend=backend, mode="reduce-overhead"
+                )
                 logger.info(f"Compiled model with backend {backend}")
             except:
                 logger.warning(
