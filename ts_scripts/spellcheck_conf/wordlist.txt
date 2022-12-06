@@ -998,6 +998,8 @@ NVfuser
 fuser
 ort
 sess
+BetterTransformer
+TransformerEncoder
 InferenceTimeInMS
 MetricTypes
 MetricsCache
