@@ -35,7 +35,8 @@ def check_pt2_enabled():
         import torch._dynamo
         pt2_enabled = True
         if torch.cuda.is_available():
-            # If Ampere enable tensor cores and ideally get yourself an A10G or A100
+            # If Ampere enable tensor cores which will give better performance
+            # Ideally get yourself an A10G or A100 for optimal performance
             if torch.cuda.get_device_capability() >= (8, 0):
                 torch.backends.cuda.matmul.allow_tf32 = True
     except ImportError as error:
@@ -179,7 +180,7 @@ class BaseHandler(abc.ABC):
         if check_pt2_enabled() and backend:
             # Compilation will delay your model initialization
             try:
-                self.model = torch.compile(self.model, backend=backend)
+                self.model = torch.compile(self.model, backend=backend, mode="reduce-overhead")
                 logger.info(f"Compiled model with backend {backend}")
             except:
                 logger.warning(
