@@ -187,7 +187,7 @@ class BaseHandler(abc.ABC):
                     f"Compiling model model with backend {backend} has failed \n Proceeding without compilation"
                 )
 
-        if ipex_enabled:
+        elif ipex_enabled:
             self.model = self.model.to(memory_format=torch.channels_last)
             self.model = ipex.optimize(self.model)
 
