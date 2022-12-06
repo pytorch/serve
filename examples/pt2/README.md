@@ -17,7 +17,7 @@ PyTorch 2.0 supports several compiler backends and you pick which one you want b
 
 `{"pt2" : "inductor"}`
 
-As an example let's expand our getting started guidde with the only difference being passing in the extra `compile.json` file
+As an example let's expand our getting started gui  de with the only difference being passing in the extra `compile.json` file
 
 ```
 mkdir model_store
@@ -25,7 +25,7 @@ torch-model-archiver --model-name densenet161 --version 1.0 --model-file ./serve
 torchserve --start --ncs --model-store model_store --models densenet161.mar
 ```
 
-The exact same approach works with any other mdoel, what's going on is the beelow
+The exact same approach works with any other model, what's going on is the below
 
 ```python
 # 1. Convert a regular module to an optimized module
