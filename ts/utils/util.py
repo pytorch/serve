@@ -59,7 +59,7 @@ def load_compiler_config(config_file_path):
     Can be extended to also support kwargs for ONNX and TensorRT
     """
     if not os.path.isfile(config_file_path):
-        logger.warning(f"{config_file_path} is missing. PT 2.0 will not be used")
+        logger.info(f"{config_file_path} is missing. PT 2.0 will not be used")
         return None
 
     with open(config_file_path) as f:
