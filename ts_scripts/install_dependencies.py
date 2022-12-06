@@ -55,7 +55,7 @@ class Common:
         # developer.txt also installs packages from common.txt
         os.system(f"{sys.executable} -m pip install -U -r {requirements_file_path}")
         # If conda is available install conda-build package
-        
+
         # TODO: This will run 2 installations for torch but to make this cleaner we should first refactor all of our requirements.txt into just 2 files
         # And then make torch an optional dependency for the common.txt
         if nightly:
