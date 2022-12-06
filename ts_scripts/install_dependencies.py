@@ -60,7 +60,7 @@ class Common:
         # And then make torch an optional dependency for the common.txt
         if nightly:
             os.system(
-                f"pip3 install numpy --pre torch[dynamo] torchvision torchtext torchaudio --force-reinstall --extra-index-url https://download.pytorch.org/whl/nightly/cu117"
+                f"pip3 install numpy --pre torch[dynamo] torchvision torchtext torchaudio --force-reinstall --extra-index-url https://download.pytorch.org/whl/nightly/{cuda_version}"
             )
 
     def install_node_packages(self):
