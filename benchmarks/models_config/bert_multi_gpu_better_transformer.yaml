@@ -1,6 +1,6 @@
 ---
 bert_bt:
-    scripted_mode:
+    eager_mode:
         benchmark_engine: "ab"
         url: https://torchserve.pytorch.org/mar_files/BERTSeqClassification-BT.mar
         workers:
@@ -11,6 +11,9 @@ bert_bt:
             - 2
             - 4
             - 8
+            - 16
+            - 32
+            - 64
         input: "./examples/Huggingface_Transformers/Seq_classification_artifacts/sample_text_captum_input.txt"
         requests: 10000
         concurrency: 100
