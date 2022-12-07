@@ -10,6 +10,7 @@
 # or a list of model configure yaml files with full path
 models:
     - "bert_multi_gpu.yaml"
+    - "bert_multi_gpu_better_transformer.yaml"
     - "fastrcnn.yaml"
     - "mnist.yaml"
     - "vgg16.yaml"
