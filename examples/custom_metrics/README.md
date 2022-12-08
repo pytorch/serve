@@ -64,7 +64,7 @@ Run the commands given in following steps from the parent directory of the root 
   The inference request logs the time taken for prediction to the model_metrics.log file.
   Mtail parses the file and is served at 3903 port
 
-  http://localhost:3903
+  `http://localhost:3903`
 
 - Step 8: Sart Prometheus with mtailtarget added to scarpe config
 

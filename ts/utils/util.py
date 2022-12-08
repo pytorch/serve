@@ -1,12 +1,27 @@
 """
 Utility functions for TorchServe
 """
+import enum
 import inspect
 import itertools
 import json
 import logging
 import os
 import re
+
+
+class PT2Backend(str, enum.Enum):
+    EAGER = "eager"
+    AOT_EAGER = "aot_eager"
+    INDUCTOR = "inductor"
+    NVFUSER = "nvfuser"
+    AOT_NVFUSER = "aot_nvfuser"
+    AOT_CUDAGRAPHS = "aot_cudagraphs"
+    OFI = "ofi"
+    FX2TRT = "fx2trt"
+    ONNXRT = "onnxrt"
+    IPEX = "ipex"
+
 
 logger = logging.getLogger(__name__)
 
@@ -36,6 +51,26 @@ def list_classes_from_module(module, parent_class=None):
         return [c for c in classes if issubclass(c, parent_class)]
 
     return classes
+
+
+def load_compiler_config(config_file_path):
+    """
+    Load a compiler {compiler_name -> compiler }
+    Can be extended to also support kwargs for ONNX and TensorRT
+    """
+    if not os.path.isfile(config_file_path):
+        logger.info(f"{config_file_path} is missing. PT 2.0 will not be used")
+        return None
+
+    with open(config_file_path) as f:
+        mapping = json.load(f)
+
+    backend_values = [member.value for member in PT2Backend]
+    if mapping["pt2"] in backend_values:
+        return mapping["pt2"]
+    else:
+        logger.warning(f"{mapping['pt2']} is not a supported backend")
+    return None
 
 
 def load_label_mapping(mapping_file_path):

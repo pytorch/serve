@@ -11,6 +11,7 @@ from ts.metrics.metric import Metric
 
 class MetricsStore(object):
     """
+    DEPRECATED
     Class for creating, modifying different metrics. And keep them in a dictionary
     """
 

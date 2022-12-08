@@ -1,13 +1,12 @@
-
-
 """
 Metric class for model server
 """
-import time
 import socket
-from collections import OrderedDict
-
+import time
 from builtins import str
+from collections import OrderedDict
+from ts.metrics.caching_metric import CachingMetric
+from ts.metrics.metric_type_enum import MetricTypes
 
 from ts.metrics.unit import Units
 
@@ -19,8 +18,15 @@ class Metric(object):
     Class for generating metrics and printing it to stdout of the worker
     """
 
-    def __init__(self, name, value,
-                 unit, dimensions, request_id=None, metric_method=None):
+    def __init__(
+        self,
+        name,
+        value,
+        unit,
+        dimensions,
+        request_id=None,
+        metric_method=None,
+    ):
         """
         Constructor for Metric class
 
@@ -42,13 +48,20 @@ class Metric(object):
            useful for defining different operations, optional
 
         """
-        self.name = name
-        self.unit = unit
-        if unit in list(MetricUnit.units.keys()):
-            self.unit = MetricUnit.units[unit]
+        self.metric_type = MetricTypes.COUNTER
+        self.dimensions = dimensions
+        self.dimension_names = [dim.name for dim in dimensions]
+        self.dimension_values = [dim.value for dim in dimensions]
+        self._caching_metric = CachingMetric(
+            metric_name=name,
+            unit=unit,
+            dimension_names=self.dimension_names,
+            metric_type=self.metric_type,
+        )
+        self.name = self._caching_metric.metric_name
+        self.unit = self._caching_metric.unit
         self.metric_method = metric_method
         self.value = value
-        self.dimensions = dimensions
         self.request_id = request_id
 
     def update(self, value):
@@ -60,28 +73,36 @@ class Metric(object):
         value : int, float
             metric to be updated
         """
+        self._caching_metric.add_or_update(value, self.dimension_values, request_id=self.request_id)
 
-        if self.metric_method == 'counter':
-            self.value += value
-        else:
-            self.value = value
+    def reset(self):
+        """
+        Reset Metric value to 0
+        """
+        self._caching_metric.add_or_update(0, self.dimension_values, request_id=self.request_id)
 
     def __str__(self):
         dims = ",".join([str(d) for d in self.dimensions])
         if self.request_id:
-            return "{}.{}:{}|#{}|#hostname:{},{},{}".format(
-                self.name, self.unit, self.value, dims, socket.gethostname(),
-                int(time.time()), self.request_id)
+            return (
+                f"{self.name}.{self.unit}:{self.value}|#{dims}|#hostname:{socket.gethostname()},"
+                f"{int(time.time())},{self.request_id}"
+            )
 
-        return "{}.{}:{}|#{}|#hostname:{},{}".format(
-            self.name, self.unit, self.value, dims, socket.gethostname(), int(time.time()))
+        return f"{self.name}.{self.unit}:{self.value}|#{dims}|#hostname:{socket.gethostname()},{int(time.time())}"
 
     def to_dict(self):
         """
         return an Ordered Dictionary
         """
-        return OrderedDict({'MetricName': self.name, 'Value': self.value, 'Unit': self.unit,
-                            'Dimensions': self.dimensions,
-                            'Timestamp': int(time.time()),
-                            'HostName': socket.gethostname(),
-                            'RequestId': self.request_id})
+        return OrderedDict(
+            {
+                "MetricName": self.name,
+                "Value": self.value,
+                "Unit": self.unit,
+                "Dimensions": self.dimensions,
+                "Timestamp": int(time.time()),
+                "HostName": socket.gethostname(),
+                "RequestId": self.request_id,
+            }
+        )

@@ -27,9 +27,9 @@ If you installed using pip, then you need install Pyav :
 
 `pip install av`
 
-MMF currenly is using Transformers 3.4.0, in case you have other version installed in your enviroment, this would be the best instead of installing it directly, add the MMF Github and 'av', in the requirements.txt and pass it to the model archiver using -r flag. You can read more about serving models with thrid party dependencies [here](https://github.com/pytorch/serve/tree/master/docs/use_cases.md#serve-custom-models-with-third-party-dependency).
+MMF currently is using Transformers 3.4.0, in case you have other version installed in your environment, this would be the best instead of installing it directly, add the MMF Github and 'av', in the requirements.txt and pass it to the model archiver using -r flag. You can read more about serving models with third party dependencies [here](https://github.com/pytorch/serve/tree/master/docs/use_cases.md#serve-custom-models-with-third-party-dependency).
 
-***Note, MMF currenly does not support Pytorch 1.10, please make sure you are using Pytorch 1.9***
+***Note, MMF currently does not support Pytorch 1.10, please make sure you are using Pytorch 1.9***
 
 #### Getting started on Serving
 
@@ -104,7 +104,7 @@ In the following we discuss each of the steps in more details.
 
 #### New Dataset
 
-In this example Charades dataset has been used which is a video dataset added in the [dataset zoo](https://github.com/facebookresearch/mmf/tree/master/mmf/datasets/builders/charades). We can define a new dataset in MMF by following this [guide](https://mmf.sh/docs/tutorials/dataset). **To add a new dataset**, we need to define a new dataset class which extends the Basedataset class from  mmf.datasets.base_dataset, where we need to override three methods, __init__, __getitem__ and __len__. These methods basically define how to initialize ( set the path to the dataset), get each item from the dataset and then provide the length of the dataset. The Charades dataset class can be found [here](https://github.com/facebookresearch/mmf/tree/master/mmf/datasets/builders/charades/dataset.py#L16).  Also, we are able to set the [processors](https://github.com/facebookresearch/mmf/tree/master/mmf/configs/datasets/charades/defaults.yaml#L22) in the dataset config file and intialize them in the dataset class. 
+In this example Charades dataset has been used which is a video dataset added in the [dataset zoo](https://github.com/facebookresearch/mmf/tree/master/mmf/datasets/builders/charades). We can define a new dataset in MMF by following this [guide](https://mmf.sh/docs/tutorials/dataset). **To add a new dataset**, we need to define a new dataset class which extends the Basedataset class from  mmf.datasets.base_dataset, where we need to override three methods, __init__, __getitem__ and __len__. These methods basically define how to initialize ( set the path to the dataset), get each item from the dataset and then provide the length of the dataset. The Charades dataset class can be found [here](https://github.com/facebookresearch/mmf/tree/master/mmf/datasets/builders/charades/dataset.py#L16).  Also, we are able to set the [processors](https://github.com/facebookresearch/mmf/tree/master/mmf/configs/datasets/charades/defaults.yaml#L22) in the dataset config file and initialize them in the dataset class. 
 
 The **next step** is to define a dataset builder class which extends the "BaseDatasetBuilder" class from mmf.datasets.base_dataset_builder. In this class essentially we need to override three methods, __init__, __build__ and __load__. Where in the __init __ method, the dataset class name is set (as we defined in the previous step), the __build__ method, is responsible for downloading the dataset and __load__ method is taking care of   loading the dataset, builds an object of class inheriting "BaseDataset" which contains your dataset logic and returns it. The dataset builder code is also available [here](https://github.com/facebookresearch/mmf/tree/master/mmf/datasets/builders/charades/builder.py).
 

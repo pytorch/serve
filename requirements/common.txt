@@ -3,7 +3,7 @@ psutil
 cython
 wheel
 requests
-pillow==9.0.1
+pillow==9.3.0
 captum
 packaging
 mypy
@@ -11,3 +11,4 @@ numpy; sys_platform != 'win32'
 numpy==1.19.3; sys_platform == 'win32' #see https://tinyurl.com/y3dm3h86
 nvgpu; sys_platform != 'win32'
 nvgpu==0.8.0; sys_platform == 'win32'
+pyyaml

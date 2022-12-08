@@ -9,9 +9,9 @@ on:
       - master
 
 jobs:
-  pre-commit:
-    runs-on: ubuntu-latest
-    name: Test changed-files
+  build:
+    runs-on: ubuntu-20.04
+    name: Lint changed files
     steps:
       - uses: actions/checkout@v3
         with:
@@ -22,16 +22,23 @@ jobs:
           pip install pre-commit
           pre-commit install
 
-      - name: Get specific changed files
-        id: changed-files-specific
-        uses: tj-actions/changed-files@v20.1
+      - name: Check links in all markdown files
+        uses: gaurav-nelson/github-action-markdown-link-check@1.0.13
         with:
+          use-verbose-mode: 'yes'
+          config-file: "ts_scripts/markdown_link_check_config.json"
+
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v29.0.4
+        with:
+
           files: |
             **/*.py
 
       - name: Lint all changed files
         run: |
-          for file in ${{ steps.changed-files-specific.outputs.all_changed_files }}; do
+          for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
             pre-commit run --files $file
           done
 
@@ -43,6 +50,7 @@ jobs:
           echo "cd serve/"
           echo "pre-commit install"
           echo "pre-commit will lint your code for you, so git add and commit those new changes and this check should become green"
+
   mypy:
     runs-on: ubuntu-latest
     steps:
@@ -71,3 +79,38 @@ jobs:
             echo 'Please fix the above mypy warnings.'
             false
           fi
+          
+  spellcheck:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get install aspell aspell-en
+          pip install pyspelling
+
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v29.0.4
+        with:
+          files: |
+            **/*.md
+
+      - name: Check spellings
+        run: |
+          sources=""
+          for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
+            sources="${sources} -S $file"
+          done
+          if [ ! "$sources" ]; then
+            echo "No files to spellcheck"
+          else
+            pyspelling -c $GITHUB_WORKSPACE/ts_scripts/spellcheck_conf/spellcheck.yaml --name Markdown $sources
+          fi
+
+      - name: In the case of misspellings
+        if: ${{ failure() }}
+        run: |
+          echo "Please fix the misspellings. If you are sure about some of them, "
+          echo "so append those to ts_scripts/spellcheck_conf/wordlist.txt"
