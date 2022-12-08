@@ -81,11 +81,14 @@ class BaseHandler(abc.ABC):
     def initialize(self, context):
         """Initialize function loads the model.pt file and initialized the model object.
            First try to load torchscript else load eager mode state_dict based model.
+
         Args:
             context (context): It is a JSON Object containing information
             pertaining to the model artifacts parameters.
+
         Raises:
             RuntimeError: Raises the Runtime error when the model.py is missing
+
         """
         ipex_enabled = False
         if os.environ.get("TS_IPEX_ENABLE", "false") == "true":
@@ -201,8 +204,10 @@ class BaseHandler(abc.ABC):
 
     def _load_torchscript_model(self, model_pt_path):
         """Loads the PyTorch model and returns the NN model object.
+
         Args:
             model_pt_path (str): denotes the path of the model file.
+
         Returns:
             (NN Model Object) : Loads the model object.
         """
@@ -211,14 +216,17 @@ class BaseHandler(abc.ABC):
     def _load_pickled_model(self, model_dir, model_file, model_pt_path):
         """
         Loads the pickle file from the given model path.
+
         Args:
             model_dir (str): Points to the location of the model artefacts.
             model_file (.py): the file which contains the model class.
             model_pt_path (str): points to the location of the model pickle file.
+
         Raises:
             RuntimeError: It raises this error when the model.py file is missing.
             ValueError: Raises value error when there is more than one class in the label,
                         since the mapping supports only one label per class.
+
         Returns:
             serialized model file: Returns the pickled pytorch model file
         """
@@ -246,8 +254,10 @@ class BaseHandler(abc.ABC):
         """
         Preprocess function to convert the request input to a tensor(Torchserve supported format).
         The user needs to override to customize the pre-processing
+
         Args :
             data (list): List of the data from the request input.
+
         Returns:
             tensor: Returns the tensor data of the input
         """
@@ -258,9 +268,11 @@ class BaseHandler(abc.ABC):
         """
         The Inference Function is used to make a prediction call on the given input request.
         The user needs to override the inference function to customize it.
+
         Args:
             data (Torch Tensor): A Torch Tensor is passed to make the Inference Request.
             The shape should match the model input shape.
+
         Returns:
             Torch Tensor : The Predicted Torch Tensor is returned in this function.
         """
@@ -273,8 +285,10 @@ class BaseHandler(abc.ABC):
         """
         The post process function makes use of the output from the inference and converts into a
         Torchserve supported response output.
+
         Args:
             data (Torch Tensor): The torch tensor received from the prediction output of the model.
+
         Returns:
             List: The post process function returns a list of the predicted output.
         """
@@ -284,10 +298,12 @@ class BaseHandler(abc.ABC):
     def handle(self, data, context):
         """Entry point for default handler. It takes the data from the input request and returns
            the predicted outcome for the input.
+
         Args:
             data (list): The input data that needs to be made a prediction request on.
             context (Context): It is a JSON Object containing information pertaining to
                                the model artefacts parameters.
+
         Returns:
             list : Returns a list of dictionary with the predicted response.
         """
@@ -328,8 +344,10 @@ class BaseHandler(abc.ABC):
 
     def _infer_with_profiler(self, data):
         """Custom method to generate pytorch profiler traces for preprocess/inference/postprocess
+
         Args:
             data (list): The input data that needs to be made a prediction request on.
+
         Returns:
             output : Returns a list of dictionary with the predicted response.
             prof: pytorch profiler object
@@ -375,9 +393,11 @@ class BaseHandler(abc.ABC):
 
     def explain_handle(self, data_preprocess, raw_data):
         """Captum explanations handler
+
         Args:
             data_preprocess (Torch Tensor): Preprocessed data to be used for captum
             raw_data (list): The unprocessed data to get target from the request
+
         Returns:
             dict : A dictionary response with the explanations response.
         """
@@ -412,6 +432,7 @@ class BaseHandler(abc.ABC):
 
     def describe_handle(self):
         """Customized describe handler
+
         Returns:
             dict : A dictionary response.
         """
