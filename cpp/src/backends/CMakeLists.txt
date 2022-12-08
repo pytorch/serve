@@ -24,7 +24,7 @@ install(TARGETS ts_backends_core DESTINATION ${torchserve_cpp_SOURCE_DIR}/_build
 
 #add libtorchtext library
 add_library(torchtext SHARED IMPORTED)
-set_target_properties( torchtext PROPERTIES IMPORTED_LOCATION "${torchserve_cpp_SOURCE_DIR}/../ts/cpp/lib/libtorchtext.so")
+set_target_properties( torchtext PROPERTIES IMPORTED_LOCATION "${torchserve_cpp_SOURCE_DIR}/lib/libtorchtext.so")
 target_link_libraries(torchtext INTERFACE ${TORCH_LIBRARIES})
 
 # build library ts_backend_torch_scripted
@@ -32,7 +32,7 @@ set(TS_BACKENDS_TORCH_SCRIPTED_SOURCE_FILES "")
 list(APPEND TS_BACKENDS_TORCH_SCRIPTED_SOURCE_FILES ${TS_BACKENDS_TORCH_SCRIPTED_SRC_DIR}/torch_scripted_backend.cc)
 list(APPEND TS_BACKENDS_TORCH_SCRIPTED_SOURCE_FILES ${TS_BACKENDS_TORCH_SCRIPTED_SRC_DIR}/handler/base_handler.cc)
 add_library(ts_backends_torch_scripted SHARED ${TS_BACKENDS_TORCH_SCRIPTED_SOURCE_FILES})
-target_include_directories(ts_backends_torch_scripted PUBLIC 
+target_include_directories(ts_backends_torch_scripted PUBLIC
   ${TS_BACKENDS_TORCH_SCRIPTED_SRC_DIR} ${TS_BACKENDS_TORCH_SCRIPTED_SRC_DIR}/handler ${TORCH_INCLUDE_DIRS})
 target_link_libraries(ts_backends_torch_scripted PUBLIC ts_utils ts_backends_core torchtext ${TORCH_LIBRARIES})
 set_target_properties(ts_backends_torch_scripted PROPERTIES LINK_WHAT_YOU_USE "TRUE")
@@ -43,19 +43,19 @@ install(TARGETS ts_backends_torch_scripted DESTINATION ${torchserve_cpp_SOURCE_D
 #set(TS_BACKENDS_TORCH_DEPLOY_SOURCE_FILES "")
 #add_library(ts_backends_torch_deploy SHARED ${TS_BACKENDS_TORCH_DEPLOY_SOURCE_FILES})
 #target_include_directories(ts_backends_torch_deploy PUBLIC ${TS_BACKENDS_TORCH_DEPLOY_SRC_DIR})
-#target_link_libraries(ts_backends_torch_deploy PRIVATE ts_utils ts_backends_core ${TORCH_LIBRARIES}) 
+#target_link_libraries(ts_backends_torch_deploy PRIVATE ts_utils ts_backends_core ${TORCH_LIBRARIES})
 
 # build exe model_worker_socket
-add_executable(model_worker_socket 
+add_executable(model_worker_socket
   "${TS_BACKENDS_PROCESS_SRC_DIR}/model_worker_socket.cc"
   "${TS_BACKENDS_PROCESS_SRC_DIR}/model_worker.cc"
 )
-target_include_directories(model_worker_socket PRIVATE 
+target_include_directories(model_worker_socket PRIVATE
   ${TS_BACKENDS_CORE_SRC_DIR}
-  ${TS_BACKENDS_PROTOCOL_SRC_DIR} 
-  ${TS_BACKENDS_PROCESS_SRC_DIR} 
-  ${TS_BACKENDS_TORCH_SCRIPTED_SRC_DIR} 
+  ${TS_BACKENDS_PROTOCOL_SRC_DIR}
+  ${TS_BACKENDS_PROCESS_SRC_DIR}
+  ${TS_BACKENDS_TORCH_SCRIPTED_SRC_DIR}
 )
-target_link_libraries(model_worker_socket 
+target_link_libraries(model_worker_socket
   PRIVATE ts_backends_core ts_backends_protocol ts_backends_torch_scripted ${FOLLY_LIBRARIES})
 install(TARGETS model_worker_socket DESTINATION ${torchserve_cpp_SOURCE_DIR}/_build/bin)

@@ -141,7 +141,7 @@ function install_libtorchtext() {
   TORCHTEXT_SRC_DIR=$BASE_DIR/third-party/text
   TORCHTEXT_BUILD_DIR=$BASE_DIR/third-party/text/examples/libtorchtext/build
   TORCHTEXT_SO_FILE=$TORCHTEXT_BUILD_DIR/libtorchtext/torchtext/csrc/libtorchtext.so
-  TARGET_SO_FILE=$BASE_DIR/../ts/cpp/lib/libtorchtext.so
+  TARGET_SO_FILE=$BASE_DIR/lib/libtorchtext.so
   TEXT_CLASSIFIER_DIR=$BASE_DIR/test/resources/torchscript_model/text_classifier
   TOKENIZER_PT_FILE=$TEXT_CLASSIFIER_DIR/text_classifier_handler/tokenizer.pt
 
@@ -156,14 +156,14 @@ function install_libtorchtext() {
     git checkout cpp_abi
   fi
 
-  if [ ! -d "$TORCHTEXT_BUILD_DIR" ] ; then
+  #if [ ! -d "$TORCHTEXT_BUILD_DIR" ] ; then
     echo -e "${COLOR_GREEN}[ INFO ] Building libtorchtext ${COLOR_OFF}"
     cd $TORCHTEXT_SRC_DIR/examples/libtorchtext
 
-    TORCHSERVE_CPP_PATH=$BASE_DIR/../ts/cpp/ ./build.sh
-    
+    TORCHSERVE_CPP_PATH=$BASE_DIR ./build.sh
+
     echo -e "${COLOR_GREEN}[ INFO ] libtorchtext is installed ${COLOR_OFF}"
-  fi
+  #fi
 
   if [ ! -f "$TARGET_SO_FILE" ] ; then
     echo -e "${COLOR_GREEN}[ INFO ] Copying libtorchtext.so ${COLOR_OFF}"
@@ -363,6 +363,12 @@ function symlink_torch_libs() {
   fi
 }
 
+function symlink_torchtext_lib() {
+  if [ "$PLATFORM" = "Linux" ]; then
+    ln -sf ${BASE_DIR}/third-party/text/examples/libtorchtext/build/libtorchtext/torchtext/csrc/*.so* ${BUILD_DIR}/libs/
+  fi
+}
+
 function symlink_yaml_cpp_lib() {
   if [ "$PLATFORM" = "Linux" ]; then
     ln -sf ${DEPS_DIR}/yaml-cpp-build/*.so* ${LIBS_DIR}
@@ -446,3 +452,4 @@ install_yaml_cpp
 build
 symlink_torch_libs
 symlink_yaml_cpp_lib
+symlink_torchtext_lib

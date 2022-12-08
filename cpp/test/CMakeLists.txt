@@ -10,7 +10,7 @@ enable_testing()
 
 #add libtorchtext library
 add_library(torchtext SHARED IMPORTED)
-set_target_properties( torchtext PROPERTIES IMPORTED_LOCATION "${torchserve_cpp_SOURCE_DIR}/../ts/cpp/lib/libtorchtext.so")
+set_target_properties( torchtext PROPERTIES IMPORTED_LOCATION "${torchserve_cpp_SOURCE_DIR}/lib/libtorchtext.so")
 target_link_libraries(torchtext INTERFACE ${TORCH_LIBRARIES})
 
 
