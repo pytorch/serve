@@ -6,10 +6,10 @@ jobs:
   build_docs_job:
     runs-on: ubuntu-20.04
     steps:
-    - name: Setup Python 3.8
+    - name: Setup Python 3.10
       uses: actions/setup-python@v4
       with:
-        python-version: 3.8
+        python-version: 3.10.8
         architecture: x64
     - name: Checkout
       uses: actions/checkout@v3

@@ -1,6 +1,6 @@
 name: Run Regression Tests on GPU
 
-on: push
+on: workflow_dispatch
 
 jobs:
   regression-gpu:
@@ -24,7 +24,7 @@ jobs:
       - name: Check git version
         run: git --version
       - name: Setup Python 3.10
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v4
         with:
           python-version: 3.10.8
           architecture: x64
