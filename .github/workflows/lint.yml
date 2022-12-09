@@ -51,35 +51,6 @@ jobs:
           echo "pre-commit install"
           echo "pre-commit will lint your code for you, so git add and commit those new changes and this check should become green"
 
-  mypy:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout torchserve
-        uses: actions/checkout@v3
-      - name: Install dependencies
-        run: |
-          python ts_scripts/install_dependencies.py --environment=dev
-      - name: Install torchserve
-        run: |
-          python ts_scripts/install_from_src.py
-      - name: Install mypy
-        run: |
-          pip install mypy
-      - name: Run mypy
-        env:
-          MYPY_FORCE_COLOR: 1
-          TERM: xterm-color
-        run: |
-          set -eux
-          STATUS=
-          if ! mypy --config=mypy.ini; then
-            STATUS=fail
-          fi
-          if [ -n "$STATUS" ]; then
-            echo 'Please fix the above mypy warnings.'
-            false
-          fi
-          
   spellcheck:
     runs-on: ubuntu-20.04
     steps:
