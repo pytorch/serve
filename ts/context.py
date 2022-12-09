@@ -58,16 +58,16 @@ class Context(object):
     def metrics(self, metrics):
         self._metrics = metrics
 
-    def get_request_id(self, idx=0):
+    def get_request_id(self, idx: int = 0) -> Optional[str]:
         return self.request_ids.get(idx)
 
-    def get_request_header(self, idx, key):
+    def get_request_header(self, idx: int, key: str) -> Optional[str]:
         return self._request_processor[idx].get_request_property(key)
 
-    def get_all_request_header(self, idx):
+    def get_all_request_header(self, idx: int) -> Dict[str, str]:
         return self._request_processor[idx].get_request_properties()
 
-    def set_response_content_type(self, idx, value):
+    def set_response_content_type(self, idx: int, value: str) -> None:
         self.set_response_header(idx, "content-type", value)
 
     def get_response_content_type(self, idx: int) -> str:
@@ -103,7 +103,7 @@ class Context(object):
         for idx, _ in enumerate(self._request_processor):
             self._request_processor[idx].report_status(code, reason_phrase=phrase)
 
-    def get_response_headers(self, idx):
+    def get_response_headers(self, idx: int) -> Dict[str, str]:
         return self._request_processor[idx].get_response_headers()
 
     def set_response_header(self, idx, key, value):
