@@ -59,6 +59,8 @@ class Context(object):
         self._metrics = metrics
 
     def get_request_id(self, idx: int = 0) -> Optional[str]:
+        if self.request_ids is None:
+            return None
         return self.request_ids.get(idx)
 
     def get_request_header(self, idx: int, key: str) -> Optional[str]:
@@ -70,7 +72,7 @@ class Context(object):
     def set_response_content_type(self, idx: int, value: str) -> None:
         self.set_response_header(idx, "content-type", value)
 
-    def get_response_content_type(self, idx: int) -> str:
+    def get_response_content_type(self, idx: int) -> Optional[str]:
         return self.get_response_headers(idx).get("content-type")
 
     def get_response_status(self, idx: int) -> Tuple[int, str]:
