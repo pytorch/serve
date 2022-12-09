@@ -1,10 +1,9 @@
-
-
 """
 Context object of incoming request
 """
 
-from typing import Tuple, Optional, Dict
+from typing import Dict, Optional, Tuple
+
 
 class Context(object):
     """
@@ -69,16 +68,18 @@ class Context(object):
         return self._request_processor[idx].get_request_properties()
 
     def set_response_content_type(self, idx, value):
-        self.set_response_header(idx, 'content-type', value)
+        self.set_response_header(idx, "content-type", value)
 
-    def get_response_content_type(self, idx : int) -> str:
-        return self.get_response_headers(idx).get('content-type')
+    def get_response_content_type(self, idx: int) -> str:
+        return self.get_response_headers(idx).get("content-type")
 
-    def get_response_status(self, idx : int) -> Tuple[int, str]:
-        return self._request_processor[idx].get_response_status_code(), \
-               self._request_processor[idx].get_response_status_phrase()
+    def get_response_status(self, idx: int) -> Tuple[int, str]:
+        return (
+            self._request_processor[idx].get_response_status_code(),
+            self._request_processor[idx].get_response_status_phrase(),
+        )
 
-    def set_response_status(self, code : int = 200, phrase : str ="", idx  : int=0):
+    def set_response_status(self, code: int = 200, phrase: str = "", idx: int = 0):
         """
         Set the status code of individual requests
         :param phrase:
@@ -86,11 +87,13 @@ class Context(object):
         :param code:
         :return:
         """
-        if self._request_processor is not None and self._request_processor[idx] is not None:
-            self._request_processor[idx].report_status(code,
-                                                       reason_phrase=phrase)
+        if (
+            self._request_processor is not None
+            and self._request_processor[idx] is not None
+        ):
+            self._request_processor[idx].report_status(code, reason_phrase=phrase)
 
-    def set_all_response_status(self, code : int = 200, phrase : str = "") -> None:
+    def set_all_response_status(self, code: int = 200, phrase: str = "") -> None:
         """
         Set the status code of individual requests
         :param phrase:
@@ -108,7 +111,7 @@ class Context(object):
 
     # TODO: Should we add "add_header()" interface, to have multiple values for a single header. EG: Accept headers.
 
-    def __eq__(self, other : object) -> bool:
+    def __eq__(self, other: object) -> bool:
         return isinstance(other, Context) and self.__dict__ == other.__dict__
 
 
@@ -117,10 +120,10 @@ class RequestProcessor(object):
     Request processor
     """
 
-    def __init__(self, request_header : dict) -> None:
+    def __init__(self, request_header: dict) -> None:
         self._status_code = 200
         self._reason_phrase = None
-        self._response_header : Dict[str, str] = {}
+        self._response_header: Dict[str, str] = {}
         self._request_header = request_header
 
     def get_request_property(self, key: str) -> Optional[str]:
@@ -136,13 +139,13 @@ class RequestProcessor(object):
     def get_response_status_phrase(self) -> Optional[str]:
         return self._reason_phrase
 
-    def add_response_property(self, key : str, value : str) -> None:
+    def add_response_property(self, key: str, value: str) -> None:
         self._response_header[key] = value
 
     def get_response_headers(self) -> dict:
         return self._response_header
 
-    def get_response_header(self, key : str) -> Optional[str]:
+    def get_response_header(self, key: str) -> Optional[str]:
         return self._response_header.get(key)
 
     def get_request_properties(self) -> dict:
