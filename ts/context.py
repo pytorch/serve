@@ -4,6 +4,7 @@
 Context object of incoming request
 """
 
+from typing import Tuple, Optional, Dict
 
 class Context(object):
     """
@@ -70,14 +71,14 @@ class Context(object):
     def set_response_content_type(self, idx, value):
         self.set_response_header(idx, 'content-type', value)
 
-    def get_response_content_type(self, idx):
+    def get_response_content_type(self, idx : int) -> str:
         return self.get_response_headers(idx).get('content-type')
 
-    def get_response_status(self, idx):
+    def get_response_status(self, idx : int) -> Tuple[int, str]:
         return self._request_processor[idx].get_response_status_code(), \
                self._request_processor[idx].get_response_status_phrase()
 
-    def set_response_status(self, code=200, phrase="", idx=0):
+    def set_response_status(self, code : int = 200, phrase : str ="", idx  : int=0):
         """
         Set the status code of individual requests
         :param phrase:
@@ -89,7 +90,7 @@ class Context(object):
             self._request_processor[idx].report_status(code,
                                                        reason_phrase=phrase)
 
-    def set_all_response_status(self, code=200, phrase=""):
+    def set_all_response_status(self, code : int = 200, phrase : str = "") -> None:
         """
         Set the status code of individual requests
         :param phrase:
@@ -107,7 +108,7 @@ class Context(object):
 
     # TODO: Should we add "add_header()" interface, to have multiple values for a single header. EG: Accept headers.
 
-    def __eq__(self, other):
+    def __eq__(self, other : object) -> bool:
         return isinstance(other, Context) and self.__dict__ == other.__dict__
 
 
@@ -116,33 +117,33 @@ class RequestProcessor(object):
     Request processor
     """
 
-    def __init__(self, request_header):
+    def __init__(self, request_header : dict) -> None:
         self._status_code = 200
         self._reason_phrase = None
-        self._response_header = {}
+        self._response_header : Dict[str, str] = {}
         self._request_header = request_header
 
-    def get_request_property(self, key):
+    def get_request_property(self, key: str) -> Optional[str]:
         return self._request_header.get(key)
 
-    def report_status(self, code, reason_phrase=None):
+    def report_status(self, code, reason_phrase=None) -> None:
         self._status_code = code
         self._reason_phrase = reason_phrase
 
-    def get_response_status_code(self):
+    def get_response_status_code(self) -> int:
         return self._status_code
 
-    def get_response_status_phrase(self):
+    def get_response_status_phrase(self) -> Optional[str]:
         return self._reason_phrase
 
-    def add_response_property(self, key, value):
+    def add_response_property(self, key : str, value : str) -> None:
         self._response_header[key] = value
 
-    def get_response_headers(self):
+    def get_response_headers(self) -> dict:
         return self._response_header
 
-    def get_response_header(self, key):
+    def get_response_header(self, key : str) -> Optional[str]:
         return self._response_header.get(key)
 
-    def get_request_properties(self):
+    def get_request_properties(self) -> dict:
         return self._request_header
