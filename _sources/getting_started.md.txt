@@ -4,7 +4,7 @@
 
 1. Install dependencies
 
-    Note: For Conda, Python 3.8 is required to run Torchserve.
+    Note: For Conda, Python >=3.8 is required to run Torchserve.
 
     #### For Debian Based Systems/ MacOS
 
