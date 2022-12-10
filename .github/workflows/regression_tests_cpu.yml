@@ -1,6 +1,6 @@
 name: Run Regression Tests on CPU
 
-on: workflow_dipatch
+on: workflow_dispatch
 
 jobs:
   regression-cpu:
