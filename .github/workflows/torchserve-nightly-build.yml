@@ -13,16 +13,9 @@ jobs:
       matrix:
         os: [ubuntu-20.04, macOS-latest, windows-latest]
     steps:
-      - name: Setup Python 3.10
-        uses: actions/setup-python@v4
-        with:
-          python-version: 3.10.8
       - name: Setup Conda
         uses: s-weigand/setup-conda@v1
-        with:
-          activate-conda: false
       - run: conda --version
-      - run: python -V
       - run: conda install -y conda-build anaconda-client
       - name: Checkout TorchServe
         uses: actions/checkout@v3
