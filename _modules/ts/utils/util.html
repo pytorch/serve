@@ -356,12 +356,27 @@
 <span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Utility functions for TorchServe</span>
 <span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">enum</span>
 <span class="kn">import</span> <span class="nn">inspect</span>
 <span class="kn">import</span> <span class="nn">itertools</span>
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">re</span>
+
+
+<div class="viewcode-block" id="PT2Backend"><a class="viewcode-back" href="../../../api/ts.utils.html#ts.utils.util.PT2Backend">[docs]</a><span class="k">class</span> <span class="nc">PT2Backend</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">enum</span><span class="o">.</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">EAGER</span> <span class="o">=</span> <span class="s2">&quot;eager&quot;</span>
+    <span class="n">AOT_EAGER</span> <span class="o">=</span> <span class="s2">&quot;aot_eager&quot;</span>
+    <span class="n">INDUCTOR</span> <span class="o">=</span> <span class="s2">&quot;inductor&quot;</span>
+    <span class="n">NVFUSER</span> <span class="o">=</span> <span class="s2">&quot;nvfuser&quot;</span>
+    <span class="n">AOT_NVFUSER</span> <span class="o">=</span> <span class="s2">&quot;aot_nvfuser&quot;</span>
+    <span class="n">AOT_CUDAGRAPHS</span> <span class="o">=</span> <span class="s2">&quot;aot_cudagraphs&quot;</span>
+    <span class="n">OFI</span> <span class="o">=</span> <span class="s2">&quot;ofi&quot;</span>
+    <span class="n">FX2TRT</span> <span class="o">=</span> <span class="s2">&quot;fx2trt&quot;</span>
+    <span class="n">ONNXRT</span> <span class="o">=</span> <span class="s2">&quot;onnxrt&quot;</span>
+    <span class="n">IPEX</span> <span class="o">=</span> <span class="s2">&quot;ipex&quot;</span></div>
+
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -391,6 +406,26 @@
         <span class="k">return</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">classes</span> <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">parent_class</span><span class="p">)]</span>
 
     <span class="k">return</span> <span class="n">classes</span></div>
+
+
+<div class="viewcode-block" id="load_compiler_config"><a class="viewcode-back" href="../../../api/ts.utils.html#ts.utils.util.load_compiler_config">[docs]</a><span class="k">def</span> <span class="nf">load_compiler_config</span><span class="p">(</span><span class="n">config_file_path</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load a compiler {compiler_name -&gt; compiler }</span>
+<span class="sd">    Can be extended to also support kwargs for ONNX and TensorRT</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">config_file_path</span><span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">config_file_path</span><span class="si">}</span><span class="s2"> is missing. PT 2.0 will not be used&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">config_file_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">mapping</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+    <span class="n">backend_values</span> <span class="o">=</span> <span class="p">[</span><span class="n">member</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">member</span> <span class="ow">in</span> <span class="n">PT2Backend</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">mapping</span><span class="p">[</span><span class="s2">&quot;pt2&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">backend_values</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">mapping</span><span class="p">[</span><span class="s2">&quot;pt2&quot;</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">mapping</span><span class="p">[</span><span class="s1">&#39;pt2&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> is not a supported backend&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="kc">None</span></div>
 
 
 <div class="viewcode-block" id="load_label_mapping"><a class="viewcode-back" href="../../../api/ts.utils.html#ts.utils.util.load_label_mapping">[docs]</a><span class="k">def</span> <span class="nf">load_label_mapping</span><span class="p">(</span><span class="n">mapping_file_path</span><span class="p">):</span>
@@ -438,7 +473,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">probs</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Convert classes to list before doing mapping&quot;</span><span class="p">)</span>
-        
+
     <span class="k">if</span> <span class="n">mapping</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mapping</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Mapping must be a dict&quot;</span><span class="p">)</span>
 

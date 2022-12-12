@@ -367,7 +367,11 @@
 <span class="kn">import</span> <span class="nn">torch</span>
 <span class="kn">from</span> <span class="nn">pkg_resources</span> <span class="kn">import</span> <span class="n">packaging</span>
 
-<span class="kn">from</span> <span class="nn">..utils.util</span> <span class="kn">import</span> <span class="n">list_classes_from_module</span><span class="p">,</span> <span class="n">load_label_mapping</span>
+<span class="kn">from</span> <span class="nn">..utils.util</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">list_classes_from_module</span><span class="p">,</span>
+    <span class="n">load_compiler_config</span><span class="p">,</span>
+    <span class="n">load_label_mapping</span><span class="p">,</span>
+<span class="p">)</span>
 
 <span class="k">if</span> <span class="n">packaging</span><span class="o">.</span><span class="n">version</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">packaging</span><span class="o">.</span><span class="n">version</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="s2">&quot;1.8.1&quot;</span><span class="p">):</span>
     <span class="kn">from</span> <span class="nn">torch.profiler</span> <span class="kn">import</span> <span class="n">ProfilerActivity</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">record_function</span>
@@ -378,6 +382,36 @@
 
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="c1"># Possible values for backend in utils.py</span>
+<div class="viewcode-block" id="check_pt2_enabled"><a class="viewcode-back" href="../../../api/ts.torch_handler.html#ts.torch_handler.base_handler.check_pt2_enabled">[docs]</a><span class="k">def</span> <span class="nf">check_pt2_enabled</span><span class="p">():</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">import</span> <span class="nn">torch._dynamo</span>
+
+        <span class="n">pt2_enabled</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">():</span>
+            <span class="c1"># If Ampere enable tensor cores which will give better performance</span>
+            <span class="c1"># Ideally get yourself an A10G or A100 for optimal performance</span>
+            <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">get_device_capability</span><span class="p">()</span> <span class="o">&gt;=</span> <span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span>
+                <span class="n">torch</span><span class="o">.</span><span class="n">backends</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">matmul</span><span class="o">.</span><span class="n">allow_tf32</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="s2">&quot;dynamo/inductor are not installed. </span><span class="se">\n</span><span class="s2"> For GPU please run pip3 install numpy --pre torch[dynamo] --force-reinstall --extra-index-url https://download.pytorch.org/whl/nightly/cu117 </span><span class="se">\n</span><span class="s2"> for CPU please run pip3 install --pre torch --extra-index-url https://download.pytorch.org/whl/nightly/cpu&quot;</span>
+        <span class="p">)</span>
+        <span class="n">pt2_enabled</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">return</span> <span class="n">pt2_enabled</span></div>
+
+
+<span class="n">ipex_enabled</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;TS_IPEX_ENABLE&quot;</span><span class="p">,</span> <span class="s2">&quot;false&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;true&quot;</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">import</span> <span class="nn">intel_extension_for_pytorch</span> <span class="k">as</span> <span class="nn">ipex</span>
+
+        <span class="n">ipex_enabled</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="s2">&quot;IPEX is enabled but intel-extension-for-pytorch is not installed. Proceeding without IPEX.&quot;</span>
+        <span class="p">)</span>
 
 
 <div class="viewcode-block" id="BaseHandler"><a class="viewcode-back" href="../../../api/ts.torch_handler.html#ts.torch_handler.base_handler.BaseHandler">[docs]</a><span class="k">class</span> <span class="nc">BaseHandler</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
@@ -441,17 +475,18 @@
             <span class="n">serialized_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;model&quot;</span><span class="p">][</span><span class="s2">&quot;serializedFile&quot;</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">model_pt_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">model_dir</span><span class="p">,</span> <span class="n">serialized_file</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_pt_path</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;onnx&quot;</span><span class="p">):</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="c1"># import numpy as np</span>
-                <span class="kn">import</span> <span class="nn">onnxruntime</span> <span class="k">as</span> <span class="nn">ort</span>
-                <span class="kn">import</span> <span class="nn">psutil</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_pt_path</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_pt_path</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;onnx&quot;</span><span class="p">):</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="c1"># import numpy as np</span>
+                    <span class="kn">import</span> <span class="nn">onnxruntime</span> <span class="k">as</span> <span class="nn">ort</span>
+                    <span class="kn">import</span> <span class="nn">psutil</span>
 
-                <span class="n">onnx_enabled</span> <span class="o">=</span> <span class="kc">True</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;ONNX enabled&quot;</span><span class="p">)</span>
-            <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
-                <span class="n">onnx_enabled</span> <span class="o">=</span> <span class="kc">False</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;proceeding without onnxruntime&quot;</span><span class="p">)</span>
+                    <span class="n">onnx_enabled</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;ONNX enabled&quot;</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+                    <span class="n">onnx_enabled</span> <span class="o">=</span> <span class="kc">False</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;proceeding without onnxruntime&quot;</span><span class="p">)</span>
 
         <span class="c1"># model def file</span>
         <span class="n">model_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;model&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;modelFile&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
@@ -493,7 +528,24 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;No model weights could be loaded&quot;</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">ipex_enabled</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+        <span class="n">optimization_config</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">model_dir</span><span class="p">,</span> <span class="s2">&quot;compile.json&quot;</span><span class="p">)</span>
+        <span class="n">backend</span> <span class="o">=</span> <span class="n">load_compiler_config</span><span class="p">(</span><span class="n">optimization_config</span><span class="p">)</span>
+
+        <span class="c1"># PT 2.0 support is opt in</span>
+        <span class="k">if</span> <span class="n">check_pt2_enabled</span><span class="p">()</span> <span class="ow">and</span> <span class="n">backend</span><span class="p">:</span>
+            <span class="c1"># Compilation will delay your model initialization</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;reduce-overhead&quot;</span>
+                <span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Compiled model with backend </span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Compiling model model with backend </span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2"> has failed </span><span class="se">\n</span><span class="s2"> Proceeding without compilation&quot;</span>
+                <span class="p">)</span>
+
+        <span class="k">elif</span> <span class="n">ipex_enabled</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">memory_format</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">channels_last</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">ipex</span><span class="o">.</span><span class="n">optimize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">)</span>
 

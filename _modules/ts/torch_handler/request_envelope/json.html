@@ -354,20 +354,22 @@
               
   <h1>Source code for ts.torch_handler.request_envelope.json</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Uses JSON formatted inputs/outputs, following the structure outlined if __name__ == &#39;__main__&#39;:</span>
-<span class="sd">https://www.tensorflow.org/tfx/serving/api_restmain()</span>
+<span class="sd">Uses JSON formatted inputs/outputs, following the structure outlined in</span>
+<span class="sd">https://www.tensorflow.org/tfx/serving/api_rest</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">json</span>
-<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">chain</span>
 <span class="kn">from</span> <span class="nn">base64</span> <span class="kn">import</span> <span class="n">b64decode</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">chain</span>
 
 <span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="n">BaseEnvelope</span>
+
 
 <div class="viewcode-block" id="JSONEnvelope"><a class="viewcode-back" href="../../../../api/ts.torch_handler.request_envelope.html#ts.torch_handler.request_envelope.json.JSONEnvelope">[docs]</a><span class="k">class</span> <span class="nc">JSONEnvelope</span><span class="p">(</span><span class="n">BaseEnvelope</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Implementation. Captures batches in JSON format, returns</span>
 <span class="sd">    also in JSON format.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">_lengths</span> <span class="o">=</span> <span class="p">[]</span>
 
 <div class="viewcode-block" id="JSONEnvelope.parse_input"><a class="viewcode-back" href="../../../../api/ts.torch_handler.request_envelope.html#ts.torch_handler.request_envelope.json.JSONEnvelope.parse_input">[docs]</a>    <span class="k">def</span> <span class="nf">parse_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
@@ -391,16 +393,17 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Extracts the data from the JSON object</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">rows</span> <span class="o">=</span> <span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;body&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">data</span><span class="p">)[</span><span class="s1">&#39;instances&#39;</span><span class="p">]</span>
+        <span class="n">rows</span> <span class="o">=</span> <span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;body&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">data</span><span class="p">)[</span><span class="s2">&quot;instances&quot;</span><span class="p">]</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">rows</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">dict</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">row_i</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">rows</span><span class="p">):</span>
-                <span class="k">if</span> <span class="nb">list</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="p">[</span><span class="s1">&#39;b64&#39;</span><span class="p">]:</span>
-                    <span class="n">rows</span><span class="p">[</span><span class="n">row_i</span><span class="p">]</span> <span class="o">=</span> <span class="n">b64decode</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;b64&#39;</span><span class="p">])</span>
+                <span class="k">if</span> <span class="nb">list</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="p">[</span><span class="s2">&quot;b64&quot;</span><span class="p">]:</span>
+                    <span class="n">rows</span><span class="p">[</span><span class="n">row_i</span><span class="p">]</span> <span class="o">=</span> <span class="n">b64decode</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;b64&quot;</span><span class="p">])</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">for</span> <span class="n">col</span><span class="p">,</span> <span class="n">col_value</span> <span class="ow">in</span> <span class="n">row</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                        <span class="k">if</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">col_value</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span>
-                                <span class="ow">and</span> <span class="nb">list</span><span class="p">(</span><span class="n">col_value</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="p">[</span><span class="s1">&#39;b64&#39;</span><span class="p">]):</span>
-                            <span class="n">row</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">b64decode</span><span class="p">(</span><span class="n">col_value</span><span class="p">[</span><span class="s1">&#39;b64&#39;</span><span class="p">])</span>
+                        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">col_value</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">list</span><span class="p">(</span><span class="n">col_value</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="p">[</span>
+                            <span class="s2">&quot;b64&quot;</span>
+                        <span class="p">]:</span>
+                            <span class="n">row</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">b64decode</span><span class="p">(</span><span class="n">col_value</span><span class="p">[</span><span class="s2">&quot;b64&quot;</span><span class="p">])</span>
         <span class="k">return</span> <span class="n">rows</span>
 
     <span class="k">def</span> <span class="nf">_batch_to_json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="n">lengths</span><span class="p">):</span>
@@ -422,9 +425,7 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Converts the output of the model back into compatible JSON</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">out_dict</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">&#39;predictions&#39;</span><span class="p">:</span> <span class="n">output</span>
-        <span class="p">}</span>
+        <span class="n">out_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;predictions&quot;</span><span class="p">:</span> <span class="n">output</span><span class="p">}</span>
         <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">out_dict</span><span class="p">)</span></div>
 </pre></div>
 

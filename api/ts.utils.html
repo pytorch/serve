@@ -381,6 +381,63 @@
 <section id="module-ts.utils.util">
 <span id="ts-utils-util-module"></span><h2>ts.utils.util module<a class="headerlink" href="#module-ts.utils.util" title="Permalink to this headline">¶</a></h2>
 <p>Utility functions for TorchServe</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="ts.utils.util.PT2Backend">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">ts.utils.util.</span></span><span class="sig-name descname"><span class="pre">PT2Backend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/utils/util.html#PT2Backend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.utils.util.PT2Backend" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.Enum" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></a></p>
+<p>An enumeration.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ts.utils.util.PT2Backend.AOT_CUDAGRAPHS">
+<span class="sig-name descname"><span class="pre">AOT_CUDAGRAPHS</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'aot_cudagraphs'</span></em><a class="headerlink" href="#ts.utils.util.PT2Backend.AOT_CUDAGRAPHS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ts.utils.util.PT2Backend.AOT_EAGER">
+<span class="sig-name descname"><span class="pre">AOT_EAGER</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'aot_eager'</span></em><a class="headerlink" href="#ts.utils.util.PT2Backend.AOT_EAGER" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ts.utils.util.PT2Backend.AOT_NVFUSER">
+<span class="sig-name descname"><span class="pre">AOT_NVFUSER</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'aot_nvfuser'</span></em><a class="headerlink" href="#ts.utils.util.PT2Backend.AOT_NVFUSER" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ts.utils.util.PT2Backend.EAGER">
+<span class="sig-name descname"><span class="pre">EAGER</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'eager'</span></em><a class="headerlink" href="#ts.utils.util.PT2Backend.EAGER" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ts.utils.util.PT2Backend.FX2TRT">
+<span class="sig-name descname"><span class="pre">FX2TRT</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'fx2trt'</span></em><a class="headerlink" href="#ts.utils.util.PT2Backend.FX2TRT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ts.utils.util.PT2Backend.INDUCTOR">
+<span class="sig-name descname"><span class="pre">INDUCTOR</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'inductor'</span></em><a class="headerlink" href="#ts.utils.util.PT2Backend.INDUCTOR" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ts.utils.util.PT2Backend.IPEX">
+<span class="sig-name descname"><span class="pre">IPEX</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'ipex'</span></em><a class="headerlink" href="#ts.utils.util.PT2Backend.IPEX" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ts.utils.util.PT2Backend.NVFUSER">
+<span class="sig-name descname"><span class="pre">NVFUSER</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'nvfuser'</span></em><a class="headerlink" href="#ts.utils.util.PT2Backend.NVFUSER" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ts.utils.util.PT2Backend.OFI">
+<span class="sig-name descname"><span class="pre">OFI</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'ofi'</span></em><a class="headerlink" href="#ts.utils.util.PT2Backend.OFI" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ts.utils.util.PT2Backend.ONNXRT">
+<span class="sig-name descname"><span class="pre">ONNXRT</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'onnxrt'</span></em><a class="headerlink" href="#ts.utils.util.PT2Backend.ONNXRT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 <dl class="py exception">
 <dt class="sig sig-object py" id="ts.utils.util.PredictionException">
 <em class="property"><span class="pre">exception</span> </em><span class="sig-prename descclassname"><span class="pre">ts.utils.util.</span></span><span class="sig-name descname"><span class="pre">PredictionException</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_code</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">500</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/utils/util.html#PredictionException"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.utils.util.PredictionException" title="Permalink to this definition">¶</a></dt>
@@ -402,6 +459,13 @@
 <dd class="field-even"><p>List of model service class definitions</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ts.utils.util.load_compiler_config">
+<span class="sig-prename descclassname"><span class="pre">ts.utils.util.</span></span><span class="sig-name descname"><span class="pre">load_compiler_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_file_path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/utils/util.html#load_compiler_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.utils.util.load_compiler_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load a compiler {compiler_name -&gt; compiler }
+Can be extended to also support kwargs for ONNX and TensorRT</p>
 </dd></dl>
 
 <dl class="py function">
