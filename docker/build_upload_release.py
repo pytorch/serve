@@ -30,7 +30,7 @@ if __name__ == "__main__":
         f"./build_image.sh -bt dev -t {organization}/torchserve:latest", dry_run
     )
     try_and_handle(
-        f"./build_image.sh -bt dev -g -cv cu102 -t {organization}/torchserve:latest-gpu",
+        f"./build_image.sh -bt dev -g -cv cu117 -t {organization}/torchserve:latest-gpu",
         dry_run,
     )
     try_and_handle(
