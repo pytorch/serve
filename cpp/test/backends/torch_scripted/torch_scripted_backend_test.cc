@@ -16,18 +16,9 @@ class TorchScriptedBackendTest : public ::testing::Test {
     backend_ = std::make_shared<torchserve::torchscripted::Backend>();
   }
 
-  void LoadPredict(
-      std::shared_ptr<torchserve::LoadModelRequest> load_model_request,
-      const std::string& model_dir,
-      const std::string& inference_input_file_path,
-      const std::string& inference_request_id_prefix,
-      int inference_expect_code) {
-    MetricsRegistry::Initialize("test/resources/metrics/default_config.yaml",
-                                MetricsContext::BACKEND);
-    backend_->Initialize(model_dir);
-    auto result = backend_->LoadModel(std::move(load_model_request));
-    ASSERT_EQ(result->code, 200);
-
+  virtual std::shared_ptr<torchserve::InferenceRequestBatch>
+  GetInferenceRequestBatch(const std::string& inference_input_file_path,
+                           const std::string& inference_request_id_prefix) {
     std::ifstream input(inference_input_file_path,
                         std::ios::in | std::ios::binary);
     std::vector<char> image((std::istreambuf_iterator<char>(input)),
@@ -36,6 +27,7 @@ class TorchScriptedBackendTest : public ::testing::Test {
 
     auto inference_request_batch =
         std::make_shared<torchserve::InferenceRequestBatch>();
+
     for (uint8_t i = 0; i < batch_size_; i++) {
       torchserve::InferenceRequest inference_request;
       inference_request.request_id =
@@ -48,6 +40,23 @@ class TorchScriptedBackendTest : public ::testing::Test {
 
       (*inference_request_batch).emplace_back(inference_request);
     }
+    return inference_request_batch;
+  }
+
+  void LoadPredict(
+      std::shared_ptr<torchserve::LoadModelRequest> load_model_request,
+      const std::string& model_dir,
+      const std::string& inference_input_file_path,
+      const std::string& inference_request_id_prefix,
+      int inference_expect_code) {
+    MetricsRegistry::Initialize("test/resources/metrics/default_config.yaml",
+                                MetricsContext::BACKEND);
+    backend_->Initialize(model_dir);
+    auto result = backend_->LoadModel(std::move(load_model_request));
+    ASSERT_EQ(result->code, 200);
+
+    auto inference_request_batch = GetInferenceRequestBatch(
+        inference_input_file_path, inference_request_id_prefix);
 
     auto inference_response_batch =
         backend_->GetModelInstance()->Predict(inference_request_batch);
@@ -59,6 +68,58 @@ class TorchScriptedBackendTest : public ::testing::Test {
   uint8_t batch_size_ = 2;
   std::shared_ptr<torchserve::Backend> backend_;
 };
+
+class TorchScriptedTextClassifierTest : public TorchScriptedBackendTest {
+  std::shared_ptr<torchserve::InferenceRequestBatch> GetInferenceRequestBatch(
+      const std::string& inference_input_file_path,
+      const std::string& inference_request_id_prefix) override {
+    std::ifstream input(inference_input_file_path, std::ios::in);
+    std::vector<char> text((std::istreambuf_iterator<char>(input)),
+                           (std::istreambuf_iterator<char>()));
+    input.close();
+
+    auto inference_request_batch =
+        std::make_shared<torchserve::InferenceRequestBatch>();
+
+    for (uint8_t i = 0; i < batch_size_; i++) {
+      torchserve::InferenceRequest inference_request;
+      inference_request.request_id =
+          fmt::format("{}_{}", inference_request_id_prefix, i);
+      inference_request
+          .headers[torchserve::PayloadType::kHEADER_NAME_DATA_TYPE] =
+          torchserve::PayloadType::kDATA_TYPE_STRING;
+      inference_request.parameters[torchserve::PayloadType::kDATA_TYPE_STRING] =
+          text;
+
+      (*inference_request_batch).emplace_back(inference_request);
+    }
+    return inference_request_batch;
+  }
+};
+
+TEST_F(TorchScriptedTextClassifierTest, TestTokenizeBaseHandler) {
+  this->LoadPredict(
+      std::make_shared<torchserve::LoadModelRequest>(
+          "test/resources/torchscript_model/text_classifier/"
+          "text_classifier_handler",
+          "tockenize_v1", -1, "", "", 1, false),
+      "test/resources/torchscript_model/text_classifier/"
+      "text_classifier_handler",
+      "test/resources/torchscript_model/text_classifier/test_input.txt",
+      "text_classifier_ts", 200);
+}
+
+/*
+TEST_F(TorchScriptedBackendTest, TestImageClassifier) {
+  this->LoadPredict(
+      std::make_shared<torchserve::LoadModelRequest>(
+          "test/resources/torchscript_model/image_classification/base_handler",
+          "mnist_scripted_v2", -1, "", "", 1, false),
+      "test/resources/torchscript_model/image_classification/base_handler",
+      "test/resources/torchscript_model/image_classification/input_data.pt",
+      "resnet_18_ts", 200);
+}
+*/
 
 TEST_F(TorchScriptedBackendTest, TestLoadPredictBaseHandler) {
   this->LoadPredict(std::make_shared<torchserve::LoadModelRequest>(
