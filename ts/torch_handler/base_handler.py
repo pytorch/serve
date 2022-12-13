@@ -173,7 +173,6 @@ class BaseHandler(abc.ABC):
         else:
             raise RuntimeError("No model weights could be loaded")
 
-        self.model.eval()
         optimization_config = os.path.join(model_dir, "compile.json")
         backend = load_compiler_config(optimization_config)
 
