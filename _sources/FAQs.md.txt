@@ -87,6 +87,18 @@ To create a Docker image for a specific branch and specific tag, use the followi
 ### What is the difference between image created using Dockerfile and image created using Dockerfile.dev?
 The image created using Dockerfile.dev has Torchserve installed from source where as image created using Dockerfile has Torchserve installed from PyPi distribution.
 
+### What is the order of config.property path?
+TorchServe looks for the config.property file according to the order listed in the [doc](https://github.com/pytorch/serve/blob/master/docs/configuration.md#configproperties-file). There is no override mechanism.
+
+### What are model_store, load_models, models?
+- model_store: A mandatory argument during TorchServe start. It can be either defined in config.property or overridden by TorchServe command line option "[--model-store](https://github.com/pytorch/serve/blob/master/docs/configuration.md#command-line-parameters)".
+
+- load_models: An optional argument during TorchServe start. It can be either defined in config.property or overridden by TorchServe command line option "[--models](https://github.com/pytorch/serve/blob/master/docs/configuration.md#command-line-parameters)".
+
+- [models](https://github.com/pytorch/serve/blob/master/docs/configuration.md#command-line-parameters): Defines a list of models' configuration in config.property. A model's configuration can be overridden by [management API](https://github.com/pytorch/serve/blob/master/docs/management_api.md#register-a-model). It does not decide which models will be loaded during TorchServe start. There is no relationship b.w "models" and "load_models" (ie. TorchServe command line option [--models](https://github.com/pytorch/serve/blob/master/docs/configuration.md#command-line-parameters)).
+
+### 
+
 ## API
 Relevant documents
 - [Torchserve Rest API](rest_api.md)

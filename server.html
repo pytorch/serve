@@ -407,12 +407,6 @@ usage: torchserve <span class="o">[</span>-h<span class="o">]</span> <span class
 
 torchserve
 
-mandatory arguments:
-  --model-store MODEL_STORE
-                        Model store location where models can be loaded
-
-  
-
 optional arguments:
   -h, --help            show this <span class="nb">help</span> message and <span class="nb">exit</span>
   -v, --version         Return TorchServe Version
@@ -420,7 +414,9 @@ optional arguments:
   --stop                Stop the model-server
   --ts-config TS_CONFIG
                         Configuration file <span class="k">for</span> TorchServe
-
+  --model-store         MODEL_STORE
+                        Model store location where models can be loaded.
+                        It is required <span class="k">if</span> <span class="s2">&quot;model_store&quot;</span> is not defined <span class="k">in</span> config.properties.
   --models MODEL_PATH1 <span class="nv">MODEL_NAME</span><span class="o">=</span>MODEL_PATH2... <span class="o">[</span>MODEL_PATH1 <span class="nv">MODEL_NAME</span><span class="o">=</span>MODEL_PATH2... ...<span class="o">]</span>
                         Models to be loaded using <span class="o">[</span><span class="nv">model_name</span><span class="o">=]</span>model_location
                         format. Location can be a HTTP URL, a model archive

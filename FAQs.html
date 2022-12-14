@@ -457,6 +457,21 @@ Refer <a class="reference external" href="snapshot.md#torchserve-model-snapshot"
 <h3>What is the difference between image created using Dockerfile and image created using Dockerfile.dev?<a class="headerlink" href="#what-is-the-difference-between-image-created-using-dockerfile-and-image-created-using-dockerfile-dev" title="Permalink to this headline">¶</a></h3>
 <p>The image created using Dockerfile.dev has Torchserve installed from source where as image created using Dockerfile has Torchserve installed from PyPi distribution.</p>
 </section>
+<section id="what-is-the-order-of-config-property-path">
+<h3>What is the order of config.property path?<a class="headerlink" href="#what-is-the-order-of-config-property-path" title="Permalink to this headline">¶</a></h3>
+<p>TorchServe looks for the config.property file according to the order listed in the <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/configuration.md#configproperties-file">doc</a>. There is no override mechanism.</p>
+</section>
+<section id="what-are-model-store-load-models-models">
+<h3>What are model_store, load_models, models?<a class="headerlink" href="#what-are-model-store-load-models-models" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>model_store: A mandatory argument during TorchServe start. It can be either defined in config.property or overridden by TorchServe command line option “<a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/configuration.md#command-line-parameters">–model-store</a>”.</p></li>
+<li><p>load_models: An optional argument during TorchServe start. It can be either defined in config.property or overridden by TorchServe command line option “<a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/configuration.md#command-line-parameters">–models</a>”.</p></li>
+<li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/configuration.md#command-line-parameters">models</a>: Defines a list of models’ configuration in config.property. A model’s configuration can be overridden by <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/management_api.md#register-a-model">management API</a>. It does not decide which models will be loaded during TorchServe start. There is no relationship b.w “models” and “load_models” (ie. TorchServe command line option <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/configuration.md#command-line-parameters">–models</a>).</p></li>
+</ul>
+</section>
+<section id="id1">
+<h3><a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+</section>
 </section>
 <section id="api">
 <h2>API<a class="headerlink" href="#api" title="Permalink to this headline">¶</a></h2>
@@ -604,6 +619,9 @@ Note: For v4 type replace <code class="docutils literal notranslate"><span class
 <li><a class="reference internal" href="#how-can-i-build-a-torchserve-image-from-source">How can I build a Torchserve image from source?</a></li>
 <li><a class="reference internal" href="#how-to-build-a-torchserve-image-for-a-specific-branch-or-commit-id">How to build a Torchserve image for a specific branch or commit id?</a></li>
 <li><a class="reference internal" href="#what-is-the-difference-between-image-created-using-dockerfile-and-image-created-using-dockerfile-dev">What is the difference between image created using Dockerfile and image created using Dockerfile.dev?</a></li>
+<li><a class="reference internal" href="#what-is-the-order-of-config-property-path">What is the order of config.property path?</a></li>
+<li><a class="reference internal" href="#what-are-model-store-load-models-models">What are model_store, load_models, models?</a></li>
+<li><a class="reference internal" href="#id1"></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#api">API</a><ul>
