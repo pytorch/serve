@@ -10,11 +10,12 @@ import os
 import platform
 import socket
 import sys
+import uuid
 
 from ts.arg_parser import ArgParser
+from ts.metrics.metric_cache_yaml_impl import MetricsCacheYamlImpl
 from ts.model_loader import ModelLoaderFactory
-from ts.protocol.otf_message_handler import retrieve_msg, create_load_model_response
-from ts.service import emit_metrics
+from ts.protocol.otf_message_handler import create_load_model_response, retrieve_msg
 
 MAX_FAILURE_THRESHOLD = 5
 SOCKET_ACCEPT_TIMEOUT = 30.0
@@ -28,8 +29,16 @@ class TorchModelServiceWorker(object):
     Backend worker to handle Model Server's python service code
     """
 
-    def __init__(self, s_type=None, s_name=None, host_addr=None, port_num=None):
+    def __init__(
+        self,
+        s_type=None,
+        s_name=None,
+        host_addr=None,
+        port_num=None,
+        metrics_config=None,
+    ):
         self.sock_type = s_type
+
         if s_type == "unix":
             if s_name is None:
                 raise ValueError("Wrong arguments passed. No socket name given.")
@@ -53,9 +62,13 @@ class TorchModelServiceWorker(object):
         logging.info("Listening on port: %s", s_name)
         socket_family = socket.AF_INET if s_type == "tcp" else socket.AF_UNIX
         self.sock = socket.socket(socket_family, socket.SOCK_STREAM)
+        self.metrics_cache = MetricsCacheYamlImpl(config_file_path=metrics_config)
+        if self.metrics_cache:
+            self.metrics_cache.initialize_cache()
+        else:
+            raise RuntimeError(f"Failed to initialize metrics from file {metrics_config}")
 
-    @staticmethod
-    def load_model(load_model_request):
+    def load_model(self, load_model_request):
         """
         Expected command
         {
@@ -100,6 +113,7 @@ class TorchModelServiceWorker(object):
             if "limitMaxImagePixels" in load_model_request:
                 limit_max_image_pixels = bool(load_model_request["limitMaxImagePixels"])
 
+            self.metrics_cache.model_name = model_name
             model_loader = ModelLoaderFactory.get_model_loader()
             service = model_loader.load(
                 model_name,
@@ -109,6 +123,7 @@ class TorchModelServiceWorker(object):
                 batch_size,
                 envelope,
                 limit_max_image_pixels,
+                self.metrics_cache
             )
 
             logging.debug("Model %s loaded.", model_name)
@@ -144,13 +159,6 @@ class TorchModelServiceWorker(object):
                     raise RuntimeError("{} - {}".format(code, result))
             else:
                 raise ValueError("Received unknown command: {}".format(cmd))
-
-            if (
-                service is not None
-                and service.context is not None
-                and service.context.metrics is not None
-            ):
-                emit_metrics(service.context.metrics.store)
 
     def run_server(self):
         """
@@ -198,6 +206,7 @@ if __name__ == "__main__":
         sock_type = args.sock_type
         host = args.host
         port = args.port
+        metrics_config = args.metrics_config
 
         if BENCHMARK:
             import cProfile
@@ -206,7 +215,9 @@ if __name__ == "__main__":
             pr.disable()
             pr.dump_stats("/tmp/tsPythonProfile.prof")
 
-        worker = TorchModelServiceWorker(sock_type, socket_name, host, port)
+        worker = TorchModelServiceWorker(
+            sock_type, socket_name, host, port, metrics_config
+        )
         worker.run_server()
         if BENCHMARK:
             pr.disable()

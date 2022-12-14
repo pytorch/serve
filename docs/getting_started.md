@@ -4,7 +4,7 @@
 
 1. Install dependencies
 
-    Note: For Conda, Python 3.8 is required to run Torchserve.
+    Note: For Conda, Python >=3.8 is required to run Torchserve.
 
     #### For Debian Based Systems/ MacOS
 
@@ -14,7 +14,7 @@
         python ./ts_scripts/install_dependencies.py
         ```
 
-     - For GPU with Cuda 10.2. Options are `cu92`, `cu101`, `cu102`, `cu111`, `cu113`, `cu116`
+     - For GPU with Cuda 10.2. Options are `cu92`, `cu101`, `cu102`, `cu111`, `cu113`, `cu116`, `cu117`
 
        ```bash
        python ./ts_scripts/install_dependencies.py --cuda=cu102
@@ -169,7 +169,6 @@ torchserve --stop
 All the logs you've seen as output to stdout related to model registration, management, inference are recorded in the `/logs` folder.
 
 High level performance data like Throughput or Percentile Precision can be generated with [Benchmark](https://github.com/pytorch/serve/tree/master/benchmarks/README.md) and visualized in a report.
-
 
 ### Contributing
 
