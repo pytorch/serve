@@ -307,6 +307,17 @@ curl -H "Content-Type: application/json" --data @examples/Huggingface_Transforme
 
 When a json file is passed as a request format to the curl, Torchserve unwraps the json file from the request body. This is the reason for specifying service_envelope=body in the config.properties file
 
+## Speed up inference with Better Transformer
+
+In the setup_config.json, specify `"BetterTransformer":true,`.
+
+Note: make sure to install [HuggingFace Optimum] `pip install optimum`
+
+[Better Transformer](https://pytorch.org/blog/a-better-transformer-for-fast-transformer-encoder-inference/) from PyTorch is integrated into [Huggingface Optimum](https://huggingface.co/docs/optimum/bettertransformer/overview) that bring major speedups for many of encoder models on different modalities (text, image, audio). It is a one liner API that we have also added in the `Transformer_handler_generalized.py` in this example as well. That as shown above you just need to set `"BetterTransformer":true,` in the setup_config.json.
+
+Main speed ups in the Better Transformer comes from kernel fusion in the [TransformerEncoder] (https://pytorch.org/docs/stable/generated/torch.nn.TransformerEncoder.html) and making use of sparsity with [nested tensors](https://pytorch.org/tutorials/prototype/nestedtensor.html) when input sequences are padded to avoid unnecessary computation on padded tensors. We have seen up to 4.5x speed up with distill_bert when used higher batch sizes with padding. Please read more about it in this [blog post](https://medium.com/pytorch/bettertransformer-out-of-the-box-performance-for-huggingface-transformers-3fbe27d50ab2). You get some speedups even with Batch size = 1 and no padding however, major speed ups will show up when running inference with higher batch sizes (8.16,32) with padding.
+
+
 ## Model Parallelism 
 
 [Parallelize] (https://huggingface.co/docs/transformers/model_doc/gpt2#transformers.GPT2Model.parallelize) is a an experimental feature that HuggingFace recently added to support large model inference for some very large models, GPT2 and T5. GPT2 model choices based on their size are gpt2-medium, gpt2-large, gpt2-xl. This feature only supports LMHeadModel that could be used for text generation, other application such as sequence, token classification and question answering are not supported. We have added parallelize support for GPT2 model in the custom handler in this example that will enable you to perform model parallel inference for GPT2 models used for text generation. The same logic in the handler can be extended to T5 and the applications it supports. Make sure that you register your model with one worker using this feature. To run this example, a machine with #gpus > 1 is required. The number of required gpus depends on the size of the model. This feature only supports single node, one machine with multi-gpus.

@@ -9,6 +9,33 @@ on:
       - master
 
 jobs:
+  mypy:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Setup Python 3.8
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.8
+          architecture: x64
+      - name: Checkout TorchServe
+        uses: actions/checkout@v3
+      - name: Install mypy
+        run: |
+          pip install mypy
+      - name: Run mypy
+        env:
+          MYPY_FORCE_COLOR: 1
+          TERM: xterm-color
+        run: |
+          set -eux
+          STATUS=
+          if ! mypy --config=mypy.ini; then
+            STATUS=fail
+          fi
+          if [ -n "$STATUS" ]; then
+            echo 'Please fix the above mypy warnings.'
+            false
+          fi
   build:
     runs-on: ubuntu-20.04
     name: Lint changed files
@@ -32,6 +59,7 @@ jobs:
         id: changed-files
         uses: tj-actions/changed-files@v29.0.4
         with:
+
           files: |
             **/*.py
 
@@ -49,6 +77,7 @@ jobs:
           echo "cd serve/"
           echo "pre-commit install"
           echo "pre-commit will lint your code for you, so git add and commit those new changes and this check should become green"
+
   spellcheck:
     runs-on: ubuntu-20.04
     steps:
