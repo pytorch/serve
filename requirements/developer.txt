@@ -7,9 +7,9 @@ pytest-cov
 grpcio
 protobuf
 grpcio-tools
-transformers==4.11.0
+transformers==4.25.1
 pyspelling
-pygit2==1.6.1
+pygit2
 pyspelling
 pre-commit
 twine
