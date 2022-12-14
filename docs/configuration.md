@@ -78,9 +78,9 @@ TorchServe doesn't support authentication natively. To avoid unauthorized access
 The inference API is listening on port 8080. The management API is listening on port 8081. Both expect HTTP requests. These are the default ports.
 See [Enable SSL](#enable-ssl) to configure HTTPS.
 
-* `inference_address`: Inference API binding address. Default: http://127.0.0.1:8080
-* `management_address`: Management API binding address. Default: http://127.0.0.1:8081
-* `metrics_address`: Metrics API binding address. Default: http://127.0.0.1:8082
+* `inference_address`: Inference API binding address. Default: `http://127.0.0.1:8080`
+* `management_address`: Management API binding address. Default: `http://127.0.0.1:8081`
+* `metrics_address`: Metrics API binding address. Default: `http://127.0.0.1:8082`
 * To run predictions on models on a public IP address, specify the IP address as `0.0.0.0`.
   To run predictions on models on a specific IP address, specify the IP address and port.
 
@@ -235,7 +235,7 @@ A model's parameters are defined in [model source code](https://github.com/pytor
 * `maxWorkers`: the maximum number of workers of a model
 * `batchSize`: the batch size of a model
 * `maxBatchDelay`: the maximum delay in msec of a batch of a model
-* `responseTimeout`: the timeout in msec of a specific model's response. This setting takes priority over `default_response_timeout` which is a default timeout over all models
+* `responseTimeout`: the timeout in sec of a specific model's response. This setting takes priority over `default_response_timeout` which is a default timeout over all models
 * `defaultVersion`: the default version of a model
 * `marName`: the mar file name of a model
 
@@ -289,7 +289,7 @@ the backend workers convert "Bytearray to utf-8 string" when the Content-Type of
 * `max_response_size` : The maximum allowable response size that the Torchserve sends, in bytes. Default: 6553500
 * `limit_max_image_pixels` : Default value is true (Use default [PIL.Image.MAX_IMAGE_PIXELS](https://pillow.readthedocs.io/en/stable/reference/Image.html#PIL.Image.MAX_IMAGE_PIXELS)). If this is set to "false", set PIL.Image.MAX_IMAGE_PIXELS = None in backend default vision handler for large image payload. 
 * `allowed_urls` : Comma separated regex of allowed source URL(s) from where models can be registered. Default: "file://.*|http(s)?://.*" (all URLs and local file system)
-eg : To allow base URLs `https://s3.amazonaws.com/` and `https://torchserve.pytorch.org/` use the following regex string `allowed_urls=https://s3.amazonaws.com/.*,https://torchserve.pytorch.org/.*`
+e.g. : To allow base URLs `https://s3.amazonaws.com/` and `https://torchserve.pytorch.org/` use the following regex string `allowed_urls=https://s3.amazonaws.com/.*,https://torchserve.pytorch.org/.*`
 * `workflow_store` : Path of workflow store directory. Defaults to model store directory.
 
 **NOTE**
@@ -298,7 +298,7 @@ All the above config properties can be set using environment variable as follows
 - set `enable_envvars_config` to true in config.properties
 - export environment variable for property as`TS_<PROPERTY_NAME>`. 
 
-  eg: to set inference_address property run cmd
+  e.g.: to set inference_address property run cmd
   `export TS_INFERENCE_ADDRESS="http://127.0.0.1:8082"`.
 
 ---

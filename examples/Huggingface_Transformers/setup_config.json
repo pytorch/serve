@@ -8,5 +8,6 @@
  "captum_explanation":true,
  "embedding_name": "bert",
  "FasterTransformer":false,
+ "BetterTransformer":false,
  "model_parallel":false
 }

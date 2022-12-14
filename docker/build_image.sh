@@ -5,10 +5,10 @@ BRANCH_NAME="master"
 DOCKER_TAG="pytorch/torchserve:latest-cpu"
 BUILD_TYPE="production"
 DOCKER_FILE="Dockerfile"
-BASE_IMAGE="ubuntu:18.04"
+BASE_IMAGE="ubuntu:20.04"
 CUSTOM_TAG=false
 CUDA_VERSION=""
-UBUNTU_VERSION="ubuntu:18.04"
+UBUNTU_VERSION="ubuntu:20.04"
 USE_LOCAL_SERVE_FOLDER=false
 BUILD_WITH_IPEX=false
 
@@ -22,7 +22,6 @@ do
           echo "-g, --gpu specify to use gpu"
           echo "-bt, --buildtype specify to created image for codebuild. Possible values: production, dev, codebuild."
           echo "-cv, --cudaversion specify to cuda version to use"
-          echo "-ub, --ubuntu specify ubuntu version. Possible values: ubuntu:18.04, ubuntu 20.04"
           echo "-t, --tag specify tag name for docker image"
           echo "-lf, --use-local-serve-folder specify this option for the benchmark image if the current 'serve' folder should be used during automated benchmarks"
           echo "-ipex, --build-with-ipex specify to build with intel_extension_for_pytorch"
@@ -42,8 +41,8 @@ do
         -g|--gpu)
           MACHINE=gpu
           DOCKER_TAG="pytorch/torchserve:latest-gpu"
-          BASE_IMAGE="nvidia/cuda:10.2-cudnn8-runtime-ubuntu18.04"
-          CUDA_VERSION="cu102"
+          BASE_IMAGE="nvidia/cuda:11.7.0-cudnn8-runtime-ubuntu20.04"
+          CUDA_VERSION="cu117"
           shift
           ;;
         -bt|--buildtype)
@@ -58,25 +57,28 @@ do
           shift
           ;;
         -lf|--use-local-serve-folder)
-          USE_LOCAL_SERVE_FOLDER=true        
+          USE_LOCAL_SERVE_FOLDER=true
           shift
           ;;
         -ipex|--build-with-ipex)
           BUILD_WITH_IPEX=true
           shift
           ;;
-        # With default ubuntu version 18.04
+        # With default ubuntu version 20.04
         -cv|--cudaversion)
           CUDA_VERSION="$2"
-          if [ $CUDA_VERSION == "cu116" ];
+          if [ $CUDA_VERSION == "cu117" ];
           then
-            BASE_IMAGE="nvidia/cuda:11.6.0-cudnn8-runtime-ubuntu18.04"
+            BASE_IMAGE="nvidia/cuda:11.7.0-cudnn8-runtime-ubuntu20.04"
+          elif [ $CUDA_VERSION == "cu116" ];
+          then
+            BASE_IMAGE="nvidia/cuda:11.6.0-cudnn8-runtime-ubuntu20.04"
           elif [ $CUDA_VERSION == "cu113" ];
           then
-            BASE_IMAGE="nvidia/cuda:11.3.0-cudnn8-runtime-ubuntu18.04"
+            BASE_IMAGE="nvidia/cuda:11.3.0-cudnn8-runtime-ubuntu20.04"
           elif [ $CUDA_VERSION == "cu111" ];
           then
-            BASE_IMAGE="nvidia/cuda:11.1-cudnn8-runtime-ubuntu18.04"
+            BASE_IMAGE="nvidia/cuda:11.1.1-cudnn8-runtime-ubuntu20.04"
           elif [ $CUDA_VERSION == "cu102" ];
           then
             BASE_IMAGE="nvidia/cuda:10.2-cudnn8-runtime-ubuntu18.04"
@@ -91,30 +93,6 @@ do
             exit 1
           fi
           shift
-          shift
-          ;;
-        # CUDA 10 is not supported on Ubuntu 20.04
-        -ub|--ubuntu)
-          UBUNTU_VERSION="$2"
-          if [[ $CUDA_VERSION == "cu116"  &&  $UBUNTU_VERSION == "ubuntu20.04" ]];
-          then 
-            BASE_IMAGE="nvidia/cuda:11.6.0-cudnn8-runtime-ubuntu20.04"
-          elif [[ $CUDA_VERSION == "cu113" && $UBUNTU_VERSION == "ubuntu20.04" ]];
-          then 
-            BASE_IMAGE="nvidia/cuda:11.3.0-cudnn8-runtime-ubuntu20.04"
-          elif [[ $CUDA_VERSION == "cu111" && $UBUNTU_VERSION == "ubuntu20.04" ]];
-          then 
-            BASE_IMAGE="nvidia/cuda:11.1.0-cudnn8-runtime-ubuntu20.04"
-          elif [[ $UBUNTU_VERSION == "ubuntu20.04" ]];
-          then
-            echo "Using CPU image"
-            BASE_IMAGE="ubuntu:20.04"
-          else
-            echo "Ubuntu and CUDA version combination is not supported"
-            echo $UBUNTU_VERSION
-            echo $CUDA_VERSION
-            exit 1 
-          fi
           shift
           ;;
     esac

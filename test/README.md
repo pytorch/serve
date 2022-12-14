@@ -1,6 +1,6 @@
 # TorchServe Regression Tests
 
-This folder contains nightly regression tests execututed against TorchServe master.These tests use [POSTMAN](https://www.postman.com/downloads/) for exercising all the Management & Inference APIs.
+This folder contains nightly regression tests executed against TorchServe master.These tests use [POSTMAN](https://www.postman.com/downloads/) for exercising all the Management & Inference APIs.
 
 ### Latest Test Run Status
 
@@ -16,7 +16,7 @@ For example update 2020-05-20 in https://torchserve-regression-test.s3.amazonaws
 
 ### Running the test manually.
 
-Clone Torch Serve Repo & Build the Docker Image for the execition env.
+Clone Torch Serve Repo & Build the Docker Image for the execution env.
 
 ```
 git clone https://github.com/pytorch/serve

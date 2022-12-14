@@ -17,5 +17,4 @@ bert:
         backend_profiling: False
         exec_env: "local"
         processors:
-            - "cpu"
             - "gpus": "all"
