@@ -12,25 +12,23 @@ CURR_FILE_PATH = Path(__file__).parent
 REPO_ROOT_DIR = CURR_FILE_PATH.parent.parent
 
 
-EXAMPLE_ROOT_DIR_DALI = REPO_ROOT_DIR.joinpath(
-    "examples", "nvidia_dali"
-)
+EXAMPLE_ROOT_DIR_DALI = REPO_ROOT_DIR.joinpath("examples", "nvidia_dali")
 
 MODEL_PTH_FILE = "resnet18-f37072fd.pth"
 
 EXAMPLE_ROOT_DIR_RESNET = REPO_ROOT_DIR.joinpath(
     "examples", "image_classifier", "resnet_18"
-)   
+)
 
 EXPECTED_RESULTS = [["tabby", "tiger_cat", "Egyptian_cat", "lynx", "bucket"]]
 TEST_CASES = [
     ("kitten.jpg", EXPECTED_RESULTS[0]),
 ]
 
-    
+
 @pytest.mark.parametrize(("file", "expected_result"), TEST_CASES)
 def test_dali_preprocess(monkeypatch, file, expected_result):
-      
+
     monkeypatch.syspath_prepend(EXAMPLE_ROOT_DIR_RESNET)
 
     handler = ImageClassifier()
@@ -39,7 +37,7 @@ def test_dali_preprocess(monkeypatch, file, expected_result):
         model_dir=EXAMPLE_ROOT_DIR_DALI,
         model_file="model.py",
     )
-        
+
     handler.initialize(ctx)
     data = {}
 
