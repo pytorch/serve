@@ -12,7 +12,11 @@ import time
 import torch
 from pkg_resources import packaging
 
-from ..utils.util import list_classes_from_module, load_label_mapping
+from ..utils.util import (
+    list_classes_from_module,
+    load_compiler_config,
+    load_label_mapping,
+)
 
 if packaging.version.parse(torch.__version__) >= packaging.version.parse("1.8.1"):
     from torch.profiler import ProfilerActivity, profile, record_function
@@ -23,6 +27,36 @@ else:
 
 
 logger = logging.getLogger(__name__)
+
+# Possible values for backend in utils.py
+def check_pt2_enabled():
+    try:
+        import torch._dynamo
+
+        pt2_enabled = True
+        if torch.cuda.is_available():
+            # If Ampere enable tensor cores which will give better performance
+            # Ideally get yourself an A10G or A100 for optimal performance
+            if torch.cuda.get_device_capability() >= (8, 0):
+                torch.backends.cuda.matmul.allow_tf32 = True
+    except ImportError as error:
+        logger.warning(
+            "dynamo/inductor are not installed. \n For GPU please run pip3 install numpy --pre torch[dynamo] --force-reinstall --extra-index-url https://download.pytorch.org/whl/nightly/cu117 \n for CPU please run pip3 install --pre torch --extra-index-url https://download.pytorch.org/whl/nightly/cpu"
+        )
+        pt2_enabled = False
+    return pt2_enabled
+
+
+ipex_enabled = False
+if os.environ.get("TS_IPEX_ENABLE", "false") == "true":
+    try:
+        import intel_extension_for_pytorch as ipex
+
+        ipex_enabled = True
+    except ImportError as error:
+        logger.warning(
+            "IPEX is enabled but intel-extension-for-pytorch is not installed. Proceeding without IPEX."
+        )
 
 
 class BaseHandler(abc.ABC):
@@ -86,17 +120,18 @@ class BaseHandler(abc.ABC):
             serialized_file = self.manifest["model"]["serializedFile"]
             self.model_pt_path = os.path.join(model_dir, serialized_file)
 
-        if self.model_pt_path.endswith("onnx"):
-            try:
-                # import numpy as np
-                import onnxruntime as ort
-                import psutil
+        if self.model_pt_path:
+            if self.model_pt_path.endswith("onnx"):
+                try:
+                    # import numpy as np
+                    import onnxruntime as ort
+                    import psutil
 
-                onnx_enabled = True
-                logger.info("ONNX enabled")
-            except ImportError as error:
-                onnx_enabled = False
-                logger.warning("proceeding without onnxruntime")
+                    onnx_enabled = True
+                    logger.info("ONNX enabled")
+                except ImportError as error:
+                    onnx_enabled = False
+                    logger.warning("proceeding without onnxruntime")
 
         # model def file
         model_file = self.manifest["model"].get("modelFile", "")
@@ -138,7 +173,24 @@ class BaseHandler(abc.ABC):
         else:
             raise RuntimeError("No model weights could be loaded")
 
-        if ipex_enabled:
+        self.model.eval()
+        optimization_config = os.path.join(model_dir, "compile.json")
+        backend = load_compiler_config(optimization_config)
+
+        # PT 2.0 support is opt in
+        if check_pt2_enabled() and backend:
+            # Compilation will delay your model initialization
+            try:
+                self.model = torch.compile(
+                    self.model, backend=backend, mode="reduce-overhead"
+                )
+                logger.info(f"Compiled model with backend {backend}")
+            except:
+                logger.warning(
+                    f"Compiling model model with backend {backend} has failed \n Proceeding without compilation"
+                )
+
+        elif ipex_enabled:
             self.model = self.model.to(memory_format=torch.channels_last)
             self.model = ipex.optimize(self.model)
 

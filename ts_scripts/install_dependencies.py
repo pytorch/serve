@@ -43,7 +43,7 @@ class Common:
                 f"{sys.executable} -m pip install -U -r requirements/torch_{platform.system().lower()}.txt"
             )
 
-    def install_python_packages(self, cuda_version, requirements_file_path):
+    def install_python_packages(self, cuda_version, requirements_file_path, nightly):
         check = "where" if platform.system() == "Windows" else "which"
         if os.system(f"{check} conda") == 0:
             # conda install command should run before the pip install commands
@@ -55,6 +55,13 @@ class Common:
         # developer.txt also installs packages from common.txt
         os.system(f"{sys.executable} -m pip install -U -r {requirements_file_path}")
         # If conda is available install conda-build package
+
+        # TODO: This will run 2 installations for torch but to make this cleaner we should first refactor all of our requirements.txt into just 2 files
+        # And then make torch an optional dependency for the common.txt
+        if nightly:
+            os.system(
+                f"pip3 install numpy --pre torch[dynamo] torchvision torchtext torchaudio --force-reinstall --extra-index-url https://download.pytorch.org/whl/nightly/{cuda_version}"
+            )
 
     def install_node_packages(self):
         os.system(
@@ -140,7 +147,7 @@ class Darwin(Common):
             os.system("brew install wget")
 
 
-def install_dependencies(cuda_version=None):
+def install_dependencies(cuda_version=None, nightly=False):
     os_map = {"Linux": Linux, "Windows": Windows, "Darwin": Darwin}
     system = os_map[platform.system()]()
 
@@ -157,7 +164,7 @@ def install_dependencies(cuda_version=None):
     requirements_file_path = "requirements/" + (
         "production.txt" if args.environment == "prod" else "developer.txt"
     )
-    system.install_python_packages(cuda_version, requirements_file_path)
+    system.install_python_packages(cuda_version, requirements_file_path, nightly)
 
 
 def get_brew_version():
@@ -174,7 +181,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--cuda",
         default=None,
-        choices=["cu92", "cu101", "cu102", "cu111", "cu113", "cu116"],
+        choices=["cu92", "cu101", "cu102", "cu111", "cu113", "cu116", "cu117"],
         help="CUDA version for torch",
     )
     parser.add_argument(
@@ -183,6 +190,13 @@ if __name__ == "__main__":
         choices=["prod", "dev"],
         help="environment(production or developer) on which dependencies will be installed",
     )
+
+    parser.add_argument(
+        "--nightly_torch",
+        action="store_true",
+        help="Install nightly version of torch package",
+    )
+
     parser.add_argument(
         "--force",
         action="store_true",
@@ -190,4 +204,4 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    install_dependencies(cuda_version=args.cuda)
+    install_dependencies(cuda_version=args.cuda, nightly=args.nightly_torch)
