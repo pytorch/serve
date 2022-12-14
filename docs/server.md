@@ -51,12 +51,6 @@ usage: torchserve [-h] [-v | --version]
 
 torchserve
 
-mandatory arguments:
-  --model-store MODEL_STORE
-                        Model store location where models can be loaded
-
-  
-
 optional arguments:
   -h, --help            show this help message and exit
   -v, --version         Return TorchServe Version
@@ -64,7 +58,9 @@ optional arguments:
   --stop                Stop the model-server
   --ts-config TS_CONFIG
                         Configuration file for TorchServe
-
+  --model-store         MODEL_STORE
+                        Model store location where models can be loaded.
+                        It is required if "model_store" is not defined in config.properties.
   --models MODEL_PATH1 MODEL_NAME=MODEL_PATH2... [MODEL_PATH1 MODEL_NAME=MODEL_PATH2... ...]
                         Models to be loaded using [model_name=]model_location
                         format. Location can be a HTTP URL, a model archive
