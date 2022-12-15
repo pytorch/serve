@@ -509,25 +509,9 @@ You can also create model stores to store your archived models.</p>
 <p>All the logs you’ve seen as output to stdout related to model registration, management, inference are recorded in the <code class="docutils literal notranslate"><span class="pre">/logs</span></code> folder.</p>
 <p>High level performance data like Throughput or Percentile Precision can be generated with <a class="reference external" href="https://github.com/pytorch/serve/tree/master/benchmarks/README">Benchmark</a> and visualized in a report.</p>
 </section>
-<section id="install-torchserve-for-development">
-<h3>Install TorchServe for development<a class="headerlink" href="#install-torchserve-for-development" title="Permalink to this headline">¶</a></h3>
-<p>If you plan to develop with TorchServe and change some source code, you must install it from source code.</p>
-<p>Ensure that you have <code class="docutils literal notranslate"><span class="pre">python3</span></code> installed, and the user has access to the site-packages or <code class="docutils literal notranslate"><span class="pre">~/.local/bin</span></code> is added to the <code class="docutils literal notranslate"><span class="pre">PATH</span></code> environment variable.</p>
-<p>Run the following script from the top of the source directory.</p>
-<p>NOTE: This script uninstalls existing <code class="docutils literal notranslate"><span class="pre">torchserve</span></code>, <code class="docutils literal notranslate"><span class="pre">torch-model-archiver</span></code> and <code class="docutils literal notranslate"><span class="pre">torch-workflow-archiver</span></code> installations</p>
-<section id="id1">
-<h4>For Debian Based Systems/ MacOS<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h4>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">./</span><span class="n">ts_scripts</span><span class="o">/</span><span class="n">install_dependencies</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">environment</span><span class="o">=</span><span class="n">dev</span>
-<span class="n">python</span> <span class="o">./</span><span class="n">ts_scripts</span><span class="o">/</span><span class="n">install_from_src</span><span class="o">.</span><span class="n">py</span>
-</pre></div>
-</div>
-<p>Use <code class="docutils literal notranslate"><span class="pre">--cuda</span></code> flag with <code class="docutils literal notranslate"><span class="pre">install_dependencies.py</span></code> for installing cuda version specific dependencies. Possible values are <code class="docutils literal notranslate"><span class="pre">cu111</span></code>, <code class="docutils literal notranslate"><span class="pre">cu102</span></code>, <code class="docutils literal notranslate"><span class="pre">cu101</span></code>, <code class="docutils literal notranslate"><span class="pre">cu92</span></code></p>
-</section>
-<section id="id2">
-<h4>For Windows<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h4>
-<p>Refer to the documentation <a class="reference internal" href="torchserve_on_win_native.html"><span class="doc">here</span></a>.</p>
-<p>For information about the model archiver, see <a class="reference external" href="https://github.com/pytorch/serve/tree/master/model-archiver/README">detailed documentation</a>.</p>
-</section>
+<section id="contributing">
+<h3>Contributing<a class="headerlink" href="#contributing" title="Permalink to this headline">¶</a></h3>
+<p>If you plan to develop with TorchServe and change some source code, follow the <a class="reference external" href="https://github.com/pytorch/serve/blob/master/CONTRIBUTING">contributing guide</a>.</p>
 </section>
 </section>
 </section>
@@ -582,11 +566,7 @@ You can also create model stores to store your archived models.</p>
 </li>
 <li><a class="reference internal" href="#stop-torchserve">Stop TorchServe</a></li>
 <li><a class="reference internal" href="#inspect-the-logs">Inspect the logs</a></li>
-<li><a class="reference internal" href="#install-torchserve-for-development">Install TorchServe for development</a><ul>
-<li><a class="reference internal" href="#id1">For Debian Based Systems/ MacOS</a></li>
-<li><a class="reference internal" href="#id2">For Windows</a></li>
-</ul>
-</li>
+<li><a class="reference internal" href="#contributing">Contributing</a></li>
 </ul>
 </li>
 </ul>
