@@ -13,7 +13,7 @@ BaseHandler::LoadModel(
         fmt::format("{}/{}", load_model_request->model_dir,
                     manifest_->GetModel().serialized_file),
         *device));
-    return std::make_pair(module, device);
+    return std::make_pair(std::move(module), std::move(device));
   } catch (const c10::Error& e) {
     TS_LOGF(ERROR, "loading the model: {}, device id: {}, error: {}",
             load_model_request->model_name, load_model_request->gpu_id,
@@ -37,33 +37,41 @@ void BaseHandler::Handle(
   std::pair<std::string&, std::map<uint8_t, std::string>&> idx_to_req_id(
       req_ids, map_idx_to_req_id);
   try {
-    auto start_time = std::chrono::high_resolution_clock::now();
+    auto start_time = std::chrono::system_clock::now();
     auto inputs =
         Preprocess(device, idx_to_req_id, request_batch, response_batch);
+    auto start_time_p = std::chrono::system_clock::now();
     auto outputs =
         Inference(model, inputs, device, idx_to_req_id, response_batch);
+    auto stop_time_p = std::chrono::system_clock::now();
     Postprocess(outputs, idx_to_req_id, response_batch);
-    auto stop_time = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double, std::milli> duration = stop_time - start_time;
+    auto stop_time = std::chrono::system_clock::now();
+    auto duration_p =
+        std::chrono::duration<double, std::milli>(stop_time_p - start_time_p)
+            .count();
+    auto duration =
+        std::chrono::duration<double, std::milli>(stop_time - start_time)
+            .count();
+    auto dimension_values =
+        std::vector<std::string>{manifest_->GetModel().model_name, "Model"};
     try {
       auto& handler_time_metric =
           torchserve::MetricsRegistry::GetMetricsCacheInstance()->GetMetric(
               torchserve::MetricType::GAUGE, "HandlerTime");
-      handler_time_metric.AddOrUpdate(
-          std::vector<std::string>{manifest_->GetModel().model_name, "Model"},
-          idx_to_req_id.first, duration.count());
+      handler_time_metric.AddOrUpdate(dimension_values, idx_to_req_id.first,
+                                      duration);
     } catch (std::runtime_error& e) {
       TS_LOG(ERROR, e.what());
     } catch (std::invalid_argument& e) {
       TS_LOGF(ERROR, "Failed to record HandlerTime metric. {}", e.what());
     }
+
     try {
       auto& prediction_time_metric =
           torchserve::MetricsRegistry::GetMetricsCacheInstance()->GetMetric(
               torchserve::MetricType::GAUGE, "PredictionTime");
-      prediction_time_metric.AddOrUpdate(
-          std::vector<std::string>{manifest_->GetModel().model_name, "Model"},
-          idx_to_req_id.first, duration.count());
+      prediction_time_metric.AddOrUpdate(dimension_values, idx_to_req_id.first,
+                                         duration_p);
     } catch (std::runtime_error& e) {
       TS_LOG(ERROR, e.what());
     } catch (std::invalid_argument& e) {
@@ -188,7 +196,7 @@ std::vector<torch::jit::IValue> BaseHandler::Preprocess(
 }
 
 torch::Tensor BaseHandler::Inference(
-    std::shared_ptr<torch::jit::script::Module> model,
+    std::shared_ptr<torch::jit::script::Module>& model,
     std::vector<torch::jit::IValue>& inputs,
     std::shared_ptr<torch::Device>& device,
     std::pair<std::string&, std::map<uint8_t, std::string>&>& idx_to_req_id,

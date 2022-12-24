@@ -18,6 +18,7 @@ void TSLogMetric::AddOrUpdate(const std::vector<std::string>& dimension_values,
 void TSLogMetric::AddOrUpdate(const std::vector<std::string>& dimension_values,
                               const std::string& request_id,
                               const double& value) {
+  /*
   try {
     ValidateDimensionValues(dimension_values);
     ValidateMetricValue(value);
@@ -28,13 +29,14 @@ void TSLogMetric::AddOrUpdate(const std::vector<std::string>& dimension_values,
         " with value: " + std::to_string(value) + ". " + exception.what();
     throw std::invalid_argument(error_message);
   }
-
+  */
   Emit(dimension_values, request_id, value);
 }
 
 std::string TSLogMetric::BuildDimensionsString(
     const std::vector<std::string>& dimension_values) {
-  std::string dimensions_string = "";
+  std::string dimensions_string = "ModelName:tokenizer_cpp,Level:Model";
+  /*
   for (auto name_iter = dimension_names.begin(),
             value_iter = dimension_values.begin();
        name_iter != dimension_names.end() &&
@@ -46,7 +48,7 @@ std::string TSLogMetric::BuildDimensionsString(
       dimensions_string += ",";
     }
   }
-
+  */
   return dimensions_string;
 }
 

@@ -156,14 +156,14 @@ function install_libtorchtext() {
     git checkout cpp_abi
   fi
 
-  #if [ ! -d "$TORCHTEXT_BUILD_DIR" ] ; then
+  if [ ! -d "$TORCHTEXT_BUILD_DIR" ] ; then
     echo -e "${COLOR_GREEN}[ INFO ] Building libtorchtext ${COLOR_OFF}"
     cd $TORCHTEXT_SRC_DIR/examples/libtorchtext
 
     TORCHSERVE_CPP_PATH=$BASE_DIR ./build.sh
 
     echo -e "${COLOR_GREEN}[ INFO ] libtorchtext is installed ${COLOR_OFF}"
-  #fi
+  fi
 
   if [ ! -f "$TARGET_SO_FILE" ] ; then
     echo -e "${COLOR_GREEN}[ INFO ] Copying libtorchtext.so ${COLOR_OFF}"

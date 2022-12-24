@@ -37,9 +37,19 @@ class OTFMessage {
   RetrieveInferenceMsg(const ISocket& client_socket_);
   static bool SendInferenceResponse(
       const ISocket& client_socket_,
-      std::shared_ptr<InferenceResponseBatch> inference_response_batch);
+      std::shared_ptr<torchserve::InferenceResponseBatch>&
+          inference_response_batch);
   static void EncodeInferenceResponse(
-      std::shared_ptr<InferenceResponseBatch> inference_response_batch,
+      std::shared_ptr<torchserve::InferenceResponseBatch>&
+          inference_response_batch,
+      std::vector<char>& data_buffer);
+  static bool SendInferenceResponseStr(
+      const ISocket& client_socket_,
+      std::shared_ptr<torchserve::InferenceResponseBatch>&
+          inference_response_batch);
+  static void EncodeInferenceResponseStr(
+      std::shared_ptr<torchserve::InferenceResponseBatch>&
+          inference_response_batch,
       std::vector<char>& data_buffer);
 
  private:

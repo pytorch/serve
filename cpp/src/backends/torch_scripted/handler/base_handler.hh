@@ -50,7 +50,7 @@ class BaseHandler {
       std::shared_ptr<torchserve::InferenceResponseBatch>& response_batch);
 
   virtual torch::Tensor Inference(
-      std::shared_ptr<torch::jit::script::Module> model,
+      std::shared_ptr<torch::jit::script::Module>& model,
       std::vector<torch::jit::IValue>& inputs,
       std::shared_ptr<torch::Device>& device,
       std::pair<std::string&, std::map<uint8_t, std::string>&>& idx_to_req_id,

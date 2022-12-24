@@ -6,7 +6,7 @@ namespace text_classifier {
 
 std::vector<torch::jit::IValue> TextClassifierHandler::Preprocess(
     std::shared_ptr<torch::Device> &device,
-    std::pair<std::string&, std::map<uint8_t, std::string>&> &idx_to_req_id,
+    std::pair<std::string &, std::map<uint8_t, std::string> &> &idx_to_req_id,
     std::shared_ptr<torchserve::InferenceRequestBatch> &request_batch,
     std::shared_ptr<torchserve::InferenceResponseBatch> &response_batch) {
   auto batch_1 = c10::impl::GenericList(c10::StringType::get());
@@ -15,7 +15,7 @@ std::vector<torch::jit::IValue> TextClassifierHandler::Preprocess(
   uint8_t idx = 0;
   for (auto &request : *request_batch) {
     (*response_batch)[request.request_id] =
-            std::make_shared<torchserve::InferenceResponse>(request.request_id);
+        std::make_shared<torchserve::InferenceResponse>(request.request_id);
     idx_to_req_id.first += idx_to_req_id.first.empty()
                                ? request.request_id
                                : "," + request.request_id;
@@ -61,14 +61,15 @@ std::vector<torch::jit::IValue> TextClassifierHandler::Preprocess(
 
 void TextClassifierHandler::Postprocess(
     const torch::Tensor &data,
-    std::pair<std::string&, std::map<uint8_t, std::string>&> &idx_to_req_id,
+    std::pair<std::string &, std::map<uint8_t, std::string> &> &idx_to_req_id,
     std::shared_ptr<torchserve::InferenceResponseBatch> &response_batch) {
   for (const auto &kv : idx_to_req_id.second) {
     try {
       auto response = (*response_batch)[kv.second];
       response->SetResponse(200, "data_tpye",
                             torchserve::PayloadType::kDATA_TYPE_BYTES,
-                            torch::pickle_save(torch::argmax(data[kv.first])));
+                            data[kv.first].toString());
+      // torch::pickle_save(torch::argmax(data[kv.first])));
     } catch (const std::runtime_error &e) {
       LOG(ERROR) << "Failed to load tensor for request id:" << kv.second
                  << ", error: " << e.what();

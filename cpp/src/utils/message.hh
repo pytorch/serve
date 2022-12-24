@@ -126,8 +126,17 @@ struct InferenceResponse {
   // msg data_dtype must be added in headers
   Headers headers;
   std::vector<char> msg;
+  std::string msg_str;
 
   InferenceResponse(const std::string& request_id) : request_id(request_id){};
+
+  void SetResponseStr(int new_code, const std::string& new_header_key,
+                      const std::string& new_header_val,
+                      std::string&& new_msg) {
+    code = new_code;
+    headers[new_header_key] = new_header_val;
+    msg_str = new_msg;
+  };
 
   void SetResponse(int new_code, const std::string& new_header_key,
                    const std::string& new_header_val,

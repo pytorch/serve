@@ -160,14 +160,16 @@ void OTFMessage::RetrieveInferenceRequestParameter(
 
 bool OTFMessage::SendInferenceResponse(
     const ISocket& client_socket_,
-    std::shared_ptr<InferenceResponseBatch> inference_response_batch) {
+    std::shared_ptr<torchserve::InferenceResponseBatch>&
+        inference_response_batch) {
   std::vector<char> data_buffer = {};
   OTFMessage::EncodeInferenceResponse(inference_response_batch, data_buffer);
   return client_socket_.SendAll(data_buffer.size(), data_buffer.data());
 }
 
 void OTFMessage::EncodeInferenceResponse(
-    std::shared_ptr<InferenceResponseBatch> inference_response_batch,
+    std::shared_ptr<torchserve::InferenceResponseBatch>&
+        inference_response_batch,
     std::vector<char>& data_buffer) {
   // frontend decoder -
   // https://github.com/pytorch/serve/blob/master/frontend/server/src/main/java/org/pytorch/serve/util/codec/ModelResponseDecoder.java#L20
@@ -253,4 +255,79 @@ void OTFMessage::AppendOTFStringToCharVector(std::vector<char>& dest_vector,
                      source_string.end());
 }
 
+bool OTFMessage::SendInferenceResponseStr(
+    const ISocket& client_socket_,
+    std::shared_ptr<torchserve::InferenceResponseBatch>&
+        inference_response_batch) {
+  std::vector<char> data_buffer = {};
+  OTFMessage::EncodeInferenceResponseStr(inference_response_batch, data_buffer);
+  return client_socket_.SendAll(data_buffer.size(), data_buffer.data());
+}
+
+void OTFMessage::EncodeInferenceResponseStr(
+    std::shared_ptr<torchserve::InferenceResponseBatch>&
+        inference_response_batch,
+    std::vector<char>& data_buffer) {
+  // frontend decoder -
+  // https://github.com/pytorch/serve/blob/master/frontend/server/src/main/java/org/pytorch/serve/util/codec/ModelResponseDecoder.java#L20
+
+  auto batch_response_status =
+      std::make_pair(200, std::string("Prediction success"));
+  /*
+  for (auto const& [request_id, inference_response] :
+       *inference_response_batch) {
+    if (inference_response->code != 200) {
+      batch_response_status = std::make_pair(
+          inference_response->code,
+          torchserve::Converter::VectorToStr(inference_response->msg));
+      break;
+    }
+  }
+  */
+
+  // status code
+  int32_t code = htonl(batch_response_status.first);
+  AppendIntegerToCharVector(data_buffer, code);
+
+  // message
+  AppendOTFStringToCharVector(data_buffer, batch_response_status.second);
+
+  // for each response in the batch
+  for (auto const& [request_id, inference_response] :
+       *inference_response_batch) {
+    // request id
+    AppendOTFStringToCharVector(data_buffer, request_id);
+
+    // content type - leaving it empty to be backward compatible. It will be
+    // passed in headers if added there.
+    int32_t message_size = htonl(0);
+    AppendIntegerToCharVector(data_buffer, message_size);
+
+    // status code
+    int32_t status_code = htonl(inference_response->code);
+    AppendIntegerToCharVector(data_buffer, status_code);
+
+    // reason phrase - leaving it empty to be backward compatible. It will be
+    // passed in headers if added there.
+    int32_t reason_phrase_size = htonl(0);
+    AppendIntegerToCharVector(data_buffer, reason_phrase_size);
+
+    // headers
+    int32_t headers_count = htonl(inference_response->headers.size());
+    AppendIntegerToCharVector(data_buffer, headers_count);
+    for (auto const& [header_name, header_value] :
+         inference_response->headers) {
+      AppendOTFStringToCharVector(data_buffer, header_name);
+      AppendOTFStringToCharVector(data_buffer, header_value);
+    }
+
+    // response message
+    int32_t msg_size = htonl(inference_response->msg_str.size());
+    AppendIntegerToCharVector(data_buffer, msg_size);
+    data_buffer.insert(data_buffer.end(), inference_response->msg_str.data(),
+                       inference_response->msg_str.data() + msg_size);
+  }
+  int32_t end_of_response_code = htonl(-1);
+  AppendIntegerToCharVector(data_buffer, end_of_response_code);
+}
 }  // namespace torchserve

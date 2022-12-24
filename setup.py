@@ -175,11 +175,11 @@ class BuildCPP(setuptools.command.build_py.build_py):
         if os.path.exists(cpp_dir):
             rmtree(cpp_dir)
 
-        try:
-            subprocess.check_call(build_cpp_command[platform.system()],
-                                  shell=True)
-        except OSError:
-            assert 0, "build failed"
+        #try:
+        #    subprocess.check_call(build_cpp_command[platform.system()],
+        #                          shell=True)
+        #except OSError:
+        #    assert 0, "build failed"
 
         copytree(self.source_bin_dir, self.dest_bin_dir)
         copytree(self.source_lib_dir, self.dest_lib_dir)

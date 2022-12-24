@@ -238,12 +238,17 @@ class BaseHandler(abc.ABC):
                 data_preprocess = self.preprocess(data)
 
                 if not self._is_explain():
+                    start_time_p = time.time()
                     output = self.inference(data_preprocess)
+                    stop_time_p = time.time()
                     output = self.postprocess(output)
                 else:
                     output = self.explain_handle(data_preprocess, data)
 
         stop_time = time.time()
+        metrics.add_time(
+            'PredictionTime', round((stop_time_p - start_time_p) * 1000, 2), None, "ms" 
+        )
         metrics.add_time(
             "HandlerTime", round((stop_time - start_time) * 1000, 2), None, "ms"
         )

@@ -12,15 +12,15 @@ class TextClassifierHandler : public torchserve::torchscripted::BaseHandler {
 
   std::vector<torch::jit::IValue> Preprocess(
       std::shared_ptr<torch::Device> &device,
-      std::pair<std::string&, std::map<uint8_t, std::string>&> &idx_to_req_id,
+      std::pair<std::string &, std::map<uint8_t, std::string> &> &idx_to_req_id,
       std::shared_ptr<torchserve::InferenceRequestBatch> &request_batch,
       std::shared_ptr<torchserve::InferenceResponseBatch> &response_batch)
       override;
 
   void Postprocess(
-          const torch::Tensor &data,
-          std::pair<std::string&, std::map<uint8_t, std::string>&> &idx_to_req_id,
-          std::shared_ptr<torchserve::InferenceResponseBatch> &response_batch)
-          override;
+      const torch::Tensor &data,
+      std::pair<std::string &, std::map<uint8_t, std::string> &> &idx_to_req_id,
+      std::shared_ptr<torchserve::InferenceResponseBatch> &response_batch)
+      override;
 };
 }  // namespace text_classifier

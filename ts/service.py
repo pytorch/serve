@@ -95,7 +95,7 @@ class Service(object):
         metrics = MetricsStore(req_id_map, self.context.model_name)
         self.context.metrics = metrics
 
-        start_time = time.time()
+#        start_time = time.time()
 
         # noinspection PyBroadException
         try:
@@ -119,8 +119,8 @@ class Service(object):
                            self.context.model_name, len(input_batch), len(ret))
             return create_predict_response(None, req_id_map, "number of batch response mismatched", 503)
 
-        duration = round((time.time() - start_time) * 1000, 2)
-        metrics.add_time(PREDICTION_METRIC, duration)
+#        duration = round((time.time() - start_time) * 1000, 2)
+#        metrics.add_time(PREDICTION_METRIC, duration)
 
         return create_predict_response(ret, req_id_map, "Prediction success", 200, context=self.context)
 

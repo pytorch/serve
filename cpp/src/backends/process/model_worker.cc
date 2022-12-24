@@ -130,8 +130,8 @@ bool SocketServer::CreateBackend(
       } else {
         auto response = model_instance->Predict(
             torchserve::OTFMessage::RetrieveInferenceMsg(client_socket_));
-        if (!torchserve::OTFMessage::SendInferenceResponse(client_socket_,
-                                                           response)) {
+        if (!torchserve::OTFMessage::SendInferenceResponseStr(client_socket_,
+                                                              response)) {
           TS_LOG(ERROR, "Error writing inference response to socket");
         }
       }
