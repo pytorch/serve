@@ -1,5 +1,7 @@
 #include "src/backends/protocol/otf_message.hh"
 
+#include <iostream>
+
 static const std::string CONTENT_TYPE_SUFFIX = ":contentType";
 static constexpr char NULL_CHAR = '\0';
 
@@ -325,7 +327,8 @@ void OTFMessage::EncodeInferenceResponseStr(
     int32_t msg_size = htonl(inference_response->msg_str.size());
     AppendIntegerToCharVector(data_buffer, msg_size);
     data_buffer.insert(data_buffer.end(), inference_response->msg_str.data(),
-                       inference_response->msg_str.data() + msg_size);
+                       inference_response->msg_str.data() +
+                           inference_response->msg_str.size());
   }
   int32_t end_of_response_code = htonl(-1);
   AppendIntegerToCharVector(data_buffer, end_of_response_code);

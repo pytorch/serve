@@ -1,5 +1,6 @@
 #include "src/examples/text_classifier/text_classifier_handler.hh"
 
+#include <folly/dynamic.h>
 #include <folly/json.h>
 
 namespace text_classifier {
@@ -66,9 +67,15 @@ void TextClassifierHandler::Postprocess(
   for (const auto &kv : idx_to_req_id.second) {
     try {
       auto response = (*response_batch)[kv.second];
-      response->SetResponse(200, "data_tpye",
-                            torchserve::PayloadType::kDATA_TYPE_BYTES,
-                            data[kv.first].toString());
+      auto size = data[kv.first].sizes()[0];
+      folly::dynamic arr = folly::dynamic::array();
+      for (int i = 0; i < size; i++) {
+        arr.push_back(data[kv.first][i].item<float>());
+      }
+      response->SetResponseStr(200, "data_tpye",
+                               // torchserve::PayloadType::kDATA_TYPE_BYTES,
+                               torchserve::PayloadType::kDATA_TYPE_STRING,
+                               folly::toJson(arr));
       // torch::pickle_save(torch::argmax(data[kv.first])));
     } catch (const std::runtime_error &e) {
       LOG(ERROR) << "Failed to load tensor for request id:" << kv.second
