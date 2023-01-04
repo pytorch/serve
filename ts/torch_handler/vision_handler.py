@@ -36,7 +36,7 @@ class VisionHandler(BaseHandler, ABC):
         """
         transform = transforms.Compose([transforms.ToTensor()])
         images = [transform(Image.open(io.BytesIO(base64.b64decode(image)))) if isinstance(image, str) else torch.tensor(image) for image in data]
-        return torch.stack(images).to("cuda")
+        return torch.stack(images).to(self.device)
 
     def get_insights(self, tensor_data, _, target=0):
         print("input shape", tensor_data.shape)
