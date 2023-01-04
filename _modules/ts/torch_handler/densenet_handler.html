@@ -368,7 +368,7 @@
 
 
 <div class="viewcode-block" id="DenseNetHandler"><a class="viewcode-back" href="../../../api/ts.torch_handler.html#ts.torch_handler.densenet_handler.DenseNetHandler">[docs]</a><span class="k">class</span> <span class="nc">DenseNetHandler</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    DenseNetHandler handler class. This handler takes an image</span>
 <span class="sd">    and returns the name of object in that image.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -382,7 +382,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">map_location</span> <span class="o">=</span> <span class="kc">None</span>
 
 <div class="viewcode-block" id="DenseNetHandler.initialize"><a class="viewcode-back" href="../../../api/ts.torch_handler.html#ts.torch_handler.densenet_handler.DenseNetHandler.initialize">[docs]</a>    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;First try to load torchscript else load eager mode state_dict based model&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;First try to load torchscript else load eager mode state_dict based model&quot;&quot;&quot;</span>
 
         <span class="n">properties</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">system_properties</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">map_location</span> <span class="o">=</span> <span class="s2">&quot;cuda&quot;</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="ow">and</span> <span class="n">properties</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;gpu_id&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;cpu&quot;</span>
@@ -441,7 +441,7 @@
         <span class="k">return</span> <span class="n">model</span>
 
 <div class="viewcode-block" id="DenseNetHandler.inference"><a class="viewcode-back" href="../../../api/ts.torch_handler.html#ts.torch_handler.densenet_handler.DenseNetHandler.inference">[docs]</a>    <span class="k">def</span> <span class="nf">inference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Override to customize the inference</span>
 <span class="sd">        :param data: Torch tensor, matching the model input shape</span>
 <span class="sd">        :return: Prediction output as Torch tensor</span>
@@ -452,7 +452,7 @@
         <span class="k">return</span> <span class="n">results</span></div>
 
 <div class="viewcode-block" id="DenseNetHandler.handle"><a class="viewcode-back" href="../../../api/ts.torch_handler.html#ts.torch_handler.densenet_handler.DenseNetHandler.handle">[docs]</a>    <span class="k">def</span> <span class="nf">handle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Entry point for default handler</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -478,7 +478,7 @@
 
 
 <div class="viewcode-block" id="list_classes_from_module"><a class="viewcode-back" href="../../../api/ts.torch_handler.html#ts.torch_handler.densenet_handler.list_classes_from_module">[docs]</a><span class="k">def</span> <span class="nf">list_classes_from_module</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">parent_class</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Parse user defined module to get all model service classes in it.</span>
 
 <span class="sd">    :param module:</span>

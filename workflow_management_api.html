@@ -381,10 +381,10 @@
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">workflow_name</span></code> - the name of the workflow; this name will be used as {workflow_name} in other APIs as part of the path. If this parameter is not present, <code class="docutils literal notranslate"><span class="pre">modelName</span></code> in MANIFEST.json will be used.</p></li>
 </ul>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl -X POST  <span class="s2">&quot;http://localhost:8081/workflows?url=https://&lt;public_url&gt;/myworkflow.mar&quot;</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w">  </span><span class="s2">&quot;http://localhost:8081/workflows?url=https://&lt;public_url&gt;/myworkflow.mar&quot;</span>
 
 <span class="o">{</span>
-  <span class="s2">&quot;status&quot;</span>: <span class="s2">&quot;Workflow myworkflow has been registered and scaled successfully.&quot;</span>
+<span class="w">  </span><span class="s2">&quot;status&quot;</span>:<span class="w"> </span><span class="s2">&quot;Workflow myworkflow has been registered and scaled successfully.&quot;</span>
 <span class="o">}</span>
 </pre></div>
 </div>
@@ -394,17 +394,17 @@
 <h2>Describe workflow<a class="headerlink" href="#describe-workflow" title="Permalink to this headline">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/workflows/{workflow_name}</span></code></p>
 <p>Use the Describe Workflow API to get detail of a workflow:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl http://localhost:8081/workflows/myworkflow
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl<span class="w"> </span>http://localhost:8081/workflows/myworkflow
 <span class="o">[</span>
-  <span class="o">{</span>
-    <span class="s2">&quot;workflowName&quot;</span>: <span class="s2">&quot;myworkflow&quot;</span>,
-    <span class="s2">&quot;workflowUrl&quot;</span>: <span class="s2">&quot;myworkflow.war&quot;</span>,
-    <span class="s2">&quot;minWorkers&quot;</span>: <span class="m">1</span>,
-    <span class="s2">&quot;maxWorkers&quot;</span>: <span class="m">1</span>,
-    <span class="s2">&quot;batchSize&quot;</span>: <span class="m">8</span>,
-    <span class="s2">&quot;maxBatchDelay&quot;</span>: <span class="m">5000</span>,
-    <span class="s2">&quot;workflowDag&quot;</span>: <span class="s2">&quot;{preprocessing=[m1], m1=[postprocessing]}&quot;</span>
-  <span class="o">}</span>
+<span class="w">  </span><span class="o">{</span>
+<span class="w">    </span><span class="s2">&quot;workflowName&quot;</span>:<span class="w"> </span><span class="s2">&quot;myworkflow&quot;</span>,
+<span class="w">    </span><span class="s2">&quot;workflowUrl&quot;</span>:<span class="w"> </span><span class="s2">&quot;myworkflow.war&quot;</span>,
+<span class="w">    </span><span class="s2">&quot;minWorkers&quot;</span>:<span class="w"> </span><span class="m">1</span>,
+<span class="w">    </span><span class="s2">&quot;maxWorkers&quot;</span>:<span class="w"> </span><span class="m">1</span>,
+<span class="w">    </span><span class="s2">&quot;batchSize&quot;</span>:<span class="w"> </span><span class="m">8</span>,
+<span class="w">    </span><span class="s2">&quot;maxBatchDelay&quot;</span>:<span class="w"> </span><span class="m">5000</span>,
+<span class="w">    </span><span class="s2">&quot;workflowDag&quot;</span>:<span class="w"> </span><span class="s2">&quot;{preprocessing=[m1], m1=[postprocessing]}&quot;</span>
+<span class="w">  </span><span class="o">}</span>
 <span class="o">]</span>
 </pre></div>
 </div>
@@ -413,10 +413,10 @@
 <h2>Unregister a workflow<a class="headerlink" href="#unregister-a-workflow" title="Permalink to this headline">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">DELETE</span> <span class="pre">/workflows/{workflow_name}</span></code></p>
 <p>Use the Unregister Workflow API to free up system resources by unregistering a workflow from TorchServe:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl -X DELETE http://localhost:8081/workflows/myworkflow
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl<span class="w"> </span>-X<span class="w"> </span>DELETE<span class="w"> </span>http://localhost:8081/workflows/myworkflow
 
 <span class="o">{</span>
-  <span class="s2">&quot;status&quot;</span>: <span class="s2">&quot;Workflow \&quot;myworkflow\&quot; unregistered&quot;</span>
+<span class="w">  </span><span class="s2">&quot;status&quot;</span>:<span class="w"> </span><span class="s2">&quot;Workflow \&quot;myworkflow\&quot; unregistered&quot;</span>
 <span class="o">}</span>
 </pre></div>
 </div>
@@ -429,24 +429,24 @@
 <li><p><code class="docutils literal notranslate"><span class="pre">next_page_token</span></code> - (optional) queries for next page. It is passed as a query parameter. This value is return by a previous API call.</p></li>
 </ul>
 <p>Use the  list Workflows API to query currently registered workflows:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl <span class="s2">&quot;http://localhost:8081/workflows&quot;</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl<span class="w"> </span><span class="s2">&quot;http://localhost:8081/workflows&quot;</span>
 </pre></div>
 </div>
 <p>This API supports pagination:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl <span class="s2">&quot;http://localhost:8081/workflows?limit=2&amp;next_page_token=2&quot;</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl<span class="w"> </span><span class="s2">&quot;http://localhost:8081/workflows?limit=2&amp;next_page_token=2&quot;</span>
 
 <span class="o">{</span>
-  <span class="s2">&quot;nextPageToken&quot;</span>: <span class="s2">&quot;4&quot;</span>,
-  <span class="s2">&quot;workflows&quot;</span>: <span class="o">[</span>
-    <span class="o">{</span>
-      <span class="s2">&quot;workflowName&quot;</span>: <span class="s2">&quot;myworkflow1&quot;</span>,
-      <span class="s2">&quot;workflowUrl&quot;</span>: <span class="s2">&quot;myworkflow1.war&quot;</span>
-    <span class="o">}</span>,
-    <span class="o">{</span>
-      <span class="s2">&quot;workflowName&quot;</span>: <span class="s2">&quot;myworkflow2&quot;</span>,
-      <span class="s2">&quot;workflowUrl&quot;</span>: <span class="s2">&quot;myworkflow2.war&quot;</span>
-    <span class="o">}</span>
-  <span class="o">]</span>
+<span class="w">  </span><span class="s2">&quot;nextPageToken&quot;</span>:<span class="w"> </span><span class="s2">&quot;4&quot;</span>,
+<span class="w">  </span><span class="s2">&quot;workflows&quot;</span>:<span class="w"> </span><span class="o">[</span>
+<span class="w">    </span><span class="o">{</span>
+<span class="w">      </span><span class="s2">&quot;workflowName&quot;</span>:<span class="w"> </span><span class="s2">&quot;myworkflow1&quot;</span>,
+<span class="w">      </span><span class="s2">&quot;workflowUrl&quot;</span>:<span class="w"> </span><span class="s2">&quot;myworkflow1.war&quot;</span>
+<span class="w">    </span><span class="o">}</span>,
+<span class="w">    </span><span class="o">{</span>
+<span class="w">      </span><span class="s2">&quot;workflowName&quot;</span>:<span class="w"> </span><span class="s2">&quot;myworkflow2&quot;</span>,
+<span class="w">      </span><span class="s2">&quot;workflowUrl&quot;</span>:<span class="w"> </span><span class="s2">&quot;myworkflow2.war&quot;</span>
+<span class="w">    </span><span class="o">}</span>
+<span class="w">  </span><span class="o">]</span>
 <span class="o">}</span>
 </pre></div>
 </div>

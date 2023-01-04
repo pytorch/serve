@@ -372,36 +372,36 @@
 <li><p><code class="docutils literal notranslate"><span class="pre">dag</span></code> which describes the structure of the workflow, which nodes feed into which other nodes</p></li>
 </ol>
 <p>E.g.</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">models</span><span class="p">:</span><span class="w"></span>
-<span class="w">    </span><span class="c1">#global model params</span><span class="w"></span>
-<span class="w">    </span><span class="nt">min-workers</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w"></span>
-<span class="w">    </span><span class="nt">max-workers</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4</span><span class="w"></span>
-<span class="w">    </span><span class="nt">batch-size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span><span class="w"></span>
-<span class="w">    </span><span class="nt">max-batch-delay </span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5000</span><span class="w"></span>
-<span class="w">    </span><span class="nt">retry-attempts </span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span><span class="w"></span>
-<span class="w">    </span><span class="nt">timeout-ms </span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5000</span><span class="w"></span>
-<span class="w">    </span><span class="nt">m1</span><span class="p">:</span><span class="w"></span>
-<span class="w">       </span><span class="nt">url </span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">model1.mar</span><span class="w"> </span><span class="c1">#local or public URI</span><span class="w"></span>
-<span class="w">       </span><span class="nt">min-workers</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w">   </span><span class="c1">#override the global params</span><span class="w"></span>
-<span class="w">       </span><span class="nt">max-workers</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span><span class="w"></span>
-<span class="w">       </span><span class="nt">batch-size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4</span><span class="w"></span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">models</span><span class="p">:</span>
+<span class="w">    </span><span class="c1">#global model params</span>
+<span class="w">    </span><span class="nt">min-workers</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="w">    </span><span class="nt">max-workers</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4</span>
+<span class="w">    </span><span class="nt">batch-size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+<span class="w">    </span><span class="nt">max-batch-delay </span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5000</span>
+<span class="w">    </span><span class="nt">retry-attempts </span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+<span class="w">    </span><span class="nt">timeout-ms </span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5000</span>
+<span class="w">    </span><span class="nt">m1</span><span class="p">:</span>
+<span class="w">       </span><span class="nt">url </span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">model1.mar</span><span class="w"> </span><span class="c1">#local or public URI</span>
+<span class="w">       </span><span class="nt">min-workers</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w">   </span><span class="c1">#override the global params</span>
+<span class="w">       </span><span class="nt">max-workers</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
+<span class="w">       </span><span class="nt">batch-size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4</span>
 <span class="w">     </span>
-<span class="w">    </span><span class="nt">m2</span><span class="p">:</span><span class="w"></span>
-<span class="w">       </span><span class="nt">url </span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">model2.mar</span><span class="w"></span>
+<span class="w">    </span><span class="nt">m2</span><span class="p">:</span>
+<span class="w">       </span><span class="nt">url </span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">model2.mar</span>
 
-<span class="w">    </span><span class="nt">m3</span><span class="p">:</span><span class="w"></span>
-<span class="w">       </span><span class="nt">url </span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">model3.mar</span><span class="w"></span>
-<span class="w">       </span><span class="nt">batch-size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span><span class="w"></span>
+<span class="w">    </span><span class="nt">m3</span><span class="p">:</span>
+<span class="w">       </span><span class="nt">url </span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">model3.mar</span>
+<span class="w">       </span><span class="nt">batch-size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
 
-<span class="w">    </span><span class="nt">m4</span><span class="p">:</span><span class="w"></span>
-<span class="w">      </span><span class="nt">url </span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">model4.mar</span><span class="w"></span>
+<span class="w">    </span><span class="nt">m4</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">url </span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">model4.mar</span>
 <span class="w"> </span>
-<span class="nt">dag</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="nt">pre_processing </span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">m1</span><span class="p p-Indicator">]</span><span class="w"></span>
-<span class="w">  </span><span class="nt">m1 </span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">m2</span><span class="p p-Indicator">]</span><span class="w"></span>
-<span class="w">  </span><span class="nt">m2 </span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">m3</span><span class="p p-Indicator">]</span><span class="w"></span>
-<span class="w">  </span><span class="nt">m3 </span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">m4</span><span class="p p-Indicator">]</span><span class="w"></span>
-<span class="w">  </span><span class="nt">m4 </span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">postprocessing</span><span class="p p-Indicator">]</span><span class="w"></span>
+<span class="nt">dag</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">pre_processing </span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">m1</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">m1 </span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">m2</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">m2 </span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">m3</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">m3 </span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">m4</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">m4 </span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">postprocessing</span><span class="p p-Indicator">]</span>
 </pre></div>
 </div>
 <section id="workflow-models">

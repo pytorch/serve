@@ -365,7 +365,7 @@
 
 
 <div class="viewcode-block" id="JSONEnvelope"><a class="viewcode-back" href="../../../../api/ts.torch_handler.request_envelope.html#ts.torch_handler.request_envelope.json.JSONEnvelope">[docs]</a><span class="k">class</span> <span class="nc">JSONEnvelope</span><span class="p">(</span><span class="n">BaseEnvelope</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Implementation. Captures batches in JSON format, returns</span>
 <span class="sd">    also in JSON format.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -381,7 +381,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_batch_to_json</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lengths</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">_batch_from_json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_rows</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Joins the instances of a batch of JSON objects</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">mini_batches</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_from_json</span><span class="p">(</span><span class="n">data_row</span><span class="p">)</span> <span class="k">for</span> <span class="n">data_row</span> <span class="ow">in</span> <span class="n">data_rows</span><span class="p">]</span>
@@ -390,7 +390,7 @@
         <span class="k">return</span> <span class="n">lengths</span><span class="p">,</span> <span class="n">full_batch</span>
 
     <span class="k">def</span> <span class="nf">_from_json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Extracts the data from the JSON object</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">rows</span> <span class="o">=</span> <span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;body&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">data</span><span class="p">)[</span><span class="s2">&quot;instances&quot;</span><span class="p">]</span>
@@ -407,7 +407,7 @@
         <span class="k">return</span> <span class="n">rows</span>
 
     <span class="k">def</span> <span class="nf">_batch_to_json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="n">lengths</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Splits the batched output into mini-batches and returns JSON</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">outputs</span> <span class="o">=</span> <span class="p">[]</span>
@@ -422,7 +422,7 @@
         <span class="k">return</span> <span class="n">outputs</span>
 
     <span class="k">def</span> <span class="nf">_to_json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Converts the output of the model back into compatible JSON</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">out_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;predictions&quot;</span><span class="p">:</span> <span class="n">output</span><span class="p">}</span>

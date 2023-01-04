@@ -414,7 +414,7 @@ requests before this timer time’s out, it sends what ever requests that were r
 </ol>
 <p>Let’s look at an example using this configuration through management API:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># The following command will register a model &quot;resnet-152.mar&quot; and configure TorchServe to use a batch_size of 8 and a max batch delay of 50 milliseconds. </span>
-curl -X POST <span class="s2">&quot;localhost:8081/models?url=resnet-152.mar&amp;batch_size=8&amp;max_batch_delay=50&quot;</span>
+curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">&quot;localhost:8081/models?url=resnet-152.mar&amp;batch_size=8&amp;max_batch_delay=50&quot;</span>
 </pre></div>
 </div>
 <p>Here is an example of using this configuration through the config.properties:</p>
@@ -481,33 +481,33 @@ $ torchserve --start --model-store model_store
 <ul class="simple">
 <li><p>Verify that the workers were started properly.</p></li>
 </ul>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl http://localhost:8081/models/resnet-152-batch_v2
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl<span class="w"> </span>http://localhost:8081/models/resnet-152-batch_v2
 </pre></div>
 </div>
-<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="w"></span>
-<span class="w">  </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="nt">&quot;modelName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;resnet-152-batch_v2&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">&quot;modelVersion&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2.0&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">&quot;modelUrl&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://torchserve.pytorch.org/mar_files/resnet-152-batch_v2.mar&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">&quot;runtime&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;python&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">&quot;minWorkers&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">&quot;maxWorkers&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">&quot;batchSize&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">&quot;maxBatchDelay&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">&quot;loadedAtStartup&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">&quot;workers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
-<span class="w">      </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;9000&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">        </span><span class="nt">&quot;startTime&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2021-06-14T23:18:21.793Z&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">        </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;READY&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">        </span><span class="nt">&quot;memoryUsage&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1726554112</span><span class="p">,</span><span class="w"></span>
-<span class="w">        </span><span class="nt">&quot;pid&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">19946</span><span class="p">,</span><span class="w"></span>
-<span class="w">        </span><span class="nt">&quot;gpu&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"></span>
-<span class="w">        </span><span class="nt">&quot;gpuUsage&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;gpuId::0 utilization.gpu [%]::0 % utilization.memory [%]::0 % memory.used [MiB]::678 MiB&quot;</span><span class="w"></span>
-<span class="w">      </span><span class="p">}</span><span class="w"></span>
-<span class="w">    </span><span class="p">]</span><span class="w"></span>
-<span class="w">  </span><span class="p">}</span><span class="w"></span>
-<span class="p">]</span><span class="w"></span>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">[</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;modelName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;resnet-152-batch_v2&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;modelVersion&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2.0&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;modelUrl&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://torchserve.pytorch.org/mar_files/resnet-152-batch_v2.mar&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;runtime&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;python&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;minWorkers&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;maxWorkers&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;batchSize&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;maxBatchDelay&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;loadedAtStartup&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;workers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;9000&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;startTime&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2021-06-14T23:18:21.793Z&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;READY&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;memoryUsage&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1726554112</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;pid&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">19946</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;gpu&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;gpuUsage&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;gpuId::0 utilization.gpu [%]::0 % utilization.memory [%]::0 % memory.used [MiB]::678 MiB&quot;</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">]</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">]</span>
 </pre></div>
 </div>
 <ul>
@@ -558,7 +558,7 @@ models={\
 <ul class="simple">
 <li><p>Then will start Torchserve by passing the config.properties using <code class="docutils literal notranslate"><span class="pre">--ts-config</span></code> flag</p></li>
 </ul>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>torchserve --start --model-store model_store  --ts-config config.properties
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>torchserve<span class="w"> </span>--start<span class="w"> </span>--model-store<span class="w"> </span>model_store<span class="w">  </span>--ts-config<span class="w"> </span>config.properties
 </pre></div>
 </div>
 <ul class="simple">
@@ -573,33 +573,33 @@ models={\
 <ul class="simple">
 <li><p>Verify that the workers were started properly.</p></li>
 </ul>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl http://localhost:8081/models/resnet-152-batch_v2
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl<span class="w"> </span>http://localhost:8081/models/resnet-152-batch_v2
 </pre></div>
 </div>
-<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="w"></span>
-<span class="w">  </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="nt">&quot;modelName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;resnet-152-batch_v2&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">&quot;modelVersion&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2.0&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">&quot;modelUrl&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;resnet-152-batch_v2.mar&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">&quot;runtime&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;python&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">&quot;minWorkers&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">&quot;maxWorkers&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">&quot;batchSize&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">&quot;maxBatchDelay&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">5000</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">&quot;loadedAtStartup&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">&quot;workers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
-<span class="w">      </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;9000&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">        </span><span class="nt">&quot;startTime&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2021-06-14T22:44:36.742Z&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">        </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;READY&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">        </span><span class="nt">&quot;memoryUsage&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"></span>
-<span class="w">        </span><span class="nt">&quot;pid&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">19116</span><span class="p">,</span><span class="w"></span>
-<span class="w">        </span><span class="nt">&quot;gpu&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"></span>
-<span class="w">        </span><span class="nt">&quot;gpuUsage&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;gpuId::0 utilization.gpu [%]::0 % utilization.memory [%]::0 % memory.used [MiB]::678 MiB&quot;</span><span class="w"></span>
-<span class="w">      </span><span class="p">}</span><span class="w"></span>
-<span class="w">    </span><span class="p">]</span><span class="w"></span>
-<span class="w">  </span><span class="p">}</span><span class="w"></span>
-<span class="p">]</span><span class="w"></span>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">[</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;modelName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;resnet-152-batch_v2&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;modelVersion&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2.0&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;modelUrl&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;resnet-152-batch_v2.mar&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;runtime&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;python&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;minWorkers&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;maxWorkers&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;batchSize&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;maxBatchDelay&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">5000</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;loadedAtStartup&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;workers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;9000&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;startTime&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2021-06-14T22:44:36.742Z&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;READY&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;memoryUsage&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;pid&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">19116</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;gpu&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;gpuUsage&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;gpuId::0 utilization.gpu [%]::0 % utilization.memory [%]::0 % memory.used [MiB]::678 MiB&quot;</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">]</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">]</span>
 </pre></div>
 </div>
 <ul>
@@ -660,45 +660,45 @@ models={\
 <ul class="simple">
 <li><p>build the targeted docker image from <a class="reference external" href="../docker">here</a>, here we use the gpu image</p></li>
 </ul>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./build_image.sh -g -cv cu102
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./build_image.sh<span class="w"> </span>-g<span class="w"> </span>-cv<span class="w"> </span>cu102
 </pre></div>
 </div>
 <ul class="simple">
 <li><p>Start serving the model with the container and pass the config.properties to the container</p></li>
 </ul>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span> docker run --rm -it --gpus all -p <span class="m">8080</span>:8080 -p <span class="m">8081</span>:8081 --name mar -v /home/ubuntu/serve/model_store:/home/model-server/model-store  -v $ path to config.properties:/home/model-server/config.properties  pytorch/torchserve:latest-gpu
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="w"> </span>docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>-it<span class="w"> </span>--gpus<span class="w"> </span>all<span class="w"> </span>-p<span class="w"> </span><span class="m">8080</span>:8080<span class="w"> </span>-p<span class="w"> </span><span class="m">8081</span>:8081<span class="w"> </span>--name<span class="w"> </span>mar<span class="w"> </span>-v<span class="w"> </span>/home/ubuntu/serve/model_store:/home/model-server/model-store<span class="w">  </span>-v<span class="w"> </span>$<span class="w"> </span>path<span class="w"> </span>to<span class="w"> </span>config.properties:/home/model-server/config.properties<span class="w">  </span>pytorch/torchserve:latest-gpu
 </pre></div>
 </div>
 <ul class="simple">
 <li><p>Verify that the workers were started properly.</p></li>
 </ul>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl http://localhost:8081/models/resnet-152-batch_v2
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl<span class="w"> </span>http://localhost:8081/models/resnet-152-batch_v2
 </pre></div>
 </div>
-<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="w"></span>
-<span class="w">  </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="nt">&quot;modelName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;resnet-152-batch_v2&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">&quot;modelVersion&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2.0&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">&quot;modelUrl&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;resnet-152-batch_v2.mar&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">&quot;runtime&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;python&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">&quot;minWorkers&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">&quot;maxWorkers&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">&quot;batchSize&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">&quot;maxBatchDelay&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">5000</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">&quot;loadedAtStartup&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">&quot;workers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
-<span class="w">      </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;9000&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">        </span><span class="nt">&quot;startTime&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2021-06-14T22:44:36.742Z&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">        </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;READY&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">        </span><span class="nt">&quot;memoryUsage&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"></span>
-<span class="w">        </span><span class="nt">&quot;pid&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">19116</span><span class="p">,</span><span class="w"></span>
-<span class="w">        </span><span class="nt">&quot;gpu&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"></span>
-<span class="w">        </span><span class="nt">&quot;gpuUsage&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;gpuId::0 utilization.gpu [%]::0 % utilization.memory [%]::0 % memory.used [MiB]::678 MiB&quot;</span><span class="w"></span>
-<span class="w">      </span><span class="p">}</span><span class="w"></span>
-<span class="w">    </span><span class="p">]</span><span class="w"></span>
-<span class="w">  </span><span class="p">}</span><span class="w"></span>
-<span class="p">]</span><span class="w"></span>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">[</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;modelName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;resnet-152-batch_v2&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;modelVersion&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2.0&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;modelUrl&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;resnet-152-batch_v2.mar&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;runtime&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;python&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;minWorkers&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;maxWorkers&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;batchSize&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;maxBatchDelay&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">5000</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;loadedAtStartup&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;workers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;9000&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;startTime&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2021-06-14T22:44:36.742Z&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;READY&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;memoryUsage&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;pid&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">19116</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;gpu&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;gpuUsage&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;gpuId::0 utilization.gpu [%]::0 % utilization.memory [%]::0 % memory.used [MiB]::678 MiB&quot;</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">]</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">]</span>
 </pre></div>
 </div>
 <ul>

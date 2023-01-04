@@ -415,7 +415,7 @@
 
 
 <div class="viewcode-block" id="BaseHandler"><a class="viewcode-back" href="../../../api/ts.torch_handler.html#ts.torch_handler.base_handler.BaseHandler">[docs]</a><span class="k">class</span> <span class="nc">BaseHandler</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Base default handler to load torchscript or eager mode [state_dict] models</span>
 <span class="sd">    Also, provides handle method per torch serve custom model specification</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -434,7 +434,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">profiler_args</span> <span class="o">=</span> <span class="p">{}</span>
 
 <div class="viewcode-block" id="BaseHandler.initialize"><a class="viewcode-back" href="../../../api/ts.torch_handler.html#ts.torch_handler.base_handler.BaseHandler.initialize">[docs]</a>    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Initialize function loads the model.pt file and initialized the model object.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize function loads the model.pt file and initialized the model object.</span>
 <span class="sd">           First try to load torchscript else load eager mode state_dict based model.</span>
 
 <span class="sd">        Args:</span>
@@ -558,7 +558,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">initialized</span> <span class="o">=</span> <span class="kc">True</span></div>
 
     <span class="k">def</span> <span class="nf">_load_torchscript_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_pt_path</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Loads the PyTorch model and returns the NN model object.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Loads the PyTorch model and returns the NN model object.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            model_pt_path (str): denotes the path of the model file.</span>
@@ -569,7 +569,7 @@
         <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">jit</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">model_pt_path</span><span class="p">,</span> <span class="n">map_location</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_load_pickled_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_dir</span><span class="p">,</span> <span class="n">model_file</span><span class="p">,</span> <span class="n">model_pt_path</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Loads the pickle file from the given model path.</span>
 
 <span class="sd">        Args:</span>
@@ -606,7 +606,7 @@
         <span class="k">return</span> <span class="n">model</span>
 
 <div class="viewcode-block" id="BaseHandler.preprocess"><a class="viewcode-back" href="../../../api/ts.torch_handler.html#ts.torch_handler.base_handler.BaseHandler.preprocess">[docs]</a>    <span class="k">def</span> <span class="nf">preprocess</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Preprocess function to convert the request input to a tensor(Torchserve supported format).</span>
 <span class="sd">        The user needs to override to customize the pre-processing</span>
 
@@ -620,7 +620,7 @@
         <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="BaseHandler.inference"><a class="viewcode-back" href="../../../api/ts.torch_handler.html#ts.torch_handler.base_handler.BaseHandler.inference">[docs]</a>    <span class="k">def</span> <span class="nf">inference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        The Inference Function is used to make a prediction call on the given input request.</span>
 <span class="sd">        The user needs to override the inference function to customize it.</span>
 
@@ -637,7 +637,7 @@
         <span class="k">return</span> <span class="n">results</span></div>
 
 <div class="viewcode-block" id="BaseHandler.postprocess"><a class="viewcode-back" href="../../../api/ts.torch_handler.html#ts.torch_handler.base_handler.BaseHandler.postprocess">[docs]</a>    <span class="k">def</span> <span class="nf">postprocess</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        The post process function makes use of the output from the inference and converts into a</span>
 <span class="sd">        Torchserve supported response output.</span>
 
@@ -651,7 +651,7 @@
         <span class="k">return</span> <span class="n">data</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="BaseHandler.handle"><a class="viewcode-back" href="../../../api/ts.torch_handler.html#ts.torch_handler.base_handler.BaseHandler.handle">[docs]</a>    <span class="k">def</span> <span class="nf">handle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Entry point for default handler. It takes the data from the input request and returns</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Entry point for default handler. It takes the data from the input request and returns</span>
 <span class="sd">           the predicted outcome for the input.</span>
 
 <span class="sd">        Args:</span>
@@ -698,7 +698,7 @@
         <span class="k">return</span> <span class="n">output</span></div>
 
     <span class="k">def</span> <span class="nf">_infer_with_profiler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Custom method to generate pytorch profiler traces for preprocess/inference/postprocess</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Custom method to generate pytorch profiler traces for preprocess/inference/postprocess</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            data (list): The input data that needs to be made a prediction request on.</span>
@@ -747,7 +747,7 @@
         <span class="k">return</span> <span class="n">output</span><span class="p">,</span> <span class="n">prof</span>
 
 <div class="viewcode-block" id="BaseHandler.explain_handle"><a class="viewcode-back" href="../../../api/ts.torch_handler.html#ts.torch_handler.base_handler.BaseHandler.explain_handle">[docs]</a>    <span class="k">def</span> <span class="nf">explain_handle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_preprocess</span><span class="p">,</span> <span class="n">raw_data</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Captum explanations handler</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Captum explanations handler</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            data_preprocess (Torch Tensor): Preprocessed data to be used for captum</span>
@@ -786,7 +786,7 @@
         <span class="k">return</span> <span class="kc">False</span>
 
 <div class="viewcode-block" id="BaseHandler.describe_handle"><a class="viewcode-back" href="../../../api/ts.torch_handler.html#ts.torch_handler.base_handler.BaseHandler.describe_handle">[docs]</a>    <span class="k">def</span> <span class="nf">describe_handle</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Customized describe handler</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Customized describe handler</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            dict : A dictionary response.</span>

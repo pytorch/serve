@@ -395,45 +395,45 @@
 </section>
 <section id="command-line-interface">
 <h2><span class="section-number">12.5. </span>Command Line Interface<a class="headerlink" href="#command-line-interface" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ torchserve --help
-usage: torchserve <span class="o">[</span>-h<span class="o">]</span> <span class="o">[</span>-v <span class="p">|</span> --version<span class="o">]</span>
-                          <span class="o">[</span>--start<span class="o">]</span>
-                          <span class="o">[</span>--stop<span class="o">]</span>
-                          <span class="o">[</span>--ts-config TS_CONFIG<span class="o">]</span>
-                          <span class="o">[</span>--model-store MODEL_STORE<span class="o">]</span>
-                          <span class="o">[</span>--workflow-store WORKFLOW_STORE<span class="o">]</span>
-                          <span class="o">[</span>--models MODEL_PATH1 <span class="nv">MODEL_NAME</span><span class="o">=</span>MODEL_PATH2... <span class="o">[</span>MODEL_PATH1 <span class="nv">MODEL_NAME</span><span class="o">=</span>MODEL_PATH2... ...<span class="o">]]</span>
-                          <span class="o">[</span>--log-config LOG_CONFIG<span class="o">]</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>torchserve<span class="w"> </span>--help
+usage:<span class="w"> </span>torchserve<span class="w"> </span><span class="o">[</span>-h<span class="o">]</span><span class="w"> </span><span class="o">[</span>-v<span class="w"> </span><span class="p">|</span><span class="w"> </span>--version<span class="o">]</span>
+<span class="w">                          </span><span class="o">[</span>--start<span class="o">]</span>
+<span class="w">                          </span><span class="o">[</span>--stop<span class="o">]</span>
+<span class="w">                          </span><span class="o">[</span>--ts-config<span class="w"> </span>TS_CONFIG<span class="o">]</span>
+<span class="w">                          </span><span class="o">[</span>--model-store<span class="w"> </span>MODEL_STORE<span class="o">]</span>
+<span class="w">                          </span><span class="o">[</span>--workflow-store<span class="w"> </span>WORKFLOW_STORE<span class="o">]</span>
+<span class="w">                          </span><span class="o">[</span>--models<span class="w"> </span>MODEL_PATH1<span class="w"> </span><span class="nv">MODEL_NAME</span><span class="o">=</span>MODEL_PATH2...<span class="w"> </span><span class="o">[</span>MODEL_PATH1<span class="w"> </span><span class="nv">MODEL_NAME</span><span class="o">=</span>MODEL_PATH2...<span class="w"> </span>...<span class="o">]]</span>
+<span class="w">                          </span><span class="o">[</span>--log-config<span class="w"> </span>LOG_CONFIG<span class="o">]</span>
 
 torchserve
 
-optional arguments:
-  -h, --help            show this <span class="nb">help</span> message and <span class="nb">exit</span>
-  -v, --version         Return TorchServe Version
-  --start               Start the model-server
-  --stop                Stop the model-server
-  --ts-config TS_CONFIG
-                        Configuration file <span class="k">for</span> TorchServe
-  --model-store         MODEL_STORE
-                        Model store location where models can be loaded.
-                        It is required <span class="k">if</span> <span class="s2">&quot;model_store&quot;</span> is not defined <span class="k">in</span> config.properties.
-  --models MODEL_PATH1 <span class="nv">MODEL_NAME</span><span class="o">=</span>MODEL_PATH2... <span class="o">[</span>MODEL_PATH1 <span class="nv">MODEL_NAME</span><span class="o">=</span>MODEL_PATH2... ...<span class="o">]</span>
-                        Models to be loaded using <span class="o">[</span><span class="nv">model_name</span><span class="o">=]</span>model_location
-                        format. Location can be a HTTP URL, a model archive
-                        file or directory contains model archive files <span class="k">in</span>
-                        MODEL_STORE.
-  --log-config LOG_CONFIG
-                        Log4j configuration file <span class="k">for</span> TorchServe
-  --ncs, --no-config-snapshots         
-                        Disable snapshot feature
-  --workflow-store WORKFLOW_STORE
-                        Workflow store location where workflow can be loaded. Defaults to model-store
+optional<span class="w"> </span>arguments:
+<span class="w">  </span>-h,<span class="w"> </span>--help<span class="w">            </span>show<span class="w"> </span>this<span class="w"> </span><span class="nb">help</span><span class="w"> </span>message<span class="w"> </span>and<span class="w"> </span><span class="nb">exit</span>
+<span class="w">  </span>-v,<span class="w"> </span>--version<span class="w">         </span>Return<span class="w"> </span>TorchServe<span class="w"> </span>Version
+<span class="w">  </span>--start<span class="w">               </span>Start<span class="w"> </span>the<span class="w"> </span>model-server
+<span class="w">  </span>--stop<span class="w">                </span>Stop<span class="w"> </span>the<span class="w"> </span>model-server
+<span class="w">  </span>--ts-config<span class="w"> </span>TS_CONFIG
+<span class="w">                        </span>Configuration<span class="w"> </span>file<span class="w"> </span><span class="k">for</span><span class="w"> </span>TorchServe
+<span class="w">  </span>--model-store<span class="w">         </span>MODEL_STORE
+<span class="w">                        </span>Model<span class="w"> </span>store<span class="w"> </span>location<span class="w"> </span>where<span class="w"> </span>models<span class="w"> </span>can<span class="w"> </span>be<span class="w"> </span>loaded.
+<span class="w">                        </span>It<span class="w"> </span>is<span class="w"> </span>required<span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="s2">&quot;model_store&quot;</span><span class="w"> </span>is<span class="w"> </span>not<span class="w"> </span>defined<span class="w"> </span><span class="k">in</span><span class="w"> </span>config.properties.
+<span class="w">  </span>--models<span class="w"> </span>MODEL_PATH1<span class="w"> </span><span class="nv">MODEL_NAME</span><span class="o">=</span>MODEL_PATH2...<span class="w"> </span><span class="o">[</span>MODEL_PATH1<span class="w"> </span><span class="nv">MODEL_NAME</span><span class="o">=</span>MODEL_PATH2...<span class="w"> </span>...<span class="o">]</span>
+<span class="w">                        </span>Models<span class="w"> </span>to<span class="w"> </span>be<span class="w"> </span>loaded<span class="w"> </span>using<span class="w"> </span><span class="o">[</span><span class="nv">model_name</span><span class="o">=]</span>model_location
+<span class="w">                        </span>format.<span class="w"> </span>Location<span class="w"> </span>can<span class="w"> </span>be<span class="w"> </span>a<span class="w"> </span>HTTP<span class="w"> </span>URL,<span class="w"> </span>a<span class="w"> </span>model<span class="w"> </span>archive
+<span class="w">                        </span>file<span class="w"> </span>or<span class="w"> </span>directory<span class="w"> </span>contains<span class="w"> </span>model<span class="w"> </span>archive<span class="w"> </span>files<span class="w"> </span><span class="k">in</span>
+<span class="w">                        </span>MODEL_STORE.
+<span class="w">  </span>--log-config<span class="w"> </span>LOG_CONFIG
+<span class="w">                        </span>Log4j<span class="w"> </span>configuration<span class="w"> </span>file<span class="w"> </span><span class="k">for</span><span class="w"> </span>TorchServe
+<span class="w">  </span>--ncs,<span class="w"> </span>--no-config-snapshots<span class="w">         </span>
+<span class="w">                        </span>Disable<span class="w"> </span>snapshot<span class="w"> </span>feature
+<span class="w">  </span>--workflow-store<span class="w"> </span>WORKFLOW_STORE
+<span class="w">                        </span>Workflow<span class="w"> </span>store<span class="w"> </span>location<span class="w"> </span>where<span class="w"> </span>workflow<span class="w"> </span>can<span class="w"> </span>be<span class="w"> </span>loaded.<span class="w"> </span>Defaults<span class="w"> </span>to<span class="w"> </span>model-store
 </pre></div>
 </div>
 <section id="arguments">
 <h3><span class="section-number">12.5.1. </span>Arguments:<a class="headerlink" href="#arguments" title="Permalink to this headline">¶</a></h3>
 <p>Example where no models are loaded at start time:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>torchserve --model-store /models
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>torchserve<span class="w"> </span>--model-store<span class="w"> </span>/models
 </pre></div>
 </div>
 <p>There are no default required arguments to start the server</p>
@@ -441,7 +441,7 @@ optional arguments:
 <li><p><strong>models</strong>: optional, &lt;model_name&gt;=&lt;model_path&gt; pairs.</p>
 <p>a) Model path can be a local mar file name or a remote http link to a mar file
 b) to load all the models in model store set model value to “all”</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>torchserve --model-store /models --start --models all
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>torchserve<span class="w"> </span>--model-store<span class="w"> </span>/models<span class="w"> </span>--start<span class="w"> </span>--models<span class="w"> </span>all
 </pre></div>
 </div>
 <p>c) The model file has .mar extension, it is actually a zip file with a .mar extension packing trained models and model signature files.</p>
@@ -463,7 +463,7 @@ b) to load all the models in model store set model value to “all”</p>
 <h3><span class="section-number">12.6.1. </span>Custom Services<a class="headerlink" href="#custom-services" title="Permalink to this headline">¶</a></h3>
 <p>This topic is covered in much more detail on the <a class="reference internal" href="custom_service.html"><span class="doc">custom service documentation page</span></a>, but let’s talk about how you start up your TorchServe server using a custom service and why you might want one.
 Let’s say you have a model named <code class="docutils literal notranslate"><span class="pre">super-fancy-net.mar</span></code> in <code class="docutils literal notranslate"><span class="pre">/models</span></code> folder, which can detect a lot of things, but you want an API endpoint that detects only hotdogs. You would use a name that makes sense for it, such as the “not-hot-dog” API. In this case we might invoke TorchServe like this:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>torchserve --start --model-store /models --models not-hot-dog<span class="o">=</span>super-fancy-net.mar
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>torchserve<span class="w"> </span>--start<span class="w"> </span>--model-store<span class="w"> </span>/models<span class="w"> </span>--models<span class="w"> </span>not-hot-dog<span class="o">=</span>super-fancy-net.mar
 </pre></div>
 </div>
 <p>This would serve a prediction endpoint at <code class="docutils literal notranslate"><span class="pre">predictions/not-hot-dog/</span></code> and run your custom service code in the archive, the manifest in archive would point to the entry point.</p>
@@ -471,15 +471,15 @@ Let’s say you have a model named <code class="docutils literal notranslate"><s
 <section id="serving-multiple-models-with-torchserve">
 <h3><span class="section-number">12.6.2. </span>Serving Multiple Models with TorchServe<a class="headerlink" href="#serving-multiple-models-with-torchserve" title="Permalink to this headline">¶</a></h3>
 <p>Example loading all models available in <code class="docutils literal notranslate"><span class="pre">model_store</span></code> while starting TorchServe:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>torchserve --start --model-store /models --models all
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>torchserve<span class="w"> </span>--start<span class="w"> </span>--model-store<span class="w"> </span>/models<span class="w"> </span>--models<span class="w"> </span>all
 </pre></div>
 </div>
 <p>Example multiple model usage:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>torchserve --start --model-store /models --models <span class="nv">name</span><span class="o">=</span>model_location <span class="nv">name2</span><span class="o">=</span>model_location2
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>torchserve<span class="w"> </span>--start<span class="w"> </span>--model-store<span class="w"> </span>/models<span class="w"> </span>--models<span class="w"> </span><span class="nv">name</span><span class="o">=</span>model_location<span class="w"> </span><span class="nv">name2</span><span class="o">=</span>model_location2
 </pre></div>
 </div>
 <p>Here’s an example for running the resnet-18 and the vgg16 models using local model files.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>torchserve --start --model-store /models --models resnet-18<span class="o">=</span>resnet-18.mar <span class="nv">squeezenet</span><span class="o">=</span>squeezenet_v1.1.mar
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>torchserve<span class="w"> </span>--start<span class="w"> </span>--model-store<span class="w"> </span>/models<span class="w"> </span>--models<span class="w"> </span>resnet-18<span class="o">=</span>resnet-18.mar<span class="w"> </span><span class="nv">squeezenet</span><span class="o">=</span>squeezenet_v1.1.mar
 </pre></div>
 </div>
 </section>

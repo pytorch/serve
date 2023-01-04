@@ -365,13 +365,13 @@
 
 
 <div class="viewcode-block" id="MetricsStore"><a class="viewcode-back" href="../../../api/ts.metrics.html#ts.metrics.metrics_store.MetricsStore">[docs]</a><span class="k">class</span> <span class="nc">MetricsStore</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    DEPRECATED</span>
 <span class="sd">    Class for creating, modifying different metrics. And keep them in a dictionary</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request_ids</span><span class="p">,</span> <span class="n">model_name</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialize metrics map,model name and request map</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">store</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
@@ -380,7 +380,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">cache</span> <span class="o">=</span> <span class="p">{}</span>
 
     <span class="k">def</span> <span class="nf">_add_or_update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">req_id</span><span class="p">,</span> <span class="n">unit</span><span class="p">,</span> <span class="n">metrics_method</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add a metric key value pair</span>
 
 <span class="sd">        Parameters</span>
@@ -420,7 +420,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="n">dim_str</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_get_req</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provide the request id dimension</span>
 
 <span class="sd">        Parameters</span>
@@ -438,7 +438,7 @@
         <span class="k">return</span> <span class="n">req_id</span>
 
 <div class="viewcode-block" id="MetricsStore.add_counter"><a class="viewcode-back" href="../../../api/ts.metrics.html#ts.metrics.metrics_store.MetricsStore.add_counter">[docs]</a>    <span class="k">def</span> <span class="nf">add_counter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add a counter metric or increment an existing counter metric</span>
 
 <span class="sd">        Parameters</span>
@@ -457,7 +457,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_add_or_update</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">req_id</span><span class="p">,</span> <span class="n">unit</span><span class="p">,</span> <span class="s1">&#39;counter&#39;</span><span class="p">,</span> <span class="n">dimensions</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="MetricsStore.add_time"><a class="viewcode-back" href="../../../api/ts.metrics.html#ts.metrics.metrics_store.MetricsStore.add_time">[docs]</a>    <span class="k">def</span> <span class="nf">add_time</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;ms&#39;</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add a time based metric like latency, default unit is &#39;ms&#39;</span>
 
 <span class="sd">        Parameters</span>
@@ -479,7 +479,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_add_or_update</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">req_id</span><span class="p">,</span> <span class="n">unit</span><span class="p">,</span> <span class="n">dimensions</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="MetricsStore.add_size"><a class="viewcode-back" href="../../../api/ts.metrics.html#ts.metrics.metrics_store.MetricsStore.add_size">[docs]</a>    <span class="k">def</span> <span class="nf">add_size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;MB&#39;</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add a size based metric</span>
 
 <span class="sd">        Parameters</span>
@@ -501,7 +501,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_add_or_update</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">req_id</span><span class="p">,</span> <span class="n">unit</span><span class="p">,</span> <span class="n">dimensions</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="MetricsStore.add_percent"><a class="viewcode-back" href="../../../api/ts.metrics.html#ts.metrics.metrics_store.MetricsStore.add_percent">[docs]</a>    <span class="k">def</span> <span class="nf">add_percent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add a percentage based metric</span>
 
 <span class="sd">        Parameters</span>
@@ -520,7 +520,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_add_or_update</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">req_id</span><span class="p">,</span> <span class="n">unit</span><span class="p">,</span> <span class="n">dimensions</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="MetricsStore.add_error"><a class="viewcode-back" href="../../../api/ts.metrics.html#ts.metrics.metrics_store.MetricsStore.add_error">[docs]</a>    <span class="k">def</span> <span class="nf">add_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add a Error Metric</span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -537,7 +537,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_add_or_update</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">unit</span><span class="p">,</span> <span class="n">dimensions</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="MetricsStore.add_metric"><a class="viewcode-back" href="../../../api/ts.metrics.html#ts.metrics.metrics_store.MetricsStore.add_metric">[docs]</a>    <span class="k">def</span> <span class="nf">add_metric</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">unit</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add a metric which is generic with custom metrics</span>
 
 <span class="sd">        Parameters</span>

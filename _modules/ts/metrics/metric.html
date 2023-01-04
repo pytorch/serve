@@ -369,7 +369,7 @@
 
 
 <div class="viewcode-block" id="Metric"><a class="viewcode-back" href="../../../api/ts.metrics.html#ts.metrics.metric.Metric">[docs]</a><span class="k">class</span> <span class="nc">Metric</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Class for generating metrics and printing it to stdout of the worker</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -382,7 +382,7 @@
         <span class="n">request_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">metric_method</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Constructor for Metric class</span>
 
 <span class="sd">           Metric class will spawn a thread and report collected metrics to stdout of worker</span>
@@ -420,7 +420,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">request_id</span> <span class="o">=</span> <span class="n">request_id</span>
 
 <div class="viewcode-block" id="Metric.update"><a class="viewcode-back" href="../../../api/ts.metrics.html#ts.metrics.metric.Metric.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Update function for Metric class</span>
 
 <span class="sd">        Parameters</span>
@@ -431,7 +431,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_caching_metric</span><span class="o">.</span><span class="n">add_or_update</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimension_values</span><span class="p">,</span> <span class="n">request_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">request_id</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Metric.reset"><a class="viewcode-back" href="../../../api/ts.metrics.html#ts.metrics.metric.Metric.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Reset Metric value to 0</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_caching_metric</span><span class="o">.</span><span class="n">add_or_update</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimension_values</span><span class="p">,</span> <span class="n">request_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">request_id</span><span class="p">)</span></div>
@@ -447,7 +447,7 @@
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">unit</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">|#</span><span class="si">{</span><span class="n">dims</span><span class="si">}</span><span class="s2">|#hostname:</span><span class="si">{</span><span class="n">socket</span><span class="o">.</span><span class="n">gethostname</span><span class="p">()</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">())</span><span class="si">}</span><span class="s2">&quot;</span>
 
 <div class="viewcode-block" id="Metric.to_dict"><a class="viewcode-back" href="../../../api/ts.metrics.html#ts.metrics.metric.Metric.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        return an Ordered Dictionary</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">OrderedDict</span><span class="p">(</span>

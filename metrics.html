@@ -486,32 +486,32 @@ MemoryUsed.Megabytes:13840.328125<span class="p">|</span><span class="c1">#Level
 </div>
 <p>To enable metric logging in JSON format, set “patternlayout” as “JSONPatternLayout” in <a class="reference external" href="https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/log4j2.xml">log4j2.xml</a> (See sample <a class="reference external" href="https://github.com/pytorch/serve/blob/master/frontend/server/src/test/resources/log4j2-json.xml">log4j2-json.xml</a>). For information, see <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/logging">Logging in Torchserve</a>.</p>
 <p>After you enable JSON log formatting, logs will look as follows:</p>
-<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="w"></span>
-<span class="w">  </span><span class="nt">&quot;MetricName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;DiskAvailable&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nt">&quot;Value&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;108.15547180175781&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nt">&quot;Unit&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Gigabytes&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nt">&quot;Dimensions&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
-<span class="w">    </span><span class="p">{</span><span class="w"></span>
-<span class="w">      </span><span class="nt">&quot;Name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Level&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">      </span><span class="nt">&quot;Value&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Host&quot;</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
-<span class="w">  </span><span class="p">],</span><span class="w"></span>
-<span class="w">  </span><span class="nt">&quot;HostName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;my_machine_name&quot;</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;MetricName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;DiskAvailable&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;Value&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;108.15547180175781&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;Unit&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Gigabytes&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;Dimensions&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;Name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Level&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;Value&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Host&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;HostName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;my_machine_name&quot;</span>
+<span class="p">}</span>
 </pre></div>
 </div>
-<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="w"></span>
-<span class="w">  </span><span class="nt">&quot;MetricName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;DiskUsage&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nt">&quot;Value&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;124.13163757324219&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nt">&quot;Unit&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Gigabytes&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">  </span><span class="nt">&quot;Dimensions&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
-<span class="w">    </span><span class="p">{</span><span class="w"></span>
-<span class="w">      </span><span class="nt">&quot;Name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Level&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">      </span><span class="nt">&quot;Value&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Host&quot;</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
-<span class="w">  </span><span class="p">],</span><span class="w"></span>
-<span class="w">  </span><span class="nt">&quot;HostName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;my_machine_name&quot;</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;MetricName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;DiskUsage&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;Value&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;124.13163757324219&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;Unit&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Gigabytes&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;Dimensions&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;Name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Level&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;Value&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Host&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;HostName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;my_machine_name&quot;</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 <p>To enable metric logging in QLog format, set “patternlayout” as “QLogLayout” in <a class="reference external" href="https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/log4j2.xml">log4j2.xml</a> (See sample <a class="reference external" href="https://github.com/pytorch/serve/blob/master/frontend/server/src/test/resources/log4j2-qlog.xml">log4j2-qlog.xml</a>). For information, see <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/logging">Logging in Torchserve</a>.</p>
@@ -550,42 +550,42 @@ When TorchServe is started, the metrics definition is loaded in the frontend and
 The backend flushes the metrics cache once a load model or inference request is completed.</p>
 <p>Dynamic updates between the frontend and backend are <em>not</em> currently being handled.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">metrics.yaml</span></code> is formatted with Prometheus metric type terminology:</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">prometheus</span><span class="w"></span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">prometheus</span>
 
-<span class="nt">dimensions</span><span class="p">:</span><span class="w"> </span><span class="c1"># dimension aliases</span><span class="w"></span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nl">&amp;model_name</span><span class="w"> </span><span class="s">&quot;ModelName&quot;</span><span class="w"></span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nl">&amp;level</span><span class="w"> </span><span class="s">&quot;Level&quot;</span><span class="w"></span>
+<span class="nt">dimensions</span><span class="p">:</span><span class="w"> </span><span class="c1"># dimension aliases</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nl">&amp;model_name</span><span class="w"> </span><span class="s">&quot;ModelName&quot;</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nl">&amp;level</span><span class="w"> </span><span class="s">&quot;Level&quot;</span>
 
-<span class="nt">ts_metrics</span><span class="p">:</span><span class="w">  </span><span class="c1"># frontend metrics</span><span class="w"></span>
-<span class="w">  </span><span class="nt">counter</span><span class="p">:</span><span class="w">  </span><span class="c1"># metric type</span><span class="w"></span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NameOfCounterMetric</span><span class="w">  </span><span class="c1"># name of metric</span><span class="w"></span>
-<span class="w">      </span><span class="nt">unit</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ms</span><span class="w">  </span><span class="c1"># unit of metric</span><span class="w"></span>
-<span class="w">      </span><span class="nt">dimensions</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">*model_name</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">*level</span><span class="p p-Indicator">]</span><span class="w">  </span><span class="c1"># dimension names of metric (referenced from the above dimensions dict)</span><span class="w"></span>
-<span class="w">  </span><span class="nt">gauge</span><span class="p">:</span><span class="w"></span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NameOfGaugeMetric</span><span class="w"></span>
-<span class="w">      </span><span class="nt">unit</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ms</span><span class="w"></span>
-<span class="w">      </span><span class="nt">dimensions</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">*model_name</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">*level</span><span class="p p-Indicator">]</span><span class="w"></span>
-<span class="w">  </span><span class="nt">histogram</span><span class="p">:</span><span class="w"></span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NameOfHistogramMetric</span><span class="w"></span>
-<span class="w">      </span><span class="nt">unit</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ms</span><span class="w"></span>
-<span class="w">      </span><span class="nt">dimensions</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">*model_name</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">*level</span><span class="p p-Indicator">]</span><span class="w"></span>
+<span class="nt">ts_metrics</span><span class="p">:</span><span class="w">  </span><span class="c1"># frontend metrics</span>
+<span class="w">  </span><span class="nt">counter</span><span class="p">:</span><span class="w">  </span><span class="c1"># metric type</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NameOfCounterMetric</span><span class="w">  </span><span class="c1"># name of metric</span>
+<span class="w">      </span><span class="nt">unit</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ms</span><span class="w">  </span><span class="c1"># unit of metric</span>
+<span class="w">      </span><span class="nt">dimensions</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">*model_name</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">*level</span><span class="p p-Indicator">]</span><span class="w">  </span><span class="c1"># dimension names of metric (referenced from the above dimensions dict)</span>
+<span class="w">  </span><span class="nt">gauge</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NameOfGaugeMetric</span>
+<span class="w">      </span><span class="nt">unit</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ms</span>
+<span class="w">      </span><span class="nt">dimensions</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">*model_name</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">*level</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">histogram</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NameOfHistogramMetric</span>
+<span class="w">      </span><span class="nt">unit</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ms</span>
+<span class="w">      </span><span class="nt">dimensions</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">*model_name</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">*level</span><span class="p p-Indicator">]</span>
 
-<span class="nt">model_metrics</span><span class="p">:</span><span class="w">  </span><span class="c1"># backend metrics</span><span class="w"></span>
-<span class="w">  </span><span class="nt">counter</span><span class="p">:</span><span class="w">  </span><span class="c1"># metric type</span><span class="w"></span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">InferenceTimeInMS</span><span class="w">  </span><span class="c1"># name of metric</span><span class="w"></span>
-<span class="w">      </span><span class="nt">unit</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ms</span><span class="w">  </span><span class="c1"># unit of metric</span><span class="w"></span>
-<span class="w">      </span><span class="nt">dimensions</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">*model_name</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">*level</span><span class="p p-Indicator">]</span><span class="w">  </span><span class="c1"># dimension names of metric (referenced from the above dimensions dict)</span><span class="w"></span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NumberOfMetrics</span><span class="w"></span>
-<span class="w">      </span><span class="nt">unit</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">count</span><span class="w"></span>
-<span class="w">      </span><span class="nt">dimensions</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">*model_name</span><span class="p p-Indicator">]</span><span class="w"></span>
-<span class="w">  </span><span class="nt">gauge</span><span class="p">:</span><span class="w"></span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">GaugeModelMetricNameExample</span><span class="w"></span>
-<span class="w">      </span><span class="nt">unit</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ms</span><span class="w"></span>
-<span class="w">      </span><span class="nt">dimensions</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">*model_name</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">*level</span><span class="p p-Indicator">]</span><span class="w"></span>
-<span class="w">  </span><span class="nt">histogram</span><span class="p">:</span><span class="w"></span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">HistogramModelMetricNameExample</span><span class="w"></span>
-<span class="w">      </span><span class="nt">unit</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ms</span><span class="w"></span>
-<span class="w">      </span><span class="nt">dimensions</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">*model_name</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">*level</span><span class="p p-Indicator">]</span><span class="w"></span>
+<span class="nt">model_metrics</span><span class="p">:</span><span class="w">  </span><span class="c1"># backend metrics</span>
+<span class="w">  </span><span class="nt">counter</span><span class="p">:</span><span class="w">  </span><span class="c1"># metric type</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">InferenceTimeInMS</span><span class="w">  </span><span class="c1"># name of metric</span>
+<span class="w">      </span><span class="nt">unit</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ms</span><span class="w">  </span><span class="c1"># unit of metric</span>
+<span class="w">      </span><span class="nt">dimensions</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">*model_name</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">*level</span><span class="p p-Indicator">]</span><span class="w">  </span><span class="c1"># dimension names of metric (referenced from the above dimensions dict)</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NumberOfMetrics</span>
+<span class="w">      </span><span class="nt">unit</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">count</span>
+<span class="w">      </span><span class="nt">dimensions</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">*model_name</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">gauge</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">GaugeModelMetricNameExample</span>
+<span class="w">      </span><span class="nt">unit</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ms</span>
+<span class="w">      </span><span class="nt">dimensions</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">*model_name</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">*level</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">histogram</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">HistogramModelMetricNameExample</span>
+<span class="w">      </span><span class="nt">unit</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ms</span>
+<span class="w">      </span><span class="nt">dimensions</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">*model_name</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">*level</span><span class="p p-Indicator">]</span>
 </pre></div>
 </div>
 <p>These are the default metrics within the yaml file, but the user can either delete them to their liking / ignore them altogether, because these metrics will not be emitted unless they are edited.</p>
@@ -601,12 +601,12 @@ parse the backend metrics from the yaml file.</em></p>
 <ol>
 <li><p>Create a <code class="docutils literal notranslate"><span class="pre">metrics.yaml</span></code> file to parse metrics from OR utilize default <a class="reference external" href="https://github.com/pytorch/serve/blob/master/ts/configs/metrics.yaml">metrics_default.yaml</a></p></li>
 <li><p>Set <code class="docutils literal notranslate"><span class="pre">metrics_config</span></code> argument equal to the yaml file path in the <code class="docutils literal notranslate"><span class="pre">config.properties</span></code> being used:</p>
-<div class="highlight-properties notranslate"><div class="highlight"><pre><span></span>...
-...
-workflow_store=../archive/src/test/resources/workflows
-metrics_config=/&lt;path&gt;/&lt;to&gt;/&lt;metrics&gt;/&lt;file&gt;/metrics.yaml
-...
-...
+<div class="highlight-properties notranslate"><div class="highlight"><pre><span></span><span class="na">...</span>
+<span class="na">...</span>
+<span class="na">workflow_store</span><span class="o">=</span><span class="s">../archive/src/test/resources/workflows</span>
+<span class="na">metrics_config</span><span class="o">=</span><span class="s">/&lt;path&gt;/&lt;to&gt;/&lt;metrics&gt;/&lt;file&gt;/metrics.yaml</span>
+<span class="na">...</span>
+<span class="na">...</span>
 </pre></div>
 </div>
 <p>If a <code class="docutils literal notranslate"><span class="pre">metrics_config</span></code> argument is not specified, the default yaml file will be used.</p>
@@ -643,10 +643,10 @@ metrics_config=/&lt;path&gt;/&lt;to&gt;/&lt;metrics&gt;/&lt;file&gt;/metrics.yam
 <p>Given the Metrics API, users will also be able to update metrics that have been parsed from the <a class="reference external" href="https://github.com/pytorch/serve/blob/master/frontend/server/src/test/resources/metrics_default.yaml">yaml</a> file
 given some criteria:</p>
 <p>(we will use the following metric as an example)</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="w">  </span><span class="nt">counter</span><span class="p">:</span><span class="w">  </span><span class="c1"># metric type</span><span class="w"></span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">InferenceTimeInMS</span><span class="w">  </span><span class="c1"># name of metric</span><span class="w"></span>
-<span class="w">      </span><span class="nt">unit</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ms</span><span class="w">  </span><span class="c1"># unit of metric</span><span class="w"></span>
-<span class="w">      </span><span class="nt">dimensions</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">ModelName</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">Level</span><span class="p p-Indicator">]</span><span class="w"></span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="w">  </span><span class="nt">counter</span><span class="p">:</span><span class="w">  </span><span class="c1"># metric type</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">InferenceTimeInMS</span><span class="w">  </span><span class="c1"># name of metric</span>
+<span class="w">      </span><span class="nt">unit</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ms</span><span class="w">  </span><span class="c1"># unit of metric</span>
+<span class="w">      </span><span class="nt">dimensions</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">ModelName</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">Level</span><span class="p p-Indicator">]</span>
 </pre></div>
 </div>
 <ol class="simple">
@@ -705,7 +705,7 @@ or explicitly set <code class="docutils literal notranslate"><span class="pre">m
 <p>Function API</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">add_metric</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metric_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">unit</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dimension_names</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                    <span class="n">metric_type</span><span class="p">:</span> <span class="n">MetricTypes</span> <span class="o">=</span> <span class="n">MetricTypes</span><span class="o">.</span><span class="n">COUNTER</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a new metric and add into cache.</span>
 <span class="sd">            Add a metric which is generic with custom metrics</span>
 
@@ -731,7 +731,7 @@ or explicitly set <code class="docutils literal notranslate"><span class="pre">m
         <span class="n">dimension_values</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[],</span>
         <span class="n">request_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Update metric value, request id and dimensions</span>
 
 <span class="sd">        Parameters</span>
@@ -760,7 +760,7 @@ or explicitly set <code class="docutils literal notranslate"><span class="pre">m
 <p>Function API</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">add_time</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metric_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span> <span class="ow">or</span> <span class="nb">float</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">unit</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;ms&#39;</span><span class="p">,</span> <span class="n">dimensions</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                  <span class="n">metric_type</span><span class="p">:</span> <span class="n">MetricTypes</span> <span class="o">=</span> <span class="n">MetricTypes</span><span class="o">.</span><span class="n">GAUGE</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add a time based metric like latency, default unit is &#39;ms&#39;</span>
 <span class="sd">            Default metric type is gauge</span>
 
@@ -798,7 +798,7 @@ or explicitly set <code class="docutils literal notranslate"><span class="pre">m
 <p>Function API</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">add_size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metric_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span> <span class="ow">or</span> <span class="nb">float</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">unit</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;MB&#39;</span><span class="p">,</span> <span class="n">dimensions</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                  <span class="n">metric_type</span><span class="p">:</span> <span class="n">MetricTypes</span> <span class="o">=</span> <span class="n">MetricTypes</span><span class="o">.</span><span class="n">GAUGE</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add a size based metric</span>
 <span class="sd">            Default metric type is gauge</span>
 
@@ -836,7 +836,7 @@ or explicitly set <code class="docutils literal notranslate"><span class="pre">m
 <p>Function API</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">add_percent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metric_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span> <span class="ow">or</span> <span class="nb">float</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dimensions</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                     <span class="n">metric_type</span><span class="p">:</span> <span class="n">MetricTypes</span> <span class="o">=</span> <span class="n">MetricTypes</span><span class="o">.</span><span class="n">GAUGE</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add a percentage based metric</span>
 <span class="sd">            Default metric type is gauge</span>
 
@@ -870,7 +870,7 @@ or explicitly set <code class="docutils literal notranslate"><span class="pre">m
 <p>Function API</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">add_counter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metric_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span> <span class="ow">or</span> <span class="nb">float</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dimensions</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                     <span class="n">metric_type</span><span class="p">:</span> <span class="n">MetricTypes</span> <span class="o">=</span> <span class="n">MetricTypes</span><span class="o">.</span><span class="n">COUNTER</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add a counter metric or increment an existing counter metric</span>
 <span class="sd">            Default metric type is counter</span>
 <span class="sd">        Parameters</span>
@@ -893,7 +893,7 @@ or explicitly set <code class="docutils literal notranslate"><span class="pre">m
 <h3><span class="section-number">9.7.10. </span>Getting a metric<a class="headerlink" href="#getting-a-metric" title="Permalink to this headline">¶</a></h3>
 <p>Users can get a metric from the cache. The Metric object is returned, so the user can access the methods of the Metric: (i.e. <code class="docutils literal notranslate"><span class="pre">Metric.update(value)</span></code>, <code class="docutils literal notranslate"><span class="pre">Metric.__str__</span></code>)</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">get_metric</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metric_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">metric_type</span><span class="p">:</span> <span class="n">MetricTypes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Metric</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get a Metric from cache.</span>
 <span class="sd">            Ask user for required requirements to form metric key to retrieve Metric.</span>
 

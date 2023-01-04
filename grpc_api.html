@@ -391,45 +391,45 @@ To configure gRPC APIs on different ports refer <a class="reference internal" hr
 <li><p><a class="reference internal" href="README.html"><span class="doc">Install TorchServe</span></a></p></li>
 <li><p>Clone serve repo to run this example</p></li>
 </ul>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git clone https://github.com/pytorch/serve
-<span class="nb">cd</span> serve
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/pytorch/serve
+<span class="nb">cd</span><span class="w"> </span>serve
 </pre></div>
 </div>
 <ul class="simple">
 <li><p>Install gRPC python dependencies</p></li>
 </ul>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install -U grpcio protobuf grpcio-tools
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>-U<span class="w"> </span>grpcio<span class="w"> </span>protobuf<span class="w"> </span>grpcio-tools
 </pre></div>
 </div>
 <ul class="simple">
 <li><p>Start torchServe</p></li>
 </ul>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mkdir model_store
-torchserve --start 
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mkdir<span class="w"> </span>model_store
+torchserve<span class="w"> </span>--start<span class="w"> </span>
 </pre></div>
 </div>
 <ul class="simple">
 <li><p>Generate python gRPC client stub using the proto files</p></li>
 </ul>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python -m grpc_tools.protoc --proto_path<span class="o">=</span>frontend/server/src/main/resources/proto/ --python_out<span class="o">=</span>ts_scripts --grpc_python_out<span class="o">=</span>ts_scripts frontend/server/src/main/resources/proto/inference.proto frontend/server/src/main/resources/proto/management.proto
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>grpc_tools.protoc<span class="w"> </span>--proto_path<span class="o">=</span>frontend/server/src/main/resources/proto/<span class="w"> </span>--python_out<span class="o">=</span>ts_scripts<span class="w"> </span>--grpc_python_out<span class="o">=</span>ts_scripts<span class="w"> </span>frontend/server/src/main/resources/proto/inference.proto<span class="w"> </span>frontend/server/src/main/resources/proto/management.proto
 </pre></div>
 </div>
 <ul class="simple">
 <li><p>Register densenet161 model</p></li>
 </ul>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python ts_scripts/torchserve_grpc_client.py register densenet161
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>ts_scripts/torchserve_grpc_client.py<span class="w"> </span>register<span class="w"> </span>densenet161
 </pre></div>
 </div>
 <ul class="simple">
 <li><p>Run inference using</p></li>
 </ul>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python ts_scripts/torchserve_grpc_client.py infer densenet161 examples/image_classifier/kitten.jpg
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>ts_scripts/torchserve_grpc_client.py<span class="w"> </span>infer<span class="w"> </span>densenet161<span class="w"> </span>examples/image_classifier/kitten.jpg
 </pre></div>
 </div>
 <ul class="simple">
 <li><p>Unregister densenet161 model</p></li>
 </ul>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python ts_scripts/torchserve_grpc_client.py unregister densenet161
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>ts_scripts/torchserve_grpc_client.py<span class="w"> </span>unregister<span class="w"> </span>densenet161
 </pre></div>
 </div>
 </section>

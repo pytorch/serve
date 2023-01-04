@@ -374,7 +374,7 @@
 <section id="api-description">
 <h2>API Description<a class="headerlink" href="#api-description" title="Permalink to this headline">¶</a></h2>
 <p>To view a full list of inference APIs, you can use following command:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl -X OPTIONS http://localhost:8080
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl<span class="w"> </span>-X<span class="w"> </span>OPTIONS<span class="w"> </span>http://localhost:8080
 </pre></div>
 </div>
 <p>The output is in the OpenAPI 3.0.1 json format. You can use it to generate client code, see <a class="reference external" href="https://swagger.io/swagger-codegen/">swagger codegen</a> for more details.</p>
@@ -386,13 +386,13 @@
 <h2>Health check API<a class="headerlink" href="#health-check-api" title="Permalink to this headline">¶</a></h2>
 <p>This API follows the <a class="reference external" href="https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/proto/inference.proto">InferenceAPIsService.Ping</a> gRPC API. It returns the status of a model in the ModelServer.</p>
 <p>TorchServe supports a <code class="docutils literal notranslate"><span class="pre">ping</span></code> API that you can call to check the health status of a running TorchServe server:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl http://localhost:8080/ping
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl<span class="w"> </span>http://localhost:8080/ping
 </pre></div>
 </div>
 <p>If the server is running, the response is:</p>
-<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="w"></span>
-<span class="w">  </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Healthy&quot;</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Healthy&quot;</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 </section>
@@ -405,23 +405,23 @@
 </ul>
 <section id="curl-example">
 <h3>curl Example<a class="headerlink" href="#curl-example" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl -O https://raw.githubusercontent.com/pytorch/serve/master/docs/images/kitten_small.jpg
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl<span class="w"> </span>-O<span class="w"> </span>https://raw.githubusercontent.com/pytorch/serve/master/docs/images/kitten_small.jpg
 
-curl http://localhost:8080/predictions/resnet-18 -T kitten_small.jpg
+curl<span class="w"> </span>http://localhost:8080/predictions/resnet-18<span class="w"> </span>-T<span class="w"> </span>kitten_small.jpg
 
 or:
 
-curl http://localhost:8080/predictions/resnet-18 -F <span class="s2">&quot;data=@kitten_small.jpg&quot;</span>
+curl<span class="w"> </span>http://localhost:8080/predictions/resnet-18<span class="w"> </span>-F<span class="w"> </span><span class="s2">&quot;data=@kitten_small.jpg&quot;</span>
 </pre></div>
 </div>
 <p>To get predictions from the loaded model which expects multiple inputs</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl http://localhost:8080/predictions/squeezenet1_1 -F <span class="s1">&#39;data=@docs/images/dogs-before.jpg&#39;</span> -F <span class="s1">&#39;data=@docs/images/kitten_small.jpg&#39;</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl<span class="w"> </span>http://localhost:8080/predictions/squeezenet1_1<span class="w"> </span>-F<span class="w"> </span><span class="s1">&#39;data=@docs/images/dogs-before.jpg&#39;</span><span class="w"> </span>-F<span class="w"> </span><span class="s1">&#39;data=@docs/images/kitten_small.jpg&#39;</span>
 
 or:
 
-import requests
+import<span class="w"> </span>requests
 
-<span class="nv">res</span> <span class="o">=</span> requests.post<span class="o">(</span><span class="s2">&quot;http://localhost:8080/predictions/squeezenet1_1&quot;</span>, <span class="nv">files</span><span class="o">={</span><span class="s1">&#39;data&#39;</span>: open<span class="o">(</span><span class="s1">&#39;docs/images/dogs-before.jpg&#39;</span>, <span class="s1">&#39;rb&#39;</span><span class="o">)</span>, <span class="s1">&#39;data&#39;</span>: open<span class="o">(</span><span class="s1">&#39;docs/images/kitten_small.jpg&#39;</span>, <span class="s1">&#39;rb&#39;</span><span class="o">)})</span>
+<span class="nv">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>requests.post<span class="o">(</span><span class="s2">&quot;http://localhost:8080/predictions/squeezenet1_1&quot;</span>,<span class="w"> </span><span class="nv">files</span><span class="o">={</span><span class="s1">&#39;data&#39;</span>:<span class="w"> </span>open<span class="o">(</span><span class="s1">&#39;docs/images/dogs-before.jpg&#39;</span>,<span class="w"> </span><span class="s1">&#39;rb&#39;</span><span class="o">)</span>,<span class="w"> </span><span class="s1">&#39;data&#39;</span>:<span class="w"> </span>open<span class="o">(</span><span class="s1">&#39;docs/images/kitten_small.jpg&#39;</span>,<span class="w"> </span><span class="s1">&#39;rb&#39;</span><span class="o">)})</span>
 </pre></div>
 </div>
 <p>To get predictions from a specific version of each loaded model, make a REST call to <code class="docutils literal notranslate"><span class="pre">/predictions/{model_name}/{version}</span></code>:</p>
@@ -432,20 +432,20 @@ import requests
 </section>
 <section id="id1">
 <h2>curl Example<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl -O https://raw.githubusercontent.com/pytorch/serve/master/docs/images/kitten_small.jpg
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl<span class="w"> </span>-O<span class="w"> </span>https://raw.githubusercontent.com/pytorch/serve/master/docs/images/kitten_small.jpg
 
-curl http://localhost:8080/predictions/resnet-18/2.0 -T kitten_small.jpg
+curl<span class="w"> </span>http://localhost:8080/predictions/resnet-18/2.0<span class="w"> </span>-T<span class="w"> </span>kitten_small.jpg
 
 or:
 
-curl http://localhost:8080/predictions/resnet-18/2.0 -F <span class="s2">&quot;data=@kitten_small.jpg&quot;</span>
+curl<span class="w"> </span>http://localhost:8080/predictions/resnet-18/2.0<span class="w"> </span>-F<span class="w"> </span><span class="s2">&quot;data=@kitten_small.jpg&quot;</span>
 </pre></div>
 </div>
 <p>The result is JSON that tells you that the image is most likely a tabby cat. The highest prediction was:</p>
-<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="nt">&quot;class&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;n02123045 tabby, tabby cat&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">&quot;probability&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.42514491081237793</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;class&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;n02123045 tabby, tabby cat&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;probability&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.42514491081237793</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 </section>
@@ -458,28 +458,28 @@ curl http://localhost:8080/predictions/resnet-18/2.0 -F <span class="s2">&quot;d
 </ul>
 <section id="id2">
 <h3>curl example<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl http://127.0.0.1:8080/explanations/mnist -T examples/image_classifier/mnist/test_data/0.png
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl<span class="w"> </span>http://127.0.0.1:8080/explanations/mnist<span class="w"> </span>-T<span class="w"> </span>examples/image_classifier/mnist/test_data/0.png
 </pre></div>
 </div>
 <p>The result is a json that gives you the explanations for the input image</p>
-<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="w">  </span><span class="p">[</span><span class="w"></span>
-<span class="w">    </span><span class="p">[</span><span class="w"></span>
-<span class="w">      </span><span class="p">[</span><span class="w"></span>
-<span class="w">        </span><span class="p">[</span><span class="w"></span>
-<span class="w">          </span><span class="mf">0.004570948731989492</span><span class="p">,</span><span class="w"></span>
-<span class="w">          </span><span class="mf">0.006216969640322402</span><span class="p">,</span><span class="w"></span>
-<span class="w">          </span><span class="mf">0.008197565423679522</span><span class="p">,</span><span class="w"></span>
-<span class="w">          </span><span class="mf">0.009563574612830427</span><span class="p">,</span><span class="w"></span>
-<span class="w">          </span><span class="mf">0.008999274832810742</span><span class="p">,</span><span class="w"></span>
-<span class="w">          </span><span class="mf">0.009673474804303854</span><span class="p">,</span><span class="w"></span>
-<span class="w">          </span><span class="mf">0.007599905146155397</span><span class="p">,</span><span class="w"></span>
-<span class="w">          </span><span class="p">,</span><span class="w"></span>
-<span class="w">	        </span><span class="p">,</span><span class="w"></span>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="w">  </span><span class="p">[</span>
+<span class="w">    </span><span class="p">[</span>
+<span class="w">      </span><span class="p">[</span>
+<span class="w">        </span><span class="p">[</span>
+<span class="w">          </span><span class="mf">0.004570948731989492</span><span class="p">,</span>
+<span class="w">          </span><span class="mf">0.006216969640322402</span><span class="p">,</span>
+<span class="w">          </span><span class="mf">0.008197565423679522</span><span class="p">,</span>
+<span class="w">          </span><span class="mf">0.009563574612830427</span><span class="p">,</span>
+<span class="w">          </span><span class="mf">0.008999274832810742</span><span class="p">,</span>
+<span class="w">          </span><span class="mf">0.009673474804303854</span><span class="p">,</span>
+<span class="w">          </span><span class="mf">0.007599905146155397</span><span class="p">,</span>
+<span class="w">          </span><span class="p">,</span>
+<span class="w">	        </span><span class="p">,</span>
 
-<span class="w">        </span><span class="p">]</span><span class="w"></span>
-<span class="w">      </span><span class="p">]</span><span class="w"></span>
-<span class="w">    </span><span class="p">]</span><span class="w"></span>
-<span class="w">  </span><span class="p">]</span><span class="w"></span>
+<span class="w">        </span><span class="p">]</span>
+<span class="w">      </span><span class="p">]</span>
+<span class="w">    </span><span class="p">]</span>
+<span class="w">  </span><span class="p">]</span>
 </pre></div>
 </div>
 </section>
@@ -493,15 +493,15 @@ curl http://localhost:8080/predictions/resnet-18/2.0 -F <span class="s2">&quot;d
 </ul>
 <section id="id3">
 <h3>curl example<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span> curl -H <span class="s2">&quot;Content-Type: application/json&quot;</span> --data @kubernetes/kserve/kf_request_json/v1/mnist.json http://127.0.0.1:8080/v1/models/mnist:predict
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="w"> </span>curl<span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span>--data<span class="w"> </span>@kubernetes/kserve/kf_request_json/v1/mnist.json<span class="w"> </span>http://127.0.0.1:8080/v1/models/mnist:predict
 </pre></div>
 </div>
 <p>The result is a json that gives you the predictions for the input json</p>
-<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="w"></span>
-<span class="w">  </span><span class="nt">&quot;predictions&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
-<span class="w">    </span><span class="mi">2</span><span class="w"></span>
-<span class="w">  </span><span class="p">]</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;predictions&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="mi">2</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 </section>
@@ -515,30 +515,30 @@ curl http://localhost:8080/predictions/resnet-18/2.0 -F <span class="s2">&quot;d
 </ul>
 <section id="id4">
 <h3>curl example<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span> curl -H <span class="s2">&quot;Content-Type: application/json&quot;</span> --data @kubernetes/kserve/kf_request_json/v1/mnist.json http://127.0.0.1:8080/v1/models/mnist:explain
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="w"> </span>curl<span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span>--data<span class="w"> </span>@kubernetes/kserve/kf_request_json/v1/mnist.json<span class="w"> </span>http://127.0.0.1:8080/v1/models/mnist:explain
 </pre></div>
 </div>
 <p>The result is a json that gives you the explanations for the input json</p>
-<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="w"></span>
-<span class="w">  </span><span class="nt">&quot;explanations&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
-<span class="w">    </span><span class="p">[</span><span class="w"></span>
-<span class="w">      </span><span class="p">[</span><span class="w"></span>
-<span class="w">        </span><span class="p">[</span><span class="w"></span>
-<span class="w">          </span><span class="mf">0.004570948731989492</span><span class="p">,</span><span class="w"></span>
-<span class="w">          </span><span class="mf">0.006216969640322402</span><span class="p">,</span><span class="w"></span>
-<span class="w">          </span><span class="mf">0.008197565423679522</span><span class="p">,</span><span class="w"></span>
-<span class="w">          </span><span class="mf">0.009563574612830427</span><span class="p">,</span><span class="w"></span>
-<span class="w">          </span><span class="mf">0.008999274832810742</span><span class="p">,</span><span class="w"></span>
-<span class="w">          </span><span class="mf">0.009673474804303854</span><span class="p">,</span><span class="w"></span>
-<span class="w">          </span><span class="mf">0.007599905146155397</span><span class="p">,</span><span class="w"></span>
-<span class="w">          </span><span class="p">,</span><span class="w"></span>
-<span class="w">          </span><span class="p">,</span><span class="w"></span>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;explanations&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">[</span>
+<span class="w">      </span><span class="p">[</span>
+<span class="w">        </span><span class="p">[</span>
+<span class="w">          </span><span class="mf">0.004570948731989492</span><span class="p">,</span>
+<span class="w">          </span><span class="mf">0.006216969640322402</span><span class="p">,</span>
+<span class="w">          </span><span class="mf">0.008197565423679522</span><span class="p">,</span>
+<span class="w">          </span><span class="mf">0.009563574612830427</span><span class="p">,</span>
+<span class="w">          </span><span class="mf">0.008999274832810742</span><span class="p">,</span>
+<span class="w">          </span><span class="mf">0.009673474804303854</span><span class="p">,</span>
+<span class="w">          </span><span class="mf">0.007599905146155397</span><span class="p">,</span>
+<span class="w">          </span><span class="p">,</span>
+<span class="w">          </span><span class="p">,</span>
 <span class="w">	        </span><span class="p">,</span><span class="w">           </span>
-<span class="w">        </span><span class="p">]</span><span class="w"></span>
-<span class="w">      </span><span class="p">]</span><span class="w"></span>
-<span class="w">    </span><span class="p">]</span><span class="w"></span>
-<span class="w">  </span><span class="p">]</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="w">        </span><span class="p">]</span>
+<span class="w">      </span><span class="p">]</span>
+<span class="w">    </span><span class="p">]</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 </section>

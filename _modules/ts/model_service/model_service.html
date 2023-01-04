@@ -368,7 +368,7 @@
 
 
 <div class="viewcode-block" id="ModelService"><a class="viewcode-back" href="../../../api/ts.model_service.html#ts.model_service.model_service.ModelService">[docs]</a><span class="k">class</span> <span class="nc">ModelService</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    ModelService wraps up all preprocessing, inference and postprocessing</span>
 <span class="sd">    functions used by model service. It is defined in a flexible manner to</span>
 <span class="sd">    be easily extended to support different frameworks.</span>
@@ -382,7 +382,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_signature</span> <span class="o">=</span> <span class="kc">None</span>
 
 <div class="viewcode-block" id="ModelService.initialize"><a class="viewcode-back" href="../../../api/ts.model_service.html#ts.model_service.model_service.ModelService.initialize">[docs]</a>    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Internal initialize ModelService.</span>
 
 <span class="sd">        :param context: MMS context object</span>
@@ -401,7 +401,7 @@
 
 <div class="viewcode-block" id="ModelService.inference"><a class="viewcode-back" href="../../../api/ts.model_service.html#ts.model_service.model_service.ModelService.inference">[docs]</a>    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">inference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Wrapper function to run pre-process, inference and post-process functions.</span>
 
 <span class="sd">        Parameters</span>
@@ -419,7 +419,7 @@
 
 <div class="viewcode-block" id="ModelService.ping"><a class="viewcode-back" href="../../../api/ts.model_service.html#ts.model_service.model_service.ModelService.ping">[docs]</a>    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">ping</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Ping to get system&#39;s health.</span>
 
 <span class="sd">        Returns</span>
@@ -431,7 +431,7 @@
         <span class="k">pass</span></div>
 
 <div class="viewcode-block" id="ModelService.signature"><a class="viewcode-back" href="../../../api/ts.model_service.html#ts.model_service.model_service.ModelService.signature">[docs]</a>    <span class="k">def</span> <span class="nf">signature</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Signature for model service.</span>
 
 <span class="sd">        Returns</span>
@@ -443,7 +443,7 @@
 
     <span class="c1"># noinspection PyUnusedLocal</span>
 <div class="viewcode-block" id="ModelService.handle"><a class="viewcode-back" href="../../../api/ts.model_service.html#ts.model_service.model_service.ModelService.handle">[docs]</a>    <span class="k">def</span> <span class="nf">handle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>  <span class="c1"># pylint: disable=unused-argument</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Backward compatible handle function.</span>
 
 <span class="sd">        :param data:</span>
@@ -477,13 +477,13 @@
 
 
 <div class="viewcode-block" id="SingleNodeService"><a class="viewcode-back" href="../../../api/ts.model_service.html#ts.model_service.model_service.SingleNodeService">[docs]</a><span class="k">class</span> <span class="nc">SingleNodeService</span><span class="p">(</span><span class="n">ModelService</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    SingleNodeModel defines abstraction for model service which loads a</span>
 <span class="sd">    single model.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="SingleNodeService.inference"><a class="viewcode-back" href="../../../api/ts.model_service.html#ts.model_service.model_service.SingleNodeService.inference">[docs]</a>    <span class="k">def</span> <span class="nf">inference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Wrapper function to run preprocess, inference and postprocess functions.</span>
 
 <span class="sd">        Parameters</span>
@@ -512,7 +512,7 @@
 
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">_inference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Internal inference methods. Run forward computation and</span>
 <span class="sd">        return output.</span>
 
@@ -529,7 +529,7 @@
         <span class="k">return</span> <span class="n">data</span>
 
     <span class="k">def</span> <span class="nf">_preprocess</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Internal preprocess methods. Do transformation on raw</span>
 <span class="sd">        inputs and convert them to NDArray.</span>
 
@@ -546,7 +546,7 @@
         <span class="k">return</span> <span class="n">data</span>
 
     <span class="k">def</span> <span class="nf">_postprocess</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Internal postprocess methods. Do transformation on inference output</span>
 <span class="sd">        and convert them to MIME type objects.</span>
 

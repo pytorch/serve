@@ -372,9 +372,9 @@
 <p><code class="docutils literal notranslate"><span class="pre">POST</span> <span class="pre">/wfpredict/{workflow_name}</span></code></p>
 <section id="curl-example">
 <h3>curl Example<a class="headerlink" href="#curl-example" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl -O https://raw.githubusercontent.com/pytorch/serve/master/docs/images/kitten_small.jpg
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl<span class="w"> </span>-O<span class="w"> </span>https://raw.githubusercontent.com/pytorch/serve/master/docs/images/kitten_small.jpg
 
-curl http://localhost:8080/wfpredict/myworkflow -T kitten_small.jpg
+curl<span class="w"> </span>http://localhost:8080/wfpredict/myworkflow<span class="w"> </span>-T<span class="w"> </span>kitten_small.jpg
 </pre></div>
 </div>
 <p>The result is JSON object returning the response bytes from the leaf node of the workflow DAG.</p>
