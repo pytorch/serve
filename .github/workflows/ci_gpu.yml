@@ -43,6 +43,7 @@ jobs:
         uses: nick-fields/retry@v2
         with:
           timeout_minutes: 60
+          retry_on: error
           max_attempts: 3
           command: |
             python torchserve_sanity.py
