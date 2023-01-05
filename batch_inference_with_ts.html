@@ -31,7 +31,7 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.3/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="_static/katex-math.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -470,7 +470,7 @@ $ torchserve --start --model-store model_store
 </pre></div>
 </div>
 <ul class="simple">
-<li><p>Now let’s launch resnet-152 model, which we have built to handle batch inference. Because this is an example, we are going to launch 1 worker which handles a batch size of 8 with a <code class="docutils literal notranslate"><span class="pre">max_batch_delay</span></code> of 10ms.</p></li>
+<li><p>Now let’s launch resnet-152 model, which we have built to handle batch inference. Because this is an example, we are going to launch 1 worker which handles a batch size of 3 with a <code class="docutils literal notranslate"><span class="pre">max_batch_delay</span></code> of 10ms.</p></li>
 </ul>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ curl -X POST &quot;localhost:8081/models?url=https://torchserve.pytorch.org/mar_files/resnet-152-batch_v2.mar&amp;batch_size=3&amp;max_batch_delay=10&amp;initial_workers=1&quot;
 {
