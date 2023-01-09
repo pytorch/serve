@@ -73,9 +73,7 @@ Refer to [torchserve docker](docker/README.md) for details.
 
 ## 🏆 Highlighted Examples
 * [🤗 HuggingFace Transformers](examples/Huggingface_Transformers) with a [Better Transformer Integration](examples/Huggingface_Transformers#Speed-up-inference-with-Better-Transformer)
-
 * [Model parallel inference](examples/Huggingface_Transformers#model-parallelism)
-* [Better Transformer for HuggingFace Transformers](examples/Huggingface_Transformers#Speed-up-inference-with-Better-Transformer)
 * [MultiModal models with MMF](https://github.com/pytorch/serve/tree/master/examples/MMF-activity-recognition) combining text, audio and video
 * [Dual Neural Machine Translation](examples/Workflows/nmt_transformers_pipeline) for a complex workflow DAG
 
@@ -93,6 +91,10 @@ We welcome all contributions!
 To learn more about how to contribute, see the contributor guide [here](https://github.com/pytorch/serve/blob/master/CONTRIBUTING.md).
 
 ## 📰 News
+* [Torchserve Performance Tuning, Animated Drawings Case-Study](https://pytorch.org/blog/torchserve-performance-tuning/)
+* [Walmart Search: Serving Models at a Scale on TorchServe](https://pytorch.s3.amazonaws.com/posters/ptc2022/D03.pdf)
+* [🎥 Scaling inference on CPU with TorchServe](https://www.youtube.com/watch?v=066_Jd6cwZg)
+* [🎥 TorchServe C++ backend](https://www.youtube.com/watch?v=OSmGGDpaesc)
 * [Grokking Intel CPU PyTorch performance from first principles: a TorchServe case study](https://pytorch.org/tutorials/intermediate/torchserve_with_ipex.html)
 * [Case Study: Amazon Ads Uses PyTorch and AWS Inferentia to Scale Models for Ads Processing](https://pytorch.org/blog/amazon-ads-case-study/)
 * [Optimize your inference jobs using dynamic batch inference with TorchServe on Amazon SageMaker](https://aws.amazon.com/blogs/machine-learning/optimize-your-inference-jobs-using-dynamic-batch-inference-with-torchserve-on-amazon-sagemaker/)
