@@ -11,6 +11,7 @@
 models:
     - "bert_multi_gpu.yaml"
     - "bert_multi_gpu_better_transformer.yaml"
+    - "bert_multi_gpu_no_better_transformer.yaml"
     - "fastrcnn.yaml"
     - "mnist.yaml"
     - "vgg16.yaml"

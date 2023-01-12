@@ -1,8 +1,8 @@
 ---
-bert_bt:
+bert_no_bt:
     eager_mode:
         benchmark_engine: "ab"
-        url: https://torchserve.pytorch.org/mar_files/BERTSeqClassification-BT.mar
+        url: https://torchserve.pytorch.org/mar_files/BERTSeqClassification-no-BT.mar
         workers:
             - 4
         batch_delay: 100
