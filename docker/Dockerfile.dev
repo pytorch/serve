@@ -1,16 +1,16 @@
 # syntax = docker/dockerfile:experimental
 #
 # Following comments have been shamelessly copied from https://github.com/pytorch/pytorch/blob/master/Dockerfile
-# 
+#
 # NOTE: To build this you will need a docker version > 18.06 with
 #       experimental enabled and DOCKER_BUILDKIT=1
 #
 #       If you do not use buildkit you are not going to have a good time
 #
-#       For reference: 
+#       For reference:
 #           https://docs.docker.com/develop/develop-images/build_enhancements/
 
-ARG BASE_IMAGE=ubuntu:20.04
+ARG BASE_IMAGE=ubuntu:22.04
 ARG BUILD_TYPE=dev
 FROM ${BASE_IMAGE} AS compile-image
 
@@ -43,7 +43,7 @@ RUN --mount=type=cache,id=apt-dev,target=/var/cache/apt \
     openjdk-17-jdk \
     curl \
     vim \
-    numactl \ 
+    numactl \
     && if [ "$BUILD_WITH_IPEX" = "true" ]; then apt-get update && apt-get install -y libjemalloc-dev libgoogle-perftools-dev libomp-dev && ln -s /usr/lib/x86_64-linux-gnu/libjemalloc.so /usr/lib/libjemalloc.so && ln -s /usr/lib/x86_64-linux-gnu/libtcmalloc.so /usr/lib/libtcmalloc.so && ln -s /usr/lib/x86_64-linux-gnu/libiomp5.so /usr/lib/libiomp5.so; fi \
     && rm -rf /var/lib/apt/lists/* \
     && cd /tmp \
@@ -63,7 +63,7 @@ RUN if [ "$MACHINE_TYPE" = "gpu" ]; then export USE_CUDA=1; fi \
     && git checkout ${BRANCH_NAME} \
     && python3.8 -m venv /home/venv \
     && python -m pip install -U pip setuptools \
-    && if [ -z "$CUDA_VERSION" ]; then python ts_scripts/install_dependencies.py --environment=dev; else python ts_scripts/install_dependencies.py --environment=dev  --cuda $CUDA_VERSION; fi \ 
+    && if [ -z "$CUDA_VERSION" ]; then python ts_scripts/install_dependencies.py --environment=dev; else python ts_scripts/install_dependencies.py --environment=dev  --cuda $CUDA_VERSION; fi \
     && if [ "$BUILD_WITH_IPEX" = "true" ]; then python -m pip install --no-cache-dir intel_extension_for_pytorch==${IPEX_VERSION} -f ${IPEX_URL}; fi \
     && python ts_scripts/install_from_src.py \
     && useradd -m model-server \
