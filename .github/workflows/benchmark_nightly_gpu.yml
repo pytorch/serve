@@ -43,11 +43,3 @@ jobs:
         with:
           name: nightly gpu artifact
           path: /tmp/ts_benchmark
-      - name: Open issue on failure
-        if: ${{ failure() && github.event_name  == 'schedule' }}
-        uses: dacbd/create-issue-action@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          title: Nightly GPU benchmark failed
-          body:  Commit ${{ github.sha }} daily scheduled [CI run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) failed, please check why
-          assignees: ''
