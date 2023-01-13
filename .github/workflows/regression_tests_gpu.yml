@@ -1,7 +1,6 @@
 name: Run Regression Tests on GPU
 
-#on: workflow_dispatch
-on: push
+on: workflow_dispatch
 
 jobs:
   regression-gpu:
