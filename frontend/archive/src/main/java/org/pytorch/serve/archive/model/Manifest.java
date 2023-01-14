@@ -127,8 +127,6 @@ public class Manifest {
     public enum RuntimeType {
         @SerializedName("python")
         PYTHON("python"),
-        @SerializedName("python2")
-        PYTHON2("python2"),
         @SerializedName("python3")
         PYTHON3("python3");
 

@@ -2,7 +2,7 @@
 
 # To build and upload a new version, follow the steps below.
 # Notes:
-# - this is a "Universal Wheels" package that is pure Python and supports both Python2 and Python3
+# - this is a "Universal Wheels" package that is pure Python and supports Python3
 # - Twine is a secure PyPi upload package
 # - Make sure you have bumped the version! at ts/version.py
 # $ pip install twine
@@ -61,7 +61,7 @@ if __name__ == '__main__':
 
     is_nightly = "nightly" in name
     version = get_nightly_version() if is_nightly else detect_model_archiver_version()
-    requirements = ['future', 'enum-compat']
+    requirements = ['enum-compat']
 
     print(f"-- {name} building version: {version}")
 

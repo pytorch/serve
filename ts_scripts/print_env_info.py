@@ -1,6 +1,5 @@
 # This script outputs relevant system environment info
 # Run it with `python print_env_info.py`.
-from __future__ import absolute_import, division, print_function, unicode_literals
 import locale
 import re
 import subprocess
@@ -114,7 +113,7 @@ def get_pip_packages(package_name=None):
         elif package_name == "torch":
             grep_cmd = 'grep "' + package_name + '"'
         else:
-            grep_cmd = r'grep "numpy\|pytest\|pylint\|transformers\|psutil\|future\|wheel\|requests\|sentencepiece\|pillow\|captum\|nvgpu\|pygit2\|torch"'
+            grep_cmd = r'grep "numpy\|pytest\|pylint\|transformers\|psutil\|wheel\|requests\|sentencepiece\|pillow\|captum\|nvgpu\|pygit2\|torch"'
         return run_and_read_all(pip + ' list --format=freeze | ' + grep_cmd)
 
     out = run_with_pip('pip3')

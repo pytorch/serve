@@ -9,7 +9,6 @@ from model_archiver import __version__
 class RuntimeType(Enum):
 
     PYTHON = "python"
-    PYTHON2 = "python2"
     PYTHON3 = "python3"
 
 
