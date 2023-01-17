@@ -18,7 +18,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-20.04, macOS-latest]
+        os: [ubuntu-18.04, macOS-latest]
     steps:
       - name: Setup Python 3.8
         uses: actions/setup-python@v4
