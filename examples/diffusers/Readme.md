@@ -4,6 +4,12 @@
 
 Set access token generated form Huggingface in `Download_model.py` file
 
+Install dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
 ```bash
 python Download_model.py
 ```
