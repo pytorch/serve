@@ -5,7 +5,7 @@ from abc import ABC
 import diffusers
 import numpy as np
 import torch
-from diffusers import StableDiffusionPipeline
+from diffusers import DiffusionPipeline
 
 from ts.torch_handler.base_handler import BaseHandler
 
@@ -42,7 +42,7 @@ class DiffusersHandler(BaseHandler, ABC):
         with zipfile.ZipFile(model_dir + "/model.zip", "r") as zip_ref:
             zip_ref.extractall(model_dir + "/model")
 
-        self.pipe = StableDiffusionPipeline.from_pretrained(model_dir + "/model")
+        self.pipe = DiffusionPipeline.from_pretrained(model_dir + "/model")
         self.pipe.to(self.device)
         logger.info("Diffusion model from path %s loaded successfully", model_dir)
 
@@ -76,7 +76,7 @@ class DiffusersHandler(BaseHandler, ABC):
         """
         # Handling inference for sequence_classification.
         inferences = self.pipe(
-            inputs, guidance_scale=7.5, num_inference_steps=50
+            inputs, guidance_scale=7.5, num_inference_steps=50, height=768, width=768
         ).images
 
         logger.info("Generated image: '%s'", inferences)
