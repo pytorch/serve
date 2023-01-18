@@ -4,7 +4,7 @@
 
 Set access token generated form Huggingface in `Download_model.py` file
 
-Install deps
+Install dependencies
 
 ```bash
 pip install -r requirements.txt
