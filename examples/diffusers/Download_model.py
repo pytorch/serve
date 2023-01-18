@@ -4,7 +4,7 @@ from diffusers import DiffusionPipeline
 TOKEN = "Token generated from Huggingface dashboard"
 
 pipeline = DiffusionPipeline.from_pretrained(
-    "CompVis/stable-diffusion-v1-4",
+    "stabilityai/stable-diffusion-2",
     revision="fp16",
     torch_dtype=torch.float16,
     use_auth_token=TOKEN,
