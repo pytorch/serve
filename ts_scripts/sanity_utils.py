@@ -184,6 +184,13 @@ def test_sanity():
         print(f"## Failed to run inference on {resnet18_model['name']} model")
         sys.exit(1)
 
+    response = ts.unregister_model(resnet18_model["name"])
+    if response and response.status_code == 200:
+        print(f"## Successfully unregistered {resnet18_model['name']}")
+    else:
+        print(f"## Failed to unregister {resnet18_model['name']}")
+        sys.exit(1)
+
     stopped = ts.stop_torchserve()
     if not stopped:
         sys.exit(1)
