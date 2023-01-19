@@ -1,16 +1,17 @@
+import glob
 import os
 import sys
-import nvgpu
-import glob
-from ts_scripts import marsgen as mg
 
+import nvgpu
+
+from ts_scripts import marsgen as mg
 
 REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 sys.path.append(REPO_ROOT)
 
 from ts_scripts import tsutils as ts
-from ts_scripts.tsutils import generate_grpc_client_stubs
 from ts_scripts import utils
+from ts_scripts.tsutils import generate_grpc_client_stubs
 
 
 def run_markdown_link_checker():
@@ -44,42 +45,93 @@ def test_sanity():
 
     print("## Started sanity tests")
 
-    resnet18_model = {"name": "resnet-18", "inputs": ["examples/image_classifier/kitten.jpg"],
-                      "handler": "image_classifier"}
+    resnet18_model = {
+        "name": "resnet-18",
+        "inputs": ["examples/image_classifier/kitten.jpg"],
+        "handler": "image_classifier",
+    }
 
-    bert_token_classification_no_torchscript_model = {"name": "bert_token_classification_no_torchscript",
-         "inputs": ["examples/Huggingface_Transformers/Token_classification_artifacts/sample_text.txt"],
-         "handler": "custom"}
+    bert_token_classification_no_torchscript_model = {
+        "name": "bert_token_classification_no_torchscript",
+        "inputs": [
+            "examples/Huggingface_Transformers/Token_classification_artifacts/sample_text.txt"
+        ],
+        "handler": "custom",
+    }
 
-    bert_seqc_without_torchscript_model = {"name": "bert_seqc_without_torchscript",
-         "inputs": ["examples/Huggingface_Transformers/Seq_classification_artifacts/sample_text.txt"],
-         "handler": "custom"}
- 
+    bert_seqc_without_torchscript_model = {
+        "name": "bert_seqc_without_torchscript",
+        "inputs": [
+            "examples/Huggingface_Transformers/Seq_classification_artifacts/sample_text.txt"
+        ],
+        "handler": "custom",
+    }
+
     models_to_validate = [
-        {"name": "fastrcnn", "inputs": ["examples/object_detector/persons.jpg"], "handler": "object_detector"},
-        {"name": "fcn_resnet_101",
-         "inputs": ["docs/images/blank_image.jpg", "examples/image_segmenter/persons.jpg"],
-         "handler": "image_segmenter"},
-        {"name": "my_text_classifier_v4", "inputs": ["examples/text_classification/sample_text.txt"],
-         "handler": "text_classification"},
+        {
+            "name": "fastrcnn",
+            "inputs": ["examples/object_detector/persons.jpg"],
+            "handler": "object_detector",
+        },
+        {
+            "name": "fcn_resnet_101",
+            "inputs": [
+                "docs/images/blank_image.jpg",
+                "examples/image_segmenter/persons.jpg",
+            ],
+            "handler": "image_segmenter",
+        },
+        {
+            "name": "my_text_classifier_v4",
+            "inputs": ["examples/text_classification/sample_text.txt"],
+            "handler": "text_classification",
+        },
         resnet18_model,
-        {"name": "my_text_classifier_scripted_v3", "inputs": ["examples/text_classification/sample_text.txt"],
-         "handler": "text_classification"},
-        {"name": "alexnet_scripted", "inputs": ["examples/image_classifier/kitten.jpg"], "handler": "image_classifier"},
-        {"name": "fcn_resnet_101_scripted", "inputs": ["examples/image_segmenter/persons.jpg"],
-         "handler": "image_segmenter"},
-        {"name": "distill_bert_qa_eager",
-         "inputs": ["examples/Huggingface_Transformers/QA_artifacts/sample_text.txt"], "handler": "custom"},
-        {"name": "bert_token_classification_no_torchscript",
-         "inputs": ["examples/Huggingface_Transformers/Token_classification_artifacts/sample_text.txt"],
-         "handler": "custom"},
-        {"name": "bert_seqc_without_torchscript",
-         "inputs": ["examples/Huggingface_Transformers/Seq_classification_artifacts/sample_text.txt"],
-         "handler": "custom"}
+        {
+            "name": "my_text_classifier_scripted_v3",
+            "inputs": ["examples/text_classification/sample_text.txt"],
+            "handler": "text_classification",
+        },
+        {
+            "name": "alexnet_scripted",
+            "inputs": ["examples/image_classifier/kitten.jpg"],
+            "handler": "image_classifier",
+        },
+        {
+            "name": "fcn_resnet_101_scripted",
+            "inputs": ["examples/image_segmenter/persons.jpg"],
+            "handler": "image_segmenter",
+        },
+        {
+            "name": "distill_bert_qa_eager",
+            "inputs": [
+                "examples/Huggingface_Transformers/QA_artifacts/sample_text.txt"
+            ],
+            "handler": "custom",
+        },
+        {
+            "name": "bert_token_classification_no_torchscript",
+            "inputs": [
+                "examples/Huggingface_Transformers/Token_classification_artifacts/sample_text.txt"
+            ],
+            "handler": "custom",
+        },
+        {
+            "name": "bert_seqc_without_torchscript",
+            "inputs": [
+                "examples/Huggingface_Transformers/Seq_classification_artifacts/sample_text.txt"
+            ],
+            "handler": "custom",
+        },
     ]
 
-    if(not sys.platform.startswith('win')):
-        models_to_validate.extend((bert_token_classification_no_torchscript_model, bert_seqc_without_torchscript_model))
+    if not sys.platform.startswith("win"):
+        models_to_validate.extend(
+            (
+                bert_token_classification_no_torchscript_model,
+                bert_seqc_without_torchscript_model,
+            )
+        )
 
     ts_log_file = os.path.join("logs", "ts_console.log")
     is_gpu_instance = utils.is_gpu_instance()
@@ -89,6 +141,7 @@ def test_sanity():
 
     if is_gpu_instance:
         import torch
+
         if not torch.cuda.is_available():
             sys.exit("## Ohh its NOT running on GPU !")
 
@@ -123,7 +176,9 @@ def test_sanity():
             else:
                 print(f"## Successfully ran inference on {model_name} model.")
 
-        unregister_model_grpc_cmd = f"python ts_scripts/torchserve_grpc_client.py unregister {model_name}"
+        unregister_model_grpc_cmd = (
+            f"python ts_scripts/torchserve_grpc_client.py unregister {model_name}"
+        )
         status = os.system(unregister_model_grpc_cmd)
 
         if status != 0:
@@ -154,7 +209,9 @@ def test_sanity():
             if validate_model_on_gpu():
                 print(f"## Model {model_name} successfully loaded on GPU")
             else:
-                sys.exit(f"## Something went wrong, model {model_name} did not load on GPU!!")
+                sys.exit(
+                    f"## Something went wrong, model {model_name} did not load on GPU!!"
+                )
 
         # skip unregistering resnet-18 model to test snapshot feature with restart
         if model != resnet18_model:
@@ -197,7 +254,7 @@ def test_sanity():
 
     links_ok = run_markdown_link_checker()
     if not links_ok:
-       print("##WARNING : Broken links in docs.")
+        print("##WARNING : Broken links in docs.")
 
 
 def test_workflow_sanity():
@@ -206,7 +263,12 @@ def test_workflow_sanity():
     os.makedirs("model_store", exist_ok=True)
     os.makedirs("logs", exist_ok=True)
 
-    started = ts.start_torchserve(ncs=True, log_file=ts_log_file, model_store="model_store", workflow_store="model_store")
+    started = ts.start_torchserve(
+        ncs=True,
+        log_file=ts_log_file,
+        model_store="model_store",
+        workflow_store="model_store",
+    )
     if not started:
         sys.exit(1)
 
@@ -219,7 +281,9 @@ def test_workflow_sanity():
         sys.exit(1)
 
     # Run prediction on workflow
-    response = ts.workflow_prediction("densenet", "examples/image_classifier/kitten.jpg")
+    response = ts.workflow_prediction(
+        "densenet", "examples/image_classifier/kitten.jpg"
+    )
     if response and response.status_code == 200:
         print(response.text)
     else:
