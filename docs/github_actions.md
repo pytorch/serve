@@ -91,7 +91,7 @@
             uses: actions/checkout@v3
     ```
 
-    4. Specify the shellacommands/scripts to be run. Examples:
+    4. Specify the shell commands/scripts to be run. Examples:
 
         1.
         ```
