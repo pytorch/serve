@@ -67,41 +67,44 @@
                 cuda: ["cu116", "cu117"]
     ```
 
-    6. Specify the commands to be executed for the run
+6. Specify the commands to be executed for the run
 
-        1. Setup python
+    1. Setup python
+    ```
+        - name: Setup Python 3.8
+            uses: actions/setup-python@v3
+            with:
+            python-version: 3.8
+            architecture: x84
+    ```
+    2. Setup Java
+    ```
+        - name: Setup Java 17
+            uses: actions/setup-java@v3
+            with:
+            distribution: 'zulu'
+            java-version: '17'
+    ```
+    3. Checkout TorchServe
+    ```
+        - name: Checkout TorchServe
+            uses: actions/checkout@v3
+    ```
+
+    4. Specify the shellacommands/scripts to be run. Examples:
+
+        1.
         ```
-            - name: Setup Python 3.8
-                uses: actions/setup-python@v3
-                with:
-                python-version: 3.8
-                architecture: x84
+            - name: Install dependencies
+                run: python ts_scripts/install_dependencies.py --environment=dev
         ```
-        2. Setup Java
+        2.
+
         ```
-            - name: Setup Java 17
-                uses: actions/setup-java@v3
-                with:
-                distribution: 'zulu'
-                java-version: '17'
+            - name: Upload codecov
+                if: matrix.os == 'ubuntu-20.04'
+                run : |
+                curl -Os https://uploader.codecov.io/latest/linux/codecov
+                chmod +x codecov
+                ./codecov
         ```
-        3. Checkout TorchServe
-        ```
-            - name: Checkout TorchServe
-                uses: actions/checkout@v3
-        ```
-        4. Run any desired script. Examples:
-            -
-            ```
-                - name: Install dependencies
-                    run: python ts_scripts/install_dependencies.py --environment=dev
-            ```
-            -
-            ```
-                - name: Upload codecov
-                    if: matrix.os == 'ubuntu-20.04'
-                    run : |
-                    curl -Os https://uploader.codecov.io/latest/linux/codecov
-                    chmod +x codecov
-                    ./codecov
-            ```
