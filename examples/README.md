@@ -1,22 +1,51 @@
 # Contents of this Document
+
+## TorchServe Internals
+
 * [Creating mar file for an eager mode model](#creating-mar-file-for-eager-mode-model)
 * [Creating mar file for torchscript mode model](#creating-mar-file-for-torchscript-mode-model)
-* [Serving torchvision image classification models](#serving-image-classification-models)
 * [Serving custom model with custom service handler](#serving-custom-model-with-custom-service-handler)
-* [Serving text classification model](#serving-text-classification-model)
-* [Serving text classification model with scriptable tokenizer](#serving-text-classification-model-with-scriptable-tokenizer)
+* [Serving Image Classification Workflow](#serving-image-classification-workflow)
+
+
+## TorchServe Integrations
+
+### Hugging Face
+
+<img src="images/huggingface_logo-noborder.svg" width="30" height="30" title="Hugging Face"/>
+
+* [Serving huggingface transformers model](#serving-huggingface-transformers)
+
+### TorchRec DLRM
+<img src="images/dlrm.png" width="400" title="DLRM"/>
+
+* [Serving Torchrec DLRM (Recommender Model)](#serving-torchrec-dlrm-recommender-model)
+
+### TorchData
+* [Serving Image Classifier model and loading image data using torchdata (datapipes)](#serving-image-classifier-model-with-torchdata-datapipes)
+
+## UseCases
+
+### Vision
+* [Serving torchvision image classification models](#serving-image-classification-models)
 * [Serving object detection model](#serving-object-detection-model)
 * [Serving image segmentation model](#serving-image-segmentation-model)
-* [Serving huggingface transformers model](#serving-huggingface-transformers)
 * [Serving image generator model](#example-to-serve-gan-model)
-* [Serving machine translation model](#serving-neural-machine-translation)
-* [Serving waveglow text to speech synthesizer model](#serving-waveglow-text-to-speech-synthesizer)
-* [Serving multi modal framework model](#serving-multi-modal-model)
-* [Serving Image Classification Workflow](#serving-image-classification-workflow)
-* [Serving Neural Machine Translation Workflow](#serving-neural-machine-translation-workflow)
-* [Serving Torchrec DLRM (Recommender Model)](#serving-torchrec-dlrm-recommender-model)
 * [Serving Image Classifier model for on-premise near real-time video](#serving-image-classifier-model-for-on-premise-near-real-time-video)
-* [Serving Image Classifier model and loading image data using torchdata (datapipes)](#serving-image-classifier-model-with-torchdata-datapipes)
+
+### Text
+#### Neural Machine Translation
+<img src="images/seq2seq.png" width="400" title="SEQ2SEQ"/>
+
+* [Serving machine translation model](#serving-neural-machine-translation)
+* [Serving Neural Machine Translation Workflow](#serving-neural-machine-translation-workflow)
+
+* [Serving text classification model](#serving-text-classification-model)
+* [Serving text classification model with scriptable tokenizer](#serving-text-classification-model-with-scriptable-tokenizer)
+* [Serving waveglow text to speech synthesizer model](#serving-waveglow-text-to-speech-synthesizer)
+
+### MultiModal
+* [Serving multi modal framework model](#serving-multi-modal-model)
 
 # TorchServe Examples
 
