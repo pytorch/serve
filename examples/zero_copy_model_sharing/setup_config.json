@@ -1,0 +1,5 @@
+{
+    "model_name": "bigscience/bloom-560m",
+    "torch_dtype":"float32",
+    "max_length":"50"
+}

@@ -21,8 +21,11 @@ class MockContext:
         model_file="model.py",
         gpu_id="0",
         model_name="mnist",
+        model_version="1.0",
     ):
         self.manifest = {"model": {}}
+        self.manifest["model"]["modelName"] = model_name
+        self.manifest["model"]["modelVersion"] = model_version
         if model_pt_file:
             self.manifest["model"]["serializedFile"] = model_pt_file
 

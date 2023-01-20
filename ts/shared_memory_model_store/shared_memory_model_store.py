@@ -104,7 +104,12 @@ def restore_model(model: nn.Module, arrays: Tuple) -> nn.Module:
 class SharedMemoryModelStore(object):
     def __init__(self, store_name: str):
         self.store_name = store_name
-        self.store = dist.FileStore(str(Path("/tmp") / store_name), -1)
+        self.store_path = Path("/tmp") / store_name
+        self.store = dist.FileStore(self.store_path.as_posix(), -1)
+        ret = self.store.add("num_worker", 1)
+        # First worker self declares itself to master
+        self.is_master = ret == 1
+
         # Pointers to shared memory created within the store
         self.shm = []
         self.shm_copies = []
@@ -117,9 +122,12 @@ class SharedMemoryModelStore(object):
             s.close()
             s.unlink()
 
-    def set(self, model_name: str, model: nn.Module) -> nn.Module:
-        # assert self.store.get(model_name) is None
+        self.store.add("num_worker", -1)
 
+        if self.is_master:
+            self.store_path.unlink()
+
+    def set(self, model_name: str, model: nn.Module) -> nn.Module:
         m_empty, arrays = strip_model(f"{self.store_name}_{model_name}", model)
 
         # Keep records of shared memory to keep it available until deletion of store
