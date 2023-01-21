@@ -5,17 +5,20 @@
 * [Creating mar file for an eager mode model](#creating-mar-file-for-eager-mode-model)
 * [Creating mar file for torchscript mode model](#creating-mar-file-for-torchscript-mode-model)
 * [Serving custom model with custom service handler](#serving-custom-model-with-custom-service-handler)
-* [Serving Image Classification Workflow](#serving-image-classification-workflow)
-
+* [Creating a Workflow](#serving-image-classification-workflow)
+* [Custom Metrics](custom_metrics)
+* [Batch Processing](image_classifier/resnet_152_batch)
+* [Async requests](#serving-image-classifier-model-for-on-premise-near-real-time-video)
 
 ## TorchServe Integrations
 
-### Hugging Face
-
-<img src="images/huggingface_logo-noborder.svg" width="30" height="30" title="Hugging Face"/>
+### Hugging Face <img src="images/huggingface_logo-noborder.svg" width="30" height="30" title="Hugging Face" style="float:right padding:10px" />
 
 * [Serving huggingface transformers model](#serving-huggingface-transformers)
 
+### Captum <img src="images/captum_logo.svg" width="50" title="Captum"  />
+
+* [Integration with Captum](#captum-integration)
 ### TorchRec DLRM
 <img src="images/dlrm.png" width="400" title="DLRM"/>
 
@@ -23,6 +26,27 @@
 
 ### TorchData
 * [Serving Image Classifier model and loading image data using torchdata (datapipes)](#serving-image-classifier-model-with-torchdata-datapipes)
+
+### PyTorch 2.0
+* [PyTorch 2.0 Integration](pt2)
+
+### Intel® Extension for PyTorch
+* [ Boost Performance on Intel Hardware](intel-extension-for-pytorch)
+
+### Stable Diffusion <img src="images/huggingface_logo-noborder.svg" width="30" height="30" title="Hugging Face" style="float:right padding:10px" />
+* [Stable Diffusion using HuggingFace Diffusers](diffusers)
+
+### Microsoft DeepSpeed-MII
+
+<img src="images/mii-white.svg" width="100" title="DeepSpeed MII" style="float:top" />
+
+* [HuggingFace Stable Diffusion Model with Microsoft DeepSpeed-MII](#deepspeed_mii)
+
+### Prometheus and mtail
+
+* [Custom Metrics with mtail and Prometheus](custom_metrics)
+<img src="images/prometheus_logo_grey.svg" width="50" title="Prometheus" style="float:top" />
+<img src="images/mtail.png" width="50" title="mtail" style="float:top" />
 
 ## UseCases
 
@@ -123,6 +147,12 @@ The following example demonstrates how to create and serve a pretrained fcn NN m
 The following example demonstrates how to create and serve a pretrained transformer models from Huggingface such as BERT, RoBERTA, XLM
 
 * [Hugging Face Transformers](Huggingface_Transformers)
+
+## Captum Integration
+
+The following example demonstrates TorchServe's integration with Captum, an open source, extensible library for model interpretability built on PyTorch
+
+* [Captum](captum)
 
 ## Example to serve GAN model
 
