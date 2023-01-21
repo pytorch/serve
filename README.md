@@ -80,7 +80,7 @@ Refer to [torchserve docker](docker/README.md) for details.
 * [Torch Serve Internals](examples/README.md#torchserve-internals)
 * [Torch Serve UseCases](examples/README.md#usecases)
 
-  For [more examples](examples/README.md)
+For [more examples](examples/README.md)
 
 ## 🤓 Learn More
 https://pytorch.org/serve
