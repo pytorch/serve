@@ -1,4 +1,4 @@
-# Contents of this Document
+# Examples showcasing TorchServe Features and Integrations
 
 ## TorchServe Internals
 
@@ -45,17 +45,23 @@
 ### Prometheus and mtail
 
 <img src="images/prometheus_logo_grey.svg" width="50" title="Prometheus" style="float:top" />
-<img src="images/mtail.png" width="50" title="mtail" style="float:top" />
+
 * [Custom Metrics with mtail and Prometheus](custom_metrics)
+<img src="images/mtail.png" width="50" title="mtail" style="float:top" />
 
 ## UseCases
 
 ### Vision
+#### Image Classification
 * [Serving torchvision image classification models](#serving-image-classification-models)
+* [Serving Image Classifier model for on-premise near real-time video](#serving-image-classifier-model-for-on-premise-near-real-time-video)
+
+#### Object Detection
 * [Serving object detection model](#serving-object-detection-model)
 * [Serving image segmentation model](#serving-image-segmentation-model)
+
+#### GAN
 * [Serving image generator model](#example-to-serve-gan-model)
-* [Serving Image Classifier model for on-premise near real-time video](#serving-image-classifier-model-for-on-premise-near-real-time-video)
 
 ### Text
 #### Neural Machine Translation
@@ -64,8 +70,11 @@
 * [Serving machine translation model](#serving-neural-machine-translation)
 * [Serving Neural Machine Translation Workflow](#serving-neural-machine-translation-workflow)
 
+#### Text Classification
 * [Serving text classification model](#serving-text-classification-model)
 * [Serving text classification model with scriptable tokenizer](#serving-text-classification-model-with-scriptable-tokenizer)
+
+#### Text to Speech
 * [Serving waveglow text to speech synthesizer model](#serving-waveglow-text-to-speech-synthesizer)
 
 ### MultiModal
