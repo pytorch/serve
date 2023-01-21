@@ -44,7 +44,7 @@
 
 ### Prometheus and mtail
 
-<img src="images/prometheus_logo_grey.svg" width="50" title="Prometheus" style="float:top background:black" />
+<img src="images/prometheus-logo.svg" width="50" title="Prometheus" style="float:top" />
 
 * [Custom Metrics with mtail and Prometheus](custom_metrics)
 <img src="images/mtail.png" width="50" title="mtail" style="float:top" />
