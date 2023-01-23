@@ -7,8 +7,8 @@
 * [Serving custom model with custom service handler](#serving-custom-model-with-custom-service-handler)
 * [Creating a Workflow](#serving-image-classification-workflow)
 * [Custom Metrics](custom_metrics)
-* [Batch Processing](image_classifier/resnet_152_batch)
-* [Async requests](#serving-image-classifier-model-for-on-premise-near-real-time-video)
+* [Dynamic Batch Processing](image_classifier/resnet_152_batch)
+* [Dynamic Batched Async Requests](#serving-image-classifier-model-for-on-premise-near-real-time-video)
 
 ## TorchServe Integrations
 
