@@ -85,7 +85,7 @@ if __name__ == "__main__":
     )
 
     parser = argparse.ArgumentParser(
-        description="Torch Serve gRPC client",
+        description="TorchServe gRPC client",
         formatter_class=argparse.RawTextHelpFormatter,
     )
     subparsers = parser.add_subparsers(help="Action", dest="action")
