@@ -30,6 +30,15 @@
 ### PyTorch 2.0
 * [PyTorch 2.0 Integration](pt2)
 
+### ONNX
+<img src="images/onnx.png" width="100" title="ONNX" style="float:top" />
+
+* [Example for ONNX Integration](../test/pytest/test_onnx.py)
+
+### TensorRT
+
+* [Support for TensorRT optmizations](../docs/performance_guide.md#tensorrt-and-nvfuser-support)
+
 ### Intel® Extension for PyTorch
 * [ Boost Performance on Intel Hardware](intel-extension-for-pytorch)
 
