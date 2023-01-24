@@ -46,6 +46,7 @@ torch-model-archiver --model-name bloom --version 1.0 --handler custom_handler.p
 - Refer: https://huggingface.co/docs/transformers/main_classes/model#large-model-loading
 
 ### Step 4: Add the mar file to model store
+
 ```bash
 mkdir model_store
 mv bloom.mar model_store
