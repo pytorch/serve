@@ -106,7 +106,6 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
             inputs = self.tokenizer.encode_plus(
                 input_text,
                 max_length=int(max_length),
-                pad_to_max_length=True,
                 add_special_tokens=True,
                 return_tensors="pt",
             )
