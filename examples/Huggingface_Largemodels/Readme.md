@@ -29,6 +29,7 @@ Navigate to the path got from the above script. In this example it is
 ```bash
 cd model/models--bigscience-bloom-7b1/snapshots/5546055f03398095e385d7dc625e636cc8910bf2/
 zip -r /serve/examples/deepspeed_mii/model.zip *
+cd -
 ```
 
 ### Step 3: Generate MAR file
@@ -44,7 +45,13 @@ torch-model-archiver --model-name bloom --version 1.0 --handler custom_handler.p
 - Recommended `max_memory` in `setup_config.json` is the max size of shard.
 - Refer: https://huggingface.co/docs/transformers/main_classes/model#large-model-loading
 
-### Step 4: Start torchserve
+### Step 4: Add the mar file to model store
+```bash
+mkdir model_store
+mv bloom.mar model_store
+``
+
+### Step 5: Start torchserve
 
 Update config.properties and start torchserve
 
