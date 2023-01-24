@@ -30,6 +30,7 @@ Navigate to the path got from the above script. In this example it is
 cd model/models--bigscience-bloom-7b1/snapshots/5546055f03398095e385d7dc625e636cc8910bf2/
 zip -r /home/ubuntu/serve/examples/Huggingface_Largemodels//model.zip *
 cd -
+
 ```
 
 ### Step 3: Generate MAR file
