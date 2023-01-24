@@ -158,3 +158,5 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
             (list): Returns a list of the Predictions and Explanations.
         """
         return inference_output
+
+
