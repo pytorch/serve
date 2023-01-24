@@ -28,7 +28,7 @@ Navigate to the path got from the above script. In this example it is
 
 ```bash
 cd model/models--bigscience-bloom-7b1/snapshots/5546055f03398095e385d7dc625e636cc8910bf2/
-zip -r /serve/examples/Huggingface_Largemodels/model.zip *
+zip -r /home/ubuntu/serve/examples/Huggingface_Largemodels//model.zip *
 cd -
 ```
 
