@@ -14,7 +14,6 @@ requirements:
     - python
     - pillow
     - psutil
-    - future
 
 build:
   script: "{{ PYTHON }} -m pip install . -vv"
