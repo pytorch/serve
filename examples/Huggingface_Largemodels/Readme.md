@@ -50,7 +50,7 @@ torch-model-archiver --model-name bloom --version 1.0 --handler custom_handler.p
 ```bash
 mkdir model_store
 mv bloom.mar model_store
-``
+```
 
 ### Step 5: Start torchserve
 
