@@ -207,7 +207,6 @@
               "type": "string",
               "enum": [
                 "PYTHON",
-                "PYTHON2",
                 "PYTHON3"
               ]
             }
