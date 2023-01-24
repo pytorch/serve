@@ -69,3 +69,5 @@ curl -v "http://localhost:8080/predictions/bloom" -T sample_text.txt
 
 
 
+
+
