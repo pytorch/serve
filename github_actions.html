@@ -10,7 +10,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>16. TorchServe on Windows Subsystem for Linux (WSL) &mdash; PyTorch/Serve master documentation</title>
+  <title>GitHub Actions for TorchServe &mdash; PyTorch/Serve master documentation</title>
   
 
   
@@ -35,8 +35,6 @@
   <link rel="stylesheet" href="_static/katex-math.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="17. Torchserve Use Cases" href="use_cases.html" />
-    <link rel="prev" title="15. TorchServe on Windows" href="torchserve_on_win_native.html" />
   <!-- Google Analytics -->
   
   <!-- End Google Analytics -->
@@ -246,7 +244,7 @@
             
             
               <p class="caption"><span class="caption-text">Contents:</span></p>
-<ul class="current">
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="index.html">1. TorchServe</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Troubleshooting.html">2. Troubleshooting Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="batch_inference_with_ts.html">3. Batch Inference with TorchServe</a></li>
@@ -262,7 +260,7 @@
 <li class="toctree-l1"><a class="reference internal" href="snapshot.html">13. TorchServe model snapshot</a></li>
 <li class="toctree-l1"><a class="reference internal" href="sphinx/requirements.html">14. cf. https://github.com/ryanfox/sphinx-markdown-tables/issues/36</a></li>
 <li class="toctree-l1"><a class="reference internal" href="torchserve_on_win_native.html">15. TorchServe on Windows</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">16. TorchServe on Windows Subsystem for Linux (WSL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torchserve_on_wsl.html">16. TorchServe on Windows Subsystem for Linux (WSL)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="use_cases.html">17. Torchserve Use Cases</a></li>
 <li class="toctree-l1"><a class="reference internal" href="workflows.html">18. TorchServe Workflows</a></li>
 </ul>
@@ -325,13 +323,13 @@
       </li>
 
         
-      <li><span class="section-number">16. </span>TorchServe on Windows Subsystem for Linux (WSL)</li>
+      <li>GitHub Actions for TorchServe</li>
     
     
       <li class="pytorch-breadcrumbs-aside">
         
             
-            <a href="_sources/torchserve_on_wsl.md.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg"></a>
+            <a href="_sources/github_actions.md.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg"></a>
           
         
       </li>
@@ -357,66 +355,138 @@
             <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
-  <section id="torchserve-on-windows-subsystem-for-linux-wsl">
-<h1><span class="section-number">16. </span>TorchServe on Windows Subsystem for Linux (WSL)<a class="headerlink" href="#torchserve-on-windows-subsystem-for-linux-wsl" title="Permalink to this headline">¶</a></h1>
-<ul class="simple">
-<li><p>Ubuntu 18.0.4</p></li>
+  <section id="github-actions-for-torchserve">
+<h1>GitHub Actions for TorchServe<a class="headerlink" href="#github-actions-for-torchserve" title="Permalink to this headline">¶</a></h1>
+<section id="steps-to-create-github-actions">
+<h2>Steps to create github actions<a class="headerlink" href="#steps-to-create-github-actions" title="Permalink to this headline">¶</a></h2>
+<ol>
+<li><p>Create a new workflow file under <code class="docutils literal notranslate"><span class="pre">.github/workflows</span></code></p></li>
+<li><p>Specify the name of the workflow</p>
+<p><code class="docutils literal notranslate"><span class="pre">name:</span> <span class="pre">Run</span> <span class="pre">Regression</span> <span class="pre">Tests</span> <span class="pre">on</span> <span class="pre">CPU</span></code></p>
+</li>
+<li><p>Specify when the workflow should trigger. Some common examples are as follows</p>
+<ul>
+<li><p>Trigger manually</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">on</span><span class="p">:</span> <span class="n">workflow_dispatch</span>
+</pre></div>
+</div>
+</li>
+<li><p>Trigger on push to a branch</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">on</span><span class="p">:</span>
+    <span class="n">push</span><span class="p">:</span>
+        <span class="n">branches</span><span class="p">:</span>
+        <span class="o">-</span> <span class="n">master</span>
+</pre></div>
+</div>
+</li>
+<li><p>Trigger on pull request</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">on</span><span class="p">:</span>
+  <span class="n">pull_request</span><span class="p">:</span>
+    <span class="n">branches</span><span class="p">:</span>
+    <span class="o">-</span> <span class="n">master</span>
+</pre></div>
+</div>
+</li>
+<li><p>Trigger nightly</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">on</span><span class="p">:</span>
+    <span class="c1"># run every day at 2:15am</span>
+    <span class="n">schedule</span><span class="p">:</span>
+        <span class="o">-</span> <span class="n">cron</span><span class="p">:</span>  <span class="s1">&#39;15 02 * * *&#39;</span>
+</pre></div>
+</div>
+</li>
 </ul>
-<section id="contents-of-this-document">
-<h2><span class="section-number">16.1. </span>Contents of this Document<a class="headerlink" href="#contents-of-this-document" title="Permalink to this headline">¶</a></h2>
+</li>
+<li><p>Start defining the job to be run</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">jobs</span><span class="p">:</span>
+    <span class="n">regression</span><span class="o">-</span><span class="n">cpu</span><span class="p">:</span>
+</pre></div>
+</div>
+<p>Everything after this is aligned to <code class="docutils literal notranslate"><span class="pre">jobs</span></code></p>
+</li>
+<li><p>Define where the job is to run</p>
 <ul class="simple">
-<li><p><a class="reference external" href="#setup-ubuntu-1804-on-wsl">Setup Ubuntu 18.0.4 on WSL</a></p></li>
-<li><p><a class="reference external" href="#install-from-binaries">Install from binaries</a></p></li>
-<li><p><a class="reference external" href="#install-from-source">Install from source</a></p></li>
-<li><p><a class="reference external" href="https://docs.nvidia.com/cuda/wsl-user-guide/index.html#known-limitations">Known limitations of NVIDIA CUDA support on GPU</a></p></li>
+<li><p>Specify which OS/machine to be run on</p></li>
 </ul>
-</section>
-<section id="setup-ubuntu-18-0-4-on-wsl">
-<h2><span class="section-number">16.2. </span>Setup Ubuntu 18.0.4 on WSL:<a class="headerlink" href="#setup-ubuntu-18-0-4-on-wsl" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="n">runs</span><span class="o">-</span><span class="n">on</span><span class="p">:</span> <span class="n">ubuntu</span><span class="o">-</span><span class="mf">20.04</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="n">runs</span><span class="o">-</span><span class="n">on</span><span class="p">:</span> <span class="p">[</span><span class="bp">self</span><span class="o">-</span><span class="n">hosted</span><span class="p">,</span> <span class="n">ci</span><span class="o">-</span><span class="n">gpu</span><span class="p">]</span>
+</pre></div>
+</div>
 <ul class="simple">
-<li><p><a class="reference external" href="https://docs.microsoft.com/en-us/windows/wsl/install-win10">Windows Subsystem for Linux Installation Guide for Windows 10</a></p></li>
-<li><p><a class="reference external" href="https://docs.microsoft.com/en-us/windows/wsl/install-on-server">Windows Subsystem for Linux Installation Guide for Windows Server 2019</a></p></li>
+<li><p>Specify in terms of a matrix. This would run on <code class="docutils literal notranslate"><span class="pre">ubuntu-20.04</span></code> and <code class="docutils literal notranslate"><span class="pre">macOS-latest</span></code>. <code class="docutils literal notranslate"><span class="pre">fail-fast</span></code> indicates to fail the job when the first one fails</p></li>
 </ul>
-</section>
-<section id="install-from-binaries">
-<h2><span class="section-number">16.3. </span>Install from binaries<a class="headerlink" href="#install-from-binaries" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    runs-on: ${{ matrix.os }}
+    strategy:
+    fail-fast: false
+    matrix:
+        os: [ubuntu-20.04, macOS-latest]
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>This would create 2 runs. One run on <code class="docutils literal notranslate"><span class="pre">ci-gpu</span></code> with CUDA 11.6 and a second run on <code class="docutils literal notranslate"><span class="pre">ci-gpu</span></code> with CUDA 11.7</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="n">runs</span><span class="o">-</span><span class="n">on</span><span class="p">:</span> <span class="p">[</span><span class="bp">self</span><span class="o">-</span><span class="n">hosted</span><span class="p">,</span> <span class="n">ci</span><span class="o">-</span><span class="n">gpu</span><span class="p">]</span>
+        <span class="n">strategy</span><span class="p">:</span>
+        <span class="n">fail</span><span class="o">-</span><span class="n">fast</span><span class="p">:</span> <span class="n">false</span>
+        <span class="n">matrix</span><span class="p">:</span>
+            <span class="n">cuda</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;cu116&quot;</span><span class="p">,</span> <span class="s2">&quot;cu117&quot;</span><span class="p">]</span>
+</pre></div>
+</div>
+</li>
+<li><p>Specify the commands to be executed for the run</p>
 <ol class="simple">
-<li><p>Setup Ubuntu Environment</p></li>
+<li><p>Setup python</p></li>
 </ol>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>wget<span class="w"> </span>-O<span class="w"> </span>-<span class="w"> </span>https://raw.githubusercontent.com/pytorch/serve/master/ts_scripts/setup_wsl_ubuntu<span class="w"> </span><span class="p">|</span><span class="w"> </span>bash
-<span class="nb">echo</span><span class="w"> </span><span class="s1">&#39;export PATH=$HOME/.local/bin:$PATH&#39;</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>~/.bashrc
-<span class="nb">source</span><span class="w"> </span>~/.bashrc
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">Setup</span> <span class="n">Python</span> <span class="mf">3.8</span>
+        <span class="n">uses</span><span class="p">:</span> <span class="n">actions</span><span class="o">/</span><span class="n">setup</span><span class="o">-</span><span class="n">python</span><span class="nd">@v3</span>
+        <span class="k">with</span><span class="p">:</span>
+        <span class="n">python</span><span class="o">-</span><span class="n">version</span><span class="p">:</span> <span class="mf">3.8</span>
+        <span class="n">architecture</span><span class="p">:</span> <span class="n">x84</span>
 </pre></div>
 </div>
 <ol class="simple">
-<li><p>Install JDK 17</p></li>
+<li><p>Setup Java</p></li>
 </ol>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>apt-get<span class="w"> </span>install<span class="w"> </span>openjdk-17-jdk
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">Setup</span> <span class="n">Java</span> <span class="mi">17</span>
+        <span class="n">uses</span><span class="p">:</span> <span class="n">actions</span><span class="o">/</span><span class="n">setup</span><span class="o">-</span><span class="n">java</span><span class="nd">@v3</span>
+        <span class="k">with</span><span class="p">:</span>
+        <span class="n">distribution</span><span class="p">:</span> <span class="s1">&#39;zulu&#39;</span>
+        <span class="n">java</span><span class="o">-</span><span class="n">version</span><span class="p">:</span> <span class="s1">&#39;17&#39;</span>
 </pre></div>
 </div>
 <ol class="simple">
-<li><p>Install Dependencies</p></li>
+<li><p>Checkout TorchServe</p></li>
 </ol>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">torch</span> <span class="n">torchtext</span> <span class="n">torchvision</span> <span class="n">sentencepiece</span> <span class="n">psutil</span>
-<span class="n">pip</span> <span class="n">install</span> <span class="n">torchserve</span> <span class="n">torch</span><span class="o">-</span><span class="n">model</span><span class="o">-</span><span class="n">archiver</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">Checkout</span> <span class="n">TorchServe</span>
+        <span class="n">uses</span><span class="p">:</span> <span class="n">actions</span><span class="o">/</span><span class="n">checkout</span><span class="nd">@v3</span>
 </pre></div>
 </div>
-</section>
-<section id="install-from-source">
-<h2><span class="section-number">16.4. </span>Install from source<a class="headerlink" href="#install-from-source" title="Permalink to this headline">¶</a></h2>
+<ol>
+<li><p>Specify the shell commands/scripts to be run. Examples:</p>
 <ol class="simple">
-<li><p>Clone and install TorchServe</p></li>
+<li></li>
 </ol>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>git clone https://github.com/pytorch/serve.git
-cd serve
-
-./ts_scripts/setup_wsl_ubuntu
-export PATH=$HOME/.local/bin:$PATH
-python ./ts_scripts/install_from_src.py
-echo &#39;export PATH=$HOME/.local/bin:$PATH&#39; &gt;&gt; ~/.bashrc
-source ~/.bashrc
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">Install</span> <span class="n">dependencies</span>
+        <span class="n">run</span><span class="p">:</span> <span class="n">python</span> <span class="n">ts_scripts</span><span class="o">/</span><span class="n">install_dependencies</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">environment</span><span class="o">=</span><span class="n">dev</span>
 </pre></div>
 </div>
+<ol class="simple">
+<li></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="o">-</span> <span class="n">name</span><span class="p">:</span> <span class="n">Upload</span> <span class="n">codecov</span>
+        <span class="k">if</span><span class="p">:</span> <span class="n">matrix</span><span class="o">.</span><span class="n">os</span> <span class="o">==</span> <span class="s1">&#39;ubuntu-20.04&#39;</span>
+        <span class="n">run</span> <span class="p">:</span> <span class="o">|</span>
+        <span class="n">curl</span> <span class="o">-</span><span class="n">Os</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">uploader</span><span class="o">.</span><span class="n">codecov</span><span class="o">.</span><span class="n">io</span><span class="o">/</span><span class="n">latest</span><span class="o">/</span><span class="n">linux</span><span class="o">/</span><span class="n">codecov</span>
+        <span class="n">chmod</span> <span class="o">+</span><span class="n">x</span> <span class="n">codecov</span>
+        <span class="o">./</span><span class="n">codecov</span>
+</pre></div>
+</div>
+</li>
+</ol>
+</li>
+</ol>
 </section>
 </section>
 
@@ -425,15 +495,6 @@ source ~/.bashrc
              
             </div>
             <footer>
-  
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="use_cases.html" class="btn btn-neutral float-right" title="17. Torchserve Use Cases" accesskey="n" rel="next">Next <img src="_static/images/chevron-right-orange.svg" class="next-page"></a>
-      
-      
-        <a href="torchserve_on_win_native.html" class="btn btn-neutral" title="15. TorchServe on Windows" accesskey="p" rel="prev"><img src="_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
-      
-    </div>
   
 
   
@@ -463,11 +524,8 @@ source ~/.bashrc
           <div class="pytorch-right-menu" id="pytorch-right-menu">
             <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
               <ul>
-<li><a class="reference internal" href="#">16. TorchServe on Windows Subsystem for Linux (WSL)</a><ul>
-<li><a class="reference internal" href="#contents-of-this-document">16.1. Contents of this Document</a></li>
-<li><a class="reference internal" href="#setup-ubuntu-18-0-4-on-wsl">16.2. Setup Ubuntu 18.0.4 on WSL:</a></li>
-<li><a class="reference internal" href="#install-from-binaries">16.3. Install from binaries</a></li>
-<li><a class="reference internal" href="#install-from-source">16.4. Install from source</a></li>
+<li><a class="reference internal" href="#">GitHub Actions for TorchServe</a><ul>
+<li><a class="reference internal" href="#steps-to-create-github-actions">Steps to create github actions</a></li>
 </ul>
 </li>
 </ul>

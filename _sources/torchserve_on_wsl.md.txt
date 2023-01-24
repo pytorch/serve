@@ -33,7 +33,7 @@ sudo apt-get install openjdk-17-jdk
 1. Install Dependencies
 
 ```
-pip install torch torchtext torchvision sentencepiece psutil future
+pip install torch torchtext torchvision sentencepiece psutil
 pip install torchserve torch-model-archiver
 ```
 
