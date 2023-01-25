@@ -138,7 +138,11 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         inferences = []
         input_ids_batch = input_ids_batch.to(self.device)
         outputs = self.model.generate(
-            input_ids_batch, do_sample=True, max_length=50, top_p=0.95, top_k=60
+            input_ids_batch,
+            do_sample=True,
+            max_new_tokens=int(self.setup_config["max_length"]),
+            top_p=0.95,
+            top_k=60,
         )
         for i, _ in enumerate(outputs):
             inferences.append(
