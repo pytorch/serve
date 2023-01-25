@@ -90,19 +90,21 @@ if __name__ == "__main__":
     )
     subparsers = parser.add_subparsers(help="Action", dest="action")
 
-    A_parser = subparsers.add_parser("infer", parents=[parent_parser], add_help=False)
-    B_parser = subparsers.add_parser(
+    infer_action_parser = subparsers.add_parser(
+        "infer", parents=[parent_parser], add_help=False
+    )
+    register_action_parser = subparsers.add_parser(
         "register", parents=[parent_parser], add_help=False
     )
-    C_parser = subparsers.add_parser(
+    unregister_action_parser = subparsers.add_parser(
         "unregister", parents=[parent_parser], add_help=False
     )
 
-    A_parser.add_argument(
+    infer_action_parser.add_argument(
         "model_input", type=str, default=None, help="Input for model for inferencing."
     )
 
-    B_parser.add_argument(
+    register_action_parser.add_argument(
         "mar_set",
         type=str,
         default=None,
