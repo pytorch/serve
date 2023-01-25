@@ -37,7 +37,7 @@ NOTE At present, wheels for windows are not available on PyPi. However following
  - For PyPi package (N/A at present)
     - `pip install torchserve torch-model-archiver`
  - Start torchserve `torchserve.exe --start --model-store <path-to-model-store>`
- - For next steps refer [Serving a model](../README.md#serve-a-model)
+ - For next steps refer [Serving a model](../docs/getting_started.md#serve-a-model)
 
 ## Install from source
 
