@@ -20,3 +20,15 @@ torchserve --start --ncs --ts-config config.properties
 ```bash
 curl -v "http://localhost:8080/predictions/bloom" -T sample_text.txt
 ```
+
+
+BERT example
+
+* Download model:
+```bash
+python ../Huggingface_Transformers/Download_Transformer_models.py /home/ubuntu/serve/examples/zero_copy_model_sharing/Transformer_model/setup_config.json
+```
+
+```bash
+torch-model-archiver --model-name bert_sharing --version 1.0 --serialized-file Transformer_model/pytorch_model.bin --handler Transformer_handler_generalized.py --extra-files "Transformer_model/config.json,./Transformer_model/setup_config.json,../Huggingface_Transformers/Seq_classification_artifacts/index_to_name.json"
+```
