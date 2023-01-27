@@ -66,7 +66,7 @@
 * [Stable Diffusion using HuggingFace Diffusers](diffusers)
 
 ### HuggingFace Large Models <img src="images/huggingface_logo-noborder.svg" width="30" height="30" title="Hugging Face" style="float:right padding:10px" />
-* [HuggingFace Large Models with contrained resources](Huggingface_Largemodels)
+* [HuggingFace Large Models with constrained resources](Huggingface_Largemodels)
 
 ## UseCases
 
