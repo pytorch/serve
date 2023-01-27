@@ -22,7 +22,7 @@
 
 ### Hugging Face <img src="images/huggingface_logo-noborder.svg" width="30" height="30" title="Hugging Face" style="float:right padding:10px" />
 
-* [Serving HuggingFace transformers model](#serving-huggingface-transformers)
+* [Serving HuggingFace transformers model](Huggingface_Transformers)
 
 ### MLFlow <img src="images/mlflow.png" width="50"  title="MLFlow" style="float:right padding:20px" />
 
@@ -30,7 +30,7 @@
 
 ### Captum <img src="images/captum_logo.svg" width="50" title="Captum"  />
 
-* [Model Explainability with Captum](#captum-integration)
+* [Model Explainability with Captum](captum)
 
 ### ONNX <img src="images/onnx.png" width="80" title="ONNX" style="float:right padding:20px" />
 
@@ -42,22 +42,22 @@
 
 ### Microsoft DeepSpeed-MII <img src="images/mii-white.svg" width="80" title="DeepSpeed MII" style="float:top" />
 
-* [HuggingFace Stable Diffusion Model with Microsoft DeepSpeed-MII](#deepspeed_mii)
+* [HuggingFace Stable Diffusion Model with Microsoft DeepSpeed-MII](deepspeed_mii)
 
 ### Prometheus and mtail <img src="images/prometheus-logo.svg" width="30" title="Prometheus" style="float:top" />
 
 * [Custom Metrics with mtail and Prometheus](custom_metrics) <img src="images/mtail.png" width="30" title="mtail" style="float:top" />
 
 ### Intel® Extension for PyTorch
-* [ Boost Performance on Intel Hardware](intel-extension-for-pytorch)
+* [ Boost Performance on Intel Hardware](intel_extension_for_pytorch)
 
 ### TorchRec DLRM
 <img src="images/dlrm.png" width="400" title="DLRM"/>
 
-* [Serving Torchrec DLRM (Recommender Model)](#serving-torchrec-dlrm-recommender-model)
+* [Serving Torchrec DLRM (Recommender Model)](torchrec_dlrm)
 
 ### TorchData
-* [Serving Image Classifier model and loading image data using torchdata (datapipes)](#serving-image-classifier-model-with-torchdata-datapipes)
+* [Serving Image Classifier model and loading image data using torchdata (datapipes)](image_classifier/mnist/torchdata)
 
 ### PyTorch 2.0
 * [PyTorch 2.0 Integration](pt2)
