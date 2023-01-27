@@ -5,10 +5,10 @@
 * [Creating mar file for an eager mode model](#creating-mar-file-for-eager-mode-model)
 * [Creating mar file for torchscript mode model](#creating-mar-file-for-torchscript-mode-model)
 * [Serving custom model with custom service handler](#serving-custom-model-with-custom-service-handler)
-* [Creating a Workflow](#serving-image-classification-workflow)
+* [Creating a Workflow](Workflows/dog_breed_classification)
 * [Custom Metrics](custom_metrics)
 * [Dynamic Batch Processing](image_classifier/resnet_152_batch)
-* [Dynamic Batched Async Requests](#serving-image-classifier-model-for-on-premise-near-real-time-video)
+* [Dynamic Batched Async Requests](image_classifier/near_real_time_video)
 
 ## TorchServe Integrations
 
@@ -38,7 +38,7 @@
 
 ### TensorRT
 
-* [Support for TensorRT optmizations](../docs/performance_guide.md#tensorrt-and-nvfuser-support)
+* [Support for TensorRT optimizations](../docs/performance_guide.md#tensorrt-and-nvfuser-support)
 
 ### Microsoft DeepSpeed-MII <img src="images/mii-white.svg" width="80" title="DeepSpeed MII" style="float:top" />
 
@@ -69,32 +69,32 @@
 
 ### Vision
 #### Image Classification
-* [Serving torchvision image classification models](#serving-image-classification-models)
-* [Serving Image Classifier model for on-premise near real-time video](#serving-image-classifier-model-for-on-premise-near-real-time-video)
+* [Serving torchvision image classification models](image_classifier)
+* [Serving Image Classifier model for on-premise near real-time video](image_classifier/near_real_time_video)
 
 #### Object Detection
-* [Serving object detection model](#serving-object-detection-model)
-* [Serving image segmentation model](#serving-image-segmentation-model)
+* [Serving object detection model](object_detector)
+* [Serving image segmentation model](image_segmenter)
 
 #### GAN
-* [Serving image generator model](#example-to-serve-gan-model)
+* [Serving image generator model](dcgan_fashiongen)
 
 ### Text
 #### Neural Machine Translation
 <img src="images/seq2seq.png" width="400" title="SEQ2SEQ"/>
 
-* [Serving machine translation model](#serving-neural-machine-translation)
-* [Serving Neural Machine Translation Workflow](#serving-neural-machine-translation-workflow)
+* [Serving machine translation model](nmt_transformer)
+* [Serving Neural Machine Translation Workflow](Workflows/nmt_transformers_pipeline)
 
 #### Text Classification
-* [Serving text classification model](#serving-text-classification-model)
-* [Serving text classification model with scriptable tokenizer](#serving-text-classification-model-with-scriptable-tokenizer)
+* [Serving text classification model](text_classification)
+* [Serving text classification model with scriptable tokenizer](text_classification_with_scriptable_tokenizer)
 
 #### Text to Speech
-* [Serving waveglow text to speech synthesizer model](#serving-waveglow-text-to-speech-synthesizer)
+* [Serving waveglow text to speech synthesizer model](speech2text_wav2vec2)
 
 ### MultiModal
-* [Serving multi modal framework model](#serving-multi-modal-model)
+* [Serving multi modal framework model](MMF-activity-recognition)
 
 # TorchServe Examples
 
@@ -226,8 +226,8 @@ The following example demonstrates how to serve an image classification model wi
 
 * [Near Real-Time Video Batched Image Classification](image_classifier/near_real_time_video)
 
-## Serving Image Classifier Model with torchdata datapipes
+## Serving Image Classifier Model with TorchData datapipes
 
-The following example demonstrates how to integrate torchdata with torchserve
+The following example demonstrates how to integrate TorchData with torchserve
 
 * [Torchdata integration with torchserve an image classification example](image_classifier/mnist/torchdata)
