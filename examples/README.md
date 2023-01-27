@@ -12,13 +12,45 @@
 
 ## TorchServe Integrations
 
+### Kubernetes <img src="images/k8s.png" width="30"  title="K8s" style="float:right padding:10px" />
+
+* [Serving HuggingFace faster transformers model in K8s](../kubernetes/examples/FasterTransformer_HuggingFace_Bert.md)
+
+### KServe <img src="images/kserve.png" width="40"  title="KServe" style="float:right padding:10px" />
+
+* [Serving HuggingFace BERT model using KServe](https://github.com/kserve/kserve/blob/master/docs/samples/v1beta1/custom/torchserve/bert-sample/hugging-face-bert-sample.md)
+
 ### Hugging Face <img src="images/huggingface_logo-noborder.svg" width="30" height="30" title="Hugging Face" style="float:right padding:10px" />
 
-* [Serving huggingface transformers model](#serving-huggingface-transformers)
+* [Serving HuggingFace transformers model](#serving-huggingface-transformers)
+
+### MLFlow <img src="images/mlflow.png" width="50"  title="MLFlow" style="float:right padding:20px" />
+
+* [Deploy models using `mlflow-torchserve` plugin](https://github.com/mlflow/mlflow-torchserve/tree/master/examples)
 
 ### Captum <img src="images/captum_logo.svg" width="50" title="Captum"  />
 
-* [Integration with Captum](#captum-integration)
+* [Model Explainability with Captum](#captum-integration)
+
+### ONNX <img src="images/onnx.png" width="80" title="ONNX" style="float:right padding:20px" />
+
+* [Example for ONNX Integration](../test/pytest/test_onnx.py)
+
+### TensorRT
+
+* [Support for TensorRT optmizations](../docs/performance_guide.md#tensorrt-and-nvfuser-support)
+
+### Microsoft DeepSpeed-MII <img src="images/mii-white.svg" width="80" title="DeepSpeed MII" style="float:top" />
+
+* [HuggingFace Stable Diffusion Model with Microsoft DeepSpeed-MII](#deepspeed_mii)
+
+### Prometheus and mtail <img src="images/prometheus-logo.svg" width="30" title="Prometheus" style="float:top" />
+
+* [Custom Metrics with mtail and Prometheus](custom_metrics) <img src="images/mtail.png" width="30" title="mtail" style="float:top" />
+
+### Intel® Extension for PyTorch
+* [ Boost Performance on Intel Hardware](intel-extension-for-pytorch)
+
 ### TorchRec DLRM
 <img src="images/dlrm.png" width="400" title="DLRM"/>
 
@@ -30,33 +62,8 @@
 ### PyTorch 2.0
 * [PyTorch 2.0 Integration](pt2)
 
-### ONNX
-<img src="images/onnx.png" width="100" title="ONNX" style="float:top" />
-
-* [Example for ONNX Integration](../test/pytest/test_onnx.py)
-
-### TensorRT
-
-* [Support for TensorRT optmizations](../docs/performance_guide.md#tensorrt-and-nvfuser-support)
-
-### Intel® Extension for PyTorch
-* [ Boost Performance on Intel Hardware](intel-extension-for-pytorch)
-
 ### Stable Diffusion <img src="images/huggingface_logo-noborder.svg" width="30" height="30" title="Hugging Face" style="float:right padding:10px" />
 * [Stable Diffusion using HuggingFace Diffusers](diffusers)
-
-### Microsoft DeepSpeed-MII
-
-<img src="images/mii-white.svg" width="100" title="DeepSpeed MII" style="float:top" />
-
-* [HuggingFace Stable Diffusion Model with Microsoft DeepSpeed-MII](#deepspeed_mii)
-
-### Prometheus and mtail
-
-<img src="images/prometheus-logo.svg" width="50" title="Prometheus" style="float:top" />
-
-* [Custom Metrics with mtail and Prometheus](custom_metrics)
-<img src="images/mtail.png" width="50" title="mtail" style="float:top" />
 
 ## UseCases
 
