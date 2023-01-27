@@ -57,13 +57,16 @@
 * [Serving Torchrec DLRM (Recommender Model)](torchrec_dlrm)
 
 ### TorchData
-* [Serving Image Classifier model and loading image data using torchdata (datapipes)](image_classifier/mnist/torchdata)
+* [Serving Image Classifier model and loading image data using TorchData (datapipes)](image_classifier/mnist/torchdata)
 
 ### PyTorch 2.0
 * [PyTorch 2.0 Integration](pt2)
 
 ### Stable Diffusion <img src="images/huggingface_logo-noborder.svg" width="30" height="30" title="Hugging Face" style="float:right padding:10px" />
 * [Stable Diffusion using HuggingFace Diffusers](diffusers)
+
+### HuggingFace Large Models <img src="images/huggingface_logo-noborder.svg" width="30" height="30" title="Hugging Face" style="float:right padding:10px" />
+* [HuggingFace Large Models with contrained resources](Huggingface_Largemodels)
 
 ## UseCases
 
