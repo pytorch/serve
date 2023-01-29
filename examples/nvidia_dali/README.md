@@ -32,7 +32,7 @@ Change the `dali_config.json` variables
 Run the python file which serializes the Dali Pipeline and saves it to `model.dali`
 
 ```bash
-python serialiize_dali_pipeline.py --config dali_config.json
+python serialize_dali_pipeline.py --config dali_config.json
 ```
 
 **__Note__**:
@@ -41,8 +41,6 @@ python serialiize_dali_pipeline.py --config dali_config.json
 - The Torchserve batch size should match the DALI batch size.
 
 ### Download the resnet .pth file
-
-Navigate to `serve` directory and run the below commands
 
 ```bash
 wget https://download.pytorch.org/models/resnet18-f37072fd.pth
@@ -53,8 +51,10 @@ wget https://download.pytorch.org/models/resnet18-f37072fd.pth
 The following command will create a .mar extension file where we also include the `model.dali` file and `dali_config.json` file in it.
 
 ```bash
-torch-model-archiver --model-name resnet-18 --version 1.0 --model-file ./examples/image_classifier/resnet_18/model.py --serialized-file resnet18-f37072fd.pth --handler image_classifier --extra-files ./examples/image_classifier/index_to_name.json,./examples/nvidia_dali/model.dali,./examples/nvidia_dali/dali_config.json
+torch-model-archiver --model-name resnet-18 --version 1.0 --model-file ../image_classifier/resnet_18/model.py --serialized-file resnet18-f37072fd.pth --handler image_classifier --extra-files ../image_classifier/index_to_name.json,./model.dali,./dali_config.json
 ```
+
+Navigate to `serve` directory and run the below commands
 
 Create a new directory `model_store` and move the model-archive file
 
