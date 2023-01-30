@@ -28,7 +28,7 @@ Run following commands to Register, run inference and unregister, densenet161 mo
  - [Install TorchServe](../README.md)
 
  - Clone serve repo to run this example
- 
+
 ```bash
 git clone https://github.com/pytorch/serve
 cd serve
@@ -43,24 +43,24 @@ pip install -U grpcio protobuf grpcio-tools
  - Start torchServe
 
 ```bash
-mkdir model_store
-torchserve --start 
+mkdir models
+torchserve --start --model-store models/
 ```
 
  - Generate python gRPC client stub using the proto files
- 
+
 ```bash
 python -m grpc_tools.protoc --proto_path=frontend/server/src/main/resources/proto/ --python_out=ts_scripts --grpc_python_out=ts_scripts frontend/server/src/main/resources/proto/inference.proto frontend/server/src/main/resources/proto/management.proto
 ```
 
  - Register densenet161 model
- 
+
 ```bash
 python ts_scripts/torchserve_grpc_client.py register densenet161
 ```
 
- - Run inference using 
- 
+ - Run inference using
+
 ```bash
 python ts_scripts/torchserve_grpc_client.py infer densenet161 examples/image_classifier/kitten.jpg
 ```
