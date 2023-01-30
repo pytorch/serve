@@ -76,7 +76,9 @@ Refer to [torchserve docker](docker/README.md) for details.
 * [Model parallel inference](examples/Huggingface_Transformers#model-parallelism)
 * [MultiModal models with MMF](https://github.com/pytorch/serve/tree/master/examples/MMF-activity-recognition) combining text, audio and video
 * [Dual Neural Machine Translation](examples/Workflows/nmt_transformers_pipeline) for a complex workflow DAG
-
+* [TorchServe Integrations](examples/README.md#torchserve-integrations)
+* [TorchServe Internals](examples/README.md#torchserve-internals)
+* [TorchServe UseCases](examples/README.md#usecases)
 
 For [more examples](examples/README.md)
 
