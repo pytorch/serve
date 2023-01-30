@@ -33,9 +33,12 @@ TorchServe is a performant, flexible and easy to use tool for serving PyTorch ea
 
 * [HuggingFace Language Model](https://github.com/pytorch/serve/blob/master/examples/Huggingface_Transformers/Transformer_handler_generalized.py) - This handler takes an input sentence and can return sequence classifications, token classifications or Q&A answers
 * [Multi Modal Framework](https://github.com/pytorch/serve/blob/master/examples/MMF-activity-recognition/handler.py) - Build and deploy a classifier that combines text, audio and video input data
-* [Dual Translation Workflow](https://github.com/pytorch/serve/tree/master/examples/Workflows/nmt_transformers_pipeline) - 
+* [Dual Translation Workflow](https://github.com/pytorch/serve/tree/master/examples/Workflows/nmt_transformers_pipeline) -
 * [Model Zoo](model_zoo.md) - List of pre-trained model archives ready to be served for inference with TorchServe.
 * [Examples](https://github.com/pytorch/serve/tree/master/examples) - Many examples of how to package and deploy models with TorchServe
+     - [TorchServe Internals](../examples/README.md#torchserve-internals)
+     - [TorchServe Integrations](../examples/README.md#torchserve-integrations)
+     - [TorchServe UseCases](../examples/README.md#usecases)
 * [Workflow Examples](https://github.com/pytorch/serve/tree/master/examples/Workflows) - Examples of how to compose models in a workflow with TorchServe
 
 ## Advanced Features
