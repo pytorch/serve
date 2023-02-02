@@ -318,3 +318,70 @@ def test_metrics_location_var_snapshot_enabled_rdonly_dir():
         assert len(glob.glob(RDONLY_DIR + "/logs/ts_metrics.log")) == 0
     finally:
         del os.environ["METRICS_LOCATION"]
+
+
+def test_collect_system_metrics_when_not_disabled():
+    """
+    Validates that system metrics are collected when not disabled
+    """
+    # Torchserve cleanup
+    test_utils.torchserve_cleanup()
+    # Remove existing logs if any
+    for f in glob.glob("logs/*.log"):
+        os.remove(f)
+
+    try:
+        test_utils.start_torchserve()
+        assert len(glob.glob("logs/ts_metrics.log")) == 1
+        assert os.path.getsize(glob.glob("logs/ts_metrics.log")[0]) > 0
+    finally:
+        test_utils.torchserve_cleanup()
+
+
+def test_disable_system_metrics_using_config_properties():
+    """
+    Validates that system metrics collection is disabled when "disable_system_metrics"
+    configuration option is set to "true"
+    """
+    # Torchserve cleanup
+    test_utils.torchserve_cleanup()
+    # Remove existing logs if any
+    for f in glob.glob("logs/*.log"):
+        os.remove(f)
+
+    config_file = test_utils.ROOT_DIR + "config.properties"
+    with open(config_file, "w+") as f:
+        f.write("disable_system_metrics=true")
+
+    try:
+        test_utils.start_torchserve(snapshot_file=config_file)
+        assert len(glob.glob("logs/ts_metrics.log")) == 1
+        assert os.path.getsize(glob.glob("logs/ts_metrics.log")[0]) == 0
+    finally:
+        test_utils.torchserve_cleanup()
+
+
+def test_disable_system_metrics_using_environment_variable():
+    """
+    Validates that system metrics collection is disabled when TS_DISABLE_SYSTEM_METRICS
+    environment variable is set to "true"
+    """
+    # Torchserve cleanup
+    test_utils.torchserve_cleanup()
+    # Remove existing logs if any
+    for f in glob.glob("logs/*.log"):
+        os.remove(f)
+
+    config_file = test_utils.ROOT_DIR + "config.properties"
+    with open(config_file, "w+") as f:
+        f.write("enable_envvars_config=true")
+
+    os.environ["TS_DISABLE_SYSTEM_METRICS"] = "true"
+
+    try:
+        test_utils.start_torchserve(snapshot_file=config_file)
+        assert len(glob.glob("logs/ts_metrics.log")) == 1
+        assert os.path.getsize(glob.glob("logs/ts_metrics.log")[0]) == 0
+    finally:
+        test_utils.torchserve_cleanup()
+        del os.environ["TS_DISABLE_SYSTEM_METRICS"]
