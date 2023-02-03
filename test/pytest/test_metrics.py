@@ -1,6 +1,7 @@
 import glob
 import os
 import platform
+import re
 import shutil
 import time
 from os import path
@@ -9,6 +10,18 @@ import requests
 import test_utils
 
 NUM_STARTUP_CFG = 0
+SYSTEM_METRICS = [
+    "CPUUtilization",
+    "MemoryUsed",
+    "MemoryAvailable",
+    "MemoryUtilization",
+    "DiskUsage",
+    "DiskUtilization",
+    "DiskAvailable",
+    "GPUMemoryUtilization",
+    "GPUMemoryUsed",
+    "GPUUtilization",
+]
 
 
 def setup_module(module):
@@ -53,6 +66,33 @@ def run_log_location_var(custom_path=test_utils.ROOT_DIR, no_config_snapshots=Fa
         assert len(glob.glob(custom_path + "/access_log.log")) == 1
         assert len(glob.glob(custom_path + "/model_log.log")) == 1
         assert len(glob.glob(custom_path + "/ts_log.log")) == 1
+
+
+def register_densenet161_model_and_make_inference_request():
+    test_utils.register_model("densenet161.mar", "densenet161")
+    data_file = os.path.join(
+        test_utils.REPO_ROOT, "examples/image_classifier/kitten.jpg"
+    )
+    with open(data_file, "rb") as input_data:
+        requests.post(
+            url=f"http://localhost:8080/predictions/densenet161", data=input_data
+        )
+
+
+def validate_system_metrics(present=True):
+    assert len(glob.glob("logs/ts_metrics.log")) == 1
+    ts_metrics_path = glob.glob("logs/ts_metrics.log")[0]
+    assert os.path.getsize(ts_metrics_path) > 0
+
+    system_metrics_regex = re.compile("|".join(SYSTEM_METRICS), flags=re.IGNORECASE)
+    with open(ts_metrics_path, "rt") as ts_metrics_file:
+        ts_metrics = ts_metrics_file.read()
+        system_metrics = re.findall(system_metrics_regex, ts_metrics)
+
+    if present:
+        assert len(system_metrics) > 0
+    else:
+        assert len(system_metrics) == 0
 
 
 def test_logs_created():
@@ -331,9 +371,11 @@ def test_collect_system_metrics_when_not_disabled():
         os.remove(f)
 
     try:
-        test_utils.start_torchserve()
-        assert len(glob.glob("logs/ts_metrics.log")) == 1
-        assert os.path.getsize(glob.glob("logs/ts_metrics.log")[0]) > 0
+        test_utils.start_torchserve(
+            model_store=test_utils.MODEL_STORE, no_config_snapshots=True, gen_mar=False
+        )
+        register_densenet161_model_and_make_inference_request()
+        validate_system_metrics(present=True)
     finally:
         test_utils.torchserve_cleanup()
 
@@ -350,15 +392,21 @@ def test_disable_system_metrics_using_config_properties():
         os.remove(f)
 
     config_file = test_utils.ROOT_DIR + "config.properties"
-    with open(config_file, "w+") as f:
+    with open(config_file, "w") as f:
         f.write("disable_system_metrics=true")
 
     try:
-        test_utils.start_torchserve(snapshot_file=config_file)
-        assert len(glob.glob("logs/ts_metrics.log")) == 1
-        assert os.path.getsize(glob.glob("logs/ts_metrics.log")[0]) == 0
+        test_utils.start_torchserve(
+            model_store=test_utils.MODEL_STORE,
+            snapshot_file=config_file,
+            no_config_snapshots=True,
+            gen_mar=False,
+        )
+        register_densenet161_model_and_make_inference_request()
+        validate_system_metrics(present=False)
     finally:
         test_utils.torchserve_cleanup()
+        os.remove(config_file)
 
 
 def test_disable_system_metrics_using_environment_variable():
@@ -373,15 +421,21 @@ def test_disable_system_metrics_using_environment_variable():
         os.remove(f)
 
     config_file = test_utils.ROOT_DIR + "config.properties"
-    with open(config_file, "w+") as f:
+    with open(config_file, "w") as f:
         f.write("enable_envvars_config=true")
 
     os.environ["TS_DISABLE_SYSTEM_METRICS"] = "true"
 
     try:
-        test_utils.start_torchserve(snapshot_file=config_file)
-        assert len(glob.glob("logs/ts_metrics.log")) == 1
-        assert os.path.getsize(glob.glob("logs/ts_metrics.log")[0]) == 0
+        test_utils.start_torchserve(
+            model_store=test_utils.MODEL_STORE,
+            snapshot_file=config_file,
+            no_config_snapshots=True,
+            gen_mar=False,
+        )
+        register_densenet161_model_and_make_inference_request()
+        validate_system_metrics(present=False)
     finally:
         test_utils.torchserve_cleanup()
         del os.environ["TS_DISABLE_SYSTEM_METRICS"]
+        os.remove(config_file)
