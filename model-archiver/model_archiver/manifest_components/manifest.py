@@ -11,6 +11,8 @@ class RuntimeType(Enum):
 
     PYTHON = "python"
     PYTHON3 = "python3"
+    PTMODELPIPELINE = "ptmodelpipeline"
+    DEEPSPEED = "deepspeed"
 
 
 class Manifest(object):

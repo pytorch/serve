@@ -107,6 +107,7 @@ class ModelExportUtils(object):
             handler=modelargs.handler,
             model_version=modelargs.version,
             requirements_file=modelargs.requirements_file,
+            config=modelargs.config
         )
         return model
 

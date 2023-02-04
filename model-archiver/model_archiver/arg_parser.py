@@ -143,4 +143,13 @@ class ArgParser(object):
             " packages.",
         )
 
+        parser_export.add_argument(
+            "-c",
+            "--config",
+            required=False,
+            type=str,
+            default=None,
+            help="Path to a yaml file containing model configuration eg. batch_size.",
+        )
+
         return parser_export
