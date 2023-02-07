@@ -228,7 +228,7 @@ Set nvidia environment variables. For example:
     }
 }
 ```
-A model's parameters are defined in [model source code](https://github.com/pytorch/serve/blob/05e80bebbca8e5c152e0b66977f8c7775a44b803/frontend/server/src/main/java/org/pytorch/serve/wlm/Model.java#L24)
+A model's parameters are defined in [model source code](https://github.com/pytorch/serve/blob/master/frontend/server/src/main/java/org/pytorch/serve/wlm/Model.java#L24)
 
 
 * `minWorkers`: the minimum number of workers of a model
