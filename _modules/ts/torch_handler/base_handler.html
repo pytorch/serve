@@ -528,7 +528,6 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;No model weights could be loaded&quot;</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
         <span class="n">optimization_config</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">model_dir</span><span class="p">,</span> <span class="s2">&quot;compile.json&quot;</span><span class="p">)</span>
         <span class="n">backend</span> <span class="o">=</span> <span class="n">load_compiler_config</span><span class="p">(</span><span class="n">optimization_config</span><span class="p">)</span>
 
