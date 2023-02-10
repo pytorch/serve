@@ -17,9 +17,10 @@ WF_STORE = "/tmp/wf_store"
 
 
 class BenchmarkConfig:
-    def __init__(self, yaml_dict, skip_ts_install):
+    def __init__(self, yaml_dict, skip_ts_install, skip_upload):
         self.yaml_dict = yaml_dict
         self.skip_ts_install = skip_ts_install
+        self.skip_upload = skip_upload
         self.bm_config = {}
         yesterday = datetime.date.today() - datetime.timedelta(days=1)
         self.bm_config["version"] = "torchserve-nightly=={}.{}.{}".format(
@@ -89,9 +90,9 @@ class BenchmarkConfig:
                 self.models(v)
             elif k == "hardware":
                 self.hardware(v)
-            elif k == "metrics_cmd":
+            elif k == "metrics_cmd" and not self.skip_upload:
                 self.metrics_cmd(v)
-            elif k == "report_cmd":
+            elif k == "report_cmd" and not self.skip_upload:
                 report_cmd = v
 
         self.bm_config["model_config_path"] = (
@@ -110,12 +111,12 @@ class BenchmarkConfig:
             print("{}={}".format(k, v))
 
 
-def load_benchmark_config(bm_config_path, skip_ts_install):
+def load_benchmark_config(bm_config_path, skip_ts_install, skip_upload):
     yaml = ruamel.yaml.YAML()
     with open(bm_config_path, "r") as f:
         yaml_dict = yaml.load(f)
 
-        benchmark_config = BenchmarkConfig(yaml_dict, skip_ts_install)
+        benchmark_config = BenchmarkConfig(yaml_dict, skip_ts_install, skip_upload)
         benchmark_config.load_config()
 
     return benchmark_config.bm_config
@@ -277,6 +278,11 @@ def main():
         action="store",
         help="true: skip torchserve installation. default: true",
     )
+    parser.add_argument(
+        "--no_upload",
+        action="store",
+        help="true: skip uploading commands . default: true",
+    )
 
     arguments = parser.parse_args()
     skip_ts_config = (
@@ -284,7 +290,13 @@ def main():
         if arguments.skip is not None and arguments.skip.lower() == "false"
         else True
     )
-    bm_config = load_benchmark_config(arguments.input, skip_ts_config)
+    skip_upload = (
+        False
+        if arguments.no_upload is not None and arguments.no_upload.lower() == "false"
+        else True
+    )
+    print(skip_upload)
+    bm_config = load_benchmark_config(arguments.input, skip_ts_config, skip_upload)
     benchmark_env_setup(bm_config, skip_ts_config)
     run_benchmark(bm_config)
     clean_up_benchmark_env(bm_config)
