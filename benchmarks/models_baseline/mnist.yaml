@@ -1,8 +1,10 @@
 mnist:
-    deviation: 0.05
+    deviation: 0.1
+    workers: 4
+    mode: "eager_mode"
     batch_size:
         1:
-            throughtput: 2002
+            throughput: 2002
             total_latency_p50: 5
             model_latency_p50: 1.2675
             total_latency_p90: 6
