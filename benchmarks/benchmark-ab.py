@@ -550,7 +550,22 @@ def extract_entity(data, pattern, index, delim=" "):
     for line in data:
         if pattern.search(line):
             return line.split(delim)[index].strip()
+
+    # If code execution reaches here, there is some error
+    with open(execution_params["metric_log"]) as f:
+        data = f.readlines()
+    extract_errors(data, "Error")
+
     return None
+
+
+def extract_errors(data, pattern):
+
+    pattern = re.compile(pattern)
+    for line in data:
+        if pattern.search(line):
+            print(line)
+    assert ()
 
 
 def generate_latency_graph():
