@@ -2,7 +2,7 @@
 vgg16:
     eager_mode:
         benchmark_engine: "ab"
-        url: "https://torchserve.pytorch.org/mar_files/vgg16.mar" 
+        url: "https://torchserve.pytorch.org/mar_files/vgg16.mar"
         workers:
             - 4
         batch_delay: 100
@@ -12,8 +12,8 @@ vgg16:
             - 4
             - 8
         input: "./examples/image_classifier/kitten.jpg"
-        requests: 10000
-        concurrency: 100
+        requests: 100
+        concurrency: 10
         backend_profiling: False
         exec_env: "local"
         processors:
@@ -31,8 +31,8 @@ vgg16:
             - 4
             - 8
         input: "./examples/image_classifier/kitten.jpg"
-        requests: 10000
-        concurrency: 100
+        requests: 100
+        concurrency: 10
         backend_profiling: False
         exec_env: "local"
         processors:

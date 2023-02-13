@@ -507,6 +507,7 @@ def generate_csv_output():
     artifacts["TS latency P90"] = extract_entity(data, "90%", -1)
     artifacts["TS latency P99"] = extract_entity(data, "99%", -1)
     artifacts["TS latency mean"] = extract_entity(data, "Time per request:.*mean\)", -3)
+
     if isinstance(artifacts["TS failed requests"], type(None)):
         artifacts["TS error rate"] = 0.0
     else:
@@ -519,6 +520,8 @@ def generate_csv_output():
     ) as f:
         lines = f.readlines()
         lines.sort(key=float)
+        print(lines)
+        print("fifty ", line50, line90, line99)
         artifacts["Model_p50"] = lines[line50].strip()
         artifacts["Model_p90"] = lines[line90].strip()
         artifacts["Model_p99"] = lines[line99].strip()
@@ -545,11 +548,30 @@ def generate_csv_output():
     return artifacts
 
 
+def extract_errors(data, pattern):
+
+    pattern = re.compile(pattern)
+    for line in data:
+        if pattern.search(line):
+            print(line)
+
+    # return pattern.findall(data)
+
+
 def extract_entity(data, pattern, index, delim=" "):
     pattern = re.compile(pattern)
     for line in data:
         if pattern.search(line):
             return line.split(delim)[index].strip()
+
+    # There is some issue if the code execution reaches here.
+    print(data)
+
+    with open(execution_params["metric_log"]) as f:
+        data = f.readlines()
+    # print(extract_entity(data, "Error", -1))
+    print(extract_errors(data, "Error"))
+    assert ()
     return None
 
 
