@@ -1,0 +1,37 @@
+mnist:
+    deviation: 10.1
+    workers: 4
+    mode: "eager_mode"
+    batch_size:
+        1:
+            throughput: 89.774
+            total_latency_p50: 5
+            model_latency_p50: 1.2675
+            total_latency_p90: 6
+            model_latency_p90: 1.3908
+            total_latency_p99: 6.9167
+            model_latency_p99: 1.8
+        2:
+            throughput: 108.5
+            total_latency_p50: 3
+            model_latency_p50: 1.6267
+            total_latency_p90: 4
+            model_latency_p90: 1.8083
+            total_latency_p99: 5.3333
+            model_latency_p99: 2.4058
+        4:
+            throughput: 112.76
+            total_latency_p50: 4
+            model_latency_p50: 2.2225
+            total_latency_p90: 6
+            model_latency_p90: 4.2158
+            total_latency_p99: 7.5833
+            model_latency_p99: 3.3033
+        8:
+            throughput: 112.29
+            total_latency_p50: 6
+            model_latency_p50: 3.4308
+            total_latency_p90: 10
+            model_latency_p90: 3.6792
+            total_latency_p99: 13
+            model_latency_p99: 4.7517
