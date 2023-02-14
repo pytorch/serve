@@ -79,7 +79,21 @@ class BenchmarkConfig:
                 break
 
         self.bm_config["report_cmd"] = " ".join(cmd_options)
-
+    
+    def is_cpu_launcher_available(self):
+        import subprocess
+        cpu_launcher_available = False
+        cmd = ["ipexrun", "--no_python", "ls"]
+        r = subprocess.run(cmd, env=os.environ, stdout=subprocess.DEVNULL)
+        if r.returncode == 0:
+            cpu_launcher_available = True
+        return cpu_launcher_available
+        
+    def enable_cpu_launcher(self):
+        if self.bm_config["hardware"] == "cpu" and os.environ.get("TS_CPU_LAUNCHER_ENABLE", "false") == "true" and self.is_cpu_launcher_available():
+            with open("./benchmarks/config.properties", "a") as myfile:
+                myfile.write("cpu_launcher_enable=true\n")
+                
     def load_config(self):
         report_cmd = None
         for k, v in self.yaml_dict.items():
@@ -99,6 +113,8 @@ class BenchmarkConfig:
             if self.bm_config["hardware"] == "cpu"
             else "{}/gpu".format(MODEL_JSON_CONFIG_PATH)
         )
+        
+        self.enable_cpu_launcher()
 
         if self.skip_ts_install:
             self.bm_config["version"] = get_torchserve_version()
