@@ -565,7 +565,7 @@ def extract_errors(data, pattern):
     for line in data:
         if pattern.search(line):
             print(line)
-    assert ()
+    raise Exception("Error while running Benchmark")
 
 
 def generate_latency_graph():
