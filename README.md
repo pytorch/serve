@@ -76,7 +76,9 @@ Refer to [torchserve docker](docker/README.md) for details.
 * [Model parallel inference](examples/Huggingface_Transformers#model-parallelism)
 * [MultiModal models with MMF](https://github.com/pytorch/serve/tree/master/examples/MMF-activity-recognition) combining text, audio and video
 * [Dual Neural Machine Translation](examples/Workflows/nmt_transformers_pipeline) for a complex workflow DAG
-
+* [TorchServe Integrations](examples/README.md#torchserve-integrations)
+* [TorchServe Internals](examples/README.md#torchserve-internals)
+* [TorchServe UseCases](examples/README.md#usecases)
 
 For [more examples](examples/README.md)
 
@@ -92,7 +94,7 @@ To learn more about how to contribute, see the contributor guide [here](https://
 
 ## 📰 News
 * [Torchserve Performance Tuning, Animated Drawings Case-Study](https://pytorch.org/blog/torchserve-performance-tuning/)
-* [Walmart Search: Serving Models at a Scale on TorchServe](https://pytorch.s3.amazonaws.com/posters/ptc2022/D03.pdf)
+* [Walmart Search: Serving Models at a Scale on TorchServe](https://medium.com/walmartglobaltech/search-model-serving-using-pytorch-and-torchserve-6caf9d1c5f4d)
 * [🎥 Scaling inference on CPU with TorchServe](https://www.youtube.com/watch?v=066_Jd6cwZg)
 * [🎥 TorchServe C++ backend](https://www.youtube.com/watch?v=OSmGGDpaesc)
 * [Grokking Intel CPU PyTorch performance from first principles: a TorchServe case study](https://pytorch.org/tutorials/intermediate/torchserve_with_ipex.html)

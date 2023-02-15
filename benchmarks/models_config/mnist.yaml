@@ -11,7 +11,7 @@ mnist:
             - 2
             - 4
             - 8
-        requests: 10000
+        requests: 500000
         concurrency: 10
         input: "./examples/image_classifier/mnist/test_data/0.png"
         backend_profiling: False
