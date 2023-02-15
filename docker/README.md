@@ -303,3 +303,7 @@ docker run --rm --shm-size=1g \
         -p7071:7071 \
         --mount type=bind,source=/path/to/model/store,target=/tmp/models <container> torchserve --model-store=/tmp/models
 ```
+
+# Example showing serving model using Docker container
+
+[This](../examples/image_classifier/mnist/Docker.md) is an example showing serving MNIST model using Docker.
