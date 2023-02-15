@@ -87,6 +87,7 @@ class BenchmarkConfig:
         r = subprocess.run(cmd, env=os.environ, stdout=subprocess.DEVNULL)
         if r.returncode == 0:
             cpu_launcher_available = True
+        print("cpu_launcher_available: ", cpu_launcher_available)
         return cpu_launcher_available
         
     def enable_cpu_launcher(self):
