@@ -1,0 +1,71 @@
+vgg16:
+    deviation: 10.1
+    workers: 4
+    eager_mode:
+        batch_size:
+            1:
+                throughput: 270
+                total_latency_p50: 364
+                model_latency_p50: 13.6
+                total_latency_p90: 382
+                model_latency_p90: 14.4
+                total_latency_p99: 451
+                model_latency_p99: 19.1
+            2:
+                throughput: 287
+                total_latency_p50: 341
+                model_latency_p50: 25.4
+                total_latency_p90: 366
+                model_latency_p90: 28.5
+                total_latency_p99: 450
+                model_latency_p99: 41.2
+            4:
+                throughput: 294
+                total_latency_p50: 332
+                model_latency_p50: 50.1
+                total_latency_p90: 360
+                model_latency_p90: 56.5
+                total_latency_p99: 447
+                model_latency_p99: 77
+            8:
+                throughput: 293
+                total_latency_p50: 330
+                model_latency_p50: 100.9
+                total_latency_p90: 378
+                model_latency_p90: 116
+                total_latency_p99: 456
+                model_latency_p99: 149
+    scripted_mode:
+        batch_size:
+            1:
+                throughput: 280
+                total_latency_p50: 353
+                model_latency_p50: 13.1
+                total_latency_p90: 367.5
+                model_latency_p90: 13.9
+                total_latency_p99: 454
+                model_latency_p99: 17.8
+            2:
+                throughput: 283
+                total_latency_p50: 342
+                model_latency_p50: 25.4
+                total_latency_p90: 372
+                model_latency_p90: 28.9
+                total_latency_p99: 463
+                model_latency_p99: 45.5
+            4:
+                throughput: 293
+                total_latency_p50: 332
+                model_latency_p50: 50.3
+                total_latency_p90: 360
+                model_latency_p90: 55.9
+                total_latency_p99: 448
+                model_latency_p99: 78
+            8:
+                throughput: 292
+                total_latency_p50: 331
+                model_latency_p50: 101
+                total_latency_p90: 375
+                model_latency_p90: 116
+                total_latency_p99: 455
+                model_latency_p99: 144

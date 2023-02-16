@@ -26,6 +26,7 @@ def conv_model_yaml_dict(model_file):
         yaml_dict = yaml.safe_load(f)
 
         for model, config in yaml_dict.items():
+            benchmark_configs = []
             for mode, mode_config in config.items():
                 model_name = mode + "_" + model
                 benchmark_config = {}
@@ -51,7 +52,6 @@ def conv_model_yaml_dict(model_file):
                             {"batch_size": batch_size, "workers": workers}
                         )
 
-                benchmark_configs = []
                 for batch_worker in batch_worker_list:
                     benchmark_config["batch_size"] = batch_worker["batch_size"]
                     benchmark_config["workers"] = batch_worker["workers"]
@@ -61,7 +61,6 @@ def conv_model_yaml_dict(model_file):
 
 
 def check_if_within_range(value1, value2, threshold):
-    print(value1, value2, threshold)
     return abs((value1 - value2) / float(value1)) <= threshold
 
 
@@ -92,7 +91,7 @@ def validate_reports(args):
                 + str(config["batch_size"])
             )
             baseline_reports[key] = report
-    print(baseline_reports)
+    print("BAseline !!!!! ", baseline_reports)
     # Read generated reports
     generated_reports = {}
     for subdir in sorted(os.listdir(input_dir)):
@@ -101,16 +100,15 @@ def validate_reports(args):
             report = Report()
             report.read_csv(csv_file)
             generated_reports[subdir] = report
-    print(generated_reports)
+    print("Generated ##### ", generated_reports)
 
     for model, report in generated_reports.items():
-
+        mode = report.mode
         for key in VALIDATION_KEYS:
-
             if not check_if_within_range(
                 report.properties[key],
-                baseline_reports[model].properties[key],
-                baseline_reports[model].properties["deviation"],
+                baseline_reports[model].properties[mode][key],
+                baseline_reports[model].properties[mode]["deviation"],
             ):
                 print("Error ", key)
                 return -1

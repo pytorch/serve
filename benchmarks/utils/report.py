@@ -3,10 +3,13 @@ from collections import defaultdict
 import pandas as pd
 import yaml
 
+MODES = ["eager_mode", "scripted_mode"]
+
 
 class Report:
     def __init__(self):
-        self.properties = defaultdict(int)
+        self.properties = {}
+        self.mode = None
         self.throughput = 0
         self.batch_size = 0
         self.workers = 0
@@ -21,11 +24,19 @@ class Report:
         self.cpu_percentage_mean = 0
         self.gpu_percentage_mean = 0
 
+    def _get_mode(self, csv_file):
+
+        cfg = csv_file.split("/")[-2]
+        cfg = cfg.split("_")
+        mode = cfg[0] + "_" + cfg[1]
+        self.mode = mode
+
     def read_csv(self, csv_file):
 
         df = pd.read_csv(csv_file)
         values = df.values.tolist()
         self._populate_csv(values[0])
+        self._get_mode(csv_file)
 
     def read_yaml(self, yaml_file, config):
 
@@ -35,16 +46,30 @@ class Report:
 
     def _populate_yaml(self, yaml_dict, config):
         for model, cfg in yaml_dict.items():
-
-            values = cfg["batch_size"][config["batch_size"]]
-            self.properties["deviation"] = cfg["deviation"]
-            self.properties["throughput"] = values["throughput"]
-            self.properties["total_latency_p50"] = values["total_latency_p50"]
-            self.properties["model_latency_p50"] = values["model_latency_p50"]
-            self.properties["total_latency_p90"] = values["total_latency_p90"]
-            self.properties["model_latency_p90"] = values["model_latency_p90"]
-            self.properties["total_latency_p99"] = values["total_latency_p99"]
-            self.properties["model_latency_p99"] = values["model_latency_p99"]
+            for mode in MODES:
+                if mode in cfg:
+                    self.properties[mode] = defaultdict(int)
+                    values = cfg[mode]["batch_size"][config["batch_size"]]
+                    self.properties[mode]["deviation"] = cfg["deviation"]
+                    self.properties[mode]["throughput"] = values["throughput"]
+                    self.properties[mode]["total_latency_p50"] = values[
+                        "total_latency_p50"
+                    ]
+                    self.properties[mode]["model_latency_p50"] = values[
+                        "model_latency_p50"
+                    ]
+                    self.properties[mode]["total_latency_p90"] = values[
+                        "total_latency_p90"
+                    ]
+                    self.properties[mode]["model_latency_p90"] = values[
+                        "model_latency_p90"
+                    ]
+                    self.properties[mode]["total_latency_p99"] = values[
+                        "total_latency_p99"
+                    ]
+                    self.properties[mode]["model_latency_p99"] = values[
+                        "model_latency_p99"
+                    ]
 
     def _populate_csv(self, values):
         self.properties["throughput"] = values[9]
