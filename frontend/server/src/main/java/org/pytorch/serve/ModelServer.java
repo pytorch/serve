@@ -119,7 +119,10 @@ public class ModelServer {
             startGRPCServers();
 
             // Create and schedule metrics manager
-            MetricManager.scheduleMetrics(configManager);
+            if (!configManager.isSystemMetricsDisabled()) {
+                MetricManager.scheduleMetrics(configManager);
+            }
+
             System.out.println("Model server started."); // NOPMD
 
             channelFutures.get(0).sync();
