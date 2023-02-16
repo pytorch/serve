@@ -35,7 +35,6 @@ jobs:
             sudo apt-get install -y apache2-utils
             pip install -r benchmarks/requirements-ab.txt
             pip install intel_extension_for_pytorch
-            export omp_num_threads=1
             export TS_CPU_LAUNCHER_ENABLE=true
       - name: Benchmark cpu nightly
         run: python benchmarks/auto_benchmark.py --input benchmarks/benchmark_config_cpu.yaml --skip false
