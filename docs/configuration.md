@@ -188,7 +188,7 @@ Configuration parameter `install_py_dep_per_model` controls if the model server 
 install_py_dep_per_model=true
 ```
 
-User can also supply custom python packages in zip or tar.gz format using the `--extra-files` flag while creating the model-archive and make an entry of the file name in the `requirements` file. 
+User can also supply custom python packages in zip or tar.gz format using the `--extra-files` flag while creating the model-archive and make an entry of the file name in the `requirements` file.
 
 ### Restrict backend worker to access environment variables
 
@@ -239,7 +239,7 @@ A model's parameters are defined in [model source code](https://github.com/pytor
 * `defaultVersion`: the default version of a model
 * `marName`: the mar file name of a model
 
-A model's configuration example 
+A model's configuration example
 ```properties
 models={\
   "noop": {\
@@ -281,22 +281,23 @@ Most of the following properties are designed for performance tuning. Adjusting 
 * `unregister_model_timeout`: Timeout, in seconds, used when handling an unregister model request when cleaning a process before it is deemed unresponsive and an error response is sent. Default: 120 seconds.
 * `decode_input_request`: Configuration to let backend workers to decode requests, when the content type is known.
 If this is set to "true", backend workers do "Bytearray to JSON object" conversion when the content type is "application/json" and
-the backend workers convert "Bytearray to utf-8 string" when the Content-Type of the request is set to "text*". Default: true  
+the backend workers convert "Bytearray to utf-8 string" when the Content-Type of the request is set to "text*". Default: true
 * `initial_worker_port` : This is the initial port number for auto assigning port to worker process.
 * `model_store` : Path of model store directory.
-* `model_server_home` : Torchserve home directory. 
+* `model_server_home` : Torchserve home directory.
 * `max_request_size` : The maximum allowable request size that the Torchserve accepts, in bytes. Default: 6553500
 * `max_response_size` : The maximum allowable response size that the Torchserve sends, in bytes. Default: 6553500
-* `limit_max_image_pixels` : Default value is true (Use default [PIL.Image.MAX_IMAGE_PIXELS](https://pillow.readthedocs.io/en/stable/reference/Image.html#PIL.Image.MAX_IMAGE_PIXELS)). If this is set to "false", set PIL.Image.MAX_IMAGE_PIXELS = None in backend default vision handler for large image payload. 
+* `limit_max_image_pixels` : Default value is true (Use default [PIL.Image.MAX_IMAGE_PIXELS](https://pillow.readthedocs.io/en/stable/reference/Image.html#PIL.Image.MAX_IMAGE_PIXELS)). If this is set to "false", set PIL.Image.MAX_IMAGE_PIXELS = None in backend default vision handler for large image payload.
 * `allowed_urls` : Comma separated regex of allowed source URL(s) from where models can be registered. Default: "file://.*|http(s)?://.*" (all URLs and local file system)
 e.g. : To allow base URLs `https://s3.amazonaws.com/` and `https://torchserve.pytorch.org/` use the following regex string `allowed_urls=https://s3.amazonaws.com/.*,https://torchserve.pytorch.org/.*`
 * `workflow_store` : Path of workflow store directory. Defaults to model store directory.
+* `disable_system_metrics` : Disable collection of system metrics when set to "true". Default value is "false".
 
 **NOTE**
 
 All the above config properties can be set using environment variable as follows.
 - set `enable_envvars_config` to true in config.properties
-- export environment variable for property as`TS_<PROPERTY_NAME>`. 
+- export environment variable for property as`TS_<PROPERTY_NAME>`.
 
   e.g.: to set inference_address property run cmd
   `export TS_INFERENCE_ADDRESS="http://127.0.0.1:8082"`.
