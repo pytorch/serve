@@ -76,7 +76,7 @@ def main(args):
     model = XLMR_BASE_ENCODER.get_model(head=classifier_head)
 
     # Load trained parameters and load them into the model
-    model.load_state_dict(torch.load(args.input_file))
+    model.load_state_dict(torch.load(args.input_file, map_location=torch.device("cpu")))
 
     # Chain the tokenizer, the adapter and the model
     combi_model = T.Sequential(
@@ -88,7 +88,7 @@ def main(args):
     combi_model.eval()
 
     # Make sure to move the model to CPU to avoid placement error during loading
-    combi_model.to("cpu")
+    combi_model.to(torch.device("cpu"))
 
     combi_model_jit = torch.jit.script(combi_model)
 
