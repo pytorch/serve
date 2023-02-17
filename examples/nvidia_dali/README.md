@@ -51,7 +51,7 @@ wget https://download.pytorch.org/models/resnet18-f37072fd.pth
 The following command will create a .mar extension file where we also include the `model.dali` file and `dali_config.json` file in it.
 
 ```bash
-torch-model-archiver --model-name resnet-18 --version 1.0 --model-file ../image_classifier/resnet_18/model.py --serialized-file resnet18-f37072fd.pth --handler image_classifier --extra-files ../image_classifier/index_to_name.json,./model.dali,./dali_config.json
+torch-model-archiver --model-name resnet-18 --version 1.0 --model-file ../image_classifier/resnet_18/model.py --serialized-file resnet18-f37072fd.pth --handler custom_handler.py --extra-files ../image_classifier/index_to_name.json,./model.dali,./dali_config.json
 ```
 
 Navigate to `serve` directory and run the below commands

@@ -5,11 +5,8 @@ Base module for all vision handlers
 """
 import base64
 import io
-import json
-import os
 from abc import ABC
 
-import numpy as np
 import torch
 from captum.attr import IntegratedGradients
 from PIL import Image
@@ -22,63 +19,13 @@ class VisionHandler(BaseHandler, ABC):
     Base class for all vision handlers
     """
 
-    def __init__(self):
-        super().__init__()
-
     def initialize(self, context):
         super().initialize(context)
         self.ig = IntegratedGradients(self.model)
         self.initialized = True
         properties = context.system_properties
-        self.model_dir = properties.get("model_dir")
         if not properties.get("limit_max_image_pixels"):
             Image.MAX_IMAGE_PIXELS = None
-        self.dali_file = [
-            file for file in os.listdir(self.model_dir) if file.endswith(".dali")
-        ]
-        if len(self.dali_file):
-            self.PREFETCH_QUEUE_DEPTH = 2
-            dali_config_file = os.path.join(self.model_dir, "dali_config.json")
-            if not os.path.isfile(dali_config_file):
-                raise RuntimeError("Missing the dali_config.json file.")
-            with open(dali_config_file) as setup_config_file:
-                self.dali_configs = json.load(setup_config_file)
-
-    def dali_preprocess(self, data):
-        from nvidia.dali.pipeline import Pipeline
-        from nvidia.dali.plugin.pytorch import DALIGenericIterator, LastBatchPolicy
-
-        batch_tensor = []
-        batch_size = self.dali_configs["batch_size"]
-        num_threads = self.dali_configs["num_threads"]
-        device_id = self.dali_configs["device_id"]
-
-        input_byte_arrays = [i["body"] if "body" in i else i["data"] for i in data]
-        for byte_array in input_byte_arrays:
-            np_image = np.frombuffer(byte_array, dtype=np.uint8)
-            batch_tensor.append(np_image)  # we can use numpy
-
-        filename = os.path.join(self.model_dir, self.dali_file[0])
-        pipe = Pipeline.deserialize(filename=filename)
-        pipe._max_batch_size = batch_size
-        pipe._num_threads = num_threads
-        pipe._device_id = device_id
-
-        for _ in range(self.PREFETCH_QUEUE_DEPTH):
-            pipe.feed_input("my_source", batch_tensor)
-
-        datam = DALIGenericIterator(
-            [pipe],
-            ["data"],
-            last_batch_policy=LastBatchPolicy.PARTIAL,
-            last_batch_padded=True,
-        )
-        result = []
-        for i, data in enumerate(datam):
-            result.append(data[0]["data"])
-            break
-
-        return result[0].to(self.device)
 
     def preprocess(self, data):
         """The preprocess function of MNIST program converts the input data to a float tensor
@@ -89,9 +36,6 @@ class VisionHandler(BaseHandler, ABC):
         Returns:
             list : The preprocess function returns the input image as a list of float tensors.
         """
-        if len(self.dali_file):
-            return self.dali_preprocess(data=data)
-
         images = []
 
         for row in data:
