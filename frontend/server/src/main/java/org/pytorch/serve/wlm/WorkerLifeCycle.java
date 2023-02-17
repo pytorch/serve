@@ -118,7 +118,7 @@ public class WorkerLifeCycle {
             }
         }
 
-        argl.add(new File(workingDir, "ts/model_service_worker.py").getAbsolutePath());
+        argl.add(new File(workingDir, "torchrun -nproc_per_node=4 ts/model_service_worker.py").getAbsolutePath());
         argl.add("--sock-type");
         argl.add(connector.getSocketType());
         argl.add(connector.isUds() ? "--sock-name" : "--port");
