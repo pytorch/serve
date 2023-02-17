@@ -5,18 +5,16 @@ import os
 import yaml
 from auto_benchmark import load_benchmark_config
 from utils.gen_model_config_json import MODEL_CONFIG_KEY
-from utils.report import Report
+from utils.report import METRICS_VALIDATED, Report
 
 BENCHMARK_REPORT_CSV = "ab_report.csv"
 CWD = os.getcwd()
-VALIDATION_KEYS = [
-    "throughput",
-    "total_latency_p50",
-    "model_latency_p50",
-    "total_latency_p90",
-    "model_latency_p90",
-    "total_latency_p99",
-    "model_latency_p99",
+
+
+# This will be removed once we have baseline yaml for all models
+SKIP_LIST = [
+    "bert_multi_gpu_better_transformer.yaml",
+    "bert_multi_gpu_no_better_transformer.yaml",
 ]
 
 
@@ -28,18 +26,14 @@ def conv_model_yaml_dict(model_file):
         for model, config in yaml_dict.items():
             benchmark_configs = []
             for mode, mode_config in config.items():
-                model_name = mode + "_" + model
                 benchmark_config = {}
                 batch_size_list = None
-                processors = None
                 workers_list = None
                 benchmark_config["model"] = model
                 benchmark_config["mode"] = mode
                 for key, value in mode_config.items():
                     if key == "batch_size":
                         batch_size_list = value
-                    elif key == "processors":
-                        processors = value
                     elif key == "workers":
                         workers_list = value
                     elif key in MODEL_CONFIG_KEY:
@@ -74,6 +68,12 @@ def validate_reports(args):
     bm_config = load_benchmark_config(args.input_cfg, True, True)
     baseline_reports = {}
     for model in bm_config["models"]:
+
+        # Skip models for which there is no baseline
+        if model in SKIP_LIST:
+            print(f"Skipping validation of {model}")
+            continue
+
         model_file = CWD + "/benchmarks/models_config/{}".format(model)
         benchmark_configs = conv_model_yaml_dict(model_file)
 
@@ -91,7 +91,7 @@ def validate_reports(args):
                 + str(config["batch_size"])
             )
             baseline_reports[key] = report
-    print("BAseline !!!!! ", baseline_reports)
+
     # Read generated reports
     generated_reports = {}
     for subdir in sorted(os.listdir(input_dir)):
@@ -100,11 +100,11 @@ def validate_reports(args):
             report = Report()
             report.read_csv(csv_file)
             generated_reports[subdir] = report
-    print("Generated ##### ", generated_reports)
 
+    # Compare generated reports with baseline reports
     for model, report in generated_reports.items():
         mode = report.mode
-        for key in VALIDATION_KEYS:
+        for key in METRICS_VALIDATED:
             if not check_if_within_range(
                 report.properties[key],
                 baseline_reports[model].properties[mode][key],
