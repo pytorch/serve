@@ -1,6 +1,5 @@
 """
 Module for text classification with scriptable tokenizer
-DOES NOT SUPPORT BATCH!
 """
 import logging
 from abc import ABC
@@ -51,18 +50,19 @@ class CustomTextClassifier(BaseHandler, ABC):
 
         # Compat layer: normally the envelope should just return the data
         # directly, but older versions of Torchserve didn't have envelope.
-        # Processing only the first input, not handling batch inference
 
-        line = data[0]
-        text = line.get("data") or line.get("body")
-        # Decode text if not a str but bytes or bytearray
-        if isinstance(text, (bytes, bytearray)):
-            text = text.decode("utf-8")
+        text_batch = []
+        for line in data:
+            text = line.get("data") or line.get("body")
+            # Decode text if not a str but bytes or bytearray
+            if isinstance(text, (bytes, bytearray)):
+                text = text.decode("utf-8")
 
-        text = remove_html_tags(text)
-        text = text.lower()
+            text = remove_html_tags(text)
+            text = text.lower()
+            text_batch.append(text)
 
-        return text
+        return text_batch
 
     def inference(self, data, *args, **kwargs):
         """The Inference Request is made through this function and the user

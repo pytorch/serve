@@ -58,7 +58,7 @@ torch-model-archiver --model-name densenet161 --version 1.0 --model-file example
 $ torch-model-archiver -h
 usage: torch-model-archiver [-h] --model-name MODEL_NAME  --version MODEL_VERSION_NUMBER
                       --model-file MODEL_FILE_PATH --serialized-file MODEL_SERIALIZED_PATH
-                      --handler HANDLER [--runtime {python,python2,python3}]
+                      --handler HANDLER [--runtime {python,python3}]
                       [--export-path EXPORT_PATH] [-f] [--requirements-file]
 
 Model Archiver Tool
@@ -83,11 +83,11 @@ optional arguments:
                         file path to handle custom TorchServe inference logic.
   --extra-files EXTRA_FILES
                         Comma separated path to extra dependency files.
-  --runtime {python,python2,python3}
+  --runtime {python,python3}
                         The runtime specifies which language to run your
                         inference code on. The default runtime is
                         RuntimeType.PYTHON. At the present moment we support
-                        the following runtimes python, python2, python3
+                        the following runtimes python, python3
   --export-path EXPORT_PATH
                         Path where the exported .mar file will be saved. This
                         is an optional parameter. If --export-path is not
