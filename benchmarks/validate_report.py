@@ -3,7 +3,7 @@ import copy
 import os
 
 import yaml
-from auto_benchmark import load_benchmark_config
+from auto_benchmark import BENCHMARK_REPORT_PATH, load_benchmark_config
 from utils.gen_model_config_json import MODEL_CONFIG_KEY
 from utils.report import METRICS_VALIDATED, Report
 
@@ -124,20 +124,17 @@ def main():
 
     parser.add_argument(
         "--input",
-        action="store",
+        nargs="?",
         help="the dir of a list of model benchmark result subdir ",
+        const=BENCHMARK_REPORT_PATH,
+        type=str,
+        default=BENCHMARK_REPORT_PATH,
     )
 
     parser.add_argument(
         "--input_cfg",
         action="store",
         help="benchmark config yaml file path",
-    )
-
-    parser.add_argument(
-        "--output",
-        action="store",
-        help="the file path of final report ",
     )
 
     arguments = parser.parse_args()

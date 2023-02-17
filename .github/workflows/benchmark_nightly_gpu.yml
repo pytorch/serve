@@ -43,3 +43,5 @@ jobs:
         with:
           name: nightly gpu artifact
           path: /tmp/ts_benchmark
+      - name: Validate report
+        run: python benchmarks/validate_report.py --input_cfg benchmarks/benchmark_config_gpu.yaml
