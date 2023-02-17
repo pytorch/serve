@@ -4,34 +4,34 @@ bert:
     scripted_mode:
         batch_size:
             1:
-                throughput: 323
-                total_latency_p50: 308
-                model_latency_p50: 11.6
-                total_latency_p90: 313
-                model_latency_p90: 12.2
-                total_latency_p99: 327
-                model_latency_p99: 12.6
+                throughput: 513
+                total_latency_p50: 194
+                model_latency_p50: 7.15
+                total_latency_p90: 198
+                model_latency_p90: 7.3
+                total_latency_p99: 207
+                model_latency_p99: 7.8
             2:
-                throughput: 533
-                total_latency_p50: 176
-                model_latency_p50: 13.1
-                total_latency_p90: 181
-                model_latency_p90: 13.9
-                total_latency_p99: 195
-                model_latency_p99: 14.3
+                throughput: 894
+                total_latency_p50: 108
+                model_latency_p50: 7.96
+                total_latency_p90: 112
+                model_latency_p90: 8.2
+                total_latency_p99: 125
+                model_latency_p99: 9
             4:
-                throughput: 971
-                total_latency_p50: 99
-                model_latency_p50: 14.7
-                total_latency_p90: 106
-                model_latency_p90: 15.3
-                total_latency_p99: 115
-                model_latency_p99: 18.2
+                throughput: 1213
+                total_latency_p50: 80
+                model_latency_p50: 12
+                total_latency_p90: 86
+                model_latency_p90: 12.1
+                total_latency_p99: 90
+                model_latency_p99: 12.5
             8:
-                throughput: 1075
-                total_latency_p50: 88
-                model_latency_p50: 27
-                total_latency_p90: 98
-                model_latency_p90: 27.3
-                total_latency_p99: 109
-                model_latency_p99: 28.5
+                throughput: 1358
+                total_latency_p50: 70
+                model_latency_p50: 21.5
+                total_latency_p90: 80
+                model_latency_p90: 21.8
+                total_latency_p99: 90
+                model_latency_p99: 22
