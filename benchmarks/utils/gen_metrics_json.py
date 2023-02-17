@@ -61,7 +61,6 @@ def gen_metrics_from_csv(csv_dict, stats_file_path):
     metrics_dict_list = []
     for k, v in csv_dict.items():
         if k in STATS_METRICS_CONFIG:
-            print(k, v)
             metric_config = STATS_METRICS_CONFIG[k]
             metrics_dict_list.append(
                 {

@@ -295,7 +295,6 @@ def main():
         if arguments.no_upload is not None and arguments.no_upload.lower() == "false"
         else True
     )
-    print(skip_upload)
     bm_config = load_benchmark_config(arguments.input, skip_ts_config, skip_upload)
     benchmark_env_setup(bm_config, skip_ts_config)
     run_benchmark(bm_config)
