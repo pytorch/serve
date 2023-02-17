@@ -520,8 +520,6 @@ def generate_csv_output():
     ) as f:
         lines = f.readlines()
         lines.sort(key=float)
-        print(lines)
-        print("fifty ", line50, line90, line99)
         artifacts["Model_p50"] = lines[line50].strip()
         artifacts["Model_p90"] = lines[line90].strip()
         artifacts["Model_p99"] = lines[line99].strip()
@@ -569,7 +567,6 @@ def extract_entity(data, pattern, index, delim=" "):
 
     with open(execution_params["metric_log"]) as f:
         data = f.readlines()
-    # print(extract_entity(data, "Error", -1))
     print(extract_errors(data, "Error"))
     assert ()
     return None
