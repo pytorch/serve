@@ -110,9 +110,13 @@ def validate_reports(args):
                 baseline_reports[model].properties[mode][key],
                 baseline_reports[model].properties[mode]["deviation"],
             ):
-                print("Error ", key)
+                print(
+                    f"Error while validating {key} for model: {model}, "
+                    f"Expected value: {baseline_reports[model].properties[mode][key]},"
+                    f"Observed value: {report.properties[key]}"
+                )
                 return -1
-    print("Success")
+        print(f"Model {model} successfully validated")
 
 
 def main():
