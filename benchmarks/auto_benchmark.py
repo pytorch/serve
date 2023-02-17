@@ -279,9 +279,8 @@ def main():
         help="true: skip torchserve installation. default: true",
     )
     parser.add_argument(
-        "--no_upload",
-        action="store",
-        help="true: skip uploading commands . default: true",
+        "--skip_upload",
+        help="true: skip uploading commands . default: false",
     )
 
     arguments = parser.parse_args()
@@ -291,9 +290,9 @@ def main():
         else True
     )
     skip_upload = (
-        False
-        if arguments.no_upload is not None and arguments.no_upload.lower() == "false"
-        else True
+        True
+        if arguments.skip_upload is not None and arguments.skip_upload.lower() == "true"
+        else False
     )
     bm_config = load_benchmark_config(arguments.input, skip_ts_config, skip_upload)
     benchmark_env_setup(bm_config, skip_ts_config)
