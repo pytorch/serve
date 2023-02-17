@@ -1,5 +1,5 @@
 vgg16:
-    deviation: 10.1
+    deviation: 0.1
     workers: 4
     eager_mode:
         batch_size:

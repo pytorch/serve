@@ -1,5 +1,5 @@
 bert:
-    deviation: 2000.1
+    deviation: 0.1
     workers: 4
     scripted_mode:
         batch_size:
