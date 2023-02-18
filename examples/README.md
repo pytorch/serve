@@ -5,6 +5,7 @@
 * [Creating mar file for an eager mode model](#creating-mar-file-for-eager-mode-model)
 * [Creating mar file for torchscript mode model](#creating-mar-file-for-torchscript-mode-model)
 * [Serving custom model with custom service handler](#serving-custom-model-with-custom-service-handler)
+* [Serving model using Docker Container](image_classifier/mnist/Docker.md)
 * [Creating a Workflow](Workflows/dog_breed_classification)
 * [Custom Metrics](custom_metrics)
 * [Dynamic Batch Processing](image_classifier/resnet_152_batch)
