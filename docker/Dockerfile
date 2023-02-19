@@ -21,52 +21,48 @@ ARG BASE_IMAGE=ubuntu:rolling
 FROM ${BASE_IMAGE} AS compile-image
 ARG BASE_IMAGE=ubuntu:rolling
 ENV PYTHONUNBUFFERED TRUE
-
-RUN if [ $CUDA_VERSION == "cu117" ];
-then
-    --mount=type=cache,id=apt-dev,target=/var/cache/apt \
-    #apt --fix-broken -y install && \
-    apt-get update && \
-    apt install dirmngr ca-certificates software-properties-common apt-transport-https -y && \
-    gpg --list-keys && \
-    gpg --no-default-keyring --keyring /usr/share/keyrings/deadsnakes.gpg --keyserver keyserver.ubuntu.com --recv-keys F23C5A6CF475977595C89F51BA6932366A755776 && \
-    echo 'deb [signed-by=/usr/share/keyrings/deadsnakes.gpg] https://ppa.launchpadcontent.net/deadsnakes/ppa/ubuntu jammy main'>> /etc/apt/sources.list.d/python.list && \
-    apt update && apt-get update && \
-    apt remove python-pip  python3-pip && \
-    DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
-    ca-certificates \
-    g++ \
-    python3.8 \
-    python3.8-dev \
-    python3.8-distutils \
-    python3.8-venv \
-    python3-venv \
-    openjdk-17-jdk \
-    curl \
-    && rm -rf /var/lib/apt/lists/* \
-    && cd /tmp \
-    && curl -O https://bootstrap.pypa.io/get-pip.py \
-    && python3.8 get-pip.py
-else  \
-    --mount=type=cache,id=apt-dev,target=/var/cache/apt \
-    #apt --fix-broken -y install && \
-    apt-get update && \
-    apt remove python-pip  python3-pip && \
-    DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
-    ca-certificates \
-    g++ \
-    python3.8 \
-    python3.8-dev \
-    python3.8-distutils \
-    python3.8-venv \
-    python3-venv \
-    openjdk-17-jdk \
-    curl \
-    && rm -rf /var/lib/apt/lists/* \
-    && cd /tmp \
-    && curl -O https://bootstrap.pypa.io/get-pip.py \
-    && python3.8 get-pip.py
-fi;
+ARG CUDA_VERSION=""
+RUN --mount=type=cache,id=apt-dev,target=/var/cache/apt \
+    if [ "$CUDA_VERSION" = "cu117" ]; then \
+        apt-get update && \
+        apt install dirmngr ca-certificates software-properties-common apt-transport-https -y && \
+        gpg --list-keys && \
+        gpg --no-default-keyring --keyring /usr/share/keyrings/deadsnakes.gpg --keyserver keyserver.ubuntu.com --recv-keys F23C5A6CF475977595C89F51BA6932366A755776 && \
+        echo 'deb [signed-by=/usr/share/keyrings/deadsnakes.gpg] https://ppa.launchpadcontent.net/deadsnakes/ppa/ubuntu jammy main'>> /etc/apt/sources.list.d/python.list && \
+        apt update && apt-get update && \
+        apt remove python-pip  python3-pip && \
+        DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
+        ca-certificates \
+        g++ \
+        python3.8 \
+        python3.8-dev \
+        python3.8-distutils \
+        python3.8-venv \
+        python3-venv \
+        openjdk-17-jdk \
+        curl \
+        && rm -rf /var/lib/apt/lists/* \
+        && cd /tmp \
+        && curl -O https://bootstrap.pypa.io/get-pip.py \
+        && python3.8 get-pip.py; \
+    else  \
+        apt-get update && \
+        apt remove python-pip  python3-pip && \
+        DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
+        ca-certificates \
+        g++ \
+        python3.8 \
+        python3.8-dev \
+        python3.8-distutils \
+        python3.8-venv \
+        python3-venv \
+        openjdk-17-jdk \
+        curl \
+        && rm -rf /var/lib/apt/lists/* \
+        && cd /tmp \
+        && curl -O https://bootstrap.pypa.io/get-pip.py \
+        && python3.8 get-pip.py; \
+    fi
 RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.8 1 \
     && update-alternatives --install /usr/local/bin/pip pip /usr/local/bin/pip3.8 1
 
@@ -100,11 +96,10 @@ RUN python -m pip install -U setuptools && python -m pip install --no-cache-dir 
 
 # Final image for production
 FROM ${BASE_IMAGE} AS runtime-image
-
+ARG CUDA_VERSION=""
 ENV PYTHONUNBUFFERED TRUE
-RUN if [ $CUDA_VERSION == "cu117" ];
-then
-    --mount=type=cache,target=/var/cache/apt \
+RUN --mount=type=cache,target=/var/cache/apt \
+  if [ "$CUDA_VERSION" = "cu117" ]; then \
     apt-get update && \
     apt install dirmngr ca-certificates software-properties-common apt-transport-https -y && \
     gpg --list-keys && \
@@ -120,9 +115,8 @@ then
     openjdk-17-jdk \
     build-essential \
     && rm -rf /var/lib/apt/lists/* \
-    && cd /tmp
-else \
-    --mount=type=cache,target=/var/cache/apt \
+    && cd /tmp; \
+  else \
     apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
     python3.8 \
@@ -133,8 +127,8 @@ else \
     openjdk-17-jdk \
     build-essential \
     && rm -rf /var/lib/apt/lists/* \
-    && cd /tmp
-fi;
+    && cd /tmp; \
+  fi
 RUN useradd -m model-server \
     && mkdir -p /home/model-server/tmp
 
