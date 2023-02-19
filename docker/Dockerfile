@@ -22,7 +22,9 @@ FROM ${BASE_IMAGE} AS compile-image
 ARG BASE_IMAGE=ubuntu:rolling
 ENV PYTHONUNBUFFERED TRUE
 
-RUN --mount=type=cache,id=apt-dev,target=/var/cache/apt \
+RUN if [ $CUDA_VERSION == "cu117" ];
+then
+    --mount=type=cache,id=apt-dev,target=/var/cache/apt \
     #apt --fix-broken -y install && \
     apt-get update && \
     apt install dirmngr ca-certificates software-properties-common apt-transport-https -y && \
@@ -45,8 +47,26 @@ RUN --mount=type=cache,id=apt-dev,target=/var/cache/apt \
     && cd /tmp \
     && curl -O https://bootstrap.pypa.io/get-pip.py \
     && python3.8 get-pip.py
-
-
+else  \
+    --mount=type=cache,id=apt-dev,target=/var/cache/apt \
+    #apt --fix-broken -y install && \
+    apt-get update && \
+    apt remove python-pip  python3-pip && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
+    ca-certificates \
+    g++ \
+    python3.8 \
+    python3.8-dev \
+    python3.8-distutils \
+    python3.8-venv \
+    python3-venv \
+    openjdk-17-jdk \
+    curl \
+    && rm -rf /var/lib/apt/lists/* \
+    && cd /tmp \
+    && curl -O https://bootstrap.pypa.io/get-pip.py \
+    && python3.8 get-pip.py
+fi;
 RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.8 1 \
     && update-alternatives --install /usr/local/bin/pip pip /usr/local/bin/pip3.8 1
 
@@ -82,8 +102,9 @@ RUN python -m pip install -U setuptools && python -m pip install --no-cache-dir 
 FROM ${BASE_IMAGE} AS runtime-image
 
 ENV PYTHONUNBUFFERED TRUE
-
-RUN --mount=type=cache,target=/var/cache/apt \
+RUN if [ $CUDA_VERSION == "cu117" ];
+then
+    --mount=type=cache,target=/var/cache/apt \
     apt-get update && \
     apt install dirmngr ca-certificates software-properties-common apt-transport-https -y && \
     gpg --list-keys && \
@@ -100,7 +121,20 @@ RUN --mount=type=cache,target=/var/cache/apt \
     build-essential \
     && rm -rf /var/lib/apt/lists/* \
     && cd /tmp
-
+else \
+    --mount=type=cache,target=/var/cache/apt \
+    apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
+    python3.8 \
+    python3.8-distutils \
+    python3.8-dev \
+    # using openjdk-17-jdk due to circular dependency(ca-certificates) bug in openjdk-17-jre-headless debian package
+    # https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1009905
+    openjdk-17-jdk \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/* \
+    && cd /tmp
+fi;
 RUN useradd -m model-server \
     && mkdir -p /home/model-server/tmp
 
@@ -123,4 +157,3 @@ WORKDIR /home/model-server
 ENV TEMP=/home/model-server/tmp
 ENTRYPOINT ["/usr/local/bin/dockerd-entrypoint.sh"]
 CMD ["serve"]
-
