@@ -25,6 +25,11 @@ ENV PYTHONUNBUFFERED TRUE
 RUN --mount=type=cache,id=apt-dev,target=/var/cache/apt \
     #apt --fix-broken -y install && \
     apt-get update && \
+    apt install dirmngr ca-certificates software-properties-common apt-transport-https -y && \
+    gpg --list-keys && \
+    gpg --no-default-keyring --keyring /usr/share/keyrings/deadsnakes.gpg --keyserver keyserver.ubuntu.com --recv-keys F23C5A6CF475977595C89F51BA6932366A755776 && \
+    echo 'deb [signed-by=/usr/share/keyrings/deadsnakes.gpg] https://ppa.launchpadcontent.net/deadsnakes/ppa/ubuntu jammy main'>> /etc/apt/sources.list.d/python.list && \
+    apt update && apt-get update && \
     apt remove python-pip  python3-pip && \
     DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
     ca-certificates \
@@ -80,6 +85,11 @@ ENV PYTHONUNBUFFERED TRUE
 
 RUN --mount=type=cache,target=/var/cache/apt \
     apt-get update && \
+    apt install dirmngr ca-certificates software-properties-common apt-transport-https -y && \
+    gpg --list-keys && \
+    gpg --no-default-keyring --keyring /usr/share/keyrings/deadsnakes.gpg --keyserver keyserver.ubuntu.com --recv-keys F23C5A6CF475977595C89F51BA6932366A755776 && \
+    echo 'deb [signed-by=/usr/share/keyrings/deadsnakes.gpg] https://ppa.launchpadcontent.net/deadsnakes/ppa/ubuntu jammy main'>> /etc/apt/sources.list.d/python.list && \
+    apt update && apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
     python3.8 \
     python3.8-distutils \
@@ -113,3 +123,4 @@ WORKDIR /home/model-server
 ENV TEMP=/home/model-server/tmp
 ENTRYPOINT ["/usr/local/bin/dockerd-entrypoint.sh"]
 CMD ["serve"]
+
