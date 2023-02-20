@@ -78,7 +78,7 @@ optional arguments:
                         Path to python file containing model architecture.
                         This parameter is mandatory for eager mode models.
                         The model architecture file must contain only one
-                        class definition extended from torch.nn.modules.
+                        class definition extended from torch.nn.Module.
   --handler HANDLER     TorchServe's default handler name  or handler python
                         file path to handle custom TorchServe inference logic.
   --extra-files EXTRA_FILES
