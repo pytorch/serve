@@ -132,6 +132,9 @@ A valid model name must begin with a letter of the alphabet and can only contain
 
 A model file should contain the model architecture. This file is mandatory in case of eager mode models.
 
+This file should contain a single class that inherits from
+[torch.nn.Module](https://pytorch.org/docs/stable/generated/torch.nn.Module.html).
+
 ### Serialized file
 
 A serialized file (.pt or .pth) should be a checkpoint in case of torchscript and state_dict in case of eager mode.
