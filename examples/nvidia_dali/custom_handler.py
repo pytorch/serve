@@ -37,6 +37,12 @@ class DALIHandler(ImageClassifier):
             raise RuntimeError("Missing dali_config.json file.")
         with open(dali_config_file) as setup_config_file:
             self.dali_configs = json.load(setup_config_file)
+        filename = os.path.join(self.model_dir, self.dali_file[0])
+        self.pipe = Pipeline.deserialize(filename=filename)
+        # pylint: disable=protected-access
+        self.pipe._max_batch_size = self.dali_configs["batch_size"]
+        self.pipe._num_threads = self.dali_configs["num_threads"]
+        self.pipe._device_id = self.dali_configs["device_id"]
 
     def preprocess(self, data):
         """The preprocess function of MNIST program converts the input data to a float tensor
@@ -48,27 +54,17 @@ class DALIHandler(ImageClassifier):
             list : The preprocess function returns the input image as a list of float tensors.
         """
         batch_tensor = []
-        batch_size = self.dali_configs["batch_size"]
-        num_threads = self.dali_configs["num_threads"]
-        device_id = self.dali_configs["device_id"]
 
         input_byte_arrays = [i["body"] if "body" in i else i["data"] for i in data]
         for byte_array in input_byte_arrays:
             np_image = np.frombuffer(byte_array, dtype=np.uint8)
             batch_tensor.append(np_image)  # we can use numpy
 
-        filename = os.path.join(self.model_dir, self.dali_file[0])
-        pipe = Pipeline.deserialize(filename=filename)
-        # pylint: disable=protected-access
-        pipe._max_batch_size = batch_size
-        pipe._num_threads = num_threads
-        pipe._device_id = device_id
-
         for _ in range(self.PREFETCH_QUEUE_DEPTH):
-            pipe.feed_input("my_source", batch_tensor)
+            self.pipe.feed_input("my_source", batch_tensor)
 
         datam = DALIGenericIterator(
-            [pipe],
+            [self.pipe],
             ["data"],
             last_batch_policy=LastBatchPolicy.PARTIAL,
             last_batch_padded=True,
