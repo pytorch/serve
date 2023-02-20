@@ -58,6 +58,7 @@ jobs:
         python ts_scripts/install_dependencies.py --environment=dev
         cd frontend
         ./gradlew build
+        cd ..
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2
