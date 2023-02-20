@@ -212,13 +212,6 @@ public final class ModelManager {
 
             String pythonRuntime = EnvironmentUtils.getPythonRunTime(model);
 
-            String packageInstallCommand =
-                    pythonRuntime
-                            + " -m pip install -U -t "
-                            + model.getModelDir().getAbsolutePath()
-                            + " -r "
-                            + requirementsFilePath; // NOPMD
-
             String[] envp =
                     EnvironmentUtils.getEnvString(
                             configManager.getModelServerHome(),
@@ -230,7 +223,17 @@ public final class ModelManager {
                             .map(e -> e.split("=", 2))
                             .collect(Collectors.toMap(e -> e[0], e -> e[1]));
 
-            ProcessBuilder pb = new ProcessBuilder(packageInstallCommand);
+            ProcessBuilder pb =
+                    new ProcessBuilder(
+                            pythonRuntime,
+                            "-m",
+                            "pip",
+                            "install",
+                            "-U",
+                            "-t",
+                            model.getModelDir().getAbsolutePath(),
+                            "-r",
+                            requirementsFilePath);
             pb.environment().putAll(env);
             pb.directory(model.getModelDir().getAbsoluteFile());
 
