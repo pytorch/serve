@@ -25,18 +25,22 @@ public final class ZipUtils {
         try (ZipInputStream zis = new ZipInputStream(is)) {
             ZipEntry entry;
             while ((entry = zis.getNextEntry()) != null) {
-                String name = entry.getName();
-                File file = new File(dest, name);
-                if (entry.isDirectory()) {
-                    FileUtils.forceMkdir(file);
-                } else {
-                    File parentFile = file.getParentFile();
-                    FileUtils.forceMkdir(parentFile);
-                    try (OutputStream os = Files.newOutputStream(file.toPath())) {
-                        IOUtils.copy(zis, os);
+                if (!entry.isDirectory()) {
+                    String name = entry.getName();
+                    if (name.contains("..")) {
+                        throw new IllegalArgumentException("Invalid entry name: " + name);
+                    } else {
+                        File file = new File(dest, name);
+                        File parentFile = file.getParentFile();
+                        FileUtils.forceMkdir(parentFile);
+                        try (OutputStream os = Files.newOutputStream(file.toPath())) {
+                            IOUtils.copy(zis, os);
+                        }
                     }
                 }
             }
+        } catch (IOException e) {
+            throw new IllegalArgumentException("Error unzipping file: " + e.getMessage(), e);
         }
     }
 
