@@ -8,6 +8,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.stream.Collectors;
 import org.pytorch.serve.archive.DownloadArchiveException;
 import org.pytorch.serve.archive.model.Manifest;
 import org.pytorch.serve.archive.model.ModelArchive;
@@ -222,10 +224,11 @@ public final class ModelManager {
                             configManager.getModelServerHome(),
                             model.getModelDir().getAbsolutePath(),
                             null);
-            
-            Map<String, String> env = Arrays.stream(envp)
-                .map(e -> e.split("=", 2))
-                .collect(Collectors.toMap(e -> e[0], e -> e[1]));
+
+            Map<String, String> env =
+                    Arrays.stream(envp)
+                            .map(e -> e.split("=", 2))
+                            .collect(Collectors.toMap(e -> e[0], e -> e[1]));
 
             ProcessBuilder pb = new ProcessBuilder(packageInstallCommand);
             pb.environment().putAll(env);
