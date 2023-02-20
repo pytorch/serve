@@ -234,7 +234,7 @@ public final class ModelManager {
             pb.environment().putAll(env);
             pb.directory(model.getModelDir().getAbsoluteFile());
 
-            process = pb.start();
+            Process process = pb.start();
 
             int exitCode = process.waitFor();
 
