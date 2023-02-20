@@ -224,7 +224,7 @@ public final class ModelManager {
                             null);
 
             ProcessBuilder pb = new ProcessBuilder(packageInstallCommand);
-            pb.environment().putall(envp);
+            pb.environment().putAll(envp);
             pb.directory(model.getModelDir().getAbsoluteFile());
 
             process = pb.start();
