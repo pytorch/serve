@@ -222,9 +222,13 @@ public final class ModelManager {
                             configManager.getModelServerHome(),
                             model.getModelDir().getAbsolutePath(),
                             null);
+            
+            Map<String, String> env = Arrays.stream(envp)
+                .map(e -> e.split("=", 2))
+                .collect(Collectors.toMap(e -> e[0], e -> e[1]));
 
             ProcessBuilder pb = new ProcessBuilder(packageInstallCommand);
-            pb.environment().putAll(envp);
+            pb.environment().putAll(env);
             pb.directory(model.getModelDir().getAbsoluteFile());
 
             process = pb.start();
