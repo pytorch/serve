@@ -84,7 +84,6 @@ public class WorkerThread implements Runnable {
     }
 
     public String getGpuUsage() {
-        Process process;
         StringBuffer gpuUsage = new StringBuffer();
         if (gpuId >= 0) {
             try {
