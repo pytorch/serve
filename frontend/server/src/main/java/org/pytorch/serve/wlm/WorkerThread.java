@@ -97,7 +97,7 @@ public class WorkerThread implements Runnable {
                                 String.valueOf(gpuId),
                                 "--query-gpu=utilization.gpu,utilization.memory,memory.used",
                                 "--format=csv");
-                process = pb.start();
+                Process process = pb.start();
                 process.waitFor();
                 int exitCode = process.exitValue();
                 if (exitCode != 0) {
