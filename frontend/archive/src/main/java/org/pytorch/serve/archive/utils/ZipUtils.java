@@ -77,7 +77,7 @@ public final class ZipUtils {
 
         MessageDigest md;
         try {
-            md = MessageDigest.getInstance("SHA-256");
+            md = MessageDigest.getInstance("SHA1");
         } catch (NoSuchAlgorithmException e) {
             throw new AssertionError(e);
         }

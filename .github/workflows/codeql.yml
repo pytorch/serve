@@ -12,14 +12,9 @@
 name: "CodeQL"
 
 on:
-  push:
-    branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
-
-concurrency:
-  group: codeql-${{ github.workflow }}-${{ github.ref == 'refs/heads/master' && github.run_number || github.ref }}
-  cancel-in-progress: true
+  # run every day at 11:15am
+  schedule:
+    - cron:  '15 11 * * *'
 
 jobs:
   analyze:
