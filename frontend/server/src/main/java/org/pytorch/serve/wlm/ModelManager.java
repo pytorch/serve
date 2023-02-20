@@ -223,10 +223,11 @@ public final class ModelManager {
                             model.getModelDir().getAbsolutePath(),
                             null);
 
-            ProcessBuilder pb =
-                    new ProcessBuilder(
-                            packageInstallCommand, envp, model.getModelDir().getAbsoluteFile());
-            process = pb.start();
+            ProcessBuilder pb = new ProcessBuilder(packageInstallCommand);
+            pb.environment().putall(envp)
+            pb.directory(model.getModelDir().getAbsoluteFile());
+
+            process = pb.start()
 
             int exitCode = process.waitFor();
 
