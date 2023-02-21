@@ -154,14 +154,7 @@ def install_torchserve(skip_ts_install, hw, ts_version):
     print("successfully reset git")
 
     ts_install_cmd = None
-    if ts_version.startswith("torchserve==") or ts_version.startswith(
-        "torchserve-nightly=="
-    ):
-        ts_install_cmd = "pip install {}".format(ts_version)
-    else:
-        cmd = "git checkout {}".format(ts_version)
-        execute(cmd, wait=True)
-
+    
     # install_dependencies.py
     if hw == "gpu":
         cmd = "python ts_scripts/install_dependencies.py --environment dev --cuda cu117"

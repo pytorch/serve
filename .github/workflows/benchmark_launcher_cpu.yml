@@ -39,7 +39,7 @@ jobs:
             pip install intel_extension_for_pytorch
             export TS_CPU_LAUNCHER_ENABLE=true
       - name: Benchmark cpu nightly
-        run: python benchmarks/auto_benchmark.py --input benchmarks/benchmark_config_cpu.yaml --skip true
+        run: python benchmarks/auto_benchmark.py --input benchmarks/benchmark_config_cpu.yaml --skip false
       - name: Save benchmark artifacts
         uses: actions/upload-artifact@v2
         with:
