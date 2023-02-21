@@ -147,12 +147,7 @@ def benchmark_env_setup(bm_config, skip_ts_install):
 def install_torchserve(skip_ts_install, hw, ts_version):
     if skip_ts_install:
         return
-
-    # git checkout branch if it is needed
-    cmd = "git checkout master && git reset --hard && git clean -dffx . && git pull --rebase"
-    execute(cmd, wait=True)
-    print("successfully reset git")
-
+        
     ts_install_cmd = None
     
     # install_dependencies.py
