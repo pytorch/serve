@@ -165,23 +165,7 @@ def build_model_json_config(models):
             input_file = CWD + "/benchmarks/models_config/{}".format(model)
         gen_model_config_json.convert_yaml_to_json(input_file, MODEL_JSON_CONFIG_PATH)
         
-        
-def enable_cpu_launcher():
-    def is_cpu_launcher_available():
-        import subprocess
-        cpu_launcher_available = False
-        cmd = ["ipexrun", "--no_python", "ls"]
-        r = subprocess.run(cmd, env=os.environ, stdout=subprocess.DEVNULL)
-        if r.returncode == 0:
-            cpu_launcher_available = True
-        print("cpu_launcher_available: ", cpu_launcher_available)
-        return cpu_launcher_available
-        
-    if os.environ.get("TS_CPU_LAUNCHER_ENABLE", "false") == "true" and is_cpu_launcher_available():
-        with open("./benchmarks/config.properties", "a") as myfile:
-            myfile.write("cpu_launcher_enable=true\n")
-                
-                
+                      
 def run_benchmark(bm_config):
     files = os.listdir(bm_config["model_config_path"])
     files.sort()
@@ -190,8 +174,6 @@ def run_benchmark(bm_config):
             # call benchmark-ab.py
             shutil.rmtree(TS_LOGS_PATH, ignore_errors=True)
             shutil.rmtree(BENCHMARK_TMP_PATH, ignore_errors=True)
-
-            enable_cpu_launcher()
 
             cmd = (
                 "python ./benchmarks/benchmark-ab.py --tmp_dir /tmp --report_location /tmp --config_properties "
