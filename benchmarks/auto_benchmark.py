@@ -79,21 +79,6 @@ class BenchmarkConfig:
                 break
 
         self.bm_config["report_cmd"] = " ".join(cmd_options)
-    
-    def is_cpu_launcher_available(self):
-        import subprocess
-        cpu_launcher_available = False
-        cmd = ["ipexrun", "--no_python", "ls"]
-        r = subprocess.run(cmd, env=os.environ, stdout=subprocess.DEVNULL)
-        if r.returncode == 0:
-            cpu_launcher_available = True
-        print("cpu_launcher_available: ", cpu_launcher_available)
-        return cpu_launcher_available
-        
-    def enable_cpu_launcher(self):
-        if self.bm_config["hardware"] == "cpu" and os.environ.get("TS_CPU_LAUNCHER_ENABLE", "false") == "true" and self.is_cpu_launcher_available():
-            with open("./benchmarks/config.properties", "a") as myfile:
-                myfile.write("cpu_launcher_enable=true\n")
                 
     def load_config(self):
         report_cmd = None
@@ -114,8 +99,6 @@ class BenchmarkConfig:
             if self.bm_config["hardware"] == "cpu"
             else "{}/gpu".format(MODEL_JSON_CONFIG_PATH)
         )
-        
-        self.enable_cpu_launcher()
 
         if self.skip_ts_install:
             self.bm_config["version"] = get_torchserve_version()
@@ -181,8 +164,24 @@ def build_model_json_config(models):
         else:
             input_file = CWD + "/benchmarks/models_config/{}".format(model)
         gen_model_config_json.convert_yaml_to_json(input_file, MODEL_JSON_CONFIG_PATH)
-
-
+        
+        
+def enable_cpu_launcher():
+    def is_cpu_launcher_available():
+        import subprocess
+        cpu_launcher_available = False
+        cmd = ["ipexrun", "--no_python", "ls"]
+        r = subprocess.run(cmd, env=os.environ, stdout=subprocess.DEVNULL)
+        if r.returncode == 0:
+            cpu_launcher_available = True
+        print("cpu_launcher_available: ", cpu_launcher_available)
+        return cpu_launcher_available
+        
+    if os.environ.get("TS_CPU_LAUNCHER_ENABLE", "false") == "true" and is_cpu_launcher_available():
+        with open("./benchmarks/config.properties", "a") as myfile:
+            myfile.write("cpu_launcher_enable=true\n")
+                
+                
 def run_benchmark(bm_config):
     files = os.listdir(bm_config["model_config_path"])
     files.sort()
@@ -191,6 +190,9 @@ def run_benchmark(bm_config):
             # call benchmark-ab.py
             shutil.rmtree(TS_LOGS_PATH, ignore_errors=True)
             shutil.rmtree(BENCHMARK_TMP_PATH, ignore_errors=True)
+
+            enable_cpu_launcher()
+
             cmd = (
                 "python ./benchmarks/benchmark-ab.py --tmp_dir /tmp --report_location /tmp --config_properties "
                 "./benchmarks/config.properties --config {}/{}".format(
