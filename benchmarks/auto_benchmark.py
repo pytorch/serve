@@ -79,7 +79,7 @@ class BenchmarkConfig:
                 break
 
         self.bm_config["report_cmd"] = " ".join(cmd_options)
-                
+
     def load_config(self):
         report_cmd = None
         for k, v in self.yaml_dict.items():
@@ -164,8 +164,8 @@ def build_model_json_config(models):
         else:
             input_file = CWD + "/benchmarks/models_config/{}".format(model)
         gen_model_config_json.convert_yaml_to_json(input_file, MODEL_JSON_CONFIG_PATH)
-        
-                      
+
+
 def run_benchmark(bm_config):
     files = os.listdir(bm_config["model_config_path"])
     files.sort()
@@ -255,7 +255,6 @@ def get_torchserve_version():
         version = file.readline().rstrip()
     return version
 
-     
 def main():
     parser = argparse.ArgumentParser()
 
