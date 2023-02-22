@@ -174,7 +174,9 @@ def run_benchmark(bm_config):
             # call benchmark-ab.py
             shutil.rmtree(TS_LOGS_PATH, ignore_errors=True)
             shutil.rmtree(BENCHMARK_TMP_PATH, ignore_errors=True)
-
+            
+            execute("cat ./benchmarks/config.properties", wait=True)
+            
             cmd = (
                 "python ./benchmarks/benchmark-ab.py --tmp_dir /tmp --report_location /tmp --config_properties "
                 "./benchmarks/config.properties --config {}/{}".format(
@@ -252,7 +254,7 @@ def get_torchserve_version():
         version = file.readline().rstrip()
     return version
 
-
+     
 def main():
     parser = argparse.ArgumentParser()
 
