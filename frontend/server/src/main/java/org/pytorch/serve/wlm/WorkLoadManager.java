@@ -29,6 +29,7 @@ public class WorkLoadManager {
     private ConfigManager configManager;
     private EventLoopGroup backendGroup;
     private AtomicInteger port;
+    private AtomicInteger distributionPort;
     private AtomicInteger gpuCounter;
 
     private static final Logger logger = LoggerFactory.getLogger(WorkLoadManager.class);
@@ -37,6 +38,7 @@ public class WorkLoadManager {
         this.configManager = configManager;
         this.backendGroup = backendGroup;
         this.port = new AtomicInteger(configManager.getInitialWorkerPort());
+        this.distributionPort = new AtomicInteger(configManager.getInitialDistributionPort());
         this.gpuCounter = new AtomicInteger(0);
         threadPool = Executors.newCachedThreadPool();
         workers = new ConcurrentHashMap<>();
@@ -146,7 +148,7 @@ public class WorkLoadManager {
 
                     // Need to check worker process here since thread.shutdown() -> lifecycle.exit()
                     // -> This may nullify process object per destroyForcibly doc.
-                    if (workerProcess != null && workerProcess.isAlive()) {
+                    if ((workerProcess != null) && workerProcess.isAlive()) {
                         boolean workerDestroyed = false;
                         try {
                             String cmd = String.format(OSUtils.getKillCmd(), workerProcess.pid());
@@ -193,19 +195,43 @@ public class WorkLoadManager {
             List<WorkerThread> threads, Model model, int count, CompletableFuture<Integer> future) {
         WorkerStateListener listener = new WorkerStateListener(future, count);
         int maxGpu = configManager.getNumberOfGpu();
+        if (maxGpu > 0 && model.getGpuIds() != null) {
+            maxGpu = model.getGpuIds().size();
+        }
+        int parallelGpuIdx = 0;
         for (int i = 0; i < count; ++i) {
             int gpuId = -1;
 
             if (maxGpu > 0) {
-                gpuId = gpuCounter.accumulateAndGet(maxGpu, (prev, maxGpuId) -> ++prev % maxGpuId);
+                if (model.getParallelLevel() > 1) {
+                    gpuId =
+                            model.getGpuIds() != null
+                                    ? model.getGpuIds().get(parallelGpuIdx)
+                                    : parallelGpuIdx;
+                    parallelGpuIdx += model.getParallelLevel();
+                } else {
+                    if (model.getGpuIds() != null) {
+                        gpuId = model.getGpuIds().get(parallelGpuIdx++ % maxGpu);
+                    } else {
+                        gpuId =
+                                gpuCounter.accumulateAndGet(
+                                        maxGpu, (prev, maxGpuId) -> ++prev % maxGpuId);
+                    }
+                }
             }
 
             BatchAggregator aggregator = new BatchAggregator(model);
+            int currentPort =
+                    model.getParallelLevel() > 1
+                            ? configManager.isDebug()
+                                    ? distributionPort.get()
+                                    : distributionPort.getAndAdd(model.getParallelLevel())
+                            : configManager.isDebug() ? port.get() : port.getAndIncrement();
             WorkerThread thread =
                     new WorkerThread(
                             configManager,
                             backendGroup,
-                            configManager.isDebug() ? port.get() : port.getAndIncrement(),
+                            currentPort,
                             gpuId,
                             model,
                             aggregator,

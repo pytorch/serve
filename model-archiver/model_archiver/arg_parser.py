@@ -145,7 +145,7 @@ class ArgParser(object):
 
         parser_export.add_argument(
             "-c",
-            "--config",
+            "--config-file",
             required=False,
             type=str,
             default=None,

@@ -3,8 +3,13 @@ package org.pytorch.serve.archive.model;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -14,6 +19,8 @@ import org.pytorch.serve.archive.utils.InvalidArchiveURLException;
 import org.pytorch.serve.archive.utils.ZipUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.error.YAMLException;
 
 public class ModelArchive {
 
@@ -25,12 +32,14 @@ public class ModelArchive {
     private String url;
     private File modelDir;
     private boolean extracted;
+    private ModelConfig modelConfig;
 
     public ModelArchive(Manifest manifest, String url, File modelDir, boolean extracted) {
         this.manifest = manifest;
         this.url = url;
         this.modelDir = modelDir;
         this.extracted = extracted;
+        this.modelConfig = null;
     }
 
     public static ModelArchive downloadModel(
@@ -92,7 +101,7 @@ public class ModelArchive {
         boolean failed = true;
         try {
             File manifestFile = new File(dir, "MAR-INF/" + MANIFEST_FILE);
-            Manifest manifest = null;
+            Manifest manifest;
             if (manifestFile.exists()) {
                 manifest = ArchiveUtils.readFile(manifestFile, Manifest.class);
             } else {
@@ -178,5 +187,27 @@ public class ModelArchive {
         if (url != null && extracted) {
             FileUtils.deleteQuietly(modelDir);
         }
+    }
+
+    public void setModelConfig(ModelConfig modelConfig) {
+        this.modelConfig = modelConfig;
+    }
+
+    public ModelConfig getModelConfig() {
+        if (this.modelConfig != null && manifest.getModel().getConfigFile() != null) {
+            Path modelConfigFilePath =
+                    Paths.get(modelDir.getAbsolutePath(), manifest.getModel().getConfigFile());
+
+            Yaml yaml = new Yaml();
+            try (Reader r =
+                    new InputStreamReader(
+                            Files.newInputStream(modelConfigFilePath), StandardCharsets.UTF_8)) {
+
+                setModelConfig(yaml.load(r));
+            } catch (YAMLException | IOException e) {
+                logger.error("Failed to parse " + modelConfigFilePath.toString(), e);
+            }
+        }
+        return this.modelConfig;
     }
 }

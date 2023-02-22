@@ -2,6 +2,8 @@ package org.pytorch.serve.wlm;
 
 import com.google.gson.JsonObject;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -21,12 +23,12 @@ import org.slf4j.LoggerFactory;
 public class Model {
 
     public static final String DEFAULT_DATA_QUEUE = "DATA_QUEUE";
-
     public static final String MIN_WORKERS = "minWorkers";
     public static final String MAX_WORKERS = "maxWorkers";
     public static final String BATCH_SIZE = "batchSize";
     public static final String MAX_BATCH_DELAY = "maxBatchDelay";
     public static final String RESPONSE_TIMEOUT = "responseTimeout";
+    public static final String PARALLEL_LEVEL = "parallelLevel";
     public static final String DEFAULT_VERSION = "defaultVersion";
     public static final String MAR_NAME = "marName";
 
@@ -37,6 +39,8 @@ public class Model {
     private int maxWorkers;
     private int batchSize;
     private int maxBatchDelay;
+    private int parallelLevel = 1;
+    private ArrayList<Integer> gpuIds;
     private ReentrantLock lock;
     private int responseTimeout;
     private ModelVersionName modelVersionName;
@@ -51,8 +55,18 @@ public class Model {
 
     public Model(ModelArchive modelArchive, int queueSize) {
         this.modelArchive = modelArchive;
-        batchSize = 1;
-        maxBatchDelay = 100;
+        if (modelArchive != null && modelArchive.getModelConfig() != null) {
+            minWorkers = modelArchive.getModelConfig().getMinWorkers();
+            maxWorkers = modelArchive.getModelConfig().getMaxWorkers();
+            batchSize = modelArchive.getModelConfig().getBatchSize();
+            maxBatchDelay = modelArchive.getModelConfig().getMaxBatchDelay();
+            responseTimeout = modelArchive.getModelConfig().getResponseTimeout();
+            parallelLevel = modelArchive.getModelConfig().getParallelLevel();
+            gpuIds = modelArchive.getModelConfig().getGpuIds();
+        } else {
+            batchSize = 1;
+            maxBatchDelay = 100;
+        }
         jobsDb = new ConcurrentHashMap<>();
         // Always have a queue for data
         jobsDb.putIfAbsent(DEFAULT_DATA_QUEUE, new LinkedBlockingDeque<>(queueSize));
@@ -73,6 +87,9 @@ public class Model {
         modelInfo.addProperty(BATCH_SIZE, getBatchSize());
         modelInfo.addProperty(MAX_BATCH_DELAY, getMaxBatchDelay());
         modelInfo.addProperty(RESPONSE_TIMEOUT, getResponseTimeout());
+        if (parallelLevel > 1) {
+            modelInfo.addProperty(PARALLEL_LEVEL, parallelLevel);
+        }
 
         return modelInfo;
     }
@@ -83,6 +100,9 @@ public class Model {
         maxBatchDelay = modelInfo.get(MAX_BATCH_DELAY).getAsInt();
         responseTimeout = modelInfo.get(RESPONSE_TIMEOUT).getAsInt();
         batchSize = modelInfo.get(BATCH_SIZE).getAsInt();
+        if (modelInfo.get(PARALLEL_LEVEL) != null) {
+            parallelLevel = modelInfo.get(PARALLEL_LEVEL).getAsInt();
+        }
     }
 
     public String getModelName() {
@@ -247,5 +267,21 @@ public class Model {
 
     public void setResponseTimeout(int responseTimeout) {
         this.responseTimeout = responseTimeout;
+    }
+
+    public ArrayList<Integer> getGpuIds() {
+        return this.gpuIds;
+    }
+
+    public void setGpuIds(ArrayList<Integer> gpuIds) {
+        Collections.copy(this.gpuIds, gpuIds);
+    }
+
+    public void setParallelLevel(int parallelLevel) {
+        this.parallelLevel = parallelLevel;
+    }
+
+    public int getParallelLevel() {
+        return this.parallelLevel;
     }
 }

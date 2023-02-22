@@ -93,7 +93,10 @@ public class WorkerLifeCycle {
             throw new WorkerInitializationException("Failed get TS home directory", e);
         }
 
-        ArrayList<String> argl = new ArrayList<String>();
+        ArrayList<String> argl = new ArrayList<>();
+        if (model.getParallelLevel() > 1) {
+            attachRunner(argl, port);
+        }
         argl.add(EnvironmentUtils.getPythonRunTime(model));
 
         if (configManager.isCPULauncherEnabled()) {
@@ -134,7 +137,7 @@ public class WorkerLifeCycle {
                         model.getModelArchive().getManifest().getModel().getHandler());
 
         try {
-            latch = new CountDownLatch(1);
+            latch = new CountDownLatch(model.getParallelLevel());
 
             String[] args = argl.toArray(new String[argl.size()]);
             logger.debug("Worker cmdline: {}", argl.toString());
@@ -164,6 +167,15 @@ public class WorkerLifeCycle {
                 exit();
             }
         }
+    }
+
+    private void attachRunner(ArrayList<String> argl, int port) {
+        argl.add("torchrun");
+        argl.add("--nnodes=1");
+        argl.add("--nproc_per_node=" + model.getParallelLevel());
+        argl.add("--max_restarts=3");
+        argl.add("--rdzv_backend=c10d");
+        argl.add("--rdzv_endpoint=localhost:" + port);
     }
 
     public synchronized void terminateIOStreams() {

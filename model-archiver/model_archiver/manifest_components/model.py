@@ -10,7 +10,7 @@ class Model(object):
     """
 
     def __init__(self, model_name, serialized_file, handler, model_file=None, model_version=None,
-                 extensions=None, requirements_file=None, config=None):
+                 extensions=None, requirements_file=None, config_file=None):
 
         self.model_name = model_name
         self.serialized_file = None
@@ -27,11 +27,12 @@ class Model(object):
         else:
             self.handler = handler.split("/")[-1]
         self.requirements_file = requirements_file
-        if config:
-            if sys.platform.startswith('win32') and config.find("\\") != -1:
-                self.config = config.split("\\")[-1]
+        self.config_file = None
+        if config_file:
+            if sys.platform.startswith('win32') and config_file.find("\\") != -1:
+                self.config = config_file.split("\\")[-1]
             else:
-                self.config = config.split("/")[-1]
+                self.config = config_file.split("/")[-1]
 
         self.model_dict = self.__to_dict__()
 
@@ -57,8 +58,8 @@ class Model(object):
         if self.requirements_file:
             model_dict['requirementsFile'] = self.requirements_file.split("/")[-1]
 
-        if self.config:
-            model_dict['config'] = self.config
+        if self.config_file:
+            model_dict['configFile'] = self.config_file
 
         return model_dict
 
