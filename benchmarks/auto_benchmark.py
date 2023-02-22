@@ -175,7 +175,7 @@ def run_benchmark(bm_config):
             shutil.rmtree(TS_LOGS_PATH, ignore_errors=True)
             shutil.rmtree(BENCHMARK_TMP_PATH, ignore_errors=True)
             
-            execute("ipexrun --no_python lscpu", wait=True)
+            execute("ipexrun --no_python --use_logical_core lscpu", wait=True)
             execute("cat ./benchmarks/config.properties", wait=True)
             
             cmd = (
