@@ -11,6 +11,7 @@ CUDA_VERSION=""
 UBUNTU_VERSION="ubuntu:20.04"
 USE_LOCAL_SERVE_FOLDER=false
 BUILD_WITH_IPEX=false
+PYTHON_VERSION=3.8
 
 for arg in "$@"
 do
@@ -25,6 +26,7 @@ do
           echo "-t, --tag specify tag name for docker image"
           echo "-lf, --use-local-serve-folder specify this option for the benchmark image if the current 'serve' folder should be used during automated benchmarks"
           echo "-ipex, --build-with-ipex specify to build with intel_extension_for_pytorch"
+          echo "-py, --pythonversion specify to python version to use: Possible values: 3.8 3.9 3.10"
           exit 0
           ;;
         -b|--branch_name)
@@ -62,6 +64,17 @@ do
           ;;
         -ipex|--build-with-ipex)
           BUILD_WITH_IPEX=true
+          shift
+          ;;
+        -py|--pythonversion)
+          PYTHON_VERSION="$2"
+          if [[ $PYTHON_VERSION = 3.8 || $PYTHON_VERSION = 3.9 || $PYTHON_VERSION = 3.10 ]]; then
+            echo "Valid python version"
+          else
+            echo "Valid python versions are 3.8, 3.9 and 3.10"
+            exit 1
+          fi
+          shift
           shift
           ;;
         # With default ubuntu version 20.04
@@ -116,10 +129,10 @@ fi
 
 if [ $BUILD_TYPE == "production" ]
 then
-  DOCKER_BUILDKIT=1 docker build --file Dockerfile --build-arg BASE_IMAGE=$BASE_IMAGE --build-arg CUDA_VERSION=$CUDA_VERSION -t $DOCKER_TAG .
+  DOCKER_BUILDKIT=1 docker build --file Dockerfile --build-arg BASE_IMAGE=$BASE_IMAGE --build-arg CUDA_VERSION=$CUDA_VERSION  --build-arg PYTHON_VERSION=$PYTHON_VERSION -t $DOCKER_TAG .
 elif [ $BUILD_TYPE == "benchmark" ]
 then
-  DOCKER_BUILDKIT=1 docker build --pull --no-cache --file Dockerfile.benchmark --build-arg USE_LOCAL_SERVE_FOLDER=$USE_LOCAL_SERVE_FOLDER --build-arg BASE_IMAGE=$BASE_IMAGE --build-arg BRANCH_NAME=$BRANCH_NAME --build-arg CUDA_VERSION=$CUDA_VERSION --build-arg MACHINE_TYPE=$MACHINE -t $DOCKER_TAG .
+  DOCKER_BUILDKIT=1 docker build --pull --no-cache --file Dockerfile.benchmark --build-arg USE_LOCAL_SERVE_FOLDER=$USE_LOCAL_SERVE_FOLDER --build-arg BASE_IMAGE=$BASE_IMAGE --build-arg BRANCH_NAME=$BRANCH_NAME --build-arg CUDA_VERSION=$CUDA_VERSION --build-arg MACHINE_TYPE=$MACHINE  --build-arg PYTHON_VERSION=$PYTHON_VERSION -t $DOCKER_TAG .
 else
-  DOCKER_BUILDKIT=1 docker build --pull --no-cache --file Dockerfile.dev -t $DOCKER_TAG --build-arg BUILD_TYPE=$BUILD_TYPE --build-arg BASE_IMAGE=$BASE_IMAGE --build-arg BRANCH_NAME=$BRANCH_NAME --build-arg CUDA_VERSION=$CUDA_VERSION --build-arg MACHINE_TYPE=$MACHINE --build-arg BUILD_WITH_IPEX=$BUILD_WITH_IPEX .
+  DOCKER_BUILDKIT=1 docker build --pull --no-cache --file Dockerfile.dev -t $DOCKER_TAG --build-arg BUILD_TYPE=$BUILD_TYPE --build-arg BASE_IMAGE=$BASE_IMAGE --build-arg BRANCH_NAME=$BRANCH_NAME --build-arg CUDA_VERSION=$CUDA_VERSION --build-arg MACHINE_TYPE=$MACHINE --build-arg BUILD_WITH_IPEX=$BUILD_WITH_IPEX --build-arg PYTHON_VERSION=$PYTHON_VERSION .
 fi
