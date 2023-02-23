@@ -10,6 +10,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
+      - name: Download artifact
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          workflow: ${{ github.event.workflow_run.workflow_id }}
+          workflow_conclusion: success
+
       - name: Step 1 - Create a temporary artifact downloads folder
         run: mkdir downloads
 
