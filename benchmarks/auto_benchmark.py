@@ -175,8 +175,8 @@ def run_benchmark(bm_config):
             shutil.rmtree(TS_LOGS_PATH, ignore_errors=True)
             shutil.rmtree(BENCHMARK_TMP_PATH, ignore_errors=True)
             
-            execute("echo $OMP_NUM_THREADS", wait=True)
-            execute("python -c 'import torch; print(\"OMP_NUM_THREADS: \", torch.get_num_threads())'", wait=True)
+            execute("echo 'OMP_NUM_THREADS: ' $OMP_NUM_THREADS", wait=True)
+            execute("python -c 'import torch; print(\"torch.get_num_threads: \", torch.get_num_threads())'", wait=True)
             
             cmd = (
                 "python ./benchmarks/benchmark-ab.py --tmp_dir /tmp --report_location /tmp --config_properties "
