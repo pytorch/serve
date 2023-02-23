@@ -158,6 +158,10 @@ def install_torchserve(skip_ts_install, hw, ts_version):
         ts_install_cmd = "python ts_scripts/install_from_src.py"
     execute(ts_install_cmd, wait=True)
     print("successfully install torchserve")
+    
+    # verify OMP_NUM_THREADS=1
+    import torch
+    print("OMP_NUM_THREADS: ", torch.get_num_threads())
 
 
 def setup_benchmark_path(model_config_path):
@@ -284,10 +288,6 @@ def main():
         if arguments.skip is not None and arguments.skip.lower() == "false"
         else True
     )
-    
-    # verify OMP_NUM_THREADS=1
-    import torch
-    print("OMP_NUM_THREADS: ", torch.get_num_threads())
     
     bm_config = load_benchmark_config(arguments.input, skip_ts_config)
     benchmark_env_setup(bm_config, skip_ts_config)
