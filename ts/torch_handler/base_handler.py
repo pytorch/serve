@@ -10,7 +10,8 @@ import os
 import time
 
 import torch
-torch.set_num_threads()
+torch.set_num_threads(1)
+
 from pkg_resources import packaging
 
 from ..utils.util import (
