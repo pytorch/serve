@@ -146,10 +146,6 @@ def install_torchserve(skip_ts_install, hw, ts_version):
         ts_install_cmd = "python ts_scripts/install_from_src.py"
     execute(ts_install_cmd, wait=True)
     print("successfully install torchserve")
-    
-    # verify OMP_NUM_THREADS=1
-    import torch
-    print("OMP_NUM_THREADS: ", torch.get_num_threads())
 
 
 def setup_benchmark_path(model_config_path):
@@ -178,6 +174,9 @@ def run_benchmark(bm_config):
             # call benchmark-ab.py
             shutil.rmtree(TS_LOGS_PATH, ignore_errors=True)
             shutil.rmtree(BENCHMARK_TMP_PATH, ignore_errors=True)
+            
+            execute("python -c 'import torch; print(torch.get_num_threads())'", wait=True)
+            
             cmd = (
                 "python ./benchmarks/benchmark-ab.py --tmp_dir /tmp --report_location /tmp --config_properties "
                 "./benchmarks/config.properties --config {}/{}".format(
