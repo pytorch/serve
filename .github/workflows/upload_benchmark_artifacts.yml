@@ -16,6 +16,10 @@ jobs:
           workflow: ${{ github.event.workflow_run.workflow_id }}
           workflow_conclusion: success
           if_no_artifact_found: ignore
+          path: /tmp/ts_artifacts
+
+      - name: Verify
+        run: ls /tmp/artifacts/
 
       - name: Step 1 - Create a temporary artifact downloads folder
         run: mkdir downloads
