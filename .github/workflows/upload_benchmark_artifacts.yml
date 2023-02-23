@@ -19,7 +19,7 @@ jobs:
           path: /tmp/ts_artifacts
 
       - name: Verify
-        run: ls /tmp/artifacts/
+        run: ls /tmp/ts_artifacts/
 
       - name: Step 1 - Create a temporary artifact downloads folder
         run: mkdir downloads
