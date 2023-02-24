@@ -1,14 +1,16 @@
 """ The torchserve side inference end-points request are handled to
     return a KServe side response """
-import json
+import orjson
 import logging
 import pathlib
 from typing import Dict
 
 import kserve
-import tornado.web
+import httpx
+from httpx import HTTPStatusError
 from kserve.model import Model as Model
-from kserve.model import ModelMissingError
+from kserve.errors import ModelMissingError
+from kserve.protocol.infer_type import InferRequest, InferResponse
 
 logging.basicConfig(level=kserve.constants.KSERVE_LOGLEVEL)
 
@@ -53,72 +55,105 @@ class TorchserveModel(Model):
         self.explainer_host = self.predictor_host
         logging.info("kfmodel Explain URL set to %s", self.explainer_host)
 
-    async def predict(self, request: Dict) -> Dict:
+    async def predict(self, payload: Dict, headers: Dict) -> Dict:
         """The predict method is called when we hit the inference endpoint and handles
         the inference request and response from the Torchserve side and passes it on
         to the KServe side.
 
         Args:
-            request (Dict): Input request from the http client side.
+            payload (Dict): Input payload from the http client side.
+            headers (Dict): Request headers.
 
         Raises:
             NotImplementedError: If the predictor host on the KServe side is not
                                  available.
 
-            tornado.web.HTTPError: If there is a bad response from the http client.
+            HTTPStatusError: If there is a bad response from the http client.
 
         Returns:
             Dict: The Response from the input from the inference endpoint.
         """
         if not self.predictor_host:
             raise NotImplementedError
-        logging.debug("kfmodel predict request is %s", json.dumps(request))
+        if isinstance(payload, InferRequest):
+            payload = payload.to_rest()
+        data = orjson.dumps(payload)
+        logging.debug("kfmodel predict request is %s", data)
         logging.info("PREDICTOR_HOST : %s", self.predictor_host)
-        headers = {"Content-Type": "application/json; charset=UTF-8"}
-        response = await self._http_client.fetch(
+        predict_headers = {'Content-Type': 'application/json; charset=UTF-8'}
+        if headers is not None:
+            if 'X-Request-Id' in headers:
+                predict_headers['X-Request-Id'] = headers['X-Request-Id']
+            if 'X-B3-Traceid' in headers:
+                predict_headers['X-B3-Traceid'] = headers['X-B3-Traceid']
+        response = await self._http_client.post(
             PREDICTOR_URL_FORMAT.format(self.predictor_host, self.name),
-            method="POST",
-            request_timeout=self.timeout,
-            headers=headers,
-            body=json.dumps(request),
+            timeout=self.timeout,
+            headers=predict_headers,
+            content=data
         )
+        if not response.is_success:
+            message = (
+                "{error_message}, '{0.status_code} {0.reason_phrase}' for url '{0.url}'"
+            )
+            error_message = ""
+            if "content-type" in response.headers and response.headers["content-type"] == "application/json":
+                error_message = response.json()
+                if "error" in error_message:
+                    error_message = error_message["error"]
+            message = message.format(response, error_message=error_message)
+            raise HTTPStatusError(message, request=response.request, response=response)
+        return orjson.loads(response.content)
 
-        if response.code != 200:
-            raise tornado.web.HTTPError(status_code=response.code, reason=response.body)
-        return json.loads(response.body)
-
-    async def explain(self, request: Dict) -> Dict:
+    async def explain(self, payload: Dict, headers: Dict) -> Dict:
         """The predict method is called when we hit the explain endpoint and handles the
         explain request and response from the Torchserve side and passes it on to the
         KServe side.
 
         Args:
-            request (Dict): Input request from the http client side.
+            payload (Dict): Input payload from the http client side.
+            headers (Dict): Request headers.
 
         Raises:
-            NotImplementedError: If the predictor host on the KServe side is not
+            NotImplementedError: If the explainer host on the KServe side is not
                                  available.
 
-            tornado.web.HTTPError: If there is a bad response from the http client.
+            HTTPStatusError: If there is a bad response from the http client.
 
         Returns:
             Dict: The Response from the input from the explain endpoint.
         """
         if self.explainer_host is None:
             raise NotImplementedError
-        logging.info("kfmodel explain request is %s", json.dumps(request))
+        if isinstance(payload, InferRequest):
+            payload = payload.to_rest()
+        data = orjson.dumps(payload)
+        logging.info("kfmodel explain request is %s", data)
         logging.info("EXPLAINER_HOST : %s", self.explainer_host)
-        headers = {"Content-Type": "application/json; charset=UTF-8"}
-        response = await self._http_client.fetch(
+        predict_headers = {"Content-Type": "application/json; charset=UTF-8"}
+        if headers is not None:
+            if 'X-Request-Id' in headers:
+                predict_headers['X-Request-Id'] = headers['X-Request-Id']
+            if 'X-B3-Traceid' in headers:
+                predict_headers['X-B3-Traceid'] = headers['X-B3-Traceid']
+        response = await self._http_client.post(
             EXPLAINER_URL_FORMAT.format(self.explainer_host, self.name),
-            method="POST",
-            request_timeout=self.timeout,
-            headers=headers,
-            body=json.dumps(request),
+            timeout=self.timeout,
+            headers=predict_headers,
+            content=data,
         )
-        if response.code != 200:
-            raise tornado.web.HTTPError(status_code=response.code, reason=response.body)
-        return json.loads(response.body)
+        if not response.is_success:
+            message = (
+                "{error_message}, '{0.status_code} {0.reason_phrase}' for url '{0.url}'"
+            )
+            error_message = ""
+            if "content-type" in response.headers and response.headers["content-type"] == "application/json":
+                error_message = response.json()
+                if "error" in error_message:
+                    error_message = error_message["error"]
+            message = message.format(response, error_message=error_message)
+            raise HTTPStatusError(message, request=response.request, response=response)
+        return orjson.loads(response.content)
 
     def load(self) -> bool:
         """This method validates model availabilty in the model directory
