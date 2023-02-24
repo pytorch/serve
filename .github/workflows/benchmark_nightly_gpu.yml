@@ -3,9 +3,8 @@ name: Benchmark torchserve gpu nightly
 
 on:
   # run every day at 2:15am
-  push
-  #schedule:
-  #  - cron:  '15 02 * * *'
+  schedule:
+    - cron:  '15 02 * * *'
 
 jobs:
   nightly:
@@ -38,7 +37,7 @@ jobs:
             sudo apt-get install -y apache2-utils
             pip install -r benchmarks/requirements-ab.txt
       - name: Benchmark gpu nightly
-        run: python benchmarks/auto_benchmark.py --input benchmarks/benchmark_config_gpu.yaml --skip true
+        run: python benchmarks/auto_benchmark.py --input benchmarks/benchmark_config_gpu.yaml --skip false
       - name: Save benchmark artifacts
         uses: actions/upload-artifact@v2
         with:
