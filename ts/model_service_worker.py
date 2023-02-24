@@ -16,6 +16,7 @@ from ts.arg_parser import ArgParser
 from ts.metrics.metric_cache_yaml_impl import MetricsCacheYamlImpl
 from ts.model_loader import ModelLoaderFactory
 from ts.protocol.otf_message_handler import create_load_model_response, retrieve_msg
+from pippy import run_pippy
 
 MAX_FAILURE_THRESHOLD = 5
 SOCKET_ACCEPT_TIMEOUT = 30.0
@@ -218,7 +219,7 @@ if __name__ == "__main__":
         worker = TorchModelServiceWorker(
             sock_type, socket_name, host, port, metrics_config
         )
-        worker.run_server()
+        run_pippy(worker.run_server())
         if BENCHMARK:
             pr.disable()
             pr.dump_stats("/tmp/tsPythonProfile.prof")

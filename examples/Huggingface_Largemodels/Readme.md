@@ -1,7 +1,13 @@
 # Loading large Huggingface models with constrained resources using accelerate
 
-This document briefs on serving large HG models with limited resource using accelerate. This option can be activated with `low_cpu_mem_usage=True`. The model is first created on the Meta device (with empty weights) and the state dict is then loaded inside it (shard by shard in the case of a sharded checkpoint).
+This document briefs on serving large HF model with PiPPy.
 
+
+### Step 0: Install torchserve from src
+```bash
+python ts_scripts/install_from_src.py
+
+```
 ### Step 1: Download model
 
 Login into huggingface hub with token by running the below command
@@ -12,7 +18,7 @@ huggingface-cli login
 paste the token generated from huggingface hub.
 
 ```bash
-python Download_model.py --model_name bigscience/bloom-7b1
+python Download_model.py --model_name bigscience/bloom-1b1
 ```
 The script prints the path where the model is downloaded as below.
 
@@ -28,7 +34,7 @@ Navigate to the path got from the above script. In this example it is
 
 ```bash
 cd model/models--bigscience-bloom-7b1/snapshots/5546055f03398095e385d7dc625e636cc8910bf2/
-zip -r /home/ubuntu/serve/examples/Huggingface_Largemodels//model.zip *
+zip -r /home/ubuntu/serve/examples/Huggingface_Largemodels/model.zip *
 cd -
 
 ```
@@ -38,7 +44,7 @@ cd -
 Navigate up to `Huggingface_Largemodels` directory.
 
 ```bash
-torch-model-archiver --model-name bloom --version 1.0 --handler custom_handler.py --extra-files model.zip,setup_config.json -r requirements.txt
+torch-model-archiver --model-name bloom --version 1.0 --handler pippy_handler.py --extra-files model.zip,setup_config.json -r requirements.txt
 ```
 
 **__Note__**: Modifying setup_config.json
