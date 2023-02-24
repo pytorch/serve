@@ -62,6 +62,7 @@ public class ModelConfig {
         this.gpuIds = gpuIds;
     }
 
+
     public int getParallelLevel() {
         return parallelLevel;
     }

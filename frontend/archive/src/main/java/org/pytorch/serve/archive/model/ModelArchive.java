@@ -202,8 +202,8 @@ public class ModelArchive {
             try (Reader r =
                     new InputStreamReader(
                             Files.newInputStream(modelConfigFilePath), StandardCharsets.UTF_8)) {
-
-                setModelConfig(yaml.load(r));
+                
+                this.modelConfig = (ModelConfig) yaml.load(r);
             } catch (YAMLException | IOException e) {
                 logger.error("Failed to parse " + modelConfigFilePath.toString(), e);
             }

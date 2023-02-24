@@ -30,9 +30,9 @@ class Model(object):
         self.config_file = None
         if config_file:
             if sys.platform.startswith('win32') and config_file.find("\\") != -1:
-                self.config = config_file.split("\\")[-1]
+                self.config_file = config_file.split("\\")[-1]
             else:
-                self.config = config_file.split("/")[-1]
+                self.config_file = config_file.split("/")[-1]
 
         self.model_dict = self.__to_dict__()
 
