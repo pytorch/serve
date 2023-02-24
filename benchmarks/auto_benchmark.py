@@ -203,8 +203,8 @@ def run_benchmark(bm_config):
             )
 
             # load stats metrics to remote metrics storage
-            # if "metrics_cmd" in bm_config:
-            #    execute(bm_config["metrics_cmd"], wait=True)
+            if "metrics_cmd" in bm_config:
+                execute(bm_config["metrics_cmd"], wait=True)
 
             # cp benchmark logs to local
             bm_model_log_path = "{}/{}".format(BENCHMARK_REPORT_PATH, bm_model)
@@ -231,8 +231,8 @@ def run_benchmark(bm_config):
     print("report.md is generated")
 
     # load logs to remote storage
-    # if "report_cmd" in bm_config:
-    #    execute(bm_config["report_cmd"], wait=True)
+    if "report_cmd" in bm_config:
+        execute(bm_config["report_cmd"], wait=True)
 
 
 def clean_up_benchmark_env(bm_config):
