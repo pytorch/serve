@@ -3,7 +3,7 @@
 import orjson
 import logging
 import pathlib
-from typing import Dict
+from typing import Dict, Union
 
 import kserve
 import httpx
@@ -55,13 +55,13 @@ class TorchserveModel(Model):
         self.explainer_host = self.predictor_host
         logging.info("kfmodel Explain URL set to %s", self.explainer_host)
 
-    async def predict(self, payload: Dict, headers: Dict) -> Dict:
+    async def predict(self, payload: Union[Dict, InferRequest], headers: Dict) -> Dict:
         """The predict method is called when we hit the inference endpoint and handles
         the inference request and response from the Torchserve side and passes it on
         to the KServe side.
 
         Args:
-            payload (Dict): Input payload from the http client side.
+            payload (Dict|InferRequest): Input payload from the http client side.
             headers (Dict): Request headers.
 
         Raises:
@@ -125,8 +125,6 @@ class TorchserveModel(Model):
         """
         if self.explainer_host is None:
             raise NotImplementedError
-        if isinstance(payload, InferRequest):
-            payload = payload.to_rest()
         data = orjson.dumps(payload)
         logging.info("kfmodel explain request is %s", data)
         logging.info("EXPLAINER_HOST : %s", self.explainer_host)
