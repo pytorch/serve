@@ -30,6 +30,7 @@ from PIL import Image
 import requests
 from transformers import AutoFeatureExtractor, RegNetModel 
 from transformers import OPTForCausalLM
+import torch.distributed.rpc as rpc
 
 
 logger = logging.getLogger(__name__)
@@ -42,6 +43,11 @@ TORCH_DTYPES = {
     "float64": torch.float64,
 }
 
+schedules = {
+    'FillDrain': PipelineDriverFillDrain,
+    '1F1B': PipelineDriver1F1B,
+    'Interleaved1F1B': PipelineDriverInterleaved1F1B,
+}
 
 class TransformersSeqClassifierHandler(BaseHandler, ABC):
     """
@@ -51,6 +57,11 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
     def __init__(self):
         super(TransformersSeqClassifierHandler, self).__init__()
         self.initialized = False
+        self.local_rank = int(os.environ["LOCAL_RANK"])
+        self.world_size = int(os.environ["WORLD_SIZE"])
+        rpc.init_rpc(f"worker{self.local_rank}",
+                     rank=self.local_rank,
+                     world_size=self.world_size)
 
     def initialize(self, ctx):
         """In this initialize function, the BERT model is loaded and
@@ -64,6 +75,8 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         # args = parser.parse_args()
         # args.world_size = 4
         # args.gspmd = 1
+        if self.local_rank != 0:
+            pass
 
         self.manifest = ctx.manifest
         properties = ctx.system_properties
@@ -88,12 +101,12 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
             logger.warning("Missing the setup_config.json file.")
 
         torch.manual_seed(42)
+        replicate = 0
+        schedule = list(schedules.keys())[0]
+        MULTI_USE_PARAM_CONFIG = MultiUseParameterConfig.REPLICATE if replicate else MultiUseParameterConfig.TRANSMIT
+        print(f'REPLICATE config: {replicate} -> {MULTI_USE_PARAM_CONFIG}')
+        print("Using schedule:", schedule)
 
-        MULTI_USE_PARAM_CONFIG = MultiUseParameterConfig.REPLICATE if args.replicate else MultiUseParameterConfig.TRANSMIT
-        print(f'REPLICATE config: {args.replicate} -> {MULTI_USE_PARAM_CONFIG}')
-        print("Using schedule:", args.schedule)
-        
-        device = args.device
         self.model = BloomModel.from_pretrained(
             model_dir + "/model", use_cache=False)
 
@@ -102,48 +115,39 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
 
         # model = BloomModel.from_pretrained("bigscience/bloom-3b", use_cache=False)
 
-        model_config = model.config
+        model_config = self.model.config
 
         model_config.use_cache = False  # don't output `past_key_values`
-        model.eval()
-        print(model.config)
-        print(f"model total number of params = {get_number_of_params(model) // 10 ** 6}M")
+        self.model.eval()
+        print(model_config)
+        print(f"model total number of params = {self.get_number_of_params(self.model) // 10 ** 6}M")
 
-        number_of_workers = len(pp_ranks) - pippy.utils.exclude_master
-        print(f"number_of_workers = {number_of_workers}")
-
-        if args.auto_split == "threshold":
-            split_policy = split_on_size_threshold(490 * 1e6)
-        elif args.auto_split == "equal_size":
-            split_policy = split_into_equal_size(number_of_workers)
-
-        all_worker_ranks = pp_ranks[pippy.utils.exclude_master:pippy.utils.exclude_master + number_of_workers]
-        chunks = args.chunks or len(all_worker_ranks)
-        bs = args.batch_size * chunks
-        seq_length = args.seq_length
+        split_policy = split_into_equal_size(1)
+        pp_ranks = [0,1,2,3]
+        all_worker_ranks = pp_ranks[pippy.utils.exclude_master:pippy.utils.exclude_master + 1]
+        chunks = 1
+        bs = 1 * chunks
+        seq_length = 16
 
 
         input_names = ['input_ids']
-        sig = inspect.signature(model.forward)
+        sig = inspect.signature(self.model.forward)
         concrete_args = {p.name: p.default for p in sig.parameters.values() if p.name not in input_names}
 
         print('Instantiating model Pipeline')
         model_init_start = time.time()
-        model_pipe = Pipe.from_tracing(model, MULTI_USE_PARAM_CONFIG, tracer=PiPPyHFTracer(), concrete_args=concrete_args,
+        model_pipe = Pipe.from_tracing(self.model, MULTI_USE_PARAM_CONFIG, tracer=PiPPyHFTracer(), concrete_args=concrete_args,
                                     output_loss_value_spec=None, split_policy=split_policy
                                     )
     
-        model_pipe.defer_stage_init(args.device)
+        model_pipe.defer_stage_init(self.device + self.local_rank)
 
         pippy.utils.pp_group_barrier()
-
-        if args.rank!=0:
-            return 
         
         split_gm_children = list(model_pipe.split_gm.children())
 
-        pipe_driver: PipelineDriverBase = schedules[args.schedule](model_pipe, chunks,
-                                                                world_size=len(all_worker_ranks),
+        pipe_driver: PipelineDriverBase = schedules[schedule](model_pipe, chunks,
+                                                                world_size=self.world_size,
                                                                 all_ranks=all_worker_ranks,
                                                                     )
 
@@ -152,6 +156,8 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
 
         self.initialized = True
 
+    def get_number_of_params(model):
+        return sum(p.numel() for p in model.parameters() if p.requires_grad)
 
     def preprocess(self, requests):
         """Basic text preprocessing, based on the user's chocie of application mode.
@@ -219,7 +225,7 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         output = self.model(**model_input_dict)
         print("************** here is the output",type(output))
         logger.info("Generated text: '%s'", inferences)
-        inference.append(output)
+        inferences.append(output)
         print("Generated text", inferences)
         return inferences
 
@@ -233,6 +239,8 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         return inference_output
 
     def handle(self, data, context):
+        if self.local_rank != 0:
+            pass
         start_time = time.time()
 
         self.context = context

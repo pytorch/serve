@@ -2,9 +2,6 @@ package org.pytorch.serve.archive.model;
 
 import java.util.ArrayList;
 
-// import lombok.Data;
-
-// @Data
 public class ModelConfig {
     private int minWorkers = 1;
     private int maxWorkers = 1;
@@ -61,7 +58,6 @@ public class ModelConfig {
     public void setGpuIds(ArrayList<Integer> gpuIds) {
         this.gpuIds = gpuIds;
     }
-
 
     public int getParallelLevel() {
         return parallelLevel;

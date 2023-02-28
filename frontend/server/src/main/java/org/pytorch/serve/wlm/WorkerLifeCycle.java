@@ -97,7 +97,10 @@ public class WorkerLifeCycle {
         if (model.getParallelLevel() > 1) {
             attachRunner(argl, port);
         }
-        argl.add(EnvironmentUtils.getPythonRunTime(model));
+
+        if (model.getParallelLevel() == 1) {
+            argl.add(EnvironmentUtils.getPythonRunTime(model));
+        }
 
         if (configManager.isCPULauncherEnabled()) {
             launcherArgs = configManager.getCPULauncherArgs();
@@ -129,6 +132,10 @@ public class WorkerLifeCycle {
 
         argl.add("--metrics-config");
         argl.add(configManager.getMetricsConfigPath());
+
+        if (model.getParallelLevel() > 1) {
+            attachPippyArg(argl, port, model.getParallelLevel());
+        }
 
         String[] envp =
                 EnvironmentUtils.getEnvString(
@@ -171,11 +178,24 @@ public class WorkerLifeCycle {
 
     private void attachRunner(ArrayList<String> argl, int port) {
         argl.add("torchrun");
-        argl.add("--nnodes=1");
+        //argl.add("--nnodes=1");
         argl.add("--nproc_per_node=" + model.getParallelLevel());
-        argl.add("--max_restarts=3");
-        argl.add("--rdzv_backend=c10d");
-        argl.add("--rdzv_endpoint=localhost:" + port);
+        argl.add("--max_restarts=0");
+        argl.add("--master_addr=localhost");
+        argl.add("--master_port=" + port);	
+        //argl.add("--rdzv_backend=c10d");
+        //argl.add("--rdzv_endpoint=localhost:" + port);
+    }
+    
+    private void attachPippyArg(ArrayList<String> argl, int port, int parallelLevel) {
+        argl.add("--master_addr");
+        argl.add("localhost");
+        argl.add("--master_port");
+        argl.add(Integer.toString(port));
+        argl.add("--rank");
+        argl.add("0");
+        argl.add("--world_size");
+        argl.add(Integer.toString(parallelLevel));
     }
 
     public synchronized void terminateIOStreams() {

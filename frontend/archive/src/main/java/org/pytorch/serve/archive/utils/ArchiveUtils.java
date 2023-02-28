@@ -12,12 +12,18 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.regex.Pattern;
 import org.apache.commons.io.FileUtils;
 import org.pytorch.serve.archive.DownloadArchiveException;
 import org.pytorch.serve.archive.model.InvalidModelException;
+import org.pytorch.serve.archive.model.ModelConfig;
 import org.pytorch.serve.archive.s3.HttpUtils;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.Constructor;
+import org.yaml.snakeyaml.error.YAMLException;
 
 public final class ArchiveUtils {
 
@@ -36,6 +42,20 @@ public final class ArchiveUtils {
             return GSON.fromJson(r, type);
         } catch (JsonParseException e) {
             throw new InvalidModelException("Failed to parse signature.json.", e);
+        }
+    }
+
+    public static <T> T readYamlFile(File file, Class<T> type)
+            throws InvalidModelException, IOException {
+        //Yaml yaml = new Yaml(new Constructor(ModelConfig.class));
+        Yaml yaml = new Yaml(new Constructor(type));
+        try (Reader r =
+                     new InputStreamReader(
+                             Files.newInputStream(file.toPath()), StandardCharsets.UTF_8)) {
+
+            return yaml.load(r);
+        } catch (YAMLException e) {
+            throw new InvalidModelException("Failed to parse model config yaml file.", e);
         }
     }
 

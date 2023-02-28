@@ -19,10 +19,15 @@ from ts.protocol.otf_message_handler import create_load_model_response, retrieve
 from pippy import run_pippy
 
 MAX_FAILURE_THRESHOLD = 5
-SOCKET_ACCEPT_TIMEOUT = 30.0
+SOCKET_ACCEPT_TIMEOUT = 300.0
 DEBUG = False
 BENCHMARK = os.getenv("TS_BENCHMARK")
 BENCHMARK = BENCHMARK in ["True", "true", "TRUE"]
+LOCAL_RANK = int(os.environ['LOCAL_RANK'])
+WORLD_SIZE = int(os.environ['WORLD_SIZE'])
+WORLD_RANK = int(os.environ['RANK'])
+import torch.distributed.rpc as rpc
+rpc.init_rpc(f"worker{LOCAL_RANK}", rank=LOCAL_RANK, world_size=WORLD_SIZE)
 
 
 class TorchModelServiceWorker(object):
@@ -43,15 +48,19 @@ class TorchModelServiceWorker(object):
         if s_type == "unix":
             if s_name is None:
                 raise ValueError("Wrong arguments passed. No socket name given.")
-            self.sock_name, self.port = s_name, -1
+            s_name_parts = s_name.rsplit('.', 1)
+            print("part0="+s_name_parts[0])
+            print("part1="+s_name_parts[1])
+            s_name_new = s_name_parts[0] + '.' + str(int(s_name_parts[1]) + WORLD_RANK)
+            self.sock_name, self.port = s_name_new, -1
             try:
-                os.remove(s_name)
+                os.remove(s_name_new)
             except OSError as e:
-                if os.path.exists(s_name):
+                if os.path.exists(s_name_new):
                     raise RuntimeError(
-                        "socket already in use: {}.".format(s_name)
+                        "socket already in use: {}.".format(s_name_new)
                     ) from e
-
+       
         elif s_type == "tcp":
             self.sock_name = host_addr if host_addr is not None else "127.0.0.1"
             if port_num is None:
@@ -59,8 +68,9 @@ class TorchModelServiceWorker(object):
             self.port = port_num
         else:
             raise ValueError("Incomplete data provided")
-
-        logging.info("Listening on port: %s", s_name)
+        
+        #logging.info("Listening on port: %s", s_name)
+        print("Listening on port: "+ self.sock_name)
         socket_family = socket.AF_INET if s_type == "tcp" else socket.AF_UNIX
         self.sock = socket.socket(socket_family, socket.SOCK_STREAM)
         self.metrics_cache = MetricsCacheYamlImpl(config_file_path=metrics_config)
@@ -166,6 +176,8 @@ class TorchModelServiceWorker(object):
         Run the backend worker process and listen on a socket
         :return:
         """
+        print("sock_name="+self.sock_name)
+        print("sock_port="+str(self.port))
         if not DEBUG:
             self.sock.settimeout(SOCKET_ACCEPT_TIMEOUT)
 
@@ -173,10 +185,17 @@ class TorchModelServiceWorker(object):
 
         if self.sock_type == "unix":
             self.sock.bind(self.sock_name)
+            print("binded")
+            print("self.sock_name="+self.sock_name)
         else:
             self.sock.bind((self.sock_name, int(self.port)))
 
-        self.sock.listen(1)
+       # self.sock.listen(1)
+        self.sock.listen(128)
+
+        print("listened")
+        print("[PID]"+str(os.getpid()))
+        print("Torch worker started.")
         logging.info("[PID]%d", os.getpid())
         logging.info("Torch worker started.")
         logging.info("Python runtime: %s", platform.python_version())
@@ -186,7 +205,8 @@ class TorchModelServiceWorker(object):
             # workaround error(35, 'Resource temporarily unavailable') on OSX
             cl_socket.setblocking(True)
 
-            logging.info("Connection accepted: %s.", cl_socket.getsockname())
+            #logging.info("Connection accepted: %s.", cl_socket.getsockname())
+            print("Connection accepted: "+ cl_socket.getsockname())
             self.handle_connection(cl_socket)
 
 
@@ -206,8 +226,15 @@ if __name__ == "__main__":
         socket_name = args.sock_name
         sock_type = args.sock_type
         host = args.host
-        port = args.port
+        port = args.port 
         metrics_config = args.metrics_config
+        args.rank = WORLD_RANK 
+        args.world_size = args.world_size
+
+
+        print("LOCAL_RANK="+str(LOCAL_RANK))
+        print("WORLD_SIZE="+str(WORLD_SIZE))
+        print("WORLD_RANK="+str(WORLD_RANK))
 
         if BENCHMARK:
             import cProfile
@@ -219,7 +246,10 @@ if __name__ == "__main__":
         worker = TorchModelServiceWorker(
             sock_type, socket_name, host, port, metrics_config
         )
-        run_pippy(worker.run_server())
+        
+        worker.run_server()
+
+        #run_pippy(worker.run_server(), args)
         if BENCHMARK:
             pr.disable()
             pr.dump_stats("/tmp/tsPythonProfile.prof")

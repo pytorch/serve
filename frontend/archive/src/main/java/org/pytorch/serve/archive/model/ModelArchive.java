@@ -20,6 +20,7 @@ import org.pytorch.serve.archive.utils.ZipUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.Constructor;
 import org.yaml.snakeyaml.error.YAMLException;
 
 public class ModelArchive {
@@ -189,23 +190,13 @@ public class ModelArchive {
         }
     }
 
-    public void setModelConfig(ModelConfig modelConfig) {
-        this.modelConfig = modelConfig;
-    }
-
     public ModelConfig getModelConfig() {
-        if (this.modelConfig != null && manifest.getModel().getConfigFile() != null) {
-            Path modelConfigFilePath =
-                    Paths.get(modelDir.getAbsolutePath(), manifest.getModel().getConfigFile());
-
-            Yaml yaml = new Yaml();
-            try (Reader r =
-                    new InputStreamReader(
-                            Files.newInputStream(modelConfigFilePath), StandardCharsets.UTF_8)) {
-                
-                this.modelConfig = (ModelConfig) yaml.load(r);
-            } catch (YAMLException | IOException e) {
-                logger.error("Failed to parse " + modelConfigFilePath.toString(), e);
+        if (this.modelConfig == null && manifest.getModel().getConfigFile() != null) {
+            try {
+                File configFile = new File(modelDir.getAbsolutePath(), manifest.getModel().getConfigFile());
+                this.modelConfig = ArchiveUtils.readYamlFile(configFile, ModelConfig.class);
+            } catch (InvalidModelException | IOException e) {
+                logger.error("Failed to parse model config file {}", manifest.getModel().getConfigFile());
             }
         }
         return this.modelConfig;

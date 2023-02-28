@@ -186,13 +186,14 @@ public class WorkerThread implements Runnable {
 
                 long wtStartTime = System.currentTimeMillis();
                 logger.info("Flushing req. to backend at: " + wtStartTime);
-                for (int i = 0; backendChannel.size() > 0 && i < model.getParallelLevel(); i++) {
+                int repeats = req.getCommand() == WorkerCommands.LOAD ? model.getParallelLevel() : 1;
+                for (int i = 0; backendChannel.size() > 0 && i < repeats; i++) {
                     backendChannel.get(i).writeAndFlush(req).sync();
                 }
 
                 ModelWorkerResponse reply = null;
                 long begin = System.currentTimeMillis();
-                for (int i = 0; i < model.getParallelLevel(); i++) {
+                for (int i = 0; i < repeats; i++) {
                     reply = replies.poll(responseTimeout, TimeUnit.SECONDS);
                 }
 
@@ -320,8 +321,8 @@ public class WorkerThread implements Runnable {
         final int parallelLevel = model.getParallelLevel();
         final CountDownLatch latch = new CountDownLatch(parallelLevel);
         final int responseBufferSize = configManager.getMaxResponseSize();
-        for (int i = 0; i < parallelLevel; i++) {
-            try {
+	    try {
+            for (int i = 0; i < parallelLevel; i++) {
                 Connector connector = new Connector(port + i);
                 Bootstrap b = new Bootstrap();
                 b.group(backendEventGroup)
@@ -356,7 +357,6 @@ public class WorkerThread implements Runnable {
                                                 thread.interrupt();
                                             }
                                         });
-
                 backendChannel
                         .get(i)
                         .newSucceededFuture()
@@ -365,15 +365,14 @@ public class WorkerThread implements Runnable {
                                         future -> {
                                             // TODO:
                                             // use gpu, batch size in load model command
-                                            RequestInput input =
-                                                    new RequestInput(UUID.randomUUID().toString());
-                                            if (gpuId >= 0) {
-                                                input.addParameter(
-                                                        new InputParameter(
-                                                                "gpu", String.valueOf(gpuId)));
-                                            }
-
-                                            if (latch.getCount() == parallelLevel) {
+                                            if (latch.getCount() == 1) {
+                                            	RequestInput input =
+                                                	    new RequestInput(UUID.randomUUID().toString());
+                                            	if (gpuId >= 0) {
+                                                	input.addParameter(
+                                                        	new InputParameter(
+                                                                	"gpu", String.valueOf(gpuId)));
+                                            	}
 
                                                 Job job =
                                                         new RestJob(
@@ -386,20 +385,20 @@ public class WorkerThread implements Runnable {
                                             }
                                             latch.countDown();
                                         });
-
-                if (!latch.await(WORKER_TIMEOUT, TimeUnit.MINUTES)) {
-                    throw new WorkerInitializationException(
-                            "Worker failed to initialize within " + WORKER_TIMEOUT + " mins");
-                }
-                running.set(true);
-            } catch (Throwable t) {
-                // https://github.com/netty/netty/issues/2597
-                if (t instanceof IOException) {
-                    throw new WorkerInitializationException("Failed to connect to worker.", t);
-                }
-                throw t;
             }
-        }
+
+            if (!latch.await(WORKER_TIMEOUT, TimeUnit.MINUTES)) {
+                throw new WorkerInitializationException(
+                        "Worker failed to initialize within " + WORKER_TIMEOUT + " mins");
+            }
+            running.set(true);
+	    } catch (Throwable t) {
+	        // https://github.com/netty/netty/issues/2597
+            if (t instanceof IOException) {
+                throw new WorkerInitializationException("Failed to connect to worker.", t);
+            }
+            throw t;
+	    }
     }
 
     public boolean isRunning() {
