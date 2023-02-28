@@ -26,9 +26,6 @@ BENCHMARK = BENCHMARK in ["True", "true", "TRUE"]
 LOCAL_RANK = int(os.environ['LOCAL_RANK'])
 WORLD_SIZE = int(os.environ['WORLD_SIZE'])
 WORLD_RANK = int(os.environ['RANK'])
-import torch.distributed.rpc as rpc
-rpc.init_rpc(f"worker{LOCAL_RANK}", rank=LOCAL_RANK, world_size=WORLD_SIZE)
-
 
 class TorchModelServiceWorker(object):
     """
@@ -228,9 +225,6 @@ if __name__ == "__main__":
         host = args.host
         port = args.port 
         metrics_config = args.metrics_config
-        args.rank = WORLD_RANK 
-        args.world_size = args.world_size
-
 
         print("LOCAL_RANK="+str(LOCAL_RANK))
         print("WORLD_SIZE="+str(WORLD_SIZE))
@@ -249,7 +243,6 @@ if __name__ == "__main__":
         
         worker.run_server()
 
-        #run_pippy(worker.run_server(), args)
         if BENCHMARK:
             pr.disable()
             pr.dump_stats("/tmp/tsPythonProfile.prof")

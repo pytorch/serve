@@ -192,10 +192,6 @@ public class WorkerLifeCycle {
         argl.add("localhost");
         argl.add("--master_port");
         argl.add(Integer.toString(port));
-        argl.add("--rank");
-        argl.add("0");
-        argl.add("--world_size");
-        argl.add(Integer.toString(parallelLevel));
     }
 
     public synchronized void terminateIOStreams() {

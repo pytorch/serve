@@ -142,20 +142,6 @@ class ArgParser(object):
             help="pippy master port",
         )
 
-        parser.add_argument(
-            "--rank",
-            dest="rank",
-            type=int,
-            help="pippy rank",
-        )
-
-        parser.add_argument(
-            "--world_size",
-            dest="world_Size",
-            type=int,
-            help="pippy world_size",
-        )
-
         return parser
 
     @staticmethod
