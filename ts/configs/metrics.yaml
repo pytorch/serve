@@ -1,6 +1,7 @@
 dimensions:
   - &model_name "model_name"
   - &level "Level"
+  - &device_id "device_id"
 
 ts_metrics:
   counter:
@@ -11,6 +12,36 @@ ts_metrics:
     - name: GaugeTsMetricExample
       unit: ms
       dimensions: [*model_name, *level]
+    - name: CPUUtilization
+      unit: percent
+      dimensions: [*level]
+    - name: MemoryUsed
+      unit: MB
+      dimensions: [*level]
+    - name: MemoryAvailable
+      unit: MB
+      dimensions: [*level]
+    - name: MemoryUtilization
+      unit: percent
+      dimensions: [*level]
+    - name: DiskUsage
+      unit: GB
+      dimensions: [*level]
+    - name: DiskUtilization
+      unit: percent
+      dimensions: [*level]
+    - name: DiskAvailable
+      unit: GB
+      dimensions: [*level]
+    - name: GPUMemoryUtilization
+      unit: percent
+      dimensions: [*level, *device_id]
+    - name: GPUMemoryUsed
+      unit: MB
+      dimensions: [*level, *device_id]
+    - name: GPUUtilization
+      unit: percent
+      dimensions: [*level, *device_id]
   histogram:
     - name: HistogramTsMetricExample
       unit: ms
@@ -18,6 +49,9 @@ ts_metrics:
 
 model_metrics:
   counter:
+    - name: CounterModelMetricNameExample
+      unit: ms
+      dimensions: [*model_name, *level]
     - name: InferenceTimeInMS
       unit: ms
       dimensions: [*model_name, *level]
