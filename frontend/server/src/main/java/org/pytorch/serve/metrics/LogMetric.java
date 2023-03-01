@@ -2,8 +2,12 @@ package org.pytorch.serve.metrics;
 
 import java.util.ArrayList;
 
-public class LogMetrics extends  IMetrics{
-    public LogMetrics(String metricsType, String metricsName, String unit, ArrayList<String> dimensionNames) {
+public class LogMetric extends IMetric {
+    public LogMetric(
+            MetricBuilder.MetricType metricsType,
+            String metricsName,
+            String unit,
+            ArrayList<String> dimensionNames) {
         super(metricsType, metricsName, unit, dimensionNames);
     }
 

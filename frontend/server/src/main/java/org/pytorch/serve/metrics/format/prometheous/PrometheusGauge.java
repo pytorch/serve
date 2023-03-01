@@ -1,12 +1,17 @@
 package org.pytorch.serve.metrics.format.prometheous;
 
 import io.prometheus.client.Gauge;
-import org.pytorch.serve.metrics.IMetrics;
+import org.pytorch.serve.metrics.IMetric;
+import org.pytorch.serve.metrics.MetricBuilder;
 
 import java.util.ArrayList;
 
-public class PrometheusGauge extends IMetrics {
-    public PrometheusGauge(String metricsType, String metricsName, String unit, ArrayList<String> dimensionNames) {
+public class PrometheusGauge extends IMetric {
+    public PrometheusGauge(
+            MetricBuilder.MetricType metricsType,
+            String metricsName,
+            String unit,
+            ArrayList<String> dimensionNames) {
         super(metricsType, metricsName, unit, dimensionNames);
     }
 

@@ -2,9 +2,9 @@ package org.pytorch.serve.metrics;
 
 import java.util.ArrayList;
 
-public abstract class IMetrics {
-    public IMetrics(
-            String metricsType,
+public abstract class IMetric {
+    public IMetric(
+            MetricBuilder.MetricType metricsType,
             String metricsName,
             String unit,
             ArrayList<String> dimensionNames) {
@@ -22,7 +22,7 @@ public abstract class IMetrics {
             String requestIds,
             double value);
 
-    private String metricsType;
+    private MetricBuilder.MetricType metricsType;
     private String metricsName;
     private String unit;
     private ArrayList<String> dimensionNames;
