@@ -48,7 +48,7 @@ public class WorkerLifeCycle {
     public ArrayList<String> launcherArgsToList() {
         ArrayList<String> arrlist = new ArrayList<String>();
         arrlist.add("-m");
-        arrlist.add("intel_extension_for_pytorch.cpu.launch");
+        arrlist.add("torch.backends.xeon.run_cpu");
         if (launcherArgs != null && launcherArgs.length() > 1) {
             String[] argarray = launcherArgs.split(" ");
             for (int i = 0; i < argarray.length; i++) {
@@ -82,7 +82,7 @@ public class WorkerLifeCycle {
         }
         return launcherAvailable;
     }
-
+    
     public void startWorker(int port) throws WorkerInitializationException, InterruptedException {
         File workingDir = new File(configManager.getModelServerHome());
         File modelPath;
@@ -96,26 +96,24 @@ public class WorkerLifeCycle {
         ArrayList<String> argl = new ArrayList<String>();
         argl.add(EnvironmentUtils.getPythonRunTime(model));
 
-        if (configManager.isCPULauncherEnabled()) {
-            launcherArgs = configManager.getCPULauncherArgs();
-            boolean launcherAvailable = isLauncherAvailable();
-            if (launcherAvailable) {
-                ArrayList<String> args = launcherArgsToList();
-                argl.addAll(args);
+        launcherArgs = configManager.getCPULauncherArgs();
+        boolean launcherAvailable = isLauncherAvailable();
+        if (launcherAvailable) {
+            ArrayList<String> args = launcherArgsToList();
+            argl.addAll(args);
 
-                // multi-worker core pinning
-                if (this.numWorker > 1) {
-                    argl.add("--ninstances");
-                    argl.add(String.valueOf(this.numWorker));
-                    argl.add("--instance_idx");
-                    // instance_idx is 0-indexed
-                    argl.add(String.valueOf(this.currNumRunningWorkers));
-                }
-
-            } else {
-                logger.warn(
-                        "CPU launcher is enabled but launcher is not available. Proceeding without launcher.");
+            // multi-worker core pinning
+            if (this.numWorker > 1) {
+                argl.add("--ninstances");
+                argl.add(String.valueOf(this.numWorker));
+                argl.add("--rank");
+                // instance_idx is 0-indexed
+                argl.add(String.valueOf(this.currNumRunningWorkers));
             }
+
+        } else {
+            logger.warn(
+                    "CPU launcher is enabled but launcher is not available. Proceeding without launcher.");
         }
 
         argl.add(new File(workingDir, "ts/model_service_worker.py").getAbsolutePath());

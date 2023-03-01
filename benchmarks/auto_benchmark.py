@@ -131,19 +131,7 @@ def install_torchserve(skip_ts_install, hw, ts_version):
     if skip_ts_install:
         return
 
-    # git checkout branch if it is needed
-    cmd = "git checkout master && git reset --hard && git clean -dffx . && git pull --rebase"
-    execute(cmd, wait=True)
-    print("successfully reset git")
-
     ts_install_cmd = None
-    if ts_version.startswith("torchserve==") or ts_version.startswith(
-        "torchserve-nightly=="
-    ):
-        ts_install_cmd = "pip install {}".format(ts_version)
-    else:
-        cmd = "git checkout {}".format(ts_version)
-        execute(cmd, wait=True)
 
     # install_dependencies.py
     if hw == "gpu":
@@ -184,6 +172,9 @@ def run_benchmark(bm_config):
     for model_json_config in files:
         if model_json_config.endswith(".json"):
             # call benchmark-ab.py
+            
+            execute("python -m torch.backends.xeon.run_cpu lscpu", wait=True)
+            
             shutil.rmtree(TS_LOGS_PATH, ignore_errors=True)
             shutil.rmtree(BENCHMARK_TMP_PATH, ignore_errors=True)
             cmd = (
