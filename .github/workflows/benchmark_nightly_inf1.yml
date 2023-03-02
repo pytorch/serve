@@ -38,7 +38,7 @@ jobs:
             export omp_num_threads=1
       - name: Benchmark inf1 nightly
         env:
-          NEURON_RT_NUM_CORES: 4
+          NEURON_RT_NUM_CORES: '4'
         run: python benchmarks/auto_benchmark.py --input benchmarks/benchmark_config_neuron.yaml --skip false
       - name: Save benchmark artifacts
         uses: actions/upload-artifact@v2
