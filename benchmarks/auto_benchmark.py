@@ -178,7 +178,7 @@ def run_benchmark(bm_config):
         if model_json_config.endswith(".json"):
             # call benchmark-ab.py
             
-            execute("numactl --show", wait=True)
+            execute("numactl -C 0 -m 0 lscpu", wait=True)
             
             shutil.rmtree(TS_LOGS_PATH, ignore_errors=True)
             shutil.rmtree(BENCHMARK_TMP_PATH, ignore_errors=True)
