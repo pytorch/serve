@@ -15,8 +15,6 @@ import org.pytorch.serve.util.Connector;
 import org.pytorch.serve.util.messages.EnvironmentUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 public class WorkerLifeCycle {
 
@@ -51,13 +49,6 @@ public class WorkerLifeCycle {
         ArrayList<String> arrlist = new ArrayList<String>();
         arrlist.add("-m");
         arrlist.add("torch.backends.xeon.run_cpu");
-        
-        LocalDateTime myDateObj = LocalDateTime.now();
-        DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("dd_MM_yyyy_HH_mm_ss");
-        String log_path = myDateObj.format(myFormatObj);
-        
-        arrlist.add("--log_path");
-        arrlist.add(log_path);
         
         if (launcherArgs != null && launcherArgs.length() > 1) {
             String[] argarray = launcherArgs.split(" ");
