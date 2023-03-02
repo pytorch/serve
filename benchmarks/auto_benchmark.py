@@ -142,9 +142,13 @@ def install_torchserve(skip_ts_install, hw, ts_version):
     print("successfully install install_dependencies.py")
 
     # install torchserve
+    
+    execute("python setup.py install", wait=True)
+    
     if ts_install_cmd is None:
-        ts_install_cmd = "python setup.py install"
+        ts_install_cmd = "python ts_scripts/install_from_src.py"
     execute(ts_install_cmd, wait=True)
+    
     print("successfully install torchserve")
 
 
