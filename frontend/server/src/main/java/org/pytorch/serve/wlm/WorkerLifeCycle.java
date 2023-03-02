@@ -15,6 +15,7 @@ import org.pytorch.serve.util.Connector;
 import org.pytorch.serve.util.messages.EnvironmentUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.io.*;
 
 public class WorkerLifeCycle {
 
@@ -79,6 +80,19 @@ public class WorkerLifeCycle {
         
         try {
             Process processLauncher = Runtime.getRuntime().exec(cmdList);
+            
+            BufferedReader stdInput = new BufferedReader(new InputStreamReader(processLauncher.getInputStream()));
+            BufferedReader stdError = new BufferedReader(new InputStreamReader(processLauncher.getErrorStream()));
+
+            String s = null;
+            while ((s = stdInput.readLine()) != null) {
+                logger.info(s);
+            }
+            
+            while ((s = stdError.readLine()) != null) {
+                logger.info(s);
+            }
+
             int ret = processLauncher.waitFor();
             launcherAvailable = (ret == 0);
         } catch (IOException | InterruptedException e) {
