@@ -98,6 +98,20 @@ public class WorkerLifeCycle {
 
         launcherArgs = configManager.getCPULauncherArgs();
         boolean launcherAvailable = isLauncherAvailable();
+        
+        ArrayList<String> launcherArgsList = launcherArgsToList();
+        argl.addAll(launcherArgsList);
+        
+        // multi-worker core pinning
+        if (this.numWorker > 1) {
+            argl.add("--ninstances");
+            argl.add(String.valueOf(this.numWorker));
+            argl.add("--rank");
+            // instance_idx is 0-indexed
+            argl.add(String.valueOf(this.currNumRunningWorkers));
+        }
+         
+        /**
         if (launcherAvailable) {
             ArrayList<String> args = launcherArgsToList();
             argl.addAll(args);
@@ -115,6 +129,7 @@ public class WorkerLifeCycle {
             logger.warn(
                     "CPU launcher is enabled but launcher is not available. Proceeding without launcher.");
         }
+        **/
 
         argl.add(new File(workingDir, "ts/model_service_worker.py").getAbsolutePath());
         argl.add("--sock-type");
