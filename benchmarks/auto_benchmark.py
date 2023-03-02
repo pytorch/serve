@@ -142,7 +142,6 @@ def install_torchserve(skip_ts_install, hw, ts_version):
     print("successfully install install_dependencies.py")
 
     # install torchserve
-    execute("pip3 install --force-reinstall --pre torch --index-url https://download.pytorch.org/whl/nightly/cpu", wait=True)
     execute("python setup.py install", wait=True)
 
     if ts_install_cmd is None:
@@ -177,7 +176,7 @@ def run_benchmark(bm_config):
         if model_json_config.endswith(".json"):
             # call benchmark-ab.py
             
-            execute("python -m torch.backends.xeon.run_cpu --no_python lscpu", wait=True)
+            execute("numactl --show", wait=True)
             
             shutil.rmtree(TS_LOGS_PATH, ignore_errors=True)
             shutil.rmtree(BENCHMARK_TMP_PATH, ignore_errors=True)
