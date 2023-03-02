@@ -137,14 +137,14 @@ def install_torchserve(skip_ts_install, hw, ts_version):
     if hw == "gpu":
         cmd = "python ts_scripts/install_dependencies.py --environment dev --cuda cu117"
     else:
-        cmd = "python ts_scripts/install_dependencies.py --environment dev --nightly_torch"
+        cmd = "python ts_scripts/install_dependencies.py --environment dev"
     execute(cmd, wait=True)
     print("successfully install install_dependencies.py")
 
     # install torchserve
-    
+    execute("pip3 install --force-reinstall --pre torch --index-url https://download.pytorch.org/whl/nightly/cpu", wait=True)
     execute("python setup.py install", wait=True)
-    
+
     if ts_install_cmd is None:
         ts_install_cmd = "python ts_scripts/install_from_src.py"
     execute(ts_install_cmd, wait=True)
@@ -177,7 +177,7 @@ def run_benchmark(bm_config):
         if model_json_config.endswith(".json"):
             # call benchmark-ab.py
             
-            # execute("python -m torch.backends.xeon.run_cpu --no_python lscpu", wait=True)
+            execute("python -m torch.backends.xeon.run_cpu --no_python lscpu", wait=True)
             
             shutil.rmtree(TS_LOGS_PATH, ignore_errors=True)
             shutil.rmtree(BENCHMARK_TMP_PATH, ignore_errors=True)
