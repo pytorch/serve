@@ -15,6 +15,8 @@ import org.pytorch.serve.util.Connector;
 import org.pytorch.serve.util.messages.EnvironmentUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class WorkerLifeCycle {
 
@@ -49,6 +51,14 @@ public class WorkerLifeCycle {
         ArrayList<String> arrlist = new ArrayList<String>();
         arrlist.add("-m");
         arrlist.add("torch.backends.xeon.run_cpu");
+        
+        LocalDateTime myDateObj = LocalDateTime.now();
+        DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("dd_MM_yyyy_HH_mm_ss");
+        String log_path = myDateObj.format(myFormatObj);
+        
+        arrlist.add("--log_path");
+        arrlist.add(log_path);
+        
         if (launcherArgs != null && launcherArgs.length() > 1) {
             String[] argarray = launcherArgs.split(" ");
             for (int i = 0; i < argarray.length; i++) {
@@ -61,19 +71,22 @@ public class WorkerLifeCycle {
     public boolean isLauncherAvailable()
             throws WorkerInitializationException, InterruptedException {
         boolean launcherAvailable = false;
+        
+        ArrayList<String> cmd = new ArrayList<String>();
+        cmd.add("python");
+        ArrayList<String> args = launcherArgsToList();
+        cmd.addAll(args);
+        cmd.add("--no_python");
+        // try launching dummy command to check launcher availability
+        String dummyCmd = "hostname";
+        cmd.add(dummyCmd);
+
+        String[] cmdList = new String[cmd.size()];
+        cmdList = cmd.toArray(cmdList);
+            
+        logger.debug("launcherAvailable cmdline: {}", cmd.toString());
+        
         try {
-            ArrayList<String> cmd = new ArrayList<String>();
-            cmd.add("python");
-            ArrayList<String> args = launcherArgsToList();
-            cmd.addAll(args);
-            cmd.add("--no_python");
-            // try launching dummy command to check launcher availability
-            String dummyCmd = "hostname";
-            cmd.add(dummyCmd);
-
-            String[] cmdList = new String[cmd.size()];
-            cmdList = cmd.toArray(cmdList);
-
             Process processLauncher = Runtime.getRuntime().exec(cmdList);
             int ret = processLauncher.waitFor();
             launcherAvailable = (ret == 0);
@@ -99,19 +112,6 @@ public class WorkerLifeCycle {
         launcherArgs = configManager.getCPULauncherArgs();
         boolean launcherAvailable = isLauncherAvailable();
         
-        ArrayList<String> launcherArgsList = launcherArgsToList();
-        argl.addAll(launcherArgsList);
-        
-        // multi-worker core pinning
-        if (this.numWorker > 1) {
-            argl.add("--ninstances");
-            argl.add(String.valueOf(this.numWorker));
-            argl.add("--rank");
-            // instance_idx is 0-indexed
-            argl.add(String.valueOf(this.currNumRunningWorkers));
-        }
-         
-        /**
         if (launcherAvailable) {
             ArrayList<String> args = launcherArgsToList();
             argl.addAll(args);
@@ -129,7 +129,6 @@ public class WorkerLifeCycle {
             logger.warn(
                     "CPU launcher is enabled but launcher is not available. Proceeding without launcher.");
         }
-        **/
 
         argl.add(new File(workingDir, "ts/model_service_worker.py").getAbsolutePath());
         argl.add("--sock-type");
