@@ -173,7 +173,7 @@ def run_benchmark(bm_config):
         if model_json_config.endswith(".json"):
             # call benchmark-ab.py
             
-            execute("python -m torch.backends.xeon.run_cpu lscpu", wait=True)
+            execute("python -m torch.backends.xeon.run_cpu --no_python lscpu", wait=True)
             
             shutil.rmtree(TS_LOGS_PATH, ignore_errors=True)
             shutil.rmtree(BENCHMARK_TMP_PATH, ignore_errors=True)
