@@ -138,6 +138,8 @@ def install_torchserve(skip_ts_install, hw, ts_version):
         cmd = "python ts_scripts/install_dependencies.py --environment dev --cuda cu117"
     else:
         cmd = "python ts_scripts/install_dependencies.py --environment dev"
+        execute("pip3 install numpy --pre torch torchvision torchaudio --force-reinstall --index-url https://download.pytorch.org/whl/nightly/cpu", wait=True)
+        
     execute(cmd, wait=True)
     print("successfully install install_dependencies.py")
 
