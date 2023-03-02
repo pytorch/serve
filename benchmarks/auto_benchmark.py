@@ -137,7 +137,7 @@ def install_torchserve(skip_ts_install, hw, ts_version):
     if hw == "gpu":
         cmd = "python ts_scripts/install_dependencies.py --environment dev --cuda cu117"
     else:
-        cmd = "python ts_scripts/install_dependencies.py --environment dev"
+        cmd = "python ts_scripts/install_dependencies.py --environment dev --nightly_torch"
     execute(cmd, wait=True)
     print("successfully install install_dependencies.py")
 
