@@ -4,7 +4,7 @@ fastrcnn:
         benchmark_engine: "ab"
         url: "https://torchserve.pytorch.org/mar_files/fastrcnn.mar"
         workers:
-            - 4
+            - 1
         batch_delay: 100
         batch_size:
             - 1
