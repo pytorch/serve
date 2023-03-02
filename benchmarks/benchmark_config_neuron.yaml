@@ -9,10 +9,7 @@
 # a list of model configure yaml files defined in benchmarks/models_config
 # or a list of model configure yaml files with full path
 models:
-  - "bert_neuron_batch_1.yaml"
-  - "bert_neuron_batch_2.yaml"
-  - "bert_neuron_batch_4.yaml"
-  - "bert_neuron_batch_8.yaml"
+  - "bert_neuron.yaml"
 
 # benchmark on "cpu", "gpu" or "neuron".
 # "cpu" is set if "hardware" is not specified
