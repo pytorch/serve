@@ -64,7 +64,7 @@ mv bloom.mar model_store
 Update config.properties and start torchserve
 
 ```bash
-torchserve --start --ncs --ts-config config.properties
+torchserve --ncs --start --model-store model_store --models bloom.mar --ts-config config.properties
 ```
 
 ### Step 5: Run inference
