@@ -1,0 +1,17 @@
+---
+bert:
+  scripted_mode:
+    benchmark_engine: "ab"
+    url: https://torchserve.pytorch.org/mar_files/BERTSeqClassification_torchscript_neuron_batch_2.mar
+    workers:
+      - 4
+    batch_delay: 100
+    batch_size:
+      - 2
+    input: "./examples/Huggingface_Transformers/Seq_classification_artifacts/sample_text.txt"
+    requests: 10000
+    concurrency: 100
+    backend_profiling: False
+    exec_env: "local"
+    processors:
+      - "neuron"
