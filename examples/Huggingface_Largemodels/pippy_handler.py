@@ -231,7 +231,8 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         #     inferences.append(
         #         self.tokenizer.decode(outputs[i], skip_special_tokens=True)
         #     )
-        output = self.model(**model_input_dict)
+        if self.local_rank==0:
+            output = self.model(**model_input_dict)
         print("************** here is the output",type(output))
         logger.info("Generated text: '%s'", inferences)
         inferences.append(output)
