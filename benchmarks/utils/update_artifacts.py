@@ -94,7 +94,7 @@ def update_artifacts(input_dir, output_dir):
                 # When  report_id has a missing element in sequence
                 add_report_id, del_report_id = i, report_id
             else:
-                # When report is WINDOW_LEN-1 is missing
+                # When report_id WINDOW_LEN-1 is missing
                 add_report_id, del_report_id = i + 1, (i + 2) % WINDOW_LEN
             update_new_report(input_dir, output_dir, add_report_id, del_report_id)
             break
