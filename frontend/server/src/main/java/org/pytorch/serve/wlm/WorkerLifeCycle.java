@@ -123,7 +123,7 @@ public class WorkerLifeCycle {
 
             // multi-worker core pinning
             if (this.numWorker > 1) {
-                argl.add("--use_logical_core");
+                // argl.add("--use_logical_core");
                 argl.add("--ninstances");
                 argl.add(String.valueOf(this.numWorker));
                 argl.add("--rank");

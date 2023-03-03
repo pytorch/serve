@@ -1,4 +1,4 @@
-name: Benchmark torchserve cpu with core pinning logical cores
+name: Benchmark torchserve cpu with core pinning physical cores
 
 on:
   pull_request:
