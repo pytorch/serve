@@ -177,14 +177,16 @@ public class WorkerLifeCycle {
     }
 
     private void attachRunner(ArrayList<String> argl, int port) {
+
         argl.add("torchrun");
-        //argl.add("--nnodes=1");
+        argl.add("--nnodes=1");
         argl.add("--nproc_per_node=" + model.getParallelLevel());
-        argl.add("--max_restarts=0");
+        argl.add("--max_restarts=3");
         argl.add("--master_addr=localhost");
-        argl.add("--master_port=" + port);	
-        //argl.add("--rdzv_backend=c10d");
-        //argl.add("--rdzv_endpoint=localhost:" + port);
+        argl.add("--master_port=" + port);
+        argl.add("--log_dir=/tmp/torchelastic_ts");
+        argl.add("--rdzv_backend=c10d");
+        argl.add("--rdzv_id=" + model.getModelName() + "_" + port);
     }
     
     private void attachPippyArg(ArrayList<String> argl, int port, int parallelLevel) {

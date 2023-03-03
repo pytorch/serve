@@ -159,7 +159,7 @@ public class WorkerThread implements Runnable {
         this.listener = listener;
         startTime = System.currentTimeMillis();
         lifeCycle = new WorkerLifeCycle(configManager, model);
-        replies = new ArrayBlockingQueue<>(1);
+        replies = new ArrayBlockingQueue<>(model.getParallelLevel());
         workerLoadTime =
                 new Metric(
                         getWorkerName(),
