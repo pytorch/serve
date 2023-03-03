@@ -62,8 +62,8 @@ def update_new_report(input_dir, output_dir, add_report_id, del_report_id):
     copy_benchmark_reports(input_dir, new_dir)
 
     # Remove old report
-    rm_dir = os.path.join(output_dir, str(del_report_id % WINDOW_LEN))
-    if os.path.exists(rm_dir):
+    if isinstance(del_report_id, int):
+        rm_dir = os.path.join(output_dir, str(del_report_id % WINDOW_LEN))
         print("Removing artifacts ", rm_dir)
         shutil.rmtree(rm_dir, ignore_errors=True)
 
@@ -80,8 +80,7 @@ def update_artifacts(input_dir, output_dir):
 
     # Initial case: When they are less than WINDOW_LEN-1 reports
     if num_reports < WINDOW_LEN - 1:
-        add_report_id = num_reports
-        del_report_id = add_report_id + 1
+        add_report_id, del_report_id = num_reports, None
         update_new_report(input_dir, output_dir, add_report_id, del_report_id)
         return
 
