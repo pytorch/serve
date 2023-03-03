@@ -107,7 +107,7 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         print(f'REPLICATE config: {replicate} -> {MULTI_USE_PARAM_CONFIG}')
         print("Using schedule:", schedule)
 
-        self.model = BloomModel.from_pretrained(
+        model = BloomModel.from_pretrained(
             model_dir + "/model", use_cache=False)
 
         self.tokenizer = BloomTokenizerFast.from_pretrained(
@@ -118,10 +118,10 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
 
         # model = BloomModel.from_pretrained("bigscience/bloom-3b", use_cache=False)
 
-        model_config = self.model.config
+        model_config = model.config
 
         model_config.use_cache = False  # don't output `past_key_values`
-        self.model.eval()
+        model.eval()
     
 
         split_policy = split_into_equal_size(1)
