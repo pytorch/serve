@@ -8,6 +8,41 @@ BENCHMARK_REPORT_FILE = "ab_report.csv"
 WINDOW_LEN = 8
 WINDOW_START = 0
 
+################################################################
+# This is an example directory structure for the artifacts.
+# Here, report_id 1 is missing, new report would be added under 1
+# and we would remove report_id 2.
+# .
+# └── tmp/
+#    └── ts_artifacts/
+#        ├── 0/
+#        │   ├── eager_mode_mnist_w4_b1/
+#        │   │   └── ab_report.csv
+#        │   ├── eager_mode_mnist_w4_b2/
+#        │   │   └── ab_report.csv
+#        │   └── ...
+#        ├── 2/
+#        │   ├── eager_mode_mnist_w4_b1/
+#        │   │   └── ab_report.csv
+#        │   ├── eager_mode_mnist_w4_b2/
+#        │   │   └── ab_report.csv
+#        │   └── ...
+#        ├── 3/
+#        │   ├── eager_mode_mnist_w4_b1/
+#        │   │   └── ab_report.csv
+#        │   ├── eager_mode_mnist_w4_b2/
+#        │   │   └── ab_report.csv
+#        │   └── ...
+#        ├── ...
+#        └── 6/
+#            ├── eager_mode_mnist_w4_b1/
+#            │   └── ab_report.csv
+#            ├── eager_mode_mnist_w4_b2/
+#            │   └── ab_report.csv
+#            └── ...
+################################################################
+
+
 # Copy BENCHMARK_REPORT_FILE to artifacts
 def copy_benchmark_reports(input, output):
 
@@ -18,42 +53,51 @@ def copy_benchmark_reports(input, output):
             shutil.copy(os.path.join(input, dir, BENCHMARK_REPORT_FILE), new_dir)
 
 
+# Save new report and delete the oldest report
+def update_new_report(args, add_report_id, del_report_id):
+
+    # Add new report
+    new_dir = os.path.join(args.output, str(add_report_id))
+    print("Creating artifacts ", new_dir)
+    copy_benchmark_reports(args.input, new_dir)
+
+    # Remove old report
+    rm_dir = os.path.join(args.output, str(del_report_id % WINDOW_LEN))
+    if os.path.exists(rm_dir):
+        print("Removing artifacts ", rm_dir)
+        shutil.rmtree(rm_dir, ignore_errors=True)
+
+
 # Create artifacts for a period of rolling WINDOW_LEN-1 reports
 def update_artifacts(args):
 
-    finished_copying = False
+    # Create a drectory where artifacts will be stored
     os.makedirs(args.output, exist_ok=True)
-    if not os.listdir(args.output):
-        new_dir = os.path.join(args.output, str(WINDOW_START))
-        print(
-            f"There are no artifacts. A new package needs to be created starting at {new_dir}"
-        )
-        # shutil.copytree(args.input, new_dir)
-        copy_benchmark_reports(args.input, new_dir)
 
-    else:
-        list_dirs = sorted(map(lambda x: int(x), os.listdir(args.output)))
-        for i, dir in enumerate(list_dirs):
+    # Get the sorted list of existing report_ids
+    list_dirs = sorted(map(lambda x: int(x), os.listdir(args.output)))
+    num_reports = len(list_dirs)
 
-            if i != dir:
-                new_dir = os.path.join(args.output, str(i))
-                print("Creating artifacts ", new_dir)
-                # shutil.copytree(args.input, new_dir)
-                copy_benchmark_reports(args.input, new_dir)
-                rm_dir = os.path.join(args.output, str(dir))
-                shutil.rmtree(rm_dir)
-                print("Removing artifacts ", rm_dir)
-                finished_copying = True
-                break
-        i += 1
-        if i < WINDOW_LEN and not finished_copying:
-            new_dir = os.path.join(args.output, str(i))
-            print("Creating artifacts ", new_dir)
-            # shutil.copytree(args.input, new_dir)
-            copy_benchmark_reports(args.input, new_dir)
-            rm_dir = os.path.join(args.output, str((i + 1) % WINDOW_LEN))
-            print("Removing artifacts ", rm_dir)
-            shutil.rmtree(rm_dir, ignore_errors=True)
+    # Initial case: When they are less than WINDOW_LEN-1 reports
+    if num_reports < WINDOW_LEN - 1:
+        add_report_id = num_reports
+        del_report_id = add_report_id + 1
+        update_new_report(args, add_report_id, del_report_id)
+        return
+
+    # When there are WINDOW_LEN - 1 reports and we want to add the new report
+    # and remove the oldest report
+    for i, report_id in enumerate(list_dirs):
+
+        if i != report_id or (i + 1 == WINDOW_LEN - 1):
+            if i != report_id:
+                # When  report_id has a missing element in sequence
+                add_report_id, del_report_id = i, report_id
+            else:
+                # When report is WINDOW_LEN-1 is missing
+                add_report_id, del_report_id = i + 1, (i + 2) % WINDOW_LEN
+            update_new_report(args, add_report_id, del_report_id)
+            break
 
 
 def main():
