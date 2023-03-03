@@ -8,9 +8,12 @@ fastrcnn:
         batch_delay: 100
         batch_size:
             - 1
+            - 2
+            - 4
+            - 8
         input: "./examples/image_classifier/kitten.jpg"
-        requests: 10
-        concurrency: 1
+        requests: 10000
+        concurrency: 100
         backend_profiling: False
         exec_env: "local"
         processors:
