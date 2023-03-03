@@ -2,6 +2,7 @@
 Helper utils for Model Export tool
 """
 
+import glob
 import logging
 import os
 import re
@@ -156,20 +157,20 @@ class ModelExportUtils(object):
                         path = (path.split(":")[0] if ":" in path else path) + ".py"
 
                 if file_type == "extra_files":
-                    for file in path.split(","):
-                        file = file.strip()
-                        if os.path.isfile(file):
-                            shutil.copy2(file, model_path)
-                        elif os.path.isdir(file) and file != model_path:
-                            for item in os.listdir(file):
-                                src = os.path.join(file, item)
-                                dst = os.path.join(model_path, item)
-                                if os.path.isfile(src):
-                                    shutil.copy2(src, dst)
-                                elif os.path.isdir(src):
-                                    shutil.copytree(src, dst, False, None)
-                        else:
-                            raise ValueError(f"Invalid extra file given {file}")
+                    for path_or_wildcard in path.split(","):
+                        for file in glob.glob(path_or_wildcard.strip()):
+                            if os.path.isfile(file):
+                                shutil.copy2(file, model_path)
+                            elif os.path.isdir(file) and file != model_path:
+                                for item in os.listdir(file):
+                                    src = os.path.join(file, item)
+                                    dst = os.path.join(model_path, item)
+                                    if os.path.isfile(src):
+                                        shutil.copy2(src, dst)
+                                    elif os.path.isdir(src):
+                                        shutil.copytree(src, dst, False, None)
+                            else:
+                                raise ValueError(f"Invalid extra file given {file}")
                 else:
                     shutil.copy(path, model_path)
 

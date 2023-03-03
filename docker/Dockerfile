@@ -20,32 +20,36 @@ ARG BASE_IMAGE=ubuntu:rolling
 
 FROM ${BASE_IMAGE} AS compile-image
 ARG BASE_IMAGE=ubuntu:rolling
+ARG PYTHON_VERSION=3.9
 ENV PYTHONUNBUFFERED TRUE
 
 RUN --mount=type=cache,id=apt-dev,target=/var/cache/apt \
     #apt --fix-broken -y install && \
     apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install software-properties-common -y && \
+    add-apt-repository -y ppa:deadsnakes/ppa && \
     apt remove python-pip  python3-pip && \
     DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
     ca-certificates \
     g++ \
-    python3.8 \
-    python3.8-dev \
-    python3.8-distutils \
-    python3.8-venv \
+    python$PYTHON_VERSION \
+    python$PYTHON_VERSION-dev \
+    python3-distutils \
+    python$PYTHON_VERSION-venv \
     python3-venv \
     openjdk-17-jdk \
     curl \
     && rm -rf /var/lib/apt/lists/* \
     && cd /tmp \
     && curl -O https://bootstrap.pypa.io/get-pip.py \
-    && python3.8 get-pip.py
+    && python$PYTHON_VERSION get-pip.py
 
 
-RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.8 1 \
-    && update-alternatives --install /usr/local/bin/pip pip /usr/local/bin/pip3.8 1
+RUN update-alternatives --install /usr/bin/python python /usr/bin/python$PYTHON_VERSION 1 \
+    && update-alternatives --install /usr/local/bin/pip pip /usr/local/bin/pip3 1
 
-RUN python3.8 -m venv /home/venv
+RUN python$PYHON_VERSION -m venv /home/venv
 
 ENV PATH="/home/venv/bin:$PATH"
 
@@ -81,9 +85,9 @@ ENV PYTHONUNBUFFERED TRUE
 RUN --mount=type=cache,target=/var/cache/apt \
     apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
-    python3.8 \
-    python3.8-distutils \
-    python3.8-dev \
+    python$PYTHON_VERSION \
+    python3-distutils \
+    python$PYTHON_VERSION-dev \
     # using openjdk-17-jdk due to circular dependency(ca-certificates) bug in openjdk-17-jre-headless debian package
     # https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1009905
     openjdk-17-jdk \
