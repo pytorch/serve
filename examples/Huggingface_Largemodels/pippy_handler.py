@@ -76,7 +76,7 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         # args.world_size = 4
         # args.gspmd = 1
         if self.local_rank != 0:
-            pass
+            return
 
         self.manifest = ctx.manifest
         properties = ctx.system_properties
@@ -110,6 +110,9 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         self.model = BloomModel.from_pretrained(
             model_dir + "/model", use_cache=False)
 
+        self.tokenizer = BloomTokenizerFast.from_pretrained(
+            model_dir + "/model", return_tensors="pt"
+        )
         
         logger.info("********************* model loaded *************************", model_dir)
 
@@ -119,12 +122,11 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
 
         model_config.use_cache = False  # don't output `past_key_values`
         self.model.eval()
-        print(model_config)
-        print(f"model total number of params = {self.get_number_of_params(self.model) // 10 ** 6}M")
+    
 
         split_policy = split_into_equal_size(1)
         pp_ranks = [0,1,2,3]
-        all_worker_ranks = pp_ranks[pippy.utils.exclude_master:pippy.utils.exclude_master + 1]
+        all_worker_ranks = list(range(self.world_size))
         chunks = 1
         bs = 1 * chunks
         seq_length = 16
@@ -136,28 +138,35 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
 
         print('Instantiating model Pipeline')
         model_init_start = time.time()
-        model_pipe = Pipe.from_tracing(self.model, MULTI_USE_PARAM_CONFIG, tracer=PiPPyHFTracer(), concrete_args=concrete_args,
-                                    output_loss_value_spec=None, split_policy=split_policy
-                                    )
+        pipe_driver = pippy.all_compile(
+        model,
+        num_ranks=self.world_size,
+        num_chunks=chunks,
+        schedule="FillDrain",
+        split_policy=split_policy,
+        tracer=PiPPyHFTracer(),
+        concrete_args=concrete_args,
+        )
+        # model_pipe = Pipe.from_tracing(self.model, MULTI_USE_PARAM_CONFIG, tracer=PiPPyHFTracer(), concrete_args=concrete_args,
+        #                             output_loss_value_spec=None, split_policy=split_policy
+        #                             )
     
-        model_pipe.defer_stage_init(self.device + self.local_rank)
+        # model_pipe.defer_stage_init(self.device + self.local_rank)
 
-        pippy.utils.pp_group_barrier()
+        # pippy.utils.pp_group_barrier()
         
-        split_gm_children = list(model_pipe.split_gm.children())
+        # split_gm_children = list(model_pipe.split_gm.children())
 
-        pipe_driver: PipelineDriverBase = schedules[schedule](model_pipe, chunks,
-                                                                world_size=self.world_size,
-                                                                all_ranks=all_worker_ranks,
-                                                                    )
+        # pipe_driver: PipelineDriverBase = schedules["FillDrain"](model_pipe, chunks,
+        #                                                         world_size=self.world_size,
+        #                                                         all_ranks=all_worker_ranks,
+        #                                                             )
 
         self.model = pipe_driver
         logger.info("Transformer model from path %s loaded successfully", model_dir)
 
         self.initialized = True
 
-    def get_number_of_params(model):
-        return sum(p.numel() for p in model.parameters() if p.requires_grad)
 
     def preprocess(self, requests):
         """Basic text preprocessing, based on the user's chocie of application mode.
