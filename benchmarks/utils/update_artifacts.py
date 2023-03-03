@@ -54,35 +54,35 @@ def copy_benchmark_reports(input, output):
 
 
 # Save new report and delete the oldest report
-def update_new_report(args, add_report_id, del_report_id):
+def update_new_report(input_dir, output_dir, add_report_id, del_report_id):
 
     # Add new report
-    new_dir = os.path.join(args.output, str(add_report_id))
+    new_dir = os.path.join(output_dir, str(add_report_id))
     print("Creating artifacts ", new_dir)
-    copy_benchmark_reports(args.input, new_dir)
+    copy_benchmark_reports(input_dir, new_dir)
 
     # Remove old report
-    rm_dir = os.path.join(args.output, str(del_report_id % WINDOW_LEN))
+    rm_dir = os.path.join(output_dir, str(del_report_id % WINDOW_LEN))
     if os.path.exists(rm_dir):
         print("Removing artifacts ", rm_dir)
         shutil.rmtree(rm_dir, ignore_errors=True)
 
 
 # Create artifacts for a period of rolling WINDOW_LEN-1 reports
-def update_artifacts(args):
+def update_artifacts(input_dir, output_dir):
 
     # Create a drectory where artifacts will be stored
-    os.makedirs(args.output, exist_ok=True)
+    os.makedirs(output_dir, exist_ok=True)
 
     # Get the sorted list of existing report_ids
-    list_dirs = sorted(map(lambda x: int(x), os.listdir(args.output)))
+    list_dirs = sorted(map(lambda x: int(x), os.listdir(output_dir)))
     num_reports = len(list_dirs)
 
     # Initial case: When they are less than WINDOW_LEN-1 reports
     if num_reports < WINDOW_LEN - 1:
         add_report_id = num_reports
         del_report_id = add_report_id + 1
-        update_new_report(args, add_report_id, del_report_id)
+        update_new_report(input_dir, output_dir, add_report_id, del_report_id)
         return
 
     # When there are WINDOW_LEN - 1 reports and we want to add the new report
@@ -96,7 +96,7 @@ def update_artifacts(args):
             else:
                 # When report is WINDOW_LEN-1 is missing
                 add_report_id, del_report_id = i + 1, (i + 2) % WINDOW_LEN
-            update_new_report(args, add_report_id, del_report_id)
+            update_new_report(input_dir, output_dir, add_report_id, del_report_id)
             break
 
 
@@ -104,7 +104,7 @@ def main():
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
-        "--input",
+        "--input_dir",
         nargs="?",
         help="the dir of a list of model benchmark result subdir ",
         const=BENCHMARK_REPORT_PATH,
@@ -113,7 +113,7 @@ def main():
     )
 
     parser.add_argument(
-        "--output",
+        "--output_dir",
         nargs="?",
         help="the dir of model benchmark artifacts ",
         const=BENCHMARK_ARTIFACTS_PATH,
@@ -123,7 +123,7 @@ def main():
 
     args = parser.parse_args()
 
-    update_artifacts(args)
+    update_artifacts(args.input_dir, args.output_dir)
 
 
 if __name__ == "__main__":
