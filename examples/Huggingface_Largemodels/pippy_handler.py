@@ -61,25 +61,28 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         self.world_size = int(os.environ["WORLD_SIZE"])
 
         options = rpc.TensorPipeRpcBackendOptions(
-        num_worker_threads=512,
-        rpc_timeout=1800,
-        _transports=None,
-    )   
+            num_worker_threads=512,
+            rpc_timeout=1800
+        #    transports=None,
+        )
       
        
         # if args.cuda:
-        # n_devs = self.world_size
-        # # n_devs = 4
+        n_devs = torch.cuda.device_count()
+        dev_id = self.local_rank % n_devs 
+        for i in range (self.world_size):
+            options.set_device_map(f"worker{i}", {dev_id: i % n_devs})
 
-        # if n_devs > 0:
-        #     dev_id = self.local_rank % n_devs
-        #     for i in range(4):
-        #         options.set_device_map(f"worker{i}", {dev_id: i % n_devs})
+        self.device = f"cuda:{dev_id}"
+        print(
+            f"rank = {self.local_rank} pid/device = "
+            f"{os.getpid()}/{self.device}"
+        )
 
         rpc.init_rpc(f"worker{self.local_rank}",
                      rank=self.local_rank,
-                     world_size=self.world_size)
-                    #  rpc_backend_options=options)
+                     world_size=self.world_size,
+                     rpc_backend_options=options)
 
     def initialize(self, ctx):
         """In this initialize function, the BERT model is loaded and
@@ -157,13 +160,13 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         print('Instantiating model Pipeline')
         model_init_start = time.time()
         pipe_driver, stage_mode = pippy.all_compile(
-        model,
-        num_ranks=self.world_size,
-        num_chunks=chunks,
-        schedule="FillDrain",
-        split_policy=split_policy,
-        tracer=PiPPyHFTracer(),
-        concrete_args=concrete_args,
+            model,
+            num_ranks=self.world_size,
+            num_chunks=chunks,
+            schedule="FillDrain",
+            split_policy=split_policy,
+            tracer=PiPPyHFTracer(),
+            concrete_args=concrete_args,
         )
         # model_pipe = Pipe.from_tracing(self.model, MULTI_USE_PARAM_CONFIG, tracer=PiPPyHFTracer(), concrete_args=concrete_args,
         #                             output_loss_value_spec=None, split_policy=split_policy
