@@ -59,9 +59,27 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         self.initialized = False
         self.local_rank = int(os.environ["LOCAL_RANK"])
         self.world_size = int(os.environ["WORLD_SIZE"])
+
+        options = rpc.TensorPipeRpcBackendOptions(
+        num_worker_threads=512,
+        rpc_timeout=1800,
+        _transports=None,
+    )   
+      
+       
+        # if args.cuda:
+        # n_devs = self.world_size
+        # # n_devs = 4
+
+        # if n_devs > 0:
+        #     dev_id = self.local_rank % n_devs
+        #     for i in range(4):
+        #         options.set_device_map(f"worker{i}", {dev_id: i % n_devs})
+
         rpc.init_rpc(f"worker{self.local_rank}",
                      rank=self.local_rank,
                      world_size=self.world_size)
+                    #  rpc_backend_options=options)
 
     def initialize(self, ctx):
         """In this initialize function, the BERT model is loaded and
@@ -82,11 +100,11 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         properties = ctx.system_properties
         model_dir = properties.get("model_dir")
 
-        self.device = torch.device(
-            "cuda:" + str(properties.get("gpu_id"))
-            if torch.cuda.is_available() and properties.get("gpu_id") is not None
-            else "cpu"
-        )
+        # self.device = torch.device(
+        #     "cuda:" + str(properties.get("gpu_id"))
+        #     if torch.cuda.is_available() and properties.get("gpu_id") is not None
+        #     else "cpu"
+        # )
         # Loading the model and tokenizer from checkpoint and config files based on the user's choice of mode
         # further setup config can be added.
         with zipfile.ZipFile(model_dir + "/model.zip", "r") as zip_ref:
@@ -133,12 +151,12 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
 
 
         input_names = ['input_ids']
-        sig = inspect.signature(self.model.forward)
+        sig = inspect.signature(model.forward)
         concrete_args = {p.name: p.default for p in sig.parameters.values() if p.name not in input_names}
 
         print('Instantiating model Pipeline')
         model_init_start = time.time()
-        pipe_driver = pippy.all_compile(
+        pipe_driver, stage_mode = pippy.all_compile(
         model,
         num_ranks=self.world_size,
         num_chunks=chunks,
@@ -233,6 +251,7 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         #     )
         if self.local_rank==0:
             output = self.model(**model_input_dict)
+        # rpc.shutdown()
         print("************** here is the output",type(output))
         logger.info("Generated text: '%s'", inferences)
         inferences.append(output)
