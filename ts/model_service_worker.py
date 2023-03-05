@@ -47,7 +47,6 @@ class TorchModelServiceWorker(object):
                 raise ValueError("Wrong arguments passed. No socket name given.")
             s_name_parts = s_name.rsplit('.', 1)
             print(f"part0={s_name_parts[0]}, part1={s_name_parts[1]}, pid={str(os.getpid())}")
-          #  print("part1="+s_name_parts[1])
             s_name_new = s_name_parts[0] + '.' + str(int(s_name_parts[1]) + WORLD_RANK)
             self.sock_name, self.port = s_name_new, -1
             try:
@@ -174,7 +173,6 @@ class TorchModelServiceWorker(object):
         :return:
         """
         print(f"sock_name={self.sock_name}, sock_port={str(self.port)}")
-       # print("sock_port="+str(self.port))
         if not DEBUG:
             self.sock.settimeout(SOCKET_ACCEPT_TIMEOUT)
 
@@ -183,7 +181,6 @@ class TorchModelServiceWorker(object):
         if self.sock_type == "unix":
             self.sock.bind(self.sock_name)
             print(f"binded, self.sock_name={self.sock_name}")
-        #    print("self.sock_name="+self.sock_name)
         else:
             self.sock.bind((self.sock_name, int(self.port)))
 
@@ -191,8 +188,7 @@ class TorchModelServiceWorker(object):
         self.sock.listen(128)
 
         print(f"listened, pid={str(os.getpid())}, LOCAL_RANK={str(LOCAL_RANK)}")
-        #print("[PID]"+str(os.getpid()))
-        print("Torch worker started.")
+        #print("Torch worker started.")
         logging.info("[PID]%d", os.getpid())
         logging.info("Torch worker started.")
         logging.info("Python runtime: %s", platform.python_version())
@@ -227,8 +223,6 @@ if __name__ == "__main__":
         metrics_config = args.metrics_config
 
         print(f"LOCAL_RANK={str(LOCAL_RANK)}, WORLD_SIZE={str(WORLD_SIZE)}, WORLD_RANK={str(WORLD_RANK)}")
-       # print("WORLD_SIZE="+str(WORLD_SIZE))
-       # print("WORLD_RANK="+str(WORLD_RANK))
 
         if BENCHMARK:
             import cProfile
