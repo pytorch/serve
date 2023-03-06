@@ -16,12 +16,12 @@ public class PrometheusGauge extends IMetric {
     }
 
     @Override
-    public void emit(ArrayList<String> dimensionValues, double value) {
+    public void addOrUpdate(ArrayList<String> dimensionValues, double value) {
 
     }
 
     @Override
-    public void emit(ArrayList<String> dimensionValues, String requestIds, double value) {
+    public void addOrUpdate(ArrayList<String> dimensionValues, String requestIds, double value) {
 
     }
 

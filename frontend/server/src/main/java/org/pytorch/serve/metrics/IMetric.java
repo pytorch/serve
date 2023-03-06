@@ -14,10 +14,10 @@ public abstract class IMetric {
         this.dimensionNames = dimensionNames;
     }
 
-    public abstract void emit(
+    public abstract void addOrUpdate(
             ArrayList<String> dimensionValues,
             double value);
-    public abstract void emit(
+    public abstract void addOrUpdate(
             ArrayList<String> dimensionValues,
             String requestIds,
             double value);

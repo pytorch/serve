@@ -3,6 +3,10 @@ package org.pytorch.serve.metrics;
 import java.util.ArrayList;
 
 public class LogMetric extends IMetric {
+    /**
+     * Note:
+     * hostname, timestamp, and requestid(if available) are automatically added in log metric.
+     */
     public LogMetric(
             MetricBuilder.MetricType metricsType,
             String metricsName,
@@ -12,12 +16,11 @@ public class LogMetric extends IMetric {
     }
 
     @Override
-    public void emit(ArrayList<String> dimensionValues, double value) {
-
+    public void addOrUpdate(ArrayList<String> dimensionValues, double value) {
     }
 
     @Override
-    public void emit(ArrayList<String> dimensionValues, String requestIds, double value) {
+    public void addOrUpdate(ArrayList<String> dimensionValues, String requestIds, double value) {
 
     }
 }
