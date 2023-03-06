@@ -18,7 +18,7 @@ huggingface-cli login
 paste the token generated from huggingface hub.
 
 ```bash
-python Download_model.py --model_name bigscience/bloom-1b1
+python Download_model.py --model_name bigscience/bloom-1b1 #facebook/opt-iml-max-1.3b
 ```
 The script prints the path where the model is downloaded as below.
 
