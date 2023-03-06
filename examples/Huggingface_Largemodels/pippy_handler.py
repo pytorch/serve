@@ -6,7 +6,7 @@ from abc import ABC
 
 import torch
 import transformers
-from transformers import BloomForCausalLM, BloomTokenizerFast
+from transformers import BloomForCausalLM, BloomTokenizerFast, AutoModelForCausalLM, AutoTokenizer
 
 from ts.torch_handler.base_handler import BaseHandler
 import argparse
@@ -128,10 +128,10 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         print(f'REPLICATE config: {replicate} -> {MULTI_USE_PARAM_CONFIG}')
         print("Using schedule:", schedule)
 
-        model = BloomModel.from_pretrained(
+        model = AutoModelForCausalLM.from_pretrained(
             model_dir + "/model", use_cache=False)
 
-        self.tokenizer = BloomTokenizerFast.from_pretrained(
+        self.tokenizer = AutoTokenizer.from_pretrained(
             model_dir + "/model", return_tensors="pt"
         )
         
@@ -255,9 +255,11 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         if self.local_rank==0:
             output = self.model(**model_input_dict)
         # rpc.shutdown()
-        print("************** here is the output",type(output))
-        logger.info("Generated text: '%s'", inferences)
-        inferences.append(output)
+        print("************** here is the output",type(output["logits"]), len(output["logits"]))
+        # print(self.tokenizer.decode(output["logits"], skip_special_tokens=True))
+        # inference = self.tokenizer.decode(output["logits"], skip_special_tokens=True)
+        # logger.info("Generated text: '%s'", inferences)
+        inferences.append("inference")
         print("Generated text", inferences)
         return inferences
 
@@ -272,7 +274,7 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
 
     def handle(self, data, context):
         if self.local_rank != 0:
-            pass
+            return
         start_time = time.time()
 
         self.context = context
