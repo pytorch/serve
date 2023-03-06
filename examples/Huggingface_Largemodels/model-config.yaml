@@ -3,3 +3,11 @@ maxWorkers: 1
 maxBatchDelay: 100
 responseTimeout: 120
 parallelLevel: 4
+parallelType: pp # pp: pipeline parallel; tp: tensor parallel; tp+pp
+
+torchrun:
+  logLevel: INFO
+
+pippy:
+  rpc_timeout: 1800
+
