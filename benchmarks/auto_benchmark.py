@@ -79,7 +79,12 @@ class BenchmarkConfig:
                 break
 
         self.bm_config["report_cmd"] = " ".join(cmd_options)
-
+    
+    def use_logical_core(self):
+        if self.bm_config["hardware"] == "cpu":
+            with open("./benchmarks/config.properties", "a") as f:
+                f.write("cpu_launcher_args=--use_logical_core\n")
+    
     def load_config(self):
         report_cmd = None
         for k, v in self.yaml_dict.items():
@@ -99,6 +104,8 @@ class BenchmarkConfig:
             if self.bm_config["hardware"] == "cpu"
             else "{}/gpu".format(MODEL_JSON_CONFIG_PATH)
         )
+        
+        self.use_logical_core()
 
         if self.skip_ts_install:
             self.bm_config["version"] = get_torchserve_version()
@@ -180,6 +187,8 @@ def run_benchmark(bm_config):
             # call benchmark-ab.py
             
             execute("numactl -C 0 -m 0 lscpu", wait=True)
+            execute("cat ./benchmarks/config.properties", wait=True)
+            
             
             shutil.rmtree(TS_LOGS_PATH, ignore_errors=True)
             shutil.rmtree(BENCHMARK_TMP_PATH, ignore_errors=True)
