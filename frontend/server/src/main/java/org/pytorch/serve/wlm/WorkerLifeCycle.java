@@ -15,7 +15,6 @@ import org.pytorch.serve.util.Connector;
 import org.pytorch.serve.util.messages.EnvironmentUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.io.*;
 
 public class WorkerLifeCycle {
 
@@ -80,19 +79,6 @@ public class WorkerLifeCycle {
         
         try {
             Process processLauncher = Runtime.getRuntime().exec(cmdList);
-            
-            BufferedReader stdInput = new BufferedReader(new InputStreamReader(processLauncher.getInputStream()));
-            BufferedReader stdError = new BufferedReader(new InputStreamReader(processLauncher.getErrorStream()));
-
-            String s = null;
-            while ((s = stdInput.readLine()) != null) {
-                logger.info(s);
-            }
-            
-            while ((s = stdError.readLine()) != null) {
-                logger.info(s);
-            }
-
             int ret = processLauncher.waitFor();
             launcherAvailable = (ret == 0);
         } catch (IOException | InterruptedException e) {
@@ -100,7 +86,7 @@ public class WorkerLifeCycle {
         }
         return launcherAvailable;
     }
-    
+
     public void startWorker(int port) throws WorkerInitializationException, InterruptedException {
         File workingDir = new File(configManager.getModelServerHome());
         File modelPath;
@@ -123,7 +109,6 @@ public class WorkerLifeCycle {
 
             // multi-worker core pinning
             if (this.numWorker > 1) {
-                // argl.add("--use_logical_core");
                 argl.add("--ninstances");
                 argl.add(String.valueOf(this.numWorker));
                 argl.add("--rank");
@@ -133,7 +118,7 @@ public class WorkerLifeCycle {
 
         } else {
             logger.warn(
-                    "CPU launcher is enabled but launcher is not available. Proceeding without launcher.");
+                    "torch.backends.xeon.run_cpu is not available. Proceeding without worker core pinning. For better performance, please make sure torch.backends.xeon.run_cpu is available.");
         }
 
         argl.add(new File(workingDir, "ts/model_service_worker.py").getAbsolutePath());
