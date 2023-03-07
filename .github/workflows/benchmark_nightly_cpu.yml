@@ -43,6 +43,21 @@ jobs:
         with:
           name: nightly cpu artifact
           path: /tmp/ts_benchmark
+      - name: Download benchmark artifacts for auto validation
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          workflow: ${{ github.event.workflow_run.workflow_id }}
+          workflow_conclusion: success
+          if_no_artifact_found: ignore
+          path: /tmp/ts_artifacts
+          name: cpu_benchmark_validation
+      - name: Update benchmark artifacts for auto validation
+        run: python benchmarks/utils/update_artifacts.py --output /tmp/ts_artifacts/cpu_benchmark_validation
+      - name: Upload the updated benchmark artifacts for auto validation
+        uses: actions/upload-artifact@v2
+        with:
+          name: cpu_benchmark_validation
+          path: /tmp/ts_artifacts
       - name: Open issue on failure
         if: ${{ failure() && github.event_name  == 'schedule' }}
         uses: dacbd/create-issue-action@v1
