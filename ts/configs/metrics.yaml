@@ -6,7 +6,6 @@ dimensions:
   - &worker_name "WorkerName"
   - &level "Level"
   - &device_id "DeviceId"
-  - &uuid "UUID"
   - &hostname "Hostname"
 
 ts_metrics:
@@ -20,9 +19,9 @@ ts_metrics:
     - name: Requests5XX
       unit: count
       dimensions: [*level, *hostname]
-    - name: ts_inference_requests_total
+    - name: InferenceRequestsTotal
       unit: count
-      dimensions: [*uuid, *model_name, *model_version]
+      dimensions: [*model_name, *model_version, *hostname]
   gauge:
     - name: QueueTime
       unit: ms
@@ -63,19 +62,19 @@ ts_metrics:
     - name: GPUUtilization
       unit: percent
       dimensions: [*level, *device_id, *hostname]
-    - name: ts_inference_latency_microseconds
+    - name: InferenceLatencyMicroseconds
       unit: microseconds
-      dimensions: [*uuid, *model_name, *model_version]
-    - name: ts_queue_latency_microseconds
+      dimensions: [*model_name, *model_version, *hostname]
+    - name: QueueLatencyMicroseconds
       unit: microseconds
-      dimensions: [*uuid, *model_name, *model_version]
+      dimensions: [*model_name, *model_version, *hostname]
 
 model_metrics:
   # Dimension "hostname" is automatically added for model metrics in the backend
   gauge:
     - name: HandlerTime
       unit: ms
-      dimensions: [*model_name, *level, *hostname]
+      dimensions: [*model_name, *level]
     - name: PredictionTime
       unit: ms
-      dimensions: [*model_name, *level, *hostname]
+      dimensions: [*model_name, *level]
