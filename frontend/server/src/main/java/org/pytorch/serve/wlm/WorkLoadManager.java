@@ -22,17 +22,14 @@ import org.slf4j.LoggerFactory;
 
 public class WorkLoadManager {
 
+    private static final Logger logger = LoggerFactory.getLogger(WorkLoadManager.class);
     private ExecutorService threadPool;
-
     private ConcurrentHashMap<ModelVersionName, List<WorkerThread>> workers;
-
     private ConfigManager configManager;
     private EventLoopGroup backendGroup;
     private AtomicInteger port;
     private AtomicInteger distributionPort;
     private AtomicInteger gpuCounter;
-
-    private static final Logger logger = LoggerFactory.getLogger(WorkLoadManager.class);
 
     public WorkLoadManager(ConfigManager configManager, EventLoopGroup backendGroup) {
         this.configManager = configManager;
@@ -195,8 +192,8 @@ public class WorkLoadManager {
             List<WorkerThread> threads, Model model, int count, CompletableFuture<Integer> future) {
         WorkerStateListener listener = new WorkerStateListener(future, count);
         int maxGpu = configManager.getNumberOfGpu();
-        if (maxGpu > 0 && model.getGpuIds() != null) {
-            maxGpu = model.getGpuIds().size();
+        if (maxGpu > 0 && model.getCoreIds() != null) {
+            maxGpu = model.getCoreIds().size();
         }
         int parallelGpuIdx = 0;
         for (int i = 0; i < count; ++i) {
@@ -205,13 +202,13 @@ public class WorkLoadManager {
             if (maxGpu > 0) {
                 if (model.getParallelLevel() > 1) {
                     gpuId =
-                            model.getGpuIds() != null
-                                    ? model.getGpuIds().get(parallelGpuIdx)
+                            model.getCoreIds() != null
+                                    ? model.getCoreIds().get(parallelGpuIdx)
                                     : parallelGpuIdx;
                     parallelGpuIdx += model.getParallelLevel();
                 } else {
-                    if (model.getGpuIds() != null) {
-                        gpuId = model.getGpuIds().get(parallelGpuIdx++ % maxGpu);
+                    if (model.getCoreIds() != null) {
+                        gpuId = model.getCoreIds().get(parallelGpuIdx++ % maxGpu);
                     } else {
                         gpuId =
                                 gpuCounter.accumulateAndGet(

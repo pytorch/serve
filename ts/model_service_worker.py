@@ -10,22 +10,20 @@ import os
 import platform
 import socket
 import sys
-import uuid
 
 from ts.arg_parser import ArgParser
 from ts.metrics.metric_cache_yaml_impl import MetricsCacheYamlImpl
 from ts.model_loader import ModelLoaderFactory
 from ts.protocol.otf_message_handler import create_load_model_response, retrieve_msg
-from pippy import run_pippy
 
 MAX_FAILURE_THRESHOLD = 5
 SOCKET_ACCEPT_TIMEOUT = 300.0
 DEBUG = False
 BENCHMARK = os.getenv("TS_BENCHMARK")
 BENCHMARK = BENCHMARK in ["True", "true", "TRUE"]
-LOCAL_RANK = int(os.environ['LOCAL_RANK'])
-WORLD_SIZE = int(os.environ['WORLD_SIZE'])
-WORLD_RANK = int(os.environ['RANK'])
+LOCAL_RANK = int(os.getenv('LOCAL_RANK', 0))
+WORLD_SIZE = int(os.getenv('WORLD_SIZE', 0))
+WORLD_RANK = int(os.getenv('RANK', 0))
 
 class TorchModelServiceWorker(object):
     """
@@ -46,7 +44,7 @@ class TorchModelServiceWorker(object):
             if s_name is None:
                 raise ValueError("Wrong arguments passed. No socket name given.")
             s_name_parts = s_name.rsplit('.', 1)
-            print(f"part0={s_name_parts[0]}, part1={s_name_parts[1]}, pid={str(os.getpid())}")
+            logging.info(f"part0={s_name_parts[0]}, part1={s_name_parts[1]}, pid={str(os.getpid())}")
             s_name_new = s_name_parts[0] + '.' + str(int(s_name_parts[1]) + WORLD_RANK)
             self.sock_name, self.port = s_name_new, -1
             try:
@@ -65,8 +63,7 @@ class TorchModelServiceWorker(object):
         else:
             raise ValueError("Incomplete data provided")
         
-        #logging.info("Listening on port: %s", s_name)
-        print("Listening on port: "+ self.sock_name)
+        logging.info("Listening on port: %s", s_name)
         socket_family = socket.AF_INET if s_type == "tcp" else socket.AF_UNIX
         self.sock = socket.socket(socket_family, socket.SOCK_STREAM)
         self.metrics_cache = MetricsCacheYamlImpl(config_file_path=metrics_config)
@@ -172,7 +169,6 @@ class TorchModelServiceWorker(object):
         Run the backend worker process and listen on a socket
         :return:
         """
-        print(f"sock_name={self.sock_name}, sock_port={str(self.port)}")
         if not DEBUG:
             self.sock.settimeout(SOCKET_ACCEPT_TIMEOUT)
 
@@ -180,15 +176,12 @@ class TorchModelServiceWorker(object):
 
         if self.sock_type == "unix":
             self.sock.bind(self.sock_name)
-            print(f"binded, self.sock_name={self.sock_name}")
         else:
             self.sock.bind((self.sock_name, int(self.port)))
 
        # self.sock.listen(1)
         self.sock.listen(128)
 
-        print(f"listened, pid={str(os.getpid())}, LOCAL_RANK={str(LOCAL_RANK)}")
-        #print("Torch worker started.")
         logging.info("[PID]%d", os.getpid())
         logging.info("Torch worker started.")
         logging.info("Python runtime: %s", platform.python_version())
@@ -198,8 +191,7 @@ class TorchModelServiceWorker(object):
             # workaround error(35, 'Resource temporarily unavailable') on OSX
             cl_socket.setblocking(True)
 
-            #logging.info("Connection accepted: %s.", cl_socket.getsockname())
-            print("Connection accepted: "+ cl_socket.getsockname())
+            logging.info("Connection accepted: %s.", cl_socket.getsockname())
             self.handle_connection(cl_socket)
 
 

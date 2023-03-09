@@ -27,11 +27,20 @@ import org.pytorch.serve.util.GRPCUtils;
 import org.pytorch.serve.util.JsonUtils;
 import org.pytorch.serve.util.messages.RequestInput;
 import org.pytorch.serve.wlm.ModelManager;
+import org.pytorch.serve.wlm.WorkerInitializationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ManagementImpl extends ManagementAPIsServiceImplBase {
     private static final Logger logger = LoggerFactory.getLogger(ManagementImpl.class);
+
+    public static void sendErrorResponse(
+            StreamObserver<ManagementResponse> responseObserver, Status status, Exception e) {
+        responseObserver.onError(
+                status.withDescription(e.getMessage())
+                        .augmentDescription(e.getClass().getCanonicalName())
+                        .asRuntimeException());
+    }
 
     @Override
     public void describeModel(
@@ -117,7 +126,7 @@ public class ManagementImpl extends ManagementAPIsServiceImplBase {
             sendStatusResponse(responseObserver, statusResponse);
         } catch (InternalServerException e) {
             sendException(responseObserver, e, null);
-        } catch (ExecutionException | InterruptedException e) {
+        } catch (ExecutionException | InterruptedException | WorkerInitializationException e) {
             sendException(responseObserver, e, "Error while creating workers");
         } catch (ModelNotFoundException | ModelVersionNotFoundException e) {
             sendErrorResponse(responseObserver, Status.NOT_FOUND, e);
@@ -156,7 +165,7 @@ public class ManagementImpl extends ManagementAPIsServiceImplBase {
                             false,
                             null);
             sendStatusResponse(responseObserver, statusResponse);
-        } catch (ExecutionException | InterruptedException e) {
+        } catch (ExecutionException | InterruptedException | WorkerInitializationException e) {
             sendException(responseObserver, e, "Error while creating workers");
         } catch (ModelNotFoundException | ModelVersionNotFoundException e) {
             sendErrorResponse(responseObserver, Status.NOT_FOUND, e);
@@ -238,14 +247,6 @@ public class ManagementImpl extends ManagementAPIsServiceImplBase {
         responseObserver.onError(
                 status.withDescription(description)
                         .augmentDescription(errorClass)
-                        .asRuntimeException());
-    }
-
-    public static void sendErrorResponse(
-            StreamObserver<ManagementResponse> responseObserver, Status status, Exception e) {
-        responseObserver.onError(
-                status.withDescription(e.getMessage())
-                        .augmentDescription(e.getClass().getCanonicalName())
                         .asRuntimeException());
     }
 

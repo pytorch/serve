@@ -185,10 +185,13 @@ public class ModelArchive {
     public ModelConfig getModelConfig() {
         if (this.modelConfig == null && manifest.getModel().getConfigFile() != null) {
             try {
-                File configFile = new File(modelDir.getAbsolutePath(), manifest.getModel().getConfigFile());
+                File configFile =
+                        new File(modelDir.getAbsolutePath(), manifest.getModel().getConfigFile());
                 this.modelConfig = ArchiveUtils.readYamlFile(configFile, ModelConfig.class);
             } catch (InvalidModelException | IOException e) {
-                logger.error("Failed to parse model config file {}", manifest.getModel().getConfigFile());
+                logger.error(
+                        "Failed to parse model config file {}",
+                        manifest.getModel().getConfigFile());
             }
         }
         return this.modelConfig;

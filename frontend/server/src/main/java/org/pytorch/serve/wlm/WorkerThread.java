@@ -23,6 +23,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import org.pytorch.serve.archive.model.ModelConfig;
 import org.pytorch.serve.job.Job;
 import org.pytorch.serve.job.RestJob;
 import org.pytorch.serve.metrics.Dimension;
@@ -46,17 +47,13 @@ public class WorkerThread implements Runnable {
             LoggerFactory.getLogger(ConfigManager.MODEL_SERVER_METRICS_LOGGER);
     private static final Logger loggerTelemetryMetrics =
             LoggerFactory.getLogger(ConfigManager.MODEL_SERVER_TELEMETRY_LOGGER);
-
-    private Metric workerLoadTime;
-
     private static final int[] BACK_OFF = {
         0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610, 987, 1597
     };
-
     private static final long WORKER_TIMEOUT = 2L;
     private static final ModelRequestEncoder ENCODER =
             new ModelRequestEncoder(ConfigManager.getInstance().getPreferDirectBuffer());
-
+    private Metric workerLoadTime;
     private ConfigManager configManager;
     private EventLoopGroup backendEventGroup;
     private int port;
@@ -79,6 +76,34 @@ public class WorkerThread implements Runnable {
     private WorkerState state;
 
     private WorkerLifeCycle lifeCycle;
+
+    public WorkerThread(
+            ConfigManager configManager,
+            EventLoopGroup backendEventGroup,
+            int port,
+            int gpuId,
+            Model model,
+            BatchAggregator aggregator,
+            WorkerStateListener listener) {
+        this.workerId = String.valueOf(port); // Unique across all workers.
+        this.configManager = configManager;
+        this.backendEventGroup = backendEventGroup;
+        this.port = port;
+        this.model = model;
+        this.aggregator = aggregator;
+        this.gpuId = gpuId;
+        this.listener = listener;
+        startTime = System.currentTimeMillis();
+        lifeCycle = new WorkerLifeCycle(configManager, model);
+        replies = new ArrayBlockingQueue<>(model.getParallelLevel());
+        workerLoadTime =
+                new Metric(
+                        getWorkerName(),
+                        String.valueOf(System.currentTimeMillis()),
+                        "ms",
+                        ConfigManager.getInstance().getHostName(),
+                        new Dimension("Level", "Host"));
+    }
 
     public WorkerState getState() {
         return state;
@@ -141,34 +166,6 @@ public class WorkerThread implements Runnable {
         return lifeCycle;
     }
 
-    public WorkerThread(
-            ConfigManager configManager,
-            EventLoopGroup backendEventGroup,
-            int port,
-            int gpuId,
-            Model model,
-            BatchAggregator aggregator,
-            WorkerStateListener listener) {
-        this.workerId = String.valueOf(port); // Unique across all workers.
-        this.configManager = configManager;
-        this.backendEventGroup = backendEventGroup;
-        this.port = port;
-        this.model = model;
-        this.aggregator = aggregator;
-        this.gpuId = gpuId;
-        this.listener = listener;
-        startTime = System.currentTimeMillis();
-        lifeCycle = new WorkerLifeCycle(configManager, model);
-        replies = new ArrayBlockingQueue<>(model.getParallelLevel());
-        workerLoadTime =
-                new Metric(
-                        getWorkerName(),
-                        String.valueOf(System.currentTimeMillis()),
-                        "ms",
-                        ConfigManager.getInstance().getHostName(),
-                        new Dimension("Level", "Host"));
-    }
-
     @Override
     public void run() {
         int responseTimeout = model.getResponseTimeout();
@@ -186,7 +183,14 @@ public class WorkerThread implements Runnable {
 
                 long wtStartTime = System.currentTimeMillis();
                 logger.info("Flushing req. to backend at: " + wtStartTime);
-                int repeats = req.getCommand() == WorkerCommands.LOAD ? model.getParallelLevel() : 1;
+                int repeats =
+                        (req.getCommand() == WorkerCommands.LOAD)
+                                        || (req.getCommand() == WorkerCommands.PREDICT
+                                                && model.getParallelLevel() > 1
+                                                && model.getParallelType()
+                                                        != ModelConfig.ParallelType.PP)
+                                ? model.getParallelLevel()
+                                : 1;
                 for (int i = 0; backendChannel.size() > 0 && i < repeats; i++) {
                     backendChannel.get(i).writeAndFlush(req).sync();
                 }
@@ -321,7 +325,7 @@ public class WorkerThread implements Runnable {
         final int parallelLevel = model.getParallelLevel();
         final CountDownLatch latch = new CountDownLatch(parallelLevel);
         final int responseBufferSize = configManager.getMaxResponseSize();
-	    try {
+        try {
             for (int i = 0; i < parallelLevel; i++) {
                 Connector connector = new Connector(port + i);
                 Bootstrap b = new Bootstrap();
@@ -366,13 +370,14 @@ public class WorkerThread implements Runnable {
                                             // TODO:
                                             // use gpu, batch size in load model command
                                             if (latch.getCount() == 1) {
-                                            	RequestInput input =
-                                                	    new RequestInput(UUID.randomUUID().toString());
-                                            	if (gpuId >= 0) {
-                                                	input.addParameter(
-                                                        	new InputParameter(
-                                                                	"gpu", String.valueOf(gpuId)));
-                                            	}
+                                                RequestInput input =
+                                                        new RequestInput(
+                                                                UUID.randomUUID().toString());
+                                                if (gpuId >= 0) {
+                                                    input.addParameter(
+                                                            new InputParameter(
+                                                                    "gpu", String.valueOf(gpuId)));
+                                                }
 
                                                 Job job =
                                                         new RestJob(
@@ -392,13 +397,13 @@ public class WorkerThread implements Runnable {
                         "Worker failed to initialize within " + WORKER_TIMEOUT + " mins");
             }
             running.set(true);
-	    } catch (Throwable t) {
-	        // https://github.com/netty/netty/issues/2597
+        } catch (Throwable t) {
+            /* https://github.com/netty/netty/issues/2597 */
             if (t instanceof IOException) {
                 throw new WorkerInitializationException("Failed to connect to worker.", t);
             }
             throw t;
-	    }
+        }
     }
 
     public boolean isRunning() {

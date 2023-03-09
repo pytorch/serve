@@ -4,20 +4,14 @@ import os
 import zipfile
 from abc import ABC
 
-import torch
-import transformers
-from transformers import BloomForCausalLM, BloomTokenizerFast
-
-from ts.torch_handler.base_handler import BaseHandler
 import argparse
 import inspect
 import logging
 import os
 import time
 
-import torch
 import pippy.fx
-from pippy import run_pippy
+#from pippy import run_pippy
 from pippy.IR import MultiUseParameterConfig, Pipe
 from pippy.PipelineDriver import PipelineDriverFillDrain, PipelineDriver1F1B, PipelineDriverInterleaved1F1B, \
     PipelineDriverBase
@@ -32,11 +26,16 @@ from transformers import AutoFeatureExtractor, RegNetModel
 from transformers import OPTForCausalLM
 import torch.distributed.rpc as rpc
 
+import torch
+import transformers
+from transformers import BloomForCausalLM, BloomTokenizerFast
+
+from ts.torch_handler.base_handler import BaseHandler
 
 logger = logging.getLogger(__name__)
 logger.info("Transformers version %s", transformers.__version__)
 
-
+PIPPY_VERBOSITY = os.environ.get("PIPPY_VERBOSITY", "DEBUG")
 TORCH_DTYPES = {
     "float16": torch.float16,
     "float32": torch.float32,
@@ -65,12 +64,14 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
             rpc_timeout=1800
         #    transports=None,
         )
-      
+         
        
         # if args.cuda:
         n_devs = torch.cuda.device_count()
+        print(f"n_devs={n_devs}")
         dev_id = self.local_rank % n_devs 
         for i in range (self.world_size):
+            print(f"worker{i}, {dev_id}: {i % n_devs}")
             options.set_device_map(f"worker{i}", {dev_id: i % n_devs})
 
         self.device = f"cuda:{dev_id}"
@@ -96,8 +97,8 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         # args = parser.parse_args()
         # args.world_size = 4
         # args.gspmd = 1
-        if self.local_rank != 0:
-            return
+        #if self.local_rank != 0:
+        #    return
 
         self.manifest = ctx.manifest
         properties = ctx.system_properties
@@ -145,7 +146,7 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         model.eval()
     
 
-        split_policy = split_into_equal_size(1)
+        split_policy = split_into_equal_size(self.world_size)
         pp_ranks = [0,1,2,3]
         all_worker_ranks = list(range(self.world_size))
         chunks = 1

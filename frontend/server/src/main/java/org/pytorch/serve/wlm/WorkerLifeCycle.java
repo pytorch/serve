@@ -11,7 +11,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.pytorch.serve.metrics.Metric;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.Connector;
@@ -189,7 +188,7 @@ public class WorkerLifeCycle {
         argl.add("--rdzv_endpoint=localhost:" + port);
         argl.add("--rdzv_id=" + model.getModelName() + "_" + port);
     }
-    
+
     private void attachPippyArg(ArrayList<String> argl, int port, int parallelLevel) {
         argl.add("--master_addr");
         argl.add("localhost");
@@ -241,21 +240,20 @@ public class WorkerLifeCycle {
     }
 
     private static final class ReaderThread extends Thread {
-        private static final Pattern METRIC_PATTERN = Pattern.compile(
-                "^(INFO > )?(\\[METRICS])(.*)");
-        private static final Pattern WORKER_START_PATTERN = Pattern.compile(
-                "^(INFO > )?(Torch worker started.)$");
-        private static final Pattern WORKER_PID_PATTERN = Pattern.compile(
-                "^(INFO > )?(\\[PID])(\\d+)$");
-
-        private InputStream is;
-        private boolean error;
-        private WorkerLifeCycle lifeCycle;
-        private AtomicBoolean isRunning = new AtomicBoolean(true);
+        private static final Pattern METRIC_PATTERN =
+                Pattern.compile("^(INFO > )?(\\[METRICS])(.*)");
+        private static final Pattern WORKER_START_PATTERN =
+                Pattern.compile("^(INFO > )?(Torch worker started.)$");
+        private static final Pattern WORKER_PID_PATTERN =
+                Pattern.compile("^(INFO > )?(\\[PID])(\\d+)$");
         private static final Logger loggerModelMetrics =
                 LoggerFactory.getLogger(ConfigManager.MODEL_METRICS_LOGGER);
         private static final Logger loggerModelOutput =
                 LoggerFactory.getLogger(ConfigManager.MODEL_LOGGER);
+        private InputStream is;
+        private boolean error;
+        private WorkerLifeCycle lifeCycle;
+        private AtomicBoolean isRunning = new AtomicBoolean(true);
 
         public ReaderThread(String name, InputStream is, boolean error, WorkerLifeCycle lifeCycle) {
             super(name + (error ? "-stderr" : "-stdout"));

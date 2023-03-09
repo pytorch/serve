@@ -3,13 +3,15 @@ package org.pytorch.serve.archive.model;
 import java.util.ArrayList;
 
 public class ModelConfig {
-    private int minWorkers = 1;
-    private int maxWorkers = 1;
-    private int batchSize = 1;
-    private int maxBatchDelay = 100;
-    private int responseTimeout = 120;
-    private ArrayList<Integer> gpuIds;
+    private int minWorkers;
+    private int maxWorkers;
+    private int batchSize;
+    private int maxBatchDelay;
+    private int responseTimeout;
+    private CoreType coreType = CoreType.NONE;
+    private ArrayList<Integer> coreIds;
     private int parallelLevel = 1;
+    private ParallelType parallelType = ParallelType.NONE;
 
     public int getMinWorkers() {
         return minWorkers;
@@ -51,12 +53,12 @@ public class ModelConfig {
         this.responseTimeout = responseTimeout;
     }
 
-    public ArrayList<Integer> getGpuIds() {
-        return gpuIds;
+    public ArrayList<Integer> getCoreIds() {
+        return coreIds;
     }
 
-    public void setGpuIds(ArrayList<Integer> gpuIds) {
-        this.gpuIds = gpuIds;
+    public void setCoreIds(ArrayList<Integer> coreIds) {
+        this.coreIds = coreIds;
     }
 
     public int getParallelLevel() {
@@ -65,5 +67,55 @@ public class ModelConfig {
 
     public void setParallelLevel(int parallelLevel) {
         this.parallelLevel = parallelLevel;
+    }
+
+    public void setParallelType(String parallelType) {
+        this.parallelType = ParallelType.valueOf(parallelType);
+    }
+
+    public ParallelType getParallelType() {
+        return parallelType;
+    }
+
+    public void setCoreType(String coreType) {
+        this.coreType = CoreType.valueOf(coreType);
+    }
+
+    public CoreType getCoreType() {
+        return coreType;
+    }
+
+    public enum ParallelType {
+        NONE(""),
+        PP("pp"),
+        TP("tp"),
+        PPTP("pptp");
+
+        private String type;
+
+        ParallelType(String type) {
+            this.type = type;
+        }
+
+        public String getParallelType() {
+            return type;
+        }
+    }
+
+    public enum CoreType {
+        NONE(""),
+        CPU("cpu"),
+        GPU("gpu"),
+        NEURON("neuron");
+
+        private String type;
+
+        CoreType(String type) {
+            this.type = type;
+        }
+
+        public String getCoreType() {
+            return type;
+        }
     }
 }

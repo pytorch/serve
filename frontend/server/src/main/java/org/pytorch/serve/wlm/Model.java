@@ -14,6 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 import org.apache.commons.io.FilenameUtils;
 import org.pytorch.serve.archive.model.ModelArchive;
+import org.pytorch.serve.archive.model.ModelConfig;
 import org.pytorch.serve.job.Job;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.messages.WorkerCommands;
@@ -38,9 +39,17 @@ public class Model {
     private int minWorkers;
     private int maxWorkers;
     private int batchSize;
+    private int marBatchSize;
     private int maxBatchDelay;
+    private int marMaxBatchDelay;
     private int parallelLevel = 1;
-    private ArrayList<Integer> gpuIds;
+    private ModelConfig.ParallelType parallelType = ModelConfig.ParallelType.NONE;
+    private ModelConfig.CoreType coreType =
+            ConfigManager.getInstance().getNumberOfGpu() > 0
+                    ? ModelConfig.CoreType.GPU
+                    : ModelConfig.CoreType.CPU;
+    private ArrayList<Integer> coreIds;
+    private int numCores;
     private ReentrantLock lock;
     private int responseTimeout;
     private ModelVersionName modelVersionName;
@@ -56,17 +65,32 @@ public class Model {
     public Model(ModelArchive modelArchive, int queueSize) {
         this.modelArchive = modelArchive;
         if (modelArchive != null && modelArchive.getModelConfig() != null) {
-            minWorkers = modelArchive.getModelConfig().getMinWorkers();
-            maxWorkers = modelArchive.getModelConfig().getMaxWorkers();
-            batchSize = modelArchive.getModelConfig().getBatchSize();
-            maxBatchDelay = modelArchive.getModelConfig().getMaxBatchDelay();
-            responseTimeout = modelArchive.getModelConfig().getResponseTimeout();
-            parallelLevel = modelArchive.getModelConfig().getParallelLevel();
-            gpuIds = modelArchive.getModelConfig().getGpuIds();
+            if (modelArchive.getModelConfig().getParallelLevel() > 1
+                    && modelArchive.getModelConfig().getParallelType()
+                            != ModelConfig.ParallelType.NONE) {
+                parallelLevel = modelArchive.getModelConfig().getParallelLevel();
+                parallelType = modelArchive.getModelConfig().getParallelType();
+            }
+            if (modelArchive.getModelConfig().getCoreType() != ModelConfig.CoreType.NONE) {
+                coreType =
+                        (modelArchive.getModelConfig().getCoreType() == ModelConfig.CoreType.GPU
+                                        && ConfigManager.getInstance().getNumberOfGpu() > 0)
+                                ? ModelConfig.CoreType.GPU
+                                : coreType;
+            }
+            coreIds = modelArchive.getModelConfig().getCoreIds();
         } else {
             batchSize = 1;
             maxBatchDelay = 100;
         }
+
+        if (ConfigManager.getInstance().getNumberOfGpu() > 0) {
+            numCores =
+                    (coreIds != null && coreIds.size() > 0)
+                            ? coreIds.size()
+                            : ConfigManager.getInstance().getNumberOfGpu();
+        }
+
         jobsDb = new ConcurrentHashMap<>();
         // Always have a queue for data
         jobsDb.putIfAbsent(DEFAULT_DATA_QUEUE, new LinkedBlockingDeque<>(queueSize));
@@ -269,19 +293,31 @@ public class Model {
         this.responseTimeout = responseTimeout;
     }
 
-    public ArrayList<Integer> getGpuIds() {
-        return this.gpuIds;
+    public ArrayList<Integer> getCoreIds() {
+        return this.coreIds;
     }
 
-    public void setGpuIds(ArrayList<Integer> gpuIds) {
-        Collections.copy(this.gpuIds, gpuIds);
+    public void setCoreIdsIds(ArrayList<Integer> coreIds) {
+        Collections.copy(this.coreIds, coreIds);
+    }
+
+    public int getParallelLevel() {
+        return this.parallelLevel;
     }
 
     public void setParallelLevel(int parallelLevel) {
         this.parallelLevel = parallelLevel;
     }
 
-    public int getParallelLevel() {
-        return this.parallelLevel;
+    public ModelConfig.ParallelType getParallelType() {
+        return this.parallelType;
+    }
+
+    public ModelConfig.CoreType getCoreType() {
+        return this.coreType;
+    }
+
+    public int getNumCores() {
+        return this.numCores;
     }
 }
