@@ -191,7 +191,7 @@ public class ModelArchive {
             } catch (InvalidModelException | IOException e) {
                 logger.error(
                         "Failed to parse model config file {}",
-                        manifest.getModel().getConfigFile());
+                        manifest.getModel().getConfigFile(), e);
             }
         }
         return this.modelConfig;

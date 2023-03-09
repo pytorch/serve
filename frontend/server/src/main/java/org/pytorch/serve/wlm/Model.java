@@ -39,9 +39,7 @@ public class Model {
     private int minWorkers;
     private int maxWorkers;
     private int batchSize;
-    private int marBatchSize;
     private int maxBatchDelay;
-    private int marMaxBatchDelay;
     private int parallelLevel = 1;
     private ModelConfig.ParallelType parallelType = ModelConfig.ParallelType.NONE;
     private ModelConfig.CoreType coreType =
@@ -78,7 +76,7 @@ public class Model {
                                 ? ModelConfig.CoreType.GPU
                                 : coreType;
             }
-            coreIds = modelArchive.getModelConfig().getCoreIds();
+            coreIds = modelArchive.getModelConfig().getDeviceIds();
         } else {
             batchSize = 1;
             maxBatchDelay = 100;

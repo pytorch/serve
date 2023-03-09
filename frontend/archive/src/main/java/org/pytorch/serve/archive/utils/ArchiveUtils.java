@@ -44,7 +44,6 @@ public final class ArchiveUtils {
 
     public static <T> T readYamlFile(File file, Class<T> type)
             throws InvalidModelException, IOException {
-        // Yaml yaml = new Yaml(new Constructor(ModelConfig.class));
         Yaml yaml = new Yaml(new Constructor(type));
         try (Reader r =
                 new InputStreamReader(

@@ -1,6 +1,8 @@
 package org.pytorch.serve.archive.model;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Optional;
 
 public class ModelConfig {
     private int minWorkers;
@@ -8,9 +10,11 @@ public class ModelConfig {
     private int batchSize;
     private int maxBatchDelay;
     private int responseTimeout;
+    private String deviceType;
     private CoreType coreType = CoreType.NONE;
-    private ArrayList<Integer> coreIds;
+    private ArrayList<Integer> deviceIds;
     private int parallelLevel = 1;
+    private String parallelMode;
     private ParallelType parallelType = ParallelType.NONE;
 
     public int getMinWorkers() {
@@ -53,12 +57,12 @@ public class ModelConfig {
         this.responseTimeout = responseTimeout;
     }
 
-    public ArrayList<Integer> getCoreIds() {
-        return coreIds;
+    public ArrayList<Integer> getDeviceIds() {
+        return deviceIds;
     }
 
-    public void setCoreIds(ArrayList<Integer> coreIds) {
-        this.coreIds = coreIds;
+    public void setDeviceIds(ArrayList<Integer> deviceIds) {
+        this.deviceIds = deviceIds;
     }
 
     public int getParallelLevel() {
@@ -69,16 +73,26 @@ public class ModelConfig {
         this.parallelLevel = parallelLevel;
     }
 
-    public void setParallelType(String parallelType) {
-        this.parallelType = ParallelType.valueOf(parallelType);
+    public void setParallelMode(String parallelMode) {
+        this.parallelMode = parallelMode;
+        this.parallelType = ParallelType.get(parallelMode).get();
+    }
+
+    public String getParallelMode() {
+        return this.parallelMode;
     }
 
     public ParallelType getParallelType() {
-        return parallelType;
+        return this.parallelType;
     }
 
-    public void setCoreType(String coreType) {
-        this.coreType = CoreType.valueOf(coreType);
+    public void setDeviceType(String deviceType) {
+        this.deviceType = deviceType;
+        this.coreType = CoreType.get(deviceType).get();
+    }
+
+    public String getDeviceType() {
+        return deviceType;
     }
 
     public CoreType getCoreType() {
@@ -100,6 +114,12 @@ public class ModelConfig {
         public String getParallelType() {
             return type;
         }
+
+        public static Optional<ParallelType> get(String parallelType) {
+            return Arrays.stream(ParallelType.values())
+                    .filter(t -> t.type.equals(parallelType))
+                    .findFirst();
+        }
     }
 
     public enum CoreType {
@@ -116,6 +136,12 @@ public class ModelConfig {
 
         public String getCoreType() {
             return type;
+        }
+
+        public static Optional<CoreType> get(String coreType) {
+            return Arrays.stream(CoreType.values())
+                    .filter(t -> t.type.equals(coreType))
+                    .findFirst();
         }
     }
 }

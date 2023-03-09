@@ -14,6 +14,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import org.pytorch.serve.archive.model.ModelConfig;
 import org.pytorch.serve.snapshot.SnapshotManager;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.OSUtils;
@@ -191,20 +193,14 @@ public class WorkLoadManager {
     private void addThreads(
             List<WorkerThread> threads, Model model, int count, CompletableFuture<Integer> future) {
         WorkerStateListener listener = new WorkerStateListener(future, count);
-        int maxGpu = configManager.getNumberOfGpu();
-        if (maxGpu > 0 && model.getCoreIds() != null) {
-            maxGpu = model.getCoreIds().size();
-        }
+        int maxGpu = model.getNumCores();
         int parallelGpuIdx = 0;
         for (int i = 0; i < count; ++i) {
             int gpuId = -1;
 
-            if (maxGpu > 0) {
+            if (maxGpu > 0 && model.getCoreType() == ModelConfig.CoreType.GPU) {
                 if (model.getParallelLevel() > 1) {
-                    gpuId =
-                            model.getCoreIds() != null
-                                    ? model.getCoreIds().get(parallelGpuIdx)
-                                    : parallelGpuIdx;
+                    gpuId = parallelGpuIdx;
                     parallelGpuIdx += model.getParallelLevel();
                 } else {
                     if (model.getCoreIds() != null) {
