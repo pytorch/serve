@@ -2,6 +2,8 @@ minWorkers: 1
 maxWorkers: 1
 maxBatchDelay: 100
 responseTimeout: 120
+coreType: cpu # cpu, gpu, neuron
+coreIds: [0,1,2.3] # core index for gpu, neuron
 parallelLevel: 4
 parallelType: pp # pp: pipeline parallel; tp: tensor parallel; tp+pp
 
