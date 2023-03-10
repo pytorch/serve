@@ -59,7 +59,7 @@ $ torch-model-archiver -h
 usage: torch-model-archiver [-h] --model-name MODEL_NAME  --version MODEL_VERSION_NUMBER
                       --model-file MODEL_FILE_PATH --serialized-file MODEL_SERIALIZED_PATH
                       --handler HANDLER [--runtime {python,python3}]
-                      [--export-path EXPORT_PATH] [-f] [--requirements-file]
+                      [--export-path EXPORT_PATH] [-f] [--requirements-file] [--config-file]
 
 Model Archiver Tool
 
@@ -113,6 +113,7 @@ optional arguments:
   -r, --requirements-file
                         Path to requirements.txt file containing a list of model specific python
                         packages to be installed by TorchServe for seamless model serving.
+  -c, --config-file         Path to a model config yaml file.
 ```
 
 ## Artifact Details
@@ -151,6 +152,21 @@ e.g. if your custom handler custom_image_classifier.py is in /home/serve/example
 `--handler /home/serve/examples/custom_image_classifier` or if it has my_entry_point module level function then `--handler /home/serve/examples/custom_image_classifier:my_entry_point_func`
 
 For more details refer [default handler documentation](../docs/default_handlers.md) or [custom handler documentation](../docs/custom_service.md)
+
+### Config file
+
+A model config yaml file. For example: 
+
+```
+minWorkers: 1
+maxWorkers: 1
+maxBatchDelay: 100
+responseTimeout: 120
+parallelLevel: 4
+parallelMode: "pp" # pp: pipeline parallel; tp: tensor parallel; pptp: pipeline+tensor parallel
+deviceType: "gpu" #cpu, gpu, neuron
+deviceIds: [0,1,2,3]
+```
 
 ## Creating a Model Archive
 
