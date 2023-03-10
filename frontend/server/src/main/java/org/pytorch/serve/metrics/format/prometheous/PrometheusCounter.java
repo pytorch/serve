@@ -1,29 +1,29 @@
 package org.pytorch.serve.metrics.format.prometheous;
 
 import io.prometheus.client.Counter;
-import org.pytorch.serve.metrics.IMetric;
+import java.util.ArrayList;
 import org.pytorch.serve.metrics.MetricBuilder;
 
-import java.util.ArrayList;
 
-public class PrometheusCounter extends IMetric {
+public class PrometheusCounter extends PrometheusMetric {
+    private final Counter counter;
+
     public PrometheusCounter(
-            MetricBuilder.MetricType metricsType,
-            String metricsName,
+            MetricBuilder.MetricContext context,
+            MetricBuilder.MetricType type,
+            String name,
             String unit,
             ArrayList<String> dimensionNames) {
-        super(metricsType, metricsName, unit, dimensionNames);
+        super(context, type, name, unit, dimensionNames);
+        this.counter = Counter.build()
+                .name(this.name)
+                .labelNames(this.dimensionNames.toArray(new String[0]))
+                .help("Torchserve metric")
+                .register();
     }
 
     @Override
     public void addOrUpdate(ArrayList<String> dimensionValues, double value) {
-
+        this.counter.labels(dimensionValues.toArray(new String[0])).inc(value);
     }
-
-    @Override
-    public void addOrUpdate(ArrayList<String> dimensionValues, String requestIds, double value) {
-
-    }
-
-    private Counter counter;
 }

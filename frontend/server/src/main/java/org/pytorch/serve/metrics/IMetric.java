@@ -3,15 +3,23 @@ package org.pytorch.serve.metrics;
 import java.util.ArrayList;
 
 public abstract class IMetric {
+    protected MetricBuilder.MetricContext context;
+    protected MetricBuilder.MetricType type;
+    protected String name;
+    protected String unit;
+    protected ArrayList<String> dimensionNames;
+
     public IMetric(
-            MetricBuilder.MetricType metricsType,
-            String metricsName,
+            MetricBuilder.MetricContext context,
+            MetricBuilder.MetricType type,
+            String name,
             String unit,
             ArrayList<String> dimensionNames) {
-        this.metricsType = metricsType;
-        this.metricsName = metricsName;
+        this.context = context;
+        this.type = type;
+        this.name = name;
         this.unit = unit;
-        this.dimensionNames = dimensionNames;
+        this.dimensionNames = new ArrayList<String>(dimensionNames);
     }
 
     public abstract void addOrUpdate(
@@ -19,11 +27,8 @@ public abstract class IMetric {
             double value);
     public abstract void addOrUpdate(
             ArrayList<String> dimensionValues,
+            String hostname,
             String requestIds,
+            String timestamp,
             double value);
-
-    private MetricBuilder.MetricType metricsType;
-    private String metricsName;
-    private String unit;
-    private ArrayList<String> dimensionNames;
 }
