@@ -134,10 +134,6 @@ public class WorkerLifeCycle {
         argl.add("--metrics-config");
         argl.add(configManager.getMetricsConfigPath());
 
-        if (model.getParallelLevel() > 1) {
-            attachPippyArg(argl, port, model.getParallelLevel());
-        }
-
         String[] envp =
                 EnvironmentUtils.getEnvString(
                         workingDir.getAbsolutePath(),
@@ -187,13 +183,6 @@ public class WorkerLifeCycle {
         argl.add("--rdzv_backend=c10d");
         argl.add("--rdzv_endpoint=localhost:" + port);
         argl.add("--rdzv_id=" + model.getModelName() + "_" + port);
-    }
-
-    private void attachPippyArg(ArrayList<String> argl, int port, int parallelLevel) {
-        argl.add("--master_addr");
-        argl.add("localhost");
-        argl.add("--master_port");
-        argl.add(Integer.toString(port));
     }
 
     public synchronized void terminateIOStreams() {

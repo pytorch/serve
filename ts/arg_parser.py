@@ -128,20 +128,6 @@ class ArgParser(object):
             help="Metrics configuration file",
         )
 
-        parser.add_argument(
-            "--master_addr",
-            dest="master_addr",
-            type=str,
-            help="pippy master addr",
-        )
-
-        parser.add_argument(
-            "--master_port",
-            dest="master_port",
-            type=int,
-            help="pippy master port",
-        )
-
         return parser
 
     @staticmethod
