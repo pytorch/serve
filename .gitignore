@@ -6,6 +6,7 @@ dist/
 *.egg-info/
 .idea
 *htmlcov*
+.cache
 .coverage
 .github/actions/
 .github/.DS_Store
