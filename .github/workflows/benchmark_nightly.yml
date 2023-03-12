@@ -1,0 +1,94 @@
+name: Benchmark torchserve nightly
+
+on:
+  # run every day at 2:15am
+  #schedule:
+  #  - cron:  '15 02 * * *'
+  # test workflow
+  push:
+
+jobs:
+  nightly:
+    strategy:
+      matrix:
+        hardware: [cpu, gpu, inf1]
+    runs-on: [self-hosted, ${{ matrix.hardware }}]
+    timeout-minutes: 1320
+    steps:
+      - name: Clean up previous run
+        run: |
+          echo "Cleaning up previous run"
+          cd $RUNNER_WORKSPACE
+          pwd
+          cd ..
+          pwd
+          rm -rf _tool
+      - name: Setup Python 3.8
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.8
+          architecture: x64
+      - name: Setup Java 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+      - name: Checkout TorchServe
+        uses: actions/checkout@v3
+      - name: Install dependencies cpu
+        if: ${{ matrix.hardware == 'cpu' }}
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y apache2-utils
+          pip install -r benchmarks/requirements-ab.txt
+          export omp_num_threads=1
+      - name: Install dependencies gpu
+        if: ${{ matrix.hardware == 'gpu' }}
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y apache2-utils
+          pip install -r benchmarks/requirements-ab.txt
+      - name: Install dependencies inf1
+        if: ${{ matrix.hardware == 'inf1' }}
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y apache2-utils
+          pip install -r benchmarks/requirements-ab.txt
+          export omp_num_threads=1
+      - name: Benchmark cpu nightly
+        if: ${{ matrix.hardware == 'cpu' }}
+        run: python benchmarks/auto_benchmark.py --input benchmarks/benchmark_config_cpu.yaml --skip false
+      - name: Benchmark gpu nightly
+        if: ${{ matrix.hardware == 'gpu' }}
+        run: python benchmarks/auto_benchmark.py --input benchmarks/benchmark_config_gpu.yaml --skip false
+      - name: Benchmark inf1 nightly
+        if: ${{ matrix.hardware == 'inf1' }}
+        run: python benchmarks/auto_benchmark.py --input benchmarks/benchmark_config_neuron.yaml --skip false
+      - name: Save benchmark artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: nightly ${{ matrix.hardware }} artifact
+          path: /tmp/ts_benchmark
+      - name: Download benchmark artifacts for auto validation
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          workflow: ${{ github.event.workflow_run.workflow_id }}
+          workflow_conclusion: success
+          if_no_artifact_found: ignore
+          path: /tmp/ts_artifacts
+          name: ${{ matrix.hardware }}_benchmark_validation
+      - name: Update benchmark artifacts for auto validation
+        run: python benchmarks/utils/update_artifacts.py --output /tmp/ts_artifacts/${{ matrix.hardware }}_benchmark_validation
+      - name: Upload the updated benchmark artifacts for auto validation
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ matrix.hardware }}_benchmark_validation
+          path: /tmp/ts_artifacts
+      - name: Open issue on failure
+        if: ${{ failure() && github.event_name  == 'schedule' && matrix.hardware == 'cpu' }}
+        uses: dacbd/create-issue-action@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          title: Nightly ${{ matrix.hardware }} benchmark failed
+          body:  Commit ${{ github.sha }} daily scheduled [CI run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) failed, please check why
+          assignees: ''
