@@ -12,7 +12,9 @@ jobs:
     strategy:
       matrix:
         hardware: [cpu, gpu, inf1]
-    runs-on: [self-hosted, ${{ matrix.hardware }}]
+    runs-on:
+      - self-hosted
+      - ${{ matrix.hardware }}
     timeout-minutes: 1320
     steps:
       - name: Clean up previous run
