@@ -2,17 +2,37 @@
     return a KServe side response """
 import logging
 import pathlib
+from enum import Enum
+from typing import Dict, Union
 
+import grpc
+import inference_pb2
+import inference_pb2_grpc
 import kserve
 from kserve.errors import ModelMissingError
 from kserve.model import Model as Model
+from kserve.protocol.grpc.grpc_predict_v2_pb2 import (
+    ModelInferRequest,
+    ModelInferResponse,
+)
+from kserve.protocol.infer_type import InferRequest
 
 logging.basicConfig(level=kserve.constants.KSERVE_LOGLEVEL)
 
 PREDICTOR_URL_FORMAT = PREDICTOR_V2_URL_FORMAT = "http://{0}/predictions/{1}"
-EXPLAINER_URL_FORMAT = EXPLAINER_V2_URL_FORMAT = "http://{0}/explanations/{1}"
+EXPLAINER_URL_FORMAT = EXPLAINER_v2_URL_FORMAT = "http://{0}/explanations/{1}"
 REGISTER_URL_FORMAT = "{0}/models?initial_workers=1&url={1}"
 UNREGISTER_URL_FORMAT = "{0}/models/{1}"
+
+
+class PredictorProtocol(Enum):
+    REST_V1 = "v1"
+    REST_V2 = "v2"
+    GRPC_V2 = "grpc-v2"
+
+
+PREDICTOR_URL_FORMAT = "http://{0}/v1/models/{1}:predict"
+EXPLAINER_URL_FORMAT = "http://{0}/v1/models/{1}:explain"
 
 
 class TorchserveModel(Model):
@@ -24,7 +44,15 @@ class TorchserveModel(Model):
         side predict and explain http requests.
     """
 
-    def __init__(self, name, inference_address, management_address, model_dir):
+    def __init__(
+        self,
+        name,
+        inference_address,
+        management_address,
+        grpc_inference_address,
+        protocol,
+        model_dir,
+    ):
         """The Model Name, Inference Address, Management Address and the model directory
         are specified.
 
@@ -43,11 +71,33 @@ class TorchserveModel(Model):
 
         self.inference_address = inference_address
         self.management_address = management_address
+        self.grpc_inference_address = grpc_inference_address
         self.model_dir = model_dir
+        self.protocol = protocol
+
+        if self._grpc_client_stub == None:
+            self._channel = grpc.aio.insecure_channel(self.grpc_inference_address)
+            self._grpc_client_stub = inference_pb2_grpc.InferenceAPIsServiceStub(
+                self._channel
+            )
 
         logging.info("Predict URL set to %s", self.predictor_host)
         self.explainer_host = self.predictor_host
         logging.info("Explain URL set to %s", self.explainer_host)
+
+    async def _grpc_predict(
+        self,
+        payload: Union[ModelInferRequest, InferRequest],
+        headers: Dict[str, str] = None,
+    ) -> ModelInferResponse:
+        if isinstance(payload, InferRequest):
+            payload = payload.to_grpc()
+        print(">payload", payload)
+        input_data = {"data": payload}
+        async_result = await self._grpc_client.Predictions(
+            inference_pb2.PredictionsRequest(model_name="mnist", input=input_data)
+        )
+        return async_result
 
     def load(self) -> bool:
         """This method validates model availabilty in the model directory
