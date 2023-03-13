@@ -2,19 +2,15 @@
     return a KServe side response """
 import logging
 import pathlib
-from typing import Dict, Union
 
 import kserve
-import orjson
-from httpx import HTTPStatusError
 from kserve.errors import ModelMissingError
 from kserve.model import Model as Model
-from kserve.protocol.infer_type import InferRequest
 
 logging.basicConfig(level=kserve.constants.KSERVE_LOGLEVEL)
 
-PREDICTOR_URL_FORMAT = "http://{0}/predictions/{1}"
-EXPLAINER_URL_FORMAT = "http://{0}/explanations/{1}"
+PREDICTOR_URL_FORMAT = PREDICTOR_V2_URL_FORMAT = "http://{0}/predictions/{1}"
+EXPLAINER_URL_FORMAT = EXPLAINER_V2_URL_FORMAT = "http://{0}/explanations/{1}"
 REGISTER_URL_FORMAT = "{0}/models?initial_workers=1&url={1}"
 UNREGISTER_URL_FORMAT = "{0}/models/{1}"
 
@@ -52,41 +48,6 @@ class TorchserveModel(Model):
         logging.info("Predict URL set to %s", self.predictor_host)
         self.explainer_host = self.predictor_host
         logging.info("Explain URL set to %s", self.explainer_host)
-
-    async def _http_predict(
-        self, payload: Union[Dict, InferRequest], headers: Dict[str, str] = None
-    ) -> Dict:
-        predict_url = PREDICTOR_URL_FORMAT.format(self.predictor_host, self.name)
-
-        # Adjusting headers. Inject content type if not exist.
-        # Also, removing host, as the header is the one passed to transformer and contains transformer's host
-        predict_headers = {"Content-Type": "application/json"}
-        if headers is not None:
-            if "x-request-id" in headers:
-                predict_headers["x-request-id"] = headers["x-request-id"]
-            if "x-b3-traceid" in headers:
-                predict_headers["x-b3-traceid"] = headers["x-b3-traceid"]
-        if isinstance(payload, InferRequest):
-            payload = payload.to_rest()
-        data = orjson.dumps(payload)
-        response = await self._http_client.post(
-            predict_url, timeout=self.timeout, headers=predict_headers, content=data
-        )
-        if not response.is_success:
-            message = (
-                "{error_message}, '{0.status_code} {0.reason_phrase}' for url '{0.url}'"
-            )
-            error_message = ""
-            if (
-                "content-type" in response.headers
-                and response.headers["content-type"] == "application/json"
-            ):
-                error_message = response.json()
-                if "error" in error_message:
-                    error_message = error_message["error"]
-            message = message.format(response, error_message=error_message)
-            raise HTTPStatusError(message, request=response.request, response=response)
-        return orjson.loads(response.content)
 
     def load(self) -> bool:
         """This method validates model availabilty in the model directory
