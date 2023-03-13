@@ -11,70 +11,70 @@ dimensions:
 ts_metrics:
   counter:
     - name: Requests2XX
-      unit: count
+      unit: Count
       dimensions: [*level, *hostname]
     - name: Requests4XX
-      unit: count
+      unit: Count
       dimensions: [*level, *hostname]
     - name: Requests5XX
-      unit: count
+      unit: Count
       dimensions: [*level, *hostname]
     - name: InferenceRequestsTotal
-      unit: count
+      unit: Count
+      dimensions: [*model_name, *model_version, *hostname]
+    - name: InferenceLatencyMicroseconds
+      unit: Microseconds
+      dimensions: [*model_name, *model_version, *hostname]
+    - name: QueueLatencyMicroseconds
+      unit: Microseconds
       dimensions: [*model_name, *model_version, *hostname]
   gauge:
     - name: QueueTime
-      unit: ms
+      unit: Milliseconds
       dimensions: [*level, *hostname]
     - name: WorkerThreadTime
-      unit: ms
+      unit: Milliseconds
       dimensions: [*level, *hostname]
     - name: WorkerLoadTime
-      unit: ms
+      unit: Milliseconds
       dimensions: [*worker_name, *level, *hostname]
     - name: CPUUtilization
-      unit: percent
+      unit: Percent
       dimensions: [*level, *hostname]
     - name: MemoryUsed
-      unit: MB
+      unit: Megabytes
       dimensions: [*level, *hostname]
     - name: MemoryAvailable
-      unit: MB
+      unit: Megabytes
       dimensions: [*level, *hostname]
     - name: MemoryUtilization
-      unit: percent
+      unit: Percent
       dimensions: [*level, *hostname]
     - name: DiskUsage
-      unit: GB
+      unit: Gigabytes
       dimensions: [*level, *hostname]
     - name: DiskUtilization
-      unit: percent
+      unit: Percent
       dimensions: [*level, *hostname]
     - name: DiskAvailable
-      unit: GB
+      unit: Gigabytes
       dimensions: [*level, *hostname]
     - name: GPUMemoryUtilization
-      unit: percent
+      unit: Percent
       dimensions: [*level, *device_id, *hostname]
     - name: GPUMemoryUsed
-      unit: MB
+      unit: Megabytes
       dimensions: [*level, *device_id, *hostname]
     - name: GPUUtilization
-      unit: percent
+      unit: Percent
       dimensions: [*level, *device_id, *hostname]
-    - name: InferenceLatencyMicroseconds
-      unit: microseconds
-      dimensions: [*model_name, *model_version, *hostname]
-    - name: QueueLatencyMicroseconds
-      unit: microseconds
-      dimensions: [*model_name, *model_version, *hostname]
 
 model_metrics:
-  # Dimension "hostname" is automatically added for model metrics in the backend
+  # Dimension "Hostname" is automatically added for model metrics in the backend
   gauge:
     - name: HandlerTime
-      unit: ms
+      unit: Milliseconds
       dimensions: [*model_name, *level]
     - name: PredictionTime
-      unit: ms
+      unit: Milliseconds
       dimensions: [*model_name, *level]
