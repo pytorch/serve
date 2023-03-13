@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.util.List;
+import java.util.Map;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.pytorch.serve.archive.DownloadArchiveException;
@@ -187,11 +188,13 @@ public class ModelArchive {
             try {
                 File configFile =
                         new File(modelDir.getAbsolutePath(), manifest.getModel().getConfigFile());
-                this.modelConfig = ArchiveUtils.readYamlFile(configFile, ModelConfig.class);
+                Map<String, Object> modelConfigMap = ArchiveUtils.readYamlFile(configFile);
+                this.modelConfig = ModelConfig.build(modelConfigMap);
             } catch (InvalidModelException | IOException e) {
                 logger.error(
                         "Failed to parse model config file {}",
-                        manifest.getModel().getConfigFile(), e);
+                        manifest.getModel().getConfigFile(),
+                        e);
             }
         }
         return this.modelConfig;

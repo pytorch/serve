@@ -1,8 +1,11 @@
 package org.pytorch.serve.archive.model;
 
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ModelConfig {
     private int minWorkers;
@@ -10,12 +13,49 @@ public class ModelConfig {
     private int batchSize;
     private int maxBatchDelay;
     private int responseTimeout;
-    private String deviceType;
-    private CoreType coreType = CoreType.NONE;
-    private ArrayList<Integer> deviceIds;
+    private DeviceType deviceType = DeviceType.NONE;
+    private List<Integer> deviceIds;
     private int parallelLevel = 1;
-    private String parallelMode;
     private ParallelType parallelType = ParallelType.NONE;
+
+    public static ModelConfig build(Map<String, Object> yamlMap) {
+        ModelConfig modelConfig = new ModelConfig();
+        yamlMap.forEach(
+                (k, v) -> {
+                    switch (k) {
+                        case "minWorkers":
+                            modelConfig.setMinWorkers((int) v);
+                            break;
+                        case "maxWorkers":
+                            modelConfig.setMaxWorkers((int) v);
+                            break;
+                        case "batchSize":
+                            modelConfig.setBatchSize((int) v);
+                            break;
+                        case "maxBatchDelay":
+                            modelConfig.setMaxBatchDelay((int) v);
+                            break;
+                        case "responseTimeout":
+                            modelConfig.setResponseTimeout((int) v);
+                            break;
+                        case "deviceType":
+                            modelConfig.setDeviceType((String) v);
+                            break;
+                        case "parallelLevel":
+                            modelConfig.setParallelLevel((int) v);
+                            break;
+                        case "parallelType":
+                            modelConfig.setParallelMode((String) v);
+                            break;
+                        case "deviceIds":
+                            modelConfig.setDeviceIds(v);
+                            break;
+                        default:
+                            break;
+                    }
+                });
+        return modelConfig;
+    }
 
     public int getMinWorkers() {
         return minWorkers;
@@ -57,12 +97,16 @@ public class ModelConfig {
         this.responseTimeout = responseTimeout;
     }
 
-    public ArrayList<Integer> getDeviceIds() {
+    public List<Integer> getDeviceIds() {
         return deviceIds;
     }
 
-    public void setDeviceIds(ArrayList<Integer> deviceIds) {
-        this.deviceIds = deviceIds;
+    public void setDeviceIds(Object deviceIds) {
+        this.deviceIds =
+                Stream.of(deviceIds)
+                        .map(Object::toString)
+                        .map(Integer::parseInt)
+                        .collect(Collectors.toList());
     }
 
     public int getParallelLevel() {
@@ -74,12 +118,7 @@ public class ModelConfig {
     }
 
     public void setParallelMode(String parallelMode) {
-        this.parallelMode = parallelMode;
         this.parallelType = ParallelType.get(parallelMode).get();
-    }
-
-    public String getParallelMode() {
-        return this.parallelMode;
     }
 
     public ParallelType getParallelType() {
@@ -87,16 +126,11 @@ public class ModelConfig {
     }
 
     public void setDeviceType(String deviceType) {
-        this.deviceType = deviceType;
-        this.coreType = CoreType.get(deviceType).get();
+        this.deviceType = DeviceType.get(deviceType).get();
     }
 
-    public String getDeviceType() {
+    public DeviceType getDeviceType() {
         return deviceType;
-    }
-
-    public CoreType getCoreType() {
-        return coreType;
     }
 
     public enum ParallelType {
@@ -122,7 +156,7 @@ public class ModelConfig {
         }
     }
 
-    public enum CoreType {
+    public enum DeviceType {
         NONE(""),
         CPU("cpu"),
         GPU("gpu"),
@@ -130,17 +164,17 @@ public class ModelConfig {
 
         private String type;
 
-        CoreType(String type) {
+        DeviceType(String type) {
             this.type = type;
         }
 
-        public String getCoreType() {
+        public String getDeviceType() {
             return type;
         }
 
-        public static Optional<CoreType> get(String coreType) {
-            return Arrays.stream(CoreType.values())
-                    .filter(t -> t.type.equals(coreType))
+        public static Optional<DeviceType> get(String deviceType) {
+            return Arrays.stream(DeviceType.values())
+                    .filter(t -> t.type.equals(deviceType))
                     .findFirst();
         }
     }

@@ -2,8 +2,8 @@ package org.pytorch.serve.wlm;
 
 import com.google.gson.JsonObject;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -42,11 +42,11 @@ public class Model {
     private int maxBatchDelay;
     private int parallelLevel = 1;
     private ModelConfig.ParallelType parallelType = ModelConfig.ParallelType.NONE;
-    private ModelConfig.CoreType coreType =
+    private ModelConfig.DeviceType deviceType =
             ConfigManager.getInstance().getNumberOfGpu() > 0
-                    ? ModelConfig.CoreType.GPU
-                    : ModelConfig.CoreType.CPU;
-    private ArrayList<Integer> coreIds;
+                    ? ModelConfig.DeviceType.GPU
+                    : ModelConfig.DeviceType.CPU;
+    private List<Integer> coreIds;
     private int numCores;
     private ReentrantLock lock;
     private int responseTimeout;
@@ -69,12 +69,12 @@ public class Model {
                 parallelLevel = modelArchive.getModelConfig().getParallelLevel();
                 parallelType = modelArchive.getModelConfig().getParallelType();
             }
-            if (modelArchive.getModelConfig().getCoreType() != ModelConfig.CoreType.NONE) {
-                coreType =
-                        (modelArchive.getModelConfig().getCoreType() == ModelConfig.CoreType.GPU
+            if (modelArchive.getModelConfig().getDeviceType() != ModelConfig.DeviceType.NONE) {
+                deviceType =
+                        (modelArchive.getModelConfig().getDeviceType() == ModelConfig.DeviceType.GPU
                                         && ConfigManager.getInstance().getNumberOfGpu() > 0)
-                                ? ModelConfig.CoreType.GPU
-                                : coreType;
+                                ? ModelConfig.DeviceType.GPU
+                                : deviceType;
             }
             coreIds = modelArchive.getModelConfig().getDeviceIds();
         } else {
@@ -291,11 +291,11 @@ public class Model {
         this.responseTimeout = responseTimeout;
     }
 
-    public ArrayList<Integer> getCoreIds() {
+    public List<Integer> getCoreIds() {
         return this.coreIds;
     }
 
-    public void setCoreIdsIds(ArrayList<Integer> coreIds) {
+    public void setCoreIdsIds(List<Integer> coreIds) {
         Collections.copy(this.coreIds, coreIds);
     }
 
@@ -311,8 +311,8 @@ public class Model {
         return this.parallelType;
     }
 
-    public ModelConfig.CoreType getCoreType() {
-        return this.coreType;
+    public ModelConfig.DeviceType getDeviceType() {
+        return this.deviceType;
     }
 
     public int getNumCores() {

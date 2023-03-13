@@ -13,6 +13,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 import org.apache.commons.io.FileUtils;
 import org.pytorch.serve.archive.DownloadArchiveException;
@@ -45,6 +46,19 @@ public final class ArchiveUtils {
     public static <T> T readYamlFile(File file, Class<T> type)
             throws InvalidModelException, IOException {
         Yaml yaml = new Yaml(new Constructor(type));
+        try (Reader r =
+                new InputStreamReader(
+                        Files.newInputStream(file.toPath()), StandardCharsets.UTF_8)) {
+
+            return yaml.load(r);
+        } catch (YAMLException e) {
+            throw new InvalidModelException("Failed to parse model config yaml file.", e);
+        }
+    }
+
+    public static Map<String, Object> readYamlFile(File file)
+            throws InvalidModelException, IOException {
+        Yaml yaml = new Yaml();
         try (Reader r =
                 new InputStreamReader(
                         Files.newInputStream(file.toPath()), StandardCharsets.UTF_8)) {

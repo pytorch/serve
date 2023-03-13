@@ -14,7 +14,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-
 import org.pytorch.serve.archive.model.ModelConfig;
 import org.pytorch.serve.snapshot.SnapshotManager;
 import org.pytorch.serve.util.ConfigManager;
@@ -198,7 +197,7 @@ public class WorkLoadManager {
         for (int i = 0; i < count; ++i) {
             int gpuId = -1;
 
-            if (maxGpu > 0 && model.getCoreType() == ModelConfig.CoreType.GPU) {
+            if (maxGpu > 0 && model.getDeviceType() == ModelConfig.DeviceType.GPU) {
                 if (model.getParallelLevel() > 1) {
                     gpuId = parallelGpuIdx;
                     parallelGpuIdx += model.getParallelLevel();

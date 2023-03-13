@@ -2,6 +2,7 @@
 CustomService class definitions
 """
 import logging
+import os
 import time
 from builtins import str
 
@@ -9,6 +10,7 @@ import ts
 from ts.context import Context, RequestProcessor
 from ts.protocol.otf_message_handler import create_predict_response
 from ts.utils.util import PredictionException
+from ts.utils.util import get_yaml_config
 
 PREDICTION_METRIC = "PredictionTime"
 logger = logging.getLogger(__name__)
@@ -30,6 +32,14 @@ class Service(object):
         limit_max_image_pixels=True,
         metrics_cache=None,
     ):
+        model_yaml_config = None
+        model_yaml_config_file = None
+        if manifest is not None and "configFile" in manifest["model"]:
+            model_yaml_config_file = manifest["model"]["configFile"]
+            if model_yaml_config_file is not None:
+                model_yaml_config_file_path = os.path.join(model_dir, model_yaml_config_file)
+                model_yaml_config = get_yaml_config(model_yaml_config_file_path)
+
         self._context = Context(
             model_name,
             model_dir,
@@ -39,6 +49,7 @@ class Service(object):
             ts.__version__,
             limit_max_image_pixels,
             metrics_cache,
+            model_yaml_config
         )
         self._entry_point = entry_point
 

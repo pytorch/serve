@@ -426,7 +426,7 @@ public final class ModelManager {
             throw new ModelVersionNotFoundException(
                     "Model version: " + versionId + " does not exist for model: " + modelName);
         }
-        if (model.getParallelLevel() > 1 && model.getCoreType() == ModelConfig.CoreType.GPU) {
+        if (model.getParallelLevel() > 1 && model.getDeviceType() == ModelConfig.DeviceType.GPU) {
             /**
              * Current capacity check for LMI is based on single node. TODO: multiple nodes check
              * will be based on --proc-per-node + numCores.

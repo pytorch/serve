@@ -8,7 +8,7 @@ import json
 import logging
 import os
 import re
-
+import yaml
 
 class PT2Backend(str, enum.Enum):
     EAGER = "eager"
@@ -135,6 +135,11 @@ def map_class_to_label(probs, mapping=None, lbl_classes=None):
 
     return results
 
+def get_yaml_config(yaml_file_path):
+    config = None
+    with open(yaml_file_path, 'r'):
+        config = yaml.safe_load(yaml_file_path)
+    return config
 
 class PredictionException(Exception):
     def __init__(self, message, error_code=500):
