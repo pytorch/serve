@@ -7,32 +7,27 @@ import logging
 import os
 import time
 
+import torch
 import pippy
 import pippy.fx
-from pippy import run_pippy
-from pippy.IR import pipe_split
+from torch.distributed._tensor import (
+    DeviceMesh,
+)
+from torch.distributed.tensor.parallel import (
+    PairwiseParallel,
+    parallelize_module,
+)
+
+
 from pippy.IR import MultiUseParameterConfig, Pipe
 from pippy.PipelineDriver import PipelineDriverFillDrain, PipelineDriver1F1B, PipelineDriverInterleaved1F1B, \
     PipelineDriverBase
-from pippy.hf import PiPPyHFTracer
-from pippy.microbatch import TensorChunkSpec
 from pippy import split_on_size_threshold, split_into_equal_size
-from transformers import  AutoModelForSeq2SeqLM
 from transformers import OPTModel, BloomModel
-from PIL import Image
-import requests
-from transformers import AutoFeatureExtractor, RegNetModel 
-from transformers import OPTForCausalLM
 import torch.distributed.rpc as rpc
 
-import torch
 import transformers
 from transformers import BloomForCausalLM, BloomTokenizerFast
-
-
-from pippy import run_pippy
-from pippy.IR import pipe_split
-
 from ts.torch_handler.base_handler import BaseHandler
 
 logger = logging.getLogger(__name__)
@@ -60,33 +55,11 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         super(TransformersSeqClassifierHandler, self).__init__()
         self.initialized = False
         self.local_rank = int(os.environ["LOCAL_RANK"])
+        self.rank = int(os.environ["RANK"])
         self.world_size = int(os.environ["WORLD_SIZE"])
-
-        options = rpc.TensorPipeRpcBackendOptions(
-            num_worker_threads=512,
-            rpc_timeout=1800
-        #    transports=None,
-        )
-         
-       
-        # if args.cuda:
-        n_devs = torch.cuda.device_count()
-        print(f"n_devs={n_devs}")
-        dev_id = self.local_rank % n_devs 
-        for i in range (self.world_size):
-            print(f"worker{i}, {dev_id}: {i % n_devs}")
-            options.set_device_map(f"worker{i}", {dev_id: i % n_devs})
-
-        self.device = f"cuda:{dev_id}"
-        print(
-            f"rank = {self.local_rank} pid/device = "
-            f"{os.getpid()}/{self.device}"
-        )
-
-        rpc.init_rpc(f"worker{self.local_rank}",
-                     rank=self.local_rank,
-                     world_size=self.world_size,
-                     rpc_backend_options=options)
+        self.local_world_size = int(os.environ["LOCAL_WORLD_SIZE"])
+        self.pp_rank = 0
+        self.pp_ranks = None
 
     def initialize(self, ctx):
         """In this initialize function, the BERT model is loaded and
@@ -96,12 +69,77 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
             ctx (context): It is a JSON Object containing information
             pertaining to the model artefacts parameters.
         """
-        # parser = argparse.ArgumentParser()
-        # args = parser.parse_args()
-        # args.world_size = 4
-        # args.gspmd = 1
-        #if self.local_rank != 0:
-        #    return
+        pp_group_size = self.world_size
+        num_worker_threads = 512
+        rpc_timeout = 1800
+        if ctx.model_yaml_config is not None:
+            if ctx.system_properties.get("gpu_id") != -1 \
+                    and ctx.model_yaml_config["deviceIds"] is not None:
+                device_ids = ','.join(str(e) for e in ctx.model_yaml_config["deviceIds"][int(ctx.system_properties.get("gpu_id")):int(ctx.system_properties.get("gpu_id"))+self.world_size+1])
+                os.environ["CUDA_VISIBLE_DEVICE"] = device_ids
+
+            if ctx.model_yaml_config[pippy] is not None:
+                if ctx.model_yaml_config["pippy"]["pp_group_size"] is not None \
+                        and self.world_size % int(ctx.model_yaml_config["pippy"]["pp_group_size"]) == 0:
+                    pp_group_size = int(ctx.model_yaml_config["pippy"]["pp_group_size"])
+
+                if ctx.model_yaml_config["pippy"]["num_worker_threads"] is not None:
+                    num_worker_threads = int(ctx.model_yaml_config["pippy"]["num_worker_threads"])
+
+                if ctx.model_yaml_config["pippy"]["rpc_timeout"] is not None:
+                    rpc_timeout = int(ctx.model_yaml_config["pippy"]["rpc_timeout"])
+
+        if ctx.system_properties.get("gpu_id") != -1 and os.environ["CUDA_VISIBLE_DEVICE"] is None:
+            os.environ["CUDA_VISIBLE_DEVICE"] = ','.join(str(e) for e in range(self.local_rank))
+
+        options = rpc.TensorPipeRpcBackendOptions(
+            num_worker_threads,
+            rpc_timeout
+        )
+        device_type = "cpu"
+        if int(ctx.system_properties.get("gpu_id")) != -1:
+            device_type = "cuda"
+            n_devs = torch.cuda.device_count()
+            dev_id = self.local_rank % n_devs
+            for i in range(self.world_size):
+                logging.info(f"worker{i}, {dev_id}: {i % n_devs}")
+                options.set_device_map(f"worker{i}", {dev_id: i % n_devs})
+
+            self.device = f"cuda:{dev_id}"
+            logging.info(
+                f"rank = {self.local_rank} pid/device = "
+                f"{os.getpid()}/{self.device}"
+            )
+        else:
+            self.device = "cpu"
+        rpc.init_rpc(f"worker{self.rank}",
+                     rank=self.rank,
+                     world_size=self.world_size,
+                     rpc_backend_options=options)
+
+        tp_group_size = self.world_size // pp_group_size
+        dp_group_size = self.world_size // pp_group_size
+
+        logging.info(
+            f"[PiPPy] World size: {self.world_size}, "
+            f"DP group size: {dp_group_size}, "
+            f"PP group size: {pp_group_size}"
+        )
+        pp_ranks_per_dp_group = [
+            [i + rank for i in range(pp_group_size)]
+            for rank in range(dp_group_size)
+        ]
+        self.pp_ranks = pp_ranks_per_dp_group[self.rank % dp_group_size]
+        self.pp_rank = self.rank // tp_group_size
+        logging.info(f"Global rank {self.rank}, pipeline: {self.pp_ranks}, my rank in pipe: {self.pp_rank}")
+
+        d_hid = 256
+        batch_size_per_chunk = 8
+        chunks = pp_group_size
+        #inp_size = [chunks * batch_size_per_chunk, d_hid]
+        # Ensure all tp ranks have same input.
+        #torch.manual_seed(0)
+        #inp = torch.rand(*inp_size, device=device_type)
 
         self.manifest = ctx.manifest
         properties = ctx.system_properties
@@ -125,7 +163,7 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         else:
             logger.warning("Missing the setup_config.json file.")
 
-        torch.manual_seed(42)
+
         replicate = 0
         schedule = list(schedules.keys())[0]
         MULTI_USE_PARAM_CONFIG = MultiUseParameterConfig.REPLICATE if replicate else MultiUseParameterConfig.TRANSMIT
@@ -150,28 +188,53 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
     
 
         split_policy = split_into_equal_size(self.world_size)
-        pp_ranks = [0,1,2,3]
-        all_worker_ranks = list(range(self.world_size))
-        chunks = 1
-        bs = 1 * chunks
-        seq_length = 16
 
 
         input_names = ['input_ids']
         sig = inspect.signature(model.forward)
         concrete_args = {p.name: p.default for p in sig.parameters.values() if p.name not in input_names}
 
+        torch.manual_seed(0)
+        ec_tp = model(d_hid)
+        ec_tp.to(self.device)
+        start_idx = 0
+        device_mesh = DeviceMesh(
+            device_type,
+            list(range(start_idx, start_idx + tp_group_size)),
+        )
+        logging.info(f"Rank {self.rank} calling parallelize_module with {device_mesh}")
+        parallelize_module(ec_tp, device_mesh, PairwiseParallel())
+        logging.info(f"Rank {self.rank} sharding complete")
+
         print('Instantiating model Pipeline')
         model_init_start = time.time()
-        pipe_driver, stage_mode = pippy.all_compile(
+        # Get:
+        # - pipeline driver (for pipeline head rank)
+        # - stage submodule (for all ranks)
+        pipe_driver, submod = pippy.all_compile(
             model,
-            num_ranks=self.world_size,
-            num_chunks=chunks,
-            schedule="FillDrain",
-            split_policy=split_policy,
-            tracer=PiPPyHFTracer(),
-            concrete_args=concrete_args,
+            pp_group_size,
+            chunks,
+            ranks=self.pp_ranks,
         )
+
+        # Create TP device mesh
+        my_device_mesh = None
+        for stage in range(pp_group_size):
+            start_rank = stage * tp_group_size
+            tp_ranks = list(range(start_rank, start_rank + tp_group_size))
+            tp_device_mesh = DeviceMesh(
+                device_type,
+                tp_ranks,
+            )
+            if stage == self.pp_rank:
+                my_device_mesh = tp_device_mesh
+
+        # Tensor parallelize submodules
+        print(f"Rank {self.rank} calling parallelize_module with {my_device_mesh}")
+        parallelize_module(submod, my_device_mesh, PairwiseParallel())
+
+
         # model_pipe = Pipe.from_tracing(self.model, MULTI_USE_PARAM_CONFIG, tracer=PiPPyHFTracer(), concrete_args=concrete_args,
         #                             output_loss_value_spec=None, split_policy=split_policy
         #                             )
@@ -256,9 +319,11 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         #     inferences.append(
         #         self.tokenizer.decode(outputs[i], skip_special_tokens=True)
         #     )
-        if self.local_rank==0:
-            output = self.model(**model_input_dict)
-        # rpc.shutdown()
+        #if self.pp_rank == 0:
+        #    print(f"Rank {self.rank} Instantiated pipeline with ranks {self.pp_ranks}")
+        output = self.model(**model_input_dict)
+
+
         print("************** here is the output",type(output))
         logger.info("Generated text: '%s'", inferences)
         inferences.append(output)
