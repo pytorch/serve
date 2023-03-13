@@ -12,7 +12,7 @@ logging.basicConfig(level=kserve.constants.KSERVE_LOGLEVEL)
 DEFAULT_MODEL_NAME = "model"
 DEFAULT_INFERENCE_ADDRESS = "http://127.0.0.1:8085"
 INFERENCE_PORT = "8085"
-DEFAULT_MANAGEMENT_ADDRESS = "http://127.0.0.1:8081"
+DEFAULT_MANAGEMENT_ADDRESS = "http://127.0.0.1:8085"
 
 DEFAULT_MODEL_STORE = "/mnt/models/model-store"
 CONFIG_PATH = "/mnt/models/config/config.properties"
@@ -100,5 +100,5 @@ if __name__ == "__main__":
     ModelServer(
         registered_models=registeredModels,
         http_port=8080,
-        grpc_port=7070,
+        grpc_port=8081,
     ).start(models)
