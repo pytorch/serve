@@ -10,6 +10,7 @@ from pathlib import Path
 import pytest
 
 from ts.torch_handler.image_classifier import ImageClassifier
+from torchvision.models.resnet import ResNet18_Weights
 
 from .test_utils.mock_context import MockContext
 from .test_utils.model_dir import copy_files, download_model
@@ -38,9 +39,9 @@ def model_name():
 def model_dir(tmp_path_factory, model_name):
     model_dir = tmp_path_factory.mktemp("image_classifier_model_dir")
 
-    src_dir = REPO_DIR.joinpath("examples/image_classifier/resnet_152_batch/")
+    src_dir = REPO_DIR.joinpath("examples/image_classifier/resnet_18/")
 
-    model_url = "https://download.pytorch.org/models/resnet152-b121ed2d.pth"
+    model_url = ResNet18_Weights.DEFAULT.url
 
     download_model(model_url, model_dir)
 
