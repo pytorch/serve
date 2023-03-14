@@ -6,9 +6,9 @@ from enum import Enum
 from typing import Dict, Union
 
 import grpc
-import inference_pb2
-import inference_pb2_grpc
 import kserve
+from gprc_utils import to_ts_grpc
+from inference_pb2_grpc import InferenceAPIsServiceStub
 from kserve.errors import ModelMissingError
 from kserve.model import Model as Model
 from kserve.protocol.grpc.grpc_predict_v2_pb2 import (
@@ -77,9 +77,7 @@ class TorchserveModel(Model):
 
         if self._grpc_client_stub == None:
             self._channel = grpc.aio.insecure_channel(self.grpc_inference_address)
-            self._grpc_client_stub = inference_pb2_grpc.InferenceAPIsServiceStub(
-                self._channel
-            )
+            self._grpc_client_stub = InferenceAPIsServiceStub(self._channel)
 
         logging.info("Predict URL set to %s", self.predictor_host)
         self.explainer_host = self.predictor_host
@@ -91,12 +89,8 @@ class TorchserveModel(Model):
         headers: Dict[str, str] = None,
     ) -> ModelInferResponse:
         if isinstance(payload, InferRequest):
-            payload = payload.to_grpc()
-        print(">payload", payload)
-        input_data = {"data": payload}
-        async_result = await self._grpc_client.Predictions(
-            inference_pb2.PredictionsRequest(model_name="mnist", input=input_data)
-        )
+            payload = to_ts_grpc(payload)
+        async_result = await self._grpc_client.Predictions(payload)
         return async_result
 
     def load(self) -> bool:

@@ -64,12 +64,12 @@ def parse_config():
         inference_address = DEFAULT_INFERENCE_ADDRESS
     if not management_address:
         management_address = DEFAULT_MANAGEMENT_ADDRESS
+    inf_splits = inference_address.split(":")
     if not grpc_inference_port:
-        inf_splits = inference_address.split(":")
         grpc_inference_address = inf_splits[1] + ":" + DEFAULT_GRPC_INFERENCE_PORT
     else:
-        inf_splits = inference_address.split(":")
-        grpc_inference_address = inf_splits[1] + ":" + "7070"
+        grpc_inference_address = inf_splits[1] + ":" + grpc_inference_port
+    grpc_inference_address = grpc_inference_address.replace("/", "")
     if not model_store:
         model_store = DEFAULT_MODEL_STORE
 
