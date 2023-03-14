@@ -8,6 +8,7 @@ on:
 jobs:
   nightly:
     strategy:
+      fail-fast: false
       matrix:
         hardware: [cpu, gpu, inf1]
     runs-on:
@@ -35,34 +36,23 @@ jobs:
           java-version: '17'
       - name: Checkout TorchServe
         uses: actions/checkout@v3
-      - name: Install dependencies cpu
-        if: ${{ matrix.hardware == 'cpu' }}
+      - name: Install dependencies
         run: |
           sudo apt-get update -y
           sudo apt-get install -y apache2-utils
           pip install -r benchmarks/requirements-ab.txt
-          export omp_num_threads=1
-      - name: Install dependencies gpu
-        if: ${{ matrix.hardware == 'gpu' }}
-        run: |
-          sudo apt-get update -y
-          sudo apt-get install -y apache2-utils
-          pip install -r benchmarks/requirements-ab.txt
-      - name: Install dependencies inf1
-        if: ${{ matrix.hardware == 'inf1' }}
-        run: |
-          sudo apt-get update -y
-          sudo apt-get install -y apache2-utils
-          pip install -r benchmarks/requirements-ab.txt
-          export omp_num_threads=1
       - name: Benchmark cpu nightly
         if: ${{ matrix.hardware == 'cpu' }}
+        env:
+          OMP_NUM_THREADS: 1
         run: python benchmarks/auto_benchmark.py --input benchmarks/benchmark_config_cpu.yaml --skip false
       - name: Benchmark gpu nightly
         if: ${{ matrix.hardware == 'gpu' }}
         run: python benchmarks/auto_benchmark.py --input benchmarks/benchmark_config_gpu.yaml --skip false
       - name: Benchmark inf1 nightly
         if: ${{ matrix.hardware == 'inf1' }}
+        env:
+          NEURON_RT_NUM_CORES: 4
         run: python benchmarks/auto_benchmark.py --input benchmarks/benchmark_config_neuron.yaml --skip false
       - name: Save benchmark artifacts
         uses: actions/upload-artifact@v2

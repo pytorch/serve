@@ -51,7 +51,7 @@ In the setup_config.json :
 
 *embedding_name* : The name of embedding layer in the chosen model, this could be `bert` for `bert-base-uncased`, `roberta` for `roberta-base` or `roberta` for `xlm-roberta-large`, or `gpt2` for `gpt2` model
 
-*hardware* : The target platform to trace the model for. Specify as `neuron` for Inferentia.
+*hardware* : The target platform to trace the model for. Specify as `neuron` for Inferentia1.
 
 *batch_size* : Input batch size when tracing the model for `neuron` as target hardware.
 
