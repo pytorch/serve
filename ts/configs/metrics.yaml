@@ -22,10 +22,10 @@ ts_metrics:
     - name: InferenceRequestsTotal
       unit: Count
       dimensions: [*model_name, *model_version, *hostname]
-    - name: InferenceLatencyMicroseconds
+    - name: CumulativeInferenceLatencyMicroseconds
       unit: Microseconds
       dimensions: [*model_name, *model_version, *hostname]
-    - name: QueueLatencyMicroseconds
+    - name: CumulativeQueueLatencyMicroseconds
       unit: Microseconds
       dimensions: [*model_name, *model_version, *hostname]
   gauge:
@@ -73,8 +73,8 @@ model_metrics:
   # Dimension "Hostname" is automatically added for model metrics in the backend
   gauge:
     - name: HandlerTime
-      unit: Milliseconds
+      unit: ms
       dimensions: [*model_name, *level]
     - name: PredictionTime
-      unit: Milliseconds
+      unit: ms
       dimensions: [*model_name, *level]
