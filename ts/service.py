@@ -33,12 +33,11 @@ class Service(object):
         metrics_cache=None,
     ):
         model_yaml_config = None
-        model_yaml_config_file = None
-        if manifest is not None and "configFile" in manifest["model"]:
-            model_yaml_config_file = manifest["model"]["configFile"]
-            if model_yaml_config_file is not None:
-                model_yaml_config_file_path = os.path.join(model_dir, model_yaml_config_file)
-                model_yaml_config = get_yaml_config(model_yaml_config_file_path)
+        if manifest is not None and "model" in manifest:
+            model = manifest["model"]
+            if "configFile" in model:
+                model_yaml_config_file = model["configFile"]
+                model_yaml_config = get_yaml_config(os.path.join(model_dir, model_yaml_config_file))
 
         self._context = Context(
             model_name,

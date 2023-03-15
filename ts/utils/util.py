@@ -137,8 +137,8 @@ def map_class_to_label(probs, mapping=None, lbl_classes=None):
 
 def get_yaml_config(yaml_file_path):
     config = None
-    with open(yaml_file_path, 'r'):
-        config = yaml.safe_load(yaml_file_path)
+    with open(yaml_file_path, 'r') as file:
+        config = yaml.safe_load(file)
     return config
 
 class PredictionException(Exception):
