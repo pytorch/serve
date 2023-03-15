@@ -18,7 +18,6 @@ from torch.distributed.tensor.parallel import (
     parallelize_module,
 )
 
-
 from pippy.IR import MultiUseParameterConfig, Pipe
 from pippy.PipelineDriver import PipelineDriverFillDrain, PipelineDriver1F1B, PipelineDriverInterleaved1F1B, \
     PipelineDriverBase
@@ -74,23 +73,23 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         rpc_timeout = 1800
         if ctx.model_yaml_config is not None:
             if ctx.system_properties.get("gpu_id") != -1 \
-                    and ctx.model_yaml_config["deviceIds"] is not None:
-                device_ids = ','.join(str(e) for e in ctx.model_yaml_config["deviceIds"][int(ctx.system_properties.get("gpu_id")):int(ctx.system_properties.get("gpu_id"))+self.world_size+1])
+                    and "deviceIds" in ctx.model_yaml_config:
+                device_ids = ','.join(str(e) for e in ctx.model_yaml_config["deviceIds"][int(ctx.system_properties.get("gpu_id")):int(ctx.system_properties.get("gpu_id"))+self.loca_world_size+1])
                 os.environ["CUDA_VISIBLE_DEVICE"] = device_ids
 
-            if ctx.model_yaml_config[pippy] is not None:
-                if ctx.model_yaml_config["pippy"]["pp_group_size"] is not None \
+            if "pippy" in ctx.model_yaml_config:
+                if "pp_group_size" in ctx.model_yaml_config["pippy"] \
                         and self.world_size % int(ctx.model_yaml_config["pippy"]["pp_group_size"]) == 0:
                     pp_group_size = int(ctx.model_yaml_config["pippy"]["pp_group_size"])
 
-                if ctx.model_yaml_config["pippy"]["num_worker_threads"] is not None:
+                if "num_worker_threads" in ctx.model_yaml_config["pippy"]:
                     num_worker_threads = int(ctx.model_yaml_config["pippy"]["num_worker_threads"])
 
-                if ctx.model_yaml_config["pippy"]["rpc_timeout"] is not None:
+                if "rpc_timeout" in ctx.model_yaml_config["pippy"]:
                     rpc_timeout = int(ctx.model_yaml_config["pippy"]["rpc_timeout"])
 
         if ctx.system_properties.get("gpu_id") != -1 and os.environ["CUDA_VISIBLE_DEVICE"] is None:
-            os.environ["CUDA_VISIBLE_DEVICE"] = ','.join(str(e) for e in range(self.local_rank))
+            os.environ["CUDA_VISIBLE_DEVICE"] = ','.join(str(e) for e in range(int(ctx.system_properties.get("gpu_id")), int(ctx.system_properties.get("gpu_id")) + self.loca_world_size+1))
 
         options = rpc.TensorPipeRpcBackendOptions(
             num_worker_threads,
