@@ -99,20 +99,28 @@ class KServev2Envelope(BaseEnvelope):
         """
         Extracts the data from the JSON object
         """
-        # If the KF Transformer and Explainer sends in data as bytesarray
         if isinstance(body_list[0], (bytes, bytearray)):
-            body_list = [json.loads(body.decode()) for body in body_list]
+            body_list = [json.loads(body.decode("utf8")) for body in body_list]
             logger.debug("Bytes array is %s", body_list)
 
         input_names = []
         for index, input in enumerate(body_list[0]["inputs"]):
             if input["datatype"] == "BYTES":
                 body_list[0]["inputs"][index]["data"] = input["data"][0]
+            else:
+                body_list[0]["inputs"][index]["data"] = (
+                    np.array(input["data"]).reshape(tuple(input["shape"])).tolist()
+                )
             input_names.append(input["name"])
         setattr(self.context, "input_names", input_names)
         logger.debug("Bytes array is %s", body_list)
-        if body_list[0].get("id") is not None:
+        id = body_list[0].get("id")
+        if id and id.strip():
             setattr(self.context, "input_request_id", body_list[0]["id"])
+        # TODO: Add parameters support
+        # parameters = body_list[0].get("parameters")
+        # if parameters:
+        #     setattr(self.context, "input_parameters", body_list[0]["parameters"])
         data_list = [inputs_list.get("inputs") for inputs_list in body_list][0]
         return data_list
 
@@ -143,6 +151,10 @@ class KServev2Envelope(BaseEnvelope):
             delattr(self.context, "input_request_id")
         else:
             response["id"] = self.context.get_request_id(0)
+        # TODO: Add parameters support
+        # if hasattr(self.context, "input_parameters"):
+        #     response["parameters"] = getattr(self.context, "input_parameters")
+        #     delattr(self.context, "input_parameters")
         response["model_name"] = self.context.manifest.get("model").get("modelName")
         response["model_version"] = self.context.manifest.get("model").get(
             "modelVersion"
@@ -166,9 +178,9 @@ class KServev2Envelope(BaseEnvelope):
         Constructs JSON object from data
         """
         output_data = {}
-        data_ndarray = np.array(data)
+        data_ndarray = np.array(data).flatten()
         output_data["name"] = input_name
-        output_data["shape"] = list(data_ndarray.shape)
         output_data["datatype"] = _to_datatype(data_ndarray.dtype)
-        output_data["data"] = data_ndarray.flatten().tolist()
+        output_data["data"] = data_ndarray.tolist()
+        output_data["shape"] = data_ndarray.shape
         return output_data

@@ -51,6 +51,7 @@ def parse_config():
     model_names = []
 
     protocol = "grpc-v2"
+    # protocol = "v2"
 
     # Get all the model_names
     for model, value in models.items():
@@ -123,8 +124,6 @@ if __name__ == "__main__":
     registeredModels = TSModelRepository(
         inference_address,
         management_address,
-        grpc_inference_address,
-        protocol,
         model_dir,
     )
     ModelServer(

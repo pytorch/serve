@@ -6,16 +6,17 @@ from enum import Enum
 from typing import Dict, Union
 
 import grpc
+import inference_pb2_grpc
 import kserve
-from gprc_utils import to_ts_grpc
-from inference_pb2_grpc import InferenceAPIsServiceStub
+from gprc_utils import from_ts_grpc, to_ts_grpc
+from inference_pb2 import PredictionResponse
 from kserve.errors import ModelMissingError
 from kserve.model import Model as Model
 from kserve.protocol.grpc.grpc_predict_v2_pb2 import (
     ModelInferRequest,
     ModelInferResponse,
 )
-from kserve.protocol.infer_type import InferRequest
+from kserve.protocol.infer_type import InferRequest, InferResponse
 
 logging.basicConfig(level=kserve.constants.KSERVE_LOGLEVEL)
 
@@ -29,10 +30,6 @@ class PredictorProtocol(Enum):
     REST_V1 = "v1"
     REST_V2 = "v2"
     GRPC_V2 = "grpc-v2"
-
-
-PREDICTOR_URL_FORMAT = "http://{0}/v1/models/{1}:predict"
-EXPLAINER_URL_FORMAT = "http://{0}/v1/models/{1}:explain"
 
 
 class TorchserveModel(Model):
@@ -71,27 +68,53 @@ class TorchserveModel(Model):
 
         self.inference_address = inference_address
         self.management_address = management_address
-        self.grpc_inference_address = grpc_inference_address
         self.model_dir = model_dir
         self.protocol = protocol
 
-        if self._grpc_client_stub == None:
-            self._channel = grpc.aio.insecure_channel(self.grpc_inference_address)
-            self._grpc_client_stub = InferenceAPIsServiceStub(self._channel)
+        if self.protocol == PredictorProtocol.GRPC_V2.value:
+            self.predictor_host = grpc_inference_address
 
         logging.info("Predict URL set to %s", self.predictor_host)
-        self.explainer_host = self.predictor_host
         logging.info("Explain URL set to %s", self.explainer_host)
+
+    def grpc_client(self):
+        if self._grpc_client_stub is None:
+            self.channel = grpc.aio.insecure_channel(self.predictor_host)
+            self.grpc_client_stub = inference_pb2_grpc.InferenceAPIsServiceStub(
+                self.channel
+            )
+        return self.grpc_client_stub
 
     async def _grpc_predict(
         self,
         payload: Union[ModelInferRequest, InferRequest],
         headers: Dict[str, str] = None,
     ) -> ModelInferResponse:
-        if isinstance(payload, InferRequest):
-            payload = to_ts_grpc(payload)
-        async_result = await self._grpc_client.Predictions(payload)
+        payload = to_ts_grpc(payload)
+        grpc_stub = self.grpc_client()
+        async_result = await grpc_stub.Predictions(payload)
         return async_result
+
+    def postprocess(
+        self,
+        response: Union[Dict, InferResponse, ModelInferResponse, PredictionResponse],
+        headers: Dict[str, str] = None,
+    ) -> Union[Dict, ModelInferResponse]:
+        if headers:
+            if "grpc" in headers.get("user-agent", ""):
+                if isinstance(response, ModelInferResponse):
+                    return response
+                elif isinstance(response, InferResponse):
+                    return response.to_grpc()
+                elif isinstance(response, PredictionResponse):
+                    return from_ts_grpc(response)
+            if "application/json" in headers.get("content-type", ""):
+                # If the original request is REST, convert the gRPC predict response to dict
+                if isinstance(response, ModelInferResponse):
+                    return InferResponse.from_grpc(response).to_rest()
+                elif isinstance(response, InferResponse):
+                    return response.to_rest()
+        return response
 
     def load(self) -> bool:
         """This method validates model availabilty in the model directory

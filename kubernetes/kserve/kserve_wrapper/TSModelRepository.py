@@ -18,8 +18,6 @@ class TSModelRepository(ModelRepository):
         self,
         inference_address: str,
         management_address: str,
-        grpc_inference_address: str,
-        protocol: str,
         model_dir: str,
     ):
         """The Inference Address, Management Address and the Model Directory from the kserve
@@ -34,6 +32,4 @@ class TSModelRepository(ModelRepository):
         logging.info("TSModelRepo is initialized")
         self.inference_address = inference_address
         self.management_address = management_address
-        self.grpc_inference_address = grpc_inference_address
-        self.protocol = protocol
         self.model_dir = model_dir
