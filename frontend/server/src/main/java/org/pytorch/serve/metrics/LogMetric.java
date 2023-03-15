@@ -25,19 +25,29 @@ public class LogMetric extends IMetric {
     }
 
     @Override
-    public void addOrUpdate(ArrayList<String> dimensionValues, double value) {
+    public void addOrUpdate(
+            ArrayList<String> dimensionValues,
+            double value) {
         this.addOrUpdate(dimensionValues, null, null, null, value);
     }
 
     @Override
     public void addOrUpdate(
-            ArrayList<String> dimensionValues, String hostname, String timestamp, String requestIds, double value) {
+            ArrayList<String> dimensionValues,
+            String hostname,
+            String timestamp,
+            String requestIds,
+            double value) {
         String metricString = this.buildMetricString(dimensionValues, hostname, timestamp, requestIds, value);
         this.emitMetricLog(metricString);
     }
 
     private String buildMetricString(
-            ArrayList<String> dimensionValues, String hostname, String requestIds, String timestamp, double value) {
+            ArrayList<String> dimensionValues,
+            String hostname,
+            String requestIds,
+            String timestamp,
+            double value) {
         StringBuilder sb = new StringBuilder(128);
         sb.append(this.name).append('.').append(this.unit).append(':').append(value).append("|#");
 

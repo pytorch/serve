@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import org.pytorch.serve.metrics.format.prometheous.PrometheusCounter;
 import org.pytorch.serve.metrics.format.prometheous.PrometheusGauge;
 
-public class MetricBuilder {
+public final class MetricBuilder {
     public enum MetricMode {
         PROMETHEUS,
         LOG
@@ -37,5 +37,9 @@ public class MetricBuilder {
             return new LogMetric(context, type, name, unit, dimensionNames);
         }
         return null;
+    }
+
+    private MetricBuilder() {
+        throw new UnsupportedOperationException();
     }
 }

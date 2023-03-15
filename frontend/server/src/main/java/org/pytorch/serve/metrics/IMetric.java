@@ -25,6 +25,7 @@ public abstract class IMetric {
     public abstract void addOrUpdate(
             ArrayList<String> dimensionValues,
             double value);
+
     public abstract void addOrUpdate(
             ArrayList<String> dimensionValues,
             String hostname,

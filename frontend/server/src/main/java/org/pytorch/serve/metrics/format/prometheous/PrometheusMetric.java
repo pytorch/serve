@@ -20,7 +20,11 @@ public abstract class PrometheusMetric extends IMetric {
 
     @Override
     public void addOrUpdate(
-            ArrayList<String> dimensionValues, String hostname, String requestIds, String timestamp, double value) {
+            ArrayList<String> dimensionValues,
+            String hostname,
+            String requestIds,
+            String timestamp,
+            double value) {
         ArrayList<String> modifiedDimensionValues = new ArrayList<String>(dimensionValues);
         if (hostname != null && !hostname.isEmpty()) {
             modifiedDimensionValues.add(hostname);
