@@ -1021,3 +1021,7 @@ datapipes
 tensorrt
 vec
 torchdata
+CodeQL
+Dependabot
+Snyk
+pythonversion
