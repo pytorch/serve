@@ -26,7 +26,9 @@ public abstract class PrometheusMetric extends IMetric {
             String timestamp,
             double value) {
         ArrayList<String> modifiedDimensionValues = new ArrayList<String>(dimensionValues);
-        if (hostname != null && !hostname.isEmpty()) {
+        if (this.context == MetricBuilder.MetricContext.BACKEND
+                && hostname != null
+                && !hostname.isEmpty()) {
             modifiedDimensionValues.add(hostname);
         }
 
