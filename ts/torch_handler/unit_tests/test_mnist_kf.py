@@ -6,23 +6,22 @@ Ensures it can load and execute an example model
 """
 
 import io
-import os
+import shutil
 import sys
+from pathlib import Path
 
 import pytest
 import torchvision.transforms as transforms
 from PIL import Image
 
-from ts.torch_handler.request_envelope import kserve, kservev2
-
-sys.path.append(os.path.join(os.path.dirname(__file__), "../../../../", "examples"))
 from examples.image_classifier.mnist.mnist_handler import (
     MNISTDigitClassifier as MNISTClassifier,
 )
+from ts.torch_handler.request_envelope import kserve, kservev2
 
 from .test_utils.mock_context import MockContext
 
-sys.path.append("ts/torch_handler/unit_tests/models/tmp")
+REPO_DIR = Path(__file__).parents[3]
 
 
 image_processing = transforms.Compose(
@@ -30,66 +29,81 @@ image_processing = transforms.Compose(
 )
 
 
-@pytest.fixture()
-def model_setup():
-    context = MockContext(model_pt_file="mnist_cnn.pt", model_file="mnist.py")
-    with open("ts/torch_handler/unit_tests/models/tmp/test_data/0.png", "rb") as fin:
+@pytest.fixture(scope="module")
+def image_bytes():
+
+    with open(
+        REPO_DIR.joinpath("examples/image_classifier/mnist/test_data/0.png"), "rb"
+    ) as fin:
         image_bytes = fin.read()
-    return (context, image_bytes)
+    return image_bytes
 
 
-def test_initialize(model_setup):
-    model_context, _ = model_setup
+@pytest.fixture(scope="module")
+def context(tmp_path_factory):
+    model_dir = tmp_path_factory.mktemp("model_dir")
+
+    shutil.copytree(
+        REPO_DIR.joinpath("examples/image_classifier/mnist/"),
+        model_dir,
+        dirs_exist_ok=True,
+    )
+
+    context = MockContext(
+        model_name="mnist",
+        model_dir=model_dir.as_posix(),
+        model_file="mnist.py",
+        model_pt_file="mnist_cnn.pt",
+    )
+
+    sys.path.append(model_dir.as_posix())
+    yield context
+    sys.path.pop()
+
+
+@pytest.fixture(scope="module")
+def handler(context):
     handler = MNISTClassifier()
-    handler.initialize(model_context)
-    assert True
+    handler.initialize(context)
     return handler
 
 
-def test_handle(model_setup):
-    context, bytes_array = model_setup
-    handler = test_initialize(model_setup)
-    test_data = [{"data": bytes_array}]
+@pytest.fixture()
+def envelope_kf(context):
+    handler = MNISTClassifier()
+    handler.initialize(context)
+    envelope = kserve.KServeEnvelope(handler.handle)
+    return envelope
+
+
+@pytest.fixture()
+def envelope_kfv2(context):
+    handler = MNISTClassifier()
+    handler.initialize(context)
+    envelope = kservev2.KServev2Envelope(handler.handle)
+    return envelope
+
+
+def test_handle(handler, context, image_bytes):
+    test_data = [{"data": image_bytes}]
     # testing for predict API
     results = handler.handle(test_data, context)
     assert results[0] in range(0, 9)
 
 
-def test_initialize_kf(model_setup):
-    model_context, _ = model_setup
-    handler = MNISTClassifier()
-    handler.initialize(model_context)
-    envelope = kserve.KServeEnvelope(handler.handle)
-    assert True
-    return envelope
-
-
-def test_handle_kf(model_setup):
-    context, bytes_array = model_setup
-    image = Image.open(io.BytesIO(bytes_array))
+def test_handle_kf(envelope_kf, context, image_bytes):
+    image = Image.open(io.BytesIO(image_bytes))
     image_list = image_processing(image).tolist()
-    envelope = test_initialize_kf(model_setup)
     test_data = {"body": {"instances": [{"data": image_list}]}}
 
     # testing for predict API
-    results = envelope.handle([test_data], context)
+    results = envelope_kf.handle([test_data], context)
     assert results[0]["predictions"][0] in range(0, 9)
 
 
-def test_initialize_kfv2(model_setup):
-    model_context, _ = model_setup
-    handler = MNISTClassifier()
-    handler.initialize(model_context)
-    envelope = kservev2.KServev2Envelope(handler.handle)
-    assert True
-    return envelope
-
-
-def test_handle_kfv2(model_setup):
-    context, bytes_array = model_setup
-    image = Image.open(io.BytesIO(bytes_array))
+def test_handle_kfv2(envelope_kfv2, context, image_bytes):
+    image = Image.open(io.BytesIO(image_bytes))
     image_list = image_processing(image).tolist()
-    envelope = test_initialize_kfv2(model_setup)
     test_data = {
         "body": {
             "id": "test-id",
@@ -105,6 +119,6 @@ def test_handle_kfv2(model_setup):
     }
 
     # testing for v2predict API
-    results = envelope.handle([test_data], context)
+    results = envelope_kfv2.handle([test_data], context)
     print(results)
     assert results[0]["outputs"][0]["data"][0] in range(0, 9)
