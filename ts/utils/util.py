@@ -136,7 +136,7 @@ def map_class_to_label(probs, mapping=None, lbl_classes=None):
     return results
 
 def get_yaml_config(yaml_file_path):
-    config = None
+    config = dict()
     with open(yaml_file_path, 'r') as file:
         config = yaml.safe_load(file)
     return config

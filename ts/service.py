@@ -32,12 +32,16 @@ class Service(object):
         limit_max_image_pixels=True,
         metrics_cache=None,
     ):
-        model_yaml_config = None
+        model_yaml_config = dict()
         if manifest is not None and "model" in manifest:
             model = manifest["model"]
             if "configFile" in model:
                 model_yaml_config_file = model["configFile"]
                 model_yaml_config = get_yaml_config(os.path.join(model_dir, model_yaml_config_file))
+
+        if "deviceIds" in model_yaml_config and "parallelLevel" in model_yaml_config:
+            if int(model_yaml_config["parallelLevel"]) == 1:
+                gpu = model_yaml_config["deviceIds"][gpu]
 
         self._context = Context(
             model_name,

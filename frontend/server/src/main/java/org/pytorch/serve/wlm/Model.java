@@ -46,11 +46,12 @@ public class Model {
             ConfigManager.getInstance().getNumberOfGpu() > 0
                     ? ModelConfig.DeviceType.GPU
                     : ModelConfig.DeviceType.CPU;
-    private List<Integer> coreIds;
+    private List<Integer> deviceIds;
     private int numCores;
     private ReentrantLock lock;
     private int responseTimeout;
     private ModelVersionName modelVersionName;
+    private AtomicInteger gpuCounter = new AtomicInteger(0);
 
     private boolean isWorkflowModel;
 
@@ -76,7 +77,7 @@ public class Model {
                                 ? ModelConfig.DeviceType.GPU
                                 : deviceType;
             }
-            coreIds = modelArchive.getModelConfig().getDeviceIds();
+            deviceIds = modelArchive.getModelConfig().getDeviceIds();
         } else {
             batchSize = 1;
             maxBatchDelay = 100;
@@ -84,8 +85,10 @@ public class Model {
 
         if (ConfigManager.getInstance().getNumberOfGpu() > 0) {
             numCores =
-                    (coreIds != null && coreIds.size() > 0)
-                            ? coreIds.size()
+                    (deviceType == ModelConfig.DeviceType.GPU
+                                    && deviceIds != null
+                                    && deviceIds.size() > 0)
+                            ? deviceIds.size()
                             : ConfigManager.getInstance().getNumberOfGpu();
         }
 
@@ -291,12 +294,12 @@ public class Model {
         this.responseTimeout = responseTimeout;
     }
 
-    public List<Integer> getCoreIds() {
-        return this.coreIds;
+    public List<Integer> getDeviceIds() {
+        return this.deviceIds;
     }
 
-    public void setCoreIdsIds(List<Integer> coreIds) {
-        Collections.copy(this.coreIds, coreIds);
+    public void setDeviceIds(List<Integer> deviceIds) {
+        Collections.copy(this.deviceIds, deviceIds);
     }
 
     public int getParallelLevel() {
@@ -317,5 +320,9 @@ public class Model {
 
     public int getNumCores() {
         return this.numCores;
+    }
+
+    public AtomicInteger getGpuCounter() {
+        return gpuCounter;
     }
 }

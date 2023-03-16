@@ -14,7 +14,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import org.pytorch.serve.archive.model.ModelConfig;
 import org.pytorch.serve.snapshot.SnapshotManager;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.OSUtils;
@@ -193,22 +192,21 @@ public class WorkLoadManager {
             List<WorkerThread> threads, Model model, int count, CompletableFuture<Integer> future) {
         WorkerStateListener listener = new WorkerStateListener(future, count);
         int maxGpu = model.getNumCores();
-        int parallelGpuIdx = 0;
         for (int i = 0; i < count; ++i) {
             int gpuId = -1;
 
-            if (maxGpu > 0 && model.getDeviceType() == ModelConfig.DeviceType.GPU) {
-                if (model.getParallelLevel() > 1) {
-                    gpuId = parallelGpuIdx;
-                    parallelGpuIdx += model.getParallelLevel();
+            if (maxGpu > 0) {
+                if (model.getDeviceIds() != null && model.getDeviceIds().size() > 0) {
+                    gpuId =
+                            model.getGpuCounter()
+                                    .getAndAccumulate(
+                                            maxGpu,
+                                            (prev, maxGpuId) ->
+                                                    (prev + model.getParallelLevel()) % maxGpuId);
                 } else {
-                    if (model.getCoreIds() != null) {
-                        gpuId = model.getCoreIds().get(parallelGpuIdx++ % maxGpu);
-                    } else {
-                        gpuId =
-                                gpuCounter.accumulateAndGet(
-                                        maxGpu, (prev, maxGpuId) -> ++prev % maxGpuId);
-                    }
+                    gpuId =
+                            gpuCounter.accumulateAndGet(
+                                    maxGpu, (prev, maxGpuId) -> ++prev % maxGpuId);
                 }
             }
 
