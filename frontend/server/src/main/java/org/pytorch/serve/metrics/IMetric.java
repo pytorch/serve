@@ -22,9 +22,7 @@ public abstract class IMetric {
         this.dimensionNames = new ArrayList<String>(dimensionNames);
     }
 
-    public abstract void addOrUpdate(
-            ArrayList<String> dimensionValues,
-            double value);
+    public abstract void addOrUpdate(ArrayList<String> dimensionValues, double value);
 
     public abstract void addOrUpdate(
             ArrayList<String> dimensionValues,

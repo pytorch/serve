@@ -14,17 +14,16 @@ public class PrometheusGauge extends PrometheusMetric {
             String unit,
             ArrayList<String> dimensionNames) {
         super(context, type, name, unit, dimensionNames);
-        this.gauge = Gauge.build()
-                .name(this.name)
-                .labelNames(this.dimensionNames.toArray(new String[0]))
-                .help("Torchserve metric with unit: " + this.unit)
-                .register();
+        this.gauge =
+                Gauge.build()
+                        .name(this.name)
+                        .labelNames(this.dimensionNames.toArray(new String[0]))
+                        .help("Torchserve metric with unit: " + this.unit)
+                        .register();
     }
 
     @Override
-    public void addOrUpdate(
-            ArrayList<String> dimensionValues,
-            double value) {
+    public void addOrUpdate(ArrayList<String> dimensionValues, double value) {
         this.gauge.labels(dimensionValues.toArray(new String[0])).set(value);
     }
 }

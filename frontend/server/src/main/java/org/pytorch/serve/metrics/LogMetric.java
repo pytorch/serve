@@ -7,11 +7,11 @@ import org.slf4j.LoggerFactory;
 
 public class LogMetric extends IMetric {
     /**
-     * Note:
-     * hostname, timestamp, and requestid(if available) are automatically added in log metric.
+     * Note: hostname, timestamp, and requestid(if available) are automatically added in log metric.
      */
     private static final Logger loggerModelMetrics =
             LoggerFactory.getLogger(ConfigManager.MODEL_METRICS_LOGGER);
+
     private static final Logger loggerTsMetrics =
             LoggerFactory.getLogger(ConfigManager.MODEL_SERVER_METRICS_LOGGER);
 
@@ -25,9 +25,7 @@ public class LogMetric extends IMetric {
     }
 
     @Override
-    public void addOrUpdate(
-            ArrayList<String> dimensionValues,
-            double value) {
+    public void addOrUpdate(ArrayList<String> dimensionValues, double value) {
         this.addOrUpdate(dimensionValues, null, null, null, value);
     }
 
@@ -38,7 +36,8 @@ public class LogMetric extends IMetric {
             String timestamp,
             String requestIds,
             double value) {
-        String metricString = this.buildMetricString(dimensionValues, hostname, timestamp, requestIds, value);
+        String metricString =
+                this.buildMetricString(dimensionValues, hostname, timestamp, requestIds, value);
         this.emitMetricLog(metricString);
     }
 
@@ -52,13 +51,17 @@ public class LogMetric extends IMetric {
         sb.append(this.name).append('.').append(this.unit).append(':').append(value).append("|#");
 
         boolean first = true;
-        for (int index=0; index<Math.min(this.dimensionNames.size(), dimensionValues.size()); index++) {
+        for (int index = 0;
+                index < Math.min(this.dimensionNames.size(), dimensionValues.size());
+                index++) {
             if (first) {
                 first = false;
             } else {
                 sb.append(',');
             }
-            sb.append(this.dimensionNames.get(index)).append(':').append(dimensionValues.get(index));
+            sb.append(this.dimensionNames.get(index))
+                    .append(':')
+                    .append(dimensionValues.get(index));
         }
         if (hostname != null && !hostname.isEmpty()) {
             sb.append("|#hostname:").append(hostname);
