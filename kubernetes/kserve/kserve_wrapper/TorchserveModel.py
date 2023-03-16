@@ -88,8 +88,16 @@ class TorchserveModel(Model):
     async def _grpc_predict(
         self,
         payload: Union[ModelInferRequest, InferRequest],
-        headers: Dict[str, str] = None,
     ) -> ModelInferResponse:
+        """Overrides the `_grpc_predict` method in Model class. The predict method calls
+        the `_grpc_predict` method if the self.protocol is "grpc_v2"
+
+        Args:
+            request (Dict|InferRequest|ModelInferRequest): The response passed from ``predict`` handler.
+
+        Returns:
+            Dict: Torchserve grpc response.
+        """
         payload = to_ts_grpc(payload)
         grpc_stub = self.grpc_client()
         async_result = await grpc_stub.Predictions(payload)
@@ -100,6 +108,18 @@ class TorchserveModel(Model):
         response: Union[Dict, InferResponse, ModelInferResponse, PredictionResponse],
         headers: Dict[str, str] = None,
     ) -> Union[Dict, ModelInferResponse]:
+        """This method converts the v2 infer response types to gRPC or REST.
+        For gRPC request it converts InferResponse to gRPC message or directly returns ModelInferResponse from
+        predictor call or converts TS PredictionResponse to ModelInferResponse.
+        For REST request it converts ModelInferResponse to Dict or directly returns from predictor call.
+
+        Args:
+            response (Dict|InferResponse|ModelInferResponse|PredictionResponse): The response passed from ``predict`` handler.
+            headers (Dict): Request headers.
+
+        Returns:
+            Dict: post-processed response.
+        """
         if headers:
             if "grpc" in headers.get("user-agent", ""):
                 if isinstance(response, ModelInferResponse):
