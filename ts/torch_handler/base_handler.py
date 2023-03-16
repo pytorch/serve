@@ -59,6 +59,24 @@ if os.environ.get("TS_IPEX_ENABLE", "false") == "true":
         )
 
 
+def check_torch_xla_enabled() -> bool:
+    try:
+        import torch_xla
+        import torch_xla.core.xla_model as xm
+        torch_xla_enabled = True
+    except ImportError as error:
+        torch_xla_enabled = False
+        logger.info(
+            "Proceed without PyTorch/XLA."
+        )
+    return torch_xla_enabled
+
+torch_xla_enabled = check_torch_xla_enabled()
+if torch_xla_enabled:
+    import torch_xla
+    import torch_xla.core.xla_model as xm
+
+
 class BaseHandler(abc.ABC):
     """
     Base default handler to load torchscript or eager mode [state_dict] models
@@ -112,6 +130,10 @@ class BaseHandler(abc.ABC):
             if torch.cuda.is_available() and properties.get("gpu_id") is not None
             else self.map_location
         )
+        if torch_xla_enabled:
+            self.map_location = None
+            self.device = xm.xla_device()
+
         self.manifest = context.manifest
 
         model_dir = properties.get("model_dir")
@@ -146,7 +168,7 @@ class BaseHandler(abc.ABC):
 
         # Convert your model by following instructions: https://pytorch.org/tutorials/intermediate/nvfuser_intro_tutorial.html
         # For TensorRT support follow instructions here: https://pytorch.org/TensorRT/getting_started/getting_started_with_python_api.html#getting-started-with-python-api
-        elif self.model_pt_path.endswith(".pt"):
+        elif self.model_pt_path.endswith(".pt") and not torch_xla_enabled:
             self.model = self._load_torchscript_model(self.model_pt_path)
             self.model.eval()
 
@@ -245,7 +267,10 @@ class BaseHandler(abc.ABC):
         model_class = model_class_definitions[0]
         model = model_class()
         if model_pt_path:
-            state_dict = torch.load(model_pt_path, map_location=self.device)
+            state_dict = torch.load(
+                model_pt_path,
+                map_location=self.device if not torch_xla_enabled else None
+            )
             model.load_state_dict(state_dict)
         return model
 
@@ -278,6 +303,9 @@ class BaseHandler(abc.ABC):
         with torch.no_grad():
             marshalled_data = data.to(self.device)
             results = self.model(marshalled_data, *args, **kwargs)
+            if torch_xla_enabled:
+                xm.mark_step()
+
         return results
 
     def postprocess(self, data):
