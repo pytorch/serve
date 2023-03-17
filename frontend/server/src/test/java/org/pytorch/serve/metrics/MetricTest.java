@@ -9,6 +9,7 @@ import org.apache.logging.log4j.core.Logger;
 import org.apache.logging.log4j.core.appender.WriterAppender;
 import org.pytorch.serve.metrics.format.prometheous.PrometheusCounter;
 import org.pytorch.serve.metrics.format.prometheous.PrometheusGauge;
+import org.pytorch.serve.metrics.format.prometheous.PrometheusHistogram;
 import org.pytorch.serve.util.ConfigManager;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -241,5 +242,65 @@ public class MetricTest {
                 CollectorRegistry.defaultRegistry.getSampleValue(
                         testMetricName, dimensionNames, dimensionValues);
         Assert.assertEquals(metricValue, Double.valueOf(2.0));
+    }
+
+    @Test
+    public void testBackendPrometheusHistogram() {
+        IMetric testMetric =
+                MetricBuilder.build(
+                        MetricBuilder.MetricMode.PROMETHEUS,
+                        MetricBuilder.MetricContext.BACKEND,
+                        MetricBuilder.MetricType.HISTOGRAM,
+                        testMetricName,
+                        testMetricUnit,
+                        testMetricDimensionNames);
+        Assert.assertEquals(testMetric.getClass(), PrometheusHistogram.class);
+
+        String[] dimensionNames = {
+            testMetricDimensionNames.get(0), testMetricDimensionNames.get(1), "Hostname"
+        };
+        String[] dimensionValues = {
+            testMetricDimensionValues.get(0), testMetricDimensionValues.get(1), testHostname
+        };
+        testMetric.addOrUpdate(testMetricDimensionValues, testHostname, null, null, 1.0);
+        Double metricValue =
+                CollectorRegistry.defaultRegistry.getSampleValue(
+                        testMetricName + "_sum", dimensionNames, dimensionValues);
+        Assert.assertEquals(metricValue, Double.valueOf(1.0));
+        testMetric.addOrUpdate(testMetricDimensionValues, testHostname, null, null, 2.0);
+        metricValue =
+                CollectorRegistry.defaultRegistry.getSampleValue(
+                        testMetricName + "_sum", dimensionNames, dimensionValues);
+        Assert.assertEquals(metricValue, Double.valueOf(3.0));
+    }
+
+    @Test
+    public void testFrontendPrometheusHistogram() {
+        IMetric testMetric =
+                MetricBuilder.build(
+                        MetricBuilder.MetricMode.PROMETHEUS,
+                        MetricBuilder.MetricContext.FRONTEND,
+                        MetricBuilder.MetricType.HISTOGRAM,
+                        testMetricName,
+                        testMetricUnit,
+                        testMetricDimensionNames);
+        Assert.assertEquals(testMetric.getClass(), PrometheusHistogram.class);
+
+        String[] dimensionNames = {
+            testMetricDimensionNames.get(0), testMetricDimensionNames.get(1)
+        };
+        String[] dimensionValues = {
+            testMetricDimensionValues.get(0), testMetricDimensionValues.get(1)
+        };
+        testMetric.addOrUpdate(testMetricDimensionValues, 1.0);
+        Double metricValue =
+                CollectorRegistry.defaultRegistry.getSampleValue(
+                        testMetricName + "_sum", dimensionNames, dimensionValues);
+        Assert.assertEquals(metricValue, Double.valueOf(1.0));
+        testMetric.addOrUpdate(testMetricDimensionValues, 2.0);
+        metricValue =
+                CollectorRegistry.defaultRegistry.getSampleValue(
+                        testMetricName + "_sum", dimensionNames, dimensionValues);
+        Assert.assertEquals(metricValue, Double.valueOf(3.0));
     }
 }

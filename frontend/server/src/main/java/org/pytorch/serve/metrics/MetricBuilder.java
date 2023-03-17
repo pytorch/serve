@@ -3,6 +3,7 @@ package org.pytorch.serve.metrics;
 import java.util.ArrayList;
 import org.pytorch.serve.metrics.format.prometheous.PrometheusCounter;
 import org.pytorch.serve.metrics.format.prometheous.PrometheusGauge;
+import org.pytorch.serve.metrics.format.prometheous.PrometheusHistogram;
 
 public final class MetricBuilder {
     public enum MetricMode {
@@ -17,7 +18,8 @@ public final class MetricBuilder {
 
     public enum MetricType {
         COUNTER,
-        GAUGE
+        GAUGE,
+        HISTOGRAM
     }
 
     public static final IMetric build(
@@ -28,10 +30,14 @@ public final class MetricBuilder {
             String unit,
             ArrayList<String> dimensionNames) {
         if (mode == MetricMode.PROMETHEUS) {
-            if (type == MetricType.COUNTER) {
-                return new PrometheusCounter(context, type, name, unit, dimensionNames);
-            } else if (type == MetricType.GAUGE) {
-                return new PrometheusGauge(context, type, name, unit, dimensionNames);
+            switch (type) {
+                case COUNTER:
+                    return new PrometheusCounter(context, type, name, unit, dimensionNames);
+                case GAUGE:
+                    return new PrometheusGauge(context, type, name, unit, dimensionNames);
+                case HISTOGRAM:
+                    return new PrometheusHistogram(context, type, name, unit, dimensionNames);
+                default:
             }
         } else {
             return new LogMetric(context, type, name, unit, dimensionNames);
