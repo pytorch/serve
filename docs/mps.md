@@ -1,5 +1,9 @@
 # Enabling NVIDIA MPS in TorchServe
-Intro text
+In order to deploy ML models, TorchServe spins up each worker in a separate processes isolating each worker from the others.
+While NVIDIA GPUs in their default setting allow multiple processes to run CUDA kernels on a single device their execution is generally serialized.
+Each process creates its own CUDA context to execute its kernels and access the allocated memory.
+As processes can not share their CUDA context running multiple ML models on the same GPU results in the creation
+https://docs.nvidia.com/deploy/mps/index.html
 ## Motivation
 Why MPS and other considerations
 ## Benchmarks
