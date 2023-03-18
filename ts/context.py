@@ -37,6 +37,7 @@ class Context(object):
         self._metrics = None
         self._limit_max_image_pixels = True
         self.metrics = metrics
+        self.cl_socket = None
 
     @property
     def system_properties(self):

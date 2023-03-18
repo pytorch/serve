@@ -50,7 +50,7 @@ def encode_response_headers(resp_hdr_map):
     return msg
 
 
-def create_predict_response(ret, req_id_map, message, code, context=None):
+def create_predict_response(ret, req_id_map, message, code, context=None, ts_stream_next=False):
     """
     Create inference response.
 
@@ -77,6 +77,12 @@ def create_predict_response(ret, req_id_map, message, code, context=None):
         if context is None:
             msg += struct.pack("!i", 0)  # content_type
         else:
+            if "true" == context.get_request_header(idx, "ts_stream_next"):
+                if ts_stream_next is False:
+                    context.set_response_header(idx, "ts_stream_next", "false")
+                else:
+                    context.set_response_header(idx, "ts_stream_next", "true")
+
             content_type = context.get_response_content_type(idx)
             if content_type is None or len(content_type) == 0:
                 msg += struct.pack("!i", 0)  # content_type

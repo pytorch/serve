@@ -10,7 +10,6 @@ import os
 import platform
 import socket
 import sys
-import uuid
 
 from ts.arg_parser import ArgParser
 from ts.metrics.metric_cache_yaml_impl import MetricsCacheYamlImpl
@@ -157,6 +156,7 @@ class TorchModelServiceWorker(object):
                 cl_socket.sendall(resp)
                 if code != 200:
                     raise RuntimeError("{} - {}".format(code, result))
+                service.set_cl_socket(cl_socket)
             else:
                 raise ValueError("Received unknown command: {}".format(cmd))
 

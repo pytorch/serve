@@ -9,6 +9,7 @@ TorchServe provides following gRPCs apis
 * [Inference API](https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/proto/inference.proto)
   - **Ping** : Gets the health status of the running server
   - **Predictions** : Gets predictions from the served model
+  - **StreamPredictions** : Gets server side streaming predictions from the saved model
 
 * [Management API](https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/proto/management.proto)
   - **RegisterModel** : Serve a model/model-version on TorchServe
