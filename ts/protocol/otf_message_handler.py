@@ -348,3 +348,7 @@ def _retrieve_input_data(conn):
         model_input["value"] = value
 
     return model_input
+
+def send_intermediate_predict_response(ret, req_id_map, message, code, context=None):
+    msg = create_predict_response(ret, req_id_map,  message, code, context, True)
+    context.cl_socket.sendall(msg)

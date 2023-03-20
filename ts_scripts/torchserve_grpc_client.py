@@ -43,7 +43,7 @@ def infer_stream(stub, model_name, model_input):
     responses = stub.StreamPredictions(
         inference_pb2.PredictionsRequest(model_name=model_name, input=input_data)
     )
-    print("send req")
+
     try:
         for resp in responses:
             prediction = resp.prediction.decode("utf-8")
