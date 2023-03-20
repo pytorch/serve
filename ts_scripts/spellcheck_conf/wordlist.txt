@@ -998,6 +998,7 @@ NVfuser
 fuser
 ort
 sess
+dali
 BetterTransformer
 TransformerEncoder
 InferenceTimeInMS
