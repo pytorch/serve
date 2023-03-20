@@ -1,0 +1,45 @@
+# Torchserve version is to be installed. It can be one of the options
+#  - branch : "master"
+#  - nightly: "2022.3.16"
+#  - release: "0.5.3"
+# Nightly build will be installed if "ts_version" is not specifiged
+#ts_version:
+#    branch: &ts_version "master"
+
+# a list of model configure yaml files defined in benchmarks/models_config
+# or a list of model configure yaml files with full path
+models:
+  - "bert_neuron.yaml"
+
+# benchmark on "cpu", "gpu" or "neuron".
+# "cpu" is set if "hardware" is not specified
+hardware: &hardware "neuron"
+
+# load prometheus metrics report to remote storage or local different path if "metrics_cmd" is set.
+# the command line to load prometheus metrics report to remote system.
+# Here is an example of AWS cloudwatch command:
+# Note:
+#    - keep the values order as the same as the command definition.
+#    - set up the command before enabling `metrics_cmd`.
+#      For example, aws client and AWS credentials need to be setup before trying this example.
+metrics_cmd:
+  - "cmd": "aws cloudwatch put-metric-data"
+  - "--namespace": ["torchserve_benchmark_nightly_", *hardware]
+  - "--region": "us-east-2"
+  - "--metric-data": 'file:///tmp/benchmark/logs/stats_metrics.json'
+
+# load report to remote storage or local different path if "report_cmd" is set.
+# the command line to load report to remote storage.
+# Here is an example of AWS cloudwatch command:
+# Note:
+#    - keep the values order as the same as the command.
+#    - set up the command before enabling `report_cmd`.
+#      For example, aws client, AWS credentials and S3 bucket
+#      need to be setup before trying this example.
+#    - "today()" is a keyword to apply current date in the path
+#      For example, the dest path in the following example is
+#      s3://torchserve-model-serving/benchmark/2022-03-18/gpu
+report_cmd:
+  - "cmd": "aws s3 cp --recursive"
+  - "source": '/tmp/ts_benchmark/'
+  - "dest": ['s3://torchserve-benchmark/nightly', "today()", *hardware]
