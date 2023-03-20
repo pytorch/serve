@@ -30,6 +30,7 @@ To show the performance of TorchServe with activated MPS and help to the decisio
 Primarily, we want to investigate how the throughput of a worker evolves with activated MPS for different operation points.
 As an example work load for our benchmark we select the [HuggingFace Transformers Sequence Classification example](https://github.com/pytorch/serve/tree/master/examples/Huggingface_Transformers#sequence-classification).
 We perform the benchmark on a g4dn.4xlarge as well as a p3.2xlarge instance on AWS.
+Both instance types provide one GPU per instance which will result in multiple workers to be scheduled on the same GPU.
 For the benchmark we concentrate on the model throughput as measured by the [benchmark-ab.py](https://github.com/pytorch/serve/tree/master/benchmarks/benchmark-ab.py) tool.
 
 First, we measure the throughput of a single worker for different batch sizes as it will show us at which point the compute resources of the GPU are fully occupied.
@@ -44,7 +45,6 @@ We use the following config.json for the benchmark, only overwriting the number 
     "requests": 10000,
     "concurrency": 600,
     "input": "/home/ubuntu/serve/examples/Huggingface_Transformers/Seq_classification_artifacts/sample_text_captum_input.txt",
-    "gpus": "1",
     "workers": "1"
 }
 
