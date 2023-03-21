@@ -50,7 +50,9 @@ def encode_response_headers(resp_hdr_map):
     return msg
 
 
-def create_predict_response(ret, req_id_map, message, code, context=None, ts_stream_next=False):
+def create_predict_response(
+    ret, req_id_map, message, code, context=None, ts_stream_next=False
+):
     """
     Create inference response.
 
@@ -349,6 +351,7 @@ def _retrieve_input_data(conn):
 
     return model_input
 
+
 def send_intermediate_predict_response(ret, req_id_map, message, code, context=None):
-    msg = create_predict_response(ret, req_id_map,  message, code, context, True)
+    msg = create_predict_response(ret, req_id_map, message, code, context, True)
     context.cl_socket.sendall(msg)

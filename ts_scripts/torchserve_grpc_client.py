@@ -51,6 +51,7 @@ def infer_stream(stub, model_name, model_input):
     except grpc.RpcError as e:
         exit(1)
 
+
 def register(stub, model_name, mar_set_str):
     mar_set = set()
     if mar_set_str:
@@ -124,7 +125,10 @@ if __name__ == "__main__":
     )
 
     infer_stream_action_parser.add_argument(
-        "model_input", type=str, default=None, help="Input for model for stream inferencing."
+        "model_input",
+        type=str,
+        default=None,
+        help="Input for model for stream inferencing.",
     )
 
     register_action_parser.add_argument(

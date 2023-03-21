@@ -65,7 +65,9 @@ class TorchModelServiceWorker(object):
         if self.metrics_cache:
             self.metrics_cache.initialize_cache()
         else:
-            raise RuntimeError(f"Failed to initialize metrics from file {metrics_config}")
+            raise RuntimeError(
+                f"Failed to initialize metrics from file {metrics_config}"
+            )
 
     def load_model(self, load_model_request):
         """
@@ -122,7 +124,7 @@ class TorchModelServiceWorker(object):
                 batch_size,
                 envelope,
                 limit_max_image_pixels,
-                self.metrics_cache
+                self.metrics_cache,
             )
 
             logging.debug("Model %s loaded.", model_name)
