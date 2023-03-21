@@ -17,13 +17,14 @@ from ts.model_loader import ModelLoaderFactory
 from ts.protocol.otf_message_handler import create_load_model_response, retrieve_msg
 
 MAX_FAILURE_THRESHOLD = 5
-SOCKET_ACCEPT_TIMEOUT = 300.0
+SOCKET_ACCEPT_TIMEOUT = 30.0
 DEBUG = False
 BENCHMARK = os.getenv("TS_BENCHMARK")
 BENCHMARK = BENCHMARK in ["True", "true", "TRUE"]
 LOCAL_RANK = int(os.getenv('LOCAL_RANK', 0))
 WORLD_SIZE = int(os.getenv('WORLD_SIZE', 0))
 WORLD_RANK = int(os.getenv('RANK', 0))
+LOCAL_WORLD_SIZE = int(os.getenv("LOCAL_WORLD_SIZE", 0))
 
 class TorchModelServiceWorker(object):
     """
@@ -44,8 +45,8 @@ class TorchModelServiceWorker(object):
             if s_name is None:
                 raise ValueError("Wrong arguments passed. No socket name given.")
             s_name_parts = s_name.rsplit('.', 1)
-            logging.info(f"part0={s_name_parts[0]}, part1={s_name_parts[1]}, pid={str(os.getpid())}")
-            s_name_new = s_name_parts[0] + '.' + str(int(s_name_parts[1]) + WORLD_RANK)
+            logging.info("s_name_part0=%s, s_name_part1=%s, pid=%d", s_name_parts[0], s_name_parts[1], os.getpid())
+            s_name_new = s_name_parts[0] + '.' + str(int(s_name_parts[1]) + LOCAL_RANK)
             self.sock_name, self.port = s_name_new, -1
             try:
                 os.remove(s_name_new)
@@ -59,7 +60,7 @@ class TorchModelServiceWorker(object):
             self.sock_name = host_addr if host_addr is not None else "127.0.0.1"
             if port_num is None:
                 raise ValueError("Wrong arguments passed. No socket port given.")
-            self.port = port_num
+            self.port = port_num + LOCAL_RANK
         else:
             raise ValueError("Incomplete data provided")
         
@@ -179,8 +180,7 @@ class TorchModelServiceWorker(object):
         else:
             self.sock.bind((self.sock_name, int(self.port)))
 
-       # self.sock.listen(1)
-        self.sock.listen(128)
+        self.sock.listen(1)
 
         logging.info("[PID]%d", os.getpid())
         logging.info("Torch worker started.")
@@ -214,8 +214,6 @@ if __name__ == "__main__":
         port = args.port 
         metrics_config = args.metrics_config
 
-        print(f"LOCAL_RANK={str(LOCAL_RANK)}, WORLD_SIZE={str(WORLD_SIZE)}, WORLD_RANK={str(WORLD_RANK)}")
-
         if BENCHMARK:
             import cProfile
 
@@ -226,9 +224,7 @@ if __name__ == "__main__":
         worker = TorchModelServiceWorker(
             sock_type, socket_name, host, port, metrics_config
         )
-        
         worker.run_server()
-
         if BENCHMARK:
             pr.disable()
             pr.dump_stats("/tmp/tsPythonProfile.prof")

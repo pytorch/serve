@@ -98,9 +98,7 @@ public class WorkerLifeCycle {
         ArrayList<String> argl = new ArrayList<>();
         if (model.getParallelLevel() > 1) {
             attachRunner(argl, port);
-        }
-
-        if (model.getParallelLevel() == 1) {
+        } else if (model.getParallelLevel() == 1) {
             argl.add(EnvironmentUtils.getPythonRunTime(model));
         }
 
