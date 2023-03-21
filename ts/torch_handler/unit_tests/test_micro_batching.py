@@ -125,3 +125,16 @@ def test_handle_explain(context, kitten_image_bytes, handler):
     results = handler.handle(test_data, context)
     assert len(results) == 2
     assert results[0]
+
+
+def test_composable_handler(context, kitten_image_bytes):
+    from ts.torch_handler.composable_handler import ComposableHandler
+
+    handler = ComposableHandler()
+
+    print(handler.initialize)
+
+    handler.initialize(context)
+
+    test_data = [{"data": kitten_image_bytes, "target": 0}] * 2
+    results = handler.handle(test_data, context)
