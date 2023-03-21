@@ -72,7 +72,7 @@ python ts_scripts/torchserve_grpc_client.py infer densenet161 examples/image_cla
 python ts_scripts/torchserve_grpc_client.py unregister densenet161
 ```
 ## GRPC Server Side Streaming
-TorchServe GRPC APIs adds a server side streaming of the inference API "StreamPredictions" to allow a sequence of inference responses to be sent over the same GRPC stream. This new API is only recommended for the use case when the inference full response latency is high, and the inference intermediate results are sent to client. This new API automatically forces the batchSize to be one.
+TorchServe GRPC APIs adds a server side streaming of the inference API "StreamPredictions" to allow a sequence of inference responses to be sent over the same GRPC stream. This new API is only recommended for use cases such as generative AI and mostly LLMs (Large Language models) where the latency for the full response is high, and the intermediate results are available and can be sent to client as they get generated. This new API automatically forces the batchSize to be one.
 
 ```
 service InferenceAPIsService {
@@ -93,6 +93,6 @@ from ts.protocol.otf_message_handler import send_intermediate_predict_response
 def handle(data, context):
     if type(data) is list:
         for i in range (3):
-            send_intermediate_predict_response(["hello"], context.request_ids, "Intermediate Prediction success", 200, context)
+            send_intermediate_predict_response(["intermediate_response"], context.request_ids, "Intermediate Prediction success", 200, context)
         return ["hello world "]
 ```
