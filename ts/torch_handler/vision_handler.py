@@ -5,13 +5,16 @@ Base module for all vision handlers
 """
 import base64
 import io
+import types
 from abc import ABC
 
 import torch
-from captum.attr import IntegratedGradients
 from PIL import Image
 
 from .base_handler import BaseHandler
+
+print(__file__)
+from ts.torch_handler.handler_utils import BaseInit, VisionInit
 
 
 class VisionHandler(BaseHandler, ABC):
@@ -19,13 +22,9 @@ class VisionHandler(BaseHandler, ABC):
     Base class for all vision handlers
     """
 
-    def initialize(self, context):
-        super().initialize(context)
-        self.ig = IntegratedGradients(self.model)
-        self.initialized = True
-        properties = context.system_properties
-        if not properties.get("limit_max_image_pixels"):
-            Image.MAX_IMAGE_PIXELS = None
+    def __init__(self):
+
+        self.initialize = types.MethodType(VisionInit(BaseInit()), self)
 
     def preprocess(self, data):
         """The preprocess function of MNIST program converts the input data to a float tensor

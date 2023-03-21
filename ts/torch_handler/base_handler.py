@@ -4,7 +4,6 @@ Also, provides handle method per torch serve custom model specification
 """
 
 import abc
-import importlib.util
 import logging
 import os
 import time
@@ -12,11 +11,7 @@ import time
 import torch
 from pkg_resources import packaging
 
-from ..utils.util import (
-    list_classes_from_module,
-    load_compiler_config,
-    load_label_mapping,
-)
+from ts.torch_handler.handler_utils import BaseInit
 
 if packaging.version.parse(torch.__version__) >= packaging.version.parse("1.8.1"):
     from torch.profiler import ProfilerActivity, profile, record_function
@@ -28,29 +23,10 @@ else:
 
 logger = logging.getLogger(__name__)
 
-# Possible values for backend in utils.py
-def check_pt2_enabled():
-    try:
-        import torch._dynamo
-
-        pt2_enabled = True
-        if torch.cuda.is_available():
-            # If Ampere enable tensor cores which will give better performance
-            # Ideally get yourself an A10G or A100 for optimal performance
-            if torch.cuda.get_device_capability() >= (8, 0):
-                torch.backends.cuda.matmul.allow_tf32 = True
-    except ImportError as error:
-        logger.warning(
-            "dynamo/inductor are not installed. \n For GPU please run pip3 install numpy --pre torch[dynamo] --force-reinstall --extra-index-url https://download.pytorch.org/whl/nightly/cu117 \n for CPU please run pip3 install --pre torch --extra-index-url https://download.pytorch.org/whl/nightly/cpu"
-        )
-        pt2_enabled = False
-    return pt2_enabled
-
 
 ipex_enabled = False
 if os.environ.get("TS_IPEX_ENABLE", "false") == "true":
     try:
-        import intel_extension_for_pytorch as ipex
 
         ipex_enabled = True
     except ImportError as error:
@@ -66,6 +42,7 @@ class BaseHandler(abc.ABC):
     """
 
     def __init__(self):
+        self.initialize = types.MethodType(BaseInit(), self)
         self.model = None
         self.mapping = None
         self.device = None
@@ -78,129 +55,6 @@ class BaseHandler(abc.ABC):
         self.target = 0
         self.profiler_args = {}
 
-    def initialize(self, context):
-        """Initialize function loads the model.pt file and initialized the model object.
-           First try to load torchscript else load eager mode state_dict based model.
-
-        Args:
-            context (context): It is a JSON Object containing information
-            pertaining to the model artifacts parameters.
-
-        Raises:
-            RuntimeError: Raises the Runtime error when the model.py is missing
-
-        """
-        ipex_enabled = False
-        if os.environ.get("TS_IPEX_ENABLE", "false") == "true":
-            try:
-                import intel_extension_for_pytorch as ipex
-
-                ipex_enabled = True
-            except ImportError as error:
-                logger.warning(
-                    "IPEX is enabled but intel-extension-for-pytorch is not installed. Proceeding without IPEX."
-                )
-
-        properties = context.system_properties
-        self.map_location = (
-            "cuda"
-            if torch.cuda.is_available() and properties.get("gpu_id") is not None
-            else "cpu"
-        )
-        self.device = torch.device(
-            self.map_location + ":" + str(properties.get("gpu_id"))
-            if torch.cuda.is_available() and properties.get("gpu_id") is not None
-            else self.map_location
-        )
-        self.manifest = context.manifest
-
-        model_dir = properties.get("model_dir")
-        self.model_pt_path = None
-        if "serializedFile" in self.manifest["model"]:
-            serialized_file = self.manifest["model"]["serializedFile"]
-            self.model_pt_path = os.path.join(model_dir, serialized_file)
-
-        if self.model_pt_path:
-            if self.model_pt_path.endswith("onnx"):
-                try:
-                    # import numpy as np
-                    import onnxruntime as ort
-                    import psutil
-
-                    onnx_enabled = True
-                    logger.info("ONNX enabled")
-                except ImportError as error:
-                    onnx_enabled = False
-                    logger.warning("proceeding without onnxruntime")
-
-        # model def file
-        model_file = self.manifest["model"].get("modelFile", "")
-
-        if model_file:
-            logger.debug("Loading eager model")
-            self.model = self._load_pickled_model(
-                model_dir, model_file, self.model_pt_path
-            )
-            self.model.to(self.device)
-            self.model.eval()
-
-        # Convert your model by following instructions: https://pytorch.org/tutorials/intermediate/nvfuser_intro_tutorial.html
-        # For TensorRT support follow instructions here: https://pytorch.org/TensorRT/getting_started/getting_started_with_python_api.html#getting-started-with-python-api
-        elif self.model_pt_path.endswith(".pt"):
-            self.model = self._load_torchscript_model(self.model_pt_path)
-            self.model.eval()
-
-        # Convert your model by following instructions: https://pytorch.org/tutorials/advanced/super_resolution_with_onnxruntime.html
-        # TODO(msaroufim): Refactor into utils https://github.com/pytorch/serve/issues/1631
-        elif self.model_pt_path.endswith(".onnx") and onnx_enabled:
-            # self.model = self._load_onnx_model(self.model_pt_path)
-            providers = (
-                ["CUDAExecutionProvider", "CPUExecutionProvider"]
-                if self.map_location == "cuda"
-                else ["CPUExecutionProvider"]
-            )
-
-            # Set the right inference options, we can add more options here depending on what people want
-            sess_options = ort.SessionOptions()
-            sess_options.intra_op_num_threads = psutil.cpu_count(logical=True)
-
-            # Start an inference session
-            ort_session = ort.InferenceSession(
-                self.model_pt_path, providers=providers, sess_options=sess_options
-            )
-            self.model = ort_session
-
-        else:
-            raise RuntimeError("No model weights could be loaded")
-
-        optimization_config = os.path.join(model_dir, "compile.json")
-        backend = load_compiler_config(optimization_config)
-
-        # PT 2.0 support is opt in
-        if check_pt2_enabled() and backend:
-            # Compilation will delay your model initialization
-            try:
-                self.model = torch.compile(
-                    self.model, backend=backend, mode="reduce-overhead"
-                )
-                logger.info(f"Compiled model with backend {backend}")
-            except:
-                logger.warning(
-                    f"Compiling model model with backend {backend} has failed \n Proceeding without compilation"
-                )
-
-        elif ipex_enabled:
-            self.model = self.model.to(memory_format=torch.channels_last)
-            self.model = ipex.optimize(self.model)
-
-        logger.debug("Model file %s loaded successfully", self.model_pt_path)
-
-        # Load class mapping for classifiers
-        mapping_file_path = os.path.join(model_dir, "index_to_name.json")
-        self.mapping = load_label_mapping(mapping_file_path)
-
-        self.initialized = True
-
     def _load_torchscript_model(self, model_pt_path):
         """Loads the PyTorch model and returns the NN model object.
 
@@ -211,43 +65,6 @@ class BaseHandler(abc.ABC):
             (NN Model Object) : Loads the model object.
         """
         return torch.jit.load(model_pt_path, map_location=self.device)
-
-    def _load_pickled_model(self, model_dir, model_file, model_pt_path):
-        """
-        Loads the pickle file from the given model path.
-
-        Args:
-            model_dir (str): Points to the location of the model artefacts.
-            model_file (.py): the file which contains the model class.
-            model_pt_path (str): points to the location of the model pickle file.
-
-        Raises:
-            RuntimeError: It raises this error when the model.py file is missing.
-            ValueError: Raises value error when there is more than one class in the label,
-                        since the mapping supports only one label per class.
-
-        Returns:
-            serialized model file: Returns the pickled pytorch model file
-        """
-        model_def_path = os.path.join(model_dir, model_file)
-        if not os.path.isfile(model_def_path):
-            raise RuntimeError("Missing the model.py file")
-
-        module = importlib.import_module(model_file.split(".")[0])
-        model_class_definitions = list_classes_from_module(module)
-        if len(model_class_definitions) != 1:
-            raise ValueError(
-                "Expected only one class as model definition. {}".format(
-                    model_class_definitions
-                )
-            )
-
-        model_class = model_class_definitions[0]
-        model = model_class()
-        if model_pt_path:
-            state_dict = torch.load(model_pt_path, map_location=self.device)
-            model.load_state_dict(state_dict)
-        return model
 
     def preprocess(self, data):
         """
