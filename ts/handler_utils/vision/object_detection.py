@@ -46,13 +46,13 @@ def initialize(self, context):
         self.initialized = True
 
 
-class ObjDetectPostprocess(PipeCaller):
+class ObjectDetectionPostprocess(PipeCaller):
     def __init__(self, previous_handle=None):
         self._prev = previous_handle
         self._method = postprocess
 
 
-class ObjDetectInit(InitCaller):
+class ObjectDetectionInitialize(InitCaller):
     def __init__(self, previous_handle=None):
         self._prev = previous_handle
         self._method = initialize

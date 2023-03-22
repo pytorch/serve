@@ -3,7 +3,7 @@ Module for image segmentation default handler
 """
 from torchvision import transforms as T
 
-from ts.handler_utils import ImageSegmentationPostprocess, VisionPreproc
+from ts.handler_utils import ImageSegmentationPostprocess, VisionPreprocess
 
 from .vision_handler import VisionHandler
 
@@ -26,5 +26,5 @@ class ImageSegmenter(VisionHandler):
 
     def __init__(self):
         super().__init__()
-        self.preprocess = VisionPreproc()
+        self.preprocess = VisionPreprocess()
         self.postprocess = ImageSegmentationPostprocess()

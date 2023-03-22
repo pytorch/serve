@@ -42,9 +42,6 @@ def vision_preprocess(obj, data):
     # pylint: enable=unnecessary-pass
 
 
-from PIL import Image
-
-
 def vision_initialize(obj, context):
     obj.ig = IntegratedGradients(obj.model)
     obj.initialized = True
@@ -53,13 +50,13 @@ def vision_initialize(obj, context):
         Image.MAX_IMAGE_PIXELS = None
 
 
-class VisionPreproc(PipeCaller):
+class VisionPreprocess(PipeCaller):
     def __init__(self, previous_handle=None, image_processing=None):
         self._prev = previous_handle
         self._method = vision_preprocess
 
 
-class VisionInit(InitCaller):
+class VisionInitialize(InitCaller):
     def __init__(self, previous_handle=None):
         self._prev = previous_handle
         self._method = vision_initialize
