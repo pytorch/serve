@@ -180,38 +180,43 @@ def make_paths_absolute(test, keys):
     return test
 
 
-def test_model_archiver():
+def load_integ_tests():
     with open(TEST_ROOT_DIR.joinpath(INTEG_TEST_CONFIG_FILE), "r") as f:
         tests = json.loads(f.read())
-        keys = (
-            "model-file",
-            "serialized-file",
-            "handler",
-            "extra-files",
-        )
-        tests = [make_paths_absolute(t, keys) for t in tests]
-        for test in tests:
-            # tar.gz format problem on windows hence ignore
-            if platform.system() == "Windows" and test["archive-format"] == "tgz":
-                continue
-            try:
-                test["export-path"] = os.path.join(
-                    tempfile.gettempdir(), test["export-path"]
-                )
-                delete_file_path(test.get("export-path"))
-                create_file_path(test.get("export-path"))
-                test["runtime"] = test.get("runtime", DEFAULT_RUNTIME)
-                test["model-name"] = (
-                    test["model-name"] + "_" + str(int(time.time() * 1000.0))
-                )
-                cmd = build_cmd(test)
-                if test.get("force"):
-                    cmd += " -f"
+    keys = (
+        "model-file",
+        "serialized-file",
+        "handler",
+        "extra-files",
+    )
+    return [make_paths_absolute(t, keys) for t in tests]
 
-                if run_test(test, cmd):
-                    validate(test)
-            finally:
-                delete_file_path(test.get("export-path"))
+
+def test_model_archiver():
+    tests = load_integ_tests()
+
+    for test in tests:
+        # tar.gz format problem on windows hence ignore
+        if platform.system() == "Windows" and test["archive-format"] == "tgz":
+            continue
+        try:
+            test["export-path"] = os.path.join(
+                tempfile.gettempdir(), test["export-path"]
+            )
+            delete_file_path(test.get("export-path"))
+            create_file_path(test.get("export-path"))
+            test["runtime"] = test.get("runtime", DEFAULT_RUNTIME)
+            test["model-name"] = (
+                test["model-name"] + "_" + str(int(time.time() * 1000.0))
+            )
+            cmd = build_cmd(test)
+            if test.get("force"):
+                cmd += " -f"
+
+            if run_test(test, cmd):
+                validate(test)
+        finally:
+            delete_file_path(test.get("export-path"))
 
 
 def test_default_handlers():
@@ -236,6 +241,28 @@ def test_default_handlers():
                     validate(test)
             finally:
                 delete_file_path(test.get("export-path"))
+
+
+def test_zip_store(tmp_path):
+    tests = load_integ_tests()
+    tests = list(filter(lambda t: t["name"] == "packaging_zip_store_mar", tests))
+    assert len(tests) == 1
+    test = tests[0]
+
+    test["export-path"] = tmp_path
+    test["iterations"] = 1
+
+    test["model-name"] = "zip-store"
+    run_test(test, build_cmd(test))
+
+    test["model-name"] = "zip"
+    test["archive-format"] = "default"
+    run_test(test, build_cmd(test))
+
+    stored_size = Path(tmp_path).joinpath("zip-store.mar").stat().st_size
+    zipped_size = Path(tmp_path).joinpath("zip.mar").stat().st_size
+
+    assert zipped_size < stored_size
 
 
 if __name__ == "__main__":
