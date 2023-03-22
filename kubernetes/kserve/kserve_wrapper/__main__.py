@@ -1,6 +1,7 @@
 """ KServe wrapper to handler inference in the kserve_predictor """
 import json
 import logging
+import os
 
 import kserve
 from kserve.model_server import ModelServer
@@ -50,9 +51,6 @@ def parse_config():
     models = keys["model_snapshot"]["models"]
     model_names = []
 
-    protocol = "grpc-v2"
-    # protocol = "v2"
-
     # Get all the model_names
     for model, value in models.items():
         model_names.append(model)
@@ -75,12 +73,11 @@ def parse_config():
         model_store = DEFAULT_MODEL_STORE
 
     logging.info(
-        "Wrapper : Model names %s, inference address %s, management address %s, grpc_inference_address, %s, protocol %s, model store %s",
+        "Wrapper : Model names %s, inference address %s, management address %s, grpc_inference_address, %s, model store %s",
         model_names,
         inference_address,
         management_address,
         grpc_inference_address,
-        protocol,
         model_store,
     )
 
@@ -89,7 +86,6 @@ def parse_config():
         inference_address,
         management_address,
         grpc_inference_address,
-        protocol,
         model_store,
     )
 
@@ -101,9 +97,10 @@ if __name__ == "__main__":
         inference_address,
         management_address,
         grpc_inference_address,
-        protocol,
         model_dir,
     ) = parse_config()
+
+    protocol = os.environ.get("PROTOCOL_VERSION")
 
     models = []
 

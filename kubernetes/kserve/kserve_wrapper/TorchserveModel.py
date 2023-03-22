@@ -76,6 +76,7 @@ class TorchserveModel(Model):
 
         logging.info("Predict URL set to %s", self.predictor_host)
         logging.info("Explain URL set to %s", self.explainer_host)
+        logging.info("Protocol version is %s", self.protocol)
 
     def grpc_client(self):
         if self._grpc_client_stub is None:
@@ -88,6 +89,7 @@ class TorchserveModel(Model):
     async def _grpc_predict(
         self,
         payload: Union[ModelInferRequest, InferRequest],
+        headers: Dict[str, str] = None,
     ) -> ModelInferResponse:
         """Overrides the `_grpc_predict` method in Model class. The predict method calls
         the `_grpc_predict` method if the self.protocol is "grpc_v2"
