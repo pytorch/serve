@@ -4,5 +4,5 @@ from ts.torch_handler.micro_batching import MicroBatching
 
 class MicroBatchingHandler(ImageClassifier):
     def __init__(self):
-        mb_handle = MicroBatching()
+        mb_handle = MicroBatching(self)
         self.handle = mb_handle

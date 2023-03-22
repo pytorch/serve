@@ -10,6 +10,7 @@ from torchvision.models.resnet import ResNet18_Weights
 
 from ts.torch_handler.image_classifier import ImageClassifier
 from ts.torch_handler.micro_batching import MicroBatching
+from ts.torch_handler.micro_batching_handler import MicroBatchingHandler
 
 from .test_utils.mock_context import MockContext
 from .test_utils.model_dir import copy_files, download_model
@@ -94,6 +95,15 @@ def handler(context, request):
     return handler
 
 
+@pytest.fixture(scope="module", params=[1, 16, 32])
+def micro_batching_handler(context, request):
+    handler = MicroBatchingHandler()
+
+    handler.initialize(context)
+
+    return handler
+
+
 @pytest.fixture(scope="module", params=[1, 32])
 def mixed_batch(kitten_image_bytes, dog_image_bytes, request):
     batch_size = request.param
@@ -125,3 +135,11 @@ def test_handle_explain(context, kitten_image_bytes, handler):
     results = handler.handle(test_data, context)
     assert len(results) == 2
     assert results[0]
+
+
+def test_micro_batching_handler(context, mixed_batch, micro_batching_handler):
+    test_data, labels = mixed_batch
+    results = micro_batching_handler.handle(test_data, context)
+    assert len(results) == len(labels)
+    for l, r in zip(labels, results):
+        assert l in r
