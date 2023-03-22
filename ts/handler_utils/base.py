@@ -1,20 +1,19 @@
 import importlib
 import logging
 import os
-from abc import ABC
+import time
 
+import psutil
 import torch
-from captum.attr import IntegratedGradients
-from PIL import Image
 
-from ..utils.util import (
+from ts.handler_utils.caller import InitCaller, PipeCaller
+from ts.utils.util import (
     list_classes_from_module,
     load_compiler_config,
     load_label_mapping,
 )
 
 logger = logging.getLogger(__name__)
-
 # Possible values for backend in utils.py
 def check_pt2_enabled():
     try:
@@ -34,28 +33,27 @@ def check_pt2_enabled():
     return pt2_enabled
 
 
-def vision_initialize(obj, context):
-    obj.ig = IntegratedGradients(obj.model)
-    obj.initialized = True
-    properties = context.system_properties
-    if not properties.get("limit_max_image_pixels"):
-        Image.MAX_IMAGE_PIXELS = None
+def _load_torchscript_model(obj, model_pt_path):
+    """Loads the PyTorch model and returns the NN model object.
+    Args:
+        model_pt_path (str): denotes the path of the model file.
+    Returns:
+        (NN Model Object) : Loads the model object.
+    """
+    return torch.jit.load(model_pt_path, map_location=obj.device)
 
 
 def _load_pickled_model(obj, model_dir, model_file, model_pt_path):
     """
     Loads the pickle file from the given model path.
-
     Args:
         model_dir (str): Points to the location of the model artefacts.
         model_file (.py): the file which contains the model class.
         model_pt_path (str): points to the location of the model pickle file.
-
     Raises:
         RuntimeError: It raises this error when the model.py file is missing.
         ValueError: Raises value error when there is more than one class in the label,
                     since the mapping supports only one label per class.
-
     Returns:
         serialized model file: Returns the pickled pytorch model file
     """
@@ -83,14 +81,11 @@ def _load_pickled_model(obj, model_dir, model_file, model_pt_path):
 def base_initialize(obj, context):
     """Initialize function loads the model.pt file and initialized the model object.
        First try to load torchscript else load eager mode state_dict based model.
-
     Args:
         context (context): It is a JSON Object containing information
         pertaining to the model artifacts parameters.
-
     Raises:
         RuntimeError: Raises the Runtime error when the model.py is missing
-
     """
     ipex_enabled = False
     if os.environ.get("TS_IPEX_ENABLE", "false") == "true":
@@ -147,7 +142,7 @@ def base_initialize(obj, context):
     # Convert your model by following instructions: https://pytorch.org/tutorials/intermediate/nvfuser_intro_tutorial.html
     # For TensorRT support follow instructions here: https://pytorch.org/TensorRT/getting_started/getting_started_with_python_api.html#getting-started-with-python-api
     elif obj.model_pt_path.endswith(".pt"):
-        obj.model = obj._load_torchscript_model(obj.model_pt_path)
+        obj.model = _load_torchscript_model(obj, obj.model_pt_path)
         obj.model.eval()
 
     # Convert your model by following instructions: https://pytorch.org/tutorials/advanced/super_resolution_with_onnxruntime.html
@@ -202,59 +197,215 @@ def base_initialize(obj, context):
     obj.initialized = True
 
 
-def vision_preprocess(obj, data):
-    """The preprocess function of MNIST program converts the input data to a float tensor
-
-    Args:
-        data (List): Input data from the request is in the form of a Tensor
-
-    Returns:
-        list : The preprocess function returns the input image as a list of float tensors.
+def base_inference(obj, data, *args, **kwargs):
     """
-    images = []
+    The Inference Function is used to make a prediction call on the given input request.
+    The user needs to override the inference function to customize it.
+    Args:
+        data (Torch Tensor): A Torch Tensor is passed to make the Inference Request.
+        The shape should match the model input shape.
+    Returns:
+        Torch Tensor : The Predicted Torch Tensor is returned in this function.
+    """
+    with torch.no_grad():
+        marshalled_data = data.to(obj.device)
+        results = obj.model(marshalled_data, *args, **kwargs)
+    return results
 
-    for row in data:
-        # Compat layer: normally the envelope should just return the data
-        # directly, but older versions of Torchserve didn't have envelope.
-        image = row.get("data") or row.get("body")
-        if isinstance(image, str):
-            # if the image is a string of bytesarray.
-            image = base64.b64decode(image)
 
-        # If the image is sent as bytesarray
-        if isinstance(image, (bytearray, bytes)):
-            image = Image.open(io.BytesIO(image))
-            image = obj.image_processing(image)
+def base_preprocess(obj, data):
+    """
+    Preprocess function to convert the request input to a tensor(Torchserve supported format).
+    The user needs to override to customize the pre-processing
+    Args :
+        data (list): List of the data from the request input.
+    Returns:
+        tensor: Returns the tensor data of the input
+    """
+    return torch.as_tensor(data, device=obj.device)
+
+
+def base_postprocess(obj, data):
+    """
+    The post process function makes use of the output from the inference and converts into a
+    Torchserve supported response output.
+    Args:
+        data (Torch Tensor): The torch tensor received from the prediction output of the model.
+    Returns:
+        List: The post process function returns a list of the predicted output.
+    """
+
+    return data.tolist()
+
+
+def base_handle(obj, data, context):
+    """Entry point for default handler. It takes the data from the input request and returns
+        the predicted outcome for the input.
+    Args:
+        data (list): The input data that needs to be made a prediction request on.
+        context (Context): It is a JSON Object containing information pertaining to
+                            the model artefacts parameters.
+    Returns:
+        list : Returns a list of dictionary with the predicted response.
+    """
+
+    # It can be used for pre or post processing if needed as additional request
+    # information is available in context
+    start_time = time.time()
+
+    obj.context = context
+    metrics = obj.context.metrics
+
+    is_profiler_enabled = os.environ.get("ENABLE_TORCH_PROFILER", None)
+    if is_profiler_enabled:
+        if PROFILER_AVAILABLE:
+            output, _ = obj._infer_with_profiler(data=data)
         else:
-            # if the image is a list
-            image = torch.FloatTensor(image)
+            raise RuntimeError(
+                "Profiler is enabled but current version of torch does not support."
+                "Install torch>=1.8.1 to use profiler."
+            )
+    else:
+        if _is_describe(obj):
+            output = [describe_handle(obj)]
+        else:
+            data_preprocess = obj.preprocess(data)
 
-        images.append(image)
+            if not _is_explain(obj):
+                output = obj.inference(data_preprocess)
+                output = obj.postprocess(output)
+            else:
+                output = explain_handle(obj, data_preprocess, data)
 
-    return torch.stack(images).to(obj.device)
+    stop_time = time.time()
+    metrics.add_time(
+        "HandlerTime", round((stop_time - start_time) * 1000, 2), None, "ms"
+    )
+    return output
 
 
-class Caller(ABC):
-    def __call__(self, *args):
-        if self._prev:
-            self._prev(*args)
+def explain_handle(obj, data_preprocess, raw_data):
+    """Captum explanations handler
+    Args:
+        data_preprocess (Torch Tensor): Preprocessed data to be used for captum
+        raw_data (list): The unprocessed data to get target from the request
+    Returns:
+        dict : A dictionary response with the explanations response.
+    """
+    output_explain = None
+    inputs = None
+    target = 0
 
-        self._method(*args)
+    logger.info("Calculating Explanations")
+    row = raw_data[0]
+    if isinstance(row, dict):
+        logger.info("Getting data and target")
+        inputs = row.get("data") or row.get("body")
+        target = row.get("target")
+        if not target:
+            target = 0
+
+    output_explain = obj.get_insights(data_preprocess, inputs, target)
+    return output_explain
 
 
-class VisionPreproc(Caller):
+def _is_explain(obj):
+    if obj.context and obj.context.get_request_header(0, "explain"):
+        if obj.context.get_request_header(0, "explain") == "True":
+            obj.explain = True
+            return True
+    return False
+
+
+def _is_describe(obj):
+    if obj.context and obj.context.get_request_header(0, "describe"):
+        if obj.context.get_request_header(0, "describe") == "True":
+            return True
+    return False
+
+
+def describe_handle(obj):
+    """Customized describe handler
+    Returns:
+        dict : A dictionary response.
+    """
+    # pylint: disable=unnecessary-pass
+    pass
+
+
+def _infer_with_profiler(obj, data):
+    """Custom method to generate pytorch profiler traces for preprocess/inference/postprocess
+    Args:
+        data (list): The input data that needs to be made a prediction request on.
+    Returns:
+        output : Returns a list of dictionary with the predicted response.
+        prof: pytorch profiler object
+    """
+    # Setting the default profiler arguments to profile cpu, gpu usage and record shapes
+    # User can override this argument based on the requirement
+    if not obj.profiler_args:
+        obj.profiler_args["activities"] = [
+            ProfilerActivity.CPU,
+            ProfilerActivity.CUDA,
+        ]
+        obj.profiler_args["record_shapes"] = True
+
+    if "on_trace_ready" not in obj.profiler_args:
+        result_path = "/tmp/pytorch_profiler"
+        dir_name = ""
+        try:
+            model_name = obj.manifest["model"]["modelName"]
+            dir_name = model_name
+        except KeyError:
+            logging.debug("Model name not found in config")
+
+        result_path = os.path.join(result_path, dir_name)
+        obj.profiler_args["on_trace_ready"] = torch.profiler.tensorboard_trace_handler(
+            result_path
+        )
+        logger.info("Saving chrome trace to : %s", result_path)
+
+    with profile(**obj.profiler_args) as prof:
+        with record_function("preprocess"):
+            data_preprocess = obj.preprocess(data)
+        if not obj._is_explain():
+            with record_function("inference"):
+                output = obj.inference(data_preprocess)
+            with record_function("postprocess"):
+                output = obj.postprocess(output)
+        else:
+            with record_function("explain"):
+                output = obj.explain_handle(data_preprocess, data)
+
+    logger.info(prof.key_averages().table(sort_by="cpu_time_total", row_limit=10))
+    return output, prof
+
+
+class BasePreproc(PipeCaller):
     def __init__(self, previous_handle=None):
         self._prev = previous_handle
-        self._method = vision_preprocess
+        self._method = base_preprocess
 
 
-class BaseInit(Caller):
+class BaseInit(InitCaller):
     def __init__(self, previous_handle=None):
         self._prev = previous_handle
         self._method = base_initialize
 
 
-class VisionInit(Caller):
+class BaseInference(PipeCaller):
     def __init__(self, previous_handle=None):
         self._prev = previous_handle
-        self._method = vision_initialize
+        self._method = base_inference
+
+
+class BasePostprocess(PipeCaller):
+    def __init__(self, previous_handle=None):
+        self._prev = previous_handle
+        self._method = base_postprocess
+
+
+class BaseHandle(PipeCaller):
+    def __init__(self, previous_handle=None):
+        self._prev = previous_handle
+        self._method = base_handle
