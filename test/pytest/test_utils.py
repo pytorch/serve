@@ -135,6 +135,7 @@ def model_archiver_command_builder(
     extra_files=None,
     force=False,
     config_file=None,
+    archive_format=None,
 ):
     # Initialize a list to store the command-line arguments
     cmd_parts = ["torch-model-archiver"]
@@ -164,9 +165,11 @@ def model_archiver_command_builder(
     if force:
         cmd_parts.append("--force")
 
-    # Append the export-path argument to the list
-    cmd_parts.append(f"--export-path {MODEL_STORE}")
+    if archive_format:
+        cmd += " --archive-format {0}".foramt(archive_format)
 
+    cmd += " --export-path {0}".format(MODEL_STORE)
+    
     # Convert the list into a string to represent the complete command
     cmd = " ".join(cmd_parts)
 
