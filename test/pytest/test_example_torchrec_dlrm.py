@@ -101,6 +101,7 @@ def create_mar_file(work_dir, session_mocker, serialized_file, model_archiver):
         + EXAMPLE_ROOT_DIR.joinpath("dlrm_model_config.py").as_posix(),
         export_path=work_dir,
         requirements_file=None,
+        config_file=None,
         runtime="python",
         force=False,
         archive_format="default",

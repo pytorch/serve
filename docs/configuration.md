@@ -266,6 +266,11 @@ models={\
   }\
 }
 ```
+As of version 0.8.0, TorchServe allows for model configuration using a YAML file embedded in the MAR file. This YAML file contains two distinct parts that determine how a model is configured: frontend parameters and backend parameters. (see [details](../model-archiver/README.md))
+
+* The frontend parameters are controlled by TorchServe's frontend and specify the parameter name and default values. TorchServe now uses a priority order to determine the final value of a model's parameters in frontend. Specifically, the config.property file has the lowest priority, followed by the model configuration YAML file, and finally, the REST or gRPC model management API has the highest priority.
+
+* The backend parameters are fully controlled by the user. Users customized handler can access the backend parameters via the `model_yaml_config` property of the context object.
 
 ### Other properties
 

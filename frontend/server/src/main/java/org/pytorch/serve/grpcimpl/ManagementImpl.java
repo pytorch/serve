@@ -34,14 +34,6 @@ import org.slf4j.LoggerFactory;
 public class ManagementImpl extends ManagementAPIsServiceImplBase {
     private static final Logger logger = LoggerFactory.getLogger(ManagementImpl.class);
 
-    public static void sendErrorResponse(
-            StreamObserver<ManagementResponse> responseObserver, Status status, Exception e) {
-        responseObserver.onError(
-                status.withDescription(e.getMessage())
-                        .augmentDescription(e.getClass().getCanonicalName())
-                        .asRuntimeException());
-    }
-
     @Override
     public void describeModel(
             DescribeModelRequest request, StreamObserver<ManagementResponse> responseObserver) {
@@ -237,6 +229,14 @@ public class ManagementImpl extends ManagementAPIsServiceImplBase {
         ManagementResponse reply = ManagementResponse.newBuilder().setMsg(msg).build();
         responseObserver.onNext(reply);
         responseObserver.onCompleted();
+    }
+
+    public static void sendErrorResponse(
+            StreamObserver<ManagementResponse> responseObserver, Status status, Exception e) {
+        responseObserver.onError(
+                status.withDescription(e.getMessage())
+                        .augmentDescription(e.getClass().getCanonicalName())
+                        .asRuntimeException());
     }
 
     private void sendErrorResponse(

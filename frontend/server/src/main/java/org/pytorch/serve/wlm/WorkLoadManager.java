@@ -145,7 +145,7 @@ public class WorkLoadManager {
 
                     // Need to check worker process here since thread.shutdown() -> lifecycle.exit()
                     // -> This may nullify process object per destroyForcibly doc.
-                    if ((workerProcess != null) && workerProcess.isAlive()) {
+                    if (workerProcess != null && workerProcess.isAlive()) {
                         boolean workerDestroyed = false;
                         try {
                             String cmd = String.format(OSUtils.getKillCmd(), workerProcess.pid());

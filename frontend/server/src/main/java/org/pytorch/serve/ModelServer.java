@@ -58,8 +58,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ModelServer {
-
-    public static final int MAX_RCVBUF_SIZE = 4096;
     private Logger logger = LoggerFactory.getLogger(ModelServer.class);
     private ServerGroups serverGroups;
     private Server inferencegRPCServer;
@@ -67,6 +65,7 @@ public class ModelServer {
     private List<ChannelFuture> futures = new ArrayList<>(2);
     private AtomicBoolean stopped = new AtomicBoolean(false);
     private ConfigManager configManager;
+    public static final int MAX_RCVBUF_SIZE = 4096;
 
     /** Creates a new {@code ModelServer} instance. */
     public ModelServer(ConfigManager configManager) {

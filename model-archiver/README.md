@@ -158,14 +158,21 @@ For more details refer [default handler documentation](../docs/default_handlers.
 A model config yaml file. For example: 
 
 ```
-minWorkers: 1
-maxWorkers: 1
-maxBatchDelay: 100
-responseTimeout: 120
-parallelLevel: 4
-parallelMode: "pp" # pp: pipeline parallel; tp: tensor parallel; pptp: pipeline+tensor parallel
-deviceType: "gpu" #cpu, gpu, neuron
-deviceIds: [0,1,2,3]
+# TS Frontend parameters
+minWorkers: 1 # default: #CPU or #GPU
+maxWorkers: 1 # default: #CPU or #GPU
+batchSize: 1 # default: 1
+maxBatchDelay: 100 # default: 100 msec
+responseTimeout: 120 # default: 120 sec
+deviceType: cpu # cpu, gpu, neuron
+deviceIds: [0,1,2,3] # device index for gpu, neuron. Default: all visible devices
+parallelLevel: 4 # rpc world size. Default: 1
+parallelType: pp # pp: pipeline parallel; pptp: tensor+pipeline parallel. Default: empty
+
+# TS backend parameters
+pippy:
+  rpc_timeout: 1800
+  pp_group_size: 4 # pipeline parallel size, tp_group_size = world size / pp_group_size
 ```
 
 ## Creating a Model Archive
