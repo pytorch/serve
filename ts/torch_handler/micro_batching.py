@@ -1,6 +1,7 @@
 import asyncio
 import os
 import time
+from typing import Dict
 
 try:
 
@@ -21,9 +22,9 @@ async def execute_serial_calls(calls, batches):
     queues = [asyncio.Queue()]
     tasks = []
 
-    for c in calls:
+    for c, p in calls:
         queues.append(asyncio.Queue())
-        for _ in range(2):
+        for _ in range(p):
             t = asyncio.create_task(execute_call(queues[-2], queues[-1], c))
             tasks.append(t)
 
@@ -40,17 +41,22 @@ async def execute_serial_calls(calls, batches):
     return output
 
 
+HANDLER_METHODS = ["preprocess", "inference", "postprocess"]
+
+
 class MicroBatching(object):
-    def __init__(self, parent_handler, micro_batch_size=1):
+    def __init__(
+        self, parent_handler, micro_batch_size: int = 1, parallelism: Dict = None
+    ):
         self.handler = parent_handler
         self.micro_batch_size = micro_batch_size
+        self.parallelism = parallelism if parallelism is not None else {}
 
     def handle(self, data):
 
         serial_calls = (
-            self.handler.preprocess,
-            self.handler.inference,
-            self.handler.postprocess,
+            (getattr(self.handler, c), self.parallelism.get(c, 2))
+            for c in HANDLER_METHODS
         )
 
         micro_batches = []
