@@ -5,9 +5,6 @@ dependencies {
     api "com.google.code.gson:gson:${gson_version}"
     implementation "org.yaml:snakeyaml:${snakeyaml_version}"
 
-    compileOnly "org.projectlombok:lombok:${lombok_version}"
-    annotationProcessor "org.projectlombok:lombok:${lombok_version}"
-
     testImplementation "commons-cli:commons-cli:${commons_cli_version}"
     testImplementation "org.testng:testng:${testng_version}"
 }
