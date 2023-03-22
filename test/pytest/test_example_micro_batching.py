@@ -45,7 +45,7 @@ def dog_image_bytes():
     )
 
 
-@pytest.fixture(scope="module", params=[8, 32])
+@pytest.fixture(scope="module", params=[4, 16])
 def mixed_batch(kitten_image_bytes, dog_image_bytes, request):
     batch_size = request.param
     labels = [
@@ -83,9 +83,23 @@ def create_mar_file(
 ):
     mar_file_path = Path(work_dir).joinpath(model_name + ".mar")
 
-    json_file = REPO_ROOT_DIR.joinpath(
+    name_file = REPO_ROOT_DIR.joinpath(
         "examples/image_classifier/resnet_18/index_to_name.json"
     ).as_posix()
+
+    micro_batching_params = {
+        "micro_batch_size": 2,
+        "parallelism": {
+            "preprocess": 2,
+            "inference": 2,
+            "postprocess": 2,
+        },
+    }
+
+    config_file = Path(work_dir).joinpath("micro_batching.json")
+
+    with open(config_file, "w") as f:
+        json.dump(micro_batching_params, f)
 
     args = Namespace(
         model_name=model_name,
@@ -97,7 +111,7 @@ def create_mar_file(
         handler=REPO_ROOT_DIR.joinpath(
             "ts", "torch_handler", "micro_batching_handler.py"
         ).as_posix(),
-        extra_files=json_file,
+        extra_files=",".join([name_file, config_file.as_posix()]),
         export_path=work_dir,
         requirements_file=None,
         runtime="python",
