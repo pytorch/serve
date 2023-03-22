@@ -120,5 +120,4 @@ def test_handle_kfv2(envelope_kfv2, context, image_bytes):
 
     # testing for v2predict API
     results = envelope_kfv2.handle([test_data], context)
-    print(results)
     assert results[0]["outputs"][0]["data"][0] in range(0, 9)
