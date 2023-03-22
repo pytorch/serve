@@ -381,13 +381,13 @@ def _infer_with_profiler(obj, data):
     return output, prof
 
 
-class BasePreproc(PipeCaller):
+class BasePreprocess(PipeCaller):
     def __init__(self, previous_handle=None):
         self._prev = previous_handle
         self._method = base_preprocess
 
 
-class BaseInit(InitCaller):
+class BaseInitialize(InitCaller):
     def __init__(self, previous_handle=None):
         self._prev = previous_handle
         self._method = base_initialize

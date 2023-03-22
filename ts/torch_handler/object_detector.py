@@ -2,7 +2,7 @@
 Module for object detection default handler
 """
 from ts.handler_utils import (
-    BaseInit,
+    BaseInitialize,
     ObjectDetectionInitialize,
     ObjectDetectionPostprocess,
 )
@@ -18,5 +18,5 @@ class ObjectDetector(VisionHandler):
 
     def __init__(self):
         super().__init__()
-        self.initialize = ObjectDetectionInitialize(BaseInit())
+        self.initialize = ObjectDetectionInitialize(BaseInitialize())
         self.postprocess = ObjectDetectionPostprocess()

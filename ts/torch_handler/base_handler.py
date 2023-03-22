@@ -15,9 +15,9 @@ from pkg_resources import packaging
 from ts.handler_utils import (
     BaseHandle,
     BaseInference,
-    BaseInit,
+    BaseInitialize,
     BasePostprocess,
-    BasePreproc,
+    BasePreprocess,
 )
 
 if packaging.version.parse(torch.__version__) >= packaging.version.parse("1.8.1"):
@@ -52,8 +52,8 @@ class BaseHandler(abc.ABC):
     def __init__(self):
         self.initialized = False
         super().__setattr__("__assigned__", set())
-        self.initialize = BaseInit()
-        self.preprocess = BasePreproc()
+        self.initialize = BaseInitialize()
+        self.preprocess = BasePreprocess()
         self.inference = BaseInference()
         self.postprocess = BasePostprocess()
         self.handle = BaseHandle()

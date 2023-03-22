@@ -7,7 +7,7 @@ from abc import ABC
 
 from torchvision import transforms
 
-from ts.handler_utils import BaseInit, VisionInitialize, VisionPreprocess
+from ts.handler_utils import BaseInitialize, VisionInitialize, VisionPreprocess
 
 from .base_handler import BaseHandler
 
@@ -21,7 +21,7 @@ class VisionHandler(BaseHandler, ABC):
 
     def __init__(self):
         super().__init__()
-        self.initialize = VisionInitialize(BaseInit())
+        self.initialize = VisionInitialize(BaseInitialize())
         self.preprocess = VisionPreprocess()
 
     def get_insights(self, tensor_data, _, target=0):
