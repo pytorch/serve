@@ -40,7 +40,7 @@ async def execute_serial_calls(calls, batches):
     return output
 
 
-class MicroBatchingHandler(object):
+class MicroBatching(object):
     def __init__(self, parent_handler, micro_batch_size=1):
         self.handler = parent_handler
         self.micro_batch_size = micro_batch_size

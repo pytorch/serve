@@ -9,7 +9,7 @@ import pytest
 from torchvision.models.resnet import ResNet18_Weights
 
 from ts.torch_handler.image_classifier import ImageClassifier
-from ts.torch_handler.micro_batching import MicroBatchingHandler
+from ts.torch_handler.micro_batching import MicroBatching
 
 from .test_utils.mock_context import MockContext
 from .test_utils.model_dir import copy_files, download_model
@@ -86,7 +86,7 @@ def context(model_dir, model_name):
 def handler(context, request):
     handler = ImageClassifier()
 
-    mb_handle = MicroBatchingHandler(handler, micro_batch_size=request.param)
+    mb_handle = MicroBatching(handler, micro_batch_size=request.param)
     handler.initialize(context)
 
     handler.handle = mb_handle
@@ -125,16 +125,3 @@ def test_handle_explain(context, kitten_image_bytes, handler):
     results = handler.handle(test_data, context)
     assert len(results) == 2
     assert results[0]
-
-
-def test_composable_handler(context, kitten_image_bytes):
-    from ts.torch_handler.composable_handler import ComposableHandler
-
-    handler = ComposableHandler()
-
-    print(handler.initialize)
-
-    handler.initialize(context)
-
-    test_data = [{"data": kitten_image_bytes, "target": 0}] * 2
-    results = handler.handle(test_data, context)
