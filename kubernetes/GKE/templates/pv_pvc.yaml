@@ -14,7 +14,7 @@ spec:
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: efs-claim # See to that this match PVC name in torchserve
+  name: model-store-claim # See to that this match PVC name in torchserve
 spec:
   accessModes:
     - ReadWriteMany
