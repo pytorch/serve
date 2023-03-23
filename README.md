@@ -94,7 +94,7 @@ To learn more about how to contribute, see the contributor guide [here](https://
 
 ## 📰 News
 * [Torchserve Performance Tuning, Animated Drawings Case-Study](https://pytorch.org/blog/torchserve-performance-tuning/)
-* [Walmart Search: Serving Models at a Scale on TorchServe](https://pytorch.s3.amazonaws.com/posters/ptc2022/D03.pdf)
+* [Walmart Search: Serving Models at a Scale on TorchServe](https://medium.com/walmartglobaltech/search-model-serving-using-pytorch-and-torchserve-6caf9d1c5f4d)
 * [🎥 Scaling inference on CPU with TorchServe](https://www.youtube.com/watch?v=066_Jd6cwZg)
 * [🎥 TorchServe C++ backend](https://www.youtube.com/watch?v=OSmGGDpaesc)
 * [Grokking Intel CPU PyTorch performance from first principles: a TorchServe case study](https://pytorch.org/tutorials/intermediate/torchserve_with_ipex.html)

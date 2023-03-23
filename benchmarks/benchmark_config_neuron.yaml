@@ -9,15 +9,11 @@
 # a list of model configure yaml files defined in benchmarks/models_config
 # or a list of model configure yaml files with full path
 models:
-    - "bert_cpu.yaml"
-    - "fastrcnn.yaml"
-    - "mnist.yaml"
-    - "vgg16.yaml"
-#    - "wf_dog_breed.yaml"
+  - "bert_neuron.yaml"
 
-# benchmark on "cpu" or "gpu".
+# benchmark on "cpu", "gpu" or "neuron".
 # "cpu" is set if "hardware" is not specified
-hardware: &hardware "cpu"
+hardware: &hardware "neuron"
 
 # load prometheus metrics report to remote storage or local different path if "metrics_cmd" is set.
 # the command line to load prometheus metrics report to remote system.
@@ -27,10 +23,10 @@ hardware: &hardware "cpu"
 #    - set up the command before enabling `metrics_cmd`.
 #      For example, aws client and AWS credentials need to be setup before trying this example.
 metrics_cmd:
-    - "cmd": "aws cloudwatch put-metric-data"
-    - "--namespace": ["torchserve_benchmark_nightly_", *hardware]
-    - "--region": "us-east-2"
-    - "--metric-data": 'file:///tmp/benchmark/logs/stats_metrics.json'
+  - "cmd": "aws cloudwatch put-metric-data"
+  - "--namespace": ["torchserve_benchmark_nightly_", *hardware]
+  - "--region": "us-east-2"
+  - "--metric-data": 'file:///tmp/benchmark/logs/stats_metrics.json'
 
 # load report to remote storage or local different path if "report_cmd" is set.
 # the command line to load report to remote storage.
@@ -44,7 +40,6 @@ metrics_cmd:
 #      For example, the dest path in the following example is
 #      s3://torchserve-model-serving/benchmark/2022-03-18/gpu
 report_cmd:
-    - "cmd": "aws s3 cp --recursive"
-    - "source": '/tmp/ts_benchmark/'
-    - "dest": ['s3://torchserve-benchmark/nightly', "today()", *hardware]
-
+  - "cmd": "aws s3 cp --recursive"
+  - "source": '/tmp/ts_benchmark/'
+  - "dest": ['s3://torchserve-benchmark/nightly', "today()", *hardware]

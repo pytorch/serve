@@ -998,6 +998,7 @@ NVfuser
 fuser
 ort
 sess
+dali
 BetterTransformer
 TransformerEncoder
 InferenceTimeInMS
@@ -1020,3 +1021,7 @@ datapipes
 tensorrt
 vec
 torchdata
+CodeQL
+Dependabot
+Snyk
+pythonversion

@@ -66,6 +66,7 @@ public final class ConfigManager {
     private static final String TS_JOB_QUEUE_SIZE = "job_queue_size";
     private static final String TS_NUMBER_OF_GPU = "number_of_gpu";
     private static final String TS_METRICS_CONFIG = "metrics_config";
+    private static final String TS_DISABLE_SYSTEM_METRICS = "disable_system_metrics";
 
     // IPEX config option that can be set at config.properties
     private static final String TS_IPEX_ENABLE = "ipex_enable";
@@ -374,6 +375,10 @@ public final class ConfigManager {
         return path;
     }
 
+    public boolean isSystemMetricsDisabled() {
+        return Boolean.parseBoolean(getProperty(TS_DISABLE_SYSTEM_METRICS, "false"));
+    }
+
     public String getTsDefaultServiceHandler() {
         return getProperty(TS_DEFAULT_SERVICE_HANDLER, null);
     }
@@ -643,6 +648,8 @@ public final class ConfigManager {
                 + prop.getProperty(TS_METRICS_FORMAT, METRIC_FORMAT_PROMETHEUS)
                 + "\nEnable metrics API: "
                 + prop.getProperty(TS_ENABLE_METRICS_API, "true")
+                + "\nDisable system metrics: "
+                + isSystemMetricsDisabled()
                 + "\nWorkflow Store: "
                 + (getWorkflowStore() == null ? "N/A" : getWorkflowStore())
                 + "\nModel config: "
