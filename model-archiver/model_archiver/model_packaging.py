@@ -38,7 +38,7 @@ def package_model(args, manifest):
             "handler": handler,
             "extra_files": extra_files,
             "requirements-file": requirements_file,
-            "config_file": config_file
+            "config_file": config_file,
         }
 
         model_path = ModelExportUtils.copy_artifacts(model_name, **artifact_files)

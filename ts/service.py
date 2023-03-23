@@ -9,8 +9,7 @@ from builtins import str
 import ts
 from ts.context import Context, RequestProcessor
 from ts.protocol.otf_message_handler import create_predict_response
-from ts.utils.util import PredictionException
-from ts.utils.util import get_yaml_config
+from ts.utils.util import PredictionException, get_yaml_config
 
 PREDICTION_METRIC = "PredictionTime"
 logger = logging.getLogger(__name__)
@@ -32,12 +31,14 @@ class Service(object):
         limit_max_image_pixels=True,
         metrics_cache=None,
     ):
-        model_yaml_config = dict()
+        model_yaml_config = {}
         if manifest is not None and "model" in manifest:
             model = manifest["model"]
             if "configFile" in model:
                 model_yaml_config_file = model["configFile"]
-                model_yaml_config = get_yaml_config(os.path.join(model_dir, model_yaml_config_file))
+                model_yaml_config = get_yaml_config(
+                    os.path.join(model_dir, model_yaml_config_file)
+                )
 
         if "deviceIds" in model_yaml_config and "parallelLevel" in model_yaml_config:
             if int(model_yaml_config["parallelLevel"]) == 1:
@@ -52,7 +53,7 @@ class Service(object):
             ts.__version__,
             limit_max_image_pixels,
             metrics_cache,
-            model_yaml_config
+            model_yaml_config,
         )
         self._entry_point = entry_point
 

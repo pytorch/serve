@@ -8,9 +8,9 @@ from model_archiver import __version__
 
 
 class RuntimeType(Enum):
-
     PYTHON = "python"
     PYTHON3 = "python3"
+
 
 class Manifest(object):
     """
@@ -18,7 +18,6 @@ class Manifest(object):
     """
 
     def __init__(self, runtime, model):
-
         self.creation_time = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         self.runtime = RuntimeType(runtime)
         self.model = model

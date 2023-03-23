@@ -21,7 +21,7 @@ class Context(object):
         mms_version,
         limit_max_image_pixels=True,
         metrics=None,
-        model_yaml_config=None
+        model_yaml_config=None,
     ):
         self.model_name = model_name
         self.manifest = manifest

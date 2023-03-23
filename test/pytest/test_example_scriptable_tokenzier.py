@@ -216,7 +216,6 @@ def test_handler(monkeypatch, mocker, jit_file_path, test_file):
 
     # We need to recreate the handler to avoid running into https://github.com/pytorch/text/issues/1849
     def create_and_call_handler(input_text):
-
         from handler import CustomTextClassifier
 
         handler = CustomTextClassifier()
@@ -251,7 +250,6 @@ def test_handler(monkeypatch, mocker, jit_file_path, test_file):
 
 
 def test_inference_with_untrained_model_and_sample_text(model_name, test_file):
-
     with open(test_file, "rb") as f:
         response = requests.post(
             url=f"http://localhost:8080/predictions/{model_name}", data=f
@@ -270,7 +268,6 @@ def test_inference_with_untrained_model_and_sample_text(model_name, test_file):
 
 
 def test_inference_with_untrained_model_and_empty_string(model_name):
-
     data = "".encode("utf8")
 
     response = requests.post(
