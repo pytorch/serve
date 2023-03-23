@@ -80,7 +80,10 @@ do
         # With default ubuntu version 20.04
         -cv|--cudaversion)
           CUDA_VERSION="$2"
-          if [ $CUDA_VERSION == "cu117" ];
+          if [ $CUDA_VERSION == "cu118" ];
+          then
+            BASE_IMAGE="nvidia/cuda:11.8.0-cudnn8-runtime-ubuntu20.04"
+          elif [ $CUDA_VERSION == "cu117" ];
           then
             BASE_IMAGE="nvidia/cuda:11.7.0-cudnn8-runtime-ubuntu20.04"
           elif [ $CUDA_VERSION == "cu116" ];

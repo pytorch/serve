@@ -1,6 +1,6 @@
 name: Run Regression Tests on GPU
 
-on: workflow_dispatch
+on: push
 
 jobs:
   regression-gpu:
@@ -9,7 +9,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        cuda: ["cu116", "cu117"]
+        cuda: ["cu117", "cu118"]
     steps:
       - name: Clean up previous run
         run: |
