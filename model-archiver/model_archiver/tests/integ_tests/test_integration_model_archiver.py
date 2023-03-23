@@ -180,22 +180,8 @@ def make_paths_absolute(test, keys):
     return test
 
 
-def load_integ_tests():
-    with open(TEST_ROOT_DIR.joinpath(INTEG_TEST_CONFIG_FILE), "r") as f:
-        tests = json.loads(f.read())
-    keys = (
-        "model-file",
-        "serialized-file",
-        "handler",
-        "extra-files",
-    )
-    return [make_paths_absolute(t, keys) for t in tests]
-
-
-def test_model_archiver():
-    tests = load_integ_tests()
-
-    for test in tests:
+def test_model_archiver(integ_tests):
+    for test in integ_tests:
         # tar.gz format problem on windows hence ignore
         if platform.system() == "Windows" and test["archive-format"] == "tgz":
             continue
@@ -219,35 +205,28 @@ def test_model_archiver():
             delete_file_path(test.get("export-path"))
 
 
-def test_default_handlers():
-    with open(TEST_ROOT_DIR.joinpath(DEFAULT_HANDLER_CONFIG_FILE), "r") as f:
-        tests = json.loads(f.read())
-        keys = (
-            "model-file",
-            "serialized-file",
-            "extra-files",
-        )
-        tests = [make_paths_absolute(t, keys) for t in tests]
-        for test in tests:
-            cmd = build_cmd(test)
-            try:
-                delete_file_path(test.get("export-path"))
-                create_file_path(test.get("export-path"))
+def test_default_handlers(default_handler_tests):
+    for test in default_handler_tests:
+        cmd = build_cmd(test)
+        try:
+            delete_file_path(test.get("export-path"))
+            create_file_path(test.get("export-path"))
 
-                if test.get("force"):
-                    cmd += " -f"
+            if test.get("force"):
+                cmd += " -f"
 
-                if run_test(test, cmd):
-                    validate(test)
-            finally:
-                delete_file_path(test.get("export-path"))
+            if run_test(test, cmd):
+                validate(test)
+        finally:
+            delete_file_path(test.get("export-path"))
 
 
-def test_zip_store(tmp_path):
-    tests = load_integ_tests()
-    tests = list(filter(lambda t: t["name"] == "packaging_zip_store_mar", tests))
-    assert len(tests) == 1
-    test = tests[0]
+def test_zip_store(tmp_path, integ_tests):
+    integ_tests = list(
+        filter(lambda t: t["name"] == "packaging_zip_store_mar", integ_tests)
+    )
+    assert len(integ_tests) == 1
+    test = integ_tests[0]
 
     test["export-path"] = tmp_path
     test["iterations"] = 1
