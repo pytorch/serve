@@ -4,9 +4,9 @@ metadata:
   name: model-store-pod
 spec:
   volumes:
-  - name: pod-volume
-    persistentVolumeClaim:
-      claimName: model-store-claim  # Update PV Claim name
+    - name: pod-volume
+      persistentVolumeClaim:
+        claimName: model-store-claim  # Update PV Claim name
   containers:
     - name: model-store
       image: ubuntu
