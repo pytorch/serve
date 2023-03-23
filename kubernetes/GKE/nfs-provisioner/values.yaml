@@ -42,7 +42,7 @@ persistentDisk:
   name: nfs-disk  # Name of the disk created
 
 persistentVolume:
-  name: mypvc
+  name: nfs
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
