@@ -24,26 +24,15 @@ class Model(object):
         self.model_name = model_name
         self.serialized_file = None
         if serialized_file:
-            if sys.platform.startswith("win32") and serialized_file.find("\\") != -1:
-                self.serialized_file = serialized_file.split("\\")[-1]
-            else:
-                self.serialized_file = serialized_file.split("/")[-1]
+            self.serialized_file = os.path.basename(serialized_file)
         self.model_file = model_file
         self.model_version = model_version
         self.extensions = extensions
-        # if sys.platform.startswith("win32") and handler.find("\\") != -1:
-        #    self.handler = handler.split("\\")[-1]
-        # else:
-        #    self.handler = handler.split("/")[-1]
         self.handler = os.path.basename(handler)
         self.requirements_file = requirements_file
         self.config_file = None
         if config_file:
-            if sys.platform.startswith("win32") and config_file.find("\\") != -1:
-                self.config_file = config_file.split("\\")[-1]
-            else:
-                self.config_file = config_file.split("/")[-1]
-
+            self.config_file = os.path.basename(config_file)
         self.model_dict = self.__to_dict__()
 
     def __to_dict__(self):
