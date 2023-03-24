@@ -15,7 +15,7 @@ import java.util.concurrent.ConcurrentMap;
 
 public class MetricCache {
     private static final Logger logger = LoggerFactory.getLogger(MetricCache.class);
-    
+
     private static final MetricCache METRIC_CACHE = new MetricCache();
 
     private MetricCache() {
