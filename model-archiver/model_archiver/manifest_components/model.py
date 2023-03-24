@@ -1,7 +1,6 @@
 # pylint: disable=missing-docstring
 import json
 import os
-import sys
 
 
 class Model(object):
