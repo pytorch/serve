@@ -61,10 +61,10 @@ def create_mar_file(work_dir, session_mocker, model_archiver):
         ).as_posix(),
         export_path=work_dir,
         requirements_file=None,
-        config_file=None,
         runtime="python",
         force=False,
         archive_format="default",
+        config_file=None,
     )
 
     mock = session_mocker.MagicMock()

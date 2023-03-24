@@ -1,5 +1,6 @@
 # pylint: disable=missing-docstring
 import json
+import os
 import sys
 
 
@@ -30,10 +31,11 @@ class Model(object):
         self.model_file = model_file
         self.model_version = model_version
         self.extensions = extensions
-        if sys.platform.startswith("win32") and handler.find("\\") != -1:
-            self.handler = handler.split("\\")[-1]
-        else:
-            self.handler = handler.split("/")[-1]
+        # if sys.platform.startswith("win32") and handler.find("\\") != -1:
+        #    self.handler = handler.split("\\")[-1]
+        # else:
+        #    self.handler = handler.split("/")[-1]
+        self.handler = os.path.basename(handler)
         self.requirements_file = requirements_file
         self.config_file = None
         if config_file:

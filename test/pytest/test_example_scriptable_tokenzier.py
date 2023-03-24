@@ -157,10 +157,10 @@ def create_mar_file(work_dir, session_mocker, jit_file_path, model_archiver):
         extra_files=os.path.join(EXAMPLE_ROOT_DIR, "index_to_name.json"),
         export_path=work_dir,
         requirements_file=None,
-        config_file=None,
         runtime="python",
         force=False,
         archive_format="default",
+        config_file=None,
     )
 
     mock = session_mocker.MagicMock()
