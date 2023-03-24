@@ -1,17 +1,11 @@
 package org.pytorch.serve.metrics;
 
-import org.pytorch.serve.util.ConfigManager;
-import org.pytorch.serve.wlm.WorkerLifeCycle;
+import java.util.concurrent.ConcurrentMap;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentMap;
 
 public class MetricCache {
     private static final Logger logger = LoggerFactory.getLogger(MetricCache.class);
