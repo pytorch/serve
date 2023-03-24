@@ -1,3 +1,4 @@
+import asyncio
 import glob
 import os
 import sys
@@ -14,17 +15,57 @@ from ts_scripts import utils
 from ts_scripts.tsutils import generate_grpc_client_stubs
 
 
+async def markdown_link_checker(in_queue, out_queue, n):
+    print(f"worker started {n}")
+    while True:
+        mdfile = await in_queue.get()
+        output = []
+        result = True
+        cmd = f"markdown-link-check {mdfile} --config link_check_config.json"
+        output.append(f"## In directory: {os.getcwd()} | Executing command: {cmd}")
+        p = await asyncio.create_subprocess_shell(
+            cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
+        )
+        while not p.stdout.at_eof():
+            line = await p.stdout.readline()
+            output.append(line.decode("utf-8"))
+
+        status = await p.wait()
+        if status != 0:
+            output.append(f"## Broken links in file: {mdfile}")
+            result = False
+        await out_queue.put((result, output))
+
+
+async def run_markdown_link_checker_on_files(files):
+    results = []
+    tasks = []
+    in_queue = asyncio.Queue()
+    out_queue = asyncio.Queue()
+    for f in files:
+        in_queue.put_nowait(f)
+
+    for n in range(16):
+        tasks.append(asyncio.create_task(markdown_link_checker(in_queue, out_queue, n)))
+
+    while len(results) != len(files):
+        print(len(results))
+        r, output = await out_queue.get()
+        results.append(r)
+        for line in output:
+            print(line)
+
+    for t in tasks:
+        t.cancel()
+
+    return results
+
+
 def run_markdown_link_checker():
     print("## Started markdown link checker")
-    result = True
-    for mdfile in glob.glob("**/*.md", recursive=True):
-        cmd = f"markdown-link-check {mdfile} --config link_check_config.json"
-        print(f"## In directory: {os.getcwd()} | Executing command: {cmd}")
-        status = os.system(cmd)
-        if status != 0:
-            print(f"## Broken links in file: {mdfile}")
-            result = False
-    return result
+    files = glob.glob("**/*.md", recursive=True)
+    results = asyncio.run(run_markdown_link_checker_on_files(files))
+    return all(results)
 
 
 def validate_model_on_gpu():
