@@ -2,11 +2,17 @@
 In order to deploy ML models, TorchServe spins up each worker in a separate processes, thus isolating each worker from the others.
 Each process creates its own CUDA context to execute its kernels and access the allocated memory.
 
-While NVIDIA GPUs in their default setting allow multiple processes to run CUDA kernels on a single device the execution of the kernels is generally serialized.
-As processes can not share their CUDA context, running multiple ML model worker on the same GPU results in the creation of multiple CUDA contexts.
+While NVIDIA GPUs in their default setting allow multiple processes to run CUDA kernels on a single device it involves the following drawback:
+* The execution of the kernels is generally serialized
+* Each processes creates its own CUDA context which occupies additional GPU memory
 
-For these scenarios NVIDIA offers the Multi-Process Service (MPS) which allows multiple processes to share the same CUDA context and run their kernels in a parallel fashion.
-This can lead to increased performance when using multiple workers on the same GPU as well as a decreased GPU memory utilization due to the shared context.
+For these scenarios NVIDIA offers the Multi-Process Service (MPS) which:
+* Allows multiple processes to share the same CUDA context on the same GPU
+* Run their kernels in a parallel fashion
+
+This can result in:
+* Increased performance when using multiple workers on the same GPU
+* Decreased GPU memory utilization due to the shared context
 
 
 To leverage the benefits of NVIDIA MPS we need to start the MPS daemon with the following commands before starting up TorchServe itself.
@@ -47,8 +53,8 @@ We use the following config.json for the benchmark, only overwriting the number 
     "input": "/home/ubuntu/serve/examples/Huggingface_Transformers/Seq_classification_artifacts/sample_text_captum_input.txt",
     "workers": "1"
 }
-
 ```
+Please note that we set the concurrency level to 600 which will make sure that the batch aggregation inside TorchServe fills up the batches to the maximum batch size. But concurrently this will skew the latency measurements as many requests will be waiting in the queue to be processed. We will therefore neglect the latency measurements in the following.
 
 ### G4 Instance
 We first perform the single worker benchmark for the G4 instance.
