@@ -30,7 +30,8 @@ def infer(stub, model_name, model_input):
 
     try:
         prediction = response.prediction.decode("utf-8")
-        print(prediction)
+        if prediction.count("\n") < 50:
+            print(prediction)
     except grpc.RpcError as e:
         exit(1)
 
