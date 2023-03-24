@@ -3,6 +3,8 @@ import subprocess
 import requests
 import json
 import pathlib
+import pytest
+import torch
 
 import test_utils
 
@@ -49,6 +51,10 @@ def test_no_model_loaded():
     response = requests.post(url="http://localhost:8080/predictions/alexnet", data=open(data_file_kitten, 'rb'))
     assert response.status_code == 404, "Model not loaded error expected"
 
+@pytest.mark.skipif(
+    not (torch.cuda.device_count() > 0 ) and torch.cuda.is_available(),
+    reason="Test to be run on GPU only",
+)
 def test_oom_on_model_load():
     """
     Validates that TorchServe returns reponse code 507 if there is OOM on model loading.
