@@ -12,7 +12,7 @@ public class MetricConfigurationTest {
     public void testLoadValidConfiguration()
             throws FileNotFoundException, ComposerException, RuntimeException {
         MetricConfiguration config =
-                YAMLMetricConfigurationHandler.loadConfiguration(
+                MetricConfiguration.loadConfiguration(
                         "src/test/resources/metrics/valid_configuration.yaml");
 
         Assert.assertEquals(config.getMode(), "prometheus");
@@ -76,7 +76,7 @@ public class MetricConfigurationTest {
     public void testLoadValidConfigurationEmptyMetricDimensions()
             throws FileNotFoundException, ComposerException, RuntimeException {
         MetricConfiguration config =
-                YAMLMetricConfigurationHandler.loadConfiguration(
+                MetricConfiguration.loadConfiguration(
                         "src/test/resources/metrics/valid_configuration_empty_metric_dimensions.yaml");
 
         Assert.assertEquals(config.getMode(), null);
@@ -102,7 +102,7 @@ public class MetricConfigurationTest {
         Assert.assertThrows(
                 ComposerException.class,
                 () ->
-                        YAMLMetricConfigurationHandler.loadConfiguration(
+                        MetricConfiguration.loadConfiguration(
                                 "src/test/resources/metrics/invalid_configuration_missing_dimension.yaml"));
     }
 
@@ -111,7 +111,7 @@ public class MetricConfigurationTest {
         Assert.assertThrows(
                 RuntimeException.class,
                 () ->
-                        YAMLMetricConfigurationHandler.loadConfiguration(
+                        MetricConfiguration.loadConfiguration(
                                 "src/test/resources/metrics/invalid_configuration_missing_metric_name.yaml"));
     }
 
@@ -120,7 +120,7 @@ public class MetricConfigurationTest {
         Assert.assertThrows(
                 RuntimeException.class,
                 () ->
-                        YAMLMetricConfigurationHandler.loadConfiguration(
+                        MetricConfiguration.loadConfiguration(
                                 "src/test/resources/metrics/invalid_configuration_missing_metric_unit.yaml"));
     }
 }

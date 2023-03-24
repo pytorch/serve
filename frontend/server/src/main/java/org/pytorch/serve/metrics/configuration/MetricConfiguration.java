@@ -1,6 +1,12 @@
 package org.pytorch.serve.metrics.configuration;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.util.List;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.composer.ComposerException;
+import org.yaml.snakeyaml.constructor.Constructor;
 
 public class MetricConfiguration {
     private String mode;
@@ -56,5 +62,16 @@ public class MetricConfiguration {
         if (this.model_metrics != null) {
             model_metrics.validate();
         }
+    }
+
+    public static MetricConfiguration loadConfiguration(String configFilePath)
+            throws FileNotFoundException, ComposerException, RuntimeException {
+        Constructor constructor = new Constructor(MetricConfiguration.class);
+        Yaml yaml = new Yaml(constructor);
+        FileInputStream inputStream = new FileInputStream(new File(configFilePath));
+        MetricConfiguration config = yaml.load(inputStream);
+        config.validate();
+
+        return config;
     }
 }
