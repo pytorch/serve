@@ -2,7 +2,7 @@ package org.pytorch.serve.metrics.configuration;
 
 import java.util.List;
 
-public class TsMetrics {
+public class MetricTypes {
     private List<MetricSpecification> counter;
     private List<MetricSpecification> gauge;
     private List<MetricSpecification> histogram;

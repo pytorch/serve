@@ -7,10 +7,10 @@ public class MetricConfiguration {
     private List<String> dimensions;
 
     @SuppressWarnings("checkstyle:MemberName")
-    private TsMetrics ts_metrics;
+    private MetricTypes ts_metrics;
 
     @SuppressWarnings("checkstyle:MemberName")
-    private ModelMetrics model_metrics;
+    private MetricTypes model_metrics;
 
     public void setMode(String mode) {
         this.mode = mode;
@@ -29,22 +29,22 @@ public class MetricConfiguration {
     }
 
     @SuppressWarnings("checkstyle:MethodName")
-    public void setTs_metrics(TsMetrics tsMetrics) {
+    public void setTs_metrics(MetricTypes tsMetrics) {
         this.ts_metrics = tsMetrics;
     }
 
     @SuppressWarnings("checkstyle:MethodName")
-    public TsMetrics getTs_metrics() {
+    public MetricTypes getTs_metrics() {
         return this.ts_metrics;
     }
 
     @SuppressWarnings("checkstyle:MethodName")
-    public void setModel_metrics(ModelMetrics modelMetrics) {
+    public void setModel_metrics(MetricTypes modelMetrics) {
         this.model_metrics = modelMetrics;
     }
 
     @SuppressWarnings("checkstyle:MethodName")
-    public ModelMetrics getModel_metrics() {
+    public MetricTypes getModel_metrics() {
         return this.model_metrics;
     }
 
