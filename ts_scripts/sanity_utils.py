@@ -16,7 +16,6 @@ from ts_scripts.tsutils import generate_grpc_client_stubs
 
 
 async def markdown_link_checker(in_queue, out_queue, n):
-    print(f"worker started {n}")
     while True:
         mdfile = await in_queue.get()
         output = []
@@ -49,7 +48,6 @@ async def run_markdown_link_checker_on_files(files):
         tasks.append(asyncio.create_task(markdown_link_checker(in_queue, out_queue, n)))
 
     while len(results) != len(files):
-        print(len(results))
         r, output = await out_queue.get()
         results.append(r)
         for line in output:
