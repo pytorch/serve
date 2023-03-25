@@ -25,6 +25,13 @@ if packaging.version.parse(torch.__version__) >= packaging.version.parse("1.8.1"
 else:
     PROFILER_AVAILABLE = False
 
+try:
+    import torch_xla
+    import torch_xla.core.xla_model as xm
+    TORCHXLA_AVAILABLE = True
+except ImportError as error:
+    TORCHXLA_AVAILABLE = False
+
 
 logger = logging.getLogger(__name__)
 
@@ -57,24 +64,6 @@ if os.environ.get("TS_IPEX_ENABLE", "false") == "true":
         logger.warning(
             "IPEX is enabled but intel-extension-for-pytorch is not installed. Proceeding without IPEX."
         )
-
-
-def check_torch_xla_enabled() -> bool:
-    try:
-        import torch_xla
-        import torch_xla.core.xla_model as xm
-        torch_xla_enabled = True
-    except ImportError as error:
-        torch_xla_enabled = False
-        logger.info(
-            "Proceed without PyTorch/XLA."
-        )
-    return torch_xla_enabled
-
-torch_xla_enabled = check_torch_xla_enabled()
-if torch_xla_enabled:
-    import torch_xla
-    import torch_xla.core.xla_model as xm
 
 
 class BaseHandler(abc.ABC):
@@ -120,19 +109,15 @@ class BaseHandler(abc.ABC):
                 )
 
         properties = context.system_properties
-        self.map_location = (
-            "cuda"
-            if torch.cuda.is_available() and properties.get("gpu_id") is not None
-            else "cpu"
-        )
-        self.device = torch.device(
-            self.map_location + ":" + str(properties.get("gpu_id"))
-            if torch.cuda.is_available() and properties.get("gpu_id") is not None
-            else self.map_location
-        )
-        if torch_xla_enabled:
-            self.map_location = None
+        if torch.cuda.is_available() and properties.get("gpu_id") is not None:
+            self.map_location = "cuda"
+            self.device = torch.device(self.map_location + ":" + str(properties.get("gpu_id")))
+        elif TORCHXLA_AVAILABLE:
+            self.map_location = "xla"
             self.device = xm.xla_device()
+        else:
+            self.map_location = "cpu"
+            self.device = torch.device(self.map_location)
 
         self.manifest = context.manifest
 
@@ -168,7 +153,7 @@ class BaseHandler(abc.ABC):
 
         # Convert your model by following instructions: https://pytorch.org/tutorials/intermediate/nvfuser_intro_tutorial.html
         # For TensorRT support follow instructions here: https://pytorch.org/TensorRT/getting_started/getting_started_with_python_api.html#getting-started-with-python-api
-        elif self.model_pt_path.endswith(".pt") and not torch_xla_enabled:
+        elif self.model_pt_path.endswith(".pt"):
             self.model = self._load_torchscript_model(self.model_pt_path)
             self.model.eval()
 
@@ -203,7 +188,8 @@ class BaseHandler(abc.ABC):
             # Compilation will delay your model initialization
             try:
                 self.model = torch.compile(
-                    self.model, backend=backend, mode="reduce-overhead"
+                    self.model, backend=backend,
+                    mode="default" if TORCHXLA_AVAILABLE else "reduce-overhead"
                 )
                 logger.info(f"Compiled model with backend {backend}")
             except:
@@ -267,10 +253,7 @@ class BaseHandler(abc.ABC):
         model_class = model_class_definitions[0]
         model = model_class()
         if model_pt_path:
-            state_dict = torch.load(
-                model_pt_path,
-                map_location=self.device if not torch_xla_enabled else None
-            )
+            state_dict = torch.load(model_pt_path, map_location=self.device)
             model.load_state_dict(state_dict)
         return model
 
@@ -303,9 +286,6 @@ class BaseHandler(abc.ABC):
         with torch.no_grad():
             marshalled_data = data.to(self.device)
             results = self.model(marshalled_data, *args, **kwargs)
-            if torch_xla_enabled:
-                xm.mark_step()
-
         return results
 
     def postprocess(self, data):
