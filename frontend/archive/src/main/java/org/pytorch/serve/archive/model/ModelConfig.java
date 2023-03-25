@@ -1,5 +1,8 @@
 package org.pytorch.serve.archive.model;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +21,8 @@ public class ModelConfig {
     private int parallelLevel = 1;
     private ParallelType parallelType = ParallelType.NONE;
 
+    private static final Logger logger = LoggerFactory.getLogger(ModelConfig.class);
+    
     public static ModelConfig build(Map<String, Object> yamlMap) {
         ModelConfig modelConfig = new ModelConfig();
         yamlMap.forEach(
@@ -150,6 +155,7 @@ public class ModelConfig {
         }
 
         public static Optional<ParallelType> get(String parallelType) {
+            logger.info("parallelType:{}", parallelType);
             return Arrays.stream(ParallelType.values())
                     .filter(t -> t.type.equals(parallelType))
                     .findFirst();
