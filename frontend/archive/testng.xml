@@ -5,6 +5,7 @@
     <classes>
       <class name="org.pytorch.serve.archive.CoverageTest"/>
       <class name="org.pytorch.serve.archive.model.ModelArchiveTest"/>
+      <class name="org.pytorch.serve.archive.model.ModelConfigTest"/>
       <class name="org.pytorch.serve.archive.workflow.WorkFlowArchiveTest"/>
     </classes>
   </test>

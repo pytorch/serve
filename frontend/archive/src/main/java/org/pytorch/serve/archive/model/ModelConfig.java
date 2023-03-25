@@ -1,11 +1,10 @@
 package org.pytorch.serve.archive.model;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.NoSuchElementException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,31 +27,68 @@ public class ModelConfig {
                 (k, v) -> {
                     switch (k) {
                         case "minWorkers":
-                            modelConfig.setMinWorkers((int) v);
+                            if (v instanceof Integer) {
+                                modelConfig.setMinWorkers((int) v);
+                            } else {
+                                logger.warn("Invalid minWorkers: {}, should be integer", v);
+                            }
                             break;
                         case "maxWorkers":
-                            modelConfig.setMaxWorkers((int) v);
+                            if (v instanceof Integer) {
+                                modelConfig.setMaxWorkers((int) v);
+                            } else {
+                                logger.warn("Invalid maxWorkers: {}, should be integer", v);
+                            }
                             break;
                         case "batchSize":
-                            modelConfig.setBatchSize((int) v);
+                            if (v instanceof Integer) {
+                                modelConfig.setBatchSize((int) v);
+                            } else {
+                                logger.warn("Invalid batchSize: {}, should be integer", v);
+                            }
                             break;
                         case "maxBatchDelay":
-                            modelConfig.setMaxBatchDelay((int) v);
+                            if (v instanceof Integer) {
+                                modelConfig.setMaxBatchDelay((int) v);
+                            } else {
+                                logger.warn("Invalid maxBatchDelay: {}, should be integer", v);
+                            }
                             break;
                         case "responseTimeout":
-                            modelConfig.setResponseTimeout((int) v);
+                            if (v instanceof Integer) {
+                                modelConfig.setResponseTimeout((int) v);
+                            } else {
+                                logger.warn("Invalid responseTimeout: {}, should be integer", v);
+                            }
                             break;
                         case "deviceType":
-                            modelConfig.setDeviceType((String) v);
+                            if (v instanceof String) {
+                                modelConfig.setDeviceType((String) v);
+                            } else {
+                                logger.warn("Invalid deviceType: {}, should be cpu, or gpu", v);
+                            }
                             break;
                         case "parallelLevel":
-                            modelConfig.setParallelLevel((int) v);
+                            if (v instanceof Integer) {
+                                modelConfig.setParallelLevel((int) v);
+                            } else {
+                                logger.warn("Invalid parallelLevel: {}, should be integer >= 1", v);
+                            }
                             break;
                         case "parallelType":
-                            modelConfig.setParallelMode((String) v);
+                            if (v instanceof String) {
+                                modelConfig.setParallelMode((String) v);
+                            } else {
+                                logger.warn(
+                                        "Invalid parallelType: {}, should be pp, tp,or pptp", v);
+                            }
                             break;
                         case "deviceIds":
-                            modelConfig.setDeviceIds(v);
+                            if (v instanceof List<?>) {
+                                modelConfig.setDeviceIds((List<?>) v);
+                            } else {
+                                logger.warn("Invalid deviceIds: {}, should be list of integer", v);
+                            }
                             break;
                         default:
                             break;
@@ -125,12 +161,17 @@ public class ModelConfig {
         return deviceIds;
     }
 
-    public void setDeviceIds(Object deviceIds) {
-        this.deviceIds =
-                Stream.of(deviceIds)
-                        .map(Object::toString)
-                        .map(Integer::parseInt)
-                        .collect(Collectors.toList());
+    public void setDeviceIds(List<?> deviceIds) {
+        this.deviceIds = new ArrayList<>();
+        for (int i = 0; i < deviceIds.size(); i++) {
+            if (deviceIds.get(i) instanceof Integer) {
+                this.deviceIds.add((int) deviceIds.get(i));
+            } else {
+                logger.warn("Invalid deviceIds:{},", deviceIds.get(i));
+                this.deviceIds = null;
+                break;
+            }
+        }
     }
 
     public int getParallelLevel() {
@@ -147,7 +188,7 @@ public class ModelConfig {
     }
 
     public void setParallelMode(String parallelMode) {
-        this.parallelType = ParallelType.get(parallelMode).get();
+        this.parallelType = ParallelType.get(parallelMode);
     }
 
     public ParallelType getParallelType() {
@@ -155,7 +196,7 @@ public class ModelConfig {
     }
 
     public void setDeviceType(String deviceType) {
-        this.deviceType = DeviceType.get(deviceType).get();
+        this.deviceType = DeviceType.get(deviceType);
     }
 
     public DeviceType getDeviceType() {
@@ -171,40 +212,55 @@ public class ModelConfig {
         private String type;
 
         ParallelType(String type) {
-            this.type = type;
+            this.type = type.toLowerCase();
         }
 
         public String getParallelType() {
             return type;
         }
 
-        public static Optional<ParallelType> get(String parallelType) {
-            return Arrays.stream(ParallelType.values())
-                    .filter(t -> t.type.equals(parallelType))
-                    .findFirst();
+        public static ParallelType get(String parallelType) {
+            ParallelType pType = NONE;
+            try {
+                pType =
+                        Arrays.stream(ParallelType.values())
+                                .filter(t -> t.type.equals(parallelType.toLowerCase()))
+                                .findFirst()
+                                .get();
+            } catch (NoSuchElementException e) {
+                logger.warn("Invalid ParallelType:{}", parallelType, e);
+            }
+            return pType;
         }
     }
 
     public enum DeviceType {
         NONE(""),
         CPU("cpu"),
-        GPU("gpu"),
-        NEURON("neuron");
+        GPU("gpu");
 
         private String type;
 
         DeviceType(String type) {
-            this.type = type;
+            this.type = type.toLowerCase();
         }
 
         public String getDeviceType() {
             return type;
         }
 
-        public static Optional<DeviceType> get(String deviceType) {
-            return Arrays.stream(DeviceType.values())
-                    .filter(t -> t.type.equals(deviceType))
-                    .findFirst();
+        public static DeviceType get(String deviceType) {
+            DeviceType dType = DeviceType.NONE;
+            try {
+                dType =
+                        Arrays.stream(DeviceType.values())
+                                .filter(t -> t.type.equals(deviceType.toLowerCase()))
+                                .findFirst()
+                                .get();
+            } catch (NoSuchElementException e) {
+                logger.warn("Invalid DeviceType:{}", deviceType, e);
+            }
+            return dType;
         }
     }
 }
