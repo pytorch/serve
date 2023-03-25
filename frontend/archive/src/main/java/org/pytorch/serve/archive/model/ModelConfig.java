@@ -6,8 +6,12 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ModelConfig {
+    private static final Logger logger = LoggerFactory.getLogger(ModelConfig.class);
+
     private int minWorkers;
     private int maxWorkers;
     private int batchSize;
@@ -62,6 +66,10 @@ public class ModelConfig {
     }
 
     public void setMinWorkers(int minWorkers) {
+        if (minWorkers < 0) {
+            logger.warn("Invalid minWorkers:{}", minWorkers);
+            return;
+        }
         this.minWorkers = minWorkers;
     }
 
@@ -70,6 +78,10 @@ public class ModelConfig {
     }
 
     public void setMaxWorkers(int maxWorkers) {
+        if (maxWorkers < 0) {
+            logger.warn("Invalid maxWorkers:{}", maxWorkers);
+            return;
+        }
         this.maxWorkers = maxWorkers;
     }
 
@@ -78,6 +90,10 @@ public class ModelConfig {
     }
 
     public void setBatchSize(int batchSize) {
+        if (batchSize <= 0) {
+            logger.warn("Invalid batchSize:{}", batchSize);
+            return;
+        }
         this.batchSize = batchSize;
     }
 
@@ -86,6 +102,10 @@ public class ModelConfig {
     }
 
     public void setMaxBatchDelay(int maxBatchDelay) {
+        if (maxBatchDelay < 0) {
+            logger.warn("Invalid maxBatchDelay:{}", maxBatchDelay);
+            return;
+        }
         this.maxBatchDelay = maxBatchDelay;
     }
 
@@ -94,6 +114,10 @@ public class ModelConfig {
     }
 
     public void setResponseTimeout(int responseTimeout) {
+        if (responseTimeout <= 0) {
+            logger.warn("Invalid responseTimeout:{}", responseTimeout);
+            return;
+        }
         this.responseTimeout = responseTimeout;
     }
 
@@ -114,6 +138,11 @@ public class ModelConfig {
     }
 
     public void setParallelLevel(int parallelLevel) {
+        if (parallelLevel <= 0) {
+            logger.warn("Invalid parallelLevel:{}, set as 1", parallelLevel);
+            this.parallelLevel = 1;
+            return;
+        }
         this.parallelLevel = parallelLevel;
     }
 
