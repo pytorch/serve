@@ -208,6 +208,9 @@ public class WorkLoadManager {
                             gpuCounter.accumulateAndGet(
                                     maxGpu, (prev, maxGpuId) -> ++prev % maxGpuId);
                 }
+                if (!model.isDeviceIdsValid()) {
+                    gpuId += 1000;
+                }
             }
 
             BatchAggregator aggregator = new BatchAggregator(model);

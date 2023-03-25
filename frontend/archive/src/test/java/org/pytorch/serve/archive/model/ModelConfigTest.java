@@ -24,7 +24,7 @@ public class ModelConfigTest {
         Assert.assertEquals(modelConfig.getDeviceType(), ModelConfig.DeviceType.GPU);
         Assert.assertEquals(modelConfig.getParallelLevel(), 4);
         Assert.assertEquals(modelConfig.getParallelType(), ModelConfig.ParallelType.PP);
-        Assert.assertEquals(modelConfig.getDeviceIds().get(0).intValue(), 0);
+        Assert.assertEquals(modelConfig.getDeviceIds().get(2).intValue(), 2);
     }
 
     @Test

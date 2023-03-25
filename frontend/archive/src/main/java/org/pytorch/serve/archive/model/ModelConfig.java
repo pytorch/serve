@@ -20,9 +20,11 @@ public class ModelConfig {
     private List<Integer> deviceIds;
     private int parallelLevel = 1;
     private ParallelType parallelType = ParallelType.NONE;
+    private boolean deviceIdsValid;
 
     public static ModelConfig build(Map<String, Object> yamlMap) {
         ModelConfig modelConfig = new ModelConfig();
+        modelConfig.deviceIdsValid = true;
         yamlMap.forEach(
                 (k, v) -> {
                     switch (k) {
@@ -87,6 +89,7 @@ public class ModelConfig {
                             if (v instanceof List<?>) {
                                 modelConfig.setDeviceIds((List<?>) v);
                             } else {
+                                modelConfig.deviceIdsValid = false;
                                 logger.warn("Invalid deviceIds: {}, should be list of integer", v);
                             }
                             break;
@@ -169,6 +172,7 @@ public class ModelConfig {
             } else {
                 logger.warn("Invalid deviceIds:{},", deviceIds.get(i));
                 this.deviceIds = null;
+                this.deviceIdsValid = false;
                 break;
             }
         }
@@ -201,6 +205,14 @@ public class ModelConfig {
 
     public DeviceType getDeviceType() {
         return deviceType;
+    }
+
+    public boolean isDeviceIdsValid() {
+        return deviceIdsValid;
+    }
+
+    public void setDeviceIdsValid(boolean deviceIdsValid) {
+        this.deviceIdsValid = deviceIdsValid;
     }
 
     public enum ParallelType {
