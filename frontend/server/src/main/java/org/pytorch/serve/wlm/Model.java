@@ -78,11 +78,13 @@ public class Model {
                                 : deviceType;
             }
             deviceIds = modelArchive.getModelConfig().getDeviceIds();
-            for (Integer deviceId : deviceIds) {
-                if (deviceId < 0 || deviceId >= ConfigManager.getInstance().getNumberOfGpu()) {
-                    logger.warn("Invalid deviceId:{}, ignore deviceIds list", deviceId);
-                    deviceIds = null;
-                    break;
+            if (deviceIds != null) {
+                for (Integer deviceId : deviceIds) {
+                    if (deviceId < 0 || deviceId >= ConfigManager.getInstance().getNumberOfGpu()) {
+                        logger.warn("Invalid deviceId:{}, ignore deviceIds list", deviceId);
+                        deviceIds = null;
+                        break;
+                    }
                 }
             }
         } else {
