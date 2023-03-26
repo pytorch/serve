@@ -40,16 +40,22 @@ class Service(object):
                     os.path.join(model_dir, model_yaml_config_file)
                 )
 
-        if "deviceIds" in model_yaml_config and "parallelLevel" in model_yaml_config:
-            if (
-                type(model_yaml_config["parallelLevel"]) is not int
-                or int(model_yaml_config["parallelLevel"]) <= 1
-            ):
-                # devicedIds is invalid in model config yaml file
-                if gpu >= 1000:
-                    gpu = gpu % 1000
-                else:
-                    gpu = int(model_yaml_config["deviceIds"][gpu])
+        parallelLevel = 1
+        if (
+            "parallelLevel" in model_yaml_config
+            and type(model_yaml_config["parallelLevel"]) is int
+            and int(model_yaml_config["parallelLevel"]) > 1
+        ):
+            parallelLevel = int(model_yaml_config["parallelLevel"])
+
+        # devicedIds in model config yaml file
+        if type(gpu) is int and gpu >= 1000:
+            if parallelLevel == 1:
+                gpu = int(model_yaml_config["deviceIds"][gpu % 1000])
+            else:
+                gpu = gpu % 1000
+        elif "deviceIds" in model_yaml_config:
+            del model_yaml_config["deviceIds"]
 
         self._context = Context(
             model_name,

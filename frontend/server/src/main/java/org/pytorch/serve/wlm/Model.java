@@ -52,7 +52,7 @@ public class Model {
     private int responseTimeout;
     private ModelVersionName modelVersionName;
     private AtomicInteger gpuCounter = new AtomicInteger(0);
-    private boolean isDeviceIdsValid = true;
+    private boolean hasDeviceIds;
 
     private boolean isWorkflowModel;
 
@@ -78,18 +78,16 @@ public class Model {
                                 ? ModelConfig.DeviceType.GPU
                                 : deviceType;
             }
-            isDeviceIdsValid = modelArchive.getModelConfig().isDeviceIdsValid();
-            if (isDeviceIdsValid) {
-                deviceIds = modelArchive.getModelConfig().getDeviceIds();
-                if (deviceIds != null) {
-                    for (Integer deviceId : deviceIds) {
-                        if (deviceId < 0
-                                || deviceId >= ConfigManager.getInstance().getNumberOfGpu()) {
-                            logger.warn("Invalid deviceId:{}, ignore deviceIds list", deviceId);
-                            deviceIds = null;
-                            isDeviceIdsValid = false;
-                            break;
-                        }
+
+            deviceIds = modelArchive.getModelConfig().getDeviceIds();
+            if (deviceIds != null && deviceIds.size() > 0) {
+                hasDeviceIds = true;
+                for (Integer deviceId : deviceIds) {
+                    if (deviceId < 0 || deviceId >= ConfigManager.getInstance().getNumberOfGpu()) {
+                        logger.warn("Invalid deviceId:{}, ignore deviceIds list", deviceId);
+                        deviceIds = null;
+                        hasDeviceIds = false;
+                        break;
                     }
                 }
             }
@@ -341,7 +339,7 @@ public class Model {
         return gpuCounter;
     }
 
-    public boolean isDeviceIdsValid() {
-        return isDeviceIdsValid;
+    public boolean isHasDeviceIds() {
+        return hasDeviceIds;
     }
 }

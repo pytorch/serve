@@ -196,20 +196,19 @@ public class WorkLoadManager {
             int gpuId = -1;
 
             if (maxGpu > 0) {
-                if (model.getDeviceIds() != null && model.getDeviceIds().size() > 0) {
+                if (model.isHasDeviceIds()) {
                     gpuId =
-                            model.getGpuCounter()
-                                    .getAndAccumulate(
-                                            maxGpu,
-                                            (prev, maxGpuId) ->
-                                                    (prev + model.getParallelLevel()) % maxGpuId);
+                            1000
+                                    + model.getGpuCounter()
+                                            .getAndAccumulate(
+                                                    maxGpu,
+                                                    (prev, maxGpuId) ->
+                                                            (prev + model.getParallelLevel())
+                                                                    % maxGpuId);
                 } else {
                     gpuId =
                             gpuCounter.accumulateAndGet(
                                     maxGpu, (prev, maxGpuId) -> ++prev % maxGpuId);
-                }
-                if (!model.isDeviceIdsValid()) {
-                    gpuId += 1000;
                 }
             }
 
