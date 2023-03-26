@@ -4,18 +4,10 @@ maxWorkers: 1
 batchSize: 1
 maxBatchDelay: 100
 responseTimeout: 120
-deviceType: cpu # cpu, gpu, neuron
-deviceIds: [0,1,2,3] # device index for gpu, neuron
+deviceType: gpu # cpu, gpu, neuron
 parallelLevel: 4 # rpc world size
 parallelType: pp # pp: pipeline parallel; pptp: tensor+pipeline parallel
 
-torchrun:
-  max_restarts: 3
 
-
-# TS backend parameters
-pippy:
-  rpc_timeout: 1800
-  pp_group_size: 4 # pipeline parallel size, tp_group_size = world size / pp_group_size
 
 
