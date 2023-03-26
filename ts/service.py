@@ -41,8 +41,10 @@ class Service(object):
                 )
 
         if "deviceIds" in model_yaml_config and "parallelLevel" in model_yaml_config:
-            if type(model_yaml_config["parallelLevel"]) is not int or \
-                    int(model_yaml_config["parallelLevel"]) <= 1:
+            if (
+                type(model_yaml_config["parallelLevel"]) is not int
+                or int(model_yaml_config["parallelLevel"]) <= 1
+            ):
                 # devicedIds is invalid in model config yaml file
                 if gpu >= 1000:
                     gpu = gpu % 1000
