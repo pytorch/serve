@@ -129,10 +129,10 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         print(f'REPLICATE config: {replicate} -> {MULTI_USE_PARAM_CONFIG}')
         print("Using schedule:", schedule)
 
-        model = BloomModel.from_pretrained(
+        model = AutoModelForCausalLM.from_pretrained(
             model_dir + "/model", use_cache=False)
 
-        self.tokenizer = BloomTokenizerFast.from_pretrained(
+        self.tokenizer = AutoTokenizer.from_pretrained(
             model_dir + "/model", return_tensors="pt"
         )
         
@@ -147,11 +147,11 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
     
 
         split_policy = split_into_equal_size(self.world_size)
-        pp_ranks = [0,1,2,3]
-        all_worker_ranks = list(range(self.world_size))
+        # pp_ranks = [0,1,2,3]
+        # all_worker_ranks = list(range(self.world_size))
         chunks = 1
-        bs = 1 * chunks
-        seq_length = 16
+        # bs = 1 * chunks
+        # seq_length = 16
 
 
         input_names = ['input_ids']
