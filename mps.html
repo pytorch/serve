@@ -10,7 +10,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>TorchServe &mdash; PyTorch/Serve master documentation</title>
+  <title>Enabling NVIDIA MPS in TorchServe &mdash; PyTorch/Serve master documentation</title>
   
 
   
@@ -323,13 +323,13 @@
       </li>
 
         
-      <li>TorchServe</li>
+      <li>Enabling NVIDIA MPS in TorchServe</li>
     
     
       <li class="pytorch-breadcrumbs-aside">
         
             
-            <a href="_sources/README.md.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg"></a>
+            <a href="_sources/mps.md.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg"></a>
           
         
       </li>
@@ -355,69 +355,91 @@
             <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
-  <section id="torchserve">
-<h1>TorchServe<a class="headerlink" href="#torchserve" title="Permalink to this headline">¶</a></h1>
-<p>TorchServe is a performant, flexible and easy to use tool for serving PyTorch eager mode and torchscripted models.</p>
-<section id="basic-features">
-<h2>Basic Features<a class="headerlink" href="#basic-features" title="Permalink to this headline">¶</a></h2>
+  <section id="enabling-nvidia-mps-in-torchserve">
+<h1>Enabling NVIDIA MPS in TorchServe<a class="headerlink" href="#enabling-nvidia-mps-in-torchserve" title="Permalink to this headline">¶</a></h1>
+<p>In order to deploy ML models, TorchServe spins up each worker in a separate processes, thus isolating each worker from the others.
+Each process creates its own CUDA context to execute its kernels and access the allocated memory.</p>
+<p>While NVIDIA GPUs in their default setting allow multiple processes to run CUDA kernels on a single device it involves the following drawback:</p>
 <ul class="simple">
-<li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/README.md#serve-a-model">Serving Quick Start</a> - Basic server usage tutorial</p></li>
-<li><p><a class="reference external" href="https://github.com/pytorch/serve/tree/master/model-archiver#creating-a-model-archive">Model Archive Quick Start</a> - Tutorial that shows you how to package a model archive file.</p></li>
-<li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/README.md#install-torchserve">Installation</a> - Installation procedures</p></li>
-<li><p><a class="reference internal" href="server.html"><span class="doc">Serving Models</span></a> - Explains how to use TorchServe</p></li>
-<li><p><a class="reference internal" href="rest_api.html"><span class="doc">REST API</span></a> - Specification on the API endpoint for TorchServe</p></li>
-<li><p><a class="reference internal" href="grpc_api.html"><span class="doc">gRPC API</span></a> - TorchServe supports gRPC APIs for both inference and management calls</p></li>
-<li><p><a class="reference external" href="https://github.com/pytorch/serve/tree/master/model-archiver#torch-model-archiver-for-torchserve">Packaging Model Archive</a> - Explains how to package model archive file, use <code class="docutils literal notranslate"><span class="pre">model-archiver</span></code>.</p></li>
-<li><p><a class="reference internal" href="inference_api.html"><span class="doc">Inference API</span></a> - How to check for the health of a deployed model and get inferences</p></li>
-<li><p><a class="reference internal" href="management_api.html"><span class="doc">Management API</span></a> - How to manage and scale models</p></li>
-<li><p><a class="reference internal" href="logging.html"><span class="doc">Logging</span></a> - How to configure logging</p></li>
-<li><p><a class="reference internal" href="metrics.html"><span class="doc">Metrics</span></a> - How to configure metrics</p></li>
-<li><p><a class="reference internal" href="metrics_api.html"><span class="doc">Prometheus and Grafana metrics</span></a> - How to configure metrics API with Prometheus formatted metrics in a Grafana dashboard</p></li>
-<li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/examples/captum/Captum_visualization_for_bert.ipynb">Captum Explanations</a> - Built in support for Captum explanations for both text and images</p></li>
-<li><p><a class="reference internal" href="batch_inference_with_ts.html"><span class="doc">Batch inference with TorchServe</span></a> - How to create and serve a model with batch inference in TorchServe</p></li>
-<li><p><a class="reference internal" href="workflows.html"><span class="doc">Workflows</span></a> - How to create workflows to compose Pytorch models and Python functions in sequential and parallel pipelines</p></li>
+<li><p>The execution of the kernels is generally serialized</p></li>
+<li><p>Each processes creates its own CUDA context which occupies additional GPU memory</p></li>
 </ul>
+<p>For these scenarios NVIDIA offers the Multi-Process Service (MPS) which:</p>
+<ul class="simple">
+<li><p>Allows multiple processes to share the same CUDA context on the same GPU</p></li>
+<li><p>Run their kernels in a parallel fashion</p></li>
+</ul>
+<p>This can result in:</p>
+<ul class="simple">
+<li><p>Increased performance when using multiple workers on the same GPU</p></li>
+<li><p>Decreased GPU memory utilization due to the shared context</p></li>
+</ul>
+<p>To leverage the benefits of NVIDIA MPS we need to start the MPS daemon with the following commands before starting up TorchServe itself.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">nvidia</span><span class="o">-</span><span class="n">smi</span> <span class="o">-</span><span class="n">c</span> <span class="mi">3</span>
+<span class="n">nvidia</span><span class="o">-</span><span class="n">cuda</span><span class="o">-</span><span class="n">mps</span><span class="o">-</span><span class="n">control</span> <span class="o">-</span><span class="n">d</span>
+</pre></div>
+</div>
+<p>The first command enables the exclusive processing mode for the GPU allowing only one process (the MPS daemon) to utilize it.
+The second command starts the MPS daemon itself.
+To shutdown the daemon we can execute:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">echo</span> <span class="n">quit</span> <span class="o">|</span> <span class="n">nvidia</span><span class="o">-</span><span class="n">cuda</span><span class="o">-</span><span class="n">mps</span><span class="o">-</span><span class="n">control</span>
+</pre></div>
+</div>
+<p>For more details on MPS please refer to <a class="reference external" href="https://docs.nvidia.com/deploy/mps/index.html">NVIDIA’s MPS documentation</a>.
+It should be noted that MPS only allows 48 processes (for Volta GPUs) to connect to the daemon due limited hardware resources.
+Adding more clients/workers (to the same GPU) will lead to a failure.</p>
+<section id="benchmarks">
+<h2>Benchmarks<a class="headerlink" href="#benchmarks" title="Permalink to this headline">¶</a></h2>
+<p>To show the performance of TorchServe with activated MPS and help to the decision in enabling MPS for your deployment or not we will perform some benchmarks with representative workloads.</p>
+<p>Primarily, we want to investigate how the throughput of a worker evolves with activated MPS for different operation points.
+As an example work load for our benchmark we select the <a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/Huggingface_Transformers#sequence-classification">HuggingFace Transformers Sequence Classification example</a>.
+We perform the benchmark on a g4dn.4xlarge as well as a p3.2xlarge instance on AWS.
+Both instance types provide one GPU per instance which will result in multiple workers to be scheduled on the same GPU.
+For the benchmark we concentrate on the model throughput as measured by the <a class="reference external" href="https://github.com/pytorch/serve/tree/master/benchmarks/benchmark-ab.py">benchmark-ab.py</a> tool.</p>
+<p>First, we measure the throughput of a single worker for different batch sizes as it will show us at which point the compute resources of the GPU are fully occupied.
+Second, we measure the throughput with two deployed workers for the batch sizes where we expect the GPUs to have still some resources left over to share.
+For each benchmark we perform five runs and take the median over the runs.</p>
+<p>We use the following config.json for the benchmark, only overwriting the number of workers and the batch size accordingly.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;url&quot;</span><span class="p">:</span><span class="s2">&quot;/home/ubuntu/serve/examples/Huggingface_Transformers/model_store/BERTSeqClassification&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;requests&quot;</span><span class="p">:</span> <span class="mi">10000</span><span class="p">,</span>
+    <span class="s2">&quot;concurrency&quot;</span><span class="p">:</span> <span class="mi">600</span><span class="p">,</span>
+    <span class="s2">&quot;input&quot;</span><span class="p">:</span> <span class="s2">&quot;/home/ubuntu/serve/examples/Huggingface_Transformers/Seq_classification_artifacts/sample_text_captum_input.txt&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;workers&quot;</span><span class="p">:</span> <span class="s2">&quot;1&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Please note that we set the concurrency level to 600 which will make sure that the batch aggregation inside TorchServe fills up the batches to the maximum batch size. But concurrently this will skew the latency measurements as many requests will be waiting in the queue to be processed. We will therefore neglect the latency measurements in the following.</p>
+<section id="g4-instance">
+<h3>G4 Instance<a class="headerlink" href="#g4-instance" title="Permalink to this headline">¶</a></h3>
+<p>We first perform the single worker benchmark for the G4 instance.
+In the figure below we see that up to a batch size of four we see a steady increase of the throughput over the batch size.</p>
+<p><img alt="G4 benchmark, single worker" src="_images/mps_g4_single.png" /></p>
+<p>Next, we increase the number of workers to two in order to compare the throughput with and without MPS running.
+To enable MPS for the second set of runs we first set the exclusive processing mode for the GPU and then start the MPS daemon as shown above.</p>
+<p>We select the batch size between one and eight according to our previous findings.
+In the figure we can see that the performance in terms of throughput can be better in case of batch size 1 and 8 (up to +18%) while it can be worse for others (-11%).
+An interpretation of this result could be that the G4 instance has not many resources to share when we run a BERT model in one of the workers.</p>
+<p><img alt="G4 benchmark, two workers" src="_images/mps_g4_two_worker.png" /></p>
 </section>
-<section id="default-handlers">
-<h2>Default Handlers<a class="headerlink" href="#default-handlers" title="Permalink to this headline">¶</a></h2>
-<ul class="simple">
-<li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/ts/torch_handler/image_classifier.py">Image Classifier</a> - This handler takes an image and returns the name of object in that image</p></li>
-<li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/ts/torch_handler/text_classifier.py">Text Classifier</a> - This handler takes a text (string) as input and returns the classification text based on the model vocabulary</p></li>
-<li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/ts/torch_handler/object_detector.py">Object Detector</a> - This handler takes an image and returns list of detected classes and bounding boxes respectively</p></li>
-<li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/ts/torch_handler/image_segmenter.py">Image Segmenter</a>- This handler takes an image and returns output shape as [CL H W], CL - number of classes, H - height and W - width</p></li>
-</ul>
+<section id="p3-instance">
+<h3>P3 instance<a class="headerlink" href="#p3-instance" title="Permalink to this headline">¶</a></h3>
+<p>Next, we will run the same experiment with the bigger p3.2xlarge instance.
+With a single worker we get the following throughput values:</p>
+<p><img alt="P3 benchmark, single worker" src="_images/mps_p3_single.png" /></p>
+<p>We can see that the throughput steady increases but for a batch size over eight we see diminishing returns.
+Finally, we deploy two workers on the P3 instance and compare running them with and without MPS.
+We can see that for batch size between 1 and 32 the throughput is consistently higher (up to +25%) for MPS enabled with the exception of batch size 16.</p>
+<p><img alt="P3 benchmark, two workers" src="_images/mps_p3_two_worker.png" /></p>
 </section>
-<section id="examples">
-<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
-<ul class="simple">
-<li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/examples/Huggingface_Transformers/Transformer_handler_generalized.py">HuggingFace Language Model</a> - This handler takes an input sentence and can return sequence classifications, token classifications or Q&amp;A answers</p></li>
-<li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/examples/MMF-activity-recognition/handler.py">Multi Modal Framework</a> - Build and deploy a classifier that combines text, audio and video input data</p></li>
-<li><p><a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/Workflows/nmt_transformers_pipeline">Dual Translation Workflow</a> -</p></li>
-<li><p><a class="reference internal" href="model_zoo.html"><span class="doc">Model Zoo</span></a> - List of pre-trained model archives ready to be served for inference with TorchServe.</p></li>
-<li><p><a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples">Examples</a> - Many examples of how to package and deploy models with TorchServe</p>
-<ul>
-<li><p><a class="reference external" href="../examples/README.md#torchserve-internals">TorchServe Internals</a></p></li>
-<li><p><a class="reference external" href="../examples/README.md#torchserve-integrations">TorchServe Integrations</a></p></li>
-<li><p><a class="reference external" href="../examples/README.md#usecases">TorchServe UseCases</a></p></li>
-</ul>
-</li>
-<li><p><a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/Workflows">Workflow Examples</a> - Examples of how to compose models in a workflow with TorchServe</p></li>
-</ul>
 </section>
-<section id="advanced-features">
-<h2>Advanced Features<a class="headerlink" href="#advanced-features" title="Permalink to this headline">¶</a></h2>
-<ul class="simple">
-<li><p><a class="reference internal" href="configuration.html"><span class="doc">Advanced configuration</span></a> - Describes advanced TorchServe configurations.</p></li>
-<li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/use_cases.md#serve-models-for-ab-testing">A/B test models</a> - A/B test your models for regressions before shipping them to production</p></li>
-<li><p><a class="reference internal" href="custom_service.html"><span class="doc">Custom Service</span></a> - Describes how to develop custom inference services.</p></li>
-<li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/management_api.md#encrypted-model-serving">Encrypted model serving</a> - S3 server side model encryption via KMS</p></li>
-<li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/plugins/docs/ddb_endpoint">Snapshot serialization</a> - Serialize model artifacts to AWS Dynamo DB</p></li>
-<li><p><a class="reference external" href="https://github.com/pytorch/serve/tree/master/benchmarks#torchserve-model-server-benchmarking">Benchmarking and Profiling</a> - Use JMeter or Apache Bench to benchmark your models and TorchServe itself</p></li>
-<li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/kubernetes/README.md#torchserve-on-kubernetes">TorchServe on Kubernetes</a> -  Demonstrates a Torchserve deployment in Kubernetes using Helm Chart supported in both Azure Kubernetes Service and Google Kubernetes service</p></li>
-<li><p><a class="reference external" href="https://github.com/mlflow/mlflow-torchserve">mlflow-torchserve</a> - Deploy mlflow pipeline models into TorchServe</p></li>
-<li><p><a class="reference external" href="https://github.com/kubeflow/pipelines/tree/master/samples/contrib/pytorch-samples">Kubeflow pipelines</a> - Kubeflow pipelines and Google Vertex AI Managed pipelines</p></li>
-<li><p><a class="reference internal" href="mps.html"><span class="doc">NVIDIA MPS</span></a> - Use NVIDIA MPS to optimize multi-worker deployment on a single GPU</p></li>
-</ul>
+<section id="summary">
+<h2>Summary<a class="headerlink" href="#summary" title="Permalink to this headline">¶</a></h2>
+<p>In the previous section we saw that by enabling MPS for two workers running the same model we receive mixed results.
+For the smaller G4 instance we only saw benefits in certain operation points while we saw more consistent improvements for the bigger P3 instance.
+This suggests that the benefit in terms of throughput for running a deployment with MPS are highly workload and environment dependent and need to be determined for specific situations using appropriate benchmarks and tools.
+It should be noted that the previous benchmark solely focused on throughput and neglected latency and memory footprint.
+As using MPS will only create a single CUDA context more workers can be packed to the same GPU which needs to be considered as well in the according scenarios.</p>
 </section>
 </section>
 
@@ -455,11 +477,13 @@
           <div class="pytorch-right-menu" id="pytorch-right-menu">
             <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
               <ul>
-<li><a class="reference internal" href="#">TorchServe</a><ul>
-<li><a class="reference internal" href="#basic-features">Basic Features</a></li>
-<li><a class="reference internal" href="#default-handlers">Default Handlers</a></li>
-<li><a class="reference internal" href="#examples">Examples</a></li>
-<li><a class="reference internal" href="#advanced-features">Advanced Features</a></li>
+<li><a class="reference internal" href="#">Enabling NVIDIA MPS in TorchServe</a><ul>
+<li><a class="reference internal" href="#benchmarks">Benchmarks</a><ul>
+<li><a class="reference internal" href="#g4-instance">G4 Instance</a></li>
+<li><a class="reference internal" href="#p3-instance">P3 instance</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#summary">Summary</a></li>
 </ul>
 </li>
 </ul>
