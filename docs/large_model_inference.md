@@ -31,6 +31,7 @@ class ModelHandler(BasePippyHandler, ABC):
 
     def initialize(self, ctx): 
         model = # load your model from model_dir
+        self.device = self.local_rank %  torch.cuda.device_count()# being used to move model inputs to (sel.device)
         model.eval()
         input_names= ctx.model_yaml_config["input_names"] # settings from model-config.yaml explained below
         chunks = ctx.model_yaml_config["chunks"]# settings from model-config.yaml explained below
