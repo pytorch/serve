@@ -49,7 +49,7 @@ RUN --mount=type=cache,id=apt-dev,target=/var/cache/apt \
 RUN update-alternatives --install /usr/bin/python python /usr/bin/python$PYTHON_VERSION 1 \
     && update-alternatives --install /usr/local/bin/pip pip /usr/local/bin/pip3 1
 
-RUN python$PYHON_VERSION -m venv /home/venv
+RUN python$PYTHON_VERSION -m venv /home/venv
 
 ENV PATH="/home/venv/bin:$PATH"
 
