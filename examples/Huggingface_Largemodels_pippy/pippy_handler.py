@@ -38,18 +38,6 @@ logger = logging.getLogger(__name__)
 logger.info("Transformers version %s", transformers.__version__)
 
 
-TORCH_DTYPES = {
-    "float16": torch.float16,
-    "float32": torch.float32,
-    "float64": torch.float64,
-}
-
-schedules = {
-    'FillDrain': PipelineDriverFillDrain,
-    '1F1B': PipelineDriver1F1B,
-    'Interleaved1F1B': PipelineDriverInterleaved1F1B,
-}
-
 class TransformersSeqClassifierHandler(BasePippyHandler, ABC):
     """
     Transformers handler class for sequence, token classification and question answering.
@@ -61,42 +49,13 @@ class TransformersSeqClassifierHandler(BasePippyHandler, ABC):
         self.local_rank = int(os.environ["LOCAL_RANK"])
         self.world_size = int(os.environ["WORLD_SIZE"])
 
-        # options = rpc.TensorPipeRpcBackendOptions(
-        #     num_worker_threads=512,
-        #     rpc_timeout=1800
-        # #    transports=None,
-        # )
-      
-       
-        # # if args.cuda:
-        # n_devs = torch.cuda.device_count()
-        # dev_id = self.local_rank % n_devs 
-        # for i in range (self.world_size):
-        #     options.set_device_map(f"worker{i}", {dev_id: i % n_devs})
-
-        # self.device = f"cuda:{dev_id}"
-        # print(
-        #     f"rank = {self.local_rank} pid/device = "
-        #     f"{os.getpid()}/{self.device}"
-        # )
-
-        # rpc.init_rpc(f"worker{self.local_rank}",
-        #              rank=self.local_rank,
-        #              world_size=self.world_size,
-        #              rpc_backend_options=options)
-
     def initialize(self, ctx):
-        """In this initialize function, the BERT model is loaded and
-        the Layer Integrated Gradients Algorithm for Captum Explanations
-        is initialized here.
+        """In this initialize function, the HF large model is loaded and 
+        partitioned into multiple stages each on one device using PiPPy.
         Args:
             ctx (context): It is a JSON Object containing information
             pertaining to the model artefacts parameters.
         """
-        # parser = argparse.ArgumentParser()
-        # args = parser.parse_args()
-        # args.world_size = 4
-        # args.gspmd = 1
         if self.local_rank != 0:
             return
 
@@ -104,13 +63,6 @@ class TransformersSeqClassifierHandler(BasePippyHandler, ABC):
         properties = ctx.system_properties
         model_dir = properties.get("model_dir")
 
-        # self.device = torch.device(
-        #     "cuda:" + str(properties.get("gpu_id"))
-        #     if torch.cuda.is_available() and properties.get("gpu_id") is not None
-        #     else "cpu"
-        # )
-        # Loading the model and tokenizer from checkpoint and config files based on the user's choice of mode
-        # further setup config can be added.
         with zipfile.ZipFile(model_dir + "/model.zip", "r") as zip_ref:
             zip_ref.extractall(model_dir + "/model")
 
@@ -123,11 +75,7 @@ class TransformersSeqClassifierHandler(BasePippyHandler, ABC):
             logger.warning("Missing the setup_config.json file.")
 
         torch.manual_seed(42)
-        replicate = 0
-        schedule = list(schedules.keys())[0]
-        MULTI_USE_PARAM_CONFIG = MultiUseParameterConfig.REPLICATE if replicate else MultiUseParameterConfig.TRANSMIT
-        print(f'REPLICATE config: {replicate} -> {MULTI_USE_PARAM_CONFIG}')
-        print("Using schedule:", schedule)
+     
 
         model = AutoModelForCausalLM.from_pretrained(
             model_dir + "/model", use_cache=False)
@@ -136,59 +84,18 @@ class TransformersSeqClassifierHandler(BasePippyHandler, ABC):
             model_dir + "/model", return_tensors="pt"
         )
         
-        # logger.info("********************* model loaded *************************", model_dir)
-
-        # model = BloomModel.from_pretrained("bigscience/bloom-3b", use_cache=False)
-
-        model_config = model.config
-
-        model_config.use_cache = False  # don't output `past_key_values`
         model.eval()
     
-
-        # split_policy = split_into_equal_size(1)
-        # pp_ranks = [0,1,2,3]
-        # all_worker_ranks = list(range(self.world_size))
         chunks = 1
-        # bs = 1 * chunks
-        # seq_length = 16
-
-
+    
         input_names = ['input_ids']
         model_type= "HF"
-        # concrete_args = prepare_concerete_agrs(model, input_names)
-        # sig = inspect.signature(model.forward)
-        # concrete_args = {p.name: p.default for p in sig.parameters.values() if p.name not in input_names}
+     
 
         print('Instantiating model Pipeline')
         model_init_start = time.time()
-        pipe_driver = get_pipline_driver(model,self.world_size, input_names, model_type, chunks)
+        self.model  = get_pipline_driver(model,self.world_size, input_names, model_type, chunks)
 
-        # pipe_driver, stage_mode = pippy.all_compile(
-        #     model,
-        #     num_ranks=self.world_size,
-        #     num_chunks=chunks,
-        #     schedule="FillDrain",
-        #     split_policy=split_policy,
-        #     tracer=PiPPyHFTracer(),
-        #     concrete_args=concrete_args,
-        # )
-        # model_pipe = Pipe.from_tracing(self.model, MULTI_USE_PARAM_CONFIG, tracer=PiPPyHFTracer(), concrete_args=concrete_args,
-        #                             output_loss_value_spec=None, split_policy=split_policy
-        #                             )
-    
-        # model_pipe.defer_stage_init(self.device + self.local_rank)
-
-        # pippy.utils.pp_group_barrier()
-        
-        # split_gm_children = list(model_pipe.split_gm.children())
-
-        # pipe_driver: PipelineDriverBase = schedules["FillDrain"](model_pipe, chunks,
-        #                                                         world_size=self.world_size,
-        #                                                         all_ranks=all_worker_ranks,
-        #                                                             )
-
-        self.model = pipe_driver
         logger.info("Transformer model from path %s loaded successfully", model_dir)
 
         self.initialized = True
