@@ -1027,3 +1027,5 @@ Snyk
 pythonversion
 StreamPredictions
 LLMs
+MPS
+mps
