@@ -34,22 +34,6 @@ def initialize_rpc_workers(local_rank,world_size):
                     world_size=world_size,
                     rpc_backend_options=options)
 
-def load_hf_causuallm_models_from_checkpoints(model_dir):
-    with zipfile.ZipFile(model_dir + "/model.zip", "r") as zip_ref:
-            zip_ref.extractall(model_dir + "/model")
-    model = AutoModelForCausalLM.from_pretrained(
-            model_dir + "/model", use_cache=False)
-    tokenizer = AutoTokenizer.from_pretrained(
-            model_dir + "/model", return_tensors="pt"
-        )
-    return model, tokenizer
-def load_hf_causuallm_models_from_pretrained(model_name):
-    model = AutoModelForCausalLM.from_pretrained(
-            model_name, use_cache=False)
-    tokenizer = AutoTokenizer.from_pretrained(
-            model_name, return_tensors="pt"
-        )
-    return model, tokenizer
 
 def get_pipline_driver(model,world_size, input_names, model_type, chunks):
     model.eval()
