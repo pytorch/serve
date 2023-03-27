@@ -56,7 +56,6 @@ def get_pipline_driver(model,world_size, input_names, model_type, chunks):
         concrete_args=concrete_args,
     ) 
     model_init_end = time.time()
-    logger.info("Model init time took {} ms".format(round((stop_time - start_time) * 1000, 2)))
     return pipe_driver
 
 
