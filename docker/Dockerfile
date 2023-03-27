@@ -78,16 +78,22 @@ RUN TORCH_VER=$(curl --silent --location https://pypi.org/pypi/torch/json | pyth
 RUN python -m pip install -U setuptools && python -m pip install --no-cache-dir captum torchtext torchserve torch-model-archiver
 
 # Final image for production
-FROM ${BASE_IMAGE} AS runtime-image
-
+FROM ${BASE_IMAGE} AS runtime-image 
+# Important note:
+# Redefine ARGs and ENV variables because they do not persist across stages (build-stage scoped).
+# Crucial for ARG PYTHON_VERSION, which otherwise becomes "" leading to nasty bugs, that 
+# don't fail, but break current version handling logic and resulting in images with wrong python version.
+ARG PYTHON_VERSION=3.9
 ENV PYTHONUNBUFFERED TRUE
 
 RUN --mount=type=cache,target=/var/cache/apt \
     apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install software-properties-common -y && \
+    add-apt-repository -y ppa:deadsnakes/ppa && \
+    apt remove python-pip  python3-pip && \
     DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
     python$PYTHON_VERSION \
-    python3-distutils \
-    python$PYTHON_VERSION-dev \
     # using openjdk-17-jdk due to circular dependency(ca-certificates) bug in openjdk-17-jre-headless debian package
     # https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1009905
     openjdk-17-jdk \
