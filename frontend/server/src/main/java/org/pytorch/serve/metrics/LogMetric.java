@@ -1,6 +1,8 @@
 package org.pytorch.serve.metrics;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 import org.pytorch.serve.util.ConfigManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,27 +28,27 @@ public class LogMetric extends IMetric {
 
     @Override
     public void addOrUpdate(ArrayList<String> dimensionValues, double value) {
-        this.addOrUpdate(dimensionValues, null, null, null, value);
+        // Used for logging frontend metrics
+        // The final entry in dimensionValues is expected to be Hostname
+        String metricString =
+                this.buildMetricString(
+                        dimensionValues.subList(0, dimensionValues.size() - 1),
+                        dimensionValues.get(dimensionValues.size() - 1),
+                        null,
+                        value);
+        loggerTsMetrics.info(metricString);
     }
 
     @Override
     public void addOrUpdate(
-            ArrayList<String> dimensionValues,
-            String hostname,
-            String timestamp,
-            String requestIds,
-            double value) {
-        String metricString =
-                this.buildMetricString(dimensionValues, hostname, timestamp, requestIds, value);
-        this.emitMetricLog(metricString);
+            ArrayList<String> dimensionValues, String hostname, String requestIds, double value) {
+        // Used for logging backend metrics
+        String metricString = this.buildMetricString(dimensionValues, hostname, requestIds, value);
+        loggerModelMetrics.info(metricString);
     }
 
     private String buildMetricString(
-            ArrayList<String> dimensionValues,
-            String hostname,
-            String requestIds,
-            String timestamp,
-            double value) {
+            List<String> dimensionValues, String hostname, String requestIds, double value) {
         StringBuilder sb = new StringBuilder(128);
         sb.append(this.name).append('.').append(this.unit).append(':').append(value).append("|#");
 
@@ -69,18 +71,11 @@ public class LogMetric extends IMetric {
         if (requestIds != null && !requestIds.isEmpty()) {
             sb.append(",requestID:").append(requestIds);
         }
-        if (timestamp != null && !timestamp.isEmpty()) {
-            sb.append(",timestamp:").append(timestamp);
-        }
+        sb.append(",timestamp:")
+                .append(
+                        String.valueOf(
+                                TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis())));
 
         return sb.toString();
-    }
-
-    private void emitMetricLog(String metricString) {
-        if (this.context == MetricBuilder.MetricContext.BACKEND) {
-            loggerModelMetrics.info(metricString);
-        } else {
-            loggerTsMetrics.info(metricString);
-        }
     }
 }

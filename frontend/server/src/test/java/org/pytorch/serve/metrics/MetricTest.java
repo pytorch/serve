@@ -84,17 +84,10 @@ public class MetricTest {
                         testMetricDimensionNames);
         Assert.assertEquals(testMetric.getClass(), LogMetric.class);
 
-        testMetric.addOrUpdate(testMetricDimensionValues, 1.0);
-        String expectedMetricString = "TestMetric.ms:1.0|#ModelName:TestModel,Level:Model";
-        Assert.assertTrue(modelMetricsContent.toString().contains(expectedMetricString));
-
-        this.flushLogWriterStreams();
-
-        testMetric.addOrUpdate(
-                testMetricDimensionValues, testHostname, testRequestId, testTimestamp, 1.0);
-        expectedMetricString =
+        testMetric.addOrUpdate(testMetricDimensionValues, testHostname, testRequestId, 1.0);
+        String expectedMetricString =
                 "TestMetric.ms:1.0|#ModelName:TestModel,Level:Model|#hostname:TestHost,"
-                        + "requestID:fa8639a8-d3fa-4a25-a80f-24463863fe0f,timestamp:1678152573";
+                        + "requestID:fa8639a8-d3fa-4a25-a80f-24463863fe0f,timestamp:";
         Assert.assertTrue(modelMetricsContent.toString().contains(expectedMetricString));
     }
 
@@ -110,17 +103,12 @@ public class MetricTest {
                         testMetricDimensionNames);
         Assert.assertEquals(testMetric.getClass(), LogMetric.class);
 
-        testMetric.addOrUpdate(testMetricDimensionValues, 1.0);
-        String expectedMetricString = "TestMetric.ms:1.0|#ModelName:TestModel,Level:Model";
-        Assert.assertTrue(tsMetricsContent.toString().contains(expectedMetricString));
-
-        this.flushLogWriterStreams();
-
-        testMetric.addOrUpdate(
-                testMetricDimensionValues, testHostname, testRequestId, testTimestamp, 1.0);
-        expectedMetricString =
-                "TestMetric.ms:1.0|#ModelName:TestModel,Level:Model|#hostname:TestHost,"
-                        + "requestID:fa8639a8-d3fa-4a25-a80f-24463863fe0f,timestamp:1678152573";
+        ArrayList<String> testMetricDimensionValuesWithHostname =
+                new ArrayList<String>(testMetricDimensionValues);
+        testMetricDimensionValuesWithHostname.add(testHostname);
+        testMetric.addOrUpdate(testMetricDimensionValuesWithHostname, 1.0);
+        String expectedMetricString =
+                "TestMetric.ms:1.0|#ModelName:TestModel,Level:Model|#hostname:TestHost,timestamp:";
         Assert.assertTrue(tsMetricsContent.toString().contains(expectedMetricString));
     }
 
@@ -142,12 +130,12 @@ public class MetricTest {
         String[] dimensionValues = {
             testMetricDimensionValues.get(0), testMetricDimensionValues.get(1), testHostname
         };
-        testMetric.addOrUpdate(testMetricDimensionValues, testHostname, null, null, 1.0);
+        testMetric.addOrUpdate(testMetricDimensionValues, testHostname, null, 1.0);
         Double metricValue =
                 CollectorRegistry.defaultRegistry.getSampleValue(
                         testMetricName, dimensionNames, dimensionValues);
         Assert.assertEquals(metricValue, Double.valueOf(1.0));
-        testMetric.addOrUpdate(testMetricDimensionValues, testHostname, null, null, 2.0);
+        testMetric.addOrUpdate(testMetricDimensionValues, testHostname, null, 2.0);
         metricValue =
                 CollectorRegistry.defaultRegistry.getSampleValue(
                         testMetricName, dimensionNames, dimensionValues);
@@ -202,12 +190,12 @@ public class MetricTest {
         String[] dimensionValues = {
             testMetricDimensionValues.get(0), testMetricDimensionValues.get(1), testHostname
         };
-        testMetric.addOrUpdate(testMetricDimensionValues, testHostname, null, null, 1.0);
+        testMetric.addOrUpdate(testMetricDimensionValues, testHostname, null, 1.0);
         Double metricValue =
                 CollectorRegistry.defaultRegistry.getSampleValue(
                         testMetricName, dimensionNames, dimensionValues);
         Assert.assertEquals(metricValue, Double.valueOf(1.0));
-        testMetric.addOrUpdate(testMetricDimensionValues, testHostname, null, null, 2.0);
+        testMetric.addOrUpdate(testMetricDimensionValues, testHostname, null, 2.0);
         metricValue =
                 CollectorRegistry.defaultRegistry.getSampleValue(
                         testMetricName, dimensionNames, dimensionValues);
@@ -262,12 +250,12 @@ public class MetricTest {
         String[] dimensionValues = {
             testMetricDimensionValues.get(0), testMetricDimensionValues.get(1), testHostname
         };
-        testMetric.addOrUpdate(testMetricDimensionValues, testHostname, null, null, 1.0);
+        testMetric.addOrUpdate(testMetricDimensionValues, testHostname, null, 1.0);
         Double metricValue =
                 CollectorRegistry.defaultRegistry.getSampleValue(
                         testMetricName + "_sum", dimensionNames, dimensionValues);
         Assert.assertEquals(metricValue, Double.valueOf(1.0));
-        testMetric.addOrUpdate(testMetricDimensionValues, testHostname, null, null, 2.0);
+        testMetric.addOrUpdate(testMetricDimensionValues, testHostname, null, 2.0);
         metricValue =
                 CollectorRegistry.defaultRegistry.getSampleValue(
                         testMetricName + "_sum", dimensionNames, dimensionValues);
