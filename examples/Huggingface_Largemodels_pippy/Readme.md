@@ -44,27 +44,39 @@ cd -
 
 ```
 
-### Step 3: Generate MAR file
+### Step 3: Create a model-config.yaml with that include following
+
+```bash
+
+minWorkers: 1
+maxWorkers: 1
+maxBatchDelay: 100
+responseTimeout: 120
+parallelLevel: 4 # number of GPUs for inference
+deviceType: gpu
+parallelType: "pp"
+chunks: 1
+input_names: ['input_ids']
+model_type: "HF"
+
+```
+
+### Step 4: Generate MAR file
 
 Navigate up to `Huggingface_Largemodels` directory.
 
 ```bash
-torch-model-archiver --model-name bloom --version 1.0 --handler pippy_handler.py --extra-files model.zip,setup_config.json -r requirements.txt --config-file model-config.yaml
+torch-model-archiver --model-name bloom --version 1.0 --handler pippy_handler.py --extra-files model.zip -r requirements.txt --config-file model-config.yaml
 ```
 
-**__Note__**: Modifying setup_config.json
-- Enable `low_cpu_mem_usage` to use accelerate
-- Recommended `max_memory` in `setup_config.json` is the max size of shard.
-- Refer: https://huggingface.co/docs/transformers/main_classes/model#large-model-loading
-
-### Step 4: Add the mar file to model store
+### Step 5: Add the mar file to model store
 
 ```bash
 mkdir model_store
 mv bloom.mar model_store
 ```
 
-### Step 5: Start torchserve
+### Step 6: Start torchserve
 
 Update config.properties and start torchserve
 
@@ -72,7 +84,7 @@ Update config.properties and start torchserve
 torchserve --ncs --start --model-store model_store --models bloom.mar --ts-config config.properties
 ```
 
-### Step 5: Run inference
+### Step 7: Run inference
 
 ```bash
 curl -v "http://localhost:8080/predictions/bloom" -T sample_text.txt
