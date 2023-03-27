@@ -53,14 +53,6 @@ class TransformersSeqClassifierHandler(BasePippyHandler, ABC):
         with zipfile.ZipFile(model_dir + "/model.zip", "r") as zip_ref:
             zip_ref.extractall(model_dir + "/model")
 
-        # read configs for the mode, model_name, etc. from setup_config.json
-        setup_config_path = os.path.join(model_dir, "setup_config.json")
-        if os.path.isfile(setup_config_path):
-            with open(setup_config_path) as setup_config_file:
-                self.setup_config = json.load(setup_config_file)
-        else:
-            logger.warning("Missing the setup_config.json file.")
-
         torch.manual_seed(42)
      
 
