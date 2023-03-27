@@ -1,13 +1,22 @@
 package org.pytorch.serve.metrics.configuration;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import org.pytorch.serve.util.ConfigManager;
 import org.testng.Assert;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import org.yaml.snakeyaml.composer.ComposerException;
 
 public class MetricConfigurationTest {
+    @BeforeMethod
+    public void setupConfigManager() throws IOException {
+        ConfigManager.Arguments args = new ConfigManager.Arguments();
+        ConfigManager.init(args);
+    }
+
     @Test
     public void testLoadValidConfiguration()
             throws FileNotFoundException, ComposerException, RuntimeException {
@@ -122,5 +131,15 @@ public class MetricConfigurationTest {
                 () ->
                         MetricConfiguration.loadConfiguration(
                                 "src/test/resources/metrics/invalid_configuration_missing_metric_unit.yaml"));
+    }
+
+    @Test
+    public void testLoadValidConfigurationModeEnvironmentVariable()
+            throws IOException, FileNotFoundException {
+        ConfigManager.getInstance().setProperty("metrics_mode", "test_metrics_mode");
+        MetricConfiguration config =
+                MetricConfiguration.loadConfiguration(
+                        "src/test/resources/metrics/valid_configuration.yaml");
+        Assert.assertEquals(config.getMode(), "test_metrics_mode");
     }
 }

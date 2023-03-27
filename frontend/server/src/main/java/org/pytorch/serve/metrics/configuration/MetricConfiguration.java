@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.List;
+import org.pytorch.serve.util.ConfigManager;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.composer.ComposerException;
 import org.yaml.snakeyaml.constructor.Constructor;
@@ -71,6 +72,11 @@ public class MetricConfiguration {
         FileInputStream inputStream = new FileInputStream(new File(configFilePath));
         MetricConfiguration config = yaml.load(inputStream);
         config.validate();
+
+        String metricsMode = ConfigManager.getInstance().getTsMetricsMode();
+        if (metricsMode != null) {
+            config.setMode(metricsMode.toLowerCase());
+        }
 
         return config;
     }
