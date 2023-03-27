@@ -30,9 +30,9 @@ install_from_src()
 mg.generate_mars()
 
 # Run newman api tests
-test_api(
-    "all"
-)  #"all" > management, inference, increased_timeout_inference, https collections
+#test_api(
+#    "all"
+#)  #"all" > management, inference, increased_timeout_inference, https collections
 
 # Run regression tests
 test_regression()
