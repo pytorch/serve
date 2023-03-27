@@ -8,7 +8,6 @@ import torch
 import transformers
 from transformers import BloomForCausalLM, BloomTokenizerFast, AutoModelForCausalLM, AutoTokenizer
 
-# from ts.torch_handler.base_handler import BaseHandler
 from ts.torch_handler.distributed.base_pippy_handler import BasePippyHandler
 import argparse
 import inspect
@@ -17,20 +16,8 @@ import os
 import time
 
 import torch
-import pippy.fx
-from pippy import run_pippy
-from pippy.IR import MultiUseParameterConfig, Pipe
-from pippy.PipelineDriver import PipelineDriverFillDrain, PipelineDriver1F1B, PipelineDriverInterleaved1F1B, \
-    PipelineDriverBase
-from pippy.hf import PiPPyHFTracer
-from pippy.microbatch import TensorChunkSpec
-from pippy import split_on_size_threshold, split_into_equal_size
-from transformers import  AutoModelForSeq2SeqLM
-from transformers import OPTModel, BloomModel
 from PIL import Image
 import requests
-from transformers import AutoFeatureExtractor, RegNetModel 
-from transformers import OPTForCausalLM
 import torch.distributed.rpc as rpc
 from ts.handler_utils.distributed.pt_pippy import get_pipline_driver
 
@@ -56,13 +43,13 @@ class TransformersSeqClassifierHandler(BasePippyHandler, ABC):
             ctx (context): It is a JSON Object containing information
             pertaining to the model artefacts parameters.
         """
-        if self.local_rank != 0:
-            return
+   
 
         self.manifest = ctx.manifest
         properties = ctx.system_properties
         model_dir = properties.get("model_dir")
-
+        n_devs = torch.cuda.device_count()
+        self.device = self.local_rank % n_devs
         with zipfile.ZipFile(model_dir + "/model.zip", "r") as zip_ref:
             zip_ref.extractall(model_dir + "/model")
 
@@ -85,11 +72,10 @@ class TransformersSeqClassifierHandler(BasePippyHandler, ABC):
         )
         
         model.eval()
-    
-        chunks = 1
-    
-        input_names = ['input_ids']
-        model_type= "HF"
+
+        chunks = ctx.model_yaml_config["chunks"]
+        input_names = ctx.model_yaml_config["input_names"]
+        model_type= ctx.model_yaml_config["model_type"]
      
 
         print('Instantiating model Pipeline')
@@ -184,39 +170,4 @@ class TransformersSeqClassifierHandler(BasePippyHandler, ABC):
         """
         return inference_output
 
-    def handle(self, data, context):
-        if self.local_rank != 0:
-            return
-        start_time = time.time()
-
-        self.context = context
-        metrics = self.context.metrics
-        
-        #run_pippy(self.initialize, context)
-
-        is_profiler_enabled = os.environ.get("ENABLE_TORCH_PROFILER", None)
-        if is_profiler_enabled:
-            if PROFILER_AVAILABLE:
-                output, _ = self._infer_with_profiler(data=data)
-            else:
-                raise RuntimeError(
-                    "Profiler is enabled but current version of torch does not support."
-                    "Install torch>=1.8.1 to use profiler."
-                )
-        else:
-            if self._is_describe():
-                output = [self.describe_handle()]
-            else:
-                data_preprocess = self.preprocess(data)
-
-                if not self._is_explain():
-                    output = self.inference(data_preprocess)
-                    output = self.postprocess(output)
-                else:
-                    output = self.explain_handle(data_preprocess, data)
-
-        stop_time = time.time()
-        metrics.add_time(
-            "HandlerTime", round((stop_time - start_time) * 1000, 2), None, "ms"
-        )
-        return output
+   
