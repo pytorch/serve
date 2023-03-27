@@ -124,9 +124,15 @@ class Service(object):
         except MemoryError:
             logger.error("System out of memory", exc_info=True)
             return create_predict_response(None, req_id_map, "Out of resources", 507)
-        except Exception:  # pylint: disable=broad-except
-            logger.warning("Invoking custom service failed.", exc_info=True)
-            return create_predict_response(None, req_id_map, "Prediction failed", 503)
+        except Exception as ex:  # pylint: disable=broad-except
+            if "CUDA" in str(ex):
+                # Handles Case A: CUDA error: CUBLAS_STATUS_NOT_INITIALIZED (Close to OOM) &
+                # Case B: CUDA out of memory (OOM)
+                logger.error("CUDA out of memory", exc_info=True)
+                return create_predict_response(None, req_id_map, "Out of resources", 507)
+            else:
+                logger.warning("Invoking custom service failed.", exc_info=True)
+                return create_predict_response(None, req_id_map, "Prediction failed", 503)
 
         if not isinstance(ret, list):
             logger.warning(

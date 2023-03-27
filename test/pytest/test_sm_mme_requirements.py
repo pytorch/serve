@@ -60,16 +60,17 @@ def test_oom_on_model_load():
     Validates that TorchServe returns reponse code 507 if there is OOM on model loading.
     """
 
-    # Download model
-    download_transformer_model()
+    ## Download model
+    #download_transformer_model()
 
-    # Create mar file
-    create_transformer_mar_file()
+    ## Create mar file
+    #create_transformer_mar_file()
 
     # Start TorchServe
     test_utils.start_torchserve(
         no_config_snapshots=True, gen_mar=False
     )
+
 
     # Register model
     params = {
@@ -81,4 +82,58 @@ def test_oom_on_model_load():
     response = test_utils.register_model_with_params(params)
 
     assert response.status_code == 507, "OOM Error expected"
+
+@pytest.mark.skipif(
+    not (torch.cuda.device_count() > 0 ) and torch.cuda.is_available(),
+    reason="Test to be run on GPU only",
+)
+def test_oom_on_invoke():
+
+    ## Download model
+    #download_transformer_model()
+    
+    ## Create mar file
+    #create_transformer_mar_file()
+
+    # Start TorchServe
+    test_utils.start_torchserve(
+        no_config_snapshots=True, gen_mar=False
+    )
+
+
+    # Register model
+    params = {
+        "model_name": "BERTSeqClassification",
+        "url": "BERTSeqClassification.mar",
+        "batch_size": 8,
+        "initial_workers": 16,
+    }
+    response = test_utils.register_model_with_params(params)
+
+
+    input_text = os.path.join(REPO_ROOT, 'examples', 'Huggingface_Transformers', 'Seq_classification_artifacts', 'sample_text_captum_input.txt')
+
+    # Make 8 curl requests in parallel with &
+    # Send multiple requests to make sure to hit OOM
+    for i in range(2):
+        print("Ankith !!!!!!!!!!!! i ", i)
+        response = os.popen(f"curl http://127.0.0.1:8080/predictions/BERTSeqClassification -T {input_text} && " \
+        f"curl http://127.0.0.1:8080/predictions/BERTSeqClassification -T {input_text} && "\
+        f"curl http://127.0.0.1:8080/predictions/BERTSeqClassification -T {input_text} && "\
+        f"curl http://127.0.0.1:8080/predictions/BERTSeqClassification -T {input_text} && "\
+        f"curl http://127.0.0.1:8080/predictions/BERTSeqClassification -T {input_text} && "\
+        f"curl http://127.0.0.1:8080/predictions/BERTSeqClassification -T {input_text} && "\
+        f"curl http://127.0.0.1:8080/predictions/BERTSeqClassification -T {input_text} && "\
+        f"curl http://127.0.0.1:8080/predictions/BERTSeqClassification -T {input_text} ")
+        response = response.read()
+    
+    # If OOM is hit, we expect code 507 to be present in the response string
+    lines = response.split("\n")
+    output = ""
+    for line in lines:
+        if "code" in line:
+            line = line.strip()
+            output = line
+            break
+    assert output == '"code": 507,', "OOM Error expected"
     
