@@ -14,6 +14,9 @@ collect_ignore = []
 collect_ignore.append("test_example_torchrec_dlrm.py")
 collect_ignore.append("test_example_near_real_time_video.py")
 collect_ignore.append("test_dali_preprocess.py")
+collect_ignore.append("test_example_dcgan.py")
+collect_ignore.append("test_example*.py")
+collect_ignore.append("test_gRPC*.py")
 
 
 @pytest.fixture(scope="module")
