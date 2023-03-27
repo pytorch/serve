@@ -32,9 +32,9 @@ class ModelHandler(BasePippyHandler, ABC):
     def initialize(self, ctx): 
         model = # load your model from model_dir
         model.eval()
-        input_names= ctx.model_yaml_config["pippy"]["input_names"] # list of input agrs to your models, for example [input_ids]
-        concrete_args = prepare_concerete_agrs(model,input_names) # this is required for FX tracing the model
-        is_HF_model:bool #HuggingFace uses its own FX traces, this will help us to setup the right fx tracer
+        input_names= ctx.model_yaml_config["input_names"] # settings from model-config.yaml explained below
+        chunks = ctx.model_yaml_config["chunks"]# settings from model-config.yaml explained below
+        model_type= ctx.model_yaml_config["model_type"]# settings from model-config.yaml explained below
         self.model = get_pipline_driver(model,self.world_size, input_names, model_type, chunks)
     # the rest is self-explanatory
     def preprocess():
@@ -55,7 +55,10 @@ maxBatchDelay: 100
 responseTimeout: 120
 parallelLevel: 4
 deviceType: gpu
-parallelType: "pp"
+parallelType: "pp" #PiPPy as the solution for distributed inference
+chunks: 1 # This sets the microbatch sizes, microbatch = batch size/ chunks
+input_names: ['input_ids'] # input arg names to the model, this is required for FX tracing
+model_type: "HF" # set the model type to HF if you are using Huggingface model other wise leave it blank or any other model you use.
 
 ```
 
