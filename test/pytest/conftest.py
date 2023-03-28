@@ -19,11 +19,13 @@ collect_ignore.append("test_example_torchrec_dlrm.py")
 collect_ignore.append("test_example_scriptable_tokenzier.py")
 collect_ignore.append("test_example_intel_extension_for_pytorch.py")
 collect_ignore.append("test_gRPC_inference_api.py")
+collect_ignore.append("test_gRPC_management_apis.py")
+collect_ignore.append("test_gRPC_utils.py")
 collect_ignore.append("test_handler.py")
 collect_ignore.append("test_metrics.py")
 collect_ignore.append("test_metrics_kf.py")
 collect_ignore.append("test_model_archiver.py")
-collect_ignore.append("test_onnx.py")y
+collect_ignore.append("test_onnx.py")
 collect_ignore.append("test_pytorch_profiler.py")
 
 
