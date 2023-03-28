@@ -77,11 +77,13 @@ def test_oom_on_model_load():
         "model_name": "BERTSeqClassification",
         "url": "BERTSeqClassification.mar",
         "batch_size": 1,
-        "initial_workers": 16,
+        "initial_workers": 20,
     }
     response = test_utils.register_model_with_params(params)
 
     assert response.status_code == 507, "OOM Error expected"
+
+    test_utils.stop_torchserve()
 
 @pytest.mark.skipif(
     not (torch.cuda.device_count() > 0 ) and torch.cuda.is_available(),
