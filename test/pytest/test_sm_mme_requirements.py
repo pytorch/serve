@@ -115,12 +115,9 @@ def test_oom_on_invoke():
 
     input_text = os.path.join(REPO_ROOT, 'examples', 'Huggingface_Transformers', 'Seq_classification_artifacts', 'sample_text_captum_input.txt')
 
-    print("Ankith CUDA Avail ", torch.cuda.is_available())
-    print("Ankith Device count ", torch.cuda.device_count())
     # Make 8 curl requests in parallel with &
     # Send multiple requests to make sure to hit OOM
     for i in range(10):
-        print("Ankith !!!!!!!!!!!! i ", i)
         response = os.popen(f"curl http://127.0.0.1:8080/predictions/BERTSeqClassification -T {input_text} && " \
         f"curl http://127.0.0.1:8080/predictions/BERTSeqClassification -T {input_text} && "\
         f"curl http://127.0.0.1:8080/predictions/BERTSeqClassification -T {input_text} && "\
