@@ -369,6 +369,7 @@
 <ul>
 <li><p><strong>Ping</strong> : Gets the health status of the running server</p></li>
 <li><p><strong>Predictions</strong> : Gets predictions from the served model</p></li>
+<li><p><strong>StreamPredictions</strong> : Gets server side streaming predictions from the saved model</p></li>
 </ul>
 </li>
 <li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/proto/management.proto">Management API</a></p>
@@ -433,6 +434,32 @@ torchserve<span class="w"> </span>--start<span class="w"> </span>--model-store<s
 </pre></div>
 </div>
 </section>
+<section id="grpc-server-side-streaming">
+<h2>GRPC Server Side Streaming<a class="headerlink" href="#grpc-server-side-streaming" title="Permalink to this headline">¶</a></h2>
+<p>TorchServe GRPC APIs adds a server side streaming of the inference API “StreamPredictions” to allow a sequence of inference responses to be sent over the same GRPC stream. This new API is only recommended for use case when the inference latency of the full response is high and the inference intermediate results are sent to client. An example could be LLMs for generative applications, where generating “n” number of tokens can have high latency, in this case user can receive each generated token once ready until the full response completes. This new API automatically forces the batchSize to be one.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">service</span> <span class="n">InferenceAPIsService</span> <span class="p">{</span>
+    <span class="o">//</span> <span class="n">Check</span> <span class="n">health</span> <span class="n">status</span> <span class="n">of</span> <span class="n">the</span> <span class="n">TorchServe</span> <span class="n">server</span><span class="o">.</span>
+    <span class="n">rpc</span> <span class="n">Ping</span><span class="p">(</span><span class="n">google</span><span class="o">.</span><span class="n">protobuf</span><span class="o">.</span><span class="n">Empty</span><span class="p">)</span> <span class="n">returns</span> <span class="p">(</span><span class="n">TorchServeHealthResponse</span><span class="p">)</span> <span class="p">{}</span>
+
+    <span class="o">//</span> <span class="n">Predictions</span> <span class="n">entry</span> <span class="n">point</span> <span class="n">to</span> <span class="n">get</span> <span class="n">inference</span> <span class="n">using</span> <span class="n">default</span> <span class="n">model</span> <span class="n">version</span><span class="o">.</span>
+    <span class="n">rpc</span> <span class="n">Predictions</span><span class="p">(</span><span class="n">PredictionsRequest</span><span class="p">)</span> <span class="n">returns</span> <span class="p">(</span><span class="n">PredictionResponse</span><span class="p">)</span> <span class="p">{}</span>
+
+    <span class="o">//</span> <span class="n">Streaming</span> <span class="n">response</span> <span class="k">for</span> <span class="n">an</span> <span class="n">inference</span> <span class="n">request</span><span class="o">.</span>
+    <span class="n">rpc</span> <span class="n">StreamPredictions</span><span class="p">(</span><span class="n">PredictionsRequest</span><span class="p">)</span> <span class="n">returns</span> <span class="p">(</span><span class="n">stream</span> <span class="n">PredictionResponse</span><span class="p">)</span> <span class="p">{}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Backend handler calls “send_intermediate_predict_response” to send one intermediate result to frontend, and return the last result as the existing style. For example</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ts.protocol.otf_message_handler</span> <span class="kn">import</span> <span class="n">send_intermediate_predict_response</span>
+
+<span class="k">def</span> <span class="nf">handle</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">list</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span> <span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+            <span class="n">send_intermediate_predict_response</span><span class="p">([</span><span class="s2">&quot;intermediate_response&quot;</span><span class="p">],</span> <span class="n">context</span><span class="o">.</span><span class="n">request_ids</span><span class="p">,</span> <span class="s2">&quot;Intermediate Prediction success&quot;</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;hello world &quot;</span><span class="p">]</span>
+</pre></div>
+</div>
+</section>
 </section>
 
 
@@ -480,6 +507,7 @@ torchserve<span class="w"> </span>--start<span class="w"> </span>--model-store<s
               <ul>
 <li><a class="reference internal" href="#">TorchServe gRPC API</a><ul>
 <li><a class="reference internal" href="#python-client-example-for-grpc-apis">Python client example for gRPC APIs</a></li>
+<li><a class="reference internal" href="#grpc-server-side-streaming">GRPC Server Side Streaming</a></li>
 </ul>
 </li>
 </ul>
