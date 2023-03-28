@@ -1,6 +1,6 @@
 package org.pytorch.serve.metrics;
 
-import java.util.ArrayList;
+import java.util.List;
 import org.pytorch.serve.metrics.format.prometheous.PrometheusCounter;
 import org.pytorch.serve.metrics.format.prometheous.PrometheusGauge;
 import org.pytorch.serve.metrics.format.prometheous.PrometheusHistogram;
@@ -28,7 +28,7 @@ public final class MetricBuilder {
             MetricType type,
             String name,
             String unit,
-            ArrayList<String> dimensionNames) {
+            List<String> dimensionNames) {
         if (mode == MetricMode.PROMETHEUS) {
             switch (type) {
                 case COUNTER:

@@ -1,6 +1,7 @@
 package org.pytorch.serve.metrics.format.prometheous;
 
 import java.util.ArrayList;
+import java.util.List;
 import org.pytorch.serve.metrics.IMetric;
 import org.pytorch.serve.metrics.MetricBuilder;
 
@@ -10,7 +11,7 @@ public abstract class PrometheusMetric extends IMetric {
             MetricBuilder.MetricType type,
             String name,
             String unit,
-            ArrayList<String> dimensionNames) {
+            List<String> dimensionNames) {
         super(context, type, name, unit, dimensionNames);
 
         if (this.context == MetricBuilder.MetricContext.BACKEND) {
@@ -20,7 +21,7 @@ public abstract class PrometheusMetric extends IMetric {
 
     @Override
     public void addOrUpdate(
-            ArrayList<String> dimensionValues, String hostname, String requestIds, double value) {
+            List<String> dimensionValues, String hostname, String requestIds, double value) {
         ArrayList<String> modifiedDimensionValues = new ArrayList<String>(dimensionValues);
         modifiedDimensionValues.add(hostname);
         this.addOrUpdate(modifiedDimensionValues, value);

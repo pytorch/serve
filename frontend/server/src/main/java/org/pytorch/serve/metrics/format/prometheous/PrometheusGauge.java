@@ -1,7 +1,7 @@
 package org.pytorch.serve.metrics.format.prometheous;
 
 import io.prometheus.client.Gauge;
-import java.util.ArrayList;
+import java.util.List;
 import org.pytorch.serve.metrics.MetricBuilder;
 
 public class PrometheusGauge extends PrometheusMetric {
@@ -12,7 +12,7 @@ public class PrometheusGauge extends PrometheusMetric {
             MetricBuilder.MetricType type,
             String name,
             String unit,
-            ArrayList<String> dimensionNames) {
+            List<String> dimensionNames) {
         super(context, type, name, unit, dimensionNames);
         this.gauge =
                 Gauge.build()
@@ -24,7 +24,7 @@ public class PrometheusGauge extends PrometheusMetric {
     }
 
     @Override
-    public void addOrUpdate(ArrayList<String> dimensionValues, double value) {
+    public void addOrUpdate(List<String> dimensionValues, double value) {
         this.gauge.labels(dimensionValues.toArray(new String[dimensionValues.size()])).set(value);
     }
 }

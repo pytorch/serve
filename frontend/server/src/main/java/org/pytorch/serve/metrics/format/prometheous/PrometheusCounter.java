@@ -1,7 +1,7 @@
 package org.pytorch.serve.metrics.format.prometheous;
 
 import io.prometheus.client.Counter;
-import java.util.ArrayList;
+import java.util.List;
 import org.pytorch.serve.metrics.MetricBuilder;
 
 public class PrometheusCounter extends PrometheusMetric {
@@ -12,7 +12,7 @@ public class PrometheusCounter extends PrometheusMetric {
             MetricBuilder.MetricType type,
             String name,
             String unit,
-            ArrayList<String> dimensionNames) {
+            List<String> dimensionNames) {
         super(context, type, name, unit, dimensionNames);
         this.counter =
                 Counter.build()
@@ -24,7 +24,7 @@ public class PrometheusCounter extends PrometheusMetric {
     }
 
     @Override
-    public void addOrUpdate(ArrayList<String> dimensionValues, double value) {
+    public void addOrUpdate(List<String> dimensionValues, double value) {
         this.counter.labels(dimensionValues.toArray(new String[dimensionValues.size()])).inc(value);
     }
 }

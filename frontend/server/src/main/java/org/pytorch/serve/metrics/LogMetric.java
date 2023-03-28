@@ -1,6 +1,5 @@
 package org.pytorch.serve.metrics;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import org.pytorch.serve.util.ConfigManager;
@@ -22,12 +21,12 @@ public class LogMetric extends IMetric {
             MetricBuilder.MetricType type,
             String name,
             String unit,
-            ArrayList<String> dimensionNames) {
+            List<String> dimensionNames) {
         super(context, type, name, unit, dimensionNames);
     }
 
     @Override
-    public void addOrUpdate(ArrayList<String> dimensionValues, double value) {
+    public void addOrUpdate(List<String> dimensionValues, double value) {
         // Used for logging frontend metrics
         // The final entry in dimensionValues is expected to be Hostname
         String metricString =
@@ -41,7 +40,7 @@ public class LogMetric extends IMetric {
 
     @Override
     public void addOrUpdate(
-            ArrayList<String> dimensionValues, String hostname, String requestIds, double value) {
+            List<String> dimensionValues, String hostname, String requestIds, double value) {
         // Used for logging backend metrics
         String metricString = this.buildMetricString(dimensionValues, hostname, requestIds, value);
         loggerModelMetrics.info(metricString);
