@@ -94,6 +94,8 @@ RUN --mount=type=cache,target=/var/cache/apt \
     apt remove python-pip  python3-pip && \
     DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
     python$PYTHON_VERSION \
+    python3-distutils \
+    python$PYTHON_VERSION-dev \
     # using openjdk-17-jdk due to circular dependency(ca-certificates) bug in openjdk-17-jre-headless debian package
     # https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1009905
     openjdk-17-jdk \
