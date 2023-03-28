@@ -137,12 +137,13 @@ class TorchModelServiceWorker(object):
             print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
             print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
             print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-            print(ex)
+            print("Exception is ex)
+            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
             if "CUDA" in str(ex):
                 # Handles Case A: CUDA error: CUBLAS_STATUS_NOT_INITIALIZED (Close to OOM) &
                 # Case B: CUDA out of memory (OOM)
-                logger.error("CUDA out of memory", exc_info=True)
-                return create_predict_response(None, req_id_map, "Out of resources", 507)
+                print("#######################")
+                return None, "System out of memory", 507
 
     def handle_connection(self, cl_socket):
         """
