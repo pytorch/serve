@@ -1,7 +1,6 @@
 import os
 import subprocess
 import requests
-import json
 import pathlib
 import pytest
 import torch
