@@ -14,6 +14,8 @@ MODELSTORE_DIR = os.path.join(REPO_ROOT, "model_store")
 data_file_kitten = os.path.join(REPO_ROOT, "examples/image_classifier/kitten.jpg")
 HF_TRANSFORMERS_EXAMPLE_DIR = os.path.join(REPO_ROOT, "examples/Huggingface_Transformers/")
 
+print("Ankith CUDA Avail ", torch.cuda.is_available())
+print("Ankith Device count ", torch.cuda.device_count())
 
 
 def download_transformer_model():
@@ -52,7 +54,7 @@ def test_no_model_loaded():
     assert response.status_code == 404, "Model not loaded error expected"
 
 @pytest.mark.skipif(
-    not (torch.cuda.device_count() > 0 ) and torch.cuda.is_available(),
+    not ((torch.cuda.device_count() > 0 ) and torch.cuda.is_available()),
     reason="Test to be run on GPU only",
 )
 def test_oom_on_model_load():
@@ -77,7 +79,7 @@ def test_oom_on_model_load():
         "model_name": "BERTSeqClassification",
         "url": "BERTSeqClassification.mar",
         "batch_size": 1,
-        "initial_workers": 20,
+        "initial_workers": 10,
     }
     response = test_utils.register_model_with_params(params)
 
@@ -86,7 +88,7 @@ def test_oom_on_model_load():
     test_utils.stop_torchserve()
 
 @pytest.mark.skipif(
-    not (torch.cuda.device_count() > 0 ) and torch.cuda.is_available(),
+    not ((torch.cuda.device_count() > 0 ) and torch.cuda.is_available()),
     reason="Test to be run on GPU only",
 )
 def test_oom_on_invoke():
@@ -108,7 +110,7 @@ def test_oom_on_invoke():
         "model_name": "BERTSeqClassification",
         "url": "BERTSeqClassification.mar",
         "batch_size": 8,
-        "initial_workers": 16,
+        "initial_workers": 10,
     }
     response = test_utils.register_model_with_params(params)
 
