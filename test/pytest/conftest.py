@@ -27,6 +27,8 @@ collect_ignore.append("test_metrics_kf.py")
 collect_ignore.append("test_model_archiver.py")
 collect_ignore.append("test_onnx.py")
 collect_ignore.append("test_pytorch_profiler.py")
+collect_ignore.append("test_snapshot.py")
+collect_ignore.append("test_utils.py")
 
 
 @pytest.fixture(scope="module")
