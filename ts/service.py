@@ -118,9 +118,6 @@ class Service(object):
         # noinspection PyBroadException
         try:
             ret = self._entry_point(input_batch, self.context)
-        except PredictionException as e:
-            logger.error("Prediction error", exc_info=True)
-            return create_predict_response(None, req_id_map, e.message, e.error_code)
         except MemoryError:
             logger.error("System out of memory", exc_info=True)
             return create_predict_response(None, req_id_map, "Out of resources", 507)
@@ -133,6 +130,9 @@ class Service(object):
             else:
                 logger.warning("Invoking custom service failed.", exc_info=True)
                 return create_predict_response(None, req_id_map, "Prediction failed", 503)
+        except PredictionException as e:
+            logger.error("Prediction error", exc_info=True)
+            return create_predict_response(None, req_id_map, e.message, e.error_code)
 
         if not isinstance(ret, list):
             logger.warning(
