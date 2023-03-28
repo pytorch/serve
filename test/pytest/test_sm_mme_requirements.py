@@ -26,7 +26,7 @@ def create_transformer_mar_file():
     os.path.join(HF_TRANSFORMERS_EXAMPLE_DIR,"Seq_classification_artifacts/index_to_name.json")
 
     pathlib.Path(test_utils.MODEL_STORE).mkdir(parents=True, exist_ok=True)
-    
+
     # Generate mar file
     cmd = test_utils.model_archiver_command_builder(
         model_name="BERTSeqClassification",
@@ -46,7 +46,7 @@ def test_no_model_loaded():
 
     os.makedirs(MODELSTORE_DIR, exist_ok=True)  # Create modelstore directory
     test_utils.start_torchserve(model_store=MODELSTORE_DIR)
-    
+
     response = requests.post(url="http://localhost:8080/predictions/alexnet", data=open(data_file_kitten, 'rb'))
     assert response.status_code == 404, "Model not loaded error expected"
 
@@ -92,7 +92,7 @@ def test_oom_on_invoke():
 
     # Download model
     download_transformer_model()
-    
+
     # Create mar file
     create_transformer_mar_file()
 
@@ -126,7 +126,7 @@ def test_oom_on_invoke():
         f"curl http://127.0.0.1:8080/predictions/BERTSeqClassification -T {input_text} && "\
         f"curl http://127.0.0.1:8080/predictions/BERTSeqClassification -T {input_text} ")
         response = response.read()
-    
+
     # If OOM is hit, we expect code 507 to be present in the response string
     lines = response.split("\n")
     output = ""
@@ -136,4 +136,3 @@ def test_oom_on_invoke():
             output = line
             break
     assert output == '"code": 507,', "OOM Error expected"
-    

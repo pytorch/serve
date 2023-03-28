@@ -1,9 +1,9 @@
 name: Run Regression Tests on CPU
 
-on: push
-  # runs every Sunday  at 11:15am
-  #schedule:
-  #  - cron:  '15 11 * * 7'
+on:
+  # runs every day  at 10:15am
+  schedule:
+    - cron:  '15 10 * * *'
 
 jobs:
   regression-cpu:
