@@ -170,6 +170,7 @@ class TorchModelServiceWorker(object):
                 cl_socket.sendall(resp)
                 if code != 200:
                     raise RuntimeError("{} - {}".format(code, result))
+                service.set_cl_socket(cl_socket)
             else:
                 raise ValueError("Received unknown command: {}".format(cmd))
 

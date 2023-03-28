@@ -39,6 +39,8 @@ class Context(object):
         self._limit_max_image_pixels = True
         self.metrics = metrics
         self.model_yaml_config = model_yaml_config
+        # add cient socket variable cl_socket to be used for send_intermediate_predict_response
+        self.cl_socket = None
 
     @property
     def system_properties(self):

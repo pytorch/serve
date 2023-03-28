@@ -1,5 +1,7 @@
 package org.pytorch.serve.wlm;
 
+import static org.pytorch.serve.util.messages.RequestInput.TS_STREAM_NEXT;
+
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
@@ -34,6 +36,7 @@ import org.pytorch.serve.util.codec.ModelRequestEncoder;
 import org.pytorch.serve.util.codec.ModelResponseDecoder;
 import org.pytorch.serve.util.messages.BaseModelRequest;
 import org.pytorch.serve.util.messages.InputParameter;
+import org.pytorch.serve.util.messages.ModelInferenceRequest;
 import org.pytorch.serve.util.messages.ModelWorkerResponse;
 import org.pytorch.serve.util.messages.RequestInput;
 import org.pytorch.serve.util.messages.WorkerCommands;
@@ -72,10 +75,9 @@ public class WorkerThread implements Runnable {
     private long startTime;
     private AtomicReference<Thread> currentThread = new AtomicReference<>();
     private String workerId;
-
     private WorkerState state;
-
     private WorkerLifeCycle lifeCycle;
+    private int responseTimeout;
 
     public WorkerThread(
             ConfigManager configManager,
@@ -168,7 +170,7 @@ public class WorkerThread implements Runnable {
 
     @Override
     public void run() {
-        int responseTimeout = model.getResponseTimeout();
+        responseTimeout = model.getResponseTimeout();
         Thread thread = Thread.currentThread();
         thread.setName(getWorkerName());
         currentThread.set(thread);
@@ -182,7 +184,7 @@ public class WorkerThread implements Runnable {
                 req = aggregator.getRequest(workerId, state);
 
                 long wtStartTime = System.currentTimeMillis();
-                logger.info("Flushing req. to backend at: " + wtStartTime);
+                logger.info("Flushing req.cmd {} to backend at: {}", req.getCommand(), wtStartTime);
                 int repeats =
                         (req.getCommand() == WorkerCommands.LOAD)
                                         || (req.getCommand() == WorkerCommands.PREDICT
@@ -195,26 +197,55 @@ public class WorkerThread implements Runnable {
                     backendChannel.get(i).writeAndFlush(req).sync();
                 }
 
+                boolean isStreaming =
+                        req.getCommand() == WorkerCommands.STREAMPREDICT ? true : false;
                 ModelWorkerResponse reply = null;
+                long duration = 0;
                 long begin = System.currentTimeMillis();
-                for (int i = 0; i < repeats; i++) {
-                    reply = replies.poll(responseTimeout, TimeUnit.SECONDS);
-                }
 
-                long duration = System.currentTimeMillis() - begin;
-                logger.info("Backend response time: {}", duration);
+                if (!isStreaming) {
+                    for (int i = 0; i < repeats; i++) {
+                        reply = replies.poll(responseTimeout, TimeUnit.SECONDS);
+                    }
 
-                if (reply != null) {
-                    aggregator.sendResponse(reply);
-                } else if (req.getCommand() != WorkerCommands.DESCRIBE) {
-                    int val = model.incrFailedInfReqs();
-                    logger.error("Number or consecutive unsuccessful inference {}", val);
-                    throw new WorkerInitializationException(
-                            "Backend worker did not respond in given time");
+                    duration = System.currentTimeMillis() - begin;
+                    logger.info("Backend response time: {}", duration);
+
+                    if (reply != null) {
+                        aggregator.sendResponse(reply);
+                    } else if (req.getCommand() != WorkerCommands.DESCRIBE) {
+                        int val = model.incrFailedInfReqs();
+                        logger.error("Number or consecutive unsuccessful inference {}", val);
+                        throw new WorkerInitializationException(
+                                "Backend worker did not respond in given time");
+                    }
+                } else {
+                    ModelInferenceRequest inferReq = (ModelInferenceRequest) req;
+                    boolean streamNext = true;
+                    while (streamNext) {
+                        for (int i = 0; i < repeats; i++) {
+                            reply = replies.poll(responseTimeout, TimeUnit.SECONDS);
+                        }
+                        if (reply.getPredictions()
+                                .get(0)
+                                .getHeaders()
+                                .get(TS_STREAM_NEXT)
+                                .equals("false")) {
+                            duration = System.currentTimeMillis() - begin;
+                            logger.info("Backend response time: {}", duration);
+                            streamNext = false;
+                        }
+                        if (reply != null) {
+                            aggregator.sendResponse(reply);
+                        }
+                    }
                 }
 
                 switch (req.getCommand()) {
                     case PREDICT:
+                        model.resetFailedInfReqs();
+                        break;
+                    case STREAMPREDICT:
                         model.resetFailedInfReqs();
                         break;
                     case LOAD:
@@ -485,7 +516,10 @@ public class WorkerThread implements Runnable {
 
         @Override
         public void channelRead0(ChannelHandlerContext ctx, ModelWorkerResponse msg) {
-            if (!replies.offer(msg)) {
+            try {
+                replies.offer(msg, responseTimeout, TimeUnit.SECONDS);
+            } catch (InterruptedException | NullPointerException e) {
+                logger.error("Failed to offer reply", e);
                 throw new IllegalStateException("Reply queue is full.");
             }
         }

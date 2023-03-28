@@ -53,7 +53,6 @@ public class Model {
     private ModelVersionName modelVersionName;
     private AtomicInteger gpuCounter = new AtomicInteger(0);
     private boolean hasDeviceIds;
-
     private boolean isWorkflowModel;
 
     // Total number of subsequent inference request failures
@@ -259,8 +258,9 @@ public class Model {
             logger.trace("get first job: {}", Objects.requireNonNull(j).getJobId());
 
             jobsRepo.put(j.getJobId(), j);
-            // describe request job batch size always is 1
-            if (j.getCmd() == WorkerCommands.DESCRIBE) {
+            // batch size always is 1 for describe request job and stream prediction request job
+            if (j.getCmd() == WorkerCommands.DESCRIBE
+                    || j.getCmd() == WorkerCommands.STREAMPREDICT) {
                 return;
             }
             long begin = System.currentTimeMillis();
@@ -270,8 +270,10 @@ public class Model {
                     break;
                 }
                 long end = System.currentTimeMillis();
-                // describe request job batch size always is 1
-                if (j.getCmd() == WorkerCommands.DESCRIBE) {
+                // job batch size always is 1 when request is
+                // describe or stream prediction
+                if (j.getCmd() == WorkerCommands.DESCRIBE
+                        || j.getCmd() == WorkerCommands.STREAMPREDICT) {
                     // Add the job back into the jobsQueue
                     jobsQueue.addFirst(j);
                     break;
