@@ -10,7 +10,6 @@ import os
 import platform
 import socket
 import sys
-import uuid
 
 from ts.arg_parser import ArgParser
 from ts.metrics.metric_cache_yaml_impl import MetricsCacheYamlImpl
@@ -66,7 +65,9 @@ class TorchModelServiceWorker(object):
         if self.metrics_cache:
             self.metrics_cache.initialize_cache()
         else:
-            raise RuntimeError(f"Failed to initialize metrics from file {metrics_config}")
+            raise RuntimeError(
+                f"Failed to initialize metrics from file {metrics_config}"
+            )
 
     def load_model(self, load_model_request):
         """
@@ -123,7 +124,7 @@ class TorchModelServiceWorker(object):
                 batch_size,
                 envelope,
                 limit_max_image_pixels,
-                self.metrics_cache
+                self.metrics_cache,
             )
 
             logging.debug("Model %s loaded.", model_name)
@@ -157,6 +158,7 @@ class TorchModelServiceWorker(object):
                 cl_socket.sendall(resp)
                 if code != 200:
                     raise RuntimeError("{} - {}".format(code, result))
+                service.set_cl_socket(cl_socket)
             else:
                 raise ValueError("Received unknown command: {}".format(cmd))
 

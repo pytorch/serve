@@ -96,6 +96,9 @@ class Service(object):
 
         return headers, input_batch, req_to_id_map
 
+    def set_cl_socket(self, cl_socket):
+        self.context.cl_socket = cl_socket
+
     def predict(self, batch):
         """
         PREDICT COMMAND = {
