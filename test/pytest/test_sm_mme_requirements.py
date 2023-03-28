@@ -60,11 +60,11 @@ def test_oom_on_model_load():
     Validates that TorchServe returns reponse code 507 if there is OOM on model loading.
     """
 
-    ## Download model
-    #download_transformer_model()
+    # Download model
+    download_transformer_model()
 
-    ## Create mar file
-    #create_transformer_mar_file()
+    # Create mar file
+    create_transformer_mar_file()
 
     # Start TorchServe
     test_utils.start_torchserve(
@@ -77,7 +77,7 @@ def test_oom_on_model_load():
         "model_name": "BERTSeqClassification",
         "url": "BERTSeqClassification.mar",
         "batch_size": 1,
-        "initial_workers": 20,
+        "initial_workers": 16,
     }
     response = test_utils.register_model_with_params(params)
 
@@ -89,11 +89,11 @@ def test_oom_on_model_load():
 )
 def test_oom_on_invoke():
 
-    ## Download model
-    #download_transformer_model()
+    # Download model
+    download_transformer_model()
     
-    ## Create mar file
-    #create_transformer_mar_file()
+    # Create mar file
+    create_transformer_mar_file()
 
     # Start TorchServe
     test_utils.start_torchserve(
