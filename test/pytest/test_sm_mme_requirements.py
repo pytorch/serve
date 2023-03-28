@@ -78,6 +78,7 @@ def test_oom_on_model_load():
         "url": "BERTSeqClassification.mar",
         "batch_size": 1,
         "initial_workers": 16,
+        "response_timeout": 1000 
     }
     response = test_utils.register_model_with_params(params)
 
