@@ -14,8 +14,6 @@ MODELSTORE_DIR = os.path.join(REPO_ROOT, "model_store")
 data_file_kitten = os.path.join(REPO_ROOT, "examples/image_classifier/kitten.jpg")
 HF_TRANSFORMERS_EXAMPLE_DIR = os.path.join(REPO_ROOT, "examples/Huggingface_Transformers/")
 
-print("Ankith CUDA Avail ", torch.cuda.is_available())
-print("Ankith Device count ", torch.cuda.device_count())
 
 
 def download_transformer_model():
@@ -79,7 +77,7 @@ def test_oom_on_model_load():
         "model_name": "BERTSeqClassification",
         "url": "BERTSeqClassification.mar",
         "batch_size": 1,
-        "initial_workers": 10,
+        "initial_workers": 12,
     }
     response = test_utils.register_model_with_params(params)
 
@@ -110,16 +108,18 @@ def test_oom_on_invoke():
         "model_name": "BERTSeqClassification",
         "url": "BERTSeqClassification.mar",
         "batch_size": 8,
-        "initial_workers": 10,
+        "initial_workers": 12,
     }
     response = test_utils.register_model_with_params(params)
 
 
     input_text = os.path.join(REPO_ROOT, 'examples', 'Huggingface_Transformers', 'Seq_classification_artifacts', 'sample_text_captum_input.txt')
 
+    print("Ankith CUDA Avail ", torch.cuda.is_available())
+    print("Ankith Device count ", torch.cuda.device_count())
     # Make 8 curl requests in parallel with &
     # Send multiple requests to make sure to hit OOM
-    for i in range(2):
+    for i in range(10):
         print("Ankith !!!!!!!!!!!! i ", i)
         response = os.popen(f"curl http://127.0.0.1:8080/predictions/BERTSeqClassification -T {input_text} && " \
         f"curl http://127.0.0.1:8080/predictions/BERTSeqClassification -T {input_text} && "\
