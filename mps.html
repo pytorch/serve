@@ -10,7 +10,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Enabling NVIDIA MPS in TorchServe &mdash; PyTorch/Serve master documentation</title>
+  <title>13. Running TorchServe with NVIDIA MPS &mdash; PyTorch/Serve master documentation</title>
   
 
   
@@ -35,6 +35,8 @@
   <link rel="stylesheet" href="_static/katex-math.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="14. TorchServe model snapshot" href="snapshot.html" />
+    <link rel="prev" title="12. Running TorchServe" href="server.html" />
   <!-- Google Analytics -->
   
   <!-- End Google Analytics -->
@@ -244,7 +246,7 @@
             
             
               <p class="caption"><span class="caption-text">Contents:</span></p>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="index.html">1. TorchServe</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Troubleshooting.html">2. Troubleshooting Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="batch_inference_with_ts.html">3. Batch Inference with TorchServe</a></li>
@@ -257,12 +259,13 @@
 <li class="toctree-l1"><a class="reference internal" href="model_zoo.html">10. Model Zoo</a></li>
 <li class="toctree-l1"><a class="reference internal" href="request_envelopes.html">11. Request Envelopes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="server.html">12. Running TorchServe</a></li>
-<li class="toctree-l1"><a class="reference internal" href="snapshot.html">13. TorchServe model snapshot</a></li>
-<li class="toctree-l1"><a class="reference internal" href="sphinx/requirements.html">14. cf. https://github.com/ryanfox/sphinx-markdown-tables/issues/36</a></li>
-<li class="toctree-l1"><a class="reference internal" href="torchserve_on_win_native.html">15. TorchServe on Windows</a></li>
-<li class="toctree-l1"><a class="reference internal" href="torchserve_on_wsl.html">16. TorchServe on Windows Subsystem for Linux (WSL)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="use_cases.html">17. Torchserve Use Cases</a></li>
-<li class="toctree-l1"><a class="reference internal" href="workflows.html">18. TorchServe Workflows</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">13. Running TorchServe with NVIDIA MPS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="snapshot.html">14. TorchServe model snapshot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sphinx/requirements.html">15. cf. https://github.com/ryanfox/sphinx-markdown-tables/issues/36</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torchserve_on_win_native.html">16. TorchServe on Windows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torchserve_on_wsl.html">17. TorchServe on Windows Subsystem for Linux (WSL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="use_cases.html">18. Torchserve Use Cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workflows.html">19. TorchServe Workflows</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Service APIs:</span></p>
 <ul>
@@ -323,7 +326,7 @@
       </li>
 
         
-      <li>Enabling NVIDIA MPS in TorchServe</li>
+      <li><span class="section-number">13. </span>Running TorchServe with NVIDIA MPS</li>
     
     
       <li class="pytorch-breadcrumbs-aside">
@@ -355,8 +358,8 @@
             <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
-  <section id="enabling-nvidia-mps-in-torchserve">
-<h1>Enabling NVIDIA MPS in TorchServe<a class="headerlink" href="#enabling-nvidia-mps-in-torchserve" title="Permalink to this headline">¶</a></h1>
+  <section id="running-torchserve-with-nvidia-mps">
+<h1><span class="section-number">13. </span>Running TorchServe with NVIDIA MPS<a class="headerlink" href="#running-torchserve-with-nvidia-mps" title="Permalink to this headline">¶</a></h1>
 <p>In order to deploy ML models, TorchServe spins up each worker in a separate processes, thus isolating each worker from the others.
 Each process creates its own CUDA context to execute its kernels and access the allocated memory.</p>
 <p>While NVIDIA GPUs in their default setting allow multiple processes to run CUDA kernels on a single device it involves the following drawback:</p>
@@ -389,7 +392,7 @@ To shutdown the daemon we can execute:</p>
 It should be noted that MPS only allows 48 processes (for Volta GPUs) to connect to the daemon due limited hardware resources.
 Adding more clients/workers (to the same GPU) will lead to a failure.</p>
 <section id="benchmarks">
-<h2>Benchmarks<a class="headerlink" href="#benchmarks" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">13.1. </span>Benchmarks<a class="headerlink" href="#benchmarks" title="Permalink to this headline">¶</a></h2>
 <p>To show the performance of TorchServe with activated MPS and help to the decision in enabling MPS for your deployment or not we will perform some benchmarks with representative workloads.</p>
 <p>Primarily, we want to investigate how the throughput of a worker evolves with activated MPS for different operation points.
 As an example work load for our benchmark we select the <a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/Huggingface_Transformers#sequence-classification">HuggingFace Transformers Sequence Classification example</a>.
@@ -411,7 +414,7 @@ For each benchmark we perform five runs and take the median over the runs.</p>
 </div>
 <p>Please note that we set the concurrency level to 600 which will make sure that the batch aggregation inside TorchServe fills up the batches to the maximum batch size. But concurrently this will skew the latency measurements as many requests will be waiting in the queue to be processed. We will therefore neglect the latency measurements in the following.</p>
 <section id="g4-instance">
-<h3>G4 Instance<a class="headerlink" href="#g4-instance" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">13.1.1. </span>G4 Instance<a class="headerlink" href="#g4-instance" title="Permalink to this headline">¶</a></h3>
 <p>We first perform the single worker benchmark for the G4 instance.
 In the figure below we see that up to a batch size of four we see a steady increase of the throughput over the batch size.</p>
 <p><img alt="G4 benchmark, single worker" src="_images/mps_g4_single.png" /></p>
@@ -423,7 +426,7 @@ An interpretation of this result could be that the G4 instance has not many reso
 <p><img alt="G4 benchmark, two workers" src="_images/mps_g4_two_worker.png" /></p>
 </section>
 <section id="p3-instance">
-<h3>P3 instance<a class="headerlink" href="#p3-instance" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">13.1.2. </span>P3 instance<a class="headerlink" href="#p3-instance" title="Permalink to this headline">¶</a></h3>
 <p>Next, we will run the same experiment with the bigger p3.2xlarge instance.
 With a single worker we get the following throughput values:</p>
 <p><img alt="P3 benchmark, single worker" src="_images/mps_p3_single.png" /></p>
@@ -434,7 +437,7 @@ We can see that for batch size between 1 and 32 the throughput is consistently h
 </section>
 </section>
 <section id="summary">
-<h2>Summary<a class="headerlink" href="#summary" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">13.2. </span>Summary<a class="headerlink" href="#summary" title="Permalink to this headline">¶</a></h2>
 <p>In the previous section we saw that by enabling MPS for two workers running the same model we receive mixed results.
 For the smaller G4 instance we only saw benefits in certain operation points while we saw more consistent improvements for the bigger P3 instance.
 This suggests that the benefit in terms of throughput for running a deployment with MPS are highly workload and environment dependent and need to be determined for specific situations using appropriate benchmarks and tools.
@@ -448,6 +451,15 @@ As using MPS will only create a single CUDA context more workers can be packed t
              
             </div>
             <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="snapshot.html" class="btn btn-neutral float-right" title="14. TorchServe model snapshot" accesskey="n" rel="next">Next <img src="_static/images/chevron-right-orange.svg" class="next-page"></a>
+      
+      
+        <a href="server.html" class="btn btn-neutral" title="12. Running TorchServe" accesskey="p" rel="prev"><img src="_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
+      
+    </div>
   
 
   
@@ -477,13 +489,13 @@ As using MPS will only create a single CUDA context more workers can be packed t
           <div class="pytorch-right-menu" id="pytorch-right-menu">
             <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
               <ul>
-<li><a class="reference internal" href="#">Enabling NVIDIA MPS in TorchServe</a><ul>
-<li><a class="reference internal" href="#benchmarks">Benchmarks</a><ul>
-<li><a class="reference internal" href="#g4-instance">G4 Instance</a></li>
-<li><a class="reference internal" href="#p3-instance">P3 instance</a></li>
+<li><a class="reference internal" href="#">13. Running TorchServe with NVIDIA MPS</a><ul>
+<li><a class="reference internal" href="#benchmarks">13.1. Benchmarks</a><ul>
+<li><a class="reference internal" href="#g4-instance">13.1.1. G4 Instance</a></li>
+<li><a class="reference internal" href="#p3-instance">13.1.2. P3 instance</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#summary">Summary</a></li>
+<li><a class="reference internal" href="#summary">13.2. Summary</a></li>
 </ul>
 </li>
 </ul>

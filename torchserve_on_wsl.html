@@ -10,7 +10,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>16. TorchServe on Windows Subsystem for Linux (WSL) &mdash; PyTorch/Serve master documentation</title>
+  <title>17. TorchServe on Windows Subsystem for Linux (WSL) &mdash; PyTorch/Serve master documentation</title>
   
 
   
@@ -35,8 +35,8 @@
   <link rel="stylesheet" href="_static/katex-math.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="17. Torchserve Use Cases" href="use_cases.html" />
-    <link rel="prev" title="15. TorchServe on Windows" href="torchserve_on_win_native.html" />
+    <link rel="next" title="18. Torchserve Use Cases" href="use_cases.html" />
+    <link rel="prev" title="16. TorchServe on Windows" href="torchserve_on_win_native.html" />
   <!-- Google Analytics -->
   
   <!-- End Google Analytics -->
@@ -259,12 +259,13 @@
 <li class="toctree-l1"><a class="reference internal" href="model_zoo.html">10. Model Zoo</a></li>
 <li class="toctree-l1"><a class="reference internal" href="request_envelopes.html">11. Request Envelopes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="server.html">12. Running TorchServe</a></li>
-<li class="toctree-l1"><a class="reference internal" href="snapshot.html">13. TorchServe model snapshot</a></li>
-<li class="toctree-l1"><a class="reference internal" href="sphinx/requirements.html">14. cf. https://github.com/ryanfox/sphinx-markdown-tables/issues/36</a></li>
-<li class="toctree-l1"><a class="reference internal" href="torchserve_on_win_native.html">15. TorchServe on Windows</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">16. TorchServe on Windows Subsystem for Linux (WSL)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="use_cases.html">17. Torchserve Use Cases</a></li>
-<li class="toctree-l1"><a class="reference internal" href="workflows.html">18. TorchServe Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mps.html">13. Running TorchServe with NVIDIA MPS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="snapshot.html">14. TorchServe model snapshot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sphinx/requirements.html">15. cf. https://github.com/ryanfox/sphinx-markdown-tables/issues/36</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torchserve_on_win_native.html">16. TorchServe on Windows</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">17. TorchServe on Windows Subsystem for Linux (WSL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="use_cases.html">18. Torchserve Use Cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workflows.html">19. TorchServe Workflows</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Service APIs:</span></p>
 <ul>
@@ -325,7 +326,7 @@
       </li>
 
         
-      <li><span class="section-number">16. </span>TorchServe on Windows Subsystem for Linux (WSL)</li>
+      <li><span class="section-number">17. </span>TorchServe on Windows Subsystem for Linux (WSL)</li>
     
     
       <li class="pytorch-breadcrumbs-aside">
@@ -358,12 +359,12 @@
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
   <section id="torchserve-on-windows-subsystem-for-linux-wsl">
-<h1><span class="section-number">16. </span>TorchServe on Windows Subsystem for Linux (WSL)<a class="headerlink" href="#torchserve-on-windows-subsystem-for-linux-wsl" title="Permalink to this headline">¶</a></h1>
+<h1><span class="section-number">17. </span>TorchServe on Windows Subsystem for Linux (WSL)<a class="headerlink" href="#torchserve-on-windows-subsystem-for-linux-wsl" title="Permalink to this headline">¶</a></h1>
 <ul class="simple">
 <li><p>Ubuntu 18.0.4</p></li>
 </ul>
 <section id="contents-of-this-document">
-<h2><span class="section-number">16.1. </span>Contents of this Document<a class="headerlink" href="#contents-of-this-document" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">17.1. </span>Contents of this Document<a class="headerlink" href="#contents-of-this-document" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p><a class="reference external" href="#setup-ubuntu-1804-on-wsl">Setup Ubuntu 18.0.4 on WSL</a></p></li>
 <li><p><a class="reference external" href="#install-from-binaries">Install from binaries</a></p></li>
@@ -372,14 +373,14 @@
 </ul>
 </section>
 <section id="setup-ubuntu-18-0-4-on-wsl">
-<h2><span class="section-number">16.2. </span>Setup Ubuntu 18.0.4 on WSL:<a class="headerlink" href="#setup-ubuntu-18-0-4-on-wsl" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">17.2. </span>Setup Ubuntu 18.0.4 on WSL:<a class="headerlink" href="#setup-ubuntu-18-0-4-on-wsl" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p><a class="reference external" href="https://docs.microsoft.com/en-us/windows/wsl/install-win10">Windows Subsystem for Linux Installation Guide for Windows 10</a></p></li>
 <li><p><a class="reference external" href="https://docs.microsoft.com/en-us/windows/wsl/install-on-server">Windows Subsystem for Linux Installation Guide for Windows Server 2019</a></p></li>
 </ul>
 </section>
 <section id="install-from-binaries">
-<h2><span class="section-number">16.3. </span>Install from binaries<a class="headerlink" href="#install-from-binaries" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">17.3. </span>Install from binaries<a class="headerlink" href="#install-from-binaries" title="Permalink to this headline">¶</a></h2>
 <ol class="simple">
 <li><p>Setup Ubuntu Environment</p></li>
 </ol>
@@ -403,7 +404,7 @@
 </div>
 </section>
 <section id="install-from-source">
-<h2><span class="section-number">16.4. </span>Install from source<a class="headerlink" href="#install-from-source" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">17.4. </span>Install from source<a class="headerlink" href="#install-from-source" title="Permalink to this headline">¶</a></h2>
 <ol class="simple">
 <li><p>Clone and install TorchServe</p></li>
 </ol>
@@ -428,10 +429,10 @@ source ~/.bashrc
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="use_cases.html" class="btn btn-neutral float-right" title="17. Torchserve Use Cases" accesskey="n" rel="next">Next <img src="_static/images/chevron-right-orange.svg" class="next-page"></a>
+        <a href="use_cases.html" class="btn btn-neutral float-right" title="18. Torchserve Use Cases" accesskey="n" rel="next">Next <img src="_static/images/chevron-right-orange.svg" class="next-page"></a>
       
       
-        <a href="torchserve_on_win_native.html" class="btn btn-neutral" title="15. TorchServe on Windows" accesskey="p" rel="prev"><img src="_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
+        <a href="torchserve_on_win_native.html" class="btn btn-neutral" title="16. TorchServe on Windows" accesskey="p" rel="prev"><img src="_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
       
     </div>
   
@@ -463,11 +464,11 @@ source ~/.bashrc
           <div class="pytorch-right-menu" id="pytorch-right-menu">
             <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
               <ul>
-<li><a class="reference internal" href="#">16. TorchServe on Windows Subsystem for Linux (WSL)</a><ul>
-<li><a class="reference internal" href="#contents-of-this-document">16.1. Contents of this Document</a></li>
-<li><a class="reference internal" href="#setup-ubuntu-18-0-4-on-wsl">16.2. Setup Ubuntu 18.0.4 on WSL:</a></li>
-<li><a class="reference internal" href="#install-from-binaries">16.3. Install from binaries</a></li>
-<li><a class="reference internal" href="#install-from-source">16.4. Install from source</a></li>
+<li><a class="reference internal" href="#">17. TorchServe on Windows Subsystem for Linux (WSL)</a><ul>
+<li><a class="reference internal" href="#contents-of-this-document">17.1. Contents of this Document</a></li>
+<li><a class="reference internal" href="#setup-ubuntu-18-0-4-on-wsl">17.2. Setup Ubuntu 18.0.4 on WSL:</a></li>
+<li><a class="reference internal" href="#install-from-binaries">17.3. Install from binaries</a></li>
+<li><a class="reference internal" href="#install-from-source">17.4. Install from source</a></li>
 </ul>
 </li>
 </ul>

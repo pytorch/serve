@@ -10,7 +10,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>15. TorchServe on Windows &mdash; PyTorch/Serve master documentation</title>
+  <title>16. TorchServe on Windows &mdash; PyTorch/Serve master documentation</title>
   
 
   
@@ -35,8 +35,8 @@
   <link rel="stylesheet" href="_static/katex-math.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="16. TorchServe on Windows Subsystem for Linux (WSL)" href="torchserve_on_wsl.html" />
-    <link rel="prev" title="14. cf. https://github.com/ryanfox/sphinx-markdown-tables/issues/36" href="sphinx/requirements.html" />
+    <link rel="next" title="17. TorchServe on Windows Subsystem for Linux (WSL)" href="torchserve_on_wsl.html" />
+    <link rel="prev" title="15. cf. https://github.com/ryanfox/sphinx-markdown-tables/issues/36" href="sphinx/requirements.html" />
   <!-- Google Analytics -->
   
   <!-- End Google Analytics -->
@@ -259,12 +259,13 @@
 <li class="toctree-l1"><a class="reference internal" href="model_zoo.html">10. Model Zoo</a></li>
 <li class="toctree-l1"><a class="reference internal" href="request_envelopes.html">11. Request Envelopes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="server.html">12. Running TorchServe</a></li>
-<li class="toctree-l1"><a class="reference internal" href="snapshot.html">13. TorchServe model snapshot</a></li>
-<li class="toctree-l1"><a class="reference internal" href="sphinx/requirements.html">14. cf. https://github.com/ryanfox/sphinx-markdown-tables/issues/36</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">15. TorchServe on Windows</a></li>
-<li class="toctree-l1"><a class="reference internal" href="torchserve_on_wsl.html">16. TorchServe on Windows Subsystem for Linux (WSL)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="use_cases.html">17. Torchserve Use Cases</a></li>
-<li class="toctree-l1"><a class="reference internal" href="workflows.html">18. TorchServe Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mps.html">13. Running TorchServe with NVIDIA MPS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="snapshot.html">14. TorchServe model snapshot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sphinx/requirements.html">15. cf. https://github.com/ryanfox/sphinx-markdown-tables/issues/36</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">16. TorchServe on Windows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torchserve_on_wsl.html">17. TorchServe on Windows Subsystem for Linux (WSL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="use_cases.html">18. Torchserve Use Cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workflows.html">19. TorchServe Workflows</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Service APIs:</span></p>
 <ul>
@@ -325,7 +326,7 @@
       </li>
 
         
-      <li><span class="section-number">15. </span>TorchServe on Windows</li>
+      <li><span class="section-number">16. </span>TorchServe on Windows</li>
     
     
       <li class="pytorch-breadcrumbs-aside">
@@ -358,9 +359,9 @@
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
   <section id="torchserve-on-windows">
-<h1><span class="section-number">15. </span>TorchServe on Windows<a class="headerlink" href="#torchserve-on-windows" title="Permalink to this headline">¶</a></h1>
+<h1><span class="section-number">16. </span>TorchServe on Windows<a class="headerlink" href="#torchserve-on-windows" title="Permalink to this headline">¶</a></h1>
 <section id="contents-of-this-document">
-<h2><span class="section-number">15.1. </span>Contents of this Document<a class="headerlink" href="#contents-of-this-document" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">16.1. </span>Contents of this Document<a class="headerlink" href="#contents-of-this-document" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p><a class="reference external" href="#prerequisites">Prerequisites</a></p></li>
 <li><p><a class="reference external" href="#install-from-binaries">Install from binaries</a></p></li>
@@ -368,7 +369,7 @@
 </ul>
 </section>
 <section id="prerequisites">
-<h2><span class="section-number">15.2. </span>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">16.2. </span>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p>At present, it has only been certified on windows server 2019 however should work fine on Windows 10.</p></li>
 <li><p>Make sure you are an admin user or have admin rights</p></li>
@@ -394,7 +395,7 @@ e.g.</p></li>
 </ul>
 </section>
 <section id="install-from-binaries">
-<h2><span class="section-number">15.3. </span>Install from binaries<a class="headerlink" href="#install-from-binaries" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">16.3. </span>Install from binaries<a class="headerlink" href="#install-from-binaries" title="Permalink to this headline">¶</a></h2>
 <p>NOTE At present, wheels for windows are not available on PyPi. However following steps can also be used if you have prebuilt torchserve wheel for windows.</p>
 <ul class="simple">
 <li><p>Start ‘Anaconda Powershell Prompt’ (APP) as Admin User i.e. By right click on APP and run following commands</p></li>
@@ -416,7 +417,7 @@ e.g.</p></li>
 </ul>
 </section>
 <section id="install-from-source">
-<h2><span class="section-number">15.4. </span>Install from source<a class="headerlink" href="#install-from-source" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">16.4. </span>Install from source<a class="headerlink" href="#install-from-source" title="Permalink to this headline">¶</a></h2>
 <ul>
 <li><p>Ensure that system or user profile environment variable name <code class="docutils literal notranslate"><span class="pre">JAVA_HOME</span></code> with value as <code class="docutils literal notranslate"><span class="pre">&lt;your-openjdk17-path&gt;</span></code> path is present.</p></li>
 <li><p>Install <a class="reference external" href="https://support.microsoft.com/en-in/help/2977003/the-latest-supported-visual-c-downloads">Microsoft Visual C++ Redistributable for Visual Studio 2015, 2017 and 2019</a></p>
@@ -430,14 +431,14 @@ e.g. C:\Program Files\NVIDIA Corporation\NVSMI, add this path to <code class="do
 <li><p><code class="docutils literal notranslate"><span class="pre">cd</span> <span class="pre">serve</span></code></p></li>
 </ul>
 <section id="for-production-usage-use-commands-below">
-<h3><span class="section-number">15.4.1. </span>For production usage, use commands below:<a class="headerlink" href="#for-production-usage-use-commands-below" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">16.4.1. </span>For production usage, use commands below:<a class="headerlink" href="#for-production-usage-use-commands-below" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">.\ts_scripts\install_dependencies.py</span> <span class="pre">--environment=prod</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">.\ts_scripts\install_from_src.py</span></code></p></li>
 </ul>
 </section>
 <section id="for-development-purposes-use-commands-below">
-<h3><span class="section-number">15.4.2. </span>For development purposes, use commands below:<a class="headerlink" href="#for-development-purposes-use-commands-below" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">16.4.2. </span>For development purposes, use commands below:<a class="headerlink" href="#for-development-purposes-use-commands-below" title="Permalink to this headline">¶</a></h3>
 <p>If you plan to develop with TorchServe and change some source code, commands below will help.
 The install_dependencies script installs few extra dependencies which are needed for development and testing.</p>
 <ul class="simple">
@@ -447,7 +448,7 @@ The install_dependencies script installs few extra dependencies which are needed
 </section>
 </section>
 <section id="troubleshooting">
-<h2><span class="section-number">15.5. </span>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">16.5. </span>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p>If you are building from source then you may have to change the port number for inference, management and metrics apis as specified in <code class="docutils literal notranslate"><span class="pre">frontend/server/src/test/resources/config.properties</span></code>,
 all files in <code class="docutils literal notranslate"><span class="pre">frontend/server/src/test/resources/snapshot/*</span></code> and <code class="docutils literal notranslate"><span class="pre">frontend/server/src/main/java/org/pytorch/serve/util/ConfigManager.java</span></code></p></li>
@@ -466,10 +467,10 @@ Refer to this <a class="reference external" href="https://stackoverflow.com/ques
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="torchserve_on_wsl.html" class="btn btn-neutral float-right" title="16. TorchServe on Windows Subsystem for Linux (WSL)" accesskey="n" rel="next">Next <img src="_static/images/chevron-right-orange.svg" class="next-page"></a>
+        <a href="torchserve_on_wsl.html" class="btn btn-neutral float-right" title="17. TorchServe on Windows Subsystem for Linux (WSL)" accesskey="n" rel="next">Next <img src="_static/images/chevron-right-orange.svg" class="next-page"></a>
       
       
-        <a href="sphinx/requirements.html" class="btn btn-neutral" title="14. cf. https://github.com/ryanfox/sphinx-markdown-tables/issues/36" accesskey="p" rel="prev"><img src="_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
+        <a href="sphinx/requirements.html" class="btn btn-neutral" title="15. cf. https://github.com/ryanfox/sphinx-markdown-tables/issues/36" accesskey="p" rel="prev"><img src="_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
       
     </div>
   
@@ -501,16 +502,16 @@ Refer to this <a class="reference external" href="https://stackoverflow.com/ques
           <div class="pytorch-right-menu" id="pytorch-right-menu">
             <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
               <ul>
-<li><a class="reference internal" href="#">15. TorchServe on Windows</a><ul>
-<li><a class="reference internal" href="#contents-of-this-document">15.1. Contents of this Document</a></li>
-<li><a class="reference internal" href="#prerequisites">15.2. Prerequisites</a></li>
-<li><a class="reference internal" href="#install-from-binaries">15.3. Install from binaries</a></li>
-<li><a class="reference internal" href="#install-from-source">15.4. Install from source</a><ul>
-<li><a class="reference internal" href="#for-production-usage-use-commands-below">15.4.1. For production usage, use commands below:</a></li>
-<li><a class="reference internal" href="#for-development-purposes-use-commands-below">15.4.2. For development purposes, use commands below:</a></li>
+<li><a class="reference internal" href="#">16. TorchServe on Windows</a><ul>
+<li><a class="reference internal" href="#contents-of-this-document">16.1. Contents of this Document</a></li>
+<li><a class="reference internal" href="#prerequisites">16.2. Prerequisites</a></li>
+<li><a class="reference internal" href="#install-from-binaries">16.3. Install from binaries</a></li>
+<li><a class="reference internal" href="#install-from-source">16.4. Install from source</a><ul>
+<li><a class="reference internal" href="#for-production-usage-use-commands-below">16.4.1. For production usage, use commands below:</a></li>
+<li><a class="reference internal" href="#for-development-purposes-use-commands-below">16.4.2. For development purposes, use commands below:</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#troubleshooting">15.5. Troubleshooting</a></li>
+<li><a class="reference internal" href="#troubleshooting">16.5. Troubleshooting</a></li>
 </ul>
 </li>
 </ul>

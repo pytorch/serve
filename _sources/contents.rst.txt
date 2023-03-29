@@ -16,6 +16,7 @@
   model_zoo
   request_envelopes
   server
+  mps
   snapshot
   sphinx/requirements
   torchserve_on_win_native

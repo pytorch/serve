@@ -1,4 +1,4 @@
-# Enabling NVIDIA MPS in TorchServe
+# Running TorchServe with NVIDIA MPS
 In order to deploy ML models, TorchServe spins up each worker in a separate processes, thus isolating each worker from the others.
 Each process creates its own CUDA context to execute its kernels and access the allocated memory.
 
