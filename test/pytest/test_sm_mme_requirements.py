@@ -14,31 +14,6 @@ data_file_kitten = os.path.join(REPO_ROOT, "examples/image_classifier/kitten.jpg
 HF_TRANSFORMERS_EXAMPLE_DIR = os.path.join(REPO_ROOT, "examples/Huggingface_Transformers/")
 
 
-
-def download_transformer_model():
-    download_cmd = "cd " + HF_TRANSFORMERS_EXAMPLE_DIR + ";python Download_Transformer_models.py"
-    subprocess.check_call(download_cmd, shell=True)
-
-def create_transformer_mar_file():
-
-    extra_files = os.path.join(HF_TRANSFORMERS_EXAMPLE_DIR + "Transformer_model/config.json") + "," + \
-    os.path.join(HF_TRANSFORMERS_EXAMPLE_DIR, "setup_config.json") + "," + \
-    os.path.join(HF_TRANSFORMERS_EXAMPLE_DIR,"Seq_classification_artifacts/index_to_name.json")
-
-    pathlib.Path(test_utils.MODEL_STORE).mkdir(parents=True, exist_ok=True)
-
-    # Generate mar file
-    cmd = test_utils.model_archiver_command_builder(
-        model_name="BERTSeqClassification",
-        version="1.0",
-        serialized_file=os.path.join(HF_TRANSFORMERS_EXAMPLE_DIR, "Transformer_model/pytorch_model.bin"),
-        handler=os.path.join(HF_TRANSFORMERS_EXAMPLE_DIR, "Transformer_handler_generalized.py"),
-        extra_files=extra_files,
-        force=True,
-    )
-    cmd = cmd.split(" ")
-    subprocess.run(cmd, check=True)
-
 def test_no_model_loaded():
     """
     Validates that TorchServe returns reponse code 404 if no model is loaded.
@@ -59,22 +34,18 @@ def test_oom_on_model_load():
     Validates that TorchServe returns reponse code 507 if there is OOM on model loading.
     """
 
-    # Download model
-    download_transformer_model()
-
-    # Create mar file
-    create_transformer_mar_file()
+    # Create model store directory
+    pathlib.Path(test_utils.MODEL_STORE).mkdir(parents=True, exist_ok=True)
 
     # Start TorchServe
     test_utils.start_torchserve(
-        no_config_snapshots=True, gen_mar=False
+        no_config_snapshots=True
     )
-
 
     # Register model
     params = {
         "model_name": "BERTSeqClassification",
-        "url": "BERTSeqClassification.mar",
+        "url": "https://torchserve.pytorch.org/mar_files/BERTSeqClassification.mar",
         "batch_size": 1,
         "initial_workers": 16,
     }
@@ -90,22 +61,18 @@ def test_oom_on_model_load():
 )
 def test_oom_on_invoke():
 
-    # Download model
-    download_transformer_model()
-
-    # Create mar file
-    create_transformer_mar_file()
+    # Create model store directory
+    pathlib.Path(test_utils.MODEL_STORE).mkdir(parents=True, exist_ok=True)
 
     # Start TorchServe
     test_utils.start_torchserve(
-        no_config_snapshots=True, gen_mar=False
+        no_config_snapshots=True
     )
-
 
     # Register model
     params = {
         "model_name": "BERTSeqClassification",
-        "url": "BERTSeqClassification.mar",
+        "url": "https://torchserve.pytorch.org/mar_files/BERTSeqClassification.mar",
         "batch_size": 8,
         "initial_workers": 12,
     }
