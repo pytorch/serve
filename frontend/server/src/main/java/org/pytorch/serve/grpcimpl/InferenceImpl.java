@@ -62,6 +62,33 @@ public class InferenceImpl extends InferenceAPIsServiceImplBase {
     @Override
     public void predictions(
             PredictionsRequest request, StreamObserver<PredictionResponse> responseObserver) {
+        prediction(request, responseObserver, WorkerCommands.PREDICT);
+    }
+
+    @Override
+    public void streamPredictions(
+            PredictionsRequest request, StreamObserver<PredictionResponse> responseObserver) {
+        logger.info("streamPredictions get req");
+        prediction(request, responseObserver, WorkerCommands.STREAMPREDICT);
+    }
+
+    private void sendErrorResponse(
+            StreamObserver<PredictionResponse> responseObserver,
+            Status status,
+            Exception e,
+            String description) {
+        responseObserver.onError(
+                status.withDescription(e.getMessage())
+                        .augmentDescription(
+                                description == null ? e.getClass().getCanonicalName() : description)
+                        .withCause(e)
+                        .asRuntimeException());
+    }
+
+    private void prediction(
+            PredictionsRequest request,
+            StreamObserver<PredictionResponse> responseObserver,
+            WorkerCommands workerCmd) {
         ((ServerCallStreamObserver<PredictionResponse>) responseObserver)
                 .setOnCancelHandler(
                         () -> {
@@ -93,13 +120,7 @@ public class InferenceImpl extends InferenceAPIsServiceImplBase {
         }
 
         MetricAggregator.handleInferenceMetric(modelName, modelVersion);
-        Job job =
-                new GRPCJob(
-                        responseObserver,
-                        modelName,
-                        modelVersion,
-                        WorkerCommands.PREDICT,
-                        inputData);
+        Job job = new GRPCJob(responseObserver, modelName, modelVersion, workerCmd, inputData);
 
         try {
             if (!ModelManager.getInstance().addJob(job)) {
@@ -112,18 +133,5 @@ public class InferenceImpl extends InferenceAPIsServiceImplBase {
         } catch (ModelNotFoundException | ModelVersionNotFoundException e) {
             sendErrorResponse(responseObserver, Status.INTERNAL, e, null);
         }
-    }
-
-    private void sendErrorResponse(
-            StreamObserver<PredictionResponse> responseObserver,
-            Status status,
-            Exception e,
-            String description) {
-        responseObserver.onError(
-                status.withDescription(e.getMessage())
-                        .augmentDescription(
-                                description == null ? e.getClass().getCanonicalName() : description)
-                        .withCause(e)
-                        .asRuntimeException());
     }
 }

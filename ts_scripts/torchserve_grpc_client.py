@@ -35,6 +35,23 @@ def infer(stub, model_name, model_input):
         exit(1)
 
 
+def infer_stream(stub, model_name, model_input):
+    with open(model_input, "rb") as f:
+        data = f.read()
+
+    input_data = {"data": data}
+    responses = stub.StreamPredictions(
+        inference_pb2.PredictionsRequest(model_name=model_name, input=input_data)
+    )
+
+    try:
+        for resp in responses:
+            prediction = resp.prediction.decode("utf-8")
+            print(prediction)
+    except grpc.RpcError as e:
+        exit(1)
+
+
 def register(stub, model_name, mar_set_str):
     mar_set = set()
     if mar_set_str:
@@ -93,6 +110,9 @@ if __name__ == "__main__":
     infer_action_parser = subparsers.add_parser(
         "infer", parents=[parent_parser], add_help=False
     )
+    infer_stream_action_parser = subparsers.add_parser(
+        "infer_stream", parents=[parent_parser], add_help=False
+    )
     register_action_parser = subparsers.add_parser(
         "register", parents=[parent_parser], add_help=False
     )
@@ -102,6 +122,13 @@ if __name__ == "__main__":
 
     infer_action_parser.add_argument(
         "model_input", type=str, default=None, help="Input for model for inferencing."
+    )
+
+    infer_stream_action_parser.add_argument(
+        "model_input",
+        type=str,
+        default=None,
+        help="Input for model for stream inferencing.",
     )
 
     register_action_parser.add_argument(
@@ -116,6 +143,8 @@ if __name__ == "__main__":
 
     if args.action == "infer":
         infer(get_inference_stub(), args.model_name, args.model_input)
+    elif args.action == "infer_stream":
+        infer_stream(get_inference_stub(), args.model_name, args.model_input)
     elif args.action == "register":
         register(get_management_stub(), args.model_name, args.mar_set)
     elif args.action == "unregister":
