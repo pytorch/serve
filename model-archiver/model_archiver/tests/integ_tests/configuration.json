@@ -71,7 +71,8 @@
     "archive-format": "zip-store",
     "iterations": 2,
     "version": "1.0",
-    "force": true
+    "force": true,
+    "config-file": ""
   },
   {
     "name": "packaging_mar_with_handler_name",

@@ -11,6 +11,7 @@ from model_archiver.model_packaging_utils import ModelExportUtils
 
 MANIFEST_FILE = Path(__file__).parents[1].joinpath("integ_tests/MAR-INF/MANIFEST.json")
 
+
 # noinspection PyClassHasNoInit
 def _validate_mar(patches):
     if platform.system() == "Windows":
@@ -23,7 +24,6 @@ def _validate_mar(patches):
 
 
 class TestExportModelUtils:
-
     # noinspection PyClassHasNoInit
     class TestMarExistence:
         @pytest.fixture()
@@ -91,7 +91,6 @@ class TestExportModelUtils:
 
     # noinspection PyClassHasNoInit
     class TestCustomModelTypes:
-
         model_path = "/Users/dummyUser"
 
         @pytest.fixture()
@@ -163,6 +162,7 @@ class TestExportModelUtils:
             model_file=model_file,
             version=version,
             requirements_file=requirements_file,
+            config_file=None,
         )
 
         def test_model(self):
@@ -210,7 +210,6 @@ class TestExportModelUtils:
 
     # noinspection PyClassHasNoInit
     class TestFileFilter:
-
         files_to_exclude = {"abc.onnx"}
 
         def test_with_return_false(self):
@@ -236,7 +235,6 @@ class TestExportModelUtils:
 
     # noinspection PyClassHasNoInit
     class TestDirectoryFilter:
-
         unwanted_dirs = {"__MACOSX", "__pycache__"}
 
         def test_with_unwanted_dirs(self):
@@ -262,6 +260,7 @@ def create_manifest_from_test_json(test_json):
     test_ = {k.replace("-", "_"): v for k, v in test_json.items()}
     test_["requirements_file"] = ""
     test_["runtime"] = RuntimeType.PYTHON3.value
+    test_["config_file"] = ""
 
     args = namedtuple("Model", test_.keys())(**test_)
     manifest = ModelExportUtils.generate_manifest_json(args)
@@ -283,6 +282,7 @@ def test_archive_creation_with_zip_store(tmp_path, integ_tests):
         "serialized-file",
         "handler",
         "extra-files",
+        "config-file",
     )
 
     for k in keys:

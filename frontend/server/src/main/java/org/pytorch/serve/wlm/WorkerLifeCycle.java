@@ -9,6 +9,8 @@ import java.util.Scanner;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.pytorch.serve.metrics.Metric;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.Connector;
@@ -93,8 +95,12 @@ public class WorkerLifeCycle {
             throw new WorkerInitializationException("Failed get TS home directory", e);
         }
 
-        ArrayList<String> argl = new ArrayList<String>();
-        argl.add(EnvironmentUtils.getPythonRunTime(model));
+        ArrayList<String> argl = new ArrayList<>();
+        if (model.getParallelLevel() > 1) {
+            attachRunner(argl, port);
+        } else if (model.getParallelLevel() == 1) {
+            argl.add(EnvironmentUtils.getPythonRunTime(model));
+        }
 
         if (configManager.isCPULauncherEnabled()) {
             launcherArgs = configManager.getCPULauncherArgs();
@@ -108,7 +114,6 @@ public class WorkerLifeCycle {
                     argl.add("--ninstances");
                     argl.add(String.valueOf(this.numWorker));
                     argl.add("--instance_idx");
-                    // instance_idx is 0-indexed
                     argl.add(String.valueOf(this.currNumRunningWorkers));
                 }
 
@@ -134,7 +139,7 @@ public class WorkerLifeCycle {
                         model.getModelArchive().getManifest().getModel().getHandler());
 
         try {
-            latch = new CountDownLatch(1);
+            latch = new CountDownLatch(model.getParallelLevel());
 
             String[] args = argl.toArray(new String[argl.size()]);
             logger.debug("Worker cmdline: {}", argl.toString());
@@ -164,6 +169,18 @@ public class WorkerLifeCycle {
                 exit();
             }
         }
+    }
+
+    private void attachRunner(ArrayList<String> argl, int port) {
+        System.setProperty("LOGLEVEL", "INFO");
+        argl.add("torchrun");
+        argl.add("--nnodes=1");
+        argl.add("--nproc_per_node=" + model.getParallelLevel());
+        argl.add("--max_restarts=3");
+        argl.add("--log_dir=/tmp/torchelastic_ts");
+        argl.add("--rdzv_backend=c10d");
+        argl.add("--rdzv_endpoint=localhost:" + port);
+        argl.add("--rdzv_id=" + model.getModelName() + "_" + port);
     }
 
     public synchronized void terminateIOStreams() {
@@ -210,15 +227,20 @@ public class WorkerLifeCycle {
     }
 
     private static final class ReaderThread extends Thread {
-
-        private InputStream is;
-        private boolean error;
-        private WorkerLifeCycle lifeCycle;
-        private AtomicBoolean isRunning = new AtomicBoolean(true);
+        private static final Pattern METRIC_PATTERN =
+                Pattern.compile("^(INFO > )?(\\[METRICS])(.*)");
+        private static final Pattern WORKER_START_PATTERN =
+                Pattern.compile("^(INFO > )?(Torch worker started.)$");
+        private static final Pattern WORKER_PID_PATTERN =
+                Pattern.compile("^(INFO > )?(\\[PID])(\\d+)$");
         private static final Logger loggerModelMetrics =
                 LoggerFactory.getLogger(ConfigManager.MODEL_METRICS_LOGGER);
         private static final Logger loggerModelOutput =
                 LoggerFactory.getLogger(ConfigManager.MODEL_LOGGER);
+        private InputStream is;
+        private boolean error;
+        private WorkerLifeCycle lifeCycle;
+        private AtomicBoolean isRunning = new AtomicBoolean(true);
 
         public ReaderThread(String name, InputStream is, boolean error, WorkerLifeCycle lifeCycle) {
             super(name + (error ? "-stderr" : "-stdout"));
@@ -239,8 +261,11 @@ public class WorkerLifeCycle {
                     if (result == null) {
                         break;
                     }
-                    if (result.startsWith("[METRICS]")) {
-                        Metric parsedMetric = Metric.parse(result.substring("[METRICS]".length()));
+
+                    Matcher matcher = METRIC_PATTERN.matcher(result);
+                    if (matcher.matches()) {
+                        logger.info("result={}, pattern={}", result, matcher.group(2));
+                        Metric parsedMetric = Metric.parse(matcher.group(3));
                         if (parsedMetric != null) {
                             loggerModelMetrics.info(parsedMetric.toString());
                         } else {
@@ -249,10 +274,14 @@ public class WorkerLifeCycle {
                         continue;
                     }
 
-                    if ("Torch worker started.".equals(result)) {
+                    matcher = WORKER_START_PATTERN.matcher(result);
+                    if (matcher.matches()) {
                         lifeCycle.setSuccess(true);
-                    } else if (result.startsWith("[PID]")) {
-                        lifeCycle.setPid(Integer.parseInt(result.substring("[PID]".length())));
+                    } else {
+                        matcher = WORKER_PID_PATTERN.matcher(result);
+                        if (matcher.matches()) {
+                            lifeCycle.setPid(Integer.parseInt(matcher.group(3)));
+                        }
                     }
                     if (error) {
                         loggerModelOutput.warn(result);

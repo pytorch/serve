@@ -35,6 +35,7 @@ import org.pytorch.serve.util.messages.WorkerCommands;
 import org.pytorch.serve.wlm.Model;
 import org.pytorch.serve.wlm.ModelManager;
 import org.pytorch.serve.wlm.ModelVersionedRefs;
+import org.pytorch.serve.wlm.WorkerInitializationException;
 import org.pytorch.serve.wlm.WorkerState;
 import org.pytorch.serve.wlm.WorkerThread;
 
@@ -108,7 +109,7 @@ public final class ApiUtils {
 
     public static StatusResponse registerModel(RegisterModelRequest registerModelRequest)
             throws ModelException, InternalServerException, ExecutionException,
-                    InterruptedException, DownloadArchiveException {
+                    InterruptedException, DownloadArchiveException, WorkerInitializationException {
         String modelUrl = registerModelRequest.getModelUrl();
         if (modelUrl == null) {
             throw new BadRequestException("Parameter url is required.");
@@ -162,7 +163,7 @@ public final class ApiUtils {
             boolean isWorkflowModel,
             boolean s3SseKms)
             throws ModelException, ExecutionException, InterruptedException,
-                    DownloadArchiveException {
+                    DownloadArchiveException, WorkerInitializationException {
 
         ModelManager modelManager = ModelManager.getInstance();
         final ModelArchive archive;
@@ -188,7 +189,17 @@ public final class ApiUtils {
         }
 
         modelName = archive.getModelName();
-        if (initialWorkers <= 0) {
+        int minWorkers = 0;
+        int maxWorkers = 0;
+        if (archive.getModelConfig() != null) {
+            int marMinWorkers = archive.getModelConfig().getMinWorkers();
+            int marMaxWorkers = archive.getModelConfig().getMaxWorkers();
+            if (marMinWorkers > 0 && marMaxWorkers >= marMinWorkers) {
+                minWorkers = marMinWorkers;
+                maxWorkers = marMaxWorkers;
+            }
+        }
+        if (initialWorkers <= 0 && minWorkers == 0) {
             final String msg =
                     "Model \""
                             + modelName
@@ -200,12 +211,14 @@ public final class ApiUtils {
             }
             return new StatusResponse(msg, HttpURLConnection.HTTP_OK);
         }
+        minWorkers = minWorkers > 0 ? minWorkers : initialWorkers;
+        maxWorkers = maxWorkers > 0 ? maxWorkers : initialWorkers;
 
         return ApiUtils.updateModelWorkers(
                 modelName,
                 archive.getModelVersion(),
-                initialWorkers,
-                initialWorkers,
+                minWorkers,
+                maxWorkers,
                 isSync,
                 true,
                 f -> {
@@ -223,7 +236,7 @@ public final class ApiUtils {
             boolean isInit,
             final Function<Void, Void> onError)
             throws ModelVersionNotFoundException, ModelNotFoundException, ExecutionException,
-                    InterruptedException {
+                    InterruptedException, WorkerInitializationException {
 
         ModelManager modelManager = ModelManager.getInstance();
         if (maxWorkers < minWorkers) {

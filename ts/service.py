@@ -2,13 +2,14 @@
 CustomService class definitions
 """
 import logging
+import os
 import time
 from builtins import str
 
 import ts
 from ts.context import Context, RequestProcessor
 from ts.protocol.otf_message_handler import create_predict_response
-from ts.utils.util import PredictionException
+from ts.utils.util import PredictionException, get_yaml_config
 
 PREDICTION_METRIC = "PredictionTime"
 logger = logging.getLogger(__name__)
@@ -30,6 +31,32 @@ class Service(object):
         limit_max_image_pixels=True,
         metrics_cache=None,
     ):
+        model_yaml_config = {}
+        if manifest is not None and "model" in manifest:
+            model = manifest["model"]
+            if "configFile" in model:
+                model_yaml_config_file = model["configFile"]
+                model_yaml_config = get_yaml_config(
+                    os.path.join(model_dir, model_yaml_config_file)
+                )
+
+        parallelLevel = 1
+        if (
+            "parallelLevel" in model_yaml_config
+            and type(model_yaml_config["parallelLevel"]) is int
+            and int(model_yaml_config["parallelLevel"]) > 1
+        ):
+            parallelLevel = int(model_yaml_config["parallelLevel"])
+
+        # devicedIds in model config yaml file
+        if type(gpu) is int and gpu >= 1000:
+            if parallelLevel == 1:
+                gpu = int(model_yaml_config["deviceIds"][gpu % 1000])
+            else:
+                gpu = gpu % 1000
+        elif "deviceIds" in model_yaml_config:
+            del model_yaml_config["deviceIds"]
+
         self._context = Context(
             model_name,
             model_dir,
@@ -39,6 +66,7 @@ class Service(object):
             ts.__version__,
             limit_max_image_pixels,
             metrics_cache,
+            model_yaml_config,
         )
         self._entry_point = entry_point
 
