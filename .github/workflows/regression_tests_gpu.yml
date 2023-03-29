@@ -1,9 +1,9 @@
 name: Run Regression Tests on GPU
 
-on:
+on: push
   # runs every day  at 10:15am
-  schedule:
-    - cron:  '15 10 * * *'
+  #schedule:
+  #  - cron:  '15 10 * * *'
 
 jobs:
   regression-gpu:
