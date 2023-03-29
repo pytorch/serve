@@ -9,11 +9,10 @@ import pytest
 from torchvision.models.resnet import ResNet18_Weights
 
 from ts.torch_handler.image_classifier import ImageClassifier
+from ts.torch_handler.unit_tests.test_utils.mock_context import MockContext
+from ts.torch_handler.unit_tests.test_utils.model_dir import copy_files, download_model
 
-from .test_utils.mock_context import MockContext
-from .test_utils.model_dir import copy_files, download_model
-
-REPO_DIR = Path(__file__).parents[3]
+REPO_DIR = Path(__file__).parents[2]
 
 
 def read_image_bytes(filename):
