@@ -11,6 +11,7 @@ from model_archiver.model_packaging_utils import ModelExportUtils
 
 MANIFEST_FILE = Path(__file__).parents[1].joinpath("integ_tests/MAR-INF/MANIFEST.json")
 
+
 # noinspection PyClassHasNoInit
 def _validate_mar(patches):
     if platform.system() == "Windows":
@@ -253,6 +254,7 @@ class TestExportModelUtils:
                 ModelExportUtils.directory_filter("my-model", self.unwanted_dirs)
                 is True
             )
+
 
 def create_manifest_from_test_json(test_json):
     test_ = {k.replace("-", "_"): v for k, v in test_json.items()}
