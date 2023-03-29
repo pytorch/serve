@@ -180,62 +180,68 @@ def make_paths_absolute(test, keys):
     return test
 
 
-def test_model_archiver():
-    with open(TEST_ROOT_DIR.joinpath(INTEG_TEST_CONFIG_FILE), "r") as f:
-        tests = json.loads(f.read())
-        keys = (
-            "model-file",
-            "serialized-file",
-            "handler",
-            "extra-files",
-        )
-        tests = [make_paths_absolute(t, keys) for t in tests]
-        for test in tests:
-            # tar.gz format problem on windows hence ignore
-            if platform.system() == "Windows" and test["archive-format"] == "tgz":
-                continue
-            try:
-                test["export-path"] = os.path.join(
-                    tempfile.gettempdir(), test["export-path"]
-                )
-                delete_file_path(test.get("export-path"))
-                create_file_path(test.get("export-path"))
-                test["runtime"] = test.get("runtime", DEFAULT_RUNTIME)
-                test["model-name"] = (
-                    test["model-name"] + "_" + str(int(time.time() * 1000.0))
-                )
-                cmd = build_cmd(test)
-                if test.get("force"):
-                    cmd += " -f"
-
-                if run_test(test, cmd):
-                    validate(test)
-            finally:
-                delete_file_path(test.get("export-path"))
-
-
-def test_default_handlers():
-    with open(TEST_ROOT_DIR.joinpath(DEFAULT_HANDLER_CONFIG_FILE), "r") as f:
-        tests = json.loads(f.read())
-        keys = (
-            "model-file",
-            "serialized-file",
-            "extra-files",
-        )
-        tests = [make_paths_absolute(t, keys) for t in tests]
-        for test in tests:
+def test_model_archiver(integ_tests):
+    for test in integ_tests:
+        # tar.gz format problem on windows hence ignore
+        if platform.system() == "Windows" and test["archive-format"] == "tgz":
+            continue
+        try:
+            test["export-path"] = os.path.join(
+                tempfile.gettempdir(), test["export-path"]
+            )
+            delete_file_path(test.get("export-path"))
+            create_file_path(test.get("export-path"))
+            test["runtime"] = test.get("runtime", DEFAULT_RUNTIME)
+            test["model-name"] = (
+                test["model-name"] + "_" + str(int(time.time() * 1000.0))
+            )
             cmd = build_cmd(test)
-            try:
-                delete_file_path(test.get("export-path"))
-                create_file_path(test.get("export-path"))
+            if test.get("force"):
+                cmd += " -f"
 
-                if test.get("force"):
-                    cmd += " -f"
+            if run_test(test, cmd):
+                validate(test)
+        finally:
+            delete_file_path(test.get("export-path"))
 
-                if run_test(test, cmd):
-                    validate(test)
-            finally:
-                delete_file_path(test.get("export-path"))
+
+def test_default_handlers(default_handler_tests):
+    for test in default_handler_tests:
+        cmd = build_cmd(test)
+        try:
+            delete_file_path(test.get("export-path"))
+            create_file_path(test.get("export-path"))
+
+            if test.get("force"):
+                cmd += " -f"
+
+            if run_test(test, cmd):
+                validate(test)
+        finally:
+            delete_file_path(test.get("export-path"))
+
+
+def test_zip_store(tmp_path, integ_tests):
+    integ_tests = list(
+        filter(lambda t: t["name"] == "packaging_zip_store_mar", integ_tests)
+    )
+    assert len(integ_tests) == 1
+    test = integ_tests[0]
+
+    test["export-path"] = tmp_path
+    test["iterations"] = 1
+
+    test["model-name"] = "zip-store"
+    run_test(test, build_cmd(test))
+
+    test["model-name"] = "zip"
+    test["archive-format"] = "default"
+    run_test(test, build_cmd(test))
+
+    stored_size = Path(tmp_path).joinpath("zip-store.mar").stat().st_size
+    zipped_size = Path(tmp_path).joinpath("zip.mar").stat().st_size
+
+    assert zipped_size < stored_size
 
 
 if __name__ == "__main__":

@@ -52,14 +52,13 @@ import org.pytorch.serve.util.ServerGroups;
 import org.pytorch.serve.wlm.Model;
 import org.pytorch.serve.wlm.ModelManager;
 import org.pytorch.serve.wlm.WorkLoadManager;
+import org.pytorch.serve.wlm.WorkerInitializationException;
 import org.pytorch.serve.workflow.WorkflowManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ModelServer {
-
     private Logger logger = LoggerFactory.getLogger(ModelServer.class);
-
     private ServerGroups serverGroups;
     private Server inferencegRPCServer;
     private Server managementgRPCServer;
@@ -195,26 +194,44 @@ public class ModelServer {
 
                         ModelArchive archive =
                                 modelManager.registerModel(file.getName(), defaultModelName);
-                        modelManager.updateModel(
-                                archive.getModelName(),
-                                archive.getModelVersion(),
+                        int minWorkers =
                                 configManager.getJsonIntValue(
                                         archive.getModelName(),
                                         archive.getModelVersion(),
                                         Model.MIN_WORKERS,
-                                        workers),
+                                        workers);
+                        int maxWorkers =
                                 configManager.getJsonIntValue(
                                         archive.getModelName(),
                                         archive.getModelVersion(),
                                         Model.MAX_WORKERS,
-                                        workers),
+                                        workers);
+                        if (archive.getModelConfig() != null) {
+                            int marMinWorkers = archive.getModelConfig().getMinWorkers();
+                            int marMaxWorkers = archive.getModelConfig().getMaxWorkers();
+                            if (marMinWorkers > 0 && marMaxWorkers >= marMinWorkers) {
+                                minWorkers = marMinWorkers;
+                                maxWorkers = marMaxWorkers;
+                            } else {
+                                logger.warn(
+                                        "Invalid model config in mar, minWorkers:{}, maxWorkers:{}",
+                                        marMinWorkers,
+                                        marMaxWorkers);
+                            }
+                        }
+                        modelManager.updateModel(
+                                archive.getModelName(),
+                                archive.getModelVersion(),
+                                minWorkers,
+                                maxWorkers,
                                 true,
                                 false);
                         startupModels.add(archive.getModelName());
                     } catch (ModelException
                             | IOException
                             | InterruptedException
-                            | DownloadArchiveException e) {
+                            | DownloadArchiveException
+                            | WorkerInitializationException e) {
                         logger.warn("Failed to load model: " + file.getAbsolutePath(), e);
                     }
                 }
@@ -254,26 +271,44 @@ public class ModelServer {
                                 false,
                                 false,
                                 false);
-                modelManager.updateModel(
-                        archive.getModelName(),
-                        archive.getModelVersion(),
+                int minWorkers =
                         configManager.getJsonIntValue(
                                 archive.getModelName(),
                                 archive.getModelVersion(),
                                 Model.MIN_WORKERS,
-                                workers),
+                                workers);
+                int maxWorkers =
                         configManager.getJsonIntValue(
                                 archive.getModelName(),
                                 archive.getModelVersion(),
                                 Model.MAX_WORKERS,
-                                workers),
+                                workers);
+                if (archive.getModelConfig() != null) {
+                    int marMinWorkers = archive.getModelConfig().getMinWorkers();
+                    int marMaxWorkers = archive.getModelConfig().getMaxWorkers();
+                    if (marMinWorkers > 0 && marMaxWorkers >= marMinWorkers) {
+                        minWorkers = marMinWorkers;
+                        maxWorkers = marMaxWorkers;
+                    } else {
+                        logger.warn(
+                                "Invalid model config in mar, minWorkers:{}, maxWorkers:{}",
+                                marMinWorkers,
+                                marMaxWorkers);
+                    }
+                }
+                modelManager.updateModel(
+                        archive.getModelName(),
+                        archive.getModelVersion(),
+                        minWorkers,
+                        maxWorkers,
                         true,
                         false);
                 startupModels.add(archive.getModelName());
             } catch (ModelException
                     | IOException
                     | InterruptedException
-                    | DownloadArchiveException e) {
+                    | DownloadArchiveException
+                    | WorkerInitializationException e) {
                 logger.warn("Failed to load model: " + url, e);
             }
         }

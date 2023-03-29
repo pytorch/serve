@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 public class RequestInput {
+    public static final String TS_STREAM_NEXT = "ts_stream_next";
 
     private String requestId;
     private Map<String, String> headers;
