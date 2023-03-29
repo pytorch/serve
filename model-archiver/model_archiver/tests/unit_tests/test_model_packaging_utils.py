@@ -260,6 +260,7 @@ def create_manifest_from_test_json(test_json):
     test_ = {k.replace("-", "_"): v for k, v in test_json.items()}
     test_["requirements_file"] = ""
     test_["runtime"] = RuntimeType.PYTHON3.value
+    test_["config_file"] = ""
 
     args = namedtuple("Model", test_.keys())(**test_)
     manifest = ModelExportUtils.generate_manifest_json(args)
@@ -281,6 +282,7 @@ def test_archive_creation_with_zip_store(tmp_path, integ_tests):
         "serialized-file",
         "handler",
         "extra-files",
+        "config-file",
     )
 
     for k in keys:
