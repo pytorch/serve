@@ -1,12 +1,15 @@
 import json
 import platform
+import shutil
 from collections import namedtuple
+from pathlib import Path
 
 import pytest
 from model_archiver.manifest_components.manifest import RuntimeType
 from model_archiver.model_archiver_error import ModelArchiverError
 from model_archiver.model_packaging_utils import ModelExportUtils
 
+MANIFEST_FILE = Path(__file__).parents[1].joinpath("integ_tests/MAR-INF/MANIFEST.json")
 
 # noinspection PyClassHasNoInit
 def _validate_mar(patches):
@@ -81,8 +84,9 @@ class TestExportModelUtils:
 
             assert ar_opts.get("tgz") == ".tar.gz"
             assert ar_opts.get("no-archive") == ""
+            assert ar_opts.get("zip-store") == ".mar"
             assert ar_opts.get("default") == ".mar"
-            assert len(ar_opts) == 3
+            assert len(ar_opts) == 4
 
     # noinspection PyClassHasNoInit
     class TestCustomModelTypes:
@@ -249,3 +253,52 @@ class TestExportModelUtils:
                 ModelExportUtils.directory_filter("my-model", self.unwanted_dirs)
                 is True
             )
+
+def create_manifest_from_test_json(test_json):
+    test_ = {k.replace("-", "_"): v for k, v in test_json.items()}
+    test_["requirements_file"] = ""
+    test_["runtime"] = RuntimeType.PYTHON3.value
+
+    args = namedtuple("Model", test_.keys())(**test_)
+    manifest = ModelExportUtils.generate_manifest_json(args)
+    return manifest
+
+
+def test_archive_creation_with_zip_store(tmp_path, integ_tests):
+    integ_tests = list(
+        filter(lambda t: t["name"] == "packaging_zip_store_mar", integ_tests)
+    )
+    assert len(integ_tests) == 1
+    test = integ_tests[0]
+
+    model_dir = Path(tmp_path).joinpath("model_dir")
+    model_dir.mkdir()
+
+    keys = (
+        "model-file",
+        "serialized-file",
+        "handler",
+        "extra-files",
+    )
+
+    for k in keys:
+        shutil.copy(test[k], model_dir)
+
+    manifest = create_manifest_from_test_json(test)
+
+    ModelExportUtils.archive(
+        tmp_path,
+        "zip-store",
+        model_dir.as_posix(),
+        manifest,
+        archive_format="zip-store",
+    )
+
+    ModelExportUtils.archive(
+        tmp_path, "zip", model_dir.as_posix(), manifest, archive_format="default"
+    )
+
+    stored_size = Path(tmp_path).joinpath("zip-store.mar").stat().st_size
+    zipped_size = Path(tmp_path).joinpath("zip.mar").stat().st_size
+
+    assert zipped_size < stored_size

@@ -93,7 +93,7 @@ optional arguments:
                         is an optional parameter. If --export-path is not
                         specified, the file will be saved in the current
                         working directory.
-  --archive-format {tgz,default}
+  --archive-format {tgz, no-archive, zip-store, default}
                         The format in which the model artifacts are archived.
                         "tgz": This creates the model-archive in <model-name>.tar.gz format.
                         If platform hosting requires model-artifacts to be in ".tar.gz"
@@ -102,6 +102,9 @@ optional arguments:
                         at "export-path/{model-name}" location. As a result of this choice,
                         MANIFEST file will be created at "export-path/{model-name}" location
                         without archiving these model files
+                        "zip-store": This creates the model-archive in <model-name>.mar format
+                        but will skip deflating the files to speed up creation. Mainly used
+                        for testing purposes
                         "default": This creates the model-archive in <model-name>.mar format.
                         This is the default archiving format. Models archived in this format
                         will be readily hostable on TorchServe.
@@ -205,7 +208,7 @@ This will package all the model artifacts files and output `densenet_161.mar` in
 
 
 ### Model specific custom python requirements
-Custom models/handlers may depend on different python packages which are not installed by-default as a part of `TorchServe` setup. 
+Custom models/handlers may depend on different python packages which are not installed by-default as a part of `TorchServe` setup.
 Supply a [python requirements](https://pip.pypa.io/en/stable/user_guide/#requirements-files) file containing the list of required python packages to be installed by `TorchServe` for seamless model serving using `--requirements-file` parameter while creating the model-archiver.
 
 Example:

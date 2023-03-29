@@ -99,7 +99,7 @@ class ArgParser(object):
             required=False,
             type=str,
             default="default",
-            choices=["tgz", "no-archive", "default"],
+            choices=["tgz", "no-archive", "zip-store", "default"],
             help="The format in which the model artifacts are archived.\n"
             '"tgz": This creates the model-archive in <model-name>.tar.gz format.\n'
             'If platform hosting TorchServe requires model-artifacts to be in ".tar.gz"\n'
@@ -108,6 +108,9 @@ class ArgParser(object):
             'at "export-path/{model-name}" location. As a result of this choice, \n'
             'MANIFEST file will be created at "export-path/{model-name}" location\n'
             "without archiving these model files\n"
+            '"zip-store": This creates the model-archive in <model-name>.mar format\n'
+            "but will skip deflating the files to speed up creation. Mainly used\n"
+            "for testing purposes\n"
             '"default": This creates the model-archive in <model-name>.mar format.\n'
             "This is the default archiving format. Models archived in this format\n"
             "will be readily hostable on native TorchServe.\n",
