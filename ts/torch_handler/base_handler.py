@@ -113,7 +113,6 @@ class BaseHandler(abc.ABC):
             self.map_location = "cuda"
             self.device = torch.device(self.map_location + ":" + str(properties.get("gpu_id")))
         elif TORCHXLA_AVAILABLE:
-            self.map_location = "xla"
             self.device = xm.xla_device()
         else:
             self.map_location = "cpu"
@@ -253,7 +252,8 @@ class BaseHandler(abc.ABC):
         model_class = model_class_definitions[0]
         model = model_class()
         if model_pt_path:
-            state_dict = torch.load(model_pt_path, map_location=self.device)
+            map_location = None if (TORCHXLA_AVAILABLE and self.map_location is None) else self.device
+            state_dict = torch.load(model_pt_path, map_location=map_location)
             model.load_state_dict(state_dict)
         return model
 
