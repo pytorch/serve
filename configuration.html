@@ -631,6 +631,11 @@ This is used in conjunction with <code class="docutils literal notranslate"><spa
 <span class="s">}</span>
 </pre></div>
 </div>
+<p>As of version 0.8.0, TorchServe allows for model configuration using a YAML file embedded in the MAR file. This YAML file contains two distinct parts that determine how a model is configured: frontend parameters and backend parameters. (see <a class="reference external" href="https://github.com/pytorch/serve/tree/master/model-archiver">details</a>)</p>
+<ul class="simple">
+<li><p>The frontend parameters are controlled by TorchServe’s frontend and specify the parameter name and default values. TorchServe now uses a priority order to determine the final value of a model’s parameters in frontend. Specifically, the config.property file has the lowest priority, followed by the model configuration YAML file, and finally, the REST or gRPC model management API has the highest priority.</p></li>
+<li><p>The backend parameters are fully controlled by the user. Users customized handler can access the backend parameters via the <code class="docutils literal notranslate"><span class="pre">model_yaml_config</span></code> property of the context object.</p></li>
+</ul>
 </section>
 <section id="other-properties">
 <h3><span class="section-number">5.3.14. </span>Other properties<a class="headerlink" href="#other-properties" title="Permalink to this headline">¶</a></h3>
