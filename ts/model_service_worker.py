@@ -136,6 +136,9 @@ class TorchModelServiceWorker(object):
                 # Handles Case A: CUDA error: CUBLAS_STATUS_NOT_INITIALIZED (Close to OOM) &
                 # Case B: CUDA out of memory (OOM)
                 return None, "System out of memory", 507
+            else:
+                # Sanity testcases fail without this
+                return None, "Unknown exception", 500
 
     def handle_connection(self, cl_socket):
         """
