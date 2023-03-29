@@ -22,7 +22,7 @@ def test_no_model_loaded():
     os.makedirs(MODELSTORE_DIR, exist_ok=True)  # Create modelstore directory
     test_utils.start_torchserve(model_store=MODELSTORE_DIR)
 
-    response = requests.post(url="http://localhost:8080/predictions/alexnet", data=open(data_file_kitten, 'rb'))
+    response = requests.post(url="http://localhost:8080/models/alexnet/invoke", data=open(data_file_kitten, 'rb'))
     assert response.status_code == 404, "Model not loaded error expected"
 
 @pytest.mark.skipif(
@@ -84,14 +84,14 @@ def test_oom_on_invoke():
     # Make 8 curl requests in parallel with &
     # Send multiple requests to make sure to hit OOM
     for i in range(10):
-        response = os.popen(f"curl http://127.0.0.1:8080/predictions/BERTSeqClassification -T {input_text} && " \
-        f"curl http://127.0.0.1:8080/predictions/BERTSeqClassification -T {input_text} && "\
-        f"curl http://127.0.0.1:8080/predictions/BERTSeqClassification -T {input_text} && "\
-        f"curl http://127.0.0.1:8080/predictions/BERTSeqClassification -T {input_text} && "\
-        f"curl http://127.0.0.1:8080/predictions/BERTSeqClassification -T {input_text} && "\
-        f"curl http://127.0.0.1:8080/predictions/BERTSeqClassification -T {input_text} && "\
-        f"curl http://127.0.0.1:8080/predictions/BERTSeqClassification -T {input_text} && "\
-        f"curl http://127.0.0.1:8080/predictions/BERTSeqClassification -T {input_text} ")
+        response = os.popen(f"curl http://127.0.0.1:8080/models/BERTSeqClassification/invoke -T {input_text} && " \
+        f"curl http://127.0.0.1:8080/models/BERTSeqClassification/invoke -T {input_text} && "\
+        f"curl http://127.0.0.1:8080/models/BERTSeqClassification/invoke -T {input_text} && "\
+        f"curl http://127.0.0.1:8080/models/BERTSeqClassification/invoke -T {input_text} && "\
+        f"curl http://127.0.0.1:8080/models/BERTSeqClassification/invoke -T {input_text} && "\
+        f"curl http://127.0.0.1:8080/models/BERTSeqClassification/invoke -T {input_text} && "\
+        f"curl http://127.0.0.1:8080/models/BERTSeqClassification/invoke -T {input_text} && "\
+        f"curl http://127.0.0.1:8080/models/BERTSeqClassification/invoke -T {input_text} ")
         response = response.read()
 
     # If OOM is hit, we expect code 507 to be present in the response string
