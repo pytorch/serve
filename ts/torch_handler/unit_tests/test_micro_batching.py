@@ -9,8 +9,6 @@ import pytest
 from torchvision.models.resnet import ResNet18_Weights
 
 from ts.torch_handler.image_classifier import ImageClassifier
-from ts.torch_handler.micro_batching import MicroBatching
-from ts.torch_handler.micro_batching_handler import MicroBatchingHandler
 
 from .test_utils.mock_context import MockContext
 from .test_utils.model_dir import copy_files, download_model
@@ -83,9 +81,18 @@ def context(model_dir, model_name):
     yield context
 
 
-@pytest.fixture(scope="module", params=[1, 16, 32])
-def handler(context, request):
+@pytest.fixture(scope="module")
+def micro_batching_path():
+    sys.path.append(REPO_DIR.joinpath("examples/micro_batching/").as_posix())
+    yield
+    sys.path.pop()
+
+
+@pytest.fixture(scope="module", params=[1, 8, 16])
+def handler(context, request, micro_batching_path):
     handler = ImageClassifier()
+
+    from micro_batching import MicroBatching
 
     mb_handle = MicroBatching(handler, micro_batch_size=request.param)
     handler.initialize(context)
@@ -95,16 +102,20 @@ def handler(context, request):
     return handler
 
 
-@pytest.fixture(scope="module", params=[1, 16, 32])
-def micro_batching_handler(context, request):
+@pytest.fixture(scope="module", params=[1, 8, 16])
+def micro_batching_handler(context, request, micro_batching_path):
+    from micro_batching_handler import MicroBatchingHandler
+
     handler = MicroBatchingHandler()
 
     handler.initialize(context)
 
+    handler.handle.micro_batch_size = request.param
+
     return handler
 
 
-@pytest.fixture(scope="module", params=[1, 32])
+@pytest.fixture(scope="module", params=[1, 16])
 def mixed_batch(kitten_image_bytes, dog_image_bytes, request):
     batch_size = request.param
     labels = [

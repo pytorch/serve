@@ -2,8 +2,9 @@ import json
 import logging
 from pathlib import Path
 
+from micro_batching import MicroBatching
+
 from ts.torch_handler.image_classifier import ImageClassifier
-from ts.torch_handler.micro_batching import MicroBatching
 
 logger = logging.getLogger(__name__)
 

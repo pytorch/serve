@@ -101,6 +101,12 @@ def create_mar_file(
     with open(config_file, "w") as f:
         json.dump(micro_batching_params, f)
 
+    extra_files = [
+        name_file,
+        config_file.as_posix(),
+        REPO_ROOT_DIR.joinpath("examples/micro_batching/micro_batching.py").as_posix(),
+    ]
+
     args = Namespace(
         model_name=model_name,
         version="1.0",
@@ -109,9 +115,9 @@ def create_mar_file(
             "examples", "image_classifier", "resnet_18", "model.py"
         ).as_posix(),
         handler=REPO_ROOT_DIR.joinpath(
-            "ts", "torch_handler", "micro_batching_handler.py"
+            "examples", "micro_batching", "micro_batching_handler.py"
         ).as_posix(),
-        extra_files=",".join([name_file, config_file.as_posix()]),
+        extra_files=",".join(extra_files),
         export_path=work_dir,
         requirements_file=None,
         runtime="python",
