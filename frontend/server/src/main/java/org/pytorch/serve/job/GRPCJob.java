@@ -6,6 +6,7 @@ import com.google.protobuf.ByteString;
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import org.pytorch.serve.archive.model.ModelNotFoundException;
@@ -14,8 +15,8 @@ import org.pytorch.serve.grpc.inference.PredictionResponse;
 import org.pytorch.serve.grpc.management.ManagementResponse;
 import org.pytorch.serve.grpcimpl.ManagementImpl;
 import org.pytorch.serve.http.messages.DescribeModelResponse;
-import org.pytorch.serve.metrics.Dimension;
-import org.pytorch.serve.metrics.Metric;
+import org.pytorch.serve.metrics.IMetric;
+import org.pytorch.serve.metrics.MetricCache;
 import org.pytorch.serve.util.ApiUtils;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.GRPCUtils;
@@ -27,9 +28,17 @@ import org.slf4j.LoggerFactory;
 
 public class GRPCJob extends Job {
     private static final Logger logger = LoggerFactory.getLogger(Job.class);
-    private static final Logger loggerTsMetrics =
-            LoggerFactory.getLogger(ConfigManager.MODEL_SERVER_METRICS_LOGGER);
-    private static final Dimension DIMENSION = new Dimension("Level", "Host");
+    private static final IMetric QUEUE_TIME_METRIC =
+            MetricCache.getInstance().getMetricFrontend("QueueTime");
+    private static final List<String> QUEUE_TIME_METRIC_DIMENSION_VALUES =
+            new ArrayList<String>() {
+                {
+                    // Dimension value corresponding to dimension name "Level"
+                    add("Host");
+                    // Frontend metrics by default have the last dimension as Hostname
+                    add(ConfigManager.getInstance().getHostName());
+                }
+            };
 
     private StreamObserver<PredictionResponse> predictionResponseObserver;
     private StreamObserver<ManagementResponse> managementResponseObserver;
@@ -76,18 +85,20 @@ public class GRPCJob extends Job {
                         "Waiting time ns: {}, Backend time ns: {}",
                         getScheduled() - getBegin(),
                         System.nanoTime() - getScheduled());
-                String queueTime =
-                        String.valueOf(
+                double queueTime =
+                        (double)
                                 TimeUnit.MILLISECONDS.convert(
-                                        getScheduled() - getBegin(), TimeUnit.NANOSECONDS));
-                loggerTsMetrics.info(
-                        "{}",
-                        new Metric(
-                                "QueueTime",
-                                queueTime,
-                                "ms",
-                                ConfigManager.getInstance().getHostName(),
-                                DIMENSION));
+                                        getScheduled() - getBegin(), TimeUnit.NANOSECONDS);
+                if (QUEUE_TIME_METRIC != null) {
+                    try {
+                        QUEUE_TIME_METRIC.addOrUpdate(
+                                QUEUE_TIME_METRIC_DIMENSION_VALUES, queueTime);
+                    } catch (Exception e) {
+                        logger.error("Failed to update frontend metric QueueTime: ", e);
+                    }
+                } else {
+                    logger.error("Frontend metric QueueTime not present in metric cache");
+                }
             }
         } else if (this.getCmd() == WorkerCommands.DESCRIBE) {
             try {

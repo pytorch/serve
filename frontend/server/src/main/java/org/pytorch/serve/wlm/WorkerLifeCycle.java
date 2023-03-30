@@ -14,7 +14,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.pytorch.serve.archive.model.ModelConfig;
+import org.pytorch.serve.metrics.Dimension;
 import org.pytorch.serve.metrics.Metric;
+import org.pytorch.serve.metrics.MetricCache;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.Connector;
 import org.pytorch.serve.util.messages.EnvironmentUtils;
@@ -266,10 +268,9 @@ public class WorkerLifeCycle {
                 Pattern.compile("^(INFO > )?(Torch worker started.)$");
         private static final Pattern WORKER_PID_PATTERN =
                 Pattern.compile("^(INFO > )?(\\[PID])(\\d+)$");
-        private static final Logger loggerModelMetrics =
-                LoggerFactory.getLogger(ConfigManager.MODEL_METRICS_LOGGER);
         private static final Logger loggerModelOutput =
                 LoggerFactory.getLogger(ConfigManager.MODEL_LOGGER);
+        private final MetricCache metricCache;
         private InputStream is;
         private boolean error;
         private WorkerLifeCycle lifeCycle;
@@ -280,6 +281,7 @@ public class WorkerLifeCycle {
             this.is = is;
             this.error = error;
             this.lifeCycle = lifeCycle;
+            this.metricCache = MetricCache.getInstance();
         }
 
         public void terminate() {
@@ -300,7 +302,33 @@ public class WorkerLifeCycle {
                         logger.info("result={}, pattern={}", result, matcher.group(2));
                         Metric parsedMetric = Metric.parse(matcher.group(3));
                         if (parsedMetric != null) {
-                            loggerModelMetrics.info(parsedMetric.toString());
+                            if (this.metricCache.getMetricBackend(parsedMetric.getMetricName())
+                                    != null) {
+                                try {
+                                    List<String> dimensionValues = new ArrayList<String>();
+                                    for (Dimension dimension : parsedMetric.getDimensions()) {
+                                        dimensionValues.add(dimension.getValue());
+                                    }
+                                    this.metricCache
+                                            .getMetricBackend(parsedMetric.getMetricName())
+                                            .addOrUpdate(
+                                                    dimensionValues,
+                                                    parsedMetric.getHostName(),
+                                                    parsedMetric.getRequestId(),
+                                                    Double.parseDouble(parsedMetric.getValue()));
+                                } catch (Exception e) {
+                                    logger.error(
+                                            "Failed to update backend metric ",
+                                            parsedMetric.getMetricName(),
+                                            ": ",
+                                            e);
+                                }
+                            } else {
+                                logger.error(
+                                        "Backend metric ",
+                                        parsedMetric.getMetricName(),
+                                        " not present in metric cache");
+                            }
                         } else {
                             logger.error("Failed to parse metrics line: \"{}\".", result);
                         }

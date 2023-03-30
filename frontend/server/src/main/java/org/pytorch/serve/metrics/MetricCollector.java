@@ -20,12 +20,12 @@ import org.slf4j.LoggerFactory;
 public class MetricCollector implements Runnable {
 
     private static final Logger logger = LoggerFactory.getLogger(MetricCollector.class);
-    private static final Logger loggerMetrics =
-            LoggerFactory.getLogger(ConfigManager.MODEL_SERVER_METRICS_LOGGER);
     private ConfigManager configManager;
+    private MetricCache metricCache;
 
     public MetricCollector(ConfigManager configManager) {
         this.configManager = configManager;
+        this.metricCache = MetricCache.getInstance();
     }
 
     @Override
@@ -79,7 +79,32 @@ public class MetricCollector implements Runnable {
                     if (metric == null) {
                         logger.warn("Parse metrics failed: " + line);
                     } else {
-                        loggerMetrics.info("{}", metric);
+                        if (this.metricCache.getMetricFrontend(metric.getMetricName()) != null) {
+                            try {
+                                List<String> dimensionValues = new ArrayList<String>();
+                                for (Dimension dimension : metric.getDimensions()) {
+                                    dimensionValues.add(dimension.getValue());
+                                }
+                                // Frontend metrics by default have the last dimension as hostname
+                                dimensionValues.add(metric.getHostName());
+                                this.metricCache
+                                        .getMetricFrontend(metric.getMetricName())
+                                        .addOrUpdate(
+                                                dimensionValues,
+                                                Double.parseDouble(metric.getValue()));
+                            } catch (Exception e) {
+                                logger.error(
+                                        "Failed to update frontend metric ",
+                                        metric.getMetricName(),
+                                        ": ",
+                                        e);
+                            }
+                        } else {
+                            logger.error(
+                                    "Frontend metric ",
+                                    metric.getMetricName(),
+                                    " not present in metric cache");
+                        }
                         metricsSystem.add(metric);
                     }
                 }

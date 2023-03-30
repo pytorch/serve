@@ -28,8 +28,8 @@ import java.util.stream.Collectors;
 import org.pytorch.serve.archive.model.ModelConfig;
 import org.pytorch.serve.job.Job;
 import org.pytorch.serve.job.RestJob;
-import org.pytorch.serve.metrics.Dimension;
-import org.pytorch.serve.metrics.Metric;
+import org.pytorch.serve.metrics.IMetric;
+import org.pytorch.serve.metrics.MetricCache;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.Connector;
 import org.pytorch.serve.util.codec.ModelRequestEncoder;
@@ -45,8 +45,6 @@ import org.slf4j.LoggerFactory;
 public class WorkerThread implements Runnable {
 
     private static final Logger logger = LoggerFactory.getLogger(WorkerThread.class);
-    private static final Logger loggerTsMetrics =
-            LoggerFactory.getLogger(ConfigManager.MODEL_SERVER_METRICS_LOGGER);
     private static final Logger loggerTelemetryMetrics =
             LoggerFactory.getLogger(ConfigManager.MODEL_SERVER_TELEMETRY_LOGGER);
     private static final int[] BACK_OFF = {
@@ -55,7 +53,20 @@ public class WorkerThread implements Runnable {
     private static final long WORKER_TIMEOUT = 2L;
     private static final ModelRequestEncoder ENCODER =
             new ModelRequestEncoder(ConfigManager.getInstance().getPreferDirectBuffer());
-    private Metric workerLoadTime;
+    private static final IMetric WORKER_THREAD_TIME_METRIC =
+            MetricCache.getInstance().getMetricFrontend("WorkerThreadTime");
+    private static final IMetric WORKER_LOAD_TIME_METRIC =
+            MetricCache.getInstance().getMetricFrontend("WorkerLoadTime");
+    private static final List<String> WORKER_THREAD_TIME_METRIC_DIMENSION_VALUES =
+            new ArrayList<String>() {
+                {
+                    // Dimension value corresponding to dimension name "Level"
+                    add("Host");
+                    // Frontend metrics by default have the last dimension as Hostname
+                    add(ConfigManager.getInstance().getHostName());
+                }
+            };
+    private final List<String> workerLoadTimeMetricDimensionValues;
     private ConfigManager configManager;
     private EventLoopGroup backendEventGroup;
     private int port;
@@ -98,13 +109,17 @@ public class WorkerThread implements Runnable {
         startTime = System.currentTimeMillis();
         lifeCycle = new WorkerLifeCycle(configManager, model);
         replies = new ArrayBlockingQueue<>(model.getParallelLevel());
-        workerLoadTime =
-                new Metric(
-                        getWorkerName(),
-                        String.valueOf(System.currentTimeMillis()),
-                        "ms",
-                        ConfigManager.getInstance().getHostName(),
-                        new Dimension("Level", "Host"));
+        this.workerLoadTimeMetricDimensionValues =
+                new ArrayList<String>() {
+                    {
+                        // Dimension value corresponding to dimension name "WorkerName"
+                        add(getWorkerName());
+                        // Dimension value corresponding to dimension name "Level"
+                        add("Host");
+                        // Frontend metrics by default have the last dimension as Hostname
+                        add(ConfigManager.getInstance().getHostName());
+                    }
+                };
     }
 
     public WorkerState getState() {
@@ -256,17 +271,18 @@ public class WorkerThread implements Runnable {
                         break;
                 }
                 req = null;
-                String workerThreadTime =
-                        String.valueOf(
-                                ((System.currentTimeMillis() - wtStartTime) - totalDuration));
-                loggerTsMetrics.info(
-                        "{}",
-                        new Metric(
-                                "WorkerThreadTime",
-                                workerThreadTime,
-                                "ms",
-                                ConfigManager.getInstance().getHostName(),
-                                new Dimension("Level", "Host")));
+                double workerThreadTime =
+                        (double) ((System.currentTimeMillis() - wtStartTime) - duration);
+                if (WORKER_THREAD_TIME_METRIC != null) {
+                    try {
+                        WORKER_THREAD_TIME_METRIC.addOrUpdate(
+                                WORKER_THREAD_TIME_METRIC_DIMENSION_VALUES, workerThreadTime);
+                    } catch (Exception e) {
+                        logger.error("Failed to update frontend metric WorkerThreadTime: ", e);
+                    }
+                } else {
+                    logger.error("Frontend metric WorkerThreadTime not present in metric cache");
+                }
             }
         } catch (InterruptedException e) {
             logger.debug("System state is : " + state);
@@ -470,7 +486,7 @@ public class WorkerThread implements Runnable {
                 model.getModelVersionName().getVersionedModelName(), newState, status);
         logger.debug("{} State change {} -> {}", getWorkerName(), state, newState);
         long currentTS = System.currentTimeMillis();
-        long timeTaken = currentTS - startTime;
+        double timeTaken = (double) (currentTS - startTime);
         if (state != WorkerState.WORKER_SCALED_DOWN) {
             // Don't update the state if it was terminated on purpose.. Scaling in..
             this.state = newState;
@@ -480,7 +496,16 @@ public class WorkerThread implements Runnable {
             workerLoadTime.setValue(String.valueOf(timeTaken));
             workerLoadTime.setTimestamp(
                     String.valueOf(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis())));
-            loggerTsMetrics.info("{}", workerLoadTime);
+            if (WORKER_LOAD_TIME_METRIC != null) {
+                try {
+                    WORKER_LOAD_TIME_METRIC.addOrUpdate(
+                            this.workerLoadTimeMetricDimensionValues, timeTaken);
+                } catch (Exception e) {
+                    logger.error("Failed to update frontend metric WorkerLoadTime: ", e);
+                }
+            } else {
+                logger.error("Frontend metric WorkerLoadTime not present in metric cache");
+            }
             if (recoveryStartTS > 0) {
                 logger.info("Auto recovery succeeded, reset recoveryStartTS");
                 recoveryStartTS = 0;

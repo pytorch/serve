@@ -24,12 +24,13 @@ import io.netty.util.AttributeKey;
 import io.netty.util.CharsetUtil;
 import java.io.IOException;
 import java.net.SocketAddress;
+import java.util.ArrayList;
 import java.util.List;
 import org.pytorch.serve.http.ErrorResponse;
 import org.pytorch.serve.http.Session;
 import org.pytorch.serve.http.StatusResponse;
-import org.pytorch.serve.metrics.Dimension;
-import org.pytorch.serve.metrics.Metric;
+import org.pytorch.serve.metrics.IMetric;
+import org.pytorch.serve.metrics.MetricCache;
 import org.pytorch.serve.util.messages.InputParameter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,31 +42,21 @@ public final class NettyUtils {
 
     private static final String REQUEST_ID = "x-request-id";
     private static final AttributeKey<Session> SESSION_KEY = AttributeKey.valueOf("session");
-    private static final Dimension DIMENSION = new Dimension("Level", "Host");
-    private static final Metric REQUESTS_2_XX =
-            new Metric(
-                    "Requests2XX",
-                    "1",
-                    "Count",
-                    ConfigManager.getInstance().getHostName(),
-                    DIMENSION);
-    private static final Metric REQUESTS_4_XX =
-            new Metric(
-                    "Requests4XX",
-                    "1",
-                    "Count",
-                    ConfigManager.getInstance().getHostName(),
-                    DIMENSION);
-    private static final Metric REQUESTS_5_XX =
-            new Metric(
-                    "Requests5XX",
-                    "1",
-                    "Count",
-                    ConfigManager.getInstance().getHostName(),
-                    DIMENSION);
-
-    private static final Logger loggerTsMetrics =
-            LoggerFactory.getLogger(ConfigManager.MODEL_SERVER_METRICS_LOGGER);
+    private static final IMetric REQUESTS_2XX_METRIC =
+            MetricCache.getInstance().getMetricFrontend("Requests2XX");
+    private static final IMetric REQUESTS_4XX_METRIC =
+            MetricCache.getInstance().getMetricFrontend("Requests4XX");
+    private static final IMetric REQUESTS_5XX_METRIC =
+            MetricCache.getInstance().getMetricFrontend("Requests5XX");
+    private static final List<String> REQUESTS_METRIC_DIMENSION_VALUES =
+            new ArrayList<String>() {
+                {
+                    // Dimension value corresponding to dimension name "Level"
+                    add("Host");
+                    // Frontend metrics by default have the last dimension as Hostname
+                    add(ConfigManager.getInstance().getHostName());
+                }
+            };
 
     private NettyUtils() {}
 
@@ -158,11 +149,35 @@ public final class NettyUtils {
         }
         int code = resp.status().code();
         if (code >= 200 && code < 300) {
-            loggerTsMetrics.info("{}", REQUESTS_2_XX);
+            if (REQUESTS_2XX_METRIC != null) {
+                try {
+                    REQUESTS_2XX_METRIC.addOrUpdate(REQUESTS_METRIC_DIMENSION_VALUES, 1);
+                } catch (Exception e) {
+                    logger.error("Failed to update frontend metric Requests2XX: ", e);
+                }
+            } else {
+                logger.error("Frontend metric Requests2XX not present in metric cache");
+            }
         } else if (code >= 400 && code < 500) {
-            loggerTsMetrics.info("{}", REQUESTS_4_XX);
+            if (REQUESTS_4XX_METRIC != null) {
+                try {
+                    REQUESTS_4XX_METRIC.addOrUpdate(REQUESTS_METRIC_DIMENSION_VALUES, 1);
+                } catch (Exception e) {
+                    logger.error("Failed to update frontend metric Requests4XX: ", e);
+                }
+            } else {
+                logger.error("Frontend metric Requests4XX not present in metric cache");
+            }
         } else {
-            loggerTsMetrics.info("{}", REQUESTS_5_XX);
+            if (REQUESTS_5XX_METRIC != null) {
+                try {
+                    REQUESTS_5XX_METRIC.addOrUpdate(REQUESTS_METRIC_DIMENSION_VALUES, 1);
+                } catch (Exception e) {
+                    logger.error("Failed to update frontend metric Requests5XX: ", e);
+                }
+            } else {
+                logger.error("Frontend metric Requests5XX not present in metric cache");
+            }
         }
 
         String allowedOrigin = configManager.getCorsAllowedOrigin();
