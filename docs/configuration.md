@@ -266,11 +266,13 @@ models={\
   }\
 }
 ```
-As of version 0.8.0, TorchServe allows for model configuration using a YAML file embedded in the MAR file. This YAML file contains two distinct parts that determine how a model is configured: frontend parameters and backend parameters. (see [details](https://github.com/pytorch/serve/tree/master/model-archiver))
+Starting from version 0.8.0, TorchServe allows for model configuration using a YAML file embedded in the MAR file. This YAML file contains two distinct parts that determine how a model is configured: frontend parameters and backend parameters. (see [details](https://github.com/pytorch/serve/tree/master/model-archiver#config-file))
 
 * The frontend parameters are controlled by TorchServe's frontend and specify the parameter name and default values. TorchServe now uses a priority order to determine the final value of a model's parameters in frontend. Specifically, the config.property file has the lowest priority, followed by the model configuration YAML file, and finally, the REST or gRPC model management API has the highest priority.
 
-* The backend parameters are fully controlled by the user. Users customized handler can access the backend parameters via the `model_yaml_config` property of the context object.
+* The backend parameters are fully controlled by the user. Users customized handler can access the backend parameters via the `model_yaml_config` property of the [context object](https://github.com/pytorch/serve/blob/master/ts/context.py#L24).
+
+* User can allocate specific GPU device IDs to a model by defining "deviceIds" in the frontend parameters in the YAML file. TorchServe uses a round-robin strategy to assign device IDs to a model's worker. If specified in the YAML file, it round-robins the device IDs listed; otherwise, it uses all visible device IDs on the host.
 
 ### Other properties
 
