@@ -24,30 +24,21 @@ ARG PYTHON_VERSION=3.9
 ENV PYTHONUNBUFFERED TRUE
 
 RUN --mount=type=cache,id=apt-dev,target=/var/cache/apt \
-    #apt --fix-broken -y install && \
     apt-get update && \
     apt-get upgrade -y && \
     apt-get install software-properties-common -y && \
     add-apt-repository -y ppa:deadsnakes/ppa && \
     apt remove python-pip  python3-pip && \
     DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
-    ca-certificates \
-    g++ \
-    python$PYTHON_VERSION \
-    python$PYTHON_VERSION-dev \
-    python3-distutils \
-    python$PYTHON_VERSION-venv \
-    python3-venv \
-    openjdk-17-jdk \
-    curl \
-    && rm -rf /var/lib/apt/lists/* \
-    && cd /tmp \
-    && curl -O https://bootstrap.pypa.io/get-pip.py \
-    && python$PYTHON_VERSION get-pip.py
-
-
-RUN update-alternatives --install /usr/bin/python python /usr/bin/python$PYTHON_VERSION 1 \
-    && update-alternatives --install /usr/local/bin/pip pip /usr/local/bin/pip3 1
+        ca-certificates \
+        g++ \
+        python3-distutils \
+        python$PYTHON_VERSION \
+        python$PYTHON_VERSION-dev \
+        python$PYTHON_VERSION-venv \
+        openjdk-17-jdk \
+        curl \
+    && rm -rf /var/lib/apt/lists/*
 
 RUN python$PYTHON_VERSION -m venv /home/venv
 
