@@ -100,12 +100,13 @@ public class WorkerLifeCycle {
         }
 
         ArrayList<String> argl = new ArrayList<>();
-        List<String> envp =
+        ArrayList<String> envp = new ArrayList<>();
+        envp.addAll(
                 Arrays.asList(
                         EnvironmentUtils.getEnvString(
                                 workingDir.getAbsolutePath(),
                                 modelPath.getAbsolutePath(),
-                                model.getModelArchive().getManifest().getModel().getHandler()));
+                                model.getModelArchive().getManifest().getModel().getHandler())));
 
         if (model.getParallelLevel() > 1) {
             attachRunner(argl, envp, port, deviceIds);
@@ -201,7 +202,7 @@ public class WorkerLifeCycle {
         } else {
             argl.add(String.format("localhost:%d", port));
         }
-        argl.add("--rdzv_id=");
+        argl.add("--rdzv_id");
         argl.add(String.format("%s_%d", model.getModelName(), port));
         if (torchRun.getMasterAddr() != null) {
             argl.add("--master-addr");

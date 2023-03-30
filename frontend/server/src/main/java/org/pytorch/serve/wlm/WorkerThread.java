@@ -515,7 +515,7 @@ public class WorkerThread implements Runnable {
 
     private String getDeviceIds() {
         List<Integer> deviceIds;
-        if (gpuId == -1) {
+        if (gpuId == -1 || model.getParallelLevel() == 1) {
             return null;
         } else if (model.isHasCfgDeviceIds()) {
             return model.getDeviceIds().subList(gpuId, gpuId + model.getParallelLevel()).stream()
