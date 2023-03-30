@@ -98,7 +98,9 @@ def handler(context, request, micro_batching_path):
 
     handler.handle = mb_handle
 
-    return handler
+    yield handler
+
+    mb_handle.shutdown()
 
 
 @pytest.fixture(scope="module", params=[1, 8, 16])
@@ -111,7 +113,9 @@ def micro_batching_handler(context, request, micro_batching_path):
 
     handler.handle.micro_batch_size = request.param
 
-    return handler
+    yield handler
+
+    handler.handle.shutdown()
 
 
 @pytest.fixture(scope="module", params=[1, 16])

@@ -1,5 +1,6 @@
-import asyncio
 import os
+import queue
+import threading
 import time
 from typing import Dict
 
@@ -10,35 +11,14 @@ except ImportError:
     PROFILER_AVAILABLE = False
 
 
-async def execute_call(in_queue, out_queue, handle):
-    while True:
-        in_data = await in_queue.get()
+def execute_call(in_queue, out_queue, handle, event):
+    while not event.is_set():
+        try:
+            idx, in_data = in_queue.get(timeout=0.5)
+        except queue.Empty:
+            continue
         out_data = handle(in_data)
-        await out_queue.put(out_data)
-
-
-async def execute_serial_calls(calls, batches):
-
-    queues = [asyncio.Queue()]
-    tasks = []
-
-    for c, p in calls:
-        queues.append(asyncio.Queue())
-        for _ in range(p):
-            t = asyncio.create_task(execute_call(queues[-2], queues[-1], c))
-            tasks.append(t)
-
-    for b in batches:
-        queues[0].put_nowait(b)
-
-    output = []
-    while len(output) != len(batches):
-        output.append(await queues[-1].get())
-
-    for t in tasks:
-        t.cancel()
-
-    return output
+        out_queue.put((idx, out_data))
 
 
 HANDLER_METHODS = ["preprocess", "inference", "postprocess"]
@@ -51,23 +31,47 @@ class MicroBatching(object):
         self.handler = parent_handler
         self.micro_batch_size = micro_batch_size
         self.parallelism = parallelism if parallelism is not None else {}
+        self.threads = []
+        self.queues = []
+        self.terminate = threading.Event()
+        self.initialize_threads()
 
-    def handle(self, data):
+    def shutdown(self):
+        self.terminate.set()
+        for t in self.threads:
+            t.join()
 
-        serial_calls = (
+    def initialize_threads(self):
+        calls = (
             (getattr(self.handler, c), self.parallelism.get(c, 2))
             for c in HANDLER_METHODS
         )
 
-        micro_batches = []
-        for i in range(0, len(data), self.micro_batch_size):
-            micro_batches.append(data[i : i + self.micro_batch_size])
+        self.queues.append(queue.Queue())
+        tasks = []
 
-        execute = execute_serial_calls(serial_calls, micro_batches)
+        for c, p in calls:
+            self.queues.append(queue.Queue())
+            for _ in range(p):
+                t = threading.Thread(
+                    target=execute_call,
+                    args=(self.queues[-2], self.queues[-1], c, self.terminate),
+                )
+                t.start()
+                tasks.append(t)
 
-        output = asyncio.run(execute)
+    def handle(self, data):
 
-        return [item for batch in output for item in batch]
+        num_batches = 0
+        for idx, i in enumerate(range(0, len(data), self.micro_batch_size)):
+            self.queues[0].put_nowait((idx, data[i : i + self.micro_batch_size]))
+            num_batches += 1
+
+        output = []
+        while len(output) != num_batches:
+            output.append(self.queues[-1].get())
+
+        return [item for batch in sorted(output) for item in batch[1]]
 
     def __call__(self, data, context):
         """Entry point for default handler. It takes the data from the input request and returns
