@@ -18,9 +18,18 @@
 
 ARG BASE_IMAGE=ubuntu:rolling
 
+# Note:
+# Define here the default python version to be used in all later build-stages as default.
+# ARG and ENV variables do not persist across stages (they're build-stage scoped).
+# That is crucial for ARG PYTHON_VERSION, which otherwise becomes "" leading to nasty bugs,
+# that don't let the build fail, but break current version handling logic and result
+# in images with wrong python version. To fix that, we will restate the ARG PYTHON_VERSION
+# on each build-stage.
+ARG PYTHON_VERSION=3.9
+
 FROM ${BASE_IMAGE} AS compile-image
 ARG BASE_IMAGE=ubuntu:rolling
-ARG PYTHON_VERSION=3.9
+ARG PYTHON_VERSION
 ENV PYTHONUNBUFFERED TRUE
 
 RUN --mount=type=cache,id=apt-dev,target=/var/cache/apt \
@@ -40,8 +49,10 @@ RUN --mount=type=cache,id=apt-dev,target=/var/cache/apt \
         curl \
     && rm -rf /var/lib/apt/lists/*
 
+# Make the virtual environment and "activating" it by adding it first to the path.
+# From here on the python$PYTHON_VERSION interpreter is used and the packages
+# are installed in /home/venv which is what we need for the "runtime-image"
 RUN python$PYTHON_VERSION -m venv /home/venv
-
 ENV PATH="/home/venv/bin:$PATH"
 
 RUN python -m pip install -U pip setuptools
@@ -71,11 +82,8 @@ RUN python -m pip install --no-cache-dir captum torchtext torchserve torch-model
 
 # Final image for production
 FROM ${BASE_IMAGE} AS runtime-image 
-# Important note:
-# Redefine ARGs and ENV variables because they do not persist across stages (build-stage scoped).
-# Crucial for ARG PYTHON_VERSION, which otherwise becomes "" leading to nasty bugs, that 
-# don't fail, but break current version handling logic and resulting in images with wrong python version.
-ARG PYTHON_VERSION=3.9
+# Re-state ARG PYTHON_VERSION to make it active in this build-stage (uses default define at the top)
+ARG PYTHON_VERSION
 ENV PYTHONUNBUFFERED TRUE
 
 RUN --mount=type=cache,target=/var/cache/apt \
