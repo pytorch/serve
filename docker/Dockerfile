@@ -66,7 +66,8 @@ RUN TORCH_VER=$(curl --silent --location https://pypi.org/pypi/torch/json | pyth
     else \
         python -m pip install --no-cache-dir torch==$TORCH_VER+cpu torchvision==$TORCH_VISION_VER+cpu -f https://download.pytorch.org/whl/torch_stable.html; \
     fi
-RUN python -m pip install -U setuptools && python -m pip install --no-cache-dir captum torchtext torchserve torch-model-archiver
+
+RUN python -m pip install --no-cache-dir captum torchtext torchserve torch-model-archiver
 
 # Final image for production
 FROM ${BASE_IMAGE} AS runtime-image 
@@ -87,6 +88,7 @@ RUN --mount=type=cache,target=/var/cache/apt \
     python$PYTHON_VERSION \
     python3-distutils \
     python$PYTHON_VERSION-dev \
+    python$PYTHON_VERSION-venv \
     # using openjdk-17-jdk due to circular dependency(ca-certificates) bug in openjdk-17-jre-headless debian package
     # https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1009905
     openjdk-17-jdk \
