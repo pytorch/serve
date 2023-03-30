@@ -3,7 +3,7 @@
 set -o errexit -o nounset -o pipefail
 
 VERSION=$1  # 3.8, 3.9 or 3.10
-START_WAITING_TIME=10
+START_WAITING_TIME=2
 
 IMAGE="test-image-${VERSION}"
 CONTAINER="test-container-py${VERSION}"
@@ -14,7 +14,7 @@ echo "Building ${IMAGE}"
 
 healthcheck() {
     echo "Testing ${CONTAINER}..."
-    docker run -d --rm -it -p 8080:8080 --name=${CONTAINER} $IMAGE
+    docker run -d --rm -it -p 8080:8080 --name=${CONTAINER} $IMAGE > /dev/null 2>&1
 
     trap "echo stoping ${CONTAINER}; docker stop ${CONTAINER}" EXIT QUIT TERM
 
@@ -30,10 +30,12 @@ healthcheck() {
     fi
 }
 
-tmpfile=$(mktemp /tmp/pyversion.XXXXXX.txt)
 assert_py_version() {
     echo "Checking Python version..."
-    docker run --rm -it $IMAGE exec python --version > $tmpfile
+    tmpfile=$(mktemp /tmp/pyversion.XXXXXX.txt)
+    tmp_container="test_container"
+    docker run --rm -it $IMAGE exec python --name=${tmp_container} --version > $tmpfile
+    docker stop ${tmp_container} 
     if ! grep -q "Python ${VERSION}" $tmpfile 
     then
         echo "Test failed: Wrong Python version. Expected ${VERSION}, got $(cat $tmpfile)"
@@ -46,4 +48,3 @@ assert_py_version() {
 healthcheck
 assert_py_version
 
-rm -f ${tmpfile}
