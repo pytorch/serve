@@ -64,6 +64,7 @@ public class Manifest {
         private String handler;
         private String envelope;
         private String requirementsFile;
+        private String configFile;
 
         public Model() {}
 
@@ -121,6 +122,14 @@ public class Manifest {
 
         public void setEnvelope(String envelope) {
             this.envelope = envelope;
+        }
+
+        public String getConfigFile() {
+            return configFile;
+        }
+
+        public void setConfigFile(String configFile) {
+            this.configFile = configFile;
         }
     }
 

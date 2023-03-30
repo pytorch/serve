@@ -86,7 +86,7 @@ public class WorkflowArchive {
         boolean failed = true;
         try {
             File manifestFile = new File(dir, "WAR-INF/" + MANIFEST_FILE);
-            Manifest manifest = null;
+            Manifest manifest;
             if (manifestFile.exists()) {
                 manifest = readFile(manifestFile, Manifest.class);
             } else {

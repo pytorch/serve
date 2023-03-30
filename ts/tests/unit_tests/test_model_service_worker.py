@@ -43,7 +43,7 @@ def socket_patches(mocker):
 def model_service_worker(socket_patches):
     if not sys.platform.startswith("win"):
         model_service_worker = TorchModelServiceWorker(
-            "unix", "my-socket", None, None, metrics_config_path
+            "unix", "my-socket.9999", None, None, metrics_config_path
         )
     else:
         model_service_worker = TorchModelServiceWorker(
@@ -59,7 +59,7 @@ def model_service_worker(socket_patches):
     sys.platform.startswith("win"), reason="Skipping linux/darwin specific test cases"
 )
 class TestInit:
-    socket_name = "sampleSocketName"
+    socket_name = "sampleSocketName.9999"
 
     def test_missing_socket_name(self):
         with pytest.raises(ValueError, match="Incomplete data provided.*"):
@@ -72,7 +72,7 @@ class TestInit:
         path_exists.return_value = True
 
         with pytest.raises(
-            Exception, match=r".*socket already in use: sampleSocketName.*"
+            Exception, match=r".*socket already in use: sampleSocketName.9999.*"
         ):
             TorchModelServiceWorker(
                 "unix", self.socket_name, None, None, metrics_config_path

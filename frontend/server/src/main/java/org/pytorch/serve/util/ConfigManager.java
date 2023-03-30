@@ -99,6 +99,7 @@ public final class ConfigManager {
     private static final String TS_GRPC_MANAGEMENT_PORT = "grpc_management_port";
     private static final String TS_ENABLE_GRPC_SSL = "enable_grpc_ssl";
     private static final String TS_INITIAL_WORKER_PORT = "initial_worker_port";
+    private static final String TS_INITIAL_DISTRIBUTION_PORT = "initial_distribution_port";
     private static final String TS_WORKFLOW_STORE = "workflow_store";
 
     // Configuration which are not documented or enabled through environment variables
@@ -808,6 +809,14 @@ public final class ConfigManager {
 
     public void setInitialWorkerPort(int initialPort) {
         prop.setProperty(TS_INITIAL_WORKER_PORT, String.valueOf(initialPort));
+    }
+
+    public int getInitialDistributionPort() {
+        return Integer.parseInt(prop.getProperty(TS_INITIAL_DISTRIBUTION_PORT, "29500"));
+    }
+
+    public void setInitialDistributionPort(int initialPort) {
+        prop.setProperty(TS_INITIAL_DISTRIBUTION_PORT, String.valueOf(initialPort));
     }
 
     private void setModelConfig() {
