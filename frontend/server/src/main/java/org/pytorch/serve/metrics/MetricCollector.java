@@ -20,12 +20,12 @@ import org.slf4j.LoggerFactory;
 public class MetricCollector implements Runnable {
 
     private static final Logger logger = LoggerFactory.getLogger(MetricCollector.class);
+
+    private static final MetricCache METRIC_CACHE = MetricCache.getInstance();
     private ConfigManager configManager;
-    private MetricCache metricCache;
 
     public MetricCollector(ConfigManager configManager) {
         this.configManager = configManager;
-        this.metricCache = MetricCache.getInstance();
     }
 
     @Override
@@ -79,7 +79,7 @@ public class MetricCollector implements Runnable {
                     if (metric == null) {
                         logger.warn("Parse metrics failed: " + line);
                     } else {
-                        if (this.metricCache.getMetricFrontend(metric.getMetricName()) != null) {
+                        if (METRIC_CACHE.getMetricFrontend(metric.getMetricName()) != null) {
                             try {
                                 List<String> dimensionValues = new ArrayList<String>();
                                 for (Dimension dimension : metric.getDimensions()) {
@@ -87,7 +87,7 @@ public class MetricCollector implements Runnable {
                                 }
                                 // Frontend metrics by default have the last dimension as hostname
                                 dimensionValues.add(metric.getHostName());
-                                this.metricCache
+                                METRIC_CACHE
                                         .getMetricFrontend(metric.getMetricName())
                                         .addOrUpdate(
                                                 dimensionValues,
