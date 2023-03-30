@@ -19,12 +19,14 @@ import java.net.HttpURLConnection;
 import java.net.SocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 import org.pytorch.serve.archive.model.ModelConfig;
 import org.pytorch.serve.job.Job;
 import org.pytorch.serve.job.RestJob;
@@ -347,7 +349,7 @@ public class WorkerThread implements Runnable {
 
     private void connect() throws WorkerInitializationException, InterruptedException {
         if (!configManager.isDebug()) {
-            lifeCycle.startWorker(port);
+            lifeCycle.startWorker(port, getDeviceIds());
         }
 
         String modelName = model.getModelName();
@@ -509,6 +511,23 @@ public class WorkerThread implements Runnable {
         manager.getScheduler()
                 .schedule(() -> manager.submitTask(this), BACK_OFF[backoffIdx], TimeUnit.SECONDS);
         logger.info("Retry worker: {} in {} seconds.", workerId, BACK_OFF[backoffIdx]);
+    }
+
+    private String getDeviceIds() {
+        List<Integer> deviceIds;
+        if (gpuId == -1) {
+            return null;
+        } else if (model.isHasCfgDeviceIds()) {
+            return model.getDeviceIds().subList(gpuId, gpuId + model.getParallelLevel()).stream()
+                    .map(String::valueOf)
+                    .collect(Collectors.joining(","));
+        } else {
+            deviceIds = new ArrayList<>(model.getParallelLevel());
+            for (int i = gpuId; i < gpuId + model.getParallelLevel(); i++) {
+                deviceIds.add(i);
+            }
+            return deviceIds.stream().map(String::valueOf).collect(Collectors.joining(","));
+        }
     }
 
     @ChannelHandler.Sharable

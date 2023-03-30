@@ -5,12 +5,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.pytorch.serve.archive.model.ModelConfig;
 import org.pytorch.serve.metrics.Metric;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.Connector;
@@ -85,7 +88,8 @@ public class WorkerLifeCycle {
         return launcherAvailable;
     }
 
-    public void startWorker(int port) throws WorkerInitializationException, InterruptedException {
+    public void startWorker(int port, String deviceIds)
+            throws WorkerInitializationException, InterruptedException {
         File workingDir = new File(configManager.getModelServerHome());
         File modelPath;
         setPort(port);
@@ -96,8 +100,15 @@ public class WorkerLifeCycle {
         }
 
         ArrayList<String> argl = new ArrayList<>();
+        List<String> envp =
+                Arrays.asList(
+                        EnvironmentUtils.getEnvString(
+                                workingDir.getAbsolutePath(),
+                                modelPath.getAbsolutePath(),
+                                model.getModelArchive().getManifest().getModel().getHandler()));
+
         if (model.getParallelLevel() > 1) {
-            attachRunner(argl, port);
+            attachRunner(argl, envp, port, deviceIds);
         } else if (model.getParallelLevel() == 1) {
             argl.add(EnvironmentUtils.getPythonRunTime(model));
         }
@@ -132,20 +143,15 @@ public class WorkerLifeCycle {
         argl.add("--metrics-config");
         argl.add(configManager.getMetricsConfigPath());
 
-        String[] envp =
-                EnvironmentUtils.getEnvString(
-                        workingDir.getAbsolutePath(),
-                        modelPath.getAbsolutePath(),
-                        model.getModelArchive().getManifest().getModel().getHandler());
-
         try {
             latch = new CountDownLatch(model.getParallelLevel());
 
             String[] args = argl.toArray(new String[argl.size()]);
+            String[] envs = envp.toArray(new String[envp.size()]);
             logger.debug("Worker cmdline: {}", argl.toString());
 
             synchronized (this) {
-                process = Runtime.getRuntime().exec(args, envp, modelPath);
+                process = Runtime.getRuntime().exec(args, envs, modelPath);
 
                 String threadName =
                         "W-" + port + '-' + model.getModelVersionName().getVersionedModelName();
@@ -171,16 +177,38 @@ public class WorkerLifeCycle {
         }
     }
 
-    private void attachRunner(ArrayList<String> argl, int port) {
-        System.setProperty("LOGLEVEL", "INFO");
+    private void attachRunner(
+            ArrayList<String> argl, List<String> envp, int port, String deviceIds) {
+        envp.add("LOGLEVEL=INFO");
+        if (deviceIds != null) {
+            envp.add("CUDA_VISIBLE_DEVICES=" + deviceIds);
+        }
+        ModelConfig.TorchRun torchRun = model.getModelArchive().getModelConfig().getTorchRun();
         argl.add("torchrun");
-        argl.add("--nnodes=1");
-        argl.add("--nproc_per_node=" + model.getParallelLevel());
-        argl.add("--max_restarts=3");
-        argl.add("--log_dir=/tmp/torchelastic_ts");
-        argl.add("--rdzv_backend=c10d");
-        argl.add("--rdzv_endpoint=localhost:" + port);
-        argl.add("--rdzv_id=" + model.getModelName() + "_" + port);
+        argl.add("--nnodes");
+        argl.add(String.valueOf(torchRun.getNnodes()));
+        argl.add("--nproc_per_node");
+        argl.add(String.valueOf(torchRun.getNprocPerNode()));
+        argl.add("--max_restarts");
+        argl.add(String.valueOf(torchRun.getMaxRestarts()));
+        argl.add("--log_dir");
+        argl.add("/tmp/torchelastic_ts");
+        argl.add("--rdzv_backend");
+        argl.add(torchRun.getRdzvBackend());
+        argl.add("--rdzv_endpoint");
+        if (torchRun.getRdzvEndpoint() != null) {
+            argl.add(torchRun.getRdzvEndpoint());
+        } else {
+            argl.add(String.format("localhost:%d", port));
+        }
+        argl.add("--rdzv_id=");
+        argl.add(String.format("%s_%d", model.getModelName(), port));
+        if (torchRun.getMasterAddr() != null) {
+            argl.add("--master-addr");
+            argl.add(torchRun.getMasterAddr());
+            argl.add("--master-port");
+            argl.add(String.valueOf(torchRun.getMasterPort()));
+        }
     }
 
     public synchronized void terminateIOStreams() {
