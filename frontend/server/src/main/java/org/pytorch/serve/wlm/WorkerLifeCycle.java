@@ -150,7 +150,6 @@ public class WorkerLifeCycle {
             String[] args = argl.toArray(new String[argl.size()]);
             String[] envs = envp.toArray(new String[envp.size()]);
             logger.debug("Worker cmdline: {}", argl.toString());
-            logger.debug("Worker environment: {}", envp.toString());
 
             synchronized (this) {
                 process = Runtime.getRuntime().exec(args, envs, modelPath);
