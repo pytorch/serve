@@ -135,6 +135,7 @@ public final class ConfigManager {
     private static ConfigManager instance;
     private String hostName;
     private Map<String, Map<String, JsonObject>> modelConfig = new HashMap<>();
+    private String torchrunLogDir;
 
     private ConfigManager(Arguments args) throws IOException {
         prop = new Properties();
@@ -373,6 +374,14 @@ public final class ConfigManager {
             path = getModelServerHome() + "/ts/configs/metrics.yaml";
         }
         return path;
+    }
+
+    public String getTorchRunLogDir() {
+        if (torchrunLogDir == null) {
+            torchrunLogDir =
+                    getCanonicalPath(System.getProperty("LOG_LOCATION")) + "/torchelastic_ts";
+        }
+        return torchrunLogDir;
     }
 
     public boolean isSystemMetricsDisabled() {

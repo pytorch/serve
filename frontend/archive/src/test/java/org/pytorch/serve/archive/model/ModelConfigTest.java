@@ -9,7 +9,7 @@ import org.testng.annotations.Test;
 
 public class ModelConfigTest {
     @Test
-    public void TestValidYamlConfig() throws InvalidModelException, IOException {
+    public void testValidYamlConfig() throws InvalidModelException, IOException {
         String yamlConfigFile = "src/test/resources/modelConfig/valid.yaml";
         ModelConfig modelConfig;
         File configFile = new File(yamlConfigFile);
@@ -25,10 +25,12 @@ public class ModelConfigTest {
         Assert.assertEquals(modelConfig.getParallelLevel(), 4);
         Assert.assertEquals(modelConfig.getParallelType(), ModelConfig.ParallelType.PP);
         Assert.assertEquals(modelConfig.getDeviceIds().get(2).intValue(), 2);
+        Assert.assertEquals(modelConfig.getTorchRun().getNodeRank(), 0);
+        Assert.assertEquals(modelConfig.getTorchRun().getRdzvBackend(), "c10d");
     }
 
     @Test
-    public void TestInvalidYamlConfig() throws InvalidModelException, IOException {
+    public void testInvalidYamlConfig() throws InvalidModelException, IOException {
         String yamlConfigFile = "src/test/resources/modelConfig/invalid.yaml";
         ModelConfig modelConfig;
         File configFile = new File(yamlConfigFile);

@@ -150,6 +150,7 @@ public class WorkerLifeCycle {
             String[] args = argl.toArray(new String[argl.size()]);
             String[] envs = envp.toArray(new String[envp.size()]);
             logger.debug("Worker cmdline: {}", argl.toString());
+            logger.debug("Worker environment: {}", envp.toString());
 
             synchronized (this) {
                 process = Runtime.getRuntime().exec(args, envs, modelPath);
@@ -193,7 +194,7 @@ public class WorkerLifeCycle {
         argl.add("--max_restarts");
         argl.add(String.valueOf(torchRun.getMaxRestarts()));
         argl.add("--log_dir");
-        argl.add("/tmp/torchelastic_ts");
+        argl.add(ConfigManager.getInstance().getTorchRunLogDir());
         argl.add("--rdzv_backend");
         argl.add(torchRun.getRdzvBackend());
         argl.add("--rdzv_endpoint");

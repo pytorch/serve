@@ -351,7 +351,6 @@ public class ModelConfig {
                             default:
                                 break;
                         }
-                        ;
                     });
             return torchRun;
         }
