@@ -22,6 +22,7 @@ import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.NettyUtils;
 import org.pytorch.serve.util.messages.InputParameter;
 import org.pytorch.serve.util.messages.RequestInput;
+import org.pytorch.serve.wlm.WorkerInitializationException;
 import org.pytorch.serve.workflow.WorkflowManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,13 +40,46 @@ public class WorkflowInferenceRequestHandler extends HttpRequestHandlerChain {
     /** Creates a new {@code WorkflowInferenceRequestHandler} instance. */
     public WorkflowInferenceRequestHandler() {}
 
+    private static RequestInput parseRequest(ChannelHandlerContext ctx, FullHttpRequest req) {
+        String requestId = NettyUtils.getRequestId(ctx.channel());
+        RequestInput inputData = new RequestInput(requestId);
+
+        CharSequence contentType = HttpUtil.getMimeType(req);
+        for (Map.Entry<String, String> entry : req.headers().entries()) {
+            inputData.updateHeaders(entry.getKey(), entry.getValue());
+        }
+
+        if (HttpPostRequestDecoder.isMultipart(req)
+                || HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED.contentEqualsIgnoreCase(
+                        contentType)) {
+            HttpDataFactory factory =
+                    new DefaultHttpDataFactory(ConfigManager.getInstance().getMaxRequestSize());
+            HttpPostRequestDecoder form = new HttpPostRequestDecoder(factory, req);
+            try {
+                while (form.hasNext()) {
+                    inputData.addParameter(NettyUtils.getFormData(form.next()));
+                }
+            } catch (HttpPostRequestDecoder.EndOfDataDecoderException ignore) {
+                logger.trace("End of multipart items.");
+            } finally {
+                form.cleanFiles();
+                form.destroy();
+            }
+        } else {
+            byte[] content = NettyUtils.getBytes(req.content());
+            inputData.addParameter(new InputParameter("body", content, contentType));
+        }
+        return inputData;
+    }
+
     @Override
     public void handleRequest(
             ChannelHandlerContext ctx,
             FullHttpRequest req,
             QueryStringDecoder decoder,
             String[] segments)
-            throws ModelException, DownloadArchiveException, WorkflowException {
+            throws ModelException, DownloadArchiveException, WorkflowException,
+                    WorkerInitializationException {
         if ("wfpredict".equalsIgnoreCase(segments[1])) {
             if (segments.length < 3) {
                 throw new ResourceNotFoundException();
@@ -83,37 +117,5 @@ public class WorkflowInferenceRequestHandler extends HttpRequestHandlerChain {
                         statusResponse.getE());
             }
         }
-    }
-
-    private static RequestInput parseRequest(ChannelHandlerContext ctx, FullHttpRequest req) {
-        String requestId = NettyUtils.getRequestId(ctx.channel());
-        RequestInput inputData = new RequestInput(requestId);
-
-        CharSequence contentType = HttpUtil.getMimeType(req);
-        for (Map.Entry<String, String> entry : req.headers().entries()) {
-            inputData.updateHeaders(entry.getKey(), entry.getValue());
-        }
-
-        if (HttpPostRequestDecoder.isMultipart(req)
-                || HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED.contentEqualsIgnoreCase(
-                        contentType)) {
-            HttpDataFactory factory =
-                    new DefaultHttpDataFactory(ConfigManager.getInstance().getMaxRequestSize());
-            HttpPostRequestDecoder form = new HttpPostRequestDecoder(factory, req);
-            try {
-                while (form.hasNext()) {
-                    inputData.addParameter(NettyUtils.getFormData(form.next()));
-                }
-            } catch (HttpPostRequestDecoder.EndOfDataDecoderException ignore) {
-                logger.trace("End of multipart items.");
-            } finally {
-                form.cleanFiles();
-                form.destroy();
-            }
-        } else {
-            byte[] content = NettyUtils.getBytes(req.content());
-            inputData.addParameter(new InputParameter("body", content, contentType));
-        }
-        return inputData;
     }
 }

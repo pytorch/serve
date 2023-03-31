@@ -2,6 +2,8 @@ package org.pytorch.serve.wlm;
 
 import com.google.gson.JsonObject;
 import java.io.File;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -12,6 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 import org.apache.commons.io.FilenameUtils;
 import org.pytorch.serve.archive.model.ModelArchive;
+import org.pytorch.serve.archive.model.ModelConfig;
 import org.pytorch.serve.job.Job;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.messages.WorkerCommands;
@@ -21,12 +24,12 @@ import org.slf4j.LoggerFactory;
 public class Model {
 
     public static final String DEFAULT_DATA_QUEUE = "DATA_QUEUE";
-
     public static final String MIN_WORKERS = "minWorkers";
     public static final String MAX_WORKERS = "maxWorkers";
     public static final String BATCH_SIZE = "batchSize";
     public static final String MAX_BATCH_DELAY = "maxBatchDelay";
     public static final String RESPONSE_TIMEOUT = "responseTimeout";
+    public static final String PARALLEL_LEVEL = "parallelLevel";
     public static final String DEFAULT_VERSION = "defaultVersion";
     public static final String MAR_NAME = "marName";
 
@@ -37,10 +40,19 @@ public class Model {
     private int maxWorkers;
     private int batchSize;
     private int maxBatchDelay;
+    private int parallelLevel = 1;
+    private ModelConfig.ParallelType parallelType = ModelConfig.ParallelType.NONE;
+    private ModelConfig.DeviceType deviceType =
+            ConfigManager.getInstance().getNumberOfGpu() > 0
+                    ? ModelConfig.DeviceType.GPU
+                    : ModelConfig.DeviceType.CPU;
+    private List<Integer> deviceIds;
+    private int numCores;
     private ReentrantLock lock;
     private int responseTimeout;
     private ModelVersionName modelVersionName;
-
+    private AtomicInteger gpuCounter = new AtomicInteger(0);
+    private boolean hasDeviceIds;
     private boolean isWorkflowModel;
 
     // Total number of subsequent inference request failures
@@ -51,8 +63,47 @@ public class Model {
 
     public Model(ModelArchive modelArchive, int queueSize) {
         this.modelArchive = modelArchive;
-        batchSize = 1;
-        maxBatchDelay = 100;
+        if (modelArchive != null && modelArchive.getModelConfig() != null) {
+            if (modelArchive.getModelConfig().getParallelLevel() > 1
+                    && modelArchive.getModelConfig().getParallelType()
+                            != ModelConfig.ParallelType.NONE) {
+                parallelLevel = modelArchive.getModelConfig().getParallelLevel();
+                parallelType = modelArchive.getModelConfig().getParallelType();
+            }
+            if (modelArchive.getModelConfig().getDeviceType() != ModelConfig.DeviceType.NONE) {
+                deviceType =
+                        (modelArchive.getModelConfig().getDeviceType() == ModelConfig.DeviceType.GPU
+                                        && ConfigManager.getInstance().getNumberOfGpu() > 0)
+                                ? ModelConfig.DeviceType.GPU
+                                : deviceType;
+            }
+
+            deviceIds = modelArchive.getModelConfig().getDeviceIds();
+            if (deviceIds != null && deviceIds.size() > 0) {
+                hasDeviceIds = true;
+                for (Integer deviceId : deviceIds) {
+                    if (deviceId < 0 || deviceId >= ConfigManager.getInstance().getNumberOfGpu()) {
+                        logger.warn("Invalid deviceId:{}, ignore deviceIds list", deviceId);
+                        deviceIds = null;
+                        hasDeviceIds = false;
+                        break;
+                    }
+                }
+            }
+        } else {
+            batchSize = 1;
+            maxBatchDelay = 100;
+        }
+
+        if (ConfigManager.getInstance().getNumberOfGpu() > 0) {
+            numCores =
+                    (deviceType == ModelConfig.DeviceType.GPU
+                                    && deviceIds != null
+                                    && deviceIds.size() > 0)
+                            ? deviceIds.size()
+                            : ConfigManager.getInstance().getNumberOfGpu();
+        }
+
         jobsDb = new ConcurrentHashMap<>();
         // Always have a queue for data
         jobsDb.putIfAbsent(DEFAULT_DATA_QUEUE, new LinkedBlockingDeque<>(queueSize));
@@ -73,6 +124,9 @@ public class Model {
         modelInfo.addProperty(BATCH_SIZE, getBatchSize());
         modelInfo.addProperty(MAX_BATCH_DELAY, getMaxBatchDelay());
         modelInfo.addProperty(RESPONSE_TIMEOUT, getResponseTimeout());
+        if (parallelLevel > 1) {
+            modelInfo.addProperty(PARALLEL_LEVEL, parallelLevel);
+        }
 
         return modelInfo;
     }
@@ -83,6 +137,9 @@ public class Model {
         maxBatchDelay = modelInfo.get(MAX_BATCH_DELAY).getAsInt();
         responseTimeout = modelInfo.get(RESPONSE_TIMEOUT).getAsInt();
         batchSize = modelInfo.get(BATCH_SIZE).getAsInt();
+        if (modelInfo.get(PARALLEL_LEVEL) != null) {
+            parallelLevel = modelInfo.get(PARALLEL_LEVEL).getAsInt();
+        }
     }
 
     public String getModelName() {
@@ -201,8 +258,9 @@ public class Model {
             logger.trace("get first job: {}", Objects.requireNonNull(j).getJobId());
 
             jobsRepo.put(j.getJobId(), j);
-            // describe request job batch size always is 1
-            if (j.getCmd() == WorkerCommands.DESCRIBE) {
+            // batch size always is 1 for describe request job and stream prediction request job
+            if (j.getCmd() == WorkerCommands.DESCRIBE
+                    || j.getCmd() == WorkerCommands.STREAMPREDICT) {
                 return;
             }
             long begin = System.currentTimeMillis();
@@ -212,8 +270,10 @@ public class Model {
                     break;
                 }
                 long end = System.currentTimeMillis();
-                // describe request job batch size always is 1
-                if (j.getCmd() == WorkerCommands.DESCRIBE) {
+                // job batch size always is 1 when request is
+                // describe or stream prediction
+                if (j.getCmd() == WorkerCommands.DESCRIBE
+                        || j.getCmd() == WorkerCommands.STREAMPREDICT) {
                     // Add the job back into the jobsQueue
                     jobsQueue.addFirst(j);
                     break;
@@ -247,5 +307,41 @@ public class Model {
 
     public void setResponseTimeout(int responseTimeout) {
         this.responseTimeout = responseTimeout;
+    }
+
+    public List<Integer> getDeviceIds() {
+        return this.deviceIds;
+    }
+
+    public void setDeviceIds(List<Integer> deviceIds) {
+        Collections.copy(this.deviceIds, deviceIds);
+    }
+
+    public int getParallelLevel() {
+        return this.parallelLevel;
+    }
+
+    public void setParallelLevel(int parallelLevel) {
+        this.parallelLevel = parallelLevel;
+    }
+
+    public ModelConfig.ParallelType getParallelType() {
+        return this.parallelType;
+    }
+
+    public ModelConfig.DeviceType getDeviceType() {
+        return this.deviceType;
+    }
+
+    public int getNumCores() {
+        return this.numCores;
+    }
+
+    public AtomicInteger getGpuCounter() {
+        return gpuCounter;
+    }
+
+    public boolean isHasDeviceIds() {
+        return hasDeviceIds;
     }
 }

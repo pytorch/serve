@@ -20,6 +20,7 @@ import org.pytorch.serve.servingsdk.impl.ModelServerRequest;
 import org.pytorch.serve.servingsdk.impl.ModelServerResponse;
 import org.pytorch.serve.util.NettyUtils;
 import org.pytorch.serve.wlm.ModelManager;
+import org.pytorch.serve.wlm.WorkerInitializationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +46,7 @@ public abstract class HttpRequestHandlerChain {
             QueryStringDecoder decoder,
             String[] segments)
             throws ModelNotFoundException, ModelException, DownloadArchiveException,
-                    WorkflowException;
+                    WorkflowException, WorkerInitializationException;
 
     private void run(
             ModelServerEndpoint endpoint,
