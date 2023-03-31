@@ -123,6 +123,7 @@ def create_mar_file(
         runtime="python",
         force=False,
         archive_format="default",
+        config_file=None,
     )
 
     mock = session_mocker.MagicMock()
