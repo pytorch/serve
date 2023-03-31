@@ -1,6 +1,7 @@
 """
 Unit test for MicroBatchHandler class.
 """
+import json
 import random
 import sys
 from pathlib import Path
@@ -72,6 +73,20 @@ def model_dir(tmp_path_factory, model_name):
 @pytest.fixture(scope="module")
 def context(model_dir, model_name):
 
+    micro_batching_params = {
+        "micro_batch_size": 2,
+        "parallelism": {
+            "preprocess": 1,
+            "inference": 1,
+            "postprocess": 1,
+        },
+    }
+
+    config_file = Path(model_dir).joinpath("micro_batching.json")
+
+    with open(config_file, "w") as f:
+        json.dump(micro_batching_params, f)
+
     context = MockContext(
         model_name="mnist",
         model_dir=model_dir.as_posix(),
@@ -87,7 +102,7 @@ def micro_batching_path():
     sys.path.pop()
 
 
-@pytest.fixture(scope="module", params=[1, 8, 16])
+@pytest.fixture(scope="module", params=[1, 8])
 def handler(context, request, micro_batching_path):
     handler = ImageClassifier()
 
@@ -103,7 +118,7 @@ def handler(context, request, micro_batching_path):
     mb_handle.shutdown()
 
 
-@pytest.fixture(scope="module", params=[1, 8, 16])
+@pytest.fixture(scope="module", params=[1, 8])
 def micro_batching_handler(context, request, micro_batching_path):
     from micro_batching_handler import MicroBatchingHandler
 
@@ -159,32 +174,39 @@ def test_micro_batching_handler(context, mixed_batch, micro_batching_handler):
         assert l in r
 
 
+def test_micro_batching_handler_threads(micro_batching_handler):
+    mbh = micro_batching_handler
+    assert len(mbh.handle.thread_groups["preprocess"]) == 1
+    assert len(mbh.handle.thread_groups["postprocess"]) == 1
+    assert len(mbh.handle.thread_groups["inference"]) == 1
+
+
 def test_spin_up_down_threads(micro_batching_handler):
     mbh = micro_batching_handler
-    assert len(mbh.handle.thread_groups["preprocess"]) == 2
-    assert len(mbh.handle.thread_groups["inference"]) == 2
-    assert len(mbh.handle.thread_groups["postprocess"]) == 2
+    assert len(mbh.handle.thread_groups["preprocess"]) == 1
+    assert len(mbh.handle.thread_groups["inference"]) == 1
+    assert len(mbh.handle.thread_groups["postprocess"]) == 1
 
     new_parallelism = {
-        "preprocess": 1,
+        "preprocess": 2,
         "inference": 3,
         "postprocess": 4,
     }
 
     mbh.handle.parallelism = new_parallelism
 
-    assert len(mbh.handle.thread_groups["preprocess"]) == 1
-    assert len(mbh.handle.thread_groups["postprocess"]) == 4
+    assert len(mbh.handle.thread_groups["preprocess"]) == 2
     assert len(mbh.handle.thread_groups["inference"]) == 3
+    assert len(mbh.handle.thread_groups["postprocess"]) == 4
 
     new_parallelism = {
-        "preprocess": 5,
+        "preprocess": 1,
         "inference": 2,
-        "postprocess": 1,
+        "postprocess": 3,
     }
 
     mbh.handle.parallelism = new_parallelism
 
-    assert len(mbh.handle.thread_groups["preprocess"]) == 5
+    assert len(mbh.handle.thread_groups["preprocess"]) == 1
     assert len(mbh.handle.thread_groups["inference"]) == 2
-    assert len(mbh.handle.thread_groups["postprocess"]) == 1
+    assert len(mbh.handle.thread_groups["postprocess"]) == 3

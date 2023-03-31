@@ -23,10 +23,12 @@ class MicroBatchingHandler(ImageClassifier):
                 with open(config_file) as f:
                     config = json.load(f)
 
-                self.handle.paralellism = config["parallelism"]
+                self.handle.parallelism = config["parallelism"]
                 self.handle.micro_batch_size = config["micro_batch_size"]
                 logger.info(f"Successfully loaded {config_file}")
             except KeyError as e:
                 logger.error(
                     f"Failed to load micro batching configuration! Keys missing:{e}"
                 )
+        else:
+            logger.info(f"No micro batching config file found at {config_file}")
