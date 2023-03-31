@@ -25,6 +25,11 @@ public class PrometheusCounter extends PrometheusMetric {
 
     @Override
     public void addOrUpdate(List<String> dimensionValues, double value) {
-        this.counter.labels(dimensionValues.toArray(new String[dimensionValues.size()])).inc(value);
+        this.counter
+                .labels(
+                        dimensionValues
+                                .subList(0, this.dimensionNames.size())
+                                .toArray(new String[this.dimensionNames.size()]))
+                .inc(value);
     }
 }

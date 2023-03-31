@@ -13,7 +13,7 @@ public abstract class PrometheusMetric extends IMetric {
             String unit,
             List<String> dimensionNames) {
         super(context, type, name, unit, dimensionNames);
-
+        // Hostname dimension is automatically included for backend metrics
         if (this.context == MetricBuilder.MetricContext.BACKEND) {
             this.dimensionNames.add("Hostname");
         }
@@ -22,6 +22,8 @@ public abstract class PrometheusMetric extends IMetric {
     @Override
     public void addOrUpdate(
             List<String> dimensionValues, String hostname, String requestIds, double value) {
+        // Used for logging backend metrics
+        // The final entry in dimensionValues is expected to be Hostname
         ArrayList<String> modifiedDimensionValues = new ArrayList<String>(dimensionValues);
         modifiedDimensionValues.add(hostname);
         this.addOrUpdate(modifiedDimensionValues, value);
