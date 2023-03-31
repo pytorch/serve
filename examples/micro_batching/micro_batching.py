@@ -52,11 +52,29 @@ class MicroBatching(object):
         return copy(self._parallelism)
 
     @parallelism.setter
-    def parallelism(self, new_parallelism: Dict):
-        self._parallelism.update(new_parallelism)
+    def parallelism(self, parallelism: Dict):
+        """Set number of threads for each of the processing steps.
+
+        Args:
+            parallelism (Dict): New number of threads per processing step
+
+        Returns:
+            None
+        """
+        assert all(k in HANDLER_METHODS for k in parallelism.keys())
+
+        self._parallelism.update(parallelism)
         self._update_threads()
 
     def shutdown(self):
+        """Shuts down all running threads.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
         for _, tg in self.thread_groups.items():
             for t in tg:
                 t.event.set()
