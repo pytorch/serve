@@ -388,7 +388,7 @@ public final class ConfigManager {
         return torchrunLogDir;
     }
 
-    public String getTsMetricsMode() {
+    public String getMetricsMode() {
         return getProperty(TS_METRICS_MODE, null);
     }
 
@@ -665,6 +665,8 @@ public final class ConfigManager {
                 + prop.getProperty(TS_METRICS_FORMAT, METRIC_FORMAT_PROMETHEUS)
                 + "\nEnable metrics API: "
                 + prop.getProperty(TS_ENABLE_METRICS_API, "true")
+                + "\nMetrics mode: "
+                + getMetricsMode()
                 + "\nDisable system metrics: "
                 + isSystemMetricsDisabled()
                 + "\nWorkflow Store: "

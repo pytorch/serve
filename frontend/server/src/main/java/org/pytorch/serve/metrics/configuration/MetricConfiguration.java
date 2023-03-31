@@ -73,7 +73,7 @@ public class MetricConfiguration {
         MetricConfiguration config = yaml.load(inputStream);
         config.validate();
 
-        String metricsMode = ConfigManager.getInstance().getTsMetricsMode();
+        String metricsMode = ConfigManager.getInstance().getMetricsMode();
         if (metricsMode != null) {
             config.setMode(metricsMode.toLowerCase());
         }
