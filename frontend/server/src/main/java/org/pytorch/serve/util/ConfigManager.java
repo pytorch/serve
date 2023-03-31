@@ -380,8 +380,8 @@ public final class ConfigManager {
         if (torchrunLogDir == null) {
             torchrunLogDir =
                     Paths.get(
-                            getCanonicalPath(System.getProperty("LOG_LOCATION")),
-                            "torchelastic_ts")
+                                    getCanonicalPath(System.getProperty("LOG_LOCATION")),
+                                    "torchelastic_ts")
                             .toString();
         }
         return torchrunLogDir;
