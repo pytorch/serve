@@ -77,8 +77,8 @@ def context(model_dir, model_name):
         "micro_batch_size": 2,
         "parallelism": {
             "preprocess": 1,
-            "inference": 1,
-            "postprocess": 1,
+            "inference": 2,
+            "postprocess": 3,
         },
     }
 
@@ -177,15 +177,15 @@ def test_micro_batching_handler(context, mixed_batch, micro_batching_handler):
 def test_micro_batching_handler_threads(micro_batching_handler):
     mbh = micro_batching_handler
     assert len(mbh.handle.thread_groups["preprocess"]) == 1
-    assert len(mbh.handle.thread_groups["postprocess"]) == 1
-    assert len(mbh.handle.thread_groups["inference"]) == 1
+    assert len(mbh.handle.thread_groups["inference"]) == 2
+    assert len(mbh.handle.thread_groups["postprocess"]) == 3
 
 
 def test_spin_up_down_threads(micro_batching_handler):
     mbh = micro_batching_handler
     assert len(mbh.handle.thread_groups["preprocess"]) == 1
-    assert len(mbh.handle.thread_groups["inference"]) == 1
-    assert len(mbh.handle.thread_groups["postprocess"]) == 1
+    assert len(mbh.handle.thread_groups["inference"]) == 2
+    assert len(mbh.handle.thread_groups["postprocess"]) == 3
 
     new_parallelism = {
         "preprocess": 2,

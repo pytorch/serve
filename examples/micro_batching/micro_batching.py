@@ -7,10 +7,12 @@ from dataclasses import dataclass
 from typing import Dict
 
 try:
-
     PROFILER_AVAILABLE = True
 except ImportError:
     PROFILER_AVAILABLE = False
+
+
+HANDLER_METHODS = ["preprocess", "inference", "postprocess"]
 
 
 def execute_call(in_queue, out_queue, handle, event):
@@ -21,9 +23,6 @@ def execute_call(in_queue, out_queue, handle, event):
             continue
         out_data = handle(in_data)
         out_queue.put((idx, out_data))
-
-
-HANDLER_METHODS = ["preprocess", "inference", "postprocess"]
 
 
 @dataclass
@@ -45,23 +44,17 @@ class MicroBatching(object):
         self._create_queues()
         self._update_threads()
 
+    def __del__(self):
+        self.shutdown()
+
     @property
-    def parallelism(self):
+    def parallelism(self) -> Dict:
         return copy(self._parallelism)
 
     @parallelism.setter
-    def parallelism(self, new_parallelism):
+    def parallelism(self, new_parallelism: Dict):
         self._parallelism.update(new_parallelism)
         self._update_threads()
-
-    def _create_queues(self):
-        self.queues[HANDLER_METHODS[0] + "_in"] = queue.Queue()
-        for i in range(len(HANDLER_METHODS) - 1):
-            self.queues[HANDLER_METHODS[i] + "_out"] = queue.Queue()
-            self.queues[HANDLER_METHODS[i + 1] + "_in"] = self.queues[
-                HANDLER_METHODS[i] + "_out"
-            ]
-        self.queues[HANDLER_METHODS[-1] + "_out"] = queue.Queue()
 
     def shutdown(self):
         for _, tg in self.thread_groups.items():
@@ -69,17 +62,30 @@ class MicroBatching(object):
                 t.event.set()
                 t.thread.join()
 
+    def _create_queues(self):
+        # Set up processing queues
+        self.queues[HANDLER_METHODS[0] + "_in"] = queue.Queue()
+        for i in range(len(HANDLER_METHODS) - 1):
+            # Each "out" queue is the "in" queue of the next processing step
+            self.queues[HANDLER_METHODS[i] + "_out"] = queue.Queue()
+            self.queues[HANDLER_METHODS[i + 1] + "_in"] = self.queues[
+                HANDLER_METHODS[i] + "_out"
+            ]
+        self.queues[HANDLER_METHODS[-1] + "_out"] = queue.Queue()
+
     def _update_threads(self):
         for c in HANDLER_METHODS:
-            tgt_parallelism = self._parallelism.get(c, 2)
+            tgt_parallelism = self._parallelism.get(c, 1)
             assert tgt_parallelism >= 0
             cur_parallelism = lambda: len(self.thread_groups[c])
 
+            # Scale up threads if necessary
             while tgt_parallelism > cur_parallelism():
                 in_queue = self.queues[c + "_in"]
                 out_queue = self.queues[c + "_out"]
                 call = getattr(self.handler, c)
                 event = threading.Event()
+
                 t = threading.Thread(
                     target=execute_call,
                     args=(in_queue, out_queue, call, event),
@@ -87,6 +93,7 @@ class MicroBatching(object):
                 t.start()
                 self.thread_groups[c].append(WorkerThread(event, t))
 
+            # Scale down threads if necessary
             while tgt_parallelism < cur_parallelism():
                 self.thread_groups[c][-1].event.set()
                 self.thread_groups[c][-1].thread.join()
@@ -109,7 +116,8 @@ class MicroBatching(object):
 
     def __call__(self, data, context):
         """Entry point for default handler. It takes the data from the input request and returns
-           the predicted outcome for the input.
+           the predicted outcome for the input. This method is a modified variant from the BaseHandler.
+           It calls the MicroBatching handle method instead of running the single processing steps.
 
         Args:
             data (list): The input data that needs to be made a prediction request on.
