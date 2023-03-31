@@ -1,4 +1,4 @@
-mode: prometheus
+mode: log
 
 dimensions:
   - &model_name "ModelName"
