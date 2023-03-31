@@ -52,7 +52,7 @@ public class Model {
     private int responseTimeout;
     private ModelVersionName modelVersionName;
     private AtomicInteger gpuCounter = new AtomicInteger(0);
-    private boolean hasDeviceIds;
+    private boolean hasCfgDeviceIds;
     private boolean isWorkflowModel;
 
     // Total number of subsequent inference request failures
@@ -80,12 +80,12 @@ public class Model {
 
             deviceIds = modelArchive.getModelConfig().getDeviceIds();
             if (deviceIds != null && deviceIds.size() > 0) {
-                hasDeviceIds = true;
+                hasCfgDeviceIds = true;
                 for (Integer deviceId : deviceIds) {
                     if (deviceId < 0 || deviceId >= ConfigManager.getInstance().getNumberOfGpu()) {
                         logger.warn("Invalid deviceId:{}, ignore deviceIds list", deviceId);
                         deviceIds = null;
-                        hasDeviceIds = false;
+                        hasCfgDeviceIds = false;
                         break;
                     }
                 }
@@ -95,11 +95,10 @@ public class Model {
             maxBatchDelay = 100;
         }
 
-        if (ConfigManager.getInstance().getNumberOfGpu() > 0) {
+        if (ConfigManager.getInstance().getNumberOfGpu() > 0
+                && deviceType != ModelConfig.DeviceType.CPU) {
             numCores =
-                    (deviceType == ModelConfig.DeviceType.GPU
-                                    && deviceIds != null
-                                    && deviceIds.size() > 0)
+                    hasCfgDeviceIds
                             ? deviceIds.size()
                             : ConfigManager.getInstance().getNumberOfGpu();
         }
@@ -321,10 +320,6 @@ public class Model {
         return this.parallelLevel;
     }
 
-    public void setParallelLevel(int parallelLevel) {
-        this.parallelLevel = parallelLevel;
-    }
-
     public ModelConfig.ParallelType getParallelType() {
         return this.parallelType;
     }
@@ -341,7 +336,7 @@ public class Model {
         return gpuCounter;
     }
 
-    public boolean isHasDeviceIds() {
-        return hasDeviceIds;
+    public boolean isHasCfgDeviceIds() {
+        return hasCfgDeviceIds;
     }
 }
