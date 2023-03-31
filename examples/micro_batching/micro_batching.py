@@ -2,6 +2,8 @@ import os
 import queue
 import threading
 import time
+from copy import copy
+from dataclasses import dataclass
 from typing import Dict
 
 try:
@@ -24,52 +26,84 @@ def execute_call(in_queue, out_queue, handle, event):
 HANDLER_METHODS = ["preprocess", "inference", "postprocess"]
 
 
+@dataclass
+class WorkerThread:
+    event: threading.Event
+    thread: threading.Thread
+
+
 class MicroBatching(object):
     def __init__(
         self, parent_handler, micro_batch_size: int = 1, parallelism: Dict = None
     ):
         self.handler = parent_handler
         self.micro_batch_size = micro_batch_size
-        self.parallelism = parallelism if parallelism is not None else {}
-        self.threads = []
-        self.queues = []
+        self._parallelism = parallelism if parallelism is not None else {}
+        self.thread_groups = {c: [] for c in HANDLER_METHODS}
+        self.queues = {}
         self.terminate = threading.Event()
-        self.initialize_threads()
+        self._create_queues()
+        self._update_threads()
+
+    @property
+    def parallelism(self):
+        return copy(self._parallelism)
+
+    @parallelism.setter
+    def parallelism(self, new_parallelism):
+        self._parallelism.update(new_parallelism)
+        self._update_threads()
+
+    def _create_queues(self):
+        self.queues[HANDLER_METHODS[0] + "_in"] = queue.Queue()
+        for i in range(len(HANDLER_METHODS) - 1):
+            self.queues[HANDLER_METHODS[i] + "_out"] = queue.Queue()
+            self.queues[HANDLER_METHODS[i + 1] + "_in"] = self.queues[
+                HANDLER_METHODS[i] + "_out"
+            ]
+        self.queues[HANDLER_METHODS[-1] + "_out"] = queue.Queue()
 
     def shutdown(self):
-        self.terminate.set()
-        for t in self.threads:
-            t.join()
+        for _, tg in self.thread_groups.items():
+            for t in tg:
+                t.event.set()
+                t.thread.join()
 
-    def initialize_threads(self):
-        calls = (
-            (getattr(self.handler, c), self.parallelism.get(c, 2))
-            for c in HANDLER_METHODS
-        )
+    def _update_threads(self):
+        for c in HANDLER_METHODS:
+            tgt_parallelism = self._parallelism.get(c, 2)
+            assert tgt_parallelism >= 0
+            cur_parallelism = lambda: len(self.thread_groups[c])
 
-        self.queues.append(queue.Queue())
-        tasks = []
-
-        for c, p in calls:
-            self.queues.append(queue.Queue())
-            for _ in range(p):
+            while tgt_parallelism > cur_parallelism():
+                in_queue = self.queues[c + "_in"]
+                out_queue = self.queues[c + "_out"]
+                call = getattr(self.handler, c)
+                event = threading.Event()
                 t = threading.Thread(
                     target=execute_call,
-                    args=(self.queues[-2], self.queues[-1], c, self.terminate),
+                    args=(in_queue, out_queue, call, event),
                 )
                 t.start()
-                tasks.append(t)
+                self.thread_groups[c].append(WorkerThread(event, t))
+
+            while tgt_parallelism < cur_parallelism():
+                self.thread_groups[c][-1].event.set()
+                self.thread_groups[c][-1].thread.join()
+                self.thread_groups[c].pop()
 
     def handle(self, data):
 
         num_batches = 0
         for idx, i in enumerate(range(0, len(data), self.micro_batch_size)):
-            self.queues[0].put_nowait((idx, data[i : i + self.micro_batch_size]))
+            self.queues[HANDLER_METHODS[0] + "_in"].put_nowait(
+                (idx, data[i : i + self.micro_batch_size])
+            )
             num_batches += 1
 
         output = []
         while len(output) != num_batches:
-            output.append(self.queues[-1].get())
+            output.append(self.queues[HANDLER_METHODS[-1] + "_out"].get())
 
         return [item for batch in sorted(output) for item in batch[1]]
 

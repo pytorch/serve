@@ -157,3 +157,34 @@ def test_micro_batching_handler(context, mixed_batch, micro_batching_handler):
     assert len(results) == len(labels)
     for l, r in zip(labels, results):
         assert l in r
+
+
+def test_spin_up_down_threads(micro_batching_handler):
+    mbh = micro_batching_handler
+    assert len(mbh.handle.thread_groups["preprocess"]) == 2
+    assert len(mbh.handle.thread_groups["inference"]) == 2
+    assert len(mbh.handle.thread_groups["postprocess"]) == 2
+
+    new_parallelism = {
+        "preprocess": 1,
+        "inference": 3,
+        "postprocess": 4,
+    }
+
+    mbh.handle.parallelism = new_parallelism
+
+    assert len(mbh.handle.thread_groups["preprocess"]) == 1
+    assert len(mbh.handle.thread_groups["postprocess"]) == 4
+    assert len(mbh.handle.thread_groups["inference"]) == 3
+
+    new_parallelism = {
+        "preprocess": 5,
+        "inference": 2,
+        "postprocess": 1,
+    }
+
+    mbh.handle.parallelism = new_parallelism
+
+    assert len(mbh.handle.thread_groups["preprocess"]) == 5
+    assert len(mbh.handle.thread_groups["inference"]) == 2
+    assert len(mbh.handle.thread_groups["postprocess"]) == 1
