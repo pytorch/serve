@@ -56,11 +56,10 @@ torch-model-archiver --model-name densenet161 --version 1.0 --model-file example
 
 ```
 $ torch-model-archiver -h
-usage: torch-model-archiver [-h] --model-name MODEL_NAME --handler HANDLER --version MODEL_VERSION_NUMBER
-                      [--model-file MODEL_FILE_PATH] [--serialized-file MODEL_SERIALIZED_PATH]
-                      [--runtime {python,python3}] [--export-path EXPORT_PATH]
-                      [--archive-format {tgz,no-archive,zip-store,default}]
-                      [-f] [--requirements-file]
+usage: torch-model-archiver [-h] --model-name MODEL_NAME  --version MODEL_VERSION_NUMBER
+                      --model-file MODEL_FILE_PATH --serialized-file MODEL_SERIALIZED_PATH
+                      --handler HANDLER [--runtime {python,python3}]
+                      [--export-path EXPORT_PATH] [-f] [--requirements-file] [--config-file]
 
 Model Archiver Tool
 
@@ -117,6 +116,7 @@ optional arguments:
   -r, --requirements-file
                         Path to requirements.txt file containing a list of model specific python
                         packages to be installed by TorchServe for seamless model serving.
+  -c, --config-file         Path to a model config yaml file.
 ```
 
 ## Artifact Details
@@ -158,6 +158,28 @@ e.g. if your custom handler custom_image_classifier.py is in /home/serve/example
 `--handler /home/serve/examples/custom_image_classifier` or if it has my_entry_point module level function then `--handler /home/serve/examples/custom_image_classifier:my_entry_point_func`
 
 For more details refer [default handler documentation](../docs/default_handlers.md) or [custom handler documentation](../docs/custom_service.md)
+
+### Config file
+
+A model config yaml file. For example: 
+
+```
+# TS Frontend parameters
+minWorkers: 1 # default: #CPU or #GPU
+maxWorkers: 1 # default: #CPU or #GPU
+batchSize: 1 # default: 1
+maxBatchDelay: 100 # default: 100 msec
+responseTimeout: 120 # default: 120 sec
+deviceType: cpu # cpu, gpu, neuron
+deviceIds: [0,1,2,3] # device index for gpu, neuron. Default: all visible devices
+parallelLevel: 4 # rpc world size. Default: 1
+parallelType: pp # pp: pipeline parallel; pptp: tensor+pipeline parallel. Default: empty
+
+# TS backend parameters
+pippy:
+  rpc_timeout: 1800
+  pp_group_size: 4 # pipeline parallel size, tp_group_size = world size / pp_group_size
+```
 
 ## Creating a Model Archive
 

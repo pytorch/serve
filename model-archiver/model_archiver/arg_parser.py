@@ -17,7 +17,6 @@ class ArgParser(object):
 
     @staticmethod
     def export_model_args_parser():
-
         """Argument parser for torch-model-export"""
 
         parser_export = argparse.ArgumentParser(
@@ -144,6 +143,15 @@ class ArgParser(object):
             default=None,
             help="Path to a requirements.txt containing model specific python dependency\n"
             " packages.",
+        )
+
+        parser_export.add_argument(
+            "-c",
+            "--config-file",
+            required=False,
+            type=str,
+            default=None,
+            help="Path to a yaml file containing model configuration eg. batch_size.",
         )
 
         return parser_export

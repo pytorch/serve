@@ -113,6 +113,7 @@ class ModelExportUtils(object):
             handler=modelargs.handler,
             model_version=modelargs.version,
             requirements_file=modelargs.requirements_file,
+            config_file=modelargs.config_file,
         )
         return model
 
@@ -246,7 +247,6 @@ class ModelExportUtils(object):
 
     @staticmethod
     def archive_dir(path, dst, archive_format, model_name):
-
         """
         This method zips the dir and filters out some files based on a expression
         :param archive_format:

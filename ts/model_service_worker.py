@@ -21,6 +21,10 @@ SOCKET_ACCEPT_TIMEOUT = 30.0
 DEBUG = False
 BENCHMARK = os.getenv("TS_BENCHMARK")
 BENCHMARK = BENCHMARK in ["True", "true", "TRUE"]
+LOCAL_RANK = int(os.getenv("LOCAL_RANK", 0))
+WORLD_SIZE = int(os.getenv("WORLD_SIZE", 0))
+WORLD_RANK = int(os.getenv("RANK", 0))
+LOCAL_WORLD_SIZE = int(os.getenv("LOCAL_WORLD_SIZE", 0))
 
 
 class TorchModelServiceWorker(object):
@@ -41,20 +45,28 @@ class TorchModelServiceWorker(object):
         if s_type == "unix":
             if s_name is None:
                 raise ValueError("Wrong arguments passed. No socket name given.")
-            self.sock_name, self.port = s_name, -1
+            s_name_parts = s_name.rsplit(".", 1)
+            logging.info(
+                "s_name_part0=%s, s_name_part1=%s, pid=%d",
+                s_name_parts[0],
+                s_name_parts[1],
+                os.getpid(),
+            )
+            s_name_new = s_name_parts[0] + "." + str(int(s_name_parts[1]) + LOCAL_RANK)
+            self.sock_name, self.port = s_name_new, -1
             try:
-                os.remove(s_name)
+                os.remove(s_name_new)
             except OSError as e:
-                if os.path.exists(s_name):
+                if os.path.exists(s_name_new):
                     raise RuntimeError(
-                        "socket already in use: {}.".format(s_name)
+                        "socket already in use: {}.".format(s_name_new)
                     ) from e
 
         elif s_type == "tcp":
             self.sock_name = host_addr if host_addr is not None else "127.0.0.1"
             if port_num is None:
                 raise ValueError("Wrong arguments passed. No socket port given.")
-            self.port = port_num
+            self.port = port_num + LOCAL_RANK
         else:
             raise ValueError("Incomplete data provided")
 
@@ -178,6 +190,7 @@ class TorchModelServiceWorker(object):
             self.sock.bind((self.sock_name, int(self.port)))
 
         self.sock.listen(1)
+
         logging.info("[PID]%d", os.getpid())
         logging.info("Torch worker started.")
         logging.info("Python runtime: %s", platform.python_version())
