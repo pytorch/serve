@@ -6,17 +6,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import org.pytorch.serve.util.ConfigManager;
 import org.testng.Assert;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import org.yaml.snakeyaml.composer.ComposerException;
 
 public class MetricConfigurationTest {
-    @BeforeMethod
-    public void setupConfigManager() throws IOException {
-        ConfigManager.Arguments args = new ConfigManager.Arguments();
-        ConfigManager.init(args);
-    }
-
     @Test
     public void testLoadValidConfiguration()
             throws FileNotFoundException, ComposerException, RuntimeException {

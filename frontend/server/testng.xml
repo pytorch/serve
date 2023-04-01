@@ -3,10 +3,10 @@
 <suite name="TorchServeSuite" verbose="1" >
   <test name="TorchServe">
     <classes>
+      <class name="org.pytorch.serve.metrics.configuration.MetricConfigurationTest"/>
       <class name="org.pytorch.serve.metrics.MetricTest"/>
       <class name="org.pytorch.serve.util.ConfigManagerTest"/>
       <class name="org.pytorch.serve.util.ConnectorTest"/>
-      <class name="org.pytorch.serve.metrics.configuration.MetricConfigurationTest"/>
       <class name="org.pytorch.serve.CoverageTest"/>
       <class name="org.pytorch.serve.ModelServerTest"/>
       <class name="org.pytorch.serve.SnapshotTest"/>
