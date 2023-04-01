@@ -5,8 +5,8 @@ In each worker the three computation steps (preprocess, inference, postprocess) 
 Because pre- and postprocessing are often carried out on the CPU the GPU sits idle until the two CPU bound steps are executed and the worker receives a new batch.
 The following example will show how to make better use of an accelerator in high load scenarios.
 
-For this we are going to assume that there are a lot of incoming client requests and we can potentially fill a bigger batch size within the batch delay timeframe where the frontend collects requests for the next batch.
-Given this precondition we are going to increase the batch size whcih the backend worker receives and subsequently split the big batch up into smaller *micro* batches to perform the processing.
+For this we are going to assume that there are a lot of incoming client requests and we can potentially fill a bigger batch size within the batch delay time frame where the frontend collects requests for the next batch.
+Given this precondition we are going to increase the batch size which the backend worker receives and subsequently split the big batch up into smaller *micro* batches to perform the processing.
 We can then perform the computation on the micro batches in parallel as more than one batches are available to the worker.
 This way we can already process a micro batch on the GPU while the preprocessing is applied to remaining micro batches.
 The pros and cons of this approach are as follow:
@@ -100,13 +100,13 @@ As a baseline we also ran the vanilla ImageClassifier handler without micro batc
 In the diagrams we see the throughput and P99 latency plotted over the batch size (as configured through TorchServe API).
 Each curve represents a different micro batch size as configured through [micro_batching.json](micro_batching.json).
 We can see that the throughput stays flat for the vanilla ImageClassifier (NO MB) which suggests that the inference is preprocessing bound and the GPU is underutilized which can be confirmed with a look at the nvidia-smi output.
-By interleaving the three compute steps and using two threads for pre- and prostprocessing we see that the micro batched variants (MBS=4-16) achieve a higher throughput and even a lower batch latency as the GPU is better utilized due to the introduction of micro batches.
-For this particular model we can achieve a throughput of up to 250 QPS by increasing the number of preprocessing threads to 4 and chosing 128 and 8 as batch size and micro batch size, respectively.
+By interleaving the three compute steps and using two threads for pre- and postprocessing we see that the micro batched variants (MBS=4-16) achieve a higher throughput and even a lower batch latency as the GPU is better utilized due to the introduction of micro batches.
+For this particular model we can achieve a throughput of up to 250 QPS by increasing the number of preprocessing threads to 4 and choosing 128 and 8 as batch size and micro batch size, respectively.
 The actual achieved speedup will depend on the specific model as well as the intensity of the pre- and postprocessing steps.
 Image scaling and decompression for example is usually more compute intense than text preprocessing.
 
 ## Summary
 In summary we can see that micro batching can help to increase the throughput of a model while decreasing its latency.
 This is especially true for workloads with compute intense pre- or postprocessing as well as smaller models.
-The microbatching approach can also be used to save memory in a CPU use case by scaling the number if inference threads to >1 which allows to run multiple instances of the model which all share the same underlying weights.
+The micro batching approach can also be used to save memory in a CPU use case by scaling the number if inference threads to >1 which allows to run multiple instances of the model which all share the same underlying weights.
 This is in contrast to running multiple TorchServe worker which each create their own model instance which can not share their weights as they reside in different processes.
