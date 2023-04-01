@@ -118,7 +118,6 @@ class MicroBatching(object):
                 self.thread_groups[c].pop()
 
     def handle(self, data):
-
         num_batches = 0
         for idx, i in enumerate(range(0, len(data), self.micro_batch_size)):
             self.queues[HANDLER_METHODS[0] + "_in"].put_nowait(
