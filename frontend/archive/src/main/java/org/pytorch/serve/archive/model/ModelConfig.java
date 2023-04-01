@@ -20,6 +20,7 @@ public class ModelConfig {
     private List<Integer> deviceIds;
     private int parallelLevel = 1;
     private ParallelType parallelType = ParallelType.NONE;
+    private TorchRun torchRun;
 
     public static ModelConfig build(Map<String, Object> yamlMap) {
         ModelConfig modelConfig = new ModelConfig();
@@ -68,13 +69,6 @@ public class ModelConfig {
                                 logger.warn("Invalid deviceType: {}, should be cpu, or gpu", v);
                             }
                             break;
-                        case "parallelLevel":
-                            if (v instanceof Integer) {
-                                modelConfig.setParallelLevel((int) v);
-                            } else {
-                                logger.warn("Invalid parallelLevel: {}, should be integer >= 1", v);
-                            }
-                            break;
                         case "parallelType":
                             if (v instanceof String) {
                                 modelConfig.setParallelMode((String) v);
@@ -88,6 +82,16 @@ public class ModelConfig {
                                 modelConfig.setDeviceIds((List<?>) v);
                             } else {
                                 logger.warn("Invalid deviceIds: {}, should be list of integer", v);
+                            }
+                            break;
+                        case "torchrun":
+                            if (v instanceof Map<?, ?>) {
+                                modelConfig.torchRun = TorchRun.build((Map<?, ?>) v);
+                                modelConfig.setParallelLevel(
+                                        modelConfig.torchRun.getNprocPerNode());
+                            } else {
+                                logger.warn(
+                                        "Invalid torchrun: {}, should be Torchrun parameters", v);
                             }
                             break;
                         default:
@@ -203,6 +207,10 @@ public class ModelConfig {
         return deviceType;
     }
 
+    public TorchRun getTorchRun() {
+        return torchRun;
+    }
+
     public enum ParallelType {
         NONE(""),
         PP("pp"),
@@ -261,6 +269,198 @@ public class ModelConfig {
                 logger.warn("Invalid DeviceType:{}", deviceType, e);
             }
             return dType;
+        }
+    }
+
+    public static class TorchRun {
+        private int nnodes = 1;
+        private int nprocPerNode = 1;
+        private String rdzvId;
+        private String rdzvEndpoint;
+        private String rdzvBackend = "c10d";
+        private String rdzvConf;
+        private int maxRestarts = 3;
+        private int monitorInterval = 5;
+        private int nodeRank;
+        private String masterAddr;
+        private int masterPort;
+
+        public static TorchRun build(Map<?, ?> torchRunMap) {
+            TorchRun torchRun = new TorchRun();
+            torchRunMap.forEach(
+                    (k, v) -> {
+                        switch ((String) k) {
+                            case "nnodes":
+                                if (v instanceof Integer) {
+                                    torchRun.setNnodes((Integer) v);
+                                } else {
+                                    logger.warn("Invalid torchrun.nnodes:{}, reset to 1", v);
+                                }
+                                break;
+                            case "nproc-per-node":
+                                if (v instanceof Integer) {
+                                    torchRun.setNprocPerNode((Integer) v);
+                                } else {
+                                    logger.warn(
+                                            "Invalid torchrun.nproc-per-node:{}, reset to 1", v);
+                                }
+                                break;
+                            case "rdzv-backend":
+                                if (v instanceof String) {
+                                    torchRun.setRdzvBackend((String) v);
+                                } else {
+                                    logger.warn(
+                                            "Invalid torchrun.rdzv-backend:{}, reset to c10d", v);
+                                }
+                                break;
+                            case "rdzv-endpoint":
+                                if (v instanceof String) {
+                                    torchRun.setRdzvEndpoint((String) v);
+                                } else {
+                                    logger.warn("Invalid torchrun.rdzv-endpoint:{}", v);
+                                }
+                                break;
+                            case "rdzv-conf":
+                                if (v instanceof String) {
+                                    torchRun.setRdzvConf((String) v);
+                                } else {
+                                    logger.warn("Invalid torchrun.rdzv-conf:{}", v);
+                                }
+                                break;
+                            case "max-restarts":
+                                if (v instanceof Integer) {
+                                    torchRun.setMaxRestarts((Integer) v);
+                                } else {
+                                    logger.warn("Invalid torchrun.max-restarts:{}, reset to 3", v);
+                                }
+                                break;
+                            case "monitor-interval":
+                                if (v instanceof Integer) {
+                                    torchRun.setMonitorInterval((Integer) v);
+                                } else {
+                                    logger.warn("Invalid torchrun.max-restarts:{}, reset to 5", v);
+                                }
+                                break;
+                            case "node-rank":
+                                if (v instanceof Integer) {
+                                    torchRun.setNodeRank((Integer) v);
+                                } else {
+                                    logger.warn("Invalid torchrun.node-rank:{}, reset to 0", v);
+                                }
+                                break;
+                            default:
+                                break;
+                        }
+                    });
+            return torchRun;
+        }
+
+        public int getNnodes() {
+            return nnodes;
+        }
+
+        public void setNnodes(int nnodes) {
+            if (nnodes <= 0) {
+                logger.warn("Invalid torchrun.nnodes:{}, reset to 1", nnodes);
+                return;
+            }
+            this.nnodes = nnodes;
+        }
+
+        public int getNprocPerNode() {
+            return nprocPerNode;
+        }
+
+        public void setNprocPerNode(int nprocPerNode) {
+            if (nprocPerNode <= 0) {
+                logger.warn("Invalid torchrun.nproc-per-node:{}, reset to 1", nprocPerNode);
+                return;
+            }
+            this.nprocPerNode = nprocPerNode;
+        }
+
+        public String getRdzvId() {
+            return rdzvId;
+        }
+
+        public void setRdzvId(String rdzvId) {
+            this.rdzvId = rdzvId;
+        }
+
+        public String getRdzvEndpoint() {
+            return rdzvEndpoint;
+        }
+
+        public void setRdzvEndpoint(String rdzvEndpoint) {
+            this.rdzvEndpoint = rdzvEndpoint;
+        }
+
+        public String getRdzvBackend() {
+            return rdzvBackend;
+        }
+
+        public void setRdzvBackend(String rdzvBackend) {
+            this.rdzvBackend = rdzvBackend;
+        }
+
+        public String getRdzvConf() {
+            return rdzvConf;
+        }
+
+        public void setRdzvConf(String rdzvConf) {
+            this.rdzvConf = rdzvConf;
+        }
+
+        public int getMaxRestarts() {
+            return maxRestarts;
+        }
+
+        public void setMaxRestarts(int maxRestarts) {
+            if (maxRestarts <= 0) {
+                logger.warn("Invalid torchrun.max-restarts:{}, reset to 3", maxRestarts);
+                return;
+            }
+            this.maxRestarts = maxRestarts;
+        }
+
+        public int getMonitorInterval() {
+            return monitorInterval;
+        }
+
+        public void setMonitorInterval(int monitorInterval) {
+            if (monitorInterval <= 0) {
+                logger.warn("Invalid torchrun.monitor-interval:{}, reset to 5", monitorInterval);
+                return;
+            }
+            this.monitorInterval = monitorInterval;
+        }
+
+        public int getNodeRank() {
+            return nodeRank;
+        }
+
+        public void setNodeRank(int nodeRank) {
+            if (nodeRank < 0) {
+                logger.warn("Invalid torchrun.node-rank:{}, reset to 0", nodeRank);
+                return;
+            }
+            this.nodeRank = nodeRank;
+        }
+
+        public String getMasterAddr() {
+            return masterAddr;
+        }
+
+        public void setMasterAddr(String masterAddr) {
+            this.masterAddr = masterAddr;
+        }
+
+        public int getMasterPort() {
+            return masterPort;
+        }
+
+        public void setMasterPort(int masterPort) {
+            this.masterPort = masterPort;
         }
     }
 }
