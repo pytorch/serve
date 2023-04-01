@@ -56,7 +56,7 @@ def run_test(test, args, mocker):
             generate_model_archive()
         except Exception as exc:
             if test.get("expect-error") is not True:
-                assert 0, "{}".format(exc.output)
+                assert 0, str(exc)
             else:
                 return 0
     # In case we expect an error we should not be here
