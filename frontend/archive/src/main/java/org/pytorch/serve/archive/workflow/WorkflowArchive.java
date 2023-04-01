@@ -73,7 +73,12 @@ public class WorkflowArchive {
 
         if (workflowLocation.isFile()) {
             try (InputStream is = Files.newInputStream(workflowLocation.toPath())) {
-                File unzipDir = ZipUtils.unzip(is, null, "workflows", true);
+                File unzipDir;
+                if (workflowLocation.getName().endsWith(".war")) {
+                    unzipDir = ZipUtils.unzip(is, null, "workflows", true);
+                } else {
+                    unzipDir = ZipUtils.unzip(is, null, "workflows", false);
+                }
                 return load(url, unzipDir, true);
             }
         }

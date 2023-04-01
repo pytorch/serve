@@ -207,4 +207,18 @@ public class ModelArchiveTest {
         ModelArchive.downloadModel(
                 ALLOWED_URLS_LIST, modelStore, "file:///" + modelStore + "/mnist1.mar");
     }
+
+    @Test
+    public void testArchiveFormatTgz()
+            throws ModelException, IOException, DownloadArchiveException {
+        String modelStore = "src/test/resources/models";
+        ModelArchive archive =
+                ModelArchive.downloadModel(ALLOWED_URLS_LIST, modelStore, "noop.tar.gz");
+
+        archive.validate();
+        Assert.assertTrue(new File(archive.getModelDir().getPath(), "extra1.txt").exists());
+        Assert.assertTrue(new File(archive.getModelDir().getPath(), "sub1").isDirectory());
+
+        archive.clean();
+    }
 }
