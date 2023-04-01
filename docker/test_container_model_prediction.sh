@@ -54,5 +54,5 @@ done
 
 echo "Test successful!"
 
-docker stop "${CONTAINER}" || true
+docker stop "${CONTAINER}"
 rm -f test-entrypoint.sh

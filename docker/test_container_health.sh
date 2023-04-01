@@ -5,7 +5,6 @@ set -o errexit -o nounset -o pipefail
 IMAGE_TAG=$1
 CONTAINER="test-container-py${IMAGE_TAG}"
 
-trap 'echo "Cleaning up container healthcheck"; docker stop ${CONTAINER} || true' EXIT QUIT TERM
 
 healthcheck() {
     docker run -d --rm -it -p 8080:8080 --name="${CONTAINER}" "${IMAGE_TAG}"
@@ -23,3 +22,4 @@ healthcheck() {
 }
 
 healthcheck
+docker stop "${CONTAINER}"
