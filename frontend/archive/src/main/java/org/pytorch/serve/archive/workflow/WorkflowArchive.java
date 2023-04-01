@@ -3,13 +3,6 @@ package org.pytorch.serve.archive.workflow;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
-import org.pytorch.serve.archive.DownloadArchiveException;
-import org.pytorch.serve.archive.utils.ArchiveUtils;
-import org.pytorch.serve.archive.utils.InvalidArchiveURLException;
-import org.pytorch.serve.archive.utils.ZipUtils;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,6 +12,12 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.util.List;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
+import org.pytorch.serve.archive.DownloadArchiveException;
+import org.pytorch.serve.archive.utils.ArchiveUtils;
+import org.pytorch.serve.archive.utils.InvalidArchiveURLException;
+import org.pytorch.serve.archive.utils.ZipUtils;
 
 public class WorkflowArchive {
 
