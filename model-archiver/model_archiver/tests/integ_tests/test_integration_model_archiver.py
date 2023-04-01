@@ -3,9 +3,9 @@ import json
 import os
 import platform
 import shutil
-import subprocess
 import tempfile
 import time
+from argparse import Namespace
 from datetime import datetime
 from pathlib import Path
 
@@ -40,16 +40,28 @@ def delete_file_path(path):
         pass
 
 
-def run_test(test, cmd):
-    it = test.get("iterations") if test.get("iterations") is not None else 1
+def run_test(test, args, mocker):
+    m = mocker.Mock()
+    m.parse_args = lambda: args
+    mocker.patch(
+        "model_archiver.model_packaging.ArgParser.export_model_args_parser",
+        return_value=m,
+    )
+    mocker.patch("sys.exit", side_effect=Exception())
+    from model_archiver.model_packaging import generate_model_archive
+
+    it = test.get("iterations", 1)
     for i in range(it):
         try:
-            subprocess.check_call(cmd, shell=True)
-        except subprocess.CalledProcessError as exc:
+            generate_model_archive()
+        except Exception as exc:
             if test.get("expect-error") is not True:
                 assert 0, "{}".format(exc.output)
             else:
                 return 0
+    # In case we expect an error we should not be here
+    if test.get("expect-error") is True:
+        assert 0, f"Error expected in test: {test['name']}"
     return 1
 
 
@@ -146,8 +158,8 @@ def validate(test):
     validate_archive_content(test)
 
 
-def build_cmd(test):
-    args = [
+def build_namespace(test):
+    keys = [
         "model-name",
         "model-file",
         "serialized-file",
@@ -157,15 +169,19 @@ def build_cmd(test):
         "version",
         "export-path",
         "runtime",
+        "requirements-file",
+        "config-file",
+        "force",
     ]
+    test["requirements-file"] = None
+    test["config-file"] = None
+    test["force"] = test.get("force", False)
+    test["runtime"] = test.get("runtime", DEFAULT_RUNTIME)
+    test["archive-format"] = test.get("archive-format", "default")
 
-    cmd = ["torch-model-archiver"]
+    args = Namespace(**{k.replace("-", "_"): test[k] for k in keys})
 
-    for arg in args:
-        if arg in test:
-            cmd.append("--{0} {1}".format(arg, test[arg]))
-
-    return " ".join(cmd)
+    return args
 
 
 def make_paths_absolute(test, keys):
@@ -180,7 +196,7 @@ def make_paths_absolute(test, keys):
     return test
 
 
-def test_model_archiver(integ_tests):
+def test_model_archiver(integ_tests, mocker):
     for test in integ_tests:
         # tar.gz format problem on windows hence ignore
         if platform.system() == "Windows" and test["archive-format"] == "tgz":
@@ -195,33 +211,28 @@ def test_model_archiver(integ_tests):
             test["model-name"] = (
                 test["model-name"] + "_" + str(int(time.time() * 1000.0))
             )
-            cmd = build_cmd(test)
-            if test.get("force"):
-                cmd += " -f"
+            args = build_namespace(test)
 
-            if run_test(test, cmd):
+            if run_test(test, args, mocker):
                 validate(test)
         finally:
             delete_file_path(test.get("export-path"))
 
 
-def test_default_handlers(default_handler_tests):
+def test_default_handlers(default_handler_tests, mocker):
     for test in default_handler_tests:
-        cmd = build_cmd(test)
+        cmd = build_namespace(test)
         try:
             delete_file_path(test.get("export-path"))
             create_file_path(test.get("export-path"))
 
-            if test.get("force"):
-                cmd += " -f"
-
-            if run_test(test, cmd):
+            if run_test(test, cmd, mocker):
                 validate(test)
         finally:
             delete_file_path(test.get("export-path"))
 
 
-def test_zip_store(tmp_path, integ_tests):
+def test_zip_store(tmp_path, integ_tests, mocker):
     integ_tests = list(
         filter(lambda t: t["name"] == "packaging_zip_store_mar", integ_tests)
     )
@@ -232,11 +243,11 @@ def test_zip_store(tmp_path, integ_tests):
     test["iterations"] = 1
 
     test["model-name"] = "zip-store"
-    run_test(test, build_cmd(test))
+    run_test(test, build_namespace(test), mocker)
 
     test["model-name"] = "zip"
     test["archive-format"] = "default"
-    run_test(test, build_cmd(test))
+    run_test(test, build_namespace(test), mocker)
 
     stored_size = Path(tmp_path).joinpath("zip-store.mar").stat().st_size
     zipped_size = Path(tmp_path).joinpath("zip.mar").stat().st_size
