@@ -18,14 +18,14 @@ jobs:
 
       - name: Test Image Build
         id: image_build
-        working-directory: serve/docker
+        working-directory: docker
         run: |
           IMAGE_TAG=test-image-${{ matrix.python-version }}
           ./build_image.sh -py "${{ matrix.python-version }}" -t "${IMAGE_TAG}"
           echo "IMAGE_TAG=${IMAGE_TAG}" >> $GITHUB_OUTPUT
 
       - name: Container Healthcheck
-        working-directory: serve/docker
+        working-directory: docker
         run: ./test_container_health.sh ${{ steps.image_build.outputs.IMAGE_TAG }}
 
       - name: Check Python Version in Container
@@ -33,6 +33,6 @@ jobs:
         run: ./test_container_python_version.sh ${{ steps.image_build.outputs.IMAGE_TAG }} ${{ matrix.python-version }}
 
       - name: Test model running in container with sample image data 
-        working-directory: serve/docker
+        working-directory: docker
         run: |
           ./test_container_model_prediction.sh ${{ steps.image_build.outputs.IMAGE_TAG }}
