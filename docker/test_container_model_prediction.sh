@@ -8,8 +8,9 @@ CONTAINER="test-container-${IMAGE_TAG}"
 FILES_PATH="$(realpath "$(pwd)/..")/examples/image_classifier/mnist"
 SERVER_PATH="/home/model-server"
 
-cat << EOF > ./test-entrypoint.sh
-#!/bin/bash
+entrypoint=$(mktemp "./test-entrypointXXX.sh")
+cat << EOF > "${entrypoint}"
+#!/usr/bin/env bash
 
 torch-model-archiver \
     --model-name=mnist \
@@ -24,12 +25,12 @@ EOF
 
 echo "Starting container ${CONTAINER}"
 docker run --rm -d -it --name "${CONTAINER}" -p 8080:8080 -p 8081:8081 -p 8082:8082 \
-    -v "${FILES_PATH}/mnist.py:${SERVER_PATH}/mnist.py" \
-    -v "${FILES_PATH}/mnist_cnn.pt:${SERVER_PATH}/mnist_cnn.pt" \
-    -v "${FILES_PATH}/mnist_handler.py:${SERVER_PATH}/mnist_handler.py" \
-    -v "$(pwd)/test-entrypoint.sh:${SERVER_PATH}/test-entrypoint.sh" \
+    -v "${FILES_PATH}/mnist.py":"${SERVER_PATH}/mnist.py" \
+    -v "${FILES_PATH}/mnist_cnn.pt":"${SERVER_PATH}/mnist_cnn.pt" \
+    -v "${FILES_PATH}/mnist_handler.py":"${SERVER_PATH}/mnist_handler.py" \
+    -v "$(pwd)/${entrypoint}":"${SERVER_PATH}/test-entrypoint.sh" \
     "${IMAGE_TAG}" \
-    /bin/bash test-entrypoint.sh 2>&1
+    /bin/bash test-entrypoint.sh
 
 echo "Waiting 10s for container to come up..."
 sleep 10
@@ -55,4 +56,4 @@ done
 echo "Test successful!"
 
 docker stop "${CONTAINER}"
-rm -f test-entrypoint.sh
+rm -f "${entrypoint}"
