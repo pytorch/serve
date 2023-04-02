@@ -8,7 +8,7 @@ CONTAINER="test-container-${IMAGE_TAG}"
 FILES_PATH="$(realpath "$(pwd)/..")/examples/image_classifier/mnist"
 SERVER_PATH="/home/model-server"
 
-entrypoint=$(mktemp "./test-entrypointXXX.sh")
+entrypoint=$(mktemp "test-entrypointXXX.sh")
 cat << EOF > "${entrypoint}"
 #!/usr/bin/env bash
 
