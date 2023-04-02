@@ -1,0 +1,14 @@
+{
+    "task_name": "text-to-image",
+    "provider": "diffuser",
+    "ds_optimize": false,
+    "ds_zero": false,
+    "mii_config": {
+        "tensor_parallel": 1,
+        "dtype": "fp16"
+    },
+    "model_config": {
+        "guidance_scale" : 7.5,
+        "num_inference_steps": 50
+    }
+}
