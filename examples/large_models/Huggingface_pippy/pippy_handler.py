@@ -1,7 +1,6 @@
 import logging
 import os
 import time
-import zipfile
 from abc import ABC
 
 import requests
@@ -40,25 +39,21 @@ class TransformersSeqClassifierHandler(BasePippyHandler, ABC):
         model_dir = properties.get("model_dir")
         n_devs = torch.cuda.device_count()
         self.device = self.local_rank % n_devs
-        with zipfile.ZipFile(model_dir + "/model.zip", "r") as zip_ref:
-            zip_ref.extractall(model_dir + "/model")
+        # with zipfile.ZipFile(model_dir + "/model.zip", "r") as zip_ref:
+        #     zip_ref.extractall(model_dir + "/model")
 
         torch.manual_seed(42)
 
-        model = AutoModelForCausalLM.from_pretrained(
-            model_dir + "/model", use_cache=False
-        )
+        model = AutoModelForCausalLM.from_pretrained(model_dir, use_cache=False)
 
-        self.tokenizer = AutoTokenizer.from_pretrained(
-            model_dir + "/model", return_tensors="pt"
-        )
+        self.tokenizer = AutoTokenizer.from_pretrained(model_dir, return_tensors="pt")
 
         model.eval()
 
-        chunks = ctx.model_yaml_config["chunks"]
-        input_names = ctx.model_yaml_config["input_names"]
-        model_type = ctx.model_yaml_config["model_type"]
-        self.max_length = ctx.model_yaml_config["max_length"]
+        chunks = ctx.model_yaml_config["pippy"]["chunks"]
+        input_names = ctx.model_yaml_config["pippy"]["input_names"]
+        model_type = ctx.model_yaml_config["pippy"]["model_type"]
+        self.max_length = ctx.model_yaml_config["handler"]["max_length"]
 
         print("Instantiating model Pipeline")
         model_init_start = time.time()
