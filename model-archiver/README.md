@@ -164,16 +164,20 @@ For more details refer [default handler documentation](../docs/default_handlers.
 A model config yaml file. For example: 
 
 ```
-# TS Frontend parameters
+# TS frontend parameters
+# See all supported parameters: https://github.com/pytorch/serve/blob/master/frontend/archive/src/main/java/org/pytorch/serve/archive/model/ModelConfig.java#L14 
 minWorkers: 1 # default: #CPU or #GPU
 maxWorkers: 1 # default: #CPU or #GPU
 batchSize: 1 # default: 1
 maxBatchDelay: 100 # default: 100 msec
 responseTimeout: 120 # default: 120 sec
 deviceType: cpu # cpu, gpu, neuron
-deviceIds: [0,1,2,3] # device index for gpu, neuron. Default: all visible devices
-parallelLevel: 4 # rpc world size. Default: 1
+deviceIds: [0,1,2,3] # gpu device ids allocated to this model. 
 parallelType: pp # pp: pipeline parallel; pptp: tensor+pipeline parallel. Default: empty
+
+# See torchrun parameters: https://pytorch.org/docs/stable/elastic/run.html
+torchrun:
+  nproc-per-node: 2
 
 # TS backend parameters
 pippy:
