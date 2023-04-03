@@ -1,25 +1,16 @@
-import json
-import logging
-import os
-import zipfile
-from abc import ABC
-
-import torch
-import transformers
-from transformers import BloomForCausalLM, BloomTokenizerFast, AutoModelForCausalLM, AutoTokenizer
-
-from ts.torch_handler.distributed.base_pippy_handler import BasePippyHandler
-import argparse
-import inspect
 import logging
 import os
 import time
+import zipfile
+from abc import ABC
 
-import torch
-from PIL import Image
 import requests
-import torch.distributed.rpc as rpc
+import torch
+import transformers
+from transformers import AutoModelForCausalLM, AutoTokenizer
+
 from ts.handler_utils.distributed.pt_pippy import get_pipline_driver
+from ts.torch_handler.distributed.base_pippy_handler import BasePippyHandler
 
 logger = logging.getLogger(__name__)
 logger.info("Transformers version %s", transformers.__version__)
@@ -37,13 +28,12 @@ class TransformersSeqClassifierHandler(BasePippyHandler, ABC):
         self.world_size = int(os.environ["WORLD_SIZE"])
 
     def initialize(self, ctx):
-        """In this initialize function, the HF large model is loaded and 
+        """In this initialize function, the HF large model is loaded and
         partitioned into multiple stages each on one device using PiPPy.
         Args:
             ctx (context): It is a JSON Object containing information
             pertaining to the model artefacts parameters.
         """
-   
 
         self.manifest = ctx.manifest
         properties = ctx.system_properties
@@ -54,30 +44,31 @@ class TransformersSeqClassifierHandler(BasePippyHandler, ABC):
             zip_ref.extractall(model_dir + "/model")
 
         torch.manual_seed(42)
-     
 
         model = AutoModelForCausalLM.from_pretrained(
-            model_dir + "/model", use_cache=False)
+            model_dir + "/model", use_cache=False
+        )
 
         self.tokenizer = AutoTokenizer.from_pretrained(
             model_dir + "/model", return_tensors="pt"
         )
-        
+
         model.eval()
 
         chunks = ctx.model_yaml_config["chunks"]
         input_names = ctx.model_yaml_config["input_names"]
-        model_type= ctx.model_yaml_config["model_type"]
-     
+        model_type = ctx.model_yaml_config["model_type"]
+        self.max_length = ctx.model_yaml_config["max_length"]
 
-        print('Instantiating model Pipeline')
+        print("Instantiating model Pipeline")
         model_init_start = time.time()
-        self.model  = get_pipline_driver(model,self.world_size, input_names, model_type, chunks)
+        self.model = get_pipline_driver(
+            model, self.world_size, input_names, model_type, chunks
+        )
 
         logger.info("Transformer model from path %s loaded successfully", model_dir)
 
         self.initialized = True
-
 
     def preprocess(self, requests):
         """Basic text preprocessing, based on the user's chocie of application mode.
@@ -101,7 +92,7 @@ class TransformersSeqClassifierHandler(BasePippyHandler, ABC):
 
             inputs = self.tokenizer.encode_plus(
                 input_text,
-                max_length=int(max_length),
+                max_length=self.max_length,
                 pad_to_max_length=True,
                 add_special_tokens=True,
                 return_tensors="pt",
@@ -134,7 +125,7 @@ class TransformersSeqClassifierHandler(BasePippyHandler, ABC):
         inferences = []
         input_ids_batch = input_ids_batch.to(self.device)
         model_input_dict = {}
-        model_input_dict["input_ids"]=input_ids_batch
+        model_input_dict["input_ids"] = input_ids_batch
         # outputs = self.model.generate(
         #     input_ids_batch, do_sample=True, max_length=50, top_p=0.95, top_k=60
         # )
@@ -142,10 +133,14 @@ class TransformersSeqClassifierHandler(BasePippyHandler, ABC):
         #     inferences.append(
         #         self.tokenizer.decode(outputs[i], skip_special_tokens=True)
         #     )
-        if self.local_rank==0:
+        if self.local_rank == 0:
             output = self.model(**model_input_dict)
         # rpc.shutdown()
-        print("************** here is the output",type(output["logits"]), len(output["logits"]))
+        print(
+            "************** here is the output",
+            type(output["logits"]),
+            len(output["logits"]),
+        )
         # print(self.tokenizer.decode(output["logits"], skip_special_tokens=True))
         # inference = self.tokenizer.decode(output["logits"], skip_special_tokens=True)
         # logger.info("Generated text: '%s'", inferences)
@@ -161,5 +156,3 @@ class TransformersSeqClassifierHandler(BasePippyHandler, ABC):
             (list): Returns a list of the Predictions and Explanations.
         """
         return inference_output
-
-   
