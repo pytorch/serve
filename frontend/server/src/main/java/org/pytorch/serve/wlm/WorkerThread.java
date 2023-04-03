@@ -1,7 +1,5 @@
 package org.pytorch.serve.wlm;
 
-import static org.pytorch.serve.util.messages.RequestInput.TS_STREAM_NEXT;
-
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
@@ -231,7 +229,7 @@ public class WorkerThread implements Runnable {
                         if (reply.getPredictions()
                                 .get(0)
                                 .getHeaders()
-                                .get(TS_STREAM_NEXT)
+                                .get(org.pytorch.serve.util.messages.RequestInput.TS_STREAM_NEXT)
                                 .equals("false")) {
                             duration = System.currentTimeMillis() - begin;
                             logger.info("Backend response time: {}", duration);
