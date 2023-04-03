@@ -8,3 +8,4 @@ parallelType: "pp"
 chunks: 1
 input_names: ['input_ids']
 model_type: "HF"
+max_length: 80 #max length for tokenizer
