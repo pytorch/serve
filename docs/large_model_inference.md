@@ -1,12 +1,12 @@
 # Serving large models with Torchserve
 
-This document explain how Torchserve supports large model serving, here large model refers to the models that are not able to fit into one gpu so they need be splitted in multiple partitions over multiple gpus. 
+This document explain how Torchserve supports large model serving, here large model refers to the models that are not able to fit into one gpu so they need be splitted in multiple partitions over multiple gpus.
 
 ## PiPPY (PyTorch Native solution for large model inference)
 
-PiPPy provides pipeline paralleism for serving large models that would not fit into one gpu. It takes your model and splits it into equal sizes (stages) partitioned over the number devices you specify. Then uses micro batching to run your batched input for inference ( its is more optimal for batch sizes >1).
+PiPPy provides pipeline parallelsim for serving large models that would not fit into one gpu. It takes your model and splits it into equal sizes (stages) partitioned over the number devices you specify. Then uses micro batching to run your batched input for inference ( its is more optimal for batch sizes >1).
 
-Microbatching is the techniques in pipeline parallelsim to maximize gpu utiliztion. 
+Microbatching is the techniques in pipeline parallelsim to maximize gpu utilization.
 
 ## How to use PiPPY in Torchserve
 
@@ -29,7 +29,7 @@ class ModelHandler(BasePippyHandler, ABC):
         self.local_rank = int(os.environ["LOCAL_RANK"])
         self.world_size = int(os.environ["WORLD_SIZE"])
 
-    def initialize(self, ctx): 
+    def initialize(self, ctx):
         model = # load your model from model_dir
         self.device = self.local_rank %  torch.cuda.device_count()# being used to move model inputs to (sel.device)
         model.eval()
