@@ -55,9 +55,9 @@ responseTimeout: 120
 parallelLevel: 4 # number of GPUs for inference
 deviceType: gpu
 parallelType: "pp"
-chunks: 1
-input_names: ['input_ids']
-model_type: "HF"
+chunks: 1 # specify the microbatch size, microbatch = batchsize/chunks
+input_names: ['input_ids'] # name of the inputs passed to model
+model_type: "HF" # model type if HuggingFace otherwise None
 
 ```
 
@@ -81,7 +81,7 @@ mv bloom.mar model_store
 Update config.properties and start torchserve
 
 ```bash
-torchserve --ncs --start --model-store model_store --models bloom.mar --ts-config config.properties
+torchserve --ncs --start --model-store model_store --models bloom.mar
 ```
 
 ### Step 7: Run inference
