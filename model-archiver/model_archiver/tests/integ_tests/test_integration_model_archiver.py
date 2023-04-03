@@ -41,12 +41,10 @@ def delete_file_path(path):
 
 
 def run_test(test, args, mocker):
-    m = mocker.Mock()
-    m.parse_args = lambda: args
-    mocker.patch(
+    m = mocker.patch(
         "model_archiver.model_packaging.ArgParser.export_model_args_parser",
-        return_value=m,
     )
+    m.return_value.parse_args.return_value = args
     mocker.patch("sys.exit", side_effect=Exception())
     from model_archiver.model_packaging import generate_model_archive
 
