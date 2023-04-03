@@ -2,10 +2,16 @@ minWorkers: 1
 maxWorkers: 1
 maxBatchDelay: 100
 responseTimeout: 120
-parallelLevel: 4
-deviceType: gpu
-parallelType: "pp"
-chunks: 1
-input_names: ['input_ids']
-model_type: "HF"
-max_length: 80 #max length for tokenizer
+parallelType: “pp”
+deviceType: “gpu”
+# deviceIds: [2,3]
+torchrun:
+    nproc-per-node: 4
+pippy:
+    rpc_timeout: 1800
+    model_type: "HF"
+    chuncks: 1
+    input_names: ["input_ids"]
+
+handler:
+    max_length: 80
