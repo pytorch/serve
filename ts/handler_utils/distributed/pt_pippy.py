@@ -1,4 +1,5 @@
 import inspect
+import logging
 import os
 import time
 
@@ -7,6 +8,8 @@ import torch
 import torch.distributed.rpc as rpc
 from pippy import split_into_equal_size
 from pippy.hf import PiPPyHFTracer
+
+logger = logging.getLogger(__name__)
 
 
 def initialize_rpc_workers(local_rank, world_size):
@@ -31,7 +34,7 @@ def get_pipline_driver(model, world_size, input_names, model_type, chunks):
     concrete_args = {
         p.name: p.default for p in sig.parameters.values() if p.name not in input_names
     }
-    print("Instantiating model Pipeline")
+    logger.info("initializing the model pipline")
     model_init_start = time.time()
     if model_type == "HF":
         tracer = PiPPyHFTracer()
@@ -47,4 +50,5 @@ def get_pipline_driver(model, world_size, input_names, model_type, chunks):
         concrete_args=concrete_args,
     )
     model_init_end = time.time()
+    logger.info("model initilaization took ms ", (model_init_end - model_init_start))
     return pipe_driver
