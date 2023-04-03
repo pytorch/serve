@@ -10,8 +10,7 @@ from ts.torch_handler.base_handler import BaseHandler
 
 class BasePippyHandler(BaseHandler, ABC):
     """
-    Base default handler to load torchscript or eager mode [state_dict] models
-    Also, provides handle method per torch serve custom model specification
+    Base default handler to set up rpc workers for PiPPy large model inference
     """
 
     def __init__(self):
