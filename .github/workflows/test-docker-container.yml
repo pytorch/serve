@@ -29,7 +29,7 @@ jobs:
         run: ./test_container_health.sh ${{ steps.image_build.outputs.IMAGE_TAG }}
 
       - name: Check Python Version in Container
-        working-directory: serve/docker
+        working-directory: docker
         run: ./test_container_python_version.sh ${{ steps.image_build.outputs.IMAGE_TAG }} ${{ matrix.python-version }}
 
       - name: Test model running in container with sample image data 
