@@ -1,5 +1,4 @@
 import logging
-import os
 import time
 from abc import ABC
 
@@ -23,8 +22,8 @@ class TransformersSeqClassifierHandler(BasePippyHandler, ABC):
     def __init__(self):
         super(TransformersSeqClassifierHandler, self).__init__()
         self.initialized = False
-        self.local_rank = int(os.environ["LOCAL_RANK"])
-        self.world_size = int(os.environ["WORLD_SIZE"])
+        # self.local_rank = int(os.environ["LOCAL_RANK"])
+        # self.world_size = int(os.environ["WORLD_SIZE"])
 
     def initialize(self, ctx):
         """In this initialize function, the HF large model is loaded and
@@ -33,14 +32,12 @@ class TransformersSeqClassifierHandler(BasePippyHandler, ABC):
             ctx (context): It is a JSON Object containing information
             pertaining to the model artefacts parameters.
         """
-
+        super().initialize(ctx)
         self.manifest = ctx.manifest
         properties = ctx.system_properties
         model_dir = properties.get("model_dir")
         n_devs = torch.cuda.device_count()
         self.device = self.local_rank % n_devs
-        # with zipfile.ZipFile(model_dir + "/model.zip", "r") as zip_ref:
-        #     zip_ref.extractall(model_dir + "/model")
 
         torch.manual_seed(42)
 
@@ -48,18 +45,11 @@ class TransformersSeqClassifierHandler(BasePippyHandler, ABC):
 
         self.tokenizer = AutoTokenizer.from_pretrained(model_dir, return_tensors="pt")
 
-        model.eval()
-
-        chunks = ctx.model_yaml_config["pippy"]["chunks"]
-        input_names = ctx.model_yaml_config["pippy"]["input_names"]
-        model_type = ctx.model_yaml_config["pippy"]["model_type"]
         self.max_length = ctx.model_yaml_config["handler"]["max_length"]
 
         print("Instantiating model Pipeline")
         model_init_start = time.time()
-        self.model = get_pipline_driver(
-            model, self.world_size, input_names, model_type, chunks
-        )
+        self.model = get_pipline_driver(model, self.world_size, ctx)
 
         logger.info("Transformer model from path %s loaded successfully", model_dir)
 
