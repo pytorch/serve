@@ -2,15 +2,15 @@ minWorkers: 1
 maxWorkers: 1
 maxBatchDelay: 100
 responseTimeout: 120
-parallelType: “pp”
-deviceType: “gpu”
+parallelType: "pp"
+deviceType: "gpu"
 # deviceIds: [2,3]
 torchrun:
     nproc-per-node: 4
 pippy:
     rpc_timeout: 1800
     model_type: "HF"
-    chuncks: 1
+    chunks: 1
     input_names: ["input_ids"]
 
 handler:
