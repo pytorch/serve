@@ -1,0 +1,5 @@
+{
+  "mp_size": 4,
+  "dtype": "torch.float16",
+  "replace_with_kernel_inject": true
+}

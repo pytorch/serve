@@ -26,14 +26,15 @@ class TransformersSeqClassifierHandler(BaseDeepSpeedHandler, ABC):
 
     def __init__(self):
         super(TransformersSeqClassifierHandler, self).__init__()
+        self.tokenizer = None
         self.initialized = False
 
     def initialize(self, ctx: Context):
         model_dir = ctx.system_properties.get("model_dir")
         self.device = int(os.getenv("LOCAL_RANK", 0))
         model = AutoModelForCausalLM.from_pretrained(model_dir, use_cache=False)
-        tokenizer = AutoTokenizer.from_pretrained(model_dir, return_tensors="pt")
-        self.model = pipeline(model=model, tokenizer=tokenizer, device=self.device)
+        self.tokenizer = AutoTokenizer.from_pretrained(model_dir, return_tensors="pt")
+        self.model = pipeline(model=model, tokenizer=self.tokenizer, device=self.device)
         super().initialize(ctx)
 
     def preprocess(self, requests):
