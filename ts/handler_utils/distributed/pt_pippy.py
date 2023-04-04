@@ -20,7 +20,7 @@ def initialize_rpc_workers(local_rank, world_size, ctx):
     dev_id = local_rank % n_devs
     for i in range(world_size):
         options.set_device_map(f"worker{i}", {dev_id: i % n_devs})
-    print(f"rank = {local_rank} pid/device = " f"{os.getpid()}/{dev_id}")
+    logger.info(f"rank = {local_rank} pid/device = " f"{os.getpid()}/{dev_id}")
     rpc.init_rpc(
         f"worker{local_rank}",
         rank=local_rank,
