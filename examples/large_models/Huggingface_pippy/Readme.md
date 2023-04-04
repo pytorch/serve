@@ -1,8 +1,8 @@
 # Loading large Huggingface models with PiPPy (PyTorch Native Large inference solution)
 
-This document briefs on serving large HF model with PiPPy. 
+This document briefs on serving large HF model with PiPPy.
 
-PiPPy provides pipeline paralleism for serving large models that woul not fit into one gpu. It takes your model and splits it into equal sizes (stages) partitioned over the number devices you specify. Then uses micro batching to run your batched input for inference ( its is more optimal for batch sizes >1). Microbatching is the techniques in pipeline parallelsim to maximize gpu utiliztion. 
+PiPPy provides pipeline paralleism for serving large models that woul not fit into one gpu. It takes your model and splits it into equal sizes (stages) partitioned over the number devices you specify. Then uses micro batching to run your batched input for inference ( its is more optimal for batch sizes >1). Microbatching is the techniques in pipeline parallelsim to maximize gpu utiliztion.
 
 ## How to serve your large HuggingFace models with PiPPY in Torchserve?
 
@@ -25,7 +25,7 @@ paste the token generated from huggingface hub.
 ```bash
 python Download_model.py --model_name bigscience/bloom-1b1 #facebook/opt-iml-max-1.3b
 ```
-The script prints the path where the model is downloaded as below. This is an example and in your workload you want to use your actual trained model checkpoints. 
+The script prints the path where the model is downloaded as below. This is an example and in your workload you want to use your actual trained model checkpoints.
 
 `model/models--bigscience-bloom-7b1/snapshots/5546055f03398095e385d7dc625e636cc8910bf2/`
 
@@ -52,13 +52,21 @@ minWorkers: 1
 maxWorkers: 1
 maxBatchDelay: 100
 responseTimeout: 120
-parallelLevel: 4 # number of GPUs for inference
-deviceType: gpu
-parallelType: "pp"
-chunks: 1 # specify the microbatch size, microbatch = batchsize/chunks
-input_names: ['input_ids'] # name of the inputs passed to model
-model_type: "HF" # model type if HuggingFace otherwise None
+parallelLevel: 4
+deviceType: "gpu"
+parallelType: "pp" #PiPPy as the solution for distributed inference
 
+pippy:
+    chunks: 1 # This sets the microbatch sizes, microbatch = batch size/ chunks
+    input_names: ['input_ids'] # input arg names to the model, this is required for FX tracing
+    model_type: "HF" # set the model type to HF if you are using Huggingface model other wise leave it blank or any other model you use.
+    rpc_timeout: 1800
+
+torchrun:
+    nproc-per-node: 4 # specifies the number of processes torchrun starts to serve your model, set to world_size or number of
+                       # gpus you wish to split your model
+handler:
+    max_length: 80 # max length of tokens for tokenizer in the handler
 ```
 
 ### Step 4: Generate MAR file
@@ -66,7 +74,8 @@ model_type: "HF" # model type if HuggingFace otherwise None
 Navigate up to `Huggingface_Largemodels` directory.
 
 ```bash
-torch-model-archiver --model-name bloom --version 1.0 --handler pippy_handler.py --extra-files model.zip -r requirements.txt --config-file model-config.yaml
+torch-model-archiver --model-name bloom --version 1.0 --handler pippy_handler.py --extra-files model/models--facebook--opt-iml-max-1.3b/snapshots/d60fa58f50def19751da2075791da359ca19d273  -r requirements.txt --config-file model-config.yaml --archive-format tgz
+
 ```
 
 ### Step 5: Add the mar file to model store
@@ -89,8 +98,3 @@ torchserve --ncs --start --model-store model_store --models bloom.mar
 ```bash
 curl -v "http://localhost:8080/predictions/bloom" -T sample_text.txt
 ```
-
-
-
-
-
