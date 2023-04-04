@@ -41,7 +41,7 @@ class TransformersSeqClassifierHandler(BasePippyHandler, ABC):
 
         torch.manual_seed(42)
 
-        model = AutoModelForCausalLM.from_pretrained(model_dir, use_cache=False)
+        self.model = AutoModelForCausalLM.from_pretrained(model_dir, use_cache=False)
 
         self.tokenizer = AutoTokenizer.from_pretrained(model_dir, return_tensors="pt")
 
@@ -49,7 +49,7 @@ class TransformersSeqClassifierHandler(BasePippyHandler, ABC):
 
         print("Instantiating model Pipeline")
         model_init_start = time.time()
-        self.model = get_pipline_driver(model, self.world_size, ctx)
+        self.model = get_pipline_driver(self.model, self.world_size, ctx)
 
         logger.info("Transformer model from path %s loaded successfully", model_dir)
 
@@ -72,7 +72,6 @@ class TransformersSeqClassifierHandler(BasePippyHandler, ABC):
             if isinstance(input_text, (bytes, bytearray)):
                 input_text = input_text.decode("utf-8")
 
-            max_length = self.setup_config["max_length"]
             logger.info("Received text: '%s'", input_text)
 
             inputs = self.tokenizer.encode_plus(
