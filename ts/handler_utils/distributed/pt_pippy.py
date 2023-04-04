@@ -1,7 +1,6 @@
 import inspect
 import logging
 import os
-import time
 
 import pippy
 import torch
@@ -35,7 +34,6 @@ def get_pipline_driver(model, world_size, input_names, model_type, chunks):
         p.name: p.default for p in sig.parameters.values() if p.name not in input_names
     }
     logger.info("initializing the model pipline")
-    model_init_start = time.time()
     if model_type == "HF":
         tracer = PiPPyHFTracer()
     else:
@@ -49,6 +47,4 @@ def get_pipline_driver(model, world_size, input_names, model_type, chunks):
         tracer=tracer,
         concrete_args=concrete_args,
     )
-    model_init_end = time.time()
-    logger.info("model initilaization took ms ", (model_init_end - model_init_start))
     return pipe_driver
