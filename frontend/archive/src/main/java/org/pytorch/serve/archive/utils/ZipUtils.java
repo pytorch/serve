@@ -14,6 +14,9 @@ import java.util.UUID;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
+import org.apache.commons.compress.archivers.ArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
+import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
@@ -66,7 +69,8 @@ public final class ZipUtils {
         }
     }
 
-    public static File unzip(InputStream is, String eTag, String type) throws IOException {
+    public static File unzip(InputStream is, String eTag, String type, boolean isMar)
+            throws IOException {
         File tmpDir = FileUtils.getTempDirectory();
         File modelDir = new File(tmpDir, type);
         FileUtils.forceMkdir(modelDir);
@@ -81,7 +85,11 @@ public final class ZipUtils {
         } catch (NoSuchAlgorithmException e) {
             throw new AssertionError(e);
         }
-        unzip(new DigestInputStream(is, md), tmp);
+        if (isMar) {
+            unzip(new DigestInputStream(is, md), tmp);
+        } else {
+            decompressTarGzipFile(new DigestInputStream(is, md), tmp);
+        }
         if (eTag == null) {
             eTag = UUID.randomUUID().toString().replaceAll("-", "");
         }
@@ -91,5 +99,25 @@ public final class ZipUtils {
         FileUtils.moveDirectory(tmp, dir);
 
         return dir;
+    }
+
+    public static void decompressTarGzipFile(InputStream is, File dest) throws IOException {
+        try (GzipCompressorInputStream gzi = new GzipCompressorInputStream(is);
+                TarArchiveInputStream tis = new TarArchiveInputStream(gzi)) {
+            ArchiveEntry entry;
+            while ((entry = tis.getNextEntry()) != null) {
+                String name = entry.getName().substring(entry.getName().indexOf('/') + 1);
+                File file = new File(dest, name);
+                if (entry.isDirectory()) {
+                    FileUtils.forceMkdir(file);
+                } else {
+                    File parentFile = file.getParentFile();
+                    FileUtils.forceMkdir(parentFile);
+                    try (OutputStream os = Files.newOutputStream(file.toPath())) {
+                        IOUtils.copy(tis, os);
+                    }
+                }
+            }
+        }
     }
 }
