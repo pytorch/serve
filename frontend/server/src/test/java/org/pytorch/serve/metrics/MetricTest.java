@@ -22,12 +22,10 @@ public class MetricTest {
     private final String testMetricName = "TestMetric";
     private final String testMetricUnit = "ms";
     private final ArrayList<String> testMetricDimensionNames =
-            new ArrayList<String>(Arrays.asList("ModelName", "Level"));
+            new ArrayList<String>(Arrays.asList("ModelName", "Level", "Hostname"));
     private final ArrayList<String> testMetricDimensionValues =
-            new ArrayList<String>(Arrays.asList("TestModel", "Model"));
-    private final String testHostname = "TestHost";
+            new ArrayList<String>(Arrays.asList("TestModel", "Model", "TestHost"));
     private final String testRequestId = "fa8639a8-d3fa-4a25-a80f-24463863fe0f";
-    private final String testTimestamp = "1678152573";
     private final Logger loggerModelMetrics =
             (org.apache.logging.log4j.core.Logger)
                     LogManager.getLogger(ConfigManager.MODEL_METRICS_LOGGER);
@@ -77,14 +75,13 @@ public class MetricTest {
         IMetric testMetric =
                 MetricBuilder.build(
                         MetricBuilder.MetricMode.LOG,
-                        MetricBuilder.MetricContext.BACKEND,
                         MetricBuilder.MetricType.COUNTER,
                         testMetricName,
                         testMetricUnit,
                         testMetricDimensionNames);
         Assert.assertEquals(testMetric.getClass(), LogMetric.class);
 
-        testMetric.addOrUpdate(testMetricDimensionValues, testHostname, testRequestId, 1.0);
+        testMetric.addOrUpdate(testMetricDimensionValues, testRequestId, 1.0);
         String expectedMetricString =
                 "TestMetric.ms:1.0|#ModelName:TestModel,Level:Model|#hostname:TestHost,"
                         + "requestID:fa8639a8-d3fa-4a25-a80f-24463863fe0f,timestamp:";
@@ -96,17 +93,13 @@ public class MetricTest {
         IMetric testMetric =
                 MetricBuilder.build(
                         MetricBuilder.MetricMode.LOG,
-                        MetricBuilder.MetricContext.FRONTEND,
                         MetricBuilder.MetricType.GAUGE,
                         testMetricName,
                         testMetricUnit,
                         testMetricDimensionNames);
         Assert.assertEquals(testMetric.getClass(), LogMetric.class);
 
-        ArrayList<String> testMetricDimensionValuesWithHostname =
-                new ArrayList<String>(testMetricDimensionValues);
-        testMetricDimensionValuesWithHostname.add(testHostname);
-        testMetric.addOrUpdate(testMetricDimensionValuesWithHostname, 1.0);
+        testMetric.addOrUpdate(testMetricDimensionValues, 1.0);
         String expectedMetricString =
                 "TestMetric.ms:1.0|#ModelName:TestModel,Level:Model|#hostname:TestHost,timestamp:";
         Assert.assertTrue(tsMetricsContent.toString().contains(expectedMetricString));
@@ -117,28 +110,25 @@ public class MetricTest {
         IMetric testMetric =
                 MetricBuilder.build(
                         MetricBuilder.MetricMode.PROMETHEUS,
-                        MetricBuilder.MetricContext.BACKEND,
                         MetricBuilder.MetricType.COUNTER,
                         testMetricName,
                         testMetricUnit,
                         testMetricDimensionNames);
         Assert.assertEquals(testMetric.getClass(), PrometheusCounter.class);
 
-        String[] dimensionNames = {
-            testMetricDimensionNames.get(0), testMetricDimensionNames.get(1), "Hostname"
-        };
-        String[] dimensionValues = {
-            testMetricDimensionValues.get(0), testMetricDimensionValues.get(1), testHostname
-        };
-        testMetric.addOrUpdate(testMetricDimensionValues, testHostname, null, 1.0);
+        testMetric.addOrUpdate(testMetricDimensionValues, testRequestId, 1.0);
         Double metricValue =
                 CollectorRegistry.defaultRegistry.getSampleValue(
-                        testMetricName, dimensionNames, dimensionValues);
+                        testMetricName,
+                        testMetricDimensionNames.toArray(new String[0]),
+                        testMetricDimensionValues.toArray(new String[0]));
         Assert.assertEquals(metricValue, Double.valueOf(1.0));
-        testMetric.addOrUpdate(testMetricDimensionValues, testHostname, null, 2.0);
+        testMetric.addOrUpdate(testMetricDimensionValues, testRequestId, 2.0);
         metricValue =
                 CollectorRegistry.defaultRegistry.getSampleValue(
-                        testMetricName, dimensionNames, dimensionValues);
+                        testMetricName,
+                        testMetricDimensionNames.toArray(new String[0]),
+                        testMetricDimensionValues.toArray(new String[0]));
         Assert.assertEquals(metricValue, Double.valueOf(3.0));
     }
 
@@ -147,28 +137,25 @@ public class MetricTest {
         IMetric testMetric =
                 MetricBuilder.build(
                         MetricBuilder.MetricMode.PROMETHEUS,
-                        MetricBuilder.MetricContext.FRONTEND,
                         MetricBuilder.MetricType.COUNTER,
                         testMetricName,
                         testMetricUnit,
                         testMetricDimensionNames);
         Assert.assertEquals(testMetric.getClass(), PrometheusCounter.class);
 
-        String[] dimensionNames = {
-            testMetricDimensionNames.get(0), testMetricDimensionNames.get(1)
-        };
-        String[] dimensionValues = {
-            testMetricDimensionValues.get(0), testMetricDimensionValues.get(1)
-        };
         testMetric.addOrUpdate(testMetricDimensionValues, 1.0);
         Double metricValue =
                 CollectorRegistry.defaultRegistry.getSampleValue(
-                        testMetricName, dimensionNames, dimensionValues);
+                        testMetricName,
+                        testMetricDimensionNames.toArray(new String[0]),
+                        testMetricDimensionValues.toArray(new String[0]));
         Assert.assertEquals(metricValue, Double.valueOf(1.0));
         testMetric.addOrUpdate(testMetricDimensionValues, 2.0);
         metricValue =
                 CollectorRegistry.defaultRegistry.getSampleValue(
-                        testMetricName, dimensionNames, dimensionValues);
+                        testMetricName,
+                        testMetricDimensionNames.toArray(new String[0]),
+                        testMetricDimensionValues.toArray(new String[0]));
         Assert.assertEquals(metricValue, Double.valueOf(3.0));
     }
 
@@ -177,28 +164,25 @@ public class MetricTest {
         IMetric testMetric =
                 MetricBuilder.build(
                         MetricBuilder.MetricMode.PROMETHEUS,
-                        MetricBuilder.MetricContext.BACKEND,
                         MetricBuilder.MetricType.GAUGE,
                         testMetricName,
                         testMetricUnit,
                         testMetricDimensionNames);
         Assert.assertEquals(testMetric.getClass(), PrometheusGauge.class);
 
-        String[] dimensionNames = {
-            testMetricDimensionNames.get(0), testMetricDimensionNames.get(1), "Hostname"
-        };
-        String[] dimensionValues = {
-            testMetricDimensionValues.get(0), testMetricDimensionValues.get(1), testHostname
-        };
-        testMetric.addOrUpdate(testMetricDimensionValues, testHostname, null, 1.0);
+        testMetric.addOrUpdate(testMetricDimensionValues, testRequestId, 1.0);
         Double metricValue =
                 CollectorRegistry.defaultRegistry.getSampleValue(
-                        testMetricName, dimensionNames, dimensionValues);
+                        testMetricName,
+                        testMetricDimensionNames.toArray(new String[0]),
+                        testMetricDimensionValues.toArray(new String[0]));
         Assert.assertEquals(metricValue, Double.valueOf(1.0));
-        testMetric.addOrUpdate(testMetricDimensionValues, testHostname, null, 2.0);
+        testMetric.addOrUpdate(testMetricDimensionValues, testRequestId, 2.0);
         metricValue =
                 CollectorRegistry.defaultRegistry.getSampleValue(
-                        testMetricName, dimensionNames, dimensionValues);
+                        testMetricName,
+                        testMetricDimensionNames.toArray(new String[0]),
+                        testMetricDimensionValues.toArray(new String[0]));
         Assert.assertEquals(metricValue, Double.valueOf(2.0));
     }
 
@@ -207,28 +191,25 @@ public class MetricTest {
         IMetric testMetric =
                 MetricBuilder.build(
                         MetricBuilder.MetricMode.PROMETHEUS,
-                        MetricBuilder.MetricContext.FRONTEND,
                         MetricBuilder.MetricType.GAUGE,
                         testMetricName,
                         testMetricUnit,
                         testMetricDimensionNames);
         Assert.assertEquals(testMetric.getClass(), PrometheusGauge.class);
 
-        String[] dimensionNames = {
-            testMetricDimensionNames.get(0), testMetricDimensionNames.get(1)
-        };
-        String[] dimensionValues = {
-            testMetricDimensionValues.get(0), testMetricDimensionValues.get(1)
-        };
         testMetric.addOrUpdate(testMetricDimensionValues, 1.0);
         Double metricValue =
                 CollectorRegistry.defaultRegistry.getSampleValue(
-                        testMetricName, dimensionNames, dimensionValues);
+                        testMetricName,
+                        testMetricDimensionNames.toArray(new String[0]),
+                        testMetricDimensionValues.toArray(new String[0]));
         Assert.assertEquals(metricValue, Double.valueOf(1.0));
         testMetric.addOrUpdate(testMetricDimensionValues, 2.0);
         metricValue =
                 CollectorRegistry.defaultRegistry.getSampleValue(
-                        testMetricName, dimensionNames, dimensionValues);
+                        testMetricName,
+                        testMetricDimensionNames.toArray(new String[0]),
+                        testMetricDimensionValues.toArray(new String[0]));
         Assert.assertEquals(metricValue, Double.valueOf(2.0));
     }
 
@@ -237,28 +218,25 @@ public class MetricTest {
         IMetric testMetric =
                 MetricBuilder.build(
                         MetricBuilder.MetricMode.PROMETHEUS,
-                        MetricBuilder.MetricContext.BACKEND,
                         MetricBuilder.MetricType.HISTOGRAM,
                         testMetricName,
                         testMetricUnit,
                         testMetricDimensionNames);
         Assert.assertEquals(testMetric.getClass(), PrometheusHistogram.class);
 
-        String[] dimensionNames = {
-            testMetricDimensionNames.get(0), testMetricDimensionNames.get(1), "Hostname"
-        };
-        String[] dimensionValues = {
-            testMetricDimensionValues.get(0), testMetricDimensionValues.get(1), testHostname
-        };
-        testMetric.addOrUpdate(testMetricDimensionValues, testHostname, null, 1.0);
+        testMetric.addOrUpdate(testMetricDimensionValues, testRequestId, 1.0);
         Double metricValue =
                 CollectorRegistry.defaultRegistry.getSampleValue(
-                        testMetricName + "_sum", dimensionNames, dimensionValues);
+                        testMetricName + "_sum",
+                        testMetricDimensionNames.toArray(new String[0]),
+                        testMetricDimensionValues.toArray(new String[0]));
         Assert.assertEquals(metricValue, Double.valueOf(1.0));
-        testMetric.addOrUpdate(testMetricDimensionValues, testHostname, null, 2.0);
+        testMetric.addOrUpdate(testMetricDimensionValues, testRequestId, 2.0);
         metricValue =
                 CollectorRegistry.defaultRegistry.getSampleValue(
-                        testMetricName + "_sum", dimensionNames, dimensionValues);
+                        testMetricName + "_sum",
+                        testMetricDimensionNames.toArray(new String[0]),
+                        testMetricDimensionValues.toArray(new String[0]));
         Assert.assertEquals(metricValue, Double.valueOf(3.0));
     }
 
@@ -267,28 +245,25 @@ public class MetricTest {
         IMetric testMetric =
                 MetricBuilder.build(
                         MetricBuilder.MetricMode.PROMETHEUS,
-                        MetricBuilder.MetricContext.FRONTEND,
                         MetricBuilder.MetricType.HISTOGRAM,
                         testMetricName,
                         testMetricUnit,
                         testMetricDimensionNames);
         Assert.assertEquals(testMetric.getClass(), PrometheusHistogram.class);
 
-        String[] dimensionNames = {
-            testMetricDimensionNames.get(0), testMetricDimensionNames.get(1)
-        };
-        String[] dimensionValues = {
-            testMetricDimensionValues.get(0), testMetricDimensionValues.get(1)
-        };
         testMetric.addOrUpdate(testMetricDimensionValues, 1.0);
         Double metricValue =
                 CollectorRegistry.defaultRegistry.getSampleValue(
-                        testMetricName + "_sum", dimensionNames, dimensionValues);
+                        testMetricName + "_sum",
+                        testMetricDimensionNames.toArray(new String[0]),
+                        testMetricDimensionValues.toArray(new String[0]));
         Assert.assertEquals(metricValue, Double.valueOf(1.0));
         testMetric.addOrUpdate(testMetricDimensionValues, 2.0);
         metricValue =
                 CollectorRegistry.defaultRegistry.getSampleValue(
-                        testMetricName + "_sum", dimensionNames, dimensionValues);
+                        testMetricName + "_sum",
+                        testMetricDimensionNames.toArray(new String[0]),
+                        testMetricDimensionValues.toArray(new String[0]));
         Assert.assertEquals(metricValue, Double.valueOf(3.0));
     }
 }

@@ -11,11 +11,6 @@ public final class MetricBuilder {
         LOG
     }
 
-    public enum MetricContext {
-        FRONTEND,
-        BACKEND
-    }
-
     public enum MetricType {
         COUNTER,
         GAUGE,
@@ -24,7 +19,6 @@ public final class MetricBuilder {
 
     public static final IMetric build(
             MetricMode mode,
-            MetricContext context,
             MetricType type,
             String name,
             String unit,
@@ -32,20 +26,18 @@ public final class MetricBuilder {
         if (mode == MetricMode.PROMETHEUS) {
             switch (type) {
                 case COUNTER:
-                    return new PrometheusCounter(context, type, name, unit, dimensionNames);
+                    return new PrometheusCounter(type, name, unit, dimensionNames);
                 case GAUGE:
-                    return new PrometheusGauge(context, type, name, unit, dimensionNames);
+                    return new PrometheusGauge(type, name, unit, dimensionNames);
                 case HISTOGRAM:
-                    return new PrometheusHistogram(context, type, name, unit, dimensionNames);
+                    return new PrometheusHistogram(type, name, unit, dimensionNames);
                 default:
             }
         } else {
-            return new LogMetric(context, type, name, unit, dimensionNames);
+            return new LogMetric(type, name, unit, dimensionNames);
         }
         return null;
     }
 
-    private MetricBuilder() {
-        throw new UnsupportedOperationException();
-    }
+    private MetricBuilder() {}
 }

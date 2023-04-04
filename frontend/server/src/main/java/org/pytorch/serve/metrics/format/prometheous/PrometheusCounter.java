@@ -2,18 +2,15 @@ package org.pytorch.serve.metrics.format.prometheous;
 
 import io.prometheus.client.Counter;
 import java.util.List;
+import org.pytorch.serve.metrics.IMetric;
 import org.pytorch.serve.metrics.MetricBuilder;
 
-public class PrometheusCounter extends PrometheusMetric {
+public class PrometheusCounter extends IMetric {
     private final Counter counter;
 
     public PrometheusCounter(
-            MetricBuilder.MetricContext context,
-            MetricBuilder.MetricType type,
-            String name,
-            String unit,
-            List<String> dimensionNames) {
-        super(context, type, name, unit, dimensionNames);
+            MetricBuilder.MetricType type, String name, String unit, List<String> dimensionNames) {
+        super(type, name, unit, dimensionNames);
         this.counter =
                 Counter.build()
                         .name(this.name)
@@ -31,5 +28,10 @@ public class PrometheusCounter extends PrometheusMetric {
                                 .subList(0, this.dimensionNames.size())
                                 .toArray(new String[this.dimensionNames.size()]))
                 .inc(value);
+    }
+
+    @Override
+    public void addOrUpdate(List<String> dimensionValues, String requestIds, double value) {
+        this.addOrUpdate(dimensionValues, value);
     }
 }
