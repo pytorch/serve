@@ -78,6 +78,10 @@ public class MetricConfiguration {
             config.setMode(metricsMode.toLowerCase());
         }
 
+        if (config.getMode() == null) {
+            config.setMode("log");
+        }
+
         return config;
     }
 }

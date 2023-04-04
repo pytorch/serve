@@ -81,7 +81,7 @@ public class MetricConfigurationTest {
                 MetricConfiguration.loadConfiguration(
                         "src/test/resources/metrics/valid_configuration_empty_metric_dimensions.yaml");
 
-        Assert.assertEquals(config.getMode(), null);
+        Assert.assertEquals(config.getMode(), "log");
 
         Assert.assertEquals(config.getDimensions(), null);
 
