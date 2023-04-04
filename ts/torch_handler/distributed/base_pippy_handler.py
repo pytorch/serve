@@ -20,7 +20,6 @@ class BasePippyHandler(BaseHandler, ABC):
         self.initialized = False
 
     def initialize(self, ctx):
-        super().__init__()
         self.local_rank = int(os.environ["LOCAL_RANK"])
         self.world_size = int(os.environ["WORLD_SIZE"])
         n_devs = torch.cuda.device_count()
