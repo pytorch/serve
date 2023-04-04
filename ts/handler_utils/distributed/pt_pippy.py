@@ -11,8 +11,11 @@ from pippy.hf import PiPPyHFTracer
 logger = logging.getLogger(__name__)
 
 
-def initialize_rpc_workers(local_rank, world_size):
-    options = rpc.TensorPipeRpcBackendOptions(num_worker_threads=512, rpc_timeout=1800)
+def initialize_rpc_workers(local_rank, world_size, ctx):
+    rpc_timeout = ctx.model_yaml_config["pippy"]["rpc_timeout"]
+    options = rpc.TensorPipeRpcBackendOptions(
+        num_worker_threads=512, rpc_timeout=rpc_timeout
+    )
     n_devs = torch.cuda.device_count()
     dev_id = local_rank % n_devs
     for i in range(world_size):
@@ -26,7 +29,10 @@ def initialize_rpc_workers(local_rank, world_size):
     )
 
 
-def get_pipline_driver(model, world_size, input_names, model_type, chunks):
+def get_pipline_driver(model, world_size, ctx):
+    chunks = ctx.model_yaml_config["pippy"]["chunks"]
+    input_names = ctx.model_yaml_config["pippy"]["input_names"]
+    model_type = ctx.model_yaml_config["pippy"]["model_type"]
     model.eval()
     split_policy = split_into_equal_size(world_size)
     sig = inspect.signature(model.forward)
@@ -47,4 +53,7 @@ def get_pipline_driver(model, world_size, input_names, model_type, chunks):
         tracer=tracer,
         concrete_args=concrete_args,
     )
+
+    # inject_pipeline_forward(model, pipe_driver)
+
     return pipe_driver
