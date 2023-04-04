@@ -46,7 +46,7 @@ class ModelHandler(BasePippyHandler, ABC):
         .....
 ```
 
-Here is what your model-config.yaml needs
+Here is what your `model-config.yaml` needs, this config file is very flexible, you can add setting related to frontend, backend and handler.
 
 ```bash
 
@@ -55,11 +55,27 @@ maxWorkers: 1
 maxBatchDelay: 100
 responseTimeout: 120
 parallelLevel: 4
-deviceType: gpu
+deviceType: "gpu"
 parallelType: "pp" #PiPPy as the solution for distributed inference
-chunks: 1 # This sets the microbatch sizes, microbatch = batch size/ chunks
-input_names: ['input_ids'] # input arg names to the model, this is required for FX tracing
-model_type: "HF" # set the model type to HF if you are using Huggingface model other wise leave it blank or any other model you use.
+
+pippy:
+    chunks: 1 # This sets the microbatch sizes, microbatch = batch size/ chunks
+    input_names: ['input_ids'] # input arg names to the model, this is required for FX tracing
+    model_type: "HF" # set the model type to HF if you are using Huggingface model other wise leave it blank or any other model you use.
+    rpc_timeout: 1800
+
+torchrun:
+    nproc-per-node: 4 # specifies the number of processes torchrun starts to serve your model, set to world_size or number of
+                       # gpus you wish to split your model
+handler:
+    max_length: 80 # max length of tokens for tokenizer in the handler
+```
+
+**How to access it in the handler?** here is an example:
+
+```python
+def initialize(self, ctx):
+    model_type = ctx.model_yaml_config["pippy"]["model_type"]
 
 ```
 
@@ -71,4 +87,4 @@ Example of the command for packaging your model, make sure you pass model-config
 torch-model-archiver --model-name bloom --version 1.0 --handler pippy_handler.py --extra-files model.zip,setup_config.json -r requirements.txt --config-file model-config.yaml
 ```
 
-Tensor Parallel will be added soon...
+Tensor Parallel support in progress and will be added as soon as ready.
