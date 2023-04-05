@@ -12,12 +12,6 @@ from ts.torch_handler.distributed.base_deepspeed import BaseDeepSpeedHandler
 logger = logging.getLogger(__name__)
 logger.info("Transformers version %s", transformers.__version__)
 
-TORCH_DTYPES = {
-    "float16": torch.float16,
-    "float32": torch.float32,
-    "float64": torch.float64,
-}
-
 
 class TransformersSeqClassifierHandler(BaseDeepSpeedHandler, ABC):
     """
@@ -27,6 +21,7 @@ class TransformersSeqClassifierHandler(BaseDeepSpeedHandler, ABC):
     def __init__(self):
         super(TransformersSeqClassifierHandler, self).__init__()
         self.tokenizer = None
+        self.pipe = None
         self.initialized = False
 
     def initialize(self, ctx: Context):
@@ -34,8 +29,15 @@ class TransformersSeqClassifierHandler(BaseDeepSpeedHandler, ABC):
         self.device = int(os.getenv("LOCAL_RANK", 0))
         model = AutoModelForCausalLM.from_pretrained(model_dir, use_cache=False)
         self.tokenizer = AutoTokenizer.from_pretrained(model_dir, return_tensors="pt")
-        self.model = pipeline(model=model, tokenizer=self.tokenizer, device=self.device)
+        self.pipe = pipeline(
+            task="text-generation",
+            model=model,
+            tokenizer=self.tokenizer,
+            device=self.device,
+        )
+        self.model = self.pipe.model
         super().initialize(ctx)
+        self.pipe.model = self.model
 
     def preprocess(self, requests):
         """Basic text preprocessing, based on the user's chocie of application mode.
@@ -54,7 +56,7 @@ class TransformersSeqClassifierHandler(BaseDeepSpeedHandler, ABC):
             if isinstance(input_text, (bytes, bytearray)):
                 input_text = input_text.decode("utf-8")
 
-            max_length = self.setup_config["max_length"]
+            max_length = self.context.model_yaml_config["max_length"]
             logger.info("Received text: '%s'", input_text)
 
             inputs = self.tokenizer.encode_plus(
@@ -94,7 +96,7 @@ class TransformersSeqClassifierHandler(BaseDeepSpeedHandler, ABC):
         outputs = self.model.generate(
             input_ids_batch,
             do_sample=True,
-            max_new_tokens=int(self.setup_config["max_length"]),
+            max_new_tokens=int(self.context.model_yaml_config["max_length"]),
             top_p=0.95,
             top_k=60,
         )

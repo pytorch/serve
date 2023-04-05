@@ -1,3 +1,4 @@
+# TorchServe frontend parameters
 minWorkers: 1
 maxWorkers: 1
 maxBatchDelay: 100
@@ -8,5 +9,8 @@ deviceType: "gpu"
 torchrun:
     nproc-per-node: 4
 
+# TorchServe Backend parameters
 deepspeed:
     config: ds-config.json
+
+max_length: 80
