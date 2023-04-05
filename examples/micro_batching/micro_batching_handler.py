@@ -1,10 +1,7 @@
-import json
 import logging
-from pathlib import Path
-
-from micro_batching import MicroBatching
 
 from ts.torch_handler.image_classifier import ImageClassifier
+from ts.utils import *
 
 logger = logging.getLogger(__name__)
 
@@ -17,18 +14,17 @@ class MicroBatchingHandler(ImageClassifier):
     def initialize(self, ctx):
         super().initialize(ctx)
 
-        config_file = Path(ctx.system_properties["model_dir"], "micro_batching.json")
-        if config_file.exists():
-            try:
-                with open(config_file) as f:
-                    config = json.load(f)
+        parallelism = ctx.model_yaml_config.get("micro_batching", {}).get(
+            "parallelism", None
+        )
+        if parallelism:
+            logger.info(
+                f"Setting micro batching parallelism  from model_config_yaml: {parallelism}"
+            )
+            self.handle.parallelism = parallelism
 
-                self.handle.parallelism = config["parallelism"]
-                self.handle.micro_batch_size = config["micro_batch_size"]
-                logger.info(f"Successfully loaded {config_file}")
-            except KeyError as e:
-                logger.error(
-                    f"Failed to load micro batching configuration! Keys missing:{e}"
-                )
-        else:
-            logger.info(f"No micro batching config file found at {config_file}")
+        micro_batch_size = ctx.model_yaml_config.get("micro_batching", {}).get(
+            "micro_batch_size", 1
+        )
+        logger.info(f"Setting micro batching size: {micro_batch_size}")
+        self.handle.micro_batch_size = micro_batch_size

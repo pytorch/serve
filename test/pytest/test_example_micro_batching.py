@@ -8,6 +8,7 @@ from pathlib import Path
 import pytest
 import requests
 import test_utils
+import yaml
 from torchvision.models.resnet import ResNet18_Weights
 
 from ts.torch_handler.unit_tests.test_utils.model_dir import download_model
@@ -77,9 +78,11 @@ def serialized_file(work_dir):
     yield Path(work_dir) / "model.pt"
 
 
-@pytest.fixture(scope="module", name="mar_file_path")
+@pytest.fixture(
+    scope="module", name="mar_file_path", params=["yaml_config", "no_config"]
+)
 def create_mar_file(
-    work_dir, session_mocker, serialized_file, model_archiver, model_name
+    work_dir, session_mocker, serialized_file, model_archiver, model_name, request
 ):
     mar_file_path = Path(work_dir).joinpath(model_name + ".mar")
 
@@ -87,25 +90,28 @@ def create_mar_file(
         "examples/image_classifier/resnet_18/index_to_name.json"
     ).as_posix()
 
-    micro_batching_params = {
-        "micro_batch_size": 2,
-        "parallelism": {
-            "preprocess": 2,
-            "inference": 2,
-            "postprocess": 2,
-        },
-    }
+    config_file = None
+    if request.param == "yaml_config":
+        micro_batching_params = {
+            "micro_batching": {
+                "micro_batch_size": 2,
+                "parallelism": {
+                    "preprocess": 2,
+                    "inference": 2,
+                    "postprocess": 2,
+                },
+            },
+        }
 
-    config_file = Path(work_dir).joinpath("micro_batching.json")
+        config_file = Path(work_dir).joinpath("model_config.yaml")
 
-    with open(config_file, "w") as f:
-        json.dump(micro_batching_params, f)
+        with open(config_file, "w") as f:
+            yaml.dump(micro_batching_params, f)
+        config_file = REPO_ROOT_DIR.joinpath(
+            "examples", "micro_batching", "config.yaml"
+        )
 
-    extra_files = [
-        name_file,
-        config_file.as_posix(),
-        REPO_ROOT_DIR.joinpath("examples/micro_batching/micro_batching.py").as_posix(),
-    ]
+    extra_files = [name_file]
 
     args = Namespace(
         model_name=model_name,
@@ -123,7 +129,7 @@ def create_mar_file(
         runtime="python",
         force=False,
         archive_format="default",
-        config_file=None,
+        config_file=config_file,
     )
 
     mock = session_mocker.MagicMock()

@@ -21,7 +21,7 @@ Cons:
 * Potentially higher latency and throughput if not enough requests are available
 
 ## Implementation
-This example implements micro batching using a custom handler which overwrites the *handle* method with a MicroBatching object defined in [micro_batching.py](micro_batching.py).
+This example implements micro batching using a custom handler which overwrites the *handle* method with a MicroBatching object defined in [ts.utils.micro_batching.py](https://github.com/pytorch/serve/blob/master/ts/utils/micro_batching.py).
 ```python
 class MicroBatchingHandler(ImageClassifier):
     def __init__(self):
@@ -30,16 +30,15 @@ class MicroBatchingHandler(ImageClassifier):
 ```
 The MicroBatching object takes the custom handler as an input and spins up a number of threads.
 Each thread will work on one of the processing steps (preprocess, inference, postprocess) of the custom handler while multiple threads can be assigned to process the same step in parallel.
-The number of threads as well as the size of the micro batch size is configurable through a json file of the following format:
-```json
-{
-    "micro_batch_size": 4,
-    "parallelism": {
-        "preprocess": 2,
-        "inference": 1,
-        "postprocess": 2,
-    },
-}
+The number of threads as well as the size of the micro batch size is configurable through the [model yaml config](config.yaml):
+```yaml
+batchSize: 32
+micro_batching:
+  micro_batch_size: 4
+  parallelism:
+    preprocess: 2
+    inference: 1
+    postprocess: 2
 ```
 Each number in the *parallelism* dictionary represents the number of threads created for the respective step on initialization.
 The micro_batch_size parameter should be chosen much smaller than the batch size configured through the TorchServe API (e.g. 64 vs 4)
@@ -54,7 +53,7 @@ $ wget https://download.pytorch.org/models/resnet18-f37072fd.pth
 ```
 Second, we create the MAR file while including the necessary source and config files as additional files:
 ```bash
-$ torch-model-archiver --model-name resnet-18_mb --version 1.0 --model-file ./examples/image_classifier/resnet_18/model.py --serialized-file resnet18-f37072fd.pth --handler examples/micro_batching/micro_batching_handler.py --extra-files ./examples/image_classifier/index_to_name.json,examples/micro_batching/micro_batching.py,examples/micro_batching/micro_batching.json --config-file examples/micro_batching/config.yaml
+$ torch-model-archiver --model-name resnet-18_mb --version 1.0 --model-file ./examples/image_classifier/resnet_18/model.py --serialized-file resnet18-f37072fd.pth --handler examples/micro_batching/micro_batching_handler.py --extra-files ./examples/image_classifier/index_to_name.json --config-file examples/micro_batching/config.yaml
 ```
 Our MicroBatchingHandler defined in [micro_batching_handler.py](micro_batching_handler.py) inherits from ImageClassifier which already defines the necessary pre- and postprocessing.
 

@@ -13,7 +13,7 @@ from ts.torch_handler.image_classifier import ImageClassifier
 from ts.torch_handler.unit_tests.test_utils.mock_context import MockContext
 from ts.torch_handler.unit_tests.test_utils.model_dir import copy_files, download_model
 
-REPO_DIR = Path(__file__).parents[2]
+REPO_DIR = Path(__file__).parents[3]
 
 
 def read_image_bytes(filename):
@@ -73,8 +73,8 @@ def model_dir(tmp_path_factory, model_name):
 @pytest.fixture(scope="module")
 def context(model_dir, model_name):
     micro_batching_params = {
-        "micro_batch_size": 2,
-        "parallelism": {
+        "mb_size": 2,
+        "mb_parallelism": {
             "preprocess": 1,
             "inference": 2,
             "postprocess": 3,
@@ -91,45 +91,25 @@ def context(model_dir, model_name):
         model_dir=model_dir.as_posix(),
         model_file=model_name + ".py",
     )
+    context.model_yaml_config = micro_batching_params
     yield context
 
 
-@pytest.fixture(scope="module")
-def micro_batching_path():
-    sys.path.append(REPO_DIR.joinpath("examples/micro_batching/").as_posix())
-    yield
-    sys.path.pop()
-
-
 @pytest.fixture(scope="module", params=[1, 8])
-def handler(context, request, micro_batching_path):
+def handler(context, request):
     handler = ImageClassifier()
 
-    from micro_batching import MicroBatching
+    from ts.utils import MicroBatching
 
     mb_handle = MicroBatching(handler, micro_batch_size=request.param)
     handler.initialize(context)
 
     handler.handle = mb_handle
+    handler.handle.parallelism = context.model_yaml_config["mb_parallelism"]
 
     yield handler
 
     mb_handle.shutdown()
-
-
-@pytest.fixture(scope="module", params=[1, 8])
-def micro_batching_handler(context, request, micro_batching_path):
-    from micro_batching_handler import MicroBatchingHandler
-
-    handler = MicroBatchingHandler()
-
-    handler.initialize(context)
-
-    handler.handle.micro_batch_size = request.param
-
-    yield handler
-
-    handler.handle.shutdown()
 
 
 @pytest.fixture(scope="module", params=[1, 16])
@@ -165,26 +145,16 @@ def test_handle_explain(context, kitten_image_bytes, handler):
     assert results[0]
 
 
-def test_micro_batching_handler(context, mixed_batch, micro_batching_handler):
-    test_data, labels = mixed_batch
-    results = micro_batching_handler.handle(test_data, context)
-    assert len(results) == len(labels)
-    for l, r in zip(labels, results):
-        assert l in r
+def test_micro_batching_handler_threads(handler):
+    assert len(handler.handle.thread_groups["preprocess"]) == 1
+    assert len(handler.handle.thread_groups["inference"]) == 2
+    assert len(handler.handle.thread_groups["postprocess"]) == 3
 
 
-def test_micro_batching_handler_threads(micro_batching_handler):
-    mbh = micro_batching_handler
-    assert len(mbh.handle.thread_groups["preprocess"]) == 1
-    assert len(mbh.handle.thread_groups["inference"]) == 2
-    assert len(mbh.handle.thread_groups["postprocess"]) == 3
-
-
-def test_spin_up_down_threads(micro_batching_handler):
-    mbh = micro_batching_handler
-    assert len(mbh.handle.thread_groups["preprocess"]) == 1
-    assert len(mbh.handle.thread_groups["inference"]) == 2
-    assert len(mbh.handle.thread_groups["postprocess"]) == 3
+def test_spin_up_down_threads(handler):
+    assert len(handler.handle.thread_groups["preprocess"]) == 1
+    assert len(handler.handle.thread_groups["inference"]) == 2
+    assert len(handler.handle.thread_groups["postprocess"]) == 3
 
     new_parallelism = {
         "preprocess": 2,
@@ -192,11 +162,11 @@ def test_spin_up_down_threads(micro_batching_handler):
         "postprocess": 4,
     }
 
-    mbh.handle.parallelism = new_parallelism
+    handler.handle.parallelism = new_parallelism
 
-    assert len(mbh.handle.thread_groups["preprocess"]) == 2
-    assert len(mbh.handle.thread_groups["inference"]) == 3
-    assert len(mbh.handle.thread_groups["postprocess"]) == 4
+    assert len(handler.handle.thread_groups["preprocess"]) == 2
+    assert len(handler.handle.thread_groups["inference"]) == 3
+    assert len(handler.handle.thread_groups["postprocess"]) == 4
 
     new_parallelism = {
         "preprocess": 1,
@@ -204,8 +174,8 @@ def test_spin_up_down_threads(micro_batching_handler):
         "postprocess": 3,
     }
 
-    mbh.handle.parallelism = new_parallelism
+    handler.handle.parallelism = new_parallelism
 
-    assert len(mbh.handle.thread_groups["preprocess"]) == 1
-    assert len(mbh.handle.thread_groups["inference"]) == 2
-    assert len(mbh.handle.thread_groups["postprocess"]) == 3
+    assert len(handler.handle.thread_groups["preprocess"]) == 1
+    assert len(handler.handle.thread_groups["inference"]) == 2
+    assert len(handler.handle.thread_groups["postprocess"]) == 3
