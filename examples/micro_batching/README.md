@@ -21,7 +21,7 @@ Cons:
 * Potentially higher latency and throughput if not enough requests are available
 
 ## Implementation
-This example implements micro batching using a custom handler which overwrites the *handle* method with a MicroBatching object defined in [ts.utils.micro_batching.py](https://github.com/pytorch/serve/blob/master/ts/utils/micro_batching.py).
+This example implements micro batching using a custom handler which overwrites the *handle* method with a MicroBatching object defined in __ts.utils.micro_batching__.
 ```python
 class MicroBatchingHandler(ImageClassifier):
     def __init__(self):
@@ -92,12 +92,12 @@ The config.json for the benchmark has the following content:
     "batch_size": 64
 }
 ```
-This will run the model with a batch size of 64 and a micro batch size of 4 as configured in the micro_batching.json.
+This will run the model with a batch size of 64 and a micro batch size of 4 as configured in the config.yaml.
 For this section we ran the benchmark with different batch sizes and micro batch sized (marked with "MBS=X") as well as different number of threads to create the following diagrams.
 As a baseline we also ran the vanilla ImageClassifier handler without micro batching which is marked as "NO MB".
 ![](assets/throughput_latency.png)
 In the diagrams we see the throughput and P99 latency plotted over the batch size (as configured through TorchServe API).
-Each curve represents a different micro batch size as configured through [micro_batching.json](micro_batching.json).
+Each curve represents a different micro batch size as configured through [config.yaml](config.yaml).
 We can see that the throughput stays flat for the vanilla ImageClassifier (NO MB) which suggests that the inference is preprocessing bound and the GPU is underutilized which can be confirmed with a look at the nvidia-smi output.
 By interleaving the three compute steps and using two threads for pre- and postprocessing we see that the micro batched variants (MBS=4-16) achieve a higher throughput and even a lower batch latency as the GPU is better utilized due to the introduction of micro batches.
 For this particular model we can achieve a throughput of up to 250 QPS by increasing the number of preprocessing threads to 4 and choosing 128 and 8 as batch size and micro batch size, respectively.
