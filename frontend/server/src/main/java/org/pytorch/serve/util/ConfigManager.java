@@ -188,6 +188,9 @@ public final class ConfigManager {
             }
         }
 
+        // This is a workaround to avoid DeepSpeed JIT issue during pip installation
+        System.setProperty("DS_BUILD_OPS", "1");
+
         resolveEnvVarVals(prop);
 
         String modelStore = args.getModelStore();

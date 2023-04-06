@@ -32,10 +32,7 @@ def get_ds_engine(model, ctx: Context):
                 )
 
         ds_engine = deepspeed.init_inference(
-            model,
-            config=ds_config,
-            checkpoint=checkpoint,
-            mp_size=int(os.getenv("WORLD_SIZE", 1)),
+            model, config=ds_config, checkpoint=checkpoint
         )
         return ds_engine
     else:

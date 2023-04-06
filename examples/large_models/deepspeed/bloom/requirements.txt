@@ -1,2 +1,2 @@
 transformers
-deepspeed
+deepspeed --global-option="build_ext" --global-option="-j8"

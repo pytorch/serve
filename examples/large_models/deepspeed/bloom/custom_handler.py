@@ -1,10 +1,9 @@
 import logging
-import os
 from abc import ABC
 
 import torch
 import transformers
-from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
+from transformers import AutoModelForCausalLM, AutoTokenizer
 
 from ts.context import Context
 from ts.torch_handler.distributed.base_deepspeed import BaseDeepSpeedHandler
@@ -25,19 +24,13 @@ class TransformersSeqClassifierHandler(BaseDeepSpeedHandler, ABC):
         self.initialized = False
 
     def initialize(self, ctx: Context):
-        model_dir = ctx.system_properties.get("model_dir")
-        self.device = int(os.getenv("LOCAL_RANK", 0))
-        model = AutoModelForCausalLM.from_pretrained(model_dir, use_cache=False)
-        self.tokenizer = AutoTokenizer.from_pretrained(model_dir, return_tensors="pt")
-        self.pipe = pipeline(
-            task="text-generation",
-            model=model,
-            tokenizer=self.tokenizer,
-            device=self.device,
+        self.model = AutoModelForCausalLM.from_pretrained(
+            "bigscience/bloom-7b1", use_cache=False
         )
-        self.model = self.pipe.model
+        self.tokenizer = AutoTokenizer.from_pretrained(
+            "bigscience/bloom-7b1", return_tensors="pt"
+        )
         super().initialize(ctx)
-        self.pipe.model = self.model
 
     def preprocess(self, requests):
         """Basic text preprocessing, based on the user's chocie of application mode.
