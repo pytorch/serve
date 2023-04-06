@@ -12,11 +12,7 @@ import time
 import torch
 from pkg_resources import packaging
 
-from ..utils.util import (
-    list_classes_from_module,
-    load_compiler_config,
-    load_label_mapping,
-)
+from ..utils.util import list_classes_from_module, load_label_mapping
 
 if packaging.version.parse(torch.__version__) >= packaging.version.parse("1.8.1"):
     from torch.profiler import ProfilerActivity, profile, record_function
@@ -28,35 +24,63 @@ else:
 
 logger = logging.getLogger(__name__)
 
-# Possible values for backend in utils.py
-def check_pt2_enabled():
-    try:
-        import torch._dynamo
 
+def check_pt2_enabled() -> bool:
+    if packaging.version.parse(torch.__version__) >= packaging.version.parse("2.0.0"):
         pt2_enabled = True
         if torch.cuda.is_available():
             # If Ampere enable tensor cores which will give better performance
             # Ideally get yourself an A10G or A100 for optimal performance
             if torch.cuda.get_device_capability() >= (8, 0):
                 torch.backends.cuda.matmul.allow_tf32 = True
-    except ImportError as error:
         logger.warning(
-            "dynamo/inductor are not installed. \n For GPU please run pip3 install numpy --pre torch[dynamo] --force-reinstall --extra-index-url https://download.pytorch.org/whl/nightly/cu117 \n for CPU please run pip3 install --pre torch --extra-index-url https://download.pytorch.org/whl/nightly/cpu"
+            f"Your torch version is {torch.__version__} which does not support torch.compile"
         )
         pt2_enabled = False
     return pt2_enabled
 
 
-ipex_enabled = False
-if os.environ.get("TS_IPEX_ENABLE", "false") == "true":
-    try:
-        import intel_extension_for_pytorch as ipex
+def check_ipex_enabled() -> bool:
+    if os.environ.get("TS_IPEX_ENABLE", "false") == "true":
+        try:
+            import intel_extension_for_pytorch as ipex
 
-        ipex_enabled = True
+            return True
+        except ImportError as error:
+            logger.warning(
+                "IPEX is enabled but intel-extension-for-pytorch is not installed. Proceeding without IPEX."
+            )
+    return False
+
+
+def check_onnx_enabled():
+    try:
+        import onnxruntime as ort
+        import psutil
+
+        logger.info("ONNX enabled")
+        return True
     except ImportError as error:
-        logger.warning(
-            "IPEX is enabled but intel-extension-for-pytorch is not installed. Proceeding without IPEX."
-        )
+        logger.warning("proceeding without onnxruntime")
+        return False
+
+
+def setup_ort_session(model_pt_path):
+    providers = (
+        ["CUDAExecutionProvider", "CPUExecutionProvider"]
+        if self.map_location == "cuda"
+        else ["CPUExecutionProvider"]
+    )
+
+    sess_options = ort.SessionOptions()
+    sess_options.intra_op_num_threads = psutil.cpu_count(logical=True)
+
+    # Start an inference session
+    ort_session = ort.InferenceSession(
+        model_pt_path, providers=providers, sess_options=sess_options
+    )
+
+    return ort_session
 
 
 class BaseHandler(abc.ABC):
@@ -90,16 +114,8 @@ class BaseHandler(abc.ABC):
             RuntimeError: Raises the Runtime error when the model.py is missing
 
         """
-        ipex_enabled = False
-        if os.environ.get("TS_IPEX_ENABLE", "false") == "true":
-            try:
-                import intel_extension_for_pytorch as ipex
-
-                ipex_enabled = True
-            except ImportError as error:
-                logger.warning(
-                    "IPEX is enabled but intel-extension-for-pytorch is not installed. Proceeding without IPEX."
-                )
+        ipex_enabled = check_ipex_enabled()
+        pt2_enabled = check_pt2_enabled()
 
         properties = context.system_properties
         self.map_location = (
@@ -122,16 +138,7 @@ class BaseHandler(abc.ABC):
 
         if self.model_pt_path:
             if self.model_pt_path.endswith("onnx"):
-                try:
-                    # import numpy as np
-                    import onnxruntime as ort
-                    import psutil
-
-                    onnx_enabled = True
-                    logger.info("ONNX enabled")
-                except ImportError as error:
-                    onnx_enabled = False
-                    logger.warning("proceeding without onnxruntime")
+                onnx_enabled = check_onnx_enabled()
 
         # model def file
         model_file = self.manifest["model"].get("modelFile", "")
@@ -151,37 +158,21 @@ class BaseHandler(abc.ABC):
             self.model.eval()
 
         # Convert your model by following instructions: https://pytorch.org/tutorials/advanced/super_resolution_with_onnxruntime.html
-        # TODO(msaroufim): Refactor into utils https://github.com/pytorch/serve/issues/1631
         elif self.model_pt_path.endswith(".onnx") and onnx_enabled:
-            # self.model = self._load_onnx_model(self.model_pt_path)
-            providers = (
-                ["CUDAExecutionProvider", "CPUExecutionProvider"]
-                if self.map_location == "cuda"
-                else ["CPUExecutionProvider"]
-            )
-
-            # Set the right inference options, we can add more options here depending on what people want
-            sess_options = ort.SessionOptions()
-            sess_options.intra_op_num_threads = psutil.cpu_count(logical=True)
-
-            # Start an inference session
-            ort_session = ort.InferenceSession(
-                self.model_pt_path, providers=providers, sess_options=sess_options
-            )
-            self.model = ort_session
+            self.model = setup_ort_session(self.model_pt_path)
 
         else:
             raise RuntimeError("No model weights could be loaded")
 
-        optimization_config = os.path.join(model_dir, "compile.json")
-        backend = load_compiler_config(optimization_config)
+        pt2_backend = self.context.model_yaml_config["pt2"]
+        valid_backend = check_valid_pt2_backend(pt2_backend)
 
         # PT 2.0 support is opt in
-        if check_pt2_enabled() and backend:
+        if check_pt2_enabled() and valid_backend:
             # Compilation will delay your model initialization
             try:
                 self.model = torch.compile(
-                    self.model, backend=backend, mode="reduce-overhead"
+                    self.model, backend=pt2_backend, mode="reduce-overhead"
                 )
                 logger.info(f"Compiled model with backend {backend}")
             except:

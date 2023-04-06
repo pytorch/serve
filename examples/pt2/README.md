@@ -1,15 +1,15 @@
 ## PyTorch 2.x integration
 
-PyTorch 2.0 brings more compiler options to PyTorch, for you that should mean better perf either in the form of lower latency or lower memory consumption. Integrating PyTorch 2.0 is fairly trivial but for now the support will be experimental until the official release and while we are relying on the nightly builds.
+PyTorch 2.0 brings more compiler options to PyTorch, for you that should mean better perf either in the form of lower latency or lower memory consumption. Integrating PyTorch 2.0 is fairly trivial but for now the support will be experimental given that most public benchmarks have focused on training instead of inference.
 
 We strongly recommend you leverage newer hardware so for GPUs that would be an Ampere architecture. You'll get even more benefits from using server GPU deployments like A10G and A100 vs consumer cards. But you should expect to see some speedups for any Volta or Ampere architecture.
 
 ## Get started
 
-Install torchserve with nightly torch binaries
+Install torchserve and ensure that you're using at least `torch>=2.0.0`
 
-```
-python ts_scripts/install_dependencies.py --cuda=cu117 --nightly_torch
+```sh
+python ts_scripts/install_dependencies.py --cuda=cu117
 pip install torchserve torch-model-archiver
 ```
 
@@ -35,7 +35,7 @@ opt_mod = torch.compile(mod)
 # 2. Train the optimized module
 # ....
 # 3. Save the original module (weights are shared)
-torch.save(model, "model.pt")  
+torch.save(model, "model.pt")
 
 # 4. Load the non optimized model
 mod = torch.load(model)
