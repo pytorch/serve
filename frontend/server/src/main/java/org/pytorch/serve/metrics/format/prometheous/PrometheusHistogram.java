@@ -23,10 +23,7 @@ public class PrometheusHistogram extends IMetric {
     @Override
     public void addOrUpdate(List<String> dimensionValues, double value) {
         this.histogram
-                .labels(
-                        dimensionValues
-                                .subList(0, this.dimensionNames.size())
-                                .toArray(new String[this.dimensionNames.size()]))
+                .labels(dimensionValues.toArray(new String[dimensionValues.size()]))
                 .observe(value);
     }
 

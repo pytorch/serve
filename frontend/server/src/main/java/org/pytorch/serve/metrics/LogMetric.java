@@ -12,11 +12,11 @@ public class LogMetric extends IMetric {
     /**
      * Note: hostname, timestamp, and requestid(if available) are automatically added in log metric.
      */
-    private static final Logger loggerModelMetrics =
-            LoggerFactory.getLogger(ConfigManager.MODEL_METRICS_LOGGER);
-
     private static final Logger loggerTsMetrics =
             LoggerFactory.getLogger(ConfigManager.MODEL_SERVER_METRICS_LOGGER);
+
+    private static final Logger loggerModelMetrics =
+            LoggerFactory.getLogger(ConfigManager.MODEL_METRICS_LOGGER);
 
     public LogMetric(
             MetricBuilder.MetricType type, String name, String unit, List<String> dimensionNames) {
@@ -48,7 +48,7 @@ public class LogMetric extends IMetric {
                 .append(value)
                 .append("|#");
 
-        // Exclude hostname dimension
+        // Exclude the final dimension which is expected to be Hostname
         int dimensionsCount = Math.min(this.dimensionNames.size() - 1, dimensionValues.size() - 1);
         List<String> dimensions = new ArrayList<String>();
         for (int index = 0; index < dimensionsCount; index++) {
@@ -56,7 +56,7 @@ public class LogMetric extends IMetric {
         }
         metricStringBuilder.append(dimensions.stream().collect(Collectors.joining(",")));
 
-        // The final dimension value is expected to be hostname
+        // The final dimension is expected to be Hostname
         metricStringBuilder
                 .append("|#hostname:")
                 .append(dimensionValues.get(dimensionValues.size() - 1));

@@ -22,12 +22,7 @@ public class PrometheusGauge extends IMetric {
 
     @Override
     public void addOrUpdate(List<String> dimensionValues, double value) {
-        this.gauge
-                .labels(
-                        dimensionValues
-                                .subList(0, this.dimensionNames.size())
-                                .toArray(new String[this.dimensionNames.size()]))
-                .set(value);
+        this.gauge.labels(dimensionValues.toArray(new String[dimensionValues.size()])).set(value);
     }
 
     @Override
