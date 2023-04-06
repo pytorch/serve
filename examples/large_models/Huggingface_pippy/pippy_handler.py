@@ -7,7 +7,7 @@ import torch
 import transformers
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
-from ts.handler_utils.distributed.pt_pippy import get_pipline_driver
+from ts.handler_utils.distributed.pt_pippy import get_pipeline_driver
 from ts.torch_handler.distributed.base_pippy_handler import BasePippyHandler
 
 logger = logging.getLogger(__name__)
@@ -51,7 +51,7 @@ class TransformersSeqClassifierHandler(BasePippyHandler, ABC):
 
         print("Instantiating model Pipeline")
         model_init_start = time.time()
-        self.model = get_pipline_driver(self.model, self.world_size, ctx)
+        self.model = get_pipeline_driver(self.model, self.world_size, ctx)
 
         logger.info("Transformer model from path %s loaded successfully", model_dir)
 
