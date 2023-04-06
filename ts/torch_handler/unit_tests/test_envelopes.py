@@ -51,7 +51,6 @@ def test_json_double_batch(handle_fn, base_model_context):
 
     envelope = JSONEnvelope(handle_fn)
     results = envelope.handle(test_data, base_model_context)
-    print(results)
     assert results == expected_result
 
 
