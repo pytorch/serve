@@ -19,7 +19,7 @@ mv bloom.tar.gz model_store
 
 
 ```bash
-torchserve --start --ncs --ts-config config.properties
+torchserve --start --ncs --model-store model_store --models bloom.tar.gz
 ```
 
 ### Step 4: Run inference
