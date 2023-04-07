@@ -1,3 +1,4 @@
+import logging
 import os
 
 import deepspeed
@@ -30,7 +31,7 @@ def get_ds_engine(model, ctx: Context):
                 raise ValueError(
                     f"{ctx.model_name} has no deepspeed checkpoint file {checkpoint}"
                 )
-
+        logging.debug("Creating DeepSpeed engine")
         ds_engine = deepspeed.init_inference(
             model, config=ds_config, checkpoint=checkpoint
         )

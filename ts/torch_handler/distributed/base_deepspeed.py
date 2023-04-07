@@ -18,4 +18,4 @@ class BaseDeepSpeedHandler(BaseHandler, ABC):
         ds_engine = get_ds_engine(self.model, ctx)
         self.model = ds_engine.module
         self.initialized = True
-        logger.debug("Model %s loaded successfully", ctx.model_name)
+        logger.info("Model %s loaded successfully", ctx.model_name)

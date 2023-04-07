@@ -20,15 +20,19 @@ class TransformersSeqClassifierHandler(BaseDeepSpeedHandler, ABC):
     def __init__(self):
         super(TransformersSeqClassifierHandler, self).__init__()
         self.tokenizer = None
+        self.pipe = None
         self.initialized = False
 
     def initialize(self, ctx: Context):
-        self.model = AutoModelForCausalLM.from_pretrained(
-            "bigscience/bloom-7b1", use_cache=False
-        )
-        self.tokenizer = AutoTokenizer.from_pretrained(
-            "bigscience/bloom-7b1", return_tensors="pt"
-        )
+        """In this initialize function, the HF large model is loaded and
+        partitioned using DeepSpeed.
+        Args:
+            ctx (context): It is a JSON Object containing information
+            pertaining to the model artefacts parameters.
+        """
+        model_dir = ctx.properties.get("model_dir")
+        self.model = AutoModelForCausalLM.from_pretrained(model_dir, use_cache=False)
+        self.tokenizer = AutoTokenizer.from_pretrained(model_dir, return_tensors="pt")
         super().initialize(ctx)
 
     def preprocess(self, requests):
