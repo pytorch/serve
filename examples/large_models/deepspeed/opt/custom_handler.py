@@ -36,74 +36,69 @@ class TransformersSeqClassifierHandler(BaseDeepSpeedHandler, ABC):
         super().initialize(ctx)
 
     def preprocess(self, requests):
-        """Basic text preprocessing, based on the user's chocie of application mode.
-        Args:
-            requests (str): The Input data in the form of text is passed on to the preprocess
-            function.
-        Returns:
-            list : The preprocess function returns a list of Tensor for the size of the word tokens.
         """
-        input_ids_batch = None
-        attention_mask_batch = None
-        for idx, data in enumerate(requests):
-            input_text = data.get("data")
-            if input_text is None:
-                input_text = data.get("body")
-            if isinstance(input_text, (bytes, bytearray)):
-                input_text = input_text.decode("utf-8")
+        Basic text preprocessing, based on the user's choice of application mode.
+        Args:
+            requests (list): A list of dictionaries with a "data" or "body" field, each
+                            containing the input text to be processed.
+        Returns:
+            tuple: A tuple with two tensors: the batch of input ids and the batch of
+                attention masks.
+        """
+        input_texts = [data.get("data") or data.get("body") for data in requests]
+        input_ids_batch, attention_mask_batch = [], []
+        for input_text in input_texts:
+            input_ids, attention_mask = self.encode_input_text(input_text)
+            input_ids_batch.append(input_ids)
+            attention_mask_batch.append(attention_mask)
+        input_ids_batch = torch.cat(input_ids_batch, dim=0).to(self.device)
+        attention_mask_batch = torch.cat(attention_mask_batch, dim=0).to(self.device)
+        return input_ids_batch, attention_mask_batch
 
-            max_length = self.context.model_yaml_config["max_length"]
-            logger.info("Received text: '%s'", input_text)
-
-            inputs = self.tokenizer.encode_plus(
-                input_text,
-                max_length=int(max_length),
-                pad_to_max_length=True,
-                add_special_tokens=True,
-                return_tensors="pt",
-            )
-
-            input_ids = inputs["input_ids"].to(self.device)
-            attention_mask = inputs["attention_mask"].to(self.device)
-            # making a batch out of the recieved requests
-            # attention masks are passed for cases where input tokens are padded.
-            if input_ids.shape is not None:
-                if input_ids_batch is None:
-                    input_ids_batch = input_ids
-                    attention_mask_batch = attention_mask
-                else:
-                    input_ids_batch = torch.cat((input_ids_batch, input_ids), 0)
-                    attention_mask_batch = torch.cat(
-                        (attention_mask_batch, attention_mask), 0
-                    )
-        return (input_ids_batch, attention_mask_batch)
+    def encode_input_text(self, input_text):
+        """
+        Encodes a single input text using the tokenizer.
+        Args:
+            input_text (str): The input text to be encoded.
+        Returns:
+            tuple: A tuple with two tensors: the encoded input ids and the attention mask.
+        """
+        if isinstance(input_text, (bytes, bytearray)):
+            input_text = input_text.decode("utf-8")
+        logger.info("Received text: '%s'", input_text)
+        inputs = self.tokenizer.encode_plus(
+            input_text,
+            add_special_tokens=True,
+            return_tensors="pt",
+        )
+        input_ids = inputs["input_ids"]
+        attention_mask = inputs["attention_mask"]
+        return input_ids, attention_mask
 
     def inference(self, input_batch):
-        """Predict the class (or classes) of the received text using the
-        serialized transformers checkpoint.
-        Args:
-            input_batch (list): List of Text Tensors from the pre-process function is passed here
-        Returns:
-            list : It returns a list of the predicted value for the input text
         """
-        (input_ids_batch, _) = input_batch
-        inferences = []
+        Predicts the class (or classes) of the received text using the serialized transformers
+        checkpoint.
+        Args:
+            input_batch (tuple): A tuple with two tensors: the batch of input ids and the batch
+                                of attention masks, as returned by the preprocess function.
+        Returns:
+            list: A list of strings with the predicted values for each input text in the batch.
+        """
+        input_ids_batch, attention_mask_batch = input_batch
         input_ids_batch = input_ids_batch.to(self.device)
         outputs = self.model.generate(
             input_ids_batch,
-            do_sample=True,
-            max_new_tokens=int(self.context.model_yaml_config["max_length"]),
-            top_p=0.95,
-            top_k=60,
+            attention_mask=attention_mask_batch,
+            max_length=30,
         )
-        for i, _ in enumerate(outputs):
-            inferences.append(
-                self.tokenizer.decode(outputs[i], skip_special_tokens=True)
+
+        inferences = [
+            self.tokenizer.batch_decode(
+                outputs, skip_special_tokens=True, clean_up_tokenization_spaces=False
             )
-
-        logger.info("Generated text: '%s'", inferences)
-
-        print("Generated text", inferences)
+        ]
+        logger.info("Generated text: %s", inferences)
         return inferences
 
     def postprocess(self, inference_output):
