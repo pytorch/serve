@@ -19,8 +19,8 @@ class TransformersSeqClassifierHandler(BaseDeepSpeedHandler, ABC):
 
     def __init__(self):
         super(TransformersSeqClassifierHandler, self).__init__()
+        self.max_length = None
         self.tokenizer = None
-        self.pipe = None
         self.initialized = False
 
     def initialize(self, ctx: Context):
@@ -31,6 +31,7 @@ class TransformersSeqClassifierHandler(BaseDeepSpeedHandler, ABC):
             pertaining to the model artefacts parameters.
         """
         model_dir = ctx.system_properties.get("model_dir")
+        self.max_length = int(ctx.model_yaml_config["handler"]["max_length"])
         self.model = AutoModelForCausalLM.from_pretrained(model_dir, use_cache=False)
         self.tokenizer = AutoTokenizer.from_pretrained(model_dir, return_tensors="pt")
         super().initialize(ctx)
@@ -68,6 +69,8 @@ class TransformersSeqClassifierHandler(BaseDeepSpeedHandler, ABC):
         logger.info("Received text: '%s'", input_text)
         inputs = self.tokenizer.encode_plus(
             input_text,
+            max_length=self.max_length,
+            pad_to_max_length=True,
             add_special_tokens=True,
             return_tensors="pt",
         )
@@ -90,7 +93,7 @@ class TransformersSeqClassifierHandler(BaseDeepSpeedHandler, ABC):
         outputs = self.model.generate(
             input_ids_batch,
             attention_mask=attention_mask_batch,
-            max_length=30,
+            max_length=self.max_length,
         )
 
         inferences = [

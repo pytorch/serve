@@ -13,4 +13,5 @@ torchrun:
 deepspeed:
     config: ds-config.json
 
-max_length: 80
+handler:
+    max_length: 80

@@ -19,10 +19,12 @@ class TransformersSeqClassifierHandler(BaseDeepSpeedHandler, ABC):
 
     def __init__(self):
         super(TransformersSeqClassifierHandler, self).__init__()
+        self.max_length = None
         self.tokenizer = None
         self.initialized = False
 
     def initialize(self, ctx: Context):
+        self.max_length = int(ctx.model_yaml_config["handler"]["max_length"])
         self.model = AutoModelForCausalLM.from_pretrained(
             "bigscience/bloom-7b1", use_cache=False
         )
@@ -48,12 +50,11 @@ class TransformersSeqClassifierHandler(BaseDeepSpeedHandler, ABC):
             if isinstance(input_text, (bytes, bytearray)):
                 input_text = input_text.decode("utf-8")
 
-            max_length = self.context.model_yaml_config["max_length"]
             logger.info("Received text: '%s'", input_text)
 
             inputs = self.tokenizer.encode_plus(
                 input_text,
-                max_length=int(max_length),
+                max_length=self.max_length,
                 pad_to_max_length=True,
                 add_special_tokens=True,
                 return_tensors="pt",
@@ -88,7 +89,7 @@ class TransformersSeqClassifierHandler(BaseDeepSpeedHandler, ABC):
         outputs = self.model.generate(
             input_ids_batch,
             do_sample=True,
-            max_new_tokens=int(self.context.model_yaml_config["max_length"]),
+            max_new_tokens=self.max_length,
             top_p=0.95,
             top_k=60,
         )
