@@ -7,7 +7,7 @@ There are some examples that illustrate how to load large models on multiple GPU
 * Customer handler based on BaseDeepSpeedHandler: customer_handler.py
 * Install DeepSpeed:
   * Method1: requirements.txt
-  * Method2: pre-install via command
+  * Method2: pre-install via command (Recommended to speed up model loading)
     ```
     # See https://www.deepspeed.ai/tutorials/advanced-install/
     DS_BUILD_OPS=1 pip install deepspeed
