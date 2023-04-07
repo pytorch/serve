@@ -1,5 +1,6 @@
 import glob
 import os
+import subprocess
 import sys
 
 import nvgpu
@@ -168,9 +169,20 @@ def test_sanity():
             print(f"## Successfully registered {model_name} model with torchserve")
 
         for input in model_inputs:
-            infer_model_grpc_cmd = f"python ts_scripts/torchserve_grpc_client.py infer {model_name} {input}"
-            status = os.system(infer_model_grpc_cmd)
-            if status != 0:
+            infer_model_grpc_cmd = [
+                "python",
+                "ts_scripts/torchserve_grpc_client.py",
+                "infer",
+                f"{model_name}",
+                f"{input}",
+            ]
+            p = subprocess.run(infer_model_grpc_cmd, capture_output=True, text=True)
+            out = p.stdout.split("\n")
+            print("\n".join(out[:50]))
+            if len(out) > 50:
+                print("<output clipped>")
+
+            if p.returncode != 0:
                 print(f"## Failed to run inference on {model_name} model")
                 sys.exit(1)
             else:
