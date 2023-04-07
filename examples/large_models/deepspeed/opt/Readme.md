@@ -13,7 +13,7 @@ huggingface-cli login
 paste the token generated from huggingface hub.
 
 ```bash
-python Download_models.py --model_path downloaded_model --model_name facebook/opt-350m --revision main
+python Download_models.py --model_path model --model_name facebook/opt-350m --revision main
 ```
 
 The script prints the path where the model is downloaded as below.
@@ -23,7 +23,7 @@ The script prints the path where the model is downloaded as below.
 ### Step 2: Generate mar or tgz file
 
 ```bash
-torch-model-archiver --model-name opt --version 1.0 --handler custom_handler.py --extra-files model,ds-config.json -r requirements.txt --config-file model-config.yaml --archive-format tgz
+torch-model-archiver --model-name opt --version 1.0 --handler custom_handler.py --extra-files model/models--facebook--opt-350m/snapshots/cb32f77e905cccbca1d970436fb0f5e6b58ee3c5/,ds-config.json -r requirements.txt --config-file model-config.yaml --archive-format tgz
 ```
 
 ### Step 3: Add the tgz file to model store
