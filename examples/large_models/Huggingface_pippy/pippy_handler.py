@@ -90,8 +90,8 @@ class TransformersSeqClassifierHandler(BasePippyHandler, ABC):
         logger.info("Received text: '%s'", input_text)
         inputs = self.tokenizer.encode_plus(
             input_text,
-            # max_length=self.max_length,
-            # pad_to_max_length=True,
+            max_length=self.max_length,
+            pad_to_max_length=True,
             add_special_tokens=True,
             return_tensors="pt",
         )
