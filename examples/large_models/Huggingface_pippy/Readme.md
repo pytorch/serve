@@ -31,20 +31,8 @@ The script prints the path where the model is downloaded as below. This is an ex
 
 The downloaded model is around 14GB.
 
-### Step 2: Compress downloaded model
 
-**_NOTE:_** Install Zip cli tool
-
-Navigate to the path got from the above script. In this example it is
-
-```bash
-cd model/models--bigscience-bloom-7b1/snapshots/5546055f03398095e385d7dc625e636cc8910bf2/
-zip -r /home/ubuntu/serve/examples/Huggingface_Largemodels/model.zip *
-cd -
-
-```
-
-### Step 3: Create a model-config.yaml with that include following
+### Step 2: Create a model-config.yaml with that include following
 
 ```bash
 
@@ -69,7 +57,7 @@ handler:
     max_length: 80 # max length of tokens for tokenizer in the handler
 ```
 
-### Step 4: Generate MAR file
+### Step 3: Generate Tar/ MAR file
 
 Navigate up to `Huggingface_Largemodels` directory.
 
@@ -78,14 +66,14 @@ torch-model-archiver --model-name bloom --version 1.0 --handler pippy_handler.py
 
 ```
 
-### Step 5: Add the mar file to model store
+### Step 4: Add the mar file to model store
 
 ```bash
 mkdir model_store
 mv bloom.mar model_store
 ```
 
-### Step 6: Start torchserve
+### Step 5: Start torchserve
 
 Update config.properties and start torchserve
 
@@ -93,7 +81,7 @@ Update config.properties and start torchserve
 torchserve --ncs --start --model-store model_store --models bloom.mar
 ```
 
-### Step 7: Run inference
+### Step 6: Run inference
 
 ```bash
 curl -v "http://localhost:8080/predictions/bloom" -T sample_text.txt
