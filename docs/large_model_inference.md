@@ -26,13 +26,12 @@ class ModelHandler(BasePippyHandler, ABC):
     def __init__(self):
         super(ModelHandler, self).__init__()
         self.initialized = False
-        self.local_rank = int(os.environ["LOCAL_RANK"])
-        self.world_size = int(os.environ["WORLD_SIZE"])
 
     def initialize(self, ctx):
         model = # load your model from model_dir
         self.device = self.local_rank %  torch.cuda.device_count()# being used to move model inputs to (sel.device)
         self.model = get_pipline_driver(model,self.world_size, ctx)
+
     # the rest is self-explanatory
     def preprocess():
         ....
