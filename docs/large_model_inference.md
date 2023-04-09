@@ -33,10 +33,7 @@ class ModelHandler(BasePippyHandler, ABC):
         model = # load your model from model_dir
         self.device = self.local_rank %  torch.cuda.device_count()# being used to move model inputs to (sel.device)
         model.eval()
-        input_names= ctx.model_yaml_config["input_names"] # settings from model-config.yaml explained below
-        chunks = ctx.model_yaml_config["chunks"]# settings from model-config.yaml explained below
-        model_type= ctx.model_yaml_config["model_type"]# settings from model-config.yaml explained below
-        self.model = get_pipline_driver(model,self.world_size, input_names, model_type, chunks)
+        self.model = get_pipline_driver(model,self.world_size, ctx)
     # the rest is self-explanatory
     def preprocess():
         ....
