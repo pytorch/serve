@@ -6,7 +6,6 @@ This document explain how Torchserve supports large model serving, here large mo
 
 PiPPy provides pipeline parallelsim for serving large models that would not fit into one gpu. It takes your model and splits it into equal sizes (stages) partitioned over the number devices you specify. Then uses micro batching to run your batched input for inference ( its is more optimal for batch sizes >1).
 
-Microbatching is the techniques in pipeline parallelsim to maximize gpu utilization.
 
 ## How to use PiPPY in Torchserve
 
