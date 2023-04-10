@@ -13,8 +13,6 @@ from ts.torch_handler.distributed.base_pippy_handler import BasePippyHandler
 logger = logging.getLogger(__name__)
 logger.info("Transformers version %s", transformers.__version__)
 
-torch.manual_seed(40)
-
 
 class TransformersSeqClassifierHandler(BasePippyHandler, ABC):
     """
@@ -24,8 +22,6 @@ class TransformersSeqClassifierHandler(BasePippyHandler, ABC):
     def __init__(self):
         super(TransformersSeqClassifierHandler, self).__init__()
         self.initialized = False
-        # self.local_rank = int(os.environ["LOCAL_RANK"])
-        # self.world_size = int(os.environ["WORLD_SIZE"])
 
     def initialize(self, ctx):
         """In this initialize function, the HF large model is loaded and
@@ -38,10 +34,10 @@ class TransformersSeqClassifierHandler(BasePippyHandler, ABC):
         self.manifest = ctx.manifest
         properties = ctx.system_properties
         model_dir = properties.get("model_dir")
-        n_devs = torch.cuda.device_count()
-        self.device = self.local_rank % n_devs
+        self.device = self.local_rank
 
-        torch.manual_seed(42)
+        seed = ctx.model_yaml_config["handler"]["manual_seed"]
+        torch.manual_seed(seed)
 
         self.model = AutoModelForCausalLM.from_pretrained(model_dir, use_cache=False)
 
@@ -49,7 +45,7 @@ class TransformersSeqClassifierHandler(BasePippyHandler, ABC):
 
         self.max_length = ctx.model_yaml_config["handler"]["max_length"]
 
-        print("Instantiating model Pipeline")
+        logger.info("Instantiating model Pipeline")
         model_init_start = time.time()
         self.model = get_pipeline_driver(self.model, self.world_size, ctx)
 
