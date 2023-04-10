@@ -14,8 +14,9 @@ logger = logging.getLogger(__name__)
 def initialize_rpc_workers(local_rank, world_size, ctx):
     # Get RPC configuration options from model YAML config
     rpc_timeout = ctx.model_yaml_config["pippy"]["rpc_timeout"]
+    num_worker_threads = ctx.model_yaml_config["pippy"]["num_worker_threads"]
     options = rpc.TensorPipeRpcBackendOptions(
-        num_worker_threads=512, rpc_timeout=rpc_timeout
+        num_worker_threads=num_worker_threads, rpc_timeout=rpc_timeout
     )
 
     # Set up device mapping for RPC workers
