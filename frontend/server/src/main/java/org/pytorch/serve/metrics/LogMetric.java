@@ -26,7 +26,7 @@ public class LogMetric extends IMetric {
     @Override
     public void addOrUpdate(List<String> dimensionValues, double value) {
         // Used for logging frontend metrics
-        String metricString = this.buildMetricString(dimensionValues, null, value);
+        String metricString = this.buildMetricString(dimensionValues, value);
         loggerTsMetrics.info(metricString);
     }
 
@@ -35,6 +35,38 @@ public class LogMetric extends IMetric {
         // Used for logging backend metrics
         String metricString = this.buildMetricString(dimensionValues, requestIds, value);
         loggerModelMetrics.info(metricString);
+    }
+
+    private String buildMetricString(List<String> dimensionValues, double value) {
+        StringBuilder metricStringBuilder = new StringBuilder();
+        metricStringBuilder
+                .append(this.name)
+                .append('.')
+                .append(this.unit)
+                .append(':')
+                .append(value)
+                .append("|#");
+
+        // Exclude the final dimension which is expected to be Hostname
+        int dimensionsCount = Math.min(this.dimensionNames.size() - 1, dimensionValues.size() - 1);
+        List<String> dimensions = new ArrayList<String>();
+        for (int index = 0; index < dimensionsCount; index++) {
+            dimensions.add(this.dimensionNames.get(index) + ":" + dimensionValues.get(index));
+        }
+        metricStringBuilder.append(dimensions.stream().collect(Collectors.joining(",")));
+
+        // The final dimension is expected to be Hostname
+        metricStringBuilder
+                .append("|#hostname:")
+                .append(dimensionValues.get(dimensionValues.size() - 1));
+
+        metricStringBuilder
+                .append(",timestamp:")
+                .append(
+                        String.valueOf(
+                                TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis())));
+
+        return metricStringBuilder.toString();
     }
 
     private String buildMetricString(
@@ -61,9 +93,7 @@ public class LogMetric extends IMetric {
                 .append("|#hostname:")
                 .append(dimensionValues.get(dimensionValues.size() - 1));
 
-        if (requestIds != null && !requestIds.isEmpty()) {
-            metricStringBuilder.append(",requestID:").append(requestIds);
-        }
+        metricStringBuilder.append(",requestID:").append(requestIds);
 
         metricStringBuilder
                 .append(",timestamp:")
