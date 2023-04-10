@@ -29,35 +29,30 @@ class ModelHandler(BasePippyHandler, ABC):
 
     def initialize(self, ctx):
         model = # load your model from model_dir
-        self.device = self.local_rank %  torch.cuda.device_count()# being used to move model inputs to (sel.device)
+        self.device = self.local_rank %  torch.cuda.device_count()# being used to move model inputs to (self.device)
         self.model = get_pipline_driver(model,self.world_size, ctx)
 
-    # the rest is self-explanatory
-    def preprocess():
-        ....
-    def inference():
-        ....
-    def postporocess():
-        .....
 ```
 
 Here is what your `model-config.yaml` needs, this config file is very flexible, you can add setting related to frontend, backend and handler.
 
 ```bash
-
+#frontend settings
 minWorkers: 1
 maxWorkers: 1
 maxBatchDelay: 100
 responseTimeout: 120
 parallelLevel: 4
 deviceType: "gpu"
-parallelType: "pp" #PiPPy as the solution for distributed inference
-
+parallelType: "pp" #options depending on the solution, pp(pipeline parallelism), tp(tensor parallelism), pptp ( pipeline and tensor parallelism)
+                   # This will be used to route input to either rank0 or all ranks from fontend based on the solution (e.g. DeepSpeed support tp, PiPPy support pp)
+#backend settings
 pippy:
     chunks: 1 # This sets the microbatch sizes, microbatch = batch size/ chunks
     input_names: ['input_ids'] # input arg names to the model, this is required for FX tracing
     model_type: "HF" # set the model type to HF if you are using Huggingface model other wise leave it blank or any other model you use.
     rpc_timeout: 1800
+    num_worker_threads: 512 #set number of threads for rpc worker init.
 
 torchrun:
     nproc-per-node: 4 # specifies the number of processes torchrun starts to serve your model, set to world_size or number of
@@ -79,7 +74,8 @@ The rest is as usual in Torchserve, basically packaging your model and starting 
 Example of the command for packaging your model, make sure you pass model-config.yaml
 
 ```bash
-torch-model-archiver --model-name bloom --version 1.0 --handler pippy_handler.py --extra-files model.zip,setup_config.json -r requirements.txt --config-file model-config.yaml
+torch-model-archiver --model-name bloom --version 1.0 --handler pippy_handler.py --extra-files --extra-files $MODEL_CHECKPOINTS_PATH -r requirements.txt --config-file model-config.yaml --archive-format tgz
+
 ```
 
 Tensor Parallel support in progress and will be added as soon as ready.
