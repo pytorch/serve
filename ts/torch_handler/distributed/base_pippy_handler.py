@@ -15,10 +15,6 @@ class BasePippyHandler(BaseHandler, ABC):
     Base default handler to set up rpc workers for PiPPy large model inference
     """
 
-    def __init__(self):
-        super().__init__()
-        self.initialized = False
-
     def initialize(self, ctx):
         self.local_rank = int(os.environ["LOCAL_RANK"])
         self.world_size = int(os.environ["WORLD_SIZE"])
