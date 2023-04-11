@@ -40,23 +40,6 @@ class Service(object):
                     os.path.join(model_dir, model_yaml_config_file)
                 )
 
-        parallelLevel = 1
-        if (
-            "parallelLevel" in model_yaml_config
-            and type(model_yaml_config["parallelLevel"]) is int
-            and int(model_yaml_config["parallelLevel"]) > 1
-        ):
-            parallelLevel = int(model_yaml_config["parallelLevel"])
-
-        # devicedIds in model config yaml file
-        if type(gpu) is int and gpu >= 1000:
-            if parallelLevel == 1:
-                gpu = int(model_yaml_config["deviceIds"][gpu % 1000])
-            else:
-                gpu = gpu % 1000
-        elif "deviceIds" in model_yaml_config:
-            del model_yaml_config["deviceIds"]
-
         self._context = Context(
             model_name,
             model_dir,
@@ -149,15 +132,21 @@ class Service(object):
         # noinspection PyBroadException
         try:
             ret = self._entry_point(input_batch, self.context)
-        except PredictionException as e:
-            logger.error("Prediction error", exc_info=True)
-            return create_predict_response(None, req_id_map, e.message, e.error_code)
         except MemoryError:
             logger.error("System out of memory", exc_info=True)
             return create_predict_response(None, req_id_map, "Out of resources", 507)
-        except Exception:  # pylint: disable=broad-except
-            logger.warning("Invoking custom service failed.", exc_info=True)
-            return create_predict_response(None, req_id_map, "Prediction failed", 503)
+        except PredictionException as e:
+            logger.error("Prediction error", exc_info=True)
+            return create_predict_response(None, req_id_map, e.message, e.error_code)
+        except Exception as ex:  # pylint: disable=broad-except
+            if "CUDA" in str(ex):
+                # Handles Case A: CUDA error: CUBLAS_STATUS_NOT_INITIALIZED (Close to OOM) &
+                # Case B: CUDA out of memory (OOM)
+                logger.error("CUDA out of memory", exc_info=True)
+                return create_predict_response(None, req_id_map, "Out of resources", 507)
+            else:
+                logger.warning("Invoking custom service failed.", exc_info=True)
+                return create_predict_response(None, req_id_map, "Prediction failed", 503)
 
         if not isinstance(ret, list):
             logger.warning(

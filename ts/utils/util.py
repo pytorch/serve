@@ -23,6 +23,7 @@ class PT2Backend(str, enum.Enum):
     FX2TRT = "fx2trt"
     ONNXRT = "onnxrt"
     IPEX = "ipex"
+    TORCHXLA_TRACE_ONCE = "torchxla_trace_once"
 
 
 logger = logging.getLogger(__name__)

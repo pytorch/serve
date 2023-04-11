@@ -70,7 +70,12 @@ public class ModelArchive {
 
         if (modelLocation.isFile()) {
             try (InputStream is = Files.newInputStream(modelLocation.toPath())) {
-                File unzipDir = ZipUtils.unzip(is, null, "models");
+                File unzipDir;
+                if (modelLocation.getName().endsWith(".mar")) {
+                    unzipDir = ZipUtils.unzip(is, null, "models", true);
+                } else {
+                    unzipDir = ZipUtils.unzip(is, null, "models", false);
+                }
                 return load(url, unzipDir, true);
             }
         }
