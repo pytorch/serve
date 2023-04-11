@@ -5,7 +5,7 @@ BRANCH_NAME="master"
 DOCKER_TAG="pytorch/torchserve:latest-cpu"
 BUILD_TYPE="production"
 BASE_IMAGE="ubuntu:20.04"
-CUSTOM_TAG=false
+USE_CUSTOM_TAG=false
 CUDA_VERSION=""
 USE_LOCAL_SERVE_FOLDER=false
 BUILD_WITH_IPEX=false
@@ -51,8 +51,8 @@ do
           shift
           ;;
         -t|--tag)
-          DOCKER_TAG="$2"
-          CUSTOM_TAG=true
+          CUSTOM_TAG="$2"
+          USE_CUSTOM_TAG=true
           shift
           shift
           ;;
@@ -118,14 +118,19 @@ then
   exit 1
 fi
 
-if [ "${BUILD_TYPE}" == "dev" ] && ! $CUSTOM_TAG ;
+if [ "${BUILD_TYPE}" == "dev" ] && ! $USE_CUSTOM_TAG ;
 then
   DOCKER_TAG="pytorch/torchserve:dev-$MACHINE"
 fi
 
-if [ "${BUILD_TYPE}" == "codebuild" ] && ! $CUSTOM_TAG ;
+if [ "${BUILD_TYPE}" == "codebuild" ] && ! $USE_CUSTOM_TAG ;
 then
   DOCKER_TAG="pytorch/torchserve:codebuild-$MACHINE"
+fi
+
+if [ "$USE_CUSTOM_TAG" = true ]
+then
+  DOCKER_TAG=${CUSTOM_TAG}
 fi
 
 if [ "${BUILD_TYPE}" == "production" ]
