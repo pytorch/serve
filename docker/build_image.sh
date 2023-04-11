@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -o errexit -o nounset -o pipefail
+
 MACHINE=cpu
 BRANCH_NAME="master"
 DOCKER_TAG="pytorch/torchserve:latest-cpu"
