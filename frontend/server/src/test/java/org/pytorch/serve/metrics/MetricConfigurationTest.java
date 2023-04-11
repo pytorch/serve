@@ -1,7 +1,6 @@
 package org.pytorch.serve.metrics.configuration;
 
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import org.pytorch.serve.util.ConfigManager;
@@ -16,8 +15,6 @@ public class MetricConfigurationTest {
         MetricConfiguration config =
                 MetricConfiguration.loadConfiguration(
                         "src/test/resources/metrics/valid_configuration.yaml");
-
-        Assert.assertEquals(config.getMode(), "log");
 
         Assert.assertEquals(
                 config.getDimensions(),
@@ -81,8 +78,6 @@ public class MetricConfigurationTest {
                 MetricConfiguration.loadConfiguration(
                         "src/test/resources/metrics/valid_configuration_empty_metric_dimensions.yaml");
 
-        Assert.assertEquals(config.getMode(), "log");
-
         Assert.assertEquals(config.getDimensions(), null);
 
         Assert.assertEquals(config.getTs_metrics().getCounter().size(), 1);
@@ -127,12 +122,13 @@ public class MetricConfigurationTest {
     }
 
     @Test
-    public void testLoadValidConfigurationModeEnvironmentVariable()
-            throws IOException, FileNotFoundException {
-        ConfigManager.getInstance().setProperty("metrics_mode", "test_metrics_mode");
-        MetricConfiguration config =
-                MetricConfiguration.loadConfiguration(
-                        "src/test/resources/metrics/valid_configuration.yaml");
-        Assert.assertEquals(config.getMode(), "test_metrics_mode");
+    public void testMetricsModeConfiguration() {
+        ConfigManager configManager = ConfigManager.getInstance();
+        String existingMetricsModeConfiguration = configManager.getMetricsMode();
+        Assert.assertEquals(existingMetricsModeConfiguration, "log");
+        configManager.setProperty("metrics_mode", "test_metrics_mode");
+        Assert.assertEquals(configManager.getMetricsMode(), "test_metrics_mode");
+        // Restore original metrics mode configuration
+        configManager.setProperty("metrics_mode", existingMetricsModeConfiguration);
     }
 }
