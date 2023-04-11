@@ -110,7 +110,7 @@ Following are the steps to create a torch-model-archive (.mar) to execute an eag
 
 * Pre-requisites to create a torch model archive (.mar) :
     * serialized-file (.pt) : This file represents the `state_dict` in case of eager mode model.
-    * model-file (.py) : This file contains model class extended from `torch nn`.modules representing the model architecture. This parameter is mandatory for eager mode models. This file must contain only one class definition extended from torch.nn.modules
+    * model-file (.py) : This file contains model class extended from `torch nn`.modules representing the model architecture. This parameter is mandatory for eager mode models. This file must contain only one class definition extended from [torch.nn.Module](https://pytorch.org/docs/stable/generated/torch.nn.Module.html).
     * index_to_name.json : This file contains the mapping of predicted index to class. The default TorchServe handles returns the predicted index and probability. This file can be passed to model archiver using --extra-files parameter.
     * version : Model's version.
     * handler : TorchServe default handler's name or path to custom inference handler(.py)

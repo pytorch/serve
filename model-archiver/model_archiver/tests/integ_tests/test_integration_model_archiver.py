@@ -1,16 +1,23 @@
-import platform
-import time
-from datetime import datetime
 import errno
 import json
 import os
+import platform
 import shutil
-import tempfile
 import subprocess
+import tempfile
+import time
+from datetime import datetime
+from pathlib import Path
+
 import model_archiver
 
 DEFAULT_RUNTIME = "python"
 MANIFEST_FILE = "MAR-INF/MANIFEST.json"
+INTEG_TEST_CONFIG_FILE = "integ_tests/configuration.json"
+DEFAULT_HANDLER_CONFIG_FILE = "integ_tests/default_handler_configuration.json"
+
+TEST_ROOT_DIR = Path(__file__).parents[1]
+MODEL_ARCHIVER_ROOT_DIR = Path(__file__).parents[3]
 
 
 def create_file_path(path):
@@ -49,11 +56,17 @@ def run_test(test, cmd):
 def validate_archive_exists(test):
     fmt = test.get("archive-format")
     if fmt == "tgz":
-        assert os.path.isfile(os.path.join(test.get("export-path"), test.get("model-name")+".tar.gz"))
+        assert os.path.isfile(
+            os.path.join(test.get("export-path"), test.get("model-name") + ".tar.gz")
+        )
     elif fmt == "no-archive":
-        assert os.path.isdir(os.path.join(test.get("export-path"), test.get("model-name")))
+        assert os.path.isdir(
+            os.path.join(test.get("export-path"), test.get("model-name"))
+        )
     else:
-        assert os.path.isfile(os.path.join(test.get("export-path"), test.get("model-name")+".mar"))
+        assert os.path.isfile(
+            os.path.join(test.get("export-path"), test.get("model-name") + ".mar")
+        )
 
 
 def validate_manifest_file(manifest, test, default_handler=None):
@@ -67,7 +80,9 @@ def validate_manifest_file(manifest, test, default_handler=None):
     assert manifest.get("runtime") == test.get("runtime")
     assert manifest.get("model").get("modelName") == test.get("model-name")
     if not default_handler:
-        assert manifest.get("model").get("handler") == test.get("handler").split("/")[-1]
+        assert (
+            manifest.get("model").get("handler") == test.get("handler").split("/")[-1]
+        )
     else:
         assert manifest.get("model").get("handler") == test.get("handler")
     assert manifest.get("archiverVersion") == model_archiver.__version__
@@ -87,21 +102,29 @@ def validate_files(file_list, prefix, default_handler=None):
 
 def validate_tar_archive(test_cfg):
     import tarfile
-    file_name = os.path.join(test_cfg.get("export-path"), test_cfg.get("model-name") + ".tar.gz")
+
+    file_name = os.path.join(
+        test_cfg.get("export-path"), test_cfg.get("model-name") + ".tar.gz"
+    )
     f = tarfile.open(file_name, "r:gz")
-    manifest = json.loads(f.extractfile(os.path.join(test_cfg.get("model-name"), MANIFEST_FILE)).read())
+    manifest = json.loads(
+        f.extractfile(os.path.join(test_cfg.get("model-name"), MANIFEST_FILE)).read()
+    )
     validate_manifest_file(manifest, test_cfg)
     validate_files(f.getnames(), test_cfg.get("model-name"))
 
 
 def validate_noarchive_archive(test):
-    file_name = os.path.join(test.get("export-path"), test.get("model-name"), MANIFEST_FILE)
+    file_name = os.path.join(
+        test.get("export-path"), test.get("model-name"), MANIFEST_FILE
+    )
     manifest = json.loads(open(file_name).read())
     validate_manifest_file(manifest, test)
 
 
 def validate_mar_archive(test):
     import zipfile
+
     file_name = os.path.join(test.get("export-path"), test.get("model-name") + ".mar")
     zf = zipfile.ZipFile(file_name, "r")
     manifest = json.loads(zf.open(MANIFEST_FILE).read())
@@ -124,8 +147,17 @@ def validate(test):
 
 
 def build_cmd(test):
-    args = ['model-name', 'model-file', 'serialized-file', 'handler', 'extra-files', 'archive-format',
-            'version', 'export-path', 'runtime']
+    args = [
+        "model-name",
+        "model-file",
+        "serialized-file",
+        "handler",
+        "extra-files",
+        "archive-format",
+        "version",
+        "export-path",
+        "runtime",
+    ]
 
     cmd = ["torch-model-archiver"]
 
@@ -136,19 +168,42 @@ def build_cmd(test):
     return " ".join(cmd)
 
 
+def make_paths_absolute(test, keys):
+    def make_absolute(paths):
+        if "," in paths:
+            return ",".join([make_absolute(p) for p in paths.split(",")])
+        return MODEL_ARCHIVER_ROOT_DIR.joinpath(paths).as_posix()
+
+    for k in keys:
+        test[k] = make_absolute(test[k])
+
+    return test
+
+
 def test_model_archiver():
-    with open("model_archiver/tests/integ_tests/configuration.json", "r") as f:
+    with open(TEST_ROOT_DIR.joinpath(INTEG_TEST_CONFIG_FILE), "r") as f:
         tests = json.loads(f.read())
+        keys = (
+            "model-file",
+            "serialized-file",
+            "handler",
+            "extra-files",
+        )
+        tests = [make_paths_absolute(t, keys) for t in tests]
         for test in tests:
             # tar.gz format problem on windows hence ignore
-            if platform.system() == "Windows" and test['archive-format'] == 'tgz':
+            if platform.system() == "Windows" and test["archive-format"] == "tgz":
                 continue
             try:
-                test["export-path"] = os.path.join(tempfile.gettempdir(), test["export-path"])
+                test["export-path"] = os.path.join(
+                    tempfile.gettempdir(), test["export-path"]
+                )
                 delete_file_path(test.get("export-path"))
                 create_file_path(test.get("export-path"))
                 test["runtime"] = test.get("runtime", DEFAULT_RUNTIME)
-                test["model-name"] = test["model-name"] + '_' + str(int(time.time()*1000.0))
+                test["model-name"] = (
+                    test["model-name"] + "_" + str(int(time.time() * 1000.0))
+                )
                 cmd = build_cmd(test)
                 if test.get("force"):
                     cmd += " -f"
@@ -160,8 +215,14 @@ def test_model_archiver():
 
 
 def test_default_handlers():
-    with open("model_archiver/tests/integ_tests/default_handler_configuration.json", "r") as f:
+    with open(TEST_ROOT_DIR.joinpath(DEFAULT_HANDLER_CONFIG_FILE), "r") as f:
         tests = json.loads(f.read())
+        keys = (
+            "model-file",
+            "serialized-file",
+            "extra-files",
+        )
+        tests = [make_paths_absolute(t, keys) for t in tests]
         for test in tests:
             cmd = build_cmd(test)
             try:

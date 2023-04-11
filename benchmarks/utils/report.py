@@ -12,6 +12,10 @@ METRICS_VALIDATED = [
     "model_latency_p90",
     "total_latency_p99",
     "model_latency_p99",
+    "memory_percentage_mean",
+    "gpu_used_memory_mean",
+    "cpu_percentage_mean",
+    "gpu_percentage_mean",
 ]
 
 
@@ -22,6 +26,7 @@ class Report:
         self.throughput = 0
         self.batch_size = 0
         self.workers = 0
+        self.deviation = 0.3
 
     def _get_mode(self, csv_file):
 
@@ -66,3 +71,10 @@ class Report:
         self.properties["gpu_used_memory_mean"] = values[26]
         self.properties["cpu_percentage_mean"] = values[22]
         self.properties["gpu_percentage_mean"] = values[24]
+
+    def update(self, report):
+
+        for property in self.properties:
+            self.properties[property] = (
+                self.properties[property] + report.properties[property]
+            ) / 2.0
