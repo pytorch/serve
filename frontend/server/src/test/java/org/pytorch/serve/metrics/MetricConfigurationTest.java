@@ -17,7 +17,7 @@ public class MetricConfigurationTest {
                 MetricConfiguration.loadConfiguration(
                         "src/test/resources/metrics/valid_configuration.yaml");
 
-        Assert.assertEquals(config.getMode(), "prometheus");
+        Assert.assertEquals(config.getMode(), "log");
 
         Assert.assertEquals(
                 config.getDimensions(),

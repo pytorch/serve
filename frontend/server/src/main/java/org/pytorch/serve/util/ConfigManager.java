@@ -389,7 +389,7 @@ public final class ConfigManager {
     }
 
     public String getMetricsMode() {
-        return getProperty(TS_METRICS_MODE, null);
+        return getProperty(TS_METRICS_MODE, "log");
     }
 
     public boolean isSystemMetricsDisabled() {

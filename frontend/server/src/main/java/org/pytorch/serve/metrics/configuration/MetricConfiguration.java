@@ -71,16 +71,8 @@ public class MetricConfiguration {
         Yaml yaml = new Yaml(constructor);
         FileInputStream inputStream = new FileInputStream(new File(configFilePath));
         MetricConfiguration config = yaml.load(inputStream);
+        config.setMode(ConfigManager.getInstance().getMetricsMode());
         config.validate();
-
-        String metricsMode = ConfigManager.getInstance().getMetricsMode();
-        if (metricsMode != null) {
-            config.setMode(metricsMode.toLowerCase());
-        }
-
-        if (config.getMode() == null) {
-            config.setMode("log");
-        }
 
         return config;
     }
