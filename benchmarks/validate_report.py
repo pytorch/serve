@@ -25,7 +25,7 @@ def check_if_within_range(value1, value2, threshold):
 
 
 def validate_reports(args):
-    input_dir = args.input
+    input_dir = args.input_dir
     if not os.path.isdir(input_dir):
         print("No report generated")
         return -1
