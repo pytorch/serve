@@ -73,7 +73,7 @@ class Common:
 
     def install_wget(self):
         pass
-    
+
     def install_numactl(self):
         pass
 
@@ -109,7 +109,7 @@ class Linux(Common):
         os.system(f"tar xzf libgit2-1.3.0.tar.gz")
         os.system(f"cd libgit2-1.3.0 && cmake . && make && sudo make install && cd ..")
         os.system(f"rm -rf libgit2-1.3.0 && rm libgit2-1.3.0.tar.gz")
-    
+
     def install_numactl(self):
         if os.system("numactl --show") != 0 or args.force:
             os.system(f"{self.sudo_cmd}apt-get install -y numactl")
@@ -128,7 +128,7 @@ class Windows(Common):
 
     def install_wget(self):
         pass
-    
+
     def install_numactl(self):
         pass
 
@@ -155,7 +155,7 @@ class Darwin(Common):
     def install_wget(self):
         if os.system("wget --version") != 0 or args.force:
             os.system("brew install wget")
-    
+
     def install_numactl(self):
         if os.system("numactl --show") != 0 or args.force:
             os.system("brew install numactl")
