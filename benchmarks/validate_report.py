@@ -63,9 +63,11 @@ def validate_reports(artifacts_dir, report_dir):
                     f"Observed value: {report.properties[key]:.2f}"
                 )
                 error = True
+        if not error:
+            print(f"Model {model} successfully validated")
+
     if error:
-        return -1
-    print(f"Model {model} successfully validated")
+        raise Exception("Failures in benchmark validation")
 
 
 def main():

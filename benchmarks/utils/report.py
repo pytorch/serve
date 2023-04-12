@@ -22,7 +22,7 @@ METRICS_VALIDATED = [
 # For cpu_memory < 15%, 50% deviation works but for CPU > 40%, 10-15%
 # might be the right value
 
-ACCEPTABLE_METRIC_DEVIATION = 0.5
+ACCEPTABLE_METRIC_DEVIATION = 0.3
 
 
 class Report:
