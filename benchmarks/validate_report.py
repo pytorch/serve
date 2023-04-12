@@ -2,7 +2,7 @@ import argparse
 import os
 
 from utils.report import METRICS_VALIDATED, Report
-from utils.update_artifacts import BENCHMARK_ARTIFACTS_PATH
+from utils.update_artifacts import BENCHMARK_ARTIFACTS_PATH, BENCHMARK_REPORT_PATH
 
 BENCHMARK_REPORT_CSV = "ab_report.csv"
 CWD = os.getcwd()
@@ -24,22 +24,19 @@ def check_if_within_range(value1, value2, threshold):
 
 
 def validate_reports(args):
-    input_dir = args.input_dir
-    if not os.path.isdir(input_dir):
+    artifacts_dir, report_dir = args.input_artifacts_dir, args.report_dir
+    if not os.path.isdir(report_dir):
         print("No report generated")
         return -1
 
-    print(input_dir)
     # Read baseline reports
     baseline_reports = {}
-    for _d in sorted(os.listdir(input_dir)):
-        dir = os.path.join(input_dir, _d)
+    for _d in sorted(os.listdir(artifacts_dir)):
+        dir = os.path.join(artifacts_dir, _d)
         print(dir)
         for subdir in sorted(os.listdir(dir)):
             print(os.path.join(dir, subdir))
             csv_file = os.path.join(dir, subdir, BENCHMARK_REPORT_CSV)
-            if not os.path.exists(csv_file):
-                continue
 
             report = Report()
             report.read_csv(csv_file)
@@ -50,9 +47,9 @@ def validate_reports(args):
 
     # Read generated reports
     generated_reports = {}
-    for subdir in sorted(os.listdir(input_dir)):
-        if os.path.isdir(os.path.join(input_dir, subdir)):
-            csv_file = os.path.join(input_dir, subdir, BENCHMARK_REPORT_CSV)
+    for subdir in sorted(os.listdir(report_dir)):
+        if os.path.isdir(os.path.join(report_dir, subdir)):
+            csv_file = os.path.join(report_dir, subdir, BENCHMARK_REPORT_CSV)
             report = Report()
             report.read_csv(csv_file)
             generated_reports[subdir] = report
@@ -82,11 +79,19 @@ def main():
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
-        "--input-dir",
+        "--input-artifacts-dir",
         nargs="?",
-        help="the dir of a list of model benchmark result subdir ",
+        help="directory where benchmark artifacts have been saved",
         type=str,
         default=BENCHMARK_ARTIFACTS_PATH,
+    )
+
+    parser.add_argument(
+        "--input-report-dir",
+        nargs="?",
+        help="directory where current benchmark report is saved",
+        type=str,
+        default=BENCHMARK_REPORT_PATH,
     )
 
     parser.add_argument(
