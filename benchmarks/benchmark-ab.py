@@ -450,6 +450,8 @@ def generate_report(warm_up_lines):
     click.secho("\n\nGenerating Reports...", fg="green")
     extract_metrics(warm_up_lines=warm_up_lines)
     generate_csv_output()
+    print("Ankith")
+    print(execution_params["generate_graphs"])
     if execution_params["generate_graphs"]:
         generate_latency_graph()
         generate_profile_graph()
