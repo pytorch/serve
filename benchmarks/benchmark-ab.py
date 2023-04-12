@@ -172,9 +172,7 @@ def benchmark(
 
     # set ab params
     update_plan_params[test_plan]()
-    print("Before ", execution_params)
     update_exec_params(input_params)
-    print("After ", execution_params)
 
     click.secho("Starting AB benchmark suite...", fg="green")
     click.secho("\n\nConfigured execution parameters are:", fg="green")
