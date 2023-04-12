@@ -11,7 +11,7 @@ jobs:
       fail-fast: false
       matrix:
         #hardware: [cpu, gpu, inf1]
-        hardware: [cpu]
+        hardware: [inf1]
     runs-on:
       - self-hosted
       - ${{ matrix.hardware }}
