@@ -12,6 +12,7 @@ bert_neuron_batch_1:
         requests: 10000
         concurrency: 100
         backend_profiling: False
+        generate_graphs: False
         exec_env: "local"
         processors:
             - "neuron"
@@ -29,6 +30,7 @@ bert_neuron_batch_2:
         requests: 10000
         concurrency: 100
         backend_profiling: False
+        generate_graphs: False
         exec_env: "local"
         processors:
             - "neuron"
@@ -46,6 +48,7 @@ bert_neuron_batch_4:
         requests: 10000
         concurrency: 100
         backend_profiling: False
+        generate_graphs: False
         exec_env: "local"
         processors:
             - "neuron"
@@ -63,6 +66,7 @@ bert_neuron_batch_8:
         requests: 10000
         concurrency: 100
         backend_profiling: False
+        generate_graphs: False
         exec_env: "local"
         processors:
             - "neuron"
