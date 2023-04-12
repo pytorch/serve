@@ -1,6 +1,9 @@
 name: Benchmark torchserve nightly
 
-on: push
+on:
+  pull_request:
+    branches:
+    - master
   # run every day at 2:15am
   #schedule:
   #  - cron:  '15 02 * * *'
