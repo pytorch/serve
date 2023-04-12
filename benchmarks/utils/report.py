@@ -1,7 +1,4 @@
-from collections import defaultdict
-
 import pandas as pd
-import yaml
 
 MODES = ["eager_mode", "scripted_mode"]
 METRICS_VALIDATED = [
@@ -19,6 +16,15 @@ METRICS_VALIDATED = [
 ]
 
 
+# Acceptable metric deviation needs a more complicated logic.
+# Example: For latencies in 2 digits, 50% might be acceptable
+# For 3 digit latencies, 20-30% might be the right value
+# For cpu_memory < 15%, 50% deviation works but for CPU > 40%, 10-15%
+# might be the right value
+
+ACCEPTABLE_METRIC_DEVIATION = 0.5
+
+
 class Report:
     def __init__(self):
         self.properties = {}
@@ -26,7 +32,7 @@ class Report:
         self.throughput = 0
         self.batch_size = 0
         self.workers = 0
-        self.deviation = 0.3
+        self.deviation = ACCEPTABLE_METRIC_DEVIATION
 
     def _get_mode(self, csv_file):
         cfg = csv_file.split("/")[-2]
@@ -39,21 +45,6 @@ class Report:
         values = df.values.tolist()
         self._populate_csv(values[0])
         self._get_mode(csv_file)
-
-    def read_yaml(self, yaml_file, config):
-        with open(yaml_file, "r") as f:
-            yaml_dict = yaml.safe_load(f)
-        self._populate_yaml(yaml_dict, config)
-
-    def _populate_yaml(self, yaml_dict, config):
-        for _, cfg in yaml_dict.items():
-            for mode in MODES:
-                if mode in cfg:
-                    self.properties[mode] = defaultdict(int)
-                    values = cfg[mode]["batch_size"][config["batch_size"]]
-                    self.properties[mode]["deviation"] = cfg["deviation"]
-                    for metric in METRICS_VALIDATED:
-                        self.properties[mode][metric] = values[metric]
 
     def _populate_csv(self, values):
         self.properties["throughput"] = values[9]

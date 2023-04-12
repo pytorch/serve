@@ -23,19 +23,12 @@ def check_if_within_range(value1, value2, threshold):
     return abs((value1 - value2) / float(value1)) <= threshold
 
 
-def validate_reports(args):
-    artifacts_dir, report_dir = args.input_artifacts_dir, args.input_report_dir
-    if not os.path.isdir(report_dir):
-        print("No benchmark report found")
-        return -1
-
+def validate_reports(artifacts_dir, report_dir):
     # Read baseline reports
     baseline_reports = {}
     for _d in sorted(os.listdir(artifacts_dir)):
         dir = os.path.join(artifacts_dir, _d)
-        print(dir)
         for subdir in sorted(os.listdir(dir)):
-            print(os.path.join(dir, subdir))
             csv_file = os.path.join(dir, subdir, BENCHMARK_REPORT_CSV)
 
             report = Report()
@@ -66,8 +59,8 @@ def validate_reports(args):
             ):
                 print(
                     f"Error while validating {key} for model: {model}, "
-                    f"Expected value: {baseline_reports[model].properties[key]},"
-                    f"Observed value: {report.properties[key]}"
+                    f"Expected value: {baseline_reports[model].properties[key]:.2f},"
+                    f"Observed value: {report.properties[key]:.2f}"
                 )
                 error = True
     if error:
@@ -100,8 +93,8 @@ def main():
         help="benchmark config yaml file path",
     )
 
-    arguments = parser.parse_args()
-    validate_reports(arguments)
+    args = parser.parse_args()
+    validate_reports(args.input_artifacts_dir, args.input_report_dir)
 
 
 if __name__ == "__main__":
