@@ -2,22 +2,26 @@ import argparse
 import os
 
 from utils.report import METRICS_VALIDATED, Report
-from utils.update_artifacts import BENCHMARK_ARTIFACTS_PATH, BENCHMARK_REPORT_PATH
-
-BENCHMARK_REPORT_CSV = "ab_report.csv"
-CWD = os.getcwd()
+from utils.update_artifacts import (
+    BENCHMARK_ARTIFACTS_PATH,
+    BENCHMARK_REPORT_FILE,
+    BENCHMARK_REPORT_PATH,
+)
 
 
 def metric_valid(key, obs_val, exp_val, threshold):
+    # In case of throughput, higher is better
+    # In case of memory, lower is better.
+    # We ignore lower values for memory related metrices
     lower = False
     if key != "throughput":
         lower = True
-    return check_if_within_range(exp_val, obs_val, threshold) or (
+    return check_if_within_threshold(exp_val, obs_val, threshold) or (
         (obs_val < exp_val and lower)
     )
 
 
-def check_if_within_range(value1, value2, threshold):
+def check_if_within_threshold(value1, value2, threshold):
     if float(value1) == 0.0:
         return True
     return abs((value1 - value2) / float(value1)) <= threshold
@@ -29,7 +33,7 @@ def validate_reports(artifacts_dir, report_dir):
     for _d in sorted(os.listdir(artifacts_dir)):
         dir = os.path.join(artifacts_dir, _d)
         for subdir in sorted(os.listdir(dir)):
-            csv_file = os.path.join(dir, subdir, BENCHMARK_REPORT_CSV)
+            csv_file = os.path.join(dir, subdir, BENCHMARK_REPORT_FILE)
 
             report = Report()
             report.read_csv(csv_file)
@@ -42,7 +46,7 @@ def validate_reports(artifacts_dir, report_dir):
     generated_reports = {}
     for subdir in sorted(os.listdir(report_dir)):
         if os.path.isdir(os.path.join(report_dir, subdir)):
-            csv_file = os.path.join(report_dir, subdir, BENCHMARK_REPORT_CSV)
+            csv_file = os.path.join(report_dir, subdir, BENCHMARK_REPORT_FILE)
             report = Report()
             report.read_csv(csv_file)
             generated_reports[subdir] = report
@@ -87,12 +91,6 @@ def main():
         help="directory where current benchmark report is saved",
         type=str,
         default=BENCHMARK_REPORT_PATH,
-    )
-
-    parser.add_argument(
-        "--input_cfg",
-        action="store",
-        help="benchmark config yaml file path",
     )
 
     args = parser.parse_args()

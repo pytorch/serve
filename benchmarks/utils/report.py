@@ -1,6 +1,5 @@
 import pandas as pd
 
-MODES = ["eager_mode", "scripted_mode"]
 METRICS_VALIDATED = [
     "throughput",
     "total_latency_p50",
@@ -21,7 +20,6 @@ METRICS_VALIDATED = [
 # For 3 digit latencies, 20-30% might be the right value
 # For cpu_memory < 15%, 50% deviation works but for CPU > 40%, 10-15%
 # might be the right value
-
 ACCEPTABLE_METRIC_DEVIATION = 0.3
 
 
