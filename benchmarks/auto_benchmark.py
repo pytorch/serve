@@ -138,7 +138,6 @@ def benchmark_env_setup(bm_config, skip_ts_install):
 def install_torchserve(skip_ts_install, hw, ts_version):
     if skip_ts_install:
         return
-    
     # git checkout branch if it is needed
     cmd = "git checkout master && git reset --hard && git clean -dffx . && git pull --rebase"
     execute(cmd, wait=True)
@@ -152,14 +151,12 @@ def install_torchserve(skip_ts_install, hw, ts_version):
     else:
         cmd = "git checkout {}".format(ts_version)
         execute(cmd, wait=True)
-    
     # install_dependencies.py
     if hw == "gpu":
         cmd = "python ts_scripts/install_dependencies.py --environment dev --cuda cu117"
     else:
         cmd = "python ts_scripts/install_dependencies.py --environment dev"
     execute(cmd, wait=True)
-    
     print("successfully install install_dependencies.py")
 
     # install torchserve

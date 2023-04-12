@@ -5,15 +5,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import org.pytorch.serve.archive.model.ModelConfig;
 import org.pytorch.serve.metrics.Metric;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.Connector;
@@ -91,8 +86,7 @@ public class WorkerLifeCycle {
         return launcherAvailable;
     }
 
-    public void startWorker(int port, String deviceIds)
-            throws WorkerInitializationException, InterruptedException {
+    public void startWorker(int port) throws WorkerInitializationException, InterruptedException {
         File workingDir = new File(configManager.getModelServerHome());
         File modelPath;
         setPort(port);
@@ -102,28 +96,17 @@ public class WorkerLifeCycle {
             throw new WorkerInitializationException("Failed get TS home directory", e);
         }
 
-        ArrayList<String> argl = new ArrayList<>();
-        ArrayList<String> envp = new ArrayList<>();
-        envp.addAll(
-                Arrays.asList(
-                        EnvironmentUtils.getEnvString(
-                                workingDir.getAbsolutePath(),
-                                modelPath.getAbsolutePath(),
-                                model.getModelArchive().getManifest().getModel().getHandler())));
-
-        if (model.getParallelLevel() > 1) {
-            attachRunner(argl, envp, port, deviceIds);
-        } else if (model.getParallelLevel() == 1) {
-            argl.add(EnvironmentUtils.getPythonRunTime(model));
-        }
-
+        ArrayList<String> argl = new ArrayList<String>();
+        argl.add(EnvironmentUtils.getPythonRunTime(model));
+        
+        
         if (configManager.isCPULauncherEnabled()) {
             String launcherArgs = configManager.getCPULauncherArgs();
             boolean launcherAvailable = isLauncherAvailable(launcherArgs);
             if (launcherAvailable) {
                 ArrayList<String> args = launcherArgsToList(launcherArgs);
                 argl.addAll(args);
-    
+
                 // multi-worker core pinning
                 if (this.numWorker > 1) {
                     argl.add("--ninstances");
@@ -132,7 +115,7 @@ public class WorkerLifeCycle {
                     // instance_idx is 0-indexed
                     argl.add(String.valueOf(this.currNumRunningWorkers));
                 }
-    
+
             } else {
                 logger.warn(
                         "torch.backends.xeon.run_cpu is not available. Proceeding without worker core pinning. For better performance, please make sure torch.backends.xeon.run_cpu is available.");
@@ -148,15 +131,20 @@ public class WorkerLifeCycle {
         argl.add("--metrics-config");
         argl.add(configManager.getMetricsConfigPath());
 
+        String[] envp =
+                EnvironmentUtils.getEnvString(
+                        workingDir.getAbsolutePath(),
+                        modelPath.getAbsolutePath(),
+                        model.getModelArchive().getManifest().getModel().getHandler());
+
         try {
-            latch = new CountDownLatch(model.getParallelLevel());
+            latch = new CountDownLatch(1);
 
             String[] args = argl.toArray(new String[argl.size()]);
-            String[] envs = envp.toArray(new String[envp.size()]);
             logger.debug("Worker cmdline: {}", argl.toString());
 
             synchronized (this) {
-                process = Runtime.getRuntime().exec(args, envs, modelPath);
+                process = Runtime.getRuntime().exec(args, envp, modelPath);
 
                 String threadName =
                         "W-" + port + '-' + model.getModelVersionName().getVersionedModelName();
@@ -179,40 +167,6 @@ public class WorkerLifeCycle {
             if (!success) {
                 exit();
             }
-        }
-    }
-
-    private void attachRunner(
-            ArrayList<String> argl, List<String> envp, int port, String deviceIds) {
-        envp.add("LOGLEVEL=INFO");
-        if (deviceIds != null) {
-            envp.add("CUDA_VISIBLE_DEVICES=" + deviceIds);
-        }
-        ModelConfig.TorchRun torchRun = model.getModelArchive().getModelConfig().getTorchRun();
-        argl.add("torchrun");
-        argl.add("--nnodes");
-        argl.add(String.valueOf(torchRun.getNnodes()));
-        argl.add("--nproc_per_node");
-        argl.add(String.valueOf(torchRun.getNprocPerNode()));
-        argl.add("--max_restarts");
-        argl.add(String.valueOf(torchRun.getMaxRestarts()));
-        argl.add("--log_dir");
-        argl.add(ConfigManager.getInstance().getTorchRunLogDir());
-        argl.add("--rdzv_backend");
-        argl.add(torchRun.getRdzvBackend());
-        argl.add("--rdzv_endpoint");
-        if (torchRun.getRdzvEndpoint() != null) {
-            argl.add(torchRun.getRdzvEndpoint());
-        } else {
-            argl.add(String.format("localhost:%d", port));
-        }
-        argl.add("--rdzv_id");
-        argl.add(String.format("%s_%d", model.getModelName(), port));
-        if (torchRun.getMasterAddr() != null) {
-            argl.add("--master-addr");
-            argl.add(torchRun.getMasterAddr());
-            argl.add("--master-port");
-            argl.add(String.valueOf(torchRun.getMasterPort()));
         }
     }
 
@@ -260,20 +214,15 @@ public class WorkerLifeCycle {
     }
 
     private static final class ReaderThread extends Thread {
-        private static final Pattern METRIC_PATTERN =
-                Pattern.compile("^(INFO > )?(\\[METRICS])(.*)");
-        private static final Pattern WORKER_START_PATTERN =
-                Pattern.compile("^(INFO > )?(Torch worker started.)$");
-        private static final Pattern WORKER_PID_PATTERN =
-                Pattern.compile("^(INFO > )?(\\[PID])(\\d+)$");
-        private static final Logger loggerModelMetrics =
-                LoggerFactory.getLogger(ConfigManager.MODEL_METRICS_LOGGER);
-        private static final Logger loggerModelOutput =
-                LoggerFactory.getLogger(ConfigManager.MODEL_LOGGER);
+
         private InputStream is;
         private boolean error;
         private WorkerLifeCycle lifeCycle;
         private AtomicBoolean isRunning = new AtomicBoolean(true);
+        private static final Logger loggerModelMetrics =
+                LoggerFactory.getLogger(ConfigManager.MODEL_METRICS_LOGGER);
+        private static final Logger loggerModelOutput =
+                LoggerFactory.getLogger(ConfigManager.MODEL_LOGGER);
 
         public ReaderThread(String name, InputStream is, boolean error, WorkerLifeCycle lifeCycle) {
             super(name + (error ? "-stderr" : "-stdout"));
@@ -294,11 +243,8 @@ public class WorkerLifeCycle {
                     if (result == null) {
                         break;
                     }
-
-                    Matcher matcher = METRIC_PATTERN.matcher(result);
-                    if (matcher.matches()) {
-                        logger.info("result={}, pattern={}", result, matcher.group(2));
-                        Metric parsedMetric = Metric.parse(matcher.group(3));
+                    if (result.startsWith("[METRICS]")) {
+                        Metric parsedMetric = Metric.parse(result.substring("[METRICS]".length()));
                         if (parsedMetric != null) {
                             loggerModelMetrics.info(parsedMetric.toString());
                         } else {
@@ -307,14 +253,10 @@ public class WorkerLifeCycle {
                         continue;
                     }
 
-                    matcher = WORKER_START_PATTERN.matcher(result);
-                    if (matcher.matches()) {
+                    if ("Torch worker started.".equals(result)) {
                         lifeCycle.setSuccess(true);
-                    } else {
-                        matcher = WORKER_PID_PATTERN.matcher(result);
-                        if (matcher.matches()) {
-                            lifeCycle.setPid(Integer.parseInt(matcher.group(3)));
-                        }
+                    } else if (result.startsWith("[PID]")) {
+                        lifeCycle.setPid(Integer.parseInt(result.substring("[PID]".length())));
                     }
                     if (error) {
                         loggerModelOutput.warn(result);
