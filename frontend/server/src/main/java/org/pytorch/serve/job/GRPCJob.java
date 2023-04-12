@@ -1,5 +1,7 @@
 package org.pytorch.serve.job;
 
+import static org.pytorch.serve.util.messages.RequestInput.TS_STREAM_NEXT;
+
 import com.google.protobuf.ByteString;
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
@@ -60,28 +62,33 @@ public class GRPCJob extends Job {
             Map<String, String> responseHeaders) {
 
         ByteString output = ByteString.copyFrom(body);
-        if (this.getCmd() == WorkerCommands.PREDICT) {
+        if (this.getCmd() == WorkerCommands.PREDICT
+                || this.getCmd() == WorkerCommands.STREAMPREDICT) {
             PredictionResponse reply =
                     PredictionResponse.newBuilder().setPrediction(output).build();
             predictionResponseObserver.onNext(reply);
-            predictionResponseObserver.onCompleted();
+            if (this.getCmd() == WorkerCommands.PREDICT
+                    || (this.getCmd() == WorkerCommands.STREAMPREDICT
+                            && responseHeaders.get(TS_STREAM_NEXT).equals("false"))) {
+                predictionResponseObserver.onCompleted();
 
-            logger.debug(
-                    "Waiting time ns: {}, Backend time ns: {}",
-                    getScheduled() - getBegin(),
-                    System.nanoTime() - getScheduled());
-            String queueTime =
-                    String.valueOf(
-                            TimeUnit.MILLISECONDS.convert(
-                                    getScheduled() - getBegin(), TimeUnit.NANOSECONDS));
-            loggerTsMetrics.info(
-                    "{}",
-                    new Metric(
-                            "QueueTime",
-                            queueTime,
-                            "ms",
-                            ConfigManager.getInstance().getHostName(),
-                            DIMENSION));
+                logger.debug(
+                        "Waiting time ns: {}, Backend time ns: {}",
+                        getScheduled() - getBegin(),
+                        System.nanoTime() - getScheduled());
+                String queueTime =
+                        String.valueOf(
+                                TimeUnit.MILLISECONDS.convert(
+                                        getScheduled() - getBegin(), TimeUnit.NANOSECONDS));
+                loggerTsMetrics.info(
+                        "{}",
+                        new Metric(
+                                "QueueTime",
+                                queueTime,
+                                "ms",
+                                ConfigManager.getInstance().getHostName(),
+                                DIMENSION));
+            }
         } else if (this.getCmd() == WorkerCommands.DESCRIBE) {
             try {
                 ArrayList<DescribeModelResponse> respList =

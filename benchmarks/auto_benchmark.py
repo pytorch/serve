@@ -101,9 +101,9 @@ class BenchmarkConfig:
                 report_cmd = v
 
         self.bm_config["model_config_path"] = (
-            "{}/cpu".format(MODEL_JSON_CONFIG_PATH)
-            if self.bm_config["hardware"] == "cpu"
-            else "{}/gpu".format(MODEL_JSON_CONFIG_PATH)
+            "{}/{}".format(MODEL_JSON_CONFIG_PATH, self.bm_config["hardware"])
+            if self.bm_config["hardware"] in ["cpu", "gpu", "neuron"]
+            else "{}/cpu".format(MODEL_JSON_CONFIG_PATH)
         )
         
         self.enable_launcher_with_logical_core()

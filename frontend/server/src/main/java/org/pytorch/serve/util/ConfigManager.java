@@ -99,6 +99,7 @@ public final class ConfigManager {
     private static final String TS_GRPC_MANAGEMENT_PORT = "grpc_management_port";
     private static final String TS_ENABLE_GRPC_SSL = "enable_grpc_ssl";
     private static final String TS_INITIAL_WORKER_PORT = "initial_worker_port";
+    private static final String TS_INITIAL_DISTRIBUTION_PORT = "initial_distribution_port";
     private static final String TS_WORKFLOW_STORE = "workflow_store";
 
     // Configuration which are not documented or enabled through environment variables
@@ -134,6 +135,7 @@ public final class ConfigManager {
     private static ConfigManager instance;
     private String hostName;
     private Map<String, Map<String, JsonObject>> modelConfig = new HashMap<>();
+    private String torchrunLogDir;
 
     private ConfigManager(Arguments args) throws IOException {
         prop = new Properties();
@@ -372,6 +374,17 @@ public final class ConfigManager {
             path = getModelServerHome() + "/ts/configs/metrics.yaml";
         }
         return path;
+    }
+
+    public String getTorchRunLogDir() {
+        if (torchrunLogDir == null) {
+            torchrunLogDir =
+                    Paths.get(
+                                    getCanonicalPath(System.getProperty("LOG_LOCATION")),
+                                    "torchelastic_ts")
+                            .toString();
+        }
+        return torchrunLogDir;
     }
 
     public boolean isSystemMetricsDisabled() {
@@ -808,6 +821,14 @@ public final class ConfigManager {
 
     public void setInitialWorkerPort(int initialPort) {
         prop.setProperty(TS_INITIAL_WORKER_PORT, String.valueOf(initialPort));
+    }
+
+    public int getInitialDistributionPort() {
+        return Integer.parseInt(prop.getProperty(TS_INITIAL_DISTRIBUTION_PORT, "29500"));
+    }
+
+    public void setInitialDistributionPort(int initialPort) {
+        prop.setProperty(TS_INITIAL_DISTRIBUTION_PORT, String.valueOf(initialPort));
     }
 
     private void setModelConfig() {

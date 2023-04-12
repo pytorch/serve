@@ -17,6 +17,7 @@ import org.pytorch.serve.servingsdk.snapshot.SnapshotSerializer;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.wlm.Model;
 import org.pytorch.serve.wlm.ModelManager;
+import org.pytorch.serve.wlm.WorkerInitializationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -139,7 +140,10 @@ public final class SnapshotManager {
 
         } catch (IOException e) {
             logger.error("Error while retrieving snapshot details. Details: {}", e.getMessage());
-        } catch (ModelException | InterruptedException | DownloadArchiveException e) {
+        } catch (ModelException
+                | InterruptedException
+                | DownloadArchiveException
+                | WorkerInitializationException e) {
             logger.error("Error while registering model. Details: {}", e.getMessage());
         }
     }
