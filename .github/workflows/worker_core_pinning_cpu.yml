@@ -1,9 +1,7 @@
 name: Benchmark torchserve cpu with core pinning
 
-on:
-  pull_request:
-    branches:
-    - master
+on: push
+
 jobs:
   nightly:
     runs-on: [self-hosted, cpu]
