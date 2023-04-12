@@ -1,20 +1,16 @@
 name: Benchmark torchserve nightly
 
 on:
-  pull_request:
-    branches:
-    - master
   # run every day at 2:15am
-  #schedule:
-  #  - cron:  '15 02 * * *'
+  schedule:
+    - cron:  '15 02 * * *'
 
 jobs:
   nightly:
     strategy:
       fail-fast: false
       matrix:
-        #hardware: [cpu, gpu, inf1]
-        hardware: [cpu]
+        hardware: [cpu, gpu, inf1]
     runs-on:
       - self-hosted
       - ${{ matrix.hardware }}
@@ -45,10 +41,8 @@ jobs:
           sudo apt-get update -y
           sudo apt-get install -y apache2-utils
           pip install -r benchmarks/requirements-ab.txt
-      - name: Benchmark cpu nightly with core pinning
+      - name: Benchmark cpu nightly
         if: ${{ matrix.hardware == 'cpu' }}
-        #env:
-        #  OMP_NUM_THREADS: 1
         run: python benchmarks/auto_benchmark.py --input benchmarks/benchmark_config_cpu.yaml --skip false
       - name: Benchmark gpu nightly
         if: ${{ matrix.hardware == 'gpu' }}
