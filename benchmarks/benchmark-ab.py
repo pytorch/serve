@@ -38,7 +38,6 @@ default_ab_params = {
 }
 
 execution_params = default_ab_params.copy()
-print(execution_params)
 
 
 def json_provider(file_path, cmd_name):
@@ -434,8 +433,6 @@ def getAPIS():
 
 
 def update_exec_params(input_param):
-    print(input_param)
-    print(execution_params)
     for k, v in input_param.items():
         if default_ab_params[k] != input_param[k]:
             execution_params[k] = input_param[k]
@@ -453,8 +450,6 @@ def generate_report(warm_up_lines):
     click.secho("\n\nGenerating Reports...", fg="green")
     extract_metrics(warm_up_lines=warm_up_lines)
     generate_csv_output()
-    click.secho("\n\nAnkith...", fg="green")
-    click.secho("\n\123...", execution_params["generate_graphs"])
     if execution_params["generate_graphs"]:
         generate_latency_graph()
         generate_profile_graph()

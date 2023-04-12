@@ -12,7 +12,6 @@ bert_neuron_batch_1:
         requests: 10000
         concurrency: 100
         backend_profiling: False
-        generate_graphs: False
         exec_env: "local"
         processors:
             - "neuron"
