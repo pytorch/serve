@@ -30,14 +30,15 @@ default_ab_params = {
     "image": "",
     "docker_runtime": "",
     "backend_profiling": False,
+    "generate_graphs": False,
     "config_properties": "config.properties",
     "inference_model_url": "predictions/benchmark",
     "report_location": tempfile.gettempdir(),
     "tmp_dir": tempfile.gettempdir(),
-    "generate_graphs": False,
 }
 
 execution_params = default_ab_params.copy()
+print(execution_params)
 
 
 def json_provider(file_path, cmd_name):
@@ -433,6 +434,8 @@ def getAPIS():
 
 
 def update_exec_params(input_param):
+    print(input_param)
+    print(execution_params)
     for k, v in input_param.items():
         if default_ab_params[k] != input_param[k]:
             execution_params[k] = input_param[k]
