@@ -1,8 +1,8 @@
 import argparse
 import os
 
-from auto_benchmark import BENCHMARK_REPORT_PATH
 from utils.report import METRICS_VALIDATED, Report
+from utils.update_artifacts import BENCHMARK_ARTIFACTS_PATH
 
 BENCHMARK_REPORT_CSV = "ab_report.csv"
 CWD = os.getcwd()
@@ -29,6 +29,7 @@ def validate_reports(args):
         print("No report generated")
         return -1
 
+    print(input_dir)
     # Read baseline reports
     baseline_reports = {}
     for _d in sorted(os.listdir(input_dir)):
@@ -80,9 +81,8 @@ def main():
         "--input-dir",
         nargs="?",
         help="the dir of a list of model benchmark result subdir ",
-        const=BENCHMARK_REPORT_PATH,
         type=str,
-        default=BENCHMARK_REPORT_PATH,
+        default=BENCHMARK_ARTIFACTS_PATH,
     )
 
     parser.add_argument(
