@@ -2,7 +2,7 @@
 
 set -o errexit -o nounset -o pipefail
 
-PY_VERSION="3.9"
+PY_VERSION=$1
 TAG_1="org/repo:image-${PY_VERSION}-${RANDOM}-${RANDOM}-${RANDOM}-${RANDOM}"
 TAG_2="org/repo:image-${PY_VERSION}-${RANDOM}-${RANDOM}-${RANDOM}-${RANDOM}"
 TAG_3="org/repo:image-${PY_VERSION}-${RANDOM}-${RANDOM}-${RANDOM}-${RANDOM}"
@@ -44,11 +44,12 @@ with open("${IMGS_FILE}") as file:
         if f'{img["repo"]}:{img["tag"]}' in tags_to_test
     ]
 
-assert len(images_to_test) == len(tags_to_test) and len(images_to_test) !=0, "Wrong filtering of images to test"
+assert len(images_to_test) !=0, "No images to test were detected"
+assert len(images_to_test) == len(tags_to_test), "number of images_to_test does not match tags_to_test"
 
 digests = [img["digest"] for img in images_to_test]
 
-assert len(set(digests)) == 1, f"There should be only 1 digest, found {set(digests)}"
+assert len(set(digests)) == 1, f"There should be only 1 digest, found these: {set(digests)}"
 
 print(f"Test successfull! All flags orders lead to the same image build with digest {set(digests)}")
 EOF
