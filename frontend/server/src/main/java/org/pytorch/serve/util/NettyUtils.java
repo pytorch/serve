@@ -42,21 +42,6 @@ public final class NettyUtils {
 
     private static final String REQUEST_ID = "x-request-id";
     private static final AttributeKey<Session> SESSION_KEY = AttributeKey.valueOf("session");
-    private static final IMetric REQUESTS_2XX_METRIC =
-            MetricCache.getInstance().getMetricFrontend("Requests2XX");
-    private static final IMetric REQUESTS_4XX_METRIC =
-            MetricCache.getInstance().getMetricFrontend("Requests4XX");
-    private static final IMetric REQUESTS_5XX_METRIC =
-            MetricCache.getInstance().getMetricFrontend("Requests5XX");
-    private static final List<String> REQUESTS_METRIC_DIMENSION_VALUES =
-            new ArrayList<String>() {
-                {
-                    // Dimension value corresponding to dimension name "Level"
-                    add("Host");
-                    // Frontend metrics by default have the last dimension as Hostname
-                    add(ConfigManager.getInstance().getHostName());
-                }
-            };
 
     private NettyUtils() {}
 
@@ -148,10 +133,20 @@ public final class NettyUtils {
             logger.info(session.toString());
         }
         int code = resp.status().code();
+        List<String> requestsMetricDimensionValues =
+                new ArrayList<String>() {
+                    {
+                        // Dimension value corresponding to dimension name "Level"
+                        add("Host");
+                        // Frontend metrics by default have the last dimension as Hostname
+                        add(ConfigManager.getInstance().getHostName());
+                    }
+                };
         if (code >= 200 && code < 300) {
-            if (REQUESTS_2XX_METRIC != null) {
+            IMetric requests2xxMetric = MetricCache.getInstance().getMetricFrontend("Requests2XX");
+            if (requests2xxMetric != null) {
                 try {
-                    REQUESTS_2XX_METRIC.addOrUpdate(REQUESTS_METRIC_DIMENSION_VALUES, 1);
+                    requests2xxMetric.addOrUpdate(requestsMetricDimensionValues, 1);
                 } catch (Exception e) {
                     logger.error("Failed to update frontend metric Requests2XX: ", e);
                 }
@@ -159,9 +154,10 @@ public final class NettyUtils {
                 logger.error("Frontend metric Requests2XX not present in metric cache");
             }
         } else if (code >= 400 && code < 500) {
-            if (REQUESTS_4XX_METRIC != null) {
+            IMetric requests4xxMetric = MetricCache.getInstance().getMetricFrontend("Requests4XX");
+            if (requests4xxMetric != null) {
                 try {
-                    REQUESTS_4XX_METRIC.addOrUpdate(REQUESTS_METRIC_DIMENSION_VALUES, 1);
+                    requests4xxMetric.addOrUpdate(requestsMetricDimensionValues, 1);
                 } catch (Exception e) {
                     logger.error("Failed to update frontend metric Requests4XX: ", e);
                 }
@@ -169,9 +165,10 @@ public final class NettyUtils {
                 logger.error("Frontend metric Requests4XX not present in metric cache");
             }
         } else {
-            if (REQUESTS_5XX_METRIC != null) {
+            IMetric requests5xxMetric = MetricCache.getInstance().getMetricFrontend("Requests5XX");
+            if (requests5xxMetric != null) {
                 try {
-                    REQUESTS_5XX_METRIC.addOrUpdate(REQUESTS_METRIC_DIMENSION_VALUES, 1);
+                    requests5xxMetric.addOrUpdate(requestsMetricDimensionValues, 1);
                 } catch (Exception e) {
                     logger.error("Failed to update frontend metric Requests5XX: ", e);
                 }

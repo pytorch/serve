@@ -39,6 +39,7 @@ import org.pytorch.serve.http.messages.DescribeModelResponse;
 import org.pytorch.serve.http.messages.ListModelsResponse;
 import org.pytorch.serve.metrics.Dimension;
 import org.pytorch.serve.metrics.Metric;
+import org.pytorch.serve.metrics.MetricCache;
 import org.pytorch.serve.metrics.MetricManager;
 import org.pytorch.serve.servingsdk.impl.PluginsManager;
 import org.pytorch.serve.snapshot.InvalidSnapshotException;
@@ -77,6 +78,7 @@ public class ModelServerTest {
         ConfigManager.init(new ConfigManager.Arguments());
         configManager = ConfigManager.getInstance();
         PluginsManager.getInstance().initialize();
+        MetricCache.init();
 
         InternalLoggerFactory.setDefaultFactory(Slf4JLoggerFactory.INSTANCE);
 

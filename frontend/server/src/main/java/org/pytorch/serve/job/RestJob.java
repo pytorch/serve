@@ -41,17 +41,8 @@ public class RestJob extends Job {
 
     private static final Logger logger = LoggerFactory.getLogger(Job.class);
 
-    private static final IMetric QUEUE_TIME_METRIC =
-            MetricCache.getInstance().getMetricFrontend("QueueTime");
-    private static final List<String> QUEUE_TIME_METRIC_DIMENSION_VALUES =
-            new ArrayList<String>() {
-                {
-                    // Dimension value corresponding to dimension name "Level"
-                    add("Host");
-                    // Frontend metrics by default have the last dimension as Hostname
-                    add(ConfigManager.getInstance().getHostName());
-                }
-            };
+    private final IMetric queueTimeMetric;
+    private final List<String> queueTimeMetricDimensionValues;
     private ChannelHandlerContext ctx;
     private CompletableFuture<byte[]> responsePromise;
     /**
@@ -68,6 +59,16 @@ public class RestJob extends Job {
             RequestInput input) {
         super(modelName, version, cmd, input);
         this.ctx = ctx;
+        this.queueTimeMetric = MetricCache.getInstance().getMetricFrontend("QueueTime");
+        this.queueTimeMetricDimensionValues =
+                new ArrayList<String>() {
+                    {
+                        // Dimension value corresponding to dimension name "Level"
+                        add("Host");
+                        // Frontend metrics by default have the last dimension as Hostname
+                        add(ConfigManager.getInstance().getHostName());
+                    }
+                };
         this.numStreams = 0;
     }
 
@@ -193,14 +194,13 @@ public class RestJob extends Job {
                     (double)
                             TimeUnit.MILLISECONDS.convert(
                                     getScheduled() - getBegin(), TimeUnit.NANOSECONDS);
-            if (QUEUE_TIME_METRIC != null) {
+            if (this.queueTimeMetric != null) {
                 try {
-                    QUEUE_TIME_METRIC.addOrUpdate(QUEUE_TIME_METRIC_DIMENSION_VALUES, queueTime);
+                    this.queueTimeMetric.addOrUpdate(
+                            this.queueTimeMetricDimensionValues, queueTime);
                 } catch (Exception e) {
                     logger.error("Failed to update frontend metric QueueTime: ", e);
                 }
-            } else {
-                logger.error("Frontend metric QueueTime not present in metric cache");
             }
         }
     }

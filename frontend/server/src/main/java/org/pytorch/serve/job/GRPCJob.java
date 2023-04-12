@@ -28,18 +28,9 @@ import org.slf4j.LoggerFactory;
 
 public class GRPCJob extends Job {
     private static final Logger logger = LoggerFactory.getLogger(Job.class);
-    private static final IMetric QUEUE_TIME_METRIC =
-            MetricCache.getInstance().getMetricFrontend("QueueTime");
-    private static final List<String> QUEUE_TIME_METRIC_DIMENSION_VALUES =
-            new ArrayList<String>() {
-                {
-                    // Dimension value corresponding to dimension name "Level"
-                    add("Host");
-                    // Frontend metrics by default have the last dimension as Hostname
-                    add(ConfigManager.getInstance().getHostName());
-                }
-            };
 
+    private final IMetric queueTimeMetric;
+    private final List<String> queueTimeMetricDimensionValues;
     private StreamObserver<PredictionResponse> predictionResponseObserver;
     private StreamObserver<ManagementResponse> managementResponseObserver;
 
@@ -51,6 +42,16 @@ public class GRPCJob extends Job {
             RequestInput input) {
         super(modelName, version, cmd, input);
         this.predictionResponseObserver = predictionResponseObserver;
+        this.queueTimeMetric = MetricCache.getInstance().getMetricFrontend("QueueTime");
+        this.queueTimeMetricDimensionValues =
+                new ArrayList<String>() {
+                    {
+                        // Dimension value corresponding to dimension name "Level"
+                        add("Host");
+                        // Frontend metrics by default have the last dimension as Hostname
+                        add(ConfigManager.getInstance().getHostName());
+                    }
+                };
     }
 
     public GRPCJob(
@@ -60,6 +61,16 @@ public class GRPCJob extends Job {
             RequestInput input) {
         super(modelName, version, WorkerCommands.DESCRIBE, input);
         this.managementResponseObserver = managementResponseObserver;
+        this.queueTimeMetric = MetricCache.getInstance().getMetricFrontend("QueueTime");
+        this.queueTimeMetricDimensionValues =
+                new ArrayList<String>() {
+                    {
+                        // Dimension value corresponding to dimension name "Level"
+                        add("Host");
+                        // Frontend metrics by default have the last dimension as Hostname
+                        add(ConfigManager.getInstance().getHostName());
+                    }
+                };
     }
 
     @Override
@@ -89,10 +100,10 @@ public class GRPCJob extends Job {
                         (double)
                                 TimeUnit.MILLISECONDS.convert(
                                         getScheduled() - getBegin(), TimeUnit.NANOSECONDS);
-                if (QUEUE_TIME_METRIC != null) {
+                if (this.queueTimeMetric != null) {
                     try {
-                        QUEUE_TIME_METRIC.addOrUpdate(
-                                QUEUE_TIME_METRIC_DIMENSION_VALUES, queueTime);
+                        this.queueTimeMetric.addOrUpdate(
+                                this.queueTimeMetricDimensionValues, queueTime);
                     } catch (Exception e) {
                         logger.error("Failed to update frontend metric QueueTime: ", e);
                     }
