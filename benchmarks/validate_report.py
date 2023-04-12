@@ -38,6 +38,8 @@ def validate_reports(args):
         for subdir in sorted(os.listdir(dir)):
             print(os.path.join(dir, subdir))
             csv_file = os.path.join(dir, subdir, BENCHMARK_REPORT_CSV)
+            if not os.path.exists(csv_file):
+                continue
 
             report = Report()
             report.read_csv(csv_file)
