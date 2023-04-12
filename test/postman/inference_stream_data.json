@@ -1,0 +1,13 @@
+[
+    {
+        "url":"https://torchserve.pytorch.org/mar_files/echo_stream.mar",
+        "model_name":"echo_stream",
+        "worker":1,
+        "synchronous":"true",
+        "file":"../examples/text_classification/sample_text.txt",
+        "content-type":"text/plain",
+        "validator":"image_classification",
+        "expected": "hello hello hello hello world ",
+        "tolerance":5
+    }
+]

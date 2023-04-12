@@ -64,6 +64,7 @@ def create_mar_file(work_dir, session_mocker, model_archiver):
         runtime="python",
         force=False,
         archive_format="default",
+        config_file=None,
     )
 
     mock = session_mocker.MagicMock()
