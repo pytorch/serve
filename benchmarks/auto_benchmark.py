@@ -101,9 +101,9 @@ class BenchmarkConfig:
                 report_cmd = v
 
         self.bm_config["model_config_path"] = (
-            "{}/{}".format(MODEL_JSON_CONFIG_PATH, self.bm_config["hardware"])
-            if self.bm_config["hardware"] in ["cpu", "gpu", "neuron"]
-            else "{}/cpu".format(MODEL_JSON_CONFIG_PATH)
+            "{}/cpu".format(MODEL_JSON_CONFIG_PATH)
+            if self.bm_config["hardware"] == "cpu"
+            else "{}/gpu".format(MODEL_JSON_CONFIG_PATH)
         )
         
         self.enable_launcher_with_logical_core()
@@ -138,6 +138,8 @@ def benchmark_env_setup(bm_config, skip_ts_install):
 def install_torchserve(skip_ts_install, hw, ts_version):
     if skip_ts_install:
         return
+    
+    ts_install_cmd = None
     """
     # git checkout branch if it is needed
     cmd = "git checkout master && git reset --hard && git clean -dffx . && git pull --rebase"
@@ -159,8 +161,6 @@ def install_torchserve(skip_ts_install, hw, ts_version):
     else:
         cmd = "python ts_scripts/install_dependencies.py --environment dev"
     execute(cmd, wait=True)
-    
-    execute("pip3 install numpy --pre torch torchvision torchaudio --force-reinstall --index-url https://download.pytorch.org/whl/nightly/cpu", wait=True)
     
     print("successfully install install_dependencies.py")
 
