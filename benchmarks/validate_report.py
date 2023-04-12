@@ -63,7 +63,7 @@ def validate_reports(artifacts_dir, report_dir):
             ):
                 print(
                     f"Error while validating {key} for model: {model}, "
-                    f"Expected value: {baseline_reports[model].properties[key]:.2f},"
+                    f"Expected value: {baseline_reports[model].properties[key]:.2f}, "
                     f"Observed value: {report.properties[key]:.2f}"
                 )
                 error = True
