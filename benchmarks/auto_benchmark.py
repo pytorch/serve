@@ -79,13 +79,13 @@ class BenchmarkConfig:
                 break
 
         self.bm_config["report_cmd"] = " ".join(cmd_options)
-    
+
     def enable_launcher_with_logical_core(self):
         if self.bm_config["hardware"] == "cpu":
             with open("./benchmarks/config.properties", "a") as f:
                 f.write("cpu_launcher_enable=true\n")
                 f.write("cpu_launcher_args=--use_logical_core\n")
-    
+
     def load_config(self):
         report_cmd = None
         for k, v in self.yaml_dict.items():
@@ -105,7 +105,7 @@ class BenchmarkConfig:
             if self.bm_config["hardware"] in ["cpu", "gpu", "neuron"]
             else "{}/cpu".format(MODEL_JSON_CONFIG_PATH)
         )
-        
+
         self.enable_launcher_with_logical_core()
 
         if self.skip_ts_install:
@@ -138,6 +138,7 @@ def benchmark_env_setup(bm_config, skip_ts_install):
 def install_torchserve(skip_ts_install, hw, ts_version):
     if skip_ts_install:
         return
+
     # git checkout branch if it is needed
     cmd = "git checkout master && git reset --hard && git clean -dffx . && git pull --rebase"
     execute(cmd, wait=True)
@@ -151,6 +152,7 @@ def install_torchserve(skip_ts_install, hw, ts_version):
     else:
         cmd = "git checkout {}".format(ts_version)
         execute(cmd, wait=True)
+
     # install_dependencies.py
     if hw == "gpu":
         cmd = "python ts_scripts/install_dependencies.py --environment dev --cuda cu117"

@@ -53,7 +53,7 @@ public class WorkerLifeCycle {
         ArrayList<String> arrlist = new ArrayList<String>();
         arrlist.add("-m");
         arrlist.add("torch.backends.xeon.run_cpu");
-        
+
         if (launcherArgs != null && launcherArgs.length() > 1) {
             String[] argarray = launcherArgs.split(" ");
             for (int i = 0; i < argarray.length; i++) {
@@ -66,7 +66,7 @@ public class WorkerLifeCycle {
     public boolean isLauncherAvailable(String launcherArgs)
             throws WorkerInitializationException, InterruptedException {
         boolean launcherAvailable = false;
-        
+
         ArrayList<String> cmd = new ArrayList<String>();
         cmd.add("python");
         ArrayList<String> args = launcherArgsToList(launcherArgs);
@@ -78,9 +78,9 @@ public class WorkerLifeCycle {
 
         String[] cmdList = new String[cmd.size()];
         cmdList = cmd.toArray(cmdList);
-            
+
         logger.debug("launcherAvailable cmdline: {}", cmd.toString());
-        
+
         try {
             Process processLauncher = Runtime.getRuntime().exec(cmdList);
             int ret = processLauncher.waitFor();
