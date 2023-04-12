@@ -34,7 +34,9 @@ def validate_reports(args):
     baseline_reports = {}
     for _d in sorted(os.listdir(input_dir)):
         dir = os.path.join(input_dir, _d)
+        print(dir)
         for subdir in sorted(os.listdir(dir)):
+            print(os.path.join(dir, subdir))
             csv_file = os.path.join(dir, subdir, BENCHMARK_REPORT_CSV)
 
             report = Report()

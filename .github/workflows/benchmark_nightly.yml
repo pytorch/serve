@@ -1,9 +1,9 @@
 name: Benchmark torchserve nightly
 
-on: push
+on:
   # run every day at 2:15am
-  #schedule:
-  #  - cron:  '15 02 * * *'
+  schedule:
+    - cron:  '15 02 * * *'
 
 jobs:
   nightly:
@@ -11,7 +11,7 @@ jobs:
       fail-fast: false
       matrix:
         #hardware: [cpu, gpu, inf1]
-        hardware: [gpu]
+        hardware: [inf1]
     runs-on:
       - self-hosted
       - ${{ matrix.hardware }}
@@ -50,11 +50,11 @@ jobs:
       #- name: Benchmark gpu nightly
       #  if: ${{ matrix.hardware == 'gpu' }}
       #  run: python benchmarks/auto_benchmark.py --input benchmarks/benchmark_config_gpu.yaml --skip false
-      - name: Benchmark inf1 nightly
-        if: ${{ matrix.hardware == 'inf1' }}
-        env:
-          NEURON_RT_NUM_CORES: 4
-        run: python benchmarks/auto_benchmark.py --input benchmarks/benchmark_config_neuron.yaml --skip false
+      #- name: Benchmark inf1 nightly
+      #  if: ${{ matrix.hardware == 'inf1' }}
+      #  env:
+      #    NEURON_RT_NUM_CORES: 4
+      #  run: python benchmarks/auto_benchmark.py --input benchmarks/benchmark_config_neuron.yaml --skip false
       #- name: Save benchmark artifacts
       #  uses: actions/upload-artifact@v2
       #  with:

@@ -30,11 +30,11 @@ default_ab_params = {
     "image": "",
     "docker_runtime": "",
     "backend_profiling": False,
+    "generate_graphs": False,
     "config_properties": "config.properties",
     "inference_model_url": "predictions/benchmark",
     "report_location": tempfile.gettempdir(),
     "tmp_dir": tempfile.gettempdir(),
-    "generate_graphs": False,
 }
 
 execution_params = default_ab_params.copy()
