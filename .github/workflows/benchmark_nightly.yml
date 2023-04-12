@@ -54,7 +54,7 @@ jobs:
         if: ${{ matrix.hardware == 'inf1' }}
         env:
           NEURON_RT_NUM_CORES: 4
-        run: python benchmarks/auto_benchmark.py --input benchmarks/benchmark_config_neuron.yaml --skip true
+        run: python benchmarks/auto_benchmark.py --input benchmarks/benchmark_config_neuron.yaml --skip false
       - name: Save benchmark artifacts
         uses: actions/upload-artifact@v2
         with:
