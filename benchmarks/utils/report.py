@@ -29,21 +29,18 @@ class Report:
         self.deviation = 0.3
 
     def _get_mode(self, csv_file):
-
         cfg = csv_file.split("/")[-2]
         cfg = cfg.split("_")
         mode = cfg[0] + "_" + cfg[1]
         self.mode = mode
 
     def read_csv(self, csv_file):
-
         df = pd.read_csv(csv_file)
         values = df.values.tolist()
         self._populate_csv(values[0])
         self._get_mode(csv_file)
 
     def read_yaml(self, yaml_file, config):
-
         with open(yaml_file, "r") as f:
             yaml_dict = yaml.safe_load(f)
         self._populate_yaml(yaml_dict, config)
@@ -73,7 +70,6 @@ class Report:
         self.properties["gpu_percentage_mean"] = values[24]
 
     def update(self, report):
-
         for property in self.properties:
             self.properties[property] = (
                 self.properties[property] + report.properties[property]
