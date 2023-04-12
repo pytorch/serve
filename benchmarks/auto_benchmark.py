@@ -80,9 +80,10 @@ class BenchmarkConfig:
 
         self.bm_config["report_cmd"] = " ".join(cmd_options)
     
-    def use_logical_core(self):
+    def enable_launcher_with_logical_core(self):
         if self.bm_config["hardware"] == "cpu":
             with open("./benchmarks/config.properties", "a") as f:
+                f.write("cpu_launcher_enable=true\n")
                 f.write("cpu_launcher_args=--use_logical_core\n")
     
     def load_config(self):
@@ -105,7 +106,7 @@ class BenchmarkConfig:
             else "{}/gpu".format(MODEL_JSON_CONFIG_PATH)
         )
         
-        self.use_logical_core()
+        self.enable_launcher_with_logical_core()
 
         if self.skip_ts_install:
             self.bm_config["version"] = get_torchserve_version()
@@ -137,7 +138,7 @@ def benchmark_env_setup(bm_config, skip_ts_install):
 def install_torchserve(skip_ts_install, hw, ts_version):
     if skip_ts_install:
         return
-
+    """
     # git checkout branch if it is needed
     cmd = "git checkout master && git reset --hard && git clean -dffx . && git pull --rebase"
     execute(cmd, wait=True)
@@ -151,16 +152,21 @@ def install_torchserve(skip_ts_install, hw, ts_version):
     else:
         cmd = "git checkout {}".format(ts_version)
         execute(cmd, wait=True)
-
+    """
     # install_dependencies.py
     if hw == "gpu":
         cmd = "python ts_scripts/install_dependencies.py --environment dev --cuda cu117"
     else:
         cmd = "python ts_scripts/install_dependencies.py --environment dev"
     execute(cmd, wait=True)
+    
+    execute("pip3 install numpy --pre torch torchvision torchaudio --force-reinstall --index-url https://download.pytorch.org/whl/nightly/cpu", wait=True)
+    
     print("successfully install install_dependencies.py")
 
     # install torchserve
+    execute("python setup.py install", wait=True)
+    
     if ts_install_cmd is None:
         ts_install_cmd = "python ts_scripts/install_from_src.py"
     execute(ts_install_cmd, wait=True)
@@ -191,6 +197,10 @@ def run_benchmark(bm_config):
     for model_json_config in files:
         if model_json_config.endswith(".json"):
             # call benchmark-ab.py
+            
+            execute("numactl -C 0 -m 0 lscpu", wait=True)
+            execute("cat ./benchmarks/config.properties", wait=True)
+            
             shutil.rmtree(TS_LOGS_PATH, ignore_errors=True)
             shutil.rmtree(BENCHMARK_TMP_PATH, ignore_errors=True)
             cmd = (

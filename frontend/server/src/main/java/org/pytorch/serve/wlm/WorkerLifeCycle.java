@@ -30,7 +30,6 @@ public class WorkerLifeCycle {
     private Connector connector;
     private ReaderThread errReader;
     private ReaderThread outReader;
-    private String launcherArgs;
     private int numWorker;
     private int currNumRunningWorkers;
 
@@ -45,7 +44,7 @@ public class WorkerLifeCycle {
         return process;
     }
 
-    public ArrayList<String> launcherArgsToList() {
+    public ArrayList<String> launcherArgsToList(String launcherArgs) {
         ArrayList<String> arrlist = new ArrayList<String>();
         arrlist.add("-m");
         arrlist.add("torch.backends.xeon.run_cpu");
@@ -59,13 +58,13 @@ public class WorkerLifeCycle {
         return arrlist;
     }
 
-    public boolean isLauncherAvailable()
+    public boolean isLauncherAvailable(String launcherArgs)
             throws WorkerInitializationException, InterruptedException {
         boolean launcherAvailable = false;
         
         ArrayList<String> cmd = new ArrayList<String>();
         cmd.add("python");
-        ArrayList<String> args = launcherArgsToList();
+        ArrayList<String> args = launcherArgsToList(launcherArgs);
         cmd.addAll(args);
         cmd.add("--no_python");
         // try launching dummy command to check launcher availability
@@ -99,26 +98,28 @@ public class WorkerLifeCycle {
 
         ArrayList<String> argl = new ArrayList<String>();
         argl.add(EnvironmentUtils.getPythonRunTime(model));
-
-        launcherArgs = configManager.getCPULauncherArgs();
-        boolean launcherAvailable = isLauncherAvailable();
         
-        if (launcherAvailable) {
-            ArrayList<String> args = launcherArgsToList();
-            argl.addAll(args);
-
-            // multi-worker core pinning
-            if (this.numWorker > 1) {
-                argl.add("--ninstances");
-                argl.add(String.valueOf(this.numWorker));
-                argl.add("--rank");
-                // instance_idx is 0-indexed
-                argl.add(String.valueOf(this.currNumRunningWorkers));
+        
+        if (configManager.isCPULauncherEnabled()) {
+            String launcherArgs = configManager.getCPULauncherArgs();
+            boolean launcherAvailable = isLauncherAvailable(launcherArgs);
+            if (launcherAvailable) {
+                ArrayList<String> args = launcherArgsToList(launcherArgs);
+                argl.addAll(args);
+    
+                // multi-worker core pinning
+                if (this.numWorker > 1) {
+                    argl.add("--ninstances");
+                    argl.add(String.valueOf(this.numWorker));
+                    argl.add("--rank");
+                    // instance_idx is 0-indexed
+                    argl.add(String.valueOf(this.currNumRunningWorkers));
+                }
+    
+            } else {
+                logger.warn(
+                        "torch.backends.xeon.run_cpu is not available. Proceeding without worker core pinning. For better performance, please make sure torch.backends.xeon.run_cpu is available.");
             }
-
-        } else {
-            logger.warn(
-                    "torch.backends.xeon.run_cpu is not available. Proceeding without worker core pinning. For better performance, please make sure torch.backends.xeon.run_cpu is available.");
         }
 
         argl.add(new File(workingDir, "ts/model_service_worker.py").getAbsolutePath());
