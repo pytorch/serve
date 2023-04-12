@@ -3,7 +3,6 @@ import os
 
 from auto_benchmark import BENCHMARK_REPORT_PATH
 from utils.report import METRICS_VALIDATED, Report
-from utils.update_artifacts import BENCHMARK_ARTIFACTS_PATH
 
 BENCHMARK_REPORT_CSV = "ab_report.csv"
 CWD = os.getcwd()
@@ -32,8 +31,8 @@ def validate_reports(args):
 
     # Read baseline reports
     baseline_reports = {}
-    for _d in sorted(os.listdir(BENCHMARK_ARTIFACTS_PATH)):
-        dir = os.path.join(BENCHMARK_ARTIFACTS_PATH, _d)
+    for _d in sorted(os.listdir(input_dir)):
+        dir = os.path.join(input_dir, _d)
         for subdir in sorted(os.listdir(dir)):
             csv_file = os.path.join(dir, subdir, BENCHMARK_REPORT_CSV)
 
