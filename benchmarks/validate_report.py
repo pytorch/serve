@@ -24,9 +24,9 @@ def check_if_within_range(value1, value2, threshold):
 
 
 def validate_reports(args):
-    artifacts_dir, report_dir = args.input_artifacts_dir, args.report_dir
+    artifacts_dir, report_dir = args.input_artifacts_dir, args.input_report_dir
     if not os.path.isdir(report_dir):
-        print("No report generated")
+        print("No benchmark report found")
         return -1
 
     # Read baseline reports
