@@ -10,7 +10,6 @@ CWD = os.getcwd()
 
 
 def metric_valid(key, obs_val, exp_val, threshold):
-
     lower = False
     if key != "throughput":
         lower = True
@@ -79,7 +78,7 @@ def main():
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
-        "--input",
+        "--input-dir",
         nargs="?",
         help="the dir of a list of model benchmark result subdir ",
         const=BENCHMARK_REPORT_PATH,

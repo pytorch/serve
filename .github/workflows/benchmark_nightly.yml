@@ -55,11 +55,11 @@ jobs:
         env:
           NEURON_RT_NUM_CORES: 4
         run: python benchmarks/auto_benchmark.py --input benchmarks/benchmark_config_neuron.yaml --skip false
-      - name: Save benchmark artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: nightly ${{ matrix.hardware }} artifact
-          path: /tmp/ts_benchmark
+      #- name: Save benchmark artifacts
+      #  uses: actions/upload-artifact@v2
+      #  with:
+      #    name: nightly ${{ matrix.hardware }} artifact
+      #    path: /tmp/ts_benchmark
       - name: Download benchmark artifacts for auto validation
         uses: dawidd6/action-download-artifact@v2
         with:
@@ -69,7 +69,7 @@ jobs:
           path: /tmp/ts_artifacts
           name: ${{ matrix.hardware }}_benchmark_validation
       - name: Validate Benchmark result
-        run: python benchmarks/validate_report.py
+        run: python benchmarks/validate_report.py --input-dir /tmp/ts_artifacts/${{ matrix.hardware }}_benchmark_validation
       - name: Update benchmark artifacts for auto validation
         run: python benchmarks/utils/update_artifacts.py --output /tmp/ts_artifacts/${{ matrix.hardware }}_benchmark_validation
       #- name: Upload the updated benchmark artifacts for auto validation
