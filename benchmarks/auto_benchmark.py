@@ -132,18 +132,18 @@ def install_torchserve(skip_ts_install, hw, ts_version):
         return
 
     # git checkout branch if it is needed
-    # cmd = "git checkout master && git reset --hard && git clean -dffx . && git pull --rebase"
-    # execute(cmd, wait=True)
-    # print("successfully reset git")
-
-    # ts_install_cmd = None
-    # if ts_version.startswith("torchserve==") or ts_version.startswith(
-    #    "torchserve-nightly=="
-    # ):
-    #    ts_install_cmd = "pip install {}".format(ts_version)
-    # else:
-    cmd = "git checkout {}".format(ts_version)
+    cmd = "git checkout master && git reset --hard && git clean -dffx . && git pull --rebase"
     execute(cmd, wait=True)
+    print("successfully reset git")
+
+    ts_install_cmd = None
+    if ts_version.startswith("torchserve==") or ts_version.startswith(
+        "torchserve-nightly=="
+    ):
+        ts_install_cmd = "pip install {}".format(ts_version)
+    else:
+        cmd = "git checkout {}".format(ts_version)
+        execute(cmd, wait=True)
 
     # install_dependencies.py
     if hw == "gpu":
@@ -154,9 +154,7 @@ def install_torchserve(skip_ts_install, hw, ts_version):
     print("successfully install install_dependencies.py")
 
     # install torchserve
-    ts_install_cmd = None
     if ts_install_cmd is None:
-        print("Install from src")
         ts_install_cmd = "python ts_scripts/install_from_src.py"
     execute(ts_install_cmd, wait=True)
     print("successfully install torchserve")
