@@ -40,11 +40,10 @@ if packaging.version.parse(torch.__version__) >= packaging.version.parse("2.0.0"
         # Ideally get yourself an A10G or A100 for optimal performance
         if torch.cuda.get_device_capability() >= (8, 0):
             torch.backends.cuda.matmul.allow_tf32 = True
+else:
     logger.warning(
         f"Your torch version is {torch.__version__} which does not support torch.compile"
     )
-
-else:
     PT2_AVAILABLE = False
 
 
