@@ -309,11 +309,13 @@ public class WorkerLifeCycle {
                                     for (Dimension dimension : parsedMetric.getDimensions()) {
                                         dimensionValues.add(dimension.getValue());
                                     }
+                                    // Hostname is added as a dimension by default to backend
+                                    // metrics
+                                    dimensionValues.add(parsedMetric.getHostName());
                                     this.metricCache
                                             .getMetricBackend(parsedMetric.getMetricName())
                                             .addOrUpdate(
                                                     dimensionValues,
-                                                    parsedMetric.getHostName(),
                                                     parsedMetric.getRequestId(),
                                                     Double.parseDouble(parsedMetric.getValue()));
                                 } catch (Exception e) {

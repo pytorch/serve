@@ -9,9 +9,13 @@ import java.util.concurrent.ConcurrentMap;
 import org.pytorch.serve.metrics.configuration.MetricConfiguration;
 import org.pytorch.serve.metrics.configuration.MetricSpecification;
 import org.pytorch.serve.util.ConfigManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class MetricCache {
+    private static final Logger logger = LoggerFactory.getLogger(MetricCache.class);
     private static MetricCache instance;
+    private MetricConfiguration config;
     private Map<String, IMetric> metricsFrontend;
     private ConcurrentMap<String, IMetric> metricsBackend;
 
@@ -20,95 +24,93 @@ public final class MetricCache {
         this.metricsBackend = new ConcurrentHashMap<String, IMetric>();
 
         String metricsConfigPath = ConfigManager.getInstance().getMetricsConfigPath();
-        MetricConfiguration config = MetricConfiguration.loadConfiguration(metricsConfigPath);
-
-        MetricBuilder.MetricMode metricMode = MetricBuilder.MetricMode.LOG;
-        String metricConfigMode = config.getMode();
-        if (metricConfigMode != null && metricConfigMode.toLowerCase().contains("prometheus")) {
-            metricMode = MetricBuilder.MetricMode.PROMETHEUS;
+        try {
+            this.config = MetricConfiguration.loadConfiguration(metricsConfigPath);
+        } catch (FileNotFoundException | RuntimeException e) {
+            logger.error("Failed to initialize metrics cache: ", e);
+            return;
         }
 
-        if (config.getTs_metrics() != null) {
-            addMetrics(
-                    config.getTs_metrics().getCounter(),
-                    metricMode,
-                    MetricBuilder.MetricContext.FRONTEND,
+        MetricBuilder.MetricMode metricsMode = MetricBuilder.MetricMode.LOG;
+        String metricsConfigMode = ConfigManager.getInstance().getMetricsMode();
+        if (metricsConfigMode != null && metricsConfigMode.toLowerCase().contains("prometheus")) {
+            metricsMode = MetricBuilder.MetricMode.PROMETHEUS;
+        }
+
+        if (this.config.getTs_metrics() != null) {
+            addMetricsFrontend(
+                    this.config.getTs_metrics().getCounter(),
+                    metricsMode,
                     MetricBuilder.MetricType.COUNTER);
-            addMetrics(
-                    config.getTs_metrics().getGauge(),
-                    metricMode,
-                    MetricBuilder.MetricContext.FRONTEND,
+            addMetricsFrontend(
+                    this.config.getTs_metrics().getGauge(),
+                    metricsMode,
                     MetricBuilder.MetricType.GAUGE);
-            addMetrics(
-                    config.getTs_metrics().getHistogram(),
-                    metricMode,
-                    MetricBuilder.MetricContext.FRONTEND,
+            addMetricsFrontend(
+                    this.config.getTs_metrics().getHistogram(),
+                    metricsMode,
                     MetricBuilder.MetricType.HISTOGRAM);
         }
 
-        if (config.getModel_metrics() != null) {
-            addMetrics(
-                    config.getModel_metrics().getCounter(),
-                    metricMode,
-                    MetricBuilder.MetricContext.BACKEND,
+        if (this.config.getModel_metrics() != null) {
+            addMetricsBackend(
+                    this.config.getModel_metrics().getCounter(),
+                    metricsMode,
                     MetricBuilder.MetricType.COUNTER);
-            addMetrics(
-                    config.getModel_metrics().getGauge(),
-                    metricMode,
-                    MetricBuilder.MetricContext.BACKEND,
+            addMetricsBackend(
+                    this.config.getModel_metrics().getGauge(),
+                    metricsMode,
                     MetricBuilder.MetricType.GAUGE);
-            addMetrics(
-                    config.getModel_metrics().getHistogram(),
-                    metricMode,
-                    MetricBuilder.MetricContext.BACKEND,
+            addMetricsBackend(
+                    this.config.getModel_metrics().getHistogram(),
+                    metricsMode,
                     MetricBuilder.MetricType.HISTOGRAM);
         }
     }
 
-    private void addMetricFrontend(String metricName, IMetric metric) {
-        metricsFrontend.put(metricName, metric);
-    }
-
-    private void addMetricBackend(String metricName, IMetric metric) {
-        metricsBackend.put(metricName, metric);
-    }
-
-    private void addMetrics(
+    private void addMetricsFrontend(
             List<MetricSpecification> metricsSpec,
-            MetricBuilder.MetricMode metricMode,
-            MetricBuilder.MetricContext metricContext,
+            MetricBuilder.MetricMode metricsMode,
             MetricBuilder.MetricType metricType) {
-        if (metricsSpec == null || metricsSpec.isEmpty()) {
+        if (metricsSpec == null) {
             return;
         }
 
         for (MetricSpecification spec : metricsSpec) {
-            if (metricContext == MetricBuilder.MetricContext.FRONTEND) {
-                this.addMetricFrontend(
-                        spec.getName(),
-                        MetricBuilder.build(
-                                metricMode,
-                                metricContext,
-                                metricType,
-                                spec.getName(),
-                                spec.getUnit(),
-                                spec.getDimensions()));
-            } else if (metricContext == MetricBuilder.MetricContext.BACKEND) {
-                this.addMetricBackend(
-                        spec.getName(),
-                        MetricBuilder.build(
-                                metricMode,
-                                metricContext,
-                                metricType,
-                                spec.getName(),
-                                spec.getUnit(),
-                                spec.getDimensions()));
-            }
+            this.metricsFrontend.put(
+                    spec.getName(),
+                    MetricBuilder.build(
+                            metricsMode,
+                            metricType,
+                            spec.getName(),
+                            spec.getUnit(),
+                            spec.getDimensions()));
+        }
+    }
+
+    private void addMetricsBackend(
+            List<MetricSpecification> metricsSpec,
+            MetricBuilder.MetricMode metricsMode,
+            MetricBuilder.MetricType metricType) {
+        if (metricsSpec == null) {
+            return;
+        }
+
+        for (MetricSpecification spec : metricsSpec) {
+            this.metricsBackend.put(
+                    spec.getName(),
+                    MetricBuilder.build(
+                            metricsMode,
+                            metricType,
+                            spec.getName(),
+                            spec.getUnit(),
+                            spec.getDimensions()));
         }
     }
 
     public static void init() throws FileNotFoundException {
         if (instance != null) {
+            logger.error("Skip initializing metrics cache since it has already been initialized");
             return;
         }
 
