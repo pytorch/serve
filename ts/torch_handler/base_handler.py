@@ -120,9 +120,6 @@ class BaseHandler(abc.ABC):
             RuntimeError: Raises the Runtime error when the model.py is missing
 
         """
-        ipex_enabled = check_ipex_enabled()
-        pt2_available = check_pt2_available()
-        self.xla_available = check_xla_available()
 
         if self.context is not None and hasattr(self.context, "model_yaml_config"):
             self.model_yaml_config = self.context.model_yaml_config
@@ -133,7 +130,7 @@ class BaseHandler(abc.ABC):
             self.device = torch.device(
                 self.map_location + ":" + str(properties.get("gpu_id"))
             )
-        elif self.xla_available:
+        elif XLA_AVAILABLE:
             self.device = xm.xla_device()
         else:
             self.map_location = "cpu"
@@ -183,7 +180,7 @@ class BaseHandler(abc.ABC):
                 self.model = torch.compile(
                     self.model,
                     backend=backend,
-                    mode="default" if TORCHXLA_AVAILABLE else "reduce-overhead",
+                    mode="default" if XLA_AVAILABLE else "reduce-overhead",
                 )
                 logger.info(f"Compiled model with backend {pt2_backend}")
             except:
@@ -248,9 +245,7 @@ class BaseHandler(abc.ABC):
         model = model_class()
         if model_pt_path:
             map_location = (
-                None
-                if (self.xla_available and self.map_location is None)
-                else self.device
+                None if (XLA_AVAILABLE and self.map_location is None) else self.device
             )
             state_dict = torch.load(model_pt_path, map_location=map_location)
             model.load_state_dict(state_dict)
