@@ -25,9 +25,9 @@ else:
 logger = logging.getLogger(__name__)
 
 
-def check_pt2_enabled() -> bool:
+def check_pt2_available() -> bool:
     if packaging.version.parse(torch.__version__) >= packaging.version.parse("2.0.0"):
-        pt2_enabled = True
+        pt2_available = True
         if torch.cuda.is_available():
             # If Ampere enable tensor cores which will give better performance
             # Ideally get yourself an A10G or A100 for optimal performance
@@ -36,8 +36,8 @@ def check_pt2_enabled() -> bool:
         logger.warning(
             f"Your torch version is {torch.__version__} which does not support torch.compile"
         )
-        pt2_enabled = False
-    return pt2_enabled
+        pt2_available = False
+    return pt2_available
 
 
 def check_ipex_enabled() -> bool:
@@ -115,7 +115,10 @@ class BaseHandler(abc.ABC):
 
         """
         ipex_enabled = check_ipex_enabled()
-        pt2_enabled = check_pt2_enabled()
+        pt2_available = check_pt2_available()
+
+        if self.context is not None and hasattr(self.context, "model_yaml_config"):
+            self.model_yaml_config = self.context.model_yaml_config
 
         properties = context.system_properties
         self.map_location = (
@@ -164,11 +167,14 @@ class BaseHandler(abc.ABC):
         else:
             raise RuntimeError("No model weights could be loaded")
 
-        pt2_backend = self.context.model_yaml_config["pt2"]
-        valid_backend = check_valid_pt2_backend(pt2_backend)
+        if self.model_yaml_config and "pt2" in self.model_yaml_config:
+            pt2_backend = self.model_yaml_config["pt2"]
+            valid_backend = check_valid_pt2_backend(pt2_backend)
+        else:
+            valid_backend = False
 
         # PT 2.0 support is opt in
-        if check_pt2_enabled() and valid_backend:
+        if check_pt2_available() and valid_backend:
             # Compilation will delay your model initialization
             try:
                 self.model = torch.compile(
