@@ -58,6 +58,8 @@ if os.environ.get("TS_IPEX_ENABLE", "false") == "true":
             "IPEX is enabled but intel-extension-for-pytorch is not installed. Proceeding without IPEX."
         )
         IPEX_AVAILABLE = False
+else:
+    IPEX_AVAILABLE = False
 
 
 try:
