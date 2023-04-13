@@ -25,6 +25,15 @@ else:
 logger = logging.getLogger(__name__)
 
 
+def check_xla_available() -> bool:
+    try:
+        import torch_xla.core.xla_model as xm
+
+        return True
+    except ImportError as error:
+        return False
+
+
 def check_pt2_available() -> bool:
     if packaging.version.parse(torch.__version__) >= packaging.version.parse("2.0.0"):
         pt2_available = True
@@ -116,21 +125,23 @@ class BaseHandler(abc.ABC):
         """
         ipex_enabled = check_ipex_enabled()
         pt2_available = check_pt2_available()
+        self.xla_available = check_xla_available()
 
         if self.context is not None and hasattr(self.context, "model_yaml_config"):
             self.model_yaml_config = self.context.model_yaml_config
 
         properties = context.system_properties
-        self.map_location = (
-            "cuda"
-            if torch.cuda.is_available() and properties.get("gpu_id") is not None
-            else "cpu"
-        )
-        self.device = torch.device(
-            self.map_location + ":" + str(properties.get("gpu_id"))
-            if torch.cuda.is_available() and properties.get("gpu_id") is not None
-            else self.map_location
-        )
+        if torch.cuda.is_available() and properties.get("gpu_id") is not None:
+            self.map_location = "cuda"
+            self.device = torch.device(
+                self.map_location + ":" + str(properties.get("gpu_id"))
+            )
+        elif self.xla_available:
+            self.device = xm.xla_device()
+        else:
+            self.map_location = "cpu"
+            self.device = torch.device(self.map_location)
+
         self.manifest = context.manifest
 
         model_dir = properties.get("model_dir")
@@ -178,12 +189,14 @@ class BaseHandler(abc.ABC):
             # Compilation will delay your model initialization
             try:
                 self.model = torch.compile(
-                    self.model, backend=pt2_backend, mode="reduce-overhead"
+                    self.model,
+                    backend=backend,
+                    mode="default" if TORCHXLA_AVAILABLE else "reduce-overhead",
                 )
-                logger.info(f"Compiled model with backend {backend}")
+                logger.info(f"Compiled model with backend {pt2_backend}")
             except:
                 logger.warning(
-                    f"Compiling model model with backend {backend} has failed \n Proceeding without compilation"
+                    f"Compiling model model with backend {pt2_backend} has failed \n Proceeding without compilation"
                 )
 
         elif ipex_enabled:
@@ -242,7 +255,12 @@ class BaseHandler(abc.ABC):
         model_class = model_class_definitions[0]
         model = model_class()
         if model_pt_path:
-            state_dict = torch.load(model_pt_path, map_location=self.device)
+            map_location = (
+                None
+                if (self.xla_available and self.map_location is None)
+                else self.device
+            )
+            state_dict = torch.load(model_pt_path, map_location=map_location)
             model.load_state_dict(state_dict)
         return model
 

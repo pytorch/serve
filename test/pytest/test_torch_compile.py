@@ -28,7 +28,7 @@ def test_serialize_model():
 
 @pytest.mark.skipif(not check_pt2_enabled(), reason="PyTorch version is older than 2.0")
 def test_model_packaging_and_start():
-    config_path = os.path.join(CURR_FILE_PATH, "yaml_config", "pt2.yaml")
+    config_path = os.path.join(CURR_FILE_PATH, "test_data", "torchcompile", "pt2.yaml")
     subprocess.run("mkdir model_store", shell=True)
     subprocess.run(
         f"torch-model-archiver -f --model-name pt2 --version 1.0 --serialized-file pt2.pt --export-path model_store --handler base_handler --config {config_path}",
