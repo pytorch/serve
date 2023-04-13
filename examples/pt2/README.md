@@ -15,16 +15,16 @@ pip install torchserve torch-model-archiver
 
 ## Package your model
 
-PyTorch 2.0 supports several compiler backends and you pick which one you want by passing in an optional file `compile.json` during your model packaging
+PyTorch 2.0 supports several compiler backends and you pick which one you want by passing in an optional file `model_config.yaml` during your model packaging
 
-`{"pt2" : "inductor"}`
+`pt2: "inductor"`
 
-As an example let's expand our getting started guide with the only difference being passing in the extra `compile.json` file
+As an example let's expand our getting started guide with the only difference being passing in the extra `model_config.yaml` file
 
 ```
 mkdir model_store
-torch-model-archiver --model-name densenet161 --version 1.0 --model-file ./serve/examples/image_classifier/densenet_161/model.py --export-path model_store --extra-files ./serve/examples/image_classifier/index_to_name.json,./serve/examples/image_classifier/compile.json --handler image_classifier
-torchserve --start --ncs --model-store model_store --models densenet161.mar
+torch-model-archiver --model-name densenet161 --version 1.0 --model-file ./serve/examples/image_classifier/densenet_161/model.py --export-path model_store --extra-files ./serve/examples/image_classifier/index_to_name.json --handler image_classifier
+torchserve --start --ncs --model-store model_store --models densenet161.mar --config-file model_config.yaml
 ```
 
 The exact same approach works with any other model, what's going on is the below
