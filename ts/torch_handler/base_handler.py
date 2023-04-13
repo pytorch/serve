@@ -170,7 +170,7 @@ class BaseHandler(abc.ABC):
         else:
             raise RuntimeError("No model weights could be loaded")
 
-        if self.model_yaml_config and "pt2" in self.model_yaml_config:
+        if hasattr(self, "model_yaml_config") and "pt2" in self.model_yaml_config:
             pt2_backend = self.model_yaml_config["pt2"]
             valid_backend = check_valid_pt2_backend(pt2_backend)
         else:
