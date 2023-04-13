@@ -35,7 +35,6 @@ public class WorkerLifeCycle {
     private Connector connector;
     private ReaderThread errReader;
     private ReaderThread outReader;
-    private String launcherArgs;
     private int numWorker;
     private int currNumRunningWorkers;
 
@@ -50,10 +49,11 @@ public class WorkerLifeCycle {
         return process;
     }
 
-    public ArrayList<String> launcherArgsToList() {
+    public ArrayList<String> launcherArgsToList(String launcherArgs) {
         ArrayList<String> arrlist = new ArrayList<String>();
         arrlist.add("-m");
-        arrlist.add("intel_extension_for_pytorch.cpu.launch");
+        arrlist.add("torch.backends.xeon.run_cpu");
+
         if (launcherArgs != null && launcherArgs.length() > 1) {
             String[] argarray = launcherArgs.split(" ");
             for (int i = 0; i < argarray.length; i++) {
@@ -63,22 +63,25 @@ public class WorkerLifeCycle {
         return arrlist;
     }
 
-    public boolean isLauncherAvailable()
+    public boolean isLauncherAvailable(String launcherArgs)
             throws WorkerInitializationException, InterruptedException {
         boolean launcherAvailable = false;
+
+        ArrayList<String> cmd = new ArrayList<String>();
+        cmd.add("python");
+        ArrayList<String> args = launcherArgsToList(launcherArgs);
+        cmd.addAll(args);
+        cmd.add("--no_python");
+        // try launching dummy command to check launcher availability
+        String dummyCmd = "hostname";
+        cmd.add(dummyCmd);
+
+        String[] cmdList = new String[cmd.size()];
+        cmdList = cmd.toArray(cmdList);
+
+        logger.debug("launcherAvailable cmdline: {}", cmd.toString());
+
         try {
-            ArrayList<String> cmd = new ArrayList<String>();
-            cmd.add("python");
-            ArrayList<String> args = launcherArgsToList();
-            cmd.addAll(args);
-            cmd.add("--no_python");
-            // try launching dummy command to check launcher availability
-            String dummyCmd = "hostname";
-            cmd.add(dummyCmd);
-
-            String[] cmdList = new String[cmd.size()];
-            cmdList = cmd.toArray(cmdList);
-
             Process processLauncher = Runtime.getRuntime().exec(cmdList);
             int ret = processLauncher.waitFor();
             launcherAvailable = (ret == 0);
@@ -115,23 +118,24 @@ public class WorkerLifeCycle {
         }
 
         if (configManager.isCPULauncherEnabled()) {
-            launcherArgs = configManager.getCPULauncherArgs();
-            boolean launcherAvailable = isLauncherAvailable();
+            String launcherArgs = configManager.getCPULauncherArgs();
+            boolean launcherAvailable = isLauncherAvailable(launcherArgs);
             if (launcherAvailable) {
-                ArrayList<String> args = launcherArgsToList();
+                ArrayList<String> args = launcherArgsToList(launcherArgs);
                 argl.addAll(args);
 
                 // multi-worker core pinning
                 if (this.numWorker > 1) {
                     argl.add("--ninstances");
                     argl.add(String.valueOf(this.numWorker));
-                    argl.add("--instance_idx");
+                    argl.add("--rank");
+                    // instance_idx is 0-indexed
                     argl.add(String.valueOf(this.currNumRunningWorkers));
                 }
 
             } else {
                 logger.warn(
-                        "CPU launcher is enabled but launcher is not available. Proceeding without launcher.");
+                        "torch.backends.xeon.run_cpu is not available. Proceeding without worker core pinning. For better performance, please make sure torch.backends.xeon.run_cpu is available.");
             }
         }
 
