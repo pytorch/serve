@@ -25,53 +25,50 @@ else:
 logger = logging.getLogger(__name__)
 
 
-def check_xla_available() -> bool:
+try:
+    import torch_xla.core.xla_model as xm
+
+    XLA_AVAILABLE = True
+except ImportError as error:
+    XLA_AVAILABLE = False
+
+
+if packaging.version.parse(torch.__version__) >= packaging.version.parse("2.0.0"):
+    PT2_AVAILABLE = True
+    if torch.cuda.is_available():
+        # If Ampere enable tensor cores which will give better performance
+        # Ideally get yourself an A10G or A100 for optimal performance
+        if torch.cuda.get_device_capability() >= (8, 0):
+            torch.backends.cuda.matmul.allow_tf32 = True
+    logger.warning(
+        f"Your torch version is {torch.__version__} which does not support torch.compile"
+    )
+
+else:
+    PT2_AVAILABLE = False
+
+
+if os.environ.get("TS_IPEX_ENABLE", "false") == "true":
     try:
-        import torch_xla.core.xla_model as xm
+        import intel_extension_for_pytorch as ipex
 
-        return True
+        IPEX_AVAILABLE = True
     except ImportError as error:
-        return False
-
-
-def check_pt2_available() -> bool:
-    if packaging.version.parse(torch.__version__) >= packaging.version.parse("2.0.0"):
-        pt2_available = True
-        if torch.cuda.is_available():
-            # If Ampere enable tensor cores which will give better performance
-            # Ideally get yourself an A10G or A100 for optimal performance
-            if torch.cuda.get_device_capability() >= (8, 0):
-                torch.backends.cuda.matmul.allow_tf32 = True
         logger.warning(
-            f"Your torch version is {torch.__version__} which does not support torch.compile"
+            "IPEX is enabled but intel-extension-for-pytorch is not installed. Proceeding without IPEX."
         )
-        pt2_available = False
-    return pt2_available
+        IPEX_AVAILABLE = False
 
 
-def check_ipex_enabled() -> bool:
-    if os.environ.get("TS_IPEX_ENABLE", "false") == "true":
-        try:
-            import intel_extension_for_pytorch as ipex
+try:
+    import onnxruntime as ort
+    import psutil
 
-            return True
-        except ImportError as error:
-            logger.warning(
-                "IPEX is enabled but intel-extension-for-pytorch is not installed. Proceeding without IPEX."
-            )
-    return False
-
-
-def check_onnx_enabled():
-    try:
-        import onnxruntime as ort
-        import psutil
-
-        logger.info("ONNX enabled")
-        return True
-    except ImportError as error:
-        logger.warning("proceeding without onnxruntime")
-        return False
+    logger.info("ONNX enabled")
+    ONNX_AVAILABLE = True
+except ImportError as error:
+    logger.warning("proceeding without onnxruntime")
+    ONNX_AVAILABLE = False
 
 
 def setup_ort_session(model_pt_path):
@@ -149,11 +146,6 @@ class BaseHandler(abc.ABC):
         if "serializedFile" in self.manifest["model"]:
             serialized_file = self.manifest["model"]["serializedFile"]
             self.model_pt_path = os.path.join(model_dir, serialized_file)
-
-        if self.model_pt_path:
-            if self.model_pt_path.endswith("onnx"):
-                onnx_enabled = check_onnx_enabled()
-
         # model def file
         model_file = self.manifest["model"].get("modelFile", "")
 
@@ -172,7 +164,7 @@ class BaseHandler(abc.ABC):
             self.model.eval()
 
         # Convert your model by following instructions: https://pytorch.org/tutorials/advanced/super_resolution_with_onnxruntime.html
-        elif self.model_pt_path.endswith(".onnx") and onnx_enabled:
+        elif self.model_pt_path.endswith(".onnx") and ONNX_AVAILABLE:
             self.model = setup_ort_session(self.model_pt_path)
 
         else:
@@ -185,7 +177,7 @@ class BaseHandler(abc.ABC):
             valid_backend = False
 
         # PT 2.0 support is opt in
-        if check_pt2_available() and valid_backend:
+        if PT2_AVAILABLE and valid_backend:
             # Compilation will delay your model initialization
             try:
                 self.model = torch.compile(
@@ -199,7 +191,7 @@ class BaseHandler(abc.ABC):
                     f"Compiling model model with backend {pt2_backend} has failed \n Proceeding without compilation"
                 )
 
-        elif ipex_enabled:
+        elif IPEX_AVAILABLE:
             self.model = self.model.to(memory_format=torch.channels_last)
             self.model = ipex.optimize(self.model)
 
