@@ -1,9 +1,15 @@
+import os
 import subprocess
+from pathlib import Path
 
 import pytest
 import torch
+from pkg_resources import packaging
 
-from ts.torch_handler.BaseHandler import check_pt2_enabled
+PT2_AVAILABLE = packaging.version.parse(torch.__version__) >= packaging.version.parse(
+    "2.0.0"
+)
+
 
 CURR_FILE_PATH = Path(__file__).parent
 
@@ -20,13 +26,13 @@ class ToyModel(torch.nn.Module):
         return x
 
 
-@pytest.mark.skipif(not check_pt2_enabled(), reason="PyTorch version is older than 2.0")
+@pytest.mark.skipif(not PT2_AVAILABLE, reason="PyTorch version is older than 2.0")
 def test_serialize_model():
     model = ToyModel()
     torch.save(model, "pt2.pt")
 
 
-@pytest.mark.skipif(not check_pt2_enabled(), reason="PyTorch version is older than 2.0")
+@pytest.mark.skipif(not PT2_AVAILABLE, reason="PyTorch version is older than 2.0")
 def test_model_packaging_and_start():
     config_path = os.path.join(CURR_FILE_PATH, "test_data", "torchcompile", "pt2.yaml")
     subprocess.run("mkdir model_store", shell=True)
@@ -37,7 +43,7 @@ def test_model_packaging_and_start():
     )
 
 
-@pytest.mark.skipif(not check_pt2_enabled(), reason="PyTorch version is older than 2.0")
+@pytest.mark.skipif(not PT2_AVAILABLE, reason="PyTorch version is older than 2.0")
 def test_model_start():
     subprocess.run(
         "torchserve --start --ncs --model-store model_store --models pt2.mar",
@@ -46,9 +52,7 @@ def test_model_start():
     )
 
 
-@pytest.mark.skipif(
-    not check_pt2_enabled(), reason="PyTorch version is older than PT 2.0"
-)
+@pytest.mark.skipif(not PT2_AVAILABLE, reason="PyTorch version is older than PT 2.0")
 def test_inference_and_compilation():
     subprocess.run(
         "curl -X POST http://127.0.0.1:8080/predictions/pt2 --data-binary '1'",
@@ -56,8 +60,6 @@ def test_inference_and_compilation():
     )
 
 
-@pytest.mark.skipif(
-    not check_pt2_enabled(), reason="PyTorch version is older than PT 2.0"
-)
+@pytest.mark.skipif(not PT2_AVAILABLE, reason="PyTorch version is older than PT 2.0")
 def test_stop():
     subprocess.run("torchserve --stop", shell=True, check=True)
