@@ -60,13 +60,15 @@ public class MetricConfigurationTest {
         Assert.assertEquals(spec.getName(), "HandlerTime");
         Assert.assertEquals(spec.getUnit(), "ms");
         Assert.assertEquals(
-                spec.getDimensions(), new ArrayList<String>(Arrays.asList("ModelName", "Level")));
+                spec.getDimensions(),
+                new ArrayList<String>(Arrays.asList("ModelName", "Level", "Hostname")));
 
         spec = config.getModel_metrics().getGauge().get(1);
         Assert.assertEquals(spec.getName(), "PredictionTime");
         Assert.assertEquals(spec.getUnit(), "ms");
         Assert.assertEquals(
-                spec.getDimensions(), new ArrayList<String>(Arrays.asList("ModelName", "Level")));
+                spec.getDimensions(),
+                new ArrayList<String>(Arrays.asList("ModelName", "Level", "Hostname")));
 
         Assert.assertEquals(config.getModel_metrics().getHistogram(), null);
     }

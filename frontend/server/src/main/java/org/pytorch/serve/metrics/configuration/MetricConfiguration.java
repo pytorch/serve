@@ -37,6 +37,10 @@ public class MetricConfiguration {
 
     @SuppressWarnings("checkstyle:MethodName")
     public void setModel_metrics(MetricTypes modelMetrics) {
+        // The Hostname dimension is included by default for model metrics
+        modelMetrics.setCounter(this.addHostnameDimensionToMetrics(modelMetrics.getCounter()));
+        modelMetrics.setGauge(this.addHostnameDimensionToMetrics(modelMetrics.getGauge()));
+        modelMetrics.setHistogram(this.addHostnameDimensionToMetrics(modelMetrics.getHistogram()));
         this.model_metrics = modelMetrics;
     }
 
@@ -64,5 +68,20 @@ public class MetricConfiguration {
         config.validate();
 
         return config;
+    }
+
+    private List<MetricSpecification> addHostnameDimensionToMetrics(
+            List<MetricSpecification> metricsSpec) {
+        if (metricsSpec == null) {
+            return metricsSpec;
+        }
+
+        for (MetricSpecification spec : metricsSpec) {
+            List<String> dimensions = spec.getDimensions();
+            dimensions.add("Hostname");
+            spec.setDimensions(dimensions);
+        }
+
+        return metricsSpec;
     }
 }
