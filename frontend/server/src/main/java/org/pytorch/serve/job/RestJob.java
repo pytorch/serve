@@ -17,6 +17,7 @@ import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.util.CharsetUtil;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -27,7 +28,6 @@ import org.pytorch.serve.http.InternalServerException;
 import org.pytorch.serve.http.messages.DescribeModelResponse;
 import org.pytorch.serve.metrics.IMetric;
 import org.pytorch.serve.metrics.MetricCache;
-import org.pytorch.serve.metrics.api.MetricAggregator;
 import org.pytorch.serve.util.ApiUtils;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.JsonUtils;
@@ -166,8 +166,38 @@ public class RestJob extends Job {
          */
         if (ctx != null) {
             if (numStreams == 0) { // non-stream response
-                MetricAggregator.handleInferenceMetric(
-                        getModelName(), getModelVersion(), getScheduled() - getBegin(), inferTime);
+                IMetric inferenceLatencyMetric =
+                        MetricCache.getInstance()
+                                .getMetricFrontend("ts_inference_latency_microseconds");
+                IMetric queueLatencyMetric =
+                        MetricCache.getInstance()
+                                .getMetricFrontend("ts_queue_latency_microseconds");
+                List<String> latencyMetricDimensionValues =
+                        Arrays.asList(
+                                getModelName(),
+                                getModelVersion() == null ? "default" : getModelVersion(),
+                                ConfigManager.getInstance().getHostName());
+                if (inferenceLatencyMetric != null) {
+                    try {
+                        inferenceLatencyMetric.addOrUpdate(
+                                latencyMetricDimensionValues, inferTime / 1000.0);
+                    } catch (Exception e) {
+                        logger.error(
+                                "Failed to update frontend metric ts_inference_latency_microseconds: ",
+                                e);
+                    }
+                }
+                if (queueLatencyMetric != null) {
+                    try {
+                        queueLatencyMetric.addOrUpdate(
+                                latencyMetricDimensionValues,
+                                (getScheduled() - getBegin()) / 1000.0);
+                    } catch (Exception e) {
+                        logger.error(
+                                "Failed to update frontend metric ts_queue_latency_microseconds: ",
+                                e);
+                    }
+                }
                 ((DefaultFullHttpResponse) resp).content().writeBytes(body);
                 NettyUtils.sendHttpResponse(ctx, resp, true);
             } else if (numStreams == -1) { // the last response in a stream
