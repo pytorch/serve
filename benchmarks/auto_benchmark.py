@@ -192,6 +192,10 @@ def run_benchmark(bm_config):
     for model_json_config in files:
         if model_json_config.endswith(".json"):
             # call benchmark-ab.py
+            execute("numactl -C 0 -m 0 lscpu", wait=True)
+            execute("cat ./benchmarks/config.properties", wait=True)
+            execute("python -m torch.backends.xeon.run_cpu --ninstances 4 --rank 0 --no_python hostname", wait=True)
+            
             shutil.rmtree(TS_LOGS_PATH, ignore_errors=True)
             shutil.rmtree(BENCHMARK_TMP_PATH, ignore_errors=True)
             cmd = (
