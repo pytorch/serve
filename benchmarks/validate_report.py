@@ -1,7 +1,7 @@
 import argparse
 import os
 
-from utils.report import METRICS_VALIDATED, Report
+from utils.report import ACCEPTABLE_METRIC_DEVIATION, METRICS_VALIDATED, Report
 from utils.update_artifacts import (
     BENCHMARK_ARTIFACTS_PATH,
     BENCHMARK_REPORT_FILE,
@@ -27,7 +27,7 @@ def check_if_within_threshold(value1, value2, threshold):
     return abs((value1 - value2) / float(value1)) <= threshold
 
 
-def validate_reports(artifacts_dir, report_dir):
+def validate_reports(artifacts_dir, report_dir, deviation):
     # Read baseline reports
     baseline_reports = {}
     for _d in sorted(os.listdir(artifacts_dir)):
@@ -35,7 +35,7 @@ def validate_reports(artifacts_dir, report_dir):
         for subdir in sorted(os.listdir(dir)):
             csv_file = os.path.join(dir, subdir, BENCHMARK_REPORT_FILE)
 
-            report = Report()
+            report = Report(deviation)
             report.read_csv(csv_file)
             if subdir not in baseline_reports:
                 baseline_reports[subdir] = report
@@ -79,7 +79,6 @@ def main():
 
     parser.add_argument(
         "--input-artifacts-dir",
-        nargs="?",
         help="directory where benchmark artifacts have been saved",
         type=str,
         default=BENCHMARK_ARTIFACTS_PATH,
@@ -87,14 +86,19 @@ def main():
 
     parser.add_argument(
         "--input-report-dir",
-        nargs="?",
         help="directory where current benchmark report is saved",
         type=str,
         default=BENCHMARK_REPORT_PATH,
     )
 
+    parser.add_argument(
+        "--deviation",
+        help="acceptable variation in metrics values ",
+        type=float,
+        default=ACCEPTABLE_METRIC_DEVIATION,
+    )
     args = parser.parse_args()
-    validate_reports(args.input_artifacts_dir, args.input_report_dir)
+    validate_reports(args.input_artifacts_dir, args.input_report_dir, args.deviation)
 
 
 if __name__ == "__main__":

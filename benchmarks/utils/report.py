@@ -24,13 +24,13 @@ ACCEPTABLE_METRIC_DEVIATION = 0.3
 
 
 class Report:
-    def __init__(self):
+    def __init__(self, deviation=0):
         self.properties = {}
         self.mode = None
         self.throughput = 0
         self.batch_size = 0
         self.workers = 0
-        self.deviation = ACCEPTABLE_METRIC_DEVIATION
+        self.deviation = deviation
 
     def _get_mode(self, csv_file):
         cfg = csv_file.split("/")[-2]
