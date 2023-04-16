@@ -44,7 +44,7 @@ def start_torchserve_large_model(
     model_store=None, snapshot_file=None, no_config_snapshots=False, gen_mar=True
 ):
     stop_torchserve()
-    # crate_mar_file_table()
+
     cmd = ["torchserve", "--start"]
     model_store = model_store if model_store else MODEL_STORE
 
@@ -52,8 +52,7 @@ def start_torchserve_large_model(
         print(f"## {model_store} already exists.\n")
     else:
         os.makedirs(model_store)
-    # #if gen_mar:
-    # #    mg.gen_mar(model_store)
+
     cmd.extend(["--model-store", model_store])
     if snapshot_file:
         cmd.extend(["--ts-config", snapshot_file])
