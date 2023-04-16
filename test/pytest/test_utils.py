@@ -40,6 +40,30 @@ def start_torchserve(
     time.sleep(10)
 
 
+def start_torchserve_large_model(
+    model_store=None, snapshot_file=None, no_config_snapshots=False, gen_mar=True
+):
+    stop_torchserve()
+    # crate_mar_file_table()
+    cmd = ["torchserve", "--start"]
+    model_store = model_store if model_store else MODEL_STORE
+
+    if os.path.exists(model_store):
+        print(f"## {model_store} already exists.\n")
+    else:
+        os.makedirs(model_store)
+    # #if gen_mar:
+    # #    mg.gen_mar(model_store)
+    cmd.extend(["--model-store", model_store])
+    if snapshot_file:
+        cmd.extend(["--ts-config", snapshot_file])
+    if no_config_snapshots:
+        cmd.extend(["--no-config-snapshots"])
+    print(cmd)
+    subprocess.run(cmd)
+    time.sleep(10)
+
+
 def stop_torchserve():
     subprocess.run(["torchserve", "--stop"])
     time.sleep(10)
@@ -159,3 +183,15 @@ def load_module_from_py_file(py_file: str) -> object:
     loader.exec_module(module)
 
     return module
+
+
+def cleanup_model_store(model_store=None):
+    # rm -rf $MODEL_STORE_DIR / *
+    for f in glob.glob(os.path.join(model_store, "*")):
+        os.remove(f)
+
+
+def move_logs(log_file, artifact_dir):
+    logs_dir = os.path.join("logs")
+    os.rename(log_file, os.path.join(logs_dir, log_file))  # mv file logs/
+    os.rename(logs_dir, os.path.join(artifact_dir, logs_dir))  # mv logs/ dir
