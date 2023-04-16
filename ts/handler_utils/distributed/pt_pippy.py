@@ -1,3 +1,4 @@
+import importlib
 import inspect
 import logging
 import os
@@ -5,8 +6,13 @@ import os
 import pippy
 import torch
 import torch.distributed.rpc as rpc
-from pippy import split_into_equal_size
-from pippy.hf import PiPPyHFTracer, inject_pipeline_forward
+
+pippy_installed = importlib.util.find_spec("pippy") is not None
+
+if pippy_installed:
+    from pippy import split_into_equal_size
+    from pippy.hf import PiPPyHFTracer, inject_pipeline_forward
+
 
 logger = logging.getLogger(__name__)
 
