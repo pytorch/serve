@@ -165,9 +165,3 @@ def cleanup_model_store(model_store=None):
     # rm -rf $MODEL_STORE_DIR / *
     for f in glob.glob(os.path.join(model_store, "*")):
         os.remove(f)
-
-
-def move_logs(log_file, artifact_dir):
-    logs_dir = os.path.join("logs")
-    os.rename(log_file, os.path.join(logs_dir, log_file))  # mv file logs/
-    os.rename(logs_dir, os.path.join(artifact_dir, logs_dir))  # mv logs/ dir
