@@ -40,29 +40,6 @@ def start_torchserve(
     time.sleep(10)
 
 
-def start_torchserve_large_model(
-    model_store=None, snapshot_file=None, no_config_snapshots=False, gen_mar=True
-):
-    stop_torchserve()
-
-    cmd = ["torchserve", "--start"]
-    model_store = model_store if model_store else MODEL_STORE
-
-    if os.path.exists(model_store):
-        print(f"## {model_store} already exists.\n")
-    else:
-        os.makedirs(model_store)
-
-    cmd.extend(["--model-store", model_store])
-    if snapshot_file:
-        cmd.extend(["--ts-config", snapshot_file])
-    if no_config_snapshots:
-        cmd.extend(["--no-config-snapshots"])
-    print(cmd)
-    subprocess.run(cmd)
-    time.sleep(10)
-
-
 def stop_torchserve():
     subprocess.run(["torchserve", "--stop"])
     time.sleep(10)
