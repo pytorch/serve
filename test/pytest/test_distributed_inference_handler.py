@@ -20,7 +20,7 @@ MODEL_STORE_DIR = os.path.join("model_store")
 POSTMAN_LARGE_MODEL_INFERENCE_DATA_FILE = os.path.join(
     "postman", "large_model_inference_data.json"
 )
-TS_CONSOLE_LOG_FILE = os.path.join(TEST_DIR, "ts_console.log")
+TS_CONSOLE_LOG_FILE = os.path.join("ts_log.log")
 POSTMAN_ENV_FILE = os.path.join("postman", "environment.json")
 POSTMAN_COLLECTION_INFERENCE = os.path.join(
     "postman", "inference_api_test_collection.json"
@@ -43,6 +43,5 @@ def test_large_model_inference():
         f"newman run -e {POSTMAN_ENV_FILE} {POSTMAN_COLLECTION_INFERENCE} -d {POSTMAN_LARGE_MODEL_INFERENCE_DATA_FILE} -r cli,htmlextra --reporter-htmlextra-export {ARTIFACTS_INFERENCE_DIR}/{REPORT_FILE} --verbose"
     )
     ts.stop_torchserve()
-    # test_utils.move_logs(TS_CONSOLE_LOG_FILE, ARTIFACTS_INFERENCE_DIR)
     test_utils.cleanup_model_store(model_store=MODEL_STORE_DIR)
     return EXIT_CODE
