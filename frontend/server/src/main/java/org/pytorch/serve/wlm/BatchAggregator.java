@@ -1,7 +1,5 @@
 package org.pytorch.serve.wlm;
 
-import static org.pytorch.serve.util.messages.RequestInput.TS_STREAM_NEXT;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
 import org.pytorch.serve.job.Job;
@@ -61,13 +59,13 @@ public class BatchAggregator {
         return req;
     }
 
-    public void sendResponse(ModelWorkerResponse message) {
+    public boolean sendResponse(ModelWorkerResponse message) {
         boolean jobDone = true;
         // TODO: Handle prediction level code
         if (message.getCode() == 200) {
             if (jobs.isEmpty()) {
                 // this is from initial load.
-                return;
+                return true;
             }
             for (Predictions prediction : message.getPredictions()) {
                 String jobId = prediction.getRequestId();
@@ -77,9 +75,16 @@ public class BatchAggregator {
                     throw new IllegalStateException(
                             "Unexpected job in sendResponse() with 200 status code: " + jobId);
                 }
-                if (job.getCmd() == WorkerCommands.STREAMPREDICT
-                        && prediction.getHeaders().get(TS_STREAM_NEXT).equals("true")) {
-                    jobDone = false;
+                if (jobDone) {
+                    String streamNext =
+                            prediction
+                                    .getHeaders()
+                                    .get(
+                                            org.pytorch.serve.util.messages.RequestInput
+                                                    .TS_STREAM_NEXT);
+                    if (streamNext != null && streamNext.equals("true")) {
+                        jobDone = false;
+                    }
                 }
                 job.response(
                         prediction.getResp(),
@@ -103,6 +108,7 @@ public class BatchAggregator {
         if (jobDone) {
             jobs.clear();
         }
+        return jobDone;
     }
 
     public void sendError(BaseModelRequest message, String error, int status) {
