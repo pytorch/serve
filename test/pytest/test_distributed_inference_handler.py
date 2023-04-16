@@ -37,19 +37,12 @@ def test_large_model_inference():
     """Return exit code of newman execution of inference collection"""
     os.chdir(TEST_DIR)
 
-    print(os.getcwd())
-    """
-    test_utils.start_torchserve(no_config_snapshots=True)
-    test_utils.register_model_with_params(params)
-
-    """
-
-    test_utils.start_torchserve_large_model(model_store=MODEL_STORE_DIR)
+    test_utils.start_torchserve(model_store=MODEL_STORE_DIR, gen_mar=False)
 
     EXIT_CODE = os.system(
         f"newman run -e {POSTMAN_ENV_FILE} {POSTMAN_COLLECTION_INFERENCE} -d {POSTMAN_LARGE_MODEL_INFERENCE_DATA_FILE} -r cli,htmlextra --reporter-htmlextra-export {ARTIFACTS_INFERENCE_DIR}/{REPORT_FILE} --verbose"
     )
     ts.stop_torchserve()
-    test_utils.move_logs(TS_CONSOLE_LOG_FILE, ARTIFACTS_INFERENCE_DIR)
+    # test_utils.move_logs(TS_CONSOLE_LOG_FILE, ARTIFACTS_INFERENCE_DIR)
     test_utils.cleanup_model_store(model_store=MODEL_STORE_DIR)
     return EXIT_CODE
