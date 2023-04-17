@@ -24,7 +24,7 @@ CURR_FILE_PATH = Path(__file__).parent
 TORCH_XLA_TEST_DATA_DIR = os.path.join(CURR_FILE_PATH, "test_data")
 
 MODEL_FILE = os.path.join(TORCH_XLA_TEST_DATA_DIR, "model.py")
-EXTRA_FILE = os.path.join(TORCH_XLA_TEST_DATA_DIR, "pt2.yaml")
+EXTRA_FILE = os.path.join(TORCH_XLA_TEST_DATA_DIR, "xla.yaml")
 CONFIG_PROPERTIES = os.path.join(TORCH_XLA_TEST_DATA_DIR, "config.properties")
 
 SERIALIZED_FILE = os.path.join(TORCH_XLA_TEST_DATA_DIR, "model.pt")
