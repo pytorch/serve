@@ -44,7 +44,7 @@ jobs:
           pip install -r benchmarks/requirements-ab.txt
       - name: Benchmark cpu nightly verify
         if: ${{ matrix.hardware == 'cpu' }}
-        run: python benchmarks/auto_benchmark.py --input benchmarks/benchmark_config_cpu.yaml
+        run: python benchmarks/auto_benchmark.py --input benchmarks/benchmark_config_cpu.yaml --skip false
       - name: Benchmark gpu nightly
         if: ${{ matrix.hardware == 'gpu' }}
         run: python benchmarks/auto_benchmark.py --input benchmarks/benchmark_config_gpu.yaml --skip false
