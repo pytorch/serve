@@ -109,7 +109,8 @@ public class GRPCJob extends Job {
     @Override
     public void sendError(int status, String error) {
         Status responseStatus = GRPCUtils.getGRPCStatusCode(status);
-        if (this.getCmd() == WorkerCommands.PREDICT || this.getCmd() == WorkerCommands.STREAMPREDICT) {
+        if (this.getCmd() == WorkerCommands.PREDICT
+                || this.getCmd() == WorkerCommands.STREAMPREDICT) {
             predictionResponseObserver.onError(
                     responseStatus
                             .withDescription(error)

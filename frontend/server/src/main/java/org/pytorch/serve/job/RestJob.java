@@ -1,5 +1,7 @@
 package org.pytorch.serve.job;
 
+import static org.pytorch.serve.util.messages.RequestInput.TS_STREAM_NEXT;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
@@ -7,7 +9,6 @@ import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.DefaultHttpContent;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.FullHttpResponse;
-import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.HttpResponse;
@@ -34,8 +35,6 @@ import org.pytorch.serve.util.messages.RequestInput;
 import org.pytorch.serve.util.messages.WorkerCommands;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static org.pytorch.serve.util.messages.RequestInput.TS_STREAM_NEXT;
 
 public class RestJob extends Job {
 
@@ -164,7 +163,7 @@ public class RestJob extends Job {
                         getModelName(), getModelVersion(), getScheduled() - getBegin(), inferTime);
                 ctx.writeAndFlush(new DefaultHttpContent(Unpooled.wrappedBuffer(body)));
                 ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
-            } else if (numStreams == 1) {  // the first response in a stream
+            } else if (numStreams == 1) { // the first response in a stream
                 NettyUtils.sendHttpResponse(ctx, resp, true);
             } else if (numStreams > 1) { // the 2nd+ response in a stream
                 ctx.writeAndFlush(new DefaultHttpContent(Unpooled.wrappedBuffer(body)));
