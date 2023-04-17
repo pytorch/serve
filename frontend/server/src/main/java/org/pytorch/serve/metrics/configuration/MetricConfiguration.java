@@ -4,11 +4,14 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.composer.ComposerException;
 import org.yaml.snakeyaml.constructor.Constructor;
 
 public class MetricConfiguration {
+    private static final Logger logger = LoggerFactory.getLogger(MetricConfiguration.class);
     private List<String> dimensions;
 
     @SuppressWarnings("checkstyle:MemberName")
@@ -66,6 +69,7 @@ public class MetricConfiguration {
         FileInputStream inputStream = new FileInputStream(new File(configFilePath));
         MetricConfiguration config = yaml.load(inputStream);
         config.validate();
+        logger.info("Successfully loaded metrics configuration from {}", configFilePath);
 
         return config;
     }
