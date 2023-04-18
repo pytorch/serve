@@ -5,13 +5,10 @@ import pytest
 import test_utils
 import torch
 
-import ts
-
 REPO_ROOT = os.path.normpath(
     os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../")
 )
 sys.path.append(REPO_ROOT)
-from ts_scripts import tsutils as ts
 
 print(REPO_ROOT)
 TEST_DIR = os.path.join(REPO_ROOT, "test")
@@ -34,14 +31,17 @@ REPORT_FILE = os.path.join("report.html")
     reason="Test to be run on GPU only",
 )
 def test_large_model_inference():
-    """Return exit code of newman execution of inference collection"""
+    """Run a Newman test for distributed inference on a large model"""
     os.chdir(TEST_DIR)
 
     test_utils.start_torchserve(model_store=MODEL_STORE_DIR, gen_mar=False)
 
-    EXIT_CODE = os.system(
-        f"newman run -e {POSTMAN_ENV_FILE} {POSTMAN_COLLECTION_INFERENCE} -d {POSTMAN_LARGE_MODEL_INFERENCE_DATA_FILE} -r cli,htmlextra --reporter-htmlextra-export {ARTIFACTS_INFERENCE_DIR}/{REPORT_FILE} --verbose"
-    )
-    ts.stop_torchserve()
-    test_utils.cleanup_model_store(model_store=MODEL_STORE_DIR)
-    return EXIT_CODE
+    try:
+        command = f"newman run -e {POSTMAN_ENV_FILE} {POSTMAN_COLLECTION_INFERENCE} -d {POSTMAN_LARGE_MODEL_INFERENCE_DATA_FILE} -r cli,htmlextra --reporter-htmlextra-export {ARTIFACTS_INFERENCE_DIR}/{REPORT_FILE} --verbose"
+        result = os.system(command)
+        assert (
+            result == 0
+        ), "Error: Distributed inference failed, the exit code is not zero"
+    finally:
+        test_utils.stop_torchserve()
+        test_utils.cleanup_model_store(model_store=MODEL_STORE_DIR)
