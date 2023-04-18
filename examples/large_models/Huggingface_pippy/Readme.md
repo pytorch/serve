@@ -8,11 +8,6 @@ PiPPy provides pipeline paralleism for serving large models that woul not fit in
 
 We use a Torchserve custom handler that inherits from base_pippy_handler to load the model and define our logic for preprocess, inference and post processing. This is basically very similar to your evaluation process.
 
-### Step 0: Install torchserve from src
-```bash
-python ts_scripts/install_from_src.py
-
-```
 ### Step 1: Download model
 
 Login into huggingface hub with token by running the below command
