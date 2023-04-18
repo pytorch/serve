@@ -12,7 +12,11 @@ import time
 import torch
 from pkg_resources import packaging
 
-from ..utils.util import list_classes_from_module, load_label_mapping, check_valid_pt2_backend
+from ..utils.util import (
+    check_valid_pt2_backend,
+    list_classes_from_module,
+    load_label_mapping,
+)
 
 if packaging.version.parse(torch.__version__) >= packaging.version.parse("1.8.1"):
     from torch.profiler import ProfilerActivity, profile, record_function
@@ -39,7 +43,7 @@ if packaging.version.parse(torch.__version__) >= packaging.version.parse("2.0.0"
         # If Ampere enable tensor cores which will give better performance
         # Ideally get yourself an A10G or A100 for optimal performance
         if torch.cuda.get_device_capability() >= (8, 0):
-            torch.backends.cuda.matmul.allow_tf32 = True
+            torch.set_float32_matmul_precision("high")
             logger.info("Enabled tensor cores")
 else:
     logger.warning(
@@ -183,7 +187,6 @@ class BaseHandler(abc.ABC):
                 self.model = torch.compile(
                     self.model,
                     backend=pt2_backend,
-                    mode="default" if XLA_AVAILABLE else "reduce-overhead",
                 )
                 logger.info(f"Compiled model with backend {pt2_backend}")
             except e:
