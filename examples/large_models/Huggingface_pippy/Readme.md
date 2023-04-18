@@ -18,7 +18,7 @@ huggingface-cli login
 paste the token generated from huggingface hub.
 
 ```bash
-python Download_model.py --model_name bigscience/bloom-1b1 #facebook/opt-iml-max-1.3b
+python Download_model.py --model_name facebook/opt-6.7b
 ```
 The script prints the path where the model is downloaded as below. This is an example and in your workload you want to use your actual trained model checkpoints.
 
