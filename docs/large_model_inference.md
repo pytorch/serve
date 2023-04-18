@@ -45,6 +45,9 @@ parallelLevel: 4
 deviceType: "gpu"
 parallelType: "pp" #options depending on the solution, pp(pipeline parallelism), tp(tensor parallelism), pptp ( pipeline and tensor parallelism)
                    # This will be used to route input to either rank0 or all ranks from fontend based on the solution (e.g. DeepSpeed support tp, PiPPy support pp)
+torchrun:
+    nproc-per-node: 4 # specifies the number of processes torchrun starts to serve your model, set to world_size or number of
+                       # gpus you wish to split your model
 #backend settings
 pippy:
     chunks: 1 # This sets the microbatch sizes, microbatch = batch size/ chunks
@@ -53,9 +56,6 @@ pippy:
     rpc_timeout: 1800
     num_worker_threads: 512 #set number of threads for rpc worker init.
 
-torchrun:
-    nproc-per-node: 4 # specifies the number of processes torchrun starts to serve your model, set to world_size or number of
-                       # gpus you wish to split your model
 handler:
     max_length: 80 # max length of tokens for tokenizer in the handler
 ```
