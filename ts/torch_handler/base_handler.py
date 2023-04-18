@@ -12,7 +12,7 @@ import time
 import torch
 from pkg_resources import packaging
 
-from ..utils.util import list_classes_from_module, load_label_mapping
+from ..utils.util import list_classes_from_module, load_label_mapping, check_valid_pt2_backend
 
 if packaging.version.parse(torch.__version__) >= packaging.version.parse("1.8.1"):
     from torch.profiler import ProfilerActivity, profile, record_function
@@ -40,6 +40,7 @@ if packaging.version.parse(torch.__version__) >= packaging.version.parse("2.0.0"
         # Ideally get yourself an A10G or A100 for optimal performance
         if torch.cuda.get_device_capability() >= (8, 0):
             torch.backends.cuda.matmul.allow_tf32 = True
+            logger.info("Enabled tensor cores")
 else:
     logger.warning(
         f"Your torch version is {torch.__version__} which does not support torch.compile"
@@ -122,8 +123,8 @@ class BaseHandler(abc.ABC):
 
         """
 
-        if self.context is not None and hasattr(self.context, "model_yaml_config"):
-            self.model_yaml_config = self.context.model_yaml_config
+        if context is not None and hasattr(context, "model_yaml_config"):
+            self.model_yaml_config = context.model_yaml_config
 
         properties = context.system_properties
         if torch.cuda.is_available() and properties.get("gpu_id") is not None:
@@ -164,6 +165,7 @@ class BaseHandler(abc.ABC):
         # Convert your model by following instructions: https://pytorch.org/tutorials/advanced/super_resolution_with_onnxruntime.html
         elif self.model_pt_path.endswith(".onnx") and ONNX_AVAILABLE:
             self.model = setup_ort_session(self.model_pt_path)
+            logger.info("Succesfully setup ort session")
 
         else:
             raise RuntimeError("No model weights could be loaded")
@@ -180,18 +182,20 @@ class BaseHandler(abc.ABC):
             try:
                 self.model = torch.compile(
                     self.model,
-                    backend=backend,
+                    backend=pt2_backend,
                     mode="default" if XLA_AVAILABLE else "reduce-overhead",
                 )
                 logger.info(f"Compiled model with backend {pt2_backend}")
-            except:
+            except e:
                 logger.warning(
                     f"Compiling model model with backend {pt2_backend} has failed \n Proceeding without compilation"
                 )
+                logger.warning(e)
 
         elif IPEX_AVAILABLE:
             self.model = self.model.to(memory_format=torch.channels_last)
             self.model = ipex.optimize(self.model)
+            logger.info(f"Compiled model with ipex")
 
         logger.debug("Model file %s loaded successfully", self.model_pt_path)
 
