@@ -61,13 +61,8 @@ class Report:
 
     def update(self, report):
         for property in self.properties:
-            temp = (self.properties[property] + report.properties[property]) / 2
             # new average= old average * (n-1)/n + new value /n
             self.properties[property] = (
                 self.properties[property] * (self.num_reports - 1) / self.num_reports
                 + report.properties[property] / self.num_reports
-            )
-
-            print(
-                f" N {self.num_reports} property {property} New average {self.properties[property]:.2f} old average {temp:.2f}"
             )
