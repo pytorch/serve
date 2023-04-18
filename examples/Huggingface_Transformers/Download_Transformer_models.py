@@ -20,7 +20,14 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
 def transformers_model_dowloader(
-    mode, pretrained_model_name, num_labels, do_lower_case, max_length, torchscript
+    mode,
+    pretrained_model_name,
+    num_labels,
+    do_lower_case,
+    max_length,
+    torchscript,
+    hardware,
+    batch_size,
 ):
     """This function, save the checkpoint, config file along with tokenizer config and vocab files
     of a transformer model of your choice.
@@ -98,11 +105,27 @@ def transformers_model_dowloader(
             add_special_tokens=True,
             return_tensors="pt",
         )
-        input_ids = inputs["input_ids"].to(device)
-        attention_mask = inputs["attention_mask"].to(device)
         model.to(device).eval()
-        traced_model = torch.jit.trace(model, (input_ids, attention_mask))
-        torch.jit.save(traced_model, os.path.join(NEW_DIR, "traced_model.pt"))
+        if hardware == "neuron":
+            import torch_neuron
+
+            input_ids = torch.cat([inputs["input_ids"]] * batch_size, 0).to(device)
+            attention_mask = torch.cat([inputs["attention_mask"]] * batch_size, 0).to(
+                device
+            )
+            traced_model = torch_neuron.trace(model, (input_ids, attention_mask))
+            torch.jit.save(
+                traced_model,
+                os.path.join(
+                    NEW_DIR,
+                    "traced_{}_model_neuron_batch_{}.pt".format(model_name, batch_size),
+                ),
+            )
+        else:
+            input_ids = inputs["input_ids"].to(device)
+            attention_mask = inputs["attention_mask"].to(device)
+            traced_model = torch.jit.trace(model, (input_ids, attention_mask))
+            torch.jit.save(traced_model, os.path.join(NEW_DIR, "traced_model.pt"))
     return
 
 
@@ -124,7 +147,16 @@ if __name__ == "__main__":
         torchscript = True
     else:
         torchscript = False
+    hardware = settings.get("hardware")
+    batch_size = int(settings.get("batch_size", "1"))
 
     transformers_model_dowloader(
-        mode, model_name, num_labels, do_lower_case, max_length, torchscript
+        mode,
+        model_name,
+        num_labels,
+        do_lower_case,
+        max_length,
+        torchscript,
+        hardware,
+        batch_size,
     )

@@ -38,6 +38,7 @@ import org.pytorch.serve.util.messages.RequestInput;
 import org.pytorch.serve.util.messages.WorkerCommands;
 import org.pytorch.serve.wlm.Model;
 import org.pytorch.serve.wlm.ModelManager;
+import org.pytorch.serve.wlm.WorkerInitializationException;
 import org.pytorch.serve.wlm.WorkerThread;
 
 /**
@@ -58,7 +59,8 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
             FullHttpRequest req,
             QueryStringDecoder decoder,
             String[] segments)
-            throws ModelException, DownloadArchiveException, WorkflowException {
+            throws ModelException, DownloadArchiveException, WorkflowException,
+                    WorkerInitializationException {
         if (isManagementReq(segments)) {
             if (endpointMap.getOrDefault(segments[1], null) != null) {
                 handleCustomEndpoint(ctx, req, segments, decoder);
@@ -191,7 +193,7 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
 
     private void handleRegisterModel(
             ChannelHandlerContext ctx, QueryStringDecoder decoder, FullHttpRequest req)
-            throws ModelException, DownloadArchiveException {
+            throws ModelException, DownloadArchiveException, WorkerInitializationException {
         RegisterModelRequest registerModelRequest = parseRequest(req, decoder);
         StatusResponse statusResponse;
         try {
@@ -225,7 +227,8 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
             QueryStringDecoder decoder,
             String modelName,
             String modelVersion)
-            throws ModelNotFoundException, ModelVersionNotFoundException {
+            throws ModelNotFoundException, ModelVersionNotFoundException,
+                    WorkerInitializationException {
         int minWorkers = NettyUtils.getIntParameter(decoder, "min_worker", 1);
         int maxWorkers = NettyUtils.getIntParameter(decoder, "max_worker", minWorkers);
         if (modelVersion == null) {
