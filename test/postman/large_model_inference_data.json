@@ -5,7 +5,6 @@
         "worker":1,
         "synchronous":"true",
         "file":"../examples/large_models/Huggingface_pippy/sample_text.txt",
-        "content-type":"application/json",
-        "expected":"Hey, are you conscious? Can you talk to me?"
+        "expected": "Hey, are you conscious? Can you talk to me?\nailabi lity"
     }
 ]
