@@ -10,7 +10,6 @@ import pytest
 import torch
 from pkg_resources import packaging
 
-warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 PT_2_AVAILABLE = (
     True
@@ -19,10 +18,12 @@ PT_2_AVAILABLE = (
 )
 
 CURR_FILE_PATH = Path(__file__).parent
-TEST_DATA_DIR = os.path.join(CURR_FILE_PATH, "test_data", "torch_xla")
+TEST_DATA_DIR = os.path.join(CURR_FILE_PATH, "test_data", "torch_compile")
 
 MODEL_FILE = os.path.join(TEST_DATA_DIR, "model.py")
+HANDLER_FILE = os.path.join(TEST_DATA_DIR, "compile_handler.py")
 YAML_CONFIG = os.path.join(TEST_DATA_DIR, "pt2.yaml")
+
 
 SERIALIZED_FILE = os.path.join(TEST_DATA_DIR, "model.pt")
 MODEL_STORE_DIR = os.path.join(TEST_DATA_DIR, "model_store")
@@ -41,7 +42,7 @@ class TestTorchCompile:
         subprocess.run(f"cd {TEST_DATA_DIR} && python model.py", shell=True, check=True)
         subprocess.run(f"mkdir -p {MODEL_STORE_DIR}", shell=True, check=True)
         subprocess.run(
-            f"torch-model-archiver --model-name {MODEL_NAME} --version 1.0 --model-file {MODEL_FILE} --serialized-file {SERIALIZED_FILE} --config-file {YAML_CONFIG} --export-path {MODEL_STORE_DIR} --handler base_handler -f",
+            f"torch-model-archiver --model-name {MODEL_NAME} --version 1.0 --model-file {MODEL_FILE} --serialized-file {SERIALIZED_FILE} --config-file {YAML_CONFIG} --export-path {MODEL_STORE_DIR} --handler {HANDLER_FILE} -f",
             shell=True,
             check=True,
         )
@@ -50,7 +51,6 @@ class TestTorchCompile:
 
     def test_start_torchserve(self):
         cmd = f"torchserve --start --ncs --models {MODEL_NAME}.mar --model-store {MODEL_STORE_DIR}"
-        breakpoint()
         subprocess.run(
             cmd,
             shell=True,
@@ -84,16 +84,21 @@ class TestTorchCompile:
         assert json.loads(result.stdout) == expected_registered_model
 
     def test_serve_inference(self):
-        request = "'{\"" 'instances"' ": [[1.0], [2.0], [3.0]]}'"
+        request_data = {"instances": [[1.0], [2.0], [3.0]]}
+        request_json = json.dumps(request_data)
+
         result = subprocess.run(
-            f'curl -s -X POST -H "Content-Type: application/json;" http://localhost:8080/predictions/half_plus_two -d {request}',
+            f'curl -s -X POST -H "Content-Type: application/json;" http://localhost:8080/predictions/half_plus_two -d \'{request_json}\'',
             shell=True,
             capture_output=True,
             check=True,
         )
-        expected_result_str = '{"predictions": [[2.5], [3.0], [3.5]]}'
-        expected_result = json.loads(expected_result_str)
-        assert json.loads(result.stdout) == expected_result
+ 
+        string_result  = result.stdout.decode("utf-8")
+        float_result = float(string_result)
+        expected_result  = 3.5
+
+        assert float_result == expected_result
 
         model_log_path = glob.glob("logs/model_log.log")[0]
         with open(model_log_path, "rt") as model_log_file:
