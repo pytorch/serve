@@ -88,5 +88,6 @@ def get_pipeline_driver(model, world_size, ctx):
     # Inject the pipeline forward method if necessary
     if model_type == "HF":
         inject_pipeline_forward(model, pipe_driver)
-
-    return model
+        return model
+    else:
+        return pipe_driver
