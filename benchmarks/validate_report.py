@@ -30,12 +30,13 @@ def check_if_within_threshold(value1, value2, threshold):
 def validate_reports(artifacts_dir, report_dir, deviation):
     # Read baseline reports
     baseline_reports = {}
+    num_reports = len(os.listdir(artifacts_dir))
     for _d in sorted(os.listdir(artifacts_dir)):
         dir = os.path.join(artifacts_dir, _d)
         for subdir in sorted(os.listdir(dir)):
             csv_file = os.path.join(dir, subdir, BENCHMARK_REPORT_FILE)
 
-            report = Report(deviation)
+            report = Report(deviation, num_reports)
             report.read_csv(csv_file)
             if subdir not in baseline_reports:
                 baseline_reports[subdir] = report

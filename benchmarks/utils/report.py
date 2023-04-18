@@ -24,13 +24,14 @@ ACCEPTABLE_METRIC_DEVIATION = 0.3
 
 
 class Report:
-    def __init__(self, deviation=0):
+    def __init__(self, deviation=0, num_reports=0):
         self.properties = {}
         self.mode = None
         self.throughput = 0
         self.batch_size = 0
         self.workers = 0
         self.deviation = deviation
+        self.num_reports = num_reports
 
     def _get_mode(self, csv_file):
         cfg = csv_file.split("/")[-2]
@@ -60,6 +61,8 @@ class Report:
 
     def update(self, report):
         for property in self.properties:
+            # new average= old average * (n-1)/n + new value /n
             self.properties[property] = (
-                self.properties[property] + report.properties[property]
-            ) / 2.0
+                self.properties[property] * (self.num_reports - 1) / self.num_reports
+                + report.properties[property] / self.num_reports
+            )
