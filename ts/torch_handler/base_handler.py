@@ -25,8 +25,16 @@ if packaging.version.parse(torch.__version__) >= packaging.version.parse("1.8.1"
 else:
     PROFILER_AVAILABLE = False
 
+try:
+    import torch_xla.core.xla_model as xm
+
+    TORCHXLA_AVAILABLE = True
+except ImportError as error:
+    TORCHXLA_AVAILABLE = False
+
 
 logger = logging.getLogger(__name__)
+
 
 # Possible values for backend in utils.py
 def check_pt2_enabled():
@@ -102,16 +110,17 @@ class BaseHandler(abc.ABC):
                 )
 
         properties = context.system_properties
-        self.map_location = (
-            "cuda"
-            if torch.cuda.is_available() and properties.get("gpu_id") is not None
-            else "cpu"
-        )
-        self.device = torch.device(
-            self.map_location + ":" + str(properties.get("gpu_id"))
-            if torch.cuda.is_available() and properties.get("gpu_id") is not None
-            else self.map_location
-        )
+        if torch.cuda.is_available() and properties.get("gpu_id") is not None:
+            self.map_location = "cuda"
+            self.device = torch.device(
+                self.map_location + ":" + str(properties.get("gpu_id"))
+            )
+        elif TORCHXLA_AVAILABLE:
+            self.device = xm.xla_device()
+        else:
+            self.map_location = "cpu"
+            self.device = torch.device(self.map_location)
+
         self.manifest = context.manifest
 
         model_dir = properties.get("model_dir")
@@ -181,7 +190,9 @@ class BaseHandler(abc.ABC):
             # Compilation will delay your model initialization
             try:
                 self.model = torch.compile(
-                    self.model, backend=backend, mode="reduce-overhead"
+                    self.model,
+                    backend=backend,
+                    mode="default" if TORCHXLA_AVAILABLE else "reduce-overhead",
                 )
                 logger.info(f"Compiled model with backend {backend}")
             except:
@@ -245,7 +256,12 @@ class BaseHandler(abc.ABC):
         model_class = model_class_definitions[0]
         model = model_class()
         if model_pt_path:
-            state_dict = torch.load(model_pt_path, map_location=self.device)
+            map_location = (
+                None
+                if (TORCHXLA_AVAILABLE and self.map_location is None)
+                else self.device
+            )
+            state_dict = torch.load(model_pt_path, map_location=map_location)
             model.load_state_dict(state_dict)
         return model
 

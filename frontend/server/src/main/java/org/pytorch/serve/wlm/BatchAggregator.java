@@ -1,5 +1,7 @@
 package org.pytorch.serve.wlm;
 
+import static org.pytorch.serve.util.messages.RequestInput.TS_STREAM_NEXT;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 import org.pytorch.serve.job.Job;
@@ -9,6 +11,7 @@ import org.pytorch.serve.util.messages.ModelLoadModelRequest;
 import org.pytorch.serve.util.messages.ModelWorkerResponse;
 import org.pytorch.serve.util.messages.Predictions;
 import org.pytorch.serve.util.messages.RequestInput;
+import org.pytorch.serve.util.messages.WorkerCommands;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,6 +51,9 @@ public class BatchAggregator {
                 }
                 return new ModelLoadModelRequest(model, gpuId);
             } else {
+                if (j.getCmd() == WorkerCommands.STREAMPREDICT) {
+                    req.setCommand(WorkerCommands.STREAMPREDICT);
+                }
                 j.setScheduled();
                 req.addRequest(j.getPayload());
             }
@@ -56,8 +62,8 @@ public class BatchAggregator {
     }
 
     public void sendResponse(ModelWorkerResponse message) {
+        boolean jobDone = true;
         // TODO: Handle prediction level code
-
         if (message.getCode() == 200) {
             if (jobs.isEmpty()) {
                 // this is from initial load.
@@ -70,6 +76,10 @@ public class BatchAggregator {
                 if (job == null) {
                     throw new IllegalStateException(
                             "Unexpected job in sendResponse() with 200 status code: " + jobId);
+                }
+                if (job.getCmd() == WorkerCommands.STREAMPREDICT
+                        && prediction.getHeaders().get(TS_STREAM_NEXT).equals("true")) {
+                    jobDone = false;
                 }
                 job.response(
                         prediction.getResp(),
@@ -90,7 +100,9 @@ public class BatchAggregator {
                 j.getValue().sendError(message.getCode(), message.getMessage());
             }
         }
-        jobs.clear();
+        if (jobDone) {
+            jobs.clear();
+        }
     }
 
     public void sendError(BaseModelRequest message, String error, int status) {

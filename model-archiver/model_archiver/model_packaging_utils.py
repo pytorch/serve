@@ -16,7 +16,12 @@ from .manifest_components.manifest import Manifest
 from .manifest_components.model import Model
 from .model_archiver_error import ModelArchiverError
 
-archiving_options = {"tgz": ".tar.gz", "no-archive": "", "default": ".mar"}
+archiving_options = {
+    "tgz": ".tar.gz",
+    "no-archive": "",
+    "zip-store": ".mar",
+    "default": ".mar",
+}
 
 
 model_handlers = {
@@ -108,6 +113,7 @@ class ModelExportUtils(object):
             handler=modelargs.handler,
             model_version=modelargs.version,
             requirements_file=modelargs.requirements_file,
+            config_file=modelargs.config_file,
         )
         return model
 
@@ -217,7 +223,12 @@ class ModelExportUtils(object):
                 with open(os.path.join(manifest_path, MANIFEST_FILE_NAME), "w") as f:
                     f.write(manifest)
             else:
-                with zipfile.ZipFile(mar_path, "w", zipfile.ZIP_DEFLATED) as z:
+                zip_mode = (
+                    zipfile.ZIP_STORED
+                    if archive_format == "zip-store"
+                    else zipfile.ZIP_DEFLATED
+                )
+                with zipfile.ZipFile(mar_path, "w", zip_mode) as z:
                     ModelExportUtils.archive_dir(
                         model_path, z, archive_format, model_name
                     )
@@ -236,7 +247,6 @@ class ModelExportUtils(object):
 
     @staticmethod
     def archive_dir(path, dst, archive_format, model_name):
-
         """
         This method zips the dir and filters out some files based on a expression
         :param archive_format:
