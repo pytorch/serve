@@ -69,5 +69,5 @@ class Report:
             )
 
             print(
-                f"property {property} New average {self.properties[property]:.2f} old average {temp:.2f}"
+                f" N {self.num_reports} property {property} New average {self.properties[property]:.2f} old average {temp:.2f}"
             )
