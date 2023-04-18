@@ -38,16 +38,15 @@ responseTimeout: 120
 parallelLevel: 4
 deviceType: "gpu"
 parallelType: "pp" #PiPPy as the solution for distributed inference
-
+torchrun:
+    nproc-per-node: 4 # specifies the number of processes torchrun starts to serve your model, set to world_size or number of
+                       # gpus you wish to split your model
 pippy:
     chunks: 1 # This sets the microbatch sizes, microbatch = batch size/ chunks
     input_names: ['input_ids'] # input arg names to the model, this is required for FX tracing
     model_type: "HF" # set the model type to HF if you are using Huggingface model other wise leave it blank or any other model you use.
     rpc_timeout: 1800
 
-torchrun:
-    nproc-per-node: 4 # specifies the number of processes torchrun starts to serve your model, set to world_size or number of
-                       # gpus you wish to split your model
 handler:
     max_length: 80 # max length of tokens for tokenizer in the handler
 ```
