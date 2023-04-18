@@ -10,7 +10,6 @@ REPO_ROOT = os.path.normpath(
 )
 sys.path.append(REPO_ROOT)
 
-print(REPO_ROOT)
 TEST_DIR = os.path.join(REPO_ROOT, "test")
 MODEL_STORE_DIR = os.path.join("model_store")
 
