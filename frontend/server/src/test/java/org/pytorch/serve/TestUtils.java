@@ -47,11 +47,6 @@ public final class TestUtils {
     private static Channel inferenceChannel;
     private static Channel managementChannel;
     private static Channel metricsChannel;
-    private static String tsInferLatencyPattern =
-            "ts_inference_latency_microseconds\\{"
-                    + "uuid=\"[\\w]{8}(-[\\w]{4}){3}-[\\w]{12}\","
-                    + "model_name=\"%s\","
-                    + "model_version=\"%s\",\\}\\s\\d+(\\.\\d+)";
 
     private TestUtils() {}
 
