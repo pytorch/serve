@@ -3,7 +3,6 @@ import json
 import os
 import subprocess
 import time
-import warnings
 from pathlib import Path
 
 import pytest
