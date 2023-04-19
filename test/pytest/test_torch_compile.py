@@ -9,7 +9,6 @@ import pytest
 import torch
 from pkg_resources import packaging
 
-
 PT_2_AVAILABLE = (
     True
     if packaging.version.parse(torch.__version__) >= packaging.version.parse("2.0")
@@ -87,15 +86,15 @@ class TestTorchCompile:
         request_json = json.dumps(request_data)
 
         result = subprocess.run(
-            f'curl -s -X POST -H "Content-Type: application/json;" http://localhost:8080/predictions/half_plus_two -d \'{request_json}\'',
+            f"curl -s -X POST -H \"Content-Type: application/json;\" http://localhost:8080/predictions/half_plus_two -d '{request_json}'",
             shell=True,
             capture_output=True,
             check=True,
         )
- 
-        string_result  = result.stdout.decode("utf-8")
+
+        string_result = result.stdout.decode("utf-8")
         float_result = float(string_result)
-        expected_result  = 3.5
+        expected_result = 3.5
 
         assert float_result == expected_result
 
