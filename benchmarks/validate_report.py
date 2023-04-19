@@ -1,30 +1,17 @@
 import argparse
 import os
 
-from utils.report import ACCEPTABLE_METRIC_DEVIATION, METRICS_VALIDATED, Report
+from utils.report import (
+    ACCEPTABLE_METRIC_DEVIATION,
+    METRICS_VALIDATED,
+    Report,
+    metric_valid,
+)
 from utils.update_artifacts import (
     BENCHMARK_ARTIFACTS_PATH,
     BENCHMARK_REPORT_FILE,
     BENCHMARK_REPORT_PATH,
 )
-
-
-def metric_valid(key, obs_val, exp_val, threshold):
-    # In case of throughput, higher is better
-    # In case of memory, lower is better.
-    # We ignore lower values for memory related metrices
-    lower = False
-    if key != "throughput":
-        lower = True
-    return check_if_within_threshold(exp_val, obs_val, threshold) or (
-        (obs_val < exp_val and lower)
-    )
-
-
-def check_if_within_threshold(value1, value2, threshold):
-    if float(value1) == 0.0:
-        return True
-    return abs((value1 - value2) / float(value1)) <= threshold
 
 
 def validate_reports(artifacts_dir, report_dir, deviation):

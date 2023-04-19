@@ -66,3 +66,21 @@ class Report:
                 self.properties[property] * (self.num_reports - 1) / self.num_reports
                 + report.properties[property] / self.num_reports
             )
+
+
+def metric_valid(key, obs_val, exp_val, threshold):
+    # In case of throughput, higher is better
+    # In case of memory, lower is better.
+    # We ignore lower values for memory related metrices
+    lower = False
+    if key != "throughput":
+        lower = True
+    return check_if_within_threshold(exp_val, obs_val, threshold) or (
+        (obs_val < exp_val and lower)
+    )
+
+
+def check_if_within_threshold(value1, value2, threshold):
+    if float(value1) == 0.0:
+        return True
+    return abs((value1 - value2) / float(value1)) <= threshold
