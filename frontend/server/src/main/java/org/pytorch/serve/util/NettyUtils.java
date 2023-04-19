@@ -24,7 +24,7 @@ import io.netty.util.AttributeKey;
 import io.netty.util.CharsetUtil;
 import java.io.IOException;
 import java.net.SocketAddress;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import org.pytorch.serve.http.ErrorResponse;
 import org.pytorch.serve.http.Session;
@@ -134,14 +134,7 @@ public final class NettyUtils {
         }
         int code = resp.status().code();
         List<String> requestsMetricDimensionValues =
-                new ArrayList<String>() {
-                    {
-                        // Dimension value corresponding to dimension name "Level"
-                        add("Host");
-                        // Frontend metrics by default have the last dimension as Hostname
-                        add(ConfigManager.getInstance().getHostName());
-                    }
-                };
+                Arrays.asList("Host", ConfigManager.getInstance().getHostName());
         if (code >= 200 && code < 300) {
             IMetric requests2xxMetric = MetricCache.getInstance().getMetricFrontend("Requests2XX");
             if (requests2xxMetric != null) {
@@ -150,8 +143,6 @@ public final class NettyUtils {
                 } catch (Exception e) {
                     logger.error("Failed to update frontend metric Requests2XX: ", e);
                 }
-            } else {
-                logger.error("Frontend metric Requests2XX not present in metric cache");
             }
         } else if (code >= 400 && code < 500) {
             IMetric requests4xxMetric = MetricCache.getInstance().getMetricFrontend("Requests4XX");
@@ -161,8 +152,6 @@ public final class NettyUtils {
                 } catch (Exception e) {
                     logger.error("Failed to update frontend metric Requests4XX: ", e);
                 }
-            } else {
-                logger.error("Frontend metric Requests4XX not present in metric cache");
             }
         } else {
             IMetric requests5xxMetric = MetricCache.getInstance().getMetricFrontend("Requests5XX");
@@ -172,8 +161,6 @@ public final class NettyUtils {
                 } catch (Exception e) {
                     logger.error("Failed to update frontend metric Requests5XX: ", e);
                 }
-            } else {
-                logger.error("Frontend metric Requests5XX not present in metric cache");
             }
         }
 

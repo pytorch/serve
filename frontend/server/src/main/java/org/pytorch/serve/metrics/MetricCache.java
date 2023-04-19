@@ -27,7 +27,7 @@ public final class MetricCache {
         try {
             this.config = MetricConfiguration.loadConfiguration(metricsConfigPath);
         } catch (FileNotFoundException | RuntimeException e) {
-            logger.error("Failed to initialize metrics cache: ", e);
+            logger.error("Failed to load metrics configuration: ", e);
             return;
         }
 

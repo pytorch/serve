@@ -99,11 +99,6 @@ public class MetricCollector implements Runnable {
                                         ": ",
                                         e);
                             }
-                        } else {
-                            logger.error(
-                                    "Frontend metric ",
-                                    metric.getMetricName(),
-                                    " not present in metric cache");
                         }
                         metricsSystem.add(metric);
                     }

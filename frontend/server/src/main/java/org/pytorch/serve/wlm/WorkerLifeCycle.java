@@ -325,11 +325,6 @@ public class WorkerLifeCycle {
                                             ": ",
                                             e);
                                 }
-                            } else {
-                                logger.error(
-                                        "Backend metric ",
-                                        parsedMetric.getMetricName(),
-                                        " not present in metric cache");
                             }
                         } else {
                             logger.error("Failed to parse metrics line: \"{}\".", result);

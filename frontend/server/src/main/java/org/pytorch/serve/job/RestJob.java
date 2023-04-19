@@ -41,6 +41,9 @@ public class RestJob extends Job {
 
     private static final Logger logger = LoggerFactory.getLogger(Job.class);
 
+    private final IMetric inferenceLatencyMetric;
+    private final IMetric queueLatencyMetric;
+    private final List<String> latencyMetricDimensionValues;
     private final IMetric queueTimeMetric;
     private final List<String> queueTimeMetricDimensionValues;
     private ChannelHandlerContext ctx;
@@ -59,16 +62,18 @@ public class RestJob extends Job {
             RequestInput input) {
         super(modelName, version, cmd, input);
         this.ctx = ctx;
+        this.inferenceLatencyMetric =
+                MetricCache.getInstance().getMetricFrontend("ts_inference_latency_microseconds");
+        this.queueLatencyMetric =
+                MetricCache.getInstance().getMetricFrontend("ts_queue_latency_microseconds");
+        this.latencyMetricDimensionValues =
+                Arrays.asList(
+                        getModelName(),
+                        getModelVersion() == null ? "default" : getModelVersion(),
+                        ConfigManager.getInstance().getHostName());
         this.queueTimeMetric = MetricCache.getInstance().getMetricFrontend("QueueTime");
         this.queueTimeMetricDimensionValues =
-                new ArrayList<String>() {
-                    {
-                        // Dimension value corresponding to dimension name "Level"
-                        add("Host");
-                        // Frontend metrics by default have the last dimension as Hostname
-                        add(ConfigManager.getInstance().getHostName());
-                    }
-                };
+                Arrays.asList("Host", ConfigManager.getInstance().getHostName());
         this.numStreams = 0;
     }
 
@@ -166,31 +171,20 @@ public class RestJob extends Job {
          */
         if (ctx != null) {
             if (numStreams == 0) { // non-stream response
-                IMetric inferenceLatencyMetric =
-                        MetricCache.getInstance()
-                                .getMetricFrontend("ts_inference_latency_microseconds");
-                IMetric queueLatencyMetric =
-                        MetricCache.getInstance()
-                                .getMetricFrontend("ts_queue_latency_microseconds");
-                List<String> latencyMetricDimensionValues =
-                        Arrays.asList(
-                                getModelName(),
-                                getModelVersion() == null ? "default" : getModelVersion(),
-                                ConfigManager.getInstance().getHostName());
-                if (inferenceLatencyMetric != null) {
+                if (this.inferenceLatencyMetric != null) {
                     try {
-                        inferenceLatencyMetric.addOrUpdate(
-                                latencyMetricDimensionValues, inferTime / 1000.0);
+                        this.inferenceLatencyMetric.addOrUpdate(
+                                this.latencyMetricDimensionValues, inferTime / 1000.0);
                     } catch (Exception e) {
                         logger.error(
                                 "Failed to update frontend metric ts_inference_latency_microseconds: ",
                                 e);
                     }
                 }
-                if (queueLatencyMetric != null) {
+                if (this.queueLatencyMetric != null) {
                     try {
-                        queueLatencyMetric.addOrUpdate(
-                                latencyMetricDimensionValues,
+                        this.queueLatencyMetric.addOrUpdate(
+                                this.latencyMetricDimensionValues,
                                 (getScheduled() - getBegin()) / 1000.0);
                     } catch (Exception e) {
                         logger.error(
@@ -201,8 +195,27 @@ public class RestJob extends Job {
                 ((DefaultFullHttpResponse) resp).content().writeBytes(body);
                 NettyUtils.sendHttpResponse(ctx, resp, true);
             } else if (numStreams == -1) { // the last response in a stream
-                MetricAggregator.handleInferenceMetric(
-                        getModelName(), getModelVersion(), getScheduled() - getBegin(), inferTime);
+                if (this.inferenceLatencyMetric != null) {
+                    try {
+                        this.inferenceLatencyMetric.addOrUpdate(
+                                this.latencyMetricDimensionValues, inferTime / 1000.0);
+                    } catch (Exception e) {
+                        logger.error(
+                                "Failed to update frontend metric ts_inference_latency_microseconds: ",
+                                e);
+                    }
+                }
+                if (this.queueLatencyMetric != null) {
+                    try {
+                        this.queueLatencyMetric.addOrUpdate(
+                                this.latencyMetricDimensionValues,
+                                (getScheduled() - getBegin()) / 1000.0);
+                    } catch (Exception e) {
+                        logger.error(
+                                "Failed to update frontend metric ts_queue_latency_microseconds: ",
+                                e);
+                    }
+                }
                 ctx.writeAndFlush(new DefaultHttpContent(Unpooled.wrappedBuffer(body)));
                 ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
             } else if (numStreams == 1) { // the first response in a stream

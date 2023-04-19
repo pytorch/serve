@@ -6,6 +6,7 @@ import com.google.protobuf.ByteString;
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -44,14 +45,7 @@ public class GRPCJob extends Job {
         this.predictionResponseObserver = predictionResponseObserver;
         this.queueTimeMetric = MetricCache.getInstance().getMetricFrontend("QueueTime");
         this.queueTimeMetricDimensionValues =
-                new ArrayList<String>() {
-                    {
-                        // Dimension value corresponding to dimension name "Level"
-                        add("Host");
-                        // Frontend metrics by default have the last dimension as Hostname
-                        add(ConfigManager.getInstance().getHostName());
-                    }
-                };
+                Arrays.asList("Host", ConfigManager.getInstance().getHostName());
     }
 
     public GRPCJob(
@@ -63,14 +57,7 @@ public class GRPCJob extends Job {
         this.managementResponseObserver = managementResponseObserver;
         this.queueTimeMetric = MetricCache.getInstance().getMetricFrontend("QueueTime");
         this.queueTimeMetricDimensionValues =
-                new ArrayList<String>() {
-                    {
-                        // Dimension value corresponding to dimension name "Level"
-                        add("Host");
-                        // Frontend metrics by default have the last dimension as Hostname
-                        add(ConfigManager.getInstance().getHostName());
-                    }
-                };
+                Arrays.asList("Host", ConfigManager.getInstance().getHostName());
     }
 
     @Override
@@ -107,8 +94,6 @@ public class GRPCJob extends Job {
                     } catch (Exception e) {
                         logger.error("Failed to update frontend metric QueueTime: ", e);
                     }
-                } else {
-                    logger.error("Frontend metric QueueTime not present in metric cache");
                 }
             }
         } else if (this.getCmd() == WorkerCommands.DESCRIBE) {
