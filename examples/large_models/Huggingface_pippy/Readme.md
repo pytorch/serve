@@ -2,7 +2,7 @@
 
 This document briefs on serving large HF model with PiPPy.
 
-PiPPy provides pipeline paralleism for serving large models that would not fit into one gpu. It takes your model and splits it into equal sizes (stages) partitioned over the number devices you specify. Then uses micro batching to run your batched input for inference ( its is more optimal for batch sizes >1). Micro-batching is the techniques in pipeline parallelism to maximize gpu utilization.
+PiPPy provides pipeline parallelism for serving large models that would not fit into one gpu. It takes your model and splits it into equal sizes (stages) partitioned over the number devices you specify. Then uses micro batching to run your batched input for inference ( its is more optimal for batch sizes >1). Micro-batching is the techniques in pipeline parallelism to maximize gpu utilization.
 
 ## How to serve your large HuggingFace models with PiPPy in Torchserve?
 
