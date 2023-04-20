@@ -1,9 +1,7 @@
 package org.pytorch.serve.metrics;
 
 import java.io.FileNotFoundException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import org.pytorch.serve.metrics.configuration.MetricConfiguration;
@@ -16,11 +14,11 @@ public final class MetricCache {
     private static final Logger logger = LoggerFactory.getLogger(MetricCache.class);
     private static MetricCache instance;
     private MetricConfiguration config;
-    private Map<String, IMetric> metricsFrontend;
+    private ConcurrentMap<String, IMetric> metricsFrontend;
     private ConcurrentMap<String, IMetric> metricsBackend;
 
     private MetricCache() throws FileNotFoundException {
-        this.metricsFrontend = new HashMap<String, IMetric>();
+        this.metricsFrontend = new ConcurrentHashMap<String, IMetric>();
         this.metricsBackend = new ConcurrentHashMap<String, IMetric>();
 
         String metricsConfigPath = ConfigManager.getInstance().getMetricsConfigPath();
