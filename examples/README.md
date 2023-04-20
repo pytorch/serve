@@ -25,7 +25,7 @@
 
 * [Serving HuggingFace transformers model](Huggingface_Transformers)
 
-### PiPPy [Serving Large Models with PyTtorch Native Solution PiPPy](large_models/Huggingface_pippy/Readme.md)
+### PiPPy [Serving Large Models with PyTorch Native Solution PiPPy](large_models/Huggingface_pippy/Readme.md)
 
 ### MLFlow <img src="images/mlflow.png" width="50"  title="MLFlow" style="float:right padding:20px" />
 
