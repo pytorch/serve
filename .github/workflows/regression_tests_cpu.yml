@@ -38,5 +38,5 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           title: CPU Regression tests failed
-          body:  Commit ${{ github.sha }} daily scheduled [CI run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) failed, please check why
+          body:  Commit ${{ github.sha }} daily scheduled [Regression Tests run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) failed, please check why
           assignees: ''
