@@ -55,7 +55,6 @@ class Report:
     def mean(self):
         for k, v in self.properties.items():
             self.properties[k] = v / self.num_reports
-            print(f"property {k} , value {self.properties[k]}")
 
 
 def metric_valid(key, obs_val, exp_val, threshold):

@@ -35,12 +35,6 @@ def validate_reports(artifacts_dir, report_dir, deviation):
         report.mean()
         baseline_reports[model] = report
 
-    for model, report in baseline_reports.items():
-        print(model)
-        for k, v in report.properties.items():
-            print(k, v)
-        print("!!!!!!!!!!!!!!!!!!!")
-
     # Read generated reports
     generated_reports = {}
     for subdir in sorted(os.listdir(report_dir)):
