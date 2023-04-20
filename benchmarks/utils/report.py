@@ -1,15 +1,15 @@
-import pandas as pd
+import csv
 
 METRICS_VALIDATED = [
-    "throughput",
-    "total_latency_p50",
-    "model_latency_p50",
-    "total_latency_p90",
-    "model_latency_p90",
-    "total_latency_p99",
-    "model_latency_p99",
+    "TS throughput",
+    "TS latency P50",
+    "TS latency P90",
+    "TS latency P99",
+    "Model_p50",
+    "Model_p90",
+    "Model_p99",
     "memory_percentage_mean",
-    "gpu_used_memory_mean",
+    "gpu_memory_used_mean",
     "cpu_percentage_mean",
     "gpu_percentage_mean",
 ]
@@ -40,32 +40,22 @@ class Report:
         self.mode = mode
 
     def read_csv(self, csv_file):
-        df = pd.read_csv(csv_file)
-        values = df.values.tolist()
-        self._populate_csv(values[0])
+        with open(csv_file, newline="") as f:
+            reader = csv.DictReader(f)
+            for k, v in next(reader).items():
+                if k in METRICS_VALIDATED:
+                    self.properties[k] = float(v)
         self._get_mode(csv_file)
-
-    def _populate_csv(self, values):
-        self.properties["throughput"] = values[9]
-        self.properties["batch_size"] = values[1]
-        self.properties["total_latency_p50"] = values[10]
-        self.properties["total_latency_p90"] = values[11]
-        self.properties["total_latency_p99"] = values[12]
-        self.properties["model_latency_p50"] = values[15]
-        self.properties["model_latency_p90"] = values[16]
-        self.properties["model_latency_p99"] = values[17]
-        self.properties["memory_percentage_mean"] = values[23]
-        self.properties["gpu_used_memory_mean"] = values[26]
-        self.properties["cpu_percentage_mean"] = values[22]
-        self.properties["gpu_percentage_mean"] = values[24]
 
     def update(self, report):
         for property in self.properties:
-            # new average= old average * (n-1)/n + new value /n
-            self.properties[property] = (
-                self.properties[property] * (self.num_reports - 1) / self.num_reports
-                + report.properties[property] / self.num_reports
-            )
+            # sum the properties to find the mean later
+            self.properties[property] += report.properties[property]
+
+    def mean(self):
+        for k, v in self.properties.items():
+            self.properties[k] = v / self.num_reports
+            print(f"property {k} , value {self.properties[k]}")
 
 
 def metric_valid(key, obs_val, exp_val, threshold):
