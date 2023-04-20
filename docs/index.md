@@ -1,6 +1,6 @@
 # TorchServe
 
-TorchServe is a performant, flexible and easy to use tool for serving PyTorch eager mode and torchscripted models.
+TorchServe is a performant, flexible and easy to use tool for serving PyTorch models in production.
 
 
 ## ⚡ Why TorchServe
@@ -78,6 +78,7 @@ For [more examples](https://github.com/pytorch/serve/blob/master/examples/README
 * [🎥 Scaling inference on CPU with TorchServe](https://www.youtube.com/watch?v=066_Jd6cwZg)
 * [🎥 TorchServe C++ backend](https://www.youtube.com/watch?v=OSmGGDpaesc)
 * [Grokking Intel CPU PyTorch performance from first principles: a TorchServe case study](https://pytorch.org/tutorials/intermediate/torchserve_with_ipex.html)
+* [Grokking Intel CPU PyTorch performance from first principles( Part 2): a TorchServe case study](https://pytorch.org/tutorials/intermediate/torchserve_with_ipex_2.html)
 * [Case Study: Amazon Ads Uses PyTorch and AWS Inferentia to Scale Models for Ads Processing](https://pytorch.org/blog/amazon-ads-case-study/)
 * [Optimize your inference jobs using dynamic batch inference with TorchServe on Amazon SageMaker](https://aws.amazon.com/blogs/machine-learning/optimize-your-inference-jobs-using-dynamic-batch-inference-with-torchserve-on-amazon-sagemaker/)
 * [Using AI to bring children's drawings to life](https://ai.facebook.com/blog/using-ai-to-bring-childrens-drawings-to-life/)
