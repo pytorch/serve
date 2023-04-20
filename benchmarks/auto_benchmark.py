@@ -125,6 +125,7 @@ def benchmark_env_setup(bm_config, skip_ts_install):
     install_torchserve(skip_ts_install, bm_config["hardware"], bm_config["version"])
     setup_benchmark_path(bm_config["model_config_path"])
     build_model_json_config(bm_config["models"])
+    enable_launcher_with_logical_core(bm_config["hardware"])
 
 
 def install_torchserve(skip_ts_install, hw, ts_version):
@@ -176,6 +177,13 @@ def build_model_json_config(models):
         else:
             input_file = CWD + "/benchmarks/models_config/{}".format(model)
         gen_model_config_json.convert_yaml_to_json(input_file, MODEL_JSON_CONFIG_PATH)
+
+
+def enable_launcher_with_logical_core(hw):
+    if hw == "cpu":
+        with open("./benchmarks/config.properties", "a") as f:
+            f.write("cpu_launcher_enable=true\n")
+            f.write("cpu_launcher_args=--use_logical_core\n")
 
 
 def run_benchmark(bm_config):

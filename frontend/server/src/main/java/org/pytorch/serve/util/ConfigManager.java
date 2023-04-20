@@ -66,6 +66,7 @@ public final class ConfigManager {
     private static final String TS_JOB_QUEUE_SIZE = "job_queue_size";
     private static final String TS_NUMBER_OF_GPU = "number_of_gpu";
     private static final String TS_METRICS_CONFIG = "metrics_config";
+    private static final String TS_METRICS_MODE = "metrics_mode";
     private static final String TS_DISABLE_SYSTEM_METRICS = "disable_system_metrics";
 
     // IPEX config option that can be set at config.properties
@@ -387,6 +388,10 @@ public final class ConfigManager {
         return torchrunLogDir;
     }
 
+    public String getMetricsMode() {
+        return getProperty(TS_METRICS_MODE, "log");
+    }
+
     public boolean isSystemMetricsDisabled() {
         return Boolean.parseBoolean(getProperty(TS_DISABLE_SYSTEM_METRICS, "false"));
     }
@@ -660,6 +665,8 @@ public final class ConfigManager {
                 + prop.getProperty(TS_METRICS_FORMAT, METRIC_FORMAT_PROMETHEUS)
                 + "\nEnable metrics API: "
                 + prop.getProperty(TS_ENABLE_METRICS_API, "true")
+                + "\nMetrics mode: "
+                + getMetricsMode()
                 + "\nDisable system metrics: "
                 + isSystemMetricsDisabled()
                 + "\nWorkflow Store: "
