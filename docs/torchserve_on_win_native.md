@@ -11,7 +11,7 @@
  - At present, it has only been certified on windows server 2019 however should work fine on Windows 10.
  - Make sure you are an admin user or have admin rights
  - The instruction given here will use anaconda Powershell terminal to install torchserve
- - Install Anaconda as given [here](https://docs.anaconda.com/free/anaconda/getting-started/install/windows/)
+ - Install Anaconda as given [here](https://docs.anaconda.com/anaconda/install/windows/)
  - Install Git as given [here](https://github.com/git-for-windows/git/releases/download/v2.28.0.windows.1/Git-2.28.0-64-bit.exe)
  - Install openjdk17
     - Download [openjdk17](https://download.oracle.com/java/17/archive/jdk-17.0.3_windows-x64_bin.zip)
