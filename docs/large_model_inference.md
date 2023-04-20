@@ -1,15 +1,15 @@
 # Serving large models with Torchserve
 
-This document explain how Torchserve supports large model serving, here large model refers to the models that are not able to fit into one gpu so they need be splitted in multiple partitions over multiple gpus.
+This document explain how Torchserve supports large model serving, here large model refers to the models that are not able to fit into one gpu so they need be split in multiple partitions over multiple gpus.
 
-## PiPPY (PyTorch Native solution for large model inference)
+## PiPPy (PyTorch Native solution for large model inference)
 
-PiPPy provides pipeline parallelsim for serving large models that would not fit into one gpu. It takes your model and splits it into equal sizes (stages) partitioned over the number devices you specify. Then uses micro batching to run your batched input for inference ( its is more optimal for batch sizes >1).
+PiPPy provides pipeline parallelism for serving large models that would not fit into one gpu. It takes your model and splits it into equal sizes (stages) partitioned over the number devices you specify. Then uses microbatching to run your batched input for inference ( its is more optimal for batch sizes >1).
 
 
 ## How to use PiPPY in Torchserve
 
-To use Pippy in Torchserve, we need to use a custom handler which inhertis from base_pippy_handler and put our setting in model-config.yaml.
+To use Pippy in Torchserve, we need to use a custom handler which inherits from base_pippy_handler and put our setting in model-config.yaml.
 
 Customer handler in Torchserve is simply a python script that defines model loading, preprocess, inference and postprocess logic specific to your workflow.
 
