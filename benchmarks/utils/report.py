@@ -62,7 +62,7 @@ def metric_valid(key, obs_val, exp_val, threshold):
     # In case of memory, lower is better.
     # We ignore lower values for memory related metrices
     lower = False
-    if key != "throughput":
+    if "throughput" not in key:
         lower = True
     return check_if_within_threshold(exp_val, obs_val, threshold) or (
         (obs_val < exp_val and lower)
