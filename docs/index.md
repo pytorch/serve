@@ -54,7 +54,7 @@ TorchServe is a performant, flexible and easy to use tool for serving PyTorch mo
 * [TorchServe Integrations](https://github.com/pytorch/serve/blob/master/examples/README.md#torchserve-integrations)
 * [TorchServe Internals](https://github.com/pytorch/serve/blob/master/examples/README.md#torchserve-internals)
 * [TorchServe UseCases](https://github.com/pytorch/serve/blob/master/examples/README.md#usecases)
-* [Model Zoo](https://github.com/pytorch/serve/blob/master/model_zoo.md) - List of pre-trained model archives ready to be served for inference with TorchServe.
+* [Model Zoo](https://github.com/pytorch/serve/blob/master/docs/model_zoo.md) - List of pre-trained model archives ready to be served for inference with TorchServe.
 
 For [more examples](https://github.com/pytorch/serve/blob/master/examples/README.md)
 
