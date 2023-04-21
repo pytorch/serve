@@ -65,6 +65,8 @@ jobs:
           if_no_artifact_found: ignore
           path: /tmp/ts_artifacts
           name: ${{ matrix.hardware }}_benchmark_validation
+      - name: Validate Benchmark result
+        run: python benchmarks/validate_report.py --input-artifacts-dir /tmp/ts_artifacts/${{ matrix.hardware }}_benchmark_validation
       - name: Update benchmark artifacts for auto validation
         run: python benchmarks/utils/update_artifacts.py --output /tmp/ts_artifacts/${{ matrix.hardware }}_benchmark_validation
       - name: Upload the updated benchmark artifacts for auto validation

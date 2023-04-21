@@ -129,10 +129,5 @@ class TorchserveModel(Model):
         existing_paths = [path for path in paths if path.exists()]
         if len(existing_paths) == 0:
             raise ModelMissingError(model_path)
-        elif len(existing_paths) > 1:
-            raise RuntimeError(
-                "More than one model file is detected, "
-                f"Only one is allowed within model_dir: {existing_paths}"
-            )
         self.ready = True
         return self.ready
