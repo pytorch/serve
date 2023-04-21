@@ -65,7 +65,7 @@ def metric_valid(key, obs_val, exp_val, threshold):
     if "throughput" not in key:
         lower = True
     return check_if_within_threshold(exp_val, obs_val, threshold) or (
-        (obs_val < exp_val and lower)
+        (obs_val < exp_val and lower) or (obs_val > exp_val and not lower)
     )
 
 

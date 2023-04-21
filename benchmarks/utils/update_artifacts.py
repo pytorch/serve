@@ -5,7 +5,7 @@ import shutil
 BENCHMARK_REPORT_PATH = "/tmp/ts_benchmark"
 BENCHMARK_ARTIFACTS_PATH = "/tmp/ts_artifacts"
 BENCHMARK_REPORT_FILE = "ab_report.csv"
-WINDOW_LEN = 8
+WINDOW_LEN = 30
 WINDOW_START = 0
 
 ################################################################
@@ -45,7 +45,6 @@ WINDOW_START = 0
 
 # Copy BENCHMARK_REPORT_FILE to artifacts
 def copy_benchmark_reports(input, output):
-
     for dir in os.listdir(input):
         if os.path.isdir(os.path.join(input, dir)):
             new_dir = os.path.join(output, dir)
@@ -55,7 +54,6 @@ def copy_benchmark_reports(input, output):
 
 # Save new report and delete the oldest report
 def update_new_report(input_dir, output_dir, add_report_id, del_report_id):
-
     # Add new report
     new_dir = os.path.join(output_dir, str(add_report_id))
     print("Creating artifacts ", new_dir)
@@ -70,7 +68,6 @@ def update_new_report(input_dir, output_dir, add_report_id, del_report_id):
 
 # Create artifacts for a period of rolling WINDOW_LEN-1 reports
 def update_artifacts(input_dir, output_dir):
-
     # Create a drectory where artifacts will be stored
     os.makedirs(output_dir, exist_ok=True)
 
@@ -87,7 +84,6 @@ def update_artifacts(input_dir, output_dir):
     # When there are WINDOW_LEN - 1 reports and we want to add the new report
     # and remove the oldest report
     for i, report_id in enumerate(list_dirs):
-
         if i != report_id or (i + 1 == WINDOW_LEN - 1):
             if i != report_id:
                 # When  report_id has a missing element in sequence
