@@ -36,7 +36,6 @@ import org.pytorch.serve.util.codec.ModelRequestEncoder;
 import org.pytorch.serve.util.codec.ModelResponseDecoder;
 import org.pytorch.serve.util.messages.BaseModelRequest;
 import org.pytorch.serve.util.messages.InputParameter;
-import org.pytorch.serve.util.messages.ModelInferenceRequest;
 import org.pytorch.serve.util.messages.ModelWorkerResponse;
 import org.pytorch.serve.util.messages.RequestInput;
 import org.pytorch.serve.util.messages.WorkerCommands;
@@ -188,7 +187,9 @@ public class WorkerThread implements Runnable {
                 logger.info("Flushing req.cmd {} to backend at: {}", req.getCommand(), wtStartTime);
                 int repeats =
                         (req.getCommand() == WorkerCommands.LOAD)
-                                        || (req.getCommand() == WorkerCommands.PREDICT
+                                        || ((req.getCommand() == WorkerCommands.PREDICT
+                                                        || req.getCommand()
+                                                                == WorkerCommands.STREAMPREDICT)
                                                 && model.getParallelLevel() > 1
                                                 && model.getParallelType()
                                                         != ModelConfig.ParallelType.PP)
@@ -201,46 +202,29 @@ public class WorkerThread implements Runnable {
                 boolean isStreaming =
                         req.getCommand() == WorkerCommands.STREAMPREDICT ? true : false;
                 ModelWorkerResponse reply = null;
-                long duration = 0;
-                long begin = System.currentTimeMillis();
 
-                if (!isStreaming) {
+                boolean jobDone = false;
+                long totalDuration = 0;
+                do {
+                    long begin = System.currentTimeMillis();
                     for (int i = 0; i < repeats; i++) {
                         reply = replies.poll(responseTimeout, TimeUnit.SECONDS);
                     }
 
-                    duration = System.currentTimeMillis() - begin;
-                    logger.info("Backend response time: {}", duration);
+                    long duration = System.currentTimeMillis() - begin;
 
                     if (reply != null) {
-                        aggregator.sendResponse(reply);
+                        jobDone = aggregator.sendResponse(reply);
+                        logger.debug("sent a reply, jobdone: {}", jobDone);
                     } else if (req.getCommand() != WorkerCommands.DESCRIBE) {
                         int val = model.incrFailedInfReqs();
                         logger.error("Number or consecutive unsuccessful inference {}", val);
                         throw new WorkerInitializationException(
                                 "Backend worker did not respond in given time");
                     }
-                } else {
-                    ModelInferenceRequest inferReq = (ModelInferenceRequest) req;
-                    boolean streamNext = true;
-                    while (streamNext) {
-                        for (int i = 0; i < repeats; i++) {
-                            reply = replies.poll(responseTimeout, TimeUnit.SECONDS);
-                        }
-                        if (reply.getPredictions()
-                                .get(0)
-                                .getHeaders()
-                                .get(org.pytorch.serve.util.messages.RequestInput.TS_STREAM_NEXT)
-                                .equals("false")) {
-                            duration = System.currentTimeMillis() - begin;
-                            logger.info("Backend response time: {}", duration);
-                            streamNext = false;
-                        }
-                        if (reply != null) {
-                            aggregator.sendResponse(reply);
-                        }
-                    }
-                }
+                    totalDuration += duration;
+                } while (!jobDone);
+                logger.info("Backend response time: {}", totalDuration);
 
                 switch (req.getCommand()) {
                     case PREDICT:
@@ -273,7 +257,8 @@ public class WorkerThread implements Runnable {
                 }
                 req = null;
                 String workerThreadTime =
-                        String.valueOf(((System.currentTimeMillis() - wtStartTime) - duration));
+                        String.valueOf(
+                                ((System.currentTimeMillis() - wtStartTime) - totalDuration));
                 loggerTsMetrics.info(
                         "{}",
                         new Metric(
