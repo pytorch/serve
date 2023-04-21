@@ -56,12 +56,13 @@ class Common:
 
         # Install dependencies for GPU
         if cuda_version:
-            os.system(f"{sys.executable} -m pip install -U -r gpu.txt")
+            gpu_requirements_file = os.path.join("requirements", "gpu.txt")
+            os.system(f"{sys.executable} -m pip install -U -r {gpu_requirements_file}")
 
         # Install PyTorch packages
         if nightly:
             os.system(
-                f"pip3 install numpy --pre torch[dynamo] torchvision torchtext torchaudio --force-reinstall --extra-index-url https://download.pytorch.org/whl/nightly/{cuda_version}"
+                f"pip3 install numpy --pre torch torchvision torchtext torchaudio --force-reinstall --extra-index-url https://download.pytorch.org/whl/nightly/{cuda_version}"
             )
         else:
             self.install_torch_packages(cuda_version)

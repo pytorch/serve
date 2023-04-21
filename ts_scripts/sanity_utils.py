@@ -3,8 +3,6 @@ import os
 import subprocess
 import sys
 
-import nvgpu
-
 from ts_scripts import marsgen as mg
 
 REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
@@ -33,6 +31,8 @@ def validate_model_on_gpu():
     # Assumption is -
     # 1. GPUs on test setup are only utlizied by torchserve
     # 2. Models are successfully UNregistered between subsequent calls
+    import nvgpu
+
     model_loaded = False
     for info in nvgpu.gpu_info():
         if info["mem_used"] > 0 and info["mem_used_percent"] > 0.0:
