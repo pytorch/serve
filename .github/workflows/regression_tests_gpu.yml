@@ -45,7 +45,7 @@ jobs:
         run: |
           python test/regression_tests.py
       - name: Open github issue on failure
-        uses: ./.github/workflows/open_gh_issue_on_failure.yaml
+        uses: pytorch/serve/.github/workflows/open_gh_issue_on_failure.yaml@issues/raise_gh_issue_regression_failure
         with:
           event_name: ${{ github.event_name }}
           run_id: ${{ github.run_id }}
