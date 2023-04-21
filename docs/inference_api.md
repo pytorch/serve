@@ -41,6 +41,11 @@ If the server is running, the response is:
 }
 ```
 
+"maxRetryTimeoutInSec" (default: 5MIN) can be defined in a model's config yaml file(eg. model-config.yaml). It is the maximum time window of recovering a dead backend worker. A healthy worker can be in the state: WORKER_STARTED, WORKER_MODEL_LOADED, or WORKER_STOPPED within maxRetryTimeoutInSec window. "Ping" endpont"
+* return 200 + json message "healthy": for any model, the number of active workers is equal or larger than the configured minWorkers.
+* return 500 + json message "unhealthy": for any model, the number of active workers is less than the configured minWorkers.
+
+
 ## Predictions API
 
 This API follows the [InferenceAPIsService.Predictions](https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/proto/inference.proto) gRPC API. It returns the status of a model in the ModelServer.
@@ -181,10 +186,9 @@ The result is a json that gives you the explanations for the input json
           0.007599905146155397,
           ,
           ,
-	        ,           
+	        ,
         ]
       ]
     ]
   ]
 }
-

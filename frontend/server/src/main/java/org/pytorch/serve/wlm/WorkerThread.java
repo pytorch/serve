@@ -78,6 +78,8 @@ public class WorkerThread implements Runnable {
     private WorkerState state;
     private WorkerLifeCycle lifeCycle;
     private int responseTimeout;
+    private long recoveryStartTS; // 0: default value. no recovery needed, in healthy mode
+    private boolean isHealthy;
 
     public WorkerThread(
             ConfigManager configManager,
@@ -95,6 +97,7 @@ public class WorkerThread implements Runnable {
         this.aggregator = aggregator;
         this.gpuId = gpuId;
         this.listener = listener;
+        this.isHealthy = true;
         startTime = System.currentTimeMillis();
         lifeCycle = new WorkerLifeCycle(configManager, model);
         replies = new ArrayBlockingQueue<>(model.getParallelLevel());
@@ -329,7 +332,9 @@ public class WorkerThread implements Runnable {
             }
             setState(WorkerState.WORKER_STOPPED, status);
             lifeCycle.exit();
-            retry();
+            if (isHealthy) { // still within maxRetryTimeoutInMill
+                retry();
+            }
         }
     }
 
@@ -481,16 +486,37 @@ public class WorkerThread implements Runnable {
         listener.notifyChangeState(
                 model.getModelVersionName().getVersionedModelName(), newState, status);
         logger.debug("{} State change {} -> {}", getWorkerName(), state, newState);
-        long timeTaken = System.currentTimeMillis() - startTime;
+        long currentTS = System.currentTimeMillis();
+        long timeTaken = currentTS - startTime;
         if (state != WorkerState.WORKER_SCALED_DOWN) {
             // Don't update the state if it was terminated on purpose.. Scaling in..
             this.state = newState;
         }
+
         if (state == WorkerState.WORKER_MODEL_LOADED) {
             workerLoadTime.setValue(String.valueOf(timeTaken));
             workerLoadTime.setTimestamp(
                     String.valueOf(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis())));
             loggerTsMetrics.info("{}", workerLoadTime);
+            if (recoveryStartTS > 0) {
+                logger.info("Auto recovery succeeded, reset recoveryStartTS");
+                recoveryStartTS = 0;
+            }
+        } else if (state == WorkerState.WORKER_STOPPED) {
+            if (recoveryStartTS == 0) {
+                recoveryStartTS = currentTS;
+                logger.info("Auto recovery start timestamp: {}", recoveryStartTS);
+            } else {
+                logger.warn("Auto recovery failed again");
+            }
+        }
+        if (state == WorkerState.WORKER_ERROR) {
+            this.isHealthy = false;
+        } else if (recoveryStartTS == 0
+                || (currentTS - recoveryStartTS) < model.getMaxRetryTimeoutInMill()) {
+            this.isHealthy = true;
+        } else {
+            this.isHealthy = false;
         }
     }
 
@@ -504,6 +530,11 @@ public class WorkerThread implements Runnable {
 
         if (backoffIdx < BACK_OFF.length - 1) {
             ++backoffIdx;
+        }
+
+        // reset backoffIdx if BACK_OFF[backoffIdx] * 1000 > getMaxRetryTimeoutInMill
+        if (BACK_OFF[backoffIdx] * 1000 >= model.getMaxRetryTimeoutInMill()) {
+            backoffIdx = 0;
         }
 
         manager.getScheduler()
@@ -526,6 +557,10 @@ public class WorkerThread implements Runnable {
             }
             return deviceIds.stream().map(String::valueOf).collect(Collectors.joining(","));
         }
+    }
+
+    public boolean isHealthy() {
+        return isHealthy;
     }
 
     @ChannelHandler.Sharable
