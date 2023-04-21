@@ -76,6 +76,7 @@ The following parameters can be used to run the AB benchmark suite.
 - ts: Use Already running Torchserve instance. Default: False
 - gpus: Number of gpus to run docker container with. By default it runs the docker container on CPU.
 - backend_profiling: Enable backend profiling using CProfile. Default: False
+- generate_graphs: Enable generation of Graph plots. Default False
 - config_properties: Path to config.properties file. Default: config.properties in the benchmark directory
 - inference_model_url: Inference function url - can be either for predictions or explanations. Default: predictions/benchmark.
 - config: All the above params can be set using a config JSON file. When this flag is used, all other cmd line params are ignored.

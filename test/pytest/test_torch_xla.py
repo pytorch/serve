@@ -21,10 +21,10 @@ except:
     TORCHXLA_AVAILABLE = False
 
 CURR_FILE_PATH = Path(__file__).parent
-TORCH_XLA_TEST_DATA_DIR = os.path.join(CURR_FILE_PATH, "test_data")
+TORCH_XLA_TEST_DATA_DIR = os.path.join(CURR_FILE_PATH, "test_data", "torch_compile")
 
 MODEL_FILE = os.path.join(TORCH_XLA_TEST_DATA_DIR, "model.py")
-EXTRA_FILE = os.path.join(TORCH_XLA_TEST_DATA_DIR, "compile.json")
+YAML_CONFIG = os.path.join(TORCH_XLA_TEST_DATA_DIR, "xla.yaml")
 CONFIG_PROPERTIES = os.path.join(TORCH_XLA_TEST_DATA_DIR, "config.properties")
 
 SERIALIZED_FILE = os.path.join(TORCH_XLA_TEST_DATA_DIR, "model.pt")
@@ -40,14 +40,14 @@ class TestTorchXLA:
 
     def test_archive_model_artifacts(self):
         assert len(glob.glob(MODEL_FILE)) == 1
-        assert len(glob.glob(EXTRA_FILE)) == 1
+        assert len(glob.glob(YAML_CONFIG)) == 1
         assert len(glob.glob(CONFIG_PROPERTIES)) == 1
         subprocess.run(
             f"cd {TORCH_XLA_TEST_DATA_DIR} && python model.py", shell=True, check=True
         )
         subprocess.run(f"mkdir -p {MODEL_STORE_DIR}", shell=True, check=True)
         subprocess.run(
-            f"torch-model-archiver --model-name {MODEL_NAME} --version 1.0 --model-file {MODEL_FILE} --serialized-file {SERIALIZED_FILE} --extra-files {EXTRA_FILE} --export-path {MODEL_STORE_DIR} --handler base_handler -f",
+            f"torch-model-archiver --model-name {MODEL_NAME} --version 1.0 --model-file {MODEL_FILE} --serialized-file {SERIALIZED_FILE} --config-file {YAML_CONFIG} --export-path {MODEL_STORE_DIR} --handler base_handler -f",
             shell=True,
             check=True,
         )

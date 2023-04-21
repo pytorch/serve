@@ -1,4 +1,4 @@
-name: Test docker image and container 
+name: Docker CI
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
     branches: [ "master" ]
 
 jobs:
-  test-docker-image:
+  test-build-and-container:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -16,7 +16,11 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Test Image Build
+      - name: Test build_image.sh script with custom tagging and gpu flag
+        working-directory: docker
+        run: ./test_build_image_tagging.sh ${{ matrix.python-version }}
+
+      - name: Build Image for container test
         id: image_build
         working-directory: docker
         run: |
@@ -28,7 +32,7 @@ jobs:
         working-directory: docker
         run: ./test_container_health.sh ${{ steps.image_build.outputs.IMAGE_TAG }}
 
-      - name: Check Python Version in Container
+      - name: Check Python version in container
         working-directory: docker
         run: ./test_container_python_version.sh ${{ steps.image_build.outputs.IMAGE_TAG }} ${{ matrix.python-version }}
 

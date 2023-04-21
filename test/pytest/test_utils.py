@@ -118,31 +118,41 @@ def model_archiver_command_builder(
     handler=None,
     extra_files=None,
     force=False,
+    config_file=None,
 ):
-    cmd = "torch-model-archiver"
+    # Initialize a list to store the command-line arguments
+    cmd_parts = ["torch-model-archiver"]
 
+    # Append arguments to the list
     if model_name:
-        cmd += " --model-name {0}".format(model_name)
+        cmd_parts.append(f"--model-name {model_name}")
 
     if version:
-        cmd += " --version {0}".format(version)
+        cmd_parts.append(f"--version {version}")
 
     if model_file:
-        cmd += " --model-file {0}".format(model_file)
+        cmd_parts.append(f"--model-file {model_file}")
 
     if serialized_file:
-        cmd += " --serialized-file {0}".format(serialized_file)
+        cmd_parts.append(f"--serialized-file {serialized_file}")
 
     if handler:
-        cmd += " --handler {0}".format(handler)
+        cmd_parts.append(f"--handler {handler}")
 
     if extra_files:
-        cmd += " --extra-files {0}".format(extra_files)
+        cmd_parts.append(f"--extra-files {extra_files}")
+
+    if config_file:
+        cmd_parts.append(f"--config-file {config_file}")
 
     if force:
-        cmd += " --force"
+        cmd_parts.append("--force")
 
-    cmd += " --export-path {0}".format(MODEL_STORE)
+    # Append the export-path argument to the list
+    cmd_parts.append(f"--export-path {MODEL_STORE}")
+
+    # Convert the list into a string to represent the complete command
+    cmd = " ".join(cmd_parts)
 
     return cmd
 
@@ -159,3 +169,9 @@ def load_module_from_py_file(py_file: str) -> object:
     loader.exec_module(module)
 
     return module
+
+
+def cleanup_model_store(model_store=None):
+    # rm -rf $MODEL_STORE_DIR / *
+    for f in glob.glob(os.path.join(model_store, "*")):
+        os.remove(f)
