@@ -65,11 +65,15 @@ public class InferenceRequestHandler extends HttpRequestHandlerChain {
                     case "ping":
                         Runnable r =
                                 () -> {
-                                    String response = ApiUtils.getWorkerStatus();
+                                    boolean isHealthy = ApiUtils.isModelHealthy();
+                                    int code = HttpURLConnection.HTTP_OK;
+                                    String response = "Healthy";
+                                    if (!isHealthy) {
+                                        response = "Unhealthy";
+                                        code = HttpURLConnection.HTTP_INTERNAL_ERROR;
+                                    }
                                     NettyUtils.sendJsonResponse(
-                                            ctx,
-                                            new StatusResponse(
-                                                    response, HttpURLConnection.HTTP_OK));
+                                            ctx, new StatusResponse(response, code));
                                 };
                         ApiUtils.getTorchServeHealth(r);
                         break;

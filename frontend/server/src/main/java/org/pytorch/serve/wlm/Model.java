@@ -41,6 +41,7 @@ public class Model {
     private int batchSize;
     private int maxBatchDelay;
     private int parallelLevel = 1;
+    private long maxRetryTimeoutInMill = 5 * 60 * 1000;
     private ModelConfig.ParallelType parallelType = ModelConfig.ParallelType.NONE;
     private ModelConfig.DeviceType deviceType =
             ConfigManager.getInstance().getNumberOfGpu() > 0
@@ -90,6 +91,7 @@ public class Model {
                     }
                 }
             }
+            maxRetryTimeoutInMill = modelArchive.getModelConfig().getMaxRetryTimeoutInSec() * 1000;
         } else {
             batchSize = 1;
             maxBatchDelay = 100;
@@ -338,5 +340,13 @@ public class Model {
 
     public boolean isHasCfgDeviceIds() {
         return hasCfgDeviceIds;
+    }
+
+    public long getMaxRetryTimeoutInMill() {
+        return maxRetryTimeoutInMill;
+    }
+
+    public void setMaxRetryTimeoutInMill(long maxRetryTimeoutInMill) {
+        this.maxRetryTimeoutInMill = maxRetryTimeoutInMill;
     }
 }

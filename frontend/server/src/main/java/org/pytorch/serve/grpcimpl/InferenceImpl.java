@@ -45,13 +45,19 @@ public class InferenceImpl extends InferenceAPIsServiceImplBase {
                         });
         Runnable r =
                 () -> {
-                    String response = ApiUtils.getWorkerStatus();
+                    boolean isHealthy = ApiUtils.isModelHealthy();
+                    int code = HttpURLConnection.HTTP_OK;
+                    String response = "Healthy";
+                    if (!isHealthy) {
+                        response = "Unhealthy";
+                        code = HttpURLConnection.HTTP_INTERNAL_ERROR;
+                    }
+
                     TorchServeHealthResponse reply =
                             TorchServeHealthResponse.newBuilder()
                                     .setHealth(
                                             JsonUtils.GSON_PRETTY_EXPOSED.toJson(
-                                                    new StatusResponse(
-                                                            response, HttpURLConnection.HTTP_OK)))
+                                                    new StatusResponse(response, code)))
                                     .build();
                     responseObserver.onNext(reply);
                     responseObserver.onCompleted();
