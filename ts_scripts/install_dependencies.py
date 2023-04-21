@@ -55,7 +55,7 @@ class Common:
         os.system(f"{sys.executable} -m pip install -U -r {requirements_file_path}")
 
         # Install dependencies for GPU
-        if cuda_version:
+        if not isinstance(cuda_version, type(None)):
             gpu_requirements_file = os.path.join("requirements", "gpu.txt")
             os.system(f"{sys.executable} -m pip install -U -r {gpu_requirements_file}")
 
