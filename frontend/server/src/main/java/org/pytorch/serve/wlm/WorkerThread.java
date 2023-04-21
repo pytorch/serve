@@ -531,12 +531,6 @@ public class WorkerThread implements Runnable {
         if (backoffIdx < BACK_OFF.length - 1) {
             ++backoffIdx;
         }
-
-        // reset backoffIdx if BACK_OFF[backoffIdx] * 1000 > getMaxRetryTimeoutInMill
-        if (BACK_OFF[backoffIdx] * 1000 >= model.getMaxRetryTimeoutInMill()) {
-            backoffIdx = 0;
-        }
-
         manager.getScheduler()
                 .schedule(() -> manager.submitTask(this), BACK_OFF[backoffIdx], TimeUnit.SECONDS);
         logger.info("Retry worker: {} in {} seconds.", workerId, BACK_OFF[backoffIdx]);

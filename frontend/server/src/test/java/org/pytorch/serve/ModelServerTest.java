@@ -1268,52 +1268,6 @@ public class ModelServerTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testPredictionCustomErrorCode"})
-    public void testPredictionRuntimeError() throws InterruptedException {
-        // Load the model
-        Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
-        Assert.assertNotNull(channel);
-        TestUtils.setResult(null);
-        TestUtils.setLatch(new CountDownLatch(1));
-
-        TestUtils.registerModel(
-                channel, "prediction-runtime-error.mar", "pred-runtime-err", true, false);
-        TestUtils.getLatch().await();
-        Assert.assertEquals(TestUtils.getHttpStatus(), HttpResponseStatus.OK);
-        channel.close().sync();
-
-        // Test for prediction
-        channel = TestUtils.connect(ConnectorType.INFERENCE_CONNECTOR, configManager);
-        Assert.assertNotNull(channel);
-        TestUtils.setResult(null);
-        TestUtils.setLatch(new CountDownLatch(1));
-        DefaultFullHttpRequest req =
-                new DefaultFullHttpRequest(
-                        HttpVersion.HTTP_1_1, HttpMethod.POST, "/predictions/pred-runtime-err");
-        req.content().writeCharSequence("data=invalid_output", CharsetUtil.UTF_8);
-
-        channel.writeAndFlush(req);
-        TestUtils.getLatch().await();
-        channel.close().sync();
-
-        TestUtils.ping(configManager);
-        TestUtils.getLatch().await();
-        Assert.assertEquals(TestUtils.getHttpStatus(), HttpResponseStatus.OK);
-        channel.close().sync();
-
-        // Unload the model
-        channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
-        TestUtils.setHttpStatus(null);
-        TestUtils.setLatch(new CountDownLatch(1));
-        Assert.assertNotNull(channel);
-
-        TestUtils.unregisterModel(channel, "pred-runtime-err", null, false);
-        TestUtils.getLatch().await();
-        Assert.assertEquals(TestUtils.getHttpStatus(), HttpResponseStatus.OK);
-    }
-
-    @Test(
-            alwaysRun = true,
-            dependsOnMethods = {"testPredictionRuntimeError"})
     public void testErrorBatch() throws InterruptedException {
         Channel channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
