@@ -105,7 +105,7 @@ To learn more about how to contribute, see the contributor guide [here](https://
 * [Evolution of Cresta's machine learning architecture: Migration to AWS and PyTorch](https://aws.amazon.com/blogs/machine-learning/evolution-of-crestas-machine-learning-architecture-migration-to-aws-and-pytorch/)
 * [🎥 Explain Like I’m 5: TorchServe](https://www.youtube.com/watch?v=NEdZbkfHQCk)
 * [🎥 How to Serve PyTorch Models with TorchServe](https://www.youtube.com/watch?v=XlO7iQMV3Ik)
-* [How to deploy PyTorch models on Vertex AI](https://cloud.google.com/blog/topics/developers-practitioners/pytorch-google-cloud-how-deploy-pytorch-models-vertex-ai)
+* [How to deloy PyTorch models on Vertex AI](https://cloud.google.com/blog/topics/developers-practitioners/pytorch-google-cloud-how-deploy-pytorch-models-vertex-ai)
 * [Quantitative Comparison of Serving Platforms](https://biano-ai.github.io/research/2021/08/16/quantitative-comparison-of-serving-platforms-for-neural-networks.html)
 * [Efficient Serverless deployment of PyTorch models on Azure](https://medium.com/pytorch/efficient-serverless-deployment-of-pytorch-models-on-azure-dc9c2b6bfee7)
 * [Deploy PyTorch models with TorchServe in Azure Machine Learning online endpoints](https://techcommunity.microsoft.com/t5/ai-machine-learning-blog/deploy-pytorch-models-with-torchserve-in-azure-machine-learning/ba-p/2466459)
