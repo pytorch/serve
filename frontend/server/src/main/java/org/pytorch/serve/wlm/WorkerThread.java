@@ -79,7 +79,6 @@ public class WorkerThread implements Runnable {
     private WorkerLifeCycle lifeCycle;
     private int responseTimeout;
     private long recoveryStartTS; // 0: default value. no recovery needed, in healthy mode
-    private boolean isHealthy;
 
     public WorkerThread(
             ConfigManager configManager,
@@ -97,7 +96,6 @@ public class WorkerThread implements Runnable {
         this.aggregator = aggregator;
         this.gpuId = gpuId;
         this.listener = listener;
-        this.isHealthy = true;
         startTime = System.currentTimeMillis();
         lifeCycle = new WorkerLifeCycle(configManager, model);
         replies = new ArrayBlockingQueue<>(model.getParallelLevel());
@@ -332,7 +330,7 @@ public class WorkerThread implements Runnable {
             }
             setState(WorkerState.WORKER_STOPPED, status);
             lifeCycle.exit();
-            if (isHealthy) { // still within maxRetryTimeoutInMill
+            if (isHealthy()) { // still within maxRetryTimeoutInMill window
                 retry();
             }
         }
@@ -510,14 +508,6 @@ public class WorkerThread implements Runnable {
                 logger.warn("Auto recovery failed again");
             }
         }
-        if (state == WorkerState.WORKER_ERROR) {
-            this.isHealthy = false;
-        } else if (recoveryStartTS == 0
-                || (currentTS - recoveryStartTS) < model.getMaxRetryTimeoutInMill()) {
-            this.isHealthy = true;
-        } else {
-            this.isHealthy = false;
-        }
     }
 
     public void retry() {
@@ -554,7 +544,12 @@ public class WorkerThread implements Runnable {
     }
 
     public boolean isHealthy() {
-        return isHealthy;
+        if (recoveryStartTS == 0
+                || (System.currentTimeMillis() - recoveryStartTS)
+                        < model.getMaxRetryTimeoutInMill()) {
+            return true;
+        }
+        return false;
     }
 
     @ChannelHandler.Sharable
