@@ -1,13 +1,20 @@
 package org.pytorch.serve.job;
 
+import static org.pytorch.serve.util.messages.RequestInput.TS_STREAM_NEXT;
+
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
+import io.netty.handler.codec.http.DefaultHttpContent;
+import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaderValues;
+import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
+import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.util.CharsetUtil;
 import java.util.ArrayList;
 import java.util.Map;
@@ -38,6 +45,11 @@ public class RestJob extends Job {
 
     private ChannelHandlerContext ctx;
     private CompletableFuture<byte[]> responsePromise;
+    /**
+     * numStreams is used to track 4 cases -1: stream end 0: non-stream response (default use case)
+     * 1: the first stream response [2, max_integer]: the 2nd and more stream response
+     */
+    private int numStreams;
 
     public RestJob(
             ChannelHandlerContext ctx,
@@ -47,6 +59,7 @@ public class RestJob extends Job {
             RequestInput input) {
         super(modelName, version, cmd, input);
         this.ctx = ctx;
+        this.numStreams = 0;
     }
 
     @Override
@@ -117,7 +130,14 @@ public class RestJob extends Job {
                 (statusPhrase == null)
                         ? HttpResponseStatus.valueOf(statusCode)
                         : new HttpResponseStatus(statusCode, statusPhrase);
-        FullHttpResponse resp = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, status, false);
+        HttpResponse resp;
+
+        if (responseHeaders != null && responseHeaders.containsKey(TS_STREAM_NEXT)) {
+            resp = new DefaultHttpResponse(HttpVersion.HTTP_1_1, status, false);
+            numStreams = responseHeaders.get(TS_STREAM_NEXT).equals("true") ? numStreams + 1 : -1;
+        } else {
+            resp = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, status, false);
+        }
 
         if (contentType != null && contentType.length() > 0) {
             resp.headers().set(HttpHeaderNames.CONTENT_TYPE, contentType);
@@ -127,7 +147,9 @@ public class RestJob extends Job {
                 resp.headers().set(e.getKey(), e.getValue());
             }
         }
-        resp.content().writeBytes(body);
+        if (resp instanceof DefaultFullHttpResponse) {
+            ((DefaultFullHttpResponse) resp).content().writeBytes(body);
+        }
 
         /*
          * We can load the models based on the configuration file.Since this Job is
@@ -136,29 +158,42 @@ public class RestJob extends Job {
          * by external clients.
          */
         if (ctx != null) {
-            MetricAggregator.handleInferenceMetric(
-                    getModelName(), getModelVersion(), getScheduled() - getBegin(), inferTime);
-            NettyUtils.sendHttpResponse(ctx, resp, true);
+            if (numStreams == 0) { // non-stream response
+                MetricAggregator.handleInferenceMetric(
+                        getModelName(), getModelVersion(), getScheduled() - getBegin(), inferTime);
+                NettyUtils.sendHttpResponse(ctx, resp, true);
+            } else if (numStreams == -1) { // the last response in a stream
+                MetricAggregator.handleInferenceMetric(
+                        getModelName(), getModelVersion(), getScheduled() - getBegin(), inferTime);
+                ctx.writeAndFlush(new DefaultHttpContent(Unpooled.wrappedBuffer(body)));
+                ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
+            } else if (numStreams == 1) { // the first response in a stream
+                NettyUtils.sendHttpResponse(ctx, resp, true);
+            } else if (numStreams > 1) { // the 2nd+ response in a stream
+                ctx.writeAndFlush(new DefaultHttpContent(Unpooled.wrappedBuffer(body)));
+            }
         } else if (responsePromise != null) {
             responsePromise.complete(body);
         }
 
-        logger.debug(
-                "Waiting time ns: {}, Backend time ns: {}",
-                getScheduled() - getBegin(),
-                System.nanoTime() - getScheduled());
-        String queueTime =
-                String.valueOf(
-                        TimeUnit.MILLISECONDS.convert(
-                                getScheduled() - getBegin(), TimeUnit.NANOSECONDS));
-        loggerTsMetrics.info(
-                "{}",
-                new Metric(
-                        "QueueTime",
-                        queueTime,
-                        "ms",
-                        ConfigManager.getInstance().getHostName(),
-                        DIMENSION));
+        if (numStreams <= 0) {
+            logger.debug(
+                    "Waiting time ns: {}, Backend time ns: {}",
+                    getScheduled() - getBegin(),
+                    System.nanoTime() - getScheduled());
+            String queueTime =
+                    String.valueOf(
+                            TimeUnit.MILLISECONDS.convert(
+                                    getScheduled() - getBegin(), TimeUnit.NANOSECONDS));
+            loggerTsMetrics.info(
+                    "{}",
+                    new Metric(
+                            "QueueTime",
+                            queueTime,
+                            "ms",
+                            ConfigManager.getInstance().getHostName(),
+                            DIMENSION));
+        }
     }
 
     @Override
