@@ -77,6 +77,7 @@ public class WorkerThread implements Runnable {
     private WorkerState state;
     private WorkerLifeCycle lifeCycle;
     private int responseTimeout;
+    private long recoveryStartTS; // 0: default value. no recovery needed, in healthy mode
 
     public WorkerThread(
             ConfigManager configManager,
@@ -314,7 +315,9 @@ public class WorkerThread implements Runnable {
             }
             setState(WorkerState.WORKER_STOPPED, status);
             lifeCycle.exit();
-            retry();
+            if (isHealthy()) { // still within maxRetryTimeoutInMill window
+                retry();
+            }
         }
     }
 
@@ -466,16 +469,29 @@ public class WorkerThread implements Runnable {
         listener.notifyChangeState(
                 model.getModelVersionName().getVersionedModelName(), newState, status);
         logger.debug("{} State change {} -> {}", getWorkerName(), state, newState);
-        long timeTaken = System.currentTimeMillis() - startTime;
+        long currentTS = System.currentTimeMillis();
+        long timeTaken = currentTS - startTime;
         if (state != WorkerState.WORKER_SCALED_DOWN) {
             // Don't update the state if it was terminated on purpose.. Scaling in..
             this.state = newState;
         }
+
         if (state == WorkerState.WORKER_MODEL_LOADED) {
             workerLoadTime.setValue(String.valueOf(timeTaken));
             workerLoadTime.setTimestamp(
                     String.valueOf(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis())));
             loggerTsMetrics.info("{}", workerLoadTime);
+            if (recoveryStartTS > 0) {
+                logger.info("Auto recovery succeeded, reset recoveryStartTS");
+                recoveryStartTS = 0;
+            }
+        } else if (state == WorkerState.WORKER_STOPPED) {
+            if (recoveryStartTS == 0) {
+                recoveryStartTS = currentTS;
+                logger.info("Auto recovery start timestamp: {}", recoveryStartTS);
+            } else {
+                logger.warn("Auto recovery failed again");
+            }
         }
     }
 
@@ -490,7 +506,6 @@ public class WorkerThread implements Runnable {
         if (backoffIdx < BACK_OFF.length - 1) {
             ++backoffIdx;
         }
-
         manager.getScheduler()
                 .schedule(() -> manager.submitTask(this), BACK_OFF[backoffIdx], TimeUnit.SECONDS);
         logger.info("Retry worker: {} in {} seconds.", workerId, BACK_OFF[backoffIdx]);
@@ -511,6 +526,15 @@ public class WorkerThread implements Runnable {
             }
             return deviceIds.stream().map(String::valueOf).collect(Collectors.joining(","));
         }
+    }
+
+    public boolean isHealthy() {
+        if (recoveryStartTS == 0
+                || (System.currentTimeMillis() - recoveryStartTS)
+                        < model.getMaxRetryTimeoutInMill()) {
+            return true;
+        }
+        return false;
     }
 
     @ChannelHandler.Sharable

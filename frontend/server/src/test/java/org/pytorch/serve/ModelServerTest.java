@@ -1873,6 +1873,14 @@ public class ModelServerTest {
         Assert.assertEquals(resp.getCode(), HttpResponseStatus.INTERNAL_SERVER_ERROR.code());
         Assert.assertEquals(
                 resp.getMessage(), "Failed to start workers for model init-error version: null");
+
+        TestUtils.ping(configManager);
+        TestUtils.getLatch().await();
+        // There is a retry time window. To reduce CI latency,
+        // it is fine for ping to either 200 or 500.
+        Assert.assertTrue(
+                TestUtils.getHttpStatus().equals(HttpResponseStatus.INTERNAL_SERVER_ERROR)
+                        || TestUtils.getHttpStatus().equals(HttpResponseStatus.OK));
     }
 
     @Test(

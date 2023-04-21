@@ -15,12 +15,13 @@ public class ModelConfig {
     private int maxWorkers;
     private int batchSize;
     private int maxBatchDelay;
-    private int responseTimeout;
+    private int responseTimeout = 120; // unit: sec
     private DeviceType deviceType = DeviceType.NONE;
     private List<Integer> deviceIds;
     private int parallelLevel = 1;
     private ParallelType parallelType = ParallelType.NONE;
     private TorchRun torchRun;
+    private int maxRetryTimeoutInSec = 300;
 
     public static ModelConfig build(Map<String, Object> yamlMap) {
         ModelConfig modelConfig = new ModelConfig();
@@ -92,6 +93,14 @@ public class ModelConfig {
                             } else {
                                 logger.warn(
                                         "Invalid torchrun: {}, should be Torchrun parameters", v);
+                            }
+                            break;
+                        case "maxRetryTimeoutInSec":
+                            if (v instanceof Integer) {
+                                modelConfig.setMaxRetryTimeoutInSec((int) v);
+                            } else {
+                                logger.warn(
+                                        "Invalid maxRetryTimeoutInMin: {}, should be integer", v);
                             }
                             break;
                         default:
@@ -209,6 +218,16 @@ public class ModelConfig {
 
     public TorchRun getTorchRun() {
         return torchRun;
+    }
+
+    public int getMaxRetryTimeoutInSec() {
+        return maxRetryTimeoutInSec;
+    }
+
+    public void setMaxRetryTimeoutInSec(int maxRetryTimeoutInSec) {
+        if (maxRetryTimeoutInSec > 0) {
+            this.maxRetryTimeoutInSec = maxRetryTimeoutInSec;
+        }
     }
 
     public enum ParallelType {
