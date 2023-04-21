@@ -566,4 +566,8 @@ public final class ModelManager {
     public int getNumRunningWorkers(ModelVersionName modelVersionName) {
         return wlm.getNumRunningWorkers(modelVersionName);
     }
+
+    public int getNumHealthyWorkers(ModelVersionName modelVersionName) {
+        return wlm.getNumHealthyWorkers(modelVersionName);
+    }
 }
