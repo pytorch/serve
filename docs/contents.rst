@@ -3,7 +3,7 @@
   :numbered:
   :caption: Contents:
   :titlesonly:
-  
+
   index
   Troubleshooting
   batch_inference_with_ts
@@ -23,14 +23,15 @@
   torchserve_on_wsl
   use_cases
   workflows
+  large_model_inference
 
 .. toctree::
   :maxdepth: 0
   :caption: Service APIs:
-  
+
   apis
 
 .. toctree::
   :caption: Developer APIs:
-  
+
   api/dev_api
