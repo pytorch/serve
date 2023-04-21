@@ -431,9 +431,8 @@ import<span class="w"> </span>requests
 <li><p>POST /predictions/{model_name}/{version}</p></li>
 </ul>
 </section>
-</section>
 <section id="id1">
-<h2>curl Example<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<h3>curl Example<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl<span class="w"> </span>-O<span class="w"> </span>https://raw.githubusercontent.com/pytorch/serve/master/docs/images/kitten_small.jpg
 
 curl<span class="w"> </span>http://localhost:8080/predictions/resnet-18/2.0<span class="w"> </span>-T<span class="w"> </span>kitten_small.jpg
@@ -450,6 +449,37 @@ curl<span class="w"> </span>http://localhost:8080/predictions/resnet-18/2.0<span
 <span class="p">}</span>
 </pre></div>
 </div>
+<ul class="simple">
+<li><p>Streaming response via HTTP 1.1 chunked encoding
+TorchServe the inference API support streaming response to allow a sequence of inference responses to be sent over HTTP 1.1 chunked encoding. This new feature is only recommended for use case when the inference latency of the full response is high and the inference intermediate results are sent to client. An example could be LLMs for generative applications, where generating “n” number of tokens can have high latency, in this case user can receive each generated token once ready until the full response completes. To achieve streaming response, backend handler calls “send_intermediate_predict_response” to send one intermediate result to frontend, and return the last result as the existing style. For example,</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ts.protocol.otf_message_handler</span> <span class="kn">import</span> <span class="n">send_intermediate_predict_response</span>
+<span class="k">def</span> <span class="nf">handle</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">list</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span> <span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+            <span class="n">send_intermediate_predict_response</span><span class="p">([</span><span class="s2">&quot;intermediate_response&quot;</span><span class="p">],</span> <span class="n">context</span><span class="o">.</span><span class="n">request_ids</span><span class="p">,</span> <span class="s2">&quot;Intermediate Prediction success&quot;</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;hello world &quot;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Client side receives the chunked data.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">test_echo_stream_inference</span><span class="p">():</span>
+    <span class="n">test_utils</span><span class="o">.</span><span class="n">start_torchserve</span><span class="p">(</span><span class="n">no_config_snapshots</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">gen_mar</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">test_utils</span><span class="o">.</span><span class="n">register_model</span><span class="p">(</span><span class="s1">&#39;echo_stream&#39;</span><span class="p">,</span>
+                              <span class="s1">&#39;https://torchserve.pytorch.org/mar_files/echo_stream.mar&#39;</span><span class="p">)</span>
+
+    <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">TF_INFERENCE_API</span> <span class="o">+</span> <span class="s1">&#39;/predictions/echo_stream&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="s2">&quot;foo&quot;</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">response</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s1">&#39;Transfer-Encoding&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;chunked&#39;</span>
+
+    <span class="n">prediction</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">iter_content</span><span class="p">(</span><span class="n">chunk_size</span><span class="o">=</span><span class="kc">None</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="n">chunk</span><span class="p">:</span>
+            <span class="n">prediction</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">chunk</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+
+    <span class="k">assert</span> <span class="nb">str</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">prediction</span><span class="p">))</span> <span class="o">==</span> <span class="s2">&quot;hello hello hello hello world &quot;</span>
+    <span class="n">test_utils</span><span class="o">.</span><span class="n">unregister_model</span><span class="p">(</span><span class="s1">&#39;echo_stream&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
 </section>
 <section id="explanations-api">
 <h2>Explanations API<a class="headerlink" href="#explanations-api" title="Permalink to this headline">¶</a></h2>
@@ -535,7 +565,7 @@ curl<span class="w"> </span>http://localhost:8080/predictions/resnet-18/2.0<span
 <span class="w">          </span><span class="mf">0.007599905146155397</span><span class="p">,</span>
 <span class="w">          </span><span class="p">,</span>
 <span class="w">          </span><span class="p">,</span>
-<span class="w">	        </span><span class="p">,</span><span class="w">           </span>
+<span class="w">	        </span><span class="p">,</span>
 <span class="w">        </span><span class="p">]</span>
 <span class="w">      </span><span class="p">]</span>
 <span class="w">    </span><span class="p">]</span>
@@ -595,9 +625,9 @@ curl<span class="w"> </span>http://localhost:8080/predictions/resnet-18/2.0<span
 <li><a class="reference internal" href="#health-check-api">Health check API</a></li>
 <li><a class="reference internal" href="#predictions-api">Predictions API</a><ul>
 <li><a class="reference internal" href="#curl-example">curl Example</a></li>
+<li><a class="reference internal" href="#id1">curl Example</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#id1">curl Example</a></li>
 <li><a class="reference internal" href="#explanations-api">Explanations API</a><ul>
 <li><a class="reference internal" href="#id2">curl example</a></li>
 </ul>
