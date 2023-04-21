@@ -59,6 +59,12 @@ public class BatchAggregator {
         return req;
     }
 
+    /**
+     * @param message: a response of a batch inference requests
+     * @return
+     * - true: either a non-stream response or last stream response is sent
+     * - false: a stream response (not include the last stream) is sent
+     */
     public boolean sendResponse(ModelWorkerResponse message) {
         boolean jobDone = true;
         // TODO: Handle prediction level code

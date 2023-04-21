@@ -211,12 +211,10 @@ public class WorkerThread implements Runnable {
                     }
 
                     long duration = System.currentTimeMillis() - begin;
-                    logger.info("Backend response time: {}", duration);
 
                     if (reply != null) {
-                        logger.info("received a reply");
                         jobDone = aggregator.sendResponse(reply);
-                        logger.info("sent a reply, jobdone: {}", jobDone);
+                        logger.debug("sent a reply, jobdone: {}", jobDone);
                     } else if (req.getCommand() != WorkerCommands.DESCRIBE) {
                         int val = model.incrFailedInfReqs();
                         logger.error("Number or consecutive unsuccessful inference {}", val);
@@ -225,6 +223,7 @@ public class WorkerThread implements Runnable {
                     }
                     totalDuration += duration;
                 } while (!jobDone);
+                logger.info("Backend response time: {}", totalDuration);
 
                 switch (req.getCommand()) {
                     case PREDICT:

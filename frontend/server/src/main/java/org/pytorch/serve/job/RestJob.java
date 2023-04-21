@@ -45,7 +45,14 @@ public class RestJob extends Job {
 
     private ChannelHandlerContext ctx;
     private CompletableFuture<byte[]> responsePromise;
-    private int numStreams; // -1: stream end; 0+: number of streams received; 0: non stream
+    /**
+     * numStreams is used to track 4 cases
+     * -1: stream end
+     * 0: non-stream response (default use case)
+     * 1: the first stream response
+     * [2, max_integer]: the 2nd and more stream response
+     */
+    private int numStreams;
 
     public RestJob(
             ChannelHandlerContext ctx,
