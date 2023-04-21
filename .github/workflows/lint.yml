@@ -109,7 +109,7 @@ jobs:
       - name: check
         run: echo $GITHUB_WORKFLOW
       - name: check
-        run: echo $ {{ github_work_flow }}
+        run: echo ${{ github.workflow }}
   gh_issue:
     if: ${{ failure() }}
     needs: [spellcheck]
@@ -117,4 +117,4 @@ jobs:
     with:
       event_name: ${{ github.event_name }}
       run_id: ${{ github.run_id }}
-      test_name: $ {{ github.workflow }}
+      test_name: ${{ github.workflow }}
