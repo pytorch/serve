@@ -107,7 +107,7 @@ jobs:
           echo "Please fix the misspellings. If you are sure about some of them, "
           echo "so append those to ts_scripts/spellcheck_conf/wordlist.txt"
   gh_issue:
-    uses: pytorch/serve/.github/workflows/open_gh_issue_on_failure.yaml@master
+    uses: pytorch/serve/.github/workflows/open_gh_issue_on_failure.yml@test/reusbale_wf
     with:
       event_name: ${{ github.event_name }}
       run_id: ${{ github.run_id }}
