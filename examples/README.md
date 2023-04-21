@@ -2,7 +2,7 @@
 
 ## TorchServe Internals
 
-* [Ceating mar fle for an eager mode model](#creating-mar-file-for-eager-mode-model)
+* [Cating mar fle for an eager mode model](#creating-mar-file-for-eager-mode-model)
 * [Creating mar file for torchscript mode model](#creating-mar-file-for-torchscript-mode-model)
 * [Serving custom model with custom service handler](#serving-custom-model-with-custom-service-handler)
 * [Serving model using Docker Container](image_classifier/mnist/Docker.md)
