@@ -77,6 +77,7 @@ jobs:
           echo "cd serve/"
           echo "pre-commit install"
           echo "pre-commit will lint your code for you, so git add and commit those new changes and this check should become green"
+          echo "If you've already pushed some files remotely then run git diff --name-only main | xargs pre-commit run --files"
 
   spellcheck:
     runs-on: ubuntu-20.04

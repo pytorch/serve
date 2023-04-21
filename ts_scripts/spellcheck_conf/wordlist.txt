@@ -1036,3 +1036,8 @@ MBS
 MicroBatching
 MicroBatchingHandler
 QPS
+PiPPy
+Microbatching
+Micro-batching
+microbatch
+microbatching
