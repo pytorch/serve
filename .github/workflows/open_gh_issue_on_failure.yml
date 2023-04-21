@@ -17,8 +17,10 @@ jobs:
   create_issue:
     runs-on: ubuntu-latest
     steps:
+      - name: check
+        run: echo ${{ inputs.event_name }}
       - name: Open github issue on failure
-        if: ${{ failure() && inputs.event_name == 'push' }}
+        if: ${{ inputs.event_name == 'push' }}
         uses: dacbd/create-issue-action@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
