@@ -1,29 +1,29 @@
 ## PyTorch 2.x integration
 
-PyTorch 2.0 brings more compiler options to PyTorch, for you that should mean better perf either in the form of lower latency or lower memory consumption. Integrating PyTorch 2.0 is fairly trivial but for now the support will be experimental until the official release and while we are relying on the nightly builds.
+PyTorch 2.0 brings more compiler options to PyTorch, for you that should mean better perf either in the form of lower latency or lower memory consumption. Integrating PyTorch 2.0 is fairly trivial but for now the support will be experimental given that most public benchmarks have focused on training instead of inference.
 
 We strongly recommend you leverage newer hardware so for GPUs that would be an Ampere architecture. You'll get even more benefits from using server GPU deployments like A10G and A100 vs consumer cards. But you should expect to see some speedups for any Volta or Ampere architecture.
 
 ## Get started
 
-Install torchserve with nightly torch binaries
+Install torchserve and ensure that you're using at least `torch>=2.0.0`
 
-```
-python ts_scripts/install_dependencies.py --cuda=cu117 --nightly_torch
+```sh
+python ts_scripts/install_dependencies.py --cuda=cu117
 pip install torchserve torch-model-archiver
 ```
 
 ## Package your model
 
-PyTorch 2.0 supports several compiler backends and you pick which one you want by passing in an optional file `compile.json` during your model packaging
+PyTorch 2.0 supports several compiler backends and you pick which one you want by passing in an optional file `model_config.yaml` during your model packaging
 
-`{"pt2" : "inductor"}`
+`pt2: "inductor"`
 
-As an example let's expand our getting started guide with the only difference being passing in the extra `compile.json` file
+As an example let's expand our getting started guide with the only difference being passing in the extra `model_config.yaml` file
 
 ```
 mkdir model_store
-torch-model-archiver --model-name densenet161 --version 1.0 --model-file ./serve/examples/image_classifier/densenet_161/model.py --export-path model_store --extra-files ./serve/examples/image_classifier/index_to_name.json,./serve/examples/image_classifier/compile.json --handler image_classifier
+torch-model-archiver --model-name densenet161 --version 1.0 --model-file ./serve/examples/image_classifier/densenet_161/model.py --export-path model_store --extra-files ./serve/examples/image_classifier/index_to_name.json --handler image_classifier --config-file model_config.yaml
 torchserve --start --ncs --model-store model_store --models densenet161.mar
 ```
 
@@ -35,7 +35,7 @@ opt_mod = torch.compile(mod)
 # 2. Train the optimized module
 # ....
 # 3. Save the original module (weights are shared)
-torch.save(model, "model.pt")  
+torch.save(model, "model.pt")
 
 # 4. Load the non optimized model
 mod = torch.load(model)

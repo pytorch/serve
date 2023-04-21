@@ -17,9 +17,10 @@ WF_STORE = "/tmp/wf_store"
 
 
 class BenchmarkConfig:
-    def __init__(self, yaml_dict, skip_ts_install):
+    def __init__(self, yaml_dict, skip_ts_install, skip_upload):
         self.yaml_dict = yaml_dict
         self.skip_ts_install = skip_ts_install
+        self.skip_upload = skip_upload
         self.bm_config = {}
         yesterday = datetime.date.today() - datetime.timedelta(days=1)
         self.bm_config["version"] = "torchserve-nightly=={}.{}.{}".format(
@@ -80,12 +81,6 @@ class BenchmarkConfig:
 
         self.bm_config["report_cmd"] = " ".join(cmd_options)
 
-    def enable_launcher_with_logical_core(self):
-        if self.bm_config["hardware"] == "cpu":
-            with open("./benchmarks/config.properties", "a") as f:
-                f.write("cpu_launcher_enable=true\n")
-                f.write("cpu_launcher_args=--use_logical_core\n")
-
     def load_config(self):
         report_cmd = None
         for k, v in self.yaml_dict.items():
@@ -95,9 +90,9 @@ class BenchmarkConfig:
                 self.models(v)
             elif k == "hardware":
                 self.hardware(v)
-            elif k == "metrics_cmd":
+            elif k == "metrics_cmd" and not self.skip_upload:
                 self.metrics_cmd(v)
-            elif k == "report_cmd":
+            elif k == "report_cmd" and not self.skip_upload:
                 report_cmd = v
 
         self.bm_config["model_config_path"] = (
@@ -105,8 +100,6 @@ class BenchmarkConfig:
             if self.bm_config["hardware"] in ["cpu", "gpu", "neuron"]
             else "{}/cpu".format(MODEL_JSON_CONFIG_PATH)
         )
-
-        self.enable_launcher_with_logical_core()
 
         if self.skip_ts_install:
             self.bm_config["version"] = get_torchserve_version()
@@ -118,12 +111,12 @@ class BenchmarkConfig:
             print("{}={}".format(k, v))
 
 
-def load_benchmark_config(bm_config_path, skip_ts_install):
+def load_benchmark_config(bm_config_path, skip_ts_install, skip_upload):
     yaml = ruamel.yaml.YAML()
     with open(bm_config_path, "r") as f:
         yaml_dict = yaml.load(f)
 
-        benchmark_config = BenchmarkConfig(yaml_dict, skip_ts_install)
+        benchmark_config = BenchmarkConfig(yaml_dict, skip_ts_install, skip_upload)
         benchmark_config.load_config()
 
     return benchmark_config.bm_config
@@ -133,6 +126,7 @@ def benchmark_env_setup(bm_config, skip_ts_install):
     install_torchserve(skip_ts_install, bm_config["hardware"], bm_config["version"])
     setup_benchmark_path(bm_config["model_config_path"])
     build_model_json_config(bm_config["models"])
+    enable_launcher_with_logical_core(bm_config["hardware"])
 
 
 def install_torchserve(skip_ts_install, hw, ts_version):
@@ -184,6 +178,13 @@ def build_model_json_config(models):
         else:
             input_file = CWD + "/benchmarks/models_config/{}".format(model)
         gen_model_config_json.convert_yaml_to_json(input_file, MODEL_JSON_CONFIG_PATH)
+
+
+def enable_launcher_with_logical_core(hw):
+    if hw == "cpu":
+        with open("./benchmarks/config.properties", "a") as f:
+            f.write("cpu_launcher_enable=true\n")
+            f.write("cpu_launcher_args=--use_logical_core\n")
 
 
 def run_benchmark(bm_config):
@@ -285,6 +286,10 @@ def main():
         action="store",
         help="true: skip torchserve installation. default: true",
     )
+    parser.add_argument(
+        "--skip_upload",
+        help="true: skip uploading commands . default: false",
+    )
 
     arguments = parser.parse_args()
     skip_ts_config = (
@@ -292,7 +297,12 @@ def main():
         if arguments.skip is not None and arguments.skip.lower() == "false"
         else True
     )
-    bm_config = load_benchmark_config(arguments.input, skip_ts_config)
+    skip_upload = (
+        True
+        if arguments.skip_upload is not None and arguments.skip_upload.lower() == "true"
+        else False
+    )
+    bm_config = load_benchmark_config(arguments.input, skip_ts_config, skip_upload)
     benchmark_env_setup(bm_config, skip_ts_config)
     run_benchmark(bm_config)
     clean_up_benchmark_env(bm_config)
