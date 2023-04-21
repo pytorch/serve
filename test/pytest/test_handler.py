@@ -394,7 +394,6 @@ def test_huggingface_bert_model_parallel_inference():
             number_of_gpus,
         )
 
-
 def test_echo_stream_inference():
     test_utils.start_torchserve(no_config_snapshots=True, gen_mar=False)
     test_utils.register_model(

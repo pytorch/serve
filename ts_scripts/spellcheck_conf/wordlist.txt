@@ -1032,3 +1032,8 @@ mps
 deviceIds
 rpc
 pippy
+PiPPy
+Microbatching
+Micro-batching
+microbatch
+microbatching
