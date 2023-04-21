@@ -169,3 +169,9 @@ def load_module_from_py_file(py_file: str) -> object:
     loader.exec_module(module)
 
     return module
+
+
+def cleanup_model_store(model_store=None):
+    # rm -rf $MODEL_STORE_DIR / *
+    for f in glob.glob(os.path.join(model_store, "*")):
+        os.remove(f)
