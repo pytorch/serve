@@ -107,7 +107,7 @@ jobs:
           echo "Please fix the misspellings. If you are sure about some of them, "
           echo "so append those to ts_scripts/spellcheck_conf/wordlist.txt"
       - name: check
-        run: echo $ {{ github.work_flow }}
+        run: echo $GITHUB_WORKFLOW
       - name: check
         run: echo $ {{ github_work_flow }}
   gh_issue:
