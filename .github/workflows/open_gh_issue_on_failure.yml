@@ -8,7 +8,7 @@ on:
         type: string
       run_id:
         required: true
-        type: int
+        type: string
       test_name:
         required: true
         type: string
