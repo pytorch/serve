@@ -1,9 +1,9 @@
 name: Run Regression Tests on CPU
 
-on: push
+on:
   # runs everyday  at 9:15am
-  #schedule:
-  #  - cron:  '15 9 * * *'
+  schedule:
+    - cron:  '15 9 * * *'
 
 jobs:
   regression-cpu:
@@ -32,9 +32,11 @@ jobs:
       - name: Torchserve Regression Tests
         run: |
           python test/regression_tests.py
-      - name: Open github issue on failure
-        uses: pytorch/serve/.github/workflows/open_gh_issue_on_failure.yaml@issues/raise_gh_issue_regression_failure
-        with:
-          event_name: ${{ github.event_name }}
-          run_id: ${{ github.run_id }}
-          test_name: $ {{ name }}
+  open_issue:
+    if: ${{ failure() }}
+    needs: [regression-cpu]
+    uses: pytorch/serve/.github/workflows/open_gh_issue_on_failure.yml@master
+    with:
+      event_name: ${{ github.event_name }}
+      run_id: ${{ github.run_id }}
+      test_name: ${{ github.workflow }}
