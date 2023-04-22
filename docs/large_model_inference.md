@@ -35,7 +35,7 @@ class ModelHandler(BasePippyHandler, ABC):
 
 Here is what your `model-config.yaml` needs, this config file is very flexible, you can add setting related to frontend, backend and handler.
 
-```bash
+```yaml
 #frontend settings
 minWorkers: 1
 maxWorkers: 1
@@ -108,7 +108,7 @@ class ModelHandler(BaseDeepSpeedHandler, ABC):
 
 Here is what your `model-config.yaml` needs, this config file is very flexible, you can add setting related to frontend, backend and handler.
 
-```bash
+```yaml
 #frontend settings
 minWorkers: 1
 maxWorkers: 1
@@ -128,16 +128,28 @@ handler:
     max_length: 80 # max length of tokens for tokenizer in the handler
 ```
 
+Here is an example of `ds-config.json`
+
+```json
+{
+  "dtype": "torch.float16",
+  "replace_with_kernel_inject": true,
+  "tensor_parallel": {
+    "tp_size": 2
+  }
+}
+```
+
 **Install DeepSpeed**
 
 *Method1*: requirements.txt
 
 *Method2*: pre-install via command (Recommended to speed up model loading)
 
-    ```
-    # See https://www.deepspeed.ai/tutorials/advanced-install/
-    DS_BUILD_OPS=1 pip install deepspeed
-    ```
+```bash
+# See https://www.deepspeed.ai/tutorials/advanced-install/
+DS_BUILD_OPS=1 pip install deepspeed
+```
 
 The rest is as usual in Torchserve, basically packaging your model and starting the server.
 
