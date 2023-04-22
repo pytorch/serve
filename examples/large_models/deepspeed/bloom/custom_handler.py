@@ -25,6 +25,7 @@ class TransformersSeqClassifierHandler(BaseDeepSpeedHandler, ABC):
         self.initialized = False
 
     def initialize(self, ctx: Context):
+        super().initialize(ctx)
         self.max_length = int(ctx.model_yaml_config["handler"]["max_length"])
         self.model = AutoModelForCausalLM.from_pretrained(
             "bigscience/bloom-7b1", use_cache=False

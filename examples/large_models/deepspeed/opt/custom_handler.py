@@ -31,6 +31,7 @@ class TransformersSeqClassifierHandler(BaseDeepSpeedHandler, ABC):
             ctx (context): It is a JSON Object containing information
             pertaining to the model artefacts parameters.
         """
+        super().initialize(ctx)
         model_dir = ctx.system_properties.get("model_dir")
         self.max_length = int(ctx.model_yaml_config["handler"]["max_length"])
         self.model = AutoModelForCausalLM.from_pretrained(model_dir, use_cache=False)

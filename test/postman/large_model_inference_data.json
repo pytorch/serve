@@ -12,7 +12,7 @@
         "model_name":"opt",
         "worker":1,
         "synchronous":"true",
-        "file":"../examples/large_models/Huggingface_pippy/sample_text.txt",
+        "file":"../examples/large_models/deepspeed/opt/sample_text.txt",
         "expected": "Today the weather is really nice and I am planning on\n\n\nI am planning on the next day.\n\nI am planning on the next day.\n\nI am planning on the next day.\nI am planning on the next"
     }
 ]

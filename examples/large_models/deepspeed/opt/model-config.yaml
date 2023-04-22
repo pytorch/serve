@@ -15,4 +15,4 @@ deepspeed:
     config: ds-config.json
 
 handler:
-    max_length: 50
+    max_length: 100
