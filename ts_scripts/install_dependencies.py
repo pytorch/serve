@@ -53,18 +53,10 @@ class Common:
         os.system(f"{sys.executable} -m pip install -U pip setuptools")
         # developer.txt also installs packages from common.txt
         os.system(f"{sys.executable} -m pip install -U -r {requirements_file_path}")
-        gpu_requirements_file = os.path.join("requirements", "gpu.txt")
-        print(gpu_requirements_file)
-        os.system(f"{sys.executable} -m pip install -U -r {gpu_requirements_file}")
 
-        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        print(cuda_version)
-        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        print(isinstance(cuda_version, type(None)))
         # Install dependencies for GPU
         if not isinstance(cuda_version, type(None)):
             gpu_requirements_file = os.path.join("requirements", "gpu.txt")
-            print(gpu_requirements_file)
             os.system(f"{sys.executable} -m pip install -U -r {gpu_requirements_file}")
 
         raise Exception
@@ -188,9 +180,10 @@ def install_dependencies(cuda_version=None, nightly=False):
 
     # Sequence of installation to be maintained
     system.install_java()
-    requirements_file_path = "requirements/" + (
-        "common.txt" if args.environment == "prod" else "developer.txt"
-    )
+
+    requirements_file = "common.txt" if args.environment == "prod" else "developer.txt"
+    requirements_file_path = os.path.join("requirements", requirements_file)
+
     system.install_python_packages(cuda_version, requirements_file_path, nightly)
 
 
