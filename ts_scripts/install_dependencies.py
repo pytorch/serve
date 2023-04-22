@@ -57,11 +57,11 @@ class Common:
         print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
         print(cuda_version)
         print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        gpu_requirements_file = os.path.join("requirements", "gpu.txt")
-        print(gpu_requirements_file)
+        print(isinstance(cuda_version, type(None)))
         # Install dependencies for GPU
         if not isinstance(cuda_version, type(None)):
             gpu_requirements_file = os.path.join("requirements", "gpu.txt")
+            print(gpu_requirements_file)
             os.system(f"{sys.executable} -m pip install -U -r {gpu_requirements_file}")
 
         raise Exception
