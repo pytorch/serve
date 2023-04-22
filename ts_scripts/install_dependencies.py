@@ -53,6 +53,9 @@ class Common:
         os.system(f"{sys.executable} -m pip install -U pip setuptools")
         # developer.txt also installs packages from common.txt
         os.system(f"{sys.executable} -m pip install -U -r {requirements_file_path}")
+        gpu_requirements_file = os.path.join("requirements", "gpu.txt")
+        print(gpu_requirements_file)
+        os.system(f"{sys.executable} -m pip install -U -r {gpu_requirements_file}")
 
         print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
         print(cuda_version)
