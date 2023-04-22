@@ -59,12 +59,12 @@ class Common:
         print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
         gpu_requirements_file = os.path.join("requirements", "gpu.txt")
         print(gpu_requirements_file)
-        raise Exception
         # Install dependencies for GPU
         if not isinstance(cuda_version, type(None)):
             gpu_requirements_file = os.path.join("requirements", "gpu.txt")
             os.system(f"{sys.executable} -m pip install -U -r {gpu_requirements_file}")
 
+        raise Exception
         # Install PyTorch packages
         if nightly:
             os.system(
