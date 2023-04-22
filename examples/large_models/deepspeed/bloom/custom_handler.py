@@ -6,7 +6,8 @@ import transformers
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
 from ts.context import Context
-from ts.torch_handler.distributed.base_deepspeed import BaseDeepSpeedHandler
+from ts.handler_utils.distributed.deepspeed import get_ds_engine
+from ts.torch_handler.distributed.base_deepspeed_handler import BaseDeepSpeedHandler
 
 logger = logging.getLogger(__name__)
 logger.info("Transformers version %s", transformers.__version__)
@@ -31,7 +32,11 @@ class TransformersSeqClassifierHandler(BaseDeepSpeedHandler, ABC):
         self.tokenizer = AutoTokenizer.from_pretrained(
             "bigscience/bloom-7b1", return_tensors="pt"
         )
-        super().initialize(ctx)
+
+        ds_engine = get_ds_engine(self.model, ctx)
+        self.model = ds_engine.module
+        logger.info("Model %s loaded successfully", ctx.model_name)
+        self.initialized = True
 
     def preprocess(self, requests):
         """Basic text preprocessing, based on the user's chocie of application mode.

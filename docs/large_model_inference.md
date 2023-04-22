@@ -7,7 +7,7 @@ This document explain how Torchserve supports large model serving, here large mo
 PiPPy provides pipeline parallelism for serving large models that would not fit into one gpu. It takes your model and splits it into equal sizes (stages) partitioned over the number devices you specify. Then uses microbatching to run your batched input for inference ( its is more optimal for batch sizes >1).
 
 
-## How to use PiPPy in Torchserve
+### How to use PiPPy in Torchserve
 
 To use Pippy in Torchserve, we need to use a custom handler which inherits from base_pippy_handler and put our setting in model-config.yaml.
 
@@ -41,13 +41,12 @@ minWorkers: 1
 maxWorkers: 1
 maxBatchDelay: 100
 responseTimeout: 120
-parallelLevel: 4
 deviceType: "gpu"
-parallelType: "pp" #options depending on the solution, pp(pipeline parallelism), tp(tensor parallelism), pptp ( pipeline and tensor parallelism)
+parallelType: "pp" # options depending on the solution, pp(pipeline parallelism), tp(tensor parallelism), pptp ( pipeline and tensor parallelism)
                    # This will be used to route input to either rank0 or all ranks from fontend based on the solution (e.g. DeepSpeed support tp, PiPPy support pp)
 torchrun:
     nproc-per-node: 4 # specifies the number of processes torchrun starts to serve your model, set to world_size or number of
-                       # gpus you wish to split your model
+                      # gpus you wish to split your model
 #backend settings
 pippy:
     chunks: 1 # This sets the microbatch sizes, microbatch = batch size/ chunks
@@ -73,8 +72,77 @@ The rest is as usual in Torchserve, basically packaging your model and starting 
 Example of the command for packaging your model, make sure you pass model-config.yaml
 
 ```bash
-torch-model-archiver --model-name bloom --version 1.0 --handler pippy_handler.py --extra-files --extra-files $MODEL_CHECKPOINTS_PATH -r requirements.txt --config-file model-config.yaml --archive-format tgz
+torch-model-archiver --model-name bloom --version 1.0 --handler pippy_handler.py --extra-files $MODEL_CHECKPOINTS_PATH -r requirements.txt --config-file model-config.yaml --archive-format tgz
 
 ```
 
 Tensor Parallel support in progress and will be added as soon as ready.
+
+## DeepSpeed
+
+DeepSpeed-Inference is open source project of MircoSoft. It provides model parallelism for serving large transformer based PyTorch models that would not fit into one gpu memory.
+
+
+### How to use DeepSpeed in TorchServe
+
+To use DeepSpeed in TorchServe, we need to use a custom handler which inherits from base_deepspeed_handler and put our setting in model-config.yaml.
+
+It would look like below:
+
+Create `custom_handler.py` or any other descriptive name.
+
+```python
+#DO import the necessary packages along with following
+from ts.handler_utils.distributed.deepspeed import get_ds_engine
+from ts.torch_handler.distributed.base_deepspeed_handler import BaseDeepSpeedHandler
+class ModelHandler(BaseDeepSpeedHandler, ABC):
+    def __init__(self):
+        super(ModelHandler, self).__init__()
+        self.initialized = False
+    def initialize(self, ctx):
+        model = # load your model from model_dir
+        ds_engine = get_ds_engine(self.model, ctx)
+        self.model = ds_engine.module
+        self.initialized = True
+```
+
+Here is what your `model-config.yaml` needs, this config file is very flexible, you can add setting related to frontend, backend and handler.
+
+```bash
+#frontend settings
+minWorkers: 1
+maxWorkers: 1
+maxBatchDelay: 100
+responseTimeout: 120
+deviceType: "gpu"
+parallelType: "tp" # options depending on the solution, pp(pipeline parallelism), tp(tensor parallelism), pptp ( pipeline and tensor parallelism)
+                   # This will be used to route input to either rank0 or all ranks from fontend based on the solution (e.g. DeepSpeed support tp, PiPPy support pp)
+torchrun:
+    nproc-per-node: 4 # specifies the number of processes torchrun starts to serve your model, set to world_size or number of
+                      # gpus you wish to split your model
+#backend settings
+deepspeed:
+    config: ds-config.json # DeepSpeed config json filename.
+                           # Details:https://www.deepspeed.ai/docs/config-json/
+handler:
+    max_length: 80 # max length of tokens for tokenizer in the handler
+```
+
+**Install DeepSpeed**
+
+*Method1*: requirements.txt
+
+*Method2*: pre-install via command (Recommended to speed up model loading)
+
+    ```
+    # See https://www.deepspeed.ai/tutorials/advanced-install/
+    DS_BUILD_OPS=1 pip install deepspeed
+    ```
+
+The rest is as usual in Torchserve, basically packaging your model and starting the server.
+
+Example of the command for packaging your model, make sure you pass model-config.yaml
+
+```bash
+torch-model-archiver --model-name bloom --version 1.0 --handler deepspeed_handler.py --extra-files $MODEL_CHECKPOINTS_PATH,ds-config.json -r requirements.txt --config-file model-config.yaml --archive-format tgz
+```

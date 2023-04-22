@@ -1,4 +1,4 @@
-# Loading large Huggingface models with constrained resources using accelerate
+# Loading large Huggingface models on Multiple GPUs
 
 This document briefs on serving large HG models with limited resource using deepspeed.
 
