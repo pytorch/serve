@@ -80,7 +80,7 @@ Tensor Parallel support in progress and will be added as soon as ready.
 
 ## DeepSpeed
 
-DeepSpeed-Inference is open source project of MircoSoft. It provides model parallelism for serving large transformer based PyTorch models that would not fit into one gpu memory.
+[DeepSpeed-Inference](https://www.deepspeed.ai/inference/) is an open source project of MicroSoft. It provides model parallelism for serving large transformer based PyTorch models that would not fit into one gpu memory.
 
 
 ### How to use DeepSpeed in TorchServe
