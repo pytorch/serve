@@ -259,7 +259,7 @@ public class WorkerThread implements Runnable {
                 }
                 req = null;
                 double workerThreadTime =
-                        (double) ((System.currentTimeMillis() - wtStartTime) - duration);
+                        (System.currentTimeMillis() - wtStartTime) - totalDuration;
                 if (this.workerThreadTimeMetric != null) {
                     try {
                         this.workerThreadTimeMetric.addOrUpdate(
@@ -478,9 +478,6 @@ public class WorkerThread implements Runnable {
         }
 
         if (state == WorkerState.WORKER_MODEL_LOADED) {
-            workerLoadTime.setValue(String.valueOf(timeTaken));
-            workerLoadTime.setTimestamp(
-                    String.valueOf(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis())));
             if (this.workerLoadTimeMetric != null) {
                 try {
                     this.workerLoadTimeMetric.addOrUpdate(

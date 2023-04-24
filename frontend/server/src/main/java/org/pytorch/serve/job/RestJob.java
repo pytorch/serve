@@ -171,51 +171,9 @@ public class RestJob extends Job {
          */
         if (ctx != null) {
             if (numStreams == 0) { // non-stream response
-                if (this.inferenceLatencyMetric != null) {
-                    try {
-                        this.inferenceLatencyMetric.addOrUpdate(
-                                this.latencyMetricDimensionValues, inferTime / 1000.0);
-                    } catch (Exception e) {
-                        logger.error(
-                                "Failed to update frontend metric ts_inference_latency_microseconds: ",
-                                e);
-                    }
-                }
-                if (this.queueLatencyMetric != null) {
-                    try {
-                        this.queueLatencyMetric.addOrUpdate(
-                                this.latencyMetricDimensionValues,
-                                (getScheduled() - getBegin()) / 1000.0);
-                    } catch (Exception e) {
-                        logger.error(
-                                "Failed to update frontend metric ts_queue_latency_microseconds: ",
-                                e);
-                    }
-                }
                 ((DefaultFullHttpResponse) resp).content().writeBytes(body);
                 NettyUtils.sendHttpResponse(ctx, resp, true);
             } else if (numStreams == -1) { // the last response in a stream
-                if (this.inferenceLatencyMetric != null) {
-                    try {
-                        this.inferenceLatencyMetric.addOrUpdate(
-                                this.latencyMetricDimensionValues, inferTime / 1000.0);
-                    } catch (Exception e) {
-                        logger.error(
-                                "Failed to update frontend metric ts_inference_latency_microseconds: ",
-                                e);
-                    }
-                }
-                if (this.queueLatencyMetric != null) {
-                    try {
-                        this.queueLatencyMetric.addOrUpdate(
-                                this.latencyMetricDimensionValues,
-                                (getScheduled() - getBegin()) / 1000.0);
-                    } catch (Exception e) {
-                        logger.error(
-                                "Failed to update frontend metric ts_queue_latency_microseconds: ",
-                                e);
-                    }
-                }
                 ctx.writeAndFlush(new DefaultHttpContent(Unpooled.wrappedBuffer(body)));
                 ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
             } else if (numStreams == 1) { // the first response in a stream
@@ -229,6 +187,27 @@ public class RestJob extends Job {
         }
 
         if (numStreams <= 0) {
+            if (this.inferenceLatencyMetric != null) {
+                try {
+                    this.inferenceLatencyMetric.addOrUpdate(
+                            this.latencyMetricDimensionValues, inferTime / 1000.0);
+                } catch (Exception e) {
+                    logger.error(
+                            "Failed to update frontend metric ts_inference_latency_microseconds: ",
+                            e);
+                }
+            }
+            if (this.queueLatencyMetric != null) {
+                try {
+                    this.queueLatencyMetric.addOrUpdate(
+                            this.latencyMetricDimensionValues,
+                            (getScheduled() - getBegin()) / 1000.0);
+                } catch (Exception e) {
+                    logger.error(
+                            "Failed to update frontend metric ts_queue_latency_microseconds: ", e);
+                }
+            }
+
             logger.debug(
                     "Waiting time ns: {}, Backend time ns: {}",
                     getScheduled() - getBegin(),

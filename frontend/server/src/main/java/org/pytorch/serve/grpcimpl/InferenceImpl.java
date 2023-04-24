@@ -153,6 +153,7 @@ public class InferenceImpl extends InferenceAPIsServiceImplBase {
                             "Failed to update frontend metric ts_inference_requests_total: ", e);
                 }
             }
+
             Job job = new GRPCJob(responseObserver, modelName, modelVersion, workerCmd, inputData);
 
             if (!modelManager.addJob(job)) {
