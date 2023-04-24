@@ -365,9 +365,8 @@
 <section id="pippy-pytorch-native-solution-for-large-model-inference">
 <h2><span class="section-number">20.1. </span>PiPPy (PyTorch Native solution for large model inference)<a class="headerlink" href="#pippy-pytorch-native-solution-for-large-model-inference" title="Permalink to this headline">¶</a></h2>
 <p>PiPPy provides pipeline parallelism for serving large models that would not fit into one gpu. It takes your model and splits it into equal sizes (stages) partitioned over the number devices you specify. Then uses microbatching to run your batched input for inference ( its is more optimal for batch sizes &gt;1).</p>
-</section>
 <section id="how-to-use-pippy-in-torchserve">
-<h2><span class="section-number">20.2. </span>How to use PiPPy in Torchserve<a class="headerlink" href="#how-to-use-pippy-in-torchserve" title="Permalink to this headline">¶</a></h2>
+<h3><span class="section-number">20.1.1. </span>How to use PiPPy in Torchserve<a class="headerlink" href="#how-to-use-pippy-in-torchserve" title="Permalink to this headline">¶</a></h3>
 <p>To use Pippy in Torchserve, we need to use a custom handler which inherits from base_pippy_handler and put our setting in model-config.yaml.</p>
 <p>Customer handler in Torchserve is simply a python script that defines model loading, preprocess, inference and postprocess logic specific to your workflow.</p>
 <p>It would look like below:</p>
@@ -387,28 +386,27 @@
 </pre></div>
 </div>
 <p>Here is what your <code class="docutils literal notranslate"><span class="pre">model-config.yaml</span></code> needs, this config file is very flexible, you can add setting related to frontend, backend and handler.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1">#frontend settings</span>
-minWorkers:<span class="w"> </span><span class="m">1</span>
-maxWorkers:<span class="w"> </span><span class="m">1</span>
-maxBatchDelay:<span class="w"> </span><span class="m">100</span>
-responseTimeout:<span class="w"> </span><span class="m">120</span>
-parallelLevel:<span class="w"> </span><span class="m">4</span>
-deviceType:<span class="w"> </span><span class="s2">&quot;gpu&quot;</span>
-parallelType:<span class="w"> </span><span class="s2">&quot;pp&quot;</span><span class="w"> </span><span class="c1">#options depending on the solution, pp(pipeline parallelism), tp(tensor parallelism), pptp ( pipeline and tensor parallelism)</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1">#frontend settings</span>
+<span class="nt">minWorkers</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="nt">maxWorkers</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="nt">maxBatchDelay</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100</span>
+<span class="nt">responseTimeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">120</span>
+<span class="nt">deviceType</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;gpu&quot;</span>
+<span class="nt">parallelType</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;pp&quot;</span><span class="w"> </span><span class="c1"># options depending on the solution, pp(pipeline parallelism), tp(tensor parallelism), pptp ( pipeline and tensor parallelism)</span>
 <span class="w">                   </span><span class="c1"># This will be used to route input to either rank0 or all ranks from fontend based on the solution (e.g. DeepSpeed support tp, PiPPy support pp)</span>
-torchrun:
-<span class="w">    </span>nproc-per-node:<span class="w"> </span><span class="m">4</span><span class="w"> </span><span class="c1"># specifies the number of processes torchrun starts to serve your model, set to world_size or number of</span>
-<span class="w">                       </span><span class="c1"># gpus you wish to split your model</span>
+<span class="nt">torchrun</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">nproc-per-node</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4</span><span class="w"> </span><span class="c1"># specifies the number of processes torchrun starts to serve your model, set to world_size or number of</span>
+<span class="w">                      </span><span class="c1"># gpus you wish to split your model</span>
 <span class="c1">#backend settings</span>
-pippy:
-<span class="w">    </span>chunks:<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="c1"># This sets the microbatch sizes, microbatch = batch size/ chunks</span>
-<span class="w">    </span>input_names:<span class="w"> </span><span class="o">[</span><span class="s1">&#39;input_ids&#39;</span><span class="o">]</span><span class="w"> </span><span class="c1"># input arg names to the model, this is required for FX tracing</span>
-<span class="w">    </span>model_type:<span class="w"> </span><span class="s2">&quot;HF&quot;</span><span class="w"> </span><span class="c1"># set the model type to HF if you are using Huggingface model other wise leave it blank or any other model you use.</span>
-<span class="w">    </span>rpc_timeout:<span class="w"> </span><span class="m">1800</span>
-<span class="w">    </span>num_worker_threads:<span class="w"> </span><span class="m">512</span><span class="w"> </span><span class="c1">#set number of threads for rpc worker init.</span>
+<span class="nt">pippy</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">chunks</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w"> </span><span class="c1"># This sets the microbatch sizes, microbatch = batch size/ chunks</span>
+<span class="w">    </span><span class="nt">input_names</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&#39;input_ids&#39;</span><span class="p p-Indicator">]</span><span class="w"> </span><span class="c1"># input arg names to the model, this is required for FX tracing</span>
+<span class="w">    </span><span class="nt">model_type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;HF&quot;</span><span class="w"> </span><span class="c1"># set the model type to HF if you are using Huggingface model other wise leave it blank or any other model you use.</span>
+<span class="w">    </span><span class="nt">rpc_timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1800</span>
+<span class="w">    </span><span class="nt">num_worker_threads</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">512</span><span class="w"> </span><span class="c1">#set number of threads for rpc worker init.</span>
 
-handler:
-<span class="w">    </span>max_length:<span class="w"> </span><span class="m">80</span><span class="w"> </span><span class="c1"># max length of tokens for tokenizer in the handler</span>
+<span class="nt">handler</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">max_length</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">80</span><span class="w"> </span><span class="c1"># max length of tokens for tokenizer in the handler</span>
 </pre></div>
 </div>
 <p><strong>How to access it in the handler?</strong> here is an example:</p>
@@ -418,10 +416,77 @@ handler:
 </div>
 <p>The rest is as usual in Torchserve, basically packaging your model and starting the server.</p>
 <p>Example of the command for packaging your model, make sure you pass model-config.yaml</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>torch-model-archiver<span class="w"> </span>--model-name<span class="w"> </span>bloom<span class="w"> </span>--version<span class="w"> </span><span class="m">1</span>.0<span class="w"> </span>--handler<span class="w"> </span>pippy_handler.py<span class="w"> </span>--extra-files<span class="w"> </span>--extra-files<span class="w"> </span><span class="nv">$MODEL_CHECKPOINTS_PATH</span><span class="w"> </span>-r<span class="w"> </span>requirements.txt<span class="w"> </span>--config-file<span class="w"> </span>model-config.yaml<span class="w"> </span>--archive-format<span class="w"> </span>tgz
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>torch-model-archiver<span class="w"> </span>--model-name<span class="w"> </span>bloom<span class="w"> </span>--version<span class="w"> </span><span class="m">1</span>.0<span class="w"> </span>--handler<span class="w"> </span>pippy_handler.py<span class="w"> </span>--extra-files<span class="w"> </span><span class="nv">$MODEL_CHECKPOINTS_PATH</span><span class="w"> </span>-r<span class="w"> </span>requirements.txt<span class="w"> </span>--config-file<span class="w"> </span>model-config.yaml<span class="w"> </span>--archive-format<span class="w"> </span>tgz
 </pre></div>
 </div>
 <p>Tensor Parallel support in progress and will be added as soon as ready.</p>
+</section>
+</section>
+<section id="deepspeed">
+<h2><span class="section-number">20.2. </span>DeepSpeed<a class="headerlink" href="#deepspeed" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="https://www.deepspeed.ai/inference/">DeepSpeed-Inference</a> is an open source project of MicroSoft. It provides model parallelism for serving large transformer based PyTorch models that would not fit into one gpu memory.</p>
+<section id="how-to-use-deepspeed-in-torchserve">
+<h3><span class="section-number">20.2.1. </span>How to use DeepSpeed in TorchServe<a class="headerlink" href="#how-to-use-deepspeed-in-torchserve" title="Permalink to this headline">¶</a></h3>
+<p>To use DeepSpeed in TorchServe, we need to use a custom handler which inherits from base_deepspeed_handler and put our setting in model-config.yaml.</p>
+<p>It would look like below:</p>
+<p>Create <code class="docutils literal notranslate"><span class="pre">custom_handler.py</span></code> or any other descriptive name.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1">#DO import the necessary packages along with following</span>
+<span class="kn">from</span> <span class="nn">ts.handler_utils.distributed.deepspeed</span> <span class="kn">import</span> <span class="n">get_ds_engine</span>
+<span class="kn">from</span> <span class="nn">ts.torch_handler.distributed.base_deepspeed_handler</span> <span class="kn">import</span> <span class="n">BaseDeepSpeedHandler</span>
+<span class="k">class</span> <span class="nc">ModelHandler</span><span class="p">(</span><span class="n">BaseDeepSpeedHandler</span><span class="p">,</span> <span class="n">ABC</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ModelHandler</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initialized</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">):</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="c1"># load your model from model_dir</span>
+        <span class="n">ds_engine</span> <span class="o">=</span> <span class="n">get_ds_engine</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">ctx</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">ds_engine</span><span class="o">.</span><span class="n">module</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initialized</span> <span class="o">=</span> <span class="kc">True</span>
+</pre></div>
+</div>
+<p>Here is what your <code class="docutils literal notranslate"><span class="pre">model-config.yaml</span></code> needs, this config file is very flexible, you can add setting related to frontend, backend and handler.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1">#frontend settings</span>
+<span class="nt">minWorkers</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="nt">maxWorkers</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="nt">maxBatchDelay</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100</span>
+<span class="nt">responseTimeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">120</span>
+<span class="nt">deviceType</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;gpu&quot;</span>
+<span class="nt">parallelType</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;tp&quot;</span><span class="w"> </span><span class="c1"># options depending on the solution, pp(pipeline parallelism), tp(tensor parallelism), pptp ( pipeline and tensor parallelism)</span>
+<span class="w">                   </span><span class="c1"># This will be used to route input to either rank0 or all ranks from fontend based on the solution (e.g. DeepSpeed support tp, PiPPy support pp)</span>
+<span class="nt">torchrun</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">nproc-per-node</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4</span><span class="w"> </span><span class="c1"># specifies the number of processes torchrun starts to serve your model, set to world_size or number of</span>
+<span class="w">                      </span><span class="c1"># gpus you wish to split your model</span>
+<span class="c1">#backend settings</span>
+<span class="nt">deepspeed</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">config</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ds-config.json</span><span class="w"> </span><span class="c1"># DeepSpeed config json filename.</span>
+<span class="w">                           </span><span class="c1"># Details:https://www.deepspeed.ai/docs/config-json/</span>
+<span class="nt">handler</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">max_length</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">80</span><span class="w"> </span><span class="c1"># max length of tokens for tokenizer in the handler</span>
+</pre></div>
+</div>
+<p>Here is an example of <code class="docutils literal notranslate"><span class="pre">ds-config.json</span></code></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;dtype&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;torch.float16&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;replace_with_kernel_inject&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;tensor_parallel&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;tp_size&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Install DeepSpeed</strong></p>
+<p><em>Method1</em>: requirements.txt</p>
+<p><em>Method2</em>: pre-install via command (Recommended to speed up model loading)</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># See https://www.deepspeed.ai/tutorials/advanced-install/</span>
+<span class="nv">DS_BUILD_OPS</span><span class="o">=</span><span class="m">1</span><span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>deepspeed
+</pre></div>
+</div>
+<p>The rest is as usual in Torchserve, basically packaging your model and starting the server.</p>
+<p>Example of the command for packaging your model, make sure you pass model-config.yaml</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>torch-model-archiver<span class="w"> </span>--model-name<span class="w"> </span>bloom<span class="w"> </span>--version<span class="w"> </span><span class="m">1</span>.0<span class="w"> </span>--handler<span class="w"> </span>deepspeed_handler.py<span class="w"> </span>--extra-files<span class="w"> </span><span class="nv">$MODEL_CHECKPOINTS_PATH</span>,ds-config.json<span class="w"> </span>-r<span class="w"> </span>requirements.txt<span class="w"> </span>--config-file<span class="w"> </span>model-config.yaml<span class="w"> </span>--archive-format<span class="w"> </span>tgz
+</pre></div>
+</div>
+</section>
 </section>
 </section>
 
@@ -469,8 +534,14 @@ handler:
             <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
               <ul>
 <li><a class="reference internal" href="#">20. Serving large models with Torchserve</a><ul>
-<li><a class="reference internal" href="#pippy-pytorch-native-solution-for-large-model-inference">20.1. PiPPy (PyTorch Native solution for large model inference)</a></li>
-<li><a class="reference internal" href="#how-to-use-pippy-in-torchserve">20.2. How to use PiPPy in Torchserve</a></li>
+<li><a class="reference internal" href="#pippy-pytorch-native-solution-for-large-model-inference">20.1. PiPPy (PyTorch Native solution for large model inference)</a><ul>
+<li><a class="reference internal" href="#how-to-use-pippy-in-torchserve">20.1.1. How to use PiPPy in Torchserve</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#deepspeed">20.2. DeepSpeed</a><ul>
+<li><a class="reference internal" href="#how-to-use-deepspeed-in-torchserve">20.2.1. How to use DeepSpeed in TorchServe</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
