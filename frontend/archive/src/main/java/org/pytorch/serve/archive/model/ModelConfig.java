@@ -31,7 +31,7 @@ public class ModelConfig {
     private ParallelType parallelType = ParallelType.NONE;
     /** torchrun config */
     private TorchRun torchRun;
-    /** the maximum seconds of a worker recovery's timeout. default: 5 min*/
+    /** the maximum seconds of a worker recovery's timeout. default: 5 min */
     private int maxRetryTimeoutInSec = 300;
     /**
      * the client timeout in millions second. The inference request will be dropped once it is
