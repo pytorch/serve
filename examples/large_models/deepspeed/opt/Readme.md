@@ -1,6 +1,6 @@
 # Loading large Huggingface models on Multiple GPUs
 
-This document briefs on serving large HG models with limited resource using deepspeed.
+This document briefs on serving large HG models on multiple GPUs using deepspeed. To speed up TorchServe regression test, facebook/opt-350m is used in this example. User can choose larger model such as facebook/opt-6.7b.
 
 ### Step 1: Download model
 
