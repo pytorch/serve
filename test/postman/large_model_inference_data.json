@@ -1,0 +1,18 @@
+[
+    {
+        "url":"https://torchserve.s3.amazonaws.com/mar_files/opt-pippy.tar.gz",
+        "model_name":"opt",
+        "worker":1,
+        "synchronous":"true",
+        "file":"../examples/large_models/Huggingface_pippy/sample_text.txt",
+        "expected": "Hey, are you conscious? Can you talk to me?\nailabi lity"
+    },
+    {
+        "url":"https://torchserve.s3.amazonaws.com/mar_files/opt-ds.tar.gz",
+        "model_name":"opt",
+        "worker":1,
+        "synchronous":"true",
+        "file":"../examples/large_models/deepspeed/opt/sample_text.txt",
+        "expected": "Today the weather is really nice and I am planning on\n\n\nI am planning on the next day.\n\nI am planning on the next day.\n\nI am planning on the next day.\nI am planning on the next"
+    }
+]
