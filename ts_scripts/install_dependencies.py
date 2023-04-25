@@ -56,7 +56,7 @@ class Common:
 
         # Install dependencies for GPU
         if not isinstance(cuda_version, type(None)):
-            gpu_requirements_file = os.path.join("requirements", "gpu.txt")
+            gpu_requirements_file = os.path.join("requirements", "common_gpu.txt")
             os.system(f"{sys.executable} -m pip install -U -r {gpu_requirements_file}")
 
         # Install PyTorch packages
