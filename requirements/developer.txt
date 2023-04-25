@@ -14,5 +14,5 @@ pyspelling
 pre-commit
 twine
 mypy
-torchpippy==0.1.0
+torchpippy
 intel_extension_for_pytorch; sys_platform != 'win32' and sys_platform != 'darwin'

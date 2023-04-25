@@ -147,9 +147,6 @@ public class RestJob extends Job {
                 resp.headers().set(e.getKey(), e.getValue());
             }
         }
-        if (resp instanceof DefaultFullHttpResponse) {
-            ((DefaultFullHttpResponse) resp).content().writeBytes(body);
-        }
 
         /*
          * We can load the models based on the configuration file.Since this Job is
@@ -161,6 +158,7 @@ public class RestJob extends Job {
             if (numStreams == 0) { // non-stream response
                 MetricAggregator.handleInferenceMetric(
                         getModelName(), getModelVersion(), getScheduled() - getBegin(), inferTime);
+                ((DefaultFullHttpResponse) resp).content().writeBytes(body);
                 NettyUtils.sendHttpResponse(ctx, resp, true);
             } else if (numStreams == -1) { // the last response in a stream
                 MetricAggregator.handleInferenceMetric(
@@ -169,6 +167,7 @@ public class RestJob extends Job {
                 ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
             } else if (numStreams == 1) { // the first response in a stream
                 NettyUtils.sendHttpResponse(ctx, resp, true);
+                ctx.writeAndFlush(new DefaultHttpContent(Unpooled.wrappedBuffer(body)));
             } else if (numStreams > 1) { // the 2nd+ response in a stream
                 ctx.writeAndFlush(new DefaultHttpContent(Unpooled.wrappedBuffer(body)));
             }
