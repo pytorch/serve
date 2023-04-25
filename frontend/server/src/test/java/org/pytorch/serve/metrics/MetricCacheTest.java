@@ -1,57 +1,63 @@
 package org.pytorch.serve.metrics;
 
-import java.io.FileNotFoundException;
+import org.pytorch.serve.metrics.format.prometheous.PrometheusCounter;
+import org.pytorch.serve.metrics.format.prometheous.PrometheusGauge;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 public class MetricCacheTest {
     @Test
-    public void testMetricCacheLoadValidConfiguration() throws FileNotFoundException {
+    public void testMetricCacheLoadValidConfiguration() {
         MetricCache metricCache = MetricCache.getInstance();
         Assert.assertEquals(
-                metricCache.getMetricFrontend("Requests2XX").getClass(), LogMetric.class);
+                metricCache.getMetricFrontend("Requests2XX").getClass(), PrometheusCounter.class);
         Assert.assertEquals(
-                metricCache.getMetricFrontend("Requests4XX").getClass(), LogMetric.class);
+                metricCache.getMetricFrontend("Requests4XX").getClass(), PrometheusCounter.class);
         Assert.assertEquals(
-                metricCache.getMetricFrontend("Requests5XX").getClass(), LogMetric.class);
+                metricCache.getMetricFrontend("Requests5XX").getClass(), PrometheusCounter.class);
         Assert.assertEquals(
                 metricCache.getMetricFrontend("ts_inference_requests_total").getClass(),
-                LogMetric.class);
+                PrometheusCounter.class);
         Assert.assertEquals(
                 metricCache.getMetricFrontend("ts_inference_latency_microseconds").getClass(),
-                LogMetric.class);
+                PrometheusCounter.class);
         Assert.assertEquals(
                 metricCache.getMetricFrontend("ts_queue_latency_microseconds").getClass(),
-                LogMetric.class);
-        Assert.assertEquals(metricCache.getMetricFrontend("QueueTime").getClass(), LogMetric.class);
+                PrometheusCounter.class);
         Assert.assertEquals(
-                metricCache.getMetricFrontend("WorkerThreadTime").getClass(), LogMetric.class);
+                metricCache.getMetricFrontend("QueueTime").getClass(), PrometheusGauge.class);
         Assert.assertEquals(
-                metricCache.getMetricFrontend("WorkerLoadTime").getClass(), LogMetric.class);
+                metricCache.getMetricFrontend("WorkerThreadTime").getClass(),
+                PrometheusGauge.class);
         Assert.assertEquals(
-                metricCache.getMetricFrontend("CPUUtilization").getClass(), LogMetric.class);
+                metricCache.getMetricFrontend("WorkerLoadTime").getClass(), PrometheusGauge.class);
         Assert.assertEquals(
-                metricCache.getMetricFrontend("MemoryUsed").getClass(), LogMetric.class);
+                metricCache.getMetricFrontend("CPUUtilization").getClass(), PrometheusGauge.class);
         Assert.assertEquals(
-                metricCache.getMetricFrontend("MemoryAvailable").getClass(), LogMetric.class);
+                metricCache.getMetricFrontend("MemoryUsed").getClass(), PrometheusGauge.class);
         Assert.assertEquals(
-                metricCache.getMetricFrontend("MemoryUtilization").getClass(), LogMetric.class);
-        Assert.assertEquals(metricCache.getMetricFrontend("DiskUsage").getClass(), LogMetric.class);
+                metricCache.getMetricFrontend("MemoryAvailable").getClass(), PrometheusGauge.class);
         Assert.assertEquals(
-                metricCache.getMetricFrontend("DiskUtilization").getClass(), LogMetric.class);
+                metricCache.getMetricFrontend("MemoryUtilization").getClass(),
+                PrometheusGauge.class);
         Assert.assertEquals(
-                metricCache.getMetricFrontend("DiskAvailable").getClass(), LogMetric.class);
+                metricCache.getMetricFrontend("DiskUsage").getClass(), PrometheusGauge.class);
         Assert.assertEquals(
-                metricCache.getMetricFrontend("GPUMemoryUtilization").getClass(), LogMetric.class);
+                metricCache.getMetricFrontend("DiskUtilization").getClass(), PrometheusGauge.class);
         Assert.assertEquals(
-                metricCache.getMetricFrontend("GPUMemoryUsed").getClass(), LogMetric.class);
+                metricCache.getMetricFrontend("DiskAvailable").getClass(), PrometheusGauge.class);
         Assert.assertEquals(
-                metricCache.getMetricFrontend("GPUUtilization").getClass(), LogMetric.class);
-        Assert.assertEquals(metricCache.getMetricFrontend("IvalidMetric"), null);
+                metricCache.getMetricFrontend("GPUMemoryUtilization").getClass(),
+                PrometheusGauge.class);
         Assert.assertEquals(
-                metricCache.getMetricBackend("HandlerTime").getClass(), LogMetric.class);
+                metricCache.getMetricFrontend("GPUMemoryUsed").getClass(), PrometheusGauge.class);
         Assert.assertEquals(
-                metricCache.getMetricBackend("PredictionTime").getClass(), LogMetric.class);
-        Assert.assertEquals(metricCache.getMetricBackend("IvalidMetric"), null);
+                metricCache.getMetricFrontend("GPUUtilization").getClass(), PrometheusGauge.class);
+        Assert.assertEquals(metricCache.getMetricFrontend("InvalidMetric"), null);
+        Assert.assertEquals(
+                metricCache.getMetricBackend("HandlerTime").getClass(), PrometheusGauge.class);
+        Assert.assertEquals(
+                metricCache.getMetricBackend("PredictionTime").getClass(), PrometheusGauge.class);
+        Assert.assertEquals(metricCache.getMetricBackend("InvalidMetric"), null);
     }
 }

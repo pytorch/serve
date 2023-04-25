@@ -28,6 +28,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
+import java.util.regex.Pattern;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import org.pytorch.serve.util.ConfigManager;
@@ -47,6 +48,11 @@ public final class TestUtils {
     private static Channel inferenceChannel;
     private static Channel managementChannel;
     private static Channel metricsChannel;
+    private static String tsInferLatencyPattern =
+            "ts_inference_latency_microseconds\\{"
+                    + "ModelName=\"%s\","
+                    + "ModelVersion=\"%s\","
+                    + "Hostname=\".+\",\\}\\s\\d+(\\.\\d+)";
 
     private TestUtils() {}
 
@@ -424,6 +430,12 @@ public final class TestUtils {
         if (metricsChannel != null) {
             metricsChannel.closeFuture().sync();
         }
+    }
+
+    public static Pattern getTSInferLatencyMatcher(String modelName, String modelVersion) {
+        modelVersion = modelVersion == null ? "default" : modelVersion;
+        return Pattern.compile(
+                String.format(TestUtils.tsInferLatencyPattern, modelName, modelVersion));
     }
 
     public static void setConfiguration(ConfigManager configManager, String key, String val)
