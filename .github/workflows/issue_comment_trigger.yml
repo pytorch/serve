@@ -15,9 +15,10 @@ jobs:
   #    - name: Hello
   #      run: echo "Hello"
   job02:
-    if: contains(github.event.comment.html_url, '/pull/')    # check if the comments come from pull request, exclude those from issue.
     runs-on: [ubuntu-latest]
     steps:
+    - name: Test
+      run: echo say hello
     - name: say hello
-      if: contains(github.event.comment.body, '/support')   # check the comment if it contains the keywords
+      if: github.event.issue.pull_request && contains(github.event.comment.body, '/test_regression')
       run: echo say hello
