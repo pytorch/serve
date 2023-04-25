@@ -595,7 +595,7 @@ This is used in conjunction with <code class="docutils literal notranslate"><spa
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>A model’s parameters are defined in <a class="reference external" href="https://github.com/pytorch/serve/blob/master/frontend/server/src/main/java/org/pytorch/serve/wlm/Model.java#L24">model source code</a></p>
+<p>A model’s parameters are defined in <a class="reference external" href="https://github.com/pytorch/serve/blob/a9e218ae95fe7690c84b555d0fb9021322c9b049/frontend/archive/src/main/java/org/pytorch/serve/archive/model/ModelConfig.java#L11">model source code</a></p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">minWorkers</span></code>: the minimum number of workers of a model</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">maxWorkers</span></code>: the maximum number of workers of a model</p></li>
@@ -635,7 +635,7 @@ This is used in conjunction with <code class="docutils literal notranslate"><spa
 <p>Starting from version 0.8.0, TorchServe allows for model configuration using a YAML file embedded in the MAR file. This YAML file contains two distinct parts that determine how a model is configured: frontend parameters and backend parameters. (see <a class="reference external" href="https://github.com/pytorch/serve/tree/master/model-archiver#config-file">details</a>)</p>
 <ul class="simple">
 <li><p>The frontend parameters are controlled by TorchServe’s frontend and specify the parameter name and default values. TorchServe now uses a priority order to determine the final value of a model’s parameters in frontend. Specifically, the config.property file has the lowest priority, followed by the model configuration YAML file, and finally, the REST or gRPC model management API has the highest priority.</p></li>
-<li><p>The backend parameters are fully controlled by the user. Users customized handler can access the backend parameters via the <code class="docutils literal notranslate"><span class="pre">model_yaml_config</span></code> property of the <a class="reference external" href="https://github.com/pytorch/serve/blob/master/ts/context.py#L24">context object</a>. For example, context.model_yaml_config[”pippy”][”rpc_timeout”].</p></li>
+<li><p>The backend parameters are fully controlled by the user. Users customized handler can access the backend parameters via the <code class="docutils literal notranslate"><span class="pre">model_yaml_config</span></code> property of the <a class="reference external" href="https://github.com/pytorch/serve/blob/a9e218ae95fe7690c84b555d0fb9021322c9b049/ts/context.py#L24">context object</a>. For example, context.model_yaml_config[”pippy”][”rpc_timeout”].</p></li>
 <li><p>User can allocate specific GPU device IDs to a model by defining “deviceIds” in the frontend parameters in the YAML file. TorchServe uses a round-robin strategy to assign device IDs to a model’s worker. If specified in the YAML file, it round-robins the device IDs listed; otherwise, it uses all visible device IDs on the host.</p></li>
 </ul>
 </section>
