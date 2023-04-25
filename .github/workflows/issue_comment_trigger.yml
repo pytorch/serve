@@ -1,7 +1,7 @@
 name: pull request comment
 on:
   issue_comment:
-    types: [created, edited, deleted]
+    types: created
 jobs:
   #job01:
   #  runs-on: ubuntu-latest
@@ -18,7 +18,5 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event.issue.pull_request && contains(github.event.comment.body, '/test_regression')
     steps:
-    - name: Test
-      run: echo say hello
     - name: say hello
       run: echo say hello
