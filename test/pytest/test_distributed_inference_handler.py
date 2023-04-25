@@ -26,6 +26,9 @@ ARTIFACTS_INFERENCE_DIR = os.path.join("artifacts", "inference")
 REPORT_FILE = os.path.join("report.html")
 
 
+@pytest.mark.skip(
+    reason="Distributed inference requires multi-gpu machine, skipping for now"
+)
 @pytest.mark.skipif(
     not ((torch.cuda.device_count() > 0) and torch.cuda.is_available()),
     reason="Test to be run on GPU only",
