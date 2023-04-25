@@ -15,10 +15,10 @@ jobs:
   #    - name: Hello
   #      run: echo "Hello"
   job02:
-    runs-on: [ubuntu-latest]
+    runs-on: ubuntu-latest
+    if: github.event.issue.pull_request && contains(github.event.comment.body, '/test_regression')
     steps:
     - name: Test
       run: echo say hello
     - name: say hello
-      if: github.event.issue.pull_request && contains(github.event.comment.body, '/test_regression')
       run: echo say hello
