@@ -91,23 +91,35 @@ public class BatchAggregator {
                         jobDone = false;
                     }
                 }
-                job.response(
-                        prediction.getResp(),
-                        prediction.getContentType(),
-                        prediction.getStatusCode(),
-                        prediction.getReasonPhrase(),
-                        prediction.getHeaders());
+                if (job.getPayload().getClientExpireTS() > System.currentTimeMillis()) {
+                    job.response(
+                            prediction.getResp(),
+                            prediction.getContentType(),
+                            prediction.getStatusCode(),
+                            prediction.getReasonPhrase(),
+                            prediction.getHeaders());
+                } else {
+                    logger.warn(
+                            "Drop response for inference request {} due to client timeout",
+                            job.getPayload().getRequestId());
+                }
             }
 
         } else {
             for (Map.Entry<String, Job> j : jobs.entrySet()) {
-
                 if (j.getValue() == null) {
                     throw new IllegalStateException(
                             "Unexpected job in sendResponse() with non 200 status code: "
                                     + j.getKey());
                 }
-                j.getValue().sendError(message.getCode(), message.getMessage());
+                Job job = j.getValue();
+                if (job.getPayload().getClientExpireTS() > System.currentTimeMillis()) {
+                    job.sendError(message.getCode(), message.getMessage());
+                } else {
+                    logger.warn(
+                            "Drop error response for inference request {} due to client timeout",
+                            job.getPayload().getRequestId());
+                }
             }
         }
         if (jobDone) {
