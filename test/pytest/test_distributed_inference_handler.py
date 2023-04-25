@@ -30,8 +30,12 @@ REPORT_FILE = os.path.join("report.html")
     reason="Distributed inference requires multi-gpu machine, skipping for now"
 )
 @pytest.mark.skipif(
-    not ((torch.cuda.device_count() > 0) and torch.cuda.is_available()),
-    reason="Test to be run on GPU only",
+    not torch.cuda.is_available(),
+    reason="CUDA not available, test to be run on GPU only",
+)
+@pytest.mark.skipif(
+    torch.cuda.device_count() < 2,
+    reason="Not enough CUDA devices available, test to be run on at least 2 GPUs",
 )
 def test_large_model_inference():
     """Run a Newman test for distributed inference on a large model"""
