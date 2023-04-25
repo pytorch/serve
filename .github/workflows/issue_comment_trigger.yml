@@ -3,14 +3,21 @@ on:
   issue_comment:
     types: [created, edited, deleted]
 jobs:
-  job01:
-    runs-on: ubuntu-latest
-    # check if the comments come from pull request, exclude those from issue.
-    if: contains(github.event.comment.body, 'regression-gpu')   # check the comment if it contains the keywords
-    #uses: pytorch/serve/.github/workflows/regression_tests_gpu.yml@feature/run_regression_issue_comment
-    #with:
-    #  event_name: ${{ github.event_name }}
-    #  run_id: ${{ github.run_id }}
+  #job01:
+  #  runs-on: ubuntu-latest
+  #  # check if the comments come from pull request, exclude those from issue.
+  #  if: contains(github.event.comment.body, 'regression-gpu')   # check the comment if it contains the keywords
+  #  #uses: pytorch/serve/.github/workflows/regression_tests_gpu.yml@feature/run_regression_issue_comment
+  #  #with:
+  #  #  event_name: ${{ github.event_name }}
+  #  #  run_id: ${{ github.run_id }}
+  #  steps:
+  #    - name: Hello
+  #      run: echo "Hello"
+  job02:
+    if: contains(github.event.comment.html_url, '/pull/')    # check if the comments come from pull request, exclude those from issue.
+    runs-on: [ubuntu-latest]
     steps:
-      - name: Hello
-        run: echo "Hello"
+    - name: say hello
+      if: contains(github.event.comment.body, '/support')   # check the comment if it contains the keywords
+      run: echo say hello
