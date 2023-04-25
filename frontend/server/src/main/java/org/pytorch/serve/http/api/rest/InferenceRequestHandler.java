@@ -65,11 +65,15 @@ public class InferenceRequestHandler extends HttpRequestHandlerChain {
                     case "ping":
                         Runnable r =
                                 () -> {
-                                    String response = ApiUtils.getWorkerStatus();
+                                    boolean isHealthy = ApiUtils.isModelHealthy();
+                                    int code = HttpURLConnection.HTTP_OK;
+                                    String response = "Healthy";
+                                    if (!isHealthy) {
+                                        response = "Unhealthy";
+                                        code = HttpURLConnection.HTTP_INTERNAL_ERROR;
+                                    }
                                     NettyUtils.sendJsonResponse(
-                                            ctx,
-                                            new StatusResponse(
-                                                    response, HttpURLConnection.HTTP_OK));
+                                            ctx, new StatusResponse(response, code));
                                 };
                         ApiUtils.getTorchServeHealth(r);
                         break;
@@ -243,15 +247,14 @@ public class InferenceRequestHandler extends HttpRequestHandlerChain {
                 throw new BadRequestException("Parameter model_name is required.");
             }
         }
+        ModelManager modelManager = ModelManager.getInstance();
+        Model model = modelManager.getModel(modelName, modelVersion);
+        if (model == null) {
+            throw new ModelNotFoundException("Model not found: " + modelName);
+        }
+        input.setClientExpireTS(model.getClientTimeoutInMills());
 
         if (HttpMethod.OPTIONS.equals(req.method())) {
-            ModelManager modelManager = ModelManager.getInstance();
-
-            Model model = modelManager.getModel(modelName, modelVersion);
-            if (model == null) {
-                throw new ModelNotFoundException("Model not found: " + modelName);
-            }
-
             String resp = OpenApiUtils.getModelApi(model);
             NettyUtils.sendJsonResponse(ctx, resp);
             return;

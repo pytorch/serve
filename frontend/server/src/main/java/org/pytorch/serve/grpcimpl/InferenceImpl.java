@@ -25,6 +25,7 @@ import org.pytorch.serve.util.JsonUtils;
 import org.pytorch.serve.util.messages.InputParameter;
 import org.pytorch.serve.util.messages.RequestInput;
 import org.pytorch.serve.util.messages.WorkerCommands;
+import org.pytorch.serve.wlm.Model;
 import org.pytorch.serve.wlm.ModelManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,13 +46,19 @@ public class InferenceImpl extends InferenceAPIsServiceImplBase {
                         });
         Runnable r =
                 () -> {
-                    String response = ApiUtils.getWorkerStatus();
+                    boolean isHealthy = ApiUtils.isModelHealthy();
+                    int code = HttpURLConnection.HTTP_OK;
+                    String response = "Healthy";
+                    if (!isHealthy) {
+                        response = "Unhealthy";
+                        code = HttpURLConnection.HTTP_INTERNAL_ERROR;
+                    }
+
                     TorchServeHealthResponse reply =
                             TorchServeHealthResponse.newBuilder()
                                     .setHealth(
                                             JsonUtils.GSON_PRETTY_EXPOSED.toJson(
-                                                    new StatusResponse(
-                                                            response, HttpURLConnection.HTTP_OK)))
+                                                    new StatusResponse(response, code)))
                                     .build();
                     responseObserver.onNext(reply);
                     responseObserver.onCompleted();
@@ -113,17 +120,23 @@ public class InferenceImpl extends InferenceAPIsServiceImplBase {
 
         String requestId = UUID.randomUUID().toString();
         RequestInput inputData = new RequestInput(requestId);
-
-        for (Map.Entry<String, ByteString> entry : request.getInputMap().entrySet()) {
-            inputData.addParameter(
-                    new InputParameter(entry.getKey(), entry.getValue().toByteArray()));
-        }
-
-        MetricAggregator.handleInferenceMetric(modelName, modelVersion);
-        Job job = new GRPCJob(responseObserver, modelName, modelVersion, workerCmd, inputData);
-
         try {
-            if (!ModelManager.getInstance().addJob(job)) {
+            ModelManager modelManager = ModelManager.getInstance();
+            Model model = modelManager.getModel(modelName, modelVersion);
+            if (model == null) {
+                throw new ModelNotFoundException("Model not found: " + modelName);
+            }
+            inputData.setClientExpireTS(model.getClientTimeoutInMills());
+
+            for (Map.Entry<String, ByteString> entry : request.getInputMap().entrySet()) {
+                inputData.addParameter(
+                        new InputParameter(entry.getKey(), entry.getValue().toByteArray()));
+            }
+
+            MetricAggregator.handleInferenceMetric(modelName, modelVersion);
+            Job job = new GRPCJob(responseObserver, modelName, modelVersion, workerCmd, inputData);
+
+            if (!modelManager.addJob(job)) {
                 String responseMessage =
                         ApiUtils.getInferenceErrorResponseMessage(modelName, modelVersion);
                 InternalServerException e = new InternalServerException(responseMessage);
