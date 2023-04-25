@@ -1,14 +1,14 @@
 name: Run Regression Tests on GPU
 
-on:
+on: push
   # runs everyday  at 9:15am
-  schedule:
-    - cron:  '15 9 * * *'
+  # schedule:
+  #   - cron:  '15 9 * * *'
 
 jobs:
   regression-gpu:
     # creates workflows for CUDA 11.6 & CUDA 11.7 on ubuntu
-    runs-on: [self-hosted, regression-test-gpu]
+    runs-on: [self-hosted, benchmark-gpu-new]
     strategy:
       fail-fast: false
       matrix:
