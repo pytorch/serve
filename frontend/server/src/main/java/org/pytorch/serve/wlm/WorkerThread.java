@@ -17,6 +17,7 @@ import java.net.HttpURLConnection;
 import java.net.SocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -28,8 +29,8 @@ import java.util.stream.Collectors;
 import org.pytorch.serve.archive.model.ModelConfig;
 import org.pytorch.serve.job.Job;
 import org.pytorch.serve.job.RestJob;
-import org.pytorch.serve.metrics.Dimension;
-import org.pytorch.serve.metrics.Metric;
+import org.pytorch.serve.metrics.IMetric;
+import org.pytorch.serve.metrics.MetricCache;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.Connector;
 import org.pytorch.serve.util.codec.ModelRequestEncoder;
@@ -45,8 +46,6 @@ import org.slf4j.LoggerFactory;
 public class WorkerThread implements Runnable {
 
     private static final Logger logger = LoggerFactory.getLogger(WorkerThread.class);
-    private static final Logger loggerTsMetrics =
-            LoggerFactory.getLogger(ConfigManager.MODEL_SERVER_METRICS_LOGGER);
     private static final Logger loggerTelemetryMetrics =
             LoggerFactory.getLogger(ConfigManager.MODEL_SERVER_TELEMETRY_LOGGER);
     private static final int[] BACK_OFF = {
@@ -55,7 +54,10 @@ public class WorkerThread implements Runnable {
     private static final long WORKER_TIMEOUT = 2L;
     private static final ModelRequestEncoder ENCODER =
             new ModelRequestEncoder(ConfigManager.getInstance().getPreferDirectBuffer());
-    private Metric workerLoadTime;
+    private final IMetric workerThreadTimeMetric;
+    private final IMetric workerLoadTimeMetric;
+    private final List<String> workerThreadTimeMetricDimensionValues;
+    private final List<String> workerLoadTimeMetricDimensionValues;
     private ConfigManager configManager;
     private EventLoopGroup backendEventGroup;
     private int port;
@@ -98,13 +100,13 @@ public class WorkerThread implements Runnable {
         startTime = System.currentTimeMillis();
         lifeCycle = new WorkerLifeCycle(configManager, model);
         replies = new ArrayBlockingQueue<>(model.getParallelLevel());
-        workerLoadTime =
-                new Metric(
-                        getWorkerName(),
-                        String.valueOf(System.currentTimeMillis()),
-                        "ms",
-                        ConfigManager.getInstance().getHostName(),
-                        new Dimension("Level", "Host"));
+        this.workerThreadTimeMetric =
+                MetricCache.getInstance().getMetricFrontend("WorkerThreadTime");
+        this.workerLoadTimeMetric = MetricCache.getInstance().getMetricFrontend("WorkerLoadTime");
+        this.workerThreadTimeMetricDimensionValues =
+                Arrays.asList("Host", ConfigManager.getInstance().getHostName());
+        this.workerLoadTimeMetricDimensionValues =
+                Arrays.asList(getWorkerName(), "Host", ConfigManager.getInstance().getHostName());
     }
 
     public WorkerState getState() {
@@ -256,17 +258,16 @@ public class WorkerThread implements Runnable {
                         break;
                 }
                 req = null;
-                String workerThreadTime =
-                        String.valueOf(
-                                ((System.currentTimeMillis() - wtStartTime) - totalDuration));
-                loggerTsMetrics.info(
-                        "{}",
-                        new Metric(
-                                "WorkerThreadTime",
-                                workerThreadTime,
-                                "ms",
-                                ConfigManager.getInstance().getHostName(),
-                                new Dimension("Level", "Host")));
+                double workerThreadTime =
+                        (System.currentTimeMillis() - wtStartTime) - totalDuration;
+                if (this.workerThreadTimeMetric != null) {
+                    try {
+                        this.workerThreadTimeMetric.addOrUpdate(
+                                this.workerThreadTimeMetricDimensionValues, workerThreadTime);
+                    } catch (Exception e) {
+                        logger.error("Failed to update frontend metric WorkerThreadTime: ", e);
+                    }
+                }
             }
         } catch (InterruptedException e) {
             logger.debug("System state is : " + state);
@@ -477,10 +478,14 @@ public class WorkerThread implements Runnable {
         }
 
         if (state == WorkerState.WORKER_MODEL_LOADED) {
-            workerLoadTime.setValue(String.valueOf(timeTaken));
-            workerLoadTime.setTimestamp(
-                    String.valueOf(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis())));
-            loggerTsMetrics.info("{}", workerLoadTime);
+            if (this.workerLoadTimeMetric != null) {
+                try {
+                    this.workerLoadTimeMetric.addOrUpdate(
+                            this.workerLoadTimeMetricDimensionValues, timeTaken);
+                } catch (Exception e) {
+                    logger.error("Failed to update frontend metric WorkerLoadTime: ", e);
+                }
+            }
             if (recoveryStartTS > 0) {
                 logger.info("Auto recovery succeeded, reset recoveryStartTS");
                 recoveryStartTS = 0;

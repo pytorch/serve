@@ -6,6 +6,8 @@ import io.grpc.Status;
 import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
 import java.net.HttpURLConnection;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import org.pytorch.serve.archive.model.ModelNotFoundException;
@@ -19,8 +21,10 @@ import org.pytorch.serve.http.InternalServerException;
 import org.pytorch.serve.http.StatusResponse;
 import org.pytorch.serve.job.GRPCJob;
 import org.pytorch.serve.job.Job;
-import org.pytorch.serve.metrics.api.MetricAggregator;
+import org.pytorch.serve.metrics.IMetric;
+import org.pytorch.serve.metrics.MetricCache;
 import org.pytorch.serve.util.ApiUtils;
+import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.JsonUtils;
 import org.pytorch.serve.util.messages.InputParameter;
 import org.pytorch.serve.util.messages.RequestInput;
@@ -133,7 +137,23 @@ public class InferenceImpl extends InferenceAPIsServiceImplBase {
                         new InputParameter(entry.getKey(), entry.getValue().toByteArray()));
             }
 
-            MetricAggregator.handleInferenceMetric(modelName, modelVersion);
+            IMetric inferenceRequestsTotalMetric =
+                    MetricCache.getInstance().getMetricFrontend("ts_inference_requests_total");
+            if (inferenceRequestsTotalMetric != null) {
+                List<String> inferenceRequestsTotalMetricDimensionValues =
+                        Arrays.asList(
+                                modelName,
+                                modelVersion == null ? "default" : modelVersion,
+                                ConfigManager.getInstance().getHostName());
+                try {
+                    inferenceRequestsTotalMetric.addOrUpdate(
+                            inferenceRequestsTotalMetricDimensionValues, 1);
+                } catch (Exception e) {
+                    logger.error(
+                            "Failed to update frontend metric ts_inference_requests_total: ", e);
+                }
+            }
+
             Job job = new GRPCJob(responseObserver, modelName, modelVersion, workerCmd, inputData);
 
             if (!modelManager.addJob(job)) {
