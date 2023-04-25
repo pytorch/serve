@@ -169,3 +169,10 @@ A mar file can be used either locally or be publicly available via http. An S3 U
 
 ### How to set a model's batch size on SageMaker?  Key parameters for TorchServe performance tuning.
 [TorchServe performance tuning example](https://github.com/lxning/torchserve_perf/blob/master/torchserve_perf.ipynb)
+
+## Why is my model initialization so slow?
+There's a few reasons why model initialization can be slow
+1. `torch.load()` overhead - not something we can improve, this will be more dramatic for larger models
+2. CUDA context launch overhead - not something we can control
+3. install_py_dep_per_model=true is intended for local development or sagemaker deployments, in other production environment you should pre install your dependencies
+4. The model archiver has an overhead to compress and decompress models, the compression is on by default because historically torchserve came out of sagemaker needs which involve loading and unloading tons of models stored in cloud buckets. But for users with smaller deployments choosing `torch-model-archiver --no-archive` is a good bet

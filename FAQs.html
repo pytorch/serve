@@ -565,6 +565,16 @@ Note: For v4 type replace <code class="docutils literal notranslate"><span class
 <p><a class="reference external" href="https://github.com/lxning/torchserve_perf/blob/master/torchserve_perf.ipynb">TorchServe performance tuning example</a></p>
 </section>
 </section>
+<section id="why-is-my-model-initialization-so-slow">
+<h2>Why is my model initialization so slow?<a class="headerlink" href="#why-is-my-model-initialization-so-slow" title="Permalink to this headline">¶</a></h2>
+<p>There’s a few reasons why model initialization can be slow</p>
+<ol class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">torch.load()</span></code> overhead - not something we can improve, this will be more dramatic for larger models</p></li>
+<li><p>CUDA context launch overhead - not something we can control</p></li>
+<li><p>install_py_dep_per_model=true is intended for local development or sagemaker deployments, in other production environment you should pre install your dependencies</p></li>
+<li><p>The model archiver has an overhead to compress and decompress models, the compression is on by default because historically torchserve came out of sagemaker needs which involve loading and unloading tons of models stored in cloud buckets. But for users with smaller deployments choosing <code class="docutils literal notranslate"><span class="pre">torch-model-archiver</span> <span class="pre">--no-archive</span></code> is a good bet</p></li>
+</ol>
+</section>
 </section>
 
 
@@ -648,6 +658,7 @@ Note: For v4 type replace <code class="docutils literal notranslate"><span class
 <li><a class="reference internal" href="#how-to-set-a-model-s-batch-size-on-sagemaker-key-parameters-for-torchserve-performance-tuning">How to set a model’s batch size on SageMaker?  Key parameters for TorchServe performance tuning.</a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#why-is-my-model-initialization-so-slow">Why is my model initialization so slow?</a></li>
 </ul>
 </li>
 </ul>
