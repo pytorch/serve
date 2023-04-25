@@ -36,69 +36,56 @@ public final class MetricCache {
         }
 
         if (this.config.getTs_metrics() != null) {
-            addMetricsFrontend(
+            addMetrics(
+                    this.metricsFrontend,
                     this.config.getTs_metrics().getCounter(),
                     metricsMode,
                     MetricBuilder.MetricType.COUNTER);
-            addMetricsFrontend(
+            addMetrics(
+                    this.metricsFrontend,
                     this.config.getTs_metrics().getGauge(),
                     metricsMode,
                     MetricBuilder.MetricType.GAUGE);
-            addMetricsFrontend(
+            addMetrics(
+                    this.metricsFrontend,
                     this.config.getTs_metrics().getHistogram(),
                     metricsMode,
                     MetricBuilder.MetricType.HISTOGRAM);
         }
 
         if (this.config.getModel_metrics() != null) {
-            addMetricsBackend(
+            addMetrics(
+                    this.metricsBackend,
                     this.config.getModel_metrics().getCounter(),
                     metricsMode,
                     MetricBuilder.MetricType.COUNTER);
-            addMetricsBackend(
+            addMetrics(
+                    this.metricsBackend,
                     this.config.getModel_metrics().getGauge(),
                     metricsMode,
                     MetricBuilder.MetricType.GAUGE);
-            addMetricsBackend(
+            addMetrics(
+                    this.metricsBackend,
                     this.config.getModel_metrics().getHistogram(),
                     metricsMode,
                     MetricBuilder.MetricType.HISTOGRAM);
         }
     }
 
-    private void addMetricsFrontend(
+    private void addMetrics(
+            ConcurrentMap<String, IMetric> metricCache,
             List<MetricSpecification> metricsSpec,
-            MetricBuilder.MetricMode metricsMode,
+            MetricBuilder.MetricMode metricMode,
             MetricBuilder.MetricType metricType) {
         if (metricsSpec == null) {
             return;
         }
 
         for (MetricSpecification spec : metricsSpec) {
-            this.metricsFrontend.put(
+            metricCache.put(
                     spec.getName(),
                     MetricBuilder.build(
-                            metricsMode,
-                            metricType,
-                            spec.getName(),
-                            spec.getUnit(),
-                            spec.getDimensions()));
-        }
-    }
-
-    private void addMetricsBackend(
-            List<MetricSpecification> metricsSpec,
-            MetricBuilder.MetricMode metricsMode,
-            MetricBuilder.MetricType metricType) {
-        if (metricsSpec == null) {
-            return;
-        }
-
-        for (MetricSpecification spec : metricsSpec) {
-            this.metricsBackend.put(
-                    spec.getName(),
-                    MetricBuilder.build(
-                            metricsMode,
+                            metricMode,
                             metricType,
                             spec.getName(),
                             spec.getUnit(),
