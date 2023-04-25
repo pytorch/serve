@@ -11,4 +11,6 @@ jobs:
     #with:
     #  event_name: ${{ github.event_name }}
     #  run_id: ${{ github.run_id }}
-    run: echo "Hello"
+    steps:
+      name: Hello
+      run: echo "Hello"
