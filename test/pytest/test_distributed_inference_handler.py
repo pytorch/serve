@@ -3,7 +3,6 @@ import sys
 
 import pytest
 import test_utils
-import torch
 
 REPO_ROOT = os.path.normpath(
     os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../")
@@ -26,9 +25,8 @@ ARTIFACTS_INFERENCE_DIR = os.path.join("artifacts", "inference")
 REPORT_FILE = os.path.join("report.html")
 
 
-@pytest.mark.skipif(
-    not ((torch.cuda.device_count() > 0) and torch.cuda.is_available()),
-    reason="Test to be run on GPU only",
+@pytest.mark.skip(
+    reason="Distributed inference requires multi-gpu machine, skipping for now"
 )
 def test_large_model_inference():
     """Run a Newman test for distributed inference on a large model"""
