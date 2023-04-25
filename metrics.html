@@ -376,114 +376,202 @@
 </section>
 <section id="introduction">
 <h2><span class="section-number">9.2. </span>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
-<p>TorchServe collects system level metrics in regular intervals, and also provides an API to collect custom metrics.
-Metrics collected by metrics are logged and can be aggregated by metric agents.
-The system level metrics are collected every minute. Metrics defined by the custom service code can be collected per request or per a batch of requests.
-TorchServe logs these two sets of metrics to different log files.
-Metrics are collected by default at:</p>
+<p>Torchserve metrics can be broadly classified into frontend and backend metrics.
+Frontend metrics include system level metrics. The host resource utilization frontend metrics are collected at regular intervals(default: every minute).
+Torchserve provides an API to collect custom backend metrics. Metrics defined by a custom service or handler code can be collected per request or per a batch of requests.
+Two metric modes are supported, i.e <code class="docutils literal notranslate"><span class="pre">log</span></code> and <code class="docutils literal notranslate"><span class="pre">prometheus</span></code>. The default mode is <code class="docutils literal notranslate"><span class="pre">log</span></code>.
+Metrics mode can be configured using the <code class="docutils literal notranslate"><span class="pre">metrics_mode</span></code> configuration option in <code class="docutils literal notranslate"><span class="pre">config.properties</span></code> or <code class="docutils literal notranslate"><span class="pre">TS_METRICS_MODE</span></code> environment variable.
+In <code class="docutils literal notranslate"><span class="pre">log</span></code> mode, Metrics are logged and can be aggregated by metric agents.</p>
+<p>Metrics are collected by default at the following locations in <code class="docutils literal notranslate"><span class="pre">log</span></code> mode:</p>
 <ul class="simple">
-<li><p>System metrics - <code class="docutils literal notranslate"><span class="pre">log_directory/ts_metrics.log</span></code></p></li>
-<li><p>Custom metrics - <code class="docutils literal notranslate"><span class="pre">log</span> <span class="pre">directory/model_metrics.log</span></code></p></li>
+<li><p>Frontend metrics - <code class="docutils literal notranslate"><span class="pre">log_directory/ts_metrics.log</span></code></p></li>
+<li><p>Backend metrics - <code class="docutils literal notranslate"><span class="pre">log</span> <span class="pre">directory/model_metrics.log</span></code></p></li>
 </ul>
 <p>The location of log files and metric files can be configured in the <a class="reference external" href="https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/log4j2.xml">log4j2.xml</a> file</p>
+<p>In <code class="docutils literal notranslate"><span class="pre">prometheus</span></code> mode, all metrics are made available in prometheus format via the <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/metrics_api">metrics</a> API endpoint.</p>
 </section>
-<section id="system-metrics">
-<h2><span class="section-number">9.3. </span>System Metrics<a class="headerlink" href="#system-metrics" title="Permalink to this headline">¶</a></h2>
+<section id="frontend-metrics">
+<h2><span class="section-number">9.3. </span>Frontend Metrics<a class="headerlink" href="#frontend-metrics" title="Permalink to this headline">¶</a></h2>
 <table border="1" class="docutils">
 <thead>
 <tr>
 <th>Metric Name</th>
-<th>Dimension</th>
+<th>Type</th>
 <th>Unit</th>
+<th>Dimensions</th>
 <th>Semantics</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>CPUUtilization</td>
-<td>host</td>
-<td>percentage</td>
-<td>CPU utilization on host</td>
-</tr>
-<tr>
-<td>DiskAvailable</td>
-<td>host</td>
-<td>GB</td>
-<td>disk available on host</td>
-</tr>
-<tr>
-<td>DiskUsed</td>
-<td>host</td>
-<td>GB</td>
-<td>disk used on host</td>
-</tr>
-<tr>
-<td>DiskUtilization</td>
-<td>host</td>
-<td>percentage</td>
-<td>disk used on host</td>
-</tr>
-<tr>
-<td>MemoryAvailable</td>
-<td>host</td>
-<td>MB</td>
-<td>memory available on host</td>
-</tr>
-<tr>
-<td>MemoryUsed</td>
-<td>host</td>
-<td>MB</td>
-<td>memory used on host</td>
-</tr>
-<tr>
-<td>MemoryUtilization</td>
-<td>host</td>
-<td>percentage</td>
-<td>memory utilization on host</td>
-</tr>
-<tr>
-<td>GPUUtilization</td>
-<td>host,device_id</td>
-<td>percentage</td>
-<td>GPU utilization on host,device_id</td>
-</tr>
-<tr>
-<td>GPUMemoryUtilization</td>
-<td>host,device_id</td>
-<td>percentage</td>
-<td>GPU memory utilization on host,device_id</td>
-</tr>
-<tr>
-<td>GPUMemoryUsed</td>
-<td>host,device_id</td>
-<td>MB</td>
-<td>GPU memory used on host,device_id</td>
-</tr>
-<tr>
 <td>Requests2XX</td>
-<td>host</td>
-<td>count</td>
-<td>logged for every request responded in 200-300 status code range</td>
+<td>counter</td>
+<td>Count</td>
+<td>Level, Hostname</td>
+<td>Total number of requests with response in 200-300 status code range</td>
 </tr>
 <tr>
 <td>Requests4XX</td>
-<td>host</td>
-<td>count</td>
-<td>logged for every request responded in 400-500 status code range</td>
+<td>counter</td>
+<td>Count</td>
+<td>Level, Hostname</td>
+<td>Total number of requests with response in 400-500 status code range</td>
 </tr>
 <tr>
 <td>Requests5XX</td>
-<td>host</td>
-<td>count</td>
-<td>logged for every request responded with status code above 500</td>
+<td>counter</td>
+<td>Count</td>
+<td>Level, Hostname</td>
+<td>Total number of requests with response status code above 500</td>
+</tr>
+<tr>
+<td>ts_inference_requests_total</td>
+<td>counter</td>
+<td>Count</td>
+<td>ModelName, ModelVersion, Hostname</td>
+<td>Total number of inference requests received</td>
+</tr>
+<tr>
+<td>ts_inference_latency_microseconds</td>
+<td>counter</td>
+<td>Microseconds</td>
+<td>ModelName, ModelVersion, Hostname</td>
+<td>Total inference latency in Microseconds</td>
+</tr>
+<tr>
+<td>ts_queue_latency_microseconds</td>
+<td>counter</td>
+<td>Microseconds</td>
+<td>ModelName, ModelVersion, Hostname</td>
+<td>Total queue latency in Microseconds</td>
+</tr>
+<tr>
+<td>QueueTime</td>
+<td>gauge</td>
+<td>Milliseconds</td>
+<td>Level, Hostname</td>
+<td>Time spent by a job in request queue in Milliseconds</td>
+</tr>
+<tr>
+<td>WorkerThreadTime</td>
+<td>gauge</td>
+<td>Milliseconds</td>
+<td>Level, Hostname</td>
+<td>Time spent in worker thread excluding backend response time in Milliseconds</td>
+</tr>
+<tr>
+<td>WorkerLoadTime</td>
+<td>gauge</td>
+<td>Milliseconds</td>
+<td>WorkerName, Level, Hostname</td>
+<td>Time taken by worker to load model in Milliseconds</td>
+</tr>
+<tr>
+<td>CPUUtilization</td>
+<td>gauge</td>
+<td>Percent</td>
+<td>Level, Hostname</td>
+<td>CPU utilization on host</td>
+</tr>
+<tr>
+<td>MemoryUsed</td>
+<td>gauge</td>
+<td>Megabytes</td>
+<td>Level, Hostname</td>
+<td>Memory used on host</td>
+</tr>
+<tr>
+<td>MemoryAvailable</td>
+<td>gauge</td>
+<td>Megabytes</td>
+<td>Level, Hostname</td>
+<td>Memory available on host</td>
+</tr>
+<tr>
+<td>MemoryUtilization</td>
+<td>gauge</td>
+<td>Percent</td>
+<td>Level, Hostname</td>
+<td>Memory utilization on host</td>
+</tr>
+<tr>
+<td>DiskUsage</td>
+<td>gauge</td>
+<td>Gigabytes</td>
+<td>Level, Hostname</td>
+<td>Disk used on host</td>
+</tr>
+<tr>
+<td>DiskUtilization</td>
+<td>gauge</td>
+<td>Percent</td>
+<td>Level, Hostname</td>
+<td>Disk used on host</td>
+</tr>
+<tr>
+<td>DiskAvailable</td>
+<td>gauge</td>
+<td>Gigabytes</td>
+<td>Level, Hostname</td>
+<td>Disk available on host</td>
+</tr>
+<tr>
+<td>GPUMemoryUtilization</td>
+<td>gauge</td>
+<td>Percent</td>
+<td>Level, DeviceId, Hostname</td>
+<td>GPU memory utilization on host, DeviceId</td>
+</tr>
+<tr>
+<td>GPUMemoryUsed</td>
+<td>gauge</td>
+<td>Megabytes</td>
+<td>Level, DeviceId, Hostname</td>
+<td>GPU memory used on host, DeviceId</td>
+</tr>
+<tr>
+<td>GPUUtilization</td>
+<td>gauge</td>
+<td>Percent</td>
+<td>Level, DeviceId, Hostname</td>
+<td>GPU utilization on host, DeviceId</td>
+</tr>
+</tbody>
+</table></section>
+<section id="backend-metrics">
+<h2><span class="section-number">9.4. </span>Backend Metrics<a class="headerlink" href="#backend-metrics" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>Metric Name</th>
+<th>Type</th>
+<th>Unit</th>
+<th>Dimensions</th>
+<th>Semantics</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>HandlerTime</td>
+<td>gauge</td>
+<td>ms</td>
+<td>ModelName, Level, Hostname</td>
+<td>Time spent in backend handler</td>
+</tr>
+<tr>
+<td>PredictionTime</td>
+<td>gauge</td>
+<td>ms</td>
+<td>ModelName, Level, Hostname</td>
+<td>Backend prediction time</td>
 </tr>
 </tbody>
 </table></section>
 <section id="formatting">
-<h2><span class="section-number">9.4. </span>Formatting<a class="headerlink" href="#formatting" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">9.5. </span>Formatting<a class="headerlink" href="#formatting" title="Permalink to this headline">¶</a></h2>
 <p>TorchServe emits metrics to log files by default. The metrics are formatted in a <a class="reference external" href="https://github.com/etsy/statsd">StatsD</a> like format.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>CPUUtilization.Percent:0.0<span class="p">|</span><span class="c1">#Level:Host|#hostname:my_machine_name</span>
-MemoryUsed.Megabytes:13840.328125<span class="p">|</span><span class="c1">#Level:Host|#hostname:my_machine_name</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>CPUUtilization.Percent:0.0<span class="p">|</span><span class="c1">#Level:Host|#hostname:my_machine_name,timestamp:1682098185</span>
+DiskAvailable.Gigabytes:318.0416717529297<span class="p">|</span><span class="c1">#Level:Host|#hostname:my_machine_name,timestamp:1682098185</span>
 </pre></div>
 </div>
 <p>To enable metric logging in JSON format, set “patternlayout” as “JSONPatternLayout” in <a class="reference external" href="https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/log4j2.xml">log4j2.xml</a> (See sample <a class="reference external" href="https://github.com/pytorch/serve/blob/master/frontend/server/src/test/resources/log4j2-json.xml">log4j2-json.xml</a>). For information, see <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/logging">Logging in Torchserve</a>.</p>
@@ -532,7 +620,7 @@ EOE
 </div>
 </section>
 <section id="metric-types">
-<h2><span class="section-number">9.5. </span>Metric Types<a class="headerlink" href="#metric-types" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">9.6. </span>Metric Types<a class="headerlink" href="#metric-types" title="Permalink to this headline">¶</a></h2>
 <p>TorchServe Metrics is introducing <a class="reference external" href="https://github.com/pytorch/serve/blob/master/ts/metrics/metric_type_enum.py">Metric Types</a>
 that are in line with the <a class="reference external" href="https://github.com/prometheus/client_python">Prometheus API</a> metric types.</p>
 <p>Metric types are an attribute of Metric objects.
@@ -545,16 +633,14 @@ Users will be restricted to the existing metric types when adding metrics via Me
 </div>
 </section>
 <section id="central-metrics-yaml-file-definition">
-<h2><span class="section-number">9.6. </span>Central metrics YAML file definition<a class="headerlink" href="#central-metrics-yaml-file-definition" title="Permalink to this headline">¶</a></h2>
-<p>TorchServe defines metrics in a <a class="reference external" href="https://github.com/pytorch/serve/blob/master/frontend/server/src/test/resources/metrics_default.yaml">metrics_default.yaml</a>
+<h2><span class="section-number">9.7. </span>Central metrics YAML file definition<a class="headerlink" href="#central-metrics-yaml-file-definition" title="Permalink to this headline">¶</a></h2>
+<p>TorchServe defines metrics in a <a class="reference external" href="https://github.com/pytorch/serve/blob/master/ts/configs/metrics.yaml">yaml</a>
 file, including both frontend metrics (i.e. <code class="docutils literal notranslate"><span class="pre">ts_metrics</span></code>) and backend metrics (i.e. <code class="docutils literal notranslate"><span class="pre">model_metrics</span></code>).
 When TorchServe is started, the metrics definition is loaded in the frontend and backend cache separately.
 The backend flushes the metrics cache once a load model or inference request is completed.</p>
 <p>Dynamic updates between the frontend and backend are <em>not</em> currently being handled.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">metrics.yaml</span></code> is formatted with Prometheus metric type terminology:</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">prometheus</span>
-
-<span class="nt">dimensions</span><span class="p">:</span><span class="w"> </span><span class="c1"># dimension aliases</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">dimensions</span><span class="p">:</span><span class="w"> </span><span class="c1"># dimension aliases</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nl">&amp;model_name</span><span class="w"> </span><span class="s">&quot;ModelName&quot;</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nl">&amp;level</span><span class="w"> </span><span class="s">&quot;Level&quot;</span>
 
@@ -590,18 +676,18 @@ The backend flushes the metrics cache once a load model or inference request is 
 <span class="w">      </span><span class="nt">dimensions</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">*model_name</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">*level</span><span class="p p-Indicator">]</span>
 </pre></div>
 </div>
-<p>These are the default metrics within the yaml file, but the user can either delete them to their liking / ignore them altogether, because these metrics will not be emitted unless they are edited.</p>
+<p>Default metrics are provided in the <a class="reference external" href="https://github.com/pytorch/serve/blob/master/ts/configs/metrics.yaml">metrics.yaml</a> file, but the user can either delete them to their liking / ignore them altogether, because these metrics will not be emitted unless they are edited.</p>
 <section id="how-it-works">
-<h3><span class="section-number">9.6.1. </span>How it works<a class="headerlink" href="#how-it-works" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">9.7.1. </span>How it works<a class="headerlink" href="#how-it-works" title="Permalink to this headline">¶</a></h3>
 <p>Whenever torchserve starts, the <a class="reference external" href="https://github.com/pytorch/serve/blob/master/ts/model_service_worker.py">backend worker</a> initializes <code class="docutils literal notranslate"><span class="pre">service.context.metrics</span></code> with the <a class="reference external" href="https://github.com/pytorch/serve/blob/master/ts/metrics/metric_cache_yaml_impl.py">MetricsCache</a> object. The <code class="docutils literal notranslate"><span class="pre">model_metrics</span></code> (backend metrics) section within the specified yaml file will be parsed, and Metric objects will be created based on the parsed section and added  that are added to the cache.</p>
 <p>This is all done internally, so the user does not have to do anything other than specifying the desired yaml file.</p>
 <p><em>Users have the ability to parse other sections of the yaml file manually, but the primary purpose of this functionality is to
 parse the backend metrics from the yaml file.</em></p>
 </section>
 <section id="user-manual-starting-torchserve-with-a-yaml-file-specified">
-<h3><span class="section-number">9.6.2. </span>User Manual - starting TorchServe with a yaml file specified<a class="headerlink" href="#user-manual-starting-torchserve-with-a-yaml-file-specified" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">9.7.2. </span>User Manual - starting TorchServe with a yaml file specified<a class="headerlink" href="#user-manual-starting-torchserve-with-a-yaml-file-specified" title="Permalink to this headline">¶</a></h3>
 <ol>
-<li><p>Create a <code class="docutils literal notranslate"><span class="pre">metrics.yaml</span></code> file to parse metrics from OR utilize default <a class="reference external" href="https://github.com/pytorch/serve/blob/master/ts/configs/metrics.yaml">metrics_default.yaml</a></p></li>
+<li><p>Create a <code class="docutils literal notranslate"><span class="pre">metrics.yaml</span></code> file to parse metrics from OR utilize default <a class="reference external" href="https://github.com/pytorch/serve/blob/master/ts/configs/metrics.yaml">metrics.yaml</a></p></li>
 <li><p>Set <code class="docutils literal notranslate"><span class="pre">metrics_config</span></code> argument equal to the yaml file path in the <code class="docutils literal notranslate"><span class="pre">config.properties</span></code> being used:</p>
 <div class="highlight-properties notranslate"><div class="highlight"><pre><span></span><span class="na">...</span>
 <span class="na">...</span>
@@ -620,8 +706,8 @@ parse the backend metrics from the yaml file.</em></p>
 </section>
 </section>
 <section id="custom-metrics-api">
-<h2><span class="section-number">9.7. </span>Custom Metrics API<a class="headerlink" href="#custom-metrics-api" title="Permalink to this headline">¶</a></h2>
-<p>TorchServe enables the custom service code to emit metrics that are then logged by the system.</p>
+<h2><span class="section-number">9.8. </span>Custom Metrics API<a class="headerlink" href="#custom-metrics-api" title="Permalink to this headline">¶</a></h2>
+<p>TorchServe enables the custom service code to emit metrics that are then made available based on the configured <code class="docutils literal notranslate"><span class="pre">metrics_mode</span></code>.</p>
 <p>The custom service code is provided with a <a class="reference external" href="https://github.com/pytorch/serve/blob/master/ts/context.py">context</a> of the current request with a metrics object:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Access context metrics as follows</span>
 <span class="n">metrics</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">metrics</span>
@@ -629,7 +715,7 @@ parse the backend metrics from the yaml file.</em></p>
 </div>
 <p>All metrics are collected within the context.</p>
 <section id="specifying-metric-types">
-<h3><span class="section-number">9.7.1. </span>Specifying Metric Types<a class="headerlink" href="#specifying-metric-types" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">9.8.1. </span>Specifying Metric Types<a class="headerlink" href="#specifying-metric-types" title="Permalink to this headline">¶</a></h3>
 <p>When adding any metric via Metrics API, users have the ability to override the metric type by specifying the positional argument
 <code class="docutils literal notranslate"><span class="pre">metric_type=MetricTypes.[COUNTER/GAUGE/HISTOGRAM]</span></code>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">metric1</span> <span class="o">=</span> <span class="n">metrics</span><span class="o">.</span><span class="n">add_metric</span><span class="p">(</span><span class="s2">&quot;GenericMetric&quot;</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="n">unit</span><span class="p">,</span> <span class="n">dimension_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;name1&quot;</span><span class="p">,</span> <span class="s2">&quot;name2&quot;</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">metric_type</span><span class="o">=</span><span class="n">MetricTypes</span><span class="o">.</span><span class="n">GAUGE</span><span class="p">)</span>
@@ -641,8 +727,8 @@ parse the backend metrics from the yaml file.</em></p>
 </div>
 </section>
 <section id="updating-metrics-parsed-from-the-yaml-file">
-<h3><span class="section-number">9.7.2. </span>Updating Metrics parsed from the yaml file<a class="headerlink" href="#updating-metrics-parsed-from-the-yaml-file" title="Permalink to this headline">¶</a></h3>
-<p>Given the Metrics API, users will also be able to update metrics that have been parsed from the <a class="reference external" href="https://github.com/pytorch/serve/blob/master/frontend/server/src/test/resources/metrics_default.yaml">yaml</a> file
+<h3><span class="section-number">9.8.2. </span>Updating Metrics parsed from the yaml file<a class="headerlink" href="#updating-metrics-parsed-from-the-yaml-file" title="Permalink to this headline">¶</a></h3>
+<p>Given the Metrics API, users will also be able to update metrics that have been parsed from the <a class="reference external" href="https://github.com/pytorch/serve/blob/master/ts/configs/metrics.yaml">yaml</a> file
 given some criteria:</p>
 <p>(we will use the following metric as an example)</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="w">  </span><span class="nt">counter</span><span class="p">:</span><span class="w">  </span><span class="c1"># metric type</span>
@@ -676,7 +762,7 @@ or explicitly set <code class="docutils literal notranslate"><span class="pre">m
 </ol>
 </section>
 <section id="default-dimensions">
-<h3><span class="section-number">9.7.3. </span>Default dimensions<a class="headerlink" href="#default-dimensions" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">9.8.3. </span>Default dimensions<a class="headerlink" href="#default-dimensions" title="Permalink to this headline">¶</a></h3>
 <p>Metrics will have a couple of default dimensions if not already specified.</p>
 <p>If the metric is a type <code class="docutils literal notranslate"><span class="pre">Gauge</span></code>, <code class="docutils literal notranslate"><span class="pre">Histogram</span></code>, <code class="docutils literal notranslate"><span class="pre">Counter</span></code>, by default it will have:</p>
 <ul class="simple">
@@ -685,7 +771,7 @@ or explicitly set <code class="docutils literal notranslate"><span class="pre">m
 </ul>
 </section>
 <section id="create-dimension-object-s">
-<h3><span class="section-number">9.7.4. </span>Create dimension object(s)<a class="headerlink" href="#create-dimension-object-s" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">9.8.4. </span>Create dimension object(s)<a class="headerlink" href="#create-dimension-object-s" title="Permalink to this headline">¶</a></h3>
 <p>Dimensions for metrics can be defined as objects</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ts.metrics.dimension</span> <span class="kn">import</span> <span class="n">Dimension</span>
 
@@ -701,7 +787,7 @@ or explicitly set <code class="docutils literal notranslate"><span class="pre">m
 <p><strong>NOTE:</strong> Metric functions below accept a list of dimensions</p>
 </section>
 <section id="add-generic-metrics">
-<h3><span class="section-number">9.7.5. </span>Add generic metrics<a class="headerlink" href="#add-generic-metrics" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">9.8.5. </span>Add generic metrics<a class="headerlink" href="#add-generic-metrics" title="Permalink to this headline">¶</a></h3>
 <p><strong>Generic metrics are defaulted to a <code class="docutils literal notranslate"><span class="pre">COUNTER</span></code> metric type</strong></p>
 <p>One can add metrics with generic units using the following function.</p>
 <p>Function API</p>
@@ -756,7 +842,7 @@ or explicitly set <code class="docutils literal notranslate"><span class="pre">m
 </div>
 </section>
 <section id="add-time-based-metrics">
-<h3><span class="section-number">9.7.6. </span>Add time-based metrics<a class="headerlink" href="#add-time-based-metrics" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">9.8.6. </span>Add time-based metrics<a class="headerlink" href="#add-time-based-metrics" title="Permalink to this headline">¶</a></h3>
 <p><strong>Time-based metrics are defaulted to a <code class="docutils literal notranslate"><span class="pre">GAUGE</span></code> metric type</strong></p>
 <p>Add time-based by invoking the following method:</p>
 <p>Function API</p>
@@ -794,7 +880,7 @@ or explicitly set <code class="docutils literal notranslate"><span class="pre">m
 </div>
 </section>
 <section id="add-size-based-metrics">
-<h3><span class="section-number">9.7.7. </span>Add size-based metrics<a class="headerlink" href="#add-size-based-metrics" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">9.8.7. </span>Add size-based metrics<a class="headerlink" href="#add-size-based-metrics" title="Permalink to this headline">¶</a></h3>
 <p><strong>Size-based metrics are defaulted to a <code class="docutils literal notranslate"><span class="pre">GAUGE</span></code> metric type</strong></p>
 <p>Add size-based metrics by invoking the following method:</p>
 <p>Function API</p>
@@ -832,7 +918,7 @@ or explicitly set <code class="docutils literal notranslate"><span class="pre">m
 </div>
 </section>
 <section id="add-percentage-based-metrics">
-<h3><span class="section-number">9.7.8. </span>Add Percentage based metrics<a class="headerlink" href="#add-percentage-based-metrics" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">9.8.8. </span>Add Percentage based metrics<a class="headerlink" href="#add-percentage-based-metrics" title="Permalink to this headline">¶</a></h3>
 <p><strong>Percentage-based metrics are defaulted to a <code class="docutils literal notranslate"><span class="pre">GAUGE</span></code> metric type</strong></p>
 <p>Percentage based metrics can be added by invoking the following method:</p>
 <p>Function API</p>
@@ -866,7 +952,7 @@ or explicitly set <code class="docutils literal notranslate"><span class="pre">m
 </div>
 </section>
 <section id="add-counter-based-metrics">
-<h3><span class="section-number">9.7.9. </span>Add counter-based metrics<a class="headerlink" href="#add-counter-based-metrics" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">9.8.9. </span>Add counter-based metrics<a class="headerlink" href="#add-counter-based-metrics" title="Permalink to this headline">¶</a></h3>
 <p><strong>Counter-based metrics are defaulted to a <code class="docutils literal notranslate"><span class="pre">COUNTER</span></code> metric type</strong></p>
 <p>Counter based metrics can be added by invoking the following method</p>
 <p>Function API</p>
@@ -892,7 +978,7 @@ or explicitly set <code class="docutils literal notranslate"><span class="pre">m
 </div>
 </section>
 <section id="getting-a-metric">
-<h3><span class="section-number">9.7.10. </span>Getting a metric<a class="headerlink" href="#getting-a-metric" title="Permalink to this headline">¶</a></h3>
+<h3><span class="section-number">9.8.10. </span>Getting a metric<a class="headerlink" href="#getting-a-metric" title="Permalink to this headline">¶</a></h3>
 <p>Users can get a metric from the cache. The Metric object is returned, so the user can access the methods of the Metric: (i.e. <code class="docutils literal notranslate"><span class="pre">Metric.update(value)</span></code>, <code class="docutils literal notranslate"><span class="pre">Metric.__str__</span></code>)</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">get_metric</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metric_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">metric_type</span><span class="p">:</span> <span class="n">MetricTypes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Metric</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -921,7 +1007,7 @@ or explicitly set <code class="docutils literal notranslate"><span class="pre">m
 </section>
 </section>
 <section id="logging-custom-metrics">
-<h2><span class="section-number">9.8. </span>Logging custom metrics<a class="headerlink" href="#logging-custom-metrics" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">9.9. </span>Logging custom metrics<a class="headerlink" href="#logging-custom-metrics" title="Permalink to this headline">¶</a></h2>
 <p>Following sample code can be used to log the custom metrics created in the model’s custom handler:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># In Custom Handler</span>
 <span class="kn">from</span> <span class="nn">ts.service</span> <span class="kn">import</span> <span class="n">emit_metrics</span>
@@ -932,10 +1018,11 @@ or explicitly set <code class="docutils literal notranslate"><span class="pre">m
 <span class="n">context</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">add_counter</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>This custom metrics information is logged in the <code class="docutils literal notranslate"><span class="pre">model_metrics.log</span></code> file configured through <a class="reference external" href="https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/log4j2.xml">log4j2.xml</a> file.</p>
+<p>This custom metrics information is logged in the <code class="docutils literal notranslate"><span class="pre">model_metrics.log</span></code> file configured through <a class="reference external" href="https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/log4j2.xml">log4j2.xml</a> file
+or made available via the <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/metrics_api">metrics</a> API endpoint based on the <code class="docutils literal notranslate"><span class="pre">metrics_mode</span></code> configuration.</p>
 </section>
 <section id="metrics-yaml-file-parsing-and-metrics-api-custom-handler-example">
-<h2><span class="section-number">9.9. </span>Metrics YAML File Parsing and Metrics API Custom Handler Example<a class="headerlink" href="#metrics-yaml-file-parsing-and-metrics-api-custom-handler-example" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">9.10. </span>Metrics YAML File Parsing and Metrics API Custom Handler Example<a class="headerlink" href="#metrics-yaml-file-parsing-and-metrics-api-custom-handler-example" title="Permalink to this headline">¶</a></h2>
 <p>This example utilizes the feature of parsing metrics from a YAML file, adding and updating metrics and their values via Metrics API,
 updating metrics that have been parsed from the YAML file via Metrics API, and finally emitting all metrics that have been updated.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ts.service</span> <span class="kn">import</span> <span class="n">emit_metrics</span>
@@ -1033,29 +1120,30 @@ updating metrics that have been parsed from the YAML file via Metrics API, and f
 <li><a class="reference internal" href="#">9. TorchServe Metrics</a><ul>
 <li><a class="reference internal" href="#contents-of-this-document">9.1. Contents of this document</a></li>
 <li><a class="reference internal" href="#introduction">9.2. Introduction</a></li>
-<li><a class="reference internal" href="#system-metrics">9.3. System Metrics</a></li>
-<li><a class="reference internal" href="#formatting">9.4. Formatting</a></li>
-<li><a class="reference internal" href="#metric-types">9.5. Metric Types</a></li>
-<li><a class="reference internal" href="#central-metrics-yaml-file-definition">9.6. Central metrics YAML file definition</a><ul>
-<li><a class="reference internal" href="#how-it-works">9.6.1. How it works</a></li>
-<li><a class="reference internal" href="#user-manual-starting-torchserve-with-a-yaml-file-specified">9.6.2. User Manual - starting TorchServe with a yaml file specified</a></li>
+<li><a class="reference internal" href="#frontend-metrics">9.3. Frontend Metrics</a></li>
+<li><a class="reference internal" href="#backend-metrics">9.4. Backend Metrics</a></li>
+<li><a class="reference internal" href="#formatting">9.5. Formatting</a></li>
+<li><a class="reference internal" href="#metric-types">9.6. Metric Types</a></li>
+<li><a class="reference internal" href="#central-metrics-yaml-file-definition">9.7. Central metrics YAML file definition</a><ul>
+<li><a class="reference internal" href="#how-it-works">9.7.1. How it works</a></li>
+<li><a class="reference internal" href="#user-manual-starting-torchserve-with-a-yaml-file-specified">9.7.2. User Manual - starting TorchServe with a yaml file specified</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#custom-metrics-api">9.7. Custom Metrics API</a><ul>
-<li><a class="reference internal" href="#specifying-metric-types">9.7.1. Specifying Metric Types</a></li>
-<li><a class="reference internal" href="#updating-metrics-parsed-from-the-yaml-file">9.7.2. Updating Metrics parsed from the yaml file</a></li>
-<li><a class="reference internal" href="#default-dimensions">9.7.3. Default dimensions</a></li>
-<li><a class="reference internal" href="#create-dimension-object-s">9.7.4. Create dimension object(s)</a></li>
-<li><a class="reference internal" href="#add-generic-metrics">9.7.5. Add generic metrics</a></li>
-<li><a class="reference internal" href="#add-time-based-metrics">9.7.6. Add time-based metrics</a></li>
-<li><a class="reference internal" href="#add-size-based-metrics">9.7.7. Add size-based metrics</a></li>
-<li><a class="reference internal" href="#add-percentage-based-metrics">9.7.8. Add Percentage based metrics</a></li>
-<li><a class="reference internal" href="#add-counter-based-metrics">9.7.9. Add counter-based metrics</a></li>
-<li><a class="reference internal" href="#getting-a-metric">9.7.10. Getting a metric</a></li>
+<li><a class="reference internal" href="#custom-metrics-api">9.8. Custom Metrics API</a><ul>
+<li><a class="reference internal" href="#specifying-metric-types">9.8.1. Specifying Metric Types</a></li>
+<li><a class="reference internal" href="#updating-metrics-parsed-from-the-yaml-file">9.8.2. Updating Metrics parsed from the yaml file</a></li>
+<li><a class="reference internal" href="#default-dimensions">9.8.3. Default dimensions</a></li>
+<li><a class="reference internal" href="#create-dimension-object-s">9.8.4. Create dimension object(s)</a></li>
+<li><a class="reference internal" href="#add-generic-metrics">9.8.5. Add generic metrics</a></li>
+<li><a class="reference internal" href="#add-time-based-metrics">9.8.6. Add time-based metrics</a></li>
+<li><a class="reference internal" href="#add-size-based-metrics">9.8.7. Add size-based metrics</a></li>
+<li><a class="reference internal" href="#add-percentage-based-metrics">9.8.8. Add Percentage based metrics</a></li>
+<li><a class="reference internal" href="#add-counter-based-metrics">9.8.9. Add counter-based metrics</a></li>
+<li><a class="reference internal" href="#getting-a-metric">9.8.10. Getting a metric</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#logging-custom-metrics">9.8. Logging custom metrics</a></li>
-<li><a class="reference internal" href="#metrics-yaml-file-parsing-and-metrics-api-custom-handler-example">9.9. Metrics YAML File Parsing and Metrics API Custom Handler Example</a></li>
+<li><a class="reference internal" href="#logging-custom-metrics">9.9. Logging custom metrics</a></li>
+<li><a class="reference internal" href="#metrics-yaml-file-parsing-and-metrics-api-custom-handler-example">9.10. Metrics YAML File Parsing and Metrics API Custom Handler Example</a></li>
 </ul>
 </li>
 </ul>
