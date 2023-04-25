@@ -208,7 +208,7 @@
                             "id": "9605fe7f-9911-495a-b6c3-b495e1b1dd21",
                             "exec": [
                                 "pm.test(\"Successful GET request\", function () {",
-                                "    let pattern = new RegExp('ts_inference_latency_microseconds{uuid=\"[\\\\w]{8}(-[\\\\w]{4}){3}-[\\\\w]{12}\",model_name=\"'+pm.variables.get(\"model_name\"));",
+								"    let pattern = new RegExp('.*Requests2XX\\\\{Level=\"Host\",Hostname=\".*\",\\\\} \\\\d+\\\\.\\\\d+.*');",
                                 "    pm.expect(pm.response.text()).to.match(pattern);",
                                 "});"
                             ],

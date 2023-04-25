@@ -130,8 +130,15 @@ def trigger_management_tests():
 
 def trigger_inference_tests():
     """Return exit code of newman execution of inference collection"""
+    config_file = open("config.properties", "w")
+    config_file.write("metrics_mode=prometheus")
+    config_file.close()
+
     ts.start_torchserve(
-        ncs=True, model_store=MODEL_STORE_DIR, log_file=TS_CONSOLE_LOG_FILE
+        ncs=True,
+        model_store=MODEL_STORE_DIR,
+        config_file="config.properties",
+        log_file=TS_CONSOLE_LOG_FILE,
     )
     EXIT_CODE = os.system(
         f"newman run -e {POSTMAN_ENV_FILE} {POSTMAN_COLLECTION_INFERENCE} -d {POSTMAN_INFERENCE_DATA_FILE} -r cli,htmlextra --reporter-htmlextra-export {ARTIFACTS_INFERENCE_DIR}/{REPORT_FILE} --verbose"
@@ -139,6 +146,7 @@ def trigger_inference_tests():
     ts.stop_torchserve()
     move_logs(TS_CONSOLE_LOG_FILE, ARTIFACTS_INFERENCE_DIR)
     cleanup_model_store()
+    os.remove("config.properties")
     return EXIT_CODE
 
 
@@ -178,9 +186,15 @@ def trigger_workflow_inference_tests():
 
 def trigger_explanation_tests():
     """Return exit code of newman execution of inference collection"""
+    config_file = open("config.properties", "w")
+    config_file.write("metrics_mode=prometheus")
+    config_file.close()
 
     ts.start_torchserve(
-        ncs=True, model_store=MODEL_STORE_DIR, log_file=TS_CONSOLE_LOG_FILE
+        ncs=True,
+        model_store=MODEL_STORE_DIR,
+        config_file="config.properties",
+        log_file=TS_CONSOLE_LOG_FILE,
     )
     EXIT_CODE = os.system(
         f"newman run -e {POSTMAN_ENV_FILE} {POSTMAN_COLLECTION_EXPLANATION} -d {POSTMAN_EXPLANATION_DATA_FILE} -r cli,htmlextra --reporter-htmlextra-export {ARTIFACTS_INFERENCE_DIR}/{REPORT_FILE} --verbose"
@@ -188,6 +202,7 @@ def trigger_explanation_tests():
     ts.stop_torchserve()
     move_logs(TS_CONSOLE_LOG_FILE, ARTIFACTS_EXPLANATION_DIR)
     cleanup_model_store()
+    os.remove("config.properties")
     return EXIT_CODE
 
 
@@ -196,7 +211,8 @@ def trigger_incr_timeout_inference_tests():
 
     # Configuration with increased timeout
     config_file = open("config.properties", "w")
-    config_file.write("default_response_timeout=300")
+    config_file.write("default_response_timeout=300\n")
+    config_file.write("metrics_mode=prometheus")
     config_file.close()
 
     ts.start_torchserve(
@@ -261,7 +277,8 @@ def trigger_inference_tests_kf():
     """Return exit code of newman execution of inference collection"""
 
     config_file = open("config.properties", "w")
-    config_file.write("service_envelope=kserve")
+    config_file.write("service_envelope=kserve\n")
+    config_file.write("metrics_mode=prometheus")
     config_file.close()
 
     ts.start_torchserve(
@@ -301,7 +318,8 @@ def trigger_inference_tests_kfv2():
     """Return exit code of newman execution of inference collection"""
 
     config_file = open("config.properties", "w")
-    config_file.write("service_envelope=kservev2")
+    config_file.write("service_envelope=kservev2\n")
+    config_file.write("metrics_mode=prometheus")
     config_file.close()
 
     ts.start_torchserve(

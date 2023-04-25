@@ -17,6 +17,8 @@ import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.util.CharsetUtil;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
@@ -24,9 +26,8 @@ import org.pytorch.serve.archive.model.ModelNotFoundException;
 import org.pytorch.serve.archive.model.ModelVersionNotFoundException;
 import org.pytorch.serve.http.InternalServerException;
 import org.pytorch.serve.http.messages.DescribeModelResponse;
-import org.pytorch.serve.metrics.Dimension;
-import org.pytorch.serve.metrics.Metric;
-import org.pytorch.serve.metrics.api.MetricAggregator;
+import org.pytorch.serve.metrics.IMetric;
+import org.pytorch.serve.metrics.MetricCache;
 import org.pytorch.serve.util.ApiUtils;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.JsonUtils;
@@ -39,10 +40,12 @@ import org.slf4j.LoggerFactory;
 public class RestJob extends Job {
 
     private static final Logger logger = LoggerFactory.getLogger(Job.class);
-    private static final Logger loggerTsMetrics =
-            LoggerFactory.getLogger(ConfigManager.MODEL_SERVER_METRICS_LOGGER);
-    private static final Dimension DIMENSION = new Dimension("Level", "Host");
 
+    private final IMetric inferenceLatencyMetric;
+    private final IMetric queueLatencyMetric;
+    private final List<String> latencyMetricDimensionValues;
+    private final IMetric queueTimeMetric;
+    private final List<String> queueTimeMetricDimensionValues;
     private ChannelHandlerContext ctx;
     private CompletableFuture<byte[]> responsePromise;
     /**
@@ -59,6 +62,18 @@ public class RestJob extends Job {
             RequestInput input) {
         super(modelName, version, cmd, input);
         this.ctx = ctx;
+        this.inferenceLatencyMetric =
+                MetricCache.getInstance().getMetricFrontend("ts_inference_latency_microseconds");
+        this.queueLatencyMetric =
+                MetricCache.getInstance().getMetricFrontend("ts_queue_latency_microseconds");
+        this.latencyMetricDimensionValues =
+                Arrays.asList(
+                        getModelName(),
+                        getModelVersion() == null ? "default" : getModelVersion(),
+                        ConfigManager.getInstance().getHostName());
+        this.queueTimeMetric = MetricCache.getInstance().getMetricFrontend("QueueTime");
+        this.queueTimeMetricDimensionValues =
+                Arrays.asList("Host", ConfigManager.getInstance().getHostName());
         this.numStreams = 0;
     }
 
@@ -156,13 +171,9 @@ public class RestJob extends Job {
          */
         if (ctx != null) {
             if (numStreams == 0) { // non-stream response
-                MetricAggregator.handleInferenceMetric(
-                        getModelName(), getModelVersion(), getScheduled() - getBegin(), inferTime);
                 ((DefaultFullHttpResponse) resp).content().writeBytes(body);
                 NettyUtils.sendHttpResponse(ctx, resp, true);
             } else if (numStreams == -1) { // the last response in a stream
-                MetricAggregator.handleInferenceMetric(
-                        getModelName(), getModelVersion(), getScheduled() - getBegin(), inferTime);
                 ctx.writeAndFlush(new DefaultHttpContent(Unpooled.wrappedBuffer(body)));
                 ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
             } else if (numStreams == 1) { // the first response in a stream
@@ -176,22 +187,43 @@ public class RestJob extends Job {
         }
 
         if (numStreams <= 0) {
+            if (this.inferenceLatencyMetric != null) {
+                try {
+                    this.inferenceLatencyMetric.addOrUpdate(
+                            this.latencyMetricDimensionValues, inferTime / 1000.0);
+                } catch (Exception e) {
+                    logger.error(
+                            "Failed to update frontend metric ts_inference_latency_microseconds: ",
+                            e);
+                }
+            }
+            if (this.queueLatencyMetric != null) {
+                try {
+                    this.queueLatencyMetric.addOrUpdate(
+                            this.latencyMetricDimensionValues,
+                            (getScheduled() - getBegin()) / 1000.0);
+                } catch (Exception e) {
+                    logger.error(
+                            "Failed to update frontend metric ts_queue_latency_microseconds: ", e);
+                }
+            }
+
             logger.debug(
                     "Waiting time ns: {}, Backend time ns: {}",
                     getScheduled() - getBegin(),
                     System.nanoTime() - getScheduled());
-            String queueTime =
-                    String.valueOf(
+            double queueTime =
+                    (double)
                             TimeUnit.MILLISECONDS.convert(
-                                    getScheduled() - getBegin(), TimeUnit.NANOSECONDS));
-            loggerTsMetrics.info(
-                    "{}",
-                    new Metric(
-                            "QueueTime",
-                            queueTime,
-                            "ms",
-                            ConfigManager.getInstance().getHostName(),
-                            DIMENSION));
+                                    getScheduled() - getBegin(), TimeUnit.NANOSECONDS);
+            if (this.queueTimeMetric != null) {
+                try {
+                    this.queueTimeMetric.addOrUpdate(
+                            this.queueTimeMetricDimensionValues, queueTime);
+                } catch (Exception e) {
+                    logger.error("Failed to update frontend metric QueueTime: ", e);
+                }
+            }
         }
     }
 
