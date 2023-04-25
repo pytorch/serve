@@ -4,6 +4,7 @@ on:
     types: [created, edited, deleted]
 jobs:
   job01:
+    runs-on: ubuntu-latest
     # check if the comments come from pull request, exclude those from issue.
     if: ${{ github.event.issue.pull_request }} &&  contains(github.event.comment.body, 'regression-gpu')   # check the comment if it contains the keywords
     uses: pytorch/serve/.github/workflows/regression_tests_gpu.yml@feature/run_regression_issue_comment
