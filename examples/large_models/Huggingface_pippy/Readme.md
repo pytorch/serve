@@ -22,7 +22,7 @@ python Download_model.py --model_name facebook/opt-6.7b
 ```
 The script prints the path where the model is downloaded as below. This is an example and in your workload you want to use your actual trained model checkpoints.
 
-`model/models--bigscience-bloom-7b1/snapshots/5546055f03398095e385d7dc625e636cc8910bf2/`
+`model/models--facebook--opt-6.7b/snapshots/ceea0a90ac0f6fae7c2c34bcb40477438c152546/`
 
 The downloaded model is around 14GB.
 
@@ -56,7 +56,7 @@ handler:
 Navigate up to `Huggingface_Largemodels` directory.
 
 ```bash
-torch-model-archiver --model-name bloom --version 1.0 --handler pippy_handler.py --extra-files model/models--facebook--opt-iml-max-1.3b/snapshots/d60fa58f50def19751da2075791da359ca19d273  -r requirements.txt --config-file model-config.yaml --archive-format tgz
+torch-model-archiver --model-name opt --version 1.0 --handler pippy_handler.py --extra-files model/models--facebook--opt-6.7b/snapshots/ceea0a90ac0f6fae7c2c34bcb40477438c152546/  -r requirements.txt --config-file model-config.yaml --archive-format tgz
 
 ```
 
@@ -64,7 +64,7 @@ torch-model-archiver --model-name bloom --version 1.0 --handler pippy_handler.py
 
 ```bash
 mkdir model_store
-mv bloom.mar model_store
+mv opt.tar.gz model_store
 ```
 
 ### Step 5: Start torchserve
@@ -72,11 +72,11 @@ mv bloom.mar model_store
 Update config.properties and start torchserve
 
 ```bash
-torchserve --ncs --start --model-store model_store --models bloom.mar
+torchserve --ncs --start --model-store model_store --models opt.tar.gz
 ```
 
 ### Step 6: Run inference
 
 ```bash
-curl -v "http://localhost:8080/predictions/bloom" -T sample_text.txt
+curl -v "http://localhost:8080/predictions/opt" -T sample_text.txt
 ```
