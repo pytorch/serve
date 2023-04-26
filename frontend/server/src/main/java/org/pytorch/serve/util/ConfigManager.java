@@ -94,7 +94,6 @@ public final class ConfigManager {
     private static final String TS_PREFER_DIRECT_BUFFER = "prefer_direct_buffer";
     private static final String TS_ALLOWED_URLS = "allowed_urls";
     private static final String TS_INSTALL_PY_DEP_PER_MODEL = "install_py_dep_per_model";
-    private static final String TS_METRICS_FORMAT = "metrics_format";
     private static final String TS_ENABLE_METRICS_API = "enable_metrics_api";
     private static final String TS_GRPC_INFERENCE_PORT = "grpc_inference_port";
     private static final String TS_GRPC_MANAGEMENT_PORT = "grpc_management_port";
@@ -338,10 +337,6 @@ public final class ConfigManager {
 
     public boolean getInstallPyDepPerModel() {
         return Boolean.parseBoolean(getProperty(TS_INSTALL_PY_DEP_PER_MODEL, "false"));
-    }
-
-    public String getMetricsFormat() {
-        return getProperty(TS_METRICS_FORMAT, METRIC_FORMAT_PROMETHEUS);
     }
 
     public boolean isMetricApiEnable() {
@@ -664,8 +659,6 @@ public final class ConfigManager {
                 + getAllowedUrls()
                 + "\nCustom python dependency for model allowed: "
                 + prop.getProperty(TS_INSTALL_PY_DEP_PER_MODEL, "false")
-                + "\nMetrics report format: "
-                + prop.getProperty(TS_METRICS_FORMAT, METRIC_FORMAT_PROMETHEUS)
                 + "\nEnable metrics API: "
                 + prop.getProperty(TS_ENABLE_METRICS_API, "true")
                 + "\nMetrics mode: "

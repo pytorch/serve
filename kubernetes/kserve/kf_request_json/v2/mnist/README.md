@@ -7,7 +7,7 @@ model locally using kserve.
 
 Clone [pytorch/serve](https://github.com/pytorch/serve) repository
 navigate to `examples/image_classifier/mnist`
-  
+
 ```bash
 torch-model-archiver --model-name mnist --version 1.0 \
 --model-file mnist.py \
@@ -17,7 +17,7 @@ torch-model-archiver --model-name mnist --version 1.0 \
 
 The command will create `mnist.mar` file in current directory
 
-Move the mar file to model-store 
+Move the mar file to model-store
 
 ```
 sudo mv mnist.mar /mnt/models/model-store
@@ -33,7 +33,7 @@ enable_envvars_config=true
 install_py_dep_per_model=true
 enable_metrics_api=true
 service_envelope=kservev2
-metrics_format=prometheus
+metrics_mode=prometheus
 NUM_WORKERS=1
 number_of_netty_threads=4
 job_queue_size=10
@@ -49,7 +49,7 @@ For generating input for a new image follow the instructions given below
 
 Move to `kubernetes/kserve/kf_request_json/v2/mnist`
 
-For bytes input, use [tobytes](tobytes.py) utility. 
+For bytes input, use [tobytes](tobytes.py) utility.
 
 ```
 python tobytes.py 0.png
