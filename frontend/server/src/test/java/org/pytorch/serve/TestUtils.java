@@ -50,9 +50,9 @@ public final class TestUtils {
     private static Channel metricsChannel;
     private static String tsInferLatencyPattern =
             "ts_inference_latency_microseconds\\{"
-                    + "ModelName=\"%s\","
-                    + "ModelVersion=\"%s\","
-                    + "Hostname=\".+\",\\}\\s\\d+(\\.\\d+)";
+                    + "model_name=\"%s\","
+                    + "model_version=\"%s\","
+                    + "hostname=\".+\",\\}\\s\\d+(\\.\\d+)";
 
     private TestUtils() {}
 

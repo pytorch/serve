@@ -117,7 +117,7 @@ grpc_management_port=7071
 enable_envvars_config=true
 install_py_dep_per_model=true
 enable_metrics_api=true
-metrics_format=prometheus
+metrics_mode=prometheus
 NUM_WORKERS=1
 number_of_netty_threads=4
 job_queue_size=10
@@ -189,7 +189,7 @@ Refer link for more [examples](https://github.com/kserve/kserve/tree/master/docs
 
 KServe supports different types of inputs (ex: tensor, bytes). Use the following instructions to generate input files based on its type.
 
-[MNIST input generation](kf_request_json/v2/mnist/README.md##-Preparing-input) 
+[MNIST input generation](kf_request_json/v2/mnist/README.md##-Preparing-input)
 [Bert input generation](kf_request_json/v2/bert/README.md##-Preparing-input)
 
 
@@ -233,7 +233,7 @@ Refer the individual readmes for KServe :
 * [BERT](https://github.com/kserve/kserve/blob/master/docs/samples/v1beta1/custom/torchserve/bert-sample/hugging-face-bert-sample.md)
 * [MNIST](https://github.com/kserve/kserve/blob/master/docs/samples/v1beta1/torchserve/README.md)
 
-Sample input JSON file for v1 and v2 protocols 
+Sample input JSON file for v1 and v2 protocols
 
 For v1 protocol
 

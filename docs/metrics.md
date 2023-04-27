@@ -18,8 +18,9 @@ Frontend metrics include system level metrics. The host resource utilization fro
 Torchserve provides an API to collect custom backend metrics. Metrics defined by a custom service or handler code can be collected per request or per a batch of requests.
 Two metric modes are supported, i.e `log` and `prometheus`. The default mode is `log`.
 Metrics mode can be configured using the `metrics_mode` configuration option in `config.properties` or `TS_METRICS_MODE` environment variable.
-In `log` mode, Metrics are logged and can be aggregated by metric agents.
+For further details on `config.properties` and environment variable based configuration, refer [Torchserve config](configuration.md) docs.
 
+In `log` mode, Metrics are logged and can be aggregated by metric agents.
 Metrics are collected by default at the following locations in `log` mode:
 
 * Frontend metrics - `log_directory/ts_metrics.log`
@@ -31,27 +32,27 @@ In `prometheus` mode, all metrics are made available in prometheus format via th
 
 ## Frontend Metrics
 
-| Metric Name                       | Type    | Unit         | Dimensions                        | Semantics                                                                   |
-|-----------------------------------|---------|--------------|-----------------------------------|-----------------------------------------------------------------------------|
-| Requests2XX                       | counter | Count        | Level, Hostname                   | Total number of requests with response in 200-300 status code range         |
-| Requests4XX                       | counter | Count        | Level, Hostname                   | Total number of requests with response in 400-500 status code range         |
-| Requests5XX                       | counter | Count        | Level, Hostname                   | Total number of requests with response status code above 500                |
-| ts_inference_requests_total       | counter | Count        | ModelName, ModelVersion, Hostname | Total number of inference requests received                                 |
-| ts_inference_latency_microseconds | counter | Microseconds | ModelName, ModelVersion, Hostname | Total inference latency in Microseconds                                     |
-| ts_queue_latency_microseconds     | counter | Microseconds | ModelName, ModelVersion, Hostname | Total queue latency in Microseconds                                         |
-| QueueTime                         | gauge   | Milliseconds | Level, Hostname                   | Time spent by a job in request queue in Milliseconds                        |
-| WorkerThreadTime                  | gauge   | Milliseconds | Level, Hostname                   | Time spent in worker thread excluding backend response time in Milliseconds |
-| WorkerLoadTime                    | gauge   | Milliseconds | WorkerName, Level, Hostname       | Time taken by worker to load model in Milliseconds                          |
-| CPUUtilization                    | gauge   | Percent      | Level, Hostname                   | CPU utilization on host                                                     |
-| MemoryUsed                        | gauge   | Megabytes    | Level, Hostname                   | Memory used on host                                                         |
-| MemoryAvailable                   | gauge   | Megabytes    | Level, Hostname                   | Memory available on host                                                    |
-| MemoryUtilization                 | gauge   | Percent      | Level, Hostname                   | Memory utilization on host                                                  |
-| DiskUsage                         | gauge   | Gigabytes    | Level, Hostname                   | Disk used on host                                                           |
-| DiskUtilization                   | gauge   | Percent      | Level, Hostname                   | Disk used on host                                                           |
-| DiskAvailable                     | gauge   | Gigabytes    | Level, Hostname                   | Disk available on host                                                      |
-| GPUMemoryUtilization              | gauge   | Percent      | Level, DeviceId, Hostname         | GPU memory utilization on host, DeviceId                                    |
-| GPUMemoryUsed                     | gauge   | Megabytes    | Level, DeviceId, Hostname         | GPU memory used on host, DeviceId                                           |
-| GPUUtilization                    | gauge   | Percent      | Level, DeviceId, Hostname         | GPU utilization on host, DeviceId                                           |
+| Metric Name                       | Type    | Unit         | Dimensions                          | Semantics                                                                   |
+|-----------------------------------|---------|--------------|-------------------------------------|-----------------------------------------------------------------------------|
+| Requests2XX                       | counter | Count        | Level, Hostname                     | Total number of requests with response in 200-300 status code range         |
+| Requests4XX                       | counter | Count        | Level, Hostname                     | Total number of requests with response in 400-500 status code range         |
+| Requests5XX                       | counter | Count        | Level, Hostname                     | Total number of requests with response status code above 500                |
+| ts_inference_requests_total       | counter | Count        | model_name, model_version, hostname | Total number of inference requests received                                 |
+| ts_inference_latency_microseconds | counter | Microseconds | model_name, model_version, hostname | Total inference latency in Microseconds                                     |
+| ts_queue_latency_microseconds     | counter | Microseconds | model_name, model_version, hostname | Total queue latency in Microseconds                                         |
+| QueueTime                         | gauge   | Milliseconds | Level, Hostname                     | Time spent by a job in request queue in Milliseconds                        |
+| WorkerThreadTime                  | gauge   | Milliseconds | Level, Hostname                     | Time spent in worker thread excluding backend response time in Milliseconds |
+| WorkerLoadTime                    | gauge   | Milliseconds | WorkerName, Level, Hostname         | Time taken by worker to load model in Milliseconds                          |
+| CPUUtilization                    | gauge   | Percent      | Level, Hostname                     | CPU utilization on host                                                     |
+| MemoryUsed                        | gauge   | Megabytes    | Level, Hostname                     | Memory used on host                                                         |
+| MemoryAvailable                   | gauge   | Megabytes    | Level, Hostname                     | Memory available on host                                                    |
+| MemoryUtilization                 | gauge   | Percent      | Level, Hostname                     | Memory utilization on host                                                  |
+| DiskUsage                         | gauge   | Gigabytes    | Level, Hostname                     | Disk used on host                                                           |
+| DiskUtilization                   | gauge   | Percent      | Level, Hostname                     | Disk used on host                                                           |
+| DiskAvailable                     | gauge   | Gigabytes    | Level, Hostname                     | Disk available on host                                                      |
+| GPUMemoryUtilization              | gauge   | Percent      | Level, DeviceId, Hostname           | GPU memory utilization on host, DeviceId                                    |
+| GPUMemoryUsed                     | gauge   | Megabytes    | Level, DeviceId, Hostname           | GPU memory used on host, DeviceId                                           |
+| GPUUtilization                    | gauge   | Percent      | Level, DeviceId, Hostname           | GPU utilization on host, DeviceId                                           |
 
 ## Backend Metrics
 

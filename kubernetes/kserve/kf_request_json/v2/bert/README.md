@@ -16,9 +16,9 @@ Run the following command to download the model
 ```
 python Download_Transformer_models.py
 ```
- 
+
 ### Generate mar file
- 
+
 ```bash
 torch-model-archiver --model-name BERTSeqClassification --version 1.0 \
 --serialized-file Transformer_model/pytorch_model.bin \
@@ -33,7 +33,7 @@ Move the mar file to model-store
 ```
 sudo mv BERTSeqClassification.mar /mnt/models/model-store
 ```
- 
+
 and use the following config properties (`/mnt/models/config`)
 
 ```
@@ -44,7 +44,7 @@ enable_envvars_config=true
 install_py_dep_per_model=true
 enable_metrics_api=true
 service_envelope=kservev2
-metrics_format=prometheus
+metrics_mode=prometheus
 NUM_WORKERS=1
 number_of_netty_threads=4
 job_queue_size=10
@@ -58,7 +58,7 @@ Use [bert_bytes_v2.json](bert_bytes_v2.json) or [bert_tensor_v2](bert_tensor_v2.
 
 For new sample text, follow the instructions below
 
-For bytes input, use [tobytes](tobytes.py) utility. 
+For bytes input, use [tobytes](tobytes.py) utility.
 
 ```
 python tobytes.py --input_text "this year business is good"
