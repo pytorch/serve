@@ -363,35 +363,80 @@
               
   <section id="metrics-api">
 <h1>Metrics API<a class="headerlink" href="#metrics-api" title="Permalink to this headline">¶</a></h1>
-<p>Metrics API is listening on port 8082 and only accessible from localhost by default. To change the default setting, see <a class="reference internal" href="configuration.html"><span class="doc">TorchServe Configuration</span></a>. The default metrics endpoint returns Prometheus formatted metrics. You can query metrics using curl requests or point a <a class="reference external" href="#prometheus-server">Prometheus Server</a> to the endpoint and use <a class="reference external" href="#grafana">Grafana</a> for dashboards.</p>
-<p>By default these APIs are enable however same can be disabled by setting <code class="docutils literal notranslate"><span class="pre">enable_metrics_api=false</span></code> in torchserve config.properties file.
+<p>Metrics API is listening on port 8082 and only accessible from localhost by default. To change the default setting, see <a class="reference internal" href="configuration.html"><span class="doc">TorchServe Configuration</span></a>. The default metrics endpoint returns Prometheus formatted metrics when <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/metrics">metrics_mode</a> configuration is set to <code class="docutils literal notranslate"><span class="pre">prometheus</span></code>. You can query metrics using curl requests or point a <a class="reference external" href="#prometheus-server">Prometheus Server</a> to the endpoint and use <a class="reference external" href="#grafana">Grafana</a> for dashboards.</p>
+<p>By default these APIs are enabled however same can be disabled by setting <code class="docutils literal notranslate"><span class="pre">enable_metrics_api=false</span></code> in torchserve config.properties file.
 For details refer <a class="reference internal" href="configuration.html"><span class="doc">Torchserve config</span></a> docs.</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">curl http://127.0.0.1:8082/metrics</span>
 
-<span class="gp"># </span>HELP<span class="w"> </span>ts_inference_latency_microseconds<span class="w"> </span>Cumulative<span class="w"> </span>inference<span class="w"> </span>duration<span class="w"> </span><span class="k">in</span><span class="w"> </span>microseconds
-<span class="gp"># </span>TYPE<span class="w"> </span>ts_inference_latency_microseconds<span class="w"> </span>counter
-<span class="go">ts_inference_latency_microseconds{uuid=&quot;d5f84dfb-fae8-4f92-b217-2f385ca7470b&quot;,model_name=&quot;noopversioned&quot;,model_version=&quot;1.11&quot;,} 1990.348</span>
-<span class="go">ts_inference_latency_microseconds{uuid=&quot;d5f84dfb-fae8-4f92-b217-2f385ca7470b&quot;,model_name=&quot;noop&quot;,model_version=&quot;default&quot;,} 2032.411</span>
-<span class="gp"># </span>HELP<span class="w"> </span>ts_inference_requests_total<span class="w"> </span>Total<span class="w"> </span>number<span class="w"> </span>of<span class="w"> </span>inference<span class="w"> </span>requests.
+<span class="gp"># </span>HELP<span class="w"> </span>Requests5XX<span class="w"> </span>Torchserve<span class="w"> </span>prometheus<span class="w"> </span>counter<span class="w"> </span>metric<span class="w"> </span>with<span class="w"> </span>unit:<span class="w"> </span>Count
+<span class="gp"># </span>TYPE<span class="w"> </span>Requests5XX<span class="w"> </span>counter
+<span class="gp"># </span>HELP<span class="w"> </span>DiskUsage<span class="w"> </span>Torchserve<span class="w"> </span>prometheus<span class="w"> </span>gauge<span class="w"> </span>metric<span class="w"> </span>with<span class="w"> </span>unit:<span class="w"> </span>Gigabytes
+<span class="gp"># </span>TYPE<span class="w"> </span>DiskUsage<span class="w"> </span>gauge
+<span class="go">DiskUsage{Level=&quot;Host&quot;,Hostname=&quot;88665a372f4b.ant.amazon.com&quot;,} 20.054508209228516</span>
+<span class="gp"># </span>HELP<span class="w"> </span>GPUUtilization<span class="w"> </span>Torchserve<span class="w"> </span>prometheus<span class="w"> </span>gauge<span class="w"> </span>metric<span class="w"> </span>with<span class="w"> </span>unit:<span class="w"> </span>Percent
+<span class="gp"># </span>TYPE<span class="w"> </span>GPUUtilization<span class="w"> </span>gauge
+<span class="gp"># </span>HELP<span class="w"> </span>PredictionTime<span class="w"> </span>Torchserve<span class="w"> </span>prometheus<span class="w"> </span>gauge<span class="w"> </span>metric<span class="w"> </span>with<span class="w"> </span>unit:<span class="w"> </span>ms
+<span class="gp"># </span>TYPE<span class="w"> </span>PredictionTime<span class="w"> </span>gauge
+<span class="go">PredictionTime{ModelName=&quot;resnet18&quot;,Level=&quot;Model&quot;,Hostname=&quot;88665a372f4b.ant.amazon.com&quot;,} 83.13</span>
+<span class="gp"># </span>HELP<span class="w"> </span>WorkerLoadTime<span class="w"> </span>Torchserve<span class="w"> </span>prometheus<span class="w"> </span>gauge<span class="w"> </span>metric<span class="w"> </span>with<span class="w"> </span>unit:<span class="w"> </span>Milliseconds
+<span class="gp"># </span>TYPE<span class="w"> </span>WorkerLoadTime<span class="w"> </span>gauge
+<span class="go">WorkerLoadTime{WorkerName=&quot;W-9000-resnet18_1.0&quot;,Level=&quot;Host&quot;,Hostname=&quot;88665a372f4b.ant.amazon.com&quot;,} 4593.0</span>
+<span class="go">WorkerLoadTime{WorkerName=&quot;W-9001-resnet18_1.0&quot;,Level=&quot;Host&quot;,Hostname=&quot;88665a372f4b.ant.amazon.com&quot;,} 4592.0</span>
+<span class="gp"># </span>HELP<span class="w"> </span>MemoryAvailable<span class="w"> </span>Torchserve<span class="w"> </span>prometheus<span class="w"> </span>gauge<span class="w"> </span>metric<span class="w"> </span>with<span class="w"> </span>unit:<span class="w"> </span>Megabytes
+<span class="gp"># </span>TYPE<span class="w"> </span>MemoryAvailable<span class="w"> </span>gauge
+<span class="go">MemoryAvailable{Level=&quot;Host&quot;,Hostname=&quot;88665a372f4b.ant.amazon.com&quot;,} 5829.7421875</span>
+<span class="gp"># </span>HELP<span class="w"> </span>GPUMemoryUsed<span class="w"> </span>Torchserve<span class="w"> </span>prometheus<span class="w"> </span>gauge<span class="w"> </span>metric<span class="w"> </span>with<span class="w"> </span>unit:<span class="w"> </span>Megabytes
+<span class="gp"># </span>TYPE<span class="w"> </span>GPUMemoryUsed<span class="w"> </span>gauge
+<span class="gp"># </span>HELP<span class="w"> </span>ts_inference_requests_total<span class="w"> </span>Torchserve<span class="w"> </span>prometheus<span class="w"> </span>counter<span class="w"> </span>metric<span class="w"> </span>with<span class="w"> </span>unit:<span class="w"> </span>Count
 <span class="gp"># </span>TYPE<span class="w"> </span>ts_inference_requests_total<span class="w"> </span>counter
-<span class="go">ts_inference_requests_total{uuid=&quot;d5f84dfb-fae8-4f92-b217-2f385ca7470b&quot;,model_name=&quot;noopversioned&quot;,model_version=&quot;1.11&quot;,} 1.0</span>
-<span class="go">ts_inference_requests_total{uuid=&quot;d5f84dfb-fae8-4f92-b217-2f385ca7470b&quot;,model_name=&quot;noop&quot;,model_version=&quot;default&quot;,} 1.0</span>
-<span class="gp"># </span>HELP<span class="w"> </span>ts_queue_latency_microseconds<span class="w"> </span>Cumulative<span class="w"> </span>queue<span class="w"> </span>duration<span class="w"> </span><span class="k">in</span><span class="w"> </span>microseconds
+<span class="go">ts_inference_requests_total{model_name=&quot;resnet18&quot;,model_version=&quot;default&quot;,hostname=&quot;88665a372f4b.ant.amazon.com&quot;,} 3.0</span>
+<span class="gp"># </span>HELP<span class="w"> </span>GPUMemoryUtilization<span class="w"> </span>Torchserve<span class="w"> </span>prometheus<span class="w"> </span>gauge<span class="w"> </span>metric<span class="w"> </span>with<span class="w"> </span>unit:<span class="w"> </span>Percent
+<span class="gp"># </span>TYPE<span class="w"> </span>GPUMemoryUtilization<span class="w"> </span>gauge
+<span class="gp"># </span>HELP<span class="w"> </span>HandlerTime<span class="w"> </span>Torchserve<span class="w"> </span>prometheus<span class="w"> </span>gauge<span class="w"> </span>metric<span class="w"> </span>with<span class="w"> </span>unit:<span class="w"> </span>ms
+<span class="gp"># </span>TYPE<span class="w"> </span>HandlerTime<span class="w"> </span>gauge
+<span class="go">HandlerTime{ModelName=&quot;resnet18&quot;,Level=&quot;Model&quot;,Hostname=&quot;88665a372f4b.ant.amazon.com&quot;,} 82.93</span>
+<span class="gp"># </span>HELP<span class="w"> </span>ts_inference_latency_microseconds<span class="w"> </span>Torchserve<span class="w"> </span>prometheus<span class="w"> </span>counter<span class="w"> </span>metric<span class="w"> </span>with<span class="w"> </span>unit:<span class="w"> </span>Microseconds
+<span class="gp"># </span>TYPE<span class="w"> </span>ts_inference_latency_microseconds<span class="w"> </span>counter
+<span class="go">ts_inference_latency_microseconds{model_name=&quot;resnet18&quot;,model_version=&quot;default&quot;,hostname=&quot;88665a372f4b.ant.amazon.com&quot;,} 290371.129</span>
+<span class="gp"># </span>HELP<span class="w"> </span>CPUUtilization<span class="w"> </span>Torchserve<span class="w"> </span>prometheus<span class="w"> </span>gauge<span class="w"> </span>metric<span class="w"> </span>with<span class="w"> </span>unit:<span class="w"> </span>Percent
+<span class="gp"># </span>TYPE<span class="w"> </span>CPUUtilization<span class="w"> </span>gauge
+<span class="go">CPUUtilization{Level=&quot;Host&quot;,Hostname=&quot;88665a372f4b.ant.amazon.com&quot;,} 0.0</span>
+<span class="gp"># </span>HELP<span class="w"> </span>MemoryUsed<span class="w"> </span>Torchserve<span class="w"> </span>prometheus<span class="w"> </span>gauge<span class="w"> </span>metric<span class="w"> </span>with<span class="w"> </span>unit:<span class="w"> </span>Megabytes
+<span class="gp"># </span>TYPE<span class="w"> </span>MemoryUsed<span class="w"> </span>gauge
+<span class="go">MemoryUsed{Level=&quot;Host&quot;,Hostname=&quot;88665a372f4b.ant.amazon.com&quot;,} 8245.62109375</span>
+<span class="gp"># </span>HELP<span class="w"> </span>QueueTime<span class="w"> </span>Torchserve<span class="w"> </span>prometheus<span class="w"> </span>gauge<span class="w"> </span>metric<span class="w"> </span>with<span class="w"> </span>unit:<span class="w"> </span>Milliseconds
+<span class="gp"># </span>TYPE<span class="w"> </span>QueueTime<span class="w"> </span>gauge
+<span class="go">QueueTime{Level=&quot;Host&quot;,Hostname=&quot;88665a372f4b.ant.amazon.com&quot;,} 0.0</span>
+<span class="gp"># </span>HELP<span class="w"> </span>ts_queue_latency_microseconds<span class="w"> </span>Torchserve<span class="w"> </span>prometheus<span class="w"> </span>counter<span class="w"> </span>metric<span class="w"> </span>with<span class="w"> </span>unit:<span class="w"> </span>Microseconds
 <span class="gp"># </span>TYPE<span class="w"> </span>ts_queue_latency_microseconds<span class="w"> </span>counter
-<span class="go">ts_queue_latency_microseconds{uuid=&quot;d5f84dfb-fae8-4f92-b217-2f385ca7470b&quot;,model_name=&quot;noopversioned&quot;,model_version=&quot;1.11&quot;,} 364.884</span>
-<span class="go">ts_queue_latency_microseconds{uuid=&quot;d5f84dfb-fae8-4f92-b217-2f385ca7470b&quot;,model_name=&quot;noop&quot;,model_version=&quot;default&quot;,} 82.349</span>
+<span class="go">ts_queue_latency_microseconds{model_name=&quot;resnet18&quot;,model_version=&quot;default&quot;,hostname=&quot;88665a372f4b.ant.amazon.com&quot;,} 365.21</span>
+<span class="gp"># </span>HELP<span class="w"> </span>DiskUtilization<span class="w"> </span>Torchserve<span class="w"> </span>prometheus<span class="w"> </span>gauge<span class="w"> </span>metric<span class="w"> </span>with<span class="w"> </span>unit:<span class="w"> </span>Percent
+<span class="gp"># </span>TYPE<span class="w"> </span>DiskUtilization<span class="w"> </span>gauge
+<span class="go">DiskUtilization{Level=&quot;Host&quot;,Hostname=&quot;88665a372f4b.ant.amazon.com&quot;,} 5.8</span>
+<span class="gp"># </span>HELP<span class="w"> </span>Requests2XX<span class="w"> </span>Torchserve<span class="w"> </span>prometheus<span class="w"> </span>counter<span class="w"> </span>metric<span class="w"> </span>with<span class="w"> </span>unit:<span class="w"> </span>Count
+<span class="gp"># </span>TYPE<span class="w"> </span>Requests2XX<span class="w"> </span>counter
+<span class="go">Requests2XX{Level=&quot;Host&quot;,Hostname=&quot;88665a372f4b.ant.amazon.com&quot;,} 8.0</span>
+<span class="gp"># </span>HELP<span class="w"> </span>Requests4XX<span class="w"> </span>Torchserve<span class="w"> </span>prometheus<span class="w"> </span>counter<span class="w"> </span>metric<span class="w"> </span>with<span class="w"> </span>unit:<span class="w"> </span>Count
+<span class="gp"># </span>TYPE<span class="w"> </span>Requests4XX<span class="w"> </span>counter
+<span class="gp"># </span>HELP<span class="w"> </span>WorkerThreadTime<span class="w"> </span>Torchserve<span class="w"> </span>prometheus<span class="w"> </span>gauge<span class="w"> </span>metric<span class="w"> </span>with<span class="w"> </span>unit:<span class="w"> </span>Milliseconds
+<span class="gp"># </span>TYPE<span class="w"> </span>WorkerThreadTime<span class="w"> </span>gauge
+<span class="go">WorkerThreadTime{Level=&quot;Host&quot;,Hostname=&quot;88665a372f4b.ant.amazon.com&quot;,} 1.0</span>
+<span class="gp"># </span>HELP<span class="w"> </span>DiskAvailable<span class="w"> </span>Torchserve<span class="w"> </span>prometheus<span class="w"> </span>gauge<span class="w"> </span>metric<span class="w"> </span>with<span class="w"> </span>unit:<span class="w"> </span>Gigabytes
+<span class="gp"># </span>TYPE<span class="w"> </span>DiskAvailable<span class="w"> </span>gauge
+<span class="go">DiskAvailable{Level=&quot;Host&quot;,Hostname=&quot;88665a372f4b.ant.amazon.com&quot;,} 325.05113983154297</span>
+<span class="gp"># </span>HELP<span class="w"> </span>MemoryUtilization<span class="w"> </span>Torchserve<span class="w"> </span>prometheus<span class="w"> </span>gauge<span class="w"> </span>metric<span class="w"> </span>with<span class="w"> </span>unit:<span class="w"> </span>Percent
+<span class="gp"># </span>TYPE<span class="w"> </span>MemoryUtilization<span class="w"> </span>gauge
+<span class="go">MemoryUtilization{Level=&quot;Host&quot;,Hostname=&quot;88665a372f4b.ant.amazon.com&quot;,} 64.4</span>
 </pre></div>
 </div>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">curl &quot;http://127.0.0.1:8082/metrics?name[]=ts_inference_latency_microseconds&amp;name[]=ts_queue_latency_microseconds&quot; --globoff</span>
 
-<span class="gp"># </span>HELP<span class="w"> </span>ts_inference_latency_microseconds<span class="w"> </span>Cumulative<span class="w"> </span>inference<span class="w"> </span>duration<span class="w"> </span><span class="k">in</span><span class="w"> </span>microseconds
-<span class="gp"># </span>TYPE<span class="w"> </span>ts_inference_latency_microseconds<span class="w"> </span>counter
-<span class="go">ts_inference_latency_microseconds{uuid=&quot;d5f84dfb-fae8-4f92-b217-2f385ca7470b&quot;,model_name=&quot;noopversioned&quot;,model_version=&quot;1.11&quot;,} 1990.348</span>
-<span class="go">ts_inference_latency_microseconds{uuid=&quot;d5f84dfb-fae8-4f92-b217-2f385ca7470b&quot;,model_name=&quot;noop&quot;,model_version=&quot;default&quot;,} 2032.411</span>
-<span class="gp"># </span>HELP<span class="w"> </span>ts_queue_latency_microseconds<span class="w"> </span>Cumulative<span class="w"> </span>queue<span class="w"> </span>duration<span class="w"> </span><span class="k">in</span><span class="w"> </span>microseconds
+<span class="gp"># </span>HELP<span class="w"> </span>ts_queue_latency_microseconds<span class="w"> </span>Torchserve<span class="w"> </span>prometheus<span class="w"> </span>counter<span class="w"> </span>metric<span class="w"> </span>with<span class="w"> </span>unit:<span class="w"> </span>Microseconds
 <span class="gp"># </span>TYPE<span class="w"> </span>ts_queue_latency_microseconds<span class="w"> </span>counter
-<span class="go">ts_queue_latency_microseconds{uuid=&quot;d5f84dfb-fae8-4f92-b217-2f385ca7470b&quot;,model_name=&quot;noopversioned&quot;,model_version=&quot;1.11&quot;,} 364.884</span>
-<span class="go">ts_queue_latency_microseconds{uuid=&quot;d5f84dfb-fae8-4f92-b217-2f385ca7470b&quot;,model_name=&quot;noop&quot;,model_version=&quot;default&quot;,} 82.349</span>
+<span class="go">ts_queue_latency_microseconds{model_name=&quot;resnet18&quot;,model_version=&quot;default&quot;,hostname=&quot;88665a372f4b.ant.amazon.com&quot;,} 365.21</span>
+<span class="gp"># </span>HELP<span class="w"> </span>ts_inference_latency_microseconds<span class="w"> </span>Torchserve<span class="w"> </span>prometheus<span class="w"> </span>counter<span class="w"> </span>metric<span class="w"> </span>with<span class="w"> </span>unit:<span class="w"> </span>Microseconds
+<span class="gp"># </span>TYPE<span class="w"> </span>ts_inference_latency_microseconds<span class="w"> </span>counter
+<span class="go">ts_inference_latency_microseconds{model_name=&quot;resnet18&quot;,model_version=&quot;default&quot;,hostname=&quot;88665a372f4b.ant.amazon.com&quot;,} 290371.129</span>
 </pre></div>
 </div>
 <section id="prometheus-server">
@@ -411,13 +456,13 @@ For details refer <a class="reference internal" href="configuration.html"><span 
 </pre></div>
 </div>
 <p>Navigate to <code class="docutils literal notranslate"><span class="pre">http://localhost:9090/</span></code> on a browser to execute queries and create graphs</p>
-<img width="1231" alt="PrometheusServer" src="https://user-images.githubusercontent.com/880376/86984450-806fc680-c143-11ea-9ae2-f2ef42f24f4c.png"></section>
+<img width="1231" alt="Prometheus Server" src="https://user-images.githubusercontent.com/5276346/234722761-007e168a-ebc0-4644-be60-23b2f33fa4f2.png"></section>
 <section id="grafana">
 <h2>Grafana<a class="headerlink" href="#grafana" title="Permalink to this headline">¶</a></h2>
 <p>Once you have the Torchserve and Prometheus servers running, you can further <a class="reference external" href="https://prometheus.io/docs/visualization/grafana/">setup</a> Grafana, point it to Prometheus server and navigate to <code class="docutils literal notranslate"><span class="pre">http://localhost:3000/</span></code> to create dashboards and graphs.</p>
 <p>You can use command given below to start Grafana -
 <code class="docutils literal notranslate"><span class="pre">sudo</span> <span class="pre">systemctl</span> <span class="pre">daemon-reload</span> <span class="pre">&amp;&amp;</span> <span class="pre">sudo</span> <span class="pre">systemctl</span> <span class="pre">enable</span> <span class="pre">grafana-server</span> <span class="pre">&amp;&amp;</span> <span class="pre">sudo</span> <span class="pre">systemctl</span> <span class="pre">start</span> <span class="pre">grafana-server</span></code></p>
-<img width="1220" alt="Screen Shot 2020-07-08 at 5 51 57 PM" src="https://user-images.githubusercontent.com/880376/86984550-c4fb6200-c143-11ea-9434-09d4d43dd6d4.png"></section>
+<img width="1220" alt="Grafana Dashboard" src="https://user-images.githubusercontent.com/5276346/234725829-7f60e0d8-c76d-4019-ac8f-7d60069c4e58.png"></section>
 </section>
 
 

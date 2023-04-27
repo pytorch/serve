@@ -381,8 +381,9 @@ Frontend metrics include system level metrics. The host resource utilization fro
 Torchserve provides an API to collect custom backend metrics. Metrics defined by a custom service or handler code can be collected per request or per a batch of requests.
 Two metric modes are supported, i.e <code class="docutils literal notranslate"><span class="pre">log</span></code> and <code class="docutils literal notranslate"><span class="pre">prometheus</span></code>. The default mode is <code class="docutils literal notranslate"><span class="pre">log</span></code>.
 Metrics mode can be configured using the <code class="docutils literal notranslate"><span class="pre">metrics_mode</span></code> configuration option in <code class="docutils literal notranslate"><span class="pre">config.properties</span></code> or <code class="docutils literal notranslate"><span class="pre">TS_METRICS_MODE</span></code> environment variable.
-In <code class="docutils literal notranslate"><span class="pre">log</span></code> mode, Metrics are logged and can be aggregated by metric agents.</p>
-<p>Metrics are collected by default at the following locations in <code class="docutils literal notranslate"><span class="pre">log</span></code> mode:</p>
+For further details on <code class="docutils literal notranslate"><span class="pre">config.properties</span></code> and environment variable based configuration, refer <a class="reference internal" href="configuration.html"><span class="doc">Torchserve config</span></a> docs.</p>
+<p>In <code class="docutils literal notranslate"><span class="pre">log</span></code> mode, Metrics are logged and can be aggregated by metric agents.
+Metrics are collected by default at the following locations in <code class="docutils literal notranslate"><span class="pre">log</span></code> mode:</p>
 <ul class="simple">
 <li><p>Frontend metrics - <code class="docutils literal notranslate"><span class="pre">log_directory/ts_metrics.log</span></code></p></li>
 <li><p>Backend metrics - <code class="docutils literal notranslate"><span class="pre">log</span> <span class="pre">directory/model_metrics.log</span></code></p></li>
@@ -428,21 +429,21 @@ In <code class="docutils literal notranslate"><span class="pre">log</span></code
 <td>ts_inference_requests_total</td>
 <td>counter</td>
 <td>Count</td>
-<td>ModelName, ModelVersion, Hostname</td>
+<td>model_name, model_version, hostname</td>
 <td>Total number of inference requests received</td>
 </tr>
 <tr>
 <td>ts_inference_latency_microseconds</td>
 <td>counter</td>
 <td>Microseconds</td>
-<td>ModelName, ModelVersion, Hostname</td>
+<td>model_name, model_version, hostname</td>
 <td>Total inference latency in Microseconds</td>
 </tr>
 <tr>
 <td>ts_queue_latency_microseconds</td>
 <td>counter</td>
 <td>Microseconds</td>
-<td>ModelName, ModelVersion, Hostname</td>
+<td>model_name, model_version, hostname</td>
 <td>Total queue latency in Microseconds</td>
 </tr>
 <tr>
