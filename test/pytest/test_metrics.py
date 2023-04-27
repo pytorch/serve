@@ -439,9 +439,9 @@ def test_metrics_prometheus_mode():
 
         prometheus_metric_patterns = [
             r'Requests2XX\{Level="Host",Hostname=".+",\} \d+\.\d+',
-            r'ts_inference_requests_total\{ModelName="densenet161",ModelVersion="default",Hostname=".+",\} \d+\.\d+',
-            r'ts_inference_latency_microseconds\{ModelName="densenet161",ModelVersion="default",Hostname=".+",\} \d+\.\d+',
-            r'ts_queue_latency_microseconds\{ModelName="densenet161",ModelVersion="default",Hostname=".+",\} \d+\.\d+',
+            r'ts_inference_requests_total\{model_name="densenet161",model_version="default",hostname=".+",\} \d+\.\d+',
+            r'ts_inference_latency_microseconds\{model_name="densenet161",model_version="default",hostname=".+",\} \d+\.\d+',
+            r'ts_queue_latency_microseconds\{model_name="densenet161",model_version="default",hostname=".+",\} \d+\.\d+',
             r'QueueTime\{Level="Host",Hostname=".+",\} \d+\.\d+',
             r'WorkerThreadTime\{Level="Host",Hostname=".+",\} \d+\.\d+',
             r'WorkerLoadTime\{WorkerName=".+",Level="Host",Hostname=".+",\} \d+\.\d+',
