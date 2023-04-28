@@ -1051,3 +1051,4 @@ largemodels
 torchpippy
 InferenceSession
 maxRetryTimeoutInSec
+neuronx
