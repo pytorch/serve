@@ -44,8 +44,8 @@ jobs:
       - name: Torchserve Regression Tests
         run: |
           python test/regression_tests.py
-      - name: Open issue on failure
-        if: ${{ failure() && github.event_name  == 'schedule' }}
+      - name: Open issue on failure (weekday only)
+        if: ${{ failure() && github.event_name == 'schedule' && steps.regression-cpu.outputs.day_of_week != 'Saturday' && steps.regression-cpu.outputs.day_of_week != 'Sunday' }}
         uses: dacbd/create-issue-action@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
