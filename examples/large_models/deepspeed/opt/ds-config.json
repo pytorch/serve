@@ -1,0 +1,7 @@
+{
+  "dtype": "torch.float16",
+  "replace_with_kernel_inject": true,
+  "tensor_parallel": {
+    "tp_size": 2
+  }
+}

@@ -10,6 +10,7 @@ import io.netty.handler.codec.http.multipart.DefaultHttpDataFactory;
 import io.netty.handler.codec.http.multipart.HttpDataFactory;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
 import java.net.HttpURLConnection;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import org.pytorch.serve.archive.DownloadArchiveException;
@@ -21,7 +22,8 @@ import org.pytorch.serve.http.BadRequestException;
 import org.pytorch.serve.http.HttpRequestHandlerChain;
 import org.pytorch.serve.http.ResourceNotFoundException;
 import org.pytorch.serve.http.StatusResponse;
-import org.pytorch.serve.metrics.api.MetricAggregator;
+import org.pytorch.serve.metrics.IMetric;
+import org.pytorch.serve.metrics.MetricCache;
 import org.pytorch.serve.openapi.OpenApiUtils;
 import org.pytorch.serve.servingsdk.ModelServerEndpoint;
 import org.pytorch.serve.util.ApiUtils;
@@ -65,11 +67,15 @@ public class InferenceRequestHandler extends HttpRequestHandlerChain {
                     case "ping":
                         Runnable r =
                                 () -> {
-                                    String response = ApiUtils.getWorkerStatus();
+                                    boolean isHealthy = ApiUtils.isModelHealthy();
+                                    int code = HttpURLConnection.HTTP_OK;
+                                    String response = "Healthy";
+                                    if (!isHealthy) {
+                                        response = "Unhealthy";
+                                        code = HttpURLConnection.HTTP_INTERNAL_ERROR;
+                                    }
                                     NettyUtils.sendJsonResponse(
-                                            ctx,
-                                            new StatusResponse(
-                                                    response, HttpURLConnection.HTTP_OK));
+                                            ctx, new StatusResponse(response, code));
                                 };
                         ApiUtils.getTorchServeHealth(r);
                         break;
@@ -243,21 +249,35 @@ public class InferenceRequestHandler extends HttpRequestHandlerChain {
                 throw new BadRequestException("Parameter model_name is required.");
             }
         }
+        ModelManager modelManager = ModelManager.getInstance();
+        Model model = modelManager.getModel(modelName, modelVersion);
+        if (model == null) {
+            throw new ModelNotFoundException("Model not found: " + modelName);
+        }
+        input.setClientExpireTS(model.getClientTimeoutInMills());
 
         if (HttpMethod.OPTIONS.equals(req.method())) {
-            ModelManager modelManager = ModelManager.getInstance();
-
-            Model model = modelManager.getModel(modelName, modelVersion);
-            if (model == null) {
-                throw new ModelNotFoundException("Model not found: " + modelName);
-            }
-
             String resp = OpenApiUtils.getModelApi(model);
             NettyUtils.sendJsonResponse(ctx, resp);
             return;
         }
 
-        MetricAggregator.handleInferenceMetric(modelName, modelVersion);
+        IMetric inferenceRequestsTotalMetric =
+                MetricCache.getInstance().getMetricFrontend("ts_inference_requests_total");
+        if (inferenceRequestsTotalMetric != null) {
+            List<String> inferenceRequestsTotalMetricDimensionValues =
+                    Arrays.asList(
+                            modelName,
+                            modelVersion == null ? "default" : modelVersion,
+                            ConfigManager.getInstance().getHostName());
+            try {
+                inferenceRequestsTotalMetric.addOrUpdate(
+                        inferenceRequestsTotalMetricDimensionValues, 1);
+            } catch (Exception e) {
+                logger.error("Failed to update frontend metric ts_inference_requests_total: ", e);
+            }
+        }
+
         ApiUtils.addRESTInferenceJob(ctx, modelName, modelVersion, input);
     }
 

@@ -17,6 +17,7 @@ import java.net.HttpURLConnection;
 import java.net.SocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -28,15 +29,14 @@ import java.util.stream.Collectors;
 import org.pytorch.serve.archive.model.ModelConfig;
 import org.pytorch.serve.job.Job;
 import org.pytorch.serve.job.RestJob;
-import org.pytorch.serve.metrics.Dimension;
-import org.pytorch.serve.metrics.Metric;
+import org.pytorch.serve.metrics.IMetric;
+import org.pytorch.serve.metrics.MetricCache;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.Connector;
 import org.pytorch.serve.util.codec.ModelRequestEncoder;
 import org.pytorch.serve.util.codec.ModelResponseDecoder;
 import org.pytorch.serve.util.messages.BaseModelRequest;
 import org.pytorch.serve.util.messages.InputParameter;
-import org.pytorch.serve.util.messages.ModelInferenceRequest;
 import org.pytorch.serve.util.messages.ModelWorkerResponse;
 import org.pytorch.serve.util.messages.RequestInput;
 import org.pytorch.serve.util.messages.WorkerCommands;
@@ -46,8 +46,6 @@ import org.slf4j.LoggerFactory;
 public class WorkerThread implements Runnable {
 
     private static final Logger logger = LoggerFactory.getLogger(WorkerThread.class);
-    private static final Logger loggerTsMetrics =
-            LoggerFactory.getLogger(ConfigManager.MODEL_SERVER_METRICS_LOGGER);
     private static final Logger loggerTelemetryMetrics =
             LoggerFactory.getLogger(ConfigManager.MODEL_SERVER_TELEMETRY_LOGGER);
     private static final int[] BACK_OFF = {
@@ -56,7 +54,10 @@ public class WorkerThread implements Runnable {
     private static final long WORKER_TIMEOUT = 2L;
     private static final ModelRequestEncoder ENCODER =
             new ModelRequestEncoder(ConfigManager.getInstance().getPreferDirectBuffer());
-    private Metric workerLoadTime;
+    private final IMetric workerThreadTimeMetric;
+    private final IMetric workerLoadTimeMetric;
+    private final List<String> workerThreadTimeMetricDimensionValues;
+    private final List<String> workerLoadTimeMetricDimensionValues;
     private ConfigManager configManager;
     private EventLoopGroup backendEventGroup;
     private int port;
@@ -78,6 +79,7 @@ public class WorkerThread implements Runnable {
     private WorkerState state;
     private WorkerLifeCycle lifeCycle;
     private int responseTimeout;
+    private long recoveryStartTS; // 0: default value. no recovery needed, in healthy mode
 
     public WorkerThread(
             ConfigManager configManager,
@@ -98,13 +100,13 @@ public class WorkerThread implements Runnable {
         startTime = System.currentTimeMillis();
         lifeCycle = new WorkerLifeCycle(configManager, model);
         replies = new ArrayBlockingQueue<>(model.getParallelLevel());
-        workerLoadTime =
-                new Metric(
-                        getWorkerName(),
-                        String.valueOf(System.currentTimeMillis()),
-                        "ms",
-                        ConfigManager.getInstance().getHostName(),
-                        new Dimension("Level", "Host"));
+        this.workerThreadTimeMetric =
+                MetricCache.getInstance().getMetricFrontend("WorkerThreadTime");
+        this.workerLoadTimeMetric = MetricCache.getInstance().getMetricFrontend("WorkerLoadTime");
+        this.workerThreadTimeMetricDimensionValues =
+                Arrays.asList("Host", ConfigManager.getInstance().getHostName());
+        this.workerLoadTimeMetricDimensionValues =
+                Arrays.asList(getWorkerName(), "Host", ConfigManager.getInstance().getHostName());
     }
 
     public WorkerState getState() {
@@ -187,7 +189,9 @@ public class WorkerThread implements Runnable {
                 logger.info("Flushing req.cmd {} to backend at: {}", req.getCommand(), wtStartTime);
                 int repeats =
                         (req.getCommand() == WorkerCommands.LOAD)
-                                        || (req.getCommand() == WorkerCommands.PREDICT
+                                        || ((req.getCommand() == WorkerCommands.PREDICT
+                                                        || req.getCommand()
+                                                                == WorkerCommands.STREAMPREDICT)
                                                 && model.getParallelLevel() > 1
                                                 && model.getParallelType()
                                                         != ModelConfig.ParallelType.PP)
@@ -200,46 +204,29 @@ public class WorkerThread implements Runnable {
                 boolean isStreaming =
                         req.getCommand() == WorkerCommands.STREAMPREDICT ? true : false;
                 ModelWorkerResponse reply = null;
-                long duration = 0;
-                long begin = System.currentTimeMillis();
 
-                if (!isStreaming) {
+                boolean jobDone = false;
+                long totalDuration = 0;
+                do {
+                    long begin = System.currentTimeMillis();
                     for (int i = 0; i < repeats; i++) {
                         reply = replies.poll(responseTimeout, TimeUnit.SECONDS);
                     }
 
-                    duration = System.currentTimeMillis() - begin;
-                    logger.info("Backend response time: {}", duration);
+                    long duration = System.currentTimeMillis() - begin;
 
                     if (reply != null) {
-                        aggregator.sendResponse(reply);
+                        jobDone = aggregator.sendResponse(reply);
+                        logger.debug("sent a reply, jobdone: {}", jobDone);
                     } else if (req.getCommand() != WorkerCommands.DESCRIBE) {
                         int val = model.incrFailedInfReqs();
                         logger.error("Number or consecutive unsuccessful inference {}", val);
                         throw new WorkerInitializationException(
                                 "Backend worker did not respond in given time");
                     }
-                } else {
-                    ModelInferenceRequest inferReq = (ModelInferenceRequest) req;
-                    boolean streamNext = true;
-                    while (streamNext) {
-                        for (int i = 0; i < repeats; i++) {
-                            reply = replies.poll(responseTimeout, TimeUnit.SECONDS);
-                        }
-                        if (reply.getPredictions()
-                                .get(0)
-                                .getHeaders()
-                                .get(org.pytorch.serve.util.messages.RequestInput.TS_STREAM_NEXT)
-                                .equals("false")) {
-                            duration = System.currentTimeMillis() - begin;
-                            logger.info("Backend response time: {}", duration);
-                            streamNext = false;
-                        }
-                        if (reply != null) {
-                            aggregator.sendResponse(reply);
-                        }
-                    }
-                }
+                    totalDuration += duration;
+                } while (!jobDone);
+                logger.info("Backend response time: {}", totalDuration);
 
                 switch (req.getCommand()) {
                     case PREDICT:
@@ -271,16 +258,16 @@ public class WorkerThread implements Runnable {
                         break;
                 }
                 req = null;
-                String workerThreadTime =
-                        String.valueOf(((System.currentTimeMillis() - wtStartTime) - duration));
-                loggerTsMetrics.info(
-                        "{}",
-                        new Metric(
-                                "WorkerThreadTime",
-                                workerThreadTime,
-                                "ms",
-                                ConfigManager.getInstance().getHostName(),
-                                new Dimension("Level", "Host")));
+                double workerThreadTime =
+                        (System.currentTimeMillis() - wtStartTime) - totalDuration;
+                if (this.workerThreadTimeMetric != null) {
+                    try {
+                        this.workerThreadTimeMetric.addOrUpdate(
+                                this.workerThreadTimeMetricDimensionValues, workerThreadTime);
+                    } catch (Exception e) {
+                        logger.error("Failed to update frontend metric WorkerThreadTime: ", e);
+                    }
+                }
             }
         } catch (InterruptedException e) {
             logger.debug("System state is : " + state);
@@ -329,7 +316,9 @@ public class WorkerThread implements Runnable {
             }
             setState(WorkerState.WORKER_STOPPED, status);
             lifeCycle.exit();
-            retry();
+            if (isHealthy()) { // still within maxRetryTimeoutInMill window
+                retry();
+            }
         }
     }
 
@@ -481,16 +470,33 @@ public class WorkerThread implements Runnable {
         listener.notifyChangeState(
                 model.getModelVersionName().getVersionedModelName(), newState, status);
         logger.debug("{} State change {} -> {}", getWorkerName(), state, newState);
-        long timeTaken = System.currentTimeMillis() - startTime;
+        long currentTS = System.currentTimeMillis();
+        long timeTaken = currentTS - startTime;
         if (state != WorkerState.WORKER_SCALED_DOWN) {
             // Don't update the state if it was terminated on purpose.. Scaling in..
             this.state = newState;
         }
+
         if (state == WorkerState.WORKER_MODEL_LOADED) {
-            workerLoadTime.setValue(String.valueOf(timeTaken));
-            workerLoadTime.setTimestamp(
-                    String.valueOf(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis())));
-            loggerTsMetrics.info("{}", workerLoadTime);
+            if (this.workerLoadTimeMetric != null) {
+                try {
+                    this.workerLoadTimeMetric.addOrUpdate(
+                            this.workerLoadTimeMetricDimensionValues, timeTaken);
+                } catch (Exception e) {
+                    logger.error("Failed to update frontend metric WorkerLoadTime: ", e);
+                }
+            }
+            if (recoveryStartTS > 0) {
+                logger.info("Auto recovery succeeded, reset recoveryStartTS");
+                recoveryStartTS = 0;
+            }
+        } else if (state == WorkerState.WORKER_STOPPED) {
+            if (recoveryStartTS == 0) {
+                recoveryStartTS = currentTS;
+                logger.info("Auto recovery start timestamp: {}", recoveryStartTS);
+            } else {
+                logger.warn("Auto recovery failed again");
+            }
         }
     }
 
@@ -505,7 +511,6 @@ public class WorkerThread implements Runnable {
         if (backoffIdx < BACK_OFF.length - 1) {
             ++backoffIdx;
         }
-
         manager.getScheduler()
                 .schedule(() -> manager.submitTask(this), BACK_OFF[backoffIdx], TimeUnit.SECONDS);
         logger.info("Retry worker: {} in {} seconds.", workerId, BACK_OFF[backoffIdx]);
@@ -526,6 +531,15 @@ public class WorkerThread implements Runnable {
             }
             return deviceIds.stream().map(String::valueOf).collect(Collectors.joining(","));
         }
+    }
+
+    public boolean isHealthy() {
+        if (recoveryStartTS == 0
+                || (System.currentTimeMillis() - recoveryStartTS)
+                        < model.getMaxRetryTimeoutInMill()) {
+            return true;
+        }
+        return false;
     }
 
     @ChannelHandler.Sharable

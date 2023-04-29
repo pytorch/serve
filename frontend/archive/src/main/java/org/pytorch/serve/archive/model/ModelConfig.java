@@ -11,16 +11,33 @@ import org.slf4j.LoggerFactory;
 public class ModelConfig {
     private static final Logger logger = LoggerFactory.getLogger(ModelConfig.class);
 
+    /** the minimum number of workers of a model */
     private int minWorkers;
+    /** the maximum number of workers of a model */
     private int maxWorkers;
+    /** the batch size of a model */
     private int batchSize;
+    /** the maximum delay in msec of a batch of a model */
     private int maxBatchDelay;
-    private int responseTimeout;
+    /** the timeout in sec of a specific model's response. */
+    private int responseTimeout = 120; // unit: sec
+    /** the device type where the model is loaded. It can be gpu, cpu */
     private DeviceType deviceType = DeviceType.NONE;
+    /** the gpu device id */
     private List<Integer> deviceIds;
+    /** this variable is auto calculated based on torchrun nproc-per-node. */
     private int parallelLevel = 1;
+    /** the model parallel type can be tp, pp, pptp */
     private ParallelType parallelType = ParallelType.NONE;
+    /** torchrun config */
     private TorchRun torchRun;
+    /** the maximum seconds of a worker recovery's timeout. default: 5 min */
+    private int maxRetryTimeoutInSec = 300;
+    /**
+     * the client timeout in millions second. The inference request will be dropped once it is
+     * timeout. default: 0 which means no timeout (ie. clientExpireTS default value Long.MAX_VALUE.
+     */
+    private long clientTimeoutInMills;
 
     public static ModelConfig build(Map<String, Object> yamlMap) {
         ModelConfig modelConfig = new ModelConfig();
@@ -92,6 +109,23 @@ public class ModelConfig {
                             } else {
                                 logger.warn(
                                         "Invalid torchrun: {}, should be Torchrun parameters", v);
+                            }
+                            break;
+                        case "maxRetryTimeoutInSec":
+                            if (v instanceof Integer) {
+                                modelConfig.setMaxRetryTimeoutInSec((int) v);
+                            } else {
+                                logger.warn(
+                                        "Invalid maxRetryTimeoutInMin: {}, should be integer", v);
+                            }
+                            break;
+                        case "clientTimeoutInMills":
+                            if (v instanceof Integer) {
+                                modelConfig.setClientTimeoutInMills(((Integer) v).longValue());
+                            } else {
+                                logger.warn(
+                                        "Invalid clientTimeoutInMills: {}, should be positive long",
+                                        v);
                             }
                             break;
                         default:
@@ -209,6 +243,26 @@ public class ModelConfig {
 
     public TorchRun getTorchRun() {
         return torchRun;
+    }
+
+    public int getMaxRetryTimeoutInSec() {
+        return maxRetryTimeoutInSec;
+    }
+
+    public void setMaxRetryTimeoutInSec(int maxRetryTimeoutInSec) {
+        if (maxRetryTimeoutInSec > 0) {
+            this.maxRetryTimeoutInSec = maxRetryTimeoutInSec;
+        }
+    }
+
+    public long getClientTimeoutInMills() {
+        return clientTimeoutInMills;
+    }
+
+    public void setClientTimeoutInMills(long clientTimeoutInMills) {
+        if (clientTimeoutInMills > 0) {
+            this.clientTimeoutInMills = clientTimeoutInMills;
+        }
     }
 
     public enum ParallelType {

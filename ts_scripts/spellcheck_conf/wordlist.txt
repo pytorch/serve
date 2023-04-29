@@ -1032,3 +1032,14 @@ mps
 deviceIds
 rpc
 pippy
+PiPPy
+Microbatching
+Micro-batching
+microbatch
+microbatching
+DeviceId
+PredictionTime
+QueueTime
+WorkerLoadTime
+WorkerName
+WorkerThreadTime
