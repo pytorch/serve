@@ -37,7 +37,6 @@ class TransformersSeqClassifierHandler(BasePippyHandler, ABC):
         self.device = self.local_rank
 
         model_path = ctx.model_yaml_config["handler"]["model_path"]
-        cache_path = ctx.model_yaml_config["handler"]["cache_path"]
         seed = ctx.model_yaml_config["handler"]["manual_seed"]
         dtype_str = ctx.model_yaml_config["handler"]["dtype"]
         torch.manual_seed(seed)
@@ -45,7 +44,6 @@ class TransformersSeqClassifierHandler(BasePippyHandler, ABC):
         dtypes = {"fp32": torch.float32, "fp16": torch.float16, "bf16": torch.bfloat16}
 
         dtype = dtypes.get(dtype_str, torch.float32)
-
         if dtype != torch.float32 and dtype_str not in dtypes:
             logger.info(
                 f"Unsupported data type {dtype_str}, "
