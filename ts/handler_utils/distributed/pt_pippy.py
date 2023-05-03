@@ -54,7 +54,12 @@ def get_pipeline_driver(model, world_size, ctx):
     chunks = ctx.model_yaml_config["pippy"]["chunks"]
     input_names = ctx.model_yaml_config["pippy"]["input_names"]
     model_type = ctx.model_yaml_config["pippy"]["model_type"]
+    model_path = ctx.model_yaml_config["handler"]["model_path"]
+    index_filename = ctx.model_yaml_config["handler"]["index_filename"]
+    index_file_path = os.path.join(model_path, index_filename)
 
+    index_file = index_file_path if model_type == "HF" else None
+    checkpoint_prefix = None
     # Set the model to evaluation mode
     model.eval()
 
@@ -83,6 +88,8 @@ def get_pipeline_driver(model, world_size, ctx):
         split_policy=split_policy,
         tracer=tracer,
         concrete_args=concrete_args,
+        index_filename=index_file,
+        checkpoint_prefix=checkpoint_prefix,
     )
 
     # Inject the pipeline forward method if necessary
