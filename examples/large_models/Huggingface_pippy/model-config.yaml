@@ -17,5 +17,8 @@ pippy:
     num_worker_threads: 512
 
 handler:
+    model_name: "/home/ubuntu/serve/examples/large_models/Huggingface_pippy/model/models--facebook--opt-30b/snapshots/ceea0a90ac0f6fae7c2c34bcb40477438c152546"
+    index_file_name: 'pytorch_model.bin.index.json'
     max_length: 50
     manual_seed: 40
+    dtype: fp16
