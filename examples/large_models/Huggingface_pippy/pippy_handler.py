@@ -36,18 +36,43 @@ class TransformersSeqClassifierHandler(BasePippyHandler, ABC):
         model_dir = properties.get("model_dir")
         self.device = self.local_rank
 
+        model_path = ctx.model_yaml_config["handler"]["model_path"]
+        cache_path = ctx.model_yaml_config["handler"]["cache_path"]
         seed = ctx.model_yaml_config["handler"]["manual_seed"]
+        dtype_str = ctx.model_yaml_config["handler"]["dtype"]
         torch.manual_seed(seed)
 
-        self.model = AutoModelForCausalLM.from_pretrained(model_dir, use_cache=False)
+        dtypes = {"fp32": torch.float32, "fp16": torch.float16, "bf16": torch.bfloat16}
 
-        self.tokenizer = AutoTokenizer.from_pretrained(model_dir, return_tensors="pt")
+        dtype = dtypes.get(dtype_str, torch.float32)
+
+        if dtype != torch.float32 and dtype_str not in dtypes:
+            logger.info(
+                f"Unsupported data type {dtype_str}, "
+                "please submit a PR to support it. Falling back to fp32 now."
+            )
+
+        skip_init_start = time.perf_counter()
+        with torch.device("meta"):
+            self.model = AutoModelForCausalLM.from_pretrained(
+                model_path, use_cache=False, torch_dtype=dtype
+            )
+        skip_init_end = time.perf_counter()
+        logger.info(
+            f" init model time on meta device took {skip_init_end - skip_init_start} seconds"
+        )
+        self.tokenizer = AutoTokenizer.from_pretrained(model_path, return_tensors="pt")
 
         self.max_length = ctx.model_yaml_config["handler"]["max_length"]
 
         logger.info("Instantiating model Pipeline")
-        model_init_start = time.time()
+        pippy_compile_time_start = time.perf_counter()
         self.model = get_pipeline_driver(self.model, self.world_size, ctx)
+        pippy_compile_time_end = time.perf_counter()
+
+        logger.info(
+            f" pippy compile time took {pippy_compile_time_end- pippy_compile_time_start} seconds on rank {self.local_rank}"
+        )
 
         logger.info("Transformer model from path %s loaded successfully", model_dir)
 
