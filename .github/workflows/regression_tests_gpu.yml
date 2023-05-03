@@ -49,6 +49,6 @@ jobs:
         uses: dacbd/create-issue-action@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          title: CPU Regression tests failed
+          title: GPU Regression tests failed
           body:  Commit ${{ github.sha }} daily scheduled [${{ github.workflow }}](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) failed, please check why
           assignees: ''
