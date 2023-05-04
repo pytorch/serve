@@ -6,14 +6,6 @@ This document briefs on serving large HG models on multiple GPUs using deepspeed
 
 ### Step 1: Download model
 
-Login into huggingface hub with token by running the below command
-
-```bash
-huggingface-cli login
-```
-
-paste the token generated from huggingface hub.
-
 ```bash
 python Download_models.py --model_path model --model_name facebook/opt-350m --revision main
 ```

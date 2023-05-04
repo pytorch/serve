@@ -46,6 +46,6 @@ snapshot_path = snapshot_download(
     repo_id=args.model_name,
     revision=args.revision,
     cache_dir=args.model_path,
-    use_auth_token=True,
+    use_auth_token=False,
 )
 print(f"Files for '{args.model_name}' is downloaded to '{snapshot_path}'")
