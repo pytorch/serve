@@ -1,10 +1,9 @@
 name: k8s CI
 
 on:
-  push:
-    branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
+  # runs everyday  at 9:15am
+  schedule:
+    - cron:  '15 9 * * *'
 
 jobs:
   test-model-prediction-on-k8s:
@@ -34,9 +33,5 @@ jobs:
       - name: Install TorchServe
         run: |
           python ts_scripts/install_from_src.py
-      - name: Build Docker Image
-        working-directory: docker
-        run: |
-          ./build_image.sh -bt dev -t pytorch/torchserve:latest-cpu"
       - name: Test model running in k8s cluster with sample image data
         run: ./kubernetes/scripts/test_k8s_model_prediction.sh
