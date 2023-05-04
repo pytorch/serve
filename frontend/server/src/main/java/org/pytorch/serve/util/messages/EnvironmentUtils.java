@@ -47,9 +47,6 @@ public final class EnvironmentUtils {
 
         environment.put("PYTHONPATH", pythonPath.toString());
 
-        // This is a workaround to avoid DeepSpeed JIT issue during pip installation
-        environment.put("DS_BUILD_OPS", "1");
-
         for (Map.Entry<String, String> entry : environment.entrySet()) {
             if (!blackList.matcher(entry.getKey()).matches()) {
                 envList.add(entry.getKey() + '=' + entry.getValue());

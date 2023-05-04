@@ -4,7 +4,13 @@ This document explain how Torchserve supports large model serving, here large mo
 
 ## Internal
 
-During deployment a worker of a large model, TorchServe utilizes [torchrun](https://pytorch.org/docs/stable/elastic/run.html) to initiate a distributed environment for model parallel processing. CUDA_VISIBLE_DEVICES is set if the model is loaded on multiple GPUs. Using Pippy integration as an example, the image below illustrates the internal of the TorchServe large model open platform.
+During deployment a worker of a large model, TorchServe utilizes [torchrun](https://pytorch.org/docs/stable/elastic/run.html) to initiate a distributed environment for model parallel processing. CUDA_VISIBLE_DEVICES is set if the model is loaded on multiple GPUs. TorchServe has the capability to support multiple workers for a large model. By default, TorchServe uses a round-robin algorithm to assign GPUs to a worker on a host. 
+
+For instance, suppose there are eight GPUs on a node and one worker needs 4 GPUs (ie, nproc-per-node=4) on a node. In this case, TorchServe would assign CUDA_VISIBLE_DEVICES="0,1,2,3" to worker1 and CUDA_VISIBLE_DEVICES="4,5,6,7" to worker2.
+
+In addition to this default behavior, TorchServe provides the flexibility for users to specify GPUs for a worker. For instance, if the user sets "deviceIds: [2,3,4,5]" in the [model config YAML file](https://github.com/pytorch/serve/blob/5ee02e4f050c9b349025d87405b246e970ee710b/model-archiver/README.md?plain=1#L164, and nproc-per-node is set to 2, then TorchServe would assign CUDA_VISIBLE_DEVICES="2,3" to worker1 and CUDA_VISIBLE_DEVICES="4,5" to worker2.
+
+Using Pippy integration as an example, the image below illustrates the internal of the TorchServe large model open platform.
 
 ![ts-lmi-internal](images/ts-lmi-internal.png)
 
