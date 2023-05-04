@@ -20,7 +20,7 @@ spec:
             path: /host/model_store
       containers:
         - name: torchserve
-          image: pytorch/torchserve:latest-cpu
+          image: pytorch/torchserve-nightly:latest-cpu
           ports:
             - containerPort: 8080
             - containerPort: 8081

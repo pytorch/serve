@@ -3,7 +3,7 @@ name: k8s CI
 on:
   # runs everyday  at 9:15am
   schedule:
-    - cron:  '15 9 * * *'
+    - cron:  '45 11 * * *'
 
 jobs:
   test-model-prediction-on-k8s:
