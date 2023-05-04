@@ -62,6 +62,7 @@ class TransformersSeqClassifierHandler(BasePippyHandler, ABC):
         self.tokenizer = AutoTokenizer.from_pretrained(model_path, return_tensors="pt")
 
         self.max_length = ctx.model_yaml_config["handler"]["max_length"]
+        self.max_new_tokens = ctx.model_yaml_config["handler"]["max_new_tokens"]
 
         logger.info("Instantiating model Pipeline")
         pippy_compile_time_start = time.perf_counter()
@@ -109,8 +110,7 @@ class TransformersSeqClassifierHandler(BasePippyHandler, ABC):
         logger.info("Received text: '%s'", input_text)
         inputs = self.tokenizer.encode_plus(
             input_text,
-            max_length=self.max_length,
-            pad_to_max_length=True,
+            padding=self.max_length,
             add_special_tokens=True,
             return_tensors="pt",
         )
@@ -133,7 +133,7 @@ class TransformersSeqClassifierHandler(BasePippyHandler, ABC):
         outputs = self.model.generate(
             input_ids_batch,
             attention_mask=attention_mask_batch,
-            max_length=30,
+            max_new_tokens=self.max_new_tokens,
         )
 
         inferences = [
