@@ -1,4 +1,4 @@
-name: Docker CI
+name: K8s CI
 
 on:
   push:
