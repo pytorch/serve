@@ -8,6 +8,15 @@ PiPPy provides pipeline parallelism for serving large models that would not fit 
 
 We use a Torchserve custom handler that inherits from base_pippy_handler to load the model and define our logic for preprocess, inference and post processing. This is basically very similar to your evaluation process. Following settings has been tested on g5.12xlarge EC2 instance which has 4xA10 GPUs.
 
+To run this example we need to have torchpippy installed. This has been added to the requirement.txt which can be bundled during model packaging.
+
+Generally to install torchpippy you can run following
+
+```bash
+pip install torchpippy
+
+```
+
 ### Step 1: Download model
 
 ```bash
