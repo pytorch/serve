@@ -51,12 +51,40 @@ def get_pipeline_driver(model, world_size, ctx):
         torch.nn.Sequential: The pipeline driver for the model.
     """
     # Extract configuration parameters from the context
+
+    # Check that the "pippy" and "handler" keys are present in the YAML config
+    assert "pippy" in ctx.model_yaml_config, "Missing 'pippy' key in YAML config"
+    assert "handler" in ctx.model_yaml_config, "Missing 'handler' key in YAML config"
+
+    # Check that the required keys are present in the "pippy" section
+    assert (
+        "chunks" in ctx.model_yaml_config["pippy"]
+    ), "Missing 'chunks' key in YAML config"
+    assert (
+        "input_names" in ctx.model_yaml_config["pippy"]
+    ), "Missing 'input_names' key in YAML config"
+    assert (
+        "model_type" in ctx.model_yaml_config["pippy"]
+    ), "Missing 'model_type' key in YAML config"
+
+    # Check that the required keys are present in the "handler" section
+    assert (
+        "model_path" in ctx.model_yaml_config["handler"]
+    ), "Missing 'model_path' key in YAML config"
+    assert (
+        "index_filename" in ctx.model_yaml_config["handler"]
+    ), "Missing 'index_filename' key in YAML config"
+
+    # Set variables from the config
     chunks = ctx.model_yaml_config["pippy"]["chunks"]
     input_names = ctx.model_yaml_config["pippy"]["input_names"]
     model_type = ctx.model_yaml_config["pippy"]["model_type"]
     model_path = ctx.model_yaml_config["handler"]["model_path"]
     index_filename = ctx.model_yaml_config["handler"]["index_filename"]
+
+    # Check that the index file exists
     index_file_path = os.path.join(model_path, index_filename)
+    assert os.path.exists(index_file_path), f"Index file '{index_file_path}' not found"
 
     index_file = index_file_path if model_type == "HF" else None
     checkpoint_prefix = None
