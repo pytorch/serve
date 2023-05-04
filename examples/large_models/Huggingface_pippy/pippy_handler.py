@@ -111,7 +111,7 @@ class TransformersSeqClassifierHandler(BasePippyHandler, ABC):
         inputs = self.tokenizer.encode_plus(
             input_text,
             max_length=self.max_length,
-            padding=True,
+            pad_to_max_length=True,
             add_special_tokens=True,
             return_tensors="pt",
         )
@@ -134,7 +134,7 @@ class TransformersSeqClassifierHandler(BasePippyHandler, ABC):
         outputs = self.model.generate(
             input_ids_batch,
             attention_mask=attention_mask_batch,
-            max_new_tokens=self.max_new_tokens,
+            max_length=self.max_new_tokens,
         )
 
         inferences = [
