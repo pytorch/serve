@@ -187,6 +187,7 @@ public class WorkerLifeCycle {
     private void attachRunner(
             ArrayList<String> argl, List<String> envp, int port, String deviceIds) {
         envp.add("LOGLEVEL=INFO");
+        envp.add("OMP_NUM_THREADS=1");
         if (deviceIds != null) {
             envp.add("CUDA_VISIBLE_DEVICES=" + deviceIds);
         }

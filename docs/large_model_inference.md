@@ -2,10 +2,15 @@
 
 This document explain how Torchserve supports large model serving, here large model refers to the models that are not able to fit into one gpu so they need be split in multiple partitions over multiple gpus.
 
+## Internal
+
+During deployment a worker of a large model, TorchServe utilizes [torchrun](https://pytorch.org/docs/stable/elastic/run.html) to initiate a distributed environment for model parallel processing. CUDA_VISIBLE_DEVICES is set if the model is loaded on multiple GPUs. Using Pippy integration as an example, the image below illustrates the internal of the TorchServe large model open platform.
+
+![ts-lmi-internal](images/ts-lmi-internal.png)
+
 ## PiPPy (PyTorch Native solution for large model inference)
 
 PiPPy provides pipeline parallelism for serving large models that would not fit into one gpu. It takes your model and splits it into equal sizes (stages) partitioned over the number devices you specify. Then uses microbatching to run your batched input for inference ( its is more optimal for batch sizes >1).
-
 
 ### How to use PiPPy in Torchserve
 
@@ -99,6 +104,7 @@ class ModelHandler(BaseDeepSpeedHandler, ABC):
     def __init__(self):
         super(ModelHandler, self).__init__()
         self.initialized = False
+        
     def initialize(self, ctx):
         model = # load your model from model_dir
         ds_engine = get_ds_engine(self.model, ctx)
@@ -156,5 +162,15 @@ The rest is as usual in Torchserve, basically packaging your model and starting 
 Example of the command for packaging your model, make sure you pass model-config.yaml
 
 ```bash
+# option 1: Using model_dir
 torch-model-archiver --model-name bloom --version 1.0 --handler deepspeed_handler.py --extra-files $MODEL_CHECKPOINTS_PATH,ds-config.json -r requirements.txt --config-file model-config.yaml --archive-format tgz
+
+# option 2: Using HF model_name 
+torch-model-archiver --model-name bloom --version 1.0 --handler deepspeed_handler.py --extra-files ds-config.json -r requirements.txt --config-file model-config.yaml --archive-format
 ```
+
+## Best Practice
+
+To reduce model loading latency, we recommend
+* Pre-install the model parallel library such as Deepspeed on the container or host.
+* Pre-download the large model.

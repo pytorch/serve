@@ -151,6 +151,7 @@ class TorchModelServiceWorker(object):
                 return None, "System out of memory", 507
             else:
                 # Sanity testcases fail without this
+                logging.exception("Failed to load model %s, exception %s", model_name, str(ex))
                 return None, "Unknown exception", 500
 
     def handle_connection(self, cl_socket):
