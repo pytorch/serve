@@ -1043,3 +1043,4 @@ QueueTime
 WorkerLoadTime
 WorkerName
 WorkerThreadTime
+minikube
