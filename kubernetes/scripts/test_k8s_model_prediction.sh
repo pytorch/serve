@@ -2,16 +2,19 @@
 
 set -o errexit -o nounset -o pipefail
 
-echo "Creating mnist.mar file "
+#echo "Creating mnist.mar file "
+#
+#torch-model-archiver --model-name mnist \
+#     --version 1.0 \
+#     --model-file examples/image_classifier/mnist/mnist.py \
+#     --serialized-file examples/image_classifier/mnist/mnist_cnn.pt \
+#     --handler  examples/image_classifier/mnist/mnist_handler.py
+#
+#mkdir -p model_store
+#mv -f mnist.mar model_store/
 
-torch-model-archiver --model-name mnist \
-     --version 1.0 \
-     --model-file examples/image_classifier/mnist/mnist.py \
-     --serialized-file examples/image_classifier/mnist/mnist_cnn.pt \
-     --handler  examples/image_classifier/mnist/mnist_handler.py
-
-mkdir -p model_store
-mv -f mnist.mar model_store/
+echo "Removing any previous kubernetes cluster "
+minikube delete
 
 echo "Starting kubernetes cluster "
 
