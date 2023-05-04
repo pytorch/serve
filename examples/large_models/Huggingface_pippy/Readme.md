@@ -52,7 +52,7 @@ pippy:
 
 handler:
     max_length: 80 # max length of tokens for tokenizer in the handler
-    model_name: "/home/ubuntu/serve/examples/large_models/Huggingface_pippy/model/models--facebook--opt-30b/snapshots/ceea0a90ac0f6fae7c2c34bcb40477438c152546" #the path to the checkpoints, in this example downloaded file
+    model_name: "/home/ubuntu/serve/examples/large_models/Huggingface_pippy/model/models--facebook--opt-30b/snapshots/ceea0a90ac0f6fae7c2c34bcb40477438c152546" #the path to the checkpoints, in this example downloaded file. Please change to your model path.
     index_file_name: 'pytorch_model.bin.index.json' # index json file name in the model checkpoint folder, that keeps information of distributed checkpoints
     manual_seed: 40
     dtype: fp16 # data type to load your model checkpoint, supported fp32, fp16, bf16
