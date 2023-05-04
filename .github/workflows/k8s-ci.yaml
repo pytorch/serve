@@ -27,14 +27,12 @@ jobs:
           java-version: '17'
       - name: Checkout TorchServe
         uses: actions/checkout@v3
-      #- name: Install dependencies
-      #  run: |
-      #    python ts_scripts/install_dependencies.py --environment=dev
+      - name: Install dependencies
+        run: |
+          python ts_scripts/install_dependencies.py --environment=dev
 
-      #- name: Install TorchServe
-      #  run: |
-      #    python ts_scripts/install_from_src.py
-      - name: PWD
-        run: pwd
+      - name: Install TorchServe
+        run: |
+          python ts_scripts/install_from_src.py
       - name: Test model running in k8s cluster with sample image data
         run: ./kubernetes/scripts/test_k8s_model_prediction.sh
