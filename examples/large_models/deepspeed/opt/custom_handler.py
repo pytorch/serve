@@ -37,6 +37,9 @@ class TransformersSeqClassifierHandler(BaseDeepSpeedHandler, ABC):
         self.model = AutoModelForCausalLM.from_pretrained(model_dir, use_cache=False)
         self.tokenizer = AutoTokenizer.from_pretrained(model_dir, return_tensors="pt")
 
+        if not self.tokenizer.pad_token:
+            self.tokenizer.pad_token = self.tokenizer.eos_token
+
         ds_engine = get_ds_engine(self.model, ctx)
         self.model = ds_engine.module
         logger.info("Model %s loaded successfully", ctx.model_name)
@@ -76,6 +79,7 @@ class TransformersSeqClassifierHandler(BaseDeepSpeedHandler, ABC):
         inputs = self.tokenizer.encode_plus(
             input_text,
             max_length=self.max_length,
+            padding=True,
             pad_to_max_length=True,
             add_special_tokens=True,
             return_tensors="pt",
