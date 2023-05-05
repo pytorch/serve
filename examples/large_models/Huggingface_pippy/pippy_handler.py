@@ -136,14 +136,13 @@ class TransformersSeqClassifierHandler(BasePippyHandler, ABC):
             attention_mask=attention_mask_batch,
             max_length=self.max_new_tokens,
         )
-
-        inferences = [
-            self.tokenizer.batch_decode(
+        generated_text = self.tokenizer.batch_decode(
                 outputs, skip_special_tokens=True, clean_up_tokenization_spaces=False
             )
-        ]
-        logger.info("Generated text: %s", inferences)
-        return inferences
+        
+       
+        logger.info("Generated text: %s", generated_text)
+        return generated_text
 
     def postprocess(self, inference_output):
         """Post Process Function converts the predicted response into Torchserve readable format.
