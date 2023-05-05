@@ -4,11 +4,11 @@ This document explain how Torchserve supports large model serving, here large mo
 
 ## Internal
 
-During deployment a worker of a large model, TorchServe utilizes [torchrun](https://pytorch.org/docs/stable/elastic/run.html) to initiate a distributed environment for model parallel processing. CUDA_VISIBLE_DEVICES is set if the model is loaded on multiple GPUs. TorchServe has the capability to support multiple workers for a large model. By default, TorchServe uses a round-robin algorithm to assign GPUs to a worker on a host. 
+During deployment a worker of a large model, TorchServe utilizes [torchrun](https://pytorch.org/docs/stable/elastic/run.html) to initiate a distributed environment for model parallel processing. CUDA_VISIBLE_DEVICES is set if the model is loaded on multiple GPUs. TorchServe has the capability to support multiple workers for a large model. By default, TorchServe uses a round-robin algorithm to assign GPUs to a worker on a host.
 
 For instance, suppose there are eight GPUs on a node and one worker needs 4 GPUs (ie, nproc-per-node=4) on a node. In this case, TorchServe would assign CUDA_VISIBLE_DEVICES="0,1,2,3" to worker1 and CUDA_VISIBLE_DEVICES="4,5,6,7" to worker2.
 
-In addition to this default behavior, TorchServe provides the flexibility for users to specify GPUs for a worker. For instance, if the user sets "deviceIds: [2,3,4,5]" in the [model config YAML file](https://github.com/pytorch/serve/blob/5ee02e4f050c9b349025d87405b246e970ee710b/model-archiver/README.md?plain=1#L164, and nproc-per-node is set to 2, then TorchServe would assign CUDA_VISIBLE_DEVICES="2,3" to worker1 and CUDA_VISIBLE_DEVICES="4,5" to worker2.
+In addition to this default behavior, TorchServe provides the flexibility for users to specify GPUs for a worker. For instance, if the user sets "deviceIds: [2,3,4,5]" in the [model config YAML file](https://github.com/pytorch/serve/blob/5ee02e4f050c9b349025d87405b246e970ee710b/model-archiver/README.md?plain=1#L164), and nproc-per-node is set to 2, then TorchServe would assign CUDA_VISIBLE_DEVICES="2,3" to worker1 and CUDA_VISIBLE_DEVICES="4,5" to worker2.
 
 Using Pippy integration as an example, the image below illustrates the internal of the TorchServe large model open platform.
 
@@ -110,7 +110,7 @@ class ModelHandler(BaseDeepSpeedHandler, ABC):
     def __init__(self):
         super(ModelHandler, self).__init__()
         self.initialized = False
-        
+
     def initialize(self, ctx):
         model = # load your model from model_dir
         ds_engine = get_ds_engine(self.model, ctx)
@@ -171,12 +171,16 @@ Example of the command for packaging your model, make sure you pass model-config
 # option 1: Using model_dir
 torch-model-archiver --model-name bloom --version 1.0 --handler deepspeed_handler.py --extra-files $MODEL_CHECKPOINTS_PATH,ds-config.json -r requirements.txt --config-file model-config.yaml --archive-format tgz
 
-# option 2: Using HF model_name 
+# option 2: Using HF model_name
 torch-model-archiver --model-name bloom --version 1.0 --handler deepspeed_handler.py --extra-files ds-config.json -r requirements.txt --config-file model-config.yaml --archive-format
 ```
 
 ## Best Practice
 
-To reduce model loading latency, we recommend
+#### To reduce model loading latency, we recommend
 * Pre-install the model parallel library such as Deepspeed on the container or host.
-* Pre-download the large model.
+* Pre-download the large model. For HuggingFace model,
+  * Set environment variable [HUGGINGFACE_HUB_CACHE](https://huggingface.co/docs/huggingface_hub/guides/manage-cache#understand-caching) and [TRANSFORMERS_CACHE](https://huggingface.co/transformers/v4.0.1/installation.html#caching-models)
+  * Download model to the HuggingFace cache dir via tool [Download_model.py](https://github.com/pytorch/serve/blob/5ee02e4f050c9b349025d87405b246e970ee710b/examples/large_models/Huggingface_pippy/Readme.md?plain=1#L11)
+
+#### Tune "[responseTimeout](https://github.com/pytorch/serve/blob/5ee02e4f050c9b349025d87405b246e970ee710b/docs/configuration.md?plain=1#L216)" in [model config YAML file](https://github.com/pytorch/serve/blob/5ee02e4f050c9b349025d87405b246e970ee710b/model-archiver/README.md?plain=1#L164).
