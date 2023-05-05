@@ -102,11 +102,10 @@ class TransformersSeqClassifierHandler(BaseDeepSpeedHandler, ABC):
             max_length=self.max_length,
         )
 
-        inferences = [
-            self.tokenizer.batch_decode(
-                outputs, skip_special_tokens=True, clean_up_tokenization_spaces=False
-            )
-        ]
+        inferences = self.tokenizer.batch_decode(
+            outputs, skip_special_tokens=True, clean_up_tokenization_spaces=False
+        )
+
         logger.info("Generated text: %s", inferences)
         return inferences
 
