@@ -16,3 +16,5 @@ deepspeed:
 
 handler:
     max_length: 100
+    max_new_tokens: 10
+    manual_seed: 40
