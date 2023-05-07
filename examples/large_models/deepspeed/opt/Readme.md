@@ -7,7 +7,7 @@ This document briefs on serving large HG models on multiple GPUs using deepspeed
 ### Step 1: Download model
 
 ```bash
-python Download_models.py --model_path model --model_name facebook/opt-350m --revision main
+python ../../utils/Download_models.py --model_path model --model_name facebook/opt-350m --revision main
 ```
 
 The script prints the path where the model is downloaded as below.
