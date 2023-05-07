@@ -21,9 +21,15 @@ public class ModelConfig {
     private int maxBatchDelay;
     /** the timeout in sec of a specific model's response. */
     private int responseTimeout = 120; // unit: sec
-    /** the device type where the model is loaded. It can be gpu, cpu */
+    /**
+     * the device type where the model is loaded. It can be gpu, cpu. The model is loaded on CPU if
+     * deviceType: "cpu" is set on a GPU host.
+     */
     private DeviceType deviceType = DeviceType.NONE;
-    /** the gpu device id */
+    /**
+     * the user specified gpu device id, By default, TorchServe auto round-robin all available GPUs
+     * to assign deviceIds to a worker of a model if deviceIds is not set.
+     */
     private List<Integer> deviceIds;
     /** this variable is auto calculated based on torchrun nproc-per-node. */
     private int parallelLevel = 1;

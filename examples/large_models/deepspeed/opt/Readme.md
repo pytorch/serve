@@ -51,10 +51,16 @@ curl -v "http://localhost:8080/predictions/opt" -T sample_text.txt
             pertaining to the model artefacts parameters.
         """
         super().initialize(ctx)
-        model_dir = ctx.system_properties.get("facebook/opt-350m")
+        model_dir = ctx.system_properties.get("model_dir")
         self.max_length = int(ctx.model_yaml_config["handler"]["max_length"])
-        self.model = AutoModelForCausalLM.from_pretrained("facebook/opt-350m", use_cache=False)
-        self.tokenizer = AutoTokenizer.from_pretrained("facebook/opt-350m", return_tensors="pt")
+        self.max_new_tokens = int(ctx.model_yaml_config["handler"]["max_new_tokens"])
+        seed = int(ctx.model_yaml_config["handler"]["manual_seed"])
+        torch.manual_seed(seed)
+
+        self.tokenizer = AutoTokenizer.from_pretrained(model_dir, padding_side="left")
+        self.tokenizer.pad_token = self.tokenizer.eos_token
+        self.model = AutoModelForCausalLM.from_pretrained(model_dir, torch_dtype=torch.float16)
+        self.model.eval()
 
         ds_engine = get_ds_engine(self.model, ctx)
         self.model = ds_engine.module

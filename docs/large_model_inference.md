@@ -179,8 +179,8 @@ torch-model-archiver --model-name bloom --version 1.0 --handler deepspeed_handle
 
 #### To reduce model loading latency, we recommend
 * Pre-install the model parallel library such as Deepspeed on the container or host.
-* Pre-download the large model. For HuggingFace model,
+* Pre-download the large model. For example, HuggingFace model can be pre-downloaded via [Download_model.py](https://github.com/pytorch/serve/blob/5ee02e4f050c9b349025d87405b246e970ee710b/examples/large_models/Huggingface_pippy/Readme.md?plain=1#L11)
   * Set environment variable [HUGGINGFACE_HUB_CACHE](https://huggingface.co/docs/huggingface_hub/guides/manage-cache#understand-caching) and [TRANSFORMERS_CACHE](https://huggingface.co/transformers/v4.0.1/installation.html#caching-models)
   * Download model to the HuggingFace cache dir via tool [Download_model.py](https://github.com/pytorch/serve/blob/5ee02e4f050c9b349025d87405b246e970ee710b/examples/large_models/Huggingface_pippy/Readme.md?plain=1#L11)
 
-#### Tune "[responseTimeout](https://github.com/pytorch/serve/blob/5ee02e4f050c9b349025d87405b246e970ee710b/docs/configuration.md?plain=1#L216)" in [model config YAML file](https://github.com/pytorch/serve/blob/5ee02e4f050c9b349025d87405b246e970ee710b/model-archiver/README.md?plain=1#L164).
+#### Tune "[responseTimeout](https://github.com/pytorch/serve/blob/5ee02e4f050c9b349025d87405b246e970ee710b/docs/configuration.md?plain=1#L216)" (see [model config YAML file](https://github.com/pytorch/serve/blob/5ee02e4f050c9b349025d87405b246e970ee710b/model-archiver/README.md?plain=1#L164)) if high model loading or inference latency causes response timeout.

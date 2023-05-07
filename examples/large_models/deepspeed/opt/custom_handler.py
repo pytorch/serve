@@ -39,8 +39,12 @@ class TransformersSeqClassifierHandler(BaseDeepSpeedHandler, ABC):
         seed = int(ctx.model_yaml_config["handler"]["manual_seed"])
         torch.manual_seed(seed)
 
-        self.model = AutoModelForCausalLM.from_pretrained(model_dir, use_cache=False)
-        self.tokenizer = AutoTokenizer.from_pretrained(model_dir, return_tensors="pt")
+        self.tokenizer = AutoTokenizer.from_pretrained(model_dir, padding_side="left")
+        self.tokenizer.pad_token = self.tokenizer.eos_token
+        self.model = AutoModelForCausalLM.from_pretrained(
+            model_dir, torch_dtype=torch.float16
+        )
+        self.model.eval()
 
         ds_engine = get_ds_engine(self.model, ctx)
         self.model = ds_engine.module
@@ -81,9 +85,10 @@ class TransformersSeqClassifierHandler(BaseDeepSpeedHandler, ABC):
         inputs = self.tokenizer.encode_plus(
             input_text,
             max_length=self.max_length,
-            pad_to_max_length=True,
+            padding=True,
             add_special_tokens=True,
             return_tensors="pt",
+            truncation=True,
         )
         input_ids = inputs["input_ids"]
         attention_mask = inputs["attention_mask"]
