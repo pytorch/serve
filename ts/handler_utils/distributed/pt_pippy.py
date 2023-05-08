@@ -71,20 +71,21 @@ def get_pipeline_driver(model, world_size, ctx):
     assert (
         "model_path" in ctx.model_yaml_config["handler"]
     ), "Missing 'model_path' key in YAML config"
-    assert (
-        "index_filename" in ctx.model_yaml_config["handler"]
-    ), "Missing 'index_filename' key in YAML config"
 
     # Set variables from the config
     chunks = ctx.model_yaml_config["pippy"]["chunks"]
     input_names = ctx.model_yaml_config["pippy"]["input_names"]
     model_type = ctx.model_yaml_config["pippy"]["model_type"]
     model_path = ctx.model_yaml_config["handler"]["model_path"]
+    try:
     index_filename = ctx.model_yaml_config["handler"]["index_filename"]
+    except KeyError:
+        index_filename = None
 
     # Check that the index file exists
-    index_file_path = os.path.join(model_path, index_filename)
-    assert os.path.exists(index_file_path), f"Index file '{index_file_path}' not found"
+    if index_filename not None:
+        index_file_path = os.path.join(model_path, index_filename)
+        assert os.path.exists(index_file_path), f"Index file '{index_file_path}' not found"
 
     index_file = index_file_path if model_type == "HF" else None
     checkpoint_prefix = None
@@ -96,7 +97,7 @@ def get_pipeline_driver(model, world_size, ctx):
     concrete_args = {
         p.name: p.default for p in sig.parameters.values() if p.name not in input_names
     }
-
+ 
     logger.info("Initializing the model pipeline")
 
     # Create a tracer if necessary
