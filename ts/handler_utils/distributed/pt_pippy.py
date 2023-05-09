@@ -90,7 +90,6 @@ def get_pipeline_driver(model, world_size, ctx):
         ), f"Index file '{index_file_path}' not found"
     else:
         index_file_path = None
-
     checkpoint_prefix = None
     # Set the model to evaluation mode
     model.eval()
