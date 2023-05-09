@@ -2,6 +2,7 @@ import logging
 import time
 from abc import ABC
 
+import packaging.version
 import requests
 import torch
 import transformers
@@ -12,6 +13,12 @@ from ts.torch_handler.distributed.base_pippy_handler import BasePippyHandler
 
 logger = logging.getLogger(__name__)
 logger.info("Transformers version %s", transformers.__version__)
+if packaging.version.parse(torch.__version__) >= packaging.version.parse("2.0.0"):
+    logger.info("PyTorch version is 2.0.0 or greater")
+else:
+    logger.info(
+        "PyTorch version is less than 2.0.0, initializing with meta device needs PyTorch 2.0.0 and greater"
+    )
 
 
 class TransformersSeqClassifierHandler(BasePippyHandler, ABC):
