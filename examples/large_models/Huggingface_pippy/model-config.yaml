@@ -1,8 +1,8 @@
 #frontend settings
 minWorkers: 1
 maxWorkers: 1
-maxBatchDelay: 100
-responseTimeout: 120
+maxBatchDelay: 2000
+responseTimeout: 3000
 parallelType: "pp"
 deviceType: "gpu"
 torchrun:
@@ -17,9 +17,9 @@ pippy:
     num_worker_threads: 128
 
 handler:
-    model_path: "/home/ubuntu/serve/examples/large_models/Huggingface_pippy/model/models--facebook--opt-30b/snapshots/ceea0a90ac0f6fae7c2c34bcb40477438c152546"
+    model_path: "/home/ubuntu/serve/examples/large_models/Huggingface_pippy/model/models--facebook--opt-30b/snapshots/ceea0a90ac0f6fae7c2c34bcb40477438c152546" 
     index_filename: 'pytorch_model.bin.index.json'
     max_length: 50
-    max_new_tokens: 100
+    max_new_tokens: 60
     manual_seed: 40
     dtype: fp16
