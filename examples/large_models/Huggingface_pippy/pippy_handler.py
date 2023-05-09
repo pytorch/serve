@@ -60,6 +60,7 @@ class TransformersSeqClassifierHandler(BasePippyHandler, ABC):
             f" init model time on meta device took {skip_init_end - skip_init_start} seconds"
         )
         self.tokenizer = AutoTokenizer.from_pretrained(model_path, return_tensors="pt")
+        self.tokenizer.pad_token = self.tokenizer.eos_token
 
         self.max_length = ctx.model_yaml_config["handler"]["max_length"]
         self.max_new_tokens = ctx.model_yaml_config["handler"]["max_new_tokens"]
@@ -88,14 +89,12 @@ class TransformersSeqClassifierHandler(BasePippyHandler, ABC):
                 attention masks.
         """
         input_texts = [data.get("data") or data.get("body") for data in requests]
-        input_ids_batch, attention_mask_batch = [], []
+        input_ids_batch = []
         for input_text in input_texts:
-            input_ids, attention_mask = self.encode_input_text(input_text)
+            input_ids = self.encode_input_text(input_text)
             input_ids_batch.append(input_ids)
-            attention_mask_batch.append(attention_mask)
         input_ids_batch = torch.cat(input_ids_batch, dim=0).to(self.device)
-        attention_mask_batch = torch.cat(attention_mask_batch, dim=0).to(self.device)
-        return input_ids_batch, attention_mask_batch
+        return input_ids_batch
 
     def encode_input_text(self, input_text):
         """
@@ -116,8 +115,7 @@ class TransformersSeqClassifierHandler(BasePippyHandler, ABC):
             return_tensors="pt",
         )
         input_ids = inputs["input_ids"]
-        attention_mask = inputs["attention_mask"]
-        return input_ids, attention_mask
+        return input_ids
 
     def inference(self, input_batch):
         """
@@ -129,18 +127,16 @@ class TransformersSeqClassifierHandler(BasePippyHandler, ABC):
         Returns:
             list: A list of strings with the predicted values for each input text in the batch.
         """
-        input_ids_batch, attention_mask_batch = input_batch
+        input_ids_batch = input_batch
         input_ids_batch = input_ids_batch.to(self.device)
         outputs = self.model.generate(
             input_ids_batch,
-            attention_mask=attention_mask_batch,
             max_length=self.max_new_tokens,
         )
         generated_text = self.tokenizer.batch_decode(
-                outputs, skip_special_tokens=True, clean_up_tokenization_spaces=False
-            )
-        
-       
+            outputs, skip_special_tokens=True, clean_up_tokenization_spaces=False
+        )
+
         logger.info("Generated text: %s", generated_text)
         return generated_text
 
