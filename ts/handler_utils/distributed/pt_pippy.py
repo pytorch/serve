@@ -78,16 +78,18 @@ def get_pipeline_driver(model, world_size, ctx):
     model_type = ctx.model_yaml_config["pippy"]["model_type"]
     model_path = ctx.model_yaml_config["handler"]["model_path"]
     try:
-    index_filename = ctx.model_yaml_config["handler"]["index_filename"]
+        index_filename = ctx.model_yaml_config["handler"]["index_filename"]
     except KeyError:
         index_filename = None
 
     # Check that the index file exists
-    if index_filename not None:
+    if index_filename is not None:
         index_file_path = os.path.join(model_path, index_filename)
         assert os.path.exists(index_file_path), f"Index file '{index_file_path}' not found"
+    else:
+        index_file_path = None
 
-    index_file = index_file_path if model_type == "HF" else None
+
     checkpoint_prefix = None
     # Set the model to evaluation mode
     model.eval()
@@ -97,7 +99,7 @@ def get_pipeline_driver(model, world_size, ctx):
     concrete_args = {
         p.name: p.default for p in sig.parameters.values() if p.name not in input_names
     }
- 
+
     logger.info("Initializing the model pipeline")
 
     # Create a tracer if necessary
@@ -117,7 +119,7 @@ def get_pipeline_driver(model, world_size, ctx):
         split_policy=split_policy,
         tracer=tracer,
         concrete_args=concrete_args,
-        index_filename=index_file,
+        index_filename=index_file_path,
         checkpoint_prefix=checkpoint_prefix,
     )
 
