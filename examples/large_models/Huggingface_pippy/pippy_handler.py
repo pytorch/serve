@@ -67,7 +67,6 @@ class TransformersSeqClassifierHandler(BasePippyHandler, ABC):
             f" init model time on meta device took {skip_init_end - skip_init_start} seconds"
         )
         self.tokenizer = AutoTokenizer.from_pretrained(model_path, return_tensors="pt")
-        self.tokenizer.pad_token = self.tokenizer.eos_token
 
         self.max_length = ctx.model_yaml_config["handler"]["max_length"]
         self.max_new_tokens = ctx.model_yaml_config["handler"]["max_new_tokens"]
