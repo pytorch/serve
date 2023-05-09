@@ -2,15 +2,15 @@
 
 This document explain how Torchserve supports large model serving, here large model refers to the models that are not able to fit into one gpu so they need be split in multiple partitions over multiple gpus.
 
-## Internal
+## How it works?
 
-During deployment a worker of a large model, TorchServe utilizes [torchrun](https://pytorch.org/docs/stable/elastic/run.html) to initiate a distributed environment for model parallel processing. CUDA_VISIBLE_DEVICES is set if the model is loaded on multiple GPUs. TorchServe has the capability to support multiple workers for a large model. By default, TorchServe uses a round-robin algorithm to assign GPUs to a worker on a host.
+During deployment a worker of a large model, TorchServe utilizes [torchrun](https://pytorch.org/docs/stable/elastic/run.html) to set up the distributed environment for model parallel processing. TorchServe has the capability to support multiple workers for a large model. By default, TorchServe uses a round-robin algorithm to assign GPUs to a worker on a host. In case of large models inference GPUs assigned to each worker is automatically calculated based on number of GPUs specified in the model_config.yaml. CUDA_VISIBLE_DEVICES is set based this number.
 
 For instance, suppose there are eight GPUs on a node and one worker needs 4 GPUs (ie, nproc-per-node=4) on a node. In this case, TorchServe would assign CUDA_VISIBLE_DEVICES="0,1,2,3" to worker1 and CUDA_VISIBLE_DEVICES="4,5,6,7" to worker2.
 
 In addition to this default behavior, TorchServe provides the flexibility for users to specify GPUs for a worker. For instance, if the user sets "deviceIds: [2,3,4,5]" in the [model config YAML file](https://github.com/pytorch/serve/blob/5ee02e4f050c9b349025d87405b246e970ee710b/model-archiver/README.md?plain=1#L164), and nproc-per-node is set to 2, then TorchServe would assign CUDA_VISIBLE_DEVICES="2,3" to worker1 and CUDA_VISIBLE_DEVICES="4,5" to worker2.
 
-Using Pippy integration as an example, the image below illustrates the internal of the TorchServe large model open platform.
+Using Pippy integration as an example, the image below illustrates the internals of the TorchServe large model inference.
 
 ![ts-lmi-internal](images/ts-lmi-internal.png)
 
@@ -179,7 +179,7 @@ torch-model-archiver --model-name bloom --version 1.0 --handler deepspeed_handle
 
 #### To reduce model loading latency, we recommend
 * Pre-install the model parallel library such as Deepspeed on the container or host.
-* Pre-download the large model. For example, HuggingFace model can be pre-downloaded via [Download_model.py](https://github.com/pytorch/serve/blob/75f66dc557b3b67a3ab56536a37d7aa21582cc04/examples/large_models/deepspeed/opt/Readme.md?plain=1#L7)
+* Pre-download the model checkpoints. For example, if using HuggingFace pretrained model can be pre-downloaded via [Download_model.py](https://github.com/pytorch/serve/blob/75f66dc557b3b67a3ab56536a37d7aa21582cc04/examples/large_models/deepspeed/opt/Readme.md?plain=1#L7)
   * Set environment variable [HUGGINGFACE_HUB_CACHE](https://huggingface.co/docs/huggingface_hub/guides/manage-cache#understand-caching) and [TRANSFORMERS_CACHE](https://huggingface.co/transformers/v4.0.1/installation.html#caching-models)
   * Download model to the HuggingFace cache dir via tool [Download_model.py](https://github.com/pytorch/serve/blob/75f66dc557b3b67a3ab56536a37d7aa21582cc04/examples/large_models/deepspeed/opt/Readme.md?plain=1#L7)
 
