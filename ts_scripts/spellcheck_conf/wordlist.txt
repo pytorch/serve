@@ -1045,3 +1045,5 @@ WorkerName
 WorkerThreadTime
 largemodels
 torchpippy
+InferenceSession
+maxRetryTimeoutInSec
