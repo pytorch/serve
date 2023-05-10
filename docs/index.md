@@ -4,7 +4,7 @@ TorchServe is a performant, flexible and easy to use tool for serving PyTorch mo
 
 
 ## ⚡ Why TorchServe
-* [Model Management API](https://github.com/pytorch/serve/blob/master/docs/management_api.md): multi model management with optimized worker to model allocation
+* [Model Management API](https://github.com/pytorch/serve/blob/master/docs/management_api.md#management-api): multi model management with optimized worker to model allocation
 * [Inference API](https://github.com/pytorch/serve/blob/master/docs/inference_api.md): REST and gRPC support for batched inference
 * [TorchServe Workflows](https://github.com/pytorch/serve/blob/master/examples/Workflows/README.md): deploy complex DAGs with multiple interdependent models
 * Default way to serve PyTorch models in
