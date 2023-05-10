@@ -1,4 +1,4 @@
-# [Inference API](inference-api)
+# [Inference API](#inference-api)
 
 Inference API is listening on port 8080 and only accessible from localhost by default. To change the default setting, see [TorchServe Configuration](configuration.md).
 
