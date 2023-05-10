@@ -1049,3 +1049,5 @@ torchrun
 nproc
 largemodels
 torchpippy
+InferenceSession
+maxRetryTimeoutInSec
