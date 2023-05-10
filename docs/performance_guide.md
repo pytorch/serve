@@ -1,4 +1,4 @@
-# Performance Guide
+# [Performance Guide](#performance-guide)
 In case you're interested in optimizing the memory usage, latency or throughput of a PyTorch model served with TorchServe, this is the guide for you.
 ## Optimizing PyTorch
 There are many tricks to optimize PyTorch models for production including but not limited to distillation, quantization, fusion, pruning, setting environment variables and we encourage you to benchmark and see what works best for you. An experimental tool that may make this process easier is https://pypi.org/project/torchprep.
