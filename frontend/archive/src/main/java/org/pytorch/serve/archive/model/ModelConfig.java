@@ -344,6 +344,7 @@ public class ModelConfig {
         private int nodeRank;
         private String masterAddr;
         private int masterPort;
+        private int ompNumberThreads = 1;
 
         public static TorchRun build(Map<?, ?> torchRunMap) {
             TorchRun torchRun = new TorchRun();
@@ -406,6 +407,13 @@ public class ModelConfig {
                                     torchRun.setNodeRank((Integer) v);
                                 } else {
                                     logger.warn("Invalid torchrun.node-rank:{}, reset to 0", v);
+                                }
+                                break;
+                            case "OMP_NUMBER_THREADS":
+                                if (v instanceof Integer) {
+                                    torchRun.setOmpNumberThreads((Integer) v);
+                                } else {
+                                    logger.warn("Invalid OMP_NUMBER_THREADS:{}, reset to 1", v);
                                 }
                                 break;
                             default:
@@ -521,6 +529,18 @@ public class ModelConfig {
 
         public void setMasterPort(int masterPort) {
             this.masterPort = masterPort;
+        }
+
+        public int getOmpNumberThreads() {
+            return ompNumberThreads;
+        }
+
+        public void setOmpNumberThreads(int ompNumberThreads) {
+            if (ompNumberThreads < 1) {
+                logger.warn("Invalid OMP_NUMBER_THREADS:{}, reset to 1", ompNumberThreads);
+                return;
+            }
+            this.ompNumberThreads = ompNumberThreads;
         }
     }
 }
