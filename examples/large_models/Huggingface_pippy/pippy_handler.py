@@ -2,6 +2,7 @@ import logging
 import time
 from abc import ABC
 
+import packaging.version
 import requests
 import torch
 import transformers
@@ -12,6 +13,12 @@ from ts.torch_handler.distributed.base_pippy_handler import BasePippyHandler
 
 logger = logging.getLogger(__name__)
 logger.info("Transformers version %s", transformers.__version__)
+if packaging.version.parse(torch.__version__) >= packaging.version.parse("2.0.0"):
+    logger.info("PyTorch version is 2.0.0 or greater")
+else:
+    logger.info(
+        "PyTorch version is less than 2.0.0, initializing with meta device needs PyTorch 2.0.0 and greater"
+    )
 
 
 class TransformersSeqClassifierHandler(BasePippyHandler, ABC):
@@ -36,18 +43,43 @@ class TransformersSeqClassifierHandler(BasePippyHandler, ABC):
         model_dir = properties.get("model_dir")
         self.device = self.local_rank
 
+        model_path = ctx.model_yaml_config["handler"]["model_path"]
         seed = ctx.model_yaml_config["handler"]["manual_seed"]
+        dtype_str = ctx.model_yaml_config["handler"]["dtype"]
         torch.manual_seed(seed)
 
-        self.model = AutoModelForCausalLM.from_pretrained(model_dir, use_cache=False)
+        dtypes = {"fp32": torch.float32, "fp16": torch.float16, "bf16": torch.bfloat16}
 
-        self.tokenizer = AutoTokenizer.from_pretrained(model_dir, return_tensors="pt")
+        dtype = dtypes.get(dtype_str, torch.float32)
+        if dtype != torch.float32 and dtype_str not in dtypes:
+            logger.info(
+                f"Unsupported data type {dtype_str}, "
+                "please submit a PR to support it. Falling back to fp32 now."
+            )
+
+        skip_init_start = time.perf_counter()
+        with torch.device("meta"):
+            self.model = AutoModelForCausalLM.from_pretrained(
+                model_path, use_cache=False, torch_dtype=dtype
+            )
+        skip_init_end = time.perf_counter()
+        logger.info(
+            f" init model time on meta device took {skip_init_end - skip_init_start} seconds"
+        )
+        self.tokenizer = AutoTokenizer.from_pretrained(model_path, return_tensors="pt")
+        self.tokenizer.pad_token = self.tokenizer.eos_token
 
         self.max_length = ctx.model_yaml_config["handler"]["max_length"]
+        self.max_new_tokens = ctx.model_yaml_config["handler"]["max_new_tokens"]
 
         logger.info("Instantiating model Pipeline")
-        model_init_start = time.time()
+        pippy_compile_time_start = time.perf_counter()
         self.model = get_pipeline_driver(self.model, self.world_size, ctx)
+        pippy_compile_time_end = time.perf_counter()
+
+        logger.info(
+            f" pippy compile time took {pippy_compile_time_end- pippy_compile_time_start} seconds on rank {self.local_rank}"
+        )
 
         logger.info("Transformer model from path %s loaded successfully", model_dir)
 
@@ -64,14 +96,12 @@ class TransformersSeqClassifierHandler(BasePippyHandler, ABC):
                 attention masks.
         """
         input_texts = [data.get("data") or data.get("body") for data in requests]
-        input_ids_batch, attention_mask_batch = [], []
+        input_ids_batch = []
         for input_text in input_texts:
-            input_ids, attention_mask = self.encode_input_text(input_text)
+            input_ids = self.encode_input_text(input_text)
             input_ids_batch.append(input_ids)
-            attention_mask_batch.append(attention_mask)
         input_ids_batch = torch.cat(input_ids_batch, dim=0).to(self.device)
-        attention_mask_batch = torch.cat(attention_mask_batch, dim=0).to(self.device)
-        return input_ids_batch, attention_mask_batch
+        return input_ids_batch
 
     def encode_input_text(self, input_text):
         """
@@ -92,8 +122,7 @@ class TransformersSeqClassifierHandler(BasePippyHandler, ABC):
             return_tensors="pt",
         )
         input_ids = inputs["input_ids"]
-        attention_mask = inputs["attention_mask"]
-        return input_ids, attention_mask
+        return input_ids
 
     def inference(self, input_batch):
         """
@@ -105,21 +134,18 @@ class TransformersSeqClassifierHandler(BasePippyHandler, ABC):
         Returns:
             list: A list of strings with the predicted values for each input text in the batch.
         """
-        input_ids_batch, attention_mask_batch = input_batch
+        input_ids_batch = input_batch
         input_ids_batch = input_ids_batch.to(self.device)
         outputs = self.model.generate(
             input_ids_batch,
-            attention_mask=attention_mask_batch,
-            max_length=30,
+            max_length=self.max_new_tokens,
+        )
+        generated_text = self.tokenizer.batch_decode(
+            outputs, skip_special_tokens=True, clean_up_tokenization_spaces=False
         )
 
-        inferences = [
-            self.tokenizer.batch_decode(
-                outputs, skip_special_tokens=True, clean_up_tokenization_spaces=False
-            )
-        ]
-        logger.info("Generated text: %s", inferences)
-        return inferences
+        logger.info("Generated text: %s", generated_text)
+        return generated_text
 
     def postprocess(self, inference_output):
         """Post Process Function converts the predicted response into Torchserve readable format.
