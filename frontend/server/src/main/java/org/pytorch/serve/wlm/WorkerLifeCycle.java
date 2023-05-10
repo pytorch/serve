@@ -191,6 +191,7 @@ public class WorkerLifeCycle {
             envp.add("CUDA_VISIBLE_DEVICES=" + deviceIds);
         }
         ModelConfig.TorchRun torchRun = model.getModelArchive().getModelConfig().getTorchRun();
+        envp.add(String.format("OMP_NUM_THREADS=%d", torchRun.getOmpNumberThreads()));
         argl.add("torchrun");
         argl.add("--nnodes");
         argl.add(String.valueOf(torchRun.getNnodes()));
@@ -216,6 +217,8 @@ public class WorkerLifeCycle {
             argl.add("--master-port");
             argl.add(String.valueOf(torchRun.getMasterPort()));
         }
+        argl.add("--max-restarts");
+        argl.add(String.valueOf(1));
     }
 
     public synchronized void terminateIOStreams() {
