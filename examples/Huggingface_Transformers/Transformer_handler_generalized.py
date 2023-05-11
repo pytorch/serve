@@ -83,14 +83,10 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
                 logger.warning("Missing the operation mode.")
             # Using the Better Transformer integration to speedup the inference
             if self.setup_config["BetterTransformer"]:
-                try:
-                    from optimum.bettertransformer import BetterTransformer
+                from optimum.bettertransformer import BetterTransformer
 
+                try:
                     self.model = BetterTransformer.transform(self.model)
-                except ImportError as error:
-                    logger.warning(
-                        "HuggingFace Optimum is not installed. Proceeding without BetterTransformer"
-                    )
                 except RuntimeError as error:
                     logger.warning(
                         "HuggingFace Optimum is not supporting this model,for the list of supported models, please refer to this doc,https://huggingface.co/docs/optimum/bettertransformer/overview"
@@ -377,7 +373,6 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
             self.setup_config["mode"] == "sequence_classification"
             or self.setup_config["mode"] == "token_classification"
         ):
-
             attributions, delta = self.lig.attribute(
                 inputs=input_ids,
                 baselines=ref_input_ids,
