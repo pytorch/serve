@@ -407,7 +407,9 @@
     <span class="k">return</span> <span class="n">msg</span></div>
 
 
-<div class="viewcode-block" id="create_predict_response"><a class="viewcode-back" href="../../../api/ts.protocol.html#ts.protocol.otf_message_handler.create_predict_response">[docs]</a><span class="k">def</span> <span class="nf">create_predict_response</span><span class="p">(</span><span class="n">ret</span><span class="p">,</span> <span class="n">req_id_map</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">code</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="create_predict_response"><a class="viewcode-back" href="../../../api/ts.protocol.html#ts.protocol.otf_message_handler.create_predict_response">[docs]</a><span class="k">def</span> <span class="nf">create_predict_response</span><span class="p">(</span>
+    <span class="n">ret</span><span class="p">,</span> <span class="n">req_id_map</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">code</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ts_stream_next</span><span class="o">=</span><span class="kc">False</span>
+<span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create inference response.</span>
 
@@ -434,6 +436,12 @@
         <span class="k">if</span> <span class="n">context</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">msg</span> <span class="o">+=</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s2">&quot;!i&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>  <span class="c1"># content_type</span>
         <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">ts_stream_next</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+                <span class="n">context</span><span class="o">.</span><span class="n">set_response_header</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="s2">&quot;ts_stream_next&quot;</span><span class="p">,</span> <span class="s2">&quot;true&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="s2">&quot;true&quot;</span> <span class="o">==</span> <span class="n">context</span><span class="o">.</span><span class="n">get_response_headers</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ts_stream_next&quot;</span><span class="p">):</span>
+                    <span class="n">context</span><span class="o">.</span><span class="n">set_response_header</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="s2">&quot;ts_stream_next&quot;</span><span class="p">,</span> <span class="s2">&quot;false&quot;</span><span class="p">)</span>
+
             <span class="n">content_type</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">get_response_content_type</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">content_type</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">content_type</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">msg</span> <span class="o">+=</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s2">&quot;!i&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>  <span class="c1"># content_type</span>
@@ -699,6 +707,11 @@
         <span class="n">model_input</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
 
     <span class="k">return</span> <span class="n">model_input</span>
+
+
+<div class="viewcode-block" id="send_intermediate_predict_response"><a class="viewcode-back" href="../../../api/ts.protocol.html#ts.protocol.otf_message_handler.send_intermediate_predict_response">[docs]</a><span class="k">def</span> <span class="nf">send_intermediate_predict_response</span><span class="p">(</span><span class="n">ret</span><span class="p">,</span> <span class="n">req_id_map</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">code</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="n">create_predict_response</span><span class="p">(</span><span class="n">ret</span><span class="p">,</span> <span class="n">req_id_map</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">code</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">cl_socket</span><span class="o">.</span><span class="n">sendall</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span></div>
 </pre></div>
 
              </article>

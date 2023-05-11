@@ -363,13 +363,19 @@
 
 <span class="kn">import</span> <span class="nn">torch</span>
 
+
 <div class="viewcode-block" id="ArgmaxModel"><a class="viewcode-back" href="../../../../../api/ts.torch_handler.unit_tests.models.html#ts.torch_handler.unit_tests.models.base_model.ArgmaxModel">[docs]</a><span class="k">class</span> <span class="nc">ArgmaxModel</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
 <div class="viewcode-block" id="ArgmaxModel.forward"><a class="viewcode-back" href="../../../../../api/ts.torch_handler.unit_tests.models.html#ts.torch_handler.unit_tests.models.base_model.ArgmaxModel.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="nb">input</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="nb">input</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">1</span><span class="p">)</span></div></div>
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+
+<div class="viewcode-block" id="save_pt_file"><a class="viewcode-back" href="../../../../../api/ts.torch_handler.unit_tests.models.html#ts.torch_handler.unit_tests.models.base_model.save_pt_file">[docs]</a><span class="k">def</span> <span class="nf">save_pt_file</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="s2">&quot;base_model.pt&quot;</span><span class="p">):</span>
     <span class="n">model</span> <span class="o">=</span> <span class="n">ArgmaxModel</span><span class="p">()</span>
-    <span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">state_dict</span><span class="p">(),</span> <span class="s1">&#39;base_model.pt&#39;</span><span class="p">)</span>
+    <span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">state_dict</span><span class="p">(),</span> <span class="n">filepath</span><span class="p">)</span></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">save_pt_file</span><span class="p">()</span>
 </pre></div>
 
              </article>
