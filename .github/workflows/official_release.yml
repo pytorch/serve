@@ -6,12 +6,18 @@ jobs:
   official-release:
     # creates workflows for the 3 OS: ubuntu, macOS & windows
     #runs-on: ${{ matrix.os }}
-    runs-on: [self-hosted, official-release]
+    #runs-on: [self-hosted, official-release]
+    runs-on: [ubuntu-20.04]
 
     # The official-release environment requires 2 manual approvals
     environment:
       name: official-release
     steps:
+      - name: Setup Python 3.8
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.8
+          architecture: x64
       - name: Checkout TorchServe
         uses: actions/checkout@v3
       - name: Install dependencies

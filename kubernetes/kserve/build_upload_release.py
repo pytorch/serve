@@ -8,6 +8,11 @@ sys.path.append(REPO_ROOT)
 
 from ts_scripts.utils import check_ts_version, try_and_handle
 
+
+def docker_nuke():
+    try_and_handle("docker images -q | xargs -r docker rmi -f", dry_run)
+
+
 if __name__ == "__main__":
     parser = ArgumentParser()
     parser.add_argument(
@@ -29,13 +34,20 @@ if __name__ == "__main__":
         f"./build_image.sh -t {organization}/torchserve-kfs:{check_ts_version()}",
         dry_run,
     )
+
+    try_and_handle(
+        f"docker push {organization}/torchserve-kfs:{check_ts_version()}", dry_run
+    )
+
+    docker_nuke()
+
     try_and_handle(
         f"./build_image.sh -g -t {organization}/torchserve-kfs:{check_ts_version()}-gpu",
         dry_run,
     )
 
-    for image in [
-        f"{organization}/torchserve-kfs:{check_ts_version()}",
-        f"{organization}/torchserve-kfs:{check_ts_version()}-gpu",
-    ]:
-        try_and_handle(f"docker push {image}", dry_run)
+    try_and_handle(
+        f"docker push {organization}/torchserve-kfs:{check_ts_version()}-gpu", dry_run
+    )
+
+    docker_nuke()

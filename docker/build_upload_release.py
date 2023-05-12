@@ -8,6 +8,11 @@ sys.path.append(REPO_ROOT)
 
 from ts_scripts.utils import check_ts_version, try_and_handle
 
+
+def docker_nuke():
+    try_and_handle("docker images -q | xargs -r docker rmi -f", dry_run)
+
+
 if __name__ == "__main__":
     parser = ArgumentParser()
     parser.add_argument(
@@ -26,11 +31,8 @@ if __name__ == "__main__":
     organization = args.organization
 
     # Upload pytorch/torchserve docker binaries
+    # CPU
     try_and_handle(f"./build_image.sh -t {organization}/torchserve:latest", dry_run)
-    try_and_handle(
-        f"./build_image.sh -g -cv cu117 -t {organization}/torchserve:latest-gpu",
-        dry_run,
-    )
     try_and_handle(
         f"docker tag {organization}/torchserve:latest {organization}/torchserve:latest-cpu",
         dry_run,
@@ -39,16 +41,31 @@ if __name__ == "__main__":
         f"docker tag {organization}/torchserve:latest {organization}/torchserve:{check_ts_version()}-cpu",
         dry_run,
     )
+    for image in [
+        f"{organization}/torchserve:latest",
+        f"{organization}/torchserve:latest-cpu",
+        f"{organization}/torchserve:{check_ts_version()}-cpu",
+    ]:
+        try_and_handle(f"docker push {image}", dry_run)
+
+    # Clean up docker images
+    docker_nuke()
+
+    # GPU
+    try_and_handle(
+        f"./build_image.sh -g -cv cu117 -t {organization}/torchserve:latest-gpu",
+        dry_run,
+    )
     try_and_handle(
         f"docker tag {organization}/torchserve:latest-gpu {organization}/torchserve:{check_ts_version()}-gpu",
         dry_run,
     )
 
     for image in [
-        f"{organization}/torchserve:latest",
-        f"{organization}/torchserve:latest-cpu",
         f"{organization}/torchserve:latest-gpu",
-        f"{organization}/torchserve:{check_ts_version()}-cpu",
         f"{organization}/torchserve:{check_ts_version()}-gpu",
     ]:
-        try_and_handle(f"docker push {image}")
+        try_and_handle(f"docker push {image}", dry_run)
+
+    # Clean up docker images
+    docker_nuke()
