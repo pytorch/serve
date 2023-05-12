@@ -12,7 +12,9 @@ jobs:
     environment:
       name: official-release
     steps:
-      - name: Setup Conda
+      - name: Setup Condaa
+        env:
+          path: /opt/conda/envs/py38
         uses: s-weigand/setup-conda@v1
       - name: Setup Anaconda
         run: |
