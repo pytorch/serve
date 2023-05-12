@@ -65,6 +65,8 @@ ARG CUDA_VERSION=""
 
 RUN git clone --depth 1 https://github.com/pytorch/serve.git
 
+RUN echo $CUDA_VERSION
+
 WORKDIR "serve"
 
 RUN \
