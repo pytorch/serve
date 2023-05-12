@@ -23,11 +23,6 @@ jobs:
         env:
           DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
         run: docker login --username pytorchbot --password "$DOCKER_PASSWORD"
-      - name: Build & Upload pytorch/torchserve Docker images
-        run: |
-          cd docker
-          python build_upload_release.py
-          cd ..
       - name: Build & Upload pytorch/torchserve-kfs Docker images
         run: |
           cd kubernetes/kserve
