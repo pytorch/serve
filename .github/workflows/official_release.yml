@@ -46,6 +46,7 @@ jobs:
       - name: Build & Upload pytorch/torchserve-kfs Docker images
         if: matrix.os == 'ubuntu-20.04'
         run: |
+          docker system prune --all --volumes --force
           cd kubernetes/kserve
           python build_upload_release.py
           cd ..
