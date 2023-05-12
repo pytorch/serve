@@ -3,7 +3,6 @@ cython
 wheel
 requests
 pillow==9.3.0
-captum
 packaging
 numpy; sys_platform != 'win32'
 numpy==1.19.3; sys_platform == 'win32' #see https://tinyurl.com/y3dm3h86
