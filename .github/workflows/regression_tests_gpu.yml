@@ -44,11 +44,3 @@ jobs:
       - name: Torchserve Regression Tests
         run: |
           python test/regression_tests.py
-      - name: Open issue on failure
-        if: ${{ failure() && github.event_name  == 'schedule' }}
-        uses: dacbd/create-issue-action@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          title: CPU Regression tests failed
-          body:  Commit ${{ github.sha }} daily scheduled [${{ github.workflow }}](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) failed, please check why
-          assignees: ''

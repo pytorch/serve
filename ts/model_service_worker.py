@@ -142,15 +142,24 @@ class TorchModelServiceWorker(object):
             logging.debug("Model %s loaded.", model_name)
 
             return service, "loaded model {}".format(model_name), 200
-        except MemoryError:
+        except MemoryError as ex:
+            logging.exception(
+                "Load model %s cpu OOM, exception %s", model_name, str(ex)
+            )
             return None, "System out of memory", 507
         except RuntimeError as ex:  # pylint: disable=broad-except
             if "CUDA" in str(ex):
                 # Handles Case A: CUDA error: CUBLAS_STATUS_NOT_INITIALIZED (Close to OOM) &
                 # Case B: CUDA out of memory (OOM)
+                logging.exception(
+                    "Load model %s cuda OOM, exception %s", model_name, str(ex)
+                )
                 return None, "System out of memory", 507
             else:
                 # Sanity testcases fail without this
+                logging.exception(
+                    "Failed to load model %s, exception %s", model_name, str(ex)
+                )
                 return None, "Unknown exception", 500
 
     def handle_connection(self, cl_socket):

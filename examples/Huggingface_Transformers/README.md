@@ -10,7 +10,7 @@ We borrowed ideas to write a custom handler for transformers from tutorial prese
 
 To get started [install Torchserve](https://github.com/pytorch/serve) and then
 
- `pip install transformers==4.6.0`
+ `pip install -r requirements.txt`
 
 ### Objectives
 1. How to package a transformer into a torch model archive (.mar) file (eager mode or Torchscript) with `torch-model-archiver`
@@ -315,7 +315,6 @@ When a json file is passed as a request format to the curl, Torchserve unwraps t
 
 In the setup_config.json, specify `"BetterTransformer":true,`.
 
-Note: make sure to install [HuggingFace Optimum] `pip install optimum`
 
 [Better Transformer](https://pytorch.org/blog/a-better-transformer-for-fast-transformer-encoder-inference/) from PyTorch is integrated into [Huggingface Optimum](https://huggingface.co/docs/optimum/bettertransformer/overview) that bring major speedups for many of encoder models on different modalities (text, image, audio). It is a one liner API that we have also added in the `Transformer_handler_generalized.py` in this example as well. That as shown above you just need to set `"BetterTransformer":true,` in the setup_config.json.
 
