@@ -40,6 +40,7 @@ jobs:
           cd ..
       - name: Build & Upload pytorch/torchserve-kfs Docker images
         run: |
+          docker system prune --all --volumes --force
           cd kubernetes/kserve
           python build_upload_release.py
           cd ..
