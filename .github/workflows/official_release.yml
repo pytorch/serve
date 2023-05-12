@@ -6,7 +6,6 @@ jobs:
   official-release:
     # creates workflows for the 3 OS: ubuntu, macOS & windows
     #runs-on: ${{ matrix.os }}
-    #runs-on: [self-hosted, official-release]
     runs-on: [ubuntu-20.04]
 
     # The official-release environment requires 2 manual approvals
@@ -20,15 +19,6 @@ jobs:
           architecture: x64
       - name: Checkout TorchServe
         uses: actions/checkout@v3
-      - name: Install dependencies
-        run: |
-          python ts_scripts/install_dependencies.py --environment=dev
-          pip install -e .
-      - name: Setup Java 17
-        uses: actions/setup-java@v2
-        with:
-          distribution: 'zulu'
-          java-version: '17'
       - name: Login to Docker
         env:
           DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
