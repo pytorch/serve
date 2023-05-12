@@ -1,4 +1,5 @@
 import os
+import subprocess
 import sys
 from argparse import ArgumentParser
 
@@ -6,7 +7,24 @@ from argparse import ArgumentParser
 REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 sys.path.append(REPO_ROOT)
 
-from ts_scripts.utils import check_ts_version, try_and_handle
+
+def check_ts_version():
+    return "0.8.0"
+
+
+def try_and_handle(cmd, dry_run=False):
+    if dry_run:
+        print(f"Executing command: {cmd}")
+    else:
+        try:
+            subprocess.run([cmd], shell=True, check=True)
+        except subprocess.CalledProcessError as e:
+            raise (e)
+
+
+def docker_nuke():
+    try_and_handle("docker images -q | xargs -r docker rmi -f", dry_run)
+
 
 if __name__ == "__main__":
     parser = ArgumentParser()
@@ -29,13 +47,20 @@ if __name__ == "__main__":
         f"./build_image.sh -t {organization}/torchserve-kfs:{check_ts_version()}",
         dry_run,
     )
+
+    try_and_handle(
+        f"docker push {organization}/torchserve-kfs:{check_ts_version()}", dry_run
+    )
+
+    docker_nuke()
+
     try_and_handle(
         f"./build_image.sh -g -t {organization}/torchserve-kfs:{check_ts_version()}-gpu",
         dry_run,
     )
 
-    for image in [
-        f"{organization}/torchserve-kfs:{check_ts_version()}",
-        f"{organization}/torchserve-kfs:{check_ts_version()}-gpu",
-    ]:
-        try_and_handle(f"docker push {image}", dry_run)
+    try_and_handle(
+        f"docker push {organization}/torchserve-kfs:{check_ts_version()}-gpu", dry_run
+    )
+
+    docker_nuke()

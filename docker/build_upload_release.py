@@ -1,4 +1,5 @@
 import os
+import subprocess
 import sys
 from argparse import ArgumentParser
 
@@ -6,7 +7,24 @@ from argparse import ArgumentParser
 REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 sys.path.append(REPO_ROOT)
 
-from ts_scripts.utils import check_ts_version, try_and_handle
+
+def check_ts_version():
+    return "0.8.0"
+
+
+def try_and_handle(cmd, dry_run=False):
+    if dry_run:
+        print(f"Executing command: {cmd}")
+    else:
+        try:
+            subprocess.run([cmd], shell=True, check=True)
+        except subprocess.CalledProcessError as e:
+            raise (e)
+
+
+def docker_nuke():
+    try_and_handle("docker images -q | xargs -r docker rmi -f", dry_run)
+
 
 if __name__ == "__main__":
     parser = ArgumentParser()
@@ -26,17 +44,9 @@ if __name__ == "__main__":
     organization = args.organization
 
     # Upload pytorch/torchserve docker binaries
-    try_and_handle(f"./build_image.sh -t {organization}/torchserve:latest", dry_run)
+    # GPU
     try_and_handle(
         f"./build_image.sh -g -cv cu117 -t {organization}/torchserve:latest-gpu",
-        dry_run,
-    )
-    try_and_handle(
-        f"docker tag {organization}/torchserve:latest {organization}/torchserve:latest-cpu",
-        dry_run,
-    )
-    try_and_handle(
-        f"docker tag {organization}/torchserve:latest {organization}/torchserve:{check_ts_version()}-cpu",
         dry_run,
     )
     try_and_handle(
@@ -45,10 +55,30 @@ if __name__ == "__main__":
     )
 
     for image in [
-        f"{organization}/torchserve:latest",
-        f"{organization}/torchserve:latest-cpu",
         f"{organization}/torchserve:latest-gpu",
-        f"{organization}/torchserve:{check_ts_version()}-cpu",
         f"{organization}/torchserve:{check_ts_version()}-gpu",
     ]:
-        try_and_handle(f"docker push {image}")
+        try_and_handle(f"docker push {image}", dry_run)
+
+    # Clean up docker images
+    docker_nuke()
+
+    # CPU
+    try_and_handle(f"./build_image.sh -t {organization}/torchserve:latest", dry_run)
+    try_and_handle(
+        f"docker tag {organization}/torchserve:latest {organization}/torchserve:latest-cpu",
+        dry_run,
+    )
+    try_and_handle(
+        f"docker tag {organization}/torchserve:latest {organization}/torchserve:{check_ts_version()}-cpu",
+        dry_run,
+    )
+    for image in [
+        f"{organization}/torchserve:latest",
+        f"{organization}/torchserve:latest-cpu",
+        f"{organization}/torchserve:{check_ts_version()}-cpu",
+    ]:
+        try_and_handle(f"docker push {image}", dry_run)
+
+    # Clean up docker images
+    docker_nuke()
