@@ -1,4 +1,4 @@
-# TorchServe Metrics
+# [TorchServe Metrics](#torchserve-metrics)
 
 ## Contents of this document
 

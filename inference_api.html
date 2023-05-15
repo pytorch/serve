@@ -362,7 +362,7 @@
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
   <section id="inference-api">
-<h1>Inference API<a class="headerlink" href="#inference-api" title="Permalink to this headline">¶</a></h1>
+<h1><a class="reference external" href="#inference-api">Inference API</a><a class="headerlink" href="#inference-api" title="Permalink to this headline">¶</a></h1>
 <p>Inference API is listening on port 8080 and only accessible from localhost by default. To change the default setting, see <a class="reference internal" href="configuration.html"><span class="doc">TorchServe Configuration</span></a>.</p>
 <p>The TorchServe server supports the following APIs:</p>
 <ul class="simple">
@@ -397,7 +397,7 @@
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>“maxRetryTimeoutInSec” (default: 5MIN) can be defined in a model’s config yaml file(eg. model-config.yaml). It is the maximum time window of recovering a dead backend worker. A healthy worker can be in the state: WORKER_STARTED, WORKER_MODEL_LOADED, or WORKER_STOPPED within maxRetryTimeoutInSec window. “Ping” endpont”</p>
+<p>“maxRetryTimeoutInSec” (default: 5MIN) can be defined in a model’s config yaml file(e.g model-config.yaml). It is the maximum time window of recovering a dead backend worker. A healthy worker can be in the state: WORKER_STARTED, WORKER_MODEL_LOADED, or WORKER_STOPPED within maxRetryTimeoutInSec window. “Ping” endpoint”</p>
 <ul class="simple">
 <li><p>return 200 + json message “healthy”: for any model, the number of active workers is equal or larger than the configured minWorkers.</p></li>
 <li><p>return 500 + json message “unhealthy”: for any model, the number of active workers is less than the configured minWorkers.</p></li>

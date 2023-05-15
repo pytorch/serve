@@ -358,7 +358,7 @@
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
   <section id="performance-guide">
-<h1>Performance Guide<a class="headerlink" href="#performance-guide" title="Permalink to this headline">¶</a></h1>
+<h1><a class="reference external" href="#performance-guide">Performance Guide</a><a class="headerlink" href="#performance-guide" title="Permalink to this headline">¶</a></h1>
 <p>In case you’re interested in optimizing the memory usage, latency or throughput of a PyTorch model served with TorchServe, this is the guide for you.</p>
 <section id="optimizing-pytorch">
 <h2>Optimizing PyTorch<a class="headerlink" href="#optimizing-pytorch" title="Permalink to this headline">¶</a></h2>
@@ -367,7 +367,7 @@
 <section id="onnx-and-ort-support">
 <h3>ONNX and ORT support<a class="headerlink" href="#onnx-and-ort-support" title="Permalink to this headline">¶</a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">torchserve[onnx]</span></code></p>
-<p>In particular TorchServe has native support for ONNX models which can be loaded via ORT for both accelerated CPU and GPU inference. ONNX operates a bit differentyl from a regular PyTorch model in that when you’re running the conversion you need to explicity set and name your input and output dimensions. See https://github.com/pytorch/serve/blob/master/test/pytest/test_onnx.py for an example. So at a high level what TorchServe allows you to do is</p>
+<p>In particular TorchServe has native support for ONNX models which can be loaded via ORT for both accelerated CPU and GPU inference. ONNX operates a bit differently from a regular PyTorch model in that when you’re running the conversion you need to explicitly set and name your input and output dimensions. See https://github.com/pytorch/serve/blob/master/test/pytest/test_onnx.py for an example. So at a high level what TorchServe allows you to do is</p>
 <ol class="simple">
 <li><p>Package serialized ONNX weights <code class="docutils literal notranslate"><span class="pre">torch-model-archiver</span> <span class="pre">--serialized-file</span> <span class="pre">model.onnx</span> <span class="pre">...</span></code></p></li>
 <li><p>Load those weights from <code class="docutils literal notranslate"><span class="pre">base_handler.py</span></code> using <code class="docutils literal notranslate"><span class="pre">ort_session</span> <span class="pre">=</span> <span class="pre">ort.InferenceSession(self.model_pt_path,</span> <span class="pre">providers=providers,</span> <span class="pre">sess_options=sess_options)</span></code> which supports reasonable defaults for both CPU and GPU inference</p></li>

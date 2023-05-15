@@ -1,4 +1,4 @@
-# Inference API
+# [Inference API](#inference-api)
 
 Inference API is listening on port 8080 and only accessible from localhost by default. To change the default setting, see [TorchServe Configuration](configuration.md).
 
@@ -41,7 +41,7 @@ If the server is running, the response is:
 }
 ```
 
-"maxRetryTimeoutInSec" (default: 5MIN) can be defined in a model's config yaml file(eg. model-config.yaml). It is the maximum time window of recovering a dead backend worker. A healthy worker can be in the state: WORKER_STARTED, WORKER_MODEL_LOADED, or WORKER_STOPPED within maxRetryTimeoutInSec window. "Ping" endpont"
+"maxRetryTimeoutInSec" (default: 5MIN) can be defined in a model's config yaml file(e.g model-config.yaml). It is the maximum time window of recovering a dead backend worker. A healthy worker can be in the state: WORKER_STARTED, WORKER_MODEL_LOADED, or WORKER_STOPPED within maxRetryTimeoutInSec window. "Ping" endpoint"
 * return 200 + json message "healthy": for any model, the number of active workers is equal or larger than the configured minWorkers.
 * return 500 + json message "unhealthy": for any model, the number of active workers is less than the configured minWorkers.
 

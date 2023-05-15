@@ -365,9 +365,9 @@
 <section id="why-torchserve">
 <h2><span class="section-number">1.1. </span>⚡ Why TorchServe<a class="headerlink" href="#why-torchserve" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/management_api">Model Management API</a>: multi model management with optimized worker to model allocation</p></li>
-<li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/inference_api">Inference API</a>: REST and gRPC support for batched inference</p></li>
-<li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/examples/Workflows/README">TorchServe Workflows</a>: deploy complex DAGs with multiple interdependent models</p></li>
+<li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/management_api.md#management-api">Model Management API</a>: multi model management with optimized worker to model allocation</p></li>
+<li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/inference_api.md#inference-api">Inference API</a>: REST and gRPC support for batched inference</p></li>
+<li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/examples/Workflows/README.md#workflow-examples">TorchServe Workflows</a>: deploy complex DAGs with multiple interdependent models</p></li>
 <li><p>Default way to serve PyTorch models in</p>
 <ul>
 <li><p><a class="reference external" href="https://v0-5.kubeflow.org/docs/components/pytorchserving/">Kubeflow</a></p></li>
@@ -377,10 +377,10 @@
 <li><p><a class="reference external" href="https://cloud.google.com/blog/topics/developers-practitioners/pytorch-google-cloud-how-deploy-pytorch-models-vertex-ai">Vertex AI</a></p></li>
 </ul>
 </li>
-<li><p>Export your model for optimized inference. Torchscript out of the box, <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/performance_guide">ORT and ONNX</a>, <a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/intel_extension_for_pytorch">IPEX</a>, <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/performance_guide">TensorRT</a>, <a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/FasterTransformer_HuggingFace_Bert">FasterTransformer</a></p></li>
-<li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/performance_guide">Performance Guide</a>: builtin support to optimize, benchmark and profile PyTorch and TorchServe performance</p></li>
-<li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/CONTRIBUTING">Expressive handlers</a>: An expressive handler architecture that makes it trivial to support inferencing for your usecase with <a class="reference external" href="https://github.com/pytorch/serve/tree/master/ts/torch_handler">many supported out of the box</a></p></li>
-<li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/metrics">Metrics API</a>: out of box support for system level metrics with <a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/custom_metrics">Prometheus exports</a>, custom metrics and PyTorch profiler support</p></li>
+<li><p>Export your model for optimized inference. Torchscript out of the box, <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/performance_guide.md#performance-guide">ORT and ONNX</a>, <a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/intel_extension_for_pytorch">IPEX</a>, <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/performance_guide.md#performance-guide">TensorRT</a>, <a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/FasterTransformer_HuggingFace_Bert">FasterTransformer</a></p></li>
+<li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/performance_guide.md#performance-guide">Performance Guide</a>: builtin support to optimize, benchmark and profile PyTorch and TorchServe performance</p></li>
+<li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/CONTRIBUTING.md#contributing-to-torchServe">Expressive handlers</a>: An expressive handler architecture that makes it trivial to support inferencing for your usecase with <a class="reference external" href="https://github.com/pytorch/serve/tree/master/ts/torch_handler">many supported out of the box</a></p></li>
+<li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/metrics.md#torchserve-metrics">Metrics API</a>: out of box support for system level metrics with <a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/custom_metrics">Prometheus exports</a>, custom metrics and PyTorch profiler support</p></li>
 </ul>
 </section>
 <section id="how-does-torchserve-work">
@@ -424,7 +424,7 @@
 <li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/examples/README.md#usecases">TorchServe UseCases</a></p></li>
 <li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/model_zoo">Model Zoo</a> - List of pre-trained model archives ready to be served for inference with TorchServe.</p></li>
 </ul>
-<p>For <a class="reference external" href="https://github.com/pytorch/serve/blob/master/examples/README">more examples</a></p>
+<p>For <a class="reference external" href="https://github.com/pytorch/serve/blob/master/examples/README.md#torchserve-internals">more examples</a></p>
 </section>
 <section id="advanced-features">
 <h2><span class="section-number">1.5. </span>Advanced Features<a class="headerlink" href="#advanced-features" title="Permalink to this headline">¶</a></h2>
