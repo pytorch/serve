@@ -123,3 +123,15 @@ To enable asynchronous logging, add following property in `config.properties`:
 ```properties
 async_logging=true
 ```
+
+## Request IDs
+
+Log entries will sometimes contain unique request IDs, such as `3d31cef8-5edb-4265-bcf5-a4eea115cce6` in the entry:
+
+```text
+[METRICS]PredictionTime.Milliseconds:3.69|#ModelName:mnist,Level:Model|#hostname:fedora,1684176166,3d31cef8-5edb-4265-bcf5-a4eea115cce6
+```
+
+These request IDs are randomly generated upon receiving a HTTP request and returned in response as `x-request-id` header value.
+
+In order to make tracing individual requests easier in multi-service architectures, a prefix for an individual request's ID can be set via the request header `x-request-id-prefix`.
