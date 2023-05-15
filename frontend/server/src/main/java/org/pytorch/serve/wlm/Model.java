@@ -94,6 +94,10 @@ public class Model {
             }
             maxRetryTimeoutInMill = modelArchive.getModelConfig().getMaxRetryTimeoutInSec() * 1000;
             clientTimeoutInMills = modelArchive.getModelConfig().getClientTimeoutInMills();
+            if (modelArchive.getModelConfig().getJobQueueSize() > 0) {
+                // overwrite the queueSize defined on config.property
+                queueSize = modelArchive.getModelConfig().getJobQueueSize();
+            }
         } else {
             batchSize = 1;
             maxBatchDelay = 100;

@@ -11,6 +11,8 @@ import org.slf4j.LoggerFactory;
 public class ModelConfig {
     private static final Logger logger = LoggerFactory.getLogger(ModelConfig.class);
 
+    /** the number of initial workers to create */
+    private int initialWorkers;
     /** the minimum number of workers of a model */
     private int minWorkers;
     /** the maximum number of workers of a model */
@@ -44,6 +46,11 @@ public class ModelConfig {
      * timeout. default: 0 which means no timeout (ie. clientExpireTS default value Long.MAX_VALUE.
      */
     private long clientTimeoutInMills;
+    /** the job queue size of a model.
+     * By default, job_queue_size is set as 100 in config.property for all models.
+     * Here, jobQueueSize: -1 means no customized setting for the model.
+     */
+    private int jobQueueSize;
 
     public static ModelConfig build(Map<String, Object> yamlMap) {
         ModelConfig modelConfig = new ModelConfig();
@@ -131,6 +138,15 @@ public class ModelConfig {
                             } else {
                                 logger.warn(
                                         "Invalid clientTimeoutInMills: {}, should be positive long",
+                                        v);
+                            }
+                            break;
+                        case "jobQueueSize":
+                            if (v instanceof Integer) {
+                                modelConfig.setJobQueueSize((int) v);
+                            } else {
+                                logger.warn(
+                                        "Invalid jobQueueSize: {}, should be positive int",
                                         v);
                             }
                             break;
@@ -269,6 +285,24 @@ public class ModelConfig {
         if (clientTimeoutInMills > 0) {
             this.clientTimeoutInMills = clientTimeoutInMills;
         }
+    }
+
+    public int getJobQueueSize() {
+        return jobQueueSize;
+    }
+
+    public void setJobQueueSize(int jobQueueSize) {
+        if (jobQueueSize > 0) {
+            this.jobQueueSize = jobQueueSize;
+        }
+    }
+
+    public int getInitialWorkers() {
+        return initialWorkers;
+    }
+
+    public void setInitialWorkers(int initialWorkers) {
+        this.initialWorkers = initialWorkers;
     }
 
     public enum ParallelType {
