@@ -29,7 +29,7 @@ public class Session {
         HttpHeaders headers = request.headers();
         if (headers.contains(REQUEST_ID_PREFIX)) {
             // adopt header value as prefix for internal request id
-            requestId = headers.getAsString(REQUEST_ID_PREFIX) + ":" + UUID.randomUUID().toString();
+            requestId = headers.getAsString(REQUEST_ID_PREFIX) + "#" + UUID.randomUUID().toString();
         } else {
             requestId = UUID.randomUUID().toString();
         }
