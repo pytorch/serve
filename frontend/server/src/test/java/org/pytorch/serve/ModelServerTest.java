@@ -1032,7 +1032,7 @@ public class ModelServerTest {
         Assert.assertEquals(TestUtils.getResult(), "OK");
 
         String respId = TestUtils.getHeaders().get("x-request-id");
-        String[] respIdParts = respId.split(":");
+        String[] respIdParts = respId.split("#");
         String respIdPrefix = respIdParts[0];
         Assert.assertEquals(respIdPrefix, "test-prefix");
     }
