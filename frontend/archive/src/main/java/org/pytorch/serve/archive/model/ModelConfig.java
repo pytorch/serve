@@ -11,8 +11,6 @@ import org.slf4j.LoggerFactory;
 public class ModelConfig {
     private static final Logger logger = LoggerFactory.getLogger(ModelConfig.class);
 
-    /** the number of initial workers to create */
-    private int initialWorkers;
     /** the minimum number of workers of a model */
     private int minWorkers;
     /** the maximum number of workers of a model */
@@ -46,9 +44,9 @@ public class ModelConfig {
      * timeout. default: 0 which means no timeout (ie. clientExpireTS default value Long.MAX_VALUE.
      */
     private long clientTimeoutInMills;
-    /** the job queue size of a model.
-     * By default, job_queue_size is set as 100 in config.property for all models.
-     * Here, jobQueueSize: -1 means no customized setting for the model.
+    /**
+     * the job queue size of a model. By default, job_queue_size is set as 100 in config.property
+     * for all models. Here, jobQueueSize: -1 means no customized setting for the model.
      */
     private int jobQueueSize;
 
@@ -145,9 +143,7 @@ public class ModelConfig {
                             if (v instanceof Integer) {
                                 modelConfig.setJobQueueSize((int) v);
                             } else {
-                                logger.warn(
-                                        "Invalid jobQueueSize: {}, should be positive int",
-                                        v);
+                                logger.warn("Invalid jobQueueSize: {}, should be positive int", v);
                             }
                             break;
                         default:
@@ -295,14 +291,6 @@ public class ModelConfig {
         if (jobQueueSize > 0) {
             this.jobQueueSize = jobQueueSize;
         }
-    }
-
-    public int getInitialWorkers() {
-        return initialWorkers;
-    }
-
-    public void setInitialWorkers(int initialWorkers) {
-        this.initialWorkers = initialWorkers;
     }
 
     public enum ParallelType {
