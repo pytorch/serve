@@ -121,6 +121,23 @@ def transformers_model_dowloader(
                     "traced_{}_model_neuron_batch_{}.pt".format(model_name, batch_size),
                 ),
             )
+        elif hardware == "neuronx":
+            import torch_neuronx
+
+            input_ids = torch.cat([inputs["input_ids"]] * batch_size, 0).to(device)
+            attention_mask = torch.cat([inputs["attention_mask"]] * batch_size, 0).to(
+                device
+            )
+            traced_model = torch_neuronx.trace(model, (input_ids, attention_mask))
+            torch.jit.save(
+                traced_model,
+                os.path.join(
+                    NEW_DIR,
+                    "traced_{}_model_neuronx_batch_{}.pt".format(
+                        model_name, batch_size
+                    ),
+                ),
+            )
         else:
             input_ids = inputs["input_ids"].to(device)
             attention_mask = inputs["attention_mask"].to(device)
