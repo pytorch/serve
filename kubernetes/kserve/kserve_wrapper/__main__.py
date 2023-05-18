@@ -31,10 +31,8 @@ def parse_config():
     keys = {}
 
     with open(CONFIG_PATH) as f:
-
         for line in f:
             if separator in line:
-
                 # Find the name and value by splitting the string
                 name, value = line.split(separator, 1)
 
@@ -79,13 +77,11 @@ def parse_config():
 
 
 if __name__ == "__main__":
-
     model_names, inference_address, management_address, model_dir = parse_config()
 
     models = []
 
     for model_name in model_names:
-
         model = TorchserveModel(
             model_name, inference_address, management_address, model_dir
         )
