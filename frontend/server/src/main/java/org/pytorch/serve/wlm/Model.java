@@ -63,6 +63,9 @@ public class Model {
     // Per worker thread job queue. This separates out the control queue from data queue
     private ConcurrentMap<String, LinkedBlockingDeque<Job>> jobsDb;
 
+    private boolean useJobTicket;
+    private AtomicInteger numJobTickets;
+
     public Model(ModelArchive modelArchive, int queueSize) {
         this.modelArchive = modelArchive;
         if (modelArchive != null && modelArchive.getModelConfig() != null) {
@@ -98,6 +101,7 @@ public class Model {
                 // overwrite the queueSize defined on config.property
                 queueSize = modelArchive.getModelConfig().getJobQueueSize();
             }
+            useJobTicket = modelArchive.getModelConfig().isUseJobTicket();
         } else {
             batchSize = 1;
             maxBatchDelay = 100;
@@ -115,6 +119,7 @@ public class Model {
         // Always have a queue for data
         jobsDb.putIfAbsent(DEFAULT_DATA_QUEUE, new LinkedBlockingDeque<>(queueSize));
         failedInfReqs = new AtomicInteger(0);
+        numJobTickets = new AtomicInteger(0);
         lock = new ReentrantLock();
         modelVersionName =
                 new ModelVersionName(
@@ -229,6 +234,10 @@ public class Model {
     }
 
     public boolean addJob(Job job) {
+        if (isUseJobTicket() && !hasJobTickets()) {
+            logger.info("There are no job tickets");
+            return false;
+        }
         return jobsDb.get(DEFAULT_DATA_QUEUE).offer(job);
     }
 
@@ -257,6 +266,9 @@ public class Model {
         }
 
         try {
+            if (isUseJobTicket()) {
+                incNumJobTickets();
+            }
             lock.lockInterruptibly();
             long maxDelay = maxBatchDelay;
             jobsQueue = jobsDb.get(DEFAULT_DATA_QUEUE);
@@ -368,5 +380,26 @@ public class Model {
 
     public void setClientTimeoutInMills(long clientTimeoutInMills) {
         this.clientTimeoutInMills = clientTimeoutInMills;
+    }
+
+    public boolean isUseJobTicket() {
+        return useJobTicket;
+    }
+
+    public int incNumJobTickets() {
+        return this.numJobTickets.incrementAndGet();
+    }
+
+    public int decNumJobTickets() {
+        return this.numJobTickets.decrementAndGet();
+    }
+
+    public synchronized boolean hasJobTickets() {
+        if (this.numJobTickets.get() == 0) {
+            return false;
+        }
+
+        this.numJobTickets.decrementAndGet();
+        return true;
     }
 }

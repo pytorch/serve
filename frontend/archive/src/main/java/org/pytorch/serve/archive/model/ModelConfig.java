@@ -49,6 +49,11 @@ public class ModelConfig {
      * for all models. Here, jobQueueSize: -1 means no customized setting for the model.
      */
     private int jobQueueSize;
+    /**
+     * the useJobTicket is a flag which allows an inference request to be accepted only if there are
+     * available workers.
+     */
+    private boolean useJobTicket;
 
     public static ModelConfig build(Map<String, Object> yamlMap) {
         ModelConfig modelConfig = new ModelConfig();
@@ -144,6 +149,13 @@ public class ModelConfig {
                                 modelConfig.setJobQueueSize((int) v);
                             } else {
                                 logger.warn("Invalid jobQueueSize: {}, should be positive int", v);
+                            }
+                            break;
+                        case "useJobTicket":
+                            if (v instanceof Boolean) {
+                                modelConfig.setUseJobTicket((boolean) v);
+                            } else {
+                                logger.warn("Invalid useJobTicket: {}, should be true or false", v);
                             }
                             break;
                         default:
@@ -291,6 +303,14 @@ public class ModelConfig {
         if (jobQueueSize > 0) {
             this.jobQueueSize = jobQueueSize;
         }
+    }
+
+    public boolean isUseJobTicket() {
+        return useJobTicket;
+    }
+
+    public void setUseJobTicket(boolean useJobTicket) {
+        this.useJobTicket = useJobTicket;
     }
 
     public enum ParallelType {
