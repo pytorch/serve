@@ -6,9 +6,9 @@ import pathlib
 from typing import Dict
 
 import kserve
-import tornado.web
+from fastapi import HTTPException
 from kserve.model import Model as Model
-from kserve.model import ModelMissingError
+from kserve.errors import ModelMissingError
 
 logging.basicConfig(level=kserve.constants.KSERVE_LOGLEVEL)
 
@@ -65,7 +65,7 @@ class TorchserveModel(Model):
             NotImplementedError: If the predictor host on the KServe side is not
                                  available.
 
-            tornado.web.HTTPError: If there is a bad response from the http client.
+            fastapi.HTTPException: If there is a bad response from the http client.
 
         Returns:
             Dict: The Response from the input from the inference endpoint.
@@ -84,7 +84,7 @@ class TorchserveModel(Model):
         )
 
         if response.code != 200:
-            raise tornado.web.HTTPError(status_code=response.code, reason=response.body)
+            raise HTTPException(status_code=response.code, detail=response.body)
         return json.loads(response.body)
 
     async def explain(self, request: Dict) -> Dict:
@@ -99,7 +99,7 @@ class TorchserveModel(Model):
             NotImplementedError: If the predictor host on the KServe side is not
                                  available.
 
-            tornado.web.HTTPError: If there is a bad response from the http client.
+            fastapi.HTTPException: If there is a bad response from the http client.
 
         Returns:
             Dict: The Response from the input from the explain endpoint.
@@ -117,7 +117,7 @@ class TorchserveModel(Model):
             body=json.dumps(request),
         )
         if response.code != 200:
-            raise tornado.web.HTTPError(status_code=response.code, reason=response.body)
+            raise HTTPException(status_code=response.code, detail=response.body)
         return json.loads(response.body)
 
     def load(self) -> bool:
