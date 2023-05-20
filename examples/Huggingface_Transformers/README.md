@@ -51,9 +51,9 @@ In the setup_config.json :
 
 *embedding_name* : The name of embedding layer in the chosen model, this could be `bert` for `bert-base-uncased`, `roberta` for `roberta-base` or `roberta` for `xlm-roberta-large`, or `gpt2` for `gpt2` model
 
-*hardware* : The target platform to trace the model for. Specify as `neuron` for [Inferentia1](https://aws.amazon.com/ec2/instance-types/inf1/).
+*hardware* : The target platform to trace the model for. Specify as `neuron` for [Inferentia1](https://aws.amazon.com/ec2/instance-types/inf1/) and `neuronx` for [Inferentia2](https://aws.amazon.com/ec2/instance-types/inf2/).
 
-*batch_size* : Input batch size when tracing the model for `neuron` as target hardware.
+*batch_size* : Input batch size when tracing the model for `neuron` or `neuronx` as target hardware.
 
 Once, `setup_config.json` has been set properly, the next step is to run
 
