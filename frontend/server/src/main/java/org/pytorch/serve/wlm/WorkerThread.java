@@ -178,7 +178,9 @@ public class WorkerThread implements Runnable {
         currentThread.set(thread);
         BaseModelRequest req = null;
         int status = HttpURLConnection.HTTP_INTERNAL_ERROR;
-
+        if (java.lang.System.getenv("SM_TELEMETRY_LOG_REV_2022_12") != null) {
+            loggerTelemetryMetrics.info("Telemetry enabled.");
+        }
         try {
             connect();
 
@@ -283,7 +285,7 @@ public class WorkerThread implements Runnable {
         } catch (OutOfMemoryError oom) {
             logger.error("Out of memory error when creating workers", oom);
             status = HttpURLConnection.HTTP_ENTITY_TOO_LARGE;
-            if (java.lang.System.getenv("SM_TELEMETRY_LOG") != null) {
+            if (java.lang.System.getenv("SM_TELEMETRY_LOG_REV_2022_12") != null) {
                 loggerTelemetryMetrics.info(
                         "ModelServerError.Count:1|#TorchServe:{},{}:-1",
                         ConfigManager.getInstance().getVersion(),
@@ -291,7 +293,7 @@ public class WorkerThread implements Runnable {
             }
         } catch (Throwable t) {
             logger.warn("Backend worker thread exception.", t);
-            if (java.lang.System.getenv("SM_TELEMETRY_LOG") != null) {
+            if (java.lang.System.getenv("SM_TELEMETRY_LOG_REV_2022_12") != null) {
                 loggerTelemetryMetrics.info(
                         "ModelServerError.Count:1|#TorchServe:{},{}:-1",
                         ConfigManager.getInstance().getVersion(),
