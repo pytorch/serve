@@ -12,7 +12,7 @@ logging.basicConfig(level=kserve.constants.KSERVE_LOGLEVEL)
 DEFAULT_MODEL_NAME = "model"
 DEFAULT_INFERENCE_ADDRESS = "http://127.0.0.1:8085"
 INFERENCE_PORT = "8085"
-DEFAULT_MANAGEMENT_ADDRESS = "http://127.0.0.1:8081"
+DEFAULT_MANAGEMENT_ADDRESS = "http://127.0.0.1:8085"
 
 DEFAULT_MODEL_STORE = "/mnt/models/model-store"
 CONFIG_PATH = "/mnt/models/config/config.properties"
@@ -31,10 +31,8 @@ def parse_config():
     keys = {}
 
     with open(CONFIG_PATH) as f:
-
         for line in f:
             if separator in line:
-
                 # Find the name and value by splitting the string
                 name, value = line.split(separator, 1)
 
@@ -79,13 +77,11 @@ def parse_config():
 
 
 if __name__ == "__main__":
-
     model_names, inference_address, management_address, model_dir = parse_config()
 
     models = []
 
     for model_name in model_names:
-
         model = TorchserveModel(
             model_name, inference_address, management_address, model_dir
         )
@@ -100,5 +96,5 @@ if __name__ == "__main__":
     ModelServer(
         registered_models=registeredModels,
         http_port=8080,
-        grpc_port=7070,
+        grpc_port=8081,
     ).start(models)
