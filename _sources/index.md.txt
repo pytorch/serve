@@ -4,8 +4,8 @@ TorchServe is a performant, flexible and easy to use tool for serving PyTorch mo
 
 
 ## ⚡ Why TorchServe
-* [Model Management API](https://github.com/pytorch/serve/blob/master/docs/management_api.md#management-api): multi model management with optimized worker to model allocation
-* [Inference API](https://github.com/pytorch/serve/blob/master/docs/inference_api.md#inference-api): REST and gRPC support for batched inference
+* [Model Management API](management_api.md): multi model management with optimized worker to model allocation
+* [Inference API](inference_api.md): REST and gRPC support for batched inference
 * [TorchServe Workflows](https://github.com/pytorch/serve/blob/master/examples/Workflows/README.md#workflow-examples): deploy complex DAGs with multiple interdependent models
 * Default way to serve PyTorch models in
   * [Kubeflow](https://v0-5.kubeflow.org/docs/components/pytorchserving/)
@@ -13,11 +13,10 @@ TorchServe is a performant, flexible and easy to use tool for serving PyTorch mo
   * [Sagemaker](https://aws.amazon.com/blogs/machine-learning/serving-pytorch-models-in-production-with-the-amazon-sagemaker-native-torchserve-integration/)
   * [Kserve](https://kserve.github.io/website/0.8/modelserving/v1beta1/torchserve/): Supports both v1 and v2 API
   * [Vertex AI](https://cloud.google.com/blog/topics/developers-practitioners/pytorch-google-cloud-how-deploy-pytorch-models-vertex-ai)
-* Export your model for optimized inference. Torchscript out of the box, [ORT and ONNX](https://github.com/pytorch/serve/blob/master/docs/performance_guide.md#performance-guide), [IPEX](https://github.com/pytorch/serve/tree/master/examples/intel_extension_for_pytorch), [TensorRT](https://github.com/pytorch/serve/blob/master/docs/performance_guide.md#performance-guide), [FasterTransformer](https://github.com/pytorch/serve/tree/master/examples/FasterTransformer_HuggingFace_Bert)
-* [Performance Guide](https://github.com/pytorch/serve/blob/master/docs/performance_guide.md#performance-guide): builtin support to optimize, benchmark and profile PyTorch and TorchServe performance
+* Export your model for optimized inference. Torchscript out of the box, [ORT and ONNX](https://github.com/pytorch/serve/blob/master/docs/performance_guide.md#performance-guide), [IPEX](https://github.com/pytorch/serve/tree/master/examples/intel_extension_for_pytorch), [TensorRT](performance_guide.md), [FasterTransformer](https://github.com/pytorch/serve/tree/master/examples/FasterTransformer_HuggingFace_Bert)
+* [Performance Guide](performance_guide.md): builtin support to optimize, benchmark and profile PyTorch and TorchServe performance
 * [Expressive handlers](https://github.com/pytorch/serve/blob/master/CONTRIBUTING.md#contributing-to-torchServe): An expressive handler architecture that makes it trivial to support inferencing for your usecase with [many supported out of the box](https://github.com/pytorch/serve/tree/master/ts/torch_handler)
-* [Metrics API](https://github.com/pytorch/serve/blob/master/docs/metrics.md#torchserve-metrics): out of box support for system level metrics with [Prometheus exports](https://github.com/pytorch/serve/tree/master/examples/custom_metrics), custom metrics and PyTorch profiler support
-
+* [Metrics API](metrics.md): out of box support for system level metrics with [Prometheus exports](https://github.com/pytorch/serve/tree/master/examples/custom_metrics), custom metrics and PyTorch profiler support
 ## 🤔 How does TorchServe work
 
 * [Serving Quick Start](https://github.com/pytorch/serve/blob/master/README.md#serve-a-model) - Basic server usage tutorial
