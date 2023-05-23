@@ -1,0 +1,21 @@
+# TorchServe frontend parameters
+minWorkers: 1
+maxWorkers: 1
+maxBatchDelay: 100
+responseTimeout: 1200
+parallelType: "tp"
+deviceType: "gpu"
+# example of user specified GPU deviceIds
+deviceIds: [2,3] # seting CUDA_VISIBLE_DEVICES
+
+torchrun:
+    nproc-per-node: 2
+
+# TorchServe Backend parameters
+deepspeed:
+    config: ds-config.json
+
+handler:
+    max_length: 50
+    max_new_tokens: 10
+    manual_seed: 40

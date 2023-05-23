@@ -1,4 +1,4 @@
-# TorchServe Metrics
+# [TorchServe Metrics](#torchserve-metrics)
 
 ## Contents of this document
 
@@ -13,42 +13,61 @@
 
 ## Introduction
 
-TorchServe collects system level metrics in regular intervals, and also provides an API to collect custom metrics.
-Metrics collected by metrics are logged and can be aggregated by metric agents.
-The system level metrics are collected every minute. Metrics defined by the custom service code can be collected per request or per a batch of requests.
-TorchServe logs these two sets of metrics to different log files.
-Metrics are collected by default at:
+Torchserve metrics can be broadly classified into frontend and backend metrics.
+Frontend metrics include system level metrics. The host resource utilization frontend metrics are collected at regular intervals(default: every minute).
+Torchserve provides an API to collect custom backend metrics. Metrics defined by a custom service or handler code can be collected per request or per a batch of requests.
+Two metric modes are supported, i.e `log` and `prometheus`. The default mode is `log`.
+Metrics mode can be configured using the `metrics_mode` configuration option in `config.properties` or `TS_METRICS_MODE` environment variable.
+For further details on `config.properties` and environment variable based configuration, refer [Torchserve config](configuration.md) docs.
 
-* System metrics - `log_directory/ts_metrics.log`
-* Custom metrics - `log directory/model_metrics.log`
+In `log` mode, Metrics are logged and can be aggregated by metric agents.
+Metrics are collected by default at the following locations in `log` mode:
+
+* Frontend metrics - `log_directory/ts_metrics.log`
+* Backend metrics - `log directory/model_metrics.log`
 
 The location of log files and metric files can be configured in the [log4j2.xml](https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/log4j2.xml) file
 
-## System Metrics
+In `prometheus` mode, all metrics are made available in prometheus format via the [metrics](https://github.com/pytorch/serve/blob/master/docs/metrics_api.md) API endpoint.
 
-| Metric Name | Dimension | Unit | Semantics |
-|---|---|---|---|
-| CPUUtilization | host | percentage | CPU utilization on host |
-| DiskAvailable | host | GB | disk available on host |
-| DiskUsed | host | GB | disk used on host |
-| DiskUtilization | host | percentage | disk used on host |
-| MemoryAvailable | host | MB | memory available on host |
-| MemoryUsed | host | MB | memory used on host |
-| MemoryUtilization | host | percentage | memory utilization on host |
-| GPUUtilization | host,device_id | percentage | GPU utilization on host,device_id |
-| GPUMemoryUtilization | host,device_id | percentage | GPU memory utilization on host,device_id |
-| GPUMemoryUsed | host,device_id | MB | GPU memory used on host,device_id |
-| Requests2XX | host | count | logged for every request responded in 200-300 status code range |
-| Requests4XX | host |count | logged for every request responded in 400-500 status code range |
-| Requests5XX | host | count | logged for every request responded with status code above 500 |
+## Frontend Metrics
+
+| Metric Name                       | Type    | Unit         | Dimensions                          | Semantics                                                                   |
+|-----------------------------------|---------|--------------|-------------------------------------|-----------------------------------------------------------------------------|
+| Requests2XX                       | counter | Count        | Level, Hostname                     | Total number of requests with response in 200-300 status code range         |
+| Requests4XX                       | counter | Count        | Level, Hostname                     | Total number of requests with response in 400-500 status code range         |
+| Requests5XX                       | counter | Count        | Level, Hostname                     | Total number of requests with response status code above 500                |
+| ts_inference_requests_total       | counter | Count        | model_name, model_version, hostname | Total number of inference requests received                                 |
+| ts_inference_latency_microseconds | counter | Microseconds | model_name, model_version, hostname | Total inference latency in Microseconds                                     |
+| ts_queue_latency_microseconds     | counter | Microseconds | model_name, model_version, hostname | Total queue latency in Microseconds                                         |
+| QueueTime                         | gauge   | Milliseconds | Level, Hostname                     | Time spent by a job in request queue in Milliseconds                        |
+| WorkerThreadTime                  | gauge   | Milliseconds | Level, Hostname                     | Time spent in worker thread excluding backend response time in Milliseconds |
+| WorkerLoadTime                    | gauge   | Milliseconds | WorkerName, Level, Hostname         | Time taken by worker to load model in Milliseconds                          |
+| CPUUtilization                    | gauge   | Percent      | Level, Hostname                     | CPU utilization on host                                                     |
+| MemoryUsed                        | gauge   | Megabytes    | Level, Hostname                     | Memory used on host                                                         |
+| MemoryAvailable                   | gauge   | Megabytes    | Level, Hostname                     | Memory available on host                                                    |
+| MemoryUtilization                 | gauge   | Percent      | Level, Hostname                     | Memory utilization on host                                                  |
+| DiskUsage                         | gauge   | Gigabytes    | Level, Hostname                     | Disk used on host                                                           |
+| DiskUtilization                   | gauge   | Percent      | Level, Hostname                     | Disk used on host                                                           |
+| DiskAvailable                     | gauge   | Gigabytes    | Level, Hostname                     | Disk available on host                                                      |
+| GPUMemoryUtilization              | gauge   | Percent      | Level, DeviceId, Hostname           | GPU memory utilization on host, DeviceId                                    |
+| GPUMemoryUsed                     | gauge   | Megabytes    | Level, DeviceId, Hostname           | GPU memory used on host, DeviceId                                           |
+| GPUUtilization                    | gauge   | Percent      | Level, DeviceId, Hostname           | GPU utilization on host, DeviceId                                           |
+
+## Backend Metrics
+
+| Metric Name                       | Type  | Unit | Dimensions                 | Semantics                     |
+|-----------------------------------|-------|------|----------------------------|-------------------------------|
+| HandlerTime                       | gauge | ms   | ModelName, Level, Hostname | Time spent in backend handler |
+| PredictionTime                    | gauge | ms   | ModelName, Level, Hostname | Backend prediction time       |
 
 ## Formatting
 
 TorchServe emits metrics to log files by default. The metrics are formatted in a [StatsD](https://github.com/etsy/statsd) like format.
 
 ```bash
-CPUUtilization.Percent:0.0|#Level:Host|#hostname:my_machine_name
-MemoryUsed.Megabytes:13840.328125|#Level:Host|#hostname:my_machine_name
+CPUUtilization.Percent:0.0|#Level:Host|#hostname:my_machine_name,timestamp:1682098185
+DiskAvailable.Gigabytes:318.0416717529297|#Level:Host|#hostname:my_machine_name,timestamp:1682098185
 ```
 
 To enable metric logging in JSON format, set "patternlayout" as "JSONPatternLayout" in [log4j2.xml](https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/log4j2.xml) (See sample [log4j2-json.xml](https://github.com/pytorch/serve/blob/master/frontend/server/src/test/resources/log4j2-json.xml)). For information, see [Logging in Torchserve](https://github.com/pytorch/serve/blob/master/docs/logging.md).
@@ -121,7 +140,7 @@ class MetricTypes(enum.Enum):
 
 ## Central metrics YAML file definition
 
-TorchServe defines metrics in a [metrics_default.yaml](https://github.com/pytorch/serve/blob/master/frontend/server/src/test/resources/metrics_default.yaml)
+TorchServe defines metrics in a [yaml](https://github.com/pytorch/serve/blob/master/ts/configs/metrics.yaml)
 file, including both frontend metrics (i.e. `ts_metrics`) and backend metrics (i.e. `model_metrics`).
 When TorchServe is started, the metrics definition is loaded in the frontend and backend cache separately.
 The backend flushes the metrics cache once a load model or inference request is completed.
@@ -131,8 +150,6 @@ Dynamic updates between the frontend and backend are _not_ currently being handl
 The `metrics.yaml` is formatted with Prometheus metric type terminology:
 
 ```yaml
-mode: prometheus
-
 dimensions: # dimension aliases
   - &model_name "ModelName"
   - &level "Level"
@@ -170,7 +187,7 @@ model_metrics:  # backend metrics
 ```
 
 
-These are the default metrics within the yaml file, but the user can either delete them to their liking / ignore them altogether, because these metrics will not be emitted unless they are edited.
+Default metrics are provided in the [metrics.yaml](https://github.com/pytorch/serve/blob/master/ts/configs/metrics.yaml) file, but the user can either delete them to their liking / ignore them altogether, because these metrics will not be emitted unless they are edited.
 
 
 ### How it works
@@ -184,7 +201,7 @@ parse the backend metrics from the yaml file.*
 
 ### User Manual - starting TorchServe with a yaml file specified
 
-1. Create a `metrics.yaml` file to parse metrics from OR utilize default [metrics_default.yaml](https://github.com/pytorch/serve/blob/master/ts/configs/metrics.yaml)
+1. Create a `metrics.yaml` file to parse metrics from OR utilize default [metrics.yaml](https://github.com/pytorch/serve/blob/master/ts/configs/metrics.yaml)
 
 
 2. Set `metrics_config` argument equal to the yaml file path in the `config.properties` being used:
@@ -207,7 +224,7 @@ parse the backend metrics from the yaml file.*
 
 ## Custom Metrics API
 
-TorchServe enables the custom service code to emit metrics that are then logged by the system.
+TorchServe enables the custom service code to emit metrics that are then made available based on the configured `metrics_mode`.
 
 The custom service code is provided with a [context](https://github.com/pytorch/serve/blob/master/ts/context.py) of the current request with a metrics object:
 
@@ -235,7 +252,7 @@ metrics.add_counter("CounterMetric", value=1, dimensions=[Dimension("name", "val
 
 
 ### Updating Metrics parsed from the yaml file
-Given the Metrics API, users will also be able to update metrics that have been parsed from the [yaml](https://github.com/pytorch/serve/blob/master/frontend/server/src/test/resources/metrics_default.yaml) file
+Given the Metrics API, users will also be able to update metrics that have been parsed from the [yaml](https://github.com/pytorch/serve/blob/master/ts/configs/metrics.yaml) file
 given some criteria:
 
 (we will use the following metric as an example)
@@ -551,7 +568,8 @@ class ExampleCustomHandler(BaseHandler, ABC):
 context.metrics.add_counter(...)
 ```
 
-This custom metrics information is logged in the `model_metrics.log` file configured through [log4j2.xml](https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/log4j2.xml) file.
+This custom metrics information is logged in the `model_metrics.log` file configured through [log4j2.xml](https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/log4j2.xml) file
+or made available via the [metrics](https://github.com/pytorch/serve/blob/master/docs/metrics_api.md) API endpoint based on the `metrics_mode` configuration.
 
 ## Metrics YAML File Parsing and Metrics API Custom Handler Example
 

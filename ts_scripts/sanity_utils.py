@@ -5,7 +5,6 @@ import subprocess
 import sys
 from pathlib import Path
 
-import nvgpu
 import torch
 
 from ts_scripts import marsgen as mg
@@ -38,6 +37,8 @@ def validate_model_on_gpu():
     # Assumption is -
     # 1. GPUs on test setup are only utlizied by torchserve
     # 2. Models are successfully UNregistered between subsequent calls
+    import nvgpu
+
     model_loaded = False
     for info in nvgpu.gpu_info():
         if info["mem_used"] > 0 and info["mem_used_percent"] > 0.0:

@@ -372,6 +372,23 @@ public final class ApiUtils {
         return response;
     }
 
+    public static boolean isModelHealthy() {
+        ModelManager modelManager = ModelManager.getInstance();
+        int numHealthy = 0;
+        int numScaled = 0;
+
+        for (Map.Entry<String, ModelVersionedRefs> m : modelManager.getAllModels()) {
+            numScaled = m.getValue().getDefaultModel().getMinWorkers();
+            numHealthy =
+                    modelManager.getNumHealthyWorkers(
+                            m.getValue().getDefaultModel().getModelVersionName());
+            if (numHealthy < numScaled) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     private static DescribeModelResponse createModelResponse(
             ModelManager modelManager, String modelName, Model model) {
         DescribeModelResponse resp = new DescribeModelResponse();

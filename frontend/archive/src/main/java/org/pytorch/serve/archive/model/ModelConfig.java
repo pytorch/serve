@@ -11,16 +11,39 @@ import org.slf4j.LoggerFactory;
 public class ModelConfig {
     private static final Logger logger = LoggerFactory.getLogger(ModelConfig.class);
 
+    /** the minimum number of workers of a model */
     private int minWorkers;
+    /** the maximum number of workers of a model */
     private int maxWorkers;
+    /** the batch size of a model */
     private int batchSize;
+    /** the maximum delay in msec of a batch of a model */
     private int maxBatchDelay;
-    private int responseTimeout;
+    /** the timeout in sec of a specific model's response. */
+    private int responseTimeout = 120; // unit: sec
+    /**
+     * the device type where the model is loaded. It can be gpu, cpu. The model is loaded on CPU if
+     * deviceType: "cpu" is set on a GPU host.
+     */
     private DeviceType deviceType = DeviceType.NONE;
+    /**
+     * the user specified gpu device id, By default, TorchServe auto round-robin all available GPUs
+     * to assign deviceIds to a worker of a model if deviceIds is not set.
+     */
     private List<Integer> deviceIds;
+    /** this variable is auto calculated based on torchrun nproc-per-node. */
     private int parallelLevel = 1;
+    /** the model parallel type can be tp, pp, pptp */
     private ParallelType parallelType = ParallelType.NONE;
+    /** torchrun config */
     private TorchRun torchRun;
+    /** the maximum seconds of a worker recovery's timeout. default: 5 min */
+    private int maxRetryTimeoutInSec = 300;
+    /**
+     * the client timeout in millions second. The inference request will be dropped once it is
+     * timeout. default: 0 which means no timeout (ie. clientExpireTS default value Long.MAX_VALUE.
+     */
+    private long clientTimeoutInMills;
 
     public static ModelConfig build(Map<String, Object> yamlMap) {
         ModelConfig modelConfig = new ModelConfig();
@@ -92,6 +115,23 @@ public class ModelConfig {
                             } else {
                                 logger.warn(
                                         "Invalid torchrun: {}, should be Torchrun parameters", v);
+                            }
+                            break;
+                        case "maxRetryTimeoutInSec":
+                            if (v instanceof Integer) {
+                                modelConfig.setMaxRetryTimeoutInSec((int) v);
+                            } else {
+                                logger.warn(
+                                        "Invalid maxRetryTimeoutInMin: {}, should be integer", v);
+                            }
+                            break;
+                        case "clientTimeoutInMills":
+                            if (v instanceof Integer) {
+                                modelConfig.setClientTimeoutInMills(((Integer) v).longValue());
+                            } else {
+                                logger.warn(
+                                        "Invalid clientTimeoutInMills: {}, should be positive long",
+                                        v);
                             }
                             break;
                         default:
@@ -211,6 +251,26 @@ public class ModelConfig {
         return torchRun;
     }
 
+    public int getMaxRetryTimeoutInSec() {
+        return maxRetryTimeoutInSec;
+    }
+
+    public void setMaxRetryTimeoutInSec(int maxRetryTimeoutInSec) {
+        if (maxRetryTimeoutInSec > 0) {
+            this.maxRetryTimeoutInSec = maxRetryTimeoutInSec;
+        }
+    }
+
+    public long getClientTimeoutInMills() {
+        return clientTimeoutInMills;
+    }
+
+    public void setClientTimeoutInMills(long clientTimeoutInMills) {
+        if (clientTimeoutInMills > 0) {
+            this.clientTimeoutInMills = clientTimeoutInMills;
+        }
+    }
+
     public enum ParallelType {
         NONE(""),
         PP("pp"),
@@ -284,6 +344,7 @@ public class ModelConfig {
         private int nodeRank;
         private String masterAddr;
         private int masterPort;
+        private int ompNumberThreads = 1;
 
         public static TorchRun build(Map<?, ?> torchRunMap) {
             TorchRun torchRun = new TorchRun();
@@ -346,6 +407,13 @@ public class ModelConfig {
                                     torchRun.setNodeRank((Integer) v);
                                 } else {
                                     logger.warn("Invalid torchrun.node-rank:{}, reset to 0", v);
+                                }
+                                break;
+                            case "OMP_NUMBER_THREADS":
+                                if (v instanceof Integer) {
+                                    torchRun.setOmpNumberThreads((Integer) v);
+                                } else {
+                                    logger.warn("Invalid OMP_NUMBER_THREADS:{}, reset to 1", v);
                                 }
                                 break;
                             default:
@@ -461,6 +529,18 @@ public class ModelConfig {
 
         public void setMasterPort(int masterPort) {
             this.masterPort = masterPort;
+        }
+
+        public int getOmpNumberThreads() {
+            return ompNumberThreads;
+        }
+
+        public void setOmpNumberThreads(int ompNumberThreads) {
+            if (ompNumberThreads < 1) {
+                logger.warn("Invalid OMP_NUMBER_THREADS:{}, reset to 1", ompNumberThreads);
+                return;
+            }
+            this.ompNumberThreads = ompNumberThreads;
         }
     }
 }

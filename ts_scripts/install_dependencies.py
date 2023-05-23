@@ -50,18 +50,22 @@ class Common:
             # as it may reinstall the packages with different versions
             os.system("conda install -y conda-build")
 
-        self.install_torch_packages(cuda_version)
         os.system(f"{sys.executable} -m pip install -U pip setuptools")
         # developer.txt also installs packages from common.txt
         os.system(f"{sys.executable} -m pip install -U -r {requirements_file_path}")
-        # If conda is available install conda-build package
 
-        # TODO: This will run 2 installations for torch but to make this cleaner we should first refactor all of our requirements.txt into just 2 files
-        # And then make torch an optional dependency for the common.txt
+        # Install dependencies for GPU
+        if not isinstance(cuda_version, type(None)):
+            gpu_requirements_file = os.path.join("requirements", "common_gpu.txt")
+            os.system(f"{sys.executable} -m pip install -U -r {gpu_requirements_file}")
+
+        # Install PyTorch packages
         if nightly:
             os.system(
-                f"pip3 install numpy --pre torch[dynamo] torchvision torchtext torchaudio --force-reinstall --extra-index-url https://download.pytorch.org/whl/nightly/{cuda_version}"
+                f"pip3 install numpy --pre torch torchvision torchtext torchaudio --force-reinstall --extra-index-url https://download.pytorch.org/whl/nightly/{cuda_version}"
             )
+        else:
+            self.install_torch_packages(cuda_version)
 
     def install_node_packages(self):
         os.system(
@@ -175,9 +179,10 @@ def install_dependencies(cuda_version=None, nightly=False):
 
     # Sequence of installation to be maintained
     system.install_java()
-    requirements_file_path = "requirements/" + (
-        "production.txt" if args.environment == "prod" else "developer.txt"
-    )
+
+    requirements_file = "common.txt" if args.environment == "prod" else "developer.txt"
+    requirements_file_path = os.path.join("requirements", requirements_file)
+
     system.install_python_packages(cuda_version, requirements_file_path, nightly)
 
 

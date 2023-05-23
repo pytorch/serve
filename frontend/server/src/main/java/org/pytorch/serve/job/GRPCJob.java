@@ -6,6 +6,8 @@ import com.google.protobuf.ByteString;
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import org.pytorch.serve.archive.model.ModelNotFoundException;
@@ -14,8 +16,8 @@ import org.pytorch.serve.grpc.inference.PredictionResponse;
 import org.pytorch.serve.grpc.management.ManagementResponse;
 import org.pytorch.serve.grpcimpl.ManagementImpl;
 import org.pytorch.serve.http.messages.DescribeModelResponse;
-import org.pytorch.serve.metrics.Dimension;
-import org.pytorch.serve.metrics.Metric;
+import org.pytorch.serve.metrics.IMetric;
+import org.pytorch.serve.metrics.MetricCache;
 import org.pytorch.serve.util.ApiUtils;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.GRPCUtils;
@@ -27,10 +29,9 @@ import org.slf4j.LoggerFactory;
 
 public class GRPCJob extends Job {
     private static final Logger logger = LoggerFactory.getLogger(Job.class);
-    private static final Logger loggerTsMetrics =
-            LoggerFactory.getLogger(ConfigManager.MODEL_SERVER_METRICS_LOGGER);
-    private static final Dimension DIMENSION = new Dimension("Level", "Host");
 
+    private final IMetric queueTimeMetric;
+    private final List<String> queueTimeMetricDimensionValues;
     private StreamObserver<PredictionResponse> predictionResponseObserver;
     private StreamObserver<ManagementResponse> managementResponseObserver;
 
@@ -42,6 +43,9 @@ public class GRPCJob extends Job {
             RequestInput input) {
         super(modelName, version, cmd, input);
         this.predictionResponseObserver = predictionResponseObserver;
+        this.queueTimeMetric = MetricCache.getInstance().getMetricFrontend("QueueTime");
+        this.queueTimeMetricDimensionValues =
+                Arrays.asList("Host", ConfigManager.getInstance().getHostName());
     }
 
     public GRPCJob(
@@ -51,6 +55,9 @@ public class GRPCJob extends Job {
             RequestInput input) {
         super(modelName, version, WorkerCommands.DESCRIBE, input);
         this.managementResponseObserver = managementResponseObserver;
+        this.queueTimeMetric = MetricCache.getInstance().getMetricFrontend("QueueTime");
+        this.queueTimeMetricDimensionValues =
+                Arrays.asList("Host", ConfigManager.getInstance().getHostName());
     }
 
     @Override
@@ -76,18 +83,18 @@ public class GRPCJob extends Job {
                         "Waiting time ns: {}, Backend time ns: {}",
                         getScheduled() - getBegin(),
                         System.nanoTime() - getScheduled());
-                String queueTime =
-                        String.valueOf(
+                double queueTime =
+                        (double)
                                 TimeUnit.MILLISECONDS.convert(
-                                        getScheduled() - getBegin(), TimeUnit.NANOSECONDS));
-                loggerTsMetrics.info(
-                        "{}",
-                        new Metric(
-                                "QueueTime",
-                                queueTime,
-                                "ms",
-                                ConfigManager.getInstance().getHostName(),
-                                DIMENSION));
+                                        getScheduled() - getBegin(), TimeUnit.NANOSECONDS);
+                if (this.queueTimeMetric != null) {
+                    try {
+                        this.queueTimeMetric.addOrUpdate(
+                                this.queueTimeMetricDimensionValues, queueTime);
+                    } catch (Exception e) {
+                        logger.error("Failed to update frontend metric QueueTime: ", e);
+                    }
+                }
             }
         } else if (this.getCmd() == WorkerCommands.DESCRIBE) {
             try {
@@ -109,7 +116,8 @@ public class GRPCJob extends Job {
     @Override
     public void sendError(int status, String error) {
         Status responseStatus = GRPCUtils.getGRPCStatusCode(status);
-        if (this.getCmd() == WorkerCommands.PREDICT) {
+        if (this.getCmd() == WorkerCommands.PREDICT
+                || this.getCmd() == WorkerCommands.STREAMPREDICT) {
             predictionResponseObserver.onError(
                     responseStatus
                             .withDescription(error)

@@ -97,7 +97,7 @@ class BenchmarkConfig:
 
         self.bm_config["model_config_path"] = (
             "{}/{}".format(MODEL_JSON_CONFIG_PATH, self.bm_config["hardware"])
-            if self.bm_config["hardware"] in ["cpu", "gpu", "neuron"]
+            if self.bm_config["hardware"] in ["cpu", "gpu", "neuron", "neuronx"]
             else "{}/cpu".format(MODEL_JSON_CONFIG_PATH)
         )
 

@@ -79,11 +79,11 @@ def create_predict_response(
         if context is None:
             msg += struct.pack("!i", 0)  # content_type
         else:
-            if "true" == context.get_request_header(idx, "ts_stream_next"):
-                if ts_stream_next is False:
+            if ts_stream_next is True:
+                context.set_response_header(idx, "ts_stream_next", "true")
+            else:
+                if "true" == context.get_response_headers(idx).get("ts_stream_next"):
                     context.set_response_header(idx, "ts_stream_next", "false")
-                else:
-                    context.set_response_header(idx, "ts_stream_next", "true")
 
             content_type = context.get_response_content_type(idx)
             if content_type is None or len(content_type) == 0:
