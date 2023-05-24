@@ -50,6 +50,14 @@ class Common:
             # as it may reinstall the packages with different versions
             os.system("conda install -y conda-build")
 
+        # Install PyTorch packages
+        if nightly:
+            os.system(
+                f"pip3 install numpy --pre torch torchvision torchtext torchaudio --force-reinstall --extra-index-url https://download.pytorch.org/whl/nightly/{cuda_version}"
+            )
+        else:
+            self.install_torch_packages(cuda_version)
+
         os.system(f"{sys.executable} -m pip install -U pip setuptools")
         # developer.txt also installs packages from common.txt
         os.system(f"{sys.executable} -m pip install -U -r {requirements_file_path}")
@@ -58,14 +66,6 @@ class Common:
         if not isinstance(cuda_version, type(None)):
             gpu_requirements_file = os.path.join("requirements", "common_gpu.txt")
             os.system(f"{sys.executable} -m pip install -U -r {gpu_requirements_file}")
-
-        # Install PyTorch packages
-        if nightly:
-            os.system(
-                f"pip3 install numpy --pre torch torchvision torchtext torchaudio --force-reinstall --extra-index-url https://download.pytorch.org/whl/nightly/{cuda_version}"
-            )
-        else:
-            self.install_torch_packages(cuda_version)
 
     def install_node_packages(self):
         os.system(
