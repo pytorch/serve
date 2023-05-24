@@ -99,7 +99,7 @@ def context(model_dir, model_name):
 def handler(context, request):
     handler = ImageClassifier()
 
-    from ts.handler_utils import MicroBatching
+    from ts.handler_utils.micro_batching import MicroBatching
 
     mb_handle = MicroBatching(handler, micro_batch_size=request.param)
     handler.initialize(context)
