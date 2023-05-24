@@ -1,7 +1,7 @@
 import logging
 
+from ts.handler_utils import MicroBatching
 from ts.torch_handler.image_classifier import ImageClassifier
-from ts.utils import *
 
 logger = logging.getLogger(__name__)
 
