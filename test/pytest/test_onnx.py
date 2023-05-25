@@ -3,7 +3,6 @@ import subprocess
 import pytest
 import torch
 
-import onnx
 import torch.onnx
 
 class ToyModel(torch.nn.Module):
