@@ -17,3 +17,5 @@ mypy
 torchpippy
 intel_extension_for_pytorch; sys_platform != 'win32' and sys_platform != 'darwin'
 onnx-runtime
+psutil
+pyyaml
