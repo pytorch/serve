@@ -234,7 +234,7 @@ public class Model {
     }
 
     public boolean addJob(Job job) {
-        if (isUseJobTicket() && !hasJobTickets()) {
+        if (isUseJobTicket() && !getJobTickets()) {
             logger.info("There are no job tickets");
             return false;
         }
@@ -394,7 +394,7 @@ public class Model {
         return this.numJobTickets.decrementAndGet();
     }
 
-    public synchronized boolean hasJobTickets() {
+    public synchronized boolean getJobTickets() {
         if (this.numJobTickets.get() == 0) {
             return false;
         }
