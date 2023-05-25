@@ -106,14 +106,6 @@ class Linux(Common):
         if os.system("wget --version") != 0 or args.force:
             os.system(f"{self.sudo_cmd}apt-get install -y wget")
 
-    def install_libgit2(self):
-        os.system(
-            f"wget https://github.com/libgit2/libgit2/archive/refs/tags/v1.3.0.tar.gz -O libgit2-1.3.0.tar.gz"
-        )
-        os.system(f"tar xzf libgit2-1.3.0.tar.gz")
-        os.system(f"cd libgit2-1.3.0 && cmake . && make && sudo make install && cd ..")
-        os.system(f"rm -rf libgit2-1.3.0 && rm libgit2-1.3.0.tar.gz")
-
     def install_numactl(self):
         if os.system("numactl --show") != 0 or args.force:
             os.system(f"{self.sudo_cmd}apt-get install -y numactl")
@@ -173,9 +165,6 @@ def install_dependencies(cuda_version=None, nightly=False):
         system.install_wget()
         system.install_nodejs()
         system.install_node_packages()
-
-    if platform.system() == "Linux" and args.environment == "dev":
-        system.install_libgit2()
 
     # Sequence of installation to be maintained
     system.install_java()
