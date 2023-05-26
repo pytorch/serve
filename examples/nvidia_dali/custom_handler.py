@@ -64,7 +64,7 @@ class DALIHandler(ImageClassifier):
             batch_tensor.append(np_image)  # we can use numpy
         
 
-        for _ in range(self.PREFETCH_QUEUE_DEPTH):
+        for _ in range(self.PREFETCH_QUEUE_DEPTH+1):
             self.pipe.feed_input("my_source", batch_tensor)
 
         datam = DALIGenericIterator(
