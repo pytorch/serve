@@ -1,5 +1,5 @@
 {
-  "batch_size" : 5,
-  "num_threads" : 2,
+  "batch_size" : 32,
+  "num_threads" : 4,
   "device_id" : 0
 }

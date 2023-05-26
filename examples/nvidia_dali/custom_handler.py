@@ -38,7 +38,10 @@ class DALIHandler(ImageClassifier):
         with open(dali_config_file) as setup_config_file:
             self.dali_configs = json.load(setup_config_file)
         filename = os.path.join(self.model_dir, self.dali_file[0])
-        self.pipe = Pipeline.deserialize(filename=filename)
+        self.pipe = Pipeline.deserialize(filename=filename, batch_size=self.dali_configs["batch_size"],
+        num_threads=self.dali_configs["num_threads"], device_id=self.dali_configs["device_id"],
+        prefetch_queue_depth= self.PREFETCH_QUEUE_DEPTH)
+        self.pipe.build()
         # pylint: disable=protected-access
         self.pipe._max_batch_size = self.dali_configs["batch_size"]
         self.pipe._num_threads = self.dali_configs["num_threads"]
@@ -59,6 +62,7 @@ class DALIHandler(ImageClassifier):
         for byte_array in input_byte_arrays:
             np_image = np.frombuffer(byte_array, dtype=np.uint8)
             batch_tensor.append(np_image)  # we can use numpy
+        
 
         for _ in range(self.PREFETCH_QUEUE_DEPTH):
             self.pipe.feed_input("my_source", batch_tensor)
@@ -71,7 +75,10 @@ class DALIHandler(ImageClassifier):
         )
         result = []
         for _, data in enumerate(datam):
+            self.pipe.feed_input("my_source", batch_tensor)
             result.append(data[0]["data"])
             break
+
+        
 
         return result[0].to(self.device)
