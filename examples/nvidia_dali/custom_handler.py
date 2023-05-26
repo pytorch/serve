@@ -62,7 +62,8 @@ class DALIHandler(ImageClassifier):
         for byte_array in input_byte_arrays:
             np_image = np.frombuffer(byte_array, dtype=np.uint8)
             batch_tensor.append(np_image)  # we can use numpy
-        
+
+        print(f"Input size is {len(batch_tensor)}") 
 
         for _ in range(self.PREFETCH_QUEUE_DEPTH+1):
             self.pipe.feed_input("my_source", batch_tensor)
@@ -74,11 +75,12 @@ class DALIHandler(ImageClassifier):
             last_batch_padded=True,
         )
         result = []
-        for _, data in enumerate(datam):
+        for i, data in enumerate(datam):
             self.pipe.feed_input("my_source", batch_tensor)
             result.append(data[0]["data"])
             break
 
         
+        print(f"Output size is {len(result[0])}") 
 
         return result[0].to(self.device)
