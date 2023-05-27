@@ -1,11 +1,17 @@
 name: Run Regression Tests on GPU
 
 on:
-  # runs everyday at 9:15am
-  schedule:
-    - cron:  '15 9 * * *'
-  issue_comment:
-    types: [created]
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+concurrency:
+  group: ci-cpu-${{ github.workflow }}-${{ github.ref == 'refs/heads/master' && github.run_number || github.ref }}
+  cancel-in-progress: true
+
 
 jobs:
   check-comment:
