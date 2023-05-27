@@ -6,6 +6,8 @@ on:
   issue_comment:
     types:
       - created
+    contains:
+      - '/run regression'
 
 jobs:
   regression-gpu:
@@ -23,8 +25,19 @@ jobs:
             const comment = context.payload.comment.body;
             core.setOutput('triggered', comment.includes('/run regression'))
 
+      - name: Check Run Condition
+        id: run_condition
+        run: |
+          if [ ${{ github.event_name }} == 'issue_comment' ] && [ "${{ steps.pr_comment.outputs.triggered }}" == 'true' ]; then
+            echo "::set-output name=run::true"
+          elif [ ${{ github.event_name }} == 'schedule' ]; then
+            echo "::set-output name=run::true"
+          else
+            echo "::set-output name=run::false"
+          fi
+
       - name: Clean up previous run
-        if: steps.pr_comment.outputs.triggered == 'true'
+        if: steps.run_condition.outputs.run == 'true'
         run: |
           echo "Cleaning up previous run"
           cd $RUNNER_WORKSPACE
@@ -34,37 +47,37 @@ jobs:
           rm -rf _tool
 
       - name: Update git
-        if: steps.pr_comment.outputs.triggered == 'true'
+        if: steps.run_condition.outputs.run == 'true'
         run: sudo add-apt-repository ppa:git-core/ppa -y && sudo apt-get update && sudo apt-get install git -y
 
       - name: Check git version
-        if: steps.pr_comment.outputs.triggered == 'true'
+        if: steps.run_condition.outputs.run == 'true'
         run: git --version
 
       - name: Setup Python 3.8
-        if: steps.pr_comment.outputs.triggered == 'true'
+        if: steps.run_condition.outputs.run == 'true'
         uses: actions/setup-python@v3
         with:
           python-version: 3.8
           architecture: x64
 
       - name: Setup Java 17
-        if: steps.pr_comment.outputs.triggered == 'true'
+        if: steps.run_condition.outputs.run == 'true'
         uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
           java-version: '17'
 
       - name: Checkout TorchServe
-        if: steps.pr_comment.outputs.triggered == 'true'
+        if: steps.run_condition.outputs.run == 'true'
         uses: actions/checkout@v3
 
       - name: Install dependencies
-        if: steps.pr_comment.outputs.triggered == 'true'
+        if: steps.run_condition.outputs.run == 'true'
         run: |
           python ts_scripts/install_dependencies.py --environment=dev --cuda=${{ matrix.cuda }}
 
       - name: Torchserve Regression Tests
-        if: steps.pr_comment.outputs.triggered == 'true'
+        if: steps.run_condition.outputs.run == 'true'
         run: |
           python test/regression_tests.py
