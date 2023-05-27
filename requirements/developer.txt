@@ -15,4 +15,4 @@ twine==4.0.2
 mypy==1.3.0
 torchpippy==0.1.1
 intel_extension_for_pytorch==2.0.100; sys_platform != 'win32' and sys_platform != 'darwin'
-onnx-runtime
+onnxruntime==1.15.0
