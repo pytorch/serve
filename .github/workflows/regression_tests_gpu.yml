@@ -1,20 +1,30 @@
 name: Run Regression Tests on GPU
 
 on:
-  # runs everyday  at 9:15am
   schedule:
-    - cron:  '15 9 * * *'
+    - cron: '15 9 * * *'
+  issue_comment:
+    types:
+      - created
 
 jobs:
   regression-gpu:
-    # creates workflows for CUDA 11.6 & CUDA 11.7 on ubuntu
     runs-on: [self-hosted, regression-test-gpu]
     strategy:
       fail-fast: false
       matrix:
         cuda: ["cu117", "cu118"]
     steps:
+      - name: Check PR Comment
+        id: pr_comment
+        uses: actions/github-script@v4
+        with:
+          script: |
+            const comment = context.payload.comment.body;
+            core.setOutput('triggered', comment.includes('/run regression'))
+
       - name: Clean up previous run
+        if: steps.pr_comment.outputs.triggered == 'true'
         run: |
           echo "Cleaning up previous run"
           cd $RUNNER_WORKSPACE
@@ -22,25 +32,39 @@ jobs:
           cd ..
           pwd
           rm -rf _tool
+
       - name: Update git
+        if: steps.pr_comment.outputs.triggered == 'true'
         run: sudo add-apt-repository ppa:git-core/ppa -y && sudo apt-get update && sudo apt-get install git -y
+
       - name: Check git version
+        if: steps.pr_comment.outputs.triggered == 'true'
         run: git --version
+
       - name: Setup Python 3.8
+        if: steps.pr_comment.outputs.triggered == 'true'
         uses: actions/setup-python@v3
         with:
           python-version: 3.8
           architecture: x64
+
       - name: Setup Java 17
+        if: steps.pr_comment.outputs.triggered == 'true'
         uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
           java-version: '17'
+
       - name: Checkout TorchServe
+        if: steps.pr_comment.outputs.triggered == 'true'
         uses: actions/checkout@v3
+
       - name: Install dependencies
+        if: steps.pr_comment.outputs.triggered == 'true'
         run: |
           python ts_scripts/install_dependencies.py --environment=dev --cuda=${{ matrix.cuda }}
+
       - name: Torchserve Regression Tests
+        if: steps.pr_comment.outputs.triggered == 'true'
         run: |
           python test/regression_tests.py
