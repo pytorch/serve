@@ -1,6 +1,7 @@
 import glob
 import json
 import os
+import platform
 import subprocess
 import time
 from pathlib import Path
@@ -15,6 +16,7 @@ PT_2_AVAILABLE = (
     else False
 )
 
+
 CURR_FILE_PATH = Path(__file__).parent
 TEST_DATA_DIR = os.path.join(CURR_FILE_PATH, "test_data", "torch_compile")
 
@@ -28,6 +30,9 @@ MODEL_STORE_DIR = os.path.join(TEST_DATA_DIR, "model_store")
 MODEL_NAME = "half_plus_two"
 
 
+@pytest.mark.skipif(
+    platform.system() != "Linux", reason="Skipping test on non-Linux system"
+)
 @pytest.mark.skipif(PT_2_AVAILABLE == False, reason="torch version is < 2.0.0")
 class TestTorchCompile:
     def teardown_class(self):

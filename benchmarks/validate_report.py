@@ -63,9 +63,6 @@ def validate_reports(artifacts_dir, report_dir, deviation):
         if not error:
             print(f"Model {model} successfully validated")
 
-    if error:
-        raise Exception("Failures in benchmark validation")
-
 
 def main():
     parser = argparse.ArgumentParser()

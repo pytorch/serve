@@ -109,13 +109,19 @@ def mnist_model_register_and_scale_using_non_existent_handler_asynchronous():
 
 
 def run_inference_using_url_with_data(purl=None, pfiles=None, ptimeout=120):
+    print(f"purl={purl}")
+    print(f"pfiles={pfiles}")
     if purl is None and pfiles is None:
         return
+    print(f"purl1={purl}")
+    print(f"pfiles1={pfiles}")
     try:
         response = requests.post(url=purl, files=pfiles, timeout=ptimeout)
     except:
+        print(f"sent echo_stream rep=none")
         return None
     else:
+        print(f"sent echo_stream rep={response}")
         return response
 
 
@@ -387,3 +393,23 @@ def test_huggingface_bert_model_parallel_inference():
             "Running model parallel inference requuires more than one gpu, number of available gpus on thi machine is: ",
             number_of_gpus,
         )
+
+
+def test_echo_stream_inference():
+    test_utils.start_torchserve(no_config_snapshots=True, gen_mar=False)
+    test_utils.register_model(
+        "echo_stream", "https://torchserve.pytorch.org/mar_files/echo_stream.mar"
+    )
+
+    response = requests.post(
+        TF_INFERENCE_API + "/predictions/echo_stream", data="foo", stream=True
+    )
+    assert response.headers["Transfer-Encoding"] == "chunked"
+
+    prediction = []
+    for chunk in response.iter_content(chunk_size=None):
+        if chunk:
+            prediction.append(chunk.decode("utf-8"))
+
+    assert str(" ".join(prediction)) == "hello hello hello hello world "
+    test_utils.unregister_model("echo_stream")

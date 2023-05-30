@@ -37,7 +37,7 @@ except ImportError as error:
     XLA_AVAILABLE = False
 
 
-if packaging.version.parse(torch.__version__) >= packaging.version.parse("2.0.0"):
+if packaging.version.parse(torch.__version__) >= packaging.version.parse("2.0.0a"):
     PT2_AVAILABLE = True
     if torch.cuda.is_available():
         # If Ampere enable tensor cores which will give better performance

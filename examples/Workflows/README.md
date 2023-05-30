@@ -1,4 +1,4 @@
-# Workflow examples
+# [Workflow examples](#workflow-examples)
 
 Workflows can be used to compose an ensemble of Pytorch models and Python functions and package them in a `war` file. A workflow is executed as a DAG where the nodes can be either Pytorch models packaged as `mar` files or function nodes specified in the workflow handler file. The DAG can be used to define both sequential or parallel pipelines.
 
@@ -8,7 +8,7 @@ As an example a sequential pipeline may look something like
 input -> function1 -> model1 -> model2 -> function2 -> output
 ```
 
-And a parallel pipeline may look something like 
+And a parallel pipeline may look something like
 
 ```
                           model1

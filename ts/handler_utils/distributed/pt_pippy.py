@@ -51,10 +51,49 @@ def get_pipeline_driver(model, world_size, ctx):
         torch.nn.Sequential: The pipeline driver for the model.
     """
     # Extract configuration parameters from the context
-    chunks = ctx.model_yaml_config["pippy"]["chunks"]
+
+    # Check that the "pippy" and "handler" keys are present in the YAML config
+    assert "pippy" in ctx.model_yaml_config, "Missing 'pippy' key in YAML config"
+    assert "handler" in ctx.model_yaml_config, "Missing 'handler' key in YAML config"
+
+    # Check that the required keys are present in the "pippy" section
+
+    assert (
+        "input_names" in ctx.model_yaml_config["pippy"]
+    ), "Missing 'input_names' key in YAML config"
+    assert (
+        "model_type" in ctx.model_yaml_config["pippy"]
+    ), "Missing 'model_type' key in YAML config"
+
+    # Check that the required keys are present in the "handler" section
+    assert (
+        "model_path" in ctx.model_yaml_config["handler"]
+    ), "Missing 'model_path' key in YAML config"
+
+    # Set variables from the config
+
     input_names = ctx.model_yaml_config["pippy"]["input_names"]
     model_type = ctx.model_yaml_config["pippy"]["model_type"]
+    model_path = ctx.model_yaml_config["handler"]["model_path"]
+    try:
+        chunks = ctx.model_yaml_config["pippy"]["chunks"]
+    except KeyError:
+        chunks = 1
+    try:
+        index_filename = ctx.model_yaml_config["handler"]["index_filename"]
+    except KeyError:
+        index_filename = None
 
+    # Check that the index file exists
+    if index_filename is not None:
+        index_file_path = os.path.join(model_path, index_filename)
+        assert os.path.exists(
+            index_file_path
+        ), f"Index file '{index_file_path}' not found"
+    else:
+        index_file_path = None
+
+    checkpoint_prefix = None
     # Set the model to evaluation mode
     model.eval()
 
@@ -83,6 +122,8 @@ def get_pipeline_driver(model, world_size, ctx):
         split_policy=split_policy,
         tracer=tracer,
         concrete_args=concrete_args,
+        index_filename=index_file_path,
+        checkpoint_prefix=checkpoint_prefix,
     )
 
     # Inject the pipeline forward method if necessary
