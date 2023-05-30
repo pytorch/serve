@@ -1,6 +1,5 @@
 import json
 import platform
-import shutil
 from collections import namedtuple
 from pathlib import Path
 
@@ -267,15 +266,10 @@ def create_manifest_from_test_json(test_json):
     return manifest
 
 
-def test_archive_creation_with_zip_store(tmp_path, integ_tests):
-    integ_tests = list(
-        filter(lambda t: t["name"] == "packaging_zip_store_mar", integ_tests)
-    )
+def prepare_model_dir(test_name, integ_tests):
+    integ_tests = list(filter(lambda t: t["name"] == test_name, integ_tests))
     assert len(integ_tests) == 1
     test = integ_tests[0]
-
-    model_dir = Path(tmp_path).joinpath("model_dir")
-    model_dir.mkdir()
 
     keys = (
         "model-file",
@@ -284,25 +278,35 @@ def test_archive_creation_with_zip_store(tmp_path, integ_tests):
         "extra-files",
         "config-file",
     )
+    artifact_files = {k.replace("-", "_"): test[k] for k in keys}
 
-    for k in keys:
-        shutil.copy(test[k], model_dir)
+    model_path = ModelExportUtils.copy_artifacts(test["model-name"], **artifact_files)
 
     manifest = create_manifest_from_test_json(test)
+    return manifest, model_path
+
+
+def test_archive_creation_with_zip_store(tmp_path, integ_tests, mocker):
+    manifest, model_path = prepare_model_dir("packaging_zip_store_mar", integ_tests)
 
     ModelExportUtils.archive(
         tmp_path,
         "zip-store",
-        model_dir.as_posix(),
+        model_path,
         manifest,
         archive_format="zip-store",
     )
 
     ModelExportUtils.archive(
-        tmp_path, "zip", model_dir.as_posix(), manifest, archive_format="default"
+        tmp_path, "zip", model_path, manifest, archive_format="default"
     )
 
     stored_size = Path(tmp_path).joinpath("zip-store.mar").stat().st_size
     zipped_size = Path(tmp_path).joinpath("zip.mar").stat().st_size
 
     assert zipped_size < stored_size
+
+
+def test_missing_extra_files(integ_tests):
+    with pytest.raises(FileNotFoundError):
+        prepare_model_dir("missing_extra_files", integ_tests)

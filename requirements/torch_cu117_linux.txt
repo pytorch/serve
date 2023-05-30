@@ -1,5 +1,6 @@
 #pip install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu117
 --extra-index-url https://download.pytorch.org/whl/cu117
+-r torch_common.txt
 torch==2.0.0+cu117; sys_platform == 'linux'
 torchvision==0.15.1+cu117; sys_platform == 'linux'
 torchtext==0.15.1; sys_platform == 'linux'
