@@ -15,12 +15,20 @@ TS_LOG = "./logs/ts_log.log"
 MANAGEMENT_API = "http://localhost:8081"
 INFERENCE_API = "http://localhost:8080"
 
-core_pinning_available = False
+xeon_run_cpu_available = False
 cmd = ["python", "-m", "torch.backends.xeon.run_cpu", "--no_python", "ls"]
 r = subprocess.run(cmd)
 if r.returncode == 0:
-    core_pinning_available = True
+    xeon_run_cpu_available = True
 
+ipex_available = False
+try:
+    import intel_extension_for_pytorch as ipex
+    ipex_available = True
+except ImportError as error:
+    ipex_available = False
+
+ipex_xeon_run_cpu_available = xeon_run_cpu_available and ipex_available
 
 def setup_module():
     test_utils.torchserve_cleanup()
@@ -75,8 +83,8 @@ def scale_workers_with_core_pinning(scaled_num_workers):
 
 
 @pytest.mark.skipif(
-    not core_pinning_available,
-    reason="Make sure torch.backends.xeon.run_cpu is available",
+    not ipex_xeon_run_cpu_available,
+    reason="Make sure intel-extension-for-pytorch is installed and torch.backends.xeon.run_cpu is available",
 )
 def test_single_worker_affinity():
     num_workers = 1
@@ -99,8 +107,8 @@ def test_single_worker_affinity():
 
 
 @pytest.mark.skipif(
-    not core_pinning_available,
-    reason="Make sure torch.backends.xeon.run_cpu is available",
+    not ipex_xeon_run_cpu_available,
+    reason="Make sure intel-extension-for-pytorch is installed and torch.backends.xeon.run_cpu is available",
 )
 def test_multi_worker_affinity():
     num_workers = 4
@@ -124,8 +132,8 @@ def test_multi_worker_affinity():
 
 
 @pytest.mark.skipif(
-    not core_pinning_available,
-    reason="Make sure torch.backends.xeon.run_cpu is available",
+    not ipex_xeon_run_cpu_available,
+    reason="Make sure intel-extension-for-pytorch is installed and torch.backends.xeon.run_cpu is available",
 )
 def test_worker_scale_up_affinity():
     initial_num_workers = 2
@@ -156,8 +164,8 @@ def test_worker_scale_up_affinity():
 
 
 @pytest.mark.skipif(
-    not core_pinning_available,
-    reason="Make sure torch.backends.xeon.run_cpu is available",
+    not ipex_xeon_run_cpu_available,
+    reason="Make sure intel-extension-for-pytorch is installed and torch.backends.xeon.run_cpu is available",
 )
 def test_worker_scale_down_affinity():
     initial_num_workers = 4
