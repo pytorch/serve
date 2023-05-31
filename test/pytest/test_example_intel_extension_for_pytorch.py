@@ -15,11 +15,19 @@ TS_LOG = "./logs/ts_log.log"
 MANAGEMENT_API = "http://localhost:8081"
 INFERENCE_API = "http://localhost:8080"
 
-ipex_launcher_available = False
-cmd = ["python", "-m", "intel_extension_for_pytorch.cpu.launch", "--no_python", "ls"]
+xeon_run_cpu_available = False
+cmd = ["python", "-m", "torch.backends.xeon.run_cpu", "--no_python", "ls"]
 r = subprocess.run(cmd)
 if r.returncode == 0:
-    ipex_launcher_available = True
+    xeon_run_cpu_available = True
+
+ipex_available = False
+cmd = ["python", "-c", "import intel_extension_for_pytorch as ipex"]
+r = subprocess.run(cmd)
+if r.returncode == 0:
+    ipex_available = True
+
+ipex_xeon_run_cpu_available = xeon_run_cpu_available and ipex_available
 
 
 def setup_module():
@@ -39,10 +47,10 @@ def setup_torchserve():
 
 
 def get_worker_affinity(num_workers, worker_idx):
-    from intel_extension_for_pytorch.cpu.launch import CPUinfo
+    from torch.backends.xeon.run_cpu import _CPUinfo
 
-    cpuinfo = CPUinfo()
-    num_cores = cpuinfo.physical_core_nums()
+    cpuinfo = _CPUinfo()
+    num_cores = cpuinfo._physical_core_nums()
 
     num_cores_per_worker = num_cores // num_workers
     start = worker_idx * num_cores_per_worker
@@ -75,8 +83,8 @@ def scale_workers_with_core_pinning(scaled_num_workers):
 
 
 @pytest.mark.skipif(
-    not ipex_launcher_available,
-    reason="Make sure intel-extension-for-pytorch is installed",
+    not ipex_xeon_run_cpu_available,
+    reason="Make sure intel-extension-for-pytorch is installed and torch.backends.xeon.run_cpu is available",
 )
 def test_single_worker_affinity():
     num_workers = 1
@@ -94,12 +102,13 @@ def test_single_worker_affinity():
     ), "single-worker inference with core pinning failed"
 
     affinity = get_worker_affinity(num_workers, worker_idx)
+    print("affinity: ", affinity)
     assert affinity in open(TS_LOG).read(), "workers are not correctly pinned to cores"
 
 
 @pytest.mark.skipif(
-    not ipex_launcher_available,
-    reason="Make sure intel-extension-for-pytorch is installed",
+    not ipex_xeon_run_cpu_available,
+    reason="Make sure intel-extension-for-pytorch is installed and torch.backends.xeon.run_cpu is available",
 )
 def test_multi_worker_affinity():
     num_workers = 4
@@ -123,8 +132,8 @@ def test_multi_worker_affinity():
 
 
 @pytest.mark.skipif(
-    not ipex_launcher_available,
-    reason="Make sure intel-extension-for-pytorch is installed",
+    not ipex_xeon_run_cpu_available,
+    reason="Make sure intel-extension-for-pytorch is installed and torch.backends.xeon.run_cpu is available",
 )
 def test_worker_scale_up_affinity():
     initial_num_workers = 2
@@ -155,8 +164,8 @@ def test_worker_scale_up_affinity():
 
 
 @pytest.mark.skipif(
-    not ipex_launcher_available,
-    reason="Make sure intel-extension-for-pytorch is installed",
+    not ipex_xeon_run_cpu_available,
+    reason="Make sure intel-extension-for-pytorch is installed and torch.backends.xeon.run_cpu is available",
 )
 def test_worker_scale_down_affinity():
     initial_num_workers = 4
