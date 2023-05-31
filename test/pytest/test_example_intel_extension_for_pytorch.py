@@ -30,7 +30,6 @@ except ImportError as error:
 
 ipex_xeon_run_cpu_available = xeon_run_cpu_available and ipex_available
 
-
 def setup_module():
     test_utils.torchserve_cleanup()
     response = requests.get(
