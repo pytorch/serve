@@ -13,19 +13,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  check-comment:
-    if: github.event_name == 'issue_comment'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check for command in PR comment
-        id: command
-        run: |
-          echo "::set-output name=trigger::$(echo ${{ github.event.comment.body }} | grep -F '/run regression' | cat)"
-        shell: bash
-
   regression-gpu:
-    # Add condition to check the output of check-comment job
-    if: github.event_name == 'schedule' || (github.event_name == 'issue_comment' && steps.command.outputs.trigger != '')
     # creates workflows for CUDA 11.6 & CUDA 11.7 on ubuntu
     runs-on: [self-hosted, regression-test-gpu]
     strategy:
