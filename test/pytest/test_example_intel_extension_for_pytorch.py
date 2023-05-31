@@ -22,13 +22,13 @@ if r.returncode == 0:
     xeon_run_cpu_available = True
 
 ipex_available = False
-try:
-    import intel_extension_for_pytorch as ipex
+cmd = ["python", "-c", "import intel_extension_for_pytorch as ipex"]
+r = subprocess.run(cmd)
+if r.returncode == 0:
     ipex_available = True
-except ImportError as error:
-    ipex_available = False
 
 ipex_xeon_run_cpu_available = xeon_run_cpu_available and ipex_available
+
 
 def setup_module():
     test_utils.torchserve_cleanup()
