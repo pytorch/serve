@@ -113,9 +113,8 @@ class LLMHandler(BaseHandler, ABC):
         """
         input_ids_batch, attention_mask_batch = input_batch
         input_ids_batch = input_ids_batch
-        outputs = self.model.generate(
+        outputs = self.model.sample(
             input_ids_batch,
-            attention_mask=attention_mask_batch,
             max_length=30,
         )
 
