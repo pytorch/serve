@@ -4,6 +4,8 @@ import random
 import shutil
 from argparse import Namespace
 from pathlib import Path
+from unittest.mock import MagicMock, patch
+from zipfile import ZIP_STORED, ZipFile
 
 import pytest
 import requests
@@ -81,9 +83,7 @@ def serialized_file(work_dir):
 @pytest.fixture(
     scope="module", name="mar_file_path", params=["yaml_config", "no_config"]
 )
-def create_mar_file(
-    work_dir, session_mocker, serialized_file, model_archiver, model_name, request
-):
+def create_mar_file(work_dir, serialized_file, model_archiver, model_name, request):
     mar_file_path = Path(work_dir).joinpath(model_name + ".mar")
 
     name_file = REPO_ROOT_DIR.joinpath(
@@ -132,25 +132,19 @@ def create_mar_file(
         config_file=config_file,
     )
 
-    mock = session_mocker.MagicMock()
-    mock.parse_args = session_mocker.MagicMock(return_value=args)
-    session_mocker.patch(
-        "archiver.ArgParser.export_model_args_parser", return_value=mock
-    )
+    mock = MagicMock()
+    mock.parse_args = MagicMock(return_value=args)
+    with patch("archiver.ArgParser.export_model_args_parser", return_value=mock):
+        # Using ZIP_STORED instead of ZIP_DEFLATED reduces test runtime from 54 secs to 10 secs
+        with patch(
+            "model_archiver.model_packaging_utils.zipfile.ZipFile",
+            lambda x, y, _: ZipFile(x, y, ZIP_STORED),
+        ):
+            model_archiver.generate_model_archive()
 
-    # Using ZIP_STORED instead of ZIP_DEFLATED reduces test runtime from 54 secs to 10 secs
-    from zipfile import ZIP_STORED, ZipFile
+            assert mar_file_path.exists()
 
-    session_mocker.patch(
-        "model_archiver.model_packaging_utils.zipfile.ZipFile",
-        lambda x, y, _: ZipFile(x, y, ZIP_STORED),
-    )
-
-    model_archiver.generate_model_archive()
-
-    assert mar_file_path.exists()
-
-    yield mar_file_path.as_posix()
+            yield mar_file_path.as_posix()
 
     # Clean up files
     mar_file_path.unlink(missing_ok=True)
