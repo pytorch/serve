@@ -66,7 +66,7 @@ class TorchModelServiceWorker(object):
             self.sock_name = host_addr if host_addr is not None else "127.0.0.1"
             if port_num is None:
                 raise ValueError("Wrong arguments passed. No socket port given.")
-            self.port = port_num + LOCAL_RANK
+            self.port = int(port_num) + LOCAL_RANK
         else:
             raise ValueError("Incomplete data provided")
 
