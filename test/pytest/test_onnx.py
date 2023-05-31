@@ -1,9 +1,8 @@
 import subprocess
 
-import pytest
 import torch
-
 import torch.onnx
+
 
 class ToyModel(torch.nn.Module):
     def __init__(self):
