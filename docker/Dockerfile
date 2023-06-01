@@ -16,7 +16,9 @@
 #           https://docs.docker.com/develop/develop-images/build_enhancements/
 
 
-ARG BASE_IMAGE=ubuntu:rolling
+#ARG BASE_IMAGE=ubuntu:rolling
+ARG BASE_IMAGE=python:3.9-alpine
+#ARG BASE_IMAGE=openjdk:17-alpine
 
 # Note:
 # Define here the default python version to be used in all later build-stages as default.
@@ -28,34 +30,62 @@ ARG BASE_IMAGE=ubuntu:rolling
 ARG PYTHON_VERSION=3.9
 
 FROM ${BASE_IMAGE} AS compile-image
-ARG BASE_IMAGE=ubuntu:rolling
-ARG PYTHON_VERSION
-ENV PYTHONUNBUFFERED TRUE
 
-RUN --mount=type=cache,id=apt-dev,target=/var/cache/apt \
-    apt-get update && \
-    apt-get upgrade -y && \
-    apt-get install software-properties-common -y && \
-    add-apt-repository -y ppa:deadsnakes/ppa && \
-    apt remove python-pip  python3-pip && \
-    DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
-        ca-certificates \
-        g++ \
-        python3-distutils \
-        python$PYTHON_VERSION \
-        python$PYTHON_VERSION-dev \
-        python$PYTHON_VERSION-venv \
-        openjdk-17-jdk \
-        curl \
-        git \
-    && rm -rf /var/lib/apt/lists/*
 
-# Make the virtual environment and "activating" it by adding it first to the path.
-# From here on the python$PYTHON_VERSION interpreter is used and the packages
-# are installed in /home/venv which is what we need for the "runtime-image"
-RUN python$PYTHON_VERSION -m venv /home/venv
-ENV PATH="/home/venv/bin:$PATH"
+RUN apk --update upgrade
 
+RUN apk add --no-cache \
+    build-base \
+    curl \
+    openjdk17-jre-headless
+
+
+#WORKDIR /app
+#ENV HOME /app
+#ENV PYENV_ROOT $HOME/.pyenv
+#ENV PYTHON_VERSION $PYTHON_VERSION
+#ENV PATH $PYENV_ROOT/shims:$PATH:$PYENV_ROOT/bin
+#ENV CRYPTOGRAPHY_DONT_BUILD_RUST 1
+#
+## ---- Install pyenv
+#RUN curl -L https://raw.githubusercontent.com/yyuu/pyenv-installer/master/bin/pyenv-installer \
+#  -o pyenv-installer && \
+#  /bin/bash pyenv-installer && \
+#  rm pyenv-installer
+#
+## ---- Install Python
+#RUN pyenv install 3.9
+#RUN pyenv global 3.9
+#RUN pyenv rehash
+
+
+#FROM ${BASE_IMAGE} AS compile-image
+#ARG BASE_IMAGE=ubuntu:rolling
+#ARG PYTHON_VERSION
+#ENV PYTHONUNBUFFERED TRUE
+#
+#RUN --mount=type=cache,id=apt-dev,target=/var/cache/apt \
+#    apt-get update && \
+#    apt-get upgrade -y && \
+#    apt-get install software-properties-common -y && \
+#    add-apt-repository -y ppa:deadsnakes/ppa && \
+#    apt remove python-pip  python3-pip && \
+#    DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
+#        ca-certificates \
+#        g++ \
+#        python3-distutils \
+#        python$PYTHON_VERSION \
+#        python$PYTHON_VERSION-dev \
+#        python$PYTHON_VERSION-venv \
+#        curl \
+#    && rm -rf /var/lib/apt/lists/*
+
+## Make the virtual environment and "activating" it by adding it first to the path.
+## From here on the python$PYTHON_VERSION interpreter is used and the packages
+## are installed in /home/venv which is what we need for the "runtime-image"
+#RUN python$PYTHON_VERSION -m venv /home/venv
+#ENV PATH="/home/venv/bin:$PATH"
+#
 RUN python -m pip install -U pip setuptools
 
 # This is only useful for cuda env
@@ -63,58 +93,79 @@ RUN export USE_CUDA=1
 
 ARG CUDA_VERSION=""
 
-RUN git clone --depth 1 https://github.com/pytorch/serve.git
-
-WORKDIR "serve"
-
-RUN \
+RUN TORCH_VER=$(curl --silent --location https://pypi.org/pypi/torch/json | python -c "import sys, json, pkg_resources; releases = json.load(sys.stdin)['releases']; print(sorted(releases, key=pkg_resources.parse_version)[-2])") && \
+    TORCH_VISION_VER=$(curl --silent --location https://pypi.org/pypi/torchvision/json | python -c "import sys, json, pkg_resources; releases = json.load(sys.stdin)['releases']; print(sorted(releases, key=pkg_resources.parse_version)[-2])") && \
+    TORCH_TEXT_VER=$(curl --silent --location https://pypi.org/pypi/torchtext/json | python -c "import sys, json, pkg_resources; releases = json.load(sys.stdin)['releases']; print(sorted(releases, key=pkg_resources.parse_version)[-2])") && \
     if echo "$BASE_IMAGE" | grep -q "cuda:"; then \
         # Install CUDA version specific binary when CUDA version is specified as a build arg
         if [ "$CUDA_VERSION" ]; then \
-            python ./ts_scripts/install_dependencies.py --cuda $CUDA_VERSION; \
-        # Install the binary with the latest CPU image on a CUDA base image
+            python -m pip install --no-cache-dir torch==$TORCH_VER+$CUDA_VERSION torchvision==$TORCH_VISION_VER+$CUDA_VERSION torchtext==$TORCH_TEXT_VER+$CUDA_VERSION -f https://download.pytorch.org/whl/torch_stable.html; \
+        # Install the binary with the latest CUDA version support
         else \
-            python ./ts_scripts/install_dependencies.py; \
+            python -m pip install --no-cache-dir torch torchvision torchtext; \
         fi; \
+        python -m pip install --no-cache-dir -r https://raw.githubusercontent.com/pytorch/serve/master/requirements/common.txt; \
     # Install the CPU binary
     else \
-        python ./ts_scripts/install_dependencies.py; \
+        python -m pip install --no-cache-dir torch==$TORCH_VER+cpu torchvision==$TORCH_VISION_VER+cpu torchtext==$TORCH_TEXT_VER+cpu -f https://download.pytorch.org/whl/torch_stable.html; \
     fi
+RUN apk add --no-cache \
+    linux-headers
 
-# Make sure latest version of torchserve is uploaded before running this
-RUN python -m pip install --no-cache-dir torchserve torch-model-archiver torch-workflow-archiver
 
-# Final image for production
-FROM ${BASE_IMAGE} AS runtime-image
-# Re-state ARG PYTHON_VERSION to make it active in this build-stage (uses default define at the top)
-ARG PYTHON_VERSION
-ENV PYTHONUNBUFFERED TRUE
+RUN python -m pip install -U setuptools && python -m pip install --no-cache-dir captum torchserve torch-model-archiver
+RUN apk add --no-cache \
+    bash
+RUN python -m pip install pyyaml
 
-RUN --mount=type=cache,target=/var/cache/apt \
-    apt-get update && \
-    apt-get upgrade -y && \
-    apt-get install software-properties-common -y && \
-    add-apt-repository -y ppa:deadsnakes/ppa && \
-    apt remove python-pip  python3-pip && \
-    DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
-    python$PYTHON_VERSION \
-    python3-distutils \
-    python$PYTHON_VERSION-dev \
-    python$PYTHON_VERSION-venv \
-    # using openjdk-17-jdk due to circular dependency(ca-certificates) bug in openjdk-17-jre-headless debian package
-    # https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1009905
-    openjdk-17-jdk \
-    build-essential \
-    && rm -rf /var/lib/apt/lists/* \
-    && cd /tmp
 
-RUN useradd -m model-server \
-    && mkdir -p /home/model-server/tmp
+ENV GLIBC_VERSION 2.35-r1
 
-COPY --chown=model-server --from=compile-image /home/venv /home/venv
+# Download and install glibc
+RUN apk add --update curl && \
+  curl -Lo /etc/apk/keys/sgerrand.rsa.pub https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub && \
+  curl -Lo glibc.apk "https://github.com/sgerrand/alpine-pkg-glibc/releases/download/${GLIBC_VERSION}/glibc-${GLIBC_VERSION}.apk" && \
+  curl -Lo glibc-bin.apk "https://github.com/sgerrand/alpine-pkg-glibc/releases/download/${GLIBC_VERSION}/glibc-bin-${GLIBC_VERSION}.apk" && \
+  apk add --force-overwrite glibc-bin.apk glibc.apk && \
+  /usr/glibc-compat/sbin/ldconfig /lib /usr/glibc-compat/lib && \
+  echo 'hosts: files mdns4_minimal [NOTFOUND=return] dns mdns4' >> /etc/nsswitch.conf && \
+  apk del curl && \
+  rm -rf glibc.apk glibc-bin.apk /var/cache/apk/*
 
-ENV PATH="/home/venv/bin:$PATH"
-
+#
+#
+#
+#
+## Final image for production
+#FROM ${BASE_IMAGE} AS runtime-image
+## Re-state ARG PYTHON_VERSION to make it active in this build-stage (uses default define at the top)
+#ARG PYTHON_VERSION
+#ENV PYTHONUNBUFFERED TRUE
+#
+#RUN --mount=type=cache,target=/var/cache/apt \
+#    apt-get update && \
+#    apt-get upgrade -y && \
+#    apt-get install software-properties-common -y && \
+#    add-apt-repository -y ppa:deadsnakes/ppa && \
+#    apt remove python-pip  python3-pip && \
+#    DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
+#    python$PYTHON_VERSION \
+#    python3-distutils \
+#    python$PYTHON_VERSION-dev \
+#    python$PYTHON_VERSION-venv \
+#    # using openjdk-17-jdk due to circular dependency(ca-certificates) bug in openjdk-17-jre-headless debian package
+#    # https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1009905
+#    openjdk-17-jdk \
+#    build-essential \
+#    && rm -rf /var/lib/apt/lists/* \
+#    && cd /tmp
+#
+RUN adduser -D model-server  && mkdir -p /home/model-server/tmp
+#
+#COPY --chown=model-server --from=compile-image /home/venv /home/venv
+#
+#ENV PATH="/home/venv/bin:$PATH"
+#
 COPY dockerd-entrypoint.sh /usr/local/bin/dockerd-entrypoint.sh
 
 RUN chmod +x /usr/local/bin/dockerd-entrypoint.sh \
