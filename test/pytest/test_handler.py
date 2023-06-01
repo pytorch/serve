@@ -51,6 +51,9 @@ def setup_module(module):
     response = requests.get(
         "https://torchserve.pytorch.org/mar_files/mnist.mar", allow_redirects=True
     )
+
+    os.makedirs(test_utils.MODEL_STORE, exist_ok=True)
+
     with open(os.path.join(test_utils.MODEL_STORE, "mnist.mar"), "wb") as f:
         f.write(response.content)
 
