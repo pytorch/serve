@@ -61,16 +61,16 @@ class TorchModelServiceWorker(object):
                     raise RuntimeError(
                         "socket already in use: {}.".format(s_name_new)
                     ) from e
-
+            logging.info("Listening on port: %s", s_name_new)
         elif s_type == "tcp":
             self.sock_name = host_addr if host_addr is not None else "127.0.0.1"
             if port_num is None:
                 raise ValueError("Wrong arguments passed. No socket port given.")
             self.port = int(port_num) + LOCAL_RANK
+            logging.info("Listening on addr:port: %s:%d", self.sock_name, self.port)
         else:
             raise ValueError("Incomplete data provided")
 
-        logging.info("Listening on port: %s", s_name)
         socket_family = socket.AF_INET if s_type == "tcp" else socket.AF_UNIX
         self.sock = socket.socket(socket_family, socket.SOCK_STREAM)
         self.metrics_cache = MetricsCacheYamlImpl(config_file_path=metrics_config)
