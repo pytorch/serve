@@ -2,6 +2,7 @@ import glob
 import importlib
 import json
 import os
+import subprocess
 import sys
 import tempfile
 import threading
@@ -57,18 +58,7 @@ def start_torchserve(
 
 
 def stop_torchserve():
-    # subprocess.run(["torchserve", "--stop"])
-    from subprocess import PIPE, STDOUT, Popen
-
-    p = Popen(["torchserve", "--stop"], stdin=PIPE, stdout=PIPE, stderr=STDOUT)
-    for line in p.stdout:
-        print(line.decode("utf8").strip())
-        stopping_criteria = (
-            "TorchServe is not currently running" in str(line).strip(),
-            "TorchServe has stopped" in str(line).strip(),
-        )
-        if any(stopping_criteria):
-            break
+    subprocess.run(["torchserve", "--stop", "--foreground"])
 
 
 def delete_all_snapshots():
