@@ -1,0 +1,5 @@
+cython==0.29.34
+wheel==0.40.0
+pillow==9.3.0
+numpy==1.24.3; sys_platform != 'win32'
+numpy==1.19.3; sys_platform == 'win32' #see https://tinyurl.com/y3dm3h86
