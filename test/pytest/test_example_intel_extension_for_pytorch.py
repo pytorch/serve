@@ -111,7 +111,7 @@ def test_single_worker_affinity():
     reason="Make sure intel-extension-for-pytorch is installed and torch.backends.xeon.run_cpu is available",
 )
 def test_multi_worker_affinity():
-    num_workers = 4
+    num_workers = 2
     setup_torchserve()
     requests.post(
         "http://localhost:8081/models?initial_workers={}&synchronous=true&url=resnet-18.mar".format(
@@ -136,7 +136,7 @@ def test_multi_worker_affinity():
     reason="Make sure intel-extension-for-pytorch is installed and torch.backends.xeon.run_cpu is available",
 )
 def test_worker_scale_up_affinity():
-    initial_num_workers = 2
+    initial_num_workers = 1
     setup_torchserve()
     requests.post(
         "http://localhost:8081/models?initial_workers={}&synchronous=true&url=resnet-18.mar".format(
@@ -144,7 +144,7 @@ def test_worker_scale_up_affinity():
         )
     )
 
-    scaled_up_num_workers = 4
+    scaled_up_num_workers = 2
     response = scale_workers_with_core_pinning(scaled_up_num_workers)
     resnet18_list = json.loads(response.content)
     assert (
@@ -168,7 +168,7 @@ def test_worker_scale_up_affinity():
     reason="Make sure intel-extension-for-pytorch is installed and torch.backends.xeon.run_cpu is available",
 )
 def test_worker_scale_down_affinity():
-    initial_num_workers = 4
+    initial_num_workers = 2
     setup_torchserve()
     requests.post(
         "http://localhost:8081/models?initial_workers={}&synchronous=true&url=resnet-18.mar".format(
@@ -176,7 +176,7 @@ def test_worker_scale_down_affinity():
         )
     )
 
-    scaled_down_num_workers = 2
+    scaled_down_num_workers = 1
     response = scale_workers_with_core_pinning(scaled_down_num_workers)
     resnet18_list = json.loads(response.content)
     assert (
