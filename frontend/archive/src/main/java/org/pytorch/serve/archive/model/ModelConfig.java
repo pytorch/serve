@@ -339,7 +339,6 @@ public class ModelConfig {
         private String rdzvEndpoint;
         private String rdzvBackend = "c10d";
         private String rdzvConf;
-        private int maxRestarts = 3;
         private int monitorInterval = 5;
         private int nodeRank;
         private String masterAddr;
@@ -388,13 +387,6 @@ public class ModelConfig {
                                     logger.warn("Invalid torchrun.rdzv-conf:{}", v);
                                 }
                                 break;
-                            case "max-restarts":
-                                if (v instanceof Integer) {
-                                    torchRun.setMaxRestarts((Integer) v);
-                                } else {
-                                    logger.warn("Invalid torchrun.max-restarts:{}, reset to 3", v);
-                                }
-                                break;
                             case "monitor-interval":
                                 if (v instanceof Integer) {
                                     torchRun.setMonitorInterval((Integer) v);
@@ -417,6 +409,7 @@ public class ModelConfig {
                                 }
                                 break;
                             default:
+                                logger.warn("unsupported parameter {}", k);
                                 break;
                         }
                     });
@@ -477,18 +470,6 @@ public class ModelConfig {
 
         public void setRdzvConf(String rdzvConf) {
             this.rdzvConf = rdzvConf;
-        }
-
-        public int getMaxRestarts() {
-            return maxRestarts;
-        }
-
-        public void setMaxRestarts(int maxRestarts) {
-            if (maxRestarts <= 0) {
-                logger.warn("Invalid torchrun.max-restarts:{}, reset to 3", maxRestarts);
-                return;
-            }
-            this.maxRestarts = maxRestarts;
         }
 
         public int getMonitorInterval() {
