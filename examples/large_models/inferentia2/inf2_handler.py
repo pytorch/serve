@@ -1,14 +1,13 @@
 import logging
-import time
 from abc import ABC
 
 import requests
 import torch
 import transformers
-from transformers import AutoModelForCausalLM, AutoTokenizer
-from ts.torch_handler.base_handler import BaseHandler
-
+from transformers import AutoTokenizer
 from transformers_neuronx.opt.model import OPTForSampling
+
+from ts.torch_handler.base_handler import BaseHandler
 
 logger = logging.getLogger(__name__)
 logger.info("Transformers version %s", transformers.__version__)
@@ -30,32 +29,31 @@ class LLMHandler(BaseHandler, ABC):
             ctx (context): It is a JSON Object containing information
             pertaining to the model artefacts parameters.
         """
-        
+
         self.manifest = ctx.manifest
         properties = ctx.system_properties
         model_dir = properties.get("model_dir")
-        
-        
+
         # settings for model compiliation and loading
         seed = ctx.model_yaml_config["handler"]["manual_seed"]
-        batch_size = ctx.model_yaml_config["handler"]["batch_size"]
+        self.batch_size = ctx.model_yaml_config["handler"]["batch_size"]
         tp_degree = ctx.model_yaml_config["handler"]["tp_degree"]
         amp = ctx.model_yaml_config["handler"]["amp"]
         model_name = ctx.model_yaml_config["handler"]["model_name"]
-        
+
         torch.manual_seed(seed)
         self.tokenizer = AutoTokenizer.from_pretrained(model_name, return_tensors="pt")
-        
+        self.tokenizer.pad_token = self.tokenizer.eos_token
+
         logger.info("Starting to compile the model")
 
-        self.model = OPTForSampling.from_pretrained(model_dir, batch_size=batch_size, tp_degree=tp_degree, amp=amp)
+        self.model = OPTForSampling.from_pretrained(
+            model_dir, batch_size=self.batch_size, tp_degree=tp_degree, amp=amp
+        )
         self.model.to_neuron()
         logger.info("Model has been successfully compiled")
 
-
         self.max_length = ctx.model_yaml_config["handler"]["max_length"]
-
-
 
         self.initialized = True
 
@@ -93,9 +91,10 @@ class LLMHandler(BaseHandler, ABC):
         inputs = self.tokenizer.encode_plus(
             input_text,
             max_length=self.max_length,
-            pad_to_max_length=True,
+            padding=True,
             add_special_tokens=True,
             return_tensors="pt",
+            truncation=True,
         )
         input_ids = inputs["input_ids"]
         attention_mask = inputs["attention_mask"]
@@ -112,17 +111,27 @@ class LLMHandler(BaseHandler, ABC):
             list: A list of strings with the predicted values for each input text in the batch.
         """
         input_ids_batch, attention_mask_batch = input_batch
-        input_ids_batch = input_ids_batch
+
+        # insert padding if a partial batch was received
+        num_inferences = len(input_ids_batch)
+        logger.info("Input ids batch: %s", input_ids_batch)
+        logger.info("Num inferences: %s", num_inferences)
+        padding = self.batch_size - num_inferences
+        if padding > 0:
+            pad = torch.nn.ConstantPad1d((0, 0, 0, padding), value=0)
+            input_ids_batch = pad(input_ids_batch)
+            attention_mask_batch = pad(attention_mask_batch)
+
         outputs = self.model.sample(
             input_ids_batch,
-            max_length=30,
+            self.max_length,
         )
 
-        inferences = [
-            self.tokenizer.batch_decode(
-                outputs, skip_special_tokens=True, clean_up_tokenization_spaces=False
-            )
-        ]
+        inferences = self.tokenizer.batch_decode(
+            outputs, skip_special_tokens=True, clean_up_tokenization_spaces=False
+        )
+        inferences = inferences[:num_inferences]
+
         logger.info("Generated text: %s", inferences)
         return inferences
 
