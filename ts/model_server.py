@@ -2,7 +2,6 @@
 File to define the entry point to Model Server
 """
 
-#from ast import Dict
 import os
 import platform
 import re
