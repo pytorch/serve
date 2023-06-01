@@ -1032,6 +1032,10 @@ mps
 deviceIds
 rpc
 pippy
+MBS
+MicroBatching
+MicroBatchingHandler
+QPS
 PiPPy
 Microbatching
 Micro-batching
@@ -1049,3 +1053,6 @@ torchrun
 nproc
 largemodels
 torchpippy
+InferenceSession
+maxRetryTimeoutInSec
+neuronx
