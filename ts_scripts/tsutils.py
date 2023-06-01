@@ -2,6 +2,7 @@ import os
 import platform
 import sys
 import threading
+from pathlib import Path
 from subprocess import PIPE, STDOUT, Popen
 
 import requests
@@ -46,7 +47,6 @@ def start_torchserve(
     models="",
     config_file="",
     log_file="",
-    wait_for=10,
     gen_mar=True,
 ):
     if gen_mar:
@@ -60,14 +60,15 @@ def start_torchserve(
     if workflow_store:
         cmd.append(f"--workflow-store={workflow_store}")
     if ncs:
-        cmd.append(" --ncs")
+        cmd.append("--ncs")
     if config_file:
-        cmd.append(f" --ts-config={config_file}")
+        cmd.append(f"--ts-config={config_file}")
     if log_file:
         print(f"## Console logs redirected to file: {log_file}")
-    print(f"## In directory: {os.getcwd()} | Executing command: {cmd}")
+    print(f"## In directory: {os.getcwd()} | Executing command: {' '.join(cmd)}")
     p = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=STDOUT)
     if log_file:
+        Path(log_file).parent.absolute().mkdir(parents=True, exist_ok=True)
         with open(log_file, "a") as f:
             for line in p.stdout:
                 f.write(line.decode("utf-8"))
@@ -89,7 +90,7 @@ def start_torchserve(
         return False
 
 
-def stop_torchserve(wait_for=10):
+def stop_torchserve():
     print("## Stopping TorchServe")
     cmd = [f"{torchserve_command[platform.system()]}"]
     cmd.append("--stop")
