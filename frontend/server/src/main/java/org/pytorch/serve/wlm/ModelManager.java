@@ -278,6 +278,12 @@ public final class ModelManager {
                                     archive.getModelVersion(),
                                     Model.BATCH_SIZE,
                                     batchSize);
+        } else {
+            batchSize = configManager.getJsonIntValue(
+                    archive.getModelName(),
+                    archive.getModelVersion(),
+                    Model.BATCH_SIZE,
+                    batchSize);
         }
         model.setBatchSize(batchSize);
 
@@ -291,6 +297,12 @@ public final class ModelManager {
                                     archive.getModelVersion(),
                                     Model.MAX_BATCH_DELAY,
                                     maxBatchDelay);
+        } else {
+            maxBatchDelay = configManager.getJsonIntValue(
+                    archive.getModelName(),
+                    archive.getModelVersion(),
+                    Model.MAX_BATCH_DELAY,
+                    maxBatchDelay);
         }
         model.setMaxBatchDelay(maxBatchDelay);
 
@@ -304,6 +316,12 @@ public final class ModelManager {
                                     archive.getModelVersion(),
                                     Model.RESPONSE_TIMEOUT,
                                     responseTimeout);
+        } else {
+            responseTimeout = configManager.getJsonIntValue(
+                    archive.getModelName(),
+                    archive.getModelVersion(),
+                    Model.RESPONSE_TIMEOUT,
+                    responseTimeout);
         }
         model.setResponseTimeout(responseTimeout);
         model.setWorkflowModel(isWorkflowModel);
