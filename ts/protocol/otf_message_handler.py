@@ -75,9 +75,16 @@ def create_predict_response(
         msg += struct.pack("!i", len(req_id))
         msg += req_id
 
-        # Encoding Content-Type
         if context is None:
+            # Encoding Content-Type
             msg += struct.pack("!i", 0)  # content_type
+
+            # Encoding the per prediction HTTP response code
+            # status code and reason phrase set to none
+            msg += struct.pack("!i", code)
+            msg += struct.pack("!i", 0)  # No code phrase is returned
+            # Response headers none
+            msg += struct.pack("!i", 0)
         else:
             if ts_stream_next is True:
                 context.set_response_header(idx, "ts_stream_next", "true")
@@ -92,14 +99,6 @@ def create_predict_response(
                 msg += struct.pack("!i", len(content_type))
                 msg += content_type.encode("utf-8")
 
-        # Encoding the per prediction HTTP response code
-        if context is None:
-            # status code and reason phrase set to none
-            msg += struct.pack("!i", code)
-            msg += struct.pack("!i", 0)  # No code phrase is returned
-            # Response headers none
-            msg += struct.pack("!i", 0)
-        else:
             sc, phrase = context.get_response_status(idx)
             http_code = sc if sc is not None else 200
             http_phrase = phrase if phrase is not None else ""
