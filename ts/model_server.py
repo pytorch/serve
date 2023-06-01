@@ -2,6 +2,7 @@
 File to define the entry point to Model Server
 """
 
+from ast import Dict
 import os
 import platform
 import re
@@ -12,8 +13,8 @@ from builtins import str
 
 import psutil
 
-from ts.arg_parser import ArgParser
-from ts.version import __version__
+from arg_parser import ArgParser
+from version import __version__
 
 TS_NAMESPACE = "org.pytorch.serve.ModelServer"
 
@@ -98,7 +99,8 @@ def start():
                 sys.exit(1)
             ts_conf_file = ts_config
 
-        platform_path_separator = {"Windows": "", "Darwin": ".:", "Linux": ".:"}
+        platform_path_separator = {
+            "Windows": "", "Darwin": ".:", "Linux": ".:"}
         class_path = "{}{}".format(
             platform_path_separator[platform.system()],
             os.path.join(ts_home, "ts", "frontend", "*"),
