@@ -5,6 +5,7 @@ import subprocess
 import pytest
 import requests
 import test_utils
+import torch
 from test_handler import run_inference_using_url_with_data
 
 REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../")
@@ -83,7 +84,8 @@ def scale_workers_with_core_pinning(scaled_num_workers):
 
 
 @pytest.mark.skipif(
-    not ipex_xeon_run_cpu_available,
+    not ipex_xeon_run_cpu_available
+    or ((torch.cuda.device_count() > 0) and torch.cuda.is_available()),
     reason="Make sure intel-extension-for-pytorch is installed and torch.backends.xeon.run_cpu is available",
 )
 def test_single_worker_affinity():
@@ -102,12 +104,12 @@ def test_single_worker_affinity():
     ), "single-worker inference with core pinning failed"
 
     affinity = get_worker_affinity(num_workers, worker_idx)
-    print("affinity: ", affinity)
     assert affinity in open(TS_LOG).read(), "workers are not correctly pinned to cores"
 
 
 @pytest.mark.skipif(
-    not ipex_xeon_run_cpu_available,
+    not ipex_xeon_run_cpu_available
+    or ((torch.cuda.device_count() > 0) and torch.cuda.is_available()),
     reason="Make sure intel-extension-for-pytorch is installed and torch.backends.xeon.run_cpu is available",
 )
 def test_multi_worker_affinity():
@@ -132,7 +134,8 @@ def test_multi_worker_affinity():
 
 
 @pytest.mark.skipif(
-    not ipex_xeon_run_cpu_available,
+    not ipex_xeon_run_cpu_available
+    or ((torch.cuda.device_count() > 0) and torch.cuda.is_available()),
     reason="Make sure intel-extension-for-pytorch is installed and torch.backends.xeon.run_cpu is available",
 )
 def test_worker_scale_up_affinity():
@@ -164,7 +167,8 @@ def test_worker_scale_up_affinity():
 
 
 @pytest.mark.skipif(
-    not ipex_xeon_run_cpu_available,
+    not ipex_xeon_run_cpu_available
+    or ((torch.cuda.device_count() > 0) and torch.cuda.is_available()),
     reason="Make sure intel-extension-for-pytorch is installed and torch.backends.xeon.run_cpu is available",
 )
 def test_worker_scale_down_affinity():
