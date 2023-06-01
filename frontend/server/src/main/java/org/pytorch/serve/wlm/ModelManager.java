@@ -279,11 +279,12 @@ public final class ModelManager {
                                     Model.BATCH_SIZE,
                                     batchSize);
         } else {
-            batchSize = configManager.getJsonIntValue(
-                    archive.getModelName(),
-                    archive.getModelVersion(),
-                    Model.BATCH_SIZE,
-                    batchSize);
+            batchSize =
+                    configManager.getJsonIntValue(
+                            archive.getModelName(),
+                            archive.getModelVersion(),
+                            Model.BATCH_SIZE,
+                            batchSize);
         }
         model.setBatchSize(batchSize);
 
@@ -298,11 +299,12 @@ public final class ModelManager {
                                     Model.MAX_BATCH_DELAY,
                                     maxBatchDelay);
         } else {
-            maxBatchDelay = configManager.getJsonIntValue(
-                    archive.getModelName(),
-                    archive.getModelVersion(),
-                    Model.MAX_BATCH_DELAY,
-                    maxBatchDelay);
+            maxBatchDelay =
+                    configManager.getJsonIntValue(
+                            archive.getModelName(),
+                            archive.getModelVersion(),
+                            Model.MAX_BATCH_DELAY,
+                            maxBatchDelay);
         }
         model.setMaxBatchDelay(maxBatchDelay);
 
@@ -317,11 +319,12 @@ public final class ModelManager {
                                     Model.RESPONSE_TIMEOUT,
                                     responseTimeout);
         } else {
-            responseTimeout = configManager.getJsonIntValue(
-                    archive.getModelName(),
-                    archive.getModelVersion(),
-                    Model.RESPONSE_TIMEOUT,
-                    responseTimeout);
+            responseTimeout =
+                    configManager.getJsonIntValue(
+                            archive.getModelName(),
+                            archive.getModelVersion(),
+                            Model.RESPONSE_TIMEOUT,
+                            responseTimeout);
         }
         model.setResponseTimeout(responseTimeout);
         model.setWorkflowModel(isWorkflowModel);
