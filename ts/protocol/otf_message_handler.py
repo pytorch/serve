@@ -50,9 +50,7 @@ def encode_response_headers(resp_hdr_map):
     return msg
 
 
-def create_predict_response(
-    ret, req_id_map, message, code, context=None, ts_stream_next=False
-):
+def create_predict_response(ret, req_id_map, message, code, context=None):
     """
     Create inference response.
 
@@ -86,11 +84,12 @@ def create_predict_response(
             # Response headers none
             msg += struct.pack("!i", 0)
         else:
-            if ts_stream_next is True:
-                context.set_response_header(idx, "ts_stream_next", "true")
-            else:
-                if "true" == context.get_response_headers(idx).get("ts_stream_next"):
-                    context.set_response_header(idx, "ts_stream_next", "false")
+            if context.stopping_criteria:
+                ts_stream_next = (
+                    "false" if context.stopping_criteria(ret[idx]) else "true"
+                )
+                print(f"WOOO: {ts_stream_next}")
+                context.set_response_header(idx, "ts_stream_next", ts_stream_next)
 
             content_type = context.get_response_content_type(idx)
             if content_type is None or len(content_type) == 0:
@@ -349,8 +348,3 @@ def _retrieve_input_data(conn):
         model_input["value"] = value
 
     return model_input
-
-
-def send_intermediate_predict_response(ret, req_id_map, message, code, context=None):
-    msg = create_predict_response(ret, req_id_map, message, code, context, True)
-    context.cl_socket.sendall(msg)

@@ -207,25 +207,25 @@ public class WorkerThread implements Runnable {
 
                 boolean jobDone = false;
                 long totalDuration = 0;
-                do {
-                    long begin = System.currentTimeMillis();
-                    for (int i = 0; i < repeats; i++) {
-                        reply = replies.poll(responseTimeout, TimeUnit.SECONDS);
-                    }
+                long begin = System.currentTimeMillis();
 
-                    long duration = System.currentTimeMillis() - begin;
+                for (int i = 0; i < repeats; i++) {
+                    reply = replies.poll(responseTimeout, TimeUnit.SECONDS);
+                }
 
-                    if (reply != null) {
-                        jobDone = aggregator.sendResponse(reply);
-                        logger.debug("sent a reply, jobdone: {}", jobDone);
-                    } else if (req.getCommand() != WorkerCommands.DESCRIBE) {
-                        int val = model.incrFailedInfReqs();
-                        logger.error("Number or consecutive unsuccessful inference {}", val);
-                        throw new WorkerInitializationException(
-                                "Backend worker did not respond in given time");
-                    }
-                    totalDuration += duration;
-                } while (!jobDone);
+                long duration = System.currentTimeMillis() - begin;
+
+                if (reply != null) {
+                    aggregator.sendResponse(reply);
+                    logger.debug("sent a reply, jobdone: {}", jobDone);
+                } else if (req.getCommand() != WorkerCommands.DESCRIBE) {
+                    int val = model.incrFailedInfReqs();
+                    logger.error("Number or consecutive unsuccessful inference {}", val);
+                    throw new WorkerInitializationException(
+                            "Backend worker did not respond in given time");
+                }
+                totalDuration += duration;
+
                 logger.info("Backend response time: {}", totalDuration);
 
                 switch (req.getCommand()) {
