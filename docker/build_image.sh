@@ -144,7 +144,6 @@ fi
 
 if [ "${BUILD_TYPE}" == "production" ]
 then
-  echo $PYTHON_VERSION
   DOCKER_BUILDKIT=1 docker build --file ${FILE} --build-arg BASE_IMAGE="${BASE_IMAGE}" --build-arg CUDA_VERSION="${CUDA_VERSION}"  --build-arg PYTHON_VERSION="${PYTHON_VERSION}" -t "${DOCKER_TAG}" .
 elif [ "${BUILD_TYPE}" == "benchmark" ]
 then
