@@ -22,9 +22,6 @@ ARG CUDA_VERSION=""
 
 RUN python -m pip install --upgrade pip
 
-# Make sure latest version of torchserve is uploaded before running this
-RUN python -m pip install --no-cache-dir torchserve torch-model-archiver torch-workflow-archiver
-
 RUN TORCH_VER=$(curl --silent --location https://pypi.org/pypi/torch/json | python -c "import sys, json, pkg_resources; releases = json.load(sys.stdin)['releases']; print(sorted(releases, key=pkg_resources.parse_version)[-1])") && \
     TORCH_VISION_VER=$(curl --silent --location https://pypi.org/pypi/torchvision/json | python -c "import sys, json, pkg_resources; releases = json.load(sys.stdin)['releases']; print(sorted(releases, key=pkg_resources.parse_version)[-1])") && \
     TORCH_TEXT_VER=$(curl --silent --location https://pypi.org/pypi/torchtext/json | python -c "import sys, json, pkg_resources; releases = json.load(sys.stdin)['releases']; print(sorted(releases, key=pkg_resources.parse_version)[-1])") && \
