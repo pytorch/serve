@@ -195,21 +195,17 @@ public class WorkerLifeCycle {
         argl.add("torchrun");
         argl.add("--nnodes");
         argl.add(String.valueOf(torchRun.getNnodes()));
-        argl.add("--nproc_per_node");
+        argl.add("--nproc-per-node");
         argl.add(String.valueOf(torchRun.getNprocPerNode()));
-        argl.add("--max_restarts");
-        argl.add(String.valueOf(torchRun.getMaxRestarts()));
-        argl.add("--log_dir");
+        argl.add("--log-dir");
         argl.add(ConfigManager.getInstance().getTorchRunLogDir());
-        argl.add("--rdzv_backend");
+        argl.add("--rdzv-backend");
         argl.add(torchRun.getRdzvBackend());
-        argl.add("--rdzv_endpoint");
         if (torchRun.getRdzvEndpoint() != null) {
+            argl.add("--rdzv-endpoint");
             argl.add(torchRun.getRdzvEndpoint());
-        } else {
-            argl.add(String.format("localhost:%d", port));
         }
-        argl.add("--rdzv_id");
+        argl.add("--rdzv-id");
         argl.add(String.format("%s_%d", model.getModelName(), port));
         if (torchRun.getMasterAddr() != null) {
             argl.add("--master-addr");
