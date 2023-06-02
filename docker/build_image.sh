@@ -6,12 +6,13 @@ MACHINE=cpu
 BRANCH_NAME="master"
 DOCKER_TAG="pytorch/torchserve:latest-cpu"
 BUILD_TYPE="production"
-BASE_IMAGE="ubuntu:20.04"
+PYTHON_VERSION=3.9
+BASE_IMAGE="python:${PYTHON_VERSION}-slim"
 USE_CUSTOM_TAG=false
 CUDA_VERSION=""
 USE_LOCAL_SERVE_FOLDER=false
 BUILD_WITH_IPEX=false
-PYTHON_VERSION=3.9
+FILE=Dockerfile.cpu
 
 for arg in "$@"
 do
@@ -45,6 +46,7 @@ do
           DOCKER_TAG="pytorch/torchserve:latest-gpu"
           BASE_IMAGE="nvidia/cuda:11.7.0-cudnn8-runtime-ubuntu20.04"
           CUDA_VERSION="cu117"
+          FILE=Dockerfile
           shift
           ;;
         -bt|--buildtype)
@@ -135,9 +137,15 @@ then
   DOCKER_TAG=${CUSTOM_TAG}
 fi
 
+if [ "${CUDA_VERSION}" == "" ];
+then
+  BASE_IMAGE="python:${PYTHON_VERSION}-slim"
+fi
+
 if [ "${BUILD_TYPE}" == "production" ]
 then
-  DOCKER_BUILDKIT=1 docker build --file Dockerfile --build-arg BASE_IMAGE="${BASE_IMAGE}" --build-arg CUDA_VERSION="${CUDA_VERSION}"  --build-arg PYTHON_VERSION="${PYTHON_VERSION}" -t "${DOCKER_TAG}" .
+  echo $PYTHON_VERSION
+  DOCKER_BUILDKIT=1 docker build --file ${FILE} --build-arg BASE_IMAGE="${BASE_IMAGE}" --build-arg CUDA_VERSION="${CUDA_VERSION}"  --build-arg PYTHON_VERSION="${PYTHON_VERSION}" -t "${DOCKER_TAG}" .
 elif [ "${BUILD_TYPE}" == "benchmark" ]
 then
   DOCKER_BUILDKIT=1 docker build --pull --no-cache --file Dockerfile.benchmark --build-arg USE_LOCAL_SERVE_FOLDER=$USE_LOCAL_SERVE_FOLDER --build-arg BASE_IMAGE="${BASE_IMAGE}" --build-arg BRANCH_NAME="${BRANCH_NAME}" --build-arg CUDA_VERSION="${CUDA_VERSION}" --build-arg MACHINE_TYPE="${MACHINE}" --build-arg PYTHON_VERSION="${PYTHON_VERSION}" -t "${DOCKER_TAG}" .

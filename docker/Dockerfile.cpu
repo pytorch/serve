@@ -1,0 +1,69 @@
+
+ARG PYTHON_VERSION=3.9
+ARG BASE_IMAGE=python:$PYTHON_VERSION-slim
+FROM ${BASE_IMAGE} as compile-image
+
+COPY --from=openjdk:17.0.1-jdk-slim /usr/local/openjdk-17 /usr/local/openjdk-17
+ENV JAVA_HOME /usr/local/openjdk-17
+RUN update-alternatives --install /usr/bin/java java /usr/local/openjdk-17/bin/java 1
+
+RUN apt-get update && apt-get install -y \
+curl
+
+ENV PYTHONUNBUFFERED TRUE
+ENV PYTHONDONTWRITEBYTECODE TRUE
+RUN python -m venv /home/venv
+ENV PATH="/home/venv/bin:$PATH"
+
+# This is only useful for cuda env
+RUN export USE_CUDA=1
+
+ARG CUDA_VERSION=""
+
+RUN python -m pip install --upgrade pip
+
+# Make sure latest version of torchserve is uploaded before running this
+RUN python -m pip install --no-cache-dir torchserve torch-model-archiver torch-workflow-archiver
+
+RUN TORCH_VER=$(curl --silent --location https://pypi.org/pypi/torch/json | python -c "import sys, json, pkg_resources; releases = json.load(sys.stdin)['releases']; print(sorted(releases, key=pkg_resources.parse_version)[-1])") && \
+    TORCH_VISION_VER=$(curl --silent --location https://pypi.org/pypi/torchvision/json | python -c "import sys, json, pkg_resources; releases = json.load(sys.stdin)['releases']; print(sorted(releases, key=pkg_resources.parse_version)[-1])") && \
+    TORCH_TEXT_VER=$(curl --silent --location https://pypi.org/pypi/torchtext/json | python -c "import sys, json, pkg_resources; releases = json.load(sys.stdin)['releases']; print(sorted(releases, key=pkg_resources.parse_version)[-1])") && \
+    TORCH_AUDIO_VER=$(curl --silent --location https://pypi.org/pypi/torchaudio/json | python -c "import sys, json, pkg_resources; releases = json.load(sys.stdin)['releases']; print(sorted(releases, key=pkg_resources.parse_version)[-1])") && \
+    if echo "$BASE_IMAGE" | grep -q "cuda:"; then \
+        # Install CUDA version specific binary when CUDA version is specified as a build arg
+        if [ "$CUDA_VERSION" ]; then \
+            python -m pip install --no-cache-dir torch==$TORCH_VER+$CUDA_VERSION torchvision==$TORCH_VISION_VER+$CUDA_VERSION torchtext==$TORCH_TEXT_VER+$CUDA_VERSION torchaudio==$TORCH_AUDIO_VER+$CUDA_VERSION -f https://download.pytorch.org/whl/torch_stable.html; \
+        # Install CPU binaries on a CUDA enabled device
+        else \
+            python -m pip install --no-cache-dir torch==$TORCH_VER+cpu torchvision==$TORCH_VISION_VER+cpu torchtext==$TORCH_TEXT_VER+cpu torchaudio==$TORCH_AUDIO_VER+cpu -f https://download.pytorch.org/whl/torch_stable.html; \
+        fi; \
+        python -m pip install --no-cache-dir -r https://raw.githubusercontent.com/pytorch/serve/master/requirements/common_gpu.txt; \
+    # Install the CPU binary
+    else \
+        python -m pip install --no-cache-dir torch==$TORCH_VER+cpu torchvision==$TORCH_VISION_VER+cpu torchtext==$TORCH_TEXT_VER+cpu torchaudio==$TORCH_AUDIO_VER+cpu -f https://download.pytorch.org/whl/torch_stable.html; \
+    fi
+
+RUN python -m pip install --no-cache-dir torchserve torch-model-archiver torch-workflow-archiver
+RUN python -m pip install --no-cache-dir -r https://raw.githubusercontent.com/pytorch/serve/master/requirements/common.txt
+
+# Final image for production
+FROM compile-image as runtime-image
+
+RUN useradd -m model-server \
+    && mkdir -p /home/model-server/tmp
+
+COPY dockerd-entrypoint.sh /usr/local/bin/dockerd-entrypoint.sh
+
+RUN chmod +x /usr/local/bin/dockerd-entrypoint.sh \
+    && chown -R model-server /home/model-server
+
+COPY config.properties /home/model-server/config.properties
+RUN mkdir /home/model-server/model-store && chown -R model-server /home/model-server/model-store
+
+EXPOSE 8080 8081 8082 7070 7071
+
+USER model-server
+WORKDIR /home/model-server
+ENV TEMP=/home/model-server/tmp
+ENTRYPOINT ["/usr/local/bin/dockerd-entrypoint.sh"]
+CMD ["serve"]
