@@ -86,9 +86,8 @@ def create_predict_response(ret, req_id_map, message, code, context=None):
         else:
             if context.stopping_criteria:
                 ts_stream_next = (
-                    "false" if context.stopping_criteria(ret[idx]) else "true"
+                    "false" if context.stopping_criteria[idx](ret[idx]) else "true"
                 )
-                print(f"WOOO: {ts_stream_next}")
                 context.set_response_header(idx, "ts_stream_next", ts_stream_next)
 
             content_type = context.get_response_content_type(idx)
