@@ -76,7 +76,7 @@ def register_model(mar_file_path, model_store, torchserve):
         ("url", file_name),
         ("initial_workers", "1"),
         ("synchronous", "true"),
-        ("batch_size", "1"),
+        ("batch_size", "2"),
     )
 
     test_utils.reg_resp = test_utils.register_model_with_params(params)
@@ -87,18 +87,28 @@ def register_model(mar_file_path, model_store, torchserve):
 
 
 def test_echo_stream_inference(model_name):
-    response = requests.post(
-        url=f"http://localhost:8080/predictions/{model_name}", data="foo", stream=True
-    )
+    responses = []
 
-    print(response.content)
+    for _ in range(2):
+        res = requests.post(
+            url=f"http://localhost:8080/predictions/{model_name}",
+            data="foo",
+            stream=True,
+        )
 
-    assert response.headers["Transfer-Encoding"] == "chunked"
+        responses.append(res)
 
-    prediction = []
-    for chunk in response.iter_content(chunk_size=None):
-        if chunk:
-            prediction.append(chunk.decode("utf-8"))
+    assert all(r.headers["Transfer-Encoding"] == "chunked" for r in responses)
 
-    assert str(" ".join(prediction)) == "hello hello hello hello world "
+    for idx, _ in enumerate(responses):
+        prediction = []
+        for chunk in responses[idx].iter_content(chunk_size=None):
+            if chunk:
+                prediction.append(chunk.decode("utf-8"))
+
+        assert (
+            f"{idx}" + str("".join(prediction))
+            == f"{idx}" + "hello hello hello hello world "
+        )
+
     test_utils.unregister_model("echo_stream")
