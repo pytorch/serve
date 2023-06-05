@@ -6,6 +6,8 @@ Inferentia2 uses [Neuron SDK](https://aws.amazon.com/machine-learning/neuron/) w
 
 Lets have a look at the steps to prepare our model for inference on Inf2 instances.
 
+**Note** To run the model with Inf2 instances the model get compiled as a preprocessing step, as part of compilation process to get the model graph, this is getting compiled wtih certain batch size. Following this,  when running the inference we need to pass the same batch size that was used during compliation. This example uses batch size of 2 but make sure to change it and register the model accrodingly to your batch size.
+
 ### Step 1: Inf2 instance
 
 Get an Inf2 instance, ssh to it, make sure to use the following DLAMI as it comes with PyTorch and neccessary packages for AWS Neuron SDK pre-installed.
