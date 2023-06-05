@@ -36,7 +36,6 @@ class LLMHandler(BaseHandler, ABC):
 
         # settings for model compiliation and loading
         seed = ctx.model_yaml_config["handler"]["manual_seed"]
-        self.batch_size = ctx.model_yaml_config["handler"]["batch_size"]
         tp_degree = ctx.model_yaml_config["handler"]["tp_degree"]
         amp = ctx.model_yaml_config["handler"]["amp"]
         model_name = ctx.model_yaml_config["handler"]["model_name"]
@@ -47,6 +46,7 @@ class LLMHandler(BaseHandler, ABC):
 
         logger.info("Starting to compile the model")
 
+        self.batch_size = ctx.model_yaml_config["handler"]["batch_size"]
         self.model = OPTForSampling.from_pretrained(
             model_dir, batch_size=self.batch_size, tp_degree=tp_degree, amp=amp
         )
@@ -110,17 +110,17 @@ class LLMHandler(BaseHandler, ABC):
         Returns:
             list: A list of strings with the predicted values for each input text in the batch.
         """
-        input_ids_batch, attention_mask_batch = input_batch
+        input_ids_batch = input_batch[0]
 
         # insert padding if a partial batch was received
         num_inferences = len(input_ids_batch)
-        logger.info("Input ids batch: %s", input_ids_batch)
-        logger.info("Num inferences: %s", num_inferences)
+        logger.info("Number of inference requests in batch: %s", num_inferences)
+        logger.info("Batch size: %s", self.batch_size)
         padding = self.batch_size - num_inferences
         if padding > 0:
+            logger.info("Padding input batch with %s padding inputs", padding)
             pad = torch.nn.ConstantPad1d((0, 0, 0, padding), value=0)
             input_ids_batch = pad(input_ids_batch)
-            attention_mask_batch = pad(attention_mask_batch)
 
         outputs = self.model.sample(
             input_ids_batch,
