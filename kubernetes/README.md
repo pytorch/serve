@@ -62,7 +62,7 @@ torchserve:
 deployment:
   replicas: 1 # Changes this to number of node in Node Group
 
-persitant_volume:
+persistant_volume:
   size: 1Gi
 ```
 
