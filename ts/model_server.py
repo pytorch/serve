@@ -47,7 +47,13 @@ def start():
             try:
                 parent = psutil.Process(pid)
                 parent.terminate()
-                print("TorchServe has stopped.")
+                if args.foreground:
+                    try:
+                        parent.wait(timeout=60)
+                    except psutil.TimeoutExpired:
+                        print("Stopping TorchServe took too long.")
+                else:
+                    print("TorchServe has stopped.")
             except (OSError, psutil.Error):
                 print("TorchServe already stopped.")
             os.remove(pid_file)
