@@ -165,6 +165,7 @@ def install_dependencies(cuda_version=None, nightly=False):
         system.install_wget()
         system.install_nodejs()
         system.install_node_packages()
+        system.install_numactl()
 
     # Sequence of installation to be maintained
     system.install_java()
