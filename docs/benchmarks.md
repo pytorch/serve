@@ -184,7 +184,7 @@ optional arguments:
 python benchmarks/auto_benchmark.py --input benchmarks/benchmark_config_template.yaml --skip true
 ```
 
-- [benchmark_config_template.yaml](benchmark_config_template.yaml) is a config template yaml file for benchmark automation. Users can add test plans in "models" and create their own benchmark_config.yaml.
+- [benchmark_config_template.yaml](https://github.com/pytorch/serve/blob/master/benchmarks/benchmark_config_template.yaml) is a config template yaml file for benchmark automation. Users can add test plans in "models" and create their own benchmark_config.yaml.
 
 - Benchmark automation results are stored in local `/tmp/ts_benchmark`. `/tmp/ts_benchmark/report.md` is the final report. [Here](https://github.com/pytorch/serve/blob/master/benchmarks/sample_report.md) is a sample final report. Each test case's logs are stored in a separate directory under `/tmp/ts_benchmark`. For example:
 ```
