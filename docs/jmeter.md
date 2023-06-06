@@ -34,7 +34,7 @@ python3 windows_install_dependencies.py "C:\\Program Files"
 
 ## Models
 
-The pre-trained models for the benchmark can be mostly found in the [TorchServe model zoo](../docs/model_zoo.md). We currently support the following:
+The pre-trained models for the benchmark can be mostly found in the [TorchServe model zoo](model_zoo.md). We currently support the following:
 - [resnet: ResNet-18 (Default)](https://torchserve.pytorch.org/mar_files/resnet-18.mar)
 - [squeezenet: SqueezeNet V1.1](https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar)
 
@@ -53,7 +53,7 @@ We also support compound benchmarks:
 
 #### Using pre-build docker image
 
-* You can specify, docker image using --docker option. You must create docker by following steps given [here](../docker/README.md).
+* You can specify, docker image using --docker option. You must create docker by following steps given [here](https://github.com/pytorch/serve/blob/master/docker/README.md#contents-of-this-document).
 
 ```bash
 cd serve/benchmarks
@@ -71,7 +71,7 @@ NOTE - '--docker' and '--ts' are mutually exclusive options
 
 #### Using local TorchServe instance:
 
-* Install TorchServe using the [install guide](../README.md#install-torchserve-and-torch-model-archiver)
+* Install TorchServe using the [install guide](https://github.com/pytorch/serve/blob/master/README.md#install-torchserve)
 * Start TorchServe using following command :
 
 ```bash
@@ -86,7 +86,7 @@ python benchmark.py throughput --ts http://127.0.0.1:8080
 
 #### By using external docker container for TorchServe:
 
-* Create and start a [docker container for TorchServe](../docker/README.md).
+* Create and start a [docker container for TorchServe](https://github.com/pytorch/serve/blob/master/docker/README.md#contents-of-this-document).
 * To start benchmarking execute following commands
 
 ```bash
@@ -156,7 +156,7 @@ Using ```https``` instead of ```http``` as the choice of protocol might not work
 The full list of options can be found by running with the -h or --help flags.
 
 ## Adding test plans
-Refer [adding a new jmeter](add_jmeter_test.md) test plan for torchserve.
+Refer [adding a new jmeter](https://github.com/pytorch/serve/blob/master/benchmarks/add_jmeter_test.md#adding-a-new-test-plan-for-torchserve) test plan for torchserve.
 
 # Profiling
 
@@ -179,11 +179,11 @@ The benchmarks can also be used to analyze the backend performance using cProfil
 
     Using local TorchServe instance:
 
-    * Install TorchServe using the [install guide](../README.md#install-torchserve-and-torch-model-archiver)
+    * Install TorchServe using the [install guide](https://github.com/pytorch/serve/blob/master/README.md#install-torchserve)
 
     By using external docker container for TorchServe:
 
-    * Create a [docker container for TorchServe](../docker/README.md).
+    * Create a [docker container for TorchServe](https://github.com/pytorch/serve/blob/master/docker/README.md#contents-of-this-document).
 
 2. Set environment variable and start Torchserve
 
