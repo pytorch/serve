@@ -6,6 +6,7 @@
 
   index
   Troubleshooting
+  performance_guide
   batch_inference_with_ts
   code_coverage
   configuration
