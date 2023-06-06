@@ -115,7 +115,7 @@ class LLMHandler(BaseHandler, ABC):
         # insert padding if a partial batch was received
         num_inferences = len(input_ids_batch)
         logger.info("Number of inference requests in batch: %s", num_inferences)
-        logger.info("Batch size: %s", self.batch_size)
+        logger.info("Model batch size: %s", self.batch_size)
         padding = self.batch_size - num_inferences
         if padding > 0:
             logger.info("Padding input batch with %s padding inputs", padding)
