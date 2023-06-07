@@ -1,4 +1,4 @@
-# Examples showcasing TorchServe Features and Integrations
+# [Examples showcasing TorchServe Features and Integrations](#torchserve-internals)
 
 ## TorchServe Internals
 

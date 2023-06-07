@@ -10,7 +10,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        hardware: [cpu, gpu, inf1]
+        hardware: [cpu, gpu, inf1, inf2]
     runs-on:
       - self-hosted
       - ${{ matrix.hardware }}
@@ -52,6 +52,11 @@ jobs:
         env:
           NEURON_RT_NUM_CORES: 4
         run: python benchmarks/auto_benchmark.py --input benchmarks/benchmark_config_neuron.yaml --skip false
+      - name: Benchmark inf2 nightly
+        if: ${{ matrix.hardware == 'inf2' }}
+        env:
+          NEURON_RT_NUM_CORES: 1
+        run: python benchmarks/auto_benchmark.py --input benchmarks/benchmark_config_neuronx.yaml --skip false
       - name: Save benchmark artifacts
         uses: actions/upload-artifact@v2
         with:

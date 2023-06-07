@@ -10,7 +10,7 @@ We borrowed ideas to write a custom handler for transformers from tutorial prese
 
 To get started [install Torchserve](https://github.com/pytorch/serve) and then
 
- `pip install transformers==4.6.0`
+ `pip install -r requirements.txt`
 
 ### Objectives
 1. How to package a transformer into a torch model archive (.mar) file (eager mode or Torchscript) with `torch-model-archiver`
@@ -51,9 +51,9 @@ In the setup_config.json :
 
 *embedding_name* : The name of embedding layer in the chosen model, this could be `bert` for `bert-base-uncased`, `roberta` for `roberta-base` or `roberta` for `xlm-roberta-large`, or `gpt2` for `gpt2` model
 
-*hardware* : The target platform to trace the model for. Specify as `neuron` for [Inferentia1](https://aws.amazon.com/ec2/instance-types/inf1/).
+*hardware* : The target platform to trace the model for. Specify as `neuron` for [Inferentia1](https://aws.amazon.com/ec2/instance-types/inf1/) and `neuronx` for [Inferentia2](https://aws.amazon.com/ec2/instance-types/inf2/).
 
-*batch_size* : Input batch size when tracing the model for `neuron` as target hardware.
+*batch_size* : Input batch size when tracing the model for `neuron` or `neuronx` as target hardware.
 
 Once, `setup_config.json` has been set properly, the next step is to run
 
@@ -315,7 +315,6 @@ When a json file is passed as a request format to the curl, Torchserve unwraps t
 
 In the setup_config.json, specify `"BetterTransformer":true,`.
 
-Note: make sure to install [HuggingFace Optimum] `pip install optimum`
 
 [Better Transformer](https://pytorch.org/blog/a-better-transformer-for-fast-transformer-encoder-inference/) from PyTorch is integrated into [Huggingface Optimum](https://huggingface.co/docs/optimum/bettertransformer/overview) that bring major speedups for many of encoder models on different modalities (text, image, audio). It is a one liner API that we have also added in the `Transformer_handler_generalized.py` in this example as well. That as shown above you just need to set `"BetterTransformer":true,` in the setup_config.json.
 

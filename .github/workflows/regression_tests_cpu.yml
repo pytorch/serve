@@ -1,9 +1,16 @@
 name: Run Regression Tests on CPU
 
 on:
-  # runs everyday  at 9:15am
-  schedule:
-    - cron:  '15 9 * * *'
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+concurrency:
+  group: ci-cpu-${{ github.workflow }}-${{ github.ref == 'refs/heads/master' && github.run_number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   regression-cpu:
@@ -32,11 +39,3 @@ jobs:
       - name: Torchserve Regression Tests
         run: |
           python test/regression_tests.py
-      - name: Open issue on failure
-        if: ${{ failure() && github.event_name  == 'schedule' }}
-        uses: dacbd/create-issue-action@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          title: CPU Regression tests failed
-          body:  Commit ${{ github.sha }} daily scheduled [${{ github.workflow }}](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) failed, please check why
-          assignees: ''

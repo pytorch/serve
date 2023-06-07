@@ -21,9 +21,15 @@ public class ModelConfig {
     private int maxBatchDelay;
     /** the timeout in sec of a specific model's response. */
     private int responseTimeout = 120; // unit: sec
-    /** the device type where the model is loaded. It can be gpu, cpu */
+    /**
+     * the device type where the model is loaded. It can be gpu, cpu. The model is loaded on CPU if
+     * deviceType: "cpu" is set on a GPU host.
+     */
     private DeviceType deviceType = DeviceType.NONE;
-    /** the gpu device id */
+    /**
+     * the user specified gpu device id, By default, TorchServe auto round-robin all available GPUs
+     * to assign deviceIds to a worker of a model if deviceIds is not set.
+     */
     private List<Integer> deviceIds;
     /** this variable is auto calculated based on torchrun nproc-per-node. */
     private int parallelLevel = 1;
@@ -333,11 +339,11 @@ public class ModelConfig {
         private String rdzvEndpoint;
         private String rdzvBackend = "c10d";
         private String rdzvConf;
-        private int maxRestarts = 3;
         private int monitorInterval = 5;
         private int nodeRank;
         private String masterAddr;
         private int masterPort;
+        private int ompNumberThreads = 1;
 
         public static TorchRun build(Map<?, ?> torchRunMap) {
             TorchRun torchRun = new TorchRun();
@@ -381,13 +387,6 @@ public class ModelConfig {
                                     logger.warn("Invalid torchrun.rdzv-conf:{}", v);
                                 }
                                 break;
-                            case "max-restarts":
-                                if (v instanceof Integer) {
-                                    torchRun.setMaxRestarts((Integer) v);
-                                } else {
-                                    logger.warn("Invalid torchrun.max-restarts:{}, reset to 3", v);
-                                }
-                                break;
                             case "monitor-interval":
                                 if (v instanceof Integer) {
                                     torchRun.setMonitorInterval((Integer) v);
@@ -402,7 +401,15 @@ public class ModelConfig {
                                     logger.warn("Invalid torchrun.node-rank:{}, reset to 0", v);
                                 }
                                 break;
+                            case "OMP_NUMBER_THREADS":
+                                if (v instanceof Integer) {
+                                    torchRun.setOmpNumberThreads((Integer) v);
+                                } else {
+                                    logger.warn("Invalid OMP_NUMBER_THREADS:{}, reset to 1", v);
+                                }
+                                break;
                             default:
+                                logger.warn("unsupported parameter {}", k);
                                 break;
                         }
                     });
@@ -465,18 +472,6 @@ public class ModelConfig {
             this.rdzvConf = rdzvConf;
         }
 
-        public int getMaxRestarts() {
-            return maxRestarts;
-        }
-
-        public void setMaxRestarts(int maxRestarts) {
-            if (maxRestarts <= 0) {
-                logger.warn("Invalid torchrun.max-restarts:{}, reset to 3", maxRestarts);
-                return;
-            }
-            this.maxRestarts = maxRestarts;
-        }
-
         public int getMonitorInterval() {
             return monitorInterval;
         }
@@ -515,6 +510,18 @@ public class ModelConfig {
 
         public void setMasterPort(int masterPort) {
             this.masterPort = masterPort;
+        }
+
+        public int getOmpNumberThreads() {
+            return ompNumberThreads;
+        }
+
+        public void setOmpNumberThreads(int ompNumberThreads) {
+            if (ompNumberThreads < 1) {
+                logger.warn("Invalid OMP_NUMBER_THREADS:{}, reset to 1", ompNumberThreads);
+                return;
+            }
+            this.ompNumberThreads = ompNumberThreads;
         }
     }
 }
