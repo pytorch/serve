@@ -1,2 +1,3 @@
 transformers
-
+transformers-neuronx
+torch==1.13.1
