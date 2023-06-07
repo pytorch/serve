@@ -1,7 +1,7 @@
 import logging
+import os
 from abc import ABC
 
-import requests
 import torch
 import transformers
 from transformers import AutoTokenizer
@@ -39,6 +39,9 @@ class LLMHandler(BaseHandler, ABC):
         tp_degree = ctx.model_yaml_config["handler"]["tp_degree"]
         amp = ctx.model_yaml_config["handler"]["amp"]
         model_name = ctx.model_yaml_config["handler"]["model_name"]
+
+        # allocate "tp_degree" number of neuron cores to the worker process
+        os.environ["NEURON_RT_NUM_CORES"] = str(tp_degree)
 
         torch.manual_seed(seed)
         self.tokenizer = AutoTokenizer.from_pretrained(model_name, return_tensors="pt")
