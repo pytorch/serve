@@ -31,12 +31,6 @@ jobs:
         run: git --version
       - name: Checkout TorchServe
         uses: actions/checkout@v3
-      - name: PWD
-        run: |
-          pwd
-      - name: echo
-        run: |
-          echo $GITHUB_WORKSPACE
       - name: Build Docker Image
         run: |
           cd docker
