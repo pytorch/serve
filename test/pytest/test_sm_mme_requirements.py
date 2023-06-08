@@ -15,6 +15,10 @@ HF_TRANSFORMERS_EXAMPLE_DIR = os.path.join(
 )
 
 
+@pytest.mark.skipif(
+    os.environ.get("AM_I_IN_A_DOCKER_CONTAINER", False),
+    reason="Test to be run outside docker",
+)
 def test_no_model_loaded():
     """
     Validates that TorchServe returns reponse code 404 if no model is loaded.
@@ -33,6 +37,10 @@ def test_no_model_loaded():
 @pytest.mark.skipif(
     not ((torch.cuda.device_count() > 0) and torch.cuda.is_available()),
     reason="Test to be run on GPU only",
+)
+@pytest.mark.skipif(
+    os.environ.get("AM_I_IN_A_DOCKER_CONTAINER", False),
+    reason="Test to be run outside docker",
 )
 def test_oom_on_model_load():
     """
@@ -62,6 +70,10 @@ def test_oom_on_model_load():
 @pytest.mark.skipif(
     not ((torch.cuda.device_count() > 0) and torch.cuda.is_available()),
     reason="Test to be run on GPU only",
+)
+@pytest.mark.skipif(
+    os.environ.get("AM_I_IN_A_DOCKER_CONTAINER", False),
+    reason="Test to be run outside docker",
 )
 def test_oom_on_invoke():
     # Create model store directory

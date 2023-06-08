@@ -64,6 +64,10 @@ class TestTorchCompile:
         assert len(glob.glob("logs/model_log.log")) == 1
         assert len(glob.glob("logs/ts_log.log")) == 1
 
+    @pytest.mark.skipif(
+        os.environ.get("AM_I_IN_A_DOCKER_CONTAINER", False),
+        reason="Test to be run outside docker",
+    )
     def test_server_status(self):
         result = subprocess.run(
             "curl http://localhost:8080/ping",
@@ -75,6 +79,10 @@ class TestTorchCompile:
         expected_server_status = json.loads(expected_server_status_str)
         assert json.loads(result.stdout) == expected_server_status
 
+    @pytest.mark.skipif(
+        os.environ.get("AM_I_IN_A_DOCKER_CONTAINER", False),
+        reason="Test to be run outside docker",
+    )
     def test_registered_model(self):
         result = subprocess.run(
             "curl http://localhost:8081/models",
@@ -86,6 +94,10 @@ class TestTorchCompile:
         expected_registered_model = json.loads(expected_registered_model_str)
         assert json.loads(result.stdout) == expected_registered_model
 
+    @pytest.mark.skipif(
+        os.environ.get("AM_I_IN_A_DOCKER_CONTAINER", False),
+        reason="Test to be run outside docker",
+    )
     def test_serve_inference(self):
         request_data = {"instances": [[1.0], [2.0], [3.0]]}
         request_json = json.dumps(request_data)

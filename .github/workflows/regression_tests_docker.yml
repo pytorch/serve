@@ -13,9 +13,13 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  regression-gpu:
-    # creates workflows for CUDA 11.6 & CUDA 11.7 on ubuntu
-    runs-on: [self-hosted, regression-test-gpu]
+  docker-regression:
+    strategy:
+      fail-fast: false
+      matrix:
+        hardware: [ubuntu-20.04, [self-hosted, regression-test-gpu]]
+    runs-on:
+      - ${{ matrix.hardware }}
     steps:
       - name: Clean up previous run
         run: |
@@ -25,12 +29,24 @@ jobs:
           cd ..
           pwd
           sudo rm -rf _tool
+          docker images
       - name: Checkout TorchServe
         uses: actions/checkout@v3
-      - name: Build Docker Image
+      - name: Build CPU Docker Image
+        if: contains(${{matrix.hardware}}, 'ubuntu')
         run: |
           cd docker
           ./build_image.sh -g -cv cu117 -bt ci -t pytorch/torchserve:ci
-      - name: Torchserve Regression Tests
+      - name: Build GPU Docker Image
+        if: contains(${{matrix.hardware}}, 'gpu')
+        run: |
+          cd docker
+          ./build_image.sh -g -cv cu117 -bt ci -t pytorch/torchserve:ci
+      - name: Torchserve GPU Regression Tests
+        if: contains(${{matrix.hardware}}, 'gpu')
         run: |
           docker run --gpus all -v $GITHUB_WORKSPACE:/home/serve pytorch/torchserve:ci
+      - name: Torchserve CPU Regression Tests
+        if: contains(${{matrix.hardware}}, 'gpu')
+        run: |
+          docker run -v $GITHUB_WORKSPACE:/home/serve pytorch/torchserve:ci

@@ -35,6 +35,7 @@ ENV PATH="/home/venv/bin:$PATH"
 RUN python -m pip install --no-cache-dir -r https://raw.githubusercontent.com/pytorch/serve/master/requirements/developer.txt
 
 RUN mkdir /home/serve
+ENV AM_I_IN_A_DOCKER_CONTAINER True
 
 WORKDIR /home/serve
 CMD ["python", "test/regression_tests.py"]
