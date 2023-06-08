@@ -1,0 +1,48 @@
+name: Run Regression Tests on GPU
+
+on:
+  push:
+  #  branches:
+  #    - master
+  #pull_request:
+  #  branches:
+  #    - master
+
+concurrency:
+  group: ci-cpu-${{ github.workflow }}-${{ github.ref == 'refs/heads/master' && github.run_number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  regression-gpu:
+    # creates workflows for CUDA 11.6 & CUDA 11.7 on ubuntu
+    runs-on: [self-hosted, regression-test-gpu]
+    steps:
+      - name: Clean up previous run
+        run: |
+          echo "Cleaning up previous run"
+          cd $RUNNER_WORKSPACE
+          pwd
+          cd ..
+          pwd
+          rm -rf _tool
+      - name: Update git
+        run: sudo add-apt-repository ppa:git-core/ppa -y && sudo apt-get update && sudo apt-get install git -y
+      - name: Check git version
+        run: git --version
+      - name: Setup Python 3.8
+        uses: actions/setup-python@v3
+        with:
+          python-version: 3.8
+          architecture: x64
+      - name: Checkout TorchServe
+        uses: actions/checkout@v3
+      - name: PWD
+        run: |
+          pwd
+      - name: Build Docker Image
+        run: |
+          cd docker
+          ./build_image.sh -g -cv cu117 -bt ci -t pytorch/torchserve:ci
+      - name: Torchserve Regression Tests
+        run: |
+          docker run -it --gpus all -v ~/serve:/home/serve pytorch/ts-new
