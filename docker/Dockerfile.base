@@ -84,6 +84,7 @@ RUN \
 # Make sure latest version of torchserve is uploaded before running this
 RUN python -m pip install --no-cache-dir torchserve torch-model-archiver torch-workflow-archiver
 
+
 # Final image for production
 FROM ${BASE_IMAGE} AS runtime-image
 # Re-state ARG PYTHON_VERSION to make it active in this build-stage (uses default define at the top)
@@ -105,23 +106,12 @@ RUN --mount=type=cache,target=/var/cache/apt \
     # https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1009905
     openjdk-17-jdk \
     build-essential \
-    wget \
-    numactl \
-    nodejs \
-    npm \
-    && npm install -g newman newman-reporter-htmlextra markdown-link-check \
     && rm -rf /var/lib/apt/lists/* \
     && cd /tmp
 
+RUN useradd -m model-server \
+    && mkdir -p /home/model-server/tmp
 
 COPY --from=compile-image /home/venv /home/venv
 
-
 ENV PATH="/home/venv/bin:$PATH"
-
-RUN python -m pip install --no-cache-dir -r https://raw.githubusercontent.com/pytorch/serve/master/requirements/developer.txt
-
-RUN mkdir /home/serve
-
-WORKDIR /home/serve
-CMD ["python", "test/regression_tests.py"]
