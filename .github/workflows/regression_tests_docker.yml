@@ -29,7 +29,6 @@ jobs:
           cd ..
           pwd
           sudo rm -rf _tool
-          sudo rm -rf serve
           docker images
           docker system prune -f
           docker images
