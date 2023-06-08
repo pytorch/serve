@@ -30,13 +30,17 @@ jobs:
           pwd
           sudo rm -rf _tool
           docker images
+          docker system prune -f
+          docker rmi pytorch/torchserve:ci
+          docker images
+
       - name: Checkout TorchServe
         uses: actions/checkout@v3
       - name: Build CPU Docker Image
         if: contains(${{matrix.hardware}}, 'ubuntu')
         run: |
           cd docker
-          ./build_image.sh -g -cv cu117 -bt ci -t pytorch/torchserve:ci
+          ./build_image.sh -bt ci -t pytorch/torchserve:ci
       - name: Build GPU Docker Image
         if: contains(${{matrix.hardware}}, 'gpu')
         run: |
