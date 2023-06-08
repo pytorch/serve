@@ -24,8 +24,12 @@ jobs:
           pwd
           cd ..
           pwd
-          rm -rf _tool
-          rm -rf serve
+          sudo rm -rf _tool
+          echo "del"
+          ls
+          echo "del"
+          sudo rm -rf serve
+          ls
       - name: Update git
         run: sudo add-apt-repository ppa:git-core/ppa -y && sudo apt-get update && sudo apt-get install git -y
       - name: Check git version
