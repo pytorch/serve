@@ -1,0 +1,68 @@
+---
+opt_6.7b_neuronx_batch_1:
+  scripted_mode:
+    benchmark_engine: "ab"
+    url: https://torchserve.pytorch.org/mar_files/opt_6.7b_neuronx_batch_1.tar.gz
+    workers:
+      - 1
+    batch_delay: 100
+    batch_size:
+      - 1
+    input: "./examples/large_models/inferentia2/sample_text.txt"
+    requests: 10000
+    concurrency: 100
+    backend_profiling: False
+    exec_env: "local"
+    processors:
+      - "neuronx"
+
+opt_6.7b_neuronx_batch_2:
+  scripted_mode:
+    benchmark_engine: "ab"
+    url: https://torchserve.pytorch.org/mar_files/opt_6.7b_neuronx_batch_2.tar.gz
+    workers:
+      - 1
+    batch_delay: 100
+    batch_size:
+      - 2
+    input: "./examples/large_models/inferentia2/sample_text.txt"
+    requests: 10000
+    concurrency: 100
+    backend_profiling: False
+    exec_env: "local"
+    processors:
+      - "neuronx"
+
+opt_6.7b_neuronx_batch_4:
+  scripted_mode:
+    benchmark_engine: "ab"
+    url: https://torchserve.pytorch.org/mar_files/opt_6.7b_neuronx_batch_4.tar.gz
+    workers:
+      - 1
+    batch_delay: 100
+    batch_size:
+      - 4
+    input: "./examples/large_models/inferentia2/sample_text.txt"
+    requests: 10000
+    concurrency: 100
+    backend_profiling: False
+    exec_env: "local"
+    processors:
+      - "neuronx"
+
+opt_6.7b_neuronx_batch_8:
+  scripted_mode:
+    benchmark_engine: "ab"
+    url: https://torchserve.pytorch.org/mar_files/opt_6.7b_neuronx_batch_8.tar.gz
+    workers:
+      - 1
+    batch_delay: 100
+    batch_size:
+      - 8
+    input: "./examples/large_models/inferentia2/sample_text.txt"
+    requests: 10000
+    concurrency: 100
+    backend_profiling: False
+    exec_env: "local"
+    processors:
+      - "neuronx"
