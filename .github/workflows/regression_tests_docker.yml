@@ -29,9 +29,9 @@ jobs:
           cd ..
           pwd
           sudo rm -rf _tool
+          sudo rm -rf serve
           docker images
           docker system prune -f
-          docker rmi pytorch/torchserve:ci
           docker images
 
       - name: Checkout TorchServe
@@ -54,3 +54,6 @@ jobs:
         if: contains(${{matrix.hardware}}, 'gpu')
         run: |
           docker run -v $GITHUB_WORKSPACE:/home/serve pytorch/torchserve:ci
+      - name: Cleanup
+        run: |
+          docker system prune -f && docker rmi pytorch/torchserve:ci
