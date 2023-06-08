@@ -43,4 +43,4 @@ jobs:
           ./build_image.sh -g -cv cu117 -bt ci -t pytorch/torchserve:ci
       - name: Torchserve Regression Tests
         run: |
-          docker run -it --gpus all -v $GITHUB_WORKSPACE/serve:/home/serve pytorch/ts-new
+          docker run -it --gpus all -v $GITHUB_WORKSPACE:/home/serve pytorch/ts-new
