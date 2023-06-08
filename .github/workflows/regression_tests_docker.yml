@@ -25,15 +25,6 @@ jobs:
           cd ..
           pwd
           sudo rm -rf _tool
-          echo "del"
-          ls
-          echo "del"
-          sudo rm -rf serve
-          ls
-      - name: Update git
-        run: sudo add-apt-repository ppa:git-core/ppa -y && sudo apt-get update && sudo apt-get install git -y
-      - name: Check git version
-        run: git --version
       - name: Checkout TorchServe
         uses: actions/checkout@v3
       - name: Build Docker Image
