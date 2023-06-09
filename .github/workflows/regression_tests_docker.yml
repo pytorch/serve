@@ -22,8 +22,8 @@ jobs:
         run: |
           echo "Cleaning up previous run"
           ls -la ./
-          rm -rf ./* || true
-          rm -rf ./.??* || true
+          sudo rm -rf ./* || true
+          sudo rm -rf ./.??* || true
           ls -la ./
           docker system prune -f
       - name: Checkout TorchServe
