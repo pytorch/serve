@@ -89,7 +89,7 @@ def scale_workers_with_core_pinning(scaled_num_workers):
     reason="Make sure intel-extension-for-pytorch is installed and torch.backends.xeon.run_cpu is available",
 )
 @pytest.mark.skipif(
-    os.environ.get("AM_I_IN_A_DOCKER_CONTAINER", False),
+    os.environ.get("RUN_IN_DOCKER", False),
     reason="Test to be run outside docker",
 )
 def test_single_worker_affinity():
@@ -117,7 +117,7 @@ def test_single_worker_affinity():
     reason="Make sure intel-extension-for-pytorch is installed and torch.backends.xeon.run_cpu is available",
 )
 @pytest.mark.skipif(
-    os.environ.get("AM_I_IN_A_DOCKER_CONTAINER", False),
+    os.environ.get("RUN_IN_DOCKER", False),
     reason="Test to be run outside docker",
 )
 def test_multi_worker_affinity():
@@ -147,7 +147,7 @@ def test_multi_worker_affinity():
     reason="Make sure intel-extension-for-pytorch is installed and torch.backends.xeon.run_cpu is available",
 )
 @pytest.mark.skipif(
-    os.environ.get("AM_I_IN_A_DOCKER_CONTAINER", False),
+    os.environ.get("RUN_IN_DOCKER", False),
     reason="Test to be run outside docker",
 )
 def test_worker_scale_up_affinity():
@@ -184,7 +184,7 @@ def test_worker_scale_up_affinity():
     reason="Make sure intel-extension-for-pytorch is installed and torch.backends.xeon.run_cpu is available",
 )
 @pytest.mark.skipif(
-    os.environ.get("AM_I_IN_A_DOCKER_CONTAINER", False),
+    os.environ.get("RUN_IN_DOCKER", False),
     reason="Test to be run outside docker",
 )
 def test_worker_scale_down_affinity():

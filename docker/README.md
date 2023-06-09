@@ -46,6 +46,8 @@ Use `build_image.sh` script to build the docker images. The script builds the `p
 
 Creates a docker image with publicly available `torchserve` and `torch-model-archiver` binaries installed.
 
+The script first creates a base docker image `pytorch/torchserve-base:latest` and then uses that to build an image for production, dev or ci depending on the args being passed.The script deletes the base image
+
  - To create a CPU based image
 
 ```bash

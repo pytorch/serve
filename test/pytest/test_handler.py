@@ -286,7 +286,7 @@ def test_kserve_mnist_model_register_and_inference_on_valid_model_explain():
 
 
 @pytest.mark.skipif(
-    os.environ.get("AM_I_IN_A_DOCKER_CONTAINER", False),
+    os.environ.get("RUN_IN_DOCKER", False),
     reason="Test to be run outside docker",
 )
 def test_huggingface_bert_batch_inference():

@@ -2,6 +2,7 @@
 FROM pytorch/torchserve-base:latest AS runtime-image
 # Re-state ARG PYTHON_VERSION to make it active in this build-stage (uses default define at the top)
 ARG PYTHON_VERSION
+ARG BRANCH_NAME
 ENV PYTHONUNBUFFERED TRUE
 
 RUN --mount=type=cache,target=/var/cache/apt \
@@ -32,10 +33,10 @@ RUN --mount=type=cache,target=/var/cache/apt \
 
 ENV PATH="/home/venv/bin:$PATH"
 
-RUN python -m pip install --no-cache-dir -r https://raw.githubusercontent.com/pytorch/serve/master/requirements/developer.txt
+RUN python -m pip install --no-cache-dir -r https://raw.githubusercontent.com/pytorch/serve/$BRANCH_NAME/requirements/developer.txt
 
 RUN mkdir /home/serve
-ENV AM_I_IN_A_DOCKER_CONTAINER True
+ENV RUN_IN_DOCKER True
 
 WORKDIR /home/serve
 CMD ["python", "test/regression_tests.py"]
