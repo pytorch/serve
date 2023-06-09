@@ -29,30 +29,30 @@ jobs:
           cd ..
           pwd
           sudo rm -rf _tool
-          docker images
           docker system prune -f
-          docker images
 
       - name: Checkout TorchServe
         uses: actions/checkout@v3
       - name: Build CPU Docker Image
-        if: contains(${{matrix.hardware}}, 'ubuntu')
+        #if: ${{ matrix.hardware == 'ubuntu-20.04' }}
+        if: contains(matrix.hardware, 'ubuntu')
         run: |
           cd docker
           ./build_image.sh -bt ci -t pytorch/torchserve:ci
       - name: Build GPU Docker Image
-        if: contains(${{matrix.hardware}}, 'gpu')
+        if: contains(matrix.hardware, 'gpu')
         run: |
           cd docker
           ./build_image.sh -g -cv cu117 -bt ci -t pytorch/torchserve:ci
       - name: Torchserve GPU Regression Tests
-        if: contains(${{matrix.hardware}}, 'gpu')
+        if: contains(matrix.hardware, 'gpu')
         run: |
           docker run --gpus all -v $GITHUB_WORKSPACE:/home/serve pytorch/torchserve:ci
       - name: Torchserve CPU Regression Tests
-        if: contains(${{matrix.hardware}}, 'gpu')
+        if: contains(matrix.hardware, 'ubuntu')
         run: |
           docker run -v $GITHUB_WORKSPACE:/home/serve pytorch/torchserve:ci
       - name: Cleanup
         run: |
           docker system prune -f && docker rmi pytorch/torchserve:ci
+          sudo rm -rf serve
