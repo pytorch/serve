@@ -21,8 +21,8 @@ jobs:
         run: |
           echo "Cleaning up previous run"
           ls -la ./
-          rm -rf ./* || true
-          rm -rf ./.??* || true
+          sudo rm -rf ./* || true
+          sudo rm -rf ./.??* || true
           ls -la ./
       - name: Update git
         run: sudo add-apt-repository ppa:git-core/ppa -y && sudo apt-get update && sudo apt-get install git -y
