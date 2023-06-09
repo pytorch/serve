@@ -29,8 +29,10 @@ jobs:
           cd ..
           pwd
           sudo rm -rf _tool
+          sudo rm -rf serve/serve
           docker system prune -f
-
+      - name: Clean up previous run
+        uses: AutoModality/action-clean@v1
       - name: Checkout TorchServe
         uses: actions/checkout@v3
       - name: Build CPU Docker Image
@@ -55,5 +57,5 @@ jobs:
       - name: Cleanup
         if: always()
         run: |
-          docker system prune -f && docker rmi pytorch/torchserve:ci
           sudo rm -rf serve
+          docker system prune -f && docker rmi pytorch/torchserve:ci
