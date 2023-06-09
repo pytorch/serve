@@ -40,12 +40,12 @@ jobs:
           cd docker
           ./build_image.sh -bt ci -t pytorch/torchserve:ci
       - name: Build GPU Docker Image
-        if: contains(matrix.hardware, 'gpu')
+        if: false == contains(matrix.hardware, 'ubuntu')
         run: |
           cd docker
           ./build_image.sh -g -cv cu117 -bt ci -t pytorch/torchserve:ci
       - name: Torchserve GPU Regression Tests
-        if: contains(matrix.hardware, 'gpu')
+        if: false == contains(matrix.hardware, 'ubuntu')
         run: |
           docker run --gpus all -v $GITHUB_WORKSPACE:/home/serve pytorch/torchserve:ci
       - name: Torchserve CPU Regression Tests
@@ -53,6 +53,7 @@ jobs:
         run: |
           docker run -v $GITHUB_WORKSPACE:/home/serve pytorch/torchserve:ci
       - name: Cleanup
+        if: always()
         run: |
           docker system prune -f && docker rmi pytorch/torchserve:ci
           sudo rm -rf serve
