@@ -29,12 +29,9 @@ jobs:
           rm -rf ./.??* || true
           ls -la ./
           docker system prune -f
-      - name: Clean up previous run
-        uses: AutoModality/action-clean@v1
       - name: Checkout TorchServe
         uses: actions/checkout@v3
       - name: Build CPU Docker Image
-        #if: ${{ matrix.hardware == 'ubuntu-20.04' }}
         if: contains(matrix.hardware, 'ubuntu')
         run: |
           cd docker
@@ -52,7 +49,7 @@ jobs:
         if: contains(matrix.hardware, 'ubuntu')
         run: |
           docker run -v $GITHUB_WORKSPACE:/home/serve pytorch/torchserve:ci
-      - name: Cleanup
-        if: always()
+      - name: Cleanup Docker Images
+        if: success()
         run: |
           docker system prune -f && docker rmi pytorch/torchserve:ci
