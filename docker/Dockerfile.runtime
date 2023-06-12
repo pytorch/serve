@@ -1,0 +1,39 @@
+ARG PYTHON_VERSION
+ARG BASE_IMAGE
+FROM ${BASE_IMAGE} AS compile-image
+ARG PYTHON_VERSION
+ENV PYTHONUNBUFFERED TRUE
+
+RUN apt-get update && apt-get install -y \
+curl
+
+# Make the virtual environment and "activating" it by adding it first to the path.
+# From here on the python$PYTHON_VERSION interpreter is used and the packages
+# are installed in /home/venv which is what we need for the "runtime-image"
+RUN python$PYTHON_VERSION -m venv /home/venv
+ENV PATH="/home/venv/bin:$PATH"
+
+RUN python -m pip install -U pip setuptools
+
+# This is only useful for cuda env
+RUN export USE_CUDA=1
+
+ARG CUDA_VERSION=""
+
+RUN python -m pip install --upgrade pip
+
+RUN TORCH_VER=$(curl --silent --location https://pypi.org/pypi/torch/json | python -c "import sys, json, pkg_resources; releases = json.load(sys.stdin)['releases']; print(sorted(releases, key=pkg_resources.parse_version)[-1])") && \
+    TORCH_VISION_VER=$(curl --silent --location https://pypi.org/pypi/torchvision/json | python -c "import sys, json, pkg_resources; releases = json.load(sys.stdin)['releases']; print(sorted(releases, key=pkg_resources.parse_version)[-1])") && \
+    TORCH_TEXT_VER=$(curl --silent --location https://pypi.org/pypi/torchtext/json | python -c "import sys, json, pkg_resources; releases = json.load(sys.stdin)['releases']; print(sorted(releases, key=pkg_resources.parse_version)[-1])") && \
+    TORCH_AUDIO_VER=$(curl --silent --location https://pypi.org/pypi/torchaudio/json | python -c "import sys, json, pkg_resources; releases = json.load(sys.stdin)['releases']; print(sorted(releases, key=pkg_resources.parse_version)[-1])") && \
+    # Install CUDA version specific binary when CUDA version is specified as a build arg
+    if [ "$CUDA_VERSION" ]; then \
+        python -m pip install --no-cache-dir torch==$TORCH_VER+$CUDA_VERSION torchvision==$TORCH_VISION_VER+$CUDA_VERSION torchtext==$TORCH_TEXT_VER torchaudio==$TORCH_AUDIO_VER+$CUDA_VERSION -f https://download.pytorch.org/whl/torch_stable.html; \
+        python -m pip install --no-cache-dir -r https://raw.githubusercontent.com/pytorch/serve/master/requirements/common_gpu.txt; \
+    # Install the CPU binary
+    else \
+        python -m pip install --no-cache-dir torch==$TORCH_VER+cpu torchvision==$TORCH_VISION_VER+cpu torchtext==$TORCH_TEXT_VER+cpu torchaudio==$TORCH_AUDIO_VER+cpu -f https://download.pytorch.org/whl/torch_stable.html; \
+    fi
+
+RUN python -m pip install --no-cache-dir torchserve torch-model-archiver torch-workflow-archiver
+RUN python -m pip install --no-cache-dir -r https://raw.githubusercontent.com/pytorch/serve/master/requirements/common.txt
