@@ -16,9 +16,26 @@
 #           https://docs.docker.com/develop/develop-images/build_enhancements/
 
 ARG PYTHON_VERSION=3.9
-ARG BASE_IMAGE=python:$PYTHON_VERSION-slim
+ARG BASE_IMAGE=nvidia/cuda:11.7.0-base-ubuntu20.04
 FROM ${BASE_IMAGE} as compile-image
 
-COPY --from=openjdk:17.0.1-jdk-slim /usr/local/openjdk-17 /usr/local/openjdk-17
-ENV JAVA_HOME /usr/local/openjdk-17
-RUN update-alternatives --install /usr/bin/java java /usr/local/openjdk-17/bin/java 1
+ARG PYTHON_VERSION
+ENV PYTHONUNBUFFERED TRUE
+
+RUN --mount=type=cache,id=apt-dev,target=/var/cache/apt \
+    apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install software-properties-common -y && \
+    add-apt-repository -y ppa:deadsnakes/ppa && \
+    apt remove python-pip  python3-pip && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
+        ca-certificates \
+        g++ \
+        python3-distutils \
+        python$PYTHON_VERSION \
+        python$PYTHON_VERSION-dev \
+        python$PYTHON_VERSION-venv \
+        openjdk-17-jdk \
+        curl \
+        git \
+    && rm -rf /var/lib/apt/lists/*

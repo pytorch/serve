@@ -13,6 +13,8 @@ CUDA_VERSION=""
 USE_LOCAL_SERVE_FOLDER=false
 BUILD_WITH_IPEX=false
 FILE=Dockerfile.cpu
+TORCHSERVE_BASE_IMAGE="pytorch/torchserve-base:latest"
+TORCHSERVE_RUNTIME_IMAGE="pytorch/torchserve-runtime:latest"
 
 for arg in "$@"
 do
@@ -44,9 +46,9 @@ do
         -g|--gpu)
           MACHINE=gpu
           DOCKER_TAG="pytorch/torchserve:latest-gpu"
-          BASE_IMAGE="nvidia/cuda:11.7.0-cudnn8-runtime-ubuntu20.04"
+          BASE_IMAGE="nvidia/cuda:11.7.0-base-ubuntu20.04"
           CUDA_VERSION="cu117"
-          FILE=Dockerfile
+          FILE=Dockerfile.gpu
           shift
           ;;
         -bt|--buildtype)
@@ -84,10 +86,10 @@ do
           CUDA_VERSION="$2"
           if [ "${CUDA_VERSION}" == "cu118" ];
           then
-            BASE_IMAGE="nvidia/cuda:11.8.0-cudnn8-runtime-ubuntu20.04"
+            BASE_IMAGE="nvidia/cuda:11.8.0-base-ubuntu20.04"
           elif [ "${CUDA_VERSION}" == "cu117" ];
           then
-            BASE_IMAGE="nvidia/cuda:11.7.0-cudnn8-runtime-ubuntu20.04"
+            BASE_IMAGE="nvidia/cuda:11.7.0-base-ubuntu20.04"
           elif [ "${CUDA_VERSION}" == "cu116" ];
           then
             BASE_IMAGE="nvidia/cuda:11.6.0-cudnn8-runtime-ubuntu20.04"
@@ -137,17 +139,31 @@ then
   DOCKER_TAG=${CUSTOM_TAG}
 fi
 
-if [ "${CUDA_VERSION}" == "" ];
-then
-  BASE_IMAGE="python:${PYTHON_VERSION}-slim"
-fi
-
 if [ "${BUILD_TYPE}" == "production" ]
 then
-  DOCKER_BUILDKIT=1 docker build --file ${FILE} --build-arg BASE_IMAGE="${BASE_IMAGE}" --build-arg CUDA_VERSION="${CUDA_VERSION}"  --build-arg PYTHON_VERSION="${PYTHON_VERSION}" -t "${DOCKER_TAG}" .
+  echo $PYTHON_VERSION
+
+  # Build docker base image
+  DOCKER_BUILDKIT=1 docker build --file ${FILE} --build-arg BASE_IMAGE="${BASE_IMAGE}" --build-arg CUDA_VERSION="${CUDA_VERSION}"  --build-arg PYTHON_VERSION="${PYTHON_VERSION}" -t $TORCHSERVE_BASE_IMAGE .
+
+  # Build docker runtime image
+  DOCKER_BUILDKIT=1 docker build --file Dockerfile.runtime --build-arg BASE_IMAGE="${TORCHSERVE_BASE_IMAGE}" --build-arg CUDA_VERSION="${CUDA_VERSION}"  --build-arg PYTHON_VERSION="${PYTHON_VERSION}" -t $TORCHSERVE_RUNTIME_IMAGE .
+
+  # Build production image
+  DOCKER_BUILDKIT=1 docker build --file Dockerfile --build-arg BASE_IMAGE="${BASE_IMAGE}" --build-arg CUDA_VERSION="${CUDA_VERSION}"  --build-arg PYTHON_VERSION="${PYTHON_VERSION}" -t "${DOCKER_TAG}" .
 elif [ "${BUILD_TYPE}" == "benchmark" ]
 then
   DOCKER_BUILDKIT=1 docker build --pull --no-cache --file Dockerfile.benchmark --build-arg USE_LOCAL_SERVE_FOLDER=$USE_LOCAL_SERVE_FOLDER --build-arg BASE_IMAGE="${BASE_IMAGE}" --build-arg BRANCH_NAME="${BRANCH_NAME}" --build-arg CUDA_VERSION="${CUDA_VERSION}" --build-arg MACHINE_TYPE="${MACHINE}" --build-arg PYTHON_VERSION="${PYTHON_VERSION}" -t "${DOCKER_TAG}" .
 else
   DOCKER_BUILDKIT=1 docker build --pull --no-cache --file Dockerfile.dev -t "${DOCKER_TAG}" --build-arg BUILD_TYPE="${BUILD_TYPE}" --build-arg BASE_IMAGE=$BASE_IMAGE --build-arg BRANCH_NAME="${BRANCH_NAME}" --build-arg CUDA_VERSION="${CUDA_VERSION}" --build-arg MACHINE_TYPE="${MACHINE}" --build-arg BUILD_WITH_IPEX="${BUILD_WITH_IPEX}" --build-arg PYTHON_VERSION="${PYTHON_VERSION}" .
 fi
+
+# Cleanup
+for image in "$TORCHSERVE_BASE_IMAGE" "$TORCHSERVE_RUNTIME_IMAGE"
+  do
+    if docker image inspect $image >/dev/null 2>&1;
+    then
+      echo "Removing docker image $image"
+      docker rmi $image
+    fi
+  done
