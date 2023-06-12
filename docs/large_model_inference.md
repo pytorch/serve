@@ -195,7 +195,7 @@ torchrun:
     OMP_NUMBER_THREADS: 2
 ```
 #### Feature Job ticket is recommended for the use case of inference latency Sensitive
-When the job ticket feature is enabled, it verifies the availability of a model's active worker for processing a client's request. If an active worker is available, the request is accepted; otherwise, a 503 response is sent back to client. Additionally, to ensure immediate processing of incoming inference requests, dynamic batching on Server side is disabled when job ticket is enabled. Here is an example of enabling job ticket.
+When the job ticket feature is enabled, it verifies the availability of a model's active worker for processing a client's request. If an active worker is available, the request is accepted; otherwise, a 503 response is sent back to client. Here is an example of enabling job ticket.
 ```yaml
 minWorkers: 2
 maxWorkers: 2
