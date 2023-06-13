@@ -43,7 +43,7 @@ do
         -g|--gpu)
           MACHINE=gpu
           DOCKER_TAG="pytorch/torchserve:latest-gpu"
-          BASE_IMAGE="nvidia/cuda:11.7.0-cudnn8-runtime-ubuntu20.04"
+          BASE_IMAGE="nvidia/cuda:11.7.0-base-ubuntu20.04"
           CUDA_VERSION="cu117"
           shift
           ;;
@@ -82,10 +82,10 @@ do
           CUDA_VERSION="$2"
           if [ "${CUDA_VERSION}" == "cu118" ];
           then
-            BASE_IMAGE="nvidia/cuda:11.8.0-cudnn8-runtime-ubuntu20.04"
+            BASE_IMAGE="nvidia/cuda:11.8.0-base-ubuntu20.04"
           elif [ "${CUDA_VERSION}" == "cu117" ];
           then
-            BASE_IMAGE="nvidia/cuda:11.7.0-cudnn8-runtime-ubuntu20.04"
+            BASE_IMAGE="nvidia/cuda:11.7.0-base-ubuntu20.04"
           elif [ "${CUDA_VERSION}" == "cu116" ];
           then
             BASE_IMAGE="nvidia/cuda:11.6.0-cudnn8-runtime-ubuntu20.04"
