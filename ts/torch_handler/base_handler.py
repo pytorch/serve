@@ -77,10 +77,10 @@ except ImportError as error:
     ONNX_AVAILABLE = False
 
 
-def setup_ort_session(model_pt_path):
+def setup_ort_session(model_pt_path, map_location):
     providers = (
         ["CUDAExecutionProvider", "CPUExecutionProvider"]
-        if self.map_location == "cuda"
+        if map_location == "cuda"
         else ["CPUExecutionProvider"]
     )
 
@@ -168,7 +168,7 @@ class BaseHandler(abc.ABC):
 
         # Convert your model by following instructions: https://pytorch.org/tutorials/advanced/super_resolution_with_onnxruntime.html
         elif self.model_pt_path.endswith(".onnx") and ONNX_AVAILABLE:
-            self.model = setup_ort_session(self.model_pt_path)
+            self.model = setup_ort_session(self.model_pt_path, self.map_location)
             logger.info("Succesfully setup ort session")
 
         else:

@@ -80,7 +80,7 @@ public class Model {
                         (modelArchive.getModelConfig().getDeviceType() == ModelConfig.DeviceType.GPU
                                         && ConfigManager.getInstance().getNumberOfGpu() > 0)
                                 ? ModelConfig.DeviceType.GPU
-                                : deviceType;
+                                : ModelConfig.DeviceType.CPU;
             }
 
             deviceIds = modelArchive.getModelConfig().getDeviceIds();
