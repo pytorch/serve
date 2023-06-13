@@ -3,6 +3,7 @@ import os
 from abc import ABC
 
 import torch
+import torch_neuronx
 import transformers
 from transformers import AutoTokenizer
 from transformers_neuronx.opt.model import OPTForSampling
@@ -42,6 +43,18 @@ class LLMHandler(BaseHandler, ABC):
 
         # allocate "tp_degree" number of neuron cores to the worker process
         os.environ["NEURON_RT_NUM_CORES"] = str(tp_degree)
+        try:
+            num_neuron_cores_available = (
+                torch_neuronx.xla_impl.data_parallel.device_count()
+            )
+            assert num_neuron_cores_available >= int(tp_degree)
+        except (RuntimeError, AssertionError) as error:
+            raise RuntimeError(
+                "Required number of neuron cores for tp_degree "
+                + str(tp_degree)
+                + " are not available: "
+                + str(error)
+            )
 
         torch.manual_seed(seed)
         self.tokenizer = AutoTokenizer.from_pretrained(model_name, return_tensors="pt")
