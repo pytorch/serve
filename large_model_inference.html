@@ -529,6 +529,18 @@ torch-model-archiver<span class="w"> </span>--model-name<span class="w"> </span>
 </pre></div>
 </div>
 </section>
+<section id="feature-job-ticket-is-recommended-for-the-use-case-of-inference-latency-sensitive">
+<h3><span class="section-number">20.4.4. </span>Feature Job ticket is recommended for the use case of inference latency sensitive<a class="headerlink" href="#feature-job-ticket-is-recommended-for-the-use-case-of-inference-latency-sensitive" title="Permalink to this headline">¶</a></h3>
+<p>When the job ticket feature is enabled, TorchServe verifies the availability of a model’s active worker for processing a client’s request. If an active worker is available, the request is accepted and processed immediately without waiting time incurred from job queue or dynamic batching; otherwise, a 503 response is sent back to client.</p>
+<p>This feature help with use cases where inference latency can be high, such as generative models, auto regressive decoder models like chatGPT. This feature help such applications to take effective actions, for example, routing the rejected request to a different server, or scaling up model server capacity, based on the business requirements. Here is an example of enabling job ticket.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">minWorkers</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
+<span class="nt">maxWorkers</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
+<span class="nt">jobQueueSize</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
+<span class="nt">useJobTicket</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</pre></div>
+</div>
+<p>In this example, a model has 2 workers with job queue size 2. An inference request will be either processed by TorchServe immediately, or rejected with response code 503.</p>
+</section>
 </section>
 </section>
 
@@ -589,6 +601,7 @@ torch-model-archiver<span class="w"> </span>--model-name<span class="w"> </span>
 <li><a class="reference internal" href="#to-reduce-model-loading-latency-we-recommend">20.4.1. To reduce model loading latency, we recommend</a></li>
 <li><a class="reference internal" href="#tune-responsetimeout-see-model-config-yaml-file-if-high-model-loading-or-inference-latency-causes-response-timeout">20.4.2. Tune “responseTimeout” (see model config YAML file) if high model loading or inference latency causes response timeout.</a></li>
 <li><a class="reference internal" href="#tune-torchrun-parameters">20.4.3. Tune torchrun parameters</a></li>
+<li><a class="reference internal" href="#feature-job-ticket-is-recommended-for-the-use-case-of-inference-latency-sensitive">20.4.4. Feature Job ticket is recommended for the use case of inference latency sensitive</a></li>
 </ul>
 </li>
 </ul>
