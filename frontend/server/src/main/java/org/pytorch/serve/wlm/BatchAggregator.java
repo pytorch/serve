@@ -34,6 +34,11 @@ public class BatchAggregator {
         model.pollBatch(
                 threadName, (state == WorkerState.WORKER_MODEL_LOADED) ? 0 : Long.MAX_VALUE, jobs);
 
+        if (model.isUseJobTicket() && jobs.isEmpty()) {
+            model.decNumJobTickets();
+            return req;
+        }
+
         for (Job j : jobs.values()) {
             if (j.isControlCmd()) {
                 if (jobs.size() > 1) {
