@@ -8,7 +8,6 @@ import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
 import org.pytorch.serve.archive.DownloadArchiveException;
 import org.pytorch.serve.archive.utils.ArchiveUtils;
 import org.pytorch.serve.archive.utils.InvalidArchiveURLException;
@@ -55,7 +54,7 @@ public class ModelArchive {
             throw new ModelNotFoundException("empty url");
         }
 
-        String marFileName = FilenameUtils.getName(url);
+        String marFileName = ArchiveUtils.getFilenameFromUrl(url);
         File modelLocation = new File(modelStore, marFileName);
         try {
             ArchiveUtils.downloadArchive(
@@ -165,7 +164,7 @@ public class ModelArchive {
 
     public static void removeModel(String modelStore, String marURL) {
         if (ArchiveUtils.isValidURL(marURL)) {
-            String marFileName = FilenameUtils.getName(marURL);
+            String marFileName = ArchiveUtils.getFilenameFromUrl(marURL);
             File modelLocation = new File(modelStore, marFileName);
             FileUtils.deleteQuietly(modelLocation);
         }

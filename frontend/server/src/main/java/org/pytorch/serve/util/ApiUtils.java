@@ -12,13 +12,13 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
-import org.apache.commons.io.FilenameUtils;
 import org.pytorch.serve.archive.DownloadArchiveException;
 import org.pytorch.serve.archive.model.Manifest;
 import org.pytorch.serve.archive.model.ModelArchive;
 import org.pytorch.serve.archive.model.ModelException;
 import org.pytorch.serve.archive.model.ModelNotFoundException;
 import org.pytorch.serve.archive.model.ModelVersionNotFoundException;
+import org.pytorch.serve.archive.utils.ArchiveUtils;
 import org.pytorch.serve.http.BadRequestException;
 import org.pytorch.serve.http.InternalServerException;
 import org.pytorch.serve.http.InvalidModelVersionException;
@@ -183,7 +183,7 @@ public final class ApiUtils {
                             s3SseKms);
         } catch (FileAlreadyExistsException e) {
             throw new InternalServerException(
-                    "Model file already exists " + FilenameUtils.getName(modelUrl), e);
+                    "Model file already exists " + ArchiveUtils.getFilenameFromUrl(modelUrl), e);
         } catch (IOException | InterruptedException e) {
             throw new InternalServerException("Failed to save model: " + modelUrl, e);
         }
