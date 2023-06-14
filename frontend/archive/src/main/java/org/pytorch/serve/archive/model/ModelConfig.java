@@ -44,6 +44,16 @@ public class ModelConfig {
      * timeout. default: 0 which means no timeout (ie. clientExpireTS default value Long.MAX_VALUE.
      */
     private long clientTimeoutInMills;
+    /**
+     * the job queue size of a model. By default, job_queue_size is set as 100 in config.property
+     * for all models. Here, jobQueueSize: -1 means no customized setting for the model.
+     */
+    private int jobQueueSize;
+    /**
+     * the useJobTicket is a flag which allows an inference request to be accepted only if there are
+     * available workers.
+     */
+    private boolean useJobTicket;
 
     public static ModelConfig build(Map<String, Object> yamlMap) {
         ModelConfig modelConfig = new ModelConfig();
@@ -132,6 +142,20 @@ public class ModelConfig {
                                 logger.warn(
                                         "Invalid clientTimeoutInMills: {}, should be positive long",
                                         v);
+                            }
+                            break;
+                        case "jobQueueSize":
+                            if (v instanceof Integer) {
+                                modelConfig.setJobQueueSize((int) v);
+                            } else {
+                                logger.warn("Invalid jobQueueSize: {}, should be positive int", v);
+                            }
+                            break;
+                        case "useJobTicket":
+                            if (v instanceof Boolean) {
+                                modelConfig.setUseJobTicket((boolean) v);
+                            } else {
+                                logger.warn("Invalid useJobTicket: {}, should be true or false", v);
                             }
                             break;
                         default:
@@ -271,6 +295,24 @@ public class ModelConfig {
         }
     }
 
+    public int getJobQueueSize() {
+        return jobQueueSize;
+    }
+
+    public void setJobQueueSize(int jobQueueSize) {
+        if (jobQueueSize > 0) {
+            this.jobQueueSize = jobQueueSize;
+        }
+    }
+
+    public boolean isUseJobTicket() {
+        return useJobTicket;
+    }
+
+    public void setUseJobTicket(boolean useJobTicket) {
+        this.useJobTicket = useJobTicket;
+    }
+
     public enum ParallelType {
         NONE(""),
         PP("pp"),
@@ -339,7 +381,6 @@ public class ModelConfig {
         private String rdzvEndpoint;
         private String rdzvBackend = "c10d";
         private String rdzvConf;
-        private int maxRestarts = 3;
         private int monitorInterval = 5;
         private int nodeRank;
         private String masterAddr;
@@ -388,13 +429,6 @@ public class ModelConfig {
                                     logger.warn("Invalid torchrun.rdzv-conf:{}", v);
                                 }
                                 break;
-                            case "max-restarts":
-                                if (v instanceof Integer) {
-                                    torchRun.setMaxRestarts((Integer) v);
-                                } else {
-                                    logger.warn("Invalid torchrun.max-restarts:{}, reset to 3", v);
-                                }
-                                break;
                             case "monitor-interval":
                                 if (v instanceof Integer) {
                                     torchRun.setMonitorInterval((Integer) v);
@@ -417,6 +451,7 @@ public class ModelConfig {
                                 }
                                 break;
                             default:
+                                logger.warn("unsupported parameter {}", k);
                                 break;
                         }
                     });
@@ -477,18 +512,6 @@ public class ModelConfig {
 
         public void setRdzvConf(String rdzvConf) {
             this.rdzvConf = rdzvConf;
-        }
-
-        public int getMaxRestarts() {
-            return maxRestarts;
-        }
-
-        public void setMaxRestarts(int maxRestarts) {
-            if (maxRestarts <= 0) {
-                logger.warn("Invalid torchrun.max-restarts:{}, reset to 3", maxRestarts);
-                return;
-            }
-            this.maxRestarts = maxRestarts;
         }
 
         public int getMonitorInterval() {
