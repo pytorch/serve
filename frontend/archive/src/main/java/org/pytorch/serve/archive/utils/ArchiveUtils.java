@@ -8,6 +8,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileAlreadyExistsException;
@@ -16,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.pytorch.serve.archive.DownloadArchiveException;
 import org.pytorch.serve.archive.model.InvalidModelException;
 import org.pytorch.serve.archive.s3.HttpUtils;
@@ -88,6 +90,15 @@ public final class ArchiveUtils {
 
     public static boolean isValidURL(String url) {
         return VALID_URL_PATTERN.matcher(url).matches();
+    }
+
+    public static String getFilenameFromUrl(String url) {
+        try {
+            URL archiveUrl = new URL(url);
+            return FilenameUtils.getName(archiveUrl.getPath());
+        } catch (MalformedURLException e) {
+            return FilenameUtils.getName(url);
+        }
     }
 
     public static boolean downloadArchive(
