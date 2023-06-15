@@ -366,7 +366,7 @@
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">tempfile</span>
 <span class="kn">from</span> <span class="nn">builtins</span> <span class="kn">import</span> <span class="nb">str</span>
-
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span>
 <span class="kn">import</span> <span class="nn">psutil</span>
 
 <span class="kn">from</span> <span class="nn">ts.arg_parser</span> <span class="kn">import</span> <span class="n">ArgParser</span>
@@ -375,7 +375,7 @@
 <span class="n">TS_NAMESPACE</span> <span class="o">=</span> <span class="s2">&quot;org.pytorch.serve.ModelServer&quot;</span>
 
 
-<div class="viewcode-block" id="start"><a class="viewcode-back" href="../../api/ts.html#ts.model_server.start">[docs]</a><span class="k">def</span> <span class="nf">start</span><span class="p">():</span>
+<div class="viewcode-block" id="start"><a class="viewcode-back" href="../../api/ts.html#ts.model_server.start">[docs]</a><span class="k">def</span> <span class="nf">start</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This is the entry point for model server</span>
 <span class="sd">    :return:</span>
@@ -404,7 +404,13 @@
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">parent</span> <span class="o">=</span> <span class="n">psutil</span><span class="o">.</span><span class="n">Process</span><span class="p">(</span><span class="n">pid</span><span class="p">)</span>
                 <span class="n">parent</span><span class="o">.</span><span class="n">terminate</span><span class="p">()</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;TorchServe has stopped.&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">foreground</span><span class="p">:</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">parent</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span>
+                    <span class="k">except</span> <span class="n">psutil</span><span class="o">.</span><span class="n">TimeoutExpired</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Stopping TorchServe took too long.&quot;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;TorchServe has stopped.&quot;</span><span class="p">)</span>
             <span class="k">except</span> <span class="p">(</span><span class="ne">OSError</span><span class="p">,</span> <span class="n">psutil</span><span class="o">.</span><span class="n">Error</span><span class="p">):</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;TorchServe already stopped.&quot;</span><span class="p">)</span>
             <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">pid_file</span><span class="p">)</span>
@@ -455,7 +461,8 @@
                 <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
             <span class="n">ts_conf_file</span> <span class="o">=</span> <span class="n">ts_config</span>
 
-        <span class="n">platform_path_separator</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Windows&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;Darwin&quot;</span><span class="p">:</span> <span class="s2">&quot;.:&quot;</span><span class="p">,</span> <span class="s2">&quot;Linux&quot;</span><span class="p">:</span> <span class="s2">&quot;.:&quot;</span><span class="p">}</span>
+        <span class="n">platform_path_separator</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;Windows&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;Darwin&quot;</span><span class="p">:</span> <span class="s2">&quot;.:&quot;</span><span class="p">,</span> <span class="s2">&quot;Linux&quot;</span><span class="p">:</span> <span class="s2">&quot;.:&quot;</span><span class="p">}</span>
         <span class="n">class_path</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
             <span class="n">platform_path_separator</span><span class="p">[</span><span class="n">platform</span><span class="o">.</span><span class="n">system</span><span class="p">()],</span>
             <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ts_home</span><span class="p">,</span> <span class="s2">&quot;ts&quot;</span><span class="p">,</span> <span class="s2">&quot;frontend&quot;</span><span class="p">,</span> <span class="s2">&quot;*&quot;</span><span class="p">),</span>
@@ -558,7 +565,7 @@
                 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;start java frontend failed:&quot;</span><span class="p">,</span> <span class="n">sys</span><span class="o">.</span><span class="n">exc_info</span><span class="p">())</span></div>
 
 
-<div class="viewcode-block" id="load_properties"><a class="viewcode-back" href="../../api/ts.html#ts.model_server.load_properties">[docs]</a><span class="k">def</span> <span class="nf">load_properties</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
+<div class="viewcode-block" id="load_properties"><a class="viewcode-back" href="../../api/ts.html#ts.model_server.load_properties">[docs]</a><span class="k">def</span> <span class="nf">load_properties</span><span class="p">(</span><span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Read properties file into map.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -571,7 +578,6 @@
                 <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pair</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
                     <span class="n">key</span> <span class="o">=</span> <span class="n">pair</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
                     <span class="n">props</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">pair</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-
     <span class="k">return</span> <span class="n">props</span></div>
 
 
