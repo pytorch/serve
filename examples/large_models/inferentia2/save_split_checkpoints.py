@@ -2,8 +2,8 @@ import argparse
 import os
 
 import torch
-from transformers_neuronx.module import save_pretrained_split
 from transformers.models.opt import OPTForCausalLM
+from transformers_neuronx.module import save_pretrained_split
 
 
 def create_directory_if_not_exists(path_str: str) -> str:
@@ -51,5 +51,3 @@ amp_callback(hf_model, torch.float16)
 save_pretrained_split(hf_model, args.save_path)
 
 print(f"Files for '{args.model_name}' have been downloaded to '{args.save_path}'.")
-
-
