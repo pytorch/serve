@@ -17,9 +17,10 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-# import os
-# import sys
-# sys.path.insert(0, os.path.abspath('.'))
+import os
+import sys
+sys.path.insert(0, os.path.abspath('.'))
+
 import torch
 
 import pytorch_sphinx_theme
@@ -225,3 +226,19 @@ intersphinx_mapping = {
     'numpy': ('https://docs.scipy.org/doc/numpy/', None),
     'torch': ('https://pytorch.org/docs/stable/', None),
 }
+
+
+
+#Custom directives defintions to create cards on main TorchServe page
+
+from custom_directives import CustomCardEnd, CustomCardItem, CustomCardStart, SupportedDevices, SupportedProperties
+
+# Register custom directives
+
+from docutils.parsers import rst
+
+rst.directives.register_directive("devices", SupportedDevices)
+rst.directives.register_directive("properties", SupportedProperties)
+rst.directives.register_directive("customcardstart", CustomCardStart)
+rst.directives.register_directive("customcarditem", CustomCardItem)
+rst.directives.register_directive("customcardend", CustomCardEnd)
