@@ -64,13 +64,13 @@ To get around these drawbacks, you can utilize the NVIDIA Multi-Process Service 
 <h6> NVIDIA DALI</h6>
 
 The NVIDIA Data Loading Library (DALI) is a library for data loading and pre-processing to accelerate deep learning applications. It can be used as a portable drop-in replacement for built in data loaders and data iterators in popular deep learning frameworks. DALI provides a collection of highly optimized building blocks for loading and processing image, video and audio data.
-You can find an example of DALI optmization intergration with TorchServe [here](https://github.com/pytorch/serve/tree/master/examples/nvidia_dali).
+You can find an example of DALI optimization integration with TorchServe [here](https://github.com/pytorch/serve/tree/master/examples/nvidia_dali).
 
 
 ## Benchmarking
 
 To make comparing various model and TorchServe configurations easier to compare, we've added a few helper scripts that output performance data like p50, p90, p99 latency in a clean report [here](https://github.com/pytorch/serve/tree/master/benchmarks) and mostly require you to determine some configuration either via JSON or YAML.
-You can find more information on TorchServe benchmarking [here](benchmarks.md).
+You can find more information on TorchServe benchmarking [here](https://github.com/pytorch/serve/blob/master/benchmarks/README.md#torchserve-model-server-benchmarking).
 
 
 ## Profiling
