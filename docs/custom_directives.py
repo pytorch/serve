@@ -11,7 +11,6 @@ from docutils.parsers.rst.directives.images import Image
 from docutils.statemachine import StringList
 from sphinx.util.docutils import SphinxDirective
 
-
 _THIS_DIR = Path(__file__).parent
 
 # Color palette from PyTorch Developer Day 2021 Presentation Template
@@ -183,7 +182,9 @@ _CARDLIST_END = """
 class CustomCardStart(Directive):
     def run(self):
         para = nodes.paragraph()
-        self.state.nested_parse(StringList(_CARDLIST_START.split("\n")), self.content_offset, para)
+        self.state.nested_parse(
+            StringList(_CARDLIST_START.split("\n")), self.content_offset, para
+        )
         return [para]
 
 
@@ -212,7 +213,11 @@ class CustomCardItem(Directive):
             image = "_static/img/thumbnails/default.png"
 
         card_rst = _CARD_TEMPLATE.format(
-            header=header, image=image, link=link, card_description=card_description, tags=tags
+            header=header,
+            image=image,
+            link=link,
+            card_description=card_description,
+            tags=tags,
         )
         card_list = StringList(card_rst.split("\n"))
         card = nodes.paragraph()
@@ -223,5 +228,7 @@ class CustomCardItem(Directive):
 class CustomCardEnd(Directive):
     def run(self):
         para = nodes.paragraph()
-        self.state.nested_parse(StringList(_CARDLIST_END.split("\n")), self.content_offset, para)
+        self.state.nested_parse(
+            StringList(_CARDLIST_END.split("\n")), self.content_offset, para
+        )
         return [para]
