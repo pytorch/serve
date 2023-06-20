@@ -9,8 +9,8 @@ opt_6.7b_neuronx_batch_1:
     batch_size:
       - 1
     input: "./examples/large_models/inferentia2/sample_text.txt"
-    requests: 10000
-    concurrency: 100
+    requests: 2000
+    concurrency: 10
     backend_profiling: False
     exec_env: "local"
     processors:
@@ -26,8 +26,8 @@ opt_6.7b_neuronx_batch_2:
     batch_size:
       - 2
     input: "./examples/large_models/inferentia2/sample_text.txt"
-    requests: 10000
-    concurrency: 100
+    requests: 2000
+    concurrency: 10
     backend_profiling: False
     exec_env: "local"
     processors:
@@ -43,8 +43,8 @@ opt_6.7b_neuronx_batch_4:
     batch_size:
       - 4
     input: "./examples/large_models/inferentia2/sample_text.txt"
-    requests: 10000
-    concurrency: 100
+    requests: 2000
+    concurrency: 10
     backend_profiling: False
     exec_env: "local"
     processors:
@@ -60,8 +60,8 @@ opt_6.7b_neuronx_batch_8:
     batch_size:
       - 8
     input: "./examples/large_models/inferentia2/sample_text.txt"
-    requests: 10000
-    concurrency: 100
+    requests: 2000
+    concurrency: 10
     backend_profiling: False
     exec_env: "local"
     processors:
