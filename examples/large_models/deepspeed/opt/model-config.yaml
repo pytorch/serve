@@ -14,11 +14,13 @@ torchrun:
 # TorchServe Backend parameters
 deepspeed:
     config: ds-config.json
+    checkpoint: checkpoints.json
 
 handler:
+    model_name: "facebook/opt-30b"
     #model_path: "/home/ubuntu/serve/examples/large_models/deepspeed/opt/model/models--facebook--opt-350m/snapshots/cb32f77e905cccbca1d970436fb0f5e6b58ee3c5"
-    model_path: "/home/ubuntu/serve/examples/large_models/deepspeed/opt/model/models--facebook--opt-6.7b/snapshots/a45aa65bbeb77c1558bc99bedc6779195462dab0"
-    #model_path: "/home/ubuntu/serve/examples/large_models/Huggingface_pippy/model/models--facebook--opt-30b/snapshots/ceea0a90ac0f6fae7c2c34bcb40477438c152546"
+    #model_path: "/home/ubuntu/serve/examples/large_models/deepspeed/opt/model/models--facebook--opt-6.7b/snapshots/a45aa65bbeb77c1558bc99bedc6779195462dab0"
+    model_path: "/home/ubuntu/serve/examples/large_models/Huggingface_pippy/model/models--facebook--opt-30b/snapshots/ceea0a90ac0f6fae7c2c34bcb40477438c152546"
     max_length: 50
     max_new_tokens: 10
     manual_seed: 40
