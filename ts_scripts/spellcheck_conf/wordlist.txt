@@ -1056,3 +1056,7 @@ torchpippy
 InferenceSession
 maxRetryTimeoutInSec
 neuronx
+AMI
+DLAMI
+XLA
+inferentia
