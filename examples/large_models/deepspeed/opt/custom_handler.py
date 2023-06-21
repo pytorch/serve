@@ -36,14 +36,23 @@ class TransformersSeqClassifierHandler(BaseDeepSpeedHandler, ABC):
         model_dir = ctx.system_properties.get("model_dir")
         self.max_length = int(ctx.model_yaml_config["handler"]["max_length"])
         self.max_new_tokens = int(ctx.model_yaml_config["handler"]["max_new_tokens"])
+        model_path = ctx.model_yaml_config["handler"]["model_path"]
         seed = int(ctx.model_yaml_config["handler"]["manual_seed"])
         torch.manual_seed(seed)
 
-        self.tokenizer = AutoTokenizer.from_pretrained(model_dir, padding_side="left")
+        logger.info("Model %s loading tokenizer", ctx.model_name)
+        self.tokenizer = AutoTokenizer.from_pretrained(model_path, padding_side="left")
+        #self.tokenizer = AutoTokenizer.from_pretrained(model_path, return_tensors="pt")
         self.tokenizer.pad_token = self.tokenizer.eos_token
         self.model = AutoModelForCausalLM.from_pretrained(
-            model_dir, torch_dtype=torch.float16
+            model_path, torch_dtype=torch.float16
         )
+        logger.info("Model %s loading init begin", ctx.model_name)
+        #with torch.device("meta"):
+        #    self.model = AutoModelForCausalLM.from_pretrained(
+        #        model_path, use_cache=False, torch_dtype=torch.float16
+        #    )
+        logger.info("Model %s loading init done", ctx.model_name)
         self.model.eval()
 
         ds_engine = get_ds_engine(self.model, ctx)
