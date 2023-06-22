@@ -1,11 +1,9 @@
 import logging
 from abc import ABC
 
-
-import deepspeed
 import torch
 import transformers
-from transformers import AutoModelForCausalLM, AutoTokenizer, AutoConfig
+from transformers import AutoConfig, AutoModelForCausalLM, AutoTokenizer
 
 from ts.context import Context
 from ts.handler_utils.distributed.deepspeed import get_ds_engine
@@ -13,7 +11,6 @@ from ts.torch_handler.distributed.base_deepspeed_handler import BaseDeepSpeedHan
 
 logger = logging.getLogger(__name__)
 logger.info("Transformers version %s", transformers.__version__)
-
 
 
 class TransformersSeqClassifierHandler(BaseDeepSpeedHandler, ABC):
@@ -46,12 +43,13 @@ class TransformersSeqClassifierHandler(BaseDeepSpeedHandler, ABC):
 
         logger.info("Model %s loading tokenizer", ctx.model_name)
 
-        
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
         self.tokenizer.pad_token = self.tokenizer.eos_token
         config = AutoConfig.from_pretrained(model_name)
         with torch.device("meta"):
-            self.model = AutoModelForCausalLM.from_config(config, torch_dtype=torch.float16)
+            self.model = AutoModelForCausalLM.from_config(
+                config, torch_dtype=torch.float16
+            )
         self.model = self.model.eval()
 
         ds_engine = get_ds_engine(self.model, ctx)

@@ -44,4 +44,3 @@ torchserve --start --ncs --model-store model_store --models opt.tar.gz
 ```bash
 curl -v "http://localhost:8080/predictions/opt" -T sample_text.txt
 ```
-

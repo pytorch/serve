@@ -1,7 +1,6 @@
+import json
 import logging
 import os
-
-import json
 from pathlib import Path
 
 import deepspeed
@@ -10,7 +9,11 @@ from ts.context import Context
 
 
 def create_checkpoints_json(model_path, checkpoints_json):
-    checkpoint_files = file_list = [str(entry) for entry in Path(model_path).rglob("*.[bp][it][n]") if entry.is_file()]
+    checkpoint_files = file_list = [
+        str(entry)
+        for entry in Path(model_path).rglob("*.[bp][it][n]")
+        if entry.is_file()
+    ]
     data = {"type": "ds_model", "checkpoints": checkpoint_files, "version": 1.0}
     print(f"Creating deepspeed checkpoint file {checkpoints_json}")
     json.dump(data, open(checkpoints_json, "w"))
@@ -39,10 +42,10 @@ def get_ds_engine(model, ctx: Context):
                 model_dir, ctx.model_yaml_config["deepspeed"]["checkpoint"]
             )
             create_checkpoints_json(model_path, checkpoint)
-        
+
         logging.debug("Creating DeepSpeed engine")
         ds_engine = deepspeed.init_inference(
-            model, 
+            model,
             config=ds_config,
             base_dir=model_path,
             checkpoint=checkpoint,
