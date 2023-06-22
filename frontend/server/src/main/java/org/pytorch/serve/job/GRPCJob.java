@@ -4,6 +4,7 @@ import static org.pytorch.serve.util.messages.RequestInput.TS_STREAM_NEXT;
 
 import com.google.protobuf.ByteString;
 import io.grpc.Status;
+import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -69,6 +70,11 @@ public class GRPCJob extends Job {
             Map<String, String> responseHeaders) {
 
         ByteString output = ByteString.copyFrom(body);
+        if (((ServerCallStreamObserver<PredictionResponse>) predictionResponseObserver)
+                .isCancelled()) {
+            logger.warn("grpc client call already cancelled, not able to send this response");
+            return;
+        }
         if (this.getCmd() == WorkerCommands.PREDICT
                 || this.getCmd() == WorkerCommands.STREAMPREDICT) {
             PredictionResponse reply =
@@ -115,6 +121,11 @@ public class GRPCJob extends Job {
 
     @Override
     public void sendError(int status, String error) {
+        if (((ServerCallStreamObserver<PredictionResponse>) predictionResponseObserver)
+                .isCancelled()) {
+            logger.warn("grpc client call already cancelled, not able to send this error");
+            return;
+        }
         Status responseStatus = GRPCUtils.getGRPCStatusCode(status);
         if (this.getCmd() == WorkerCommands.PREDICT
                 || this.getCmd() == WorkerCommands.STREAMPREDICT) {
