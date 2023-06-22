@@ -75,7 +75,7 @@ public class GRPCJob extends Job {
                     .isCancelled()) {
                 logger.warn(
                         "grpc client call already cancelled, not able to send this response for requestId: {}",
-                        responseHeaders.get("requestid"));
+                        getPayload().getRequestId());
                 return;
             }
             PredictionResponse reply =
