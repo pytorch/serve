@@ -6,11 +6,11 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>19. TorchServe Workflows &mdash; PyTorch/Serve master documentation</title>
+  <title>TorchServe Workflows &mdash; PyTorch/Serve master documentation</title>
   
 
   
@@ -35,11 +35,15 @@
   <link rel="stylesheet" href="_static/katex-math.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="20. Serving large models with Torchserve" href="large_model_inference.html" />
-    <link rel="prev" title="18. Torchserve Use Cases" href="use_cases.html" />
-  <!-- Google Analytics -->
-  
-  <!-- End Google Analytics -->
+    <link rel="next" title="Serving large models with Torchserve" href="large_model_inference.html" />
+    <link rel="prev" title="Torchserve Use Cases" href="use_cases.html" />
+  <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','');</script>
+    <!-- End Google Tag Manager -->
   
 
   
@@ -245,30 +249,31 @@
               
             
             
-              <p class="caption"><span class="caption-text">Contents:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="index.html">1. TorchServe</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Troubleshooting.html">2. Troubleshooting Guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="batch_inference_with_ts.html">3. Batch Inference with TorchServe</a></li>
-<li class="toctree-l1"><a class="reference internal" href="code_coverage.html">4. Code Coverage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="configuration.html">5. Advanced configuration</a></li>
-<li class="toctree-l1"><a class="reference internal" href="custom_service.html">6. Custom Service</a></li>
-<li class="toctree-l1"><a class="reference internal" href="default_handlers.html">7. TorchServe default inference handlers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="logging.html">8. Logging in Torchserve</a></li>
-<li class="toctree-l1"><a class="reference internal" href="metrics.html">9. TorchServe Metrics</a></li>
-<li class="toctree-l1"><a class="reference internal" href="model_zoo.html">10. Model Zoo</a></li>
-<li class="toctree-l1"><a class="reference internal" href="request_envelopes.html">11. Request Envelopes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="server.html">12. Running TorchServe</a></li>
-<li class="toctree-l1"><a class="reference internal" href="mps.html">13. Running TorchServe with NVIDIA MPS</a></li>
-<li class="toctree-l1"><a class="reference internal" href="snapshot.html">14. TorchServe model snapshot</a></li>
-<li class="toctree-l1"><a class="reference internal" href="sphinx/requirements.html">15. cf. https://github.com/ryanfox/sphinx-markdown-tables/issues/36</a></li>
-<li class="toctree-l1"><a class="reference internal" href="torchserve_on_win_native.html">16. TorchServe on Windows</a></li>
-<li class="toctree-l1"><a class="reference internal" href="torchserve_on_wsl.html">17. TorchServe on Windows Subsystem for Linux (WSL)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="use_cases.html">18. Torchserve Use Cases</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">19. TorchServe Workflows</a></li>
-<li class="toctree-l1"><a class="reference internal" href="large_model_inference.html">20. Serving large models with Torchserve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="index.html">TorchServe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Troubleshooting.html">Troubleshooting Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="performance_guide.html">Performance Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="batch_inference_with_ts.html">Batch Inference with TorchServe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="code_coverage.html">Code Coverage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Advanced configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom_service.html">Custom Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="default_handlers.html">TorchServe default inference handlers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="logging.html">Logging in Torchserve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">TorchServe Metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="model_zoo.html">Model Zoo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="request_envelopes.html">Request Envelopes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="server.html">Running TorchServe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mps.html">Running TorchServe with NVIDIA MPS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="snapshot.html">TorchServe model snapshot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torchserve_on_win_native.html">TorchServe on Windows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torchserve_on_wsl.html">TorchServe on Windows Subsystem for Linux (WSL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="use_cases.html">Torchserve Use Cases</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">TorchServe Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="large_model_inference.html">Serving large models with Torchserve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="FAQs.html">FAQ’S</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Service APIs:</span></p>
+<p class="caption" role="heading"><span class="caption-text">Service APIs:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="grpc_api.html">TorchServe gRPC API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="inference_api.html">Inference API</a></li>
@@ -278,7 +283,7 @@
 <li class="toctree-l1"><a class="reference internal" href="workflow_inference_api.html">Workflow Inference API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="workflow_management_api.html">Management API</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Developer APIs:</span></p>
+<p class="caption" role="heading"><span class="caption-text">Developer APIs:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="api/ts.html">ts package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api/ts.torch_handler.request_envelope.html">ts.torch_handler.request_envelope package</a></li>
@@ -327,7 +332,7 @@
       </li>
 
         
-      <li><span class="section-number">19. </span>TorchServe Workflows</li>
+      <li>TorchServe Workflows</li>
     
     
       <li class="pytorch-breadcrumbs-aside">
@@ -353,6 +358,10 @@
         <div class="pytorch-content-left">
 
         
+          <!-- Google Tag Manager (noscript) -->
+          <noscript><iframe src="https://www.googletagmanager.com/ns.html?id="
+          height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+          <!-- End Google Tag Manager (noscript) -->
           
           <div class="rst-content">
           
@@ -360,12 +369,12 @@
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
   <section id="torchserve-workflows">
-<h1><span class="section-number">19. </span>TorchServe Workflows<a class="headerlink" href="#torchserve-workflows" title="Permalink to this headline">¶</a></h1>
+<h1>TorchServe Workflows<a class="headerlink" href="#torchserve-workflows" title="Permalink to this heading">¶</a></h1>
 <p>TorchServe can be used for serving ensemble of Pytorch models packaged as mar files and Python functions through Workflow APIs.</p>
 <p>It utilizes <a class="reference internal" href="rest_api.html"><span class="doc">REST based APIs</span></a> for workflow management and predictions.</p>
 <p>A Workflow is served on TorchServe using a workflow-archive(.war) which comprises of following:</p>
 <section id="workflow-specification-file">
-<h2><span class="section-number">19.1. </span>Workflow Specification file<a class="headerlink" href="#workflow-specification-file" title="Permalink to this headline">¶</a></h2>
+<h2>Workflow Specification file<a class="headerlink" href="#workflow-specification-file" title="Permalink to this heading">¶</a></h2>
 <p>A workflow specification is a YAML file which provides the details of the models to be executed and a DAG for defining data flow.</p>
 <p>The YAML file is split into a few sections</p>
 <ol class="simple">
@@ -407,7 +416,7 @@
 </pre></div>
 </div>
 <section id="workflow-models">
-<h3><span class="section-number">19.1.1. </span>Workflow Models<a class="headerlink" href="#workflow-models" title="Permalink to this headline">¶</a></h3>
+<h3>Workflow Models<a class="headerlink" href="#workflow-models" title="Permalink to this heading">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">models</span></code> section of the workflow specification defines the models used in the workflow. It uses the following syntax:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">models</span><span class="p">:</span>
     <span class="o">&lt;</span><span class="n">model_name</span><span class="o">&gt;</span><span class="p">:</span>
@@ -416,7 +425,7 @@
 </div>
 </section>
 <section id="workflow-model-properties">
-<h3><span class="section-number">19.1.2. </span>Workflow model properties<a class="headerlink" href="#workflow-model-properties" title="Permalink to this headline">¶</a></h3>
+<h3>Workflow model properties<a class="headerlink" href="#workflow-model-properties" title="Permalink to this heading">¶</a></h3>
 <p>User can define following workflow model properties:</p>
 <table border="1" class="docutils">
 <thead>
@@ -462,10 +471,10 @@
 </section>
 </section>
 <section id="workflow-dag">
-<h2><span class="section-number">19.2. </span>Workflow DAG<a class="headerlink" href="#workflow-dag" title="Permalink to this headline">¶</a></h2>
+<h2>Workflow DAG<a class="headerlink" href="#workflow-dag" title="Permalink to this heading">¶</a></h2>
 <p>User can define the dataflow of a workflow using the <code class="docutils literal notranslate"><span class="pre">dag</span></code> section of the workflow specification. The <code class="docutils literal notranslate"><span class="pre">dag</span></code> consists of the model names defined in the <code class="docutils literal notranslate"><span class="pre">model</span></code> section and python function names which are implemented in the workflow-archive’s handler file.</p>
 <section id="sequential-dag">
-<h3><span class="section-number">19.2.1. </span>Sequential DAG<a class="headerlink" href="#sequential-dag" title="Permalink to this headline">¶</a></h3>
+<h3>Sequential DAG<a class="headerlink" href="#sequential-dag" title="Permalink to this heading">¶</a></h3>
 <p>Eg.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">dag</span><span class="p">:</span>
   <span class="n">function1</span> <span class="p">:</span> <span class="p">[</span><span class="n">model1</span><span class="p">]</span>
@@ -479,7 +488,7 @@
 </div>
 </section>
 <section id="parallel-dag">
-<h3><span class="section-number">19.2.2. </span>Parallel DAG<a class="headerlink" href="#parallel-dag" title="Permalink to this headline">¶</a></h3>
+<h3>Parallel DAG<a class="headerlink" href="#parallel-dag" title="Permalink to this heading">¶</a></h3>
 <p>E.g</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">dag</span><span class="p">:</span>
   <span class="n">pre_processing</span><span class="p">:</span> <span class="p">[</span><span class="n">model1</span><span class="p">,</span> <span class="n">model2</span><span class="p">]</span>
@@ -498,7 +507,7 @@
 </section>
 </section>
 <section id="handler-file">
-<h2><span class="section-number">19.3. </span>Handler file<a class="headerlink" href="#handler-file" title="Permalink to this headline">¶</a></h2>
+<h2>Handler file<a class="headerlink" href="#handler-file" title="Permalink to this heading">¶</a></h2>
 <p>A handler file (python) is supplied in the workflow archive (.war) and consists of all the functions used in the workflow dag.</p>
 <p>Eg.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">preprocess</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
@@ -510,14 +519,14 @@
 </div>
 </section>
 <section id="related-docs">
-<h2><span class="section-number">19.4. </span>Related docs<a class="headerlink" href="#related-docs" title="Permalink to this headline">¶</a></h2>
+<h2>Related docs<a class="headerlink" href="#related-docs" title="Permalink to this heading">¶</a></h2>
 <ul class="simple">
 <li><p><a class="reference internal" href="workflow_inference_api.html"><span class="doc">workflow_inference_api.md</span></a></p></li>
 <li><p><a class="reference internal" href="workflow_management_api.html"><span class="doc">workflow_management_api.md</span></a></p></li>
 </ul>
 </section>
 <section id="known-issues">
-<h2><span class="section-number">19.5. </span>Known issues<a class="headerlink" href="#known-issues" title="Permalink to this headline">¶</a></h2>
+<h2>Known issues<a class="headerlink" href="#known-issues" title="Permalink to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Each workflow dag node (model/function) will receive input as bytes</p></li>
 <li><p>Only following output types are supported by workflow models/functions : String, Int, List, Dict of String, int, Json serializable objects, byte array and Torch Tensors</p></li>
@@ -537,10 +546,10 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="large_model_inference.html" class="btn btn-neutral float-right" title="20. Serving large models with Torchserve" accesskey="n" rel="next">Next <img src="_static/images/chevron-right-orange.svg" class="next-page"></a>
+        <a href="large_model_inference.html" class="btn btn-neutral float-right" title="Serving large models with Torchserve" accesskey="n" rel="next">Next <img src="_static/images/chevron-right-orange.svg" class="next-page"></a>
       
       
-        <a href="use_cases.html" class="btn btn-neutral" title="18. Torchserve Use Cases" accesskey="p" rel="prev"><img src="_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
+        <a href="use_cases.html" class="btn btn-neutral" title="Torchserve Use Cases" accesskey="p" rel="prev"><img src="_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
       
     </div>
   
@@ -572,20 +581,20 @@
           <div class="pytorch-right-menu" id="pytorch-right-menu">
             <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
               <ul>
-<li><a class="reference internal" href="#">19. TorchServe Workflows</a><ul>
-<li><a class="reference internal" href="#workflow-specification-file">19.1. Workflow Specification file</a><ul>
-<li><a class="reference internal" href="#workflow-models">19.1.1. Workflow Models</a></li>
-<li><a class="reference internal" href="#workflow-model-properties">19.1.2. Workflow model properties</a></li>
+<li><a class="reference internal" href="#">TorchServe Workflows</a><ul>
+<li><a class="reference internal" href="#workflow-specification-file">Workflow Specification file</a><ul>
+<li><a class="reference internal" href="#workflow-models">Workflow Models</a></li>
+<li><a class="reference internal" href="#workflow-model-properties">Workflow model properties</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#workflow-dag">19.2. Workflow DAG</a><ul>
-<li><a class="reference internal" href="#sequential-dag">19.2.1. Sequential DAG</a></li>
-<li><a class="reference internal" href="#parallel-dag">19.2.2. Parallel DAG</a></li>
+<li><a class="reference internal" href="#workflow-dag">Workflow DAG</a><ul>
+<li><a class="reference internal" href="#sequential-dag">Sequential DAG</a></li>
+<li><a class="reference internal" href="#parallel-dag">Parallel DAG</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#handler-file">19.3. Handler file</a></li>
-<li><a class="reference internal" href="#related-docs">19.4. Related docs</a></li>
-<li><a class="reference internal" href="#known-issues">19.5. Known issues</a></li>
+<li><a class="reference internal" href="#handler-file">Handler file</a></li>
+<li><a class="reference internal" href="#related-docs">Related docs</a></li>
+<li><a class="reference internal" href="#known-issues">Known issues</a></li>
 </ul>
 </li>
 </ul>
@@ -606,6 +615,7 @@
          <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
          <script src="_static/jquery.js"></script>
          <script src="_static/underscore.js"></script>
+         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
          <script src="_static/doctools.js"></script>
          <script src="_static/katex.min.js"></script>
          <script src="_static/auto-render.min.js"></script>

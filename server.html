@@ -6,11 +6,11 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>12. Running TorchServe &mdash; PyTorch/Serve master documentation</title>
+  <title>Running TorchServe &mdash; PyTorch/Serve master documentation</title>
   
 
   
@@ -35,11 +35,15 @@
   <link rel="stylesheet" href="_static/katex-math.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="13. Running TorchServe with NVIDIA MPS" href="mps.html" />
-    <link rel="prev" title="11. Request Envelopes" href="request_envelopes.html" />
-  <!-- Google Analytics -->
-  
-  <!-- End Google Analytics -->
+    <link rel="next" title="Running TorchServe with NVIDIA MPS" href="mps.html" />
+    <link rel="prev" title="Request Envelopes" href="request_envelopes.html" />
+  <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','');</script>
+    <!-- End Google Tag Manager -->
   
 
   
@@ -245,30 +249,31 @@
               
             
             
-              <p class="caption"><span class="caption-text">Contents:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="index.html">1. TorchServe</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Troubleshooting.html">2. Troubleshooting Guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="batch_inference_with_ts.html">3. Batch Inference with TorchServe</a></li>
-<li class="toctree-l1"><a class="reference internal" href="code_coverage.html">4. Code Coverage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="configuration.html">5. Advanced configuration</a></li>
-<li class="toctree-l1"><a class="reference internal" href="custom_service.html">6. Custom Service</a></li>
-<li class="toctree-l1"><a class="reference internal" href="default_handlers.html">7. TorchServe default inference handlers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="logging.html">8. Logging in Torchserve</a></li>
-<li class="toctree-l1"><a class="reference internal" href="metrics.html">9. TorchServe Metrics</a></li>
-<li class="toctree-l1"><a class="reference internal" href="model_zoo.html">10. Model Zoo</a></li>
-<li class="toctree-l1"><a class="reference internal" href="request_envelopes.html">11. Request Envelopes</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">12. Running TorchServe</a></li>
-<li class="toctree-l1"><a class="reference internal" href="mps.html">13. Running TorchServe with NVIDIA MPS</a></li>
-<li class="toctree-l1"><a class="reference internal" href="snapshot.html">14. TorchServe model snapshot</a></li>
-<li class="toctree-l1"><a class="reference internal" href="sphinx/requirements.html">15. cf. https://github.com/ryanfox/sphinx-markdown-tables/issues/36</a></li>
-<li class="toctree-l1"><a class="reference internal" href="torchserve_on_win_native.html">16. TorchServe on Windows</a></li>
-<li class="toctree-l1"><a class="reference internal" href="torchserve_on_wsl.html">17. TorchServe on Windows Subsystem for Linux (WSL)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="use_cases.html">18. Torchserve Use Cases</a></li>
-<li class="toctree-l1"><a class="reference internal" href="workflows.html">19. TorchServe Workflows</a></li>
-<li class="toctree-l1"><a class="reference internal" href="large_model_inference.html">20. Serving large models with Torchserve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="index.html">TorchServe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Troubleshooting.html">Troubleshooting Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="performance_guide.html">Performance Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="batch_inference_with_ts.html">Batch Inference with TorchServe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="code_coverage.html">Code Coverage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Advanced configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom_service.html">Custom Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="default_handlers.html">TorchServe default inference handlers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="logging.html">Logging in Torchserve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">TorchServe Metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="model_zoo.html">Model Zoo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="request_envelopes.html">Request Envelopes</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Running TorchServe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mps.html">Running TorchServe with NVIDIA MPS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="snapshot.html">TorchServe model snapshot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torchserve_on_win_native.html">TorchServe on Windows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torchserve_on_wsl.html">TorchServe on Windows Subsystem for Linux (WSL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="use_cases.html">Torchserve Use Cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workflows.html">TorchServe Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="large_model_inference.html">Serving large models with Torchserve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="FAQs.html">FAQ’S</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Service APIs:</span></p>
+<p class="caption" role="heading"><span class="caption-text">Service APIs:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="grpc_api.html">TorchServe gRPC API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="inference_api.html">Inference API</a></li>
@@ -278,7 +283,7 @@
 <li class="toctree-l1"><a class="reference internal" href="workflow_inference_api.html">Workflow Inference API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="workflow_management_api.html">Management API</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Developer APIs:</span></p>
+<p class="caption" role="heading"><span class="caption-text">Developer APIs:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="api/ts.html">ts package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api/ts.torch_handler.request_envelope.html">ts.torch_handler.request_envelope package</a></li>
@@ -327,7 +332,7 @@
       </li>
 
         
-      <li><span class="section-number">12. </span>Running TorchServe</li>
+      <li>Running TorchServe</li>
     
     
       <li class="pytorch-breadcrumbs-aside">
@@ -353,6 +358,10 @@
         <div class="pytorch-content-left">
 
         
+          <!-- Google Tag Manager (noscript) -->
+          <noscript><iframe src="https://www.googletagmanager.com/ns.html?id="
+          height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+          <!-- End Google Tag Manager (noscript) -->
           
           <div class="rst-content">
           
@@ -360,9 +369,9 @@
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
   <section id="running-torchserve">
-<h1><span class="section-number">12. </span>Running TorchServe<a class="headerlink" href="#running-torchserve" title="Permalink to this headline">¶</a></h1>
+<h1>Running TorchServe<a class="headerlink" href="#running-torchserve" title="Permalink to this heading">¶</a></h1>
 <section id="contents-of-this-document">
-<h2><span class="section-number">12.1. </span>Contents of this Document<a class="headerlink" href="#contents-of-this-document" title="Permalink to this headline">¶</a></h2>
+<h2>Contents of this Document<a class="headerlink" href="#contents-of-this-document" title="Permalink to this heading">¶</a></h2>
 <ul class="simple">
 <li><p><a class="reference external" href="#overview">Overview</a></p></li>
 <li><p><a class="reference external" href="#technical-details">Technical Details</a></p></li>
@@ -372,12 +381,12 @@
 </ul>
 </section>
 <section id="overview">
-<h2><span class="section-number">12.2. </span>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this heading">¶</a></h2>
 <p>TorchServe can be used for many types of inference in production settings. It provides an easy-to-use command line interface and utilizes  <a class="reference internal" href="rest_api.html"><span class="doc">REST based APIs</span></a> handle state prediction requests.</p>
 <p>For example, you want to make an app that lets your users snap a picture, and it will tell them what objects were detected in the scene and predictions on what the objects might be. You can use TorchServe to serve a prediction endpoint for a object detection and identification model that intakes images, then returns predictions. You can also modify TorchServe behavior with custom services and run multiple models. There are examples of custom services in the <a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples">examples</a> folder.</p>
 </section>
 <section id="technical-details">
-<h2><span class="section-number">12.3. </span>Technical Details<a class="headerlink" href="#technical-details" title="Permalink to this headline">¶</a></h2>
+<h2>Technical Details<a class="headerlink" href="#technical-details" title="Permalink to this heading">¶</a></h2>
 <p>Now that you have a high level view of TorchServe, let’s get a little into the weeds. TorchServe takes a Pytorch deep learning model and it wraps it in a set of REST APIs. Currently it comes with a built-in web server that you run from command line. This command line call takes in the single or multiple models you want to serve, along with additional optional parameters controlling the port, host, and logging. TorchServe supports running custom services to handle the specific inference handling logic. These are covered in more detail in the <a class="reference internal" href="custom_service.html"><span class="doc">custom service</span></a> documentation.</p>
 <p>To try out TorchServe serving now, you can load the custom MNIST model, with this example:</p>
 <ul class="simple">
@@ -392,11 +401,11 @@
 </ul>
 </section>
 <section id="model-files">
-<h2><span class="section-number">12.4. </span>Model Files<a class="headerlink" href="#model-files" title="Permalink to this headline">¶</a></h2>
+<h2>Model Files<a class="headerlink" href="#model-files" title="Permalink to this heading">¶</a></h2>
 <p>The rest of this topic focuses on serving model files without much discussion on the model files themselves, where they come from, and how they’re made. Long story short: it’s a zip archive with the parameters, weights, and metadata that define a model that has been trained already. If you want to know more about the model files, take a look at the <a class="reference external" href="https://github.com/pytorch/serve/tree/master/model-archiver">model-archiver documentation</a>.</p>
 </section>
 <section id="command-line-interface">
-<h2><span class="section-number">12.5. </span>Command Line Interface<a class="headerlink" href="#command-line-interface" title="Permalink to this headline">¶</a></h2>
+<h2>Command Line Interface<a class="headerlink" href="#command-line-interface" title="Permalink to this heading">¶</a></h2>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>torchserve<span class="w"> </span>--help
 usage:<span class="w"> </span>torchserve<span class="w"> </span><span class="o">[</span>-h<span class="o">]</span><span class="w"> </span><span class="o">[</span>-v<span class="w"> </span><span class="p">|</span><span class="w"> </span>--version<span class="o">]</span>
 <span class="w">                          </span><span class="o">[</span>--start<span class="o">]</span>
@@ -433,7 +442,7 @@ optional<span class="w"> </span>arguments:
 </pre></div>
 </div>
 <section id="arguments">
-<h3><span class="section-number">12.5.1. </span>Arguments:<a class="headerlink" href="#arguments" title="Permalink to this headline">¶</a></h3>
+<h3>Arguments:<a class="headerlink" href="#arguments" title="Permalink to this heading">¶</a></h3>
 <p>Example where no models are loaded at start time:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>torchserve<span class="w"> </span>--model-store<span class="w"> </span>/models
 </pre></div>
@@ -460,9 +469,9 @@ b) to load all the models in model store set model value to “all”</p>
 </section>
 </section>
 <section id="advanced-features">
-<h2><span class="section-number">12.6. </span>Advanced Features<a class="headerlink" href="#advanced-features" title="Permalink to this headline">¶</a></h2>
+<h2>Advanced Features<a class="headerlink" href="#advanced-features" title="Permalink to this heading">¶</a></h2>
 <section id="custom-services">
-<h3><span class="section-number">12.6.1. </span>Custom Services<a class="headerlink" href="#custom-services" title="Permalink to this headline">¶</a></h3>
+<h3>Custom Services<a class="headerlink" href="#custom-services" title="Permalink to this heading">¶</a></h3>
 <p>This topic is covered in much more detail on the <a class="reference internal" href="custom_service.html"><span class="doc">custom service documentation page</span></a>, but let’s talk about how you start up your TorchServe server using a custom service and why you might want one.
 Let’s say you have a model named <code class="docutils literal notranslate"><span class="pre">super-fancy-net.mar</span></code> in <code class="docutils literal notranslate"><span class="pre">/models</span></code> folder, which can detect a lot of things, but you want an API endpoint that detects only hotdogs. You would use a name that makes sense for it, such as the “not-hot-dog” API. In this case we might invoke TorchServe like this:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>torchserve<span class="w"> </span>--start<span class="w"> </span>--model-store<span class="w"> </span>/models<span class="w"> </span>--models<span class="w"> </span>not-hot-dog<span class="o">=</span>super-fancy-net.mar
@@ -471,7 +480,7 @@ Let’s say you have a model named <code class="docutils literal notranslate"><s
 <p>This would serve a prediction endpoint at <code class="docutils literal notranslate"><span class="pre">predictions/not-hot-dog/</span></code> and run your custom service code in the archive, the manifest in archive would point to the entry point.</p>
 </section>
 <section id="serving-multiple-models-with-torchserve">
-<h3><span class="section-number">12.6.2. </span>Serving Multiple Models with TorchServe<a class="headerlink" href="#serving-multiple-models-with-torchserve" title="Permalink to this headline">¶</a></h3>
+<h3>Serving Multiple Models with TorchServe<a class="headerlink" href="#serving-multiple-models-with-torchserve" title="Permalink to this heading">¶</a></h3>
 <p>Example loading all models available in <code class="docutils literal notranslate"><span class="pre">model_store</span></code> while starting TorchServe:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>torchserve<span class="w"> </span>--start<span class="w"> </span>--model-store<span class="w"> </span>/models<span class="w"> </span>--models<span class="w"> </span>all
 </pre></div>
@@ -486,7 +495,7 @@ Let’s say you have a model named <code class="docutils literal notranslate"><s
 </div>
 </section>
 <section id="logging-and-metrics">
-<h3><span class="section-number">12.6.3. </span>Logging and Metrics<a class="headerlink" href="#logging-and-metrics" title="Permalink to this headline">¶</a></h3>
+<h3>Logging and Metrics<a class="headerlink" href="#logging-and-metrics" title="Permalink to this heading">¶</a></h3>
 <p>For details on logging see the <a class="reference internal" href="logging.html"><span class="doc">logging documentation</span></a>. For details on metrics see the <a class="reference internal" href="metrics.html"><span class="doc">metrics documentation</span></a>.</p>
 </section>
 </section>
@@ -500,10 +509,10 @@ Let’s say you have a model named <code class="docutils literal notranslate"><s
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="mps.html" class="btn btn-neutral float-right" title="13. Running TorchServe with NVIDIA MPS" accesskey="n" rel="next">Next <img src="_static/images/chevron-right-orange.svg" class="next-page"></a>
+        <a href="mps.html" class="btn btn-neutral float-right" title="Running TorchServe with NVIDIA MPS" accesskey="n" rel="next">Next <img src="_static/images/chevron-right-orange.svg" class="next-page"></a>
       
       
-        <a href="request_envelopes.html" class="btn btn-neutral" title="11. Request Envelopes" accesskey="p" rel="prev"><img src="_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
+        <a href="request_envelopes.html" class="btn btn-neutral" title="Request Envelopes" accesskey="p" rel="prev"><img src="_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
       
     </div>
   
@@ -535,19 +544,19 @@ Let’s say you have a model named <code class="docutils literal notranslate"><s
           <div class="pytorch-right-menu" id="pytorch-right-menu">
             <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
               <ul>
-<li><a class="reference internal" href="#">12. Running TorchServe</a><ul>
-<li><a class="reference internal" href="#contents-of-this-document">12.1. Contents of this Document</a></li>
-<li><a class="reference internal" href="#overview">12.2. Overview</a></li>
-<li><a class="reference internal" href="#technical-details">12.3. Technical Details</a></li>
-<li><a class="reference internal" href="#model-files">12.4. Model Files</a></li>
-<li><a class="reference internal" href="#command-line-interface">12.5. Command Line Interface</a><ul>
-<li><a class="reference internal" href="#arguments">12.5.1. Arguments:</a></li>
+<li><a class="reference internal" href="#">Running TorchServe</a><ul>
+<li><a class="reference internal" href="#contents-of-this-document">Contents of this Document</a></li>
+<li><a class="reference internal" href="#overview">Overview</a></li>
+<li><a class="reference internal" href="#technical-details">Technical Details</a></li>
+<li><a class="reference internal" href="#model-files">Model Files</a></li>
+<li><a class="reference internal" href="#command-line-interface">Command Line Interface</a><ul>
+<li><a class="reference internal" href="#arguments">Arguments:</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#advanced-features">12.6. Advanced Features</a><ul>
-<li><a class="reference internal" href="#custom-services">12.6.1. Custom Services</a></li>
-<li><a class="reference internal" href="#serving-multiple-models-with-torchserve">12.6.2. Serving Multiple Models with TorchServe</a></li>
-<li><a class="reference internal" href="#logging-and-metrics">12.6.3. Logging and Metrics</a></li>
+<li><a class="reference internal" href="#advanced-features">Advanced Features</a><ul>
+<li><a class="reference internal" href="#custom-services">Custom Services</a></li>
+<li><a class="reference internal" href="#serving-multiple-models-with-torchserve">Serving Multiple Models with TorchServe</a></li>
+<li><a class="reference internal" href="#logging-and-metrics">Logging and Metrics</a></li>
 </ul>
 </li>
 </ul>
@@ -570,6 +579,7 @@ Let’s say you have a model named <code class="docutils literal notranslate"><s
          <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
          <script src="_static/jquery.js"></script>
          <script src="_static/underscore.js"></script>
+         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
          <script src="_static/doctools.js"></script>
          <script src="_static/katex.min.js"></script>
          <script src="_static/auto-render.min.js"></script>

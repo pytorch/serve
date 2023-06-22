@@ -6,7 +6,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
@@ -35,9 +35,15 @@
   <link rel="stylesheet" href="_static/katex-math.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-  <!-- Google Analytics -->
-  
-  <!-- End Google Analytics -->
+    <link rel="next" title="Batch Inference with TorchServe" href="batch_inference_with_ts.html" />
+    <link rel="prev" title="Troubleshooting Guide" href="Troubleshooting.html" />
+  <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','');</script>
+    <!-- End Google Tag Manager -->
   
 
   
@@ -243,30 +249,31 @@
               
             
             
-              <p class="caption"><span class="caption-text">Contents:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="index.html">1. TorchServe</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Troubleshooting.html">2. Troubleshooting Guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="batch_inference_with_ts.html">3. Batch Inference with TorchServe</a></li>
-<li class="toctree-l1"><a class="reference internal" href="code_coverage.html">4. Code Coverage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="configuration.html">5. Advanced configuration</a></li>
-<li class="toctree-l1"><a class="reference internal" href="custom_service.html">6. Custom Service</a></li>
-<li class="toctree-l1"><a class="reference internal" href="default_handlers.html">7. TorchServe default inference handlers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="logging.html">8. Logging in Torchserve</a></li>
-<li class="toctree-l1"><a class="reference internal" href="metrics.html">9. TorchServe Metrics</a></li>
-<li class="toctree-l1"><a class="reference internal" href="model_zoo.html">10. Model Zoo</a></li>
-<li class="toctree-l1"><a class="reference internal" href="request_envelopes.html">11. Request Envelopes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="server.html">12. Running TorchServe</a></li>
-<li class="toctree-l1"><a class="reference internal" href="mps.html">13. Running TorchServe with NVIDIA MPS</a></li>
-<li class="toctree-l1"><a class="reference internal" href="snapshot.html">14. TorchServe model snapshot</a></li>
-<li class="toctree-l1"><a class="reference internal" href="sphinx/requirements.html">15. cf. https://github.com/ryanfox/sphinx-markdown-tables/issues/36</a></li>
-<li class="toctree-l1"><a class="reference internal" href="torchserve_on_win_native.html">16. TorchServe on Windows</a></li>
-<li class="toctree-l1"><a class="reference internal" href="torchserve_on_wsl.html">17. TorchServe on Windows Subsystem for Linux (WSL)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="use_cases.html">18. Torchserve Use Cases</a></li>
-<li class="toctree-l1"><a class="reference internal" href="workflows.html">19. TorchServe Workflows</a></li>
-<li class="toctree-l1"><a class="reference internal" href="large_model_inference.html">20. Serving large models with Torchserve</a></li>
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="index.html">TorchServe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Troubleshooting.html">Troubleshooting Guide</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Performance Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="batch_inference_with_ts.html">Batch Inference with TorchServe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="code_coverage.html">Code Coverage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Advanced configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom_service.html">Custom Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="default_handlers.html">TorchServe default inference handlers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="logging.html">Logging in Torchserve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">TorchServe Metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="model_zoo.html">Model Zoo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="request_envelopes.html">Request Envelopes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="server.html">Running TorchServe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mps.html">Running TorchServe with NVIDIA MPS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="snapshot.html">TorchServe model snapshot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torchserve_on_win_native.html">TorchServe on Windows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torchserve_on_wsl.html">TorchServe on Windows Subsystem for Linux (WSL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="use_cases.html">Torchserve Use Cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workflows.html">TorchServe Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="large_model_inference.html">Serving large models with Torchserve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="FAQs.html">FAQ’S</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Service APIs:</span></p>
+<p class="caption" role="heading"><span class="caption-text">Service APIs:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="grpc_api.html">TorchServe gRPC API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="inference_api.html">Inference API</a></li>
@@ -276,7 +283,7 @@
 <li class="toctree-l1"><a class="reference internal" href="workflow_inference_api.html">Workflow Inference API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="workflow_management_api.html">Management API</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Developer APIs:</span></p>
+<p class="caption" role="heading"><span class="caption-text">Developer APIs:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="api/ts.html">ts package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api/ts.torch_handler.request_envelope.html">ts.torch_handler.request_envelope package</a></li>
@@ -351,6 +358,10 @@
         <div class="pytorch-content-left">
 
         
+          <!-- Google Tag Manager (noscript) -->
+          <noscript><iframe src="https://www.googletagmanager.com/ns.html?id="
+          height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+          <!-- End Google Tag Manager (noscript) -->
           
           <div class="rst-content">
           
@@ -358,54 +369,74 @@
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
   <section id="performance-guide">
-<h1><a class="reference external" href="#performance-guide">Performance Guide</a><a class="headerlink" href="#performance-guide" title="Permalink to this headline">¶</a></h1>
+<h1><a class="reference external" href="#performance-guide">Performance Guide</a><a class="headerlink" href="#performance-guide" title="Permalink to this heading">¶</a></h1>
 <p>In case you’re interested in optimizing the memory usage, latency or throughput of a PyTorch model served with TorchServe, this is the guide for you.</p>
 <section id="optimizing-pytorch">
-<h2>Optimizing PyTorch<a class="headerlink" href="#optimizing-pytorch" title="Permalink to this headline">¶</a></h2>
-<p>There are many tricks to optimize PyTorch models for production including but not limited to distillation, quantization, fusion, pruning, setting environment variables and we encourage you to benchmark and see what works best for you. An experimental tool that may make this process easier is https://pypi.org/project/torchprep.</p>
-<p>In general it’s hard to optimize models and the easiest approach can be exporting to some runtime like ORT, TensorRT, IPEX, FasterTransformer and we have many examples for how to integrate these runtimes in https://github.com/pytorch/serve/tree/master/examples. If your favorite runtime is not supported please feel free to open a PR.</p>
-<section id="onnx-and-ort-support">
-<h3>ONNX and ORT support<a class="headerlink" href="#onnx-and-ort-support" title="Permalink to this headline">¶</a></h3>
-<p><code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">torchserve[onnx]</span></code></p>
-<p>In particular TorchServe has native support for ONNX models which can be loaded via ORT for both accelerated CPU and GPU inference. ONNX operates a bit differently from a regular PyTorch model in that when you’re running the conversion you need to explicitly set and name your input and output dimensions. See https://github.com/pytorch/serve/blob/master/test/pytest/test_onnx.py for an example. So at a high level what TorchServe allows you to do is</p>
+<h2>Optimizing PyTorch<a class="headerlink" href="#optimizing-pytorch" title="Permalink to this heading">¶</a></h2>
+<p>There are many tricks to optimize PyTorch models for production including but not limited to distillation, quantization, fusion, pruning, setting environment variables and we encourage you to benchmark and see what works best for you.</p>
+<p>In general it’s hard to optimize models and the easiest approach can be exporting to some runtime like ORT, TensorRT, IPEX or FasterTransformer. We have many examples for how to integrate these runtimes on the <a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples">TorchServe github page</a>. If your favorite runtime is not supported please feel free to open a PR.</p>
+<p><h4>ONNX and ORT support</h4></p>
+<p>TorchServe has native support for ONNX models which can be loaded via ORT for both accelerated CPU and GPU inference. ONNX operates a bit differently from a regular PyTorch model in that when you’re running the conversion you need to explicitly set and name your input and output dimensions. See <a class="reference external" href="https://github.com/pytorch/serve/blob/master/test/pytest/test_onnx.py">this example</a>.</p>
+<p>At a high level what TorchServe allows you to do is</p>
 <ol class="simple">
 <li><p>Package serialized ONNX weights <code class="docutils literal notranslate"><span class="pre">torch-model-archiver</span> <span class="pre">--serialized-file</span> <span class="pre">model.onnx</span> <span class="pre">...</span></code></p></li>
 <li><p>Load those weights from <code class="docutils literal notranslate"><span class="pre">base_handler.py</span></code> using <code class="docutils literal notranslate"><span class="pre">ort_session</span> <span class="pre">=</span> <span class="pre">ort.InferenceSession(self.model_pt_path,</span> <span class="pre">providers=providers,</span> <span class="pre">sess_options=sess_options)</span></code> which supports reasonable defaults for both CPU and GPU inference</p></li>
 <li><p>Allow you define custom pre and post processing functions to pass in data in the format your onnx model expects with a custom handler</p></li>
 </ol>
-</section>
-<section id="tensorrt-and-nvfuser-support">
-<h3>TensorRT and NVfuser support<a class="headerlink" href="#tensorrt-and-nvfuser-support" title="Permalink to this headline">¶</a></h3>
-<p>TorchServe also already supports models optimized via TensorRT. To leverage the TensorRT runtime you can convert your model via https://github.com/pytorch/TensorRT and once you’re done you’ll have serialized weights which you can load with <code class="docutils literal notranslate"><span class="pre">torch.jit.load()</span></code> https://pytorch.org/TensorRT/getting_started/getting_started_with_python_api.html#getting-started-with-python-api so for all intents and purposes after a conversion there is no difference in how PyTorch treats a Torchscript model vs a TensorRT model. An additional benefit to using <code class="docutils literal notranslate"><span class="pre">torch.jit.load()</span></code> is that it’ll let you leverage NVfuser which starting from PyTorch 1.12 is the default fuser for torchscripted models.</p>
-</section>
+<p><h4>TensorRT<h4></p>
+<p>TorchServe also supports models optimized via TensorRT. To leverage the TensorRT runtime you can convert your model by <a class="reference external" href="https://github.com/pytorch/TensorRT">following these instructions</a> and once you’re done you’ll have serialized weights which you can load with <a class="reference external" href="https://pytorch.org/TensorRT/getting_started/getting_started_with_python_api.html#getting-started-with-python-api"><code class="docutils literal notranslate"><span class="pre">torch.jit.load()</span></code></a>.</p>
+<p>After a conversion there is no difference in how PyTorch treats a Torchscript model vs a TensorRT model.</p>
+<p><h4>Better Transformer<h4></p>
+<p>Better Transformer from PyTorch implements a backwards-compatible fast path of <code class="docutils literal notranslate"><span class="pre">torch.nn.TransformerEncoder</span></code> for Transformer Encoder Inference and does not require model authors to modify their models. BetterTransformer improvements can exceed 2x in speedup and throughput for many common execution scenarios.
+You can find more information on Better Transformer <a class="reference external" href="https://pytorch.org/blog/a-better-transformer-for-fast-transformer-encoder-inference/">here</a> and <a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/Huggingface_Transformers#speed-up-inference-with-better-transformer">here</a>.</p>
 </section>
 <section id="optimizing-torchserve">
-<h2>Optimizing TorchServe<a class="headerlink" href="#optimizing-torchserve" title="Permalink to this headline">¶</a></h2>
+<h2>Optimizing TorchServe<a class="headerlink" href="#optimizing-torchserve" title="Permalink to this heading">¶</a></h2>
 <p>The main settings you should vary if you’re trying to improve the performance of TorchServe from the <code class="docutils literal notranslate"><span class="pre">config.properties</span></code> are the <code class="docutils literal notranslate"><span class="pre">batch_size</span></code> and <code class="docutils literal notranslate"><span class="pre">batch_delay</span></code>. A larger batch size means a higher throughput at the cost of lower latency.</p>
-<p>The second most important settings are  number of workers and number of gpus which will have a dramatic impact on CPU and GPU performance. To configure them:</p>
-<section id="concurrency-and-number-of-workers">
-<h3>Concurrency And Number of Workers<a class="headerlink" href="#concurrency-and-number-of-workers" title="Permalink to this headline">¶</a></h3>
+<p>The second most important settings are  number of workers and number of gpus which will have a dramatic impact on CPU and GPU performance.</p>
+<p><h4>Concurrency And Number of Workers</h4></p>
 <p>TorchServe exposes configurations that allow the user to configure the number of worker threads on CPU and GPUs. There is an important config property that can speed up the server depending on the workload.
 <em>Note: the following property has bigger impact under heavy workloads.</em></p>
-<p><strong>CPU</strong>: there is a config property called <code class="docutils literal notranslate"><span class="pre">workers</span></code> which sets the number of worker threads for a model. The best value to set <code class="docutils literal notranslate"><span class="pre">workers</span></code> to is to start with <code class="docutils literal notranslate"><span class="pre">num</span> <span class="pre">physical</span> <span class="pre">cores</span> <span class="pre">/</span> <span class="pre">2</span></code> and increase it as much possible after setting <code class="docutils literal notranslate"><span class="pre">torch.set_num_threads(1)</span></code> in your handler.</p>
-<p><strong>GPU</strong>: there is a config property called <code class="docutils literal notranslate"><span class="pre">number_of_gpu</span></code> that tells the server to use a specific number of GPUs per model. In cases where we register multiple models with the server, this will apply to all the models registered. If this is set to a low value (ex: 0 or 1), it will result in under-utilization of GPUs. On the contrary, setting to a high value (&gt;= max GPUs available on the system) results in as many workers getting spawned per model. Clearly, this will result in unnecessary contention for GPUs and can result in sub-optimal scheduling of threads to GPU.</p>
+<p><h4>TorchServe On CPU </h4></p>
+<p>If working with TorchServe on a CPU here are some things to consider that could improve performance:</p>
+<ul class="simple">
+<li><p>In a hyperthreading enabled system, avoid logical cores by setting thread affinity to physical cores only via core pinning.</p></li>
+<li><p>In a multi-socket system with NUMA, avoid cross-socket remote memory access by setting thread affinity to a specific socket via core pinning.</p></li>
+</ul>
+<p>These principles can be automatically configured via an easy to use launch script which has already been integrated into TorchServe. For more information take a look at this <a class="reference external" href="https://pytorch.org/tutorials/intermediate/torchserve_with_ipex#grokking-pytorch-intel-cpu-performance-from-first-principles">case study</a> which dives into these points further with examples and explanations from first principles.</p>
+<p><h4>TorchServe on GPU</h4></p>
+<p>There is a config property called <code class="docutils literal notranslate"><span class="pre">number_of_gpu</span></code> that tells the server to use a specific number of GPUs per model. In cases where we register multiple models with the server, this will apply to all the models registered. If this is set to a low value (ex: 0 or 1), it will result in under-utilization of GPUs. On the contrary, setting to a high value (&gt;= max GPUs available on the system) results in as many workers getting spawned per model. Clearly, this will result in unnecessary contention for GPUs and can result in sub-optimal scheduling of threads to GPU.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ValueToSet</span> <span class="o">=</span> <span class="p">(</span><span class="n">Number</span> <span class="n">of</span> <span class="n">Hardware</span> <span class="n">GPUs</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">Number</span> <span class="n">of</span> <span class="n">Unique</span> <span class="n">Models</span><span class="p">)</span>
 </pre></div>
 </div>
-</section>
+<p><h6> NVIDIA MPS</h6></p>
+<p>While NVIDIA GPUs allow multiple processes to run on CUDA kernels, this comes with its own drawbacks namely:</p>
+<ul class="simple">
+<li><p>The execution of the kernels is generally serialized</p></li>
+<li><p>Each processes creates its own CUDA context which occupies additional GPU memory</p></li>
+</ul>
+<p>To get around these drawbacks, you can utilize the NVIDIA Multi-Process Service (MPS) to increase performance. You can find more information on how to utilize NVIDIA MPS with TorchServe  <a class="reference internal" href="mps.html"><span class="doc">here</span></a>.</p>
+<p><h6> NVIDIA DALI</h6></p>
+<p>The NVIDIA Data Loading Library (DALI) is a library for data loading and pre-processing to accelerate deep learning applications. It can be used as a portable drop-in replacement for built in data loaders and data iterators in popular deep learning frameworks. DALI provides a collection of highly optimized building blocks for loading and processing image, video and audio data.
+You can find an example of DALI optimization integration with TorchServe <a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/nvidia_dali">here</a>.</p>
 </section>
 <section id="benchmarking">
-<h2>Benchmarking<a class="headerlink" href="#benchmarking" title="Permalink to this headline">¶</a></h2>
-<p>To make comparing various model and TorchServe configurations easier to compare, we’ve added a few helper scripts that output performance data like p50, p90, p99 latency in a clean report here and mostly require you to determine some configuration either via JSON or YAML https://github.com/pytorch/serve/tree/master/benchmarks.</p>
-<p>If you’d like to run performance benchmarks checkout https://github.com/pytorch/serve/tree/master/benchmarks</p>
+<h2>Benchmarking<a class="headerlink" href="#benchmarking" title="Permalink to this heading">¶</a></h2>
+<p>To make comparing various model and TorchServe configurations easier to compare, we’ve added a few helper scripts that output performance data like p50, p90, p99 latency in a clean report <a class="reference external" href="https://github.com/pytorch/serve/tree/master/benchmarks">here</a> and mostly require you to determine some configuration either via JSON or YAML.
+You can find more information on TorchServe benchmarking <a class="reference external" href="https://github.com/pytorch/serve/blob/master/benchmarks/README.md#torchserve-model-server-benchmarking">here</a>.</p>
 </section>
 <section id="profiling">
-<h2>Profiling<a class="headerlink" href="#profiling" title="Permalink to this headline">¶</a></h2>
+<h2>Profiling<a class="headerlink" href="#profiling" title="Permalink to this heading">¶</a></h2>
 <p>TorchServe has native support for the PyTorch profiler which will help you find performance bottlenecks in your code.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">export</span> <span class="n">ENABLE_TORCH_PROFILER</span><span class="o">=</span><span class="n">TRUE</span>
 </pre></div>
 </div>
-<p>To learn more about the PyTorch profiler https://github.com/pytorch/kineto/tree/main/tb_plugin</p>
+<p>Visit this <a class="reference external" href="https://github.com/pytorch/kineto/tree/main/tb_plugin">link</a> to learn more about the PyTorch profiler.</p>
+</section>
+<section id="more-resources">
+<h2>More Resources<a class="headerlink" href="#more-resources" title="Permalink to this heading">¶</a></h2>
+<p><h4>TorchServe on the Animated Drawings App</h4></p>
+<p>For some insight into fine tuning TorchServe performance in an application, take a look at this <a class="reference external" href="https://pytorch.org/blog/torchserve-performance-tuning/">article</a>. The case study shown here uses the Animated Drawings App form Meta to improve TorchServe Performance.</p>
 </section>
 </section>
 
@@ -414,6 +445,15 @@
              
             </div>
             <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="batch_inference_with_ts.html" class="btn btn-neutral float-right" title="Batch Inference with TorchServe" accesskey="n" rel="next">Next <img src="_static/images/chevron-right-orange.svg" class="next-page"></a>
+      
+      
+        <a href="Troubleshooting.html" class="btn btn-neutral" title="Troubleshooting Guide" accesskey="p" rel="prev"><img src="_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
+      
+    </div>
   
 
   
@@ -444,17 +484,11 @@
             <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
               <ul>
 <li><a class="reference internal" href="#">Performance Guide</a><ul>
-<li><a class="reference internal" href="#optimizing-pytorch">Optimizing PyTorch</a><ul>
-<li><a class="reference internal" href="#onnx-and-ort-support">ONNX and ORT support</a></li>
-<li><a class="reference internal" href="#tensorrt-and-nvfuser-support">TensorRT and NVfuser support</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#optimizing-torchserve">Optimizing TorchServe</a><ul>
-<li><a class="reference internal" href="#concurrency-and-number-of-workers">Concurrency And Number of Workers</a></li>
-</ul>
-</li>
+<li><a class="reference internal" href="#optimizing-pytorch">Optimizing PyTorch</a></li>
+<li><a class="reference internal" href="#optimizing-torchserve">Optimizing TorchServe</a></li>
 <li><a class="reference internal" href="#benchmarking">Benchmarking</a></li>
 <li><a class="reference internal" href="#profiling">Profiling</a></li>
+<li><a class="reference internal" href="#more-resources">More Resources</a></li>
 </ul>
 </li>
 </ul>
@@ -475,6 +509,7 @@
          <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
          <script src="_static/jquery.js"></script>
          <script src="_static/underscore.js"></script>
+         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
          <script src="_static/doctools.js"></script>
          <script src="_static/katex.min.js"></script>
          <script src="_static/auto-render.min.js"></script>

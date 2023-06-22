@@ -6,11 +6,11 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>5. Advanced configuration &mdash; PyTorch/Serve master documentation</title>
+  <title>Advanced configuration &mdash; PyTorch/Serve master documentation</title>
   
 
   
@@ -35,11 +35,15 @@
   <link rel="stylesheet" href="_static/katex-math.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="6. Custom Service" href="custom_service.html" />
-    <link rel="prev" title="4. Code Coverage" href="code_coverage.html" />
-  <!-- Google Analytics -->
-  
-  <!-- End Google Analytics -->
+    <link rel="next" title="Custom Service" href="custom_service.html" />
+    <link rel="prev" title="Code Coverage" href="code_coverage.html" />
+  <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','');</script>
+    <!-- End Google Tag Manager -->
   
 
   
@@ -245,30 +249,31 @@
               
             
             
-              <p class="caption"><span class="caption-text">Contents:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="index.html">1. TorchServe</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Troubleshooting.html">2. Troubleshooting Guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="batch_inference_with_ts.html">3. Batch Inference with TorchServe</a></li>
-<li class="toctree-l1"><a class="reference internal" href="code_coverage.html">4. Code Coverage</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">5. Advanced configuration</a></li>
-<li class="toctree-l1"><a class="reference internal" href="custom_service.html">6. Custom Service</a></li>
-<li class="toctree-l1"><a class="reference internal" href="default_handlers.html">7. TorchServe default inference handlers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="logging.html">8. Logging in Torchserve</a></li>
-<li class="toctree-l1"><a class="reference internal" href="metrics.html">9. TorchServe Metrics</a></li>
-<li class="toctree-l1"><a class="reference internal" href="model_zoo.html">10. Model Zoo</a></li>
-<li class="toctree-l1"><a class="reference internal" href="request_envelopes.html">11. Request Envelopes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="server.html">12. Running TorchServe</a></li>
-<li class="toctree-l1"><a class="reference internal" href="mps.html">13. Running TorchServe with NVIDIA MPS</a></li>
-<li class="toctree-l1"><a class="reference internal" href="snapshot.html">14. TorchServe model snapshot</a></li>
-<li class="toctree-l1"><a class="reference internal" href="sphinx/requirements.html">15. cf. https://github.com/ryanfox/sphinx-markdown-tables/issues/36</a></li>
-<li class="toctree-l1"><a class="reference internal" href="torchserve_on_win_native.html">16. TorchServe on Windows</a></li>
-<li class="toctree-l1"><a class="reference internal" href="torchserve_on_wsl.html">17. TorchServe on Windows Subsystem for Linux (WSL)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="use_cases.html">18. Torchserve Use Cases</a></li>
-<li class="toctree-l1"><a class="reference internal" href="workflows.html">19. TorchServe Workflows</a></li>
-<li class="toctree-l1"><a class="reference internal" href="large_model_inference.html">20. Serving large models with Torchserve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="index.html">TorchServe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Troubleshooting.html">Troubleshooting Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="performance_guide.html">Performance Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="batch_inference_with_ts.html">Batch Inference with TorchServe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="code_coverage.html">Code Coverage</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Advanced configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom_service.html">Custom Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="default_handlers.html">TorchServe default inference handlers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="logging.html">Logging in Torchserve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">TorchServe Metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="model_zoo.html">Model Zoo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="request_envelopes.html">Request Envelopes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="server.html">Running TorchServe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mps.html">Running TorchServe with NVIDIA MPS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="snapshot.html">TorchServe model snapshot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torchserve_on_win_native.html">TorchServe on Windows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torchserve_on_wsl.html">TorchServe on Windows Subsystem for Linux (WSL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="use_cases.html">Torchserve Use Cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workflows.html">TorchServe Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="large_model_inference.html">Serving large models with Torchserve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="FAQs.html">FAQ’S</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Service APIs:</span></p>
+<p class="caption" role="heading"><span class="caption-text">Service APIs:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="grpc_api.html">TorchServe gRPC API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="inference_api.html">Inference API</a></li>
@@ -278,7 +283,7 @@
 <li class="toctree-l1"><a class="reference internal" href="workflow_inference_api.html">Workflow Inference API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="workflow_management_api.html">Management API</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Developer APIs:</span></p>
+<p class="caption" role="heading"><span class="caption-text">Developer APIs:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="api/ts.html">ts package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api/ts.torch_handler.request_envelope.html">ts.torch_handler.request_envelope package</a></li>
@@ -327,7 +332,7 @@
       </li>
 
         
-      <li><span class="section-number">5. </span>Advanced configuration</li>
+      <li>Advanced configuration</li>
     
     
       <li class="pytorch-breadcrumbs-aside">
@@ -353,6 +358,10 @@
         <div class="pytorch-content-left">
 
         
+          <!-- Google Tag Manager (noscript) -->
+          <noscript><iframe src="https://www.googletagmanager.com/ns.html?id="
+          height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+          <!-- End Google Tag Manager (noscript) -->
           
           <div class="rst-content">
           
@@ -360,7 +369,7 @@
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
   <section id="advanced-configuration">
-<h1><span class="section-number">5. </span>Advanced configuration<a class="headerlink" href="#advanced-configuration" title="Permalink to this headline">¶</a></h1>
+<h1>Advanced configuration<a class="headerlink" href="#advanced-configuration" title="Permalink to this heading">¶</a></h1>
 <p>The default settings form TorchServe should be sufficient for most use cases. However, if you want to customize TorchServe, the configuration options described in this topic are available.</p>
 <p>There are three ways to configure TorchServe. In order of priority, they are:</p>
 <ol class="simple">
@@ -372,7 +381,7 @@
 a property in the configuration file. The value of a command line argument overrides
 a value in the configuration file.</p>
 <section id="environment-variables">
-<h2><span class="section-number">5.1. </span>Environment variables<a class="headerlink" href="#environment-variables" title="Permalink to this headline">¶</a></h2>
+<h2>Environment variables<a class="headerlink" href="#environment-variables" title="Permalink to this heading">¶</a></h2>
 <p>You can change TorchServe behavior by setting the following environment variables:</p>
 <ul class="simple">
 <li><p>JAVA_HOME</p></li>
@@ -385,7 +394,7 @@ a value in the configuration file.</p>
 The value of an environment variable overrides other property values.</p>
 </section>
 <section id="command-line-parameters">
-<h2><span class="section-number">5.2. </span>Command line parameters<a class="headerlink" href="#command-line-parameters" title="Permalink to this headline">¶</a></h2>
+<h2>Command line parameters<a class="headerlink" href="#command-line-parameters" title="Permalink to this heading">¶</a></h2>
 <p>Customize TorchServe behavior by using the following command line arguments when you call <code class="docutils literal notranslate"><span class="pre">torchserve</span></code>:</p>
 <ul class="simple">
 <li><p><strong>–ts-config</strong> TorchServe loads the specified configuration file if <code class="docutils literal notranslate"><span class="pre">TS_CONFIG_FILE</span></code> environment variable is not set</p></li>
@@ -398,7 +407,7 @@ disabled, TorchServe runs in the background</p></li>
 <p>For more detailed information about <code class="docutils literal notranslate"><span class="pre">torchserve</span></code> command line options, see <a class="reference internal" href="server.html"><span class="doc">Serve Models with TorchServe</span></a>.</p>
 </section>
 <section id="config-properties-file">
-<h2><span class="section-number">5.3. </span>config.properties file<a class="headerlink" href="#config-properties-file" title="Permalink to this headline">¶</a></h2>
+<h2>config.properties file<a class="headerlink" href="#config-properties-file" title="Permalink to this heading">¶</a></h2>
 <p>TorchServe uses a <code class="docutils literal notranslate"><span class="pre">config.properties</span></code> file to store configurations. TorchServe uses following, in order of priority, to locate this <code class="docutils literal notranslate"><span class="pre">config.properties</span></code> file:</p>
 <ol class="simple">
 <li><p>If the <code class="docutils literal notranslate"><span class="pre">TS_CONFIG_FILE</span></code> environment variable is set, TorchServe loads the configuration from the path specified by the environment variable.</p></li>
@@ -407,7 +416,7 @@ disabled, TorchServe runs in the background</p></li>
 <li><p>If none of the above is specified, TorchServe loads a built-in configuration with default values.</p></li>
 </ol>
 <section id="customize-jvm-options">
-<h3><span class="section-number">5.3.1. </span>Customize JVM options<a class="headerlink" href="#customize-jvm-options" title="Permalink to this headline">¶</a></h3>
+<h3>Customize JVM options<a class="headerlink" href="#customize-jvm-options" title="Permalink to this heading">¶</a></h3>
 <p>To control TorchServe frontend memory footprint, configure the <strong>vmargs</strong> property in the <code class="docutils literal notranslate"><span class="pre">config.properties</span></code> file</p>
 <ul class="simple">
 <li><p>default: N/A, use JVM default options</p></li>
@@ -415,7 +424,7 @@ disabled, TorchServe runs in the background</p></li>
 <p>Adjust JVM options to fit your memory requirement.</p>
 </section>
 <section id="load-models-at-startup">
-<h3><span class="section-number">5.3.2. </span>Load models at startup<a class="headerlink" href="#load-models-at-startup" title="Permalink to this headline">¶</a></h3>
+<h3>Load models at startup<a class="headerlink" href="#load-models-at-startup" title="Permalink to this heading">¶</a></h3>
 <p>You can configure TorchServe to load models during startup by setting the <code class="docutils literal notranslate"><span class="pre">model_store</span></code> and <code class="docutils literal notranslate"><span class="pre">load_models</span></code> properties.
 The following values are valid:</p>
 <ul class="simple">
@@ -437,7 +446,7 @@ The following values are valid:</p>
 <p><strong>Note:</strong> <code class="docutils literal notranslate"><span class="pre">model_store</span></code> and <code class="docutils literal notranslate"><span class="pre">load_models</span></code> properties are overridden by command line parameters, if specified.</p>
 </section>
 <section id="configure-torchserve-listening-address-and-port">
-<h3><span class="section-number">5.3.3. </span>Configure TorchServe listening address and port<a class="headerlink" href="#configure-torchserve-listening-address-and-port" title="Permalink to this headline">¶</a></h3>
+<h3>Configure TorchServe listening address and port<a class="headerlink" href="#configure-torchserve-listening-address-and-port" title="Permalink to this heading">¶</a></h3>
 <p>TorchServe doesn’t support authentication natively. To avoid unauthorized access, TorchServe only allows localhost access by default.
 The inference API is listening on port 8080. The management API is listening on port 8081. Both expect HTTP requests. These are the default ports.
 See <a class="reference external" href="#enable-ssl">Enable SSL</a> to configure HTTPS.</p>
@@ -458,7 +467,7 @@ To run predictions on models on a specific IP address, specify the IP address an
 </div>
 </section>
 <section id="configure-torchserve-grpc-listening-ports">
-<h3><span class="section-number">5.3.4. </span>Configure TorchServe gRPC listening ports<a class="headerlink" href="#configure-torchserve-grpc-listening-ports" title="Permalink to this headline">¶</a></h3>
+<h3>Configure TorchServe gRPC listening ports<a class="headerlink" href="#configure-torchserve-grpc-listening-ports" title="Permalink to this heading">¶</a></h3>
 <p>The inference gRPC API is listening on port 7070, and the management gRPC API is listening on port 7071 by default.</p>
 <p>To configure different ports use following properties</p>
 <ul class="simple">
@@ -468,7 +477,7 @@ To run predictions on models on a specific IP address, specify the IP address an
 <p>Here are a couple of examples:</p>
 </section>
 <section id="enable-ssl">
-<h3><span class="section-number">5.3.5. </span>Enable SSL<a class="headerlink" href="#enable-ssl" title="Permalink to this headline">¶</a></h3>
+<h3>Enable SSL<a class="headerlink" href="#enable-ssl" title="Permalink to this heading">¶</a></h3>
 <p>To enable HTTPs, you can change <code class="docutils literal notranslate"><span class="pre">inference_address</span></code>, <code class="docutils literal notranslate"><span class="pre">management_address</span></code> or <code class="docutils literal notranslate"><span class="pre">metrics_address</span></code> protocol from http to https. For example: <code class="docutils literal notranslate"><span class="pre">inference_address=https://127.0.0.1</span></code>.
 The default is port 443, but you can make TorchServe listen on whatever port you set to accept https requests.
 For example, to receive https traffic on port 8443, you would use: <code class="docutils literal notranslate"><span class="pre">inference_address=https://127.0.0.1:8443</span></code>.</p>
@@ -489,7 +498,7 @@ For example, to receive https traffic on port 8443, you would use: <code class="
 <li><p><strong>certificate_file</strong>: the X509 certificate chain file location.</p></li>
 </ul>
 <section id="examples">
-<h4><span class="section-number">5.3.5.1. </span>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h4>
+<h4>Examples<a class="headerlink" href="#examples" title="Permalink to this heading">¶</a></h4>
 <p><strong>Option 1</strong>: Use a keystore; generate a keystore with Java’s keytool. Note the <code class="docutils literal notranslate"><span class="pre">storepass</span></code> argument expects you to create your own password.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>keytool<span class="w"> </span>-genkey<span class="w"> </span>-keyalg<span class="w"> </span>RSA<span class="w"> </span>-alias<span class="w"> </span>ts<span class="w"> </span>-keystore<span class="w"> </span>keystore.p12<span class="w"> </span>-storepass<span class="w"> </span>changeit<span class="w"> </span>-storetype<span class="w"> </span>PKCS12<span class="w"> </span>-validity<span class="w"> </span><span class="m">3600</span><span class="w"> </span>-keysize<span class="w"> </span><span class="m">2048</span><span class="w"> </span>-dname<span class="w"> </span><span class="s2">&quot;CN=www.MY_TS.com, OU=Cloud Service, O=model server, L=Palo Alto, ST=California, C=US&quot;</span>
 </pre></div>
@@ -518,7 +527,7 @@ For example, to receive https traffic on port 8443, you would use: <code class="
 </section>
 </section>
 <section id="configure-cross-origin-resource-sharing-cors">
-<h3><span class="section-number">5.3.6. </span>Configure Cross-Origin Resource Sharing (CORS)<a class="headerlink" href="#configure-cross-origin-resource-sharing-cors" title="Permalink to this headline">¶</a></h3>
+<h3>Configure Cross-Origin Resource Sharing (CORS)<a class="headerlink" href="#configure-cross-origin-resource-sharing-cors" title="Permalink to this heading">¶</a></h3>
 <p>CORS is a mechanism that uses additional HTTP headers to tell a browser to let a
 web application running at one origin (domain) have permission to access selected
 resources from a server at a different origin.</p>
@@ -533,14 +542,14 @@ resources from a server at a different origin.</p>
 </div>
 </section>
 <section id="prefer-direct-buffer">
-<h3><span class="section-number">5.3.7. </span>Prefer direct buffer<a class="headerlink" href="#prefer-direct-buffer" title="Permalink to this headline">¶</a></h3>
+<h3>Prefer direct buffer<a class="headerlink" href="#prefer-direct-buffer" title="Permalink to this heading">¶</a></h3>
 <p>Configuration parameter prefer_direct_buffer controls if the model server will be using direct memory specified by -XX:MaxDirectMemorySize. This parameter is for model server only and  doesn’t affect other packages’ usage of direct memory buffer. Default: false</p>
 <div class="highlight-properties notranslate"><div class="highlight"><pre><span></span><span class="na">prefer_direct_buffer</span><span class="o">=</span><span class="s">true</span>
 </pre></div>
 </div>
 </section>
 <section id="allow-model-specific-custom-python-packages">
-<h3><span class="section-number">5.3.8. </span>Allow model specific custom python packages.<a class="headerlink" href="#allow-model-specific-custom-python-packages" title="Permalink to this headline">¶</a></h3>
+<h3>Allow model specific custom python packages.<a class="headerlink" href="#allow-model-specific-custom-python-packages" title="Permalink to this heading">¶</a></h3>
 <p>Custom models/handlers may depend on different python packages which are not installed by-default as a part of <code class="docutils literal notranslate"><span class="pre">TorchServe</span></code> setup. User can supply a requirements.txt file containing the required list of python packages to be installed by <code class="docutils literal notranslate"><span class="pre">TorchServe</span></code> for seamless model serving.
 Configuration parameter <code class="docutils literal notranslate"><span class="pre">install_py_dep_per_model</span></code> controls if the model server will install the python packages using the <code class="docutils literal notranslate"><span class="pre">requirements</span></code> file supplied with the model archive. Default: false</p>
 <div class="highlight-properties notranslate"><div class="highlight"><pre><span></span><span class="na">install_py_dep_per_model</span><span class="o">=</span><span class="s">true</span>
@@ -549,7 +558,7 @@ Configuration parameter <code class="docutils literal notranslate"><span class="
 <p>User can also supply custom python packages in zip or tar.gz format using the <code class="docutils literal notranslate"><span class="pre">--extra-files</span></code> flag while creating the model-archive and make an entry of the file name in the <code class="docutils literal notranslate"><span class="pre">requirements</span></code> file.</p>
 </section>
 <section id="restrict-backend-worker-to-access-environment-variables">
-<h3><span class="section-number">5.3.9. </span>Restrict backend worker to access environment variables<a class="headerlink" href="#restrict-backend-worker-to-access-environment-variables" title="Permalink to this headline">¶</a></h3>
+<h3>Restrict backend worker to access environment variables<a class="headerlink" href="#restrict-backend-worker-to-access-environment-variables" title="Permalink to this heading">¶</a></h3>
 <p>Environment variables might contain sensitive information, like AWS credentials. Backend workers execute an arbitrary model’s custom code,
 which might expose a security risk. TorchServe provides a <code class="docutils literal notranslate"><span class="pre">blacklist_env_vars</span></code> property that allows you to restrict which environment variables can be accessed by backend workers.</p>
 <ul class="simple">
@@ -557,14 +566,14 @@ which might expose a security risk. TorchServe provides a <code class="docutils 
 </ul>
 </section>
 <section id="limit-gpu-usage">
-<h3><span class="section-number">5.3.10. </span>Limit GPU usage<a class="headerlink" href="#limit-gpu-usage" title="Permalink to this headline">¶</a></h3>
+<h3>Limit GPU usage<a class="headerlink" href="#limit-gpu-usage" title="Permalink to this heading">¶</a></h3>
 <p>By default, TorchServe uses all available GPUs for inference. Use <code class="docutils literal notranslate"><span class="pre">number_of_gpu</span></code> to limit the usage of GPUs.</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">number_of_gpu</span></code>: Maximum number of GPUs that TorchServe can use for inference. Default: all available GPUs in system.</p></li>
 </ul>
 </section>
 <section id="nvidia-control-visibility">
-<h3><span class="section-number">5.3.11. </span>Nvidia control Visibility<a class="headerlink" href="#nvidia-control-visibility" title="Permalink to this headline">¶</a></h3>
+<h3>Nvidia control Visibility<a class="headerlink" href="#nvidia-control-visibility" title="Permalink to this heading">¶</a></h3>
 <p>Set nvidia environment variables. For example:</p>
 <ul class="simple">
 <li><p>export CUDA_DEVICE_ORDER=”PCI_BUS_ID”</p></li>
@@ -572,13 +581,13 @@ which might expose a security risk. TorchServe provides a <code class="docutils 
 </ul>
 </section>
 <section id="enable-metrics-api">
-<h3><span class="section-number">5.3.12. </span>Enable metrics api<a class="headerlink" href="#enable-metrics-api" title="Permalink to this headline">¶</a></h3>
+<h3>Enable metrics api<a class="headerlink" href="#enable-metrics-api" title="Permalink to this heading">¶</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">enable_metrics_api</span></code> : Enable or disable metric apis i.e. it can be either <code class="docutils literal notranslate"><span class="pre">true</span></code> or <code class="docutils literal notranslate"><span class="pre">false</span></code>. Default: true (Enabled)</p></li>
 </ul>
 </section>
 <section id="config-model">
-<h3><span class="section-number">5.3.13. </span>Config model<a class="headerlink" href="#config-model" title="Permalink to this headline">¶</a></h3>
+<h3>Config model<a class="headerlink" href="#config-model" title="Permalink to this heading">¶</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">models</span></code>: Use this to set configurations specific to a model. The value is presented in json format.</p></li>
 </ul>
@@ -638,7 +647,7 @@ which might expose a security risk. TorchServe provides a <code class="docutils 
 </ul>
 </section>
 <section id="other-properties">
-<h3><span class="section-number">5.3.14. </span>Other properties<a class="headerlink" href="#other-properties" title="Permalink to this headline">¶</a></h3>
+<h3>Other properties<a class="headerlink" href="#other-properties" title="Permalink to this heading">¶</a></h3>
 <p>Most of the following properties are designed for performance tuning. Adjusting these numbers will impact scalability and throughput.</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">enable_envvars_config</span></code>: Enable configuring TorchServe through environment variables. When this option is set to “true”, all the static configurations of TorchServe can come through environment variables as well. Default: false</p></li>
@@ -685,10 +694,10 @@ e.g. : To allow base URLs <code class="docutils literal notranslate"><span class
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="custom_service.html" class="btn btn-neutral float-right" title="6. Custom Service" accesskey="n" rel="next">Next <img src="_static/images/chevron-right-orange.svg" class="next-page"></a>
+        <a href="custom_service.html" class="btn btn-neutral float-right" title="Custom Service" accesskey="n" rel="next">Next <img src="_static/images/chevron-right-orange.svg" class="next-page"></a>
       
       
-        <a href="code_coverage.html" class="btn btn-neutral" title="4. Code Coverage" accesskey="p" rel="prev"><img src="_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
+        <a href="code_coverage.html" class="btn btn-neutral" title="Code Coverage" accesskey="p" rel="prev"><img src="_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
       
     </div>
   
@@ -720,27 +729,27 @@ e.g. : To allow base URLs <code class="docutils literal notranslate"><span class
           <div class="pytorch-right-menu" id="pytorch-right-menu">
             <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
               <ul>
-<li><a class="reference internal" href="#">5. Advanced configuration</a><ul>
-<li><a class="reference internal" href="#environment-variables">5.1. Environment variables</a></li>
-<li><a class="reference internal" href="#command-line-parameters">5.2. Command line parameters</a></li>
-<li><a class="reference internal" href="#config-properties-file">5.3. config.properties file</a><ul>
-<li><a class="reference internal" href="#customize-jvm-options">5.3.1. Customize JVM options</a></li>
-<li><a class="reference internal" href="#load-models-at-startup">5.3.2. Load models at startup</a></li>
-<li><a class="reference internal" href="#configure-torchserve-listening-address-and-port">5.3.3. Configure TorchServe listening address and port</a></li>
-<li><a class="reference internal" href="#configure-torchserve-grpc-listening-ports">5.3.4. Configure TorchServe gRPC listening ports</a></li>
-<li><a class="reference internal" href="#enable-ssl">5.3.5. Enable SSL</a><ul>
-<li><a class="reference internal" href="#examples">5.3.5.1. Examples</a></li>
+<li><a class="reference internal" href="#">Advanced configuration</a><ul>
+<li><a class="reference internal" href="#environment-variables">Environment variables</a></li>
+<li><a class="reference internal" href="#command-line-parameters">Command line parameters</a></li>
+<li><a class="reference internal" href="#config-properties-file">config.properties file</a><ul>
+<li><a class="reference internal" href="#customize-jvm-options">Customize JVM options</a></li>
+<li><a class="reference internal" href="#load-models-at-startup">Load models at startup</a></li>
+<li><a class="reference internal" href="#configure-torchserve-listening-address-and-port">Configure TorchServe listening address and port</a></li>
+<li><a class="reference internal" href="#configure-torchserve-grpc-listening-ports">Configure TorchServe gRPC listening ports</a></li>
+<li><a class="reference internal" href="#enable-ssl">Enable SSL</a><ul>
+<li><a class="reference internal" href="#examples">Examples</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#configure-cross-origin-resource-sharing-cors">5.3.6. Configure Cross-Origin Resource Sharing (CORS)</a></li>
-<li><a class="reference internal" href="#prefer-direct-buffer">5.3.7. Prefer direct buffer</a></li>
-<li><a class="reference internal" href="#allow-model-specific-custom-python-packages">5.3.8. Allow model specific custom python packages.</a></li>
-<li><a class="reference internal" href="#restrict-backend-worker-to-access-environment-variables">5.3.9. Restrict backend worker to access environment variables</a></li>
-<li><a class="reference internal" href="#limit-gpu-usage">5.3.10. Limit GPU usage</a></li>
-<li><a class="reference internal" href="#nvidia-control-visibility">5.3.11. Nvidia control Visibility</a></li>
-<li><a class="reference internal" href="#enable-metrics-api">5.3.12. Enable metrics api</a></li>
-<li><a class="reference internal" href="#config-model">5.3.13. Config model</a></li>
-<li><a class="reference internal" href="#other-properties">5.3.14. Other properties</a></li>
+<li><a class="reference internal" href="#configure-cross-origin-resource-sharing-cors">Configure Cross-Origin Resource Sharing (CORS)</a></li>
+<li><a class="reference internal" href="#prefer-direct-buffer">Prefer direct buffer</a></li>
+<li><a class="reference internal" href="#allow-model-specific-custom-python-packages">Allow model specific custom python packages.</a></li>
+<li><a class="reference internal" href="#restrict-backend-worker-to-access-environment-variables">Restrict backend worker to access environment variables</a></li>
+<li><a class="reference internal" href="#limit-gpu-usage">Limit GPU usage</a></li>
+<li><a class="reference internal" href="#nvidia-control-visibility">Nvidia control Visibility</a></li>
+<li><a class="reference internal" href="#enable-metrics-api">Enable metrics api</a></li>
+<li><a class="reference internal" href="#config-model">Config model</a></li>
+<li><a class="reference internal" href="#other-properties">Other properties</a></li>
 </ul>
 </li>
 </ul>
@@ -763,6 +772,7 @@ e.g. : To allow base URLs <code class="docutils literal notranslate"><span class
          <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
          <script src="_static/jquery.js"></script>
          <script src="_static/underscore.js"></script>
+         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
          <script src="_static/doctools.js"></script>
          <script src="_static/katex.min.js"></script>
          <script src="_static/auto-render.min.js"></script>

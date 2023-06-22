@@ -6,11 +6,11 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>20. Serving large models with Torchserve &mdash; PyTorch/Serve master documentation</title>
+  <title>Serving large models with Torchserve &mdash; PyTorch/Serve master documentation</title>
   
 
   
@@ -35,11 +35,15 @@
   <link rel="stylesheet" href="_static/katex-math.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="&lt;no title&gt;" href="apis.html" />
-    <link rel="prev" title="19. TorchServe Workflows" href="workflows.html" />
-  <!-- Google Analytics -->
-  
-  <!-- End Google Analytics -->
+    <link rel="next" title="FAQ’S" href="FAQs.html" />
+    <link rel="prev" title="TorchServe Workflows" href="workflows.html" />
+  <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','');</script>
+    <!-- End Google Tag Manager -->
   
 
   
@@ -245,30 +249,31 @@
               
             
             
-              <p class="caption"><span class="caption-text">Contents:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="index.html">1. TorchServe</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Troubleshooting.html">2. Troubleshooting Guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="batch_inference_with_ts.html">3. Batch Inference with TorchServe</a></li>
-<li class="toctree-l1"><a class="reference internal" href="code_coverage.html">4. Code Coverage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="configuration.html">5. Advanced configuration</a></li>
-<li class="toctree-l1"><a class="reference internal" href="custom_service.html">6. Custom Service</a></li>
-<li class="toctree-l1"><a class="reference internal" href="default_handlers.html">7. TorchServe default inference handlers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="logging.html">8. Logging in Torchserve</a></li>
-<li class="toctree-l1"><a class="reference internal" href="metrics.html">9. TorchServe Metrics</a></li>
-<li class="toctree-l1"><a class="reference internal" href="model_zoo.html">10. Model Zoo</a></li>
-<li class="toctree-l1"><a class="reference internal" href="request_envelopes.html">11. Request Envelopes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="server.html">12. Running TorchServe</a></li>
-<li class="toctree-l1"><a class="reference internal" href="mps.html">13. Running TorchServe with NVIDIA MPS</a></li>
-<li class="toctree-l1"><a class="reference internal" href="snapshot.html">14. TorchServe model snapshot</a></li>
-<li class="toctree-l1"><a class="reference internal" href="sphinx/requirements.html">15. cf. https://github.com/ryanfox/sphinx-markdown-tables/issues/36</a></li>
-<li class="toctree-l1"><a class="reference internal" href="torchserve_on_win_native.html">16. TorchServe on Windows</a></li>
-<li class="toctree-l1"><a class="reference internal" href="torchserve_on_wsl.html">17. TorchServe on Windows Subsystem for Linux (WSL)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="use_cases.html">18. Torchserve Use Cases</a></li>
-<li class="toctree-l1"><a class="reference internal" href="workflows.html">19. TorchServe Workflows</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">20. Serving large models with Torchserve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="index.html">TorchServe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Troubleshooting.html">Troubleshooting Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="performance_guide.html">Performance Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="batch_inference_with_ts.html">Batch Inference with TorchServe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="code_coverage.html">Code Coverage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Advanced configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom_service.html">Custom Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="default_handlers.html">TorchServe default inference handlers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="logging.html">Logging in Torchserve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">TorchServe Metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="model_zoo.html">Model Zoo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="request_envelopes.html">Request Envelopes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="server.html">Running TorchServe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mps.html">Running TorchServe with NVIDIA MPS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="snapshot.html">TorchServe model snapshot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torchserve_on_win_native.html">TorchServe on Windows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torchserve_on_wsl.html">TorchServe on Windows Subsystem for Linux (WSL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="use_cases.html">Torchserve Use Cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workflows.html">TorchServe Workflows</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Serving large models with Torchserve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="FAQs.html">FAQ’S</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Service APIs:</span></p>
+<p class="caption" role="heading"><span class="caption-text">Service APIs:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="grpc_api.html">TorchServe gRPC API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="inference_api.html">Inference API</a></li>
@@ -278,7 +283,7 @@
 <li class="toctree-l1"><a class="reference internal" href="workflow_inference_api.html">Workflow Inference API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="workflow_management_api.html">Management API</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Developer APIs:</span></p>
+<p class="caption" role="heading"><span class="caption-text">Developer APIs:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="api/ts.html">ts package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api/ts.torch_handler.request_envelope.html">ts.torch_handler.request_envelope package</a></li>
@@ -327,7 +332,7 @@
       </li>
 
         
-      <li><span class="section-number">20. </span>Serving large models with Torchserve</li>
+      <li>Serving large models with Torchserve</li>
     
     
       <li class="pytorch-breadcrumbs-aside">
@@ -353,6 +358,10 @@
         <div class="pytorch-content-left">
 
         
+          <!-- Google Tag Manager (noscript) -->
+          <noscript><iframe src="https://www.googletagmanager.com/ns.html?id="
+          height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+          <!-- End Google Tag Manager (noscript) -->
           
           <div class="rst-content">
           
@@ -360,10 +369,10 @@
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
   <section id="serving-large-models-with-torchserve">
-<h1><span class="section-number">20. </span>Serving large models with Torchserve<a class="headerlink" href="#serving-large-models-with-torchserve" title="Permalink to this headline">¶</a></h1>
+<h1>Serving large models with Torchserve<a class="headerlink" href="#serving-large-models-with-torchserve" title="Permalink to this heading">¶</a></h1>
 <p>This document explain how Torchserve supports large model serving, here large model refers to the models that are not able to fit into one gpu so they need be split in multiple partitions over multiple gpus.</p>
 <section id="how-it-works">
-<h2><span class="section-number">20.1. </span>How it works?<a class="headerlink" href="#how-it-works" title="Permalink to this headline">¶</a></h2>
+<h2>How it works?<a class="headerlink" href="#how-it-works" title="Permalink to this heading">¶</a></h2>
 <p>During deployment a worker of a large model, TorchServe utilizes <a class="reference external" href="https://pytorch.org/docs/stable/elastic/run.html">torchrun</a> to set up the distributed environment for model parallel processing. TorchServe has the capability to support multiple workers for a large model. By default, TorchServe uses a round-robin algorithm to assign GPUs to a worker on a host. In case of large models inference GPUs assigned to each worker is automatically calculated based on number of GPUs specified in the model_config.yaml. CUDA_VISIBLE_DEVICES is set based this number.</p>
 <p>For instance, suppose there are eight GPUs on a node and one worker needs 4 GPUs (ie, nproc-per-node=4) on a node. In this case, TorchServe would assign CUDA_VISIBLE_DEVICES=”0,1,2,3” to worker1 and CUDA_VISIBLE_DEVICES=”4,5,6,7” to worker2.</p>
 <p>In addition to this default behavior, TorchServe provides the flexibility for users to specify GPUs for a worker. For instance, if the user sets “deviceIds: [2,3,4,5]” in the <a class="reference external" href="https://github.com/pytorch/serve/blob/5ee02e4f050c9b349025d87405b246e970ee710b/model-archiver/README.md?plain=1#L164">model config YAML file</a>, and nproc-per-node is set to 2, then TorchServe would assign CUDA_VISIBLE_DEVICES=”2,3” to worker1 and CUDA_VISIBLE_DEVICES=”4,5” to worker2.</p>
@@ -371,10 +380,10 @@
 <p><img alt="ts-lmi-internal" src="_images/ts-lmi-internal.png" /></p>
 </section>
 <section id="pippy-pytorch-native-solution-for-large-model-inference">
-<h2><span class="section-number">20.2. </span>PiPPy (PyTorch Native solution for large model inference)<a class="headerlink" href="#pippy-pytorch-native-solution-for-large-model-inference" title="Permalink to this headline">¶</a></h2>
+<h2>PiPPy (PyTorch Native solution for large model inference)<a class="headerlink" href="#pippy-pytorch-native-solution-for-large-model-inference" title="Permalink to this heading">¶</a></h2>
 <p>PiPPy provides pipeline parallelism for serving large models that would not fit into one gpu. It takes your model and splits it into equal sizes (stages) partitioned over the number devices you specify. Then uses microbatching to run your batched input for inference ( its is more optimal for batch sizes &gt;1).</p>
 <section id="how-to-use-pippy-in-torchserve">
-<h3><span class="section-number">20.2.1. </span>How to use PiPPy in Torchserve<a class="headerlink" href="#how-to-use-pippy-in-torchserve" title="Permalink to this headline">¶</a></h3>
+<h3>How to use PiPPy in Torchserve<a class="headerlink" href="#how-to-use-pippy-in-torchserve" title="Permalink to this heading">¶</a></h3>
 <p>To use Pippy in Torchserve, we need to use a custom handler which inherits from base_pippy_handler and put our setting in model-config.yaml.</p>
 <p>Customer handler in Torchserve is simply a python script that defines model loading, preprocess, inference and postprocess logic specific to your workflow.</p>
 <p>It would look like below:</p>
@@ -431,10 +440,10 @@
 </section>
 </section>
 <section id="deepspeed">
-<h2><span class="section-number">20.3. </span>DeepSpeed<a class="headerlink" href="#deepspeed" title="Permalink to this headline">¶</a></h2>
+<h2>DeepSpeed<a class="headerlink" href="#deepspeed" title="Permalink to this heading">¶</a></h2>
 <p><a class="reference external" href="https://www.deepspeed.ai/inference/">DeepSpeed-Inference</a> is an open source project of MicroSoft. It provides model parallelism for serving large transformer based PyTorch models that would not fit into one gpu memory.</p>
 <section id="how-to-use-deepspeed-in-torchserve">
-<h3><span class="section-number">20.3.1. </span>How to use DeepSpeed in TorchServe<a class="headerlink" href="#how-to-use-deepspeed-in-torchserve" title="Permalink to this headline">¶</a></h3>
+<h3>How to use DeepSpeed in TorchServe<a class="headerlink" href="#how-to-use-deepspeed-in-torchserve" title="Permalink to this heading">¶</a></h3>
 <p>To use DeepSpeed in TorchServe, we need to use a custom handler which inherits from base_deepspeed_handler and put our setting in model-config.yaml.</p>
 <p>It would look like below:</p>
 <p>Create <code class="docutils literal notranslate"><span class="pre">custom_handler.py</span></code> or any other descriptive name.</p>
@@ -502,9 +511,9 @@ torch-model-archiver<span class="w"> </span>--model-name<span class="w"> </span>
 </section>
 </section>
 <section id="best-practice">
-<h2><span class="section-number">20.4. </span>Best Practice<a class="headerlink" href="#best-practice" title="Permalink to this headline">¶</a></h2>
+<h2>Best Practice<a class="headerlink" href="#best-practice" title="Permalink to this heading">¶</a></h2>
 <section id="to-reduce-model-loading-latency-we-recommend">
-<h3><span class="section-number">20.4.1. </span>To reduce model loading latency, we recommend<a class="headerlink" href="#to-reduce-model-loading-latency-we-recommend" title="Permalink to this headline">¶</a></h3>
+<h3>To reduce model loading latency, we recommend<a class="headerlink" href="#to-reduce-model-loading-latency-we-recommend" title="Permalink to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>Pre-install the model parallel library such as Deepspeed on the container or host.</p></li>
 <li><p>Pre-download the model checkpoints. For example, if using HuggingFace pretrained model can be pre-downloaded via <a class="reference external" href="https://github.com/pytorch/serve/blob/75f66dc557b3b67a3ab56536a37d7aa21582cc04/examples/large_models/deepspeed/opt/Readme.md?plain=1#L7">Download_model.py</a></p>
@@ -516,10 +525,10 @@ torch-model-archiver<span class="w"> </span>--model-name<span class="w"> </span>
 </ul>
 </section>
 <section id="tune-responsetimeout-see-model-config-yaml-file-if-high-model-loading-or-inference-latency-causes-response-timeout">
-<h3><span class="section-number">20.4.2. </span>Tune “<a class="reference external" href="https://github.com/pytorch/serve/blob/5ee02e4f050c9b349025d87405b246e970ee710b/docs/configuration.md?plain=1#L216">responseTimeout</a>” (see <a class="reference external" href="https://github.com/pytorch/serve/blob/5ee02e4f050c9b349025d87405b246e970ee710b/model-archiver/README.md?plain=1#L164">model config YAML file</a>) if high model loading or inference latency causes response timeout.<a class="headerlink" href="#tune-responsetimeout-see-model-config-yaml-file-if-high-model-loading-or-inference-latency-causes-response-timeout" title="Permalink to this headline">¶</a></h3>
+<h3>Tune “<a class="reference external" href="https://github.com/pytorch/serve/blob/5ee02e4f050c9b349025d87405b246e970ee710b/docs/configuration.md?plain=1#L216">responseTimeout</a>” (see <a class="reference external" href="https://github.com/pytorch/serve/blob/5ee02e4f050c9b349025d87405b246e970ee710b/model-archiver/README.md?plain=1#L164">model config YAML file</a>) if high model loading or inference latency causes response timeout.<a class="headerlink" href="#tune-responsetimeout-see-model-config-yaml-file-if-high-model-loading-or-inference-latency-causes-response-timeout" title="Permalink to this heading">¶</a></h3>
 </section>
 <section id="tune-torchrun-parameters">
-<h3><span class="section-number">20.4.3. </span>Tune torchrun parameters<a class="headerlink" href="#tune-torchrun-parameters" title="Permalink to this headline">¶</a></h3>
+<h3>Tune torchrun parameters<a class="headerlink" href="#tune-torchrun-parameters" title="Permalink to this heading">¶</a></h3>
 <p>User is able to tune torchrun parameters in <a class="reference external" href="https://github.com/pytorch/serve/blob/2f1f52f553e83703b5c380c2570a36708ee5cafa/model-archiver/README.md?plain=1#L179">model config YAML file</a>. The supported parameters are defined at <a class="reference external" href="https://github.com/pytorch/serve/blob/2f1f52f553e83703b5c380c2570a36708ee5cafa/frontend/archive/src/main/java/org/pytorch/serve/archive/model/ModelConfig.java#L329">here</a>. For example, by default, <code class="docutils literal notranslate"><span class="pre">OMP_NUMNER_T?HREADS</span></code> is 1. It can be modified in the YAML file.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1">#frontend settings</span>
 <span class="nt">torchrun</span><span class="p">:</span>
@@ -530,7 +539,7 @@ torch-model-archiver<span class="w"> </span>--model-name<span class="w"> </span>
 </div>
 </section>
 <section id="feature-job-ticket-is-recommended-for-the-use-case-of-inference-latency-sensitive">
-<h3><span class="section-number">20.4.4. </span>Feature Job ticket is recommended for the use case of inference latency sensitive<a class="headerlink" href="#feature-job-ticket-is-recommended-for-the-use-case-of-inference-latency-sensitive" title="Permalink to this headline">¶</a></h3>
+<h3>Feature Job ticket is recommended for the use case of inference latency sensitive<a class="headerlink" href="#feature-job-ticket-is-recommended-for-the-use-case-of-inference-latency-sensitive" title="Permalink to this heading">¶</a></h3>
 <p>When the job ticket feature is enabled, TorchServe verifies the availability of a model’s active worker for processing a client’s request. If an active worker is available, the request is accepted and processed immediately without waiting time incurred from job queue or dynamic batching; otherwise, a 503 response is sent back to client.</p>
 <p>This feature help with use cases where inference latency can be high, such as generative models, auto regressive decoder models like chatGPT. This feature help such applications to take effective actions, for example, routing the rejected request to a different server, or scaling up model server capacity, based on the business requirements. Here is an example of enabling job ticket.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">minWorkers</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
@@ -552,10 +561,10 @@ torch-model-archiver<span class="w"> </span>--model-name<span class="w"> </span>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="apis.html" class="btn btn-neutral float-right" title="&lt;no title&gt;" accesskey="n" rel="next">Next <img src="_static/images/chevron-right-orange.svg" class="next-page"></a>
+        <a href="FAQs.html" class="btn btn-neutral float-right" title="FAQ’S" accesskey="n" rel="next">Next <img src="_static/images/chevron-right-orange.svg" class="next-page"></a>
       
       
-        <a href="workflows.html" class="btn btn-neutral" title="19. TorchServe Workflows" accesskey="p" rel="prev"><img src="_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
+        <a href="workflows.html" class="btn btn-neutral" title="TorchServe Workflows" accesskey="p" rel="prev"><img src="_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
       
     </div>
   
@@ -587,21 +596,21 @@ torch-model-archiver<span class="w"> </span>--model-name<span class="w"> </span>
           <div class="pytorch-right-menu" id="pytorch-right-menu">
             <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
               <ul>
-<li><a class="reference internal" href="#">20. Serving large models with Torchserve</a><ul>
-<li><a class="reference internal" href="#how-it-works">20.1. How it works?</a></li>
-<li><a class="reference internal" href="#pippy-pytorch-native-solution-for-large-model-inference">20.2. PiPPy (PyTorch Native solution for large model inference)</a><ul>
-<li><a class="reference internal" href="#how-to-use-pippy-in-torchserve">20.2.1. How to use PiPPy in Torchserve</a></li>
+<li><a class="reference internal" href="#">Serving large models with Torchserve</a><ul>
+<li><a class="reference internal" href="#how-it-works">How it works?</a></li>
+<li><a class="reference internal" href="#pippy-pytorch-native-solution-for-large-model-inference">PiPPy (PyTorch Native solution for large model inference)</a><ul>
+<li><a class="reference internal" href="#how-to-use-pippy-in-torchserve">How to use PiPPy in Torchserve</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#deepspeed">20.3. DeepSpeed</a><ul>
-<li><a class="reference internal" href="#how-to-use-deepspeed-in-torchserve">20.3.1. How to use DeepSpeed in TorchServe</a></li>
+<li><a class="reference internal" href="#deepspeed">DeepSpeed</a><ul>
+<li><a class="reference internal" href="#how-to-use-deepspeed-in-torchserve">How to use DeepSpeed in TorchServe</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#best-practice">20.4. Best Practice</a><ul>
-<li><a class="reference internal" href="#to-reduce-model-loading-latency-we-recommend">20.4.1. To reduce model loading latency, we recommend</a></li>
-<li><a class="reference internal" href="#tune-responsetimeout-see-model-config-yaml-file-if-high-model-loading-or-inference-latency-causes-response-timeout">20.4.2. Tune “responseTimeout” (see model config YAML file) if high model loading or inference latency causes response timeout.</a></li>
-<li><a class="reference internal" href="#tune-torchrun-parameters">20.4.3. Tune torchrun parameters</a></li>
-<li><a class="reference internal" href="#feature-job-ticket-is-recommended-for-the-use-case-of-inference-latency-sensitive">20.4.4. Feature Job ticket is recommended for the use case of inference latency sensitive</a></li>
+<li><a class="reference internal" href="#best-practice">Best Practice</a><ul>
+<li><a class="reference internal" href="#to-reduce-model-loading-latency-we-recommend">To reduce model loading latency, we recommend</a></li>
+<li><a class="reference internal" href="#tune-responsetimeout-see-model-config-yaml-file-if-high-model-loading-or-inference-latency-causes-response-timeout">Tune “responseTimeout” (see model config YAML file) if high model loading or inference latency causes response timeout.</a></li>
+<li><a class="reference internal" href="#tune-torchrun-parameters">Tune torchrun parameters</a></li>
+<li><a class="reference internal" href="#feature-job-ticket-is-recommended-for-the-use-case-of-inference-latency-sensitive">Feature Job ticket is recommended for the use case of inference latency sensitive</a></li>
 </ul>
 </li>
 </ul>
@@ -624,6 +633,7 @@ torch-model-archiver<span class="w"> </span>--model-name<span class="w"> </span>
          <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
          <script src="_static/jquery.js"></script>
          <script src="_static/underscore.js"></script>
+         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
          <script src="_static/doctools.js"></script>
          <script src="_static/katex.min.js"></script>
          <script src="_static/auto-render.min.js"></script>
