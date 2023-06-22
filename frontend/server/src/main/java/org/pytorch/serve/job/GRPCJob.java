@@ -68,15 +68,16 @@ public class GRPCJob extends Job {
             int statusCode,
             String statusPhrase,
             Map<String, String> responseHeaders) {
-
         ByteString output = ByteString.copyFrom(body);
-        if (((ServerCallStreamObserver<PredictionResponse>) predictionResponseObserver)
-                .isCancelled()) {
-            logger.warn("grpc client call already cancelled, not able to send this response");
-            return;
-        }
         if (this.getCmd() == WorkerCommands.PREDICT
                 || this.getCmd() == WorkerCommands.STREAMPREDICT) {
+            if (((ServerCallStreamObserver<PredictionResponse>) predictionResponseObserver)
+                    .isCancelled()) {
+                logger.warn(
+                        "grpc client call already cancelled, not able to send this response for requestId: {}",
+                        responseHeaders.get("requestid"));
+                return;
+            }
             PredictionResponse reply =
                     PredictionResponse.newBuilder().setPrediction(output).build();
             predictionResponseObserver.onNext(reply);
@@ -121,14 +122,16 @@ public class GRPCJob extends Job {
 
     @Override
     public void sendError(int status, String error) {
-        if (((ServerCallStreamObserver<PredictionResponse>) predictionResponseObserver)
-                .isCancelled()) {
-            logger.warn("grpc client call already cancelled, not able to send this error");
-            return;
-        }
         Status responseStatus = GRPCUtils.getGRPCStatusCode(status);
         if (this.getCmd() == WorkerCommands.PREDICT
                 || this.getCmd() == WorkerCommands.STREAMPREDICT) {
+            if (((ServerCallStreamObserver<PredictionResponse>) predictionResponseObserver)
+                    .isCancelled()) {
+                logger.warn(
+                        "grpc client call already cancelled, not able to send this error: {}",
+                        error);
+                return;
+            }
             predictionResponseObserver.onError(
                     responseStatus
                             .withDescription(error)
