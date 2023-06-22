@@ -128,8 +128,9 @@ public class GRPCJob extends Job {
             if (((ServerCallStreamObserver<PredictionResponse>) predictionResponseObserver)
                     .isCancelled()) {
                 logger.warn(
-                        "grpc client call already cancelled, not able to send this error: {}",
-                        error);
+                        "grpc client call already cancelled, not able to send error: {}, for requestId: {}",
+                        error,
+                        getPayload().getRequestId());
                 return;
             }
             predictionResponseObserver.onError(
