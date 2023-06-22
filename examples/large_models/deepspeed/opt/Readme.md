@@ -1,6 +1,6 @@
 # Loading large Huggingface models on Multiple GPUs
 
-This document briefs on serving large HG models on multiple GPUs using deepspeed. We are using facebook/opt-30b in this example
+This document briefs on serving large HuggingFace (HF) models on multiple GPUs using deepspeed. We are using facebook/opt-30b in this example
 
 To run this example we need to have deepspeed installed. This has been added to the requirement.txt which can be bundled during model packaging.
 
