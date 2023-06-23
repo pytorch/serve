@@ -95,7 +95,6 @@ def get_pipeline_driver(model, world_size, ctx):
     checkpoint_prefix = None
     # Set the model to evaluation mode
     model.eval()
-
     # Extract the concrete arguments for the model's forward method
     sig = inspect.signature(model.forward)
     concrete_args = {
