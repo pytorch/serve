@@ -1,8 +1,0 @@
-2023-05-09T03:20:47,885 - HandlerTime.ms:4442.27|#ModelName:opt,Level:Model|#hostname:ip-172-31-5-255,requestID:62d746ed-608b-4dda-83bd-4f6f93102c8a,timestamp:1683602447
-2023-05-09T03:20:47,892 - PredictionTime.ms:4442.36|#ModelName:opt,Level:Model|#hostname:ip-172-31-5-255,requestID:62d746ed-608b-4dda-83bd-4f6f93102c8a,timestamp:1683602447
-2023-05-09T03:23:33,550 - HandlerTime.ms:1527.27|#ModelName:opt,Level:Model|#hostname:ip-172-31-5-255,requestID:005530e1-69e9-41b3-8bd3-1a8f9ce6c316,timestamp:1683602613
-2023-05-09T03:23:33,550 - PredictionTime.ms:1527.34|#ModelName:opt,Level:Model|#hostname:ip-172-31-5-255,requestID:005530e1-69e9-41b3-8bd3-1a8f9ce6c316,timestamp:1683602613
-2023-05-09T03:42:37,062 - HandlerTime.ms:4459.56|#ModelName:opt,Level:Model|#hostname:ip-172-31-5-255,requestID:faba8f89-3a5b-4ec8-99b1-8cf8c4c96ef3,timestamp:1683603757
-2023-05-09T03:42:37,062 - PredictionTime.ms:4459.65|#ModelName:opt,Level:Model|#hostname:ip-172-31-5-255,requestID:faba8f89-3a5b-4ec8-99b1-8cf8c4c96ef3,timestamp:1683603757
-2023-05-09T03:54:16,548 - HandlerTime.ms:4438.02|#ModelName:opt,Level:Model|#hostname:ip-172-31-5-255,requestID:4a06728f-f197-4a12-b4c8-6fc2e670f21d,timestamp:1683604456
-2023-05-09T03:54:16,549 - PredictionTime.ms:4438.11|#ModelName:opt,Level:Model|#hostname:ip-172-31-5-255,requestID:4a06728f-f197-4a12-b4c8-6fc2e670f21d,timestamp:1683604456
