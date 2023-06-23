@@ -131,6 +131,7 @@ html_theme_options = {
     "collapse_navigation": True,
     "display_version": True,
     "logo_only": True,
+    'analytics_id': 'GTM-T8XT4PS',
 }
 
 html_logo = "_static/img/pytorch-logo-dark.svg"
