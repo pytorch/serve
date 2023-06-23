@@ -147,9 +147,9 @@
 
   <distributionManagement>
     <repository>
-      <id>bintray-pytorch-maven</id>
+      <id>central</id>
       <name>pytorch-maven</name>
-      <url>https://api.bintray.com/maven/pytorch/maven/org.pytorch:torchserve_plugins_sdk/</url>
+      <url>https://repo1.maven.org/maven2/org/pytorch/torchserve_plugins_sdk/</url>
     </repository>
   </distributionManagement>
 </project>
