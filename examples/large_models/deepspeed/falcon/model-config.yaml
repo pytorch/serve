@@ -1,0 +1,24 @@
+# TorchServe frontend parameters
+minWorkers: 1
+maxWorkers: 1
+maxBatchDelay: 100
+responseTimeout: 1200
+parallelType: "tp"
+deviceType: "gpu"
+# example of user specified GPU deviceIds
+deviceIds: [0,1,2,3] # seting CUDA_VISIBLE_DEVICES
+
+torchrun:
+    nproc-per-node: 4
+
+# TorchServe Backend parameters
+deepspeed:
+    config: ds-config.json
+    checkpoint: checkpoints.json
+
+handler:
+    model_name: "tiiuae/falcon-40b"
+    model_path: "/home/ubuntu/serve/examples/large_models/deepspeed/model/models--tiiuae--falcon-40b/snapshots/c47b371b31a68349c233104050ac76680b8485db"
+    max_length: 50
+    max_new_tokens: 10
+    manual_seed: 40

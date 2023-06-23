@@ -45,7 +45,7 @@ class TransformersSeqClassifierHandler(BaseDeepSpeedHandler, ABC):
 
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
         self.tokenizer.pad_token = self.tokenizer.eos_token
-        config = AutoConfig.from_pretrained(model_name)
+        config = AutoConfig.from_pretrained(model_name, trust_remote_code=True)
         with torch.device("meta"):
             self.model = AutoModelForCausalLM.from_config(
                 config, torch_dtype=torch.float16
