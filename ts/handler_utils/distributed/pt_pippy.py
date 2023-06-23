@@ -57,9 +57,7 @@ def get_pipeline_driver(model, world_size, ctx):
     assert "handler" in ctx.model_yaml_config, "Missing 'handler' key in YAML config"
 
     # Check that the required keys are present in the "pippy" section
-    assert (
-        "chunks" in ctx.model_yaml_config["pippy"]
-    ), "Missing 'chunks' key in YAML config"
+
     assert (
         "input_names" in ctx.model_yaml_config["pippy"]
     ), "Missing 'input_names' key in YAML config"
@@ -73,10 +71,14 @@ def get_pipeline_driver(model, world_size, ctx):
     ), "Missing 'model_path' key in YAML config"
 
     # Set variables from the config
-    chunks = ctx.model_yaml_config["pippy"]["chunks"]
+
     input_names = ctx.model_yaml_config["pippy"]["input_names"]
     model_type = ctx.model_yaml_config["pippy"]["model_type"]
     model_path = ctx.model_yaml_config["handler"]["model_path"]
+    try:
+        chunks = ctx.model_yaml_config["pippy"]["chunks"]
+    except KeyError:
+        chunks = 1
     try:
         index_filename = ctx.model_yaml_config["handler"]["index_filename"]
     except KeyError:

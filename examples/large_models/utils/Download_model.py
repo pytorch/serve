@@ -41,10 +41,13 @@ parser.add_argument(
 )
 parser.add_argument("--revision", "-r", type=str, default="main", help="Revision")
 args = parser.parse_args()
+# Only download pytorch checkpoint files
+allow_patterns = ["*.json", "*.pt", "*.bin", "*.txt", "*.model"]
 
 snapshot_path = snapshot_download(
     repo_id=args.model_name,
     revision=args.revision,
+    allow_patterns=allow_patterns,
     cache_dir=args.model_path,
     use_auth_token=False,
 )

@@ -20,7 +20,7 @@ pip install torchpippy
 ### Step 1: Download model
 
 ```bash
-python Download_model.py --model_name facebook/opt-30b
+python ../utils/Download_model.py --model_name facebook/opt-30b
 ```
 The script prints the path where the model is downloaded as below. This is an example and in your workload you want to use your actual trained model checkpoints.
 
