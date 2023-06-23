@@ -36,9 +36,6 @@ jobs:
       - name: Install dependencies
         run: |
           python ts_scripts/install_dependencies.py --environment=dev
-      - name: mvn install
-        run: |
-          cd serving-sdk/ && ./mvnw clean install -q && cd ../
       - name: Torchserve Regression Tests
         run: |
           python test/regression_tests.py
