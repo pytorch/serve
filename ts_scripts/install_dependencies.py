@@ -95,6 +95,9 @@ class Common:
     def install_numactl(self):
         pass
 
+    def install_torchserve_plugins_sdk(self):
+        pass
+
 
 class Linux(Common):
     def __init__(self):
@@ -124,6 +127,9 @@ class Linux(Common):
         if os.system("numactl --show") != 0 or args.force:
             os.system(f"{self.sudo_cmd}apt-get install -y numactl")
 
+    def install_torchserve_plugins_sdk(self):
+        os.system(f"cd {REPO_ROOT}/serving-sdk/ && ./mvnw clean install -q && cd ../")
+
 
 class Windows(Common):
     def __init__(self):
@@ -141,6 +147,11 @@ class Windows(Common):
 
     def install_numactl(self):
         pass
+
+    def install_torchserve_plugins_sdk(self):
+        os.system(
+            f"cd {REPO_ROOT}/serving-sdk/ && .\mvnw.cmd clean install -q && cd ../"
+        )
 
 
 class Darwin(Common):
@@ -170,6 +181,9 @@ class Darwin(Common):
         if os.system("numactl --show") != 0 or args.force:
             os.system("brew install numactl")
 
+    def install_torchserve_plugins_sdk(self):
+        os.system(f"cd {REPO_ROOT}/serving-sdk/ && ./mvnw clean install -q && cd ../")
+
 
 def install_dependencies(cuda_version=None, nightly=False):
     os_map = {"Linux": Linux, "Windows": Windows, "Darwin": Darwin}
@@ -180,6 +194,7 @@ def install_dependencies(cuda_version=None, nightly=False):
         system.install_nodejs()
         system.install_node_packages()
         system.install_numactl()
+        system.install_torchserve_plugins_sdk()
 
     # Sequence of installation to be maintained
     system.install_java()
