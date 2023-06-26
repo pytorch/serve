@@ -12,21 +12,21 @@ A simple handler that you can use to serve [Instructor Embedding models](https:/
 torch-model-archiver --model-name <YOUR_MODEL_NAME_OF_CHOOSING> --version 1.0 --handler PATH/TO/instructor-embedding-handler.py --extra-files <DOWNLOADED_MODEL_DIR> --serialized-file <DOWNLOADED_MODEL_DIR>/pytorch_model.bin --f
 ```
 
-**3.** Use [TorchServe](https://pytorch.org/serve/server.html) to startup the server and deploy the Instruction Embedding model you downloaded. 
+**3.** Use [TorchServe](https://pytorch.org/serve/server.html) to startup the server and deploy the Instruction Embedding model you downloaded.
 
 **Note:** Instructor Embedding models are around ~4 GB. By default, torchserve will autoscale workers (each with a loaded copy of the model). [At present](https://github.com/pytorch/serve/issues/2432), if you have memory concerns, you have to make use of the [Management API](https://pytorch.org/serve/management_api.html) to bring up the server and deploy your model.
 
 
 ## Performing Inference
-To perform inference for an instruction and corresponding sentence, use the following format for the request body: 
-```json
+To perform inference for an instruction and corresponding sentence, use the following format for the request body:
+```text
 {
     "inputs": [INSTRUCTION, SENTENCE]
 }
 ```
 
 To perform batch inference, use the following format for the request body:
-```json
+```text
 {
     "inputs": [
         [INSTRUCTION_1, SENTENCE_1],
@@ -36,7 +36,7 @@ To perform batch inference, use the following format for the request body:
 }
 ```
 
-## Example: Single Inference 
+## Example: Single Inference
 Request Endpoint: /predictions/<model_name>
 
 Request Body:
@@ -47,7 +47,7 @@ Request Body:
 ```
 
 ### Response:
-```json
+```yaml
 [
   0.010738617740571499,
   ...
@@ -55,7 +55,7 @@ Request Body:
 ]
 ```
 
-## Example: Batch Inference 
+## Example: Batch Inference
 Request Endpoint: /predictions/<model_name>
 
 Request Body:
@@ -69,7 +69,7 @@ Request Body:
 ```
 
 ### Response:
-```json
+```yaml
 [
   [
     0.010738617740571499,

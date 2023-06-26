@@ -1,10 +1,21 @@
-from InstructorEmbedding import INSTRUCTOR
-from ts.torch_handler.base_handler import BaseHandler
+"""
+Handler class for Instruction Embedding models (https://instructor-embedding.github.io/)
+"""
 import logging
+
+from InstructorEmbedding import INSTRUCTOR
+
+from ts.torch_handler.base_handler import BaseHandler
 
 logger = logging.getLogger(__name__)
 
+
 class InstructorEmbeddingHandler(BaseHandler):
+    """
+    Handler class for Instruction Embedding models.
+    Refer to the README for how to use Instructor models and this handler.
+    """
+
     def __init__(self):
         super().__init__()
         self.initialized = False
@@ -19,7 +30,7 @@ class InstructorEmbeddingHandler(BaseHandler):
 
     def handle(self, data, context):
         inputs = data[0].get("body").get("inputs")
-        if type(inputs[0]) == str:
+        if isinstance(inputs[0], str):
             # single inference
             inputs = [inputs]
         pred_embeddings = self.model.encode(inputs)
