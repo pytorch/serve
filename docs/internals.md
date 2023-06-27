@@ -38,7 +38,7 @@ And backend is the Python code (most Pytorch specific stuff)
 
 ### Backend (Python)
 
-https://github.com/pytorch/serve/blob/master/ts/arg_parser.py#L64
+https://github.com/pytorch/serve/blob/master/ts/arg_parser.py
 
 * Arg parser controls config/not workflow and can also setup a model service worker with a custom socket
 
