@@ -479,7 +479,7 @@
                     "maxWorkers",
                     "status",
                     "workers",
-                    "metrics"
+                    "jobQueueStatus"
                   ],
                   "properties": {
                     "modelName": {
@@ -549,25 +549,25 @@
                       },
                       "description": "A list of active backend workers."
                     },
-                    "metrics": {
+                    "jobQueueStatus": {
                       "type": "object",
                       "required": [
-                        "rejectedRequests",
-                        "waitingQueueSize",
-                        "requests"
+                        "remainingCapacity",
+                        "pendingRequests",
+                        "consecutiveFailedRequests"
                       ],
                       "properties": {
-                        "rejectedRequests": {
+                        "remainingCapacity": {
                           "type": "integer",
-                          "description": "Number requests has been rejected in last 10 minutes."
+                          "description": "Number of new requests that can be queued."
                         },
-                        "waitingQueueSize": {
+                        "pendingRequests": {
                           "type": "integer",
-                          "description": "Number requests waiting in the queue."
+                          "description": "Number of requests waiting in the queue."
                         },
-                        "requests": {
+                        "consecutiveFailedRequests": {
                           "type": "integer",
-                          "description": "Number requests processed in last 10 minutes."
+                          "description": "Number of consecutive failed requests."
                         }
                       }
                     }
@@ -1049,7 +1049,7 @@
                     "maxWorkers",
                     "status",
                     "workers",
-                    "metrics"
+                    "jobQueueStatus"
                   ],
                   "properties": {
                     "modelName": {
@@ -1119,25 +1119,25 @@
                       },
                       "description": "A list of active backend workers."
                     },
-                    "metrics": {
+                    "jobQueueStatus": {
                       "type": "object",
                       "required": [
-                        "rejectedRequests",
-                        "waitingQueueSize",
-                        "requests"
+                        "remainingCapacity",
+                        "pendingRequests",
+                        "consecutiveFailedRequests"
                       ],
                       "properties": {
-                        "rejectedRequests": {
+                        "remainingCapacity": {
                           "type": "integer",
-                          "description": "Number requests has been rejected in last 10 minutes."
+                          "description": "Number of new requests that can be queued."
                         },
-                        "waitingQueueSize": {
+                        "pendingRequests": {
                           "type": "integer",
-                          "description": "Number requests waiting in the queue."
+                          "description": "Number of requests waiting in the queue."
                         },
-                        "requests": {
+                        "consecutiveFailedRequests": {
                           "type": "integer",
-                          "description": "Number requests processed in last 10 minutes."
+                          "description": "Number of consecutive failed requests."
                         }
                       }
                     }
