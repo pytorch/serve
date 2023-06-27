@@ -92,7 +92,7 @@ Request Body:
 **The second input was:**
 ["Represent the Medicine sentence for retrieving a duplicate sentence:", "Recent studies have suggested that statins, an established drug group in the prevention of cardiovascular mortality, could delay or prevent breast cancer recurrence but the effect on disease-specific mortality remains unclear."]
 
-The response was a list of 2 embedding vectors (numpy arrays converted .tolist() to ensure they were JSON serializable) corresponding to each of those inputs. The output vectors are quite long, so ellipses were used to make it more readable.
+The response was a list of 2 embedding vectors (numpy arrays converted `.tolist()` to ensure they were JSON serializable) corresponding to each of those inputs. The output vectors are quite long, so ellipses were used to make it more readable.
 
 # Then What?
 
