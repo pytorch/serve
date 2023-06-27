@@ -33,7 +33,7 @@
   <url>http://maven.apache.org</url>
   <properties>
     <repo_url>file://${project.build.directory}/repo</repo_url>
-    <skip.gpg>true</skip.gpg>
+    <skip.gpg>false</skip.gpg>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
   </properties>
@@ -67,6 +67,8 @@
         <version>1.6</version>
         <configuration>
           <skip>${skip.gpg}</skip>
+          <keyname>${gpg.keyname}</keyname>
+          <passphrase>${gpg.passphrase}</passphrase>
         </configuration>
         <executions>
           <execution>
