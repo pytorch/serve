@@ -44,3 +44,7 @@ torchserve --start --ncs --model-store model_store --models opt.tar.gz
 ```bash
 curl  "http://localhost:8080/predictions/opt" -T sample_text.txt
 ```
+
+### Running using TorchServe Docker Image
+
+To use DeepSpeed with GPU on TorchServe Docker, we need to build an image with [NVIDIA CUDA dev ](https://github.com/NVIDIA/nvidia-docker/wiki/CUDA) as the base image as shown [here](https://github.com/pytorch/serve/blob/master/docker/README.md#create-torchserve-docker-image)
