@@ -24,7 +24,6 @@ TorchServe also supports models optimized via TensorRT. To leverage the TensorRT
 
 After a conversion there is no difference in how PyTorch treats a Torchscript model vs a TensorRT model.
 
-
  <h4>Better Transformer<h4>
 
 Better Transformer from PyTorch implements a backwards-compatible fast path of `torch.nn.TransformerEncoder` for Transformer Encoder Inference and does not require model authors to modify their models. BetterTransformer improvements can exceed 2x in speedup and throughput for many common execution scenarios.
