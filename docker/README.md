@@ -55,7 +55,7 @@ Creates a docker image with publicly available `torchserve` and `torch-model-arc
 
  - To create a GPU based image with cuda 10.2. Options are `cu92`, `cu101`, `cu102`, `cu111`, `cu113`, `cu116`, `cu117`, `cu118`
 
-    - GPU images are built with NVIDIA CUDA base image. If you want to use ONNX, DeepSpeed, TensorRT, please specify the base image as shown in the next section.
+    - GPU images are built with NVIDIA CUDA base image. If you want to use ONNX, please specify the base image as shown in the next section.
 
   ```bash
   ./build_image.sh -g -cv cu117
@@ -69,7 +69,7 @@ Creates a docker image with publicly available `torchserve` and `torch-model-arc
 
 **NVIDIA CUDA RUNTIME BASE IMAGE**
 
-To make use of ONNX, TensorRT, DeepSpeed, we need to use [NVIDIA CUDA runtime](https://github.com/NVIDIA/nvidia-docker/wiki/CUDA) as the base image.
+To make use of ONNX, we need to use [NVIDIA CUDA runtime](https://github.com/NVIDIA/nvidia-docker/wiki/CUDA) as the base image.
 This will increase the size of your Docker Image
 
 ```bash
