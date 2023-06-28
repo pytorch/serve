@@ -16,11 +16,15 @@ At a high level what TorchServe allows you to do is
 2. Load those weights from `base_handler.py` using `ort_session = ort.InferenceSession(self.model_pt_path, providers=providers, sess_options=sess_options)` which supports reasonable defaults for both CPU and GPU inference
 3. Allow you define custom pre and post processing functions to pass in data in the format your onnx model expects with a custom handler
 
+To use ONNX with GPU on TorchServe Docker, we need to build an image with [NVIDIA CUDA runtime](https://github.com/NVIDIA/nvidia-docker/wiki/CUDA) as the base image as show [here](https://github.com/pytorch/serve/blob/master/docker/README.md#create-torchserve-docker-image)
+
  <h4>TensorRT<h4>
 
 TorchServe also supports models optimized via TensorRT. To leverage the TensorRT runtime you can convert your model by [following these instructions](https://github.com/pytorch/TensorRT) and once you're done you'll have serialized weights which you can load with [`torch.jit.load()`](https://pytorch.org/TensorRT/getting_started/getting_started_with_python_api.html#getting-started-with-python-api).
 
 After a conversion there is no difference in how PyTorch treats a Torchscript model vs a TensorRT model.
+
+To use ONNX with GPU on TorchServe Docker, we need to build an image with [NVIDIA CUDA runtime](https://github.com/NVIDIA/nvidia-docker/wiki/CUDA) as the base image as show [here](https://github.com/pytorch/serve/blob/master/docker/README.md#create-torchserve-docker-image)
 
  <h4>Better Transformer<h4>
 

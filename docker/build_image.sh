@@ -7,6 +7,8 @@ BRANCH_NAME="master"
 DOCKER_TAG="pytorch/torchserve:latest-cpu"
 BUILD_TYPE="production"
 BASE_IMAGE="ubuntu:20.04"
+USER_BASE_IMAGE="ubuntu:20.04"
+UPDATE_BASE_IMAGE=false
 USE_CUSTOM_TAG=false
 CUDA_VERSION=""
 USE_LOCAL_SERVE_FOLDER=false
@@ -21,6 +23,7 @@ do
           echo "-h, --help  show brief help"
           echo "-b, --branch_name=BRANCH_NAME specify a branch_name to use"
           echo "-g, --gpu specify to use gpu"
+          echo "-bi, --baseimage specify base docker image. Example: nvidia/cuda:11.7.0-cudnn8-runtime-ubuntu20.04 "
           echo "-bt, --buildtype specify to created image for codebuild. Possible values: production, dev, codebuild."
           echo "-cv, --cudaversion specify to cuda version to use"
           echo "-t, --tag specify tag name for docker image"
@@ -45,6 +48,12 @@ do
           DOCKER_TAG="pytorch/torchserve:latest-gpu"
           BASE_IMAGE="nvidia/cuda:11.7.0-base-ubuntu20.04"
           CUDA_VERSION="cu117"
+          shift
+          ;;
+        -bi|--baseimage)
+          USER_BASE_IMAGE="$2"
+          UPDATE_BASE_IMAGE=true
+          shift
           shift
           ;;
         -bt|--buildtype)
@@ -133,6 +142,11 @@ fi
 if [ "$USE_CUSTOM_TAG" = true ]
 then
   DOCKER_TAG=${CUSTOM_TAG}
+fi
+
+if [ "$UPDATE_BASE_IMAGE" = true ]
+then
+  BASE_IMAGE=${USER_BASE_IMAGE}
 fi
 
 if [ "${BUILD_TYPE}" == "production" ]
