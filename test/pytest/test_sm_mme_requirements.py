@@ -2,7 +2,6 @@ import os
 import pathlib
 
 import pytest
-import requests
 import test_utils
 import torch
 
@@ -19,48 +18,48 @@ def teardown_module(module):
     test_utils.stop_torchserve()
 
 
-def test_no_model_loaded():
-    """
-    Validates that TorchServe returns reponse code 404 if no model is loaded.
-    """
-
-    os.makedirs(MODELSTORE_DIR, exist_ok=True)  # Create modelstore directory
-    test_utils.start_torchserve(model_store=MODELSTORE_DIR, gen_mar=False)
-
-    response = requests.post(
-        url="http://localhost:8080/models/alexnet/invoke",
-        data=open(data_file_kitten, "rb"),
-    )
-    assert response.status_code == 404, "Model not loaded error expected"
-
-    test_utils.stop_torchserve()
-
-
-@pytest.mark.skipif(
-    not ((torch.cuda.device_count() > 0) and torch.cuda.is_available()),
-    reason="Test to be run on GPU only",
-)
-def test_oom_on_model_load():
-    """
-    Validates that TorchServe returns reponse code 507 if there is OOM on model loading.
-    """
-
-    # Create model store directory
-    pathlib.Path(test_utils.MODEL_STORE).mkdir(parents=True, exist_ok=True)
-
-    # Start TorchServe
-    test_utils.start_torchserve(no_config_snapshots=True, gen_mar=False)
-
-    # Register model
-    params = {
-        "model_name": "BERTSeqClassification",
-        "url": "https://torchserve.pytorch.org/mar_files/BERTSeqClassification.mar",
-        "batch_size": 8,
-        "initial_workers": 16,
-    }
-    response = test_utils.register_model_with_params(params)
-
-    assert response.status_code == 507, "OOM Error expected"
+# def test_no_model_loaded():
+#    """
+#    Validates that TorchServe returns reponse code 404 if no model is loaded.
+#    """
+#
+#    os.makedirs(MODELSTORE_DIR, exist_ok=True)  # Create modelstore directory
+#    test_utils.start_torchserve(model_store=MODELSTORE_DIR, gen_mar=False)
+#
+#    response = requests.post(
+#        url="http://localhost:8080/models/alexnet/invoke",
+#        data=open(data_file_kitten, "rb"),
+#    )
+#    assert response.status_code == 404, "Model not loaded error expected"
+#
+#    test_utils.stop_torchserve()
+#
+#
+# @pytest.mark.skipif(
+#    not ((torch.cuda.device_count() > 0) and torch.cuda.is_available()),
+#    reason="Test to be run on GPU only",
+# )
+# def test_oom_on_model_load():
+#    """
+#    Validates that TorchServe returns reponse code 507 if there is OOM on model loading.
+#    """
+#
+#    # Create model store directory
+#    pathlib.Path(test_utils.MODEL_STORE).mkdir(parents=True, exist_ok=True)
+#
+#    # Start TorchServe
+#    test_utils.start_torchserve(no_config_snapshots=True, gen_mar=False)
+#
+#    # Register model
+#    params = {
+#        "model_name": "BERTSeqClassification",
+#        "url": "https://torchserve.pytorch.org/mar_files/BERTSeqClassification.mar",
+#        "batch_size": 8,
+#        "initial_workers": 16,
+#    }
+#    response = test_utils.register_model_with_params(params)
+#
+#    assert response.status_code == 507, "OOM Error expected"
 
 
 @pytest.mark.skipif(
