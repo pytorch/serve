@@ -79,7 +79,6 @@ def test_oom_on_invoke():
         "url": "https://torchserve.pytorch.org/mar_files/BERTSeqClassification.mar",
         "batch_size": 8,
         "initial_workers": 4,
-        "synchronous": True,
     }
     response = test_utils.register_model_with_params(params)
 
