@@ -29,6 +29,8 @@ def test_no_model_loaded():
     )
     assert response.status_code == 404, "Model not loaded error expected"
 
+    test_utils.stop_torchserve()
+
 
 @pytest.mark.skipif(
     not ((torch.cuda.device_count() > 0) and torch.cuda.is_available()),
@@ -111,3 +113,5 @@ def test_oom_on_invoke():
             output = line
             break
     assert output == '"code": 507,', "OOM Error expected"
+
+    test_utils.stop_torchserve()
