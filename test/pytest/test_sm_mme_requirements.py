@@ -93,15 +93,15 @@ def test_oom_on_invoke():
 
     # Make 8 curl requests in parallel with &
     # Send multiple requests to make sure to hit OOM
-    for i in range(20):
+    for i in range(10):
         response = os.popen(
-            f"curl http://127.0.0.1:8080/models/BERTSeqClassification/invoke -T {input_text} && "
-            f"curl http://127.0.0.1:8080/models/BERTSeqClassification/invoke -T {input_text} && "
-            f"curl http://127.0.0.1:8080/models/BERTSeqClassification/invoke -T {input_text} && "
-            f"curl http://127.0.0.1:8080/models/BERTSeqClassification/invoke -T {input_text} && "
-            f"curl http://127.0.0.1:8080/models/BERTSeqClassification/invoke -T {input_text} && "
-            f"curl http://127.0.0.1:8080/models/BERTSeqClassification/invoke -T {input_text} && "
-            f"curl http://127.0.0.1:8080/models/BERTSeqClassification/invoke -T {input_text} && "
+            f"curl http://127.0.0.1:8080/models/BERTSeqClassification/invoke -T {input_text} & "
+            f"curl http://127.0.0.1:8080/models/BERTSeqClassification/invoke -T {input_text} & "
+            f"curl http://127.0.0.1:8080/models/BERTSeqClassification/invoke -T {input_text} & "
+            f"curl http://127.0.0.1:8080/models/BERTSeqClassification/invoke -T {input_text} & "
+            f"curl http://127.0.0.1:8080/models/BERTSeqClassification/invoke -T {input_text} & "
+            f"curl http://127.0.0.1:8080/models/BERTSeqClassification/invoke -T {input_text} & "
+            f"curl http://127.0.0.1:8080/models/BERTSeqClassification/invoke -T {input_text} & "
             f"curl http://127.0.0.1:8080/models/BERTSeqClassification/invoke -T {input_text} "
         )
         response = response.read()
