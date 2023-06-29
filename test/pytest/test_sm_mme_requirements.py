@@ -80,6 +80,7 @@ def test_oom_on_invoke():
         "url": "https://torchserve.pytorch.org/mar_files/BERTSeqClassification.mar",
         "batch_size": 8,
         "initial_workers": 12,
+        "synchronous": True,
     }
     response = test_utils.register_model_with_params(params)
 
@@ -93,17 +94,12 @@ def test_oom_on_invoke():
 
     # Make 8 curl requests in parallel with &
     # Send multiple requests to make sure to hit OOM
-    for i in range(10):
-        response = os.popen(
-            f"curl http://127.0.0.1:8080/models/BERTSeqClassification/invoke -T {input_text} & "
-            f"curl http://127.0.0.1:8080/models/BERTSeqClassification/invoke -T {input_text} & "
-            f"curl http://127.0.0.1:8080/models/BERTSeqClassification/invoke -T {input_text} & "
-            f"curl http://127.0.0.1:8080/models/BERTSeqClassification/invoke -T {input_text} & "
-            f"curl http://127.0.0.1:8080/models/BERTSeqClassification/invoke -T {input_text} & "
-            f"curl http://127.0.0.1:8080/models/BERTSeqClassification/invoke -T {input_text} & "
-            f"curl http://127.0.0.1:8080/models/BERTSeqClassification/invoke -T {input_text} & "
-            f"curl http://127.0.0.1:8080/models/BERTSeqClassification/invoke -T {input_text} "
-        )
+    cmd = ""
+    for i in range(24):
+        cmd += f"curl http://127.0.0.1:8080/models/BERTSeqClassification/invoke -T {input_text} & "
+
+    for i in range(1):
+        response = os.popen(cmd)
         response = response.read()
 
     # If OOM is hit, we expect code 507 to be present in the response string
