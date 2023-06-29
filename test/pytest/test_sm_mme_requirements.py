@@ -69,12 +69,10 @@ def test_oom_on_model_load():
 )
 def test_oom_on_invoke():
     # Create model store directory
-    pathlib.Path(test_utils.MODEL_STORE).mkdir(
-        parents=True, exist_ok=True, gen_mar=False
-    )
+    pathlib.Path(test_utils.MODEL_STORE).mkdir(parents=True, exist_ok=True)
 
     # Start TorchServe
-    test_utils.start_torchserve(no_config_snapshots=True)
+    test_utils.start_torchserve(no_config_snapshots=True, gen_mar=False)
 
     # Register model
     params = {
