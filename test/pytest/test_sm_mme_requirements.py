@@ -15,13 +15,17 @@ HF_TRANSFORMERS_EXAMPLE_DIR = os.path.join(
 )
 
 
+def teardown_module(module):
+    test_utils.stop_torchserve()
+
+
 def test_no_model_loaded():
     """
     Validates that TorchServe returns reponse code 404 if no model is loaded.
     """
 
     os.makedirs(MODELSTORE_DIR, exist_ok=True)  # Create modelstore directory
-    test_utils.start_torchserve(model_store=MODELSTORE_DIR)
+    test_utils.start_torchserve(model_store=MODELSTORE_DIR, gen_mar=False)
 
     response = requests.post(
         url="http://localhost:8080/models/alexnet/invoke",
@@ -45,7 +49,7 @@ def test_oom_on_model_load():
     pathlib.Path(test_utils.MODEL_STORE).mkdir(parents=True, exist_ok=True)
 
     # Start TorchServe
-    test_utils.start_torchserve(no_config_snapshots=True)
+    test_utils.start_torchserve(no_config_snapshots=True, gen_mar=False)
 
     # Register model
     params = {
@@ -58,8 +62,6 @@ def test_oom_on_model_load():
 
     assert response.status_code == 507, "OOM Error expected"
 
-    test_utils.stop_torchserve()
-
 
 @pytest.mark.skipif(
     not ((torch.cuda.device_count() > 0) and torch.cuda.is_available()),
@@ -67,7 +69,9 @@ def test_oom_on_model_load():
 )
 def test_oom_on_invoke():
     # Create model store directory
-    pathlib.Path(test_utils.MODEL_STORE).mkdir(parents=True, exist_ok=True)
+    pathlib.Path(test_utils.MODEL_STORE).mkdir(
+        parents=True, exist_ok=True, gen_mar=False
+    )
 
     # Start TorchServe
     test_utils.start_torchserve(no_config_snapshots=True)
@@ -91,7 +95,7 @@ def test_oom_on_invoke():
 
     # Make 8 curl requests in parallel with &
     # Send multiple requests to make sure to hit OOM
-    for i in range(10):
+    for i in range(20):
         response = os.popen(
             f"curl http://127.0.0.1:8080/models/BERTSeqClassification/invoke -T {input_text} && "
             f"curl http://127.0.0.1:8080/models/BERTSeqClassification/invoke -T {input_text} && "
