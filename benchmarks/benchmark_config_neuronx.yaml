@@ -10,6 +10,7 @@
 # or a list of model configure yaml files with full path
 models:
   - "bert_neuronx.yaml"
+  - "opt_6.7b_neuronx.yaml"
 
 # benchmark on "cpu", "gpu", "neuron" or "neuronx".
 # "cpu" is set if "hardware" is not specified
