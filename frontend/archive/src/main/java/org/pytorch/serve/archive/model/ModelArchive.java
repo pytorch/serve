@@ -8,7 +8,6 @@ import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
 import org.pytorch.serve.archive.DownloadArchiveException;
 import org.pytorch.serve.archive.utils.ArchiveUtils;
 import org.pytorch.serve.archive.utils.InvalidArchiveURLException;
@@ -55,7 +54,7 @@ public class ModelArchive {
             throw new ModelNotFoundException("empty url");
         }
 
-        String marFileName = FilenameUtils.getName(url);
+        String marFileName = ArchiveUtils.getFilenameFromUrl(url);
         File modelLocation = new File(modelStore, marFileName);
         try {
             ArchiveUtils.downloadArchive(
@@ -80,15 +79,28 @@ public class ModelArchive {
             }
         }
 
-        if (new File(url).isDirectory()) {
+        File directory = new File(url);
+        if (directory.isDirectory()) {
             // handle the case that the input url is a directory.
             // the input of url is "/xxx/model_store/modelXXX" or
             // "xxxx/yyyyy/modelXXX".
-            return load(url, new File(url), false);
+            File[] fileList = directory.listFiles();
+            if (fileList.length == 1 && fileList[0].isDirectory()) {
+                // handle the case that a model tgz file
+                // has root dir after decompression on SageMaker
+                return load(url, fileList[0], false);
+            }
+            return load(url, directory, false);
         } else if (modelLocation.exists()) {
             // handle the case that "/xxx/model_store/modelXXX" is directory.
             // the input of url is modelXXX when torchserve is started
             // with snapshot or with parameter --models modelXXX
+            File[] fileList = modelLocation.listFiles();
+            if (fileList.length == 1 && fileList[0].isDirectory()) {
+                // handle the case that a model tgz file
+                // has root dir after decompression on SageMaker
+                return load(url, fileList[0], false);
+            }
             return load(url, modelLocation, false);
         }
 
@@ -152,7 +164,7 @@ public class ModelArchive {
 
     public static void removeModel(String modelStore, String marURL) {
         if (ArchiveUtils.isValidURL(marURL)) {
-            String marFileName = FilenameUtils.getName(marURL);
+            String marFileName = ArchiveUtils.getFilenameFromUrl(marURL);
             File modelLocation = new File(modelStore, marFileName);
             FileUtils.deleteQuietly(modelLocation);
         }
