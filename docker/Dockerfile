@@ -164,6 +164,8 @@ RUN --mount=type=cache,target=/var/cache/apt \
     && cd /tmp
 
 
+COPY --from=compile-image /home/venv /home/venv
+
 ENV PATH="/home/venv/bin:$PATH"
 
 RUN python -m pip install --no-cache-dir -r https://raw.githubusercontent.com/pytorch/serve/$BRANCH_NAME/requirements/developer.txt
