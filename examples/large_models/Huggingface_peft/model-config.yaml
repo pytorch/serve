@@ -1,0 +1,15 @@
+#frontend settings
+minWorkers: 1
+maxWorkers: 1
+maxBatchDelay: 200
+responseTimeout: 300
+
+#backend settings
+
+handler:
+    base_model_path: "/home/ubuntu/serve/examples/large_models/Huggingface_pippy/model/models--facebook--opt-350m/snapshots/cb32f77e905cccbca1d970436fb0f5e6b58ee3c5/"
+    peft_model_path: "ybelkada/opt-6.7b-lora"
+    max_length: 50
+    max_new_tokens: 60
+    manual_seed: 40
+    dtype: fp16

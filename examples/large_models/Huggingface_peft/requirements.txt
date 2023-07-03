@@ -1,0 +1,3 @@
+transformers
+bitsandbytes
+git+https://github.com/huggingface/peft.git
