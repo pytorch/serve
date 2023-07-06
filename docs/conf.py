@@ -238,7 +238,7 @@ from custom_directives import (
 )
 from docutils.parsers import rst
 
-# Register custom directives
+# Register the custom directives
 
 rst.directives.register_directive("devices", SupportedDevices)
 rst.directives.register_directive("properties", SupportedProperties)
