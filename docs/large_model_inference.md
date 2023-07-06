@@ -12,7 +12,7 @@ In addition to this default behavior, TorchServe provides the flexibility for us
 
 Using Pippy integration as an example, the image below illustrates the internals of the TorchServe large model inference.
 
-![ts-lmi-internal](images/ts-lmi-internal.png)
+![ts-lmi-internal](https://raw.githubusercontent.com/pytorch/serve/master/docs/images/ts-lmi-internal.png)
 
 ## PiPPy (PyTorch Native solution for large model inference)
 
