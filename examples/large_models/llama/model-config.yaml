@@ -1,0 +1,12 @@
+#frontend settings
+minWorkers: 1
+maxWorkers: 1
+maxBatchDelay: 200
+responseTimeout: 300
+#backend settings
+handler:
+    model_path: "/data/home/hamidnazeri/serve/examples/large_models/llama/model/models--facebook--opt-350m/snapshots/cb32f77e905cccbca1d970436fb0f5e6b58ee3c5"
+    max_length: 50
+    max_new_tokens: 100
+    manual_seed: 40
+    dtype: fp16

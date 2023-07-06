@@ -1,0 +1,60 @@
+2023-07-06T21:34:31,777 [INFO ] W-9000-llama_1.0-stdout MODEL_LOG - s_name_part0=/tmp/.ts.sock, s_name_part1=9000, pid=2403433
+2023-07-06T21:34:31,779 [INFO ] W-9000-llama_1.0-stdout MODEL_LOG - Listening on port: /tmp/.ts.sock.9000
+2023-07-06T21:34:31,788 [INFO ] W-9000-llama_1.0-stdout MODEL_LOG - Successfully loaded /data/home/hamidnazeri/miniconda/envs/PEFT-python310/lib/python3.10/site-packages/ts/configs/metrics.yaml.
+2023-07-06T21:34:31,788 [INFO ] W-9000-llama_1.0-stdout MODEL_LOG - [PID]2403433
+2023-07-06T21:34:31,788 [INFO ] W-9000-llama_1.0-stdout MODEL_LOG - Torch worker started.
+2023-07-06T21:34:31,788 [INFO ] W-9000-llama_1.0-stdout MODEL_LOG - Python runtime: 3.10.11
+2023-07-06T21:34:31,799 [INFO ] W-9000-llama_1.0-stdout MODEL_LOG - Connection accepted: /tmp/.ts.sock.9000.
+2023-07-06T21:34:31,834 [INFO ] W-9000-llama_1.0-stdout MODEL_LOG - model_name: llama, batchSize: 1
+2023-07-06T21:34:35,978 [INFO ] W-9000-llama_1.0-stdout MODEL_LOG - Enabled tensor cores
+2023-07-06T21:34:35,978 [INFO ] W-9000-llama_1.0-stdout MODEL_LOG - proceeding without onnxruntime
+2023-07-06T21:34:35,978 [INFO ] W-9000-llama_1.0-stdout MODEL_LOG - Transformers version 4.30.2
+2023-07-06T21:34:36,375 [INFO ] W-9000-llama_1.0-stdout MODEL_LOG - The model weights are not tied. Please use the `tie_weights` method before using the `infer_auto_device` function.
+2023-07-06T21:34:36,433 [WARN ] W-9000-llama_1.0-stderr MODEL_LOG - 
+2023-07-06T21:34:45,747 [WARN ] W-9000-llama_1.0-stderr MODEL_LOG - Loading checkpoint shards:   0%|          | 0/3 [00:00<?, ?it/s]
+2023-07-06T21:34:53,600 [WARN ] W-9000-llama_1.0-stderr MODEL_LOG - Loading checkpoint shards:  33%|███▎      | 1/3 [00:09<00:18,  9.31s/it]
+2023-07-06T21:34:58,625 [WARN ] W-9000-llama_1.0-stderr MODEL_LOG - Loading checkpoint shards:  67%|██████▋   | 2/3 [00:17<00:08,  8.45s/it]
+2023-07-06T21:34:58,626 [WARN ] W-9000-llama_1.0-stderr MODEL_LOG - Loading checkpoint shards: 100%|██████████| 3/3 [00:22<00:00,  6.89s/it]
+2023-07-06T21:34:58,626 [WARN ] W-9000-llama_1.0-stderr MODEL_LOG - Loading checkpoint shards: 100%|██████████| 3/3 [00:22<00:00,  7.40s/it]
+2023-07-06T21:34:58,772 [INFO ] W-9000-llama_1.0-stdout MODEL_LOG - Transformer model from path /tmp/models/7033f3878d1b4c34bf2f0b8494d7068c loaded successfully
+2023-07-06T21:35:24,831 [INFO ] W-9000-llama_1.0-stdout MODEL_LOG - Backend received inference at: 1688679324
+2023-07-06T21:35:24,831 [INFO ] W-9000-llama_1.0-stdout MODEL_LOG - Received text: 'Today the weather is really nice and I am planning on
+2023-07-06T21:35:24,831 [WARN ] W-9000-llama_1.0-stderr MODEL_LOG - Truncation was not explicitly activated but `max_length` is provided a specific value, please use `truncation=True` to explicitly truncate examples to max length. Defaulting to 'longest_first' truncation strategy. If you encode pairs of sequences (GLUE-style) with the tokenizer you can select this strategy more precisely by providing a specific strategy to `truncation`.
+2023-07-06T21:35:24,831 [INFO ] W-9000-llama_1.0-stdout MODEL_LOG - '
+2023-07-06T21:35:24,831 [WARN ] W-9000-llama_1.0-stderr MODEL_LOG - /tmp/models/7033f3878d1b4c34bf2f0b8494d7068c/transformers/tokenization_utils_base.py:2377: FutureWarning: The `pad_to_max_length` argument is deprecated and will be removed in a future version, use `padding=True` or `padding='longest'` to pad to the longest sequence in the batch, or use `padding='max_length'` to pad to a max length. In this case, you can give a specific length with `max_length` (e.g. `max_length=45`) or leave max_length to None to pad to the maximal input size of the model (e.g. 512 for Bert).
+2023-07-06T21:35:24,831 [WARN ] W-9000-llama_1.0-stderr MODEL_LOG -   warnings.warn(
+2023-07-06T21:35:24,836 [WARN ] W-9000-llama_1.0-stderr MODEL_LOG - A decoder-only architecture is being used, but right-padding was detected! For correct generation results, please set `padding_side='left'` when initializing the tokenizer.
+2023-07-06T21:35:30,347 [INFO ] W-9000-llama_1.0-stdout MODEL_LOG - Generated text: '["Today the weather is really nice and I am planning on\nOur first stop of the day will be a bit north of Penticton to visit the beautiful Okanagan Lake. It's a warm day so it will be perfect for a short swim.\nWe will continue on highway 97 towards Vernon. Our first stop there will be at the famous Vernon Outdoor Swimming Pool. The swimming pool in Vernon was"]'
+2023-07-06T21:35:30,347 [INFO ] W-9000-llama_1.0-stdout MODEL_LOG - Generated text ["Today the weather is really nice and I am planning on\nOur first stop of the day will be a bit north of Penticton to visit the beautiful Okanagan Lake. It's a warm day so it will be perfect for a short swim.\nWe will continue on highway 97 towards Vernon. Our first stop there will be at the famous Vernon Outdoor Swimming Pool. The swimming pool in Vernon was"]
+2023-07-06T21:45:06,535 [INFO ] W-9000-llama_1.0-stdout MODEL_LOG - s_name_part0=/tmp/.ts.sock, s_name_part1=9000, pid=2408989
+2023-07-06T21:45:06,536 [INFO ] W-9000-llama_1.0-stdout MODEL_LOG - Listening on port: /tmp/.ts.sock.9000
+2023-07-06T21:45:06,544 [INFO ] W-9000-llama_1.0-stdout MODEL_LOG - Successfully loaded /data/home/hamidnazeri/miniconda/envs/PEFT-python310/lib/python3.10/site-packages/ts/configs/metrics.yaml.
+2023-07-06T21:45:06,545 [INFO ] W-9000-llama_1.0-stdout MODEL_LOG - [PID]2408989
+2023-07-06T21:45:06,545 [INFO ] W-9000-llama_1.0-stdout MODEL_LOG - Torch worker started.
+2023-07-06T21:45:06,545 [INFO ] W-9000-llama_1.0-stdout MODEL_LOG - Python runtime: 3.10.11
+2023-07-06T21:45:06,556 [INFO ] W-9000-llama_1.0-stdout MODEL_LOG - Connection accepted: /tmp/.ts.sock.9000.
+2023-07-06T21:45:06,590 [INFO ] W-9000-llama_1.0-stdout MODEL_LOG - model_name: llama, batchSize: 1
+2023-07-06T21:45:11,958 [INFO ] W-9000-llama_1.0-stdout MODEL_LOG - Enabled tensor cores
+2023-07-06T21:45:11,958 [INFO ] W-9000-llama_1.0-stdout MODEL_LOG - proceeding without onnxruntime
+2023-07-06T21:45:11,958 [INFO ] W-9000-llama_1.0-stdout MODEL_LOG - Transformers version 4.30.2
+2023-07-06T21:45:12,354 [INFO ] W-9000-llama_1.0-stdout MODEL_LOG - The model weights are not tied. Please use the `tie_weights` method before using the `infer_auto_device` function.
+2023-07-06T21:45:12,412 [WARN ] W-9000-llama_1.0-stderr MODEL_LOG - 
+2023-07-06T21:45:21,551 [WARN ] W-9000-llama_1.0-stderr MODEL_LOG - Loading checkpoint shards:   0%|          | 0/3 [00:00<?, ?it/s]
+2023-07-06T21:45:29,382 [WARN ] W-9000-llama_1.0-stderr MODEL_LOG - Loading checkpoint shards:  33%|███▎      | 1/3 [00:09<00:18,  9.14s/it]
+2023-07-06T21:45:34,238 [WARN ] W-9000-llama_1.0-stderr MODEL_LOG - Loading checkpoint shards:  67%|██████▋   | 2/3 [00:16<00:08,  8.37s/it]
+2023-07-06T21:45:34,238 [WARN ] W-9000-llama_1.0-stderr MODEL_LOG - Loading checkpoint shards: 100%|██████████| 3/3 [00:21<00:00,  6.77s/it]
+2023-07-06T21:45:34,238 [WARN ] W-9000-llama_1.0-stderr MODEL_LOG - Loading checkpoint shards: 100%|██████████| 3/3 [00:21<00:00,  7.28s/it]
+2023-07-06T21:45:34,375 [INFO ] W-9000-llama_1.0-stdout MODEL_LOG - Transformer model from path /tmp/models/7d0a50b3d2b144c4aeddfd0e41ff2c7f loaded successfully
+2023-07-06T21:45:40,855 [INFO ] W-9000-llama_1.0-stdout MODEL_LOG - Backend received inference at: 1688679940
+2023-07-06T21:45:40,855 [INFO ] W-9000-llama_1.0-stdout MODEL_LOG - Received text: 'Summarize this article:
+2023-07-06T21:45:40,855 [WARN ] W-9000-llama_1.0-stderr MODEL_LOG - Truncation was not explicitly activated but `max_length` is provided a specific value, please use `truncation=True` to explicitly truncate examples to max length. Defaulting to 'longest_first' truncation strategy. If you encode pairs of sequences (GLUE-style) with the tokenizer you can select this strategy more precisely by providing a specific strategy to `truncation`.
+2023-07-06T21:45:40,855 [INFO ] W-9000-llama_1.0-stdout MODEL_LOG - LONDON, England (Reuters) -- Harry Potter star Daniel Radcliffe gains access to a reported £20 million ($41.1 million) fortune as he turns 18 on Monday, but he insists the money won't cast a spell on him.
+2023-07-06T21:45:40,855 [INFO ] W-9000-llama_1.0-stdout MODEL_LOG - Summarize this article:
+2023-07-06T21:45:40,855 [INFO ] W-9000-llama_1.0-stdout MODEL_LOG - LONDON, England (Reuters) -- Harry Potter star Daniel Radcliffe gains access to a reported £20 million ($41.1 million) fortune as he turns 18 on Monday, but he insists the money won't cast a spell on him.
+2023-07-06T21:45:40,855 [INFO ] W-9000-llama_1.0-stdout MODEL_LOG - Summarize this article:
+2023-07-06T21:45:40,855 [INFO ] W-9000-llama_1.0-stdout MODEL_LOG - LONDON, England (Reuters) -- Harry Potter star Daniel Radcliffe gains access to a reported £20 million ($41.1 million) fortune as he turns 18 on Monday, but he insists the money won't cast a spell on him now.'
+2023-07-06T21:45:40,855 [WARN ] W-9000-llama_1.0-stderr MODEL_LOG - /tmp/models/7d0a50b3d2b144c4aeddfd0e41ff2c7f/transformers/tokenization_utils_base.py:2377: FutureWarning: The `pad_to_max_length` argument is deprecated and will be removed in a future version, use `padding=True` or `padding='longest'` to pad to the longest sequence in the batch, or use `padding='max_length'` to pad to a max length. In this case, you can give a specific length with `max_length` (e.g. `max_length=45`) or leave max_length to None to pad to the maximal input size of the model (e.g. 512 for Bert).
+2023-07-06T21:45:40,856 [WARN ] W-9000-llama_1.0-stderr MODEL_LOG -   warnings.warn(
+2023-07-06T21:45:40,862 [WARN ] W-9000-llama_1.0-stderr MODEL_LOG - A decoder-only architecture is being used, but right-padding was detected! For correct generation results, please set `padding_side='left'` when initializing the tokenizer.
+2023-07-06T21:45:47,562 [INFO ] W-9000-llama_1.0-stdout MODEL_LOG - Generated text: '["Summarize this article:\nLONDON, England (Reuters) -- Harry Potter star Daniel Radcliffe gains access to a reported £20 million ($41.1 million) fortune as he turns 18 on Monday, but he insists the money won't cast a spell on him.\nSummarize this article:\nLONDON, England (Reuters) -- Harry Potter star Daniel Radcliffe gains access to a reported £20 million ($41.1 million) fortune as he turns 18 on Monday, but he insists the money won't cast a spell on him.\nSummarize this article:\nLONDON, England (Reuters) -- Harry Potter star Daniel Radcliffe gains access to a reported £20 million ($41.1 million) fortune as he turns 18 on Monday, but he insists the money won't cast a spell on him now.Officials say that Harry Potter star Daniel Radcliffe gains access to a reported £20 million ($41.1 million) fortune as he turns 18 on Monday, but he insists the money won't cast a spell on him now.\nSummarize this article:\nLONDON, England (Reuters) -- Harry Potter star Daniel Radcliffe gains access to a reported £20 million ($41.1 million"]'
+2023-07-06T21:45:47,562 [INFO ] W-9000-llama_1.0-stdout MODEL_LOG - Generated text ["Summarize this article:\nLONDON, England (Reuters) -- Harry Potter star Daniel Radcliffe gains access to a reported £20 million ($41.1 million) fortune as he turns 18 on Monday, but he insists the money won't cast a spell on him.\nSummarize this article:\nLONDON, England (Reuters) -- Harry Potter star Daniel Radcliffe gains access to a reported £20 million ($41.1 million) fortune as he turns 18 on Monday, but he insists the money won't cast a spell on him.\nSummarize this article:\nLONDON, England (Reuters) -- Harry Potter star Daniel Radcliffe gains access to a reported £20 million ($41.1 million) fortune as he turns 18 on Monday, but he insists the money won't cast a spell on him now.Officials say that Harry Potter star Daniel Radcliffe gains access to a reported £20 million ($41.1 million) fortune as he turns 18 on Monday, but he insists the money won't cast a spell on him now.\nSummarize this article:\nLONDON, England (Reuters) -- Harry Potter star Daniel Radcliffe gains access to a reported £20 million ($41.1 million"]

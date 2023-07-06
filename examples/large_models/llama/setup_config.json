@@ -1,0 +1,14 @@
+{
+    "revision": "main",
+    "max_memory": {
+        "0": "40GB",
+        "cpu": "10GB"
+    },
+    "low_cpu_mem_usage": true,
+    "device_map": "auto",
+    "offload_folder": "offload",
+    "offload_state_dict": true,
+    "torch_dtype":"float16",
+    "max_length":"216",
+    "model_path":"/data/home/mreso/LLM_fine_tuning/models/13B/"
+}

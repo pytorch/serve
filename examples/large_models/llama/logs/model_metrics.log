@@ -1,0 +1,4 @@
+2023-07-06T21:35:30,347 - HandlerTime.ms:5515.97|#ModelName:llama,Level:Model|#hostname:a100-st-p4d24xlarge-25,requestID:caea53a9-7bb6-4936-b564-f97d7038900c,timestamp:1688679330
+2023-07-06T21:35:30,349 - PredictionTime.ms:5516.18|#ModelName:llama,Level:Model|#hostname:a100-st-p4d24xlarge-25,requestID:caea53a9-7bb6-4936-b564-f97d7038900c,timestamp:1688679330
+2023-07-06T21:45:47,563 - HandlerTime.ms:6706.61|#ModelName:llama,Level:Model|#hostname:a100-st-p4d24xlarge-25,requestID:0b04c55a-74e5-4b79-a1bf-2ccf503133c3,timestamp:1688679947
+2023-07-06T21:45:47,564 - PredictionTime.ms:6706.83|#ModelName:llama,Level:Model|#hostname:a100-st-p4d24xlarge-25,requestID:0b04c55a-74e5-4b79-a1bf-2ccf503133c3,timestamp:1688679947
