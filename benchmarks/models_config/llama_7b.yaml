@@ -1,0 +1,20 @@
+---
+bloom_7b:
+    eager_mode:
+        benchmark_engine: "ab"
+        url: "file:///home/ubuntu/serve/examples/large_models/Huggingface_pippy/bloom.tar.gz"
+        workers:
+            - 1
+        batch_delay: 300000
+        batch_size:
+            - 16
+            - 32
+            - 48
+            - 56
+        requests: 1000
+        concurrency: 100
+        input: "./examples/large_models/Huggingface_pippy/sample_text.txt"
+        backend_profiling: False
+        exec_env: "local"
+        processors:
+            - "gpus": "all"
