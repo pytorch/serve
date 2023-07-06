@@ -11,7 +11,7 @@
 #
 # All configuration values have a default; values that are commented out
 # serve to show the default.
-
+#
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
@@ -131,7 +131,7 @@ html_theme_options = {
     "collapse_navigation": True,
     "display_version": True,
     "logo_only": True,
-    'analytics_id': 'GTM-T8XT4PS',
+    "analytics_id": "GTM-T8XT4PS",
 }
 
 html_logo = "_static/img/pytorch-logo-dark.svg"
@@ -239,7 +239,6 @@ from custom_directives import (
 from docutils.parsers import rst
 
 # Register custom directives
-
 
 rst.directives.register_directive("devices", SupportedDevices)
 rst.directives.register_directive("properties", SupportedProperties)
