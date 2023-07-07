@@ -659,7 +659,7 @@ def generate_profile_graph():
         title="Combined Graph",
     )
     fig5.grid()
-    plt.savefig("api-profile1.png", bbox_inches="tight")
+    plt.savefig(f"{execution_params['report_location']}/benchmark/api-profile1.png", bbox_inches="tight")
 
 
 def stop_torchserve():
