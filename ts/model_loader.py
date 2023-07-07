@@ -114,7 +114,9 @@ class TsModelLoader(ModelLoader):
                 module, function_name
             )
         else:
-            entry_point, initialize_fn = self._get_class_entry_point(module)
+            entry_point, initialize_fn, module_class = self._get_class_entry_point(
+                module
+            )
 
         if envelope is not None:
             envelope_class = self._load_default_envelope(envelope)
@@ -132,7 +134,10 @@ class TsModelLoader(ModelLoader):
             limit_max_image_pixels,
             metrics_cache,
         )
+
         initialize_fn(service.context)
+        if not envelope:
+            service._entry_point = module_class.handle
 
         return service
 
@@ -181,4 +186,4 @@ class TsModelLoader(ModelLoader):
                 "Expect handle method in class {}".format(str(model_class))
             )
 
-        return model_service.handle, model_service.initialize
+        return model_service.handle, model_service.initialize, model_service
