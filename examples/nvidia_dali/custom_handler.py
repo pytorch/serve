@@ -9,7 +9,6 @@ import os
 import numpy as np
 import torch
 from nvidia.dali.pipeline import Pipeline
-from nvidia.dali.plugin.pytorch import DALIGenericIterator, LastBatchPolicy
 
 from ts.torch_handler.image_classifier import ImageClassifier
 
@@ -32,7 +31,6 @@ class DALIHandler(ImageClassifier):
         ]
         if not len(self.dali_file):
             raise RuntimeError("Missing dali pipeline file.")
-        self.PREFETCH_QUEUE_DEPTH = 2
         dali_config_file = os.path.join(self.model_dir, "dali_config.json")
         if not os.path.isfile(dali_config_file):
             raise RuntimeError("Missing dali_config.json file.")
@@ -43,6 +41,7 @@ class DALIHandler(ImageClassifier):
             filename=dali_filename,
             batch_size=self.dali_configs["batch_size"],
             num_threads=self.dali_configs["num_threads"],
+            prefetch_queue_depth=1,
             device_id=self.dali_configs["device_id"],
             seed=self.dali_configs["seed"],
         )
@@ -62,27 +61,16 @@ class DALIHandler(ImageClassifier):
             list : The preprocess function returns the input image as a list of float tensors.
         """
         batch_tensor = []
+        result = []
 
         input_byte_arrays = [i["body"] if "body" in i else i["data"] for i in data]
         for byte_array in input_byte_arrays:
             np_image = np.frombuffer(byte_array, dtype=np.uint8)
             batch_tensor.append(np_image)  # we can use numpy
 
-        for _ in range(self.PREFETCH_QUEUE_DEPTH + 1):
-            self.pipe.feed_input("source", batch_tensor)
-
-        datum = DALIGenericIterator(
-            [self.pipe],
-            ["data"],
-            last_batch_policy=LastBatchPolicy.PARTIAL,
-            last_batch_padded=True,
-        )
-
-        result = []
-        for count, data in enumerate(datum):
-            self.pipe.feed_input("source", batch_tensor)
-            result.append(data[0]["data"])
-            if count == len(input_byte_arrays) - 1:
-                break
+        response = self.pipe.run(source=batch_tensor)
+        for idx, _ in enumerate(response[0]):
+            data = torch.tensor(response[0].at(idx))
+            result.append(data.unsqueeze(0))
 
         return torch.cat(result).to(self.device)
