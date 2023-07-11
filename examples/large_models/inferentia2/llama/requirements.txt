@@ -1,0 +1,5 @@
+torch-neuronx
+transformers-neuronx @ git+https://github.com/aws-neuron/transformers-neuronx.git
+transformers
+tokenizers
+sentencepiece
