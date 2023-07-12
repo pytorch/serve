@@ -41,17 +41,17 @@ pip install git+https://github.com/aws-neuron/transformers-neuronx.git transform
 ### Step 2: Save the model split checkpoints compatible with `transformers-neuronx`
 
 ```bash
- python save_split_checkpoints.py --model_name facebook/opt-6.7b --save_path './opt-6.7b-split'
+ python save_split_checkpoints.py --model_name openlm-research/open_llama_3b --save_path './open_llama_3b_split'
 
 ```
 
 
 ### Step 3: Generate Tar/ MAR file
 
-Navigate up to `large_model/inferentia2` directory.
+Navigate up to `large_model/inferentia2/llama` directory.
 
 ```bash
-torch-model-archiver --model-name opt --version 1.0 --handler inf2_handler.py --extra-files ./opt-6.7b-split  -r requirements.txt --config-file model-config.yaml --archive-format tgz
+torch-model-archiver --model-name open_llama_3b --version 1.0 --handler inf2_handler.py --extra-files ./open_llama_3b_split  -r requirements.txt --config-file model-config.yaml --archive-format tgz
 
 ```
 
@@ -59,7 +59,7 @@ torch-model-archiver --model-name opt --version 1.0 --handler inf2_handler.py --
 
 ```bash
 mkdir model_store
-mv opt.tar.gz model_store
+mv open_llama_3b.tar.gz model_store
 ```
 
 ### Step 5: Start torchserve
@@ -67,11 +67,11 @@ mv opt.tar.gz model_store
 Update config.properties and start torchserve
 
 ```bash
-torchserve --ncs --start --model-store model_store --models opt.tar.gz
+torchserve --ncs --start --model-store model_store --models open_llama_3b.tar.gz
 ```
 
 ### Step 6: Run inference
 
 ```bash
-curl -v "http://localhost:8080/predictions/opt" -T sample_text.txt
+curl -v "http://localhost:8080/predictions/open_llama_3b" -T sample_text.txt
 ```

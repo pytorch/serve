@@ -48,7 +48,7 @@ pip install git+https://github.com/aws-neuron/transformers-neuronx.git transform
 
 ### Step 3: Generate Tar/ MAR file
 
-Navigate up to `large_model/inferentia2` directory.
+Navigate up to `large_model/inferentia2/opt` directory.
 
 ```bash
 torch-model-archiver --model-name opt --version 1.0 --handler inf2_handler.py --extra-files ./opt-6.7b-split  -r requirements.txt --config-file model-config.yaml --archive-format tgz
