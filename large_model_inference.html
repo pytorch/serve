@@ -42,7 +42,7 @@
     new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
     j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-    })(window,document,'script','dataLayer','');</script>
+    })(window,document,'script','dataLayer','GTM-T8XT4PS');</script>
     <!-- End Google Tag Manager -->
   
 
@@ -359,7 +359,7 @@
 
         
           <!-- Google Tag Manager (noscript) -->
-          <noscript><iframe src="https://www.googletagmanager.com/ns.html?id="
+          <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T8XT4PS"
           height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <!-- End Google Tag Manager (noscript) -->
           
@@ -377,7 +377,7 @@
 <p>For instance, suppose there are eight GPUs on a node and one worker needs 4 GPUs (ie, nproc-per-node=4) on a node. In this case, TorchServe would assign CUDA_VISIBLE_DEVICES=”0,1,2,3” to worker1 and CUDA_VISIBLE_DEVICES=”4,5,6,7” to worker2.</p>
 <p>In addition to this default behavior, TorchServe provides the flexibility for users to specify GPUs for a worker. For instance, if the user sets “deviceIds: [2,3,4,5]” in the <a class="reference external" href="https://github.com/pytorch/serve/blob/5ee02e4f050c9b349025d87405b246e970ee710b/model-archiver/README.md?plain=1#L164">model config YAML file</a>, and nproc-per-node is set to 2, then TorchServe would assign CUDA_VISIBLE_DEVICES=”2,3” to worker1 and CUDA_VISIBLE_DEVICES=”4,5” to worker2.</p>
 <p>Using Pippy integration as an example, the image below illustrates the internals of the TorchServe large model inference.</p>
-<p><img alt="ts-lmi-internal" src="_images/ts-lmi-internal.png" /></p>
+<p><img alt="ts-lmi-internal" src="https://raw.githubusercontent.com/pytorch/serve/master/docs/images/ts-lmi-internal.png" /></p>
 </section>
 <section id="pippy-pytorch-native-solution-for-large-model-inference">
 <h2>PiPPy (PyTorch Native solution for large model inference)<a class="headerlink" href="#pippy-pytorch-native-solution-for-large-model-inference" title="Permalink to this heading">¶</a></h2>
@@ -529,7 +529,7 @@ torch-model-archiver<span class="w"> </span>--model-name<span class="w"> </span>
 </section>
 <section id="tune-torchrun-parameters">
 <h3>Tune torchrun parameters<a class="headerlink" href="#tune-torchrun-parameters" title="Permalink to this heading">¶</a></h3>
-<p>User is able to tune torchrun parameters in <a class="reference external" href="https://github.com/pytorch/serve/blob/2f1f52f553e83703b5c380c2570a36708ee5cafa/model-archiver/README.md?plain=1#L179">model config YAML file</a>. The supported parameters are defined at <a class="reference external" href="https://github.com/pytorch/serve/blob/2f1f52f553e83703b5c380c2570a36708ee5cafa/frontend/archive/src/main/java/org/pytorch/serve/archive/model/ModelConfig.java#L329">here</a>. For example, by default, <code class="docutils literal notranslate"><span class="pre">OMP_NUMNER_T?HREADS</span></code> is 1. It can be modified in the YAML file.</p>
+<p>User is able to tune torchrun parameters in <a class="reference external" href="https://github.com/pytorch/serve/blob/2f1f52f553e83703b5c380c2570a36708ee5cafa/model-archiver/README.md?plain=1#L179">model config YAML file</a>. The supported parameters are defined at <a class="reference external" href="https://github.com/pytorch/serve/blob/2f1f52f553e83703b5c380c2570a36708ee5cafa/frontend/archive/src/main/java/org/pytorch/serve/archive/model/ModelConfig.java#L329">here</a>. For example, by default, <code class="docutils literal notranslate"><span class="pre">OMP_NUMBER_THREADS</span></code> is 1. It can be modified in the YAML file.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1">#frontend settings</span>
 <span class="nt">torchrun</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">nproc-per-node</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4</span><span class="w"> </span><span class="c1"># specifies the number of processes torchrun starts to serve your model, set to world_size or number of</span>
