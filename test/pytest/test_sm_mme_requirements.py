@@ -16,7 +16,7 @@ HF_TRANSFORMERS_EXAMPLE_DIR = os.path.join(
 
 
 @pytest.mark.skipif(
-    os.environ.get("RUN_IN_DOCKER", False),
+    os.environ.get("TS_RUN_IN_DOCKER", False),
     reason="Test to be run outside docker",
 )
 def test_no_model_loaded():
@@ -39,7 +39,7 @@ def test_no_model_loaded():
     reason="Test to be run on GPU only",
 )
 @pytest.mark.skipif(
-    os.environ.get("RUN_IN_DOCKER", False),
+    os.environ.get("TS_RUN_IN_DOCKER", False),
     reason="Test to be run outside docker",
 )
 def test_oom_on_model_load():
@@ -72,7 +72,7 @@ def test_oom_on_model_load():
     reason="Test to be run on GPU only",
 )
 @pytest.mark.skipif(
-    os.environ.get("RUN_IN_DOCKER", False),
+    os.environ.get("TS_RUN_IN_DOCKER", False),
     reason="Test to be run outside docker",
 )
 def test_oom_on_invoke():
