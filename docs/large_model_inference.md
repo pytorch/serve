@@ -12,7 +12,7 @@ In addition to this default behavior, TorchServe provides the flexibility for us
 
 Using Pippy integration as an example, the image below illustrates the internals of the TorchServe large model inference.
 
-![ts-lmi-internal](images/ts-lmi-internal.png)
+![ts-lmi-internal](https://raw.githubusercontent.com/pytorch/serve/master/docs/images/ts-lmi-internal.png)
 
 ## PiPPy (PyTorch Native solution for large model inference)
 
@@ -186,7 +186,7 @@ torch-model-archiver --model-name bloom --version 1.0 --handler deepspeed_handle
 #### Tune "[responseTimeout](https://github.com/pytorch/serve/blob/5ee02e4f050c9b349025d87405b246e970ee710b/docs/configuration.md?plain=1#L216)" (see [model config YAML file](https://github.com/pytorch/serve/blob/5ee02e4f050c9b349025d87405b246e970ee710b/model-archiver/README.md?plain=1#L164)) if high model loading or inference latency causes response timeout.
 
 #### Tune torchrun parameters
-User is able to tune torchrun parameters in [model config YAML file](https://github.com/pytorch/serve/blob/2f1f52f553e83703b5c380c2570a36708ee5cafa/model-archiver/README.md?plain=1#L179). The supported parameters are defined at [here](https://github.com/pytorch/serve/blob/2f1f52f553e83703b5c380c2570a36708ee5cafa/frontend/archive/src/main/java/org/pytorch/serve/archive/model/ModelConfig.java#L329). For example, by default, `OMP_NUMNER_T?HREADS` is 1. It can be modified in the YAML file.
+User is able to tune torchrun parameters in [model config YAML file](https://github.com/pytorch/serve/blob/2f1f52f553e83703b5c380c2570a36708ee5cafa/model-archiver/README.md?plain=1#L179). The supported parameters are defined at [here](https://github.com/pytorch/serve/blob/2f1f52f553e83703b5c380c2570a36708ee5cafa/frontend/archive/src/main/java/org/pytorch/serve/archive/model/ModelConfig.java#L329). For example, by default, `OMP_NUMBER_THREADS` is 1. It can be modified in the YAML file.
 ```yaml
 #frontend settings
 torchrun:
