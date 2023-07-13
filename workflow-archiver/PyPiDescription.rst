@@ -3,7 +3,7 @@ Project Description
 
 Torch Workflow Archiver is a tool used for creating archives of workflow designed using trained neural net models that can be consumed by TorchServe inference.
 
-Use the Torch Workflow Archiver CLI to start create a ``.war`` file.
+Use the Torch Workflow Archiver CLI to create a ``.war`` file.
 
 Torch Workflow Archiver is part of `TorchServe <https://pypi.org/project/torchserve/>`__.
 However, you can install Torch Workflow Archiver stand alone.
