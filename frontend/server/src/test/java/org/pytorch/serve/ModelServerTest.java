@@ -356,6 +356,25 @@ public class ModelServerTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testDescribeSpecificModelVersion"})
+    public void testDescribeModelJobQueueStatus() throws InterruptedException {
+        testLoadModelWithInitialWorkers("noop.mar", "noop_describe", "1.11");
+
+        Channel channel = TestUtils.getManagementChannel(configManager);
+        TestUtils.setResult(null);
+        TestUtils.setLatch(new CountDownLatch(1));
+        TestUtils.describeModel(channel, "noop_describe", "1.11", false);
+        TestUtils.getLatch().await();
+
+        DescribeModelResponse[] resp =
+                JsonUtils.GSON.fromJson(TestUtils.getResult(), DescribeModelResponse[].class);
+        Assert.assertEquals(resp[0].getJobQueueStatus().getRemainingCapacity(), 100);
+        Assert.assertEquals(resp[0].getJobQueueStatus().getPendingRequests(), 0);
+        Assert.assertEquals(resp[0].getJobQueueStatus().getConsecutiveFailedRequests(), 0);
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testDescribeModelJobQueueStatus"})
     public void testNoopVersionedPrediction() throws InterruptedException {
         testPredictions("noopversioned", "OK", "1.11");
     }
