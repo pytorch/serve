@@ -9,7 +9,7 @@ Torch Workflow Archiver is part of `TorchServe <https://pypi.org/project/torchse
 However, you can install Torch Workflow Archiver stand alone.
 
 Detailed documentation and examples are provided in the `README
-<https://github.com/pytorch/serve/workflow-archiver/README.md>`__.
+<https://github.com/pytorch/serve/blob/master/workflow-archiver/README.md>`__.
 
 
 Installation
