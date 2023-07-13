@@ -204,7 +204,12 @@ curl http://localhost:8081/models/noop
           "gpu": false,
           "memoryUsage": 89247744
         }
-      ]
+      ],
+      "jobQueueStatus": {
+        "remainingCapacity": 100,
+        "pendingRequests": 0,
+        "consecutiveFailedRequests": 0
+      }
     }
 ]
 ```
@@ -234,7 +239,12 @@ curl http://localhost:8081/models/noop/2.0
           "gpu": false,
           "memoryUsage": 89247744
         }
-      ]
+      ],
+      "jobQueueStatus": {
+        "remainingCapacity": 100,
+        "pendingRequests": 0,
+        "consecutiveFailedRequests": 0
+      }
     }
 ]
 ```
@@ -264,7 +274,12 @@ curl http://localhost:8081/models/noop/all
           "gpu": false,
           "memoryUsage": 89247744
         }
-      ]
+      ],
+      "jobQueueStatus": {
+        "remainingCapacity": 100,
+        "pendingRequests": 0,
+        "consecutiveFailedRequests": 0
+      }
     },
     {
       "modelName": "noop",
@@ -284,7 +299,12 @@ curl http://localhost:8081/models/noop/all
           "gpu": false,
           "memoryUsage": 89247744
         }
-      ]
+      ],
+      "jobQueueStatus": {
+        "remainingCapacity": 100,
+        "pendingRequests": 0,
+        "consecutiveFailedRequests": 0
+      }
     }
 ]
 ```
@@ -401,6 +421,11 @@ curl http://localhost:8081/models/noop-customized/1.0?customized=true
             "gpuUsage": "N/A"
           }
         ],
+        "jobQueueStatus": {
+          "remainingCapacity": 100,
+          "pendingRequests": 0,
+          "consecutiveFailedRequests": 0
+        },
         "customizedMetadata": "{\n  \"data1\": \"1\",\n  \"data2\": \"2\"\n}"
      }
 ]
