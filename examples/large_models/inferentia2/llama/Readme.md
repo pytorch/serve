@@ -40,18 +40,18 @@ pip install git+https://github.com/aws-neuron/transformers-neuronx.git transform
 
 ### Step 2: Save the model split checkpoints compatible with `transformers-neuronx`
 
+Navigate up to `large_model/inferentia2/llama` directory.
+
 ```bash
- python save_split_checkpoints.py --model_name openlm-research/open_llama_3b --save_path './open_llama_3b_split'
+ python save_split_checkpoints.py --model_name decapoda-research/llama-7b-hf --save_path './decapoda_llama_7b_split'
 
 ```
 
 
 ### Step 3: Generate Tar/ MAR file
 
-Navigate up to `large_model/inferentia2/llama` directory.
-
 ```bash
-torch-model-archiver --model-name open_llama_3b --version 1.0 --handler inf2_handler.py --extra-files ./open_llama_3b_split  -r requirements.txt --config-file model-config.yaml --archive-format tgz
+torch-model-archiver --model-name decapoda_llama_7b --version 1.0 --handler inf2_handler.py --extra-files ./decapoda_llama_7b_split  -r requirements.txt --config-file model-config.yaml --archive-format tgz
 
 ```
 
@@ -59,7 +59,7 @@ torch-model-archiver --model-name open_llama_3b --version 1.0 --handler inf2_han
 
 ```bash
 mkdir model_store
-mv open_llama_3b.tar.gz model_store
+mv decapoda_llama_7b.tar.gz model_store
 ```
 
 ### Step 5: Start torchserve
@@ -67,11 +67,11 @@ mv open_llama_3b.tar.gz model_store
 Update config.properties and start torchserve
 
 ```bash
-torchserve --ncs --start --model-store model_store --models open_llama_3b.tar.gz
+torchserve --ncs --start --model-store model_store --models decapoda_llama_7b.tar.gz
 ```
 
 ### Step 6: Run inference
 
 ```bash
-curl -v "http://localhost:8080/predictions/open_llama_3b" -T sample_text.txt
+curl -v "http://localhost:8080/predictions/decapoda_llama_7b" -T sample_text.txt
 ```
