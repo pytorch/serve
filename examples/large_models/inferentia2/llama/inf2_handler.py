@@ -5,7 +5,7 @@ from abc import ABC
 import torch
 import torch_neuronx
 import transformers
-from transformers import AutoTokenizer
+from transformers import LlamaTokenizer
 from transformers_neuronx.llama.model import LlamaForSampling
 
 from ts.torch_handler.base_handler import BaseHandler
@@ -40,6 +40,7 @@ class LLMHandler(BaseHandler, ABC):
         tp_degree = ctx.model_yaml_config["handler"]["tp_degree"]
         amp = ctx.model_yaml_config["handler"]["amp"]
         model_name = ctx.model_yaml_config["handler"]["model_name"]
+        self.max_length = ctx.model_yaml_config["handler"]["max_length"]
 
         # allocate "tp_degree" number of neuron cores to the worker process
         os.environ["NEURON_RT_NUM_CORES"] = str(tp_degree)
@@ -59,19 +60,22 @@ class LLMHandler(BaseHandler, ABC):
         os.environ["NEURON_CC_FLAGS"] = "--model-type=transformer-inference"
 
         torch.manual_seed(seed)
-        self.tokenizer = AutoTokenizer.from_pretrained(model_name, return_tensors="pt")
-        self.tokenizer.pad_token = self.tokenizer.eos_token
+        self.tokenizer = LlamaTokenizer.from_pretrained(model_name)
+        self.tokenizer.pad_token_id = self.tokenizer.eos_token_id
+        self.tokenizer.padding_side = "left"
 
         logger.info("Starting to compile the model")
 
         self.batch_size = ctx.model_yaml_config["handler"]["batch_size"]
         self.model = LlamaForSampling.from_pretrained(
-            model_dir, batch_size=self.batch_size, tp_degree=tp_degree, amp=amp
+            model_dir,
+            batch_size=self.batch_size,
+            tp_degree=tp_degree,
+            n_positions=self.max_length,
+            amp=amp,
         )
         self.model.to_neuron()
         logger.info("Model has been successfully compiled")
-
-        self.max_length = ctx.model_yaml_config["handler"]["max_length"]
 
         self.initialized = True
 

@@ -9,4 +9,4 @@ handler:
     batch_size: 2
     tp_degree: 2
     amp: f16
-    model_name: openlm-research/open_llama_3b
+    model_name: decapoda-research/llama-7b-hf
