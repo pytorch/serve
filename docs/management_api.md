@@ -207,8 +207,7 @@ curl http://localhost:8081/models/noop
       ],
       "jobQueueStatus": {
         "remainingCapacity": 100,
-        "pendingRequests": 0,
-        "consecutiveFailedRequests": 0
+        "pendingRequests": 0
       }
     }
 ]
@@ -242,8 +241,7 @@ curl http://localhost:8081/models/noop/2.0
       ],
       "jobQueueStatus": {
         "remainingCapacity": 100,
-        "pendingRequests": 0,
-        "consecutiveFailedRequests": 0
+        "pendingRequests": 0
       }
     }
 ]
@@ -277,8 +275,7 @@ curl http://localhost:8081/models/noop/all
       ],
       "jobQueueStatus": {
         "remainingCapacity": 100,
-        "pendingRequests": 0,
-        "consecutiveFailedRequests": 0
+        "pendingRequests": 0
       }
     },
     {
@@ -302,8 +299,7 @@ curl http://localhost:8081/models/noop/all
       ],
       "jobQueueStatus": {
         "remainingCapacity": 100,
-        "pendingRequests": 0,
-        "consecutiveFailedRequests": 0
+        "pendingRequests": 0
       }
     }
 ]
@@ -423,8 +419,7 @@ curl http://localhost:8081/models/noop-customized/1.0?customized=true
         ],
         "jobQueueStatus": {
           "remainingCapacity": 100,
-          "pendingRequests": 0,
-          "consecutiveFailedRequests": 0
+          "pendingRequests": 0
         },
         "customizedMetadata": "{\n  \"data1\": \"1\",\n  \"data2\": \"2\"\n}"
      }

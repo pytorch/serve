@@ -35,6 +35,7 @@
                     "maxWorkers",
                     "status",
                     "workers",
+                    "metrics",
                     "jobQueueStatus"
                   ],
                   "properties": {
@@ -105,12 +106,33 @@
                       },
                       "description": "A list of active backend workers."
                     },
+                    "metrics": {
+                      "type": "object",
+                      "required": [
+                        "rejectedRequests",
+                        "waitingQueueSize",
+                        "requests"
+                      ],
+                      "properties": {
+                        "rejectedRequests": {
+                          "type": "integer",
+                          "description": "Number requests has been rejected in last 10 minutes."
+                        },
+                        "waitingQueueSize": {
+                          "type": "integer",
+                          "description": "Number requests waiting in the queue."
+                        },
+                        "requests": {
+                          "type": "integer",
+                          "description": "Number requests processed in last 10 minutes."
+                        }
+                      }
+                    },
                     "jobQueueStatus": {
                       "type": "object",
                       "required": [
                         "remainingCapacity",
-                        "pendingRequests",
-                        "consecutiveFailedRequests"
+                        "pendingRequests"
                       ],
                       "properties": {
                         "remainingCapacity": {
@@ -120,10 +142,6 @@
                         "pendingRequests": {
                           "type": "integer",
                           "description": "Number of requests waiting in the queue."
-                        },
-                        "consecutiveFailedRequests": {
-                          "type": "integer",
-                          "description": "Number of consecutive failed requests."
                         }
                       }
                     }
@@ -605,6 +623,7 @@
                     "maxWorkers",
                     "status",
                     "workers",
+                    "metrics",
                     "jobQueueStatus"
                   ],
                   "properties": {
@@ -675,12 +694,33 @@
                       },
                       "description": "A list of active backend workers."
                     },
+                    "metrics": {
+                      "type": "object",
+                      "required": [
+                        "rejectedRequests",
+                        "waitingQueueSize",
+                        "requests"
+                      ],
+                      "properties": {
+                        "rejectedRequests": {
+                          "type": "integer",
+                          "description": "Number requests has been rejected in last 10 minutes."
+                        },
+                        "waitingQueueSize": {
+                          "type": "integer",
+                          "description": "Number requests waiting in the queue."
+                        },
+                        "requests": {
+                          "type": "integer",
+                          "description": "Number requests processed in last 10 minutes."
+                        }
+                      }
+                    },
                     "jobQueueStatus": {
                       "type": "object",
                       "required": [
                         "remainingCapacity",
-                        "pendingRequests",
-                        "consecutiveFailedRequests"
+                        "pendingRequests"
                       ],
                       "properties": {
                         "remainingCapacity": {
@@ -690,10 +730,6 @@
                         "pendingRequests": {
                           "type": "integer",
                           "description": "Number of requests waiting in the queue."
-                        },
-                        "consecutiveFailedRequests": {
-                          "type": "integer",
-                          "description": "Number of consecutive failed requests."
                         }
                       }
                     }

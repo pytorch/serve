@@ -369,7 +369,6 @@ public class ModelServerTest {
                 JsonUtils.GSON.fromJson(TestUtils.getResult(), DescribeModelResponse[].class);
         Assert.assertEquals(resp[0].getJobQueueStatus().getRemainingCapacity(), 100);
         Assert.assertEquals(resp[0].getJobQueueStatus().getPendingRequests(), 0);
-        Assert.assertEquals(resp[0].getJobQueueStatus().getConsecutiveFailedRequests(), 0);
     }
 
     @Test(

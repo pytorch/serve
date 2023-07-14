@@ -20,6 +20,7 @@ public class DescribeModelResponse {
     private boolean loadedAtStartup;
 
     private List<Worker> workers;
+    private Metrics metrics;
     private JobQueueStatus jobQueueStatus;
     private String customizedMetadata;
 
@@ -142,6 +143,14 @@ public class DescribeModelResponse {
         workers.add(worker);
     }
 
+    public Metrics getMetrics() {
+        return metrics;
+    }
+
+    public void setMetrics(Metrics metrics) {
+        this.metrics = metrics;
+    }
+
     public JobQueueStatus getJobQueueStatus() {
         return jobQueueStatus;
     }
@@ -227,11 +236,41 @@ public class DescribeModelResponse {
         }
     }
 
+    public static final class Metrics {
+
+        private int rejectedRequests;
+        private int waitingQueueSize;
+        private int requests;
+
+        public int getRejectedRequests() {
+            return rejectedRequests;
+        }
+
+        public void setRejectedRequests(int rejectedRequests) {
+            this.rejectedRequests = rejectedRequests;
+        }
+
+        public int getWaitingQueueSize() {
+            return waitingQueueSize;
+        }
+
+        public void setWaitingQueueSize(int waitingQueueSize) {
+            this.waitingQueueSize = waitingQueueSize;
+        }
+
+        public int getRequests() {
+            return requests;
+        }
+
+        public void setRequests(int requests) {
+            this.requests = requests;
+        }
+    }
+
     public static final class JobQueueStatus {
 
         private int remainingCapacity;
         private int pendingRequests;
-        private int consecutiveFailedRequests;
 
         public int getRemainingCapacity() {
             return remainingCapacity;
@@ -247,14 +286,6 @@ public class DescribeModelResponse {
 
         public void setPendingRequests(int pendingRequests) {
             this.pendingRequests = pendingRequests;
-        }
-
-        public int getConsecutiveFailedRequests() {
-            return consecutiveFailedRequests;
-        }
-
-        public void setConsecutiveFailedRequests(int consecutiveFailedRequests) {
-            this.consecutiveFailedRequests = consecutiveFailedRequests;
         }
     }
 }

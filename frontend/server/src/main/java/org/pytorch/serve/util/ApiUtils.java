@@ -420,7 +420,6 @@ public final class ApiUtils {
                 new DescribeModelResponse.JobQueueStatus();
         jobQueueStatus.setRemainingCapacity(model.getJobQueueRemainingCapacity());
         jobQueueStatus.setPendingRequests(model.getPendingRequestsInJobQueue());
-        jobQueueStatus.setConsecutiveFailedRequests(model.getFailedInfReqs());
         resp.setJobQueueStatus(jobQueueStatus);
 
         return resp;

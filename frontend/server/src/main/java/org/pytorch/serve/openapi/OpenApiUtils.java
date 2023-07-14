@@ -433,8 +433,21 @@ public final class OpenApiUtils {
         workerStatus.setEnumeration(status);
         worker.addProperty("status", workerStatus, true);
         workers.setItems(worker);
-
         schema.addProperty("workers", workers, true);
+        Schema metrics = new Schema("object");
+        metrics.addProperty(
+                "rejectedRequests",
+                new Schema("integer", "Number requests has been rejected in last 10 minutes."),
+                true);
+        metrics.addProperty(
+                "waitingQueueSize",
+                new Schema("integer", "Number requests waiting in the queue."),
+                true);
+        metrics.addProperty(
+                "requests",
+                new Schema("integer", "Number requests processed in last 10 minutes."),
+                true);
+        schema.addProperty("metrics", metrics, true);
         Schema jobQueueStatus = new Schema("object");
         jobQueueStatus.addProperty(
                 "remainingCapacity",
@@ -443,10 +456,6 @@ public final class OpenApiUtils {
         jobQueueStatus.addProperty(
                 "pendingRequests",
                 new Schema("integer", "Number of requests waiting in the queue."),
-                true);
-        jobQueueStatus.addProperty(
-                "consecutiveFailedRequests",
-                new Schema("integer", "Number of consecutive failed requests."),
                 true);
         schema.addProperty("jobQueueStatus", jobQueueStatus, true);
 

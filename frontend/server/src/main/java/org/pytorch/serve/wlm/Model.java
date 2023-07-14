@@ -318,10 +318,6 @@ public class Model {
         }
     }
 
-    public int getFailedInfReqs() {
-        return failedInfReqs.get();
-    }
-
     public int incrFailedInfReqs() {
         return failedInfReqs.incrementAndGet();
     }
