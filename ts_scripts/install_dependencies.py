@@ -38,6 +38,13 @@ class Common:
                 os.system(
                     f"{sys.executable} -m pip install -U -r requirements/torch_{cuda_version}_{platform.system().lower()}.txt"
                 )
+        elif args.neuronx:
+            torch_neuronx_requirements_file = os.path.join(
+                "requirements", "torch_neuronx_linux.txt"
+            )
+            os.system(
+                f"{sys.executable} -m pip install -U -r {torch_neuronx_requirements_file}"
+            )
         else:
             os.system(
                 f"{sys.executable} -m pip install -U -r requirements/torch_{platform.system().lower()}.txt"
@@ -67,6 +74,13 @@ class Common:
             gpu_requirements_file = os.path.join("requirements", "common_gpu.txt")
             os.system(f"{sys.executable} -m pip install -U -r {gpu_requirements_file}")
 
+        # Install dependencies for Inferentia2
+        if args.neuronx:
+            neuronx_requirements_file = os.path.join("requirements", "neuronx.txt")
+            os.system(
+                f"{sys.executable} -m pip install -U -r {neuronx_requirements_file}"
+            )
+
     def install_node_packages(self):
         os.system(
             f"{self.sudo_cmd}npm install -g newman newman-reporter-htmlextra markdown-link-check"
@@ -79,9 +93,6 @@ class Common:
         pass
 
     def install_numactl(self):
-        pass
-
-    def install_torchserve_plugins_sdk(self):
         pass
 
 
@@ -113,9 +124,6 @@ class Linux(Common):
         if os.system("numactl --show") != 0 or args.force:
             os.system(f"{self.sudo_cmd}apt-get install -y numactl")
 
-    def install_torchserve_plugins_sdk(self):
-        os.system(f"cd {REPO_ROOT}/serving-sdk/ && ./mvnw clean install -q && cd ../")
-
 
 class Windows(Common):
     def __init__(self):
@@ -133,11 +141,6 @@ class Windows(Common):
 
     def install_numactl(self):
         pass
-
-    def install_torchserve_plugins_sdk(self):
-        os.system(
-            f"cd {REPO_ROOT}/serving-sdk/ && .\mvnw.cmd clean install -q && cd ../"
-        )
 
 
 class Darwin(Common):
@@ -167,9 +170,6 @@ class Darwin(Common):
         if os.system("numactl --show") != 0 or args.force:
             os.system("brew install numactl")
 
-    def install_torchserve_plugins_sdk(self):
-        os.system(f"cd {REPO_ROOT}/serving-sdk/ && ./mvnw clean install -q && cd ../")
-
 
 def install_dependencies(cuda_version=None, nightly=False):
     os_map = {"Linux": Linux, "Windows": Windows, "Darwin": Darwin}
@@ -180,7 +180,6 @@ def install_dependencies(cuda_version=None, nightly=False):
         system.install_nodejs()
         system.install_node_packages()
         system.install_numactl()
-        system.install_torchserve_plugins_sdk()
 
     # Sequence of installation to be maintained
     system.install_java()
@@ -207,6 +206,11 @@ if __name__ == "__main__":
         default=None,
         choices=["cu92", "cu101", "cu102", "cu111", "cu113", "cu116", "cu117", "cu118"],
         help="CUDA version for torch",
+    )
+    parser.add_argument(
+        "--neuronx",
+        action="store_true",
+        help="Install dependencies for inferentia2 support",
     )
     parser.add_argument(
         "--environment",

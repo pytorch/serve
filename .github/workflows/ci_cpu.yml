@@ -43,14 +43,6 @@ jobs:
           retry_on: error
           command: |
             python torchserve_sanity.py
-      - name: mvn install - unix
-        if: matrix.os != 'windows-latest'
-        run: |
-            cd serving-sdk/ && ./mvnw clean install -q && cd ../
-      - name: mvn install - windows
-        if: matrix.os == 'windows-latest'
-        run: |
-            cd serving-sdk/ && .\mvnw.cmd clean install -q && cd ../
       # Any coverage.xml will be picked up by this step
       # Just make sure each coverage.xml is in a different folder
       - name: Upload codecov

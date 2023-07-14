@@ -150,6 +150,8 @@ def install_torchserve(skip_ts_install, hw, ts_version):
     # install_dependencies.py
     if hw == "gpu":
         cmd = "python ts_scripts/install_dependencies.py --environment dev --cuda cu117"
+    elif hw == "neuronx":
+        cmd = "python ts_scripts/install_dependencies.py --environment dev --neuronx"
     else:
         cmd = "python ts_scripts/install_dependencies.py --environment dev"
     execute(cmd, wait=True)
