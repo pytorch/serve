@@ -12,14 +12,16 @@ spec:
   ports:
   - name: preds
     port: {{ .Values.torchserve.inference_port }}
-    targetPort: ts 
+    targetPort: ts
   - name: mdl
     port: {{ .Values.torchserve.management_port }}
     targetPort: ts-management
   - name: metrics
     port: {{ .Values.torchserve.metrics_port }}
     targetPort: ts-metrics
-  type: LoadBalancer
+  - name: grpc
+    port: {{ .Values.torchserve.grpc_inference_port }}
+    targetPort: ts-grpc
   selector:
     app: torchserve
 ---
@@ -54,6 +56,8 @@ spec:
           containerPort: {{ .Values.torchserve.management_port }}
         - name: ts-metrics
           containerPort: {{ .Values.torchserve.metrics_port }}
+        - name: ts-grpc
+          containerPort: {{ .Values.torchserve.grpc_inference_port }}
         imagePullPolicy: IfNotPresent
         volumeMounts:
           - mountPath: {{ .Values.torchserve.pvd_mount }}
