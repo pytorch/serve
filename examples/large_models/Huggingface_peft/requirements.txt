@@ -1,3 +1,6 @@
 transformers
 bitsandbytes
-git+https://github.com/huggingface/peft.git
+#git+https://github.com/huggingface/peft.git
+peft
+scipy
+sentencepiece

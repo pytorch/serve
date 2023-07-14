@@ -1,4 +1,5 @@
 import logging
+import os
 import time
 from abc import ABC
 
@@ -20,7 +21,6 @@ else:
         "PyTorch version is less than 2.0.0, initializing with meta device needs PyTorch 2.0.0 and greater"
     )
 
-
 class PEFT_Handler(BaseHandler, ABC):
     """
     Transformers handler class for sequence, token classification and question answering.
@@ -28,6 +28,7 @@ class PEFT_Handler(BaseHandler, ABC):
 
     def __init__(self):
         super(PEFT_Handler, self).__init__()
+        self.adapter = "opt"
         self.initialized = False
 
     def initialize(self, ctx):
@@ -37,14 +38,14 @@ class PEFT_Handler(BaseHandler, ABC):
             ctx (context): It is a JSON Object containing information
             pertaining to the model artefacts parameters.
         """
-        super().initialize(ctx)
         self.manifest = ctx.manifest
         properties = ctx.system_properties
         model_dir = properties.get("model_dir")
-        self.device = self.local_rank
+        os.environ["CUDA_VISIBLE_DEVICES"] = str(properties.get("gpu_id"))
+        self.device = "cuda"
 
-        base_model_path = ctx.model_yaml_config["handler"]["base_model_path"]
-        peft_model_path = ctx.model_yaml_config["handler"]["peft_model_path"]
+        base_model_path = model_dir + "/" + ctx.model_yaml_config["handler"]["base_model_path"]
+        peft_model_path = model_dir + "/" + ctx.model_yaml_config["handler"]["peft_model_path"]
         seed = ctx.model_yaml_config["handler"]["manual_seed"]
         dtype_str = ctx.model_yaml_config["handler"]["dtype"]
         torch.manual_seed(seed)
@@ -59,16 +60,20 @@ class PEFT_Handler(BaseHandler, ABC):
             )
 
         skip_init_start = time.perf_counter()
-        with torch.device("meta"):
-            self.model = AutoModelForCausalLM.from_pretrained(
-                base_model_path, use_cache=False, torch_dtype=dtype
-            )
-        model = PeftModel.from_pretrained(model, peft_model_path)
+        model = AutoModelForCausalLM.from_pretrained(
+            base_model_path, use_cache=False, torch_dtype=dtype
+        )
+        self.model = PeftModel.from_pretrained(model, peft_model_path, adapter_name="opt")
+        peft_model_path2 = model_dir + "/" + ctx.model_yaml_config["handler"]["peft_model_path2"]
+        self.model.load_adapter(peft_model_path2, adapter_name="eng_alpaca")
+        self.model.to(self.device)
         skip_init_end = time.perf_counter()
         logger.info(
             f" init model time on meta device took {skip_init_end - skip_init_start} seconds"
         )
         self.tokenizer = LlamaTokenizer.from_pretrained(base_model_path, return_tensors="pt")
+        self.tokenizer.pad_token = self.tokenizer.eos_token
+        self.tokenizer.pad_token_id = self.tokenizer.eos_token_id
 
         self.max_length = ctx.model_yaml_config["handler"]["max_length"]
         self.max_new_tokens = ctx.model_yaml_config["handler"]["max_new_tokens"]
@@ -88,6 +93,7 @@ class PEFT_Handler(BaseHandler, ABC):
             tuple: A tuple with two tensors: the batch of input ids and the batch of
                 attention masks.
         """
+        self.adapter = requests[0].get("adapter")
         input_texts = [data.get("data") or data.get("body") for data in requests]
         input_ids_batch = []
         for input_text in input_texts:
@@ -110,6 +116,8 @@ class PEFT_Handler(BaseHandler, ABC):
         inputs = self.tokenizer.encode_plus(
             input_text,
             max_length=self.max_length,
+            padding=True,
+            truncation=True,
             pad_to_max_length=True,
             add_special_tokens=True,
             return_tensors="pt",
@@ -129,10 +137,14 @@ class PEFT_Handler(BaseHandler, ABC):
         """
         input_ids_batch = input_batch
         input_ids_batch = input_ids_batch.to(self.device)
-        outputs = self.model.generate(
-            input_ids_batch,
-            max_length=self.max_new_tokens,
-        )
+
+        self.model.set_adapter(self.adapter)
+
+        with torch.no_grad():
+            outputs = self.model.generate(
+                input_ids=input_ids_batch,
+                max_length=self.max_new_tokens,
+            )
         generated_text = self.tokenizer.batch_decode(
             outputs, skip_special_tokens=True, clean_up_tokenization_spaces=False
         )

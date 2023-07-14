@@ -7,8 +7,9 @@ responseTimeout: 300
 #backend settings
 
 handler:
-    base_model_path: "/home/ubuntu/serve/examples/large_models/Huggingface_pippy/model/models--facebook--opt-350m/snapshots/cb32f77e905cccbca1d970436fb0f5e6b58ee3c5/"
-    peft_model_path: "ybelkada/opt-6.7b-lora"
+    base_model_path: "model/models--decapoda-research--llama-7b-hf/snapshots/5f98eefcc80e437ef68d457ad7bf167c2c6a1348/"
+    peft_model_path: "model/models--ybelkada--opt-6.7b-lora/snapshots/6f240b184e666b54a51b3fe482e4711448e6c751"
+    peft_model_path2: "model/models--tloen--alpaca-lora-7b/snapshots/12103d6baae1b320aa60631b38acb6ea094a0539/"
     max_length: 50
     max_new_tokens: 60
     manual_seed: 40
