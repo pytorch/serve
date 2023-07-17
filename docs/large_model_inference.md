@@ -181,7 +181,8 @@ torch-model-archiver --model-name bloom --version 1.0 --handler deepspeed_handle
 
 To reduce model latency we recommend:
 * Pre-installing the model parallel library such as Deepspeed on the container or host.
-* Pre-downloading the model checkpoints. For example, if using HuggingFace, a pretrained model can be pre-downloaded via [Download_model.py](https://github.com/pytorch/serve/blob/75f66dc557b3b67a3ab56536a37d7aa21582cc04/examples/large_models/deepspeed/opt/Readme.md?plain=1#L7)
+* Pre-downloading the model checkpoints. For example, if using HuggingFace, a pretrained model can be pre-downloaded via [Download_model.py](https://github.com/pytorch/serve/blob/75f66dc557b3b67a3ab56536a37d7aa21582cc04/examples/large_models/deepspeed/opt/Readme.md#loading-large-huggingface-models-on-multiple-gpus
+)
   * Set environment variable [HUGGINGFACE_HUB_CACHE](https://huggingface.co/docs/huggingface_hub/guides/manage-cache#understand-caching) and [TRANSFORMERS_CACHE](https://huggingface.co/transformers/v4.0.1/installation.html#caching-models)
   * Download model to the HuggingFace cache dir via tool [Download_model.py](https://github.com/pytorch/serve/blob/4fe5273cd6f98fb5abc570f802b402ac32ecd105/examples/large_models/Huggingface_pippy/Readme.md?plain=1#L20)
 
