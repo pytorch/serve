@@ -76,33 +76,31 @@ except ImportError as error:
     logger.warning("proceeding without onnxruntime")
     ONNX_AVAILABLE = False
 
-from functools import wraps
 
-from ts.handler_utils.cache.redis import RedisCache
+from ts.handler_utils.cache.utils import cache
 
-
-def Cache(func):
-    global func1
-    func1 = func
-
-    print("Func 1 is ", func)
-
-    @wraps(func1)
-    def wrapper(*args, **kwargs):
-        if not wrapper.has_run:
-            context = args[2]
-            print("context ", context)
-            # return RedisCache(context)(func(*args,**kwargs))
-            func = RedisCache(context)(func1)
-            print("Func 2 is ", func)
-            wrapper.has_run = True
-            return func(*args, **kwargs)
-        else:
-            return func1(*args, **kwargs)
-
-    wrapper.has_run = False
-    print(wrapper)
-    return wrapper
+# def Cache(func):
+#    global func1
+#    func1 = func
+#
+#    print("Func 1 is ", func)
+#
+#    @wraps(func1)
+#    def wrapper(*args, **kwargs):
+#        if not wrapper.has_run:
+#            context = args[2]
+#            print("context ", context)
+#            # return RedisCache(context)(func(*args,**kwargs))
+#            func = RedisCache(context)(func1)
+#            print("Func 2 is ", func)
+#            wrapper.has_run = True
+#            return func(*args, **kwargs)
+#        else:
+#            return func1(*args, **kwargs)
+#
+#    wrapper.has_run = False
+#    print(wrapper)
+#    return wrapper
 
 
 def setup_ort_session(model_pt_path, map_location):
@@ -140,6 +138,7 @@ class BaseHandler(abc.ABC):
         self.map_location = None
         self.explain = False
         self.target = 0
+        self.cache_initialized = False
         self.profiler_args = {}
 
     def initialize(self, context):
@@ -332,6 +331,7 @@ class BaseHandler(abc.ABC):
 
         return data.tolist()
 
+    @cache
     def handle(self, data, context):
         """Entry point for default handler. It takes the data from the input request and returns
            the predicted outcome for the input.
