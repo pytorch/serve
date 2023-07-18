@@ -33,7 +33,6 @@ MODEL_CONFIG_KEY = {
     "input",
     "processors",
     "handler_profiling",
-    "handler_class",
 }
 
 

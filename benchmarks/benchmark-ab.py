@@ -31,7 +31,6 @@ default_ab_params = {
     "docker_runtime": "",
     "backend_profiling": False,
     "handler_profiling": False,
-    "handler_class": "",
     "generate_graphs": False,
     "config_properties": "config.properties",
     "inference_model_url": "predictions/benchmark",
@@ -104,12 +103,6 @@ def json_provider(file_path, cmd_name):
     help="Enable handler profiling. Default False",
 )
 @click.option(
-    "--handler_class",
-    "-hc",
-    default="",
-    help="Handler class name",
-)
-@click.option(
     "--generate_graphs",
     "-gg",
     default=False,
@@ -158,7 +151,6 @@ def benchmark(
     docker_runtime,
     backend_profiling,
     handler_profiling,
-    handler_class,
     config_properties,
     inference_model_url,
     report_location,
@@ -180,7 +172,6 @@ def benchmark(
         "docker_runtime": docker_runtime,
         "backend_profiling": backend_profiling,
         "handler_profiling": handler_profiling,
-        "handler_class": handler_class,
         "config_properties": config_properties,
         "inference_model_url": inference_model_url,
         "report_location": report_location,
@@ -490,10 +481,9 @@ metrics = {
 def update_metrics():
     if execution_params["handler_profiling"]:
         opt_metrics = {
-            "backend_preprocess.txt": execution_params["handler_class"] + "_preprocess",
-            "backend_inference.txt": execution_params["handler_class"] + "_inference",
-            "backend_postprocess.txt": execution_params["handler_class"]
-            + "_postprocess",
+            "handler_preprocess.txt": "ts_handler_preprocess",
+            "handler_inference.txt": "ts_handler_inference",
+            "handler_postprocess.txt": "ts_handler_postprocess",
         }
         metrics.update(opt_metrics)
     return metrics

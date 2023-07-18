@@ -35,9 +35,7 @@ def timed(func):
         ):
             if self.context.model_yaml_config["handler"]["profile"]:
                 metrics = self.context.metrics
-                metrics.add_time(
-                    self.__class__.__name__ + "_" + func.__name__, duration
-                )
+                metrics.add_time("ts_handler_" + func.__name__, duration)
         return result
 
     return wrap_func
