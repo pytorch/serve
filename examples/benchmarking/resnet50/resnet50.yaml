@@ -1,8 +1,9 @@
 ---
-resnet50:
+resnet50-trt-fp32:
     eager_mode:
         benchmark_engine: "ab"
-        url: "file:///home/ubuntu/serve/model_store/resnet-50.mar"
+        #url: "file:///home/ubuntu/serve/model_store/resnet-50.mar"
+        url: "file:///home/ubuntu/serve/model_store/resnet-50-trt-fp32.mar"
         workers:
             - 4
         batch_delay: 100
@@ -16,7 +17,8 @@ resnet50:
             - 64
         requests: 10000
         concurrency: 100
-        input: "./examples/image_classifier/kitten.jpg"
+        #input: "./examples/image_classifier/kitten.jpg"
+        input: "./examples/benchmarking/resnet50/data.txt"
         handler_profiling: true
         exec_env: "local"
         processors:
