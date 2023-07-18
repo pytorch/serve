@@ -2,11 +2,11 @@ import argparse
 import copy
 import json
 import os
+
 import yaml
 
 
 def main():
-
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
@@ -22,6 +22,7 @@ def main():
     arguments = parser.parse_args()
     convert_yaml_to_json(arguments.input, arguments.output)
 
+
 MODEL_CONFIG_KEY = {
     "batch_size",
     "batch_delay",
@@ -30,12 +31,19 @@ MODEL_CONFIG_KEY = {
     "concurrency",
     "workers",
     "input",
-    "processors"
+    "processors",
+    "handler_profiling",
+    "handler_class",
 }
 
+
 def convert_yaml_to_json(yaml_file_path, output_dir):
-    print("convert_yaml_to_json yaml_file_path={}, output_dir={}".format(yaml_file_path, output_dir))
-    with open(yaml_file_path, 'r') as f:
+    print(
+        "convert_yaml_to_json yaml_file_path={}, output_dir={}".format(
+            yaml_file_path, output_dir
+        )
+    )
+    with open(yaml_file_path, "r") as f:
         yaml_dict = yaml.safe_load(f)
 
         for model, config in yaml_dict.items():
@@ -58,10 +66,9 @@ def convert_yaml_to_json(yaml_file_path, output_dir):
                 batch_worker_list = []
                 for batch_size in batch_size_list:
                     for workers in workers_list:
-                        batch_worker_list.append({
-                            "batch_size" : batch_size,
-                            "workers" : workers
-                        })
+                        batch_worker_list.append(
+                            {"batch_size": batch_size, "workers": workers}
+                        )
 
                 benchmark_configs = []
                 for batch_worker in batch_worker_list:
@@ -72,25 +79,34 @@ def convert_yaml_to_json(yaml_file_path, output_dir):
                 for bConfig in benchmark_configs:
                     for i in range(len(processors)):
                         if type(processors[i]) is str:
-                            path = '{}/{}'.format(output_dir, processors[i])
+                            path = "{}/{}".format(output_dir, processors[i])
                             if not os.path.isdir(path):
                                 continue
 
-                            benchmark_config_file = '{}/{}_w{}_b{}.json'\
-                                .format(path, model_name, bConfig["workers"], bConfig["batch_size"])
+                            benchmark_config_file = "{}/{}_w{}_b{}.json".format(
+                                path,
+                                model_name,
+                                bConfig["workers"],
+                                bConfig["batch_size"],
+                            )
                             with open(benchmark_config_file, "w") as outfile:
                                 json.dump(bConfig, outfile, indent=4)
                         elif type(processors[i]) is dict:
-                            path = '{}/gpu'.format(output_dir)
+                            path = "{}/gpu".format(output_dir)
                             if not os.path.isdir(path):
                                 continue
 
                             bConfig["gpus"] = processors[i]["gpus"]
-                            benchmark_config_file = '{}/{}_w{}_b{}.json'\
-                                .format(path, model_name, bConfig["workers"], bConfig["batch_size"])
+                            benchmark_config_file = "{}/{}_w{}_b{}.json".format(
+                                path,
+                                model_name,
+                                bConfig["workers"],
+                                bConfig["batch_size"],
+                            )
                             with open(benchmark_config_file, "w") as outfile:
                                 json.dump(bConfig, outfile, indent=4)
                             del bConfig["gpus"]
+
 
 if __name__ == "__main__":
     main()
