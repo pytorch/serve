@@ -227,6 +227,8 @@ def handle(data, context):
 ```
 Client side receives the chunked data.
 ```python
+import test_utils
+
 def test_echo_stream_inference():
     test_utils.start_torchserve(no_config_snapshots=True, gen_mar=False)
     test_utils.register_model('echo_stream',
