@@ -18,8 +18,6 @@ resnet50:
         concurrency: 100
         input: "./examples/image_classifier/kitten.jpg"
         handler_profiling: true
-        backend_profiling: False
-        handler_class: "ImageClassifier"
         exec_env: "local"
         processors:
             - "cpu"
