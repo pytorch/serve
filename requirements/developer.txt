@@ -7,7 +7,7 @@ pytest-cov==4.1.0
 grpcio==1.54.2
 protobuf==4.23.1
 grpcio-tools==1.54.2
-transformers==4.28.1
+transformers==4.30.0
 pyspelling==2.8.2
 pygit2==1.12.1
 pre-commit==3.3.2

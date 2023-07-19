@@ -4,6 +4,7 @@ import static org.pytorch.serve.util.messages.RequestInput.TS_STREAM_NEXT;
 
 import com.google.protobuf.ByteString;
 import io.grpc.Status;
+import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -67,10 +68,16 @@ public class GRPCJob extends Job {
             int statusCode,
             String statusPhrase,
             Map<String, String> responseHeaders) {
-
         ByteString output = ByteString.copyFrom(body);
         if (this.getCmd() == WorkerCommands.PREDICT
                 || this.getCmd() == WorkerCommands.STREAMPREDICT) {
+            if (((ServerCallStreamObserver<PredictionResponse>) predictionResponseObserver)
+                    .isCancelled()) {
+                logger.warn(
+                        "grpc client call already cancelled, not able to send this response for requestId: {}",
+                        getPayload().getRequestId());
+                return;
+            }
             PredictionResponse reply =
                     PredictionResponse.newBuilder().setPrediction(output).build();
             predictionResponseObserver.onNext(reply);
@@ -118,6 +125,14 @@ public class GRPCJob extends Job {
         Status responseStatus = GRPCUtils.getGRPCStatusCode(status);
         if (this.getCmd() == WorkerCommands.PREDICT
                 || this.getCmd() == WorkerCommands.STREAMPREDICT) {
+            if (((ServerCallStreamObserver<PredictionResponse>) predictionResponseObserver)
+                    .isCancelled()) {
+                logger.warn(
+                        "grpc client call already cancelled, not able to send error: {}, for requestId: {}",
+                        error,
+                        getPayload().getRequestId());
+                return;
+            }
             predictionResponseObserver.onError(
                     responseStatus
                             .withDescription(error)

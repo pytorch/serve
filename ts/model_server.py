@@ -9,7 +9,7 @@ import subprocess
 import sys
 import tempfile
 from builtins import str
-
+from typing import Dict
 import psutil
 
 from ts.arg_parser import ArgParser
@@ -18,7 +18,7 @@ from ts.version import __version__
 TS_NAMESPACE = "org.pytorch.serve.ModelServer"
 
 
-def start():
+def start() -> None:
     """
     This is the entry point for model server
     :return:
@@ -104,7 +104,8 @@ def start():
                 sys.exit(1)
             ts_conf_file = ts_config
 
-        platform_path_separator = {"Windows": "", "Darwin": ".:", "Linux": ".:"}
+        platform_path_separator = {
+            "Windows": "", "Darwin": ".:", "Linux": ".:"}
         class_path = "{}{}".format(
             platform_path_separator[platform.system()],
             os.path.join(ts_home, "ts", "frontend", "*"),
@@ -207,7 +208,7 @@ def start():
                 print("start java frontend failed:", sys.exc_info())
 
 
-def load_properties(file_path):
+def load_properties(file_path: str) -> Dict[str, str]:
     """
     Read properties file into map.
     """
@@ -220,7 +221,6 @@ def load_properties(file_path):
                 if len(pair) > 1:
                     key = pair[0].strip()
                     props[key] = pair[1].strip()
-
     return props
 
 
