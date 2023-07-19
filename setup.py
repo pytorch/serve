@@ -167,6 +167,7 @@ if __name__ == "__main__":
         author="PyTorch Serving team",
         author_email="noreply@noreply.com",
         long_description=pypi_description(),
+        long_description_content_type="text/x-rst",
         url="https://github.com/pytorch/serve.git",
         keywords="TorchServe PyTorch Serving Deep Learning Inference AI",
         packages=pkgs,

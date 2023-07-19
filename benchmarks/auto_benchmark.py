@@ -97,7 +97,7 @@ class BenchmarkConfig:
 
         self.bm_config["model_config_path"] = (
             "{}/{}".format(MODEL_JSON_CONFIG_PATH, self.bm_config["hardware"])
-            if self.bm_config["hardware"] in ["cpu", "gpu", "neuron"]
+            if self.bm_config["hardware"] in ["cpu", "gpu", "neuron", "neuronx"]
             else "{}/cpu".format(MODEL_JSON_CONFIG_PATH)
         )
 
@@ -150,6 +150,8 @@ def install_torchserve(skip_ts_install, hw, ts_version):
     # install_dependencies.py
     if hw == "gpu":
         cmd = "python ts_scripts/install_dependencies.py --environment dev --cuda cu117"
+    elif hw == "neuronx":
+        cmd = "python ts_scripts/install_dependencies.py --environment dev --neuronx"
     else:
         cmd = "python ts_scripts/install_dependencies.py --environment dev"
     execute(cmd, wait=True)
