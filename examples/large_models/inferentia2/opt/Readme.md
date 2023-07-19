@@ -40,18 +40,18 @@ pip install git+https://github.com/aws-neuron/transformers-neuronx.git transform
 
 ### Step 2: Save the model split checkpoints compatible with `transformers-neuronx`
 
+Navigate to `large_model/inferentia2/opt` directory.
+
 ```bash
- python save_split_checkpoints.py --model_name facebook/opt-6.7b --save_path './opt-6.7b-split'
+ python ../util/inf2_save_split_checkpoints.py --model_name facebook/opt-6.7b --save_path './opt-6.7b-split'
 
 ```
 
 
 ### Step 3: Generate Tar/ MAR file
 
-Navigate up to `large_model/inferentia2/opt` directory.
-
 ```bash
-torch-model-archiver --model-name opt --version 1.0 --handler inf2_handler.py --extra-files ./opt-6.7b-split  -r requirements.txt --config-file model-config.yaml --archive-format tgz
+torch-model-archiver --model-name opt --version 1.0 --handler inf2_handler.py --extra-files ./opt-6.7b-split  -r requirements.txt --config-file model-config.yaml --archive-format no-archive
 
 ```
 
@@ -59,7 +59,7 @@ torch-model-archiver --model-name opt --version 1.0 --handler inf2_handler.py --
 
 ```bash
 mkdir model_store
-mv opt.tar.gz model_store
+mv opt model_store
 ```
 
 ### Step 5: Start torchserve
@@ -67,7 +67,7 @@ mv opt.tar.gz model_store
 Update config.properties and start torchserve
 
 ```bash
-torchserve --ncs --start --model-store model_store --models opt.tar.gz
+torchserve --ncs --start --model-store model_store --models opt
 ```
 
 ### Step 6: Run inference
