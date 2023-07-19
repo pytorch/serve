@@ -13,8 +13,8 @@ import torch
 from pkg_resources import packaging
 
 from ..utils.util import (
+    check_valid_pt2_backend,
     list_classes_from_module,
-    load_compiler_config,
     load_label_mapping,
 )
 
@@ -25,46 +25,74 @@ if packaging.version.parse(torch.__version__) >= packaging.version.parse("1.8.1"
 else:
     PROFILER_AVAILABLE = False
 
-try:
-    import torch_xla.core.xla_model as xm
-
-    TORCHXLA_AVAILABLE = True
-except ImportError as error:
-    TORCHXLA_AVAILABLE = False
-
 
 logger = logging.getLogger(__name__)
 
 
-# Possible values for backend in utils.py
-def check_pt2_enabled():
-    try:
-        import torch._dynamo
+try:
+    import torch_xla.core.xla_model as xm
 
-        pt2_enabled = True
-        if torch.cuda.is_available():
-            # If Ampere enable tensor cores which will give better performance
-            # Ideally get yourself an A10G or A100 for optimal performance
-            if torch.cuda.get_device_capability() >= (8, 0):
-                torch.backends.cuda.matmul.allow_tf32 = True
-    except ImportError as error:
-        logger.warning(
-            "dynamo/inductor are not installed. \n For GPU please run pip3 install numpy --pre torch[dynamo] --force-reinstall --extra-index-url https://download.pytorch.org/whl/nightly/cu117 \n for CPU please run pip3 install --pre torch --extra-index-url https://download.pytorch.org/whl/nightly/cpu"
-        )
-        pt2_enabled = False
-    return pt2_enabled
+    XLA_AVAILABLE = True
+except ImportError as error:
+    XLA_AVAILABLE = False
 
 
-ipex_enabled = False
+if packaging.version.parse(torch.__version__) >= packaging.version.parse("2.0.0a"):
+    PT2_AVAILABLE = True
+    if torch.cuda.is_available():
+        # If Ampere enable tensor cores which will give better performance
+        # Ideally get yourself an A10G or A100 for optimal performance
+        if torch.cuda.get_device_capability() >= (8, 0):
+            torch.set_float32_matmul_precision("high")
+            logger.info("Enabled tensor cores")
+else:
+    logger.warning(
+        f"Your torch version is {torch.__version__} which does not support torch.compile"
+    )
+    PT2_AVAILABLE = False
+
+
 if os.environ.get("TS_IPEX_ENABLE", "false") == "true":
     try:
         import intel_extension_for_pytorch as ipex
 
-        ipex_enabled = True
+        IPEX_AVAILABLE = True
     except ImportError as error:
         logger.warning(
             "IPEX is enabled but intel-extension-for-pytorch is not installed. Proceeding without IPEX."
         )
+        IPEX_AVAILABLE = False
+else:
+    IPEX_AVAILABLE = False
+
+
+try:
+    import onnxruntime as ort
+    import psutil
+
+    logger.info("ONNX enabled")
+    ONNX_AVAILABLE = True
+except ImportError as error:
+    logger.warning("proceeding without onnxruntime")
+    ONNX_AVAILABLE = False
+
+
+def setup_ort_session(model_pt_path, map_location):
+    providers = (
+        ["CUDAExecutionProvider", "CPUExecutionProvider"]
+        if map_location == "cuda"
+        else ["CPUExecutionProvider"]
+    )
+
+    sess_options = ort.SessionOptions()
+    sess_options.intra_op_num_threads = psutil.cpu_count(logical=True)
+
+    # Start an inference session
+    ort_session = ort.InferenceSession(
+        model_pt_path, providers=providers, sess_options=sess_options
+    )
+
+    return ort_session
 
 
 class BaseHandler(abc.ABC):
@@ -98,16 +126,9 @@ class BaseHandler(abc.ABC):
             RuntimeError: Raises the Runtime error when the model.py is missing
 
         """
-        ipex_enabled = False
-        if os.environ.get("TS_IPEX_ENABLE", "false") == "true":
-            try:
-                import intel_extension_for_pytorch as ipex
 
-                ipex_enabled = True
-            except ImportError as error:
-                logger.warning(
-                    "IPEX is enabled but intel-extension-for-pytorch is not installed. Proceeding without IPEX."
-                )
+        if context is not None and hasattr(context, "model_yaml_config"):
+            self.model_yaml_config = context.model_yaml_config
 
         properties = context.system_properties
         if torch.cuda.is_available() and properties.get("gpu_id") is not None:
@@ -115,7 +136,7 @@ class BaseHandler(abc.ABC):
             self.device = torch.device(
                 self.map_location + ":" + str(properties.get("gpu_id"))
             )
-        elif TORCHXLA_AVAILABLE:
+        elif XLA_AVAILABLE:
             self.device = xm.xla_device()
         else:
             self.map_location = "cpu"
@@ -128,20 +149,6 @@ class BaseHandler(abc.ABC):
         if "serializedFile" in self.manifest["model"]:
             serialized_file = self.manifest["model"]["serializedFile"]
             self.model_pt_path = os.path.join(model_dir, serialized_file)
-
-        if self.model_pt_path:
-            if self.model_pt_path.endswith("onnx"):
-                try:
-                    # import numpy as np
-                    import onnxruntime as ort
-                    import psutil
-
-                    onnx_enabled = True
-                    logger.info("ONNX enabled")
-                except ImportError as error:
-                    onnx_enabled = False
-                    logger.warning("proceeding without onnxruntime")
-
         # model def file
         model_file = self.manifest["model"].get("modelFile", "")
 
@@ -160,49 +167,38 @@ class BaseHandler(abc.ABC):
             self.model.eval()
 
         # Convert your model by following instructions: https://pytorch.org/tutorials/advanced/super_resolution_with_onnxruntime.html
-        # TODO(msaroufim): Refactor into utils https://github.com/pytorch/serve/issues/1631
-        elif self.model_pt_path.endswith(".onnx") and onnx_enabled:
-            # self.model = self._load_onnx_model(self.model_pt_path)
-            providers = (
-                ["CUDAExecutionProvider", "CPUExecutionProvider"]
-                if self.map_location == "cuda"
-                else ["CPUExecutionProvider"]
-            )
-
-            # Set the right inference options, we can add more options here depending on what people want
-            sess_options = ort.SessionOptions()
-            sess_options.intra_op_num_threads = psutil.cpu_count(logical=True)
-
-            # Start an inference session
-            ort_session = ort.InferenceSession(
-                self.model_pt_path, providers=providers, sess_options=sess_options
-            )
-            self.model = ort_session
+        elif self.model_pt_path.endswith(".onnx") and ONNX_AVAILABLE:
+            self.model = setup_ort_session(self.model_pt_path, self.map_location)
+            logger.info("Succesfully setup ort session")
 
         else:
             raise RuntimeError("No model weights could be loaded")
 
-        optimization_config = os.path.join(model_dir, "compile.json")
-        backend = load_compiler_config(optimization_config)
+        if hasattr(self, "model_yaml_config") and "pt2" in self.model_yaml_config:
+            pt2_backend = self.model_yaml_config["pt2"]
+            valid_backend = check_valid_pt2_backend(pt2_backend)
+        else:
+            valid_backend = False
 
         # PT 2.0 support is opt in
-        if check_pt2_enabled() and backend:
+        if PT2_AVAILABLE and valid_backend:
             # Compilation will delay your model initialization
             try:
                 self.model = torch.compile(
                     self.model,
-                    backend=backend,
-                    mode="default" if TORCHXLA_AVAILABLE else "reduce-overhead",
+                    backend=pt2_backend,
                 )
-                logger.info(f"Compiled model with backend {backend}")
-            except:
+                logger.info(f"Compiled model with backend {pt2_backend}")
+            except e:
                 logger.warning(
-                    f"Compiling model model with backend {backend} has failed \n Proceeding without compilation"
+                    f"Compiling model model with backend {pt2_backend} has failed \n Proceeding without compilation"
                 )
+                logger.warning(e)
 
-        elif ipex_enabled:
+        elif IPEX_AVAILABLE:
             self.model = self.model.to(memory_format=torch.channels_last)
             self.model = ipex.optimize(self.model)
+            logger.info(f"Compiled model with ipex")
 
         logger.debug("Model file %s loaded successfully", self.model_pt_path)
 
@@ -257,9 +253,7 @@ class BaseHandler(abc.ABC):
         model = model_class()
         if model_pt_path:
             map_location = (
-                None
-                if (TORCHXLA_AVAILABLE and self.map_location is None)
-                else self.device
+                None if (XLA_AVAILABLE and self.map_location is None) else self.device
             )
             state_dict = torch.load(model_pt_path, map_location=map_location)
             model.load_state_dict(state_dict)

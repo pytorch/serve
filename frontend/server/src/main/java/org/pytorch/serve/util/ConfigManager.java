@@ -66,6 +66,7 @@ public final class ConfigManager {
     private static final String TS_JOB_QUEUE_SIZE = "job_queue_size";
     private static final String TS_NUMBER_OF_GPU = "number_of_gpu";
     private static final String TS_METRICS_CONFIG = "metrics_config";
+    private static final String TS_METRICS_MODE = "metrics_mode";
     private static final String TS_DISABLE_SYSTEM_METRICS = "disable_system_metrics";
 
     // IPEX config option that can be set at config.properties
@@ -93,7 +94,6 @@ public final class ConfigManager {
     private static final String TS_PREFER_DIRECT_BUFFER = "prefer_direct_buffer";
     private static final String TS_ALLOWED_URLS = "allowed_urls";
     private static final String TS_INSTALL_PY_DEP_PER_MODEL = "install_py_dep_per_model";
-    private static final String TS_METRICS_FORMAT = "metrics_format";
     private static final String TS_ENABLE_METRICS_API = "enable_metrics_api";
     private static final String TS_GRPC_INFERENCE_PORT = "grpc_inference_port";
     private static final String TS_GRPC_MANAGEMENT_PORT = "grpc_management_port";
@@ -336,10 +336,6 @@ public final class ConfigManager {
         return Boolean.parseBoolean(getProperty(TS_INSTALL_PY_DEP_PER_MODEL, "false"));
     }
 
-    public String getMetricsFormat() {
-        return getProperty(TS_METRICS_FORMAT, METRIC_FORMAT_PROMETHEUS);
-    }
-
     public boolean isMetricApiEnable() {
         return Boolean.parseBoolean(getProperty(TS_ENABLE_METRICS_API, "true"));
     }
@@ -385,6 +381,10 @@ public final class ConfigManager {
                             .toString();
         }
         return torchrunLogDir;
+    }
+
+    public String getMetricsMode() {
+        return getProperty(TS_METRICS_MODE, "log");
     }
 
     public boolean isSystemMetricsDisabled() {
@@ -656,10 +656,10 @@ public final class ConfigManager {
                 + getAllowedUrls()
                 + "\nCustom python dependency for model allowed: "
                 + prop.getProperty(TS_INSTALL_PY_DEP_PER_MODEL, "false")
-                + "\nMetrics report format: "
-                + prop.getProperty(TS_METRICS_FORMAT, METRIC_FORMAT_PROMETHEUS)
                 + "\nEnable metrics API: "
                 + prop.getProperty(TS_ENABLE_METRICS_API, "true")
+                + "\nMetrics mode: "
+                + getMetricsMode()
                 + "\nDisable system metrics: "
                 + isSystemMetricsDisabled()
                 + "\nWorkflow Store: "

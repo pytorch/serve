@@ -75,9 +75,10 @@ if __name__ == "__main__":
         description="Torch Workflow Archiver is used for creating archives of workflow designed using"
         " trained neural net models that can be consumed by TorchServe inference",
         long_description=pypi_description(),
+        long_description_content_type="text/x-rst",
         author="PyTorch Serving team",
         author_email="noreply@noreply.com",
-        url="https://github.com/pytorch/serve/workflow-archiver/",
+        url="https://github.com/pytorch/serve/blob/master/workflow-archiver/",
         keywords="TorchServe Torch Workflow Archive Archiver Server Serving Deep Learning Inference AI",
         packages=pkgs,
         entry_points={

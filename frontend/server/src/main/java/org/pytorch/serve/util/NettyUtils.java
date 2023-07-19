@@ -12,6 +12,7 @@ import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpRequest;
+import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.HttpVersion;
@@ -23,12 +24,13 @@ import io.netty.util.AttributeKey;
 import io.netty.util.CharsetUtil;
 import java.io.IOException;
 import java.net.SocketAddress;
+import java.util.Arrays;
 import java.util.List;
 import org.pytorch.serve.http.ErrorResponse;
 import org.pytorch.serve.http.Session;
 import org.pytorch.serve.http.StatusResponse;
-import org.pytorch.serve.metrics.Dimension;
-import org.pytorch.serve.metrics.Metric;
+import org.pytorch.serve.metrics.IMetric;
+import org.pytorch.serve.metrics.MetricCache;
 import org.pytorch.serve.util.messages.InputParameter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,31 +42,6 @@ public final class NettyUtils {
 
     private static final String REQUEST_ID = "x-request-id";
     private static final AttributeKey<Session> SESSION_KEY = AttributeKey.valueOf("session");
-    private static final Dimension DIMENSION = new Dimension("Level", "Host");
-    private static final Metric REQUESTS_2_XX =
-            new Metric(
-                    "Requests2XX",
-                    "1",
-                    "Count",
-                    ConfigManager.getInstance().getHostName(),
-                    DIMENSION);
-    private static final Metric REQUESTS_4_XX =
-            new Metric(
-                    "Requests4XX",
-                    "1",
-                    "Count",
-                    ConfigManager.getInstance().getHostName(),
-                    DIMENSION);
-    private static final Metric REQUESTS_5_XX =
-            new Metric(
-                    "Requests5XX",
-                    "1",
-                    "Count",
-                    ConfigManager.getInstance().getHostName(),
-                    DIMENSION);
-
-    private static final Logger loggerTsMetrics =
-            LoggerFactory.getLogger(ConfigManager.MODEL_SERVER_METRICS_LOGGER);
 
     private NettyUtils() {}
 
@@ -142,7 +119,7 @@ public final class NettyUtils {
      * @param keepAlive if keep the connection
      */
     public static void sendHttpResponse(
-            ChannelHandlerContext ctx, FullHttpResponse resp, boolean keepAlive) {
+            ChannelHandlerContext ctx, HttpResponse resp, boolean keepAlive) {
         // Send the response and close the connection if necessary.
         Channel channel = ctx.channel();
         Session session = channel.attr(SESSION_KEY).getAndSet(null);
@@ -156,12 +133,35 @@ public final class NettyUtils {
             logger.info(session.toString());
         }
         int code = resp.status().code();
+        List<String> requestsMetricDimensionValues =
+                Arrays.asList("Host", ConfigManager.getInstance().getHostName());
         if (code >= 200 && code < 300) {
-            loggerTsMetrics.info("{}", REQUESTS_2_XX);
+            IMetric requests2xxMetric = MetricCache.getInstance().getMetricFrontend("Requests2XX");
+            if (requests2xxMetric != null) {
+                try {
+                    requests2xxMetric.addOrUpdate(requestsMetricDimensionValues, 1);
+                } catch (Exception e) {
+                    logger.error("Failed to update frontend metric Requests2XX: ", e);
+                }
+            }
         } else if (code >= 400 && code < 500) {
-            loggerTsMetrics.info("{}", REQUESTS_4_XX);
+            IMetric requests4xxMetric = MetricCache.getInstance().getMetricFrontend("Requests4XX");
+            if (requests4xxMetric != null) {
+                try {
+                    requests4xxMetric.addOrUpdate(requestsMetricDimensionValues, 1);
+                } catch (Exception e) {
+                    logger.error("Failed to update frontend metric Requests4XX: ", e);
+                }
+            }
         } else {
-            loggerTsMetrics.info("{}", REQUESTS_5_XX);
+            IMetric requests5xxMetric = MetricCache.getInstance().getMetricFrontend("Requests5XX");
+            if (requests5xxMetric != null) {
+                try {
+                    requests5xxMetric.addOrUpdate(requestsMetricDimensionValues, 1);
+                } catch (Exception e) {
+                    logger.error("Failed to update frontend metric Requests5XX: ", e);
+                }
+            }
         }
 
         String allowedOrigin = configManager.getCorsAllowedOrigin();
@@ -189,7 +189,11 @@ public final class NettyUtils {
         headers.set("Cache-Control", "no-cache; no-store, must-revalidate, private");
         headers.set("Expires", "Thu, 01 Jan 1970 00:00:00 UTC");
 
-        HttpUtil.setContentLength(resp, resp.content().readableBytes());
+        if (resp instanceof FullHttpResponse) {
+            HttpUtil.setContentLength(resp, ((FullHttpResponse) resp).content().readableBytes());
+        } else {
+            HttpUtil.setTransferEncodingChunked(resp, true);
+        }
         if (!keepAlive || code >= 400) {
             headers.set(HttpHeaderNames.CONNECTION, HttpHeaderValues.CLOSE);
             ChannelFuture f = channel.writeAndFlush(resp);

@@ -47,6 +47,7 @@ RUN --mount=type=cache,id=apt-dev,target=/var/cache/apt \
         python$PYTHON_VERSION-venv \
         openjdk-17-jdk \
         curl \
+        git \
     && rm -rf /var/lib/apt/lists/*
 
 # Make the virtual environment and "activating" it by adding it first to the path.
@@ -62,26 +63,29 @@ RUN export USE_CUDA=1
 
 ARG CUDA_VERSION=""
 
-RUN TORCH_VER=$(curl --silent --location https://pypi.org/pypi/torch/json | python -c "import sys, json, pkg_resources; releases = json.load(sys.stdin)['releases']; print(sorted(releases, key=pkg_resources.parse_version)[-1])") && \
-    TORCH_VISION_VER=$(curl --silent --location https://pypi.org/pypi/torchvision/json | python -c "import sys, json, pkg_resources; releases = json.load(sys.stdin)['releases']; print(sorted(releases, key=pkg_resources.parse_version)[-1])") && \
+RUN git clone --depth 1 https://github.com/pytorch/serve.git
+
+WORKDIR "serve"
+
+RUN \
     if echo "$BASE_IMAGE" | grep -q "cuda:"; then \
         # Install CUDA version specific binary when CUDA version is specified as a build arg
         if [ "$CUDA_VERSION" ]; then \
-            python -m pip install --no-cache-dir torch==$TORCH_VER+$CUDA_VERSION torchvision==$TORCH_VISION_VER+$CUDA_VERSION -f https://download.pytorch.org/whl/torch_stable.html; \
-        # Install the binary with the latest CUDA version support
+            python ./ts_scripts/install_dependencies.py --cuda $CUDA_VERSION; \
+        # Install the binary with the latest CPU image on a CUDA base image
         else \
-            python -m pip install --no-cache-dir torch torchvision; \
+            python ./ts_scripts/install_dependencies.py; \
         fi; \
-        python -m pip install --no-cache-dir -r https://raw.githubusercontent.com/pytorch/serve/master/requirements/common.txt; \
     # Install the CPU binary
     else \
-        python -m pip install --no-cache-dir torch==$TORCH_VER+cpu torchvision==$TORCH_VISION_VER+cpu -f https://download.pytorch.org/whl/torch_stable.html; \
+        python ./ts_scripts/install_dependencies.py; \
     fi
 
-RUN python -m pip install --no-cache-dir captum torchtext torchserve torch-model-archiver pyyaml
+# Make sure latest version of torchserve is uploaded before running this
+RUN python -m pip install --no-cache-dir torchserve torch-model-archiver torch-workflow-archiver
 
 # Final image for production
-FROM ${BASE_IMAGE} AS runtime-image 
+FROM ${BASE_IMAGE} AS production-image
 # Re-state ARG PYTHON_VERSION to make it active in this build-stage (uses default define at the top)
 ARG PYTHON_VERSION
 ENV PYTHONUNBUFFERED TRUE
@@ -126,3 +130,48 @@ WORKDIR /home/model-server
 ENV TEMP=/home/model-server/tmp
 ENTRYPOINT ["/usr/local/bin/dockerd-entrypoint.sh"]
 CMD ["serve"]
+
+# Final image for docker regression
+FROM ${BASE_IMAGE} AS ci-image
+# Re-state ARG PYTHON_VERSION to make it active in this build-stage (uses default define at the top)
+ARG PYTHON_VERSION
+ARG BRANCH_NAME
+ENV PYTHONUNBUFFERED TRUE
+
+RUN --mount=type=cache,target=/var/cache/apt \
+    apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install software-properties-common -y && \
+    add-apt-repository -y ppa:deadsnakes/ppa && \
+    apt remove python-pip  python3-pip && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
+    python$PYTHON_VERSION \
+    python3-distutils \
+    python$PYTHON_VERSION-dev \
+    python$PYTHON_VERSION-venv \
+    # using openjdk-17-jdk due to circular dependency(ca-certificates) bug in openjdk-17-jre-headless debian package
+    # https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1009905
+    openjdk-17-jdk \
+    build-essential \
+    wget \
+    numactl \
+    nodejs \
+    npm \
+    zip \
+    unzip \
+    && npm install -g newman newman-reporter-htmlextra markdown-link-check \
+    && rm -rf /var/lib/apt/lists/* \
+    && cd /tmp
+
+
+COPY --from=compile-image /home/venv /home/venv
+
+ENV PATH="/home/venv/bin:$PATH"
+
+RUN python -m pip install --no-cache-dir -r https://raw.githubusercontent.com/pytorch/serve/$BRANCH_NAME/requirements/developer.txt
+
+RUN mkdir /home/serve
+ENV TS_RUN_IN_DOCKER True
+
+WORKDIR /home/serve
+CMD ["python", "test/regression_tests.py"]

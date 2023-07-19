@@ -13,7 +13,6 @@ import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.util.List;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
 import org.pytorch.serve.archive.DownloadArchiveException;
 import org.pytorch.serve.archive.utils.ArchiveUtils;
 import org.pytorch.serve.archive.utils.InvalidArchiveURLException;
@@ -53,7 +52,7 @@ public class WorkflowArchive {
             throw new WorkflowNotFoundException("Workflow store has not been configured.");
         }
 
-        String warFileName = FilenameUtils.getName(url);
+        String warFileName = ArchiveUtils.getFilenameFromUrl(url);
         File workflowLocation = new File(workflowStore, warFileName);
 
         try {
@@ -144,7 +143,7 @@ public class WorkflowArchive {
 
     public static void removeWorkflow(String workflowStore, String warURL) {
         if (ArchiveUtils.isValidURL(warURL)) {
-            String warFileName = FilenameUtils.getName(warURL);
+            String warFileName = ArchiveUtils.getFilenameFromUrl(warURL);
             File workflowLocation = new File(workflowStore, warFileName);
             FileUtils.deleteQuietly(workflowLocation);
         }

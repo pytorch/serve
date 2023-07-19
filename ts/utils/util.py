@@ -56,24 +56,13 @@ def list_classes_from_module(module, parent_class=None):
     return classes
 
 
-def load_compiler_config(config_file_path):
-    """
-    Load a compiler {compiler_name -> compiler }
-    Can be extended to also support kwargs for ONNX and TensorRT
-    """
-    if not os.path.isfile(config_file_path):
-        logger.info(f"{config_file_path} is missing. PT 2.0 will not be used")
-        return None
-
-    with open(config_file_path) as f:
-        mapping = json.load(f)
-
+def check_valid_pt2_backend(backend: str) -> bool:
     backend_values = [member.value for member in PT2Backend]
-    if mapping["pt2"] in backend_values:
-        return mapping["pt2"]
+    if backend in backend_values:
+        return True
     else:
-        logger.warning(f"{mapping['pt2']} is not a supported backend")
-    return None
+        logger.warning(f"{backend} is not a supported backend")
+    return False
 
 
 def load_label_mapping(mapping_file_path):

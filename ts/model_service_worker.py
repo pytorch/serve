@@ -61,16 +61,16 @@ class TorchModelServiceWorker(object):
                     raise RuntimeError(
                         "socket already in use: {}.".format(s_name_new)
                     ) from e
-
+            logging.info("Listening on port: %s", s_name_new)
         elif s_type == "tcp":
             self.sock_name = host_addr if host_addr is not None else "127.0.0.1"
             if port_num is None:
                 raise ValueError("Wrong arguments passed. No socket port given.")
-            self.port = port_num + LOCAL_RANK
+            self.port = int(port_num) + LOCAL_RANK
+            logging.info("Listening on addr:port: %s:%d", self.sock_name, self.port)
         else:
             raise ValueError("Incomplete data provided")
 
-        logging.info("Listening on port: %s", s_name)
         socket_family = socket.AF_INET if s_type == "tcp" else socket.AF_UNIX
         self.sock = socket.socket(socket_family, socket.SOCK_STREAM)
         self.metrics_cache = MetricsCacheYamlImpl(config_file_path=metrics_config)
@@ -142,15 +142,24 @@ class TorchModelServiceWorker(object):
             logging.debug("Model %s loaded.", model_name)
 
             return service, "loaded model {}".format(model_name), 200
-        except MemoryError:
+        except MemoryError as ex:
+            logging.exception(
+                "Load model %s cpu OOM, exception %s", model_name, str(ex)
+            )
             return None, "System out of memory", 507
         except RuntimeError as ex:  # pylint: disable=broad-except
             if "CUDA" in str(ex):
                 # Handles Case A: CUDA error: CUBLAS_STATUS_NOT_INITIALIZED (Close to OOM) &
                 # Case B: CUDA out of memory (OOM)
+                logging.exception(
+                    "Load model %s cuda OOM, exception %s", model_name, str(ex)
+                )
                 return None, "System out of memory", 507
             else:
                 # Sanity testcases fail without this
+                logging.exception(
+                    "Failed to load model %s, exception %s", model_name, str(ex)
+                )
                 return None, "Unknown exception", 500
 
     def handle_connection(self, cl_socket):

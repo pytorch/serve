@@ -84,6 +84,21 @@ public class WorkLoadManager {
         return numWorking;
     }
 
+    public int getNumHealthyWorkers(ModelVersionName modelVersionName) {
+        int numHealthy = 0;
+        List<WorkerThread> threads = workers.getOrDefault(modelVersionName, null);
+
+        if (threads != null) {
+            for (WorkerThread thread : threads) {
+                if (thread.isHealthy()) {
+                    numHealthy += 1;
+                }
+            }
+        }
+
+        return numHealthy;
+    }
+
     /**
      * Checks if cpu_launcher is enabled and currentWorkers > 0 (i.e., not initializing workers).
      * Workers are restarted so that when dynamically scaling the number of workers, cores that were

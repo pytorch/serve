@@ -38,6 +38,13 @@ class Common:
                 os.system(
                     f"{sys.executable} -m pip install -U -r requirements/torch_{cuda_version}_{platform.system().lower()}.txt"
                 )
+        elif args.neuronx:
+            torch_neuronx_requirements_file = os.path.join(
+                "requirements", "torch_neuronx_linux.txt"
+            )
+            os.system(
+                f"{sys.executable} -m pip install -U -r {torch_neuronx_requirements_file}"
+            )
         else:
             os.system(
                 f"{sys.executable} -m pip install -U -r requirements/torch_{platform.system().lower()}.txt"
@@ -50,17 +57,28 @@ class Common:
             # as it may reinstall the packages with different versions
             os.system("conda install -y conda-build")
 
-        self.install_torch_packages(cuda_version)
+        # Install PyTorch packages
+        if nightly:
+            os.system(
+                f"pip3 install numpy --pre torch torchvision torchtext torchaudio --force-reinstall --extra-index-url https://download.pytorch.org/whl/nightly/{cuda_version}"
+            )
+        else:
+            self.install_torch_packages(cuda_version)
+
         os.system(f"{sys.executable} -m pip install -U pip setuptools")
         # developer.txt also installs packages from common.txt
         os.system(f"{sys.executable} -m pip install -U -r {requirements_file_path}")
-        # If conda is available install conda-build package
 
-        # TODO: This will run 2 installations for torch but to make this cleaner we should first refactor all of our requirements.txt into just 2 files
-        # And then make torch an optional dependency for the common.txt
-        if nightly:
+        # Install dependencies for GPU
+        if not isinstance(cuda_version, type(None)):
+            gpu_requirements_file = os.path.join("requirements", "common_gpu.txt")
+            os.system(f"{sys.executable} -m pip install -U -r {gpu_requirements_file}")
+
+        # Install dependencies for Inferentia2
+        if args.neuronx:
+            neuronx_requirements_file = os.path.join("requirements", "neuronx.txt")
             os.system(
-                f"pip3 install numpy --pre torch[dynamo] torchvision torchtext torchaudio --force-reinstall --extra-index-url https://download.pytorch.org/whl/nightly/{cuda_version}"
+                f"{sys.executable} -m pip install -U -r {neuronx_requirements_file}"
             )
 
     def install_node_packages(self):
@@ -101,14 +119,6 @@ class Linux(Common):
     def install_wget(self):
         if os.system("wget --version") != 0 or args.force:
             os.system(f"{self.sudo_cmd}apt-get install -y wget")
-
-    def install_libgit2(self):
-        os.system(
-            f"wget https://github.com/libgit2/libgit2/archive/refs/tags/v1.3.0.tar.gz -O libgit2-1.3.0.tar.gz"
-        )
-        os.system(f"tar xzf libgit2-1.3.0.tar.gz")
-        os.system(f"cd libgit2-1.3.0 && cmake . && make && sudo make install && cd ..")
-        os.system(f"rm -rf libgit2-1.3.0 && rm libgit2-1.3.0.tar.gz")
 
     def install_numactl(self):
         if os.system("numactl --show") != 0 or args.force:
@@ -169,15 +179,14 @@ def install_dependencies(cuda_version=None, nightly=False):
         system.install_wget()
         system.install_nodejs()
         system.install_node_packages()
-
-    if platform.system() == "Linux" and args.environment == "dev":
-        system.install_libgit2()
+        system.install_numactl()
 
     # Sequence of installation to be maintained
     system.install_java()
-    requirements_file_path = "requirements/" + (
-        "production.txt" if args.environment == "prod" else "developer.txt"
-    )
+
+    requirements_file = "common.txt" if args.environment == "prod" else "developer.txt"
+    requirements_file_path = os.path.join("requirements", requirements_file)
+
     system.install_python_packages(cuda_version, requirements_file_path, nightly)
 
 
@@ -197,6 +206,11 @@ if __name__ == "__main__":
         default=None,
         choices=["cu92", "cu101", "cu102", "cu111", "cu113", "cu116", "cu117", "cu118"],
         help="CUDA version for torch",
+    )
+    parser.add_argument(
+        "--neuronx",
+        action="store_true",
+        help="Install dependencies for inferentia2 support",
     )
     parser.add_argument(
         "--environment",

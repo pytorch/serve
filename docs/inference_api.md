@@ -1,4 +1,4 @@
-# Inference API
+# [Inference API](#inference-api)
 
 Inference API is listening on port 8080 and only accessible from localhost by default. To change the default setting, see [TorchServe Configuration](configuration.md).
 
@@ -41,6 +41,11 @@ If the server is running, the response is:
 }
 ```
 
+"maxRetryTimeoutInSec" (default: 5MIN) can be defined in a model's config yaml file(e.g model-config.yaml). It is the maximum time window of recovering a dead backend worker. A healthy worker can be in the state: WORKER_STARTED, WORKER_MODEL_LOADED, or WORKER_STOPPED within maxRetryTimeoutInSec window. "Ping" endpoint"
+* return 200 + json message "healthy": for any model, the number of active workers is equal or larger than the configured minWorkers.
+* return 500 + json message "unhealthy": for any model, the number of active workers is less than the configured minWorkers.
+
+
 ## Predictions API
 
 This API follows the [InferenceAPIsService.Predictions](https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/proto/inference.proto) gRPC API. It returns the status of a model in the ModelServer.
@@ -75,7 +80,7 @@ To get predictions from a specific version of each loaded model, make a REST cal
 
 * POST /predictions/{model_name}/{version}
 
-## curl Example
+### curl Example
 
 ```bash
 curl -O https://raw.githubusercontent.com/pytorch/serve/master/docs/images/kitten_small.jpg
@@ -94,6 +99,34 @@ The result is JSON that tells you that the image is most likely a tabby cat. The
     "class": "n02123045 tabby, tabby cat",
     "probability": 0.42514491081237793
 }
+```
+* Streaming response via HTTP 1.1 chunked encoding
+TorchServe the inference API support streaming response to allow a sequence of inference responses to be sent over HTTP 1.1 chunked encoding. This new feature is only recommended for use case when the inference latency of the full response is high and the inference intermediate results are sent to client. An example could be LLMs for generative applications, where generating "n" number of tokens can have high latency, in this case user can receive each generated token once ready until the full response completes. To achieve streaming response, backend handler calls "send_intermediate_predict_response" to send one intermediate result to frontend, and return the last result as the existing style. For example,
+```
+from ts.protocol.otf_message_handler import send_intermediate_predict_response
+def handle(data, context):
+    if type(data) is list:
+        for i in range (3):
+            send_intermediate_predict_response(["intermediate_response"], context.request_ids, "Intermediate Prediction success", 200, context)
+        return ["hello world "]
+```
+Client side receives the chunked data.
+```
+def test_echo_stream_inference():
+    test_utils.start_torchserve(no_config_snapshots=True, gen_mar=False)
+    test_utils.register_model('echo_stream',
+                              'https://torchserve.pytorch.org/mar_files/echo_stream.mar')
+
+    response = requests.post(TF_INFERENCE_API + '/predictions/echo_stream', data="foo", stream=True)
+    assert response.headers['Transfer-Encoding'] == 'chunked'
+
+    prediction = []
+    for chunk in (response.iter_content(chunk_size=None)):
+        if chunk:
+            prediction.append(chunk.decode("utf-8"))
+
+    assert str(" ".join(prediction)) == "hello hello hello hello world "
+    test_utils.unregister_model('echo_stream')
 ```
 ## Explanations API
 
@@ -181,10 +214,9 @@ The result is a json that gives you the explanations for the input json
           0.007599905146155397,
           ,
           ,
-	        ,           
+	        ,
         ]
       ]
     ]
   ]
 }
-
