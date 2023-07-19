@@ -12,7 +12,7 @@ In addition to this default behavior, TorchServe provides the flexibility for us
 
 Using Pippy integration as an example, the image below illustrates the internals of the TorchServe large model inference.
 
-![ts-lmi-internal](images/ts-lmi-internal.png)
+![ts-lmi-internal](https://raw.githubusercontent.com/pytorch/serve/master/docs/images/ts-lmi-internal.png)
 
 ## PiPPy (PyTorch Native solution for large model inference)
 
@@ -186,7 +186,7 @@ torch-model-archiver --model-name bloom --version 1.0 --handler deepspeed_handle
 #### Tune "[responseTimeout](https://github.com/pytorch/serve/blob/5ee02e4f050c9b349025d87405b246e970ee710b/docs/configuration.md?plain=1#L216)" (see [model config YAML file](https://github.com/pytorch/serve/blob/5ee02e4f050c9b349025d87405b246e970ee710b/model-archiver/README.md?plain=1#L164)) if high model loading or inference latency causes response timeout.
 
 #### Tune torchrun parameters
-User is able to tune torchrun parameters in [model config YAML file](https://github.com/pytorch/serve/blob/2f1f52f553e83703b5c380c2570a36708ee5cafa/model-archiver/README.md?plain=1#L179). The supported parameters are defined at [here](https://github.com/pytorch/serve/blob/2f1f52f553e83703b5c380c2570a36708ee5cafa/frontend/archive/src/main/java/org/pytorch/serve/archive/model/ModelConfig.java#L329). For example, by default, `OMP_NUMNER_T?HREADS` is 1. It can be modified in the YAML file.
+User is able to tune torchrun parameters in [model config YAML file](https://github.com/pytorch/serve/blob/2f1f52f553e83703b5c380c2570a36708ee5cafa/model-archiver/README.md?plain=1#L179). The supported parameters are defined at [here](https://github.com/pytorch/serve/blob/2f1f52f553e83703b5c380c2570a36708ee5cafa/frontend/archive/src/main/java/org/pytorch/serve/archive/model/ModelConfig.java#L329). For example, by default, `OMP_NUMBER_THREADS` is 1. It can be modified in the YAML file.
 ```yaml
 #frontend settings
 torchrun:
@@ -194,3 +194,14 @@ torchrun:
                       # gpus you wish to split your model
     OMP_NUMBER_THREADS: 2
 ```
+#### Feature Job ticket is recommended for the use case of inference latency sensitive
+When the job ticket feature is enabled, TorchServe verifies the availability of a model's active worker for processing a client's request. If an active worker is available, the request is accepted and processed immediately without waiting time incurred from job queue or dynamic batching; otherwise, a 503 response is sent back to client.
+
+This feature help with use cases where inference latency can be high, such as generative models, auto regressive decoder models like chatGPT. This feature help such applications to take effective actions, for example, routing the rejected request to a different server, or scaling up model server capacity, based on the business requirements. Here is an example of enabling job ticket.
+```yaml
+minWorkers: 2
+maxWorkers: 2
+jobQueueSize: 2
+useJobTicket: true
+```
+In this example, a model has 2 workers with job queue size 2. An inference request will be either processed by TorchServe immediately, or rejected with response code 503.

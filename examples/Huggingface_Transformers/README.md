@@ -1,6 +1,6 @@
 ## Serving Huggingface Transformers using TorchServe
 
-In this example, we show how to serve a fine tuned or off the shelf Transformer model from [huggingface](https://huggingface.co/transformers/index.html) using TorchServe.
+In this example, we show how to serve a fine tuned or off the shelf Transformer model from [huggingface](https://huggingface.co/docs/transformers/index) using TorchServe.
 
 We use a custom handler, [Transformer_handler.py](https://github.com/pytorch/serve/blob/master/examples/Huggingface_Transformers/Transformer_handler_generalized.py).
 

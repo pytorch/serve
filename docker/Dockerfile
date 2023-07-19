@@ -85,7 +85,7 @@ RUN \
 RUN python -m pip install --no-cache-dir torchserve torch-model-archiver torch-workflow-archiver
 
 # Final image for production
-FROM ${BASE_IMAGE} AS runtime-image
+FROM ${BASE_IMAGE} AS production-image
 # Re-state ARG PYTHON_VERSION to make it active in this build-stage (uses default define at the top)
 ARG PYTHON_VERSION
 ENV PYTHONUNBUFFERED TRUE
@@ -130,3 +130,48 @@ WORKDIR /home/model-server
 ENV TEMP=/home/model-server/tmp
 ENTRYPOINT ["/usr/local/bin/dockerd-entrypoint.sh"]
 CMD ["serve"]
+
+# Final image for docker regression
+FROM ${BASE_IMAGE} AS ci-image
+# Re-state ARG PYTHON_VERSION to make it active in this build-stage (uses default define at the top)
+ARG PYTHON_VERSION
+ARG BRANCH_NAME
+ENV PYTHONUNBUFFERED TRUE
+
+RUN --mount=type=cache,target=/var/cache/apt \
+    apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install software-properties-common -y && \
+    add-apt-repository -y ppa:deadsnakes/ppa && \
+    apt remove python-pip  python3-pip && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
+    python$PYTHON_VERSION \
+    python3-distutils \
+    python$PYTHON_VERSION-dev \
+    python$PYTHON_VERSION-venv \
+    # using openjdk-17-jdk due to circular dependency(ca-certificates) bug in openjdk-17-jre-headless debian package
+    # https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1009905
+    openjdk-17-jdk \
+    build-essential \
+    wget \
+    numactl \
+    nodejs \
+    npm \
+    zip \
+    unzip \
+    && npm install -g newman newman-reporter-htmlextra markdown-link-check \
+    && rm -rf /var/lib/apt/lists/* \
+    && cd /tmp
+
+
+COPY --from=compile-image /home/venv /home/venv
+
+ENV PATH="/home/venv/bin:$PATH"
+
+RUN python -m pip install --no-cache-dir -r https://raw.githubusercontent.com/pytorch/serve/$BRANCH_NAME/requirements/developer.txt
+
+RUN mkdir /home/serve
+ENV TS_RUN_IN_DOCKER True
+
+WORKDIR /home/serve
+CMD ["python", "test/regression_tests.py"]
