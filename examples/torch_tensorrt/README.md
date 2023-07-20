@@ -17,7 +17,7 @@ We use `float16` precision
 TorchServe's base handler supports loading Torch TensorRT model with `.pt` extension. Hence, the model is saved with `.pt` extension.
 
 ```
-python examples/torch_tensorrt/resnet_tensorrt.py 
+python examples/torch_tensorrt/resnet_tensorrt.py
 ```
 
 ### Create model archive
