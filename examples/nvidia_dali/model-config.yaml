@@ -12,11 +12,3 @@ dali:
     device_id: 0
     seed: 12
     pipeline_filename: "model.dali"
-
-handler:
-    model_path: "/home/ubuntu/serve/examples/large_models/Huggingface_pippy/model/models--facebook--opt-30b/snapshots/ceea0a90ac0f6fae7c2c34bcb40477438c152546"
-    index_filename: 'pytorch_model.bin.index.json'
-    max_length: 50
-    max_new_tokens: 60
-    manual_seed: 40
-    dtype: fp16

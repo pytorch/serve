@@ -3,12 +3,11 @@
 """
 Base module for all vision handlers
 """
-import json
 import os
 
 import numpy as np
+import torch
 from nvidia.dali.pipeline import Pipeline
-from nvidia.dali.plugin.pytorch import DALIGenericIterator, LastBatchPolicy
 
 from ts.torch_handler.image_classifier import ImageClassifier
 
@@ -26,23 +25,29 @@ class DALIHandler(ImageClassifier):
         properties = context.system_properties
         self.model_dir = properties.get("model_dir")
 
-        self.dali_file = [
-            file for file in os.listdir(self.model_dir) if file.endswith(".dali")
-        ]
-        if not len(self.dali_file):
-            raise RuntimeError("Missing dali pipeline file.")
-        self.PREFETCH_QUEUE_DEPTH = 2
-        dali_config_file = os.path.join(self.model_dir, "dali_config.json")
-        if not os.path.isfile(dali_config_file):
-            raise RuntimeError("Missing dali_config.json file.")
-        with open(dali_config_file) as setup_config_file:
-            self.dali_configs = json.load(setup_config_file)
-        filename = os.path.join(self.model_dir, self.dali_file[0])
-        self.pipe = Pipeline.deserialize(filename=filename)
-        # pylint: disable=protected-access
-        self.pipe._max_batch_size = self.dali_configs["batch_size"]
-        self.pipe._num_threads = self.dali_configs["num_threads"]
-        self.pipe._device_id = self.dali_configs["device_id"]
+        if "dali" in context.model_yaml_config:
+            self.batch_size = context.model_yaml_config["dali"]["batch_size"]
+            self.num_threads = context.model_yaml_config["dali"]["num_threads"]
+            self.device_id = context.model_yaml_config["dali"]["device_id"]
+            if "pipeline_file" in context.model_yaml_config["dali"]:
+                pipeline_filename = context.model_yaml_config["dali"]["pipeline_file"]
+                pipeline_filepath = os.path.join(self.model_dir, pipeline_filename)
+            else:
+                raise RuntimeError("Missing dali pipeline file.")
+            if not os.path.exists(pipeline_filepath):
+                raise RuntimeError("Dali pipeline file not found!")
+            self.pipeline = Pipeline.deserialize(
+                filename=pipeline_filepath,
+                batch_size=self.batch_size,
+                num_threads=self.num_threads,
+                prefetch_queue_depth=1,
+                device_id=self.device_id,
+                seed=self.seed,
+            )
+            # pylint: disable=protected-access
+            self.pipeline._max_batch_size = self.batch_size
+            self.pipeline._num_threads = self.num_threads
+            self.pipeline._device_id = self.device_id
 
     def preprocess(self, data):
         """The preprocess function of MNIST program converts the input data to a float tensor
@@ -54,24 +59,16 @@ class DALIHandler(ImageClassifier):
             list : The preprocess function returns the input image as a list of float tensors.
         """
         batch_tensor = []
+        result = []
 
         input_byte_arrays = [i["body"] if "body" in i else i["data"] for i in data]
         for byte_array in input_byte_arrays:
             np_image = np.frombuffer(byte_array, dtype=np.uint8)
             batch_tensor.append(np_image)  # we can use numpy
 
-        for _ in range(self.PREFETCH_QUEUE_DEPTH):
-            self.pipe.feed_input("my_source", batch_tensor)
+        response = self.pipe.run(source=batch_tensor)
+        for idx, _ in enumerate(response[0]):
+            data = torch.tensor(response[0].at(idx))
+            result.append(data.unsqueeze(0))
 
-        datam = DALIGenericIterator(
-            [self.pipe],
-            ["data"],
-            last_batch_policy=LastBatchPolicy.PARTIAL,
-            last_batch_padded=True,
-        )
-        result = []
-        for _, data in enumerate(datam):
-            result.append(data[0]["data"])
-            break
-
-        return result[0].to(self.device)
+        return torch.cat(result).to(self.device)

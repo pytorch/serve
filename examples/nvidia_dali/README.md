@@ -21,7 +21,7 @@ Refer to [NVIDIA-DALI](https://github.com/NVIDIA/DALI) for more details on DALI 
 
 Navigate to `cd ./serve/examples/nvidia_dali`.
 
-Change the `dali_config.json` variables
+Change the `model-config.yaml` variables
 
 `batch_size` - Maximum batch size of pipeline.
 
@@ -29,10 +29,12 @@ Change the `dali_config.json` variables
 
 `device_id` - ID of GPU device used by pipeline.
 
+`pipeline_filename` - Pipeline filename
+
 Run the python file which serializes the Dali Pipeline and saves it to `model.dali`
 
 ```bash
-python serialize_dali_pipeline.py --config dali_config.json
+python serialize_dali_pipeline.py --config model-config.yaml
 ```
 
 **__Note__**:
@@ -48,10 +50,10 @@ wget https://download.pytorch.org/models/resnet18-f37072fd.pth
 
 ### Create model-archive file
 
-The following command will create a .mar extension file where we also include the `model.dali` file and `dali_config.json` file in it.
+The following command will create a .mar extension file where we also include the `model.dali` file in it.
 
 ```bash
-torch-model-archiver --model-name resnet-18 --version 1.0 --model-file ../image_classifier/resnet_18/model.py --serialized-file resnet18-f37072fd.pth --handler custom_handler.py --extra-files ../image_classifier/index_to_name.json,./model.dali,./dali_config.json
+torch-model-archiver --model-name resnet-18 --version 1.0 --model-file ../image_classifier/resnet_18/model.py --serialized-file resnet18-f37072fd.pth --handler custom_handler.py --extra-files ../image_classifier/index_to_name.json,./model.dali --config-file model-config.yaml
 ```
 
 Navigate to `serve` directory and run the below commands
