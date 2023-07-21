@@ -63,8 +63,8 @@ handler:
 
 Navigate up to `largemodels` directory. Here as bundling the large model checkpoints is very time consuming, we are passing model checkpoint path in the model_config.yaml as shown above. This let us make the packaging very fast, for production settings, the large models can be put in some shared location and used from there in the model-config.
 
+```bash
 torch-model-archiver --model-name opt --version 1.0 --handler pippy_handler.py  -r requirements.txt --config-file model-config.yaml --archive-format tgz
-
 ```
 
 ### Step 4: Add the mar file to model store
