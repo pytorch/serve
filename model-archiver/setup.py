@@ -71,9 +71,10 @@ if __name__ == "__main__":
         description="Torch Model Archiver is used for creating archives of trained neural net models "
         "that can be consumed by TorchServe inference",
         long_description=pypi_description(),
+        long_description_content_type="text/x-rst",
         author="PyTorch Serving team",
         author_email="noreply@noreply.com",
-        url="https://github.com/pytorch/serve/model-archiver/",
+        url="https://github.com/pytorch/serve/blob/master/model-archiver",
         keywords="TorchServe Torch Model Archive Archiver Server Serving Deep Learning Inference AI",
         packages=pkgs,
         install_requires=requirements,

@@ -1,18 +1,7 @@
 import subprocess
 
-import pytest
 import torch
-
-try:
-    import onnx
-    import torch.onnx
-
-    print(
-        onnx.__version__
-    )  # Adding this so onnx import doesn't get removed by pre-commit
-    ONNX_ENABLED = True
-except:
-    ONNX_ENABLED = False
+import torch.onnx
 
 
 class ToyModel(torch.nn.Module):
@@ -28,7 +17,6 @@ class ToyModel(torch.nn.Module):
 
 
 # For a custom model you still need to manually author your converter, as far as I can tell there isn't a nice out of the box that exists
-@pytest.mark.skipif(ONNX_ENABLED == False, reason="ONNX is not installed")
 def test_convert_to_onnx():
     model = ToyModel()
     dummy_input = torch.randn(1, 1)
@@ -55,7 +43,6 @@ def test_convert_to_onnx():
     )
 
 
-@pytest.mark.skipif(ONNX_ENABLED == False, reason="ONNX is not installed")
 def test_model_packaging_and_start():
     subprocess.run("mkdir model_store", shell=True)
     subprocess.run(
@@ -65,7 +52,6 @@ def test_model_packaging_and_start():
     )
 
 
-@pytest.mark.skipif(ONNX_ENABLED == False, reason="ONNX is not installed")
 def test_model_start():
     subprocess.run(
         "torchserve --start --ncs --model-store model_store --models onnx.mar",
@@ -74,7 +60,6 @@ def test_model_start():
     )
 
 
-@pytest.mark.skipif(ONNX_ENABLED == False, reason="ONNX is not installed")
 def test_inference():
     subprocess.run(
         "curl -X POST http://127.0.0.1:8080/predictions/onnx --data-binary '1'",
@@ -82,6 +67,5 @@ def test_inference():
     )
 
 
-@pytest.mark.skipif(ONNX_ENABLED == False, reason="ONNX is not installed")
 def test_stop():
     subprocess.run("torchserve --stop", shell=True, check=True)

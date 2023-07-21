@@ -285,6 +285,10 @@ def test_kserve_mnist_model_register_and_inference_on_valid_model_explain():
     test_utils.unregister_model("mnist")
 
 
+@pytest.mark.skipif(
+    os.environ.get("TS_RUN_IN_DOCKER", False),
+    reason="Test to be run outside docker",
+)
 def test_huggingface_bert_batch_inference():
     batch_size = 2
     batch_delay = 10000  # 10 seconds
