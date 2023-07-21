@@ -328,7 +328,8 @@ class BaseHandler(abc.ABC):
         if is_profiler_enabled:
             if PROFILER_AVAILABLE:
                 if self.manifest is None:
-                    self.manifest = context.manifest  # profiler will use to get the model name
+                    # profiler will use to get the model name
+                    self.manifest = context.manifest
                 output, _ = self._infer_with_profiler(data=data)
             else:
                 raise RuntimeError(
