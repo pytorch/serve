@@ -1,0 +1,12 @@
+minWorkers: 1
+maxWorkers: 1
+maxBatchDelay: 100
+responseTimeout: 900
+
+handler:
+    max_length: 50
+    manual_seed: 40
+    batch_size: 2
+    tp_degree: 2
+    amp: f16
+    model_name: facebook/opt-6.7b

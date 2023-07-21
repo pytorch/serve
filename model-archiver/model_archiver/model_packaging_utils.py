@@ -11,6 +11,7 @@ import tarfile
 import tempfile
 import zipfile
 from io import BytesIO
+from pathlib import Path
 
 from .manifest_components.manifest import Manifest
 from .manifest_components.model import Model
@@ -164,6 +165,10 @@ class ModelExportUtils(object):
 
                 if file_type == "extra_files":
                     for path_or_wildcard in path.split(","):
+                        if not Path(path_or_wildcard).exists():
+                            raise FileNotFoundError(
+                                f"File does not exist: {path_or_wildcard}"
+                            )
                         for file in glob.glob(path_or_wildcard.strip()):
                             if os.path.isfile(file):
                                 shutil.copy2(file, model_path)

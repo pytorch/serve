@@ -3,7 +3,7 @@ from abc import ABC
 
 import torch
 import transformers
-from transformers import AutoModelForCausalLM, AutoTokenizer
+from transformers import AutoConfig, AutoModelForCausalLM, AutoTokenizer
 
 from ts.context import Context
 from ts.handler_utils.distributed.deepspeed import get_ds_engine
@@ -21,6 +21,7 @@ class TransformersSeqClassifierHandler(BaseDeepSpeedHandler, ABC):
     def __init__(self):
         super(TransformersSeqClassifierHandler, self).__init__()
         self.max_length = None
+        self.max_new_tokens = None
         self.tokenizer = None
         self.initialized = False
 
@@ -34,8 +35,22 @@ class TransformersSeqClassifierHandler(BaseDeepSpeedHandler, ABC):
         super().initialize(ctx)
         model_dir = ctx.system_properties.get("model_dir")
         self.max_length = int(ctx.model_yaml_config["handler"]["max_length"])
-        self.model = AutoModelForCausalLM.from_pretrained(model_dir, use_cache=False)
-        self.tokenizer = AutoTokenizer.from_pretrained(model_dir, return_tensors="pt")
+        self.max_new_tokens = int(ctx.model_yaml_config["handler"]["max_new_tokens"])
+        model_name = ctx.model_yaml_config["handler"]["model_name"]
+        model_path = ctx.model_yaml_config["handler"]["model_path"]
+        seed = int(ctx.model_yaml_config["handler"]["manual_seed"])
+        torch.manual_seed(seed)
+
+        logger.info("Model %s loading tokenizer", ctx.model_name)
+
+        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
+        self.tokenizer.pad_token = self.tokenizer.eos_token
+        config = AutoConfig.from_pretrained(model_name)
+        with torch.device("meta"):
+            self.model = AutoModelForCausalLM.from_config(
+                config, torch_dtype=torch.float16
+            )
+        self.model = self.model.eval()
 
         ds_engine = get_ds_engine(self.model, ctx)
         self.model = ds_engine.module
@@ -76,9 +91,10 @@ class TransformersSeqClassifierHandler(BaseDeepSpeedHandler, ABC):
         inputs = self.tokenizer.encode_plus(
             input_text,
             max_length=self.max_length,
-            pad_to_max_length=True,
+            padding=True,
             add_special_tokens=True,
             return_tensors="pt",
+            truncation=True,
         )
         input_ids = inputs["input_ids"]
         attention_mask = inputs["attention_mask"]
@@ -99,14 +115,13 @@ class TransformersSeqClassifierHandler(BaseDeepSpeedHandler, ABC):
         outputs = self.model.generate(
             input_ids_batch,
             attention_mask=attention_mask_batch,
-            max_length=self.max_length,
+            max_length=self.max_new_tokens,
         )
 
-        inferences = [
-            self.tokenizer.batch_decode(
-                outputs, skip_special_tokens=True, clean_up_tokenization_spaces=False
-            )
-        ]
+        inferences = self.tokenizer.batch_decode(
+            outputs, skip_special_tokens=True, clean_up_tokenization_spaces=False
+        )
+
         logger.info("Generated text: %s", inferences)
         return inferences
 

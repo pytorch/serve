@@ -5,9 +5,10 @@ import os
 import subprocess
 import sys
 import tempfile
-import time
+import threading
 from os import path
 from pathlib import Path
+from subprocess import PIPE, STDOUT, Popen
 
 import requests
 
@@ -19,6 +20,16 @@ from ts_scripts import marsgen as mg
 ROOT_DIR = os.path.join(tempfile.gettempdir(), "workspace")
 MODEL_STORE = path.join(ROOT_DIR, "model_store/")
 CODEBUILD_WD = path.abspath(path.join(__file__, "../../.."))
+
+
+class PrintPipeTillTheEnd(threading.Thread):
+    def __init__(self, pipe):
+        super().__init__()
+        self.pipe = pipe
+
+    def run(self):
+        for line in self.pipe.stdout:
+            print(line.decode("utf-8").strip())
 
 
 def start_torchserve(
@@ -36,13 +47,18 @@ def start_torchserve(
     if no_config_snapshots:
         cmd.extend(["--no-config-snapshots"])
     print(cmd)
-    subprocess.run(cmd)
-    time.sleep(10)
+
+    p = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=STDOUT)
+    for line in p.stdout:
+        print(line.decode("utf8").strip())
+        if "Model server started" in str(line).strip():
+            break
+    print_thread = PrintPipeTillTheEnd(p)
+    print_thread.start()
 
 
 def stop_torchserve():
-    subprocess.run(["torchserve", "--stop"])
-    time.sleep(10)
+    subprocess.run(["torchserve", "--stop", "--foreground"])
 
 
 def delete_all_snapshots():

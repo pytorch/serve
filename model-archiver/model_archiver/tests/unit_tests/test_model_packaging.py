@@ -1,12 +1,6 @@
-import sys
 from collections import namedtuple
 
 import pytest
-from mock import MagicMock
-
-sys.modules["shutil"] = MagicMock()
-sys.modules["shutil.rmtree"] = MagicMock()
-
 from model_archiver.manifest_components.manifest import RuntimeType
 from model_archiver.model_packaging import generate_model_archive, package_model
 from model_archiver.model_packaging_utils import ModelExportUtils
@@ -56,6 +50,7 @@ class TestModelPackaging:
             mocker.patch("model_archiver.model_packaging.ModelExportUtils"),
             mocker.patch("model_archiver.model_packaging.package_model"),
         )
+        mocker.patch("shutil.rmtree")
 
         return patches
 
