@@ -1,4 +1,6 @@
 cache:
-  host: localhost
-  port: 6379
-  db: 0
+  module: redis
+  config:
+    host: localhost
+    port: 6379
+    db: 0

@@ -77,8 +77,6 @@ except ImportError as error:
     ONNX_AVAILABLE = False
 
 
-from ts.handler_utils.cache.utils import cache
-
 # def Cache(func):
 #    global func1
 #    func1 = func
@@ -331,7 +329,6 @@ class BaseHandler(abc.ABC):
 
         return data.tolist()
 
-    @cache
     def handle(self, data, context):
         """Entry point for default handler. It takes the data from the input request and returns
            the predicted outcome for the input.
