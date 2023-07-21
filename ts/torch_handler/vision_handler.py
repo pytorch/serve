@@ -8,6 +8,7 @@ import io
 from abc import ABC
 
 import torch
+from torchvision import transforms
 from captum.attr import IntegratedGradients
 from PIL import Image
 
@@ -49,14 +50,21 @@ class VisionHandler(BaseHandler, ABC):
             # If the image is sent as bytesarray
             if isinstance(image, (bytearray, bytes)):
                 image = Image.open(io.BytesIO(image))
-                image = self.image_processing(image)
+                image = transforms.ToTensor()(image)
             else:
                 # if the image is a list
                 image = torch.FloatTensor(image)
 
             images.append(image)
+        
+        images = torch.stack(images).to(self.device)
 
-        return torch.stack(images).to(self.device)
+        # pre-process images
+        with torch.no_grad():
+           images = self.image_processing(images)
+
+
+        return images
 
     def get_insights(self, tensor_data, _, target=0):
         print("input shape", tensor_data.shape)
