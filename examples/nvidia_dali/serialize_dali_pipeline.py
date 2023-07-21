@@ -1,8 +1,8 @@
-import json
 import os
 
 import nvidia.dali as dali
 import nvidia.dali.types as types
+import yaml
 
 
 def parse_args():
@@ -10,7 +10,7 @@ def parse_args():
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--save", default="./model.dali")
-    parser.add_argument("--config", default="dali_config.json")
+    parser.add_argument("--config", default="model-config.yaml")
     return parser.parse_args()
 
 
@@ -38,8 +38,9 @@ def pipe():
 
 
 def main(filename):
-    with open(args.config) as fp:
-        config = json.load(fp)
+    config = {}
+    with open(args.config, "r") as file:
+        config = yaml.safe_load(file)
     batch_size = config["batch_size"]
     num_threads = config["num_threads"]
     device_id = config["device_id"]
