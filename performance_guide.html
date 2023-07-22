@@ -428,6 +428,7 @@ You can find more information on TorchServe benchmarking <a class="reference ext
 <section id="profiling">
 <h2>Profiling<a class="headerlink" href="#profiling" title="Permalink to this heading">¶</a></h2>
 <p>TorchServe has native support for the PyTorch profiler which will help you find performance bottlenecks in your code.</p>
+<p>If you created a custom <code class="docutils literal notranslate"><span class="pre">handle</span></code> or <code class="docutils literal notranslate"><span class="pre">initialize</span></code> method overwriting the BaseHandler, you must define the <code class="docutils literal notranslate"><span class="pre">self.manifest</span></code> attribute to be able to run <code class="docutils literal notranslate"><span class="pre">_infer_with_profiler</span></code>.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">export</span> <span class="n">ENABLE_TORCH_PROFILER</span><span class="o">=</span><span class="n">TRUE</span>
 </pre></div>
 </div>
