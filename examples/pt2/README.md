@@ -9,7 +9,7 @@ We strongly recommend you leverage newer hardware so for GPUs that would be an A
 Install torchserve and ensure that you're using at least `torch>=2.0.0`
 
 ```sh
-python ts_scripts/install_dependencies.py --cuda=cu117
+python ts_scripts/install_dependencies.py --cuda=cu118
 pip install torchserve torch-model-archiver
 ```
 
