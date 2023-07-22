@@ -180,5 +180,4 @@ RUN mkdir /home/serve
 ENV TS_RUN_IN_DOCKER True
 
 WORKDIR /home/serve
-#CMD ["python", "test/regression_tests.py"]
-CMD ["/bin/bash"]
+CMD ["python", "test/regression_tests.py"]
