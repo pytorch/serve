@@ -16,6 +16,10 @@ public class BaseModelRequest {
         return command;
     }
 
+    public void setCommand(WorkerCommands workerCommands) {
+        this.command = workerCommands;
+    }
+
     public String getModelName() {
         return modelName;
     }

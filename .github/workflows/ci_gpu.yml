@@ -38,12 +38,15 @@ jobs:
         uses: actions/checkout@v3
       - name: Install dependencies
         run: |
-          python ts_scripts/install_dependencies.py --environment=dev --cuda=cu102
+          python ts_scripts/install_dependencies.py --environment=dev --cuda=cu117
       - name: Torchserve Sanity
-        run: python torchserve_sanity.py
-      - name: mvn install
-        run: |
-            cd serving-sdk/ && ./mvnw clean install -q && cd ../
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 60
+          retry_on: error
+          max_attempts: 3
+          command: |
+            python torchserve_sanity.py
 
       # Any coverage.xml will be picked up by this step
       # Just make sure each coverage.xml is in a different folder

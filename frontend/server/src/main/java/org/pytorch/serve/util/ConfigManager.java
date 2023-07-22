@@ -66,6 +66,8 @@ public final class ConfigManager {
     private static final String TS_JOB_QUEUE_SIZE = "job_queue_size";
     private static final String TS_NUMBER_OF_GPU = "number_of_gpu";
     private static final String TS_METRICS_CONFIG = "metrics_config";
+    private static final String TS_METRICS_MODE = "metrics_mode";
+    private static final String TS_DISABLE_SYSTEM_METRICS = "disable_system_metrics";
 
     // IPEX config option that can be set at config.properties
     private static final String TS_IPEX_ENABLE = "ipex_enable";
@@ -92,12 +94,12 @@ public final class ConfigManager {
     private static final String TS_PREFER_DIRECT_BUFFER = "prefer_direct_buffer";
     private static final String TS_ALLOWED_URLS = "allowed_urls";
     private static final String TS_INSTALL_PY_DEP_PER_MODEL = "install_py_dep_per_model";
-    private static final String TS_METRICS_FORMAT = "metrics_format";
     private static final String TS_ENABLE_METRICS_API = "enable_metrics_api";
     private static final String TS_GRPC_INFERENCE_PORT = "grpc_inference_port";
     private static final String TS_GRPC_MANAGEMENT_PORT = "grpc_management_port";
     private static final String TS_ENABLE_GRPC_SSL = "enable_grpc_ssl";
     private static final String TS_INITIAL_WORKER_PORT = "initial_worker_port";
+    private static final String TS_INITIAL_DISTRIBUTION_PORT = "initial_distribution_port";
     private static final String TS_WORKFLOW_STORE = "workflow_store";
 
     // Configuration which are not documented or enabled through environment variables
@@ -133,6 +135,7 @@ public final class ConfigManager {
     private static ConfigManager instance;
     private String hostName;
     private Map<String, Map<String, JsonObject>> modelConfig = new HashMap<>();
+    private String torchrunLogDir;
 
     private ConfigManager(Arguments args) throws IOException {
         prop = new Properties();
@@ -333,10 +336,6 @@ public final class ConfigManager {
         return Boolean.parseBoolean(getProperty(TS_INSTALL_PY_DEP_PER_MODEL, "false"));
     }
 
-    public String getMetricsFormat() {
-        return getProperty(TS_METRICS_FORMAT, METRIC_FORMAT_PROMETHEUS);
-    }
-
     public boolean isMetricApiEnable() {
         return Boolean.parseBoolean(getProperty(TS_ENABLE_METRICS_API, "true"));
     }
@@ -371,6 +370,25 @@ public final class ConfigManager {
             path = getModelServerHome() + "/ts/configs/metrics.yaml";
         }
         return path;
+    }
+
+    public String getTorchRunLogDir() {
+        if (torchrunLogDir == null) {
+            torchrunLogDir =
+                    Paths.get(
+                                    getCanonicalPath(System.getProperty("LOG_LOCATION")),
+                                    "torchelastic_ts")
+                            .toString();
+        }
+        return torchrunLogDir;
+    }
+
+    public String getMetricsMode() {
+        return getProperty(TS_METRICS_MODE, "log");
+    }
+
+    public boolean isSystemMetricsDisabled() {
+        return Boolean.parseBoolean(getProperty(TS_DISABLE_SYSTEM_METRICS, "false"));
     }
 
     public String getTsDefaultServiceHandler() {
@@ -638,10 +656,12 @@ public final class ConfigManager {
                 + getAllowedUrls()
                 + "\nCustom python dependency for model allowed: "
                 + prop.getProperty(TS_INSTALL_PY_DEP_PER_MODEL, "false")
-                + "\nMetrics report format: "
-                + prop.getProperty(TS_METRICS_FORMAT, METRIC_FORMAT_PROMETHEUS)
                 + "\nEnable metrics API: "
                 + prop.getProperty(TS_ENABLE_METRICS_API, "true")
+                + "\nMetrics mode: "
+                + getMetricsMode()
+                + "\nDisable system metrics: "
+                + isSystemMetricsDisabled()
                 + "\nWorkflow Store: "
                 + (getWorkflowStore() == null ? "N/A" : getWorkflowStore())
                 + "\nModel config: "
@@ -801,6 +821,14 @@ public final class ConfigManager {
 
     public void setInitialWorkerPort(int initialPort) {
         prop.setProperty(TS_INITIAL_WORKER_PORT, String.valueOf(initialPort));
+    }
+
+    public int getInitialDistributionPort() {
+        return Integer.parseInt(prop.getProperty(TS_INITIAL_DISTRIBUTION_PORT, "29500"));
+    }
+
+    public void setInitialDistributionPort(int initialPort) {
+        prop.setProperty(TS_INITIAL_DISTRIBUTION_PORT, String.valueOf(initialPort));
     }
 
     private void setModelConfig() {

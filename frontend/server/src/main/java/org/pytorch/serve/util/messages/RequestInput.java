@@ -7,15 +7,18 @@ import java.util.List;
 import java.util.Map;
 
 public class RequestInput {
+    public static final String TS_STREAM_NEXT = "ts_stream_next";
 
     private String requestId;
     private Map<String, String> headers;
     private List<InputParameter> parameters;
+    private long clientExpireTS;
 
     public RequestInput(String requestId) {
         this.requestId = requestId;
         headers = new HashMap<>();
         parameters = new ArrayList<>();
+        clientExpireTS = Long.MAX_VALUE; // default(never expire): Long.MAX_VALUE
     }
 
     public String getRequestId() {
@@ -57,5 +60,15 @@ public class RequestInput {
             }
         }
         return null;
+    }
+
+    public long getClientExpireTS() {
+        return clientExpireTS;
+    }
+
+    public void setClientExpireTS(long clientTimeoutInMills) {
+        if (clientTimeoutInMills > 0) {
+            this.clientExpireTS = System.currentTimeMillis() + clientTimeoutInMills;
+        }
     }
 }

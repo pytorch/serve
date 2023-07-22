@@ -17,7 +17,6 @@ class ArgParser(object):
 
     @staticmethod
     def export_model_args_parser():
-
         """Argument parser for torch-model-export"""
 
         parser_export = argparse.ArgumentParser(
@@ -54,7 +53,7 @@ class ArgParser(object):
             help="Path to python file containing model architecture.\n"
             "This parameter is mandatory for eager mode models.\n"
             "The model architecture file must contain only one\n"
-            "class definition extended from torch.nn.modules.",
+            "class definition extended from torch.nn.Module.",
         )
 
         parser_export.add_argument(
@@ -100,7 +99,7 @@ class ArgParser(object):
             required=False,
             type=str,
             default="default",
-            choices=["tgz", "no-archive", "default"],
+            choices=["tgz", "no-archive", "zip-store", "default"],
             help="The format in which the model artifacts are archived.\n"
             '"tgz": This creates the model-archive in <model-name>.tar.gz format.\n'
             'If platform hosting TorchServe requires model-artifacts to be in ".tar.gz"\n'
@@ -109,6 +108,9 @@ class ArgParser(object):
             'at "export-path/{model-name}" location. As a result of this choice, \n'
             'MANIFEST file will be created at "export-path/{model-name}" location\n'
             "without archiving these model files\n"
+            '"zip-store": This creates the model-archive in <model-name>.mar format\n'
+            "but will skip deflating the files to speed up creation. Mainly used\n"
+            "for testing purposes\n"
             '"default": This creates the model-archive in <model-name>.mar format.\n'
             "This is the default archiving format. Models archived in this format\n"
             "will be readily hostable on native TorchServe.\n",
@@ -141,6 +143,15 @@ class ArgParser(object):
             default=None,
             help="Path to a requirements.txt containing model specific python dependency\n"
             " packages.",
+        )
+
+        parser_export.add_argument(
+            "-c",
+            "--config-file",
+            required=False,
+            type=str,
+            default=None,
+            help="Path to a yaml file containing model configuration eg. batch_size.",
         )
 
         return parser_export

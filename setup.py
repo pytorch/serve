@@ -1,6 +1,6 @@
 # To build and upload a new version, follow the steps below.
 # Notes:
-# - this is a "Universal Wheels" package that is pure Python and supports both Python2 and Python3
+# - this is a "Universal Wheels" package that is pure Python and supports Python3
 # - Twine is a secure PyPi upload package
 # - Make sure you have bumped the version! at ts/version.py
 # $ pip install twine
@@ -158,7 +158,7 @@ if __name__ == "__main__":
 
     print(f"-- {name} building version: {version}")
 
-    requirements = ["Pillow", "psutil", "future", "packaging", "wheel"]
+    requirements = ["Pillow", "psutil", "packaging", "wheel"]
 
     setup(
         name=name,
@@ -167,6 +167,7 @@ if __name__ == "__main__":
         author="PyTorch Serving team",
         author_email="noreply@noreply.com",
         long_description=pypi_description(),
+        long_description_content_type="text/x-rst",
         url="https://github.com/pytorch/serve.git",
         keywords="TorchServe PyTorch Serving Deep Learning Inference AI",
         packages=pkgs,
@@ -177,7 +178,7 @@ if __name__ == "__main__":
         },
         install_requires=requirements,
         extras_require={
-            "onnx": ["numpy", "onnx","onnx-runtime"],
+            "onnx": ["numpy", "onnx", "onnx-runtime"],
             "ipex": ["intel_extension_for_pytorch"],
         },
         entry_points={"console_scripts": ["torchserve=ts.model_server:start"]},

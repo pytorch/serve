@@ -59,7 +59,7 @@ gcloud container clusters create torchserve --machine-type n1-standard-4 --accel
 
 #### 1.3 Connect to the cluster
 
-To manage a Kubernetes cluster, you use [kubectl](https://kubernetes.io/docs/user-guide/kubectl/), the Kubernetes command-line client. If you use GKE Cloud Shell, `kubectl` is already installed. To install `kubectl` locally, use the [gcloud components install](https://kubernetes.io/docs/tasks/tools/install-kubectl/) command:
+To manage a Kubernetes cluster, you use [kubectl](https://kubernetes.io/docs/reference/kubectl/), the Kubernetes command-line client. If you use GKE Cloud Shell, `kubectl` is already installed. To install `kubectl` locally, use the [gcloud components install](https://kubernetes.io/docs/tasks/tools/install-kubectl/) command:
 
 Below command require Cloud SDK component manager enabled.
 

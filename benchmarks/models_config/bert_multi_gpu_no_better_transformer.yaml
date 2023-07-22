@@ -15,7 +15,7 @@ bert_no_bt:
             - 32
             - 64
         input: "./examples/Huggingface_Transformers/Seq_classification_artifacts/sample_text_captum_input.txt"
-        requests: 10000
+        requests: 50000
         concurrency: 100
         backend_profiling: False
         exec_env: "local"

@@ -188,7 +188,7 @@ Configuration parameter `install_py_dep_per_model` controls if the model server 
 install_py_dep_per_model=true
 ```
 
-User can also supply custom python packages in zip or tar.gz format using the `--extra-files` flag while creating the model-archive and make an entry of the file name in the `requirements` file. 
+User can also supply custom python packages in zip or tar.gz format using the `--extra-files` flag while creating the model-archive and make an entry of the file name in the `requirements` file.
 
 ### Restrict backend worker to access environment variables
 
@@ -212,8 +212,6 @@ Set nvidia environment variables. For example:
 
 ### Enable metrics api
 * `enable_metrics_api` : Enable or disable metric apis i.e. it can be either `true` or `false`. Default: true (Enabled)
-* `metrics_format` : Use this to specify metric report format . At present, the only supported and default value for this is `prometheus`
-		     This is used in conjunction with `enable_metrics_api` option above.
 
 ### Config model
 * `models`: Use this to set configurations specific to a model. The value is presented in json format.
@@ -228,7 +226,7 @@ Set nvidia environment variables. For example:
     }
 }
 ```
-A model's parameters are defined in [model source code](https://github.com/pytorch/serve/blob/master/frontend/server/src/main/java/org/pytorch/serve/wlm/Model.java#L24)
+A model's parameters are defined in [model source code](https://github.com/pytorch/serve/blob/a9e218ae95fe7690c84b555d0fb9021322c9b049/frontend/archive/src/main/java/org/pytorch/serve/archive/model/ModelConfig.java#L11)
 
 
 * `minWorkers`: the minimum number of workers of a model
@@ -239,7 +237,7 @@ A model's parameters are defined in [model source code](https://github.com/pytor
 * `defaultVersion`: the default version of a model
 * `marName`: the mar file name of a model
 
-A model's configuration example 
+A model's configuration example
 ```properties
 models={\
   "noop": {\
@@ -266,6 +264,13 @@ models={\
   }\
 }
 ```
+Starting from version 0.8.0, TorchServe allows for model configuration using a YAML file embedded in the MAR file. This YAML file contains two distinct parts that determine how a model is configured: frontend parameters and backend parameters. (see [details](https://github.com/pytorch/serve/tree/master/model-archiver#config-file))
+
+* The frontend parameters are controlled by TorchServe's frontend and specify the parameter name and default values. TorchServe now uses a priority order to determine the final value of a model's parameters in frontend. Specifically, the config.property file has the lowest priority, followed by the model configuration YAML file, and finally, the REST or gRPC model management API has the highest priority.
+
+* The backend parameters are fully controlled by the user. Users customized handler can access the backend parameters via the `model_yaml_config` property of the [context object](https://github.com/pytorch/serve/blob/a9e218ae95fe7690c84b555d0fb9021322c9b049/ts/context.py#L24). For example, context.model_yaml_config["pippy"]["rpc_timeout"].
+
+* User can allocate specific GPU device IDs to a model by defining "deviceIds" in the frontend parameters in the YAML file. TorchServe uses a round-robin strategy to assign device IDs to a model's worker. If specified in the YAML file, it round-robins the device IDs listed; otherwise, it uses all visible device IDs on the host.
 
 ### Other properties
 
@@ -281,22 +286,23 @@ Most of the following properties are designed for performance tuning. Adjusting 
 * `unregister_model_timeout`: Timeout, in seconds, used when handling an unregister model request when cleaning a process before it is deemed unresponsive and an error response is sent. Default: 120 seconds.
 * `decode_input_request`: Configuration to let backend workers to decode requests, when the content type is known.
 If this is set to "true", backend workers do "Bytearray to JSON object" conversion when the content type is "application/json" and
-the backend workers convert "Bytearray to utf-8 string" when the Content-Type of the request is set to "text*". Default: true  
+the backend workers convert "Bytearray to utf-8 string" when the Content-Type of the request is set to "text*". Default: true
 * `initial_worker_port` : This is the initial port number for auto assigning port to worker process.
 * `model_store` : Path of model store directory.
-* `model_server_home` : Torchserve home directory. 
+* `model_server_home` : Torchserve home directory.
 * `max_request_size` : The maximum allowable request size that the Torchserve accepts, in bytes. Default: 6553500
 * `max_response_size` : The maximum allowable response size that the Torchserve sends, in bytes. Default: 6553500
-* `limit_max_image_pixels` : Default value is true (Use default [PIL.Image.MAX_IMAGE_PIXELS](https://pillow.readthedocs.io/en/stable/reference/Image.html#PIL.Image.MAX_IMAGE_PIXELS)). If this is set to "false", set PIL.Image.MAX_IMAGE_PIXELS = None in backend default vision handler for large image payload. 
-* `allowed_urls` : Comma separated regex of allowed source URL(s) from where models can be registered. Default: "file://.*|http(s)?://.*" (all URLs and local file system)
+* `limit_max_image_pixels` : Default value is true (Use default [PIL.Image.MAX_IMAGE_PIXELS](https://pillow.readthedocs.io/en/stable/reference/Image.html#PIL.Image.MAX_IMAGE_PIXELS)). If this is set to "false", set PIL.Image.MAX_IMAGE_PIXELS = None in backend default vision handler for large image payload.
+* `allowed_urls` : Comma separated regex of allowed source URL(s) from where models can be registered. Default: `file://.*|http(s)?://.*` (all URLs and local file system)
 e.g. : To allow base URLs `https://s3.amazonaws.com/` and `https://torchserve.pytorch.org/` use the following regex string `allowed_urls=https://s3.amazonaws.com/.*,https://torchserve.pytorch.org/.*`
 * `workflow_store` : Path of workflow store directory. Defaults to model store directory.
+* `disable_system_metrics` : Disable collection of system metrics when set to "true". Default value is "false".
 
 **NOTE**
 
 All the above config properties can be set using environment variable as follows.
 - set `enable_envvars_config` to true in config.properties
-- export environment variable for property as`TS_<PROPERTY_NAME>`. 
+- export environment variable for property as`TS_<PROPERTY_NAME>`.
 
   e.g.: to set inference_address property run cmd
   `export TS_INFERENCE_ADDRESS="http://127.0.0.1:8082"`.

@@ -1,6 +1,7 @@
 import glob
 import os
 import platform
+import re
 import shutil
 import time
 from os import path
@@ -9,6 +10,30 @@ import requests
 import test_utils
 
 NUM_STARTUP_CFG = 0
+FRONTEND_METRICS = [
+    "Requests2XX",
+    "Requests4XX",
+    "Requests5XX",
+    "ts_inference_requests_total",
+    "ts_inference_latency_microseconds",
+    "ts_queue_latency_microseconds",
+    "QueueTime",
+    "WorkerThreadTime",
+    "WorkerLoadTime",
+]
+SYSTEM_METRICS = [
+    "CPUUtilization",
+    "MemoryUsed",
+    "MemoryAvailable",
+    "MemoryUtilization",
+    "DiskUsage",
+    "DiskUtilization",
+    "DiskAvailable",
+    "GPUMemoryUtilization",
+    "GPUMemoryUsed",
+    "GPUUtilization",
+]
+BACKEND_METRICS = ["HandlerTime", "PredictionTime"]
 
 
 def setup_module(module):
@@ -53,6 +78,34 @@ def run_log_location_var(custom_path=test_utils.ROOT_DIR, no_config_snapshots=Fa
         assert len(glob.glob(custom_path + "/access_log.log")) == 1
         assert len(glob.glob(custom_path + "/model_log.log")) == 1
         assert len(glob.glob(custom_path + "/ts_log.log")) == 1
+
+
+def register_densenet161_model_and_make_inference_request():
+    test_utils.register_model("densenet161", "densenet161.mar")
+    data_file = os.path.join(
+        test_utils.REPO_ROOT, "examples/image_classifier/kitten.jpg"
+    )
+    with open(data_file, "rb") as input_data:
+        requests.post(
+            url=f"http://localhost:8080/predictions/densenet161", data=input_data
+        )
+
+
+def validate_metrics_log(log_filename, metric_names, present):
+    assert len(glob.glob("logs/" + log_filename)) == 1
+    metrics_path = glob.glob("logs/" + log_filename)[0]
+    if present:
+        assert os.path.getsize(metrics_path) > 0
+
+    metrics_regex = re.compile("|".join(metric_names), flags=re.IGNORECASE)
+    with open(metrics_path, "rt") as metrics_file:
+        metrics_data = metrics_file.read()
+        matched_metrics = re.findall(metrics_regex, metrics_data)
+
+    if present:
+        assert len(matched_metrics) > 0
+    else:
+        assert len(matched_metrics) == 0
 
 
 def test_logs_created():
@@ -318,3 +371,184 @@ def test_metrics_location_var_snapshot_enabled_rdonly_dir():
         assert len(glob.glob(RDONLY_DIR + "/logs/ts_metrics.log")) == 0
     finally:
         del os.environ["METRICS_LOCATION"]
+
+
+def test_metrics_log_mode():
+    """
+    Validates that metrics uses log mode by default
+    """
+    # Torchserve cleanup
+    test_utils.stop_torchserve()
+    test_utils.delete_all_snapshots()
+    # Remove existing logs if any
+    for f in glob.glob("logs/*.log"):
+        os.remove(f)
+
+    try:
+        test_utils.start_torchserve(
+            model_store=test_utils.MODEL_STORE,
+            no_config_snapshots=True,
+            gen_mar=False,
+        )
+        register_densenet161_model_and_make_inference_request()
+        validate_metrics_log("ts_metrics.log", FRONTEND_METRICS, True)
+        validate_metrics_log("ts_metrics.log", SYSTEM_METRICS, True)
+        validate_metrics_log("model_metrics.log", BACKEND_METRICS, True)
+    finally:
+        test_utils.stop_torchserve()
+        test_utils.delete_all_snapshots()
+
+
+def test_metrics_prometheus_mode():
+    """
+    Validates metrics prometheus mode
+    """
+    # Torchserve cleanup
+    test_utils.stop_torchserve()
+    test_utils.delete_all_snapshots()
+    # Remove existing logs if any
+    for f in glob.glob("logs/*.log"):
+        os.remove(f)
+
+    config_file = test_utils.ROOT_DIR + "config.properties"
+    with open(config_file, "w") as f:
+        f.write("enable_envvars_config=true")
+
+    os.environ["TS_METRICS_MODE"] = "prometheus"
+
+    try:
+        test_utils.start_torchserve(
+            model_store=test_utils.MODEL_STORE,
+            snapshot_file=config_file,
+            no_config_snapshots=True,
+            gen_mar=False,
+        )
+        register_densenet161_model_and_make_inference_request()
+        validate_metrics_log("ts_metrics.log", FRONTEND_METRICS, False)
+        validate_metrics_log("ts_metrics.log", SYSTEM_METRICS, False)
+        validate_metrics_log("model_metrics.log", BACKEND_METRICS, False)
+
+        response = requests.get("http://localhost:8082/metrics")
+        prometheus_metrics = response.text
+        for metric_name in FRONTEND_METRICS:
+            assert metric_name in prometheus_metrics
+        for metric_name in SYSTEM_METRICS:
+            assert metric_name in prometheus_metrics
+        for metric_name in BACKEND_METRICS:
+            assert metric_name in prometheus_metrics
+
+        prometheus_metric_patterns = [
+            r'Requests2XX\{Level="Host",Hostname=".+",\} \d+\.\d+',
+            r'ts_inference_requests_total\{model_name="densenet161",model_version="default",hostname=".+",\} \d+\.\d+',
+            r'ts_inference_latency_microseconds\{model_name="densenet161",model_version="default",hostname=".+",\} \d+\.\d+',
+            r'ts_queue_latency_microseconds\{model_name="densenet161",model_version="default",hostname=".+",\} \d+\.\d+',
+            r'QueueTime\{Level="Host",Hostname=".+",\} \d+\.\d+',
+            r'WorkerThreadTime\{Level="Host",Hostname=".+",\} \d+\.\d+',
+            r'WorkerLoadTime\{WorkerName=".+",Level="Host",Hostname=".+",\} \d+\.\d+',
+            r'CPUUtilization\{Level="Host",Hostname=".+",\} \d+\.\d+',
+            r'MemoryUsed\{Level="Host",Hostname=".+",\} \d+\.\d+',
+            r'MemoryAvailable\{Level="Host",Hostname=".+",\} \d+\.\d+',
+            r'MemoryUtilization\{Level="Host",Hostname=".+",\} \d+\.\d+',
+            r'DiskUsage\{Level="Host",Hostname=".+",\} \d+\.\d+',
+            r'DiskUtilization\{Level="Host",Hostname=".+",\} \d+\.\d+',
+            r'DiskAvailable\{Level="Host",Hostname=".+",\} \d+\.\d+',
+            r'HandlerTime\{ModelName="densenet161",Level="Model",Hostname=".+",\} \d+\.\d+',
+            r'PredictionTime\{ModelName="densenet161",Level="Model",Hostname=".+",\} \d+\.\d+',
+        ]
+
+        for pattern in prometheus_metric_patterns:
+            matches = re.findall(pattern, prometheus_metrics)
+            assert len(matches) == 1
+
+    finally:
+        test_utils.stop_torchserve()
+        test_utils.delete_all_snapshots()
+        del os.environ["TS_METRICS_MODE"]
+        os.remove(config_file)
+
+
+def test_collect_system_metrics_when_not_disabled():
+    """
+    Validates that system metrics are collected when not disabled
+    """
+    # Torchserve cleanup
+    test_utils.stop_torchserve()
+    test_utils.delete_all_snapshots()
+    # Remove existing logs if any
+    for f in glob.glob("logs/*.log"):
+        os.remove(f)
+
+    try:
+        test_utils.start_torchserve(
+            model_store=test_utils.MODEL_STORE, no_config_snapshots=True, gen_mar=False
+        )
+        register_densenet161_model_and_make_inference_request()
+        validate_metrics_log("ts_metrics.log", SYSTEM_METRICS, True)
+    finally:
+        test_utils.stop_torchserve()
+        test_utils.delete_all_snapshots()
+
+
+def test_disable_system_metrics_using_config_properties():
+    """
+    Validates that system metrics collection is disabled when "disable_system_metrics"
+    configuration option is set to "true"
+    """
+    # Torchserve cleanup
+    test_utils.stop_torchserve()
+    test_utils.delete_all_snapshots()
+    # Remove existing logs if any
+    for f in glob.glob("logs/*.log"):
+        os.remove(f)
+
+    config_file = test_utils.ROOT_DIR + "config.properties"
+    with open(config_file, "w") as f:
+        f.write("disable_system_metrics=true")
+
+    try:
+        test_utils.start_torchserve(
+            model_store=test_utils.MODEL_STORE,
+            snapshot_file=config_file,
+            no_config_snapshots=True,
+            gen_mar=False,
+        )
+        register_densenet161_model_and_make_inference_request()
+        validate_metrics_log("ts_metrics.log", SYSTEM_METRICS, False)
+    finally:
+        test_utils.stop_torchserve()
+        test_utils.delete_all_snapshots()
+        os.remove(config_file)
+
+
+def test_disable_system_metrics_using_environment_variable():
+    """
+    Validates that system metrics collection is disabled when TS_DISABLE_SYSTEM_METRICS
+    environment variable is set to "true"
+    """
+    # Torchserve cleanup
+    test_utils.stop_torchserve()
+    test_utils.delete_all_snapshots()
+    # Remove existing logs if any
+    for f in glob.glob("logs/*.log"):
+        os.remove(f)
+
+    config_file = test_utils.ROOT_DIR + "config.properties"
+    with open(config_file, "w") as f:
+        f.write("enable_envvars_config=true")
+
+    os.environ["TS_DISABLE_SYSTEM_METRICS"] = "true"
+
+    try:
+        test_utils.start_torchserve(
+            model_store=test_utils.MODEL_STORE,
+            snapshot_file=config_file,
+            no_config_snapshots=True,
+            gen_mar=False,
+        )
+        register_densenet161_model_and_make_inference_request()
+        validate_metrics_log("ts_metrics.log", SYSTEM_METRICS, False)
+    finally:
+        test_utils.stop_torchserve()
+        test_utils.delete_all_snapshots()
+        del os.environ["TS_DISABLE_SYSTEM_METRICS"]
+        os.remove(config_file)

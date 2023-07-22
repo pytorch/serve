@@ -15,7 +15,7 @@ models:
     - "fastrcnn.yaml"
     - "mnist.yaml"
     - "vgg16.yaml"
-    - "wf_dog_breed.yaml"
+#    - "wf_dog_breed.yaml"
 
 # benchmark on "cpu" or "gpu".
 # "cpu" is set if "hardware" is not specified

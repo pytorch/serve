@@ -1,5 +1,7 @@
 package org.pytorch.serve.job;
 
+import static org.pytorch.serve.util.messages.RequestInput.TS_STREAM_NEXT;
+
 import java.util.Map;
 import org.pytorch.serve.util.messages.RequestInput;
 import org.pytorch.serve.util.messages.WorkerCommands;
@@ -20,6 +22,9 @@ public abstract class Job {
         this.modelVersion = version;
         begin = System.nanoTime();
         scheduled = begin;
+        if (cmd == WorkerCommands.STREAMPREDICT) {
+            input.updateHeaders(TS_STREAM_NEXT, "true");
+        }
     }
 
     public String getJobId() {
@@ -39,7 +44,9 @@ public abstract class Job {
     }
 
     public boolean isControlCmd() {
-        return !WorkerCommands.PREDICT.equals(cmd) && !WorkerCommands.DESCRIBE.equals(cmd);
+        return !WorkerCommands.PREDICT.equals(cmd)
+                && !WorkerCommands.STREAMPREDICT.equals(cmd)
+                && !WorkerCommands.DESCRIBE.equals(cmd);
     }
 
     public RequestInput getPayload() {

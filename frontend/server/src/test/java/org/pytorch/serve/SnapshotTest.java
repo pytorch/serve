@@ -27,6 +27,7 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import org.apache.commons.io.FileUtils;
+import org.pytorch.serve.metrics.MetricCache;
 import org.pytorch.serve.servingsdk.impl.PluginsManager;
 import org.pytorch.serve.servingsdk.snapshot.Snapshot;
 import org.pytorch.serve.snapshot.InvalidSnapshotException;
@@ -59,6 +60,7 @@ public class SnapshotTest {
         ConfigManager.init(new ConfigManager.Arguments());
         configManager = ConfigManager.getInstance();
         PluginsManager.getInstance().initialize();
+        MetricCache.init();
 
         InternalLoggerFactory.setDefaultFactory(Slf4JLoggerFactory.INSTANCE);
         configManager.setInitialWorkerPort(9500);
@@ -267,6 +269,7 @@ public class SnapshotTest {
         System.setProperty("tsConfigFile", "");
         ConfigManager.init(new ConfigManager.Arguments());
         configManager = ConfigManager.getInstance();
+        MetricCache.init();
         server = new ModelServer(configManager);
         server.startRESTserver();
         Channel channel = null;
@@ -292,6 +295,7 @@ public class SnapshotTest {
         System.setProperty("tsConfigFile", getLastSnapshot());
         ConfigManager.init(new ConfigManager.Arguments());
         configManager = ConfigManager.getInstance();
+        MetricCache.init();
         server = new ModelServer(configManager);
         server.startRESTserver();
         Channel channel = null;
