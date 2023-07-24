@@ -38,6 +38,13 @@ class Common:
                 os.system(
                     f"{sys.executable} -m pip install -U -r requirements/torch_{cuda_version}_{platform.system().lower()}.txt"
                 )
+        elif args.neuronx:
+            torch_neuronx_requirements_file = os.path.join(
+                "requirements", "torch_neuronx_linux.txt"
+            )
+            os.system(
+                f"{sys.executable} -m pip install -U -r {torch_neuronx_requirements_file}"
+            )
         else:
             os.system(
                 f"{sys.executable} -m pip install -U -r requirements/torch_{platform.system().lower()}.txt"
@@ -66,6 +73,13 @@ class Common:
         if not isinstance(cuda_version, type(None)):
             gpu_requirements_file = os.path.join("requirements", "common_gpu.txt")
             os.system(f"{sys.executable} -m pip install -U -r {gpu_requirements_file}")
+
+        # Install dependencies for Inferentia2
+        if args.neuronx:
+            neuronx_requirements_file = os.path.join("requirements", "neuronx.txt")
+            os.system(
+                f"{sys.executable} -m pip install -U -r {neuronx_requirements_file}"
+            )
 
     def install_node_packages(self):
         os.system(
@@ -192,6 +206,11 @@ if __name__ == "__main__":
         default=None,
         choices=["cu92", "cu101", "cu102", "cu111", "cu113", "cu116", "cu117", "cu118"],
         help="CUDA version for torch",
+    )
+    parser.add_argument(
+        "--neuronx",
+        action="store_true",
+        help="Install dependencies for inferentia2 support",
     )
     parser.add_argument(
         "--environment",

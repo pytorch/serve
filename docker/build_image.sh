@@ -8,11 +8,14 @@ DOCKER_TAG="pytorch/torchserve:latest-cpu"
 BUILD_TYPE="production"
 PYTHON_VERSION=3.9
 BASE_IMAGE="python:${PYTHON_VERSION}-slim"
+USER_BASE_IMAGE="python:${PYTHON_VERSION}-slim"
+BASE_IMAGE_TYPE="slim"
+UPDATE_BASE_IMAGE=false
 USE_CUSTOM_TAG=false
 CUDA_VERSION=""
 USE_LOCAL_SERVE_FOLDER=false
 BUILD_WITH_IPEX=false
-FILE=Dockerfile.cpu
+FILE=Dockerfile
 TORCHSERVE_BASE_IMAGE="pytorch/torchserve-base:latest"
 TORCHSERVE_RUNTIME_IMAGE="pytorch/torchserve-runtime:latest"
 
@@ -24,6 +27,7 @@ do
           echo "-h, --help  show brief help"
           echo "-b, --branch_name=BRANCH_NAME specify a branch_name to use"
           echo "-g, --gpu specify to use gpu"
+          echo "-bi, --baseimage specify base docker image. Example: nvidia/cuda:11.7.0-cudnn8-runtime-ubuntu20.04 "
           echo "-bt, --buildtype specify to created image for codebuild. Possible values: production, dev, codebuild."
           echo "-cv, --cudaversion specify to cuda version to use"
           echo "-t, --tag specify tag name for docker image"
@@ -46,9 +50,16 @@ do
         -g|--gpu)
           MACHINE=gpu
           DOCKER_TAG="pytorch/torchserve:latest-gpu"
-          BASE_IMAGE="nvidia/cuda:11.7.0-base-ubuntu20.04"
+          BASE_IMAGE="nvidia/cuda:11.7.1-base-ubuntu20.04"
           CUDA_VERSION="cu117"
-          FILE=Dockerfile.gpu
+          FILE=Dockerfile
+          BASE_IMAGE_TYPE="ubuntu"
+          shift
+          ;;
+        -bi|--baseimage)
+          USER_BASE_IMAGE="$2"
+          UPDATE_BASE_IMAGE=true
+          shift
           shift
           ;;
         -bt|--buildtype)
@@ -89,7 +100,7 @@ do
             BASE_IMAGE="nvidia/cuda:11.8.0-base-ubuntu20.04"
           elif [ "${CUDA_VERSION}" == "cu117" ];
           then
-            BASE_IMAGE="nvidia/cuda:11.7.0-base-ubuntu20.04"
+            BASE_IMAGE="nvidia/cuda:11.7.1-base-ubuntu20.04"
           elif [ "${CUDA_VERSION}" == "cu116" ];
           then
             BASE_IMAGE="nvidia/cuda:11.6.0-cudnn8-runtime-ubuntu20.04"
@@ -139,18 +150,21 @@ then
   DOCKER_TAG=${CUSTOM_TAG}
 fi
 
+if [ "$UPDATE_BASE_IMAGE" = true ]
+then
+  BASE_IMAGE=${USER_BASE_IMAGE}
+  if [[ $USER_BASE_IMAGE = *ubuntu* ]]
+  then
+    BASE_IMAGE_TYPE="ubuntu"
+  fi
+fi
+
 if [ "${BUILD_TYPE}" == "production" ]
 then
-  echo $PYTHON_VERSION
-
-  # Build docker base image
-  DOCKER_BUILDKIT=1 docker build --file ${FILE} --build-arg BASE_IMAGE="${BASE_IMAGE}" --build-arg CUDA_VERSION="${CUDA_VERSION}"  --build-arg PYTHON_VERSION="${PYTHON_VERSION}" -t $TORCHSERVE_BASE_IMAGE .
-
-  # Build docker runtime image
-  DOCKER_BUILDKIT=1 docker build --file Dockerfile.runtime --build-arg BASE_IMAGE="${TORCHSERVE_BASE_IMAGE}" --build-arg CUDA_VERSION="${CUDA_VERSION}"  --build-arg PYTHON_VERSION="${PYTHON_VERSION}" -t $TORCHSERVE_RUNTIME_IMAGE .
-
-  # Build production image
-  DOCKER_BUILDKIT=1 docker build --file Dockerfile --build-arg BASE_IMAGE="${BASE_IMAGE}" --build-arg CUDA_VERSION="${CUDA_VERSION}"  --build-arg PYTHON_VERSION="${PYTHON_VERSION}" -t "${DOCKER_TAG}" .
+  DOCKER_BUILDKIT=1 docker build --file Dockerfile --build-arg BASE_IMAGE="${BASE_IMAGE}" --build-arg CUDA_VERSION="${CUDA_VERSION}"  --build-arg PYTHON_VERSION="${PYTHON_VERSION}" --build-arg BASE_IMAGE_TYPE="$BASE_IMAGE_TYPE" -t "${DOCKER_TAG}" --target production-image-${BASE_IMAGE_TYPE}  .
+elif [ "${BUILD_TYPE}" == "ci" ]
+then
+  DOCKER_BUILDKIT=1 docker build --file Dockerfile --build-arg BASE_IMAGE="${BASE_IMAGE}" --build-arg CUDA_VERSION="${CUDA_VERSION}"  --build-arg PYTHON_VERSION="${PYTHON_VERSION}" --build-arg BRANCH_NAME="${BRANCH_NAME}" --build-arg BASE_IMAGE_TYPE="$BASE_IMAGE_TYPE" -t "${DOCKER_TAG}" --target ci-image  .
 elif [ "${BUILD_TYPE}" == "benchmark" ]
 then
   DOCKER_BUILDKIT=1 docker build --pull --no-cache --file Dockerfile.benchmark --build-arg USE_LOCAL_SERVE_FOLDER=$USE_LOCAL_SERVE_FOLDER --build-arg BASE_IMAGE="${BASE_IMAGE}" --build-arg BRANCH_NAME="${BRANCH_NAME}" --build-arg CUDA_VERSION="${CUDA_VERSION}" --build-arg MACHINE_TYPE="${MACHINE}" --build-arg PYTHON_VERSION="${PYTHON_VERSION}" -t "${DOCKER_TAG}" .

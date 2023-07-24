@@ -76,6 +76,12 @@ except ImportError as error:
     logger.warning("proceeding without onnxruntime")
     ONNX_AVAILABLE = False
 
+try:
+    import torch_tensorrt
+    logger.info("Torch TensorRT enabled")
+except ImportError:
+    logger.warning("Torch TensorRT not enabled")
+
 
 def setup_ort_session(model_pt_path, map_location):
     providers = (
