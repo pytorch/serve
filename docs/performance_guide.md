@@ -79,6 +79,8 @@ You can find more information on TorchServe benchmarking [here](https://github.c
 
 TorchServe has native support for the PyTorch profiler which will help you find performance bottlenecks in your code.
 
+If you created a custom `handle` or `initialize` method overwriting the BaseHandler, you must define the `self.manifest` attribute to be able to run `_infer_with_profiler`.  
+
 ```
 export ENABLE_TORCH_PROFILER=TRUE
 ```
