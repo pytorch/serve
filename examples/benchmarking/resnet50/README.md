@@ -42,4 +42,4 @@ pip install -r benchmarks/requirements-ab.txt
 python benchmarks/auto_benchmark.py --input examples/benchmarking/resnet50/benchmark_profile.yaml --skip true
 ```
 
-A sample report is shown in report.md
+This generates the report under `/tmp/ts_benchmarking/report.md`
