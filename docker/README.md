@@ -38,6 +38,7 @@ Use `build_image.sh` script to build the docker images. The script builds the `p
 |-t, --tag|Tag name for image. If not specified, script uses torchserve default tag names.|
 |-cv, --cudaversion| Specify to cuda version to use. Supported values `cu92`, `cu101`, `cu102`, `cu111`, `cu113`, `cu116`, `cu117`, `cu118`. Default `cu117`|
 |-ipex, --build-with-ipex| Specify to build with intel_extension_for_pytorch. If not specified, script builds without intel_extension_for_pytorch.|
+|-n, --nightly| Specify to build with TorchServe nightly.|
 |--codebuild| Set if you need [AWS CodeBuild](https://aws.amazon.com/codebuild/)|
 |-py, --pythonversion| Specify the python version to use. Supported values `3.8`, `3.9`, `3.10`. Default `3.9`|
 
