@@ -333,6 +333,9 @@ class BaseHandler(abc.ABC):
         is_profiler_enabled = os.environ.get("ENABLE_TORCH_PROFILER", None)
         if is_profiler_enabled:
             if PROFILER_AVAILABLE:
+                if self.manifest is None:
+                    # profiler will use to get the model name
+                    self.manifest = context.manifest
                 output, _ = self._infer_with_profiler(data=data)
             else:
                 raise RuntimeError(
