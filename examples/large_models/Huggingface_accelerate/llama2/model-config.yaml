@@ -6,7 +6,7 @@ responseTimeout: 1200
 deviceType: "gpu"
 
 handler:
-    model_name: "meta-llama/Llama-2-70b-hf"
+    model_name: "meta-llama/Llama-2-70b-chat-hf"
     max_length: 50
     max_new_tokens: 10
     manual_seed: 40
