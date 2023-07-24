@@ -87,7 +87,6 @@ do
           PYTHON_VERSION="$2"
           if [[ $PYTHON_VERSION = 3.8 || $PYTHON_VERSION = 3.9 || $PYTHON_VERSION = 3.10 ]]; then
             echo "Valid python version"
-            BASE_IMAGE="python:${PYTHON_VERSION}-slim"
           else
             echo "Valid python versions are 3.8, 3.9 and 3.10"
             exit 1
@@ -131,6 +130,11 @@ do
           ;;
     esac
 done
+
+if [ "${MACHINE}" != "gpu" ]
+then
+  BASE_IMAGE="python:${PYTHON_VERSION}-slim"
+fi
 
 if [ "${MACHINE}" == "gpu" ] && $BUILD_WITH_IPEX ;
 then
