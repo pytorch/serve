@@ -31,6 +31,8 @@ model_handlers = {
     "image_classifier": "vision",
     "object_detector": "vision",
     "image_segmenter": "vision",
+    "dali_image_classifier": "vision",
+    "dali_image_segmenter": "vision",
 }
 
 MODEL_SERVER_VERSION = "1.0"

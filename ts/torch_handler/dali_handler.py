@@ -21,7 +21,7 @@ class DaliHandler(BaseHandler, ABC):
         properties = context.system_properties
         if not properties.get("limit_max_image_pixels"):
             Image.MAX_IMAGE_PIXELS = None
-        self.pipeline = get_dali_pipeline()
+        self.pipeline = get_dali_pipeline(context)
 
     def preprocess(self, data):
         """The preprocess function of MNIST program converts the input data to a float tensor
@@ -42,7 +42,7 @@ class DaliHandler(BaseHandler, ABC):
                 image = np.frombuffer(image, dtype=np.uint8)
             images.append(image)
 
-        response = self.pipe.run(source=images)
+        response = self.pipeline.run(source=images)
         for idx, _ in enumerate(response[0]):
             data = torch.tensor(response[0].at(idx))
             result.append(data.unsqueeze(0))
