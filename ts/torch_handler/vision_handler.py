@@ -8,9 +8,9 @@ import io
 from abc import ABC
 
 import torch
-from torchvision import transforms
 from captum.attr import IntegratedGradients
 from PIL import Image
+from torchvision import transforms
 
 from .base_handler import BaseHandler
 
@@ -38,6 +38,7 @@ class VisionHandler(BaseHandler, ABC):
             list : The preprocess function returns the input image as a list of float tensors.
         """
         images = []
+        skip_processing = False
 
         for row in data:
             # Compat layer: normally the envelope should just return the data
@@ -54,15 +55,16 @@ class VisionHandler(BaseHandler, ABC):
             else:
                 # if the image is a list
                 image = torch.FloatTensor(image)
+                skip_processing = True
 
             images.append(image)
-        
+
         images = torch.stack(images).to(self.device)
 
         # pre-process images
-        with torch.no_grad():
-           images = self.image_processing(images)
-
+        if not skip_processing:
+            with torch.no_grad():
+                images = self.image_processing(images)
 
         return images
 
