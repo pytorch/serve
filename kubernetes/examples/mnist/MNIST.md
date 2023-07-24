@@ -14,13 +14,13 @@ Run the commands given in following steps from the parent directory of the root 
 
  ### Create a torch model archive using the torch-model-archiver utility to archive the above files.
 
-    ```bash
+    ```
     torch-model-archiver --model-name mnist --version 1.0 --model-file examples/image_classifier/mnist/mnist.py --serialized-file examples/image_classifier/mnist/mnist_cnn.pt --handler  examples/image_classifier/mnist/mnist_handler.py
     ```
 
   ### Move .mar file into model_store directory
 
-    ```bash
+    ```
     mkdir model_store
     mv mnist.mar model_store/
     ```
@@ -30,7 +30,7 @@ Run the commands given in following steps from the parent directory of the root 
   We start the cluster mounting the location of `serve` to `/host`
 
   The following command works if torchserve is under $HOME/serve
-  ```bash
+  ```
   minikube start --mount-string="$HOME/serve:/host" --mount
   ```
 
@@ -41,13 +41,13 @@ Run the commands given in following steps from the parent directory of the root 
   We are also mapping the the `model_store` directory created on host to
   `/home/model-server/model-store` on the container
 
-  ```bash
+  ```
   kubectl apply -f kubernetes/examples/mnist/deployment.yaml
   ```
 
   Make sure the pod is running
 
-  ```bash
+  ```
   $ kubectl get pods
   NAME                      READY   STATUS    RESTARTS   AGE
   ts-def-5c95fdfd57-m446t   1/1     Running   0          58m
@@ -58,13 +58,13 @@ Run the commands given in following steps from the parent directory of the root 
   We create a service to send inference request to the pod.
   We are using `NodePort` so that the cluster can be accessed by the outside world.
 
-  ```bash
+  ```
   kubectl apply -f kubernetes/examples/mnist/service.yaml
   ```
 
   Verify the service is running
 
-  ```bash
+  ```
   kubectl get svc
     NAME         TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)                         AGE
     ts-def       NodePort    10.109.14.120   <none>        8080:30160/TCP,8081:30302/TCP   59m
@@ -75,19 +75,19 @@ Run the commands given in following steps from the parent directory of the root 
 
   We use kubectl port-forward to make the cluster accessible from the local machine. This will run in the background. Make sure to kill the process when the test is done.
 
-  ```bash
+  ```
   kubectl port-forward svc/ts-def 8080:8080 8081:8081 &
   ```
 
   ### Register the model on TorchServe using the above model archive file
 
-  ```bash
+  ```
   curl -X POST "localhost:8081/models?model_name=mnist&url=mnist.mar&initial_workers=4"
   ```
 
   If this succeeeds, you will see a message like below
 
-  ```bash
+  ```
   {
   "status": "Model \"mnist\" Version: 1.0 registered with 4 initial workers"
   }
@@ -95,7 +95,7 @@ Run the commands given in following steps from the parent directory of the root 
 
   ### Run digit recognition inference
 
-    ```bash
+    ```
     curl http://127.0.0.1:8080/predictions/mnist -T examples/image_classifier/mnist/test_data/0.png
     ```
 
@@ -104,7 +104,7 @@ Run the commands given in following steps from the parent directory of the root 
 
   ### Delete the cluster
 
-  ```bash
+  ```
   minikube stop
   minikube delete
   ```
