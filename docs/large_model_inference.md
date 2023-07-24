@@ -215,7 +215,7 @@ In this example, a model has 2 workers with job queue size 2. An inference reque
 
 #### Streaming response via HTTP 1.1 chunked encoding
 
-TorchServe's inference API supports streaming response to allow a sequence of inference responses to be sent over HTTP 1.1 chunked encoding. This new feature is only recommended for use case when the inference latency of the full response is high and the inference intermediate results are sent to client. An example could be LLMs for generative applications, where generating "n" number of tokens can have high latency. In this case,  the user can receive each generated token once ready until the full response completes. To achieve streaming response, the backend handler calls "send_intermediate_predict_response" to send one intermediate result to the frontend, and returns the last result as the existing style. For example,
+TorchServe's inference API supports streaming response to allow a sequence of inference responses to be sent over HTTP 1.1 chunked encoding. This feature is only recommended for the use case when the inference latency of the full response is high and the inference intermediate results are sent to the client. An example could be LLMs for generative applications, where generating "n" number of tokens can have high latency. In this case,  the user can receive each generated token once ready until the full response completes. To achieve streaming response, the backend handler calls "send_intermediate_predict_response" to send one intermediate result to the frontend, and returns the last result as the existing style. For example,
 
 ```python
 from ts.protocol.otf_message_handler import send_intermediate_predict_response
@@ -248,7 +248,7 @@ def test_echo_stream_inference():
 
 #### GRPC Server Side Streaming
 
-TorchServe [GRPC API](grpc_api.md) adds server side streaming of the inference API "StreamPredictions" to allow a sequence of inference responses to be sent over the same GRPC stream. This API is only recommended for use case when the inference latency of the full response is high and the inference intermediate results are sent to client. An example could be LLMs for generative applications, where generating "n" number of tokens can have high latency, in this case the user can receive each generated token once ready until the full response completes. This API automatically forces the batchSize to be one.
+TorchServe [GRPC API](grpc_api.md) adds server side streaming of the inference API "StreamPredictions" to allow a sequence of inference responses to be sent over the same GRPC stream. This API is only recommended for use case when the inference latency of the full response is high and the inference intermediate results are sent to the client. An example could be LLMs for generative applications, where generating "n" number of tokens can have high latency. Similar to the HTTP 1.1 chuncked encoding, with this feature the user can receive each generated token once ready until the full response completes. This API automatically forces the batchSize to be one.
 
 ```
 service InferenceAPIsService {
