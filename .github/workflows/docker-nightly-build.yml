@@ -1,9 +1,9 @@
 name: Push Docker Nightly
 
 on:
-  # run every day at 11:15am
+  # run every day at 1:15pm
   schedule:
-    - cron:  '15 11 * * *'
+    - cron:  '15 13 * * *'
 jobs:
   nightly:
     runs-on: ubuntu-20.04
