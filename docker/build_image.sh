@@ -15,9 +15,6 @@ USE_CUSTOM_TAG=false
 CUDA_VERSION=""
 USE_LOCAL_SERVE_FOLDER=false
 BUILD_WITH_IPEX=false
-FILE=Dockerfile
-TORCHSERVE_BASE_IMAGE="pytorch/torchserve-base:latest"
-TORCHSERVE_RUNTIME_IMAGE="pytorch/torchserve-runtime:latest"
 
 for arg in "$@"
 do
@@ -52,7 +49,6 @@ do
           DOCKER_TAG="pytorch/torchserve:latest-gpu"
           BASE_IMAGE="nvidia/cuda:11.7.1-base-ubuntu20.04"
           CUDA_VERSION="cu117"
-          FILE=Dockerfile
           BASE_IMAGE_TYPE="ubuntu"
           shift
           ;;
@@ -171,13 +167,3 @@ then
 else
   DOCKER_BUILDKIT=1 docker build --pull --no-cache --file Dockerfile.dev -t "${DOCKER_TAG}" --build-arg BUILD_TYPE="${BUILD_TYPE}" --build-arg BASE_IMAGE=$BASE_IMAGE --build-arg BRANCH_NAME="${BRANCH_NAME}" --build-arg CUDA_VERSION="${CUDA_VERSION}" --build-arg MACHINE_TYPE="${MACHINE}" --build-arg BUILD_WITH_IPEX="${BUILD_WITH_IPEX}" --build-arg PYTHON_VERSION="${PYTHON_VERSION}" .
 fi
-
-# Cleanup
-for image in "$TORCHSERVE_BASE_IMAGE" "$TORCHSERVE_RUNTIME_IMAGE"
-  do
-    if docker image inspect $image >/dev/null 2>&1;
-    then
-      echo "Removing docker image $image"
-      docker rmi $image
-    fi
-  done
