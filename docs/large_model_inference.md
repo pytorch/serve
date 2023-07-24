@@ -248,7 +248,7 @@ def test_echo_stream_inference():
 
 #### GRPC Server Side Streaming
 
-TorchServe [GRPC API](grpc_api.md) adds server side streaming of the inference API "StreamPredictions" to allow a sequence of inference responses to be sent over the same GRPC stream. This API is only recommended for use case when the inference latency of the full response is high and the inference intermediate results are sent to the client. An example could be LLMs for generative applications, where generating "n" number of tokens can have high latency. Similar to the HTTP 1.1 chuncked encoding, with this feature the user can receive each generated token once ready until the full response completes. This API automatically forces the batchSize to be one.
+TorchServe [GRPC API](grpc_api.md) adds server side streaming of the inference API "StreamPredictions" to allow a sequence of inference responses to be sent over the same GRPC stream. This API is only recommended for use case when the inference latency of the full response is high and the inference intermediate results are sent to the client. An example could be LLMs for generative applications, where generating "n" number of tokens can have high latency. Similar to the HTTP 1.1 chunked encoding, with this feature the user can receive each generated token once ready until the full response completes. This API automatically forces the batchSize to be one.
 
 ```
 service InferenceAPIsService {
