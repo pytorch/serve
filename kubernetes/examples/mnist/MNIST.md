@@ -14,16 +14,16 @@ Run the commands given in following steps from the parent directory of the root 
 
  ### Create a torch model archive using the torch-model-archiver utility to archive the above files.
 
-    ```
-    torch-model-archiver --model-name mnist --version 1.0 --model-file examples/image_classifier/mnist/mnist.py --serialized-file examples/image_classifier/mnist/mnist_cnn.pt --handler  examples/image_classifier/mnist/mnist_handler.py
-    ```
+  ```
+  torch-model-archiver --model-name mnist --version 1.0 --model-file examples/image_classifier/mnist/mnist.py --serialized-file examples/image_classifier/mnist/mnist_cnn.pt --handler  examples/image_classifier/mnist/mnist_handler.py
+  ```
 
   ### Move .mar file into model_store directory
 
-    ```
-    mkdir model_store
-    mv mnist.mar model_store/
-    ```
+  ```
+  mkdir model_store
+  mv mnist.mar model_store/
+  ```
 
   ### Start kubernetes cluster
 
