@@ -48,7 +48,10 @@ Run the commands given in following steps from the parent directory of the root 
   Make sure the pod is running
 
   ```
-  $ kubectl get pods
+  kubectl get pods
+  ```
+  shows the output
+  ```
   NAME                      READY   STATUS    RESTARTS   AGE
   ts-def-5c95fdfd57-m446t   1/1     Running   0          58m
 
@@ -66,6 +69,10 @@ Run the commands given in following steps from the parent directory of the root 
 
   ```
   kubectl get svc
+  ```
+  shows the output
+  ```
+
     NAME         TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)                         AGE
     ts-def       NodePort    10.109.14.120   <none>        8080:30160/TCP,8081:30302/TCP   59m
 
@@ -95,9 +102,9 @@ Run the commands given in following steps from the parent directory of the root 
 
   ### Run digit recognition inference
 
-    ```
-    curl http://127.0.0.1:8080/predictions/mnist -T examples/image_classifier/mnist/test_data/0.png
-    ```
+  ```
+  curl http://127.0.0.1:8080/predictions/mnist -T examples/image_classifier/mnist/test_data/0.png
+  ```
 
    The output in this case will be a `0`
 
