@@ -12,9 +12,9 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
-import org.apache.commons.io.FilenameUtils;
 import org.pytorch.serve.archive.model.ModelArchive;
 import org.pytorch.serve.archive.model.ModelConfig;
+import org.pytorch.serve.archive.utils.ArchiveUtils;
 import org.pytorch.serve.job.Job;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.messages.WorkerCommands;
@@ -130,7 +130,7 @@ public class Model {
 
         JsonObject modelInfo = new JsonObject();
         modelInfo.addProperty(DEFAULT_VERSION, isDefaultVersion);
-        modelInfo.addProperty(MAR_NAME, FilenameUtils.getName(getModelUrl()));
+        modelInfo.addProperty(MAR_NAME, ArchiveUtils.getFilenameFromUrl(getModelUrl()));
         modelInfo.addProperty(MIN_WORKERS, getMinWorkers());
         modelInfo.addProperty(MAX_WORKERS, getMaxWorkers());
         modelInfo.addProperty(BATCH_SIZE, getBatchSize());
