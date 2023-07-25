@@ -15,13 +15,13 @@ def parse_args():
 # https://docs.nvidia.com/deeplearning/dali/user-guide/docs/operations/nvidia.dali.fn.html
 def pipe():
     jpegs = dali.fn.external_source(dtype=types.UINT8, name="source")
-    decoded = dali.fn.decoders.image(jpegs, device="mixed")
-    # normalized = dali.fn.crop_mirror_normalize(
-    #     decoded,
-    #     mean=[0.1307 * 255],
-    #     std=[0.3081 * 255],
-    # )
-    return decoded
+    decoded = dali.fn.decoders.image(jpegs, device="mixed", output_type=types.GRAY)
+    normalized = dali.fn.crop_mirror_normalize(
+        decoded,
+        mean=[0.1307 * 255],
+        std=[0.3081 * 255],
+    )
+    return normalized
 
 
 def main():
@@ -34,10 +34,10 @@ def main():
     seed = config["dali"]["seed"]
     pipeline_filename = config["dali"]["pipeline_file"]
 
-    pipe1 = pipe(
+    pipeline = pipe(
         batch_size=batch_size, num_threads=num_threads, device_id=device_id, seed=seed
     )
-    pipe1.serialize(filename=pipeline_filename)
+    pipeline.serialize(filename=pipeline_filename)
     print("Saved {}".format(pipeline_filename))
 
 

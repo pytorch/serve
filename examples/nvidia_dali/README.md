@@ -29,7 +29,7 @@ Change the `model-config.yaml` variables
 
 `device_id` - ID of GPU device used by pipeline.
 
-`pipeline_filename` - Pipeline filename
+`pipeline_file` - Pipeline filename
 
 Run the python file which serializes the Dali Pipeline and saves it to `model.dali`
 

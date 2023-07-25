@@ -5,13 +5,17 @@ Base module for all vision handlers
 """
 from torch.profiler import ProfilerActivity
 
-from ts.torch_handler.dali_image_classifier import DALIImageClassifier
+from ts.torch_handler.dali_handler import DALIHandler
 
 
-class DALIMNISTDigitClassifier(DALIImageClassifier):
+class DALIMNISTDigitClassifier(DALIHandler):
     """
     Base class for all vision handlers
     """
+
+    topk = 5
+    # These are the standard Imagenet dimensions
+    # and statistics
 
     def __init__(self):
         super(DALIMNISTDigitClassifier, self).__init__()
@@ -22,6 +26,12 @@ class DALIMNISTDigitClassifier(DALIImageClassifier):
             "activities": [ProfilerActivity.CPU],
             "record_shapes": True,
         }
+
+    def set_max_result_classes(self, topk):
+        self.topk = topk
+
+    def get_max_result_classes(self):
+        return self.topk
 
     def postprocess(self, data):
         """The post process of MNIST converts the predicted output response to a label.

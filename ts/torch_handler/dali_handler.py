@@ -9,7 +9,7 @@ from ts.handler_utils.preprocess.dali import get_dali_pipeline
 from ts.torch_handler.base_handler import BaseHandler
 
 
-class DaliHandler(BaseHandler, ABC):
+class DALIHandler(BaseHandler, ABC):
     """
     Base class DeepSpeed handler.
     """
@@ -45,9 +45,9 @@ class DaliHandler(BaseHandler, ABC):
         response = self.pipeline.run(source=images)
         for idx, _ in enumerate(response[0]):
             data = torch.tensor(response[0].at(idx))
-            result.append(data.unsqueeze(0))
+            result.append(data)
 
-        return torch.cat(result).to(self.device)
+        return torch.stack(result).to(self.device)
 
     def get_insights(self, tensor_data, _, target=0):
         print("input shape", tensor_data.shape)
