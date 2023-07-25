@@ -7,7 +7,7 @@ BRANCH_NAME="master"
 DOCKER_TAG="pytorch/torchserve:latest-cpu"
 BUILD_TYPE="production"
 BASE_IMAGE="ubuntu:20.04"
-USER_BASE_IMAGE="ubuntu:20.04"
+OVERRIDE_BASE_IMAGE="ubuntu:20.04"
 UPDATE_BASE_IMAGE=false
 USE_CUSTOM_TAG=false
 CUDA_VERSION=""
@@ -53,7 +53,7 @@ do
           shift
           ;;
         -bi|--baseimage)
-          USER_BASE_IMAGE="$2"
+          OVERRIDE_BASE_IMAGE="$2"
           UPDATE_BASE_IMAGE=true
           shift
           shift
@@ -152,7 +152,7 @@ fi
 
 if [ "$UPDATE_BASE_IMAGE" = true ]
 then
-  BASE_IMAGE=${USER_BASE_IMAGE}
+  BASE_IMAGE=${OVERRIDE_BASE_IMAGE}
 fi
 
 if [ "${BUILD_TYPE}" == "production" ]
