@@ -29,9 +29,10 @@ class BackendCache(Cache):
         module = ctx["cache"]["module"]
         config = ctx["cache"]["config"]
 
-        self.cache = self._get_cache_definition(module)
+        cache = self._get_cache_definition(module)(config)
 
-        self.cache(config)
+        self.client = cache.client
+
         print("Init done  BC")
 
     def _get_cache_definition(self, module):
@@ -50,5 +51,5 @@ class BackendCache(Cache):
                 )
             )
 
-        cache_class = model_class_definitions[0]
+        cache_class = cache_class_definitions[0]
         return cache_class
