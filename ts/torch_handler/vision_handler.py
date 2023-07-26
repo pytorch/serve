@@ -51,9 +51,8 @@ class VisionHandler(BaseHandler, ABC):
             # If the image is sent as bytesarray
             if isinstance(image, (bytearray, bytes)):
                 image = Image.open(io.BytesIO(image))
-                image = transforms.compose(
-                    [transforms.Resize(256), transforms.ToTensor()]
-                )(image)
+                image = transforms.ToTensor()(image).to(self.device)
+                image = self.image_processing(image)
             else:
                 # if the image is a list
                 image = torch.FloatTensor(image)
@@ -66,7 +65,9 @@ class VisionHandler(BaseHandler, ABC):
         # pre-process images
         if not skip_processing:
             with torch.no_grad():
-                images = self.image_processing(images)
+                images = transforms.Normalize(
+                    mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
+                )(images)
 
         return images
 

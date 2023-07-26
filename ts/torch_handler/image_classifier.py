@@ -5,8 +5,8 @@ import torch
 import torch.nn.functional as F
 from torchvision import transforms
 
+from ..utils.util import map_class_to_label
 from .vision_handler import VisionHandler
-from ..utils.util  import map_class_to_label
 
 
 class ImageClassifier(VisionHandler):
@@ -18,12 +18,9 @@ class ImageClassifier(VisionHandler):
     topk = 5
     # These are the standard Imagenet dimensions
     # and statistics
-    image_processing = transforms.Compose([
-        transforms.Resize(256),
-        transforms.CenterCrop(224),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406],
-                             std=[0.229, 0.224, 0.225])
-    ])
+    image_processing = transforms.Compose(
+        [transforms.Resize(256), transforms.CenterCrop(224)]
+    )
 
     def set_max_result_classes(self, topk):
         self.topk = topk
