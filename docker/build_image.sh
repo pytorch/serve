@@ -7,7 +7,6 @@ BRANCH_NAME="master"
 DOCKER_TAG="pytorch/torchserve:latest-cpu"
 BUILD_TYPE="production"
 BASE_IMAGE="ubuntu:20.04"
-OVERRIDE_BASE_IMAGE="ubuntu:20.04"
 UPDATE_BASE_IMAGE=false
 USE_CUSTOM_TAG=false
 CUDA_VERSION=""
@@ -53,7 +52,7 @@ do
           shift
           ;;
         -bi|--baseimage)
-          OVERRIDE_BASE_IMAGE="$2"
+          BASE_IMAGE="$2"
           UPDATE_BASE_IMAGE=true
           shift
           shift
@@ -150,9 +149,10 @@ then
   DOCKER_TAG=${CUSTOM_TAG}
 fi
 
-if [ "$UPDATE_BASE_IMAGE" = true ]
+if [[ $UPDATE_BASE_IMAGE == true && $MACHINE == "gpu" ]];
 then
-  BASE_IMAGE=${OVERRIDE_BASE_IMAGE}
+  echo "Incompatible options: -bi doesn't work with -g option"
+  exit 1
 fi
 
 if [ "${BUILD_TYPE}" == "production" ]
