@@ -18,7 +18,7 @@ Pros:
 
 Cons:
 
-* Potentially higher latency and throughput if not enough requests are available
+* Potentially higher latency and lower throughput if not enough requests are available
 
 ## Implementation
 This example implements micro batching using a custom handler which overwrites the *handle* method with a MicroBatching object defined in __ts.utils.micro_batching__.
