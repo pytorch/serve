@@ -11,6 +11,7 @@ USE_CUSTOM_TAG=false
 CUDA_VERSION=""
 USE_LOCAL_SERVE_FOLDER=false
 BUILD_WITH_IPEX=false
+BUILD_NIGHTLY=false
 PYTHON_VERSION=3.9
 
 for arg in "$@"
@@ -27,6 +28,7 @@ do
           echo "-lf, --use-local-serve-folder specify this option for the benchmark image if the current 'serve' folder should be used during automated benchmarks"
           echo "-ipex, --build-with-ipex specify to build with intel_extension_for_pytorch"
           echo "-py, --pythonversion specify to python version to use: Possible values: 3.8 3.9 3.10"
+          echo "-n, --nightly specify to build with TorchServe nightly"
           exit 0
           ;;
         -b|--branch_name)
@@ -43,7 +45,7 @@ do
         -g|--gpu)
           MACHINE=gpu
           DOCKER_TAG="pytorch/torchserve:latest-gpu"
-          BASE_IMAGE="nvidia/cuda:11.7.1-base-ubuntu20.04"
+          BASE_IMAGE="nvidia/cuda:11.8.0-base-ubuntu20.04"
           CUDA_VERSION="cu117"
           shift
           ;;
@@ -64,6 +66,10 @@ do
           ;;
         -ipex|--build-with-ipex)
           BUILD_WITH_IPEX=true
+          shift
+          ;;
+        -n|--nightly)
+          BUILD_NIGHTLY=true
           shift
           ;;
         -py|--pythonversion)
@@ -137,7 +143,10 @@ fi
 
 if [ "${BUILD_TYPE}" == "production" ]
 then
-  DOCKER_BUILDKIT=1 docker build --file Dockerfile --build-arg BASE_IMAGE="${BASE_IMAGE}" --build-arg CUDA_VERSION="${CUDA_VERSION}"  --build-arg PYTHON_VERSION="${PYTHON_VERSION}" -t "${DOCKER_TAG}" .
+  DOCKER_BUILDKIT=1 docker build --file Dockerfile --build-arg BASE_IMAGE="${BASE_IMAGE}" --build-arg CUDA_VERSION="${CUDA_VERSION}"  --build-arg PYTHON_VERSION="${PYTHON_VERSION}" --build-arg BUILD_NIGHTLY="${BUILD_NIGHTLY}" -t "${DOCKER_TAG}" --target production-image  .
+elif [ "${BUILD_TYPE}" == "ci" ]
+then
+  DOCKER_BUILDKIT=1 docker build --file Dockerfile --build-arg BASE_IMAGE="${BASE_IMAGE}" --build-arg CUDA_VERSION="${CUDA_VERSION}"  --build-arg PYTHON_VERSION="${PYTHON_VERSION}" --build-arg BUILD_NIGHTLY="${BUILD_NIGHTLY}" --build-arg BRANCH_NAME="${BRANCH_NAME}"  -t "${DOCKER_TAG}" --target ci-image  .
 elif [ "${BUILD_TYPE}" == "benchmark" ]
 then
   DOCKER_BUILDKIT=1 docker build --pull --no-cache --file Dockerfile.benchmark --build-arg USE_LOCAL_SERVE_FOLDER=$USE_LOCAL_SERVE_FOLDER --build-arg BASE_IMAGE="${BASE_IMAGE}" --build-arg BRANCH_NAME="${BRANCH_NAME}" --build-arg CUDA_VERSION="${CUDA_VERSION}" --build-arg MACHINE_TYPE="${MACHINE}" --build-arg PYTHON_VERSION="${PYTHON_VERSION}" -t "${DOCKER_TAG}" .
