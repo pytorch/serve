@@ -7,14 +7,10 @@ def cache(func):
     print("Inside decorator !!!!!!!!!!!!!!!!")
 
     def wrap_func(self, *args, **kwargs):
-        # global func
-        if not self.cache_initialized:
-            result = func(self, *args, **kwargs)
+        result = func(self, *args, **kwargs)
+        if self.model_yaml_config is not None and "cache" in self.model_yaml_config:
             config = self.model_yaml_config["cache"]["config"]
             self.handle = RedisCache(config)(self.handle)
-            self.cache_initialized = True
-        else:
-            result = func(self, *args, **kwargs)
 
         return result
 

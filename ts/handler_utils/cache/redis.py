@@ -38,4 +38,3 @@ class RedisCache(Cache):
             logging.error(
                 f"Cannot connect to a Redis server, ensure a server is running on {args['host']}:{args['port']}."
             )
-        print("Init done")
