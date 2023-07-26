@@ -12,6 +12,8 @@ import time
 import torch
 from pkg_resources import packaging
 
+from ts.handler_utils.cache.utils import cache
+
 from ..utils.util import (
     check_valid_pt2_backend,
     list_classes_from_module,
@@ -145,6 +147,7 @@ class BaseHandler(abc.ABC):
         self.cache_initialized = False
         self.profiler_args = {}
 
+    @cache
     def initialize(self, context):
         """Initialize function loads the model.pt file and initialized the model object.
            First try to load torchscript else load eager mode state_dict based model.

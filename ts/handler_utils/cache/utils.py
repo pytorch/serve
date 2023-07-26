@@ -4,12 +4,15 @@ from ts.utils.util import list_classes_from_module
 
 
 def cache(func):
+    print("Inside decorator !!!!!!!!!!!!!!!!")
+
     def wrap_func(self, *args, **kwargs):
-        global func
+        # global func
         if not self.cache_initialized:
-            func = RedisCache(self.context)(func)
-            self.cache_initialized = True
             result = func(self, *args, **kwargs)
+            config = self.model_yaml_config["cache"]["config"]
+            self.handle = RedisCache(config)(self.handle)
+            self.cache_initialized = True
         else:
             result = func(self, *args, **kwargs)
 
