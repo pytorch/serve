@@ -30,6 +30,7 @@ ARG PYTHON_VERSION=3.9
 FROM ${BASE_IMAGE} AS compile-image
 ARG BASE_IMAGE=ubuntu:rolling
 ARG PYTHON_VERSION
+ARG BUILD_NIGHTLY
 ENV PYTHONUNBUFFERED TRUE
 
 RUN --mount=type=cache,id=apt-dev,target=/var/cache/apt \
@@ -82,7 +83,12 @@ RUN \
     fi
 
 # Make sure latest version of torchserve is uploaded before running this
-RUN python -m pip install --no-cache-dir torchserve torch-model-archiver torch-workflow-archiver
+RUN \
+    if echo "$BUILD_NIGHTLY" | grep -q "false"; then \
+        python -m pip install --no-cache-dir torchserve torch-model-archiver torch-workflow-archiver;\
+    else \
+        python -m pip install --no-cache-dir torchserve-nightly torch-model-archiver-nightly torch-workflow-archiver-nightly;\
+    fi
 
 # Final image for production
 FROM ${BASE_IMAGE} AS production-image
