@@ -51,7 +51,9 @@ class VisionHandler(BaseHandler, ABC):
             # If the image is sent as bytesarray
             if isinstance(image, (bytearray, bytes)):
                 image = Image.open(io.BytesIO(image))
-                image = transforms.ToTensor()(image)
+                image = transforms.compose(
+                    [transforms.Resize(256), transforms.ToTensor()]
+                )(image)
             else:
                 # if the image is a list
                 image = torch.FloatTensor(image)
