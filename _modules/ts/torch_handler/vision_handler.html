@@ -6,11 +6,10 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
-
+  
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>serve &mdash; PyTorch/Serve master documentation</title>
+  <title>ts.torch_handler.vision_handler &mdash; PyTorch/Serve master documentation</title>
   
 
   
@@ -26,17 +25,15 @@
 
   
 
-  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  <!-- <link rel="stylesheet" href="../_static/pygments.css" type="text/css" /> -->
-  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!-- <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" /> -->
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/katex-math.css" type="text/css" />
-    <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="run_circleci_tests module" href="run_circleci_tests.html" />
-    <link rel="prev" title="ts.utils package" href="ts.utils.html" />
+  <link rel="stylesheet" href="../../../_static/katex-math.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
   <!-- Google Tag Manager -->
     <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
     new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -47,16 +44,16 @@
   
 
   
-  <script src="../_static/js/modernizr.min.js"></script>
+  <script src="../../../_static/js/modernizr.min.js"></script>
 
   <!-- Preload the theme fonts -->
 
-<link rel="preload" href="../_static/fonts/FreightSans/freight-sans-book.woff2" as="font" type="font/woff2" crossorigin="anonymous">
-<link rel="preload" href="../_static/fonts/FreightSans/freight-sans-medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
-<link rel="preload" href="../_static/fonts/IBMPlexMono/IBMPlexMono-Medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
-<link rel="preload" href="../_static/fonts/FreightSans/freight-sans-bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
-<link rel="preload" href="../_static/fonts/FreightSans/freight-sans-medium-italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
-<link rel="preload" href="../_static/fonts/IBMPlexMono/IBMPlexMono-SemiBold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../../_static/fonts/FreightSans/freight-sans-book.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../../_static/fonts/FreightSans/freight-sans-medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../../_static/fonts/IBMPlexMono/IBMPlexMono-Medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../../_static/fonts/FreightSans/freight-sans-bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../../_static/fonts/FreightSans/freight-sans-medium-italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="../../../_static/fonts/IBMPlexMono/IBMPlexMono-SemiBold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
 
 <!-- Preload the katex fonts -->
 
@@ -233,7 +230,7 @@
 
 
 <div role="search">
-  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
     <input type="text" name="q" placeholder="Search Docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
@@ -251,47 +248,47 @@
             
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../index.html">TorchServe</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../Troubleshooting.html">Troubleshooting Guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../performance_guide.html">Performance Guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../batch_inference_with_ts.html">Batch Inference with TorchServe</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../code_coverage.html">Code Coverage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../configuration.html">Advanced configuration</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../custom_service.html">Custom Service</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../default_handlers.html">TorchServe default inference handlers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../logging.html">Logging in Torchserve</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../metrics.html">TorchServe Metrics</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../model_zoo.html">Model Zoo</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../request_envelopes.html">Request Envelopes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../server.html">Running TorchServe</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../mps.html">Running TorchServe with NVIDIA MPS</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../snapshot.html">TorchServe model snapshot</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../torchserve_on_win_native.html">TorchServe on Windows</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../torchserve_on_wsl.html">TorchServe on Windows Subsystem for Linux (WSL)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../use_cases.html">Torchserve Use Cases</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../workflows.html">TorchServe Workflows</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../large_model_inference.html">Serving large models with Torchserve</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../FAQs.html">FAQ’S</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html">TorchServe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Troubleshooting.html">Troubleshooting Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../performance_guide.html">Performance Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../batch_inference_with_ts.html">Batch Inference with TorchServe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../code_coverage.html">Code Coverage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">Advanced configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../custom_service.html">Custom Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../default_handlers.html">TorchServe default inference handlers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../logging.html">Logging in Torchserve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../metrics.html">TorchServe Metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../model_zoo.html">Model Zoo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../request_envelopes.html">Request Envelopes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../server.html">Running TorchServe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../mps.html">Running TorchServe with NVIDIA MPS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../snapshot.html">TorchServe model snapshot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../torchserve_on_win_native.html">TorchServe on Windows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../torchserve_on_wsl.html">TorchServe on Windows Subsystem for Linux (WSL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../use_cases.html">Torchserve Use Cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workflows.html">TorchServe Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../large_model_inference.html">Serving large models with Torchserve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../FAQs.html">FAQ’S</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Service APIs:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../grpc_api.html">TorchServe gRPC API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../inference_api.html">Inference API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../management_api.html">Management API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../metrics_api.html">Metrics API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../rest_api.html">TorchServe REST API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../workflow_inference_api.html">Workflow Inference API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../workflow_management_api.html">Management API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../grpc_api.html">TorchServe gRPC API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../inference_api.html">Inference API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../management_api.html">Management API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../metrics_api.html">Metrics API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../rest_api.html">TorchServe REST API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workflow_inference_api.html">Workflow Inference API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workflow_management_api.html">Management API</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Developer APIs:</span></p>
-<ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="ts.html">ts package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ts.torch_handler.request_envelope.html">ts.torch_handler.request_envelope package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ts.torch_handler.html">ts.torch_handler package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ts.metrics.html">ts.metrics package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ts.model_service.html">ts.model_service package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ts.protocol.html">ts.protocol package</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">serve</a></li>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/ts.html">ts package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/ts.torch_handler.request_envelope.html">ts.torch_handler.request_envelope package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/ts.torch_handler.html">ts.torch_handler package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/ts.metrics.html">ts.metrics package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/ts.model_service.html">ts.model_service package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/ts.protocol.html">ts.protocol package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">serve</a></li>
 </ul>
 
             
@@ -324,7 +321,7 @@
   <ul class="pytorch-breadcrumbs">
     
       <li>
-        <a href="../contents.html">
+        <a href="../../../contents.html">
           
             Docs
           
@@ -332,16 +329,12 @@
       </li>
 
         
-          <li><a href="dev_api.html">&lt;no title&gt;</a> &gt;</li>
+          <li><a href="../../index.html">Module code</a> &gt;</li>
         
-      <li>serve</li>
+      <li>ts.torch_handler.vision_handler</li>
     
     
       <li class="pytorch-breadcrumbs-aside">
-        
-            
-            <a href="../_sources/api/modules.rst.txt" rel="nofollow"><img src="../_static/images/view-page-source-icon.svg"></a>
-          
         
       </li>
     
@@ -370,120 +363,76 @@
             <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
-  <section id="serve">
-<h1>serve<a class="headerlink" href="#serve" title="Permalink to this heading">¶</a></h1>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="run_circleci_tests.html">run_circleci_tests module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="setup.html">setup module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="test.html">test package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="test.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="test.html#test-regression-tests-module">test.regression_tests module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="test.html#module-test">Module contents</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="torchserve_sanity.html">torchserve_sanity module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ts.html">ts package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="ts.html#subpackages">Subpackages</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="ts.metrics.html">ts.metrics package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="ts.metrics.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="ts.metrics.html#module-ts.metrics.dimension">ts.metrics.dimension module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="ts.metrics.html#module-ts.metrics.metric">ts.metrics.metric module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="ts.metrics.html#module-ts.metrics.metric_collector">ts.metrics.metric_collector module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="ts.metrics.html#module-ts.metrics.metric_encoder">ts.metrics.metric_encoder module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="ts.metrics.html#module-ts.metrics.metrics_store">ts.metrics.metrics_store module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="ts.metrics.html#module-ts.metrics.process_memory_metric">ts.metrics.process_memory_metric module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="ts.metrics.html#module-ts.metrics.system_metrics">ts.metrics.system_metrics module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="ts.metrics.html#module-ts.metrics.unit">ts.metrics.unit module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="ts.metrics.html#module-ts.metrics">Module contents</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="ts.model_service.html">ts.model_service package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="ts.model_service.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="ts.model_service.html#module-ts.model_service.model_service">ts.model_service.model_service module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="ts.model_service.html#module-ts.model_service">Module contents</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="ts.protocol.html">ts.protocol package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="ts.protocol.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="ts.protocol.html#module-ts.protocol.otf_message_handler">ts.protocol.otf_message_handler module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="ts.protocol.html#module-ts.protocol">Module contents</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="ts.torch_handler.html">ts.torch_handler package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="ts.torch_handler.html#subpackages">Subpackages</a></li>
-<li class="toctree-l4"><a class="reference internal" href="ts.torch_handler.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="ts.torch_handler.html#module-ts.torch_handler.base_handler">ts.torch_handler.base_handler module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="ts.torch_handler.html#module-ts.torch_handler.contractions">ts.torch_handler.contractions module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="ts.torch_handler.html#module-ts.torch_handler.densenet_handler">ts.torch_handler.densenet_handler module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="ts.torch_handler.html#module-ts.torch_handler.image_classifier">ts.torch_handler.image_classifier module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="ts.torch_handler.html#module-ts.torch_handler.image_segmenter">ts.torch_handler.image_segmenter module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="ts.torch_handler.html#module-ts.torch_handler.object_detector">ts.torch_handler.object_detector module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="ts.torch_handler.html#ts-torch-handler-text-classifier-module">ts.torch_handler.text_classifier module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="ts.torch_handler.html#ts-torch-handler-text-handler-module">ts.torch_handler.text_handler module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="ts.torch_handler.html#module-ts.torch_handler.vision_handler">ts.torch_handler.vision_handler module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="ts.torch_handler.html#module-ts.torch_handler">Module contents</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="ts.utils.html">ts.utils package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="ts.utils.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="ts.utils.html#module-ts.utils.timeit_decorator">ts.utils.timeit_decorator module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="ts.utils.html#module-ts.utils.util">ts.utils.util module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="ts.utils.html#module-ts.utils">Module contents</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="ts.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ts.html#module-ts.arg_parser">ts.arg_parser module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ts.html#module-ts.context">ts.context module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ts.html#module-ts.model_loader">ts.model_loader module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ts.html#module-ts.model_server">ts.model_server module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ts.html#module-ts.model_service_worker">ts.model_service_worker module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ts.html#module-ts.service">ts.service module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ts.html#module-ts.version">ts.version module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ts.html#module-ts">Module contents</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="ts_scripts.html">ts_scripts package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="ts_scripts.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ts_scripts.html#ts-scripts-api-utils-module">ts_scripts.api_utils module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ts_scripts.html#ts-scripts-backend-utils-module">ts_scripts.backend_utils module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ts_scripts.html#ts-scripts-frontend-utils-module">ts_scripts.frontend_utils module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ts_scripts.html#ts-scripts-install-dependencies-module">ts_scripts.install_dependencies module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ts_scripts.html#ts-scripts-install-from-src-module">ts_scripts.install_from_src module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ts_scripts.html#ts-scripts-marsgen-module">ts_scripts.marsgen module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ts_scripts.html#ts-scripts-modelarchiver-utils-module">ts_scripts.modelarchiver_utils module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ts_scripts.html#ts-scripts-print-env-info-module">ts_scripts.print_env_info module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ts_scripts.html#ts-scripts-regression-utils-module">ts_scripts.regression_utils module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ts_scripts.html#ts-scripts-sanity-utils-module">ts_scripts.sanity_utils module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ts_scripts.html#ts-scripts-shell-utils-module">ts_scripts.shell_utils module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ts_scripts.html#ts-scripts-torchserve-grpc-client-module">ts_scripts.torchserve_grpc_client module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ts_scripts.html#ts-scripts-tsutils-module">ts_scripts.tsutils module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ts_scripts.html#ts-scripts-utils-module">ts_scripts.utils module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ts_scripts.html#ts-scripts-validate-model-on-gpu-module">ts_scripts.validate_model_on_gpu module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ts_scripts.html#ts-scripts-workflow-archiver-utils-module">ts_scripts.workflow_archiver_utils module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ts_scripts.html#module-contents">Module contents</a></li>
-</ul>
-</li>
-</ul>
-</div>
-</section>
+  <h1>Source code for ts.torch_handler.vision_handler</h1><div class="highlight"><pre>
+<span></span><span class="c1"># pylint: disable=W0223</span>
+<span class="c1"># Details : https://github.com/PyCQA/pylint/issues/3098</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Base module for all vision handlers</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">base64</span>
+<span class="kn">import</span> <span class="nn">io</span>
+<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span>
 
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">captum.attr</span> <span class="kn">import</span> <span class="n">IntegratedGradients</span>
+<span class="kn">from</span> <span class="nn">PIL</span> <span class="kn">import</span> <span class="n">Image</span>
+
+<span class="kn">from</span> <span class="nn">.base_handler</span> <span class="kn">import</span> <span class="n">BaseHandler</span>
+
+
+<div class="viewcode-block" id="VisionHandler"><a class="viewcode-back" href="../../../api/ts.torch_handler.html#ts.torch_handler.vision_handler.VisionHandler">[docs]</a><span class="k">class</span> <span class="nc">VisionHandler</span><span class="p">(</span><span class="n">BaseHandler</span><span class="p">,</span> <span class="n">ABC</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Base class for all vision handlers</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="VisionHandler.initialize"><a class="viewcode-back" href="../../../api/ts.torch_handler.html#ts.torch_handler.vision_handler.VisionHandler.initialize">[docs]</a>    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ig</span> <span class="o">=</span> <span class="n">IntegratedGradients</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initialized</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">properties</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">system_properties</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">properties</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;limit_max_image_pixels&quot;</span><span class="p">):</span>
+            <span class="n">Image</span><span class="o">.</span><span class="n">MAX_IMAGE_PIXELS</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="VisionHandler.preprocess"><a class="viewcode-back" href="../../../api/ts.torch_handler.html#ts.torch_handler.vision_handler.VisionHandler.preprocess">[docs]</a>    <span class="k">def</span> <span class="nf">preprocess</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The preprocess function of MNIST program converts the input data to a float tensor</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data (List): Input data from the request is in the form of a Tensor</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            list : The preprocess function returns the input image as a list of float tensors.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">images</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+            <span class="c1"># Compat layer: normally the envelope should just return the data</span>
+            <span class="c1"># directly, but older versions of Torchserve didn&#39;t have envelope.</span>
+            <span class="n">image</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;body&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="c1"># if the image is a string of bytesarray.</span>
+                <span class="n">image</span> <span class="o">=</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64decode</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+
+            <span class="c1"># If the image is sent as bytesarray</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="p">(</span><span class="nb">bytearray</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">)):</span>
+                <span class="n">image</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">image</span><span class="p">))</span>
+                <span class="n">image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_processing</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># if the image is a list</span>
+                <span class="n">image</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">FloatTensor</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+
+            <span class="n">images</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">images</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="VisionHandler.get_insights"><a class="viewcode-back" href="../../../api/ts.torch_handler.html#ts.torch_handler.vision_handler.VisionHandler.get_insights">[docs]</a>    <span class="k">def</span> <span class="nf">get_insights</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tensor_data</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;input shape&quot;</span><span class="p">,</span> <span class="n">tensor_data</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ig</span><span class="o">.</span><span class="n">attribute</span><span class="p">(</span><span class="n">tensor_data</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="n">target</span><span class="p">,</span> <span class="n">n_steps</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span></div></div>
+</pre></div>
 
              </article>
              
             </div>
             <footer>
-  
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="run_circleci_tests.html" class="btn btn-neutral float-right" title="run_circleci_tests module" accesskey="n" rel="next">Next <img src="../_static/images/chevron-right-orange.svg" class="next-page"></a>
-      
-      
-        <a href="ts.utils.html" class="btn btn-neutral" title="ts.utils package" accesskey="p" rel="prev"><img src="../_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
-      
-    </div>
   
 
   
@@ -512,10 +461,7 @@
         <div class="pytorch-content-right" id="pytorch-content-right">
           <div class="pytorch-right-menu" id="pytorch-right-menu">
             <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
-              <ul>
-<li><a class="reference internal" href="#">serve</a></li>
-</ul>
-
+              
             </div>
           </div>
         </div>
@@ -528,23 +474,23 @@
   
 
      
-       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-         <script src="../_static/jquery.js"></script>
-         <script src="../_static/underscore.js"></script>
-         <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
-         <script src="../_static/doctools.js"></script>
-         <script src="../_static/katex.min.js"></script>
-         <script src="../_static/auto-render.min.js"></script>
-         <script src="../_static/katex_autorenderer.js"></script>
+       <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+         <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+         <script src="../../../_static/jquery.js"></script>
+         <script src="../../../_static/underscore.js"></script>
+         <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+         <script src="../../../_static/doctools.js"></script>
+         <script src="../../../_static/katex.min.js"></script>
+         <script src="../../../_static/auto-render.min.js"></script>
+         <script src="../../../_static/katex_autorenderer.js"></script>
      
 
   
 
-  <script type="text/javascript" src="../_static/js/vendor/popper.min.js"></script>
-  <script type="text/javascript" src="../_static/js/vendor/bootstrap.min.js"></script>
+  <script type="text/javascript" src="../../../_static/js/vendor/popper.min.js"></script>
+  <script type="text/javascript" src="../../../_static/js/vendor/bootstrap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
-  <script type="text/javascript" src="../_static/js/theme.js"></script>
+  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
 
   <script type="text/javascript">
       jQuery(function () {
@@ -649,7 +595,7 @@
   <div class="cookie-banner-wrapper">
   <div class="container">
     <p class="gdpr-notice">To analyze traffic and optimize your experience, we serve cookies on this site. By clicking or navigating, you agree to allow our usage of cookies. As the current maintainers of this site, Facebook’s Cookies Policy applies. Learn more, including about available controls: <a href="https://www.facebook.com/policies/cookies/">Cookies Policy</a>.</p>
-    <img class="close-button" src="../_static/images/pytorch-x.svg">
+    <img class="close-button" src="../../../_static/images/pytorch-x.svg">
   </div>
 </div>
 
@@ -785,7 +731,7 @@
 
   <!-- End Mobile Menu -->
 
-  <script type="text/javascript" src="../_static/js/vendor/anchor.min.js"></script>
+  <script type="text/javascript" src="../../../_static/js/vendor/anchor.min.js"></script>
 
   <script type="text/javascript">
     $(document).ready(function() {

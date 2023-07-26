@@ -510,13 +510,14 @@ torch-model-archiver<span class="w"> </span>--model-name<span class="w"> </span>
 </div>
 </section>
 </section>
-<section id="best-practice">
-<h2>Best Practice<a class="headerlink" href="#best-practice" title="Permalink to this heading">¶</a></h2>
-<section id="to-reduce-model-loading-latency-we-recommend">
-<h3>To reduce model loading latency, we recommend<a class="headerlink" href="#to-reduce-model-loading-latency-we-recommend" title="Permalink to this heading">¶</a></h3>
+<section id="best-practices">
+<h2>Best Practices<a class="headerlink" href="#best-practices" title="Permalink to this heading">¶</a></h2>
+<section id="reducing-model-loading-latency">
+<h3>Reducing model loading latency<a class="headerlink" href="#reducing-model-loading-latency" title="Permalink to this heading">¶</a></h3>
+<p>To reduce model latency we recommend:</p>
 <ul class="simple">
-<li><p>Pre-install the model parallel library such as Deepspeed on the container or host.</p></li>
-<li><p>Pre-download the model checkpoints. For example, if using HuggingFace pretrained model can be pre-downloaded via <a class="reference external" href="https://github.com/pytorch/serve/blob/75f66dc557b3b67a3ab56536a37d7aa21582cc04/examples/large_models/deepspeed/opt/Readme.md?plain=1#L7">Download_model.py</a></p>
+<li><p>Pre-installing the model parallel library such as Deepspeed on the container or host.</p></li>
+<li><p>Pre-downloading the model checkpoints. For example, if using HuggingFace, a pretrained model can be pre-downloaded via <a class="reference external" href="https://github.com/pytorch/serve/blob/75f66dc557b3b67a3ab56536a37d7aa21582cc04/examples/large_models/deepspeed/opt/Readme.md#loading-large-huggingface-models-on-multiple-gpus">Download_model.py</a></p>
 <ul>
 <li><p>Set environment variable <a class="reference external" href="https://huggingface.co/docs/huggingface_hub/guides/manage-cache#understand-caching">HUGGINGFACE_HUB_CACHE</a> and <a class="reference external" href="https://huggingface.co/transformers/v4.0.1/installation.html#caching-models">TRANSFORMERS_CACHE</a></p></li>
 <li><p>Download model to the HuggingFace cache dir via tool <a class="reference external" href="https://github.com/pytorch/serve/blob/4fe5273cd6f98fb5abc570f802b402ac32ecd105/examples/large_models/Huggingface_pippy/Readme.md?plain=1#L20">Download_model.py</a></p></li>
@@ -524,12 +525,13 @@ torch-model-archiver<span class="w"> </span>--model-name<span class="w"> </span>
 </li>
 </ul>
 </section>
-<section id="tune-responsetimeout-see-model-config-yaml-file-if-high-model-loading-or-inference-latency-causes-response-timeout">
-<h3>Tune “<a class="reference external" href="https://github.com/pytorch/serve/blob/5ee02e4f050c9b349025d87405b246e970ee710b/docs/configuration.md?plain=1#L216">responseTimeout</a>” (see <a class="reference external" href="https://github.com/pytorch/serve/blob/5ee02e4f050c9b349025d87405b246e970ee710b/model-archiver/README.md?plain=1#L164">model config YAML file</a>) if high model loading or inference latency causes response timeout.<a class="headerlink" href="#tune-responsetimeout-see-model-config-yaml-file-if-high-model-loading-or-inference-latency-causes-response-timeout" title="Permalink to this heading">¶</a></h3>
-</section>
-<section id="tune-torchrun-parameters">
-<h3>Tune torchrun parameters<a class="headerlink" href="#tune-torchrun-parameters" title="Permalink to this heading">¶</a></h3>
-<p>User is able to tune torchrun parameters in <a class="reference external" href="https://github.com/pytorch/serve/blob/2f1f52f553e83703b5c380c2570a36708ee5cafa/model-archiver/README.md?plain=1#L179">model config YAML file</a>. The supported parameters are defined at <a class="reference external" href="https://github.com/pytorch/serve/blob/2f1f52f553e83703b5c380c2570a36708ee5cafa/frontend/archive/src/main/java/org/pytorch/serve/archive/model/ModelConfig.java#L329">here</a>. For example, by default, <code class="docutils literal notranslate"><span class="pre">OMP_NUMBER_THREADS</span></code> is 1. It can be modified in the YAML file.</p>
+<section id="tune-model-config-yaml-file">
+<h3>Tune <a class="reference external" href="https://github.com/pytorch/serve/blob/5ee02e4f050c9b349025d87405b246e970ee710b/model-archiver/README">model config YAML file</a><a class="headerlink" href="#tune-model-config-yaml-file" title="Permalink to this heading">¶</a></h3>
+<p>You can tune the model config YAML file to get better performance in the following ways:</p>
+<ul class="simple">
+<li><p>Update the <a class="reference external" href="https://github.com/pytorch/serve/blob/5ee02e4f050c9b349025d87405b246e970ee710b/docs/configuration.md?plain=1#L216">responseTimeout</a> if high model loading or inference latency causes response timeout.</p></li>
+<li><p>Tune the <a class="reference external" href="https://github.com/pytorch/serve/blob/2f1f52f553e83703b5c380c2570a36708ee5cafa/model-archiver/README.md?plain=1#L179">torchrun parameters</a>. The supported parameters are defined at <a class="reference external" href="https://github.com/pytorch/serve/blob/2f1f52f553e83703b5c380c2570a36708ee5cafa/frontend/archive/src/main/java/org/pytorch/serve/archive/model/ModelConfig.java#L329">here</a>. For example, by default, <code class="docutils literal notranslate"><span class="pre">OMP_NUMBER_THREADS</span></code> is 1. This can be modified in the YAML file.</p></li>
+</ul>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1">#frontend settings</span>
 <span class="nt">torchrun</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">nproc-per-node</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4</span><span class="w"> </span><span class="c1"># specifies the number of processes torchrun starts to serve your model, set to world_size or number of</span>
@@ -538,10 +540,13 @@ torch-model-archiver<span class="w"> </span>--model-name<span class="w"> </span>
 </pre></div>
 </div>
 </section>
-<section id="feature-job-ticket-is-recommended-for-the-use-case-of-inference-latency-sensitive">
-<h3>Feature Job ticket is recommended for the use case of inference latency sensitive<a class="headerlink" href="#feature-job-ticket-is-recommended-for-the-use-case-of-inference-latency-sensitive" title="Permalink to this heading">¶</a></h3>
-<p>When the job ticket feature is enabled, TorchServe verifies the availability of a model’s active worker for processing a client’s request. If an active worker is available, the request is accepted and processed immediately without waiting time incurred from job queue or dynamic batching; otherwise, a 503 response is sent back to client.</p>
-<p>This feature help with use cases where inference latency can be high, such as generative models, auto regressive decoder models like chatGPT. This feature help such applications to take effective actions, for example, routing the rejected request to a different server, or scaling up model server capacity, based on the business requirements. Here is an example of enabling job ticket.</p>
+<section id="latency-sensitive-applications">
+<h3>Latency Sensitive Applications<a class="headerlink" href="#latency-sensitive-applications" title="Permalink to this heading">¶</a></h3>
+</section>
+<section id="job-ticket">
+<h3>Job Ticket<a class="headerlink" href="#job-ticket" title="Permalink to this heading">¶</a></h3>
+<p>The job ticket feature is recommended for the use case of latency sensitive inference. When job ticket is enabled, TorchServe verifies the availability of a model’s active worker for processing a client’s request. If an active worker is available, the request is accepted and processed immediately without the waiting time incurred from the job queue or dynamic batching; otherwise, a 503 response is sent back to the client.</p>
+<p>This feature helps with use cases where inference latency can be high, such as generative models, auto regressive decoder models like chatGPT. This feature helps such applications take effective actions, for example, routing the rejected request to a different server, or scaling up model server capacity, based on the business requirements. Here is an example of enabling job ticket.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">minWorkers</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
 <span class="nt">maxWorkers</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
 <span class="nt">jobQueueSize</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
@@ -549,6 +554,64 @@ torch-model-archiver<span class="w"> </span>--model-name<span class="w"> </span>
 </pre></div>
 </div>
 <p>In this example, a model has 2 workers with job queue size 2. An inference request will be either processed by TorchServe immediately, or rejected with response code 503.</p>
+</section>
+<section id="streaming-response-via-http-1-1-chunked-encoding">
+<h3>Streaming response via HTTP 1.1 chunked encoding<a class="headerlink" href="#streaming-response-via-http-1-1-chunked-encoding" title="Permalink to this heading">¶</a></h3>
+<p>TorchServe’s inference API supports streaming response to allow a sequence of inference responses to be sent over HTTP 1.1 chunked encoding. This feature is only recommended for the use case when the inference latency of the full response is high and the inference intermediate results are sent to the client. An example could be LLMs for generative applications, where generating “n” number of tokens can have high latency. In this case,  the user can receive each generated token once ready until the full response completes. To achieve streaming response, the backend handler calls “send_intermediate_predict_response” to send one intermediate result to the frontend, and returns the last result as the existing style. For example,</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ts.protocol.otf_message_handler</span> <span class="kn">import</span> <span class="n">send_intermediate_predict_response</span>
+<span class="k">def</span> <span class="nf">handle</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">list</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span> <span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+            <span class="n">send_intermediate_predict_response</span><span class="p">([</span><span class="s2">&quot;intermediate_response&quot;</span><span class="p">],</span> <span class="n">context</span><span class="o">.</span><span class="n">request_ids</span><span class="p">,</span> <span class="s2">&quot;Intermediate Prediction success&quot;</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;hello world &quot;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Client side receives the chunked data.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">test_utils</span>
+
+<span class="k">def</span> <span class="nf">test_echo_stream_inference</span><span class="p">():</span>
+    <span class="n">test_utils</span><span class="o">.</span><span class="n">start_torchserve</span><span class="p">(</span><span class="n">no_config_snapshots</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">gen_mar</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">test_utils</span><span class="o">.</span><span class="n">register_model</span><span class="p">(</span><span class="s1">&#39;echo_stream&#39;</span><span class="p">,</span>
+                              <span class="s1">&#39;https://torchserve.pytorch.org/mar_files/echo_stream.mar&#39;</span><span class="p">)</span>
+
+    <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">TF_INFERENCE_API</span> <span class="o">+</span> <span class="s1">&#39;/predictions/echo_stream&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="s2">&quot;foo&quot;</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">response</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s1">&#39;Transfer-Encoding&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;chunked&#39;</span>
+
+    <span class="n">prediction</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">iter_content</span><span class="p">(</span><span class="n">chunk_size</span><span class="o">=</span><span class="kc">None</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="n">chunk</span><span class="p">:</span>
+            <span class="n">prediction</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">chunk</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+
+    <span class="k">assert</span> <span class="nb">str</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">prediction</span><span class="p">))</span> <span class="o">==</span> <span class="s2">&quot;hello hello hello hello world &quot;</span>
+    <span class="n">test_utils</span><span class="o">.</span><span class="n">unregister_model</span><span class="p">(</span><span class="s1">&#39;echo_stream&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="grpc-server-side-streaming">
+<h3>GRPC Server Side Streaming<a class="headerlink" href="#grpc-server-side-streaming" title="Permalink to this heading">¶</a></h3>
+<p>TorchServe <a class="reference internal" href="grpc_api.html"><span class="doc">GRPC API</span></a> adds server side streaming of the inference API “StreamPredictions” to allow a sequence of inference responses to be sent over the same GRPC stream. This API is only recommended for use case when the inference latency of the full response is high and the inference intermediate results are sent to the client. An example could be LLMs for generative applications, where generating “n” number of tokens can have high latency. Similar to the HTTP 1.1 chunked encoding, with this feature the user can receive each generated token once ready until the full response completes. This API automatically forces the batchSize to be one.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">service</span> <span class="n">InferenceAPIsService</span> <span class="p">{</span>
+    <span class="o">//</span> <span class="n">Check</span> <span class="n">health</span> <span class="n">status</span> <span class="n">of</span> <span class="n">the</span> <span class="n">TorchServe</span> <span class="n">server</span><span class="o">.</span>
+    <span class="n">rpc</span> <span class="n">Ping</span><span class="p">(</span><span class="n">google</span><span class="o">.</span><span class="n">protobuf</span><span class="o">.</span><span class="n">Empty</span><span class="p">)</span> <span class="n">returns</span> <span class="p">(</span><span class="n">TorchServeHealthResponse</span><span class="p">)</span> <span class="p">{}</span>
+
+    <span class="o">//</span> <span class="n">Predictions</span> <span class="n">entry</span> <span class="n">point</span> <span class="n">to</span> <span class="n">get</span> <span class="n">inference</span> <span class="n">using</span> <span class="n">default</span> <span class="n">model</span> <span class="n">version</span><span class="o">.</span>
+    <span class="n">rpc</span> <span class="n">Predictions</span><span class="p">(</span><span class="n">PredictionsRequest</span><span class="p">)</span> <span class="n">returns</span> <span class="p">(</span><span class="n">PredictionResponse</span><span class="p">)</span> <span class="p">{}</span>
+
+    <span class="o">//</span> <span class="n">Streaming</span> <span class="n">response</span> <span class="k">for</span> <span class="n">an</span> <span class="n">inference</span> <span class="n">request</span><span class="o">.</span>
+    <span class="n">rpc</span> <span class="n">StreamPredictions</span><span class="p">(</span><span class="n">PredictionsRequest</span><span class="p">)</span> <span class="n">returns</span> <span class="p">(</span><span class="n">stream</span> <span class="n">PredictionResponse</span><span class="p">)</span> <span class="p">{}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Backend handler calls “send_intermediate_predict_response” to send one intermediate result to frontend, and return the last result as the existing style. For example</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ts.protocol.otf_message_handler</span> <span class="kn">import</span> <span class="n">send_intermediate_predict_response</span>
+
+<span class="k">def</span> <span class="nf">handle</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">list</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span> <span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+            <span class="n">send_intermediate_predict_response</span><span class="p">([</span><span class="s2">&quot;intermediate_response&quot;</span><span class="p">],</span> <span class="n">context</span><span class="o">.</span><span class="n">request_ids</span><span class="p">,</span> <span class="s2">&quot;Intermediate Prediction success&quot;</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;hello world &quot;</span><span class="p">]</span>
+</pre></div>
+</div>
 </section>
 </section>
 </section>
@@ -606,11 +669,13 @@ torch-model-archiver<span class="w"> </span>--model-name<span class="w"> </span>
 <li><a class="reference internal" href="#how-to-use-deepspeed-in-torchserve">How to use DeepSpeed in TorchServe</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#best-practice">Best Practice</a><ul>
-<li><a class="reference internal" href="#to-reduce-model-loading-latency-we-recommend">To reduce model loading latency, we recommend</a></li>
-<li><a class="reference internal" href="#tune-responsetimeout-see-model-config-yaml-file-if-high-model-loading-or-inference-latency-causes-response-timeout">Tune “responseTimeout” (see model config YAML file) if high model loading or inference latency causes response timeout.</a></li>
-<li><a class="reference internal" href="#tune-torchrun-parameters">Tune torchrun parameters</a></li>
-<li><a class="reference internal" href="#feature-job-ticket-is-recommended-for-the-use-case-of-inference-latency-sensitive">Feature Job ticket is recommended for the use case of inference latency sensitive</a></li>
+<li><a class="reference internal" href="#best-practices">Best Practices</a><ul>
+<li><a class="reference internal" href="#reducing-model-loading-latency">Reducing model loading latency</a></li>
+<li><a class="reference internal" href="#tune-model-config-yaml-file">Tune model config YAML file</a></li>
+<li><a class="reference internal" href="#latency-sensitive-applications">Latency Sensitive Applications</a></li>
+<li><a class="reference internal" href="#job-ticket">Job Ticket</a></li>
+<li><a class="reference internal" href="#streaming-response-via-http-1-1-chunked-encoding">Streaming response via HTTP 1.1 chunked encoding</a></li>
+<li><a class="reference internal" href="#grpc-server-side-streaming">GRPC Server Side Streaming</a></li>
 </ul>
 </li>
 </ul>

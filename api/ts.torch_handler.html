@@ -384,7 +384,7 @@
 <li class="toctree-l2"><a class="reference internal" href="ts.torch_handler.request_envelope.html#module-ts.torch_handler.request_envelope.body">ts.torch_handler.request_envelope.body module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ts.torch_handler.request_envelope.html#module-ts.torch_handler.request_envelope.json">ts.torch_handler.request_envelope.json module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ts.torch_handler.request_envelope.html#module-ts.torch_handler.request_envelope.kserve">ts.torch_handler.request_envelope.kserve module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ts.torch_handler.request_envelope.html#ts-torch-handler-request-envelope-kservev2-module">ts.torch_handler.request_envelope.kservev2 module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ts.torch_handler.request_envelope.html#module-ts.torch_handler.request_envelope.kservev2">ts.torch_handler.request_envelope.kservev2 module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ts.torch_handler.request_envelope.html#module-ts.torch_handler.request_envelope">Module contents</a></li>
 </ul>
 </li>
@@ -420,8 +420,159 @@
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading">¶</a></h2>
 </section>
-<section id="ts-torch-handler-base-handler-module">
-<h2>ts.torch_handler.base_handler module<a class="headerlink" href="#ts-torch-handler-base-handler-module" title="Permalink to this heading">¶</a></h2>
+<section id="module-ts.torch_handler.base_handler">
+<span id="ts-torch-handler-base-handler-module"></span><h2>ts.torch_handler.base_handler module<a class="headerlink" href="#module-ts.torch_handler.base_handler" title="Permalink to this heading">¶</a></h2>
+<p>Base default handler to load torchscript or eager mode [state_dict] models
+Also, provides handle method per torch serve custom model specification</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="ts.torch_handler.base_handler.BaseHandler">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ts.torch_handler.base_handler.</span></span><span class="sig-name descname"><span class="pre">BaseHandler</span></span><a class="reference internal" href="../_modules/ts/torch_handler/base_handler.html#BaseHandler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.torch_handler.base_handler.BaseHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></a></p>
+<p>Base default handler to load torchscript or eager mode [state_dict] models
+Also, provides handle method per torch serve custom model specification</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ts.torch_handler.base_handler.BaseHandler.describe_handle">
+<span class="sig-name descname"><span class="pre">describe_handle</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/torch_handler/base_handler.html#BaseHandler.describe_handle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.torch_handler.base_handler.BaseHandler.describe_handle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Customized describe handler</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A dictionary response.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ts.torch_handler.base_handler.BaseHandler.explain_handle">
+<span class="sig-name descname"><span class="pre">explain_handle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_preprocess</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raw_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/torch_handler/base_handler.html#BaseHandler.explain_handle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.torch_handler.base_handler.BaseHandler.explain_handle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Captum explanations handler</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data_preprocess</strong> (<em>Torch Tensor</em>) – Preprocessed data to be used for captum</p></li>
+<li><p><strong>raw_data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><em>list</em></a>) – The unprocessed data to get target from the request</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A dictionary response with the explanations response.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ts.torch_handler.base_handler.BaseHandler.handle">
+<span class="sig-name descname"><span class="pre">handle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/torch_handler/base_handler.html#BaseHandler.handle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.torch_handler.base_handler.BaseHandler.handle" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Entry point for default handler. It takes the data from the input request and returns</dt><dd><p>the predicted outcome for the input.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><em>list</em></a>) – The input data that needs to be made a prediction request on.</p></li>
+<li><p><strong>context</strong> (<a class="reference internal" href="ts.html#ts.context.Context" title="ts.context.Context"><em>Context</em></a>) – It is a JSON Object containing information pertaining to
+the model artefacts parameters.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Returns a list of dictionary with the predicted response.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)">list</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ts.torch_handler.base_handler.BaseHandler.inference">
+<span class="sig-name descname"><span class="pre">inference</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/torch_handler/base_handler.html#BaseHandler.inference"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.torch_handler.base_handler.BaseHandler.inference" title="Permalink to this definition">¶</a></dt>
+<dd><p>The Inference Function is used to make a prediction call on the given input request.
+The user needs to override the inference function to customize it.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>Torch Tensor</em>) – A Torch Tensor is passed to make the Inference Request.</p></li>
+<li><p><strong>shape.</strong> (<em>The shape should match the model input</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The Predicted Torch Tensor is returned in this function.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Torch Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ts.torch_handler.base_handler.BaseHandler.initialize">
+<span class="sig-name descname"><span class="pre">initialize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/torch_handler/base_handler.html#BaseHandler.initialize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.torch_handler.base_handler.BaseHandler.initialize" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Initialize function loads the model.pt file and initialized the model object.</dt><dd><p>First try to load torchscript else load eager mode state_dict based model.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>context</strong> (<em>context</em>) – It is a JSON Object containing information</p></li>
+<li><p><strong>parameters.</strong> (<em>pertaining to the model artifacts</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="(in Python v3.11)"><strong>RuntimeError</strong></a> – Raises the Runtime error when the model.py is missing</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ts.torch_handler.base_handler.BaseHandler.postprocess">
+<span class="sig-name descname"><span class="pre">postprocess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/torch_handler/base_handler.html#BaseHandler.postprocess"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.torch_handler.base_handler.BaseHandler.postprocess" title="Permalink to this definition">¶</a></dt>
+<dd><p>The post process function makes use of the output from the inference and converts into a
+Torchserve supported response output.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>Torch Tensor</em>) – The torch tensor received from the prediction output of the model.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The post process function returns a list of the predicted output.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ts.torch_handler.base_handler.BaseHandler.preprocess">
+<span class="sig-name descname"><span class="pre">preprocess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/torch_handler/base_handler.html#BaseHandler.preprocess"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.torch_handler.base_handler.BaseHandler.preprocess" title="Permalink to this definition">¶</a></dt>
+<dd><p>Preprocess function to convert the request input to a tensor(Torchserve supported format).
+The user needs to override to customize the pre-processing</p>
+<dl class="simple">
+<dt>Args :</dt><dd><p>data (list): List of the data from the request input.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Returns the tensor data of the input</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ts.torch_handler.base_handler.setup_ort_session">
+<span class="sig-prename descclassname"><span class="pre">ts.torch_handler.base_handler.</span></span><span class="sig-name descname"><span class="pre">setup_ort_session</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_pt_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">map_location</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/torch_handler/base_handler.html#setup_ort_session"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.torch_handler.base_handler.setup_ort_session" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </section>
 <section id="module-ts.torch_handler.contractions">
 <span id="ts-torch-handler-contractions-module"></span><h2>ts.torch_handler.contractions module<a class="headerlink" href="#module-ts.torch_handler.contractions" title="Permalink to this heading">¶</a></h2>
@@ -476,14 +627,151 @@ and returns the name of object in that image.</p>
 </dd></dl>
 
 </section>
-<section id="ts-torch-handler-image-classifier-module">
-<h2>ts.torch_handler.image_classifier module<a class="headerlink" href="#ts-torch-handler-image-classifier-module" title="Permalink to this heading">¶</a></h2>
+<section id="module-ts.torch_handler.image_classifier">
+<span id="ts-torch-handler-image-classifier-module"></span><h2>ts.torch_handler.image_classifier module<a class="headerlink" href="#module-ts.torch_handler.image_classifier" title="Permalink to this heading">¶</a></h2>
+<p>Module for image classification default handler</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="ts.torch_handler.image_classifier.ImageClassifier">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ts.torch_handler.image_classifier.</span></span><span class="sig-name descname"><span class="pre">ImageClassifier</span></span><a class="reference internal" href="../_modules/ts/torch_handler/image_classifier.html#ImageClassifier"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.torch_handler.image_classifier.ImageClassifier" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ts.torch_handler.vision_handler.VisionHandler" title="ts.torch_handler.vision_handler.VisionHandler"><code class="xref py py-class docutils literal notranslate"><span class="pre">VisionHandler</span></code></a></p>
+<p>ImageClassifier handler class. This handler takes an image
+and returns the name of object in that image.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ts.torch_handler.image_classifier.ImageClassifier.get_max_result_classes">
+<span class="sig-name descname"><span class="pre">get_max_result_classes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/torch_handler/image_classifier.html#ImageClassifier.get_max_result_classes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.torch_handler.image_classifier.ImageClassifier.get_max_result_classes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ts.torch_handler.image_classifier.ImageClassifier.image_processing">
+<span class="sig-name descname"><span class="pre">image_processing</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">Compose(</span>&#160;&#160;&#160;&#160; <span class="pre">Resize(size=256,</span> <span class="pre">interpolation=bilinear,</span> <span class="pre">max_size=None,</span> <span class="pre">antialias=warn)</span>&#160;&#160;&#160;&#160; <span class="pre">CenterCrop(size=(224,</span> <span class="pre">224))</span>&#160;&#160;&#160;&#160; <span class="pre">ToTensor()</span>&#160;&#160;&#160;&#160; <span class="pre">Normalize(mean=[0.485,</span> <span class="pre">0.456,</span> <span class="pre">0.406],</span> <span class="pre">std=[0.229,</span> <span class="pre">0.224,</span> <span class="pre">0.225])</span> <span class="pre">)</span></em><a class="headerlink" href="#ts.torch_handler.image_classifier.ImageClassifier.image_processing" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ts.torch_handler.image_classifier.ImageClassifier.postprocess">
+<span class="sig-name descname"><span class="pre">postprocess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/torch_handler/image_classifier.html#ImageClassifier.postprocess"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.torch_handler.image_classifier.ImageClassifier.postprocess" title="Permalink to this definition">¶</a></dt>
+<dd><p>The post process function makes use of the output from the inference and converts into a
+Torchserve supported response output.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>Torch Tensor</em>) – The torch tensor received from the prediction output of the model.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The post process function returns a list of the predicted output.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ts.torch_handler.image_classifier.ImageClassifier.set_max_result_classes">
+<span class="sig-name descname"><span class="pre">set_max_result_classes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">topk</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/torch_handler/image_classifier.html#ImageClassifier.set_max_result_classes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.torch_handler.image_classifier.ImageClassifier.set_max_result_classes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ts.torch_handler.image_classifier.ImageClassifier.topk">
+<span class="sig-name descname"><span class="pre">topk</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">5</span></em><a class="headerlink" href="#ts.torch_handler.image_classifier.ImageClassifier.topk" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </section>
-<section id="ts-torch-handler-image-segmenter-module">
-<h2>ts.torch_handler.image_segmenter module<a class="headerlink" href="#ts-torch-handler-image-segmenter-module" title="Permalink to this heading">¶</a></h2>
+<section id="module-ts.torch_handler.image_segmenter">
+<span id="ts-torch-handler-image-segmenter-module"></span><h2>ts.torch_handler.image_segmenter module<a class="headerlink" href="#module-ts.torch_handler.image_segmenter" title="Permalink to this heading">¶</a></h2>
+<p>Module for image segmentation default handler</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="ts.torch_handler.image_segmenter.ImageSegmenter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ts.torch_handler.image_segmenter.</span></span><span class="sig-name descname"><span class="pre">ImageSegmenter</span></span><a class="reference internal" href="../_modules/ts/torch_handler/image_segmenter.html#ImageSegmenter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.torch_handler.image_segmenter.ImageSegmenter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ts.torch_handler.vision_handler.VisionHandler" title="ts.torch_handler.vision_handler.VisionHandler"><code class="xref py py-class docutils literal notranslate"><span class="pre">VisionHandler</span></code></a></p>
+<p>ImageSegmenter handler class. This handler takes a batch of images
+and returns output shape as [N K H W],
+where N - batch size, K - number of classes, H - height and W - width.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ts.torch_handler.image_segmenter.ImageSegmenter.image_processing">
+<span class="sig-name descname"><span class="pre">image_processing</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">Compose(</span>&#160;&#160;&#160;&#160; <span class="pre">Resize(size=256,</span> <span class="pre">interpolation=bilinear,</span> <span class="pre">max_size=None,</span> <span class="pre">antialias=warn)</span>&#160;&#160;&#160;&#160; <span class="pre">CenterCrop(size=(224,</span> <span class="pre">224))</span>&#160;&#160;&#160;&#160; <span class="pre">ToTensor()</span>&#160;&#160;&#160;&#160; <span class="pre">Normalize(mean=[0.485,</span> <span class="pre">0.456,</span> <span class="pre">0.406],</span> <span class="pre">std=[0.229,</span> <span class="pre">0.224,</span> <span class="pre">0.225])</span> <span class="pre">)</span></em><a class="headerlink" href="#ts.torch_handler.image_segmenter.ImageSegmenter.image_processing" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ts.torch_handler.image_segmenter.ImageSegmenter.postprocess">
+<span class="sig-name descname"><span class="pre">postprocess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/torch_handler/image_segmenter.html#ImageSegmenter.postprocess"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.torch_handler.image_segmenter.ImageSegmenter.postprocess" title="Permalink to this definition">¶</a></dt>
+<dd><p>The post process function makes use of the output from the inference and converts into a
+Torchserve supported response output.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>Torch Tensor</em>) – The torch tensor received from the prediction output of the model.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The post process function returns a list of the predicted output.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </section>
-<section id="ts-torch-handler-object-detector-module">
-<h2>ts.torch_handler.object_detector module<a class="headerlink" href="#ts-torch-handler-object-detector-module" title="Permalink to this heading">¶</a></h2>
+<section id="module-ts.torch_handler.object_detector">
+<span id="ts-torch-handler-object-detector-module"></span><h2>ts.torch_handler.object_detector module<a class="headerlink" href="#module-ts.torch_handler.object_detector" title="Permalink to this heading">¶</a></h2>
+<p>Module for object detection default handler</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="ts.torch_handler.object_detector.ObjectDetector">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ts.torch_handler.object_detector.</span></span><span class="sig-name descname"><span class="pre">ObjectDetector</span></span><a class="reference internal" href="../_modules/ts/torch_handler/object_detector.html#ObjectDetector"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.torch_handler.object_detector.ObjectDetector" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ts.torch_handler.vision_handler.VisionHandler" title="ts.torch_handler.vision_handler.VisionHandler"><code class="xref py py-class docutils literal notranslate"><span class="pre">VisionHandler</span></code></a></p>
+<p>ObjectDetector handler class. This handler takes an image
+and returns list of detected classes and bounding boxes respectively</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ts.torch_handler.object_detector.ObjectDetector.image_processing">
+<span class="sig-name descname"><span class="pre">image_processing</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">Compose(</span>&#160;&#160;&#160;&#160; <span class="pre">ToTensor()</span> <span class="pre">)</span></em><a class="headerlink" href="#ts.torch_handler.object_detector.ObjectDetector.image_processing" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ts.torch_handler.object_detector.ObjectDetector.initialize">
+<span class="sig-name descname"><span class="pre">initialize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/torch_handler/object_detector.html#ObjectDetector.initialize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.torch_handler.object_detector.ObjectDetector.initialize" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Initialize function loads the model.pt file and initialized the model object.</dt><dd><p>First try to load torchscript else load eager mode state_dict based model.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>context</strong> (<em>context</em>) – It is a JSON Object containing information</p></li>
+<li><p><strong>parameters.</strong> (<em>pertaining to the model artifacts</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="(in Python v3.11)"><strong>RuntimeError</strong></a> – Raises the Runtime error when the model.py is missing</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ts.torch_handler.object_detector.ObjectDetector.postprocess">
+<span class="sig-name descname"><span class="pre">postprocess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/torch_handler/object_detector.html#ObjectDetector.postprocess"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.torch_handler.object_detector.ObjectDetector.postprocess" title="Permalink to this definition">¶</a></dt>
+<dd><p>The post process function makes use of the output from the inference and converts into a
+Torchserve supported response output.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>Torch Tensor</em>) – The torch tensor received from the prediction output of the model.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The post process function returns a list of the predicted output.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ts.torch_handler.object_detector.ObjectDetector.threshold">
+<span class="sig-name descname"><span class="pre">threshold</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.5</span></em><a class="headerlink" href="#ts.torch_handler.object_detector.ObjectDetector.threshold" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </section>
 <section id="ts-torch-handler-text-classifier-module">
 <h2>ts.torch_handler.text_classifier module<a class="headerlink" href="#ts-torch-handler-text-classifier-module" title="Permalink to this heading">¶</a></h2>
@@ -491,8 +779,58 @@ and returns the name of object in that image.</p>
 <section id="ts-torch-handler-text-handler-module">
 <h2>ts.torch_handler.text_handler module<a class="headerlink" href="#ts-torch-handler-text-handler-module" title="Permalink to this heading">¶</a></h2>
 </section>
-<section id="ts-torch-handler-vision-handler-module">
-<h2>ts.torch_handler.vision_handler module<a class="headerlink" href="#ts-torch-handler-vision-handler-module" title="Permalink to this heading">¶</a></h2>
+<section id="module-ts.torch_handler.vision_handler">
+<span id="ts-torch-handler-vision-handler-module"></span><h2>ts.torch_handler.vision_handler module<a class="headerlink" href="#module-ts.torch_handler.vision_handler" title="Permalink to this heading">¶</a></h2>
+<p>Base module for all vision handlers</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="ts.torch_handler.vision_handler.VisionHandler">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ts.torch_handler.vision_handler.</span></span><span class="sig-name descname"><span class="pre">VisionHandler</span></span><a class="reference internal" href="../_modules/ts/torch_handler/vision_handler.html#VisionHandler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.torch_handler.vision_handler.VisionHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ts.torch_handler.base_handler.BaseHandler" title="ts.torch_handler.base_handler.BaseHandler"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseHandler</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></a></p>
+<p>Base class for all vision handlers</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ts.torch_handler.vision_handler.VisionHandler.get_insights">
+<span class="sig-name descname"><span class="pre">get_insights</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tensor_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/torch_handler/vision_handler.html#VisionHandler.get_insights"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.torch_handler.vision_handler.VisionHandler.get_insights" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ts.torch_handler.vision_handler.VisionHandler.initialize">
+<span class="sig-name descname"><span class="pre">initialize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/torch_handler/vision_handler.html#VisionHandler.initialize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.torch_handler.vision_handler.VisionHandler.initialize" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Initialize function loads the model.pt file and initialized the model object.</dt><dd><p>First try to load torchscript else load eager mode state_dict based model.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>context</strong> (<em>context</em>) – It is a JSON Object containing information</p></li>
+<li><p><strong>parameters.</strong> (<em>pertaining to the model artifacts</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="(in Python v3.11)"><strong>RuntimeError</strong></a> – Raises the Runtime error when the model.py is missing</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ts.torch_handler.vision_handler.VisionHandler.preprocess">
+<span class="sig-name descname"><span class="pre">preprocess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/torch_handler/vision_handler.html#VisionHandler.preprocess"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.torch_handler.vision_handler.VisionHandler.preprocess" title="Permalink to this definition">¶</a></dt>
+<dd><p>The preprocess function of MNIST program converts the input data to a float tensor</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>List</em>) – Input data from the request is in the form of a Tensor</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The preprocess function returns the input image as a list of float tensors.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)">list</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 <section id="module-ts.torch_handler">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-ts.torch_handler" title="Permalink to this heading">¶</a></h2>
@@ -545,15 +883,15 @@ and returns the name of object in that image.</p>
 <li><a class="reference internal" href="#">ts.torch_handler package</a><ul>
 <li><a class="reference internal" href="#subpackages">Subpackages</a></li>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
-<li><a class="reference internal" href="#ts-torch-handler-base-handler-module">ts.torch_handler.base_handler module</a></li>
+<li><a class="reference internal" href="#module-ts.torch_handler.base_handler">ts.torch_handler.base_handler module</a></li>
 <li><a class="reference internal" href="#module-ts.torch_handler.contractions">ts.torch_handler.contractions module</a></li>
 <li><a class="reference internal" href="#module-ts.torch_handler.densenet_handler">ts.torch_handler.densenet_handler module</a></li>
-<li><a class="reference internal" href="#ts-torch-handler-image-classifier-module">ts.torch_handler.image_classifier module</a></li>
-<li><a class="reference internal" href="#ts-torch-handler-image-segmenter-module">ts.torch_handler.image_segmenter module</a></li>
-<li><a class="reference internal" href="#ts-torch-handler-object-detector-module">ts.torch_handler.object_detector module</a></li>
+<li><a class="reference internal" href="#module-ts.torch_handler.image_classifier">ts.torch_handler.image_classifier module</a></li>
+<li><a class="reference internal" href="#module-ts.torch_handler.image_segmenter">ts.torch_handler.image_segmenter module</a></li>
+<li><a class="reference internal" href="#module-ts.torch_handler.object_detector">ts.torch_handler.object_detector module</a></li>
 <li><a class="reference internal" href="#ts-torch-handler-text-classifier-module">ts.torch_handler.text_classifier module</a></li>
 <li><a class="reference internal" href="#ts-torch-handler-text-handler-module">ts.torch_handler.text_handler module</a></li>
-<li><a class="reference internal" href="#ts-torch-handler-vision-handler-module">ts.torch_handler.vision_handler module</a></li>
+<li><a class="reference internal" href="#module-ts.torch_handler.vision_handler">ts.torch_handler.vision_handler module</a></li>
 <li><a class="reference internal" href="#module-ts.torch_handler">Module contents</a></li>
 </ul>
 </li>
