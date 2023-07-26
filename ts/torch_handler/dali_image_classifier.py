@@ -5,10 +5,10 @@ import torch
 import torch.nn.functional as F
 
 from ..utils.util import map_class_to_label
-from .dali_handler import DaliHandler
+from .dali_handler import DALIHandler
 
 
-class DALIImageClassifier(DaliHandler):
+class DALIImageClassifier(DALIHandler):
     """
     ImageClassifier handler class. This handler takes an image
     and returns the name of object in that image.

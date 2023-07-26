@@ -7,7 +7,7 @@ from pathlib import Path
 import pytest
 import requests
 
-from examples.nvidia_dali.custom_handler import DALIHandler
+from ts.torch_handler.dali_image_classifier import DALIImageClassifier
 from ts.torch_handler.unit_tests.test_utils.mock_context import MockContext
 
 CURR_FILE_PATH = Path(__file__).parent
@@ -30,7 +30,6 @@ TEST_CASES = [
 
 @pytest.mark.parametrize(("file", "expected_result"), TEST_CASES)
 def test_dali_preprocess(monkeypatch, file, expected_result):
-
     monkeypatch.syspath_prepend(EXAMPLE_ROOT_DIR_RESNET)
 
     serialized_file = os.path.join(REPO_ROOT_DIR, MODEL_PTH_FILE)
@@ -43,12 +42,22 @@ def test_dali_preprocess(monkeypatch, file, expected_result):
         with open(serialized_file, "wb") as f:
             f.write(response.content)
 
-    handler = DALIHandler()
+    dali_params = {
+        "dali": {
+            "batch_size": 1,
+            "num_threads": 1,
+            "device_id": 0,
+            "seed": 12,
+        },
+    }
+
+    handler = DALIImageClassifier()
     ctx = MockContext(
         model_pt_file=REPO_ROOT_DIR.joinpath(MODEL_PTH_FILE).as_posix(),
         model_dir=EXAMPLE_ROOT_DIR_DALI,
         model_file="model.py",
     )
+    ctx.model_yaml_config = dali_params
 
     handler.initialize(ctx)
     data = {}

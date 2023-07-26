@@ -3,10 +3,10 @@ Module for image segmentation default handler
 """
 import torch
 
-from .dali_handler import DaliHandler
+from .dali_handler import DALIHandler
 
 
-class DALIImageSegmenter(DaliHandler):
+class DALIImageSegmenter(DALIHandler):
     """
     ImageSegmenter handler class. This handler takes a batch of images
     and returns output shape as [N K H W],
