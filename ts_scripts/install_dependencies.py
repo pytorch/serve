@@ -182,7 +182,8 @@ def install_dependencies(cuda_version=None, nightly=False):
         system.install_numactl()
 
     # Sequence of installation to be maintained
-    system.install_java()
+    # system.install_java()
+    print("!!!!!!!!!!!!!!!Skipping Java")
 
     requirements_file = "common.txt" if args.environment == "prod" else "developer.txt"
     requirements_file_path = os.path.join("requirements", requirements_file)

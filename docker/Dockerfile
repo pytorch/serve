@@ -27,6 +27,7 @@ ARG BASE_IMAGE=ubuntu:rolling
 # on each build-stage.
 ARG PYTHON_VERSION
 ARG BASE_IMAGE_TYPE
+ARG BUILD_NIGHTLY
 
 FROM ${BASE_IMAGE} as compile-image-slim
 
@@ -37,7 +38,6 @@ RUN update-alternatives --install /usr/bin/java java /usr/local/openjdk-17/bin/j
 FROM ${BASE_IMAGE} AS compile-image-ubuntu
 ARG BASE_IMAGE=ubuntu:rolling
 ARG PYTHON_VERSION
-ARG BUILD_NIGHTLY
 ENV PYTHONUNBUFFERED TRUE
 
 RUN --mount=type=cache,id=apt-dev,target=/var/cache/apt \
