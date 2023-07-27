@@ -8,8 +8,6 @@ logger = logging.getLogger(__name__)
 
 
 def cache(func):
-    logger.info("Inside decorator !!!!!!!!!!!!!!!!")
-
     def wrap_func(self, *args, **kwargs):
         result = func(self, *args, **kwargs)
         if self.model_yaml_config is not None and "cache" in self.model_yaml_config:
@@ -18,7 +16,6 @@ def cache(func):
             cache_class = get_cache_definition(module)
             logger.info("Cache used is  %s", cache_class)
             self.handle = cache_class(config)(self.handle)
-
         return result
 
     return wrap_func

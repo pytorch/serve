@@ -15,7 +15,6 @@ class Cache:
     def __call__(self, func):
         @wraps(func)
         def wrapper(*args, **kwds):
-            logger.info("!!!!!!!!!!!!!!! Calling cache")
             # Removing Context objects from key hashing
             key = self._make_key(
                 args=[arg for arg in args if not isinstance(arg, Context)],
@@ -23,7 +22,7 @@ class Cache:
             )
             value_str = self.client.get(key)
             if value_str is not None:
-                logger.info("@@@@@@@@@@@@@@@@ Using cache for inference")
+                logger.info("Cache hit")
                 return pickle.loads(value_str)
             value = func(*args, **kwds)
             self.client.set(key, pickle.dumps(value))
