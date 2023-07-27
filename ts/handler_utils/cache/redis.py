@@ -14,11 +14,7 @@ except ImportError:
 
 class RedisCache(Cache):
     def __init__(self, config=None):
-        args = {}
-        for k, v in config.items():
-            args[k] = v
-
-        logger.info(f"Redis client init with args {config}")
+        logger.info(f"Init Redis client with args {config}")
 
         if not _has_redis:
             logger.error(f"Cannot import redis, try pip install redis.")
