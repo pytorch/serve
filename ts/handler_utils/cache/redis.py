@@ -2,6 +2,8 @@ import logging
 
 from ts.handler_utils.cache.cache import Cache
 
+logger = logging.getLogger(__name__)
+
 try:
     import redis
 
@@ -24,17 +26,17 @@ class RedisCache(Cache):
         for k, v in config.items():
             args[k] = v
 
-        print("$$$$$$$$$$$$$$$$$$$$$$$$$$ Init Redis")
-        print("args", args)
+        logger.info("$$$$$$$$$$$$$$$$$$$$$$$$$$ Init Redis")
+        logger.info("args", args)
 
         if not _has_redis:
-            logging.error(f"Cannot import redis, try pip install redis.")
+            logger.error(f"Cannot import redis, try pip install redis.")
             return self._no_op_decorator
         # self.client = redis.Redis(host=host, port=port, db=db)
         self.client = redis.Redis(**args)
         try:
             self.client.ping()
         except redis.exceptions.ConnectionError:
-            logging.error(
+            logger.error(
                 f"Cannot connect to a Redis server, ensure a server is running on {args['host']}:{args['port']}."
             )

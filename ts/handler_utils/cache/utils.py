@@ -1,10 +1,14 @@
+import logging
+
 from ts.handler_utils.cache.cache import Cache
 from ts.handler_utils.cache.redis import RedisCache
 from ts.utils.util import list_classes_from_module
 
+logger = logging.getLogger(__name__)
+
 
 def cache(func):
-    print("Inside decorator !!!!!!!!!!!!!!!!")
+    logger.info("Inside decorator !!!!!!!!!!!!!!!!")
 
     def wrap_func(self, *args, **kwargs):
         result = func(self, *args, **kwargs)
@@ -19,7 +23,7 @@ def cache(func):
 
 class BackendCache(Cache):
     def __init__(self, context=None):
-        print("Init begin BC")
+        logger.info("Init begin BC")
         ctx = context.model_yaml_config
 
         if "cache" not in ctx:
@@ -32,17 +36,15 @@ class BackendCache(Cache):
 
         self.client = cache.client
 
-        print("Init done  BC")
+        logger.info("Init done  BC")
 
     def _get_cache_definition(self, module):
-        print("Module is ", module)
+        logger.info("Module is ", module)
         module = module.strip()
-        print(module)
 
         if "redis" in module:
             return RedisCache
         cache_class_definitions = list_classes_from_module(module)
-        print("Def is ", cache_class_definitions)
         if len(cache_class_definitions) != 1:
             raise ValueError(
                 "Expected only one class in custom cache module {}".format(

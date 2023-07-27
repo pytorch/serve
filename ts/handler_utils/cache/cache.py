@@ -15,7 +15,7 @@ class Cache:
     def __call__(self, func):
         @wraps(func)
         def wrapper(*args, **kwds):
-            print("!!!!!!!!!!!!!!! Calling cache")
+            logger.info("!!!!!!!!!!!!!!! Calling cache")
             # Removing Context objects from key hashing
             key = self._make_key(
                 args=[arg for arg in args if not isinstance(arg, Context)],
