@@ -1047,6 +1047,7 @@ QueueTime
 WorkerLoadTime
 WorkerName
 WorkerThreadTime
+minikube
 MicroSoft
 lmi
 torchrun
