@@ -27,7 +27,7 @@ mv yolov8n.mar model_store/.
 
 Because of a bug in ultralytics, we need to make sure only 1 worker is used.
 
-````
+```
 torchserve --start --model-store model_store --ncs
 curl -X POST "localhost:8081/models?model_name=yolov8n&url=yolov8n.mar&initial_workers=1&batch_size=2"
 ```
