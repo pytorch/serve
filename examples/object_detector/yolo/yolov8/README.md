@@ -25,7 +25,6 @@ mv yolov8n.mar model_store/.
 
 ## Start TorchServe and register the model
 
-Because of a bug in ultralytics, we need to make sure only 1 worker is used.
 
 ```
 torchserve --start --model-store model_store --ncs
@@ -36,7 +35,7 @@ results in
 
 ```
 {
-  "status": "Model \"yolov8n\" Version: 1.0 registered with 1 initial workers"
+  "status": "Model \"yolov8n\" Version: 1.0 registered with 4 initial workers"
 }
 ```
 
