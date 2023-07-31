@@ -24,5 +24,5 @@ class RedisCache(Cache):
             self.client.ping()
         except redis.exceptions.ConnectionError:
             logger.error(
-                f"Cannot connect to a Redis server, ensure a server is running on {args['host']}:{args['port']}."
+                f"Cannot connect to a Redis server, ensure a server is running on {config['host']}:{config['port']}."
             )
