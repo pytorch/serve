@@ -10,6 +10,7 @@
 * [Custom Metrics API](#custom-metrics-api)
 * [Logging custom metrics](#log-custom-metrics)
 * [Metrics YAML Parsing and Metrics API example](#Metrics-YAML-File-Parsing-and-Metrics-API-Custom-Handler-Example)
+* [Backwards compatibility warnings](#backwards-compatibility-warnings)
 
 ## Introduction
 
@@ -28,7 +29,7 @@ Metrics are collected by default at the following locations in `log` mode:
 
 The location of log files and metric files can be configured in the [log4j2.xml](https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/log4j2.xml) file
 
-In `prometheus` mode, all metrics are made available in prometheus format via the [metrics](https://github.com/pytorch/serve/blob/master/docs/metrics_api.md) API endpoint.
+In `prometheus` mode, all metrics are made available in prometheus format via the [metrics API endpoint](https://github.com/pytorch/serve/blob/master/docs/metrics_api.md).
 
 ## Frontend Metrics
 
@@ -187,7 +188,10 @@ model_metrics:  # backend metrics
 ```
 
 
-Default metrics are provided in the [metrics.yaml](https://github.com/pytorch/serve/blob/master/ts/configs/metrics.yaml) file, but the user can either delete them to their liking / ignore them altogether, because these metrics will not be emitted unless they are edited.
+Note that **only** the metrics defined in the **metrics configuration file** can be emitted to logs or made available via the metrics API endpoint. This is done to ensure that the metrics configuration file serves as a central inventory of all the metrics that Torchserve can emit.
+
+Default metrics are provided in the [metrics.yaml](https://github.com/pytorch/serve/blob/master/ts/configs/metrics.yaml) file, but the user can either delete them to their liking / ignore them altogether, because these metrics will not be emitted unless they are edited.\
+When adding custom `model_metrics` in the metrics cofiguration file, ensure to include `ModelName` and `Level` dimension names towards the end of the list of dimensions since they are included by default by the custom metrics API.
 
 
 ### How it works
@@ -622,3 +626,23 @@ class CustomHandlerExample:
         # except this time with gauge metric type object
         metrics.add_size("GaugeModelMetricNameExample", 42.5)
 ```
+
+## Backwards compatibility warnings
+1. Starting [v0.6.1](https://github.com/pytorch/serve/releases/tag/v0.6.1), the `add_metric` API signature changed\
+   from [add_metric(name, value, unit, idx=None, dimensions=None)](https://github.com/pytorch/serve/blob/61f1c4182e6e864c9ef1af99439854af3409d325/ts/metrics/metrics_store.py#L184)\
+   to [add_metric(metric_name, unit, dimension_names, metric_type)](https://github.com/pytorch/serve/blob/35ef00f9e62bb7fcec9cec92630ae757f9fb0db0/ts/metrics/metric_cache_abstract.py#L272).\
+   Usage of the new API is shown [above](#specifying-metric-types).\
+   There are two approaches available when migrating to the new custom metrics API:
+   - Replace the call to `add_metric` in versions prior to v0.6.1 with calls to the following methods:
+   ```
+   metric1 = metrics.add_metric("GenericMetric", unit=unit, dimension_names=["name1", "name2", ...], metric_type=MetricTypes.GAUGE)
+   metric1.add_or_update(value, dimension_values=["value1", "value2", ...])
+   ```
+   - Replace the call to `add_metric` in versions prior to v0.6.1 with one of the suitable custom metrics APIs where applicable: [add_counter](#add-counter-based-metrics), [add_time](#add-time-based-metrics),
+   [add_size](#add-size-based-metrics) or [add_percent](#add-percentage-based-metrics)
+2. Starting [v0.8.0](https://github.com/pytorch/serve/releases/tag/v0.8.0), only metrics that are defined in the metrics config file(default: [metrics.yaml](https://github.com/pytorch/serve/blob/master/ts/configs/metrics.yaml))
+   are either all logged to `ts_metrics.log` and `model_metrics.log` or made available via the [metrics API endpoint](https://github.com/pytorch/serve/blob/master/docs/metrics_api.md)
+   based on the `metrics_mode` configuration as described [above](#introduction).\
+   The default `metrics_mode` is `log` mode.\
+   This is unlike in previous versions where all metrics were only logged to `ts_metrics.log` and `model_metrics.log` except for `ts_inference_requests_total`, `ts_inference_latency_microseconds` and `ts_queue_latency_microseconds`
+   which were only available via the metrics API endpoint.
