@@ -1,13 +1,12 @@
 import logging
 import os
-from collections import defaultdict
+from collections import Counter
 
 import torch
 from torchvision import transforms
 from ultralytics import YOLO
 
 from ts.torch_handler.object_detector import ObjectDetector
-from ts.utils.util import load_label_mapping
 
 logger = logging.getLogger(__name__)
 
@@ -28,33 +27,24 @@ class Yolov8Handler(ObjectDetector):
         super(Yolov8Handler, self).__init__()
 
     def initialize(self, context):
-        properties = context.system_properties
-        if torch.cuda.is_available() and properties.get("gpu_id") is not None:
-            self.map_location = "cuda"
-            self.device = torch.device(
-                self.map_location + ":" + str(properties.get("gpu_id"))
-            )
+        # Set device type
+        if torch.cuda.is_available():
+            self.device = torch.device("cuda")
         elif XLA_AVAILABLE:
             self.device = xm.xla_device()
         else:
-            self.map_location = "cpu"
-            self.device = torch.device(self.map_location)
+            self.device = torch.device("cpu")
 
+        # Load the model
+        properties = context.system_properties
         self.manifest = context.manifest
-
         model_dir = properties.get("model_dir")
         self.model_pt_path = None
         if "serializedFile" in self.manifest["model"]:
             serialized_file = self.manifest["model"]["serializedFile"]
             self.model_pt_path = os.path.join(model_dir, serialized_file)
-
         self.model = self._load_torchscript_model(self.model_pt_path)
-
         logger.debug("Model file %s loaded successfully", self.model_pt_path)
-
-        # Load class mapping for classifiers
-        mapping_file_path = os.path.join(model_dir, "index_to_name.json")
-        self.mapping = load_label_mapping(mapping_file_path)
 
         self.initialized = True
 
@@ -79,10 +69,11 @@ class Yolov8Handler(ObjectDetector):
             classes = data.boxes.cls.tolist()
             names = data.names
 
-            result = defaultdict(int)
+            # Map to class names
+            classes = map(lambda cls: names[int(cls)], classes)
 
-            for cls in classes:
-                result[names[int(cls)]] += 1
-            output.append(result)
+            # Get a count of objects detected
+            result = Counter(classes)
+            output.append(dict(result))
 
         return output
