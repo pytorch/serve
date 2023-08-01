@@ -12,6 +12,8 @@ In this example, we are using the YOLOv8 Nano model from ultralytics.Downlaod th
 wget https://github.com/ultralytics/assets/releases/download/v0.0.0/yolov8n.pt
 ```
 
+We need a custom handler to load the YOLOv8n model. The default `initialize` function loads `.pt` file using `torch.jit.load`. This doesn't work for YOLOv8n model. Hence, we need a custom handler with an `initialize` method where we load the model using ultralytics.
+
 ## Create a model archive file for Yolov8n model
 
 ```
