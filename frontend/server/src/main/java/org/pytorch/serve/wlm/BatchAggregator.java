@@ -1,8 +1,18 @@
 package org.pytorch.serve.wlm;
 
-import java.util.LinkedHashMap;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+
 import org.pytorch.serve.job.Job;
+import org.pytorch.serve.job.JobGroup;
 import org.pytorch.serve.util.messages.BaseModelRequest;
 import org.pytorch.serve.util.messages.ModelInferenceRequest;
 import org.pytorch.serve.util.messages.ModelLoadModelRequest;
@@ -17,12 +27,16 @@ public class BatchAggregator {
 
     private static final Logger logger = LoggerFactory.getLogger(BatchAggregator.class);
 
-    private Model model;
-    private Map<String, Job> jobs;
+    private final Model model;
+    private final ConcurrentMap<String, Job> jobs;
+    private LinkedHashSet<String> jobGroups;
 
     public BatchAggregator(Model model) {
         this.model = model;
-        jobs = new LinkedHashMap<>();
+        jobs = new ConcurrentHashMap<>();
+        if (model.isStateful()) {
+            jobGroups = new LinkedHashSet<>(model.getBatchSize());
+        }
     }
 
     public BaseModelRequest getRequest(String threadName, WorkerState state)
@@ -31,8 +45,7 @@ public class BatchAggregator {
 
         ModelInferenceRequest req = new ModelInferenceRequest(model.getModelName());
 
-        model.pollBatch(
-                threadName, (state == WorkerState.WORKER_MODEL_LOADED) ? 0 : Long.MAX_VALUE, jobs);
+        pollBatch(threadName, state);
 
         if (model.isUseJobTicket() && jobs.isEmpty()) {
             model.decNumJobTickets();
@@ -67,7 +80,7 @@ public class BatchAggregator {
     /**
      * @param message: a response of a batch inference requests
      * @return - true: either a non-stream response or last stream response is sent - false: a
-     *     stream response (not include the last stream) is sent
+     * stream response (not include the last stream) is sent
      */
     public boolean sendResponse(ModelWorkerResponse message) {
         boolean jobDone = true;
@@ -108,8 +121,10 @@ public class BatchAggregator {
                             "Drop response for inference request {} due to client timeout",
                             job.getPayload().getRequestId());
                 }
+                if (jobDone) {
+                    cleanJobGroup(job.getGroupId());
+                }
             }
-
         } else {
             for (Map.Entry<String, Job> j : jobs.entrySet()) {
                 if (j.getValue() == null) {
@@ -125,6 +140,7 @@ public class BatchAggregator {
                             "Drop error response for inference request {} due to client timeout",
                             job.getPayload().getRequestId());
                 }
+                cleanJobGroup(job.getGroupId());
             }
         }
         if (jobDone) {
@@ -148,6 +164,7 @@ public class BatchAggregator {
                     logger.error("Unexpected job in sendError(): " + requestId);
                 } else {
                     job.sendError(status, error);
+                    cleanJobGroup(job.getGroupId());
                 }
             }
             if (!jobs.isEmpty()) {
@@ -165,10 +182,97 @@ public class BatchAggregator {
                 } else {
                     // Data message can be handled by other workers.
                     // If batch has gone past its batch max delay timer?
-                    model.addFirst(job);
+                    if (job.getGroupId() == null) {
+                        model.addFirst(job);
+                    } else {
+                        logger.error("Failed to process requestId: {}, sequenceId: {}",
+                                job.getPayload().getRequestId(), job.getGroupId());
+                        cleanJobGroup(job.getGroupId());
+                    }
                 }
             }
         }
         jobs.clear();
+    }
+
+    private void pollJobGroup() throws InterruptedException {
+        cleanJobGroup();
+        LinkedHashSet<String> tmpJobGroups = new LinkedHashSet<>();
+        if (jobGroups.size() == 0) {
+            jobGroups.add(model.getPendingJobGroups().poll(Long.MAX_VALUE, TimeUnit.MILLISECONDS));
+        }
+        int quota = model.getBatchSize() - jobGroups.size();
+        if (quota > 0 && model.getPendingJobGroups().size() > 0) {
+            model.getPendingJobGroups().drainTo(tmpJobGroups, quota);
+            jobGroups.addAll(tmpJobGroups);
+        }
+    }
+
+    public void pollJobFromGroups() throws InterruptedException {
+        if (jobGroups.size() < model.getBatchSize()) {
+            pollJobGroup();
+        }
+
+        List<CompletableFuture<Job>> futures = new ArrayList<>(jobGroups.size());
+        for (String groupId : jobGroups) {
+            JobGroup jobGroup = model.getJobGroup(groupId);
+            futures.add(CompletableFuture.supplyAsync(
+                    () -> jobGroup.pollJob(model.getSequenceMaxIdleMSec())));
+        }
+
+        for (CompletableFuture<Job> future : futures) {
+            try {
+                Job job = future.get();
+                if (job != null) {
+                    jobs.put(job.getJobId(), job);
+                }
+            } catch (InterruptedException | ExecutionException e) {
+                logger.error(
+                        "Failed to poll job from group for model {}",
+                        model.getModelName(),
+                        e);
+            }
+        }
+    }
+
+    /**
+     * The priority of polling a batch
+     * P0: poll a job with one single management request. In this case, the batchSize is 1.
+     * P1: poll jobs from job groups. In this case, the batch size is equal to or less than the number
+     *     of job groups storeed in this aggregator.
+     * P2: poll jobs from the DEFAULT_DATA_QUEUE of this model.
+     */
+    private void pollBatch(String threadName, WorkerState state) throws InterruptedException {
+        if (model.pollMgmtJob(
+                threadName,
+                (state == WorkerState.WORKER_MODEL_LOADED) ? 0 : Long.MAX_VALUE,
+                jobs)) {
+        } else if (model.isStateful()) {
+            pollJobFromGroups();
+        } else {
+            model.pollInferJob(jobs);
+        }
+    }
+
+    private void cleanJobGroup(String jobGroupId) {
+        if (jobGroupId != null) {
+            JobGroup jobGroup = model.getJobGroup(jobGroupId);
+            if (!jobGroup.groupHasNextInput() && jobGroup.size() == 0) {
+                jobGroups.remove(jobGroupId);
+                model.removeJobGroup(jobGroupId);
+            }
+        }
+    }
+
+    private void cleanJobGroup() {
+        Iterator<String> it = jobGroups.iterator();
+        while (it.hasNext()) {
+            String jobGroupId = it.next();
+            JobGroup jobGroup = model.getJobGroup(it.next());
+            if (!jobGroup.groupHasNextInput() && jobGroup.size() == 0) {
+                jobGroups.remove(jobGroupId);
+                model.removeJobGroup(jobGroupId);
+            }
+        }
     }
 }

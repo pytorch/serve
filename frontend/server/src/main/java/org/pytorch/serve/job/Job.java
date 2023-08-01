@@ -1,5 +1,6 @@
 package org.pytorch.serve.job;
 
+import static org.pytorch.serve.util.messages.RequestInput.TS_REQUEST_SEQUENCE_ID;
 import static org.pytorch.serve.util.messages.RequestInput.TS_STREAM_NEXT;
 
 import java.util.Map;
@@ -24,6 +25,8 @@ public abstract class Job {
         scheduled = begin;
         if (cmd == WorkerCommands.STREAMPREDICT) {
             input.updateHeaders(TS_STREAM_NEXT, "true");
+        } else if (cmd == WorkerCommands.STREAMPREDICT2) {
+            input.updateHeaders(TS_REQUEST_SEQUENCE_ID, input.getSequenceId());
         }
     }
 
@@ -73,4 +76,11 @@ public abstract class Job {
             Map<String, String> responseHeaders);
 
     public abstract void sendError(int status, String error);
+
+    public String getGroupId() {
+        if (input != null && input.getSequenceId() != null) {
+            return input.getSequenceId();
+        }
+        return null;
+    }
 }

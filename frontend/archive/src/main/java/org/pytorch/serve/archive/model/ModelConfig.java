@@ -54,6 +54,20 @@ public class ModelConfig {
      * available workers.
      */
     private boolean useJobTicket;
+    /**
+     * the max idle in milliseconds of a sequence inference request of this stateful model. The
+     * default value is 0 (ie. this is not a stateful model.
+     */
+    private int sequenceMaxIdleMSec = 0;
+    /**
+     * the max number of sequence inference requests of this stateful model. The default value is
+     * minWorkers * batchSize.
+     */
+    private int maxNumSequence;
+    /**
+     * the job queue size of an inference sequence of this stateful model. The default value is 1.
+     */
+    private int maxSequenceJobQueueSize = 1;
 
     public static ModelConfig build(Map<String, Object> yamlMap) {
         ModelConfig modelConfig = new ModelConfig();
@@ -156,6 +170,32 @@ public class ModelConfig {
                                 modelConfig.setUseJobTicket((boolean) v);
                             } else {
                                 logger.warn("Invalid useJobTicket: {}, should be true or false", v);
+                            }
+                            break;
+                        case "sequenceMaxIdleMSec":
+                            if (v instanceof Integer) {
+                                modelConfig.setSequenceMaxIdleMSec((int) v);
+                            } else {
+                                logger.warn(
+                                        "Invalid sequenceMaxIdleMSec: {}, should be positive int",
+                                        v);
+                            }
+                            break;
+                        case "maxNumSequence":
+                            if (v instanceof Integer) {
+                                modelConfig.setMaxNumSequence((int) v);
+                            } else {
+                                logger.warn(
+                                        "Invalid maxNumSequence: {}, should be positive int", v);
+                            }
+                            break;
+                        case "maxSequenceJobQueueSize":
+                            if (v instanceof Integer) {
+                                modelConfig.setMaxSequenceJobQueueSize((int) v);
+                            } else {
+                                logger.warn(
+                                        "Invalid maxSequenceJobQueueSize: {}, should be positive int",
+                                        v);
                             }
                             break;
                         default:
@@ -311,6 +351,36 @@ public class ModelConfig {
 
     public void setUseJobTicket(boolean useJobTicket) {
         this.useJobTicket = useJobTicket;
+    }
+
+    public int getSequenceMaxIdleMSec() {
+        return sequenceMaxIdleMSec;
+    }
+
+    public void setSequenceMaxIdleMSec(int sequenceMaxIdleMSec) {
+        if (sequenceMaxIdleMSec > 0) {
+            this.sequenceMaxIdleMSec = sequenceMaxIdleMSec;
+        }
+    }
+
+    public int getMaxNumSequence() {
+        return maxNumSequence;
+    }
+
+    public void setMaxNumSequence(int maxNumSequence) {
+        if (maxNumSequence > 0) {
+            this.maxNumSequence = maxNumSequence;
+        }
+    }
+
+    public int getMaxSequenceJobQueueSize() {
+        return maxSequenceJobQueueSize;
+    }
+
+    public void setMaxSequenceJobQueueSize(int maxsequenceJobQueueSize) {
+        if (maxsequenceJobQueueSize > 0) {
+            this.maxSequenceJobQueueSize = maxsequenceJobQueueSize;
+        }
     }
 
     public enum ParallelType {
