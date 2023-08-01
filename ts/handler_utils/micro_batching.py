@@ -15,16 +15,6 @@ except ImportError:
 HANDLER_METHODS = ["preprocess", "inference", "postprocess"]
 
 
-def execute_call(in_queue, out_queue, handle, event):
-    while not event.is_set():
-        try:
-            idx, in_data = in_queue.get(timeout=0.5)
-        except queue.Empty:
-            continue
-        out_data = handle(in_data)
-        out_queue.put((idx, out_data))
-
-
 @dataclass
 class WorkerThread:
     event: threading.Event
@@ -105,7 +95,7 @@ class MicroBatching(object):
                 event = threading.Event()
 
                 t = threading.Thread(
-                    target=execute_call,
+                    target=self.execute_call,
                     args=(in_queue, out_queue, call, event),
                 )
                 t.start()
@@ -175,3 +165,12 @@ class MicroBatching(object):
             "HandlerTime", round((stop_time - start_time) * 1000, 2), None, "ms"
         )
         return output
+
+    def execute_call(in_queue, out_queue, handle, event):
+        while not event.is_set():
+            try:
+                idx, in_data = in_queue.get(timeout=0.5)
+            except queue.Empty:
+                continue
+            out_data = handle(in_data)
+            out_queue.put((idx, out_data))
