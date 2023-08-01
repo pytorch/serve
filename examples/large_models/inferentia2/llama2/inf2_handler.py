@@ -64,14 +64,18 @@ class LLMHandler(BaseHandler, ABC):
         self.initialized = True
 
     def preprocess(self, requests):
-        input_texts = []
-        for req in requests:
-            data = req.get("data") or req.get("body")
-            if isinstance(data, (bytes, bytearray)):
-                data = data.decode("utf-8")
-            input_texts.append(data)
-
-        return self.tokenizer(input_texts, return_tensors="pt")
+        assert (
+            len(requests) == 1
+        ), "Only batch size 1 is supported. Received input with batch size: " + str(
+            len(requests)
+        )
+        input_text = requests[0].get("data") or requests[0].get("body")
+        if isinstance(input_text, (bytes, bytearray)):
+            input_text = input_text.decode("utf-8")
+        assert (
+            type(input_text) == str
+        ), "Expected a single text prompt as input but got: " + str(type(input_text))
+        return self.tokenizer(input_text, return_tensors="pt")
 
     def inference(self, tokenized_input):
         generation_kwargs = dict(
