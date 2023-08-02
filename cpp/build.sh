@@ -246,7 +246,7 @@ function build() {
   if [ "$CUDA" != "" ]; then
     MAYBE_CUDA_COMPILER='-DCMAKE_CUDA_COMPILER=/usr/local/cuda/bin/nvcc'
   fi
-
+  
   # Build torchserve_cpp with cmake
   cd "$BWD" || exit
   YAML_CPP_CMAKE_DIR=$DEPS_DIR/yaml-cpp-build
@@ -254,7 +254,7 @@ function build() {
   find $FOLLY_CMAKE_DIR -name "lib*.*"  -exec ln -s "{}" $LIBS_DIR/ \;
   if [ "$PLATFORM" = "Linux" ]; then
     cmake                                                                                     \
-    -DCMAKE_PREFIX_PATH="$DEPS_DIR;$FOLLY_CMAKE_DIR;$YAML_CPP_CMAKE_DIR;$DEPS_DIR/libtorch"                       \
+    -DCMAKE_PREFIX_PATH="$DEPS_DIR;$FOLLY_CMAKE_DIR;$YAML_CPP_CMAKE_DIR;$DEPS_DIR/libtorch;"  \
     -DCMAKE_INSTALL_PREFIX="$PREFIX"                                                          \
     "$MAYBE_BUILD_QUIC"                                                                       \
     "$MAYBE_BUILD_TESTS"                                                                      \
@@ -297,6 +297,10 @@ function build() {
     mv $DEPS_DIR/../src/examples/libmnist_handler.dylib $DEPS_DIR/../../test/resources/torchscript_model/mnist/mnist_handler/libmnist_handler.dylib
   elif [ -f "$DEPS_DIR/../src/examples/libmnist_handler.so" ]; then
     mv $DEPS_DIR/../src/examples/libmnist_handler.so $DEPS_DIR/../../test/resources/torchscript_model/mnist/mnist_handler/libmnist_handler.so
+  fi
+
+  if [ -f "$DEPS_DIR/../src/examples/libresnet-18_handler.so" ]; then
+    mv $DEPS_DIR/../src/examples/libresnet-18_handler.so $DEPS_DIR/../../test/resources/torchscript_model/resnet-18/resnet-18_handler/libresnet-18_handler.so
   fi
 
   cd $DEPS_DIR/../..
@@ -391,7 +395,7 @@ cd $BASE_DIR
 
 install_folly
 install_kineto
-install_libtorch
+#install_libtorch
 install_yaml_cpp
 build
 symlink_torch_libs
