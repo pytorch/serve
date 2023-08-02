@@ -72,7 +72,7 @@ Refer to [torchserve docker](docker/README.md) for details.
 
 
 ## 🏆 Highlighted Examples
-* [🤗 HuggingFace Transformers](examples/Huggingface_Transformers) with a [Better Transformer Integration](examples/Huggingface_Transformers#Speed-up-inference-with-Better-Transformer)
+* [🤗 HuggingFace Transformers](examples/Huggingface_Transformers) with a [Better Transformer Integration/ Flash Attention & Xformer Memory Efficient ](examples/Huggingface_Transformers#Speed-up-inference-with-Better-Transformer)
 * [Model parallel inference](examples/Huggingface_Transformers#model-parallelism)
 * [MultiModal models with MMF](https://github.com/pytorch/serve/tree/master/examples/MMF-activity-recognition) combining text, audio and video
 * [Dual Neural Machine Translation](examples/Workflows/nmt_transformers_pipeline) for a complex workflow DAG
@@ -101,7 +101,7 @@ To learn more about how to contribute, see the contributor guide [here](https://
 * [Grokking Intel CPU PyTorch performance from first principles( Part 2): a TorchServe case study](https://pytorch.org/tutorials/intermediate/torchserve_with_ipex_2.html)
 * [Case Study: Amazon Ads Uses PyTorch and AWS Inferentia to Scale Models for Ads Processing](https://pytorch.org/blog/amazon-ads-case-study/)
 * [Optimize your inference jobs using dynamic batch inference with TorchServe on Amazon SageMaker](https://aws.amazon.com/blogs/machine-learning/optimize-your-inference-jobs-using-dynamic-batch-inference-with-torchserve-on-amazon-sagemaker/)
-* [Using AI to bring children's drawings to life](https://ai.facebook.com/blog/using-ai-to-bring-childrens-drawings-to-life/)
+* [Using AI to bring children's drawings to life](https://ai.meta.com/blog/using-ai-to-bring-childrens-drawings-to-life/)
 * [🎥 Model Serving in PyTorch](https://www.youtube.com/watch?v=2A17ZtycsPw)
 * [Evolution of Cresta's machine learning architecture: Migration to AWS and PyTorch](https://aws.amazon.com/blogs/machine-learning/evolution-of-crestas-machine-learning-architecture-migration-to-aws-and-pytorch/)
 * [🎥 Explain Like I’m 5: TorchServe](https://www.youtube.com/watch?v=NEdZbkfHQCk)

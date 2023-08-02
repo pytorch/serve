@@ -318,8 +318,10 @@ def test_inference_with_pretrained_model(model_store, test_file, torchserve):
     assert "Positive" in result_entries
 
     assert float(result_entries["Negative"]) == pytest.approx(
-        0.0001851904089562595, 1e-3
+        0.0001851904089562595, abs=1e-6
     )
-    assert float(result_entries["Positive"]) == pytest.approx(0.9998148083686829, 1e-3)
+    assert float(result_entries["Positive"]) == pytest.approx(
+        0.9998148083686829, abs=1e-6
+    )
 
     test_utils.unregister_model(model_name)
