@@ -10,7 +10,9 @@ target_link_libraries(mnist_handler PRIVATE ts_backends_torch_scripted ts_utils 
 set(RESNET_SRC_DIR "${torchserve_cpp_SOURCE_DIR}/src/examples/image_classifier/resnet-18")
 
 set(RESNET_SOURCE_FILES "")
+set(TORCHVISION_DIR "/usr/local/include/torchvision")
 list(APPEND RESNET_SOURCE_FILES ${RESNET_SRC_DIR}/resnet-18_handler.cc)
 add_library(resnet-18_handler SHARED ${RESNET_SOURCE_FILES})
+target_include_directories(resnet-18_handler PUBLIC ${TORCHVISION_DIR})
 target_include_directories(resnet-18_handler PUBLIC ${RESNET_SRC_DIR})
 target_link_libraries(resnet-18_handler PRIVATE ts_backends_torch_scripted ts_utils ${TORCH_LIBRARIES}) 
