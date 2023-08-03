@@ -19,6 +19,7 @@ import java.util.concurrent.CountDownLatch;
 import org.apache.commons.io.FileUtils;
 import org.pytorch.serve.http.ErrorResponse;
 import org.pytorch.serve.http.StatusResponse;
+import org.pytorch.serve.metrics.MetricCache;
 import org.pytorch.serve.servingsdk.impl.PluginsManager;
 import org.pytorch.serve.snapshot.InvalidSnapshotException;
 import org.pytorch.serve.util.ConfigManager;
@@ -51,6 +52,7 @@ public class WorkflowTest {
         ConfigManager.init(new ConfigManager.Arguments());
         configManager = ConfigManager.getInstance();
         PluginsManager.getInstance().initialize();
+        MetricCache.init();
 
         InternalLoggerFactory.setDefaultFactory(Slf4JLoggerFactory.INSTANCE);
         configManager.setInitialWorkerPort(10000);

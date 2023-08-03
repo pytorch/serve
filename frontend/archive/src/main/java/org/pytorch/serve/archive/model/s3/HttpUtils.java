@@ -22,7 +22,7 @@ public final class HttpUtils {
     public static void copyURLToFile(URL endpointUrl, File modelLocation, boolean s3SseKmsEnabled)
             throws IOException {
         // for a simple GET, we have no body so supply the precomputed 'empty' hash
-        Map<String, String> headers = null;
+        Map<String, String> headers;
         if (s3SseKmsEnabled) {
             String awsAccessKey = System.getenv("AWS_ACCESS_KEY_ID");
             String awsSecretKey = System.getenv("AWS_SECRET_ACCESS_KEY");

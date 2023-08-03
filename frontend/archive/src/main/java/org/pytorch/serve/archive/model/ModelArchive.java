@@ -6,8 +6,8 @@ import java.io.InputStream;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.util.List;
+import java.util.Map;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
 import org.pytorch.serve.archive.DownloadArchiveException;
 import org.pytorch.serve.archive.utils.ArchiveUtils;
 import org.pytorch.serve.archive.utils.InvalidArchiveURLException;
@@ -25,12 +25,14 @@ public class ModelArchive {
     private String url;
     private File modelDir;
     private boolean extracted;
+    private ModelConfig modelConfig;
 
     public ModelArchive(Manifest manifest, String url, File modelDir, boolean extracted) {
         this.manifest = manifest;
         this.url = url;
         this.modelDir = modelDir;
         this.extracted = extracted;
+        this.modelConfig = null;
     }
 
     public static ModelArchive downloadModel(
@@ -52,7 +54,7 @@ public class ModelArchive {
             throw new ModelNotFoundException("empty url");
         }
 
-        String marFileName = FilenameUtils.getName(url);
+        String marFileName = ArchiveUtils.getFilenameFromUrl(url);
         File modelLocation = new File(modelStore, marFileName);
         try {
             ArchiveUtils.downloadArchive(
@@ -67,20 +69,38 @@ public class ModelArchive {
 
         if (modelLocation.isFile()) {
             try (InputStream is = Files.newInputStream(modelLocation.toPath())) {
-                File unzipDir = ZipUtils.unzip(is, null, "models");
+                File unzipDir;
+                if (modelLocation.getName().endsWith(".mar")) {
+                    unzipDir = ZipUtils.unzip(is, null, "models", true);
+                } else {
+                    unzipDir = ZipUtils.unzip(is, null, "models", false);
+                }
                 return load(url, unzipDir, true);
             }
         }
 
-        if (new File(url).isDirectory()) {
+        File directory = new File(url);
+        if (directory.isDirectory()) {
             // handle the case that the input url is a directory.
             // the input of url is "/xxx/model_store/modelXXX" or
             // "xxxx/yyyyy/modelXXX".
-            return load(url, new File(url), false);
+            File[] fileList = directory.listFiles();
+            if (fileList.length == 1 && fileList[0].isDirectory()) {
+                // handle the case that a model tgz file
+                // has root dir after decompression on SageMaker
+                return load(url, fileList[0], false);
+            }
+            return load(url, directory, false);
         } else if (modelLocation.exists()) {
             // handle the case that "/xxx/model_store/modelXXX" is directory.
             // the input of url is modelXXX when torchserve is started
             // with snapshot or with parameter --models modelXXX
+            File[] fileList = modelLocation.listFiles();
+            if (fileList.length == 1 && fileList[0].isDirectory()) {
+                // handle the case that a model tgz file
+                // has root dir after decompression on SageMaker
+                return load(url, fileList[0], false);
+            }
             return load(url, modelLocation, false);
         }
 
@@ -92,7 +112,7 @@ public class ModelArchive {
         boolean failed = true;
         try {
             File manifestFile = new File(dir, "MAR-INF/" + MANIFEST_FILE);
-            Manifest manifest = null;
+            Manifest manifest;
             if (manifestFile.exists()) {
                 manifest = ArchiveUtils.readFile(manifestFile, Manifest.class);
             } else {
@@ -144,7 +164,7 @@ public class ModelArchive {
 
     public static void removeModel(String modelStore, String marURL) {
         if (ArchiveUtils.isValidURL(marURL)) {
-            String marFileName = FilenameUtils.getName(marURL);
+            String marFileName = ArchiveUtils.getFilenameFromUrl(marURL);
             File modelLocation = new File(modelStore, marFileName);
             FileUtils.deleteQuietly(modelLocation);
         }
@@ -178,5 +198,22 @@ public class ModelArchive {
         if (url != null && extracted) {
             FileUtils.deleteQuietly(modelDir);
         }
+    }
+
+    public ModelConfig getModelConfig() {
+        if (this.modelConfig == null && manifest.getModel().getConfigFile() != null) {
+            try {
+                File configFile =
+                        new File(modelDir.getAbsolutePath(), manifest.getModel().getConfigFile());
+                Map<String, Object> modelConfigMap = ArchiveUtils.readYamlFile(configFile);
+                this.modelConfig = ModelConfig.build(modelConfigMap);
+            } catch (InvalidModelException | IOException e) {
+                logger.error(
+                        "Failed to parse model config file {}",
+                        manifest.getModel().getConfigFile(),
+                        e);
+            }
+        }
+        return this.modelConfig;
     }
 }

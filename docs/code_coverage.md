@@ -12,7 +12,7 @@
    ```bash
    python ts_scripts/install_dependencies.py --environment=dev --cuda=cu102
    ```
-   > Supported cuda versions as cu117, cu116, cu113, cu111, cu102, cu101, cu92
+   > Supported cuda versions as cu118, cu117, cu116, cu113, cu111, cu102, cu101, cu92
 
  - Execute sanity suite
    ```bash

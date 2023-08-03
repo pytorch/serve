@@ -28,6 +28,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 import org.apache.commons.io.FileUtils;
@@ -38,6 +39,7 @@ import org.pytorch.serve.http.messages.DescribeModelResponse;
 import org.pytorch.serve.http.messages.ListModelsResponse;
 import org.pytorch.serve.metrics.Dimension;
 import org.pytorch.serve.metrics.Metric;
+import org.pytorch.serve.metrics.MetricCache;
 import org.pytorch.serve.metrics.MetricManager;
 import org.pytorch.serve.servingsdk.impl.PluginsManager;
 import org.pytorch.serve.snapshot.InvalidSnapshotException;
@@ -75,7 +77,9 @@ public class ModelServerTest {
                     InvalidSnapshotException {
         ConfigManager.init(new ConfigManager.Arguments());
         configManager = ConfigManager.getInstance();
+        configManager.setProperty("metrics_mode", "prometheus");
         PluginsManager.getInstance().initialize();
+        MetricCache.init();
 
         InternalLoggerFactory.setDefaultFactory(Slf4JLoggerFactory.INSTANCE);
 
@@ -352,6 +356,24 @@ public class ModelServerTest {
     @Test(
             alwaysRun = true,
             dependsOnMethods = {"testDescribeSpecificModelVersion"})
+    public void testDescribeModelJobQueueStatus() throws InterruptedException {
+        testLoadModelWithInitialWorkers("noop.mar", "noop_describe", "1.11");
+
+        Channel channel = TestUtils.getManagementChannel(configManager);
+        TestUtils.setResult(null);
+        TestUtils.setLatch(new CountDownLatch(1));
+        TestUtils.describeModel(channel, "noop_describe", "1.11", false);
+        TestUtils.getLatch().await();
+
+        DescribeModelResponse[] resp =
+                JsonUtils.GSON.fromJson(TestUtils.getResult(), DescribeModelResponse[].class);
+        Assert.assertEquals(resp[0].getJobQueueStatus().getRemainingCapacity(), 100);
+        Assert.assertEquals(resp[0].getJobQueueStatus().getPendingRequests(), 0);
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testDescribeModelJobQueueStatus"})
     public void testNoopVersionedPrediction() throws InterruptedException {
         testPredictions("noopversioned", "OK", "1.11");
     }
@@ -1873,6 +1895,14 @@ public class ModelServerTest {
         Assert.assertEquals(resp.getCode(), HttpResponseStatus.INTERNAL_SERVER_ERROR.code());
         Assert.assertEquals(
                 resp.getMessage(), "Failed to start workers for model init-error version: null");
+
+        TestUtils.ping(configManager);
+        TestUtils.getLatch().await();
+        // There is a retry time window. To reduce CI latency,
+        // it is fine for ping to either 200 or 500.
+        Assert.assertTrue(
+                TestUtils.getHttpStatus().equals(HttpResponseStatus.INTERNAL_SERVER_ERROR)
+                        || TestUtils.getHttpStatus().equals(HttpResponseStatus.OK));
     }
 
     @Test(
@@ -2080,8 +2110,38 @@ public class ModelServerTest {
 
         channel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
         Assert.assertNotNull(channel);
+        TestUtils.setResult(null);
+        TestUtils.setLatch(new CountDownLatch(1));
         TestUtils.unregisterModel(channel, "noopversioned", "1.11", false);
+        TestUtils.getLatch().await();
+
+        TestUtils.setResult(null);
+        TestUtils.setLatch(new CountDownLatch(1));
         TestUtils.unregisterModel(channel, "noopversioned", "1.2.1", false);
+        TestUtils.getLatch().await();
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testUnregisterModelFailure"})
+    public void testClientTimeout() throws InterruptedException {
+        Channel mgmtChannel = TestUtils.connect(ConnectorType.MANAGEMENT_CONNECTOR, configManager);
+        loadTests(mgmtChannel, "echo-client-timeout.mar", "echo-client-timeout");
+
+        Channel inferChannel = TestUtils.connect(ConnectorType.INFERENCE_CONNECTOR, configManager);
+        TestUtils.setResult(null);
+        TestUtils.setLatch(new CountDownLatch(1));
+        DefaultFullHttpRequest req =
+                new DefaultFullHttpRequest(
+                        HttpVersion.HTTP_1_1, HttpMethod.POST, "/predictions/echo-client-timeout");
+        req.content().writeZero(10385760);
+        HttpUtil.setContentLength(req, req.content().readableBytes());
+        req.headers().set(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.APPLICATION_OCTET_STREAM);
+        inferChannel.writeAndFlush(req);
+        TestUtils.getLatch().await(1, TimeUnit.SECONDS);
+        Assert.assertNull(TestUtils.result);
+
+        unloadTests(mgmtChannel, "echo-client-timeout");
     }
 
     private void testLoadModel(String url, String modelName, String version)

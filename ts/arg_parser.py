@@ -61,7 +61,7 @@ class ArgParser(object):
         parser.add_argument(
             "--foreground",
             help="Run the model server in foreground. If this option is disabled, the model server"
-            " will run in the background.",
+            " will run in the background. In combination with --stop the program wait for the model server to terminate.",
             action="store_true",
         )
         parser.add_argument(

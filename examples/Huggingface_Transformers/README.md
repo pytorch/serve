@@ -1,6 +1,6 @@
 ## Serving Huggingface Transformers using TorchServe
 
-In this example, we show how to serve a fine tuned or off the shelf Transformer model from [huggingface](https://huggingface.co/transformers/index.html) using TorchServe.
+In this example, we show how to serve a fine tuned or off the shelf Transformer model from [huggingface](https://huggingface.co/docs/transformers/index) using TorchServe.
 
 We use a custom handler, [Transformer_handler.py](https://github.com/pytorch/serve/blob/master/examples/Huggingface_Transformers/Transformer_handler_generalized.py).
 
@@ -10,7 +10,7 @@ We borrowed ideas to write a custom handler for transformers from tutorial prese
 
 To get started [install Torchserve](https://github.com/pytorch/serve) and then
 
- `pip install transformers==4.6.0`
+ `pip install -r requirements.txt`
 
 ### Objectives
 1. How to package a transformer into a torch model archive (.mar) file (eager mode or Torchscript) with `torch-model-archiver`
@@ -51,9 +51,9 @@ In the setup_config.json :
 
 *embedding_name* : The name of embedding layer in the chosen model, this could be `bert` for `bert-base-uncased`, `roberta` for `roberta-base` or `roberta` for `xlm-roberta-large`, or `gpt2` for `gpt2` model
 
-*hardware* : The target platform to trace the model for. Specify as `neuron` for [Inferentia1](https://aws.amazon.com/ec2/instance-types/inf1/).
+*hardware* : The target platform to trace the model for. Specify as `neuron` for [Inferentia1](https://aws.amazon.com/ec2/instance-types/inf1/) and `neuronx` for [Inferentia2](https://aws.amazon.com/ec2/instance-types/inf2/).
 
-*batch_size* : Input batch size when tracing the model for `neuron` as target hardware.
+*batch_size* : Input batch size when tracing the model for `neuron` or `neuronx` as target hardware.
 
 Once, `setup_config.json` has been set properly, the next step is to run
 
@@ -311,15 +311,16 @@ curl -H "Content-Type: application/json" --data @examples/Huggingface_Transforme
 
 When a json file is passed as a request format to the curl, Torchserve unwraps the json file from the request body. This is the reason for specifying service_envelope=body in the config.properties file
 
-## Speed up inference with Better Transformer
+## Speed up inference with Better Transformer (Flash Attentions/ Xformer Memory Efficient kernels)
 
 In the setup_config.json, specify `"BetterTransformer":true,`.
 
-Note: make sure to install [HuggingFace Optimum] `pip install optimum`
 
-[Better Transformer](https://pytorch.org/blog/a-better-transformer-for-fast-transformer-encoder-inference/) from PyTorch is integrated into [Huggingface Optimum](https://huggingface.co/docs/optimum/bettertransformer/overview) that bring major speedups for many of encoder models on different modalities (text, image, audio). It is a one liner API that we have also added in the `Transformer_handler_generalized.py` in this example as well. That as shown above you just need to set `"BetterTransformer":true,` in the setup_config.json.
+[Better Transformer(Accelerated Transformer)](https://pytorch.org/blog/a-better-transformer-for-fast-transformer-encoder-inference/) from PyTorch is integrated into [Huggingface Optimum](https://huggingface.co/docs/optimum/bettertransformer/overview) that bring major speedups for many of encoder models on different modalities (text, image, audio). It is a one liner API that we have also added in the `Transformer_handler_generalized.py` in this example as well. That as shown above you just need to set `"BetterTransformer":true,` in the setup_config.json.
 
 Main speed ups in the Better Transformer comes from kernel fusion in the [TransformerEncoder] (https://pytorch.org/docs/stable/generated/torch.nn.TransformerEncoder.html) and making use of sparsity with [nested tensors](https://pytorch.org/tutorials/prototype/nestedtensor.html) when input sequences are padded to avoid unnecessary computation on padded tensors. We have seen up to 4.5x speed up with distill_bert when used higher batch sizes with padding. Please read more about it in this [blog post](https://medium.com/pytorch/bettertransformer-out-of-the-box-performance-for-huggingface-transformers-3fbe27d50ab2). You get some speedups even with Batch size = 1 and no padding however, major speed ups will show up when running inference with higher batch sizes (8.16,32) with padding.
+
+The Accelerated Transformer integration with HuggingFace also added the support for decoder models, please read more about it [here](https://pytorch.org/blog/out-of-the-box-acceleration/). This adds the native support for Flash Attentions and Xformer Memory Efficient kernels in PyTorch and make it availble on HuggingFace deocder models. This will brings significant speed up and memory savings with just one line of the code as before.
 
 
 ## Model Parallelism

@@ -9,6 +9,7 @@ TorchServe provides following gRPCs apis
 * [Inference API](https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/proto/inference.proto)
   - **Ping** : Gets the health status of the running server
   - **Predictions** : Gets predictions from the served model
+  - **StreamPredictions** : Gets server side streaming predictions from the saved model
 
 * [Management API](https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/proto/management.proto)
   - **RegisterModel** : Serve a model/model-version on TorchServe
@@ -69,4 +70,29 @@ python ts_scripts/torchserve_grpc_client.py infer densenet161 examples/image_cla
 
 ```bash
 python ts_scripts/torchserve_grpc_client.py unregister densenet161
+```
+## GRPC Server Side Streaming
+TorchServe GRPC APIs adds a server side streaming of the inference API "StreamPredictions" to allow a sequence of inference responses to be sent over the same GRPC stream. This new API is only recommended for use case when the inference latency of the full response is high and the inference intermediate results are sent to client. An example could be LLMs for generative applications, where generating "n" number of tokens can have high latency, in this case user can receive each generated token once ready until the full response completes. This new API automatically forces the batchSize to be one.
+
+```
+service InferenceAPIsService {
+    // Check health status of the TorchServe server.
+    rpc Ping(google.protobuf.Empty) returns (TorchServeHealthResponse) {}
+
+    // Predictions entry point to get inference using default model version.
+    rpc Predictions(PredictionsRequest) returns (PredictionResponse) {}
+
+    // Streaming response for an inference request.
+    rpc StreamPredictions(PredictionsRequest) returns (stream PredictionResponse) {}
+}
+```
+Backend handler calls "send_intermediate_predict_response" to send one intermediate result to frontend, and return the last result as the existing style. For example
+```
+from ts.protocol.otf_message_handler import send_intermediate_predict_response
+
+def handle(data, context):
+    if type(data) is list:
+        for i in range (3):
+            send_intermediate_predict_response(["intermediate_response"], context.request_ids, "Intermediate Prediction success", 200, context)
+        return ["hello world "]
 ```

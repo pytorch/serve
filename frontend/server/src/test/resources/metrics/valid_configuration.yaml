@@ -1,0 +1,30 @@
+dimensions:
+  - &model_name "ModelName"
+  - &model_version "ModelVersion"
+  - &level "Level"
+  - &hostname "Hostname"
+
+ts_metrics:
+  counter:
+    - name: Requests2XX
+      unit: Count
+      dimensions: [*level, *hostname]
+    - name: InferenceRequestsTotal
+      unit: Count
+      dimensions: [*model_name, *model_version, *hostname]
+  gauge:
+    - name: QueueTime
+      unit: Milliseconds
+      dimensions: [*level, *hostname]
+    - name: WorkerThreadTime
+      unit: Milliseconds
+      dimensions: [*level, *hostname]
+
+model_metrics:
+  gauge:
+    - name: HandlerTime
+      unit: ms
+      dimensions: [*model_name, *level]
+    - name: PredictionTime
+      unit: ms
+      dimensions: [*model_name, *level]

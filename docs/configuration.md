@@ -212,8 +212,6 @@ Set nvidia environment variables. For example:
 
 ### Enable metrics api
 * `enable_metrics_api` : Enable or disable metric apis i.e. it can be either `true` or `false`. Default: true (Enabled)
-* `metrics_format` : Use this to specify metric report format . At present, the only supported and default value for this is `prometheus`
-		     This is used in conjunction with `enable_metrics_api` option above.
 
 ### Config model
 * `models`: Use this to set configurations specific to a model. The value is presented in json format.
@@ -228,7 +226,7 @@ Set nvidia environment variables. For example:
     }
 }
 ```
-A model's parameters are defined in [model source code](https://github.com/pytorch/serve/blob/master/frontend/server/src/main/java/org/pytorch/serve/wlm/Model.java#L24)
+A model's parameters are defined in [model source code](https://github.com/pytorch/serve/blob/a9e218ae95fe7690c84b555d0fb9021322c9b049/frontend/archive/src/main/java/org/pytorch/serve/archive/model/ModelConfig.java#L11)
 
 
 * `minWorkers`: the minimum number of workers of a model
@@ -266,6 +264,13 @@ models={\
   }\
 }
 ```
+Starting from version 0.8.0, TorchServe allows for model configuration using a YAML file embedded in the MAR file. This YAML file contains two distinct parts that determine how a model is configured: frontend parameters and backend parameters. (see [details](https://github.com/pytorch/serve/tree/master/model-archiver#config-file))
+
+* The frontend parameters are controlled by TorchServe's frontend and specify the parameter name and default values. TorchServe now uses a priority order to determine the final value of a model's parameters in frontend. Specifically, the config.property file has the lowest priority, followed by the model configuration YAML file, and finally, the REST or gRPC model management API has the highest priority.
+
+* The backend parameters are fully controlled by the user. Users customized handler can access the backend parameters via the `model_yaml_config` property of the [context object](https://github.com/pytorch/serve/blob/a9e218ae95fe7690c84b555d0fb9021322c9b049/ts/context.py#L24). For example, context.model_yaml_config["pippy"]["rpc_timeout"].
+
+* User can allocate specific GPU device IDs to a model by defining "deviceIds" in the frontend parameters in the YAML file. TorchServe uses a round-robin strategy to assign device IDs to a model's worker. If specified in the YAML file, it round-robins the device IDs listed; otherwise, it uses all visible device IDs on the host.
 
 ### Other properties
 
@@ -288,7 +293,7 @@ the backend workers convert "Bytearray to utf-8 string" when the Content-Type of
 * `max_request_size` : The maximum allowable request size that the Torchserve accepts, in bytes. Default: 6553500
 * `max_response_size` : The maximum allowable response size that the Torchserve sends, in bytes. Default: 6553500
 * `limit_max_image_pixels` : Default value is true (Use default [PIL.Image.MAX_IMAGE_PIXELS](https://pillow.readthedocs.io/en/stable/reference/Image.html#PIL.Image.MAX_IMAGE_PIXELS)). If this is set to "false", set PIL.Image.MAX_IMAGE_PIXELS = None in backend default vision handler for large image payload.
-* `allowed_urls` : Comma separated regex of allowed source URL(s) from where models can be registered. Default: "file://.*|http(s)?://.*" (all URLs and local file system)
+* `allowed_urls` : Comma separated regex of allowed source URL(s) from where models can be registered. Default: `file://.*|http(s)?://.*` (all URLs and local file system)
 e.g. : To allow base URLs `https://s3.amazonaws.com/` and `https://torchserve.pytorch.org/` use the following regex string `allowed_urls=https://s3.amazonaws.com/.*,https://torchserve.pytorch.org/.*`
 * `workflow_store` : Path of workflow store directory. Defaults to model store directory.
 * `disable_system_metrics` : Disable collection of system metrics when set to "true". Default value is "false".

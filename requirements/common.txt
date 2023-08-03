@@ -1,13 +1,6 @@
-psutil
-cython
-wheel
-requests
-pillow==9.3.0
-captum
-packaging
-numpy; sys_platform != 'win32'
-numpy==1.19.3; sys_platform == 'win32' #see https://tinyurl.com/y3dm3h86
-nvgpu; sys_platform != 'win32'
-nvgpu==0.8.0; sys_platform == 'win32'
+psutil==5.9.5
+requests==2.31.0
+captum==0.6.0
+packaging==23.1
 pynvml==11.4.1
-pyyaml
+pyyaml==6.0

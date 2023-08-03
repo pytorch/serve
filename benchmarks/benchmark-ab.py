@@ -30,6 +30,7 @@ default_ab_params = {
     "image": "",
     "docker_runtime": "",
     "backend_profiling": False,
+    "generate_graphs": False,
     "config_properties": "config.properties",
     "inference_model_url": "predictions/benchmark",
     "report_location": tempfile.gettempdir(),
@@ -95,6 +96,12 @@ def json_provider(file_path, cmd_name):
     help="Enable backend profiling using CProfile. Default False",
 )
 @click.option(
+    "--generate_graphs",
+    "-gg",
+    default=False,
+    help="Enable generation of Graph plots. Default False",
+)
+@click.option(
     "--config_properties",
     "-cp",
     default="config.properties",
@@ -140,6 +147,7 @@ def benchmark(
     inference_model_url,
     report_location,
     tmp_dir,
+    generate_graphs,
 ):
     input_params = {
         "url": url,
@@ -159,6 +167,7 @@ def benchmark(
         "inference_model_url": inference_model_url,
         "report_location": report_location,
         "tmp_dir": tmp_dir,
+        "generate_graphs": generate_graphs,
     }
 
     # set ab params
@@ -441,8 +450,9 @@ def generate_report(warm_up_lines):
     click.secho("\n\nGenerating Reports...", fg="green")
     extract_metrics(warm_up_lines=warm_up_lines)
     generate_csv_output()
-    generate_latency_graph()
-    generate_profile_graph()
+    if execution_params["generate_graphs"]:
+        generate_latency_graph()
+        generate_profile_graph()
     click.secho("\nTest suite execution complete.", fg="green")
 
 
@@ -649,7 +659,10 @@ def generate_profile_graph():
         title="Combined Graph",
     )
     fig5.grid()
-    plt.savefig("api-profile1.png", bbox_inches="tight")
+    plt.savefig(
+        f"{execution_params['report_location']}/benchmark/api-profile1.png",
+        bbox_inches="tight",
+    )
 
 
 def stop_torchserve():

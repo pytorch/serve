@@ -33,4 +33,7 @@ service InferenceAPIsService {
 
     // Predictions entry point to get inference using default model version.
     rpc Predictions(PredictionsRequest) returns (PredictionResponse) {}
+
+    // Streaming response for an inference request.
+    rpc StreamPredictions(PredictionsRequest) returns (stream PredictionResponse) {}
 }

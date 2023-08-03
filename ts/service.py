@@ -2,13 +2,14 @@
 CustomService class definitions
 """
 import logging
+import os
 import time
 from builtins import str
 
 import ts
 from ts.context import Context, RequestProcessor
 from ts.protocol.otf_message_handler import create_predict_response
-from ts.utils.util import PredictionException
+from ts.utils.util import PredictionException, get_yaml_config
 
 PREDICTION_METRIC = "PredictionTime"
 logger = logging.getLogger(__name__)
@@ -30,6 +31,15 @@ class Service(object):
         limit_max_image_pixels=True,
         metrics_cache=None,
     ):
+        model_yaml_config = {}
+        if manifest is not None and "model" in manifest:
+            model = manifest["model"]
+            if "configFile" in model:
+                model_yaml_config_file = model["configFile"]
+                model_yaml_config = get_yaml_config(
+                    os.path.join(model_dir, model_yaml_config_file)
+                )
+
         self._context = Context(
             model_name,
             model_dir,
@@ -39,6 +49,7 @@ class Service(object):
             ts.__version__,
             limit_max_image_pixels,
             metrics_cache,
+            model_yaml_config,
         )
         self._entry_point = entry_point
 
@@ -96,6 +107,9 @@ class Service(object):
 
         return headers, input_batch, req_to_id_map
 
+    def set_cl_socket(self, cl_socket):
+        self.context.cl_socket = cl_socket
+
     def predict(self, batch):
         """
         PREDICT COMMAND = {
@@ -118,15 +132,21 @@ class Service(object):
         # noinspection PyBroadException
         try:
             ret = self._entry_point(input_batch, self.context)
-        except PredictionException as e:
-            logger.error("Prediction error", exc_info=True)
-            return create_predict_response(None, req_id_map, e.message, e.error_code)
         except MemoryError:
             logger.error("System out of memory", exc_info=True)
             return create_predict_response(None, req_id_map, "Out of resources", 507)
-        except Exception:  # pylint: disable=broad-except
-            logger.warning("Invoking custom service failed.", exc_info=True)
-            return create_predict_response(None, req_id_map, "Prediction failed", 503)
+        except PredictionException as e:
+            logger.error("Prediction error", exc_info=True)
+            return create_predict_response(None, req_id_map, e.message, e.error_code)
+        except Exception as ex:  # pylint: disable=broad-except
+            if "CUDA" in str(ex):
+                # Handles Case A: CUDA error: CUBLAS_STATUS_NOT_INITIALIZED (Close to OOM) &
+                # Case B: CUDA out of memory (OOM)
+                logger.error("CUDA out of memory", exc_info=True)
+                return create_predict_response(None, req_id_map, "Out of resources", 507)
+            else:
+                logger.warning("Invoking custom service failed.", exc_info=True)
+                return create_predict_response(None, req_id_map, "Prediction failed", 503)
 
         if not isinstance(ret, list):
             logger.warning(

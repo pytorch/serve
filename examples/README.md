@@ -1,4 +1,4 @@
-# Examples showcasing TorchServe Features and Integrations
+# [Examples showcasing TorchServe Features and Integrations](#torchserve-internals)
 
 ## TorchServe Internals
 
@@ -25,6 +25,8 @@
 
 * [Serving HuggingFace transformers model](Huggingface_Transformers)
 
+### PiPPy [Serving Large Models with PyTorch Native Solution PiPPy](large_models/Huggingface_pippy/Readme.md)
+
 ### MLFlow <img src="images/mlflow.png" width="50"  title="MLFlow" style="float:right padding:20px" />
 
 * [Deploy models using `mlflow-torchserve` plugin](https://github.com/mlflow/mlflow-torchserve/tree/master/examples)
@@ -43,7 +45,7 @@
 
 ### Microsoft DeepSpeed-MII <img src="images/mii-white.svg" width="80" title="DeepSpeed MII" style="float:top" />
 
-* [HuggingFace Stable Diffusion Model with Microsoft DeepSpeed-MII](deepspeed_mii)
+* [HuggingFace Stable Diffusion Model with Microsoft DeepSpeed-MII](large_models/deepspeed_mii/Readme.md)
 
 ### Prometheus and mtail <img src="images/prometheus-logo.svg" width="30" title="Prometheus" style="float:top" />
 
@@ -66,8 +68,8 @@
 ### Stable Diffusion <img src="images/huggingface_logo-noborder.svg" width="30" height="30" title="Hugging Face" style="float:right padding:10px" />
 * [Stable Diffusion using HuggingFace Diffusers](diffusers)
 
-### HuggingFace Large Models <img src="images/huggingface_logo-noborder.svg" width="30" height="30" title="Hugging Face" style="float:right padding:10px" />
-* [HuggingFace Large Models with constrained resources](Huggingface_Largemodels)
+### HuggingFace Large Models with Accelerate <img src="images/huggingface_logo-noborder.svg" width="30" height="30" title="Hugging Face" style="float:right padding:10px" />
+* [HuggingFace Large Models with constrained resources](large_models/Huggingface_accelerate/Readme.md)
 
 ## UseCases
 
