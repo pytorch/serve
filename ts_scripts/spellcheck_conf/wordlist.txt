@@ -1047,6 +1047,7 @@ QueueTime
 WorkerLoadTime
 WorkerName
 WorkerThreadTime
+minikube
 MicroSoft
 lmi
 torchrun
@@ -1064,4 +1065,6 @@ ActionSLAM
 statins
 ci
 chatGPT
+baseimage
 cuDNN
+Xformer
