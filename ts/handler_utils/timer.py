@@ -1,3 +1,19 @@
+"""
+Decorator for timing handler methods
+
+Use this decorator to compute the execution time for your preprocesss, inference and
+postprocess methods
+
+To enable this, add the following section in your model-config.yaml file
+
+handler:
+  profile: true
+
+An example of running benchmarks with the profiling enabled is in
+https://github.com/pytorch/serve/tree/master/examples/benchmarking/resnet50
+
+"""
+
 import time
 
 import torch
