@@ -2,7 +2,8 @@
 Decorator for timing handler methods
 
 Use this decorator to compute the execution time for your preprocesss, inference and
-postprocess methods
+postprocess methods.
+By default this feature is not enabled.
 
 To enable this, add the following section in your model-config.yaml file
 
