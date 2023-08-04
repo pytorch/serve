@@ -8,6 +8,9 @@ def parse_args():
     import argparse
 
     parser = argparse.ArgumentParser()
+    parser.add_argument("--batch_size", default=1)
+    parser.add_argument("--num_threads", default=1)
+    parser.add_argument("--device_id", default=1)
     parser.add_argument("--save", default="./default.dali")
     return parser.parse_args()
 
@@ -35,12 +38,8 @@ def pipe():
     return normalized
 
 
-def main(filename):
-    BATCH_SIZE = 1
-    NUM_THREADS = 1
-    DEVICE_ID = 1
-
-    pipeline = pipe(batch_size=BATCH_SIZE, num_threads=NUM_THREADS, device_id=DEVICE_ID)
+def main(batch_size, num_threads, device_id, filename):
+    pipeline = pipe(batch_size=batch_size, num_threads=num_threads, device_id=device_id)
     pipeline.serialize(filename=filename)
     print("Saved {}".format(filename))
 
@@ -48,4 +47,4 @@ def main(filename):
 if __name__ == "__main__":
     args = parse_args()
     os.makedirs(os.path.dirname(args.save), exist_ok=True)
-    main(args.save)
+    main(args.batch_size, args.num_threads, args.device_id, args.save)
