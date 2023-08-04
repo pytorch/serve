@@ -191,7 +191,7 @@ model_metrics:  # backend metrics
 Note that **only** the metrics defined in the **metrics configuration file** can be emitted to logs or made available via the metrics API endpoint. This is done to ensure that the metrics configuration file serves as a central inventory of all the metrics that Torchserve can emit.
 
 Default metrics are provided in the [metrics.yaml](https://github.com/pytorch/serve/blob/master/ts/configs/metrics.yaml) file, but the user can either delete them to their liking / ignore them altogether, because these metrics will not be emitted unless they are edited.\
-When adding custom `model_metrics` in the metrics cofiguration file, ensure to include `ModelName` and `Level` dimension names towards the end of the list of dimensions since they are included by default by the following custom metrics APIs: [add_counter](#add-counter-based-metrics),
+When adding custom `model_metrics` in the metrics configuration file, ensure to include `ModelName` and `Level` dimension names towards the end of the list of dimensions since they are included by default by the following custom metrics APIs: [add_counter](#add-counter-based-metrics),
 [add_time](#add-time-based-metrics), [add_size](#add-size-based-metrics) or [add_percent](#add-percentage-based-metrics).
 
 
