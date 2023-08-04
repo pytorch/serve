@@ -91,7 +91,6 @@ def parse_config():
 
 
 if __name__ == "__main__":
-
     (
         model_names,
         inference_address,
@@ -118,6 +117,7 @@ if __name__ == "__main__":
         # below method sets status to true for the models.
         model.load()
         models.append(model)
+
     registeredModels = TSModelRepository(
         inference_address,
         management_address,

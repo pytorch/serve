@@ -1068,3 +1068,4 @@ chatGPT
 baseimage
 cuDNN
 Xformer
+grpcurl
