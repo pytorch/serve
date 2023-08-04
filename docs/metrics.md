@@ -191,7 +191,8 @@ model_metrics:  # backend metrics
 Note that **only** the metrics defined in the **metrics configuration file** can be emitted to logs or made available via the metrics API endpoint. This is done to ensure that the metrics configuration file serves as a central inventory of all the metrics that Torchserve can emit.
 
 Default metrics are provided in the [metrics.yaml](https://github.com/pytorch/serve/blob/master/ts/configs/metrics.yaml) file, but the user can either delete them to their liking / ignore them altogether, because these metrics will not be emitted unless they are edited.\
-When adding custom `model_metrics` in the metrics cofiguration file, ensure to include `ModelName` and `Level` dimension names towards the end of the list of dimensions since they are included by default by the custom metrics API.
+When adding custom `model_metrics` in the metrics cofiguration file, ensure to include `ModelName` and `Level` dimension names towards the end of the list of dimensions since they are included by default by the following custom metrics APIs: [add_counter](#add-counter-based-metrics),
+[add_time](#add-time-based-metrics), [add_size](#add-size-based-metrics) or [add_percent](#add-percentage-based-metrics).
 
 
 ### How it works
@@ -377,7 +378,7 @@ Add time-based by invoking the following method:
 Function API
 
 ```python
-    def add_time(self, metric_name: str, value: int or float, idx=None, unit: str = 'ms', dimensions: list = None,
+    def add_time(self, name: str, value: int or float, idx=None, unit: str = 'ms', dimensions: list = None,
                  metric_type: MetricTypes = MetricTypes.GAUGE):
         """
         Add a time based metric like latency, default unit is 'ms'
@@ -385,7 +386,7 @@ Function API
 
         Parameters
         ----------
-        metric_name : str
+        name : str
             metric name
         value: int
             value of metric
@@ -422,7 +423,7 @@ Add size-based metrics by invoking the following method:
 Function API
 
 ```python
-    def add_size(self, metric_name: str, value: int or float, idx=None, unit: str = 'MB', dimensions: list = None,
+    def add_size(self, name: str, value: int or float, idx=None, unit: str = 'MB', dimensions: list = None,
                  metric_type: MetricTypes = MetricTypes.GAUGE):
         """
         Add a size based metric
@@ -430,7 +431,7 @@ Function API
 
         Parameters
         ----------
-        metric_name : str
+        name : str
             metric name
         value: int, float
             value of metric
@@ -467,7 +468,7 @@ Percentage based metrics can be added by invoking the following method:
 Function API
 
 ```python
-    def add_percent(self, metric_name: str, value: int or float, idx=None, dimensions: list = None,
+    def add_percent(self, name: str, value: int or float, idx=None, dimensions: list = None,
                     metric_type: MetricTypes = MetricTypes.GAUGE):
         """
         Add a percentage based metric
@@ -475,7 +476,7 @@ Function API
 
         Parameters
         ----------
-        metric_name : str
+        name : str
             metric name
         value: int, float
             value of metric
@@ -488,6 +489,8 @@ Function API
         """
 
 ```
+
+**Inferred unit**: `percent`
 
 To add custom percentage-based metrics:
 
@@ -507,14 +510,13 @@ Counter based metrics can be added by invoking the following method
 Function API
 
 ```python
-    def add_counter(self, metric_name: str, value: int or float, idx=None, dimensions: list = None,
-                    metric_type: MetricTypes = MetricTypes.COUNTER):
+    def add_counter(self, name: str, value: int or float, idx=None, dimensions: list = None):
         """
         Add a counter metric or increment an existing counter metric
             Default metric type is counter
         Parameters
         ----------
-        metric_name : str
+        name : str
             metric name
         value: int or float
             value of metric
@@ -522,10 +524,10 @@ Function API
             request_id index in batch
         dimensions: list
             list of dimensions for the metric
-        metric_type: MetricTypes
-           type for defining different operations, defaulted to counter metric type for Counter metrics
         """
 ```
+
+**Inferred unit**: `count`
 
 ### Getting a metric
 
