@@ -246,13 +246,13 @@ kubectl get secret --namespace default grafana -o jsonpath="{.data.admin-passwor
 <b>Username:</b> admin
 <b>Password:</b> <--The password got from previous step-->
 
-Open Grafan in browser with the url - `<http://your.grafana.loadbalancer.address:3000>`
+Open Grafana in browser with the url - `<http://your.grafana.loadbalancer.address:3000>`
 
 Add Prometheus data source
 
 ![Add data source](images/grafana_datasource.png)
 
-The TS metrics will be available in Promethus for Grafana dashboards.
+The TS metrics will be available in Prometheus for Grafana dashboards.
 
 ## Logging
 
