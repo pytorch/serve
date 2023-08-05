@@ -67,8 +67,9 @@ public class BatchAggregator {
                 }
                 return new ModelLoadModelRequest(model, gpuId);
             } else {
-                if (j.getCmd() == WorkerCommands.STREAMPREDICT) {
-                    req.setCommand(WorkerCommands.STREAMPREDICT);
+                WorkerCommands workerCmd = j.getCmd();
+                if (workerCmd == WorkerCommands.STREAMPREDICT || workerCmd == WorkerCommands.STREAMPREDICT2) {
+                    req.setCommand(workerCmd);
                 }
                 j.setScheduled();
                 req.addRequest(j.getPayload());
@@ -213,26 +214,18 @@ public class BatchAggregator {
             pollJobGroup();
         }
 
-        List<CompletableFuture<Job>> futures = new ArrayList<>(jobGroups.size());
+        List<CompletableFuture<Void>> futures = new ArrayList<>(jobGroups.size());
         for (String groupId : jobGroups) {
             JobGroup jobGroup = model.getJobGroup(groupId);
             futures.add(CompletableFuture.supplyAsync(
-                    () -> jobGroup.pollJob(model.getSequenceMaxIdleMSec())));
+                    () -> jobGroup.pollJob(model.getSequenceMaxIdleMSec()))
+                    .thenAccept(job -> {
+                        if (job != null) {
+                            jobs.put(job.getJobId(), job);
+                        }
+                    }));
         }
-
-        for (CompletableFuture<Job> future : futures) {
-            try {
-                Job job = future.get();
-                if (job != null) {
-                    jobs.put(job.getJobId(), job);
-                }
-            } catch (InterruptedException | ExecutionException e) {
-                logger.error(
-                        "Failed to poll job from group for model {}",
-                        model.getModelName(),
-                        e);
-            }
-        }
+        futures.stream().map(CompletableFuture::join);
     }
 
     /**

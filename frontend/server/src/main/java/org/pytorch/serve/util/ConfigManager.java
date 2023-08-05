@@ -136,6 +136,7 @@ public final class ConfigManager {
     private String hostName;
     private Map<String, Map<String, JsonObject>> modelConfig = new HashMap<>();
     private String torchrunLogDir;
+    private boolean telemetryEnabled;
 
     private ConfigManager(Arguments args) throws IOException {
         prop = new Properties();
@@ -188,6 +189,11 @@ public final class ConfigManager {
             }
         }
 
+        if (System.getenv("SM_TELEMETRY_LOG") != null) {
+            telemetryEnabled = true;
+        } else {
+            telemetryEnabled = false;
+        }
         resolveEnvVarVals(prop);
 
         String modelStore = args.getModelStore();
@@ -868,6 +874,10 @@ public final class ConfigManager {
 
     public String getVersion() {
         return prop.getProperty(VERSION);
+    }
+
+    public boolean isTelemetryEnabled() {
+        return telemetryEnabled;
     }
 
     public static final class Arguments {

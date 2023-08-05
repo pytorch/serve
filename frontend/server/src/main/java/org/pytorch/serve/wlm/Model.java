@@ -343,9 +343,8 @@ public class Model {
             logger.trace("get first job: {}", Objects.requireNonNull(j).getJobId());
 
             jobsRepo.put(j.getJobId(), j);
-            // batch size always is 1 for describe request job and stream prediction request job
-            if (j.getCmd() == WorkerCommands.DESCRIBE
-                    || j.getCmd() == WorkerCommands.STREAMPREDICT) {
+            // batch size always is 1 for describe request job
+            if (j.getCmd() == WorkerCommands.DESCRIBE) {
                 return;
             }
             long begin = System.currentTimeMillis();
@@ -355,10 +354,8 @@ public class Model {
                     break;
                 }
                 long end = System.currentTimeMillis();
-                // job batch size always is 1 when request is
-                // describe or stream prediction
-                if (j.getCmd() == WorkerCommands.DESCRIBE
-                        || j.getCmd() == WorkerCommands.STREAMPREDICT) {
+                // job batch size always is 1 when request is describe prediction
+                if (j.getCmd() == WorkerCommands.DESCRIBE) {
                     // Add the job back into the jobsQueue
                     jobsQueue.addFirst(j);
                     break;

@@ -27,6 +27,7 @@ public abstract class Job {
             input.updateHeaders(TS_STREAM_NEXT, "true");
         } else if (cmd == WorkerCommands.STREAMPREDICT2) {
             input.updateHeaders(TS_REQUEST_SEQUENCE_ID, input.getSequenceId());
+            input.updateHeaders(TS_STREAM_NEXT, "true");
         }
     }
 
