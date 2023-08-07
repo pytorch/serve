@@ -300,7 +300,7 @@ Now we have multiple replicas of Torchserve running and istio installed. We can 
  - Apply the istio gateway via `kubectl apply -f gateway.yaml`
    - This gateway exposes all the host behind it via port 80 as defined in the yaml file.
  - Apply the virtual service with command `kubectl apply -f virtual_service.yaml`
-   - This with look for header named `protocol` in the incoming request and forward the request to Torchserve service. If the `protocol` header has a value `rest` then the request is forwarded to port `8080` of Torchserve service and if the `protocol` header has a value `grpc` then the request is forwared to port `7070` for Torchserve service.
+   - This with look for header named `protocol` in the incoming request and forward the request to Torchserve service. If the `protocol` header has a value `rest` then the request is forwarded to port `8080` of Torchserve service and if the `protocol` header has a value `grpc` then the request is forwarded to port `7070` for Torchserve service.
  - Apply the destination Rule using the command `kubectl apply -f destination_rule.yaml`.
    - The destination rule look for a http cookie with a key `session_id`. The request with `session_id` is served by the same pod that served the previous request with the same `session_id`
 
