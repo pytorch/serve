@@ -11,7 +11,6 @@ std::vector<torch::jit::IValue> BertHandler::Preprocess(
     std::pair<std::string&, std::map<uint8_t, std::string>&>& idx_to_req_id,
     std::shared_ptr<torchserve::InferenceRequestBatch>& request_batch,
     std::shared_ptr<torchserve::InferenceResponseBatch>& response_batch) {
-
   std::vector<torch::jit::IValue> batch_ivalue;
   std::vector<torch::Tensor> batch_tensors;
   uint8_t idx = 0;
@@ -89,7 +88,6 @@ std::vector<torch::jit::IValue> BertHandler::Preprocess(
       continue;
     }
 
-
     try {
       if (dtype_it->second == torchserve::PayloadType::kDATA_TYPE_BYTES) {
         torch::Tensor input_ids_tensor =
@@ -108,10 +106,9 @@ std::vector<torch::jit::IValue> BertHandler::Preprocess(
                              torch::kLong)
                 .clone();
 
-        // Store the tensors in batch_tensors using emplace_back
-        batch_tensors.push_back(input_ids_tensor.to(*device));
-        batch_tensors.push_back(attention_mask_tensor.to(*device));
-        batch_tensors.push_back(token_type_ids_tensor.to(*device));
+        batch_ivalue.push_back(torch::jit::IValue(input_ids_tensor));
+        batch_ivalue.push_back(torch::jit::IValue(attention_mask_tensor));
+        batch_ivalue.push_back(torch::jit::IValue(token_type_ids_tensor));
         idx_to_req_id.second[idx++] = request.request_id;
       } else if (dtype_it->second == "List") {
         // case3: the image is a list
@@ -133,9 +130,6 @@ std::vector<torch::jit::IValue> BertHandler::Preprocess(
     }
   }
 
-  batch_ivalue.emplace_back(torch::stack(batch_tensors).to(*device));
-
-            << batch_ivalue.size();
   return batch_ivalue;
 }
 
@@ -146,18 +140,18 @@ torch::Tensor BertHandler::Inference(
     std::pair<std::string&, std::map<uint8_t, std::string>&>& idx_to_req_id,
     std::shared_ptr<torchserve::InferenceResponseBatch>& response_batch) {
   torch::NoGradGuard no_grad;
-
-  torch::Tensor inputIds = inputs[0].toTensor();
-  torch::Tensor inputids_tensor = inputs[0];
-  torch::Tensor attention_tensor = inputs[1];
-  torch::Tensor tokentypeids_tensor = inputs[2];
+  std::vector<torch::jit::IValue> first_three_elements(inputs.begin(),
+                                                       inputs.begin() + 3);
 
   std::vector<torch::jit::IValue> modelinputs;
-  modelinputs.push_back(torch::jit::IValue(inputIds[0]));
-  modelinputs.push_back(torch::jit::IValue(inputIds[1]));
-  modelinputs.push_back(torch::jit::IValue(inputIds[2]));
+  modelinputs.push_back(
+      torch::jit::IValue(first_three_elements[0]).toTensor().unsqueeze(0));
+  modelinputs.push_back(
+      torch::jit::IValue(first_three_elements[1]).toTensor().unsqueeze(0));
+  modelinputs.push_back(
+      torch::jit::IValue(first_three_elements[2]).toTensor().unsqueeze(0));
 
-  auto outputs = model->forward(inputIds);
+  auto outputs = model->forward(modelinputs);
   auto tensor_output = outputs.toTuple()->elements()[0].toTensor();
 
   return tensor_output;
@@ -170,10 +164,20 @@ void BertHandler::Postprocess(
 
   for (const auto& kv : idx_to_req_id.second) {
     try {
+      auto max_result = torch::argmax(data);
+      bool isParaphrase = (max_result.item<int64_t>() == 1);
       auto response = (*response_batch)[kv.second];
-      response->SetResponse(200, "data_tpye",
-                            torchserve::PayloadType::kDATA_TYPE_BYTES,
-                            torch::pickle_save(data.argmax()));
+      if (isParaphrase) {
+        std::cout << "Paraphrase";
+        response->SetResponse(200, "data_type",
+                              torchserve::PayloadType::kDATA_TYPE_BYTES,
+                              "paraphrase");
+      } else {
+        std::cout << "Not paraphrase";
+        response->SetResponse(200, "data_type",
+                              torchserve::PayloadType::kDATA_TYPE_BYTES,
+                              "not paraphrase");
+      }
     } catch (const std::runtime_error& e) {
       LOG(ERROR) << "Failed to load tensor for request id:" << kv.second
                  << ", error: " << e.what();
