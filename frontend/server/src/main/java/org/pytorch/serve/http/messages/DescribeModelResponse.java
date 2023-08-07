@@ -21,6 +21,7 @@ public class DescribeModelResponse {
 
     private List<Worker> workers;
     private Metrics metrics;
+    private JobQueueStatus jobQueueStatus;
     private String customizedMetadata;
 
     public DescribeModelResponse() {
@@ -150,6 +151,14 @@ public class DescribeModelResponse {
         this.metrics = metrics;
     }
 
+    public JobQueueStatus getJobQueueStatus() {
+        return jobQueueStatus;
+    }
+
+    public void setJobQueueStatus(JobQueueStatus jobQueueStatus) {
+        this.jobQueueStatus = jobQueueStatus;
+    }
+
     public void setCustomizedMetadata(byte[] customizedMetadata) {
         this.customizedMetadata = new String(customizedMetadata, Charset.forName("UTF-8"));
     }
@@ -255,6 +264,28 @@ public class DescribeModelResponse {
 
         public void setRequests(int requests) {
             this.requests = requests;
+        }
+    }
+
+    public static final class JobQueueStatus {
+
+        private int remainingCapacity;
+        private int pendingRequests;
+
+        public int getRemainingCapacity() {
+            return remainingCapacity;
+        }
+
+        public void setRemainingCapacity(int remainingCapacity) {
+            this.remainingCapacity = remainingCapacity;
+        }
+
+        public int getPendingRequests() {
+            return pendingRequests;
+        }
+
+        public void setPendingRequests(int pendingRequests) {
+            this.pendingRequests = pendingRequests;
         }
     }
 }

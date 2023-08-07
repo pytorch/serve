@@ -1047,6 +1047,7 @@ QueueTime
 WorkerLoadTime
 WorkerName
 WorkerThreadTime
+minikube
 MicroSoft
 lmi
 torchrun
@@ -1062,7 +1063,11 @@ XLA
 inferentia
 ActionSLAM
 statins
+ci
 chatGPT
 accessLogFile
 istioctl
 meshConfig
+baseimage
+cuDNN
+Xformer
