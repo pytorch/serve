@@ -2,9 +2,11 @@ import logging
 import os
 from abc import ABC
 from threading import Thread
+from typing import Optional
 
 import torch_neuronx
-from transformers import AutoConfig, LlamaTokenizer, TextIteratorStreamer
+from transformers import AutoConfig, AutoTokenizer, LlamaTokenizer
+from transformers.generation.streamers import BaseStreamer, TextIteratorStreamer
 from transformers_neuronx.generation_utils import HuggingFaceGenerationModelAdapter
 from transformers_neuronx.llama.model import LlamaForSampling
 
@@ -22,6 +24,11 @@ class LLMHandler(BaseHandler, ABC):
     def __init__(self):
         super(LLMHandler, self).__init__()
         self.initialized = False
+        self.max_length = None
+        self.batch_size = None
+        self.tokenizer = None
+        self.output_streamer = None
+        self.input_size = None
 
     def initialize(self, ctx):
         self.manifest = ctx.manifest
@@ -31,6 +38,7 @@ class LLMHandler(BaseHandler, ABC):
         # settings for model compiliation and loading
         model_name = ctx.model_yaml_config["handler"]["model_name"]
         tp_degree = ctx.model_yaml_config["handler"]["tp_degree"]
+        self.batch_size = ctx.model_yaml_config["handler"]["batch_size"]
         self.max_length = ctx.model_yaml_config["handler"]["max_length"]
 
         # allocate "tp_degree" number of neuron cores to the worker process
@@ -52,30 +60,38 @@ class LLMHandler(BaseHandler, ABC):
 
         self.tokenizer = LlamaTokenizer.from_pretrained(model_name)
         self.model = LlamaForSampling.from_pretrained(
-            model_dir, batch_size=1, tp_degree=tp_degree
+            model_dir, batch_size=self.batch_size, tp_degree=tp_degree
         )
         logger.info("Starting to compile the model")
         self.model.to_neuron()
         logger.info("Model has been successfully compiled")
         model_config = AutoConfig.from_pretrained(model_dir)
         self.model = HuggingFaceGenerationModelAdapter(model_config, self.model)
-        self.output_streamer = TextIteratorStreamer(self.tokenizer)
+        self.output_streamer = TextIteratorStreamerBatch(
+            self.tokenizer, batch_size=self.batch_size, skip_special_tokens=True
+        )
 
         self.initialized = True
 
     def preprocess(self, requests):
-        assert (
-            len(requests) == 1
-        ), "Only batch size 1 is supported. Received input with batch size: " + str(
-            len(requests)
-        )
-        input_text = requests[0].get("data") or requests[0].get("body")
-        if isinstance(input_text, (bytes, bytearray)):
-            input_text = input_text.decode("utf-8")
-        assert (
-            type(input_text) == str
-        ), "Expected a single text prompt as input but got: " + str(type(input_text))
-        return self.tokenizer(input_text, return_tensors="pt")
+        input_text = []
+        self.input_size = len(requests)
+        for req in requests:
+            data = req.get("data") or req.get("body")
+            if isinstance(data, (bytes, bytearray)):
+                data = data.decode("utf-8")
+            input_text.append(data.strip())
+
+        # Ensure the compiled model can handle the input received
+        if len(input_text) > self.batch_size:
+            raise ValueError(
+                f"Model is compiled for batch size {self.batch_size} but received input of size {len(input_text)}"
+            )
+
+        # Pad input to match compiled model batch size
+        input_text.extend([""] * (self.batch_size - len(input_text)))
+
+        return self.tokenizer(input_text, return_tensors="pt", padding=True)
 
     def inference(self, tokenized_input):
         generation_kwargs = dict(
@@ -89,7 +105,7 @@ class LLMHandler(BaseHandler, ABC):
 
         for new_text in self.output_streamer:
             send_intermediate_predict_response(
-                [new_text],
+                new_text[: self.input_size],
                 self.context.request_ids,
                 "Intermediate Prediction success",
                 200,
@@ -98,7 +114,53 @@ class LLMHandler(BaseHandler, ABC):
 
         thread.join()
 
-        return [""]
+        return [""] * self.input_size
 
     def postprocess(self, inference_output):
         return inference_output
+
+
+class TextIteratorStreamerBatch(BaseStreamer):
+    def __init__(
+        self,
+        tokenizer: "AutoTokenizer",
+        batch_size: int,
+        skip_prompt: bool = False,
+        timeout: Optional[float] = None,
+        **decode_kwargs,
+    ):
+        self.batch_size = batch_size
+        self.streamers = [
+            TextIteratorStreamer(tokenizer, skip_prompt, timeout, **decode_kwargs)
+            for _ in range(batch_size)
+        ]
+        self.streamer_iterators = [iter(streamer) for streamer in self.streamers]
+
+    def put(self, value):
+        if value.shape[0] != self.batch_size:
+            raise ValueError(
+                f"TextIteratorStreamerBatch batch size is set to {self.batch_size} but got input tensor of shape {value.shape}"
+            )
+
+        for index in range(self.batch_size):
+            self.streamers[index].put(value[index : index + 1])
+
+    def end(self):
+        for streamer in self.streamers:
+            streamer.end()
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        values = []
+        for iterator in self.streamer_iterators:
+            try:
+                values.append(next(iterator))
+            except StopIteration:
+                values.append(None)
+
+        if None in values:
+            raise StopIteration()
+
+        return values
