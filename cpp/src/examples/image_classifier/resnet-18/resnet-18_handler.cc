@@ -1,6 +1,6 @@
 #include "src/examples/image_classifier/resnet-18/resnet-18_handler.hh"
 
-#include <vision.h>
+#include <opencv2/opencv.hpp>
 
 namespace resnet {
 
@@ -68,8 +68,48 @@ std::vector<torch::jit::IValue> ResnetHandler::Preprocess(
 
         images.emplace_back(torch::pickle_load(bytes).toTensor().to(*device));
         */
-        batch_tensors.emplace_back(
-            torch::pickle_load(data_it->second).toTensor().to(*device));
+
+        cv::Mat image = cv::imdecode(data_it->second, cv::IMREAD_COLOR);
+
+        cv::cvtColor(image, image, cv::COLOR_BGR2RGB);
+
+        // Check if the image was successfully decoded
+        if (image.empty()) {
+          std::cerr << "Failed to decode the image." << std::endl;
+        }
+
+        // Resize
+        const int newWidth = 256, newHeight = 256;
+        cv::Mat resizedImage;
+        cv::resize(image, resizedImage, cv::Size(newWidth, newHeight));
+
+        // Crop image
+        const int cropSize = 224;
+        const int offsetW = (resizedImage.cols - cropSize) / 2;
+        const int offsetH = (resizedImage.rows - cropSize) / 2;
+
+        const cv::Rect roi(offsetW, offsetH, cropSize, cropSize);
+        cv::Mat croppedImage = resizedImage(roi).clone();
+
+        // Convert the OpenCV image to a torch tensor
+        // Drift in cropped image
+        // Vision Crop: 114, 118, 115, 102, 106, 97
+        // OpenCV Crop: 113, 118, 114, 100, 106, 97
+        torch::TensorOptions options(torch::kByte);
+        torch::Tensor tensorImage = torch::from_blob(
+            croppedImage.data,
+            {croppedImage.rows, croppedImage.cols, croppedImage.channels()},
+            options);
+
+        tensorImage = tensorImage.permute({2, 0, 1});
+        tensorImage = tensorImage.to(torch::kFloat32) / 255.0;
+
+        // Normalize
+        torch::Tensor normalizedTensorImage =
+            torch::data::transforms::Normalize<>(
+                {0.485, 0.456, 0.406}, {0.229, 0.224, 0.225})(tensorImage);
+        normalizedTensorImage.clone();
+        batch_tensors.emplace_back(normalizedTensorImage.to(*device));
         idx_to_req_id.second[idx++] = request.request_id;
       } else if (dtype_it->second == "List") {
         // case3: the image is a list
