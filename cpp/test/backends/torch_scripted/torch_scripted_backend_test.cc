@@ -78,6 +78,15 @@ TEST_F(TorchScriptedBackendTest, TestLoadPredictMnistHandler) {
                     "mnist_ts", 200);
 }
 
+TEST_F(TorchScriptedBackendTest, TestLoadPredictBertHandler) {
+  this->LoadPredict(std::make_shared<torchserve::LoadModelRequest>(
+                        "test/resources/torchscript_model/bert/bert_handler",
+                        "bert", -1, "", "", 1, false),
+                    "test/resources/torchscript_model/bert/bert_handler",
+                    "test/resources/torchscript_model/bert/sentences.txt",
+                    "bert_ts", 200);
+}
+
 TEST_F(TorchScriptedBackendTest, TestBackendInitWrongModelDir) {
   auto result = backend_->Initialize("test/resources/torchscript_model/mnist");
   ASSERT_EQ(result, false);
