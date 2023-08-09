@@ -182,5 +182,5 @@ class KServev2Envelope(BaseEnvelope):
         output_data["name"] = input_name
         output_data["datatype"] = _to_datatype(data_ndarray.dtype)
         output_data["data"] = data_ndarray.tolist()
-        output_data["shape"] = data_ndarray.shape
+        output_data["shape"] = data_ndarray.flatten().shape
         return output_data
