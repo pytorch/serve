@@ -2,9 +2,9 @@ minWorkers: 1
 maxWorkers: 1
 maxBatchDelay: 100
 responseTimeout: 900
+batchSize: 2
 
 handler:
     model_name: meta-llama/Llama-2-13b-hf
     tp_degree: 6
-    batch_size: 2
     max_length: 100

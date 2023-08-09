@@ -6,7 +6,7 @@ Inferentia2 uses [Neuron SDK](https://aws.amazon.com/machine-learning/neuron/) w
 
 Let's take a look at the steps to prepare our model for inference on Inf2 instances.
 
-**Note** To run the model on an Inf2 instance, the model gets compiled as a preprocessing step. As part of the compilation process, to generate the model graph, a specific batch size is used. Following this, when running inference, we need to pass the same batch size that was used during compilation. This example uses batch size of 1 to demonstrate real-time inference with streaming response.
+**Note** To run the model on an Inf2 instance, the model gets compiled as a preprocessing step. As part of the compilation process, to generate the model graph, a specific batch size is used. Following this, when running inference, we need to pass the same batch size that was used during compilation. This example uses batch size is configured in `model-config.yaml`.
 
 ### Step 1: Inf2 instance
 
@@ -57,8 +57,12 @@ Login to Huggingface
 huggingface-cli login
 ```
 
-Navigate to `large_model/inferentia2/llama2` directory and run the following script
+Navigate to `examples/large_models/inferentia2/llama2` directory
+```bash
+cd examples/large_models/inferentia2/llama2/
+```
 
+Run the `inf2_save_split_checkpoints.py` script
 ```bash
 python ../util/inf2_save_split_checkpoints.py --model_name meta-llama/Llama-2-13b-hf --save_path './llama-2-13b-split'
 ```
@@ -67,7 +71,7 @@ python ../util/inf2_save_split_checkpoints.py --model_name meta-llama/Llama-2-13
 ### Step 3: Generate Tar/ MAR file
 
 ```bash
-torch-model-archiver --model-name llama-2-13b --version 1.0 --handler inf2_handler.py --extra-files ./llama-2-13b-split  -r requirements.txt --config-file model-config.yaml --archive-format no-archive
+torch-model-archiver --model-name llama-2-13b --version 1.0 --handler inf2_handler.py --extra-files ./llama-2-13b-split,../util/hf_batch_streamer.py  -r requirements.txt --config-file model-config.yaml --archive-format no-archive
 ```
 
 ### Step 4: Add the mar file to model store
@@ -93,4 +97,10 @@ curl -X POST "http://localhost:8081/models?url=llama-2-13b"
 
 ```bash
 python test_stream_response.py
+```
+
+### Step 8: Stop torchserve
+
+```bash
+torchserve --stop
 ```

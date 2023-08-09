@@ -2,11 +2,10 @@ import logging
 import os
 from abc import ABC
 from threading import Thread
-from typing import Optional
 
 import torch_neuronx
-from transformers import AutoConfig, AutoTokenizer, LlamaTokenizer
-from transformers.generation.streamers import BaseStreamer, TextIteratorStreamer
+from hf_batch_streamer import TextIteratorStreamerBatch
+from transformers import AutoConfig, LlamaTokenizer
 from transformers_neuronx.generation_utils import HuggingFaceGenerationModelAdapter
 from transformers_neuronx.llama.model import LlamaForSampling
 
@@ -38,7 +37,7 @@ class LLMHandler(BaseHandler, ABC):
         # settings for model compiliation and loading
         model_name = ctx.model_yaml_config["handler"]["model_name"]
         tp_degree = ctx.model_yaml_config["handler"]["tp_degree"]
-        self.batch_size = ctx.model_yaml_config["handler"]["batch_size"]
+        self.batch_size = ctx.model_yaml_config["batchSize"]
         self.max_length = ctx.model_yaml_config["handler"]["max_length"]
 
         # allocate "tp_degree" number of neuron cores to the worker process
@@ -59,6 +58,7 @@ class LLMHandler(BaseHandler, ABC):
         os.environ["NEURON_CC_FLAGS"] = "--model-type=transformer-inference"
 
         self.tokenizer = LlamaTokenizer.from_pretrained(model_name)
+        self.tokenizer.pad_token = self.tokenizer.eos_token
         self.model = LlamaForSampling.from_pretrained(
             model_dir, batch_size=self.batch_size, tp_degree=tp_degree
         )
@@ -118,49 +118,3 @@ class LLMHandler(BaseHandler, ABC):
 
     def postprocess(self, inference_output):
         return inference_output
-
-
-class TextIteratorStreamerBatch(BaseStreamer):
-    def __init__(
-        self,
-        tokenizer: "AutoTokenizer",
-        batch_size: int,
-        skip_prompt: bool = False,
-        timeout: Optional[float] = None,
-        **decode_kwargs,
-    ):
-        self.batch_size = batch_size
-        self.streamers = [
-            TextIteratorStreamer(tokenizer, skip_prompt, timeout, **decode_kwargs)
-            for _ in range(batch_size)
-        ]
-        self.streamer_iterators = [iter(streamer) for streamer in self.streamers]
-
-    def put(self, value):
-        if value.shape[0] != self.batch_size:
-            raise ValueError(
-                f"TextIteratorStreamerBatch batch size is set to {self.batch_size} but got input tensor of shape {value.shape}"
-            )
-
-        for index in range(self.batch_size):
-            self.streamers[index].put(value[index : index + 1])
-
-    def end(self):
-        for streamer in self.streamers:
-            streamer.end()
-
-    def __iter__(self):
-        return self
-
-    def __next__(self):
-        values = []
-        for iterator in self.streamer_iterators:
-            try:
-                values.append(next(iterator))
-            except StopIteration:
-                values.append(None)
-
-        if None in values:
-            raise StopIteration()
-
-        return values
