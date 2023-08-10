@@ -63,11 +63,11 @@ class VisionHandler(BaseHandler, ABC):
         images = torch.stack(images).to(self.device)
 
         # pre-process images
-        if not skip_processing:
-            with torch.no_grad():
-                images = transforms.Normalize(
-                    mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
-                )(images)
+        # if not skip_processing:
+        #    with torch.no_grad():
+        #        images = transforms.Normalize(
+        #            mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
+        #        )(images)
 
         return images
 
