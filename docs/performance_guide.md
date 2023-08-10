@@ -42,11 +42,17 @@ TorchServe exposes configurations that allow the user to configure the number of
 
 <h4>TorchServe On CPU </h4>
 
-If working with TorchServe on a CPU here are some things to consider that could improve performance:
+If working with TorchServe on a CPU you can improve performance by setting the following in your `config.properties`:
+
+```bash
+cpu_launcher_enable=true
+cpu_launcher_args=--use_logical_core
+```
+These settings improve performance significantly through launcher core pinning.
+The theory behind this improvement is discussed in [this blog](https://pytorch.org/tutorials/intermediate/torchserve_with_ipex#grokking-pytorch-intel-cpu-performance-from-first-principles) which can be quickly summarized as:
 * In a hyperthreading enabled system, avoid logical cores by setting thread affinity to physical cores only via core pinning.
 * In a multi-socket system with NUMA, avoid cross-socket remote memory access by setting thread affinity to a specific socket via core pinning.
 
-These principles can be automatically configured via an easy to use launch script which has already been integrated into TorchServe. For more information take a look at this [case study](https://pytorch.org/tutorials/intermediate/torchserve_with_ipex#grokking-pytorch-intel-cpu-performance-from-first-principles) which dives into these points further with examples and explanations from first principles.
 
 <h4>TorchServe on GPU</h4>
 
