@@ -416,6 +416,12 @@ public final class ApiUtils {
             resp.addWorker(workerId, startTime, isRunning, gpuId, memory, pid, gpuUsage);
         }
 
+        DescribeModelResponse.JobQueueStatus jobQueueStatus =
+                new DescribeModelResponse.JobQueueStatus();
+        jobQueueStatus.setRemainingCapacity(model.getJobQueueRemainingCapacity());
+        jobQueueStatus.setPendingRequests(model.getPendingRequestsInJobQueue());
+        resp.setJobQueueStatus(jobQueueStatus);
+
         return resp;
     }
 

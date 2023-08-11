@@ -21,6 +21,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.pytorch.serve.archive.DownloadArchiveException;
 import org.pytorch.serve.archive.model.InvalidModelException;
 import org.pytorch.serve.archive.s3.HttpUtils;
+import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 import org.yaml.snakeyaml.error.YAMLException;
@@ -47,7 +48,7 @@ public final class ArchiveUtils {
 
     public static <T> T readYamlFile(File file, Class<T> type)
             throws InvalidModelException, IOException {
-        Yaml yaml = new Yaml(new Constructor(type));
+        Yaml yaml = new Yaml(new Constructor(type, new LoaderOptions()));
         try (Reader r =
                 new InputStreamReader(
                         Files.newInputStream(file.toPath()), StandardCharsets.UTF_8)) {
