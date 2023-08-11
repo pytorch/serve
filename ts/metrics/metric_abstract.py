@@ -2,8 +2,9 @@
 Interface for metric class for TS
 """
 import abc
-from ts.metrics.unit import Units
+
 from ts.metrics.metric_type_enum import MetricTypes
+from ts.metrics.unit import Units
 
 MetricUnit = Units()
 
@@ -17,7 +18,7 @@ class MetricAbstract(metaclass=abc.ABCMeta):
         self,
         metric_name: str,
         unit: str,
-        dimension_names: list = None,
+        dimension_names: list[str] = [],
         metric_type: MetricTypes = MetricTypes.COUNTER,
     ):
         """
@@ -33,7 +34,7 @@ class MetricAbstract(metaclass=abc.ABCMeta):
             unit can be one of ms, percent, count, MB, GB or a generic string
 
         dimension_names list
-            list of dimension names which should be strings
+            list of dimension name strings
 
         metric_type MetricTypes
             Type of metric Counter, Gauge, Histogram
@@ -49,7 +50,7 @@ class MetricAbstract(metaclass=abc.ABCMeta):
     def add_or_update(
         self,
         value: int or float,
-        dimension_values: list,
+        dimension_values: list[str],
         request_id: str = "",
     ):
         pass
