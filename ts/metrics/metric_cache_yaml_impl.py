@@ -105,7 +105,7 @@ class MetricsCacheYamlImpl(MetricCacheAbstract):
         self,
         metric_name: str,
         unit: str,
-        dimension_names: list[str] = [],
+        dimension_names: list = [],
         metric_type: MetricTypes = MetricTypes.COUNTER,
     ) -> CachingMetric:
         """

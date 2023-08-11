@@ -76,7 +76,7 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
         value: int or float,
         unit: str,
         idx: str = None,
-        dimensions: list[Dimension] = [],
+        dimensions: list = [],
         metric_type: MetricTypes = MetricTypes.COUNTER,
     ):
         """
@@ -108,7 +108,7 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
         name: str,
         value: int or float,
         idx: str = None,
-        dimensions: list[Dimension] = [],
+        dimensions: list = [],
     ):
         """
         Add a counter metric or increment an existing counter metric
@@ -135,7 +135,7 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
         value: int or float,
         idx: str = None,
         unit: str = "ms",
-        dimensions: list[Dimension] = [],
+        dimensions: list = [],
         metric_type: MetricTypes = MetricTypes.GAUGE,
     ):
         """
@@ -172,7 +172,7 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
         value: int or float,
         idx: str = None,
         unit: str = "MB",
-        dimensions: list[Dimension] = [],
+        dimensions: list = [],
         metric_type: MetricTypes = MetricTypes.GAUGE,
     ):
         """
@@ -208,7 +208,7 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
         name: str,
         value: int or float,
         idx: str = None,
-        dimensions: list[Dimension] = [],
+        dimensions: list = [],
         metric_type: MetricTypes = MetricTypes.GAUGE,
     ):
         """
@@ -237,7 +237,7 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
         self,
         name: str,
         value: int or float,
-        dimensions: list[Dimension] = [],
+        dimensions: list = [],
     ):
         """
         Add an Error Metric
@@ -310,7 +310,7 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
         self,
         metric_name: str,
         unit: str,
-        dimension_names: list[str] = [],
+        dimension_names: list = [],
         metric_type: MetricTypes = MetricTypes.COUNTER,
     ) -> MetricAbstract:
         """

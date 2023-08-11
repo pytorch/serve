@@ -21,7 +21,7 @@ class CachingMetric(MetricAbstract):
         self,
         metric_name: str,
         unit: str,
-        dimension_names: list[str] = None,
+        dimension_names: list = None,
         metric_type: MetricTypes = MetricTypes.COUNTER,
     ):
         """
@@ -47,8 +47,8 @@ class CachingMetric(MetricAbstract):
 
     def _validate_and_get_dimensions(
         self,
-        dimension_values: list[str],
-    ) -> list[Dimension]:
+        dimension_values: list,
+    ) -> list:
         """
         Validates that the dimension values match the dimension names
         amd creates dimension objs
@@ -112,7 +112,7 @@ class CachingMetric(MetricAbstract):
     def add_or_update(
         self,
         value: int or float,
-        dimension_values: list[str] = [],
+        dimension_values: list = [],
         request_id: str = "",
     ):
         """
@@ -145,7 +145,7 @@ class CachingMetric(MetricAbstract):
         self,
         value: int or float,
         request_id: str = "",
-        dimensions: list[Dimension] = [],
+        dimensions: list = [],
     ):
         """
         BACKWARDS COMPATIBILITY: Update metric value

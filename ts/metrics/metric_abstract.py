@@ -18,7 +18,7 @@ class MetricAbstract(metaclass=abc.ABCMeta):
         self,
         metric_name: str,
         unit: str,
-        dimension_names: list[str] = [],
+        dimension_names: list = None,
         metric_type: MetricTypes = MetricTypes.COUNTER,
     ):
         """
@@ -50,7 +50,7 @@ class MetricAbstract(metaclass=abc.ABCMeta):
     def add_or_update(
         self,
         value: int or float,
-        dimension_values: list[str],
+        dimension_values: list,
         request_id: str = "",
     ):
         pass
