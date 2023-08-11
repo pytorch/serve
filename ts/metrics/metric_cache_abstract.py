@@ -94,7 +94,7 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
         idx: str
             request id to be associated with the metric
         dimensions: list
-            list of dimension objects for the metric
+            list of Dimension objects for the metric
         metric_type MetricTypes
             Type of metric Counter, Gauge, Histogram
         """
@@ -122,7 +122,7 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
         idx: str
             request id to be associated with the metric
         dimensions: list
-            list of dimension objects for the metric
+            list of Dimension objects for the metric
         """
         req_id = self._get_req(idx)
         dimensions = self._add_default_dims(req_id, dimensions)
@@ -153,7 +153,7 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
         unit: str
             unit of metric,  default here is ms, s is also accepted
         dimensions: list
-            list of dimension objects for the metric
+            list of Dimension objects for the metric
         metric_type MetricTypes
             Type of metric Counter, Gauge, Histogram
         """
@@ -190,7 +190,7 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
         unit: str
             unit of metric, default here is 'MB', 'kB', 'GB' also supported
         dimensions: list
-            list of dimension objects for the metric
+            list of Dimension objects for the metric
         metric_type MetricTypes
             Type of metric Counter, Gauge, Histogram
         """
@@ -224,7 +224,7 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
         idx: str
             request id to be associated with the metric
         dimensions: list
-            list of dimension objects for the metric
+            list of Dimension objects for the metric
         metric_type MetricTypes
             Type of metric Counter, Gauge, Histogram
         """
@@ -250,7 +250,7 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
         value: int or float
             value of the metric
         dimensions: list
-            list of dimension objects for the metric
+            list of Dimension objects for the metric
         """
         dimensions = self._add_default_dims(None, dimensions)
         metric = self._get_or_add_metric(name, "", dimensions, MetricTypes.COUNTER)

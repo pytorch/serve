@@ -58,7 +58,7 @@ class CachingMetric(MetricAbstract):
             values corresponding to the metrics dimension names
         Returns
         -------
-        list of dimension objects or ValueError
+        list of Dimension objects or ValueError
         """
         if dimension_values is None or len(dimension_values) != len(
             self.dimension_names
@@ -157,7 +157,7 @@ class CachingMetric(MetricAbstract):
         request_id : str
             request id to be associated with the metric
         dimensions : list
-            list of dimension objects
+            list of Dimension objects
         """
         logger.warning("Overriding existing dimensions")
         self.dimension_names = [dim.name for dim in dimensions]
