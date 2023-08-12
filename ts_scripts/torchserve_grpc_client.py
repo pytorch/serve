@@ -142,7 +142,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    metadata = (("protocol", "grpc"), ("session_id", "12345"))
+    metadata = (("protocol", "gRPC"), ("session_id", "12345"))
 
     if args.action == "infer":
         infer(get_inference_stub(), args.model_name, args.model_input, metadata)

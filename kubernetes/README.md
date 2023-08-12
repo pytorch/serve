@@ -317,7 +317,7 @@ istio-ingressgateway   LoadBalancer   10.100.84.243   a918b2zzzzzzzzzzzzzzzzzzzz
 - Make Request as shown below
 
 ```bash
-curl -v -H "protocol: rest" --cookie "session_id="12345" http://a918b2d70dbddzzzzzzzzzzz49ec8cf03b-1466623565.us-west-2.elb.amazonaws.com:80/predictions/<model_name> -d "data=<input-string>"
+curl -v -H "protocol: REST" --cookie "session_id="12345" http://a918b2d70dbddzzzzzzzzzzz49ec8cf03b-1466623565.us-west-2.elb.amazonaws.com:80/predictions/<model_name> -d "data=<input-string>"
 ```
 
 ### gRPC Inference

@@ -4,25 +4,33 @@ metadata:
   name: torchserve-vs
 spec:
   hosts:
-    - '*'
+    - "*"
   gateways:
     - torchserve-gw
   http:
     - match:
-      - headers:
-          protocol:
-            exact: rest
+        - uri:
+            prefix: /metrics
       route:
-      - destination:
-          host: torchserve.default.svc.cluster.local # <ts-service-name>.<namespace>.svc.cluster.local
-          port:
-            number: 8080
+        - destination:
+            host: torchserve.default.svc.cluster.local
+            port:
+              number: 8082
     - match:
-      - headers:
-          protocol:
-            exact: grpc
+        - headers:
+            protocol:
+              exact: REST
       route:
-      - destination:
-          host: torchserve.default.svc.cluster.local # <ts-service-name>.<namespace>.svc.cluster.local
-          port:
-            number: 7070
+        - destination:
+            host: torchserve.default.svc.cluster.local # <ts-service-name>.<namespace>.svc.cluster.local
+            port:
+              number: 8080
+    - match:
+        - headers:
+            protocol:
+              exact: gRPC
+      route:
+        - destination:
+            host: torchserve.default.svc.cluster.local # <ts-service-name>.<namespace>.svc.cluster.local
+            port:
+              number: 7070
