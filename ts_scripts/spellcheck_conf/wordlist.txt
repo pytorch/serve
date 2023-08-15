@@ -1080,3 +1080,4 @@ onnxruntime
 pipelining
 tensorRT
 utilizations
+ctranslate
