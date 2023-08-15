@@ -41,7 +41,7 @@ def pipe():
 def main(batch_size, num_threads, device_id, filename):
     pipeline = pipe(batch_size=batch_size, num_threads=num_threads, device_id=device_id)
     pipeline.serialize(filename=filename)
-    print("Saved {}".format(filename))
+    print(f"Saved {filename}")
 
 
 if __name__ == "__main__":

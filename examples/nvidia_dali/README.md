@@ -2,9 +2,50 @@
 
 The NVIDIA Data Loading Library (DALI) is a library for data loading and pre-processing to accelerate deep learning applications. It provides a collection of highly optimized building blocks for loading and processing image, video and audio data.
 
-In this example, we use NVIDIA DALI for pre-processing image input for inference in mnist model.
+In this example, we use NVIDIA DALI for pre-processing image input for inference in resnet-18 and mnist models.
 
 Refer to [NVIDIA-DALI-Documentation](https://docs.nvidia.com/deeplearning/dali/user-guide/docs/index.html) for detailed information
+
+## DALI Pre-Processing with Default DALIImageClassifier handler for resnet-18 model
+
+### Create model-archive file
+
+Navigate to serve folder
+
+:warning: Remove the `pipeline_file` key from the `model-config.yaml` file to use the default dali_image_classifier handler
+
+Download model weights
+
+```bash
+wget https://download.pytorch.org/models/resnet18-f37072fd.pth
+```
+
+```bash
+torch-model-archiver --model-name resnet-18 --version 1.0 --model-file ./examples/image_classifier/resnet_18/model.py --serialized-file resnet18-f37072fd.pth --handler dali_image_classifier --config-file model-config.yaml --extra-files ./examples/image_classifier/index_to_name.json
+```
+
+Create a new directory `model_store` and move the model-archive file
+
+```bash
+mkdir model_store
+mv resnet-18.mar model_store/
+```
+
+### Start the torchserve
+
+```bash
+torchserve --start --model-store model_store --models resnet=resnet-18.mar
+```
+
+### Run Inference
+
+Get the inference for a sample image using the below command
+
+```bash
+curl http://127.0.0.1:8080/predictions/resnet -T ./examples/image_classifier/kitten.jpg
+```
+
+## DALI Pre-Processing in a Custom Handler for mnist model
 
 ### Install dependencies
 
