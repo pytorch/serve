@@ -3,7 +3,6 @@ syntax = "proto3";
 package org.pytorch.serve.grpc.inference;
 
 import "google/protobuf/empty.proto";
-import "google/protobuf/any.proto";
 import "google/rpc/status.proto";
 
 option java_multiple_files = true;
@@ -19,7 +18,7 @@ message PredictionsRequest {
     map<string, bytes> input = 3; //required
 
     // SequenceId is required for StreamPredictions2 API.
-    optional string sequenceId = 4; //optional
+    optional string sequence_id = 4; //optional
 }
 
 message PredictionResponse {
@@ -27,7 +26,7 @@ message PredictionResponse {
     bytes prediction = 1;
 
     // SequenceId is required for StreamPredictions2 API.
-    optional string sequenceId = 2; //optional
+    optional string sequence_id = 2; //optional
 
     // Error information for StreamPredictions2 API.
     optional google.rpc.Status status = 3; //optional

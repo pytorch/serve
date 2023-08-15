@@ -120,6 +120,11 @@ class Context(object):
     def __eq__(self, other: object) -> bool:
         return isinstance(other, Context) and self.__dict__ == other.__dict__
 
+    def get_sequence_id(self, idx: int) -> str:
+        return self._request_processor[idx].get_request_property(
+            "ts_request_sequence_id"
+        )
+
 
 class RequestProcessor(object):
     """

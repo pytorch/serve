@@ -23,14 +23,12 @@ import java.util.UUID;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import org.pytorch.serve.archive.model.ModelConfig;
 import org.pytorch.serve.job.Job;
-import org.pytorch.serve.job.JobGroup;
 import org.pytorch.serve.job.RestJob;
 import org.pytorch.serve.metrics.IMetric;
 import org.pytorch.serve.metrics.MetricCache;
@@ -193,25 +191,28 @@ public class WorkerThread implements Runnable {
                 logger.info("Flushing req.cmd {} to backend at: {}", workerCmd, wtStartTime);
                 int repeats =
                         (workerCmd == WorkerCommands.LOAD)
-                                || ((workerCmd == WorkerCommands.PREDICT
-                                || workerCmd == WorkerCommands.STREAMPREDICT
-                                || workerCmd == WorkerCommands.STREAMPREDICT2)
-                                && model.getParallelLevel() > 1
-                                && model.getParallelType() != ModelConfig.ParallelType.PP)
+                                        || ((workerCmd == WorkerCommands.PREDICT
+                                                        || workerCmd == WorkerCommands.STREAMPREDICT
+                                                        || workerCmd
+                                                                == WorkerCommands.STREAMPREDICT2)
+                                                && model.getParallelLevel() > 1
+                                                && model.getParallelType()
+                                                        != ModelConfig.ParallelType.PP)
                                 ? model.getParallelLevel()
                                 : 1;
                 List<CompletableFuture<Void>> futureRequests = new ArrayList<>(repeats);
                 for (int i = 0; backendChannel.size() > 0 && i < repeats; i++) {
                     int idx = i;
                     BaseModelRequest request = req;
-                    futureRequests.add(CompletableFuture.runAsync(
-                            () -> {
-                                try {
-                                    backendChannel.get(idx).writeAndFlush(request).sync();
-                                } catch (InterruptedException e) {
-                                    throw new RuntimeException(e);
-                                }
-                            }));
+                    futureRequests.add(
+                            CompletableFuture.runAsync(
+                                    () -> {
+                                        try {
+                                            backendChannel.get(idx).writeAndFlush(request).sync();
+                                        } catch (InterruptedException e) {
+                                            logger.error("Failed to send request to backend", e);
+                                        }
+                                    }));
                 }
                 futureRequests.stream().map(CompletableFuture::join);
 
@@ -221,14 +222,18 @@ public class WorkerThread implements Runnable {
                 long totalDuration = 0;
                 do {
                     long begin = System.currentTimeMillis();
-                    List<CompletableFuture<ModelWorkerResponse>> futureResponses = new ArrayList<>(repeats);
+                    List<CompletableFuture<ModelWorkerResponse>> futureResponses =
+                            new ArrayList<>(repeats);
                     for (int i = 0; i < repeats; i++) {
-                        futureResponses.add(CompletableFuture.supplyAsync(
+                        futureResponses.add(
+                                CompletableFuture.supplyAsync(
                                         () -> {
                                             try {
-                                                return replies.poll(responseTimeout, TimeUnit.SECONDS);
+                                                return replies.poll(
+                                                        responseTimeout, TimeUnit.SECONDS);
                                             } catch (InterruptedException e) {
-                                                logger.error("Failed to get response from backend", e);
+                                                logger.error(
+                                                        "Failed to get response from backend", e);
                                             }
                                             return null;
                                         }));
@@ -315,6 +320,8 @@ public class WorkerThread implements Runnable {
                         ConfigManager.getInstance().getVersion(),
                         oom.getClass().getCanonicalName());
             }
+        } catch (IllegalStateException e) {
+            logger.error("IllegalStateException error", e);
         } catch (Throwable t) {
             logger.warn("Backend worker thread exception.", t);
             if (ConfigManager.getInstance().isTelemetryEnabled()) {

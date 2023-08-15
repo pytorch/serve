@@ -17,3 +17,4 @@ torchpippy==0.1.1
 intel_extension_for_pytorch==2.0.100; sys_platform != 'win32' and sys_platform != 'darwin'
 onnxruntime==1.15.0
 onnx==1.14.0
+googleapis-common-protos

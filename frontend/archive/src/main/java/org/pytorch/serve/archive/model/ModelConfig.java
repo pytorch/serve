@@ -56,9 +56,9 @@ public class ModelConfig {
     private boolean useJobTicket;
     /**
      * the max idle in milliseconds of a sequence inference request of this stateful model. The
-     * default value is 0 (ie. this is not a stateful model.
+     * default value is 0 (ie. this is not a stateful model.)
      */
-    private int sequenceMaxIdleMSec = 0;
+    private long sequenceMaxIdleMSec;
     /**
      * the max number of sequence inference requests of this stateful model. The default value is
      * minWorkers * batchSize.
@@ -174,7 +174,7 @@ public class ModelConfig {
                             break;
                         case "sequenceMaxIdleMSec":
                             if (v instanceof Integer) {
-                                modelConfig.setSequenceMaxIdleMSec((int) v);
+                                modelConfig.setSequenceMaxIdleMSec(((Integer) v).longValue());
                             } else {
                                 logger.warn(
                                         "Invalid sequenceMaxIdleMSec: {}, should be positive int",
@@ -353,11 +353,11 @@ public class ModelConfig {
         this.useJobTicket = useJobTicket;
     }
 
-    public int getSequenceMaxIdleMSec() {
+    public long getSequenceMaxIdleMSec() {
         return sequenceMaxIdleMSec;
     }
 
-    public void setSequenceMaxIdleMSec(int sequenceMaxIdleMSec) {
+    public void setSequenceMaxIdleMSec(long sequenceMaxIdleMSec) {
         if (sequenceMaxIdleMSec > 0) {
             this.sequenceMaxIdleMSec = sequenceMaxIdleMSec;
         }

@@ -12,8 +12,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-
-import jdk.internal.misc.ScopedMemoryAccess;
 import org.pytorch.serve.archive.model.ModelNotFoundException;
 import org.pytorch.serve.archive.model.ModelVersionNotFoundException;
 import org.pytorch.serve.grpc.inference.InferenceAPIsServiceGrpc.InferenceAPIsServiceImplBase;
@@ -90,29 +88,45 @@ public class InferenceImpl extends InferenceAPIsServiceImplBase {
     @Override
     public StreamObserver<PredictionsRequest> streamPredictions2(
             StreamObserver<PredictionResponse> responseObserver) {
+        ((ServerCallStreamObserver<PredictionResponse>) responseObserver)
+                .setOnCancelHandler(
+                        () -> {
+                            logger.warn("grpc client call already cancelled");
+                            responseObserver.onError(
+                                    io.grpc.Status.CANCELLED
+                                            .withDescription("call already cancelled")
+                                            .asRuntimeException());
+                        });
         return new StreamObserver<PredictionsRequest>() {
             private JobGroup jobGroup;
+
             @Override
             public void onNext(PredictionsRequest value) {
                 String sequenceId = value.getSequenceId();
 
                 if (sequenceId == null || sequenceId.isBlank()) {
-                    BadRequestException e = new BadRequestException("Parameter sequenceId is required.");
+                    BadRequestException e =
+                            new BadRequestException("Parameter sequenceId is required.");
                     sendErrorResponse(
-                            responseObserver, Status.INTERNAL,
-                            e, "BadRequestException.()", WorkerCommands.STREAMPREDICT2);
-                }
-
-                prediction(value, responseObserver, WorkerCommands.STREAMPREDICT2);
-                if (jobGroup == null) {
-                    jobGroup = getJobGroup(value);
+                            responseObserver,
+                            Status.INTERNAL,
+                            e,
+                            "BadRequestException.()",
+                            WorkerCommands.STREAMPREDICT2);
+                } else {
+                    prediction(value, responseObserver, WorkerCommands.STREAMPREDICT2);
+                    if (jobGroup == null) {
+                        jobGroup = getJobGroup(value);
+                    }
                 }
             }
 
             @Override
             public void onError(Throwable t) {
-                logger.error("Failed to process the streaming requestId: {} in sequenceId: {}",
-                        jobGroup == null ? null : jobGroup.getGroupId(), t);
+                logger.error(
+                        "Failed to process the streaming requestId: {} in sequenceId: {}",
+                        jobGroup == null ? null : jobGroup.getGroupId(),
+                        t);
             }
 
             @Override
@@ -133,19 +147,30 @@ public class InferenceImpl extends InferenceAPIsServiceImplBase {
             String description,
             WorkerCommands workerCmd) {
         if (workerCmd == WorkerCommands.STREAMPREDICT2) {
-            com.google.rpc.Status rpcStatus = com.google.rpc.Status.newBuilder()
-                    .setCode(status.getCode().value())
-                    .setMessage(e.getMessage())
-                    .addDetails(Any.pack(ErrorInfo.newBuilder()
-                            .setReason(description == null ? e.getClass().getCanonicalName() : description)
-                            .build())).build();
-            PredictionResponse response = PredictionResponse.newBuilder().setStatus(rpcStatus).build();
+            com.google.rpc.Status rpcStatus =
+                    com.google.rpc.Status.newBuilder()
+                            .setCode(status.getCode().value())
+                            .setMessage(e.getMessage())
+                            .addDetails(
+                                    Any.pack(
+                                            ErrorInfo.newBuilder()
+                                                    .setReason(
+                                                            description == null
+                                                                    ? e.getClass()
+                                                                            .getCanonicalName()
+                                                                    : description)
+                                                    .build()))
+                            .build();
+            PredictionResponse response =
+                    PredictionResponse.newBuilder().setStatus(rpcStatus).build();
             responseObserver.onNext(response);
         } else {
             responseObserver.onError(
                     status.withDescription(e.getMessage())
                             .augmentDescription(
-                                    description == null ? e.getClass().getCanonicalName() : description)
+                                    description == null
+                                            ? e.getClass().getCanonicalName()
+                                            : description)
                             .withCause(e)
                             .asRuntimeException());
         }
@@ -155,23 +180,24 @@ public class InferenceImpl extends InferenceAPIsServiceImplBase {
             PredictionsRequest request,
             StreamObserver<PredictionResponse> responseObserver,
             WorkerCommands workerCmd) {
-        ((ServerCallStreamObserver<PredictionResponse>) responseObserver)
-                .setOnCancelHandler(
-                        () -> {
-                            logger.warn("grpc client call already cancelled");
-                            responseObserver.onError(
-                                    io.grpc.Status.CANCELLED
-                                            .withDescription("call already cancelled")
-                                            .asRuntimeException());
-                        });
+        if (workerCmd != WorkerCommands.STREAMPREDICT2) {
+            ((ServerCallStreamObserver<PredictionResponse>) responseObserver)
+                    .setOnCancelHandler(
+                            () -> {
+                                logger.warn("grpc client call already cancelled");
+                                responseObserver.onError(
+                                        io.grpc.Status.CANCELLED
+                                                .withDescription("call already cancelled")
+                                                .asRuntimeException());
+                            });
+        }
         String modelName = request.getModelName();
         String modelVersion = request.getModelVersion();
 
         if (modelName == null || "".equals(modelName)) {
             BadRequestException e = new BadRequestException("Parameter model_name is required.");
             sendErrorResponse(
-                    responseObserver, Status.INTERNAL, e,
-                    "BadRequestException.()", workerCmd);
+                    responseObserver, Status.INTERNAL, e, "BadRequestException.()", workerCmd);
             return;
         }
 
@@ -192,6 +218,9 @@ public class InferenceImpl extends InferenceAPIsServiceImplBase {
             for (Map.Entry<String, ByteString> entry : request.getInputMap().entrySet()) {
                 inputData.addParameter(
                         new InputParameter(entry.getKey(), entry.getValue().toByteArray()));
+            }
+            if (workerCmd == WorkerCommands.STREAMPREDICT2) {
+                inputData.setSequenceId(request.getSequenceId());
             }
 
             IMetric inferenceRequestsTotalMetric =
@@ -217,13 +246,14 @@ public class InferenceImpl extends InferenceAPIsServiceImplBase {
                         ApiUtils.getInferenceErrorResponseMessage(modelName, modelVersion);
                 InternalServerException e = new InternalServerException(responseMessage);
                 sendErrorResponse(
-                        responseObserver, Status.INTERNAL, e,
-                        "InternalServerException.()", workerCmd);
+                        responseObserver,
+                        Status.INTERNAL,
+                        e,
+                        "InternalServerException.()",
+                        workerCmd);
             }
         } catch (ModelNotFoundException | ModelVersionNotFoundException e) {
-            sendErrorResponse(
-                    responseObserver, Status.INTERNAL, e,
-                    null, workerCmd);
+            sendErrorResponse(responseObserver, Status.INTERNAL, e, null, workerCmd);
         }
     }
 
@@ -231,6 +261,9 @@ public class InferenceImpl extends InferenceAPIsServiceImplBase {
         try {
             String modelName = request.getModelName();
             String modelVersion = request.getModelVersion();
+            if (modelVersion == null || "".equals(modelVersion)) {
+                modelVersion = null;
+            }
             ModelManager modelManager = ModelManager.getInstance();
             Model model = modelManager.getModel(modelName, modelVersion);
 

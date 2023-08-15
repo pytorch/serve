@@ -1,6 +1,7 @@
 package org.pytorch.serve.job;
 
 import static org.pytorch.serve.util.messages.RequestInput.TS_STREAM_NEXT;
+
 import com.google.protobuf.Any;
 import com.google.protobuf.ByteString;
 import com.google.rpc.ErrorInfo;
@@ -81,8 +82,7 @@ public class GRPCJob extends Job {
                                 getScheduled() - getBegin(), TimeUnit.NANOSECONDS);
         if (this.queueTimeMetric != null) {
             try {
-                this.queueTimeMetric.addOrUpdate(
-                        this.queueTimeMetricDimensionValues, queueTime);
+                this.queueTimeMetric.addOrUpdate(this.queueTimeMetricDimensionValues, queueTime);
             } catch (Exception e) {
                 logger.error("Failed to update frontend metric QueueTime: ", e);
             }
@@ -109,29 +109,32 @@ public class GRPCJob extends Job {
                 PredictionResponse reply =
                         PredictionResponse.newBuilder().setPrediction(output).build();
                 responseObserver.onNext(reply);
-                if (cmd == WorkerCommands.PREDICT ||
-                        (cmd == WorkerCommands.STREAMPREDICT
+                if (cmd == WorkerCommands.PREDICT
+                        || (cmd == WorkerCommands.STREAMPREDICT
                                 && responseHeaders.get(TS_STREAM_NEXT).equals("false"))) {
                     responseObserver.onCompleted();
                     logQueueTime();
-                } else if (cmd == WorkerCommands.STREAMPREDICT2 &&
-                        responseHeaders.get(TS_STREAM_NEXT).equals("false")) {
+                } else if (cmd == WorkerCommands.STREAMPREDICT2
+                        && responseHeaders.get(TS_STREAM_NEXT).equals("false")) {
                     logQueueTime();
                 }
                 break;
             case DESCRIBE:
                 try {
                     ArrayList<DescribeModelResponse> respList =
-                            ApiUtils.getModelDescription(this.getModelName(), this.getModelVersion());
+                            ApiUtils.getModelDescription(
+                                    this.getModelName(), this.getModelVersion());
                     if (!output.isEmpty() && respList != null && respList.size() == 1) {
                         respList.get(0).setCustomizedMetadata(body);
                     }
                     String resp = JsonUtils.GSON_PRETTY.toJson(respList);
-                    ManagementResponse mgmtReply = ManagementResponse.newBuilder().setMsg(resp).build();
+                    ManagementResponse mgmtReply =
+                            ManagementResponse.newBuilder().setMsg(resp).build();
                     managementResponseObserver.onNext(mgmtReply);
                     managementResponseObserver.onCompleted();
                 } catch (ModelNotFoundException | ModelVersionNotFoundException e) {
-                    ManagementImpl.sendErrorResponse(managementResponseObserver, Status.NOT_FOUND, e);
+                    ManagementImpl.sendErrorResponse(
+                            managementResponseObserver, Status.NOT_FOUND, e);
                 }
                 break;
             default:
@@ -152,24 +155,37 @@ public class GRPCJob extends Job {
                         (ServerCallStreamObserver<PredictionResponse>) predictionResponseObserver;
                 cancelHandler(responseObserver);
                 if (cmd == WorkerCommands.PREDICT || cmd == WorkerCommands.STREAMPREDICT) {
-                    responseObserver.onError(responseStatus
-                            .withDescription(error)
-                            .augmentDescription("org.pytorch.serve.http.InternalServerException")
-                            .asRuntimeException());
+                    responseObserver.onError(
+                            responseStatus
+                                    .withDescription(error)
+                                    .augmentDescription(
+                                            "org.pytorch.serve.http.InternalServerException")
+                                    .asRuntimeException());
                 } else if (cmd == WorkerCommands.STREAMPREDICT2) {
-                    com.google.rpc.Status rpcStatus = com.google.rpc.Status.newBuilder()
-                            .setCode(responseStatus.getCode().value())
-                            .setMessage(error)
-                            .addDetails(Any.pack(ErrorInfo.newBuilder()
-                                    .setReason("org.pytorch.serve.http.InternalServerException").build())).build();
-                    responseObserver.onNext(PredictionResponse.newBuilder().setStatus(rpcStatus).build());
+                    com.google.rpc.Status rpcStatus =
+                            com.google.rpc.Status.newBuilder()
+                                    .setCode(responseStatus.getCode().value())
+                                    .setMessage(error)
+                                    .addDetails(
+                                            Any.pack(
+                                                    ErrorInfo.newBuilder()
+                                                            .setReason(
+                                                                    "org.pytorch.serve.http.InternalServerException")
+                                                            .build()))
+                                    .build();
+                    responseObserver.onNext(
+                            PredictionResponse.newBuilder()
+                                    .setPrediction(null)
+                                    .setStatus(rpcStatus)
+                                    .build());
                 }
                 break;
             case DESCRIBE:
                 managementResponseObserver.onError(
                         responseStatus
                                 .withDescription(error)
-                                .augmentDescription("org.pytorch.serve.http.InternalServerException")
+                                .augmentDescription(
+                                        "org.pytorch.serve.http.InternalServerException")
                                 .asRuntimeException());
                 break;
             default:

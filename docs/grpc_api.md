@@ -38,7 +38,7 @@ cd serve
  - Install gRPC python dependencies
 
 ```bash
-pip install -U grpcio protobuf grpcio-tools
+pip install -U grpcio protobuf grpcio-tools googleapis-common-protos
 ```
 
  - Start torchServe

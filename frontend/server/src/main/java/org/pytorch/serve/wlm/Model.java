@@ -12,14 +12,12 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
-
 import org.pytorch.serve.archive.model.ModelArchive;
 import org.pytorch.serve.archive.model.ModelConfig;
 import org.pytorch.serve.archive.utils.ArchiveUtils;
 import org.pytorch.serve.job.Job;
 import org.pytorch.serve.job.JobGroup;
 import org.pytorch.serve.util.ConfigManager;
-import org.pytorch.serve.util.messages.RequestInput;
 import org.pytorch.serve.util.messages.WorkerCommands;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,7 +54,7 @@ public class Model {
     private ReentrantLock lock;
     private ReentrantLock jobGroupLock;
     private int responseTimeout;
-    private int sequenceMaxIdleMSec;
+    private long sequenceMaxIdleMSec;
     private int maxNumSequence;
     private int maxSequenceJobQueueSize;
     private boolean stateful;
@@ -72,10 +70,9 @@ public class Model {
     // Total number of subsequent inference request failures
     private AtomicInteger failedInfReqs;
     /**
-     * The key can be categorized as 3 types
-     * 1) key: workerThreadId, value: managementAPI request
-     * 2) key: DEFAULT_DATA_QUEUE, value: job queue for stateless model's inference request
-     * 3) key: sequenceId, value: job queue for stateful model's sequence of inference requests
+     * The key can be categorized as 3 types 1) key: workerThreadId, value: managementAPI request 2)
+     * key: DEFAULT_DATA_QUEUE, value: job queue for stateless model's inference request 3) key:
+     * sequenceId, value: job queue for stateful model's sequence of inference requests
      */
     private ConcurrentMap<String, LinkedBlockingDeque<Job>> jobsDb;
 
@@ -120,7 +117,8 @@ public class Model {
             useJobTicket = modelArchive.getModelConfig().isUseJobTicket();
             if (modelArchive.getModelConfig().getSequenceMaxIdleMSec() > 0) {
                 sequenceMaxIdleMSec = modelArchive.getModelConfig().getSequenceMaxIdleMSec();
-                maxSequenceJobQueueSize= modelArchive.getModelConfig().getMaxSequenceJobQueueSize();
+                maxSequenceJobQueueSize =
+                        modelArchive.getModelConfig().getMaxSequenceJobQueueSize();
                 maxNumSequence = modelArchive.getModelConfig().getMaxNumSequence();
                 jobGroups = new ConcurrentHashMap<>(maxNumSequence);
                 pendingJobGroups = new LinkedBlockingDeque<>(maxNumSequence);
@@ -271,29 +269,37 @@ public class Model {
 
     private boolean addJobInGroup(Job job) {
         try {
-            jobGroupLock.lockInterruptibly();;
-            JobGroup jobGroup = jobGroups.get(job.getGroupId());;
+            jobGroupLock.lockInterruptibly();
+            ;
+            JobGroup jobGroup = jobGroups.get(job.getGroupId());
+            ;
             if (jobGroup == null) {
                 if (jobGroups.size() < maxNumSequence) {
-                    pendingJobGroups.offer(job.getGroupId());
-                    jobGroup = new JobGroup(
-                            job.getGroupId(),
-                            sequenceMaxIdleMSec,
-                            maxSequenceJobQueueSize);
+                    jobGroup =
+                            new JobGroup(
+                                    job.getGroupId(), sequenceMaxIdleMSec, maxSequenceJobQueueSize);
                     jobGroups.put(job.getGroupId(), jobGroup);
+                    pendingJobGroups.offer(job.getGroupId());
                     jobGroup.monitorGroupIdle();
+                    logger.info("added jobGroup for sequenceId:{}", job.getGroupId());
                 } else {
                     logger.warn(
-                            "Skip the requestId: {} due to exceeding maxNumSequence: {}",
+                            "Skip the requestId: {} for sequence: {} due to exceeding maxNumSequence: {}",
                             job.getJobId(),
+                            job.getGroupId(),
                             maxNumSequence);
                     return false;
-                };
+                }
+                ;
             }
 
             return jobGroup.appendJob(job);
-        } catch (NullPointerException|InterruptedException e) {
-            logger.error("Skip the requestId: {} due to exception", job.getJobId(), e);
+        } catch (NullPointerException | InterruptedException e) {
+            logger.error(
+                    "Skip the requestId: {} for sequence: {} due to exception",
+                    job.getJobId(),
+                    job.getGroupId(),
+                    e);
             return false;
         } finally {
             if (jobGroupLock.isHeldByCurrentThread()) {
@@ -328,8 +334,7 @@ public class Model {
         return false;
     }
 
-    public void pollInferJob(Map<String, Job> jobsRepo)
-            throws InterruptedException {
+    public void pollInferJob(Map<String, Job> jobsRepo) throws InterruptedException {
         LinkedBlockingDeque<Job> jobsQueue;
         try {
             if (isUseJobTicket()) {
@@ -539,11 +544,11 @@ public class Model {
         return true;
     }
 
-    public int getSequenceMaxIdleMSec() {
+    public long getSequenceMaxIdleMSec() {
         return sequenceMaxIdleMSec;
     }
 
-    public void setSequenceMaxIdleMSec(int sequenceMaxIdleMSec) {
+    public void setSequenceMaxIdleMSec(long sequenceMaxIdleMSec) {
         this.sequenceMaxIdleMSec = sequenceMaxIdleMSec;
     }
 
@@ -560,7 +565,10 @@ public class Model {
         if (maxNumSequence == 0) {
             maxNumSequence = 1;
         } else if (maxNumSequence > maxCapacity) {
-            logger.warn("maxNumSequence: {} exceeds the capacity, reset to {}", maxNumSequence, maxCapacity);
+            logger.warn(
+                    "maxNumSequence: {} exceeds the capacity, reset to {}",
+                    maxNumSequence,
+                    maxCapacity);
             maxNumSequence = maxCapacity;
         }
         return maxNumSequence;
