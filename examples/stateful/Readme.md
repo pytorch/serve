@@ -10,7 +10,7 @@ This example serves as a practical showcase of employing stateful inference. Und
 
 ### Step 1: Implement handler
 
-stateful_handler.py is an example of stateful handler. It creates a cache by calling `[LRU](https://github.com/amitdev/lru-dict)`.
+stateful_handler.py is an example of stateful handler. It creates a cache `self.cache` by calling `[LRU](https://github.com/amitdev/lru-dict)`.
 
 ```python
     def initialize(self, ctx: Context):
@@ -22,8 +22,43 @@ stateful_handler.py is an example of stateful handler. It creates a cache by cal
         self.context = ctx
         if self.context.model_yaml_config["handler"] is not None:
             self.cache = LRU(int(self.context.model_yaml_config["handler"]["cache"]["capacity"]))
+```
 
+Handler uses sequenceId (ie., `sequence_id = self.context.get_sequence_id(idx)`) as key to store and fetch values from `self.cache`.
 
+```python
+    def preprocess(self, data):
+        """
+        Preprocess function to convert the request input to a tensor(Torchserve supported format).
+        The user needs to override to customize the pre-processing
+
+        Args :
+            data (list): List of the data from the request input.
+
+        Returns:
+            tensor: Returns the tensor data of the input
+        """
+
+        self.sequence_ids = {}
+        results = []
+        for idx, row in enumerate(data):
+            sequence_id = self.context.get_sequence_id(idx)
+
+            prev = None
+            if self.cache.has_key(sequence_id):
+                prev = int(self.cache[sequence_id])
+            else:
+                prev = int(0)
+
+            request = row.get("data") or row.get("body")
+            if isinstance(request, (bytes, bytearray)):
+                request = request.decode("utf-8")
+
+            val = prev + int(request)
+            self.cache[sequence_id] = val
+            results.append(val)
+
+        return results
 ```
 
 ### Step 2: Model configuration
