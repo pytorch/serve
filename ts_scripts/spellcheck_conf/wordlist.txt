@@ -1068,3 +1068,15 @@ chatGPT
 baseimage
 cuDNN
 Xformer
+MiniLM
+SIMD
+SLA
+htop
+jpeg
+libjpeg
+lightseq
+multithreading
+onnxruntime
+pipelining
+tensorRT
+utilizations

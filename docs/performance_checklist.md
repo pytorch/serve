@@ -27,7 +27,7 @@ Start model inference optimization only after other factors, the “low-hanging 
 
 - Balance throughput and latency with smart batching.  While meeting the latency SLA try larger batch sizes to increase the throughput.
 
-- Try [torchscript](https://pytorch.org/docs/stable/jit.html), [inference_mode](https://pytorch.org/docs/stable/generated/torch.inference_mode.html), and [optimize_for_inference](https://pytorch.org/docs/stable/generated/torch.jit.optimize_for_inference.html). Torschscript provides tools that incrementally transition models from purely python to a torchscript program which can be run independently of python. This gives us the ability to run models in environments where python may be at a disadvantage in terms of performance.
+- Try [torchscript](https://pytorch.org/docs/stable/jit.html), [inference_mode](https://pytorch.org/docs/stable/generated/torch.inference_mode.html), and [optimize_for_inference](https://pytorch.org/docs/stable/generated/torch.jit.optimize_for_inference.html). Torchscript provides tools that incrementally transition models from purely python to a torchscript program which can be run independently of python. This gives us the ability to run models in environments where python may be at a disadvantage in terms of performance.
 
 - Try optimized inference engines such as onnxruntime, tensorRT, lightseq, ctranslate-2, etc.  These engines often provide additional optimizations such as operator fusion, in addition to model quantization.
 
