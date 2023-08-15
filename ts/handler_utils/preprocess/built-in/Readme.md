@@ -13,7 +13,7 @@ python dali_pipeline_generation.py --batch_size 2 --num_thread 1 --device_id 0 -
 
 This will generate a `default.dali` file which is a serialized dali pipeline file
 
-:warning: The default pipline has pre-processing stage for image_classifier example.
+:warning: The default pipeline has pre-processing stage for image_classifier example.
 
 To add additional built-in pipelines,
 

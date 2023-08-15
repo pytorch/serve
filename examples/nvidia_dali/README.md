@@ -6,7 +6,7 @@ In this example, we use NVIDIA DALI for pre-processing image input for inference
 
 Refer to [NVIDIA-DALI-Documentation](https://docs.nvidia.com/deeplearning/dali/user-guide/docs/index.html) for detailed information
 
-## DALI Pre-Processing with Default DALIImageClassifier handler for resnet-18 model
+## DALI Pre-Processing with Default dali_image_classifier handler for resnet-18 model
 
 ### Create model-archive file
 
