@@ -1,0 +1,7 @@
+--extra-index-url https://pip.repos.neuron.amazonaws.com
+numpy==1.21.6
+protobuf==3.20.3
+grpcio-tools==1.48.2
+neuronx-cc
+torch-neuronx
+transformers-neuronx

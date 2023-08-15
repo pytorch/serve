@@ -20,11 +20,10 @@ jobs:
       - name: Clean up previous run
         run: |
           echo "Cleaning up previous run"
-          cd $RUNNER_WORKSPACE
-          pwd
-          cd ..
-          pwd
-          rm -rf _tool
+          ls -la ./
+          sudo rm -rf ./* || true
+          sudo rm -rf ./.??* || true
+          ls -la ./
       - name: Update git
         run: sudo add-apt-repository ppa:git-core/ppa -y && sudo apt-get update && sudo apt-get install git -y
       - name: Check git version

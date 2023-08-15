@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.pytorch.serve.servingsdk.http.Request;
+import org.pytorch.serve.util.NettyUtils;
 
 public class ModelServerRequest implements Request {
     private FullHttpRequest req;
@@ -45,6 +46,6 @@ public class ModelServerRequest implements Request {
 
     @Override
     public ByteArrayInputStream getInputStream() {
-        return new ByteArrayInputStream(req.content().array());
+        return new ByteArrayInputStream(NettyUtils.getBytes(req.content()));
     }
 }
