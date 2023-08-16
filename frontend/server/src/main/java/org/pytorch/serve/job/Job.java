@@ -1,6 +1,7 @@
 package org.pytorch.serve.job;
 
 import static org.pytorch.serve.util.messages.RequestInput.TS_REQUEST_SEQUENCE_ID;
+import static org.pytorch.serve.util.messages.RequestInput.TS_STREAM_NEXT;
 
 import java.util.Map;
 import org.pytorch.serve.util.messages.RequestInput;
@@ -22,6 +23,18 @@ public abstract class Job {
         this.modelVersion = version;
         begin = System.nanoTime();
         scheduled = begin;
+
+        switch (cmd) {
+            case STREAMPREDICT:
+                input.updateHeaders(TS_STREAM_NEXT, "true");
+                break;
+            case STREAMPREDICT2:
+                input.updateHeaders(TS_STREAM_NEXT, "true");
+                input.updateHeaders(TS_REQUEST_SEQUENCE_ID, input.getSequenceId());
+                break;
+            default:
+                break;
+        }
 
         if (cmd == WorkerCommands.STREAMPREDICT2) {
             input.updateHeaders(TS_REQUEST_SEQUENCE_ID, input.getSequenceId());

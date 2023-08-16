@@ -115,12 +115,7 @@ public class BatchAggregator {
                         jobDone = false;
                     }
                 }
-                if (job.getCmd() != WorkerCommands.STREAMPREDICT
-                        && job.getCmd() != WorkerCommands.STREAMPREDICT2) {
-                    prediction
-                            .getHeaders()
-                            .remove(org.pytorch.serve.util.messages.RequestInput.TS_STREAM_NEXT);
-                }
+
                 if (job.getPayload().getClientExpireTS() > System.currentTimeMillis()) {
                     job.response(
                             prediction.getResp(),
@@ -246,7 +241,7 @@ public class BatchAggregator {
                 futures.add(
                         CompletableFuture.runAsync(
                                 () -> {
-                                    Job job = jobGroup.pollJob(model.getSequenceMaxIdleMSec());
+                                    Job job = jobGroup.pollJob((long) model.getMaxBatchDelay());
                                     if (job != null) {
                                         jobs.put(job.getJobId(), job);
                                     }

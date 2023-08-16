@@ -87,7 +87,7 @@ handler:
 ### Step 3: Generate mar or tgz file
 
 ```bash
-torch-model-archiver --model-name stateful --version 1.0 --handler stateful_handler.py -r requirements.txt --config-file model-config.yaml
+torch-model-archiver --model-name stateful --version 1.0 --model-file model.py --serialized-file model_cnn.pt --handler stateful_handler.py -r requirements.txt --config-file model-config.yaml
 ```
 
 ### Step 4: Start torchserve

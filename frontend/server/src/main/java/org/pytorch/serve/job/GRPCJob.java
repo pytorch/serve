@@ -115,7 +115,8 @@ public class GRPCJob extends Job {
                     responseObserver.onCompleted();
                     logQueueTime();
                 } else if (cmd == WorkerCommands.STREAMPREDICT2
-                        && responseHeaders.get(TS_STREAM_NEXT).equals("false")) {
+                        && (responseHeaders.get(TS_STREAM_NEXT) == null
+                                || responseHeaders.get(TS_STREAM_NEXT).equals("false"))) {
                     logQueueTime();
                 }
                 break;

@@ -459,6 +459,22 @@ public class Model {
         }
     }
 
+    public int getJobQueueRemainingCapacity() {
+        LinkedBlockingDeque<Job> jobsQueue = jobsDb.get(DEFAULT_DATA_QUEUE);
+        if (jobsQueue != null) {
+            return jobsQueue.remainingCapacity();
+        }
+        return 0;
+    }
+
+    public int getPendingRequestsInJobQueue() {
+        LinkedBlockingDeque<Job> jobsQueue = jobsDb.get(DEFAULT_DATA_QUEUE);
+        if (jobsQueue != null) {
+            return jobsQueue.size();
+        }
+        return 0;
+    }
+
     public int incrFailedInfReqs() {
         return failedInfReqs.incrementAndGet();
     }

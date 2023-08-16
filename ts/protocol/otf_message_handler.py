@@ -82,7 +82,8 @@ def create_predict_response(
             if ts_stream_next is True:
                 context.set_response_header(idx, "ts_stream_next", "true")
             else:
-                context.set_response_header(idx, "ts_stream_next", "false")
+                if "true" == context.get_response_headers(idx).get("ts_stream_next"):
+                    context.set_response_header(idx, "ts_stream_next", "false")
 
             content_type = context.get_response_content_type(idx)
             if content_type is None or len(content_type) == 0:
