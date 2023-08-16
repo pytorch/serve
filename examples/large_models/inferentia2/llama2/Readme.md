@@ -1,12 +1,12 @@
 # Large model inference on Inferentia2
 
-This document briefs on serving the [Llama 2](https://huggingface.co/meta-llama) model on [AWS Inferentia2](https://aws.amazon.com/ec2/instance-types/inf2/) with streaming response support.
+This document briefs on serving the [Llama 2](https://huggingface.co/meta-llama) model on [AWS Inferentia2](https://aws.amazon.com/ec2/instance-types/inf2/) with [micro batching](https://github.com/pytorch/serve/tree/96450b9d0ab2a7290221f0e07aea5fda8a83efaf/examples/micro_batching) and [streaming response](https://github.com/pytorch/serve/blob/96450b9d0ab2a7290221f0e07aea5fda8a83efaf/docs/inference_api.md#curl-example-1) support.
 
 Inferentia2 uses [Neuron SDK](https://aws.amazon.com/machine-learning/neuron/) which is built on top of PyTorch XLA stack. For large model inference [`transformers-neuronx`](https://github.com/aws-neuron/transformers-neuronx) package is used that takes care of model partitioning and running inference.
 
 Let's take a look at the steps to prepare our model for inference on Inf2 instances.
 
-**Note** To run the model on an Inf2 instance, the model gets compiled as a preprocessing step. As part of the compilation process, to generate the model graph, a specific batch size is used. Following this, when running inference, we need to pass the same batch size that was used during compilation. This example uses batch size is configured in `model-config.yaml`.
+**Note** To run the model on an Inf2 instance, the model gets compiled as a preprocessing step. As part of the compilation process, to generate the model graph, a specific batch size is used. Following this, when running inference, we need to pass the same batch size that was used during compilation. This batch size and micro batch size for this example are present in `model-config.yaml`.
 
 ### Step 1: Inf2 instance
 
@@ -28,15 +28,15 @@ sudo apt-get install aws-neuronx-runtime-lib=2.* -y
 # Activate Python venv
 source /opt/aws_neuron_venv_pytorch/bin/activate
 
-# Install torchserve and torch-model-archiver
-python -m pip install --upgrade torch-model-archiver torchserve
-
 # Clone Torchserve git repository
 git clone https://github.com/pytorch/serve.git
 cd serve
 
 # Install dependencies
 python ts_scripts/install_dependencies.py --neuronx
+
+# Install torchserve and torch-model-archiver
+python ts_scripts/install_from_src.py
 
 # Set pip repository pointing to the Neuron repository
 python -m pip config set global.extra-index-url https://pip.repos.neuron.amazonaws.com

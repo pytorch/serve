@@ -15,12 +15,13 @@ except ImportError:
 HANDLER_METHODS = ["preprocess", "inference", "postprocess"]
 
 
-def execute_call(in_queue, out_queue, handle, event):
+def execute_call(in_queue, out_queue, handle, thread_local_data, event):
     while not event.is_set():
         try:
             idx, in_data = in_queue.get(timeout=0.5)
         except queue.Empty:
             continue
+        thread_local_data.micro_batch_idx = idx
         out_data = handle(in_data)
         out_queue.put((idx, out_data))
 
@@ -40,6 +41,7 @@ class MicroBatching(object):
         self._parallelism = parallelism if parallelism is not None else {}
         self.thread_groups = {c: [] for c in HANDLER_METHODS}
         self.queues = {}
+        self.thread_local_data = threading.local()
         self.terminate = threading.Event()
         self._create_queues()
         self._update_threads()
@@ -106,7 +108,7 @@ class MicroBatching(object):
 
                 t = threading.Thread(
                     target=execute_call,
-                    args=(in_queue, out_queue, call, event),
+                    args=(in_queue, out_queue, call, self.thread_local_data, event),
                 )
                 t.start()
                 self.thread_groups[c].append(WorkerThread(event, t))
@@ -130,6 +132,22 @@ class MicroBatching(object):
             output.append(self.queues[HANDLER_METHODS[-1] + "_out"].get())
 
         return [item for batch in sorted(output) for item in batch[1]]
+
+    def get_micro_batch_req_id_map(self, req_id_map: Dict):
+        micro_batch_idx = getattr(self.thread_local_data, "micro_batch_idx", None)
+        if micro_batch_idx is None:
+            return {}
+
+        start_idx = micro_batch_idx * self.micro_batch_size
+        micro_batch_req_id_map = {
+            index: req_id_map[batch_index]
+            for index, batch_index in enumerate(
+                range(start_idx, start_idx + self.micro_batch_size)
+            )
+            if batch_index in req_id_map
+        }
+
+        return micro_batch_req_id_map
 
     def __call__(self, data, context):
         """Entry point for default handler. It takes the data from the input request and returns
