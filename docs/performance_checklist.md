@@ -23,17 +23,15 @@ Start model inference optimization only after other factors, the “low-hanging 
 
 - Use fp16 for GPU inference.  The speed will most likely more than double on newer GPUs with tensor cores, with negligible accuracy degradation.  Technically fp16 is a type of quantization but since it seldom suffers from loss of accuracy for inference it should always be explored. As shown in this [article](https://docs.nvidia.com/deeplearning/performance/mixed-precision-training/index.html#abstract), use of fp16 offers speed up in large neural network applications.
 
-- Use model quantization (i.e., int8) for CPU inference.  Explore different quantization options: dynamic quantization, static quantization, and quantization aware training, as well as tools such as Intel Neural Compressor that provide more sophisticated quantization methods.
+- Use model quantization (i.e. int8) for CPU inference.  Explore different quantization options: dynamic quantization, static quantization, and quantization aware training, as well as tools such as Intel Neural Compressor that provide more sophisticated quantization methods. It is worth noting that quantization comes with some loss in accuracy and might not always offer significant speed up on some hardware thus this might not always be the right approach.
 
 - Balance throughput and latency with smart batching.  While meeting the latency SLA try larger batch sizes to increase the throughput.
-
-- Try [torchscript](https://pytorch.org/docs/stable/jit.html), [inference_mode](https://pytorch.org/docs/stable/generated/torch.inference_mode.html), and [optimize_for_inference](https://pytorch.org/docs/stable/generated/torch.jit.optimize_for_inference.html). Torchscript provides tools that incrementally transition models from purely python to a torchscript program which can be run independently of python. This gives us the ability to run models in environments where python may be at a disadvantage in terms of performance.
 
 - Try optimized inference engines such as onnxruntime, tensorRT, lightseq, ctranslate-2, etc.  These engines often provide additional optimizations such as operator fusion, in addition to model quantization.
 
 - Try model distillation.  This is more involved and often requires training data, but the potential gain can be large.  For example, MiniLM achieves 99% the accuracy of the original BERT base model while being 2X faster.
 
-- Try task parallelism.  Python’s GIL could affect effective multithreading, even for external native code.  For a system with 32 vCPUs, two inference sessions each with 16 threads often have higher throughput than a single inference session with 32 threads.  When testing multiple sessions, it is important to set torch.num_threads properly to avoid CPU contention.
+- If working on CPU, you can try core pinning. You can find more information on how to work with this [in this blog post](https://pytorch.org/tutorials/intermediate/torchserve_with_ipex#grokking-pytorch-intel-cpu-performance-from-first-principles).
 
 - For batch processing on sequences with different lengths, sequence bucketing could potentially improve the throughput by 2X.  In this case, a simple implementation of sequence bucketing is to sort all input by sequence length before feeding them to the model, as this reduces unnecessary padding when batching the sequences.
 
