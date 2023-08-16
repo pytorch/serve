@@ -1,7 +1,5 @@
 package org.pytorch.serve.job;
 
-import static org.pytorch.serve.util.messages.RequestInput.TS_STREAM_NEXT;
-
 import com.google.protobuf.Any;
 import com.google.protobuf.ByteString;
 import com.google.rpc.ErrorInfo;
@@ -111,12 +109,16 @@ public class GRPCJob extends Job {
                 responseObserver.onNext(reply);
                 if (cmd == WorkerCommands.PREDICT
                         || (cmd == WorkerCommands.STREAMPREDICT
-                                && responseHeaders.get(TS_STREAM_NEXT).equals("false"))) {
+                                && responseHeaders
+                                        .get(RequestInput.TS_STREAM_NEXT)
+                                        .equals("false"))) {
                     responseObserver.onCompleted();
                     logQueueTime();
                 } else if (cmd == WorkerCommands.STREAMPREDICT2
-                        && (responseHeaders.get(TS_STREAM_NEXT) == null
-                                || responseHeaders.get(TS_STREAM_NEXT).equals("false"))) {
+                        && (responseHeaders.get(RequestInput.TS_STREAM_NEXT) == null
+                                || responseHeaders
+                                        .get(RequestInput.TS_STREAM_NEXT)
+                                        .equals("false"))) {
                     logQueueTime();
                 }
                 break;

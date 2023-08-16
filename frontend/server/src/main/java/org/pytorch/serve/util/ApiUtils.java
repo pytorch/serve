@@ -449,7 +449,6 @@ public final class ApiUtils {
         return responseMessage;
     }
 
-
     @SuppressWarnings("PMD")
     public static String getInferenceErrorResponseMessage(String modelName, String modelVersion) {
         String responseMessage = "Model \"" + modelName;
@@ -460,8 +459,8 @@ public final class ApiUtils {
 
         responseMessage +=
                 "\" has no worker to serve inference request. Please use scale workers API to add workers. "
-                        + "If this is a sequence inference, please check if it is closed, or expired;" +
-                        " or exceeds maxSequenceJobQueueSize";
+                        + "If this is a sequence inference, please check if it is closed, or expired;"
+                        + " or exceeds maxSequenceJobQueueSize";
         return responseMessage;
     }
 

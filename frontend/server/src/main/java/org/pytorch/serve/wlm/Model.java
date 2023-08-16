@@ -270,9 +270,7 @@ public class Model {
     private boolean addJobInGroup(Job job) {
         try {
             jobGroupLock.lockInterruptibly();
-            ;
             JobGroup jobGroup = jobGroups.get(job.getGroupId());
-            ;
             if (jobGroup == null) {
                 if (jobGroups.size() < maxNumSequence) {
                     jobGroup =
@@ -290,7 +288,6 @@ public class Model {
                             maxNumSequence);
                     return false;
                 }
-                ;
             }
 
             return jobGroup.appendJob(job);

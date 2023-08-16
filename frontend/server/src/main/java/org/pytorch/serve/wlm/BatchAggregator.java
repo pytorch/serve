@@ -111,7 +111,7 @@ public class BatchAggregator {
                                     .get(
                                             org.pytorch.serve.util.messages.RequestInput
                                                     .TS_STREAM_NEXT);
-                    if (streamNext != null && streamNext.equals("true")) {
+                    if (streamNext != null && "true".equals(streamNext)) {
                         jobDone = false;
                     }
                 }
@@ -270,10 +270,13 @@ public class BatchAggregator {
                 threadName,
                 (state == WorkerState.WORKER_MODEL_LOADED) ? 0 : Long.MAX_VALUE,
                 jobs)) {
+            return;
         } else if (model.isStateful()) {
             pollJobFromGroups();
+            return;
         } else {
             model.pollInferJob(jobs);
+            return;
         }
     }
 

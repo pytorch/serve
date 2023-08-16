@@ -8,7 +8,6 @@ import inference_pb2
 import inference_pb2_grpc
 import management_pb2
 import management_pb2_grpc
-from grpc import StatusCode
 
 
 def get_inference_stub():
@@ -192,13 +191,8 @@ class InferStream2:
         except grpc.RpcError as e:
             # The stream is not closed at here.
             self._alive = responses.is_active()
-            if (
-                not self._alive
-                and e.code() == StatusCode.UNKNOWN
-                and e.details() == "Exception iterating requests!"
-            ):
-                print("_handle_response close due to request sequence closing:")
-                pass
+            print("_handle_response exception:", e)
+            exit(1)
 
     @staticmethod
     def default_process_response(
