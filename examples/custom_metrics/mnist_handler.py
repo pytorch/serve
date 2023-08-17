@@ -21,18 +21,31 @@ class MNISTDigitClassifier(ImageClassifier):
         super().initialize(context)
         metrics = context.metrics
 
-        # Usage of "add_metric"
-        self.inf_request_count = metrics.add_metric(
+        # "add_metric_to_cache" will only register/override(if already present) a metric object in the metric cache and will not emit it
+        self.inf_request_count = metrics.add_metric_to_cache(
             metric_name="InferenceRequestCount",
             unit="count",
             dimension_names=[],
             metric_type=MetricTypes.COUNTER,
         )
-        metrics.add_metric(
-            metric_name="RequestBatchSize",
+        metrics.add_metric_to_cache(
+            metric_name="PreprocessCallCount",
             unit="count",
             dimension_names=["ModelName"],
-            metric_type=MetricTypes.GAUGE,
+            metric_type=MetricTypes.COUNTER,
+        )
+
+        # "add_metric" will register the metric if not already present in metric cache,
+        # include the "ModelName" and "Level" dimensions by default and emit it
+        metrics.add_metric(
+            name="InitializeCallCount",
+            value=1,
+            unit="count",
+            dimensions=[
+                Dimension(name="ModelName", value=context.model_name),
+                Dimension(name="Level", value="Model"),
+            ],
+            metric_type=MetricTypes.COUNTER,
         )
 
     def preprocess(self, data):
@@ -50,10 +63,17 @@ class MNISTDigitClassifier(ImageClassifier):
 
         metrics = self.context.metrics
 
-        # Usage of "add_or_update"
+        # "add_or_update" will emit the metric
         self.inf_request_count.add_or_update(value=1, dimension_values=[])
 
-        # Usage of "get_metric"
+        # "get_metric" will fetch the corresponding metric from metric cache if present
+        preprocess_call_count_metric = metrics.get_metric(
+            metric_name="PreprocessCallCount", metric_type=MetricTypes.COUNTER
+        )
+        preprocess_call_count_metric.add_or_update(
+            value=1, dimension_values=[self.context.model_name]
+        )
+
         request_batch_size_metric = metrics.get_metric(
             metric_name="RequestBatchSize", metric_type=MetricTypes.GAUGE
         )
@@ -63,7 +83,8 @@ class MNISTDigitClassifier(ImageClassifier):
 
         input = data[0].get("body")
 
-        # Usage of "add_size"
+        # "add_size" will register the metric if not already present in metric cache,
+        # include the "ModelName" and "Level" dimensions by default and emit it
         metrics.add_size(
             name="SizeOfImage", value=len(input) / 1024, idx=None, unit="kB"
         )
@@ -72,7 +93,8 @@ class MNISTDigitClassifier(ImageClassifier):
 
         preprocess_stop = time.time()
 
-        # usage of add_time
+        # "add_time" will register the metric if not already present in metric cache,
+        # include the "ModelName" and "Level" dimensions by default and emit it
         metrics.add_time(
             name="HandlerMethodTime",
             value=(preprocess_stop - preprocess_start) * 1000,
@@ -93,11 +115,13 @@ class MNISTDigitClassifier(ImageClassifier):
         Returns:
             list : A list of dictionary with predictons and explanations are returned.
         """
-        # usage of add_counter
+        # "add_counter" will register the metric if not already present in metric cache,
+        # include the "ModelName" and "Level" dimensions by default and emit it
         self.context.metrics.add_counter(
             name="PostprocessCallCount", value=1, idx=None, dimensions=[]
         )
-        # usage of add_percent
+        # "add_percent" will register the metric if not already present in metric cache,
+        # include the "ModelName" and "Level" dimensions by default and emit it
         self.context.metrics.add_percent(
             name="ExamplePercentMetric",
             value=50,

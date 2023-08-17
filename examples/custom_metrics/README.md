@@ -10,6 +10,8 @@ Run the commands given in following steps from the root directory of the reposit
 
 - Step 1: In this example we add the following custom metrics and access them in prometheus format via the [metrics API endpoint](https://github.com/pytorch/serve/blob/master/docs/metrics_api.md):
   - InferenceRequestCount
+  - InitializeCallCount
+  - PreprocessCallCount
   - PostprocessCallCount
   - RequestBatchSize
   - SizeOfImage
@@ -65,42 +67,49 @@ scrape_configs:
 ```console
 curl http://127.0.0.1:8082/metrics
 
+# HELP Requests2XX Torchserve prometheus counter metric with unit: Count
+# TYPE Requests2XX counter
+Requests2XX{Level="Host",Hostname="88665a372f4b.ant.amazon.com",} 1.0
 # HELP PredictionTime Torchserve prometheus gauge metric with unit: ms
 # TYPE PredictionTime gauge
-PredictionTime{ModelName="mnist",Level="Model",Hostname="88665a372f4b.ant.amazon.com",} 23.3
-# HELP GPUMemoryUtilization Torchserve prometheus gauge metric with unit: Percent
-# TYPE GPUMemoryUtilization gauge
-# HELP ts_queue_latency_microseconds Torchserve prometheus counter metric with unit: Microseconds
-# TYPE ts_queue_latency_microseconds counter
-ts_queue_latency_microseconds{model_name="mnist",model_version="default",hostname="88665a372f4b.ant.amazon.com",} 164.607
+PredictionTime{ModelName="mnist",Level="Model",Hostname="88665a372f4b.ant.amazon.com",} 62.78
+# HELP DiskUsage Torchserve prometheus gauge metric with unit: Gigabytes
+# TYPE DiskUsage gauge
+DiskUsage{Level="Host",Hostname="88665a372f4b.ant.amazon.com",} 8.438858032226562
 # HELP WorkerLoadTime Torchserve prometheus gauge metric with unit: Milliseconds
 # TYPE WorkerLoadTime gauge
-WorkerLoadTime{WorkerName="W-9000-mnist_1.0",Level="Host",Hostname="88665a372f4b.ant.amazon.com",} 5818.0
-# HELP SizeOfImage Torchserve prometheus gauge metric with unit: kB
-# TYPE SizeOfImage gauge
-SizeOfImage{ModelName="mnist",Level="Model",Hostname="88665a372f4b.ant.amazon.com",} 0.265625
-# HELP PostprocessCallCount Torchserve prometheus counter metric with unit: count
-# TYPE PostprocessCallCount counter
-PostprocessCallCount{ModelName="mnist",Level="Model",Hostname="88665a372f4b.ant.amazon.com",} 1.0
-# HELP GPUUtilization Torchserve prometheus gauge metric with unit: Percent
-# TYPE GPUUtilization gauge
+WorkerLoadTime{WorkerName="W-9000-mnist_1.0",Level="Host",Hostname="88665a372f4b.ant.amazon.com",} 7425.0
 # HELP Requests5XX Torchserve prometheus counter metric with unit: Count
 # TYPE Requests5XX counter
-# HELP HandlerMethodTime Torchserve prometheus gauge metric with unit: ms
-# TYPE HandlerMethodTime gauge
-HandlerMethodTime{MethodName="preprocess",ModelName="mnist",Level="Model",Hostname="88665a372f4b.ant.amazon.com",} 13.740777969360352
-# HELP MemoryAvailable Torchserve prometheus gauge metric with unit: Megabytes
-# TYPE MemoryAvailable gauge
-MemoryAvailable{Level="Host",Hostname="88665a372f4b.ant.amazon.com",} 4584.23828125
-# HELP InferenceRequestCount Torchserve prometheus counter metric with unit: count
-# TYPE InferenceRequestCount counter
-InferenceRequestCount{Hostname="88665a372f4b.ant.amazon.com",} 1.0
+# HELP CPUUtilization Torchserve prometheus gauge metric with unit: Percent
+# TYPE CPUUtilization gauge
+CPUUtilization{Level="Host",Hostname="88665a372f4b.ant.amazon.com",} 100.0
+# HELP WorkerThreadTime Torchserve prometheus gauge metric with unit: Milliseconds
+# TYPE WorkerThreadTime gauge
+WorkerThreadTime{Level="Host",Hostname="88665a372f4b.ant.amazon.com",} 3.0
+# HELP DiskAvailable Torchserve prometheus gauge metric with unit: Gigabytes
+# TYPE DiskAvailable gauge
+DiskAvailable{Level="Host",Hostname="88665a372f4b.ant.amazon.com",} 308.94310760498047
 # HELP ts_inference_requests_total Torchserve prometheus counter metric with unit: Count
 # TYPE ts_inference_requests_total counter
 ts_inference_requests_total{model_name="mnist",model_version="default",hostname="88665a372f4b.ant.amazon.com",} 1.0
+# HELP GPUMemoryUtilization Torchserve prometheus gauge metric with unit: Percent
+# TYPE GPUMemoryUtilization gauge
 # HELP HandlerTime Torchserve prometheus gauge metric with unit: ms
 # TYPE HandlerTime gauge
-HandlerTime{ModelName="mnist",Level="Model",Hostname="88665a372f4b.ant.amazon.com",} 23.17
+HandlerTime{ModelName="mnist",Level="Model",Hostname="88665a372f4b.ant.amazon.com",} 62.64
+# HELP ts_inference_latency_microseconds Torchserve prometheus counter metric with unit: Microseconds
+# TYPE ts_inference_latency_microseconds counter
+ts_inference_latency_microseconds{model_name="mnist",model_version="default",hostname="88665a372f4b.ant.amazon.com",} 64694.367
+# HELP MemoryUtilization Torchserve prometheus gauge metric with unit: Percent
+# TYPE MemoryUtilization gauge
+MemoryUtilization{Level="Host",Hostname="88665a372f4b.ant.amazon.com",} 53.1
+# HELP MemoryAvailable Torchserve prometheus gauge metric with unit: Megabytes
+# TYPE MemoryAvailable gauge
+MemoryAvailable{Level="Host",Hostname="88665a372f4b.ant.amazon.com",} 7677.29296875
+# HELP PostprocessCallCount Torchserve prometheus counter metric with unit: count
+# TYPE PostprocessCallCount counter
+PostprocessCallCount{ModelName="mnist",Level="Model",Hostname="88665a372f4b.ant.amazon.com",} 1.0
 # HELP ExamplePercentMetric Torchserve prometheus histogram metric with unit: percent
 # TYPE ExamplePercentMetric histogram
 ExamplePercentMetric_bucket{ModelName="mnist",Level="Model",Hostname="88665a372f4b.ant.amazon.com",le="0.005",} 0.0
@@ -120,43 +129,42 @@ ExamplePercentMetric_bucket{ModelName="mnist",Level="Model",Hostname="88665a372f
 ExamplePercentMetric_bucket{ModelName="mnist",Level="Model",Hostname="88665a372f4b.ant.amazon.com",le="+Inf",} 1.0
 ExamplePercentMetric_count{ModelName="mnist",Level="Model",Hostname="88665a372f4b.ant.amazon.com",} 1.0
 ExamplePercentMetric_sum{ModelName="mnist",Level="Model",Hostname="88665a372f4b.ant.amazon.com",} 50.0
-# HELP WorkerThreadTime Torchserve prometheus gauge metric with unit: Milliseconds
-# TYPE WorkerThreadTime gauge
-WorkerThreadTime{Level="Host",Hostname="88665a372f4b.ant.amazon.com",} 3.0
-# HELP Requests2XX Torchserve prometheus counter metric with unit: Count
-# TYPE Requests2XX counter
-Requests2XX{Level="Host",Hostname="88665a372f4b.ant.amazon.com",} 1.0
+# HELP GPUUtilization Torchserve prometheus gauge metric with unit: Percent
+# TYPE GPUUtilization gauge
+# HELP MemoryUsed Torchserve prometheus gauge metric with unit: Megabytes
+# TYPE MemoryUsed gauge
+MemoryUsed{Level="Host",Hostname="88665a372f4b.ant.amazon.com",} 7903.734375
 # HELP QueueTime Torchserve prometheus gauge metric with unit: Milliseconds
 # TYPE QueueTime gauge
 QueueTime{Level="Host",Hostname="88665a372f4b.ant.amazon.com",} 0.0
-# HELP MemoryUtilization Torchserve prometheus gauge metric with unit: Percent
-# TYPE MemoryUtilization gauge
-MemoryUtilization{Level="Host",Hostname="88665a372f4b.ant.amazon.com",} 72.0
-# HELP GPUMemoryUsed Torchserve prometheus gauge metric with unit: Megabytes
-# TYPE GPUMemoryUsed gauge
-# HELP ts_inference_latency_microseconds Torchserve prometheus counter metric with unit: Microseconds
-# TYPE ts_inference_latency_microseconds counter
-ts_inference_latency_microseconds{model_name="mnist",model_version="default",hostname="88665a372f4b.ant.amazon.com",} 26736.381
-# HELP DiskAvailable Torchserve prometheus gauge metric with unit: Gigabytes
-# TYPE DiskAvailable gauge
-DiskAvailable{Level="Host",Hostname="88665a372f4b.ant.amazon.com",} 306.9124526977539
+# HELP ts_queue_latency_microseconds Torchserve prometheus counter metric with unit: Microseconds
+# TYPE ts_queue_latency_microseconds counter
+ts_queue_latency_microseconds{model_name="mnist",model_version="default",hostname="88665a372f4b.ant.amazon.com",} 115.79
+# HELP PreprocessCallCount Torchserve prometheus counter metric with unit: count
+# TYPE PreprocessCallCount counter
+PreprocessCallCount{ModelName="mnist",Hostname="88665a372f4b.ant.amazon.com",} 1.0
 # HELP RequestBatchSize Torchserve prometheus gauge metric with unit: count
 # TYPE RequestBatchSize gauge
 RequestBatchSize{ModelName="mnist",Hostname="88665a372f4b.ant.amazon.com",} 1.0
-# HELP DiskUsage Torchserve prometheus gauge metric with unit: Gigabytes
-# TYPE DiskUsage gauge
-DiskUsage{Level="Host",Hostname="88665a372f4b.ant.amazon.com",} 8.438858032226562
+# HELP SizeOfImage Torchserve prometheus gauge metric with unit: kB
+# TYPE SizeOfImage gauge
+SizeOfImage{ModelName="mnist",Level="Model",Hostname="88665a372f4b.ant.amazon.com",} 0.265625
 # HELP Requests4XX Torchserve prometheus counter metric with unit: Count
 # TYPE Requests4XX counter
-# HELP MemoryUsed Torchserve prometheus gauge metric with unit: Megabytes
-# TYPE MemoryUsed gauge
-MemoryUsed{Level="Host",Hostname="88665a372f4b.ant.amazon.com",} 8699.48046875
-# HELP CPUUtilization Torchserve prometheus gauge metric with unit: Percent
-# TYPE CPUUtilization gauge
-CPUUtilization{Level="Host",Hostname="88665a372f4b.ant.amazon.com",} 33.3
+# HELP HandlerMethodTime Torchserve prometheus gauge metric with unit: ms
+# TYPE HandlerMethodTime gauge
+HandlerMethodTime{MethodName="preprocess",ModelName="mnist",Level="Model",Hostname="88665a372f4b.ant.amazon.com",} 25.554895401000977
+# HELP InitializeCallCount Torchserve prometheus counter metric with unit: count
+# TYPE InitializeCallCount counter
+InitializeCallCount{ModelName="mnist",Level="Model",Hostname="88665a372f4b.ant.amazon.com",} 1.0
 # HELP DiskUtilization Torchserve prometheus gauge metric with unit: Percent
 # TYPE DiskUtilization gauge
 DiskUtilization{Level="Host",Hostname="88665a372f4b.ant.amazon.com",} 2.7
+# HELP GPUMemoryUsed Torchserve prometheus gauge metric with unit: Megabytes
+# TYPE GPUMemoryUsed gauge
+# HELP InferenceRequestCount Torchserve prometheus counter metric with unit: count
+# TYPE InferenceRequestCount counter
+InferenceRequestCount{Hostname="88665a372f4b.ant.amazon.com",} 1.0
 ```
 
 - Step 8: Navigate to `http://localhost:9090/` on a browser to execute queries and create graphs

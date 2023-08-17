@@ -72,6 +72,12 @@ model_metrics:
     - name: InferenceRequestCount
       unit: count
       dimensions: []
+    - name: InitializeCallCount
+      unit: count
+      dimensions: [*model_name, *level]
+    - name: PreprocessCallCount
+      unit: count
+      dimensions: [*model_name]
     - name: PostprocessCallCount
       unit: count
       dimensions: [*model_name, *level]
