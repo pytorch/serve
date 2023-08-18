@@ -1,5 +1,8 @@
 #include "src/examples/image_classifier/resnet-18/resnet-18_handler.hh"
 
+#include <folly/json.h>
+#include <fstream>
+
 #include <opencv2/opencv.hpp>
 
 namespace resnet {
@@ -82,7 +85,7 @@ std::vector<torch::jit::IValue> ResnetHandler::Preprocess(
 
         // Check if the image was successfully decoded
         if (image.empty()) {
-          std::cerr << "Failed to decode the image." << std::endl;
+          std::cerr << "Failed to decode the image.\n";
         }
 
         // Crop image
@@ -110,8 +113,12 @@ std::vector<torch::jit::IValue> ResnetHandler::Preprocess(
         tensorImage = tensorImage.permute({2, 0, 1});
 
         // Normalize
-        std::vector<double> norm_mean = {kImageNormalizationMeanR, kImageNormalizationMeanG, kImageNormalizationMeanB};
-        std::vector<double> norm_std = {kImageNormalizationStdR, kImageNormalizationStdG, kImageNormalizationStdB};
+        std::vector<double> norm_mean = {kImageNormalizationMeanR,
+                                         kImageNormalizationMeanG,
+                                         kImageNormalizationMeanB};
+        std::vector<double> norm_std = {kImageNormalizationStdR,
+                                        kImageNormalizationStdG,
+                                        kImageNormalizationStdB};
 
         tensorImage = torch::data::transforms::Normalize<>(
             norm_mean, norm_std)(tensorImage);
@@ -149,6 +156,18 @@ void ResnetHandler::Postprocess(
     const torch::Tensor& data,
     std::pair<std::string&, std::map<uint8_t, std::string>&>& idx_to_req_id,
     std::shared_ptr<torchserve::InferenceResponseBatch>& response_batch) {
+  std::ifstream jsonFile("index_to_name.json");
+  if (!jsonFile.is_open()) {
+      std::cerr << "Failed to open JSON file.\n";
+      return 1;
+  }
+  std::string jsonString((std::istreambuf_iterator<char>(jsonFile)), std::istreambuf_iterator<char>());
+  jsonFile.close();
+  folly::dynamic parsedJson = folly::parseJson(jsonString);
+  if (!parsedJson.isObject()) {
+      std::cerr << "Invalid JSON format.\n";
+      return 1;
+  }
   for (const auto& kv : idx_to_req_id.second) {
     try {
       auto response = (*response_batch)[kv.second];
@@ -160,10 +179,36 @@ void ResnetHandler::Postprocess(
           torch::topk(ps, kTopKClasses, 1, true, true);
       auto [probs, classes] = result;
 
+      // Convert tensors to C++ vectors
+      std::vector<float> probs_vector(probs.data<float>(),
+                                      probs.data<float>() + probs.numel());
+      std::vector<long> classes_vector(classes.data<long>(),
+                                       classes.data<long>() + classes.numel());
+
+      // Create a JSON object using folly::dynamic
+      folly::dynamic json_response = folly::dynamic::object;
+      // Create a folly::dynamic array to hold tensor elements
+      folly::dynamic probability = folly::dynamic::array;
+      folly::dynamic class_names = folly::dynamic::array;
+
+      // Iterate through tensor elements and add them to the dynamic_array
+      for (const float& value : probs_vector) {
+        probability.push_back(value);
+      }
+      for (const long& value : classes_vector) {
+        class_names.push_back(value);
+      }
+      // Add key-value pairs to the JSON object
+      json_response["probability"] = probability;
+      json_response["classes"] = class_names;
+
+      // Serialize the JSON object to a string
+      std::string json_str = folly::toJson(json_response);
+
       // Serialize and set the response
       response->SetResponse(200, "data_tpye",
                             torchserve::PayloadType::kDATA_TYPE_BYTES,
-                            torch::pickle_save(probs[kv.first]));
+                            json_str);
     } catch (const std::runtime_error& e) {
       LOG(ERROR) << "Failed to load tensor for request id:" << kv.second
                  << ", error: " << e.what();
