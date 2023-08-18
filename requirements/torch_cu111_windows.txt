@@ -5,3 +5,5 @@ torch==1.9.0+cu111; sys_platform == 'win32'
 torchvision==0.10.0+cu111; sys_platform == 'win32'
 torchtext==0.10.0; sys_platform == 'win32'
 torchaudio==0.9.0; sys_platform == 'win32'
+nvidia-dali-cuda110==1.28.0; sys_platform == 'linux'
+--extra-index-url https://developer.download.nvidia.com/compute/redist
