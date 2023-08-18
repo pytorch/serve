@@ -1073,3 +1073,5 @@ HandlerMethodTime
 InferenceRequestCount
 PostprocessCallCount
 RequestBatchSize
+InitializeCallCount
+PreprocessCallCount
