@@ -8,6 +8,7 @@ import time
 from ts.metrics.dimension import Dimension
 from ts.metrics.metric_abstract import MetricAbstract
 from ts.metrics.metric_type_enum import MetricTypes
+
 logger = logging.getLogger(__name__)
 
 
@@ -36,7 +37,7 @@ class CachingMetric(MetricAbstract):
             unit can be one of ms, percent, count, MB, GB or a generic string
 
         dimension_names list
-            list of dimension names which should be strings
+            list of dimension name strings
 
         metric_type MetricTypes
             Type of metric Counter, Gauge, Histogram
@@ -57,9 +58,11 @@ class CachingMetric(MetricAbstract):
             values corresponding to the metrics dimension names
         Returns
         -------
-        list of dimension objects or ValueError
+        list of Dimension objects or ValueError
         """
-        if dimension_values is None or len(dimension_values) != len(self.dimension_names):
+        if dimension_values is None or len(dimension_values) != len(
+            self.dimension_names
+        ):
             raise ValueError(
                 f"Dimension values: {dimension_values} should "
                 f"correspond to Dimension names: {self.dimension_names}"
@@ -97,8 +100,10 @@ class CachingMetric(MetricAbstract):
         value
         dimension_string
         """
-        metric_str = f"[METRICS]{self.metric_name}.{self.unit}:{value}|#{dimension_string}|" \
-                     f"#hostname:{socket.gethostname()},{int(time.time())}"
+        metric_str = (
+            f"[METRICS]{self.metric_name}.{self.unit}:{value}|#{dimension_string}|"
+            f"#hostname:{socket.gethostname()},{int(time.time())}"
+        )
         if request_id:
             logger.info(f"{metric_str},{request_id}")
         else:
@@ -118,7 +123,7 @@ class CachingMetric(MetricAbstract):
         value : int, float
             metric to be updated
         dimension_values : list
-            list of dimension values
+            list of dimension value strings
         request_id : str
             request id to be associated with the metric
         """
@@ -152,7 +157,7 @@ class CachingMetric(MetricAbstract):
         request_id : str
             request id to be associated with the metric
         dimensions : list
-            list of dimension values
+            list of Dimension objects
         """
         logger.warning("Overriding existing dimensions")
         self.dimension_names = [dim.name for dim in dimensions]
