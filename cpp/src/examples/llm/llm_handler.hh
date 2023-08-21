@@ -9,6 +9,7 @@
 namespace llm {
 class LlmHandler : public torchserve::torchscripted::BaseHandler {
  private:
+  gpt_params params;
   llama_model* llamamodel;
   llama_context* llama_ctx;
 
@@ -17,6 +18,8 @@ class LlmHandler : public torchserve::torchscripted::BaseHandler {
   LlmHandler() = default;
   // NOLINTEND(bugprone-exception-escape)
   ~LlmHandler() override = default;
+
+  void initialize_context();
 
   virtual std::pair<std::shared_ptr<torch::jit::script::Module>,
                     std::shared_ptr<torch::Device>>
@@ -37,11 +40,11 @@ class LlmHandler : public torchserve::torchscripted::BaseHandler {
       std::shared_ptr<torchserve::InferenceResponseBatch>& response_batch)
       override;
 
-  //   void Postprocess(
-  //       const torch::Tensor& data,
-  //       std::pair<std::string&, std::map<uint8_t, std::string>&>&
-  //       idx_to_req_id, std::shared_ptr<torchserve::InferenceResponseBatch>&
-  //       response_batch) override;
+  void Postprocess(
+      const torch::Tensor& data,
+      std::pair<std::string&, std::map<uint8_t, std::string>&>& idx_to_req_id,
+      std::shared_ptr<torchserve::InferenceResponseBatch>& response_batch)
+      override;
 };
 }  // namespace llm
 #endif  // LLM_HANDLER_HH_
