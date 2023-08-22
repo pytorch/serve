@@ -1,8 +1,8 @@
 #include "src/examples/image_classifier/resnet-18/resnet-18_handler.hh"
 
 #include <folly/json.h>
-#include <fstream>
 
+#include <fstream>
 #include <opencv2/opencv.hpp>
 
 namespace resnet {
@@ -158,15 +158,14 @@ void ResnetHandler::Postprocess(
     std::shared_ptr<torchserve::InferenceResponseBatch>& response_batch) {
   std::ifstream jsonFile("index_to_name.json");
   if (!jsonFile.is_open()) {
-      std::cerr << "Failed to open JSON file.\n";
-      return 1;
+    std::cerr << "Failed to open JSON file.\n";
   }
-  std::string jsonString((std::istreambuf_iterator<char>(jsonFile)), std::istreambuf_iterator<char>());
+  std::string jsonString((std::istreambuf_iterator<char>(jsonFile)),
+                         std::istreambuf_iterator<char>());
   jsonFile.close();
   folly::dynamic parsedJson = folly::parseJson(jsonString);
   if (!parsedJson.isObject()) {
-      std::cerr << "Invalid JSON format.\n";
-      return 1;
+    std::cerr << "Invalid JSON format.\n";
   }
   for (const auto& kv : idx_to_req_id.second) {
     try {
