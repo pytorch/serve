@@ -84,7 +84,7 @@ TEST_F(TorchScriptedBackendTest, TestLoadPredictResnetHandler) {
           "test/resources/torchscript_model/resnet-18/resnet-18_handler",
           "resnet-18", -1, "", "", 1, false),
       "test/resources/torchscript_model/resnet-18/resnet-18_handler",
-      "test/resources/torchscript_model/resnet-18/kitten.pt", "resnet-18_ts",
+      "test/resources/torchscript_model/resnet-18/kitten.jpg", "resnet-18_ts",
       200);
 }
 
