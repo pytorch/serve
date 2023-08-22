@@ -6,8 +6,8 @@ Currently, abstract class has the methods for getting a metric and adding a metr
 """
 import abc
 import os
-import ts.metrics.metric_cache_errors as merrors
 
+import ts.metrics.metric_cache_errors as merrors
 from ts.metrics.dimension import Dimension
 from ts.metrics.metric_abstract import MetricAbstract
 from ts.metrics.metric_type_enum import MetricTypes
@@ -27,7 +27,7 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
             Name of file to be parsed
 
         """
-        self.cache = dict()
+        self.cache = {}
         self.store = []
         self.request_ids = None
         self.model_name = None
@@ -35,7 +35,9 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
         try:
             os.path.exists(self.config_file_path)
         except Exception as exc:
-            raise merrors.MetricsCacheTypeError(f"Error loading {config_file_path} file: {exc}")
+            raise merrors.MetricsCacheTypeError(
+                f"Error loading {config_file_path} file: {exc}"
+            )
 
     def _add_default_dims(self, idx, dimensions):
         dim_names = [dim.name for dim in dimensions]
@@ -63,10 +65,43 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
         # check if request id for the metric is given, if so use it else have a list of all.
         req_id = self.request_ids
         if isinstance(req_id, dict):
-            req_id = ','.join(self.request_ids.values())
+            req_id = ",".join(self.request_ids.values())
         if idx is not None and self.request_ids is not None and idx in self.request_ids:
             req_id = self.request_ids[idx]
         return req_id
+
+    def add_metric(
+        self,
+        name: str,
+        value: int or float,
+        unit: str,
+        idx: str = None,
+        dimensions: list = [],
+        metric_type: MetricTypes = MetricTypes.COUNTER,
+    ):
+        """
+        Add a generic metric
+            Default metric type is counter
+
+        Parameters
+        ----------
+        name : str
+            metric name
+        value: int or float
+            value of the metric
+        unit: str
+            unit of metric
+        idx: str
+            request id to be associated with the metric
+        dimensions: list
+            list of Dimension objects for the metric
+        metric_type MetricTypes
+            Type of metric Counter, Gauge, Histogram
+        """
+        req_id = self._get_req(idx)
+        dimensions = self._add_default_dims(req_id, dimensions)
+        metric = self._get_or_add_metric(name, unit, dimensions, metric_type)
+        metric.add_or_update(value, [dim.value for dim in dimensions], req_id)
 
     def add_counter(
         self,
@@ -87,7 +122,7 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
         idx: str
             request id to be associated with the metric
         dimensions: list
-            list of dimension names for the metric
+            list of Dimension objects for the metric
         """
         req_id = self._get_req(idx)
         dimensions = self._add_default_dims(req_id, dimensions)
@@ -118,7 +153,7 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
         unit: str
             unit of metric,  default here is ms, s is also accepted
         dimensions: list
-            list of dimension names for the metric
+            list of Dimension objects for the metric
         metric_type MetricTypes
             Type of metric Counter, Gauge, Histogram
         """
@@ -155,7 +190,7 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
         unit: str
             unit of metric, default here is 'MB', 'kB', 'GB' also supported
         dimensions: list
-            list of dimensions for the metric
+            list of Dimension objects for the metric
         metric_type MetricTypes
             Type of metric Counter, Gauge, Histogram
         """
@@ -189,7 +224,7 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
         idx: str
             request id to be associated with the metric
         dimensions: list
-            list of dimensions for the metric
+            list of Dimension objects for the metric
         metric_type MetricTypes
             Type of metric Counter, Gauge, Histogram
         """
@@ -215,17 +250,19 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
         value: int or float
             value of the metric
         dimensions: list
-            list of dimension objects for the metric
+            list of Dimension objects for the metric
         """
         dimensions = self._add_default_dims(None, dimensions)
         metric = self._get_or_add_metric(name, "", dimensions, MetricTypes.COUNTER)
         metric.add_or_update(value, [dim.value for dim in dimensions])
 
-    def _get_or_add_metric(self, metric_name, unit, dimensions, metric_type) -> MetricAbstract:
+    def _get_or_add_metric(
+        self, metric_name, unit, dimensions, metric_type
+    ) -> MetricAbstract:
         try:
             metric = self.get_metric(metric_name, metric_type)
         except merrors.MetricsCacheKeyError:
-            metric = self.add_metric(
+            metric = self.add_metric_to_cache(
                 metric_name=metric_name,
                 unit=unit,
                 metric_type=metric_type,
@@ -269,11 +306,11 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
         pass
 
     @abc.abstractmethod
-    def add_metric(
+    def add_metric_to_cache(
         self,
         metric_name: str,
         unit: str,
-        dimension_names: list = None,
+        dimension_names: list = [],
         metric_type: MetricTypes = MetricTypes.COUNTER,
     ) -> MetricAbstract:
         """
@@ -287,7 +324,7 @@ class MetricCacheAbstract(metaclass=abc.ABCMeta):
         unit: str
             unit of metric
         dimension_names: list
-            list of dimensions for the metric
+            list of dimension name strings for the metric
         metric_type: MetricTypes
             Type of metric
 

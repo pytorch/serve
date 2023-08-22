@@ -2,12 +2,14 @@
 Metrics Cache class for creating objects from yaml spec
 """
 import logging
+
 import yaml
 
 import ts.metrics.metric_cache_errors as merrors
 from ts.metrics.caching_metric import CachingMetric
 from ts.metrics.metric_cache_abstract import MetricCacheAbstract
 from ts.metrics.metric_type_enum import MetricTypes
+
 logger = logging.getLogger(__name__)
 
 
@@ -34,7 +36,8 @@ class MetricsCacheYamlImpl(MetricCacheAbstract):
 
         try:
             self._parsed_file = yaml.safe_load(
-                open(config_file_path, "r", encoding="utf-8"))
+                open(config_file_path, "r", encoding="utf-8")
+            )
             logging.info(f"Successfully loaded {config_file_path}.")
         except yaml.YAMLError as exc:
             raise merrors.MetricsCachePyYamlError(
@@ -73,7 +76,9 @@ class MetricsCacheYamlImpl(MetricCacheAbstract):
         """
         metrics_section = self._parse_metrics_section("model_metrics")
         if not metrics_section:
-            raise merrors.MetricsCacheValueError("Missing `model_metrics` specification")
+            raise merrors.MetricsCacheValueError(
+                "Missing `model_metrics` specification"
+            )
         for metric_type, metrics_list in metrics_section.items():
             try:
                 metric_enum = MetricTypes(metric_type)
@@ -85,16 +90,18 @@ class MetricsCacheYamlImpl(MetricCacheAbstract):
                     metric_name = metric["name"]
                     unit = metric["unit"]
                     dimension_names = metric["dimensions"]
-                    self.add_metric(
+                    self.add_metric_to_cache(
                         metric_name=metric_name,
                         unit=unit,
                         dimension_names=dimension_names,
                         metric_type=metric_enum,
                     )
                 except KeyError as k_err:
-                    raise merrors.MetricsCacheKeyError(f"Key not found in cache spec: {k_err}")
+                    raise merrors.MetricsCacheKeyError(
+                        f"Key not found in cache spec: {k_err}"
+                    )
 
-    def add_metric(
+    def add_metric_to_cache(
         self,
         metric_name: str,
         unit: str,
@@ -111,7 +118,7 @@ class MetricsCacheYamlImpl(MetricCacheAbstract):
         unit str
             unit can be one of ms, percent, count, MB, GB or a generic string
         dimension_names list
-            list of dimension keys which should be strings, or the complete log of dimensions
+            list of dimension name strings for the metric
         metric_type MetricTypes
             Type of metric Counter, Gauge, Histogram
         Returns
@@ -120,16 +127,22 @@ class MetricsCacheYamlImpl(MetricCacheAbstract):
         """
         self._check_type(metric_name, str, "`metric_name` must be a str")
         self._check_type(unit, str, "`unit` must be a str")
-        self._check_type(metric_type, MetricTypes, "`metric_type` must be a MetricTypes enum")
+        self._check_type(
+            metric_type, MetricTypes, "`metric_type` must be a MetricTypes enum"
+        )
         if dimension_names:
-            self._check_type(dimension_names, list, "`dimension_names` should be a list of dimension name strings")
+            self._check_type(
+                dimension_names,
+                list,
+                "`dimension_names` should be a list of dimension name strings",
+            )
         if metric_type not in self.cache.keys():
-            self.cache[metric_type] = dict()
+            self.cache[metric_type] = {}
         metric = CachingMetric(
             metric_name=metric_name,
             unit=unit,
             dimension_names=dimension_names,
-            metric_type=metric_type
+            metric_type=metric_type,
         )
         if metric_name in self.cache[metric_type].keys():
             logging.warning(f"Overriding existing key {metric_type}:{metric_name}")
@@ -157,7 +170,9 @@ class MetricsCacheYamlImpl(MetricCacheAbstract):
         Metrics object or MetricsCacheKeyError if not found
         """
         self._check_type(metric_name, str, "`metric_name` must be a str")
-        self._check_type(metric_type, MetricTypes, "`metric_type` must be a MetricTypes enum")
+        self._check_type(
+            metric_type, MetricTypes, "`metric_type` must be a MetricTypes enum"
+        )
         try:
             metric = self.cache[metric_type][metric_name]
         except KeyError:
