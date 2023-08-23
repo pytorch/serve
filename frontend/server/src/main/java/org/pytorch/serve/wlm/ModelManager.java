@@ -213,7 +213,7 @@ public final class ModelManager {
 
             String pythonRuntime = EnvironmentUtils.getPythonRunTime(model);
 
-            File dependencyPath = model.getModelDir().getCanonicalFile();
+            File dependencyPath = model.getModelDir();
             if (Files.isSymbolicLink(dependencyPath.toPath())) {
                 dependencyPath = dependencyPath.getParentFile();
             }
