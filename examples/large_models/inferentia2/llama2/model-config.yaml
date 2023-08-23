@@ -5,7 +5,7 @@ responseTimeout: 900
 batchSize: 16
 
 handler:
-    model_name: meta-llama/Llama-2-13b-hf
+    amp: "bf16"
     tp_degree: 6
     max_length: 100
 

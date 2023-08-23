@@ -53,7 +53,7 @@ class LLMHandler(BaseHandler, ABC):
         self.mb_handle.micro_batch_size = micro_batch_size
 
         # settings for model compiliation and loading
-        model_name = ctx.model_yaml_config["handler"]["model_name"]
+        amp = ctx.model_yaml_config["handler"]["amp"]
         tp_degree = ctx.model_yaml_config["handler"]["tp_degree"]
         self.max_length = ctx.model_yaml_config["handler"]["max_length"]
 
@@ -77,7 +77,10 @@ class LLMHandler(BaseHandler, ABC):
         self.tokenizer = LlamaTokenizer.from_pretrained(model_dir)
         self.tokenizer.pad_token = self.tokenizer.eos_token
         self.model = LlamaForSampling.from_pretrained(
-            model_dir, batch_size=self.mb_handle.micro_batch_size, tp_degree=tp_degree
+            model_dir,
+            batch_size=self.mb_handle.micro_batch_size,
+            amp=amp,
+            tp_degree=tp_degree,
         )
         logger.info("Starting to compile the model")
         self.model.to_neuron()
