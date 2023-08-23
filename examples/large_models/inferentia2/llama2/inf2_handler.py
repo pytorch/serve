@@ -4,11 +4,11 @@ from abc import ABC
 from threading import Thread
 
 import torch_neuronx
-from hf_batch_streamer import TextIteratorStreamerBatch
 from transformers import AutoConfig, LlamaTokenizer
 from transformers_neuronx.generation_utils import HuggingFaceGenerationModelAdapter
 from transformers_neuronx.llama.model import LlamaForSampling
 
+from ts.handler_utils.hf_batch_streamer import TextIteratorStreamerBatch
 from ts.handler_utils.micro_batching import MicroBatching
 from ts.protocol.otf_message_handler import send_intermediate_predict_response
 from ts.torch_handler.base_handler import BaseHandler
