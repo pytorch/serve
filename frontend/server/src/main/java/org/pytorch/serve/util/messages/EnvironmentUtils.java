@@ -1,6 +1,7 @@
 package org.pytorch.serve.util.messages;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -39,6 +40,12 @@ public final class EnvironmentUtils {
 
         if (modelPath != null) {
             pythonPath.append(modelPath).append(File.pathSeparatorChar);
+            File dependencyPath = new File(modelPath);
+            if (Files.isSymbolicLink(dependencyPath.toPath())) {
+                pythonPath
+                        .append(dependencyPath.getParentFile().getAbsolutePath())
+                        .append(File.pathSeparatorChar);
+            }
         }
 
         if (!cwd.contains("site-packages") && !cwd.contains("dist-packages")) {
