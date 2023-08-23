@@ -74,7 +74,7 @@ class LLMHandler(BaseHandler, ABC):
 
         os.environ["NEURON_CC_FLAGS"] = "--model-type=transformer-inference"
 
-        self.tokenizer = LlamaTokenizer.from_pretrained(model_name)
+        self.tokenizer = LlamaTokenizer.from_pretrained(model_dir)
         self.tokenizer.pad_token = self.tokenizer.eos_token
         self.model = LlamaForSampling.from_pretrained(
             model_dir, batch_size=self.mb_handle.micro_batch_size, tp_degree=tp_degree
