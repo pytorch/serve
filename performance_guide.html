@@ -400,12 +400,17 @@ You can find more information on Better Transformer <a class="reference external
 <p>TorchServe exposes configurations that allow the user to configure the number of worker threads on CPU and GPUs. There is an important config property that can speed up the server depending on the workload.
 <em>Note: the following property has bigger impact under heavy workloads.</em></p>
 <p><h4>TorchServe On CPU </h4></p>
-<p>If working with TorchServe on a CPU here are some things to consider that could improve performance:</p>
+<p>If working with TorchServe on a CPU you can improve performance by setting the following in your <code class="docutils literal notranslate"><span class="pre">config.properties</span></code>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">cpu_launcher_enable</span><span class="o">=</span><span class="nb">true</span>
+<span class="nv">cpu_launcher_args</span><span class="o">=</span>--use_logical_core
+</pre></div>
+</div>
+<p>These settings improve performance significantly through launcher core pinning.
+The theory behind this improvement is discussed in <a class="reference external" href="https://pytorch.org/tutorials/intermediate/torchserve_with_ipex#grokking-pytorch-intel-cpu-performance-from-first-principles">this blog</a> which can be quickly summarized as:</p>
 <ul class="simple">
 <li><p>In a hyperthreading enabled system, avoid logical cores by setting thread affinity to physical cores only via core pinning.</p></li>
 <li><p>In a multi-socket system with NUMA, avoid cross-socket remote memory access by setting thread affinity to a specific socket via core pinning.</p></li>
 </ul>
-<p>These principles can be automatically configured via an easy to use launch script which has already been integrated into TorchServe. For more information take a look at this <a class="reference external" href="https://pytorch.org/tutorials/intermediate/torchserve_with_ipex#grokking-pytorch-intel-cpu-performance-from-first-principles">case study</a> which dives into these points further with examples and explanations from first principles.</p>
 <p><h4>TorchServe on GPU</h4></p>
 <p>There is a config property called <code class="docutils literal notranslate"><span class="pre">number_of_gpu</span></code> that tells the server to use a specific number of GPUs per model. In cases where we register multiple models with the server, this will apply to all the models registered. If this is set to a low value (ex: 0 or 1), it will result in under-utilization of GPUs. On the contrary, setting to a high value (&gt;= max GPUs available on the system) results in as many workers getting spawned per model. Clearly, this will result in unnecessary contention for GPUs and can result in sub-optimal scheduling of threads to GPU.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ValueToSet</span> <span class="o">=</span> <span class="p">(</span><span class="n">Number</span> <span class="n">of</span> <span class="n">Hardware</span> <span class="n">GPUs</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">Number</span> <span class="n">of</span> <span class="n">Unique</span> <span class="n">Models</span><span class="p">)</span>
