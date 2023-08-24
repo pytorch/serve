@@ -433,7 +433,6 @@ public final class OpenApiUtils {
         workerStatus.setEnumeration(status);
         worker.addProperty("status", workerStatus, true);
         workers.setItems(worker);
-
         schema.addProperty("workers", workers, true);
         Schema metrics = new Schema("object");
         metrics.addProperty(
@@ -449,6 +448,16 @@ public final class OpenApiUtils {
                 new Schema("integer", "Number requests processed in last 10 minutes."),
                 true);
         schema.addProperty("metrics", metrics, true);
+        Schema jobQueueStatus = new Schema("object");
+        jobQueueStatus.addProperty(
+                "remainingCapacity",
+                new Schema("integer", "Number of new requests that can be queued."),
+                true);
+        jobQueueStatus.addProperty(
+                "pendingRequests",
+                new Schema("integer", "Number of requests waiting in the queue."),
+                true);
+        schema.addProperty("jobQueueStatus", jobQueueStatus, true);
 
         MediaType mediaType = new MediaType(HttpHeaderValues.APPLICATION_JSON.toString(), schema);
         MediaType error = getErrorResponse();

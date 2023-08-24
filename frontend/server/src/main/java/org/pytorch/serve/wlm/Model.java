@@ -12,9 +12,9 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
-import org.apache.commons.io.FilenameUtils;
 import org.pytorch.serve.archive.model.ModelArchive;
 import org.pytorch.serve.archive.model.ModelConfig;
+import org.pytorch.serve.archive.utils.ArchiveUtils;
 import org.pytorch.serve.job.Job;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.messages.WorkerCommands;
@@ -63,6 +63,9 @@ public class Model {
     // Per worker thread job queue. This separates out the control queue from data queue
     private ConcurrentMap<String, LinkedBlockingDeque<Job>> jobsDb;
 
+    private boolean useJobTicket;
+    private AtomicInteger numJobTickets;
+
     public Model(ModelArchive modelArchive, int queueSize) {
         this.modelArchive = modelArchive;
         if (modelArchive != null && modelArchive.getModelConfig() != null) {
@@ -77,7 +80,7 @@ public class Model {
                         (modelArchive.getModelConfig().getDeviceType() == ModelConfig.DeviceType.GPU
                                         && ConfigManager.getInstance().getNumberOfGpu() > 0)
                                 ? ModelConfig.DeviceType.GPU
-                                : deviceType;
+                                : ModelConfig.DeviceType.CPU;
             }
 
             deviceIds = modelArchive.getModelConfig().getDeviceIds();
@@ -94,6 +97,11 @@ public class Model {
             }
             maxRetryTimeoutInMill = modelArchive.getModelConfig().getMaxRetryTimeoutInSec() * 1000;
             clientTimeoutInMills = modelArchive.getModelConfig().getClientTimeoutInMills();
+            if (modelArchive.getModelConfig().getJobQueueSize() > 0) {
+                // overwrite the queueSize defined on config.property
+                queueSize = modelArchive.getModelConfig().getJobQueueSize();
+            }
+            useJobTicket = modelArchive.getModelConfig().isUseJobTicket();
         } else {
             batchSize = 1;
             maxBatchDelay = 100;
@@ -111,6 +119,7 @@ public class Model {
         // Always have a queue for data
         jobsDb.putIfAbsent(DEFAULT_DATA_QUEUE, new LinkedBlockingDeque<>(queueSize));
         failedInfReqs = new AtomicInteger(0);
+        numJobTickets = new AtomicInteger(0);
         lock = new ReentrantLock();
         modelVersionName =
                 new ModelVersionName(
@@ -121,7 +130,7 @@ public class Model {
 
         JsonObject modelInfo = new JsonObject();
         modelInfo.addProperty(DEFAULT_VERSION, isDefaultVersion);
-        modelInfo.addProperty(MAR_NAME, FilenameUtils.getName(getModelUrl()));
+        modelInfo.addProperty(MAR_NAME, ArchiveUtils.getFilenameFromUrl(getModelUrl()));
         modelInfo.addProperty(MIN_WORKERS, getMinWorkers());
         modelInfo.addProperty(MAX_WORKERS, getMaxWorkers());
         modelInfo.addProperty(BATCH_SIZE, getBatchSize());
@@ -225,6 +234,10 @@ public class Model {
     }
 
     public boolean addJob(Job job) {
+        if (isUseJobTicket() && !getJobTickets()) {
+            logger.info("There are no job tickets");
+            return false;
+        }
         return jobsDb.get(DEFAULT_DATA_QUEUE).offer(job);
     }
 
@@ -253,6 +266,9 @@ public class Model {
         }
 
         try {
+            if (isUseJobTicket()) {
+                incNumJobTickets();
+            }
             lock.lockInterruptibly();
             long maxDelay = maxBatchDelay;
             jobsQueue = jobsDb.get(DEFAULT_DATA_QUEUE);
@@ -364,5 +380,44 @@ public class Model {
 
     public void setClientTimeoutInMills(long clientTimeoutInMills) {
         this.clientTimeoutInMills = clientTimeoutInMills;
+    }
+
+    public boolean isUseJobTicket() {
+        return useJobTicket;
+    }
+
+    public int incNumJobTickets() {
+        return this.numJobTickets.incrementAndGet();
+    }
+
+    public int decNumJobTickets() {
+        return this.numJobTickets.decrementAndGet();
+    }
+
+    public synchronized boolean getJobTickets() {
+        if (this.numJobTickets.get() == 0) {
+            return false;
+        }
+
+        this.numJobTickets.decrementAndGet();
+        return true;
+    }
+
+    public int getJobQueueRemainingCapacity() {
+        LinkedBlockingDeque<Job> jobsQueue = jobsDb.get(DEFAULT_DATA_QUEUE);
+        if (jobsQueue != null) {
+            return jobsQueue.remainingCapacity();
+        }
+
+        return 0;
+    }
+
+    public int getPendingRequestsInJobQueue() {
+        LinkedBlockingDeque<Job> jobsQueue = jobsDb.get(DEFAULT_DATA_QUEUE);
+        if (jobsQueue != null) {
+            return jobsQueue.size();
+        }
+
+        return 0;
     }
 }
