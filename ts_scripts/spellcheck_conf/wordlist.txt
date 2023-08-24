@@ -1071,6 +1071,7 @@ meshConfig
 baseimage
 cuDNN
 Xformer
+grpcurl
 ExamplePercentMetric
 HandlerMethodTime
 InferenceRequestCount
