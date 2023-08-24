@@ -169,7 +169,7 @@ def model_archiver_command_builder(
         cmd += " --archive-format {0}".foramt(archive_format)
 
     cmd += " --export-path {0}".format(MODEL_STORE)
-    
+
     # Convert the list into a string to represent the complete command
     cmd = " ".join(cmd_parts)
 
