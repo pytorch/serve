@@ -205,8 +205,12 @@ public class ModelArchive {
     }
 
     public void clean() {
-        if (url != null && extracted) {
-            FileUtils.deleteQuietly(modelDir);
+        if (url != null) {
+            if (Files.isSymbolicLink(modelDir.toPath())) {
+                FileUtils.deleteQuietly(modelDir.getParentFile());
+            } else {
+                FileUtils.deleteQuietly(modelDir);
+            }
         }
     }
 
