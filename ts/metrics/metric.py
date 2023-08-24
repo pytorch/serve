@@ -5,9 +5,9 @@ import socket
 import time
 from builtins import str
 from collections import OrderedDict
+
 from ts.metrics.caching_metric import CachingMetric
 from ts.metrics.metric_type_enum import MetricTypes
-
 from ts.metrics.unit import Units
 
 MetricUnit = Units()
@@ -41,7 +41,7 @@ class Metric(object):
         unit: str
             unit can be one of ms, percent, count, MB, GB or a generic string
         dimensions: list
-            list of dimension objects
+            list of Dimension objects
         request_id: str
             req_id of metric
         metric_method: str
@@ -73,13 +73,17 @@ class Metric(object):
         value : int, float
             metric to be updated
         """
-        self._caching_metric.add_or_update(value, self.dimension_values, request_id=self.request_id)
+        self._caching_metric.add_or_update(
+            value, self.dimension_values, request_id=self.request_id
+        )
 
     def reset(self):
         """
         Reset Metric value to 0
         """
-        self._caching_metric.add_or_update(0, self.dimension_values, request_id=self.request_id)
+        self._caching_metric.add_or_update(
+            0, self.dimension_values, request_id=self.request_id
+        )
 
     def __str__(self):
         dims = ",".join([str(d) for d in self.dimensions])
