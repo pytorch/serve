@@ -10,7 +10,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Performance Guide &mdash; PyTorch/Serve master documentation</title>
+  <title>Model Inference Optimization Checklist &mdash; PyTorch/Serve master documentation</title>
   
 
   
@@ -35,8 +35,6 @@
   <link rel="stylesheet" href="_static/katex-math.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Batch Inference with TorchServe" href="batch_inference_with_ts.html" />
-    <link rel="prev" title="Troubleshooting Guide" href="Troubleshooting.html" />
   <!-- Google Tag Manager -->
     <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
     new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -250,10 +248,10 @@
             
             
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul class="current">
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="index.html">TorchServe</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Troubleshooting.html">Troubleshooting Guide</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Performance Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="performance_guide.html">Performance Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="batch_inference_with_ts.html">Batch Inference with TorchServe</a></li>
 <li class="toctree-l1"><a class="reference internal" href="code_coverage.html">Code Coverage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="configuration.html">Advanced configuration</a></li>
@@ -332,13 +330,13 @@
       </li>
 
         
-      <li>Performance Guide</li>
+      <li>Model Inference Optimization Checklist</li>
     
     
       <li class="pytorch-breadcrumbs-aside">
         
             
-            <a href="_sources/performance_guide.md.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg"></a>
+            <a href="_sources/performance_checklist.md.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg"></a>
           
         
       </li>
@@ -368,80 +366,34 @@
             <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
-  <section id="performance-guide">
-<h1><a class="reference external" href="#performance-guide">Performance Guide</a><a class="headerlink" href="#performance-guide" title="Permalink to this heading">¶</a></h1>
-<p>In case you’re interested in optimizing the memory usage, latency or throughput of a PyTorch model served with TorchServe, this is the guide for you.</p>
-<p>We have also created a quick checklist here for extra things to try outside of what is covered on this page. You can find the checklist <a class="reference internal" href="performance_checklist.html"><span class="doc">here</span></a>.</p>
-<section id="optimizing-pytorch">
-<h2>Optimizing PyTorch<a class="headerlink" href="#optimizing-pytorch" title="Permalink to this heading">¶</a></h2>
-<p>There are many tricks to optimize PyTorch models for production including but not limited to distillation, quantization, fusion, pruning, setting environment variables and we encourage you to benchmark and see what works best for you.</p>
-<p>In general it’s hard to optimize models and the easiest approach can be exporting to some runtime like ORT, TensorRT, IPEX or FasterTransformer. We have many examples for how to integrate these runtimes on the <a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples">TorchServe github page</a>. If your favorite runtime is not supported please feel free to open a PR.</p>
-<p><h4>ONNX and ORT support</h4></p>
-<p>TorchServe has native support for ONNX models which can be loaded via ORT for both accelerated CPU and GPU inference. ONNX operates a bit differently from a regular PyTorch model in that when you’re running the conversion you need to explicitly set and name your input and output dimensions. See <a class="reference external" href="https://github.com/pytorch/serve/blob/master/test/pytest/test_onnx.py">this example</a>.</p>
-<p>At a high level what TorchServe allows you to do is</p>
-<ol class="simple">
-<li><p>Package serialized ONNX weights <code class="docutils literal notranslate"><span class="pre">torch-model-archiver</span> <span class="pre">--serialized-file</span> <span class="pre">model.onnx</span> <span class="pre">...</span></code></p></li>
-<li><p>Load those weights from <code class="docutils literal notranslate"><span class="pre">base_handler.py</span></code> using <code class="docutils literal notranslate"><span class="pre">ort_session</span> <span class="pre">=</span> <span class="pre">ort.InferenceSession(self.model_pt_path,</span> <span class="pre">providers=providers,</span> <span class="pre">sess_options=sess_options)</span></code> which supports reasonable defaults for both CPU and GPU inference</p></li>
-<li><p>Allow you define custom pre and post processing functions to pass in data in the format your onnx model expects with a custom handler</p></li>
-</ol>
-<p>To use ONNX with GPU on TorchServe Docker, we need to build an image with <a class="reference external" href="https://github.com/NVIDIA/nvidia-docker/wiki/CUDA">NVIDIA CUDA runtime</a> as the base image as shown <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docker/README.md#create-torchserve-docker-image">here</a></p>
-<p><h4>TensorRT<h4></p>
-<p>TorchServe also supports models optimized via TensorRT. To leverage the TensorRT runtime you can convert your model by <a class="reference external" href="https://github.com/pytorch/TensorRT">following these instructions</a> and once you’re done you’ll have serialized weights which you can load with <a class="reference external" href="https://pytorch.org/TensorRT/getting_started/getting_started_with_python_api.html#getting-started-with-python-api"><code class="docutils literal notranslate"><span class="pre">torch.jit.load()</span></code></a>.</p>
-<p>After a conversion there is no difference in how PyTorch treats a Torchscript model vs a TensorRT model.</p>
-<p><h4>Better Transformer<h4></p>
-<p>Better Transformer from PyTorch implements a backwards-compatible fast path of <code class="docutils literal notranslate"><span class="pre">torch.nn.TransformerEncoder</span></code> for Transformer Encoder Inference and does not require model authors to modify their models. BetterTransformer improvements can exceed 2x in speedup and throughput for many common execution scenarios.
-You can find more information on Better Transformer <a class="reference external" href="https://pytorch.org/blog/a-better-transformer-for-fast-transformer-encoder-inference/">here</a> and <a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/Huggingface_Transformers#speed-up-inference-with-better-transformer">here</a>.</p>
-</section>
-<section id="optimizing-torchserve">
-<h2>Optimizing TorchServe<a class="headerlink" href="#optimizing-torchserve" title="Permalink to this heading">¶</a></h2>
-<p>The main settings you should vary if you’re trying to improve the performance of TorchServe from the <code class="docutils literal notranslate"><span class="pre">config.properties</span></code> are the <code class="docutils literal notranslate"><span class="pre">batch_size</span></code> and <code class="docutils literal notranslate"><span class="pre">batch_delay</span></code>. A larger batch size means a higher throughput at the cost of lower latency.</p>
-<p>The second most important settings are  number of workers and number of gpus which will have a dramatic impact on CPU and GPU performance.</p>
-<p><h4>Concurrency And Number of Workers</h4></p>
-<p>TorchServe exposes configurations that allow the user to configure the number of worker threads on CPU and GPUs. There is an important config property that can speed up the server depending on the workload.
-<em>Note: the following property has bigger impact under heavy workloads.</em></p>
-<p><h4>TorchServe On CPU </h4></p>
-<p>If working with TorchServe on a CPU here are some things to consider that could improve performance:</p>
+  <section id="model-inference-optimization-checklist">
+<h1>Model Inference Optimization Checklist<a class="headerlink" href="#model-inference-optimization-checklist" title="Permalink to this heading">¶</a></h1>
+<p>This checklist describes some steps that should be completed when diagnosing model inference performance issues.  Some of these suggestions are only applicable to NLP models (e.g., ensuring the input is not over-padded and sequence bucketing), but the general principles are useful for other models too.</p>
+<section id="general-system-optimizations">
+<h2>General System Optimizations<a class="headerlink" href="#general-system-optimizations" title="Permalink to this heading">¶</a></h2>
 <ul class="simple">
-<li><p>In a hyperthreading enabled system, avoid logical cores by setting thread affinity to physical cores only via core pinning.</p></li>
-<li><p>In a multi-socket system with NUMA, avoid cross-socket remote memory access by setting thread affinity to a specific socket via core pinning.</p></li>
+<li><p>Check the versions of PyTorch, Nvidia driver, and other components and update to the latest compatible releases.  Oftentimes known performance bugs have already been fixed.</p></li>
+<li><p>Collect system-level activity logs to understand the overall resource utilizations. It’s useful to know how the model inference pipeline is using the system resources at a high level, as the first step of optimization.  Even simple CLI tools such as nvidia-smi and htop would be helpful.</p></li>
+<li><p>Start with a target with the highest impact on performance.  It should be obvious from the system activity logs where the biggest bottleneck is – look beyond model inference, as pre/post processing can be expensive and can affect the end-to-end throughput just as much.</p></li>
+<li><p>Quantify and mitigate the influence of slow I/O such as disk and network on end-to-end performance.  While optimizing I/O is out of scope for this checklist, look for techniques that use async, concurrency, pipelining, etc. to effectively “hide” the cost of I/O.</p></li>
+<li><p>For model inference on input sequences of dynamic length (e.g., transformers for NLP), make sure the tokenizer is not over-padding the input.  If a transformer was trained with padding to a constant length (e.g., 512) and deployed with the same padding, it would run unnecessarily slow (orders of magnitude) on short sequences.</p></li>
+<li><p>Vision models with input in JPEG format often benefit from faster JPEG decoding on CPU such as libjpeg-turbo and Pillow-SIMD, and on GPU such as torchvision.io.decode_jpeg and Nvidia DALI.
+As this <a class="reference external" href="https://colab.research.google.com/drive/1NMaLS8PG0eYhbd8IxQAajXgXNIZ_AvHo?usp=sharing">example</a> shows, Nvidia DALI is about 20% faster than torchvision, even on an old K80 GPU.</p></li>
 </ul>
-<p>These principles can be automatically configured via an easy to use launch script which has already been integrated into TorchServe. For more information take a look at this <a class="reference external" href="https://pytorch.org/tutorials/intermediate/torchserve_with_ipex#grokking-pytorch-intel-cpu-performance-from-first-principles">case study</a> which dives into these points further with examples and explanations from first principles.</p>
-<p><h4>TorchServe on GPU</h4></p>
-<p>There is a config property called <code class="docutils literal notranslate"><span class="pre">number_of_gpu</span></code> that tells the server to use a specific number of GPUs per model. In cases where we register multiple models with the server, this will apply to all the models registered. If this is set to a low value (ex: 0 or 1), it will result in under-utilization of GPUs. On the contrary, setting to a high value (&gt;= max GPUs available on the system) results in as many workers getting spawned per model. Clearly, this will result in unnecessary contention for GPUs and can result in sub-optimal scheduling of threads to GPU.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ValueToSet</span> <span class="o">=</span> <span class="p">(</span><span class="n">Number</span> <span class="n">of</span> <span class="n">Hardware</span> <span class="n">GPUs</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">Number</span> <span class="n">of</span> <span class="n">Unique</span> <span class="n">Models</span><span class="p">)</span>
-</pre></div>
-</div>
-<p><h6> NVIDIA MPS</h6></p>
-<p>While NVIDIA GPUs allow multiple processes to run on CUDA kernels, this comes with its own drawbacks namely:</p>
+</section>
+<section id="model-inference-optimizations">
+<h2>Model Inference Optimizations<a class="headerlink" href="#model-inference-optimizations" title="Permalink to this heading">¶</a></h2>
+<p>Start model inference optimization only after other factors, the “low-hanging fruit”, have been extensively evaluated and addressed.</p>
 <ul class="simple">
-<li><p>The execution of the kernels is generally serialized</p></li>
-<li><p>Each processes creates its own CUDA context which occupies additional GPU memory</p></li>
+<li><p>Use fp16 for GPU inference.  The speed will most likely more than double on newer GPUs with tensor cores, with negligible accuracy degradation.  Technically fp16 is a type of quantization but since it seldom suffers from loss of accuracy for inference it should always be explored. As shown in this <a class="reference external" href="https://docs.nvidia.com/deeplearning/performance/mixed-precision-training/index.html#abstract">article</a>, use of fp16 offers speed up in large neural network applications.</p></li>
+<li><p>Use model quantization (i.e. int8) for CPU inference.  Explore different quantization options: dynamic quantization, static quantization, and quantization aware training, as well as tools such as Intel Neural Compressor that provide more sophisticated quantization methods. It is worth noting that quantization comes with some loss in accuracy and might not always offer significant speed up on some hardware thus this might not always be the right approach.</p></li>
+<li><p>Balance throughput and latency with smart batching.  While meeting the latency SLA try larger batch sizes to increase the throughput.</p></li>
+<li><p>Try optimized inference engines such as onnxruntime, tensorRT, lightseq, ctranslate-2, etc.  These engines often provide additional optimizations such as operator fusion, in addition to model quantization.</p></li>
+<li><p>Try model distillation.  This is more involved and often requires training data, but the potential gain can be large.  For example, MiniLM achieves 99% the accuracy of the original BERT base model while being 2X faster.</p></li>
+<li><p>If working on CPU, you can try core pinning. You can find more information on how to work with this <a class="reference external" href="https://pytorch.org/tutorials/intermediate/torchserve_with_ipex#grokking-pytorch-intel-cpu-performance-from-first-principles">in this blog post</a>.</p></li>
+<li><p>For batch processing on sequences with different lengths, sequence bucketing could potentially improve the throughput by 2X.  In this case, a simple implementation of sequence bucketing is to sort all input by sequence length before feeding them to the model, as this reduces unnecessary padding when batching the sequences.</p></li>
 </ul>
-<p>To get around these drawbacks, you can utilize the NVIDIA Multi-Process Service (MPS) to increase performance. You can find more information on how to utilize NVIDIA MPS with TorchServe  <a class="reference internal" href="mps.html"><span class="doc">here</span></a>.</p>
-<p><h6> NVIDIA DALI</h6></p>
-<p>The NVIDIA Data Loading Library (DALI) is a library for data loading and pre-processing to accelerate deep learning applications. It can be used as a portable drop-in replacement for built in data loaders and data iterators in popular deep learning frameworks. DALI provides a collection of highly optimized building blocks for loading and processing image, video and audio data.
-You can find an example of DALI optimization integration with TorchServe <a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/nvidia_dali">here</a>.</p>
-</section>
-<section id="benchmarking">
-<h2>Benchmarking<a class="headerlink" href="#benchmarking" title="Permalink to this heading">¶</a></h2>
-<p>To make comparing various model and TorchServe configurations easier to compare, we’ve added a few helper scripts that output performance data like p50, p90, p99 latency in a clean report <a class="reference external" href="https://github.com/pytorch/serve/tree/master/benchmarks">here</a> and mostly require you to determine some configuration either via JSON or YAML.
-You can find more information on TorchServe benchmarking <a class="reference external" href="https://github.com/pytorch/serve/blob/master/benchmarks/README.md#torchserve-model-server-benchmarking">here</a>.</p>
-</section>
-<section id="profiling">
-<h2>Profiling<a class="headerlink" href="#profiling" title="Permalink to this heading">¶</a></h2>
-<p>TorchServe has native support for the PyTorch profiler which will help you find performance bottlenecks in your code.</p>
-<p>If you created a custom <code class="docutils literal notranslate"><span class="pre">handle</span></code> or <code class="docutils literal notranslate"><span class="pre">initialize</span></code> method overwriting the BaseHandler, you must define the <code class="docutils literal notranslate"><span class="pre">self.manifest</span></code> attribute to be able to run <code class="docutils literal notranslate"><span class="pre">_infer_with_profiler</span></code>.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">export</span> <span class="n">ENABLE_TORCH_PROFILER</span><span class="o">=</span><span class="n">TRUE</span>
-</pre></div>
-</div>
-<p>Visit this <a class="reference external" href="https://github.com/pytorch/kineto/tree/main/tb_plugin">link</a> to learn more about the PyTorch profiler.</p>
-</section>
-<section id="more-resources">
-<h2>More Resources<a class="headerlink" href="#more-resources" title="Permalink to this heading">¶</a></h2>
-<p><h4>TorchServe on the Animated Drawings App</h4></p>
-<p>For some insight into fine tuning TorchServe performance in an application, take a look at this <a class="reference external" href="https://pytorch.org/blog/torchserve-performance-tuning/">article</a>. The case study shown here uses the Animated Drawings App form Meta to improve TorchServe Performance.</p>
-<p><h4>Performance Checklist</h4></p>
-<p>We have also created a quick checklist here for extra things to try outside of what is covered on this page. You can find the checklist <a class="reference internal" href="performance_checklist.html"><span class="doc">here</span></a>.</p>
+<p>While this checklist is not exhaustive, going through the items will likely help you squeeze more performance out of your model inference pipeline.</p>
 </section>
 </section>
 
@@ -450,15 +402,6 @@ You can find more information on TorchServe benchmarking <a class="reference ext
              
             </div>
             <footer>
-  
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="batch_inference_with_ts.html" class="btn btn-neutral float-right" title="Batch Inference with TorchServe" accesskey="n" rel="next">Next <img src="_static/images/chevron-right-orange.svg" class="next-page"></a>
-      
-      
-        <a href="Troubleshooting.html" class="btn btn-neutral" title="Troubleshooting Guide" accesskey="p" rel="prev"><img src="_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
-      
-    </div>
   
 
   
@@ -488,12 +431,9 @@ You can find more information on TorchServe benchmarking <a class="reference ext
           <div class="pytorch-right-menu" id="pytorch-right-menu">
             <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
               <ul>
-<li><a class="reference internal" href="#">Performance Guide</a><ul>
-<li><a class="reference internal" href="#optimizing-pytorch">Optimizing PyTorch</a></li>
-<li><a class="reference internal" href="#optimizing-torchserve">Optimizing TorchServe</a></li>
-<li><a class="reference internal" href="#benchmarking">Benchmarking</a></li>
-<li><a class="reference internal" href="#profiling">Profiling</a></li>
-<li><a class="reference internal" href="#more-resources">More Resources</a></li>
+<li><a class="reference internal" href="#">Model Inference Optimization Checklist</a><ul>
+<li><a class="reference internal" href="#general-system-optimizations">General System Optimizations</a></li>
+<li><a class="reference internal" href="#model-inference-optimizations">Model Inference Optimizations</a></li>
 </ul>
 </li>
 </ul>
