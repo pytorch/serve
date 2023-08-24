@@ -53,6 +53,7 @@ torchserve:
   management_port: 8081
   inference_port: 8080
   metrics_port: 8082
+  grpc_inference_port: 7070
   pvd_mount: /home/model-server/shared/
   n_gpu: 1
   n_cpu: 1
@@ -289,6 +290,51 @@ Follow the link for log aggregation with EFK Stack.\
 
 ## Autoscaling
   [Autoscaling with torchserve metrics](autoscale.md)
+
+## Session Affinity with Multiple Torchserve pods
+
+### Pre-requisites
+
+ - Follow the instructions above and deploy Torchserve with more than 1 replica to the kubernetes cluster
+ - Download Istio and add to path as shown [here](https://istio.io/latest/docs/setup/getting-started/#download)
+ - Install Istio with below command
+   - `istioctl install --set meshConfig.accessLogFile=/dev/stdout`
+
+### Steps
+
+Now we have multiple replicas of Torchserve running and istio installed. We can apply gateway, virtual service and destination rule to enable session affinity to the user requests.
+
+ - Apply the istio gateway via `kubectl apply -f gateway.yaml`
+   - This gateway exposes all the host behind it via port 80 as defined in the yaml file.
+ - Apply the virtual service with command `kubectl apply -f virtual_service.yaml`
+   - This with look for header named `protocol` in the incoming request and forward the request to Torchserve service. If the `protocol` header has a value `rest` then the request is forwarded to port `8080` of Torchserve service and if the `protocol` header has a value `grpc` then the request is forwarded to port `7070` for Torchserve service.
+ - Apply the destination Rule using the command `kubectl apply -f destination_rule.yaml`.
+   - The destination rule look for a http cookie with a key `session_id`. The request with `session_id` is served by the same pod that served the previous request with the same `session_id`
+
+### HTTP Inference
+
+- Fetch the external IP from istio-ingress gateway using the below command
+
+```bash
+ubuntu@ubuntu$ kubectl get svc -n istio-system
+NAME                   TYPE           CLUSTER-IP      EXTERNAL-IP                                                               PORT(S)                                                   AGE
+istio-ingressgateway   LoadBalancer   10.100.84.243   a918b2zzzzzzzzzzzzzzzzzzzzzz-1466623565.us-west-2.elb.amazonaws.com   15021:32270/TCP,80:31978/TCP,443:31775/TCP,70:31778/TCP   2d6h
+```
+
+- Make Request as shown below
+
+```bash
+curl -v -H "protocol: REST" --cookie "session_id="12345" http://a918b2d70dbddzzzzzzzzzzz49ec8cf03b-1466623565.us-west-2.elb.amazonaws.com:80/predictions/<model_name> -d "data=<input-string>"
+```
+
+### gRPC Inference
+
+- Refer [grpc_api](../docs/grpc_api.md) to generate python files and run
+
+```bash
+python ts_scripts/torchserve_grpc_client.py infer <model_name> <input-string>
+```
+
 
 ## Roadmap
 
