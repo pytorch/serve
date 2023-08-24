@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.composer.ComposerException;
 import org.yaml.snakeyaml.constructor.Constructor;
@@ -64,7 +65,7 @@ public class MetricConfiguration {
 
     public static MetricConfiguration loadConfiguration(String configFilePath)
             throws FileNotFoundException, ComposerException, RuntimeException {
-        Constructor constructor = new Constructor(MetricConfiguration.class);
+        Constructor constructor = new Constructor(MetricConfiguration.class, new LoaderOptions());
         Yaml yaml = new Yaml(constructor);
         FileInputStream inputStream = new FileInputStream(new File(configFilePath));
         MetricConfiguration config = yaml.load(inputStream);

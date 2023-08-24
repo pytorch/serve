@@ -1,5 +1,5 @@
 # Torchserve on Kubernetes
-  
+
 ## Overview
 
 This page demonstrates a Torchserve deployment in Kubernetes using Helm Charts. It uses the DockerHub Torchserve Image for the pods and a PersistentVolume for storing config / model files.
@@ -66,7 +66,7 @@ persitant_volume:
   size: 1Gi
 ```
 
-To install Torchserve run ```helm install ts .```  
+To install Torchserve run ```helm install ts .```
 
 ```bash
 ubuntu@ip-172-31-50-36:~/serve/kubernetes/Helm$ helm install ts .
@@ -207,12 +207,6 @@ helm repo add grafana https://grafana.github.io/helm-charts
 helm install grafana grafana/grafana
 ```
 
-Get admin user password by running:
-
-```bash
-kubectl get secret --namespace default grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
-```
-
 ## Add prometheus as data source in grafana
 
 ```bash
@@ -233,8 +227,6 @@ kubectl get pod prometheus-server-f8677599b-xmjbt -o jsonpath='{.status.podIPs[0
 192.168.52.141
 ```
 
-![Add data source](images/grafana_datasource.png)
-
 ## Expose grafana with loadbalancer
 
 ```bash
@@ -243,9 +235,24 @@ kubectl patch service grafana -p '{"spec": {"type": "LoadBalancer"}}'
 kubectl get svc grafana -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'
 ```
 
+Get admin user password by running:
+
+```bash
+kubectl get secret --namespace default grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
+```
+
 ## Login to grafana
 
-`<http://your.grafana.loadbalancer.address:3000>`
+<b>Username:</b> admin
+<b>Password:</b> <--The password got from previous step-->
+
+Open Grafana in browser with the url - `<http://your.grafana.loadbalancer.address:3000>`
+
+Add Prometheus data source
+
+![Add data source](images/grafana_datasource.png)
+
+The TS metrics will be available in Prometheus for Grafana dashboards.
 
 ## Logging
 

@@ -9,6 +9,9 @@ sphinx-markdown-tables==0.0.15
 torchserve
 torch-model-archiver
 torch-workflow-archiver
+torchvision
+pyyaml
+captum
+torchtext
+pytest
 -e git+https://github.com/pytorch/pytorch_sphinx_theme.git#egg=pytorch_sphinx_theme
-
-
