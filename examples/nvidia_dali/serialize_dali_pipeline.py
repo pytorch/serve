@@ -16,7 +16,7 @@ def parse_args():
 
 @dali.pipeline_def
 def pipe():
-    jpegs = dali.fn.external_source(dtype=types.UINT8, name="my_source")
+    jpegs = dali.fn.external_source(dtype=types.UINT8, name="source", batch=False)
     decoded = dali.fn.decoders.image(jpegs, device="mixed")
     resized = dali.fn.resize(
         decoded,
@@ -43,9 +43,12 @@ def main(filename):
     batch_size = config["batch_size"]
     num_threads = config["num_threads"]
     device_id = config["device_id"]
+    seed = config["seed"]
 
-    pipe1 = pipe(batch_size=batch_size, num_threads=num_threads, device_id=device_id)
-    pipe1.serialize(filename=filename)
+    pipeline = pipe(
+        batch_size=batch_size, num_threads=num_threads, device_id=device_id, seed=seed
+    )
+    pipeline.serialize(filename=filename)
     print("Saved {}".format(filename))
 
 
