@@ -26,7 +26,7 @@ Follow the below steps to serve the MNIST Model :
 - Step 2 : Install KServe as below:
 
 ```bash
-pip install kserve>=0.9.0
+pip install kserve>=0.9.0 grpcio protobuf grpcio-tools
 ```
 
 - Step 4 : Run the Install Dependencies script
@@ -59,11 +59,11 @@ sudo  mkdir -p /mnt/models/model-store
 
 For v1 protocol
 
-``export TS_SERVICE_ENVELOPE=kserve`
+`export TS_SERVICE_ENVELOPE=kserve`
 
 For v2 protocol
 
-``export TS_SERVICE_ENVELOPE=kservev2`
+`export TS_SERVICE_ENVELOPE=kservev2`
 
 - Step 10: Move the config.properties to /mnt/models/config/.
   The config.properties file is as below :
@@ -92,6 +92,26 @@ torchserve --start --ts-config /mnt/models/config/config.properties
 ```
 
 - Step 12: Run the below command to start the KFServer
+
+- Step 13: Set protocol version
+
+For v1 protocol
+
+`export PROTOCOL_VERSION=v1`
+
+For v2 protocol
+
+`export PROTOCOL_VERSION=v2`
+
+For grpc protocol v2 format set
+
+`export PROTOCOL_VERSION=grpc-v2`
+
+- Generate python gRPC client stub using the proto files
+
+```bash
+python -m grpc_tools.protoc --proto_path=frontend/server/src/main/resources/proto/ --python_out=ts_scripts --grpc_python_out=ts_scripts frontend/server/src/main/resources/proto/inference.proto frontend/server/src/main/resources/proto/management.proto
+```
 
 ```bash
 python3 serve/kubernetes/kserve/kserve_wrapper/__main__.py
@@ -127,7 +147,7 @@ Output:
 
 The curl request for explain is as below:
 
-```
+```bash
 curl -H "Content-Type: application/json" --data @serve/kubernetes/kserve/kf_request_json/v1/mnist.json http://0.0.0.0:8080/v1/models/mnist:explain
 ```
 
@@ -146,7 +166,7 @@ For v2 protocol
 The curl request for inference is as below:
 
 ```bash
-curl -H "Content-Type: application/json" --data @serve/kubernetes/kserve/kf_request_json/mnist_v2.json http://0.0.0.0:8080/v2/models/mnist/infer
+curl -H "Content-Type: application/json" --data @serve/kubernetes/kserve/kf_request_json/v2/mnist/mnist_v2_tensor.json http://0.0.0.0:8080/v2/models/mnist/infer
 ```
 
 Response:
@@ -167,29 +187,20 @@ Response:
 }
 ```
 
-The curl request for explain is as below:
+For grpc-v2 protocol
 
+- Download the proto file
+
+```bash
+curl -O https://raw.githubusercontent.com/kserve/kserve/master/docs/predict-api/v2/grpc_predict_v2.proto
 ```
-curl -H "Content-Type: application/json" --data @serve/kubernetes/kserve/kf_request_json/v1/mnist.json http://0.0.0.0:8080/v2/models/mnist/explain
-```
 
-Response:
+- Download [grpcurl](https://github.com/fullstorydev/grpcurl)
 
-```json
-{
-  "id": "3482b766-0483-40e9-84b0-8ce8d4d1576e",
-  "model_name": "mnist",
-  "model_version": "1.0",
-  "outputs": [{
-    "name": "explain",
-    "shape": [1, 28, 28],
-    "datatype": "FP64",
-    "data": [-0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, -0.0, -0.0, 0.0, -0.0, 0.0
-    ...
-    ...
-    ]
-  }]
-}
+Make gRPC request
+
+```bash
+grpcurl -vv -plaintext -proto grpc_predict_v2.proto -d @ localhost:8081 inference.GRPCInferenceService.ModelInfer <<< $(cat "serve/kubernetes/kserve/kf_request_json/v2/mnist/mnist_v2_tensor_grpc.json")
 ```
 
 ## KServe Wrapper Testing in Local for BERT
