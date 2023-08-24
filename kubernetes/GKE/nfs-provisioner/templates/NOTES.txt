@@ -37,10 +37,10 @@ spec:
       image: ubuntu
       command: [ "sleep" ]
       args: [ "infinity" ]
-    imagePullPolicy: IfNotPresent
-    volumeMounts:
-      - name: {{ .Values.persistentVolume.name}}
-        mountPath: "/pv"
+      imagePullPolicy: IfNotPresent
+      volumeMounts:
+        - name: {{ .Values.persistentVolume.name}}
+          mountPath: "/pv"
   volumes:
   - name: {{ .Values.persistentVolume.name}}
     persistentVolumeClaim:

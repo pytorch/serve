@@ -4,7 +4,7 @@ metadata:
   name: model-store-pod
 spec:
   volumes:
-    - name: mypvc
+    - name: pod-volume
       persistentVolumeClaim:
         claimName: model-store-claim  # Update PV Claim name
   containers:
@@ -14,5 +14,5 @@ spec:
       args: [ "infinity" ]
       imagePullPolicy: IfNotPresent
       volumeMounts:
-        - name: mypvc
+        - name: pod-volume
           mountPath: "/pv"

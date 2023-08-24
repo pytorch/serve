@@ -17,4 +17,4 @@ deployment:
   replicas: 1
 
 persistentVolume:
-  name: efs-claim
+  name: model-store-claim
