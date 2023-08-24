@@ -17,7 +17,6 @@ FROM ${BASE_IMAGE} AS compile-image
 ARG BASE_IMAGE
 ARG BRANCH_NAME=master
 ARG MACHINE_TYPE=cpu
-ARG BRANCH_NAME_KF=master
 ENV PYTHONUNBUFFERED TRUE
 
 RUN --mount=type=cache,id=apt-dev,target=/var/cache/apt \
@@ -46,7 +45,7 @@ RUN --mount=type=cache,id=apt-dev,target=/var/cache/apt \
   && rm -rf /var/lib/apt/lists/* \
   && cd /tmp \
 
-RUN update-alternatives --remove python /usr/bin/python \
+  RUN update-alternatives --remove python /usr/bin/python \
   && update-alternatives --install /usr/bin/python python /usr/bin/python3.8 1
 
 #ADD "https://www.random.org/cgi-bin/randbyte?nbytes=10&format=h" skipcache
@@ -62,7 +61,7 @@ RUN if [ "$MACHINE_TYPE" = "gpu" ]; then export USE_CUDA=1; fi \
   && git checkout ${BRANCH_NAME} \
   && if [ -z "$CUDA_VERSION" ]; then python ts_scripts/install_dependencies.py --environment=dev; else python ts_scripts/install_dependencies.py --environment=dev  --cuda $CUDA_VERSION; fi \
   && python ts_scripts/install_from_src.py \
-  && python -m pip install captum transformers kserve grpcio protobuf grpcio-tools \
+  && python -m pip install captum transformers kserve[storage]>=0.11.0 \
   && python -m pip install . \
   && useradd -m model-server \
   && mkdir -p /home/model-server/tmp \
