@@ -6,6 +6,7 @@ import pathlib
 import kserve
 from kserve.errors import ModelMissingError
 from kserve.model import Model as Model
+from kserve.storage import Storage
 
 logging.basicConfig(level=kserve.constants.KSERVE_LOGLEVEL)
 
@@ -53,7 +54,7 @@ class TorchserveModel(Model):
         """This method validates model availabilty in the model directory
         and sets ready flag to true.
         """
-        model_path = pathlib.Path(kserve.Storage.download(self.model_dir))
+        model_path = pathlib.Path(Storage.download(self.model_dir))
         paths = list(pathlib.Path(model_path).glob("*.mar"))
         existing_paths = [path for path in paths if path.exists()]
         if len(existing_paths) == 0:
