@@ -10,7 +10,6 @@ import java.util.regex.Pattern;
 import org.pytorch.serve.archive.model.Manifest;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.wlm.Model;
-import org.pytorch.serve.wlm.WorkerInitializationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
