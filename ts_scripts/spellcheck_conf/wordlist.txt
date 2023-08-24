@@ -1071,3 +1071,10 @@ meshConfig
 baseimage
 cuDNN
 Xformer
+ExamplePercentMetric
+HandlerMethodTime
+InferenceRequestCount
+PostprocessCallCount
+RequestBatchSize
+InitializeCallCount
+PreprocessCallCount
