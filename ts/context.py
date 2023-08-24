@@ -8,7 +8,7 @@ from typing import Dict, Optional, Tuple
 class Context(object):
     """
     Context stores model relevant worker information
-    Some fixed during load times and some
+    Some fixed during load times and some set by the service
     """
 
     def __init__(
@@ -39,7 +39,7 @@ class Context(object):
         self._limit_max_image_pixels = True
         self.metrics = metrics
         self.model_yaml_config = model_yaml_config
-        # add cient socket variable cl_socket to be used for send_intermediate_predict_response
+        # add client socket variable cl_socket to be used for send_intermediate_predict_response
         self.cl_socket = None
 
     @property

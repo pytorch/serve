@@ -30,10 +30,10 @@ Currently, KServe supports the Inference API for all the existing models but tex
 ./build_image.sh -g -t <repository>/<image>:<tag>
 ```
 
-### Docker Image Dev Build
+- To create dev image
 
 ```bash
-DOCKER_BUILDKIT=1 docker build -f Dockerfile.dev -t pytorch/torchserve-kfs:latest-dev .
+./build_image.sh -g -d -t <repository>/<image>:<tag>
 ```
 
 ## Running Torchserve inference service in KServe cluster

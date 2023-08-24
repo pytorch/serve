@@ -109,7 +109,7 @@ class MetricsCacheYamlImpl(MetricCacheAbstract):
         metric_type: MetricTypes = MetricTypes.COUNTER,
     ) -> CachingMetric:
         """
-        Create a new metric and add into cache
+        Create a new metric and add into cache. Override existing metric with same name if present.
 
         Parameters
         ----------
