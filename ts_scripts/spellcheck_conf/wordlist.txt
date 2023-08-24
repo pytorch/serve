@@ -1065,6 +1065,9 @@ ActionSLAM
 statins
 ci
 chatGPT
+accessLogFile
+istioctl
+meshConfig
 baseimage
 cuDNN
 Xformer
