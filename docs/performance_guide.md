@@ -1,6 +1,8 @@
 # [Performance Guide](#performance-guide)
 In case you're interested in optimizing the memory usage, latency or throughput of a PyTorch model served with TorchServe, this is the guide for you.
 
+We have also created a quick checklist here for extra things to try outside of what is covered on this page. You can find the checklist [here](performance_checklist.md).
+
 ## Optimizing PyTorch
 
 There are many tricks to optimize PyTorch models for production including but not limited to distillation, quantization, fusion, pruning, setting environment variables and we encourage you to benchmark and see what works best for you.
@@ -92,3 +94,7 @@ Visit this [link]( https://github.com/pytorch/kineto/tree/main/tb_plugin) to lea
 <h4>TorchServe on the Animated Drawings App</h4>
 
 For some insight into fine tuning TorchServe performance in an application, take a look at this [article](https://pytorch.org/blog/torchserve-performance-tuning/). The case study shown here uses the Animated Drawings App form Meta to improve TorchServe Performance.
+
+<h4>Performance Checklist</h4>
+
+We have also created a quick checklist here for extra things to try outside of what is covered on this page. You can find the checklist [here](performance_checklist.md).
