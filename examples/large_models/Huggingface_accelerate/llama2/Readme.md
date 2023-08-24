@@ -4,7 +4,7 @@ This document briefs on serving large HG models with limited resource using acce
 
 ### Step 1: Download model Permission
 
-Follow [this instruction](https://huggingface.co/meta-llama/Llama-2-70b-hf) to get permission
+Follow [this instruction](https://huggingface.co/meta-llama/Llama-2-70b-chat-hf) to get permission
 
 ### Step 2: Generate MAR file
 
@@ -34,8 +34,3 @@ torchserve --start --ncs --ts-config config.properties --model-store model_store
 ```bash
 curl -v "http://localhost:8080/predictions/bloom" -T sample_text.txt
 ```
-
-
-
-
-
