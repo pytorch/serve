@@ -81,7 +81,6 @@ except ImportError as error:
 try:
     import torch_tensorrt
     logger.info("Torch TensorRT enabled")
-
 except ImportError:
     logger.warning("Torch TensorRT not enabled")
 
