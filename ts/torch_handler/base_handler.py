@@ -79,7 +79,8 @@ except ImportError as error:
     ONNX_AVAILABLE = False
 
 try:
-    import torch_tensorrt
+    import torch_tensorrt  # nopycln: import
+
     logger.info("Torch TensorRT enabled")
 except ImportError:
     logger.warning("Torch TensorRT not enabled")
