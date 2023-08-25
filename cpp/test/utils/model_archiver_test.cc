@@ -13,7 +13,7 @@ TEST(ManifestTest, TestInitialize) {
   ASSERT_EQ(manifest.GetRuntimeType(), "LSP");
   ASSERT_EQ(manifest.GetModel().model_name, "mnist_scripted_v2");
   ASSERT_EQ(manifest.GetModel().serialized_file, "mnist_script.pt");
-  ASSERT_EQ(manifest.GetModel().handler, "BaseHandler");
+  ASSERT_EQ(manifest.GetModel().handler, "TorchScriptHandler");
   ASSERT_EQ(manifest.GetModel().model_version, "2.0");
 }
 }  // namespace torchserve

@@ -1,35 +1,9 @@
-#include "src/backends/torch_scripted/handler/base_handler.hh"
+#include "base_handler.hh"
 
 namespace torchserve {
-namespace torchscripted {
-std::pair<std::shared_ptr<torch::jit::script::Module>,
-          std::shared_ptr<torch::Device>>
-BaseHandler::LoadModel(
-    std::shared_ptr<torchserve::LoadModelRequest>& load_model_request) {
-  try {
-    auto device = GetTorchDevice(load_model_request);
-    auto module = std::make_shared<torch::jit::script::Module>(torch::jit::load(
-        // TODO: windows
-        fmt::format("{}/{}", load_model_request->model_dir,
-                    manifest_->GetModel().serialized_file),
-        *device));
-    return std::make_pair(module, device);
-  } catch (const c10::Error& e) {
-    TS_LOGF(ERROR, "loading the model: {}, device id: {}, error: {}",
-            load_model_request->model_name, load_model_request->gpu_id,
-            e.msg());
-    throw e;
-  } catch (const std::runtime_error& e) {
-    TS_LOGF(ERROR, "loading the model: {}, device id: {}, error: {}",
-            load_model_request->model_name, load_model_request->gpu_id,
-            e.what());
-    throw e;
-  }
-}
 
 void BaseHandler::Handle(
-    std::shared_ptr<torch::jit::script::Module>& model,
-    std::shared_ptr<torch::Device>& device,
+    std::shared_ptr<void> model, std::shared_ptr<torch::Device>& device,
     std::shared_ptr<torchserve::InferenceRequestBatch>& request_batch,
     std::shared_ptr<torchserve::InferenceResponseBatch>& response_batch) {
   std::string req_ids = "";
@@ -188,8 +162,7 @@ std::vector<torch::jit::IValue> BaseHandler::Preprocess(
 }
 
 torch::Tensor BaseHandler::Inference(
-    std::shared_ptr<torch::jit::script::Module> model,
-    std::vector<torch::jit::IValue>& inputs,
+    std::shared_ptr<void> model, std::vector<torch::jit::IValue>& inputs,
     std::shared_ptr<torch::Device>& device,
     std::pair<std::string&, std::map<uint8_t, std::string>&>& idx_to_req_id,
     std::shared_ptr<torchserve::InferenceResponseBatch>& response_batch) {
@@ -198,7 +171,9 @@ torch::Tensor BaseHandler::Inference(
   }
   try {
     torch::NoGradGuard no_grad;
-    return model->forward(inputs).toTensor();
+    std::shared_ptr<torch::jit::Module> jit_model(
+        std::static_pointer_cast<torch::jit::Module>(model));
+    return jit_model->forward(inputs).toTensor();
   } catch (const std::runtime_error& e) {
     TS_LOGF(ERROR, "Failed to predict, error: {}", e.what());
     for (auto& kv : idx_to_req_id.second) {
@@ -239,5 +214,4 @@ void BaseHandler::Postprocess(
     }
   }
 }
-}  // namespace torchscripted
 }  // namespace torchserve

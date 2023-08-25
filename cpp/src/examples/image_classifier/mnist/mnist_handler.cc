@@ -34,11 +34,11 @@ void MnistHandler::Postprocess(
 
 #if defined(__linux__) || defined(__APPLE__)
 extern "C" {
-torchserve::torchscripted::BaseHandler* allocatorMnistHandler() {
+torchserve::BaseHandler* allocatorMnistHandler() {
   return new mnist::MnistHandler();
 }
 
-void deleterMnistHandler(torchserve::torchscripted::BaseHandler* p) {
+void deleterMnistHandler(torchserve::BaseHandler* p) {
   if (p != nullptr) {
     delete static_cast<mnist::MnistHandler*>(p);
   }
