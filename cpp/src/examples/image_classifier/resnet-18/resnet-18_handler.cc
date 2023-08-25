@@ -176,13 +176,16 @@ void ResnetHandler::Postprocess(
       torch::Tensor ps = F::softmax(data, F::SoftmaxFuncOptions(1));
       std::tuple<torch::Tensor, torch::Tensor> result =
           torch::topk(ps, kTopKClasses, 1, true, true);
-      auto [probs, classes] = result;
+      torch::Tensor probs = std::get<0>(result);
+      torch::Tensor classes = std::get<1>(result);
 
+      probs = probs.to(torch::kCPU);
+      classes = classes.to(torch::kCPU);
       // Convert tensors to C++ vectors
-      std::vector<float> probs_vector(probs.data<float>(),
-                                      probs.data<float>() + probs.numel());
-      std::vector<long> classes_vector(classes.data<long>(),
-                                       classes.data<long>() + classes.numel());
+      std::vector<float> probs_vector(probs.data_ptr<float>(),
+                                      probs.data_ptr<float>() + probs.numel());
+      std::vector<long> classes_vector(
+          classes.data_ptr<long>(), classes.data_ptr<long>() + classes.numel());
 
       // Create a JSON object using folly::dynamic
       folly::dynamic json_response = folly::dynamic::object;
