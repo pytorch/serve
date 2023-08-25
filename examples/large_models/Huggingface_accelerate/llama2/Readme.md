@@ -6,9 +6,11 @@ This document briefs on serving large HG models with limited resource using acce
 
 Follow [this instruction](https://huggingface.co/meta-llama/Llama-2-70b-chat-hf) to get permission
 
+Model will be saved in the following path, `model/models--meta-llama--Llama-2-70b-chat-hf/snapshots/9ff8b00464fc439a64bb374769dec3dd627be1c2/`.
+
 ### Step 2: Generate MAR file
 
-Navigate up to `Huggingface_Largemodels` directory.
+Add the downloaded path to " model_name:" in `model-config.yaml` and run the following.
 
 ```bash
 torch-model-archiver --model-name llama2-70b --version 1.0 --handler custom_handler.py --config-file model-config.yaml -r requirements.txt
