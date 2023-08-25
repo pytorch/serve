@@ -7,6 +7,10 @@
 namespace llm {
 class LlmHandler : public torchserve::torchscripted::BaseHandler {
  public:
+  Transformer transformer;
+  Tokenizer tokenizer;
+  Sampler sampler;
+
   // NOLINTBEGIN(bugprone-exception-escape)
   LlmHandler() = default;
   // NOLINTEND(bugprone-exception-escape)
@@ -25,13 +29,13 @@ class LlmHandler : public torchserve::torchscripted::BaseHandler {
       std::shared_ptr<torchserve::InferenceResponseBatch>& response_batch)
       override;
 
-  //   torch::Tensor Inference(
-  //       std::shared_ptr<torch::jit::script::Module> model,
-  //       std::vector<torch::jit::IValue>& inputs,
-  //       std::shared_ptr<torch::Device>& device,
-  //       std::pair<std::string&, std::map<uint8_t, std::string>&>&
-  //       idx_to_req_id, std::shared_ptr<torchserve::InferenceResponseBatch>&
-  //       response_batch) override;
+  torch::Tensor Inference(
+      std::shared_ptr<torch::jit::script::Module> model,
+      std::vector<torch::jit::IValue>& inputs,
+      std::shared_ptr<torch::Device>& device,
+      std::pair<std::string&, std::map<uint8_t, std::string>&>& idx_to_req_id,
+      std::shared_ptr<torchserve::InferenceResponseBatch>& response_batch)
+      override;
 
   //   void Postprocess(
   //       const torch::Tensor& data,
