@@ -15,13 +15,13 @@ logger = logging.getLogger(__name__)
 logger.info("Transformers version %s", transformers.__version__)
 
 
-class TransformersSeqClassifierHandler(BaseDeepSpeedHandler, ABC):
+class LlamaHandler(BaseDeepSpeedHandler, ABC):
     """
     Transformers handler class for sequence, token classification and question answering.
     """
 
     def __init__(self):
-        super(TransformersSeqClassifierHandler, self).__init__()
+        super(LlamaHandler, self).__init__()
         self.max_length = None
         self.max_new_tokens = None
         self.tokenizer = None
@@ -32,7 +32,7 @@ class TransformersSeqClassifierHandler(BaseDeepSpeedHandler, ABC):
         partitioned using DeepSpeed.
         Args:
             ctx (context): It is a JSON Object containing information
-            pertaining to the model artefacts parameters.
+            pertaining to the model artifacts parameters.
         """
         super().initialize(ctx)
         model_dir = ctx.system_properties.get("model_dir")
@@ -51,8 +51,13 @@ class TransformersSeqClassifierHandler(BaseDeepSpeedHandler, ABC):
             load_in_4bit=True,
             trust_remote_code=True)
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
-        self.tokenizer.pad_token = self.tokenizer.eos_token
-        self.model = self.model.eval()
+        self.tokenizer.add_special_tokens(
+            {
+         
+            "pad_token": "<PAD>",
+            }
+        )
+        self.model.resize_token_embeddings(self.model.config.vocab_size + 1) 
 
         logger.info("Model %s loaded successfully", ctx.model_name)
         self.initialized = True
