@@ -8,14 +8,13 @@ from accelerate import init_empty_weights
 from accelerate import load_checkpoint_and_dispatch
 
 from ts.context import Context
-from ts.handler_utils.distributed.deepspeed import get_ds_engine
-from ts.torch_handler.distributed.base_deepspeed_handler import BaseDeepSpeedHandler
+from ts.torch_handler.base_handler import BaseHandler
 
 logger = logging.getLogger(__name__)
 logger.info("Transformers version %s", transformers.__version__)
 
 
-class LlamaHandler(BaseDeepSpeedHandler, ABC):
+class LlamaHandler(BaseHandler, ABC):
     """
     Transformers handler class for sequence, token classification and question answering.
     """
@@ -34,7 +33,6 @@ class LlamaHandler(BaseDeepSpeedHandler, ABC):
             ctx (context): It is a JSON Object containing information
             pertaining to the model artifacts parameters.
         """
-        super().initialize(ctx)
         model_dir = ctx.system_properties.get("model_dir")
         self.max_length = int(ctx.model_yaml_config["handler"]["max_length"])
         self.max_new_tokens = int(ctx.model_yaml_config["handler"]["max_new_tokens"])
