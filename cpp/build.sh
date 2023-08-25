@@ -299,6 +299,10 @@ function build() {
     mv $DEPS_DIR/../src/examples/libmnist_handler.so $DEPS_DIR/../../test/resources/torchscript_model/mnist/mnist_handler/libmnist_handler.so
   fi
 
+  if [ -f "$DEPS_DIR/../src/examples/libllm_handler.so" ]; then
+    mv $DEPS_DIR/../src/examples/libllm_handler.so $DEPS_DIR/../../test/resources/torchscript_model/babyllama/libllm_handler.so
+  fi
+
   cd $DEPS_DIR/../..
   if [ -f "$DEPS_DIR/../test/torchserve_cpp_test" ]; then
     $DEPS_DIR/../test/torchserve_cpp_test
