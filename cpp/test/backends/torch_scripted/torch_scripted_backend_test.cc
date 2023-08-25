@@ -78,6 +78,16 @@ TEST_F(TorchScriptedBackendTest, TestLoadPredictMnistHandler) {
                     "mnist_ts", 200);
 }
 
+TEST_F(TorchScriptedBackendTest, TestLoadPredictLlmHandler) {
+  this->LoadPredict(
+      std::make_shared<torchserve::LoadModelRequest>(
+          "test/resources/torchscript_model/babyllama/llm_handler", "llm", -1,
+          "", "", 1, false),
+      "test/resources/torchscript_model/babyllama/llm_handler",
+      "test/resources/torchscript_model/babyllama/prompt.txt", "llm_ts",
+      200);
+}
+
 TEST_F(TorchScriptedBackendTest, TestBackendInitWrongModelDir) {
   auto result = backend_->Initialize("test/resources/torchscript_model/mnist");
   ASSERT_EQ(result, false);

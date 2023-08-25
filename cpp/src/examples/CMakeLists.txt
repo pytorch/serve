@@ -5,3 +5,12 @@ list(APPEND MNIST_SOURCE_FILES ${MNIST_SRC_DIR}/mnist_handler.cc)
 add_library(mnist_handler SHARED ${MNIST_SOURCE_FILES})
 target_include_directories(mnist_handler PUBLIC ${MNIST_SRC_DIR})
 target_link_libraries(mnist_handler PRIVATE ts_backends_torch_scripted ts_utils ${TORCH_LIBRARIES}) 
+
+set(LLM_SRC_DIR "${torchserve_cpp_SOURCE_DIR}/src/examples/babyllama")
+set(LLM_SOURCE_FILES "")
+list(APPEND LLM_SOURCE_FILES ${LLM_SRC_DIR}/baby_llama_handler.cc)
+list(APPEND LLM_SOURCE_FILES ${LLM_SRC_DIR}/run.c)
+add_library(llm_handler SHARED ${LLM_SOURCE_FILES})
+target_include_directories(llm_handler PUBLIC ${LLM_SRC_DIR})
+target_link_libraries(llm_handler PRIVATE ts_backends_torch_scripted ts_utils ${TORCH_LIBRARIES})
+
