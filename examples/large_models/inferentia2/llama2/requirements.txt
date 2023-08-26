@@ -1,5 +1,6 @@
+--extra-index-url https://pip.repos.neuron.amazonaws.com
 torch-neuronx
 transformers-neuronx
-transformers
+transformers==4.31.0
 tokenizers
 sentencepiece

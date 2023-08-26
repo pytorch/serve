@@ -133,21 +133,8 @@ class MicroBatching(object):
 
         return [item for batch in sorted(output) for item in batch[1]]
 
-    def get_micro_batch_req_id_map(self, req_id_map: Dict):
-        micro_batch_idx = getattr(self.thread_local_data, "micro_batch_idx", None)
-        if micro_batch_idx is None:
-            return {}
-
-        start_idx = micro_batch_idx * self.micro_batch_size
-        micro_batch_req_id_map = {
-            index: req_id_map[batch_index]
-            for index, batch_index in enumerate(
-                range(start_idx, start_idx + self.micro_batch_size)
-            )
-            if batch_index in req_id_map
-        }
-
-        return micro_batch_req_id_map
+    def get_micro_batch_idx(self):
+        return getattr(self.thread_local_data, "micro_batch_idx", None)
 
     def __call__(self, data, context):
         """Entry point for default handler. It takes the data from the input request and returns
