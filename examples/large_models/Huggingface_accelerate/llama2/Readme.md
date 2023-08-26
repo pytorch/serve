@@ -20,7 +20,7 @@ Model will be saved in the following path, `model/models--meta-llama--Llama-2-70
 Add the downloaded path to " model_name:" in `model-config.yaml` and run the following.
 
 ```bash
-torch-model-archiver --model-name llama2-70b --version 1.0 --handler custom_handler.py --config-file model-config.yaml -r requirements.txt
+torch-model-archiver --model-name llama2-70b-chat --version 1.0 --handler custom_handler.py --config-file model-config.yaml -r requirements.txt --extra-files model --archive-format no-archive
 ```
 
 If you are using conda, and notice issues with mpi4py, you would need to install openmpi-mpicc using the following
@@ -33,7 +33,7 @@ conda install -c conda-forge openmpi-mpicc
 
 ```bash
 mkdir model_store
-mv llama2-70b.mar model_store
+mv llama2-70b-chat model_store
 ```
 
 ### Step 3: Start torchserve
@@ -41,13 +41,13 @@ mv llama2-70b.mar model_store
 Update config.properties and start torchserve
 
 ```bash
-torchserve --start --ncs --ts-config config.properties --model-store model_store --models llama2-70b.mar
+torchserve --start --ncs --ts-config config.properties --model-store model_store --models llama2-70b-chat
 ```
 
 ### Step 4: Run inference
 
 ```bash
-curl -v "http://localhost:8080/predictions/llama2-70b" -T sample_text.txt
+curl -v "http://localhost:8080/predictions/llama2-70b-chat" -T sample_text.txt
 ```
 
 results in the following output

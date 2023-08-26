@@ -37,16 +37,17 @@ class LlamaHandler(BaseHandler, ABC):
         self.max_length = int(ctx.model_yaml_config["handler"]["max_length"])
         self.max_new_tokens = int(ctx.model_yaml_config["handler"]["max_new_tokens"])
         model_name = ctx.model_yaml_config["handler"]["model_name"]
+        model_path = f'{model_dir}/{ctx.model_yaml_config["handler"]["model_path"]}'
         seed = int(ctx.model_yaml_config["handler"]["manual_seed"])
         torch.manual_seed(seed)
 
         logger.info("Model %s loading tokenizer", ctx.model_name)
         self.model = AutoModelForCausalLM.from_pretrained(
-            model_name,
+            model_path,
             device_map="balanced",
             low_cpu_mem_usage=True,
             torch_dtype=torch.float16,
-            load_in_4bit=True,
+            load_in_8bit=True,
             trust_remote_code=True)
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
         self.tokenizer.add_special_tokens(
