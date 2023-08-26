@@ -20,7 +20,7 @@ Model will be saved in the following path, `model/models--meta-llama--Llama-2-70
 Add the downloaded path to " model_name:" in `model-config.yaml` and run the following.
 
 ```bash
-torch-model-archiver --model-name llama2-70b-chat --version 1.0 --handler custom_handler.py --config-file model-config.yaml -r requirements.txt --extra-files model --archive-format no-archive
+torch-model-archiver --model-name llama2-70b-chat --version 1.0 --handler custom_handler.py --config-file model-config.yaml -r requirements.txt --archive-format no-archive
 ```
 
 If you are using conda, and notice issues with mpi4py, you would need to install openmpi-mpicc using the following
@@ -34,6 +34,7 @@ conda install -c conda-forge openmpi-mpicc
 ```bash
 mkdir model_store
 mv llama2-70b-chat model_store
+mv model model_store/llama2-70b-chat
 ```
 
 ### Step 3: Start torchserve
