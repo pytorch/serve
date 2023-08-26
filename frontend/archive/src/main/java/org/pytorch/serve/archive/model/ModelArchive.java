@@ -132,8 +132,12 @@ public class ModelArchive {
             failed = false;
             return new ModelArchive(manifest, url, dir, extracted);
         } finally {
-            if (extracted && failed) {
-                FileUtils.deleteQuietly(dir);
+            if (failed) {
+                if (Files.isSymbolicLink(dir.toPath())) {
+                    FileUtils.deleteQuietly(dir.getParentFile());
+                } else {
+                    FileUtils.deleteQuietly(dir);
+                }
             }
         }
     }
