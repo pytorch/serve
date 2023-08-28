@@ -3,8 +3,10 @@
 
 # These owners will be the default owners for everything in
 # the repo. Unless a later match takes precedence,
-*       @msaroufim @lxning @agunapal
+* @msaroufim @lxning @agunapal
 
+# General owners of various directories
+# Add more rules here as needed
 /examples/ @HamidShojanazeri @agunapal
 /test/ @mreso
 .github @agunapal
