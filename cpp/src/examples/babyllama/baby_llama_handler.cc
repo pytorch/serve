@@ -104,7 +104,6 @@ std::vector<torch::jit::IValue> LlmHandler::Preprocess(
       std::cout << "Received Input: " << data_it->second << std::endl;
       std::string msg = torchserve::Converter::VectorToStr(data_it->second);
 
-
       char* msgCStr = new char[msg.size() + 1];  // +1 for the null terminator
       std::strcpy(msgCStr, msg.c_str());
       int num_prompt_tokens = 0;
@@ -146,9 +145,6 @@ std::vector<torch::jit::IValue> LlmHandler::Preprocess(
     }
   }
 
-  free_sampler(&sampler);
-  free_tokenizer(&tokenizer);
-  free_transformer(&transformer);
   return batch_ivalue;
 }
 
@@ -186,14 +182,12 @@ torch::Tensor LlmHandler::Inference(
       0;     // used to time our code, only initialized after first iteration
   int next;  // will store the next token in the sequence
   int token = prompt_tokens[0];  // kick off with the first token in the prompt
-  std::cout << "Token: " << token << std::endl;
+  // std::cout << "Token: " << token << std::endl;
   int pos = 0;  // position in the sequence
   while (pos < steps) {
-    std::cout << "Inside while loop" << std::endl;
     // forward the transformer to get logits for the next token
     float* logits = forward(&transformer, token, pos);
 
-    std::cout << "Logits: " << std::endl;
     // advance the state state machine
     if (pos < num_elements - 1) {
       // if we are still processing the input prompt, force the next prompt
@@ -213,6 +207,7 @@ torch::Tensor LlmHandler::Inference(
 
     // print the token as string, decode it with the Tokenizer object
     char* piece = decode(&tokenizer, token, next);
+    std::cout << "Generated Token: " << piece << std::endl;
     token = next;
 
     // init the timer here because the first iteration can be slower
@@ -226,13 +221,15 @@ torch::Tensor LlmHandler::Inference(
   if (pos > 1) {
     long end = time_in_ms();
     auto token_per_sec = (pos - 1) / (double)(end - start) * 1000;
-    std::cout << "achieved tok per sec: " << token_per_sec << std::endl;
+    std::cout << "Achieved tok per sec: " << token_per_sec << std::endl;
   }
 
   delete[] prompt_tokens;
 
-  
   torch::Tensor stacked_tensor;
+  free_sampler(&sampler);
+  free_tokenizer(&tokenizer);
+  free_transformer(&transformer);
   return stacked_tensor;
 }
 
