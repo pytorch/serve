@@ -14,7 +14,7 @@ huggingface-cli login --token $HUGGINGFACE_TOKEN
 ```
 
 ```bash
-python ../Download_model.py --model_name meta-llama/Llama-2-70b-chat-hf
+python ../Download_model.py --model_path model --model_name meta-llama/Llama-2-70b-chat-hf
 ```
 Model will be saved in the following path, `model/models--meta-llama--Llama-2-70b-chat-hf`.
 
