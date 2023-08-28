@@ -5,7 +5,7 @@ on: workflow_dispatch
 jobs:
   official-release:
     # creates workflows for the 3 OS: ubuntu, macOS & windows
-    runs-on: ${{ matrix.os }}
+    runs-on: [self-hosted, ci-gpu]
 
     # The official-release environment requires 2 manual approvals
     environment:
@@ -35,16 +35,8 @@ jobs:
       - name: Login to Docker
         env:
           DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
-        if: matrix.os == 'ubuntu-20.04'
         run: docker login --username pytorchbot --password "$DOCKER_PASSWORD"
-      - name: Build & Upload pytorch/torchserve Docker images
-        if: matrix.os == 'ubuntu-20.04'
-        run: |
-          cd docker
-          python build_upload_release.py
-          cd ..
       - name: Build & Upload pytorch/torchserve-kfs Docker images
-        if: matrix.os == 'ubuntu-20.04'
         run: |
           cd kubernetes/kserve
           python build_upload_release.py

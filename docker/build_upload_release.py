@@ -26,28 +26,28 @@ if __name__ == "__main__":
     organization = args.organization
 
     # Upload pytorch/torchserve docker binaries
-    # try_and_handle(f"./build_image.sh -t {organization}/torchserve:latest", dry_run)
-    # try_and_handle(
-    #    f"docker tag {organization}/torchserve:latest {organization}/torchserve:latest-cpu",
-    #    dry_run,
-    # )
-    # try_and_handle(
-    #    f"docker tag {organization}/torchserve:latest {organization}/torchserve:{check_ts_version()}-cpu",
-    #    dry_run,
-    # )
-    # for image in [
-    #    f"{organization}/torchserve:latest",
-    #    f"{organization}/torchserve:latest-cpu",
-    #    f"{organization}/torchserve:{check_ts_version()}-cpu",
-    # ]:
-    #    try_and_handle(f"docker push {image}", dry_run)
+    try_and_handle(f"./build_image.sh -t {organization}/torchserve:latest", dry_run)
+    try_and_handle(
+        f"docker tag {organization}/torchserve:latest {organization}/torchserve:latest-cpu",
+        dry_run,
+    )
+    try_and_handle(
+        f"docker tag {organization}/torchserve:latest {organization}/torchserve:{check_ts_version()}-cpu",
+        dry_run,
+    )
+    for image in [
+        f"{organization}/torchserve:latest",
+        f"{organization}/torchserve:latest-cpu",
+        f"{organization}/torchserve:{check_ts_version()}-cpu",
+    ]:
+        try_and_handle(f"docker push {image}", dry_run)
 
-    # for image in [
-    #    f"{organization}/torchserve:latest",
-    #    f"{organization}/torchserve:latest-cpu",
-    #    f"{organization}/torchserve:{check_ts_version()}-cpu",
-    # ]:
-    #    try_and_handle(f"docker rmi {image}", dry_run)
+    for image in [
+        f"{organization}/torchserve:latest",
+        f"{organization}/torchserve:latest-cpu",
+        f"{organization}/torchserve:{check_ts_version()}-cpu",
+    ]:
+        try_and_handle(f"docker rmi {image}", dry_run)
 
     try_and_handle(
         f"./build_image.sh -g -cv cu118 -t {organization}/torchserve:latest-gpu",
