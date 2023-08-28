@@ -13,7 +13,10 @@ huggingface-cli login
 huggingface-cli login --token $HUGGINGFACE_TOKEN
 ```
 
-Model will be saved in the following path, `model/models--meta-llama--Llama-2-70b-chat-hf/snapshots/9ff8b00464fc439a64bb374769dec3dd627be1c2/`.
+```bash
+python ../Download_model.py --model_name meta-llama/Llama-2-70b-chat-hf
+```
+Model will be saved in the following path, `model/models--meta-llama--Llama-2-70b-chat-hf`.
 
 ### Step 2: Generate MAR file
 
