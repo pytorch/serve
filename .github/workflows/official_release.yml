@@ -13,7 +13,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        os: [ubuntu-20.04, macOS-latest, windows-latest]
+        os: [macOS-latest, windows-latest]
     steps:
       - name: Setup Conda
         uses: s-weigand/setup-conda@v1
