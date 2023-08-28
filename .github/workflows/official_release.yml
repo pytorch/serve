@@ -12,15 +12,12 @@ jobs:
       name: official-release
     strategy:
       fail-fast: true
-      matrix:
-        os: [ubuntu-20.04]
     steps:
-      - name: Setup Conda
-        uses: s-weigand/setup-conda@v1
-      - name: Setup Anaconda
-        run: |
-          conda --version
-          conda install -y conda-build anaconda-client
+      - name: Setup Python 3.8
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.8
+          architecture: x64
       - name: Checkout TorchServe
         uses: actions/checkout@v3
       - name: Install dependencies
