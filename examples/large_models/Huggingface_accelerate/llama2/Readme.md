@@ -20,7 +20,7 @@ Model will be saved in the following path, `model/models--meta-llama--Llama-2-70
 
 ### Step 2: Generate MAR file
 
-Add the downloaded path to " model_name:" in `model-config.yaml` and run the following.
+Add the downloaded path to " model_path:" in `model-config.yaml` and run the following.
 
 ```bash
 torch-model-archiver --model-name llama2-70b-chat --version 1.0 --handler custom_handler.py --config-file model-config.yaml -r requirements.txt --archive-format no-archive
@@ -56,5 +56,5 @@ curl -v "http://localhost:8080/predictions/llama2-70b-chat" -T sample_text.txt
 
 results in the following output
 ```
-Mayonnaise is a thick, creamy condiment made from a mixture of egg yolks, oil, vinegar or lemon juice, and seasonings. Here'
+Mayonnaise is a thick, creamy condiment made from a mixture of egg yolks, oil, vinegar or lemon juice, and seasonings'
 ```
