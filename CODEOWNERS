@@ -1,0 +1,20 @@
+# This is a comment.
+# Each line is a file pattern followed by one or more owners.
+
+# These owners will be the default owners for everything in
+# the repo. Unless a later match takes precedence,
+*       @msaroufim @lxning @agunapal
+
+/examples/ @HamidShojanazeri @agunapal
+/test/ @mreso
+.github @agunapal
+/binaries @agunapal
+/ts_scripts/ @mreso
+/kubernetes/ @jagadeeshi2i
+/frontend/ @lxning @min-jean-cho
+/plugins/ @lxning
+/ts/ @msaroufim
+/docs/ @sekyondaMeta
+/requirements/ @agunapal
+/docker/ @agunapal
+/benchmarks/ @lxning @agunapal
