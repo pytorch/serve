@@ -261,7 +261,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../model_zoo.html">Model Zoo</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../request_envelopes.html">Request Envelopes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../server.html">Running TorchServe</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../mps.html">Running TorchServe with NVIDIA MPS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nvidia_mps.html">Running TorchServe with NVIDIA MPS</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../snapshot.html">TorchServe model snapshot</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../torchserve_on_win_native.html">TorchServe on Windows</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../torchserve_on_wsl.html">TorchServe on Windows Subsystem for Linux (WSL)</a></li>
@@ -371,9 +371,9 @@
 <span class="kn">import</span> <span class="nn">time</span>
 <span class="kn">from</span> <span class="nn">builtins</span> <span class="kn">import</span> <span class="nb">str</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
+
 <span class="kn">from</span> <span class="nn">ts.metrics.caching_metric</span> <span class="kn">import</span> <span class="n">CachingMetric</span>
 <span class="kn">from</span> <span class="nn">ts.metrics.metric_type_enum</span> <span class="kn">import</span> <span class="n">MetricTypes</span>
-
 <span class="kn">from</span> <span class="nn">ts.metrics.unit</span> <span class="kn">import</span> <span class="n">Units</span>
 
 <span class="n">MetricUnit</span> <span class="o">=</span> <span class="n">Units</span><span class="p">()</span>
@@ -407,7 +407,7 @@
 <span class="sd">        unit: str</span>
 <span class="sd">            unit can be one of ms, percent, count, MB, GB or a generic string</span>
 <span class="sd">        dimensions: list</span>
-<span class="sd">            list of dimension objects</span>
+<span class="sd">            list of Dimension objects</span>
 <span class="sd">        request_id: str</span>
 <span class="sd">            req_id of metric</span>
 <span class="sd">        metric_method: str</span>
@@ -439,13 +439,17 @@
 <span class="sd">        value : int, float</span>
 <span class="sd">            metric to be updated</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_caching_metric</span><span class="o">.</span><span class="n">add_or_update</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimension_values</span><span class="p">,</span> <span class="n">request_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">request_id</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_caching_metric</span><span class="o">.</span><span class="n">add_or_update</span><span class="p">(</span>
+            <span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimension_values</span><span class="p">,</span> <span class="n">request_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">request_id</span>
+        <span class="p">)</span></div>
 
 <div class="viewcode-block" id="Metric.reset"><a class="viewcode-back" href="../../../api/ts.metrics.html#ts.metrics.metric.Metric.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Reset Metric value to 0</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_caching_metric</span><span class="o">.</span><span class="n">add_or_update</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimension_values</span><span class="p">,</span> <span class="n">request_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">request_id</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_caching_metric</span><span class="o">.</span><span class="n">add_or_update</span><span class="p">(</span>
+            <span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimension_values</span><span class="p">,</span> <span class="n">request_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">request_id</span>
+        <span class="p">)</span></div>
 
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">dims</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimensions</span><span class="p">])</span>

@@ -261,7 +261,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../model_zoo.html">Model Zoo</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../request_envelopes.html">Request Envelopes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../server.html">Running TorchServe</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../mps.html">Running TorchServe with NVIDIA MPS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nvidia_mps.html">Running TorchServe with NVIDIA MPS</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../snapshot.html">TorchServe model snapshot</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../torchserve_on_win_native.html">TorchServe on Windows</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../torchserve_on_wsl.html">TorchServe on Windows Subsystem for Linux (WSL)</a></li>
@@ -371,8 +371,10 @@
 <span class="kn">import</span> <span class="nn">torch.nn.functional</span> <span class="k">as</span> <span class="nn">F</span>
 <span class="kn">from</span> <span class="nn">torchvision</span> <span class="kn">import</span> <span class="n">transforms</span>
 
+<span class="kn">from</span> <span class="nn">ts.handler_utils.timer</span> <span class="kn">import</span> <span class="n">timed</span>
+
+<span class="kn">from</span> <span class="nn">..utils.util</span> <span class="kn">import</span> <span class="n">map_class_to_label</span>
 <span class="kn">from</span> <span class="nn">.vision_handler</span> <span class="kn">import</span> <span class="n">VisionHandler</span>
-<span class="kn">from</span> <span class="nn">..utils.util</span>  <span class="kn">import</span> <span class="n">map_class_to_label</span>
 
 
 <div class="viewcode-block" id="ImageClassifier"><a class="viewcode-back" href="../../../api/ts.torch_handler.html#ts.torch_handler.image_classifier.ImageClassifier">[docs]</a><span class="k">class</span> <span class="nc">ImageClassifier</span><span class="p">(</span><span class="n">VisionHandler</span><span class="p">):</span>
@@ -384,13 +386,14 @@
     <span class="n">topk</span> <span class="o">=</span> <span class="mi">5</span>
     <span class="c1"># These are the standard Imagenet dimensions</span>
     <span class="c1"># and statistics</span>
-    <span class="n">image_processing</span> <span class="o">=</span> <span class="n">transforms</span><span class="o">.</span><span class="n">Compose</span><span class="p">([</span>
-        <span class="n">transforms</span><span class="o">.</span><span class="n">Resize</span><span class="p">(</span><span class="mi">256</span><span class="p">),</span>
-        <span class="n">transforms</span><span class="o">.</span><span class="n">CenterCrop</span><span class="p">(</span><span class="mi">224</span><span class="p">),</span>
-        <span class="n">transforms</span><span class="o">.</span><span class="n">ToTensor</span><span class="p">(),</span>
-        <span class="n">transforms</span><span class="o">.</span><span class="n">Normalize</span><span class="p">(</span><span class="n">mean</span><span class="o">=</span><span class="p">[</span><span class="mf">0.485</span><span class="p">,</span> <span class="mf">0.456</span><span class="p">,</span> <span class="mf">0.406</span><span class="p">],</span>
-                             <span class="n">std</span><span class="o">=</span><span class="p">[</span><span class="mf">0.229</span><span class="p">,</span> <span class="mf">0.224</span><span class="p">,</span> <span class="mf">0.225</span><span class="p">])</span>
-    <span class="p">])</span>
+    <span class="n">image_processing</span> <span class="o">=</span> <span class="n">transforms</span><span class="o">.</span><span class="n">Compose</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="n">transforms</span><span class="o">.</span><span class="n">Resize</span><span class="p">(</span><span class="mi">256</span><span class="p">),</span>
+            <span class="n">transforms</span><span class="o">.</span><span class="n">CenterCrop</span><span class="p">(</span><span class="mi">224</span><span class="p">),</span>
+            <span class="n">transforms</span><span class="o">.</span><span class="n">ToTensor</span><span class="p">(),</span>
+            <span class="n">transforms</span><span class="o">.</span><span class="n">Normalize</span><span class="p">(</span><span class="n">mean</span><span class="o">=</span><span class="p">[</span><span class="mf">0.485</span><span class="p">,</span> <span class="mf">0.456</span><span class="p">,</span> <span class="mf">0.406</span><span class="p">],</span> <span class="n">std</span><span class="o">=</span><span class="p">[</span><span class="mf">0.229</span><span class="p">,</span> <span class="mf">0.224</span><span class="p">,</span> <span class="mf">0.225</span><span class="p">]),</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
 
 <div class="viewcode-block" id="ImageClassifier.set_max_result_classes"><a class="viewcode-back" href="../../../api/ts.torch_handler.html#ts.torch_handler.image_classifier.ImageClassifier.set_max_result_classes">[docs]</a>    <span class="k">def</span> <span class="nf">set_max_result_classes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">topk</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">topk</span> <span class="o">=</span> <span class="n">topk</span></div>
@@ -398,12 +401,13 @@
 <div class="viewcode-block" id="ImageClassifier.get_max_result_classes"><a class="viewcode-back" href="../../../api/ts.torch_handler.html#ts.torch_handler.image_classifier.ImageClassifier.get_max_result_classes">[docs]</a>    <span class="k">def</span> <span class="nf">get_max_result_classes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">topk</span></div>
 
-<div class="viewcode-block" id="ImageClassifier.postprocess"><a class="viewcode-back" href="../../../api/ts.torch_handler.html#ts.torch_handler.image_classifier.ImageClassifier.postprocess">[docs]</a>    <span class="k">def</span> <span class="nf">postprocess</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+    <span class="nd">@timed</span>
+    <span class="k">def</span> <span class="nf">postprocess</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
         <span class="n">ps</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="n">probs</span><span class="p">,</span> <span class="n">classes</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">topk</span><span class="p">(</span><span class="n">ps</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">topk</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="n">probs</span> <span class="o">=</span> <span class="n">probs</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
         <span class="n">classes</span> <span class="o">=</span> <span class="n">classes</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">map_class_to_label</span><span class="p">(</span><span class="n">probs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mapping</span><span class="p">,</span> <span class="n">classes</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="n">map_class_to_label</span><span class="p">(</span><span class="n">probs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mapping</span><span class="p">,</span> <span class="n">classes</span><span class="p">)</span></div>
 </pre></div>
 
              </article>

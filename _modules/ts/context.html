@@ -261,7 +261,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../model_zoo.html">Model Zoo</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../request_envelopes.html">Request Envelopes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../server.html">Running TorchServe</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../mps.html">Running TorchServe with NVIDIA MPS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../nvidia_mps.html">Running TorchServe with NVIDIA MPS</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../snapshot.html">TorchServe model snapshot</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../torchserve_on_win_native.html">TorchServe on Windows</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../torchserve_on_wsl.html">TorchServe on Windows Subsystem for Linux (WSL)</a></li>
@@ -374,7 +374,7 @@
 <div class="viewcode-block" id="Context"><a class="viewcode-back" href="../../api/ts.html#ts.context.Context">[docs]</a><span class="k">class</span> <span class="nc">Context</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Context stores model relevant worker information</span>
-<span class="sd">    Some fixed during load times and some</span>
+<span class="sd">    Some fixed during load times and some set by the service</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
@@ -405,7 +405,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_limit_max_image_pixels</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">metrics</span> <span class="o">=</span> <span class="n">metrics</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">model_yaml_config</span> <span class="o">=</span> <span class="n">model_yaml_config</span>
-        <span class="c1"># add cient socket variable cl_socket to be used for send_intermediate_predict_response</span>
+        <span class="c1"># add client socket variable cl_socket to be used for send_intermediate_predict_response</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cl_socket</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="nd">@property</span>

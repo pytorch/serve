@@ -338,7 +338,7 @@
       <li class="pytorch-breadcrumbs-aside">
         
             
-            <a href="_sources/mps.md.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg"></a>
+            <a href="_sources/nvidia_mps.md.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg"></a>
           
         
       </li>
@@ -427,23 +427,23 @@ For each benchmark we perform five runs and take the median over the runs.</p>
 <h3>G4 Instance<a class="headerlink" href="#g4-instance" title="Permalink to this heading">¶</a></h3>
 <p>We first perform the single worker benchmark for the G4 instance.
 In the figure below we see that up to a batch size of four we see a steady increase of the throughput over the batch size.</p>
-<p><img alt="G4 benchmark, single worker" src="_images/mps_g4_single.png" /></p>
+<p><img alt="G4 benchmark, single worker" src="https://raw.githubusercontent.com/pytorch/serve/master/docs/images/mps_g4_single.png" /></p>
 <p>Next, we increase the number of workers to two in order to compare the throughput with and without MPS running.
 To enable MPS for the second set of runs we first set the exclusive processing mode for the GPU and then start the MPS daemon as shown above.</p>
 <p>We select the batch size between one and eight according to our previous findings.
 In the figure we can see that the performance in terms of throughput can be better in case of batch size 1 and 8 (up to +18%) while it can be worse for others (-11%).
 An interpretation of this result could be that the G4 instance has not many resources to share when we run a BERT model in one of the workers.</p>
-<p><img alt="G4 benchmark, two workers" src="_images/mps_g4_two_worker.png" /></p>
+<p><img alt="G4 benchmark, two workers" src="https://raw.githubusercontent.com/pytorch/serve/master/docs/images/mps_g4_two_worker.png" /></p>
 </section>
 <section id="p3-instance">
 <h3>P3 instance<a class="headerlink" href="#p3-instance" title="Permalink to this heading">¶</a></h3>
 <p>Next, we will run the same experiment with the bigger p3.2xlarge instance.
 With a single worker we get the following throughput values:</p>
-<p><img alt="P3 benchmark, single worker" src="_images/mps_p3_single.png" /></p>
+<p><img alt="P3 benchmark, single worker" src="https://raw.githubusercontent.com/pytorch/serve/master/docs/images/mps_p3_single.png" /></p>
 <p>We can see that the throughput steady increases but for a batch size over eight we see diminishing returns.
 Finally, we deploy two workers on the P3 instance and compare running them with and without MPS.
 We can see that for batch size between 1 and 32 the throughput is consistently higher (up to +25%) for MPS enabled with the exception of batch size 16.</p>
-<p><img alt="P3 benchmark, two workers" src="_images/mps_p3_two_worker.png" /></p>
+<p><img alt="P3 benchmark, two workers" src="https://raw.githubusercontent.com/pytorch/serve/master/docs/images/mps_p3_two_worker.png" /></p>
 </section>
 </section>
 <section id="summary">

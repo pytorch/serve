@@ -264,7 +264,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../model_zoo.html">Model Zoo</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../request_envelopes.html">Request Envelopes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../server.html">Running TorchServe</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../mps.html">Running TorchServe with NVIDIA MPS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../nvidia_mps.html">Running TorchServe with NVIDIA MPS</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../snapshot.html">TorchServe model snapshot</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../torchserve_on_win_native.html">TorchServe on Windows</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../torchserve_on_wsl.html">TorchServe on Windows Subsystem for Linux (WSL)</a></li>
@@ -490,24 +490,8 @@ the model artefacts parameters.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="ts.torch_handler.base_handler.BaseHandler.inference">
-<span class="sig-name descname"><span class="pre">inference</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/torch_handler/base_handler.html#BaseHandler.inference"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.torch_handler.base_handler.BaseHandler.inference" title="Permalink to this definition">¶</a></dt>
-<dd><p>The Inference Function is used to make a prediction call on the given input request.
-The user needs to override the inference function to customize it.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> (<em>Torch Tensor</em>) – A Torch Tensor is passed to make the Inference Request.</p></li>
-<li><p><strong>shape.</strong> (<em>The shape should match the model input</em>) – </p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The Predicted Torch Tensor is returned in this function.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Torch Tensor</p>
-</dd>
-</dl>
-</dd></dl>
+<span class="sig-name descname"><span class="pre">inference</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ts.torch_handler.base_handler.BaseHandler.inference" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="ts.torch_handler.base_handler.BaseHandler.initialize">
@@ -531,40 +515,13 @@ The user needs to override the inference function to customize it.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="ts.torch_handler.base_handler.BaseHandler.postprocess">
-<span class="sig-name descname"><span class="pre">postprocess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/torch_handler/base_handler.html#BaseHandler.postprocess"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.torch_handler.base_handler.BaseHandler.postprocess" title="Permalink to this definition">¶</a></dt>
-<dd><p>The post process function makes use of the output from the inference and converts into a
-Torchserve supported response output.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>Torch Tensor</em>) – The torch tensor received from the prediction output of the model.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The post process function returns a list of the predicted output.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>List</p>
-</dd>
-</dl>
-</dd></dl>
+<span class="sig-name descname"><span class="pre">postprocess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ts.torch_handler.base_handler.BaseHandler.postprocess" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="ts.torch_handler.base_handler.BaseHandler.preprocess">
-<span class="sig-name descname"><span class="pre">preprocess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/torch_handler/base_handler.html#BaseHandler.preprocess"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.torch_handler.base_handler.BaseHandler.preprocess" title="Permalink to this definition">¶</a></dt>
-<dd><p>Preprocess function to convert the request input to a tensor(Torchserve supported format).
-The user needs to override to customize the pre-processing</p>
-<dl class="simple">
-<dt>Args :</dt><dd><p>data (list): List of the data from the request input.</p>
-</dd>
-</dl>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Returns the tensor data of the input</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>tensor</p>
-</dd>
-</dl>
-</dd></dl>
+<span class="sig-name descname"><span class="pre">preprocess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ts.torch_handler.base_handler.BaseHandler.preprocess" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 
@@ -648,21 +605,8 @@ and returns the name of object in that image.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="ts.torch_handler.image_classifier.ImageClassifier.postprocess">
-<span class="sig-name descname"><span class="pre">postprocess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/torch_handler/image_classifier.html#ImageClassifier.postprocess"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.torch_handler.image_classifier.ImageClassifier.postprocess" title="Permalink to this definition">¶</a></dt>
-<dd><p>The post process function makes use of the output from the inference and converts into a
-Torchserve supported response output.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>Torch Tensor</em>) – The torch tensor received from the prediction output of the model.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The post process function returns a list of the predicted output.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>List</p>
-</dd>
-</dl>
-</dd></dl>
+<span class="sig-name descname"><span class="pre">postprocess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ts.torch_handler.image_classifier.ImageClassifier.postprocess" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="ts.torch_handler.image_classifier.ImageClassifier.set_max_result_classes">
@@ -695,20 +639,7 @@ where N - batch size, K - number of classes, H - height and W - width.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="ts.torch_handler.image_segmenter.ImageSegmenter.postprocess">
 <span class="sig-name descname"><span class="pre">postprocess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/torch_handler/image_segmenter.html#ImageSegmenter.postprocess"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.torch_handler.image_segmenter.ImageSegmenter.postprocess" title="Permalink to this definition">¶</a></dt>
-<dd><p>The post process function makes use of the output from the inference and converts into a
-Torchserve supported response output.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>Torch Tensor</em>) – The torch tensor received from the prediction output of the model.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The post process function returns a list of the predicted output.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>List</p>
-</dd>
-</dl>
-</dd></dl>
+<dd></dd></dl>
 
 </dd></dl>
 
@@ -750,20 +681,7 @@ and returns list of detected classes and bounding boxes respectively</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="ts.torch_handler.object_detector.ObjectDetector.postprocess">
 <span class="sig-name descname"><span class="pre">postprocess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/torch_handler/object_detector.html#ObjectDetector.postprocess"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.torch_handler.object_detector.ObjectDetector.postprocess" title="Permalink to this definition">¶</a></dt>
-<dd><p>The post process function makes use of the output from the inference and converts into a
-Torchserve supported response output.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>Torch Tensor</em>) – The torch tensor received from the prediction output of the model.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The post process function returns a list of the predicted output.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>List</p>
-</dd>
-</dl>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="ts.torch_handler.object_detector.ObjectDetector.threshold">
@@ -966,20 +884,8 @@ Contains various text based utility methods</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="ts.torch_handler.vision_handler.VisionHandler.preprocess">
-<span class="sig-name descname"><span class="pre">preprocess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ts/torch_handler/vision_handler.html#VisionHandler.preprocess"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ts.torch_handler.vision_handler.VisionHandler.preprocess" title="Permalink to this definition">¶</a></dt>
-<dd><p>The preprocess function of MNIST program converts the input data to a float tensor</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>List</em>) – Input data from the request is in the form of a Tensor</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The preprocess function returns the input image as a list of float tensors.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)">list</a></p>
-</dd>
-</dl>
-</dd></dl>
+<span class="sig-name descname"><span class="pre">preprocess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ts.torch_handler.vision_handler.VisionHandler.preprocess" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 

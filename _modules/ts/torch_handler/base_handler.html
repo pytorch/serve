@@ -261,7 +261,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../model_zoo.html">Model Zoo</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../request_envelopes.html">Request Envelopes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../server.html">Running TorchServe</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../mps.html">Running TorchServe with NVIDIA MPS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../nvidia_mps.html">Running TorchServe with NVIDIA MPS</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../snapshot.html">TorchServe model snapshot</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../torchserve_on_win_native.html">TorchServe on Windows</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../torchserve_on_wsl.html">TorchServe on Windows Subsystem for Linux (WSL)</a></li>
@@ -378,6 +378,8 @@
 <span class="kn">import</span> <span class="nn">torch</span>
 <span class="kn">from</span> <span class="nn">pkg_resources</span> <span class="kn">import</span> <span class="n">packaging</span>
 
+<span class="kn">from</span> <span class="nn">ts.handler_utils.timer</span> <span class="kn">import</span> <span class="n">timed</span>
+
 <span class="kn">from</span> <span class="nn">..utils.util</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">check_valid_pt2_backend</span><span class="p">,</span>
     <span class="n">list_classes_from_module</span><span class="p">,</span>
@@ -441,6 +443,13 @@
 <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;proceeding without onnxruntime&quot;</span><span class="p">)</span>
     <span class="n">ONNX_AVAILABLE</span> <span class="o">=</span> <span class="kc">False</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">torch_tensorrt</span>  <span class="c1"># nopycln: import</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Torch TensorRT enabled&quot;</span><span class="p">)</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Torch TensorRT not enabled&quot;</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="setup_ort_session"><a class="viewcode-back" href="../../../api/ts.torch_handler.html#ts.torch_handler.base_handler.setup_ort_session">[docs]</a><span class="k">def</span> <span class="nf">setup_ort_session</span><span class="p">(</span><span class="n">model_pt_path</span><span class="p">,</span> <span class="n">map_location</span><span class="p">):</span>
@@ -625,7 +634,8 @@
             <span class="n">model</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">state_dict</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">model</span>
 
-<div class="viewcode-block" id="BaseHandler.preprocess"><a class="viewcode-back" href="../../../api/ts.torch_handler.html#ts.torch_handler.base_handler.BaseHandler.preprocess">[docs]</a>    <span class="k">def</span> <span class="nf">preprocess</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+    <span class="nd">@timed</span>
+    <span class="k">def</span> <span class="nf">preprocess</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Preprocess function to convert the request input to a tensor(Torchserve supported format).</span>
 <span class="sd">        The user needs to override to customize the pre-processing</span>
@@ -637,9 +647,10 @@
 <span class="sd">            tensor: Returns the tensor data of the input</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
 
-<div class="viewcode-block" id="BaseHandler.inference"><a class="viewcode-back" href="../../../api/ts.torch_handler.html#ts.torch_handler.base_handler.BaseHandler.inference">[docs]</a>    <span class="k">def</span> <span class="nf">inference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="nd">@timed</span>
+    <span class="k">def</span> <span class="nf">inference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        The Inference Function is used to make a prediction call on the given input request.</span>
 <span class="sd">        The user needs to override the inference function to customize it.</span>
@@ -654,9 +665,10 @@
         <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
             <span class="n">marshalled_data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
             <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="n">marshalled_data</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">results</span></div>
+        <span class="k">return</span> <span class="n">results</span>
 
-<div class="viewcode-block" id="BaseHandler.postprocess"><a class="viewcode-back" href="../../../api/ts.torch_handler.html#ts.torch_handler.base_handler.BaseHandler.postprocess">[docs]</a>    <span class="k">def</span> <span class="nf">postprocess</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+    <span class="nd">@timed</span>
+    <span class="k">def</span> <span class="nf">postprocess</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        The post process function makes use of the output from the inference and converts into a</span>
 <span class="sd">        Torchserve supported response output.</span>
@@ -668,7 +680,7 @@
 <span class="sd">            List: The post process function returns a list of the predicted output.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">return</span> <span class="n">data</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span></div>
+        <span class="k">return</span> <span class="n">data</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
 
 <div class="viewcode-block" id="BaseHandler.handle"><a class="viewcode-back" href="../../../api/ts.torch_handler.html#ts.torch_handler.base_handler.BaseHandler.handle">[docs]</a>    <span class="k">def</span> <span class="nf">handle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Entry point for default handler. It takes the data from the input request and returns</span>
@@ -693,6 +705,9 @@
         <span class="n">is_profiler_enabled</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ENABLE_TORCH_PROFILER&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">is_profiler_enabled</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">PROFILER_AVAILABLE</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">manifest</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="c1"># profiler will use to get the model name</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">manifest</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">manifest</span>
                 <span class="n">output</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_infer_with_profiler</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
