@@ -7,7 +7,7 @@
 # The 3 most dangerous folders to change are the following
 # So do not merge code unless you are absolutely sure it works
 # If you're unsure add more people to review
-/ts/ @msaroufim
+/ts/ @msaroufim @mreso
 /frontend/ @lxning @min-jean-cho
 /kubernetes/ @jagadeeshi2i @agunapal
 
