@@ -198,7 +198,7 @@ class BaseHandler(abc.ABC):
                     backend=pt2_backend,
                 )
                 logger.info(f"Compiled model with backend {pt2_backend}")
-            except e:
+            except Exception as e:
                 logger.warning(
                     f"Compiling model model with backend {pt2_backend} has failed \n Proceeding without compilation"
                 )

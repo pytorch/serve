@@ -1,6 +1,7 @@
 # FAQ'S
 Contents of this document.
 * [General](#general)
+* [Performance](#performance)
 * [Deployment and config](#deployment-and-config)
 * [API](#api)
 * [Handler](#handler)
@@ -34,9 +35,23 @@ No, As of now only python based models are supported.
 Torchserve is derived from Multi-Model-Server. However, Torchserve is specifically tuned for Pytorch models. It also has new features like Snapshot and model versioning.
 
 ### How to decode international language in inference response on client side?
-By default, Torchserve uses utf-8 to encode if the inference response is string. So client can use utf-8 to decode. 
+By default, Torchserve uses utf-8 to encode if the inference response is string. So client can use utf-8 to decode.
 
-If a model converts international language string to bytes, client needs to use the codec mechanism specified by the model such as in https://github.com/pytorch/serve/blob/master/examples/nmt_transformer/model_handler_generalized.py#L55
+If a model converts international language string to bytes, client needs to use the codec mechanism specified by the model such as in https://github.com/pytorch/serve/blob/master/examples/nmt_transformer/model_handler_generalized.py
+
+## Performance
+
+Relevant documents.
+- [Performance Guide](performance_guide.md)
+
+### How do I improve TorchServe performance on CPU?
+CPU performance is heavily influenced by launcher core pinning. We recommend setting the following properties in your `config.properties`:
+
+```bash
+cpu_launcher_enable=true
+cpu_launcher_args=--use_logical_core
+```
+More background on improving CPU performance can be found in this [blog post](https://pytorch.org/tutorials/intermediate/torchserve_with_ipex#grokking-pytorch-intel-cpu-performance-from-first-principles).
 
 ## Deployment and config
 Relevant documents.
@@ -97,7 +112,7 @@ TorchServe looks for the config.property file according to the order listed in t
 
 - [models](configuration.md): Defines a list of models' configuration in config.property. A model's configuration can be overridden by [management API](management_api.md). It does not decide which models will be loaded during TorchServe start. There is no relationship b.w "models" and "load_models" (ie. TorchServe command line option [--models](configuration.md)).
 
-### 
+###
 
 ## API
 Relevant documents
@@ -133,7 +148,7 @@ Refer to [default handlers](default_handlers.md) for more details.
 
 ### Is it possible to deploy Hugging Face models?
 Yes, you can deploy Hugging Face models using a custom handler.
-Refer to [HuggingFace_Transformers](https://github.com/pytorch/serve/blob/master/examples/Huggingface_Transformers/README.md#huggingface-transformers) for example. 
+Refer to [HuggingFace_Transformers](https://github.com/pytorch/serve/blob/master/examples/Huggingface_Transformers/README.md#huggingface-transformers) for example.
 
 ## Model-archiver
  Relevant documents
