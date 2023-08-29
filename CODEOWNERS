@@ -4,6 +4,13 @@
 # the repo. Unless a later match takes precedence,
 * @msaroufim @lxning @agunapal
 
+# The 3 most dangerous folders to change are the following
+# So do not merge code unless you are absolutely sure it works
+# If you're unsure add more people to review
+/ts/ @msaroufim
+/frontend/ @lxning @min-jean-cho
+/kubernetes/ @jagadeeshi2i @agunapal
+
 # General owners of various directories
 # Add more rules here as needed
 /examples/ @HamidShojanazeri @agunapal
@@ -11,10 +18,7 @@
 .github @agunapal
 /binaries @agunapal
 /ts_scripts/ @mreso
-/kubernetes/ @jagadeeshi2i
-/frontend/ @lxning @min-jean-cho
 /plugins/ @lxning
-/ts/ @msaroufim
 /docs/ @sekyondaMeta
 /requirements/ @agunapal
 /docker/ @agunapal
