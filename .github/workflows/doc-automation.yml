@@ -2,7 +2,7 @@ on:
   push:
     branches:
       - master
-    merge_group:
+  merge_group:
 
 jobs:
   build_docs_job:
