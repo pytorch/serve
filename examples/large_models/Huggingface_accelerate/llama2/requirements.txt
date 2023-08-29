@@ -1,0 +1,5 @@
+transformers==4.31.0
+accelerate
+bitsandbytes
+scipy
+mpi4py
