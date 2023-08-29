@@ -13,7 +13,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        os: [macOS-latest, windows-latest]
+        os: [macOS-latest]
     steps:
       - name: Setup Conda
         uses: s-weigand/setup-conda@v1
@@ -34,10 +34,10 @@ jobs:
           java-version: '17'
       - name: Build PyPI & conda binaries
         run: python binaries/build.py
-      - name: Push conda binaries
-        env:
-          ANACONDA_API_TOKEN: ${{ secrets.CONDA_PASSWORD }}
-        run: python binaries/upload.py --upload-conda-packages
+      #- name: Push conda binaries
+      #  env:
+      #    ANACONDA_API_TOKEN: ${{ secrets.CONDA_PASSWORD }}
+      #  run: python binaries/upload.py --upload-conda-packages
       - name: Push PyPI binaries
         env:
           TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
