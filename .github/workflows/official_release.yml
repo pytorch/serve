@@ -1,6 +1,8 @@
-name: Make an official Release
+#name: Make an official Release
+name: Test mac release
 
-on: workflow_dispatch
+#on: workflow_dispatch
+on: push
 
 jobs:
   official-release:
