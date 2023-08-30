@@ -30,7 +30,7 @@ class TransformersSeqClassifierHandler(BaseDeepSpeedHandler, ABC):
         partitioned using DeepSpeed.
         Args:
             ctx (context): It is a JSON Object containing information
-            pertaining to the model artefacts parameters.
+            pertaining to the model artifacts parameters.
         """
         super().initialize(ctx)
         model_dir = ctx.system_properties.get("model_dir")
