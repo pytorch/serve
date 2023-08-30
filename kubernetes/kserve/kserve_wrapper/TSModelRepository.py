@@ -26,7 +26,7 @@ class TSModelRepository(ModelRepository):
         Args:
             inference_address (str): The Inference Address present in the kserve side.
             management_address (str): The Management Address present in the kserve side.
-            model_dir (str): the directory of the model artefacts in the kserve side.
+            model_dir (str): the directory of the model artifacts in the kserve side.
         """
         super().__init__(model_dir)
         logging.info("TSModelRepo is initialized")
