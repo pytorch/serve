@@ -60,7 +60,7 @@ Please note that we set the concurrency level to 600 which will make sure that t
 We first perform the single worker benchmark for the G4 instance.
 In the figure below we see that up to a batch size of four we see a steady increase of the throughput over the batch size.
 
-![G4 benchmark, single worker](images/mps_g4_single.png)
+![G4 benchmark, single worker](https://raw.githubusercontent.com/pytorch/serve/master/docs/images/mps_g4_single.png)
 
 Next, we increase the number of workers to two in order to compare the throughput with and without MPS running.
 To enable MPS for the second set of runs we first set the exclusive processing mode for the GPU and then start the MPS daemon as shown above.
@@ -69,19 +69,19 @@ We select the batch size between one and eight according to our previous finding
 In the figure we can see that the performance in terms of throughput can be better in case of batch size 1 and 8 (up to +18%) while it can be worse for others (-11%).
 An interpretation of this result could be that the G4 instance has not many resources to share when we run a BERT model in one of the workers.
 
-![G4 benchmark, two workers](images/mps_g4_two_worker.png)
+![G4 benchmark, two workers](https://raw.githubusercontent.com/pytorch/serve/master/docs/images/mps_g4_two_worker.png)
 
 ### P3 instance
 Next, we will run the same experiment with the bigger p3.2xlarge instance.
 With a single worker we get the following throughput values:
 
-![P3 benchmark, single worker](images/mps_p3_single.png)
+![P3 benchmark, single worker](https://raw.githubusercontent.com/pytorch/serve/master/docs/images/mps_p3_single.png)
 
 We can see that the throughput steady increases but for a batch size over eight we see diminishing returns.
 Finally, we deploy two workers on the P3 instance and compare running them with and without MPS.
 We can see that for batch size between 1 and 32 the throughput is consistently higher (up to +25%) for MPS enabled with the exception of batch size 16.
 
-![P3 benchmark, two workers](images/mps_p3_two_worker.png)
+![P3 benchmark, two workers](https://raw.githubusercontent.com/pytorch/serve/master/docs/images/mps_p3_two_worker.png)
 
 ## Summary
 In the previous section we saw that by enabling MPS for two workers running the same model we receive mixed results.

@@ -12,6 +12,8 @@ import time
 import torch
 from pkg_resources import packaging
 
+from ts.handler_utils.timer import timed
+
 from ..utils.util import (
     check_valid_pt2_backend,
     list_classes_from_module,
@@ -77,7 +79,8 @@ except ImportError as error:
     ONNX_AVAILABLE = False
 
 try:
-    import torch_tensorrt
+    import torch_tensorrt  # nopycln: import
+
     logger.info("Torch TensorRT enabled")
 except ImportError:
     logger.warning("Torch TensorRT not enabled")
@@ -195,7 +198,7 @@ class BaseHandler(abc.ABC):
                     backend=pt2_backend,
                 )
                 logger.info(f"Compiled model with backend {pt2_backend}")
-            except e:
+            except Exception as e:
                 logger.warning(
                     f"Compiling model model with backend {pt2_backend} has failed \n Proceeding without compilation"
                 )
@@ -265,6 +268,7 @@ class BaseHandler(abc.ABC):
             model.load_state_dict(state_dict)
         return model
 
+    @timed
     def preprocess(self, data):
         """
         Preprocess function to convert the request input to a tensor(Torchserve supported format).
@@ -279,6 +283,7 @@ class BaseHandler(abc.ABC):
 
         return torch.as_tensor(data, device=self.device)
 
+    @timed
     def inference(self, data, *args, **kwargs):
         """
         The Inference Function is used to make a prediction call on the given input request.
@@ -296,6 +301,7 @@ class BaseHandler(abc.ABC):
             results = self.model(marshalled_data, *args, **kwargs)
         return results
 
+    @timed
     def postprocess(self, data):
         """
         The post process function makes use of the output from the inference and converts into a

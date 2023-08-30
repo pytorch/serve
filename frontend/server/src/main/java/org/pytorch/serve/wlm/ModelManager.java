@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashSet;
@@ -212,10 +213,14 @@ public final class ModelManager {
 
             String pythonRuntime = EnvironmentUtils.getPythonRunTime(model);
 
+            File dependencyPath = model.getModelDir();
+            if (Files.isSymbolicLink(dependencyPath.toPath())) {
+                dependencyPath = dependencyPath.getParentFile();
+            }
             String packageInstallCommand =
                     pythonRuntime
                             + " -m pip install -U -t "
-                            + model.getModelDir().getAbsolutePath()
+                            + dependencyPath.getAbsolutePath()
                             + " -r "
                             + requirementsFilePath; // NOPMD
 
@@ -251,7 +256,6 @@ public final class ModelManager {
                     errorString.append(line);
                 }
 
-                logger.info("Dependency installation stdout:\n" + outputString.toString());
                 logger.error("Dependency installation stderr:\n" + errorString.toString());
 
                 throw new ModelException(
