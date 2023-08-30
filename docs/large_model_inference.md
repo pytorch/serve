@@ -1,6 +1,13 @@
 # Serving large models with Torchserve
 
 This document explain how Torchserve supports large model serving, here large model refers to the models that are not able to fit into one gpu so they need be split in multiple partitions over multiple gpus.
+This page is split into the following sections:
+- [How it works](#how-it-works)
+- [Large Model Inference with PiPPy](#pippy-pytorch-native-solution-for-large-model-inference)
+- [Large Model Inference with Deep Speed](#deepspeed)
+- [Deep Speed MII](#deepspeed-mii)
+- [Large Hugging Face Models](#serving-large-hugging-face-models-using-accelerate)
+- [Large Model Inference Tips](#large-model-inference-tips)
 
 ## How it works?
 
@@ -175,7 +182,20 @@ torch-model-archiver --model-name bloom --version 1.0 --handler deepspeed_handle
 torch-model-archiver --model-name bloom --version 1.0 --handler deepspeed_handler.py --extra-files ds-config.json -r requirements.txt --config-file model-config.yaml --archive-format
 ```
 
-## Best Practices
+## DeepSpeed MII
+If working with one of the supported models shown [here](https://github.com/microsoft/deepspeed-mii#supported-models-and-tasks) you can take advantage of Deep Speed MII. Deep Speed MII uses Deep Speed Inference along with further advances in deep learning to minimize latency and maximize throughput. It does this for specific model types, model sizes, batch sizes and available hardware resources.
+
+For more information on how to take advantage of Deep Speed MII on supported models, see the information [here](https://github.com/microsoft/DeepSpeed-MII).
+You can also find an example of how to apply this to TorchServe [here](https://github.com/pytorch/serve/tree/master/examples/large_models/deepspeed_mii).
+
+## Serving Large Hugging Face Models Using Accelerate
+
+If working with large Hugging Face models but have limited resources, you can use accelerate to serve these models. To achieve this, you would need to set `low_cpu_mem_usage=True` and set the `device_map="auto" in the setup_config.json file.
+
+For more information on using accelerate with large Hugging Face models, see [this example](https://github.com/pytorch/serve/tree/master/examples/large_models/Huggingface_accelerate).
+
+
+## Large Model Inference Tips
 
 #### Reducing model loading latency
 
