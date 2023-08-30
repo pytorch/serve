@@ -370,7 +370,16 @@
               
   <section id="serving-large-models-with-torchserve">
 <h1>Serving large models with Torchserve<a class="headerlink" href="#serving-large-models-with-torchserve" title="Permalink to this heading">¶</a></h1>
-<p>This document explain how Torchserve supports large model serving, here large model refers to the models that are not able to fit into one gpu so they need be split in multiple partitions over multiple gpus.</p>
+<p>This document explain how Torchserve supports large model serving, here large model refers to the models that are not able to fit into one gpu so they need be split in multiple partitions over multiple gpus.
+This page is split into the following sections:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="#how-it-works">How it works</a></p></li>
+<li><p><a class="reference external" href="#pippy-pytorch-native-solution-for-large-model-inference">Large Model Inference with PiPPy</a></p></li>
+<li><p><a class="reference external" href="#deepspeed">Large Model Inference with Deep Speed</a></p></li>
+<li><p><a class="reference external" href="#deepspeed-mii">Deep Speed MII</a></p></li>
+<li><p><a class="reference external" href="#serving-large-hugging-face-models-using-accelerate">Large Hugging Face Models</a></p></li>
+<li><p><a class="reference external" href="#large-model-inference-tips">Large Model Inference Tips</a></p></li>
+</ul>
 <section id="how-it-works">
 <h2>How it works?<a class="headerlink" href="#how-it-works" title="Permalink to this heading">¶</a></h2>
 <p>During deployment a worker of a large model, TorchServe utilizes <a class="reference external" href="https://pytorch.org/docs/stable/elastic/run.html">torchrun</a> to set up the distributed environment for model parallel processing. TorchServe has the capability to support multiple workers for a large model. By default, TorchServe uses a round-robin algorithm to assign GPUs to a worker on a host. In case of large models inference GPUs assigned to each worker is automatically calculated based on number of GPUs specified in the model_config.yaml. CUDA_VISIBLE_DEVICES is set based this number.</p>
@@ -510,8 +519,19 @@ torch-model-archiver<span class="w"> </span>--model-name<span class="w"> </span>
 </div>
 </section>
 </section>
-<section id="best-practices">
-<h2>Best Practices<a class="headerlink" href="#best-practices" title="Permalink to this heading">¶</a></h2>
+<section id="deepspeed-mii">
+<h2>DeepSpeed MII<a class="headerlink" href="#deepspeed-mii" title="Permalink to this heading">¶</a></h2>
+<p>If working with one of the supported models shown <a class="reference external" href="https://github.com/microsoft/deepspeed-mii#supported-models-and-tasks">here</a> you can take advantage of Deep Speed MII. Deep Speed MII uses Deep Speed Inference along with further advances in deep learning to minimize latency and maximize throughput. It does this for specific model types, model sizes, batch sizes and available hardware resources.</p>
+<p>For more information on how to take advantage of Deep Speed MII on supported models, see the information <a class="reference external" href="https://github.com/microsoft/DeepSpeed-MII">here</a>.
+You can also find an example of how to apply this to TorchServe <a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/large_models/deepspeed_mii">here</a>.</p>
+</section>
+<section id="serving-large-hugging-face-models-using-accelerate">
+<h2>Serving Large Hugging Face Models Using Accelerate<a class="headerlink" href="#serving-large-hugging-face-models-using-accelerate" title="Permalink to this heading">¶</a></h2>
+<p>If working with large Hugging Face models but have limited resources, you can use accelerate to serve these models. To achieve this, you would need to set <code class="docutils literal notranslate"><span class="pre">low_cpu_mem_usage=True</span></code> and set the `device_map=”auto” in the setup_config.json file.</p>
+<p>For more information on using accelerate with large Hugging Face models, see <a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/large_models/Huggingface_accelerate">this example</a>.</p>
+</section>
+<section id="large-model-inference-tips">
+<h2>Large Model Inference Tips<a class="headerlink" href="#large-model-inference-tips" title="Permalink to this heading">¶</a></h2>
 <section id="reducing-model-loading-latency">
 <h3>Reducing model loading latency<a class="headerlink" href="#reducing-model-loading-latency" title="Permalink to this heading">¶</a></h3>
 <p>To reduce model latency we recommend:</p>
@@ -669,7 +689,9 @@ torch-model-archiver<span class="w"> </span>--model-name<span class="w"> </span>
 <li><a class="reference internal" href="#how-to-use-deepspeed-in-torchserve">How to use DeepSpeed in TorchServe</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#best-practices">Best Practices</a><ul>
+<li><a class="reference internal" href="#deepspeed-mii">DeepSpeed MII</a></li>
+<li><a class="reference internal" href="#serving-large-hugging-face-models-using-accelerate">Serving Large Hugging Face Models Using Accelerate</a></li>
+<li><a class="reference internal" href="#large-model-inference-tips">Large Model Inference Tips</a><ul>
 <li><a class="reference internal" href="#reducing-model-loading-latency">Reducing model loading latency</a></li>
 <li><a class="reference internal" href="#tune-model-config-yaml-file">Tune model config YAML file</a></li>
 <li><a class="reference internal" href="#latency-sensitive-applications">Latency Sensitive Applications</a></li>
