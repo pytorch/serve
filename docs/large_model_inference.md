@@ -1,6 +1,13 @@
 # Serving large models with Torchserve
 
 This document explain how Torchserve supports large model serving, here large model refers to the models that are not able to fit into one gpu so they need be split in multiple partitions over multiple gpus.
+This page is split into the following sections:
+- [How it works](#how-it-works)
+- [Large Model Inference with PiPPy](#pippy-pytorch-native-solution-for-large-model-inference)
+- [Large Model Inference with Deep Speed](#deepspeed)
+- [Deep Speed MII](#deepspeed-mii)
+- [Large Hugging Face Models](#serving-large-hugging-face-models-using-accelerate)
+- [Large Model Inference Tips](#large-model-inference-tips)
 
 ## How it works?
 
@@ -175,18 +182,35 @@ torch-model-archiver --model-name bloom --version 1.0 --handler deepspeed_handle
 torch-model-archiver --model-name bloom --version 1.0 --handler deepspeed_handler.py --extra-files ds-config.json -r requirements.txt --config-file model-config.yaml --archive-format
 ```
 
-## Best Practice
+## DeepSpeed MII
+If working with one of the supported models shown [here](https://github.com/microsoft/deepspeed-mii#supported-models-and-tasks) you can take advantage of Deep Speed MII. Deep Speed MII uses Deep Speed Inference along with further advances in deep learning to minimize latency and maximize throughput. It does this for specific model types, model sizes, batch sizes and available hardware resources.
 
-#### To reduce model loading latency, we recommend
-* Pre-install the model parallel library such as Deepspeed on the container or host.
-* Pre-download the model checkpoints. For example, if using HuggingFace pretrained model can be pre-downloaded via [Download_model.py](https://github.com/pytorch/serve/blob/75f66dc557b3b67a3ab56536a37d7aa21582cc04/examples/large_models/deepspeed/opt/Readme.md?plain=1#L7)
+For more information on how to take advantage of Deep Speed MII on supported models, see the information [here](https://github.com/microsoft/DeepSpeed-MII).
+You can also find an example of how to apply this to TorchServe [here](https://github.com/pytorch/serve/tree/master/examples/large_models/deepspeed_mii).
+
+## Serving Large Hugging Face Models Using Accelerate
+
+If working with large Hugging Face models but have limited resources, you can use accelerate to serve these models. To achieve this, you would need to set `low_cpu_mem_usage=True` and set the `device_map="auto" in the setup_config.json file.
+
+For more information on using accelerate with large Hugging Face models, see [this example](https://github.com/pytorch/serve/tree/master/examples/large_models/Huggingface_accelerate).
+
+
+## Large Model Inference Tips
+
+#### Reducing model loading latency
+
+To reduce model latency we recommend:
+* Pre-installing the model parallel library such as Deepspeed on the container or host.
+* Pre-downloading the model checkpoints. For example, if using HuggingFace, a pretrained model can be pre-downloaded via [Download_model.py](https://github.com/pytorch/serve/blob/75f66dc557b3b67a3ab56536a37d7aa21582cc04/examples/large_models/deepspeed/opt/Readme.md#loading-large-huggingface-models-on-multiple-gpus
+)
   * Set environment variable [HUGGINGFACE_HUB_CACHE](https://huggingface.co/docs/huggingface_hub/guides/manage-cache#understand-caching) and [TRANSFORMERS_CACHE](https://huggingface.co/transformers/v4.0.1/installation.html#caching-models)
   * Download model to the HuggingFace cache dir via tool [Download_model.py](https://github.com/pytorch/serve/blob/4fe5273cd6f98fb5abc570f802b402ac32ecd105/examples/large_models/Huggingface_pippy/Readme.md?plain=1#L20)
 
-#### Tune "[responseTimeout](https://github.com/pytorch/serve/blob/5ee02e4f050c9b349025d87405b246e970ee710b/docs/configuration.md?plain=1#L216)" (see [model config YAML file](https://github.com/pytorch/serve/blob/5ee02e4f050c9b349025d87405b246e970ee710b/model-archiver/README.md?plain=1#L164)) if high model loading or inference latency causes response timeout.
+#### Tune [model config YAML file](https://github.com/pytorch/serve/blob/5ee02e4f050c9b349025d87405b246e970ee710b/model-archiver/README.md)
 
-#### Tune torchrun parameters
-User is able to tune torchrun parameters in [model config YAML file](https://github.com/pytorch/serve/blob/2f1f52f553e83703b5c380c2570a36708ee5cafa/model-archiver/README.md?plain=1#L179). The supported parameters are defined at [here](https://github.com/pytorch/serve/blob/2f1f52f553e83703b5c380c2570a36708ee5cafa/frontend/archive/src/main/java/org/pytorch/serve/archive/model/ModelConfig.java#L329). For example, by default, `OMP_NUMBER_THREADS` is 1. It can be modified in the YAML file.
+ You can tune the model config YAML file to get better performance in the following ways:
+* Update the [responseTimeout](https://github.com/pytorch/serve/blob/5ee02e4f050c9b349025d87405b246e970ee710b/docs/configuration.md?plain=1#L216) if high model loading or inference latency causes response timeout.
+* Tune the [torchrun parameters](https://github.com/pytorch/serve/blob/2f1f52f553e83703b5c380c2570a36708ee5cafa/model-archiver/README.md?plain=1#L179). The supported parameters are defined at [here](https://github.com/pytorch/serve/blob/2f1f52f553e83703b5c380c2570a36708ee5cafa/frontend/archive/src/main/java/org/pytorch/serve/archive/model/ModelConfig.java#L329). For example, by default, `OMP_NUMBER_THREADS` is 1. This can be modified in the YAML file.
 ```yaml
 #frontend settings
 torchrun:
@@ -194,10 +218,13 @@ torchrun:
                       # gpus you wish to split your model
     OMP_NUMBER_THREADS: 2
 ```
-#### Feature Job ticket is recommended for the use case of inference latency sensitive
-When the job ticket feature is enabled, TorchServe verifies the availability of a model's active worker for processing a client's request. If an active worker is available, the request is accepted and processed immediately without waiting time incurred from job queue or dynamic batching; otherwise, a 503 response is sent back to client.
+#### Latency Sensitive Applications
 
-This feature help with use cases where inference latency can be high, such as generative models, auto regressive decoder models like chatGPT. This feature help such applications to take effective actions, for example, routing the rejected request to a different server, or scaling up model server capacity, based on the business requirements. Here is an example of enabling job ticket.
+#### Job Ticket
+
+The job ticket feature is recommended for the use case of latency sensitive inference. When job ticket is enabled, TorchServe verifies the availability of a model's active worker for processing a client's request. If an active worker is available, the request is accepted and processed immediately without the waiting time incurred from the job queue or dynamic batching; otherwise, a 503 response is sent back to the client.
+
+This feature helps with use cases where inference latency can be high, such as generative models, auto regressive decoder models like chatGPT. This feature helps such applications take effective actions, for example, routing the rejected request to a different server, or scaling up model server capacity, based on the business requirements. Here is an example of enabling job ticket.
 ```yaml
 minWorkers: 2
 maxWorkers: 2
@@ -205,3 +232,63 @@ jobQueueSize: 2
 useJobTicket: true
 ```
 In this example, a model has 2 workers with job queue size 2. An inference request will be either processed by TorchServe immediately, or rejected with response code 503.
+
+#### Streaming response via HTTP 1.1 chunked encoding
+
+TorchServe's inference API supports streaming response to allow a sequence of inference responses to be sent over HTTP 1.1 chunked encoding. This feature is only recommended for the use case when the inference latency of the full response is high and the inference intermediate results are sent to the client. An example could be LLMs for generative applications, where generating "n" number of tokens can have high latency. In this case,  the user can receive each generated token once ready until the full response completes. To achieve streaming response, the backend handler calls "send_intermediate_predict_response" to send one intermediate result to the frontend, and returns the last result as the existing style. For example,
+
+```python
+from ts.protocol.otf_message_handler import send_intermediate_predict_response
+def handle(data, context):
+    if type(data) is list:
+        for i in range (3):
+            send_intermediate_predict_response(["intermediate_response"], context.request_ids, "Intermediate Prediction success", 200, context)
+        return ["hello world "]
+```
+Client side receives the chunked data.
+```python
+import test_utils
+
+def test_echo_stream_inference():
+    test_utils.start_torchserve(no_config_snapshots=True, gen_mar=False)
+    test_utils.register_model('echo_stream',
+                              'https://torchserve.pytorch.org/mar_files/echo_stream.mar')
+
+    response = requests.post(TF_INFERENCE_API + '/predictions/echo_stream', data="foo", stream=True)
+    assert response.headers['Transfer-Encoding'] == 'chunked'
+
+    prediction = []
+    for chunk in (response.iter_content(chunk_size=None)):
+        if chunk:
+            prediction.append(chunk.decode("utf-8"))
+
+    assert str(" ".join(prediction)) == "hello hello hello hello world "
+    test_utils.unregister_model('echo_stream')
+```
+
+#### GRPC Server Side Streaming
+
+TorchServe [GRPC API](grpc_api.md) adds server side streaming of the inference API "StreamPredictions" to allow a sequence of inference responses to be sent over the same GRPC stream. This API is only recommended for use case when the inference latency of the full response is high and the inference intermediate results are sent to the client. An example could be LLMs for generative applications, where generating "n" number of tokens can have high latency. Similar to the HTTP 1.1 chunked encoding, with this feature the user can receive each generated token once ready until the full response completes. This API automatically forces the batchSize to be one.
+
+```
+service InferenceAPIsService {
+    // Check health status of the TorchServe server.
+    rpc Ping(google.protobuf.Empty) returns (TorchServeHealthResponse) {}
+
+    // Predictions entry point to get inference using default model version.
+    rpc Predictions(PredictionsRequest) returns (PredictionResponse) {}
+
+    // Streaming response for an inference request.
+    rpc StreamPredictions(PredictionsRequest) returns (stream PredictionResponse) {}
+}
+```
+Backend handler calls "send_intermediate_predict_response" to send one intermediate result to frontend, and return the last result as the existing style. For example
+```python
+from ts.protocol.otf_message_handler import send_intermediate_predict_response
+
+def handle(data, context):
+    if type(data) is list:
+        for i in range (3):
+            send_intermediate_predict_response(["intermediate_response"], context.request_ids, "Intermediate Prediction success", 200, context)
+        return ["hello world "]
+```

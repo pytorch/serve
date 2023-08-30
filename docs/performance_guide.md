@@ -1,6 +1,8 @@
 # [Performance Guide](#performance-guide)
 In case you're interested in optimizing the memory usage, latency or throughput of a PyTorch model served with TorchServe, this is the guide for you.
 
+We have also created a quick checklist here for extra things to try outside of what is covered on this page. You can find the checklist [here](performance_checklist.md).
+
 ## Optimizing PyTorch
 
 There are many tricks to optimize PyTorch models for production including but not limited to distillation, quantization, fusion, pruning, setting environment variables and we encourage you to benchmark and see what works best for you.
@@ -15,6 +17,8 @@ At a high level what TorchServe allows you to do is
 1. Package serialized ONNX weights `torch-model-archiver --serialized-file model.onnx ...`
 2. Load those weights from `base_handler.py` using `ort_session = ort.InferenceSession(self.model_pt_path, providers=providers, sess_options=sess_options)` which supports reasonable defaults for both CPU and GPU inference
 3. Allow you define custom pre and post processing functions to pass in data in the format your onnx model expects with a custom handler
+
+To use ONNX with GPU on TorchServe Docker, we need to build an image with [NVIDIA CUDA runtime](https://github.com/NVIDIA/nvidia-docker/wiki/CUDA) as the base image as shown [here](https://github.com/pytorch/serve/blob/master/docker/README.md#create-torchserve-docker-image)
 
  <h4>TensorRT<h4>
 
@@ -40,11 +44,17 @@ TorchServe exposes configurations that allow the user to configure the number of
 
 <h4>TorchServe On CPU </h4>
 
-If working with TorchServe on a CPU here are some things to consider that could improve performance:
+If working with TorchServe on a CPU you can improve performance by setting the following in your `config.properties`:
+
+```bash
+cpu_launcher_enable=true
+cpu_launcher_args=--use_logical_core
+```
+These settings improve performance significantly through launcher core pinning.
+The theory behind this improvement is discussed in [this blog](https://pytorch.org/tutorials/intermediate/torchserve_with_ipex#grokking-pytorch-intel-cpu-performance-from-first-principles) which can be quickly summarized as:
 * In a hyperthreading enabled system, avoid logical cores by setting thread affinity to physical cores only via core pinning.
 * In a multi-socket system with NUMA, avoid cross-socket remote memory access by setting thread affinity to a specific socket via core pinning.
 
-These principles can be automatically configured via an easy to use launch script which has already been integrated into TorchServe. For more information take a look at this [case study](https://pytorch.org/tutorials/intermediate/torchserve_with_ipex#grokking-pytorch-intel-cpu-performance-from-first-principles) which dives into these points further with examples and explanations from first principles.
 
 <h4>TorchServe on GPU</h4>
 
@@ -59,7 +69,7 @@ While NVIDIA GPUs allow multiple processes to run on CUDA kernels, this comes wi
 * The execution of the kernels is generally serialized
 * Each processes creates its own CUDA context which occupies additional GPU memory
 
-To get around these drawbacks, you can utilize the NVIDIA Multi-Process Service (MPS) to increase performance. You can find more information on how to utilize NVIDIA MPS with TorchServe  [here](mps.md).
+To get around these drawbacks, you can utilize the NVIDIA Multi-Process Service (MPS) to increase performance. You can find more information on how to utilize NVIDIA MPS with TorchServe  [here](nvidia_mps.md).
 
 <h6> NVIDIA DALI</h6>
 
@@ -77,7 +87,7 @@ You can find more information on TorchServe benchmarking [here](https://github.c
 
 TorchServe has native support for the PyTorch profiler which will help you find performance bottlenecks in your code.
 
-If you created a custom `handle` or `initialize` method overwriting the BaseHandler, you must define the `self.manifest` attribute to be able to run `_infer_with_profiler`.  
+If you created a custom `handle` or `initialize` method overwriting the BaseHandler, you must define the `self.manifest` attribute to be able to run `_infer_with_profiler`.
 
 ```
 export ENABLE_TORCH_PROFILER=TRUE
@@ -90,3 +100,7 @@ Visit this [link]( https://github.com/pytorch/kineto/tree/main/tb_plugin) to lea
 <h4>TorchServe on the Animated Drawings App</h4>
 
 For some insight into fine tuning TorchServe performance in an application, take a look at this [article](https://pytorch.org/blog/torchserve-performance-tuning/). The case study shown here uses the Animated Drawings App form Meta to improve TorchServe Performance.
+
+<h4>Performance Checklist</h4>
+
+We have also created a quick checklist here for extra things to try outside of what is covered on this page. You can find the checklist [here](performance_checklist.md).

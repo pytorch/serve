@@ -28,7 +28,7 @@ class LLMHandler(BaseHandler, ABC):
         partitioned into multiple stages each on one device using PiPPy.
         Args:
             ctx (context): It is a JSON Object containing information
-            pertaining to the model artefacts parameters.
+            pertaining to the model artifacts parameters.
         """
 
         self.manifest = ctx.manifest

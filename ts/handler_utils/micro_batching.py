@@ -139,7 +139,7 @@ class MicroBatching(object):
         Args:
             data (list): The input data that needs to be made a prediction request on.
             context (Context): It is a JSON Object containing information pertaining to
-                               the model artefacts parameters.
+                               the model artifacts parameters.
 
         Returns:
             list : Returns a list of dictionary with the predicted response.

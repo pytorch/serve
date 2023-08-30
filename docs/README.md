@@ -52,4 +52,4 @@ TorchServe is a performant, flexible and easy to use tool for serving PyTorch ea
 * [TorchServe on Kubernetes](https://github.com/pytorch/serve/blob/master/kubernetes/README.md#torchserve-on-kubernetes) -  Demonstrates a Torchserve deployment in Kubernetes using Helm Chart supported in both Azure Kubernetes Service and Google Kubernetes service
 * [mlflow-torchserve](https://github.com/mlflow/mlflow-torchserve) - Deploy mlflow pipeline models into TorchServe
 * [Kubeflow pipelines](https://github.com/kubeflow/pipelines/tree/master/samples/contrib/pytorch-samples) - Kubeflow pipelines and Google Vertex AI Managed pipelines
-* [NVIDIA MPS](mps.md) - Use NVIDIA MPS to optimize multi-worker deployment on a single GPU
+* [NVIDIA MPS](nvidia_mps.md) - Use NVIDIA MPS to optimize multi-worker deployment on a single GPU

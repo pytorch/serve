@@ -142,7 +142,7 @@ spec:
 kubectl apply -f hpa.yaml
 ```
 
-### 5. Check status of HPG
+### 5. Check status of HPA
 
 ```bash
 kubectl describe hpa torchserve

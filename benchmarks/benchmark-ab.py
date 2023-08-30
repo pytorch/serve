@@ -30,6 +30,7 @@ default_ab_params = {
     "image": "",
     "docker_runtime": "",
     "backend_profiling": False,
+    "handler_profiling": False,
     "generate_graphs": False,
     "config_properties": "config.properties",
     "inference_model_url": "predictions/benchmark",
@@ -96,6 +97,12 @@ def json_provider(file_path, cmd_name):
     help="Enable backend profiling using CProfile. Default False",
 )
 @click.option(
+    "--handler_profiling",
+    "-hp",
+    default=False,
+    help="Enable handler profiling. Default False",
+)
+@click.option(
     "--generate_graphs",
     "-gg",
     default=False,
@@ -143,6 +150,7 @@ def benchmark(
     image,
     docker_runtime,
     backend_profiling,
+    handler_profiling,
     config_properties,
     inference_model_url,
     report_location,
@@ -163,6 +171,7 @@ def benchmark(
         "image": image,
         "docker_runtime": docker_runtime,
         "backend_profiling": backend_profiling,
+        "handler_profiling": handler_profiling,
         "config_properties": config_properties,
         "inference_model_url": inference_model_url,
         "report_location": report_location,
@@ -469,12 +478,25 @@ metrics = {
 }
 
 
+def update_metrics():
+    if execution_params["handler_profiling"]:
+        opt_metrics = {
+            "handler_preprocess.txt": "ts_handler_preprocess",
+            "handler_inference.txt": "ts_handler_inference",
+            "handler_postprocess.txt": "ts_handler_postprocess",
+        }
+        metrics.update(opt_metrics)
+    return metrics
+
+
 def extract_metrics(warm_up_lines):
     with open(execution_params["metric_log"]) as f:
         lines = f.readlines()
 
     click.secho(f"Dropping {warm_up_lines} warmup lines from log", fg="green")
     lines = lines[warm_up_lines:]
+
+    metrics = update_metrics()
 
     for k, v in metrics.items():
         all_lines = []
