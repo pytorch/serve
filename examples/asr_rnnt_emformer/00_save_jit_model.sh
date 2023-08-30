@@ -1,6 +1,6 @@
 #!/bin/bash
 
-CONTAINER=pytorch/torchserve:0.6.0-cpu
+CONTAINER=pytorch/torchserve:0.8.2-cpu
 
 docker run --rm \
 -v $PWD:/home/model-server \

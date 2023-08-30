@@ -1,6 +1,6 @@
 #!/bin/bash
 
-CONTAINER=pytorch/torchserve:0.6.0-cpu
+CONTAINER=pytorch/torchserve:0.8.2-cpu
 # CONTAINER=763104351884.dkr.ecr.us-east-1.amazonaws.com/pytorch-inference:1.11.0-cpu-py38-ubuntu20.04-e3
 
 # create mar
