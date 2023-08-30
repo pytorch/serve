@@ -3,6 +3,8 @@
 #include <folly/json.h>
 
 #include <fstream>
+#include <opencv2/cudaimgproc.hpp>
+#include <opencv2/cudawarping.hpp>
 #include <opencv2/opencv.hpp>
 
 namespace resnet {
@@ -88,7 +90,6 @@ std::vector<torch::jit::IValue> ResnetHandler::Preprocess(
           std::cerr << "Failed to decode the image.\n";
         }
 
-        // Crop image
         const int rows = image.rows;
         const int cols = image.cols;
 
@@ -99,20 +100,31 @@ std::vector<torch::jit::IValue> ResnetHandler::Preprocess(
         const cv::Rect roi(offsetW, offsetH, cropSize, cropSize);
         image = image(roi);
 
-        // Resize
-        cv::resize(image, image, cv::Size(kTargetImageSize, kTargetImageSize));
+        // Convert the image to GPU Mat
+        cv::cuda::GpuMat gpuImage;
+        cv::Mat resultImage;
 
-        // Convert BGR to RGB format
-        cv::cvtColor(image, image, cv::COLOR_BGR2RGB);
+        gpuImage.upload(image);
 
-        image.convertTo(image, CV_32FC3, 1 / 255.0);
+        // Resize on GPU
+        cv::cuda::resize(gpuImage, gpuImage,
+                         cv::Size(kTargetImageSize, kTargetImageSize));
 
-        // Convert the OpenCV image to a torch tensor
+        // Convert to BGR on GPU
+        cv::cuda::cvtColor(gpuImage, gpuImage, cv::COLOR_BGR2RGB);
+
+        // Convert to float on GPU
+        gpuImage.convertTo(gpuImage, CV_32FC3, 1 / 255.0);
+
+        // Download the final image from GPU to CPU
+        gpuImage.download(resultImage);
+
+        // Create a tensor from the CPU Mat
         torch::Tensor tensorImage = torch::from_blob(
-            image.data, {image.rows, image.cols, 3}, c10::kFloat);
+            resultImage.data, {resultImage.rows, resultImage.cols, 3},
+            torch::kFloat);
         tensorImage = tensorImage.permute({2, 0, 1});
 
-        // Normalize
         std::vector<double> norm_mean = {kImageNormalizationMeanR,
                                          kImageNormalizationMeanG,
                                          kImageNormalizationMeanB};
@@ -120,6 +132,7 @@ std::vector<torch::jit::IValue> ResnetHandler::Preprocess(
                                         kImageNormalizationStdG,
                                         kImageNormalizationStdB};
 
+        // Normalize the tensor
         tensorImage = torch::data::transforms::Normalize<>(
             norm_mean, norm_std)(tensorImage);
 
