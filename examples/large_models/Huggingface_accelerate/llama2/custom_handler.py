@@ -3,23 +3,24 @@ from abc import ABC
 
 import torch
 import transformers
-from transformers import AutoConfig, AutoModelForCausalLM, AutoTokenizer
+from transformers import AutoConfig, AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
+from accelerate import init_empty_weights
+from accelerate import load_checkpoint_and_dispatch
 
 from ts.context import Context
-from ts.handler_utils.distributed.deepspeed import get_ds_engine
-from ts.torch_handler.distributed.base_deepspeed_handler import BaseDeepSpeedHandler
+from ts.torch_handler.base_handler import BaseHandler
 
 logger = logging.getLogger(__name__)
 logger.info("Transformers version %s", transformers.__version__)
 
 
-class TransformersSeqClassifierHandler(BaseDeepSpeedHandler, ABC):
+class LlamaHandler(BaseHandler, ABC):
     """
     Transformers handler class for sequence, token classification and question answering.
     """
 
     def __init__(self):
-        super(TransformersSeqClassifierHandler, self).__init__()
+        super(LlamaHandler, self).__init__()
         self.max_length = None
         self.max_new_tokens = None
         self.tokenizer = None
@@ -32,28 +33,31 @@ class TransformersSeqClassifierHandler(BaseDeepSpeedHandler, ABC):
             ctx (context): It is a JSON Object containing information
             pertaining to the model artifacts parameters.
         """
-        super().initialize(ctx)
         model_dir = ctx.system_properties.get("model_dir")
         self.max_length = int(ctx.model_yaml_config["handler"]["max_length"])
         self.max_new_tokens = int(ctx.model_yaml_config["handler"]["max_new_tokens"])
         model_name = ctx.model_yaml_config["handler"]["model_name"]
-        model_path = ctx.model_yaml_config["handler"]["model_path"]
+        model_path = f'{model_dir}/{ctx.model_yaml_config["handler"]["model_path"]}'
         seed = int(ctx.model_yaml_config["handler"]["manual_seed"])
         torch.manual_seed(seed)
 
         logger.info("Model %s loading tokenizer", ctx.model_name)
-
+        self.model = AutoModelForCausalLM.from_pretrained(
+            model_path,
+            device_map="balanced",
+            low_cpu_mem_usage=True,
+            torch_dtype=torch.float16,
+            load_in_8bit=True,
+            trust_remote_code=True)
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
-        self.tokenizer.pad_token = self.tokenizer.eos_token
-        config = AutoConfig.from_pretrained(model_name)
-        with torch.device("meta"):
-            self.model = AutoModelForCausalLM.from_config(
-                config, torch_dtype=torch.float16
-            )
-        self.model = self.model.eval()
+        self.tokenizer.add_special_tokens(
+            {
+         
+            "pad_token": "<PAD>",
+            }
+        )
+        self.model.resize_token_embeddings(self.model.config.vocab_size + 1) 
 
-        ds_engine = get_ds_engine(self.model, ctx)
-        self.model = ds_engine.module
         logger.info("Model %s loaded successfully", ctx.model_name)
         self.initialized = True
 
@@ -73,7 +77,7 @@ class TransformersSeqClassifierHandler(BaseDeepSpeedHandler, ABC):
             input_ids, attention_mask = self.encode_input_text(input_text)
             input_ids_batch.append(input_ids)
             attention_mask_batch.append(attention_mask)
-        input_ids_batch = torch.cat(input_ids_batch, dim=0).to(self.device)
+        input_ids_batch = torch.cat(input_ids_batch, dim=0).to(self.model.device)
         attention_mask_batch = torch.cat(attention_mask_batch, dim=0).to(self.device)
         return input_ids_batch, attention_mask_batch
 

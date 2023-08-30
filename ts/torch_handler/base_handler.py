@@ -198,7 +198,7 @@ class BaseHandler(abc.ABC):
                     backend=pt2_backend,
                 )
                 logger.info(f"Compiled model with backend {pt2_backend}")
-            except e:
+            except Exception as e:
                 logger.warning(
                     f"Compiling model model with backend {pt2_backend} has failed \n Proceeding without compilation"
                 )
@@ -233,7 +233,7 @@ class BaseHandler(abc.ABC):
         Loads the pickle file from the given model path.
 
         Args:
-            model_dir (str): Points to the location of the model artefacts.
+            model_dir (str): Points to the location of the model artifacts.
             model_file (.py): the file which contains the model class.
             model_pt_path (str): points to the location of the model pickle file.
 
@@ -323,7 +323,7 @@ class BaseHandler(abc.ABC):
         Args:
             data (list): The input data that needs to be made a prediction request on.
             context (Context): It is a JSON Object containing information pertaining to
-                               the model artefacts parameters.
+                               the model artifacts parameters.
 
         Returns:
             list : Returns a list of dictionary with the predicted response.

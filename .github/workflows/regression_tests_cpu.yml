@@ -7,6 +7,7 @@ on:
   pull_request:
     branches:
       - master
+  merge_group:
 
 concurrency:
   group: ci-cpu-${{ github.workflow }}-${{ github.ref == 'refs/heads/master' && github.run_number || github.ref }}
