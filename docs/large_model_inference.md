@@ -190,7 +190,7 @@ You can also find an example of how to apply this to TorchServe [here](https://g
 
 ## Serving Large Hugging Face Models Using Accelerate
 
-If working with large Hugging Face models but have limited resources, you can use accelerate to serve these models. To achieve this, you would need to set `low_cpu_mem_usage=True` in the config.json file.
+If working with large Hugging Face models but have limited resources, you can use accelerate to serve these models. To achieve this, you would need to set `low_cpu_mem_usage=True` and set the `device_map="auto" in the setup_config.json file.
 
 For more information on using accelerate with large Hugging Face models, see [this example](https://github.com/pytorch/serve/tree/master/examples/large_models/Huggingface_accelerate).
 
