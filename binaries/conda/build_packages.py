@@ -153,8 +153,8 @@ def conda_build(
                 # Skip linux-64 since it already exists
                 if platform == "linux-64":
                     continue
-                print(f"## In directory: {os.getcwd()}; Executing command: {cmd}")
                 cmd = f"{CONDA_BINARY} convert {file_path} -p {platform} -o {CONDA_PACKAGES_PATH}"
+                print(f"## In directory: {os.getcwd()}; Executing command: {cmd}")
                 try_and_handle(cmd, False)
 
     return 0  # Used for sys.exit(0) --> to indicate successful system exit
