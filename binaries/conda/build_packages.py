@@ -19,7 +19,7 @@ CONDA_PACKAGES_PATH = os.path.join(REPO_ROOT, "binaries", "conda", "output")
 CONDA_LINUX_PACKAGES_PATH = os.path.join(
     REPO_ROOT, "binaries", "conda", "output", "linux-64"
 )
-PACKAGES = ["torchserve", "model-archiver", "workflow-archiver"]
+PACKAGES = ["torchserve", "torch-model-archiver", "torch-workflow-archiver"]
 
 # conda convert supported platforms https://docs.conda.io/projects/conda-build/en/stable/resources/commands/conda-convert.html
 PLATFORMS = ["linux-64", "osx-64", "win-64"]  # Add a new platform here
@@ -131,10 +131,7 @@ def conda_build(
     os.environ["PYTHON"] = "python"
 
     python_versions = ["3.8", "3.9", "3.10"]
-    packages = [
-        os.path.join(conda_build_dir, pkg)
-        for pkg in ["torchserve", "torch-model-archiver", "torch-workflow-archiver"]
-    ]
+    packages = [os.path.join(conda_build_dir, pkg) for pkg in PACKAGES]
 
     # Generate conda binaries for linux-64
     for pkg in packages:
