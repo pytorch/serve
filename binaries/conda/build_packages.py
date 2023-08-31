@@ -145,9 +145,9 @@ def conda_build(
     for file in os.listdir(CONDA_LINUX_PACKAGES_PATH):
         file_path = os.path.join(CONDA_LINUX_PACKAGES_PATH, file)
         # Identify *.tar.bz2 files to convert
-        if any(word in file_path for word in PACKAGES) and file_path.endswith(
-            "tar.bz2"
-        ):
+        if any(
+            package_name in file_path for package_name in PACKAGES
+        ) and file_path.endswith("tar.bz2"):
             for platform in PLATFORMS:
                 # Skip linux-64 since it already exists
                 if platform == "linux-64":
