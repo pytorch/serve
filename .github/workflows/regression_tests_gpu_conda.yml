@@ -1,7 +1,8 @@
 name: Run Regression Tests on GPU for Conda nightly
 
 on:
-  push
+  pull_request:
+  #push
   # run every day at 7:15am
   #schedule:
   #  - cron:  '15 7 * * *'
