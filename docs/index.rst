@@ -60,7 +60,7 @@ What's going on in TorchServe?
    :header: Metrics
    :card_description: Collecting and viewing Torcherve metrics
    :image: https://user-images.githubusercontent.com/5276346/234725829-7f60e0d8-c76d-4019-ac8f-7d60069c4e58.png
-   :link: performance_guide.html
+   :link: metrics.html
    :tags: Metrics,Performance,Troubleshooting
 
 
