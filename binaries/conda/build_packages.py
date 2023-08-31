@@ -20,7 +20,9 @@ CONDA_LINUX_PACKAGES_PATH = os.path.join(
     REPO_ROOT, "binaries", "conda", "output", "linux-64"
 )
 PACKAGES = ["torchserve", "model-archiver", "workflow-archiver"]
-PLATFORMS = ["linux-64", "osx-64", "win-64"]
+
+# conda convert supported platforms https://docs.conda.io/projects/conda-build/en/stable/resources/commands/conda-convert.html
+PLATFORMS = ["linux-64", "osx-64", "win-64"]  # Add a new platform here
 
 if os.name == "nt":
     # Assumes miniconda is installed in windows
