@@ -20,8 +20,7 @@ public class BatchAggregator {
     protected Model model;
     protected Map<String, Job> jobs;
 
-    public BatchAggregator() {
-    }
+    public BatchAggregator() {}
 
     public BatchAggregator(Model model) {
         this.model = model;
