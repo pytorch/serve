@@ -1,4 +1,4 @@
-name: Run Regression Tests on GPU for PyPI nightly
+name: Run Regression Tests on CPU for Conda nightly
 
 on:
   #push
@@ -12,20 +12,15 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  regression-gpu-pypi-nightly:
-    runs-on: [self-hosted, regression-test-gpu]
+  regression-cpu-conda-nightly:
+    # creates workflows for OS: ubuntu, macOS
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
+        os: [ubuntu-20.04, macOS-latest]
         python_version: ["3.8", "3.9", "3.10"]
     steps:
-      - name: Clean up previous run
-        run: |
-          echo "Cleaning up previous run"
-          ls -la ./
-          sudo rm -rf ./* || true
-          sudo rm -rf ./.??* || true
-          ls -la ./
       - name: Setup Python ${{ matrix.python_version }}
         uses: actions/setup-python@v3
         with:
@@ -40,7 +35,7 @@ jobs:
         uses: actions/checkout@v3
       - name: Install dependencies
         run: |
-          python ts_scripts/install_dependencies.py --environment=dev --cuda=cu118
+          python ts_scripts/install_dependencies.py --environment=dev
       - name: Torchserve Regression Tests
         run: |
-          python test/regression_tests.py --binaries --pypi --nightly
+          python test/regression_tests.py --binaries --conda --nightly
