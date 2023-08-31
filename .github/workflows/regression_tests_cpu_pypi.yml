@@ -19,7 +19,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-20.04, macOS-latest]
-        python_version: [3.8, 3.9, 3.10]
+        python_version: [3.8, 3.9, 3.10 ]
     steps:
       - name: Setup Python ${{ matrix.python_version }}
         uses: actions/setup-python@v3
