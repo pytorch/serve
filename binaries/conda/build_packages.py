@@ -155,7 +155,7 @@ def conda_build(
                     continue
                 cmd = f"{CONDA_BINARY} convert {file_path} -p {platform} -o {CONDA_PACKAGES_PATH}"
                 print(f"## In directory: {os.getcwd()}; Executing command: {cmd}")
-                try_and_handle(cmd, False)
+                try_and_handle(cmd, dry_run)
 
     return 0  # Used for sys.exit(0) --> to indicate successful system exit
 
