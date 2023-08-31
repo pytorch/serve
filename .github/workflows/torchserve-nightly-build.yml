@@ -1,6 +1,7 @@
 name: Push torchserve nightly
 
 on:
+  # push
   push
   # run every day at 11:15am
   #schedule:
