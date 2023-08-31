@@ -15,6 +15,13 @@ CONDA_BINARY = (
     else f"$HOME/miniconda/condabin/conda"
 )
 
+CONDA_PACKAGES_PATH = os.path.join(REPO_ROOT, "binaries", "conda", "output")
+CONDA_LINUX_PACKAGES_PATH = os.path.join(
+    REPO_ROOT, "binaries", "conda", "output", "linux-64"
+)
+PACKAGES = ["torchserve", "model-archiver", "workflow-archiver"]
+PLATFORMS = ["linux-64", "osx-64", "win-64"]
+
 if os.name == "nt":
     # Assumes miniconda is installed in windows
     CONDA_BINARY = "conda"
@@ -127,13 +134,26 @@ def conda_build(
         for pkg in ["torchserve", "torch-model-archiver", "torch-workflow-archiver"]
     ]
 
+    # Generate conda binaries for linux-64
     for pkg in packages:
         for pyv in python_versions:
             output_dir = os.path.join(conda_build_dir, "output")
             cmd = f"{CONDA_BINARY} build --output-folder {output_dir} --python={pyv} {pkg}"
             print(f"## In directory: {os.getcwd()}; Executing command: {cmd}")
-            if not dry_run:
-                os.system(cmd)
+            try_and_handle(cmd, dry_run)
+
+    # Generate conda binaries for other platforms
+    for file in os.listdir(CONDA_LINUX_PACKAGES_PATH):
+        file_path = os.path.join(CONDA_LINUX_PACKAGES_PATH, file)
+        # Identify *.tar.bz2 files to convert
+        if any(word in file_path for word in PACKAGES) and file_path.endswith(
+            "tar.bz2"
+        ):
+            for platform in PLATFORMS[1:]:
+                print(f"## In directory: {os.getcwd()}; Executing command: {cmd}")
+                cmd = f"{CONDA_BINARY} convert {file_path} -p {platform} -o {CONDA_PACKAGES_PATH}"
+                try_and_handle(cmd, False)
+
     return 0  # Used for sys.exit(0) --> to indicate successful system exit
 
 

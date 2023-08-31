@@ -1,9 +1,10 @@
 name: Push torchserve nightly
 
 on:
+  push
   # run every day at 11:15am
-  schedule:
-    - cron:  '15 11 * * *'
+  #schedule:
+  #  - cron:  '15 11 * * *'
 jobs:
   nightly:
     # creates workflows for the 3 OS: ubuntu, macOS & windows
@@ -11,7 +12,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        os: [ubuntu-20.04, macOS-latest, windows-latest]
+        os: [ubuntu-20.04]
     steps:
       - name: Setup Conda
         uses: s-weigand/setup-conda@v1
@@ -34,12 +35,12 @@ jobs:
         env:
           ANACONDA_API_TOKEN: ${{ secrets.CONDA_NIGHTLY_TOKEN }}
         run: python binaries/upload.py --upload-conda-packages
-      - name: Push PyPI nightly binaries
-        env:
-          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
-        # skip pushing PyPI nightly binaries for macOS & windows as the binaries have the same name
-        if: matrix.os == 'ubuntu-20.04'
-        run: python binaries/upload.py --upload-pypi-packages
+      #- name: Push PyPI nightly binaries
+      #  env:
+      #    TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+      #  # skip pushing PyPI nightly binaries for macOS & windows as the binaries have the same name
+      #  if: matrix.os == 'ubuntu-20.04'
+      #  run: python binaries/upload.py --upload-pypi-packages
       - name: Open issue on failure
         if: ${{ failure() && github.event_name  == 'schedule' }}
         uses: dacbd/create-issue-action@v1
