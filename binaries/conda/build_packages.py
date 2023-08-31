@@ -149,7 +149,10 @@ def conda_build(
         if any(word in file_path for word in PACKAGES) and file_path.endswith(
             "tar.bz2"
         ):
-            for platform in PLATFORMS[1:]:
+            for platform in PLATFORMS:
+                # Skip linux-64 since it already exists
+                if platform == "linux-64":
+                    continue
                 print(f"## In directory: {os.getcwd()}; Executing command: {cmd}")
                 cmd = f"{CONDA_BINARY} convert {file_path} -p {platform} -o {CONDA_PACKAGES_PATH}"
                 try_and_handle(cmd, False)
