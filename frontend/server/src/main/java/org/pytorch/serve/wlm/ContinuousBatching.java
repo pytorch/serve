@@ -1,5 +1,6 @@
 package org.pytorch.serve.wlm;
 
+import java.util.Map;
 import org.pytorch.serve.job.Job;
 import org.pytorch.serve.util.messages.BaseModelRequest;
 import org.pytorch.serve.util.messages.ModelInferenceRequest;
@@ -10,11 +11,10 @@ import org.pytorch.serve.util.messages.RequestInput;
 import org.pytorch.serve.util.messages.WorkerCommands;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.util.Map;
-
 
 public class ContinuousBatching extends BatchAggregator {
     private static final Logger logger = LoggerFactory.getLogger(ContinuousBatching.class);
+
     public ContinuousBatching(Model model) {
         super(model);
     }
@@ -94,9 +94,7 @@ public class ContinuousBatching extends BatchAggregator {
                 String streamNext =
                         prediction
                                 .getHeaders()
-                                .get(
-                                        org.pytorch.serve.util.messages.RequestInput
-                                                .TS_STREAM_NEXT);
+                                .get(org.pytorch.serve.util.messages.RequestInput.TS_STREAM_NEXT);
                 if (streamNext != null && streamNext.equals("false")) {
                     jobs.remove(jobId);
                 }
