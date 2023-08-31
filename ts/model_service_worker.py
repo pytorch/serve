@@ -10,6 +10,7 @@ import os
 import platform
 import socket
 import sys
+from typing import Optional
 
 from ts.arg_parser import ArgParser
 from ts.metrics.metric_cache_yaml_impl import MetricsCacheYamlImpl
@@ -19,8 +20,7 @@ from ts.protocol.otf_message_handler import create_load_model_response, retrieve
 MAX_FAILURE_THRESHOLD = 5
 SOCKET_ACCEPT_TIMEOUT = 30.0
 DEBUG = False
-BENCHMARK = os.getenv("TS_BENCHMARK")
-BENCHMARK = BENCHMARK in ["True", "true", "TRUE"]
+BENCHMARK = os.getenv("TS_BENCHMARK") in ["True", "true", "TRUE"]
 LOCAL_RANK = int(os.getenv("LOCAL_RANK", 0))
 WORLD_SIZE = int(os.getenv("WORLD_SIZE", 0))
 WORLD_RANK = int(os.getenv("RANK", 0))
@@ -34,11 +34,11 @@ class TorchModelServiceWorker(object):
 
     def __init__(
         self,
-        s_type=None,
-        s_name=None,
-        host_addr=None,
-        port_num=None,
-        metrics_config=None,
+        s_type: Optional[str] = None,
+        s_name: Optional[str] = None,
+        host_addr: Optional[str] = None,
+        port_num: Optional[int] = None,
+        metrics_config: Optional[str] = None,
     ):
         self.sock_type = s_type
 
@@ -178,8 +178,13 @@ class TorchModelServiceWorker(object):
             if BENCHMARK:
                 pr.enable()
             if cmd == b"I":
-                resp = service.predict(msg)
-                cl_socket.sendall(resp)
+                if service is not None:
+                    resp = service.predict(msg)
+                    cl_socket.sendall(resp)
+                else:
+                    raise RuntimeError(
+                        "Received command: {}, but service is not loaded".format(cmd)
+                    )
             elif cmd == b"L":
                 service, result, code = self.load_model(msg)
                 resp = bytearray()
@@ -227,8 +232,8 @@ if __name__ == "__main__":
     while ts_path in sys.path:
         sys.path.remove(ts_path)
 
-    sock_type = None
-    socket_name = None
+    sock_type: Optional[str] = None
+    socket_name: Optional[str] = None
 
     # noinspection PyBroadException
     try:
@@ -262,7 +267,11 @@ if __name__ == "__main__":
     except Exception:  # pylint: disable=broad-except
         logging.error("Backend worker process died.", exc_info=True)
     finally:
-        if sock_type == "unix" and os.path.exists(socket_name):
+        if (
+            sock_type == "unix"
+            and socket_name is not None
+            and os.path.exists(socket_name)
+        ):
             os.remove(socket_name)
 
     sys.exit(1)
