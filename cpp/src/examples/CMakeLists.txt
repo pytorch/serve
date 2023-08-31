@@ -13,4 +13,4 @@ list(APPEND LLM_SOURCE_FILES ${LLM_SRC_DIR}/run.c)
 add_library(llm_handler SHARED ${LLM_SOURCE_FILES})
 target_include_directories(llm_handler PUBLIC ${LLM_SRC_DIR})
 target_link_libraries(llm_handler PRIVATE ts_backends_torch_scripted ts_utils ${TORCH_LIBRARIES})
-
+target_compile_options(llm_handler PRIVATE -Wall -Wextra -Ofast)
