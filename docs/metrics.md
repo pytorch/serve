@@ -656,7 +656,7 @@ class CustomHandlerExample:
    In versions greater than v0.8.1 the `add_metric` API signature was updated to support backwards compatibility:\
    from: [add_metric(metric_name, unit, dimension_names=None, metric_type=MetricTypes.COUNTER)](https://github.com/pytorch/serve/blob/35ef00f9e62bb7fcec9cec92630ae757f9fb0db0/ts/metrics/metric_cache_abstract.py#L272)\
    to: `add_metric(name, value, unit, idx=None, dimensions=[], metric_type=MetricTypes.COUNTER)`\
-   Usage of the new API is shown [above](#specifying-metric-types).\
+   Usage of the new API is shown [above](#specifying-metric-types).
    **Upgrade paths**:
    - **[< v0.6.1] to [v0.6.1 - v0.8.1]**\
    There are two approaches available when migrating to the new custom metrics API:
@@ -676,11 +676,11 @@ class CustomHandlerExample:
    - **[v0.6.1 - v0.8.1] to [> v0.8.1]**\
      Replace the call to `add_metric` with `add_metric_to_cache`.
 2. Starting [v0.8.0](https://github.com/pytorch/serve/releases/tag/v0.8.0), only metrics that are defined in the metrics config file(default: [metrics.yaml](https://github.com/pytorch/serve/blob/master/ts/configs/metrics.yaml))
-   are either all logged to `ts_metrics.log` and `model_metrics.log` or made available via the [metrics API endpoint](https://github.com/pytorch/serve/blob/master/docs/metrics_api.md)
+   are either all logged to `ts_metrics.log` and `model_metrics.log` or made available via the [metrics API endpoint](metrics_api.md)
    based on the `metrics_mode` configuration as described [above](#introduction).\
    The default `metrics_mode` is `log` mode.\
    This is unlike in previous versions where all metrics were only logged to `ts_metrics.log` and `model_metrics.log` except for `ts_inference_requests_total`, `ts_inference_latency_microseconds` and `ts_queue_latency_microseconds`
    which were only available via the metrics API endpoint.\
    **Upgrade paths**:
    - **[< v0.8.0] to [>= v0.8.0]**\
-     Specify all the custom metrics added to the custom handler in the metrics configuration file as shown [above](#central-metrics-yaml-file-definition).
+     Specify all the custom metrics added to the custom handler in the metrics configuration file as shown [above](#getting-started-with-torchserve-metrics).
