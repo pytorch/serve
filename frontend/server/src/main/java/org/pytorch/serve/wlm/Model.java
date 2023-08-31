@@ -65,10 +65,12 @@ public class Model {
 
     private boolean useJobTicket;
     private AtomicInteger numJobTickets;
+    private boolean continuousBatching;
 
     public Model(ModelArchive modelArchive, int queueSize) {
         this.modelArchive = modelArchive;
         if (modelArchive != null && modelArchive.getModelConfig() != null) {
+            continuousBatching = modelArchive.getModelConfig().isContinuousBatching();
             if (modelArchive.getModelConfig().getParallelLevel() > 1
                     && modelArchive.getModelConfig().getParallelType()
                             != ModelConfig.ParallelType.NONE) {
@@ -245,6 +247,80 @@ public class Model {
         jobsDb.get(DEFAULT_DATA_QUEUE).addFirst(job);
     }
 
+    public boolean pollMgmtJob(String threadId, long waitTime, Map<String, Job> jobsRepo)
+            throws InterruptedException {
+        if (jobsRepo == null || threadId == null || threadId.isEmpty()) {
+            throw new IllegalArgumentException("Invalid input given provided");
+        }
+
+        if (!jobsRepo.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "The jobs repo provided contains stale jobs. Clear them!!");
+        }
+
+        LinkedBlockingDeque<Job> jobsQueue = jobsDb.get(threadId);
+        if (jobsQueue != null && !jobsQueue.isEmpty()) {
+            Job j = jobsQueue.poll(waitTime, TimeUnit.MILLISECONDS);
+            if (j != null) {
+                jobsRepo.put(j.getJobId(), j);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void pollInferJob(Map<String, Job> jobsRepo, int batchSize) throws InterruptedException {
+        LinkedBlockingDeque<Job> jobsQueue;
+        try {
+            if (isUseJobTicket()) {
+                incNumJobTickets();
+            }
+            lock.lockInterruptibly();
+            long maxDelay = maxBatchDelay;
+            jobsQueue = jobsDb.get(DEFAULT_DATA_QUEUE);
+
+            Job j = jobsQueue.poll(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
+            logger.trace("get first job: {}", Objects.requireNonNull(j).getJobId());
+
+            jobsRepo.put(j.getJobId(), j);
+            // batch size always is 1 for describe request job
+            if (j.getCmd() == WorkerCommands.DESCRIBE) {
+                return;
+            }
+            long begin = System.currentTimeMillis();
+            for (int i = 0; i < batchSize - 1; ++i) {
+                j = jobsQueue.poll(maxDelay, TimeUnit.MILLISECONDS);
+                if (j == null) {
+                    break;
+                }
+                long end = System.currentTimeMillis();
+                // job batch size always is 1 when request is describe prediction
+                if (j.getCmd() == WorkerCommands.DESCRIBE) {
+                    // Add the job back into the jobsQueue
+                    jobsQueue.addFirst(j);
+                    break;
+                }
+                maxDelay -= end - begin;
+                begin = end;
+                if (j.getPayload().getClientExpireTS() > System.currentTimeMillis()) {
+                    jobsRepo.put(j.getJobId(), j);
+                } else {
+                    logger.warn(
+                            "Drop inference request {} due to client timeout",
+                            j.getPayload().getRequestId());
+                }
+                if (maxDelay <= 0) {
+                    break;
+                }
+            }
+            logger.trace("sending jobs, size: {}", jobsRepo.size());
+        } finally {
+            if (lock.isHeldByCurrentThread()) {
+                lock.unlock();
+            }
+        }
+    }
+
     public void pollBatch(String threadId, long waitTime, Map<String, Job> jobsRepo)
             throws InterruptedException {
         if (jobsRepo == null || threadId == null || threadId.isEmpty()) {
@@ -419,5 +495,9 @@ public class Model {
         }
 
         return 0;
+    }
+
+    public boolean isContinuousBatching() {
+        return continuousBatching;
     }
 }
