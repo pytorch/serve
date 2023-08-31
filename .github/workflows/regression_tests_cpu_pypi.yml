@@ -1,18 +1,18 @@
-name: Run Regression Tests on CPU for PyPI
+name: Run Regression Tests on CPU for PyPI nightly
 
 on:
-  push
+  #push
   # run every day at 5:15am
-  #schedule:
-  #  - cron:  '15 6 * * *'
-  #merge_group:
+  schedule:
+    - cron:  '15 6 * * *'
+  merge_group:
 
 concurrency:
   group: ci-cpu-${{ github.workflow }}-${{ github.ref == 'refs/heads/master' && github.run_number || github.ref }}
   cancel-in-progress: true
 
 jobs:
-  regression-cpu-pypi:
+  regression-cpu-pypi-nightly:
     # creates workflows for OS: ubuntu, macOS
     runs-on: ${{ matrix.os }}
     strategy:
