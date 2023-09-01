@@ -35,15 +35,16 @@ jobs:
         uses: conda-incubator/setup-miniconda@v2
         with:
           miniconda-version: "latest"
-      #    auto-update-conda: true
-      #    #python-version: ${{ matrix.python-version }}
-      #    #activate-environment: ${{ matrix.python-version }}
-      - name: Setup conda with Python ${{ matrix.python-version }}
-        uses: s-weigand/setup-conda@v1
-        with:
-          update-conda: true
+          auto-update-conda: true
           python-version: ${{ matrix.python-version }}
-          conda-channels: anaconda, conda-forge
+          activate-environment: test
+          auto-activate-base: false
+      #- name: Setup conda with Python ${{ matrix.python-version }}
+      #  uses: s-weigand/setup-conda@v1
+      #  with:
+      #    update-conda: true
+      #    python-version: ${{ matrix.python-version }}
+      #    conda-channels: anaconda, conda-forge
       - run: conda --version
       - run: python --version
       - run: which python
