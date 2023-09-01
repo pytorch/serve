@@ -28,12 +28,6 @@ jobs:
           sudo rm -rf ./* || true
           sudo rm -rf ./.??* || true
           ls -la ./
-      - name: PATH
-        run: echo $PATH
-      - name: shell
-        run:
-          shell: bash -el {0}
-
       - uses: actions/checkout@v3
       - name: Conda
         uses: conda-incubator/setup-miniconda@v2
