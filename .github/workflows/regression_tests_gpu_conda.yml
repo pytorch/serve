@@ -37,8 +37,8 @@ jobs:
           miniconda-version: "latest"
           auto-update-conda: true
           python-version: ${{ matrix.python-version }}
-          auto-activate-base: true
-          activate-environment: ""
+          #auto-activate-base: true
+          activate-environment: true
       #- name: Setup conda with Python ${{ matrix.python-version }}
       #  uses: s-weigand/setup-conda@v1
       #  with:
