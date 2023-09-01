@@ -1,7 +1,7 @@
 name: Run Regression Tests on GPU for PyPI nightly
 
 on:
-  # run every day at 6:15am
+  # run every day at 5:15am
   schedule:
     - cron:  '15 6 * * *'
   merge_group:
