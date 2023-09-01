@@ -1,8 +1,6 @@
 name: Run Regression Tests on CPU for PyPI nightly
 
 on:
-  pull_request:
-  #push
   # run every day at 6:15am
   schedule:
     - cron:  '15 6 * * *'
