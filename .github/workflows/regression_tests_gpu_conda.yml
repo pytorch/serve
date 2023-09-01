@@ -16,6 +16,9 @@ jobs:
   regression-gpu-conda-nightly:
     # creates workflows for OS: ubuntu, macOS
     runs-on: [self-hosted, regression-test-gpu]
+    defaults:
+      run:
+        shell: bash -el {0}
     strategy:
       fail-fast: false
       matrix:
