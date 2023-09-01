@@ -16,9 +16,6 @@ jobs:
   regression-gpu-conda-nightly:
     # creates workflows for OS: ubuntu, macOS
     runs-on: [self-hosted, regression-test-gpu]
-    defaults:
-      run:
-        shell: bash -el {0}
     strategy:
       fail-fast: false
       matrix:
@@ -40,8 +37,8 @@ jobs:
           miniconda-version: "latest"
           auto-update-conda: true
           python-version: ${{ matrix.python-version }}
-          activate-environment: test
-          auto-activate-base: false
+          auto-activate-base: true
+          activate-environment: ""
       #- name: Setup conda with Python ${{ matrix.python-version }}
       #  uses: s-weigand/setup-conda@v1
       #  with:
