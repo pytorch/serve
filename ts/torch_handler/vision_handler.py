@@ -12,6 +12,8 @@ from captum.attr import IntegratedGradients
 from PIL import Image
 from torchvision import transforms
 
+from ts.handler_utils.timer import timed
+
 from .base_handler import BaseHandler
 
 
@@ -28,6 +30,7 @@ class VisionHandler(BaseHandler, ABC):
         if not properties.get("limit_max_image_pixels"):
             Image.MAX_IMAGE_PIXELS = None
 
+    @timed
     def preprocess(self, data):
         """The preprocess function of MNIST program converts the input data to a float tensor
 

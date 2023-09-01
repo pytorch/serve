@@ -12,18 +12,18 @@ https://github.com/pytorch/examples/tree/master/mnist
 
 Run the commands given in following steps from the parent directory of the root of the repository. For example, if you cloned the repository into /home/my_path/serve, run the steps from /home/my_path/serve
 
- ### Create a torch model archive using the torch-model-archiver utility to archive the above files.
+  ### Create a torch model archive using the torch-model-archiver utility to archive the above files.
 
-    ```bash
-    torch-model-archiver --model-name mnist --version 1.0 --model-file examples/image_classifier/mnist/mnist.py --serialized-file examples/image_classifier/mnist/mnist_cnn.pt --handler  examples/image_classifier/mnist/mnist_handler.py
-    ```
+  ```bash
+  torch-model-archiver --model-name mnist --version 1.0 --model-file examples/image_classifier/mnist/mnist.py --serialized-file examples/image_classifier/mnist/mnist_cnn.pt --handler  examples/image_classifier/mnist/mnist_handler.py
+  ```
 
   ### Move .mar file into model_store directory
 
-    ```bash
-    mkdir model_store
-    mv mnist.mar model_store/
-    ```
+  ```bash
+  mkdir model_store
+  mv mnist.mar model_store/
+  ```
 
   ### Start a docker container with torchserve
 
@@ -47,8 +47,8 @@ Run the commands given in following steps from the parent directory of the root 
 
   ### Run digit recognition inference outside the container
 
-    ```bash
-    curl http://127.0.0.1:8080/predictions/mnist -T examples/image_classifier/mnist/test_data/0.png
-    ```
+  ```bash
+  curl http://127.0.0.1:8080/predictions/mnist -T examples/image_classifier/mnist/test_data/0.png
+  ```
 
-   The output in this case will be a `0`
+  The output in this case will be a `0`

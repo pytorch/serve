@@ -34,6 +34,7 @@ Use `build_image.sh` script to build the docker images. The script builds the `p
 |-h, --help|Show script help|
 |-b, --branch_name|Specify a branch name to use. Default: master |
 |-g, --gpu|Build image with GPU based ubuntu base image|
+|-bi, --baseimage specify base docker image. Example: nvidia/cuda:11.8.0-cudnn8-runtime-ubuntu20.04|
 |-bt, --buildtype|Which type of docker image to build. Can be one of : production, dev, ci, codebuild|
 |-t, --tag|Tag name for image. If not specified, script uses torchserve default tag names.|
 |-cv, --cudaversion| Specify to cuda version to use. Supported values `cu92`, `cu101`, `cu102`, `cu111`, `cu113`, `cu116`, `cu117`, `cu118`. Default `cu117`|
@@ -55,8 +56,10 @@ Creates a docker image with publicly available `torchserve` and `torch-model-arc
 
  - To create a GPU based image with cuda 10.2. Options are `cu92`, `cu101`, `cu102`, `cu111`, `cu113`, `cu116`, `cu117`, `cu118`
 
+    - GPU images are built with NVIDIA CUDA base image. If you want to use ONNX, please specify the base image as shown in the next section.
+
   ```bash
-  ./build_image.sh -g -cv cu102
+  ./build_image.sh -g -cv cu117
   ```
 
  - To create an image with a custom tag
@@ -64,6 +67,15 @@ Creates a docker image with publicly available `torchserve` and `torch-model-arc
 ```bash
 ./build_image.sh -t torchserve:1.0
 ```
+
+**NVIDIA CUDA RUNTIME BASE IMAGE**
+
+To make use of ONNX, we need to use [NVIDIA CUDA runtime](https://github.com/NVIDIA/nvidia-docker/wiki/CUDA) as the base image.
+This will increase the size of your Docker Image
+
+```bash
+  ./build_image.sh -bi nvidia/cuda:11.7.0-cudnn8-runtime-ubuntu20.04 -g -cv cu117
+  ```
 
 **DEVELOPER ENVIRONMENT IMAGES**
 

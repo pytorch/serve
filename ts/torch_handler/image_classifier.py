@@ -5,6 +5,8 @@ import torch
 import torch.nn.functional as F
 from torchvision import transforms
 
+from ts.handler_utils.timer import timed
+
 from ..utils.util import map_class_to_label
 from .vision_handler import VisionHandler
 
@@ -32,6 +34,7 @@ class ImageClassifier(VisionHandler):
     def get_max_result_classes(self):
         return self.topk
 
+    @timed
     def postprocess(self, data):
         ps = F.softmax(data, dim=1)
         probs, classes = torch.topk(ps, self.topk, dim=1)
