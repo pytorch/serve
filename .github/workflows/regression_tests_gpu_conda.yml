@@ -34,18 +34,18 @@ jobs:
       - name: Conda
         uses: conda-incubator/setup-miniconda@v2
         with:
+          shell: bash -el {0}
           miniconda-version: "latest"
           auto-update-conda: true
           python-version: ${{ matrix.python-version }}
           #auto-activate-base: true
-          activate-environment: true
+          activate-environment: test
       #- name: Setup conda with Python ${{ matrix.python-version }}
       #  uses: s-weigand/setup-conda@v1
       #  with:
       #    update-conda: true
       #    python-version: ${{ matrix.python-version }}
       #    conda-channels: anaconda, conda-forge
-      - run: conda activate test
       - run: conda --version
       - run: python --version
       - run: which python
