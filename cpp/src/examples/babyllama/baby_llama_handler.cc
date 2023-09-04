@@ -16,13 +16,32 @@ LlmHandler::LoadModel(
                                      manifest_->GetModel().serialized_file),
                          *device));
 
-    char checkpoint_path[] = "/home/ubuntu/serve/cpp/stories15M.bin";
-    build_transformer(&transformer, checkpoint_path);
+    const std::string configFilePath =
+        fmt::format("{}/{}", load_model_request->model_dir, "config.json");
+    std::string jsonContent;
+    if (!folly::readFile(configFilePath.c_str(), jsonContent)) {
+      std::cerr << "config.json not found at: " << configFilePath << std::endl;
+      throw;
+    }
+    folly::dynamic json;
+    json = folly::parseJson(jsonContent);
+    std::string checkpoint_path;
+    std::string tokenizer_path;
+    if (json.find("checkpoint_path") != json.items().end() &&
+        json.find("tokenizer_path") != json.items().end()) {
+      checkpoint_path = json["checkpoint_path"].asString();
+      tokenizer_path = json["tokenizer_path"].asString();
+    } else {
+      std::cerr
+          << "Required fields 'model_name' and 'model_path' not found in JSON."
+          << std::endl;
+      throw;
+    }
 
-    char tokenizer_path[] =
-        "/home/ubuntu/serve/cpp/src/examples/image_classifier/babyllama/"
-        "tokenizer.bin";
-    build_tokenizer(&tokenizer, tokenizer_path, transformer.config.vocab_size);
+    build_transformer(&transformer, const_cast<char*>(checkpoint_path.c_str()));
+
+    build_tokenizer(&tokenizer, const_cast<char*>(tokenizer_path.c_str()),
+                    transformer.config.vocab_size);
 
     float temperature =
         1.0f;  // 0.0 = greedy deterministic. 1.0 = original. don't set higher
@@ -182,7 +201,6 @@ torch::Tensor LlmHandler::Inference(
     if (next == 1) {
       break;
     }
-
     token = next;
 
     // init the timer here because the first iteration can be slower
@@ -222,7 +240,7 @@ void LlmHandler::Postprocess(
         concatenated_string += piece_string;
       }
 
-      std::cout << "Concatenated String: " << concatenated_string << std::endl;
+      std::cout << "Generated String:  " << concatenated_string << std::endl;
 
       auto response = (*response_batch)[kv.second];
 
@@ -247,9 +265,6 @@ void LlmHandler::Postprocess(
     }
   }
 
-  free_sampler(&sampler);
-  free_tokenizer(&tokenizer);
-  free_transformer(&transformer);
 }
 
 }  // namespace llm

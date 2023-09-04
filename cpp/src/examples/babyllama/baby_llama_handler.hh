@@ -1,6 +1,10 @@
 #ifndef LLM_HANDLER_HH_
 #define LLM_HANDLER_HH_
 
+#include <folly/json.h>
+#include <folly/FileUtil.h>
+#include <iostream>
+
 #include "run.c"
 #include "src/backends/torch_scripted/handler/base_handler.hh"
 
