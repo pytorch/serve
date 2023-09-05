@@ -47,7 +47,6 @@ LlmHandler::LoadModel(
         1.0f;  // 0.0 = greedy deterministic. 1.0 = original. don't set higher
     float topp = 0.9f;  // top-p in nucleus sampling. 1.0 = off. 0.9 works well,
                         // but slower
-    int steps = 256;    // number of steps to run for
     unsigned long long rng_seed;
     // build the Sampler
     build_sampler(&sampler, transformer.config.vocab_size, temperature, topp,
@@ -154,11 +153,11 @@ torch::Tensor LlmHandler::Inference(
     std::pair<std::string&, std::map<uint8_t, std::string>&>& idx_to_req_id,
     std::shared_ptr<torchserve::InferenceResponseBatch>& response_batch) {
   std::vector<torch::Tensor> tensor_vector;
+  tensor_vector.reserve(steps);
   torch::Tensor tokens_list_tensor = inputs[0].toTensor();
 
   int64_t num_elements = tokens_list_tensor.numel();
 
-  int steps = 256;
   // // Convert the tensor to a vector of long values
   std::vector<long> long_vector;
   long_vector.reserve(num_elements);
@@ -168,7 +167,7 @@ torch::Tensor LlmHandler::Inference(
     long_vector.push_back(data_ptr[i]);
   }
 
-  int* prompt_tokens = new int[num_elements];
+  std::unique_ptr<int[]> prompt_tokens(new int[num_elements]);
   for (int64_t i = 0; i < num_elements; ++i) {
     prompt_tokens[i] = static_cast<int>(long_vector[i]);
   }
@@ -217,8 +216,6 @@ torch::Tensor LlmHandler::Inference(
     double token_per_sec = (pos - 1) / (double)(end - start) * 1000;
     std::cout << "Achieved tok per sec: " << token_per_sec << std::endl;
   }
-
-  delete[] prompt_tokens;
 
   torch::Tensor stacked_tensor = torch::stack(tensor_vector);
   return stacked_tensor;
