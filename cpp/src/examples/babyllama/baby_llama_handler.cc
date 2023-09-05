@@ -2,7 +2,7 @@
 
 #include <typeinfo>
 
-#include "run.c"
+#include "src/examples/babyllama/llama2.c/run.c"
 
 namespace llm {
 
