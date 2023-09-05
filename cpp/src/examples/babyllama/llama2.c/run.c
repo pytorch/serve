@@ -232,7 +232,6 @@ void matmul(float* xout, float* x, float* w, int n, int d) {
 }
 
 float* forward(Transformer* transformer, int token, int pos) {
-
     // a few convenience variables
     Config* p = &transformer->config;
     TransformerWeights* w = &transformer->weights;
@@ -786,8 +785,6 @@ void generate(Transformer *transformer, Tokenizer *tokenizer, Sampler *sampler, 
 }
 
 
-/*
-
 // ----------------------------------------------------------------------------
 // CLI, include only if not testing
 #ifndef TESTING
@@ -864,5 +861,3 @@ int main(int argc, char *argv[]) {
 }
 
 #endif
-
-*/
