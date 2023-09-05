@@ -104,13 +104,17 @@ std::vector<torch::jit::IValue> LlmHandler::Preprocess(
 
       std::string msg = torchserve::Converter::VectorToStr(data_it->second);
 
-      char* msgCStr = new char[msg.size() + 1];  // +1 for the null terminator
-      std::strcpy(msgCStr, msg.c_str());
       int num_prompt_tokens = 0;
-      int* prompt_tokens = (int*)malloc(
-          (strlen(msgCStr) + 3) * sizeof(int));  // +3 for '\0', ?BOS, ?EOS
 
-      encode(&tokenizer, msgCStr, 1, 0, prompt_tokens, &num_prompt_tokens);
+      std::unique_ptr<char[], void (*)(char*)> msgCStr(
+          new char[msg.size() + 1], [](char* ptr) { delete[] ptr; });
+
+      std::strcpy(msgCStr.get(), msg.c_str());
+
+      std::unique_ptr<int[]> prompt_tokens(new int[msg.length()]);
+
+      encode(&tokenizer, msgCStr.get(), 1, 0, prompt_tokens.get(),
+             &num_prompt_tokens);
 
       std::vector<torch::Tensor> tensor_vector;
       for (int64_t i = 0; i < num_prompt_tokens; ++i) {
@@ -120,9 +124,6 @@ std::vector<torch::jit::IValue> LlmHandler::Preprocess(
       }
       torch::Tensor stacked_tensor = torch::stack(tensor_vector);
       batch_ivalue.push_back(stacked_tensor);
-
-      delete[] msgCStr;
-      free(prompt_tokens);
 
       idx_to_req_id.second[idx++] = request.request_id;
 
