@@ -159,18 +159,12 @@ torch::Tensor LlmHandler::Inference(
 
   int64_t num_elements = tokens_list_tensor.numel();
 
-  // // Convert the tensor to a vector of long values
-  std::vector<long> long_vector;
-  long_vector.reserve(num_elements);
-
   int64_t* data_ptr = tokens_list_tensor.data_ptr<int64_t>();
-  for (int64_t i = 0; i < num_elements; ++i) {
-    long_vector.push_back(data_ptr[i]);
-  }
 
   std::unique_ptr<int[]> prompt_tokens(new int[num_elements]);
+
   for (int64_t i = 0; i < num_elements; ++i) {
-    prompt_tokens[i] = static_cast<int>(long_vector[i]);
+    prompt_tokens[i] = data_ptr[i];
   }
 
   // start the main loop
