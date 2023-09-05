@@ -11,11 +11,10 @@
 namespace llm {
 class LlmHandler : public torchserve::torchscripted::BaseHandler {
  public:
-
   // NOLINTBEGIN(bugprone-exception-escape)
   LlmHandler() = default;
   // NOLINTEND(bugprone-exception-escape)
-  ~LlmHandler() override = default;
+  ~LlmHandler() noexcept;
 
   void initialize_context();
 

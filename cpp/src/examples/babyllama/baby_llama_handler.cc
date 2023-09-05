@@ -266,6 +266,12 @@ void LlmHandler::Postprocess(
   }
 }
 
+LlmHandler::~LlmHandler() noexcept {
+  free_sampler(&sampler);
+  free_tokenizer(&tokenizer);
+  free_transformer(&transformer);
+}
+
 }  // namespace llm
 
 #if defined(__linux__) || defined(__APPLE__)
