@@ -2,7 +2,14 @@
 
 #include <typeinfo>
 
+#include "run.c"
+
 namespace llm {
+
+Transformer transformer;
+Tokenizer tokenizer;
+Sampler sampler;
+int steps = 256;
 
 std::pair<std::shared_ptr<torch::jit::script::Module>,
           std::shared_ptr<torch::Device>>

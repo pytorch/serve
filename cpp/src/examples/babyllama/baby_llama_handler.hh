@@ -6,16 +6,11 @@
 
 #include <iostream>
 
-#include "run.c"
 #include "src/backends/torch_scripted/handler/base_handler.hh"
 
 namespace llm {
 class LlmHandler : public torchserve::torchscripted::BaseHandler {
  public:
-  Transformer transformer;
-  Tokenizer tokenizer;
-  Sampler sampler;
-  int steps = 256;
 
   // NOLINTBEGIN(bugprone-exception-escape)
   LlmHandler() = default;
