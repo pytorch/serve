@@ -35,6 +35,9 @@ class LLMHandler(BaseHandler, ABC):
         self.manifest = ctx.manifest
         properties = ctx.system_properties
         model_dir = properties.get("model_dir")
+        os.environ["NEURONX_CACHE"] = "on"
+        os.environ["NEURONX_DUMP_TO"] = f"{model_dir}/neuron_cache"
+        os.environ["NEURON_CC_FLAGS"] = "--model-type=transformer-inference"
 
         # micro batching initialization
         parallelism = ctx.model_yaml_config.get("micro_batching", {}).get(
@@ -72,8 +75,6 @@ class LLMHandler(BaseHandler, ABC):
                 + str(error)
             )
 
-        os.environ["NEURON_CC_FLAGS"] = "--model-type=transformer-inference"
-
         self.tokenizer = LlamaTokenizer.from_pretrained(model_dir)
         self.tokenizer.pad_token = self.tokenizer.eos_token
         self.model = LlamaForSampling.from_pretrained(
@@ -101,6 +102,7 @@ class LLMHandler(BaseHandler, ABC):
             data = req.get("data") or req.get("body")
             if isinstance(data, (bytes, bytearray)):
                 data = data.decode("utf-8")
+            logger.info(f"received req={data}")
             input_text.append(data.strip())
 
         # Ensure the compiled model can handle the input received
@@ -127,6 +129,7 @@ class LLMHandler(BaseHandler, ABC):
         micro_batch_idx = self.mb_handle.get_micro_batch_idx()
         micro_batch_req_id_map = self.get_micro_batch_req_id_map(micro_batch_idx)
         for new_text in self.output_streamer:
+            logger.info("send response stream")
             send_intermediate_predict_response(
                 new_text[: len(micro_batch_req_id_map)],
                 micro_batch_req_id_map,
