@@ -2,11 +2,15 @@ name: Push Docker Nightly
 
 on:
   # run every day at 1:15pm
-  schedule:
-    - cron: "15 13 * * *"
+  # schedule:
+  #   - cron: "15 13 * * *"
+  push:
+    branches:
+      - "dev"
+
 jobs:
   nightly:
-    runs-on: ubuntu-20.04
+    runs-on: self-hosted
     steps:
       - name: Setup Python 3.8
         uses: actions/setup-python@v4
@@ -18,7 +22,7 @@ jobs:
       - name: Login to Docker
         env:
           DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
-        run: docker login --username pytorchbot --password "$DOCKER_PASSWORD"
+        run: docker login --username jagadeeshj --password "$DOCKER_PASSWORD"
       - name: Push Docker Nightly
         run: |
           cd docker

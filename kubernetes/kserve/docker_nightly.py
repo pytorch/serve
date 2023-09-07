@@ -15,7 +15,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--organization",
         type=str,
-        default="pytorch",
+        default="jagadeeshj",
         help="The name of the Dockerhub organization where the images will be pushed",
     )
     parser.add_argument(
@@ -34,7 +34,7 @@ if __name__ == "__main__":
     # Build Nightly images and append the date in the name
     try_and_handle(f"./build_image.sh -n -t {organization}/{cpu_version}", dry_run)
     try_and_handle(
-        f"./build_image.sh -g -cv cu118 -t {organization}/{gpu_version}",
+        f"./build_image.sh -g -cv cu118 -n -t {organization}/{gpu_version}",
         dry_run,
     )
 
