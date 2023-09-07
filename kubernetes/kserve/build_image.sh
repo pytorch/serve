@@ -5,6 +5,7 @@ DOCKER_TAG="pytorch/torchserve-kfs:latest"
 BASE_IMAGE="pytorch/torchserve:latest"
 DOCKER_FILE="Dockerfile"
 BUILD_NIGHTLY=false
+USE_CUSTOM_TAG=false
 
 for arg in "$@"
 do
@@ -32,7 +33,8 @@ do
           shift
           ;;
         -t|--tag)
-          DOCKER_TAG="$2"
+          CUSTOM_TAG="$2"
+          USE_CUSTOM_TAG=true
           shift
           shift
           ;;
@@ -45,6 +47,11 @@ then
 elif [[ "${MACHINE}" == "cpu" ]] && [[ "$BUILD_NIGHTLY" == true ]] ;
 then
   BASE_IMAGE="pytorch/torchserve-nightly:latest-cpu"
+fi
+
+if [ "$USE_CUSTOM_TAG" = true ]
+then
+  DOCKER_TAG=${CUSTOM_TAG}
 fi
 
 cp ../../frontend/server/src/main/resources/proto/*.proto .
