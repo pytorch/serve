@@ -5,7 +5,8 @@ Metrics API is a http API that is used to fetch metrics in the prometheus format
 By default these APIs are enabled however it can be disabled by setting `enable_metrics_api=false` in torchserve config.properties file.
 For details refer [Torchserve config](configuration.md) docs.
 
-**Note** This is not to be confused with the [custom metrics API](metrics.md) which is the API used in the backend handler to emit metrics.
+**Note** This is not to be confused with torch serve's [custom metrics API](metrics.md). The custom metrics API is used to collect custom backend metrics based on the configured `metrics_mode` (log or prometheus). More information on this api can be found [here](metrics.md).
+
 
 ```console
 curl http://127.0.0.1:8082/metrics

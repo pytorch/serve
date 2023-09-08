@@ -36,7 +36,7 @@ The location of log files and metric files can be configured in the [log4j2.xml]
 
 **Prometheus Mode**
 
-In `prometheus` mode, all metrics are made available in prometheus format via the [metrics API endpoint](metrics_api.md).
+In `prometheus` mode, metrics defined in the metrics configuration file are made available in prometheus format via the [metrics API endpoint](metrics_api.md).
 
 ## Getting Started with TorchServe Metrics
 
@@ -86,7 +86,7 @@ model_metrics:  # backend metrics
 ```
 
 
-Note that **only** the metrics defined in the **metrics configuration file** can be emitted to logs or made available via the [metrics API endpoint](metrics_api.md). This is done to ensure that the metrics configuration file serves as a central inventory of all the metrics that Torchserve can emit.
+Note that **only** the metrics defined in the **metrics configuration file** can be emitted to model_metrics.log or made available via the [metrics API endpoint](metrics_api.md). This is done to ensure that the metrics configuration file serves as a central inventory of all the metrics that Torchserve can emit.
 
 Default metrics are provided in the [metrics.yaml](https://github.com/pytorch/serve/blob/master/ts/configs/metrics.yaml) file, but the user can either delete them to their liking / ignore them altogether, because these metrics will not be emitted unless they are edited.\
 When adding custom `model_metrics` in the metrics configuration file, ensure to include `ModelName` and `Level` dimension names towards the end of the list of dimensions since they are included by default by the following custom metrics APIs:
@@ -254,7 +254,6 @@ This is the API used in the backend handler to emit metrics. TorchServe enables 
 
 The custom service code is provided with a [context](https://github.com/pytorch/serve/blob/master/ts/context.py) of the current request with a metrics object:
 
-**Note** The custom metrics API is not to be confused with the [metrics API endpoint](metrics_api.md) which is a http API that is used to fetch metrics in the prometheus format.
 
 ```python
 # Access context metrics as follows
@@ -263,6 +262,7 @@ metrics = context.metrics
 
 All metrics are collected within the context.
 
+**Note** The custom metrics API is not to be confused with the [metrics API endpoint](metrics_api.md) which is a http API that is used to fetch metrics in the prometheus format.
 
 ### Specifying Metric Types
 
