@@ -2,9 +2,11 @@ from custom_handler import ResNet50Classifier
 from ts.torch_handler.unit_tests.test_utils.mock_context import MockContext
 import io
 from pathlib import Path
+from PIL import Image
 import torch
 from unittest.mock import MagicMock
 from ts.handler_utils.timer import timed
+
 
 import os
 
@@ -13,12 +15,16 @@ os.environ['CUDA_MODULE_LOADING'] = 'LAZY'
 CURR_FILE_PATH = Path(__file__).parent
 REPO_ROOT_DIR = CURR_FILE_PATH.parent.parent.parent
 EXAMPLE_ROOT_DIR = REPO_ROOT_DIR.joinpath("examples", "benchmarking", "resnet50")
-TEST_DATA = "/home/ubuntu/serve/examples/benchmarking/resnet50/data.txt"
+TEST_DATA = REPO_ROOT_DIR.joinpath("examples", "image_classifier", "kitten.jpg")
 MODEL_PT_FILE = "trt_model_fp16.pt"
 #MODEL_PT_FILE= "resnet50-11ad3fa6.pth"
 
-def prepare_data(batch_size):
-    f = io.open(TEST_DATA, "rb", buffering = 0)
+def prepare_data(image_processing, batch_size):
+
+    image = Image.open(TEST_DATA)
+    image = image_processing(image)
+    torch.save(image, "data.txt") 
+    f = io.open("data.txt", "rb", buffering = 0)
     read_data = f.read()
     data = []
     for i in range(batch_size):
@@ -42,7 +48,7 @@ def benchmark(batch_size):
     handler.initialize(ctx)
     handler.context = ctx
 
-    x = prepare_data(batch_size)
+    x = prepare_data(handler.image_processing, batch_size)
 
     handle(handler, x, batch_size)
 
