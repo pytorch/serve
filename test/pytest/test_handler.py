@@ -9,6 +9,8 @@ import requests
 import test_utils
 import torch
 
+from ts.torch_handler.unit_tests.test_utils.mock_context import MockContext
+
 REPO_ROOT = os.path.normpath(
     os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../")
 )
@@ -417,3 +419,30 @@ def test_echo_stream_inference():
 
     assert str(" ".join(prediction)) == "hello hello hello hello world "
     test_utils.unregister_model("echo_stream")
+
+
+def test_scripted_model_load_with_model_file():
+    from ts.torch_handler.image_classifier import ImageClassifier
+
+    EXAMPLE_ROOT_DIR = os.path.join(
+        REPO_ROOT, "examples", "image_classifier", "resnet_18"
+    )
+
+    script_path = os.path.join(EXAMPLE_ROOT_DIR, "script.py")
+    create_res18_pt = test_utils.load_module_from_py_file(script_path)
+
+    MODEL_PT_FILE = os.path.join(EXAMPLE_ROOT_DIR, "resnet-18.pt")
+
+    torch.manual_seed(42 * 42)
+    create_res18_pt.create_pt_file(MODEL_PT_FILE)
+
+    handler = ImageClassifier()
+
+    ctx = MockContext(
+        model_pt_file=MODEL_PT_FILE,
+        model_dir=EXAMPLE_ROOT_DIR,
+        model_file="model.py",
+    )
+
+    torch.manual_seed(42 * 42)
+    handler.initialize(ctx)

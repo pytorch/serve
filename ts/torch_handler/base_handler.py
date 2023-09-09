@@ -161,17 +161,9 @@ class BaseHandler(abc.ABC):
         # model def file
         model_file = self.manifest["model"].get("modelFile", "")
 
-        if model_file:
-            logger.debug("Loading eager model")
-            self.model = self._load_pickled_model(
-                model_dir, model_file, self.model_pt_path
-            )
-            self.model.to(self.device)
-            self.model.eval()
-
         # Convert your model by following instructions: https://pytorch.org/tutorials/intermediate/nvfuser_intro_tutorial.html
         # For TensorRT support follow instructions here: https://pytorch.org/TensorRT/getting_started/getting_started_with_python_api.html#getting-started-with-python-api
-        elif self.model_pt_path.endswith(".pt"):
+        if self.model_pt_path.endswith(".pt"):
             self.model = self._load_torchscript_model(self.model_pt_path)
             self.model.eval()
 
@@ -179,6 +171,14 @@ class BaseHandler(abc.ABC):
         elif self.model_pt_path.endswith(".onnx") and ONNX_AVAILABLE:
             self.model = setup_ort_session(self.model_pt_path, self.map_location)
             logger.info("Succesfully setup ort session")
+        # Eager model
+        elif model_file:
+            logger.debug("Loading eager model")
+            self.model = self._load_pickled_model(
+                model_dir, model_file, self.model_pt_path
+            )
+            self.model.to(self.device)
+            self.model.eval()
 
         else:
             raise RuntimeError("No model weights could be loaded")
