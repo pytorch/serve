@@ -12,14 +12,14 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  regression-cpu-pypi-nightly:
+  regression-cpu-nightly-binaries:
     # creates workflows for OS: ubuntu, macOS
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-20.04, macOS-latest]
-        python_version: ["3.8", "3.9", "3.10"]
+        python-version: ["3.8", "3.9", "3.10"]
         binaries: ["pypi", "conda"]
     steps:
       - uses: actions/checkout@v3
