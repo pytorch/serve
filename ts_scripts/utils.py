@@ -50,6 +50,6 @@ def try_and_handle(cmd, dry_run=False):
         print(f"Executing command: {cmd}")
     else:
         try:
-            subprocess.run([cmd], shell=True, check=True)
+            subprocess.run([cmd], shell=False, check=True)
         except subprocess.CalledProcessError as e:
             raise (e)
