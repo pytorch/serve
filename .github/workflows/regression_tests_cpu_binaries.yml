@@ -1,7 +1,6 @@
 name: Run Regression Tests for CPU nightly binaries
 
 on:
-  pull_request:
   # run every day at 6:15am
   schedule:
     - cron:  '15 6 * * *'

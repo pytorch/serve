@@ -40,13 +40,6 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           architecture: x64
-      - run: python --version
-      - name: Setup conda with Python ${{ matrix.python-version }}
-        uses: s-weigand/setup-conda@v1
-        with:
-          update-conda: true
-          python-version: ${{ matrix.python-version }}
-          conda-channels: anaconda, conda-forge
       - run: conda --version
       - run: python --version
       - name: Setup Java 17
