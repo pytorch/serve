@@ -15,6 +15,7 @@ import io.netty.handler.codec.http.multipart.DefaultHttpDataFactory;
 import io.netty.handler.codec.http.multipart.HttpPostRequestEncoder;
 import io.netty.handler.codec.http.multipart.MemoryAttribute;
 import io.netty.handler.codec.http.multipart.MemoryFileUpload;
+import io.netty.util.AsciiString;
 import io.netty.util.CharsetUtil;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import io.netty.util.internal.logging.Slf4JLoggerFactory;
@@ -1025,6 +1026,71 @@ public class ModelServerTest {
         Assert.assertEquals(TestUtils.getHttpStatus(), HttpResponseStatus.OK);
         Assert.assertEquals(TestUtils.getHeaders().get("dummy"), "1");
         Assert.assertEquals(TestUtils.getHeaders().get("content-type"), "text/plain");
+        Assert.assertTrue(TestUtils.getResult().contains("bytearray"));
+        unloadTests(mgmtChannel, "respheader");
+    }
+
+    @Test(
+            alwaysRun = true,
+            dependsOnMethods = {"testPredictionsEchoNoMultipart"})
+    public void testPredictionsModifyResponseHeaderZstd()
+            throws NoSuchFieldException, IllegalAccessException, InterruptedException {
+        Channel inferChannel = TestUtils.getInferenceChannel(configManager);
+        Channel mgmtChannel = TestUtils.getManagementChannel(configManager);
+        TestUtils.setConfiguration(configManager, "decode_input_request", "false");
+        loadTests(mgmtChannel, "respheader-test.mar", "respheader");
+
+        TestUtils.setResult(null);
+        TestUtils.setLatch(new CountDownLatch(1));
+        DefaultFullHttpRequest req =
+                new DefaultFullHttpRequest(
+                        HttpVersion.HTTP_1_1, HttpMethod.POST, "/predictions/respheader");
+
+        req.content()
+                .writeBytes(
+                        new byte[] {
+                            0x28,
+                            (byte) 0xB5,
+                            0x2F,
+                            (byte) 0xFD,
+                            0x04,
+                            0x58,
+                            (byte) 0x89,
+                            0x00,
+                            0x00,
+                            0x7B,
+                            0x22,
+                            0x64,
+                            0x61,
+                            0x74,
+                            0x61,
+                            0x22,
+                            0x3A,
+                            0x20,
+                            0x22,
+                            0x74,
+                            0x65,
+                            0x73,
+                            0x74,
+                            0x22,
+                            0x7D,
+                            0x0A,
+                            0x7D,
+                            0x4F,
+                            0x6E,
+                            0x0C,
+                        });
+        HttpUtil.setContentLength(req, 16);
+        req.headers().set(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.APPLICATION_JSON);
+        req.headers().set(HttpHeaderNames.CONTENT_ENCODING, new AsciiString("zstd"));
+        inferChannel.writeAndFlush(req);
+
+        TestUtils.getLatch().await();
+
+        Assert.assertEquals(TestUtils.getHttpStatus(), HttpResponseStatus.OK);
+        Assert.assertEquals(TestUtils.getHeaders().get("dummy"), "1");
+        Assert.assertEquals(TestUtils.getHeaders().get("content-type"), "text/plain");
+        Assert.assertEquals(TestUtils.getHeaders().get("content-encoding"), "zstd");
         Assert.assertTrue(TestUtils.getResult().contains("bytearray"));
         unloadTests(mgmtChannel, "respheader");
     }

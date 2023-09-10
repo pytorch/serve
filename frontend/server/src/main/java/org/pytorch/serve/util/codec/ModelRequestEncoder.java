@@ -1,9 +1,13 @@
 package org.pytorch.serve.util.codec;
 
+import io.airlift.compress.MalformedInputException;
+import io.airlift.compress.zstd.ZstdDecompressor;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
+import io.netty.util.AsciiString;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import org.pytorch.serve.util.messages.BaseModelRequest;
@@ -14,6 +18,9 @@ import org.pytorch.serve.util.messages.RequestInput;
 
 @ChannelHandler.Sharable
 public class ModelRequestEncoder extends MessageToByteEncoder<BaseModelRequest> {
+
+    private static final AsciiString ZSTD = AsciiString.cached("zstd");
+
     public ModelRequestEncoder(boolean preferDirect) {
         super(preferDirect);
     }
@@ -65,13 +72,13 @@ public class ModelRequestEncoder extends MessageToByteEncoder<BaseModelRequest> 
             out.writeByte('I');
             ModelInferenceRequest request = (ModelInferenceRequest) msg;
             for (RequestInput input : request.getRequestBatch()) {
-                encodeRequest(input, out);
+                encodeRequest(ctx, input, out);
             }
             out.writeInt(-1); // End of List
         }
     }
 
-    private void encodeRequest(RequestInput req, ByteBuf out) {
+    private void encodeRequest(ChannelHandlerContext ctx, RequestInput req, ByteBuf out) {
         byte[] buf = req.getRequestId().getBytes(StandardCharsets.UTF_8);
         out.writeInt(buf.length);
         out.writeBytes(buf);
@@ -89,22 +96,65 @@ public class ModelRequestEncoder extends MessageToByteEncoder<BaseModelRequest> 
         out.writeInt(-1); // End of List
 
         for (InputParameter input : req.getParameters()) {
-            encodeParameter(input, out);
+            encodeParameter(ctx, input, out);
         }
         out.writeInt(-1); // End of List
         req.setCached(true);
     }
 
-    private void encodeParameter(InputParameter parameter, ByteBuf out) {
+    private void encodeParameter(ChannelHandlerContext ctx, InputParameter parameter, ByteBuf out) {
+        String[] contentEncodings = parameter.getContentEncoding();
+        if (contentEncodings == null) {
+            contentEncodings = new String[0];
+        }
+        byte[] parameterValue = parameter.getValue();
+
+        if (contentEncodings.length > 1) {
+            throw new RuntimeException("Currently only one content encoding is supported.");
+        }
+
+        if (contentEncodings.length == 1) {
+            if (!ZSTD.contentEqualsIgnoreCase(contentEncodings[0])) {
+                throw new RuntimeException("Only zstd content encoding is currently supported.");
+            }
+
+            // There is no Zstd decoding in Netty yet
+            // so we implement this ourselves
+            ZstdDecompressor decompressor = new ZstdDecompressor();
+
+            ByteBuffer in = ByteBuffer.wrap(parameterValue);
+
+            byte[] decompressed = new byte[1024];
+            ByteBuffer nout;
+            while (true) {
+                decompressed = new byte[decompressed.length * 4];
+                nout = ByteBuffer.wrap(decompressed);
+
+                try {
+                    decompressor.decompress(in, nout);
+                    break;
+                } catch (MalformedInputException ex) {
+                    if (ex.getMessage().contains("Output buffer too small")) {
+                        continue;
+                    }
+                    throw ex;
+                }
+            }
+
+            parameterValue = new byte[nout.position()];
+            for (int i = 0; i != nout.position(); i++) {
+                parameterValue[i] = nout.array()[i];
+            }
+        }
+
         byte[] modelInputName = parameter.getName().getBytes(StandardCharsets.UTF_8);
         out.writeInt(modelInputName.length);
         out.writeBytes(modelInputName);
 
         encodeField(parameter.getContentType(), out);
 
-        byte[] buf = parameter.getValue();
-        out.writeInt(buf.length);
-        out.writeBytes(buf);
+        out.writeInt(parameterValue.length);
+        out.writeBytes(parameterValue);
     }
 
     private static void encodeField(CharSequence field, ByteBuf out) {

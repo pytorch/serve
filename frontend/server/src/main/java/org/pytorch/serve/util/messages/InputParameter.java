@@ -7,6 +7,7 @@ public class InputParameter {
     private String name;
     private byte[] value;
     private CharSequence contentType;
+    private String[] contentEncoding;
 
     public InputParameter() {}
 
@@ -16,12 +17,14 @@ public class InputParameter {
     }
 
     public InputParameter(String name, byte[] data) {
-        this(name, data, null);
+        this(name, data, null, null);
     }
 
-    public InputParameter(String name, byte[] data, CharSequence contentType) {
+    public InputParameter(
+            String name, byte[] data, CharSequence contentType, String[] contentEncoding) {
         this.name = name;
         this.contentType = contentType;
+        this.contentEncoding = contentEncoding;
         this.value = data.clone();
     }
 
@@ -35,5 +38,9 @@ public class InputParameter {
 
     public CharSequence getContentType() {
         return contentType;
+    }
+
+    public String[] getContentEncoding() {
+        return contentEncoding;
     }
 }

@@ -2,6 +2,7 @@ package org.pytorch.serve.workflow.api.http;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpUtil;
@@ -66,8 +67,19 @@ public class WorkflowInferenceRequestHandler extends HttpRequestHandlerChain {
                 form.destroy();
             }
         } else {
+            String contentEncodingHeader = req.headers().get(HttpHeaderNames.CONTENT_ENCODING);
+            String[] contentEncoding;
+            if (contentEncodingHeader != null) {
+                contentEncoding = contentEncodingHeader.split(",");
+                for (int i = 0; i != contentEncoding.length; i++) {
+                    contentEncoding[i] = contentEncoding[i].trim();
+                }
+            } else {
+                contentEncoding = new String[0];
+            }
             byte[] content = NettyUtils.getBytes(req.content());
-            inputData.addParameter(new InputParameter("body", content, contentType));
+            inputData.addParameter(
+                    new InputParameter("body", content, contentType, contentEncoding));
         }
         return inputData;
     }
