@@ -7,14 +7,13 @@
 # The 3 most dangerous folders to change are the following
 # So do not merge code unless you are absolutely sure it works
 # If you're unsure add more people to review
-/ts/ @msaroufim @mreso
+/ts/ @msaroufim @mreso @lxning
 /frontend/ @lxning @min-jean-cho @mreso
 /kubernetes/ @jagadeeshi2i @agunapal
 
 # General owners of various directories
 # Add more rules here as needed
 /examples/ @HamidShojanazeri @agunapal
-/test/ @mreso @agunapal
 .github @agunapal @msaroufim
 /binaries @agunapal @msaroufim
 /ts_scripts/ @mreso @msaroufim
