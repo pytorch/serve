@@ -1,10 +1,9 @@
 name: Push Docker Nightly
 
 on:
-  push
   # run every day at 1:15pm
-  #schedule:
-  #  - cron: "15 13 * * *"
+  schedule:
+    - cron: "15 13 * * *"
 jobs:
   nightly:
     runs-on: [self-hosted, ci-gpu]
