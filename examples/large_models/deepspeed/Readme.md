@@ -4,6 +4,23 @@ This document briefs on serving large HuggingFace (HF) models on multiple GPUs u
 
 To run this example we need to have deepspeed installed. This has been added to the requirement.txt which can be bundled during model packaging.
 
+### Pre-requisites
+
+- Install CUDA. Verified to be working with CUDA 11.7.
+- Verified to be working with:
+
+```bash
+torch                   2.0.1+cu117
+torch-model-archiver    0.8.2
+torch-workflow-archiver 0.2.10
+torchaudio              2.0.2+cu117
+torchdata               0.6.1
+torchserve              0.8.2
+torchtext               0.15.2+cpu
+torchvision             0.15.2+cu117
+transformers            4.33.1
+deepspeed               0.10.2
+```
 
 ```bash
 pip install deepspeed
