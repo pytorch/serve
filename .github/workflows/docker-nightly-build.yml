@@ -3,7 +3,7 @@ name: Push Docker Nightly
 on:
   # run every day at 1:15pm
   schedule:
-    - cron: "15 13 * * *"
+    - cron:  '15 13 * * *'
 jobs:
   nightly:
     runs-on: ubuntu-20.04
@@ -23,10 +23,6 @@ jobs:
         run: |
           cd docker
           python docker_nightly.py
-      - name: Push KServe Docker Nightly
-        run: |
-          cd kubernetes/kserve
-          python docker_nightly.py
 
       - name: Open issue on failure
         if: ${{ failure() && github.event_name  == 'schedule' }}
@@ -34,5 +30,5 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           title: Nightly Docker build failed
-          body: Commit ${{ github.sha }} daily scheduled [CI run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) failed, please check why
-          assignees: ""
+          body:  Commit ${{ github.sha }} daily scheduled [CI run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) failed, please check why
+          assignees: ''
