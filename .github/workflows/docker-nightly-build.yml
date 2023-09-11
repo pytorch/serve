@@ -30,11 +30,11 @@ jobs:
       - name: Push Docker Nightly
         run: |
           cd docker
-          python docker_nightly.py
+          python docker_nightly.py --cleanup
       - name: Push KServe Docker Nightly
         run: |
           cd kubernetes/kserve
-          python docker_nightly.py
+          python docker_nightly.py --cleanup
 
       - name: Open issue on failure
         if: ${{ failure() && github.event_name  == 'schedule' }}
