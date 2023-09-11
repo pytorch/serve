@@ -63,8 +63,4 @@ if __name__ == "__main__":
 
     # Cleanup built images
     if args.cleanup:
-        try_and_handle(f"docker rmi {organization}/{project}:latest-cpu", dry_run)
-        try_and_handle(f"docker rmi {organization}/{cpu_version}", dry_run)
-        try_and_handle(f"docker rmi {organization}/{project}:latest-gpu", dry_run)
-        try_and_handle(f"docker rmi {organization}/{gpu_version}", dry_run)
-        try_and_handle(f"docker system prune -f", dry_run)
+        try_and_handle(f"docker system prune --all --volumes", dry_run)
