@@ -2,8 +2,6 @@
 
 This document briefs on serving large HuggingFace (HF) models on multiple GPUs using deepspeed. We are using facebook/opt-30b in this example
 
-To run this example we need to have deepspeed installed. This has been added to the requirement.txt which can be bundled during model packaging.
-
 ### Pre-requisites
 
 - Install CUDA. Verified to be working with CUDA 11.7.
@@ -21,6 +19,8 @@ torchvision             0.15.2+cu117
 transformers            4.33.1
 deepspeed               0.10.2
 ```
+
+To run this example we need to have deepspeed installed. This has been added to the requirement.txt which can be bundled during model packaging.
 
 ```bash
 pip install deepspeed
