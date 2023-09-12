@@ -212,8 +212,8 @@ function build() {
     mv $DEPS_DIR/../src/examples/libmnist_handler.so $DEPS_DIR/../../test/resources/torchscript_model/mnist/mnist_handler/libmnist_handler.so
   fi
 
-  if [ -f "$DEPS_DIR/../src/examples/libllm_handler.so" ]; then
-    mv $DEPS_DIR/../src/examples/libllm_handler.so $DEPS_DIR/../../test/resources/torchscript_model/babyllama/libllm_handler.so
+  if [ -f "$DEPS_DIR/../src/examples/libbabyllama_handler.so" ]; then
+    mv $DEPS_DIR/../src/examples/libbabyllama_handler.so $DEPS_DIR/../../test/resources/torchscript_model/babyllama/babyllama_handler/libbabyllama_handler.so
   fi
 
   cd $DEPS_DIR/../..
