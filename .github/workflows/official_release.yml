@@ -32,7 +32,7 @@ jobs:
       - name: Setup Conda
         uses: s-weigand/setup-conda@v1
         with:
-          python-version: 3.10
+          python-version: "3.10"
       - name: Setup Anaconda
         run: |
           conda --version
