@@ -13,7 +13,7 @@ int steps = 256;
 
 std::pair<std::shared_ptr<torch::jit::script::Module>,
           std::shared_ptr<torch::Device>>
-LlmHandler::LoadModel(
+BabyLlamaHandler::LoadModel(
     std::shared_ptr<torchserve::LoadModelRequest>& load_model_request) {
   try {
     auto device = GetTorchDevice(load_model_request);
@@ -73,7 +73,7 @@ LlmHandler::LoadModel(
   }
 }
 
-std::vector<torch::jit::IValue> LlmHandler::Preprocess(
+std::vector<torch::jit::IValue> BabyLlamaHandler::Preprocess(
     std::shared_ptr<torch::Device>& device,
     std::pair<std::string&, std::map<uint8_t, std::string>&>& idx_to_req_id,
     std::shared_ptr<torchserve::InferenceRequestBatch>& request_batch,
@@ -154,7 +154,7 @@ std::vector<torch::jit::IValue> LlmHandler::Preprocess(
   return batch_ivalue;
 }
 
-torch::Tensor LlmHandler::Inference(
+torch::Tensor BabyLlamaHandler::Inference(
     std::shared_ptr<torch::jit::script::Module> model,
     std::vector<torch::jit::IValue>& inputs,
     std::shared_ptr<torch::Device>& device,
@@ -231,7 +231,7 @@ torch::Tensor LlmHandler::Inference(
   return torch::stack(batch_output_vector);
 }
 
-void LlmHandler::Postprocess(
+void BabyLlamaHandler::Postprocess(
     const torch::Tensor& data,
     std::pair<std::string&, std::map<uint8_t, std::string>&>& idx_to_req_id,
     std::shared_ptr<torchserve::InferenceResponseBatch>& response_batch) {
@@ -274,7 +274,7 @@ void LlmHandler::Postprocess(
   }
 }
 
-LlmHandler::~LlmHandler() noexcept {
+BabyLlamaHandler::~BabyLlamaHandler() noexcept {
   free_sampler(&sampler);
   free_tokenizer(&tokenizer);
   free_transformer(&transformer);
@@ -284,13 +284,13 @@ LlmHandler::~LlmHandler() noexcept {
 
 #if defined(__linux__) || defined(__APPLE__)
 extern "C" {
-torchserve::torchscripted::BaseHandler* allocatorLlmHandler() {
-  return new llm::LlmHandler();
+torchserve::torchscripted::BaseHandler* allocatorBabyLlamaHandler() {
+  return new llm::BabyLlamaHandler();
 }
 
-void deleterLlmHandler(torchserve::torchscripted::BaseHandler* p) {
+void deleterBabyLlamaHandler(torchserve::torchscripted::BaseHandler* p) {
   if (p != nullptr) {
-    delete static_cast<llm::LlmHandler*>(p);
+    delete static_cast<llm::BabyLlamaHandler*>(p);
   }
 }
 }
