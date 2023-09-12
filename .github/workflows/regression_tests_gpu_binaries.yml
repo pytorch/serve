@@ -1,6 +1,7 @@
 name: Run Regression Tests for GPU nightly binaries
 
 on:
+  push:
   # run every day at 6:15am
   schedule:
     - cron:  '15 6 * * *'
