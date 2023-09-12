@@ -46,6 +46,10 @@ jobs:
         run: |
           python ts_scripts/install_dependencies.py --environment=dev
           pip install -e .
+      - name: Setup Anaconda
+        run: |
+          conda --version
+          conda install -y conda-build anaconda-client
       - name: Build PyPI & conda binaries
         run: python binaries/build.py
       #- name: Push conda binaries
