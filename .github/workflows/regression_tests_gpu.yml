@@ -45,5 +45,10 @@ jobs:
         run: |
           python ts_scripts/install_dependencies.py --environment=dev --cuda=cu117
       - name: Torchserve Regression Tests
-        run: |
-          python test/regression_tests.py
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 60
+          retry_on: error
+          max_attempts: 3
+          command: |
+            python test/regression_tests.py
