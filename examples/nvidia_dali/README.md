@@ -6,13 +6,19 @@ In this example, we use NVIDIA DALI for pre-processing image input for inference
 
 Refer to [NVIDIA-DALI-Documentation](https://docs.nvidia.com/deeplearning/dali/user-guide/docs/index.html) for detailed information
 
+## Install dependencies
+
+Navigate to `serve/examples/nvidia_dali` directory and run the below command to install the dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
 ## DALI Pre-Processing with Default dali_image_classifier handler for resnet-18 model
 
 ### Create model-archive file
 
-Navigate to serve folder
-
-:warning: Remove the `pipeline_file` key from the `model-config.yaml` file to use the default dali_image_classifier handler
+Navigate to `serve` folder
 
 Download model weights
 
@@ -21,14 +27,14 @@ wget https://download.pytorch.org/models/resnet18-f37072fd.pth
 ```
 
 ```bash
-torch-model-archiver --model-name resnet-18 --version 1.0 --model-file ./examples/image_classifier/resnet_18/model.py --serialized-file resnet18-f37072fd.pth --handler dali_image_classifier --config-file model-config.yaml --extra-files ./examples/image_classifier/index_to_name.json
+torch-model-archiver --model-name resnet-18 --version 1.0 --model-file ./examples/image_classifier/resnet_18/model.py --serialized-file resnet18-f37072fd.pth --handler dali_image_classifier --config-file ./examples/nvidia_dali/model-config.yaml --extra-files ./examples/image_classifier/index_to_name.json
 ```
 
 Create a new directory `model_store` and move the model-archive file
 
 ```bash
 mkdir model_store
-mv resnet-18.mar model_store/
+mv mnist.mar model_store/
 ```
 
 ### Start the torchserve
@@ -46,14 +52,6 @@ curl http://127.0.0.1:8080/predictions/resnet -T ./examples/image_classifier/kit
 ```
 
 ## DALI Pre-Processing in a Custom Handler for mnist model
-
-### Install dependencies
-
-Navigate to `serve/examples/nvidia_dali` directory and run the below command to install the dependencies
-
-```bash
-pip install -r requirements.txt
-```
 
 ### Define and Build DALI Pipeline
 
@@ -80,7 +78,7 @@ python serialize_dali_pipeline.py --config model-config.yaml
 
 **__Note__**:
 
-- Make sure that the serialized file has the extension `.dali`
+- Make sure that the serialized file named `model.dali` is created.
 - The Torchserve batch size should match the DALI batch size.
 
 ### Create model-archive file

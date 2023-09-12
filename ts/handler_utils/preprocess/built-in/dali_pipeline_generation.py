@@ -11,11 +11,7 @@ def parse_args():
     parser.add_argument("--batch_size", default=1)
     parser.add_argument("--num_threads", default=1)
     parser.add_argument("--device_id", default=1)
-    parser.add_argument("--device_id", default=0)
     parser.add_argument("--save", default="./default.dali")
-    parser.add_argument(
-        "--save", default=f"{os.path.dirname(os.path.abspath(__file__))}/default.dali"
-    )
     return parser.parse_args()
 
 

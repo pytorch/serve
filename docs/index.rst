@@ -57,6 +57,13 @@ What's going on in TorchServe?
    :tags: Performance,Troubleshooting
 
 .. customcarditem::
+   :header: Large Model Inference
+   :card_description: Serving Large Models with TorchServe
+   :image: https://raw.githubusercontent.com/pytorch/serve/master/docs/images/ts-lmi-internal.png
+   :link: large_model_inference.html
+   :tags: Large-Models,Performance
+
+.. customcarditem::
    :header: Troubleshooting
    :card_description: Various updates on Torcherve and use cases.
    :image: https://raw.githubusercontent.com/pytorch/serve/master/benchmarks/snake_viz.png

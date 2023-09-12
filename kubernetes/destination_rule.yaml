@@ -1,0 +1,13 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: torchserve-dr
+spec:
+  host: torchserve.default.svc.cluster.local # <ts-service-name>.<namespace>.svc.cluster.local
+  trafficPolicy:
+    loadBalancer:
+      consistentHash:
+        # httpHeaderName: x-user
+        httpCookie:
+          name: session_id
+          ttl: 60s

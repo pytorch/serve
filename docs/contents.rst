@@ -16,7 +16,7 @@
   model_zoo
   request_envelopes
   server
-  mps
+  nvidia_mps
   snapshot
   torchserve_on_win_native
   torchserve_on_wsl
