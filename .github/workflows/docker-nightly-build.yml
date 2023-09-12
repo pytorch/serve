@@ -6,8 +6,15 @@ on:
     - cron: "15 13 * * *"
 jobs:
   nightly:
-    runs-on: ubuntu-20.04
+    runs-on: [self-hosted, ci-gpu]
     steps:
+      - name: Clean up previous run
+        run: |
+          echo "Cleaning up previous run"
+          ls -la ./
+          sudo rm -rf ./* || true
+          sudo rm -rf ./.??* || true
+          ls -la ./
       - name: Setup Python 3.8
         uses: actions/setup-python@v4
         with:
@@ -22,11 +29,11 @@ jobs:
       - name: Push Docker Nightly
         run: |
           cd docker
-          python docker_nightly.py
+          python docker_nightly.py --cleanup
       - name: Push KServe Docker Nightly
         run: |
           cd kubernetes/kserve
-          python docker_nightly.py
+          python docker_nightly.py --cleanup
 
       - name: Open issue on failure
         if: ${{ failure() && github.event_name  == 'schedule' }}
