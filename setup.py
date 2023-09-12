@@ -123,6 +123,11 @@ class BuildDaliPipeline(setuptools.command.build_py.build_py):
     Class to invoke the custom command defined above.
     """
 
+    source_dali_file = os.path.abspath("./default.dali")
+    dest_file_name = os.path.abspath(
+        "ts/handler_utils/preprocess/built-in/default.dali"
+    )
+
     def run(self):
         try:
             subprocess.check_call(
@@ -130,6 +135,7 @@ class BuildDaliPipeline(setuptools.command.build_py.build_py):
             )
         except OSError:
             assert 0, "dali pipeline build failed"
+        copy2(self.source_dali_file, self.dest_file_name)
 
 
 class BuildPlugins(Command):
@@ -192,6 +198,7 @@ if __name__ == "__main__":
         url="https://github.com/pytorch/serve.git",
         keywords="TorchServe PyTorch Serving Deep Learning Inference AI",
         packages=pkgs,
+        package_data={"ts.handler_utils.preprocess.built-in": ["default.dali"]},
         cmdclass={
             "build_frontend": BuildFrontEnd,
             "build_plugins": BuildPlugins,
