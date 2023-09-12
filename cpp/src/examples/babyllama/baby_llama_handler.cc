@@ -160,7 +160,7 @@ torch::Tensor LlmHandler::Inference(
     std::shared_ptr<torch::Device>& device,
     std::pair<std::string&, std::map<uint8_t, std::string>&>& idx_to_req_id,
     std::shared_ptr<torchserve::InferenceResponseBatch>& response_batch) {
-  c10::InferenceMode guard;
+  torch::InferenceMode guard;
   std::vector<torch::Tensor> batch_output_vector;
   for (const torch::jit::IValue& input : inputs) {
     std::vector<torch::Tensor> tensor_vector;
