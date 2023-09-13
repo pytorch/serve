@@ -47,7 +47,8 @@ def install_conda_build(dry_run):
 
     # Install conda if not present
     install_miniconda(dry_run)
-
+    print("#### Installing conda build")
+    os.system(f"{CONDA_BINARY} install conda-build anaconda-client -y")
     try_and_handle(f"{CONDA_BINARY} install conda-build anaconda-client -y", dry_run)
 
 
