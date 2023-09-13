@@ -39,7 +39,7 @@ jobs:
           conda --version
           conda install -y conda-build anaconda-client
       - run: conda -h
-      - run: conda-build -h
+      - run: conda build -h
       - name: Setup Python 3.10
         uses: actions/setup-python@v3
         with:
@@ -54,10 +54,10 @@ jobs:
           conda --version
           conda install -y conda-build anaconda-client
       - run: which conda
-      - run: conda -h
+      - run: conda build -h
       - name: Build PyPI & conda binaries
         run: python binaries/build.py
-      - run: conda -h
+      - run: conda build -h
       #- name: Push conda binaries
       #  env:
       #    ANACONDA_API_TOKEN: ${{ secrets.CONDA_PASSWORD }}
