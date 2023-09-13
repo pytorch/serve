@@ -1,4 +1,4 @@
 nvgpu; sys_platform != 'win32'
 nvgpu==0.8.0; sys_platform == 'win32'
-nvidia-dali-cuda110==1.28.0; sys_platform == 'linux'
+nvidia-dali-cuda120==1.28.0; sys_platform == 'linux'
 --extra-index-url https://developer.download.nvidia.com/compute/redist
