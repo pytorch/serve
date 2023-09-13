@@ -50,8 +50,13 @@ jobs:
       - run: conda --version
       - run: python --version
       - name: Install dependencies
-        run: |
-          python ts_scripts/install_dependencies.py --environment=dev --cuda=cu118
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 60
+          retry_on: error
+          max_attempts: 3
+          command: |
+            python ts_scripts/install_dependencies.py --environment=dev --cuda=cu118
       - name: Torchserve Regression Tests
         uses: nick-fields/retry@v2
         with:
