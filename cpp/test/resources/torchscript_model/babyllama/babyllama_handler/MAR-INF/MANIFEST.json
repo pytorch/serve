@@ -2,7 +2,7 @@
   "createdOn": "28/07/2020 06:32:08",
   "runtime": "LSP",
   "model": {
-    "modelName": "llm",
+    "modelName": "babyllama",
     "serializedFile": "dummy.pt",
     "handler": "libbabyllama_handler:BabyLlamaHandler",
     "modelVersion": "2.0"

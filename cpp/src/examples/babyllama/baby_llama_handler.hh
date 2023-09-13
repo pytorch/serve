@@ -1,5 +1,5 @@
-#ifndef LLM_HANDLER_HH_
-#define LLM_HANDLER_HH_
+#ifndef BABYLLAMA_HANDLER_HH_
+#define BABYLLAMA_HANDLER_HH_
 
 #include <folly/FileUtil.h>
 #include <folly/json.h>
@@ -45,4 +45,4 @@ class BabyLlamaHandler : public torchserve::torchscripted::BaseHandler {
       override;
 };
 }  // namespace llm
-#endif  // LLM_HANDLER_HH_
+#endif  // BABYLLAMA_HANDLER_HH_
