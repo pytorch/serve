@@ -78,7 +78,7 @@ TEST_F(TorchScriptedBackendTest, TestLoadPredictMnistHandler) {
                     "mnist_ts", 200);
 }
 
-TEST_F(TorchScriptedBackendTest, TestLoadPredictLlmHandler) {
+TEST_F(TorchScriptedBackendTest, TestLoadPredictBabyLlamaHandler) {
   this->LoadPredict(
       std::make_shared<torchserve::LoadModelRequest>(
           "test/resources/torchscript_model/babyllama/babyllama_handler", "llm",
