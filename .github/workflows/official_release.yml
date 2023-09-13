@@ -26,6 +26,11 @@ jobs:
           java-version: '17'
       - name: Checkout TorchServe
         uses: actions/checkout@v3
+      - name: Setup Python 3.8
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.8"
+          architecture: x64
       - uses: conda-incubator/setup-miniconda@v2
         with:
           miniconda-version: "latest"
@@ -40,11 +45,6 @@ jobs:
           conda install -y conda-build anaconda-client
       - run: conda -h
       - run: conda build -h
-      - name: Setup Python 3.8
-        uses: actions/setup-python@v3
-        with:
-          python-version: "3.8"
-          architecture: x64
       - name: Install dependencies
         run: |
           python ts_scripts/install_dependencies.py --environment=dev
