@@ -338,6 +338,7 @@ dimN= Dimension(name_n, value_n)
 **Generic metrics are defaulted to a `COUNTER` metric type**
 
 One can add metrics with generic units using the following function.
+
 #### Function API to add generic metrics without default dimensions
 
 ```python
