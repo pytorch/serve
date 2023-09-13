@@ -42,9 +42,11 @@ In `prometheus` mode, metrics defined in the metrics configuration file are made
 
 TorchServe defines metrics in a [yaml](https://github.com/pytorch/serve/blob/master/ts/configs/metrics.yaml) file, including both frontend metrics (i.e. `ts_metrics`) and backend metrics (i.e. `model_metrics`).
 When TorchServe is started, the metrics definition is loaded in the frontend and backend cache separately.
-The backend flushes the metrics cache once a load model or inference request is completed.
+The backend emits metrics logs as they are updated. The frontend parses these logs and makes the corresponding metrics available either as logs or via the [metrics API endpoint](metrics_api.md) based on the metrics_mode configuration.
 
-Dynamic updates between the frontend and backend are _not_ currently being handled.
+
+Dynamic updates to the metrics configuration file is currently not supported. In order to account for updates made to the metrics configuration file, Torchserve will need to be restarted.
+
 
 The `metrics.yaml` is formatted with Prometheus metric type terminology:
 
@@ -88,7 +90,7 @@ model_metrics:  # backend metrics
 
 Note that **only** the metrics defined in the **metrics configuration file** can be emitted to model_metrics.log or made available via the [metrics API endpoint](metrics_api.md). This is done to ensure that the metrics configuration file serves as a central inventory of all the metrics that Torchserve can emit.
 
-Default metrics are provided in the [metrics.yaml](https://github.com/pytorch/serve/blob/master/ts/configs/metrics.yaml) file, but the user can either delete them to their liking / ignore them altogether, because these metrics will not be emitted unless they are edited.\
+Default metrics are provided in the [metrics.yaml](https://github.com/pytorch/serve/blob/master/ts/configs/metrics.yaml) file, but the user can either delete them to their liking / ignore them altogether, because these metrics will not be emitted unless they are updated.\
 When adding custom `model_metrics` in the metrics configuration file, ensure to include `ModelName` and `Level` dimension names towards the end of the list of dimensions since they are included by default by the following custom metrics APIs:
 [add_metric](#function-api-to-add-generic-metrics-with-default-dimensions), [add_counter](#add-counter-based-metrics),
 [add_time](#add-time-based-metrics), [add_size](#add-size-based-metrics) or [add_percent](#add-percentage-based-metrics).
@@ -96,7 +98,7 @@ When adding custom `model_metrics` in the metrics configuration file, ensure to 
 
 ### Starting TorchServe Metrics
 
-Whenever torchserve starts, the [backend worker](https://github.com/pytorch/serve/blob/master/ts/model_service_worker.py) initializes `service.context.metrics` with the [MetricsCache](https://github.com/pytorch/serve/blob/master/ts/metrics/metric_cache_yaml_impl.py) object. The `model_metrics` (backend metrics) section within the specified yaml file will be parsed, and Metric objects will be created based on the parsed section and added  that are added to the cache.
+Whenever torchserve starts, the [backend worker](https://github.com/pytorch/serve/blob/master/ts/model_service_worker.py) initializes `service.context.metrics` with the [MetricsCache](https://github.com/pytorch/serve/blob/master/ts/metrics/metric_cache_yaml_impl.py) object. The `model_metrics` (backend metrics) section within the specified yaml file will be parsed, and Metric objects will be created based on the parsed section and added to the cache.
 
 This is all done internally, so the user does not have to do anything other than specifying the desired yaml file.
 
@@ -270,8 +272,7 @@ When adding any metric via Metrics API, users have the ability to override the m
 `metric_type=MetricTypes.[COUNTER/GAUGE/HISTOGRAM]`.
 
 ```python
-metric1 = metrics.add_metric("GenericMetric", unit=unit, dimension_names=["name1", "name2", ...], metric_type=MetricTypes.GAUGE)
-metric.add_or_update(value, dimension_values=["value1", "value2", ...])
+metrics.add_metric("GenericMetric", value, unit=unit, dimension_names=["name1", "name2", ...], metric_type=MetricTypes.GAUGE)
 
 # Backwards compatible, combines the above two method calls
 metrics.add_counter("CounterMetric", value=1, dimensions=[Dimension("name", "value"), ...])
@@ -337,31 +338,34 @@ dimN= Dimension(name_n, value_n)
 **Generic metrics are defaulted to a `COUNTER` metric type**
 
 One can add metrics with generic units using the following function.
-
-Function API
+#### Function API to add generic metrics without default dimensions
 
 ```python
-    def add_metric(self, metric_name: str, unit: str, idx=None, dimension_names: list = None,
-                   metric_type: MetricTypes = MetricTypes.COUNTER) -> None:
+    def add_metric_to_cache(
+        self,
+        metric_name: str,
+        unit: str,
+        dimension_names: list = [],
+        metric_type: MetricTypes = MetricTypes.COUNTER,
+    ) -> CachingMetric:
         """
-        Create a new metric and add into cache.
-            Add a metric which is generic with custom metrics
+        Create a new metric and add into cache. Override existing metric if already present.
 
         Parameters
         ----------
-        metric_name: str
+        metric_name str
             Name of metric
-        value: int, float
-            value of metric
-        unit: str
-            unit of metric
-        idx: int
-            request_id index in batch
-        dimensions: list
-            list of dimensions for the metric
-        metric_type: MetricTypes
-            Type of metric
+        unit str
+            unit can be one of ms, percent, count, MB, GB or a generic string
+        dimension_names list
+            list of dimension name strings for the metric
+        metric_type MetricTypes
+            Type of metric Counter, Gauge, Histogram
+        Returns
+        -------
+        newly created Metrics object
         """
+
 
     def add_or_update(
         self,
@@ -387,8 +391,49 @@ Function API
 # Add Distance as a metric
 # dimensions = [dim1, dim2, dim3, ..., dimN]
 # Assuming batch size is 1 for example
-metric = metrics.add_metric('DistanceInKM', unit='km', dimension_names=[...])
+metric = metrics.add_metric_to_cache('DistanceInKM', unit='km', dimension_names=[...])
 metric.add_or_update(distance, dimension_values=[...])
+```
+
+Note that calling `add_metric_to_cache` will not emit the metric, `add_or_update` will need to be called on the metric object as shown above.
+
+#### Function API to add generic metrics with default dimensions
+
+```python
+    def add_metric(
+        self,
+        name: str,
+        value: int or float,
+        unit: str,
+        idx: str = None,
+        dimensions: list = [],
+        metric_type: MetricTypes = MetricTypes.COUNTER,
+    ):
+        """
+        Add a generic metric
+            Default metric type is counter
+
+        Parameters
+        ----------
+        name : str
+            metric name
+        value: int or float
+            value of the metric
+        unit: str
+            unit of metric
+        idx: str
+            request id to be associated with the metric
+        dimensions: list
+            list of Dimension objects for the metric
+        metric_type MetricTypes
+            Type of metric Counter, Gauge, Histogram
+        """
+```
+
+```python
+# Add Distance as a metric
+# dimensions = [dim1, dim2, dim3, ..., dimN]
+metric = metrics.add_metric('DistanceInKM', value=10, unit='km', dimensions=[...])
 ```
 
 ### Add time-based metrics
@@ -400,7 +445,7 @@ Add time-based by invoking the following method:
 Function API
 
 ```python
-    def add_time(self, metric_name: str, value: int or float, idx=None, unit: str = 'ms', dimensions: list = None,
+    def add_time(self, name: str, value: int or float, idx=None, unit: str = 'ms', dimensions: list = None,
                  metric_type: MetricTypes = MetricTypes.GAUGE):
         """
         Add a time based metric like latency, default unit is 'ms'
@@ -408,7 +453,7 @@ Function API
 
         Parameters
         ----------
-        metric_name : str
+        name : str
             metric name
         value: int
             value of metric
@@ -445,7 +490,7 @@ Add size-based metrics by invoking the following method:
 Function API
 
 ```python
-    def add_size(self, metric_name: str, value: int or float, idx=None, unit: str = 'MB', dimensions: list = None,
+    def add_size(self, name: str, value: int or float, idx=None, unit: str = 'MB', dimensions: list = None,
                  metric_type: MetricTypes = MetricTypes.GAUGE):
         """
         Add a size based metric
@@ -453,7 +498,7 @@ Function API
 
         Parameters
         ----------
-        metric_name : str
+        name : str
             metric name
         value: int, float
             value of metric
@@ -490,7 +535,7 @@ Percentage based metrics can be added by invoking the following method:
 Function API
 
 ```python
-    def add_percent(self, metric_name: str, value: int or float, idx=None, dimensions: list = None,
+    def add_percent(self, name: str, value: int or float, idx=None, dimensions: list = None,
                     metric_type: MetricTypes = MetricTypes.GAUGE):
         """
         Add a percentage based metric
@@ -498,7 +543,7 @@ Function API
 
         Parameters
         ----------
-        metric_name : str
+        name : str
             metric name
         value: int, float
             value of metric
@@ -511,6 +556,8 @@ Function API
         """
 
 ```
+
+**Inferred unit**: `percent`
 
 To add custom percentage-based metrics:
 
@@ -530,14 +577,13 @@ Counter based metrics can be added by invoking the following method
 Function API
 
 ```python
-    def add_counter(self, metric_name: str, value: int or float, idx=None, dimensions: list = None,
-                    metric_type: MetricTypes = MetricTypes.COUNTER):
+    def add_counter(self, name: str, value: int or float, idx=None, dimensions: list = None):
         """
         Add a counter metric or increment an existing counter metric
             Default metric type is counter
         Parameters
         ----------
-        metric_name : str
+        name : str
             metric name
         value: int or float
             value of metric
@@ -545,10 +591,10 @@ Function API
             request_id index in batch
         dimensions: list
             list of dimensions for the metric
-        metric_type: MetricTypes
-           type for defining different operations, defaulted to counter metric type for Counter metrics
         """
 ```
+
+**Inferred unit**: `count`
 
 ### Getting a metric
 
@@ -596,7 +642,7 @@ context.metrics.add_counter(...)
 ```
 
 This custom metrics information is logged in the `model_metrics.log` file configured through [log4j2.xml](https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/log4j2.xml) file
-or made available via the [metrics](https://github.com/pytorch/serve/blob/master/docs/metrics_api.md) API endpoint based on the `metrics_mode` configuration.
+or made available via the [metrics](metrics_api.md) API endpoint based on the `metrics_mode` configuration.
 
 ## Metrics YAML File Parsing and Metrics API Custom Handler Example
 
@@ -649,6 +695,7 @@ class CustomHandlerExample:
         # except this time with gauge metric type object
         metrics.add_size("GaugeModelMetricNameExample", 42.5)
 ```
+
 ## Backwards compatibility warnings and upgrade guide
 1. Starting [v0.6.1](https://github.com/pytorch/serve/releases/tag/v0.6.1), the `add_metric` API signature changed\
    from: [add_metric(name, value, unit, idx=None, dimensions=None)](https://github.com/pytorch/serve/blob/61f1c4182e6e864c9ef1af99439854af3409d325/ts/metrics/metrics_store.py#L184)\
