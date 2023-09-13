@@ -76,11 +76,8 @@ std::vector<torch::jit::IValue> LlamacppHandler::Preprocess(
     std::pair<std::string&, std::map<uint8_t, std::string>&>& idx_to_req_id,
     std::shared_ptr<torchserve::InferenceRequestBatch>& request_batch,
     std::shared_ptr<torchserve::InferenceResponseBatch>& response_batch) {
-  std::cout << "Initializing llama context" << std::endl;
-
+  
   initialize_context();
-
-  std::cout << "Llama context initialized" << std::endl;
 
   std::vector<torch::jit::IValue> batch_ivalue;
   std::vector<torch::Tensor> batch_tensors;
@@ -113,10 +110,6 @@ std::vector<torch::jit::IValue> LlamacppHandler::Preprocess(
         continue;
       }
 
-      std::cout << "Received Input: " << data_it->second << std::endl;
-
-      // std::vector new_data = request.parameters["data"];
-      // std::string msg = torchserve::Converter::VectorToStr(new_data);
       std::string msg = torchserve::Converter::VectorToStr(data_it->second);
 
       // tokenization
@@ -228,10 +221,6 @@ torch::Tensor LlamacppHandler::Inference(
       break;
     }
 
-    // print the new token :
-    std::cout << "New Token: " << llama_token_to_piece(llama_ctx, new_token_id)
-              << std::endl;
-
     // push this new token for next evaluation
     tokens_list.push_back(new_token_id);
   }
@@ -265,7 +254,6 @@ void LlamacppHandler::Postprocess(
       }
 
       std::string generated_text_str = generated_text_stream.str();
-      std::cout << "Generated Text Str: " << generated_text_str << std::endl;
 
       auto response = (*response_batch)[kv.second];
 
