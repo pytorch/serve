@@ -61,7 +61,6 @@ For tensor input, use [totensor](totensor.py) utility
 python totensor.py 0.png
 ```
 
-
 ## Deploying the model in local machine
 
 Start TorchServe
@@ -94,7 +93,6 @@ Expected Output
 {"id": "d3b15cad-50a2-4eaf-80ce-8b0a428bd298", "model_name": "mnist", "model_version": "1.0", "outputs": [{"name": "predict", "shape": [1], "datatype": "INT64", "data": [0]}]}
 ```
 
-
 ## Sample request and response for tensor input
 
 
@@ -105,10 +103,10 @@ curl -v -H "Content-Type: application/json" http://localhost:8080/v2/models/mnis
 ```
 
 Expected output
+
 ```bash
 {"id": "d3b15cad-50a2-4eaf-80ce-8b0a428bd298", "model_name": "mnist", "model_version": "1.0", "outputs": [{"name": "predict", "shape": [1], "datatype": "INT64", "data": [0]}]}
 ```
-
 
 ## Sample request and response for captum
 

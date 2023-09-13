@@ -3,7 +3,7 @@ import os
 import sys
 
 # To help discover local modules
-REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
+REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../..")
 sys.path.append(REPO_ROOT)
 
 from setup import get_nightly_version
@@ -32,14 +32,14 @@ if __name__ == "__main__":
     dry_run = args.dry_run
     organization = args.organization
 
-    project = "torchserve-nightly"
+    project = "torchserve-kfs-nightly"
     cpu_version = f"{project}:cpu-{get_nightly_version()}"
     gpu_version = f"{project}:gpu-{get_nightly_version()}"
 
     # Build Nightly images and append the date in the name
     try_and_handle(f"./build_image.sh -n -t {organization}/{cpu_version}", dry_run)
     try_and_handle(
-        f"./build_image.sh -g -cv cu118 -t {organization}/{gpu_version}",
+        f"./build_image.sh -g -n -t {organization}/{gpu_version}",
         dry_run,
     )
 
