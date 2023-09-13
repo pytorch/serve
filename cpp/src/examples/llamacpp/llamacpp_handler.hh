@@ -1,6 +1,9 @@
 #ifndef LLAMACPP_HANDLER_HH_
 #define LLAMACPP_HANDLER_HH_
 
+#include <folly/FileUtil.h>
+#include <folly/json.h>
+
 #include "common/common.h"
 #include "ggml.h"
 #include "llama.h"

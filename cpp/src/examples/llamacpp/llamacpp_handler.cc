@@ -29,7 +29,27 @@ LlamacppHandler::LoadModel(
                                      manifest_->GetModel().serialized_file),
                          *device));
 
-    params.model = "/home/ubuntu/gpu/llama.cpp/llama-2-7b-chat.Q4_0.gguf";
+    const std::string configFilePath =
+        fmt::format("{}/{}", load_model_request->model_dir, "config.json");
+    std::string jsonContent;
+    if (!folly::readFile(configFilePath.c_str(), jsonContent)) {
+      std::cerr << "config.json not found at: " << configFilePath << std::endl;
+      throw;
+    }
+    folly::dynamic json;
+    json = folly::parseJson(jsonContent);
+
+    std::string checkpoint_path;
+    if (json.find("checkpoint_path") != json.items().end()) {
+      checkpoint_path = json["checkpoint_path"].asString();
+    } else {
+      std::cerr
+          << "Required field 'checkpoint_path' not found in JSON."
+          << std::endl;
+      throw;
+    }
+    
+    params.model = checkpoint_path;
     params.main_gpu = 0;
     params.n_gpu_layers = 35;
 
