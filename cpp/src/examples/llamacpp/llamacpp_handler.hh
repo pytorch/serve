@@ -1,5 +1,5 @@
-#ifndef LLM_HANDLER_HH_
-#define LLM_HANDLER_HH_
+#ifndef LLAMACPP_HANDLER_HH_
+#define LLAMACPP_HANDLER_HH_
 
 #include "common/common.h"
 #include "ggml.h"
@@ -49,4 +49,4 @@ class LlamacppHandler : public torchserve::torchscripted::BaseHandler {
       override;
 };
 }  // namespace llm
-#endif  // LLM_HANDLER_HH_
+#endif  // LLAMACPP_HANDLER_HH_
