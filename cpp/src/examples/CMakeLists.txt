@@ -6,14 +6,14 @@ add_library(mnist_handler SHARED ${MNIST_SOURCE_FILES})
 target_include_directories(mnist_handler PUBLIC ${MNIST_SRC_DIR})
 target_link_libraries(mnist_handler PRIVATE ts_backends_torch_scripted ts_utils ${TORCH_LIBRARIES}) 
 
-set(LLM_SRC_DIR "${torchserve_cpp_SOURCE_DIR}/src/examples/llm")
+set(LLM_SRC_DIR "${torchserve_cpp_SOURCE_DIR}/src/examples/llamacpp")
 set(LLAMACPP_SRC_DIR "/home/ubuntu/llama.cpp")
 set(LLM_SOURCE_FILES "")
-list(APPEND LLM_SOURCE_FILES ${LLM_SRC_DIR}/llm_handler.cc)
-add_library(llm_handler SHARED ${LLM_SOURCE_FILES})
-target_include_directories(llm_handler PUBLIC ${LLM_SRC_DIR})
-target_include_directories(llm_handler PUBLIC ${LLAMACPP_SRC_DIR})
-target_link_libraries(llm_handler PRIVATE ts_backends_torch_scripted ts_utils ${TORCH_LIBRARIES})
+list(APPEND LLM_SOURCE_FILES ${LLM_SRC_DIR}/llamacpp_handler.cc)
+add_library(llamacpp_handler SHARED ${LLM_SOURCE_FILES})
+target_include_directories(llamacpp_handler PUBLIC ${LLM_SRC_DIR})
+target_include_directories(llamacpp_handler PUBLIC ${LLAMACPP_SRC_DIR})
+target_link_libraries(llamacpp_handler PRIVATE ts_backends_torch_scripted ts_utils ${TORCH_LIBRARIES})
 
 
 set(MY_OBJECT_FILES
@@ -27,4 +27,4 @@ set(MY_OBJECT_FILES
 
 )
 
-target_sources(llm_handler PRIVATE ${MY_OBJECT_FILES})
+target_sources(llamacpp_handler PRIVATE ${MY_OBJECT_FILES})

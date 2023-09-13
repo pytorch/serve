@@ -79,12 +79,13 @@ TEST_F(TorchScriptedBackendTest, TestLoadPredictMnistHandler) {
 }
 
 TEST_F(TorchScriptedBackendTest, TestLoadPredictLlmHandler) {
-  this->LoadPredict(std::make_shared<torchserve::LoadModelRequest>(
-                        "test/resources/torchscript_model/llm/llm_handler",
-                        "llm", -1, "", "", 1, false),
-                    "test/resources/torchscript_model/llm/llm_handler",
-                    "test/resources/torchscript_model/llm/llm_handler/prompt.txt",
-                    "llm_ts", 200);
+  this->LoadPredict(
+      std::make_shared<torchserve::LoadModelRequest>(
+          "test/resources/torchscript_model/llamacpp/llamacpp_handler", "llm",
+          -1, "", "", 1, false),
+      "test/resources/torchscript_model/llamacpp/llamacpp_handler",
+      "test/resources/torchscript_model/llamacpp/sentences.json", "llm_ts",
+      200);
 }
 
 TEST_F(TorchScriptedBackendTest, TestBackendInitWrongModelDir) {

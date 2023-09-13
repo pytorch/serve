@@ -1,23 +1,25 @@
 #ifndef LLM_HANDLER_HH_
 #define LLM_HANDLER_HH_
 
-#include "examples/common.h"
+#include "common/common.h"
 #include "ggml.h"
 #include "llama.h"
 #include "src/backends/torch_scripted/handler/base_handler.hh"
 
 namespace llm {
-class LlmHandler : public torchserve::torchscripted::BaseHandler {
+class LlamacppHandler : public torchserve::torchscripted::BaseHandler {
  private:
   gpt_params params;
   llama_model* llamamodel;
+  llama_context_params ctx_params;
   llama_context* llama_ctx;
+  const int max_context_size = 32;
 
  public:
   // NOLINTBEGIN(bugprone-exception-escape)
-  LlmHandler() = default;
+  LlamacppHandler() = default;
   // NOLINTEND(bugprone-exception-escape)
-  ~LlmHandler() override = default;
+  ~LlamacppHandler() override = default;
 
   void initialize_context();
 

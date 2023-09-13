@@ -1,31 +1,14 @@
-nclude "src/examples/image_classifier/llm/llm_handler.hh"
+#include "src/examples/llamacpp/llamacpp_handler.hh"
 
 #include <torch/script.h>
 #include <torch/torch.h>
 
 #include <typeinfo>
 
-#include "examples/common.h"
-#include "ggml.h"
-#include "llama.h"
-
 namespace llm {
 
-void LlmHandler::initialize_context() {
-  // gpt_params params;
-  params.seed = 42;
-  params.n_threads = 4;
-  params.repeat_last_n = 64;
-
-  auto lparams = llama_context_default_params();
-  lparams.n_ctx = params.n_ctx;
-  lparams.n_gqa = params.n_gqa;
-  lparams.seed = params.seed;
-  lparams.f16_kv = params.memory_f16;
-  lparams.use_mmap = params.use_mmap;
-  lparams.use_mlock = params.use_mlock;
-
-  llama_ctx = llama_new_context_with_model(llamamodel, lparams);
+void LlamacppHandler::initialize_context() {
+  llama_ctx = llama_new_context_with_model(llamamodel, ctx_params);
 
   if (llama_ctx == nullptr) {
     std::cerr << "Failed to initialize llama context" << std::endl;
@@ -36,7 +19,7 @@ void LlmHandler::initialize_context() {
 
 std::pair<std::shared_ptr<torch::jit::script::Module>,
           std::shared_ptr<torch::Device>>
-LlmHandler::LoadModel(
+LlamacppHandler::LoadModel(
     std::shared_ptr<torchserve::LoadModelRequest>& load_model_request) {
   try {
     auto device = GetTorchDevice(load_model_request);
@@ -46,24 +29,13 @@ LlmHandler::LoadModel(
                                      manifest_->GetModel().serialized_file),
                          *device));
 
-    params.model = "/home/ubuntu/serve/cpp/llama-2-7b-chat.ggmlv3.q4_0.bin";
-    auto lparams = llama_context_default_params();
-    lparams.n_ctx = params.n_ctx;
-    lparams.n_gqa = params.n_gqa;
-    lparams.seed = params.seed;
-    lparams.f16_kv = params.memory_f16;
-    lparams.use_mmap = params.use_mmap;
-    lparams.use_mlock = params.use_mlock;
-    llamamodel = llama_load_model_from_file(params.model.c_str(), lparams);
-    // llama_ctx = llama_new_context_with_model(llamamodel, lparams);
-    // initialize_context();
+    params.model = "/home/ubuntu/gpu/llama.cpp/llama-2-7b-chat.Q4_0.gguf";
+    params.main_gpu = 0;
+    params.n_gpu_layers = 35;
 
-    // // Load LLM
-    // gpt_params params;
-    // // TODO: Fetch the path from context
-    // params.model = "/home/ubuntu/serve/cpp/llama-2-7b-chat.ggmlv3.q4_0.bin";
-    // llama_backend_init(params.numa);
-    // std::tie(llamamodel, llama_ctx) = llama_init_from_gpt_params(params);
+    llama_backend_init(params.numa);
+    ctx_params = llama_context_default_params();
+    llamamodel = llama_load_model_from_file(params.model.c_str(), ctx_params);
 
     return std::make_pair(module, device);
   } catch (const c10::Error& e) {
@@ -79,7 +51,7 @@ LlmHandler::LoadModel(
   }
 }
 
-std::vector<torch::jit::IValue> LlmHandler::Preprocess(
+std::vector<torch::jit::IValue> LlamacppHandler::Preprocess(
     std::shared_ptr<torch::Device>& device,
     std::pair<std::string&, std::map<uint8_t, std::string>&>& idx_to_req_id,
     std::shared_ptr<torchserve::InferenceRequestBatch>& request_batch,
@@ -133,7 +105,6 @@ std::vector<torch::jit::IValue> LlmHandler::Preprocess(
       tokens_list = ::llama_tokenize(llama_ctx, msg, true);
 
       // const int max_context_size = llama_n_ctx(ctx);
-      const int max_context_size = 64;
       const int max_tokens_list_size = max_context_size - 4;
 
       if ((int)tokens_list.size() > max_tokens_list_size) {
@@ -173,7 +144,7 @@ std::vector<torch::jit::IValue> LlmHandler::Preprocess(
   return batch_ivalue;
 }
 
-torch::Tensor LlmHandler::Inference(
+torch::Tensor LlamacppHandler::Inference(
     std::shared_ptr<torch::jit::script::Module> model,
     std::vector<torch::jit::IValue>& inputs,
     std::shared_ptr<torch::Device>& device,
@@ -197,18 +168,21 @@ torch::Tensor LlmHandler::Inference(
   for (auto id : long_vector) {
     tokens_list.push_back(id);
   }
+  const int n_gen = std::min(32, max_context_size);
 
-  // gpt_params params;
+  while (llama_get_kv_cache_token_count(llama_ctx) < n_gen) {
+    // evaluate the transformer
 
-  const int max_context_size = 64;
-
-  while (llama_get_kv_cache_token_count(llama_ctx) < max_context_size) {
     if (llama_eval(llama_ctx, tokens_list.data(), int(tokens_list.size()),
                    llama_get_kv_cache_token_count(llama_ctx),
                    params.n_threads)) {
-      std::cout << "Evaluation Failed" << __func__ << std::endl;
-      // TODO: Raise exception here
+      std::cout << "Failed to eval\n" << __func__ << std::endl;
+      break;
     }
+
+    tokens_list.clear();
+
+    // sample the next token
 
     llama_token new_token_id = 0;
 
@@ -228,13 +202,17 @@ torch::Tensor LlmHandler::Inference(
 
     new_token_id = llama_sample_token_greedy(llama_ctx, &candidates_p);
 
-    if (new_token_id == llama_token_eos()) {
+    // is it an end of stream ?
+    if (new_token_id == llama_token_eos(llama_ctx)) {
+      std::cout << "Reached [end of text]\n";
       break;
     }
 
-    std::cout << "New Token: " << llama_token_to_str(llama_ctx, new_token_id);
+    // print the new token :
+    std::cout << "New Token: " << llama_token_to_piece(llama_ctx, new_token_id)
+              << std::endl;
 
-    // Push this new token for next evaluation :
+    // push this new token for next evaluation
     tokens_list.push_back(new_token_id);
   }
 
@@ -245,12 +223,12 @@ torch::Tensor LlmHandler::Inference(
   }
 
   torch::Tensor stacked_tensor = torch::stack(tensor_vector);
-
+  llama_print_timings(llama_ctx);
   llama_free(llama_ctx);
   return stacked_tensor;
 }
 
-void LlmHandler::Postprocess(
+void LlamacppHandler::Postprocess(
     const torch::Tensor& data,
     std::pair<std::string&, std::map<uint8_t, std::string>&>& idx_to_req_id,
     std::shared_ptr<torchserve::InferenceResponseBatch>& response_batch) {
@@ -263,7 +241,7 @@ void LlmHandler::Postprocess(
 
       auto data_ptr = data.data_ptr<int64_t>();
       for (int64_t i = 0; i < num_elements; ++i) {
-        generated_text_stream << llama_token_to_str(llama_ctx, data_ptr[i]);
+        generated_text_stream << llama_token_to_piece(llama_ctx, data_ptr[i]);
       }
 
       std::string generated_text_str = generated_text_stream.str();
@@ -297,13 +275,13 @@ void LlmHandler::Postprocess(
 
 #if defined(__linux__) || defined(__APPLE__)
 extern "C" {
-torchserve::torchscripted::BaseHandler* allocatorLlmHandler() {
-  return new llm::LlmHandler();
+torchserve::torchscripted::BaseHandler* allocatorLlamacppHandler() {
+  return new llm::LlamacppHandler();
 }
 
-void deleterLlmHandler(torchserve::torchscripted::BaseHandler* p) {
+void deleterLlamacppHandler(torchserve::torchscripted::BaseHandler* p) {
   if (p != nullptr) {
-    delete static_cast<llm::LlmHandler*>(p);
+    delete static_cast<llm::LlamacppHandler*>(p);
   }
 }
 }

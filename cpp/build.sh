@@ -299,8 +299,8 @@ function build() {
     mv $DEPS_DIR/../src/examples/libmnist_handler.so $DEPS_DIR/../../test/resources/torchscript_model/mnist/mnist_handler/libmnist_handler.so
   fi
 
-  if [ -f "$DEPS_DIR/../src/examples/libllm_handler.so" ]; then
-    mv $DEPS_DIR/../src/examples/libllm_handler.so $DEPS_DIR/../../test/resources/torchscript_model/llm/llm_handler/libllm_handler.so
+  if [ -f "$DEPS_DIR/../src/examples/libllamacpp_handler.so" ]; then
+    mv $DEPS_DIR/../src/examples/libllamacpp_handler.so $DEPS_DIR/../../test/resources/torchscript_model/llamacpp/llamacpp_handler/libllamacpp_handler.so
   fi
 
   cd $DEPS_DIR/../..
