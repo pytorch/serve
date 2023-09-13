@@ -36,6 +36,7 @@ jobs:
         with:
           auto-update-conda: true
           python-version: "3.8"
+          miniconda-version: "latest"
       - run: conda --version
       #- name: Setup Conda
       #  uses: s-weigand/setup-conda@v1
