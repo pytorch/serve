@@ -45,16 +45,10 @@ def install_conda_build(dry_run):
     Install conda-build, required to create conda packages
     """
 
-    # Check if conda binary already exists
-    exit_code = os.system(f"conda --version")
-    if exit_code == 0:
-        print(
-            f"'conda' already present on the system. Proceeding without a fresh conda installation."
-        )
-        return
-    try_and_handle(
-        f"{CONDA_BINARY} install python=3.8 conda-build anaconda-client -y", dry_run
-    )
+    # Install conda if not present
+    install_miniconda(dry_run)
+
+    try_and_handle(f"{CONDA_BINARY} install conda-build anaconda-client -y", dry_run)
 
 
 def install_miniconda(dry_run):

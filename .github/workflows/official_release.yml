@@ -54,6 +54,7 @@ jobs:
       - run: conda -h
       - name: Build PyPI & conda binaries
         run: python binaries/build.py
+      - run: conda -h
       #- name: Push conda binaries
       #  env:
       #    ANACONDA_API_TOKEN: ${{ secrets.CONDA_PASSWORD }}
