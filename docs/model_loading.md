@@ -14,7 +14,8 @@ flowchart TD
     id6(TensorRT) --Required--> id10(TensorRT weights ending in '.pt')
     id7(Model File & weights file) & id8(TorchScripted weights ending in '.pt') &  id9(Weights ending in '.onnx') & id10(TensorRT weights ending in '.pt') --> id11(Created a model archive .mar file)
     id13{"- Handler has an initialize method?
-          - Does the initialize method inherit from BaseHandler?"} -- yes to both --> id20(Create a custom method to load the model in the handler) --> id11(Create a model archive .mar file)
+          - Does the initialize method inherit from BaseHandler?"} -- yes to both --> id20("Create a custom method
+          to load the model in the handler") --> id11(Create a model archive .mar file)
     id15["Pass the weights with --serialized-file option
     - Completely packaged for production/reproducibility
     - Model archiving and model loading can be slow for large models"]
