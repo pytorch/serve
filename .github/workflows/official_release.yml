@@ -51,6 +51,7 @@ jobs:
           conda --version
           conda install -y conda-build anaconda-client
       - run: which conda
+      - run: conda -h
       - name: Build PyPI & conda binaries
         run: python binaries/build.py
       #- name: Push conda binaries
