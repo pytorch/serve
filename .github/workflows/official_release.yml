@@ -35,6 +35,7 @@ jobs:
       - uses: conda-incubator/setup-miniconda@v2
         with:
           miniconda-version: "latest"
+          python-version: "3.8"
       #- name: Setup Conda
       #  uses: s-weigand/setup-conda@v1
       #  with:
