@@ -8,7 +8,11 @@ REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 sys.path.append(REPO_ROOT)
 
 
-from binaries.conda.build_packages import install_conda_build, install_miniconda
+from binaries.conda.build_packages import (
+    conda_build,
+    install_conda_build,
+    install_miniconda,
+)
 from ts_scripts.utils import is_conda_env
 
 
@@ -82,9 +86,9 @@ def build(args):
     # if not is_conda_build_env():
     install_conda_build(args.dry_run)
 
-    # conda_build_exit_code = conda_build(
-    #    ts_wheel_path, ma_wheel_path, wa_wheel_path, args.nightly, args.dry_run
-    # )
+    conda_build_exit_code = conda_build(
+        ts_wheel_path, ma_wheel_path, wa_wheel_path, args.nightly, args.dry_run
+    )
 
     # If conda build fails, exit with error
     if conda_build_exit_code != 0:
