@@ -162,6 +162,9 @@ torch::Tensor BabyLlamaHandler::Inference(
     std::shared_ptr<torchserve::InferenceResponseBatch>& response_batch) {
   torch::InferenceMode guard;
   std::vector<torch::Tensor> batch_output_vector;
+  long batch_token_length = 0;
+  long start =
+      0;  // used to time our code, only initialized after first iteration
   for (const torch::jit::IValue& input : inputs) {
     std::vector<torch::Tensor> tensor_vector;
     tensor_vector.reserve(steps);
@@ -178,8 +181,6 @@ torch::Tensor BabyLlamaHandler::Inference(
     }
 
     // start the main loop
-    long start =
-        0;     // used to time our code, only initialized after first iteration
     int next;  // will store the next token in the sequence
     int token =
         prompt_tokens[0];  // kick off with the first token in the prompt
@@ -215,17 +216,19 @@ torch::Tensor BabyLlamaHandler::Inference(
       }
     }
 
-    // report achieved tok/s (pos-1 because the timer starts after first
-    // iteration)
-    if (pos > 1) {
-      long end = time_in_ms();
-      double token_per_sec = (pos - 1) / (double)(end - start) * 1000;
-      std::cout << "Achieved tok per sec: " << token_per_sec << std::endl;
-    }
+    batch_token_length = batch_token_length + pos - 1;
 
     torch::Tensor stacked_tensor = torch::stack(tensor_vector);
 
     batch_output_vector.push_back(stacked_tensor);
+  }
+
+  std::cout << "Total number of tokens generated: " << batch_token_length
+            << std::endl;
+  if (batch_token_length > 1) {
+    long end = time_in_ms();
+    double token_per_sec = batch_token_length / (double)(end - start) * 1000;
+    std::cout << "Achieved tok per sec: " << token_per_sec << std::endl;
   }
 
   return torch::stack(batch_output_vector);
