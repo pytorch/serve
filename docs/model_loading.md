@@ -3,6 +3,7 @@
 There are multiple ways to load to model in TorchServe. The below flowchart tries to simplify the process and shows the various options
 
 
+
 ```mermaid
 flowchart TD
     id1[[How to load a model in TorchServe?]] --> id13{Handler has an initialize method?}
@@ -16,20 +17,19 @@ flowchart TD
     id21{"Does the initialize method inherit from BaseHandler?"} -- Yes --> id2{Model Type?}
     id21{Does the initialize method inherit from BaseHandler?} -- No --> id20("Create a custom method to
          load the model in the handler") --> id11(Create a model archive .mar file)
-    id15["Pass the weights with --serialized-file option
-    - Completely packaged for production/reproducibility
-    - Model archiving and model loading can be slow for large models"]
-    id16["Pass the path to the weights in model-config.yaml
-    - Extremely fast to create model archive
-    - You can use defered initialization for large models
-    - Model loading can be faster for large models
-    - Model management can be harder"]
-	id11(Create a model archive .mar file) --> id14{"Is your model large?
-	Do you care about model archiving and loading time?"} --No--> id15
-	id14{"Is your model large?
-	Do you care about model archiving and loading time?"} --yes to either--> id16
-	id15 & id16 --> id17[Start TorchServe with mar file]
-	id15 & id16 --> id18[Start TorchServe] --> id19[Register Model with mar file]
+    id15["Create model archive by passing the
+    weights with --serialized-file option"]
+    id16["Specify path to the weights in model-config.yaml
+    Create model archive by specifying yaml file with --config-file "]
+	id11(Work on creating a model archive .mar file) --> id14{"Is your model large?"} --No--> id22{Do you want a self-contained model artifact}  --Yes--> id15
+	id14{"Is your model large?"} --Yes--> id16
+	id22{Do you want a self-contained model artifact} --No, I want model archieving & loading to be faster--> id16
+	id15 & id16 --> id17["Start TorchServe.
+	Two ways of starting torchserve
+	- Pass the mar file with --models
+	- Start TorchServe and call the register API with mar file"]
+
+
 
 
 ```
