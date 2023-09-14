@@ -2,7 +2,7 @@ import argparse
 import os
 
 import torch
-from transformers import AutoConfig, AutoModelForCausalLM, AutoTokenizer, LlamaTokenizer
+from transformers import AutoConfig, AutoModelForCausalLM, AutoTokenizer
 from transformers.models.opt import OPTForCausalLM
 from transformers_neuronx.module import save_pretrained_split
 
@@ -58,11 +58,7 @@ if hf_model_config.model_type == "opt":
 save_pretrained_split(hf_model, args.save_path)
 
 # Load and save tokenizer for the model
-if hf_model_config.model_type == "llama":
-    tokenizer = LlamaTokenizer.from_pretrained(args.model_name)
-else:
-    tokenizer = AutoTokenizer.from_pretrained(args.model_name)
-
+tokenizer = AutoTokenizer.from_pretrained(args.model_name)
 tokenizer.save_pretrained(args.save_path)
 
 print(f"Files for '{args.model_name}' have been downloaded to '{args.save_path}'.")

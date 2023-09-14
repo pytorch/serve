@@ -22,14 +22,13 @@ class LLMHandler(BaseHandler, ABC):
     """
 
     def __init__(self):
-        super(LLMHandler, self).__init__()
+        super().__init__()
         self.initialized = False
         self.max_length = None
         self.tokenizer = None
         self.output_streamer = None
         # enable micro batching
-        self.mb_handle = MicroBatching(self)
-        self.handle = self.mb_handle
+        self.handle = MicroBatching(self)
 
     def initialize(self, ctx):
         self.manifest = ctx.manifest
@@ -47,18 +46,18 @@ class LLMHandler(BaseHandler, ABC):
             logger.info(
                 f"Setting micro batching parallelism  from model_config_yaml: {parallelism}"
             )
-            self.mb_handle.parallelism = parallelism
+            self.handle.parallelism = parallelism
 
         micro_batch_size = ctx.model_yaml_config.get("micro_batching", {}).get(
             "micro_batch_size", 1
         )
         logger.info(f"Setting micro batching size: {micro_batch_size}")
-        self.mb_handle.micro_batch_size = micro_batch_size
+        self.handle.micro_batch_size = micro_batch_size
 
         # settings for model compiliation and loading
-        amp = ctx.model_yaml_config["handler"]["amp"]
-        tp_degree = ctx.model_yaml_config["handler"]["tp_degree"]
-        self.max_length = ctx.model_yaml_config["handler"]["max_length"]
+        amp = ctx.model_yaml_config.get("handler", {}).get("amp", "f32")
+        tp_degree = ctx.model_yaml_config.get("handler", {}).get("tp_degree", 6)
+        self.max_length = ctx.model_yaml_config.get("handler", {}).get("max_length", 50)
 
         # allocate "tp_degree" number of neuron cores to the worker process
         os.environ["NEURON_RT_NUM_CORES"] = str(tp_degree)
@@ -68,18 +67,20 @@ class LLMHandler(BaseHandler, ABC):
             )
             assert num_neuron_cores_available >= int(tp_degree)
         except (RuntimeError, AssertionError) as error:
-            raise RuntimeError(
+            logger.error(
                 "Required number of neuron cores for tp_degree "
                 + str(tp_degree)
                 + " are not available: "
                 + str(error)
             )
 
+            raise error
+
         self.tokenizer = LlamaTokenizer.from_pretrained(model_dir)
         self.tokenizer.pad_token = self.tokenizer.eos_token
         self.model = LlamaForSampling.from_pretrained(
             model_dir,
-            batch_size=self.mb_handle.micro_batch_size,
+            batch_size=self.handle.micro_batch_size,
             amp=amp,
             tp_degree=tp_degree,
         )
@@ -90,7 +91,7 @@ class LLMHandler(BaseHandler, ABC):
         self.model = HuggingFaceGenerationModelAdapter(model_config, self.model)
         self.output_streamer = TextIteratorStreamerBatch(
             self.tokenizer,
-            batch_size=self.mb_handle.micro_batch_size,
+            batch_size=self.handle.micro_batch_size,
             skip_special_tokens=True,
         )
 
@@ -106,13 +107,13 @@ class LLMHandler(BaseHandler, ABC):
             input_text.append(data.strip())
 
         # Ensure the compiled model can handle the input received
-        if len(input_text) > self.mb_handle.micro_batch_size:
+        if len(input_text) > self.handle.micro_batch_size:
             raise ValueError(
-                f"Model is compiled for batch size {self.mb_handle.micro_batch_size} but received input of size {len(input_text)}"
+                f"Model is compiled for batch size {self.handle.micro_batch_size} but received input of size {len(input_text)}"
             )
 
         # Pad input to match compiled model batch size
-        input_text.extend([""] * (self.mb_handle.micro_batch_size - len(input_text)))
+        input_text.extend([""] * (self.handle.micro_batch_size - len(input_text)))
 
         return self.tokenizer(input_text, return_tensors="pt", padding=True)
 
@@ -126,7 +127,7 @@ class LLMHandler(BaseHandler, ABC):
         thread = Thread(target=self.model.generate, kwargs=generation_kwargs)
         thread.start()
 
-        micro_batch_idx = self.mb_handle.get_micro_batch_idx()
+        micro_batch_idx = self.handle.get_micro_batch_idx()
         micro_batch_req_id_map = self.get_micro_batch_req_id_map(micro_batch_idx)
         for new_text in self.output_streamer:
             logger.debug("send response stream")
@@ -146,11 +147,11 @@ class LLMHandler(BaseHandler, ABC):
         return inference_output
 
     def get_micro_batch_req_id_map(self, micro_batch_idx: int):
-        start_idx = micro_batch_idx * self.mb_handle.micro_batch_size
+        start_idx = micro_batch_idx * self.handle.micro_batch_size
         micro_batch_req_id_map = {
             index: self.context.request_ids[batch_index]
             for index, batch_index in enumerate(
-                range(start_idx, start_idx + self.mb_handle.micro_batch_size)
+                range(start_idx, start_idx + self.handle.micro_batch_size)
             )
             if batch_index in self.context.request_ids
         }

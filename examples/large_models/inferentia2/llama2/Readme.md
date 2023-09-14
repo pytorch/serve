@@ -52,6 +52,9 @@ python -m pip install -r requirements.txt
 ```
 
 ### Step 3: Save the model split checkpoints compatible with `transformers-neuronx`
+Request access to the Llama2 model\
+https://huggingface.co/meta-llama/Llama-2-13b-hf
+
 Login to Huggingface
 ```bash
 huggingface-cli login

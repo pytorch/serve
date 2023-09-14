@@ -1092,3 +1092,6 @@ PostprocessCallCount
 RequestBatchSize
 InitializeCallCount
 PreprocessCallCount
+AOT
+microbatches
+tokenization
