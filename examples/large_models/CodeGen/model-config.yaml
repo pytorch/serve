@@ -1,0 +1,7 @@
+minWorkers: 1
+maxWorkers: 1
+
+handler:
+    model_name: "Salesforce/codegen-2B-multi"
+    max_length: 128
+    batch_size: 1
