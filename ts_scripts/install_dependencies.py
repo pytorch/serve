@@ -3,8 +3,6 @@ import os
 import platform
 import sys
 
-from print_env_info import run_and_parse_first_match
-
 REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 sys.path.append(REPO_ROOT)
 
@@ -192,6 +190,8 @@ def install_dependencies(cuda_version=None, nightly=False):
 
 def get_brew_version():
     """Returns `brew --version` output."""
+
+    from print_env_info import run_and_parse_first_match
 
     return run_and_parse_first_match("brew --version", r"Homebrew (.*)")
 
