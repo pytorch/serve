@@ -112,7 +112,7 @@ class Linux(Common):
     def install_nodejs(self):
         if os.system("node -v") != 0 or args.force:
             os.system(
-                f"{self.sudo_cmd}curl -sL https://deb.nodesource.com/setup_14.x | {self.sudo_cmd}bash -"
+                f"{self.sudo_cmd}curl -sL https://deb.nodesource.com/setup_16.x | {self.sudo_cmd}bash -"
             )
             os.system(f"{self.sudo_cmd}apt-get install -y nodejs")
 
