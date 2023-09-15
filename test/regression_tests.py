@@ -34,7 +34,7 @@ def regression_tests(binaries, pypi, conda, nightly):
             else:
                 cmd = f"conda install -c pytorch torchserve torch-model-archiver torch-workflow-archiver -y"
         # try_and_handle(cmd, False)
-        subprocess.run([cmd], check=True)
+        subprocess.run(cmd.split(), check=True)
         print(f"## In directory: {os.getcwd()}; Executing command: {cmd}")
     else:
         # Install from source
