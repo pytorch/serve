@@ -75,6 +75,9 @@ If there is a `config.properties` in the working directory, TorchServe loads the
 
 Add the following lines in `config.properties`:
 ```
+inference_address=http://{your host public IP}:8080   // please fill your pubilc IP
+management_address=http://{your host public IP}:8081  // please fill your pubilc IP
+
 ipex_enable=true
 cpu_launcher_enable=true
 # cpu_launcher_args=--node_id 0
