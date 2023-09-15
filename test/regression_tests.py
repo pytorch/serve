@@ -1,6 +1,7 @@
 import argparse
 import os
 import sys
+from asyncio import subprocess
 
 # To help discover local modules
 REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
@@ -12,7 +13,7 @@ from ts_scripts import marsgen as mg
 from ts_scripts.api_utils import test_api
 from ts_scripts.install_from_src import install_from_src
 from ts_scripts.regression_utils import test_regression
-from ts_scripts.utils import check_python_version, try_and_handle
+from ts_scripts.utils import check_python_version
 
 
 def regression_tests(binaries, pypi, conda, nightly):
@@ -32,7 +33,8 @@ def regression_tests(binaries, pypi, conda, nightly):
                 cmd = f"conda install -c pytorch-nightly torchserve torch-model-archiver torch-workflow-archiver -y"
             else:
                 cmd = f"conda install -c pytorch torchserve torch-model-archiver torch-workflow-archiver -y"
-        try_and_handle(cmd, False)
+        # try_and_handle(cmd, False)
+        subprocess.run([cmd], check=True)
         print(f"## In directory: {os.getcwd()}; Executing command: {cmd}")
     else:
         # Install from source
