@@ -61,10 +61,5 @@ jobs:
             python ts_scripts/install_dependencies.py --environment=dev --cuda=cu118
       - run: pip list
       - name: Torchserve Regression Tests
-        uses: nick-fields/retry@v2
-        with:
-          timeout_minutes: 60
-          retry_on: error
-          max_attempts: 1
-          command: |
-            python test/regression_tests.py --binaries --${{ matrix.binaries }} --nightly
+        run: |
+          python test/regression_tests.py --binaries --${{ matrix.binaries }} --nightly
