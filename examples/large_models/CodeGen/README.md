@@ -37,29 +37,39 @@ pip install torchserve torch-model-archiver torch-workflow-archiver
 pip install -r requirements.txt
 ```
 
-2. Create a `model-config.yaml`
+2.  Download model
+```
+python ../utils/Download_model.py --model_name Salesforce/codegen-2B-multi
+```
+The script prints the path where the model is downloaded as below. This is an example and in your workload you want to use your actual trained model checkpoints.
+```
+model/models--Salesforce--codegen-2B-multi/snapshots/c33da754a6605cb4eda7cf7e2b30a6d8bbcd9385/
+```
+
+3. Create a `model-config.yaml`
 ```
 minWorkers: 1
 maxWorkers: 1
 
 handler:
     model_name: "Salesforce/codegen-2B-multi"
+    model_path: "{path/to/torchserve}/serve/examples/large_models/CodeGen/model/models--Salesforce--codegen-2B-multi/snapshots/c33da754a6605cb4eda7cf7e2b30a6d8bbcd9385" # the path to the checkpoints, please change to your model path.
     max_length: 128
     batch_size: 1
 ```
 
-3. Generate `MAR` file
+4. Generate `MAR` file
 ```
 torch-model-archiver --model-name codegen --version 1.0 --handler codegen_handler.py --config-file model-config.yaml
 ```
 
-4. Add the `MAR` file to model store
+5. Add the `MAR` file to model store
 ```
 mkdir model_store
 mv codegen.mar model_store
 ```
 
-5. [Optional] Enable Intel® Extension for PyTorch* optimizations through `config.properties`
+6. [Optional] Enable Intel® Extension for PyTorch* optimizations through `config.properties`
 
 If there is a `config.properties` in the working directory, TorchServe loads the `config.properties` file from the current working directory.
 
@@ -70,12 +80,12 @@ cpu_launcher_enable=true
 # cpu_launcher_args=--node_id 0
 ```
 
-6. Start TorchServe
+7. Start TorchServe
 ```
 torchserve --ncs --start --model-store model_store --models codegen.mar
 ```
 
-7. Run Inference
+8. Run Inference
 ```
 curl http://localhost:8080/predictions/codegen -T ./sample_text_0.txt
 ```
