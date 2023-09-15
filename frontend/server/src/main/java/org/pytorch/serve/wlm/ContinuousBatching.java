@@ -45,6 +45,7 @@ public class ContinuousBatching extends BatchAggregator {
                 if (gpu != null) {
                     gpuId = Integer.parseInt(gpu);
                 }
+                jobs.clear();
                 return new ModelLoadModelRequest(model, gpuId);
             } else {
                 if (j.getCmd() == WorkerCommands.STREAMPREDICT) {
@@ -62,13 +63,13 @@ public class ContinuousBatching extends BatchAggregator {
      * @return - true: either a non-stream response or last stream response is sent - false: a
      *     stream response (not include the last stream) is sent
      */
-    public boolean sendResponse(ModelWorkerResponse message) {
+    public void sendResponse(ModelWorkerResponse message) {
         boolean jobDone = true;
         // TODO: Handle prediction level code
         if (message.getCode() == 200) {
             if (jobs.isEmpty()) {
                 // this is from initial load.
-                return true;
+                return;
             }
             for (Predictions prediction : message.getPredictions()) {
                 String jobId = prediction.getRequestId();
@@ -96,8 +97,9 @@ public class ContinuousBatching extends BatchAggregator {
                                 .getHeaders()
                                 .get(org.pytorch.serve.util.messages.RequestInput.TS_STREAM_NEXT);
                 if (streamNext != null && streamNext.equals("false")) {
-                    jobs.remove(jobId);
+                    jobs.remove(job.getJobId());
                 }
+
             }
         } else {
             for (Map.Entry<String, Job> j : jobs.entrySet()) {
@@ -117,8 +119,6 @@ public class ContinuousBatching extends BatchAggregator {
             }
             jobs.clear();
         }
-
-        return true;
     }
 
     private void pollBatch(String threadName, WorkerState state, int batchSize)
@@ -127,7 +127,9 @@ public class ContinuousBatching extends BatchAggregator {
                 threadName,
                 (state == WorkerState.WORKER_MODEL_LOADED) ? 0 : Long.MAX_VALUE,
                 jobs)) {
-            model.pollInferJob(jobs, batchSize);
+                    // Do not wait in case we have jobs waiting
+                    long waitTime = jobs.isEmpty()? Long.MAX_VALUE : 0;
+            model.pollInferJob(jobs, waitTime, batchSize);
         }
     }
 }

@@ -13,7 +13,7 @@ public class RequestInput {
     private Map<String, String> headers;
     private List<InputParameter> parameters;
     private long clientExpireTS;
-    private boolean cached;
+    // private boolean cached;
 
     public RequestInput(String requestId) {
         this.requestId = requestId;
@@ -73,11 +73,11 @@ public class RequestInput {
         }
     }
 
-    public boolean isCached() {
-        return cached;
-    }
+    // public boolean isCached() {
+    //     return cached;
+    // }
 
-    public void setCached(boolean cached) {
-        this.cached = cached;
-    }
+    // public void setCached(boolean cached) {
+    //     this.cached = cached;
+    // }
 }

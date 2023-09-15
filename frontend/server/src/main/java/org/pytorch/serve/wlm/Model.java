@@ -253,10 +253,10 @@ public class Model {
             throw new IllegalArgumentException("Invalid input given provided");
         }
 
-        if (!jobsRepo.isEmpty()) {
-            throw new IllegalArgumentException(
-                    "The jobs repo provided contains stale jobs. Clear them!!");
-        }
+        // if (!jobsRepo.isEmpty()) {
+        //     throw new IllegalArgumentException(
+        //             "The jobs repo provided contains stale jobs. Clear them!!");
+        // }
 
         LinkedBlockingDeque<Job> jobsQueue = jobsDb.get(threadId);
         if (jobsQueue != null && !jobsQueue.isEmpty()) {
@@ -269,18 +269,25 @@ public class Model {
         return false;
     }
 
-    public void pollInferJob(Map<String, Job> jobsRepo, int batchSize) throws InterruptedException {
+    public void pollInferJob(Map<String, Job> jobsRepo, long waitTime, int batchSize) throws InterruptedException {
         LinkedBlockingDeque<Job> jobsQueue;
         try {
             if (isUseJobTicket()) {
                 incNumJobTickets();
             }
             lock.lockInterruptibly();
-            long maxDelay = maxBatchDelay;
+
             jobsQueue = jobsDb.get(DEFAULT_DATA_QUEUE);
 
-            Job j = jobsQueue.poll(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
+            Job j = jobsQueue.poll(waitTime, TimeUnit.MILLISECONDS);
+            if(j == null)
+                // We have not a single new job -> continue
+                return;
+
             logger.trace("get first job: {}", Objects.requireNonNull(j).getJobId());
+
+            //No wait time means we have jobs waiting -> collect jobs and run
+            long maxDelay = waitTime > 0 ? maxBatchDelay: 0;
 
             jobsRepo.put(j.getJobId(), j);
             // batch size always is 1 for describe request job

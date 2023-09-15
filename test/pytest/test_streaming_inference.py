@@ -29,16 +29,20 @@ def create_mar_file(work_dir, model_archiver, model_name):
         model_name=model_name,
         version="1.0",
         model_file=CURR_FILE_PATH.joinpath(
-            "test_data", "fake_streaming_model.py"
+            "test_data", "streaming", "fake_streaming_model.py"
         ).as_posix(),
-        handler=CURR_FILE_PATH.joinpath("test_data", "stream_handler.py").as_posix(),
+        handler=CURR_FILE_PATH.joinpath(
+            "test_data", "streaming", "stream_handler.py"
+        ).as_posix(),
         serialized_file=None,
         export_path=work_dir,
         requirements_file=None,
         runtime="python",
         force=False,
         archive_format="default",
-        config_file=None,
+        config_file=CURR_FILE_PATH.joinpath(
+            "test_data", "streaming", "model_config.yaml"
+        ).as_posix(),
         extra_files=None,
     )
 
@@ -88,27 +92,22 @@ def register_model(mar_file_path, model_store, torchserve):
 
 def test_echo_stream_inference(model_name):
     responses = []
-
-    for _ in range(2):
+    data = ["foo", "bar", "foo2", "bar2"]
+    for d in data:
         res = requests.post(
             url=f"http://localhost:8080/predictions/{model_name}",
-            data="foo",
+            data=d,
             stream=True,
         )
 
         responses.append(res)
-
+    print(list(r.headers for r in responses))
     assert all(r.headers["Transfer-Encoding"] == "chunked" for r in responses)
 
-    for idx, _ in enumerate(responses):
+    for idx, d in enumerate(data):
         prediction = []
         for chunk in responses[idx].iter_content(chunk_size=None):
             if chunk:
                 prediction.append(chunk.decode("utf-8"))
 
-        assert (
-            f"{idx}" + str("".join(prediction))
-            == f"{idx}" + "hello hello hello hello world "
-        )
-
-    test_utils.unregister_model("echo_stream")
+        assert str("".join(prediction)) == d + "hello hello hello hello world "
