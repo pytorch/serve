@@ -1,7 +1,7 @@
 import argparse
 import os
+import subprocess
 import sys
-from asyncio import subprocess
 
 # To help discover local modules
 REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
