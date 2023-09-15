@@ -2,8 +2,7 @@ name: Run Regression Tests for GPU nightly binaries
 
 on:
   # run every day at 6:15am
-  schedule:
-    - cron:  '15 6 * * *'
+  workflow_dispatch:
   merge_group:
 
 concurrency:
