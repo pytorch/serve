@@ -33,14 +33,16 @@ class CodeGenHandler(BaseHandler, ABC):
         super(CodeGenHandler, self).__init__()
 
     def initialize(self, ctx: Context):
-        self.max_length = int(ctx.model_yaml_config["handler"]["max_length"])
         model_name = ctx.model_yaml_config["handler"]["model_name"]
+        model_path = ctx.model_yaml_config["handler"]["model_path"]
         
-        self.model = AutoModelForCausalLM.from_pretrained(model_name)
+        self.max_length = int(ctx.model_yaml_config["handler"]["max_length"])
+        
+        self.model = AutoModelForCausalLM.from_pretrained(model_path)
         self.model = self.model.eval().to("cpu")
         
         logger.info("Model %s loading tokenizer", ctx.model_name)
-        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
+        self.tokenizer = AutoTokenizer.from_pretrained(model_path, return_tensors="pt")
         
         if IPEX_ENABLE:
             logger.info("Model %s optimzied with Intel® Extension for PyTorch*", ctx.model_name)
