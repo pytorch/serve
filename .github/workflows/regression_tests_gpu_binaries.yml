@@ -38,6 +38,9 @@ jobs:
       - uses: conda-incubator/setup-miniconda@v2
         with:
           miniconda-version: "latest"
+          run-post: true
+          force_remove: true
+
       - name: Setup Conda
         uses: s-weigand/setup-conda@v1
         with:
