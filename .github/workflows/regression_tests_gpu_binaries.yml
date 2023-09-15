@@ -38,8 +38,7 @@ jobs:
       - uses: conda-incubator/setup-miniconda@v2
         with:
           miniconda-version: "latest"
-          run-post: true
-          force_remove: true
+          remove-profiles: true
 
       - name: Setup Conda
         uses: s-weigand/setup-conda@v1
@@ -59,7 +58,7 @@ jobs:
         with:
           timeout_minutes: 60
           retry_on: error
-          max_attempts: 3
+          max_attempts: 1
           command: |
             python ts_scripts/install_dependencies.py --environment=dev --cuda=cu118
       - name: Torchserve Regression Tests
@@ -67,6 +66,6 @@ jobs:
         with:
           timeout_minutes: 60
           retry_on: error
-          max_attempts: 3
+          max_attempts: 1
           command: |
             python test/regression_tests.py --binaries --${{ matrix.binaries }} --nightly
