@@ -156,8 +156,8 @@ class Darwin(Common):
 
     def install_nodejs(self):
         os.system("brew unlink node")
-        os.system("brew install node@14")
-        os.system("brew link --overwrite node@14")
+        os.system("brew install node@16")
+        os.system("brew link --overwrite node@16")
 
     def install_node_packages(self):
         os.system(f"{self.sudo_cmd} ./ts_scripts/mac_npm_deps")
