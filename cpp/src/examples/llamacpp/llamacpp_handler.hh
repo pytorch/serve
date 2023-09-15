@@ -22,7 +22,7 @@ class LlamacppHandler : public torchserve::torchscripted::BaseHandler {
   // NOLINTBEGIN(bugprone-exception-escape)
   LlamacppHandler() = default;
   // NOLINTEND(bugprone-exception-escape)
-  ~LlamacppHandler() override = default;
+  ~LlamacppHandler() noexcept;
 
   void initialize_context();
 
