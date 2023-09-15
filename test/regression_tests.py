@@ -1,6 +1,5 @@
 import argparse
 import os
-import subprocess
 import sys
 
 # To help discover local modules
@@ -34,7 +33,8 @@ def regression_tests(binaries, pypi, conda, nightly):
             else:
                 cmd = f"conda install -c pytorch torchserve torch-model-archiver torch-workflow-archiver -y"
         # try_and_handle(cmd, False)
-        subprocess.check_output(cmd.split())
+        # subprocess.check_output(cmd.split())
+        os.system(cmd)
         print(f"## In directory: {os.getcwd()}; Executing command: {cmd}")
     else:
         # Install from source
