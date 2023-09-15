@@ -302,7 +302,7 @@ az group delete --name myResourceGroup --yes --no-wait
 
   **Troubleshooting Azure resource for AKS cluster creation**
 
-  * Check AKS available region, https://azure.microsoft.com/en-us/explore/global-infrastructure/products-by-region/
+  * Check AKS available region, https://azure.microsoft.com/en-us/explore/global-infrastructure/products-by-region/?products=kubernetes-service
   * Check AKS quota and VM size limitation, https://docs.microsoft.com/en-us/azure/aks/quotas-skus-regions
   * Check whether your subscription has enough quota to create AKS cluster, https://docs.microsoft.com/en-us/azure/networking/check-usage-against-limits
 
