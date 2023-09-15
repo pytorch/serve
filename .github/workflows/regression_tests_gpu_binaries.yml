@@ -49,6 +49,8 @@ jobs:
           architecture: x64
       - run: conda --version
       - run: python --version
+      - run: pip list
+      - run: pip install --force-reinstall --no-deps pillow==10.0.0
       - name: Install dependencies
         uses: nick-fields/retry@v2
         with:
