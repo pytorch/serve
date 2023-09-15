@@ -39,8 +39,6 @@ jobs:
         with:
           miniconda-version: "latest"
           remove-profiles: true
-      - run: conda remove -n __setup_conda --all
-
       - name: Setup Conda
         uses: s-weigand/setup-conda@v1
         with:
@@ -62,6 +60,7 @@ jobs:
           max_attempts: 1
           command: |
             python ts_scripts/install_dependencies.py --environment=dev --cuda=cu118
+      - run: pip list
       - name: Torchserve Regression Tests
         uses: nick-fields/retry@v2
         with:
