@@ -83,7 +83,7 @@ class Common:
 
     def install_node_packages(self):
         os.system(
-            f"{self.sudo_cmd}npm install -g newman newman-reporter-htmlextra markdown-link-check"
+            f"{self.sudo_cmd}npm install -g newman@5.3.2 newman-reporter-htmlextra markdown-link-check"
         )
 
     def install_jmeter(self):
