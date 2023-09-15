@@ -31,7 +31,7 @@ git clone https://github.com/pytorch/serve.git -b minjean/llm_codegen
 pip install torchserve torch-model-archiver torch-workflow-archiver
 ```
 
-### Serve CodeGen
+### Serve CodeGen using TorchServe
 1. Install dependencies
 ```
 pip install -r requirements.txt
@@ -67,6 +67,7 @@ Add the following lines in `config.properties`:
 ```
 ipex_enable=true
 cpu_launcher_enable=true
+# cpu_launcher_args=--node_id 0
 ```
 
 6. Start TorchServe
@@ -108,4 +109,27 @@ def random_string(length):
 
 def random_string_with_special_chars(length):
 return ''.join(random.choice(string.ascii_uppercase + string.digits + string.punctuation) for _ in range(length))
+```
+
+## Benchmark with TorchServe 
+Additionally, TorchServe provides native [benchmark](https://github.com/pytorch/serve/tree/master/benchmarks) tool to measure performance of TorchServe with various models. 
+
+1. Install dependencies
+```
+cd {path/to/torchserve}
+cd ./benchmarks
+pip install -r requirements-ab.txt
+sudo apt-get install apache2-utils
+```
+
+2. [Optional] Enable Intel® Extension for PyTorch* optimizations through `config.properties`
+```
+ipex_enable=true
+cpu_launcher_enable=true
+# cpu_launcher_args=--node_id 0
+```
+
+3. Run benchmark
+```
+python benchmark-ab.py --url "file:///{path/to/torchserve}/serve/examples/large_models/CodeGen/model_store/codegen.mar" --input ../examples/large_models/CodeGen/sample_text_0.txt
 ```
