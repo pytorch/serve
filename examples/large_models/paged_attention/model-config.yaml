@@ -1,0 +1,29 @@
+#frontend settings
+# minWorkers: 1
+# maxWorkers: 1
+# maxBatchDelay: 200
+# responseTimeout: 300
+# parallelType: "pp"
+# deviceType: "gpu"
+# torchrun:
+#     nproc-per-node: 4
+
+#backend settings
+# pippy:
+#     rpc_timeout: 1800
+#     model_type: "HF"
+#     chunks: 1
+#     input_names: ["input_ids"]
+#     num_worker_threads: 128
+
+handler:
+    model_path: './model/models--meta-llama--Llama-2-7b-chat-hf/snapshots/08751db2aca9bf2f7f80d2e516117a53d7450235'
+    index_filename: 'pytorch_model.bin.index.json'
+    max_length: 50
+    max_new_tokens: 60
+    manual_seed: 40
+    dtype: fp16
+    tp_size: 4
+    top_p: 0.9
+    temperature: 0.6
+
