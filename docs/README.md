@@ -7,6 +7,7 @@ TorchServe is a performant, flexible and easy to use tool for serving PyTorch ea
 * [Serving Quick Start](https://github.com/pytorch/serve/blob/master/README.md#serve-a-model) - Basic server usage tutorial
 * [Model Archive Quick Start](https://github.com/pytorch/serve/tree/master/model-archiver#creating-a-model-archive) - Tutorial that shows you how to package a model archive file.
 * [Installation](https://github.com/pytorch/serve/blob/master/README.md#install-torchserve) - Installation procedures
+* [Model loading](model_loading.md) - How to load a model in TorchServe?
 * [Serving Models](server.md) - Explains how to use TorchServe
 * [REST API](rest_api.md) - Specification on the API endpoint for TorchServe
 * [gRPC API](grpc_api.md) - TorchServe supports gRPC APIs for both inference and management calls
