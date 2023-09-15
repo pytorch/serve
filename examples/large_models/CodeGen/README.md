@@ -136,8 +136,8 @@ sudo apt-get install apache2-utils
 
 There is a `config.properties` in the benchmark directory that TorchServe loads when running the benchmark. Update to fill your host public IP.
 ```
-inference_address=http://{your host public IP}:8080   // please fill your pubilc IP
-management_address=http://{your host public IP}:8081  // please fill your pubilc IP
+inference_address=http://127.0.0.1:8080  
+management_address=http://127.0.0.1:8081 
 ```
 
 3. [Optional] Enable Intel® Extension for PyTorch* optimizations through `config.properties`
