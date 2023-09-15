@@ -132,17 +132,22 @@ pip install -r requirements-ab.txt
 sudo apt-get install apache2-utils
 ```
 
-2. [Optional] Enable Intel® Extension for PyTorch* optimizations through `config.properties`
+2. Update `config.properties`
+
+There is a `config.properties` in the benchmark directory that TorchServe loads when running the benchmark. Update to fill your host public IP.
 ```
 inference_address=http://{your host public IP}:8080   // please fill your pubilc IP
 management_address=http://{your host public IP}:8081  // please fill your pubilc IP
+```
 
+3. [Optional] Enable Intel® Extension for PyTorch* optimizations through `config.properties`
+```
 ipex_enable=true
 cpu_launcher_enable=true
 # cpu_launcher_args=--node_id 0
 ```
 
-3. Run benchmark
+4. Run benchmark
 ```
 python benchmark-ab.py --url "file:///{path/to/torchserve}/serve/examples/large_models/CodeGen/model_store/codegen.mar" --input ../examples/large_models/CodeGen/sample_text_0.txt
 ```
