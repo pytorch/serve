@@ -6,7 +6,7 @@ Inferentia2 uses [Neuron SDK](https://aws.amazon.com/machine-learning/neuron/) w
 
 Let's take a look at the steps to prepare our model for inference on Inf2 instances.
 
-**Note** To run the model on an Inf2 instance, the model gets compiled as a preprocessing step. As part of the compilation process, to generate the model graph, a specific batch size is used. Following this, when running inference, we need to pass the same batch size that was used during compilation. This is taken care of by the custom handler in this example.
+**Note** To run the model on an Inf2 instance, the model gets compiled as a preprocessing step. As part of the compilation process, to generate the model graph, a specific batch size is used. Following this, when running inference, we need to pass the same batch size that was used during compilation. This is taken care of by the [custom handler](inf2_handler.py) in this example.
 
 ### Step 1: Inf2 instance
 
