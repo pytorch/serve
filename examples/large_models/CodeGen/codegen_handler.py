@@ -38,17 +38,73 @@ class CodeGenHandler(BaseHandler, ABC):
         
         self.max_length = int(ctx.model_yaml_config["handler"]["max_length"])
         
-        self.model = AutoModelForCausalLM.from_pretrained(model_path)
-        self.model = self.model.eval().to("cpu")
-        
-        logger.info("Model %s loading tokenizer", ctx.model_name)
-        self.tokenizer = AutoTokenizer.from_pretrained(model_path, return_tensors="pt")
-        
         if IPEX_ENABLE:
-            logger.info("Model %s optimzied with Intel® Extension for PyTorch*", ctx.model_name)
-            self.model = self.model.to(memory_format=torch.channels_last)
-            self.model = ipex._optimize_transformers(self.model, inplace=True)
+            device = torch.device("cpu")
+            num_beams = 4
+            max_new_tokens = 32
+            batch_size = 1
             
+            ############ Intel® Extension for PyTorch* BF16 JIT ############
+            # jit
+            torch._C._jit_set_texpr_fuser_enabled(False)
+            
+            # load model
+            self.tokenizer = AutoTokenizer.from_pretrained(model_path, torchscript=True, trust_remote_code=True)
+            self.model = AutoModelForCausalLM.from_pretrained(model_path, torchscript=True, trust_remote_code=True)
+            
+            self.model = self.model.eval().to(device)
+            self.model = self.model.to(memory_format=torch.channels_last)
+            
+            # to ipex
+            self.model = ipex._optimize_transformers(self.model.eval(), dtype=torch.bfloat16, inplace=True)
+            
+            # generate args
+            generate_kwargs = dict(do_sample=False, temperature=0.9, num_beams=num_beams,
+                                   max_new_tokens=max_new_tokens, min_new_tokens=max_new_tokens)
+            
+            # dummy past key values
+            beam_idx_tmp = torch.zeros(
+                (2048, int(batch_size * num_beams)), dtype=torch.long
+            ).contiguous()
+            past_key_values = tuple(
+                [
+                    (
+                        torch.zeros([1, 1, 1, 1]).contiguous(),
+                        torch.zeros([1, 1, 1, 1]).contiguous(),
+                        beam_idx_tmp,
+                        torch.zeros(1, dtype=torch.long).contiguous(),
+                    )
+                    for i in range(self.model.config.n_layer)
+                ]
+            )
+            
+            if not hasattr(self.model, "trace_graph"): 
+                input_ids = torch.ones(32).to(torch.long)
+                attention_mask = torch.ones(len(input_ids))
+                position_ids = torch.arange(len(input_ids))
+            
+                example_inputs = {
+                    "input_ids": input_ids.unsqueeze(0),
+                    "attention_mask": attention_mask.unsqueeze(0),
+                    "position_ids": position_ids.unsqueeze(0),
+                    "past_key_values": past_key_values,
+                }
+                
+                with torch.inference_mode(), torch.no_grad(), torch.autocast(
+                    device_type="cpu",
+                    enabled=True,
+                    dtype=torch.bfloat16
+                ):
+                    trace_model = torch.jit.trace(
+                        self.model, example_kwarg_inputs=example_inputs, strict=False, check_trace=False
+                    )
+                    trace_model = torch.jit.freeze(trace_model)
+                    setattr(self.model, "trace_graph", trace_model)
+            logger.info("Model %s optimzied with Intel® Extension for PyTorch*", ctx.model_name)
+            ################################################################
+        else:
+            self.tokenizer = AutoTokenizer.from_pretrained(model_path, return_tensors="pt")
+            self.model = AutoModelForCausalLM.from_pretrained(model_path)
             
         logger.info("Model %s loaded successfully", ctx.model_name)
 
