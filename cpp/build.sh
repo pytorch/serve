@@ -25,7 +25,6 @@ function install_dependencies_linux() {
     autoconf \
     automake \
     git \
-    cmake \
     m4 \
     g++ \
     flex \
@@ -175,6 +174,14 @@ function install_libtorch() {
         wget https://download.pytorch.org/libtorch/cu116/libtorch-cxx11-abi-shared-with-deps-1.12.1%2Bcu116.zip
         unzip libtorch-cxx11-abi-shared-with-deps-1.12.1+cu116.zip
         rm libtorch-cxx11-abi-shared-with-deps-1.12.1+cu116.zip
+      elif [ "$CUDA" = "cu117" ]; then
+        wget https://download.pytorch.org/libtorch/cu117/libtorch-cxx11-abi-shared-with-deps-2.0.1%2Bcu117.zip
+        unzip libtorch-cxx11-abi-shared-with-deps-2.0.1+cu117.zip
+        rm libtorch-cxx11-abi-shared-with-deps-2.0.1+cu117.zip
+      elif [ "$CUDA" = "cu118" ]; then
+        wget https://download.pytorch.org/libtorch/cu118/libtorch-cxx11-abi-shared-with-deps-2.0.1%2Bcu118.zip
+        unzip libtorch-cxx11-abi-shared-with-deps-2.0.1+cu118.zip
+        rm libtorch-cxx11-abi-shared-with-deps-2.0.1+cu118.zip
       else
         wget https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.12.1%2Bcpu.zip
         unzip libtorch-cxx11-abi-shared-with-deps-1.12.1+cpu.zip
@@ -254,7 +261,7 @@ function build() {
   find $FOLLY_CMAKE_DIR -name "lib*.*"  -exec ln -s "{}" $LIBS_DIR/ \;
   if [ "$PLATFORM" = "Linux" ]; then
     cmake                                                                                     \
-    -DCMAKE_PREFIX_PATH="$DEPS_DIR;$FOLLY_CMAKE_DIR;$YAML_CPP_CMAKE_DIR;$DEPS_DIR/libtorch"                       \
+    -DCMAKE_PREFIX_PATH="$DEPS_DIR;$FOLLY_CMAKE_DIR;$YAML_CPP_CMAKE_DIR;$DEPS_DIR/libtorch;"  \
     -DCMAKE_INSTALL_PREFIX="$PREFIX"                                                          \
     "$MAYBE_BUILD_QUIC"                                                                       \
     "$MAYBE_BUILD_TESTS"                                                                      \
@@ -265,7 +272,7 @@ function build() {
     "$MAYBE_CUDA_COMPILER"                                                                    \
     ..
 
-    if [ "$CUDA" = "cu102" ] || [ "$CUDA" = "cu113" ] || [ "$CUDA" = "cu116" ]; then
+    if [ "$CUDA" = "cu102" ] || [ "$CUDA" = "cu113" ] || [ "$CUDA" = "cu116" ] || [ "$CUDA" = "cu117" ] || [ "$CUDA" = "cu118" ]; then
       export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/cuda/bin/nvcc
     fi
   elif [ "$PLATFORM" = "Mac" ]; then
@@ -299,6 +306,10 @@ function build() {
     mv $DEPS_DIR/../src/examples/libmnist_handler.so $DEPS_DIR/../../test/resources/torchscript_model/mnist/mnist_handler/libmnist_handler.so
   fi
 
+  if [ -f "$DEPS_DIR/../src/examples/libresnet-18_handler.so" ]; then
+    mv $DEPS_DIR/../src/examples/libresnet-18_handler.so $DEPS_DIR/../../test/resources/torchscript_model/resnet-18/resnet-18_handler/libresnet-18_handler.so
+  fi
+
   cd $DEPS_DIR/../..
   if [ -f "$DEPS_DIR/../test/torchserve_cpp_test" ]; then
     $DEPS_DIR/../test/torchserve_cpp_test
@@ -329,7 +340,7 @@ INSTALL_DEPENDENCIES=false
 PREFIX=""
 COMPILER_FLAGS=""
 CUDA=""
-USAGE="./build.sh [-j num_jobs] [-g cu102|cu113|cu116] [-q|--with-quic] [--install-dependencies] [-p|--prefix] [-x|--compiler-flags]"
+USAGE="./build.sh [-j num_jobs] [-g cu102|cu113|cu116|cu117|cu118] [-q|--with-quic] [--install-dependencies] [-p|--prefix] [-x|--compiler-flags]"
 while [ "$1" != "" ]; do
   case $1 in
     -j | --jobs ) shift

@@ -1,0 +1,11 @@
+{
+  "createdOn": "28/07/2020 06:32:08",
+  "runtime": "LSP",
+  "model": {
+    "modelName": "resnet-18",
+    "serializedFile": "resnet-18.pt",
+    "handler": "libresnet-18_handler:ResnetHandler",
+    "modelVersion": "2.0"
+  },
+  "archiverVersion": "0.2.0"
+}

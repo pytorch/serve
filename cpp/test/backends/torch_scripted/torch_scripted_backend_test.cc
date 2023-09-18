@@ -78,6 +78,16 @@ TEST_F(TorchScriptedBackendTest, TestLoadPredictMnistHandler) {
                     "mnist_ts", 200);
 }
 
+TEST_F(TorchScriptedBackendTest, TestLoadPredictResnetHandler) {
+  this->LoadPredict(
+      std::make_shared<torchserve::LoadModelRequest>(
+          "test/resources/torchscript_model/resnet-18/resnet-18_handler",
+          "resnet-18", -1, "", "", 1, false),
+      "test/resources/torchscript_model/resnet-18/resnet-18_handler",
+      "test/resources/torchscript_model/resnet-18/kitten.jpg", "resnet-18_ts",
+      200);
+}
+
 TEST_F(TorchScriptedBackendTest, TestBackendInitWrongModelDir) {
   auto result = backend_->Initialize("test/resources/torchscript_model/mnist");
   ASSERT_EQ(result, false);
