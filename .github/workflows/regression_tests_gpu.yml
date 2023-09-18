@@ -47,6 +47,6 @@ jobs:
       - name: Torchserve Regression Tests
         run: |
           python test/regression_tests.py
-      - run: ls test/*
+      - run: ls test/artifacts/inference_kfv2/*
       - name: Check logs
-        run: cat test/ts_console.log
+        run: cat test/artifacts/inference_kfv2/ts_console.log
