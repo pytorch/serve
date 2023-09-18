@@ -36,15 +36,17 @@ class CodeGenHandler(BaseHandler, ABC):
         model_name = ctx.model_yaml_config["handler"]["model_name"]
         model_path = ctx.model_yaml_config["handler"]["model_path"]
         
+        # generate args
+        num_beams = 4
+        batch_size = 1
         self.max_length = int(ctx.model_yaml_config["handler"]["max_length"])
+        self.generate_kwargs = dict(do_sample=False, temperature=0.9, num_beams=num_beams, max_length=self.max_length)
         
         if IPEX_ENABLE:
-            device = torch.device("cpu")
-            num_beams = 4
-            max_new_tokens = 32
-            batch_size = 1
-            
             ############ Intel® Extension for PyTorch* BF16 JIT ############
+            # device 
+            device = torch.device("cpu")
+            
             # jit
             torch._C._jit_set_texpr_fuser_enabled(False)
             
@@ -57,10 +59,6 @@ class CodeGenHandler(BaseHandler, ABC):
             
             # to ipex
             self.model = ipex._optimize_transformers(self.model.eval(), dtype=torch.bfloat16, inplace=True)
-            
-            # generate args
-            generate_kwargs = dict(do_sample=False, temperature=0.9, num_beams=num_beams,
-                                   max_new_tokens=max_new_tokens, min_new_tokens=max_new_tokens)
             
             # dummy past key values
             beam_idx_tmp = torch.zeros(
@@ -100,13 +98,13 @@ class CodeGenHandler(BaseHandler, ABC):
                     )
                     trace_model = torch.jit.freeze(trace_model)
                     setattr(self.model, "trace_graph", trace_model)
-            logger.info("Model %s optimzied with Intel® Extension for PyTorch*", ctx.model_name)
+            logger.info("Successfully optimzied Model %s with Intel® Extension for PyTorch*", ctx.model_name)
             ################################################################
         else:
-            self.tokenizer = AutoTokenizer.from_pretrained(model_path, return_tensors="pt")
+            self.tokenizer = AutoTokenizer.from_pretrained(model_path)
             self.model = AutoModelForCausalLM.from_pretrained(model_path)
             
-        logger.info("Model %s loaded successfully", ctx.model_name)
+        logger.info("Successfully loaded Model %s", ctx.model_name)
 
     def preprocess(self, requests):
         input_ids_batch = None
@@ -117,17 +115,63 @@ class CodeGenHandler(BaseHandler, ABC):
             if isinstance(input_text, (bytes, bytearray)):
                 input_text = input_text.decode("utf-8")
             logger.info("Received text: '%s'", input_text)
-            
-        input_ids = self.tokenizer(input_text, return_tensors="pt").input_ids
+        
+        with torch.inference_mode(), torch.no_grad(), torch.autocast(
+            device_type="cpu",
+            enabled=True if IPEX_ENABLE else False,
+            dtype=torch.bfloat16 if IPEX_ENABLE else None
+        ):
+            input_ids = self.tokenizer(input_text, return_tensors="pt").input_ids
+        input_size = input_ids.size(dim=1)
+        logger.info("Input text size: %i", input_size)
+
         return input_ids 
         
     def inference(self, input_batch):
         inferences = []
-        outputs = self.model.generate(input_batch, max_length=self.max_length)
-        for i, x in enumerate(outputs):
-            inferences.append(
-                self.tokenizer.decode(outputs[i], skip_special_tokens=True)
-            )
+        
+        """
+        ############ benchmark ############
+        import time
+        total_time = 0.0
+        num_iter = 100
+        num_warmup = 10
+        
+        prompt = "# This Python script demonstrates a basic Multi-Layer Perceptron (MLP) model for image classification. Using PyTorch machine-learning framework library, it defines a simple MLP architecture, loads the datasets, preprocesses the input images, postprocesses the outputs, and trains it on the training data images. Finally, it evaluates the model's performance on the evaluation data images."
+        input_size = self.tokenizer(prompt, return_tensors="pt").input_ids.size(dim=1)
+        logger.info("Prompt size: %i", input_size)
+        
+        with torch.inference_mode(), torch.no_grad(), torch.autocast(
+            device_type="cpu",
+            enabled=True if IPEX_ENABLE else False,
+            dtype=torch.bfloat16 if IPEX_ENABLE else None
+        ):
+            for i in range(100):
+                tic = time.time()
+                input_ids = self.tokenizer(prompt, return_tensors="pt").input_ids
+                gen_ids = self.model.generate(input_ids, **self.generate_kwargs)
+                gen_text = self.tokenizer.decode(gen_ids[0], skip_special_tokens=True)
+                toc = time.time()
+                
+                print("Iteration: %d, Time: %.6f sec" % (i, toc - tic), flush=True)
+                if i >= num_warmup:
+                    total_time += toc - tic
+        print("\n", "-" * 10, "Summary:", "-" * 10)
+        latency = total_time / (num_iter - num_warmup)
+        print("Inference latency: %.3f sec." % latency)
+        ###################################
+        """
+        
+        with torch.inference_mode(), torch.no_grad(), torch.autocast(
+            device_type="cpu",
+            enabled=IPEX_ENABLE==True,
+            dtype=torch.bfloat16 if IPEX_ENABLE else None
+        ):
+            outputs = self.model.generate(input_batch, **self.generate_kwargs)
+            for i, x in enumerate(outputs):
+                inferences.append(
+                    self.tokenizer.decode(outputs[i], skip_special_tokens=True)
+                )
         return inferences
 
     def postprocess(self, inference_output):
