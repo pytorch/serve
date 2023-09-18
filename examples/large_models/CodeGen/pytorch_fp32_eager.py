@@ -4,11 +4,8 @@ import argparse
 from transformers import AutoTokenizer, AutoModelForCausalLM
 
 # generate args
-num_beams = 4
-max_new_tokens = 32
 max_length = 128
-batch_size = 1
-generate_kwargs = dict(do_sample=False, temperature=0.9, num_beams=num_beams, max_length=max_length)
+generate_kwargs = dict(max_length=max_length)
 
 # load model
 tokenizer = AutoTokenizer.from_pretrained("Salesforce/codegen-2B-multi")

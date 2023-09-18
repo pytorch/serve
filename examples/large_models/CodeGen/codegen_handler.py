@@ -36,14 +36,16 @@ class CodeGenHandler(BaseHandler, ABC):
         model_name = ctx.model_yaml_config["handler"]["model_name"]
         model_path = ctx.model_yaml_config["handler"]["model_path"]
         
-        # generate args
-        num_beams = 4
-        batch_size = 1
         self.max_length = int(ctx.model_yaml_config["handler"]["max_length"])
-        self.generate_kwargs = dict(do_sample=False, temperature=0.9, num_beams=num_beams, max_length=self.max_length)
         
         if IPEX_ENABLE:
             ############ Intel® Extension for PyTorch* BF16 JIT ############
+            
+            # generate args
+            num_beams = 4
+            batch_size = 1
+            self.generate_kwargs = dict(do_sample=False, temperature=0.9, num_beams=num_beams, max_length=self.max_length)
+            
             # device 
             device = torch.device("cpu")
             
@@ -101,6 +103,10 @@ class CodeGenHandler(BaseHandler, ABC):
             logger.info("Successfully optimzied Model %s with Intel® Extension for PyTorch*", ctx.model_name)
             ################################################################
         else:
+            # generate args
+            self.generate_kwargs = dict(max_length=self.max_length)
+            
+            # load model
             self.tokenizer = AutoTokenizer.from_pretrained(model_path)
             self.model = AutoModelForCausalLM.from_pretrained(model_path)
             
