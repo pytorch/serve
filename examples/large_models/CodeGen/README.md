@@ -77,7 +77,7 @@ Add the following lines in `config.properties`:
 ```
 ipex_enable=true
 cpu_launcher_enable=true
-# cpu_launcher_args=--node_id 0
+cpu_launcher_args=--node_id 0
 ```
 
 7. Start TorchServe
@@ -232,7 +232,7 @@ management_address=http://127.0.0.1:8081
 ```
 ipex_enable=true
 cpu_launcher_enable=true
-# cpu_launcher_args=--node_id 0
+cpu_launcher_args=--node_id 0
 ```
 
 4. Run benchmark
