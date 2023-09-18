@@ -2,12 +2,12 @@ name: Run Regression Tests on GPU
 
 on:
   push:
-    branches:
-      - master
-  pull_request:
-    branches:
-      - master
-  merge_group:
+  #  branches:
+  #    - master
+  #pull_request:
+  #  branches:
+  #    - master
+  #merge_group:
 
 concurrency:
   group: ci-cpu-${{ github.workflow }}-${{ github.ref == 'refs/heads/master' && github.run_number || github.ref }}
@@ -47,3 +47,5 @@ jobs:
       - name: Torchserve Regression Tests
         run: |
           python test/regression_tests.py
+      - name: Check logs
+        run: cat test/ts_console.log

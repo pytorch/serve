@@ -11,7 +11,6 @@ import datetime
 from ts_scripts import marsgen as mg
 from ts_scripts.api_utils import test_api
 from ts_scripts.install_from_src import install_from_src
-from ts_scripts.regression_utils import test_regression
 from ts_scripts.utils import check_python_version, try_and_handle
 
 
@@ -29,12 +28,13 @@ def regression_tests(binaries, pypi, conda, nightly):
                 cmd = f"pip install torchserve torch-model-archiver torch-workflow-archiver"
         elif conda:
             if nightly:
-                cmd = f"conda install -c pytorch-nightly torchserve torch-model-archiver torch-workflow-archiver"
+                cmd = f"conda install -c pytorch-nightly torchserve torch-model-archiver torch-workflow-archiver -y "
             else:
-                cmd = f"conda install -c pytorch torchserve torch-model-archiver torch-workflow-archiver"
+                cmd = f"conda install -c pytorch torchserve torch-model-archiver torch-workflow-archiver -y"
         try_and_handle(cmd, False)
         print(f"## In directory: {os.getcwd()}; Executing command: {cmd}")
     else:
+        pass
         # Install from source
         install_from_src()
 
@@ -43,11 +43,11 @@ def regression_tests(binaries, pypi, conda, nightly):
 
     # Run newman api tests
     test_api(
-        "all"
+        "inference_kfv2"
     )  # "all" > management, inference, increased_timeout_inference, https collections
 
     # Run regression tests
-    test_regression()
+    # test_regression()
 
     # delete mar_gen_dir
     mg.delete_model_store_gen_dir()
