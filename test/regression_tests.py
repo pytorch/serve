@@ -43,7 +43,7 @@ def regression_tests(binaries, pypi, conda, nightly):
 
     # Run newman api tests
     test_api(
-        "inference_kfv2"
+        "all"
     )  # "all" > management, inference, increased_timeout_inference, https collections
 
     # Run regression tests
