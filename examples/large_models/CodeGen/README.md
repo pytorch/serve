@@ -126,6 +126,7 @@ curl http://localhost:8080/predictions/codegen -T ./sample_text_2.txt
 ```
 Sample output:  
 ```
+$ curl http://localhost:8080/predictions/codegen -T ./sample_text_2.txt
 # This Python script demonstrates a basic Multi-Layer Perceptron (MLP) model for image classification. Using PyTorch machine-learning framework library, it defines a simple MLP architecture, loads the datasets, preprocesses the input images, postprocesses the outputs, and trains it on the training data images. Finally, it evaluates the model's performance on the evaluation data images.
 
 # In[1]:
