@@ -47,5 +47,6 @@ jobs:
       - name: Torchserve Regression Tests
         run: |
           python test/regression_tests.py
+      - run: ls test/*
       - name: Check logs
         run: cat test/ts_console.log
