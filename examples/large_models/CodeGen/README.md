@@ -54,8 +54,7 @@ maxWorkers: 1
 handler:
     model_name: "Salesforce/codegen-2B-multi"
     model_path: "{path/to/torchserve}/serve/examples/large_models/CodeGen/model/models--Salesforce--codegen-2B-multi/snapshots/c33da754a6605cb4eda7cf7e2b30a6d8bbcd9385" # the path to the checkpoints, please change to your model path.
-    max_length: 128
-    batch_size: 1
+    max_length: 32
 ```
 
 4. Generate `MAR` file
