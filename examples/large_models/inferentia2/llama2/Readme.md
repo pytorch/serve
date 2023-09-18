@@ -54,7 +54,7 @@ python -m pip install -r requirements.txt
 ```
 
 ### Step 3: Save the model artifacts compatible with `transformers-neuronx`
-In order to use the precompiled model artifacts, copy them from the model zoo using the command shown below and skip to **Step 5**
+In order to use the pre-compiled model artifacts, copy them from the model zoo using the command shown below and skip to **Step 5**
 ```bash
 aws s3 cp s3://torchserve/mar_files/llama-2-13b-neuronx-b4/ llama-2-13b --recursive
 ```
