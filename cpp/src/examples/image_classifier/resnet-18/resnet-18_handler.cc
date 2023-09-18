@@ -51,38 +51,9 @@ std::vector<torch::jit::IValue> ResnetHandler::Preprocess(
           "Empty payload");
       continue;
     }
-    /*
-    case2: the image is sent as string of bytesarray
-    if (dtype_it->second == "String") {
-      try {
-        auto b64decoded_str = folly::base64Decode(data_it->second);
-        torchserve::Converter::StrToBytes(b64decoded_str, image);
-      } catch (folly::base64_decode_error e) {
-        TS_LOGF(ERROR, "Failed to base64Decode for request id: {}, error: {}",
-                request.request_id,
-                e.what());
-      }
-    }
-    */
 
     try {
       if (dtype_it->second == torchserve::PayloadType::kDATA_TYPE_BYTES) {
-        // case2: the image is sent as bytesarray
-        // torch::serialize::InputArchive archive;
-        // archive.load_from(std::istringstream
-        // iss(std::string(data_it->second)));
-        /*
-        std::istringstream iss(std::string(data_it->second.begin(),
-        data_it->second.end())); torch::serialize::InputArchive archive;
-        images.emplace_back(archive.load_from(iss, torch::Device device);
-
-        std::vector<char> bytes(
-          static_cast<char>(*data_it->second.begin()),
-          static_cast<char>(*data_it->second.end()));
-
-        images.emplace_back(torch::pickle_load(bytes).toTensor().to(*device));
-        */
-
         cv::Mat image = cv::imdecode(data_it->second, cv::IMREAD_COLOR);
 
         // Check if the image was successfully decoded
@@ -169,17 +140,6 @@ void ResnetHandler::Postprocess(
     const torch::Tensor& data,
     std::pair<std::string&, std::map<uint8_t, std::string>&>& idx_to_req_id,
     std::shared_ptr<torchserve::InferenceResponseBatch>& response_batch) {
-  std::ifstream jsonFile("index_to_name.json");
-  if (!jsonFile.is_open()) {
-    std::cerr << "Failed to open JSON file.\n";
-  }
-  std::string jsonString((std::istreambuf_iterator<char>(jsonFile)),
-                         std::istreambuf_iterator<char>());
-  jsonFile.close();
-  folly::dynamic parsedJson = folly::parseJson(jsonString);
-  if (!parsedJson.isObject()) {
-    std::cerr << "Invalid JSON format.\n";
-  }
   for (const auto& kv : idx_to_req_id.second) {
     try {
       auto response = (*response_batch)[kv.second];
