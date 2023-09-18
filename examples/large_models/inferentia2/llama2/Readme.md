@@ -1,6 +1,6 @@
 # Large model inference on Inferentia2
 
-This document briefs on serving the [Llama 2](https://huggingface.co/meta-llama) model on [AWS Inferentia2](https://aws.amazon.com/ec2/instance-types/inf2/) with [micro batching](https://github.com/pytorch/serve/tree/96450b9d0ab2a7290221f0e07aea5fda8a83efaf/examples/micro_batching) and [streaming response](https://github.com/pytorch/serve/blob/96450b9d0ab2a7290221f0e07aea5fda8a83efaf/docs/inference_api.md#curl-example-1) support.
+This document briefs on serving the [Llama 2](https://huggingface.co/meta-llama) model on [AWS Inferentia2](https://aws.amazon.com/ec2/instance-types/inf2/) for text completion with [micro batching](https://github.com/pytorch/serve/tree/96450b9d0ab2a7290221f0e07aea5fda8a83efaf/examples/micro_batching) and [streaming response](https://github.com/pytorch/serve/blob/96450b9d0ab2a7290221f0e07aea5fda8a83efaf/docs/inference_api.md#curl-example-1) support.
 
 Inferentia2 uses [Neuron SDK](https://aws.amazon.com/machine-learning/neuron/) which is built on top of PyTorch XLA stack. For large model inference [`transformers-neuronx`](https://github.com/aws-neuron/transformers-neuronx) package is used that takes care of model partitioning and running inference.
 
@@ -13,6 +13,8 @@ Since compilation batch size can influence compile time and also constrained by 
 This example also demonstrates the utilization of neuronx cache to store inf2 model compilation artifacts using the `NEURONX_CACHE` and `NEURONX_DUMP_TO` environment variables in the custom handler.
 When the model is loaded for the first time, the model is compiled for the configured micro batch size and the compilation artifacts are saved to the neuronx cache.
 On subsequent model load, the compilation artifacts in the neuronx cache serves as `Ahead of Time(AOT)` compilation artifacts and significantly reduces the model load time.
+For convenience, the compiled model artifacts for this example are made available on the Torchserve model zoo: `s3://torchserve/mar_files/llama-2-13b-neuronx-b4`\
+Instructions on how to use the AOT compiled model artifacts is shown below.
 
 ### Step 1: Inf2 instance
 
@@ -51,7 +53,13 @@ cd examples/large_models/inferentia2/llama2/
 python -m pip install -r requirements.txt
 ```
 
-### Step 3: Save the model split checkpoints compatible with `transformers-neuronx`
+### Step 3: Save the model artifacts compatible with `transformers-neuronx`
+In order to use the precompiled model artifacts, copy them from the model zoo using the command shown below and skip to **Step 5**
+```bash
+aws s3 cp s3://torchserve/mar_files/llama-2-13b-neuronx-b4/ llama-2-13b --recursive
+```
+
+In order to download and compile the Llama2 model from scratch for support on Inf2:\
 Request access to the Llama2 model\
 https://huggingface.co/meta-llama/Llama-2-13b-hf
 

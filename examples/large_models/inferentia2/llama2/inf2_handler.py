@@ -39,14 +39,14 @@ class LLMHandler(BaseHandler, ABC):
         os.environ["NEURON_CC_FLAGS"] = "--model-type=transformer-inference"
 
         # micro batching initialization
-        parallelism = ctx.model_yaml_config.get("micro_batching", {}).get(
-            "parallelism", None
-        )
-        if parallelism:
+        micro_batching_parallelism = ctx.model_yaml_config.get(
+            "micro_batching", {}
+        ).get("parallelism", None)
+        if micro_batching_parallelism:
             logger.info(
-                f"Setting micro batching parallelism  from model_config_yaml: {parallelism}"
+                f"Setting micro batching parallelism  from model_config_yaml: {micro_batching_parallelism}"
             )
-            self.handle.parallelism = parallelism
+            self.handle.parallelism = micro_batching_parallelism
 
         micro_batch_size = ctx.model_yaml_config.get("micro_batching", {}).get(
             "micro_batch_size", 1
