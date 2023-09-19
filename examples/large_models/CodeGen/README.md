@@ -237,5 +237,5 @@ cpu_launcher_args=--node_id 0
 
 4. Run benchmark
 ```
-python benchmark-ab.py --url "file:///{path/to/torchserve}/serve/examples/large_models/CodeGen/model_store/codegen.mar" --input ../examples/large_models/CodeGen/sample_text_0.txt
+python benchmark-ab.py --url "file:///{path/to/torchserve}/serve/examples/large_models/CodeGen/model_store/codegen.mar" --input ../examples/large_models/CodeGen/sample_text_2.txt
 ```
