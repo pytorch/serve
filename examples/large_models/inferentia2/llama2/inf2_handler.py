@@ -34,6 +34,10 @@ class LLMHandler(BaseHandler, ABC):
         self.manifest = ctx.manifest
         properties = ctx.system_properties
         model_dir = properties.get("model_dir")
+        model_checkpoint_dir = ctx.model_yaml_config.get("handler", {}).get(
+            "model_checkpoint_dir", ""
+        )
+        model_checkpoint_path = f"{model_dir}/{model_checkpoint_dir}"
         os.environ["NEURONX_CACHE"] = "on"
         os.environ["NEURONX_DUMP_TO"] = f"{model_dir}/neuron_cache"
         os.environ["NEURON_CC_FLAGS"] = "--model-type=transformer-inference"
@@ -76,10 +80,10 @@ class LLMHandler(BaseHandler, ABC):
 
             raise error
 
-        self.tokenizer = LlamaTokenizer.from_pretrained(model_dir)
+        self.tokenizer = LlamaTokenizer.from_pretrained(model_checkpoint_path)
         self.tokenizer.pad_token = self.tokenizer.eos_token
         self.model = LlamaForSampling.from_pretrained(
-            model_dir,
+            model_checkpoint_path,
             batch_size=self.handle.micro_batch_size,
             amp=amp,
             tp_degree=tp_degree,
@@ -87,7 +91,7 @@ class LLMHandler(BaseHandler, ABC):
         logger.info("Starting to compile the model")
         self.model.to_neuron()
         logger.info("Model has been successfully compiled")
-        model_config = AutoConfig.from_pretrained(model_dir)
+        model_config = AutoConfig.from_pretrained(model_checkpoint_path)
         self.model = HuggingFaceGenerationModelAdapter(model_config, self.model)
         self.output_streamer = TextIteratorStreamerBatch(
             self.tokenizer,

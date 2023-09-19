@@ -77,7 +77,8 @@ python ../util/inf2_save_split_checkpoints.py --model_name meta-llama/Llama-2-13
 ### Step 4: Package model artifacts
 
 ```bash
-torch-model-archiver --model-name llama-2-13b --version 1.0 --handler inf2_handler.py --extra-files ./llama-2-13b-split  -r requirements.txt --config-file model-config.yaml --archive-format no-archive
+torch-model-archiver --model-name llama-2-13b --version 1.0 --handler inf2_handler.py -r requirements.txt --config-file model-config.yaml --archive-format no-archive
+mv llama-2-13b-split llama-2-13b
 ```
 
 ### Step 5: Add the model artifacts to model store
