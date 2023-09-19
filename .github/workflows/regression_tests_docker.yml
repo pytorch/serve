@@ -53,3 +53,11 @@ jobs:
         if: success()
         run: |
           docker system prune -f && docker rmi pytorch/torchserve:ci
+      - name: Open issue on failure
+        if: ${{ failure() && github.event_name  == 'schedule' }}
+        uses: dacbd/create-issue-action@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          title: Docker Regression on ${{ matrix.hardware }} failed
+          body:  The daily scheduled [Docker Regression Run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) failed, please check why
+          assignees: ''
