@@ -59,6 +59,9 @@ jobs:
           job_name: "${{ github.job }}"  # if job.<job-id>.name is not specified, this works too
       - name: Output Current Job Log URL
         run: echo ${{ steps.jobs.outputs.job_id }}
+      #- run: https://api.github.com/repos/${{ github.repository_owner }}/${GITHUB_REPOSITORY#*/}/actions/jobs/${{ github.run_id }}/rerun
+    outputs:
+      job_id:  ${{ steps.jobs.outputs.job_id }}
 
       #- run: |
       #    curl -L \
@@ -66,14 +69,13 @@ jobs:
       #    -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
       #    -H "X-GitHub-Api-Version: 2022-11-28" \
       #    https://api.github.com/repos/${{ github.repository }}/actions/jobs/${{ steps.jobs.outputs.job_id }}
-      #- run: https://api.github.com/repos/${{ github.repository_owner }}/${GITHUB_REPOSITORY#*/}/actions/jobs/${{ github.run_id }}/rerun
   retry:
     needs: regression-gpu
     runs-on: [self-hosted, regression-test-gpu]
-    if: always() && (needs.regression-gpu.result != 'success')
+    if: always() && (needs.regression-gpu.result == 'success')
     steps:
       - run: echo "hi"
-      - run: echo ${{ needs.regression-gpu.steps.jobs.outputs.job_id }}
+      - run: echo ${{ needs.regression-gpu.outputs.job_id }}
       - name: Re-run on failure
         if: always()
         #if: ${{ always() && contains(needs.*.result, 'failure') }}
@@ -83,4 +85,4 @@ jobs:
           -H "Accept: application/vnd.github+json" \
           -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
           -H "X-GitHub-Api-Version: 2022-11-28" \
-          https://api.github.com/repos/${{ github.repository }}/actions/jobs/${{ needs.regression-gpu.steps.jobs.outputs.job_id }}/rerun
+          https://api.github.com/repos/${{ github.repository }}/actions/jobs/${{ needs.regression-gpu.outputs.job_id }}/rerun
