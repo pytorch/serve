@@ -58,9 +58,9 @@ public final class CodecUtils {
     public static Map<String, String> readMap(ByteBuf in, int len) {
         HashMap<String, String> ret = new HashMap<>();
         for (; len > 0; len--) {
-            int l = readLength(in, in.readableBytes());
+            int l = readLength(in, 6500000); // We replace len here with 6500000 as a workaround before we can fix the whole otf. Basically, were mixing up bytes (expected by readLength) and number of entries (given to readMap). If we only have a small number of entries our values in the map are not allowed to be very big as we compare the given number of entries with the byte size we're expecting after reading the length of the next message.
             String key = readString(in, l);
-            l = readLength(in, in.readableBytes());
+            l = readLength(in, 6500000);
             String val = readString(in, l);
             ret.put(key, val);
         }
