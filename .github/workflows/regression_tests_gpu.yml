@@ -51,6 +51,15 @@ jobs:
       - run: echo ${{ github.id }}
       - run: echo ${{ github.repository }}
       #- run: https://api.github.com/repos/${{ github.repository_owner }}/${GITHUB_REPOSITORY#*/}/actions/jobs/${{ github.run_id }}/rerun
+      - name: Get Current Job Log URL
+        uses: Tiryoh/gha-jobid-action@v0
+        id: jobs
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          job_name: "${{ github.job }}"  # if job.<job-id>.name is not specified, this works too
+      - name: Output Current Job Log URL
+        run: echo ${{ steps.jobs.outputs.html_url }}
+
       - run: |
           curl -L \
           -H "Accept: application/vnd.github+json" \
