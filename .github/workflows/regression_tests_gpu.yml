@@ -71,9 +71,11 @@ jobs:
     needs: regression-gpu
     runs-on: [self-hosted, regression-test-gpu]
     steps:
+      - run: echo "hi"
       - run: echo ${{ needs.regression-gpu.steps.jobs.outputs.job_id }}
       - name: Re-run on failure
-        if: ${{ always() && contains(needs.*.result, 'failure') }}
+        if: always()
+        #if: ${{ always() && contains(needs.*.result, 'failure') }}
         run: |
           curl -L \
           -X POST \
