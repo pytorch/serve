@@ -59,7 +59,7 @@ jobs:
           job_name: "${{ github.job }}"  # if job.<job-id>.name is not specified, this works too
       - name: Output Current Job Log URL
         run: echo ${{ steps.jobs.outputs.job_id }}
-      #- run: https://api.github.com/repos/${{ github.repository_owner }}/${GITHUB_REPOSITORY#*/}/actions/jobs/${{ github.run_id }}/rerun
+      - run: https://api.github.com/repos/${{ github.repository_owner }}/${GITHUB_REPOSITORY#*/}/actions/jobs/${{ github.run_id }}/rerun
     outputs:
       job_id:  ${{ steps.jobs.outputs.job_id }}
 
@@ -72,7 +72,7 @@ jobs:
   retry:
     needs: regression-gpu
     runs-on: [self-hosted, regression-test-gpu]
-    if: always() && (needs.regression-gpu.result == 'success')
+    if: always() && (needs.regression-gpu.result != 'success')
     steps:
       - run: echo "hi"
       - run: echo ${{ needs.regression-gpu.outputs.job_id }}
