@@ -1,0 +1,6 @@
+--extra-index-url https://pip.repos.neuron.amazonaws.com
+torch-neuronx==1.13.1.1.9.0
+transformers-neuronx==0.5.58
+transformers==4.31.0
+tokenizers==0.13.3
+sentencepiece==0.1.99
