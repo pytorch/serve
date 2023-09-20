@@ -51,6 +51,7 @@ jobs:
       - run: echo ${{ github.run_id }}
       - run: echo ${{ github.repository_owner }}
       - run: echo ${GITHUB_REPOSITORY#*/}
+      - run: https://api.github.com/repos/${{ github.repository_owner }}/${GITHUB_REPOSITORY#*/}/actions/jobs/${{ github.run_id }}/rerun
       - run: |
           curl -L \
           -H "Accept: application/vnd.github+json" \
