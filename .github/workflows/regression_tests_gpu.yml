@@ -70,7 +70,7 @@ jobs:
   retry:
     needs: regression-gpu
     runs-on: [self-hosted, regression-test-gpu]
-    if: always() && (needs.regression-gpu.result == 'success'
+    if: always() && (needs.regression-gpu.result == 'success')
     steps:
       - run: echo "hi"
       - run: echo ${{ needs.regression-gpu.steps.jobs.outputs.job_id }}
