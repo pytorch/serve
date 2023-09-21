@@ -49,7 +49,7 @@ curl http://127.0.0.1:8080/predictions/resnet-18 -T ./examples/image_classifier/
 
 ### Debug TorchServe Backend
 
-If you want to test your handler code, you can use the example given in [debugging_backend](#debugging_backend/test_handler.py)
+If you want to test your handler code, you can use the example given in [debugging_backend](#debugging_backend)
 
 ```
 python debugging_backend/test_handler.py --batch_size 2
