@@ -63,6 +63,7 @@ public class ModelServer {
     private ServerGroups serverGroups;
     private Server inferencegRPCServer;
     private Server managementgRPCServer;
+    private Server OIPgRPCServer;
     private List<ChannelFuture> futures = new ArrayList<>(2);
     private AtomicBoolean stopped = new AtomicBoolean(false);
     private ConfigManager configManager;
@@ -456,6 +457,15 @@ public class ModelServer {
                                 ServerInterceptors.intercept(
                                         GRPCServiceFactory.getgRPCService(connectorType),
                                         new GRPCInterceptor()));
+
+        if (connectorType == ConnectorType.INFERENCE_CONNECTOR
+                && ConfigManager.getInstance().isOpenInferenceProtocol()) {
+            s.maxInboundMessageSize(configManager.getMaxRequestSize())
+                    .addService(
+                            ServerInterceptors.intercept(
+                                    GRPCServiceFactory.getgRPCService(ConnectorType.OPEN_INFERENCE_CONNECTOR),
+                                    new GRPCInterceptor()));
+        }
 
         if (configManager.isGRPCSSLEnabled()) {
             s.useTransportSecurity(

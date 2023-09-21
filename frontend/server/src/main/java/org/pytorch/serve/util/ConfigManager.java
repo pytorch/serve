@@ -55,6 +55,7 @@ public final class ConfigManager {
     // NOTE: Variables which can be configured through environment variables **SHOULD** have a
     // "TS_" prefix
 
+    private static final String OPEN_INFERENCE_PROTOCOL = "open_inference_protocol";
     private static final String TS_DEBUG = "debug";
     private static final String TS_INFERENCE_ADDRESS = "inference_address";
     private static final String TS_MANAGEMENT_ADDRESS = "management_address";
@@ -360,6 +361,10 @@ public final class ConfigManager {
             port = prop.getProperty(TS_GRPC_INFERENCE_PORT, "7070");
         }
         return Integer.parseInt(port);
+    }
+
+    public boolean isOpenInferenceProtocol() {
+        return Boolean.parseBoolean(prop.getProperty(OPEN_INFERENCE_PROTOCOL, "false"));
     }
 
     public boolean isGRPCSSLEnabled() {
