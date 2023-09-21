@@ -520,6 +520,10 @@ You can also create model stores to store your archived models.</p>
 <p>All the logs you’ve seen as output to stdout related to model registration, management, inference are recorded in the <code class="docutils literal notranslate"><span class="pre">/logs</span></code> folder.</p>
 <p>High level performance data like Throughput or Percentile Precision can be generated with <a class="reference external" href="https://github.com/pytorch/serve/tree/master/benchmarks/README">Benchmark</a> and visualized in a report.</p>
 </section>
+</section>
+<section id="debugging-handler-code">
+<h2>Debugging Handler Code<a class="headerlink" href="#debugging-handler-code" title="Permalink to this heading">¶</a></h2>
+<p>If you want to debug your handler code, you can run TorchServe with just the backend and hence use any python debugger. You can refer to an example defined <a class="reference external" href="../examples/image_classifier/resnet_18/README.md#debug-torchserve-backend">here</a></p>
 <section id="contributing">
 <h3>Contributing<a class="headerlink" href="#contributing" title="Permalink to this heading">¶</a></h3>
 <p>If you plan to develop with TorchServe and change some source code, follow the <a class="reference external" href="https://github.com/pytorch/serve/blob/master/CONTRIBUTING">contributing guide</a>.</p>
@@ -577,6 +581,9 @@ You can also create model stores to store your archived models.</p>
 </li>
 <li><a class="reference internal" href="#stop-torchserve">Stop TorchServe</a></li>
 <li><a class="reference internal" href="#inspect-the-logs">Inspect the logs</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#debugging-handler-code">Debugging Handler Code</a><ul>
 <li><a class="reference internal" href="#contributing">Contributing</a></li>
 </ul>
 </li>
