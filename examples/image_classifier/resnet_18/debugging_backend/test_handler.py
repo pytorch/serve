@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG)
 
 CURR_FILE_PATH = Path(__file__).parent.absolute()
-REPO_ROOT_DIR = CURR_FILE_PATH.parent.parent.parent.parent
+REPO_ROOT_DIR = CURR_FILE_PATH.parents[3]
 EXAMPLE_ROOT_DIR = REPO_ROOT_DIR.joinpath("examples", "image_classifier", "resnet_18")
 TEST_DATA = REPO_ROOT_DIR.joinpath("examples", "image_classifier", "kitten.jpg")
 MODEL_PT_FILE = "resnet-18.pt"
