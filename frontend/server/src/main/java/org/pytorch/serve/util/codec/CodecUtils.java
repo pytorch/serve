@@ -1,7 +1,8 @@
 package org.pytorch.serve.util.codec;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.handler.codec.CorruptedFrameException;
+import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder.NotEnoughDataDecoderException;
+import io.netty.handler.codec.TooLongFrameException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
@@ -15,28 +16,21 @@ public final class CodecUtils {
     private CodecUtils() {}
 
     public static int readLength(ByteBuf byteBuf, int maxLength) {
-
         int size = byteBuf.readableBytes();
 
-        long start_time = System.currentTimeMillis();
-        while (size < 4 && (System.currentTimeMillis() - start_time) < TIMEOUT_IN_MILLIS) {
-            size = byteBuf.readableBytes();
-        }
         if(size < 4)
-            return BUFFER_UNDER_RUN;
+            throw new NotEnoughDataDecoderException("Did not receive enough data.");
 
         int len = byteBuf.readInt();
         if (len > maxLength) {
-            throw new CorruptedFrameException(
+            throw new TooLongFrameException(
                     "Message size exceed limit: "
                             + len
                             + "\nConsider increasing the 'max_response_size' in 'config.properties' to fix.");
         }
-        start_time = System.currentTimeMillis();
-        while (len > byteBuf.readableBytes() && (System.currentTimeMillis() - start_time) < TIMEOUT_IN_MILLIS) {
-        }
+        
         if (len > byteBuf.readableBytes()) {
-            return BUFFER_UNDER_RUN;
+            throw new NotEnoughDataDecoderException("Did not receive enough data.");
         }
         return len;
     }
@@ -47,7 +41,7 @@ public final class CodecUtils {
 
     public static byte[] read(ByteBuf in, int len) {
         if (len < 0) {
-            throw new CorruptedFrameException("Invalid message size: " + len);
+            throw new NotEnoughDataDecoderException("Did not receive enough data.");
         }
 
         byte[] buf = new byte[len];

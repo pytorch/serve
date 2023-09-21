@@ -270,6 +270,9 @@ public class Model {
     }
 
     public void pollInferJob(Map<String, Job> jobsRepo, long waitTime, int batchSize) throws InterruptedException {
+        if(batchSize == 0)
+            return;
+
         LinkedBlockingDeque<Job> jobsQueue;
         try {
             if (isUseJobTicket()) {
