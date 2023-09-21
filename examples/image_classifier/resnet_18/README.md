@@ -103,10 +103,6 @@ debugging_backend/test_handler.py .                                             
   Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
     declare_namespace(pkg)
 
-examples/image_classifier/resnet_18/debugging_backend/test_handler.py::test_main
-  /home/ubuntu/anaconda3/envs/torchserve/lib/python3.8/site-packages/_pytest/python.py:198: PytestReturnNotNoneWarning: Expected None, but examples/image_classifier/resnet_18/debugging_backend/test_handler.py::test_main returned [{'tabby': 0.40966305136680603, 'tiger_cat': 0.34670504927635193, 'Egyptian_cat': 0.1300286501646042, 'lynx': 0.023919589817523956, 'bucket': 0.011532178148627281}], which will be an error in a future version of pytest.  Did you mean to use `assert` instead of `return`?
-    warnings.warn(
-
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
-============================================================================= 1 passed, 5 warnings in 2.30s ==============================================================================
+============================================================================= 1 passed, 4 warnings in 2.29s ==============================================================================
 ```

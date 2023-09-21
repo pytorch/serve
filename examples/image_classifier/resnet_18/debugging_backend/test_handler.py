@@ -51,12 +51,11 @@ def test_resnet18(batch_size=1):
 
     # Here we are using the BaseHandler's handle method. You can define your own
     result = handler.handle(data, ctx)
+    logger.info(f"Result is {result}")
 
     # Can be used with pytest
     value = max(result[0], key=result[0].get)
     assert value == "tabby"
-
-    return result
 
 
 if __name__ == "__main__":
@@ -68,5 +67,4 @@ if __name__ == "__main__":
         help="Batch size for testing inference",
     )
     args = parser.parse_args()
-    result = test_resnet18(args.batch_size)
-    logger.info(f"Result is {result}")
+    test_resnet18(args.batch_size)
