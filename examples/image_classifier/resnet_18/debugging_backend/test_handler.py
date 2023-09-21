@@ -32,7 +32,7 @@ def prepare_data(batch_size):
     return data
 
 
-def main(batch_size):
+def test_resnet18(batch_size=1):
     # Define your handler
     handler = ImageClassifier()
 
@@ -50,7 +50,13 @@ def main(batch_size):
     data = prepare_data(batch_size)
 
     # Here we are using the BaseHandler's handle method. You can define your own
-    return handler.handle(data, ctx)
+    result = handler.handle(data, ctx)
+
+    # Can be used with pytest
+    value = max(result[0], key=result[0].get)
+    assert value == "tabby"
+
+    return result
 
 
 if __name__ == "__main__":
@@ -62,5 +68,5 @@ if __name__ == "__main__":
         help="Batch size for testing inference",
     )
     args = parser.parse_args()
-    result = main(args.batch_size)
+    result = test_resnet18(args.batch_size)
     logger.info(f"Result is {result}")

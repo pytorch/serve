@@ -69,3 +69,44 @@ Once you are confident this works, you can use your handler to deploy the model 
 Below is a screenshot of debugger running with this handler
 
 ![image info](./debugging_backend/debugger_screenshot.png)
+
+You can also use this with pytest
+
+```
+pytest debugging_backend/test_handler.py
+```
+
+results in
+
+```
+================================================================================== test session starts ===================================================================================
+platform linux -- Python 3.8.18, pytest-7.3.1, pluggy-1.0.0
+rootdir: /home/ubuntu/serve
+plugins: mock-3.10.0, anyio-3.6.1, cov-4.1.0, hypothesis-6.54.3
+collected 1 item
+
+debugging_backend/test_handler.py .                                                                                                                                                [100%]
+
+==================================================================================== warnings summary ====================================================================================
+../../../../anaconda3/envs/torchserve/lib/python3.8/site-packages/ts/torch_handler/base_handler.py:13
+  /home/ubuntu/anaconda3/envs/torchserve/lib/python3.8/site-packages/ts/torch_handler/base_handler.py:13: DeprecationWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html
+    from pkg_resources import packaging
+
+../../../../anaconda3/envs/torchserve/lib/python3.8/site-packages/pkg_resources/__init__.py:2871
+  /home/ubuntu/anaconda3/envs/torchserve/lib/python3.8/site-packages/pkg_resources/__init__.py:2871: DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('mpl_toolkits')`.
+  Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+    declare_namespace(pkg)
+
+../../../../anaconda3/envs/torchserve/lib/python3.8/site-packages/pkg_resources/__init__.py:2871
+../../../../anaconda3/envs/torchserve/lib/python3.8/site-packages/pkg_resources/__init__.py:2871
+  /home/ubuntu/anaconda3/envs/torchserve/lib/python3.8/site-packages/pkg_resources/__init__.py:2871: DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('ruamel')`.
+  Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+    declare_namespace(pkg)
+
+examples/image_classifier/resnet_18/debugging_backend/test_handler.py::test_main
+  /home/ubuntu/anaconda3/envs/torchserve/lib/python3.8/site-packages/_pytest/python.py:198: PytestReturnNotNoneWarning: Expected None, but examples/image_classifier/resnet_18/debugging_backend/test_handler.py::test_main returned [{'tabby': 0.40966305136680603, 'tiger_cat': 0.34670504927635193, 'Egyptian_cat': 0.1300286501646042, 'lynx': 0.023919589817523956, 'bucket': 0.011532178148627281}], which will be an error in a future version of pytest.  Did you mean to use `assert` instead of `return`?
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+============================================================================= 1 passed, 5 warnings in 2.30s ==============================================================================
+```
