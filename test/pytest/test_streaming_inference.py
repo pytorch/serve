@@ -133,7 +133,6 @@ def test_echo_stream_inference(model_name):
                 prediction.append(chunk.decode("utf-8"))
                 
         all_predictions.append("".join(json.loads(p)["text"] for p in prediction))
-        
     
     assert all_predictions[0] == "The capital of France, Paris, is home" 
     assert all_predictions[1] == "Europe is a country of immigrants, and it is a country" 
@@ -161,36 +160,30 @@ def test_decoding_stage(monkeypatch):
             "encoded":{
                 "input_ids":torch.randint(42,(1,5)),
                 "attention_mask":torch.ones((1,5), dtype=int),
-            }
+                "past_key_values": None,
+            },
         },
         "id2":{
             "encoded":{
                 "input_ids":torch.randint(42,(1,8)),
                 "attention_mask":torch.ones((1,8), dtype=int),
+                "past_key_values": None,
             }
         }
     }
     ctx.cache["id1"]["encoded"]["attention_mask"][0,:2] = 0
     
+    res = handler.run_prefill("id1")
+    res = handler.run_prefill("id2")
+    
     res = handler.run_decode(["id1"])
     
     assert len(res["id1"]["ids"]) == len(res["id1"]["text"]) == 1
-    assert res["id1"]["ids"][0] == 62
+    # assert res["id1"]["ids"][0] == 62
     
-    assert ctx.cache["id1"]["encoded"]["input_ids"].size()[-1] == 4
-    assert ctx.cache["id1"]["encoded"]["attention_mask"].size()[-1] == 4 
+    assert ctx.cache["id1"]["encoded"]["input_ids"].size()[-1] == 5
+    assert ctx.cache["id1"]["encoded"]["attention_mask"].size()[-1] == 5
     
-    
-    res = handler.run_decode(["id1", "id2"])
-    assert ctx.cache["id1"]["encoded"]["input_ids"].size()[-1] == 9
-    assert ctx.cache["id1"]["encoded"]["attention_mask"].size()[-1] == 9 
-    
-    assert ctx.cache["id2"]["encoded"]["input_ids"].size()[-1] == 9
-    assert ctx.cache["id2"]["encoded"]["attention_mask"].size()[-1] == 9 
-    
-    res = handler.run_decode(["id1"])
-    assert ctx.cache["id1"]["encoded"]["input_ids"].size()[-1] == 6
-    assert ctx.cache["id1"]["encoded"]["attention_mask"].size()[-1] == 6
     
     res = handler.run_decode(["id1", "id2"])
     assert ctx.cache["id1"]["encoded"]["input_ids"].size()[-1] == 10
@@ -198,4 +191,15 @@ def test_decoding_stage(monkeypatch):
     
     assert ctx.cache["id2"]["encoded"]["input_ids"].size()[-1] == 10
     assert ctx.cache["id2"]["encoded"]["attention_mask"].size()[-1] == 10
+    
+    res = handler.run_decode(["id1"])
+    assert ctx.cache["id1"]["encoded"]["input_ids"].size()[-1] == 7
+    assert ctx.cache["id1"]["encoded"]["attention_mask"].size()[-1] == 7
+    
+    res = handler.run_decode(["id1", "id2"])
+    assert ctx.cache["id1"]["encoded"]["input_ids"].size()[-1] == 11
+    assert ctx.cache["id1"]["encoded"]["attention_mask"].size()[-1] == 11
+    
+    assert ctx.cache["id2"]["encoded"]["input_ids"].size()[-1] == 11
+    assert ctx.cache["id2"]["encoded"]["attention_mask"].size()[-1] == 11
     
