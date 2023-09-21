@@ -35,8 +35,8 @@ curl http://127.0.0.1:8080/predictions/resnet-18 -T ./examples/image_classifier/
    example_input = torch.rand(1, 3, 224, 224)
    traced_script_module = torch.jit.trace(model, example_input)
    traced_script_module.save("resnet-18.pt")
-   ```  
- 
+   ```
+
 * Use following commands to register Resnet18 torchscript model on TorchServe and run image prediction
 
     ```bash
@@ -46,3 +46,63 @@ curl http://127.0.0.1:8080/predictions/resnet-18 -T ./examples/image_classifier/
     torchserve --start --model-store model_store --models resnet-18=resnet-18.mar
     curl http://127.0.0.1:8080/predictions/resnet-18 -T ./serve/examples/image_classifier/kitten.jpg
     ```
+
+### Debug TorchServe Backend
+
+If you want to test your handler code, you can use the example in `debugging_backend/test_handler.py`
+
+```
+python debugging_backend/test_handler.py --batch_size 2
+```
+
+results in
+
+```
+Torch TensorRT not enabled
+DEBUG:ts.torch_handler.base_handler:Model file /home/ubuntu/serve/examples/image_classifier/resnet_18/resnet-18.pt loaded successfully
+INFO:__main__:Result is [{'tabby': 0.4096629023551941, 'tiger_cat': 0.34670525789260864, 'Egyptian_cat': 0.13002872467041016, 'lynx': 0.02391958236694336, 'bucket': 0.011532173492014408}, {'tabby': 0.4096629023551941, 'tiger_cat': 0.34670525789260864, 'Egyptian_cat': 0.13002872467041016, 'lynx': 0.02391958236694336, 'bucket': 0.011532173492014408}]
+```
+
+If this doesn't work, you can use a debugger to find the problem in your backend handler code.
+Once you are confident this works, you can use your handler to deploy the model using TorchServe
+
+Below is a screenshot of debugger running with this handler
+
+![image info](./debugging_backend/debugger_screenshot.png)
+
+You can also use this with pytest
+
+```
+pytest debugging_backend/test_handler.py
+```
+
+results in
+
+```
+================================================================================== test session starts ===================================================================================
+platform linux -- Python 3.8.18, pytest-7.3.1, pluggy-1.0.0
+rootdir: /home/ubuntu/serve
+plugins: mock-3.10.0, anyio-3.6.1, cov-4.1.0, hypothesis-6.54.3
+collected 1 item
+
+debugging_backend/test_handler.py .                                                                                                                                                [100%]
+
+==================================================================================== warnings summary ====================================================================================
+../../../../anaconda3/envs/torchserve/lib/python3.8/site-packages/ts/torch_handler/base_handler.py:13
+  /home/ubuntu/anaconda3/envs/torchserve/lib/python3.8/site-packages/ts/torch_handler/base_handler.py:13: DeprecationWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html
+    from pkg_resources import packaging
+
+../../../../anaconda3/envs/torchserve/lib/python3.8/site-packages/pkg_resources/__init__.py:2871
+  /home/ubuntu/anaconda3/envs/torchserve/lib/python3.8/site-packages/pkg_resources/__init__.py:2871: DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('mpl_toolkits')`.
+  Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+    declare_namespace(pkg)
+
+../../../../anaconda3/envs/torchserve/lib/python3.8/site-packages/pkg_resources/__init__.py:2871
+../../../../anaconda3/envs/torchserve/lib/python3.8/site-packages/pkg_resources/__init__.py:2871
+  /home/ubuntu/anaconda3/envs/torchserve/lib/python3.8/site-packages/pkg_resources/__init__.py:2871: DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('ruamel')`.
+  Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+    declare_namespace(pkg)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+============================================================================= 1 passed, 4 warnings in 2.29s ==============================================================================
+```
