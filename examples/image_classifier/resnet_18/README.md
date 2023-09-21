@@ -35,8 +35,8 @@ curl http://127.0.0.1:8080/predictions/resnet-18 -T ./examples/image_classifier/
    example_input = torch.rand(1, 3, 224, 224)
    traced_script_module = torch.jit.trace(model, example_input)
    traced_script_module.save("resnet-18.pt")
-   ```  
- 
+   ```
+
 * Use following commands to register Resnet18 torchscript model on TorchServe and run image prediction
 
     ```bash
@@ -46,3 +46,22 @@ curl http://127.0.0.1:8080/predictions/resnet-18 -T ./examples/image_classifier/
     torchserve --start --model-store model_store --models resnet-18=resnet-18.mar
     curl http://127.0.0.1:8080/predictions/resnet-18 -T ./serve/examples/image_classifier/kitten.jpg
     ```
+
+### Debug TorchServe Backend
+
+If you want to test your handler code, you can use the example given in [debugging_backend](#debugging_backend/test_handler.py)
+
+```
+python debugging_backend/test_handler.py --batch_size 2
+```
+
+results in
+
+```
+Torch TensorRT not enabled
+DEBUG:ts.torch_handler.base_handler:Model file /home/ubuntu/serve/examples/image_classifier/resnet_18/resnet-18.pt loaded successfully
+INFO:__main__:Result is [{'tabby': 0.4096629023551941, 'tiger_cat': 0.34670525789260864, 'Egyptian_cat': 0.13002872467041016, 'lynx': 0.02391958236694336, 'bucket': 0.011532173492014408}, {'tabby': 0.4096629023551941, 'tiger_cat': 0.34670525789260864, 'Egyptian_cat': 0.13002872467041016, 'lynx': 0.02391958236694336, 'bucket': 0.011532173492014408}]
+```
+
+If this doesn't work, you can use a debugger to find the problem in your backend handler code.
+Once you are confident this works, you can use your handler to deploy the model using TorchServe

@@ -170,6 +170,10 @@ All the logs you've seen as output to stdout related to model registration, mana
 
 High level performance data like Throughput or Percentile Precision can be generated with [Benchmark](https://github.com/pytorch/serve/tree/master/benchmarks/README.md) and visualized in a report.
 
+## Debugging Handler Code
+
+If you want to debug your handler code, you can run TorchServe with just the backend. You can refer to an example defined [here](../examples/image_classifier/resnet_18/README.md#debug-torchserve-backend)
+
 ### Contributing
 
 If you plan to develop with TorchServe and change some source code, follow the [contributing guide](https://github.com/pytorch/serve/blob/master/CONTRIBUTING.md).
