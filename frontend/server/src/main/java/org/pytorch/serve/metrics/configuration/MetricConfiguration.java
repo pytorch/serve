@@ -82,9 +82,7 @@ public class MetricConfiguration {
         }
 
         for (MetricSpecification spec : metricsSpec) {
-            List<String> dimensions = spec.getDimensions();
-            dimensions.add("Hostname");
-            spec.setDimensions(dimensions);
+            spec.getDimensions().add("Hostname");
         }
 
         return metricsSpec;

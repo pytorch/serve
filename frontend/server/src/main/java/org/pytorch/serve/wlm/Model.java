@@ -53,7 +53,7 @@ public class Model {
     private ReentrantLock lock;
     private int responseTimeout;
     private ModelVersionName modelVersionName;
-    private AtomicInteger gpuCounter = new AtomicInteger(0);
+    private AtomicInteger coreCounter = new AtomicInteger(0);
     private boolean hasCfgDeviceIds;
     private boolean isWorkflowModel;
 
@@ -76,18 +76,14 @@ public class Model {
                 parallelType = modelArchive.getModelConfig().getParallelType();
             }
             if (modelArchive.getModelConfig().getDeviceType() != ModelConfig.DeviceType.NONE) {
-                deviceType =
-                        (modelArchive.getModelConfig().getDeviceType() == ModelConfig.DeviceType.GPU
-                                        && ConfigManager.getInstance().getNumberOfGpu() > 0)
-                                ? ModelConfig.DeviceType.GPU
-                                : ModelConfig.DeviceType.CPU;
+                deviceType = getDeviceType(modelArchive);
             }
 
             deviceIds = modelArchive.getModelConfig().getDeviceIds();
             if (deviceIds != null && deviceIds.size() > 0) {
                 hasCfgDeviceIds = true;
                 for (Integer deviceId : deviceIds) {
-                    if (deviceId < 0 || deviceId >= ConfigManager.getInstance().getNumberOfGpu()) {
+                    if (!isValidDeviceId(deviceId, deviceType)) {
                         logger.warn("Invalid deviceId:{}, ignore deviceIds list", deviceId);
                         deviceIds = null;
                         hasCfgDeviceIds = false;
@@ -107,14 +103,7 @@ public class Model {
             maxBatchDelay = 100;
         }
 
-        if (ConfigManager.getInstance().getNumberOfGpu() > 0
-                && deviceType != ModelConfig.DeviceType.CPU) {
-            numCores =
-                    hasCfgDeviceIds
-                            ? deviceIds.size()
-                            : ConfigManager.getInstance().getNumberOfGpu();
-        }
-
+        numCores = getNumCores(hasCfgDeviceIds, deviceIds, deviceType);
         jobsDb = new ConcurrentHashMap<>();
         // Always have a queue for data
         jobsDb.putIfAbsent(DEFAULT_DATA_QUEUE, new LinkedBlockingDeque<>(queueSize));
@@ -358,8 +347,8 @@ public class Model {
         return this.numCores;
     }
 
-    public AtomicInteger getGpuCounter() {
-        return gpuCounter;
+    public AtomicInteger getCoreCounter() {
+        return coreCounter;
     }
 
     public boolean isHasCfgDeviceIds() {
@@ -419,5 +408,55 @@ public class Model {
         }
 
         return 0;
+    }
+
+    private ModelConfig.DeviceType getDeviceType(ModelArchive modelArchive) {
+        ModelConfig.DeviceType type = modelArchive.getModelConfig().getDeviceType();
+        if (type == ModelConfig.DeviceType.GPU
+                && ConfigManager.getInstance().getNumberOfGpu() > 0) {
+            return ModelConfig.DeviceType.GPU;
+        } else if (type == ModelConfig.DeviceType.NEURON
+                && ConfigManager.getInstance().getNumberOfNeuronCore() > 0) {
+            return ModelConfig.DeviceType.NEURON;
+        }
+        return ModelConfig.DeviceType.CPU;
+    }
+
+    private int getNumCores(
+            boolean hasCfgDeviceIds, List<Integer> deviceIds, ModelConfig.DeviceType deviceType) {
+        if (hasCfgDeviceIds) {
+            if (deviceIds == null) {
+                return 0;
+            } else {
+                return deviceIds.size();
+            }
+        }
+        if (deviceType == ModelConfig.DeviceType.GPU) {
+            ConfigManager.getInstance().getNumberOfGpu();
+        } else if (deviceType == ModelConfig.DeviceType.NEURON) {
+            ConfigManager.getInstance().getNumberOfNeuronCore();
+        }
+        return 0;
+    }
+
+    private boolean isValidDeviceId(int deviceId, ModelConfig.DeviceType deviceType) {
+        if (deviceId < 0) {
+            return false;
+        }
+        switch (deviceType) {
+            case GPU:
+                if (deviceId >= ConfigManager.getInstance().getNumberOfGpu()) {
+                    return false;
+                }
+                break;
+            case NEURON:
+                if (deviceId >= ConfigManager.getInstance().getNumberOfNeuronCore()) {
+                    return false;
+                }
+                break;
+            default:
+                break;
+        }
+        return true;
     }
 }

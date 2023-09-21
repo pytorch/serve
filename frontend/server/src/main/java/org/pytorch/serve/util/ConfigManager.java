@@ -66,6 +66,7 @@ public final class ConfigManager {
     private static final String TS_NETTY_CLIENT_THREADS = "netty_client_threads";
     private static final String TS_JOB_QUEUE_SIZE = "job_queue_size";
     private static final String TS_NUMBER_OF_GPU = "number_of_gpu";
+    private static final String TS_NUMBER_OF_NEURON_CORE = "number_of_neuron_core";
     private static final String TS_METRICS_CONFIG = "metrics_config";
     private static final String TS_METRICS_MODE = "metrics_mode";
     private static final String TS_DISABLE_SYSTEM_METRICS = "disable_system_metrics";
@@ -216,6 +217,13 @@ public final class ConfigManager {
                         Integer.min(
                                 getAvailableGpu(),
                                 getIntProperty(TS_NUMBER_OF_GPU, Integer.MAX_VALUE))));
+
+        prop.setProperty(
+                TS_NUMBER_OF_NEURON_CORE,
+                String.valueOf(
+                        Integer.min(
+                                getAvailableNeuronCore(),
+                                getIntProperty(TS_NUMBER_OF_NEURON_CORE, Integer.MAX_VALUE))));
 
         String pythonExecutable = args.getPythonExecutable();
         if (pythonExecutable != null) {
@@ -376,6 +384,10 @@ public final class ConfigManager {
         return getIntProperty(TS_NUMBER_OF_GPU, 0);
     }
 
+    public int getNumberOfNeuronCore() {
+        return getIntProperty(TS_NUMBER_OF_NEURON_CORE, 0);
+    }
+
     public String getMetricsConfigPath() {
         String path = getCanonicalPath(prop.getProperty(TS_METRICS_CONFIG));
         if (path == null) {
@@ -426,10 +438,13 @@ public final class ConfigManager {
         int workers = getConfiguredDefaultWorkersPerModel();
 
         if (workers == 0) {
-            workers = getNumberOfGpu();
-        }
-        if (workers == 0) {
-            workers = Runtime.getRuntime().availableProcessors();
+            if (getNumberOfGpu() > 0) {
+                workers = getNumberOfGpu();
+            } else if (getNumberOfNeuronCore() > 0) {
+                workers = getNumberOfNeuronCore();
+            } else {
+                workers = Runtime.getRuntime().availableProcessors();
+            }
         }
 
         return workers;
@@ -789,6 +804,50 @@ public final class ConfigManager {
             }
 
             return gpuIds.size();
+        } catch (IOException | InterruptedException e) {
+            return 0;
+        }
+    }
+
+    private int getAvailableNeuronCore() {
+        try {
+            List<Integer> neuronCoreIds = new ArrayList<>();
+            String visibleNeuronCore = System.getenv("NEURON_RT_VISIBLE_CORES");
+            if (visibleNeuronCore != null && !visibleNeuronCore.isEmpty()) {
+                String[] idItems = visibleNeuronCore.split(",");
+                for (String idRange : idItems) {
+                    String[] ids = idRange.split("-");
+                    if (ids.length == 1) {
+                        neuronCoreIds.add(Integer.parseInt(ids[0]));
+                    } else {
+                        int start = Integer.parseInt(ids[0]);
+                        int end = Integer.parseInt(ids[1]);
+                        for (int i = start; i <= end; i++) {
+                            neuronCoreIds.add(i);
+                        }
+                    }
+                }
+            } else {
+                String pythonCmd = getPythonExecutable();
+                String scriptName =
+                        new File(getModelServerHome(), "ts/util/neuron_util.py").getAbsolutePath();
+                Process process =
+                        Runtime.getRuntime().exec(String.format("%s %s", pythonCmd, scriptName));
+                int ret = process.waitFor();
+                if (ret != 0) {
+                    return 0;
+                }
+                List<String> list =
+                        IOUtils.readLines(process.getInputStream(), StandardCharsets.UTF_8);
+                if (list.isEmpty() || !"index".equals(list.get(0))) {
+                    throw new AssertionError("Unexpected nvidia-smi response.");
+                }
+                for (int i = 1; i < list.size(); i++) {
+                    neuronCoreIds.add(Integer.parseInt(list.get(i)));
+                }
+            }
+
+            return neuronCoreIds.size();
         } catch (IOException | InterruptedException e) {
             return 0;
         }

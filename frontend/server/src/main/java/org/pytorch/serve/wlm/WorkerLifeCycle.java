@@ -116,7 +116,11 @@ public class WorkerLifeCycle {
                                 model.getModelArchive().getManifest().getModel().getHandler())));
 
         if (model.getParallelLevel() > 1) {
-            attachRunner(argl, envp, port, deviceIds);
+            if (model.getDeviceType() == ModelConfig.DeviceType.NEURON) {
+                attachNeuronEnv(envp, deviceIds);
+            } else {
+                attachRunner(argl, envp, port, deviceIds);
+            }
         } else if (model.getParallelLevel() == 1) {
             argl.add(EnvironmentUtils.getPythonRunTime(model));
         }
@@ -183,6 +187,12 @@ public class WorkerLifeCycle {
             if (!success) {
                 exit();
             }
+        }
+    }
+
+    private void attachNeuronEnv(List<String> envp, String deviceIds) {
+        if (deviceIds != null) {
+            envp.add("CUDA_VISIBLE_DEVICES=" + deviceIds);
         }
     }
 

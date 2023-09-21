@@ -92,7 +92,7 @@ public class BatchAggregator {
                                     .get(
                                             org.pytorch.serve.util.messages.RequestInput
                                                     .TS_STREAM_NEXT);
-                    if (streamNext != null && streamNext.equals("true")) {
+                    if (streamNext != null && ("true").equals(streamNext)) {
                         jobDone = false;
                     }
                 }

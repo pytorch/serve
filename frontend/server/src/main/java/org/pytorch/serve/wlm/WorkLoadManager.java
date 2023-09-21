@@ -213,7 +213,7 @@ public class WorkLoadManager {
             if (maxGpu > 0) {
                 if (model.isHasCfgDeviceIds() || model.getParallelLevel() > 1) {
                     gpuId =
-                            model.getGpuCounter()
+                            model.getCoreCounter()
                                     .getAndAccumulate(
                                             maxGpu,
                                             (prev, maxGpuId) ->

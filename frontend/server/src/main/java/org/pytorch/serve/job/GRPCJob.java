@@ -1,7 +1,5 @@
 package org.pytorch.serve.job;
 
-import static org.pytorch.serve.util.messages.RequestInput.TS_STREAM_NEXT;
-
 import com.google.protobuf.ByteString;
 import io.grpc.Status;
 import io.grpc.stub.ServerCallStreamObserver;
@@ -83,7 +81,7 @@ public class GRPCJob extends Job {
             predictionResponseObserver.onNext(reply);
             if (this.getCmd() == WorkerCommands.PREDICT
                     || (this.getCmd() == WorkerCommands.STREAMPREDICT
-                            && responseHeaders.get(TS_STREAM_NEXT).equals("false"))) {
+                            && responseHeaders.get(RequestInput.TS_STREAM_NEXT).equals("false"))) {
                 predictionResponseObserver.onCompleted();
 
                 logger.debug(

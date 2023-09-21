@@ -22,8 +22,8 @@ public class ModelConfig {
     /** the timeout in sec of a specific model's response. */
     private int responseTimeout = 120; // unit: sec
     /**
-     * the device type where the model is loaded. It can be gpu, cpu. The model is loaded on CPU if
-     * deviceType: "cpu" is set on a GPU host.
+     * the device type where the model is loaded. It can be gpu, cpu, neuron. The model is loaded on
+     * CPU if deviceType: "cpu" is set on a GPU host.
      */
     private DeviceType deviceType = DeviceType.NONE;
     /**
@@ -99,7 +99,8 @@ public class ModelConfig {
                             if (v instanceof String) {
                                 modelConfig.setDeviceType((String) v);
                             } else {
-                                logger.warn("Invalid deviceType: {}, should be cpu, or gpu", v);
+                                logger.warn(
+                                        "Invalid deviceType: {}, should be cpu, gpu or neuron", v);
                             }
                             break;
                         case "parallelType":
@@ -347,7 +348,8 @@ public class ModelConfig {
     public enum DeviceType {
         NONE(""),
         CPU("cpu"),
-        GPU("gpu");
+        GPU("gpu"),
+        NEURON("neuron");
 
         private String type;
 

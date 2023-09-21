@@ -1,7 +1,5 @@
 package org.pytorch.serve.job;
 
-import static org.pytorch.serve.util.messages.RequestInput.TS_STREAM_NEXT;
-
 import java.util.Map;
 import org.pytorch.serve.util.messages.RequestInput;
 import org.pytorch.serve.util.messages.WorkerCommands;
@@ -23,7 +21,7 @@ public abstract class Job {
         begin = System.nanoTime();
         scheduled = begin;
         if (cmd == WorkerCommands.STREAMPREDICT) {
-            input.updateHeaders(TS_STREAM_NEXT, "true");
+            input.updateHeaders(RequestInput.TS_STREAM_NEXT, "true");
         }
     }
 
