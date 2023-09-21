@@ -10,6 +10,7 @@ On The Fly Codec tester
 from collections import namedtuple
 
 import pytest
+import struct
 
 import ts.protocol.otf_message_handler as codec
 from builtins import bytes
@@ -163,3 +164,77 @@ class TestOtfCodecHandler:
 
         assert msg == b'\x00\x00\x00\xc8\x00\x00\x00\x06failed\x00\x00\x00\nrequest_id\x00\x00\x00\x00\x00\x00\x00' \
                       b'\xc8\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x05error\xff\xff\xff\xff'
+
+    def test_create_predict_response_with_context(self):
+        # context = MagicMock("Context")
+        # context.stopping_criteria = {0: lambda x: True}
+        # context.set_response_headers
+        # get_response_headers
+        from ts.context import Context, RequestProcessor
+        ctx = Context(
+            "model_name",
+            "model_dir",
+            "manifest",
+            batch_size=2,
+            gpu=0,
+            mms_version=1.0,
+        )
+        ctx.stopping_criteria = {0: lambda _: True, 1: lambda _: False}
+        ctx.request_processor = {0: RequestProcessor({}), 1: RequestProcessor({})}
+        
+        msg = codec.create_predict_response(["OK", "NOT OK"], {0: "request_0", 1: "request_1"}, "success", 200, context=ctx)
+        
+        def read_int(m):
+            a = struct.unpack("!i", m[:4])[0]
+            del msg[:4]
+            return a
+        
+        def read_string(m, n):
+            a = m[:n].decode("utf-8")
+            del msg[:n]
+            return a
+        
+        def read_map(m, n):
+            ret = {}
+            while n:
+                l = read_int(m)
+                k = read_string(m, l)
+                l = read_int(m)
+                v = read_string(m, l)
+                ret[k] = v
+                n-=1
+            return ret
+        
+        assert read_int(msg) == 200 # code
+        
+        assert read_int(msg) == 7 # msg length
+        
+        assert read_string(msg, 7) == "success" # msg
+        
+        length = read_int(msg)
+        expected = ["request_0", "false", "OK", "request_1", "true", "NOT OK"]
+        while length != -1:
+            req_id = read_string(msg, length)
+            assert req_id == expected.pop(0)
+            
+            length = read_int(msg)
+            content_type = read_string(msg, length)
+            assert content_type == ""
+            
+            http_code = read_int(msg)
+            assert http_code == 200
+            
+            length = read_int(msg)
+            http_phrase = read_string(msg, length)
+            assert http_phrase == ""
+            
+            length = read_int(msg)
+            kv = read_map(msg, length)
+            assert kv["ts_stream_next"] == expected.pop(0)
+            
+            length = read_int(msg)
+            pred = read_string(msg, length)
+            assert pred == expected.pop(0)
+            
+            length = read_int(msg)
+        assert length == -1
