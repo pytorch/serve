@@ -172,7 +172,7 @@ High level performance data like Throughput or Percentile Precision can be gener
 
 ## Debugging Handler Code
 
-If you want to debug your handler code, you can run TorchServe with just the backend. You can refer to an example defined [here](../examples/image_classifier/resnet_18/README.md#debug-torchserve-backend)
+If you want to debug your handler code, you can run TorchServe with just the backend and hence use any python debugger. You can refer to an example defined [here](../examples/image_classifier/resnet_18/README.md#debug-torchserve-backend)
 
 ### Contributing
 
