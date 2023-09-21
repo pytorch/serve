@@ -40,7 +40,7 @@ public class Model {
     private int maxWorkers;
     private int batchSize;
     private int maxBatchDelay;
-    private int parallelLevel = 1;
+    private int parallelLevel;
     private long maxRetryTimeoutInMill = 5 * 60 * 1000;
     private long clientTimeoutInMills;
     private ModelConfig.ParallelType parallelType = ModelConfig.ParallelType.NONE;
@@ -69,7 +69,7 @@ public class Model {
     public Model(ModelArchive modelArchive, int queueSize) {
         this.modelArchive = modelArchive;
         if (modelArchive != null && modelArchive.getModelConfig() != null) {
-            if (modelArchive.getModelConfig().getParallelLevel() > 1
+            if (modelArchive.getModelConfig().getParallelLevel() > 0
                     && modelArchive.getModelConfig().getParallelType()
                             != ModelConfig.ParallelType.NONE) {
                 parallelLevel = modelArchive.getModelConfig().getParallelLevel();
@@ -136,7 +136,7 @@ public class Model {
         modelInfo.addProperty(BATCH_SIZE, getBatchSize());
         modelInfo.addProperty(MAX_BATCH_DELAY, getMaxBatchDelay());
         modelInfo.addProperty(RESPONSE_TIMEOUT, getResponseTimeout());
-        if (parallelLevel > 1) {
+        if (parallelLevel > 0) {
             modelInfo.addProperty(PARALLEL_LEVEL, parallelLevel);
         }
 
