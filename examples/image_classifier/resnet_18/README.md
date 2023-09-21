@@ -65,3 +65,7 @@ INFO:__main__:Result is [{'tabby': 0.4096629023551941, 'tiger_cat': 0.3467052578
 
 If this doesn't work, you can use a debugger to find the problem in your backend handler code.
 Once you are confident this works, you can use your handler to deploy the model using TorchServe
+
+Below is a screenshot of debugger running with this handler
+
+![image info](./debugging_backend/debugger_screenshot.png)
