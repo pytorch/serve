@@ -36,6 +36,8 @@ class StreamingHandler(BaseHandler):
 
     def preprocess(self, data):
         assert len(self.context.request_ids.values()) <= 2
+        self._clean_cache()
+        
         prefill, decode = [], []
         for req_id, req_data in zip(self.context.request_ids.values(), data):
             #Tokenizer requests which are not prefilled yet
@@ -207,4 +209,10 @@ class StreamingHandler(BaseHandler):
             self.tokenizer.eos_token_id,
             max_new_tokens,
         )
+        
+    def _clean_cache(self):
+        new_ids = set(self.context.request_ids.keys())
+        for idx in self.context.kv_cache.keys():
+            if idx not in new_ids:
+                del self.context.kv_cache[idx]
         
