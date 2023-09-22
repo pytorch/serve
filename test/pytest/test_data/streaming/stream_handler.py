@@ -178,7 +178,7 @@ class StreamingHandler(BaseHandler):
 
         results = {}
         for idx, req_id in enumerate(ids):
-            self.context.cache[req_id]["encoded"]["past_key_values"] = ((kv[idx,...].unsqueeze(0) for kv in layers) for layers in self.context.kv_cache["past_key_values"])
+            self.context.cache[req_id]["encoded"]["past_key_values"] = tuple(tuple(kv[idx,...].unsqueeze(0) for kv in layers) for layers in self.context.kv_cache["past_key_values"])
             self.context.cache[req_id]["encoded"]["input_ids"] = outputs.sequences[idx].unsqueeze(0)
             attention_mask = encoded["attention_mask"][idx].unsqueeze(0)
             attention_mask = torch.concat((attention_mask, torch.ones((1,1), dtype=torch.int64)), dim=1)

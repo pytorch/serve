@@ -134,7 +134,7 @@ def test_echo_stream_inference(model_name):
                 
         all_predictions.append("".join(json.loads(p)["text"] for p in prediction))
     
-    assert all_predictions[0] == "The capital of France, Paris, is home" 
+    assert all_predictions[0] == "The capital of France, Paris, is home"
     assert all_predictions[1] == "Europe is a country of immigrants, and it is a country" 
     assert all_predictions[2] == "The US are not going to be able to do that. They're going to have to" 
     assert all_predictions[3] == "When travelling to NYC, I was able to"
