@@ -9,9 +9,8 @@ import java.util.List;
 import org.pytorch.serve.util.messages.ModelWorkerResponse;
 import org.pytorch.serve.util.messages.Predictions;
 
-
 public class ModelResponseDecoder extends ByteToMessageDecoder {
-    
+
     private final int maxBufferSize;
 
     public ModelResponseDecoder(int maxBufferSize) {
@@ -84,7 +83,7 @@ public class ModelResponseDecoder extends ByteToMessageDecoder {
             resp.setPredictions(predictions);
             out.add(resp);
             completed = true;
-        }catch(NotEnoughDataDecoderException e){
+        } catch (NotEnoughDataDecoderException e) {
         } finally {
             if (!completed) {
                 in.resetReaderIndex();

@@ -254,7 +254,8 @@ public class Model {
         }
 
         if (!jobsRepo.isEmpty()) {
-            logger.info("The jobs repo provided contains stale inference jobs. Skip management job!!");
+            logger.info(
+                    "The jobs repo provided contains stale inference jobs. Skip management job!!");
             return false;
         }
 
