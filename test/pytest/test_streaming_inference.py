@@ -173,10 +173,10 @@ def test_decoding_stage(monkeypatch):
     }
     ctx.cache["id1"]["encoded"]["attention_mask"][0,:2] = 0
     
-    res = handler.run_prefill("id1")
-    res = handler.run_prefill("id2")
+    res = handler._run_prefill("id1")
+    res = handler._run_prefill("id2")
     
-    res = handler.run_decode(["id1"])
+    res = handler._run_decode(["id1"])
     
     assert len(res["id1"]["ids"]) == len(res["id1"]["text"]) == 1
     # assert res["id1"]["ids"][0] == 62
@@ -185,18 +185,18 @@ def test_decoding_stage(monkeypatch):
     assert ctx.cache["id1"]["encoded"]["attention_mask"].size()[-1] == 5
     
     
-    res = handler.run_decode(["id1", "id2"])
+    res = handler._run_decode(["id1", "id2"])
     assert ctx.cache["id1"]["encoded"]["input_ids"].size()[-1] == 10
     assert ctx.cache["id1"]["encoded"]["attention_mask"].size()[-1] == 10
     
     assert ctx.cache["id2"]["encoded"]["input_ids"].size()[-1] == 10
     assert ctx.cache["id2"]["encoded"]["attention_mask"].size()[-1] == 10
     
-    res = handler.run_decode(["id1"])
+    res = handler._run_decode(["id1"])
     assert ctx.cache["id1"]["encoded"]["input_ids"].size()[-1] == 7
     assert ctx.cache["id1"]["encoded"]["attention_mask"].size()[-1] == 7
     
-    res = handler.run_decode(["id1", "id2"])
+    res = handler._run_decode(["id1", "id2"])
     assert ctx.cache["id1"]["encoded"]["input_ids"].size()[-1] == 11
     assert ctx.cache["id1"]["encoded"]["attention_mask"].size()[-1] == 11
     
