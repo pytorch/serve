@@ -61,7 +61,7 @@ public class OpenInferenceProtocolImpl extends GRPCInferenceServiceImplBase {
                         });
 
         ServerLiveResponse readyResponse = ServerLiveResponse.newBuilder()
-                .setLive(true)
+                .setLive(ApiUtils.getTsWorkerStatus())
                 .build();
         responseObserver.onNext(readyResponse);
         responseObserver.onCompleted();
@@ -80,7 +80,7 @@ public class OpenInferenceProtocolImpl extends GRPCInferenceServiceImplBase {
                         });
 
         ServerReadyResponse readyResponse = ServerReadyResponse.newBuilder()
-                .setReady(true)
+                .setReady(ApiUtils.getTsWorkerStatus())
                 .build();
         responseObserver.onNext(readyResponse);
         responseObserver.onCompleted();
@@ -236,7 +236,7 @@ public class OpenInferenceProtocolImpl extends GRPCInferenceServiceImplBase {
             Job job = new GRPCJob(responseObserver, modelName, modelVersion, inputData, WorkerCommands.PREDICT);
 
             if (!modelManager.addJob(job)) {
-                String responseMessage = ApiUtils.getInferenceErrorResponseMessage(modelName, modelVersion);
+                String responseMessage = ApiUtils.getStreamingInferenceErrorResponseMessage(modelName, modelVersion);
                 InternalServerException e = new InternalServerException(responseMessage);
                 sendErrorResponse(
                         responseObserver, Status.INTERNAL, e, "InternalServerException.()");

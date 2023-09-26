@@ -39,6 +39,7 @@ import org.pytorch.serve.util.messages.RequestInput;
 import org.pytorch.serve.wlm.Model;
 import org.pytorch.serve.wlm.ModelManager;
 import org.pytorch.serve.wlm.WorkerInitializationException;
+import org.pytorch.serve.wlm.WorkerState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.google.gson.JsonObject;
@@ -46,6 +47,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import com.google.gson.JsonArray;
+import org.pytorch.serve.wlm.WorkerThread;
 
 /**
  * A class handling inbound HTTP requests to the Kserve's Open Inference
@@ -56,7 +58,7 @@ import com.google.gson.JsonArray;
  */
 public class OpenInferenceProtocolRequestHandler extends HttpRequestHandlerChain {
 
-    private static final Logger logger = LoggerFactory.getLogger(InferenceRequestHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(OpenInferenceProtocolRequestHandler.class);
     private static final String TS_VERSION_FILE_PATH = "ts/version.txt";
     private static final String SERVER_METADATA_API = "/v2";
     private static final String SERVER_LIVE_API = "/v2/health/live";
@@ -80,12 +82,12 @@ public class OpenInferenceProtocolRequestHandler extends HttpRequestHandlerChain
         if (concatenatedSegments.equals(SERVER_READY_API)) {
             // for serve ready check
             JsonObject response = new JsonObject();
-            response.addProperty("ready", true);
+            response.addProperty("ready", ApiUtils.getTsWorkerStatus());
             NettyUtils.sendJsonResponse(ctx, response);
         } else if (concatenatedSegments.equals(SERVER_LIVE_API)) {
             // for serve live check
             JsonObject response = new JsonObject();
-            response.addProperty("live", true);
+            response.addProperty("live", ApiUtils.getTsWorkerStatus());
             NettyUtils.sendJsonResponse(ctx, response);
         } else if (concatenatedSegments.equals(SERVER_METADATA_API)) {
             // For fetch server metadata
@@ -100,7 +102,7 @@ public class OpenInferenceProtocolRequestHandler extends HttpRequestHandlerChain
         } else if (segments.length > 5 && concatenatedSegments.contains("/versions")) {
             // As of now kserve not implemented versioning, we just throws not implemented.
             JsonObject response = new JsonObject();
-            response.addProperty("error", "Model versioning not supported yet");
+            response.addProperty("error", "Model versioning is not yet supported.");
             NettyUtils.sendJsonResponse(ctx, response, HttpResponseStatus.NOT_IMPLEMENTED);
         } else {
             chain.handleRequest(ctx, req, decoder, segments);
@@ -108,6 +110,7 @@ public class OpenInferenceProtocolRequestHandler extends HttpRequestHandlerChain
     }
 
     private String getTsVersion() {
+        String tsVersion = "";
         try {
             BufferedReader reader = new BufferedReader(new FileReader(TS_VERSION_FILE_PATH));
             String version = reader.readLine();
@@ -116,8 +119,7 @@ public class OpenInferenceProtocolRequestHandler extends HttpRequestHandlerChain
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return null;
+        return tsVersion;
 
     }
-
 }

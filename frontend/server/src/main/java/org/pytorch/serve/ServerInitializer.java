@@ -32,7 +32,7 @@ public class ServerInitializer extends ChannelInitializer<Channel> {
 
     private ConnectorType connectorType;
     private SslContext sslCtx;
-    private static final Logger logger = LoggerFactory.getLogger(InferenceRequestHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(ServerInitializer.class);
 
     /**
      * Creates a new {@code HttpRequestHandler} instance.

@@ -459,4 +459,20 @@ public final class ApiUtils {
                 "\" has no worker to serve describe request. Please use scale workers API to add workers.";
         return responseMessage;
     }
+
+    public static boolean getTsWorkerStatus() {
+        boolean isTsWorkerStarted = false;
+        ModelManager modelManager = ModelManager.getInstance();
+        Map<Integer, WorkerThread> workersMap = modelManager.getWorkers();
+
+        List<WorkerThread> workers = new ArrayList<>(workersMap.values());
+
+        for (WorkerThread worker : workers) {
+            if (worker.getState() == WorkerState.WORKER_MODEL_LOADED) {
+                isTsWorkerStarted = true;
+            }
+        }
+        return isTsWorkerStarted;
+    }
+
 }
