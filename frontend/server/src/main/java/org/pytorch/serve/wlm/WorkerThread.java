@@ -178,6 +178,8 @@ public class WorkerThread implements Runnable {
         currentThread.set(thread);
         BaseModelRequest req = null;
         int status = HttpURLConnection.HTTP_INTERNAL_ERROR;
+        // in case of retry
+        aggregator.cleanJobs();
 
         try {
             connect();
@@ -201,31 +203,29 @@ public class WorkerThread implements Runnable {
                     backendChannel.get(i).writeAndFlush(req).sync();
                 }
 
-                boolean isStreaming =
-                        req.getCommand() == WorkerCommands.STREAMPREDICT ? true : false;
                 ModelWorkerResponse reply = null;
 
                 boolean jobDone = false;
                 long totalDuration = 0;
-                long begin = System.currentTimeMillis();
+                do {
+                    long begin = System.currentTimeMillis();
+                    for (int i = 0; i < repeats; i++) {
+                        reply = replies.poll(responseTimeout, TimeUnit.SECONDS);
+                    }
 
-                for (int i = 0; i < repeats; i++) {
-                    reply = replies.poll(responseTimeout, TimeUnit.SECONDS);
-                }
+                    long duration = System.currentTimeMillis() - begin;
 
-                long duration = System.currentTimeMillis() - begin;
-
-                if (reply != null) {
-                    aggregator.sendResponse(reply);
-                    logger.debug("sent a reply, jobdone: {}", jobDone);
-                } else if (req.getCommand() != WorkerCommands.DESCRIBE) {
-                    int val = model.incrFailedInfReqs();
-                    logger.error("Number or consecutive unsuccessful inference {}", val);
-                    throw new WorkerInitializationException(
-                            "Backend worker did not respond in given time");
-                }
-                totalDuration += duration;
-
+                    if (reply != null) {
+                        jobDone = aggregator.sendResponse(reply);
+                        logger.debug("sent a reply, jobdone: {}", jobDone);
+                    } else if (req.getCommand() != WorkerCommands.DESCRIBE) {
+                        int val = model.incrFailedInfReqs();
+                        logger.error("Number or consecutive unsuccessful inference {}", val);
+                        throw new WorkerInitializationException(
+                                "Backend worker did not respond in given time");
+                    }
+                    totalDuration += duration;
+                } while (!jobDone);
                 logger.info("Backend response time: {}", totalDuration);
 
                 switch (req.getCommand()) {

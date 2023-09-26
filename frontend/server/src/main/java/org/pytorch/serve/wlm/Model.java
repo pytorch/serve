@@ -253,10 +253,10 @@ public class Model {
             throw new IllegalArgumentException("Invalid input given provided");
         }
 
-        // if (!jobsRepo.isEmpty()) {
-        //     throw new IllegalArgumentException(
-        //             "The jobs repo provided contains stale jobs. Clear them!!");
-        // }
+        if (!jobsRepo.isEmpty()) {
+            logger.info("The jobs repo provided contains stale inference jobs. Skip management job!!");
+            return false;
+        }
 
         LinkedBlockingDeque<Job> jobsQueue = jobsDb.get(threadId);
         if (jobsQueue != null && !jobsQueue.isEmpty()) {
@@ -269,33 +269,29 @@ public class Model {
         return false;
     }
 
-    public void pollInferJob(Map<String, Job> jobsRepo, long waitTime, int batchSize) throws InterruptedException {
-        if(batchSize == 0)
-            return;
-
+    public void pollInferJob(Map<String, Job> jobsRepo, int batchSize) throws InterruptedException {
         LinkedBlockingDeque<Job> jobsQueue;
         try {
             if (isUseJobTicket()) {
                 incNumJobTickets();
             }
             lock.lockInterruptibly();
-
+            long maxDelay = maxBatchDelay;
             jobsQueue = jobsDb.get(DEFAULT_DATA_QUEUE);
 
-            Job j = jobsQueue.poll(waitTime, TimeUnit.MILLISECONDS);
-            if(j == null)
-                // We have not a single new job -> continue
-                return;
-
+            Job j = jobsQueue.poll(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
             logger.trace("get first job: {}", Objects.requireNonNull(j).getJobId());
-
-            //No wait time means we have jobs waiting -> collect jobs and run
-            long maxDelay = waitTime > 0 ? maxBatchDelay: 0;
 
             jobsRepo.put(j.getJobId(), j);
             // batch size always is 1 for describe request job
             if (j.getCmd() == WorkerCommands.DESCRIBE) {
-                return;
+                if (jobsRepo.isEmpty()) {
+                    jobsRepo.put(j.getJobId(), j);
+                    return;
+                } else {
+                    jobsQueue.addFirst(j);
+                    return;
+                }
             }
             long begin = System.currentTimeMillis();
             for (int i = 0; i < batchSize - 1; ++i) {
