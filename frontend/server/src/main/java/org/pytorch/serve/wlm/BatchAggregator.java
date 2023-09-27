@@ -29,8 +29,8 @@ public class BatchAggregator {
 
     private static final Logger logger = LoggerFactory.getLogger(BatchAggregator.class);
 
-    private final Model model;
-    private final ConcurrentMap<String, Job> jobs;
+    private Model model;
+    private Map<String, Job> jobs;
 
     public BatchAggregator() {}
 
@@ -40,7 +40,7 @@ public class BatchAggregator {
     }
 
     public BaseModelRequest getRequest(String threadName, WorkerState state)
-            throws InterruptedException, ExecutionException {
+            throws InterruptedException {
         jobs.clear();
 
         ModelInferenceRequest req = new ModelInferenceRequest(model.getModelName());
