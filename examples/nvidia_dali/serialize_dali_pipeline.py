@@ -1,58 +1,46 @@
-import json
-import os
-
 import nvidia.dali as dali
 import nvidia.dali.types as types
+import yaml
 
 
 def parse_args():
     import argparse
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--save", default="./model.dali")
-    parser.add_argument("--config", default="dali_config.json")
+    parser.add_argument("--config", default="model-config.yaml")
     return parser.parse_args()
 
 
 @dali.pipeline_def
+# https://docs.nvidia.com/deeplearning/dali/user-guide/docs/operations/nvidia.dali.fn.html
 def pipe():
-    jpegs = dali.fn.external_source(dtype=types.UINT8, name="source", batch=False)
-    decoded = dali.fn.decoders.image(jpegs, device="mixed")
-    resized = dali.fn.resize(
-        decoded,
-        size=[256],
-        subpixel_scale=False,
-        interp_type=types.DALIInterpType.INTERP_LINEAR,
-        antialias=True,
-        mode="not_smaller",
-    )
+    jpegs = dali.fn.external_source(dtype=types.UINT8, name="source")
+    decoded = dali.fn.decoders.image(jpegs, device="mixed", output_type=types.GRAY)
     normalized = dali.fn.crop_mirror_normalize(
-        resized,
-        crop_pos_x=0.5,
-        crop_pos_y=0.5,
-        crop=(224, 224),
-        mean=[0.485 * 255, 0.456 * 255, 0.406 * 255],
-        std=[0.229 * 255, 0.224 * 255, 0.225 * 255],
+        decoded,
+        mean=[0.1307 * 255],
+        std=[0.3081 * 255],
     )
     return normalized
 
 
-def main(filename):
-    with open(args.config) as fp:
-        config = json.load(fp)
-    batch_size = config["batch_size"]
-    num_threads = config["num_threads"]
-    device_id = config["device_id"]
-    seed = config["seed"]
+def main():
+    config = {}
+    with open(args.config, "r") as file:
+        config = yaml.safe_load(file)
+    batch_size = config["dali"]["batch_size"]
+    num_threads = config["dali"]["num_threads"]
+    device_id = config["dali"]["device_id"]
+    seed = config["dali"]["seed"]
+    pipeline_filename = config["dali"]["pipeline_file"]
 
     pipeline = pipe(
         batch_size=batch_size, num_threads=num_threads, device_id=device_id, seed=seed
     )
-    pipeline.serialize(filename=filename)
-    print("Saved {}".format(filename))
+    pipeline.serialize(filename=pipeline_filename)
+    print("Saved {}".format(pipeline_filename))
 
 
 if __name__ == "__main__":
     args = parse_args()
-    os.makedirs(os.path.dirname(args.save), exist_ok=True)
-    main(args.save)
+    main()

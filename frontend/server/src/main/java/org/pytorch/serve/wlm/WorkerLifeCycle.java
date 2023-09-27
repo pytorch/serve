@@ -99,7 +99,9 @@ public class WorkerLifeCycle {
         File modelPath;
         setPort(port);
         try {
-            modelPath = model.getModelDir().getCanonicalFile();
+            modelPath = model.getModelDir();
+            // Test if modelPath is valid
+            modelPath.getCanonicalFile();
         } catch (IOException e) {
             throw new WorkerInitializationException("Failed get TS home directory", e);
         }

@@ -22,13 +22,14 @@ def get_management_stub():
     return stub
 
 
-def infer(stub, model_name, model_input):
+def infer(stub, model_name, model_input, metadata):
     with open(model_input, "rb") as f:
         data = f.read()
 
     input_data = {"data": data}
     response = stub.Predictions(
-        inference_pb2.PredictionsRequest(model_name=model_name, input=input_data)
+        inference_pb2.PredictionsRequest(model_name=model_name, input=input_data),
+        metadata=metadata,
     )
 
     try:
@@ -38,13 +39,14 @@ def infer(stub, model_name, model_input):
         exit(1)
 
 
-def infer_stream(stub, model_name, model_input):
+def infer_stream(stub, model_name, model_input, metadata):
     with open(model_input, "rb") as f:
         data = f.read()
 
     input_data = {"data": data}
     responses = stub.StreamPredictions(
-        inference_pb2.PredictionsRequest(model_name=model_name, input=input_data)
+        inference_pb2.PredictionsRequest(model_name=model_name, input=input_data),
+        metadata=metadata,
     )
 
     try:
@@ -332,8 +334,10 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
+    metadata = (("protocol", "gRPC"), ("session_id", "12345"))
+
     if args.action == "infer":
-        infer(get_inference_stub(), args.model_name, args.model_input)
+        infer(get_inference_stub(), args.model_name, args.model_input, metadata)
     elif args.action == "infer_stream":
         infer_stream(get_inference_stub(), args.model_name, args.model_input)
     elif args.action == "infer_stream2":

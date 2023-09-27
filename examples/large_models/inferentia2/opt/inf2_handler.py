@@ -28,7 +28,7 @@ class LLMHandler(BaseHandler, ABC):
         partitioned into multiple stages each on one device using PiPPy.
         Args:
             ctx (context): It is a JSON Object containing information
-            pertaining to the model artefacts parameters.
+            pertaining to the model artifacts parameters.
         """
 
         self.manifest = ctx.manifest
@@ -62,7 +62,7 @@ class LLMHandler(BaseHandler, ABC):
 
         logger.info("Starting to compile the model")
 
-        self.batch_size = ctx.model_yaml_config["handler"]["batch_size"]
+        self.batch_size = ctx.model_yaml_config["batchSize"]
         self.model = OPTForSampling.from_pretrained(
             model_dir, batch_size=self.batch_size, tp_degree=tp_degree, amp=amp
         )

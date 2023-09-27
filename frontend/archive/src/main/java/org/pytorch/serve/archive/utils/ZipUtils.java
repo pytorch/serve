@@ -120,4 +120,29 @@ public final class ZipUtils {
             }
         }
     }
+
+    public static File createTempDir(String eTag, String type) throws IOException {
+        File tmpDir = FileUtils.getTempDirectory();
+        File modelDir = new File(tmpDir, type);
+
+        if (eTag == null) {
+            eTag = UUID.randomUUID().toString().replaceAll("-", "");
+        }
+
+        File dir = new File(modelDir, eTag);
+        if (dir.exists()) {
+            FileUtils.forceDelete(dir);
+        }
+        FileUtils.forceMkdir(dir);
+
+        return dir;
+    }
+
+    public static File createSymbolicDir(File source, File dest) throws IOException {
+        String sourceDirName = source.getName();
+        File targetLink = new File(dest, sourceDirName);
+        Files.createSymbolicLink(targetLink.toPath(), source.toPath());
+
+        return targetLink;
+    }
 }
