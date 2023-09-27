@@ -1,5 +1,7 @@
 # TorchServe
 
+![Nightly build](https://github.com/pytorch/serve/blob/master/.github/workflows/torchserve-nightly-build.yml/badge.svg)
+
 TorchServe is a flexible and easy to use tool for serving and scaling PyTorch models in production.
 
 Requires python >= 3.8
