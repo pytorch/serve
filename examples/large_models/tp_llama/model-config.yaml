@@ -1,0 +1,23 @@
+#frontend settings
+minWorkers: 1
+maxWorkers: 1
+maxBatchDelay: 200
+responseTimeout: 300
+parallelType: "tp"
+deviceType: "gpu"
+
+torchrun:
+    nproc-per-node: 8
+
+handler:
+    converted_ckpt_dir: "/data/home/hamidnazeri/serve/examples/large_models/tp_llama/converted_checkpoints"
+    tokenizer_path: "/data/home/hamidnazeri/PiPPy/examples/inference/model/models--meta-llama--Llama-2-13b-chat/snapshots/8ebc6a0ac2e4a781c31cb4ad395b1c26c5158c76/tokenizer.model"
+    model_args_path: "/data/home/hamidnazeri/serve/examples/large_models/tp_llama/model_args.json"
+    max_seq_len: 512
+    max_batch_size: 6
+    max_new_tokens: 200
+    temperature: 0.6
+    top_p: 0.9
+    manual_seed: 40
+    mode: "chat" #choices are text_completion, chat
+
