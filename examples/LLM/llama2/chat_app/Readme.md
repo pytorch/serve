@@ -37,7 +37,7 @@ python -m pip install -r requirements.txt
 Install TorchServe with the following steps
 
 ```
-python ts_scripts/install_dependencies.py 
+python ts_scripts/install_dependencies.py
 pip install torchserve torch-model-archiver torch-workflow-archiver
 ```
 
@@ -46,9 +46,9 @@ pip install torchserve torch-model-archiver torch-workflow-archiver
 Run this script to create `llamacpp.tar.gz` to be loaded in TorchServe
 
 ```
-source package_llama.sh <path to llama2 snapshot folder> 
+source package_llama.sh <path to llama2 snapshot folder>
 ```
-This creates the quanitized weights in `$LLAMA2_WEIGHTS`
+This creates the quantized weights in `$LLAMA2_WEIGHTS`
 
 For subsequent runs, we don't need to regenerate these weights. We only need to package the handler, model-config.yaml in the tar file.
 
@@ -101,7 +101,7 @@ Question: What is the closest star to Earth ? Answer: The closest star to Earth 
 
 You can launch a second client app from another terminal.
 
-You can send requests simulataneously to see how quickly TorchServe responds
+You can send requests simultaneously to see how quickly TorchServe responds
 
 #### Dynamic Batching
 
