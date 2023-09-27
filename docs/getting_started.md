@@ -14,10 +14,10 @@
         python ./ts_scripts/install_dependencies.py
         ```
 
-     - For GPU with Cuda 10.2. Options are `cu92`, `cu101`, `cu102`, `cu111`, `cu113`, `cu116`, `cu117`, `cu118`
+     - For GPU with Cuda 12.1. Options are `cu92`, `cu101`, `cu102`, `cu111`, `cu113`, `cu116`, `cu117`, `cu118`, `cu121`
 
        ```bash
-       python ./ts_scripts/install_dependencies.py --cuda=cu102
+       python ./ts_scripts/install_dependencies.py --cuda=cu121
        ```
 
      Note: PyTorch 1.9+ will not support cu92 and cu101. So TorchServe only supports cu92 and cu101 up to PyTorch 1.8.1.
