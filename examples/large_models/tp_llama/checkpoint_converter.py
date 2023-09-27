@@ -12,37 +12,12 @@ from torch.distributed.fsdp._fsdp_extensions import (
     _ext_chunk_tensor,
 )
 
-
-@dataclass
-class FairScaleFSDPManagedParam:
-    """
-    Information about an original parameter managed by (fairscale) FSDP.
-    Attributes:
-        flat_param_key: FQN of the flat_param in FSDP this original param belongs to. This is the key in the fairscale state_dict.
-        fqn: full original param FQN, with no FSDP prefixing, starting from root module.
-        full_shape: full, unsharded parameter shape
-        local_numels: numels value from the fairscale state_dict, unused for now
-        data_tensor: Union[ShardedTensor, DTensor] - data tensor sharded in the PT-D style
-    """
-
-    flat_param_key: str  # this is the key in the fairscale state_dict
-    fqn: str  # full FQN starting from root module, with no FSDP prefixing
-    full_shape: torch.Size  # full, unsharded shape (original parameter shape)
-    local_numels: int  # numels value from the fairscale state_dict
-    data_tensor: torch.Tensor  # actual data tensor
-
-
-# pyre-fixme[3]: Return type must be annotated.
-# pyre-fixme[2]: Parameter must be annotated.
 def _verify_fqn_across_ranks(fqn, grp_gloo):
     olist = [None for _ in range(dist.get_world_size())]
     dist.all_gather_object(olist, fqn, group=grp_gloo)
     assert len(set(olist)) == 1
     assert olist[0] == fqn
 
-
-# pyre-fixme[3]: Return type must be annotated.
-# pyre-fixme[2]: Parameter must be annotated.
 def _all_gather_into_list(data_tensor, model_parallel_group):
     tensor_list = [
         torch.zeros_like(data_tensor).cuda()
@@ -80,8 +55,7 @@ def _unshard_param(
     This is done via vstack and column_stack respectively.
     """
     mp_size = dist.get_world_size(model_parallel_group)
-    # print(f"mp sizeeeeeeeeee {mp_size}")
-    # print("-------------------------------")
+   
     ref_shape = ref_state_dict[fqn].shape
     assert (
         ref_shape[0] == tp_sharded_shape[0] or ref_shape[1] == tp_sharded_shape[1]
@@ -213,13 +187,8 @@ def build_distributed_state_dict_from_consolidated(
                 num_devices_per_node=torch.cuda.device_count(),  # TODO: this is not accurate if user set CUDA_VISIBLE_DEVICES
                 pg=dist.distributed_c10d._get_default_group(),  # TODO: this should be the FSDP process group
             )
-        # try:
-        #     if isinstance(tensor, DTensor):
-        #         print(f"{fqn} is DTensor")
-        # except:
-        #     print(f"{fqn} is not DTensor")
+     
         dist_state_dict[fqn] = tensor
-    # assert isinstance(tensor, DTensor), f"The tensor at fqn '{fqn}' is not a DTensor."
     dtypes = {v.dtype for v in dist_state_dict.values()}
     logging.warning(f"Made dist_state_dict with dtypes {dtypes}")
     return dist_state_dict
