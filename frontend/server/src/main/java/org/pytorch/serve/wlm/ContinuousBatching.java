@@ -130,10 +130,11 @@ public class ContinuousBatching extends BatchAggregator {
             throws InterruptedException {
         boolean pollMgmtJobStatus = false;
         if (jobs.isEmpty()) {
-            pollMgmtJobStatus = model.pollMgmtJob(
-                    threadName,
-                    (state == WorkerState.WORKER_MODEL_LOADED) ? 0 : Long.MAX_VALUE,
-                    jobs);
+            pollMgmtJobStatus =
+                    model.pollMgmtJob(
+                            threadName,
+                            (state == WorkerState.WORKER_MODEL_LOADED) ? 0 : Long.MAX_VALUE,
+                            jobs);
         }
 
         if (!pollMgmtJobStatus && state == WorkerState.WORKER_MODEL_LOADED) {
