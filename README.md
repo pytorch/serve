@@ -1,6 +1,7 @@
 # TorchServe
 
 ![Nightly build](https://github.com/pytorch/serve/actions/workflows/torchserve-nightly-build.yml/badge.svg)
+![Docker Nightly build](https://github.com/pytorch/serve/actions/workflows/docker-nightly-build.yml/badge.svg)
 
 TorchServe is a flexible and easy to use tool for serving and scaling PyTorch models in production.
 
