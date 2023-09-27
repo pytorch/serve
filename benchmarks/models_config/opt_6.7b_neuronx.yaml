@@ -8,7 +8,7 @@ opt_6.7b_neuronx_batch_1:
     batch_delay: 100
     batch_size:
       - 1
-    input: "./examples/large_models/inferentia2/sample_text.txt"
+    input: "./examples/large_models/inferentia2/opt/sample_text.txt"
     requests: 2000
     concurrency: 10
     backend_profiling: False
@@ -25,7 +25,7 @@ opt_6.7b_neuronx_batch_2:
     batch_delay: 100
     batch_size:
       - 2
-    input: "./examples/large_models/inferentia2/sample_text.txt"
+    input: "./examples/large_models/inferentia2/opt/sample_text.txt"
     requests: 2000
     concurrency: 10
     backend_profiling: False
@@ -42,7 +42,7 @@ opt_6.7b_neuronx_batch_4:
     batch_delay: 100
     batch_size:
       - 4
-    input: "./examples/large_models/inferentia2/sample_text.txt"
+    input: "./examples/large_models/inferentia2/opt/sample_text.txt"
     requests: 2000
     concurrency: 10
     backend_profiling: False
@@ -59,7 +59,7 @@ opt_6.7b_neuronx_batch_8:
     batch_delay: 100
     batch_size:
       - 8
-    input: "./examples/large_models/inferentia2/sample_text.txt"
+    input: "./examples/large_models/inferentia2/opt/sample_text.txt"
     requests: 2000
     concurrency: 10
     backend_profiling: False
