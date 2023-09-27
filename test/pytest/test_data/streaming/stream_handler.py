@@ -4,7 +4,7 @@ import types
 from copy import copy
 
 import torch
-from transformers import AutoTokenizer, GPT2LMHeadModel
+from transformers import AutoTokenizer, AutoModelForCausalLM
 from ts.torch_handler.base_handler import BaseHandler
 
 logger = logging.getLogger(__name__)
@@ -19,9 +19,12 @@ class StreamingHandler(BaseHandler):
         logger.info(f"Initialized {self.__class__}")
         
         #Initialize model
-        self.tokenizer = AutoTokenizer.from_pretrained("gpt2")
+        self.tokenizer = AutoTokenizer.from_pretrained(ctx.model_yaml_config["modelId"])
         self.tokenizer.pad_token_id = self.tokenizer.eos_token_id
-        self.model = GPT2LMHeadModel.from_pretrained("gpt2")
+        self.model = AutoModelForCausalLM.from_pretrained(ctx.model_yaml_config["modelId"])
+        if torch.cuda.is_available():
+            self.model.to("cuda")
+        self.model.eval()
         
         # Replace _update_model_kwargs_for_generation of model with a method that extracts the kv cache for us
         old_update = self.model._update_model_kwargs_for_generation
@@ -42,9 +45,10 @@ class StreamingHandler(BaseHandler):
         for req_id, req_data in zip(self.context.request_ids.values(), data):
             #Tokenizer requests which are not prefilled yet
             if not req_id in self.context.cache:
-                print(req_data["body"])
                 data = json.loads(req_data["body"])
-                encoded = self.tokenizer(data["prompt"], return_tensors='pt')
+                encoded = self.tokenizer(data["prompt"], return_tensors='pt', return_token_type_ids=False)
+                if torch.cuda.is_available():
+                    encoded = {k:v.to("cuda") for k,v in encoded.items()}
                 encoded["past_key_values"] = None
                 self.context.cache[req_id] = {
                     "stopping_criteria": self._create_stopping_criteria(req_id, max_new_tokens=data["max_new_tokens"]),
@@ -77,8 +81,10 @@ class StreamingHandler(BaseHandler):
         ]
         return x
     
+    @torch.no_grad()
     def _run_prefill(self, req_id):
         assert self.context.cache[req_id]["encoded"]["past_key_values"] is None, "There should be no cached values"
+        self.context.cache[req_id]["encoded"]
         output = self.model.generate(
             **self.context.cache[req_id]["encoded"],
             max_new_tokens=1,
@@ -89,8 +95,12 @@ class StreamingHandler(BaseHandler):
         self.context.cache[req_id]["encoded"]["past_key_values"] = self.context.kv_cache["past_key_values"]
         del self.context.kv_cache["past_key_values"]
         self.context.cache[req_id]["encoded"]["input_ids"] = output.sequences
+        
+        device = next(iter(self.model.parameters())).device
+        dtype=torch.int64
+        config = {"device":device, "dtype": dtype}
         attention_mask = self.context.cache[req_id]["encoded"]["attention_mask"]
-        attention_mask = torch.concat((attention_mask, torch.ones((1,1), dtype=torch.int64)), dim=1)
+        attention_mask = torch.concat((attention_mask, torch.ones((1,1), **config)), dim=1)
         self.context.cache[req_id]["encoded"]["attention_mask"] = attention_mask
         
         result = {
@@ -98,7 +108,8 @@ class StreamingHandler(BaseHandler):
             "ids": output.sequences[0].tolist(),
         }
         return result
-        
+    
+    @torch.no_grad()
     def _run_decode(self, ids):
         assert len(ids)
         
@@ -110,13 +121,17 @@ class StreamingHandler(BaseHandler):
             return_dict_in_generate=True,
             use_cache=True
             )
+        
+        device = next(iter(self.model.parameters())).device
+        dtype=torch.int64
+        config = {"device":device, "dtype": dtype}
 
         results = {}
         for idx, req_id in enumerate(ids):
             self.context.cache[req_id]["encoded"]["past_key_values"] = self._collect_kv_cache_of_idx_in_batch(idx)
             self.context.cache[req_id]["encoded"]["input_ids"] = outputs.sequences[idx].unsqueeze(0)
             attention_mask = encoded["attention_mask"][idx].unsqueeze(0)
-            attention_mask = torch.concat((attention_mask, torch.ones((1,1), dtype=torch.int64)), dim=1)
+            attention_mask = torch.concat((attention_mask, torch.ones((1,1), **config)), dim=1)
             self.context.cache[req_id]["encoded"]["attention_mask"] = attention_mask
             results[req_id] = {
                 "text":self.tokenizer.decode(outputs.sequences[idx][-1], skip_special_tokens=True),
@@ -128,6 +143,10 @@ class StreamingHandler(BaseHandler):
     def _prepare_model_inputs(self, ids):
         lengths = list(torch.sum(self.context.cache[i]["encoded"]["attention_mask"], dim=1).item() for i in ids)
         max_len = max(lengths)
+        
+        device = next(iter(self.model.parameters())).device
+        dtype=torch.int64
+        config = {"device":device, "dtype": dtype}
         
         input_ids = []
         attention_mask = []
@@ -145,15 +164,15 @@ class StreamingHandler(BaseHandler):
             if padded_len < max_len:
                 # Apply padding to input_ids, attention_mask and past_key_values
                 n = max_len - seq_len
-                input_ids[-1] = torch.concat((self.tokenizer.pad_token_id + torch.zeros((1,n), dtype=torch.int64), input_ids[-1]), dim=1)
-                attention_mask[-1] = torch.concat((torch.zeros((1,n), dtype=torch.int64), attention_mask[-1]), dim=1)
+                input_ids[-1] = torch.concat((self.tokenizer.pad_token_id + torch.zeros((1,n), **config), input_ids[-1]), dim=1)
+                attention_mask[-1] = torch.concat((torch.zeros((1,n), **config), attention_mask[-1]), dim=1)
                 
                 size_delta = list(kv_cache[0][0][-1].size())
                 size_delta[2] = n
                 dtype = kv_cache[0][0][-1].dtype
                 for layer_idx in range(len(kv_cache)):
-                    kv_cache[layer_idx][0][-1] = torch.concat((torch.zeros(size_delta, dtype=dtype), kv_cache[layer_idx][0][-1]), dim=2)
-                    kv_cache[layer_idx][1][-1] = torch.concat((torch.zeros(size_delta, dtype=dtype), kv_cache[layer_idx][1][-1]), dim=2)
+                    kv_cache[layer_idx][0][-1] = torch.concat((torch.zeros(size_delta, **config), kv_cache[layer_idx][0][-1]), dim=2)
+                    kv_cache[layer_idx][1][-1] = torch.concat((torch.zeros(size_delta, **config), kv_cache[layer_idx][1][-1]), dim=2)
                 
             elif padded_len > max_len:
                 # Truncate padding from input_ids, attention_mask and past_key_values

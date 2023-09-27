@@ -138,7 +138,7 @@ def test_echo_stream_inference(model_name):
     assert all_predictions[1] == "Europe is a country of immigrants, and it is a country" 
     assert all_predictions[2] == "The US are not going to be able to do that. They're going to have to" 
     assert all_predictions[3] == "When travelling to NYC, I was able to"
-
+    
 
 def test_decoding_stage(monkeypatch):
     monkeypatch.syspath_prepend((CURR_FILE_PATH / "test_data" /"streaming"))
@@ -149,24 +149,27 @@ def test_decoding_stage(monkeypatch):
         model_dir=(CURR_FILE_PATH / "test_data" /"streaming").as_posix(),
         model_file="fake_streaming_model.py",
     )
+    ctx.model_yaml_config["modelId"] = "gpt2"
 
     torch.manual_seed(42 * 42)
     handler.initialize(ctx)
     
     handler.context = ctx
     
+    device = next(iter(handler.model.parameters())).device
+    
     ctx.cache = {
         "id1":{
             "encoded":{
-                "input_ids":torch.randint(42,(1,5)),
-                "attention_mask":torch.ones((1,5), dtype=int),
+                "input_ids":torch.randint(42,(1,5), device=device),
+                "attention_mask":torch.ones((1,5), dtype=int, device=device),
                 "past_key_values": None,
             },
         },
         "id2":{
             "encoded":{
-                "input_ids":torch.randint(42,(1,8)),
-                "attention_mask":torch.ones((1,8), dtype=int),
+                "input_ids":torch.randint(42,(1,8), device=device),
+                "attention_mask":torch.ones((1,8), dtype=int, device=device),
                 "past_key_values": None,
             }
         }
