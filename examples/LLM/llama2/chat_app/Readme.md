@@ -6,6 +6,13 @@ We use [streamlit](https://github.com/streamlit/streamlit) to create the app
 
 We are using [llama-cpp-python](https://github.com/abetlen/llama-cpp-python) in this example
 
+You can run this example on your laptop to understand how to use TorchServe
+
+
+## Architecture
+
+![Chatbot Architecture](./screenshots/architecture.png)
+
 
 ## Pre-requisites
 
