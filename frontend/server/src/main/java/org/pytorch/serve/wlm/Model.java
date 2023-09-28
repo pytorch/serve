@@ -280,20 +280,23 @@ public class Model {
             long maxDelay = maxBatchDelay;
             jobsQueue = jobsDb.get(DEFAULT_DATA_QUEUE);
 
-            Job j = jobsQueue.poll(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
-            logger.trace("get first job: {}", Objects.requireNonNull(j).getJobId());
+            if (jobsRepo.size() == 0) {
+                Job j = jobsQueue.poll(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
+                logger.trace("get first job: {}", Objects.requireNonNull(j).getJobId());
 
-            jobsRepo.put(j.getJobId(), j);
-            // batch size always is 1 for describe request job
-            if (j.getCmd() == WorkerCommands.DESCRIBE) {
-                if (jobsRepo.isEmpty()) {
-                    jobsRepo.put(j.getJobId(), j);
-                    return;
-                } else {
-                    jobsQueue.addFirst(j);
-                    return;
+                jobsRepo.put(j.getJobId(), j);
+                // batch size always is 1 for describe request job
+                if (j.getCmd() == WorkerCommands.DESCRIBE) {
+                    if (jobsRepo.isEmpty()) {
+                        jobsRepo.put(j.getJobId(), j);
+                        return;
+                    } else {
+                        jobsQueue.addFirst(j);
+                        return;
+                    }
                 }
             }
+            
             long begin = System.currentTimeMillis();
             for (int i = 0; i < batchSize - 1; ++i) {
                 j = jobsQueue.poll(maxDelay, TimeUnit.MILLISECONDS);
