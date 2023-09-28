@@ -280,8 +280,9 @@ public class Model {
             long maxDelay = maxBatchDelay;
             jobsQueue = jobsDb.get(DEFAULT_DATA_QUEUE);
 
+            Job j = null;
             if (jobsRepo.size() == 0) {
-                Job j = jobsQueue.poll(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
+                j = jobsQueue.poll(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
                 logger.trace("get first job: {}", Objects.requireNonNull(j).getJobId());
 
                 jobsRepo.put(j.getJobId(), j);
@@ -296,7 +297,7 @@ public class Model {
                     }
                 }
             }
-            
+
             long begin = System.currentTimeMillis();
             for (int i = 0; i < batchSize - 1; ++i) {
                 j = jobsQueue.poll(maxDelay, TimeUnit.MILLISECONDS);
