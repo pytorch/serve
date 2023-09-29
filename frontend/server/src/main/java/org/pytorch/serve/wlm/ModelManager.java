@@ -9,6 +9,7 @@ import java.net.HttpURLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -219,6 +220,7 @@ public final class ModelManager {
             }
 
             List<String> commandParts = new ArrayList<>();
+
             commandParts.add(pythonRuntime);
             commandParts.add("-m");
             commandParts.add("pip");
@@ -228,6 +230,12 @@ public final class ModelManager {
             commandParts.add(dependencyPath.getAbsolutePath());
             commandParts.add("-r");
             commandParts.add(requirementsFilePath.toString());
+
+            String[] envp =
+                    EnvironmentUtils.getEnvString(
+                            configManager.getModelServerHome(),
+                            model.getModelDir().getAbsolutePath(),
+                            null);
 
             ProcessBuilder processBuilder = new ProcessBuilder(commandParts);
             processBuilder.directory(model.getModelDir().getAbsoluteFile());
