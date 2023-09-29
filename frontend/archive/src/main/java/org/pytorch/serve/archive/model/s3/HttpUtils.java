@@ -20,6 +20,15 @@ public final class HttpUtils {
     private HttpUtils() {}
 
     private static void validateURL(URL url) {
+        if ("file".equalsIgnoreCase(url.getProtocol())) {
+            // For local file URLs, you might want to check if the file exists or just return
+            File file = new File(url.getPath());
+            if (!file.exists()) {
+                throw new IllegalArgumentException("Local file does not exist.");
+            }
+            return; // If it's a file URL and the file exists, consider it valid and return early
+        }
+
         UrlValidator urlValidator = new UrlValidator(UrlValidator.ALLOW_LOCAL_URLS);
         if (!urlValidator.isValid(url.toString())) {
             throw new IllegalArgumentException("Invalid URL provided.");

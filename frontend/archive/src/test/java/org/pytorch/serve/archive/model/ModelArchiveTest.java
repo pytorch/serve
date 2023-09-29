@@ -157,7 +157,7 @@ public class ModelArchiveTest {
         archive.clean();
     }
 
-    @Test(expectedExceptions = DownloadArchiveException.class)
+    @Test(expectedExceptions = IllegalArgumentException.class)
     public void testMalformedURL()
             throws ModelException, IOException, DownloadArchiveException, IllegalArgumentException {
         String modelStore = "src/test/resources/models";
@@ -202,7 +202,7 @@ public class ModelArchiveTest {
                 "https://torchserve.pytorch.org/mar_files/mnist.mar");
     }
 
-    @Test(expectedExceptions = DownloadArchiveException.class)
+    @Test(expectedExceptions = llegalArgumentException.class)
     public void testMalformLocalURL()
             throws ModelException, IOException, InterruptedException, DownloadArchiveException,
                     IllegalArgumentException {
