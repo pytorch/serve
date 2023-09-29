@@ -21,6 +21,10 @@ Instructions on how to use the AOT compiled model artifacts is shown below.
 Get an Inf2 instance(Note: This example was tested on instance type:`inf2.24xlarge`), ssh to it, make sure to use the following DLAMI as it comes with PyTorch and necessary packages for AWS Neuron SDK pre-installed.
 DLAMI Name: ` Deep Learning AMI Neuron PyTorch 1.13 (Ubuntu 20.04) 20230720 Amazon Machine Image (AMI)` or higher.
 
+**Note**: The `inf2.24xlarge` instance consists of 6 neuron chips with 2 neuron cores each. The total accelerator memory is 192GB.
+Based on the configuration used in [model-config.yaml](model-config.yaml), with `tp_degree` set to 6, 3 of the 6 neuron chips are used, i.e 6 neuron cores.
+On loading the model, the accelerator memory consumed is 38.1GB (12.7GB per chip).
+
 ### Step 2: Package Installations
 
 Follow the steps below to complete package installations
@@ -29,9 +33,10 @@ Follow the steps below to complete package installations
 sudo apt-get update
 sudo apt-get upgrade
 
-# Update Neuron Runtime
-sudo apt-get install aws-neuronx-collectives=2.* -y
-sudo apt-get install aws-neuronx-runtime-lib=2.* -y
+# Install Neuron libraries, SDK 2.12.2: https://awsdocs-neuron.readthedocs-hosted.com/en/latest/release-notes/prev/content.html#id8
+sudo apt-get install aws-neuronx-dkms=2.11.9.0
+sudo apt-get install aws-neuronx-collectives=2.15.16.0*
+sudo apt-get install aws-neuronx-runtime-lib=2.15.14.0*
 
 # Activate Python venv
 source /opt/aws_neuron_venv_pytorch/bin/activate
@@ -45,6 +50,9 @@ python ts_scripts/install_dependencies.py --neuronx --environment=dev
 
 # Install torchserve and torch-model-archiver
 python ts_scripts/install_from_src.py
+
+# Install additional neuron packages, SDK 2.12.2: https://awsdocs-neuron.readthedocs-hosted.com/en/latest/release-notes/prev/content.html#id8
+python -m pip install neuronx-cc==2.8.0.25 torch-neuronx==1.13.1.1.9.1 transformers-neuronx==0.5.58
 
 # Navigate to `examples/large_models/inferentia2/llama2` directory
 cd examples/large_models/inferentia2/llama2/
