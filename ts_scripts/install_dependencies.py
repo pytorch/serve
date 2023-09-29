@@ -204,7 +204,17 @@ if __name__ == "__main__":
     parser.add_argument(
         "--cuda",
         default=None,
-        choices=["cu92", "cu101", "cu102", "cu111", "cu113", "cu116", "cu117", "cu118"],
+        choices=[
+            "cu92",
+            "cu101",
+            "cu102",
+            "cu111",
+            "cu113",
+            "cu116",
+            "cu117",
+            "cu118",
+            "cu121",
+        ],
         help="CUDA version for torch",
     )
     parser.add_argument(
