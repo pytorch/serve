@@ -116,29 +116,20 @@ public class WorkerThread implements Runnable {
     public String getGpuUsage() {
         Process process;
         StringBuffer gpuUsage = new StringBuffer();
-
-        int validatedGpuId;
-        try {
-            validatedGpuId = Integer.parseInt(gpuId);
-        } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("Invalid GPU ID");
-        }
-
-        if (validatedGpuId >= 0) {
+        if (gpuId >= 0) {
             try {
                 // TODO : add a generic code to capture gpu details for different devices instead of
                 // just NVIDIA
+                ProcessBuilder pb =
+                        new ProcessBuilder(
+                                "nvidia-smi",
+                                "-i",
+                                String.valueOf(validatedGpuId),
+                                "--query-gpu=utilization.gpu,utilization.memory,memory.used",
+                                "--format=csv");
 
-                // Use an array to pass arguments
-                String[] cmd = {
-                    "nvidia-smi",
-                    "-i",
-                    String.valueOf(validatedGpuId),
-                    "--query-gpu=utilization.gpu,utilization.memory,memory.used",
-                    "--format=csv"
-                };
-
-                process = Runtime.getRuntime().exec(cmd);
+                // Start the process
+                process = pb.start();
                 process.waitFor();
                 int exitCode = process.exitValue();
                 if (exitCode != 0) {
