@@ -217,26 +217,22 @@ public final class ModelManager {
             if (Files.isSymbolicLink(dependencyPath.toPath())) {
                 dependencyPath = dependencyPath.getParentFile();
             }
-            String packageInstallCommand =
-                    pythonRuntime
-                            + " -m pip install -U -t "
-                            + dependencyPath.getAbsolutePath()
-                            + " -r "
-                            + requirementsFilePath; // NOPMD
 
-            String[] envp =
-                    EnvironmentUtils.getEnvString(
-                            configManager.getModelServerHome(),
-                            model.getModelDir().getAbsolutePath(),
-                            null);
+            List<String> commandParts = new ArrayList<>();
+            commandParts.add(pythonRuntime);
+            commandParts.add("-m");
+            commandParts.add("pip");
+            commandParts.add("install");
+            commandParts.add("-U");
+            commandParts.add("-t");
+            commandParts.add(dependencyPath.getAbsolutePath());
+            commandParts.add("-r");
+            commandParts.add(requirementsFilePath.toString());
 
-            Process process =
-                    Runtime.getRuntime()
-                            .exec(
-                                    packageInstallCommand,
-                                    envp,
-                                    model.getModelDir().getAbsoluteFile());
-
+            ProcessBuilder processBuilder = new ProcessBuilder(commandParts);
+            processBuilder.directory(model.getModelDir().getAbsoluteFile());
+            processBuilder.environment().putAll(envp);
+            Process process = processBuilder.start();
             int exitCode = process.waitFor();
 
             if (exitCode != 0) {
