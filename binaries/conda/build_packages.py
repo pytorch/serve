@@ -130,7 +130,7 @@ def conda_build(
 
     os.environ["PYTHON"] = "python"
 
-    python_versions = ["3.8", "3.9", "3.10"]
+    python_versions = ["3.8", "3.9", "3.10", "3.11"]
     packages = [os.path.join(conda_build_dir, pkg) for pkg in PACKAGES]
 
     # Generate conda binaries for linux-64
