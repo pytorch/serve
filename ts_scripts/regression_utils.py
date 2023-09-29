@@ -62,7 +62,7 @@ def run_pytest():
     if status != 0:
         print("Could not generate gRPC client stubs")
         sys.exit(1)
-    cmd = "python -m pytest -v test_example_dcgan.py test_sm_mme_requirements.py"
+    cmd = "python -m pytest -v ./"
     print(f"## In directory: {os.getcwd()} | Executing command: {cmd}")
     status = os.system(cmd)
     rm_file("*_pb2*.py", True)
