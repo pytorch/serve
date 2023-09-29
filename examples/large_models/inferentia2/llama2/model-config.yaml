@@ -5,7 +5,8 @@ responseTimeout: 10800
 batchSize: 16
 
 handler:
-    model_checkpoint_dir: "llama-2-13b-split"
+    #model_checkpoint_dir: "llama-2-13b-split"
+    model_checkpoint_dir: "llama-2-13b" #if jump from step 3 directly to step 5
     amp: "bf16"
     tp_degree: 6
     max_length: 100
