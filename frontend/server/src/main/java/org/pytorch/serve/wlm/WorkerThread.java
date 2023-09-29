@@ -124,7 +124,7 @@ public class WorkerThread implements Runnable {
                         new ProcessBuilder(
                                 "nvidia-smi",
                                 "-i",
-                                String.valueOf(validatedGpuId),
+                                String.valueOf(gpuId),
                                 "--query-gpu=utilization.gpu,utilization.memory,memory.used",
                                 "--format=csv");
 
