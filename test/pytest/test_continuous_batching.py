@@ -10,9 +10,9 @@ import pytest
 import requests
 import test_utils
 import torch
-from ts.torch_handler.unit_tests.test_utils.mock_context import MockContext
-
 from test_data.streaming.stream_handler import StreamingHandler
+
+from ts.torch_handler.unit_tests.test_utils.mock_context import MockContext
 
 CURR_FILE_PATH = Path(__file__).parent
 
@@ -101,20 +101,20 @@ def test_echo_stream_inference(model_name_and_stdout):
     responses = []
     data = [
         {
-        "prompt": "The capital of France",
-        "max_new_tokens": 5,
+            "prompt": "The capital of France",
+            "max_new_tokens": 5,
         },
         {
-        "prompt": "Europe is",
-        "max_new_tokens": 10,
+            "prompt": "Europe is",
+            "max_new_tokens": 10,
         },
         {
-        "prompt": "The US are",
-        "max_new_tokens": 15,
+            "prompt": "The US are",
+            "max_new_tokens": 15,
         },
         {
-        "prompt": "When travelling to NYC",
-        "max_new_tokens": 5,
+            "prompt": "When travelling to NYC",
+            "max_new_tokens": 5,
         },
     ]
     for d in data:
@@ -133,114 +133,118 @@ def test_echo_stream_inference(model_name_and_stdout):
         for chunk in responses[idx].iter_content(chunk_size=None):
             if chunk:
                 prediction.append(chunk.decode("utf-8"))
-                
+
         all_predictions.append("".join(json.loads(p)["text"] for p in prediction))
-    
+
     assert all_predictions[0] == "The capital of France, Paris, is home"
-    assert all_predictions[1] == "Europe is a country of immigrants, and it is a country" 
-    assert all_predictions[2] == "The US are not going to be able to do that. They're going to have to" 
+    assert (
+        all_predictions[1] == "Europe is a country of immigrants, and it is a country"
+    )
+    assert (
+        all_predictions[2]
+        == "The US are not going to be able to do that. They're going to have to"
+    )
     assert all_predictions[3] == "When travelling to NYC, I was able to"
-    
+
 
 def test_decoding_stage(monkeypatch):
-    monkeypatch.syspath_prepend((CURR_FILE_PATH / "test_data" /"streaming"))
-    
+    monkeypatch.syspath_prepend((CURR_FILE_PATH / "test_data" / "streaming"))
+
     handler = StreamingHandler()
     ctx = MockContext(
         model_pt_file=None,
-        model_dir=(CURR_FILE_PATH / "test_data" /"streaming").as_posix(),
+        model_dir=(CURR_FILE_PATH / "test_data" / "streaming").as_posix(),
         model_file="fake_streaming_model.py",
     )
     ctx.model_yaml_config["modelId"] = "gpt2"
 
     torch.manual_seed(42 * 42)
     handler.initialize(ctx)
-    
+
     handler.context = ctx
-    
+
     device = next(iter(handler.model.parameters())).device
-    
+
     ctx.cache = {
-        "id1":{
-            "encoded":{
-                "input_ids":torch.randint(42,(1,5), device=device),
-                "attention_mask":torch.ones((1,5), dtype=int, device=device),
+        "id1": {
+            "encoded": {
+                "input_ids": torch.randint(42, (1, 5), device=device),
+                "attention_mask": torch.ones((1, 5), dtype=int, device=device),
                 "past_key_values": None,
             },
         },
-        "id2":{
-            "encoded":{
-                "input_ids":torch.randint(42,(1,8), device=device),
-                "attention_mask":torch.ones((1,8), dtype=int, device=device),
+        "id2": {
+            "encoded": {
+                "input_ids": torch.randint(42, (1, 8), device=device),
+                "attention_mask": torch.ones((1, 8), dtype=int, device=device),
                 "past_key_values": None,
             }
-        }
+        },
     }
-    ctx.cache["id1"]["encoded"]["attention_mask"][0,:2] = 0
-    
+    ctx.cache["id1"]["encoded"]["attention_mask"][0, :2] = 0
+
     res = handler._run_prefill("id1")
     res = handler._run_prefill("id2")
-    
+
     res = handler._run_decode(["id1"])
-    
+
     assert len(res["id1"]["ids"]) == len(res["id1"]["text"]) == 1
     # assert res["id1"]["ids"][0] == 62
-    
+
     assert ctx.cache["id1"]["encoded"]["input_ids"].size()[-1] == 5
     assert ctx.cache["id1"]["encoded"]["attention_mask"].size()[-1] == 5
-    
-    
+
     res = handler._run_decode(["id1", "id2"])
     assert ctx.cache["id1"]["encoded"]["input_ids"].size()[-1] == 10
     assert ctx.cache["id1"]["encoded"]["attention_mask"].size()[-1] == 10
-    
+
     assert ctx.cache["id2"]["encoded"]["input_ids"].size()[-1] == 10
     assert ctx.cache["id2"]["encoded"]["attention_mask"].size()[-1] == 10
-    
+
     res = handler._run_decode(["id1"])
     assert ctx.cache["id1"]["encoded"]["input_ids"].size()[-1] == 7
     assert ctx.cache["id1"]["encoded"]["attention_mask"].size()[-1] == 7
-    
+
     res = handler._run_decode(["id1", "id2"])
     assert ctx.cache["id1"]["encoded"]["input_ids"].size()[-1] == 11
     assert ctx.cache["id1"]["encoded"]["attention_mask"].size()[-1] == 11
-    
+
     assert ctx.cache["id2"]["encoded"]["input_ids"].size()[-1] == 11
     assert ctx.cache["id2"]["encoded"]["attention_mask"].size()[-1] == 11
-    
-    
+
+
 def test_closed_connection(model_name_and_stdout):
     model_name, stdout = model_name_and_stdout
-    
+
     # Empty queue
     while not stdout.empty():
         stdout.get_nowait()
-    
+
     data = {
         "prompt": "The capital of France",
         "max_new_tokens": 500,
-        }
-    
+    }
+
     with requests.Session() as s:
         res = s.post(
             url=f"http://localhost:8080/predictions/{model_name}",
             data=json.dumps(data),
             stream=True,
         )
-        
+
         for chunk in res.iter_content(chunk_size=None):
             # Close connection after the first id has been received
             break
-    
+
     lines = []
     while True:
         try:
             lines.append(stdout.get(timeout=5))
         except Empty:
             assert 0, "Queue timed out"
-        
+
         if "Connection to client got closed; Removing job:" in lines[-1]:
             break
-    
+
     # We expect the model to only run two times at most due to the closed connection
-    assert len(list(filter(lambda x: "Backend received inference at" in x, lines))) <=2
+    assert len(list(filter(lambda x: "Backend received inference at" in x, lines))) <= 2
