@@ -1,8 +1,7 @@
 import os
-import sys
 import tempfile
+import sys
 import urllib.request
-
 from ts_scripts.shell_utils import rm_file
 
 REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
@@ -16,17 +15,11 @@ def generate_densenet_test_model_archive():
     model_store_dir = os.path.join(ROOT_DIR, "model_store")
     model_name = "densenet161_v1"
     version = "1.1"
-    model_file = os.path.join(
-        REPO_ROOT, "examples", "image_classifier", "densenet_161", "model.py"
-    )
+    model_file = os.path.join(REPO_ROOT, "examples", "image_classifier", "densenet_161", "model.py")
     serialized_model_file_name = "densenet161-8d451a50.pth"
-    serialized_model_file_url = (
-        f"https://download.pytorch.org/models/{serialized_model_file_name}"
-    )
+    serialized_model_file_url = f"https://download.pytorch.org/models/{serialized_model_file_name}"
     serialized_file_path = os.path.join(model_store_dir, serialized_model_file_name)
-    extra_files = os.path.join(
-        REPO_ROOT, "examples", "image_classifier", "index_to_name.json"
-    )
+    extra_files = os.path.join(REPO_ROOT, "examples", "image_classifier", "index_to_name.json")
     handler = "image_classifier"
 
     os.makedirs(model_store_dir, exist_ok=True)
@@ -53,11 +46,9 @@ def generate_densenet_test_model_archive():
 def run_pytest():
     print("## Started regression pytests")
     os.chdir(os.path.join(REPO_ROOT, "test", "pytest"))
-    cmd = (
-        "python -m grpc_tools.protoc --proto_path=../../frontend/server/src/main/resources/proto/"
-        " --python_out=. --grpc_python_out=. ../../frontend/server/src/main/resources/proto/inference.proto"
-        " ../../frontend/server/src/main/resources/proto/management.proto"
-    )
+    cmd = "python -m grpc_tools.protoc --proto_path=../../frontend/server/src/main/resources/proto/" \
+          " --python_out=. --grpc_python_out=. ../../frontend/server/src/main/resources/proto/inference.proto" \
+          " ../../frontend/server/src/main/resources/proto/management.proto"
     status = os.system(cmd)
     if status != 0:
         print("Could not generate gRPC client stubs")
@@ -65,7 +56,7 @@ def run_pytest():
     cmd = "python -m pytest -v ./"
     print(f"## In directory: {os.getcwd()} | Executing command: {cmd}")
     status = os.system(cmd)
-    rm_file("*_pb2*.py", True)
+    rm_file('*_pb2*.py', True)
     return status
 
 
