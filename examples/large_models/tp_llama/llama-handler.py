@@ -96,32 +96,26 @@ class LlamaHandler(BaseHandler,ABC):
                 attention masks.
         """
         input_texts = [data.get("data") or data.get("body") for data in requests]
+        
         if self.mode == "chat":
-            try:
-                dialogs_list = [json.loads(text) for text in input_texts if text]
-                return dialogs_list
-            except json.JSONDecodeError:
-                print("Error: Unable to decode JSON. Please ensure the input text is correctly formatted.")
+            dialogs_list = []
+            for text in input_texts:
+                if text:
+                    try:
+                        dialog = json.loads(text)
+                        dialogs_list.append(dialog)
+                    except json.JSONDecodeError:
+                        raise ValueError(f"Invalid JSON format in text: {text}")
+            return dialogs_list
             
-
         elif self.mode == "text_completion":
-            
             try:
                 return [self.prep_input_text(text) for text in input_texts]
-            except Exception as e:
-                print(f"Error while preparing input text: {e}")
-            # try:
-            #     input_ids_batch = []
-            #     for input_text in input_texts:
-            #         input_ids = self.prep_input_text(input_text)
-            #         input_ids_batch.append(input_ids)
-            #     return input_ids_batch
-            # except Exception as e:
-            #     print(f"Error while preparing input text: {e}")
-            
+            except TypeError:
+                raise ValueError("Expected input_texts to contain text (string) values.")
         else:
-            print("Error: Unsupported mode. Please select a valid mode.")
-            return []
+            raise NotImplementedError("Unsupported mode. Please select a valid mode.")
+
 
     def prep_input_text(self, input_text):
         """
@@ -133,7 +127,7 @@ class LlamaHandler(BaseHandler,ABC):
         """
         if isinstance(input_text, (bytes, bytearray)):
             input_text = input_text.decode("utf-8")
-        logger.info("Received text: '%s'", input_text)
+        logger.debug("Received text: '%s'", input_text)
         
         return input_text
 
