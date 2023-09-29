@@ -150,7 +150,7 @@ public class RestJob extends Job {
             resp = new DefaultHttpResponse(HttpVersion.HTTP_1_1, status, true);
             numStreams = responseHeaders.get(TS_STREAM_NEXT).equals("true") ? numStreams + 1 : -1;
         } else {
-            resp = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, status, false);
+            resp = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, status, true);
         }
 
         if (contentType != null && contentType.length() > 0) {
