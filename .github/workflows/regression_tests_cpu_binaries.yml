@@ -22,6 +22,8 @@ jobs:
         binaries: ["pypi", "conda"]
     steps:
       - uses: actions/checkout@v3
+        with:
+          submodules: recursive
       - name: Setup conda with Python ${{ matrix.python-version }}
         uses: s-weigand/setup-conda@v1
         with:
