@@ -83,7 +83,8 @@ public class ModelArchiveTest {
 
     @Test
     public void testLocalFile()
-            throws ModelException, IOException, InterruptedException, DownloadArchiveException {
+            throws ModelException, IOException, InterruptedException, DownloadArchiveException,
+                    IllegalArgumentException {
         String modelStore = "src/test/resources/models";
         String curDir = System.getProperty("user.dir");
         File curDirFile = new File(curDir);
@@ -157,7 +158,8 @@ public class ModelArchiveTest {
     }
 
     @Test(expectedExceptions = DownloadArchiveException.class)
-    public void testMalformedURL() throws ModelException, IOException, DownloadArchiveException {
+    public void testMalformedURL()
+            throws ModelException, IOException, DownloadArchiveException, IllegalArgumentException {
         String modelStore = "src/test/resources/models";
         ModelArchive.downloadModel(
                 ALLOWED_URLS_LIST,
@@ -202,7 +204,8 @@ public class ModelArchiveTest {
 
     @Test(expectedExceptions = DownloadArchiveException.class)
     public void testMalformLocalURL()
-            throws ModelException, IOException, InterruptedException, DownloadArchiveException {
+            throws ModelException, IOException, InterruptedException, DownloadArchiveException,
+                    IllegalArgumentException {
         String modelStore = "src/test/resources/models";
         ModelArchive.downloadModel(
                 ALLOWED_URLS_LIST, modelStore, "file:///" + modelStore + "/mnist1.mar");
