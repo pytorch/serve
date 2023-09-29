@@ -87,7 +87,7 @@ def test_oom_on_invoke():
         "model_name": "BERTSeqClassification",
         "url": "https://torchserve.pytorch.org/mar_files/BERTSeqClassification.mar",
         "batch_size": 8,
-        "initial_workers": 24,
+        "initial_workers": 26,
     }
     response = test_utils.register_model_with_params(params)
 
@@ -101,7 +101,7 @@ def test_oom_on_invoke():
 
     # Make 8 curl requests in parallel with &
     # Send multiple requests to make sure to hit OOM
-    for i in range(10):
+    for i in range(100):
         response = os.popen(
             f"curl http://127.0.0.1:8080/models/BERTSeqClassification/invoke -T {input_text} && "
             f"curl http://127.0.0.1:8080/models/BERTSeqClassification/invoke -T {input_text} && "
