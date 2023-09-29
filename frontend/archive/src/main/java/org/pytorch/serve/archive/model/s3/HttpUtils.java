@@ -18,6 +18,13 @@ public final class HttpUtils {
 
     private HttpUtils() {}
 
+    private static void validateURL(URL url) {
+        UrlValidator urlValidator = new UrlValidator(UrlValidator.ALLOW_LOCAL_URLS);
+        if (!urlValidator.isValid(url.toString())) {
+            throw new IllegalArgumentException("Invalid URL provided.");
+        }
+    }
+
     /** Copy model from S3 url to local model store */
     public static void copyURLToFile(URL endpointUrl, File modelLocation, boolean s3SseKmsEnabled)
             throws IOException {
@@ -58,13 +65,14 @@ public final class HttpUtils {
                                 + "AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY or AWS_DEFAULT_REGION");
             }
         } else {
+            validateURL(endpointUrl);
             FileUtils.copyURLToFile(endpointUrl, modelLocation);
         }
     }
 
     public static HttpURLConnection createHttpConnection(
             URL endpointUrl, String httpMethod, Map<String, String> headers) throws IOException {
-
+        validateURL(endpointUrl);
         HttpURLConnection connection = (HttpURLConnection) endpointUrl.openConnection();
         connection.setRequestMethod(httpMethod);
 
