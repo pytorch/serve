@@ -77,7 +77,8 @@ public final class TestUtils {
 
             HttpsURLConnection.setDefaultSSLSocketFactory(context.getSocketFactory());
 
-            HttpsURLConnection.setDefaultHostnameVerifier((s, sslSession) -> true);
+            HttpsURLConnection.setDefaultHostnameVerifier(
+                    HttpsURLConnection.getDefaultHostnameVerifier());
         } catch (GeneralSecurityException e) {
             // ignore
         }
