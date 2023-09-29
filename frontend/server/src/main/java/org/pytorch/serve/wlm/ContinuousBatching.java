@@ -102,6 +102,9 @@ public class ContinuousBatching extends BatchAggregator {
                                 .get(org.pytorch.serve.util.messages.RequestInput.TS_STREAM_NEXT);
                 if (streamNext != null && streamNext.equals("false")) {
                     jobs.remove(jobId);
+                } else if (!job.isOpen()){
+                    jobs.remove(job.getJobId());
+                    logger.info("Connection to client got closed; Removing job: {}",job.getPayload().getRequestId());
                 }
             }
         } else {

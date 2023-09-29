@@ -78,4 +78,6 @@ public abstract class Job {
             Map<String, String> responseHeaders);
 
     public abstract void sendError(int status, String error);
+
+    public abstract boolean isOpen();
 }
