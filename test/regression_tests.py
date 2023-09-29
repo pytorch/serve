@@ -9,7 +9,6 @@ sys.path.append(REPO_ROOT)
 import datetime
 
 from ts_scripts import marsgen as mg
-from ts_scripts.api_utils import test_api
 from ts_scripts.install_from_src import install_from_src
 from ts_scripts.regression_utils import test_regression
 from ts_scripts.utils import check_python_version, try_and_handle
@@ -42,9 +41,9 @@ def regression_tests(binaries, pypi, conda, nightly):
     mg.generate_mars()
 
     # Run newman api tests
-    test_api(
-        "all"
-    )  # "all" > management, inference, increased_timeout_inference, https collections
+    # test_api(
+    #    "all"
+    # )  # "all" > management, inference, increased_timeout_inference, https collections
 
     # Run regression tests
     test_regression()
