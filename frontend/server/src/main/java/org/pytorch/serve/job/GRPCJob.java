@@ -146,4 +146,10 @@ public class GRPCJob extends Job {
                             .asRuntimeException());
         }
     }
+
+    @Override
+    public boolean isOpen() {
+        return ((ServerCallStreamObserver<PredictionResponse>) predictionResponseObserver)
+                    .isCancelled();
+    }
 }

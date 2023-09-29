@@ -54,11 +54,11 @@ def model_store(tmp_path_factory):
 def torchserve(model_store):
     test_utils.torchserve_cleanup()
 
-    test_utils.start_torchserve(
+    pipe = test_utils.start_torchserve(
         model_store=model_store, no_config_snapshots=True, gen_mar=False
     )
 
-    yield
+    yield pipe
 
     test_utils.torchserve_cleanup()
 

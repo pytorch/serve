@@ -4,6 +4,7 @@ import static org.pytorch.serve.util.messages.RequestInput.TS_STREAM_NEXT;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.DefaultHttpContent;
@@ -16,6 +17,7 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.util.CharsetUtil;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -258,5 +260,11 @@ public class RestJob extends Job {
 
     public void setResponsePromise(CompletableFuture<byte[]> responsePromise) {
         this.responsePromise = responsePromise;
+    }
+
+    @Override
+    public boolean isOpen() {
+        Channel c = ctx.channel();
+        return c.isOpen();
     }
 }

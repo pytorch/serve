@@ -2,6 +2,7 @@ import json
 import shutil
 from argparse import Namespace
 from pathlib import Path
+from queue import Empty
 from unittest.mock import MagicMock, patch
 from zipfile import ZIP_STORED, ZipFile
 
@@ -69,7 +70,7 @@ def create_mar_file(work_dir, model_archiver, model_name):
     # mar_file_path.unlink(missing_ok=True)
 
 
-@pytest.fixture(scope="module", name="model_name")
+@pytest.fixture(scope="module", name="model_name_and_stdout")
 def register_model(mar_file_path, model_store, torchserve):
     """
     Register the model in torchserve
@@ -90,12 +91,13 @@ def register_model(mar_file_path, model_store, torchserve):
 
     test_utils.reg_resp = test_utils.register_model_with_params(params)
 
-    yield model_name
+    yield model_name, torchserve
 
     test_utils.unregister_model(model_name)
 
 
-def test_echo_stream_inference(model_name):
+def test_echo_stream_inference(model_name_and_stdout):
+    model_name, _ = model_name_and_stdout
     responses = []
     data = [
         {
@@ -206,3 +208,39 @@ def test_decoding_stage(monkeypatch):
     assert ctx.cache["id2"]["encoded"]["input_ids"].size()[-1] == 11
     assert ctx.cache["id2"]["encoded"]["attention_mask"].size()[-1] == 11
     
+    
+def test_closed_connection(model_name_and_stdout):
+    model_name, stdout = model_name_and_stdout
+    
+    # Empty queue
+    while not stdout.empty():
+        stdout.get_nowait()
+    
+    data = {
+        "prompt": "The capital of France",
+        "max_new_tokens": 500,
+        }
+    
+    with requests.Session() as s:
+        res = s.post(
+            url=f"http://localhost:8080/predictions/{model_name}",
+            data=json.dumps(data),
+            stream=True,
+        )
+        
+        for chunk in res.iter_content(chunk_size=None):
+            # Close connection after the first id has been received
+            break
+    
+    lines = []
+    while True:
+        try:
+            lines.append(stdout.get(timeout=5))
+        except Empty:
+            assert 0, "Queue timed out"
+        
+        if "Connection to client got closed; Removing job:" in lines[-1]:
+            break
+    
+    # We expect the model to only run two times at most due to the closed connection
+    assert len(list(filter(lambda x: "Backend received inference at" in x, lines))) <=2
