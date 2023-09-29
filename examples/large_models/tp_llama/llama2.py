@@ -612,15 +612,7 @@ class Llama:
         model.to_empty(device='cuda')
         model.reset_parameters()
         log.debug(f"Rank {dist.get_rank()}: created FSDP model {model}")
-        # Convert state_dict from fairscale + load in to FSDP
-        # _load_checkpoint(
-        #     mesh, 
-        #     model=model,
-        #     meta_model=cloned_meta_model,
-        #     model_parallel_size=model_parallel_size,
-        #     ckpt_dir=ckpt_dir,
-        # )
-         
+
         _load_tp_checkpoints(model,converted_ckpt_dir)
         param_numel = sum(p.numel() for p in model.parameters())
         log.debug(
