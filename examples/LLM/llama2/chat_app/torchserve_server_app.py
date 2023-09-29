@@ -40,19 +40,15 @@ def register_model():
         server_state_container.caption("TorchServe is not running. Start it")
         return
     url = (
-        "http://localhost:8081/models?model_name="
-        + MODEL_NAME
-        + "&url="
-        + MODEL_NAME
-        + ".tar.gz"
-        + "&initial_workers=1&synchronous=true"
+        f"http://localhost:8081/models?model_name={MODEL_NAME}&url={MODEL_NAME}"
+        f".tar.gz&initial_workers=1&synchronous=true"
     )
     _register_model(url)
 
 
 def get_status():
     if st.session_state.registered:
-        url = "http://localhost:8081/models/" + MODEL_NAME
+        url = f"http://localhost:8081/models/{MODEL_NAME}"
         res = requests.get(url)
         if res.status_code != 200:
             model_state_container.error("Error getting model status", icon="🚫")
@@ -65,11 +61,8 @@ def scale_workers(workers):
     if st.session_state.registered:
         num_workers = st.session_state[workers]
         url = (
-            "http://localhost:8081/models/"
-            + MODEL_NAME
-            + "?min_worker="
-            + str(num_workers)
-            + "&synchronous=true"
+            f"http://localhost:8081/models/{MODEL_NAME}?min_worker="
+            f"{str(num_workers)}&synchronous=true"
         )
         res = requests.put(url)
         server_state_container.caption(res.text)
@@ -77,50 +70,32 @@ def scale_workers(workers):
 
 def set_batch_size(batch_size):
     if st.session_state.registered:
-        url = "http://localhost:8081/models/" + MODEL_NAME + "/1.0"
+        url = f"http://localhost:8081/models/{MODEL_NAME}/1.0"
         res = requests.delete(url)
         server_state_container.caption(res.text)
         st.session_state.registered = False
 
         batch_size = st.session_state[batch_size]
         url = (
-            "http://localhost:8081/models?model_name="
-            + MODEL_NAME
-            + "&url="
-            + MODEL_NAME
-            + ".tar.gz"
-            + "&batch_size="
-            + str(batch_size)
-            + "&initial_workers="
-            + str(workers)
-            + "&synchronous=true"
-            + "&max_batch_delay="
-            + str(max_batch_delay)
+            f"http://localhost:8081/models?model_name={MODEL_NAME}&url={MODEL_NAME}"
+            f".tar.gz&batch_size={str(batch_size)}&initial_workers={str(workers)}"
+            f"&synchronous=true&max_batch_delay={str(max_batch_delay)}"
         )
         _register_model(url)
 
 
 def set_max_batch_delay(max_batch_delay):
     if st.session_state.registered:
-        url = "http://localhost:8081/models/" + MODEL_NAME + "/1.0"
+        url = f"http://localhost:8081/models/{MODEL_NAME}/1.0"
         res = requests.delete(url)
         server_state_container.caption(res.text)
         st.session_state.registered = False
 
         max_batch_delay = st.session_state[max_batch_delay]
         url = (
-            "http://localhost:8081/models?model_name="
-            + MODEL_NAME
-            + "&url="
-            + MODEL_NAME
-            + ".tar.gz"
-            + "&batch_size="
-            + str(batch_size)
-            + "&initial_workers="
-            + str(workers)
-            + "&synchronous=true"
-            + "&max_batch_delay="
-            + str(max_batch_delay)
+            f"http://localhost:8081/models?model_name={MODEL_NAME}&url="
+            f"{MODEL_NAME}.tar.gz&batch_size={str(batch_size)}&initial_workers="
+            f"{str(workers)}&synchronous=true&max_batch_delay={str(max_batch_delay)}"
         )
         _register_model(url)
 
