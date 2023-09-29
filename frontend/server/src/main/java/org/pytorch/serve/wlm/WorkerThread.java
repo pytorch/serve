@@ -116,17 +116,18 @@ public class WorkerThread implements Runnable {
     public String getGpuUsage() {
         Process process;
         StringBuffer gpuUsage = new StringBuffer();
-        if (gpuId >= 0) {
+
+        int validatedGpuId;
+        try {
+            validatedGpuId = Integer.parseInt(gpuId);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Invalid GPU ID");
+        }
+
+        if (validatedGpuId >= 0) {
             try {
                 // TODO : add a generic code to capture gpu details for different devices instead of
                 // just NVIDIA
-                // Ensure gpuId is a valid number
-                int validatedGpuId;
-                try {
-                    validatedGpuId = Integer.parseInt(gpuId);
-                } catch (NumberFormatException e) {
-                    throw new IllegalArgumentException("Invalid GPU ID");
-                }
 
                 // Use an array to pass arguments
                 String[] cmd = {
@@ -137,8 +138,7 @@ public class WorkerThread implements Runnable {
                     "--format=csv"
                 };
 
-                Process process = Runtime.getRuntime().exec(cmd);
-                process.waitFor();
+                process = Runtime.getRuntime().exec(cmd);
                 process.waitFor();
                 int exitCode = process.exitValue();
                 if (exitCode != 0) {
