@@ -121,14 +121,22 @@ You can send requests simultaneously to see how quickly TorchServe responds
 
 #### Dynamic Batching
 
+Batching requests is a strategy used to make efficient use of compute resources. TorchServe supports dynamic batching, where the frontend can batch requests if the requests arrive within the max_batch_delay time.
 You can make use of dynamic batching in TorchServe by configuring the `batch_size` and `max_batch_delay` parameters in TorchServe. You can do this on the Server app.
+
+You can read more about batching in TorchServe [here](https://github.com/pytorch/serve/blob/master/docs/batch_inference_with_ts.md)
 
 ![Batch Size](./screenshots/batch_size.png)
 
 #### Backend Workers
 
+TorchServe's backend workers perform the actual model inference.
 You can increase the number of backend workers in TorchServe by configuring  `min_workers` parameter in TorchServe. You can do this on the Server app.
 
-The number of workers can be autoscaled based on the traffic and usage patterns
+The number of workers can be autoscaled based on the traffic and usage patterns.
+
+Number of workers = Number of TorchServe python processeses
+
+So to reduce latency and improve performance, we can increase the number of workers for paralell processing of requests.
 
 ![Workers](./screenshots/Workers.png)
