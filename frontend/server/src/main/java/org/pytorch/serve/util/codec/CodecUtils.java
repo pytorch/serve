@@ -18,7 +18,9 @@ public final class CodecUtils {
     public static int readLength(ByteBuf byteBuf, int maxLength) {
         int size = byteBuf.readableBytes();
 
-        if (size < 4) throw new NotEnoughDataDecoderException("Did not receive enough data.");
+        if (size < 4) {
+            throw new NotEnoughDataDecoderException("Did not receive enough data.");
+        }
 
         int len = byteBuf.readInt();
         if (len > maxLength) {
