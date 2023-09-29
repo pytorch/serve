@@ -90,7 +90,7 @@ public final class NettyUtils {
 
     public static void sendJsonResponse(
             ChannelHandlerContext ctx, String json, HttpResponseStatus status) {
-        FullHttpResponse resp = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, status, false);
+        FullHttpResponse resp = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, status, true);
         resp.headers().set(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.APPLICATION_JSON);
         ByteBuf content = resp.content();
         content.writeCharSequence(json, CharsetUtil.UTF_8);
