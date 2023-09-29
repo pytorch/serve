@@ -70,6 +70,15 @@ You might need to run the below command if the script output indicates it.
 sudo xcodebuild -license
 ```
 
+The script is setting an env variable `LLAMA2_Q4_MODEL` and using this in the handler. In an actual use-case, you would set the path to the weights in `model-config.yaml`
+
+```
+handler:
+    model_name: "llama-cpp"
+    model_path: "<absolute path to the weights file"
+```
+
+
 #### Start TorchServe
 
 We launch a streamlit app to configure TorchServe. This opens a UI in your browser, which you can use to start/stop TorchServe, register model, change some of the TorchServe parameters

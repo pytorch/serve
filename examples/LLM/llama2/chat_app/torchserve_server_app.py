@@ -37,7 +37,7 @@ def _register_model(url):
 
 def register_model():
     if not st.session_state.started:
-        server_state_container.caption("TorchServe has stopped. Start it")
+        server_state_container.caption("TorchServe is not running. Start it")
         return
     url = (
         "http://localhost:8081/models?model_name="
@@ -72,9 +72,6 @@ def scale_workers(workers):
             + "&synchronous=true"
         )
         res = requests.put(url)
-        # if res.status_code != 200:
-        #    state_container.write(res.text)
-
         server_state_container.caption(res.text)
 
 
@@ -135,7 +132,6 @@ if "stopped" not in st.session_state:
 if "registered" not in st.session_state:
     st.session_state.registered = False
 
-# Replicate Credentials
 with st.sidebar:
     st.title("🦙💬 Llama 2 TorchServe Server ")
 
