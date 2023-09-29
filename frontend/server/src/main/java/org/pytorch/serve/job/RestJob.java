@@ -17,7 +17,6 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.util.CharsetUtil;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;

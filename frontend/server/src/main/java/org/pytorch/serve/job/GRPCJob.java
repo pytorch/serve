@@ -150,6 +150,6 @@ public class GRPCJob extends Job {
     @Override
     public boolean isOpen() {
         return ((ServerCallStreamObserver<PredictionResponse>) predictionResponseObserver)
-                    .isCancelled();
+                .isCancelled();
     }
 }
