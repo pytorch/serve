@@ -239,7 +239,13 @@ public final class ModelManager {
 
             ProcessBuilder processBuilder = new ProcessBuilder(commandParts);
             processBuilder.directory(model.getModelDir().getAbsoluteFile());
-            processBuilder.environment().putAll(envp);
+            Map<String, String> environment = processBuilder.environment();
+            for (String envVar : envp) {
+                String[] parts = envVar.split("=", 2);
+                if (parts.length == 2) {
+                    environment.put(parts[0], parts[1]);
+                }
+            }
             Process process = processBuilder.start();
             int exitCode = process.waitFor();
 
