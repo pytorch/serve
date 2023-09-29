@@ -135,8 +135,8 @@ You can increase the number of backend workers in TorchServe by configuring  `mi
 
 The number of workers can be autoscaled based on the traffic and usage patterns.
 
-Number of workers = Number of TorchServe python processeses
+Number of workers = Number of TorchServe python processes
 
-So to reduce latency and improve performance, we can increase the number of workers for paralell processing of requests.
+So to reduce latency and improve performance, we can increase the number of workers for parallel processing of requests.
 
 ![Workers](./screenshots/Workers.png)
