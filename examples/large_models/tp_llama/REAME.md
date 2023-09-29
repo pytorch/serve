@@ -1,8 +1,8 @@
 # Loading large Huggingface models with constrained resources using accelerate
 
-This document briefs on serving the [Llama 2](https://huggingface.co/meta-llama) as presented in the original [Llama repo](https://github.com/facebookresearch/llama/tree/main) using PyTorch(PT) Tensor Parallel (TP) APIs, which under the hood make use of DTensors. It basically, take a sharding plan for linear layers in MLP and Attention blocks of Llama2 model and just simply wrap the model given the sharding plan. In the following, we show the steps how to serve the Llama2 7-70B  model with Torchserve.
+This document briefs on serving the [Llama 2](https://huggingface.co/meta-llama) as presented in the original [Llama repo](https://github.com/facebookresearch/llama/tree/main) using PyTorch(PT) Tensor Parallel (TP) APIs, which under the hood make use of DTensors. It basically, takes a sharding plan for linear layers in MLP and Attention blocks of Llama2 model and make a TP model distributed over multiple GPUs. In the following, we show the steps how to use this and serve the Llama2 7-70B model with Torchserve.
 
-Here we convert the Meta Llama model, which is based on Fairscale TP layers to PT distributed compliant checkpoints and use PT TP (DTensor) API to run the Distributed inference.
+Here we convert the Meta Llama2 model, which is based on Fairscale TP layers to PT distributed compliant checkpoints and use PT TP (DTensor) API to run the Distributed inference.
 
 **Note** The following has been tested on A100 GPUs with 40 GB memory so far.
 
@@ -10,9 +10,9 @@ Here we convert the Meta Llama model, which is based on Fairscale TP layers to P
 ### How to use it?
 
 
-1- Make sure you have access to llama weights on [HF model hub](https://huggingface.co/meta-llama), there is form you need to fill up and within few mins you will get access. ANy model name on the hub **without -hf** is Meta/FAIR weight.
+1- Make sure you have access to Llama2 weights on [HF model hub](https://huggingface.co/meta-llama), there is a form you need to fill up and within few mins you will get access. Any Llama2 model name on the hub **without -hf** is Meta/FAIR weight.
 
-Make sure you you are signed up in HF as well, you will need you API token than can be access from [here](https://huggingface.co/settings/tokens), note to use the same email for accessing the weights as email you signed in to HF.
+Make sure you are signed up in HF as well, you will need your API token than can be accessed from [here](https://huggingface.co/settings/tokens), make sure to use the same email for accessing the weights as email you signed in to HF.
 
 Once you have the access, in your terminal login to HF
 
@@ -34,7 +34,7 @@ pip install transformers
 
 ### Step 2: Download model
 
-Login into HuggingFace hub with token by running the below command, **make sure to specify the right name for the model from [HuggingFace (HF) model hub](https://huggingface.co/meta-llama), any model name on the model hub without -hf is Meta original model/ checkpoints and we need them not the HF converted versions.**
+Login into HuggingFace hub with token by running the below command, **make sure to specify the right name for the Llama2 model from [HuggingFace (HF) model hub](https://huggingface.co/meta-llama), any model name on the model hub without -hf is Meta original model/ checkpoints and we need them not the HF converted versions.**
 
 
 
@@ -53,7 +53,7 @@ The script prints the path where the model is downloaded as below.
 
 ### Step 3: Convert the "Meta" checkpoints to PyTorch Distributed compliant checkpoints
 
-Convert the checkpoints to  PT-D compliant checkpoints as follows, note that for 7B `model_parallel_size 1` for 13B would be `model_parallel_size 2` and 70B `model_parallel_size 8`, you can also set `--nproc_per_node ` accordingly. PT-D compliant support flexible world_size when loading back the checkpoints into TP(lized) model. 
+Convert the checkpoints to  PT-D compliant checkpoints as follows, note that for 7B `--model_parallel_size 1` for 13B would be `--model_parallel_size 2` and 70B `model_parallel_size 8`, you can also set `--nproc_per_node ` accordingly. PT-D compliant support flexible world_size when loading back the checkpoints into TP(lized) model. 
 
 You would be able to use larger number of processes/ TP size when load the model back. For example if you have converted the `13B` checkpoints with `--nproc_per_node 2`, during the inference you can use `--nproc_per_node 8` which you are changing the world_size and effectively the TP size.
 
@@ -89,15 +89,21 @@ handler:
     model_args_path: "PATH/TO/model_args.json"
     max_seq_len: 512
     max_batch_size: 6
-    max_new_tokens: 200
+    max_new_tokens: 50
     temperature: 0.6
     top_p: 0.9
     manual_seed: 40
-    mode: "chat" #choices are text_completion, chat
+    mode: "text_completion" #choices are text_completion, chat
 ```
 
+### step 5: Create the mar file:
+Create the mar file using the following command here. 
 
-### Step 5: Serve the model:
+```
+ torch-model-archiver --model-name llama --version 1.0 --handler llama-handler.py --config-file model-config.yaml --archive-format tgz --extra-files "llama2.py,llama2_tokenizer.py,generate.py,checkpoint_converter.py" 
+```
+
+### Step 6: Serve the model:
 
 ```
 torchserve --ncs --start --model-store model_store --models llama.tar.gz
