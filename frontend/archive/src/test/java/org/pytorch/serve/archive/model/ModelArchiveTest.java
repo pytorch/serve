@@ -202,7 +202,7 @@ public class ModelArchiveTest {
                 "https://torchserve.pytorch.org/mar_files/mnist.mar");
     }
 
-    @Test(expectedExceptions = llegalArgumentException.class)
+    @Test(expectedExceptions = IllegalArgumentException.class)
     public void testMalformLocalURL()
             throws ModelException, IOException, InterruptedException, DownloadArchiveException,
                     IllegalArgumentException {

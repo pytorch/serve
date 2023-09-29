@@ -21,7 +21,6 @@ public final class HttpUtils {
 
     private static void validateURL(URL url) {
         if ("file".equalsIgnoreCase(url.getProtocol())) {
-            // For local file URLs, you might want to check if the file exists or just return
             File file = new File(url.getPath());
             if (!file.exists()) {
                 throw new IllegalArgumentException("Local file does not exist.");
