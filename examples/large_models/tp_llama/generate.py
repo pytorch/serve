@@ -338,38 +338,4 @@ def chat_completion(
         for t, unsafe in zip(generation_tokens, unsafe_requests)
     ]
 
-
-
-def token_generation(
-    model_args: str,
-    converted_ckpt_dir: str,
-    tokenizer_path: str,
-    ):
-    dist.init_process_group("nccl")
-    
-      
-    llama_model_and_tok = Llama.build(
-            model_args=model_args,
-            converted_ckpt_dir=converted_ckpt_dir,
-            tokenizer_path= tokenizer_path,
-        )
-    model = llama_model_and_tok.model
-    
-    print(model)
-    tokenizer = llama_model_and_tok.tokenizer
-    print("model is done")
-    #plan to pass the model to convert checkpoints 
-    
-    prompt =[tokenizer.encode("how does it feel to be the first test case", bos=True,eos=False)]
-    
-    generation_tokens, generation_logprobs = generate(model,
-                                                        tokenizer,
-                                                        prompt_tokens=prompt,
-                                                        max_gen_len= 100,
-                                                        temperature = 0.6,
-                                                        top_p= 0.9,
-                                                    )
-    print([{"generation": tokenizer.decode(t)} for t in generation_tokens])
-if __name__ == "__main__":
-    fire.Fire(token_generation)
     
