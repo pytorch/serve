@@ -37,11 +37,11 @@ Use `build_image.sh` script to build the docker images. The script builds the `p
 |-bi, --baseimage specify base docker image. Example: nvidia/cuda:11.8.0-cudnn8-runtime-ubuntu20.04|
 |-bt, --buildtype|Which type of docker image to build. Can be one of : production, dev, ci, codebuild|
 |-t, --tag|Tag name for image. If not specified, script uses torchserve default tag names.|
-|-cv, --cudaversion| Specify to cuda version to use. Supported values `cu92`, `cu101`, `cu102`, `cu111`, `cu113`, `cu116`, `cu117`, `cu118`. Default `cu117`|
+|-cv, --cudaversion| Specify to cuda version to use. Supported values `cu92`, `cu101`, `cu102`, `cu111`, `cu113`, `cu116`, `cu117`, `cu118`. `cu121`, Default `cu121`|
 |-ipex, --build-with-ipex| Specify to build with intel_extension_for_pytorch. If not specified, script builds without intel_extension_for_pytorch.|
 |-n, --nightly| Specify to build with TorchServe nightly.|
 |--codebuild| Set if you need [AWS CodeBuild](https://aws.amazon.com/codebuild/)|
-|-py, --pythonversion| Specify the python version to use. Supported values `3.8`, `3.9`, `3.10`. Default `3.9`|
+|-py, --pythonversion| Specify the python version to use. Supported values `3.8`, `3.9`, `3.10`, `3.11`. Default `3.9`|
 
 
 **PRODUCTION ENVIRONMENT IMAGES**
