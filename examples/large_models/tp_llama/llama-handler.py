@@ -53,12 +53,6 @@ class LlamaHandler(BaseHandler,ABC):
         self.manifest = ctx.manifest
         properties = ctx.system_properties
         model_dir = properties.get("model_dir")
-        
-        self.device = torch.device(
-            "cuda:" + str(properties.get("gpu_id"))
-            if torch.cuda.is_available() and properties.get("gpu_id") is not None
-            else "cpu"
-        )
 
         seed = ctx.model_yaml_config["handler"]["manual_seed"]
         self.mode = ctx.model_yaml_config["handler"]["mode"]
@@ -98,16 +92,14 @@ class LlamaHandler(BaseHandler,ABC):
         input_texts = [data.get("data") or data.get("body") for data in requests]
         
         if self.mode == "chat":
-            dialogs_list = []
-            for text in input_texts:
-                if text:
-                    try:
-                        dialog = json.loads(text)
-                        dialogs_list.append(dialog)
-                    except json.JSONDecodeError:
-                        raise ValueError(f"Invalid JSON format in text: {text}")
-            return dialogs_list
-            
+            if input_texts:
+                
+                try:
+                    dialog = json.loads(input_texts[0])
+                except json.JSONDecodeError:
+                    raise ValueError(f"Invalid JSON format in text: {input_texts[0]}")
+                return dialog
+              
         elif self.mode == "text_completion":
             try:
                 return [self.prep_input_text(text) for text in input_texts]
@@ -139,19 +131,16 @@ class LlamaHandler(BaseHandler,ABC):
         Returns:
             list: A list of strings with the predicted values for each input text in the batch.
         """
-        
-        print("in the inference call")
-        if self.mode == "chat":
             
-            for dialog in input_batch:
-                results = chat_completion(
-                        self.model,
-                        self.tokenizer,
-                        dialog,
-                        max_gen_len=self.max_new_tokens,
-                        temperature=self.temperature,
-                        top_p=self.top_p,
-                    )
+        if self.mode == "chat":
+            results = chat_completion(
+                    self.model,
+                    self.tokenizer,
+                    input_batch,
+                    max_gen_len=self.max_new_tokens,
+                    temperature=self.temperature,
+                    top_p=self.top_p,
+                )
             
         elif self.mode == "text_completion":
             results = text_completion(
