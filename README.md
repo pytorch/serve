@@ -77,6 +77,7 @@ Refer to [torchserve docker](docker/README.md) for details.
 
 
 ## 🏆 Highlighted Examples
+* [Chatbot with Llama 2 on Mac 🦙💬](examples/LLM/llama2/chat_app)
 * [🤗 HuggingFace Transformers](examples/Huggingface_Transformers) with a [Better Transformer Integration/ Flash Attention & Xformer Memory Efficient ](examples/Huggingface_Transformers#Speed-up-inference-with-Better-Transformer)
 * [Model parallel inference](examples/Huggingface_Transformers#model-parallelism)
 * [MultiModal models with MMF](https://github.com/pytorch/serve/tree/master/examples/MMF-activity-recognition) combining text, audio and video

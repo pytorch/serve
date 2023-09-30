@@ -96,7 +96,7 @@ public abstract class HttpRequestHandlerChain {
                     Long start = System.currentTimeMillis();
                     FullHttpResponse rsp =
                             new DefaultFullHttpResponse(
-                                    HttpVersion.HTTP_1_1, HttpResponseStatus.OK, false);
+                                    HttpVersion.HTTP_1_1, HttpResponseStatus.OK, true);
                     try {
                         run(endpoint, req, rsp, decoder, req.method().toString());
                         NettyUtils.sendHttpResponse(ctx, rsp, true);
