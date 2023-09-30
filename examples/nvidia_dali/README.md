@@ -34,7 +34,7 @@ Create a new directory `model_store` and move the model-archive file
 
 ```bash
 mkdir model_store
-mv mnist.mar model_store/
+mv resnet-18.mar model_store/
 ```
 
 ### Start the torchserve
@@ -50,6 +50,8 @@ Get the inference for a sample image using the below command
 ```bash
 curl http://127.0.0.1:8080/predictions/resnet -T ./examples/image_classifier/kitten.jpg
 ```
+
+:Note: The above example uses the default pipeline `default.dali` which will be generated in the path `/serve/ts/handler_utils/preprocess/built-in/` using the scipt `/serve/ts/handler_utils/preprocess/built-in/dali_pipeline_generation.py` during build.
 
 ## DALI Pre-Processing in a Custom Handler for mnist model
 
