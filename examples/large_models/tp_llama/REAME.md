@@ -58,10 +58,10 @@ Convert the checkpoints to  PT-D compliant checkpoints as follows, note that for
 You would be able to use larger number of processes/ TP size when load the model back. For example if you have converted the `13B` checkpoints with `--nproc_per_node 2`, during the inference you can use `--nproc_per_node` be `[2, max_num_available_gpu]` which you are changing the world_size and effectively the TP size.
 
 
-This will save the model args in `model_args.json`, during the inference step you need to pass this json file for build the model.
+This will save the model args in `model_args.json`, during the inference step you need to pass this json file for build the model. Make sure you are setting  `--max_seq_len` which is the maximum sequence length for input text (context length) and `--max_batch_size` which is maximum batch size for inference to respective values. These two values will be used to construct the KV cache.
 
 ```
-torchrun --nnodes 1 --nproc_per_node 8 convert_checkpoints.py --original_ckpt_dir  PATH/TO/MODEL/CHECKPOINTS  --tokenizer_path PATH/TO/MODEL/CHECKPOINTS/tokenizer.model --model_parallel_size 1 --save_checkpoint_dir converted_checkpoints
+torchrun --nnodes 1 --nproc_per_node 8 convert_checkpoints.py --original_ckpt_dir  PATH/TO/MODEL/CHECKPOINTS  --tokenizer_path PATH/TO/MODEL/CHECKPOINTS/tokenizer.model --model_parallel_size 1 --save_checkpoint_dir converted_checkpoints --max_seq_len 512 --max_batch_size 2
 
 ```
 
