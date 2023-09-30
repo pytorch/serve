@@ -10,9 +10,9 @@
    For GPU
     - Install dependencies (if not already installed)
    ```bash
-   python ts_scripts/install_dependencies.py --environment=dev --cuda=cu102
+   python ts_scripts/install_dependencies.py --environment=dev --cuda=cu121
    ```
-   > Supported cuda versions as cu118, cu117, cu116, cu113, cu111, cu102, cu101, cu92
+   > Supported cuda versions as cu121, cu118, cu117, cu116, cu113, cu111, cu102, cu101, cu92
 
  - Execute sanity suite
    ```bash
