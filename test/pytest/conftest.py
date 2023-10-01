@@ -20,7 +20,7 @@ collect_ignore.append("test_sm_mme_requirements.py")
 collect_ignore.append("test_example_dcgan.py")
 
 # ldconfig dependency issue
-collect_ignore.append("test_torch_compile")
+collect_ignore.append("test_torch_compile.py")
 
 @pytest.fixture(scope="module")
 def model_archiver():
