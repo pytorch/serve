@@ -128,7 +128,7 @@ class Attention(nn.Module):
         max_seq_len: int,
     ):
         super().__init__()
-        tp_degree = 8
+        tp_degree = int(os.environ["WORLD_SIZE"])
         self.n_kv_heads = n_heads if n_kv_heads is None else n_kv_heads
         self.n_local_heads = n_heads//tp_degree
         self.n_local_kv_heads = self.n_kv_heads//tp_degree
