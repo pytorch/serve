@@ -454,14 +454,13 @@ See <a class="reference external" href="#enable-ssl">Enable SSL</a> to configure
 <li><p><code class="docutils literal notranslate"><span class="pre">inference_address</span></code>: Inference API binding address. Default: <code class="docutils literal notranslate"><span class="pre">http://127.0.0.1:8080</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">management_address</span></code>: Management API binding address. Default: <code class="docutils literal notranslate"><span class="pre">http://127.0.0.1:8081</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">metrics_address</span></code>: Metrics API binding address. Default: <code class="docutils literal notranslate"><span class="pre">http://127.0.0.1:8082</span></code></p></li>
-<li><p>To run predictions on models on a public IP address, specify the IP address as <code class="docutils literal notranslate"><span class="pre">0.0.0.0</span></code>.
-To run predictions on models on a specific IP address, specify the IP address and port.</p></li>
+<li><p>To run predictions on models on a specific IP address, specify the IP address and port.</p></li>
 </ul>
-<div class="highlight-properties notranslate"><div class="highlight"><pre><span></span><span class="c1"># bind inference API to all network interfaces with SSL enabled</span>
-<span class="na">inference_address</span><span class="o">=</span><span class="s">https://0.0.0.0:8443</span>
+<div class="highlight-properties notranslate"><div class="highlight"><pre><span></span><span class="c1"># bind inference API to localhost with SSL enabled</span>
+<span class="na">inference_address</span><span class="o">=</span><span class="s">https://127.0.0.1:8443</span>
 </pre></div>
 </div>
-<div class="highlight-properties notranslate"><div class="highlight"><pre><span></span><span class="c1"># bind inference API to private network interfaces</span>
+<div class="highlight-properties notranslate"><div class="highlight"><pre><span></span><span class="c1"># bind inference API to private network interfaces with SSL enabled</span>
 <span class="na">inference_address</span><span class="o">=</span><span class="s">https://172.16.1.10:8080</span>
 </pre></div>
 </div>

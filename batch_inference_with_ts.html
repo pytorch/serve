@@ -424,7 +424,7 @@ TorchServe needs to know the maximum batch size that the model can handle and th
 requests before this timer time’s out, it sends what ever requests that were received to the model <code class="docutils literal notranslate"><span class="pre">handler</span></code>.</p></li>
 </ol>
 <p>Let’s look at an example using this configuration through management API:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># The following command will register a model &quot;resnet-152.mar&quot; and configure TorchServe to use a batch_size of 8 and a max batch delay of 50 milliseconds. </span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># The following command will register a model &quot;resnet-152.mar&quot; and configure TorchServe to use a batch_size of 8 and a max batch delay of 50 milliseconds.</span>
 curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">&quot;localhost:8081/models?url=resnet-152.mar&amp;batch_size=8&amp;max_batch_delay=50&quot;</span>
 </pre></div>
 </div>
@@ -465,8 +465,8 @@ The frontend then tries to aggregate the batch-size number of requests and send 
 </ul>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$ cat config.properties
 ...
-inference_address=http://0.0.0.0:8080
-management_address=http://0.0.0.0:8081
+inference_address=http://127.0.0.1:8080
+management_address=http://127.0.0.1:8081
 ...
 $ torchserve --start --model-store model_store
 </pre></div>
@@ -646,9 +646,9 @@ models={\
 <ul class="simple">
 <li><p>Set the batch <code class="docutils literal notranslate"><span class="pre">batch_size</span></code> and <code class="docutils literal notranslate"><span class="pre">max_batch_delay</span></code>  in the config.properties as referenced in the <a class="reference external" href="../docker/dockerd-entrypoint.sh">dockered_entrypoint.sh</a></p></li>
 </ul>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>inference_address=http://0.0.0.0:8080
-management_address=http://0.0.0.0:8081
-metrics_address=http://0.0.0.0:8082
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>inference_address=http://127.0.0.1:8080
+management_address=http://127.0.0.1:8081
+metrics_address=http://127.0.0.1:8082
 number_of_netty_threads=32
 job_queue_size=1000
 model_store=/home/model-server/model-store
