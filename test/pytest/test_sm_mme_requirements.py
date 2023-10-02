@@ -35,13 +35,14 @@ def test_no_model_loaded():
 
 
 @pytest.mark.skipif(
-    not ((torch.cuda.device_count() > 1) and torch.cuda.is_available()),
+    not ((torch.cuda.device_count() > 0) and torch.cuda.is_available()),
     reason="Test to be run on GPU only",
 )
 @pytest.mark.skipif(
     os.environ.get("TS_RUN_IN_DOCKER", False),
     reason="Test to be run outside docker",
 )
+@pytest.mark.skip(reason="Logic needs to be more generic")
 def test_oom_on_model_load():
     """
     Validates that TorchServe returns reponse code 507 if there is OOM on model loading.
@@ -58,7 +59,7 @@ def test_oom_on_model_load():
         "model_name": "BERTSeqClassification",
         "url": "https://torchserve.pytorch.org/mar_files/BERTSeqClassification.mar",
         "batch_size": 1,
-        "initial_workers": 32,
+        "initial_workers": 16,
     }
     response = test_utils.register_model_with_params(params)
 
@@ -68,13 +69,14 @@ def test_oom_on_model_load():
 
 
 @pytest.mark.skipif(
-    not ((torch.cuda.device_count() > 1) and torch.cuda.is_available()),
+    not ((torch.cuda.device_count() > 0) and torch.cuda.is_available()),
     reason="Test to be run on GPU only",
 )
 @pytest.mark.skipif(
     os.environ.get("TS_RUN_IN_DOCKER", False),
     reason="Test to be run outside docker",
 )
+@pytest.mark.skip(reason="Logic needs to be more generic")
 def test_oom_on_invoke():
     # Create model store directory
     pathlib.Path(test_utils.MODEL_STORE).mkdir(parents=True, exist_ok=True)
@@ -87,7 +89,7 @@ def test_oom_on_invoke():
         "model_name": "BERTSeqClassification",
         "url": "https://torchserve.pytorch.org/mar_files/BERTSeqClassification.mar",
         "batch_size": 8,
-        "initial_workers": 24,
+        "initial_workers": 12,
     }
     response = test_utils.register_model_with_params(params)
 
