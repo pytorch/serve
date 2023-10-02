@@ -35,7 +35,7 @@ def test_no_model_loaded():
 
 
 @pytest.mark.skipif(
-    not ((torch.cuda.device_count() > 0) and torch.cuda.is_available()),
+    not ((torch.cuda.device_count() > 1) and torch.cuda.is_available()),
     reason="Test to be run on GPU only",
 )
 @pytest.mark.skipif(
