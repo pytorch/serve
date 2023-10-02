@@ -51,7 +51,7 @@ Get the inference for a sample image using the below command
 curl http://127.0.0.1:8080/predictions/resnet -T ./examples/image_classifier/kitten.jpg
 ```
 
-:Note: The above example uses the default pipeline `default.dali` which will be generated in the path `/serve/ts/handler_utils/preprocess/built-in/` using the scipt `/serve/ts/handler_utils/preprocess/built-in/dali_pipeline_generation.py` during build.
+:Note: The above example uses the default pipeline `default.dali` which will be generated in the path `/serve/ts/handler_utils/preprocess/built-in/` using the script `/serve/ts/handler_utils/preprocess/built-in/dali_pipeline_generation.py` during build.
 
 ## DALI Pre-Processing in a Custom Handler for mnist model
 
