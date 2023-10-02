@@ -53,7 +53,7 @@ public final class NettyUtils {
         String remoteIp;
         if (address == null) {
             // This is can be null on UDS, or on certain case in Windows
-            remoteIp = "127.0.0.1";
+            remoteIp = "0.0.0.0";
         } else {
             remoteIp = address.toString();
         }
