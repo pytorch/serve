@@ -16,7 +16,7 @@ concurrency:
 jobs:
   regression-gpu:
     # creates workflows on self hosted runner
-    runs-on: [self-hosted, regression-test-test]
+    runs-on: [self-hosted, regression-test-gpu]
     steps:
       - name: Clean up previous run
         run: |
