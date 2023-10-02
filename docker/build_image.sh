@@ -82,10 +82,10 @@ do
           ;;
         -py|--pythonversion)
           PYTHON_VERSION="$2"
-          if [[ $PYTHON_VERSION = 3.8 || $PYTHON_VERSION = 3.9 || $PYTHON_VERSION = 3.10 ]]; then
+          if [[ $PYTHON_VERSION = 3.8 || $PYTHON_VERSION = 3.9 || $PYTHON_VERSION = 3.10 || $PYTHON_VERSION = 3.11 ]]; then
             echo "Valid python version"
           else
-            echo "Valid python versions are 3.8, 3.9 and 3.10"
+            echo "Valid python versions are 3.8, 3.9 3.10 and 3.11"
             exit 1
           fi
           shift
@@ -94,7 +94,10 @@ do
         # With default ubuntu version 20.04
         -cv|--cudaversion)
           CUDA_VERSION="$2"
-          if [ "${CUDA_VERSION}" == "cu118" ];
+          if [ "${CUDA_VERSION}" == "cu121" ];
+          then
+            BASE_IMAGE="nvidia/cuda:12.1.0-base-ubuntu20.04"
+          elif [ "${CUDA_VERSION}" == "cu118" ];
           then
             BASE_IMAGE="nvidia/cuda:11.8.0-base-ubuntu20.04"
           elif [ "${CUDA_VERSION}" == "cu117" ];
