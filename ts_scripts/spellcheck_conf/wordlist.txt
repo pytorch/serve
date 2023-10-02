@@ -1096,3 +1096,15 @@ AOT
 microbatches
 tokenization
 tp
+DTensor
+DTensors
+Fairscale
+KV
+MLP
+Nighlies
+ae
+ba
+ffa
+lized
+mins
+sharding
