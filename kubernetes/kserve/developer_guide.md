@@ -25,9 +25,9 @@ The above command generates mnist_kf.mar
 Copy the below contents to config.properties and change the model_store path
 
 ```bash
-inference_address=http://0.0.0.0:8085
-management_address=http://0.0.0.0:8081
-metrics_address=http://0.0.0.0:8082
+inference_address=http://127.0.0.1:8085
+management_address=http://127.0.0.1:8081
+metrics_address=http://127.0.0.1:8082
 grpc_inference_port=7070
 grpc_management_port=7071
 enable_envvars_config=true
