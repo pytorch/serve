@@ -41,7 +41,7 @@ jobs:
         if: false == contains(matrix.hardware, 'ubuntu')
         run: |
           cd docker
-          ./build_image.sh -g -cv cu117 -bt ci -n -b $GITHUB_REF_NAME -t pytorch/torchserve:ci
+          ./build_image.sh -g -cv cu121 -bt ci -n -b $GITHUB_REF_NAME -t pytorch/torchserve:ci
       - name: Torchserve GPU Regression Tests
         if: false == contains(matrix.hardware, 'ubuntu')
         run: |

@@ -15,8 +15,8 @@ concurrency:
 
 jobs:
   regression-gpu:
-    # creates workflows for CUDA 11.6 & CUDA 11.7 on ubuntu
-    runs-on: [self-hosted, regression-test-ankith]
+    # creates workflows on self hosted runner
+    runs-on: [self-hosted, regression-test-test]
     steps:
       - name: Clean up previous run
         run: |
