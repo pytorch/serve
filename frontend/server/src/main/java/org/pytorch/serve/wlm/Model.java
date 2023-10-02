@@ -254,9 +254,8 @@ public class Model {
         }
 
         if (!jobsRepo.isEmpty()) {
-            logger.info(
-                    "The jobs repo provided contains stale inference jobs. Skip management job!!");
-            return false;
+            throw new IllegalArgumentException(
+                    "The jobs repo provided contains stale jobs. Clear them!!");
         }
 
         LinkedBlockingDeque<Job> jobsQueue = jobsDb.get(threadId);
@@ -278,6 +277,7 @@ public class Model {
             }
             lock.lockInterruptibly();
             long maxDelay = maxBatchDelay;
+            boolean pollNoWait = jobsRepo.isEmpty() ? false : true;
             jobsQueue = jobsDb.get(DEFAULT_DATA_QUEUE);
 
             Job j = null;
@@ -300,7 +300,11 @@ public class Model {
 
             long begin = System.currentTimeMillis();
             for (int i = 0; i < batchSize - 1; ++i) {
-                j = jobsQueue.poll(maxDelay, TimeUnit.MILLISECONDS);
+                if (pollNoWait) {
+                    j = jobsQueue.poll();
+                } else {
+                    j = jobsQueue.poll(maxDelay, TimeUnit.MILLISECONDS);
+                }
                 if (j == null) {
                     break;
                 }
