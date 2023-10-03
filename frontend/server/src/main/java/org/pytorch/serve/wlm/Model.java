@@ -281,7 +281,7 @@ public class Model {
             jobsQueue = jobsDb.get(DEFAULT_DATA_QUEUE);
 
             Job j = null;
-            if (jobsRepo.size() == 0) {
+            if (jobsRepo.isEmpty()) {
                 j = jobsQueue.poll(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
                 logger.trace("get first job: {}", Objects.requireNonNull(j).getJobId());
 
