@@ -12,6 +12,8 @@ import time
 import torch
 from pkg_resources import packaging
 
+from ts.handler_utils.timer import timed
+
 from ..utils.util import (
     check_valid_pt2_backend,
     list_classes_from_module,
@@ -75,6 +77,13 @@ try:
 except ImportError as error:
     logger.warning("proceeding without onnxruntime")
     ONNX_AVAILABLE = False
+
+try:
+    import torch_tensorrt  # nopycln: import
+
+    logger.info("Torch TensorRT enabled")
+except ImportError:
+    logger.warning("Torch TensorRT not enabled")
 
 
 def setup_ort_session(model_pt_path, map_location):
@@ -189,7 +198,7 @@ class BaseHandler(abc.ABC):
                     backend=pt2_backend,
                 )
                 logger.info(f"Compiled model with backend {pt2_backend}")
-            except e:
+            except Exception as e:
                 logger.warning(
                     f"Compiling model model with backend {pt2_backend} has failed \n Proceeding without compilation"
                 )
@@ -224,7 +233,7 @@ class BaseHandler(abc.ABC):
         Loads the pickle file from the given model path.
 
         Args:
-            model_dir (str): Points to the location of the model artefacts.
+            model_dir (str): Points to the location of the model artifacts.
             model_file (.py): the file which contains the model class.
             model_pt_path (str): points to the location of the model pickle file.
 
@@ -259,6 +268,7 @@ class BaseHandler(abc.ABC):
             model.load_state_dict(state_dict)
         return model
 
+    @timed
     def preprocess(self, data):
         """
         Preprocess function to convert the request input to a tensor(Torchserve supported format).
@@ -273,6 +283,7 @@ class BaseHandler(abc.ABC):
 
         return torch.as_tensor(data, device=self.device)
 
+    @timed
     def inference(self, data, *args, **kwargs):
         """
         The Inference Function is used to make a prediction call on the given input request.
@@ -290,6 +301,7 @@ class BaseHandler(abc.ABC):
             results = self.model(marshalled_data, *args, **kwargs)
         return results
 
+    @timed
     def postprocess(self, data):
         """
         The post process function makes use of the output from the inference and converts into a
@@ -311,7 +323,7 @@ class BaseHandler(abc.ABC):
         Args:
             data (list): The input data that needs to be made a prediction request on.
             context (Context): It is a JSON Object containing information pertaining to
-                               the model artefacts parameters.
+                               the model artifacts parameters.
 
         Returns:
             list : Returns a list of dictionary with the predicted response.
@@ -327,6 +339,9 @@ class BaseHandler(abc.ABC):
         is_profiler_enabled = os.environ.get("ENABLE_TORCH_PROFILER", None)
         if is_profiler_enabled:
             if PROFILER_AVAILABLE:
+                if self.manifest is None:
+                    # profiler will use to get the model name
+                    self.manifest = context.manifest
                 output, _ = self._infer_with_profiler(data=data)
             else:
                 raise RuntimeError(

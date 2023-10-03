@@ -26,9 +26,9 @@ sudo mv mnist.mar /mnt/models/model-store
 and use the following config properties (`/mnt/models/config`)
 
 ```conf
-inference_address=http://0.0.0.0:8085
-management_address=http://0.0.0.0:8085
-metrics_address=http://0.0.0.0:8082
+inference_address=http://127.0.0.1:8085
+management_address=http://127.0.0.1:8085
+metrics_address=http://127.0.0.1:8082
 enable_envvars_config=true
 install_py_dep_per_model=true
 enable_metrics_api=true
@@ -60,7 +60,6 @@ For tensor input, use [totensor](totensor.py) utility
 ```bash
 python totensor.py 0.png
 ```
-
 
 ## Deploying the model in local machine
 
@@ -94,7 +93,6 @@ Expected Output
 {"id": "d3b15cad-50a2-4eaf-80ce-8b0a428bd298", "model_name": "mnist", "model_version": "1.0", "outputs": [{"name": "predict", "shape": [1], "datatype": "INT64", "data": [0]}]}
 ```
 
-
 ## Sample request and response for tensor input
 
 
@@ -105,10 +103,10 @@ curl -v -H "Content-Type: application/json" http://localhost:8080/v2/models/mnis
 ```
 
 Expected output
+
 ```bash
 {"id": "d3b15cad-50a2-4eaf-80ce-8b0a428bd298", "model_name": "mnist", "model_version": "1.0", "outputs": [{"name": "predict", "shape": [1], "datatype": "INT64", "data": [0]}]}
 ```
-
 
 ## Sample request and response for captum
 

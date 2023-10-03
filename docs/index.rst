@@ -57,6 +57,21 @@ What's going on in TorchServe?
    :tags: Performance,Troubleshooting
 
 .. customcarditem::
+   :header: Metrics
+   :card_description: Collecting and viewing Torcherve metrics
+   :image: https://user-images.githubusercontent.com/5276346/234725829-7f60e0d8-c76d-4019-ac8f-7d60069c4e58.png
+   :link: metrics.html
+   :tags: Metrics,Performance,Troubleshooting
+
+
+.. customcarditem::
+   :header: Large Model Inference
+   :card_description: Serving Large Models with TorchServe
+   :image: https://raw.githubusercontent.com/pytorch/serve/master/docs/images/ts-lmi-internal.png
+   :link: large_model_inference.html
+   :tags: Large-Models,Performance
+
+.. customcarditem::
    :header: Troubleshooting
    :card_description: Various updates on Torcherve and use cases.
    :image: https://raw.githubusercontent.com/pytorch/serve/master/benchmarks/snake_viz.png

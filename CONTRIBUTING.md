@@ -20,9 +20,9 @@ Your contributions will fall into two categories:
 
          For GPU
            ```bash
-           python ts_scripts/install_dependencies.py --environment=dev --cuda=cu102
+           python ts_scripts/install_dependencies.py --environment=dev --cuda=cu121
            ```
-            > Supported cuda versions as cu117, cu116, cu113, cu111, cu102, cu101, cu92
+            > Supported cuda versions as cu121, cu118, cu117, cu116, cu113, cu111, cu102, cu101, cu92
         - Install `pre-commit` to your Git flow:
             ```bash
             pre-commit install

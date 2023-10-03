@@ -291,7 +291,7 @@ az group delete --name myResourceGroup --yes --no-wait
 ```
 
 ## Troubleshooting
-  
+
 
   **Troubleshooting Azure Cli login**
 
@@ -299,11 +299,11 @@ az group delete --name myResourceGroup --yes --no-wait
   Otherwise, open a browser page at https://aka.ms/devicelogin and enter the authorization code displayed in your terminal.
   If no web browser is available or the web browser fails to open, use device code flow with az login --use-device-code.
   Or you can login with your credential in command line, more details, see https://docs.microsoft.com/en-us/cli/azure/authenticate-azure-cli.
-  
+
   **Troubleshooting Azure resource for AKS cluster creation**
-  
-  * Check AKS available region, https://azure.microsoft.com/en-us/global-infrastructure/services/?products=kubernetes-service
+
+  * Check AKS available region, https://azure.microsoft.com/en-us/explore/global-infrastructure/products-by-region/?products=kubernetes-service
   * Check AKS quota and VM size limitation, https://docs.microsoft.com/en-us/azure/aks/quotas-skus-regions
   * Check whether your subscription has enough quota to create AKS cluster, https://docs.microsoft.com/en-us/azure/networking/check-usage-against-limits
-  
+
   **For more AKS troubleshooting, please visit https://docs.microsoft.com/en-us/azure/aks/troubleshooting**

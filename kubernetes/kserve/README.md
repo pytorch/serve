@@ -30,10 +30,10 @@ Currently, KServe supports the Inference API for all the existing models but tex
 ./build_image.sh -g -t <repository>/<image>:<tag>
 ```
 
-### Docker Image Dev Build
+- To create dev image
 
 ```bash
-DOCKER_BUILDKIT=1 docker build -f Dockerfile.dev -t pytorch/torchserve-kfs:latest-dev .
+./build_image.sh -g -d -t <repository>/<image>:<tag>
 ```
 
 ## Running Torchserve inference service in KServe cluster
@@ -109,9 +109,9 @@ torch-model-archiver --model-name mnist_kf --version 1.0 --model-file examples/i
 - Step - 2 : Create a config.properties file and place the contents like below:
 
 ```bash
-inference_address=http://0.0.0.0:8085
-management_address=http://0.0.0.0:8081
-metrics_address=http://0.0.0.0:8082
+inference_address=http://127.0.0.1:8085
+management_address=http://127.0.0.1:8081
+metrics_address=http://127.0.0.1:8082
 grpc_inference_port=7070
 grpc_management_port=7071
 enable_envvars_config=true

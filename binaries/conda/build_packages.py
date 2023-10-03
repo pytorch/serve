@@ -15,6 +15,15 @@ CONDA_BINARY = (
     else f"$HOME/miniconda/condabin/conda"
 )
 
+CONDA_PACKAGES_PATH = os.path.join(REPO_ROOT, "binaries", "conda", "output")
+CONDA_LINUX_PACKAGES_PATH = os.path.join(
+    REPO_ROOT, "binaries", "conda", "output", "linux-64"
+)
+PACKAGES = ["torchserve", "torch-model-archiver", "torch-workflow-archiver"]
+
+# conda convert supported platforms https://docs.conda.io/projects/conda-build/en/stable/resources/commands/conda-convert.html
+PLATFORMS = ["linux-64", "osx-64", "win-64"]  # Add a new platform here
+
 if os.name == "nt":
     # Assumes miniconda is installed in windows
     CONDA_BINARY = "conda"
@@ -121,19 +130,32 @@ def conda_build(
 
     os.environ["PYTHON"] = "python"
 
-    python_versions = ["3.8", "3.9", "3.10"]
-    packages = [
-        os.path.join(conda_build_dir, pkg)
-        for pkg in ["torchserve", "torch-model-archiver", "torch-workflow-archiver"]
-    ]
+    python_versions = ["3.8", "3.9", "3.10", "3.11"]
+    packages = [os.path.join(conda_build_dir, pkg) for pkg in PACKAGES]
 
+    # Generate conda binaries for linux-64
     for pkg in packages:
         for pyv in python_versions:
             output_dir = os.path.join(conda_build_dir, "output")
             cmd = f"{CONDA_BINARY} build --output-folder {output_dir} --python={pyv} {pkg}"
             print(f"## In directory: {os.getcwd()}; Executing command: {cmd}")
-            if not dry_run:
-                os.system(cmd)
+            try_and_handle(cmd, dry_run)
+
+    # Generate conda binaries for other platforms
+    for file in os.listdir(CONDA_LINUX_PACKAGES_PATH):
+        file_path = os.path.join(CONDA_LINUX_PACKAGES_PATH, file)
+        # Identify *.tar.bz2 files to convert
+        if any(
+            package_name in file_path for package_name in PACKAGES
+        ) and file_path.endswith("tar.bz2"):
+            for platform in PLATFORMS:
+                # Skip linux-64 since it already exists
+                if platform == "linux-64":
+                    continue
+                cmd = f"{CONDA_BINARY} convert {file_path} -p {platform} -o {CONDA_PACKAGES_PATH}"
+                print(f"## In directory: {os.getcwd()}; Executing command: {cmd}")
+                try_and_handle(cmd, dry_run)
+
     return 0  # Used for sys.exit(0) --> to indicate successful system exit
 
 

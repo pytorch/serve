@@ -14,10 +14,10 @@
         python ./ts_scripts/install_dependencies.py
         ```
 
-     - For GPU with Cuda 10.2. Options are `cu92`, `cu101`, `cu102`, `cu111`, `cu113`, `cu116`, `cu117`, `cu118`
+     - For GPU with Cuda 12.1. Options are `cu92`, `cu101`, `cu102`, `cu111`, `cu113`, `cu116`, `cu117`, `cu118`, `cu121`
 
        ```bash
-       python ./ts_scripts/install_dependencies.py --cuda=cu102
+       python ./ts_scripts/install_dependencies.py --cuda=cu121
        ```
 
      Note: PyTorch 1.9+ will not support cu92 and cu101. So TorchServe only supports cu92 and cu101 up to PyTorch 1.8.1.
@@ -169,6 +169,10 @@ torchserve --stop
 All the logs you've seen as output to stdout related to model registration, management, inference are recorded in the `/logs` folder.
 
 High level performance data like Throughput or Percentile Precision can be generated with [Benchmark](https://github.com/pytorch/serve/tree/master/benchmarks/README.md) and visualized in a report.
+
+## Debugging Handler Code
+
+If you want to debug your handler code, you can run TorchServe with just the backend and hence use any python debugger. You can refer to an example defined [here](../examples/image_classifier/resnet_18/README.md#debug-torchserve-backend)
 
 ### Contributing
 
