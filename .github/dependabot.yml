@@ -16,11 +16,9 @@ updates:
     directory: "/frontend"
     schedule:
       interval: "daily"
-    target-file: "gradle.properties"
 
   # Configuration for plugins/gradle.properties
   - package-ecosystem: "gradle"
     directory: "/plugins"
     schedule:
       interval: "daily"
-    target-file: "gradle.properties"
