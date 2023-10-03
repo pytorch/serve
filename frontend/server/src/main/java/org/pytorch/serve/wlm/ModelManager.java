@@ -219,11 +219,11 @@ public final class ModelManager {
             }
 
             String[] packageInstallCommand =
-                    {pythonRuntime,
-                            " -m pip install -U -t ",
-                            dependencyPath.getAbsolutePath(),
-                            " -r ",
-                            requirementsFilePath.toString()}; // NOPMD
+                    {pythonRuntime
+                            + " -m pip install -U -t "
+                            + dependencyPath.getAbsolutePath()
+                            + " -r "
+                            + requirementsFilePath.toString()}; // NOPMD
 
             String[] envp =
                     EnvironmentUtils.getEnvString(
