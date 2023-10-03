@@ -43,15 +43,15 @@ class Tee(threading.Thread):
         self.reader = reader
         self.queue1 = Queue()
         self.queue2 = Queue()
-    
+
     def run(self):
         for line in self.reader:
             self.queue1.put(line)
             self.queue2.put(line)
         self.queue1.put(None)
         self.queue2.put(None)
-        
-            
+
+
 def start_torchserve(
     model_store=None, snapshot_file=None, no_config_snapshots=False, gen_mar=True
 ):
@@ -73,12 +73,12 @@ def start_torchserve(
         print(line.decode("utf8").strip())
         if "Model server started" in str(line).strip():
             break
-        
+
     splitter = Tee(TextIOWrapper(p.stdout))
     splitter.start()
     print_thread = PrintTillTheEnd(splitter.queue1)
     print_thread.start()
-    
+
     return splitter.queue2
 
 
