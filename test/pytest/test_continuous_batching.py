@@ -156,7 +156,7 @@ def test_decoding_stage(monkeypatch):
         model_dir=(CURR_FILE_PATH / "test_data" / "streaming").as_posix(),
         model_file="fake_streaming_model.py",
     )
-    ctx.model_yaml_config["modelId"] = "gpt2"
+    ctx.model_yaml_config["handler"] = {"modelId": "gpt2"}
 
     torch.manual_seed(42 * 42)
     handler.initialize(ctx)
