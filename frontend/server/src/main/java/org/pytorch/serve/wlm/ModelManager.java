@@ -218,24 +218,25 @@ public final class ModelManager {
                 dependencyPath = dependencyPath.getParentFile();
             }
 
-            String packageInstallCommand =
-                    pythonRuntime
-                            + " -m pip install -U -t "
-                            + dependencyPath.getAbsolutePath()
-                            + " -r "
-                            + requirementsFilePath; // NOPMD
-                            
+            String[] packageInstallCommand =
+                    {pythonRuntime,
+                            " -m pip install -U -t ",
+                            dependencyPath.getAbsolutePath(),
+                            " -r ",
+                            requirementsFilePath}; // NOPMD
+
             String[] envp =
                     EnvironmentUtils.getEnvString(
                             configManager.getModelServerHome(),
                             model.getModelDir().getAbsolutePath(),
                             null);
-
-            String[] execCommand = {packageInstallCommand, envp, model.getModelDir().getAbsoluteFile()};
             
             Process process =
                     Runtime.getRuntime()
-                            .exec(execCommand);
+                            .exec(
+                                packageInstallCommand,
+                                envp,
+                                model.getModelDir().getAbsoluteFile());
 
             int exitCode = process.waitFor();
 
