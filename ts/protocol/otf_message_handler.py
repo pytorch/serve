@@ -1,6 +1,7 @@
 """
 OTF Codec
 """
+
 import io
 import json
 import logging
@@ -50,7 +51,9 @@ def encode_response_headers(resp_hdr_map):
     return msg
 
 
-def create_predict_response(ret, req_id_map, message, code, context=None, ts_stream_next=False):
+def create_predict_response(
+    ret, req_id_map, message, code, context=None, ts_stream_next=False
+):
     """
     Create inference response.
 
