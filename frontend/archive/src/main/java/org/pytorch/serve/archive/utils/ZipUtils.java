@@ -28,8 +28,15 @@ public final class ZipUtils {
         try (ZipInputStream zis = new ZipInputStream(is)) {
             ZipEntry entry;
             while ((entry = zis.getNextEntry()) != null) {
-                String name = entry.getName();
-                File file = new File(dest, name);
+                File file = new File(dest, entry.getName());
+                File canonicalDestDir = dest.getCanonicalFile();
+                File canonicalFile = file.getCanonicalFile();
+
+                // Check for Zip Slip vulnerability
+                if (!canonicalFile.getPath().startsWith(canonicalDestDir.getPath())) {
+                    throw new IOException("Detected Zip Slip vulnerability: " + entry.getName());
+                }
+
                 if (entry.isDirectory()) {
                     FileUtils.forceMkdir(file);
                 } else {
@@ -81,7 +88,7 @@ public final class ZipUtils {
 
         MessageDigest md;
         try {
-            md = MessageDigest.getInstance("SHA1");
+            md = MessageDigest.getInstance("SHA-256");
         } catch (NoSuchAlgorithmException e) {
             throw new AssertionError(e);
         }
@@ -108,6 +115,14 @@ public final class ZipUtils {
             while ((entry = tis.getNextEntry()) != null) {
                 String name = entry.getName().substring(entry.getName().indexOf('/') + 1);
                 File file = new File(dest, name);
+                File canonicalDestDir = dest.getCanonicalFile();
+                File canonicalFile = file.getCanonicalFile();
+
+                // Check for Zip Slip vulnerability
+                if (!canonicalFile.getPath().startsWith(canonicalDestDir.getPath())) {
+                    throw new IOException("Detected Zip Slip vulnerability: " + entry.getName());
+                }
+
                 if (entry.isDirectory()) {
                     FileUtils.forceMkdir(file);
                 } else {

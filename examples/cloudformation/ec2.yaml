@@ -267,9 +267,9 @@ Resources:
           files:
             /etc/torchserve/config.properties:
                content: !Sub |
-                 inference_address=https://0.0.0.0:8080
-                 management_address=https://0.0.0.0:8081
-                 metrics_address=https://0.0.0.0:8082
+                 inference_address=https://127.0.0.1:8080
+                 management_address=https://127.0.0.1:8081
+                 metrics_address=https://127.0.0.1:8082
                  private_key_file=/etc/torchserve/server.key
                  certificate_file=/etc/torchserve/server.pem
                mode: '000400'
