@@ -7,7 +7,7 @@ CONTAINER="test-container-py${IMAGE_TAG}"
 
 
 healthcheck() {
-    docker run -d --rm -it -p 8080:8080 --name="${CONTAINER}" "${IMAGE_TAG}"
+    docker run -d --rm -it -p 127.0.0.1:8080:8080 --name="${CONTAINER}" "${IMAGE_TAG}"
 
     echo "Waiting 5s for container to come up..."
     sleep 5

@@ -194,19 +194,19 @@ The following examples will start the container with 8080/81/82 and 7070/71 port
 For the latest version, you can use the `latest` tag:
 
 ```bash
-docker run --rm -it -p 8080:8080 -p 8081:8081 -p 8082:8082 -p 7070:7070 -p 7071:7071 pytorch/torchserve:latest
+docker run --rm -it -p 127.0.0.1:8080:8080 -p 127.0.0.1:8081:8081 -p 127.0.0.1:8082:8082 -p 127.0.0.1:7070:7070 -p 127.0.0.1:7071:7071 pytorch/torchserve:latest
 ```
 
 For specific versions you can pass in the specific tag to use (ex: pytorch/torchserve:0.1.1-cpu):
 
 ```bash
-docker run --rm -it -p 8080:8080 -p 8081:8081 -p 8082:8082 -p 7070:7070 -p 7071:7071  pytorch/torchserve:0.1.1-cpu
+docker run --rm -it -p 127.0.0.1:8080:8080 -p 127.0.0.1:8081:8081 -p 127.0.0.1:8082:8082 -p 127.0.0.1:7070:7070 -p 127.0.0.1:7071:7071 pytorch/torchserve:0.1.1-cpu
 ```
 
 #### Start CPU container with Intel® Extension for PyTorch*
 
 ```bash
-docker run --rm -it -p 8080:8080 -p 8081:8081 -p 8082:8082 -p 7070:7070 -p 7071:7071  torchserve-ipex:1.0
+docker run --rm -it -p 127.0.0.1:8080:8080 -p 127.0.0.1:8081:8081 -p 127.0.0.1:8082:8082 -p 127.0.0.1:7070:7070 -p 127.0.0.1:7071:7071  torchserve-ipex:1.0
 ```
 
 #### Start GPU container
@@ -214,19 +214,19 @@ docker run --rm -it -p 8080:8080 -p 8081:8081 -p 8082:8082 -p 7070:7070 -p 7071:
 For GPU latest image with gpu devices 1 and 2:
 
 ```bash
-docker run --rm -it --gpus '"device=1,2"' -p 8080:8080 -p 8081:8081 -p 8082:8082 -p 7070:7070 -p 7071:7071 pytorch/torchserve:latest-gpu
+docker run --rm -it --gpus '"device=1,2"' -p 127.0.0.1:8080:8080 -p 127.0.0.1:8081:8081 -p 127.0.0.1:8082:8082 -p 127.0.0.1:7070:7070 -p 127.0.0.1:7071:7071 pytorch/torchserve:latest-gpu
 ```
 
 For specific versions you can pass in the specific tag to use (ex: `0.1.1-cuda10.1-cudnn7-runtime`):
 
 ```bash
-docker run --rm -it --gpus all -p 8080:8080 -p 8081:8081 -p 8082:8082 -p 7070:7070 -p 7071:7071 pytorch/torchserve:0.1.1-cuda10.1-cudnn7-runtime
+docker run --rm -it --gpus all -p 127.0.0.1:8080:8080 -p 127.0.0.1:8081:8081 -p 127.0.0.1:8082:8082 -p 127.0.0.1:7070:7070 -p 127.0.0.1:7071:7071 pytorch/torchserve:0.1.1-cuda10.1-cudnn7-runtime
 ```
 
 For the latest version, you can use the `latest-gpu` tag:
 
 ```bash
-docker run --rm -it --gpus all -p 8080:8080 -p 8081:8081 -p 8082:8082 -p 7070:7070 -p 7071:7071 pytorch/torchserve:latest-gpu
+docker run --rm -it --gpus all -p 127.0.0.1:8080:8080 -p 127.0.0.1:8081:8081 -p 127.0.0.1:8082:8082 -p 127.0.0.1:7070:7070 -p 127.0.0.1:7071:7071 pytorch/torchserve:latest-gpu
 ```
 
 #### Accessing TorchServe APIs inside container
@@ -244,7 +244,7 @@ To create mar [model archive] file for TorchServe deployment, you can use follow
 1. Start container by sharing your local model-store/any directory containing custom/example mar contents as well as model-store directory (if not there, create it)
 
 ```bash
-docker run --rm -it -p 8080:8080 -p 8081:8081 --name mar -v $(pwd)/model-store:/home/model-server/model-store -v $(pwd)/examples:/home/model-server/examples pytorch/torchserve:latest
+docker run --rm -it -p 127.0.0.1:8080:8080 -p 127.0.0.1:8081:8081 --name mar -v $(pwd)/model-store:/home/model-server/model-store -v $(pwd)/examples:/home/model-server/examples pytorch/torchserve:latest
 ```
 
 1.a. If starting container with Intel® Extension for PyTorch*, add the following lines in `config.properties` to enable IPEX and launcher with its default configuration.
@@ -254,7 +254,7 @@ cpu_launcher_enable=true
 ```
 
 ```bash
-docker run --rm -it -p 8080:8080 -p 8081:8081 --name mar -v $(pwd)/config.properties:/home/model-server/config.properties -v $(pwd)/model-store:/home/model-server/model-store -v $(pwd)/examples:/home/model-server/examples torchserve-ipex:1.0
+docker run --rm -it -p 127.0.0.1:8080:8080 -p 127.0.0.1:8081:8081 --name mar -v $(pwd)/config.properties:/home/model-server/config.properties -v $(pwd)/model-store:/home/model-server/model-store -v $(pwd)/examples:/home/model-server/examples torchserve-ipex:1.0
 ```
 
 2. List your container or skip this if you know container name
@@ -310,11 +310,11 @@ For example,
 docker run --rm --shm-size=1g \
         --ulimit memlock=-1 \
         --ulimit stack=67108864 \
-        -p8080:8080 \
-        -p8081:8081 \
-        -p8082:8082 \
-        -p7070:7070 \
-        -p7071:7071 \
+        -p 127.0.0.1:8080:8080 \
+        -p 127.0.0.1:8081:8081 \
+        -p 127.0.0.1:8082:8082 \
+        -p 127.0.0.1:7070:7070 \
+        -p 127.0.0.1:7071:7071 \
         --mount type=bind,source=/path/to/model/store,target=/tmp/models <container> torchserve --model-store=/tmp/models
 ```
 
