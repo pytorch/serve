@@ -6,7 +6,6 @@ import types
 from builtins import str
 
 import psutil
-import pynvml
 
 from ts.metrics.dimension import Dimension
 from ts.metrics.metric import Metric
@@ -63,6 +62,7 @@ def gpu_utilization(num_of_gpu):
     # pylint: disable=wrong-import-position
     # pylint: disable=import-outside-toplevel
     import nvgpu
+    import pynvml
     from nvgpu import list_gpus
 
     # pylint: enable=wrong-import-position
@@ -89,7 +89,7 @@ def gpu_utilization(num_of_gpu):
     try:
         statuses = list_gpus.device_statuses()
     except pynvml.nvml.NVMLError_NotSupported:
-        logging.warning("gpu device monitoring not supported")
+        logging.error("gpu device monitoring not supported")
         statuses = []
 
     for idx, status in enumerate(statuses):

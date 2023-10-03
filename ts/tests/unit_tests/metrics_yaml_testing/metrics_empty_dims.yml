@@ -1,0 +1,44 @@
+mode: prometheus
+
+dimensions:
+  - &model_name "model_name"
+  - &host "host_name"
+  - &ModelName "ModelName"
+  - &Level "level"
+
+ts_metrics:
+  counter:
+    - name: CounterTsMetricExample
+      unit: ms
+      dimensions: [*model_name, *host]
+  gauge:
+    - name: GaugeTsMetricExample
+      unit: ms
+      dimensions: [*model_name, *host]
+  histogram:
+    - name: HistogramTsMetricExample
+      unit: ms
+      dimensions: [*model_name, *host]
+
+model_metrics:
+  counter:
+    - name: InferenceTimeInMS
+      unit: ms
+      dimensions:
+    - name: NumberOfMetrics
+      unit: count
+      dimensions: [*model_name, *host]
+  gauge:
+    - name: GaugeModelMetricNameExample
+      unit: ms
+      dimensions: [*ModelName, *Level]
+  histogram:
+    - name: HistogramModelMetricNameExample
+      unit: ms
+      dimensions: []
+    - name: HistogramModelMetricNameExample
+      unit: ms
+      dimensions: []
+    - name: AnotherHistogram
+      unit: ms
+      dimensions: []

@@ -12,7 +12,7 @@ of following type using plugin. e.g. [endpoints plugin](../endpoints/)
 here is [AWS DynamoDB snapshot serializer](../DDBEndPoint). This enables torchserve to serialize snapshots to DynamoDB. 
 
 ### How to use plugins with torchserve. 
-There are following two ways to inluce plugin jars to torchserve.
+There are following two ways to include plugin jars to torchserve.
 
 1. Using config. property - `plugins_path` 
 e.g.

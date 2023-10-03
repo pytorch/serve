@@ -6,8 +6,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +23,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import org.pytorch.serve.archive.DownloadArchiveException;
 import org.pytorch.serve.archive.model.Manifest;
 import org.pytorch.serve.archive.model.ModelArchive;
+import org.pytorch.serve.archive.model.ModelConfig;
 import org.pytorch.serve.archive.model.ModelException;
 import org.pytorch.serve.archive.model.ModelNotFoundException;
 import org.pytorch.serve.archive.model.ModelVersionNotFoundException;
@@ -52,16 +55,16 @@ public final class ModelManager {
         this.startupModels = new HashSet<>();
     }
 
-    public ScheduledExecutorService getScheduler() {
-        return scheduler;
-    }
-
     public static void init(ConfigManager configManager, WorkLoadManager wlm) {
         modelManager = new ModelManager(configManager, wlm);
     }
 
     public static ModelManager getInstance() {
         return modelManager;
+    }
+
+    public ScheduledExecutorService getScheduler() {
+        return scheduler;
     }
 
     public ModelArchive registerModel(String url, String defaultModelName)
@@ -81,7 +84,8 @@ public final class ModelManager {
     }
 
     public void registerAndUpdateModel(String modelName, JsonObject modelInfo)
-            throws ModelException, IOException, InterruptedException, DownloadArchiveException {
+            throws ModelException, IOException, InterruptedException, DownloadArchiveException,
+                    WorkerInitializationException {
 
         boolean defaultVersion = modelInfo.get(Model.DEFAULT_VERSION).getAsBoolean();
         String url = modelInfo.get(Model.MAR_NAME).getAsString();
@@ -210,12 +214,22 @@ public final class ModelManager {
 
             String pythonRuntime = EnvironmentUtils.getPythonRunTime(model);
 
-            String packageInstallCommand =
-                    pythonRuntime
-                            + " -m pip install -U -t "
-                            + model.getModelDir().getAbsolutePath()
-                            + " -r "
-                            + requirementsFilePath; // NOPMD
+            File dependencyPath = model.getModelDir();
+            if (Files.isSymbolicLink(dependencyPath.toPath())) {
+                dependencyPath = dependencyPath.getParentFile();
+            }
+
+            List<String> commandParts = new ArrayList<>();
+
+            commandParts.add(pythonRuntime);
+            commandParts.add("-m");
+            commandParts.add("pip");
+            commandParts.add("install");
+            commandParts.add("-U");
+            commandParts.add("-t");
+            commandParts.add(dependencyPath.getAbsolutePath());
+            commandParts.add("-r");
+            commandParts.add(requirementsFilePath.toString());
 
             String[] envp =
                     EnvironmentUtils.getEnvString(
@@ -223,13 +237,16 @@ public final class ModelManager {
                             model.getModelDir().getAbsolutePath(),
                             null);
 
-            Process process =
-                    Runtime.getRuntime()
-                            .exec(
-                                    packageInstallCommand,
-                                    envp,
-                                    model.getModelDir().getAbsoluteFile());
-
+            ProcessBuilder processBuilder = new ProcessBuilder(commandParts);
+            processBuilder.directory(model.getModelDir().getAbsoluteFile());
+            Map<String, String> environment = processBuilder.environment();
+            for (String envVar : envp) {
+                String[] parts = envVar.split("=", 2);
+                if (parts.length == 2) {
+                    environment.put(parts[0], parts[1]);
+                }
+            }
+            Process process = processBuilder.start();
             int exitCode = process.waitFor();
 
             if (exitCode != 0) {
@@ -249,7 +266,6 @@ public final class ModelManager {
                     errorString.append(line);
                 }
 
-                logger.info("Dependency installation stdout:\n" + outputString.toString());
                 logger.error("Dependency installation stderr:\n" + errorString.toString());
 
                 throw new ModelException(
@@ -266,24 +282,65 @@ public final class ModelManager {
             boolean isWorkflowModel) {
         Model model = new Model(archive, configManager.getJobQueueSize());
 
-        model.setBatchSize(
-                configManager.getJsonIntValue(
-                        archive.getModelName(),
-                        archive.getModelVersion(),
-                        Model.BATCH_SIZE,
-                        batchSize));
-        model.setMaxBatchDelay(
-                configManager.getJsonIntValue(
-                        archive.getModelName(),
-                        archive.getModelVersion(),
-                        Model.MAX_BATCH_DELAY,
-                        maxBatchDelay));
-        model.setResponseTimeout(
-                configManager.getJsonIntValue(
-                        archive.getModelName(),
-                        archive.getModelVersion(),
-                        Model.RESPONSE_TIMEOUT,
-                        responseTimeout));
+        if (archive.getModelConfig() != null) {
+            int marBatchSize = archive.getModelConfig().getBatchSize();
+            batchSize =
+                    marBatchSize > 0
+                            ? marBatchSize
+                            : configManager.getJsonIntValue(
+                                    archive.getModelName(),
+                                    archive.getModelVersion(),
+                                    Model.BATCH_SIZE,
+                                    batchSize);
+        } else {
+            batchSize =
+                    configManager.getJsonIntValue(
+                            archive.getModelName(),
+                            archive.getModelVersion(),
+                            Model.BATCH_SIZE,
+                            batchSize);
+        }
+        model.setBatchSize(batchSize);
+
+        if (archive.getModelConfig() != null) {
+            int marMaxBatchDelay = archive.getModelConfig().getMaxBatchDelay();
+            maxBatchDelay =
+                    marMaxBatchDelay > 0
+                            ? marMaxBatchDelay
+                            : configManager.getJsonIntValue(
+                                    archive.getModelName(),
+                                    archive.getModelVersion(),
+                                    Model.MAX_BATCH_DELAY,
+                                    maxBatchDelay);
+        } else {
+            maxBatchDelay =
+                    configManager.getJsonIntValue(
+                            archive.getModelName(),
+                            archive.getModelVersion(),
+                            Model.MAX_BATCH_DELAY,
+                            maxBatchDelay);
+        }
+        model.setMaxBatchDelay(maxBatchDelay);
+
+        if (archive.getModelConfig() != null) {
+            int marResponseTimeout = archive.getModelConfig().getResponseTimeout();
+            responseTimeout =
+                    marResponseTimeout > 0
+                            ? marResponseTimeout
+                            : configManager.getJsonIntValue(
+                                    archive.getModelName(),
+                                    archive.getModelVersion(),
+                                    Model.RESPONSE_TIMEOUT,
+                                    responseTimeout);
+        } else {
+            responseTimeout =
+                    configManager.getJsonIntValue(
+                            archive.getModelName(),
+                            archive.getModelVersion(),
+                            Model.RESPONSE_TIMEOUT,
+                            responseTimeout);
+        }
+        model.setResponseTimeout(responseTimeout);
         model.setWorkflowModel(isWorkflowModel);
         model.setRuntimeType(
                 configManager.getJsonRuntimeTypeValue(
@@ -385,7 +442,7 @@ public final class ModelManager {
 
     private CompletableFuture<Integer> updateModel(
             String modelName, String versionId, boolean isStartup)
-            throws ModelVersionNotFoundException {
+            throws ModelVersionNotFoundException, WorkerInitializationException {
         Model model = getVersionModel(modelName, versionId);
         return updateModel(
                 modelName,
@@ -403,14 +460,39 @@ public final class ModelManager {
             int maxWorkers,
             boolean isStartup,
             boolean isCleanUp)
-            throws ModelVersionNotFoundException {
+            throws ModelVersionNotFoundException, WorkerInitializationException {
         Model model = getVersionModel(modelName, versionId);
 
         if (model == null) {
             throw new ModelVersionNotFoundException(
                     "Model version: " + versionId + " does not exist for model: " + modelName);
         }
-
+        if (model.getParallelLevel() > 1 && model.getDeviceType() == ModelConfig.DeviceType.GPU) {
+            /**
+             * Current capacity check for LMI is based on single node. TODO: multiple nodes check
+             * will be based on --proc-per-node + numCores.
+             */
+            int capacity = model.getNumCores() / model.getParallelLevel();
+            if (capacity == 0) {
+                logger.error(
+                        "there are no enough gpu devices to support this parallelLever: {}",
+                        model.getParallelLevel());
+                throw new WorkerInitializationException(
+                        "No enough gpu devices for model:"
+                                + modelName
+                                + " parallelLevel:"
+                                + model.getParallelLevel());
+            } else {
+                minWorkers = minWorkers > capacity ? capacity : minWorkers;
+                maxWorkers = maxWorkers > capacity ? capacity : maxWorkers;
+                logger.info(
+                        "model {} set minWorkers: {}, maxWorkers: {} for parallelLevel: {} ",
+                        modelName,
+                        minWorkers,
+                        maxWorkers,
+                        model.getParallelLevel());
+            }
+        }
         model.setMinWorkers(minWorkers);
         model.setMaxWorkers(maxWorkers);
         logger.debug("updateModel: {}, count: {}", modelName, minWorkers);
@@ -429,7 +511,7 @@ public final class ModelManager {
 
     public CompletableFuture<Integer> updateModel(
             String modelName, String versionId, int minWorkers, int maxWorkers)
-            throws ModelVersionNotFoundException {
+            throws ModelVersionNotFoundException, WorkerInitializationException {
         return updateModel(modelName, versionId, minWorkers, maxWorkers, false, false);
     }
 
@@ -524,5 +606,9 @@ public final class ModelManager {
 
     public int getNumRunningWorkers(ModelVersionName modelVersionName) {
         return wlm.getNumRunningWorkers(modelVersionName);
+    }
+
+    public int getNumHealthyWorkers(ModelVersionName modelVersionName) {
+        return wlm.getNumHealthyWorkers(modelVersionName);
     }
 }

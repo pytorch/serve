@@ -6,19 +6,14 @@ on:
     - cron:  '15 11 * * *'
 jobs:
   nightly:
-    # creates workflows for the 3 OS: ubuntu, macOS & windows
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: true
-      matrix:
-        os: [ubuntu-latest, macOS-latest, windows-latest]
+    runs-on: ubuntu-20.04
     steps:
       - name: Setup Conda
         uses: s-weigand/setup-conda@v1
       - run: conda --version
       - run: conda install -y conda-build anaconda-client
       - name: Checkout TorchServe
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Install dependencies
         run: |
           python ts_scripts/install_dependencies.py --environment=dev
@@ -37,12 +32,10 @@ jobs:
       - name: Push PyPI nightly binaries
         env:
           TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
-        # skip pushing PyPI nightly binaries for macOS & windows as the binaries have the same name
-        if: matrix.os == 'ubuntu-latest'
         run: python binaries/upload.py --upload-pypi-packages
       - name: Open issue on failure
         if: ${{ failure() && github.event_name  == 'schedule' }}
-        uses: rishabhgupta/git-action-issue@v2
+        uses: dacbd/create-issue-action@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           title: Nightly Build failed

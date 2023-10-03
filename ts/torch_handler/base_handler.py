@@ -4,16 +4,24 @@ Also, provides handle method per torch serve custom model specification
 """
 
 import abc
+import importlib.util
 import logging
 import os
-import importlib.util
 import time
+
 import torch
 from pkg_resources import packaging
-from ..utils.util import list_classes_from_module, load_label_mapping
+
+from ts.handler_utils.timer import timed
+
+from ..utils.util import (
+    check_valid_pt2_backend,
+    list_classes_from_module,
+    load_label_mapping,
+)
 
 if packaging.version.parse(torch.__version__) >= packaging.version.parse("1.8.1"):
-    from torch.profiler import profile, record_function, ProfilerActivity
+    from torch.profiler import ProfilerActivity, profile, record_function
 
     PROFILER_AVAILABLE = True
 else:
@@ -22,16 +30,78 @@ else:
 
 logger = logging.getLogger(__name__)
 
-ipex_enabled = False
+
+try:
+    import torch_xla.core.xla_model as xm
+
+    XLA_AVAILABLE = True
+except ImportError as error:
+    XLA_AVAILABLE = False
+
+
+if packaging.version.parse(torch.__version__) >= packaging.version.parse("2.0.0a"):
+    PT2_AVAILABLE = True
+    if torch.cuda.is_available():
+        # If Ampere enable tensor cores which will give better performance
+        # Ideally get yourself an A10G or A100 for optimal performance
+        if torch.cuda.get_device_capability() >= (8, 0):
+            torch.set_float32_matmul_precision("high")
+            logger.info("Enabled tensor cores")
+else:
+    logger.warning(
+        f"Your torch version is {torch.__version__} which does not support torch.compile"
+    )
+    PT2_AVAILABLE = False
+
+
 if os.environ.get("TS_IPEX_ENABLE", "false") == "true":
     try:
         import intel_extension_for_pytorch as ipex
 
-        ipex_enabled = True
+        IPEX_AVAILABLE = True
     except ImportError as error:
         logger.warning(
             "IPEX is enabled but intel-extension-for-pytorch is not installed. Proceeding without IPEX."
         )
+        IPEX_AVAILABLE = False
+else:
+    IPEX_AVAILABLE = False
+
+
+try:
+    import onnxruntime as ort
+    import psutil
+
+    logger.info("ONNX enabled")
+    ONNX_AVAILABLE = True
+except ImportError as error:
+    logger.warning("proceeding without onnxruntime")
+    ONNX_AVAILABLE = False
+
+try:
+    import torch_tensorrt  # nopycln: import
+
+    logger.info("Torch TensorRT enabled")
+except ImportError:
+    logger.warning("Torch TensorRT not enabled")
+
+
+def setup_ort_session(model_pt_path, map_location):
+    providers = (
+        ["CUDAExecutionProvider", "CPUExecutionProvider"]
+        if map_location == "cuda"
+        else ["CPUExecutionProvider"]
+    )
+
+    sess_options = ort.SessionOptions()
+    sess_options.intra_op_num_threads = psutil.cpu_count(logical=True)
+
+    # Start an inference session
+    ort_session = ort.InferenceSession(
+        model_pt_path, providers=providers, sess_options=sess_options
+    )
+
+    return ort_session
 
 
 class BaseHandler(abc.ABC):
@@ -46,6 +116,7 @@ class BaseHandler(abc.ABC):
         self.device = None
         self.initialized = False
         self.context = None
+        self.model_pt_path = None
         self.manifest = None
         self.map_location = None
         self.explain = False
@@ -64,45 +135,81 @@ class BaseHandler(abc.ABC):
             RuntimeError: Raises the Runtime error when the model.py is missing
 
         """
+
+        if context is not None and hasattr(context, "model_yaml_config"):
+            self.model_yaml_config = context.model_yaml_config
+
         properties = context.system_properties
-        self.map_location = (
-            "cuda"
-            if torch.cuda.is_available() and properties.get("gpu_id") is not None
-            else "cpu"
-        )
-        self.device = torch.device(
-            self.map_location + ":" + str(properties.get("gpu_id"))
-            if torch.cuda.is_available() and properties.get("gpu_id") is not None
-            else self.map_location
-        )
+        if torch.cuda.is_available() and properties.get("gpu_id") is not None:
+            self.map_location = "cuda"
+            self.device = torch.device(
+                self.map_location + ":" + str(properties.get("gpu_id"))
+            )
+        elif XLA_AVAILABLE:
+            self.device = xm.xla_device()
+        else:
+            self.map_location = "cpu"
+            self.device = torch.device(self.map_location)
+
         self.manifest = context.manifest
 
         model_dir = properties.get("model_dir")
-        model_pt_path = None
+        self.model_pt_path = None
         if "serializedFile" in self.manifest["model"]:
             serialized_file = self.manifest["model"]["serializedFile"]
-            model_pt_path = os.path.join(model_dir, serialized_file)
-
+            self.model_pt_path = os.path.join(model_dir, serialized_file)
         # model def file
         model_file = self.manifest["model"].get("modelFile", "")
 
         if model_file:
             logger.debug("Loading eager model")
-            self.model = self._load_pickled_model(model_dir, model_file, model_pt_path)
+            self.model = self._load_pickled_model(
+                model_dir, model_file, self.model_pt_path
+            )
             self.model.to(self.device)
+            self.model.eval()
+
+        # Convert your model by following instructions: https://pytorch.org/tutorials/intermediate/nvfuser_intro_tutorial.html
+        # For TensorRT support follow instructions here: https://pytorch.org/TensorRT/getting_started/getting_started_with_python_api.html#getting-started-with-python-api
+        elif self.model_pt_path.endswith(".pt"):
+            self.model = self._load_torchscript_model(self.model_pt_path)
+            self.model.eval()
+
+        # Convert your model by following instructions: https://pytorch.org/tutorials/advanced/super_resolution_with_onnxruntime.html
+        elif self.model_pt_path.endswith(".onnx") and ONNX_AVAILABLE:
+            self.model = setup_ort_session(self.model_pt_path, self.map_location)
+            logger.info("Succesfully setup ort session")
+
         else:
-            logger.debug("Loading torchscript model")
-            if not os.path.isfile(model_pt_path):
-                raise RuntimeError("Missing the model.pt file")
+            raise RuntimeError("No model weights could be loaded")
 
-            self.model = self._load_torchscript_model(model_pt_path)
+        if hasattr(self, "model_yaml_config") and "pt2" in self.model_yaml_config:
+            pt2_backend = self.model_yaml_config["pt2"]
+            valid_backend = check_valid_pt2_backend(pt2_backend)
+        else:
+            valid_backend = False
 
-        self.model.eval()
-        if ipex_enabled:
+        # PT 2.0 support is opt in
+        if PT2_AVAILABLE and valid_backend:
+            # Compilation will delay your model initialization
+            try:
+                self.model = torch.compile(
+                    self.model,
+                    backend=pt2_backend,
+                )
+                logger.info(f"Compiled model with backend {pt2_backend}")
+            except Exception as e:
+                logger.warning(
+                    f"Compiling model model with backend {pt2_backend} has failed \n Proceeding without compilation"
+                )
+                logger.warning(e)
+
+        elif IPEX_AVAILABLE:
             self.model = self.model.to(memory_format=torch.channels_last)
             self.model = ipex.optimize(self.model)
+            logger.info(f"Compiled model with ipex")
 
-        logger.debug("Model file %s loaded successfully", model_pt_path)
+        logger.debug("Model file %s loaded successfully", self.model_pt_path)
 
         # Load class mapping for classifiers
         mapping_file_path = os.path.join(model_dir, "index_to_name.json")
@@ -126,7 +233,7 @@ class BaseHandler(abc.ABC):
         Loads the pickle file from the given model path.
 
         Args:
-            model_dir (str): Points to the location of the model artefacts.
+            model_dir (str): Points to the location of the model artifacts.
             model_file (.py): the file which contains the model class.
             model_pt_path (str): points to the location of the model pickle file.
 
@@ -154,10 +261,14 @@ class BaseHandler(abc.ABC):
         model_class = model_class_definitions[0]
         model = model_class()
         if model_pt_path:
-            state_dict = torch.load(model_pt_path, map_location=self.device)
+            map_location = (
+                None if (XLA_AVAILABLE and self.map_location is None) else self.device
+            )
+            state_dict = torch.load(model_pt_path, map_location=map_location)
             model.load_state_dict(state_dict)
         return model
 
+    @timed
     def preprocess(self, data):
         """
         Preprocess function to convert the request input to a tensor(Torchserve supported format).
@@ -169,8 +280,10 @@ class BaseHandler(abc.ABC):
         Returns:
             tensor: Returns the tensor data of the input
         """
+
         return torch.as_tensor(data, device=self.device)
 
+    @timed
     def inference(self, data, *args, **kwargs):
         """
         The Inference Function is used to make a prediction call on the given input request.
@@ -183,11 +296,12 @@ class BaseHandler(abc.ABC):
         Returns:
             Torch Tensor : The Predicted Torch Tensor is returned in this function.
         """
-        marshalled_data = data.to(self.device)
         with torch.no_grad():
+            marshalled_data = data.to(self.device)
             results = self.model(marshalled_data, *args, **kwargs)
         return results
 
+    @timed
     def postprocess(self, data):
         """
         The post process function makes use of the output from the inference and converts into a
@@ -209,7 +323,7 @@ class BaseHandler(abc.ABC):
         Args:
             data (list): The input data that needs to be made a prediction request on.
             context (Context): It is a JSON Object containing information pertaining to
-                               the model artefacts parameters.
+                               the model artifacts parameters.
 
         Returns:
             list : Returns a list of dictionary with the predicted response.
@@ -225,6 +339,9 @@ class BaseHandler(abc.ABC):
         is_profiler_enabled = os.environ.get("ENABLE_TORCH_PROFILER", None)
         if is_profiler_enabled:
             if PROFILER_AVAILABLE:
+                if self.manifest is None:
+                    # profiler will use to get the model name
+                    self.manifest = context.manifest
                 output, _ = self._infer_with_profiler(data=data)
             else:
                 raise RuntimeError(
@@ -281,9 +398,7 @@ class BaseHandler(abc.ABC):
             self.profiler_args[
                 "on_trace_ready"
             ] = torch.profiler.tensorboard_trace_handler(result_path)
-            logger.info(
-                "Saving chrome trace to : %s", result_path
-            )
+            logger.info("Saving chrome trace to : %s", result_path)
 
         with profile(**self.profiler_args) as prof:
             with record_function("preprocess"):

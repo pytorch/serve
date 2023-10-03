@@ -1,6 +1,6 @@
 # To build and upload a new version, follow the steps below.
 # Notes:
-# - this is a "Universal Wheels" package that is pure Python and supports both Python2 and Python3
+# - this is a "Universal Wheels" package that is pure Python and supports Python3
 # - Twine is a secure PyPi upload package
 # - Make sure you have bumped the version! at ts/version.py
 # $ pip install twine
@@ -26,7 +26,7 @@ from datetime import date
 from shutil import copy2, copytree, rmtree
 
 import setuptools.command.build_py
-from setuptools import setup, find_packages, Command
+from setuptools import Command, find_packages, setup
 
 import ts
 
@@ -35,29 +35,28 @@ pkgs = find_packages(exclude=["ts_scripts", "test"])
 build_frontend_command = {
     "Windows": ".\\frontend\\gradlew.bat -p frontend clean assemble",
     "Darwin": "frontend/gradlew -p frontend clean assemble",
-    "Linux": "frontend/gradlew -p frontend clean assemble"
+    "Linux": "frontend/gradlew -p frontend clean assemble",
 }
 build_plugins_command = {
-    'Windows': '.\\plugins\\gradlew.bat -p plugins clean bS',
-    'Darwin': 'plugins/gradlew -p plugins clean bS',
-    'Linux': 'plugins/gradlew -p plugins clean bS'
+    "Windows": ".\\plugins\\gradlew.bat -p plugins clean bS",
+    "Darwin": "plugins/gradlew -p plugins clean bS",
+    "Linux": "plugins/gradlew -p plugins clean bS",
 }
-build_cpp_command = {
-    "Darwin": "cpp/build.sh",
-    "Linux": "cpp/build.sh"
-}
+build_cpp_command = {"Darwin": "cpp/build.sh", "Linux": "cpp/build.sh"}
 
 
 def pypi_description():
     """
     Imports the long description for the project page
     """
-    with open('PyPiDescription.rst') as df:
+    with open("PyPiDescription.rst") as df:
         return df.read()
+
 
 def get_nightly_version():
     today = date.today()
     return today.strftime("%Y.%m.%d")
+
 
 def detect_model_server_version():
     sys.path.append(os.path.abspath("ts"))
@@ -65,17 +64,17 @@ def detect_model_server_version():
         sys.argv.remove("--release")
         return ts.__version__.strip()
 
-    return ts.__version__.strip() + 'b' + str(date.today()).replace('-', '')
+    return ts.__version__.strip() + "b" + str(date.today()).replace("-", "")
 
 
 class BuildFrontEnd(setuptools.command.build_py.build_py):
     """
     Class defined to run custom commands.
     """
-    description = 'Build Model Server Frontend'
-    source_server_file = os.path.abspath(
-        'frontend/server/build/libs/server-1.0.jar')
-    dest_file_name = os.path.abspath('ts/frontend/model-server.jar')
+
+    description = "Build Model Server Frontend"
+    source_server_file = os.path.abspath("frontend/server/build/libs/server-1.0.jar")
+    dest_file_name = os.path.abspath("ts/frontend/model-server.jar")
 
     # noinspection PyMethodMayBeStatic
     def run(self):
@@ -83,7 +82,7 @@ class BuildFrontEnd(setuptools.command.build_py.build_py):
         Actual method called to run the build command
         :return:
         """
-        front_end_bin_dir = os.path.abspath('.') + '/ts/frontend'
+        front_end_bin_dir = os.path.abspath(".") + "/ts/frontend"
         try:
             os.mkdir(front_end_bin_dir)
         except OSError as exc:
@@ -96,8 +95,7 @@ class BuildFrontEnd(setuptools.command.build_py.build_py):
             os.remove(self.source_server_file)
 
         try:
-            subprocess.check_call(build_frontend_command[platform.system()],
-                                  shell=True)
+            subprocess.check_call(build_frontend_command[platform.system()], shell=True)
         except OSError:
             assert 0, "build failed"
         copy2(self.source_server_file, self.dest_file_name)
@@ -110,19 +108,18 @@ class BuildPy(setuptools.command.build_py.build_py):
 
     def run(self):
         sys.stderr.flush()
-        self.run_command('build_frontend')
+        self.run_command("build_frontend")
         setuptools.command.build_py.build_py.run(self)
 
         sys.stderr.flush()
-        self.run_command('build_cpp')
+        self.run_command("build_cpp")
         setuptools.command.build_py.build_py.run(self)
 
 
 class BuildPlugins(Command):
-    description = 'Build Model Server Plugins'
-    user_options = [('plugins=', 'p', 'Plugins installed')]
-    source_plugin_dir = \
-        os.path.abspath('plugins/build/plugins')
+    description = "Build Model Server Plugins"
+    user_options = [("plugins=", "p", "Plugins installed")]
+    source_plugin_dir = os.path.abspath("plugins/build/plugins")
 
     def initialize_options(self):
         self.plugins = None
@@ -139,31 +136,29 @@ class BuildPlugins(Command):
 
         try:
             if self.plugins == "endpoints":
-                subprocess.check_call(build_plugins_command[platform.system()],
-                                      shell=True)
+                subprocess.check_call(
+                    build_plugins_command[platform.system()], shell=True
+                )
             else:
                 raise OSError("No such rule exists")
         except OSError:
             assert 0, "build failed"
 
-        self.run_command('build_py')
+        self.run_command("build_py")
 
 
 class BuildCPP(setuptools.command.build_py.build_py):
     """
     Class defined to run cpp build.
     """
-    description = 'Build Model Server CPP'
-    source_bin_dir = os.path.abspath(
-        'cpp/_build/bin')
-    dest_bin_dir = os.path.abspath('ts/cpp/bin')
-    source_lib_dir = os.path.abspath(
-        'cpp/_build/libs')
-    dest_lib_dir = os.path.abspath('ts/cpp/lib')
-    source_resource_dir = os.path.abspath(
-        'cpp/_build/resources')
-    dest_resource_dir = os.path.abspath(
-        'ts/cpp/resources')
+
+    description = "Build Model Server CPP"
+    source_bin_dir = os.path.abspath("cpp/_build/bin")
+    dest_bin_dir = os.path.abspath("ts/cpp/bin")
+    source_lib_dir = os.path.abspath("cpp/_build/libs")
+    dest_lib_dir = os.path.abspath("ts/cpp/lib")
+    source_resource_dir = os.path.abspath("cpp/_build/resources")
+    dest_resource_dir = os.path.abspath("ts/cpp/resources")
 
     # noinspection PyMethodMayBeStatic
     def run(self):
@@ -171,13 +166,12 @@ class BuildCPP(setuptools.command.build_py.build_py):
         Actual method called to run the build command
         :return:
         """
-        cpp_dir = os.path.abspath('.') + '/ts/cpp/'
+        cpp_dir = os.path.abspath(".") + "/ts/cpp/"
         if os.path.exists(cpp_dir):
             rmtree(cpp_dir)
 
         try:
-            subprocess.check_call(build_cpp_command[platform.system()],
-                                  shell=True)
+            subprocess.check_call(build_cpp_command[platform.system()], shell=True)
         except OSError:
             assert 0, "build failed"
 
@@ -186,9 +180,9 @@ class BuildCPP(setuptools.command.build_py.build_py):
         copytree(self.source_resource_dir, self.dest_resource_dir)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # Get nightly version if nightly in name
-    name = 'torchserve'
+    name = "torchserve"
 
     # Clever code to figure out if setup.py was trigger by ts_scripts/push_nightly.sh
     NAME_ARG = "--override-name"
@@ -202,26 +196,31 @@ if __name__ == '__main__':
 
     print(f"-- {name} building version: {version}")
 
-    requirements = ['Pillow', 'psutil', 'future', 'packaging', 'wheel']
+    requirements = ["Pillow", "psutil", "packaging", "wheel"]
 
     setup(
         name=name,
         version=version,
-        description=
-        'TorchServe is a tool for serving neural net models for inference',
-        author='PyTorch Serving team',
-        author_email='noreply@noreply.com',
+        description="TorchServe is a tool for serving neural net models for inference",
+        author="PyTorch Serving team",
+        author_email="noreply@noreply.com",
         long_description=pypi_description(),
-        url='https://github.com/pytorch/serve.git',
-        keywords='TorchServe PyTorch Serving Deep Learning Inference AI',
+        long_description_content_type="text/x-rst",
+        url="https://github.com/pytorch/serve.git",
+        keywords="TorchServe PyTorch Serving Deep Learning Inference AI",
         packages=pkgs,
         cmdclass={
-            'build_frontend': BuildFrontEnd,
-            'build_plugins': BuildPlugins,
-            'build_cpp': BuildCPP,
-            'build_py': BuildPy,
+            "build_frontend": BuildFrontEnd,
+            "build_plugins": BuildPlugins,
+            "build_cpp": BuildCPP,
+            "build_py": BuildPy,
         },
         install_requires=requirements,
-        entry_points={'console_scripts': ['torchserve=ts.model_server:start',]},
+        extras_require={
+            "onnx": ["numpy", "onnx", "onnx-runtime"],
+            "ipex": ["intel_extension_for_pytorch"],
+        },
+        entry_points={"console_scripts": ["torchserve=ts.model_server:start"]},
         include_package_data=True,
-        license='Apache License Version 2.0')
+        license="Apache License Version 2.0",
+    )

@@ -10,7 +10,7 @@ dog_breed:
         batch_size:
             - 1
             - 2
-        requests: 10000
+        requests: 50000
         concurrency: 10
         input: "./docs/images/kitten_small.jpg"
         backend_profiling: False

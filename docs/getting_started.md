@@ -4,36 +4,36 @@
 
 1. Install dependencies
 
-    Note: For Conda, Python 3.8 is required to run Torchserve.
+    Note: For Conda, Python >=3.8 is required to run Torchserve.
 
     #### For Debian Based Systems/ MacOS
-    
+
      - For CPU
 
         ```bash
         python ./ts_scripts/install_dependencies.py
         ```
-        
-     - For GPU with Cuda 10.2. Options are `cu92`, `cu101`, `cu102`, `cu111`, `cu113`, `cu116`
+
+     - For GPU with Cuda 12.1. Options are `cu92`, `cu101`, `cu102`, `cu111`, `cu113`, `cu116`, `cu117`, `cu118`, `cu121`
 
        ```bash
-       python ./ts_scripts/install_dependencies.py --cuda=cu102
+       python ./ts_scripts/install_dependencies.py --cuda=cu121
        ```
-       
-     Note: PyTorch 1.9+ will not support cu92 and cu101. So TorchServe only supports cu92 and cu101 up to PyTorch 1.8.1.  
+
+     Note: PyTorch 1.9+ will not support cu92 and cu101. So TorchServe only supports cu92 and cu101 up to PyTorch 1.8.1.
 
     #### For Windows
 
-    Refer to the documentation [here](docs/torchserve_on_win_native.md).
+    Refer to the documentation [here](./torchserve_on_win_native.md).
 
 2. Install torchserve, torch-model-archiver and torch-workflow-archiver
 
-    For [Conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install)  
-    Note: Conda packages are not supported for Windows. Refer to the documentation [here](docs/torchserve_on_win_native.md).
+    For [Conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install)
+    Note: Conda packages are not supported for Windows. Refer to the documentation [here](./torchserve_on_win_native.md).
     ```
     conda install torchserve torch-model-archiver torch-workflow-archiver -c pytorch
     ```
-   
+
     For Pip
     ```
     pip install torchserve torch-model-archiver torch-workflow-archiver
@@ -77,7 +77,7 @@ You can also create model stores to store your archived models.
     torch-model-archiver --model-name densenet161 --version 1.0 --model-file ./serve/examples/image_classifier/densenet_161/model.py --serialized-file densenet161-8d451a50.pth --export-path model_store --extra-files ./serve/examples/image_classifier/index_to_name.json --handler image_classifier
     ```
 
-For more information about the model archiver, see [Torch Model archiver for TorchServe](model-archiver/README.md)
+For more information about the model archiver, see [Torch Model archiver for TorchServe](https://github.com/pytorch/serve/tree/master/model-archiver/README.md)
 
 ### Start TorchServe to serve the model
 
@@ -89,16 +89,16 @@ torchserve --start --ncs --model-store model_store --models densenet161.mar
 
 After you execute the `torchserve` command above, TorchServe runs on your host, listening for inference requests.
 
-**Note**: If you specify model(s) when you run TorchServe, it automatically scales backend workers to the number equal to available vCPUs (if you run on a CPU instance) or to the number of available GPUs (if you run on a GPU instance). In case of powerful hosts with a lot of compute resources (vCPUs or GPUs), this start up and autoscaling process might take considerable time. If you want to minimize TorchServe start up time you should avoid registering and scaling the model during start up time and move that to a later point by using corresponding [Management API](docs/management_api.md#register-a-model), which allows finer grain control of the resources that are allocated for any particular model).
+**Note**: If you specify model(s) when you run TorchServe, it automatically scales backend workers to the number equal to available vCPUs (if you run on a CPU instance) or to the number of available GPUs (if you run on a GPU instance). In case of powerful hosts with a lot of compute resources (vCPUs or GPUs), this start up and autoscaling process might take considerable time. If you want to minimize TorchServe start up time you should avoid registering and scaling the model during start up time and move that to a later point by using corresponding [Management API](./management_api.md#register-a-model), which allows finer grain control of the resources that are allocated for any particular model).
 
 ### Get predictions from a model
 
-To test the model server, send a request to the server's `predictions` API. TorchServe supports all [inference](docs/inference_api.md) and [management](docs/management_api.md) api's through both [gRPC](docs/grpc_api.md) and [HTTP/REST](docs/rest_api.md).
+To test the model server, send a request to the server's `predictions` API. TorchServe supports all [inference](./inference_api.md) and [management](./management_api.md) apis through both [gRPC](./grpc_api.md) and [HTTP/REST](./rest_api.md).
 
 #### Using GRPC APIs through python client
 
  - Install grpc python dependencies :
- 
+
 ```bash
 pip install -U grpcio protobuf grpcio-tools
 ```
@@ -109,7 +109,7 @@ pip install -U grpcio protobuf grpcio-tools
 python -m grpc_tools.protoc --proto_path=frontend/server/src/main/resources/proto/ --python_out=ts_scripts --grpc_python_out=ts_scripts frontend/server/src/main/resources/proto/inference.proto frontend/server/src/main/resources/proto/management.proto
 ```
 
- - Run inference using a sample client [gRPC python client](ts_scripts/torchserve_grpc_client.py)
+ - Run inference using a sample client [gRPC python client](https://github.com/pytorch/serve/blob/master/ts_scripts/torchserve_grpc_client.py)
 
 ```bash
 python ts_scripts/torchserve_grpc_client.py infer densenet161 examples/image_classifier/kitten.jpg
@@ -125,7 +125,7 @@ As an example we'll download the below cute kitten with
 curl -O https://raw.githubusercontent.com/pytorch/serve/master/docs/images/kitten_small.jpg
 ```
 
-And then call the prediction endpoint 
+And then call the prediction endpoint
 
 ```bash
 curl http://127.0.0.1:8080/predictions/densenet161 -T kitten_small.jpg
@@ -155,7 +155,7 @@ Which will return the following JSON object
 
 All interactions with the endpoint will be logged in the `logs/` directory, so make sure to check it out!
 
-Now you've seen how easy it can be to serve a deep learning model with TorchServe! [Would you like to know more?](docs/server.md)
+Now you've seen how easy it can be to serve a deep learning model with TorchServe! [Would you like to know more?](./server.md)
 
 ### Stop TorchServe
 
@@ -168,32 +168,12 @@ torchserve --stop
 ### Inspect the logs
 All the logs you've seen as output to stdout related to model registration, management, inference are recorded in the `/logs` folder.
 
-High level performance data like Throughput or Percentile Precision can be generated with [Benchmark](benchmark/README.md) and visualized in a report.
+High level performance data like Throughput or Percentile Precision can be generated with [Benchmark](https://github.com/pytorch/serve/tree/master/benchmarks/README.md) and visualized in a report.
 
+## Debugging Handler Code
 
-### Install TorchServe for development
+If you want to debug your handler code, you can run TorchServe with just the backend and hence use any python debugger. You can refer to an example defined [here](../examples/image_classifier/resnet_18/README.md#debug-torchserve-backend)
 
-If you plan to develop with TorchServe and change some source code, you must install it from source code.
+### Contributing
 
-Ensure that you have `python3` installed, and the user has access to the site-packages or `~/.local/bin` is added to the `PATH` environment variable.
-
-Run the following script from the top of the source directory.
-
-NOTE: This script uninstalls existing `torchserve`, `torch-model-archiver` and `torch-workflow-archiver` installations
-
-#### For Debian Based Systems/ MacOS
-
-```
-python ./ts_scripts/install_dependencies.py --environment=dev
-python ./ts_scripts/install_from_src.py
-```
-
-Use `--cuda` flag with `install_dependencies.py` for installing cuda version specific dependencies. Possible values are `cu111`, `cu102`, `cu101`, `cu92`
-
-#### For Windows
-
-Refer to the documentation [here](docs/torchserve_on_win_native.md).
-
-For information about the model archiver, see [detailed documentation](model-archiver/README.md).
-
-
+If you plan to develop with TorchServe and change some source code, follow the [contributing guide](https://github.com/pytorch/serve/blob/master/CONTRIBUTING.md).

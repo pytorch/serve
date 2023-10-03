@@ -5,13 +5,13 @@ import importlib
 import json
 import logging
 import os
-import uuid
 from abc import ABCMeta, abstractmethod
-
 from builtins import str
+from typing import Optional
 
-from ts.metrics.metrics_store import MetricsStore
+from ts.metrics.metric_cache_yaml_impl import MetricsCacheYamlImpl
 from ts.service import Service
+
 from .utils.util import list_classes_from_module
 
 
@@ -35,13 +35,13 @@ class ModelLoader(object):
     @abstractmethod
     def load(
         self,
-        model_name,
-        model_dir,
-        handler,
-        gpu_id,
-        batch_size,
-        envelope=None,
-        limit_max_image_pixels=True,
+        model_name: str,
+        model_dir: str,
+        handler: Optional[str] = None,
+        gpu_id: Optional[int] = None,
+        batch_size: Optional[int] = None,
+        envelope: Optional[str] = None,
+        limit_max_image_pixels: Optional[bool] = True,
     ):
         """
         Load model from file.
@@ -66,14 +66,15 @@ class TsModelLoader(ModelLoader):
 
     def load(
         self,
-        model_name,
-        model_dir,
-        handler,
-        gpu_id,
-        batch_size,
-        envelope=None,
-        limit_max_image_pixels=True,
-    ):
+        model_name: str,
+        model_dir: str,
+        handler: Optional[str] = None,
+        gpu_id: Optional[int] = None,
+        batch_size: Optional[int] = None,
+        envelope: Optional[str] = None,
+        limit_max_image_pixels: Optional[bool] = True,
+        metrics_cache: Optional[MetricsCacheYamlImpl] = None,
+    ) -> Service:
         """
         Load TorchServe 1.0 model from file.
 
@@ -84,11 +85,10 @@ class TsModelLoader(ModelLoader):
         :param batch_size:
         :param envelope:
         :param limit_max_image_pixels:
+        :param metrics_cache: MetricsCacheYamlImpl object
         :return:
         """
         logging.debug("Loading model - working dir: %s", os.getcwd())
-        # TODO: Request ID is not given. UUID is a temp UUID.
-        metrics = MetricsStore(uuid.uuid4(), model_name)
         manifest_file = os.path.join(model_dir, "MAR-INF", "MANIFEST.json")
         manifest = None
         if os.path.exists(manifest_file):
@@ -107,26 +107,8 @@ class TsModelLoader(ModelLoader):
                     handler
                 )
             )
-        if function_name is None:
-            function_name = "handle"
-
-        if hasattr(module, function_name):
-            entry_point = getattr(module, function_name)
-            service = Service(
-                model_name,
-                model_dir,
-                manifest,
-                entry_point,
-                gpu_id,
-                batch_size,
-                limit_max_image_pixels,
-            )
-
-        envelope_class = None
-        if envelope is not None:
-            envelope_class = self._load_default_envelope(envelope)
-
         function_name = function_name or "handle"
+
         if hasattr(module, function_name):
             entry_point, initialize_fn = self._get_function_entry_point(
                 module, function_name
@@ -134,9 +116,11 @@ class TsModelLoader(ModelLoader):
         else:
             entry_point, initialize_fn = self._get_class_entry_point(module)
 
-        if envelope_class is not None:
-            envelope_instance = envelope_class(entry_point)
-            entry_point = envelope_instance.handle
+        if envelope is not None:
+            envelope_class = self._load_default_envelope(envelope)
+            if envelope_class is not None:
+                envelope_instance = envelope_class(entry_point)
+                entry_point = envelope_instance.handle
 
         service = Service(
             model_name,
@@ -146,8 +130,8 @@ class TsModelLoader(ModelLoader):
             gpu_id,
             batch_size,
             limit_max_image_pixels,
+            metrics_cache,
         )
-        service.context.metrics = metrics
         initialize_fn(service.context)
 
         return service
@@ -155,11 +139,11 @@ class TsModelLoader(ModelLoader):
     def _load_handler_file(self, handler):
         temp = handler.split(":", 1)
         module_name = temp[0]
-        function_name = None if len(temp) == 1 else temp[1]
         if module_name.endswith(".py"):
             module_name = module_name[:-3]
         module_name = module_name.split("/")[-1]
         module = importlib.import_module(module_name)
+        function_name = None if len(temp) == 1 else temp[1]
         return module, function_name
 
     def _load_default_handler(self, handler):

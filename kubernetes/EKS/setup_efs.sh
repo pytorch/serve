@@ -2,6 +2,7 @@
 
 CLUSTER_NAME=TorchserveCluster
 MOUNT_TARGET_GROUP_NAME="eks-efs-group"
+REGION="us-west-2"
 
 # Fetch VPC ID / CIDR Block for the EKS Cluster
 
@@ -25,19 +26,17 @@ aws ec2 authorize-security-group-ingress --group-id $MOUNT_TARGET_GROUP_ID --pro
 
 # Create an EFS file system.
 echo "Creating EFS Fils System"
-FILE_SYSTEM_ID=$(aws efs create-file-system | jq --raw-output '.FileSystemId')
+FILE_SYSTEM_ID=$(aws efs create-file-system --region "$REGION" --performance-mode generalPurpose --query 'FileSystemId' --output text)
 echo "Created EFS - $FILE_SYSTEM_ID"
 
-aws efs describe-file-systems --file-system-id $FILE_SYSTEM_ID
+aws efs describe-file-systems --file-system-id $FILE_SYSTEM_ID --region "$REGION"
 
 echo "Waiting 30s for before procedding"
 sleep 30
 
 # Create Mount target in Subnets
 echo "Obtaining Subnets"
-TAG1=tag:kubernetes.io/cluster/$CLUSTER_NAME
-TAG2=tag:kubernetes.io/role/elb
-subnets=($(aws ec2 describe-subnets --filters "Name=$TAG1,Values=shared" "Name=$TAG2,Values=1" | jq --raw-output '.Subnets[].SubnetId'))
+subnets=($(aws ec2 describe-subnets --region "$REGION" --filters "Name=vpc-id,Values=$VPC_ID" | jq --raw-output '.Subnets[].SubnetId'))
 echo "Obtained Subnets - $subnets"
 
 

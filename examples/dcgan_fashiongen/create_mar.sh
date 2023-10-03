@@ -15,8 +15,13 @@ function cleanup {
 }
 trap cleanup EXIT
 
+# Install dependencies
+if [ "$TS_RUN_IN_DOCKER" = true ]; then
+  apt-get install zip unzip -y
+else
+  sudo apt-get install zip unzip -y
+fi
 # Download and Extract model's source code
-sudo apt-get install zip unzip -y
 
 wget https://github.com/facebookresearch/pytorch_GAN_zoo/archive/$SRCZIP
 unzip $SRCZIP

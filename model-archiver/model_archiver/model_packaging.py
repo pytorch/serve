@@ -22,6 +22,7 @@ def package_model(args, manifest):
     extra_files = args.extra_files
     export_file_path = args.export_path
     requirements_file = args.requirements_file
+    config_file = args.config_file
 
     try:
         ModelExportUtils.validate_inputs(model_name, export_file_path)
@@ -37,9 +38,12 @@ def package_model(args, manifest):
             "handler": handler,
             "extra_files": extra_files,
             "requirements-file": requirements_file,
+            "config_file": config_file,
         }
 
-        model_path = ModelExportUtils.copy_artifacts(model_name, args.runtime, **artifact_files)
+        model_path = ModelExportUtils.copy_artifacts(
+            model_name, args.runtime, **artifact_files
+        )
 
         # Step 2 : Zip 'em all up
         ModelExportUtils.archive(

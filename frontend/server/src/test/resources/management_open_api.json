@@ -482,7 +482,8 @@
                     "maxWorkers",
                     "status",
                     "workers",
-                    "metrics"
+                    "metrics",
+                    "jobQueueStatus"
                   ],
                   "properties": {
                     "modelName": {
@@ -571,6 +572,23 @@
                         "requests": {
                           "type": "integer",
                           "description": "Number requests processed in last 10 minutes."
+                        }
+                      }
+                    },
+                    "jobQueueStatus": {
+                      "type": "object",
+                      "required": [
+                        "remainingCapacity",
+                        "pendingRequests"
+                      ],
+                      "properties": {
+                        "remainingCapacity": {
+                          "type": "integer",
+                          "description": "Number of new requests that can be queued."
+                        },
+                        "pendingRequests": {
+                          "type": "integer",
+                          "description": "Number of requests waiting in the queue."
                         }
                       }
                     }
@@ -1052,7 +1070,8 @@
                     "maxWorkers",
                     "status",
                     "workers",
-                    "metrics"
+                    "metrics",
+                    "jobQueueStatus"
                   ],
                   "properties": {
                     "modelName": {
@@ -1141,6 +1160,23 @@
                         "requests": {
                           "type": "integer",
                           "description": "Number requests processed in last 10 minutes."
+                        }
+                      }
+                    },
+                    "jobQueueStatus": {
+                      "type": "object",
+                      "required": [
+                        "remainingCapacity",
+                        "pendingRequests"
+                      ],
+                      "properties": {
+                        "remainingCapacity": {
+                          "type": "integer",
+                          "description": "Number of new requests that can be queued."
+                        },
+                        "pendingRequests": {
+                          "type": "integer",
+                          "description": "Number of requests waiting in the queue."
                         }
                       }
                     }

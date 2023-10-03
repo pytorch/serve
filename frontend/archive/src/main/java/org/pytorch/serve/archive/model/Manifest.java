@@ -64,6 +64,7 @@ public class Manifest {
         private String handler;
         private String envelope;
         private String requirementsFile;
+        private String configFile;
 
         public Model() {}
 
@@ -122,13 +123,19 @@ public class Manifest {
         public void setEnvelope(String envelope) {
             this.envelope = envelope;
         }
+
+        public String getConfigFile() {
+            return configFile;
+        }
+
+        public void setConfigFile(String configFile) {
+            this.configFile = configFile;
+        }
     }
 
     public enum RuntimeType {
         @SerializedName("python")
         PYTHON("python"),
-        @SerializedName("python2")
-        PYTHON2("python2"),
         @SerializedName("python3")
         PYTHON3("python3"),
         @SerializedName("LSP")

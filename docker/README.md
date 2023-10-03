@@ -28,17 +28,20 @@ cd serve/docker
 
 # Create TorchServe docker image
 
-Use `build_image.sh` script to build the docker images. The script builds the `production`, `dev` and `codebuild` docker images.
-| Parameter | Desciption |
+Use `build_image.sh` script to build the docker images. The script builds the `production`, `dev` , `ci` and `codebuild` docker images.
+| Parameter | Description |
 |------|------|
 |-h, --help|Show script help|
 |-b, --branch_name|Specify a branch name to use. Default: master |
 |-g, --gpu|Build image with GPU based ubuntu base image|
-|-bt, --buildtype|Which type of docker image to build. Can be one of : production, dev, codebuild|
+|-bi, --baseimage specify base docker image. Example: nvidia/cuda:11.8.0-cudnn8-runtime-ubuntu20.04|
+|-bt, --buildtype|Which type of docker image to build. Can be one of : production, dev, ci, codebuild|
 |-t, --tag|Tag name for image. If not specified, script uses torchserve default tag names.|
-|-cv, --cudaversion| Specify to cuda version to use. Supported values `cu92`, `cu101`, `cu102`, `cu111`, `cu113`, `cu116`. Default `cu102`|
+|-cv, --cudaversion| Specify to cuda version to use. Supported values `cu92`, `cu101`, `cu102`, `cu111`, `cu113`, `cu116`, `cu117`, `cu118`. `cu121`, Default `cu121`|
 |-ipex, --build-with-ipex| Specify to build with intel_extension_for_pytorch. If not specified, script builds without intel_extension_for_pytorch.|
+|-n, --nightly| Specify to build with TorchServe nightly.|
 |--codebuild| Set if you need [AWS CodeBuild](https://aws.amazon.com/codebuild/)|
+|-py, --pythonversion| Specify the python version to use. Supported values `3.8`, `3.9`, `3.10`, `3.11`. Default `3.9`|
 
 
 **PRODUCTION ENVIRONMENT IMAGES**
@@ -51,10 +54,12 @@ Creates a docker image with publicly available `torchserve` and `torch-model-arc
 ./build_image.sh
 ```
 
- - To create a GPU based image with cuda 10.2. Options are `cu92`, `cu101`, `cu102`, `cu111`, `cu113`, `cu116`
+ - To create a GPU based image with cuda 10.2. Options are `cu92`, `cu101`, `cu102`, `cu111`, `cu113`, `cu116`, `cu117`, `cu118`
+
+    - GPU images are built with NVIDIA CUDA base image. If you want to use ONNX, please specify the base image as shown in the next section.
 
   ```bash
-  ./build_image.sh -g -cv cu102
+  ./build_image.sh -g -cv cu117
   ```
 
  - To create an image with a custom tag
@@ -62,6 +67,15 @@ Creates a docker image with publicly available `torchserve` and `torch-model-arc
 ```bash
 ./build_image.sh -t torchserve:1.0
 ```
+
+**NVIDIA CUDA RUNTIME BASE IMAGE**
+
+To make use of ONNX, we need to use [NVIDIA CUDA runtime](https://github.com/NVIDIA/nvidia-docker/wiki/CUDA) as the base image.
+This will increase the size of your Docker Image
+
+```bash
+  ./build_image.sh -bi nvidia/cuda:11.7.0-cudnn8-runtime-ubuntu20.04 -g -cv cu117
+  ```
 
 **DEVELOPER ENVIRONMENT IMAGES**
 
@@ -271,7 +285,7 @@ torch-model-archiver --model-name densenet161 --version 1.0 --model-file /home/m
 
 Refer [torch-model-archiver](../model-archiver/README.md) for details.
 
-6. desnet161.mar file should be present at /home/model-server/model-store
+6. densenet161.mar file should be present at /home/model-server/model-store
 
 # Running TorchServe in a Production Docker Environment.
 
@@ -303,3 +317,7 @@ docker run --rm --shm-size=1g \
         -p7071:7071 \
         --mount type=bind,source=/path/to/model/store,target=/tmp/models <container> torchserve --model-store=/tmp/models
 ```
+
+# Example showing serving model using Docker container
+
+[This](../examples/image_classifier/mnist/Docker.md) is an example showing serving MNIST model using Docker.

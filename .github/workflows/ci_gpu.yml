@@ -7,6 +7,7 @@ on:
   pull_request:
     branches:
       - master
+  merge_group:
 
 concurrency:
   group: ci-gpu-${{ github.workflow }}-${{ github.ref == 'refs/heads/master' && github.run_number || github.ref }}
@@ -25,7 +26,7 @@ jobs:
           pwd
           rm -rf _tool
       - name: Setup Python 3.8
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: 3.8
           architecture: x64
@@ -35,15 +36,18 @@ jobs:
           distribution: 'zulu'
           java-version: '17'
       - name: Checkout TorchServe
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Install dependencies
         run: |
-          python ts_scripts/install_dependencies.py --environment=dev --cuda=cu102
+          python ts_scripts/install_dependencies.py --environment=dev --cuda=cu121
       - name: Torchserve Sanity
-        run: python torchserve_sanity.py
-      - name: mvn install
-        run: |
-            cd serving-sdk/ && ./mvnw clean install -q && cd ../
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 60
+          retry_on: error
+          max_attempts: 3
+          command: |
+            python torchserve_sanity.py
 
       # Any coverage.xml will be picked up by this step
       # Just make sure each coverage.xml is in a different folder

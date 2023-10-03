@@ -259,7 +259,7 @@ Torchserve returns the captum explanations for Image Classification, Text Classi
 
 The explanations are written as a part of the explain_handle method of base handler. The base handler invokes this explain_handle_method. The arguments that are passed to the explain handle methods are the pre-processed data and the raw data. It invokes the get insights function of the custom handler that returns the captum attributions. The user should write his own get_insights functionality to get the explanations 
 
-For serving a custom handler the captum algorithm should be initialized in the intialize functions of the handler 
+For serving a custom handler the captum algorithm should be initialized in the initialize functions of the handler 
 
 The user can override the explain_handle function in the custom handler.
 The user should define their get_insights method for custom handler to get Captum Attributions. 

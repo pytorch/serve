@@ -2,7 +2,7 @@
 
 ## Overview
 
-This documnet demonstrates, running fast transformers HuggingFace BERT example with Torchserve in kubernetes setup.
+This document demonstrates, running fast transformers HuggingFace BERT example with Torchserve in kubernetes setup.
 
 Refer: [FasterTransformer_HuggingFace_Bert](../../examples/FasterTransformer_HuggingFace_Bert/README.md#faster-transformer)
 
@@ -22,7 +22,7 @@ Once the cluster and the PVCs are ready, we can generate MAR file.
 
 ## Generate Mar file
 
-[Follow steps from here to generate MAR file](../../examples/FasterTransformer_HuggingFace_Bert/README.md#how-to-get-a-torchsctipted-traced-efft-of-hf-bert-model-and-serving-it)
+[Follow steps from here to generate MAR file](../../examples/FasterTransformer_HuggingFace_Bert/README.md#how-to-get-a-torchscripted-traced-efft-of-hf-bert-model-and-serving-it)
 
 ## Copy Mar file from container to local path
 
@@ -33,9 +33,9 @@ docker cp <container-id>:/workspace/serve/examples/FasterTransformer_HuggingFace
 ## Create config.properties
 
 ```bash
-inference_address=http://0.0.0.0:8080
-management_address=http://0.0.0.0:8081
-metrics_address=http://0.0.0.0:8082
+inference_address=http://127.0.0.1:8080
+management_address=http://127.0.0.1:8081
+metrics_address=http://127.0.0.1:8082
 NUM_WORKERS=1
 number_of_gpu=1
 install_py_dep_per_model=true

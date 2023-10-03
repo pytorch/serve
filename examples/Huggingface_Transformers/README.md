@@ -1,6 +1,6 @@
 ## Serving Huggingface Transformers using TorchServe
 
-In this example, we show how to serve a fine tuned or off the shelf Transformer model from [huggingface](https://huggingface.co/transformers/index.html) using TorchServe. 
+In this example, we show how to serve a fine tuned or off the shelf Transformer model from [huggingface](https://huggingface.co/docs/transformers/index) using TorchServe.
 
 We use a custom handler, [Transformer_handler.py](https://github.com/pytorch/serve/blob/master/examples/Huggingface_Transformers/Transformer_handler_generalized.py).
 
@@ -10,7 +10,7 @@ We borrowed ideas to write a custom handler for transformers from tutorial prese
 
 To get started [install Torchserve](https://github.com/pytorch/serve) and then
 
- `pip install transformers==4.6.0`
+ `pip install -r requirements.txt`
 
 ### Objectives
 1. How to package a transformer into a torch model archive (.mar) file (eager mode or Torchscript) with `torch-model-archiver`
@@ -51,21 +51,25 @@ In the setup_config.json :
 
 *embedding_name* : The name of embedding layer in the chosen model, this could be `bert` for `bert-base-uncased`, `roberta` for `roberta-base` or `roberta` for `xlm-roberta-large`, or `gpt2` for `gpt2` model
 
+*hardware* : The target platform to trace the model for. Specify as `neuron` for [Inferentia1](https://aws.amazon.com/ec2/instance-types/inf1/) and `neuronx` for [Inferentia2](https://aws.amazon.com/ec2/instance-types/inf2/).
+
+*batch_size* : Input batch size when tracing the model for `neuron` or `neuronx` as target hardware.
+
 Once, `setup_config.json` has been set properly, the next step is to run
 
 `python Download_Transformer_models.py`
 
-This produces all the required files for packaging using a huggingface transformer model off-the-shelf without fine-tuning process. Using this option will create and saved the required files into Transformer_model directory. 
+This produces all the required files for packaging using a huggingface transformer model off-the-shelf without fine-tuning process. Using this option will create and saved the required files into Transformer_model directory.
 
 
 #### Setting the extra_files
 
-There are few files that are used for model packaging and at the inference time. 
+There are few files that are used for model packaging and at the inference time.
 * `index_to_name.json`: maps predictions to labels
 * `sample_text.txt`: input text for inference
 * `vocab.txt`: by default will use the tokenizer from the pretrained model
 
-For custom vocabs, it is required to pass all other tokenizer related files such `tokenizer_config.json`, `special_tokens_map.json`, `config.json` and if available `merges.txt`. 
+For custom vocabs, it is required to pass all other tokenizer related files such `tokenizer_config.json`, `special_tokens_map.json`, `config.json` and if available `merges.txt`.
 
 For examples of how to configure a model for a use case and what the input format should look like
 * Model configuration: `Transformer_model` directory after running `python Download_Transformer_models.py`
@@ -278,7 +282,7 @@ For batch inference the main difference is that you need set the batch size whil
     mv BERTSeqClassification.mar model_store/
     torchserve --start --model-store model_store --ts-config config.properties --models BERTSeqClassification= BERTSeqClassification.mar
 
-    ```   
+    ```
 Now to run the batch inference following command can be used:
 
 ```
@@ -291,9 +295,9 @@ curl -X POST http://127.0.0.1:8080/predictions/BERTSeqClassification  -T ./Seq_c
 
 ### Captum Explanations for Visual Insights
 
-The [Captum Explanations for Visual Insights Notebook](../../captum/Captum_visualization_for_bert.ipynb) provides a visual example for how model interpretations can help
+The [Captum Explanations for Visual Insights Notebook](https://github.com/pytorch/serve/tree/master/examples/captum/Captum_visualization_for_bert.ipynb) provides a visual example for how model interpretations can help
 
-Known issues: 
+Known issues:
 * Captum does't work well for batched inputs and may result in timeouts
 * No support for torchscripted models
 
@@ -307,9 +311,21 @@ curl -H "Content-Type: application/json" --data @examples/Huggingface_Transforme
 
 When a json file is passed as a request format to the curl, Torchserve unwraps the json file from the request body. This is the reason for specifying service_envelope=body in the config.properties file
 
-## Model Paralellism 
+## Speed up inference with Better Transformer (Flash Attentions/ Xformer Memory Efficient kernels)
 
-[Parallelize] (https://huggingface.co/docs/transformers/model_doc/gpt2#transformers.GPT2Model.parallelize) is a an experimental feature that HuggingFace recently added to support large model inference for some very large models, GPT2 and T5. GPT2 model choices based on their size are gpt2-medium, gpt2-large, gpt2-xl. This feature only supports LMHeadModel that could be used for text generation, other applicaiton such as sequence, token classification and question answering are not supported. We have added parallelize support for GPT2 model in the cutom handler in this example that will enable you to perfrom model parallel inference for GPT2 models used for text generation. The same logic in the handler can be extended to T5 and the applications it supports. Make sure that you register your model with one worker using this feature. To run this example, a machine with #gpus > 1 is required. The number of required gpus depends on the size of the model. This feature only supports single node, one machine with multi-gpus.
+In the setup_config.json, specify `"BetterTransformer":true,`.
+
+
+[Better Transformer(Accelerated Transformer)](https://pytorch.org/blog/a-better-transformer-for-fast-transformer-encoder-inference/) from PyTorch is integrated into [Huggingface Optimum](https://huggingface.co/docs/optimum/bettertransformer/overview) that bring major speedups for many of encoder models on different modalities (text, image, audio). It is a one liner API that we have also added in the `Transformer_handler_generalized.py` in this example as well. That as shown above you just need to set `"BetterTransformer":true,` in the setup_config.json.
+
+Main speed ups in the Better Transformer comes from kernel fusion in the [TransformerEncoder] (https://pytorch.org/docs/stable/generated/torch.nn.TransformerEncoder.html) and making use of sparsity with [nested tensors](https://pytorch.org/tutorials/prototype/nestedtensor.html) when input sequences are padded to avoid unnecessary computation on padded tensors. We have seen up to 4.5x speed up with distill_bert when used higher batch sizes with padding. Please read more about it in this [blog post](https://medium.com/pytorch/bettertransformer-out-of-the-box-performance-for-huggingface-transformers-3fbe27d50ab2). You get some speedups even with Batch size = 1 and no padding however, major speed ups will show up when running inference with higher batch sizes (8.16,32) with padding.
+
+The Accelerated Transformer integration with HuggingFace also added the support for decoder models, please read more about it [here](https://pytorch.org/blog/out-of-the-box-acceleration/). This adds the native support for Flash Attentions and Xformer Memory Efficient kernels in PyTorch and make it availble on HuggingFace deocder models. This will brings significant speed up and memory savings with just one line of the code as before.
+
+
+## Model Parallelism
+
+[Parallelize] (https://huggingface.co/docs/transformers/model_doc/gpt2#transformers.GPT2Model.parallelize) is a an experimental feature that HuggingFace recently added to support large model inference for some very large models, GPT2 and T5. GPT2 model choices based on their size are gpt2-medium, gpt2-large, gpt2-xl. This feature only supports LMHeadModel that could be used for text generation, other application such as sequence, token classification and question answering are not supported. We have added parallelize support for GPT2 model in the custom handler in this example that will enable you to perform model parallel inference for GPT2 models used for text generation. The same logic in the handler can be extended to T5 and the applications it supports. Make sure that you register your model with one worker using this feature. To run this example, a machine with #gpus > 1 is required. The number of required gpus depends on the size of the model. This feature only supports single node, one machine with multi-gpus.
 
 Change `setup_config.json` to
 
@@ -345,7 +361,7 @@ To register the model on TorchServe using the above model archive file, we run t
 ```
 mkdir model_store
 mv Textgeneration.mar model_store/
-torchserve --start --model-store model_store 
+torchserve --start --model-store model_store
 curl -X POST "localhost:8081/models?model_name=Textgeneration&url=Textgeneration.mar&batch_size=1&max_batch_delay=5000&initial_workers=1&synchronous=true"
 ```
 
@@ -356,5 +372,5 @@ To get an explanation: `curl -X POST http://127.0.0.1:8080/explanations/Textgene
 
 ### Running KServe
 
-[BERT Readme for KServe](https://github.com/kserve/kserve/blob/master/docs/samples/v1beta1/torchserve/bert/README.md).
+[BERT Readme for KServe](https://github.com/kserve/kserve/blob/master/docs/samples/v1beta1/custom/torchserve/bert-sample/hugging-face-bert-sample.md).
 [End to End KServe document](https://github.com/pytorch/serve/blob/master/kubernetes/kserve/README.md).

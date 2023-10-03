@@ -1,0 +1,9 @@
+# TS Frontend parameters
+minWorkers: a
+maxWorkers: 1
+batchSize: 1
+maxBatchDelay: 100
+responseTimeout: 120
+deviceType: xpu # cpu, gpu
+deviceIds: 0,1,2,3] # device index for gpu
+parallelType: "xpp" # pp: pipeline parallel; pptp: tensor+pipeline parallel

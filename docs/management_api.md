@@ -1,4 +1,4 @@
-# Management API
+# [Management API](#management-api)
 
 TorchServe provides the following APIs that allows you to manage models at runtime:
 
@@ -9,11 +9,12 @@ TorchServe provides the following APIs that allows you to manage models at runti
 5. [List registered models](#list-models)
 6. [Set default version of a model](#set-default-version)
 
-The Management API listens on port 8081 and is only accessible from localhost by default. To change the default setting, see [TorchServe Configuration](configuration.md).
+The Management API listens on port 8081 and is only accessible from localhost by default. To change the default setting, see [TorchServe Configuration](./configuration.md).
 
 Similar to the [Inference API](inference_api.md), the Management API provides a [API description](#api-description) to describe management APIs with the OpenAPI 3.0 specification.
 
 Alternatively, if you want to use KServe, TorchServe supports both v1 and v2 API. For more details please look into this [kserve documentation](https://github.com/pytorch/serve/tree/master/kubernetes/kserve)
+
 ## Register a model
 
 This API follows the [ManagementAPIsService.RegisterModel](https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/proto/management.proto) gRPC API.
@@ -40,21 +41,22 @@ curl -X POST  "http://localhost:8081/models?url=https://torchserve.pytorch.org/m
 }
 ```
 
-### Encrypted model serving 
+### Encrypted model serving
 If you'd like to serve an encrypted model then you need to setup [S3 SSE-KMS](https://docs.aws.amazon.com/AmazonS3/latest/userguide/UsingKMSEncryption.html) with the following environment variables:
 * AWS_ACCESS_KEY_ID
 * AWS_SECRET_ACCESS_KEY
 * AWS_DEFAULT_REGION
 
-And set "s3_sse_kms=true" in HTTP request. 
+And set "s3_sse_kms=true" in HTTP request.
 
-For example: model squeezenet1_1 is [encrypted on S3 under your own private account](https://docs.aws.amazon.com/AmazonS3/latest/userguide/UsingKMSEncryption.html). The model http url on S3 is https://torchserve.pytorch.org/sse-test/squeezenet1_1.mar.
-- if torchserve will run on EC2 instance (eg. OS: ubuntu)
+For example: model squeezenet1_1 is [encrypted on S3 under your own private account](https://docs.aws.amazon.com/AmazonS3/latest/userguide/UsingKMSEncryption.html). The model http url on S3 is `https://torchserve.pytorch.org/sse-test/squeezenet1_1.mar`.
+- if torchserve will run on EC2 instance (e.g. OS: ubuntu)
 1. add an IAM Role (AWSS3ReadOnlyAccess) for the EC2 instance
 2. run ts_scripts/get_aws_credential.sh to export AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY
 3. export AWS_DEFAULT_REGION=your_s3_bucket_region
 4. start torchserve
 5. Register encrypted model squeezenet1_1 by setting s3_sse_kms=true in curl command.
+
 ```bash
 curl -X POST  "http://localhost:8081/models?url=https://torchserve.pytorch.org/sse-test/squeezenet1_1.mar&s3_sse_kms=true"
 
@@ -62,7 +64,8 @@ curl -X POST  "http://localhost:8081/models?url=https://torchserve.pytorch.org/s
   "status": "Model \"squeezenet_v1.1\" Version: 1.0 registered with 0 initial workers. Use scale workers API to add workers for the model."
 }
 ```
-- if torchserve will run on local (eg. OS: macOS)
+
+- if torchserve will run on local (e.g. OS: macOS)
 1. Find your AWS access key and secret key. You can [reset them](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys_retrieve.html) if you forgot the keys.
 2. export AWS_ACCESS_KEY_ID=your_aws_access_key
 3. export AWS_SECRET_ACCESS_KEY=your_aws_secret_key
@@ -83,7 +86,7 @@ curl -v -X POST "http://localhost:8081/models?initial_workers=1&synchronous=fals
 < x-request-id: 4dc54158-c6de-42aa-b5dd-ebcb5f721043
 < content-length: 47
 < connection: keep-alive
-< 
+<
 {
   "status": "Processing worker updates..."
 }
@@ -99,7 +102,7 @@ curl -v -X POST "http://localhost:8081/models?initial_workers=1&synchronous=true
 < x-request-id: ecd2e502-382f-4c3b-b425-519fbf6d3b85
 < content-length: 89
 < connection: keep-alive
-< 
+<
 {
   "status": "Model \"squeezenet1_1\" Version: 1.0 registered with 1 initial workers"
 }
@@ -115,7 +118,7 @@ This API follows the [ManagementAPIsService.ScaleWorker](https://github.com/pyto
 * `min_worker` - (optional) the minimum number of worker processes. TorchServe will try to maintain this minimum for specified model. The default value is `1`.
 * `max_worker` - (optional) the maximum number of worker processes. TorchServe will make no more that this number of workers for the specified model. The default is the same as the setting for `min_worker`.
 * `synchronous` - whether or not the call is synchronous. The default value is `false`.
-* `timeout` - the specified wait time for a worker to complete all pending requests. If exceeded, the work process will be terminated. Use `0` to terminate the backend worker process immediately. Use `-1` to wait infinitely. The default value is `-1`. 
+* `timeout` - the specified wait time for a worker to complete all pending requests. If exceeded, the work process will be terminated. Use `0` to terminate the backend worker process immediately. Use `-1` to wait infinitely. The default value is `-1`.
 
 Use the Scale Worker API to dynamically adjust the number of workers for any version of a model to better serve different inference request loads.
 
@@ -131,7 +134,7 @@ curl -v -X PUT "http://localhost:8081/models/noop?min_worker=3"
 < x-request-id: 42adc58e-6956-4198-ad07-db6c620c4c1e
 < content-length: 47
 < connection: keep-alive
-< 
+<
 {
   "status": "Processing worker updates..."
 }
@@ -147,7 +150,7 @@ curl -v -X PUT "http://localhost:8081/models/noop?min_worker=3&synchronous=true"
 < x-request-id: b72b1ea0-81c6-4cce-92c4-530d3cfe5d4a
 < content-length: 63
 < connection: keep-alive
-< 
+<
 {
   "status": "Workers scaled to 3 for model: noop"
 }
@@ -166,7 +169,7 @@ curl -v -X PUT "http://localhost:8081/models/noop/2.0?min_worker=3&synchronous=t
 < x-request-id: 3997ccd4-ae44-4570-b249-e361b08d3d47
 < content-length: 77
 < connection: keep-alive
-< 
+<
 {
   "status": "Workers scaled to 3 for model: noop, version: 2.0"
 }
@@ -174,7 +177,7 @@ curl -v -X PUT "http://localhost:8081/models/noop/2.0?min_worker=3&synchronous=t
 
 ## Describe model
 
-This API follows the [ManagementAPIsService.DescribeModel](../frontend/server/src/main/resources/proto/management.proto) gRPC API. It returns the status of a model in the ModelServer.
+This API follows the [ManagementAPIsService.DescribeModel](https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/proto/management.proto) gRPC API. It returns the status of a model in the ModelServer.
 
 `GET /models/{model_name}`
 
@@ -201,7 +204,11 @@ curl http://localhost:8081/models/noop
           "gpu": false,
           "memoryUsage": 89247744
         }
-      ]
+      ],
+      "jobQueueStatus": {
+        "remainingCapacity": 100,
+        "pendingRequests": 0
+      }
     }
 ]
 ```
@@ -231,7 +238,11 @@ curl http://localhost:8081/models/noop/2.0
           "gpu": false,
           "memoryUsage": 89247744
         }
-      ]
+      ],
+      "jobQueueStatus": {
+        "remainingCapacity": 100,
+        "pendingRequests": 0
+      }
     }
 ]
 ```
@@ -261,7 +272,11 @@ curl http://localhost:8081/models/noop/all
           "gpu": false,
           "memoryUsage": 89247744
         }
-      ]
+      ],
+      "jobQueueStatus": {
+        "remainingCapacity": 100,
+        "pendingRequests": 0
+      }
     },
     {
       "modelName": "noop",
@@ -281,18 +296,23 @@ curl http://localhost:8081/models/noop/all
           "gpu": false,
           "memoryUsage": 89247744
         }
-      ]
+      ],
+      "jobQueueStatus": {
+        "remainingCapacity": 100,
+        "pendingRequests": 0
+      }
     }
 ]
 ```
 
 `GET /models/{model_name}/{model_version}?customized=true`
-or 
+or
 `GET /models/{model_name}?customized=true`
 
 Use the Describe Model API to get detail runtime status and customized metadata of a version of a model:
-* Implement function describe_handle. Eg.
-```
+* Implement function describe_handle. E.g.
+
+```python
     def describe_handle(self):
         """Customized describe handler
         Returns:
@@ -306,7 +326,8 @@ Use the Describe Model API to get detail runtime status and customized metadata 
 ```
 
 * Implement function _is_describe if handler is not inherited from BaseHandler. And then, call _is_describe and describe_handle in handle.
-```
+
+```python
     def _is_describe(self):
         if self.context and self.context.get_request_header(0, "describe"):
             if self.context.get_request_header(0, "describe") == "True":
@@ -328,15 +349,16 @@ Use the Describe Model API to get detail runtime status and customized metadata 
         return output
 ```
 
-* Call function _is_describe and describe_handle in handle. Eg.
-```
+* Call function _is_describe and describe_handle in handle. E.g.
+
+```python
 def handle(self, data, context):
         """Entry point for default handler. It takes the data from the input request and returns
            the predicted outcome for the input.
         Args:
             data (list): The input data that needs to be made a prediction request on.
             context (Context): It is a JSON Object containing information pertaining to
-                               the model artefacts parameters.
+                               the model artifacts parameters.
         Returns:
             list : Returns a list of dictionary with the predicted response.
         """
@@ -368,7 +390,9 @@ def handle(self, data, context):
             (stop_time - start_time) * 1000, 2), None, 'ms')
         return output
 ```
+
 * Here is an example. "customizedMetadata" shows the metadata from user's model. These metadata can be decoded into a dictionary.
+
 ```bash
 curl http://localhost:8081/models/noop-customized/1.0?customized=true
 [
@@ -393,12 +417,18 @@ curl http://localhost:8081/models/noop-customized/1.0?customized=true
             "gpuUsage": "N/A"
           }
         ],
+        "jobQueueStatus": {
+          "remainingCapacity": 100,
+          "pendingRequests": 0
+        },
         "customizedMetadata": "{\n  \"data1\": \"1\",\n  \"data2\": \"2\"\n}"
      }
 ]
 ```
+
 * Decode customizedMetadata on client side. For example:
-```
+
+```python
 import requests
 import json
 

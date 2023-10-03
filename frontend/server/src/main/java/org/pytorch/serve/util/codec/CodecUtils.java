@@ -21,7 +21,10 @@ public final class CodecUtils {
 
         int len = byteBuf.readInt();
         if (len > maxLength) {
-            throw new CorruptedFrameException("Message size exceed limit: " + len);
+            throw new CorruptedFrameException(
+                    "Message size exceed limit: "
+                            + len
+                            + "\nConsider increasing the 'max_response_size' in 'config.properties' to fix.");
         }
         if (len > byteBuf.readableBytes()) {
             return BUFFER_UNDER_RUN;

@@ -1,6 +1,6 @@
 # cf. https://github.com/ryanfox/sphinx-markdown-tables/issues/36
 markdown<3.4.0
-sphinx==4.0.3
+sphinx==5.0.0
 katex
 recommonmark==0.6.0
 sphinxcontrib.katex
@@ -9,6 +9,9 @@ sphinx-markdown-tables==0.0.15
 torchserve
 torch-model-archiver
 torch-workflow-archiver
+torchvision
+pyyaml
+captum
+torchtext
+pytest
 -e git+https://github.com/pytorch/pytorch_sphinx_theme.git#egg=pytorch_sphinx_theme
-
-
