@@ -313,6 +313,7 @@ public class WorkerThread implements Runnable {
                     i++) {
                 backendChannel.get(i).disconnect();
             }
+            backendChannel.clear();
             currentThread.set(null);
             Integer exitValue = lifeCycle.getExitValue();
 
