@@ -100,13 +100,20 @@ handler:
 Create the mar file using the following command here. 
 
 ```
- torch-model-archiver --model-name llama --version 1.0 --handler llama-handler.py --config-file model-config.yaml --archive-format tgz --extra-files "llama2.py,llama2_tokenizer.py,generate.py,checkpoint_converter.py" 
+torch-model-archiver --model-name llama --version 1.0 --handler llama-handler.py --config-file model-config.yaml --archive-format no-archive 
+
+cp llama2.py,llama2_tokenizer.py,generate.py,checkpoint_converter.py llama
+
+mkdir model_store
+
+cp mv llama model_store
+
 ```
 
 ### Step 6: Serve the model:
 
 ```
-torchserve --ncs --start --model-store model_store --models llama.tar.gz
+torchserve --ncs --start --model-store model_store --models llama
 
 ```
 
