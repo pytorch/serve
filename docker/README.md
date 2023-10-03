@@ -187,7 +187,14 @@ Creates a docker image for codebuild environment
 
 ## Start a container with a TorchServe image
 
-The following examples will start the container with 8080/81/82 and 7070/71 port exposed to outer-world/localhost.
+The following examples will start the container with 8080/81/82 and 7070/71 port exposed to `localhost`.
+
+## Security Guideline
+
+TorchServe's docker image exposes ports to `localhost` by default.
+You can edit this by updating the [config](https://github.com/pytorch/serve/blob/master/docker/config.properties)
+
+TorchServe does not prevent users from changing this to `0.0.0.0`. If you do this, please be aware of the security risks.
 
 #### Start CPU container
 
