@@ -364,7 +364,7 @@ def docker_torchserve_start():
     management_port = urlparse(execution_params["management_url"]).port
     docker_run_cmd = (
         f"docker run {execution_params['docker_runtime']} {backend_profiling} --name ts --user root -p "
-        f"{inference_port}:{inference_port} -p {management_port}:{management_port} "
+        f"127.0.0.1:{inference_port}:{inference_port} -p 127.0.0.1:{management_port}:{management_port} "
         f"-v {execution_params['tmp_dir']}:/tmp {enable_gpu} -itd {docker_image} "
         f'"torchserve --start --model-store /home/model-server/model-store '
         f"\--workflow-store /home/model-server/wf-store "
