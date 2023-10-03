@@ -26,7 +26,7 @@ TorchServe as much as possible relies on automated tools to do security scanning
 
 3. Be sure to validate the authenticity of the `.mar` file being used with TorchServe.
     1. A `.mar` file being downloaded from the internet from an untrusted source may have malicious code, compromising the integrity of your application
-    2. TorchServe executes arbitrary python code packaged in the `mar` file. Make sure the code being packaged is not creating a security risk.
+    2. TorchServe executes arbitrary python code packaged in the `mar` file. Make sure that you've either audited that the code you're using is safe and/or is from a source that you trust
 
 
 
