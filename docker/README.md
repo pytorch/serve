@@ -191,10 +191,9 @@ The following examples will start the container with 8080/81/82 and 7070/71 port
 
 ## Security Guideline
 
-TorchServe's docker image exposes ports to `localhost` by default.
-You can edit this by updating the [config](https://github.com/pytorch/serve/blob/master/docker/config.properties)
+TorchServe's Dockerfile configures  ports `8080`, `8081` , `8082`, `7070` and `7071` to be exposed to the host by default.
 
-TorchServe does not prevent users from changing this to `0.0.0.0`. If you do this, please be aware of the security risks.
+When mapping these ports to the host, make sure to specify `localhost` or a specific ip address.
 
 #### Start CPU container
 
