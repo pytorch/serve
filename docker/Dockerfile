@@ -165,7 +165,7 @@ RUN --mount=type=cache,target=/var/cache/apt \
     npm \
     zip \
     unzip \
-    && npm install -g newman newman-reporter-htmlextra markdown-link-check \
+    && npm install -g newman@5.3.2 newman-reporter-htmlextra markdown-link-check \
     && rm -rf /var/lib/apt/lists/* \
     && cd /tmp
 

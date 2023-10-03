@@ -83,7 +83,7 @@ class Common:
 
     def install_node_packages(self):
         os.system(
-            f"{self.sudo_cmd}npm install -g newman newman-reporter-htmlextra markdown-link-check"
+            f"{self.sudo_cmd}npm install -g newman@5.3.2 newman-reporter-htmlextra markdown-link-check"
         )
 
     def install_jmeter(self):
@@ -204,7 +204,17 @@ if __name__ == "__main__":
     parser.add_argument(
         "--cuda",
         default=None,
-        choices=["cu92", "cu101", "cu102", "cu111", "cu113", "cu116", "cu117", "cu118"],
+        choices=[
+            "cu92",
+            "cu101",
+            "cu102",
+            "cu111",
+            "cu113",
+            "cu116",
+            "cu117",
+            "cu118",
+            "cu121",
+        ],
         help="CUDA version for torch",
     )
     parser.add_argument(

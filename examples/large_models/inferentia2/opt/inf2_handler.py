@@ -62,7 +62,7 @@ class LLMHandler(BaseHandler, ABC):
 
         logger.info("Starting to compile the model")
 
-        self.batch_size = ctx.model_yaml_config["handler"]["batch_size"]
+        self.batch_size = ctx.model_yaml_config["batchSize"]
         self.model = OPTForSampling.from_pretrained(
             model_dir, batch_size=self.batch_size, tp_degree=tp_degree, amp=amp
         )
