@@ -223,7 +223,7 @@ public final class ModelManager {
                             " -m pip install -U -t ",
                             dependencyPath.getAbsolutePath(),
                             " -r ",
-                            requirementsFilePath}; // NOPMD
+                            requirementsFilePath.toString()}; // NOPMD
 
             String[] envp =
                     EnvironmentUtils.getEnvString(
