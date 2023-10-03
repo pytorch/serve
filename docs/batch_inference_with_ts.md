@@ -294,7 +294,7 @@ models={\
 * Start serving the model with the container and pass the config.properties to the container
 
 ```bash
- docker run --rm -it --gpus all -p 8080:8080 -p 8081:8081 --name mar -v /home/ubuntu/serve/model_store:/home/model-server/model-store  -v $ path to config.properties:/home/model-server/config.properties  pytorch/torchserve:latest-gpu
+ docker run --rm -it --gpus all -p 127.0.0.1:8080:8080 -p 127.0.0.1:8081:8081 --name mar -v /home/ubuntu/serve/model_store:/home/model-server/model-store  -v $ path to config.properties:/home/model-server/config.properties  pytorch/torchserve:latest-gpu
 ```
 * Verify that the workers were started properly.
 ```bash
