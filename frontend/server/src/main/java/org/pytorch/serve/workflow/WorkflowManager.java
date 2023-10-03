@@ -386,7 +386,7 @@ public final class WorkflowManager {
                                                 new DefaultFullHttpResponse(
                                                         HttpVersion.HTTP_1_1,
                                                         HttpResponseStatus.OK,
-                                                        false);
+                                                        true);
                                         resp.headers()
                                                 .set(
                                                         HttpHeaderNames.CONTENT_TYPE,
