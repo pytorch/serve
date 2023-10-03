@@ -36,15 +36,17 @@ class CodeGenHandler(BaseHandler, ABC):
         model_name = ctx.model_yaml_config["handler"]["model_name"]
         model_path = ctx.model_yaml_config["handler"]["model_path"]
         
+        self.batch_size = int(ctx.model_yaml_config["handler"]["batch_size"])
         self.max_length = int(ctx.model_yaml_config["handler"]["max_length"])
+        self.max_new_tokens = int(ctx.model_yaml_config["handler"]["max_new_tokens"])
+        self.min_new_tokens = int(ctx.model_yaml_config["handler"]["min_new_tokens"])
         
         if IPEX_ENABLE:
             ############ Intel® Extension for PyTorch* BF16 JIT ############
             
             # generate args
             num_beams = 4
-            batch_size = 1
-            self.generate_kwargs = dict(do_sample=False, temperature=0.9, num_beams=num_beams, max_length=self.max_length)
+            self.generate_kwargs = dict(do_sample=False, temperature=0.9, num_beams=num_beams, max_new_tokens=self.max_new_tokens, min_new_tokens=self.max_new_tokens)
             
             # device 
             device = torch.device("cpu")
@@ -64,7 +66,7 @@ class CodeGenHandler(BaseHandler, ABC):
             
             # dummy past key values
             beam_idx_tmp = torch.zeros(
-                (2048, int(batch_size * num_beams)), dtype=torch.long
+                (2048, int(self.batch_size * num_beams)), dtype=torch.long
             ).contiguous()
             past_key_values = tuple(
                 [
@@ -104,36 +106,56 @@ class CodeGenHandler(BaseHandler, ABC):
             ################################################################
         else:
             # generate args
-            self.generate_kwargs = dict(max_length=self.max_length)
+            self.generate_kwargs = dict(max_new_tokens=self.max_new_tokens, min_new_tokens=self.max_new_tokens)
             
             # load model
             self.tokenizer = AutoTokenizer.from_pretrained(model_path)
             self.model = AutoModelForCausalLM.from_pretrained(model_path)
+        
+        
+        # set PAD token
+        if self.tokenizer.pad_token is None:
+            self.tokenizer.pad_token=self.tokenizer.eos_token
             
         logger.info("Successfully loaded Model %s", ctx.model_name)
 
     def preprocess(self, requests):
         input_ids_batch = None
+        attention_mask_batch = None
         for idx, data in enumerate(requests):
             input_text = data.get("data")
             if input_text is None:
                 input_text = data.get("body")
             if isinstance(input_text, (bytes, bytearray)):
                 input_text = input_text.decode("utf-8")
-            logger.info("Received text: '%s'", input_text)
         
-        with torch.inference_mode(), torch.no_grad(), torch.autocast(
-            device_type="cpu",
-            enabled=True if IPEX_ENABLE else False,
-            dtype=torch.bfloat16 if IPEX_ENABLE else None
-        ):
-            input_ids = self.tokenizer(input_text, return_tensors="pt").input_ids
-        input_size = input_ids.size(dim=1)
-        logger.info("Input text size: %i", input_size)
-
-        return input_ids 
+            with torch.inference_mode(), torch.no_grad(), torch.autocast(
+                device_type="cpu",
+                enabled=True if IPEX_ENABLE else False,
+                dtype=torch.bfloat16 if IPEX_ENABLE else None
+            ):
+                inputs = self.tokenizer(
+                                        input_text,
+                                        max_length=int(self.max_length),
+                                        pad_to_max_length=True,
+                                        add_special_tokens=True,
+                                        return_tensors="pt",
+                                        )
+            
+            input_ids = inputs["input_ids"]
+            attention_mask = inputs["attention_mask"]
+            # making a batch out of the recieved requests
+            if input_ids.shape is not None:
+                if input_ids_batch is None:
+                    input_ids_batch = input_ids
+                    attention_mask_batch = attention_mask
+                else:
+                    input_ids_batch = torch.cat((input_ids_batch, input_ids), 0)
+                    attention_mask_batch = torch.cat((attention_mask_batch, attention_mask), 0)
+        return (input_ids_batch, attention_mask_batch)
         
     def inference(self, input_batch):
+        input_ids_batch, attention_mask_batch = input_batch
         inferences = []
         
         """
@@ -173,7 +195,7 @@ class CodeGenHandler(BaseHandler, ABC):
             enabled=IPEX_ENABLE==True,
             dtype=torch.bfloat16 if IPEX_ENABLE else None
         ):
-            outputs = self.model.generate(input_batch, **self.generate_kwargs)
+            outputs = self.model.generate(input_ids_batch, attention_mask=attention_mask_batch, **self.generate_kwargs)
             for i, x in enumerate(outputs):
                 inferences.append(
                     self.tokenizer.decode(outputs[i], skip_special_tokens=True)
