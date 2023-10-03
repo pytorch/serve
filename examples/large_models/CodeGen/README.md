@@ -54,7 +54,10 @@ maxWorkers: 1
 handler:
     model_name: "Salesforce/codegen-2B-multi"
     model_path: "{path/to/torchserve}/serve/examples/large_models/CodeGen/model/models--Salesforce--codegen-2B-multi/snapshots/c33da754a6605cb4eda7cf7e2b30a6d8bbcd9385" # the path to the checkpoints, please change to your model path.
+    batch_size: 3
     max_length: 128
+    max_new_tokens: 32
+    min_new_tokens: 32
 ```
 
 4. Generate `MAR` file
@@ -120,93 +123,35 @@ def random_string_with_special_chars(length):
 return ''.join(random.choice(string.ascii_uppercase + string.digits + string.punctuation) for _ in range(length))
 ```
 
+## Batch Inference
+For batch inference, batch size needs to be registered through `config.properties` or management API. You can read more on batch inference in TorchServe [here](https://github.com/pytorch/serve/blob/master/docs/batch_inference_with_ts.md). The following examples register a model `codegen.mar` and configure TorchServe to use a batch_size of 3 and a max batch delay of 5 seconds.
+
+* `config.properties`
 ```
-curl http://localhost:8080/predictions/codegen -T ./sample_text_2.txt
+models={\
+  "codegen": {\
+    "1.0": {\
+        "defaultVersion": true,\
+        "marName": "codegen.mar",\
+        "minWorkers": 1,\
+        "maxWorkers": 1,\
+        "batchSize": 3,\
+        "maxBatchDelay": 5000,\
+        "responseTimeout": 120\
+    }\
+  }\
+}
 ```
-Sample output:  
+
+* Management API
 ```
-$ curl http://localhost:8080/predictions/codegen -T ./sample_text_2.txt
-# This Python script demonstrates a basic Multi-Layer Perceptron (MLP) model for image classification. Using PyTorch machine-learning framework library, it defines a simple MLP architecture, loads the datasets, preprocesses the input images, postprocesses the outputs, and trains it on the training data images. Finally, it evaluates the model's performance on the evaluation data images.
+torchserve --ncs --start --model-store model_store
+curl -v -X POST "http://localhost:8081/models?initial_workers=1&synchronous=true&url=codegen.mar&batch_size=3&max_batch_delay=5000"
+```
 
-# In[1]:
-
-# Import packages
-import numpy as np
-import matplotlib.pyplot as plt
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-import torch.optim as optim
-import torch.utils.data
-import torchvision.datasets as datasets
-import torchvision.transforms as transforms
-import torch.backends.cudnn as cudnn
-import time
-
-# Import the pre-trained model
-from models.mlp import MLP
-
-# Set the parameters
-batch_size = 100
-num_epochs = 1
-
-# Load the training and test datasets
-train_dataset = torch.utils.data.TensorDataset(datasets.MNIST(root="../../data/", train=True, download=True, transform=transforms.Compose([
-    transforms.RandomResizedCrop(32, padding=4),
-    transforms.RandomHorizontalFlip(),
-    transforms.ToTensor(),
-    transforms.Normalize((0.1307,), (0.3081,))
-])))
-
-test_dataset = torch.utils.data.TensorDataset(datasets.MNIST(root="../../data/", train=False, download=True, transform=transforms.Compose([
-    transforms.ToTensor(),
-    transforms.Normalize((0.1307,), (0.3081,))
-])))
-
-# Create the model
-model = MLP(input_size=784, hidden_sizes=[100, 100, 100], num_classes=10)
-
-# Create the optimizer
-optimizer = optim.Adam(model.parameters(), lr=0.01)
-
-# Create the training and test iterators
-train_iter = train_dataset.batch(batch_size)
-test_iter = test_dataset.batch(batch_size)
-
-# Start the training
-for epoch in range(num_epochs):
-    # Shuffle the data
-    train_iter.shuffle(batch_size)
-    # Fit the model on the training data
-    model.train()
-    for batch_index, (images, labels) in enumerate(train_iter):
-        # Forward pass
-        images = images.to(device)
-        outputs = model(images)
-        # Backward and optimize
-        optimizer.zero_grad()
-        output_loss = F.softmax_cross_entropy(outputs, labels)
-        loss = output_loss.mean()
-        loss.backward()
-        optimizer.step()
-        # Print the loss
-        print("Epoch: [{}/{}], Step: [{}/{}], Loss: {:.4f}".format(
-            epoch + 1, num_epochs,
-            batch_index + 1, len(train_dataset), loss))
-    # Evaluate the model on the test data
-    test_loss = 0
-    test_accuracy = 0
-    for images, labels in test_iter:
-        images = images.to(device)
-        outputs = model(images)
-        test_loss += F.softmax_cross_entropy(outputs, labels).mean()
-        test_accuracy += (outputs.eq(labels)).sum().item()
-    test_loss /= len(test_iter)
-    test_accuracy /= len(test_iter)
-    print("Test loss: {:.4f}, Test accuracy: {:.4f}".format(test_loss, test_accuracy))
-
-# Save the model
-torch.save(model.state_dict(), "model.pt")
+Run Batch Inference
+```
+curl http://localhost:8080/predictions/codegen -T ./sample_text_0.txt & curl http://localhost:8080/predictions/codegen -T ./sample_text_1.txt & curl http://localhost:8080/predictions/codegen -T ./sample_text_2.txt
 ```
 
 ## Benchmark with TorchServe 
