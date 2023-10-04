@@ -228,7 +228,12 @@ public class WorkLoadManager {
                 }
             }
 
-            BatchAggregator aggregator = new BatchAggregator(model);
+            BatchAggregator aggregator;
+            if (model.isContinuousBatching()) {
+                aggregator = new ContinuousBatching(model);
+            } else {
+                aggregator = new BatchAggregator(model);
+            }
             int currentPort =
                     model.getParallelLevel() > 1
                             ? configManager.isDebug()

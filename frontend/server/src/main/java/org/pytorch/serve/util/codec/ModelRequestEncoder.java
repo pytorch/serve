@@ -76,6 +76,12 @@ public class ModelRequestEncoder extends MessageToByteEncoder<BaseModelRequest> 
         out.writeInt(buf.length);
         out.writeBytes(buf);
 
+        if (req.isCached()) {
+            out.writeInt(-1); // End of List
+            out.writeInt(-1); // End of List
+            return;
+        }
+
         for (Map.Entry<String, String> entry : req.getHeaders().entrySet()) {
             encodeField(entry.getKey(), out);
             encodeField(entry.getValue(), out);
@@ -86,6 +92,7 @@ public class ModelRequestEncoder extends MessageToByteEncoder<BaseModelRequest> 
             encodeParameter(input, out);
         }
         out.writeInt(-1); // End of List
+        req.setCached(true);
     }
 
     private void encodeParameter(InputParameter parameter, ByteBuf out) {

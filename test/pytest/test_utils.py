@@ -6,8 +6,10 @@ import subprocess
 import sys
 import tempfile
 import threading
+from io import TextIOWrapper
 from os import path
 from pathlib import Path
+from queue import Queue
 from subprocess import PIPE, STDOUT, Popen
 
 import requests
@@ -22,14 +24,32 @@ MODEL_STORE = path.join(ROOT_DIR, "model_store/")
 CODEBUILD_WD = path.abspath(path.join(__file__, "../../.."))
 
 
-class PrintPipeTillTheEnd(threading.Thread):
-    def __init__(self, pipe):
+class PrintTillTheEnd(threading.Thread):
+    def __init__(self, queue):
         super().__init__()
-        self.pipe = pipe
+        self._queue = queue
 
     def run(self):
-        for line in self.pipe.stdout:
-            print(line.decode("utf-8").strip())
+        while True:
+            line = self._queue.get()
+            if not line:
+                break
+            print(line.strip())
+
+
+class Tee(threading.Thread):
+    def __init__(self, reader):
+        super().__init__()
+        self.reader = reader
+        self.queue1 = Queue()
+        self.queue2 = Queue()
+
+    def run(self):
+        for line in self.reader:
+            self.queue1.put(line)
+            self.queue2.put(line)
+        self.queue1.put(None)
+        self.queue2.put(None)
 
 
 def start_torchserve(
@@ -53,8 +73,13 @@ def start_torchserve(
         print(line.decode("utf8").strip())
         if "Model server started" in str(line).strip():
             break
-    print_thread = PrintPipeTillTheEnd(p)
+
+    splitter = Tee(TextIOWrapper(p.stdout))
+    splitter.start()
+    print_thread = PrintTillTheEnd(splitter.queue1)
     print_thread.start()
+
+    return splitter.queue2
 
 
 def stop_torchserve():
