@@ -7,15 +7,17 @@ parallelType: "tp"
 deviceType: "gpu"
 
 torchrun:
-    nproc-per-node: 8
+    nproc-per-node: 1
 
 handler:
-    converted_ckpt_dir: "PATH/TO/converted_checkpoints"
-    tokenizer_path: "/PATH/TO/MODEL/CHECKPOINTS/tokenizer.model"
-    model_args_path: "PATH/TO/model_args.json"
+    converted_ckpt_dir: "converted_checkpoints"
+    tokenizer_path: "tokenizer.model"
+    model_args_path: "model_args.json"
     max_new_tokens: 50
     temperature: 0.6
     top_p: 0.9
     manual_seed: 40
     mode: "chat" #choices are text_completion, chat
+
+
 
