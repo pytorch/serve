@@ -23,7 +23,7 @@ torchserve --start --ts-config=/home/model-server/config.properties --models mni
 EOF
 
 echo "Starting container ${CONTAINER}"
-docker run --rm -d -it --name "${CONTAINER}" -p 8080:8080 -p 8081:8081 -p 8082:8082 \
+docker run --rm -d -it --name "${CONTAINER}" -p 127.0.0.1:8080:8080 -p 127.0.0.1:8081:8081 -p 127.0.0.1:8082:8082 \
     -v "${FILES_PATH}/mnist.py":"${SERVER_PATH}/mnist.py" \
     -v "${FILES_PATH}/mnist_cnn.pt":"${SERVER_PATH}/mnist_cnn.pt" \
     -v "${FILES_PATH}/mnist_handler.py":"${SERVER_PATH}/mnist_handler.py" \

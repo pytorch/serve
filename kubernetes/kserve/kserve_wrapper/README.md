@@ -69,9 +69,9 @@ For v2 protocol
   The config.properties file is as below :
 
 ```bash
-inference_address=http://0.0.0.0:8085
-management_address=http://0.0.0.0:8085
-metrics_address=http://0.0.0.0:8082
+inference_address=http://127.0.0.1:8085
+management_address=http://127.0.0.1:8085
+metrics_address=http://127.0.0.1:8082
 grpc_inference_port=7070
 grpc_management_port=7071
 enable_envvars_config=true
@@ -120,9 +120,9 @@ python3 serve/kubernetes/kserve/kserve_wrapper/__main__.py
 Output:
 
 ```bash
-[I 201211 18:29:29 __main__:69] Wrapper : Model names ['mnist'], inference address http//0.0.0.0:8085, management address http://0.0.0.0:8085, model store /mnt/models/model-store
-[I 201211 18:29:29 TorchserveModel:48] kfmodel Predict URL set to 0.0.0.0:8085
-[I 201211 18:29:29 TorchserveModel:50] kfmodel Explain URL set to 0.0.0.0:8085
+[I 201211 18:29:29 __main__:69] Wrapper : Model names ['mnist'], inference address http//127.0.0.1:8085, management address http://127.0.0.1:8085, model store /mnt/models/model-store
+[I 201211 18:29:29 TorchserveModel:48] kfmodel Predict URL set to 127.0.0.1:8085
+[I 201211 18:29:29 TorchserveModel:50] kfmodel Explain URL set to 127.0.0.1:8085
 [I 201211 18:29:29 TSModelRepository:26] TSModelRepo is initialized
 [I 201211 18:29:29 kfserver:115] Registering model: mnist
 [I 201211 18:29:29 kfserver:96] Listening on port 8080
@@ -136,7 +136,7 @@ For v1 protocol
 The curl request for inference is as below:
 
 ```bash
-curl -H "Content-Type: application/json" --data @serve/kubernetes/kserve/kf_request_json/v1/mnist.json http://0.0.0.0:8080/v1/models/mnist:predict
+curl -H "Content-Type: application/json" --data @serve/kubernetes/kserve/kf_request_json/v1/mnist.json http://127.0.0.1:8080/v1/models/mnist:predict
 ```
 
 Output:
@@ -148,7 +148,7 @@ Output:
 The curl request for explain is as below:
 
 ```bash
-curl -H "Content-Type: application/json" --data @serve/kubernetes/kserve/kf_request_json/v1/mnist.json http://0.0.0.0:8080/v1/models/mnist:explain
+curl -H "Content-Type: application/json" --data @serve/kubernetes/kserve/kf_request_json/v1/mnist.json http://127.0.0.1:8080/v1/models/mnist:explain
 ```
 
 Output:
@@ -166,7 +166,7 @@ For v2 protocol
 The curl request for inference is as below:
 
 ```bash
-curl -H "Content-Type: application/json" --data @serve/kubernetes/kserve/kf_request_json/v2/mnist/mnist_v2_tensor.json http://0.0.0.0:8080/v2/models/mnist/infer
+curl -H "Content-Type: application/json" --data @serve/kubernetes/kserve/kf_request_json/v2/mnist/mnist_v2_tensor.json http://127.0.0.1:8080/v2/models/mnist/infer
 ```
 
 Response:
@@ -210,9 +210,9 @@ grpcurl -vv -plaintext -proto grpc_predict_v2.proto -d @ localhost:8081 inferenc
 - Step 2: Use this config.properties- Change the mode_snapshot to bert
 
 ```bash
-inference_address=http://0.0.0.0:8085
-management_address=http://0.0.0.0:8085
-metrics_address=http://0.0.0.0:8082
+inference_address=http://127.0.0.1:8085
+management_address=http://127.0.0.1:8085
+metrics_address=http://127.0.0.1:8082
 grpc_inference_port=7070
 grpc_management_port=7071
 enable_envvars_config=true
@@ -243,13 +243,13 @@ For v1 protocol
 The curl request for inference is as below:
 
 ```bash
-curl -H "Content-Type: application/json" --data @kubernetes/kserve/kf_request_json/v1/bert.json http://0.0.0.0:8080/v1/models/bert:predict
+curl -H "Content-Type: application/json" --data @kubernetes/kserve/kf_request_json/v1/bert.json http://127.0.0.1:8080/v1/models/bert:predict
 ```
 
 The curl request for Explain is as below:
 
 ```bash
-curl -H "Content-Type: application/json" --data @kubernetes/kserve/kf_request_json/v1/bert.json http://0.0.0.0:8080/v1/models/bert:explain
+curl -H "Content-Type: application/json" --data @kubernetes/kserve/kf_request_json/v1/bert.json http://127.0.0.1:8080/v1/models/bert:explain
 ```
 
 For v2 protocol
@@ -257,11 +257,11 @@ For v2 protocol
 The curl request for inference is as below:
 
 ```bash
-curl -H "Content-Type: application/json" --data @kubernetes/kserve/kf_request_json/v1/bert.json http://0.0.0.0:8080/v2/models/bert/infer
+curl -H "Content-Type: application/json" --data @kubernetes/kserve/kf_request_json/v1/bert.json http://127.0.0.1:8080/v2/models/bert/infer
 ```
 
 The curl request for Explain is as below:
 
 ```bash
-curl -H "Content-Type: application/json" --data @kubernetes/kserve/kf_request_json/v1/bert.json http://0.0.0.0:8080/v2/models/bert/explain
+curl -H "Content-Type: application/json" --data @kubernetes/kserve/kf_request_json/v1/bert.json http://127.0.0.1:8080/v2/models/bert/explain
 ```

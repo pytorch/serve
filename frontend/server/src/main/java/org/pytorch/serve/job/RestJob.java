@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
 
 public class RestJob extends Job {
 
-    private static final Logger logger = LoggerFactory.getLogger(Job.class);
+    private static final Logger logger = LoggerFactory.getLogger(RestJob.class);
 
     private final IMetric inferenceLatencyMetric;
     private final IMetric queueLatencyMetric;
@@ -107,8 +107,7 @@ public class RestJob extends Job {
                     (statusPhrase == null)
                             ? HttpResponseStatus.valueOf(statusCode)
                             : new HttpResponseStatus(statusCode, statusPhrase);
-            FullHttpResponse resp =
-                    new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, status, false);
+            FullHttpResponse resp = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, status, true);
 
             if (contentType != null && contentType.length() > 0) {
                 resp.headers().set(HttpHeaderNames.CONTENT_TYPE, contentType);
@@ -151,8 +150,9 @@ public class RestJob extends Job {
                     responseHeaders.get(RequestInput.TS_STREAM_NEXT).equals("true")
                             ? numStreams + 1
                             : -1;
+
         } else {
-            resp = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, status, false);
+            resp = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, status, true);
         }
 
         if (contentType != null && contentType.length() > 0) {
