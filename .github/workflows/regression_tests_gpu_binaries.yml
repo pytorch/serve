@@ -37,7 +37,7 @@ jobs:
         with:
           miniconda-version: "latest"
       - name: Setup Conda
-        uses: s-weigand/setup-conda@v1
+        uses: s-weigand/setup-conda@v1.2.1
         with:
           python-version: ${{ matrix.python-version }}
       - name: Setup Python ${{ matrix.python_version }}

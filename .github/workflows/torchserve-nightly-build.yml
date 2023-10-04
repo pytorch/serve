@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - name: Setup Conda
-        uses: s-weigand/setup-conda@v1
+        uses: s-weigand/setup-conda@v1.2.1
       - run: conda --version
       - run: conda install -y conda-build anaconda-client
       - name: Checkout TorchServe
