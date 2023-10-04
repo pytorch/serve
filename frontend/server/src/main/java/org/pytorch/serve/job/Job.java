@@ -44,9 +44,14 @@ public abstract class Job {
     }
 
     public boolean isControlCmd() {
-        return !WorkerCommands.PREDICT.equals(cmd)
-                && !WorkerCommands.STREAMPREDICT.equals(cmd)
-                && !WorkerCommands.DESCRIBE.equals(cmd);
+        switch (cmd) {
+            case PREDICT:
+            case STREAMPREDICT:
+            case DESCRIBE:
+                return false;
+            default:
+                return true;
+        }
     }
 
     public RequestInput getPayload() {
@@ -73,4 +78,6 @@ public abstract class Job {
             Map<String, String> responseHeaders);
 
     public abstract void sendError(int status, String error);
+
+    public abstract boolean isOpen();
 }

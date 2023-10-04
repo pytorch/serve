@@ -112,7 +112,7 @@ class Linux(Common):
     def install_nodejs(self):
         if os.system("node -v") != 0 or args.force:
             os.system(
-                f"{self.sudo_cmd}curl -sL https://deb.nodesource.com/setup_14.x | {self.sudo_cmd}bash -"
+                f"{self.sudo_cmd}curl -sL https://deb.nodesource.com/setup_18.x | {self.sudo_cmd}bash -"
             )
             os.system(f"{self.sudo_cmd}apt-get install -y nodejs")
 
@@ -156,8 +156,8 @@ class Darwin(Common):
 
     def install_nodejs(self):
         os.system("brew unlink node")
-        os.system("brew install node@14")
-        os.system("brew link --overwrite node@14")
+        os.system("brew install node@18")
+        os.system("brew link --overwrite node@18")
 
     def install_node_packages(self):
         os.system(f"{self.sudo_cmd} ./ts_scripts/mac_npm_deps")

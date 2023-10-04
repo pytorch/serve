@@ -182,6 +182,8 @@ public class WorkerThread implements Runnable {
         currentThread.set(thread);
         BaseModelRequest req = null;
         int status = HttpURLConnection.HTTP_INTERNAL_ERROR;
+        // in case of retry
+        aggregator.cleanJobs();
 
         try {
             connect();
@@ -205,8 +207,6 @@ public class WorkerThread implements Runnable {
                     backendChannel.get(i).writeAndFlush(req).sync();
                 }
 
-                boolean isStreaming =
-                        req.getCommand() == WorkerCommands.STREAMPREDICT ? true : false;
                 ModelWorkerResponse reply = null;
 
                 boolean jobDone = false;
