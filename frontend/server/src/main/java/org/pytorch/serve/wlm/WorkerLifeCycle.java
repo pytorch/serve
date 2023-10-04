@@ -277,6 +277,8 @@ public class WorkerLifeCycle {
                 exit();
             }
         }
+    }
+
     private void attachRunner(
             ArrayList<String> argl, List<String> envp, int port, String deviceIds) {
         envp.add("LOGLEVEL=INFO");
