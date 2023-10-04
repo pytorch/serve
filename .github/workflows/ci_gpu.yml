@@ -21,7 +21,9 @@ jobs:
         run: |
           echo "Cleaning up previous run"
           ls -la ./
+          # deletes all files in the current directory
           sudo rm -rf ./* || true
+          # deletes all hidden files in a directory
           sudo rm -rf ./.??* || true
           ls -la ./
       - name: Setup Python 3.8
