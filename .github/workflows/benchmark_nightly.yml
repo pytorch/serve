@@ -1,16 +1,17 @@
 name: Benchmark torchserve nightly
 
 on:
+  push
   # run every day at 2:15am
-  schedule:
-    - cron:  '15 02 * * *'
+  #schedule:
+  #  - cron:  '15 02 * * *'
 
 jobs:
   nightly:
     strategy:
       fail-fast: false
       matrix:
-        hardware: [cpu, gpu, inf1, inf2]
+        hardware: [benchmark-test-ankith]
     runs-on:
       - self-hosted
       - ${{ matrix.hardware }}
@@ -46,7 +47,7 @@ jobs:
         run: python benchmarks/auto_benchmark.py --input benchmarks/benchmark_config_cpu.yaml --skip false
       - name: Benchmark gpu nightly
         if: ${{ matrix.hardware == 'gpu' }}
-        run: python benchmarks/auto_benchmark.py --input benchmarks/benchmark_config_gpu.yaml --skip false
+        run: python benchmarks/auto_benchmark.py --input benchmarks/benchmark_config_gpu.yaml --skip false --skip_upload true
       - name: Benchmark inf1 nightly
         if: ${{ matrix.hardware == 'inf1' }}
         env:
