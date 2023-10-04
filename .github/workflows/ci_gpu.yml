@@ -20,6 +20,7 @@ jobs:
       - name: Clean up previous run
         run: |
           echo "Cleaning up previous run"
+          cd $RUNNER_WORKSPACE
           ls -la ./
           sudo rm -rf ./* || true
           sudo rm -rf ./.??* || true
