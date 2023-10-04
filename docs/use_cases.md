@@ -1,12 +1,12 @@
 # Torchserve Use Cases
 
 Torchserve can be used for different use cases. In order to make it convenient for users, some of them have been documented here.
-These use-cases assume you have pre-trained model(s) and `torchserve`, `torch-model-archiver` is installed on your target system. 
+These use-cases assume you have pre-trained model(s) and `torchserve`, `torch-model-archiver` is installed on your target system.
 This should help you in moving your development environment model to production/serving environment.
 
 NOTES
 - If you have not installed latest torchserve and torch-model-archiver then follow [installation](../README.md#install-torchserve-and-torch-model-archiver) instructions and complete installation
-- If planning to use docker make sure following prerequisites are in place - 
+- If planning to use docker make sure following prerequisites are in place -
     - Make sure you have latest docker engine install on your target node. If not then use [this](https://docs.docker.com/engine/install/) link to install it.
     - Follow instructions [install using docker](../docker/README.md#running-torchserve-in-a-production-docker-environment) to share `model-store` directory and start torchserve
 - The following use-case steps uses `curl` to execute torchserve REST api calls. However, you can also use chrome plugin `postman` for this.
@@ -45,10 +45,10 @@ NOTES
     - Docker -  Make sure that MAR file is being copied in volume/directory shared while starting torchserve docker image
 - Start torchserve with following command - `torchserve --start --ncs --model-store <model_store or your_model_store_dir>`
     - Docker - This is not applicable.
-- Register model i.e. MAR file created in step 1 above as `curl -v -X POST "http://localhost:8081/models?initial_workers=1&synchronous=true&url=<your model_name>.mar"` 
+- Register model i.e. MAR file created in step 1 above as `curl -v -X POST "http://localhost:8081/models?initial_workers=1&synchronous=true&url=<your model_name>.mar"`
 - Check if model has been successfully registered as `curl http://localhost:8081/models/<your_model_name>`
 - Scale up workers based on kind of load you are expecting. We have kept min-worker as 1 in registration request above. `curl -v -X PUT "http://localhost:8081/models/<your model_name>?min_worker=1&synchronous=true”`
-- Do inference using following `curl` api call - `curl http://localhost:8080/predictions/<your_model_name> -T <your_input_file>`. You can also use `Postman` GUI tool for HTTP request and response. 
+- Do inference using following `curl` api call - `curl http://localhost:8080/predictions/<your_model_name> -T <your_input_file>`. You can also use `Postman` GUI tool for HTTP request and response.
 
 **Expected outcome**
 - Able to deploy any scripted model
@@ -70,10 +70,10 @@ NOTES
     - Docker -  Make sure that MAR file is being copied in volume/directory shared while starting torchserve docker image
 - Start torchserve with following command - `torchserve --start --ncs --model-store <model_store or your_model_store_dir>`
     - Docker - This is not applicable.
-- Register model i.e. MAR file created in step 1 above as `curl -v -X POST "http://localhost:8081/models?initial_workers=1&synchronous=true&url=<your model_name>.mar"` 
+- Register model i.e. MAR file created in step 1 above as `curl -v -X POST "http://localhost:8081/models?initial_workers=1&synchronous=true&url=<your model_name>.mar"`
 - Check if model has been successfully registered as `curl http://localhost:8081/models/<your_model_name>`
 - Scale up workers based on kind of load you are expecting. We have kept min-worker as 1 in registration request above. `curl -v -X PUT "http://localhost:8081/models/<your model_name>?min_worker=1&synchronous=true”`
-- Do inference using following `curl` api call - `curl http://localhost:8080/predictions/<your_model_name> -T <your_input_file>`. You can also use `Postman` GUI tool for HTTP request and response. 
+- Do inference using following `curl` api call - `curl http://localhost:8080/predictions/<your_model_name> -T <your_input_file>`. You can also use `Postman` GUI tool for HTTP request and response.
 
 **Expected outcome**
 - Able to deploy any scripted model
@@ -83,16 +83,16 @@ NOTES
 - ../examples/image_classifier
 
 ### Serve readymade models on torchserve model zoo
-This use case demostrates deployment of [torch hub](https://pytorch.org/hub/) based `vision` models (classifier, object detector, segmenter) available on [torchserve model zoo](https://github.com/pytorch/serve/blob/master/docs/model_zoo.md). 
+This use case demostrates deployment of [torch hub](https://pytorch.org/hub/) based `vision` models (classifier, object detector, segmenter) available on [torchserve model zoo](https://github.com/pytorch/serve/blob/master/docs/model_zoo.md).
 Use these steps to deploy **publically hosted** models as well.
 
 **Steps to deploy your model(s)**
 - Start torchserve with following command - `torchserve --start --ncs --model-store <model_store or your_model_store_dir>`
     - Docker - This is not applicable.
-- Register model i.e. MAR file created in step 1 above as `curl -v -X POST "http://localhost:8081/models?initial_workers=1&synchronous=true&url=https://<public_url>/<your model_name>.mar"` 
+- Register model i.e. MAR file created in step 1 above as `curl -v -X POST "http://localhost:8081/models?initial_workers=1&synchronous=true&url=https://<public_url>/<your model_name>.mar"`
 - Check if model has been successfully registered as `curl http://localhost:8081/models/<your_model_name>`
 - Scale up workers based on kind of load you are expecting. We have kept min-worker as 1 in registration request above. `curl -v -X PUT "http://localhost:8081/models/<your model_name>?min_worker=1&synchronous=true”`
-- Do inference using following `curl` api call - `curl http://localhost:8080/predictions/<your_model_name> -T <your_input_file>`. You can also use `Postman` GUI tool for HTTP request and response. 
+- Do inference using following `curl` api call - `curl http://localhost:8080/predictions/<your_model_name> -T <your_input_file>`. You can also use `Postman` GUI tool for HTTP request and response.
 
 **Expected outcome**
 - Able to deploy any model available in model zoo
@@ -104,7 +104,7 @@ Use these steps to deploy **publically hosted** models as well.
 - [object_detector](../examples/object_detector)
 
 ### Secure model serving
-This use case demonstrates torchserve deployment for secure model serving. 
+This use case demonstrates torchserve deployment for secure model serving.
 The example taken here uses eager mode model however you can also deploy scripted models.
 
 **Steps to deploy your model(s)**
@@ -119,14 +119,14 @@ The example taken here uses eager mode model however you can also deploy scripte
     - Docker -  Make sure that MAR file is being copied in volume/directory shared while starting torchserve docker image
 - Create `config.properties` file with parameters option 1 or 2 given in [enable SSL](https://github.com/pytorch/serve/blob/master/docs/configuration.md#examples)
 - Start torchserve using properties file created above as - `torchserve --start --ncs --model-store <model_store or your_model_store_dir> --ts-config <your_path>/config.properties`
-    - Docker - `docker run --rm -p8443:8433 -p8444:8444 -p8445:8445 -v <local_dir>/model-store:/home/model-server/model-store <your_docker_image> torchserve --model-store=/tmp/models --ts-config <your_path>/config.properties`
-- Register model i.e. MAR file created in step 1 above as `curl -k -v -X POST "https://localhost:8081/models?initial_workers=1&synchronous=true&url=https://<s3_path>/<your model_name>.mar"` 
+    - Docker - `docker run --rm -p 127.0.0.1:8443:8433 -p 127.0.0.1:8444:8444 -p 127.0.0.1:8445:8445 -v <local_dir>/model-store:/home/model-server/model-store <your_docker_image> torchserve --model-store=/tmp/models --ts-config <your_path>/config.properties`
+- Register model i.e. MAR file created in step 1 above as `curl -k -v -X POST "https://localhost:8081/models?initial_workers=1&synchronous=true&url=https://<s3_path>/<your model_name>.mar"`
 - Check if model has been successfully registered as `curl -k https://localhost:8081/models/<your_model_name>`
 - Scale up workers based on kind of load you are expecting. We have kept min-worker as 1 in registration request above. `curl -v -X PUT "http://localhost:8081/models/<your model_name>?min_worker=1&synchronous=true”`
-- Do inference using following `curl` api call - `curl -k https://localhost:8080/predictions/<your_model_name> -T <your_input_file>`. You can also use `Postman` GUI tool for HTTP request and response. 
-  
+- Do inference using following `curl` api call - `curl -k https://localhost:8080/predictions/<your_model_name> -T <your_input_file>`. You can also use `Postman` GUI tool for HTTP request and response.
+
   NOTICE the use of https and -k option in curl command. In place of -k, you can use other options such as -key etc if you have required key.
-- 
+-
 **Expected outcome**
 - Able to deploy torchserve and access APIs over HTTPs
 
@@ -134,7 +134,7 @@ The example taken here uses eager mode model however you can also deploy scripte
 - https://github.com/pytorch/serve/blob/master/docs/configuration.md#enable-ssl
 
 ### Serve models on GPUs
-This use case demonstrates torchserve deployment on GPU. 
+This use case demonstrates torchserve deployment on GPU.
 The example taken here uses scripted mode model however you can also deploy eager models.
 
 **Prerequisites**
@@ -154,12 +154,12 @@ The example taken here uses scripted mode model however you can also deploy eage
 then use `nvidia-smi` to determine the number of GPU and corresponding ids. Once you have gpu details, you can add `number_of_gpu` param in config.proerties and use second command as given next instruction.
 e.g. number_of_gpu=2
 - Start torchserve with all GPUs- `torchserve --start --ncs --model-store <model_store or your_model_store_dir>`. With restricted GPUs - `torchserve --start --ncs --model-store <model_store or your_model_store_dir> --ts-config <your_path>/config.properties`
-    - Docker -  For all GPU `docker run --rm -it --gpus all -p 8080:8080 -p 8081:8081 torchserve:gpu-latest` For GPUs 1 and 2 `docker run --rm -it --gpus '"device=1,2"' -p 8080:8080 -p 8081:8081 pytorch/torchserve:latest-gpu`
+    - Docker -  For all GPU `docker run --rm -it --gpus all -p 127.0.0.1:8080:8080 -p 127.0.0.1:8081:8081 torchserve:gpu-latest` For GPUs 1 and 2 `docker run --rm -it --gpus '"device=1,2"' -p 8080:8080 -p 8081:8081 pytorch/torchserve:latest-gpu`
     - Docker - For details refer [start gpu container](../docker#start-gpu-container)
-- Register model i.e. MAR file created in step 1 above as `curl -v -X POST "http://localhost:8081/models?initial_workers=1&synchronous=true&url=<your model_name>.mar"` 
+- Register model i.e. MAR file created in step 1 above as `curl -v -X POST "http://localhost:8081/models?initial_workers=1&synchronous=true&url=<your model_name>.mar"`
 - Check if model has been successfully registered as `curl http://localhost:8081/models/<your_model_name>` The response includes flag indicating model has been loaded on GPU.
 - Scale up workers based on kind of load you are expecting. We have kept min-worker as 1 in registration request above. `curl -v -X PUT "http://localhost:8081/models/<your model_name>?min_worker=1&synchronous=true”`
-- Do inference using following `curl` api call - `curl http://localhost:8080/predictions/<your_model_name> -T <your_input_file>`. You can also use `Postman` GUI tool for HTTP request and response. 
+- Do inference using following `curl` api call - `curl http://localhost:8080/predictions/<your_model_name> -T <your_input_file>`. You can also use `Postman` GUI tool for HTTP request and response.
 
 **Expected outcome**
 - Able to deploy any model to GPU
@@ -185,10 +185,10 @@ The example taken here uses scripted mode model however you can also deploy eage
     - Docker -  Make sure that MAR file is being copied in volume/directory shared while starting torchserve docker image
 - Start torchserve with following command - `torchserve --start --ncs --model-store <model_store or your_model_store_dir>`
     - Docker - This is not applicable.
-- Register model i.e. MAR file created in step 1 above as `curl -v -X POST "http://localhost:8081/models?initial_workers=1&synchronous=true&url=<your model_name>.mar"` 
+- Register model i.e. MAR file created in step 1 above as `curl -v -X POST "http://localhost:8081/models?initial_workers=1&synchronous=true&url=<your model_name>.mar"`
 - Check if model has been successfully registered as `curl http://localhost:8081/models/<your_model_name>`
 - Scale up workers based on kind of load you are expecting. We have kept min-worker as 1 in registration request above. `curl -v -X PUT "http://localhost:8081/models/<your model_name>?min_worker=1&synchronous=true”`
-- Do inference using following `curl` api call - `curl http://localhost:8080/predictions/<your_model_name> -T <your_input_file>`. You can also use `Postman` GUI tool for HTTP request and response. 
+- Do inference using following `curl` api call - `curl http://localhost:8080/predictions/<your_model_name> -T <your_input_file>`. You can also use `Postman` GUI tool for HTTP request and response.
 
 **Expected outcome**
 - Able to deploy any model with custom handler
@@ -218,11 +218,11 @@ The example taken here uses scripted mode model however you can also deploy eage
     - Docker -  Make sure that MAR file is being copied in volume/directory shared while starting torchserve docker image
 - Add following parameter to config.properties file - `install_py_dep_per_model=true` . For details refer [Allow model specific custom python packages](https://github.com/pytorch/serve/blob/master/docs/configuration.md#allow-model-specific-custom-python-packages) .
 - Start torchserve with following command with config.properties file - `torchserve --start --ncs --model-store <model_store or your_model_store_dir> --ts-config <your_path>/config.properties`
-    - Docker - `docker run --rm -p8080:8080 -p8081:8081 -v <local_dir>/model-store:/home/model-server/model-store <your_docker_image> torchserve --model-store=/tmp/models --ts-config <your_path>/config.properties
-- Register model i.e. MAR file created in step 1 above as `curl -v -X POST "http://localhost:8081/models?initial_workers=1&synchronous=true&url=<your model_name>.mar"` 
+    - Docker - `docker run --rm -p 127.0.0.1:8080:8080 -p 127.0.0.1:8081:8081 -v <local_dir>/model-store:/home/model-server/model-store <your_docker_image> torchserve --model-store=/tmp/models --ts-config <your_path>/config.properties
+- Register model i.e. MAR file created in step 1 above as `curl -v -X POST "http://localhost:8081/models?initial_workers=1&synchronous=true&url=<your model_name>.mar"`
 - Check if model has been successfully registered as `curl http://localhost:8081/models/<your_model_name>`
 - Scale up workers based on kind of load you are expecting. We have kept min-worker as 1 in registration request above. `curl -v -X PUT "http://localhost:8081/models/<your model_name>?min_worker=1&synchronous=true”`
-- Do inference using following `curl` api call - `curl http://localhost:8080/predictions/<your_model_name> -T <your_input_file>`. You can also use `Postman` GUI tool for HTTP request and response. 
+- Do inference using following `curl` api call - `curl http://localhost:8080/predictions/<your_model_name> -T <your_input_file>`. You can also use `Postman` GUI tool for HTTP request and response.
 
 **Expected outcome**
 - Able to deploy any model with custom handler having third party python dependency
@@ -248,11 +248,11 @@ This use case demonstrates serving two or more versions of same model using vers
 - Now you will be able to invoke these models as
   - Model version 1.0
   `curl http://localhost:8081/models/<your-model-name-X>/1.0`
-  OR 
+  OR
   `curl http://localhost:8080/predictions/<your-model-name-X>/1.0 -F "data=@kitten.jpg"`
   - Model version 2.0
   `curl http://localhost:8081/models/<your-model-name-X>/2.0`
-    OR 
+    OR
   `curl http://localhost:8080/predictions/<your-model-name-X>/2.0 -F "data=@kitten.jpg"`
 
 **Expected outcome**
