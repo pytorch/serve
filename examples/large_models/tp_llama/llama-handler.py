@@ -65,9 +65,9 @@ class LlamaHandler(BaseHandler,ABC):
         logger.info("Instantiating Llama model")
         model_load_start = time.perf_counter()
         llama_model_and_tok=  Llama.build(
-            model_args=ctx.model_yaml_config["handler"]["model_args_path"],
-            converted_ckpt_dir=ctx.model_yaml_config["handler"]["converted_ckpt_dir"],
-            tokenizer_path= ctx.model_yaml_config["handler"]["tokenizer_path"],
+            model_args=f'{model_dir}/{ctx.model_yaml_config["handler"]["model_args_path"]}',
+            converted_ckpt_dir=f'{model_dir}/{ctx.model_yaml_config["handler"]["converted_ckpt_dir"]}',
+            tokenizer_path= f'{model_dir}/{ctx.model_yaml_config["handler"]["tokenizer_path"]}',
         )
         load_time = time.perf_counter()-model_load_start
         self.model = llama_model_and_tok.model
