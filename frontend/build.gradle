@@ -4,7 +4,7 @@ buildscript {
     toolVersion = '4.0.2'
   }
   dependencies {
-    classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.13'
+    classpath 'com.google.protobuf:protobuf-gradle-plugin:0.9.4'
   }
 }
 
