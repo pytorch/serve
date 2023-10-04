@@ -84,9 +84,9 @@ torchrun:
     nproc-per-node: 8 # TP size
 
 handler:
-    converted_ckpt_dir: "PATH/TO/converted_checkpoints"
-    tokenizer_path: "/PATH/TO/MODEL/CHECKPOINTS/tokenizer.model"
-    model_args_path: "PATH/TO/model_args.json"
+    converted_ckpt_dir: "converted_checkpoints"
+    tokenizer_path: "tokenizer.model"
+    model_args_path: "model_args.json"
     max_seq_len: 512
     max_batch_size: 6
     max_new_tokens: 50
@@ -102,7 +102,11 @@ Create the mar file using the following command here.
 ```
 torch-model-archiver --model-name llama --version 1.0 --handler llama-handler.py --config-file model-config.yaml --archive-format no-archive --extra-files "llama2.py,llama2_tokenizer.py,generate.py,checkpoint_converter.py"
 
-mv TO llama/
+mv converted_checkpoints llama
+
+mv PATH/TO/MODEL/CHECKPOINTS/tokenizer.model llama
+
+mv model_args.json llama
 
 ```
 
