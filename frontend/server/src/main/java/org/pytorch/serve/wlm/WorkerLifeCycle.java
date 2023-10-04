@@ -95,7 +95,8 @@ public class WorkerLifeCycle {
         return launcherAvailable;
     }
 
-    public void startWorker(int port, String deviceIds) throws WorkerInitializationException, InterruptedException {
+    public void startWorker(int port, String deviceIds)
+            throws WorkerInitializationException, InterruptedException {
         switch (model.getRuntimeType()) {
             case LSP:
                 logger.info("LSP startWorker");
