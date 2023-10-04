@@ -67,7 +67,7 @@ def create_mar_file(work_dir, model_archiver, model_name):
             yield mar_file_path.as_posix()
 
     # Clean up files
-    # mar_file_path.unlink(missing_ok=True)
+    mar_file_path.unlink(missing_ok=True)
 
 
 @pytest.fixture(scope="module", name="model_name_and_stdout")
