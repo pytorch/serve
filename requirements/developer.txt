@@ -5,7 +5,7 @@ pylint==2.6.0
 pytest-mock==3.10.0
 pytest-cov==4.1.0
 grpcio==1.54.2
-protobuf==4.23.1
+protobuf==4.24.4
 grpcio-tools==1.54.2
 transformers==4.30.0
 pyspelling==2.8.2
