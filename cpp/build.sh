@@ -175,6 +175,14 @@ function install_libtorch() {
         wget https://download.pytorch.org/libtorch/cu116/libtorch-cxx11-abi-shared-with-deps-1.12.1%2Bcu116.zip
         unzip libtorch-cxx11-abi-shared-with-deps-1.12.1+cu116.zip
         rm libtorch-cxx11-abi-shared-with-deps-1.12.1+cu116.zip
+      elif [ "$CUDA" = "cu117" ]; then
+        wget https://download.pytorch.org/libtorch/cu117/libtorch-cxx11-abi-shared-with-deps-2.0.1%2Bcu117.zip
+        unzip libtorch-cxx11-abi-shared-with-deps-2.0.1+cu117.zip
+        rm libtorch-cxx11-abi-shared-with-deps-2.0.1+cu117.zip
+      elif [ "$CUDA" = "cu118" ]; then
+        wget https://download.pytorch.org/libtorch/cu118/libtorch-cxx11-abi-shared-with-deps-2.0.1%2Bcu118.zip
+        unzip libtorch-cxx11-abi-shared-with-deps-2.0.1+cu118.zip
+        rm libtorch-cxx11-abi-shared-with-deps-2.0.1+cu118.zip
       else
         wget https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.12.1%2Bcpu.zip
         unzip libtorch-cxx11-abi-shared-with-deps-1.12.1+cpu.zip
