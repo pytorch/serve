@@ -55,6 +55,9 @@ public class ModelConfig {
      */
     private boolean useJobTicket;
 
+    /** continuousBatching is a flag to enable continuous batching. */
+    private boolean continuousBatching;
+
     public static ModelConfig build(Map<String, Object> yamlMap) {
         ModelConfig modelConfig = new ModelConfig();
         yamlMap.forEach(
@@ -156,6 +159,15 @@ public class ModelConfig {
                                 modelConfig.setUseJobTicket((boolean) v);
                             } else {
                                 logger.warn("Invalid useJobTicket: {}, should be true or false", v);
+                            }
+                            break;
+                        case "continuousBatching":
+                            if (v instanceof Boolean) {
+                                modelConfig.setContinuousBatching((boolean) v);
+                            } else {
+                                logger.warn(
+                                        "Invalid continuousBatching: {}, should be true or false",
+                                        v);
                             }
                             break;
                         default:
@@ -311,6 +323,14 @@ public class ModelConfig {
 
     public void setUseJobTicket(boolean useJobTicket) {
         this.useJobTicket = useJobTicket;
+    }
+
+    public boolean isContinuousBatching() {
+        return continuousBatching;
+    }
+
+    public void setContinuousBatching(boolean continuousBatching) {
+        this.continuousBatching = continuousBatching;
     }
 
     public enum ParallelType {
