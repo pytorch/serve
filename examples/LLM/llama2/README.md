@@ -1,4 +1,4 @@
-# LLama 2: Next generation of Meta's Language Model
+# Llama 2: Next generation of Meta's Language Model
 ![Llama 2](./llama.png)
 
 TorchServe supports serving Llama 2 in a number of ways. The examples covered in this document range from someone new to TorchServe learning how to serve Llama 2 with an app to an advanced user of TorchServe wanting to do distributed inference with Llama 2 using PyTorch Tensor Parallel APIs. Depending on your usecase, you can refer to an example listed in this document.
@@ -22,7 +22,7 @@ You can run this example on your laptop to understand how to use TorchServe, how
 
 This example shows how to serve Llama 2 - 70b model with limited resource using [HuggingFace](https://huggingface.co/meta-llama/Llama-2-70b-chat-hf). It shows the following optimizations
     1) HuggingFace `accelerate`. This option can be activated with `low_cpu_mem_usage=True`. 
-    2) Quantization from `bitsandbytes` using `load_in_8bit=True`
+    2) Quantization from [`bitsandbytes`](https://github.com/TimDettmers/bitsandbytes)  using `load_in_8bit=True`
 The model is first created on the Meta device (with empty weights) and the state dict is then loaded inside it (shard by shard in the case of a sharded checkpoint).
 
 ## Llama 2 with PyTorch native Tensor Parallel

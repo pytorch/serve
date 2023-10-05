@@ -1117,4 +1117,5 @@ sharding
 quantized
 Chatbot
 LLM
+bitandbytes
 
