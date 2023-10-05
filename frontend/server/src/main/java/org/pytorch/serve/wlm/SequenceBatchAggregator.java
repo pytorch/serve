@@ -228,7 +228,6 @@ public class SequenceBatchAggregator extends BatchAggregator {
     }
 
     private void pollJobFromGroups() throws InterruptedException, ExecutionException {
-        int i = 0;
         while (jobs.isEmpty()) {
             if (jobGroups.size() < model.getBatchSize()) {
                 pollJobGroup();
@@ -265,17 +264,16 @@ public class SequenceBatchAggregator extends BatchAggregator {
      */
     private void pollBatch(String threadName, WorkerState state)
             throws InterruptedException, ExecutionException {
-        if (model.pollMgmtJob(
-                threadName,
-                (state == WorkerState.WORKER_MODEL_LOADED) ? 0 : Long.MAX_VALUE,
-                jobs)) {
-            return;
-        } else if (model.isStateful()) {
+        boolean pollMgmtJobStatus = false;
+        if (jobs.isEmpty()) {
+            pollMgmtJobStatus = model.pollMgmtJob(
+                    threadName,
+                    (state == WorkerState.WORKER_MODEL_LOADED) ? 0 : Long.MAX_VALUE,
+                    jobs);
+        }
+
+        if (!pollMgmtJobStatus && state == WorkerState.WORKER_MODEL_LOADED) {
             pollJobFromGroups();
-            return;
-        } else {
-            model.pollInferJob(jobs);
-            return;
         }
     }
 
