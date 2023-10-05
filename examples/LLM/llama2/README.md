@@ -1,7 +1,7 @@
 # LLama 2: Next generation of Meta's Language Model
 ![Llama 2](./llama.png)
 
-TorchServe supports serving llama 2 in a number of ways. Depending on your usecase, you can refer to an example listed in this document.
+TorchServe supports serving Llama 2 in a number of ways. The examples covered in this document range from someone new to TorchServe learning how to serve Llama 2 with an app to an advanced user of TorchServe wanting to do distributed inference with Llama 2 using PyTorch Tensor Parallel APIs. Depending on your usecase, you can refer to an example listed in this document.
 
 ## Llama 2 Chatbot
 
