@@ -110,18 +110,15 @@ public final class ArchiveUtils {
             boolean s3SseKmsEnabled)
             throws FileAlreadyExistsException, FileNotFoundException, DownloadArchiveException,
                     InvalidArchiveURLException {
-        if (validateURL(allowedUrls, url)) {
-            if (location.exists()) {
-                throw new FileAlreadyExistsException(archiveName);
-            }
-            try {
-                HttpUtils.copyURLToFile(new URL(url), location, s3SseKmsEnabled);
-            } catch (IOException e) {
-                FileUtils.deleteQuietly(location);
-                throw new DownloadArchiveException("Failed to download archive from: " + url, e);
-            }
-        }
 
-        return true;
+        try {
+            return HttpUtils.copyURLToFile(
+                    allowedUrls, url, location, s3SseKmsEnabled, archiveName);
+        } catch (InvalidArchiveURLException | FileAlreadyExistsException e) {
+            throw e;
+        } catch (IOException e) {
+            FileUtils.deleteQuietly(location);
+            throw new DownloadArchiveException("Failed to download archive from: " + url, e);
+        }
     }
 }

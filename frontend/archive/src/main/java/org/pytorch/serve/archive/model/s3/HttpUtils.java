@@ -6,9 +6,13 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.nio.file.FileAlreadyExistsException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.apache.commons.io.FileUtils;
+import org.pytorch.serve.archive.utils.ArchiveUtils;
+import org.pytorch.serve.archive.utils.InvalidArchiveURLException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,8 +23,21 @@ public final class HttpUtils {
     private HttpUtils() {}
 
     /** Copy model from S3 url to local model store */
-    public static void copyURLToFile(URL endpointUrl, File modelLocation, boolean s3SseKmsEnabled)
-            throws IOException {
+    public static boolean copyURLToFile(
+            List<String> allowedUrls,
+            String url,
+            File modelLocation,
+            boolean s3SseKmsEnabled,
+            String archiveName)
+            throws FileAlreadyExistsException, IOException, InvalidArchiveURLException {
+        if (!ArchiveUtils.validateURL(allowedUrls, url)) {
+            return false;
+        }
+
+        URL endpointUrl = new URL(url);
+        if (modelLocation.exists()) {
+            throw new FileAlreadyExistsException(archiveName);
+        }
         // for a simple GET, we have no body so supply the precomputed 'empty' hash
         Map<String, String> headers;
         if (s3SseKmsEnabled) {
@@ -44,7 +61,8 @@ public final class HttpUtils {
                 // place the computed signature into a formatted 'Authorization' header
                 // and call S3
                 headers.put("Authorization", authorization);
-                HttpURLConnection connection = createHttpConnection(endpointUrl, "GET", headers);
+                HttpURLConnection connection = (HttpURLConnection) endpointUrl.openConnection();
+                setHttpConnection(connection, "GET", headers);
                 try {
                     FileUtils.copyInputStreamToFile(connection.getInputStream(), modelLocation);
                 } finally {
@@ -60,12 +78,12 @@ public final class HttpUtils {
         } else {
             FileUtils.copyURLToFile(endpointUrl, modelLocation);
         }
+        return true;
     }
 
-    public static HttpURLConnection createHttpConnection(
-            URL endpointUrl, String httpMethod, Map<String, String> headers) throws IOException {
-
-        HttpURLConnection connection = (HttpURLConnection) endpointUrl.openConnection();
+    public static void setHttpConnection(
+            HttpURLConnection connection, String httpMethod, Map<String, String> headers)
+            throws IOException {
         connection.setRequestMethod(httpMethod);
 
         if (headers != null) {
@@ -73,8 +91,6 @@ public final class HttpUtils {
                 connection.setRequestProperty(headerKey, headers.get(headerKey));
             }
         }
-
-        return connection;
     }
 
     public static String urlEncode(String url, boolean keepPathSlash)
