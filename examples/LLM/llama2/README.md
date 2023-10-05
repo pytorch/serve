@@ -1,7 +1,7 @@
 # Llama 2: Next generation of Meta's Language Model
 ![Llama 2](./llama.png)
 
-TorchServe supports serving Llama 2 in a number of ways. The examples covered in this document range from someone new to TorchServe learning how to serve Llama 2 with an app to an advanced user of TorchServe wanting to do distributed inference with Llama 2 using PyTorch Tensor Parallel APIs. Depending on your usecase, you can refer to an example listed in this document.
+TorchServe supports serving Llama 2 in a number of ways. The examples covered in this document range from someone new to TorchServe learning how to serve Llama 2 with an app, to an advanced user of TorchServe using micro batching and streaming response with Llama 2
 
 ## 🦙💬 Llama 2 Chatbot
 
@@ -21,16 +21,9 @@ You can run this example on your laptop to understand how to use TorchServe, how
 ### [Example Link](https://github.com/pytorch/serve/tree/master/examples/large_models/Huggingface_accelerate/llama2)
 
 This example shows how to serve Llama 2 - 70b model with limited resource using [HuggingFace](https://huggingface.co/meta-llama/Llama-2-70b-chat-hf). It shows the following optimizations
-    1) HuggingFace `accelerate`. This option can be activated with `low_cpu_mem_usage=True`. 
+    1) HuggingFace `accelerate`. This option can be activated with `low_cpu_mem_usage=True`.
     2) Quantization from [`bitsandbytes`](https://github.com/TimDettmers/bitsandbytes)  using `load_in_8bit=True`
 The model is first created on the Meta device (with empty weights) and the state dict is then loaded inside it (shard by shard in the case of a sharded checkpoint).
-
-## Llama 2 with PyTorch native Tensor Parallel
-
-### [Example Link](https://github.com/pytorch/serve/tree/master/examples/large_models/tp_llama)
-
-This example shows how to serve Llama using PyTorch Tensor Parallel (TP) [APIs](https://pytorch.org/docs/stable/distributed.tensor.parallel.html), which under the hood make use of DTensors. It basically, takes a sharding plan for linear layers in MLP and Attention blocks of Llama2 model and make a TP model distributed over multiple GPUs.
-
 
 ## Llama 2 on Inferentia
 
@@ -39,5 +32,3 @@ This example shows how to serve Llama using PyTorch Tensor Parallel (TP) [APIs](
 This document briefs on serving the [Llama 2](https://huggingface.co/meta-llama) model on [AWS Inferentia2](https://aws.amazon.com/ec2/instance-types/inf2/) for text completion with [micro batching](https://github.com/pytorch/serve/tree/96450b9d0ab2a7290221f0e07aea5fda8a83efaf/examples/micro_batching) and [streaming response](https://github.com/pytorch/serve/blob/96450b9d0ab2a7290221f0e07aea5fda8a83efaf/docs/inference_api.md#curl-example-1) support.
 
 Inferentia2 uses [Neuron SDK](https://aws.amazon.com/machine-learning/neuron/) which is built on top of PyTorch XLA stack. For large model inference [`transformers-neuronx`](https://github.com/aws-neuron/transformers-neuronx) package is used that takes care of model partitioning and running inference.
-
-
