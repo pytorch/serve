@@ -197,7 +197,8 @@ public class ModelConfig {
                                 modelConfig.setMaxSequenceJobQueueSize((int) v);
                             } else {
                                 logger.warn(
-                                        "Invalid maxSequenceJobQueueSize: {}, should be positive int", v);
+                                        "Invalid maxSequenceJobQueueSize: {}, should be positive int",
+                                        v);
                             }
                             break;
                         case "continuousBatching":
