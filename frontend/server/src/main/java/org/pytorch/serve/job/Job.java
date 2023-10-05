@@ -97,4 +97,6 @@ public abstract class Job {
         }
         return null;
     }
+
+    public abstract boolean isOpen();
 }

@@ -78,10 +78,12 @@ public class Model {
 
     private boolean useJobTicket;
     private AtomicInteger numJobTickets;
+    private boolean continuousBatching;
 
     public Model(ModelArchive modelArchive, int queueSize) {
         this.modelArchive = modelArchive;
         if (modelArchive != null && modelArchive.getModelConfig() != null) {
+            continuousBatching = modelArchive.getModelConfig().isContinuousBatching();
             if (modelArchive.getModelConfig().getParallelLevel() > 1
                     && modelArchive.getModelConfig().getParallelType()
                             != ModelConfig.ParallelType.NONE) {
@@ -331,7 +333,7 @@ public class Model {
         return false;
     }
 
-    public void pollInferJob(Map<String, Job> jobsRepo) throws InterruptedException {
+    public void pollInferJob(Map<String, Job> jobsRepo, int batchSize) throws InterruptedException {
         LinkedBlockingDeque<Job> jobsQueue;
         try {
             if (isUseJobTicket()) {
@@ -339,19 +341,35 @@ public class Model {
             }
             lock.lockInterruptibly();
             long maxDelay = maxBatchDelay;
+            boolean pollNoWait = jobsRepo.isEmpty() ? false : true;
             jobsQueue = jobsDb.get(DEFAULT_DATA_QUEUE);
 
-            Job j = jobsQueue.poll(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
-            logger.trace("get first job: {}", Objects.requireNonNull(j).getJobId());
+            Job j = null;
+            if (jobsRepo.isEmpty()) {
+                j = jobsQueue.poll(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
+                logger.trace("get first job: {}", Objects.requireNonNull(j).getJobId());
 
-            jobsRepo.put(j.getJobId(), j);
-            // batch size always is 1 for describe request job
-            if (j.getCmd() == WorkerCommands.DESCRIBE) {
-                return;
+                jobsRepo.put(j.getJobId(), j);
+                // batch size always is 1 for describe request job
+                if (j.getCmd() == WorkerCommands.DESCRIBE) {
+                    if (jobsRepo.isEmpty()) {
+                        jobsRepo.put(j.getJobId(), j);
+                        return;
+                    } else {
+                        jobsQueue.addFirst(j);
+                        return;
+                    }
+                }
             }
+
             long begin = System.currentTimeMillis();
             for (int i = 0; i < batchSize - 1; ++i) {
-                j = jobsQueue.poll(maxDelay, TimeUnit.MILLISECONDS);
+                if (pollNoWait) {
+                    j = jobsQueue.poll();
+                } else {
+                    j = jobsQueue.poll(maxDelay, TimeUnit.MILLISECONDS);
+                }
+
                 if (j == null) {
                     break;
                 }
@@ -597,5 +615,9 @@ public class Model {
 
     public void removeJobGroup(String groupId) {
         jobGroups.remove(groupId);
+    }
+
+    public boolean isContinuousBatching() {
+        return continuousBatching;
     }
 }

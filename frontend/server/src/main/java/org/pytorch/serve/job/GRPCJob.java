@@ -29,7 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class GRPCJob extends Job {
-    private static final Logger logger = LoggerFactory.getLogger(Job.class);
+    private static final Logger logger = LoggerFactory.getLogger(GRPCJob.class);
 
     private final IMetric queueTimeMetric;
     private final List<String> queueTimeMetricDimensionValues;
@@ -194,5 +194,11 @@ public class GRPCJob extends Job {
             default:
                 break;
         }
+    }
+
+    @Override
+    public boolean isOpen() {
+        return ((ServerCallStreamObserver<PredictionResponse>) predictionResponseObserver)
+                .isCancelled();
     }
 }

@@ -14,6 +14,7 @@ public class RequestInput {
     private Map<String, String> headers;
     private List<InputParameter> parameters;
     private long clientExpireTS;
+    private boolean cached;
 
     public RequestInput(String requestId) {
         this.requestId = requestId;
@@ -79,5 +80,13 @@ public class RequestInput {
 
     public void setSequenceId(String sequenceId) {
         this.sequenceId = sequenceId;
+    }
+
+    public boolean isCached() {
+        return cached;
+    }
+
+    public void setCached(boolean cached) {
+        this.cached = cached;
     }
 }

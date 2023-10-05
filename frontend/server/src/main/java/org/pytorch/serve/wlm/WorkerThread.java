@@ -183,6 +183,8 @@ public class WorkerThread implements Runnable {
         currentThread.set(thread);
         BaseModelRequest req = null;
         int status = HttpURLConnection.HTTP_INTERNAL_ERROR;
+        // in case of retry
+        aggregator.cleanJobs();
 
         try {
             connect();

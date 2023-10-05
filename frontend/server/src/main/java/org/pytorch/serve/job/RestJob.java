@@ -2,6 +2,7 @@ package org.pytorch.serve.job;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.DefaultHttpContent;
@@ -259,5 +260,11 @@ public class RestJob extends Job {
 
     public void setResponsePromise(CompletableFuture<byte[]> responsePromise) {
         this.responsePromise = responsePromise;
+    }
+
+    @Override
+    public boolean isOpen() {
+        Channel c = ctx.channel();
+        return c.isOpen();
     }
 }
