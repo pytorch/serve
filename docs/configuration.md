@@ -81,16 +81,15 @@ See [Enable SSL](#enable-ssl) to configure HTTPS.
 * `inference_address`: Inference API binding address. Default: `http://127.0.0.1:8080`
 * `management_address`: Management API binding address. Default: `http://127.0.0.1:8081`
 * `metrics_address`: Metrics API binding address. Default: `http://127.0.0.1:8082`
-* To run predictions on models on a public IP address, specify the IP address as `0.0.0.0`.
-  To run predictions on models on a specific IP address, specify the IP address and port.
+* To run predictions on models on a specific IP address, specify the IP address and port.
 
 ```properties
-# bind inference API to all network interfaces with SSL enabled
-inference_address=https://0.0.0.0:8443
+# bind inference API to localhost with SSL enabled
+inference_address=https://127.0.0.1:8443
 ```
 
 ```properties
-# bind inference API to private network interfaces
+# bind inference API to private network interfaces with SSL enabled
 inference_address=https://172.16.1.10:8080
 ```
 
