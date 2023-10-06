@@ -34,7 +34,7 @@ public final class HttpUtils {
         if (!ArchiveUtils.validateURL(allowedUrls, url)) {
             return false;
         }
-        URL endpointUrl = new URL(url);
+
         if (modelLocation.exists()) {
             throw new FileAlreadyExistsException(archiveName);
         }
@@ -57,6 +57,8 @@ public final class HttpUtils {
             headers = new HashMap<>();
             headers.put("x-amz-content-sha256", AWS4SignerBase.EMPTY_BODY_SHA256);
 
+            URL endpointUrl = new URL(url);
+
             AWS4SignerForAuthorizationHeader signer =
                     new AWS4SignerForAuthorizationHeader(endpointUrl, "GET", "s3", regionName);
             String authorization =
@@ -70,19 +72,18 @@ public final class HttpUtils {
             // place the computed signature into a formatted 'Authorization' header
             // and call S3
             headers.put("Authorization", authorization);
-            // Add if condition to avoid security false alarm
-            if (url.equals(endpointUrl.toString())) {
-                HttpURLConnection connection = (HttpURLConnection) endpointUrl.openConnection();
-                setHttpConnection(connection, "GET", headers);
-                try {
-                    FileUtils.copyInputStreamToFile(connection.getInputStream(), modelLocation);
-                } finally {
-                    if (connection != null) {
-                        connection.disconnect();
-                    }
+            HttpURLConnection connection = (HttpURLConnection) endpointUrl.openConnection();
+            setHttpConnection(connection, "GET", headers);
+            try {
+                FileUtils.copyInputStreamToFile(connection.getInputStream(), modelLocation);
+            } finally {
+                if (connection != null) {
+                    connection.disconnect();
                 }
             }
+
         } else {
+            URL endpointUrl = new URL(url);
             FileUtils.copyURLToFile(endpointUrl, modelLocation);
         }
         return true;
