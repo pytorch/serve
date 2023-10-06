@@ -21,7 +21,7 @@ class LauncherPlugin implements Plugin<Project> {
                 String cp = CollectionUtils.join(File.pathSeparator, list)
                 String jvmPath = Jvm.current().getJavaExecutable()
 
-                def cmd = [jvmPath, "-agentlib:jdwp=transport=dt_socket,address=0.0.0.0:4000,server=y,suspend=n",
+                def cmd = [jvmPath, "-agentlib:jdwp=transport=dt_socket,address=127.0.0.1:4000,server=y,suspend=n",
                            "-DtsConfigFile=${project.projectDir}/src/test/resources/config.properties",
                            "-DLOG_LOCATION=${project.buildDir}/logs",
                            "-DMETRICS_LOCATION=${project.buildDir}/logs",

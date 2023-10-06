@@ -17,7 +17,7 @@ curl http://127.0.0.1:8080/predictions/bert -T input.txt
 ```
 # Install dependencies
 # cuda is optional
-python ./ts_scripts/install_dependencies.py --cuda=cu102
+python ./ts_scripts/install_dependencies.py --cuda=cu121
 
 # Latest release
 pip install torchserve torch-model-archiver torch-workflow-archiver
@@ -31,7 +31,7 @@ pip install torchserve-nightly torch-model-archiver-nightly torch-workflow-archi
 ```
 # Install dependencies
 # cuda is optional
-python ./ts_scripts/install_dependencies.py --cuda=cu102
+python ./ts_scripts/install_dependencies.py --cuda=cu121
 
 # Latest release
 conda install -c pytorch torchserve torch-model-archiver torch-workflow-archiver
@@ -77,6 +77,7 @@ Refer to [torchserve docker](docker/README.md) for details.
 
 
 ## 🏆 Highlighted Examples
+* [Chatbot with Llama 2 on Mac 🦙💬](examples/LLM/llama2/chat_app)
 * [🤗 HuggingFace Transformers](examples/Huggingface_Transformers) with a [Better Transformer Integration/ Flash Attention & Xformer Memory Efficient ](examples/Huggingface_Transformers#Speed-up-inference-with-Better-Transformer)
 * [Model parallel inference](examples/Huggingface_Transformers#model-parallelism)
 * [MultiModal models with MMF](https://github.com/pytorch/serve/tree/master/examples/MMF-activity-recognition) combining text, audio and video

@@ -28,7 +28,7 @@ Run the commands given in following steps from the parent directory of the root 
   ### Start a docker container with torchserve
 
   ```bash
-  docker run --rm -it -p 8080:8080 -p 8081:8081 -p 8082:8082 -v $(pwd)/model_store:/home/model-server/model-store pytorch/torchserve:latest-cpu
+  docker run --rm -it -p 127.0.0.1:8080:8080 -p 127.0.0.1:8081:8081 -p 127.0.0.1:8082:8082 -v $(pwd)/model_store:/home/model-server/model-store pytorch/torchserve:latest-cpu
   ```
 
   ### Register the model on TorchServe using the above model archive file

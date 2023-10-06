@@ -24,6 +24,6 @@ $CONTAINER \
 
 # serve; /home/model-server/config.properties has pre-defined model-store location
 docker run --rm --network host \
--p 8080:8080 -p 8081:8081 -p 8082:8082 -p 7070:7070 -p 7071:7071 \
+-p 127.0.0.1:8080:8080 -p 127.0.0.1:8081:8081 -p 127.0.0.1:8082:8082 -p 127.0.0.1:7070:7070 -p 127.0.0.1:7071:7071 \
 -v $PWD:/home/model-server \
 $CONTAINER

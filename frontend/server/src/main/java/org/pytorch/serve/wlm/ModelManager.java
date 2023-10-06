@@ -9,6 +9,7 @@ import java.net.HttpURLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -217,12 +218,18 @@ public final class ModelManager {
             if (Files.isSymbolicLink(dependencyPath.toPath())) {
                 dependencyPath = dependencyPath.getParentFile();
             }
-            String packageInstallCommand =
-                    pythonRuntime
-                            + " -m pip install -U -t "
-                            + dependencyPath.getAbsolutePath()
-                            + " -r "
-                            + requirementsFilePath; // NOPMD
+
+            List<String> commandParts = new ArrayList<>();
+
+            commandParts.add(pythonRuntime);
+            commandParts.add("-m");
+            commandParts.add("pip");
+            commandParts.add("install");
+            commandParts.add("-U");
+            commandParts.add("-t");
+            commandParts.add(dependencyPath.getAbsolutePath());
+            commandParts.add("-r");
+            commandParts.add(requirementsFilePath.toString());
 
             String[] envp =
                     EnvironmentUtils.getEnvString(
@@ -230,13 +237,16 @@ public final class ModelManager {
                             model.getModelDir().getAbsolutePath(),
                             null);
 
-            Process process =
-                    Runtime.getRuntime()
-                            .exec(
-                                    packageInstallCommand,
-                                    envp,
-                                    model.getModelDir().getAbsoluteFile());
-
+            ProcessBuilder processBuilder = new ProcessBuilder(commandParts);
+            processBuilder.directory(model.getModelDir().getAbsoluteFile());
+            Map<String, String> environment = processBuilder.environment();
+            for (String envVar : envp) {
+                String[] parts = envVar.split("=", 2);
+                if (parts.length == 2) {
+                    environment.put(parts[0], parts[1]);
+                }
+            }
+            Process process = processBuilder.start();
             int exitCode = process.waitFor();
 
             if (exitCode != 0) {
