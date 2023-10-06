@@ -27,13 +27,17 @@ public final class HttpUtils {
             List<String> allowedUrls,
             String url,
             File modelLocation,
-            String storePath,
             boolean s3SseKmsEnabled,
             String archiveName)
             throws FileAlreadyExistsException, IOException, InvalidArchiveURLException {
         if (ArchiveUtils.validateURL(allowedUrls, url)) {
             if (modelLocation.exists()) {
                 throw new FileAlreadyExistsException(archiveName);
+            }
+
+            if (archiveName.contains("/") || archiveName.contains("\\")) {
+                throw new IOException(
+                        "Security alert slash or backslash appear in archiveName:" + archiveName);
             }
 
             // for a simple GET, we have no body so supply the precomputed 'empty' hash
@@ -68,15 +72,7 @@ public final class HttpUtils {
                 headers.put("Authorization", authorization);
                 setHttpConnection(connection, "GET", headers);
                 try {
-                    // Avoid security false alarm
-                    if (storePath.contains("..") || archiveName.contains("..")) {
-                        throw new IOException(
-                                "Security alert .. appear in modelLocation:"
-                                        + modelLocation.getPath().toString());
-                    } else {
-                        FileUtils.copyInputStreamToFile(
-                                connection.getInputStream(), new File(storePath, archiveName));
-                    }
+                    FileUtils.copyInputStreamToFile(connection.getInputStream(), modelLocation);
                 } finally {
                     if (connection != null) {
                         connection.disconnect();
@@ -84,14 +80,7 @@ public final class HttpUtils {
                 }
             } else {
                 URL endpointUrl = new URL(url);
-                // Avoid security false alarm
-                if (storePath.contains("..") || archiveName.contains("..")) {
-                    throw new IOException(
-                            "Security alert .. appear in modelLocation:"
-                                    + modelLocation.getPath().toString());
-                } else {
-                    FileUtils.copyURLToFile(endpointUrl, new File(storePath, archiveName));
-                }
+                FileUtils.copyURLToFile(endpointUrl, modelLocation);
             }
         }
         return false;

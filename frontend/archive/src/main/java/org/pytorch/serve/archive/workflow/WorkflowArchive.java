@@ -57,12 +57,7 @@ public class WorkflowArchive {
 
         try {
             ArchiveUtils.downloadArchive(
-                    allowedUrls,
-                    workflowLocation,
-                    workflowStore,
-                    warFileName,
-                    url,
-                    s3SseKmsEnabled);
+                    allowedUrls, workflowLocation, warFileName, url, s3SseKmsEnabled);
         } catch (InvalidArchiveURLException e) {
             throw new WorkflowNotFoundException(e.getMessage()); // NOPMD
         }
