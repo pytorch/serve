@@ -108,7 +108,7 @@ The details can be found at [here](https://github.com/pytorch/serve/blob/master/
 torchserve --ncs --start --model-store models --model stateful.mar --ts-config config.properties
 ```
 
-* Run sequence infernce
+* Run sequence inference
 ```bash
 cd ../../
 python ts_scripts/torchserve_grpc_client.py  infer_stream2 stateful seq_0 examples/stateful/sample/sample1.txt,examples/stateful/sample/sample2.txt,examples/stateful/sample/sample3.txt
