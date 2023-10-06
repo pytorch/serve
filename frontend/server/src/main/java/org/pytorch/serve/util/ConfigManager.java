@@ -277,6 +277,10 @@ public final class ConfigManager {
         Class<ConfigManager> configClass = ConfigManager.class;
         Field[] fields = configClass.getDeclaredFields();
         for (Field f : fields) {
+            // For security, disable TS_ALLOWED_URLS in env.
+            if ("TS_ALLOWED_URLS".equals(f.getName())) {
+                continue;
+            }
             if (f.getName().startsWith("TS_")) {
                 String val = System.getenv(f.getName());
                 if (val != null) {
