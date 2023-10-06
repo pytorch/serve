@@ -35,4 +35,4 @@ This example shows how to serve the [Llama 2](https://huggingface.co/meta-llama)
 
 Inferentia2 uses [Neuron SDK](https://aws.amazon.com/machine-learning/neuron/) which is built on top of PyTorch XLA stack. For large model inference [`transformers-neuronx`](https://github.com/aws-neuron/transformers-neuronx) package is used that takes care of model partitioning and running inference.
 
-![Inferntia 2 Software Stack](./images/software_stack_inf2.jpg)
+![Inferentia 2 Software Stack](./images/software_stack_inf2.jpg)
