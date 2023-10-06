@@ -28,66 +28,70 @@ public final class HttpUtils {
             String url,
             File modelLocation,
             boolean s3SseKmsEnabled,
-            String archiveName,
-            String store)
+            String archiveName)
             throws FileAlreadyExistsException, IOException, InvalidArchiveURLException {
-        if (!ArchiveUtils.validateURL(allowedUrls, url)) {
-            return false;
-        }
-
-        if (modelLocation.exists()) {
-            throw new FileAlreadyExistsException(archiveName);
-        }
-
-        // Avoid security false alarm
-        String safe_store = store.replaceAll("..", "");
-        if (!modelLocation.getPath().toString().startsWith(safe_store)) {
-            throw new IOException("Invalid modelLocation:" + modelLocation.getPath().toString());
-        }
-
-        // for a simple GET, we have no body so supply the precomputed 'empty' hash
-        Map<String, String> headers;
-        if (s3SseKmsEnabled) {
-            String awsAccessKey = System.getenv("AWS_ACCESS_KEY_ID");
-            String awsSecretKey = System.getenv("AWS_SECRET_ACCESS_KEY");
-            String regionName = System.getenv("AWS_DEFAULT_REGION");
-            if (regionName.isEmpty() || awsAccessKey.isEmpty() || awsSecretKey.isEmpty()) {
-                throw new IOException(
-                        "Miss environment variables "
-                                + "AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY or AWS_DEFAULT_REGION");
+        if (ArchiveUtils.validateURL(allowedUrls, url)) {
+            if (modelLocation.exists()) {
+                throw new FileAlreadyExistsException(archiveName);
             }
 
-            HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
-            headers = new HashMap<>();
-            headers.put("x-amz-content-sha256", AWS4SignerBase.EMPTY_BODY_SHA256);
+            // for a simple GET, we have no body so supply the precomputed 'empty' hash
+            Map<String, String> headers;
+            if (s3SseKmsEnabled) {
+                String awsAccessKey = System.getenv("AWS_ACCESS_KEY_ID");
+                String awsSecretKey = System.getenv("AWS_SECRET_ACCESS_KEY");
+                String regionName = System.getenv("AWS_DEFAULT_REGION");
+                if (regionName.isEmpty() || awsAccessKey.isEmpty() || awsSecretKey.isEmpty()) {
+                    throw new IOException(
+                            "Miss environment variables "
+                                    + "AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY or AWS_DEFAULT_REGION");
+                }
 
-            AWS4SignerForAuthorizationHeader signer =
-                    new AWS4SignerForAuthorizationHeader(
-                            connection.getURL(), "GET", "s3", regionName);
-            String authorization =
-                    signer.computeSignature(
-                            headers,
-                            null, // no query parameters
-                            AWS4SignerBase.EMPTY_BODY_SHA256,
-                            awsAccessKey,
-                            awsSecretKey);
+                HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
+                headers = new HashMap<>();
+                headers.put("x-amz-content-sha256", AWS4SignerBase.EMPTY_BODY_SHA256);
 
-            // place the computed signature into a formatted 'Authorization' header
-            // and call S3
-            headers.put("Authorization", authorization);
-            setHttpConnection(connection, "GET", headers);
-            try {
-                FileUtils.copyInputStreamToFile(connection.getInputStream(), modelLocation);
-            } finally {
-                if (connection != null) {
-                    connection.disconnect();
+                AWS4SignerForAuthorizationHeader signer =
+                        new AWS4SignerForAuthorizationHeader(
+                                connection.getURL(), "GET", "s3", regionName);
+                String authorization =
+                        signer.computeSignature(
+                                headers,
+                                null, // no query parameters
+                                AWS4SignerBase.EMPTY_BODY_SHA256,
+                                awsAccessKey,
+                                awsSecretKey);
+
+                // place the computed signature into a formatted 'Authorization' header
+                // and call S3
+                headers.put("Authorization", authorization);
+                setHttpConnection(connection, "GET", headers);
+                try {
+                    // Avoid security false alarm
+                    if (!modelLocation.getPath().toString().contains("..")) {
+                        FileUtils.copyInputStreamToFile(connection.getInputStream(), modelLocation);
+                    } else {
+                        throw new IOException(
+                                "Security alert .. appear in modelLocation:"
+                                        + modelLocation.getPath().toString());
+                    }
+                } finally {
+                    if (connection != null) {
+                        connection.disconnect();
+                    }
+                }
+            } else {
+                URL endpointUrl = new URL(url);
+                if (!modelLocation.getPath().toString().contains("..")) {
+                    FileUtils.copyURLToFile(endpointUrl, modelLocation);
+                } else {
+                    throw new IOException(
+                            "Security alert .. appear in modelLocation:"
+                                    + modelLocation.getPath().toString());
                 }
             }
-        } else {
-            URL endpointUrl = new URL(url);
-            FileUtils.copyURLToFile(endpointUrl, modelLocation);
         }
-        return true;
+        return false;
     }
 
     public static void setHttpConnection(
