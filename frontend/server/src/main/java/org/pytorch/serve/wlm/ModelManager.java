@@ -220,14 +220,6 @@ public final class ModelManager {
                 dependencyPath = dependencyPath.getParentFile();
             }
 
-            if (!dependencyPath
-                    .getCanonicalPath()
-                    .startsWith(FileUtils.getTempDirectory().getCanonicalPath())) {
-                throw new ModelException(
-                        "Invalid 3rd party package installation path "
-                                + dependencyPath.getCanonicalPath());
-            }
-
             List<String> commandParts = new ArrayList<>();
 
             commandParts.add(pythonRuntime);
@@ -247,7 +239,17 @@ public final class ModelManager {
                             null);
 
             ProcessBuilder processBuilder = new ProcessBuilder(commandParts);
-            processBuilder.directory(dependencyPath);
+            if (dependencyPath
+                    .toPath()
+                    .normalize()
+                    .startsWith(FileUtils.getTempDirectory().toPath().normalize())) {
+                processBuilder.directory(dependencyPath);
+            } else {
+                throw new ModelException(
+                        "Invalid 3rd party package installation path "
+                                + dependencyPath.getCanonicalPath());
+            }
+
             Map<String, String> environment = processBuilder.environment();
             for (String envVar : envp) {
                 String[] parts = envVar.split("=", 2);
