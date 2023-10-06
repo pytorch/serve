@@ -71,7 +71,7 @@ public final class HttpUtils {
             // and call S3
             headers.put("Authorization", authorization);
             // Add if condition to avoid security false alarm
-            if (endpointUrl.toString().equals(url)) {
+            if (url.equals(endpointUrl.toString())) {
                 HttpURLConnection connection = (HttpURLConnection) endpointUrl.openConnection();
                 setHttpConnection(connection, "GET", headers);
                 try {
