@@ -38,10 +38,13 @@ public final class HttpUtils {
         if (modelLocation.exists()) {
             throw new FileAlreadyExistsException(archiveName);
         }
-        // Add if condition to avoid security false alarm
-        if (!modelLocation.getPath().toString().startsWith(store)) {
+
+        // Avoid security false alarm
+        String safe_store = store.replaceAll("..", "");
+        if (!modelLocation.getPath().toString().startsWith(safe_store)) {
             throw new IOException("Invalid modelLocation:" + modelLocation.getPath().toString());
         }
+
         // for a simple GET, we have no body so supply the precomputed 'empty' hash
         Map<String, String> headers;
         if (s3SseKmsEnabled) {
@@ -54,13 +57,13 @@ public final class HttpUtils {
                                 + "AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY or AWS_DEFAULT_REGION");
             }
 
+            HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
             headers = new HashMap<>();
             headers.put("x-amz-content-sha256", AWS4SignerBase.EMPTY_BODY_SHA256);
 
-            URL endpointUrl = new URL(url);
-
             AWS4SignerForAuthorizationHeader signer =
-                    new AWS4SignerForAuthorizationHeader(endpointUrl, "GET", "s3", regionName);
+                    new AWS4SignerForAuthorizationHeader(
+                            connection.getURL(), "GET", "s3", regionName);
             String authorization =
                     signer.computeSignature(
                             headers,
@@ -72,7 +75,6 @@ public final class HttpUtils {
             // place the computed signature into a formatted 'Authorization' header
             // and call S3
             headers.put("Authorization", authorization);
-            HttpURLConnection connection = (HttpURLConnection) endpointUrl.openConnection();
             setHttpConnection(connection, "GET", headers);
             try {
                 FileUtils.copyInputStreamToFile(connection.getInputStream(), modelLocation);
@@ -81,7 +83,6 @@ public final class HttpUtils {
                     connection.disconnect();
                 }
             }
-
         } else {
             URL endpointUrl = new URL(url);
             FileUtils.copyURLToFile(endpointUrl, modelLocation);
