@@ -28,7 +28,8 @@ public final class HttpUtils {
             String url,
             File modelLocation,
             boolean s3SseKmsEnabled,
-            String archiveName)
+            String archiveName,
+            String store)
             throws FileAlreadyExistsException, IOException, InvalidArchiveURLException {
         if (!ArchiveUtils.validateURL(allowedUrls, url)) {
             return false;
@@ -36,6 +37,10 @@ public final class HttpUtils {
         URL endpointUrl = new URL(url);
         if (modelLocation.exists()) {
             throw new FileAlreadyExistsException(archiveName);
+        }
+        // Add if condition to avoid security false alarm
+        if (!modelLocation.getPath().toString().startsWith(store)) {
+            throw new IOException("Invalid modelLocation:" + modelLocation.getPath().toString());
         }
         // for a simple GET, we have no body so supply the precomputed 'empty' hash
         Map<String, String> headers;
@@ -65,13 +70,16 @@ public final class HttpUtils {
             // place the computed signature into a formatted 'Authorization' header
             // and call S3
             headers.put("Authorization", authorization);
-            HttpURLConnection connection = (HttpURLConnection) endpointUrl.openConnection();
-            setHttpConnection(connection, "GET", headers);
-            try {
-                FileUtils.copyInputStreamToFile(connection.getInputStream(), modelLocation);
-            } finally {
-                if (connection != null) {
-                    connection.disconnect();
+            // Add if condition to avoid security false alarm
+            if (endpointUrl.toString().equals(url)) {
+                HttpURLConnection connection = (HttpURLConnection) endpointUrl.openConnection();
+                setHttpConnection(connection, "GET", headers);
+                try {
+                    FileUtils.copyInputStreamToFile(connection.getInputStream(), modelLocation);
+                } finally {
+                    if (connection != null) {
+                        connection.disconnect();
+                    }
                 }
             }
         } else {

@@ -105,15 +105,15 @@ public final class ArchiveUtils {
     public static boolean downloadArchive(
             List<String> allowedUrls,
             File location,
+            String store,
             String archiveName,
             String url,
             boolean s3SseKmsEnabled)
             throws FileAlreadyExistsException, FileNotFoundException, DownloadArchiveException,
                     InvalidArchiveURLException {
-
         try {
             return HttpUtils.copyURLToFile(
-                    allowedUrls, url, location, s3SseKmsEnabled, archiveName);
+                    allowedUrls, url, location, s3SseKmsEnabled, archiveName, store);
         } catch (InvalidArchiveURLException | FileAlreadyExistsException e) {
             throw e;
         } catch (IOException e) {
