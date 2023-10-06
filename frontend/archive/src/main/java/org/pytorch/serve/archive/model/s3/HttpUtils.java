@@ -27,6 +27,7 @@ public final class HttpUtils {
             List<String> allowedUrls,
             String url,
             File modelLocation,
+            String storePath,
             boolean s3SseKmsEnabled,
             String archiveName)
             throws FileAlreadyExistsException, IOException, InvalidArchiveURLException {
@@ -68,12 +69,13 @@ public final class HttpUtils {
                 setHttpConnection(connection, "GET", headers);
                 try {
                     // Avoid security false alarm
-                    if (!modelLocation.getPath().toString().contains("..")) {
-                        FileUtils.copyInputStreamToFile(connection.getInputStream(), modelLocation);
-                    } else {
+                    if (storePath.contains("..") || archiveName.contains("..")) {
                         throw new IOException(
                                 "Security alert .. appear in modelLocation:"
                                         + modelLocation.getPath().toString());
+                    } else {
+                        FileUtils.copyInputStreamToFile(
+                                connection.getInputStream(), new File(storePath, archiveName));
                     }
                 } finally {
                     if (connection != null) {
@@ -82,12 +84,13 @@ public final class HttpUtils {
                 }
             } else {
                 URL endpointUrl = new URL(url);
-                if (!modelLocation.getPath().toString().contains("..")) {
-                    FileUtils.copyURLToFile(endpointUrl, modelLocation);
-                } else {
+                // Avoid security false alarm
+                if (storePath.contains("..") || archiveName.contains("..")) {
                     throw new IOException(
                             "Security alert .. appear in modelLocation:"
                                     + modelLocation.getPath().toString());
+                } else {
+                    FileUtils.copyURLToFile(endpointUrl, new File(storePath, archiveName));
                 }
             }
         }

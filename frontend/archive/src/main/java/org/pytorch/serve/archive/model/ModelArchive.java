@@ -58,7 +58,7 @@ public class ModelArchive {
         File modelLocation = new File(modelStore, marFileName);
         try {
             ArchiveUtils.downloadArchive(
-                    allowedUrls, modelLocation, marFileName, url, s3SseKmsEnabled);
+                    allowedUrls, modelLocation, modelStore, marFileName, url, s3SseKmsEnabled);
         } catch (InvalidArchiveURLException e) {
             throw new ModelNotFoundException(e.getMessage()); // NOPMD
         }
