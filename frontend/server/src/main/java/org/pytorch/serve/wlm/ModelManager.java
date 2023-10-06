@@ -239,10 +239,7 @@ public final class ModelManager {
                             null);
 
             ProcessBuilder processBuilder = new ProcessBuilder(commandParts);
-            if (dependencyPath
-                    .toPath()
-                    .normalize()
-                    .startsWith(FileUtils.getTempDirectory().toPath().normalize())) {
+            if (isValidDependencyPath(dependencyPath)) {
                 processBuilder.directory(dependencyPath);
             } else {
                 throw new ModelException(
@@ -283,6 +280,16 @@ public final class ModelManager {
                         "Custom pip package installation failed for " + model.getModelName());
             }
         }
+    }
+
+    private boolean isValidDependencyPath(File dependencyPath) {
+        if (dependencyPath
+                .toPath()
+                .normalize()
+                .startsWith(FileUtils.getTempDirectory().toPath().normalize())) {
+            return true;
+        }
+        return false;
     }
 
     private Model createModel(
