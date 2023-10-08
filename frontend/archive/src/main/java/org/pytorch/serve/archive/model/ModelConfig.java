@@ -60,11 +60,6 @@ public class ModelConfig {
      */
     private long sequenceMaxIdleMSec;
     /**
-     * the max number of sequence inference requests of this stateful model. The default value is
-     * minWorkers * batchSize.
-     */
-    private int maxNumSequence;
-    /**
      * the job queue size of an inference sequence of this stateful model. The default value is 1.
      */
     private int maxSequenceJobQueueSize = 1;
@@ -182,14 +177,6 @@ public class ModelConfig {
                                 logger.warn(
                                         "Invalid sequenceMaxIdleMSec: {}, should be positive int",
                                         v);
-                            }
-                            break;
-                        case "maxNumSequence":
-                            if (v instanceof Integer) {
-                                modelConfig.setMaxNumSequence((int) v);
-                            } else {
-                                logger.warn(
-                                        "Invalid maxNumSequence: {}, should be positive int", v);
                             }
                             break;
                         case "maxSequenceJobQueueSize":
@@ -332,9 +319,7 @@ public class ModelConfig {
     }
 
     public void setMaxRetryTimeoutInSec(int maxRetryTimeoutInSec) {
-        if (maxRetryTimeoutInSec > 0) {
-            this.maxRetryTimeoutInSec = maxRetryTimeoutInSec;
-        }
+        this.maxRetryTimeoutInSec = Math.max(0, maxRetryTimeoutInSec);
     }
 
     public long getClientTimeoutInMills() {
@@ -342,9 +327,7 @@ public class ModelConfig {
     }
 
     public void setClientTimeoutInMills(long clientTimeoutInMills) {
-        if (clientTimeoutInMills > 0) {
-            this.clientTimeoutInMills = clientTimeoutInMills;
-        }
+        this.clientTimeoutInMills = Math.max(0, clientTimeoutInMills);
     }
 
     public int getJobQueueSize() {
@@ -352,9 +335,7 @@ public class ModelConfig {
     }
 
     public void setJobQueueSize(int jobQueueSize) {
-        if (jobQueueSize > 0) {
-            this.jobQueueSize = jobQueueSize;
-        }
+        this.jobQueueSize = Math.max(0, jobQueueSize);
     }
 
     public boolean isUseJobTicket() {
@@ -370,19 +351,7 @@ public class ModelConfig {
     }
 
     public void setSequenceMaxIdleMSec(long sequenceMaxIdleMSec) {
-        if (sequenceMaxIdleMSec > 0) {
-            this.sequenceMaxIdleMSec = sequenceMaxIdleMSec;
-        }
-    }
-
-    public int getMaxNumSequence() {
-        return maxNumSequence;
-    }
-
-    public void setMaxNumSequence(int maxNumSequence) {
-        if (maxNumSequence > 0) {
-            this.maxNumSequence = maxNumSequence;
-        }
+        this.sequenceMaxIdleMSec = Math.max(0, sequenceMaxIdleMSec);
     }
 
     public int getMaxSequenceJobQueueSize() {
@@ -390,9 +359,7 @@ public class ModelConfig {
     }
 
     public void setMaxSequenceJobQueueSize(int maxsequenceJobQueueSize) {
-        if (maxsequenceJobQueueSize > 0) {
-            this.maxSequenceJobQueueSize = maxsequenceJobQueueSize;
-        }
+        this.maxSequenceJobQueueSize = Math.max(0, maxsequenceJobQueueSize);
     }
 
     public boolean isContinuousBatching() {

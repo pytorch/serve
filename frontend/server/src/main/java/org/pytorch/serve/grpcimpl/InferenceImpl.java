@@ -104,7 +104,7 @@ public class InferenceImpl extends InferenceAPIsServiceImplBase {
             public void onNext(PredictionsRequest value) {
                 String sequenceId = value.getSequenceId();
 
-                if (sequenceId == null || sequenceId.isBlank()) {
+                if ("".equals(sequenceId)) {
                     BadRequestException e =
                             new BadRequestException("Parameter sequenceId is required.");
                     sendErrorResponse(
@@ -194,14 +194,14 @@ public class InferenceImpl extends InferenceAPIsServiceImplBase {
         String modelName = request.getModelName();
         String modelVersion = request.getModelVersion();
 
-        if (modelName == null || "".equals(modelName)) {
+        if ("".equals(modelName)) {
             BadRequestException e = new BadRequestException("Parameter model_name is required.");
             sendErrorResponse(
                     responseObserver, Status.INTERNAL, e, "BadRequestException.()", workerCmd);
             return;
         }
 
-        if (modelVersion == null || "".equals(modelVersion)) {
+        if ("".equals(modelVersion)) {
             modelVersion = null;
         }
 
@@ -245,10 +245,12 @@ public class InferenceImpl extends InferenceAPIsServiceImplBase {
                 String responseMessage;
                 if (job.getCmd() == WorkerCommands.STREAMPREDICT2) {
                     responseMessage =
-                            ApiUtils.getInferenceErrorResponseMessage2(modelName, modelVersion);
+                            ApiUtils.getStreamingInferenceErrorResponseMessage2(
+                                    modelName, modelVersion);
                 } else {
                     responseMessage =
-                            ApiUtils.getInferenceErrorResponseMessage(modelName, modelVersion);
+                            ApiUtils.getStreamingInferenceErrorResponseMessage(
+                                    modelName, modelVersion);
                 }
                 InternalServerException e = new InternalServerException(responseMessage);
                 sendErrorResponse(
@@ -267,7 +269,7 @@ public class InferenceImpl extends InferenceAPIsServiceImplBase {
         try {
             String modelName = request.getModelName();
             String modelVersion = request.getModelVersion();
-            if (modelVersion == null || "".equals(modelVersion)) {
+            if ("".equals(modelVersion)) {
                 modelVersion = null;
             }
             ModelManager modelManager = ModelManager.getInstance();

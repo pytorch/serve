@@ -34,8 +34,7 @@ public class BatchAggregator {
 
         ModelInferenceRequest req = new ModelInferenceRequest(model.getModelName());
 
-        model.pollBatch(
-                threadName, (state == WorkerState.WORKER_MODEL_LOADED) ? 0 : Long.MAX_VALUE, jobs);
+        pollBatch(threadName, state);
 
         if (model.isUseJobTicket() && jobs.isEmpty()) {
             model.decNumJobTickets();
@@ -57,8 +56,9 @@ public class BatchAggregator {
                 }
                 return new ModelLoadModelRequest(model, gpuId);
             } else {
-                if (j.getCmd() == WorkerCommands.STREAMPREDICT) {
-                    req.setCommand(WorkerCommands.STREAMPREDICT);
+                if (j.getCmd() == WorkerCommands.STREAMPREDICT
+                        || j.getCmd() == WorkerCommands.STREAMPREDICT2) {
+                    req.setCommand(j.getCmd());
                 }
                 j.setScheduled();
                 req.addRequest(j.getPayload());
@@ -95,7 +95,7 @@ public class BatchAggregator {
                                     .get(
                                             org.pytorch.serve.util.messages.RequestInput
                                                     .TS_STREAM_NEXT);
-                    if (streamNext != null && streamNext.equals("true")) {
+                    if ("true".equals(streamNext)) {
                         jobDone = false;
                     }
                 }
@@ -168,7 +168,7 @@ public class BatchAggregator {
                 } else {
                     // Data message can be handled by other workers.
                     // If batch has gone past its batch max delay timer?
-                    model.addFirst(job);
+                    handleErrorJob(job);
                 }
             }
         }
@@ -179,5 +179,15 @@ public class BatchAggregator {
         if (jobs != null) {
             jobs.clear();
         }
+    }
+
+    public void handleErrorJob(Job job) {
+        model.addFirst(job);
+    }
+
+    public void pollBatch(String threadName, WorkerState state)
+            throws InterruptedException, ExecutionException {
+        model.pollBatch(
+                threadName, (state == WorkerState.WORKER_MODEL_LOADED) ? 0 : Long.MAX_VALUE, jobs);
     }
 }

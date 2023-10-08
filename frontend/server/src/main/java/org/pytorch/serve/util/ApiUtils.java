@@ -430,14 +430,15 @@ public final class ApiUtils {
             throws ModelNotFoundException, ModelVersionNotFoundException {
         RestJob job = new RestJob(ctx, modelName, version, WorkerCommands.PREDICT, input);
         if (!ModelManager.getInstance().addJob(job)) {
-            String responseMessage = getInferenceErrorResponseMessage(modelName, version);
+            String responseMessage = getStreamingInferenceErrorResponseMessage(modelName, version);
             throw new ServiceUnavailableException(responseMessage);
         }
         return job;
     }
 
     @SuppressWarnings("PMD")
-    public static String getInferenceErrorResponseMessage2(String modelName, String modelVersion) {
+    public static String getStreamingInferenceErrorResponseMessage2(
+            String modelName, String modelVersion) {
         String responseMessage = "Model \"" + modelName;
 
         if (modelVersion != null) {
@@ -450,7 +451,8 @@ public final class ApiUtils {
     }
 
     @SuppressWarnings("PMD")
-    public static String getInferenceErrorResponseMessage(String modelName, String modelVersion) {
+    public static String getStreamingInferenceErrorResponseMessage(
+            String modelName, String modelVersion) {
         String responseMessage = "Model \"" + modelName;
 
         if (modelVersion != null) {

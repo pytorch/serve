@@ -121,7 +121,9 @@ public class Model {
                 sequenceMaxIdleMSec = modelArchive.getModelConfig().getSequenceMaxIdleMSec();
                 maxSequenceJobQueueSize =
                         modelArchive.getModelConfig().getMaxSequenceJobQueueSize();
-                maxNumSequence = modelArchive.getModelConfig().getMaxNumSequence();
+                maxNumSequence =
+                        modelArchive.getModelConfig().getMaxWorkers()
+                                * modelArchive.getModelConfig().getBatchSize();
                 jobGroups = new ConcurrentHashMap<>(maxNumSequence);
                 pendingJobGroups = new LinkedBlockingDeque<>(maxNumSequence);
                 jobGroupLock = new ReentrantLock();
@@ -592,16 +594,6 @@ public class Model {
     }
 
     public int getMaxNumSequence() {
-        int maxCapacity = minWorkers * batchSize;
-        if (maxNumSequence == 0) {
-            maxNumSequence = 1;
-        } else if (maxNumSequence > maxCapacity) {
-            logger.warn(
-                    "maxNumSequence: {} exceeds the capacity, reset to {}",
-                    maxNumSequence,
-                    maxCapacity);
-            maxNumSequence = maxCapacity;
-        }
         return maxNumSequence;
     }
 

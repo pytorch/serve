@@ -32,10 +32,6 @@ public abstract class Job {
             default:
                 break;
         }
-
-        if (cmd == WorkerCommands.STREAMPREDICT2) {
-            input.updateHeaders(RequestInput.TS_REQUEST_SEQUENCE_ID, input.getSequenceId());
-        }
     }
 
     public String getJobId() {

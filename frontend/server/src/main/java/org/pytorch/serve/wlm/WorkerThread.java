@@ -196,14 +196,7 @@ public class WorkerThread implements Runnable {
                 long wtStartTime = System.currentTimeMillis();
                 logger.info("Flushing req.cmd {} to backend at: {}", workerCmd, wtStartTime);
                 int repeats =
-                        (workerCmd == WorkerCommands.LOAD)
-                                        || ((workerCmd == WorkerCommands.PREDICT
-                                                        || workerCmd == WorkerCommands.STREAMPREDICT
-                                                        || workerCmd
-                                                                == WorkerCommands.STREAMPREDICT2)
-                                                && model.getParallelLevel() > 1
-                                                && model.getParallelType()
-                                                        != ModelConfig.ParallelType.PP)
+                        isLoadRequest(workerCmd) || isTensorParallelRequest(workerCmd)
                                 ? model.getParallelLevel()
                                 : 1;
                 List<CompletableFuture<Void>> futureRequests = new ArrayList<>(repeats);
@@ -607,5 +600,23 @@ public class WorkerThread implements Runnable {
             }
             ctx.close();
         }
+    }
+
+    private boolean isTensorParallelRequest(WorkerCommands workerCmd) {
+        switch (workerCmd) {
+            case PREDICT:
+            case STREAMPREDICT:
+            case STREAMPREDICT2:
+                if (model.getParallelType() != ModelConfig.ParallelType.PP) {
+                    return true;
+                }
+                return false;
+            default:
+                return false;
+        }
+    }
+
+    private boolean isLoadRequest(WorkerCommands workerCmd) {
+        return workerCmd == WorkerCommands.LOAD;
     }
 }

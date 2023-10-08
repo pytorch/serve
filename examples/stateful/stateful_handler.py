@@ -11,6 +11,8 @@ logger = logging.getLogger(__name__)
 
 
 class StatefulHandler(BaseHandler, ABC):
+    DEFAULT_CAPACITY = 10
+
     def __init__(self):
         super().__init__()
         self.cache: LRU = None
@@ -25,9 +27,12 @@ class StatefulHandler(BaseHandler, ABC):
         super().initialize(ctx)
         self.context = ctx
         if self.context.model_yaml_config["handler"] is not None:
-            self.cache = LRU(
-                int(self.context.model_yaml_config["handler"]["cache"]["capacity"])
-            )
+            try:
+                self.cache = LRU(
+                    int(self.context.model_yaml_config["handler"]["cache"]["capacity"]))
+            except KeyError:
+                logger.warn("No cache capacity was set! Using default value.")
+                self.cache = LRU(StatefulHandler.DEFAULT_CAPACITY)
 
         self.initialized = True
 
@@ -48,11 +53,9 @@ class StatefulHandler(BaseHandler, ABC):
         for idx, row in enumerate(data):
             sequence_id = self.context.get_sequence_id(idx)
 
-            prev = None
+            prev = int(0)
             if self.cache.has_key(sequence_id):
                 prev = int(self.cache[sequence_id])
-            else:
-                prev = int(0)
 
             request = row.get("data") or row.get("body")
             if isinstance(request, (bytes, bytearray)):

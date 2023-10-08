@@ -1121,7 +1121,6 @@ LRU
 LSTM
 Stateful
 interdependencies
-maxNumSequence
 maxSequenceJobQueueSize
 sequenceId
 sequenceMaxIdleMSec

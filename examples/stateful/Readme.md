@@ -19,9 +19,15 @@ stateful_handler.py is an example of stateful handler. It creates a cache `self.
         """
 
         super().initialize(ctx)
-        self.context = ctx
         if self.context.model_yaml_config["handler"] is not None:
-            self.cache = LRU(int(self.context.model_yaml_config["handler"]["cache"]["capacity"]))
+            try:
+                self.cache = LRU(
+                    int(self.context.model_yaml_config["handler"]["cache"]["capacity"]))
+            except KeyError:
+                logger.warn("No cache capacity was set! Using default value.")
+                self.cache = LRU(StatefulHandler.DEFAULT_CAPACITY)
+
+        self.initialized = True
 ```
 
 Handler uses sequenceId (ie., `sequence_id = self.context.get_sequence_id(idx)`) as key to store and fetch values from `self.cache`.
@@ -44,11 +50,9 @@ Handler uses sequenceId (ie., `sequence_id = self.context.get_sequence_id(idx)`)
         for idx, row in enumerate(data):
             sequence_id = self.context.get_sequence_id(idx)
 
-            prev = None
+            prev = int(0)
             if self.cache.has_key(sequence_id):
                 prev = int(self.cache[sequence_id])
-            else:
-                prev = int(0)
 
             request = row.get("data") or row.get("body")
             if isinstance(request, (bytes, bytearray)):
@@ -63,9 +67,8 @@ Handler uses sequenceId (ie., `sequence_id = self.context.get_sequence_id(idx)`)
 
 ### Step 2: Model configuration
 
-Stateful inference has three parameters.
-* sequenceMaxIdleMSec: the max idle in milliseconds of a sequence inference request of this stateful model. The default value is 0 (ie. this is not a stateful model.)
-* maxNumSequence: the max number of sequence inference requests of this stateful model. The default value is minWorkers * batchSize.
+Stateful inference has two parameters. TorchServe is able to process (maxWorkers * batchSize) sequences of inference requests of a model in parallel. 
+* sequenceMaxIdleMSec: the max idle in milliseconds of a sequence inference request of this stateful model. The default value is 0 (ie. this is not a stateful model.) TorchServe does not process the new inference request if the max idle timeout.
 * maxSequenceJobQueueSize: the job queue size of an inference sequence of this stateful model. The default value is 1.
 
 
@@ -76,7 +79,6 @@ minWorkers: 2
 maxWorkers: 2
 batchSize: 4
 sequenceMaxIdleMSec: 60000
-maxNumSequence: 4
 maxSequenceJobQueueSize: 10
 
 handler:

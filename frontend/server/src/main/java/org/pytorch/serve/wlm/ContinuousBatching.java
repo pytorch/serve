@@ -1,6 +1,7 @@
 package org.pytorch.serve.wlm;
 
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import org.pytorch.serve.job.Job;
 import org.pytorch.serve.util.messages.BaseModelRequest;
 import org.pytorch.serve.util.messages.ModelInferenceRequest;
@@ -20,7 +21,7 @@ public class ContinuousBatching extends BatchAggregator {
     }
 
     public BaseModelRequest getRequest(String threadName, WorkerState state)
-            throws InterruptedException {
+            throws InterruptedException, ExecutionException {
         int batchQuota = model.getBatchSize() - jobs.size();
 
         ModelInferenceRequest req = new ModelInferenceRequest(model.getModelName());
@@ -132,7 +133,7 @@ public class ContinuousBatching extends BatchAggregator {
     }
 
     private void pollBatch(String threadName, WorkerState state, int batchSize)
-            throws InterruptedException {
+            throws InterruptedException, ExecutionException {
         boolean pollMgmtJobStatus = false;
         if (jobs.isEmpty()) {
             pollMgmtJobStatus =
