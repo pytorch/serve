@@ -20,6 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import org.apache.commons.io.FileUtils;
 import org.pytorch.serve.archive.DownloadArchiveException;
 import org.pytorch.serve.archive.model.Manifest;
 import org.pytorch.serve.archive.model.ModelArchive;
@@ -238,7 +239,14 @@ public final class ModelManager {
                             null);
 
             ProcessBuilder processBuilder = new ProcessBuilder(commandParts);
-            processBuilder.directory(model.getModelDir().getAbsoluteFile());
+            if (isValidDependencyPath(dependencyPath)) {
+                processBuilder.directory(dependencyPath);
+            } else {
+                throw new ModelException(
+                        "Invalid 3rd party package installation path "
+                                + dependencyPath.getCanonicalPath());
+            }
+
             Map<String, String> environment = processBuilder.environment();
             for (String envVar : envp) {
                 String[] parts = envVar.split("=", 2);
@@ -272,6 +280,16 @@ public final class ModelManager {
                         "Custom pip package installation failed for " + model.getModelName());
             }
         }
+    }
+
+    private boolean isValidDependencyPath(File dependencyPath) {
+        if (dependencyPath
+                .toPath()
+                .normalize()
+                .startsWith(FileUtils.getTempDirectory().toPath().normalize())) {
+            return true;
+        }
+        return false;
     }
 
     private Model createModel(
