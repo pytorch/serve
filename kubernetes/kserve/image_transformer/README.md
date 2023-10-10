@@ -82,9 +82,9 @@ sudo  mkdir -p /mnt/models/config/
 The config.properties file is as below:
 
 ```bash
-inference_address=http://127.0.0.1:8085
-management_address=http://127.0.0.1:8085
-metrics_address=http://127.0.0.1:8082
+inference_address=http://0.0.0.0:8085
+management_address=http://0.0.0.0:8085
+metrics_address=http://0.0.0.0:8082
 enable_metrics_api=true
 metrics_mode=prometheus
 NUM_WORKERS=1
@@ -110,7 +110,7 @@ pip install -e ./serve/kubernetes/kserve/image_transformer/
 - Run the Image Transformer with the below command
 
 ```bash
-python3 -m image_transformer --predictor_host 127.0.0.1:8085
+python3 -m image_transformer --predictor_host 0.0.0.0:8085
 ```
 
 The transformer will hit the predictor host after pre-processing.
@@ -134,7 +134,7 @@ The request first comes to the image transformer at port 8080 and in turn reques
 - The curl request for inference is as below:
 
 ```
-curl -H "Content-Type: application/json" --data @serve/kubernetes/kserve/kf_request_json/v1/mnist.json http://127.0.0.1:8080/v1/models/mnist:predict
+curl -H "Content-Type: application/json" --data @serve/kubernetes/kserve/kf_request_json/v1/mnist.json http://0.0.0.0:8080/v1/models/mnist:predict
 ```
 
 output:

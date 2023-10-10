@@ -37,9 +37,9 @@ sudo mv BERTSeqClassification.mar /mnt/models/model-store
 and use the following config properties (`/mnt/models/config`)
 
 ```
-inference_address=http://127.0.0.1:8085
-management_address=http://127.0.0.1:8085
-metrics_address=http://127.0.0.1:8082
+inference_address=http://0.0.0.0:8085
+management_address=http://0.0.0.0:8085
+metrics_address=http://0.0.0.0:8082
 enable_envvars_config=true
 install_py_dep_per_model=true
 enable_metrics_api=true
