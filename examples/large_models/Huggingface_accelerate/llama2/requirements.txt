@@ -3,3 +3,4 @@ accelerate
 bitsandbytes
 scipy
 mpi4py
+optimum
