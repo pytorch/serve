@@ -1,12 +1,9 @@
-#name: Make an official Release of Docker Images
-name: Testing official Release of Docker Images
+name: Make an official Release of Docker Images
 
-#on: workflow_dispatch
-on: push
+on: workflow_dispatch
 
 jobs:
-  #official-release-docker:
-  test-official-release-docker:
+  official-release-docker:
     runs-on: [self-hosted, ci-gpu]
     steps:
       - name: Clean up previous run
@@ -23,10 +20,10 @@ jobs:
           architecture: x64
       - name: Checkout TorchServe
         uses: actions/checkout@v3
-      #- name: Login to Docker
-      #  env:
-      #    DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
-      #  run: docker login --username pytorchbot --password "$DOCKER_PASSWORD"
+      - name: Login to Docker
+        env:
+          DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+        run: docker login --username pytorchbot --password "$DOCKER_PASSWORD"
       - name: Build & Upload pytorch/torchserve Docker images
         run: |
           cd docker
