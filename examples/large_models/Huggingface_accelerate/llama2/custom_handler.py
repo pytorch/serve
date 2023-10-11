@@ -49,6 +49,14 @@ class LlamaHandler(BaseHandler, ABC):
             torch_dtype=torch.float16,
             load_in_8bit=True,
             trust_remote_code=True)
+        if self.ctx.model_yaml_config["handler"]["fast_kernels"]:
+                from optimum.bettertransformer import BetterTransformer
+                try:
+                    self.model = BetterTransformer.transform(self.model)
+                except RuntimeError as error:
+                    logger.warning(
+                        "HuggingFace Optimum is not supporting this model,for the list of supported models, please refer to this doc,https://huggingface.co/docs/optimum/bettertransformer/overview"
+                    )
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
         self.tokenizer.add_special_tokens(
             {

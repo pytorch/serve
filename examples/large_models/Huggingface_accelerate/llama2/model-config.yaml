@@ -11,3 +11,4 @@ handler:
     max_length: 50
     max_new_tokens: 50
     manual_seed: 40
+    fast_kernels: True
