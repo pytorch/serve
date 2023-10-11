@@ -79,7 +79,7 @@ model_metrics:
       unit: count
       dimensions: [*model_name]
     - name: PostprocessCallCount
-      unit: count
+      unit: CallCount
       dimensions: [*model_name, *level]
   gauge:
     - name: HandlerTime
