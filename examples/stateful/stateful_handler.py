@@ -29,9 +29,10 @@ class StatefulHandler(BaseHandler, ABC):
         if self.context.model_yaml_config["handler"] is not None:
             try:
                 self.cache = LRU(
-                    int(self.context.model_yaml_config["handler"]["cache"]["capacity"]))
+                    int(self.context.model_yaml_config["handler"]["cache"]["capacity"])
+                )
             except KeyError:
-                logger.warn("No cache capacity was set! Using default value.")
+                logger.error("No cache capacity was set! Using default value.")
                 self.cache = LRU(StatefulHandler.DEFAULT_CAPACITY)
 
         self.initialized = True
