@@ -23,10 +23,10 @@ jobs:
           architecture: x64
       - name: Checkout TorchServe
         uses: actions/checkout@v3
-      - name: Login to Docker
-        env:
-          DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
-        run: docker login --username pytorchbot --password "$DOCKER_PASSWORD"
+      #- name: Login to Docker
+      #  env:
+      #    DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+      #  run: docker login --username pytorchbot --password "$DOCKER_PASSWORD"
       - name: Build & Upload pytorch/torchserve Docker images
         run: |
           cd docker
