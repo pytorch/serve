@@ -3,9 +3,7 @@ from abc import ABC
 
 import torch
 import transformers
-from transformers import AutoConfig, AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
-from accelerate import init_empty_weights
-from accelerate import load_checkpoint_and_dispatch
+from transformers import AutoModelForCausalLM, AutoTokenizer
 
 from ts.context import Context
 from ts.torch_handler.base_handler import BaseHandler
@@ -48,23 +46,24 @@ class LlamaHandler(BaseHandler, ABC):
             low_cpu_mem_usage=True,
             torch_dtype=torch.float16,
             load_in_8bit=True,
-            trust_remote_code=True)
-        if self.ctx.model_yaml_config["handler"]["fast_kernels"]:
-                from optimum.bettertransformer import BetterTransformer
-                try:
-                    self.model = BetterTransformer.transform(self.model)
-                except RuntimeError as error:
-                    logger.warning(
-                        "HuggingFace Optimum is not supporting this model,for the list of supported models, please refer to this doc,https://huggingface.co/docs/optimum/bettertransformer/overview"
-                    )
-        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
+            trust_remote_code=True,
+        )
+        if ctx.model_yaml_config["handler"]["fast_kernels"]:
+            from optimum.bettertransformer import BetterTransformer
+
+            try:
+                self.model = BetterTransformer.transform(self.model)
+            except RuntimeError as error:
+                logger.warning(
+                    "HuggingFace Optimum is not supporting this model,for the list of supported models, please refer to this doc,https://huggingface.co/docs/optimum/bettertransformer/overview"
+                )
+        self.tokenizer = AutoTokenizer.from_pretrained(model_path)
         self.tokenizer.add_special_tokens(
             {
-         
-            "pad_token": "<PAD>",
+                "pad_token": "<PAD>",
             }
         )
-        self.model.resize_token_embeddings(self.model.config.vocab_size + 1) 
+        self.model.resize_token_embeddings(self.model.config.vocab_size + 1)
 
         logger.info("Model %s loaded successfully", ctx.model_name)
         self.initialized = True
