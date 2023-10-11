@@ -1,6 +1,7 @@
 name: Run Regression Tests on GPU
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - master

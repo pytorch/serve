@@ -32,7 +32,7 @@ public class ModelConfig {
      */
     private List<Integer> deviceIds;
     /** this variable is auto calculated based on torchrun nproc-per-node. */
-    private int parallelLevel = 1;
+    private int parallelLevel;
     /** the model parallel type can be tp, pp, pptp */
     private ParallelType parallelType = ParallelType.NONE;
     /** torchrun config */
@@ -286,9 +286,8 @@ public class ModelConfig {
     }
 
     public void setParallelLevel(int parallelLevel) {
-        if (parallelLevel <= 0) {
-            logger.warn("Invalid parallelLevel:{}, set as 1", parallelLevel);
-            this.parallelLevel = 1;
+        if (parallelLevel < 0) {
+            logger.warn("Invalid parallelLevel:{}, set as 0", parallelLevel);
             return;
         }
         this.parallelLevel = parallelLevel;

@@ -3,6 +3,7 @@
 <suite name="TorchServeSuite" verbose="1" >
   <test name="TorchServe">
     <classes>
+      <class name="org.pytorch.serve.util.codec.ModelRequestEncoderTest"/>
       <class name="org.pytorch.serve.util.ConfigManagerTest"/>
       <class name="org.pytorch.serve.util.ConnectorTest"/>
       <class name="org.pytorch.serve.util.PluginSdkTest"/>

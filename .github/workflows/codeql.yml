@@ -12,6 +12,7 @@
 name: "CodeQL"
 
 on:
+  workflow_dispatch:
   # run every day at 11:15am
   schedule:
     - cron:  '15 11 * * *'

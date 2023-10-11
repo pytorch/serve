@@ -4,6 +4,9 @@ A stateful model possesses the ability to discern interdependencies between succ
 
 Within this context, TorchServe offers a mechanism known as sequence batching. This approach involves the retrieval of an individual inference request from a particular sequence, followed by the amalgamation of multiple requests originating from diverse sequences into a unified batch. Each request is associated with a unique sequence ID, which can be extracted using the "get_sequence_id" function of context.py. This sequence ID serves as a key employed by custom handlers to store and retrieve values within the backend cache store, fostering efficient management of stateful inference processes.
 
+The following picture show the workflow of stateful inference. A job group has a job queue which stores incoming inference requests from a streaming. A sequence batch aggregator polls an inference request from each job group. A batch of requests is sent to backend.
+![sequence batch](../../docs/images/stateful_batch.jpg)
+
 This example serves as a practical showcase of employing stateful inference. Underneath the surface, the backend leverages an [LRU dictionary](https://github.com/amitdev/lru-dict), functioning as a caching layer.
 
 

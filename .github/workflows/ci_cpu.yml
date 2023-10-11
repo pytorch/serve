@@ -1,6 +1,7 @@
 name: CI CPU
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - master

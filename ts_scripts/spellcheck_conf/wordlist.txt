@@ -1126,4 +1126,5 @@ sequenceId
 sequenceMaxIdleMSec
 stateful
 tgz
+bitsandbytes
 

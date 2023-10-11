@@ -1,6 +1,7 @@
 name: Run Regression Tests on Docker
 
 on:
+  workflow_dispatch:
   # run every day at 5:15am
   schedule:
     - cron:  '15 5 * * *'

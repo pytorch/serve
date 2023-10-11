@@ -211,14 +211,17 @@ public class WorkLoadManager {
             int gpuId = -1;
 
             if (maxGpu > 0) {
-                if (model.isHasCfgDeviceIds() || model.getParallelLevel() > 1) {
+                if (model.isHasCfgDeviceIds() || model.getParallelLevel() > 0) {
                     gpuId =
                             model.getGpuCounter()
                                     .getAndAccumulate(
                                             maxGpu,
                                             (prev, maxGpuId) ->
-                                                    (prev + model.getParallelLevel()) % maxGpuId);
-                    if (model.getParallelLevel() == 1) {
+                                                    (prev + model.getParallelLevel() > 0
+                                                                    ? model.getParallelLevel()
+                                                                    : 1)
+                                                            % maxGpuId);
+                    if (model.getParallelLevel() == 0) {
                         gpuId = model.getDeviceIds().get(gpuId);
                     }
                 } else {
@@ -239,7 +242,7 @@ public class WorkLoadManager {
             }
 
             int currentPort =
-                    model.getParallelLevel() > 1
+                    model.getParallelLevel() > 0
                             ? configManager.isDebug()
                                     ? distributionPort.get()
                                     : distributionPort.getAndAdd(model.getParallelLevel())

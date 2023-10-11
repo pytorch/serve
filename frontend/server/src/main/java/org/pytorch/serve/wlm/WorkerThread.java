@@ -100,7 +100,9 @@ public class WorkerThread implements Runnable {
         this.listener = listener;
         startTime = System.currentTimeMillis();
         lifeCycle = new WorkerLifeCycle(configManager, model);
-        replies = new ArrayBlockingQueue<>(model.getParallelLevel());
+        replies =
+                new ArrayBlockingQueue<>(
+                        model.getParallelLevel() > 0 ? model.getParallelLevel() : 1);
         this.workerThreadTimeMetric =
                 MetricCache.getInstance().getMetricFrontend("WorkerThreadTime");
         this.workerLoadTimeMetric = MetricCache.getInstance().getMetricFrontend("WorkerLoadTime");
@@ -197,7 +199,7 @@ public class WorkerThread implements Runnable {
                 logger.info("Flushing req.cmd {} to backend at: {}", workerCmd, wtStartTime);
                 int repeats =
                         isLoadRequest(workerCmd) || isTensorParallelRequest(workerCmd)
-                                ? model.getParallelLevel()
+                                ? model.getParallelLevel() > 0 ? model.getParallelLevel() : 1
                                 : 1;
                 List<CompletableFuture<Void>> futureRequests = new ArrayList<>(repeats);
                 for (int i = 0; backendChannel.size() > 0 && i < repeats; i++) {
@@ -333,7 +335,10 @@ public class WorkerThread implements Runnable {
             // WorkerThread is running in thread pool, the thread will be assigned to next
             // Runnable once this worker is finished. If currentThread keep holding the reference
             // of the thread, currentThread.interrupt() might kill next worker.
-            for (int i = 0; backendChannel.size() > 0 && i < model.getParallelLevel(); i++) {
+            for (int i = 0;
+                    backendChannel.size() > 0
+                            && i < (model.getParallelLevel() > 0 ? model.getParallelLevel() : 1);
+                    i++) {
                 backendChannel.get(i).disconnect();
             }
             currentThread.set(null);
@@ -374,7 +379,7 @@ public class WorkerThread implements Runnable {
         String modelName = model.getModelName();
         String modelVersion = model.getVersion();
         setState(WorkerState.WORKER_STARTED, HttpURLConnection.HTTP_OK);
-        final int parallelLevel = model.getParallelLevel();
+        final int parallelLevel = model.getParallelLevel() > 0 ? model.getParallelLevel() : 1;
         final CountDownLatch latch = new CountDownLatch(parallelLevel);
         final int responseBufferSize = configManager.getMaxResponseSize();
         try {
@@ -477,7 +482,10 @@ public class WorkerThread implements Runnable {
     public void shutdown() {
         running.set(false);
         setState(WorkerState.WORKER_SCALED_DOWN, HttpURLConnection.HTTP_OK);
-        for (int i = 0; backendChannel.size() > 0 && i < model.getParallelLevel(); i++) {
+        for (int i = 0;
+                backendChannel.size() > 0
+                        && i < (model.getParallelLevel() > 0 ? model.getParallelLevel() : 1);
+                i++) {
             if (backendChannel.get(i) != null) {
                 backendChannel.get(i).close();
             }
@@ -550,7 +558,7 @@ public class WorkerThread implements Runnable {
 
     private String getDeviceIds() {
         List<Integer> deviceIds;
-        if (gpuId == -1 || model.getParallelLevel() == 1) {
+        if (gpuId == -1 || model.getParallelLevel() == 0) {
             return null;
         } else if (model.isHasCfgDeviceIds()) {
             return model.getDeviceIds().subList(gpuId, gpuId + model.getParallelLevel()).stream()
