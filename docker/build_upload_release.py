@@ -59,5 +59,7 @@ if __name__ == "__main__":
         try_and_handle(f"docker push {image}", dry_run=True)
 
     # Cleanup built images
+    dry_run = False
     if args.cleanup:
+        try_and_handle(f"docker images", dry_run)
         try_and_handle(f"docker system prune --all --volumes", dry_run)

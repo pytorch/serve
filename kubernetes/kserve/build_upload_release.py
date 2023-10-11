@@ -3,7 +3,7 @@ import sys
 from argparse import ArgumentParser
 
 # To help discover local modules
-REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
+REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../..")
 sys.path.append(REPO_ROOT)
 
 from ts_scripts.utils import check_ts_version, try_and_handle
@@ -47,4 +47,6 @@ if __name__ == "__main__":
 
     # Cleanup built images
     if args.cleanup:
+        dry_run = False
+        try_and_handle(f"docker images", dry_run)
         try_and_handle(f"docker system prune --all --volumes", dry_run)
