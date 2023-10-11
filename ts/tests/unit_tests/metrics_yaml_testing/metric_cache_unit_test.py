@@ -62,6 +62,26 @@ class TestAddMetrics:
         metric.add_or_update(42.5, ["dummy_model"])
         assert "42.5" in caplog.text
 
+    def test_add_metric_to_cache_with_non_default_unit_passing(self):
+        metrics_cache_obj = MetricsCacheYamlImpl(os.path.join(dir_path, "metrics.yaml"))
+        metrics_cache_obj.add_metric_to_cache(
+            metric_name="test_add_metric_to_cache_with_non_default_unit_passing",
+            unit="custom_unit",
+            dimension_names=["ModelName", "Host"],
+            metric_type=MetricTypes.GAUGE,
+        )
+        assert MetricTypes.GAUGE in metrics_cache_obj.cache.keys()
+        assert (
+            "test_add_metric_to_cache_with_non_default_unit_passing"
+            in metrics_cache_obj.cache[MetricTypes.GAUGE].keys()
+        )
+        assert (
+            metrics_cache_obj.cache[MetricTypes.GAUGE][
+                "test_add_metric_to_cache_with_non_default_unit_passing"
+            ].unit
+            == "custom_unit"
+        )
+
     def test_add_metric_to_cache_fail_metric_name(self):
         metrics_cache_obj = MetricsCacheYamlImpl(os.path.join(dir_path, "metrics.yaml"))
         with pytest.raises(merrors.MetricsCacheTypeError) as exc_info:
