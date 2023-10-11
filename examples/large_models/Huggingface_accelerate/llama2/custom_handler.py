@@ -1,11 +1,15 @@
 import logging
 from abc import ABC
+from threading import Thread
 
 import torch
 import transformers
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
 from ts.context import Context
+from ts.handler_utils.hf_batch_streamer import TextIteratorStreamerBatch
+from ts.handler_utils.micro_batching import MicroBatching
+from ts.protocol.otf_message_handler import send_intermediate_predict_response
 from ts.torch_handler.base_handler import BaseHandler
 
 logger = logging.getLogger(__name__)
@@ -23,6 +27,9 @@ class LlamaHandler(BaseHandler, ABC):
         self.max_new_tokens = None
         self.tokenizer = None
         self.initialized = False
+        self.output_streamer = None
+        # enable micro batching
+        self.handle = MicroBatching(self)
 
     def initialize(self, ctx: Context):
         """In this initialize function, the HF large model is loaded and
@@ -38,6 +45,22 @@ class LlamaHandler(BaseHandler, ABC):
         model_path = f'{model_dir}/{ctx.model_yaml_config["handler"]["model_path"]}'
         seed = int(ctx.model_yaml_config["handler"]["manual_seed"])
         torch.manual_seed(seed)
+
+        # micro batching initialization
+        micro_batching_parallelism = ctx.model_yaml_config.get(
+            "micro_batching", {}
+        ).get("parallelism", None)
+        if micro_batching_parallelism:
+            logger.info(
+                f"Setting micro batching parallelism  from model_config_yaml: {micro_batching_parallelism}"
+            )
+            self.handle.parallelism = micro_batching_parallelism
+
+        micro_batch_size = ctx.model_yaml_config.get("micro_batching", {}).get(
+            "micro_batch_size", 1
+        )
+        logger.info(f"Setting micro batching size: {micro_batch_size}")
+        self.handle.micro_batch_size = micro_batch_size
 
         logger.info("Model %s loading tokenizer", ctx.model_name)
         self.model = AutoModelForCausalLM.from_pretrained(
@@ -65,6 +88,12 @@ class LlamaHandler(BaseHandler, ABC):
         )
         self.model.resize_token_embeddings(self.model.config.vocab_size + 1)
 
+        self.output_streamer = TextIteratorStreamerBatch(
+            self.tokenizer,
+            batch_size=self.handle.micro_batch_size,
+            skip_special_tokens=True,
+        )
+
         logger.info("Model %s loaded successfully", ctx.model_name)
         self.initialized = True
 
@@ -78,38 +107,25 @@ class LlamaHandler(BaseHandler, ABC):
             tuple: A tuple with two tensors: the batch of input ids and the batch of
                 attention masks.
         """
-        input_texts = [data.get("data") or data.get("body") for data in requests]
-        input_ids_batch, attention_mask_batch = [], []
-        for input_text in input_texts:
-            input_ids, attention_mask = self.encode_input_text(input_text)
-            input_ids_batch.append(input_ids)
-            attention_mask_batch.append(attention_mask)
-        input_ids_batch = torch.cat(input_ids_batch, dim=0).to(self.model.device)
-        attention_mask_batch = torch.cat(attention_mask_batch, dim=0).to(self.device)
-        return input_ids_batch, attention_mask_batch
+        input_text = []
+        for req in requests:
+            data = req.get("data") or req.get("body")
+            if isinstance(data, (bytes, bytearray)):
+                data = data.decode("utf-8")
 
-    def encode_input_text(self, input_text):
-        """
-        Encodes a single input text using the tokenizer.
-        Args:
-            input_text (str): The input text to be encoded.
-        Returns:
-            tuple: A tuple with two tensors: the encoded input ids and the attention mask.
-        """
-        if isinstance(input_text, (bytes, bytearray)):
-            input_text = input_text.decode("utf-8")
-        logger.info("Received text: '%s'", input_text)
-        inputs = self.tokenizer.encode_plus(
-            input_text,
-            max_length=self.max_length,
-            padding=True,
-            add_special_tokens=True,
-            return_tensors="pt",
-            truncation=True,
-        )
-        input_ids = inputs["input_ids"]
-        attention_mask = inputs["attention_mask"]
-        return input_ids, attention_mask
+            logger.info(f"received req={data}")
+            input_text.append(data.strip())
+
+        # Ensure the compiled model can handle the input received
+        if len(input_text) > self.handle.micro_batch_size:
+            raise ValueError(
+                f"Model is compiled for batch size {self.handle.micro_batch_size} but received input of size {len(input_ids_batch)}"
+            )
+
+        # Pad input to match compiled model batch size
+        input_text.extend([""] * (self.handle.micro_batch_size - len(input_text)))
+
+        return self.tokenizer(input_text, return_tensors="pt", padding=True)
 
     def inference(self, input_batch):
         """
@@ -121,20 +137,30 @@ class LlamaHandler(BaseHandler, ABC):
         Returns:
             list: A list of strings with the predicted values for each input text in the batch.
         """
-        input_ids_batch, attention_mask_batch = input_batch
-        input_ids_batch = input_ids_batch.to(self.device)
-        outputs = self.model.generate(
-            input_ids_batch,
-            attention_mask=attention_mask_batch,
-            max_length=self.max_new_tokens,
+        generation_kwargs = dict(
+            input_batch,
+            max_new_tokens=self.max_new_tokens,
+            streamer=self.output_streamer,
         )
 
-        inferences = self.tokenizer.batch_decode(
-            outputs, skip_special_tokens=True, clean_up_tokenization_spaces=False
-        )
+        thread = Thread(target=self.model.generate, kwargs=generation_kwargs)
+        thread.start()
 
-        logger.info("Generated text: %s", inferences)
-        return inferences
+        micro_batch_idx = self.handle.get_micro_batch_idx()
+        micro_batch_req_id_map = self.get_micro_batch_req_id_map(micro_batch_idx)
+        for new_text in self.output_streamer:
+            logger.debug("send response stream")
+            send_intermediate_predict_response(
+                new_text[: len(micro_batch_req_id_map)],
+                micro_batch_req_id_map,
+                "Intermediate Prediction success",
+                200,
+                self.context,
+            )
+
+        thread.join()
+
+        return [""] * len(micro_batch_req_id_map)
 
     def postprocess(self, inference_output):
         """Post Process Function converts the predicted response into Torchserve readable format.
@@ -144,3 +170,15 @@ class LlamaHandler(BaseHandler, ABC):
             (list): Returns a list of the Predictions and Explanations.
         """
         return inference_output
+
+    def get_micro_batch_req_id_map(self, micro_batch_idx: int):
+        start_idx = micro_batch_idx * self.handle.micro_batch_size
+        micro_batch_req_id_map = {
+            index: self.context.request_ids[batch_index]
+            for index, batch_index in enumerate(
+                range(start_idx, start_idx + self.handle.micro_batch_size)
+            )
+            if batch_index in self.context.request_ids
+        }
+
+        return micro_batch_req_id_map
