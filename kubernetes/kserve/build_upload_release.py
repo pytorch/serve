@@ -39,11 +39,11 @@ if __name__ == "__main__":
         dry_run,
     )
 
-    for image in [
-        f"{organization}/torchserve-kfs:{check_ts_version()}",
-        f"{organization}/torchserve-kfs:{check_ts_version()}-gpu",
-    ]:
-        try_and_handle(f"docker push {image}", dry_run=True)
+    # for image in [
+    #    f"{organization}/torchserve-kfs:{check_ts_version()}",
+    #    f"{organization}/torchserve-kfs:{check_ts_version()}-gpu",
+    # ]:
+    #    try_and_handle(f"docker push {image}", dry_run=True)
 
     # Cleanup built images
     if args.cleanup:
