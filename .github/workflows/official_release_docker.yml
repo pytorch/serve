@@ -1,5 +1,5 @@
 #name: Make an official Release of Docker Images
-name: Testing the official Release of Docker Images
+name: Testing official Release of Docker Images
 
 #on: workflow_dispatch
 on: push

@@ -63,4 +63,3 @@ if __name__ == "__main__":
     if args.cleanup:
         try_and_handle(f"docker images", dry_run)
         try_and_handle(f"docker system prune --all --volumes -f", dry_run)
-        try_and_handle(f"docker images", dry_run)
