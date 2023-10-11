@@ -21,6 +21,11 @@ if __name__ == "__main__":
         action="store_true",
         help="dry_run will print the commands that will be run without running them",
     )
+    parser.add_argument(
+        "--cleanup",
+        action="store_true",
+        help="Delete all built docker images",
+    )
     args = parser.parse_args()
     dry_run = args.dry_run
     organization = args.organization
@@ -51,4 +56,8 @@ if __name__ == "__main__":
         f"{organization}/torchserve:{check_ts_version()}-cpu",
         f"{organization}/torchserve:{check_ts_version()}-gpu",
     ]:
-        try_and_handle(f"docker push {image}")
+        try_and_handle(f"docker push {image}", dry_run=True)
+
+    # Cleanup built images
+    if args.cleanup:
+        try_and_handle(f"docker system prune --all --volumes", dry_run)
