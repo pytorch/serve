@@ -48,7 +48,7 @@ torchserve takes care of 4 and 5 for you while the remaining steps are your resp
 
 ### Note
 
-`torch.compile()` is a JIT compiler and JIT compilers generally have a startup cost. If that's an issue for you make sure to populate these two environment variables
+`torch.compile()` is a JIT compiler and JIT compilers generally have a startup cost. If that's an issue for you make sure to populate these two environment variables to improve your warm starts.
 
 ```
 import os
