@@ -17,8 +17,10 @@ public class BatchAggregator {
 
     private static final Logger logger = LoggerFactory.getLogger(BatchAggregator.class);
 
-    private Model model;
-    private Map<String, Job> jobs;
+    protected Model model;
+    protected Map<String, Job> jobs;
+
+    public BatchAggregator() {}
 
     public BatchAggregator(Model model) {
         this.model = model;
@@ -170,5 +172,11 @@ public class BatchAggregator {
             }
         }
         jobs.clear();
+    }
+
+    public void cleanJobs() {
+        if (jobs != null) {
+            jobs.clear();
+        }
     }
 }

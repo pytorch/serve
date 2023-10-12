@@ -99,7 +99,9 @@ public class WorkerThread implements Runnable {
         this.listener = listener;
         startTime = System.currentTimeMillis();
         lifeCycle = new WorkerLifeCycle(configManager, model);
-        replies = new ArrayBlockingQueue<>(model.getParallelLevel());
+        replies =
+                new ArrayBlockingQueue<>(
+                        model.getParallelLevel() > 0 ? model.getParallelLevel() : 1);
         this.workerThreadTimeMetric =
                 MetricCache.getInstance().getMetricFrontend("WorkerThreadTime");
         this.workerLoadTimeMetric = MetricCache.getInstance().getMetricFrontend("WorkerLoadTime");
@@ -120,12 +122,16 @@ public class WorkerThread implements Runnable {
             try {
                 // TODO : add a generic code to capture gpu details for different devices instead of
                 // just NVIDIA
-                process =
-                        Runtime.getRuntime()
-                                .exec(
-                                        "nvidia-smi -i "
-                                                + gpuId
-                                                + " --query-gpu=utilization.gpu,utilization.memory,memory.used --format=csv");
+                ProcessBuilder pb =
+                        new ProcessBuilder(
+                                "nvidia-smi",
+                                "-i",
+                                String.valueOf(gpuId),
+                                "--query-gpu=utilization.gpu,utilization.memory,memory.used",
+                                "--format=csv");
+
+                // Start the process
+                process = pb.start();
                 process.waitFor();
                 int exitCode = process.exitValue();
                 if (exitCode != 0) {
@@ -178,6 +184,8 @@ public class WorkerThread implements Runnable {
         currentThread.set(thread);
         BaseModelRequest req = null;
         int status = HttpURLConnection.HTTP_INTERNAL_ERROR;
+        // in case of retry
+        aggregator.cleanJobs();
 
         try {
             connect();
@@ -192,17 +200,15 @@ public class WorkerThread implements Runnable {
                                         || ((req.getCommand() == WorkerCommands.PREDICT
                                                         || req.getCommand()
                                                                 == WorkerCommands.STREAMPREDICT)
-                                                && model.getParallelLevel() > 1
+                                                && model.getParallelLevel() > 0
                                                 && model.getParallelType()
                                                         != ModelConfig.ParallelType.PP)
-                                ? model.getParallelLevel()
+                                ? model.getParallelLevel() > 0 ? model.getParallelLevel() : 1
                                 : 1;
                 for (int i = 0; backendChannel.size() > 0 && i < repeats; i++) {
                     backendChannel.get(i).writeAndFlush(req).sync();
                 }
 
-                boolean isStreaming =
-                        req.getCommand() == WorkerCommands.STREAMPREDICT ? true : false;
                 ModelWorkerResponse reply = null;
 
                 boolean jobDone = false;
@@ -301,7 +307,10 @@ public class WorkerThread implements Runnable {
             // WorkerThread is running in thread pool, the thread will be assigned to next
             // Runnable once this worker is finished. If currentThread keep holding the reference
             // of the thread, currentThread.interrupt() might kill next worker.
-            for (int i = 0; backendChannel.size() > 0 && i < model.getParallelLevel(); i++) {
+            for (int i = 0;
+                    backendChannel.size() > 0
+                            && i < (model.getParallelLevel() > 0 ? model.getParallelLevel() : 1);
+                    i++) {
                 backendChannel.get(i).disconnect();
             }
             currentThread.set(null);
@@ -342,7 +351,7 @@ public class WorkerThread implements Runnable {
         String modelName = model.getModelName();
         String modelVersion = model.getVersion();
         setState(WorkerState.WORKER_STARTED, HttpURLConnection.HTTP_OK);
-        final int parallelLevel = model.getParallelLevel();
+        final int parallelLevel = model.getParallelLevel() > 0 ? model.getParallelLevel() : 1;
         final CountDownLatch latch = new CountDownLatch(parallelLevel);
         final int responseBufferSize = configManager.getMaxResponseSize();
         try {
@@ -445,7 +454,10 @@ public class WorkerThread implements Runnable {
     public void shutdown() {
         running.set(false);
         setState(WorkerState.WORKER_SCALED_DOWN, HttpURLConnection.HTTP_OK);
-        for (int i = 0; backendChannel.size() > 0 && i < model.getParallelLevel(); i++) {
+        for (int i = 0;
+                backendChannel.size() > 0
+                        && i < (model.getParallelLevel() > 0 ? model.getParallelLevel() : 1);
+                i++) {
             if (backendChannel.get(i) != null) {
                 backendChannel.get(i).close();
             }
@@ -518,7 +530,7 @@ public class WorkerThread implements Runnable {
 
     private String getDeviceIds() {
         List<Integer> deviceIds;
-        if (gpuId == -1 || model.getParallelLevel() == 1) {
+        if (gpuId == -1 || model.getParallelLevel() == 0) {
             return null;
         } else if (model.isHasCfgDeviceIds()) {
             return model.getDeviceIds().subList(gpuId, gpuId + model.getParallelLevel()).stream()

@@ -3,7 +3,7 @@ import sys
 from argparse import ArgumentParser
 
 # To help discover local modules
-REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
+REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../..")
 sys.path.append(REPO_ROOT)
 
 from ts_scripts.utils import check_ts_version, try_and_handle
@@ -20,6 +20,11 @@ if __name__ == "__main__":
         "--dry_run",
         action="store_true",
         help="dry_run will print the commands that will be run without running them",
+    )
+    parser.add_argument(
+        "--cleanup",
+        action="store_true",
+        help="Delete all built docker images",
     )
     args = parser.parse_args()
     dry_run = args.dry_run
@@ -39,3 +44,7 @@ if __name__ == "__main__":
         f"{organization}/torchserve-kfs:{check_ts_version()}-gpu",
     ]:
         try_and_handle(f"docker push {image}", dry_run)
+
+    # Cleanup built images
+    if args.cleanup:
+        try_and_handle(f"docker system prune --all --volumes -f", dry_run)

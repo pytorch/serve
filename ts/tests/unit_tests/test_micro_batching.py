@@ -2,6 +2,7 @@
 Unit test for MicroBatchHandler class.
 """
 import json
+import math
 import random
 import sys
 from pathlib import Path
@@ -9,11 +10,23 @@ from pathlib import Path
 import pytest
 from torchvision.models.resnet import ResNet18_Weights
 
+from ts.handler_utils.micro_batching import MicroBatching
 from ts.torch_handler.image_classifier import ImageClassifier
 from ts.torch_handler.unit_tests.test_utils.mock_context import MockContext
 from ts.torch_handler.unit_tests.test_utils.model_dir import copy_files, download_model
 
 REPO_DIR = Path(__file__).parents[3]
+
+
+class MicroBatchingTestHandler(ImageClassifier):
+    def __init__(self, micro_batch_size):
+        super().__init__()
+        self.micro_batch_idx_set = set()
+        self.handle = MicroBatching(self, micro_batch_size)
+
+    def preprocess(self, data):
+        self.micro_batch_idx_set.add(self.handle.get_micro_batch_idx())
+        return super().preprocess(data)
 
 
 def read_image_bytes(filename):
@@ -97,19 +110,13 @@ def context(model_dir, model_name):
 
 @pytest.fixture(scope="module", params=[1, 8])
 def handler(context, request):
-    handler = ImageClassifier()
-
-    from ts.handler_utils.micro_batching import MicroBatching
-
-    mb_handle = MicroBatching(handler, micro_batch_size=request.param)
+    handler = MicroBatchingTestHandler(micro_batch_size=request.param)
     handler.initialize(context)
-
-    handler.handle = mb_handle
     handler.handle.parallelism = context.model_yaml_config["mb_parallelism"]
 
     yield handler
 
-    mb_handle.shutdown()
+    handler.handle.shutdown()
 
 
 @pytest.fixture(scope="module", params=[1, 16])
@@ -129,12 +136,23 @@ def mixed_batch(kitten_image_bytes, dog_image_bytes, request):
     return test_data, labels
 
 
+def verify_micro_batch_idx_set(micro_batch_idx_set, test_data_size, micro_batch_size):
+    assert micro_batch_idx_set == set(
+        [val for val in range(0, math.ceil(test_data_size / micro_batch_size))]
+    )
+
+
 def test_handle(context, mixed_batch, handler):
     test_data, labels = mixed_batch
     results = handler.handle(test_data, context)
     assert len(results) == len(labels)
     for l, r in zip(labels, results):
         assert l in r
+
+    verify_micro_batch_idx_set(
+        handler.micro_batch_idx_set, len(test_data), handler.handle.micro_batch_size
+    )
+    handler.micro_batch_idx_set.clear()
 
 
 def test_handle_explain(context, kitten_image_bytes, handler):
@@ -143,6 +161,11 @@ def test_handle_explain(context, kitten_image_bytes, handler):
     results = handler.handle(test_data, context)
     assert len(results) == 2
     assert results[0]
+
+    verify_micro_batch_idx_set(
+        handler.micro_batch_idx_set, len(test_data), handler.handle.micro_batch_size
+    )
+    handler.micro_batch_idx_set.clear()
 
 
 def test_micro_batching_handler_threads(handler):

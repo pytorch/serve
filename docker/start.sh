@@ -20,7 +20,7 @@ do
           if test $
           then
             IMAGE_NAME="pytorch/torchserve:dev-gpu"
-            GPU_DEVICES='--gpus '"\"device=$2\""'' 
+            GPU_DEVICES='--gpus '"\"device=$2\""''
             shift
           fi
           shift
@@ -29,7 +29,7 @@ do
 done
 echo "Starting $IMAGE_NAME docker image"
 
-docker run $DOCKER_RUNTIME $GPU_DEVICES -d --rm -it -p 8080:8080 -p 8081:8081 $IMAGE_NAME > /dev/null 2>&1
+docker run $DOCKER_RUNTIME $GPU_DEVICES -d --rm -it -p 127.0.0.1:8080:8080 -p 127.0.0.1:8081:8081 $IMAGE_NAME > /dev/null 2>&1
 
 container_id=$(docker ps --filter="ancestor=$IMAGE_NAME" -q | xargs)
 
