@@ -10,8 +10,8 @@ torchrun:
     nproc-per-node: 2
 
 handler:
-    model_path: "/data/home/hamidnazeri/PiPPy/examples/inference/model/models--meta-llama--Llama-2-13b-chat/snapshots//8ebc6a0ac2e4a781c31cb4ad395b1c26c5158c76/"
-    tokenizer_path: "/data/home/hamidnazeri/PiPPy/examples/inference/model/models--meta-llama--Llama-2-13b-chat/snapshots//8ebc6a0ac2e4a781c31cb4ad395b1c26c5158c76//tokenizer.model"
+    model_path: "PATH/TO/MODEL_CHECKPOINTS"
+    tokenizer_path: "PATH/TO/MODEL_CHECKPOINTS/tokenizer.model"
     max_seq_len: 512
     max_batch_size: 6
     max_new_tokens: 60

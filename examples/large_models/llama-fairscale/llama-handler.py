@@ -53,21 +53,11 @@ class LlamaFairscaleHandler(BaseHandler,ABC):
         max_seq_len = ctx.model_yaml_config["handler"]["max_seq_len"]
         max_batch_size = ctx.model_yaml_config["handler"]["max_batch_size"]
         seed = ctx.model_yaml_config["handler"]["manual_seed"]
-        dtype_str = ctx.model_yaml_config["handler"]["dtype"]
         self.max_new_tokens = ctx.model_yaml_config["handler"]["max_new_tokens"]
         self.temperature = ctx.model_yaml_config["handler"]["temperature"]
         self.top_p = ctx.model_yaml_config["handler"]["top_p"]
         
         torch.manual_seed(seed)
-
-        dtypes = {"fp32": torch.float32, "fp16": torch.float16, "bf16": torch.bfloat16}
-
-        dtype = dtypes.get(dtype_str, torch.float32)
-        if dtype != torch.float32 and dtype_str not in dtypes:
-            logger.info(
-                f"Unsupported data type {dtype_str}, "
-                "please submit a PR to support it. Falling back to fp32 now."
-            )
 
         logger.info("Instantiating Llama model")
         self.model = Llama.build(
