@@ -196,11 +196,15 @@ public class WorkerThread implements Runnable {
                 WorkerCommands workerCmd = req.getCommand();
 
                 long wtStartTime = System.currentTimeMillis();
-                logger.info("Flushing req.cmd {} to backend at: {}", workerCmd, wtStartTime);
                 int repeats =
                         isLoadRequest(workerCmd) || isTensorParallelRequest(workerCmd)
                                 ? model.getParallelLevel() > 0 ? model.getParallelLevel() : 1
                                 : 1;
+                logger.info(
+                        "Flushing req.cmd {} repeats {} to backend at: {}",
+                        workerCmd,
+                        repeats,
+                        wtStartTime);
                 List<CompletableFuture<Void>> futureRequests = new ArrayList<>(repeats);
                 for (int i = 0; backendChannel.size() > 0 && i < repeats; i++) {
                     int idx = i;
@@ -216,6 +220,10 @@ public class WorkerThread implements Runnable {
                                     }));
                 }
                 futureRequests.stream().map(CompletableFuture::join);
+                logger.info(
+                        "Done Flushing req.cmd {} to backend at: {}",
+                        workerCmd,
+                        System.currentTimeMillis());
 
                 ModelWorkerResponse reply = null;
 
