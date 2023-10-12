@@ -205,6 +205,11 @@ public class WorkerThread implements Runnable {
                         workerCmd,
                         repeats,
                         wtStartTime);
+                for (int i = 0; backendChannel.size() > 0 && i < repeats; i++) {
+                    backendChannel.get(i).writeAndFlush(req).sync();
+                }
+
+                /*
                 List<CompletableFuture<Void>> futureRequests = new ArrayList<>(repeats);
                 for (int i = 0; backendChannel.size() > 0 && i < repeats; i++) {
                     int idx = i;
@@ -220,6 +225,7 @@ public class WorkerThread implements Runnable {
                                     }));
                 }
                 futureRequests.stream().map(CompletableFuture::join);
+                 */
                 logger.info(
                         "Done Flushing req.cmd {} to backend at: {}",
                         workerCmd,
