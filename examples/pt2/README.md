@@ -46,6 +46,17 @@ opt_mod = torch.compile(mod)
 
 torchserve takes care of 4 and 5 for you while the remaining steps are your responsibility. You can do the exact same thing on the vast majority of TIMM or HuggingFace models.
 
+### Note
+
+`torch.compile()` is a JIT compiler and JIT compilers generally have a startup cost. If that's an issue for you make sure to populate these two environment variables
+
+```
+import os
+
+os.environ["TORCHINDUCTOR_CACHE_DIR"] = "1"
+os.environ["TORCHINDUCTOR_FX_GRAPH_CACHE"] = "/path/to/directory"  # replace with your desired path
+```
+
 ## torch.export.export
 
 Export your model from a training script, keep in mind that an exported model cannot have graph breaks.
