@@ -7,8 +7,12 @@ import abc
 import os
 import sys
 import fire
+import logging
 current_working_directory = os.getcwd()
 sys.path.insert(0,current_working_directory)
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 Role = Literal["system", "user", "assistant"]
 
@@ -101,18 +105,20 @@ with torch.no_grad():
         assert max_prompt_len <= model.max_seq_len
         total_len = min(model.max_seq_len, max_gen_len + max_prompt_len)
 
-        pad_id = tokenizer.pad_id
+        pad_id = tokenizer.eos_id
         tokens = torch.full((bsz, total_len), pad_id, dtype=torch.long, device="cuda")
         for k, t in enumerate(prompt_tokens):
-            tokens[k, : len(t)] = torch.tensor(t, dtype=torch.long, device="cuda")
+            tokens[k, max_prompt_len-len(t):max_prompt_len] = torch.tensor(t, dtype=torch.long, device="cuda")
         if logprobs:
             token_logprobs = torch.zeros_like(tokens, dtype=torch.float)
+
+        padding = torch.tensor([max_prompt_len-len(t) for t in prompt_tokens], dtype=torch.int64 , device="cuda")
 
         prev_pos = 0
         eos_reached = torch.tensor([False] * bsz, device="cuda")
         input_text_mask = tokens != pad_id
         if min_prompt_len == total_len:
-            logits = model.forward(tokens, prev_pos)
+            logits = model.forward(tokens, prev_pos, padding=padding)
             token_logprobs = -F.cross_entropy(
                 input=logits.transpose(1, 2),
                 target=tokens,
@@ -120,8 +126,8 @@ with torch.no_grad():
                 ignore_index=pad_id,
             )
 
-        for cur_pos in range(min_prompt_len, total_len):
-            logits = model.forward(tokens[:, prev_pos:cur_pos], prev_pos)
+        for cur_pos in range(max_prompt_len, total_len):
+            logits = model.forward(tokens[:, prev_pos:cur_pos], prev_pos, padding=padding)
             if temperature > 0:
                 probs = torch.softmax(logits[:, -1] / temperature, dim=-1)
                 next_token = sample_top_p(probs, top_p)
@@ -129,10 +135,6 @@ with torch.no_grad():
                 next_token = torch.argmax(logits[:, -1], dim=-1)
 
             next_token = next_token.reshape(-1)
-            # only replace token if prompt has already been generated
-            next_token = torch.where(
-                input_text_mask[:, cur_pos], tokens[:, cur_pos], next_token
-            )
             tokens[:, cur_pos] = next_token
             if logprobs:
                 token_logprobs[:, prev_pos + 1 : cur_pos + 1] = -F.cross_entropy(
@@ -153,11 +155,11 @@ with torch.no_grad():
         out_tokens, out_logprobs = [], []
         for i, toks in enumerate(tokens.tolist()):
             # cut to max gen len
-            start = 0 if echo else len(prompt_tokens[i])
-            toks = toks[start : len(prompt_tokens[i]) + max_gen_len]
+            start = 0 if echo else padding[i] + len(prompt_tokens[i])
+            toks = toks[start : padding[i] + len(prompt_tokens[i]) + max_gen_len]
             probs = None
             if logprobs:
-                probs = token_logprobs[i][start : len(prompt_tokens[i]) + max_gen_len]
+                probs = token_logprobs[i][start : padding[i] + len(prompt_tokens[i]) + max_gen_len]
             # cut to eos tok if any
             if tokenizer.eos_id in toks:
                 eos_idx = toks.index(tokenizer.eos_id)

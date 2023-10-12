@@ -18,6 +18,7 @@ sys.path.insert(0,current_working_directory)
 from llama2 import Llama
 from generate import chat_completion, text_completion, Dialog
 
+
 logger = logging.getLogger(__name__)
 logger.info("Transformers version %s", transformers.__version__)
 if packaging.version.parse(torch.__version__) >= packaging.version.parse("2.0.0"):
@@ -61,7 +62,6 @@ class LlamaHandler(BaseHandler,ABC):
         self.top_p = ctx.model_yaml_config["handler"]["top_p"]
         
         torch.manual_seed(seed)
-
         logger.info("Instantiating Llama model")
         model_load_start = time.perf_counter()
         llama_model_and_tok=  Llama.build(
@@ -71,6 +71,7 @@ class LlamaHandler(BaseHandler,ABC):
         )
         load_time = time.perf_counter()-model_load_start
         self.model = llama_model_and_tok.model
+        self.model.eval()
     
   
         self.tokenizer = llama_model_and_tok.tokenizer

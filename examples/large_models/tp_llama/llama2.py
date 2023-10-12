@@ -206,6 +206,7 @@ class Attention(nn.Module):
         keys = repeat_kv(keys, self.n_rep)  # (bs, seqlen, n_local_heads, head_dim)
         values = repeat_kv(values, self.n_rep)  # (bs, seqlen, n_local_heads, head_dim)
         #calling PT SDPA to enable using Flash Attention 2 and Xformer memory efficient kernels.
+
         output = torch.nn.functional.scaled_dot_product_attention(xq.transpose(1,2), keys.transpose(1,2), values.transpose(1,2), attn_mask=mask, dropout_p=0.0, is_causal=False)
 
         output = output.transpose(1, 2).contiguous().view(bsz, seqlen, -1)
@@ -332,8 +333,8 @@ class Transformer(nn.Module):
             self.dim // self.n_heads, self.max_seq_len * 2
         )
 
-    def forward(self, tokens: torch.Tensor, start_pos: int):
-        _bsz, seqlen = tokens.shape
+    def forward(self, tokens: torch.Tensor, start_pos: int, padding: torch.Tensor=None):
+        bsz, seqlen = tokens.shape
         # print(
         #     f"RV: before embedding lookup, input {tokens}, start:{start_pos}",
         #     flush=True,
@@ -345,9 +346,21 @@ class Transformer(nn.Module):
         mask = None
         if seqlen > 1:
             mask = torch.full(
-                (1, 1, seqlen, seqlen), float("-inf"), device=tokens.device
+                (1, 1, seqlen, seqlen), torch.finfo(h.dtype).min, device=tokens.device
             )
             mask = torch.triu(mask, diagonal=start_pos + 1).type_as(h)
+            if padding is not None:
+                assert padding.size(0) == bsz
+                mask = mask.expand(bsz, 1, seqlen, seqlen).clone()
+                mask_cond = torch.arange(mask.size(-1), device=mask.device)
+                mask.masked_fill_(mask_cond < (padding).view(-1,1,1,1), torch.finfo(h.dtype).min)
+        elif padding is not None:
+            seqlen_with_past = seqlen + start_pos
+            mask = torch.full(
+                (bsz, 1, 1, seqlen_with_past), torch.finfo(h.dtype).min, device=tokens.device
+            )
+            mask_cond = torch.arange(mask.size(-1), device=mask.device)
+            mask.masked_fill_(mask_cond + 1 > padding.view(-1,1,1,1), 0)
 
         for layer in self.layers:
             h = layer(h, start_pos, freqs_cis, mask)
