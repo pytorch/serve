@@ -1,5 +1,6 @@
 # Loading large Huggingface models with constrained resources using accelerate
 
+
 This document briefs on serving the [Llama 2](https://huggingface.co/meta-llama) as presented in the original [Llama repo](https://github.com/facebookresearch/llama/tree/main) using FairScale Tensor Parallel. It basically, is relying on Tensor Parallel layers that build the model, more of Megatron Style. In the following, we show the steps how to serve the 7-70B  model with Torchserve.
 
 ### Step 1: Download model
@@ -22,7 +23,7 @@ The downloaded model is around 14GB.
 
 ### Step 2: Configure the settings in the model-config.yaml
 
-The current setting has been tested on A100 GPUs, this may not work on GPUs with memories smaller than in A100 for now. 
+The current setting has been tested on A100 GPUs, this may not work on GPUs with memories smaller than in A100 for now.
 
 For sering 7B model set the `nproc-per-node: 1`, for 13B `nproc-per-node: 2` and for 70B `nproc-per-node: 8`.
 
@@ -83,8 +84,3 @@ torchserve --ncs --start --model-store model_store --models llama.tar.gz
 curl -v "http://localhost:8080/predictions/llama" -T sample_text.txt
 
 ```
-
-
-
-
-
