@@ -205,11 +205,6 @@ public class WorkerThread implements Runnable {
                         workerCmd,
                         repeats,
                         wtStartTime);
-                for (int i = 0; backendChannel.size() > 0 && i < repeats; i++) {
-                    backendChannel.get(i).writeAndFlush(req).sync();
-                }
-
-                /*
                 List<CompletableFuture<Void>> futureRequests = new ArrayList<>(repeats);
                 for (int i = 0; backendChannel.size() > 0 && i < repeats; i++) {
                     int idx = i;
@@ -225,18 +220,17 @@ public class WorkerThread implements Runnable {
                                     }));
                 }
                 futureRequests.stream().map(CompletableFuture::join);
-                 */
-                logger.info(
-                        "Done Flushing req.cmd {} to backend at: {}",
-                        workerCmd,
-                        System.currentTimeMillis());
 
                 ModelWorkerResponse reply = null;
 
                 boolean jobDone = false;
                 long totalDuration = 0;
+
+                logger.info("Looping backend response at: {}", System.currentTimeMillis());
+
                 do {
                     long begin = System.currentTimeMillis();
+                    /*
                     List<CompletableFuture<ModelWorkerResponse>> futureResponses =
                             new ArrayList<>(repeats);
                     for (int i = 0; i < repeats; i++) {
@@ -258,6 +252,10 @@ public class WorkerThread implements Runnable {
                             CompletableFuture.anyOf(
                                     futureResponses.toArray(new CompletableFuture<?>[0]));
                     reply = (ModelWorkerResponse) anyDoneFuture.get();
+                    */
+                    for (int i = 0; i < repeats; i++) {
+                        reply = replies.poll(responseTimeout, TimeUnit.SECONDS);
+                    }
 
                     long duration = System.currentTimeMillis() - begin;
 
