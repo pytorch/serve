@@ -376,6 +376,7 @@
 <span class="kn">import</span> <span class="nn">platform</span>
 <span class="kn">import</span> <span class="nn">socket</span>
 <span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
 
 <span class="kn">from</span> <span class="nn">ts.arg_parser</span> <span class="kn">import</span> <span class="n">ArgParser</span>
 <span class="kn">from</span> <span class="nn">ts.metrics.metric_cache_yaml_impl</span> <span class="kn">import</span> <span class="n">MetricsCacheYamlImpl</span>
@@ -385,8 +386,7 @@
 <span class="n">MAX_FAILURE_THRESHOLD</span> <span class="o">=</span> <span class="mi">5</span>
 <span class="n">SOCKET_ACCEPT_TIMEOUT</span> <span class="o">=</span> <span class="mf">30.0</span>
 <span class="n">DEBUG</span> <span class="o">=</span> <span class="kc">False</span>
-<span class="n">BENCHMARK</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;TS_BENCHMARK&quot;</span><span class="p">)</span>
-<span class="n">BENCHMARK</span> <span class="o">=</span> <span class="n">BENCHMARK</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;True&quot;</span><span class="p">,</span> <span class="s2">&quot;true&quot;</span><span class="p">,</span> <span class="s2">&quot;TRUE&quot;</span><span class="p">]</span>
+<span class="n">BENCHMARK</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;TS_BENCHMARK&quot;</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;True&quot;</span><span class="p">,</span> <span class="s2">&quot;true&quot;</span><span class="p">,</span> <span class="s2">&quot;TRUE&quot;</span><span class="p">]</span>
 <span class="n">LOCAL_RANK</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;LOCAL_RANK&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
 <span class="n">WORLD_SIZE</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;WORLD_SIZE&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
 <span class="n">WORLD_RANK</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;RANK&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
@@ -400,11 +400,11 @@
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">s_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">s_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">host_addr</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">port_num</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">metrics_config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">s_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">s_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">host_addr</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">port_num</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">metrics_config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sock_type</span> <span class="o">=</span> <span class="n">s_type</span>
 
@@ -544,8 +544,13 @@
             <span class="k">if</span> <span class="n">BENCHMARK</span><span class="p">:</span>
                 <span class="n">pr</span><span class="o">.</span><span class="n">enable</span><span class="p">()</span>
             <span class="k">if</span> <span class="n">cmd</span> <span class="o">==</span> <span class="sa">b</span><span class="s2">&quot;I&quot;</span><span class="p">:</span>
-                <span class="n">resp</span> <span class="o">=</span> <span class="n">service</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
-                <span class="n">cl_socket</span><span class="o">.</span><span class="n">sendall</span><span class="p">(</span><span class="n">resp</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">service</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">resp</span> <span class="o">=</span> <span class="n">service</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+                    <span class="n">cl_socket</span><span class="o">.</span><span class="n">sendall</span><span class="p">(</span><span class="n">resp</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                        <span class="s2">&quot;Received command: </span><span class="si">{}</span><span class="s2">, but service is not loaded&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
+                    <span class="p">)</span>
             <span class="k">elif</span> <span class="n">cmd</span> <span class="o">==</span> <span class="sa">b</span><span class="s2">&quot;L&quot;</span><span class="p">:</span>
                 <span class="n">service</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="n">code</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_model</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
                 <span class="n">resp</span> <span class="o">=</span> <span class="nb">bytearray</span><span class="p">()</span>
@@ -593,8 +598,8 @@
     <span class="k">while</span> <span class="n">ts_path</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">ts_path</span><span class="p">)</span>
 
-    <span class="n">sock_type</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">socket_name</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">sock_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">socket_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="c1"># noinspection PyBroadException</span>
     <span class="k">try</span><span class="p">:</span>
@@ -628,7 +633,11 @@
     <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-except</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Backend worker process died.&quot;</span><span class="p">,</span> <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">finally</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">sock_type</span> <span class="o">==</span> <span class="s2">&quot;unix&quot;</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">socket_name</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">sock_type</span> <span class="o">==</span> <span class="s2">&quot;unix&quot;</span>
+            <span class="ow">and</span> <span class="n">socket_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">socket_name</span><span class="p">)</span>
+        <span class="p">):</span>
             <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">socket_name</span><span class="p">)</span>
 
     <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>

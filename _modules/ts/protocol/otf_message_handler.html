@@ -367,6 +367,7 @@
 <span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">OTF Codec</span>
 <span class="sd">&quot;&quot;&quot;</span>
+
 <span class="kn">import</span> <span class="nn">io</span>
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">logging</span>
@@ -441,15 +442,26 @@
         <span class="n">msg</span> <span class="o">+=</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s2">&quot;!i&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">req_id</span><span class="p">))</span>
         <span class="n">msg</span> <span class="o">+=</span> <span class="n">req_id</span>
 
-        <span class="c1"># Encoding Content-Type</span>
         <span class="k">if</span> <span class="n">context</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Encoding Content-Type</span>
             <span class="n">msg</span> <span class="o">+=</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s2">&quot;!i&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>  <span class="c1"># content_type</span>
+
+            <span class="c1"># Encoding the per prediction HTTP response code</span>
+            <span class="c1"># status code and reason phrase set to none</span>
+            <span class="n">msg</span> <span class="o">+=</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s2">&quot;!i&quot;</span><span class="p">,</span> <span class="n">code</span><span class="p">)</span>
+            <span class="n">msg</span> <span class="o">+=</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s2">&quot;!i&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>  <span class="c1"># No code phrase is returned</span>
+            <span class="c1"># Response headers none</span>
+            <span class="n">msg</span> <span class="o">+=</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s2">&quot;!i&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">ts_stream_next</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
                 <span class="n">context</span><span class="o">.</span><span class="n">set_response_header</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="s2">&quot;ts_stream_next&quot;</span><span class="p">,</span> <span class="s2">&quot;true&quot;</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">if</span> <span class="s2">&quot;true&quot;</span> <span class="o">==</span> <span class="n">context</span><span class="o">.</span><span class="n">get_response_headers</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ts_stream_next&quot;</span><span class="p">):</span>
-                    <span class="n">context</span><span class="o">.</span><span class="n">set_response_header</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="s2">&quot;ts_stream_next&quot;</span><span class="p">,</span> <span class="s2">&quot;false&quot;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">context</span><span class="o">.</span><span class="n">stopping_criteria</span><span class="p">:</span>
+                <span class="n">ts_stream_next</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="s2">&quot;false&quot;</span> <span class="k">if</span> <span class="n">context</span><span class="o">.</span><span class="n">stopping_criteria</span><span class="p">[</span><span class="n">idx</span><span class="p">](</span><span class="n">ret</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span> <span class="k">else</span> <span class="s2">&quot;true&quot;</span>
+                <span class="p">)</span>
+                <span class="n">context</span><span class="o">.</span><span class="n">set_response_header</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="s2">&quot;ts_stream_next&quot;</span><span class="p">,</span> <span class="n">ts_stream_next</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="s2">&quot;true&quot;</span> <span class="o">==</span> <span class="n">context</span><span class="o">.</span><span class="n">get_response_headers</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ts_stream_next&quot;</span><span class="p">):</span>
+                <span class="n">context</span><span class="o">.</span><span class="n">set_response_header</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="s2">&quot;ts_stream_next&quot;</span><span class="p">,</span> <span class="s2">&quot;false&quot;</span><span class="p">)</span>
 
             <span class="n">content_type</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">get_response_content_type</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">content_type</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">content_type</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -458,14 +470,6 @@
                 <span class="n">msg</span> <span class="o">+=</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s2">&quot;!i&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">content_type</span><span class="p">))</span>
                 <span class="n">msg</span> <span class="o">+=</span> <span class="n">content_type</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
 
-        <span class="c1"># Encoding the per prediction HTTP response code</span>
-        <span class="k">if</span> <span class="n">context</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="c1"># status code and reason phrase set to none</span>
-            <span class="n">msg</span> <span class="o">+=</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s2">&quot;!i&quot;</span><span class="p">,</span> <span class="n">code</span><span class="p">)</span>
-            <span class="n">msg</span> <span class="o">+=</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s2">&quot;!i&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>  <span class="c1"># No code phrase is returned</span>
-            <span class="c1"># Response headers none</span>
-            <span class="n">msg</span> <span class="o">+=</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s2">&quot;!i&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
             <span class="n">sc</span><span class="p">,</span> <span class="n">phrase</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">get_response_status</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
             <span class="n">http_code</span> <span class="o">=</span> <span class="n">sc</span> <span class="k">if</span> <span class="n">sc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">200</span>
             <span class="n">http_phrase</span> <span class="o">=</span> <span class="n">phrase</span> <span class="k">if</span> <span class="n">phrase</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>

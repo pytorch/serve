@@ -564,7 +564,7 @@
                     <span class="n">backend</span><span class="o">=</span><span class="n">pt2_backend</span><span class="p">,</span>
                 <span class="p">)</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Compiled model with backend </span><span class="si">{</span><span class="n">pt2_backend</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="k">except</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s2">&quot;Compiling model model with backend </span><span class="si">{</span><span class="n">pt2_backend</span><span class="si">}</span><span class="s2"> has failed </span><span class="se">\n</span><span class="s2"> Proceeding without compilation&quot;</span>
                 <span class="p">)</span>
@@ -599,7 +599,7 @@
 <span class="sd">        Loads the pickle file from the given model path.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            model_dir (str): Points to the location of the model artefacts.</span>
+<span class="sd">            model_dir (str): Points to the location of the model artifacts.</span>
 <span class="sd">            model_file (.py): the file which contains the model class.</span>
 <span class="sd">            model_pt_path (str): points to the location of the model pickle file.</span>
 
@@ -689,7 +689,7 @@
 <span class="sd">        Args:</span>
 <span class="sd">            data (list): The input data that needs to be made a prediction request on.</span>
 <span class="sd">            context (Context): It is a JSON Object containing information pertaining to</span>
-<span class="sd">                               the model artefacts parameters.</span>
+<span class="sd">                               the model artifacts parameters.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            list : Returns a list of dictionary with the predicted response.</span>
