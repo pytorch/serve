@@ -14,6 +14,7 @@ Start minikube cluster
 minikube start
 ```
 
+For this example, we need to git clone [kserve](https://github.com/kserve/kserve)
 Run the commands given in following steps from the parent directory of the root of the repository. For example, if you cloned the repository into /home/my_path/kserve, run the steps from /home/my_path/kserve
 
 Run the following for quick install of kserve
