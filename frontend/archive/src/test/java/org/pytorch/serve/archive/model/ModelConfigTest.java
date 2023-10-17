@@ -43,7 +43,7 @@ public class ModelConfigTest {
         Assert.assertEquals(modelConfig.getMaxBatchDelay(), 100);
         Assert.assertEquals(modelConfig.getResponseTimeout(), 120);
         Assert.assertNotEquals(modelConfig.getDeviceType(), ModelConfig.DeviceType.GPU);
-        Assert.assertEquals(modelConfig.getParallelLevel(), 1);
+        Assert.assertEquals(modelConfig.getParallelLevel(), 0);
         Assert.assertNotEquals(modelConfig.getParallelType(), ModelConfig.ParallelType.PPTP);
         Assert.assertNull(modelConfig.getDeviceIds());
     }

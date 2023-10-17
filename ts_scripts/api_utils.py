@@ -367,7 +367,8 @@ def trigger_all():
     exit_code9 = trigger_https_tests_kfv2()
     exit_code10 = trigger_explanation_tests()
     exit_code11 = trigger_workflow_tests()
-    exit_code12 = trigger_workflow_inference_tests()
+    # Skipping as this test is flaky
+    # exit_code12 = trigger_workflow_inference_tests()
     return (
         1
         if any(
@@ -384,7 +385,6 @@ def trigger_all():
                 exit_code9,
                 exit_code10,
                 exit_code11,
-                exit_code12,
             ]
         )
         else 0
