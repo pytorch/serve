@@ -5,12 +5,17 @@ This document briefs on serving the [Llama 2](https://huggingface.co/meta-llama)
 
 ### Step 1: Download model
 
-Login into huggingface hub with token by running the below command
+You can get the model from [Meta llama site](https://ai.meta.com/llama/) or follow the[ steps to download from llama Github repository](https://github.com/facebookresearch/llama#download).
+
+Alternatively, you can also download from HuggingFace hub as follows as well.
+
+
+Login into HuggingFace hub with token by running the below command
 
 ```bash
 huggingface-cli login
 ```
-paste the token generated from huggingface hub. Make sure `use_auth_token=True` is in [Download script](../utils/Download_model.py).
+paste the token generated from HuggingFace hub. Make sure `use_auth_token=True` is in [Download script](../utils/Download_model.py).
 
 ```bash
 python ../utils/Download_model.py --model_name meta-llama/Llama-2-7b

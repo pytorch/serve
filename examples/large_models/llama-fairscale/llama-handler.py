@@ -1,18 +1,15 @@
 import logging
-import time
 from abc import ABC
 
 import packaging.version
 import requests
 import torch
-import transformers
-from transformers import AutoModelForCausalLM, AutoTokenizer
-
-from ts.torch_handler.base_handler import BaseHandler
 from llama import Llama
 
+from ts.torch_handler.base_handler import BaseHandler
+
 logger = logging.getLogger(__name__)
-logger.info("Transformers version %s", transformers.__version__)
+
 if packaging.version.parse(torch.__version__) >= packaging.version.parse("2.0.0"):
     logger.info("PyTorch version is 2.0.0 or greater")
 else:
@@ -21,9 +18,9 @@ else:
     )
 
 
-class LlamaFairscaleHandler(BaseHandler,ABC):
+class LlamaFairscaleHandler(BaseHandler, ABC):
     """
-    Transformers handler class for sequence, token classification and question answering.
+    Llama handler for text generation using FairScale TP.
     """
 
     def __init__(self):
@@ -56,15 +53,15 @@ class LlamaFairscaleHandler(BaseHandler,ABC):
         self.max_new_tokens = ctx.model_yaml_config["handler"]["max_new_tokens"]
         self.temperature = ctx.model_yaml_config["handler"]["temperature"]
         self.top_p = ctx.model_yaml_config["handler"]["top_p"]
-        
+
         torch.manual_seed(seed)
 
         logger.info("Instantiating Llama model")
         self.model = Llama.build(
-        ckpt_dir=model_path,
-        tokenizer_path=tokenizer_path,
-        max_seq_len=max_seq_len,
-        max_batch_size=max_batch_size,
+            ckpt_dir=model_path,
+            tokenizer_path=tokenizer_path,
+            max_seq_len=max_seq_len,
+            max_batch_size=max_batch_size,
         )
 
         logger.info("Llama model from path %s loaded successfully", model_dir)
@@ -100,13 +97,12 @@ class LlamaFairscaleHandler(BaseHandler,ABC):
         if isinstance(input_text, (bytes, bytearray)):
             input_text = input_text.decode("utf-8")
         logger.info("Received text: '%s'", input_text)
-        
+
         return input_text
 
     def inference(self, input_batch):
         """
-        Predicts the class (or classes) of the received text using the serialized transformers
-        checkpoint.
+        Generate tokens based on the received prompt text.
         Args:
             input_batch : a batch of input texts
         Returns:
@@ -115,13 +111,12 @@ class LlamaFairscaleHandler(BaseHandler,ABC):
         input_ids_batch = input_batch
         input_ids_batch = input_ids_batch
         results = self.model.text_completion(
-                input_batch,
-                max_gen_len=self.max_new_tokens,
-                temperature=self.temperature,
-                top_p=self.top_p,
-            )
-        
-        
+            input_batch,
+            max_gen_len=self.max_new_tokens,
+            temperature=self.temperature,
+            top_p=self.top_p,
+        )
+
         return results
 
     def postprocess(self, inference_output):
@@ -131,7 +126,7 @@ class LlamaFairscaleHandler(BaseHandler,ABC):
         Returns:
             (list): Returns a list of the Predictions and Explanations.
         """
-        
+
         logger.info("Generated text: %s", inference_output)
-        
+
         return inference_output
