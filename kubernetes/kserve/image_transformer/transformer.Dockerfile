@@ -1,4 +1,4 @@
-FROM python:3.7-slim
+FROM python:3.8.18-slim
 ARG BRANCH_NAME_KF=master
 
 RUN apt-get update \
