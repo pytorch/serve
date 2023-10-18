@@ -1118,3 +1118,5 @@ quantized
 Chatbot
 LLM
 bitsandbytes
+FairScale
+Megatron

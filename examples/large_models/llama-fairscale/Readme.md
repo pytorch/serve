@@ -30,7 +30,7 @@ The downloaded model is around 14GB.
 
 The current setting has been tested on A100 GPUs, this may not work on GPUs with memories smaller than in A100 for now.
 
-For sering 7B model set the `nproc-per-node: 1`, for 13B `nproc-per-node: 2` and for 70B `nproc-per-node: 8`.
+For serving 7B model set the `nproc-per-node: 1`, for 13B `nproc-per-node: 2` and for 70B `nproc-per-node: 8`.
 
 ```bash
 
