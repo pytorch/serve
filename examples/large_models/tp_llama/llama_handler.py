@@ -228,7 +228,7 @@ class LlamaHandler(BaseHandler, ABC):
 
         encoded, padding = self._prepare_model_inputs(ids)
 
-        logits = self.model.forward(encoded, encoded.size(-1), padding)
+        logits = self.model.forward(encoded[:, -1:], encoded.size(-1), padding)
 
         if self.temperature > 0:
             probs = torch.softmax(logits[:, -1] / self.temperature, dim=-1)
@@ -333,7 +333,7 @@ class LlamaHandler(BaseHandler, ABC):
             l.attention.cache_v = l.attention.cache_v[rearrangement_indices, ...]
 
     def _clean_cache(self):
-        new_ids = set(self.context.request_ids.keys())
+        new_ids = set(self.context.request_ids.values())
         self.batch_idx_to_req_ids = [
             key if key in new_ids else None for key in self.batch_idx_to_req_ids
         ]
