@@ -26,7 +26,7 @@ jobs:
           sudo rm -rf ./* || true
           sudo rm -rf ./.??* || true
           ls -la ./
-          docker system prune -f
+          docker system prune --all --volumes -f
       - name: Checkout TorchServe
         uses: actions/checkout@v3
       - name: Branch name
