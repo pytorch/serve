@@ -15,7 +15,7 @@ CURR_FILE_PATH = Path(__file__).parent
 LLAMA_PATH = CURR_FILE_PATH.parents[1] / "examples" / "large_models" / "tp_llama"
 sys.path.append(LLAMA_PATH.as_posix())
 
-converted_checkpoints_path = "llama/converted_checkpoints"
+converted_checkpoints_path = "converted_checkpoints"
 
 YAML_CONFIG = f"""
 #frontend settings
@@ -31,8 +31,8 @@ torchrun:
 
 handler:
     converted_ckpt_dir: "{converted_checkpoints_path}"
-    tokenizer_path: "llama/tokenizer.model"
-    model_args_path: "llama/model_args.json"
+    tokenizer_path: "{converted_checkpoints_path}/tokenizer.model"
+    model_args_path: "{converted_checkpoints_path}/model_args.json"
     max_new_tokens: 50
     temperature: 0.0
     top_p: 0.9
@@ -73,19 +73,19 @@ def call_handler(rank: int, world_size: int, queue: Queue, yaml_path: str):
         {"data": {"prompt": "what is the recipes for Mayonnaise?"}},
     ]
 
-    results = []
+    results = [[], []]
     for _ in range(10):
         out = handler.preprocess(requests)
         out = handler.inference(out)
         ret = handler.postprocess(out)
-        results.append(ret)
-        print(ret)
-    queue.put(results)
+        results[0].extend(ret[0]["ids"])
+        results[1].extend(ret[1]["ids"])
+    queue.put([handler.tokenizer.decode(r) for r in results])
 
 
 @pytest.mark.skipif(
     not (LLAMA_PATH / converted_checkpoints_path).exists(),
-    reason="Required files are not present",
+    reason=f"Required files are not present {(LLAMA_PATH / converted_checkpoints_path).as_posix()}",
 )
 def test_tensor_parallel_llama(tmp_path):
     world_size = 2

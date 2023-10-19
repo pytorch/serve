@@ -101,8 +101,6 @@ class LlamaHandler(BaseHandler, ABC):
         self._clean_cache()
         prefill, decode = [], []
 
-        print(set(self.context.request_ids.keys()))
-
         for req_id, req_data in zip(self.context.request_ids.values(), requests):
             # Tokenizer requests which are not prefilled yet
             if not req_id in self.context.cache:
@@ -170,7 +168,7 @@ class LlamaHandler(BaseHandler, ABC):
         # Prefill requests
         results = {}
         for req_id in prefill:
-            results[req_id] = self._run_prefill(req_id)
+            results.update(self._run_prefill(req_id))
 
         # Decode the rest
         decode_result = self._run_decode(decode_ids) if decode_ids else {}
@@ -183,18 +181,6 @@ class LlamaHandler(BaseHandler, ABC):
             for i in self.context.request_ids.values()
         ]
         return x
-
-    def postprocess(self, inference_output):
-        """Post Process Function converts the predicted response into Torchserve readable format.
-        Args:
-            inference_output (list): It contains the predicted response of the input text.
-        Returns:
-            (list): Returns a list of the Predictions and Explanations.
-        """
-
-        logger.info("Generated text: %s", inference_output)
-
-        return [inference_output]
 
     @torch.no_grad()
     def _run_prefill(self, req_id):
@@ -215,7 +201,7 @@ class LlamaHandler(BaseHandler, ABC):
             (self.context.cache[req_id]["encoded"], next_token.view(1)), dim=-1
         )
 
-        result = {req_id: {"ids": next_token.tolist()}}
+        result = {req_id: {"ids": next_token.view(1).tolist()}}
 
         self.context.cache[req_id]["padding"] = 0
 
@@ -240,7 +226,7 @@ class LlamaHandler(BaseHandler, ABC):
             self.context.cache[req_id]["encoded"] = torch.concat(
                 (self.context.cache[req_id]["encoded"], next_token[idx].view(1)), dim=-1
             )
-            results[req_id] = {"ids": next_token[idx].view(1, 1).tolist()}
+            results[req_id] = {"ids": next_token[idx].view(1).tolist()}
         return results
 
     @torch.no_grad()
