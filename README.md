@@ -73,7 +73,7 @@ Refer to [torchserve docker](docker/README.md) for details.
 * [Large Model Inference Guide](docs/large_model_inference.md): With support for GenAI, LLMs including
   * Fast Kernels with FlashAttention v2, continuous batching and streaming response
   * PyTorch [Tensor Parallel](examples/large_models/tp_llama) preview, [Pipeline Parallel](examples/large_models/Huggingface_pippy) 
-  * Microsoft [DeepSpeed](examples/large_models/deepspeed), [DeepSpeedMII](examples/large_models/deepspeed_mii) 
+  * Microsoft [DeepSpeed](examples/large_models/deepspeed), [DeepSpeed-Mii](examples/large_models/deepspeed_mii) 
   * Hugging Face [Accelerate](large_models/Huggingface_accelerate), [Diffusers](examples/diffusers) 
   * Running large models on AWS [Sagemaker](https://docs.aws.amazon.com/sagemaker/latest/dg/large-model-inference-tutorials-torchserve.html) and [Inferentia2](https://pytorch.org/blog/high-performance-llama/)
   * Running [Llama 2 Chatbot locally on Mac](examples/LLM/llama2)
@@ -115,7 +115,7 @@ To learn more about how to contribute, see the contributor guide [here](https://
 * [Naver Case Study: Transition From High-Cost GPUs to Intel CPUs and oneAPI powered Software with performance](https://pytorch.org/blog/ml-model-server-resource-saving/)
 * [Run multiple generative AI models on GPU using Amazon SageMaker multi-model endpoints with TorchServe and save up to 75% in inference costs](https://aws.amazon.com/blogs/machine-learning/run-multiple-generative-ai-models-on-gpu-using-amazon-sagemaker-multi-model-endpoints-with-torchserve-and-save-up-to-75-in-inference-costs/)
 * [Deploying your Generative AI model in only four steps with Vertex AI and PyTorch](https://cloud.google.com/blog/products/ai-machine-learning/get-your-genai-model-going-in-four-easy-steps)
-* [PyTorch Model Serving on Google Cloud TPUv5](https://cloud.google.com/tpu/docs/v5e-inference#pytorch-model-inference-and-serving)
+* [PyTorch Model Serving on Google Cloud TPU v5](https://cloud.google.com/tpu/docs/v5e-inference#pytorch-model-inference-and-serving)
 * [Monitoring using Datadog](https://www.datadoghq.com/blog/ai-integrations/#model-serving-and-deployment-vertex-ai-amazon-sagemaker-torchserve)
 * [Torchserve Performance Tuning, Animated Drawings Case-Study](https://pytorch.org/blog/torchserve-performance-tuning/)
 * [Walmart Search: Serving Models at a Scale on TorchServe](https://medium.com/walmartglobaltech/search-model-serving-using-pytorch-and-torchserve-6caf9d1c5f4d)
