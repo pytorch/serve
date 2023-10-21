@@ -71,7 +71,7 @@ Refer to [torchserve docker](docker/README.md) for details.
 * [Expressive handlers](CONTRIBUTING.md): An expressive handler architecture that makes it trivial to support inferencing for your usecase with [many supported out of the box](https://github.com/pytorch/serve/tree/master/ts/torch_handler)
 * [Metrics API](docs/metrics.md): out of box support for system level metrics with [Prometheus exports](https://github.com/pytorch/serve/tree/master/examples/custom_metrics), custom metrics, 
 * [Large Model Inference Guide](docs/large_model_inference.md): With support for GenAI, LLMs including
-  * Fast Kernels with FlashAttention v2
+  * Fast Kernels with FlashAttention v2, continuous batching and streaming response
   * PyTorch [Tensor Parallel](examples/large_models/tp_llama) preview, [Pipeline Parallel](examples/large_models/Huggingface_pippy) 
   * Microsoft [DeepSpeed](examples/large_models/deepspeed), [DeepSpeedMII](examples/large_models/deepspeed_mii) 
   * Hugging Face [Accelerate](large_models/Huggingface_accelerate), [Diffusers](examples/diffusers) 
