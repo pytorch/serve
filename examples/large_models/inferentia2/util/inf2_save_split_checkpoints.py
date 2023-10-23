@@ -4,6 +4,7 @@ import os
 import torch
 from transformers import AutoConfig, AutoModelForCausalLM, AutoTokenizer
 from transformers.models.opt import OPTForCausalLM
+from transformers_neuronx.llama.model import LlamaForSampling
 from transformers_neuronx.module import save_pretrained_split
 
 os.environ["NEURON_CC_FLAGS"] = "--model-type=transformer-inference"
@@ -40,6 +41,12 @@ parser.add_argument(
     default="./model-splits",
     help="Output directory for downloaded model files",
 )
+subparsers = parser.add_subparsers(dest="subparser")
+parser_neuron_cache = subparsers.add_parser("generate_neuron_cache")
+parser_neuron_cache.add_argument("--neuron_cache_dir", type=str, required=True)
+parser_neuron_cache.add_argument("--batch_size", type=int, required=True)
+parser_neuron_cache.add_argument("--amp", type=str, required=True)
+parser_neuron_cache.add_argument("--tp_degree", type=int, required=True)
 args = parser.parse_args()
 
 save_path = create_directory_if_not_exists(args.save_path)
@@ -62,3 +69,26 @@ tokenizer = AutoTokenizer.from_pretrained(args.model_name)
 tokenizer.save_pretrained(args.save_path)
 
 print(f"Files for '{args.model_name}' have been downloaded to '{args.save_path}'.")
+
+if args.subparser == "generate_neuron_cache":
+    os.environ["NEURONX_CACHE"] = "on"
+    os.environ["NEURONX_DUMP_TO"] = create_directory_if_not_exists(
+        args.neuron_cache_dir
+    )
+    os.environ["NEURON_CC_FLAGS"] = "--model-type=transformer-inference"
+
+    if hf_model_config.model_type == "llama":
+        model = LlamaForSampling.from_pretrained(
+            args.save_path,
+            batch_size=args.batch_size,
+            amp=args.amp,
+            tp_degree=args.tp_degree,
+        )
+    else:
+        raise RuntimeError(
+            f"Neuron cache generation for model f{args.model_name} not supported"
+        )
+
+    print(f"Compiling '{args.model_name}'")
+    model.to_neuron()
+    print(f"Neuron cache for '{args.model_name}' saved to {args.neuron_cache_dir}")

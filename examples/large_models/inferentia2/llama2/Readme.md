@@ -78,7 +78,7 @@ huggingface-cli login
 
 Run the `inf2_save_split_checkpoints.py` script
 ```bash
-python ../util/inf2_save_split_checkpoints.py --model_name meta-llama/Llama-2-13b-hf --save_path './llama-2-13b-split'
+python ../util/inf2_save_split_checkpoints.py --model_name meta-llama/Llama-2-13b-hf --save_path './llama-2-13b-split' generate_neuron_cache --neuron_cache_dir './neuron_cache' --batch_size 4 --amp 'bf16' --tp_degree 6
 ```
 
 
@@ -87,6 +87,7 @@ python ../util/inf2_save_split_checkpoints.py --model_name meta-llama/Llama-2-13
 ```bash
 torch-model-archiver --model-name llama-2-13b --version 1.0 --handler inf2_handler.py -r requirements.txt --config-file model-config.yaml --archive-format no-archive
 mv llama-2-13b-split llama-2-13b
+mv neuron_cache llama-2-13b
 ```
 
 ### Step 5: Add the model artifacts to model store
