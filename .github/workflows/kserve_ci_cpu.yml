@@ -2,14 +2,12 @@ name: KServe CI CPU
 
 on:
   workflow_dispatch:
-  push:
   # runs everyday  at 5:15am
   schedule:
     - cron:  '15 5 * * *'
 
 jobs:
-  test-model-prediction-on-k8s:
-    #runs-on: ubuntu-latest
+  kserve-ci-cpu:
     runs-on: [self-hosted, regression-test-gpu]
     steps:
       - name: Clean up previous run
@@ -33,8 +31,6 @@ jobs:
           architecture: x64
       - name: Checkout TorchServe
         uses: actions/checkout@v3
-      - run: pwd
-      - run: ls
       - name: Checkout kserve repo
         uses: actions/checkout@v4
         with:
