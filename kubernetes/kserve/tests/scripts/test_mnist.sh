@@ -16,14 +16,14 @@ echo "Install kserve"
 ROOT_DIR="$1"
 echo "Root dir is: $ROOT_DIR "
 
-cd $ROOT_DIR/kserve/kserve
+cd $ROOT_DIR/kserve
 ./hack/quick_install.sh
 echo "Waiting 5s for kserve pod to come up ..."
 sleep 5
 
 echo "Deploy the cluster"
 
-cd $ROOT_DIR/serve/serve
+cd $ROOT_DIR/serve
 kubectl apply -f kubernetes/kserve/tests/configs/mnist_v2_cpu.yaml
 
 echo "Waiting 120s for pods to come up..."
