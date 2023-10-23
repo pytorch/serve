@@ -14,23 +14,20 @@ jobs:
       - name: Checkout TorchServe
         uses: actions/checkout@v3
 
-      - name: Start minikube
+      - name: Setup minikube
         uses: medyagh/setup-minikube@master
       - name: Setup Python 3.8
         uses: actions/setup-python@v4
         with:
           python-version: 3.8
           architecture: x64
-      - name: Setup Java 17
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'zulu'
-          java-version: '17'
-      - name: Checkout TorchServe
-        uses: actions/checkout@v3
       - name: Checkout tools repo
         uses: actions/checkout@v4
         with:
           repository: kserve/kserve
+      - name: Checkout TorchServe
+        uses: actions/checkout@v3
+      - run: pwd
+      - run: ls
       - name: Test model running in k8s cluster with sample image data
         run: ./kubernetes/kserve/tests/scripts/test_mnist.sh
