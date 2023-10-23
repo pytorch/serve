@@ -162,7 +162,10 @@ CN
 CORS
 EventLoopGroup
 EventLoops
+CPUs
 GPUs
+TPU
+TPUs
 JVM
 MaxDirectMemorySize
 OU
@@ -1118,3 +1121,10 @@ quantized
 Chatbot
 LLM
 bitsandbytes
+Datadog
+Trn
+oneAPI
+Naver
+FlashAttention
+GenAI
+prem
