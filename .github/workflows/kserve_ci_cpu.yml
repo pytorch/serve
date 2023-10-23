@@ -21,9 +21,8 @@ jobs:
           ls -la ./
       #- name: Checkout TorchServe
       #  uses: actions/checkout@v3
-      - run: |
-          curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
-          sudo install minikube-linux-amd64 /usr/local/bin/minikube
+      - run: curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+      - run: sudo install minikube-linux-amd64 /usr/local/bin/minikube
       - run: minikube start
       #- name: Setup minikube
       #  uses: medyagh/setup-minikube@latest
