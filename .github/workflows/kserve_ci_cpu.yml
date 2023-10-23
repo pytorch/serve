@@ -9,14 +9,14 @@ on:
 
 jobs:
   test-model-prediction-on-k8s:
-    #runs-on: ubuntu-latest
-    runs-on: [self-hosted, kserve-ci]
+    runs-on: ubuntu-latest
+    #runs-on: [self-hosted, kserve-ci]
     steps:
       - name: Checkout TorchServe
         uses: actions/checkout@v3
 
-      #- name: Setup minikube
-      #  uses: medyagh/setup-minikube@master
+      - name: Setup minikube
+        uses: medyagh/setup-minikube@master
       - name: Setup Python 3.8
         uses: actions/setup-python@v4
         with:
