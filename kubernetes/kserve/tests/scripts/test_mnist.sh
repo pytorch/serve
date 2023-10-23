@@ -13,7 +13,8 @@ minikube start
 
 echo "Install kserve"
 
-$ROOT_DIR=$1
+ROOT_DIR="$1"
+echo "Root dir is: $ROOT_DIR "
 
 cd $ROOT_DIR/kserve/kserve
 ./hack/quick_install.sh
