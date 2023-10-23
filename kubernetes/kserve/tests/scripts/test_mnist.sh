@@ -26,8 +26,8 @@ echo "Deploy the cluster"
 cd $GITHUB_WORKSPACE
 kubectl apply -f kubernetes/kserve/tests/configs/mnist_v2_cpu.yaml
 
-echo "Waiting 120s for pods to come up..."
-sleep 120
+echo "Waiting 300s for pods to come up..."
+sleep 300
 kubectl get pods
 
 echo "Make cluster accessible by localhost"
