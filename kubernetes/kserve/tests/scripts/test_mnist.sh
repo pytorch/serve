@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-#set -o errexit -o nounset -o pipefail
+set -o errexit -o nounset -o pipefail
 
-echo "MNIST test begin"
+echo "MNIST KServe V2 test begin"
 
 echo "Removing any previous kubernetes cluster "
 minikube delete
@@ -12,9 +12,6 @@ echo "Starting kubernetes cluster "
 minikube start
 
 echo "Install kserve"
-
-ROOT_DIR="$GITHUB_WORKSPACE"
-echo "Root dir is: $ROOT_DIR "
 
 cd $GITHUB_WORKSPACE/kserve
 ./hack/quick_install.sh
@@ -26,10 +23,10 @@ echo "Deploy the cluster"
 cd $GITHUB_WORKSPACE
 kubectl apply -f kubernetes/kserve/tests/configs/mnist_v2_cpu.yaml
 
-echo "Waiting 300s for pods to come up..."
-sleep 300
+echo "Waiting 120s for pod to come up..."
+sleep 120
+echo "Check status of the pod"
 kubectl get pods
-
 kubectl describe pod torchserve-mnist-v2-predictor
 
 echo "Make cluster accessible by localhost"
@@ -57,7 +54,65 @@ if [ "${PREDICTION}" = "${EXPECTED}" ]; then
      exit 1
 fi
 
-echo "Test successful!"
+echo "KServe V2 Test successful!"
+
+echo "Delete cluster"
+
+minikube delete
+
+echo "MNIST KServe V1 test begin"
+
+echo "Removing any previous kubernetes cluster "
+minikube delete
+
+echo "Starting kubernetes cluster "
+
+minikube start
+
+echo "Install kserve"
+
+cd $GITHUB_WORKSPACE/kserve
+./hack/quick_install.sh
+echo "Waiting 5s for kserve pod to come up ..."
+sleep 5
+
+echo "Deploy the cluster"
+
+cd $GITHUB_WORKSPACE
+kubectl apply -f kubernetes/kserve/tests/configs/mnist_v1_cpu.yaml
+
+echo "Waiting 120s for pod to come up..."
+sleep 120
+echo "Check status of the pod"
+kubectl get pods
+kubectl describe pod torchserve-predictor
+
+echo "Make cluster accessible by localhost"
+MODEL_NAME=mnist
+SERVICE_HOSTNAME=$(kubectl get inferenceservice torchserve -o jsonpath='{.status.url}' | cut -d "/" -f 3)
+export INGRESS_HOST=localhost
+export INGRESS_PORT=8080
+INGRESS_GATEWAY_SERVICE=$(kubectl get svc --namespace istio-system --selector="app=istio-ingressgateway" --output jsonpath='{.items[0].metadata.name}')
+kubectl port-forward --namespace istio-system svc/${INGRESS_GATEWAY_SERVICE} 8080:80 &
+
+echo "Wait for ports to be in forwarding"
+sleep 10
+
+echo "Make inference request"
+
+PREDICTION=$(curl -H "Content-Type: application/json" -H "Host: ${SERVICE_HOSTNAME}" http://${INGRESS_HOST}:${INGRESS_PORT}/v1/models/${MODEL_NAME}:predict -d @./kubernetes/kserve/tests/data/mnist_v1.json)
+
+EXPECTED='{"predictions":[2]}'
+echo "Creating a Service"
+
+if [ "${PREDICTION}" = "${EXPECTED}" ]; then
+     echo "✓ Prediction: ${PREDICTION} (Expected ${EXPECTED})"
+ else
+     echo "✘ Test failed: Prediction: ${PREDICTION}, expected ${EXPECTED}."
+     exit 1
+fi
+
+echo "KServe V1 Test successful!"
 
 echo "Delete cluster"
 

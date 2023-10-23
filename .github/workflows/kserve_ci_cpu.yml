@@ -19,18 +19,13 @@ jobs:
           sudo rm -rf ./* || true
           sudo rm -rf ./.??* || true
           ls -la ./
-      #- name: Checkout TorchServe
-      #  uses: actions/checkout@v3
-      - run: curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
-      - run: sudo install minikube-linux-amd64 /usr/local/bin/minikube
-      - run: curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-      - run: sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
-      - run: echo "/usr/local/bin" >> $GITHUB_PATH
-      #- run: /usr/local/bin/minikube -h
-      - run: minikube -h
-      - run: kubectl -h
-      #- name: Setup minikube
-      #  uses: medyagh/setup-minikube@latest
+      - name: Install minikube and kubectl
+        run: |
+          curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+          sudo install minikube-linux-amd64 /usr/local/bin/minikube
+          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+          sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+          echo "/usr/local/bin" >> $GITHUB_PATH
       - name: Setup Python 3.8
         uses: actions/setup-python@v4
         with:
@@ -45,8 +40,5 @@ jobs:
         with:
           repository: kserve/kserve
           path: kserve
-      - run: pwd
-      - run: ls
-      - run: ls kserve/*
-      - name: Test model inference
+      - name: Test torchserve-kfs
         run: ./kubernetes/kserve/tests/scripts/test_mnist.sh
