@@ -23,7 +23,9 @@ jobs:
       #  uses: actions/checkout@v3
       - run: curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
       - run: sudo install minikube-linux-amd64 /usr/local/bin/minikube
-      - run: /usr/local/bin/minikube -h
+      - run: echo "/usr/local/bin" >> $GITHUB_PATH
+      #- run: /usr/local/bin/minikube -h
+      - run: minikube -h
       #- name: Setup minikube
       #  uses: medyagh/setup-minikube@latest
       - name: Setup Python 3.8
