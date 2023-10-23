@@ -9,7 +9,8 @@ on:
 
 jobs:
   test-model-prediction-on-k8s:
-    runs-on: ubuntu-latest
+    #runs-on: ubuntu-latest
+    runs-on: [self-hosted, kserve-ci]
     steps:
       - name: Checkout TorchServe
         uses: actions/checkout@v3
