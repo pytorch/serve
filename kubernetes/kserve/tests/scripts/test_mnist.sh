@@ -30,7 +30,7 @@ echo "Waiting 300s for pods to come up..."
 sleep 300
 kubectl get pods
 
-kubectl logs torchserve-mnist-v2-predictor
+kubectl describe pod torchserve-mnist-v2-predictor
 
 echo "Make cluster accessible by localhost"
 MODEL_NAME=mnist
