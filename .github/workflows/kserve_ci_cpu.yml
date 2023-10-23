@@ -14,9 +14,11 @@ jobs:
     steps:
       - name: Checkout TorchServe
         uses: actions/checkout@v3
-
-      - name: Setup minikube
-        uses: medyagh/setup-minikube@latest
+      - run: |
+          curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+          sudo install minikube-linux-amd64 /usr/local/bin/minikube
+      #- name: Setup minikube
+      #  uses: medyagh/setup-minikube@latest
       - name: Setup Python 3.8
         uses: actions/setup-python@v4
         with:
