@@ -21,7 +21,11 @@ jobs:
         with:
           python-version: 3.8
           architecture: x64
-      - name: Checkout tools repo
+      - name: Checkout TorchServe
+        uses: actions/checkout@v3
+      - run: pwd
+      - run: ls
+      - name: Checkout kserve repo
         uses: actions/checkout@v4
         with:
           repository: kserve/kserve
@@ -29,9 +33,5 @@ jobs:
       - run: pwd
       - run: ls
       - run: ls kserve/*
-      - name: Checkout TorchServe
-        uses: actions/checkout@v3
-      - run: pwd
-      - run: ls
       - name: Test model running in k8s cluster with sample image data
-        run: ./kubernetes/kserve/tests/scripts/test_mnist.sh /home/runner/work
+        run: ./kubernetes/kserve/tests/scripts/test_mnist.sh

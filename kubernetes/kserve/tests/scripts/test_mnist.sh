@@ -13,17 +13,17 @@ minikube start
 
 echo "Install kserve"
 
-ROOT_DIR="$1"
+ROOT_DIR="$GITHUB_WORKSPACE"
 echo "Root dir is: $ROOT_DIR "
 
-cd $ROOT_DIR/kserve
+cd $GITHUB_WORKSPACE/kserve
 ./hack/quick_install.sh
 echo "Waiting 5s for kserve pod to come up ..."
 sleep 5
 
 echo "Deploy the cluster"
 
-cd $ROOT_DIR/serve
+cd $GITHUB_WORKSPACE
 kubectl apply -f kubernetes/kserve/tests/configs/mnist_v2_cpu.yaml
 
 echo "Waiting 120s for pods to come up..."
