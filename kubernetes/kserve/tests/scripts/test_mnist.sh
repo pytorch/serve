@@ -28,6 +28,7 @@ kubectl apply -f kubernetes/kserve/tests/configs/mnist_v2_cpu.yaml
 
 echo "Waiting 120s for pods to come up..."
 sleep 120
+kubectl get pods
 
 echo "Make cluster accessible by localhost"
 MODEL_NAME=mnist

@@ -33,5 +33,5 @@ jobs:
       - run: pwd
       - run: ls
       - run: ls kserve/*
-      - name: Test model running in k8s cluster with sample image data
+      - name: Test model inference
         run: ./kubernetes/kserve/tests/scripts/test_mnist.sh
