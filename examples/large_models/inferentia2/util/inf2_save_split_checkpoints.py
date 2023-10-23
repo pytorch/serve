@@ -86,7 +86,7 @@ if args.subparser == "generate_neuron_cache":
         )
     else:
         raise RuntimeError(
-            f"Neuron cache generation for model f{args.model_name} not supported"
+            f"Neuron cache generation for model {args.model_name} not supported"
         )
 
     print(f"Compiling '{args.model_name}'")
