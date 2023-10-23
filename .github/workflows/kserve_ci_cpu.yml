@@ -12,8 +12,15 @@ jobs:
     #runs-on: ubuntu-latest
     runs-on: [self-hosted, regression-test-gpu]
     steps:
-      - name: Checkout TorchServe
-        uses: actions/checkout@v3
+      - name: Clean up previous run
+        run: |
+          echo "Cleaning up previous run"
+          ls -la ./
+          sudo rm -rf ./* || true
+          sudo rm -rf ./.??* || true
+          ls -la ./
+      #- name: Checkout TorchServe
+      #  uses: actions/checkout@v3
       - run: |
           curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
           sudo install minikube-linux-amd64 /usr/local/bin/minikube
