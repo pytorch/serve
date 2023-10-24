@@ -1,3 +1,4 @@
+import json
 import os
 import sys
 from collections import OrderedDict
@@ -15,7 +16,7 @@ CURR_FILE_PATH = Path(__file__).parent
 LLAMA_PATH = CURR_FILE_PATH.parents[1] / "examples" / "large_models" / "tp_llama"
 sys.path.append(LLAMA_PATH.as_posix())
 
-converted_checkpoints_path = "llama/converted_checkpoints"
+converted_checkpoints_path = "converted_checkpoints"
 
 YAML_CONFIG = f"""
 #frontend settings
@@ -31,14 +32,27 @@ torchrun:
 
 handler:
     converted_ckpt_dir: "{converted_checkpoints_path}"
-    tokenizer_path: "llama/tokenizer.model"
-    model_args_path: "llama/model_args.json"
+    tokenizer_path: "{converted_checkpoints_path}/tokenizer.model"
+    model_args_path: "{converted_checkpoints_path}/model_args.json"
     max_new_tokens: 50
     temperature: 0.0
     top_p: 0.9
     manual_seed: 40
     mode: "text_completion" #choices are text_completion, chat
 """
+
+EXPECTED_RESULTS = {
+    32:
+        [
+            ", Paris, is a city of romance, art, and culture. It is also a city of fashion, food, and fun. Paris is a city that has something for everyone.\nParis is a city that is full of history.",
+            "\nI have a recipe for mayonnaise that I use all the time. It is very easy and tastes great.\n1. In a bowl, whisk together the egg yolks, mustard, lemon ju",
+        ],
+    40:
+        [
+            ", Paris is a city of romance, fashion, and culture. It is a city that is full of life and energy, and it is a place that is sure to leave you with memories that will last a lifetime.\nParis is",
+            "\nMayonnaise is a thick, creamy sauce made from egg yolks, oil, and vinegar. It is used as a condiment or as a base for other sauces.\nMayonnaise is a thick,",
+        ],
+}
 
 
 def call_handler(rank: int, world_size: int, queue: Queue, yaml_path: str):
@@ -108,6 +122,11 @@ def test_tensor_parallel_llama(tmp_path):
 
     model_config_yaml = tmp_path / "model-config.yaml"
     model_config_yaml.write_text(YAML_CONFIG)
+    
+    with open(LLAMA_PATH / converted_checkpoints_path / "model_args.json") as f:
+        n_layers = json.load(f)["n_layers"]
+        
+    expected = EXPECTED_RESULTS[n_layers]
 
     q = Queue()
 
@@ -136,19 +155,10 @@ def test_tensor_parallel_llama(tmp_path):
 
     assert len(results) == 4
 
-    assert (
-        results[0][0]
-        == ", Paris, is a city of romance, art, and culture. It is also a city of fashion, food, and fun. Paris is a city that has something for everyone.\nParis is a city that is full of history."
-    )
-    assert (
-        results[0][1]
-        == "\nI have a recipe for mayonnaise that I use all the time. It is very easy and tastes great.\n1. In a bowl, whisk together the egg yolks, mustard, lemon ju"
-    )
+    assert results[0][0] == expected[0]
+    assert results[0][1] == expected[1]
 
-    assert (
-        results[2][0]
-        == ", Paris, is a city of romance, art, and culture. It is also a city of fashion, food, and fun. Paris is a city that has something for everyone.\nParis is a city that is full of history."
-    )
+    assert results[2][0] == expected[0]
 
 
 @patch("llama_handler.torch.distributed.init_process_group")
