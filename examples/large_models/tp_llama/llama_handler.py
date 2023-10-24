@@ -86,6 +86,8 @@ class LlamaHandler(BaseHandler, ABC):
             None,
         ] * self.max_bsz
 
+        self.device = next(iter(self.model.parameters())).device
+
         self.initialized = True
 
     def preprocess(self, requests):
@@ -110,7 +112,7 @@ class LlamaHandler(BaseHandler, ABC):
 
                 encoded = self.tokenizer.encode(input_text, bos=True, eos=False)
 
-                encoded = torch.tensor(encoded, dtype=torch.long, device="cuda")
+                encoded = torch.tensor(encoded, dtype=torch.long, device=self.device)
 
                 self.context.cache[req_id] = {
                     "stopping_criteria": self._create_stopping_criteria(
@@ -243,7 +245,7 @@ class LlamaHandler(BaseHandler, ABC):
         bsz = len(ids)
         pad_id = self.tokenizer.eos_id
         tokens = torch.full(
-            (bsz, max_prompt_length), pad_id, dtype=torch.long, device="cuda"
+            (bsz, max_prompt_length), pad_id, dtype=torch.long, device=self.device
         )
         for idx, req_id in enumerate(ids):
             tokens[idx, new_padding[idx] :] = self.context.cache[req_id]["encoded"]
@@ -263,7 +265,7 @@ class LlamaHandler(BaseHandler, ABC):
         for req_id, new_pad in zip(ids, new_padding):
             self.context.cache[req_id]["padding"] = new_pad
 
-        return tokens, torch.tensor(new_padding, dtype=torch.long, device="cuda")
+        return tokens, torch.tensor(new_padding, dtype=torch.long, device=self.device)
 
     def _rearrange_kv_cache_for_decode(self, ids: List[str]) -> None:
         req_id_to_batch_idx = {
@@ -288,7 +290,7 @@ class LlamaHandler(BaseHandler, ABC):
         new_arrangement = torch.tensor(
             decode_indices + prefill_indices + none_indices,
             dtype=torch.long,
-            device="cuda",
+            device=self.device,
         )
         for l in self.model.layers:
             l.attention.cache_k = l.attention.cache_k[new_arrangement, ...]
@@ -304,7 +306,7 @@ class LlamaHandler(BaseHandler, ABC):
         new_batch_idx = self.batch_idx_to_req_ids.index(None)
 
         rearrangement_indices = torch.tensor(
-            range(self.max_bsz), dtype=torch.long, device="cuda"
+            range(self.max_bsz), dtype=torch.long, device=self.device
         )
         rearrangement_indices[new_batch_idx], rearrangement_indices[0] = (
             rearrangement_indices[0],
@@ -347,7 +349,7 @@ class LlamaHandler(BaseHandler, ABC):
 
     def _swap_kv_cache(self, i: int, j: int) -> None:
         rearrangement_indices = torch.tensor(
-            range(self.max_bsz), dtype=torch.long, device="cuda"
+            range(self.max_bsz), dtype=torch.long, device=self.device
         )
         rearrangement_indices[i], rearrangement_indices[j] = (
             rearrangement_indices[j],

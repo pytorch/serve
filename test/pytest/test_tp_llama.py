@@ -155,8 +155,10 @@ def test_tensor_parallel_llama(tmp_path):
 @patch("llama_handler.Llama.build")
 def test_handler(build, ipg, tmp_path, mocker):
     BSZ = 8
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+
     build.return_value.model.parameters.return_value = torch.nn.Linear(
-        1, 1, device="cuda"
+        1, 1, device=device
     ).parameters()
     build.return_value.model.layers = [mocker.MagicMock(name="layer")]
     build.return_value.model.layers[0].attention.cache_k.size.return_value = BSZ
@@ -186,7 +188,6 @@ def test_handler(build, ipg, tmp_path, mocker):
     handler.initialize(ctx)
 
     handler.context = ctx
-    device = next(iter(handler.model.parameters())).device
 
     ctx.cache = {
         "id1": {
@@ -237,6 +238,8 @@ def test_handler(build, ipg, tmp_path, mocker):
 def test_clean_cache(mocker):
     from llama_handler import LlamaHandler
 
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+
     handler = LlamaHandler()
 
     handler.context = mocker.MagicMock(name="context")
@@ -248,7 +251,7 @@ def test_clean_cache(mocker):
     handler.model = mocker.MagicMock(name="model")
     handler.model.layers = [mocker.MagicMock(name="layer")]
     handler.model.layers[0].attention.cache_k = -1 * torch.ones(
-        (handler.max_bsz, 1), dtype=torch.long, device="cuda"
+        (handler.max_bsz, 1), dtype=torch.long, device=device
     )
     handler.model.layers[0].attention.cache_k[0] = 5
     handler.model.layers[0].attention.cache_k[1] = 1
@@ -279,6 +282,8 @@ def test_clean_cache(mocker):
 def test_vacate_kv_cache_before_prefill(mocker):
     from llama_handler import LlamaHandler
 
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+
     handler = LlamaHandler()
 
     handler.batch_idx_to_req_ids = ["id5", "id1", "id2", "id3", None, None]
@@ -287,7 +292,7 @@ def test_vacate_kv_cache_before_prefill(mocker):
     handler.model = mocker.MagicMock(name="model")
     handler.model.layers = [mocker.MagicMock(name="layer")]
     handler.model.layers[0].attention.cache_k = -1 * torch.ones(
-        (handler.max_bsz, 1), dtype=torch.long, device="cuda"
+        (handler.max_bsz, 1), dtype=torch.long, device=device
     )
     handler.model.layers[0].attention.cache_k[0] = 5
     handler.model.layers[0].attention.cache_k[1] = 1
@@ -320,6 +325,8 @@ def test_vacate_kv_cache_before_prefill(mocker):
 def test_rearrange_kv_cache_for_decode(mocker):
     from llama_handler import LlamaHandler
 
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+
     handler = LlamaHandler()
 
     handler.batch_idx_to_req_ids = ["id5", "id1", None, "id2", "id3", None, "id4", None]
@@ -328,7 +335,7 @@ def test_rearrange_kv_cache_for_decode(mocker):
     handler.model = mocker.MagicMock(name="model")
     handler.model.layers = [mocker.MagicMock(name="layer")]
     handler.model.layers[0].attention.cache_k = -1 * torch.ones(
-        (handler.max_bsz, 1), dtype=torch.long, device="cuda"
+        (handler.max_bsz, 1), dtype=torch.long, device=device
     )
     handler.model.layers[0].attention.cache_k[0] = 5
     handler.model.layers[0].attention.cache_k[1] = 1
@@ -367,6 +374,8 @@ def test_prepare_model_inputs(mocker):
     HEAD_DIM = 16
     HEAD_NUM = 4
 
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+
     from llama_handler import LlamaHandler
 
     handler = LlamaHandler()
@@ -377,7 +386,7 @@ def test_prepare_model_inputs(mocker):
     handler.model = mocker.MagicMock(name="model")
     handler.model.layers = [mocker.MagicMock(name="layer")]
     handler.model.layers[0].attention.cache_k = -1 * torch.ones(
-        (handler.max_bsz, SEQLEN, HEAD_NUM, HEAD_DIM), dtype=torch.long, device="cuda"
+        (handler.max_bsz, SEQLEN, HEAD_NUM, HEAD_DIM), dtype=torch.long, device=device
     )
     handler.model.layers[0].attention.cache_k[0, 5:, ...] = 5
     handler.model.layers[0].attention.cache_k[1, 5:, ...] = 1
@@ -391,11 +400,11 @@ def test_prepare_model_inputs(mocker):
 
     handler.context = mocker.MagicMock(name="context")
     handler.context.cache = {f"id{idx}": {} for idx in [2, 3, 4]}
-    handler.context.cache["id2"]["encoded"] = 200 * torch.ones((1, 2), device="cuda")
+    handler.context.cache["id2"]["encoded"] = 200 * torch.ones((1, 2), device=device)
     handler.context.cache["id2"]["padding"] = 5
-    handler.context.cache["id4"]["encoded"] = 400 * torch.ones((1, 4), device="cuda")
+    handler.context.cache["id4"]["encoded"] = 400 * torch.ones((1, 4), device=device)
     handler.context.cache["id4"]["padding"] = 5
-    handler.context.cache["id3"]["encoded"] = 300 * torch.ones((1, 3), device="cuda")
+    handler.context.cache["id3"]["encoded"] = 300 * torch.ones((1, 3), device=device)
     handler.context.cache["id3"]["padding"] = 5
 
     handler.tokenizer = mocker.MagicMock(name="tokenizer")
@@ -403,7 +412,7 @@ def test_prepare_model_inputs(mocker):
 
     tokens, padding = handler._prepare_model_inputs(["id2", "id4", "id3"])
 
-    assert padding.equal(torch.tensor([2, 0, 1], dtype=torch.long, device="cuda"))
+    assert padding.equal(torch.tensor([2, 0, 1], dtype=torch.long, device=device))
     assert all(tokens[0, :2] == 2)
     assert all(tokens[0, 2:] == 200)
     assert all(tokens[1, :] == 400)
