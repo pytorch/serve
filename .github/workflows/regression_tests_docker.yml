@@ -15,7 +15,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        hardware: [ubuntu-20.04, [self-hosted, regression-test-gpu]]
+        #hardware: [ubuntu-20.04, [self-hosted, regression-test-gpu]]
+        hardware: [[self-hosted, ts-regression-test]]
     runs-on:
       - ${{ matrix.hardware }}
     steps:
