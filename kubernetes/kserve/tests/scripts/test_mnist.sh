@@ -62,7 +62,7 @@ function wait_for_kserve_pod() {
     start_time=$(date +%s)
     while true; do
         kserve_pod_status=$(kubectl get pods -n kserve --no-headers -o custom-columns=":status.phase")
-        if [[ "$pod_status" == "Running" ]]; then
+        if [[ "$kserve_pod_status" == "Running" ]]; then
             break
         fi
         current_time=$(date +%s)
