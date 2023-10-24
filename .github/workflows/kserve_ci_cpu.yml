@@ -1,6 +1,7 @@
 name: KServe CI CPU
 
 on:
+  push:
   workflow_dispatch:
   # runs everyday  at 5:15am
   schedule:
