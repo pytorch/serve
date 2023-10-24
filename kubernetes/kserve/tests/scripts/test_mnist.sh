@@ -38,15 +38,16 @@ function make_cluster_accessible() {
     INGRESS_GATEWAY_SERVICE=$(kubectl get svc --namespace istio-system --selector="app=istio-ingressgateway" --output jsonpath='{.items[0].metadata.name}')
     kubectl port-forward --namespace istio-system svc/${INGRESS_GATEWAY_SERVICE} 8080:80 &
     echo "Wait for ports to be in forwarding"
-    wait_for_port_forwarding 300 10
+    sleep 10
+    #wait_for_port_forwarding 300 10
     echo "Make inference request"
     PREDICTION=$(curl -H "Content-Type: application/json" -H "Host: ${SERVICE_HOSTNAME}" http://${INGRESS_HOST}:${INGRESS_PORT}/v2/models/${MODEL_NAME}/infer -d @"$3")
-    echo "Creating a Service"
     EXPECTED="$4"
     if [ "${PREDICTION}" = "${EXPECTED}" ]; then
-        echo "✓ Prediction: ${PREDICTION} (Expected ${EXPECTED})"
+        echo "✓ SUCCESS"
     else
         echo "✘ Test failed: Prediction: ${PREDICTION}, expected ${EXPECTED}."
+        delete_minikube_cluster
         exit 1
     fi
 }
