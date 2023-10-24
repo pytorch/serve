@@ -13,7 +13,7 @@ function install_kserve() {
     echo "Install Kserve"
     cd $GITHUB_WORKSPACE/kserve
     ./hack/quick_install.sh
-    echo "Waiting 5s for Kserve pod to come up ..."
+    echo "Waiting for Kserve pod to come up ..."
     wait_for_kserve_pod 300 5
 }
 
@@ -21,7 +21,7 @@ function deploy_cluster() {
     echo "Deploying the cluster"
     cd $GITHUB_WORKSPACE
     kubectl apply -f "$1"
-    echo "Waiting 120s for pod to come up..."
+    echo "Waiting for pod to come up..."
     wait_for_pod_running "$2" 120
     echo "Check status of the pod"
     kubectl get pods
@@ -80,6 +80,7 @@ function wait_for_pod_running() {
     interval=5
     start_time=$(date +%s)
     while true; do
+        sleep "$interval"
         pod_description=$(kubectl describe pod "$pod_name")
         status_line=$(echo "$pod_description" | grep -E "Status:")
         pod_status=$(echo "$status_line" | awk '{print $2}')
@@ -91,7 +92,6 @@ function wait_for_pod_running() {
             echo "Timeout waiting for pod $pod_name to become Running."
             exit 1
         fi
-        sleep "$interval"
     done
 }
 
