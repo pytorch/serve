@@ -9,6 +9,12 @@ TorchServe is a performant, flexible and easy to use tool for serving PyTorch mo
 
 What's going on in TorchServe?
 
+* `High performance Llama 2 deployments with AWS Inferentia2 using TorchServe <https://pytorch.org/blog/high-performance-llama/>`__
+* `Naver Case Study: Transition From High-Cost GPUs to Intel CPUs and oneAPI powered Software with performance <https://pytorch.org/blog/ml-model-server-resource-saving/>`__
+* `Run multiple generative AI models on GPU using Amazon SageMaker multi-model endpoints with TorchServe and save up to 75% in inference costs <https://aws.amazon.com/blogs/machine-learning/run-multiple-generative-ai-models-on-gpu-using-amazon-sagemaker-multi-model-endpoints-with-torchserve-and-save-up-to-75-in-inference-costs/>`__
+* `Deploying your Generative AI model in only four steps with Vertex AI and PyTorch <https://cloud.google.com/blog/products/ai-machine-learning/get-your-genai-model-going-in-four-easy-steps>`__
+* `PyTorch Model Serving on Google Cloud TPUv5 <https://cloud.google.com/tpu/docs/v5e-inference#pytorch-model-inference-and-serving>`__
+* `Monitoring using Datadog <https://www.datadoghq.com/blog/ai-integrations/#model-serving-and-deployment-vertex-ai-amazon-sagemaker-torchserve>`__
 * `Torchserve Performance Tuning, Animated Drawings Case-Study <https://pytorch.org/blog/torchserve-performance-tuning/>`__
 * `Walmart Search: Serving Models at a Scale on TorchServe <https://medium.com/walmartglobaltech/search-model-serving-using-pytorch-and-torchserve-6caf9d1c5f4d>`__
 * `Scaling inference on CPU with TorchServe <https://www.youtube.com/watch?v=066_Jd6cwZg>`__
@@ -55,6 +61,14 @@ What's going on in TorchServe?
    :image: https://raw.githubusercontent.com/pytorch/serve/master/benchmarks/predict_latency.png
    :link: performance_guide.html
    :tags: Performance,Troubleshooting
+
+.. customcarditem::
+   :header: Metrics
+   :card_description: Collecting and viewing Torcherve metrics
+   :image: https://user-images.githubusercontent.com/5276346/234725829-7f60e0d8-c76d-4019-ac8f-7d60069c4e58.png
+   :link: metrics.html
+   :tags: Metrics,Performance,Troubleshooting
+
 
 .. customcarditem::
    :header: Large Model Inference

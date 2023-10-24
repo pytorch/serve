@@ -104,7 +104,7 @@ class TorchserveModel(Model):
         payload = to_ts_grpc(payload)
         grpc_stub = self.grpc_client()
         async_result = await grpc_stub.Predictions(payload)
-        return async_result
+        return from_ts_grpc(async_result)
 
     def postprocess(
         self,

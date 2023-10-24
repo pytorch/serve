@@ -1,6 +1,7 @@
 name: Run Regression Tests on Docker
 
 on:
+  workflow_dispatch:
   # run every day at 5:15am
   schedule:
     - cron:  '15 5 * * *'
@@ -25,7 +26,7 @@ jobs:
           sudo rm -rf ./* || true
           sudo rm -rf ./.??* || true
           ls -la ./
-          docker system prune -f
+          docker system prune --all --volumes -f
       - name: Checkout TorchServe
         uses: actions/checkout@v3
       - name: Branch name
@@ -40,7 +41,7 @@ jobs:
         if: false == contains(matrix.hardware, 'ubuntu')
         run: |
           cd docker
-          ./build_image.sh -g -cv cu117 -bt ci -n -b $GITHUB_REF_NAME -t pytorch/torchserve:ci
+          ./build_image.sh -g -cv cu121 -bt ci -n -b $GITHUB_REF_NAME -t pytorch/torchserve:ci
       - name: Torchserve GPU Regression Tests
         if: false == contains(matrix.hardware, 'ubuntu')
         run: |
@@ -53,3 +54,11 @@ jobs:
         if: success()
         run: |
           docker system prune -f && docker rmi pytorch/torchserve:ci
+      - name: Open issue on failure
+        if: ${{ failure() && github.event_name  == 'schedule' }}
+        uses: dacbd/create-issue-action@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          title: Docker Regression on ${{ matrix.hardware }} failed
+          body:  The daily scheduled [Docker Regression Run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) failed, please check why
+          assignees: ''

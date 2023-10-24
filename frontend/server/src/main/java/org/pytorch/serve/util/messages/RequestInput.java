@@ -13,6 +13,7 @@ public class RequestInput {
     private Map<String, String> headers;
     private List<InputParameter> parameters;
     private long clientExpireTS;
+    private boolean cached;
 
     public RequestInput(String requestId) {
         this.requestId = requestId;
@@ -70,5 +71,13 @@ public class RequestInput {
         if (clientTimeoutInMills > 0) {
             this.clientExpireTS = System.currentTimeMillis() + clientTimeoutInMills;
         }
+    }
+
+    public boolean isCached() {
+        return cached;
+    }
+
+    public void setCached(boolean cached) {
+        this.cached = cached;
     }
 }

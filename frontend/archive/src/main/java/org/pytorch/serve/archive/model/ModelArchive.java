@@ -79,6 +79,8 @@ public class ModelArchive {
             }
         }
 
+        File tempDir = ZipUtils.createTempDir(null, "models");
+        logger.info("createTempDir {}", tempDir.getAbsolutePath());
         File directory = new File(url);
         if (directory.isDirectory()) {
             // handle the case that the input url is a directory.
@@ -88,9 +90,13 @@ public class ModelArchive {
             if (fileList.length == 1 && fileList[0].isDirectory()) {
                 // handle the case that a model tgz file
                 // has root dir after decompression on SageMaker
-                return load(url, fileList[0], false);
+                File targetLink = ZipUtils.createSymbolicDir(fileList[0], tempDir);
+                logger.info("createSymbolicDir {}", targetLink.getAbsolutePath());
+                return load(url, targetLink, false);
             }
-            return load(url, directory, false);
+            File targetLink = ZipUtils.createSymbolicDir(directory, tempDir);
+            logger.info("createSymbolicDir {}", targetLink.getAbsolutePath());
+            return load(url, targetLink, false);
         } else if (modelLocation.exists()) {
             // handle the case that "/xxx/model_store/modelXXX" is directory.
             // the input of url is modelXXX when torchserve is started
@@ -99,9 +105,13 @@ public class ModelArchive {
             if (fileList.length == 1 && fileList[0].isDirectory()) {
                 // handle the case that a model tgz file
                 // has root dir after decompression on SageMaker
-                return load(url, fileList[0], false);
+                File targetLink = ZipUtils.createSymbolicDir(fileList[0], tempDir);
+                logger.info("createSymbolicDir {}", targetLink.getAbsolutePath());
+                return load(url, targetLink, false);
             }
-            return load(url, modelLocation, false);
+            File targetLink = ZipUtils.createSymbolicDir(modelLocation, tempDir);
+            logger.info("createSymbolicDir {}", targetLink.getAbsolutePath());
+            return load(url, targetLink, false);
         }
 
         throw new ModelNotFoundException("Model not found at: " + url);
@@ -122,8 +132,12 @@ public class ModelArchive {
             failed = false;
             return new ModelArchive(manifest, url, dir, extracted);
         } finally {
-            if (extracted && failed) {
-                FileUtils.deleteQuietly(dir);
+            if (failed) {
+                if (Files.isSymbolicLink(dir.toPath())) {
+                    FileUtils.deleteQuietly(dir.getParentFile());
+                } else {
+                    FileUtils.deleteQuietly(dir);
+                }
             }
         }
     }
@@ -195,8 +209,12 @@ public class ModelArchive {
     }
 
     public void clean() {
-        if (url != null && extracted) {
-            FileUtils.deleteQuietly(modelDir);
+        if (url != null) {
+            if (Files.isSymbolicLink(modelDir.toPath())) {
+                FileUtils.deleteQuietly(modelDir.getParentFile());
+            } else {
+                FileUtils.deleteQuietly(modelDir);
+            }
         }
     }
 

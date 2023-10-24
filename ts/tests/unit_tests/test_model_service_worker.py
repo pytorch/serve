@@ -185,3 +185,16 @@ class TestHandleConnection:
             model_service_worker.handle_connection(cl_socket)
 
         cl_socket.sendall.assert_called()
+
+    def test_handle_connection_recv_inference_before_load(
+        self, patches, model_service_worker
+    ):
+        patches.retrieve_msg.side_effect = [(b"I", "")]
+        service = Mock()
+        service.context = None
+        cl_socket = Mock()
+
+        with pytest.raises(
+            RuntimeError, match=r"Received command: .*, but service is not loaded"
+        ):
+            model_service_worker.handle_connection(cl_socket)

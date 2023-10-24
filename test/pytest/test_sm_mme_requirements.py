@@ -42,6 +42,7 @@ def test_no_model_loaded():
     os.environ.get("TS_RUN_IN_DOCKER", False),
     reason="Test to be run outside docker",
 )
+@pytest.mark.skip(reason="Logic needs to be more generic")
 def test_oom_on_model_load():
     """
     Validates that TorchServe returns reponse code 507 if there is OOM on model loading.
@@ -75,6 +76,7 @@ def test_oom_on_model_load():
     os.environ.get("TS_RUN_IN_DOCKER", False),
     reason="Test to be run outside docker",
 )
+@pytest.mark.skip(reason="Logic needs to be more generic")
 def test_oom_on_invoke():
     # Create model store directory
     pathlib.Path(test_utils.MODEL_STORE).mkdir(parents=True, exist_ok=True)

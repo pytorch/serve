@@ -41,6 +41,7 @@ class MetricAbstract(metaclass=abc.ABCMeta):
 
         """
         self.metric_name = metric_name
+        self.unit = unit
         if unit in list(MetricUnit.units.keys()):
             self.unit = MetricUnit.units[unit]
         self.dimension_names = dimension_names or []

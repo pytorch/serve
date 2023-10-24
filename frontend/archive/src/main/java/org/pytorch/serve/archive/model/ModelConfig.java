@@ -32,7 +32,7 @@ public class ModelConfig {
      */
     private List<Integer> deviceIds;
     /** this variable is auto calculated based on torchrun nproc-per-node. */
-    private int parallelLevel = 1;
+    private int parallelLevel;
     /** the model parallel type can be tp, pp, pptp */
     private ParallelType parallelType = ParallelType.NONE;
     /** torchrun config */
@@ -54,6 +54,9 @@ public class ModelConfig {
      * available workers.
      */
     private boolean useJobTicket;
+
+    /** continuousBatching is a flag to enable continuous batching. */
+    private boolean continuousBatching;
 
     public static ModelConfig build(Map<String, Object> yamlMap) {
         ModelConfig modelConfig = new ModelConfig();
@@ -158,6 +161,15 @@ public class ModelConfig {
                                 logger.warn("Invalid useJobTicket: {}, should be true or false", v);
                             }
                             break;
+                        case "continuousBatching":
+                            if (v instanceof Boolean) {
+                                modelConfig.setContinuousBatching((boolean) v);
+                            } else {
+                                logger.warn(
+                                        "Invalid continuousBatching: {}, should be true or false",
+                                        v);
+                            }
+                            break;
                         default:
                             break;
                     }
@@ -247,9 +259,8 @@ public class ModelConfig {
     }
 
     public void setParallelLevel(int parallelLevel) {
-        if (parallelLevel <= 0) {
-            logger.warn("Invalid parallelLevel:{}, set as 1", parallelLevel);
-            this.parallelLevel = 1;
+        if (parallelLevel < 0) {
+            logger.warn("Invalid parallelLevel:{}, set as 0", parallelLevel);
             return;
         }
         this.parallelLevel = parallelLevel;
@@ -311,6 +322,14 @@ public class ModelConfig {
 
     public void setUseJobTicket(boolean useJobTicket) {
         this.useJobTicket = useJobTicket;
+    }
+
+    public boolean isContinuousBatching() {
+        return continuousBatching;
+    }
+
+    public void setContinuousBatching(boolean continuousBatching) {
+        this.continuousBatching = continuousBatching;
     }
 
     public enum ParallelType {

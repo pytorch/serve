@@ -73,7 +73,7 @@ class TsModelLoader(ModelLoader):
         batch_size: Optional[int] = None,
         envelope: Optional[str] = None,
         limit_max_image_pixels: Optional[bool] = True,
-        metrics_cache: MetricsCacheYamlImpl = None,
+        metrics_cache: Optional[MetricsCacheYamlImpl] = None,
     ) -> Service:
         """
         Load TorchServe 1.0 model from file.

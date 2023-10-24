@@ -13,4 +13,4 @@ then
     exit -1
 fi
 
-npm install -g newman newman-reporter-html markdown-link-check
+npm install -g newman@5.3.2 newman-reporter-html markdown-link-check

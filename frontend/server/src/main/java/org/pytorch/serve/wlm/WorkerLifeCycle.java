@@ -99,7 +99,9 @@ public class WorkerLifeCycle {
         File modelPath;
         setPort(port);
         try {
-            modelPath = model.getModelDir().getCanonicalFile();
+            modelPath = model.getModelDir();
+            // Test if modelPath is valid
+            modelPath.getCanonicalFile();
         } catch (IOException e) {
             throw new WorkerInitializationException("Failed get TS home directory", e);
         }
@@ -113,9 +115,9 @@ public class WorkerLifeCycle {
                                 modelPath.getAbsolutePath(),
                                 model.getModelArchive().getManifest().getModel().getHandler())));
 
-        if (model.getParallelLevel() > 1) {
+        if (model.getParallelLevel() > 0) {
             attachRunner(argl, envp, port, deviceIds);
-        } else if (model.getParallelLevel() == 1) {
+        } else if (model.getParallelLevel() == 0) {
             argl.add(EnvironmentUtils.getPythonRunTime(model));
         }
 
@@ -151,7 +153,7 @@ public class WorkerLifeCycle {
         argl.add(configManager.getMetricsConfigPath());
 
         try {
-            latch = new CountDownLatch(model.getParallelLevel());
+            latch = new CountDownLatch(model.getParallelLevel() > 0 ? model.getParallelLevel() : 1);
 
             String[] args = argl.toArray(new String[argl.size()]);
             String[] envs = envp.toArray(new String[envp.size()]);
