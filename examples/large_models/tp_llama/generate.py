@@ -1,15 +1,12 @@
-import torch
-from llama2 import Llama
-import torch.distributed as dist
-from typing import Any, Callable, Dict, List, Optional, Tuple
-from typing import List, Literal, Optional, Tuple, TypedDict
-import abc 
+import logging
 import os
 import sys
-import fire
-import logging
+from typing import List, Literal, Optional, Tuple, TypedDict
+
+import torch
+
 current_working_directory = os.getcwd()
-sys.path.insert(0,current_working_directory)
+sys.path.insert(0, current_working_directory)
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -42,6 +39,7 @@ B_SYS, E_SYS = "<<SYS>>\n", "\n<</SYS>>\n\n"
 SPECIAL_TAGS = [B_INST, E_INST, "<<SYS>>", "<</SYS>>"]
 UNSAFE_ERROR = "Error: special tags are not allowed as part of the prompt."
 
+
 def sample_top_p(probs, p):
     """
     Perform top-p (nucleus) sampling on a probability distribution.
@@ -66,10 +64,12 @@ def sample_top_p(probs, p):
     next_token = torch.multinomial(probs_sort, num_samples=1)
     next_token = torch.gather(probs_idx, -1, next_token)
     return next_token
-  
+
+
 # @torch.inference_mode()
 @torch.no_grad()
-def generate(model,
+def generate(
+    model,
     tokenizer,
     prompt_tokens: List[List[int]],
     max_gen_len: int,
@@ -108,11 +108,17 @@ def generate(model,
     pad_id = tokenizer.eos_id
     tokens = torch.full((bsz, total_len), pad_id, dtype=torch.long, device="cuda")
     for k, t in enumerate(prompt_tokens):
-        tokens[k, max_prompt_len-len(t):max_prompt_len] = torch.tensor(t, dtype=torch.long, device="cuda")
+        tokens[k, max_prompt_len - len(t) : max_prompt_len] = torch.tensor(
+            t, dtype=torch.long, device="cuda"
+        )
     if logprobs:
         token_logprobs = torch.zeros_like(tokens, dtype=torch.float)
 
-    padding = torch.tensor([max_prompt_len-len(t) for t in prompt_tokens], dtype=torch.int64 , device="cuda")
+    padding = torch.tensor(
+        [max_prompt_len - len(t) for t in prompt_tokens],
+        dtype=torch.int64,
+        device="cuda",
+    )
 
     prev_pos = 0
     eos_reached = torch.tensor([False] * bsz, device="cuda")
@@ -143,9 +149,7 @@ def generate(model,
                 reduction="none",
                 ignore_index=pad_id,
             )
-        eos_reached |= (~input_text_mask[:, cur_pos]) & (
-            next_token == tokenizer.eos_id
-        )
+        eos_reached |= (~input_text_mask[:, cur_pos]) & (next_token == tokenizer.eos_id)
         prev_pos = cur_pos
         if all(eos_reached):
             break
@@ -159,7 +163,9 @@ def generate(model,
         toks = toks[start : padding[i] + len(prompt_tokens[i]) + max_gen_len]
         probs = None
         if logprobs:
-            probs = token_logprobs[i][start : padding[i] + len(prompt_tokens[i]) + max_gen_len]
+            probs = token_logprobs[i][
+                start : padding[i] + len(prompt_tokens[i]) + max_gen_len
+            ]
         # cut to eos tok if any
         if tokenizer.eos_id in toks:
             eos_idx = toks.index(tokenizer.eos_id)
@@ -223,6 +229,7 @@ def text_completion(
             for t, logprobs_i in zip(generation_tokens, generation_logprobs)
         ]
     return [{"generation": tokenizer.decode(t)} for t in generation_tokens]
+
 
 def chat_completion(
     model,
@@ -319,9 +326,7 @@ def chat_completion(
             {
                 "generation": {
                     "role": "assistant",
-                    "content": tokenizer.decode(t)
-                    if not unsafe
-                    else UNSAFE_ERROR,
+                    "content": tokenizer.decode(t) if not unsafe else UNSAFE_ERROR,
                 },
                 "tokens": [tokenizer.decode(x) for x in t],
                 "logprobs": logprobs_i,
@@ -339,5 +344,3 @@ def chat_completion(
         }
         for t, unsafe in zip(generation_tokens, unsafe_requests)
     ]
-
-    
