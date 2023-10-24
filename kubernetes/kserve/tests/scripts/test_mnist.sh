@@ -61,8 +61,8 @@ function wait_for_kserve_pod() {
     interval="$2"
     start_time=$(date +%s)
     while true; do
-        kserve_pod_status=$(kubectl get pods | grep -o "kserve" || true)
-        if [[ -n "$kserve_pod_status" ]]; then
+        kserve_pod_status=$(kubectl get pods -n kserve --no-headers -o custom-columns=":status.phase")
+        if [[ "$pod_status" == "Running" ]]; then
             break
         fi
         current_time=$(date +%s)
@@ -80,7 +80,9 @@ function wait_for_pod_running() {
     interval=5
     start_time=$(date +%s)
     while true; do
-        pod_status=$(kubectl get pod "$pod_name" -o jsonpath='{.status.phase}' || true)
+        pod_description=$(kubectl describe pod "$pod_name")
+        status_line=$(echo "$pod_description" | grep -E "Status:")
+        pod_status=$(echo "$status_line" | awk '{print $2}')
         if [[ "$pod_status" == "Running" ]]; then
             break
         fi
