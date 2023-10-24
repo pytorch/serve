@@ -15,7 +15,7 @@ CURR_FILE_PATH = Path(__file__).parent
 LLAMA_PATH = CURR_FILE_PATH.parents[1] / "examples" / "large_models" / "tp_llama"
 sys.path.append(LLAMA_PATH.as_posix())
 
-converted_checkpoints_path = "converted_checkpoints"
+converted_checkpoints_path = "llama/converted_checkpoints"
 
 YAML_CONFIG = f"""
 #frontend settings
@@ -31,8 +31,8 @@ torchrun:
 
 handler:
     converted_ckpt_dir: "{converted_checkpoints_path}"
-    tokenizer_path: "{converted_checkpoints_path}/tokenizer.model"
-    model_args_path: "{converted_checkpoints_path}/model_args.json"
+    tokenizer_path: "llama/tokenizer.model"
+    model_args_path: "llama/model_args.json"
     max_new_tokens: 50
     temperature: 0.0
     top_p: 0.9
@@ -66,21 +66,37 @@ def call_handler(rank: int, world_size: int, queue: Queue, yaml_path: str):
 
     handler.context = ctx
 
+    def run_inference(requests):
+        results = []
+        for _ in range(50):
+            out = handler.preprocess(requests)
+            out = handler.inference(out)
+            ret = handler.postprocess(out)
+
+            results.append([r["ids"][0] for r in ret])
+
+        return [[r[i] for r in results] for i in range(len(requests))]
+
+    # Combine two sequences
     handler.context.request_ids = OrderedDict(((0, "id1"), (1, "id2")))
 
-    requests = [
-        {"data": {"prompt": "The capital of France"}},
-        {"data": {"prompt": "what is the recipes for Mayonnaise?"}},
-    ]
+    sequences = run_inference(
+        [
+            {"data": {"prompt": "The capital of France"}},
+            {"data": {"prompt": "what is the recipes for Mayonnaise?"}},
+        ]
+    )
+    queue.put([handler.tokenizer.decode(s) for s in sequences])
 
-    results = [[], []]
-    for _ in range(10):
-        out = handler.preprocess(requests)
-        out = handler.inference(out)
-        ret = handler.postprocess(out)
-        results[0].extend(ret[0]["ids"])
-        results[1].extend(ret[1]["ids"])
-    queue.put([handler.tokenizer.decode(r) for r in results])
+    # Send the shorter sequence again to to see if it generates the same output now without padding
+    handler.context.request_ids = OrderedDict(((0, "id3"),))
+
+    sequences = run_inference(
+        [
+            {"data": {"prompt": "The capital of France"}},
+        ]
+    )
+    queue.put([handler.tokenizer.decode(s) for s in sequences])
 
 
 @pytest.mark.skipif(
@@ -118,12 +134,21 @@ def test_tensor_parallel_llama(tmp_path):
     while not q.empty():
         results.append(q.get())
 
-    assert len(results) == 2
+    assert len(results) == 4
 
-    print(results[0])
+    assert (
+        results[0][0]
+        == ", Paris, is a city of romance, art, and culture. It is also a city of fashion, food, and fun. Paris is a city that has something for everyone.\nParis is a city that is full of history."
+    )
+    assert (
+        results[0][1]
+        == "\nI have a recipe for mayonnaise that I use all the time. It is very easy and tastes great.\n1. In a bowl, whisk together the egg yolks, mustard, lemon ju"
+    )
 
-    # assert results[0][0]["generation"] == ", Paris, is a city of romance, art, and culture. It is also a city of fashion, food, and fun. Paris is a city that has something for everyone.\nParis is a city that is full of history."
-    # assert results[0][1]["generation"] == "\nI have a recipe for mayonnaise that I use all the time. It is very easy and tastes great.\n1. In a bowl, whisk together the egg yolks, mustard, lemon ju"
+    assert (
+        results[2][0]
+        == ", Paris, is a city of romance, art, and culture. It is also a city of fashion, food, and fun. Paris is a city that has something for everyone.\nParis is a city that is full of history."
+    )
 
 
 @patch("llama_handler.torch.distributed.init_process_group")
@@ -215,7 +240,7 @@ def test_clean_cache(mocker):
     handler = LlamaHandler()
 
     handler.context = mocker.MagicMock(name="context")
-    handler.context.request_ids = {f"id{k}": "" for k in [1, 2, 3]}
+    handler.context.request_ids = {k: f"id{k+1}" for k in range(3)}
 
     handler.batch_idx_to_req_ids = ["id5", "id1", None, "id2", "id3", None, "id4", None]
     handler.max_bsz = len(handler.batch_idx_to_req_ids)

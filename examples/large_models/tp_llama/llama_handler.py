@@ -201,9 +201,7 @@ class LlamaHandler(BaseHandler, ABC):
             (self.context.cache[req_id]["encoded"], next_token.view(1)), dim=-1
         )
 
-        result = {
-            req_id: {"ids": self.context.cache[req_id]["encoded"].view(-1).tolist()}
-        }
+        result = {req_id: {"ids": next_token.view(-1).tolist()}}
 
         self.context.cache[req_id]["padding"] = 0
 
@@ -212,7 +210,6 @@ class LlamaHandler(BaseHandler, ABC):
     @torch.no_grad()
     def _run_decode(self, ids):
         assert len(ids)
-        print(self.batch_idx_to_req_ids)
 
         encoded, padding = self._prepare_model_inputs(ids)
 
@@ -255,11 +252,13 @@ class LlamaHandler(BaseHandler, ABC):
             for idx, (old_pad, new_pad) in enumerate(zip(old_padding, new_padding)):
                 seqlen = prompt_lengths[idx]
                 l.attention.cache_k[
-                    idx, new_pad : new_pad + seqlen, ...
-                ] = l.attention.cache_k[idx, old_pad : old_pad + seqlen, ...]
+                    idx, new_pad : new_pad + seqlen
+                ] = l.attention.cache_k[idx, old_pad : old_pad + seqlen].clone()
                 l.attention.cache_v[
-                    idx, new_pad : new_pad + seqlen, ...
-                ] = l.attention.cache_v[idx, old_pad : old_pad + seqlen, ...]
+                    idx, new_pad : new_pad + seqlen
+                ] = l.attention.cache_v[idx, old_pad : old_pad + seqlen].clone()
+                l.attention.cache_k[idx, :new_pad] = 0
+                l.attention.cache_v[idx, :new_pad] = 0
 
         for req_id, new_pad in zip(ids, new_padding):
             self.context.cache[req_id]["padding"] = new_pad
