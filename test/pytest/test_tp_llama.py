@@ -379,6 +379,7 @@ def test_prepare_model_inputs(mocker):
     from llama_handler import LlamaHandler
 
     handler = LlamaHandler()
+    handler.device = device
 
     handler.batch_idx_to_req_ids = ["id5", "id1", None, "id2", "id3", None, "id4", None]
     handler.max_bsz = len(handler.batch_idx_to_req_ids)
