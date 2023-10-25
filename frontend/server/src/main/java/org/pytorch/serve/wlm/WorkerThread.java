@@ -209,10 +209,9 @@ public class WorkerThread implements Runnable {
                 for (int i = 0; backendChannel.size() > 0 && i < repeats; i++) {
                     backendChannel.get(i).writeAndFlush(req).sync();
                 }
-                if(req instanceof ModelInferenceRequest){
-                    ((ModelInferenceRequest)req).setCachedInBackend(true);
+                if (req instanceof ModelInferenceRequest) {
+                    ((ModelInferenceRequest) req).setCachedInBackend(true);
                 }
-
 
                 ModelWorkerResponse reply = null;
 

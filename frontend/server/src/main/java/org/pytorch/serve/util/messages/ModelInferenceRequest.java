@@ -24,7 +24,7 @@ public class ModelInferenceRequest extends BaseModelRequest {
         batch.add(req);
     }
 
-    public void setCachedInBackend(boolean cached){
+    public void setCachedInBackend(boolean cached) {
         for (RequestInput input : batch) {
             input.setCachedInBackend(cached);
         }
