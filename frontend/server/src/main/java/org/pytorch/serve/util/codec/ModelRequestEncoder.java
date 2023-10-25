@@ -76,7 +76,7 @@ public class ModelRequestEncoder extends MessageToByteEncoder<BaseModelRequest> 
         out.writeInt(buf.length);
         out.writeBytes(buf);
 
-        if (req.isCached()) {
+        if (req.isCachedInBackend()) {
             out.writeInt(-1); // End of List
             out.writeInt(-1); // End of List
             return;
@@ -92,7 +92,6 @@ public class ModelRequestEncoder extends MessageToByteEncoder<BaseModelRequest> 
             encodeParameter(input, out);
         }
         out.writeInt(-1); // End of List
-        req.setCached(true);
     }
 
     private void encodeParameter(InputParameter parameter, ByteBuf out) {

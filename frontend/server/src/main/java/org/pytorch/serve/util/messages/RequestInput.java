@@ -73,11 +73,11 @@ public class RequestInput {
         }
     }
 
-    public boolean isCached() {
+    public boolean isCachedInBackend() {
         return cached;
     }
 
-    public void setCached(boolean cached) {
+    public void setCachedInBackend(boolean cached) {
         this.cached = cached;
     }
 }
