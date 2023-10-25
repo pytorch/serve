@@ -1,4 +1,5 @@
 import json
+import platform
 import shutil
 from argparse import Namespace
 from pathlib import Path
@@ -130,6 +131,9 @@ def register_model(mar_file_path, model_store, torchserve):
     test_utils.unregister_model(model_name)
 
 
+@pytest.mark.skipif(
+    platform.system() != "Linux", reason="Skipping test on non-Linux system"
+)
 def test_tp_inference(model_name):
     """
     Full circle test with torchserve
