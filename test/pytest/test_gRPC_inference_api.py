@@ -1,5 +1,6 @@
 import json
 import os
+import threading
 from ast import literal_eval
 
 import inference_pb2
@@ -9,6 +10,7 @@ import test_utils
 
 inference_data_json = "../postman/inference_data.json"
 inference_stream_data_json = "../postman/inference_stream_data.json"
+inference_stream2_data_json = "../postman/inference_stream2_data.json"
 
 
 def setup_module(module):
@@ -153,6 +155,87 @@ def test_inference_stream_apis():
 
         if "expected" in item:
             assert str(prediction) == str(item["expected"])
+
+        response = managment_stub.UnregisterModel(
+            management_pb2.UnregisterModelRequest(
+                model_name=item["model_name"],
+            )
+        )
+
+        print(response.msg)
+
+
+def __infer_stream2(stub, model_name, sequence_id, expected):
+    request_iterator = iter(
+        [
+            inference_pb2.PredictionsRequest(
+                model_name=model_name, input={"data": 1}, sequence_id=sequence_id
+            ),
+            inference_pb2.PredictionsRequest(
+                model_name=model_name, input={"data": 2}, sequence_id=sequence_id
+            ),
+            inference_pb2.PredictionsRequest(
+                model_name=model_name, input={"data": 3}, sequence_id=sequence_id
+            ),
+        ]
+    )
+    responses_iterator = stub.StreamPredictions2(request_iterator)
+
+    prediction = []
+    for resp in responses_iterator:
+        prediction.append(resp.prediction.decode("utf-8"))
+
+    assert str(" ".join(prediction)) == expected
+
+
+def test_inference_stream2_apis():
+    with open(
+        os.path.join(os.path.dirname(__file__), inference_stream2_data_json), "rb"
+    ) as f:
+        test_data = json.loads(f.read())
+
+    for item in test_data:
+        if item["url"].startswith("{{mar_path_"):
+            path = test_utils.mar_file_table[item["url"][2:-2]]
+        else:
+            path = item["url"]
+
+        managment_stub = test_gRPC_utils.get_management_stub()
+        response = managment_stub.RegisterModel(
+            management_pb2.RegisterModelRequest(
+                url=path,
+                initial_workers=item["worker"],
+                synchronous=bool(item["synchronous"]),
+                model_name=item["model_name"],
+            )
+        )
+
+        print(response.msg)
+
+        t0 = threading.Thread(
+            target=__infer_stream2,
+            args=(
+                test_gRPC_utils.get_inference_stub(),
+                item["model_name"],
+                "seq_0",
+                str(item["expected"]),
+            ),
+        )
+        t1 = threading.Thread(
+            target=__infer_stream2,
+            args=(
+                test_gRPC_utils.get_inference_stub(),
+                item["model_name"],
+                "seq_1",
+                str(item["expected"]),
+            ),
+        )
+
+        t0.start()
+        t1.start()
+
+        t0.join()
+        t1.join()
 
         response = managment_stub.UnregisterModel(
             management_pb2.UnregisterModelRequest(

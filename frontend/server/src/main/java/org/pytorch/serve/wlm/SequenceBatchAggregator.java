@@ -155,4 +155,8 @@ public class SequenceBatchAggregator extends BatchAggregator {
                     job.getGroupId());
         }
     }
+
+    public void shutdownExecutors() {
+        this.pollExecutors.shutdown();
+    }
 }

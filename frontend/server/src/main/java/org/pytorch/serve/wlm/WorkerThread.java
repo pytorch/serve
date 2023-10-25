@@ -200,7 +200,7 @@ public class WorkerThread implements Runnable {
                         isLoadRequest(workerCmd) || isTensorParallelRequest(workerCmd)
                                 ? model.getParallelLevel() > 0 ? model.getParallelLevel() : 1
                                 : 1;
-                logger.info(
+                logger.debug(
                         "Flushing req.cmd {} repeats {} to backend at: {}",
                         workerCmd,
                         repeats,
@@ -230,29 +230,6 @@ public class WorkerThread implements Runnable {
 
                 do {
                     long begin = System.currentTimeMillis();
-                    /*
-                    List<CompletableFuture<ModelWorkerResponse>> futureResponses =
-                            new ArrayList<>(repeats);
-                    for (int i = 0; i < repeats; i++) {
-                        futureResponses.add(
-                                CompletableFuture.supplyAsync(
-                                        () -> {
-                                            try {
-                                                return replies.poll(
-                                                        responseTimeout, TimeUnit.SECONDS);
-                                            } catch (InterruptedException e) {
-                                                logger.error(
-                                                        "Failed to get response from backend", e);
-                                            }
-                                            return null;
-                                        }));
-                    }
-
-                    CompletableFuture<Object> anyDoneFuture =
-                            CompletableFuture.anyOf(
-                                    futureResponses.toArray(new CompletableFuture<?>[0]));
-                    reply = (ModelWorkerResponse) anyDoneFuture.get();
-                    */
                     for (int i = 0; i < repeats; i++) {
                         reply = replies.poll(responseTimeout, TimeUnit.SECONDS);
                     }
@@ -261,7 +238,6 @@ public class WorkerThread implements Runnable {
 
                     if (reply != null) {
                         jobDone = aggregator.sendResponse(reply);
-                        logger.debug("sent a reply, jobdone: {}", jobDone);
                     } else if (req.getCommand() != WorkerCommands.DESCRIBE) {
                         int val = model.incrFailedInfReqs();
                         logger.error("Number or consecutive unsuccessful inference {}", val);
@@ -510,6 +486,9 @@ public class WorkerThread implements Runnable {
                     null, "Worker scaled down.", HttpURLConnection.HTTP_INTERNAL_ERROR);
 
             model.removeJobQueue(workerId);
+        }
+        if (aggregator instanceof SequenceBatchAggregator) {
+            ((SequenceBatchAggregator) aggregator).shutdownExecutors();
         }
     }
 
