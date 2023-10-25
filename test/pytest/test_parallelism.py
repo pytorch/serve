@@ -11,20 +11,20 @@ import test_utils
 CURR_FILE_PATH = Path(__file__).parent
 REPO_ROOT_DIR = CURR_FILE_PATH.parent.parent
 
-MODEL_PY="""
+MODEL_PY = """
 import torch
 import torch.nn as nn
 
 class Foo(nn.Module):
     def __init__(self):
         super().__init__()
-    
+
     def forward(self, x):
         torch.distributed.all_reduce(x)
         return x
 """
 
-HANDLER_PY="""
+HANDLER_PY = """
 import os
 import torch
 from ts.torch_handler.base_handler import BaseHandler
@@ -35,10 +35,10 @@ class FooHandler(BaseHandler):
             torch.distributed.init_process_group("gloo")
         torch.set_default_device("cpu")
         super().initialize(ctx)
-        
+
     def preprocess(self, data):
         return torch.as_tensor(int(data[0].get('body').decode('utf-8')), device=self.device)
-        
+
     def postprocess(self, x):
         return [x.item()]
 """
@@ -52,6 +52,7 @@ torchrun:
     nproc-per-node: 4
 """
 
+
 @pytest.fixture(scope="module")
 def model_name():
     yield "tp_model"
@@ -62,21 +63,19 @@ def work_dir(tmp_path_factory, model_name):
     return Path(tmp_path_factory.mktemp(model_name))
 
 
-@pytest.fixture(
-    scope="module", name="mar_file_path"
-)
+@pytest.fixture(scope="module", name="mar_file_path")
 def create_mar_file(work_dir, model_archiver, model_name):
     mar_file_path = work_dir.joinpath(model_name + ".mar")
-    
+
     model_config_yaml_file = work_dir / "model_config.yaml"
     model_config_yaml_file.write_text(MODEL_CONFIG_YAML)
-        
+
     model_py_file = work_dir / "model.py"
     model_py_file.write_text(MODEL_PY)
-    
+
     handler_py_file = work_dir / "handler.py"
     handler_py_file.write_text(HANDLER_PY)
-    
+
     args = Namespace(
         model_name=model_name,
         version="1.0",
@@ -139,7 +138,7 @@ def test_tp_inference(model_name):
     response = requests.post(
         url=f"http://localhost:8080/predictions/{model_name}", data=json.dumps(42)
     )
-    
+
     assert int(response.text) == 4 * 42
 
     assert response.status_code == 200
