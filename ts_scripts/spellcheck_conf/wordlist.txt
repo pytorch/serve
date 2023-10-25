@@ -162,7 +162,10 @@ CN
 CORS
 EventLoopGroup
 EventLoops
+CPUs
 GPUs
+TPU
+TPUs
 JVM
 MaxDirectMemorySize
 OU
@@ -1127,4 +1130,10 @@ sequenceMaxIdleMSec
 stateful
 tgz
 bitsandbytes
-
+Datadog
+Trn
+oneAPI
+Naver
+FlashAttention
+GenAI
+prem
