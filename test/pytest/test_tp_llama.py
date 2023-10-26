@@ -1,12 +1,16 @@
 import json
 import os
+import shutil
 import sys
+from argparse import Namespace
 from collections import OrderedDict
 from multiprocessing import Process, Queue
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 import pytest
+import requests
+import test_utils
 import torch
 import yaml
 
@@ -17,6 +21,8 @@ LLAMA_PATH = CURR_FILE_PATH.parents[1] / "examples" / "large_models" / "tp_llama
 sys.path.append(LLAMA_PATH.as_posix())
 
 converted_checkpoints_path = "converted_checkpoints"
+llama_path = "llama"
+LLAMA_MODEL_PATH = LLAMA_PATH / llama_path
 
 YAML_CONFIG = f"""
 #frontend settings
@@ -26,14 +32,15 @@ maxBatchDelay: 200
 responseTimeout: 300
 parallelType: "tp"
 deviceType: "gpu"
+continuousBatching: true
 
 torchrun:
-    nproc-per-node: 1
+    nproc-per-node: 2
 
 handler:
-    converted_ckpt_dir: "{converted_checkpoints_path}"
-    tokenizer_path: "{converted_checkpoints_path}/tokenizer.model"
-    model_args_path: "{converted_checkpoints_path}/model_args.json"
+    converted_ckpt_dir: "{llama_path}/{converted_checkpoints_path}"
+    tokenizer_path: "{llama_path}/tokenizer.model"
+    model_args_path: "{llama_path}/model_args.json"
     max_new_tokens: 50
     temperature: 0.0
     top_p: 0.9
@@ -41,18 +48,52 @@ handler:
     mode: "text_completion" #choices are text_completion, chat
 """
 
+PROMPTS = [
+    {
+        "prompt": "The capital of France",
+        "max_new_tokens": 5,
+    },
+    {
+        "prompt": "what is the recipes for Mayonnaise?",
+        "max_new_tokens": 10,
+    },
+    {
+        "prompt": "Europe is",
+        "max_new_tokens": 10,
+    },
+    {
+        "prompt": "The US are",
+        "max_new_tokens": 15,
+    },
+    {
+        "prompt": "When travelling to NYC",
+        "max_new_tokens": 5,
+    },
+]
+
 EXPECTED_RESULTS = {
-    32:
-        [
-            ", Paris, is a city of romance, art, and culture. It is also a city of fashion, food, and fun. Paris is a city that has something for everyone.\nParis is a city that is full of history.",
-            "\nI have a recipe for mayonnaise that I use all the time. It is very easy and tastes great.\n1. In a bowl, whisk together the egg yolks, mustard, lemon ju",
-        ],
-    40:
-        [
-            ", Paris is a city of romance, fashion, and culture. It is a city that is full of life and energy, and it is a place that is sure to leave you with memories that will last a lifetime.\nParis is",
-            "\nMayonnaise is a thick, creamy sauce made from egg yolks, oil, and vinegar. It is used as a condiment or as a base for other sauces.\nMayonnaise is a thick,",
-        ],
+    32: [
+        ", Paris, is a city of romance, art, and culture. It is also a city of fashion, food, and fun. Paris is a city that has something for everyone.\nParis is a city that is full of history.",
+        "\nI have a recipe for mayonnaise that I use all the time. It is very easy and tastes great.\n1. In a bowl, whisk together the egg yolks, mustard, lemon ju",
+        " a continent located entirely in the Northern Hemisphere",
+        " the only country in the world that has a law that says that you can",
+        ", you’ll find",
+    ],
+    40: [
+        ", Paris is a city of romance, fashion, and culture. It is a city that is full of life and energy, and it is a place that is sure to leave you with memories that will last a lifetime.\nParis is",
+        "\nMayonnaise is a thick, creamy sauce made from egg yolks, oil, and vinegar. It is used as a condiment or as a base for other sauces.\nMayonnaise is a thick,",
+        " a continent of contrasts. It is a continent",
+        " the world’s largest producer of oil and natural gas. The US is",
+        ", I always try to,",
+    ],
 }
+
+
+def no_converted_checkoint_available():
+    return {
+        "condition": not (LLAMA_MODEL_PATH / converted_checkpoints_path).exists(),
+        "reason": f"Required files are not present {(LLAMA_MODEL_PATH / converted_checkpoints_path).as_posix()}",
+    }
 
 
 def call_handler(rank: int, world_size: int, queue: Queue, yaml_path: str):
@@ -96,8 +137,8 @@ def call_handler(rank: int, world_size: int, queue: Queue, yaml_path: str):
 
     sequences = run_inference(
         [
-            {"data": {"prompt": "The capital of France"}},
-            {"data": {"prompt": "what is the recipes for Mayonnaise?"}},
+            {"data": json.dumps({"prompt": PROMPTS[0]["prompt"]})},
+            {"data": json.dumps({"prompt": PROMPTS[1]["prompt"]})},
         ]
     )
     queue.put([handler.tokenizer.decode(s) for s in sequences])
@@ -107,25 +148,22 @@ def call_handler(rank: int, world_size: int, queue: Queue, yaml_path: str):
 
     sequences = run_inference(
         [
-            {"data": {"prompt": "The capital of France"}},
+            {"data": json.dumps({"prompt": PROMPTS[0]["prompt"]})},
         ]
     )
     queue.put([handler.tokenizer.decode(s) for s in sequences])
 
 
-@pytest.mark.skipif(
-    not (LLAMA_PATH / converted_checkpoints_path).exists(),
-    reason=f"Required files are not present {(LLAMA_PATH / converted_checkpoints_path).as_posix()}",
-)
+@pytest.mark.skipif(**no_converted_checkoint_available())
 def test_tensor_parallel_llama(tmp_path):
     world_size = 2
 
     model_config_yaml = tmp_path / "model-config.yaml"
     model_config_yaml.write_text(YAML_CONFIG)
-    
-    with open(LLAMA_PATH / converted_checkpoints_path / "model_args.json") as f:
+
+    with open(LLAMA_MODEL_PATH / "model_args.json") as f:
         n_layers = json.load(f)["n_layers"]
-        
+
     expected = EXPECTED_RESULTS[n_layers]
 
     q = Queue()
@@ -202,9 +240,11 @@ def test_handler(build, ipg, tmp_path, mocker):
     ctx.cache = {
         "id1": {
             "encoded": torch.randint(42, (3,), device=device),
+            "text": "text",
         },
         "id2": {
             "encoded": torch.randint(42, (8,), device=device),
+            "text": "text",
         },
     }
 
@@ -441,3 +481,125 @@ def test_prepare_model_inputs(mocker):
     assert handler.model.layers[0].attention.cache_k.equal(
         handler.model.layers[0].attention.cache_v
     )
+
+
+@pytest.fixture(scope="module")
+def model_name():
+    yield "llama_handler"
+
+
+@pytest.fixture(scope="module")
+def work_dir(tmp_path_factory, model_name):
+    return tmp_path_factory.mktemp(model_name)
+
+
+@pytest.fixture(scope="module", name="mar_file_path")
+def create_mar_file(work_dir, model_archiver, model_name):
+    mar_file_path = Path(work_dir).joinpath(model_name)
+
+    model_config_yaml = Path(work_dir) / "model-config.yaml"
+    model_config_yaml.write_text(YAML_CONFIG)
+
+    args = Namespace(
+        model_name=model_name,
+        version="1.0",
+        model_file=CURR_FILE_PATH.joinpath(
+            "test_data", "streaming", "fake_streaming_model.py"
+        ).as_posix(),
+        handler=(LLAMA_PATH / "llama_handler.py").as_posix(),
+        serialized_file=None,
+        export_path=work_dir,
+        requirements_file=None,
+        runtime="python",
+        force=False,
+        config_file=model_config_yaml.as_posix(),
+        extra_files=",".join(
+            [
+                (LLAMA_PATH / f).as_posix()
+                for f in "llama2.py,llama2_tokenizer.py,generate.py,checkpoint_converter.py".split(
+                    ","
+                )
+            ]
+        ),
+        archive_format="no-archive",
+    )
+
+    mock = MagicMock()
+    mock.parse_args = MagicMock(return_value=args)
+    with patch("archiver.ArgParser.export_model_args_parser", return_value=mock):
+        model_archiver.generate_model_archive()
+
+        assert mar_file_path.exists()
+
+        yield mar_file_path.as_posix()
+
+    # Clean up files
+    shutil.rmtree(mar_file_path)
+
+
+@pytest.fixture(scope="module", name="model_name_and_stdout")
+def register_model(mar_file_path, model_store, torchserve):
+    """
+    Register the model in torchserve
+    """
+
+    file_name = Path(mar_file_path).name
+
+    model_name = Path(file_name).stem
+
+    shutil.copytree(mar_file_path, Path(model_store) / model_name)
+
+    os.symlink(LLAMA_MODEL_PATH, Path(model_store) / model_name / llama_path)
+
+    params = (
+        ("model_name", model_name),
+        ("url", Path(model_store) / model_name),
+        ("initial_workers", "1"),
+        ("synchronous", "true"),
+        ("batch_size", "2"),
+    )
+
+    test_utils.reg_resp = test_utils.register_model_with_params(params)
+
+    yield model_name, torchserve
+
+    test_utils.unregister_model(model_name)
+
+
+@pytest.mark.skipif(**no_converted_checkoint_available())
+def test_continuous_batching_tp_llama(model_name_and_stdout):
+    model_name, _ = model_name_and_stdout
+    responses = []
+
+    for d in PROMPTS:
+        res = requests.post(
+            url=f"http://localhost:8080/predictions/{model_name}",
+            data=json.dumps(d),
+            stream=True,
+        )
+
+        responses.append(res)
+    assert all(r.headers["Transfer-Encoding"] == "chunked" for r in responses)
+
+    all_predictions = []
+    for idx in range(len(PROMPTS)):
+        prediction = []
+        for chunk in responses[idx].iter_content(chunk_size=None):
+            if chunk:
+                prediction.append(chunk.decode("utf-8"))
+        prediction = [json.loads(p) for p in prediction]
+        all_predictions.append(
+            {
+                "text": "".join(p["text"] for p in prediction),
+                "ids": [p["ids"] for p in prediction],
+            }
+        )
+
+    with open(LLAMA_MODEL_PATH / "model_args.json") as f:
+        n_layers = json.load(f)["n_layers"]
+
+    expected = EXPECTED_RESULTS[n_layers]
+
+    for i in range(len(PROMPTS)):
+        assert len(all_predictions[i]["ids"]) == PROMPTS[i]["max_new_tokens"]
+        assert expected[i].startswith(all_predictions[i]["text"])

@@ -107,10 +107,9 @@ class LlamaHandler(BaseHandler, ABC):
             # Tokenizer requests which are not prefilled yet
             if not req_id in self.context.cache:
                 data = req_data.get("data") or req_data.get("body")
-                input_text = self.prep_input_text(data["prompt"])
-                logger.debug("Received text: '%s'", input_text)
+                data = self.prep_input_text(data)
 
-                encoded = self.tokenizer.encode(input_text, bos=True, eos=False)
+                encoded = self.tokenizer.encode(data["prompt"], bos=True, eos=False)
 
                 encoded = torch.tensor(encoded, dtype=torch.long, device=self.device)
 
@@ -124,6 +123,7 @@ class LlamaHandler(BaseHandler, ABC):
                     ),
                     "encoded": encoded,
                     "prompt_length": encoded.size(-1),
+                    "text": data["prompt"],
                 }
                 prefill.append(req_id)
             else:
@@ -138,21 +138,17 @@ class LlamaHandler(BaseHandler, ABC):
         Returns:
             decoded input text
         """
-        if self.mode == "chat":
-            try:
-                return json.loads(input_text)
-            except json.JSONDecodeError:
-                raise ValueError(f"Invalid JSON format in text: {input_text}")
-
-        elif self.mode == "text_completion":
+        if self.mode in ["text_completion", "chat"]:
             try:
                 if isinstance(input_text, (bytes, bytearray)):
                     input_text = input_text.decode("utf-8")
-                return input_text
+                return json.loads(input_text)
             except TypeError:
                 raise ValueError(
-                    "Expected input_texts to contain text (string) values."
+                    f"Expected input_texts to contain text (string) values: {input_text}"
                 )
+            except json.JSONDecodeError:
+                raise ValueError(f"Invalid JSON format in text: {input_text}")
         else:
             raise NotImplementedError("Unsupported mode. Please select a valid mode.")
 
@@ -203,7 +199,14 @@ class LlamaHandler(BaseHandler, ABC):
             (self.context.cache[req_id]["encoded"], next_token.view(1)), dim=-1
         )
 
-        result = {req_id: {"ids": next_token.view(-1).tolist()}}
+        current_text = self.tokenizer.decode(
+            self.context.cache[req_id]["encoded"].view(-1).tolist()
+        )
+        prev_text_len = len(self.context.cache[req_id]["text"])
+        new_text = current_text[prev_text_len:]
+        self.context.cache[req_id]["text"] = current_text
+
+        result = {req_id: {"text": new_text, "ids": next_token.view(-1).tolist()}}
 
         self.context.cache[req_id]["padding"] = 0
 
@@ -227,7 +230,19 @@ class LlamaHandler(BaseHandler, ABC):
             self.context.cache[req_id]["encoded"] = torch.concat(
                 (self.context.cache[req_id]["encoded"], next_token[idx].view(1)), dim=-1
             )
-            results[req_id] = {"ids": next_token[idx].view(1).tolist()}
+
+            current_text = self.tokenizer.decode(
+                self.context.cache[req_id]["encoded"].view(-1).tolist()
+            )
+            prev_text_len = len(self.context.cache[req_id]["text"])
+            new_text = current_text[prev_text_len:]
+            self.context.cache[req_id]["text"] = current_text
+
+            results[req_id] = {
+                "text": new_text,
+                "ids": next_token[idx].view(1).tolist(),
+            }
+
         return results
 
     @torch.no_grad()
