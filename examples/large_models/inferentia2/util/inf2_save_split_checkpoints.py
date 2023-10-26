@@ -43,10 +43,24 @@ parser.add_argument(
 )
 subparsers = parser.add_subparsers(dest="subparser")
 parser_neuron_cache = subparsers.add_parser("generate_neuron_cache")
-parser_neuron_cache.add_argument("--neuron_cache_dir", type=str, required=True)
-parser_neuron_cache.add_argument("--batch_size", type=int, required=True)
-parser_neuron_cache.add_argument("--amp", type=str, required=True)
-parser_neuron_cache.add_argument("--tp_degree", type=int, required=True)
+parser_neuron_cache.add_argument(
+    "--neuron_cache_dir",
+    type=str,
+    required=True,
+    help="Target directory to store neuronx-cc compiled model",
+)
+parser_neuron_cache.add_argument(
+    "--batch_size", type=int, required=True, help="Batch size for the compiled model"
+)
+parser_neuron_cache.add_argument(
+    "--amp", type=str, required=True, help="Automatic mixed precision"
+)
+parser_neuron_cache.add_argument(
+    "--tp_degree",
+    type=int,
+    required=True,
+    help="Tensor parallelism degree for the compiled model",
+)
 args = parser.parse_args()
 
 save_path = create_directory_if_not_exists(args.save_path)

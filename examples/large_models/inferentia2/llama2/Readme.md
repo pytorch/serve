@@ -10,9 +10,9 @@ The batch size and micro batch size configurations are present in [model-config.
 The batch size is chosen to be a relatively large value, say 16 since micro batching enables running the preprocess(tokenization) and inference steps in parallel on the micro batches. The micro batch size is the batch size used for the Inf2 model compilation.
 Since compilation batch size can influence compile time and also constrained by the Inf2 instance type, this is chosen to be a relatively smaller value, say 4.
 
-This example also demonstrates the utilization of neuronx cache to store inf2 model compilation artifacts using the `NEURONX_CACHE` and `NEURONX_DUMP_TO` environment variables in the custom handler.
-When the model is loaded for the first time, the model is compiled for the configured micro batch size and the compilation artifacts are saved to the neuronx cache.
-On subsequent model load, the compilation artifacts in the neuronx cache serves as `Ahead of Time(AOT)` compilation artifacts and significantly reduces the model load time.
+This example also demonstrates the utilization of [Neuron Persistent Cache](https://awsdocs-neuron.readthedocs-hosted.com/en/latest/general/arch/neuron-features/neuron-caching.html) for inf2 model compilation artifacts using the `NEURONX_CACHE` and `NEURONX_DUMP_TO` environment variables.
+When the model is loaded for the first time, the model is compiled for the configured micro batch size and the compilation artifacts are saved to the neuron persistent cache.
+On subsequent model load, the compilation artifacts in the neuron persistent cache serve as `Ahead of Time(AOT)` compilation artifacts and significantly reduces the model load time.
 For convenience, the compiled model artifacts for this example are made available on the Torchserve model zoo: `s3://torchserve/mar_files/llama-2-13b-neuronx-b4`\
 Instructions on how to use the AOT compiled model artifacts is shown below.
 
