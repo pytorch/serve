@@ -36,5 +36,5 @@ jobs:
         with:
           repository: kserve/kserve
           path: kserve
-      - name: Test torchserve-kfs
+      - name: Validate torchserve-kfs
         run: ./kubernetes/kserve/tests/scripts/test_mnist.sh
