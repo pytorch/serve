@@ -1,9 +1,11 @@
-[
+{
+    "dialog":
     [
         {
             "role": "user",
             "content": "what is the recipe of mayonnaise?"
         }
-    ]
-    
-]
+    ],
+    "max_new_tokens": 50,
+    "mode":"chat"
+}

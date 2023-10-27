@@ -28,6 +28,13 @@ else:
     )
 
 
+B_INST, E_INST = "[INST]", "[/INST]"
+B_SYS, E_SYS = "<<SYS>>\n", "\n<</SYS>>\n\n"
+
+SPECIAL_TAGS = [B_INST, E_INST, "<<SYS>>", "<</SYS>>"]
+UNSAFE_ERROR = "Error: special tags are not allowed as part of the prompt."
+
+
 class LlamaHandler(BaseHandler, ABC):
     """
     Transformers handler class for sequence, token classification and question answering.
@@ -58,7 +65,6 @@ class LlamaHandler(BaseHandler, ABC):
         model_dir = properties.get("model_dir")
 
         seed = ctx.model_yaml_config["handler"]["manual_seed"]
-        self.mode = ctx.model_yaml_config["handler"]["mode"]
         self.max_new_tokens = ctx.model_yaml_config["handler"]["max_new_tokens"]
         self.temperature = ctx.model_yaml_config["handler"]["temperature"]
         self.top_p = ctx.model_yaml_config["handler"]["top_p"]
@@ -107,50 +113,24 @@ class LlamaHandler(BaseHandler, ABC):
             # Tokenizer requests which are not prefilled yet
             if not req_id in self.context.cache:
                 data = req_data.get("data") or req_data.get("body")
-                data = self.prep_input_text(data)
-
-                encoded = self.tokenizer.encode(data["prompt"], bos=True, eos=False)
-
-                encoded = torch.tensor(encoded, dtype=torch.long, device=self.device)
+                input_data = self._prepare_input_data(data)
 
                 self.context.cache[req_id] = {
                     "stopping_criteria": self._create_stopping_criteria(
                         req_id,
                         max_new_tokens=min(
                             self.max_new_tokens,
-                            data.get("max_new_tokens", self.max_new_tokens),
+                            input_data.get("max_new_tokens", self.max_new_tokens),
                         ),
                     ),
-                    "encoded": encoded,
-                    "prompt_length": encoded.size(-1),
-                    "text": data["prompt"],
+                    "encoded": input_data["encoded"],
+                    "prompt_length": input_data["encoded"].size(-1),
+                    "text": input_data["prompt"],
                 }
                 prefill.append(req_id)
             else:
                 decode.append(req_id)
         return prefill, decode
-
-    def prep_input_text(self, input_text):
-        """
-        preparing a single input text using the tokenizer.
-        Args:
-            input_text (str): The input text to be encoded.
-        Returns:
-            decoded input text
-        """
-        if self.mode in ["text_completion", "chat"]:
-            try:
-                if isinstance(input_text, (bytes, bytearray)):
-                    input_text = input_text.decode("utf-8")
-                return json.loads(input_text)
-            except TypeError:
-                raise ValueError(
-                    f"Expected input_texts to contain text (string) values: {input_text}"
-                )
-            except json.JSONDecodeError:
-                raise ValueError(f"Invalid JSON format in text: {input_text}")
-        else:
-            raise NotImplementedError("Unsupported mode. Please select a valid mode.")
 
     def inference(self, *args):
         """
@@ -179,6 +159,85 @@ class LlamaHandler(BaseHandler, ABC):
             for i in self.context.request_ids.values()
         ]
         return x
+
+    def _prepare_input_data(self, input_text):
+        """
+        preparing a single input text using the tokenizer.
+        Args:
+            input_text (str): The input text to be encoded.
+        Returns:
+            decoded input text
+        """
+        try:
+            if isinstance(input_text, (bytes, bytearray)):
+                input_text = input_text.decode("utf-8")
+
+            input_data = json.loads(input_text)
+
+            if input_data.get("mode", "text_completion") == "chat":
+                return self._prepare_dialog(input_data)
+
+            input_data["encoded"] = self.tokenizer.encode(
+                input_data["prompt"], bos=True, eos=False
+            )
+            input_data["encoded"] = torch.tensor(
+                input_data["encoded"], dtype=torch.long, device=self.device
+            )
+
+            return input_data
+        except TypeError:
+            raise ValueError(
+                f"Expected input_texts to contain text (string) values: {input_text}"
+            )
+        except json.JSONDecodeError:
+            raise ValueError(f"Invalid JSON format in text: {input_text}")
+
+    def _prepare_dialog(self, input_data):
+        dialog = input_data["dialog"]
+        if dialog[0]["role"] == "system":
+            dialog = [
+                {
+                    "role": dialog[1]["role"],
+                    "content": B_SYS
+                    + dialog[0]["content"]
+                    + E_SYS
+                    + dialog[1]["content"],
+                }
+            ] + dialog[2:]
+        assert all([msg["role"] == "user" for msg in dialog[::2]]) and all(
+            [msg["role"] == "assistant" for msg in dialog[1::2]]
+        ), (
+            "model only supports 'system', 'user' and 'assistant' roles, "
+            "starting with 'system', then 'user' and alternating (u/a/u/a/u...)"
+        )
+        dialog_tokens: List[int] = sum(
+            [
+                self.tokenizer.encode(
+                    f"{B_INST} {(prompt['content']).strip()} {E_INST} {(answer['content']).strip()} ",
+                    bos=True,
+                    eos=True,
+                )
+                for prompt, answer in zip(
+                    dialog[::2],
+                    dialog[1::2],
+                )
+            ],
+            [],
+        )
+        assert (
+            dialog[-1]["role"] == "user"
+        ), f"Last message must be from user, got {dialog[-1]['role']}"
+        dialog_tokens += self.tokenizer.encode(
+            f"{B_INST} {(dialog[-1]['content']).strip()} {E_INST}",
+            bos=True,
+            eos=False,
+        )
+        del input_data["dialog"]
+        input_data["prompt"] = self.tokenizer.decode(dialog_tokens)
+        input_data["encoded"] = torch.tensor(
+            dialog_tokens, dtype=torch.long, device=self.device
+        )
+        return input_data
 
     @torch.no_grad()
     def _run_prefill(self, req_id):

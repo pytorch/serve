@@ -45,7 +45,6 @@ handler:
     temperature: 0.0
     top_p: 0.9
     manual_seed: 40
-    mode: "text_completion" #choices are text_completion, chat
 """
 
 PROMPTS = [
@@ -78,6 +77,7 @@ EXPECTED_RESULTS = {
         " a continent located entirely in the Northern Hemisphere",
         " the only country in the world that has a law that says that you can",
         ", you’ll find",
+        "\n[INST] what is the recipe of mayonnaise? [/INST]\n[INST] what is the recipe of mayonnaise?\n[INST] what is the recipe of mayonnaise? [/INST]",
     ],
     40: [
         ", Paris is a city of romance, fashion, and culture. It is a city that is full of life and energy, and it is a place that is sure to leave you with memories that will last a lifetime.\nParis is",
@@ -85,6 +85,7 @@ EXPECTED_RESULTS = {
         " a continent of contrasts. It is a continent",
         " the world’s largest producer of oil and natural gas. The US is",
         ", I always try to,",
+        "\n[INST] what is the recipe of mayonnaise? [/INST]\n[INST] what is the recipe of mayonnaise? [/INST]\n[INST] what is the recipe of mayonnaise?",
     ],
 }
 
@@ -154,15 +155,18 @@ def call_handler(rank: int, world_size: int, queue: Queue, yaml_path: str):
     queue.put([handler.tokenizer.decode(s) for s in sequences])
 
 
+@pytest.fixture
+def n_layers():
+    with open(LLAMA_MODEL_PATH / "model_args.json") as f:
+        return json.load(f)["n_layers"]
+
+
 @pytest.mark.skipif(**no_converted_checkoint_available())
-def test_tensor_parallel_llama(tmp_path):
+def test_tensor_parallel_llama(tmp_path, n_layers):
     world_size = 2
 
     model_config_yaml = tmp_path / "model-config.yaml"
     model_config_yaml.write_text(YAML_CONFIG)
-
-    with open(LLAMA_MODEL_PATH / "model_args.json") as f:
-        n_layers = json.load(f)["n_layers"]
 
     expected = EXPECTED_RESULTS[n_layers]
 
@@ -567,7 +571,7 @@ def register_model(mar_file_path, model_store, torchserve):
 
 
 @pytest.mark.skipif(**no_converted_checkoint_available())
-def test_continuous_batching_tp_llama(model_name_and_stdout):
+def test_continuous_batching_tp_llama(model_name_and_stdout, n_layers):
     model_name, _ = model_name_and_stdout
     responses = []
 
@@ -595,11 +599,31 @@ def test_continuous_batching_tp_llama(model_name_and_stdout):
             }
         )
 
-    with open(LLAMA_MODEL_PATH / "model_args.json") as f:
-        n_layers = json.load(f)["n_layers"]
-
     expected = EXPECTED_RESULTS[n_layers]
 
     for i in range(len(PROMPTS)):
         assert len(all_predictions[i]["ids"]) == PROMPTS[i]["max_new_tokens"]
         assert expected[i].startswith(all_predictions[i]["text"])
+
+
+@pytest.mark.skipif(**no_converted_checkoint_available())
+def test_continuous_batching_chat(model_name_and_stdout, n_layers):
+    model_name, _ = model_name_and_stdout
+
+    with open(LLAMA_PATH / "dialogs.txt") as f:
+        data = json.load(f)
+
+    res = requests.post(
+        url=f"http://localhost:8080/predictions/{model_name}",
+        data=json.dumps(data),
+        stream=True,
+    )
+
+    assert res.headers["Transfer-Encoding"] == "chunked"
+
+    prediction = ""
+    for chunk in res.iter_content(chunk_size=None):
+        if chunk:
+            prediction += json.loads(chunk.decode("utf-8"))["text"]
+
+    assert prediction == EXPECTED_RESULTS[n_layers][5]
