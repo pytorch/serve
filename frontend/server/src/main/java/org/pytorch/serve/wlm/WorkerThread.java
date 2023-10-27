@@ -463,6 +463,7 @@ public class WorkerThread implements Runnable {
                 backendChannel.get(i).close();
             }
         }
+        backendChannel.clear();
         lifeCycle.terminateIOStreams();
         Thread thread = currentThread.getAndSet(null);
         if (thread != null) {
