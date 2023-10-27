@@ -506,8 +506,8 @@
 
 
   ```yaml
-  inference_address=http://127.0.0.1:8080
-  management_address=http://127.0.0.1:8081
+  inference_address=http://0.0.0.0:8080
+  management_address=http://0.0.0.0:8081
   NUM_WORKERS=1
   number_of_gpu=1
   number_of_netty_threads=32
