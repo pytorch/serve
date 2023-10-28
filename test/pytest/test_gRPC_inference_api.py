@@ -11,11 +11,14 @@ import test_utils
 inference_data_json = "../postman/inference_data.json"
 inference_stream_data_json = "../postman/inference_stream_data.json"
 inference_stream2_data_json = "../postman/inference_stream2_data.json"
+config_file = test_utils.ROOT_DIR + "config.properties"
+with open(config_file, "w") as f:
+    f.write("install_py_dep_per_model=true")
 
 
 def setup_module(module):
     test_utils.torchserve_cleanup()
-    test_utils.start_torchserve()
+    test_utils.start_torchserve(snapshot_file=config_file)
 
 
 def teardown_module(module):
