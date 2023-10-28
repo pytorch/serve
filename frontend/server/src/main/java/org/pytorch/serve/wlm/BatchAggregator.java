@@ -177,7 +177,7 @@ public class BatchAggregator {
 
     public void cleanJobs() {
         if (jobs != null) {
-            cleanJobs();
+            jobs.clear();
         }
     }
 
