@@ -166,11 +166,11 @@ curl http://localhost:8081/models/resnet-152-batch_v2
     ```text
       $ curl http://localhost:8080/predictions/resnet-152-batch_v2 -T kitten.jpg
       {
-          "tiger_cat": 0.5848360657691956,
-          "tabby": 0.3782736361026764,
-          "Egyptian_cat": 0.03441936895251274,
-          "lynx": 0.0005633446853607893,
-          "quilt": 0.0002698268508538604
+          "tiger_cat": 0.5798614621162415,
+          "tabby": 0.38344162702560425,
+          "Egyptian_cat": 0.0342114195227623,
+          "lynx": 0.0005819813231937587,
+          "quilt": 0.000273319921689108
       }
     ```
 ### Batch inference of Resnet-152 configured through config.properties
@@ -249,11 +249,11 @@ curl http://localhost:8081/models/resnet-152-batch_v2
     ```text
       $ curl http://localhost:8080/predictions/resnet-152-batch_v2 -T kitten.jpg
       {
-          "tiger_cat": 0.5848360657691956,
-          "tabby": 0.3782736361026764,
-          "Egyptian_cat": 0.03441936895251274,
-          "lynx": 0.0005633446853607893,
-          "quilt": 0.0002698268508538604
+          "tiger_cat": 0.5798614621162415,
+          "tabby": 0.38344162702560425,
+          "Egyptian_cat": 0.0342114195227623,
+          "lynx": 0.0005819813231937587,
+          "quilt": 0.000273319921689108
       }
     ```
 ## Demo to configure TorchServe ResNet-152 model with batch-supported model using Docker
@@ -339,10 +339,10 @@ curl http://localhost:8081/models/resnet-152-batch_v2
     ```text
       $ curl http://localhost:8080/predictions/resnet-152-batch_v2 -T kitten.jpg
       {
-          "tiger_cat": 0.5848360657691956,
-          "tabby": 0.3782736361026764,
-          "Egyptian_cat": 0.03441936895251274,
-          "lynx": 0.0005633446853607893,
-          "quilt": 0.0002698268508538604
+          "tiger_cat": 0.5798614621162415,
+          "tabby": 0.38344162702560425,
+          "Egyptian_cat": 0.0342114195227623,
+          "lynx": 0.0005819813231937587,
+          "quilt": 0.000273319921689108
       }
     ```
