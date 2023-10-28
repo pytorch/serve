@@ -32,7 +32,7 @@ public class SequenceBatchAggregator extends BatchAggregator {
         this.pollExecutors = Executors.newFixedThreadPool(model.getBatchSize() + 1);
         this.jobQueue = new LinkedBlockingDeque<>();
         this.isPollJobGroup = new AtomicBoolean(false);
-        this.eventJobGroupIds = new LinkedBlockingDeque<>(model.getBatchSize());
+        this.eventJobGroupIds = new LinkedBlockingDeque<>();
         this.eventJobGroupIds.add("");
         this.eventDispatcher = new Thread(new EventDispatcher());
         this.eventDispatcher.start();
@@ -47,20 +47,22 @@ public class SequenceBatchAggregator extends BatchAggregator {
     }
 
     private void pollJobGroup() throws InterruptedException {
-        LinkedHashSet<String> tmpJobGroups = new LinkedHashSet<>();
-        String jobGroupId = model.getPendingJobGroups().poll(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
-        if (jobGroupId == null) {
+        if (isPollJobGroup.getAndSet(true)) {
             return;
         }
-        addJobGroup(jobGroupId);
+        LinkedHashSet<String> tmpJobGroups = new LinkedHashSet<>();
+        String jobGroupId = model.getPendingJobGroups().poll(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
+        if (jobGroupId != null) {
+            addJobGroup(jobGroupId);
 
-        int quota = model.getPendingJobGroups().size() / model.getMaxWorkers();
-        if (quota > 0 && model.getPendingJobGroups().size() > 0) {
-            model.getPendingJobGroups().drainTo(tmpJobGroups, quota);
-        }
+            int quota = model.getPendingJobGroups().size() / model.getMaxWorkers();
+            if (quota > 0 && model.getPendingJobGroups().size() > 0) {
+                model.getPendingJobGroups().drainTo(tmpJobGroups, quota);
+            }
 
-        for (String jGroupId : tmpJobGroups) {
-            addJobGroup(jGroupId);
+            for (String jGroupId : tmpJobGroups) {
+                addJobGroup(jGroupId);
+            }
         }
         isPollJobGroup.set(false);
     }
@@ -128,7 +130,7 @@ public class SequenceBatchAggregator extends BatchAggregator {
     @Override
     public boolean sendResponse(ModelWorkerResponse message) {
         boolean jobDone = super.sendResponse(message);
-        if (jobDone) {
+        if (jobDone && !currentJobGroupIds.isEmpty()) {
             eventJobGroupIds.addAll(currentJobGroupIds);
             currentJobGroupIds.clear();
         }
@@ -138,8 +140,10 @@ public class SequenceBatchAggregator extends BatchAggregator {
     @Override
     public void sendError(BaseModelRequest message, String error, int status) {
         super.sendError(message, error, status);
-        eventJobGroupIds.addAll(currentJobGroupIds);
-        currentJobGroupIds.clear();
+        if (!currentJobGroupIds.isEmpty()) {
+            eventJobGroupIds.addAll(currentJobGroupIds);
+            currentJobGroupIds.clear();
+        }
     }
 
     @Override
@@ -156,7 +160,7 @@ public class SequenceBatchAggregator extends BatchAggregator {
     }
 
     private void addJobGroup(String jobGroupId) {
-        if (!jobGroupId.isEmpty() || (jobGroupId.isEmpty() && !isPollJobGroup.getAndSet(true))) {
+        if (jobGroupId != null) {
             eventJobGroupIds.add(jobGroupId);
         }
     }
@@ -167,8 +171,8 @@ public class SequenceBatchAggregator extends BatchAggregator {
             while (true) {
                 try {
                     String jobGroupId =
-                            eventJobGroupIds.poll(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
-                    if (jobGroupId.isEmpty()) {
+                            eventJobGroupIds.poll(model.getMaxBatchDelay(), TimeUnit.MILLISECONDS);
+                    if (jobGroupId == null || jobGroupId.isEmpty()) {
                         CompletableFuture<Void> future =
                                 CompletableFuture.runAsync(
                                         () -> {
@@ -200,6 +204,8 @@ public class SequenceBatchAggregator extends BatchAggregator {
             if (job == null) {
                 // JobGroup expired, clean it.
                 cleanJobGroup(jobGroupId);
+                // intent to add new job groups.
+                eventJobGroupIds.add("");
             } else {
                 jobQueue.add(job);
             }

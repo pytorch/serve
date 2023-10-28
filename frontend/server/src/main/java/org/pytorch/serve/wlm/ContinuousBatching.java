@@ -108,6 +108,8 @@ public class ContinuousBatching extends BatchAggregator {
                     logger.info(
                             "Connection to client got closed; Removing job: {}",
                             job.getPayload().getRequestId());
+                } else {
+                    job.getPayload().setCachedInBackend(true);
                 }
             }
         } else {

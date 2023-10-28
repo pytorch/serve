@@ -38,7 +38,6 @@ import org.pytorch.serve.util.codec.ModelRequestEncoder;
 import org.pytorch.serve.util.codec.ModelResponseDecoder;
 import org.pytorch.serve.util.messages.BaseModelRequest;
 import org.pytorch.serve.util.messages.InputParameter;
-import org.pytorch.serve.util.messages.ModelInferenceRequest;
 import org.pytorch.serve.util.messages.ModelWorkerResponse;
 import org.pytorch.serve.util.messages.RequestInput;
 import org.pytorch.serve.util.messages.WorkerCommands;
@@ -220,10 +219,6 @@ public class WorkerThread implements Runnable {
                 }
 
                 futureRequests.stream().map(CompletableFuture::join);
-
-                if (req instanceof ModelInferenceRequest) {
-                    ((ModelInferenceRequest) req).setCachedInBackend(true);
-                }
 
                 ModelWorkerResponse reply = null;
 
