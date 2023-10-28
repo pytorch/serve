@@ -121,9 +121,7 @@ public class Model {
                 sequenceMaxIdleMSec = modelArchive.getModelConfig().getSequenceMaxIdleMSec();
                 maxSequenceJobQueueSize =
                         modelArchive.getModelConfig().getMaxSequenceJobQueueSize();
-                maxNumSequence =
-                        modelArchive.getModelConfig().getMaxWorkers()
-                                * modelArchive.getModelConfig().getBatchSize();
+                maxNumSequence = modelArchive.getModelConfig().getMaxNumSequence();
                 jobGroups = new ConcurrentHashMap<>(maxNumSequence);
                 pendingJobGroups = new LinkedBlockingDeque<>(maxNumSequence);
                 jobGroupLock = new ReentrantLock();
@@ -277,12 +275,9 @@ public class Model {
             JobGroup jobGroup = jobGroups.get(job.getGroupId());
             if (jobGroup == null) {
                 if (jobGroups.size() < maxNumSequence) {
-                    jobGroup =
-                            new JobGroup(
-                                    job.getGroupId(), sequenceMaxIdleMSec, maxSequenceJobQueueSize);
+                    jobGroup = new JobGroup(job.getGroupId(), maxSequenceJobQueueSize);
                     jobGroups.put(job.getGroupId(), jobGroup);
                     pendingJobGroups.offer(job.getGroupId());
-                    jobGroup.monitorGroupIdle();
                     logger.info("added jobGroup for sequenceId:{}", job.getGroupId());
                 } else {
                     logger.warn(

@@ -1,95 +1,85 @@
 package org.pytorch.serve.wlm;
 
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.List;
+import java.util.LinkedList;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.pytorch.serve.job.Job;
 import org.pytorch.serve.job.JobGroup;
+import org.pytorch.serve.util.messages.BaseModelRequest;
+import org.pytorch.serve.util.messages.ModelWorkerResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SequenceBatchAggregator extends BatchAggregator {
 
     private static final Logger logger = LoggerFactory.getLogger(SequenceBatchAggregator.class);
-
-    private final ConcurrentMap<String, Job> jobs;
-    private LinkedHashSet<String> jobGroups;
-    private final ExecutorService pollExecutors;
+    private ExecutorService pollExecutors;
+    private LinkedBlockingDeque<String> eventJobGroupIds;
+    private LinkedBlockingDeque<Job> jobQueue;
+    private Thread eventDispatcher;
+    private AtomicBoolean isPollJobGroup;
+    private LinkedList<String> currentJobGroupIds;
 
     public SequenceBatchAggregator(Model model) {
         super(model);
-        jobs = new ConcurrentHashMap<>();
-        if (model.isStateful()) {
-            jobGroups = new LinkedHashSet<>(model.getBatchSize());
-        }
-        this.pollExecutors = Executors.newFixedThreadPool(model.getBatchSize());
+        this.currentJobGroupIds = new LinkedList<>();
+        this.pollExecutors = Executors.newFixedThreadPool(model.getBatchSize() + 1);
+        this.jobQueue = new LinkedBlockingDeque<>();
+        this.isPollJobGroup = new AtomicBoolean(false);
+        this.eventJobGroupIds = new LinkedBlockingDeque<>(model.getBatchSize());
+        this.eventJobGroupIds.add("");
+        this.eventDispatcher = new Thread(new EventDispatcher());
+        this.eventDispatcher.start();
+    }
+
+    public void startEventDispatcher() {
+        this.eventDispatcher.start();
+    }
+
+    public void stopEventDispatcher() {
+        this.eventDispatcher.interrupt();
     }
 
     private void pollJobGroup() throws InterruptedException {
-        cleanAllJobGroups();
         LinkedHashSet<String> tmpJobGroups = new LinkedHashSet<>();
-        if (jobGroups.size() == 0) {
-            String jobGroupId =
-                    model.getPendingJobGroups().poll(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
-            jobGroups.add(jobGroupId);
-            logger.debug("added jobGroup:{} in jobGroups", jobGroupId);
+        String jobGroupId = model.getPendingJobGroups().poll(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
+        if (jobGroupId == null) {
+            return;
         }
-        int quota = model.getBatchSize() - jobGroups.size();
+        addJobGroup(jobGroupId);
+
+        int quota = model.getPendingJobGroups().size() / model.getMaxWorkers();
         if (quota > 0 && model.getPendingJobGroups().size() > 0) {
             model.getPendingJobGroups().drainTo(tmpJobGroups, quota);
-            jobGroups.addAll(tmpJobGroups);
         }
-        if (!tmpJobGroups.isEmpty()) {
-            logger.debug(
-                    "added jobGroup:{} in jobGroups",
-                    tmpJobGroups.stream().map(String::valueOf).collect(Collectors.joining(",")));
+
+        for (String jGroupId : tmpJobGroups) {
+            addJobGroup(jGroupId);
         }
+        isPollJobGroup.set(false);
     }
 
-    public static <T> CompletableFuture<Void> allOfFutures(List<CompletableFuture<T>> futures) {
-        CompletableFuture<Void> allDoneFuture;
-        CompletableFuture<?>[] completableFuturesArray =
-                futures.toArray(new CompletableFuture<?>[0]);
-        allDoneFuture = CompletableFuture.allOf(completableFuturesArray);
-
-        return allDoneFuture;
-    }
-
-    private void pollJobFromGroups() throws InterruptedException, ExecutionException {
-        while (jobs.isEmpty()) {
-            if (jobGroups.size() < model.getBatchSize()) {
-                pollJobGroup();
+    private void pollInferJob() throws InterruptedException {
+        Job job = jobQueue.poll(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
+        if (job == null) {
+            return;
+        }
+        jobs.put(job.getJobId(), job);
+        if (job.getGroupId() != null) {
+            currentJobGroupIds.add(job.getGroupId());
+        }
+        for (int i = 1; i < model.getBatchSize(); i++) {
+            job = jobQueue.poll();
+            if (job == null) {
+                break;
             }
-
-            List<CompletableFuture<Void>> futures = new ArrayList<>(jobGroups.size());
-            for (String groupId : jobGroups) {
-                JobGroup jobGroup = model.getJobGroup(groupId);
-                futures.add(
-                        CompletableFuture.runAsync(
-                                () -> {
-                                    Job job = jobGroup.pollJob((long) model.getMaxBatchDelay());
-                                    if (job != null) {
-                                        jobs.put(job.getJobId(), job);
-                                    }
-                                },
-                                this.pollExecutors));
-            }
-
-            CompletableFuture<Void> allOf = allOfFutures(futures);
-            allOf.get();
-
-            if (jobs.isEmpty()) {
-                cleanAllJobGroups();
-            }
+            jobs.put(job.getJobId(), job);
         }
     }
 
@@ -112,35 +102,14 @@ public class SequenceBatchAggregator extends BatchAggregator {
         }
 
         if (!pollMgmtJobStatus && state == WorkerState.WORKER_MODEL_LOADED) {
-            pollJobFromGroups();
+            pollInferJob();
         }
     }
 
     private void cleanJobGroup(String jobGroupId) {
         logger.debug("Clean jobGroup: {}", jobGroupId);
         if (jobGroupId != null) {
-            JobGroup jobGroup = model.getJobGroup(jobGroupId);
-            if (!jobGroup.groupHasNextInput() && jobGroup.size() == 0) {
-                jobGroup.monitorShutdown();
-                jobGroups.remove(jobGroupId);
-                model.removeJobGroup(jobGroupId);
-            }
-        }
-    }
-
-    private void cleanAllJobGroups() {
-        Iterator<String> it = jobGroups.iterator();
-        while (it.hasNext()) {
-            String jobGroupId = it.next();
-            if (jobGroupId != null) {
-                JobGroup jobGroup = model.getJobGroup(jobGroupId);
-                if (!jobGroup.groupHasNextInput() && jobGroup.size() == 0) {
-                    jobGroup.monitorShutdown();
-                    it.remove();
-                    model.removeJobGroup(jobGroupId);
-                    logger.debug("Clean jobGroup={}", jobGroupId);
-                }
-            }
+            model.removeJobGroup(jobGroupId);
         }
     }
 
@@ -156,7 +125,84 @@ public class SequenceBatchAggregator extends BatchAggregator {
         }
     }
 
+    @Override
+    public boolean sendResponse(ModelWorkerResponse message) {
+        boolean jobDone = super.sendResponse(message);
+        if (jobDone) {
+            eventJobGroupIds.addAll(currentJobGroupIds);
+            currentJobGroupIds.clear();
+        }
+        return jobDone;
+    }
+
+    @Override
+    public void sendError(BaseModelRequest message, String error, int status) {
+        super.sendError(message, error, status);
+        eventJobGroupIds.addAll(currentJobGroupIds);
+        currentJobGroupIds.clear();
+    }
+
+    @Override
+    public void cleanJobs() {
+        super.cleanJobs();
+        if (!currentJobGroupIds.isEmpty()) {
+            eventJobGroupIds.addAll(currentJobGroupIds);
+            currentJobGroupIds.clear();
+        }
+    }
+
     public void shutdownExecutors() {
         this.pollExecutors.shutdown();
+    }
+
+    private void addJobGroup(String jobGroupId) {
+        if (!jobGroupId.isEmpty() || (jobGroupId.isEmpty() && !isPollJobGroup.getAndSet(true))) {
+            eventJobGroupIds.add(jobGroupId);
+        }
+    }
+
+    class EventDispatcher implements Runnable {
+        @Override
+        public void run() {
+            while (true) {
+                try {
+                    String jobGroupId =
+                            eventJobGroupIds.poll(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
+                    if (jobGroupId.isEmpty()) {
+                        CompletableFuture<Void> future =
+                                CompletableFuture.runAsync(
+                                        () -> {
+                                            try {
+                                                pollJobGroup();
+                                            } catch (InterruptedException e) {
+                                                logger.error("Failed to poll a job group", e);
+                                            }
+                                        },
+                                        pollExecutors);
+                    } else {
+                        CompletableFuture<Void> future =
+                                CompletableFuture.runAsync(
+                                        () -> {
+                                            pollJobFromJobGroup(jobGroupId);
+                                        },
+                                        pollExecutors);
+                    }
+                } catch (InterruptedException e) {
+                    logger.error("EventDispatcher failed to get jobGroup", e);
+                }
+            }
+        }
+
+        private void pollJobFromJobGroup(String jobGroupId) {
+            // Poll a job from a jobGroup
+            JobGroup jobGroup = model.getJobGroup(jobGroupId);
+            Job job = jobGroup.pollJob(model.getSequenceMaxIdleMSec());
+            if (job == null) {
+                // JobGroup expired, clean it.
+                cleanJobGroup(jobGroupId);
+            } else {
+                jobQueue.add(job);
+            }
+        }
     }
 }

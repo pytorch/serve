@@ -185,8 +185,6 @@ public class WorkerThread implements Runnable {
         currentThread.set(thread);
         BaseModelRequest req = null;
         int status = HttpURLConnection.HTTP_INTERNAL_ERROR;
-        // in case of retry
-        aggregator.cleanJobs();
 
         try {
             connect();
@@ -339,6 +337,7 @@ public class WorkerThread implements Runnable {
             if (req != null) {
                 aggregator.sendError(req, "Worker died.", status);
             }
+            aggregator.cleanJobs();
             setState(WorkerState.WORKER_STOPPED, status);
             lifeCycle.exit();
             if (isHealthy()) { // still within maxRetryTimeoutInMill window
@@ -489,6 +488,7 @@ public class WorkerThread implements Runnable {
         }
         if (aggregator instanceof SequenceBatchAggregator) {
             ((SequenceBatchAggregator) aggregator).shutdownExecutors();
+            ((SequenceBatchAggregator) aggregator).stopEventDispatcher();
         }
     }
 
@@ -541,6 +541,9 @@ public class WorkerThread implements Runnable {
 
         if (backoffIdx < BACK_OFF.length - 1) {
             ++backoffIdx;
+        }
+        if (aggregator instanceof SequenceBatchAggregator) {
+            ((SequenceBatchAggregator) aggregator).startEventDispatcher();
         }
         manager.getScheduler()
                 .schedule(() -> manager.submitTask(this), BACK_OFF[backoffIdx], TimeUnit.SECONDS);

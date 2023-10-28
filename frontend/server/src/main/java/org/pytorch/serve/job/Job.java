@@ -88,7 +88,7 @@ public abstract class Job {
     public abstract void sendError(int status, String error);
 
     public String getGroupId() {
-        if (input != null && input.getSequenceId() != null) {
+        if (input != null) {
             return input.getSequenceId();
         }
         return null;

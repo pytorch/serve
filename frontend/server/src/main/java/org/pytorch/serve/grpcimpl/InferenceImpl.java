@@ -132,7 +132,6 @@ public class InferenceImpl extends InferenceAPIsServiceImplBase {
             @Override
             public void onCompleted() {
                 if (jobGroup != null) {
-                    jobGroup.setGroupHasNextInput(false);
                     logger.info("SequenceId {} is completed", jobGroup.getGroupId());
                 }
                 responseObserver.onCompleted();

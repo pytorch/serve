@@ -71,7 +71,7 @@ public class ContinuousBatching extends BatchAggregator {
                 for (Map.Entry<String, Job> j : jobs.entrySet()) {
                     Job job = j.getValue();
                     if (job.isControlCmd()) {
-                        jobs.clear();
+                        cleanJobs();
                         return true;
                     }
                 }
@@ -126,7 +126,7 @@ public class ContinuousBatching extends BatchAggregator {
                             job.getPayload().getRequestId());
                 }
             }
-            jobs.clear();
+            cleanJobs();
         }
 
         return true;

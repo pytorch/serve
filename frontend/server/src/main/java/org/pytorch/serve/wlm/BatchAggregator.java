@@ -30,7 +30,7 @@ public class BatchAggregator {
 
     public BaseModelRequest getRequest(String threadName, WorkerState state)
             throws InterruptedException, ExecutionException {
-        jobs.clear();
+        cleanJobs();
 
         ModelInferenceRequest req = new ModelInferenceRequest(model.getModelName());
 
@@ -131,7 +131,7 @@ public class BatchAggregator {
             }
         }
         if (jobDone) {
-            jobs.clear();
+            cleanJobs();
         }
         return jobDone;
     }
@@ -154,7 +154,7 @@ public class BatchAggregator {
                 }
             }
             if (!jobs.isEmpty()) {
-                jobs.clear();
+                cleanJobs();
                 logger.error("Not all jobs got an error response.");
             }
         } else {
@@ -172,12 +172,12 @@ public class BatchAggregator {
                 }
             }
         }
-        jobs.clear();
+        cleanJobs();
     }
 
     public void cleanJobs() {
         if (jobs != null) {
-            jobs.clear();
+            cleanJobs();
         }
     }
 

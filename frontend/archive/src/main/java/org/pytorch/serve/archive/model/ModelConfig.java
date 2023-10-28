@@ -63,6 +63,8 @@ public class ModelConfig {
      * the job queue size of an inference sequence of this stateful model. The default value is 1.
      */
     private int maxSequenceJobQueueSize = 1;
+    /** the max number of sequences can be accepted. The default value is 1. */
+    private int maxNumSequence = 1;
 
     /** continuousBatching is a flag to enable continuous batching. */
     private boolean continuousBatching;
@@ -188,6 +190,14 @@ public class ModelConfig {
                                         v);
                             }
                             break;
+                        case "maxNumSequence":
+                            if (v instanceof Integer) {
+                                modelConfig.setMaxNumSequence((int) v);
+                            } else {
+                                logger.warn(
+                                        "Invalid maxNumSequence: {}, should be positive int", v);
+                            }
+                            break;
                         case "continuousBatching":
                             if (v instanceof Boolean) {
                                 modelConfig.setContinuousBatching((boolean) v);
@@ -209,11 +219,7 @@ public class ModelConfig {
     }
 
     public void setMinWorkers(int minWorkers) {
-        if (minWorkers < 0) {
-            logger.warn("Invalid minWorkers:{}", minWorkers);
-            return;
-        }
-        this.minWorkers = minWorkers;
+        this.minWorkers = Math.max(1, minWorkers);
     }
 
     public int getMaxWorkers() {
@@ -233,11 +239,7 @@ public class ModelConfig {
     }
 
     public void setBatchSize(int batchSize) {
-        if (batchSize <= 0) {
-            logger.warn("Invalid batchSize:{}", batchSize);
-            return;
-        }
-        this.batchSize = batchSize;
+        this.batchSize = Math.max(1, batchSize);
     }
 
     public int getMaxBatchDelay() {
@@ -358,7 +360,7 @@ public class ModelConfig {
     }
 
     public void setMaxSequenceJobQueueSize(int maxsequenceJobQueueSize) {
-        this.maxSequenceJobQueueSize = Math.max(0, maxsequenceJobQueueSize);
+        this.maxSequenceJobQueueSize = Math.max(1, maxsequenceJobQueueSize);
     }
 
     public boolean isContinuousBatching() {
@@ -367,6 +369,14 @@ public class ModelConfig {
 
     public void setContinuousBatching(boolean continuousBatching) {
         this.continuousBatching = continuousBatching;
+    }
+
+    public int getMaxNumSequence() {
+        return maxNumSequence;
+    }
+
+    public void setMaxNumSequence(int maxNumSequence) {
+        this.maxNumSequence = Math.max(1, maxNumSequence);
     }
 
     public enum ParallelType {
