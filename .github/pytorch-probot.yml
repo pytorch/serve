@@ -3,9 +3,11 @@ tracking_issue: 2724
 # List of workflows that will be re-run in case of failures
 # https://github.com/pytorch/test-infra/blob/main/torchci/lib/bot/retryBot.ts
 retryable_workflows:
-- Push Docker
-- Run Regression
-- Push torchserve
+- Run Regression Tests on Docker
+- Run Regression Tests for CPU nightly binaries
+- Push torchserve nightly
+- Push Docker Nightly
 - Docker CI
-- CI
-- Benchmark  
+- CI CPU
+- CI GPU
+- Benchmark torchserve nightly
