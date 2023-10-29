@@ -56,7 +56,7 @@ if __name__ == "__main__":
         f"{organization}/torchserve:{check_ts_version()}-cpu",
         f"{organization}/torchserve:{check_ts_version()}-gpu",
     ]:
-        os.system(f"docker push {image}")
+        try_and_handle(f"docker push {image}", dry_run)
 
     # Cleanup built images
     if args.cleanup:
