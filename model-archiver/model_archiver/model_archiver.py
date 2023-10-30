@@ -1,5 +1,5 @@
 """
-Command line interface to export model files to be used for inference by MXNet Model Server
+Helper class to generate a model archive file
 """
 
 from model_archiver.model_archiver_config import ModelArchiverConfig
