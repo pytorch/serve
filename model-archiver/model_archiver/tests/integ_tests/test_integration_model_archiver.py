@@ -45,7 +45,6 @@ def run_test(test, args, mocker):
         "model_archiver.model_packaging.ArgParser.export_model_args_parser",
     )
     m.return_value.parse_args.return_value = args
-    mocker.patch("sys.exit", side_effect=Exception())
     from model_archiver.model_packaging import generate_model_archive
 
     it = test.get("iterations", 1)
