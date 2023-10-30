@@ -10,7 +10,7 @@ jobs:
       name: official-release
     steps:
       - name: Setup Conda
-        uses: s-weigand/setup-conda@v1
+        uses: s-weigand/setup-conda@v1.2.1
       - name: Setup Anaconda
         run: |
           conda --version
