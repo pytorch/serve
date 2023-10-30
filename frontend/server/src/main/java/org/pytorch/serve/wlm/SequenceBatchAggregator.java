@@ -173,23 +173,22 @@ public class SequenceBatchAggregator extends BatchAggregator {
                     String jobGroupId =
                             eventJobGroupIds.poll(model.getMaxBatchDelay(), TimeUnit.MILLISECONDS);
                     if (jobGroupId == null || jobGroupId.isEmpty()) {
-                        CompletableFuture<Void> future =
-                                CompletableFuture.runAsync(
-                                        () -> {
-                                            try {
-                                                pollJobGroup();
-                                            } catch (InterruptedException e) {
-                                                logger.error("Failed to poll a job group", e);
-                                            }
-                                        },
-                                        pollExecutors);
+                        CompletableFuture.runAsync(
+                                () -> {
+                                    try {
+                                        pollJobGroup();
+                                    } catch (InterruptedException e) {
+                                        logger.error("Failed to poll a job group", e);
+                                    }
+                                },
+                                pollExecutors);
                     } else {
-                        CompletableFuture<Void> future =
-                                CompletableFuture.runAsync(
-                                        () -> {
-                                            pollJobFromJobGroup(jobGroupId);
-                                        },
-                                        pollExecutors);
+
+                        CompletableFuture.runAsync(
+                                () -> {
+                                    pollJobFromJobGroup(jobGroupId);
+                                },
+                                pollExecutors);
                     }
                 } catch (InterruptedException e) {
                     logger.error("EventDispatcher failed to get jobGroup", e);
