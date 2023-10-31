@@ -16,7 +16,6 @@ class TestModelArchiver:
     version = "1.0"
     requirements_file = "requirements.txt"
     config_file = None
-    source_vocab = None
 
     config = ModelArchiverConfig(
         model_name=model_name,
@@ -60,9 +59,7 @@ class TestModelArchiver:
             export_path=self.export_path,
             force=False,
             archive_format="default",
-            convert=False,
             version=self.version,
-            source_vocab=self.source_vocab,
             requirements_file=self.requirements_file,
             config_file=None,
         )

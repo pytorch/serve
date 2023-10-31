@@ -2,15 +2,15 @@ import asyncio
 import json
 import random
 import shutil
-from argparse import Namespace
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 from zipfile import ZIP_STORED, ZipFile
 
 import pytest
 import requests
 import test_utils
 import yaml
+from model_archiver import ModelArchiverConfig
 from torchvision.models.resnet import ResNet18_Weights
 
 from ts.torch_handler.unit_tests.test_utils.model_dir import download_model
@@ -113,7 +113,7 @@ def create_mar_file(work_dir, serialized_file, model_archiver, model_name, reque
 
     extra_files = [name_file]
 
-    args = Namespace(
+    config = ModelArchiverConfig(
         model_name=model_name,
         version="1.0",
         serialized_file=str(serialized_file),
@@ -132,9 +132,7 @@ def create_mar_file(work_dir, serialized_file, model_archiver, model_name, reque
         config_file=config_file,
     )
 
-    mock = MagicMock()
-    mock.parse_args = MagicMock(return_value=args)
-    with patch("archiver.ArgParser.export_model_args_parser", return_value=mock):
+    with patch("archiver.ArgParser.export_model_args_parser", return_value=config):
         # Using ZIP_STORED instead of ZIP_DEFLATED reduces test runtime from 54 secs to 10 secs
         with patch(
             "model_archiver.model_packaging_utils.zipfile.ZipFile",

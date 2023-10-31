@@ -41,10 +41,10 @@ def delete_file_path(path):
 
 
 def run_test(test, config, mocker):
-    m = mocker.patch(
+    mocker.patch(
         "model_archiver.model_packaging.ArgParser.export_model_args_parser",
+        return_value=config,
     )
-    m.return_value = config
     from model_archiver.model_packaging import generate_model_archive
 
     it = test.get("iterations", 1)
