@@ -1,3 +1,4 @@
+from argparse import Namespace
 from collections import namedtuple
 
 import pytest
@@ -48,15 +49,8 @@ class TestModelArchiver:
         ModelArchiver.generate_model_archive(self.config)
         patches.export_method.assert_called()
 
-    def test_model_archiver_config_from_args(self, patches):
-        class Namespace:
-            def __init__(self, **kwargs):
-                self.__dict__.update(kwargs)
-
-            def update(self, **kwargs):
-                self.__dict__.update(kwargs)
-
-        patches.arg_parse.export_model_args_parser.parse_args.return_value = Namespace(
+    def test_model_archiver_config_from_args(self):
+        args = Namespace(
             model_name=self.model_name,
             handler=self.handler,
             runtime=RuntimeType.PYTHON.value,
@@ -72,6 +66,6 @@ class TestModelArchiver:
             requirements_file=self.requirements_file,
             config_file=None,
         )
-        config = ModelArchiverConfig.from_args(None)
+        config = ModelArchiverConfig.from_args(args)
 
         config == self.config

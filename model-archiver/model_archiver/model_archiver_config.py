@@ -35,12 +35,7 @@ class ModelArchiverConfig:
         self.config_file = config_file
 
     @staticmethod
-    def from_args(args: Optional[Namespace] = None) -> "ModelArchiverConfig":
-        if args is None:
-            from model_archiver.arg_parser import ArgParser
-
-            args = ArgParser.export_model_args_parser().parse_args()
-
+    def from_args(args: Namespace) -> "ModelArchiverConfig":
         config = ModelArchiverConfig(
             model_name=args.model_name,
             handler=args.handler,

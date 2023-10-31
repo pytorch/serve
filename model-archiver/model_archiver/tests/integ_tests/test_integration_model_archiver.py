@@ -40,11 +40,11 @@ def delete_file_path(path):
         pass
 
 
-def run_test(test, args, mocker):
+def run_test(test, config, mocker):
     m = mocker.patch(
         "model_archiver.model_packaging.ArgParser.export_model_args_parser",
     )
-    m.return_value.parse_args.return_value = args
+    m.return_value = config
     from model_archiver.model_packaging import generate_model_archive
 
     it = test.get("iterations", 1)
@@ -178,7 +178,9 @@ def build_namespace(test):
 
     args = Namespace(**{k.replace("-", "_"): test[k] for k in keys})
 
-    return args
+    config = model_archiver.ModelArchiverConfig.from_args(args)
+
+    return config
 
 
 def make_paths_absolute(test, keys):

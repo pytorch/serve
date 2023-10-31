@@ -65,8 +65,7 @@ def generate_model_archive(config: Optional[ModelArchiverConfig] = None):
 
     logging.basicConfig(format="%(levelname)s - %(message)s")
     if config is None:
-        args = ArgParser.export_model_args_parser().parse_args()
-        config = ModelArchiverConfig.from_args(args)
+        config = ArgParser.export_model_args_parser()
     manifest = ModelExportUtils.generate_manifest_json(config)
     package_model(config, manifest=manifest)
 

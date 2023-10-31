@@ -6,6 +6,7 @@ import argparse
 import os
 
 from .manifest_components.manifest import RuntimeType
+from .model_archiver_config import ModelArchiverConfig
 
 
 # noinspection PyTypeChecker
@@ -154,4 +155,4 @@ class ArgParser(object):
             help="Path to a yaml file containing model configuration eg. batch_size.",
         )
 
-        return parser_export
+        return ModelArchiverConfig.from_args(parser_export.parse_args())
