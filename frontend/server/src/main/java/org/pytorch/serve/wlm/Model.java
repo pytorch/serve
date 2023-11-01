@@ -121,7 +121,10 @@ public class Model {
                 sequenceMaxIdleMSec = modelArchive.getModelConfig().getSequenceMaxIdleMSec();
                 maxSequenceJobQueueSize =
                         modelArchive.getModelConfig().getMaxSequenceJobQueueSize();
-                maxNumSequence = modelArchive.getModelConfig().getMaxNumSequence();
+                maxNumSequence =
+                        Math.max(
+                                modelArchive.getModelConfig().getMaxNumSequence(),
+                                batchSize * maxWorkers);
                 jobGroups = new ConcurrentHashMap<>(maxNumSequence);
                 pendingJobGroups = new LinkedBlockingDeque<>(maxNumSequence);
                 jobGroupLock = new ReentrantLock();
