@@ -1,6 +1,6 @@
 import os
 from argparse import Namespace
-from dataclasses import dataclass
+from dataclasses import dataclass, fields
 from typing import Literal, Optional
 
 from model_archiver.manifest_components.manifest import RuntimeType
@@ -21,20 +21,8 @@ class ModelArchiverConfig:
     requirements_file: Optional[str] = None
     config_file: Optional[str] = None
 
-    @staticmethod
-    def from_args(args: Namespace) -> "ModelArchiverConfig":
-        config = ModelArchiverConfig(
-            model_name=args.model_name,
-            handler=args.handler,
-            version=args.version,
-            serialized_file=args.serialized_file,
-            model_file=args.model_file,
-            extra_files=args.extra_files,
-            runtime=args.runtime,
-            export_path=args.export_path,
-            archive_format=args.archive_format,
-            force=args.force,
-            requirements_file=args.requirements_file,
-            config_file=args.config_file,
-        )
+    @classmethod
+    def from_args(cls, args: Namespace) -> "ModelArchiverConfig":
+        params = {field.name: getattr(args, field.name) for field in fields(cls)}
+        config = cls(**params)
         return config

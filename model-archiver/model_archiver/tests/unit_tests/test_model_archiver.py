@@ -65,4 +65,4 @@ class TestModelArchiver:
         )
         config = ModelArchiverConfig.from_args(args)
 
-        config == self.config
+        assert config == self.config
