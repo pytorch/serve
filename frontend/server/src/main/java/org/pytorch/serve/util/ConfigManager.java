@@ -43,6 +43,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.io.IOUtils;
+import org.pytorch.serve.metrics.MetricBuilder;
 import org.pytorch.serve.servingsdk.snapshot.SnapshotSerializer;
 import org.pytorch.serve.snapshot.SnapshotSerializerFactory;
 import org.slf4j.Logger;
@@ -404,8 +405,19 @@ public final class ConfigManager {
         return torchrunLogDir;
     }
 
-    public String getMetricsMode() {
-        return getProperty(TS_METRICS_MODE, "log");
+    public MetricBuilder.MetricMode getMetricsMode() {
+        String metricsMode = getProperty(TS_METRICS_MODE, "log");
+        try {
+            return MetricBuilder.MetricMode.valueOf(
+                    metricsMode.replaceAll("\\s", "").toUpperCase());
+        } catch (IllegalArgumentException | NullPointerException e) {
+            logger.error(
+                    "Configured metrics mode \"{}\" not supported. Defaulting to \"{}\" mode: {}",
+                    metricsMode,
+                    MetricBuilder.MetricMode.LOG,
+                    e);
+            return MetricBuilder.MetricMode.LOG;
+        }
     }
 
     public boolean isSystemMetricsDisabled() {

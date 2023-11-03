@@ -1,6 +1,7 @@
 package org.pytorch.serve.metrics;
 
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -29,11 +30,7 @@ public final class MetricCache {
             return;
         }
 
-        MetricBuilder.MetricMode metricsMode = MetricBuilder.MetricMode.LOG;
-        String metricsConfigMode = ConfigManager.getInstance().getMetricsMode();
-        if (metricsConfigMode != null && metricsConfigMode.toLowerCase().contains("prometheus")) {
-            metricsMode = MetricBuilder.MetricMode.PROMETHEUS;
-        }
+        MetricBuilder.MetricMode metricsMode = ConfigManager.getInstance().getMetricsMode();
 
         if (this.config.getTs_metrics() != null) {
             addMetrics(
@@ -104,6 +101,30 @@ public final class MetricCache {
 
     public static MetricCache getInstance() {
         return instance;
+    }
+
+    public IMetric addAutoDetectMetricBackend(Metric parsedMetric) {
+        List<String> dimensionNames = new ArrayList<String>();
+        for (Dimension dimension : parsedMetric.getDimensions()) {
+            dimensionNames.add(dimension.getName());
+        }
+
+        // The Hostname dimension is included by default for backend metrics
+        dimensionNames.add("Hostname");
+
+        IMetric metric =
+                MetricBuilder.build(
+                        ConfigManager.getInstance().getMetricsMode(),
+                        parsedMetric.getType() != null
+                                ? MetricBuilder.MetricType.valueOf(parsedMetric.getType())
+                                : MetricBuilder.MetricType.COUNTER,
+                        parsedMetric.getMetricName(),
+                        parsedMetric.getUnit(),
+                        dimensionNames);
+
+        this.metricsBackend.put(parsedMetric.getMetricName(), metric);
+
+        return metric;
     }
 
     public IMetric getMetricFrontend(String metricName) {

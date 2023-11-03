@@ -301,34 +301,38 @@ public class WorkerLifeCycle {
                     Matcher matcher = METRIC_PATTERN.matcher(result);
                     if (matcher.matches()) {
                         logger.info("result={}, pattern={}", result, matcher.group(2));
+
                         Metric parsedMetric = Metric.parse(matcher.group(3));
-                        if (parsedMetric != null) {
-                            if (this.metricCache.getMetricBackend(parsedMetric.getMetricName())
-                                    != null) {
-                                try {
-                                    List<String> dimensionValues = new ArrayList<String>();
-                                    for (Dimension dimension : parsedMetric.getDimensions()) {
-                                        dimensionValues.add(dimension.getValue());
-                                    }
-                                    // Hostname is added as a dimension by default to backend
-                                    // metrics
-                                    dimensionValues.add(parsedMetric.getHostName());
-                                    this.metricCache
-                                            .getMetricBackend(parsedMetric.getMetricName())
-                                            .addOrUpdate(
-                                                    dimensionValues,
-                                                    parsedMetric.getRequestId(),
-                                                    Double.parseDouble(parsedMetric.getValue()));
-                                } catch (Exception e) {
-                                    logger.error(
-                                            "Failed to update backend metric ",
-                                            parsedMetric.getMetricName(),
-                                            ": ",
-                                            e);
-                                }
-                            }
-                        } else {
+                        if (parsedMetric == null) {
                             logger.error("Failed to parse metrics line: \"{}\".", result);
+                            continue;
+                        }
+
+                        try {
+                            if (this.metricCache.getMetricBackend(parsedMetric.getMetricName())
+                                    == null) {
+                                this.metricCache.addAutoDetectMetricBackend(parsedMetric);
+                            }
+
+                            List<String> dimensionValues = new ArrayList<String>();
+                            for (Dimension dimension : parsedMetric.getDimensions()) {
+                                dimensionValues.add(dimension.getValue());
+                            }
+                            // Hostname is added as a dimension by default to backend metrics
+                            dimensionValues.add(parsedMetric.getHostName());
+
+                            this.metricCache
+                                    .getMetricBackend(parsedMetric.getMetricName())
+                                    .addOrUpdate(
+                                            dimensionValues,
+                                            parsedMetric.getRequestId(),
+                                            Double.parseDouble(parsedMetric.getValue()));
+                        } catch (Exception e) {
+                            logger.error(
+                                    "Failed to update backend metric ",
+                                    parsedMetric.getMetricName(),
+                                    ": ",
+                                    e);
                         }
                         continue;
                     }
