@@ -20,18 +20,29 @@ public class SequenceBatchAggregator extends BatchAggregator {
 
     private static final Logger logger = LoggerFactory.getLogger(SequenceBatchAggregator.class);
     private ExecutorService pollExecutors;
+    /**
+     * eventJobGroupIds is an queue in EventDispatcher. It's item has 2 cases. - empty string:
+     * trigger EventDispatcher to fetch new job groups. - job group id: trigger EventDispatcher to
+     * fetch a new job from this jobGroup.
+     */
     private LinkedBlockingDeque<String> eventJobGroupIds;
-    private LinkedBlockingDeque<Job> jobQueue;
+    // A queue holds jobs ready for this aggregator to add into a batch. Each job of this queue is
+    // from distinct jobGroup.
+    private LinkedBlockingDeque<Job> jobsQueue;
     private Thread eventDispatcher;
     private AtomicBoolean isPollJobGroup;
+    // A list of jobGroupIds which are added into current batch. These jobGroupIds need to be added
+    // back to eventJobGroupIds once their jobs are processed by a batch.
     private LinkedList<String> currentJobGroupIds;
+    private int localCapacity;
 
     public SequenceBatchAggregator(Model model) {
         super(model);
         this.currentJobGroupIds = new LinkedList<>();
         this.pollExecutors = Executors.newFixedThreadPool(model.getBatchSize() + 1);
-        this.jobQueue = new LinkedBlockingDeque<>();
+        this.jobsQueue = new LinkedBlockingDeque<>();
         this.isPollJobGroup = new AtomicBoolean(false);
+        this.localCapacity = model.getMaxNumSequence() / model.getMinWorkers();
         this.eventJobGroupIds = new LinkedBlockingDeque<>();
         this.eventJobGroupIds.add("");
         this.eventDispatcher = new Thread(new EventDispatcher());
@@ -55,7 +66,10 @@ public class SequenceBatchAggregator extends BatchAggregator {
         if (jobGroupId != null) {
             addJobGroup(jobGroupId);
 
-            int quota = model.getPendingJobGroups().size() / model.getMaxWorkers();
+            int quota =
+                    Math.min(
+                            this.localCapacity - jobsQueue.size(),
+                            model.getPendingJobGroups().size() / model.getMaxWorkers());
             if (quota > 0 && model.getPendingJobGroups().size() > 0) {
                 model.getPendingJobGroups().drainTo(tmpJobGroups, quota);
             }
@@ -68,20 +82,12 @@ public class SequenceBatchAggregator extends BatchAggregator {
     }
 
     private void pollInferJob() throws InterruptedException {
-        Job job = jobQueue.poll(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
-        if (job == null) {
-            return;
-        }
-        jobs.put(job.getJobId(), job);
-        if (job.getGroupId() != null) {
-            currentJobGroupIds.add(job.getGroupId());
-        }
-        for (int i = 1; i < model.getBatchSize(); i++) {
-            job = jobQueue.poll();
-            if (job == null) {
-                break;
+        model.pollInferJob(jobs, model.getBatchSize(), jobsQueue);
+
+        for (Job job : jobs.values()) {
+            if (job.getGroupId() != null) {
+                currentJobGroupIds.add(job.getGroupId());
             }
-            jobs.put(job.getJobId(), job);
         }
     }
 
@@ -206,7 +212,7 @@ public class SequenceBatchAggregator extends BatchAggregator {
                 // intent to add new job groups.
                 eventJobGroupIds.add("");
             } else {
-                jobQueue.add(job);
+                jobsQueue.add(job);
             }
         }
     }

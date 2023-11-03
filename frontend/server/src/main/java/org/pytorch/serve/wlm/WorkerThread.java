@@ -27,7 +27,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
-import org.pytorch.serve.archive.model.ModelConfig;
 import org.pytorch.serve.job.Job;
 import org.pytorch.serve.job.RestJob;
 import org.pytorch.serve.metrics.IMetric;
@@ -194,10 +193,7 @@ public class WorkerThread implements Runnable {
                 WorkerCommands workerCmd = req.getCommand();
 
                 long wtStartTime = System.currentTimeMillis();
-                int repeats =
-                        isLoadRequest(workerCmd) || isTensorParallelRequest(workerCmd)
-                                ? model.getParallelLevel() > 0 ? model.getParallelLevel() : 1
-                                : 1;
+                int repeats = getRepeats(workerCmd);
                 logger.debug(
                         "Flushing req.cmd {} repeats {} to backend at: {}",
                         workerCmd,
@@ -612,7 +608,7 @@ public class WorkerThread implements Runnable {
             case PREDICT:
             case STREAMPREDICT:
             case STREAMPREDICT2:
-                if (model.getParallelType() != ModelConfig.ParallelType.PP) {
+                if (model.hasTensorParallel()) {
                     return true;
                 }
                 return false;
@@ -623,5 +619,14 @@ public class WorkerThread implements Runnable {
 
     private boolean isLoadRequest(WorkerCommands workerCmd) {
         return workerCmd == WorkerCommands.LOAD;
+    }
+
+    private int getRepeats(WorkerCommands workerCmd) {
+        if (isLoadRequest(workerCmd) || isTensorParallelRequest(workerCmd)) {
+            // broadcast the command to all ranks
+            return Math.max(1, model.getParallelLevel());
+        }
+
+        return 1;
     }
 }

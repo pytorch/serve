@@ -1,7 +1,12 @@
 [
     {
-        "url":"https://torchserve.pytorch.org/mar_files/stateful.mar",
         "model_name":"stateful",
+        "model_file": "../../examples/stateful/model.py",
+        "serialized_file": "../../examples/stateful/model_cnn.pt",
+        "handler": "../../examples/stateful/stateful_handler.py",
+        "requirements_file": "../../examples/stateful/requirements.txt",
+        "config_file": "../../examples/stateful/model-config.yaml",
+        "archive_format": "no-archive",
         "worker":2,
         "synchronous":"true",
         "content-type":"text/plain",

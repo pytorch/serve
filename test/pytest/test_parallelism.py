@@ -48,7 +48,6 @@ MODEL_CONFIG_YAML = f"""
 #frontend settings
 parallelType: "tp"
 deviceType: "cpu"
-continuousBatching: "true"
 
 torchrun:
     nproc-per-node: 4

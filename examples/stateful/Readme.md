@@ -1,6 +1,6 @@
 # Stateful Inference
 
-A stateful model possesses the ability to detect interdependencies between successive inference requests. This type of model maintains a persistent state across inference requests, thereby establishing a linkage between the outcomes of prior inquiries and those that follow. Notable illustrations of stateful models encompass online speech recognition systems, such as the Long Short-Term Memory (LSTM) model. Employing stateful inference mandates that the model server adheres to the sequential order of inference requests, ensuring predictions build upon the previous outcomes.
+A stateful model possesses the ability to leverage interdependencies between successive inference requests. This type of model maintains a persistent state across inference requests, thereby establishing a linkage between the outcomes of prior inquiries and those that follow. Notable illustrations of stateful models encompass online speech recognition systems, such as the Long Short-Term Memory (LSTM) model. Employing stateful inference mandates that the model server adheres to the sequential order of inference requests, ensuring predictions build upon the previous outcomes.
 
 Within this context, TorchServe offers a mechanism known as sequence batching. This approach involves the retrieval of an individual inference request from a particular sequence, followed by the combination of multiple requests originating from different sequences into a unified batch. Each request is associated with a unique sequence ID, which can be extracted using the "get_sequence_id" function of context.py. This `sequence ID` serves as a key employed by custom handlers to store and retrieve values within the backend cache store, fostering efficient management of stateful inference processes. Client can also reuse the `sequence ID` when a connection resumes as long as the sequence is not expired on the TorchServe side.
 
@@ -103,7 +103,17 @@ torchserve --start --ncs --model-store model_store --models stateful.mar
 ### Step 6: Build GRPC Client
 The details can be found at [here](https://github.com/pytorch/serve/blob/master/docs/grpc_api.md).
 * Install gRPC python dependencies
+```bash
+git submodule init
+pip install -U grpcio protobuf grpcio-tools googleapis-common-protos
+```
+
 * Generate python gRPC client stub using the proto files
+```bash
+cd ../..
+python -m grpc_tools.protoc -I third_party/google/rpc --proto_path=frontend/server/src/main/resources/proto/ --python_out=ts_scripts --grpc_python_out=ts_scripts frontend/server/src/main/resources/proto/inference.proto frontend/server/src/main/resources/proto/management.proto
+cd -
+```
 
 ### Step 7: Run inference
 * Start TorchServe

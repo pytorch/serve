@@ -11,7 +11,7 @@ import test_utils
 inference_data_json = "../postman/inference_data.json"
 inference_stream_data_json = "../postman/inference_stream_data.json"
 inference_stream2_data_json = "../postman/inference_stream2_data.json"
-config_file = test_utils.ROOT_DIR + "config.properties"
+config_file = test_utils.ROOT_DIR + "/config.properties"
 with open(config_file, "w") as f:
     f.write("install_py_dep_per_model=true")
 
@@ -198,15 +198,12 @@ def test_inference_stream2_apis():
         test_data = json.loads(f.read())
 
     for item in test_data:
-        if item["url"].startswith("{{mar_path_"):
-            path = test_utils.mar_file_table[item["url"][2:-2]]
-        else:
-            path = item["url"]
-
+        model_artifacts = test_utils.create_model_artifacts(item, force=True)
+        print("model_artifacts={}.format(model_artifacts)")
         managment_stub = test_gRPC_utils.get_management_stub()
         response = managment_stub.RegisterModel(
             management_pb2.RegisterModelRequest(
-                url=path,
+                url=model_artifacts,
                 initial_workers=item["worker"],
                 synchronous=bool(item["synchronous"]),
                 model_name=item["model_name"],
