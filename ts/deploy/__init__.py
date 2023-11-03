@@ -1,0 +1,1 @@
+from ts.deploy.deploy_utils import deployable, deploy
