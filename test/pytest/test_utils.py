@@ -230,9 +230,7 @@ def create_model_artifacts(items: dict, force=False, export_path=None) -> str:
         if str(items.get("archive_format")) == "no-archive":
             model_artifacts = "{0}".format(items.get("model_name"))
         elif str(items.get("archive_format")) == "tgz":
-            model_artifacts = "{0}.{1}".format(
-                items.get("model_name"), items.get("archive_format")
-            )
+            model_artifacts = "{0}.tar.gz".format(items.get("model_name"))
         else:
             model_artifacts = "{0}.mar".format(items.get("model_name"))
         print("## {0} is generated.\n".format(model_artifacts))

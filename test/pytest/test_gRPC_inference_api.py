@@ -199,7 +199,6 @@ def test_inference_stream2_apis():
 
     for item in test_data:
         model_artifacts = test_utils.create_model_artifacts(item, force=True)
-        print("model_artifacts={}.format(model_artifacts)")
         managment_stub = test_gRPC_utils.get_management_stub()
         response = managment_stub.RegisterModel(
             management_pb2.RegisterModelRequest(
