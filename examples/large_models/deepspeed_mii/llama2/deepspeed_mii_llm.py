@@ -5,7 +5,7 @@ import mii
 parser = argparse.ArgumentParser()
 parser.add_argument("--model_path", "-m", type=str, required=True, help="Model Name")
 parser.add_argument(
-    "--prompt", "-p", type=str, required=True, help="Input Prompt for image generation"
+    "--prompt", "-p", type=str, required=True, help="Input Prompt for text generation"
 )
 parser.add_argument(
     "--tensor_parallel",
@@ -21,6 +21,7 @@ parser.add_argument(
 args = parser.parse_args()
 
 model_config = {"tensor_parallel": args.tensor_parallel, "dtype": args.dtype}
+
 
 pipe = mii.pipeline(
     model_name_or_path=args.model_path,

@@ -1,0 +1,19 @@
+# TorchServe frontend parameters
+minWorkers: 1
+maxWorkers: 1
+maxBatchDelay: 100
+responseTimeout: 1200
+parallelType: "tp"
+deviceType: "gpu"
+# example of user specified GPU deviceIds
+deviceIds: [0,1,2,3] # seting CUDA_VISIBLE_DEVICES
+
+torchrun:
+    nproc-per-node: 4
+
+# TorchServe Backend parameters
+handler:
+    model_name: "meta-llama/Llama-2-13b-hf"
+    tensor_parallel: 4
+    dtype: "fp16"
+    max_new_tokens: 50
