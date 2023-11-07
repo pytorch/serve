@@ -467,6 +467,104 @@ def test_metrics_prometheus_mode():
         os.remove(config_file)
 
 
+def test_auto_detect_backend_metrics_log_mode():
+    """
+    Validates that auto-detection of backend metrics works with log mode
+    """
+    # Torchserve cleanup
+    test_utils.stop_torchserve()
+    test_utils.delete_all_snapshots()
+    # Remove existing logs if any
+    for f in glob.glob("logs/*.log"):
+        os.remove(f)
+
+    config_file = test_utils.ROOT_DIR + "config.properties"
+    with open(config_file, "w") as f:
+        f.write("enable_envvars_config=true")
+
+    os.environ["TS_METRICS_CONFIG"] = os.path.join(
+        test_utils.REPO_ROOT,
+        "test",
+        "pytest",
+        "test_data",
+        "metrics",
+        "metrics_auto_detect.yaml",
+    )
+
+    try:
+        test_utils.start_torchserve(
+            model_store=test_utils.MODEL_STORE,
+            snapshot_file=config_file,
+            no_config_snapshots=True,
+            gen_mar=False,
+        )
+        register_densenet161_model_and_make_inference_request()
+        validate_metrics_log("model_metrics.log", BACKEND_METRICS, True)
+    finally:
+        test_utils.stop_torchserve()
+        test_utils.delete_all_snapshots()
+        del os.environ["TS_METRICS_CONFIG"]
+        os.remove(config_file)
+
+
+def test_auto_detect_backend_metrics_prometheus_mode():
+    """
+    Validates that auto-detection of backend metrics works with prometheus mode
+    """
+    # Torchserve cleanup
+    test_utils.stop_torchserve()
+    test_utils.delete_all_snapshots()
+    # Remove existing logs if any
+    for f in glob.glob("logs/*.log"):
+        os.remove(f)
+
+    config_file = test_utils.ROOT_DIR + "config.properties"
+    with open(config_file, "w") as f:
+        f.write("enable_envvars_config=true")
+
+    os.environ["TS_METRICS_MODE"] = "prometheus"
+    os.environ["TS_METRICS_CONFIG"] = os.path.join(
+        test_utils.REPO_ROOT,
+        "test",
+        "pytest",
+        "test_data",
+        "metrics",
+        "metrics_auto_detect.yaml",
+    )
+
+    try:
+        test_utils.start_torchserve(
+            model_store=test_utils.MODEL_STORE,
+            snapshot_file=config_file,
+            no_config_snapshots=True,
+            gen_mar=False,
+        )
+        register_densenet161_model_and_make_inference_request()
+
+        validate_metrics_log("model_metrics.log", BACKEND_METRICS, False)
+
+        response = requests.get("http://localhost:8082/metrics")
+        prometheus_metrics = response.text
+        for metric_name in BACKEND_METRICS:
+            assert metric_name in prometheus_metrics
+
+        prometheus_metric_patterns = [
+            r'HandlerTime\{ModelName="densenet161",Level="Model",Hostname=".+",\} \d+\.\d+',
+            r'PredictionTime\{ModelName="densenet161",Level="Model",Hostname=".+",\} \d+\.\d+',
+        ]
+
+        for pattern in prometheus_metric_patterns:
+            matches = re.findall(pattern, prometheus_metrics)
+            assert len(matches) == 1
+
+    finally:
+        test_utils.stop_torchserve()
+        test_utils.delete_all_snapshots()
+        del os.environ["TS_METRICS_MODE"]
+        del os.environ["TS_METRICS_CONFIG"]
+        os.remove(config_file)
+
+
 def test_collect_system_metrics_when_not_disabled():
     """
     Validates that system metrics are collected when not disabled
