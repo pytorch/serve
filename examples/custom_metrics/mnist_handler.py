@@ -95,6 +95,7 @@ class MNISTDigitClassifier(ImageClassifier):
 
         # "add_time" will register the metric if not already present in metric cache,
         # include the "ModelName" and "Level" dimensions by default and emit it
+        # Note: "HandlerMethodTime" is not defined in "metrics.yaml" and will be auto-detected
         metrics.add_time(
             name="HandlerMethodTime",
             value=(preprocess_stop - preprocess_start) * 1000,
@@ -122,6 +123,7 @@ class MNISTDigitClassifier(ImageClassifier):
         )
         # "add_percent" will register the metric if not already present in metric cache,
         # include the "ModelName" and "Level" dimensions by default and emit it
+        # Note: "ExamplePercentMetric" is not defined in "metrics.yaml" and will be auto-detected
         self.context.metrics.add_percent(
             name="ExamplePercentMetric",
             value=50,

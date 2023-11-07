@@ -18,9 +18,10 @@ Run the commands given in following steps from the root directory of the reposit
   - HandlerMethodTime
   - ExamplePercentMetric
 
-  The custom metrics configuration file `metrics.yaml` in this example builds on top of the [default metrics configuration file](https://github.com/pytorch/serve/blob/master/ts/configs/metrics.yaml) to include the custom metrics listed above.
-  The `config.properties` file in this example configures torchserve to use the custom metrics configuration file and sets the `metrics_mode` to `prometheus`. The custom handler
-  `mnist_handler.py` updates the metrics listed above.
+  The custom metrics configuration file [metrics.yaml](metrics.yaml) in this example builds on top of the [default metrics configuration file](https://github.com/pytorch/serve/blob/master/ts/configs/metrics.yaml) to include the custom metrics listed above.
+  Note that, `HandlerMethodTime` and `ExamplePercentMetric` are not defined in the [metrics configuration file](metrics.yaml) to demonstrate auto-detection of backend metrics.
+  The [config.properties](config.properties) file in this example configures torchserve to use the custom metrics configuration file and sets the `metrics_mode` to `prometheus`. The custom handler
+  [mnist_handler.py](mnist_handler.py) updates the metrics listed above.
 
   Refer: [Custom Metrics](https://github.com/pytorch/serve/blob/master/docs/metrics.md#custom-metrics-api)\
   Refer: [Custom Handler](https://github.com/pytorch/serve/blob/master/docs/custom_service.md#custom-handlers)
