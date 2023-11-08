@@ -417,12 +417,13 @@ To configure gRPC APIs on different ports refer <a class="reference internal" hr
 </ul>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/pytorch/serve
 <span class="nb">cd</span><span class="w"> </span>serve
+git<span class="w"> </span>submodule<span class="w"> </span>init
 </pre></div>
 </div>
 <ul class="simple">
 <li><p>Install gRPC python dependencies</p></li>
 </ul>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>-U<span class="w"> </span>grpcio<span class="w"> </span>protobuf<span class="w"> </span>grpcio-tools
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>-U<span class="w"> </span>grpcio<span class="w"> </span>protobuf<span class="w"> </span>grpcio-tools<span class="w"> </span>googleapis-common-protos
 </pre></div>
 </div>
 <ul class="simple">
@@ -435,7 +436,7 @@ torchserve<span class="w"> </span>--start<span class="w"> </span>--model-store<s
 <ul class="simple">
 <li><p>Generate python gRPC client stub using the proto files</p></li>
 </ul>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>grpc_tools.protoc<span class="w"> </span>--proto_path<span class="o">=</span>frontend/server/src/main/resources/proto/<span class="w"> </span>--python_out<span class="o">=</span>ts_scripts<span class="w"> </span>--grpc_python_out<span class="o">=</span>ts_scripts<span class="w"> </span>frontend/server/src/main/resources/proto/inference.proto<span class="w"> </span>frontend/server/src/main/resources/proto/management.proto
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>grpc_tools.protoc<span class="w"> </span>-I<span class="w"> </span>third_party/google/rpc<span class="w"> </span>--proto_path<span class="o">=</span>frontend/server/src/main/resources/proto/<span class="w"> </span>--python_out<span class="o">=</span>ts_scripts<span class="w"> </span>--grpc_python_out<span class="o">=</span>ts_scripts<span class="w"> </span>frontend/server/src/main/resources/proto/inference.proto<span class="w"> </span>frontend/server/src/main/resources/proto/management.proto
 </pre></div>
 </div>
 <ul class="simple">
