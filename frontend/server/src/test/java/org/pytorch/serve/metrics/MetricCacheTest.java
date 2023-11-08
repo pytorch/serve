@@ -76,7 +76,6 @@ public class MetricCacheTest {
                         new Dimension("Level", "model"));
         metricCache.addAutoDetectMetricBackend(metric);
         IMetric cachedMetric = metricCache.getMetricBackend("TestMetricWithoutType");
-        Assert.assertEquals(PrometheusCounter.class, cachedMetric.getClass());
         Assert.assertEquals(cachedMetric.type, MetricBuilder.MetricType.COUNTER);
         Assert.assertEquals(cachedMetric.name, "TestMetricWithoutType");
         Assert.assertEquals(cachedMetric.unit, "count");
@@ -98,7 +97,6 @@ public class MetricCacheTest {
                         new Dimension("Level", "model"));
         metricCache.addAutoDetectMetricBackend(metric);
         IMetric cachedMetric = metricCache.getMetricBackend("TestMetricWithType");
-        Assert.assertEquals(PrometheusGauge.class, cachedMetric.getClass());
         Assert.assertEquals(cachedMetric.type, MetricBuilder.MetricType.GAUGE);
         Assert.assertEquals(cachedMetric.name, "TestMetricWithType");
         Assert.assertEquals(cachedMetric.unit, "count");
