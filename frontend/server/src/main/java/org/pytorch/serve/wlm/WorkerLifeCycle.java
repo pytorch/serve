@@ -311,7 +311,9 @@ public class WorkerLifeCycle {
                         try {
                             if (this.metricCache.getMetricBackend(parsedMetric.getMetricName())
                                     == null) {
-                                logger.info("Registering auto detected backend metric: {}", parsedMetric);
+                                logger.info(
+                                        "Registering auto detected backend metric: {}",
+                                        parsedMetric);
                                 this.metricCache.addAutoDetectMetricBackend(parsedMetric);
                             }
 

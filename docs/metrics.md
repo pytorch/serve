@@ -45,7 +45,8 @@ When TorchServe is started, the metrics definition is loaded in the frontend and
 The backend emits metrics logs as they are updated. The frontend parses these logs and makes the corresponding metrics available either as logs or via the [metrics API endpoint](metrics_api.md) based on the metrics_mode configuration.
 
 
-Dynamic updates to the metrics configuration file is currently not supported. In order to account for updates made to the metrics configuration file, Torchserve will need to be restarted.
+Dynamic updates to the metrics configuration file is not supported. In order to account for updates made to the metrics configuration file, Torchserve will need to be restarted.
+Backend metrics that are not defined in the metrics configuration file will be auto-detected and registered in the frontend.
 
 
 The `metrics.yaml` is formatted with Prometheus metric type terminology:
@@ -86,9 +87,6 @@ model_metrics:  # backend metrics
       unit: ms
       dimensions: [*model_name, *level]
 ```
-
-
-Note that **only** the metrics defined in the **metrics configuration file** can be emitted to model_metrics.log or made available via the [metrics API endpoint](metrics_api.md). This is done to ensure that the metrics configuration file serves as a central inventory of all the metrics that Torchserve can emit.
 
 Default metrics are provided in the [metrics.yaml](https://github.com/pytorch/serve/blob/master/ts/configs/metrics.yaml) file, but the user can either delete them to their liking / ignore them altogether, because these metrics will not be emitted unless they are updated.\
 When adding custom `model_metrics` in the metrics configuration file, ensure to include `ModelName` and `Level` dimension names towards the end of the list of dimensions since they are included by default by the following custom metrics APIs:
@@ -723,12 +721,12 @@ class CustomHandlerExample:
      ```
    - **[v0.6.1 - v0.8.1] to [> v0.8.1]**\
      Replace the call to `add_metric` with `add_metric_to_cache`.
-2. Starting [v0.8.0](https://github.com/pytorch/serve/releases/tag/v0.8.0), only metrics that are defined in the metrics config file(default: [metrics.yaml](https://github.com/pytorch/serve/blob/master/ts/configs/metrics.yaml))
+2. In versions [[v0.8.0](https://github.com/pytorch/serve/releases/tag/v0.8.0) - [v0.9.0](https://github.com/pytorch/serve/releases/tag/v0.9.0)], only metrics that are defined in the metrics config file(default: [metrics.yaml](https://github.com/pytorch/serve/blob/master/ts/configs/metrics.yaml))
    are either all logged to `ts_metrics.log` and `model_metrics.log` or made available via the [metrics API endpoint](metrics_api.md)
    based on the `metrics_mode` configuration as described [above](#introduction).\
    The default `metrics_mode` is `log` mode.\
    This is unlike in previous versions where all metrics were only logged to `ts_metrics.log` and `model_metrics.log` except for `ts_inference_requests_total`, `ts_inference_latency_microseconds` and `ts_queue_latency_microseconds`
    which were only available via the metrics API endpoint.\
    **Upgrade paths**:
-   - **[< v0.8.0] to [>= v0.8.0]**\
+   - **[< v0.8.0] to [v0.8.0 - v0.9.0]**\
      Specify all the custom metrics added to the custom handler in the metrics configuration file as shown [above](#getting-started-with-torchserve-metrics).
