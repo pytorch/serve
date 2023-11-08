@@ -118,6 +118,7 @@ public class WorkerThread implements Runnable {
     public String getGpuUsage() {
         Process process;
         StringBuffer gpuUsage = new StringBuffer();
+        String pid = String.valueOf(getPid()).strip();
         if (gpuId >= 0) {
             try {
                 // TODO : add a generic code to capture gpu details for different devices instead of
@@ -125,9 +126,7 @@ public class WorkerThread implements Runnable {
                 ProcessBuilder pb =
                         new ProcessBuilder(
                                 "nvidia-smi",
-                                "-i",
-                                String.valueOf(gpuId),
-                                "--query-gpu=utilization.gpu,utilization.memory,memory.used",
+                                "--query-compute-apps=pid,used_gpu_memory",
                                 "--format=csv");
 
                 // Start the process
@@ -154,11 +153,13 @@ public class WorkerThread implements Runnable {
                         firstLine = false;
                     } else {
                         String[] values = line.split(",");
-                        StringBuffer sb = new StringBuffer("gpuId::" + gpuId + " ");
-                        for (int i = 0; i < headers.length; i++) {
-                            sb.append(headers[i] + "::" + values[i].strip());
+                        if (pid.equals(values[0].strip())){
+                            StringBuffer sb = new StringBuffer("gpuId::" + gpuId + " ");
+                            for (int i = 0; i < headers.length; i++) {
+                                sb.append(headers[i] + "::" + values[i].strip());
+                            }
+                            gpuUsage.append(sb.toString());
                         }
-                        gpuUsage.append(sb.toString());
                     }
                 }
             } catch (Exception e) {
