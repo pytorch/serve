@@ -64,6 +64,9 @@ def create_predict_response(
     :param code:
     :return:
     """
+    if str(os.getenv("LOCAL_RANK", 0)) != "0":
+        return None
+
     msg = bytearray()
     msg += struct.pack("!i", code)
 
