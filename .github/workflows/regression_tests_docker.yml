@@ -29,6 +29,8 @@ jobs:
           docker system prune --all --volumes -f
       - name: Checkout TorchServe
         uses: actions/checkout@v3
+        with:
+          submodules: recursive
       - name: Branch name
         run: |
           echo $GITHUB_REF_NAME
