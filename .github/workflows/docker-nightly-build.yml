@@ -1,9 +1,8 @@
 name: Push Docker Nightly
 
 on:
-  # run every day at 1:15pm
-  schedule:
-    - cron: "15 13 * * *"
+  push
+
 jobs:
   nightly:
     runs-on: [self-hosted, ci-gpu]
@@ -28,10 +27,6 @@ jobs:
         env:
           DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
         run: docker login --username pytorchbot --password "$DOCKER_PASSWORD"
-      - name: Push Docker Nightly
-        run: |
-          cd docker
-          python docker_nightly.py --cleanup
       - name: Push KServe Docker Nightly
         run: |
           cd kubernetes/kserve
