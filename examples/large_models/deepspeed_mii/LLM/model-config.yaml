@@ -14,6 +14,7 @@ torchrun:
 # TorchServe Backend parameters
 handler:
     model_name: "meta-llama/Llama-2-13b-hf"
+    model_path: "model/models--meta-llama--Llama-2-13b-hf/snapshots/99afe33d7eaa87c7fc6ea2594a0e4e7e588ee0a4"
     tensor_parallel: 4
-    dtype: "fp16"
-    max_new_tokens: 50
+    max_length: 4096
+    max_new_tokens: 256
