@@ -1,6 +1,7 @@
 package org.pytorch.serve.wlm;
 
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import org.pytorch.serve.job.Job;
 import org.pytorch.serve.util.messages.BaseModelRequest;
 import org.pytorch.serve.util.messages.ModelInferenceRequest;
@@ -20,7 +21,7 @@ public class ContinuousBatching extends BatchAggregator {
     }
 
     public BaseModelRequest getRequest(String threadName, WorkerState state)
-            throws InterruptedException {
+            throws InterruptedException, ExecutionException {
         int batchQuota = model.getBatchSize() - jobs.size();
 
         ModelInferenceRequest req = new ModelInferenceRequest(model.getModelName());
@@ -70,7 +71,7 @@ public class ContinuousBatching extends BatchAggregator {
                 for (Map.Entry<String, Job> j : jobs.entrySet()) {
                     Job job = j.getValue();
                     if (job.isControlCmd()) {
-                        jobs.clear();
+                        cleanJobs();
                         return true;
                     }
                 }
@@ -107,6 +108,8 @@ public class ContinuousBatching extends BatchAggregator {
                     logger.info(
                             "Connection to client got closed; Removing job: {}",
                             job.getPayload().getRequestId());
+                } else {
+                    job.getPayload().setCachedInBackend(true);
                 }
             }
         } else {
@@ -125,14 +128,14 @@ public class ContinuousBatching extends BatchAggregator {
                             job.getPayload().getRequestId());
                 }
             }
-            jobs.clear();
+            cleanJobs();
         }
 
         return true;
     }
 
     private void pollBatch(String threadName, WorkerState state, int batchSize)
-            throws InterruptedException {
+            throws InterruptedException, ExecutionException {
         boolean pollMgmtJobStatus = false;
         if (jobs.isEmpty()) {
             pollMgmtJobStatus =
