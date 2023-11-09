@@ -38,7 +38,7 @@ class LlamaHandler(BaseHandler, ABC):
         torch.manual_seed(seed)
 
         self.model = LLM(model=model_path)
-        
+
         logger.info("Model %s loaded successfully", ctx.model_name)
         self.initialized = True
 
@@ -53,10 +53,13 @@ class LlamaHandler(BaseHandler, ABC):
                 attention masks.
         """
         input_texts = [data.get("data") or data.get("body") for data in requests]
-        #return torch.as_tensor(input_texts, device=self.device)
-        input_texts = [ input_text.decode("utf-8") for input_text in input_texts if isinstance(input_text, (bytes, bytearray))]
+        # return torch.as_tensor(input_texts, device=self.device)
+        input_texts = [
+            input_text.decode("utf-8")
+            for input_text in input_texts
+            if isinstance(input_text, (bytes, bytearray))
+        ]
         return input_texts
-
 
     def inference(self, input_batch):
         """
@@ -70,10 +73,7 @@ class LlamaHandler(BaseHandler, ABC):
         """
         logger.info(f"Input text is {input_batch}")
         sampling_params = SamplingParams(max_tokens=self.max_new_tokens)
-        outputs = self.model.generate(
-            input_batch, sampling_params=sampling_params
-        )
-
+        outputs = self.model.generate(input_batch, sampling_params=sampling_params)
 
         logger.info("Generated text: %s", outputs)
         return outputs
