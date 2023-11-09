@@ -69,9 +69,11 @@ class DeepSpeedMIIHandler(BaseHandler, ABC):
         Returns:
             list : It returns a list of the generate images for the input text
         """
-        inferences = self.pipe(inputs, max_new_tokens=self.max_new_tokens)
+        inferences = self.pipe(
+            inputs, max_new_tokens=self.max_new_tokens
+        ).generated_texts
 
-        logger.info("Generated text: ", inferences)
+        logger.info("Generated text: %s", inferences)
         return inferences
 
     def postprocess(self, inference_output):
