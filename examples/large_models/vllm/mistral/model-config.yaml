@@ -1,0 +1,13 @@
+# TorchServe frontend parameters
+minWorkers: 1
+maxWorkers: 1
+maxBatchDelay: 100
+responseTimeout: 1200
+deviceType: "gpu"
+
+handler:
+    model_name: "mistralai/Mistral-7B-v0.1"
+    model_path: "/home/ubuntu/serve/examples/large_models/vllm/mistral/model/models--mistralai--Mistral-7B-v0.1/snapshots/5e9c98b96d071dce59368012254c55b0ec6f8658"
+    max_new_tokens: 100
+    manual_seed: 40
+    fast_kernels: True
