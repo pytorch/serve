@@ -64,7 +64,7 @@ RUN export USE_CUDA=1
 
 ARG CUDA_VERSION=""
 
-RUN git clone --depth 1 https://github.com/pytorch/serve.git
+RUN git clone --depth 1 --recursive https://github.com/pytorch/serve.git
 
 WORKDIR "serve"
 
@@ -181,3 +181,61 @@ ENV TS_RUN_IN_DOCKER True
 
 WORKDIR /home/serve
 CMD ["python", "test/regression_tests.py"]
+
+#Final image for developer Docker image
+FROM ${BASE_IMAGE} as dev-image
+# Re-state ARG PYTHON_VERSION to make it active in this build-stage (uses default define at the top)
+ARG PYTHON_VERSION
+ARG BRANCH_NAME
+ARG BUILD_WITH_IPEX
+ARG IPEX_VERSION=1.11.0
+ARG IPEX_URL=https://software.intel.com/ipex-whl-stable
+ENV PYTHONUNBUFFERED TRUE
+RUN --mount=type=cache,target=/var/cache/apt \
+    apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install software-properties-common -y && \
+    add-apt-repository -y ppa:deadsnakes/ppa && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
+    fakeroot \
+    ca-certificates \
+    dpkg-dev \
+    sudo \
+    g++ \
+    git \
+    python$PYTHON_VERSION \
+    python$PYTHON_VERSION-dev \
+    python3-distutils \
+    python$PYTHON_VERSION-venv \
+    # using openjdk-17-jdk due to circular dependency(ca-certificates) bug in openjdk-17-jre-headless debian package
+    # https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1009905
+    openjdk-17-jdk \
+    build-essential \
+    curl \
+    vim \
+    numactl \
+    && if [ "$BUILD_WITH_IPEX" = "true" ]; then apt-get update && apt-get install -y libjemalloc-dev libgoogle-perftools-dev libomp-dev && ln -s /usr/lib/x86_64-linux-gnu/libjemalloc.so /usr/lib/libjemalloc.so && ln -s /usr/lib/x86_64-linux-gnu/libtcmalloc.so /usr/lib/libtcmalloc.so && ln -s /usr/lib/x86_64-linux-gnu/libiomp5.so /usr/lib/libiomp5.so; fi \
+    && rm -rf /var/lib/apt/lists/*
+RUN git clone --recursive https://github.com/pytorch/serve.git \
+    && cd serve \
+    && git checkout ${BRANCH_NAME}
+COPY --from=compile-image /home/venv /home/venv
+ENV PATH="/home/venv/bin:$PATH"
+WORKDIR "serve"
+RUN python -m pip install -U pip setuptools \
+    && python -m pip install --no-cache-dir -r requirements/developer.txt \
+    && python ts_scripts/install_from_src.py \
+    && useradd -m model-server \
+    && mkdir -p /home/model-server/tmp \
+    && cp docker/dockerd-entrypoint.sh /usr/local/bin/dockerd-entrypoint.sh \
+    && chmod +x /usr/local/bin/dockerd-entrypoint.sh \
+    && chown -R model-server /home/model-server \
+    && cp docker/config.properties /home/model-server/config.properties \
+    && mkdir /home/model-server/model-store && chown -R model-server /home/model-server/model-store \
+    && chown -R model-server /home/venv
+EXPOSE 8080 8081 8082 7070 7071
+USER model-server
+WORKDIR /home/model-server
+ENV TEMP=/home/model-server/tmp
+ENTRYPOINT ["/usr/local/bin/dockerd-entrypoint.sh"]
+CMD ["serve"]
