@@ -122,7 +122,7 @@ public final class MetricCache {
                         parsedMetric.getUnit(),
                         dimensionNames);
 
-        this.metricsBackend.put(parsedMetric.getMetricName(), metric);
+        this.metricsBackend.putIfAbsent(parsedMetric.getMetricName(), metric);
 
         return metric;
     }
