@@ -68,7 +68,14 @@ ts_metrics:
 
 model_metrics:
   # "PredictionTime" is left undefined to test metrics auto-detection
+  counter:
+    - name: PreprocessCallCount
+      unit: count
+      dimensions: [*model_name]
   gauge:
     - name: HandlerTime
       unit: ms
       dimensions: [*model_name, *level]
+    - name: RequestBatchSize
+      unit: count
+      dimensions: [ "ModelName" ]

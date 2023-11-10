@@ -41,10 +41,6 @@ class MNISTDigitClassifier(ImageClassifier):
             name="InitializeCallCount",
             value=1,
             unit="count",
-            dimensions=[
-                Dimension(name="ModelName", value=context.model_name),
-                Dimension(name="Level", value="Model"),
-            ],
             metric_type=MetricTypes.COUNTER,
         )
 
