@@ -10,6 +10,7 @@ import os
 import platform
 import socket
 import sys
+import uuid
 from typing import Optional
 
 from ts.arg_parser import ArgParser
@@ -127,6 +128,11 @@ class TorchModelServiceWorker(object):
                 limit_max_image_pixels = bool(load_model_request["limitMaxImagePixels"])
 
             self.metrics_cache.model_name = model_name
+            # Backwards Compatibility with releases <=0.6.0
+            # Request ID is not set for model load requests
+            # TODO: UUID serves as a temporary request ID for model load requests
+            self.metrics_cache.set_request_ids(str(uuid.uuid4()))
+
             model_loader = ModelLoaderFactory.get_model_loader()
             service = model_loader.load(
                 model_name,
