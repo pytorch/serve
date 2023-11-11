@@ -115,9 +115,7 @@ public final class MetricCache {
         IMetric metric =
                 MetricBuilder.build(
                         ConfigManager.getInstance().getMetricsMode(),
-                        parsedMetric.getType() != null
-                                ? MetricBuilder.MetricType.valueOf(parsedMetric.getType())
-                                : MetricBuilder.MetricType.COUNTER,
+                        MetricBuilder.MetricType.valueOf(parsedMetric.getType()),
                         parsedMetric.getMetricName(),
                         parsedMetric.getUnit(),
                         dimensionNames);
