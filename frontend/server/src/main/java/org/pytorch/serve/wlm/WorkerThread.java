@@ -155,8 +155,8 @@ public class WorkerThread implements Runnable {
                         String[] values = line.split(",");
                         if (pid.equals(values[0].strip())) {
                             StringBuffer sb = new StringBuffer("gpuId::" + gpuId + " ");
-                            for (int i = 0; i < headers.length; i++) {
-                                sb.append(headers[i] + "::" + values[i].strip());
+                            for (int i = 1; i < headers.length; i++) {
+                                sb.append(values[i].strip());
                             }
                             gpuUsage.append(sb.toString());
                         }

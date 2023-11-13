@@ -410,10 +410,14 @@ public final class ApiUtils {
             boolean isRunning =
                     worker.isRunning() && worker.getState() == WorkerState.WORKER_MODEL_LOADED;
             int gpuId = worker.getGpuId();
-            long memory = worker.getMemory();
+            String memory = String.valueOf(worker.getMemory()) + " bytes";
+            if (gpuId >= 0) {
+                memory = worker.getGpuUsage();
+            }
+            // long memory = worker.getMemory();
             int pid = worker.getPid();
-            String gpuUsage = worker.getGpuUsage();
-            resp.addWorker(workerId, startTime, isRunning, gpuId, memory, pid, gpuUsage);
+            // String gpuUsage = worker.getGpuUsage();
+            resp.addWorker(workerId, startTime, isRunning, gpuId, memory, pid);
         }
 
         DescribeModelResponse.JobQueueStatus jobQueueStatus =
