@@ -85,6 +85,13 @@ What's going on in TorchServe?
    :tags: Troubleshooting,Performance
 
 .. customcarditem::
+   :header: TorchServe Security Policy
+   :card_description: Security Policy
+   :image: https://user-images.githubusercontent.com/880376/83180095-c44cc600-a0d7-11ea-97c1-23abb4cdbe4d.jpg
+   :link: security.html
+   :tags: Security 
+
+.. customcarditem::
    :header: FAQs
    :card_description: Various frequently asked questions.
    :image: https://raw.githubusercontent.com/pytorch/serve/master/docs/images/NMTDualTranslate.png
