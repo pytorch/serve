@@ -63,28 +63,7 @@ public class MetricCacheTest {
     }
 
     @Test
-    public void testMetricCacheAddAutoDetectMetricBackendWithoutType() {
-        MetricCache metricCache = MetricCache.getInstance();
-        Metric metric =
-                new Metric(
-                        "TestMetricWithoutType",
-                        "5.0",
-                        "count",
-                        null,
-                        "test-host",
-                        new Dimension("ModelName", "mnist"),
-                        new Dimension("Level", "model"));
-        metricCache.addAutoDetectMetricBackend(metric);
-        IMetric cachedMetric = metricCache.getMetricBackend("TestMetricWithoutType");
-        Assert.assertEquals(cachedMetric.type, MetricBuilder.MetricType.COUNTER);
-        Assert.assertEquals(cachedMetric.name, "TestMetricWithoutType");
-        Assert.assertEquals(cachedMetric.unit, "count");
-        Assert.assertEquals(
-                cachedMetric.dimensionNames, Arrays.asList("ModelName", "Level", "Hostname"));
-    }
-
-    @Test
-    public void testMetricCacheAddAutoDetectMetricBackendWithType() {
+    public void testMetricCacheAddAutoDetectMetricBackend() {
         MetricCache metricCache = MetricCache.getInstance();
         Metric metric =
                 new Metric(
