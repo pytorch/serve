@@ -225,6 +225,7 @@ WORKDIR "serve"
 RUN python -m pip install -U pip setuptools \
     && python -m pip install --no-cache-dir -r requirements/developer.txt \
     && python ts_scripts/install_from_src.py \
+    && if [ -n "$CUDA_VERSION" ]; then python -m pip install --no-cache-dir tensorrt==8.5.3.1 torch-tensorrt==1.4.0; fi \
     && useradd -m model-server \
     && mkdir -p /home/model-server/tmp \
     && cp docker/dockerd-entrypoint.sh /usr/local/bin/dockerd-entrypoint.sh \
