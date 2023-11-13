@@ -34,10 +34,11 @@ class LlamaHandler(BaseHandler, ABC):
         self.max_new_tokens = int(ctx.model_yaml_config["handler"]["max_new_tokens"])
         model_name = ctx.model_yaml_config["handler"]["model_name"]
         model_path = ctx.model_yaml_config["handler"]["model_path"]
+        tp_size = ctx.model_yaml_config["handler"]["tensor_parallel_size"]
         seed = int(ctx.model_yaml_config["handler"]["manual_seed"])
         torch.manual_seed(seed)
 
-        self.model = LLM(model=model_path)
+        self.model = LLM(model=model_path, tensor_parallel_size=tp_size)
 
         logger.info("Model %s loaded successfully", ctx.model_name)
         self.initialized = True

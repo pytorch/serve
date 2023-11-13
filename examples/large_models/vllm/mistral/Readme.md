@@ -18,7 +18,7 @@ huggingface-cli login --token $HUGGINGFACE_TOKEN
 ```
 
 ```bash
-python ../Download_model.py --model_path model --model_name mistralai/Mistral-7B-v0.1
+python ../../Huggingface_accelerate/Download_model.py --model_path model --model_name mistralai/Mistral-7B-v0.1
 ```
 Model will be saved in the following path, `mistralai/Mistral-7B-v0.1`.
 
