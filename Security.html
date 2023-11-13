@@ -6,10 +6,11 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  
+  <meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>ts.torch_handler.unit_tests.test_base_handler &mdash; PyTorch/Serve master documentation</title>
+  <title>Security Policy &mdash; PyTorch/Serve master documentation</title>
   
 
   
@@ -25,15 +26,17 @@
 
   
 
-  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
-  <!-- <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" /> -->
-  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!-- <link rel="stylesheet" href="_static/pygments.css" type="text/css" /> -->
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" type="text/css" />
-  <link rel="stylesheet" href="../../../../_static/katex-math.css" type="text/css" />
-    <link rel="index" title="Index" href="../../../../genindex.html" />
-    <link rel="search" title="Search" href="../../../../search.html" />
+  <link rel="stylesheet" href="_static/katex-math.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="FAQ’S" href="FAQs.html" />
+    <link rel="prev" title="Serving large models with Torchserve" href="large_model_inference.html" />
   <!-- Google Tag Manager -->
     <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
     new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -44,16 +47,16 @@
   
 
   
-  <script src="../../../../_static/js/modernizr.min.js"></script>
+  <script src="_static/js/modernizr.min.js"></script>
 
   <!-- Preload the theme fonts -->
 
-<link rel="preload" href="../../../../_static/fonts/FreightSans/freight-sans-book.woff2" as="font" type="font/woff2" crossorigin="anonymous">
-<link rel="preload" href="../../../../_static/fonts/FreightSans/freight-sans-medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
-<link rel="preload" href="../../../../_static/fonts/IBMPlexMono/IBMPlexMono-Medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
-<link rel="preload" href="../../../../_static/fonts/FreightSans/freight-sans-bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
-<link rel="preload" href="../../../../_static/fonts/FreightSans/freight-sans-medium-italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
-<link rel="preload" href="../../../../_static/fonts/IBMPlexMono/IBMPlexMono-SemiBold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-book.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/IBMPlexMono/IBMPlexMono-Medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-medium-italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/IBMPlexMono/IBMPlexMono-SemiBold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
 
 <!-- Preload the katex fonts -->
 
@@ -242,7 +245,7 @@
 
 
 <div role="search">
-  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search Docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
@@ -259,49 +262,49 @@
             
             
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../../index.html">TorchServe</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../Troubleshooting.html">Troubleshooting Guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../performance_guide.html">Performance Guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../batch_inference_with_ts.html">Batch Inference with TorchServe</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../code_coverage.html">Code Coverage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../configuration.html">Advanced configuration</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../custom_service.html">Custom Service</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../default_handlers.html">TorchServe default inference handlers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../logging.html">Logging in Torchserve</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../metrics.html">TorchServe Metrics</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../model_zoo.html">Model Zoo</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../request_envelopes.html">Request Envelopes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../server.html">Running TorchServe</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../nvidia_mps.html">Running TorchServe with NVIDIA MPS</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../snapshot.html">TorchServe model snapshot</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../torchserve_on_win_native.html">TorchServe on Windows</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../torchserve_on_wsl.html">TorchServe on Windows Subsystem for Linux (WSL)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../use_cases.html">Torchserve Use Cases</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../workflows.html">TorchServe Workflows</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../large_model_inference.html">Serving large models with Torchserve</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../Security.html">Security Policy</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../FAQs.html">FAQ’S</a></li>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="index.html">TorchServe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Troubleshooting.html">Troubleshooting Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="performance_guide.html">Performance Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="batch_inference_with_ts.html">Batch Inference with TorchServe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="code_coverage.html">Code Coverage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Advanced configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom_service.html">Custom Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="default_handlers.html">TorchServe default inference handlers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="logging.html">Logging in Torchserve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">TorchServe Metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="model_zoo.html">Model Zoo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="request_envelopes.html">Request Envelopes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="server.html">Running TorchServe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nvidia_mps.html">Running TorchServe with NVIDIA MPS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="snapshot.html">TorchServe model snapshot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torchserve_on_win_native.html">TorchServe on Windows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torchserve_on_wsl.html">TorchServe on Windows Subsystem for Linux (WSL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="use_cases.html">Torchserve Use Cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workflows.html">TorchServe Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="large_model_inference.html">Serving large models with Torchserve</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Security Policy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="FAQs.html">FAQ’S</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Service APIs:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../../grpc_api.html">TorchServe gRPC API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../inference_api.html">Inference API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../management_api.html">Management API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../metrics_api.html">Metrics API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../rest_api.html">TorchServe REST API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../workflow_inference_api.html">Workflow Inference API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../workflow_management_api.html">Management API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="grpc_api.html">TorchServe gRPC API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="inference_api.html">Inference API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="management_api.html">Management API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics_api.html">Metrics API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rest_api.html">TorchServe REST API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workflow_inference_api.html">Workflow Inference API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workflow_management_api.html">Management API</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Developer APIs:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../../api/ts.html">ts package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../api/ts.torch_handler.request_envelope.html">ts.torch_handler.request_envelope package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../api/ts.torch_handler.html">ts.torch_handler package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../api/ts.metrics.html">ts.metrics package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../api/ts.model_service.html">ts.model_service package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../api/ts.protocol.html">ts.protocol package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../../api/modules.html">serve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/ts.html">ts package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/ts.torch_handler.request_envelope.html">ts.torch_handler.request_envelope package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/ts.torch_handler.html">ts.torch_handler package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/ts.metrics.html">ts.metrics package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/ts.model_service.html">ts.model_service package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/ts.protocol.html">ts.protocol package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/modules.html">serve</a></li>
 </ul>
 
             
@@ -334,7 +337,7 @@
   <ul class="pytorch-breadcrumbs">
     
       <li>
-        <a href="../../../../contents.html">
+        <a href="contents.html">
           
             Docs
           
@@ -342,12 +345,14 @@
       </li>
 
         
-          <li><a href="../../../index.html">Module code</a> &gt;</li>
-        
-      <li>ts.torch_handler.unit_tests.test_base_handler</li>
+      <li>Security Policy</li>
     
     
       <li class="pytorch-breadcrumbs-aside">
+        
+            
+            <a href="_sources/Security.md.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg"></a>
+          
         
       </li>
     
@@ -376,56 +381,86 @@
             <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
-  <h1>Source code for ts.torch_handler.unit_tests.test_base_handler</h1><div class="highlight"><pre>
-<span></span><span class="c1"># pylint: disable=W0621</span>
-<span class="c1"># Using the same name as global function is part of pytest</span>
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Basic unit test for BaseHandler class.</span>
-<span class="sd">Ensures it can load and execute an example model</span>
-<span class="sd">&quot;&quot;&quot;</span>
+  <section id="security-policy">
+<h1>Security Policy<a class="headerlink" href="#security-policy" title="Permalink to this heading">¶</a></h1>
+<section id="supported-versions">
+<h2>Supported Versions<a class="headerlink" href="#supported-versions" title="Permalink to this heading">¶</a></h2>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>Version</th>
+<th>Supported</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0.9.0</td>
+<td>:white_check_mark:</td>
+</tr>
+</tbody>
+</table></section>
+<section id="how-we-do-security">
+<h2>How we do security<a class="headerlink" href="#how-we-do-security" title="Permalink to this heading">¶</a></h2>
+<p>TorchServe as much as possible relies on automated tools to do security scanning, in particular we support</p>
+<ol class="simple">
+<li><p>Dependency Analysis: Using Dependabot</p></li>
+<li><p>Docker Scanning: Using Snyk</p></li>
+<li><p>Code Analysis: Using CodeQL</p></li>
+</ol>
+</section>
+<section id="important-security-guidelines">
+<h2>Important Security Guidelines<a class="headerlink" href="#important-security-guidelines" title="Permalink to this heading">¶</a></h2>
+<ol>
+<li><p>TorchServe listens on the following ports</p>
+<ol class="simple">
+<li><p>HTTP - <code class="docutils literal notranslate"><span class="pre">8080</span></code>, <code class="docutils literal notranslate"><span class="pre">8081</span></code>, <code class="docutils literal notranslate"><span class="pre">8082</span></code></p></li>
+<li><p>gRPC - <code class="docutils literal notranslate"><span class="pre">7070</span></code>, <code class="docutils literal notranslate"><span class="pre">7071</span></code></p></li>
+</ol>
+<p>These ports are accessible to <code class="docutils literal notranslate"><span class="pre">localhost</span></code> by default.  The address can be configured by following the <a class="reference external" href="https://pytorch.org/serve/configuration.html#configure-torchserve-listening-address-and-port">guide</a>
+TorchServe does not prevent users from configuring the address to be <code class="docutils literal notranslate"><span class="pre">0.0.0.0</span></code>. Please be aware of the security risks if you use <code class="docutils literal notranslate"><span class="pre">0.0.0.0</span></code></p>
+</li>
+<li><p>TorchServe’s Docker image is configured to expose the ports <code class="docutils literal notranslate"><span class="pre">8080</span></code>, <code class="docutils literal notranslate"><span class="pre">8081</span></code>, <code class="docutils literal notranslate"><span class="pre">8082</span></code>, <code class="docutils literal notranslate"><span class="pre">7070</span></code>, <code class="docutils literal notranslate"><span class="pre">7071</span></code> to the host by <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docker/Dockerfile">default</a>. When these ports are mapped to the host, make sure to use <code class="docutils literal notranslate"><span class="pre">localhost</span></code> or a specific ip address.</p></li>
+<li><p>Be sure to validate the authenticity of the <code class="docutils literal notranslate"><span class="pre">.mar</span></code> file being used with TorchServe.</p>
+<ol class="simple">
+<li><p>A <code class="docutils literal notranslate"><span class="pre">.mar</span></code> file being downloaded from the internet from an untrustworthy source may have malicious code, compromising the integrity of your application</p></li>
+<li><p>TorchServe executes arbitrary python code packaged in the <code class="docutils literal notranslate"><span class="pre">mar</span></code> file. Make sure that you’ve either audited that the code you’re using is safe and/or is from a source that you trust</p></li>
+</ol>
+</li>
+<li><p>By default TorchServe allows you to register models from all URLs. Make sure to set <code class="docutils literal notranslate"><span class="pre">allowed_urls</span></code> parameter in config.properties to restrict this. You can find more details in the <a class="reference external" href="https://pytorch.org/serve/configuration.html#other-properties">configuration guide</a></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">use_env_allowed_urls=true</span></code> is required in config.properties to read <code class="docutils literal notranslate"><span class="pre">allowed_urls</span></code> from environment variable</p></li>
+</ul>
+</li>
+<li><p>Enable SSL:</p>
+<p>TorchServe supports two ways to configure SSL:</p>
+<ol class="simple">
+<li><p>Using a keystore</p></li>
+<li><p>Using private-key/certificate files</p></li>
+</ol>
+<p>You can find more details in the <a class="reference external" href="https://pytorch.org/serve/configuration.html#enable-ssl">configuration guide</a></p>
+</li>
+</ol>
+</section>
+<section id="reporting-a-vulnerability">
+<h2>Reporting a Vulnerability<a class="headerlink" href="#reporting-a-vulnerability" title="Permalink to this heading">¶</a></h2>
+<p>If you find a serious vulnerability please report it to opensource&#64;meta.com and torchserve&#64;amazon.com</p>
+</section>
+</section>
 
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">pytest</span>
-
-<span class="kn">from</span> <span class="nn">ts.torch_handler.base_handler</span> <span class="kn">import</span> <span class="n">BaseHandler</span><span class="p">,</span> <span class="n">PROFILER_AVAILABLE</span>
-
-
-<div class="viewcode-block" id="handler"><a class="viewcode-back" href="../../../../api/ts.torch_handler.unit_tests.html#ts.torch_handler.unit_tests.test_base_handler.handler">[docs]</a><span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">()</span>
-<span class="k">def</span> <span class="nf">handler</span><span class="p">(</span><span class="n">base_model_context</span><span class="p">):</span>
-    <span class="n">handler</span> <span class="o">=</span> <span class="n">BaseHandler</span><span class="p">()</span>
-    <span class="n">handler</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span><span class="n">base_model_context</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">handler</span></div>
-
-
-<div class="viewcode-block" id="test_single_handle"><a class="viewcode-back" href="../../../../api/ts.torch_handler.unit_tests.html#ts.torch_handler.unit_tests.test_base_handler.test_single_handle">[docs]</a><span class="k">def</span> <span class="nf">test_single_handle</span><span class="p">(</span><span class="n">handler</span><span class="p">,</span> <span class="n">base_model_context</span><span class="p">):</span>
-    <span class="n">list_data</span> <span class="o">=</span> <span class="p">[[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">]]</span>
-    <span class="n">processed</span> <span class="o">=</span> <span class="n">handler</span><span class="o">.</span><span class="n">handle</span><span class="p">(</span><span class="n">list_data</span><span class="p">,</span> <span class="n">base_model_context</span><span class="p">)</span>
-
-    <span class="k">assert</span> <span class="n">processed</span> <span class="o">==</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span></div>
-
-
-<div class="viewcode-block" id="test_batch_handle"><a class="viewcode-back" href="../../../../api/ts.torch_handler.unit_tests.html#ts.torch_handler.unit_tests.test_base_handler.test_batch_handle">[docs]</a><span class="k">def</span> <span class="nf">test_batch_handle</span><span class="p">(</span><span class="n">handler</span><span class="p">,</span> <span class="n">base_model_context</span><span class="p">):</span>
-    <span class="n">list_data</span> <span class="o">=</span> <span class="p">[[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">4.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">]]</span>
-    <span class="n">processed</span> <span class="o">=</span> <span class="n">handler</span><span class="o">.</span><span class="n">handle</span><span class="p">(</span><span class="n">list_data</span><span class="p">,</span> <span class="n">base_model_context</span><span class="p">)</span>
-
-    <span class="k">assert</span> <span class="n">processed</span> <span class="o">==</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span></div>
-
-
-<div class="viewcode-block" id="test_inference_with_profiler_works_with_custom_initialize_method"><a class="viewcode-back" href="../../../../api/ts.torch_handler.unit_tests.html#ts.torch_handler.unit_tests.test_base_handler.test_inference_with_profiler_works_with_custom_initialize_method">[docs]</a><span class="k">def</span> <span class="nf">test_inference_with_profiler_works_with_custom_initialize_method</span><span class="p">(</span><span class="n">handler</span><span class="p">,</span> <span class="n">base_model_context</span><span class="p">):</span>
-    <span class="n">handler</span><span class="o">.</span><span class="n">manifest</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">PROFILER_AVAILABLE</span> <span class="o">=</span> <span class="kc">True</span>
-    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;ENABLE_TORCH_PROFILER&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;1&quot;</span>
-
-    <span class="n">list_data</span> <span class="o">=</span> <span class="p">[[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">4.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">]]</span>
-    <span class="n">processed</span> <span class="o">=</span> <span class="n">handler</span><span class="o">.</span><span class="n">handle</span><span class="p">(</span><span class="n">list_data</span><span class="p">,</span> <span class="n">base_model_context</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="n">processed</span> <span class="o">==</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span></div>
-</pre></div>
 
              </article>
              
             </div>
             <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="FAQs.html" class="btn btn-neutral float-right" title="FAQ’S" accesskey="n" rel="next">Next <img src="_static/images/chevron-right-orange.svg" class="next-page"></a>
+      
+      
+        <a href="large_model_inference.html" class="btn btn-neutral" title="Serving large models with Torchserve" accesskey="p" rel="prev"><img src="_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
+      
+    </div>
   
 
   
@@ -454,7 +489,16 @@
         <div class="pytorch-content-right" id="pytorch-content-right">
           <div class="pytorch-right-menu" id="pytorch-right-menu">
             <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
-              
+              <ul>
+<li><a class="reference internal" href="#">Security Policy</a><ul>
+<li><a class="reference internal" href="#supported-versions">Supported Versions</a></li>
+<li><a class="reference internal" href="#how-we-do-security">How we do security</a></li>
+<li><a class="reference internal" href="#important-security-guidelines">Important Security Guidelines</a></li>
+<li><a class="reference internal" href="#reporting-a-vulnerability">Reporting a Vulnerability</a></li>
+</ul>
+</li>
+</ul>
+
             </div>
           </div>
         </div>
@@ -467,23 +511,23 @@
   
 
      
-       <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
-         <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
-         <script src="../../../../_static/jquery.js"></script>
-         <script src="../../../../_static/underscore.js"></script>
-         <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-         <script src="../../../../_static/doctools.js"></script>
-         <script src="../../../../_static/katex.min.js"></script>
-         <script src="../../../../_static/auto-render.min.js"></script>
-         <script src="../../../../_static/katex_autorenderer.js"></script>
+       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+         <script src="_static/jquery.js"></script>
+         <script src="_static/underscore.js"></script>
+         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+         <script src="_static/doctools.js"></script>
+         <script src="_static/katex.min.js"></script>
+         <script src="_static/auto-render.min.js"></script>
+         <script src="_static/katex_autorenderer.js"></script>
      
 
   
 
-  <script type="text/javascript" src="../../../../_static/js/vendor/popper.min.js"></script>
-  <script type="text/javascript" src="../../../../_static/js/vendor/bootstrap.min.js"></script>
+  <script type="text/javascript" src="_static/js/vendor/popper.min.js"></script>
+  <script type="text/javascript" src="_static/js/vendor/bootstrap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
-  <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+  <script type="text/javascript" src="_static/js/theme.js"></script>
 
   <script type="text/javascript">
       jQuery(function () {
@@ -588,7 +632,7 @@
   <div class="cookie-banner-wrapper">
   <div class="container">
     <p class="gdpr-notice">To analyze traffic and optimize your experience, we serve cookies on this site. By clicking or navigating, you agree to allow our usage of cookies. As the current maintainers of this site, Facebook’s Cookies Policy applies. Learn more, including about available controls: <a href="https://www.facebook.com/policies/cookies/">Cookies Policy</a>.</p>
-    <img class="close-button" src="../../../../_static/images/pytorch-x.svg">
+    <img class="close-button" src="_static/images/pytorch-x.svg">
   </div>
 </div>
 
@@ -724,7 +768,7 @@
 
   <!-- End Mobile Menu -->
 
-  <script type="text/javascript" src="../../../../_static/js/vendor/anchor.min.js"></script>
+  <script type="text/javascript" src="_static/js/vendor/anchor.min.js"></script>
 
   <script type="text/javascript">
     $(document).ready(function() {
