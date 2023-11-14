@@ -81,16 +81,15 @@ See [Enable SSL](#enable-ssl) to configure HTTPS.
 * `inference_address`: Inference API binding address. Default: `http://127.0.0.1:8080`
 * `management_address`: Management API binding address. Default: `http://127.0.0.1:8081`
 * `metrics_address`: Metrics API binding address. Default: `http://127.0.0.1:8082`
-* To run predictions on models on a public IP address, specify the IP address as `0.0.0.0`.
-  To run predictions on models on a specific IP address, specify the IP address and port.
+* To run predictions on models on a specific IP address, specify the IP address and port.
 
 ```properties
-# bind inference API to all network interfaces with SSL enabled
-inference_address=https://0.0.0.0:8443
+# bind inference API to localhost with SSL enabled
+inference_address=https://127.0.0.1:8443
 ```
 
 ```properties
-# bind inference API to private network interfaces
+# bind inference API to private network interfaces with SSL enabled
 inference_address=https://172.16.1.10:8080
 ```
 
@@ -295,6 +294,7 @@ the backend workers convert "Bytearray to utf-8 string" when the Content-Type of
 * `limit_max_image_pixels` : Default value is true (Use default [PIL.Image.MAX_IMAGE_PIXELS](https://pillow.readthedocs.io/en/stable/reference/Image.html#PIL.Image.MAX_IMAGE_PIXELS)). If this is set to "false", set PIL.Image.MAX_IMAGE_PIXELS = None in backend default vision handler for large image payload.
 * `allowed_urls` : Comma separated regex of allowed source URL(s) from where models can be registered. Default: `file://.*|http(s)?://.*` (all URLs and local file system)
 e.g. : To allow base URLs `https://s3.amazonaws.com/` and `https://torchserve.pytorch.org/` use the following regex string `allowed_urls=https://s3.amazonaws.com/.*,https://torchserve.pytorch.org/.*`
+  * For security reason, `use_env_allowed_urls=true` is required in config.properties to read `allowed_urls` from environment variable.
 * `workflow_store` : Path of workflow store directory. Defaults to model store directory.
 * `disable_system_metrics` : Disable collection of system metrics when set to "true". Default value is "false".
 

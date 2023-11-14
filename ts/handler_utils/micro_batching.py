@@ -15,12 +15,13 @@ except ImportError:
 HANDLER_METHODS = ["preprocess", "inference", "postprocess"]
 
 
-def execute_call(in_queue, out_queue, handle, event):
+def execute_call(in_queue, out_queue, handle, thread_local_data, event):
     while not event.is_set():
         try:
             idx, in_data = in_queue.get(timeout=0.5)
         except queue.Empty:
             continue
+        thread_local_data.micro_batch_idx = idx
         out_data = handle(in_data)
         out_queue.put((idx, out_data))
 
@@ -40,6 +41,7 @@ class MicroBatching(object):
         self._parallelism = parallelism if parallelism is not None else {}
         self.thread_groups = {c: [] for c in HANDLER_METHODS}
         self.queues = {}
+        self.thread_local_data = threading.local()
         self.terminate = threading.Event()
         self._create_queues()
         self._update_threads()
@@ -106,7 +108,7 @@ class MicroBatching(object):
 
                 t = threading.Thread(
                     target=execute_call,
-                    args=(in_queue, out_queue, call, event),
+                    args=(in_queue, out_queue, call, self.thread_local_data, event),
                 )
                 t.start()
                 self.thread_groups[c].append(WorkerThread(event, t))
@@ -131,6 +133,9 @@ class MicroBatching(object):
 
         return [item for batch in sorted(output) for item in batch[1]]
 
+    def get_micro_batch_idx(self):
+        return getattr(self.thread_local_data, "micro_batch_idx", None)
+
     def __call__(self, data, context):
         """Entry point for default handler. It takes the data from the input request and returns
            the predicted outcome for the input. This method is a modified variant from the BaseHandler.
@@ -139,7 +144,7 @@ class MicroBatching(object):
         Args:
             data (list): The input data that needs to be made a prediction request on.
             context (Context): It is a JSON Object containing information pertaining to
-                               the model artefacts parameters.
+                               the model artifacts parameters.
 
         Returns:
             list : Returns a list of dictionary with the predicted response.

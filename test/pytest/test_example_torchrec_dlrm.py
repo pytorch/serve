@@ -4,13 +4,13 @@ Unit test for the TorchRec DLRM example
 import json
 import shutil
 import sys
-from argparse import Namespace
 from pathlib import Path
 
 import pytest
 import requests
 import test_utils
 import torch
+from model_archiver import ModelArchiverConfig
 
 from ts.torch_handler.unit_tests.test_utils.mock_context import MockContext
 
@@ -90,7 +90,7 @@ def create_mar_file(work_dir, session_mocker, serialized_file, model_archiver):
 
     mar_file_path = Path(work_dir).joinpath(model_name + ".mar")
 
-    args = Namespace(
+    config = ModelArchiverConfig(
         model_name=model_name,
         version="1.0",
         serialized_file=str(serialized_file),
@@ -107,10 +107,8 @@ def create_mar_file(work_dir, session_mocker, serialized_file, model_archiver):
         config_file=None,
     )
 
-    mock = session_mocker.MagicMock()
-    mock.parse_args = session_mocker.MagicMock(return_value=args)
     session_mocker.patch(
-        "archiver.ArgParser.export_model_args_parser", return_value=mock
+        "archiver.ArgParser.export_model_args_parser", return_value=config
     )
 
     # Using ZIP_STORED instead of ZIP_DEFLATED reduces test runtime from 54 secs to 10 secs

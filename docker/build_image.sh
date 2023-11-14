@@ -7,6 +7,7 @@ BRANCH_NAME="master"
 DOCKER_TAG="pytorch/torchserve:latest-cpu"
 BUILD_TYPE="production"
 BASE_IMAGE="ubuntu:20.04"
+UPDATE_BASE_IMAGE=false
 USE_CUSTOM_TAG=false
 CUDA_VERSION=""
 USE_LOCAL_SERVE_FOLDER=false
@@ -22,6 +23,7 @@ do
           echo "-h, --help  show brief help"
           echo "-b, --branch_name=BRANCH_NAME specify a branch_name to use"
           echo "-g, --gpu specify to use gpu"
+          echo "-bi, --baseimage specify base docker image. Example: nvidia/cuda:11.7.0-cudnn8-runtime-ubuntu20.04 "
           echo "-bt, --buildtype specify to created image for codebuild. Possible values: production, dev, codebuild."
           echo "-cv, --cudaversion specify to cuda version to use"
           echo "-t, --tag specify tag name for docker image"
@@ -49,6 +51,12 @@ do
           CUDA_VERSION="cu117"
           shift
           ;;
+        -bi|--baseimage)
+          BASE_IMAGE="$2"
+          UPDATE_BASE_IMAGE=true
+          shift
+          shift
+          ;;
         -bt|--buildtype)
           BUILD_TYPE="$2"
           shift
@@ -74,10 +82,10 @@ do
           ;;
         -py|--pythonversion)
           PYTHON_VERSION="$2"
-          if [[ $PYTHON_VERSION = 3.8 || $PYTHON_VERSION = 3.9 || $PYTHON_VERSION = 3.10 ]]; then
+          if [[ $PYTHON_VERSION = 3.8 || $PYTHON_VERSION = 3.9 || $PYTHON_VERSION = 3.10 || $PYTHON_VERSION = 3.11 ]]; then
             echo "Valid python version"
           else
-            echo "Valid python versions are 3.8, 3.9 and 3.10"
+            echo "Valid python versions are 3.8, 3.9 3.10 and 3.11"
             exit 1
           fi
           shift
@@ -86,7 +94,10 @@ do
         # With default ubuntu version 20.04
         -cv|--cudaversion)
           CUDA_VERSION="$2"
-          if [ "${CUDA_VERSION}" == "cu118" ];
+          if [ "${CUDA_VERSION}" == "cu121" ];
+          then
+            BASE_IMAGE="nvidia/cuda:12.1.0-base-ubuntu20.04"
+          elif [ "${CUDA_VERSION}" == "cu118" ];
           then
             BASE_IMAGE="nvidia/cuda:11.8.0-base-ubuntu20.04"
           elif [ "${CUDA_VERSION}" == "cu117" ];
@@ -139,6 +150,12 @@ fi
 if [ "$USE_CUSTOM_TAG" = true ]
 then
   DOCKER_TAG=${CUSTOM_TAG}
+fi
+
+if [[ $UPDATE_BASE_IMAGE == true && $MACHINE == "gpu" ]];
+then
+  echo "Incompatible options: -bi doesn't work with -g option"
+  exit 1
 fi
 
 if [ "${BUILD_TYPE}" == "production" ]

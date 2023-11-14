@@ -1,9 +1,8 @@
 package org.pytorch.serve.job;
 
-import static org.pytorch.serve.util.messages.RequestInput.TS_STREAM_NEXT;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.DefaultHttpContent;
@@ -39,7 +38,7 @@ import org.slf4j.LoggerFactory;
 
 public class RestJob extends Job {
 
-    private static final Logger logger = LoggerFactory.getLogger(Job.class);
+    private static final Logger logger = LoggerFactory.getLogger(RestJob.class);
 
     private final IMetric inferenceLatencyMetric;
     private final IMetric queueLatencyMetric;
@@ -109,8 +108,7 @@ public class RestJob extends Job {
                     (statusPhrase == null)
                             ? HttpResponseStatus.valueOf(statusCode)
                             : new HttpResponseStatus(statusCode, statusPhrase);
-            FullHttpResponse resp =
-                    new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, status, false);
+            FullHttpResponse resp = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, status, true);
 
             if (contentType != null && contentType.length() > 0) {
                 resp.headers().set(HttpHeaderNames.CONTENT_TYPE, contentType);
@@ -147,11 +145,15 @@ public class RestJob extends Job {
                         : new HttpResponseStatus(statusCode, statusPhrase);
         HttpResponse resp;
 
-        if (responseHeaders != null && responseHeaders.containsKey(TS_STREAM_NEXT)) {
+        if (responseHeaders != null && responseHeaders.containsKey(RequestInput.TS_STREAM_NEXT)) {
             resp = new DefaultHttpResponse(HttpVersion.HTTP_1_1, status, false);
-            numStreams = responseHeaders.get(TS_STREAM_NEXT).equals("true") ? numStreams + 1 : -1;
+            numStreams =
+                    responseHeaders.get(RequestInput.TS_STREAM_NEXT).equals("true")
+                            ? numStreams + 1
+                            : -1;
+
         } else {
-            resp = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, status, false);
+            resp = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, status, true);
         }
 
         if (contentType != null && contentType.length() > 0) {
@@ -258,5 +260,11 @@ public class RestJob extends Job {
 
     public void setResponsePromise(CompletableFuture<byte[]> responsePromise) {
         this.responsePromise = responsePromise;
+    }
+
+    @Override
+    public boolean isOpen() {
+        Channel c = ctx.channel();
+        return c.isOpen();
     }
 }

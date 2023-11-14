@@ -12,6 +12,7 @@
 name: "CodeQL"
 
 on:
+  workflow_dispatch:
   # run every day at 11:15am
   schedule:
     - cron:  '15 11 * * *'
@@ -33,6 +34,8 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
+      with:
+        submodules: recursive
       
     - name: Setup Python 3.8
       uses: actions/setup-python@v4

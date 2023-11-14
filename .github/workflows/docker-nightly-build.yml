@@ -3,11 +3,18 @@ name: Push Docker Nightly
 on:
   # run every day at 1:15pm
   schedule:
-    - cron:  '15 13 * * *'
+    - cron: "15 13 * * *"
 jobs:
   nightly:
-    runs-on: ubuntu-20.04
+    runs-on: [self-hosted, ci-gpu]
     steps:
+      - name: Clean up previous run
+        run: |
+          echo "Cleaning up previous run"
+          ls -la ./
+          sudo rm -rf ./* || true
+          sudo rm -rf ./.??* || true
+          ls -la ./
       - name: Setup Python 3.8
         uses: actions/setup-python@v4
         with:
@@ -15,6 +22,8 @@ jobs:
           architecture: x64
       - name: Checkout TorchServe
         uses: actions/checkout@v3
+        with:
+          submodules: recursive
       - name: Login to Docker
         env:
           DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
@@ -22,7 +31,11 @@ jobs:
       - name: Push Docker Nightly
         run: |
           cd docker
-          python docker_nightly.py
+          python docker_nightly.py --cleanup
+      - name: Push KServe Docker Nightly
+        run: |
+          cd kubernetes/kserve
+          python docker_nightly.py --cleanup
 
       - name: Open issue on failure
         if: ${{ failure() && github.event_name  == 'schedule' }}
@@ -30,5 +43,5 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           title: Nightly Docker build failed
-          body:  Commit ${{ github.sha }} daily scheduled [CI run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) failed, please check why
-          assignees: ''
+          body: Commit ${{ github.sha }} daily scheduled [CI run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) failed, please check why
+          assignees: ""

@@ -23,6 +23,11 @@ if __name__ == "__main__":
         action="store_true",
         help="dry_run will print the commands that will be run without running them",
     )
+    parser.add_argument(
+        "--cleanup",
+        action="store_true",
+        help="Delete all built docker images",
+    )
     args = parser.parse_args()
     dry_run = args.dry_run
     organization = args.organization
@@ -34,7 +39,7 @@ if __name__ == "__main__":
     # Build Nightly images and append the date in the name
     try_and_handle(f"./build_image.sh -n -t {organization}/{cpu_version}", dry_run)
     try_and_handle(
-        f"./build_image.sh -g -cv cu118 -t {organization}/{gpu_version}",
+        f"./build_image.sh -g -cv cu121 -t {organization}/{gpu_version}",
         dry_run,
     )
 
@@ -55,3 +60,7 @@ if __name__ == "__main__":
     # Push images with latest tag
     try_and_handle(f"docker push {organization}/{project}:latest-cpu", dry_run)
     try_and_handle(f"docker push {organization}/{project}:latest-gpu", dry_run)
+
+    # Cleanup built images
+    if args.cleanup:
+        try_and_handle(f"docker system prune --all --volumes -f", dry_run)

@@ -6,8 +6,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import org.apache.commons.io.FileUtils;
 import org.pytorch.serve.archive.DownloadArchiveException;
 import org.pytorch.serve.archive.model.Manifest;
 import org.pytorch.serve.archive.model.ModelArchive;
@@ -212,12 +215,22 @@ public final class ModelManager {
 
             String pythonRuntime = EnvironmentUtils.getPythonRunTime(model);
 
-            String packageInstallCommand =
-                    pythonRuntime
-                            + " -m pip install -U -t "
-                            + model.getModelDir().getAbsolutePath()
-                            + " -r "
-                            + requirementsFilePath; // NOPMD
+            File dependencyPath = model.getModelDir();
+            if (Files.isSymbolicLink(dependencyPath.toPath())) {
+                dependencyPath = dependencyPath.getParentFile();
+            }
+
+            List<String> commandParts = new ArrayList<>();
+
+            commandParts.add(pythonRuntime);
+            commandParts.add("-m");
+            commandParts.add("pip");
+            commandParts.add("install");
+            commandParts.add("-U");
+            commandParts.add("-t");
+            commandParts.add(dependencyPath.getAbsolutePath());
+            commandParts.add("-r");
+            commandParts.add(requirementsFilePath.toString());
 
             String[] envp =
                     EnvironmentUtils.getEnvString(
@@ -225,13 +238,23 @@ public final class ModelManager {
                             model.getModelDir().getAbsolutePath(),
                             null);
 
-            Process process =
-                    Runtime.getRuntime()
-                            .exec(
-                                    packageInstallCommand,
-                                    envp,
-                                    model.getModelDir().getAbsoluteFile());
+            ProcessBuilder processBuilder = new ProcessBuilder(commandParts);
+            if (isValidDependencyPath(dependencyPath)) {
+                processBuilder.directory(dependencyPath);
+            } else {
+                throw new ModelException(
+                        "Invalid 3rd party package installation path "
+                                + dependencyPath.getCanonicalPath());
+            }
 
+            Map<String, String> environment = processBuilder.environment();
+            for (String envVar : envp) {
+                String[] parts = envVar.split("=", 2);
+                if (parts.length == 2) {
+                    environment.put(parts[0], parts[1]);
+                }
+            }
+            Process process = processBuilder.start();
             int exitCode = process.waitFor();
 
             if (exitCode != 0) {
@@ -251,13 +274,22 @@ public final class ModelManager {
                     errorString.append(line);
                 }
 
-                logger.info("Dependency installation stdout:\n" + outputString.toString());
                 logger.error("Dependency installation stderr:\n" + errorString.toString());
 
                 throw new ModelException(
                         "Custom pip package installation failed for " + model.getModelName());
             }
         }
+    }
+
+    private boolean isValidDependencyPath(File dependencyPath) {
+        if (dependencyPath
+                .toPath()
+                .normalize()
+                .startsWith(FileUtils.getTempDirectory().toPath().normalize())) {
+            return true;
+        }
+        return false;
     }
 
     private Model createModel(
@@ -447,7 +479,7 @@ public final class ModelManager {
             throw new ModelVersionNotFoundException(
                     "Model version: " + versionId + " does not exist for model: " + modelName);
         }
-        if (model.getParallelLevel() > 1 && model.getDeviceType() == ModelConfig.DeviceType.GPU) {
+        if (model.getParallelLevel() > 0 && model.getDeviceType() == ModelConfig.DeviceType.GPU) {
             /**
              * Current capacity check for LMI is based on single node. TODO: multiple nodes check
              * will be based on --proc-per-node + numCores.

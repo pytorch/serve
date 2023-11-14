@@ -16,6 +16,7 @@ import org.pytorch.serve.archive.model.ModelArchive;
 import org.pytorch.serve.archive.model.ModelConfig;
 import org.pytorch.serve.archive.utils.ArchiveUtils;
 import org.pytorch.serve.job.Job;
+import org.pytorch.serve.job.JobGroup;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.messages.WorkerCommands;
 import org.slf4j.Logger;
@@ -40,7 +41,7 @@ public class Model {
     private int maxWorkers;
     private int batchSize;
     private int maxBatchDelay;
-    private int parallelLevel = 1;
+    private int parallelLevel;
     private long maxRetryTimeoutInMill = 5 * 60 * 1000;
     private long clientTimeoutInMills;
     private ModelConfig.ParallelType parallelType = ModelConfig.ParallelType.NONE;
@@ -51,7 +52,16 @@ public class Model {
     private List<Integer> deviceIds;
     private int numCores;
     private ReentrantLock lock;
+    private ReentrantLock jobGroupLock;
     private int responseTimeout;
+    private long sequenceMaxIdleMSec;
+    private int maxNumSequence;
+    private int maxSequenceJobQueueSize;
+    private boolean stateful;
+    // key: seqId; value: SequenceJob
+    private ConcurrentMap<String, JobGroup> jobGroups;
+    // store incoming new sequences' id
+    private LinkedBlockingDeque<String> pendingJobGroups;
     private ModelVersionName modelVersionName;
     private AtomicInteger gpuCounter = new AtomicInteger(0);
     private boolean hasCfgDeviceIds;
@@ -59,17 +69,22 @@ public class Model {
 
     // Total number of subsequent inference request failures
     private AtomicInteger failedInfReqs;
-
-    // Per worker thread job queue. This separates out the control queue from data queue
+    /**
+     * The key can be categorized as 3 types 1) key: workerThreadId, value: managementAPI request 2)
+     * key: DEFAULT_DATA_QUEUE, value: job queue for stateless model's inference request 3) key:
+     * sequenceId, value: job queue for stateful model's sequence of inference requests
+     */
     private ConcurrentMap<String, LinkedBlockingDeque<Job>> jobsDb;
 
     private boolean useJobTicket;
     private AtomicInteger numJobTickets;
+    private boolean continuousBatching;
 
     public Model(ModelArchive modelArchive, int queueSize) {
         this.modelArchive = modelArchive;
         if (modelArchive != null && modelArchive.getModelConfig() != null) {
-            if (modelArchive.getModelConfig().getParallelLevel() > 1
+            continuousBatching = modelArchive.getModelConfig().isContinuousBatching();
+            if (modelArchive.getModelConfig().getParallelLevel() > 0
                     && modelArchive.getModelConfig().getParallelType()
                             != ModelConfig.ParallelType.NONE) {
                 parallelLevel = modelArchive.getModelConfig().getParallelLevel();
@@ -102,6 +117,19 @@ public class Model {
                 queueSize = modelArchive.getModelConfig().getJobQueueSize();
             }
             useJobTicket = modelArchive.getModelConfig().isUseJobTicket();
+            if (modelArchive.getModelConfig().getSequenceMaxIdleMSec() > 0) {
+                sequenceMaxIdleMSec = modelArchive.getModelConfig().getSequenceMaxIdleMSec();
+                maxSequenceJobQueueSize =
+                        modelArchive.getModelConfig().getMaxSequenceJobQueueSize();
+                maxNumSequence =
+                        Math.max(
+                                modelArchive.getModelConfig().getMaxNumSequence(),
+                                batchSize * maxWorkers);
+                jobGroups = new ConcurrentHashMap<>(maxNumSequence);
+                pendingJobGroups = new LinkedBlockingDeque<>(maxNumSequence);
+                jobGroupLock = new ReentrantLock();
+                stateful = true;
+            }
         } else {
             batchSize = 1;
             maxBatchDelay = 100;
@@ -136,7 +164,7 @@ public class Model {
         modelInfo.addProperty(BATCH_SIZE, getBatchSize());
         modelInfo.addProperty(MAX_BATCH_DELAY, getMaxBatchDelay());
         modelInfo.addProperty(RESPONSE_TIMEOUT, getResponseTimeout());
-        if (parallelLevel > 1) {
+        if (parallelLevel > 0) {
             modelInfo.addProperty(PARALLEL_LEVEL, parallelLevel);
         }
 
@@ -235,14 +263,147 @@ public class Model {
 
     public boolean addJob(Job job) {
         if (isUseJobTicket() && !getJobTickets()) {
-            logger.info("There are no job tickets");
+            logger.info("There are no job tickets available");
             return false;
+        }
+        if (job.getGroupId() != null) {
+            return addJobInGroup(job);
         }
         return jobsDb.get(DEFAULT_DATA_QUEUE).offer(job);
     }
 
+    private boolean addJobInGroup(Job job) {
+        try {
+            jobGroupLock.lockInterruptibly();
+            JobGroup jobGroup = jobGroups.get(job.getGroupId());
+            if (jobGroup == null) {
+                if (jobGroups.size() < maxNumSequence) {
+                    jobGroup = new JobGroup(job.getGroupId(), maxSequenceJobQueueSize);
+                    jobGroups.put(job.getGroupId(), jobGroup);
+                    pendingJobGroups.offer(job.getGroupId());
+                    logger.info("added jobGroup for sequenceId:{}", job.getGroupId());
+                } else {
+                    logger.warn(
+                            "Skip the requestId: {} for sequence: {} due to exceeding maxNumSequence: {}",
+                            job.getJobId(),
+                            job.getGroupId(),
+                            maxNumSequence);
+                    return false;
+                }
+            }
+
+            return jobGroup.appendJob(job);
+        } catch (NullPointerException | InterruptedException e) {
+            logger.error(
+                    "Skip the requestId: {} for sequence: {} due to exception",
+                    job.getJobId(),
+                    job.getGroupId(),
+                    e);
+            return false;
+        } finally {
+            if (jobGroupLock.isHeldByCurrentThread()) {
+                jobGroupLock.unlock();
+            }
+        }
+    }
+
     public void addFirst(Job job) {
         jobsDb.get(DEFAULT_DATA_QUEUE).addFirst(job);
+    }
+
+    public boolean pollMgmtJob(String threadId, long waitTime, Map<String, Job> jobsRepo)
+            throws InterruptedException {
+        if (jobsRepo == null || threadId == null || threadId.isEmpty()) {
+            throw new IllegalArgumentException("Invalid input given provided");
+        }
+
+        if (!jobsRepo.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "The jobs repo provided contains stale jobs. Clear them!!");
+        }
+
+        LinkedBlockingDeque<Job> jobsQueue = jobsDb.get(threadId);
+        if (jobsQueue != null && !jobsQueue.isEmpty()) {
+            Job j = jobsQueue.poll(waitTime, TimeUnit.MILLISECONDS);
+            if (j != null) {
+                jobsRepo.put(j.getJobId(), j);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void pollInferJob(
+            Map<String, Job> jobsRepo, int batchSize, LinkedBlockingDeque<Job> jobsQueue)
+            throws InterruptedException {
+        boolean pollNoWait = jobsRepo.isEmpty() ? false : true;
+        long maxDelay = maxBatchDelay;
+        Job j = null;
+        if (jobsRepo.isEmpty()) {
+            j = jobsQueue.poll(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
+            logger.trace("get first job: {}", Objects.requireNonNull(j).getJobId());
+
+            jobsRepo.put(j.getJobId(), j);
+            // batch size always is 1 for describe request job
+            if (j.getCmd() == WorkerCommands.DESCRIBE) {
+                if (jobsRepo.isEmpty()) {
+                    jobsRepo.put(j.getJobId(), j);
+                    return;
+                } else {
+                    jobsQueue.addFirst(j);
+                    return;
+                }
+            }
+        }
+
+        long begin = System.currentTimeMillis();
+        for (int i = 0; i < batchSize - 1; ++i) {
+            if (pollNoWait) {
+                j = jobsQueue.poll();
+            } else {
+                j = jobsQueue.poll(maxDelay, TimeUnit.MILLISECONDS);
+            }
+
+            if (j == null) {
+                break;
+            }
+            long end = System.currentTimeMillis();
+            // job batch size always is 1 when request is describe prediction
+            if (j.getCmd() == WorkerCommands.DESCRIBE) {
+                // Add the job back into the jobsQueue
+                jobsQueue.addFirst(j);
+                break;
+            }
+            maxDelay -= end - begin;
+            begin = end;
+            if (j.getPayload().getClientExpireTS() > System.currentTimeMillis()) {
+                jobsRepo.put(j.getJobId(), j);
+            } else {
+                logger.warn(
+                        "Drop inference request {} due to client timeout",
+                        j.getPayload().getRequestId());
+            }
+            if (maxDelay <= 0) {
+                break;
+            }
+        }
+        logger.trace("sending jobs, size: {}", jobsRepo.size());
+    }
+
+    public void pollInferJob(Map<String, Job> jobsRepo, int batchSize) throws InterruptedException {
+        LinkedBlockingDeque<Job> jobsQueue;
+        try {
+            if (isUseJobTicket()) {
+                incNumJobTickets();
+            }
+            lock.lockInterruptibly();
+            jobsQueue = jobsDb.get(DEFAULT_DATA_QUEUE);
+            pollInferJob(jobsRepo, batchSize, jobsQueue);
+        } finally {
+            if (lock.isHeldByCurrentThread()) {
+                lock.unlock();
+            }
+        }
     }
 
     public void pollBatch(String threadId, long waitTime, Map<String, Job> jobsRepo)
@@ -316,6 +477,22 @@ public class Model {
                 lock.unlock();
             }
         }
+    }
+
+    public int getJobQueueRemainingCapacity() {
+        LinkedBlockingDeque<Job> jobsQueue = jobsDb.get(DEFAULT_DATA_QUEUE);
+        if (jobsQueue != null) {
+            return jobsQueue.remainingCapacity();
+        }
+        return 0;
+    }
+
+    public int getPendingRequestsInJobQueue() {
+        LinkedBlockingDeque<Job> jobsQueue = jobsDb.get(DEFAULT_DATA_QUEUE);
+        if (jobsQueue != null) {
+            return jobsQueue.size();
+        }
+        return 0;
     }
 
     public int incrFailedInfReqs() {
@@ -401,5 +578,51 @@ public class Model {
 
         this.numJobTickets.decrementAndGet();
         return true;
+    }
+
+    public long getSequenceMaxIdleMSec() {
+        return sequenceMaxIdleMSec;
+    }
+
+    public void setSequenceMaxIdleMSec(long sequenceMaxIdleMSec) {
+        this.sequenceMaxIdleMSec = sequenceMaxIdleMSec;
+    }
+
+    public boolean isStateful() {
+        return stateful;
+    }
+
+    public int getMaxSequenceJobQueueSize() {
+        return maxSequenceJobQueueSize;
+    }
+
+    public int getMaxNumSequence() {
+        return maxNumSequence;
+    }
+
+    public LinkedBlockingDeque<String> getPendingJobGroups() {
+        return pendingJobGroups;
+    }
+
+    public JobGroup getJobGroup(String groupId) {
+        return jobGroups.get(groupId);
+    }
+
+    public void removeJobGroup(String groupId) {
+        jobGroups.remove(groupId);
+    }
+
+    public boolean isContinuousBatching() {
+        return continuousBatching;
+    }
+
+    public boolean hasTensorParallel() {
+        switch (this.parallelType) {
+            case PP:
+            case NONE:
+                return false;
+            default:
+                return true;
+        }
     }
 }

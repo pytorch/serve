@@ -1,8 +1,8 @@
 package org.pytorch.serve.job;
 
-import static org.pytorch.serve.util.messages.RequestInput.TS_STREAM_NEXT;
-
+import com.google.protobuf.Any;
 import com.google.protobuf.ByteString;
+import com.google.rpc.ErrorInfo;
 import io.grpc.Status;
 import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
@@ -29,7 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class GRPCJob extends Job {
-    private static final Logger logger = LoggerFactory.getLogger(Job.class);
+    private static final Logger logger = LoggerFactory.getLogger(GRPCJob.class);
 
     private final IMetric queueTimeMetric;
     private final List<String> queueTimeMetricDimensionValues;
@@ -61,6 +61,32 @@ public class GRPCJob extends Job {
                 Arrays.asList("Host", ConfigManager.getInstance().getHostName());
     }
 
+    private void cancelHandler(ServerCallStreamObserver<PredictionResponse> responseObserver) {
+        if (responseObserver.isCancelled()) {
+            logger.warn(
+                    "grpc client call already cancelled, not able to send this response for requestId: {}",
+                    getPayload().getRequestId());
+        }
+    }
+
+    private void logQueueTime() {
+        logger.debug(
+                "Waiting time ns: {}, Backend time ns: {}",
+                getScheduled() - getBegin(),
+                System.nanoTime() - getScheduled());
+        double queueTime =
+                (double)
+                        TimeUnit.MILLISECONDS.convert(
+                                getScheduled() - getBegin(), TimeUnit.NANOSECONDS);
+        if (this.queueTimeMetric != null) {
+            try {
+                this.queueTimeMetric.addOrUpdate(this.queueTimeMetricDimensionValues, queueTime);
+            } catch (Exception e) {
+                logger.error("Failed to update frontend metric QueueTime: ", e);
+            }
+        }
+    }
+
     @Override
     public void response(
             byte[] body,
@@ -69,81 +95,110 @@ public class GRPCJob extends Job {
             String statusPhrase,
             Map<String, String> responseHeaders) {
         ByteString output = ByteString.copyFrom(body);
-        if (this.getCmd() == WorkerCommands.PREDICT
-                || this.getCmd() == WorkerCommands.STREAMPREDICT) {
-            if (((ServerCallStreamObserver<PredictionResponse>) predictionResponseObserver)
-                    .isCancelled()) {
-                logger.warn(
-                        "grpc client call already cancelled, not able to send this response for requestId: {}",
-                        getPayload().getRequestId());
-                return;
-            }
-            PredictionResponse reply =
-                    PredictionResponse.newBuilder().setPrediction(output).build();
-            predictionResponseObserver.onNext(reply);
-            if (this.getCmd() == WorkerCommands.PREDICT
-                    || (this.getCmd() == WorkerCommands.STREAMPREDICT
-                            && responseHeaders.get(TS_STREAM_NEXT).equals("false"))) {
-                predictionResponseObserver.onCompleted();
+        WorkerCommands cmd = this.getCmd();
 
-                logger.debug(
-                        "Waiting time ns: {}, Backend time ns: {}",
-                        getScheduled() - getBegin(),
-                        System.nanoTime() - getScheduled());
-                double queueTime =
-                        (double)
-                                TimeUnit.MILLISECONDS.convert(
-                                        getScheduled() - getBegin(), TimeUnit.NANOSECONDS);
-                if (this.queueTimeMetric != null) {
-                    try {
-                        this.queueTimeMetric.addOrUpdate(
-                                this.queueTimeMetricDimensionValues, queueTime);
-                    } catch (Exception e) {
-                        logger.error("Failed to update frontend metric QueueTime: ", e);
+        switch (cmd) {
+            case PREDICT:
+            case STREAMPREDICT:
+            case STREAMPREDICT2:
+                ServerCallStreamObserver<PredictionResponse> responseObserver =
+                        (ServerCallStreamObserver<PredictionResponse>) predictionResponseObserver;
+                cancelHandler(responseObserver);
+                PredictionResponse reply =
+                        PredictionResponse.newBuilder().setPrediction(output).build();
+                responseObserver.onNext(reply);
+                if (cmd == WorkerCommands.PREDICT
+                        || (cmd == WorkerCommands.STREAMPREDICT
+                                && responseHeaders
+                                        .get(RequestInput.TS_STREAM_NEXT)
+                                        .equals("false"))) {
+                    responseObserver.onCompleted();
+                    logQueueTime();
+                } else if (cmd == WorkerCommands.STREAMPREDICT2
+                        && (responseHeaders.get(RequestInput.TS_STREAM_NEXT) == null
+                                || responseHeaders
+                                        .get(RequestInput.TS_STREAM_NEXT)
+                                        .equals("false"))) {
+                    logQueueTime();
+                }
+                break;
+            case DESCRIBE:
+                try {
+                    ArrayList<DescribeModelResponse> respList =
+                            ApiUtils.getModelDescription(
+                                    this.getModelName(), this.getModelVersion());
+                    if (!output.isEmpty() && respList != null && respList.size() == 1) {
+                        respList.get(0).setCustomizedMetadata(body);
                     }
+                    String resp = JsonUtils.GSON_PRETTY.toJson(respList);
+                    ManagementResponse mgmtReply =
+                            ManagementResponse.newBuilder().setMsg(resp).build();
+                    managementResponseObserver.onNext(mgmtReply);
+                    managementResponseObserver.onCompleted();
+                } catch (ModelNotFoundException | ModelVersionNotFoundException e) {
+                    ManagementImpl.sendErrorResponse(
+                            managementResponseObserver, Status.NOT_FOUND, e);
                 }
-            }
-        } else if (this.getCmd() == WorkerCommands.DESCRIBE) {
-            try {
-                ArrayList<DescribeModelResponse> respList =
-                        ApiUtils.getModelDescription(this.getModelName(), this.getModelVersion());
-                if (!output.isEmpty() && respList != null && respList.size() == 1) {
-                    respList.get(0).setCustomizedMetadata(body);
-                }
-                String resp = JsonUtils.GSON_PRETTY.toJson(respList);
-                ManagementResponse reply = ManagementResponse.newBuilder().setMsg(resp).build();
-                managementResponseObserver.onNext(reply);
-                managementResponseObserver.onCompleted();
-            } catch (ModelNotFoundException | ModelVersionNotFoundException e) {
-                ManagementImpl.sendErrorResponse(managementResponseObserver, Status.NOT_FOUND, e);
-            }
+                break;
+            default:
+                break;
         }
     }
 
     @Override
     public void sendError(int status, String error) {
         Status responseStatus = GRPCUtils.getGRPCStatusCode(status);
-        if (this.getCmd() == WorkerCommands.PREDICT
-                || this.getCmd() == WorkerCommands.STREAMPREDICT) {
-            if (((ServerCallStreamObserver<PredictionResponse>) predictionResponseObserver)
-                    .isCancelled()) {
-                logger.warn(
-                        "grpc client call already cancelled, not able to send error: {}, for requestId: {}",
-                        error,
-                        getPayload().getRequestId());
-                return;
-            }
-            predictionResponseObserver.onError(
-                    responseStatus
-                            .withDescription(error)
-                            .augmentDescription("org.pytorch.serve.http.InternalServerException")
-                            .asRuntimeException());
-        } else if (this.getCmd() == WorkerCommands.DESCRIBE) {
-            managementResponseObserver.onError(
-                    responseStatus
-                            .withDescription(error)
-                            .augmentDescription("org.pytorch.serve.http.InternalServerException")
-                            .asRuntimeException());
+        WorkerCommands cmd = this.getCmd();
+
+        switch (cmd) {
+            case PREDICT:
+            case STREAMPREDICT:
+            case STREAMPREDICT2:
+                ServerCallStreamObserver<PredictionResponse> responseObserver =
+                        (ServerCallStreamObserver<PredictionResponse>) predictionResponseObserver;
+                cancelHandler(responseObserver);
+                if (cmd == WorkerCommands.PREDICT || cmd == WorkerCommands.STREAMPREDICT) {
+                    responseObserver.onError(
+                            responseStatus
+                                    .withDescription(error)
+                                    .augmentDescription(
+                                            "org.pytorch.serve.http.InternalServerException")
+                                    .asRuntimeException());
+                } else if (cmd == WorkerCommands.STREAMPREDICT2) {
+                    com.google.rpc.Status rpcStatus =
+                            com.google.rpc.Status.newBuilder()
+                                    .setCode(responseStatus.getCode().value())
+                                    .setMessage(error)
+                                    .addDetails(
+                                            Any.pack(
+                                                    ErrorInfo.newBuilder()
+                                                            .setReason(
+                                                                    "org.pytorch.serve.http.InternalServerException")
+                                                            .build()))
+                                    .build();
+                    responseObserver.onNext(
+                            PredictionResponse.newBuilder()
+                                    .setPrediction(null)
+                                    .setStatus(rpcStatus)
+                                    .build());
+                }
+                break;
+            case DESCRIBE:
+                managementResponseObserver.onError(
+                        responseStatus
+                                .withDescription(error)
+                                .augmentDescription(
+                                        "org.pytorch.serve.http.InternalServerException")
+                                .asRuntimeException());
+                break;
+            default:
+                break;
         }
+    }
+
+    @Override
+    public boolean isOpen() {
+        return ((ServerCallStreamObserver<PredictionResponse>) predictionResponseObserver)
+                .isCancelled();
     }
 }

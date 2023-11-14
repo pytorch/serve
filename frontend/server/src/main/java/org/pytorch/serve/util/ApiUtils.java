@@ -416,6 +416,12 @@ public final class ApiUtils {
             resp.addWorker(workerId, startTime, isRunning, gpuId, memory, pid, gpuUsage);
         }
 
+        DescribeModelResponse.JobQueueStatus jobQueueStatus =
+                new DescribeModelResponse.JobQueueStatus();
+        jobQueueStatus.setRemainingCapacity(model.getJobQueueRemainingCapacity());
+        jobQueueStatus.setPendingRequests(model.getPendingRequestsInJobQueue());
+        resp.setJobQueueStatus(jobQueueStatus);
+
         return resp;
     }
 
@@ -424,23 +430,26 @@ public final class ApiUtils {
             throws ModelNotFoundException, ModelVersionNotFoundException {
         RestJob job = new RestJob(ctx, modelName, version, WorkerCommands.PREDICT, input);
         if (!ModelManager.getInstance().addJob(job)) {
-            String responseMessage = getInferenceErrorResponseMessage(modelName, version);
+            String responseMessage = getStreamingInferenceErrorResponseMessage(modelName, version);
             throw new ServiceUnavailableException(responseMessage);
         }
         return job;
     }
 
     @SuppressWarnings("PMD")
-    public static String getInferenceErrorResponseMessage(String modelName, String modelVersion) {
-        String responseMessage = "Model \"" + modelName;
+    public static String getStreamingInferenceErrorResponseMessage(
+            String modelName, String modelVersion) {
+        StringBuilder responseMessage = new StringBuilder().append("Model \"").append(modelName);
 
         if (modelVersion != null) {
-            responseMessage += "\" Version " + modelVersion;
+            responseMessage.append("\" Version ").append(modelVersion);
         }
 
-        responseMessage +=
-                "\" has no worker to serve inference request. Please use scale workers API to add workers.";
-        return responseMessage;
+        responseMessage.append(
+                "\" has no worker to serve inference request. Please use scale workers API to add workers. "
+                        + "If this is a sequence inference, please check if it is closed, or expired;"
+                        + " or exceeds maxSequenceJobQueueSize");
+        return responseMessage.toString();
     }
 
     public static String getDescribeErrorResponseMessage(String modelName) {

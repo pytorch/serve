@@ -1,0 +1,48 @@
+name: Make an official Release of Docker Images
+
+on:
+  workflow_dispatch:
+    inputs:
+          upload_docker:
+            description: 'Upload TorchServe Docker Images?'
+            required: true
+            default: 'no'
+          upload_kfs:
+            description: 'Upload TorchServe-kfs Docker Images?'
+            required: true
+            default: 'no'
+
+jobs:
+  official-release-docker:
+    runs-on: [self-hosted, ci-gpu]
+    environment:
+      name: official-release
+    steps:
+      - name: Clean up previous run
+        run: |
+          echo "Cleaning up previous run"
+          ls -la ./
+          sudo rm -rf ./* || true
+          sudo rm -rf ./.??* || true
+          ls -la ./
+      - name: Setup Python 3.8
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.8
+          architecture: x64
+      - name: Checkout TorchServe
+        uses: actions/checkout@v3
+      - name: Login to Docker
+        env:
+          DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+        run: docker login --username pytorchbot --password "$DOCKER_PASSWORD"
+      - name: Build & Upload pytorch/torchserve Docker images
+        if: github.event.inputs.upload_docker == 'yes'
+        run: |
+          cd docker
+          python build_upload_release.py --cleanup
+      - name: Build & Upload pytorch/torchserve-kfs Docker images
+        if: github.event.inputs.upload_kfs == 'yes'
+        run: |
+          cd kubernetes/kserve
+          python build_upload_release.py --cleanup

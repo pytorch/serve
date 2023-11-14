@@ -1,12 +1,15 @@
 name: CI CPU
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - master
   pull_request:
     branches:
       - master
+  merge_group:
+
 
 concurrency:
   group: ci-cpu-${{ github.workflow }}-${{ github.ref == 'refs/heads/master' && github.run_number || github.ref }}
@@ -32,6 +35,8 @@ jobs:
           java-version: '17'
       - name: Checkout TorchServe
         uses: actions/checkout@v3
+        with:
+          submodules: recursive
       - name: Install dependencies
         run: |
           python ts_scripts/install_dependencies.py --environment=dev

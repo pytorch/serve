@@ -45,6 +45,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.io.IOUtils;
 import org.pytorch.serve.servingsdk.snapshot.SnapshotSerializer;
 import org.pytorch.serve.snapshot.SnapshotSerializerFactory;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class ConfigManager {
@@ -111,6 +112,10 @@ public final class ConfigManager {
     private static final String MODEL_CONFIG = "models";
     private static final String VERSION = "version";
 
+    // Configuration default values
+    private static final String DEFAULT_TS_ALLOWED_URLS = "file://.*|http(s)?://.*";
+    private static final String USE_ENV_ALLOWED_URLS = "use_env_allowed_urls";
+
     // Variables which are local
     public static final String MODEL_METRICS_LOGGER = "MODEL_METRICS";
     public static final String MODEL_LOGGER = "MODEL_LOG";
@@ -136,6 +141,8 @@ public final class ConfigManager {
     private String hostName;
     private Map<String, Map<String, JsonObject>> modelConfig = new HashMap<>();
     private String torchrunLogDir;
+    private boolean telemetryEnabled;
+    private Logger logger = LoggerFactory.getLogger(ConfigManager.class);
 
     private ConfigManager(Arguments args) throws IOException {
         prop = new Properties();
@@ -188,6 +195,11 @@ public final class ConfigManager {
             }
         }
 
+        if (System.getenv("SM_TELEMETRY_LOG") != null) {
+            telemetryEnabled = true;
+        } else {
+            telemetryEnabled = false;
+        }
         resolveEnvVarVals(prop);
 
         String modelStore = args.getModelStore();
@@ -234,6 +246,13 @@ public final class ConfigManager {
         }
 
         setModelConfig();
+
+        // Issue warnining about URLs that can be accessed when loading models
+        if (prop.getProperty(TS_ALLOWED_URLS, DEFAULT_TS_ALLOWED_URLS) == DEFAULT_TS_ALLOWED_URLS) {
+            logger.warn(
+                    "Your torchserve instance can access any URL to load models. "
+                            + "When deploying to production, make sure to limit the set of allowed_urls in config.properties");
+        }
     }
 
     public static String readFile(String path) throws IOException {
@@ -265,6 +284,14 @@ public final class ConfigManager {
         Class<ConfigManager> configClass = ConfigManager.class;
         Field[] fields = configClass.getDeclaredFields();
         for (Field f : fields) {
+            // For security, disable TS_ALLOWED_URLS in env.
+            if ("TS_ALLOWED_URLS".equals(f.getName())
+                    && !"true"
+                            .equals(
+                                    prop.getProperty(USE_ENV_ALLOWED_URLS, "false")
+                                            .toLowerCase())) {
+                continue;
+            }
             if (f.getName().startsWith("TS_")) {
                 String val = System.getenv(f.getName());
                 if (val != null) {
@@ -783,7 +810,7 @@ public final class ConfigManager {
     }
 
     public List<String> getAllowedUrls() {
-        String allowedURL = prop.getProperty(TS_ALLOWED_URLS, "file://.*|http(s)?://.*");
+        String allowedURL = prop.getProperty(TS_ALLOWED_URLS, DEFAULT_TS_ALLOWED_URLS);
         return Arrays.asList(allowedURL.split(","));
     }
 
@@ -868,6 +895,10 @@ public final class ConfigManager {
 
     public String getVersion() {
         return prop.getProperty(VERSION);
+    }
+
+    public boolean isTelemetryEnabled() {
+        return telemetryEnabled;
     }
 
     public static final class Arguments {

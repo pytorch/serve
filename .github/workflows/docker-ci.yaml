@@ -5,6 +5,8 @@ on:
     branches: [ "master" ]
   pull_request:
     branches: [ "master" ]
+  merge_group:
+
 
 jobs:
   test-build-and-container:
@@ -15,6 +17,8 @@ jobs:
         python-version: ["3.8", "3.9", "3.10"]
     steps:
       - uses: actions/checkout@v3
+        with:
+          submodules: recursive
 
       - name: Test build_image.sh script with custom tagging and gpu flag
         working-directory: docker

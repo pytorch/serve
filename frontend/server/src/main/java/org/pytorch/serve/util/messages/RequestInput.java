@@ -8,11 +8,13 @@ import java.util.Map;
 
 public class RequestInput {
     public static final String TS_STREAM_NEXT = "ts_stream_next";
-
+    public static final String TS_REQUEST_SEQUENCE_ID = "ts_request_sequence_id";
     private String requestId;
+    private String sequenceId;
     private Map<String, String> headers;
     private List<InputParameter> parameters;
     private long clientExpireTS;
+    private boolean cached;
 
     public RequestInput(String requestId) {
         this.requestId = requestId;
@@ -70,5 +72,21 @@ public class RequestInput {
         if (clientTimeoutInMills > 0) {
             this.clientExpireTS = System.currentTimeMillis() + clientTimeoutInMills;
         }
+    }
+
+    public String getSequenceId() {
+        return sequenceId;
+    }
+
+    public void setSequenceId(String sequenceId) {
+        this.sequenceId = sequenceId;
+    }
+
+    public boolean isCachedInBackend() {
+        return cached;
+    }
+
+    public void setCachedInBackend(boolean cached) {
+        this.cached = cached;
     }
 }

@@ -7,6 +7,8 @@ on:
   pull_request:
     branches:
       - master
+  merge_group:
+
 
 jobs:
   mypy:
@@ -48,12 +50,6 @@ jobs:
         run: |
           pip install pre-commit
           pre-commit install
-
-      - name: Check links in all markdown files
-        uses: gaurav-nelson/github-action-markdown-link-check@1.0.13
-        with:
-          use-verbose-mode: 'yes'
-          config-file: "ts_scripts/markdown_link_check_config.json"
 
       - name: Get changed files
         id: changed-files

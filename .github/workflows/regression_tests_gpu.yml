@@ -1,12 +1,14 @@
 name: Run Regression Tests on GPU
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - master
   pull_request:
     branches:
       - master
+  merge_group:
 
 concurrency:
   group: ci-cpu-${{ github.workflow }}-${{ github.ref == 'refs/heads/master' && github.run_number || github.ref }}
@@ -14,7 +16,7 @@ concurrency:
 
 jobs:
   regression-gpu:
-    # creates workflows for CUDA 11.6 & CUDA 11.7 on ubuntu
+    # creates workflows on self hosted runner
     runs-on: [self-hosted, regression-test-gpu]
     steps:
       - name: Clean up previous run
@@ -40,9 +42,12 @@ jobs:
           java-version: '17'
       - name: Checkout TorchServe
         uses: actions/checkout@v3
+        with:
+          submodules: recursive
       - name: Install dependencies
         run: |
-          python ts_scripts/install_dependencies.py --environment=dev --cuda=cu117
+          python ts_scripts/install_dependencies.py --environment=dev --cuda=cu121
       - name: Torchserve Regression Tests
         run: |
+          export TS_RUN_IN_DOCKER=False
           python test/regression_tests.py
