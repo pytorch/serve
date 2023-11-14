@@ -44,7 +44,7 @@ jobs:
         run: |
           cd docker
           ./build_image.sh -g -cv cu121 -bt ci -n -b $GITHUB_REF_NAME -t pytorch/torchserve:ci
-      - name: Validate Torchserve CPU Regression
+      - name: Validate Torchserve GPU Regression
         if: false == contains(matrix.hardware, 'ubuntu')
         run: |
           docker run --gpus all -v $GITHUB_WORKSPACE:/home/serve pytorch/torchserve:ci
