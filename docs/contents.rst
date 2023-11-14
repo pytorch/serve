@@ -23,6 +23,7 @@
   use_cases
   workflows
   large_model_inference
+  Security
   FAQs
 
 .. toctree::
