@@ -1,18 +1,19 @@
+import json
 import os
 import subprocess
-import requests
 from shutil import copy
-import json
-import torch
-import test_utils
+
 import pytest
+import requests
+import test_utils
+import torch
 
 CURR_FILE_PATH = os.path.dirname(os.path.realpath(__file__))
 REPO_ROOT_DIR = os.path.normpath(os.path.join(CURR_FILE_PATH, "..", ".."))
 MODEL_STORE_DIR = os.path.join(REPO_ROOT_DIR, "model_store")
 TORCH_TENSORRT_EXAMPLE_DIR = os.path.join(REPO_ROOT_DIR, "examples", "torch_tensorrt")
 TORCH_TENSORRT_MAR_FILE = os.path.join(REPO_ROOT_DIR, "res50-trt-fp16.mar")
-EXPECTED_RESULTS = ['tabby', 'tiger_cat', 'Egyptian_cat', 'lynx', 'lens_cap']
+EXPECTED_RESULTS = ["tabby", "tiger_cat", "Egyptian_cat", "lynx", "lens_cap"]
 
 tensorrt_available = False
 cmd = ["python", "-c", "import tensorrt"]
@@ -69,7 +70,9 @@ def delete_example_mar():
     reason="Make sure tensorrt and torch-tensorrt are installed and torch.cuda is available",
 )
 def test_model_archive_creation():
-    assert os.path.exists(TORCH_TENSORRT_MAR_FILE), "Failed to create torch tensorrt mar file"
+    assert os.path.exists(
+        TORCH_TENSORRT_MAR_FILE
+    ), "Failed to create torch tensorrt mar file"
 
 
 @pytest.mark.skipif(
@@ -86,17 +89,19 @@ def test_model_register_unregister():
 
 @pytest.mark.skipif(
     not (tensorrt_and_torch_tensorrt_available and torch.cuda.is_available()),
-    reason="Make sure tensorrt and torch-tensorrt are installed and torch.cuda is available"
+    reason="Make sure tensorrt and torch-tensorrt are installed and torch.cuda is available",
 )
 def test_run_inference_torch_tensorrt():
     test_utils.register_model("res50-trt-fp16", "res50-trt-fp16.mar")
     image_path = os.path.join(REPO_ROOT_DIR, "examples/image_classifier/kitten.jpg")
-    with open(image_path, 'rb') as file:
+    with open(image_path, "rb") as file:
         image_data = file.read()
     payload = {"data": image_data}
-    response = requests.post(url="http://localhost:8080/predictions/res50-trt-fp16", files=payload)
+    response = requests.post(
+        url="http://localhost:8080/predictions/res50-trt-fp16", files=payload
+    )
     assert response.status_code == 200, "Image prediction failed"
-    result_dict = json.loads(response.content.decode('utf-8'))
+    result_dict = json.loads(response.content.decode("utf-8"))
     labels = list(result_dict.keys())
     assert labels == EXPECTED_RESULTS, "Image prediction labels do not match"
     test_utils.unregister_model("res50-trt-fp16")
