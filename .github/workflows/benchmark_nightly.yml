@@ -1,14 +1,16 @@
 name: Benchmark torchserve nightly
 
 on:
-  push
+  # run every day at 2:15am
+  schedule:
+    - cron:  '15 02 * * *'
 
 jobs:
   nightly:
     strategy:
       fail-fast: false
       matrix:
-        hardware: [inf2]
+        hardware: [cpu, gpu, inf1, inf2]
     runs-on:
       - self-hosted
       - ${{ matrix.hardware }}
@@ -70,6 +72,8 @@ jobs:
           if_no_artifact_found: ignore
           path: /tmp/ts_artifacts
           name: ${{ matrix.hardware }}_benchmark_validation
+      - name: Validate Benchmark result
+        run: python benchmarks/validate_report.py --input-artifacts-dir /tmp/ts_artifacts/${{ matrix.hardware }}_benchmark_validation
       - name: Update benchmark artifacts for auto validation
         run: python benchmarks/utils/update_artifacts.py --output /tmp/ts_artifacts/${{ matrix.hardware }}_benchmark_validation
       - name: Upload the updated benchmark artifacts for auto validation
