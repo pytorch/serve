@@ -93,8 +93,9 @@ public class OpenInferenceProtocolRequestHandler extends HttpRequestHandlerChain
             // For fetch server metadata
             JsonArray supportedExtensions = new JsonArray();
             JsonObject response = new JsonObject();
+            String tsVersion = ConfigManager.getInstance().getVersion();
             response.addProperty("name", "Torchserve");
-            response.addProperty("version", getTsVersion());
+            response.addProperty("version", tsVersion);
             supportedExtensions.add("kserve");
             supportedExtensions.add("kubeflow");
             response.add("extenstion", supportedExtensions);
@@ -107,19 +108,5 @@ public class OpenInferenceProtocolRequestHandler extends HttpRequestHandlerChain
         } else {
             chain.handleRequest(ctx, req, decoder, segments);
         }
-    }
-
-    private String getTsVersion() {
-        String tsVersion = "";
-        try {
-            BufferedReader reader = new BufferedReader(new FileReader(TS_VERSION_FILE_PATH));
-            String version = reader.readLine();
-            reader.close();
-            return version;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return tsVersion;
-
     }
 }
