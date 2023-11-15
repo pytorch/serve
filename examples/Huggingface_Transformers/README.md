@@ -106,6 +106,9 @@ torchserve --start --model-store model_store --models my_tc=BERTSeqClassificatio
 ### Run an inference
 
 To run an inference: `curl -X POST http://127.0.0.1:8080/predictions/my_tc -T Seq_classification_artifacts/sample_text_captum_input.txt`
+
+The response should be a "Not Accepted" classification.
+
 To get an explanation: `curl -X POST http://127.0.0.1:8080/explanations/my_tc -T Seq_classification_artifacts/sample_text_captum_input.txt`
 
 ## Token Classification
