@@ -266,6 +266,7 @@ RUN --mount=type=cache,target=/var/cache/apt \
     # https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1009905
     openjdk-17-jdk \
     build-essential \
+    wget \
     curl \
     vim \
     numactl \

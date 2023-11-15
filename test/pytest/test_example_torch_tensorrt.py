@@ -52,8 +52,12 @@ def create_example_mar():
         create_serialized_file_cmd = f"cd {REPO_ROOT_DIR};python {os.path.join(TORCH_TENSORRT_EXAMPLE_DIR, 'resnet_tensorrt.py')}"
         subprocess.check_call(create_serialized_file_cmd, shell=True)
         create_mar_cmd = (
-            f"torch-model-archiver --model-name res50-trt-fp16 --handler image_classifier --version 1.0 --serialized-file res50_trt_fp16.pt --extra-files "
-            f"{os.path.join(REPO_ROOT_DIR, 'examples', 'image_classifier', 'index_to_name.json')}"
+            f"cd {REPO_ROOT_DIR} && torch-model-archiver "
+            f"--model-name res50-trt-fp16 "
+            f"--handler image_classifier "
+            f"--version 1.0 "
+            f"--serialized-file res50_trt_fp16.pt "
+            f"--extra-files examples/image_classifier/index_to_name.json"
         )
         subprocess.check_call(create_mar_cmd, shell=True)
 
