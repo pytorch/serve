@@ -20,6 +20,12 @@ class Cache:
                 args=[arg for arg in args if not isinstance(arg, Context)],
                 kwds={k: v for (k, v) in kwds.items() if not isinstance(v, Context)},
             )
+
+            # if client is not set, execute handler as is
+            if not self.client:
+                return func(*args, **kwds)
+
+            # Check if key in client
             value_str = self.client.get(key)
             if value_str is not None:
                 logger.info("Cache hit")

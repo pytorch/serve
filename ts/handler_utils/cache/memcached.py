@@ -14,11 +14,12 @@ except ImportError:
 
 class PyMemCached(Cache):
     def __init__(self, config=None):
+        super(PyMemCached, self).__init__()
         logger.info(f"Init pymemcache client with args {config}")
 
         if not _has_pymemcached:
             logger.error(f"Cannot import pymemcache, try pip install pymemcache.")
-            return self._no_op_decorator
+            return
         self.client = pymemcache.client.base.Client(**config)
 
         try:
