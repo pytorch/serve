@@ -188,6 +188,7 @@ FROM ${BASE_IMAGE} as dev-image
 ARG PYTHON_VERSION
 ARG BRANCH_NAME
 ARG BUILD_WITH_IPEX
+ARG CUDA_VERSION=""
 ENV PYTHONUNBUFFERED TRUE
 RUN --mount=type=cache,target=/var/cache/apt \
     apt-get update && \
@@ -223,7 +224,7 @@ WORKDIR "serve"
 RUN python -m pip install -U pip setuptools \
     && python -m pip install --no-cache-dir -r requirements/developer.txt \
     && python ts_scripts/install_from_src.py \
-    && if [ -n "$CUDA_VERSION" ]; then python -m pip install --no-cache-dir tensorrt==8.5.3.1 torch-tensorrt==1.4.0; fi \
+    && if [ -n "$CUDA_VERSION" ]; then python -m pip install --no-cache-dir torch-tensorrt==2.1.0 --extra-index-url https://download.pytorch.org/whl/test/$CUDA_VERSION; fi \
     && useradd -m model-server \
     && mkdir -p /home/model-server/tmp \
     && cp docker/dockerd-entrypoint.sh /usr/local/bin/dockerd-entrypoint.sh \
@@ -245,6 +246,7 @@ FROM ${BASE_IMAGE} as dev-ci-image
 ARG PYTHON_VERSION
 ARG BRANCH_NAME
 ARG BUILD_WITH_IPEX
+ARG CUDA_VERSION=""
 ENV PYTHONUNBUFFERED TRUE
 RUN --mount=type=cache,target=/var/cache/apt \
     apt-get update && \
@@ -286,7 +288,7 @@ WORKDIR "serve"
 RUN python -m pip install -U pip setuptools \
     && python -m pip install --no-cache-dir -r requirements/developer.txt \
     && python ts_scripts/install_from_src.py \
-    && if [ -n "$CUDA_VERSION" ]; then python -m pip install --no-cache-dir tensorrt==8.5.3.1 torch-tensorrt==1.4.0; fi \
+    && if [ -n "$CUDA_VERSION" ]; then python -m pip install --no-cache-dir torch-tensorrt==2.1.0 --extra-index-url https://download.pytorch.org/whl/test/$CUDA_VERSION; fi \
     && mkdir /home/serve
 
 WORKDIR /home/serve
