@@ -34,28 +34,32 @@ jobs:
       - name: Branch name
         run: |
           echo $GITHUB_REF_NAME
-      - name: Build CPU Docker Image
+      - name: Build CPU Docker Images
         if: contains(matrix.hardware, 'ubuntu')
         run: |
           cd docker
           ./build_image.sh -bt ci -n -b $GITHUB_REF_NAME -t pytorch/torchserve:ci
-      - name: Build GPU Docker Image
+          ./build_image.sh -bt dev-ci -b $GITHUB_REF_NAME -ipex -t pytorch/torchserve:dev-ci
+      - name: Build GPU Docker Images
         if: false == contains(matrix.hardware, 'ubuntu')
         run: |
           cd docker
           ./build_image.sh -g -cv cu121 -bt ci -n -b $GITHUB_REF_NAME -t pytorch/torchserve:ci
+          ./build_image.sh -g -cv cu121 -bt dev-ci -b $GITHUB_REF_NAME -t pytorch/torchserve:dev-ci
       - name: Validate Torchserve GPU Regression
         if: false == contains(matrix.hardware, 'ubuntu')
         run: |
           docker run --gpus all -v $GITHUB_WORKSPACE:/home/serve pytorch/torchserve:ci
+          docker run --gpus all -v $GITHUB_WORKSPACE:/home/serve pytorch/torchserve:dev-ci
       - name: Validate Torchserve CPU Regression
         if: contains(matrix.hardware, 'ubuntu')
         run: |
           docker run -v $GITHUB_WORKSPACE:/home/serve pytorch/torchserve:ci
+          docker run --privileged -v $GITHUB_WORKSPACE:/home/serve pytorch/torchserve:dev-ci
       - name: Cleanup Docker Images
         if: success()
         run: |
-          docker system prune -f && docker rmi pytorch/torchserve:ci
+          docker system prune -f && docker rmi pytorch/torchserve:ci && docker rmi pytorch/torchserve:dev-ci
       - name: Open issue on failure
         if: ${{ failure() && github.event_name  == 'schedule' }}
         uses: dacbd/create-issue-action@v1
