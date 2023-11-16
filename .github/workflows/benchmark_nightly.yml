@@ -10,7 +10,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        hardware: [cpu, gpu, inf1]
+        hardware: [cpu, gpu, inf1, inf2]
     runs-on:
       - self-hosted
       - ${{ matrix.hardware }}
