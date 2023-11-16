@@ -69,6 +69,7 @@ public final class ConfigManager {
     private static final String TS_NUMBER_OF_GPU = "number_of_gpu";
     private static final String TS_METRICS_CONFIG = "metrics_config";
     private static final String TS_METRICS_MODE = "metrics_mode";
+    private static final String TS_MODEL_METRICS_AUTO_DETECT = "model_metrics_auto_detect";
     private static final String TS_DISABLE_SYSTEM_METRICS = "disable_system_metrics";
 
     // IPEX config option that can be set at config.properties
@@ -424,6 +425,10 @@ public final class ConfigManager {
                     e);
             return MetricBuilder.MetricMode.LOG;
         }
+    }
+
+    public boolean isModelMetricsAutoDetectEnabled() {
+        return Boolean.parseBoolean(getProperty(TS_MODEL_METRICS_AUTO_DETECT, "false"));
     }
 
     public boolean isSystemMetricsDisabled() {

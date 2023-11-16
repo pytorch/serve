@@ -311,6 +311,10 @@ public class WorkerLifeCycle {
                         try {
                             if (this.metricCache.getMetricBackend(parsedMetric.getMetricName())
                                     == null) {
+                                if (!lifeCycle.configManager.isModelMetricsAutoDetectEnabled()) {
+                                    continue;
+                                }
+
                                 logger.info(
                                         "Registering auto detected backend metric: {}",
                                         parsedMetric);

@@ -43,6 +43,8 @@ BACKEND_METRICS = [
     "PostprocessCallCount",
     "RequestBatchSize",
     "SizeOfImage",
+]
+AUTO_DETECT_BACKEND_METRICS = [
     "HandlerMethodTime",
     "ExamplePercentMetric",
 ]
@@ -437,6 +439,7 @@ def test_metrics_log_mode():
         validate_metrics_log("ts_metrics.log", FRONTEND_METRICS, True)
         validate_metrics_log("ts_metrics.log", SYSTEM_METRICS, True)
         validate_metrics_log("model_metrics.log", BACKEND_METRICS, True)
+        validate_metrics_log("model_metrics.log", AUTO_DETECT_BACKEND_METRICS, False)
     finally:
         test_utils.stop_torchserve()
         test_utils.delete_all_snapshots()
@@ -475,6 +478,7 @@ def test_metrics_prometheus_mode():
         validate_metrics_log("ts_metrics.log", FRONTEND_METRICS, False)
         validate_metrics_log("ts_metrics.log", SYSTEM_METRICS, False)
         validate_metrics_log("model_metrics.log", BACKEND_METRICS, False)
+        validate_metrics_log("model_metrics.log", AUTO_DETECT_BACKEND_METRICS, False)
 
         response = requests.get("http://localhost:8082/metrics")
         prometheus_metrics = response.text
@@ -484,6 +488,8 @@ def test_metrics_prometheus_mode():
             assert metric_name in prometheus_metrics
         for metric_name in BACKEND_METRICS:
             assert metric_name in prometheus_metrics
+        for metric_name in AUTO_DETECT_BACKEND_METRICS:
+            assert metric_name not in prometheus_metrics
 
         prometheus_metric_patterns = [
             r"TYPE Requests2XX counter",
@@ -572,6 +578,7 @@ def test_auto_detect_backend_metrics_log_mode():
         "metrics",
         "metrics_auto_detect.yaml",
     )
+    os.environ["TS_MODEL_METRICS_AUTO_DETECT"] = "true"
 
     try:
         test_utils.start_torchserve(
@@ -582,10 +589,12 @@ def test_auto_detect_backend_metrics_log_mode():
         )
         register_model_and_make_inference_request()
         validate_metrics_log("model_metrics.log", BACKEND_METRICS, True)
+        validate_metrics_log("model_metrics.log", AUTO_DETECT_BACKEND_METRICS, True)
     finally:
         test_utils.stop_torchserve()
         test_utils.delete_all_snapshots()
         del os.environ["TS_METRICS_CONFIG"]
+        del os.environ["TS_MODEL_METRICS_AUTO_DETECT"]
         os.remove(config_file)
 
 
@@ -613,6 +622,7 @@ def test_auto_detect_backend_metrics_prometheus_mode():
         "metrics",
         "metrics_auto_detect.yaml",
     )
+    os.environ["TS_MODEL_METRICS_AUTO_DETECT"] = "true"
 
     try:
         test_utils.start_torchserve(
@@ -624,10 +634,13 @@ def test_auto_detect_backend_metrics_prometheus_mode():
         register_model_and_make_inference_request()
 
         validate_metrics_log("model_metrics.log", BACKEND_METRICS, False)
+        validate_metrics_log("model_metrics.log", AUTO_DETECT_BACKEND_METRICS, False)
 
         response = requests.get("http://localhost:8082/metrics")
         prometheus_metrics = response.text
         for metric_name in BACKEND_METRICS:
+            assert metric_name in prometheus_metrics
+        for metric_name in AUTO_DETECT_BACKEND_METRICS:
             assert metric_name in prometheus_metrics
 
         prometheus_metric_patterns = [
@@ -663,6 +676,7 @@ def test_auto_detect_backend_metrics_prometheus_mode():
         test_utils.delete_all_snapshots()
         del os.environ["TS_METRICS_MODE"]
         del os.environ["TS_METRICS_CONFIG"]
+        del os.environ["TS_MODEL_METRICS_AUTO_DETECT"]
         os.remove(config_file)
 
 
