@@ -177,9 +177,6 @@ def start() -> None:
 
             cmd.append("-w")
             cmd.append(args.workflow_store)
-        else:
-            cmd.append("-w")
-            cmd.append(args.model_store)
 
         if args.no_config_snapshots:
             cmd.append("-ncs")
