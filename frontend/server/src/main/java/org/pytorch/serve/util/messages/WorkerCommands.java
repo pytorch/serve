@@ -14,7 +14,9 @@ public enum WorkerCommands {
     @SerializedName("describe")
     DESCRIBE("describe"),
     @SerializedName("streampredict")
-    STREAMPREDICT("streampredict");
+    STREAMPREDICT("streampredict"),
+    @SerializedName("streampredict2")
+    STREAMPREDICT2("streampredict2");
 
     private String command;
 

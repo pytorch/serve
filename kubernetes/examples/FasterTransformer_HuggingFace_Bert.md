@@ -33,9 +33,9 @@ docker cp <container-id>:/workspace/serve/examples/FasterTransformer_HuggingFace
 ## Create config.properties
 
 ```bash
-inference_address=http://127.0.0.1:8080
-management_address=http://127.0.0.1:8081
-metrics_address=http://127.0.0.1:8082
+inference_address=http://0.0.0.0:8080
+management_address=http://0.0.0.0:8081
+metrics_address=http://0.0.0.0:8082
 NUM_WORKERS=1
 number_of_gpu=1
 install_py_dep_per_model=true

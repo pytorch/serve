@@ -4,6 +4,7 @@ from collections import namedtuple
 from pathlib import Path
 
 import pytest
+from model_archiver import ModelArchiverConfig
 from model_archiver.manifest_components.manifest import RuntimeType
 from model_archiver.model_archiver_error import ModelArchiverError
 from model_archiver.model_packaging_utils import ModelExportUtils
@@ -142,10 +143,6 @@ class TestExportModelUtils:
 
     # noinspection PyClassHasNoInit
     class TestGenerateManifestProps:
-        class Namespace:
-            def __init__(self, **kwargs):
-                self.__dict__.update(kwargs)
-
         model_name = "my-model"
         handler = "a.py::my-awesome-func"
         serialized_file = "model.pt"
@@ -153,7 +150,7 @@ class TestExportModelUtils:
         version = "1.0"
         requirements_file = "requirements.txt"
 
-        args = Namespace(
+        config = ModelArchiverConfig(
             model_name=model_name,
             handler=handler,
             runtime=RuntimeType.PYTHON.value,
@@ -165,12 +162,12 @@ class TestExportModelUtils:
         )
 
         def test_model(self):
-            mod = ModelExportUtils.generate_model(self.args)
+            mod = ModelExportUtils.generate_model(self.config)
             assert mod.model_name == self.model_name
             assert mod.handler == self.handler
 
         def test_manifest_json(self):
-            manifest = ModelExportUtils.generate_manifest_json(self.args)
+            manifest = ModelExportUtils.generate_manifest_json(self.config)
             manifest_json = json.loads(manifest)
             assert manifest_json["runtime"] == RuntimeType.PYTHON.value
             assert "model" in manifest_json

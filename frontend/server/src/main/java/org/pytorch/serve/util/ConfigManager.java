@@ -114,6 +114,7 @@ public final class ConfigManager {
 
     // Configuration default values
     private static final String DEFAULT_TS_ALLOWED_URLS = "file://.*|http(s)?://.*";
+    private static final String USE_ENV_ALLOWED_URLS = "use_env_allowed_urls";
 
     // Variables which are local
     public static final String MODEL_METRICS_LOGGER = "MODEL_METRICS";
@@ -140,6 +141,7 @@ public final class ConfigManager {
     private String hostName;
     private Map<String, Map<String, JsonObject>> modelConfig = new HashMap<>();
     private String torchrunLogDir;
+    private boolean telemetryEnabled;
     private Logger logger = LoggerFactory.getLogger(ConfigManager.class);
 
     private ConfigManager(Arguments args) throws IOException {
@@ -193,6 +195,11 @@ public final class ConfigManager {
             }
         }
 
+        if (System.getenv("SM_TELEMETRY_LOG") != null) {
+            telemetryEnabled = true;
+        } else {
+            telemetryEnabled = false;
+        }
         resolveEnvVarVals(prop);
 
         String modelStore = args.getModelStore();
@@ -277,6 +284,14 @@ public final class ConfigManager {
         Class<ConfigManager> configClass = ConfigManager.class;
         Field[] fields = configClass.getDeclaredFields();
         for (Field f : fields) {
+            // For security, disable TS_ALLOWED_URLS in env.
+            if ("TS_ALLOWED_URLS".equals(f.getName())
+                    && !"true"
+                            .equals(
+                                    prop.getProperty(USE_ENV_ALLOWED_URLS, "false")
+                                            .toLowerCase())) {
+                continue;
+            }
             if (f.getName().startsWith("TS_")) {
                 String val = System.getenv(f.getName());
                 if (val != null) {
@@ -880,6 +895,10 @@ public final class ConfigManager {
 
     public String getVersion() {
         return prop.getProperty(VERSION);
+    }
+
+    public boolean isTelemetryEnabled() {
+        return telemetryEnabled;
     }
 
     public static final class Arguments {

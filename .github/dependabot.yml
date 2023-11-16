@@ -9,16 +9,16 @@ updates:
   - package-ecosystem: "pip"
     directory: "/"
     schedule:
-      interval: "daily"
+      interval: "monthly"
 
   # Configuration for frontend/gradle.properties
   - package-ecosystem: "gradle"
     directory: "/frontend"
     schedule:
-      interval: "daily"
+      interval: "monthly"
 
   # Configuration for plugins/gradle.properties
   - package-ecosystem: "gradle"
     directory: "/plugins"
     schedule:
-      interval: "daily"
+      interval: "monthly"

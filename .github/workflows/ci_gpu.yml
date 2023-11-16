@@ -1,6 +1,7 @@
 name: CI GPU
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - master
@@ -20,11 +21,12 @@ jobs:
       - name: Clean up previous run
         run: |
           echo "Cleaning up previous run"
-          cd $RUNNER_WORKSPACE
-          pwd
-          cd ..
-          pwd
-          rm -rf _tool
+          ls -la ./
+          # deletes all files in the current directory
+          sudo rm -rf ./* || true
+          # deletes all hidden files in a directory
+          sudo rm -rf ./.??* || true
+          ls -la ./
       - name: Setup Python 3.8
         uses: actions/setup-python@v4
         with:
@@ -37,6 +39,8 @@ jobs:
           java-version: '17'
       - name: Checkout TorchServe
         uses: actions/checkout@v3
+        with:
+          submodules: recursive
       - name: Install dependencies
         run: |
           python ts_scripts/install_dependencies.py --environment=dev --cuda=cu121

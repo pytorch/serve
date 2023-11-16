@@ -1,7 +1,5 @@
 package org.pytorch.serve.job;
 
-import static org.pytorch.serve.util.messages.RequestInput.TS_STREAM_NEXT;
-
 import java.util.Map;
 import org.pytorch.serve.util.messages.RequestInput;
 import org.pytorch.serve.util.messages.WorkerCommands;
@@ -22,8 +20,17 @@ public abstract class Job {
         this.modelVersion = version;
         begin = System.nanoTime();
         scheduled = begin;
-        if (cmd == WorkerCommands.STREAMPREDICT) {
-            input.updateHeaders(TS_STREAM_NEXT, "true");
+
+        switch (cmd) {
+            case STREAMPREDICT:
+                input.updateHeaders(RequestInput.TS_STREAM_NEXT, "true");
+                break;
+            case STREAMPREDICT2:
+                input.updateHeaders(RequestInput.TS_STREAM_NEXT, "true");
+                input.updateHeaders(RequestInput.TS_REQUEST_SEQUENCE_ID, input.getSequenceId());
+                break;
+            default:
+                break;
         }
     }
 
@@ -44,9 +51,15 @@ public abstract class Job {
     }
 
     public boolean isControlCmd() {
-        return !WorkerCommands.PREDICT.equals(cmd)
-                && !WorkerCommands.STREAMPREDICT.equals(cmd)
-                && !WorkerCommands.DESCRIBE.equals(cmd);
+        switch (cmd) {
+            case PREDICT:
+            case STREAMPREDICT:
+            case STREAMPREDICT2:
+            case DESCRIBE:
+                return false;
+            default:
+                return true;
+        }
     }
 
     public RequestInput getPayload() {
@@ -73,4 +86,13 @@ public abstract class Job {
             Map<String, String> responseHeaders);
 
     public abstract void sendError(int status, String error);
+
+    public String getGroupId() {
+        if (input != null) {
+            return input.getSequenceId();
+        }
+        return null;
+    }
+
+    public abstract boolean isOpen();
 }
