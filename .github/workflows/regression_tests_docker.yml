@@ -2,8 +2,6 @@ name: Run Regression Tests on Docker
 
 on:
   workflow_dispatch:
-  push:
-  pull_request:
   # run every day at 5:15am
   schedule:
     - cron:  '15 5 * * *'
@@ -40,14 +38,14 @@ jobs:
         if: contains(matrix.hardware, 'ubuntu')
         run: |
           cd docker
-          ./build_image.sh -bt ci -n -t pytorch/torchserve:ci
-          ./build_image.sh -bt dev-ci -ipex -t pytorch/torchserve:dev-ci
+          ./build_image.sh -bt ci -n -b $GITHUB_REF_NAME -t pytorch/torchserve:ci
+          ./build_image.sh -bt dev-ci -b $GITHUB_REF_NAME -ipex -t pytorch/torchserve:dev-ci
       - name: Build GPU Docker Images
         if: false == contains(matrix.hardware, 'ubuntu')
         run: |
           cd docker
-          ./build_image.sh -g -cv cu121 -bt ci -n -t pytorch/torchserve:ci
-          ./build_image.sh -g -cv cu121 -bt dev-ci -t pytorch/torchserve:dev-ci
+          ./build_image.sh -g -cv cu121 -bt ci -n -b $GITHUB_REF_NAME -t pytorch/torchserve:ci
+          ./build_image.sh -g -cv cu121 -bt dev-ci -b $GITHUB_REF_NAME -t pytorch/torchserve:dev-ci
       - name: Validate Torchserve GPU Regression
         if: false == contains(matrix.hardware, 'ubuntu')
         run: |
