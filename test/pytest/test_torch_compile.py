@@ -22,8 +22,8 @@ TEST_DATA_DIR = os.path.join(CURR_FILE_PATH, "test_data", "torch_compile")
 
 MODEL_FILE = os.path.join(TEST_DATA_DIR, "model.py")
 HANDLER_FILE = os.path.join(TEST_DATA_DIR, "compile_handler.py")
-YAML_CONFIG_STR = os.path.join(TEST_DATA_DIR, "pt2.yaml") # backend as string
-YAML_CONFIG_DICT = os.path.join(TEST_DATA_DIR, "pt2_dict.yaml") # arbitrary kwargs dict
+YAML_CONFIG_STR = os.path.join(TEST_DATA_DIR, "pt2.yaml")  # backend as string
+YAML_CONFIG_DICT = os.path.join(TEST_DATA_DIR, "pt2_dict.yaml")  # arbitrary kwargs dict
 
 
 SERIALIZED_FILE = os.path.join(TEST_DATA_DIR, "model.pt")
@@ -59,8 +59,12 @@ class TestTorchCompile:
             check=True,
         )
         assert len(glob.glob(SERIALIZED_FILE)) == 1
-        assert len(glob.glob(os.path.join(MODEL_STORE_DIR, f"{MODEL_NAME}_str.mar"))) == 1
-        assert len(glob.glob(os.path.join(MODEL_STORE_DIR, f"{MODEL_NAME}_dict.mar"))) == 1
+        assert (
+            len(glob.glob(os.path.join(MODEL_STORE_DIR, f"{MODEL_NAME}_str.mar"))) == 1
+        )
+        assert (
+            len(glob.glob(os.path.join(MODEL_STORE_DIR, f"{MODEL_NAME}_dict.mar"))) == 1
+        )
 
     def test_start_torchserve(self):
         cmd = f"torchserve --start --ncs --models {MODEL_NAME}_str.mar,{MODEL_NAME}_dict.mar --model-store {MODEL_STORE_DIR}"
@@ -101,13 +105,15 @@ class TestTorchCompile:
             check=True,
         )
 
-        def _response_to_tuples(response_str: str) -> set[tuple]:
-            models = json.loads(response_str)['models']
-            return {(k, v) for d in models for k,v in d.items()}
+        def _response_to_tuples(response_str):
+            models = json.loads(response_str)["models"]
+            return {(k, v) for d in models for k, v in d.items()}
 
         # transform to set of tuples so order won't cause inequality
         expected_registered_model_str = '{"models": [{"modelName": "half_plus_two_str", "modelUrl": "half_plus_two_str.mar"}, {"modelName": "half_plus_two_dict", "modelUrl": "half_plus_two_dict.mar"}]}'
-        assert _response_to_tuples(result.stdout) == _response_to_tuples(expected_registered_model_str)
+        assert _response_to_tuples(result.stdout) == _response_to_tuples(
+            expected_registered_model_str
+        )
 
     @pytest.mark.skipif(
         os.environ.get("TS_RUN_IN_DOCKER", False),
@@ -136,4 +142,7 @@ class TestTorchCompile:
         with open(model_log_path, "rt") as model_log_file:
             model_log = model_log_file.read()
             assert "Compiled model with backend inductor\n" in model_log
-            assert "Compiled model with backend inductor, mode reduce-overhead" in model_log
+            assert (
+                "Compiled model with backend inductor, mode reduce-overhead"
+                in model_log
+            )

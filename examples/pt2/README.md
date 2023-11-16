@@ -107,5 +107,3 @@ print(extra_files['foo.txt'])
 # from inference()
 print(ep(torch.randn(5)))
 ```
-
-

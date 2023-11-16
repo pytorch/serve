@@ -185,7 +185,7 @@ class BaseHandler(abc.ABC):
 
         if hasattr(self, "model_yaml_config") and "pt2" in self.model_yaml_config:
             pt2_value = self.model_yaml_config["pt2"]
-            
+
             # pt2_value can be the backend, passed as a str, or arbitrary kwargs, passed as a dict
             if isinstance(pt2_value, str):
                 compile_options = dict(backend=pt2_value)
@@ -193,15 +193,21 @@ class BaseHandler(abc.ABC):
                 compile_options = pt2_value
             else:
                 raise ValueError("pt2 should be str or dict")
-            
-            # if backend is not provided, compile will use its default, which is valid 
-            valid_backend = check_valid_pt2_backend(compile_options["backend"]) if "backend" in compile_options else True
+
+            # if backend is not provided, compile will use its default, which is valid
+            valid_backend = (
+                check_valid_pt2_backend(compile_options["backend"])
+                if "backend" in compile_options
+                else True
+            )
         else:
             valid_backend = False
 
         # PT 2.0 support is opt in
         if PT2_AVAILABLE and valid_backend:
-            compile_options_str = ", ".join([f"{k} {v}" for k,v in compile_options.items()])
+            compile_options_str = ", ".join(
+                [f"{k} {v}" for k, v in compile_options.items()]
+            )
             # Compilation will delay your model initialization
             try:
                 self.model = torch.compile(
