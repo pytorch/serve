@@ -10,6 +10,7 @@ import sys
 import tempfile
 from builtins import str
 from typing import Dict
+
 import psutil
 
 from ts.arg_parser import ArgParser
@@ -104,8 +105,7 @@ def start() -> None:
                 sys.exit(1)
             ts_conf_file = ts_config
 
-        platform_path_separator = {
-            "Windows": "", "Darwin": ".:", "Linux": ".:"}
+        platform_path_separator = {"Windows": "", "Darwin": ".:", "Linux": ".:"}
         class_path = "{}{}".format(
             platform_path_separator[platform.system()],
             os.path.join(ts_home, "ts", "frontend", "*"),
