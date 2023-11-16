@@ -9,6 +9,7 @@ handler:
     amp: "bf16"
     tp_degree: 6
     max_length: 100
+    max_new_tokens: 25
 
 micro_batching:
     micro_batch_size: 4
