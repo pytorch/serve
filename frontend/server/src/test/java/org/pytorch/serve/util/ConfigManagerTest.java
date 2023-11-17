@@ -86,8 +86,9 @@ public class ConfigManagerTest {
         args.setSnapshotDisabled(true);
         ConfigManager.init(args);
         ConfigManager configManager = ConfigManager.getInstance();
+        String workingDir = configManager.getModelServerHome();
         Assert.assertEquals(
-                "/home/ubuntu/serve/frontend/archive/src/test/resources/workflows",
+                workingDir + "/frontend/archive/src/test/resources/workflows",
                 configManager.getWorkflowStore());
     }
 }
