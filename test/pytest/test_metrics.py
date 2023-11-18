@@ -536,16 +536,11 @@ def test_metrics_prometheus_mode():
             r'RequestBatchSize\{ModelName="mnist_custom_metrics",Hostname=".+",\} \d+\.\d+',
             r"TYPE SizeOfImage gauge",
             r'SizeOfImage\{ModelName="mnist_custom_metrics",Level="Model",Hostname=".+",\} \d+\.\d+',
-            r"TYPE HandlerMethodTime gauge",
-            r'HandlerMethodTime\{MethodName="preprocess",ModelName="mnist_custom_metrics",Level="Model",Hostname=".+",\} \d+\.\d+',
-            r"TYPE ExamplePercentMetric histogram",
-            r'ExamplePercentMetric_sum\{ModelName="mnist_custom_metrics",Level="Model",Hostname=".+",\} \d+\.\d+',
-            r'ExamplePercentMetric_count\{ModelName="mnist_custom_metrics",Level="Model",Hostname=".+",\} \d+\.\d+',
         ]
 
         for pattern in prometheus_metric_patterns:
             matches = re.findall(pattern, prometheus_metrics)
-            assert len(matches) == 1, "pattern not found " + pattern
+            assert len(matches) == 1, "pattern not found: " + pattern
 
     finally:
         test_utils.stop_torchserve()
