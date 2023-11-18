@@ -46,12 +46,15 @@ The backend emits metrics logs as they are updated. The frontend parses these lo
 
 
 Dynamic updates to the metrics configuration file is not supported. In order to account for updates made to the metrics configuration file, Torchserve will need to be restarted.
-Backend metrics that are not defined in the metrics configuration file will be `auto-detected` and registered in the frontend.
 
-`Note: Using auto-detection of backend metrics will have performance impact in the form of latency overhead, typically at model load and first inference for a given model.
+Metrics that are not defined in the metrics configuration file will not be logged or made available via the metrics API endpoint.
+Optionally, model metrics can be `auto-detected` and registered in the frontend by setting `model_metrics_auto_detect` to `true` in `config.properties`
+or using the `TS_MODEL_METRICS_AUTO_DETECT` environment variable. By default, `model_metrics_auto_detect` is disabled.
+
+`Warning: Using auto-detection of backend metrics will have performance impact in the form of latency overhead, typically at model load and first inference for a given model.
 This cold start behavior is because, it is during model load and first inference that new metrics are typically emitted by the backend and is detected and registered by the frontend.
 Subsequent inferences are expected to have no performance impact, provided only previously registered metrics are updated.
-For use cases where multiple models are loaded/unloaded often, the latency overhead can be mitigated by specifying known metrics in the metrics configuration file.`
+For use cases where multiple models are loaded/unloaded often, the latency overhead can be mitigated by specifying known metrics in the metrics configuration file, ahead of time.`
 
 
 The `metrics.yaml` is formatted with Prometheus metric type terminology:
