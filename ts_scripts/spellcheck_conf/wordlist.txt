@@ -1130,6 +1130,8 @@ sequenceMaxIdleMSec
 stateful
 tgz
 bitsandbytes
+FairScale
+Megatron
 Datadog
 Trn
 oneAPI
@@ -1137,3 +1139,4 @@ Naver
 FlashAttention
 GenAI
 prem
+

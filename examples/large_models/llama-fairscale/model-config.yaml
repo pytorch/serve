@@ -1,0 +1,21 @@
+#frontend settings
+minWorkers: 1
+maxWorkers: 1
+maxBatchDelay: 200
+responseTimeout: 300
+parallelType: "tp"
+deviceType: "gpu"
+
+torchrun:
+    nproc-per-node: 2
+
+handler:
+    model_path: "PATH/TO/MODEL_CHECKPOINTS"
+    tokenizer_path: "PATH/TO/MODEL_CHECKPOINTS/tokenizer.model"
+    max_seq_len: 512
+    max_batch_size: 6
+    max_new_tokens: 60
+    temperature: 0.6
+    top_p: 0.9
+    manual_seed: 40
+
