@@ -1,2 +1,2 @@
-tensorrt==8.5.3.1
-torch-tensorrt==1.4.0
+tensorrt==8.6.1.post1
+torch-tensorrt==2.1.0

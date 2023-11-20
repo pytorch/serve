@@ -24,7 +24,7 @@ do
           echo "-b, --branch_name=BRANCH_NAME specify a branch_name to use"
           echo "-g, --gpu specify to use gpu"
           echo "-bi, --baseimage specify base docker image. Example: nvidia/cuda:11.7.0-cudnn8-runtime-ubuntu20.04 "
-          echo "-bt, --buildtype specify for type of created image. Possible values: production, dev, ci."
+          echo "-bt, --buildtype specify for type of created image. Possible values: production, dev, ci, dev-ci."
           echo "-cv, --cudaversion specify to cuda version to use"
           echo "-t, --tag specify tag name for docker image"
           echo "-lf, --use-local-serve-folder specify this option for the benchmark image if the current 'serve' folder should be used during automated benchmarks"
@@ -48,7 +48,7 @@ do
           MACHINE=gpu
           DOCKER_TAG="pytorch/torchserve:latest-gpu"
           BASE_IMAGE="nvidia/cuda:11.8.0-base-ubuntu20.04"
-          CUDA_VERSION="cu117"
+          CUDA_VERSION="cu118"
           shift
           ;;
         -bi|--baseimage)
@@ -105,10 +105,10 @@ do
             BASE_IMAGE="nvidia/cuda:11.7.1-base-ubuntu20.04"
           elif [ "${CUDA_VERSION}" == "cu116" ];
           then
-            BASE_IMAGE="nvidia/cuda:11.6.0-cudnn8-runtime-ubuntu20.04"
+            BASE_IMAGE="nvidia/cuda:11.6.2-cudnn8-runtime-ubuntu20.04"
           elif [ "${CUDA_VERSION}" == "cu113" ];
           then
-            BASE_IMAGE="nvidia/cuda:11.3.0-cudnn8-runtime-ubuntu20.04"
+            BASE_IMAGE="nvidia/cuda:11.3.1-cudnn8-runtime-ubuntu20.04"
           elif [ "${CUDA_VERSION}" == "cu111" ];
           then
             BASE_IMAGE="nvidia/cuda:11.1.1-cudnn8-runtime-ubuntu20.04"
@@ -159,6 +159,9 @@ then
 elif [ "${BUILD_TYPE}" == "ci" ]
 then
   DOCKER_BUILDKIT=1 docker build --file Dockerfile --build-arg BASE_IMAGE="${BASE_IMAGE}" --build-arg CUDA_VERSION="${CUDA_VERSION}"  --build-arg PYTHON_VERSION="${PYTHON_VERSION}" --build-arg BUILD_NIGHTLY="${BUILD_NIGHTLY}" --build-arg BRANCH_NAME="${BRANCH_NAME}"  -t "${DOCKER_TAG}" --target ci-image  .
+elif [ "${BUILD_TYPE}" == "dev-ci" ]
+then
+  DOCKER_BUILDKIT=1 docker build --file Dockerfile --build-arg BASE_IMAGE="${BASE_IMAGE}" --build-arg CUDA_VERSION="${CUDA_VERSION}"  --build-arg PYTHON_VERSION="${PYTHON_VERSION}" --build-arg BUILD_NIGHTLY="${BUILD_NIGHTLY}" --build-arg BRANCH_NAME="${BRANCH_NAME}" --build-arg BUILD_WITH_IPEX="${BUILD_WITH_IPEX}"  -t "${DOCKER_TAG}" --target dev-ci-image  .
 else
   DOCKER_BUILDKIT=1 docker build --file Dockerfile --build-arg BASE_IMAGE="${BASE_IMAGE}" --build-arg CUDA_VERSION="${CUDA_VERSION}"  --build-arg PYTHON_VERSION="${PYTHON_VERSION}" --build-arg BUILD_NIGHTLY="${BUILD_NIGHTLY}" --build-arg BRANCH_NAME="${BRANCH_NAME}" --build-arg BUILD_WITH_IPEX="${BUILD_WITH_IPEX}"  -t "${DOCKER_TAG}" --target dev-image  .
 fi

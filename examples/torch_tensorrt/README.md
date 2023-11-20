@@ -4,8 +4,8 @@ This example shows how to run TorchServe inference with [Torch-TensorRT](https:/
 
 ### Pre-requisites
 
-- Install CUDA and cuDNN. Verified with CUDA 11.7 and cuDNN 8.9.3.28
-- Verified to be working with `tensorrt==8.5.3.1` and `torch-tensorrt==1.4.0`
+- Install CUDA. Verified with CUDA 11.8 and CUDA 12.1.
+- Verified to be working with `tensorrt==8.6.1.post1` and `torch-tensorrt==2.1.0`
 
 Change directory to the root of `serve`
 Ex: if `serve` is under `/home/ubuntu`, change directory to `/home/ubuntu/serve`
