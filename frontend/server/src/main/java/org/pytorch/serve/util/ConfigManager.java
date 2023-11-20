@@ -210,6 +210,8 @@ public final class ConfigManager {
         String workflowStore = args.getWorkflowStore();
         if (workflowStore != null) {
             prop.setProperty(TS_WORKFLOW_STORE, workflowStore);
+        } else if (prop.getProperty(TS_WORKFLOW_STORE) == null) {
+            prop.setProperty(TS_WORKFLOW_STORE, prop.getProperty(TS_MODEL_STORE));
         }
 
         String[] models = args.getModels();
