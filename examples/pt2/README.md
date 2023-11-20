@@ -17,7 +17,15 @@ pip install torchserve torch-model-archiver
 
 PyTorch 2.0 supports several compiler backends and you pick which one you want by passing in an optional file `model_config.yaml` during your model packaging
 
-`pt2: "inductor"`
+```yaml
+pt2: "inductor"
+```
+
+You can also pass a dictionary with compile options if you need more control over torch.compile:
+
+```yaml
+pt2 : {backend: inductor, mode: reduce-overhead}
+```
 
 As an example let's expand our getting started guide with the only difference being passing in the extra `model_config.yaml` file
 
@@ -99,5 +107,3 @@ print(extra_files['foo.txt'])
 # from inference()
 print(ep(torch.randn(5)))
 ```
-
-
