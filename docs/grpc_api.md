@@ -31,9 +31,8 @@ Run following commands to Register, run inference and unregister, densenet161 mo
  - Clone serve repo to run this example
 
 ```bash
-git clone https://github.com/pytorch/serve
+git clone --recurse-submodules https://github.com/pytorch/serve
 cd serve
-git submodule init
 ```
 
  - Install gRPC python dependencies
