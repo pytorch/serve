@@ -11,9 +11,11 @@ Improvement in speed in achieved using
 - Nested Tensor: Batch together non-uniformly sized data into a single Tensor, such as images of different sizes.
 - Custom operators with Triton: Write GPU operations using Triton Python DSL and easily integrate it into PyTorch’s various components with custom operator registration.
 
-Details on how this is achived can be found in this [blog](https://pytorch.org/blog/accelerating-generative-ai/)
+Details on how this is achieved can be found in this [blog](https://pytorch.org/blog/accelerating-generative-ai/)
 
 #### Pre-requisites
+
+`cd` to the example folder `examples/large_models/segment_anything_fast`
 
 Install `Segment Anything Fast` by running
 ```
@@ -25,8 +27,6 @@ Segment Anything Fast needs the nightly version of PyTorch. Hence the script is 
 Since we want to send the segmented masks of various objects found in the image, we should be compressing the string being sent to the client. We use `zlib` to do this. In this example using `zlib` is compressing the string by 400x
 
 ### Step 1: Download the weights
-
-`cd` to the example folder `examples/large_models/segment_anything_fast`
 
 ```
 wget https://dl.fbaipublicfiles.com/segment_anything/sam_vit_h_4b8939.pth
