@@ -448,7 +448,7 @@ optional<span class="w"> </span>arguments:
 <span class="w">                        </span>MODEL_STORE.
 <span class="w">  </span>--log-config<span class="w"> </span>LOG_CONFIG
 <span class="w">                        </span>Log4j<span class="w"> </span>configuration<span class="w"> </span>file<span class="w"> </span><span class="k">for</span><span class="w"> </span>TorchServe
-<span class="w">  </span>--ncs,<span class="w"> </span>--no-config-snapshots<span class="w">         </span>
+<span class="w">  </span>--ncs,<span class="w"> </span>--no-config-snapshots
 <span class="w">                        </span>Disable<span class="w"> </span>snapshot<span class="w"> </span>feature
 <span class="w">  </span>--workflow-store<span class="w"> </span>WORKFLOW_STORE
 <span class="w">                        </span>Workflow<span class="w"> </span>store<span class="w"> </span>location<span class="w"> </span>where<span class="w"> </span>workflow<span class="w"> </span>can<span class="w"> </span>be<span class="w"> </span>loaded.<span class="w"> </span>Defaults<span class="w"> </span>to<span class="w"> </span>model-store
@@ -479,6 +479,16 @@ b) to load all the models in model store set model value to “all”</p>
 <li><p><strong>start</strong>: optional, A more descriptive way to start the server.</p></li>
 <li><p><strong>stop</strong>: optional, Stop the server if it is already running.</p></li>
 </ol>
+</section>
+<section id="argument-priority">
+<h3>Argument Priority:<a class="headerlink" href="#argument-priority" title="Permalink to this heading">¶</a></h3>
+<p>Arguments can be set in multiple locations (ex: command line, config.properties). The following is the priority:</p>
+<ol class="simple">
+<li><p>Command line</p></li>
+<li><p>Config properties</p></li>
+<li><p>Default settings</p></li>
+</ol>
+<p>Example: Setting <code class="docutils literal notranslate"><span class="pre">model-store</span></code> in config.properties and through command line will result in the the command line location being used and overriding the config.properties.</p>
 </section>
 </section>
 <section id="advanced-features">
@@ -564,6 +574,7 @@ Let’s say you have a model named <code class="docutils literal notranslate"><s
 <li><a class="reference internal" href="#model-files">Model Files</a></li>
 <li><a class="reference internal" href="#command-line-interface">Command Line Interface</a><ul>
 <li><a class="reference internal" href="#arguments">Arguments:</a></li>
+<li><a class="reference internal" href="#argument-priority">Argument Priority:</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#advanced-features">Advanced Features</a><ul>
