@@ -29,6 +29,12 @@ public class Metric {
     @SerializedName("Dimensions")
     private List<Dimension> dimensions;
 
+    @SerializedName("DimensionNames")
+    private List<String> dimensionNames;
+
+    @SerializedName("DimensionValues")
+    private List<String> dimensionValues;
+
     @SerializedName("Timestamp")
     private String timestamp;
 
@@ -52,7 +58,7 @@ public class Metric {
         this.unit = unit;
         this.type = type;
         this.hostName = hostName;
-        this.dimensions = Arrays.asList(dimensions);
+        this.setDimensions(Arrays.asList(dimensions));
         this.timestamp =
                 String.valueOf(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
     }
@@ -109,8 +115,22 @@ public class Metric {
         return dimensions;
     }
 
+    public List<String> getDimensionNames() {
+        return this.dimensionNames;
+    }
+
+    public List<String> getDimensionValues() {
+        return this.dimensionValues;
+    }
+
     public void setDimensions(List<Dimension> dimensions) {
         this.dimensions = dimensions;
+        this.dimensionNames = new ArrayList<String>();
+        this.dimensionValues = new ArrayList<String>();
+        for (Dimension dimension : dimensions) {
+            this.dimensionNames.add(dimension.getName());
+            this.dimensionValues.add(dimension.getValue());
+        }
     }
 
     public String getTimestamp() {

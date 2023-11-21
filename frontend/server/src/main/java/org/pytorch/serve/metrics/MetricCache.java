@@ -104,12 +104,8 @@ public final class MetricCache {
     }
 
     public IMetric addAutoDetectMetricBackend(Metric parsedMetric) {
-        List<String> dimensionNames = new ArrayList<String>();
-        for (Dimension dimension : parsedMetric.getDimensions()) {
-            dimensionNames.add(dimension.getName());
-        }
-
         // The Hostname dimension is included by default for backend metrics
+        List<String> dimensionNames = parsedMetric.getDimensionNames();
         dimensionNames.add("Hostname");
 
         IMetric metric =

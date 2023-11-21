@@ -321,11 +321,8 @@ public class WorkerLifeCycle {
                                 this.metricCache.addAutoDetectMetricBackend(parsedMetric);
                             }
 
-                            List<String> dimensionValues = new ArrayList<String>();
-                            for (Dimension dimension : parsedMetric.getDimensions()) {
-                                dimensionValues.add(dimension.getValue());
-                            }
                             // Hostname is added as a dimension by default to backend metrics
+                            List<String> dimensionValues = parsedMetric.getDimensionValues();
                             dimensionValues.add(parsedMetric.getHostName());
 
                             this.metricCache
