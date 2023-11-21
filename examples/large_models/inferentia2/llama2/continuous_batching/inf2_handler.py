@@ -25,7 +25,7 @@ class LlamaHandler(BaseHandler, ABC):
         self.max_length = None
         self.max_new_tokens = None
         self.tokenizer = None
-        self.micro_batch_size = 1
+        self.batch_size = 1
         self.initialized = False
 
     def initialize(self, ctx: Context):
@@ -49,8 +49,8 @@ class LlamaHandler(BaseHandler, ABC):
         tp_degree = ctx.model_yaml_config.get("handler", {}).get("tp_degree", 6)
         self.max_length = int(ctx.model_yaml_config["handler"]["max_length"])
         self.max_new_tokens = int(ctx.model_yaml_config["handler"]["max_new_tokens"])
-        self.micro_batch_size = int(
-            ctx.model_yaml_config.get("micro_batching", {}).get("micro_batch_size", 1)
+        self.batch_size = int(
+            ctx.model_yaml_config.get("handler", {}).get("batch_size", 1)
         )
 
         # allocate "tp_degree" number of neuron cores to the worker process
@@ -75,7 +75,7 @@ class LlamaHandler(BaseHandler, ABC):
         self.tokenizer.pad_token_id = self.tokenizer.eos_token_id
         self.model = LlamaForSampling.from_pretrained(
             model_checkpoint_path,
-            batch_size=self.micro_batch_size,
+            batch_size=self.batch_size,
             amp=amp,
             tp_degree=tp_degree,
         )
@@ -174,10 +174,8 @@ class LlamaHandler(BaseHandler, ABC):
 
     def _run_tokenizer_batch(self, prefill_input_text, prefill_req_ids):
         # Pad input to match compiled model batch size
-        if self.micro_batch_size > len(prefill_req_ids):
-            prefill_input_text.extend(
-                [""] * (self.micro_batch_size - len(prefill_req_ids))
-            )
+        if self.batch_size > len(prefill_req_ids):
+            prefill_input_text.extend([""] * (self.batch_size - len(prefill_req_ids)))
         else:
             return None
 
@@ -284,7 +282,7 @@ class LlamaHandler(BaseHandler, ABC):
         )
         max_len = max(lengths)
 
-        for idx in range(self.micro_batch_size - len(ids)):
+        for idx in range(self.batch_size - len(ids)):
             ids.append("batch_padding")
             lengths.append(0)
 
