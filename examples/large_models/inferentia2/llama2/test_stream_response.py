@@ -9,6 +9,6 @@ response = requests.post(
 for chunk in response.iter_content(chunk_size=None):
     if chunk:
         data = chunk.decode("utf-8")
-        print(data, end="", flush=True)
+        print(data, end=" ", flush=True)
 
 print("")
