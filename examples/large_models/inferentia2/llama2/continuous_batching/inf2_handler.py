@@ -181,7 +181,6 @@ class LlamaHandler(BaseHandler, ABC):
 
         batch_encoded = self.tokenizer(
             prefill_input_text,
-            # max_length=self.max_length,
             return_tensors="pt",
             padding=True,
             add_special_tokens=True,
@@ -235,7 +234,7 @@ class LlamaHandler(BaseHandler, ABC):
             self.context.cache[req_id]["encoded"]["attention_mask"] = attention_mask
 
             results[req_id] = {
-                "text": outputs_decoded[idx],
+                "result": outputs_decoded[idx],
                 "ids": outputs.sequences[idx].tolist(),
             }
 
@@ -267,7 +266,7 @@ class LlamaHandler(BaseHandler, ABC):
             )
             self.context.cache[req_id]["encoded"]["attention_mask"] = attention_mask
             results[req_id] = {
-                "text": self.tokenizer.decode(
+                "result": self.tokenizer.decode(
                     outputs.sequences[idx][-1], skip_special_tokens=True
                 ),
                 "ids": [outputs.sequences[idx][-1].item()],
