@@ -176,8 +176,6 @@ class LlamaHandler(BaseHandler, ABC):
         # Pad input to match compiled model batch size
         if self.batch_size > len(prefill_req_ids):
             prefill_input_text.extend([""] * (self.batch_size - len(prefill_req_ids)))
-        else:
-            return None
 
         batch_encoded = self.tokenizer(
             prefill_input_text,
