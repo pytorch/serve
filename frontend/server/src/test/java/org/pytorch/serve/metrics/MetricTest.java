@@ -4,6 +4,7 @@ import io.prometheus.client.CollectorRegistry;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Logger;
 import org.apache.logging.log4j.core.appender.WriterAppender;
@@ -265,5 +266,55 @@ public class MetricTest {
                         testMetricDimensionNames.toArray(new String[0]),
                         testMetricDimensionValues.toArray(new String[0]));
         Assert.assertEquals(metricValue, Double.valueOf(3.0));
+    }
+
+    @Test
+    public void testParseBackendMetricLogWithoutType() {
+        String backendMetricLog =
+                "HandlerTime.Milliseconds:71.77|#ModelName:mnist,Level:Model|#hostname:test-host,1699061430,6d1726a7-172c-4010-b671-01d71bacc451";
+        Metric parsedMetric = Metric.parse(backendMetricLog);
+
+        Assert.assertEquals("HandlerTime", parsedMetric.getMetricName());
+        Assert.assertEquals("Milliseconds", parsedMetric.getUnit());
+        Assert.assertEquals("71.77", parsedMetric.getValue());
+        List<String> dimensionNames = new ArrayList<String>();
+        for (Dimension dimension : parsedMetric.getDimensions()) {
+            dimensionNames.add(dimension.getName());
+        }
+        Assert.assertEquals(Arrays.asList("ModelName", "Level"), dimensionNames);
+        List<String> dimensionValues = new ArrayList<String>();
+        for (Dimension dimension : parsedMetric.getDimensions()) {
+            dimensionValues.add(dimension.getValue());
+        }
+        Assert.assertEquals(Arrays.asList("mnist", "Model"), dimensionValues);
+        Assert.assertEquals(null, parsedMetric.getType());
+        Assert.assertEquals("test-host", parsedMetric.getHostName());
+        Assert.assertEquals("1699061430", parsedMetric.getTimestamp());
+        Assert.assertEquals("6d1726a7-172c-4010-b671-01d71bacc451", parsedMetric.getRequestId());
+    }
+
+    @Test
+    public void testParseBackendMetricLogWithType() {
+        String backendMetricLog =
+                "PredictionTime.Milliseconds:71.95|#ModelName:mnist,Level:Model|#type:GAUGE|#hostname:test-host,1699061430,6d1726a7-172c-4010-b671-01d71bacc451";
+        Metric parsedMetric = Metric.parse(backendMetricLog);
+
+        Assert.assertEquals("PredictionTime", parsedMetric.getMetricName());
+        Assert.assertEquals("Milliseconds", parsedMetric.getUnit());
+        Assert.assertEquals("71.95", parsedMetric.getValue());
+        List<String> dimensionNames = new ArrayList<String>();
+        for (Dimension dimension : parsedMetric.getDimensions()) {
+            dimensionNames.add(dimension.getName());
+        }
+        Assert.assertEquals(Arrays.asList("ModelName", "Level"), dimensionNames);
+        List<String> dimensionValues = new ArrayList<String>();
+        for (Dimension dimension : parsedMetric.getDimensions()) {
+            dimensionValues.add(dimension.getValue());
+        }
+        Assert.assertEquals(Arrays.asList("mnist", "Model"), dimensionValues);
+        Assert.assertEquals("GAUGE", parsedMetric.getType());
+        Assert.assertEquals("test-host", parsedMetric.getHostName());
+        Assert.assertEquals("1699061430", parsedMetric.getTimestamp());
+        Assert.assertEquals("6d1726a7-172c-4010-b671-01d71bacc451", parsedMetric.getRequestId());
     }
 }
