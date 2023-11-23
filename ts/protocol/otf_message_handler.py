@@ -119,7 +119,7 @@ def create_predict_response(
             msg += struct.pack("!i", len(buf))
             msg += buf
         else:
-            if context.stopping_criteria and ret[idx]["result"]:
+            if context.stopping_criteria and "result" in ret[idx]:
                 val = ret[idx]["result"]
             else:
                 val = ret[idx]
