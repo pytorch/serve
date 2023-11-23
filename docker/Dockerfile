@@ -62,7 +62,7 @@ RUN python -m pip install -U pip setuptools
 # This is only useful for cuda env
 RUN export USE_CUDA=1
 
-ARG CUDA_VERSION=""
+ARG USE_CUDA_VERSION=""
 
 RUN git clone --depth 1 --recursive https://github.com/pytorch/serve.git
 
@@ -71,8 +71,8 @@ WORKDIR "serve"
 RUN \
     if echo "$BASE_IMAGE" | grep -q "cuda:"; then \
         # Install CUDA version specific binary when CUDA version is specified as a build arg
-        if [ "$CUDA_VERSION" ]; then \
-            python ./ts_scripts/install_dependencies.py --cuda $CUDA_VERSION; \
+        if [ "USE_CUDA_VERSION" ]; then \
+            python ./ts_scripts/install_dependencies.py --cuda $USE_CUDA_VERSION; \
         # Install the binary with the latest CPU image on a CUDA base image
         else \
             python ./ts_scripts/install_dependencies.py; \

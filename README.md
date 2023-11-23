@@ -14,7 +14,7 @@ curl http://127.0.0.1:8080/predictions/bert -T input.txt
 ```
 ### 🚀 Quick start with TorchServe
 
-```
+```bash
 # Install dependencies
 # cuda is optional
 python ./ts_scripts/install_dependencies.py --cuda=cu121
@@ -28,7 +28,7 @@ pip install torchserve-nightly torch-model-archiver-nightly torch-workflow-archi
 
 ### 🚀 Quick start with TorchServe (conda)
 
-```
+```bash
 # Install dependencies
 # cuda is optional
 python ./ts_scripts/install_dependencies.py --cuda=cu121
@@ -44,7 +44,7 @@ conda install -c pytorch-nightly torchserve torch-model-archiver torch-workflow-
 
 ### 🐳 Quick Start with Docker
 
-```
+```bash
 # Latest release
 docker pull pytorch/torchserve
 
