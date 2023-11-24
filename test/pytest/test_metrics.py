@@ -11,13 +11,15 @@ import requests
 import test_utils
 
 NUM_STARTUP_CFG = 0
+LEGACY_FRONTEND_PROMETHEUS_METRICS = [
+    "ts_inference_requests_total",
+    "ts_inference_latency_microseconds",
+    "ts_queue_latency_microseconds",
+]
 FRONTEND_METRICS = [
     "Requests2XX",
     "Requests4XX",
     "Requests5XX",
-    "ts_inference_requests_total",
-    "ts_inference_latency_microseconds",
-    "ts_queue_latency_microseconds",
     "QueueTime",
     "WorkerThreadTime",
     "WorkerLoadTime",
@@ -436,6 +438,7 @@ def test_metrics_log_mode():
             gen_mar=False,
         )
         register_model_and_make_inference_request()
+        validate_metrics_log("ts_metrics.log", LEGACY_FRONTEND_PROMETHEUS_METRICS, True)
         validate_metrics_log("ts_metrics.log", FRONTEND_METRICS, True)
         validate_metrics_log("ts_metrics.log", SYSTEM_METRICS, True)
         validate_metrics_log("model_metrics.log", BACKEND_METRICS, True)
@@ -475,6 +478,9 @@ def test_metrics_prometheus_mode():
             gen_mar=False,
         )
         register_model_and_make_inference_request()
+        validate_metrics_log(
+            "ts_metrics.log", LEGACY_FRONTEND_PROMETHEUS_METRICS, False
+        )
         validate_metrics_log("ts_metrics.log", FRONTEND_METRICS, False)
         validate_metrics_log("ts_metrics.log", SYSTEM_METRICS, False)
         validate_metrics_log("model_metrics.log", BACKEND_METRICS, False)
@@ -482,6 +488,8 @@ def test_metrics_prometheus_mode():
 
         response = requests.get("http://localhost:8082/metrics")
         prometheus_metrics = response.text
+        for metric_name in LEGACY_FRONTEND_PROMETHEUS_METRICS:
+            assert metric_name in prometheus_metrics
         for metric_name in FRONTEND_METRICS:
             assert metric_name in prometheus_metrics
         for metric_name in SYSTEM_METRICS:
@@ -671,6 +679,75 @@ def test_auto_detect_backend_metrics_prometheus_mode():
         test_utils.delete_all_snapshots()
         del os.environ["TS_METRICS_MODE"]
         del os.environ["TS_METRICS_CONFIG"]
+        del os.environ["TS_MODEL_METRICS_AUTO_DETECT"]
+        os.remove(config_file)
+
+
+def test_metrics_legacy_mode():
+    """
+    Validates metrics legacy mode enables backwards compatibility with releases <=v0.6.0
+    """
+    # Torchserve cleanup
+    test_utils.stop_torchserve()
+    test_utils.delete_all_snapshots()
+    # Remove existing logs if any
+    for f in glob.glob("logs/*.log"):
+        os.remove(f)
+
+    config_file = os.path.join(test_utils.ROOT_DIR, "config.properties")
+    with open(config_file, "w") as f:
+        f.write("enable_envvars_config=true")
+
+    os.environ["TS_METRICS_MODE"] = "legacy"
+    os.environ["TS_MODEL_METRICS_AUTO_DETECT"] = "true"
+
+    try:
+        test_utils.start_torchserve(
+            model_store=test_utils.MODEL_STORE,
+            snapshot_file=config_file,
+            no_config_snapshots=True,
+            gen_mar=False,
+        )
+        register_model_and_make_inference_request()
+
+        validate_metrics_log(
+            "ts_metrics.log", LEGACY_FRONTEND_PROMETHEUS_METRICS, False
+        )
+        validate_metrics_log("ts_metrics.log", FRONTEND_METRICS, True)
+        validate_metrics_log("ts_metrics.log", SYSTEM_METRICS, True)
+        validate_metrics_log("model_metrics.log", BACKEND_METRICS, True)
+        validate_metrics_log("model_metrics.log", AUTO_DETECT_BACKEND_METRICS, True)
+
+        response = requests.get("http://localhost:8082/metrics")
+        prometheus_metrics = response.text
+        for metric_name in LEGACY_FRONTEND_PROMETHEUS_METRICS:
+            assert metric_name in prometheus_metrics
+        for metric_name in FRONTEND_METRICS:
+            assert metric_name not in prometheus_metrics
+        for metric_name in SYSTEM_METRICS:
+            assert metric_name not in prometheus_metrics
+        for metric_name in BACKEND_METRICS:
+            assert metric_name not in prometheus_metrics
+        for metric_name in AUTO_DETECT_BACKEND_METRICS:
+            assert metric_name not in prometheus_metrics
+
+        prometheus_metric_patterns = [
+            r"TYPE ts_inference_requests_total counter",
+            r'ts_inference_requests_total\{model_name="mnist_custom_metrics",model_version="default",hostname=".+",\} \d+\.\d+',
+            r"TYPE ts_inference_latency_microseconds counter",
+            r'ts_inference_latency_microseconds\{model_name="mnist_custom_metrics",model_version="default",hostname=".+",\} \d+\.\d+',
+            r"TYPE ts_queue_latency_microseconds counter",
+            r'ts_queue_latency_microseconds\{model_name="mnist_custom_metrics",model_version="default",hostname=".+",\} \d+\.\d+',
+        ]
+
+        for pattern in prometheus_metric_patterns:
+            matches = re.findall(pattern, prometheus_metrics)
+            assert len(matches) == 1, "pattern not found: " + pattern
+
+    finally:
+        test_utils.stop_torchserve()
+        test_utils.delete_all_snapshots()
+        del os.environ["TS_METRICS_MODE"]
         del os.environ["TS_MODEL_METRICS_AUTO_DETECT"]
         os.remove(config_file)
 

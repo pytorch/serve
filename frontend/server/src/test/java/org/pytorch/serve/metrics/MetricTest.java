@@ -269,6 +269,73 @@ public class MetricTest {
     }
 
     @Test
+    public void testLegacyMetricMode() {
+        ArrayList<String> legacyPrometheusMetrics =
+                new ArrayList<String>(
+                        Arrays.asList(
+                                "ts_inference_requests_total",
+                                "ts_inference_latency_microseconds",
+                                "ts_queue_latency_microseconds"));
+
+        for (String metricName : legacyPrometheusMetrics) {
+            IMetric testMetric =
+                    MetricBuilder.build(
+                            MetricBuilder.MetricMode.LEGACY,
+                            MetricBuilder.MetricType.COUNTER,
+                            metricName,
+                            testMetricUnit,
+                            testMetricDimensionNames);
+            Assert.assertEquals(testMetric.getClass(), PrometheusCounter.class);
+
+            testMetric.addOrUpdate(testMetricDimensionValues, 1.0);
+            Double metricValue =
+                    CollectorRegistry.defaultRegistry.getSampleValue(
+                            metricName,
+                            testMetricDimensionNames.toArray(new String[0]),
+                            testMetricDimensionValues.toArray(new String[0]));
+            Assert.assertEquals(metricValue, Double.valueOf(1.0));
+            testMetric.addOrUpdate(testMetricDimensionValues, 2.0);
+            metricValue =
+                    CollectorRegistry.defaultRegistry.getSampleValue(
+                            metricName,
+                            testMetricDimensionNames.toArray(new String[0]),
+                            testMetricDimensionValues.toArray(new String[0]));
+            Assert.assertEquals(metricValue, Double.valueOf(3.0));
+        }
+
+        // Frontend log metric
+        IMetric testMetric =
+                MetricBuilder.build(
+                        MetricBuilder.MetricMode.LEGACY,
+                        MetricBuilder.MetricType.GAUGE,
+                        testMetricName,
+                        testMetricUnit,
+                        testMetricDimensionNames);
+        Assert.assertEquals(testMetric.getClass(), LogMetric.class);
+
+        testMetric.addOrUpdate(testMetricDimensionValues, 1.0);
+        String expectedMetricString =
+                "TestMetric.ms:1.0|#ModelName:TestModel,Level:Model|#hostname:TestHost,timestamp:";
+        Assert.assertTrue(tsMetricsContent.toString().contains(expectedMetricString));
+
+        // Backend log metric
+        testMetric =
+                MetricBuilder.build(
+                        MetricBuilder.MetricMode.LEGACY,
+                        MetricBuilder.MetricType.COUNTER,
+                        testMetricName,
+                        testMetricUnit,
+                        testMetricDimensionNames);
+        Assert.assertEquals(testMetric.getClass(), LogMetric.class);
+
+        testMetric.addOrUpdate(testMetricDimensionValues, testRequestId, 1.0);
+        expectedMetricString =
+                "TestMetric.ms:1.0|#ModelName:TestModel,Level:Model|#hostname:TestHost,"
+                        + "requestID:fa8639a8-d3fa-4a25-a80f-24463863fe0f,timestamp:";
+        Assert.assertTrue(modelMetricsContent.toString().contains(expectedMetricString));
+    }
+
+    @Test
     public void testParseBackendMetricLogWithoutType() {
         String backendMetricLog =
                 "HandlerTime.Milliseconds:71.77|#ModelName:mnist,Level:Model|#hostname:test-host,1699061430,6d1726a7-172c-4010-b671-01d71bacc451";
