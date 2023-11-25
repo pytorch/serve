@@ -119,10 +119,7 @@ def create_predict_response(
             msg += struct.pack("!i", len(buf))
             msg += buf
         else:
-            if context and context.stopping_criteria and "result" in ret[idx]:
-                val = ret[idx]["result"]
-            else:
-                val = ret[idx]
+            val = ret[idx]
             # NOTE: Process bytes/bytearray case before processing the string case.
             if isinstance(val, (bytes, bytearray)):
                 msg += struct.pack("!i", len(val))

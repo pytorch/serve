@@ -232,7 +232,7 @@ class LlamaHandler(BaseHandler, ABC):
             self.context.cache[req_id]["encoded"]["attention_mask"] = attention_mask
 
             results[req_id] = {
-                "result": outputs_decoded[idx],
+                "text": outputs_decoded[idx],
                 "ids": outputs.sequences[idx].tolist(),
             }
 
@@ -264,7 +264,7 @@ class LlamaHandler(BaseHandler, ABC):
             )
             self.context.cache[req_id]["encoded"]["attention_mask"] = attention_mask
             results[req_id] = {
-                "result": self.tokenizer.decode(
+                "text": self.tokenizer.decode(
                     outputs.sequences[idx][-1], skip_special_tokens=True
                 ),
                 "ids": [outputs.sequences[idx][-1].item()],
