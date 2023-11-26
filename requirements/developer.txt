@@ -18,3 +18,4 @@ intel_extension_for_pytorch==2.1.0; sys_platform != 'win32' and sys_platform != 
 onnxruntime==1.15.0
 googleapis-common-protos
 onnx==1.14.1
+orjson

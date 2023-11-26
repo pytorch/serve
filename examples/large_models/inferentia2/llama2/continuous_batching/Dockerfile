@@ -8,3 +8,4 @@ WORKDIR /home/model-server/serve
 RUN git checkout feat/inf2_cb
 RUN pip install pygit2
 RUN python ts_scripts/install_from_src.py
+ENV TS_INSTALL_PY_DEP_PER_MODEL true
