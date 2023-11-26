@@ -233,7 +233,7 @@ class LlamaHandler(BaseHandler, ABC):
 
             results[req_id] = {
                 "text": outputs_decoded[idx],
-                "ids": outputs.sequences[idx].tolist(),
+                "tokens": outputs.sequences[idx].tolist(),
             }
 
         del self.context.kv_cache["past_key_values"]
@@ -267,7 +267,7 @@ class LlamaHandler(BaseHandler, ABC):
                 "text": self.tokenizer.decode(
                     outputs.sequences[idx][-1], skip_special_tokens=True
                 ),
-                "ids": [outputs.sequences[idx][-1].item()],
+                "tokens": [outputs.sequences[idx][-1].item()],
             }
         del self.context.kv_cache["past_key_values"]
         return results
@@ -409,7 +409,7 @@ class LlamaHandler(BaseHandler, ABC):
             def __call__(self, res):
                 self.max_new_tokens -= 1
 
-                if self.max_new_tokens == 0 or res["ids"][-1] == self.stop_token:
+                if self.max_new_tokens == 0 or res["tokens"][-1] == self.stop_token:
                     self.clean_up()
                     return True
                 return False
