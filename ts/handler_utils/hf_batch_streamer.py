@@ -27,7 +27,7 @@ class TextIteratorStreamerBatch(BaseStreamer):
             )
 
         for index in range(self.batch_size):
-            self.streamers[index].put(value[index : index + 1])
+            self.streamers[index].put({"text": value[index : index + 1]})
 
     def end(self):
         for streamer in self.streamers:

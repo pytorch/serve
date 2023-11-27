@@ -136,9 +136,7 @@ class LLMHandler(BaseHandler, ABC):
         for new_text in self.output_streamer:
             logger.debug("send response stream")
             send_intermediate_predict_response(
-                {
-                    "text": new_text[: len(micro_batch_req_id_map)],
-                },
+                new_text[: len(micro_batch_req_id_map)],
                 micro_batch_req_id_map,
                 "Intermediate Prediction success",
                 200,
