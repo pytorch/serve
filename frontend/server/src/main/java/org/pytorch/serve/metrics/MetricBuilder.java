@@ -47,7 +47,6 @@ public final class MetricBuilder {
             if (legacyPrometheusMetrics.contains(name)) {
                 return new PrometheusCounter(MetricType.COUNTER, name, unit, dimensionNames);
             }
-
             return new LogMetric(type, name, unit, dimensionNames);
         } else {
             return new LogMetric(type, name, unit, dimensionNames);

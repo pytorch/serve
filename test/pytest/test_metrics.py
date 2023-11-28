@@ -699,6 +699,14 @@ def test_metrics_legacy_mode():
         f.write("enable_envvars_config=true")
 
     os.environ["TS_METRICS_MODE"] = "legacy"
+    os.environ["TS_METRICS_CONFIG"] = os.path.join(
+        test_utils.REPO_ROOT,
+        "test",
+        "pytest",
+        "test_data",
+        "metrics",
+        "metrics_auto_detect.yaml",
+    )
     os.environ["TS_MODEL_METRICS_AUTO_DETECT"] = "true"
 
     try:
@@ -748,6 +756,7 @@ def test_metrics_legacy_mode():
         test_utils.stop_torchserve()
         test_utils.delete_all_snapshots()
         del os.environ["TS_METRICS_MODE"]
+        del os.environ["TS_METRICS_CONFIG"]
         del os.environ["TS_MODEL_METRICS_AUTO_DETECT"]
         os.remove(config_file)
 
