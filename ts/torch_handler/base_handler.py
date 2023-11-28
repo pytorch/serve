@@ -180,6 +180,17 @@ class BaseHandler(abc.ABC):
             self.model = setup_ort_session(self.model_pt_path, self.map_location)
             logger.info("Succesfully setup ort session")
 
+        # Convert your model by following instructions: https://pytorch.org/docs/stable/export.html
+        elif self.model_pt_path.endswith(".pt2"):
+            # Check if PyTorch version > 2.1.0
+            assert packaging.version.parse(
+                torch.__version__
+            ) >= packaging.version.parse(
+                "2.1.0"
+            ), "torch.export needs PyTorch version >= 2.1.0"
+
+            self.model = self._load_torch_export_program(self.model_pt_path)
+
         else:
             raise RuntimeError("No model weights could be loaded")
 
@@ -244,6 +255,17 @@ class BaseHandler(abc.ABC):
             (NN Model Object) : Loads the model object.
         """
         return torch.jit.load(model_pt_path, map_location=self.device)
+
+    def _load_torch_export_program(self, model_pt_path):
+        """Loads the saved PyTorch exported program and returns the model object.
+
+        Args:
+            model_pt_path (str): denotes the path of the model file.
+
+        Returns:
+            (NN Model Object) : Loads the model object.
+        """
+        return torch.export.load(model_pt_path)
 
     def _load_pickled_model(self, model_dir, model_file, model_pt_path):
         """
