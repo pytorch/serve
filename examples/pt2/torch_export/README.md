@@ -1,6 +1,18 @@
-# TorchServe inference with torch export program
+# TorchServe inference with torch export model
 
-This example shows how to run TorchServe a Torch exported program
+This example shows how to run TorchServe a Torch exported model
+
+`torch.export.export()` produces the traced graph representing only the Tensor computation of the function in an Ahead-of-Time fashion. This can then be serialized.
+
+`torch.export.export()` takes a `torch.nn.Module` or a method along with sample inputs, and captures the computation graph into an `torch.export.ExportedProgram`
+
+`torch.export` differs from `torch.compile` is a few ways
+- JIT vs AOT
+- `torch.export` expects the model to not have an graph breaks
+
+You can find more details [here](https://pytorch.org/docs/stable/export.html)
+
+
 
 ### Pre-requisites
 
