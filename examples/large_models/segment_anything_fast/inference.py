@@ -1,5 +1,4 @@
 import base64
-import json
 import pickle
 
 import cv2
@@ -10,25 +9,6 @@ from pycocotools import mask as coco_mask
 
 url = "http://localhost:8080/predictions/sam-fast"
 image_path = "./kitten.jpg"
-
-
-class NumpyArrayDecoder(json.JSONDecoder):
-    def decode(self, s, **kwargs):
-        decoded_data = super(NumpyArrayDecoder, self).decode(s, **kwargs)
-        return self._decode_numpy_arrays(decoded_data)
-
-    def _decode_numpy_arrays(self, data):
-        if isinstance(data, list):
-            return [self._decode_numpy_arrays(item) for item in data]
-        elif isinstance(data, dict):
-            return {
-                key: self._decode_numpy_arrays(value) for key, value in data.items()
-            }
-        elif isinstance(data, str) and data.startswith("__nparray__"):
-            array_data = json.loads(data[11:])
-            return np.array(array_data)
-        else:
-            return data
 
 
 def show_anns(anns):
@@ -55,12 +35,8 @@ def show_anns(anns):
     ax.imshow(img)
 
 
-image = cv2.imread(image_path)
-image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-
-
+# Send Inference request to TorchServe
 file = {"body": open(image_path, "rb")}
-
 res = requests.post(url, files=file)
 
 # Decode the Base64 encoded data (if needed)
@@ -71,6 +47,8 @@ masks = pickle.loads(decoded_data)
 
 
 # Plot the segmentation mask on the image
+image = cv2.imread(image_path)
+image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 plt.figure(figsize=(image.shape[1] / 100.0, image.shape[0] / 100.0), dpi=100)
 plt.imshow(image)
 show_anns(masks)
