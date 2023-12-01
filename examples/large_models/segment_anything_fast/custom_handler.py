@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 class SegmentAnythingFastHandler(BaseHandler):
     def __init__(self):
-        super(SegmentAnythingFastHandler, self).__init__()
+        super().__init__()
         self.mask_generator = None
         self.initialized = False
 
