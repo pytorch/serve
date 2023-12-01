@@ -260,7 +260,8 @@ public final class NettyUtils {
                 FileUpload fileUpload = (FileUpload) data;
                 String contentType = fileUpload.getContentType();
                 try {
-                    return new InputParameter(name, getBytes(fileUpload.getByteBuf()), contentType);
+                    return new InputParameter(
+                            name, getBytes(fileUpload.getByteBuf()), contentType, new String[0]);
                 } catch (IOException e) {
                     throw new AssertionError(e);
                 }
