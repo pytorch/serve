@@ -19,4 +19,3 @@ echo "Segment Anything Fast installed successfully!"
 
 echo "Installing other dependencies"
 pip install opencv-python matplotlib
-sudo apt-get install zlib1g-dev -y

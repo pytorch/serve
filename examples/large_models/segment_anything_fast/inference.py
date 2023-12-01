@@ -1,12 +1,12 @@
 import base64
 import json
 import pickle
-import zlib
 
 import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 import requests
+from pycocotools import mask as coco_mask
 
 url = "http://localhost:8080/predictions/sam-fast"
 image_path = "./kitten.jpg"
@@ -34,6 +34,8 @@ class NumpyArrayDecoder(json.JSONDecoder):
 def show_anns(anns):
     if len(anns) == 0:
         return
+    for i in range(len(anns)):
+        anns[i]["segmentation"] = coco_mask.decode(anns[i]["segmentation"])
     sorted_anns = sorted(anns, key=(lambda x: x["area"]), reverse=True)
     ax = plt.gca()
     ax.set_autoscale_on(False)
@@ -47,7 +49,7 @@ def show_anns(anns):
     )
     img[:, :, 3] = 0
     for ann in sorted_anns:
-        m = ann["segmentation"]
+        m = ann["segmentation"].astype(bool)
         color_mask = np.concatenate([np.random.random(3), [0.35]])
         img[m] = color_mask
     ax.imshow(img)
@@ -65,14 +67,7 @@ res = requests.post(url, files=file)
 decoded_data = base64.b64decode(res.text)
 
 # Deserialize the data using Pickle
-decompressed_data = pickle.loads(decoded_data)
-
-# Decompress the decompressed data (if needed)
-decompressed_string = zlib.decompress(decompressed_data).decode("utf-8")
-
-# convert the string into numpy array
-masks = json.loads(decompressed_string, cls=NumpyArrayDecoder)["data"]
-masks = np.array(masks)
+masks = pickle.loads(decoded_data)
 
 
 # Plot the segmentation mask on the image

@@ -24,8 +24,6 @@ source install_segment_anything_fast.sh
 ```
 Segment Anything Fast needs the nightly version of PyTorch. Hence the script is uninstalling PyTorch, its domain libraries and installing the nightly version of PyTorch.
 
-Since we want to send the segmented masks of various objects found in the image, we should be compressing the string being sent to the client. We use `zlib` to do this. In this example using `zlib` is compressing the string by 400x
-
 ### Step 1: Download the weights
 
 ```
@@ -36,6 +34,15 @@ If you are not using A100 for inference, turn off the A100 specific optimization
 ```
 export SEGMENT_ANYTHING_FAST_USE_FLASH_4=0
 ```
+
+Depending on the available GPU memory, you need to edit the value of `process_batch_size` in `model-config.yaml`
+`process_batch_size` is the batch size for the decoding step. Use a smaller value for lower memory footprint.
+Higher value will result in faster inference. The following values were tested.
+
+Example:
+  - For `A10G` : `process_batch_size=8`
+  - For `A100` : `process_batch_size=16`
+
 
 ### Step 2: Generate mar or tgz file
 
