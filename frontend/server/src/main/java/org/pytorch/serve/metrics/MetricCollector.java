@@ -81,12 +81,10 @@ public class MetricCollector implements Runnable {
                     } else {
                         if (this.metricCache.getMetricFrontend(metric.getMetricName()) != null) {
                             try {
-                                List<String> dimensionValues = new ArrayList<String>();
-                                for (Dimension dimension : metric.getDimensions()) {
-                                    dimensionValues.add(dimension.getValue());
-                                }
                                 // Frontend metrics by default have the last dimension as Hostname
+                                List<String> dimensionValues = metric.getDimensionValues();
                                 dimensionValues.add(metric.getHostName());
+
                                 this.metricCache
                                         .getMetricFrontend(metric.getMetricName())
                                         .addOrUpdate(

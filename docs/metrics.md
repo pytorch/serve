@@ -36,16 +36,25 @@ The location of log files and metric files can be configured in the [log4j2.xml]
 
 **Prometheus Mode**
 
-In `prometheus` mode, metrics defined in the metrics configuration file are made available in prometheus format via the [metrics API endpoint](metrics_api.md).
+In `prometheus` mode, metrics are made available in prometheus format via the [metrics API endpoint](metrics_api.md).
 
 ## Getting Started with TorchServe Metrics
 
-TorchServe defines metrics in a [yaml](https://github.com/pytorch/serve/blob/master/ts/configs/metrics.yaml) file, including both frontend metrics (i.e. `ts_metrics`) and backend metrics (i.e. `model_metrics`).
+TorchServe defines metrics configuration in a [yaml](https://github.com/pytorch/serve/blob/master/ts/configs/metrics.yaml) file, including both frontend metrics (i.e. `ts_metrics`) and backend metrics (i.e. `model_metrics`).
 When TorchServe is started, the metrics definition is loaded in the frontend and backend cache separately.
-The backend emits metrics logs as they are updated. The frontend parses these logs and makes the corresponding metrics available either as logs or via the [metrics API endpoint](metrics_api.md) based on the metrics_mode configuration.
+The backend emits metrics logs as they are updated. The frontend parses these logs and makes the corresponding metrics available either as logs or via the [metrics API endpoint](metrics_api.md) based on the `metrics_mode` configuration.
 
 
-Dynamic updates to the metrics configuration file is currently not supported. In order to account for updates made to the metrics configuration file, Torchserve will need to be restarted.
+Dynamic updates to the metrics configuration file is not supported. In order to account for updates made to the metrics configuration file, Torchserve will need to be restarted.
+
+By default, metrics that are not defined in the metrics configuration file will not be logged in the metrics log files or made available via the prometheus metrics API endpoint.
+Backend model metrics can be `auto-detected` and registered in the frontend by setting `model_metrics_auto_detect` to `true` in `config.properties`
+or using the `TS_MODEL_METRICS_AUTO_DETECT` environment variable. By default, `model_metrics_auto_detect` is disabled.
+
+`Warning: Using auto-detection of backend metrics will have performance impact in the form of latency overhead, typically at model load and first inference for a given model.
+This cold start behavior is because, it is during model load and first inference that new metrics are typically emitted by the backend and is detected and registered by the frontend.
+Subsequent inferences could also see performance impact if new metrics are updated for the first time.
+For use cases where multiple models are loaded/unloaded often, the latency overhead can be mitigated by specifying known metrics in the metrics configuration file, ahead of time.`
 
 
 The `metrics.yaml` is formatted with Prometheus metric type terminology:
@@ -86,9 +95,6 @@ model_metrics:  # backend metrics
       unit: ms
       dimensions: [*model_name, *level]
 ```
-
-
-Note that **only** the metrics defined in the **metrics configuration file** can be emitted to model_metrics.log or made available via the [metrics API endpoint](metrics_api.md). This is done to ensure that the metrics configuration file serves as a central inventory of all the metrics that Torchserve can emit.
 
 Default metrics are provided in the [metrics.yaml](https://github.com/pytorch/serve/blob/master/ts/configs/metrics.yaml) file, but the user can either delete them to their liking / ignore them altogether, because these metrics will not be emitted unless they are updated.\
 When adding custom `model_metrics` in the metrics configuration file, ensure to include `ModelName` and `Level` dimension names towards the end of the list of dimensions since they are included by default by the following custom metrics APIs:
@@ -175,7 +181,7 @@ Metrics collected include:
 
 ### Metric Types Enum
 
-TorchServe Metrics is introducing [Metric Types](https://github.com/pytorch/serve/blob/master/ts/metrics/metric_type_enum.py)
+TorchServe Metrics use [Metric Types](https://github.com/pytorch/serve/blob/master/ts/metrics/metric_type_enum.py)
 that are in line with the [Prometheus API](https://github.com/prometheus/client_python) metric types.
 
 Metric types are an attribute of Metric objects.
@@ -268,14 +274,15 @@ All metrics are collected within the context.
 
 ### Specifying Metric Types
 
-When adding any metric via Metrics API, users have the ability to override the metric type by specifying the positional argument
+When adding any metric via Metrics API, users have the ability to override the default metric type by specifying the positional argument
 `metric_type=MetricTypes.[COUNTER/GAUGE/HISTOGRAM]`.
 
 ```python
-metrics.add_metric("GenericMetric", value, unit=unit, dimension_names=["name1", "name2", ...], metric_type=MetricTypes.GAUGE)
+example_metric = metrics.add_metric_to_cache(name="ExampleMetric", unit="ms", dimension_names=["name1", "name2"], metric_type=MetricTypes.GAUGE)
+example_metric.add_or_update(value=1, dimension_values=["value1", "value2"])
 
 # Backwards compatible, combines the above two method calls
-metrics.add_counter("CounterMetric", value=1, dimensions=[Dimension("name", "value"), ...])
+metrics.add_metric(name="ExampleMetric", value=1, unit="ms", dimensions=[Dimension("name1", "value1"), Dimension("name2", "value2")], metric_type=MetricTypes.GAUGE)
 ```
 
 
@@ -302,14 +309,12 @@ given some criteria:
 3. Dimensions should be the same (as well as the same order!)
    1. All dimensions have to match, and Metric objects that have been parsed from the yaml file also have dimension names that are parsed from the yaml file
       1. Users can [create their own](#create-dimension-objects) `Dimension` objects to match those in the yaml file dimensions
-      2. if the Metric object has `ModelName` and `Level` dimensions only, it is optional to specify additional dimensions since these are considered [default dimensions](#default-dimensions), so: `add_counter('InferenceTimeInMS', value=2)` or `add_counter('InferenceTimeInMS', value=2, dimensions=["ModelName", "Level"])`
+      2. If the Metric object has `ModelName` and `Level` dimensions only, it is optional to specify additional dimensions since these are considered [default dimensions](#default-dimensions), so: `add_counter('InferenceTimeInMS', value=2)` or `add_counter('InferenceTimeInMS', value=2, dimensions=["ModelName", "Level"])`
 
 
 ### Default dimensions
 
-Metrics will have a couple of default dimensions if not already specified.
-
-If the metric is a type `Gauge`, `Histogram`, `Counter`, by default it will have:
+Metrics will have a couple of default dimensions if not already specified:
   * `ModelName,{name_of_model}`
   * `Level,Model`
 
@@ -555,7 +560,6 @@ Function API
         metric_type: MetricTypes
            type for defining different operations, defaulted to gauge metric type for Percent metrics
         """
-
 ```
 
 **Inferred unit**: `percent`
@@ -599,7 +603,7 @@ Function API
 
 ### Getting a metric
 
-Users can get a metric from the cache. The Metric object is returned, so the user can access the methods of the Metric: (i.e. `Metric.update(value)`, `Metric.__str__`)
+Users can get a metric from the cache. The CachingMetric object is returned, so the user can access the methods of the CachingMetric: (i.e. `CachingMetric.add_or_update(value, dimensions_values)`, `CachingMetric.update(value, dimensions)`)
 
 ```python
     def get_metric(self, metric_name: str, metric_type: MetricTypes) -> Metric:
@@ -723,12 +727,12 @@ class CustomHandlerExample:
      ```
    - **[v0.6.1 - v0.8.1] to [> v0.8.1]**\
      Replace the call to `add_metric` with `add_metric_to_cache`.
-2. Starting [v0.8.0](https://github.com/pytorch/serve/releases/tag/v0.8.0), only metrics that are defined in the metrics config file(default: [metrics.yaml](https://github.com/pytorch/serve/blob/master/ts/configs/metrics.yaml))
+2. In versions [[v0.8.0](https://github.com/pytorch/serve/releases/tag/v0.8.0) - [v0.9.0](https://github.com/pytorch/serve/releases/tag/v0.9.0)], only metrics that are defined in the metrics config file(default: [metrics.yaml](https://github.com/pytorch/serve/blob/master/ts/configs/metrics.yaml))
    are either all logged to `ts_metrics.log` and `model_metrics.log` or made available via the [metrics API endpoint](metrics_api.md)
    based on the `metrics_mode` configuration as described [above](#introduction).\
    The default `metrics_mode` is `log` mode.\
    This is unlike in previous versions where all metrics were only logged to `ts_metrics.log` and `model_metrics.log` except for `ts_inference_requests_total`, `ts_inference_latency_microseconds` and `ts_queue_latency_microseconds`
    which were only available via the metrics API endpoint.\
    **Upgrade paths**:
-   - **[< v0.8.0] to [>= v0.8.0]**\
+   - **[< v0.8.0] to [v0.8.0 - v0.9.0]**\
      Specify all the custom metrics added to the custom handler in the metrics configuration file as shown [above](#getting-started-with-torchserve-metrics).
