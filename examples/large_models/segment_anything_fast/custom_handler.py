@@ -23,6 +23,7 @@ class SegmentAnythingFastHandler(BaseHandler):
 
     def initialize(self, ctx):
         properties = ctx.system_properties
+        self.device = "cpu"
         if torch.cuda.is_available() and properties.get("gpu_id") is not None:
             self.map_location = "cuda"
             self.device = torch.device(
@@ -68,6 +69,9 @@ class SegmentAnythingFastHandler(BaseHandler):
 
     @timed
     def inference(self, data):
+        assert (
+            len(data) == 1
+        ), "SAM AutoMaticMaskGenerator currently supports batch size of 1"
         return self.mask_generator.generate(data[0])
 
     @timed
