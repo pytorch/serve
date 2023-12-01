@@ -43,6 +43,12 @@ build_plugins_command = {
     "Linux": "plugins/gradlew -p plugins clean bS",
 }
 
+build_dali_pipeline_command = {
+    "Linux": "python ts/handler_utils/preprocess/built-in/dali_pipeline_generation.py",
+    "Darwin": "python ts/handler_utils/preprocess/built-in/dali_pipeline_generation.py",
+    "Windows": "python ts/handler_utils/preprocess/built-in/dali_pipeline_generation.py",
+}
+
 
 def pypi_description():
     """
@@ -108,7 +114,28 @@ class BuildPy(setuptools.command.build_py.build_py):
     def run(self):
         sys.stderr.flush()
         self.run_command("build_frontend")
+        self.run_command("build_dali_pipeline")
         setuptools.command.build_py.build_py.run(self)
+
+
+class BuildDaliPipeline(setuptools.command.build_py.build_py):
+    """
+    Class to invoke the custom command defined above.
+    """
+
+    source_dali_file = os.path.abspath("./default.dali")
+    dest_file_name = os.path.abspath(
+        "ts/handler_utils/preprocess/built-in/default.dali"
+    )
+
+    def run(self):
+        try:
+            subprocess.check_call(
+                build_dali_pipeline_command[platform.system()], shell=True
+            )
+        except OSError:
+            assert 0, "dali pipeline build failed"
+        copy2(self.source_dali_file, self.dest_file_name)
 
 
 class BuildPlugins(Command):
@@ -171,9 +198,11 @@ if __name__ == "__main__":
         url="https://github.com/pytorch/serve.git",
         keywords="TorchServe PyTorch Serving Deep Learning Inference AI",
         packages=pkgs,
+        package_data={"ts.handler_utils.preprocess.built-in": ["default.dali"]},
         cmdclass={
             "build_frontend": BuildFrontEnd,
             "build_plugins": BuildPlugins,
+            "build_dali_pipeline": BuildDaliPipeline,
             "build_py": BuildPy,
         },
         install_requires=requirements,
