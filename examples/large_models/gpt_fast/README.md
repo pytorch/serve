@@ -46,6 +46,19 @@ cd gpt-fast
 cd ..
 ```
 
+### (Optional) Step 1.5: Quantize the model
+
+To speed up loading the model as well as running inference with it we can optionally quantize the model to int8 datatype with very little to no accuracy degradation.
+
+```
+cd gpt-fast
+python quantize.py --checkpoint_path checkpoints/$MODEL_REPO/model.pth --mode int8
+cd ..
+```
+
+The quantized model will show up as checkpoints/$MODEL_REPO/model_int8.pth. To enable it in the example you need to exchange the filename in the [`model_config.yaml`](./model_config.yaml) file.
+
+
 ### Step 2: Generate model archive
 
 ```
