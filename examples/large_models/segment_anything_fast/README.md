@@ -15,6 +15,8 @@ Details on how this is achieved can be found in this [blog](https://pytorch.org/
 
 #### Pre-requisites
 
+Needs python 3.10
+
 `cd` to the example folder `examples/large_models/segment_anything_fast`
 
 Install `Segment Anything Fast` by running
@@ -23,6 +25,7 @@ chmod +x install_segment_anything_fast.sh
 source install_segment_anything_fast.sh
 ```
 Segment Anything Fast needs the nightly version of PyTorch. Hence the script is uninstalling PyTorch, its domain libraries and installing the nightly version of PyTorch.
+
 
 ### Step 1: Download the weights
 
