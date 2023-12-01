@@ -43,6 +43,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.io.IOUtils;
+import org.pytorch.serve.metrics.MetricBuilder;
 import org.pytorch.serve.servingsdk.snapshot.SnapshotSerializer;
 import org.pytorch.serve.snapshot.SnapshotSerializerFactory;
 import org.slf4j.Logger;
@@ -68,6 +69,7 @@ public final class ConfigManager {
     private static final String TS_NUMBER_OF_GPU = "number_of_gpu";
     private static final String TS_METRICS_CONFIG = "metrics_config";
     private static final String TS_METRICS_MODE = "metrics_mode";
+    private static final String TS_MODEL_METRICS_AUTO_DETECT = "model_metrics_auto_detect";
     private static final String TS_DISABLE_SYSTEM_METRICS = "disable_system_metrics";
 
     // IPEX config option that can be set at config.properties
@@ -210,6 +212,8 @@ public final class ConfigManager {
         String workflowStore = args.getWorkflowStore();
         if (workflowStore != null) {
             prop.setProperty(TS_WORKFLOW_STORE, workflowStore);
+        } else if (prop.getProperty(TS_WORKFLOW_STORE) == null) {
+            prop.setProperty(TS_WORKFLOW_STORE, prop.getProperty(TS_MODEL_STORE));
         }
 
         String[] models = args.getModels();
@@ -410,8 +414,23 @@ public final class ConfigManager {
         return torchrunLogDir;
     }
 
-    public String getMetricsMode() {
-        return getProperty(TS_METRICS_MODE, "log");
+    public MetricBuilder.MetricMode getMetricsMode() {
+        String metricsMode = getProperty(TS_METRICS_MODE, "log");
+        try {
+            return MetricBuilder.MetricMode.valueOf(
+                    metricsMode.replaceAll("\\s", "").toUpperCase());
+        } catch (IllegalArgumentException | NullPointerException e) {
+            logger.error(
+                    "Configured metrics mode \"{}\" not supported. Defaulting to \"{}\" mode: {}",
+                    metricsMode,
+                    MetricBuilder.MetricMode.LOG,
+                    e);
+            return MetricBuilder.MetricMode.LOG;
+        }
+    }
+
+    public boolean isModelMetricsAutoDetectEnabled() {
+        return Boolean.parseBoolean(getProperty(TS_MODEL_METRICS_AUTO_DETECT, "false"));
     }
 
     public boolean isSystemMetricsDisabled() {

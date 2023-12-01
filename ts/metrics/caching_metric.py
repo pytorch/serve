@@ -102,7 +102,7 @@ class CachingMetric(MetricAbstract):
         """
         metric_str = (
             f"[METRICS]{self.metric_name}.{self.unit}:{value}|#{dimension_string}|"
-            f"#hostname:{socket.gethostname()},{int(time.time())}"
+            f"#type:{self.metric_type.name}|#hostname:{socket.gethostname()},{int(time.time())}"
         )
         if request_id:
             logger.info(f"{metric_str},{request_id}")

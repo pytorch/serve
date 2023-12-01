@@ -3,6 +3,7 @@ import os
 import platform
 import re
 import shutil
+import subprocess
 import time
 from os import path
 
@@ -33,16 +34,45 @@ SYSTEM_METRICS = [
     "GPUMemoryUsed",
     "GPUUtilization",
 ]
-BACKEND_METRICS = ["HandlerTime", "PredictionTime"]
+BACKEND_METRICS = [
+    "HandlerTime",
+    "PredictionTime",
+    "InferenceRequestCount",
+    "InitializeCallCount",
+    "PreprocessCallCount",
+    "PostprocessCallCount",
+    "RequestBatchSize",
+    "SizeOfImage",
+]
+AUTO_DETECT_BACKEND_METRICS = [
+    "HandlerMethodTime",
+    "ExamplePercentMetric",
+]
 
 
 def setup_module(module):
     test_utils.torchserve_cleanup()
-    response = requests.get(
-        "https://torchserve.pytorch.org/mar_files/densenet161.mar", allow_redirects=True
+
+    model_archiver_cmd = test_utils.model_archiver_command_builder(
+        model_name="mnist_custom_metrics",
+        version="1.0",
+        model_file=os.path.join(
+            test_utils.REPO_ROOT, "examples", "image_classifier", "mnist", "mnist.py"
+        ),
+        serialized_file=os.path.join(
+            test_utils.REPO_ROOT,
+            "examples",
+            "image_classifier",
+            "mnist",
+            "mnist_cnn.pt",
+        ),
+        handler=os.path.join(
+            test_utils.REPO_ROOT, "examples", "custom_metrics", "mnist_handler.py"
+        ),
+        export_path=test_utils.MODEL_STORE,
     )
-    with open(path.join(test_utils.MODEL_STORE, "densenet161.mar"), "wb") as f:
-        f.write(response.content)
+    model_archiver_cmd = model_archiver_cmd.split(" ")
+    subprocess.run(model_archiver_cmd)
 
 
 def teardown_module(module):
@@ -80,14 +110,20 @@ def run_log_location_var(custom_path=test_utils.ROOT_DIR, no_config_snapshots=Fa
         assert len(glob.glob(custom_path + "/ts_log.log")) == 1
 
 
-def register_densenet161_model_and_make_inference_request():
-    test_utils.register_model("densenet161", "densenet161.mar")
+def register_model_and_make_inference_request():
+    test_utils.register_model("mnist_custom_metrics", "mnist_custom_metrics.mar")
     data_file = os.path.join(
-        test_utils.REPO_ROOT, "examples/image_classifier/kitten.jpg"
+        test_utils.REPO_ROOT,
+        "examples",
+        "image_classifier",
+        "mnist",
+        "test_data",
+        "0.png",
     )
     with open(data_file, "rb") as input_data:
         requests.post(
-            url=f"http://localhost:8080/predictions/densenet161", data=input_data
+            url=f"http://localhost:8080/predictions/mnist_custom_metrics",
+            data=input_data,
         )
 
 
@@ -177,7 +213,7 @@ def test_log_location_var_snapshot_enabled():
     test_utils.stop_torchserve()
     os.environ["LOG_LOCATION"] = test_utils.ROOT_DIR
     run_log_location_var(no_config_snapshots=False)
-    requests.post("http://127.0.0.1:8081/models?url=densenet161.mar")
+    requests.post("http://127.0.0.1:8081/models?url=mnist_custom_metrics.mar")
     # We stop torchserve again here so that we can remove the LOG_LOCATION setting from environment variable
     test_utils.stop_torchserve()
     print("Waiting to stop")
@@ -208,7 +244,7 @@ def test_async_logging():
     for f in glob.glob("logs/*.log"):
         os.remove(f)
     # delete_all_snapshots()
-    async_config_file = test_utils.ROOT_DIR + "async-log-config.properties"
+    async_config_file = os.path.join(test_utils.ROOT_DIR, "async-log-config.properties")
     with open(async_config_file, "w+") as f:
         f.write("async_logging=true")
     test_utils.start_torchserve(snapshot_file=async_config_file)
@@ -224,7 +260,7 @@ def test_async_logging_non_boolean():
     for f in glob.glob("logs/*.log"):
         os.remove(f)
     # delete_all_snapshots()
-    async_config_file = test_utils.ROOT_DIR + "async-log-config.properties"
+    async_config_file = os.path.join(test_utils.ROOT_DIR, "async-log-config.properties")
     with open(async_config_file, "w+") as f:
         f.write("async_logging=2")
     test_utils.start_torchserve(snapshot_file=async_config_file)
@@ -275,7 +311,7 @@ def test_metrics_location_var_snapshot_enabled():
     test_utils.stop_torchserve()
     os.environ["METRICS_LOCATION"] = test_utils.ROOT_DIR
     run_metrics_location_var(no_config_snapshots=False)
-    requests.post("http://127.0.0.1:8081/models?url=densenet161.mar")
+    requests.post("http://127.0.0.1:8081/models?url=mnist_custom_metrics.mar")
     # We stop torchserve again here so that we can remove the METRICS_LOCATION setting
     # from environment variable
     test_utils.stop_torchserve()
@@ -300,7 +336,7 @@ def test_log_location_and_metric_location_vars_snapshot_enabled():
     os.environ["METRICS_LOCATION"] = test_utils.ROOT_DIR
     run_log_location_var(no_config_snapshots=False)
     run_metrics_location_var(no_config_snapshots=False)
-    requests.post("http://127.0.0.1:8081/models?url=densenet161.mar")
+    requests.post("http://127.0.0.1:8081/models?url=mnist_custom_metrics.mar")
     # We stop torchserve again here so that we can remove the LOG_LOCATION & METRICS_LOCATION
     # setting from environment variable
     test_utils.stop_torchserve()
@@ -362,7 +398,7 @@ def test_metrics_location_var_snapshot_enabled_rdonly_dir():
     os.environ["METRICS_LOCATION"] = RDONLY_DIR
     try:
         run_metrics_location_var(custom_path=RDONLY_DIR, no_config_snapshots=False)
-        requests.post("http://127.0.0.1:8081/models?url=densenet161.mar")
+        requests.post("http://127.0.0.1:8081/models?url=mnist_custom_metrics.mar")
         assert len(glob.glob("logs/access_log.log")) == 1
         assert len(glob.glob("logs/model_log.log")) == 1
         assert len(glob.glob("logs/ts_log.log")) == 1
@@ -384,19 +420,31 @@ def test_metrics_log_mode():
     for f in glob.glob("logs/*.log"):
         os.remove(f)
 
+    config_file = os.path.join(test_utils.ROOT_DIR, "config.properties")
+    with open(config_file, "w") as f:
+        f.write("enable_envvars_config=true")
+
+    os.environ["TS_METRICS_CONFIG"] = os.path.join(
+        test_utils.REPO_ROOT, "examples", "custom_metrics", "metrics.yaml"
+    )
+
     try:
         test_utils.start_torchserve(
             model_store=test_utils.MODEL_STORE,
+            snapshot_file=config_file,
             no_config_snapshots=True,
             gen_mar=False,
         )
-        register_densenet161_model_and_make_inference_request()
+        register_model_and_make_inference_request()
         validate_metrics_log("ts_metrics.log", FRONTEND_METRICS, True)
         validate_metrics_log("ts_metrics.log", SYSTEM_METRICS, True)
         validate_metrics_log("model_metrics.log", BACKEND_METRICS, True)
+        validate_metrics_log("model_metrics.log", AUTO_DETECT_BACKEND_METRICS, False)
     finally:
         test_utils.stop_torchserve()
         test_utils.delete_all_snapshots()
+        del os.environ["TS_METRICS_CONFIG"]
+        os.remove(config_file)
 
 
 def test_metrics_prometheus_mode():
@@ -410,11 +458,14 @@ def test_metrics_prometheus_mode():
     for f in glob.glob("logs/*.log"):
         os.remove(f)
 
-    config_file = test_utils.ROOT_DIR + "config.properties"
+    config_file = os.path.join(test_utils.ROOT_DIR, "config.properties")
     with open(config_file, "w") as f:
         f.write("enable_envvars_config=true")
 
     os.environ["TS_METRICS_MODE"] = "prometheus"
+    os.environ["TS_METRICS_CONFIG"] = os.path.join(
+        test_utils.REPO_ROOT, "examples", "custom_metrics", "metrics.yaml"
+    )
 
     try:
         test_utils.start_torchserve(
@@ -423,10 +474,11 @@ def test_metrics_prometheus_mode():
             no_config_snapshots=True,
             gen_mar=False,
         )
-        register_densenet161_model_and_make_inference_request()
+        register_model_and_make_inference_request()
         validate_metrics_log("ts_metrics.log", FRONTEND_METRICS, False)
         validate_metrics_log("ts_metrics.log", SYSTEM_METRICS, False)
         validate_metrics_log("model_metrics.log", BACKEND_METRICS, False)
+        validate_metrics_log("model_metrics.log", AUTO_DETECT_BACKEND_METRICS, False)
 
         response = requests.get("http://localhost:8082/metrics")
         prometheus_metrics = response.text
@@ -436,34 +488,190 @@ def test_metrics_prometheus_mode():
             assert metric_name in prometheus_metrics
         for metric_name in BACKEND_METRICS:
             assert metric_name in prometheus_metrics
+        for metric_name in AUTO_DETECT_BACKEND_METRICS:
+            assert metric_name not in prometheus_metrics
 
         prometheus_metric_patterns = [
+            r"TYPE Requests2XX counter",
             r'Requests2XX\{Level="Host",Hostname=".+",\} \d+\.\d+',
-            r'ts_inference_requests_total\{model_name="densenet161",model_version="default",hostname=".+",\} \d+\.\d+',
-            r'ts_inference_latency_microseconds\{model_name="densenet161",model_version="default",hostname=".+",\} \d+\.\d+',
-            r'ts_queue_latency_microseconds\{model_name="densenet161",model_version="default",hostname=".+",\} \d+\.\d+',
+            r"TYPE ts_inference_requests_total counter",
+            r'ts_inference_requests_total\{model_name="mnist_custom_metrics",model_version="default",hostname=".+",\} \d+\.\d+',
+            r"TYPE ts_inference_latency_microseconds counter",
+            r'ts_inference_latency_microseconds\{model_name="mnist_custom_metrics",model_version="default",hostname=".+",\} \d+\.\d+',
+            r"TYPE ts_queue_latency_microseconds counter",
+            r'ts_queue_latency_microseconds\{model_name="mnist_custom_metrics",model_version="default",hostname=".+",\} \d+\.\d+',
+            r"TYPE QueueTime gauge",
             r'QueueTime\{Level="Host",Hostname=".+",\} \d+\.\d+',
+            r"TYPE WorkerThreadTime gauge",
             r'WorkerThreadTime\{Level="Host",Hostname=".+",\} \d+\.\d+',
+            r"TYPE WorkerLoadTime gauge",
             r'WorkerLoadTime\{WorkerName=".+",Level="Host",Hostname=".+",\} \d+\.\d+',
+            r"TYPE CPUUtilization gauge",
             r'CPUUtilization\{Level="Host",Hostname=".+",\} \d+\.\d+',
+            r"TYPE MemoryUsed gauge",
             r'MemoryUsed\{Level="Host",Hostname=".+",\} \d+\.\d+',
+            r"TYPE MemoryAvailable gauge",
             r'MemoryAvailable\{Level="Host",Hostname=".+",\} \d+\.\d+',
+            r"TYPE MemoryUtilization gauge",
             r'MemoryUtilization\{Level="Host",Hostname=".+",\} \d+\.\d+',
+            r"TYPE DiskUsage gauge",
             r'DiskUsage\{Level="Host",Hostname=".+",\} \d+\.\d+',
+            r"TYPE DiskUtilization gauge",
             r'DiskUtilization\{Level="Host",Hostname=".+",\} \d+\.\d+',
+            r"TYPE DiskAvailable gauge",
             r'DiskAvailable\{Level="Host",Hostname=".+",\} \d+\.\d+',
-            r'HandlerTime\{ModelName="densenet161",Level="Model",Hostname=".+",\} \d+\.\d+',
-            r'PredictionTime\{ModelName="densenet161",Level="Model",Hostname=".+",\} \d+\.\d+',
+            r"TYPE HandlerTime gauge",
+            r'HandlerTime\{ModelName="mnist_custom_metrics",Level="Model",Hostname=".+",\} \d+\.\d+',
+            r"TYPE PredictionTime gauge",
+            r'PredictionTime\{ModelName="mnist_custom_metrics",Level="Model",Hostname=".+",\} \d+\.\d+',
+            r"TYPE InferenceRequestCount counter",
+            r'InferenceRequestCount\{Hostname=".+",\} \d+\.\d+',
+            r"TYPE InitializeCallCount counter",
+            r'InitializeCallCount\{ModelName="mnist_custom_metrics",Level="Model",Hostname=".+",\} \d+\.\d+',
+            r"TYPE PreprocessCallCount counter",
+            r'PreprocessCallCount\{ModelName="mnist_custom_metrics",Hostname=".+",\} \d+\.\d+',
+            r"TYPE PostprocessCallCount counter",
+            r'PostprocessCallCount\{ModelName="mnist_custom_metrics",Level="Model",Hostname=".+",\} \d+\.\d+',
+            r"TYPE RequestBatchSize gauge",
+            r'RequestBatchSize\{ModelName="mnist_custom_metrics",Hostname=".+",\} \d+\.\d+',
+            r"TYPE SizeOfImage gauge",
+            r'SizeOfImage\{ModelName="mnist_custom_metrics",Level="Model",Hostname=".+",\} \d+\.\d+',
         ]
 
         for pattern in prometheus_metric_patterns:
             matches = re.findall(pattern, prometheus_metrics)
-            assert len(matches) == 1
+            assert len(matches) == 1, "pattern not found: " + pattern
 
     finally:
         test_utils.stop_torchserve()
         test_utils.delete_all_snapshots()
         del os.environ["TS_METRICS_MODE"]
+        del os.environ["TS_METRICS_CONFIG"]
+        os.remove(config_file)
+
+
+def test_auto_detect_backend_metrics_log_mode():
+    """
+    Validates that auto-detection of backend metrics works with log mode
+    """
+    # Torchserve cleanup
+    test_utils.stop_torchserve()
+    test_utils.delete_all_snapshots()
+    # Remove existing logs if any
+    for f in glob.glob("logs/*.log"):
+        os.remove(f)
+
+    config_file = os.path.join(test_utils.ROOT_DIR, "config.properties")
+    with open(config_file, "w") as f:
+        f.write("enable_envvars_config=true")
+
+    os.environ["TS_METRICS_CONFIG"] = os.path.join(
+        test_utils.REPO_ROOT,
+        "test",
+        "pytest",
+        "test_data",
+        "metrics",
+        "metrics_auto_detect.yaml",
+    )
+    os.environ["TS_MODEL_METRICS_AUTO_DETECT"] = "true"
+
+    try:
+        test_utils.start_torchserve(
+            model_store=test_utils.MODEL_STORE,
+            snapshot_file=config_file,
+            no_config_snapshots=True,
+            gen_mar=False,
+        )
+        register_model_and_make_inference_request()
+        validate_metrics_log("model_metrics.log", BACKEND_METRICS, True)
+        validate_metrics_log("model_metrics.log", AUTO_DETECT_BACKEND_METRICS, True)
+    finally:
+        test_utils.stop_torchserve()
+        test_utils.delete_all_snapshots()
+        del os.environ["TS_METRICS_CONFIG"]
+        del os.environ["TS_MODEL_METRICS_AUTO_DETECT"]
+        os.remove(config_file)
+
+
+def test_auto_detect_backend_metrics_prometheus_mode():
+    """
+    Validates that auto-detection of backend metrics works with prometheus mode
+    """
+    # Torchserve cleanup
+    test_utils.stop_torchserve()
+    test_utils.delete_all_snapshots()
+    # Remove existing logs if any
+    for f in glob.glob("logs/*.log"):
+        os.remove(f)
+
+    config_file = os.path.join(test_utils.ROOT_DIR, "config.properties")
+    with open(config_file, "w") as f:
+        f.write("enable_envvars_config=true")
+
+    os.environ["TS_METRICS_MODE"] = "prometheus"
+    os.environ["TS_METRICS_CONFIG"] = os.path.join(
+        test_utils.REPO_ROOT,
+        "test",
+        "pytest",
+        "test_data",
+        "metrics",
+        "metrics_auto_detect.yaml",
+    )
+    os.environ["TS_MODEL_METRICS_AUTO_DETECT"] = "true"
+
+    try:
+        test_utils.start_torchserve(
+            model_store=test_utils.MODEL_STORE,
+            snapshot_file=config_file,
+            no_config_snapshots=True,
+            gen_mar=False,
+        )
+        register_model_and_make_inference_request()
+
+        validate_metrics_log("model_metrics.log", BACKEND_METRICS, False)
+        validate_metrics_log("model_metrics.log", AUTO_DETECT_BACKEND_METRICS, False)
+
+        response = requests.get("http://localhost:8082/metrics")
+        prometheus_metrics = response.text
+        for metric_name in BACKEND_METRICS:
+            assert metric_name in prometheus_metrics
+        for metric_name in AUTO_DETECT_BACKEND_METRICS:
+            assert metric_name in prometheus_metrics
+
+        prometheus_metric_patterns = [
+            r"TYPE HandlerTime gauge",
+            r'HandlerTime\{ModelName="mnist_custom_metrics",Level="Model",Hostname=".+",\} \d+\.\d+',
+            r"TYPE PredictionTime gauge",
+            r'PredictionTime\{ModelName="mnist_custom_metrics",Level="Model",Hostname=".+",\} \d+\.\d+',
+            r"TYPE InferenceRequestCount counter",
+            r'InferenceRequestCount\{Hostname=".+",\} \d+\.\d+',
+            r"TYPE InitializeCallCount counter",
+            r'InitializeCallCount\{ModelName="mnist_custom_metrics",Level="Model",Hostname=".+",\} \d+\.\d+',
+            r"TYPE PreprocessCallCount counter",
+            r'PreprocessCallCount\{ModelName="mnist_custom_metrics",Hostname=".+",\} \d+\.\d+',
+            r"TYPE PostprocessCallCount counter",
+            r'PostprocessCallCount\{ModelName="mnist_custom_metrics",Level="Model",Hostname=".+",\} \d+\.\d+',
+            r"TYPE RequestBatchSize gauge",
+            r'RequestBatchSize\{ModelName="mnist_custom_metrics",Hostname=".+",\} \d+\.\d+',
+            r"TYPE SizeOfImage gauge",
+            r'SizeOfImage\{ModelName="mnist_custom_metrics",Level="Model",Hostname=".+",\} \d+\.\d+',
+            r"TYPE HandlerMethodTime gauge",
+            r'HandlerMethodTime\{MethodName="preprocess",ModelName="mnist_custom_metrics",Level="Model",Hostname=".+",\} \d+\.\d+',
+            r"TYPE ExamplePercentMetric histogram",
+            r'ExamplePercentMetric_sum\{ModelName="mnist_custom_metrics",Level="Model",Hostname=".+",\} \d+\.\d+',
+            r'ExamplePercentMetric_count\{ModelName="mnist_custom_metrics",Level="Model",Hostname=".+",\} \d+\.\d+',
+        ]
+
+        for pattern in prometheus_metric_patterns:
+            matches = re.findall(pattern, prometheus_metrics)
+            assert len(matches) == 1, "pattern not found: " + pattern
+
+    finally:
+        test_utils.stop_torchserve()
+        test_utils.delete_all_snapshots()
+        del os.environ["TS_METRICS_MODE"]
+        del os.environ["TS_METRICS_CONFIG"]
+        del os.environ["TS_MODEL_METRICS_AUTO_DETECT"]
         os.remove(config_file)
 
 
@@ -478,15 +686,28 @@ def test_collect_system_metrics_when_not_disabled():
     for f in glob.glob("logs/*.log"):
         os.remove(f)
 
+    config_file = os.path.join(test_utils.ROOT_DIR, "config.properties")
+    with open(config_file, "w") as f:
+        f.write("enable_envvars_config=true")
+
+    os.environ["TS_METRICS_CONFIG"] = os.path.join(
+        test_utils.REPO_ROOT, "examples", "custom_metrics", "metrics.yaml"
+    )
+
     try:
         test_utils.start_torchserve(
-            model_store=test_utils.MODEL_STORE, no_config_snapshots=True, gen_mar=False
+            model_store=test_utils.MODEL_STORE,
+            snapshot_file=config_file,
+            no_config_snapshots=True,
+            gen_mar=False,
         )
-        register_densenet161_model_and_make_inference_request()
+        register_model_and_make_inference_request()
         validate_metrics_log("ts_metrics.log", SYSTEM_METRICS, True)
     finally:
         test_utils.stop_torchserve()
         test_utils.delete_all_snapshots()
+        del os.environ["TS_METRICS_CONFIG"]
+        os.remove(config_file)
 
 
 def test_disable_system_metrics_using_config_properties():
@@ -501,9 +722,13 @@ def test_disable_system_metrics_using_config_properties():
     for f in glob.glob("logs/*.log"):
         os.remove(f)
 
-    config_file = test_utils.ROOT_DIR + "config.properties"
+    config_file = os.path.join(test_utils.ROOT_DIR, "config.properties")
     with open(config_file, "w") as f:
-        f.write("disable_system_metrics=true")
+        f.writelines(["enable_envvars_config=true\n", "disable_system_metrics=true"])
+
+    os.environ["TS_METRICS_CONFIG"] = os.path.join(
+        test_utils.REPO_ROOT, "examples", "custom_metrics", "metrics.yaml"
+    )
 
     try:
         test_utils.start_torchserve(
@@ -512,11 +737,12 @@ def test_disable_system_metrics_using_config_properties():
             no_config_snapshots=True,
             gen_mar=False,
         )
-        register_densenet161_model_and_make_inference_request()
+        register_model_and_make_inference_request()
         validate_metrics_log("ts_metrics.log", SYSTEM_METRICS, False)
     finally:
         test_utils.stop_torchserve()
         test_utils.delete_all_snapshots()
+        del os.environ["TS_METRICS_CONFIG"]
         os.remove(config_file)
 
 
@@ -532,11 +758,14 @@ def test_disable_system_metrics_using_environment_variable():
     for f in glob.glob("logs/*.log"):
         os.remove(f)
 
-    config_file = test_utils.ROOT_DIR + "config.properties"
+    config_file = os.path.join(test_utils.ROOT_DIR, "config.properties")
     with open(config_file, "w") as f:
         f.write("enable_envvars_config=true")
 
     os.environ["TS_DISABLE_SYSTEM_METRICS"] = "true"
+    os.environ["TS_METRICS_CONFIG"] = os.path.join(
+        test_utils.REPO_ROOT, "examples", "custom_metrics", "metrics.yaml"
+    )
 
     try:
         test_utils.start_torchserve(
@@ -545,10 +774,11 @@ def test_disable_system_metrics_using_environment_variable():
             no_config_snapshots=True,
             gen_mar=False,
         )
-        register_densenet161_model_and_make_inference_request()
+        register_model_and_make_inference_request()
         validate_metrics_log("ts_metrics.log", SYSTEM_METRICS, False)
     finally:
         test_utils.stop_torchserve()
         test_utils.delete_all_snapshots()
         del os.environ["TS_DISABLE_SYSTEM_METRICS"]
+        del os.environ["TS_METRICS_CONFIG"]
         os.remove(config_file)
