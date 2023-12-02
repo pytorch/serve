@@ -16,7 +16,7 @@
 #           https://docs.docker.com/develop/develop-images/build_enhancements/
 
 
-ARG BASE_IMAGE=ubuntu:rolling
+ARG BASE_IMAGE=ubuntu:23.10
 
 # Note:
 # Define here the default python version to be used in all later build-stages as default.
@@ -28,7 +28,7 @@ ARG BASE_IMAGE=ubuntu:rolling
 ARG PYTHON_VERSION=3.9
 
 FROM ${BASE_IMAGE} AS compile-image
-ARG BASE_IMAGE=ubuntu:rolling
+ARG BASE_IMAGE=ubuntu:23.10
 ARG PYTHON_VERSION
 ARG BUILD_NIGHTLY
 ENV PYTHONUNBUFFERED TRUE
