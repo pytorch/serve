@@ -62,6 +62,9 @@ class GptHandler(BaseHandler):
 
     @timed
     def preprocess(self, requests):
+        assert (
+            len(requests) == 1
+        ), "GPT fast is currently only supported with batch_size=1"
         req_data = requests[0]
 
         input_data = req_data.get("data") or req_data.get("body")
