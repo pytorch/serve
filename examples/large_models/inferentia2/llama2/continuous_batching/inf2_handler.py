@@ -5,9 +5,10 @@ from abc import ABC
 
 import torch
 import torch_neuronx
-from transformers import AutoConfig, LlamaTokenizer
+from transformers import AutoConfig, AutoModelForCausalLM, AutoTokenizer, LlamaTokenizer
 from transformers_neuronx.generation_utils import HuggingFaceGenerationModelAdapter
 from transformers_neuronx.llama.model import LlamaForSampling
+from transformers_neuronx.module import save_pretrained_split
 
 from ts.context import Context
 from ts.torch_handler.base_handler import BaseHandler
@@ -40,13 +41,29 @@ class LlamaHandler(BaseHandler, ABC):
             "model_checkpoint_dir", ""
         )
         model_checkpoint_path = f"{model_dir}/{model_checkpoint_dir}"
+        model_path = f'{model_dir}/{ctx.model_yaml_config["handler"]["model_path"]}'
+
+        if not os.path.exists(model_checkpoint_path):
+            # Load and save the CPU model
+            model_cpu = AutoModelForCausalLM.from_pretrained(
+                model_path, low_cpu_mem_usage=True
+            )
+            save_pretrained_split(model_cpu, model_checkpoint_path)
+            # Load and save tokenizer for the model
+            tokenizer = AutoTokenizer.from_pretrained(model_path, return_tensors="pt")
+            tokenizer.save_pretrained(model_checkpoint_path)
+
         os.environ["NEURONX_CACHE"] = "on"
         os.environ["NEURON_COMPILE_CACHE_URL"] = f"{model_dir}/neuron_cache"
-        os.environ["NEURON_CC_FLAGS"] = "--model-type=transformer-inference"
+        os.environ["NEURON_CC_FLAGS"] = "-O1 --model-type=transformer"
 
         # settings for model compiliation and loading
         amp = ctx.model_yaml_config.get("handler", {}).get("amp", "fp32")
         tp_degree = ctx.model_yaml_config.get("handler", {}).get("tp_degree", 6)
+        context_length_estimate = ctx.model_yaml_config.get("handler", {}).get(
+            "context_length_estimate", None
+        )
+
         self.max_length = int(ctx.model_yaml_config["handler"]["max_length"])
         self.max_new_tokens = int(ctx.model_yaml_config["handler"]["max_new_tokens"])
         self.batch_size = int(
@@ -73,11 +90,14 @@ class LlamaHandler(BaseHandler, ABC):
         self.tokenizer = LlamaTokenizer.from_pretrained(model_checkpoint_path)
         self.tokenizer.pad_token = self.tokenizer.eos_token
         self.tokenizer.pad_token_id = self.tokenizer.eos_token_id
+        self.tokenizer.padding_side = "left"
         self.model = LlamaForSampling.from_pretrained(
             model_checkpoint_path,
             batch_size=self.batch_size,
             amp=amp,
             tp_degree=tp_degree,
+            n_positions=self.max_length if self.max_length > 2048 else 2048,
+            context_length_estimate=context_length_estimate,
         )
         logger.info("Starting to compile the model")
         self.model.to_neuron()
@@ -112,6 +132,7 @@ class LlamaHandler(BaseHandler, ABC):
                 attention masks.
         """
         self._clean_cache()
+        logger.info(f"requests size={len(requests)}")
 
         prefill_req_ids, decode, prefill_input_text = [], [], []
         for req_id, req_data in zip(self.context.request_ids.values(), requests):
@@ -302,6 +323,7 @@ class LlamaHandler(BaseHandler, ABC):
                     self.context.cache[req_id]["encoded"]["past_key_values"]
                 ):
                     k, v = layer_kv
+                    logger.info(f"layer_idx={layer_idx}, past_key_values, k={k}, v={v}")
                     kv_cache[layer_idx] = kv_cache.get(layer_idx, {})
                     kv_cache[layer_idx][0] = kv_cache.get(layer_idx, {}).get(0, []) + [
                         k
@@ -324,6 +346,7 @@ class LlamaHandler(BaseHandler, ABC):
                     ) + torch.zeros((max_len), **config)
 
             padded_len = input_ids[-1].size()[-1]
+            logger.info(f"req_id={req_id}, padded_len={padded_len}, max_len={max_len}")
             if padded_len < max_len:
                 # Apply padding to input_ids, attention_mask and past_key_values
                 n = max_len - seq_len
@@ -336,7 +359,7 @@ class LlamaHandler(BaseHandler, ABC):
                 attention_mask[-1] = torch.concat(
                     (torch.zeros((n), **config), attention_mask[-1])
                 )
-
+                continue
                 size_delta = list(kv_cache[0][0][-1].size())
                 size_delta[2] = n
                 for layer_idx in range(len(kv_cache)):
@@ -356,8 +379,10 @@ class LlamaHandler(BaseHandler, ABC):
                     )
             elif padded_len > max_len:
                 # Truncate padding from input_ids, attention_mask and past_key_values
-                input_ids[-1] = input_ids[-1][:, -max_len:]
-                attention_mask[-1] = attention_mask[-1][:, -max_len:]
+                logger.info(f"padded_len shape={input_ids[-1].size()}")
+                input_ids[-1] = input_ids[-1][-max_len:]
+                attention_mask[-1] = attention_mask[-1][-max_len:]
+                continue
 
                 for layer_idx in range(len(kv_cache)):
                     kv_cache[layer_idx][0][-1] = kv_cache[layer_idx][0][-1][

@@ -6,6 +6,7 @@ batchSize: 4
 continuousBatching: true
 
 handler:
+    model_path: ""
     model_checkpoint_dir: "llama-2-13b-split"
     amp: "bf16"
     tp_degree: 12
