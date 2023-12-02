@@ -102,7 +102,7 @@ def test_handler(tmp_path, add_paths, compile, mocker):
             x = handler.inference(x)
             x = handler.postprocess(x)
 
-        result = "".join(c[0][0] for c in send_mock.call_args_list)
+        result = "".join(c[0][0][0] for c in send_mock.call_args_list)
 
         assert result == EXPECTED_RESULTS[0]
     finally:

@@ -19,7 +19,7 @@ More details about gpt-fast can be found in this [blog](https://pytorch.org/blog
 
 `cd` to the example folder `examples/large_models/gpt_fast`
 
-Install dependencies and upgrade torch to nightlies (currently required)
+Install dependencies and upgrade torch to nightly build (currently required)
 ```
 git clone https://github.com/pytorch-labs/gpt-fast/
 pip install sentencepiece huggingface_hub

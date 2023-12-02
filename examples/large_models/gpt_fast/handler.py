@@ -7,6 +7,7 @@ import torch
 from generate import _load_model, decode_one_token, encode_tokens, prefill
 from sentencepiece import SentencePieceProcessor
 
+from ts.handler_utils.timer import timed
 from ts.protocol.otf_message_handler import send_intermediate_predict_response
 from ts.torch_handler.base_handler import BaseHandler
 
@@ -24,6 +25,7 @@ class GptHandler(BaseHandler):
         self.decode_one_token = decode_one_token
         self.initialized = False
         self.device = torch.device("cpu")
+        self.prompt_length = 0
 
     def initialize(self, ctx):
         self.context = ctx
@@ -58,6 +60,7 @@ class GptHandler(BaseHandler):
 
         self.initialized = True
 
+    @timed
     def preprocess(self, requests):
         req_data = requests[0]
 
@@ -72,11 +75,14 @@ class GptHandler(BaseHandler):
 
         encoded = encode_tokens(self.tokenizer, prompt, bos=True, device=self.device)
 
+        self.prompt_length = encoded.size(0)
+
         return {
             "encoded": encoded,
             "max_new_tokens": input_data.get("max_new_tokens", 50),
         }
 
+    @timed
     def inference(self, input_data):
         tokenizer = self.tokenizer
         period_id = tokenizer.encode(".")[0]
@@ -99,6 +105,7 @@ class GptHandler(BaseHandler):
             temperature=0.8,
             top_k=1,
         )
+        logger.info(f"Num tokens = {y.size(0) - self.prompt_length}")
         return y
 
     def postprocess(self, y):
