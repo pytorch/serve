@@ -7,6 +7,7 @@ import torch
 from generate import _load_model, decode_one_token, encode_tokens, prefill
 from sentencepiece import SentencePieceProcessor
 
+from ts.protocol.otf_message_handler import send_intermediate_predict_response
 from ts.torch_handler.base_handler import BaseHandler
 
 logger = logging.getLogger(__name__)
@@ -18,12 +19,14 @@ class GptHandler(BaseHandler):
 
         self.model = None
         self.tokenizer = None
+        self.context = None
         self.prefill = prefill
         self.decode_one_token = decode_one_token
         self.initialized = False
         self.device = torch.device("cpu")
 
     def initialize(self, ctx):
+        self.context = ctx
         properties = ctx.system_properties
         if torch.cuda.is_available() and properties.get("gpu_id") is not None:
             self.map_location = "cuda"
@@ -75,17 +78,31 @@ class GptHandler(BaseHandler):
         }
 
     def inference(self, input_data):
+        tokenizer = self.tokenizer
+        period_id = tokenizer.encode(".")[0]
+
+        def call_me(x):
+            nonlocal period_id, tokenizer
+            text = self.tokenizer.decode([period_id] + x.tolist())[1:]
+            send_intermediate_predict_response(
+                [text],
+                self.context.request_ids,
+                "Intermediate Prediction success",
+                200,
+                self.context,
+            )
+
         y = self.generate(
             input_data["encoded"],
             input_data["max_new_tokens"],
-            callback=lambda x: x,
+            callback=call_me,
             temperature=0.8,
             top_k=1,
         )
         return y
 
     def postprocess(self, y):
-        return [self.tokenizer.decode(y.tolist())]
+        return [""]
 
     @torch.no_grad()
     def generate(
@@ -118,6 +135,16 @@ class GptHandler(BaseHandler):
         next_token = self.prefill(
             self.model, prompt.view(1, -1), input_pos, **sampling_kwargs
         )
+        period_id = self.tokenizer.encode(".")[0]
+        text = self.tokenizer.decode([period_id] + next_token.tolist())[1:]
+        send_intermediate_predict_response(
+            [text],
+            self.context.request_ids,
+            "Intermediate Prediction success",
+            200,
+            self.context,
+        )
+
         seq[T] = next_token
 
         input_pos = torch.tensor([T], device=device, dtype=torch.int)

@@ -2,6 +2,7 @@ import json
 import shutil
 import sys
 from pathlib import Path
+from unittest.mock import patch
 
 import pytest
 import requests
@@ -67,7 +68,7 @@ def add_paths():
 
 @pytest.mark.skipif(**necessary_files_unavailable())
 @pytest.mark.parametrize(("compile"), (False, True))
-def test_handler(tmp_path, add_paths, compile):
+def test_handler(tmp_path, add_paths, compile, mocker):
     try:
         from handler import GptHandler
 
@@ -88,17 +89,22 @@ def test_handler(tmp_path, add_paths, compile):
             config = yaml.safe_load(f)
 
         ctx.model_yaml_config = config
+        ctx.request_ids = {0: "0"}
 
         torch.manual_seed(42 * 42)
         handler.initialize(ctx)
 
         assert ("cuda:0" if torch.cuda.is_available() else "cpu") == str(handler.device)
 
-        x = handler.preprocess([{"data": json.dumps(PROMPTS[0])}])
-        x = handler.inference(x)
-        x = handler.postprocess(x)
+        send_mock = mocker.MagicMock(name="send_intermediate_predict_response")
+        with patch("handler.send_intermediate_predict_response", send_mock):
+            x = handler.preprocess([{"data": json.dumps(PROMPTS[0])}])
+            x = handler.inference(x)
+            x = handler.postprocess(x)
 
-        assert x[0] == PROMPTS[0]["prompt"] + EXPECTED_RESULTS[0]
+        result = "".join(c[0][0] for c in send_mock.call_args_list)
+
+        assert result == EXPECTED_RESULTS[0]
     finally:
         # free memory in case of failed test
         del handler.model
@@ -192,6 +198,14 @@ def test_gpt_fast_mar(model_name_and_stdout):
         data=json.dumps(PROMPTS[0]),
     )
 
+    assert response.headers["Transfer-Encoding"] == "chunked"
+
     assert response.status_code == 200
 
-    assert response.text == PROMPTS[0]["prompt"] + EXPECTED_RESULTS[0]
+    prediction = ""
+    for chunk in response.iter_content(chunk_size=None):
+        if chunk:
+            print(f"{chunk=}")
+            prediction += chunk.decode("utf-8")
+
+    assert prediction == EXPECTED_RESULTS[0]
