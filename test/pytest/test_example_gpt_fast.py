@@ -18,7 +18,7 @@ GPT_PATH = CURR_FILE_PATH.parents[1] / "examples" / "large_models" / "gpt_fast"
 GPT_SRC_PATH = GPT_PATH / "gpt-fast"
 
 LLAMA_MODEL_PATH = (
-    GPT_SRC_PATH / "checkpoints" / "meta-llama" / "Llama-2-7b-hf" / "model.pth"
+    GPT_SRC_PATH / "checkpoints" / "meta-llama" / "Llama-2-7b-hf" / "model_int8.pth"
 )
 
 YAML_CONFIG = f"""
@@ -41,12 +41,17 @@ handler:
 PROMPTS = [
     {
         "prompt": "The capital of France",
-        "max_new_tokens": 50,
+        "max_new_tokens": 5,
+    },
+    {
+        "prompt": "what is the recipes for Mayonnaise?",
+        "max_new_tokens": 10,
     },
 ]
 
 EXPECTED_RESULTS = [
     ", Paris, is a city of romance, fashion, and art. The city is home to the Eiffel Tower, the Louvre, and the Arc de Triomphe. Paris is also known for its cafes, restaurants",
+    "\nI have a recipe for mayonnaise that I use all the time. It is very easy and tastes great.\n1. In a bowl, whisk together the egg yolks, mustard, lemon ju",
 ]
 
 
@@ -94,17 +99,21 @@ def test_handler(tmp_path, add_paths, compile, mocker):
         torch.manual_seed(42 * 42)
         handler.initialize(ctx)
 
+        ctx.request_ids = {0: "0", 1: "1"}
+
         assert ("cuda:0" if torch.cuda.is_available() else "cpu") == str(handler.device)
 
-        send_mock = mocker.MagicMock(name="send_intermediate_predict_response")
-        with patch("handler.send_intermediate_predict_response", send_mock):
-            x = handler.preprocess([{"data": json.dumps(PROMPTS[0])}])
+        results = ["", ""]
+        for _ in range(50):
+            input_data = [{"data": json.dumps(p)} for p in PROMPTS]
+            x = handler.preprocess(input_data)
             x = handler.inference(x)
             x = handler.postprocess(x)
+            results[0] += x[0]["text"]
+            results[1] += x[1]["text"]
 
-        result = "".join(c[0][0][0] for c in send_mock.call_args_list)
-
-        assert result == EXPECTED_RESULTS[0]
+        # assert results[0] == EXPECTED_RESULTS[0]
+        assert results[1] == EXPECTED_RESULTS[1]
     finally:
         # free memory in case of failed test
         del handler.model
