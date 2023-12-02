@@ -205,7 +205,6 @@ def test_gpt_fast_mar(model_name_and_stdout):
     prediction = ""
     for chunk in response.iter_content(chunk_size=None):
         if chunk:
-            print(f"{chunk=}")
             prediction += chunk.decode("utf-8")
 
     assert prediction == EXPECTED_RESULTS[0]
