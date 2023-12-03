@@ -28,7 +28,7 @@ class LlamaHandler(BaseHandler, ABC):
         self.tokenizer = None
         self.batch_size = 1
         self.initialized = False
-        self.batch_ids = []
+        self.batch_empty_ids = []
 
     def initialize(self, ctx: Context):
         """In this initialize function, the HF large model is loaded and
@@ -72,7 +72,7 @@ class LlamaHandler(BaseHandler, ABC):
         )
 
         for i in range(self.batch_size):
-            self.batch_ids.append(i)
+            self.batch_empty_ids.append(i)
 
             # allocate "tp_degree" number of neuron cores to the worker process
         os.environ["NEURON_RT_NUM_CORES"] = str(tp_degree)
@@ -155,13 +155,13 @@ class LlamaHandler(BaseHandler, ABC):
             else:
                 decode_req_ids.append(req_id)
 
-        prefill_encoded = None
+        encoded = None
         if len(prefill_req_ids) > 0:
-            prefill_encoded = self._run_tokenizer_batch(
+            encoded = self._run_tokenizer_batch(
                 prefill_input, prefill_req_ids, decode_req_ids
             )
 
-        return prefill_req_ids, prefill_encoded, decode_req_ids
+        return prefill_req_ids, decode_req_ids, encoded
 
     def inference(self, input_batch):
         """
@@ -174,12 +174,12 @@ class LlamaHandler(BaseHandler, ABC):
             list: A list of strings with the predicted values for each input text in the batch.
         """
 
-        prefill_req_ids, prefill_encoded, decode_req_ids = input_batch
+        prefill_req_ids, decode_req_ids, encoded = input_batch
 
         results = {}
         if prefill_req_ids:
             # Prefill requests
-            results.update(self._run_prefill_batch(prefill_req_ids, prefill_encoded))
+            results.update(self._run_prefill(prefill_req_ids + decode_req_ids, encoded))
         else:
             # Decode the rest
             results.update(self._run_decode(decode_req_ids))
@@ -204,7 +204,7 @@ class LlamaHandler(BaseHandler, ABC):
         # Pad input to match compiled model batch size
         prefill_input_text = [""] * self.batch_size
         for req_id, input_data in zip(prefill_req_ids, prefill_input):
-            idx = self.batch_ids.pop()
+            idx = self.batch_empty_ids.pop()
             prefill_input_text[idx] = input_data["data"]
             self.context.cache[req_id] = {"batch_idx": idx}
 
@@ -231,56 +231,26 @@ class LlamaHandler(BaseHandler, ABC):
                 }
             )
 
-        for req_id in decode_req_ids:
-            idx = self.context.cache[req_id]["batch_idx"]
-            batch_encoded["input_ids"][idx] = self.context.cache[req_id]["encoded"][
-                "input_ids"
-            ]
-            batch_encoded["attention_mask"][idx] = self.context.cache[req_id][
-                "encoded"
-            ]["attention_mask"]
-
-        return batch_encoded
+        ids = prefill_req_ids + decode_req_ids
+        return self._prepare_model_inputs(ids)
 
     @torch.no_grad()
-    def _run_prefill_batch(self, prefill_req_ids, prefill_encoded):
+    def _run_prefill(self, prefill_req_ids, prefill_encoded):
         self.model.reset_generation()
+        return self._generate_token(prefill_req_ids, prefill_encoded)
+
+    @torch.no_grad()
+    def _run_decode(self, ids):
+        encoded = self._prepare_model_inputs(ids)
+        return self._generate_token(ids, encoded)
+
+    def _generate_token(self, req_ids, encoded):
         outputs = self.model.generate(
-            prefill_encoded["input_ids"],
-            prefill_encoded["attention_mask"],
+            encoded["input_ids"],
+            encoded["attention_mask"],
             max_new_tokens=1,
             return_dict_in_generate=True,
             use_cache=True,
-        )
-
-        outputs_decoded = self.tokenizer.batch_decode(
-            outputs.sequences, skip_special_tokens=True
-        )
-
-        # Prefill requests
-        results = {}
-        for idx, req_id in enumerate(prefill_req_ids):
-            self.context.cache[req_id]["encoded"]["input_ids"] = outputs.sequences[idx]
-            device = next(iter(self.model.parameters())).device
-            dtype = torch.int64
-            config = {"device": device, "dtype": dtype}
-            attention_mask = self.context.cache[req_id]["encoded"]["attention_mask"]
-            attention_mask = torch.concat(
-                (attention_mask, torch.ones((1), **config)), dim=0
-            )
-            self.context.cache[req_id]["encoded"]["attention_mask"] = attention_mask
-
-            results[req_id] = {
-                "text": outputs_decoded[idx],
-                "tokens": outputs.sequences[idx].tolist(),
-            }
-        return results
-
-    def _run_decode(self, ids):
-        encoded = self._prepare_model_inputs(ids)
-
-        outputs = self.model.generate(
-            **encoded, max_new_tokens=1, return_dict_in_generate=True, use_cache=True
         )
 
         device = next(iter(self.model.parameters())).device
@@ -288,10 +258,7 @@ class LlamaHandler(BaseHandler, ABC):
         config = {"device": device, "dtype": dtype}
 
         results = {}
-        for idx, req_id in enumerate(ids):
-            if req_id == "batch_padding":
-                continue
-
+        for idx, req_id in enumerate(req_ids):
             self.context.cache[req_id]["encoded"]["input_ids"] = outputs.sequences[idx]
             attention_mask = encoded["attention_mask"][idx]
             attention_mask = torch.concat(
@@ -307,15 +274,13 @@ class LlamaHandler(BaseHandler, ABC):
         return results
 
     def _prepare_model_inputs(self, ids):
-        lengths = list(
-            torch.sum(self.context.cache[i]["encoded"]["attention_mask"]).item()
-            for i in ids
-        )
-        max_len = max(lengths)
+        lengths = [0] * self.batch_size
+        for i in ids:
+            lengths[self.context.cache[i]["batch_idx"]] = torch.sum(
+                self.context.cache[i]["encoded"]["attention_mask"]
+            ).item()
 
-        for idx in range(self.batch_size - len(ids)):
-            ids.append("batch_padding")
-            lengths.append(0)
+        max_len = max(lengths)
 
         device = next(iter(self.model.parameters())).device
         dtype = torch.int64
@@ -325,12 +290,11 @@ class LlamaHandler(BaseHandler, ABC):
         attention_mask = []
 
         for req_id, seq_len in zip(ids, lengths):
-            if req_id != "batch_padding":
+            if seq_len > 0:
                 input_ids.append(self.context.cache[req_id]["encoded"]["input_ids"])
                 attention_mask.append(
                     self.context.cache[req_id]["encoded"]["attention_mask"]
                 )
-
             else:
                 config = {"device": device, "dtype": dtype}
                 input_ids.append(
@@ -369,12 +333,14 @@ class LlamaHandler(BaseHandler, ABC):
             def __init__(
                 self,
                 cache,
+                batch_empty_ids,
                 req_id,
                 stop_token,
                 max_new_tokens,
             ):
                 self.req_id = req_id
                 self.cache = cache
+                self.batch_empty_ids = batch_empty_ids
                 self.max_new_tokens = max_new_tokens
                 self.stop_token = stop_token
 
@@ -387,10 +353,12 @@ class LlamaHandler(BaseHandler, ABC):
                 return False
 
             def clean_up(self):
+                self.batch_empty_ids.append(self.cache[self.req_id]["batch_idx"])
                 del self.cache[self.req_id]
 
         return StoppingCriteria(
             self.context.cache,
+            self.batch_empty_ids,
             req_id,
             self.tokenizer.eos_token_id,
             max_new_tokens,
