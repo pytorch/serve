@@ -2,14 +2,14 @@ minWorkers: 1
 maxWorkers: 1
 maxBatchDelay: 100
 responseTimeout: 10800
-batchSize: 4
+batchSize: 8
 continuousBatching: true
 
 handler:
-    model_path: ""
+    model_path: "model/models--meta-llama--Llama-2-13b-hf/snapshots/dc1d3b3bfdb69df26f8fc966c16353274b138c55"
     model_checkpoint_dir: "llama-2-13b-split"
     amp: "bf16"
     tp_degree: 12
     max_length: 100
-    max_new_tokens: 25
-    batch_size: 4
+    max_new_tokens: 50
+    batch_size: 8
