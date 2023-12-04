@@ -42,45 +42,47 @@ Prepare weights:
 ```
 export MODEL_REPO=meta-llama/Llama-2-7b-chat-hf
 cd gpt-fast
+huggingface-cli login
 ./scripts/prepare.sh $MODEL_REPO
 cd ..
 ```
 
-### (Optional) Step 1.5: Quantize the model
+### (Optional) Step 1.5: Quantize the model to int4
 
-To speed up loading the model as well as running inference with it we can optionally quantize the model to int8 datatype with very little to no accuracy degradation.
+To speed up model loading and inference even further we can optionally quantize the model to int4 instead of int8. Please see the [blog post](https://pytorch.org/blog/accelerating-generative-ai-2/) for details on the potential accuracy loss.
 
 ```
 cd gpt-fast
-python quantize.py --checkpoint_path checkpoints/$MODEL_REPO/model.pth --mode int8
+python quantize.py --checkpoint_path checkpoints/$MODEL_REPO/model.pth --mode int4
 cd ..
 ```
 
-The quantized model will show up as checkpoints/$MODEL_REPO/model_int8.pth. To enable it in the example you need to exchange the filename in the [`model_config.yaml`](./model_config.yaml) file.
+The quantized model will show up as checkpoints/$MODEL_REPO/model_int4.pth. To enable it in the example you need to exchange the filename in the [`model_config.yaml`](./model_config.yaml) file.
 
 
 ### Step 2: Generate model archive
 
 ```
-torch-model-archiver --model-name gpt-fast --version 1.0 --handler handler.py --config-file model_config.yaml --extra-files "gpt-fast/generate.py,gpt-fast/model.py,gpt-fast/quantize.py,gpt-fast/tp.py" --archive-format tgz
+torch-model-archiver --model-name gpt_fast --version 1.0 --handler handler.py --config-file model_config.yaml --extra-files "gpt-fast/generate.py,gpt-fast/model.py,gpt-fast/quantize.py,gpt-fast/tp.py" --archive-format no-archive
+mv gpt-fast/checkpoints gpt_fast/
 ```
 
 ### Step 3: Add the model archive to model store
 
 ```
 mkdir model_store
-mv gpt-fast.tar.gz model_store
+mv gpt_fast model_store
 ```
 
 ### Step 4: Start torchserve
 
 ```
-torchserve --start --ncs --model-store model_store --models gpt-fast.tar.gz
+torchserve --start --ncs --model-store model_store --models gpt_fast
 ```
 
 ### Step 5: Run inference
 
 ```
-curl "http://localhost:8080/predictions/gpt-fast" -T request.json
+curl "http://localhost:8080/predictions/gpt_fast" -T request.json
 # Returns: The capital of France, Paris, is a city of romance, fashion, and art. The city is home to the Eiffel Tower, the Louvre, and the Arc de Triomphe. Paris is also known for its cafes, restaurants
 ```

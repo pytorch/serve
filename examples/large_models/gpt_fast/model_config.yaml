@@ -6,6 +6,6 @@ responseTimeout: 300
 deviceType: "gpu"
 continuousBatching: false
 handler:
-    converted_ckpt_dir: "/home/ubuntu/serve/examples/large_models/gpt_fast/gpt-fast/checkpoints/meta-llama/Llama-2-7b-chat-hf/model.pth"
+    converted_ckpt_dir: "checkpoints/meta-llama/Llama-2-7b-hf/model.pth"
     max_new_tokens: 50
     compile: true

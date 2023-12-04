@@ -1,5 +1,6 @@
 import json
 import logging
+import os
 import time
 from pathlib import Path
 
@@ -30,10 +31,10 @@ class GptHandler(BaseHandler):
     def initialize(self, ctx):
         self.context = ctx
         properties = ctx.system_properties
-        if torch.cuda.is_available() and properties.get("gpu_id") is not None:
+        if torch.cuda.is_available():
             self.map_location = "cuda"
             self.device = torch.device(
-                self.map_location + ":" + str(properties.get("gpu_id"))
+                self.map_location + ":" + str(os.getenv("LOCAL_RANK", 0))
             )
 
         checkpoint_path = Path(ctx.model_yaml_config["handler"]["converted_ckpt_dir"])
