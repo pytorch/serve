@@ -1,0 +1,11 @@
+#frontend settings
+minWorkers: 1
+maxWorkers: 1
+maxBatchDelay: 200
+responseTimeout: 300
+deviceType: "gpu"
+continuousBatching: false
+handler:
+    converted_ckpt_dir: "checkpoints/meta-llama/Llama-2-7b-hf/model.pth"
+    max_new_tokens: 50
+    compile: true
