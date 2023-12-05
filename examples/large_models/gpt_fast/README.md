@@ -12,7 +12,8 @@ It features:
 * Tensor parallelism
 * Supports Nvidia and AMD GPUs
 
-More details about gpt-fast can be found in this [blog](https://pytorch.org/blog/accelerating-generative-ai-2/)
+More details about gpt-fast can be found in this [blog](https://pytorch.org/blog/accelerating-generative-ai-2/).
+The examples has been tested on A10, A100 as well as H100.
 
 
 #### Pre-requisites
