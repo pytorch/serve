@@ -25,6 +25,7 @@ import org.pytorch.serve.archive.model.ModelException;
 import org.pytorch.serve.archive.workflow.WorkflowException;
 import org.pytorch.serve.http.HttpRequestHandlerChain;
 import org.pytorch.serve.util.NettyUtils;
+import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.wlm.WorkerInitializationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,6 +48,8 @@ public class PrometheusMetricsRequestHandler extends HttpRequestHandlerChain {
             String[] segments)
             throws ModelException, DownloadArchiveException, WorkflowException,
                     WorkerInitializationException {
+        ConfigManager configManager = ConfigManager.getInstance();
+        configManager.checkTokenAuthorization(req);
         if (segments.length >= 2 && "metrics".equals(segments[1])) {
             ByteBuf resBuf = Unpooled.directBuffer();
             List<String> params =

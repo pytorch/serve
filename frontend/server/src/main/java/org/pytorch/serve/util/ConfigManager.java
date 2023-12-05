@@ -5,6 +5,17 @@ import com.google.gson.reflect.TypeToken;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
+import java.security.Key;
+import java.security.SecureRandom;
+import java.time.Instant;
+import java.util.concurrent.TimeUnit;
+import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.HttpHeaderValues;
+import io.netty.handler.codec.http.HttpMethod;
+import org.pytorch.serve.archive.model.KeyTimeOutException;
+import org.pytorch.serve.archive.model.InvalidKeyException;
+import org.pytorch.serve.archive.model.ModelException;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -104,6 +115,7 @@ public final class ConfigManager {
     private static final String TS_INITIAL_WORKER_PORT = "initial_worker_port";
     private static final String TS_INITIAL_DISTRIBUTION_PORT = "initial_distribution_port";
     private static final String TS_WORKFLOW_STORE = "workflow_store";
+    private static final String TS_TOKEN_EXPIRATION_TIME = "token_expiration"; // minutes
 
     // Configuration which are not documented or enabled through environment variables
     private static final String USE_NATIVE_IO = "use_native_io";
@@ -138,6 +150,11 @@ public final class ConfigManager {
     private Properties prop;
 
     private boolean snapshotDisabled;
+    private static boolean tokenAuthEnabled;
+    private static String currSecretKey;
+    private static Instant tokenExpires;
+    private static final SecureRandom secureRandom = new SecureRandom(); //threadsafe
+    private static final Base64.Encoder base64Encoder = Base64.getUrlEncoder(); //threadsafe
 
     private static ConfigManager instance;
     private String hostName;
@@ -150,6 +167,15 @@ public final class ConfigManager {
         prop = new Properties();
 
         this.snapshotDisabled = args.isSnapshotDisabled();
+        this.tokenAuthEnabled = args.isTokenEnabled();
+        // if (this.tokenAuthEnabled){
+        //     String key = generateToken();
+        //     System.out.println("-----TEST-----");
+        //     System.out.println("-----KEY------: " + key);
+        //     // this.tokenExpires = Instant.now().plusSeconds(TimeUnit.MINUTES.toSeconds(5));
+        //     // this.currSecretKey = key;
+        //     System.out.println(Instant.now() + " TIME: " + this.tokenExpires);
+        // }
         String version = readFile(getModelServerHome() + "/ts/version.txt");
         if (version != null) {
             version = version.replaceAll("[\\n\\t ]", "");
@@ -250,6 +276,17 @@ public final class ConfigManager {
         }
 
         setModelConfig();
+
+        // Check for token authorization and setup if needed.
+        if (this.tokenAuthEnabled){
+            String key = generateToken();
+            // System.out.println("-----AUTHORIZATION-----");
+            // System.out.println("-----TOKEN------: " + key);
+            // System.out.println("-----AUTHORIZATION-----");
+            // this.tokenExpires = Instant.now().plusSeconds(TimeUnit.MINUTES.toSeconds(5));
+            // this.currSecretKey = key;
+            System.out.println(Instant.now() + " TIME: " + this.tokenExpires);
+        }
 
         // Issue warnining about URLs that can be accessed when loading models
         if (prop.getProperty(TS_ALLOWED_URLS, DEFAULT_TS_ALLOWED_URLS) == DEFAULT_TS_ALLOWED_URLS) {
@@ -710,6 +747,8 @@ public final class ConfigManager {
                 + isSystemMetricsDisabled()
                 + "\nWorkflow Store: "
                 + (getWorkflowStore() == null ? "N/A" : getWorkflowStore())
+                + "\nToken Authorization: "
+                + (isTokenEnabled() == false ? "N/A" : getKey())
                 + "\nModel config: "
                 + prop.getProperty(MODEL_CONFIG, "N/A");
     }
@@ -837,6 +876,72 @@ public final class ConfigManager {
         return snapshotDisabled;
     }
 
+    public boolean isTokenEnabled() {
+        return tokenAuthEnabled;
+    }
+
+    public String getKey(){
+        return currSecretKey;
+    }
+
+    public boolean isTokenExpired(){
+        return !(Instant.now().isBefore(tokenExpires));
+    }
+
+    public String generateToken() {
+        byte[] randomBytes = new byte[6];
+        secureRandom.nextBytes(randomBytes);
+        setTokenExpiration();
+        String key = base64Encoder.encodeToString(randomBytes);
+        this.currSecretKey = key;
+        return key;
+    }
+
+    public void setTokenExpiration(){
+        Integer time = 5;
+        if (prop.getProperty(TS_TOKEN_EXPIRATION_TIME) != null){
+            time = Integer.valueOf(prop.getProperty(TS_TOKEN_EXPIRATION_TIME));
+        }
+        this.tokenExpires = Instant.now().plusSeconds(TimeUnit.MINUTES.toSeconds(time));
+    }
+
+    public void checkTokenAuthorization(FullHttpRequest req) throws ModelException {
+        HttpMethod method = req.method();
+        if (isTokenEnabled()){
+            System.out.println("TOKEN AUTHORIZATION IS ENABLED."
+            );
+            // VERIFY IF THE TOKEN IS VALID
+            String tokenBearer = req.headers().get("Authorization");
+            if (tokenBearer == null){
+                throw new InvalidKeyException("NO TOKEN PROVIDED");
+            }
+            String[] arrOfStr = tokenBearer.split(" ", 2);
+            String token = arrOfStr[1];
+            if (token.equals(getKey())){
+                if (isTokenExpired()){
+                    // System.out.println("TOKEN IS EXPIRED");
+                    String newToken = generateToken();
+                    if (!isTokenExpired()){
+                        System.out.println("This worked");
+                    }else {
+                        System.out.println("This did not worked");
+                    }
+                    throw new KeyTimeOutException("THE CURRENT TOKEN IS EXPIRED, NEW TOKEN : " + newToken);
+                }
+                else {
+                    System.out.println("TOKEN AUTHORIZATION WORKED");
+                }
+            } else {
+                throw new InvalidKeyException("TOKEN IS INCORRECT");
+                // System.out.println("INCORRECT TOKEN");
+            }
+        }else {
+            System.out.println("TOKEN AUTHORIZATION IS NOT ENABLED");
+        }
+    }
+
+    // FUNCTION THAT RECEIVES A TOKEN AND CHECKS TO SEE IF IT MATCHES SAVED TOKEN
+
     public boolean isSSLEnabled(ConnectorType connectorType) {
         String address = prop.getProperty(TS_INFERENCE_ADDRESS, "http://127.0.0.1:8080");
         switch (connectorType) {
@@ -928,6 +1033,7 @@ public final class ConfigManager {
         private String[] models;
         private boolean snapshotDisabled;
         private String workflowStore;
+        private boolean tokenAuthEnabled;
 
         public Arguments() {}
 
@@ -938,6 +1044,7 @@ public final class ConfigManager {
             models = cmd.getOptionValues("models");
             snapshotDisabled = cmd.hasOption("no-config-snapshot");
             workflowStore = cmd.getOptionValue("workflow-store");
+            tokenAuthEnabled = cmd.hasOption("token");
         }
 
         public static Options getOptions() {
@@ -983,6 +1090,12 @@ public final class ConfigManager {
                             .argName("WORKFLOW-STORE")
                             .desc("Workflow store location where workflow can be loaded.")
                             .build());
+            options.addOption(
+                    Option.builder("token")
+                            .longOpt("token")
+                            .argName("TOKEN")
+                            .desc("enables token authorization")
+                            .build());
             return options;
         }
 
@@ -1004,6 +1117,10 @@ public final class ConfigManager {
 
         public String getWorkflowStore() {
             return workflowStore;
+        }
+
+        public boolean isTokenEnabled() {
+            return tokenAuthEnabled;
         }
 
         public void setModelStore(String modelStore) {

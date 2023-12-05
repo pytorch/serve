@@ -12,6 +12,7 @@ import org.pytorch.serve.http.MethodNotAllowedException;
 import org.pytorch.serve.openapi.OpenApiUtils;
 import org.pytorch.serve.util.ConnectorType;
 import org.pytorch.serve.util.NettyUtils;
+import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.wlm.WorkerInitializationException;
 
 public class ApiDescriptionRequestHandler extends HttpRequestHandlerChain {
@@ -30,7 +31,8 @@ public class ApiDescriptionRequestHandler extends HttpRequestHandlerChain {
             String[] segments)
             throws ModelException, DownloadArchiveException, WorkflowException,
                     WorkerInitializationException {
-
+        ConfigManager configManager = ConfigManager.getInstance();
+        configManager.checkTokenAuthorization(req);
         if (isApiDescription(segments)) {
             String path = decoder.path();
             if (("/".equals(path) && HttpMethod.OPTIONS.equals(req.method()))

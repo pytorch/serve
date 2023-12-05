@@ -181,6 +181,9 @@ def start() -> None:
         if args.no_config_snapshots:
             cmd.append("-ncs")
 
+        if args.token_auth:
+            cmd.append("-token")
+
         if args.models:
             cmd.append("-m")
             cmd.extend(args.models)

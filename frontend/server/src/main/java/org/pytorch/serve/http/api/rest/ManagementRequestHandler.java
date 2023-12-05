@@ -15,6 +15,8 @@ import java.util.concurrent.ExecutionException;
 import org.pytorch.serve.archive.DownloadArchiveException;
 import org.pytorch.serve.archive.model.ModelException;
 import org.pytorch.serve.archive.model.ModelNotFoundException;
+import org.pytorch.serve.archive.model.KeyTimeOutException;
+import org.pytorch.serve.archive.model.InvalidKeyException;
 import org.pytorch.serve.archive.model.ModelVersionNotFoundException;
 import org.pytorch.serve.archive.workflow.WorkflowException;
 import org.pytorch.serve.http.HttpRequestHandlerChain;
@@ -34,6 +36,7 @@ import org.pytorch.serve.servingsdk.ModelServerEndpoint;
 import org.pytorch.serve.util.ApiUtils;
 import org.pytorch.serve.util.JsonUtils;
 import org.pytorch.serve.util.NettyUtils;
+import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.messages.RequestInput;
 import org.pytorch.serve.util.messages.WorkerCommands;
 import org.pytorch.serve.wlm.Model;
@@ -61,6 +64,8 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
             String[] segments)
             throws ModelException, DownloadArchiveException, WorkflowException,
                     WorkerInitializationException {
+        ConfigManager configManager = ConfigManager.getInstance();
+        configManager.checkTokenAuthorization(req);
         if (isManagementReq(segments)) {
             if (endpointMap.getOrDefault(segments[1], null) != null) {
                 handleCustomEndpoint(ctx, req, segments, decoder);

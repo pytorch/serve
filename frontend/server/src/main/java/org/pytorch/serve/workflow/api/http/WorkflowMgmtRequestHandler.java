@@ -26,6 +26,7 @@ import org.pytorch.serve.http.ResourceNotFoundException;
 import org.pytorch.serve.http.StatusResponse;
 import org.pytorch.serve.util.JsonUtils;
 import org.pytorch.serve.util.NettyUtils;
+import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.wlm.WorkerInitializationException;
 import org.pytorch.serve.workflow.WorkflowManager;
 import org.pytorch.serve.workflow.messages.DescribeWorkflowResponse;
@@ -63,6 +64,9 @@ public class WorkflowMgmtRequestHandler extends HttpRequestHandlerChain {
             String[] segments)
             throws ModelException, DownloadArchiveException, WorkflowException,
                     WorkerInitializationException {
+
+        ConfigManager configManager = ConfigManager.getInstance();
+        configManager.checkTokenAuthorization(req);
         if (isManagementReq(segments)) {
             if (!"workflows".equals(segments[1])) {
                 throw new ResourceNotFoundException();
