@@ -28,6 +28,7 @@ class Foo(nn.Module):
 HANDLER_PY = """
 import os
 import torch
+from ts.protocol.otf_message_handler import send_intermediate_predict_response
 from ts.torch_handler.base_handler import BaseHandler
 
 class FooHandler(BaseHandler):
@@ -35,9 +36,18 @@ class FooHandler(BaseHandler):
         if not torch.distributed.is_initialized():
             torch.distributed.init_process_group("gloo")
         torch.set_default_device("cpu")
+        self.context = ctx
         super().initialize(ctx)
 
     def preprocess(self, data):
+        send_intermediate_predict_response(
+                ["0"],
+                self.context.request_ids,
+                "Intermediate Prediction success",
+                200,
+                self.context,
+            )
+
         return torch.as_tensor(int(data[0].get('body').decode('utf-8')), device=self.device)
 
     def postprocess(self, x):
@@ -141,6 +151,14 @@ def test_tp_inference(model_name):
         url=f"http://localhost:8080/predictions/{model_name}", data=json.dumps(42)
     )
 
-    assert int(response.text) == 4 * 42
+    assert response.headers["Transfer-Encoding"] == "chunked"
+
+    prediction = ""
+    for chunk in response.iter_content(chunk_size=None):
+        if chunk:
+            prediction += chunk.decode("utf-8")
+
+    assert prediction == "0" + str(4 * 42)
+    # assert response.text == "0" + str(4 * 42)
 
     assert response.status_code == 200
