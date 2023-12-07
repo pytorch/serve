@@ -60,11 +60,42 @@ cd ..
 
 The quantized model will show up as checkpoints/$MODEL_REPO/model_int4.pth. To enable it in the example you need to exchange the filename in the [`model_config.yaml`](./model_config.yaml) file.
 
+### (Optional) Step 1.6: Speculative decoding
+
+Another technique to speed-up inference that was implemented in gpt-fast is speculative decoding where a smaller draft model is used to provide token proposals which are only verified with a bigger main model.
+Depending on draft and verifier model this can be faster due to the parallel nature of the check.
+For more details on selecting the models check the [gpt-fast blog post](https://pytorch.org/blog/accelerating-generative-ai-2/).
+
+In order to use speculative decoding we need a draft model which needs to be aligned with the verifier model. E.g. we can use `meta-llama/Llama-2-13b-chat-hf` and `meta-llama/Llama-2-7b-chat-hf` model.
+For this example we prepare `meta-llama/Llama-2-13b-chat-hf` model as verifier and use the model generated in step 1 as draft model.
+
+```
+export MODEL_REPO=meta-llama/Llama-2-13b-chat-hf
+cd gpt-fast
+huggingface-cli login
+./scripts/prepare.sh $MODEL_REPO
+cd ..
+```
 
 ### Step 2: Generate model archive
+At this stage we're creating the model archive which includes the configuration of our model in [model_config.yaml](./model_config.yaml).
+It's also the point where we need to decide if we want to deploy our model on a single or multiple GPUs.
+For the single GPU case we can use the default configuration that can be found in [model_config.yaml](./model_config.yaml).
 
 ```
 torch-model-archiver --model-name gpt_fast --version 1.0 --handler handler.py --config-file model_config.yaml --extra-files "gpt-fast/generate.py,gpt-fast/model.py,gpt-fast/quantize.py,gpt-fast/tp.py" --archive-format no-archive
+mv gpt-fast/checkpoints gpt_fast/
+```
+
+If we want to use tensor parallel variant and split the model over multiple GPUs we need to set the grade of desired tensor parallelism in [model_config_tp.yaml](./model_config_tp.yaml) and use this configuration for creating the archive:
+```
+torch-model-archiver --model-name gpt_fast --version 1.0 --handler handler.py --config-file model_config_tp.yaml --extra-files "gpt-fast/generate.py,gpt-fast/model.py,gpt-fast/quantize.py,gpt-fast/tp.py" --archive-format no-archive
+mv gpt-fast/checkpoints gpt_fast/
+```
+
+If we want to activate speculative decoding and have prepared the verifier model in step 1.6 we can go ahead and create the model archive using [model_config_speculative.yaml](./model_config_speculative.yaml) which combines tensor parallel and speculative decoding.
+```
+torch-model-archiver --model-name gpt_fast --version 1.0 --handler handler.py --config-file model_config_speculative.yaml --extra-files "gpt-fast/generate.py,gpt-fast/model.py,gpt-fast/quantize.py,gpt-fast/tp.py" --archive-format no-archive
 mv gpt-fast/checkpoints gpt_fast/
 ```
 
