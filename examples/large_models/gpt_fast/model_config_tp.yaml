@@ -5,7 +5,6 @@ maxBatchDelay: 200
 responseTimeout: 300
 parallelType: "tp"
 deviceType: "gpu"
-continuousBatching: false
 torchrun:
     nproc-per-node: 4
 handler:

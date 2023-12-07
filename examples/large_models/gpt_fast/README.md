@@ -64,7 +64,7 @@ The quantized model will show up as checkpoints/$MODEL_REPO/model_int4.pth. To e
 
 Another technique to speed-up inference that was implemented in gpt-fast is speculative decoding where a smaller draft model is used to provide token proposals which are only verified with a bigger main model.
 Depending on draft and verifier model this can be faster due to the parallel nature of the check.
-For more details ion selecting the models check the [gpt-fast blog post](https://pytorch.org/blog/accelerating-generative-ai-2/).
+For more details on selecting the models check the [gpt-fast blog post](https://pytorch.org/blog/accelerating-generative-ai-2/).
 
 In order to use speculative decoding we need a draft model which needs to be aligned with the verifier model. E.g. we can use `meta-llama/Llama-2-13b-chat-hf` and `meta-llama/Llama-2-7b-chat-hf` model.
 For this example we prepare `meta-llama/Llama-2-13b-chat-hf` model as verifier and use the model generated in step 1 as draft model.
