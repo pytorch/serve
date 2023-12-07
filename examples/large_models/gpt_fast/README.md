@@ -62,9 +62,18 @@ The quantized model will show up as checkpoints/$MODEL_REPO/model_int4.pth. To e
 
 
 ### Step 2: Generate model archive
+At this stage we're creating the model archive which includes the configuration of our model in [model_config.yaml](./model_config.yaml).
+It's also the point where we need to decide if we want to deploy our model on a single or multiple GPUs.
+For the single GPU case we can use the default configuration that can be found in [model_config.yaml](./model_config.yaml).
 
 ```
 torch-model-archiver --model-name gpt_fast --version 1.0 --handler handler.py --config-file model_config.yaml --extra-files "gpt-fast/generate.py,gpt-fast/model.py,gpt-fast/quantize.py,gpt-fast/tp.py" --archive-format no-archive
+mv gpt-fast/checkpoints gpt_fast/
+```
+
+If we want to use tensor parallel variant and split the model over muitple GPUs we need to set the grade of desired tensor parallelism in [model_config_tp.yaml](./model_config_tp.yaml) and use this configuration for creating the archive:
+```
+torch-model-archiver --model-name gpt_fast --version 1.0 --handler handler.py --config-file model_config_tp.yaml --extra-files "gpt-fast/generate.py,gpt-fast/model.py,gpt-fast/quantize.py,gpt-fast/tp.py" --archive-format no-archive
 mv gpt-fast/checkpoints gpt_fast/
 ```
 
