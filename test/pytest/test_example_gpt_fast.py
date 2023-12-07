@@ -60,7 +60,7 @@ MAR_PARAMS = (
     {
         "nproc": 4,
         "stream": f"false\n    speculate_k: 8\n    draft_checkpoint_path: '{(LLAMA_MODEL_PATH.parents[1] / 'Llama-2-7b-chat-hf' / 'model_int8.pth').as_posix()}'",
-        "compile": "false",
+        "compile": "true",
     },
 )
 

@@ -80,7 +80,17 @@ class GptHandler(BaseHandler):
         self.tokenizer = SentencePieceProcessor(model_file=str(tokenizer_path))
 
         if ctx.model_yaml_config["handler"]["compile"]:
-            assert not self.is_speculative
+            if self.is_speculative and use_tp:
+                torch._inductor.config.triton.cudagraph_trees = (
+                    False  # Bug with cudagraph trees in this case
+                )
+
+            if self.is_speculative:
+                global model_forward
+                model_forward = torch.compile(
+                    model_forward, mode="reduce-overhead", fullgraph=True
+                )
+
             self.decode_one_token = torch.compile(
                 self.decode_one_token, mode="reduce-overhead", fullgraph=True
             )
@@ -133,7 +143,7 @@ class GptHandler(BaseHandler):
                 self.context,
             )
 
-        y = self.generate(
+        y, metrics = self.generate(
             input_data["encoded"],
             input_data["max_new_tokens"],
             callback=call_me if self.local_rank == 0 and self.stream else lambda x: x,
@@ -141,6 +151,15 @@ class GptHandler(BaseHandler):
             top_k=1,
         )
         logger.info(f"Num tokens = {y.size(0) - self.prompt_length}")
+
+        if self.is_speculative:
+            counts_aggregated = [sum(i) for i in zip(*[metrics["accept_counts"]])]
+            acceptance_probs = [i / sum(counts_aggregated) for i in counts_aggregated]
+            logger.info(f"Acceptance probs: {acceptance_probs}")
+            logger.info(
+                f"Mean Accepted: {sum([idx * i for idx, i in enumerate(counts_aggregated)])/sum(counts_aggregated)}"
+            )
+
         return y
 
     def postprocess(self, y):
@@ -209,6 +228,7 @@ class GptHandler(BaseHandler):
         seq[T] = next_token
 
         input_pos = torch.tensor([T], device=self.device, dtype=torch.int)
+        accept_counts = [0] * (self.speculate_k + 1)
 
         if self.is_speculative:
             input_pos = (
@@ -226,6 +246,7 @@ class GptHandler(BaseHandler):
                     **sampling_kwargs,
                 )
 
+                accept_counts[len(next_tokens) - 1] += 1
                 num_added = min(T_new - input_pos - 1, len(next_tokens))
                 seq[input_pos + 1 : input_pos + num_added + 1] = next_tokens[:num_added]
                 for i in next_tokens[:num_added,]:
@@ -242,7 +263,9 @@ class GptHandler(BaseHandler):
             )
             seq[T + 1 :] = torch.cat(generated_tokens)
 
-        return seq
+        generate_stats = {"accept_counts": accept_counts}
+
+        return seq, generate_stats
 
     def decode_n_tokens(
         self,
