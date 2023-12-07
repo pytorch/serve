@@ -71,7 +71,7 @@ torch-model-archiver --model-name gpt_fast --version 1.0 --handler handler.py --
 mv gpt-fast/checkpoints gpt_fast/
 ```
 
-If we want to use tensor parallel variant and split the model over muitple GPUs we need to set the grade of desired tensor parallelism in [model_config_tp.yaml](./model_config_tp.yaml) and use this configuration for creating the archive:
+If we want to use tensor parallel variant and split the model over multiple GPUs we need to set the grade of desired tensor parallelism in [model_config_tp.yaml](./model_config_tp.yaml) and use this configuration for creating the archive:
 ```
 torch-model-archiver --model-name gpt_fast --version 1.0 --handler handler.py --config-file model_config_tp.yaml --extra-files "gpt-fast/generate.py,gpt-fast/model.py,gpt-fast/quantize.py,gpt-fast/tp.py" --archive-format no-archive
 mv gpt-fast/checkpoints gpt_fast/
