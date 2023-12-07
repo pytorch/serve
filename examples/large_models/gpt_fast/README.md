@@ -67,7 +67,7 @@ Depending on draft and verifier model this can be faster due to the parallel nat
 For more details ion selecting the models check the [gpt-fast blog post](https://pytorch.org/blog/accelerating-generative-ai-2/).
 
 In order to use speculative decoding we need a draft model which needs to be aligned with the verifier model. E.g. we can use `meta-llama/Llama-2-13b-chat-hf` and `meta-llama/Llama-2-7b-chat-hf` model.
-For this example we prepare `meta-llama/Llama-2-13b-chat-hf` model as verifier and use the model generated in step 1 as dratf model.
+For this example we prepare `meta-llama/Llama-2-13b-chat-hf` model as verifier and use the model generated in step 1 as draft model.
 
 ```
 export MODEL_REPO=meta-llama/Llama-2-13b-chat-hf
