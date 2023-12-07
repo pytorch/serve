@@ -122,14 +122,14 @@ def load_benchmark_config(bm_config_path, skip_ts_install, skip_upload):
     return benchmark_config.bm_config
 
 
-def benchmark_env_setup(bm_config, skip_ts_install):
-    install_torchserve(skip_ts_install, bm_config["hardware"], bm_config["version"])
+def benchmark_env_setup(bm_config, skip_ts_install, nightly):
+    install_torchserve(skip_ts_install, bm_config["hardware"], bm_config["version"], nightly)
     setup_benchmark_path(bm_config["model_config_path"])
     build_model_json_config(bm_config["models"])
     enable_launcher_with_logical_core(bm_config["hardware"])
 
 
-def install_torchserve(skip_ts_install, hw, ts_version):
+def install_torchserve(skip_ts_install, hw, ts_version, nightly):
     if skip_ts_install:
         return
 
@@ -154,6 +154,8 @@ def install_torchserve(skip_ts_install, hw, ts_version):
         cmd = "python ts_scripts/install_dependencies.py --environment dev --neuronx"
     else:
         cmd = "python ts_scripts/install_dependencies.py --environment dev"
+    if nightly:
+        cmd += " --nightly_torch"
     execute(cmd, wait=True)
     print("successfully install install_dependencies.py")
 
@@ -290,9 +292,12 @@ def main():
     )
     parser.add_argument(
         "--skip_upload",
-        help="true: skip uploading commands . default: false",
+        help="true: skip uploading commands. default: false",
     )
-
+    parser.add_argument(
+        "--nightly",
+        help="true: install nightly version of torch package. default: false"
+    )
     arguments = parser.parse_args()
     skip_ts_config = (
         False
@@ -304,8 +309,13 @@ def main():
         if arguments.skip_upload is not None and arguments.skip_upload.lower() == "true"
         else False
     )
+    nightly = (
+        True
+        if arguments.nightly is not None and arguments.nightly.lower() == "true"
+        else False
+    )
     bm_config = load_benchmark_config(arguments.input, skip_ts_config, skip_upload)
-    benchmark_env_setup(bm_config, skip_ts_config)
+    benchmark_env_setup(bm_config, skip_ts_config, nightly)
     run_benchmark(bm_config)
     clean_up_benchmark_env(bm_config)
     print("benchmark_serving.sh finished successfully.")
