@@ -51,7 +51,7 @@ jobs:
           pip install -r benchmarks/requirements-ab.txt
       - name: Benchmark gpu nightly
         if: ${{ matrix.hardware == 'gpu' }}
-        run: python benchmarks/auto_benchmark.py --input benchmarks/benchmark_config_torch_compile_gpu.yaml --skip false --nightly
+        run: python benchmarks/auto_benchmark.py --input benchmarks/benchmark_config_torch_compile_gpu.yaml --skip false --nightly True
       - name: Save benchmark artifacts
         uses: actions/upload-artifact@v2
         with:
