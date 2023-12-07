@@ -49,8 +49,6 @@ jobs:
           sudo apt-get update -y
           sudo apt-get install -y apache2-utils
           pip install -r benchmarks/requirements-ab.txt
-          pip uninstall torchtext torchdata torch torchvision torchaudio -y
-          pip install --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/cu121 --ignore-installed
       - name: Benchmark gpu nightly
         if: ${{ matrix.hardware == 'gpu' }}
         run: python benchmarks/auto_benchmark.py --input benchmarks/benchmark_config_torch_compile_gpu.yaml --skip false
