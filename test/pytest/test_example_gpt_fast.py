@@ -19,7 +19,11 @@ GPT_PATH = CURR_FILE_PATH.parents[1] / "examples" / "large_models" / "gpt_fast"
 GPT_SRC_PATH = GPT_PATH / "gpt-fast"
 
 LLAMA_MODEL_PATH = (
-    GPT_SRC_PATH / "checkpoints" / "meta-llama" / "Llama-2-7b-hf" / "model.pth"
+    GPT_SRC_PATH
+    / "checkpoints"
+    / "meta-llama"
+    / "Llama-2-13b-chat-hf"
+    / "model_int8.pth"
 )
 
 YAML_CONFIG = Template(
@@ -51,6 +55,11 @@ MAR_PARAMS = (
     {
         "nproc": 4,
         "stream": "false",
+        "compile": "false",
+    },
+    {
+        "nproc": 4,
+        "stream": f"false\n    speculate_k: 8\n    draft_checkpoint_path: '{(LLAMA_MODEL_PATH.parents[1] / 'Llama-2-7b-chat-hf' / 'model_int8.pth').as_posix()}'",
         "compile": "false",
     },
 )
