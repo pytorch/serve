@@ -7,7 +7,7 @@
 * [Metric Types](#metric-types)
 * [Metrics Formatting](#metrics-formatting)
 * [Custom Metrics API](#custom-metrics-api)
-* [Emitting custom metrics](#emitting-custom-metrics)
+* [Logging custom metrics](#log-custom-metrics)
 * [Metrics YAML Parsing and Metrics API example](#Metrics-YAML-File-Parsing-and-Metrics-API-Custom-Handler-Example)
 * [Backwards compatibility warnings and upgrade guide](#backwards-compatibility-warnings-and-upgrade-guide)
 
@@ -20,7 +20,7 @@ Frontend metrics include system level metrics. The host resource utilization fro
 
 Torchserve provides [an API](#custom-metrics-api) to collect custom backend metrics. Metrics defined by a custom service or handler code can be collected per request or per a batch of requests.
 
-Three metric modes are supported, i.e `log`, `prometheus` and `legacy` with the default mode being `log`.
+Two metric modes are supported, i.e `log` and `prometheus` with the default mode being `log`.
 The metrics mode can be configured using the `metrics_mode` configuration option in `config.properties` or `TS_METRICS_MODE` environment variable.
 For further details on `config.properties` and environment variable based configuration, refer [Torchserve config](configuration.md) docs.
 
@@ -37,15 +37,6 @@ The location of log files and metric files can be configured in the [log4j2.xml]
 **Prometheus Mode**
 
 In `prometheus` mode, metrics are made available in prometheus format via the [metrics API endpoint](metrics_api.md).
-
-**Legacy Mode**
-
-`legacy` mode enables backwards compatibility with Torchserve releases `<v0.8.0`, where:
-* `ts_inference_requests_total`, `ts_inference_latency_microseconds` and `ts_queue_latency_microseconds` are only available via the [metrics API endpoint](metrics_api.md) in prometheus format.
-* Frontend metrics are logged to `log_directory/ts_metrics.log`
-* Backend metrics are logged to `log_directory/model_metrics.log`
-
-`Note: To enable full backwards compatibility with releases <v0.8.0, use legacy metrics mode with `[model metrics auto-detection](#getting-started-with-torchserve-metrics)` enabled.`
 
 ## Getting Started with TorchServe Metrics
 
@@ -641,9 +632,9 @@ metrics.get_metric("GaugeMetricName", MetricTypes.GAUGE)
 ```
 
 
-## Emitting custom metrics
+## Logging custom metrics
 
-Following sample code can be used to emit the custom metrics created in the model's custom handler:
+Following sample code can be used to log the custom metrics created in the model's custom handler:
 
 ```python
 # In Custom Handler
@@ -745,5 +736,3 @@ class CustomHandlerExample:
    **Upgrade paths**:
    - **[< v0.8.0] to [v0.8.0 - v0.9.0]**\
      Specify all the custom metrics added to the custom handler in the metrics configuration file as shown [above](#getting-started-with-torchserve-metrics).
-   - **[< v0.8.0] to [> v0.9.0]**\
-     Set `metrics_mode` to `legacy` and enable [model metrics auto-detection](#getting-started-with-torchserve-metrics).

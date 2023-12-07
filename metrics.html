@@ -391,7 +391,7 @@
 <li><p><a class="reference external" href="#metric-types">Metric Types</a></p></li>
 <li><p><a class="reference external" href="#metrics-formatting">Metrics Formatting</a></p></li>
 <li><p><a class="reference external" href="#custom-metrics-api">Custom Metrics API</a></p></li>
-<li><p><a class="reference external" href="#emitting-custom-metrics">Emitting custom metrics</a></p></li>
+<li><p><a class="reference external" href="#log-custom-metrics">Logging custom metrics</a></p></li>
 <li><p><a class="reference external" href="#Metrics-YAML-File-Parsing-and-Metrics-API-Custom-Handler-Example">Metrics YAML Parsing and Metrics API example</a></p></li>
 <li><p><a class="reference external" href="#backwards-compatibility-warnings-and-upgrade-guide">Backwards compatibility warnings and upgrade guide</a></p></li>
 </ul>
@@ -401,7 +401,7 @@
 <p>Torchserve metrics can be broadly classified into frontend and backend metrics.</p>
 <p>Frontend metrics include system level metrics. The host resource utilization frontend metrics are collected at regular intervals(default: every minute).</p>
 <p>Torchserve provides <a class="reference external" href="#custom-metrics-api">an API</a> to collect custom backend metrics. Metrics defined by a custom service or handler code can be collected per request or per a batch of requests.</p>
-<p>Three metric modes are supported, i.e <code class="docutils literal notranslate"><span class="pre">log</span></code>, <code class="docutils literal notranslate"><span class="pre">prometheus</span></code> and <code class="docutils literal notranslate"><span class="pre">legacy</span></code> with the default mode being <code class="docutils literal notranslate"><span class="pre">log</span></code>.
+<p>Two metric modes are supported, i.e <code class="docutils literal notranslate"><span class="pre">log</span></code> and <code class="docutils literal notranslate"><span class="pre">prometheus</span></code> with the default mode being <code class="docutils literal notranslate"><span class="pre">log</span></code>.
 The metrics mode can be configured using the <code class="docutils literal notranslate"><span class="pre">metrics_mode</span></code> configuration option in <code class="docutils literal notranslate"><span class="pre">config.properties</span></code> or <code class="docutils literal notranslate"><span class="pre">TS_METRICS_MODE</span></code> environment variable.
 For further details on <code class="docutils literal notranslate"><span class="pre">config.properties</span></code> and environment variable based configuration, refer <a class="reference internal" href="configuration.html"><span class="doc">Torchserve config</span></a> docs.</p>
 <p><strong>Log Mode</strong></p>
@@ -414,14 +414,6 @@ Metrics are collected by default at the following locations in <code class="docu
 <p>The location of log files and metric files can be configured in the <a class="reference external" href="https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/log4j2.xml">log4j2.xml</a> file</p>
 <p><strong>Prometheus Mode</strong></p>
 <p>In <code class="docutils literal notranslate"><span class="pre">prometheus</span></code> mode, metrics are made available in prometheus format via the <a class="reference internal" href="metrics_api.html"><span class="doc">metrics API endpoint</span></a>.</p>
-<p><strong>Legacy Mode</strong></p>
-<p><code class="docutils literal notranslate"><span class="pre">legacy</span></code> mode enables backwards compatibility with Torchserve releases <code class="docutils literal notranslate"><span class="pre">&lt;v0.8.0</span></code>, where:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">ts_inference_requests_total</span></code>, <code class="docutils literal notranslate"><span class="pre">ts_inference_latency_microseconds</span></code> and <code class="docutils literal notranslate"><span class="pre">ts_queue_latency_microseconds</span></code> are only available via the <a class="reference internal" href="metrics_api.html"><span class="doc">metrics API endpoint</span></a> in prometheus format.</p></li>
-<li><p>Frontend metrics are logged to <code class="docutils literal notranslate"><span class="pre">log_directory/ts_metrics.log</span></code></p></li>
-<li><p>Backend metrics are logged to <code class="docutils literal notranslate"><span class="pre">log_directory/model_metrics.log</span></code></p></li>
-</ul>
-<p><code class="docutils literal notranslate"><span class="pre">Note:</span> <span class="pre">To</span> <span class="pre">enable</span> <span class="pre">full</span> <span class="pre">backwards</span> <span class="pre">compatibility</span> <span class="pre">with</span> <span class="pre">releases</span> <span class="pre">&lt;v0.8.0,</span> <span class="pre">use</span> <span class="pre">legacy</span> <span class="pre">metrics</span> <span class="pre">mode</span> <span class="pre">with</span> </code><a class="reference external" href="#getting-started-with-torchserve-metrics">model metrics auto-detection</a><code class="docutils literal notranslate"> <span class="pre">enabled.</span></code></p>
 </section>
 <section id="getting-started-with-torchserve-metrics">
 <h2>Getting Started with TorchServe Metrics<a class="headerlink" href="#getting-started-with-torchserve-metrics" title="Permalink to this heading">¶</a></h2>
@@ -1099,9 +1091,9 @@ or explicitly set <code class="docutils literal notranslate"><span class="pre">m
 </div>
 </section>
 </section>
-<section id="emitting-custom-metrics">
-<h2>Emitting custom metrics<a class="headerlink" href="#emitting-custom-metrics" title="Permalink to this heading">¶</a></h2>
-<p>Following sample code can be used to emit the custom metrics created in the model’s custom handler:</p>
+<section id="logging-custom-metrics">
+<h2>Logging custom metrics<a class="headerlink" href="#logging-custom-metrics" title="Permalink to this heading">¶</a></h2>
+<p>Following sample code can be used to log the custom metrics created in the model’s custom handler:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># In Custom Handler</span>
 <span class="kn">from</span> <span class="nn">ts.service</span> <span class="kn">import</span> <span class="n">emit_metrics</span>
 
@@ -1198,7 +1190,6 @@ based on the <code class="docutils literal notranslate"><span class="pre">metric
 which were only available via the metrics API endpoint.<br /><strong>Upgrade paths</strong>:</p>
 <ul class="simple">
 <li><p><strong>[&lt; v0.8.0] to [v0.8.0 - v0.9.0]</strong><br />Specify all the custom metrics added to the custom handler in the metrics configuration file as shown <a class="reference external" href="#getting-started-with-torchserve-metrics">above</a>.</p></li>
-<li><p><strong>[&lt; v0.8.0] to [&gt; v0.9.0]</strong><br />Set <code class="docutils literal notranslate"><span class="pre">metrics_mode</span></code> to <code class="docutils literal notranslate"><span class="pre">legacy</span></code> and enable <a class="reference external" href="#getting-started-with-torchserve-metrics">model metrics auto-detection</a>.</p></li>
 </ul>
 </li>
 </ol>
@@ -1279,7 +1270,7 @@ which were only available via the metrics API endpoint.<br /><strong>Upgrade pat
 <li><a class="reference internal" href="#getting-a-metric">Getting a metric</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#emitting-custom-metrics">Emitting custom metrics</a></li>
+<li><a class="reference internal" href="#logging-custom-metrics">Logging custom metrics</a></li>
 <li><a class="reference internal" href="#metrics-yaml-file-parsing-and-metrics-api-custom-handler-example">Metrics YAML File Parsing and Metrics API Custom Handler Example</a></li>
 <li><a class="reference internal" href="#backwards-compatibility-warnings-and-upgrade-guide">Backwards compatibility warnings and upgrade guide</a></li>
 </ul>
