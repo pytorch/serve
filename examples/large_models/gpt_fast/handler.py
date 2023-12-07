@@ -1,11 +1,16 @@
 import json
 import logging
-import os
 import time
 from pathlib import Path
 
 import torch
-from generate import _load_model, decode_one_token, encode_tokens, prefill
+from generate import (
+    _load_model,
+    decode_one_token,
+    encode_tokens,
+    maybe_init_dist,
+    prefill,
+)
 from sentencepiece import SentencePieceProcessor
 
 from ts.handler_utils.timer import timed
@@ -27,15 +32,20 @@ class GptHandler(BaseHandler):
         self.initialized = False
         self.device = torch.device("cpu")
         self.prompt_length = 0
+        self.local_rank = 0
+        self.stream = False
 
     def initialize(self, ctx):
         self.context = ctx
-        properties = ctx.system_properties
+        rank = maybe_init_dist()
+
+        self.local_rank = rank if rank is not None else 0
+
         if torch.cuda.is_available():
             self.map_location = "cuda"
-            self.device = torch.device(
-                self.map_location + ":" + str(os.getenv("LOCAL_RANK", 0))
-            )
+            self.device = torch.device(self.map_location + ":" + str(self.local_rank))
+
+            torch.cuda.set_device(self.local_rank)
 
         checkpoint_path = Path(ctx.model_yaml_config["handler"]["converted_ckpt_dir"])
         assert checkpoint_path.is_file(), checkpoint_path
@@ -45,7 +55,8 @@ class GptHandler(BaseHandler):
 
         logger.info("Loading model ...")
         t0 = time.time()
-        self.model = _load_model(checkpoint_path, self.device, torch.bfloat16, False)
+        use_tp = rank is not None
+        self.model = _load_model(checkpoint_path, self.device, torch.bfloat16, use_tp)
         torch.cuda.synchronize()
         logger.info(f"Time to load model: {time.time() - t0:.02f} seconds")
 
@@ -58,6 +69,8 @@ class GptHandler(BaseHandler):
             self.prefill = torch.compile(self.prefill, fullgraph=True, dynamic=True)
 
         torch.manual_seed(42 * 42)
+
+        self.stream = ctx.model_yaml_config["handler"].get("stream", True)
 
         self.initialized = True
 
@@ -105,7 +118,7 @@ class GptHandler(BaseHandler):
         y = self.generate(
             input_data["encoded"],
             input_data["max_new_tokens"],
-            callback=call_me,
+            callback=call_me if self.local_rank == 0 and self.stream else lambda x: x,
             temperature=0.8,
             top_k=1,
         )
@@ -113,7 +126,11 @@ class GptHandler(BaseHandler):
         return y
 
     def postprocess(self, y):
-        return [""]
+        return [
+            ""
+            if self.stream
+            else self.tokenizer.decode(y.tolist()[self.prompt_length :])
+        ]
 
     @torch.no_grad()
     def generate(
@@ -133,32 +150,33 @@ class GptHandler(BaseHandler):
 
         max_seq_length = min(T_new, self.model.config.block_size)
 
-        device, dtype = prompt.device, prompt.dtype
-        with torch.device(device):
+        dtype = prompt.dtype
+        with torch.device(self.device):
             self.model.setup_caches(max_batch_size=1, max_seq_length=max_seq_length)
 
         # create an empty tensor of the expected final shape and fill in the current tokens
-        empty = torch.empty(T_new, dtype=dtype, device=device)
+        empty = torch.empty(T_new, dtype=dtype, device=self.device)
         empty[:T] = prompt
         seq = empty
-        input_pos = torch.arange(0, T, device=device)
+        input_pos = torch.arange(0, T, device=self.device)
 
         next_token = self.prefill(
             self.model, prompt.view(1, -1), input_pos, **sampling_kwargs
         )
         period_id = self.tokenizer.encode(".")[0]
         text = self.tokenizer.decode([period_id] + next_token.tolist())[1:]
-        send_intermediate_predict_response(
-            [text],
-            self.context.request_ids,
-            "Intermediate Prediction success",
-            200,
-            self.context,
-        )
+        if self.stream:
+            send_intermediate_predict_response(
+                [text],
+                self.context.request_ids,
+                "Intermediate Prediction success",
+                200,
+                self.context,
+            )
 
         seq[T] = next_token
 
-        input_pos = torch.tensor([T], device=device, dtype=torch.int)
+        input_pos = torch.tensor([T], device=self.device, dtype=torch.int)
 
         generated_tokens, _ = self.decode_n_tokens(
             next_token.view(1, -1),
