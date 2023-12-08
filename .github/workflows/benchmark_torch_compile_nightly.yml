@@ -1,13 +1,6 @@
 name: Benchmark torch.compile models nightly
 
 on:
-  push:
-    branches:
-      - master
-  pull_request:
-    branches:
-      - master
-  merge_group:
   # run every day at 9:15pm
   schedule:
     - cron:  '15 21 * * *'
