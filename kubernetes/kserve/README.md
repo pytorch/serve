@@ -106,6 +106,13 @@ Navigate to the cloned serve repo and run
 torch-model-archiver --model-name mnist_kf --version 1.0 --model-file examples/image_classifier/mnist/mnist.py --serialized-file examples/image_classifier/mnist/mnist_cnn.pt --handler  examples/image_classifier/mnist/mnist_handler.py
 ```
 
+For large models, creating a `.mar` file is not the recommended approach as it can be slow. Hence the suggestion is to use `no-archive` option. This will create a directory `mnist_kf` which can be uploaded to the `model_store`
+
+```bash
+torch-model-archiver --model-name mnist_kf --version 1.0 --model-file examples/image_classifier/mnist/mnist.py --serialized-file examples/image_classifier/mnist/mnist_cnn.pt --handler  examples/image_classifier/mnist/mnist_handler.py --archive-format no-archive
+```
+
+
 - Step - 2 : Create a config.properties file and place the contents like below:
 
 ```bash
@@ -126,6 +133,12 @@ model_snapshot={"name":"startup.cfg","modelCount":1,"models":{"mnist_kf":{"1.0":
 ```
 
 Please note that, the port for inference address should be set at 8085 since KServe by default makes use of 8080 for its inference service.
+
+In case you have used `--archive-format no-archive`, the model_snapshot would be as follows. The only change is `"marName":"mnist_kf"`
+
+```
+model_snapshot={"name":"startup.cfg","modelCount":1,"models":{"mnist_kf":{"1.0":{"defaultVersion":true,"marName":"mnist_kf","minWorkers":1,"maxWorkers":5,"batchSize":1,"maxBatchDelay":5000,"responseTimeout":120}}}}
+```
 
 - Step - 3 : Create PV, PVC and PV pods in KServe
 
