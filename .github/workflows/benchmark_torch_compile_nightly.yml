@@ -48,25 +48,3 @@ jobs:
           pip install -r benchmarks/requirements-ab.txt
       - name: Benchmark gpu nightly
         run: python benchmarks/auto_benchmark.py --input benchmarks/benchmark_config_torch_compile_gpu.yaml --skip false --nightly True
-      - name: Save benchmark artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: nightly gpu torch compile artifact
-          path: /tmp/ts_benchmark
-      - name: Download benchmark artifacts for auto validation
-        uses: dawidd6/action-download-artifact@v2
-        with:
-          workflow: ${{ github.event.workflow_run.workflow_id }}
-          workflow_conclusion: success
-          if_no_artifact_found: ignore
-          path: /tmp/ts_artifacts
-          name: gpu_torch_compile_benchmark_validation
-      - name: Validate Benchmark result
-        run: python benchmarks/validate_report.py --input-artifacts-dir /tmp/ts_artifacts/gpu_torch_compile_benchmark_validation
-      - name: Update benchmark artifacts for auto validation
-        run: python benchmarks/utils/update_artifacts.py --output /tmp/ts_artifacts/gpu_torch_compile_benchmark_validation
-      - name: Upload the updated benchmark artifacts for auto validation
-        uses: actions/upload-artifact@v2
-        with:
-          name: gpu_torch_compile_benchmark_validation
-          path: /tmp/ts_artifacts
