@@ -16,11 +16,7 @@ jobs:
   nightly:
     strategy:
       fail-fast: false
-      matrix:
-        hardware: [gpu]
-    runs-on:
-      - self-hosted
-      - ${{ matrix.hardware }}
+    runs-on: [self-hosted, gpu]
     timeout-minutes: 1320
     steps:
       - name: Clean up previous run

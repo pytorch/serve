@@ -123,7 +123,9 @@ def load_benchmark_config(bm_config_path, skip_ts_install, skip_upload):
 
 
 def benchmark_env_setup(bm_config, skip_ts_install, nightly):
-    install_torchserve(skip_ts_install, bm_config["hardware"], bm_config["version"], nightly)
+    install_torchserve(
+        skip_ts_install, bm_config["hardware"], bm_config["version"], nightly
+    )
     setup_benchmark_path(bm_config["model_config_path"])
     build_model_json_config(bm_config["models"])
     enable_launcher_with_logical_core(bm_config["hardware"])
@@ -134,8 +136,8 @@ def install_torchserve(skip_ts_install, hw, ts_version, nightly):
         return
 
     # git checkout branch if it is needed
-    cmd = "git checkout master && git reset --hard && git clean -dffx . && git pull --rebase"
-    execute(cmd, wait=True)
+    # cmd = "git checkout master && git reset --hard && git clean -dffx . && git pull --rebase"
+    # execute(cmd, wait=True)
     print("successfully reset git")
 
     ts_install_cmd = None
@@ -296,7 +298,7 @@ def main():
     )
     parser.add_argument(
         "--nightly",
-        help="true: install nightly version of torch package. default: false"
+        help="true: install nightly version of torch package. default: false",
     )
     arguments = parser.parse_args()
     skip_ts_config = (
