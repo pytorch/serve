@@ -3,7 +3,6 @@
 import os
 import time
 import requests
-import json
 import logging
 import pathlib
 from enum import Enum
