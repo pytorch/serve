@@ -1,12 +1,30 @@
 """
 Utility functions for TorchServe
 """
+import enum
 import inspect
 import itertools
 import json
 import logging
 import os
 import re
+
+import yaml
+
+
+class PT2Backend(str, enum.Enum):
+    EAGER = "eager"
+    AOT_EAGER = "aot_eager"
+    INDUCTOR = "inductor"
+    NVFUSER = "nvfuser"
+    AOT_NVFUSER = "aot_nvfuser"
+    AOT_CUDAGRAPHS = "aot_cudagraphs"
+    OFI = "ofi"
+    FX2TRT = "fx2trt"
+    ONNXRT = "onnxrt"
+    IPEX = "ipex"
+    TORCHXLA_TRACE_ONCE = "torchxla_trace_once"
+
 
 logger = logging.getLogger(__name__)
 
@@ -36,6 +54,15 @@ def list_classes_from_module(module, parent_class=None):
         return [c for c in classes if issubclass(c, parent_class)]
 
     return classes
+
+
+def check_valid_pt2_backend(backend: str) -> bool:
+    backend_values = [member.value for member in PT2Backend]
+    if backend in backend_values:
+        return True
+    else:
+        logger.warning(f"{backend} is not a supported backend")
+    return False
 
 
 def load_label_mapping(mapping_file_path):
@@ -99,6 +126,13 @@ def map_class_to_label(probs, mapping=None, lbl_classes=None):
     ]
 
     return results
+
+
+def get_yaml_config(yaml_file_path):
+    config = {}
+    with open(yaml_file_path, "r") as file:
+        config = yaml.safe_load(file)
+    return config
 
 
 class PredictionException(Exception):

@@ -5,34 +5,39 @@ Basic unit test for BaseHandler class.
 Ensures it can load and execute an example model
 """
 
-import sys
+import os
 import pytest
-from ts.torch_handler.base_handler import BaseHandler
-from .test_utils.mock_context import MockContext
 
-sys.path.append('ts/torch_handler/unit_tests/models/tmp')
+from ts.torch_handler.base_handler import BaseHandler, PROFILER_AVAILABLE
+
 
 @pytest.fixture()
-def model_context():
-    return MockContext()
-
-def test_initialize(model_context):
+def handler(base_model_context):
     handler = BaseHandler()
-    handler.initialize(model_context)
+    handler.initialize(base_model_context)
 
-    assert(True)
     return handler
 
-def test_single_handle(model_context):
-    handler = test_initialize(model_context)
+
+def test_single_handle(handler, base_model_context):
     list_data = [[1.0, 2.0]]
-    processed = handler.handle(list_data, model_context)
+    processed = handler.handle(list_data, base_model_context)
 
-    assert(processed == [1])
+    assert processed == [1]
 
-def test_batch_handle(model_context):
-    handler = test_initialize(model_context)
+
+def test_batch_handle(handler, base_model_context):
     list_data = [[1.0, 2.0], [4.0, 3.0]]
-    processed = handler.handle(list_data, model_context)
+    processed = handler.handle(list_data, base_model_context)
 
-    assert(processed == [1, 0])
+    assert processed == [1, 0]
+
+
+def test_inference_with_profiler_works_with_custom_initialize_method(handler, base_model_context):
+    handler.manifest = None
+    PROFILER_AVAILABLE = True
+    os.environ["ENABLE_TORCH_PROFILER"] = "1"
+
+    list_data = [[1.0, 2.0], [4.0, 3.0]]
+    processed = handler.handle(list_data, base_model_context)
+    assert processed == [1, 0]

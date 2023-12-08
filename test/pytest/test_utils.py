@@ -5,9 +5,12 @@ import os
 import subprocess
 import sys
 import tempfile
-import time
+import threading
+from io import TextIOWrapper
 from os import path
 from pathlib import Path
+from queue import Queue
+from subprocess import PIPE, STDOUT, Popen
 
 import requests
 
@@ -19,6 +22,34 @@ from ts_scripts import marsgen as mg
 ROOT_DIR = os.path.join(tempfile.gettempdir(), "workspace")
 MODEL_STORE = path.join(ROOT_DIR, "model_store/")
 CODEBUILD_WD = path.abspath(path.join(__file__, "../../.."))
+
+
+class PrintTillTheEnd(threading.Thread):
+    def __init__(self, queue):
+        super().__init__()
+        self._queue = queue
+
+    def run(self):
+        while True:
+            line = self._queue.get()
+            if not line:
+                break
+            print(line.strip())
+
+
+class Tee(threading.Thread):
+    def __init__(self, reader):
+        super().__init__()
+        self.reader = reader
+        self.queue1 = Queue()
+        self.queue2 = Queue()
+
+    def run(self):
+        for line in self.reader:
+            self.queue1.put(line)
+            self.queue2.put(line)
+        self.queue1.put(None)
+        self.queue2.put(None)
 
 
 def start_torchserve(
@@ -36,13 +67,23 @@ def start_torchserve(
     if no_config_snapshots:
         cmd.extend(["--no-config-snapshots"])
     print(cmd)
-    subprocess.run(cmd)
-    time.sleep(10)
+
+    p = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=STDOUT)
+    for line in p.stdout:
+        print(line.decode("utf8").strip())
+        if "Model server started" in str(line).strip():
+            break
+
+    splitter = Tee(TextIOWrapper(p.stdout))
+    splitter.start()
+    print_thread = PrintTillTheEnd(splitter.queue1)
+    print_thread.start()
+
+    return splitter.queue2
 
 
 def stop_torchserve():
-    subprocess.run(["torchserve", "--stop"])
-    time.sleep(10)
+    subprocess.run(["torchserve", "--stop", "--foreground"])
 
 
 def delete_all_snapshots():
@@ -118,6 +159,11 @@ def model_archiver_command_builder(
     handler=None,
     extra_files=None,
     force=False,
+    config_file=None,
+    runtime=None,
+    archive_format=None,
+    requirements_file=None,
+    export_path=None,
 ):
     cmd = "torch-model-archiver"
 
@@ -139,12 +185,61 @@ def model_archiver_command_builder(
     if extra_files:
         cmd += " --extra-files {0}".format(extra_files)
 
+    if runtime:
+        cmd += " --runtime {0}".format(runtime)
+
+    if archive_format:
+        cmd += " --archive-format {0}".format(archive_format)
+
+    if requirements_file:
+        cmd += " --requirements-file {0}".format(requirements_file)
+
+    if config_file:
+        cmd += " --config-file {0}".format(config_file)
+
+    if export_path:
+        cmd += " --export-path {0}".format(export_path)
+    else:
+        cmd += " --export-path {0}".format(MODEL_STORE)
+
     if force:
         cmd += " --force"
 
-    cmd += " --export-path {0}".format(MODEL_STORE)
-
     return cmd
+
+
+def create_model_artifacts(items: dict, force=False, export_path=None) -> str:
+    cmd = model_archiver_command_builder(
+        model_name=items.get("model_name"),
+        version=items.get("version", "1.0"),
+        model_file=items.get("model_file"),
+        serialized_file=items.get("serialized_file"),
+        handler=items.get("handler"),
+        extra_files=items.get("extra_files"),
+        force=force,
+        config_file=items.get("config_file"),
+        runtime=items.get("runtime"),
+        archive_format=items.get("archive_format"),
+        requirements_file=items.get("requirements_file"),
+        export_path=export_path,
+    )
+
+    print(f"## In directory: {os.getcwd()} | Executing command: {cmd}\n")
+    try:
+        subprocess.check_call(cmd, shell=True)
+        if str(items.get("archive_format")) == "no-archive":
+            model_artifacts = "{0}".format(items.get("model_name"))
+        elif str(items.get("archive_format")) == "tgz":
+            model_artifacts = "{0}.tar.gz".format(items.get("model_name"))
+        else:
+            model_artifacts = "{0}.mar".format(items.get("model_name"))
+        print("## {0} is generated.\n".format(model_artifacts))
+        return model_artifacts
+    except subprocess.CalledProcessError as exc:
+        print(
+            "## {} creation failed !, error: {}\n".format(items.get("model_name"), exc)
+        )
+        return None
 
 
 def load_module_from_py_file(py_file: str) -> object:
@@ -159,3 +254,9 @@ def load_module_from_py_file(py_file: str) -> object:
     loader.exec_module(module)
 
     return module
+
+
+def cleanup_model_store(model_store=None):
+    # rm -rf $MODEL_STORE_DIR / *
+    for f in glob.glob(os.path.join(model_store, "*")):
+        os.remove(f)

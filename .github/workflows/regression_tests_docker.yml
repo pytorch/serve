@@ -1,0 +1,66 @@
+name: Run Regression Tests on Docker
+
+on:
+  workflow_dispatch:
+  # run every day at 5:15am
+  schedule:
+    - cron:  '15 5 * * *'
+
+concurrency:
+  group: ci-cpu-${{ github.workflow }}-${{ github.ref == 'refs/heads/master' && github.run_number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  docker-regression:
+    strategy:
+      fail-fast: false
+      matrix:
+        hardware: [ubuntu-20.04, [self-hosted, regression-test-gpu]]
+    runs-on:
+      - ${{ matrix.hardware }}
+    steps:
+      - name: Clean up previous run
+        run: |
+          echo "Cleaning up previous run"
+          ls -la ./
+          sudo rm -rf ./* || true
+          sudo rm -rf ./.??* || true
+          ls -la ./
+          docker system prune --all --volumes -f
+      - name: Checkout TorchServe
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+      - name: Branch name
+        run: |
+          echo $GITHUB_REF_NAME
+      - name: Build CPU Docker Image
+        if: contains(matrix.hardware, 'ubuntu')
+        run: |
+          cd docker
+          ./build_image.sh -bt ci -n -b $GITHUB_REF_NAME -t pytorch/torchserve:ci
+      - name: Build GPU Docker Image
+        if: false == contains(matrix.hardware, 'ubuntu')
+        run: |
+          cd docker
+          ./build_image.sh -g -cv cu121 -bt ci -n -b $GITHUB_REF_NAME -t pytorch/torchserve:ci
+      - name: Validate Torchserve CPU Regression
+        if: false == contains(matrix.hardware, 'ubuntu')
+        run: |
+          docker run --gpus all -v $GITHUB_WORKSPACE:/home/serve pytorch/torchserve:ci
+      - name: Validate Torchserve CPU Regression
+        if: contains(matrix.hardware, 'ubuntu')
+        run: |
+          docker run -v $GITHUB_WORKSPACE:/home/serve pytorch/torchserve:ci
+      - name: Cleanup Docker Images
+        if: success()
+        run: |
+          docker system prune -f && docker rmi pytorch/torchserve:ci
+      - name: Open issue on failure
+        if: ${{ failure() && github.event_name  == 'schedule' }}
+        uses: dacbd/create-issue-action@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          title: Docker Regression on ${{ matrix.hardware }} failed
+          body:  The daily scheduled [Docker Regression Run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) failed, please check why
+          assignees: ''

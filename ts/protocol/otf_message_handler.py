@@ -1,6 +1,7 @@
 """
 OTF Codec
 """
+
 import io
 import json
 import logging
@@ -50,7 +51,9 @@ def encode_response_headers(resp_hdr_map):
     return msg
 
 
-def create_predict_response(ret, req_id_map, message, code, context=None):
+def create_predict_response(
+    ret, req_id_map, message, code, context=None, ts_stream_next=False
+):
     """
     Create inference response.
 
@@ -73,10 +76,27 @@ def create_predict_response(ret, req_id_map, message, code, context=None):
         msg += struct.pack("!i", len(req_id))
         msg += req_id
 
-        # Encoding Content-Type
         if context is None:
+            # Encoding Content-Type
             msg += struct.pack("!i", 0)  # content_type
+
+            # Encoding the per prediction HTTP response code
+            # status code and reason phrase set to none
+            msg += struct.pack("!i", code)
+            msg += struct.pack("!i", 0)  # No code phrase is returned
+            # Response headers none
+            msg += struct.pack("!i", 0)
         else:
+            if ts_stream_next is True:
+                context.set_response_header(idx, "ts_stream_next", "true")
+            elif context.stopping_criteria:
+                ts_stream_next = (
+                    "false" if context.stopping_criteria[idx](ret[idx]) else "true"
+                )
+                context.set_response_header(idx, "ts_stream_next", ts_stream_next)
+            elif "true" == context.get_response_headers(idx).get("ts_stream_next"):
+                context.set_response_header(idx, "ts_stream_next", "false")
+
             content_type = context.get_response_content_type(idx)
             if content_type is None or len(content_type) == 0:
                 msg += struct.pack("!i", 0)  # content_type
@@ -84,14 +104,6 @@ def create_predict_response(ret, req_id_map, message, code, context=None):
                 msg += struct.pack("!i", len(content_type))
                 msg += content_type.encode("utf-8")
 
-        # Encoding the per prediction HTTP response code
-        if context is None:
-            # status code and reason phrase set to none
-            msg += struct.pack("!i", code)
-            msg += struct.pack("!i", 0)  # No code phrase is returned
-            # Response headers none
-            msg += struct.pack("!i", 0)
-        else:
             sc, phrase = context.get_response_status(idx)
             http_code = sc if sc is not None else 200
             http_phrase = phrase if phrase is not None else ""
@@ -342,3 +354,8 @@ def _retrieve_input_data(conn):
         model_input["value"] = value
 
     return model_input
+
+
+def send_intermediate_predict_response(ret, req_id_map, message, code, context=None):
+    msg = create_predict_response(ret, req_id_map, message, code, context, True)
+    context.cl_socket.sendall(msg)

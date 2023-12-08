@@ -30,10 +30,10 @@ Currently, KServe supports the Inference API for all the existing models but tex
 ./build_image.sh -g -t <repository>/<image>:<tag>
 ```
 
-### Docker Image Dev Build
+- To create dev image
 
 ```bash
-DOCKER_BUILDKIT=1 docker build -f Dockerfile.dev -t pytorch/torchserve-kfs:latest-dev .
+./build_image.sh -g -d -t <repository>/<image>:<tag>
 ```
 
 ## Running Torchserve inference service in KServe cluster
@@ -106,6 +106,13 @@ Navigate to the cloned serve repo and run
 torch-model-archiver --model-name mnist_kf --version 1.0 --model-file examples/image_classifier/mnist/mnist.py --serialized-file examples/image_classifier/mnist/mnist_cnn.pt --handler  examples/image_classifier/mnist/mnist_handler.py
 ```
 
+For large models, creating a `.mar` file is not the recommended approach as it can be slow. Hence the suggestion is to use `no-archive` option. This will create a directory `mnist_kf` which can be uploaded to the `model_store`
+
+```bash
+torch-model-archiver --model-name mnist_kf --version 1.0 --model-file examples/image_classifier/mnist/mnist.py --serialized-file examples/image_classifier/mnist/mnist_cnn.pt --handler  examples/image_classifier/mnist/mnist_handler.py --archive-format no-archive
+```
+
+
 - Step - 2 : Create a config.properties file and place the contents like below:
 
 ```bash
@@ -117,7 +124,7 @@ grpc_management_port=7071
 enable_envvars_config=true
 install_py_dep_per_model=true
 enable_metrics_api=true
-metrics_format=prometheus
+metrics_mode=prometheus
 NUM_WORKERS=1
 number_of_netty_threads=4
 job_queue_size=10
@@ -126,6 +133,12 @@ model_snapshot={"name":"startup.cfg","modelCount":1,"models":{"mnist_kf":{"1.0":
 ```
 
 Please note that, the port for inference address should be set at 8085 since KServe by default makes use of 8080 for its inference service.
+
+In case you have used `--archive-format no-archive`, the model_snapshot would be as follows. The only change is `"marName":"mnist_kf"`
+
+```
+model_snapshot={"name":"startup.cfg","modelCount":1,"models":{"mnist_kf":{"1.0":{"defaultVersion":true,"marName":"mnist_kf","minWorkers":1,"maxWorkers":5,"batchSize":1,"maxBatchDelay":5000,"responseTimeout":120}}}}
+```
 
 - Step - 3 : Create PV, PVC and PV pods in KServe
 
@@ -189,7 +202,7 @@ Refer link for more [examples](https://github.com/kserve/kserve/tree/master/docs
 
 KServe supports different types of inputs (ex: tensor, bytes). Use the following instructions to generate input files based on its type.
 
-[MNIST input generation](kf_request_json/v2/mnist/README.md##-Preparing-input) 
+[MNIST input generation](kf_request_json/v2/mnist/README.md##-Preparing-input)
 [Bert input generation](kf_request_json/v2/bert/README.md##-Preparing-input)
 
 
@@ -233,7 +246,7 @@ Refer the individual readmes for KServe :
 * [BERT](https://github.com/kserve/kserve/blob/master/docs/samples/v1beta1/custom/torchserve/bert-sample/hugging-face-bert-sample.md)
 * [MNIST](https://github.com/kserve/kserve/blob/master/docs/samples/v1beta1/torchserve/README.md)
 
-Sample input JSON file for v1 and v2 protocols 
+Sample input JSON file for v1 and v2 protocols
 
 For v1 protocol
 

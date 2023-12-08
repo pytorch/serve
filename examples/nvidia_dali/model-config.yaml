@@ -1,0 +1,15 @@
+#frontend settings
+minWorkers: 1
+maxWorkers: 1
+maxBatchDelay: 200
+responseTimeout: 300
+deviceType: "gpu"
+
+#backend settings
+dali:
+    batch_size: 5
+    num_threads: 2
+    device_id: 0
+    seed: 12
+    # For using a custom DALI pipeline, uncomment the below line
+    # pipeline_file: "model.dali"

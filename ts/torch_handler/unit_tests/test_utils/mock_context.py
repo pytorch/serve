@@ -2,11 +2,13 @@
 Mocks for adding model context without loading all of Torchserve
 """
 
+import os
 import uuid
 
 import torch
 
 from ts.metrics.metrics_store import MetricsStore
+from ts.utils.util import get_yaml_config
 
 
 class MockContext:
@@ -21,6 +23,7 @@ class MockContext:
         model_file="model.py",
         gpu_id="0",
         model_name="mnist",
+        model_yaml_config_file=None,
     ):
         self.manifest = {"model": {}}
         if model_pt_file:
@@ -36,6 +39,12 @@ class MockContext:
 
         self.explain = False
         self.metrics = MetricsStore(uuid.uuid4(), model_name)
+        self.model_yaml_config = {}
+
+        if model_yaml_config_file:
+            self.model_yaml_config = get_yaml_config(
+                os.path.join(model_dir, model_yaml_config_file)
+            )
 
     def get_request_header(self, idx, exp):
         if idx and exp:

@@ -43,8 +43,10 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.io.IOUtils;
+import org.pytorch.serve.metrics.MetricBuilder;
 import org.pytorch.serve.servingsdk.snapshot.SnapshotSerializer;
 import org.pytorch.serve.snapshot.SnapshotSerializerFactory;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class ConfigManager {
@@ -65,6 +67,10 @@ public final class ConfigManager {
     private static final String TS_NETTY_CLIENT_THREADS = "netty_client_threads";
     private static final String TS_JOB_QUEUE_SIZE = "job_queue_size";
     private static final String TS_NUMBER_OF_GPU = "number_of_gpu";
+    private static final String TS_METRICS_CONFIG = "metrics_config";
+    private static final String TS_METRICS_MODE = "metrics_mode";
+    private static final String TS_MODEL_METRICS_AUTO_DETECT = "model_metrics_auto_detect";
+    private static final String TS_DISABLE_SYSTEM_METRICS = "disable_system_metrics";
 
     // IPEX config option that can be set at config.properties
     private static final String TS_IPEX_ENABLE = "ipex_enable";
@@ -91,12 +97,12 @@ public final class ConfigManager {
     private static final String TS_PREFER_DIRECT_BUFFER = "prefer_direct_buffer";
     private static final String TS_ALLOWED_URLS = "allowed_urls";
     private static final String TS_INSTALL_PY_DEP_PER_MODEL = "install_py_dep_per_model";
-    private static final String TS_METRICS_FORMAT = "metrics_format";
     private static final String TS_ENABLE_METRICS_API = "enable_metrics_api";
     private static final String TS_GRPC_INFERENCE_PORT = "grpc_inference_port";
     private static final String TS_GRPC_MANAGEMENT_PORT = "grpc_management_port";
     private static final String TS_ENABLE_GRPC_SSL = "enable_grpc_ssl";
     private static final String TS_INITIAL_WORKER_PORT = "initial_worker_port";
+    private static final String TS_INITIAL_DISTRIBUTION_PORT = "initial_distribution_port";
     private static final String TS_WORKFLOW_STORE = "workflow_store";
 
     // Configuration which are not documented or enabled through environment variables
@@ -108,10 +114,15 @@ public final class ConfigManager {
     private static final String MODEL_CONFIG = "models";
     private static final String VERSION = "version";
 
+    // Configuration default values
+    private static final String DEFAULT_TS_ALLOWED_URLS = "file://.*|http(s)?://.*";
+    private static final String USE_ENV_ALLOWED_URLS = "use_env_allowed_urls";
+
     // Variables which are local
     public static final String MODEL_METRICS_LOGGER = "MODEL_METRICS";
     public static final String MODEL_LOGGER = "MODEL_LOG";
     public static final String MODEL_SERVER_METRICS_LOGGER = "TS_METRICS";
+    public static final String MODEL_SERVER_TELEMETRY_LOGGER = "TELEMETRY_METRICS";
 
     public static final String METRIC_FORMAT_PROMETHEUS = "prometheus";
 
@@ -131,6 +142,9 @@ public final class ConfigManager {
     private static ConfigManager instance;
     private String hostName;
     private Map<String, Map<String, JsonObject>> modelConfig = new HashMap<>();
+    private String torchrunLogDir;
+    private boolean telemetryEnabled;
+    private Logger logger = LoggerFactory.getLogger(ConfigManager.class);
 
     private ConfigManager(Arguments args) throws IOException {
         prop = new Properties();
@@ -183,6 +197,11 @@ public final class ConfigManager {
             }
         }
 
+        if (System.getenv("SM_TELEMETRY_LOG") != null) {
+            telemetryEnabled = true;
+        } else {
+            telemetryEnabled = false;
+        }
         resolveEnvVarVals(prop);
 
         String modelStore = args.getModelStore();
@@ -193,6 +212,8 @@ public final class ConfigManager {
         String workflowStore = args.getWorkflowStore();
         if (workflowStore != null) {
             prop.setProperty(TS_WORKFLOW_STORE, workflowStore);
+        } else if (prop.getProperty(TS_WORKFLOW_STORE) == null) {
+            prop.setProperty(TS_WORKFLOW_STORE, prop.getProperty(TS_MODEL_STORE));
         }
 
         String[] models = args.getModels();
@@ -229,6 +250,13 @@ public final class ConfigManager {
         }
 
         setModelConfig();
+
+        // Issue warnining about URLs that can be accessed when loading models
+        if (prop.getProperty(TS_ALLOWED_URLS, DEFAULT_TS_ALLOWED_URLS) == DEFAULT_TS_ALLOWED_URLS) {
+            logger.warn(
+                    "Your torchserve instance can access any URL to load models. "
+                            + "When deploying to production, make sure to limit the set of allowed_urls in config.properties");
+        }
     }
 
     public static String readFile(String path) throws IOException {
@@ -260,6 +288,14 @@ public final class ConfigManager {
         Class<ConfigManager> configClass = ConfigManager.class;
         Field[] fields = configClass.getDeclaredFields();
         for (Field f : fields) {
+            // For security, disable TS_ALLOWED_URLS in env.
+            if ("TS_ALLOWED_URLS".equals(f.getName())
+                    && !"true"
+                            .equals(
+                                    prop.getProperty(USE_ENV_ALLOWED_URLS, "false")
+                                            .toLowerCase())) {
+                continue;
+            }
             if (f.getName().startsWith("TS_")) {
                 String val = System.getenv(f.getName());
                 if (val != null) {
@@ -331,10 +367,6 @@ public final class ConfigManager {
         return Boolean.parseBoolean(getProperty(TS_INSTALL_PY_DEP_PER_MODEL, "false"));
     }
 
-    public String getMetricsFormat() {
-        return getProperty(TS_METRICS_FORMAT, METRIC_FORMAT_PROMETHEUS);
-    }
-
     public boolean isMetricApiEnable() {
         return Boolean.parseBoolean(getProperty(TS_ENABLE_METRICS_API, "true"));
     }
@@ -361,6 +393,48 @@ public final class ConfigManager {
 
     public int getNumberOfGpu() {
         return getIntProperty(TS_NUMBER_OF_GPU, 0);
+    }
+
+    public String getMetricsConfigPath() {
+        String path = getCanonicalPath(prop.getProperty(TS_METRICS_CONFIG));
+        if (path == null) {
+            path = getModelServerHome() + "/ts/configs/metrics.yaml";
+        }
+        return path;
+    }
+
+    public String getTorchRunLogDir() {
+        if (torchrunLogDir == null) {
+            torchrunLogDir =
+                    Paths.get(
+                                    getCanonicalPath(System.getProperty("LOG_LOCATION")),
+                                    "torchelastic_ts")
+                            .toString();
+        }
+        return torchrunLogDir;
+    }
+
+    public MetricBuilder.MetricMode getMetricsMode() {
+        String metricsMode = getProperty(TS_METRICS_MODE, "log");
+        try {
+            return MetricBuilder.MetricMode.valueOf(
+                    metricsMode.replaceAll("\\s", "").toUpperCase());
+        } catch (IllegalArgumentException | NullPointerException e) {
+            logger.error(
+                    "Configured metrics mode \"{}\" not supported. Defaulting to \"{}\" mode: {}",
+                    metricsMode,
+                    MetricBuilder.MetricMode.LOG,
+                    e);
+            return MetricBuilder.MetricMode.LOG;
+        }
+    }
+
+    public boolean isModelMetricsAutoDetectEnabled() {
+        return Boolean.parseBoolean(getProperty(TS_MODEL_METRICS_AUTO_DETECT, "false"));
+    }
+
+    public boolean isSystemMetricsDisabled() {
+        return Boolean.parseBoolean(getProperty(TS_DISABLE_SYSTEM_METRICS, "false"));
     }
 
     public String getTsDefaultServiceHandler() {
@@ -582,6 +656,8 @@ public final class ConfigManager {
                 + getCanonicalPath(".")
                 + "\nTemp directory: "
                 + System.getProperty("java.io.tmpdir")
+                + "\nMetrics config path: "
+                + getMetricsConfigPath()
                 + "\nNumber of GPUs: "
                 + getNumberOfGpu()
                 + "\nNumber of CPUs: "
@@ -626,10 +702,12 @@ public final class ConfigManager {
                 + getAllowedUrls()
                 + "\nCustom python dependency for model allowed: "
                 + prop.getProperty(TS_INSTALL_PY_DEP_PER_MODEL, "false")
-                + "\nMetrics report format: "
-                + prop.getProperty(TS_METRICS_FORMAT, METRIC_FORMAT_PROMETHEUS)
                 + "\nEnable metrics API: "
                 + prop.getProperty(TS_ENABLE_METRICS_API, "true")
+                + "\nMetrics mode: "
+                + getMetricsMode()
+                + "\nDisable system metrics: "
+                + isSystemMetricsDisabled()
                 + "\nWorkflow Store: "
                 + (getWorkflowStore() == null ? "N/A" : getWorkflowStore())
                 + "\nModel config: "
@@ -751,7 +829,7 @@ public final class ConfigManager {
     }
 
     public List<String> getAllowedUrls() {
-        String allowedURL = prop.getProperty(TS_ALLOWED_URLS, "file://.*|http(s)?://.*");
+        String allowedURL = prop.getProperty(TS_ALLOWED_URLS, DEFAULT_TS_ALLOWED_URLS);
         return Arrays.asList(allowedURL.split(","));
     }
 
@@ -791,6 +869,14 @@ public final class ConfigManager {
         prop.setProperty(TS_INITIAL_WORKER_PORT, String.valueOf(initialPort));
     }
 
+    public int getInitialDistributionPort() {
+        return Integer.parseInt(prop.getProperty(TS_INITIAL_DISTRIBUTION_PORT, "29500"));
+    }
+
+    public void setInitialDistributionPort(int initialPort) {
+        prop.setProperty(TS_INITIAL_DISTRIBUTION_PORT, String.valueOf(initialPort));
+    }
+
     private void setModelConfig() {
         String modelConfigStr = prop.getProperty(MODEL_CONFIG, null);
         Type type = new TypeToken<Map<String, Map<String, JsonObject>>>() {}.getType();
@@ -824,6 +910,14 @@ public final class ConfigManager {
             }
         }
         return value;
+    }
+
+    public String getVersion() {
+        return prop.getProperty(VERSION);
+    }
+
+    public boolean isTelemetryEnabled() {
+        return telemetryEnabled;
     }
 
     public static final class Arguments {

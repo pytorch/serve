@@ -12,7 +12,11 @@ public enum WorkerCommands {
     @SerializedName("stats")
     STATS("stats"),
     @SerializedName("describe")
-    DESCRIBE("describe");
+    DESCRIBE("describe"),
+    @SerializedName("streampredict")
+    STREAMPREDICT("streampredict"),
+    @SerializedName("streampredict2")
+    STREAMPREDICT2("streampredict2");
 
     private String command;
 

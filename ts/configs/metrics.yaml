@@ -1,0 +1,77 @@
+dimensions:
+  - &model_name "ModelName"
+  - &worker_name "WorkerName"
+  - &level "Level"
+  - &device_id "DeviceId"
+  - &hostname "Hostname"
+
+ts_metrics:
+  counter:
+    - name: Requests2XX
+      unit: Count
+      dimensions: [*level, *hostname]
+    - name: Requests4XX
+      unit: Count
+      dimensions: [*level, *hostname]
+    - name: Requests5XX
+      unit: Count
+      dimensions: [*level, *hostname]
+    - name: ts_inference_requests_total
+      unit: Count
+      dimensions: ["model_name", "model_version", "hostname"]
+    - name: ts_inference_latency_microseconds
+      unit: Microseconds
+      dimensions: ["model_name", "model_version", "hostname"]
+    - name: ts_queue_latency_microseconds
+      unit: Microseconds
+      dimensions: ["model_name", "model_version", "hostname"]
+  gauge:
+    - name: QueueTime
+      unit: Milliseconds
+      dimensions: [*level, *hostname]
+    - name: WorkerThreadTime
+      unit: Milliseconds
+      dimensions: [*level, *hostname]
+    - name: WorkerLoadTime
+      unit: Milliseconds
+      dimensions: [*worker_name, *level, *hostname]
+    - name: CPUUtilization
+      unit: Percent
+      dimensions: [*level, *hostname]
+    - name: MemoryUsed
+      unit: Megabytes
+      dimensions: [*level, *hostname]
+    - name: MemoryAvailable
+      unit: Megabytes
+      dimensions: [*level, *hostname]
+    - name: MemoryUtilization
+      unit: Percent
+      dimensions: [*level, *hostname]
+    - name: DiskUsage
+      unit: Gigabytes
+      dimensions: [*level, *hostname]
+    - name: DiskUtilization
+      unit: Percent
+      dimensions: [*level, *hostname]
+    - name: DiskAvailable
+      unit: Gigabytes
+      dimensions: [*level, *hostname]
+    - name: GPUMemoryUtilization
+      unit: Percent
+      dimensions: [*level, *device_id, *hostname]
+    - name: GPUMemoryUsed
+      unit: Megabytes
+      dimensions: [*level, *device_id, *hostname]
+    - name: GPUUtilization
+      unit: Percent
+      dimensions: [*level, *device_id, *hostname]
+
+model_metrics:
+  # Dimension "Hostname" is automatically added for model metrics in the backend
+  gauge:
+    - name: HandlerTime
+      unit: ms
+      dimensions: [*model_name, *level]
+    - name: PredictionTime
+      unit: ms
+      dimensions: [*model_name, *level]

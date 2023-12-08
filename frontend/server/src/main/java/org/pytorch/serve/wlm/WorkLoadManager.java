@@ -22,21 +22,20 @@ import org.slf4j.LoggerFactory;
 
 public class WorkLoadManager {
 
+    private static final Logger logger = LoggerFactory.getLogger(WorkLoadManager.class);
     private ExecutorService threadPool;
-
     private ConcurrentHashMap<ModelVersionName, List<WorkerThread>> workers;
-
     private ConfigManager configManager;
     private EventLoopGroup backendGroup;
     private AtomicInteger port;
+    private AtomicInteger distributionPort;
     private AtomicInteger gpuCounter;
-
-    private static final Logger logger = LoggerFactory.getLogger(WorkLoadManager.class);
 
     public WorkLoadManager(ConfigManager configManager, EventLoopGroup backendGroup) {
         this.configManager = configManager;
         this.backendGroup = backendGroup;
         this.port = new AtomicInteger(configManager.getInitialWorkerPort());
+        this.distributionPort = new AtomicInteger(configManager.getInitialDistributionPort());
         this.gpuCounter = new AtomicInteger(0);
         threadPool = Executors.newCachedThreadPool();
         workers = new ConcurrentHashMap<>();
@@ -83,6 +82,21 @@ public class WorkLoadManager {
         }
 
         return numWorking;
+    }
+
+    public int getNumHealthyWorkers(ModelVersionName modelVersionName) {
+        int numHealthy = 0;
+        List<WorkerThread> threads = workers.getOrDefault(modelVersionName, null);
+
+        if (threads != null) {
+            for (WorkerThread thread : threads) {
+                if (thread.isHealthy()) {
+                    numHealthy += 1;
+                }
+            }
+        }
+
+        return numHealthy;
     }
 
     /**
@@ -192,20 +206,52 @@ public class WorkLoadManager {
     private void addThreads(
             List<WorkerThread> threads, Model model, int count, CompletableFuture<Integer> future) {
         WorkerStateListener listener = new WorkerStateListener(future, count);
-        int maxGpu = configManager.getNumberOfGpu();
+        int maxGpu = model.getNumCores();
         for (int i = 0; i < count; ++i) {
             int gpuId = -1;
 
             if (maxGpu > 0) {
-                gpuId = gpuCounter.accumulateAndGet(maxGpu, (prev, maxGpuId) -> ++prev % maxGpuId);
+                if (model.isHasCfgDeviceIds() || model.getParallelLevel() > 0) {
+                    gpuId =
+                            model.getGpuCounter()
+                                    .getAndAccumulate(
+                                            maxGpu,
+                                            (prev, maxGpuId) ->
+                                                    (prev + model.getParallelLevel() > 0
+                                                                    ? model.getParallelLevel()
+                                                                    : 1)
+                                                            % maxGpuId);
+                    if (model.getParallelLevel() == 0) {
+                        gpuId = model.getDeviceIds().get(gpuId);
+                    }
+                } else {
+                    gpuId =
+                            gpuCounter.accumulateAndGet(
+                                    maxGpu, (prev, maxGpuId) -> ++prev % maxGpuId);
+                }
             }
 
-            BatchAggregator aggregator = new BatchAggregator(model);
+            BatchAggregator aggregator;
+
+            if (model.isStateful()) {
+                aggregator = new SequenceBatchAggregator(model);
+            } else if (model.isContinuousBatching()) {
+                aggregator = new ContinuousBatching(model);
+            } else {
+                aggregator = new BatchAggregator(model);
+            }
+
+            int currentPort =
+                    model.getParallelLevel() > 0
+                            ? configManager.isDebug()
+                                    ? distributionPort.get()
+                                    : distributionPort.getAndAdd(model.getParallelLevel())
+                            : configManager.isDebug() ? port.get() : port.getAndIncrement();
             WorkerThread thread =
                     new WorkerThread(
                             configManager,
                             backendGroup,
-                            configManager.isDebug() ? port.get() : port.getAndIncrement(),
+                            currentPort,
                             gpuId,
                             model,
                             aggregator,

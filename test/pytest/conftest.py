@@ -12,6 +12,8 @@ REPO_ROOT_DIR = os.path.normpath(os.path.join(CURR_FILE_PATH, "..", ".."))
 # Exclude the following tests from regression tests
 collect_ignore = []
 collect_ignore.append("test_example_torchrec_dlrm.py")
+collect_ignore.append("test_example_near_real_time_video.py")
+collect_ignore.append("test_dali_preprocess.py")
 
 
 @pytest.fixture(scope="module")
@@ -52,11 +54,11 @@ def model_store(tmp_path_factory):
 def torchserve(model_store):
     test_utils.torchserve_cleanup()
 
-    test_utils.start_torchserve(
+    pipe = test_utils.start_torchserve(
         model_store=model_store, no_config_snapshots=True, gen_mar=False
     )
 
-    yield
+    yield pipe
 
     test_utils.torchserve_cleanup()
 

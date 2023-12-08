@@ -24,6 +24,12 @@
     </developer>
   </developers>
 
+  <scm>
+    <connection>scm:git:git://github.com/pytorch/serve.git</connection>
+    <developerConnection>scm:git:ssh://github.com:pytorch/serve.git</developerConnection>
+    <url>https://github.com/pytorch/serve</url>
+  </scm>
+
   <url>http://maven.apache.org</url>
   <properties>
     <repo_url>file://${project.build.directory}/repo</repo_url>
@@ -37,7 +43,7 @@
     <dependency>
       <groupId>com.google.code.gson</groupId>
       <artifactId>gson</artifactId>
-      <version>2.9.0</version>
+      <version>2.10.1</version>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
@@ -61,6 +67,12 @@
         <version>1.6</version>
         <configuration>
           <skip>${skip.gpg}</skip>
+          <keyname>${gpg.keyname}</keyname>
+          <passphrase>${gpg.passphrase}</passphrase>
+          <gpgArguments>
+            <arg>--pinentry-mode</arg>
+            <arg>loopback</arg>
+          </gpgArguments>
         </configuration>
         <executions>
           <execution>
@@ -112,7 +124,7 @@
           <execution>
             <id>attach-sources</id>
             <goals>
-              <goal>jar</goal>
+              <goal>jar-no-fork</goal>
             </goals>
           </execution>
         </executions>
@@ -142,14 +154,28 @@
           <target>8</target>
         </configuration>
       </plugin>
+      <plugin>
+        <groupId>org.sonatype.plugins</groupId>
+        <artifactId>nexus-staging-maven-plugin</artifactId>
+        <version>1.6.13</version>
+        <extensions>true</extensions>
+        <configuration>
+          <serverId>ossrh</serverId>
+          <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+          <autoReleaseAfterClose>false</autoReleaseAfterClose>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
 
   <distributionManagement>
+    <snapshotRepository>
+      <id>ossrh</id>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+    </snapshotRepository>
     <repository>
-      <id>bintray-pytorch-maven</id>
-      <name>pytorch-maven</name>
-      <url>https://api.bintray.com/maven/pytorch/maven/org.pytorch:torchserve_plugins_sdk/</url>
+      <id>ossrh</id>
+      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
     </repository>
   </distributionManagement>
 </project>

@@ -76,6 +76,7 @@ The following parameters can be used to run the AB benchmark suite.
 - ts: Use Already running Torchserve instance. Default: False
 - gpus: Number of gpus to run docker container with. By default it runs the docker container on CPU.
 - backend_profiling: Enable backend profiling using CProfile. Default: False
+- generate_graphs: Enable generation of Graph plots. Default False
 - config_properties: Path to config.properties file. Default: config.properties in the benchmark directory
 - inference_model_url: Inference function url - can be either for predictions or explanations. Default: predictions/benchmark.
 - config: All the above params can be set using a config JSON file. When this flag is used, all other cmd line params are ignored.
@@ -127,7 +128,7 @@ python benchmark-ab.py --url https://torchserve.pytorch.org/mar_files/mnist.mar 
 * TORCHSERVE SERVING PREDICTIONS WITH DOCKER
 
 ```
-python benchmark-ab.py --url https://torchserve.pytorch.org/mar_files/mnist.mar --content_type application/png --config_properties config.properties --inference_model_url predictions/benchmark --input ../examples/image_classifier/mnist/test_data/0.png --exec_env docker 
+python benchmark-ab.py --url https://torchserve.pytorch.org/mar_files/mnist.mar --content_type application/png --config_properties config.properties --inference_model_url predictions/benchmark --input ../examples/image_classifier/mnist/test_data/0.png --exec_env docker
 ```
 
 ### Test plans
@@ -136,7 +137,7 @@ Benchmark supports pre-defined, pre-configured params that can be selected based
 2. vgg11_1000r_10c: vgg11 model with requests =1000 and concurrency=10
 3. vgg11_10000r_100c: vgg11 model with requests =10000 and concurrency=100
 4. resnet152_batch: Resnet-152 model with batch size = 4, requests =1000 and concurrency=10
-5. resnet152_batch_docker: Resnet-152 model with batch size = 4, requests =1000, concurrency=10 and execution env = docker 
+5. resnet152_batch_docker: Resnet-152 model with batch size = 4, requests =1000, concurrency=10 and execution env = docker
 
 Note: These pre-defined parameters in test plan can be overwritten by cmd line args.
 
@@ -209,7 +210,7 @@ python benchmarks/auto_benchmark.py --input benchmarks/benchmark_config_template
 ```
 
 ## Github Actions benchmarking
-If you need to run your benchmarks on a specific cloud or hardware infrastructure. We highly recommend you fork this repo and leverage the benchmarks in `.github/workflows/benchmark-nightly_cpu*.yml` which will run the benchmarks on a custom instance of your choice and save the results as a github artifact. To learn more about how to create your own custom runner by following instructions from Github here https://docs.github.com/en/actions/hosting-your-own-runners/adding-self-hosted-runners
+If you need to run your benchmarks on a specific cloud or hardware infrastructure. We highly recommend you fork this repo and leverage the benchmarks in `.github/workflows/benchmark_nightly.yml` which will run the benchmarks on a custom instance of your choice and save the results as a github artifact. To learn more about how to create your own custom runner by following instructions from Github here https://docs.github.com/en/actions/hosting-your-own-runners/adding-self-hosted-runners
 
 The high level approach
 1. Create a cloud instance in your favorite cloud provider

@@ -61,6 +61,20 @@
     "force": true
   },
   {
+    "name": "packaging_zip_store_mar",
+    "model-name": "model",
+    "model-file": "model_archiver/tests/integ_tests/resources/regular_model/test_model.py",
+    "serialized-file": "model_archiver/tests/integ_tests/resources/regular_model/test_serialized_file.pt",
+    "handler": "model_archiver/tests/integ_tests/resources/regular_model/test_handler.py",
+    "extra-files": "model_archiver/tests/integ_tests/resources/regular_model/test_index_to_name.json",
+    "export-path": "model",
+    "archive-format": "zip-store",
+    "iterations": 2,
+    "version": "1.0",
+    "force": true,
+    "config-file": ""
+  },
+  {
     "name": "packaging_mar_with_handler_name",
     "model-name": "model",
     "model-file": "model_archiver/tests/integ_tests/resources/regular_model/test_model.py",
@@ -85,4 +99,32 @@
     "iterations": 2,
     "version": "1.0",
     "force": true
+  },
+  {
+    "name": "extra_files_path",
+    "model-name": "model",
+    "model-file": "model_archiver/tests/integ_tests/resources/regular_model/test_model.py",
+    "serialized-file": "model_archiver/tests/integ_tests/resources/regular_model/test_serialized_file.pt",
+    "handler": "model_archiver/tests/integ_tests/resources/regular_model/test_handler",
+    "extra-files": "model_archiver/tests/integ_tests/resources/regular_model/",
+    "export-path": "model",
+    "archive-format": "default",
+    "iterations": 1,
+    "version": "1.0",
+    "config-file": "",
+    "expect-error": false
+  },
+  {
+    "name": "missing_extra_files",
+    "model-name": "model",
+    "model-file": "model_archiver/tests/integ_tests/resources/regular_model/test_model.py",
+    "serialized-file": "model_archiver/tests/integ_tests/resources/regular_model/test_serialized_file.pt",
+    "handler": "model_archiver/tests/integ_tests/resources/regular_model/test_handler",
+    "extra-files": "model_archiver/tests/integ_tests/resources/regular_model/missing.json",
+    "export-path": "model",
+    "archive-format": "default",
+    "iterations": 1,
+    "version": "1.0",
+    "config-file": "",
+    "expect-error": true
   }]

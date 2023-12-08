@@ -12,13 +12,13 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
-import org.apache.commons.io.FilenameUtils;
 import org.pytorch.serve.archive.DownloadArchiveException;
 import org.pytorch.serve.archive.model.Manifest;
 import org.pytorch.serve.archive.model.ModelArchive;
 import org.pytorch.serve.archive.model.ModelException;
 import org.pytorch.serve.archive.model.ModelNotFoundException;
 import org.pytorch.serve.archive.model.ModelVersionNotFoundException;
+import org.pytorch.serve.archive.utils.ArchiveUtils;
 import org.pytorch.serve.http.BadRequestException;
 import org.pytorch.serve.http.InternalServerException;
 import org.pytorch.serve.http.InvalidModelVersionException;
@@ -35,6 +35,7 @@ import org.pytorch.serve.util.messages.WorkerCommands;
 import org.pytorch.serve.wlm.Model;
 import org.pytorch.serve.wlm.ModelManager;
 import org.pytorch.serve.wlm.ModelVersionedRefs;
+import org.pytorch.serve.wlm.WorkerInitializationException;
 import org.pytorch.serve.wlm.WorkerState;
 import org.pytorch.serve.wlm.WorkerThread;
 
@@ -108,7 +109,7 @@ public final class ApiUtils {
 
     public static StatusResponse registerModel(RegisterModelRequest registerModelRequest)
             throws ModelException, InternalServerException, ExecutionException,
-                    InterruptedException, DownloadArchiveException {
+                    InterruptedException, DownloadArchiveException, WorkerInitializationException {
         String modelUrl = registerModelRequest.getModelUrl();
         if (modelUrl == null) {
             throw new BadRequestException("Parameter url is required.");
@@ -162,7 +163,7 @@ public final class ApiUtils {
             boolean isWorkflowModel,
             boolean s3SseKms)
             throws ModelException, ExecutionException, InterruptedException,
-                    DownloadArchiveException {
+                    DownloadArchiveException, WorkerInitializationException {
 
         ModelManager modelManager = ModelManager.getInstance();
         final ModelArchive archive;
@@ -182,13 +183,23 @@ public final class ApiUtils {
                             s3SseKms);
         } catch (FileAlreadyExistsException e) {
             throw new InternalServerException(
-                    "Model file already exists " + FilenameUtils.getName(modelUrl), e);
+                    "Model file already exists " + ArchiveUtils.getFilenameFromUrl(modelUrl), e);
         } catch (IOException | InterruptedException e) {
             throw new InternalServerException("Failed to save model: " + modelUrl, e);
         }
 
         modelName = archive.getModelName();
-        if (initialWorkers <= 0) {
+        int minWorkers = 0;
+        int maxWorkers = 0;
+        if (archive.getModelConfig() != null) {
+            int marMinWorkers = archive.getModelConfig().getMinWorkers();
+            int marMaxWorkers = archive.getModelConfig().getMaxWorkers();
+            if (marMinWorkers > 0 && marMaxWorkers >= marMinWorkers) {
+                minWorkers = marMinWorkers;
+                maxWorkers = marMaxWorkers;
+            }
+        }
+        if (initialWorkers <= 0 && minWorkers == 0) {
             final String msg =
                     "Model \""
                             + modelName
@@ -200,12 +211,14 @@ public final class ApiUtils {
             }
             return new StatusResponse(msg, HttpURLConnection.HTTP_OK);
         }
+        minWorkers = minWorkers > 0 ? minWorkers : initialWorkers;
+        maxWorkers = maxWorkers > 0 ? maxWorkers : initialWorkers;
 
         return ApiUtils.updateModelWorkers(
                 modelName,
                 archive.getModelVersion(),
-                initialWorkers,
-                initialWorkers,
+                minWorkers,
+                maxWorkers,
                 isSync,
                 true,
                 f -> {
@@ -223,7 +236,7 @@ public final class ApiUtils {
             boolean isInit,
             final Function<Void, Void> onError)
             throws ModelVersionNotFoundException, ModelNotFoundException, ExecutionException,
-                    InterruptedException {
+                    InterruptedException, WorkerInitializationException {
 
         ModelManager modelManager = ModelManager.getInstance();
         if (maxWorkers < minWorkers) {
@@ -359,6 +372,23 @@ public final class ApiUtils {
         return response;
     }
 
+    public static boolean isModelHealthy() {
+        ModelManager modelManager = ModelManager.getInstance();
+        int numHealthy = 0;
+        int numScaled = 0;
+
+        for (Map.Entry<String, ModelVersionedRefs> m : modelManager.getAllModels()) {
+            numScaled = m.getValue().getDefaultModel().getMinWorkers();
+            numHealthy =
+                    modelManager.getNumHealthyWorkers(
+                            m.getValue().getDefaultModel().getModelVersionName());
+            if (numHealthy < numScaled) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     private static DescribeModelResponse createModelResponse(
             ModelManager modelManager, String modelName, Model model) {
         DescribeModelResponse resp = new DescribeModelResponse();
@@ -386,6 +416,12 @@ public final class ApiUtils {
             resp.addWorker(workerId, startTime, isRunning, gpuId, memory, pid, gpuUsage);
         }
 
+        DescribeModelResponse.JobQueueStatus jobQueueStatus =
+                new DescribeModelResponse.JobQueueStatus();
+        jobQueueStatus.setRemainingCapacity(model.getJobQueueRemainingCapacity());
+        jobQueueStatus.setPendingRequests(model.getPendingRequestsInJobQueue());
+        resp.setJobQueueStatus(jobQueueStatus);
+
         return resp;
     }
 
@@ -394,23 +430,26 @@ public final class ApiUtils {
             throws ModelNotFoundException, ModelVersionNotFoundException {
         RestJob job = new RestJob(ctx, modelName, version, WorkerCommands.PREDICT, input);
         if (!ModelManager.getInstance().addJob(job)) {
-            String responseMessage = getInferenceErrorResponseMessage(modelName, version);
+            String responseMessage = getStreamingInferenceErrorResponseMessage(modelName, version);
             throw new ServiceUnavailableException(responseMessage);
         }
         return job;
     }
 
     @SuppressWarnings("PMD")
-    public static String getInferenceErrorResponseMessage(String modelName, String modelVersion) {
-        String responseMessage = "Model \"" + modelName;
+    public static String getStreamingInferenceErrorResponseMessage(
+            String modelName, String modelVersion) {
+        StringBuilder responseMessage = new StringBuilder().append("Model \"").append(modelName);
 
         if (modelVersion != null) {
-            responseMessage += "\" Version " + modelVersion;
+            responseMessage.append("\" Version ").append(modelVersion);
         }
 
-        responseMessage +=
-                "\" has no worker to serve inference request. Please use scale workers API to add workers.";
-        return responseMessage;
+        responseMessage.append(
+                "\" has no worker to serve inference request. Please use scale workers API to add workers. "
+                        + "If this is a sequence inference, please check if it is closed, or expired;"
+                        + " or exceeds maxSequenceJobQueueSize");
+        return responseMessage.toString();
     }
 
     public static String getDescribeErrorResponseMessage(String modelName) {

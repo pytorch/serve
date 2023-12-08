@@ -21,18 +21,12 @@ Torchserve makes use of port 8085 and the kfserver runs at port 8080
 We will hit kfserve , which in turn hits torch serve for inference and explanations request.
 Follow the below steps to serve the MNIST Model :
 
-- Step 1 : Install python3.6.9
+- Step 1 : Install python3.8
 
-- Step 2 : Clone the KServe Git Repository as below:
-
-```bash
-git clone -b master https://github.com/kserve/kserve
-```
-
-- Step 3 : Install KServe as below:
+- Step 2 : Install KServe as below:
 
 ```bash
-pip install -e ./kserve/python/kserve
+pip install kserve>=0.9.0 grpcio protobuf grpcio-tools
 ```
 
 - Step 4 : Run the Install Dependencies script
@@ -65,25 +59,25 @@ sudo  mkdir -p /mnt/models/model-store
 
 For v1 protocol
 
-``export TS_SERVICE_ENVELOPE=kserve`
+`export TS_SERVICE_ENVELOPE=kserve`
 
 For v2 protocol
 
-``export TS_SERVICE_ENVELOPE=kservev2`
+`export TS_SERVICE_ENVELOPE=kservev2`
 
 - Step 10: Move the config.properties to /mnt/models/config/.
   The config.properties file is as below :
 
 ```bash
-inference_address=http://0.0.0.0:8085
-management_address=http://0.0.0.0:8085
-metrics_address=http://0.0.0.0:8082
+inference_address=http://127.0.0.1:8085
+management_address=http://127.0.0.1:8085
+metrics_address=http://127.0.0.1:8082
 grpc_inference_port=7070
 grpc_management_port=7071
 enable_envvars_config=true
 install_py_dep_per_model=true
 enable_metrics_api=true
-metrics_format=prometheus
+metrics_mode=prometheus
 NUM_WORKERS=1
 number_of_netty_threads=4
 job_queue_size=10
@@ -99,6 +93,26 @@ torchserve --start --ts-config /mnt/models/config/config.properties
 
 - Step 12: Run the below command to start the KFServer
 
+- Step 13: Set protocol version
+
+For v1 protocol
+
+`export PROTOCOL_VERSION=v1`
+
+For v2 protocol
+
+`export PROTOCOL_VERSION=v2`
+
+For grpc protocol v2 format set
+
+`export PROTOCOL_VERSION=grpc-v2`
+
+- Generate python gRPC client stub using the proto files
+
+```bash
+python -m grpc_tools.protoc --proto_path=frontend/server/src/main/resources/proto/ --python_out=ts_scripts --grpc_python_out=ts_scripts frontend/server/src/main/resources/proto/inference.proto frontend/server/src/main/resources/proto/management.proto
+```
+
 ```bash
 python3 serve/kubernetes/kserve/kserve_wrapper/__main__.py
 ```
@@ -106,9 +120,9 @@ python3 serve/kubernetes/kserve/kserve_wrapper/__main__.py
 Output:
 
 ```bash
-[I 201211 18:29:29 __main__:69] Wrapper : Model names ['mnist'], inference address http//0.0.0.0:8085, management address http://0.0.0.0:8085, model store /mnt/models/model-store
-[I 201211 18:29:29 TorchserveModel:48] kfmodel Predict URL set to 0.0.0.0:8085
-[I 201211 18:29:29 TorchserveModel:50] kfmodel Explain URL set to 0.0.0.0:8085
+[I 201211 18:29:29 __main__:69] Wrapper : Model names ['mnist'], inference address http//127.0.0.1:8085, management address http://127.0.0.1:8085, model store /mnt/models/model-store
+[I 201211 18:29:29 TorchserveModel:48] kfmodel Predict URL set to 127.0.0.1:8085
+[I 201211 18:29:29 TorchserveModel:50] kfmodel Explain URL set to 127.0.0.1:8085
 [I 201211 18:29:29 TSModelRepository:26] TSModelRepo is initialized
 [I 201211 18:29:29 kfserver:115] Registering model: mnist
 [I 201211 18:29:29 kfserver:96] Listening on port 8080
@@ -122,7 +136,7 @@ For v1 protocol
 The curl request for inference is as below:
 
 ```bash
-curl -H "Content-Type: application/json" --data @serve/kubernetes/kserve/kf_request_json/v1/mnist.json http://0.0.0.0:8080/v1/models/mnist:predict
+curl -H "Content-Type: application/json" --data @serve/kubernetes/kserve/kf_request_json/v1/mnist.json http://127.0.0.1:8080/v1/models/mnist:predict
 ```
 
 Output:
@@ -133,8 +147,8 @@ Output:
 
 The curl request for explain is as below:
 
-```
-curl -H "Content-Type: application/json" --data @serve/kubernetes/kserve/kf_request_json/v1/mnist.json http://0.0.0.0:8080/v1/models/mnist:explain
+```bash
+curl -H "Content-Type: application/json" --data @serve/kubernetes/kserve/kf_request_json/v1/mnist.json http://127.0.0.1:8080/v1/models/mnist:explain
 ```
 
 Output:
@@ -152,7 +166,7 @@ For v2 protocol
 The curl request for inference is as below:
 
 ```bash
-curl -H "Content-Type: application/json" --data @serve/kubernetes/kserve/kf_request_json/mnist_v2.json http://0.0.0.0:8080/v2/models/mnist/infer
+curl -H "Content-Type: application/json" --data @serve/kubernetes/kserve/kf_request_json/v2/mnist/mnist_v2_tensor.json http://127.0.0.1:8080/v2/models/mnist/infer
 ```
 
 Response:
@@ -173,29 +187,20 @@ Response:
 }
 ```
 
-The curl request for explain is as below:
+For grpc-v2 protocol
 
+- Download the proto file
+
+```bash
+curl -O https://raw.githubusercontent.com/kserve/kserve/master/docs/predict-api/v2/grpc_predict_v2.proto
 ```
-curl -H "Content-Type: application/json" --data @serve/kubernetes/kserve/kf_request_json/v1/mnist.json http://0.0.0.0:8080/v2/models/mnist/explain
-```
 
-Response:
+- Download [grpcurl](https://github.com/fullstorydev/grpcurl)
 
-```json
-{
-  "id": "3482b766-0483-40e9-84b0-8ce8d4d1576e",
-  "model_name": "mnist",
-  "model_version": "1.0",
-  "outputs": [{
-    "name": "explain",
-    "shape": [1, 28, 28],
-    "datatype": "FP64",
-    "data": [-0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, -0.0, -0.0, 0.0, -0.0, 0.0
-    ...
-    ...
-    ]
-  }]
-}
+Make gRPC request
+
+```bash
+grpcurl -vv -plaintext -proto grpc_predict_v2.proto -d @ localhost:8081 inference.GRPCInferenceService.ModelInfer <<< $(cat "serve/kubernetes/kserve/kf_request_json/v2/mnist/mnist_v2_tensor_grpc.json")
 ```
 
 ## KServe Wrapper Testing in Local for BERT
@@ -205,15 +210,15 @@ Response:
 - Step 2: Use this config.properties- Change the mode_snapshot to bert
 
 ```bash
-inference_address=http://0.0.0.0:8085
-management_address=http://0.0.0.0:8085
-metrics_address=http://0.0.0.0:8082
+inference_address=http://127.0.0.1:8085
+management_address=http://127.0.0.1:8085
+metrics_address=http://127.0.0.1:8082
 grpc_inference_port=7070
 grpc_management_port=7071
 enable_envvars_config=true
 install_py_dep_per_model=true
 enable_metrics_api=true
-metrics_format=prometheus
+metrics_mode=prometheus
 NUM_WORKERS=1
 number_of_netty_threads=4
 job_queue_size=10
@@ -238,13 +243,13 @@ For v1 protocol
 The curl request for inference is as below:
 
 ```bash
-curl -H "Content-Type: application/json" --data @kubernetes/kserve/kf_request_json/v1/bert.json http://0.0.0.0:8080/v1/models/bert:predict
+curl -H "Content-Type: application/json" --data @kubernetes/kserve/kf_request_json/v1/bert.json http://127.0.0.1:8080/v1/models/bert:predict
 ```
 
 The curl request for Explain is as below:
 
 ```bash
-curl -H "Content-Type: application/json" --data @kubernetes/kserve/kf_request_json/v1/bert.json http://0.0.0.0:8080/v1/models/bert:explain
+curl -H "Content-Type: application/json" --data @kubernetes/kserve/kf_request_json/v1/bert.json http://127.0.0.1:8080/v1/models/bert:explain
 ```
 
 For v2 protocol
@@ -252,11 +257,11 @@ For v2 protocol
 The curl request for inference is as below:
 
 ```bash
-curl -H "Content-Type: application/json" --data @kubernetes/kserve/kf_request_json/v1/bert.json http://0.0.0.0:8080/v2/models/bert/infer
+curl -H "Content-Type: application/json" --data @kubernetes/kserve/kf_request_json/v1/bert.json http://127.0.0.1:8080/v2/models/bert/infer
 ```
 
 The curl request for Explain is as below:
 
 ```bash
-curl -H "Content-Type: application/json" --data @kubernetes/kserve/kf_request_json/v1/bert.json http://0.0.0.0:8080/v2/models/bert/explain
+curl -H "Content-Type: application/json" --data @kubernetes/kserve/kf_request_json/v1/bert.json http://127.0.0.1:8080/v2/models/bert/explain
 ```

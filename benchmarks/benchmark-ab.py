@@ -30,6 +30,8 @@ default_ab_params = {
     "image": "",
     "docker_runtime": "",
     "backend_profiling": False,
+    "handler_profiling": False,
+    "generate_graphs": False,
     "config_properties": "config.properties",
     "inference_model_url": "predictions/benchmark",
     "report_location": tempfile.gettempdir(),
@@ -95,6 +97,18 @@ def json_provider(file_path, cmd_name):
     help="Enable backend profiling using CProfile. Default False",
 )
 @click.option(
+    "--handler_profiling",
+    "-hp",
+    default=False,
+    help="Enable handler profiling. Default False",
+)
+@click.option(
+    "--generate_graphs",
+    "-gg",
+    default=False,
+    help="Enable generation of Graph plots. Default False",
+)
+@click.option(
     "--config_properties",
     "-cp",
     default="config.properties",
@@ -136,10 +150,12 @@ def benchmark(
     image,
     docker_runtime,
     backend_profiling,
+    handler_profiling,
     config_properties,
     inference_model_url,
     report_location,
     tmp_dir,
+    generate_graphs,
 ):
     input_params = {
         "url": url,
@@ -155,10 +171,12 @@ def benchmark(
         "image": image,
         "docker_runtime": docker_runtime,
         "backend_profiling": backend_profiling,
+        "handler_profiling": handler_profiling,
         "config_properties": config_properties,
         "inference_model_url": inference_model_url,
         "report_location": report_location,
         "tmp_dir": tmp_dir,
+        "generate_graphs": generate_graphs,
     }
 
     # set ab params
@@ -346,7 +364,7 @@ def docker_torchserve_start():
     management_port = urlparse(execution_params["management_url"]).port
     docker_run_cmd = (
         f"docker run {execution_params['docker_runtime']} {backend_profiling} --name ts --user root -p "
-        f"{inference_port}:{inference_port} -p {management_port}:{management_port} "
+        f"127.0.0.1:{inference_port}:{inference_port} -p 127.0.0.1:{management_port}:{management_port} "
         f"-v {execution_params['tmp_dir']}:/tmp {enable_gpu} -itd {docker_image} "
         f'"torchserve --start --model-store /home/model-server/model-store '
         f"\--workflow-store /home/model-server/wf-store "
@@ -441,8 +459,9 @@ def generate_report(warm_up_lines):
     click.secho("\n\nGenerating Reports...", fg="green")
     extract_metrics(warm_up_lines=warm_up_lines)
     generate_csv_output()
-    generate_latency_graph()
-    generate_profile_graph()
+    if execution_params["generate_graphs"]:
+        generate_latency_graph()
+        generate_profile_graph()
     click.secho("\nTest suite execution complete.", fg="green")
 
 
@@ -459,12 +478,25 @@ metrics = {
 }
 
 
+def update_metrics():
+    if execution_params["handler_profiling"]:
+        opt_metrics = {
+            "handler_preprocess.txt": "ts_handler_preprocess",
+            "handler_inference.txt": "ts_handler_inference",
+            "handler_postprocess.txt": "ts_handler_postprocess",
+        }
+        metrics.update(opt_metrics)
+    return metrics
+
+
 def extract_metrics(warm_up_lines):
     with open(execution_params["metric_log"]) as f:
         lines = f.readlines()
 
     click.secho(f"Dropping {warm_up_lines} warmup lines from log", fg="green")
     lines = lines[warm_up_lines:]
+
+    metrics = update_metrics()
 
     for k, v in metrics.items():
         all_lines = []
@@ -649,7 +681,10 @@ def generate_profile_graph():
         title="Combined Graph",
     )
     fig5.grid()
-    plt.savefig("api-profile1.png", bbox_inches="tight")
+    plt.savefig(
+        f"{execution_params['report_location']}/benchmark/api-profile1.png",
+        bbox_inches="tight",
+    )
 
 
 def stop_torchserve():

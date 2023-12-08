@@ -9,6 +9,7 @@ import subprocess
 import sys
 import tempfile
 from builtins import str
+from typing import Dict
 
 import psutil
 
@@ -18,7 +19,7 @@ from ts.version import __version__
 TS_NAMESPACE = "org.pytorch.serve.ModelServer"
 
 
-def start():
+def start() -> None:
     """
     This is the entry point for model server
     :return:
@@ -47,7 +48,13 @@ def start():
             try:
                 parent = psutil.Process(pid)
                 parent.terminate()
-                print("TorchServe has stopped.")
+                if args.foreground:
+                    try:
+                        parent.wait(timeout=60)
+                    except psutil.TimeoutExpired:
+                        print("Stopping TorchServe took too long.")
+                else:
+                    print("TorchServe has stopped.")
             except (OSError, psutil.Error):
                 print("TorchServe already stopped.")
             os.remove(pid_file)
@@ -170,9 +177,6 @@ def start():
 
             cmd.append("-w")
             cmd.append(args.workflow_store)
-        else:
-            cmd.append("-w")
-            cmd.append(args.model_store)
 
         if args.no_config_snapshots:
             cmd.append("-ncs")
@@ -201,7 +205,7 @@ def start():
                 print("start java frontend failed:", sys.exc_info())
 
 
-def load_properties(file_path):
+def load_properties(file_path: str) -> Dict[str, str]:
     """
     Read properties file into map.
     """
@@ -214,7 +218,6 @@ def load_properties(file_path):
                 if len(pair) > 1:
                     key = pair[0].strip()
                     props[key] = pair[1].strip()
-
     return props
 
 

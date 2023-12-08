@@ -1,22 +1,68 @@
 ---
-bert_inf1:
+bert_neuron_batch_1:
     scripted_mode:
         benchmark_engine: "ab"
-        compile_per_batch_size: True
+        url: https://torchserve.pytorch.org/mar_files/BERTSeqClassification_torchscript_neuron_batch_1.mar
         workers:
             - 4
         batch_delay: 100
         batch_size:
             - 1
-            - 2
-            - 4
-            - 8
-        input: "./benchmarks/automated/tests/resources/neuron-bert/input"
+        input: "./examples/Huggingface_Transformers/Seq_classification_artifacts/sample_text.txt"
         requests: 10000
         concurrency: 100
         backend_profiling: False
-        exec_env: "aws_neuron_pytorch_p36"
+        exec_env: "local"
         processors:
-            - "inferentia"
-instance_types:
-    - "inf1.6xlarge"
+            - "neuron"
+
+bert_neuron_batch_2:
+    scripted_mode:
+        benchmark_engine: "ab"
+        url: https://torchserve.pytorch.org/mar_files/BERTSeqClassification_torchscript_neuron_batch_2.mar
+        workers:
+            - 4
+        batch_delay: 100
+        batch_size:
+            - 2
+        input: "./examples/Huggingface_Transformers/Seq_classification_artifacts/sample_text.txt"
+        requests: 10000
+        concurrency: 100
+        backend_profiling: False
+        exec_env: "local"
+        processors:
+            - "neuron"
+
+bert_neuron_batch_4:
+    scripted_mode:
+        benchmark_engine: "ab"
+        url: https://torchserve.pytorch.org/mar_files/BERTSeqClassification_torchscript_neuron_batch_4.mar
+        workers:
+            - 4
+        batch_delay: 100
+        batch_size:
+            - 4
+        input: "./examples/Huggingface_Transformers/Seq_classification_artifacts/sample_text.txt"
+        requests: 10000
+        concurrency: 100
+        backend_profiling: False
+        exec_env: "local"
+        processors:
+            - "neuron"
+
+bert_neuron_batch_8:
+    scripted_mode:
+        benchmark_engine: "ab"
+        url: https://torchserve.pytorch.org/mar_files/BERTSeqClassification_torchscript_neuron_batch_8.mar
+        workers:
+            - 4
+        batch_delay: 100
+        batch_size:
+            - 8
+        input: "./examples/Huggingface_Transformers/Seq_classification_artifacts/sample_text.txt"
+        requests: 10000
+        concurrency: 100
+        backend_profiling: False
+        exec_env: "local"
+        processors:
+            - "neuron"

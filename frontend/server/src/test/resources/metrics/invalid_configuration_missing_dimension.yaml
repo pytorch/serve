@@ -1,0 +1,9 @@
+dimensions:
+  - &model_name "ModelName"
+  - &model_version "ModelVersion"
+
+ts_metrics:
+  counter:
+    - name: InferenceRequestsTotal
+      unit: Count
+      dimensions: [*model_name, *model_version, *hostname]

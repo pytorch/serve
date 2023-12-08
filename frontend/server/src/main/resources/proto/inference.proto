@@ -3,6 +3,7 @@ syntax = "proto3";
 package org.pytorch.serve.grpc.inference;
 
 import "google/protobuf/empty.proto";
+import "google/rpc/status.proto";
 
 option java_multiple_files = true;
 
@@ -15,11 +16,20 @@ message PredictionsRequest {
 
     // Input data for model prediction
     map<string, bytes> input = 3; //required
+
+    // SequenceId is required for StreamPredictions2 API.
+    optional string sequence_id = 4; //optional
 }
 
 message PredictionResponse {
     // Response content for prediction
     bytes prediction = 1;
+
+    // SequenceId is required for StreamPredictions2 API.
+    optional string sequence_id = 2; //optional
+
+    // Error information for StreamPredictions2 API.
+    optional google.rpc.Status status = 3; //optional
 }
 
 message TorchServeHealthResponse {
@@ -33,4 +43,10 @@ service InferenceAPIsService {
 
     // Predictions entry point to get inference using default model version.
     rpc Predictions(PredictionsRequest) returns (PredictionResponse) {}
+
+    // Streaming response for an inference request.
+    rpc StreamPredictions(PredictionsRequest) returns (stream PredictionResponse) {}
+
+    // Bi-direction streaming inference and response.
+    rpc StreamPredictions2(stream PredictionsRequest) returns (stream PredictionResponse) {}
 }

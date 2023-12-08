@@ -1,0 +1,46 @@
+name: Docker CI
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+  merge_group:
+
+
+jobs:
+  test-build-and-container:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.8", "3.9", "3.10"]
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Test build_image.sh script with custom tagging and gpu flag
+        working-directory: docker
+        run: ./test_build_image_tagging.sh ${{ matrix.python-version }}
+
+      - name: Build Image for container test
+        id: image_build
+        working-directory: docker
+        run: |
+          IMAGE_TAG=test-image-${{ matrix.python-version }}
+          ./build_image.sh -py "${{ matrix.python-version }}" -t "${IMAGE_TAG}"
+          echo "IMAGE_TAG=${IMAGE_TAG}" >> $GITHUB_OUTPUT
+
+      - name: Container Healthcheck
+        working-directory: docker
+        run: ./test_container_health.sh ${{ steps.image_build.outputs.IMAGE_TAG }}
+
+      - name: Check Python version in container
+        working-directory: docker
+        run: ./test_container_python_version.sh ${{ steps.image_build.outputs.IMAGE_TAG }} ${{ matrix.python-version }}
+
+      - name: Test model running in container with sample image data 
+        working-directory: docker
+        run: |
+          ./test_container_model_prediction.sh ${{ steps.image_build.outputs.IMAGE_TAG }}

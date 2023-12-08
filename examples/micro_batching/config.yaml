@@ -1,0 +1,8 @@
+batchSize: 32
+
+micro_batching:
+  micro_batch_size: 4
+  parallelism:
+    preprocess: 2
+    inference: 1
+    postprocess: 2

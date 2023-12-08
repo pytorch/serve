@@ -1,14 +1,19 @@
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd" >
-  
+
 <suite name="TorchServeSuite" verbose="1" >
   <test name="TorchServe">
     <classes>
+      <class name="org.pytorch.serve.util.codec.ModelRequestEncoderTest"/>
       <class name="org.pytorch.serve.util.ConfigManagerTest"/>
       <class name="org.pytorch.serve.util.ConnectorTest"/>
+      <class name="org.pytorch.serve.util.PluginSdkTest"/>
       <class name="org.pytorch.serve.CoverageTest"/>
       <class name="org.pytorch.serve.ModelServerTest"/>
       <class name="org.pytorch.serve.SnapshotTest"/>
       <class name="org.pytorch.serve.WorkflowTest"/>
+      <class name="org.pytorch.serve.metrics.configuration.MetricConfigurationTest"/>
+      <class name="org.pytorch.serve.metrics.MetricTest"/>
+      <class name="org.pytorch.serve.metrics.MetricCacheTest"/>
     </classes>
   </test>
 </suite>
