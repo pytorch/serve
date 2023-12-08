@@ -1,5 +1,4 @@
 import logging
-from abc import ABC
 
 import torch
 import vllm
@@ -12,20 +11,19 @@ logger = logging.getLogger(__name__)
 logger.info("vLLM version %s", vllm.__version__)
 
 
-class LlamaHandler(BaseHandler, ABC):
+class CustomHandler(BaseHandler):
     """
-    Transformers handler class for sequence, token classification and question answering.
+    Custom Handler for integrating vLLM
     """
 
     def __init__(self):
-        super(LlamaHandler, self).__init__()
+        super().__init__()
         self.max_new_tokens = None
         self.tokenizer = None
         self.initialized = False
 
     def initialize(self, ctx: Context):
-        """In this initialize function, the HF large model is loaded and
-        partitioned using DeepSpeed.
+        """In this initialize function, the model is loaded
         Args:
             ctx (context): It is a JSON Object containing information
             pertaining to the model artifacts parameters.
@@ -34,7 +32,7 @@ class LlamaHandler(BaseHandler, ABC):
         self.max_new_tokens = int(ctx.model_yaml_config["handler"]["max_new_tokens"])
         model_name = ctx.model_yaml_config["handler"]["model_name"]
         model_path = ctx.model_yaml_config["handler"]["model_path"]
-        tp_size = ctx.model_yaml_config["handler"]["tensor_parallel_size"]
+        tp_size = ctx.model_yaml_config["torchrun"]["nproc-per-node"]
         seed = int(ctx.model_yaml_config["handler"]["manual_seed"])
         torch.manual_seed(seed)
 
@@ -45,7 +43,7 @@ class LlamaHandler(BaseHandler, ABC):
 
     def preprocess(self, requests):
         """
-        Basic text preprocessing, based on the user's choice of application mode.
+        Pre-processing of prompts being sent to TorchServe
         Args:
             requests (list): A list of dictionaries with a "data" or "body" field, each
                             containing the input text to be processed.
@@ -54,21 +52,19 @@ class LlamaHandler(BaseHandler, ABC):
                 attention masks.
         """
         input_texts = [data.get("data") or data.get("body") for data in requests]
-        # return torch.as_tensor(input_texts, device=self.device)
         input_texts = [
             input_text.decode("utf-8")
-            for input_text in input_texts
             if isinstance(input_text, (bytes, bytearray))
+            else input_text
+            for input_text in input_texts
         ]
         return input_texts
 
     def inference(self, input_batch):
         """
-        Predicts the class (or classes) of the received text using the serialized transformers
-        checkpoint.
+        Generates the model response for the given prompt
         Args:
-            input_batch (tuple): A tuple with two tensors: the batch of input ids and the batch
-                                of attention masks, as returned by the preprocess function.
+            input_batch : List of input text prompts as returned by the preprocess function.
         Returns:
             list: A list of strings with the predicted values for each input text in the batch.
         """
@@ -80,10 +76,11 @@ class LlamaHandler(BaseHandler, ABC):
         return outputs
 
     def postprocess(self, inference_output):
-        """Post Process Function converts the predicted response into Torchserve readable format.
+        """Post Process Function returns the text response from the vLLM output.
         Args:
-            inference_output (list): It contains the predicted response of the input text.
+            inference_output (list): It contains the response of vLLM
         Returns:
             (list): Returns a list of the Predictions and Explanations.
         """
-        return [inference_output[0].outputs[0].text]
+
+        return [inf_output.outputs[0].text for inf_output in inference_output]

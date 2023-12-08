@@ -3,11 +3,6 @@
 This is an example showing how to integrate [vLLM](https://github.com/vllm-project/vllm) with TorchServe and run inference on `mistralai/Mistral-7B-v0.1` model.
 vLLM achieves high throughput using PagedAttention. More details can be found [here](https://vllm.ai/)
 
-Install vLLM with the following
-
-```
-pip install -r requirements.txt
-```
 ### Step 1: Login to HuggingFace
 
 Login with a HuggingFace account
@@ -39,7 +34,6 @@ mv mistral7b.tar.gz model_store
 
 ### Step 3: Start torchserve
 
-Update config.properties and start torchserve
 
 ```bash
 torchserve --start --ncs --ts-config config.properties --model-store model_store --models mistral7b.tar.gz
