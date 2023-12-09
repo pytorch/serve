@@ -32,14 +32,14 @@ TorchServe cpp backend can run as a process, which is similar to [TorchServe Pyt
 * [Backend](https://github.com/pytorch/serve/blob/cpp_backend/cpp/src/backends/core/backend.hh#L60) defines function `LoadModelInternal` to support model loading on different platforms.
 * [ModelInstance](https://github.com/pytorch/serve/blob/cpp_backend/cpp/src/backends/core/backend.hh#L25) represents a model copy. The function `Predict` is to support prediction on different platforms.
 ### TorchScripted Backend
-By default, TorchServe cpp provides [TorchScripted backend](https://github.com/pytorch/serve/tree/cpp_backend/cpp/src/backends/torch_scripted). Its [basd handler](https://github.com/pytorch/serve/blob/cpp_backend/cpp/src/backends/torch_scripted/handler/base_handler.hh) defines APIs to customize handler.
+By default, TorchServe cpp provides [TorchScripted backend](https://github.com/pytorch/serve/tree/cpp_backend/cpp/src/backends/torch_scripted). Its [base handler](https://github.com/pytorch/serve/blob/cpp_backend/cpp/src/backends/torch_scripted/handler/base_handler.hh) defines APIs to customize handler.
 * [Initialize](https://github.com/pytorch/serve/blob/cpp_backend/cpp/src/backends/torch_scripted/handler/base_handler.hh#L29)
 * [LoadModel](https://github.com/pytorch/serve/blob/cpp_backend/cpp/src/backends/torch_scripted/handler/base_handler.hh#L37)
 * [Preprocess](https://github.com/pytorch/serve/blob/cpp_backend/cpp/src/backends/torch_scripted/handler/base_handler.hh#L40)
 * [Inference](https://github.com/pytorch/serve/blob/cpp_backend/cpp/src/backends/torch_scripted/handler/base_handler.hh#L46)
 * [Postprocess](https://github.com/pytorch/serve/blob/cpp_backend/cpp/src/backends/torch_scripted/handler/base_handler.hh#L53)
 #### Example
-##### Using basehandler
+##### Using BaseHandler
 * set runtime as "LSP" in model archiver option [--runtime](https://github.com/pytorch/serve/tree/master/model-archiver#arguments) 
 * set handler as "BaseHandler" in model archiver option [--handler](https://github.com/pytorch/serve/tree/master/model-archiver#arguments)
 ```
