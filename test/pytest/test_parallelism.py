@@ -28,7 +28,7 @@ class Foo(nn.Module):
 HANDLER_PY = """
 import os
 import torch
-from ts.protocol.otf_message_handler import send_intermediate_predict_response
+from ts.handler_utils.utils import send_intermediate_predict_response
 from ts.torch_handler.base_handler import BaseHandler
 
 class FooHandler(BaseHandler):

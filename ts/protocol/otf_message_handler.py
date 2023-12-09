@@ -13,6 +13,8 @@ from builtins import bytearray, bytes
 
 import torch
 
+from ts.utils.util import deprecated
+
 bool_size = 1
 int_size = 4
 END_OF_LIST = -1
@@ -359,6 +361,13 @@ def _retrieve_input_data(conn):
     return model_input
 
 
+@deprecated(
+    "This function will be deprecated in 1.0",
+    version=1.0,
+    replacement="ts.handler_utils.utils.send_intermediate_predict_response",
+)
 def send_intermediate_predict_response(ret, req_id_map, message, code, context=None):
+    if str(os.getenv("LOCAL_RANK", 0)) != "0":
+        return None
     msg = create_predict_response(ret, req_id_map, message, code, context, True)
     context.cl_socket.sendall(msg)
