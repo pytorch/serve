@@ -48,7 +48,7 @@ public class WorkerLifeCycleTest {
         Assert.assertEquals(archiveMnist.getModelName(), "mnist_ts");
         Assert.assertEquals(archiveMnist.getModelVersion(), "1.0");
         WorkerLifeCycle workerLifeCycleMnist = new WorkerLifeCycle(configManager, modelMnist);
-        workerLifeCycleMnist.startWorker(configManager.getInitialWorkerPort());
+        workerLifeCycleMnist.startWorker(configManager.getInitialWorkerPort(), "");
     }
 
     @Test
