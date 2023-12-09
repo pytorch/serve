@@ -12,7 +12,6 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
-import org.apache.commons.io.FilenameUtils;
 import org.pytorch.serve.archive.model.Manifest;
 import org.pytorch.serve.archive.model.ModelArchive;
 import org.pytorch.serve.archive.model.ModelConfig;

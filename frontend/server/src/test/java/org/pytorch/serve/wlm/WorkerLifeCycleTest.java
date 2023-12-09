@@ -45,7 +45,7 @@ public class WorkerLifeCycleTest {
                 ModelArchive.downloadModel(
                         ALLOWED_URLS_LIST, configManager.getModelStore(), "mnist_scripted.mar");
         Model modelMnist = new Model(archiveMnist, 100);
-        Assert.assertEquals(archiveMnist.getModelName(), "mnist_ts");
+        Assert.assertEquals(archiveMnist.getModelName(), "mnist_scripted");
         Assert.assertEquals(archiveMnist.getModelVersion(), "1.0");
         WorkerLifeCycle workerLifeCycleMnist = new WorkerLifeCycle(configManager, modelMnist);
         workerLifeCycleMnist.startWorker(configManager.getInitialWorkerPort(), "");
@@ -57,9 +57,9 @@ public class WorkerLifeCycleTest {
                     WorkerInitializationException, InterruptedException {
         ModelArchive archiveMnist =
                 ModelArchive.downloadModel(
-                        ALLOWED_URLS_LIST, configManager.getModelStore(), "mnist_scripted.mar");
+                        ALLOWED_URLS_LIST, configManager.getModelStore(), "mnist_scripted_cpp.mar");
         Model modelMnist = new Model(archiveMnist, 100);
-        Assert.assertEquals(archiveMnist.getModelName(), "mnist_ts");
+        Assert.assertEquals(archiveMnist.getModelName(), "mnist_scripted");
         Assert.assertEquals(archiveMnist.getModelVersion(), "1.0");
 
         modelMnist.setRuntimeType(

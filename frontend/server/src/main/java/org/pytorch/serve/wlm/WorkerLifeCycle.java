@@ -94,7 +94,8 @@ public class WorkerLifeCycle {
         return launcherAvailable;
     }
 
-    public void startWorker(int port, String deviceIds) throws WorkerInitializationException, InterruptedException {
+    public void startWorker(int port, String deviceIds)
+            throws WorkerInitializationException, InterruptedException {
         switch (model.getRuntimeType()) {
             case LSP:
                 logger.info("LSP startWorker");
@@ -389,7 +390,8 @@ public class WorkerLifeCycle {
                     if (result == null) {
                         break;
                     }
-                    // int metricLogStartSubstringIndex = result.indexOf(METRIC_LOG_START_SUBSTRING);
+                    // int metricLogStartSubstringIndex =
+                    // result.indexOf(METRIC_LOG_START_SUBSTRING);
                     // if (metricLogStartSubstringIndex >= 0) {
                     //     Metric parsedMetric =
                     //             Metric.parse(
