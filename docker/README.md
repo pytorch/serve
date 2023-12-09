@@ -1,6 +1,8 @@
 ### Deprecation notice:
 [Dockerfile.neuron.dev](https://github.com/pytorch/serve/blob/master/docker/Dockerfile.neuron.dev) has been deprecated. Please refer to [deep learning containers](https://github.com/aws/deep-learning-containers/blob/master/available_images.md) repository for neuron torchserve containers.
 
+[Dockerfile.dev](https://github.com/sachanub/serve/blob/master/docker/Dockerfile.dev) has been deprecated. Please refer to [Dockerfile](https://github.com/sachanub/serve/blob/master/docker/Dockerfile) for dev torchserve containers.
+
 ## Contents of this Document
 
 * [Prerequisites](#prerequisites)
@@ -28,19 +30,18 @@ cd serve/docker
 
 # Create TorchServe docker image
 
-Use `build_image.sh` script to build the docker images. The script builds the `production`, `dev` , `ci` and `codebuild` docker images.
+Use `build_image.sh` script to build the docker images. The script builds the `production`, `dev` and `ci` docker images.
 | Parameter | Description |
 |------|------|
 |-h, --help|Show script help|
 |-b, --branch_name|Specify a branch name to use. Default: master |
 |-g, --gpu|Build image with GPU based ubuntu base image|
 |-bi, --baseimage specify base docker image. Example: nvidia/cuda:11.8.0-cudnn8-runtime-ubuntu20.04|
-|-bt, --buildtype|Which type of docker image to build. Can be one of : production, dev, ci, codebuild|
+|-bt, --buildtype|Which type of docker image to build. Can be one of : production, dev, ci|
 |-t, --tag|Tag name for image. If not specified, script uses torchserve default tag names.|
 |-cv, --cudaversion| Specify to cuda version to use. Supported values `cu92`, `cu101`, `cu102`, `cu111`, `cu113`, `cu116`, `cu117`, `cu118`. `cu121`, Default `cu121`|
 |-ipex, --build-with-ipex| Specify to build with intel_extension_for_pytorch. If not specified, script builds without intel_extension_for_pytorch.|
 |-n, --nightly| Specify to build with TorchServe nightly.|
-|--codebuild| Set if you need [AWS CodeBuild](https://aws.amazon.com/codebuild/)|
 |-py, --pythonversion| Specify the python version to use. Supported values `3.8`, `3.9`, `3.10`, `3.11`. Default `3.9`|
 
 
@@ -144,44 +145,6 @@ Creates a docker image with `torchserve` and `torch-model-archiver` installed fr
 
 ```bash
 ./build_image.sh -bt dev -ipex -t torchserve-ipex:1.0
-```
-
-**CODEBUILD ENVIRONMENT IMAGES**
-
-Creates a docker image for codebuild environment
-
-- For creating CPU based image :
-
-```bash
-./build_image.sh -bt codebuild
-```
-
-- For creating GPU based image with cuda version 11.1:
-
-```bash
-./build_image.sh -bt codebuild -g -cv cu113
-```
-
-```bash
-./build_image.sh -bt codebuild -g -cv cu111
-```
-
- - For creating GPU based image with cuda version 10.1:
-
-```bash
-./build_image.sh -bt codebuild -g -cv cu101
-```
-
- - For creating GPU based image with cuda version 9.2:
-
-```bash
-./build_image.sh -bt codebuild -g -cv cu92
-```
-
- - For creating image with a custom tag:
-
-```bash
-./build_image.sh -bt codebuild -t torchserve-codebuild:1.0
 ```
 
 

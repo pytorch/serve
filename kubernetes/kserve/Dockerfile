@@ -24,10 +24,12 @@ RUN pip install -r requirements.txt
 COPY dockerd-entrypoint.sh /usr/local/bin/dockerd-entrypoint.sh
 RUN chmod +x /usr/local/bin/dockerd-entrypoint.sh
 COPY kserve_wrapper kserve_wrapper
+COPY third_party third_party
 
 COPY ./*.proto ./kserve_wrapper/
 
 RUN python -m grpc_tools.protoc \
+    -I third_party/google/rpc \
     --proto_path=./kserve_wrapper \
     --python_out=./kserve_wrapper \
     --grpc_python_out=./kserve_wrapper \

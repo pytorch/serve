@@ -1,5 +1,6 @@
 package org.pytorch.serve.metrics;
 
+import java.util.Arrays;
 import org.pytorch.serve.metrics.format.prometheous.PrometheusCounter;
 import org.pytorch.serve.metrics.format.prometheous.PrometheusGauge;
 import org.testng.Assert;
@@ -59,5 +60,26 @@ public class MetricCacheTest {
         Assert.assertEquals(
                 metricCache.getMetricBackend("PredictionTime").getClass(), PrometheusGauge.class);
         Assert.assertEquals(metricCache.getMetricBackend("InvalidMetric"), null);
+    }
+
+    @Test
+    public void testMetricCacheAddAutoDetectMetricBackend() {
+        MetricCache metricCache = MetricCache.getInstance();
+        Metric metric =
+                new Metric(
+                        "TestMetricWithType",
+                        "5.0",
+                        "count",
+                        "GAUGE",
+                        "test-host",
+                        new Dimension("ModelName", "mnist"),
+                        new Dimension("Level", "model"));
+        metricCache.addAutoDetectMetricBackend(metric);
+        IMetric cachedMetric = metricCache.getMetricBackend("TestMetricWithType");
+        Assert.assertEquals(cachedMetric.type, MetricBuilder.MetricType.GAUGE);
+        Assert.assertEquals(cachedMetric.name, "TestMetricWithType");
+        Assert.assertEquals(cachedMetric.unit, "count");
+        Assert.assertEquals(
+                cachedMetric.dimensionNames, Arrays.asList("ModelName", "Level", "Hostname"));
     }
 }

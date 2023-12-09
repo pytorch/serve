@@ -2,7 +2,7 @@
 
 MACHINE=cpu
 DOCKER_TAG="pytorch/torchserve-kfs:latest"
-BASE_IMAGE="pytorch/torchserve:latest"
+BASE_IMAGE="pytorch/torchserve:latest-cpu"
 DOCKER_FILE="Dockerfile"
 BUILD_NIGHTLY=false
 USE_CUSTOM_TAG=false
@@ -55,5 +55,6 @@ then
 fi
 
 cp ../../frontend/server/src/main/resources/proto/*.proto .
+cp -r ../../third_party .
 
 DOCKER_BUILDKIT=1 docker build --file "$DOCKER_FILE" --build-arg BASE_IMAGE=$BASE_IMAGE -t "$DOCKER_TAG" .

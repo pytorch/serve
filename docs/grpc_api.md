@@ -31,14 +31,14 @@ Run following commands to Register, run inference and unregister, densenet161 mo
  - Clone serve repo to run this example
 
 ```bash
-git clone https://github.com/pytorch/serve
+git clone --recurse-submodules https://github.com/pytorch/serve
 cd serve
 ```
 
  - Install gRPC python dependencies
 
 ```bash
-pip install -U grpcio protobuf grpcio-tools
+pip install -U grpcio protobuf grpcio-tools googleapis-common-protos
 ```
 
  - Start torchServe
@@ -51,7 +51,7 @@ torchserve --start --model-store models/
  - Generate python gRPC client stub using the proto files
 
 ```bash
-python -m grpc_tools.protoc --proto_path=frontend/server/src/main/resources/proto/ --python_out=ts_scripts --grpc_python_out=ts_scripts frontend/server/src/main/resources/proto/inference.proto frontend/server/src/main/resources/proto/management.proto
+python -m grpc_tools.protoc -I third_party/google/rpc --proto_path=frontend/server/src/main/resources/proto/ --python_out=ts_scripts --grpc_python_out=ts_scripts frontend/server/src/main/resources/proto/inference.proto frontend/server/src/main/resources/proto/management.proto
 ```
 
  - Register densenet161 model
