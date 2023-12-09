@@ -5,7 +5,7 @@
 ![Benchmark Nightly](https://github.com/pytorch/serve/actions/workflows/benchmark_nightly.yml/badge.svg)
 ![Docker Regression Nightly](https://github.com/pytorch/serve/actions/workflows/regression_tests_docker.yml/badge.svg)
 
-TorchServe is a flexible and easy to use tool for serving and scaling PyTorch models in production.
+TorchServe is a flexible and easy-to-use tool for serving and scaling PyTorch models in production.
 
 Requires python >= 3.8
 
@@ -14,7 +14,7 @@ curl http://127.0.0.1:8080/predictions/bert -T input.txt
 ```
 ### 🚀 Quick start with TorchServe
 
-```
+```bash
 # Install dependencies
 # cuda is optional
 python ./ts_scripts/install_dependencies.py --cuda=cu121
@@ -28,7 +28,7 @@ pip install torchserve-nightly torch-model-archiver-nightly torch-workflow-archi
 
 ### 🚀 Quick start with TorchServe (conda)
 
-```
+```bash
 # Install dependencies
 # cuda is optional
 python ./ts_scripts/install_dependencies.py --cuda=cu121
@@ -44,7 +44,7 @@ conda install -c pytorch-nightly torchserve torch-model-archiver torch-workflow-
 
 ### 🐳 Quick Start with Docker
 
-```
+```bash
 # Latest release
 docker pull pytorch/torchserve
 
@@ -67,9 +67,9 @@ Refer to [torchserve docker](docker/README.md) for details.
   * [Kubeflow](https://v0-5.kubeflow.org/docs/components/pytorchserving/) 
   * [MLflow](https://github.com/mlflow/mlflow-torchserve)
 * Export your model for optimized inference. Torchscript out of the box, [PyTorch Compiler](examples/pt2/README.md) preview, [ORT and ONNX](https://github.com/pytorch/serve/blob/master/docs/performance_guide.md), [IPEX](https://github.com/pytorch/serve/tree/master/examples/intel_extension_for_pytorch), [TensorRT](https://github.com/pytorch/serve/blob/master/docs/performance_guide.md), [FasterTransformer](https://github.com/pytorch/serve/tree/master/examples/FasterTransformer_HuggingFace_Bert), FlashAttention (Better Transformers)
-* [Performance Guide](docs/performance_guide.md): builtin support to optimize, benchmark and profile PyTorch and TorchServe performance
-* [Expressive handlers](CONTRIBUTING.md): An expressive handler architecture that makes it trivial to support inferencing for your usecase with [many supported out of the box](https://github.com/pytorch/serve/tree/master/ts/torch_handler)
-* [Metrics API](docs/metrics.md): out of box support for system level metrics with [Prometheus exports](https://github.com/pytorch/serve/tree/master/examples/custom_metrics), custom metrics, 
+* [Performance Guide](docs/performance_guide.md): builtin support to optimize, benchmark, and profile PyTorch and TorchServe performance
+* [Expressive handlers](CONTRIBUTING.md): An expressive handler architecture that makes it trivial to support inferencing for your use case with [many supported out of the box](https://github.com/pytorch/serve/tree/master/ts/torch_handler)
+* [Metrics API](docs/metrics.md): out-of-the-box support for system-level metrics with [Prometheus exports](https://github.com/pytorch/serve/tree/master/examples/custom_metrics), custom metrics, 
 * [Large Model Inference Guide](docs/large_model_inference.md): With support for GenAI, LLMs including
   * Fast Kernels with FlashAttention v2, continuous batching and streaming response
   * PyTorch [Tensor Parallel](examples/large_models/tp_llama) preview, [Pipeline Parallel](examples/large_models/Huggingface_pippy) 
