@@ -42,7 +42,7 @@ def package_model(config: ModelArchiverConfig, manifest: str):
             "config_file": config_file,
         }
 
-        model_path = ModelExportUtils.copy_artifacts(model_name, args.runtime, **artifact_files)
+        model_path = ModelExportUtils.copy_artifacts(model_name, config.runtime, **artifact_files)
 
         # Step 2 : Zip 'em all up
         ModelExportUtils.archive(
