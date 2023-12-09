@@ -68,6 +68,7 @@ ts_metrics:
 
 model_metrics:
   # Dimension "Hostname" is automatically added for model metrics in the backend
+  # "HandlerMethodTime" and "ExamplePercentMetric" metrics are not defined here to show auto-detection of backend metrics
   counter:
     - name: InferenceRequestCount
       unit: count
@@ -93,11 +94,4 @@ model_metrics:
       dimensions: ["ModelName"]
     - name: SizeOfImage
       unit: kB
-      dimensions: [*model_name, *level]
-    - name: HandlerMethodTime
-      unit: ms
-      dimensions: ["MethodName", *model_name, *level]
-  histogram:
-    - name: ExamplePercentMetric
-      unit: percent
       dimensions: [*model_name, *level]

@@ -3,6 +3,7 @@ package org.pytorch.serve.metrics.configuration;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import org.pytorch.serve.metrics.MetricBuilder;
 import org.pytorch.serve.util.ConfigManager;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -126,11 +127,11 @@ public class MetricConfigurationTest {
     @Test
     public void testMetricsModeConfiguration() {
         ConfigManager configManager = ConfigManager.getInstance();
-        String existingMetricsModeConfiguration = configManager.getMetricsMode();
-        Assert.assertEquals(existingMetricsModeConfiguration, "log");
-        configManager.setProperty("metrics_mode", "test_metrics_mode");
-        Assert.assertEquals(configManager.getMetricsMode(), "test_metrics_mode");
+        MetricBuilder.MetricMode existingMetricsModeConfiguration = configManager.getMetricsMode();
+        Assert.assertEquals(existingMetricsModeConfiguration, MetricBuilder.MetricMode.LOG);
+        configManager.setProperty("metrics_mode", "prometheus");
+        Assert.assertEquals(configManager.getMetricsMode(), MetricBuilder.MetricMode.PROMETHEUS);
         // Restore original metrics mode configuration
-        configManager.setProperty("metrics_mode", existingMetricsModeConfiguration);
+        configManager.setProperty("metrics_mode", existingMetricsModeConfiguration.toString());
     }
 }
