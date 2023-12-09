@@ -69,7 +69,7 @@ image = Image.open("examples/image_classifier/mnist/test_data/0.png")
 image = image_processing(image)
 torch.save(image, "0_png.pt")
 ```
-* Run model registration and prediction: [Using basehandler](https://github.com/pytorch/serve/blob/cpp_backend/cpp/test/backends/torch_scripted/torch_scripted_backend_test.cc#L54) or [Using customized handler](https://github.com/pytorch/serve/blob/cpp_backend/cpp/test/backends/torch_scripted/torch_scripted_backend_test.cc#L72).
+* Run model registration and prediction: [Using BaseHandler](https://github.com/pytorch/serve/blob/cpp_backend/cpp/test/backends/torch_scripted/torch_scripted_backend_test.cc#L54) or [Using customized handler](https://github.com/pytorch/serve/blob/cpp_backend/cpp/test/backends/torch_scripted/torch_scripted_backend_test.cc#L72).
 
 
 
