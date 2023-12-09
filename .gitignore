@@ -6,6 +6,7 @@ dist/
 *.egg-info/
 .idea
 *htmlcov*
+.cache
 .coverage
 .github/actions/
 .github/.DS_Store
@@ -13,14 +14,19 @@ dist/
 frontend/server/src/main/java/org/pytorch/serve/grpc/
 serving-sdk/target
 plugins/.gradle
+plugins/*/bin
 *.pem
 *.backup
 docs/sphinx/src/
+ts_scripts/spellcheck_conf/wordlist.dic
+venv/
 
 # Postman files
 test/artifacts/
 test/logs/
+test/pytest/logs/
 test/model_store/
+*model_store/
 test/ts_console.log
 test/config.properties
 
@@ -34,6 +40,7 @@ instances.yaml.backup
 
 ## Models
 *.pt
+*.onnx
 
 # cpp
 cpp/_build

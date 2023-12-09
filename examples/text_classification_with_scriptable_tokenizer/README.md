@@ -1,4 +1,4 @@
-# Text Classfication using a Scriptable Tokenizer
+# Text Classification using a Scriptable Tokenizer
 
 TorchScript is a way to serialize and optimize your PyTorch models.
 A scriptable tokenizer is a special tokenizer which is compatible with [TorchScript's compiler](https://pytorch.org/docs/stable/jit.html) so that it can be jointly serialized with a PyTorch model.
@@ -21,7 +21,7 @@ This can be achieved with pip by running:
 pip install torchdata
 ```
 
-Or conda by runnning:
+Or conda by running:
 
 ```
 conda install -c pytorch torchdata

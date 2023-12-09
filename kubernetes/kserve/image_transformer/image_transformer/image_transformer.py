@@ -12,29 +12,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import io
 import base64
+import io
 import json
 import logging
-from typing import List, Dict
-from importlib.metadata import version
-import tornado
-from PIL import Image
-import torchvision.transforms as transforms
-import kserve
+from typing import Dict, List
 
-if version('kserve') >= '0.8.0':
-    from kserve.model import Model as Model
-else:
-    from kserve.kfmodel import KFModel as Model
+import kserve
+import torchvision.transforms as transforms
+import tornado
+from kserve.model import Model as Model
+from PIL import Image
 
 logging.basicConfig(level=kserve.constants.KSERVE_LOGLEVEL)
 
 EXPLAINER_URL_FORMAT = "http://{0}/v1/models/{1}:explain"
 
 image_processing = transforms.Compose(
-    [transforms.ToTensor(),
-     transforms.Normalize((0.1307,), (0.3081,))])
+    [transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,))]
+)
 
 
 def image_transform(instance):
@@ -56,7 +52,7 @@ def image_transform(instance):
 
 
 class ImageTransformer(Model):
-    """ A class object for the data handling activities of Image Classification
+    """A class object for the data handling activities of Image Classification
     Task and returns a KServe compatible response.
 
     Args:
@@ -89,9 +85,7 @@ class ImageTransformer(Model):
             Dict: Returns the request input after converting it into a tensor
         """
         return {
-            'instances': [
-                image_transform(instance) for instance in inputs['instances']
-            ]
+            "instances": [image_transform(instance) for instance in inputs["instances"]]
         }
 
     def postprocess(self, inputs: List) -> List:
@@ -124,13 +118,14 @@ class ImageTransformer(Model):
             raise NotImplementedError
         logging.info(
             "Inside Image Transformer explain %s",
-            EXPLAINER_URL_FORMAT.format(self.explainer_host, self.name))
-        response = await self._http_client.fetch(EXPLAINER_URL_FORMAT.format(
-            self.explainer_host, self.name),
-                                                 method='POST',
-                                                 request_timeout=self.timeout,
-                                                 body=json.dumps(request))
+            EXPLAINER_URL_FORMAT.format(self.explainer_host, self.name),
+        )
+        response = await self._http_client.fetch(
+            EXPLAINER_URL_FORMAT.format(self.explainer_host, self.name),
+            method="POST",
+            request_timeout=self.timeout,
+            body=json.dumps(request),
+        )
         if response.code != 200:
-            raise tornado.web.HTTPError(status_code=response.code,
-                                        reason=response.body)
+            raise tornado.web.HTTPError(status_code=response.code, reason=response.body)
         return json.loads(response.body)

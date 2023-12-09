@@ -1,0 +1,13 @@
+{
+    "revision": "main",
+    "max_memory": {
+        "0": "10GB",
+        "cpu": "10GB"
+    },
+    "low_cpu_mem_usage": true,
+    "device_map": "auto",
+    "offload_folder": "offload",
+    "offload_state_dict": true,
+    "torch_dtype":"float16",
+    "max_length":"80"
+}

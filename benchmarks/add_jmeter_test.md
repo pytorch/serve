@@ -4,7 +4,7 @@ A new Jmeter test plan for torchserve benchmark can be added as follows:
 
 * Assuming you know how to create a jmeter test plan. If not then please use this jmeter [guide](https://jmeter.apache.org/usermanual/build-test-plan.html)
 * Here, we will show you how 'MMS Benchmarking Image Input Model Test Plan' plan can be added.
-This test plan doesn following: 
+This test plan does following: 
   
     * Register a model - `default is resnet-18`
     * Scale up to add workers for inference
@@ -40,7 +40,7 @@ e.g. on macOS, type `jmeter` on commandline
 ![](img/inference.png)
 * Right Click on test plan to add `tearDown Thread Group` and configured required details indicated in the following screenshot
 
-![](img/teardn-tg.png)
+![](img/teardown-tg.png)
 * Right Click on `tearDown Thread Group` to add `HTTP Request` and configure `unregister` request per given screenshot
 
 ![](img/unregister.png)

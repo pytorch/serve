@@ -1,5 +1,5 @@
 # Torchserve on Kubernetes
-  
+
 ## Overview
 
 This page demonstrates a Torchserve deployment in Kubernetes using Helm Charts. It uses the DockerHub Torchserve Image for the pods and a PersistentVolume for storing config / model files.
@@ -25,7 +25,7 @@ The following table describes all the parameters for the Helm Chart.
 | `image`            | Torchserve Serving image | `pytorch/torchserve:latest-gpu` |
 | `inference_port`   | TS Inference port        | `8080`                          |
 | `management_port`  | TS Management port       | `8081`                          |
-| `metrics_port`     | TS Mertics port          | `8082`                          |
+| `metrics_port`     | TS Metrics port          | `8082`                          |
 | `replicas`         | K8S deployment replicas  | `1`                             |
 | `model-store`      | EFS mountpath            | `/home/model-server/shared/`    |
 | `persistence.size` | Storage size to request  | `1Gi`                           |
@@ -53,6 +53,7 @@ torchserve:
   management_port: 8081
   inference_port: 8080
   metrics_port: 8082
+  grpc_inference_port: 7070
   pvd_mount: /home/model-server/shared/
   n_gpu: 1
   n_cpu: 1
@@ -66,7 +67,7 @@ persitant_volume:
   size: 1Gi
 ```
 
-To install Torchserve run ```helm install ts .```  
+To install Torchserve run ```helm install ts .```
 
 ```bash
 ubuntu@ip-172-31-50-36:~/serve/kubernetes/Helm$ helm install ts .
@@ -78,7 +79,7 @@ REVISION: 1
 TEST SUITE: None
 ```
 
-Verify that torchserve has succesfully started by executing ```kubectl exec pod/torchserve-fff -- cat logs/ts_log.log``` on your torchserve pod. You can get this id by lookingup `kubectl get po --all-namespaces`
+Verify that torchserve has successfully started by executing ```kubectl exec pod/torchserve-fff -- cat logs/ts_log.log``` on your torchserve pod. You can get this id by lookingup `kubectl get po --all-namespaces`
 
 Your output should should look similar to
 
@@ -93,7 +94,7 @@ Current directory: /home/model-server
 
 ## Test Torchserve Installation
 
-Fetch the Load Balancer Extenal IP by executing
+Fetch the Load Balancer External IP by executing
 
 ```bash
 kubectl get svc
@@ -207,12 +208,6 @@ helm repo add grafana https://grafana.github.io/helm-charts
 helm install grafana grafana/grafana
 ```
 
-Get admin user password by running:
-
-```bash
-kubectl get secret --namespace default grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
-```
-
 ## Add prometheus as data source in grafana
 
 ```bash
@@ -233,8 +228,6 @@ kubectl get pod prometheus-server-f8677599b-xmjbt -o jsonpath='{.status.podIPs[0
 192.168.52.141
 ```
 
-![Add data source](images/grafana_datasource.png)
-
 ## Expose grafana with loadbalancer
 
 ```bash
@@ -243,9 +236,24 @@ kubectl patch service grafana -p '{"spec": {"type": "LoadBalancer"}}'
 kubectl get svc grafana -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'
 ```
 
+Get admin user password by running:
+
+```bash
+kubectl get secret --namespace default grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
+```
+
 ## Login to grafana
 
-`<http://your.grafana.loadbalancer.address:3000>`
+<b>Username:</b> admin
+<b>Password:</b> <--The password got from previous step-->
+
+Open Grafana in browser with the url - `<http://your.grafana.loadbalancer.address:3000>`
+
+Add Prometheus data source
+
+![Add data source](images/grafana_datasource.png)
+
+The TS metrics will be available in Prometheus for Grafana dashboards.
 
 ## Logging
 
@@ -272,7 +280,7 @@ Follow the link for log aggregation with EFK Stack.\
 * You may inspect the values by running ``helm list`` and `helm get all ts` to verify if the values used for the installation.
 * You can uninstall / reinstall the helm chart by executing  `helm uninstall ts` and `helm install ts .`
 * `helm install ts .` fails with `Error: create: failed to create: Request entity too large: limit is 3145728` or `invalid: data: Too long: must have at most 1048576 characters`.
-  * Ensure that you dont have any stale files in your kubernetes directory where you are executing the command. If so, move them out of the directory or add them to .helmignore file.
+  * Ensure that you don't have any stale files in your kubernetes directory where you are executing the command. If so, move them out of the directory or add them to .helmignore file.
 * `kubectl get svc` does't show my torchserve service
   * Try reinstalling the helm chart by executing `helm uninstall ts` and `helm install ts .`
 * "Error: unable to build kubernetes objects from release manifest: unable to recognize “”: no matches for kind “ClusterConfig” in version “eksctl.io/v1alpha5”"
@@ -282,6 +290,51 @@ Follow the link for log aggregation with EFK Stack.\
 
 ## Autoscaling
   [Autoscaling with torchserve metrics](autoscale.md)
+
+## Session Affinity with Multiple Torchserve pods
+
+### Pre-requisites
+
+ - Follow the instructions above and deploy Torchserve with more than 1 replica to the kubernetes cluster
+ - Download Istio and add to path as shown [here](https://istio.io/latest/docs/setup/getting-started/#download)
+ - Install Istio with below command
+   - `istioctl install --set meshConfig.accessLogFile=/dev/stdout`
+
+### Steps
+
+Now we have multiple replicas of Torchserve running and istio installed. We can apply gateway, virtual service and destination rule to enable session affinity to the user requests.
+
+ - Apply the istio gateway via `kubectl apply -f gateway.yaml`
+   - This gateway exposes all the host behind it via port 80 as defined in the yaml file.
+ - Apply the virtual service with command `kubectl apply -f virtual_service.yaml`
+   - This with look for header named `protocol` in the incoming request and forward the request to Torchserve service. If the `protocol` header has a value `rest` then the request is forwarded to port `8080` of Torchserve service and if the `protocol` header has a value `grpc` then the request is forwarded to port `7070` for Torchserve service.
+ - Apply the destination Rule using the command `kubectl apply -f destination_rule.yaml`.
+   - The destination rule look for a http cookie with a key `session_id`. The request with `session_id` is served by the same pod that served the previous request with the same `session_id`
+
+### HTTP Inference
+
+- Fetch the external IP from istio-ingress gateway using the below command
+
+```bash
+ubuntu@ubuntu$ kubectl get svc -n istio-system
+NAME                   TYPE           CLUSTER-IP      EXTERNAL-IP                                                               PORT(S)                                                   AGE
+istio-ingressgateway   LoadBalancer   10.100.84.243   a918b2zzzzzzzzzzzzzzzzzzzzzz-1466623565.us-west-2.elb.amazonaws.com   15021:32270/TCP,80:31978/TCP,443:31775/TCP,70:31778/TCP   2d6h
+```
+
+- Make Request as shown below
+
+```bash
+curl -v -H "protocol: REST" --cookie "session_id="12345" http://a918b2d70dbddzzzzzzzzzzz49ec8cf03b-1466623565.us-west-2.elb.amazonaws.com:80/predictions/<model_name> -d "data=<input-string>"
+```
+
+### gRPC Inference
+
+- Refer [grpc_api](../docs/grpc_api.md) to generate python files and run
+
+```bash
+python ts_scripts/torchserve_grpc_client.py infer <model_name> <input-string>
+```
+
 
 ## Roadmap
 

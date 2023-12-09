@@ -8,7 +8,7 @@ Refer to this section for common issues faced while deploying your Pytorch model
 
 
 ### Deployment and config issues
-#### "Failed to bind to address: http://127.0.0.1:8080", port 8080/8081 already in use.
+#### "Failed to bind to address: `http://127.0.0.1:8080`", port 8080/8081 already in use.
 Usually, the port number 8080/8081 is already used by some other application or service, it can be verified by using cmd `ss -ntl | grep 8080`. There are two ways to troubleshoot this issue either kill the process which is using port 8080/8081 or run Torchserve on different ports other than 8080 & 8081.
 
 Refer [configuration.md](https://github.com/pytorch/serve/blob/master/docs/configuration.md) for more details.
@@ -88,6 +88,6 @@ Refer [Allow model specific custom python packages](https://github.com/pytorch/s
 
 
 #### Backend worker monitoring thread interrupted or backend worker process died error.
-This issue is moslty occurs when the model fails to initialize, which may be due to erroneous code in handler's initialize function. This error is also observed when there is missing package/module.
+This issue mostly occurs when the model fails to initialize, which may be due to erroneous code in handler's initialize function. This error is also observed when there is missing package/module.
 
 Relevant issues: [[#667](https://github.com/pytorch/serve/issues/667), [#537](https://github.com/pytorch/serve/issues/537)]

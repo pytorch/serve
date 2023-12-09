@@ -11,14 +11,14 @@ buildscript {
 plugins {
     id 'com.google.protobuf' version '0.8.13' apply false
     id 'idea'
-    id 'com.github.spotbugs' version '4.0.2' apply false
+    id 'com.github.spotbugs' version '5.2.1' apply false
 }
 
 allprojects {
     version = '1.0'
 
     repositories {
-        jcenter()
+        mavenCentral()
     }
 
     apply plugin: 'idea'

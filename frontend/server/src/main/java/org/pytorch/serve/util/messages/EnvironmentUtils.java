@@ -1,6 +1,8 @@
 package org.pytorch.serve.util.messages;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -8,9 +10,11 @@ import java.util.regex.Pattern;
 import org.pytorch.serve.archive.model.Manifest;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.wlm.Model;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class EnvironmentUtils {
-
+    private static final Logger logger = LoggerFactory.getLogger(EnvironmentUtils.class);
     private static ConfigManager configManager = ConfigManager.getInstance();
 
     private EnvironmentUtils() {}
@@ -38,7 +42,19 @@ public final class EnvironmentUtils {
         }
 
         if (modelPath != null) {
-            pythonPath.append(modelPath).append(File.pathSeparatorChar);
+            File modelPathCanonical = new File(modelPath);
+            try {
+                modelPathCanonical = modelPathCanonical.getCanonicalFile();
+            } catch (IOException e) {
+                logger.error("Invalid model path {}", modelPath, e);
+            }
+            pythonPath.append(modelPathCanonical.getAbsolutePath()).append(File.pathSeparatorChar);
+            File dependencyPath = new File(modelPath);
+            if (Files.isSymbolicLink(dependencyPath.toPath())) {
+                pythonPath
+                        .append(dependencyPath.getParentFile().getAbsolutePath())
+                        .append(File.pathSeparatorChar);
+            }
         }
 
         if (!cwd.contains("site-packages") && !cwd.contains("dist-packages")) {

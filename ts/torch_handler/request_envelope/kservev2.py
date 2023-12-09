@@ -4,7 +4,9 @@ Input Request inside Torchserve.
 """
 import json
 import logging
+
 import numpy as np
+
 from .base import BaseEnvelope
 
 logger = logging.getLogger(__name__)
@@ -87,7 +89,9 @@ class KServev2Envelope(BaseEnvelope):
         Joins the instances of a batch of JSON objects
         """
         logger.debug("Parse input data %s", rows)
-        body_list = [body_list.get("data") or body_list.get("body") for body_list in rows]
+        body_list = [
+            body_list.get("data") or body_list.get("body") for body_list in rows
+        ]
         data_list = self._from_json(body_list)
         return data_list
 
@@ -95,12 +99,28 @@ class KServev2Envelope(BaseEnvelope):
         """
         Extracts the data from the JSON object
         """
-        # If the KF Transformer and Explainer sends in data as bytesarray
         if isinstance(body_list[0], (bytes, bytearray)):
-            body_list = [json.loads(body.decode()) for body in body_list]
+            body_list = [json.loads(body.decode("utf8")) for body in body_list]
             logger.debug("Bytes array is %s", body_list)
-        if "id" in body_list[0]:
+
+        input_names = []
+        for index, input in enumerate(body_list[0]["inputs"]):
+            if input["datatype"] == "BYTES":
+                body_list[0]["inputs"][index]["data"] = input["data"][0]
+            else:
+                body_list[0]["inputs"][index]["data"] = (
+                    np.array(input["data"]).reshape(tuple(input["shape"])).tolist()
+                )
+            input_names.append(input["name"])
+        setattr(self.context, "input_names", input_names)
+        logger.debug("Bytes array is %s", body_list)
+        id = body_list[0].get("id")
+        if id and id.strip():
             setattr(self.context, "input_request_id", body_list[0]["id"])
+        # TODO: Add parameters support
+        # parameters = body_list[0].get("parameters")
+        # if parameters:
+        #     setattr(self.context, "input_parameters", body_list[0]["parameters"])
         data_list = [inputs_list.get("inputs") for inputs_list in body_list][0]
         return data_list
 
@@ -116,7 +136,7 @@ class KServev2Envelope(BaseEnvelope):
           "model_name": "bert",
           "model_version": "1",
           "outputs": [{
-            "name": "predict",
+            "name": "input-0",
             "shape": [1],
             "datatype": "INT64",
             "data": [2]
@@ -131,10 +151,14 @@ class KServev2Envelope(BaseEnvelope):
             delattr(self.context, "input_request_id")
         else:
             response["id"] = self.context.get_request_id(0)
-        response["model_name"] = self.context.manifest.get("model").get(
-            "modelName")
+        # TODO: Add parameters support
+        # if hasattr(self.context, "input_parameters"):
+        #     response["parameters"] = getattr(self.context, "input_parameters")
+        #     delattr(self.context, "input_parameters")
+        response["model_name"] = self.context.manifest.get("model").get("modelName")
         response["model_version"] = self.context.manifest.get("model").get(
-            "modelVersion")
+            "modelVersion"
+        )
         response["outputs"] = self._batch_to_json(data)
         return [response]
 
@@ -143,19 +167,20 @@ class KServev2Envelope(BaseEnvelope):
         Splits batch output to json objects
         """
         output = []
-        for item in data:
-            output.append(self._to_json(item))
+        input_names = getattr(self.context, "input_names")
+        delattr(self.context, "input_names")
+        for index, item in enumerate(data):
+            output.append(self._to_json(item, input_names[index]))
         return output
 
-    def _to_json(self, data):
+    def _to_json(self, data, input_name):
         """
         Constructs JSON object from data
         """
         output_data = {}
-        data_ndarray = np.array(data)
-        output_data["name"] = ("explain" if self.context.get_request_header(
-            0, "explain") == "True" else "predict")
-        output_data["shape"] = list(data_ndarray.shape)
+        data_ndarray = np.array(data).flatten()
+        output_data["name"] = input_name
         output_data["datatype"] = _to_datatype(data_ndarray.dtype)
-        output_data["data"] = data_ndarray.flatten().tolist()
+        output_data["data"] = data_ndarray.tolist()
+        output_data["shape"] = data_ndarray.flatten().shape
         return output_data

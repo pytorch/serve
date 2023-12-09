@@ -33,11 +33,11 @@ if [[ $1 = True ]]
 then
         echo "Installing pip packages for GPU"
         sudo apt install -y nvidia-cuda-toolkit
-        pip install future psutil pillow --user
+        pip install psutil pillow --user
         pip install torch==1.4.0+cu92 torchvision==0.5.0+cu92 -f https://download.pytorch.org/whl/torch_stable.html
 else
         echo "Installing pip packages for CPU"
-        pip install future psutil pillow torch torchvision --user
+        pip install psutil pillow torch torchvision --user
 
 fi
 

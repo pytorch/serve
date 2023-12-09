@@ -30,10 +30,10 @@ Currently, KServe supports the Inference API for all the existing models but tex
 ./build_image.sh -g -t <repository>/<image>:<tag>
 ```
 
-### Docker Image Dev Build
+- To create dev image
 
 ```bash
-DOCKER_BUILDKIT=1 docker build -f Dockerfile.dev -t pytorch/torchserve-kfs:latest-dev .
+./build_image.sh -g -d -t <repository>/<image>:<tag>
 ```
 
 ## Running Torchserve inference service in KServe cluster
@@ -117,7 +117,7 @@ grpc_management_port=7071
 enable_envvars_config=true
 install_py_dep_per_model=true
 enable_metrics_api=true
-metrics_format=prometheus
+metrics_mode=prometheus
 NUM_WORKERS=1
 number_of_netty_threads=4
 job_queue_size=10
@@ -171,7 +171,7 @@ kubectl cp mnist.mar model-store-pod:/pv/model-store/ -c model-store -n kserve-t
 kubectl cp config.properties model-store-pod:/pv/config/ -c model-store -n kserve-test
 ```
 
-Refer link for other [storage options](https://github.com/kserve/kserve/tree/master/docs/samples/storagehttps://github.com/kserve/kserve/tree/master/docs/samples/storage)
+Refer link for other [storage options](https://github.com/kserve/kserve/tree/master/docs/samples/storage)
 
 - Step - 5 : Create the Inference Service
 
@@ -189,7 +189,7 @@ Refer link for more [examples](https://github.com/kserve/kserve/tree/master/docs
 
 KServe supports different types of inputs (ex: tensor, bytes). Use the following instructions to generate input files based on its type.
 
-[MNIST input generation](kf_request_json/v2/mnist/README.md##-Preparing-input) 
+[MNIST input generation](kf_request_json/v2/mnist/README.md##-Preparing-input)
 [Bert input generation](kf_request_json/v2/bert/README.md##-Preparing-input)
 
 
@@ -228,12 +228,12 @@ For v2 protocol
 curl -v -H "Host: ${SERVICE_HOSTNAME}" http://${INGRESS_HOST}:${INGRESS_PORT}/v2/models/mnist-kf/explain -d ./kf_request_json/v2/mnist/mnist_v2_bytes.json
 ```
 
-Refer the individual Readmes for KServe :
+Refer the individual readmes for KServe :
 
-- [BERT](https://github.com/kserve/kserve/tree/master/docs/samples/v1beta1/torchserve/bert#readme)
-- [MNIST](https://github.com/kserve/kserve/blob/master/docs/samples/v1beta1/torchserve/README.md)
+* [BERT](https://github.com/kserve/kserve/blob/master/docs/samples/v1beta1/custom/torchserve/bert-sample/hugging-face-bert-sample.md)
+* [MNIST](https://github.com/kserve/kserve/blob/master/docs/samples/v1beta1/torchserve/README.md)
 
-Sample input JSON file for v1 and v2 protocols 
+Sample input JSON file for v1 and v2 protocols
 
 For v1 protocol
 

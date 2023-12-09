@@ -2,6 +2,8 @@ package org.pytorch.serve.wlm;
 
 import com.google.gson.JsonObject;
 import java.io.File;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -13,6 +15,8 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.apache.commons.io.FilenameUtils;
 import org.pytorch.serve.archive.model.Manifest;
 import org.pytorch.serve.archive.model.ModelArchive;
+import org.pytorch.serve.archive.model.ModelConfig;
+import org.pytorch.serve.archive.utils.ArchiveUtils;
 import org.pytorch.serve.job.Job;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.messages.WorkerCommands;
@@ -22,12 +26,12 @@ import org.slf4j.LoggerFactory;
 public class Model {
 
     public static final String DEFAULT_DATA_QUEUE = "DATA_QUEUE";
-
     public static final String MIN_WORKERS = "minWorkers";
     public static final String MAX_WORKERS = "maxWorkers";
     public static final String BATCH_SIZE = "batchSize";
     public static final String MAX_BATCH_DELAY = "maxBatchDelay";
     public static final String RESPONSE_TIMEOUT = "responseTimeout";
+    public static final String PARALLEL_LEVEL = "parallelLevel";
     public static final String DEFAULT_VERSION = "defaultVersion";
     public static final String MAR_NAME = "marName";
     public static final String RUNTIME_TYPE = "runtimeType";
@@ -39,9 +43,21 @@ public class Model {
     private int maxWorkers;
     private int batchSize;
     private int maxBatchDelay;
+    private int parallelLevel;
+    private long maxRetryTimeoutInMill = 5 * 60 * 1000;
+    private long clientTimeoutInMills;
+    private ModelConfig.ParallelType parallelType = ModelConfig.ParallelType.NONE;
+    private ModelConfig.DeviceType deviceType =
+            ConfigManager.getInstance().getNumberOfGpu() > 0
+                    ? ModelConfig.DeviceType.GPU
+                    : ModelConfig.DeviceType.CPU;
+    private List<Integer> deviceIds;
+    private int numCores;
     private ReentrantLock lock;
     private int responseTimeout;
     private ModelVersionName modelVersionName;
+    private AtomicInteger gpuCounter = new AtomicInteger(0);
+    private boolean hasCfgDeviceIds;
     private boolean isWorkflowModel;
     private Manifest.RuntimeType runtimeType;
 
@@ -51,14 +67,65 @@ public class Model {
     // Per worker thread job queue. This separates out the control queue from data queue
     private ConcurrentMap<String, LinkedBlockingDeque<Job>> jobsDb;
 
+    private boolean useJobTicket;
+    private AtomicInteger numJobTickets;
+    private boolean continuousBatching;
+
     public Model(ModelArchive modelArchive, int queueSize) {
         this.modelArchive = modelArchive;
-        batchSize = 1;
-        maxBatchDelay = 100;
+        if (modelArchive != null && modelArchive.getModelConfig() != null) {
+            continuousBatching = modelArchive.getModelConfig().isContinuousBatching();
+            if (modelArchive.getModelConfig().getParallelLevel() > 0
+                    && modelArchive.getModelConfig().getParallelType()
+                            != ModelConfig.ParallelType.NONE) {
+                parallelLevel = modelArchive.getModelConfig().getParallelLevel();
+                parallelType = modelArchive.getModelConfig().getParallelType();
+            }
+            if (modelArchive.getModelConfig().getDeviceType() != ModelConfig.DeviceType.NONE) {
+                deviceType =
+                        (modelArchive.getModelConfig().getDeviceType() == ModelConfig.DeviceType.GPU
+                                        && ConfigManager.getInstance().getNumberOfGpu() > 0)
+                                ? ModelConfig.DeviceType.GPU
+                                : ModelConfig.DeviceType.CPU;
+            }
+
+            deviceIds = modelArchive.getModelConfig().getDeviceIds();
+            if (deviceIds != null && deviceIds.size() > 0) {
+                hasCfgDeviceIds = true;
+                for (Integer deviceId : deviceIds) {
+                    if (deviceId < 0 || deviceId >= ConfigManager.getInstance().getNumberOfGpu()) {
+                        logger.warn("Invalid deviceId:{}, ignore deviceIds list", deviceId);
+                        deviceIds = null;
+                        hasCfgDeviceIds = false;
+                        break;
+                    }
+                }
+            }
+            maxRetryTimeoutInMill = modelArchive.getModelConfig().getMaxRetryTimeoutInSec() * 1000;
+            clientTimeoutInMills = modelArchive.getModelConfig().getClientTimeoutInMills();
+            if (modelArchive.getModelConfig().getJobQueueSize() > 0) {
+                // overwrite the queueSize defined on config.property
+                queueSize = modelArchive.getModelConfig().getJobQueueSize();
+            }
+            useJobTicket = modelArchive.getModelConfig().isUseJobTicket();
+        } else {
+            batchSize = 1;
+            maxBatchDelay = 100;
+        }
+
+        if (ConfigManager.getInstance().getNumberOfGpu() > 0
+                && deviceType != ModelConfig.DeviceType.CPU) {
+            numCores =
+                    hasCfgDeviceIds
+                            ? deviceIds.size()
+                            : ConfigManager.getInstance().getNumberOfGpu();
+        }
+
         jobsDb = new ConcurrentHashMap<>();
         // Always have a queue for data
         jobsDb.putIfAbsent(DEFAULT_DATA_QUEUE, new LinkedBlockingDeque<>(queueSize));
         failedInfReqs = new AtomicInteger(0);
+        numJobTickets = new AtomicInteger(0);
         lock = new ReentrantLock();
         modelVersionName =
                 new ModelVersionName(
@@ -70,13 +137,16 @@ public class Model {
 
         JsonObject modelInfo = new JsonObject();
         modelInfo.addProperty(DEFAULT_VERSION, isDefaultVersion);
-        modelInfo.addProperty(MAR_NAME, FilenameUtils.getName(getModelUrl()));
+        modelInfo.addProperty(MAR_NAME, ArchiveUtils.getFilenameFromUrl(getModelUrl()));
         modelInfo.addProperty(MIN_WORKERS, getMinWorkers());
         modelInfo.addProperty(MAX_WORKERS, getMaxWorkers());
         modelInfo.addProperty(BATCH_SIZE, getBatchSize());
         modelInfo.addProperty(MAX_BATCH_DELAY, getMaxBatchDelay());
         modelInfo.addProperty(RESPONSE_TIMEOUT, getResponseTimeout());
         modelInfo.addProperty(RUNTIME_TYPE, getRuntimeType().getValue());
+        if (parallelLevel > 0) {
+            modelInfo.addProperty(PARALLEL_LEVEL, parallelLevel);
+        }
 
         return modelInfo;
     }
@@ -88,6 +158,9 @@ public class Model {
         responseTimeout = modelInfo.get(RESPONSE_TIMEOUT).getAsInt();
         batchSize = modelInfo.get(BATCH_SIZE).getAsInt();
         runtimeType = Manifest.RuntimeType.fromValue(modelInfo.get(RUNTIME_TYPE).getAsString());
+        if (modelInfo.get(PARALLEL_LEVEL) != null) {
+            parallelLevel = modelInfo.get(PARALLEL_LEVEL).getAsInt();
+        }
     }
 
     public String getModelName() {
@@ -178,11 +251,104 @@ public class Model {
     }
 
     public boolean addJob(Job job) {
+        if (isUseJobTicket() && !getJobTickets()) {
+            logger.info("There are no job tickets");
+            return false;
+        }
         return jobsDb.get(DEFAULT_DATA_QUEUE).offer(job);
     }
 
     public void addFirst(Job job) {
         jobsDb.get(DEFAULT_DATA_QUEUE).addFirst(job);
+    }
+
+    public boolean pollMgmtJob(String threadId, long waitTime, Map<String, Job> jobsRepo)
+            throws InterruptedException {
+        if (jobsRepo == null || threadId == null || threadId.isEmpty()) {
+            throw new IllegalArgumentException("Invalid input given provided");
+        }
+
+        if (!jobsRepo.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "The jobs repo provided contains stale jobs. Clear them!!");
+        }
+
+        LinkedBlockingDeque<Job> jobsQueue = jobsDb.get(threadId);
+        if (jobsQueue != null && !jobsQueue.isEmpty()) {
+            Job j = jobsQueue.poll(waitTime, TimeUnit.MILLISECONDS);
+            if (j != null) {
+                jobsRepo.put(j.getJobId(), j);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void pollInferJob(Map<String, Job> jobsRepo, int batchSize) throws InterruptedException {
+        LinkedBlockingDeque<Job> jobsQueue;
+        try {
+            if (isUseJobTicket()) {
+                incNumJobTickets();
+            }
+            lock.lockInterruptibly();
+            long maxDelay = maxBatchDelay;
+            boolean pollNoWait = jobsRepo.isEmpty() ? false : true;
+            jobsQueue = jobsDb.get(DEFAULT_DATA_QUEUE);
+
+            Job j = null;
+            if (jobsRepo.isEmpty()) {
+                j = jobsQueue.poll(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
+                logger.trace("get first job: {}", Objects.requireNonNull(j).getJobId());
+
+                jobsRepo.put(j.getJobId(), j);
+                // batch size always is 1 for describe request job
+                if (j.getCmd() == WorkerCommands.DESCRIBE) {
+                    if (jobsRepo.isEmpty()) {
+                        jobsRepo.put(j.getJobId(), j);
+                        return;
+                    } else {
+                        jobsQueue.addFirst(j);
+                        return;
+                    }
+                }
+            }
+
+            long begin = System.currentTimeMillis();
+            for (int i = 0; i < batchSize - 1; ++i) {
+                if (pollNoWait) {
+                    j = jobsQueue.poll();
+                } else {
+                    j = jobsQueue.poll(maxDelay, TimeUnit.MILLISECONDS);
+                }
+                if (j == null) {
+                    break;
+                }
+                long end = System.currentTimeMillis();
+                // job batch size always is 1 when request is describe prediction
+                if (j.getCmd() == WorkerCommands.DESCRIBE) {
+                    // Add the job back into the jobsQueue
+                    jobsQueue.addFirst(j);
+                    break;
+                }
+                maxDelay -= end - begin;
+                begin = end;
+                if (j.getPayload().getClientExpireTS() > System.currentTimeMillis()) {
+                    jobsRepo.put(j.getJobId(), j);
+                } else {
+                    logger.warn(
+                            "Drop inference request {} due to client timeout",
+                            j.getPayload().getRequestId());
+                }
+                if (maxDelay <= 0) {
+                    break;
+                }
+            }
+            logger.trace("sending jobs, size: {}", jobsRepo.size());
+        } finally {
+            if (lock.isHeldByCurrentThread()) {
+                lock.unlock();
+            }
+        }
     }
 
     public void pollBatch(String threadId, long waitTime, Map<String, Job> jobsRepo)
@@ -206,6 +372,9 @@ public class Model {
         }
 
         try {
+            if (isUseJobTicket()) {
+                incNumJobTickets();
+            }
             lock.lockInterruptibly();
             long maxDelay = maxBatchDelay;
             jobsQueue = jobsDb.get(DEFAULT_DATA_QUEUE);
@@ -214,8 +383,9 @@ public class Model {
             logger.trace("get first job: {}", Objects.requireNonNull(j).getJobId());
 
             jobsRepo.put(j.getJobId(), j);
-            // describe request job batch size always is 1
-            if (j.getCmd() == WorkerCommands.DESCRIBE) {
+            // batch size always is 1 for describe request job and stream prediction request job
+            if (j.getCmd() == WorkerCommands.DESCRIBE
+                    || j.getCmd() == WorkerCommands.STREAMPREDICT) {
                 return;
             }
             long begin = System.currentTimeMillis();
@@ -225,15 +395,23 @@ public class Model {
                     break;
                 }
                 long end = System.currentTimeMillis();
-                // describe request job batch size always is 1
-                if (j.getCmd() == WorkerCommands.DESCRIBE) {
+                // job batch size always is 1 when request is
+                // describe or stream prediction
+                if (j.getCmd() == WorkerCommands.DESCRIBE
+                        || j.getCmd() == WorkerCommands.STREAMPREDICT) {
                     // Add the job back into the jobsQueue
                     jobsQueue.addFirst(j);
                     break;
                 }
                 maxDelay -= end - begin;
                 begin = end;
-                jobsRepo.put(j.getJobId(), j);
+                if (j.getPayload().getClientExpireTS() > System.currentTimeMillis()) {
+                    jobsRepo.put(j.getJobId(), j);
+                } else {
+                    logger.warn(
+                            "Drop inference request {} due to client timeout",
+                            j.getPayload().getRequestId());
+                }
                 if (maxDelay <= 0) {
                     break;
                 }
@@ -260,5 +438,96 @@ public class Model {
 
     public void setResponseTimeout(int responseTimeout) {
         this.responseTimeout = responseTimeout;
+    }
+
+    public List<Integer> getDeviceIds() {
+        return this.deviceIds;
+    }
+
+    public void setDeviceIds(List<Integer> deviceIds) {
+        Collections.copy(this.deviceIds, deviceIds);
+    }
+
+    public int getParallelLevel() {
+        return this.parallelLevel;
+    }
+
+    public ModelConfig.ParallelType getParallelType() {
+        return this.parallelType;
+    }
+
+    public ModelConfig.DeviceType getDeviceType() {
+        return this.deviceType;
+    }
+
+    public int getNumCores() {
+        return this.numCores;
+    }
+
+    public AtomicInteger getGpuCounter() {
+        return gpuCounter;
+    }
+
+    public boolean isHasCfgDeviceIds() {
+        return hasCfgDeviceIds;
+    }
+
+    public long getMaxRetryTimeoutInMill() {
+        return maxRetryTimeoutInMill;
+    }
+
+    public void setMaxRetryTimeoutInMill(long maxRetryTimeoutInMill) {
+        this.maxRetryTimeoutInMill = maxRetryTimeoutInMill;
+    }
+
+    public long getClientTimeoutInMills() {
+        return clientTimeoutInMills;
+    }
+
+    public void setClientTimeoutInMills(long clientTimeoutInMills) {
+        this.clientTimeoutInMills = clientTimeoutInMills;
+    }
+
+    public boolean isUseJobTicket() {
+        return useJobTicket;
+    }
+
+    public int incNumJobTickets() {
+        return this.numJobTickets.incrementAndGet();
+    }
+
+    public int decNumJobTickets() {
+        return this.numJobTickets.decrementAndGet();
+    }
+
+    public synchronized boolean getJobTickets() {
+        if (this.numJobTickets.get() == 0) {
+            return false;
+        }
+
+        this.numJobTickets.decrementAndGet();
+        return true;
+    }
+
+    public int getJobQueueRemainingCapacity() {
+        LinkedBlockingDeque<Job> jobsQueue = jobsDb.get(DEFAULT_DATA_QUEUE);
+        if (jobsQueue != null) {
+            return jobsQueue.remainingCapacity();
+        }
+
+        return 0;
+    }
+
+    public int getPendingRequestsInJobQueue() {
+        LinkedBlockingDeque<Job> jobsQueue = jobsDb.get(DEFAULT_DATA_QUEUE);
+        if (jobsQueue != null) {
+            return jobsQueue.size();
+        }
+
+        return 0;
+    }
+
+    public boolean isContinuousBatching() {
+        return continuousBatching;
     }
 }

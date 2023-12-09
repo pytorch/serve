@@ -20,9 +20,9 @@ Your contributions will fall into two categories:
 
          For GPU
            ```bash
-           python ts_scripts/install_dependencies.py --environment=dev --cuda=cu102
+           python ts_scripts/install_dependencies.py --environment=dev --cuda=cu121
            ```
-            > Supported cuda versions as cu116, cu113, cu111, cu102, cu101, cu92
+            > Supported cuda versions as cu121, cu118, cu117, cu116, cu113, cu111, cu102, cu101, cu92
         - Install `pre-commit` to your Git flow:
             ```bash
             pre-commit install
@@ -35,7 +35,7 @@ Your contributions will fall into two categories:
     - For running individual test suites refer [code_coverage](docs/code_coverage.md) documentation
     - If you are updating an existing model make sure that performance hasn't degraded by typing running [benchmarks](https://github.com/pytorch/serve/tree/master/benchmarks) on the master branch and your branch and verify there is no performance regression
     - Run `ts_scripts/spellcheck.sh` to fix any typos in your documentation
-    - For large changes make sure to run the [automated benchmark suite](https://github.com/pytorch/serve/tree/master/test/benchmark) which will run the apache bench tests on several configurations of CUDA and EC2 instances
+    - For large changes make sure to run the [automated benchmark suite](https://github.com/pytorch/serve/tree/master/benchmarks) which will run the apache bench tests on several configurations of CUDA and EC2 instances
     - If you need more context on a particular issue, please create raise a ticket on [`TorchServe` GH repo](https://github.com/pytorch/serve/issues/new/choose) or connect to [PyTorch's slack channel](https://pytorch.slack.com/)
 
 Once you finish implementing a feature or bug-fix, please send a Pull Request to https://github.com/pytorch/serve.
@@ -50,13 +50,13 @@ Ensure that you have `python3` installed, and the user has access to the site-pa
 
 Run the following script from the top of the source directory.
 
-NOTE: This script uninstalls existing `torchserve`, `torch-model-archiver` and `torch-workflow-archiver` installations
+NOTE: This script force reinstalls `torchserve`, `torch-model-archiver` and `torch-workflow-archiver` if existing installations are found
 
 #### For Debian Based Systems/ MacOS
 
 ```
 python ./ts_scripts/install_dependencies.py --environment=dev
-python ./ts_scripts/install_from_src.py
+python ./ts_scripts/install_from_src.py --environment=dev
 ```
 
 Use `--cuda` flag with `install_dependencies.py` for installing cuda version specific dependencies. Possible values are `cu111`, `cu102`, `cu101`, `cu92`

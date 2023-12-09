@@ -1,0 +1,23 @@
+---
+bert_no_bt:
+    eager_mode:
+        benchmark_engine: "ab"
+        url: https://torchserve.pytorch.org/mar_files/BERTSeqClassification-no-BT.mar
+        workers:
+            - 4
+        batch_delay: 100
+        batch_size:
+            - 1
+            - 2
+            - 4
+            - 8
+            - 16
+            - 32
+            - 64
+        input: "./examples/Huggingface_Transformers/Seq_classification_artifacts/sample_text_captum_input.txt"
+        requests: 50000
+        concurrency: 100
+        backend_profiling: False
+        exec_env: "local"
+        processors:
+            - "gpus": "all"

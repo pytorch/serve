@@ -12,7 +12,7 @@ nmt_dual_translation:
             - 2
             - 4
             - 8
-        requests: 10000
+        requests: 50000
         concurrency: 10
         input: "./examples/Workflows/nmt_transformers_pipeline/model_input/sample.txt"
         backend_profiling: False

@@ -6,12 +6,12 @@ Here we show how to use TorchServe with Intel® Extension for PyTorch*.
 <sup>1. While Intel® Extension for PyTorch* benefits all platforms, platforms with AVX512 benefit the most. </sup>
 
 ## Contents of this Document
-* [Install Intel® Extension for PyTorch*](#install-intel-extension-for-pytorch)
-* [Serving model with Intel® Extension for PyTorch*](#serving-model-with-intel-extension-for-pytorch)
+* [Install Intel® Extension for PyTorch*](https://github.com/pytorch/serve/blob/master/examples/intel_extension_for_pytorch/README.md#install-intel-extension-for-pytorch)
+* [Serving model with Intel® Extension for PyTorch*](https://github.com/pytorch/serve/blob/master/examples/intel_extension_for_pytorch/README.md#serving-model-with-intel-extension-for-pytorch)
 * [TorchServe with Launcher](#torchserve-with-launcher)
-* [Creating and Exporting INT8 model for Intel® Extension for PyTorch*](#creating-and-exporting-int8-model-for-intel-extension-for-pytorch)
+* [Creating and Exporting INT8 model for Intel® Extension for PyTorch*](https://github.com/pytorch/serve/blob/master/examples/intel_extension_for_pytorch/README.md#creating-and-exporting-int8-model-for-intel-extension-for-pytorch)
 * [Benchmarking with Launcher](#benchmarking-with-launcher)
-* [Performance Boost with Intel® Extension for PyTorch* and Launcher](#performance-boost-with-intel-extension-for-pytorch-and-launcher)
+* [Performance Boost with Intel® Extension for PyTorch* and Launcher](https://github.com/pytorch/serve/blob/master/examples/intel_extension_for_pytorch/README.md#performance-boost-with-intel-extension-for-pytorch-and-launcher)
 
 
 ## Install Intel® Extension for PyTorch*
@@ -25,7 +25,7 @@ ipex_enable=true
 Once Intel® Extension for PyTorch* is enabled, deploying PyTorch model follows the same procedure shown [here](https://pytorch.org/serve/use_cases.html). TorchServe with Intel® Extension for PyTorch* can deploy any model and do inference.
 
 ## TorchServe with Launcher
-Launcher is a script to automate the process of tunining configuration setting on Intel hardware to boost performance. Tuning configurations such as OMP_NUM_THREADS, thread affinity, memory allocator can have a dramatic effect on performance. Refer to [Performance Tuning Guide](https://github.com/intel/intel-extension-for-pytorch/blob/master/docs/tutorials/performance_tuning/tuning_guide.md) and [Launch Script Usage Guide](https://github.com/intel/intel-extension-for-pytorch/blob/master/docs/tutorials/performance_tuning/launch_script.md) for details on performance tuning with launcher.
+Launcher is a script to automate the process of tuning configuration setting on Intel hardware to boost performance. Tuning configurations such as OMP_NUM_THREADS, thread affinity, memory allocator can have a dramatic effect on performance. Refer to [Performance Tuning Guide](https://github.com/intel/intel-extension-for-pytorch/blob/master/docs/tutorials/performance_tuning/tuning_guide.md) and [Launch Script Usage Guide](https://github.com/intel/intel-extension-for-pytorch/blob/master/docs/tutorials/performance_tuning/launch_script.md) for details on performance tuning with launcher.
 
 All it needs to use TorchServe with launcher is to set its configuration in `config.properties`.
 
@@ -67,7 +67,7 @@ Below are some useful `cpu_launcher_args` to note. Italic values are default if 
 Refer to [Launch Script Usage Guide](https://github.com/intel/intel-extension-for-pytorch/blob/master/docs/tutorials/performance_tuning/launch_script.md) for a full list of tunable configuration of launcher. And refer to [Performance Tuning Guide](https://github.com/intel/intel-extension-for-pytorch/blob/master/docs/tutorials/performance_tuning/tuning_guide.md) for more details.
 
 ### Launcher Core Pinning to Boost Performance of TorchServe Multi Worker Inference 
-When running [multi-worker inference](https://pytorch.org/serve/management_api.html#scale-workers) with Torchserve, launcher pin cores to workers to boost performance. Internally, launcher equally divides the number of cores by the number of workers such that each worker is pinned to assigned cores. Doing so avoids core overlap among workers which can signficantly boost performance for TorchServe multi-worker inference. For example, assume running 4 workers on a machine with Intel(R) Xeon(R) Platinum 8180 CPU, 2 sockets, 28 cores per socket, 2 threads per core. Launcher will bind worker 0 to cores 0-13, worker 1 to cores 14-27, worker 2 to cores 28-41, and worker 3 to cores 42-55. 
+When running [multi-worker inference](https://pytorch.org/serve/management_api.html#scale-workers) with Torchserve, launcher pin cores to workers to boost performance. Internally, launcher equally divides the number of cores by the number of workers such that each worker is pinned to assigned cores. Doing so avoids core overlap among workers which can significantly boost performance for TorchServe multi-worker inference. For example, assume running 4 workers on a machine with Intel(R) Xeon(R) Platinum 8180 CPU, 2 sockets, 28 cores per socket, 2 threads per core. Launcher will bind worker 0 to cores 0-13, worker 1 to cores 14-27, worker 2 to cores 28-41, and worker 3 to cores 42-55. 
 
 CPU usage is shown below. 4 main worker threads were launched, each launching 14 threads affinitized to the assigned physical cores.
 ![26](https://user-images.githubusercontent.com/93151422/170373651-fd8a0363-febf-4528-bbae-e1ddef119358.gif)
@@ -91,7 +91,7 @@ cpu_launcher_enable=true
 ```
 
 ## Creating and Exporting INT8 model for Intel® Extension for PyTorch*
-Intel® Extension for PyTorch* supports both eager and torchscript mode. In this section, we show how to deploy INT8 model for Intel® Extension for PyTorch*. Refer to [here](https://github.com/intel/intel-extension-for-pytorch/blob/master/docs/tutorials/features/int8.md) for more details on Intel® Extension for PyTorch* optimizations for quantization.
+Intel® Extension for PyTorch* supports both eager and torchscript mode. In this section, we show how to deploy INT8 model for Intel® Extension for PyTorch*. Refer to [here](https://github.com/intel/intel-extension-for-pytorch/blob/master/docs/tutorials/features/int8_overview.md) for more details on Intel® Extension for PyTorch* optimizations for quantization.
 
 ### 1. Creating a serialized file 
 First create `.pt` serialized file using Intel® Extension for PyTorch* INT8 inference. Here we show two examples with BERT and ResNet50. 
@@ -171,7 +171,7 @@ torch.jit.save(model, 'rn50_int8_jit.pt')
 ```
 
 ### 2. Creating a Model Archive 
-Once the serialized file ( `.pt`) is created, it can be used with `torch-model-archiver` as ususal. 
+Once the serialized file ( `.pt`) is created, it can be used with `torch-model-archiver` as usual.
 
 Use the following command to package `rn50_int8_jit.pt` into `rn50_ipex_int8.mar`.  
 ```
@@ -237,7 +237,7 @@ $ cat logs/model_log.log
 ```
 
 ### Benchmarking with Launcher Core Pinning
-As described previously in [TorchServe with Launcher](#torchserve-with-launcher), launcher core pinning boosts performance of multi-worker inference. We'll demonstrate launcher core pinning with TorchServe benchmark, but keep in mind that launcher core pinning is a generic feature applicable to any TorchServe multi-worker inference use casese.
+As described previously in [TorchServe with Launcher](#torchserve-with-launcher), launcher core pinning boosts performance of multi-worker inference. We'll demonstrate launcher core pinning with TorchServe benchmark, but keep in mind that launcher core pinning is a generic feature applicable to any TorchServe multi-worker inference use case.
 
 For example, assume running 4 workers 
 ```
@@ -309,12 +309,12 @@ Use the following command to reproduce the results.
 python benchmark-ab.py --url {modelUrl} --input {inputPath} --concurrency 1
 ```
 
-For example, run the following command to reproduce latency performance of ResNet50 with data type of Intel® Extension for PyTorch* int8 and batch size of 1. Refer to [Creating and Exporting INT8 model for Intel® Extension for PyTorch*](#creating-and-exporting-int8-model-for-intel-extension-for-pytorch) for steps to creating ```rn50_ipex_int8.mar``` file for ResNet50 with Intel® Extension for PyTorch* int8 data type.
+For example, run the following command to reproduce latency performance of ResNet50 with data type of Intel® Extension for PyTorch* int8 and batch size of 1. Refer to [Creating and Exporting INT8 model for Intel® Extension for PyTorch*](https://github.com/pytorch/serve/blob/master/examples/intel_extension_for_pytorch/README.md#creating-and-exporting-int8-model-for-intel-extension-for-pytorch) for steps to creating ```rn50_ipex_int8.mar``` file for ResNet50 with Intel® Extension for PyTorch* int8 data type.
 ```
 python benchmark-ab.py --url 'file:///model_store/rn50_ipex_int8.mar' --concurrency 1
 ```
 
-For example, run the following command to reproduce latency performance of BERT with data type of Intel® Extension for PyTorch* int8 and batch size of 1. Refer to [Creating and Exporting INT8 model for Intel® Extension for PyTorch*](#creating-and-exporting-int8-model-for-intel-extension-for-pytorch) for steps to creating ```bert_ipex_int8.mar``` file for BERT with Intel® Extension for PyTorch* int8 data type.
+For example, run the following command to reproduce latency performance of BERT with data type of Intel® Extension for PyTorch* int8 and batch size of 1. Refer to [Creating and Exporting INT8 model for Intel® Extension for PyTorch*](https://github.com/pytorch/serve/blob/master/examples/intel_extension_for_pytorch/README.md#creating-and-exporting-int8-model-for-intel-extension-for-pytorch) for steps to creating ```bert_ipex_int8.mar``` file for BERT with Intel® Extension for PyTorch* int8 data type.
 ```
 python benchmark-ab.py --url 'file:///model_store/bert_ipex_int8.mar' --input '../examples/Huggingface_Transformers/Seq_classification_artifacts/sample_text_captum_input.txt' --concurrency 1
 ```

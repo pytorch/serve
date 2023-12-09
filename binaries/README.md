@@ -1,6 +1,6 @@
 # Building TorchServe and Torch-Model-Archiver release binaries 
 1. Make sure all the dependencies are installed
-   ##### Linux and MacOs:
+   ##### Linux and macOS:
    ```bash
    python ts_scripts/install_dependencies.py --environment=dev
    ```
@@ -13,7 +13,7 @@
    
    
 2. To build a `torchserve` and `torch-model-archiver` wheel execute:
-   ##### Linux and MacOs:
+   ##### Linux and macOS:
    ```bash
    python binaries/build.py
    ```
@@ -26,7 +26,7 @@
    > For additional info on conda builds refer to [this readme](conda/README.md)
 
 3. Build outputs are located at
-    ##### Linux and MacOs:
+    ##### Linux and macOS:
    - Wheel files
      `dist/torchserve-*.whl`  
      `model-archiver/dist/torch_model_archiver-*.whl`
@@ -44,7 +44,7 @@
 
 # Install torchserve and torch-model-archiver binaries
 1. To install torchserve using the newly created binaries execute:
-    ##### Linux and MacOs:
+    ##### Linux and macOS:
    ```bash
    python binaries/install.py
    ```
@@ -56,7 +56,7 @@
    ```
 2. Alternatively, you can manually install binaries
    - Using wheel files
-      ##### Linux and MacOs:
+      ##### Linux and macOS:
       ```bash
       pip install dist/torchserve-*.whl
       pip install model-archiver/dist/torch_model_archiver-*.whl
@@ -70,7 +70,7 @@
       pip install .\workflow-archiver\dist\<torch_workflow_archiver_wheel>
       ```
    - Using conda packages
-      ##### Linux and MacOs:
+      ##### Linux and macOS:
      ```bash
       conda install --channel ./binaries/conda/output -y torchserve torch-model-archiver torch-workflow-archiver
      ```
@@ -80,7 +80,7 @@
 
 # Building TorchServe, Torch-Model-Archiver & Torch-WorkFlow-Archiver nightly binaries
 1. Make sure all the dependencies are installed
-   ##### Linux and MacOs:
+   ##### Linux and macOS:
    ```bash
    python ts_scripts/install_dependencies.py --environment=dev
    ```
@@ -93,7 +93,7 @@
 
 
 2. To build a `torchserve`, `torch-model-archiver` & `torch-workflow-archiver` nightly wheel execute:
-   ##### Linux and MacOs:
+   ##### Linux and macOS:
    ```bash
    python binaries/build.py --nightly
    ```
@@ -106,7 +106,7 @@
    > For additional info on conda builds refer to [this readme](conda/README.md)
 
 3. Build outputs are located at
-    ##### Linux and MacOs:
+    ##### Linux and macOS:
    - Wheel files
      `dist/torchserve-*.whl`
      `model-archiver/dist/torch_model_archiver-*.whl`

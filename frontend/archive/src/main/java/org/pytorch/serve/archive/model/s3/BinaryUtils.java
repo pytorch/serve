@@ -36,7 +36,7 @@ public final class BinaryUtils {
      */
     public static byte[] fromHex(String hexData) {
         byte[] result = new byte[(hexData.length() + 1) / 2];
-        String hexNumber = null;
+        String hexNumber;
         int stringOffset = 0;
         int byteOffset = 0;
         while (stringOffset < hexData.length()) {

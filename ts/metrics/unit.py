@@ -19,5 +19,6 @@ class Units(object):
             'GB': 'Gigabytes',
             'kB': 'Kilobytes',
             'B': 'Bytes',
+            '': 'unit',
             None: 'unit',
         }

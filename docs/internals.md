@@ -27,7 +27,7 @@ TorchServe was designed a multi model inferencing framework. A production grade 
 * `requirements`: requirements.txt
 * `serving_sdk`: SDK to support TorchServe in sagemaker
 * `test`: tests
-* `ts_scripts`: useful utility filees that don't fit in any other folder
+* `ts_scripts`: useful utility files that don't fit in any other folder
 * `workflow-archiver`: workflow package CLI
 
 ## Important files for the core TorchServe engine
@@ -38,7 +38,7 @@ And backend is the Python code (most Pytorch specific stuff)
 
 ### Backend (Python)
 
-https://github.com/pytorch/serve/blob/master/ts/arg_parser.py#L64
+https://github.com/pytorch/serve/blob/master/ts/arg_parser.py
 
 * Arg parser controls config/not workflow and can also setup a model service worker with a custom socket
 
@@ -78,7 +78,7 @@ https://github.com/pytorch/serve/blob/8903ca1fb059eab3c1e8eccdee1376d4ff52fb67/f
 https://github.com/pytorch/serve/blob/8903ca1fb059eab3c1e8eccdee1376d4ff52fb67/frontend/server/src/main/java/org/pytorch/serve/wlm/WorkLoadManager.java
 
 * Get number of running workers
-* Number of workers which is just a concurrent hashmap, bakendgroup, ports etc are all here
+* Number of workers which is just a concurrent hashmap, backendgroup, ports etc are all here
 * Add worker threads by submitting them to a threadpool Executor Service (create a pool of threads and assign tasks or worker threads to it)
 
 

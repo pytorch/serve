@@ -6,14 +6,14 @@
    ```bash
    python ts_scripts/install_dependencies.py --environment=dev
    ```
-   
+
    For GPU
     - Install dependencies (if not already installed)
    ```bash
-   python ts_scripts/install_dependencies.py --environment=dev --cuda=cu102
+   python ts_scripts/install_dependencies.py --environment=dev --cuda=cu121
    ```
-   > Supported cuda versions as cu116, cu113, cu111, cu102, cu101, cu92
-   
+   > Supported cuda versions as cu121, cu118, cu117, cu116, cu113, cu111, cu102, cu101, cu92
+
  - Execute sanity suite
    ```bash
    python ./torchserve_sanity.py
@@ -31,7 +31,7 @@ TorchServe frontend build suite consists of :
   * findbugs
   * PMD
   * UT
-  
+
 The reports are generated at following path : `frontend/server/build/reports`
 
 ## To run backend pytest suite run following command

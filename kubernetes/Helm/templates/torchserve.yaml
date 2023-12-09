@@ -6,20 +6,23 @@ metadata:
   labels:
     app: torchserve
   annotations:
-    prometheus.io/scrape: 'true'
+    prometheus.io/scrape: "true"
+    prometheus.io/path: /metrics
     prometheus.io/port: '8082'
 spec:
   ports:
   - name: preds
     port: {{ .Values.torchserve.inference_port }}
-    targetPort: ts 
+    targetPort: ts
   - name: mdl
     port: {{ .Values.torchserve.management_port }}
     targetPort: ts-management
   - name: metrics
     port: {{ .Values.torchserve.metrics_port }}
     targetPort: ts-metrics
-  type: LoadBalancer
+  - name: grpc
+    port: {{ .Values.torchserve.grpc_inference_port }}
+    targetPort: ts-grpc
   selector:
     app: torchserve
 ---
@@ -42,17 +45,7 @@ spec:
       volumes:
       - name: persistent-storage
         persistentVolumeClaim:
-          claimName: model-store-claim
-      initContainers:
-      - name: volume-ownership
-        image: alpine:3
-        command:
-        - chown
-        - root:{{ .Values.securityContext.groupId }}
-        - {{ .Values.torchserve.pvd_mount }}
-        volumeMounts:
-        - name: persistent-storage
-          mountPath: {{ .Values.torchserve.pvd_mount }}
+          claimName: {{ .Values.persistentVolume.name }}
       containers:
       - name: torchserve
         image: {{ .Values.torchserve_image }}
@@ -64,6 +57,8 @@ spec:
           containerPort: {{ .Values.torchserve.management_port }}
         - name: ts-metrics
           containerPort: {{ .Values.torchserve.metrics_port }}
+        - name: ts-grpc
+          containerPort: {{ .Values.torchserve.grpc_inference_port }}
         imagePullPolicy: IfNotPresent
         volumeMounts:
           - mountPath: {{ .Values.torchserve.pvd_mount }}
@@ -73,6 +68,3 @@ spec:
             cpu: {{ .Values.torchserve.n_cpu }}
             memory: {{ .Values.torchserve.memory_limit }}
             nvidia.com/gpu: {{ .Values.torchserve.n_gpu }}
-          requests:
-            cpu: {{ .Values.torchserve.n_cpu }}
-            memory: {{ .Values.torchserve.memory_request }}

@@ -1,21 +1,22 @@
-from abc import ABC
+import ast
 import json
 import logging
 import os
-import ast
+from abc import ABC
+
 import torch
 import transformers
+from captum.attr import LayerIntegratedGradients
 from transformers import (
-    AutoModelForSequenceClassification,
-    AutoTokenizer,
-    AutoModelForQuestionAnswering,
-    AutoModelForTokenClassification,
     AutoModelForCausalLM,
+    AutoModelForQuestionAnswering,
+    AutoModelForSequenceClassification,
+    AutoModelForTokenClassification,
+    AutoTokenizer,
+    GPT2TokenizerFast,
 )
-from transformers import GPT2TokenizerFast
 
 from ts.torch_handler.base_handler import BaseHandler
-from captum.attr import LayerIntegratedGradients
 
 logger = logging.getLogger(__name__)
 logger.info("Transformers version %s", transformers.__version__)
@@ -36,7 +37,7 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         is initialized here.
         Args:
             ctx (context): It is a JSON Object containing information
-            pertaining to the model artefacts parameters.
+            pertaining to the model artifacts parameters.
         """
         self.manifest = ctx.manifest
         properties = ctx.system_properties
@@ -63,7 +64,6 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
                 model_dir, "libpyt_fastertransformer.so"
             )
             torch.classes.load_library(faster_transformer_complied_path)
-
         # Loading the model and tokenizer from checkpoint and config files based on the user's choice of mode
         # further setup config can be added.
         if self.setup_config["save_mode"] == "torchscript":
@@ -81,8 +81,18 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
                 self.model = AutoModelForCausalLM.from_pretrained(model_dir)
             else:
                 logger.warning("Missing the operation mode.")
+            # Using the Better Transformer integration to speedup the inference
+            if self.setup_config["BetterTransformer"]:
+                from optimum.bettertransformer import BetterTransformer
+
+                try:
+                    self.model = BetterTransformer.transform(self.model)
+                except RuntimeError as error:
+                    logger.warning(
+                        "HuggingFace Optimum is not supporting this model,for the list of supported models, please refer to this doc,https://huggingface.co/docs/optimum/bettertransformer/overview"
+                    )
             # HF GPT2 models options can be gpt2, gpt2-medium, gpt2-large, gpt2-xl
-            # this basically palce different model blocks on different devices,
+            # this basically place different model blocks on different devices,
             # https://github.com/huggingface/transformers/blob/v4.17.0/src/transformers/models/gpt2/modeling_gpt2.py#L962
             if (
                 self.setup_config["model_parallel"]
@@ -363,7 +373,6 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
             self.setup_config["mode"] == "sequence_classification"
             or self.setup_config["mode"] == "token_classification"
         ):
-
             attributions, delta = self.lig.attribute(
                 inputs=input_ids,
                 baselines=ref_input_ids,

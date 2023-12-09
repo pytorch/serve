@@ -4,16 +4,10 @@ on: workflow_dispatch
 
 jobs:
   official-release:
-    # creates workflows for the 3 OS: ubuntu, macOS & windows
-    runs-on: ${{ matrix.os }}
-
+    runs-on: ubuntu-20.04
     # The official-release environment requires 2 manual approvals
     environment:
       name: official-release
-    strategy:
-      fail-fast: true
-      matrix:
-        os: [ubuntu-latest, macOS-latest, windows-latest]
     steps:
       - name: Setup Conda
         uses: s-weigand/setup-conda@v1
@@ -22,16 +16,16 @@ jobs:
           conda --version
           conda install -y conda-build anaconda-client
       - name: Checkout TorchServe
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Install dependencies
         run: |
           python ts_scripts/install_dependencies.py --environment=dev
           pip install -e .
-      - name: Setup Java 11
+      - name: Setup Java 17
         uses: actions/setup-java@v2
         with:
           distribution: 'zulu'
-          java-version: '11'
+          java-version: '17'
       - name: Build PyPI & conda binaries
         run: python binaries/build.py
       - name: Push conda binaries
@@ -41,21 +35,4 @@ jobs:
       - name: Push PyPI binaries
         env:
           TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
-        if: matrix.os == 'ubuntu-latest'
         run: python binaries/upload.py --upload-pypi-packages
-      - name: Login to Docker
-        env:
-          DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
-        run: docker login --username pytorchbot --password "$DOCKER_PASSWORD"
-      - name: Build & Upload pytorch/torchserve Docker images
-        if: matrix.os == 'ubuntu-latest'
-        run: |
-          cd docker
-          python build_upload_release.py
-          cd ..
-      - name: Build & Upload pytorch/torchserve-kfs Docker images
-        if: matrix.os == 'ubuntu-latest'
-        run: |
-          cd kubernetes/kserve
-          python build_upload_release.py
-          cd ..

@@ -7,11 +7,40 @@ on:
   pull_request:
     branches:
       - master
+  merge_group:
+
 
 jobs:
+  mypy:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Setup Python 3.8
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.8
+          architecture: x64
+      - name: Checkout TorchServe
+        uses: actions/checkout@v3
+      - name: Install mypy
+        run: |
+          pip install mypy
+      - name: Run mypy
+        env:
+          MYPY_FORCE_COLOR: 1
+          TERM: xterm-color
+        run: |
+          set -eux
+          STATUS=
+          if ! mypy --config=mypy.ini; then
+            STATUS=fail
+          fi
+          if [ -n "$STATUS" ]; then
+            echo 'Please fix the above mypy warnings.'
+            false
+          fi
   build:
-    runs-on: ubuntu-latest
-    name: Test changed-files
+    runs-on: ubuntu-20.04
+    name: Lint changed files
     steps:
       - uses: actions/checkout@v3
         with:
@@ -20,26 +49,63 @@ jobs:
       - name: Install lint utilities
         run: |
           pip install pre-commit
-          pre-commit install      
+          pre-commit install
 
-      - name: Get specific changed files
-        id: changed-files-specific
-        uses: tj-actions/changed-files@v20.1
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v29.0.4
         with:
-          files: | 
+
+          files: |
             **/*.py
-  
+
       - name: Lint all changed files
         run: |
-          for file in ${{ steps.changed-files-specific.outputs.all_changed_files }}; do
+          for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
             pre-commit run --files $file
           done
-          
+
       - name: What to do if this action fails
         if: ${{ failure() }}
         run: |
           echo "You need to lint your code with pre-commit"
-          echo "pip install pre-commit" 
+          echo "pip install pre-commit"
           echo "cd serve/"
           echo "pre-commit install"
           echo "pre-commit will lint your code for you, so git add and commit those new changes and this check should become green"
+          echo "If you've already pushed some files remotely then run git diff --name-only main | xargs pre-commit run --files"
+
+  spellcheck:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get install aspell aspell-en
+          pip install pyspelling
+
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v29.0.4
+        with:
+          files: |
+            **/*.md
+
+      - name: Check spellings
+        run: |
+          sources=""
+          for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
+            sources="${sources} -S $file"
+          done
+          if [ ! "$sources" ]; then
+            echo "No files to spellcheck"
+          else
+            pyspelling -c $GITHUB_WORKSPACE/ts_scripts/spellcheck_conf/spellcheck.yaml --name Markdown $sources
+          fi
+
+      - name: In the case of misspellings
+        if: ${{ failure() }}
+        run: |
+          echo "Please fix the misspellings. If you are sure about some of them, "
+          echo "so append those to ts_scripts/spellcheck_conf/wordlist.txt"
