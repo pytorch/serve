@@ -14,7 +14,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.pytorch.serve.archive.model.ModelConfig;
-import org.pytorch.serve.metrics.Dimension;
 import org.pytorch.serve.metrics.Metric;
 import org.pytorch.serve.metrics.MetricCache;
 import org.pytorch.serve.util.ConfigManager;
@@ -301,34 +300,42 @@ public class WorkerLifeCycle {
                     Matcher matcher = METRIC_PATTERN.matcher(result);
                     if (matcher.matches()) {
                         logger.info("result={}, pattern={}", result, matcher.group(2));
+
                         Metric parsedMetric = Metric.parse(matcher.group(3));
-                        if (parsedMetric != null) {
-                            if (this.metricCache.getMetricBackend(parsedMetric.getMetricName())
-                                    != null) {
-                                try {
-                                    List<String> dimensionValues = new ArrayList<String>();
-                                    for (Dimension dimension : parsedMetric.getDimensions()) {
-                                        dimensionValues.add(dimension.getValue());
-                                    }
-                                    // Hostname is added as a dimension by default to backend
-                                    // metrics
-                                    dimensionValues.add(parsedMetric.getHostName());
-                                    this.metricCache
-                                            .getMetricBackend(parsedMetric.getMetricName())
-                                            .addOrUpdate(
-                                                    dimensionValues,
-                                                    parsedMetric.getRequestId(),
-                                                    Double.parseDouble(parsedMetric.getValue()));
-                                } catch (Exception e) {
-                                    logger.error(
-                                            "Failed to update backend metric ",
-                                            parsedMetric.getMetricName(),
-                                            ": ",
-                                            e);
-                                }
-                            }
-                        } else {
+                        if (parsedMetric == null) {
                             logger.error("Failed to parse metrics line: \"{}\".", result);
+                            continue;
+                        }
+
+                        try {
+                            if (this.metricCache.getMetricBackend(parsedMetric.getMetricName())
+                                    == null) {
+                                if (!lifeCycle.configManager.isModelMetricsAutoDetectEnabled()) {
+                                    continue;
+                                }
+
+                                logger.info(
+                                        "Registering auto detected backend metric: {}",
+                                        parsedMetric);
+                                this.metricCache.addAutoDetectMetricBackend(parsedMetric);
+                            }
+
+                            // Hostname is added as a dimension by default to backend metrics
+                            List<String> dimensionValues = parsedMetric.getDimensionValues();
+                            dimensionValues.add(parsedMetric.getHostName());
+
+                            this.metricCache
+                                    .getMetricBackend(parsedMetric.getMetricName())
+                                    .addOrUpdate(
+                                            dimensionValues,
+                                            parsedMetric.getRequestId(),
+                                            Double.parseDouble(parsedMetric.getValue()));
+                        } catch (Exception e) {
+                            logger.error(
+                                    "Failed to update backend metric ",
+                                    parsedMetric.getMetricName(),
+                                    ": ",
+                                    e);
                         }
                         continue;
                     }

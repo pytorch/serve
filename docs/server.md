@@ -25,7 +25,7 @@ To try out TorchServe serving now, you can load the custom MNIST model, with thi
 After this deep dive, you might also be interested in:
 * [Logging](logging.md): logging options that are available
 
-* [Metrics](metrics.md): details on metrics collection 
+* [Metrics](metrics.md): details on metrics collection
 
 * [REST API Description](rest_api.md): more detail about the server's endpoints
 
@@ -68,7 +68,7 @@ optional arguments:
                         MODEL_STORE.
   --log-config LOG_CONFIG
                         Log4j configuration file for TorchServe
-  --ncs, --no-config-snapshots         
+  --ncs, --no-config-snapshots
                         Disable snapshot feature
   --workflow-store WORKFLOW_STORE
                         Workflow store location where workflow can be loaded. Defaults to model-store
@@ -106,6 +106,14 @@ There are no default required arguments to start the server
 1. **log-config**: optional, This parameter will override default log4j2.xml, present within the server.
 1. **start**: optional, A more descriptive way to start the server.
 1. **stop**: optional, Stop the server if it is already running.
+
+#### Argument Priority:
+Arguments can be set in multiple locations (ex: command line, config.properties). The following is the priority:
+1. Command line
+2. Config properties
+3. Default settings
+
+Example: Setting `model-store` in config.properties and through command line will result in the the command line location being used and overriding the config.properties.
 
 ## Advanced Features
 

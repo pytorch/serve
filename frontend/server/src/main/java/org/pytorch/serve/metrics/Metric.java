@@ -12,7 +12,7 @@ public class Metric {
 
     private static final Pattern PATTERN =
             Pattern.compile(
-                    "\\s*([\\w\\s]+)\\.([\\w\\s]+):([0-9\\-,.e]+)\\|#([^|]*)\\|#hostname:([^,]+),([^,]+)(,(.*))?");
+                    "\\s*([\\w\\s]+)\\.([\\w\\s]+):([0-9\\-,.e]+)\\|#([^|]*)(\\|#type:([^|,]+))?\\|#hostname:([^,]+),([^,]+)(,(.*))?");
 
     @SerializedName("MetricName")
     private String metricName;
@@ -23,8 +23,17 @@ public class Metric {
     @SerializedName("Unit")
     private String unit;
 
+    @SerializedName("Type")
+    private String type;
+
     @SerializedName("Dimensions")
     private List<Dimension> dimensions;
+
+    @SerializedName("DimensionNames")
+    private List<String> dimensionNames;
+
+    @SerializedName("DimensionValues")
+    private List<String> dimensionValues;
 
     @SerializedName("Timestamp")
     private String timestamp;
@@ -41,13 +50,15 @@ public class Metric {
             String metricName,
             String value,
             String unit,
+            String type,
             String hostName,
             Dimension... dimensions) {
         this.metricName = metricName;
         this.value = value;
         this.unit = unit;
+        this.type = type;
         this.hostName = hostName;
-        this.dimensions = Arrays.asList(dimensions);
+        this.setDimensions(Arrays.asList(dimensions));
         this.timestamp =
                 String.valueOf(TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()));
     }
@@ -92,12 +103,34 @@ public class Metric {
         this.unit = unit;
     }
 
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
     public List<Dimension> getDimensions() {
         return dimensions;
     }
 
+    public List<String> getDimensionNames() {
+        return this.dimensionNames;
+    }
+
+    public List<String> getDimensionValues() {
+        return this.dimensionValues;
+    }
+
     public void setDimensions(List<Dimension> dimensions) {
         this.dimensions = dimensions;
+        this.dimensionNames = new ArrayList<String>();
+        this.dimensionValues = new ArrayList<String>();
+        for (Dimension dimension : dimensions) {
+            this.dimensionNames.add(dimension.getName());
+            this.dimensionValues.add(dimension.getValue());
+        }
     }
 
     public String getTimestamp() {
@@ -120,9 +153,10 @@ public class Metric {
         metric.setUnit(matcher.group(2));
         metric.setValue(matcher.group(3));
         String dimensions = matcher.group(4);
-        metric.setHostName(matcher.group(5));
-        metric.setTimestamp(matcher.group(6));
-        metric.setRequestId(matcher.group(8));
+        metric.setType(matcher.group(6));
+        metric.setHostName(matcher.group(7));
+        metric.setTimestamp(matcher.group(8));
+        metric.setRequestId(matcher.group(10));
 
         if (dimensions != null) {
             String[] dimension = dimensions.split(",");

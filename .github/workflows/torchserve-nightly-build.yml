@@ -14,6 +14,8 @@ jobs:
       - run: conda install -y conda-build anaconda-client
       - name: Checkout TorchServe
         uses: actions/checkout@v3
+        with:
+          submodules: recursive
       - name: Install dependencies
         run: |
           python ts_scripts/install_dependencies.py --environment=dev
