@@ -362,7 +362,6 @@ def _retrieve_input_data(conn):
 
 
 @deprecated(
-    "This function will be deprecated in 1.0",
     version=1.0,
     replacement="ts.handler_utils.utils.send_intermediate_predict_response",
 )
