@@ -9,7 +9,9 @@ import logging
 import os
 import re
 from functools import wraps
-from warnings import warn
+from warnings import simplefilter, warn
+
+simplefilter("once", category=(PendingDeprecationWarning, DeprecationWarning))
 
 import yaml
 
@@ -147,23 +149,27 @@ class PredictionException(Exception):
         return f"{self.message} : {self.error_code}"
 
 
-def deprecated(message, version, replacement=None):
+def deprecated(version, replacement="", klass=PendingDeprecationWarning):
     """This is a decorator which can be used to mark functions
     as deprecated. It will result in a warning being emitted
     when the function is used.
 
     Args:
-        message: The warning message.
         version: The version in which the function will be removed.
         replacement: The replacement function, if any.
+        klass: The category of warning
     """
 
-    def decorator(func):
+    def deprecator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
-            warn(message.format(version, replacement), DeprecationWarning)
+            warn(
+                f"{func.__name__} is deprecated in {version} and moved to {replacement}",
+                klass,
+                stacklevel=2,
+            )
             return func(*args, **kwargs)
 
         return wrapper
 
-    return decorator
+    return deprecator
