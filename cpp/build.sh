@@ -20,89 +20,6 @@ function detect_platform() {
   echo -e "${COLOR_GREEN}Detected platform: $PLATFORM ${COLOR_OFF}"
 }
 
-function install_dependencies_linux() {
-  sudo apt-get install -yq \
-    autoconf \
-    automake \
-    git \
-    cmake \
-    m4 \
-    g++ \
-    flex \
-    bison \
-    libgflags-dev \
-    libkrb5-dev \
-    libsasl2-dev \
-    libnuma-dev \
-    pkg-config \
-    libssl-dev \
-    libcap-dev \
-    gperf \
-    libevent-dev \
-    libtool \
-    libboost-all-dev \
-    libjemalloc-dev \
-    libsnappy-dev \
-    wget \
-    unzip \
-    libiberty-dev \
-    liblz4-dev \
-    liblzma-dev \
-    make \
-    zlib1g-dev \
-    binutils-dev \
-    libsodium-dev \
-    libdouble-conversion-dev \
-    ninja-build \
-    clang-tidy \
-    clang-format
-}
-
-function install_dependencies_mac() {
-  # install the default dependencies from homebrew
-  brew install -f            \
-    cmake                    \
-    m4                       \
-    boost                    \
-    double-conversion        \
-    gperf                    \
-    libevent                 \
-    lz4                      \
-    snappy                   \
-    xz                       \
-    openssl                  \
-    libsodium                \
-    llvm
-
-  brew link                 \
-    cmake                   \
-    boost                   \
-    double-conversion       \
-    gperf                   \
-    libevent                \
-    lz4                     \
-    snappy                  \
-    openssl                 \
-    xz                      \
-    libsodium
-
-  ln -s "$(brew --prefix llvm)/bin/clang-format" "/usr/local/bin/clang-format"
-  ln -s "$(brew --prefix llvm)/bin/clang-tidy" "/usr/local/bin/clang-tidy"
-  ln -s "$(brew --prefix llvm)/bin/clang-apply-replacements" "/usr/local/bin/clang-apply-replacements"
-}
-
-function install_dependencies() {
-  echo -e "${COLOR_GREEN}[ INFO ] install dependencies ${COLOR_OFF}"
-  if [ "$PLATFORM" = "Linux" ]; then
-    install_dependencies_linux
-  elif [ "$PLATFORM" = "Mac" ]; then
-    install_dependencies_mac
-  else
-    echo -e "${COLOR_RED}[ ERROR ] Unknown platform: $PLATFORM ${COLOR_OFF}"
-    exit 1
-  fi
-}
-
 function install_folly() {
   FOLLY_SRC_DIR=$BASE_DIR/third-party/folly
   FOLLY_BUILD_DIR=$DEPS_DIR/folly-build
@@ -329,7 +246,7 @@ INSTALL_DEPENDENCIES=false
 PREFIX=""
 COMPILER_FLAGS=""
 CUDA=""
-USAGE="./build.sh [-j num_jobs] [-g cu102|cu113|cu116] [-q|--with-quic] [--install-dependencies] [-p|--prefix] [-x|--compiler-flags]"
+USAGE="./build.sh [-j num_jobs] [-g cu102|cu113|cu116] [-q|--with-quic] [-p|--prefix] [-x|--compiler-flags]"
 while [ "$1" != "" ]; do
   case $1 in
     -j | --jobs ) shift
@@ -341,9 +258,6 @@ while [ "$1" != "" ]; do
     -q | --with-quic )
                   WITH_QUIC=true
                   ;;
-    --install-dependencies )
-                  INSTALL_DEPENDENCIES=true
-          ;;
     -t | --no-tests )
                   NO_BUILD_TESTS=true
       ;;
@@ -362,10 +276,6 @@ shift
 done
 
 detect_platform
-
-if [ "$INSTALL_DEPENDENCIES" == true ] ; then
-  install_dependencies
-fi
 
 MAYBE_OVERRIDE_CXX_FLAGS=""
 if [ -n "$COMPILER_FLAGS" ] ; then

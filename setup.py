@@ -43,8 +43,8 @@ build_plugins_command = {
     "Linux": "plugins/gradlew -p plugins clean bS",
 }
 build_cpp_command = {
-    "Darwin": "cpp/build.sh --install-dependencies",
-    "Linux": "cpp/build.sh --install-dependencies",
+    "Darwin": "cpp/build.sh",
+    "Linux": "cpp/build.sh",
 }
 
 
