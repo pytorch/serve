@@ -22,8 +22,8 @@ Ex:  `cd` to `examples/pt2/torch_export_aot_compile`
 
 Install PyTorch 2.2 nightlies by running
 ```
-chmod +x install_segment_anything_fast.sh
-source install_segment_anything_fast.sh
+chmod +x install_pytorch_nightlies.sh
+source install_pytorch_nightlies.sh
 ```
 
 ### Create a Torch exported model with AOTInductor
