@@ -14,8 +14,7 @@ import zipfile
 from io import BytesIO
 from pathlib import Path
 
-from .manifest_components.manifest import Manifest
-from .manifest_components.manifest import RuntimeType
+from .manifest_components.manifest import Manifest, RuntimeType
 from .manifest_components.model import Model
 from .model_archiver_config import ModelArchiverConfig
 from .model_archiver_error import ModelArchiverError
@@ -162,24 +161,24 @@ class ModelExportUtils(object):
             if path:
                 if file_type == "handler":
                     if (
-                        runtime == RuntimeType.PYTHON.value or
-                        runtime == RuntimeType.PYTHON3.value
+                        runtime == RuntimeType.PYTHON.value
+                        or runtime == RuntimeType.PYTHON3.value
                     ):
                         if path in model_handlers.keys():
                             continue
 
-                        if '.py' not in path:
-                            path = (path.split(':')[0] if ':' in path else path) + '.py'
-                    elif (
-                        runtime == RuntimeType.LSP.value
-                    ):
+                        if ".py" not in path:
+                            path = (path.split(":")[0] if ":" in path else path) + ".py"
+                    elif runtime == RuntimeType.LSP.value:
                         if path == "BaseHandler":
                             continue
 
-                        if sys.platform.startswith('linux'):
-                            path = (path.split(':')[0] if ':' in path else path) + '.so'
-                        elif sys.platform.startswith('darwin'):
-                            path = (path.split(':')[0] if ':' in path else path) + '.dylib'
+                        if sys.platform.startswith("linux"):
+                            path = (path.split(":")[0] if ":" in path else path) + ".so"
+                        elif sys.platform.startswith("darwin"):
+                            path = (
+                                path.split(":")[0] if ":" in path else path
+                            ) + ".dylib"
 
                 if file_type == "extra_files":
                     for path_or_wildcard in path.split(","):
