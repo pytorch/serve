@@ -43,8 +43,8 @@ build_plugins_command = {
     "Linux": "plugins/gradlew -p plugins clean bS",
 }
 build_cpp_command = {
-    "Darwin": "cpp/build.sh",
-    "Linux": "cpp/build.sh"
+    "Darwin": "cpp/build.sh --install-dependencies",
+    "Linux": "cpp/build.sh --install-dependencies",
 }
 
 
@@ -115,7 +115,7 @@ class BuildPy(setuptools.command.build_py.build_py):
         setuptools.command.build_py.build_py.run(self)
 
         sys.stderr.flush()
-        self.run_command('build_cpp')
+        self.run_command("build_cpp")
         setuptools.command.build_py.build_py.run(self)
 
 
@@ -154,17 +154,14 @@ class BuildCPP(setuptools.command.build_py.build_py):
     """
     Class defined to run cpp build.
     """
-    description = 'Build Model Server CPP'
-    source_bin_dir = os.path.abspath(
-        'cpp/_build/bin')
-    dest_bin_dir = os.path.abspath('ts/cpp/bin')
-    source_lib_dir = os.path.abspath(
-        'cpp/_build/libs')
-    dest_lib_dir = os.path.abspath('ts/cpp/lib')
-    source_resource_dir = os.path.abspath(
-        'cpp/_build/resources')
-    dest_resource_dir = os.path.abspath(
-        'ts/cpp/resources')
+
+    description = "Build Model Server CPP"
+    source_bin_dir = os.path.abspath("cpp/_build/bin")
+    dest_bin_dir = os.path.abspath("ts/cpp/bin")
+    source_lib_dir = os.path.abspath("cpp/_build/libs")
+    dest_lib_dir = os.path.abspath("ts/cpp/lib")
+    source_resource_dir = os.path.abspath("cpp/_build/resources")
+    dest_resource_dir = os.path.abspath("ts/cpp/resources")
 
     # noinspection PyMethodMayBeStatic
     def run(self):
@@ -172,13 +169,12 @@ class BuildCPP(setuptools.command.build_py.build_py):
         Actual method called to run the build command
         :return:
         """
-        cpp_dir = os.path.abspath('.') + '/ts/cpp/'
+        cpp_dir = os.path.abspath(".") + "/ts/cpp/"
         if os.path.exists(cpp_dir):
             rmtree(cpp_dir)
 
         try:
-            subprocess.check_call(build_cpp_command[platform.system()],
-                                  shell=True)
+            subprocess.check_call(build_cpp_command[platform.system()], shell=True)
         except OSError:
             assert 0, "build failed"
 
@@ -217,10 +213,10 @@ if __name__ == "__main__":
         keywords="TorchServe PyTorch Serving Deep Learning Inference AI",
         packages=pkgs,
         cmdclass={
-            'build_frontend': BuildFrontEnd,
-            'build_plugins': BuildPlugins,
-            'build_cpp': BuildCPP,
-            'build_py': BuildPy,
+            "build_frontend": BuildFrontEnd,
+            "build_plugins": BuildPlugins,
+            "build_cpp": BuildCPP,
+            "build_py": BuildPy,
         },
         install_requires=requirements,
         extras_require={
