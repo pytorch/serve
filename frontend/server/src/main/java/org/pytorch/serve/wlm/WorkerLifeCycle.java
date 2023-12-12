@@ -358,8 +358,9 @@ public class WorkerLifeCycle {
     private static final class ReaderThread extends Thread {
         private static final Pattern METRIC_PATTERN =
                 Pattern.compile("^(INFO > )?(\\[METRICS])(.*)");
+                // TODO: Fix logging format in cpp backend
         private static final Pattern WORKER_START_PATTERN =
-                Pattern.compile("^(INFO > )?(Torch worker started.)$");
+                Pattern.compile("(.*)(INFO > )?(Torch worker started.)$");
         private static final Pattern WORKER_PID_PATTERN =
                 Pattern.compile("^(INFO > )?(\\[PID])(\\d+)$");
         private static final Logger loggerModelOutput =

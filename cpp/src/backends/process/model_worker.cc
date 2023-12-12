@@ -89,7 +89,8 @@ void SocketServer::Run() {
   }
   TS_LOG(INFO, "Socket bind successful");
   TS_LOGF(INFO, "[PID]{}", getpid());
-  TS_LOG(INFO, "Torch worker started.");
+  // TODO: fix logging format to include logging level
+  TS_LOG(INFO, "INFO Torch worker started.");
 
   while (true) {
     socklen_t len = sizeof(client_sock_address);
