@@ -144,8 +144,10 @@ class TorchserveModel(Model):
         and sets ready flag to true.
         """
         model_path = pathlib.Path(Storage.download(self.model_dir))
-        paths = list(pathlib.Path(model_path).glob("*.mar"))
-        existing_paths = [path for path in paths if path.exists()]
+        paths = list(pathlib.Path(model_path).glob("*"))
+        existing_paths = [
+            path for path in paths if path.is_dir() or path.suffixes == [".mar"]
+        ]
         if len(existing_paths) == 0:
             raise ModelMissingError(model_path)
         self.ready = True
