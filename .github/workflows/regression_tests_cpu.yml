@@ -38,7 +38,14 @@ jobs:
           submodules: recursive
       - name: Install dependencies
         run: |
-          python ts_scripts/install_dependencies.py --environment=dev
+          python ts_scripts/install_dependencies.py --environment=devc --cpp
+      - name: Install libtorch - macOS
+        if: matrix.os == 'macOS-latest'
+        run: |
+            brew install libtorch
+      - name: Build
+        run: |
+          cd cpp && ./build.sh
       - name: Torchserve Regression Tests
         run: |
           python test/regression_tests.py
