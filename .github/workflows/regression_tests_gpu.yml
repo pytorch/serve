@@ -46,14 +46,7 @@ jobs:
           submodules: recursive
       - name: Install dependencies
         run: |
-          python ts_scripts/install_dependencies.py --environment=dev --cpp --cuda=cu121
-      - name: Install libtorch - macOS
-        if: matrix.os == 'macOS-latest'
-        run: |
-            brew install libtorch
-      - name: Build
-        run: |
-          cd cpp && ./build.sh
+          python ts_scripts/install_dependencies.py --environment=dev --cuda=cu121
       - name: Torchserve Regression Tests
         run: |
           export TS_RUN_IN_DOCKER=False

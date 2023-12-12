@@ -7,11 +7,11 @@ on:
   pull_request:
     branches:
       - cpp_backend
-      
+
 concurrency:
   group: ci-cpu-${{ github.workflow }}-${{ github.ref == 'refs/heads/cpp_backend' && github.run_number || github.ref }}
   cancel-in-progress: true
-  
+
 jobs:
   ci-cpu-cpp:
     runs-on: ${{ matrix.os }}
@@ -26,6 +26,9 @@ jobs:
         if: matrix.os == 'macOS-latest'
         run: |
             brew install libtorch
+      - name: Install dependencies
+        run: |
+          python ts_scripts/install_dependencies.py --environment=dev --cpp
       - name: Build
         run: |
           cd cpp && ./build.sh --install-dependencies
