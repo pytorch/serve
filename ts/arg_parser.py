@@ -31,39 +31,57 @@ class ArgParser(object):
             "--stop", action="store_true", help="Stop the model-server"
         )
 
-        parser.add_argument('--ts-config',
-                            dest='ts_config',
-                            help='Configuration file for model server')
-        parser.add_argument('--model-store',
-                            required=False,
-                            dest='model_store',
-                            help='Model store location from where local or default models can be loaded')
-        parser.add_argument('--workflow-store',
-                            required=False,
-                            dest='workflow_store',
-                            help='Workflow store location from where local or default workflows can be loaded')
-        parser.add_argument('--models',
-                            metavar='MODEL_PATH1 MODEL_NAME=MODEL_PATH2...',
-                            nargs='+',
-                            help='Models to be loaded using [model_name=]model_location format. '
-                                 'Location can be a HTTP URL or a model archive file  in MODEL_STORE.')
-        parser.add_argument('--log-config',
-                            dest='log_config',
-                            help='Log4j configuration file for model server')
-        parser.add_argument('--cpp-log-config',
-                            dest='cpp_log_config',
-                            help='log configuration file for cpp backend')
-        parser.add_argument('--foreground',
-                            help='Run the model server in foreground. If this option is disabled, the model server'
-                                 ' will run in the background.',
-                            action='store_true')
-        parser.add_argument('--no-config-snapshots', '--ncs',
-                            dest='no_config_snapshots',
-                            help='Prevents to server from storing config snapshot files.',
-                            action='store_true')
-        parser.add_argument('--plugins-path', '--ppath',
-                            dest='plugins_path',
-                            help='plugin jars to be included in torchserve class path')
+        parser.add_argument(
+            "--ts-config", dest="ts_config", help="Configuration file for model server"
+        )
+        parser.add_argument(
+            "--model-store",
+            required=False,
+            dest="model_store",
+            help="Model store location from where local or default models can be loaded",
+        )
+        parser.add_argument(
+            "--workflow-store",
+            required=False,
+            dest="workflow_store",
+            help="Workflow store location from where local or default workflows can be loaded",
+        )
+        parser.add_argument(
+            "--models",
+            metavar="MODEL_PATH1 MODEL_NAME=MODEL_PATH2...",
+            nargs="+",
+            help="Models to be loaded using [model_name=]model_location format. "
+            "Location can be a HTTP URL or a model archive file  in MODEL_STORE.",
+        )
+        parser.add_argument(
+            "--log-config",
+            dest="log_config",
+            help="Log4j configuration file for model server",
+        )
+        parser.add_argument(
+            "--cpp-log-config",
+            dest="cpp_log_config",
+            help="log configuration file for cpp backend",
+        )
+        parser.add_argument(
+            "--foreground",
+            help="Run the model server in foreground. If this option is disabled, the model server"
+            " will run in the background.",
+            action="store_true",
+        )
+        parser.add_argument(
+            "--no-config-snapshots",
+            "--ncs",
+            dest="no_config_snapshots",
+            help="Prevents to server from storing config snapshot files.",
+            action="store_true",
+        )
+        parser.add_argument(
+            "--plugins-path",
+            "--ppath",
+            dest="plugins_path",
+            help="plugin jars to be included in torchserve class path",
+        )
 
         return parser
 
