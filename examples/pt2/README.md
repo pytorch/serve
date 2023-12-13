@@ -110,7 +110,7 @@ print(ep(torch.randn(5)))
 
 ## torch._export.aot_compile
 
-Using `torch.compile` to wrap your existing eager PyTorch model can result in out of the box speedups. However, `torch.compile` is a JIT compiler. TorchServe has been supporting `torch.compile` since PyTorch 2.0 release. In a production setting, when you have multiple instances of TorchServe, each of of your instances would `torch.compile` the model on inference. TorchServe's model archiever is not able to truly guarantee reproducibility because its a JIT compiler.
+Using `torch.compile` to wrap your existing eager PyTorch model can result in out of the box speedups. However, `torch.compile` is a JIT compiler. TorchServe has been supporting `torch.compile` since PyTorch 2.0 release. In a production setting, when you have multiple instances of TorchServe, each of of your instances would `torch.compile` the model on the first inference. TorchServe's model archiver is not able to truly guarantee reproducibility because its a JIT compiler.
 
 In addition, the first inference request with `torch.compile` will be slow as the model needs to compile.
 
