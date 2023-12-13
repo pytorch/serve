@@ -18,7 +18,7 @@ You can find more details [here](https://pytorch.org/docs/main/torch.compiler_ao
 - `CUDA 12.1`
 
 Change directory to the examples directory
-Ex:  `cd` to `examples/pt2/torch_export_aot_compile`
+Ex:  `cd  examples/pt2/torch_export_aot_compile`
 
 Install PyTorch 2.2 nightlies by running
 ```
