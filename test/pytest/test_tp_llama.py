@@ -2,17 +2,17 @@ import json
 import os
 import shutil
 import sys
-from argparse import Namespace
 from collections import OrderedDict
 from multiprocessing import Process, Queue
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 import requests
 import test_utils
 import torch
 import yaml
+from model_archiver.model_archiver_config import ModelArchiverConfig
 
 from ts.torch_handler.unit_tests.test_utils.mock_context import MockContext
 
@@ -504,7 +504,7 @@ def create_mar_file(work_dir, model_archiver, model_name):
     model_config_yaml = Path(work_dir) / "model-config.yaml"
     model_config_yaml.write_text(YAML_CONFIG)
 
-    args = Namespace(
+    config = ModelArchiverConfig(
         model_name=model_name,
         version="1.0",
         model_file=CURR_FILE_PATH.joinpath(
@@ -528,14 +528,11 @@ def create_mar_file(work_dir, model_archiver, model_name):
         archive_format="no-archive",
     )
 
-    mock = MagicMock()
-    mock.parse_args = MagicMock(return_value=args)
-    with patch("archiver.ArgParser.export_model_args_parser", return_value=mock):
-        model_archiver.generate_model_archive()
+    model_archiver.generate_model_archive(config=config)
 
-        assert mar_file_path.exists()
+    assert mar_file_path.exists()
 
-        yield mar_file_path.as_posix()
+    yield mar_file_path.as_posix()
 
     # Clean up files
     shutil.rmtree(mar_file_path)
