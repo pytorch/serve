@@ -23,7 +23,7 @@ import platform
 import subprocess
 import sys
 from datetime import date
-from shutil import copy2, copytree, rmtree
+from shutil import copy2, rmtree
 
 import setuptools.command.build_py
 from setuptools import Command, find_packages, setup
@@ -41,10 +41,6 @@ build_plugins_command = {
     "Windows": ".\\plugins\\gradlew.bat -p plugins clean bS",
     "Darwin": "plugins/gradlew -p plugins clean bS",
     "Linux": "plugins/gradlew -p plugins clean bS",
-}
-build_cpp_command = {
-    "Darwin": "cpp/build.sh",
-    "Linux": "cpp/build.sh",
 }
 
 
@@ -150,39 +146,6 @@ class BuildPlugins(Command):
         self.run_command("build_py")
 
 
-class BuildCPP(setuptools.command.build_py.build_py):
-    """
-    Class defined to run cpp build.
-    """
-
-    description = "Build Model Server CPP"
-    source_bin_dir = os.path.abspath("cpp/_build/bin")
-    dest_bin_dir = os.path.abspath("ts/cpp/bin")
-    source_lib_dir = os.path.abspath("cpp/_build/libs")
-    dest_lib_dir = os.path.abspath("ts/cpp/lib")
-    source_resource_dir = os.path.abspath("cpp/_build/resources")
-    dest_resource_dir = os.path.abspath("ts/cpp/resources")
-
-    # noinspection PyMethodMayBeStatic
-    def run(self):
-        """
-        Actual method called to run the build command
-        :return:
-        """
-        cpp_dir = os.path.abspath(".") + "/ts/cpp/"
-        if os.path.exists(cpp_dir):
-            rmtree(cpp_dir)
-
-        try:
-            subprocess.check_call(build_cpp_command[platform.system()], shell=True)
-        except OSError:
-            assert 0, "build failed"
-
-        copytree(self.source_bin_dir, self.dest_bin_dir)
-        copytree(self.source_lib_dir, self.dest_lib_dir)
-        copytree(self.source_resource_dir, self.dest_resource_dir)
-
-
 if __name__ == "__main__":
     # Get nightly version if nightly in name
     name = "torchserve"
@@ -215,7 +178,6 @@ if __name__ == "__main__":
         cmdclass={
             "build_frontend": BuildFrontEnd,
             "build_plugins": BuildPlugins,
-            "build_cpp": BuildCPP,
             "build_py": BuildPy,
         },
         install_requires=requirements,
