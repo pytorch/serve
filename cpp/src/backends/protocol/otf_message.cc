@@ -160,17 +160,17 @@ void OTFMessage::RetrieveInferenceRequestParameter(
 
 bool OTFMessage::SendInferenceResponse(
     const ISocket& client_socket_,
-    std::shared_ptr<InferenceResponseBatch> inference_response_batch) {
+    std::shared_ptr<InferenceResponseBatch>& inference_response_batch) {
   std::vector<char> data_buffer = {};
   OTFMessage::EncodeInferenceResponse(inference_response_batch, data_buffer);
   return client_socket_.SendAll(data_buffer.size(), data_buffer.data());
 }
 
 void OTFMessage::EncodeInferenceResponse(
-    std::shared_ptr<InferenceResponseBatch> inference_response_batch,
+    std::shared_ptr<InferenceResponseBatch>& inference_response_batch,
     std::vector<char>& data_buffer) {
   // frontend decoder -
-  // https://github.com/pytorch/serve/blob/master/frontend/server/src/main/java/org/pytorch/serve/util/codec/ModelResponseDecoder.java#L20
+  // https://github.com/pytorch/serve/blob/a4a553a1d77668310e74141f4efabdc7713d77f4/frontend/server/src/main/java/org/pytorch/serve/util/codec/ModelResponseDecoder.java#L20
 
   auto batch_response_status =
       std::make_pair(200, std::string("Prediction success"));
