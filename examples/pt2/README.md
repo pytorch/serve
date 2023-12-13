@@ -114,7 +114,7 @@ Using `torch.compile` to wrap your existing eager PyTorch model can result in ou
 
 In addition, the first inference request with `torch.compile` will be slow as the model needs to compile.
 
-To solve this problem, `torch.export` has an experimental API `torch._export.aot_compile` which is able to `torch.export` a torch compilable model with no graphbreaks along with AOTInductor.
+To solve this problem, `torch.export` has an experimental API `torch._export.aot_compile` which is able to `torch.export` a torch compilable model if it has no graph breaks and then run it with AOTInductor
 
 You can find more details [here](https://pytorch.org/docs/main/torch.compiler_aot_inductor.html)
 
