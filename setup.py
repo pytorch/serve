@@ -110,10 +110,6 @@ class BuildPy(setuptools.command.build_py.build_py):
         self.run_command("build_frontend")
         setuptools.command.build_py.build_py.run(self)
 
-        sys.stderr.flush()
-        self.run_command("build_cpp")
-        setuptools.command.build_py.build_py.run(self)
-
 
 class BuildPlugins(Command):
     description = "Build Model Server Plugins"
