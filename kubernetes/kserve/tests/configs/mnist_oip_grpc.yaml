@@ -1,13 +1,13 @@
 apiVersion: serving.kserve.io/v1beta1
 kind: InferenceService
 metadata:
-  name: "torchserve-mnist-v2"
+  name: "torchserve-mnist-v2-grpc"
 spec:
   predictor:
     pytorch:
       protocolVersion: v2
       storageUri: gs://kfserving-examples/models/torchserve/image_classifier/v2
-      image: pytorch/torchserve-kfs-nightly:latest-cpu
+      image: sivanantha/torchserve-oip-test:latest
       resources:
         limits:
           cpu: "1"
@@ -15,3 +15,10 @@ spec:
         requests:
           cpu: "100m"
           memory: 256Mi
+      ports:
+        - containerPort: 7070 # torchserve grpc port
+          name: h2c
+          protocol: TCP
+      env:
+        - name: "INFERENCE_PROTOCOL"
+          value: "oip"

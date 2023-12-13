@@ -54,7 +54,8 @@ public class GRPCJob extends Job {
         super(modelName, version, cmd, input);
         this.predictionResponseObserver = predictionResponseObserver;
         this.queueTimeMetric = MetricCache.getInstance().getMetricFrontend("QueueTime");
-        this.queueTimeMetricDimensionValues = Arrays.asList("Host", ConfigManager.getInstance().getHostName());
+        this.queueTimeMetricDimensionValues =
+                Arrays.asList("Host", ConfigManager.getInstance().getHostName());
     }
 
     public GRPCJob(
@@ -77,7 +78,8 @@ public class GRPCJob extends Job {
         super(modelName, version, WorkerCommands.DESCRIBE, input);
         this.managementResponseObserver = managementResponseObserver;
         this.queueTimeMetric = MetricCache.getInstance().getMetricFrontend("QueueTime");
-        this.queueTimeMetricDimensionValues = Arrays.asList("Host", ConfigManager.getInstance().getHostName());
+        this.queueTimeMetricDimensionValues =
+                Arrays.asList("Host", ConfigManager.getInstance().getHostName());
     }
 
     private void cancelHandler(ServerCallStreamObserver<PredictionResponse> responseObserver) {
