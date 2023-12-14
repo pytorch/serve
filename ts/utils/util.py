@@ -9,9 +9,7 @@ import logging
 import os
 import re
 from functools import wraps
-from warnings import simplefilter, warn
-
-simplefilter("once", category=(PendingDeprecationWarning, DeprecationWarning))
+from warnings import warn
 
 import yaml
 
