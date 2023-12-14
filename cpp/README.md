@@ -2,14 +2,20 @@
 ## Requirements
 * C++17
 * GCC version: gcc-9
-## Installation and Run
-### Installation
+## Installation and Running TorchServe CPP
+
+### Install dependencies
+```
+cd serve
+python ts_scripts/install_dependencies.py --cpp [--cuda=cu121|cu118]
+```
+### Building the backend
 ```
 ## Dev Build
 cd serve/cpp 
-./build.sh [-g cu102|cu113|cu116] [--install-dependencies]
+./build.sh [-g cu121|cu118]
 
-## Installation
+## Install TorchServe from source
 cd serve
 python ts_scripts/install_from_src.py
 ```
