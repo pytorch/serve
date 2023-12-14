@@ -15,6 +15,172 @@ from ts.torch_handler.base_handler import BaseHandler
 logger = logging.getLogger(__name__)
 
 
+class NeuronxContinuousBatching:
+    def __init__(self):
+        self.empty_idx_queue = []
+        self.idx_to_req_id = {}
+        self.decoded_req_id = {}
+        self.batch_store = []
+        self.batch_size = 1
+        for idx, batch_id in enumerate(reversed(range(self.batch_size))):
+            self.empty_idx_queue.append(batch_id)
+            self.batch_store[idx] = {}
+
+    def _get_empty_idx(self):
+        assert len(self.empty_idx_queue) > 0
+        return self.empty_idx_queue.pop()
+
+    def _add_empty_idx(self, idx):
+        self.empty_idx_queue.append(idx)
+
+    def _get_idx(self, req_id):
+        idx = self.decoded_req_id.get(req_id, -1)
+        assert idx > 0
+        return idx
+
+    def _get_req_id(self, idx):
+        req_id = self.idx_to_req_id.get(idx, None)
+        assert req_id is not None
+        return req_id
+
+    def _set_req_id(self, idx, req_id):
+        self.idx_to_req_id[idx] = req_id
+
+    def _init_batch_store(self, batch_encoded):
+        for i in range(batch_encoded.input_ids.size(dim=0)):
+            self.batch_store[i] = {
+                "input_ids": batch_encoded.input_ids[i, :],
+                "attention_mask": batch_encoded.attention_mask[i, :],
+            }
+
+    def _update_batch_store(self, idx, input_ids, attention_mask, length):
+        self.batch_store[idx] = {
+            "input_ids": input_ids[-length:],
+            "attention_mask": attention_mask[-length:],
+        }
+
+    def preprocess(self, batch_requests, ctx):
+        prefill_input_text = []
+        if len(self.decoded_req_id) == 0:
+            prefill_input_text = [""] * self.batch_size
+
+        prefill_req_ids, decode_req_ids, prefill_input = [], [], []
+        for req_id, req_data in zip(ctx.request_ids.values(), batch_requests):
+            # Tokenizer requests which are not prefilled yet
+            if not req_id in self.decoded_req_id:
+                idx = self._get_empty_idx()
+                self._set_req_id(idx, req_id)
+
+                data = req_data["data"]
+                if isinstance(data, (bytes, bytearray)):
+                    data = data.decode("utf-8")
+                    max_new_tokens = int(
+                        req_data.get("max_new_tokens", int(self.max_new_tokens))
+                    )
+                    if len(prefill_input_text) == self.batch_size:
+                        prefill_input_text[idx] = data.strip()
+                    else:
+                        prefill_input_text.append(data.strip())
+
+                    self.batch_store[idx] = {
+                        "req_id": req_id,
+                        "stopping_criteria": self._create_stopping_criteria(
+                            req_id, max_new_tokens
+                        ),
+                    }
+                logger.info(
+                    "Received text: '%s', max_new_token=%d", data, max_new_tokens
+                )
+
+                prefill_req_ids.append(req_id)
+            else:
+                decode_req_ids.append(req_id)
+
+    def prefill(self, prefill_input, prefill_req_ids, decoded_req_ids):
+        if len(self.decoded_req_id) == 0:
+            prefill_input_text = [""] * self.batch_size
+
+        for i, req_id in enumerate(prefill_req_ids):
+            idx = self._get_idx(req_id)
+            input_data = prefill_input[i]
+            prefill_input_text[idx] = input_data["data"]
+            self.context.cache[req_id] = {
+                "batch_idx": idx,
+                "stopping_criteria": self._create_stopping_criteria(
+                    req_id, max_new_tokens=input_data["max_new_tokens"]
+                ),
+            }
+        logger.info(f"_run_tokenizer_batch prefill_input_text={prefill_input_text}")
+
+        batch_encoded = self.tokenizer(
+            prefill_input_text,
+            return_tensors="pt",
+            padding=True,
+            add_special_tokens=True,
+            return_token_type_ids=False,
+            truncation=True,
+        )
+        seq_length = min(batch_encoded.input_ids.shape[-1])
+        for req_id in prefill_req_ids:
+            idx = self.context.cache[req_id]["batch_idx"]
+            encoded = {
+                "input_ids": batch_encoded.input_ids[idx, :seq_length],
+                "attention_mask": batch_encoded.attention_mask[idx, :seq_length],
+            }
+            logger.info(f"encoded={encoded}")
+            self.context.cache[req_id].update(
+                {
+                    "encoded": encoded,
+                    "prompt_length": encoded["input_ids"].shape[0],
+                }
+            )
+
+        ids = prefill_req_ids + decode_req_ids
+        return self._prepare_model_inputs(ids)
+
+    def decode(self):
+        pass
+
+    def clean(self, req_id):
+        pass
+
+    def _create_stopping_criteria(self, req_id, max_new_tokens=25):
+        class StoppingCriteria(object):
+            def __init__(
+                self,
+                cache,
+                batch_empty_ids,
+                req_id,
+                stop_token,
+                max_new_tokens,
+            ):
+                self.req_id = req_id
+                self.cache = cache
+                self.batch_empty_ids = batch_empty_ids
+                self.max_new_tokens = max_new_tokens
+                self.stop_token = stop_token
+
+            def __call__(self, res):
+                self.max_new_tokens -= 1
+
+                if self.max_new_tokens == 0 or res["tokens"][-1] == self.stop_token:
+                    self.clean_up()
+                    return True
+                return False
+
+            def clean_up(self):
+                self.batch_empty_ids.append(self.cache[self.req_id]["batch_idx"])
+                del self.cache[self.req_id]
+
+        return StoppingCriteria(
+            self.context.cache,
+            self.batch_empty_ids,
+            req_id,
+            self.tokenizer.eos_token_id,
+            max_new_tokens,
+        )
+
+
 class LlamaHandler(BaseHandler, ABC):
     """
     Transformers handler class for sequence, token classification and question answering.
