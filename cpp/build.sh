@@ -80,22 +80,18 @@ function install_libtorch() {
     cd "$DEPS_DIR" || exit
     if [ "$PLATFORM" = "Linux" ]; then
       echo -e "${COLOR_GREEN}[ INFO ] Install libtorch on Linux ${COLOR_OFF}"
-      if [ "$CUDA" = "cu102" ]; then
-        wget https://download.pytorch.org/libtorch/cu102/libtorch-cxx11-abi-shared-with-deps-1.12.1%2Bcu102.zip
-        unzip libtorch-cxx11-abi-shared-with-deps-1.12.1+cu102.zip
-        rm libtorch-cxx11-abi-shared-with-deps-1.12.1+cu102.zip
-      elif [ "$CUDA" = "cu113" ]; then
-        wget https://download.pytorch.org/libtorch/cu113/libtorch-cxx11-abi-shared-with-deps-1.12.1%2Bcu113.zip
-        unzip libtorch-cxx11-abi-shared-with-deps-1.12.1+cu113.zip
-        rm libtorch-cxx11-abi-shared-with-deps-1.12.1+cu113.zip
-      elif [ "$CUDA" = "cu116" ]; then
-        wget https://download.pytorch.org/libtorch/cu116/libtorch-cxx11-abi-shared-with-deps-1.12.1%2Bcu116.zip
-        unzip libtorch-cxx11-abi-shared-with-deps-1.12.1+cu116.zip
-        rm libtorch-cxx11-abi-shared-with-deps-1.12.1+cu116.zip
+      if [ "$CUDA" = "cu118" ]; then
+        wget https://download.pytorch.org/libtorch/cu118/libtorch-cxx11-abi-shared-with-deps-2.1.1%2Bcu118.zip
+        unzip libtorch-cxx11-abi-shared-with-deps-2.1.1+cu118.zip
+        rm libtorch-cxx11-abi-shared-with-deps-2.1.1+cu118.zip
+      elif [ "$CUDA" = "cu121" ]; then
+        wget https://download.pytorch.org/libtorch/cu121/libtorch-cxx11-abi-shared-with-deps-2.1.1%2Bcu121.zip
+        unzip libtorch-cxx11-abi-shared-with-deps-2.1.1+cu121.zip
+        rm libtorch-cxx11-abi-shared-with-deps-2.1.1+cu121.zip
       else
-        wget https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.12.1%2Bcpu.zip
-        unzip libtorch-cxx11-abi-shared-with-deps-1.12.1+cpu.zip
-        rm libtorch-cxx11-abi-shared-with-deps-1.12.1+cpu.zip
+        wget https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-2.1.1%2Bcpu.zip
+        unzip libtorch-cxx11-abi-shared-with-deps-2.1.1+cpu.zip
+        rm libtorch-cxx11-abi-shared-with-deps-2.1.1+cpu.zip
       fi
     elif [ "$PLATFORM" = "Windows" ]; then
       echo -e "${COLOR_GREEN}[ INFO ] Install libtorch on Windows ${COLOR_OFF}"
@@ -239,6 +235,18 @@ function symlink_yaml_cpp_lib() {
   fi
 }
 
+function install_torchserve_cpp() {
+  TARGET_DIR=$BASE_DIR/../ts/cpp/
+
+  if [ -d $TARGET_DIR ]; then
+    rm -rf $TARGET_DIR
+  fi
+  mkdir $TARGET_DIR
+  cp -rp $BASE_DIR/_build/bin $TARGET_DIR/bin
+  cp -rp $BASE_DIR/_build/libs $TARGET_DIR/lib
+  cp -rp $BASE_DIR/_build/resources $TARGET_DIR/resources
+}
+
 # Parse args
 JOBS=8
 WITH_QUIC=false
@@ -306,3 +314,4 @@ install_yaml_cpp
 build
 symlink_torch_libs
 symlink_yaml_cpp_lib
+install_torchserve_cpp
