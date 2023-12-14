@@ -65,6 +65,18 @@ STATS_METRICS_CONFIG = {
         "name": "model_latency_P99",
         "unit": 'Milliseconds'
     },
+    "Queue time p50" : {
+        "name": "queue_time_P50",
+        "unit": 'Milliseconds'
+    },
+    "Queue time p90" : {
+        "name": "queue_time_P90",
+        "unit": 'Milliseconds'
+    },
+    "Queue time p99" : {
+        "name": "queue_time_P99",
+        "unit": 'Milliseconds'
+    },
     "memory_percentage_mean" : {
         "name": "memory_percentage_mean",
         "unit": 'Percent'
