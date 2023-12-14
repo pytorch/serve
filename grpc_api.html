@@ -474,7 +474,11 @@ torchserve<span class="w"> </span>--start<span class="w"> </span>--model-store<s
 </pre></div>
 </div>
 <p>Backend handler calls “send_intermediate_predict_response” to send one intermediate result to frontend, and return the last result as the existing style. For example</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ts.protocol.otf_message_handler</span> <span class="kn">import</span> <span class="n">send_intermediate_predict_response</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ts.handler_utils.utils</span> <span class="kn">import</span> <span class="n">send_intermediate_predict_response</span>
+<span class="sd">&#39;&#39;&#39; Note: TorchServe v1.0.0 will deprecate</span>
+<span class="sd">&quot;from ts.protocol.otf_message_handler import send_intermediate_predict_response&quot;.</span>
+<span class="sd">Please replace it with &quot;from ts.handler_utils.utils import send_intermediate_predict_response&quot;.</span>
+<span class="sd">&#39;&#39;&#39;</span>
 
 <span class="k">def</span> <span class="nf">handle</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
     <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">list</span><span class="p">:</span>

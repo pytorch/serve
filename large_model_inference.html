@@ -591,7 +591,11 @@ You can also find an example of how to apply this to TorchServe <a class="refere
 <section id="streaming-response-via-http-1-1-chunked-encoding">
 <h3>Streaming response via HTTP 1.1 chunked encoding<a class="headerlink" href="#streaming-response-via-http-1-1-chunked-encoding" title="Permalink to this heading">¶</a></h3>
 <p>TorchServe’s inference API supports streaming response to allow a sequence of inference responses to be sent over HTTP 1.1 chunked encoding. This feature is only recommended for the use case when the inference latency of the full response is high and the inference intermediate results are sent to the client. An example could be LLMs for generative applications, where generating “n” number of tokens can have high latency. In this case,  the user can receive each generated token once ready until the full response completes. To achieve streaming response, the backend handler calls “send_intermediate_predict_response” to send one intermediate result to the frontend, and returns the last result as the existing style. For example,</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ts.protocol.otf_message_handler</span> <span class="kn">import</span> <span class="n">send_intermediate_predict_response</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ts.handler_utils.utils</span> <span class="kn">import</span> <span class="n">send_intermediate_predict_response</span>
+<span class="sd">&#39;&#39;&#39; Note: TorchServe v1.0.0 will deprecate</span>
+<span class="sd">&quot;from ts.protocol.otf_message_handler import send_intermediate_predict_response&quot;.</span>
+<span class="sd">Please replace it with &quot;from ts.handler_utils.utils import send_intermediate_predict_response&quot;.</span>
+<span class="sd">&#39;&#39;&#39;</span>
 <span class="k">def</span> <span class="nf">handle</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
     <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">list</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span> <span class="p">(</span><span class="mi">3</span><span class="p">):</span>
@@ -636,7 +640,12 @@ You can also find an example of how to apply this to TorchServe <a class="refere
 </pre></div>
 </div>
 <p>Backend handler calls “send_intermediate_predict_response” to send one intermediate result to frontend, and return the last result as the existing style. For example</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ts.protocol.otf_message_handler</span> <span class="kn">import</span> <span class="n">send_intermediate_predict_response</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ts.handler_utils.utils</span> <span class="kn">import</span> <span class="n">send_intermediate_predict_response</span>
+<span class="sd">&#39;&#39;&#39; Note: TorchServe v1.0.0 will deprecate</span>
+<span class="sd">&quot;from ts.protocol.otf_message_handler import send_intermediate_predict_response&quot;.</span>
+<span class="sd">Please replace it with &quot;from ts.handler_utils.utils import send_intermediate_predict_response&quot;.</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
 
 <span class="k">def</span> <span class="nf">handle</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
     <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">list</span><span class="p">:</span>
