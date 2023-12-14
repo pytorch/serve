@@ -17,4 +17,4 @@ def test_deprecated_func_decorator():
     with pytest.warns(PendingDeprecationWarning) as record:
         foo()
         foo()
-        assert len(record) == 0
+        assert len(record) == 2
