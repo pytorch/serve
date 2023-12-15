@@ -118,7 +118,7 @@ std::vector<torch::jit::IValue> BabyLlamaHandler::Preprocess(
 
       std::strcpy(msgCStr.get(), msg.c_str());
 
-      std::unique_ptr<int[]> prompt_tokens(new int[msg.length()]);
+      std::unique_ptr<int[]> prompt_tokens(new int[msg.length() + 3]);
 
       encode(&tokenizer, msgCStr.get(), 1, 0, prompt_tokens.get(),
              &num_prompt_tokens);

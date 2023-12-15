@@ -84,8 +84,7 @@ TEST_F(TorchScriptedBackendTest, TestLoadPredictBabyLlamaHandler) {
           "test/resources/torchscript_model/babyllama/babyllama_handler", "llm",
           -1, "", "", 1, false),
       "test/resources/torchscript_model/babyllama/babyllama_handler",
-      "test/resources/torchscript_model/babyllama/prompt.txt", "llm_ts",
-      200);
+      "test/resources/torchscript_model/babyllama/prompt.txt", "llm_ts", 200);
 }
 
 TEST_F(TorchScriptedBackendTest, TestBackendInitWrongModelDir) {

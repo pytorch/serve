@@ -9,7 +9,6 @@ FetchContent_MakeAvailable(googletest)
 enable_testing()
 
 set(TEST_BINARY ${CMAKE_PROJECT_NAME}_test)
-set(TS_TEST_SRC_DIR "${torchserve_cpp_SOURCE_DIR}/test/")
 file(GLOB_RECURSE TEST_SOURCES LIST_DIRECTORIES false *.cc *.hh)
 
 add_executable(${TEST_BINARY} ${TEST_SOURCES})
