@@ -155,11 +155,11 @@ class BaseHandler(abc.ABC):
             self.map_location = "cpu"
             self.device = torch.device(self.map_location)
 
-        TORCH_EXPORT_AVAILABLE = False
+        USE_TORCH_EXPORT = False
         if hasattr(self, "model_yaml_config") and "pt2" in self.model_yaml_config:
             pt2_value = self.model_yaml_config["pt2"]
             if pt2_value == "export" and PT220_AVAILABLE:
-                TORCH_EXPORT_AVAILABLE = True
+                USE_TORCH_EXPORT = True
 
         self.manifest = context.manifest
 
@@ -190,9 +190,7 @@ class BaseHandler(abc.ABC):
             self.model = setup_ort_session(self.model_pt_path, self.map_location)
             logger.info("Succesfully setup ort session")
 
-        elif self.model_pt_path.endswith(".so") and TORCH_EXPORT_AVAILABLE:
-            from ts.handler_utils.torch_export.load_model import load_exported_model
-
+        elif self.model_pt_path.endswith(".so") and USE_TORCH_EXPORT:
             self.model = self._load_torch_export_aot_compile(self.model_pt_path)
             logger.warning(
                 "torch._export is an experimental feature! Succesfully loaded torch exported model."
@@ -252,6 +250,8 @@ class BaseHandler(abc.ABC):
         self.initialized = True
 
     def _load_torch_export_aot_compile(self, model_so_path):
+        from ts.handler_utils.torch_export.load_model import load_exported_model
+
         return load_exported_model(model_so_path, self.map_location)
 
     def _load_torchscript_model(self, model_pt_path):
