@@ -4,7 +4,7 @@
 #include <map>
 #include <memory>
 
-#include "src/backends/torch_scripted/handler/base_handler.hh"
+#include "src/backends/handler/base_handler.hh"
 
 namespace torchserve {
 namespace torchscripted {

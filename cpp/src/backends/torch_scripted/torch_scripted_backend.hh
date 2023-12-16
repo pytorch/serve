@@ -1,5 +1,4 @@
-#ifndef TS_CPP_BACKENDS_TORCH_SCRIPTED_TORCH_SCRIPTED_BACKEND_HH_
-#define TS_CPP_BACKENDS_TORCH_SCRIPTED_TORCH_SCRIPTED_BACKEND_HH_
+#pragma once
 
 #include <fmt/format.h>
 #include <torch/script.h>
@@ -8,7 +7,7 @@
 #include <memory>
 
 #include "src/backends/core/backend.hh"
-#include "src/backends/torch_scripted/handler/base_handler.hh"
+#include "src/backends/handler/base_handler.hh"
 #include "src/backends/torch_scripted/handler/handler_factory.hh"
 #include "src/utils/dl_loader.hh"
 #include "src/utils/logging.hh"
@@ -35,9 +34,8 @@ class Backend final : public torchserve::Backend {
  private:
   void LoadHandler(const std::string& model_dir);
 
-  std::unique_ptr<torchserve::DLLoader<BaseHandler>> dl_loader_;
-  std::shared_ptr<BaseHandler> handler_;
+  std::unique_ptr<torchserve::DLLoader<torchserve::BaseHandler>> dl_loader_;
+  std::shared_ptr<torchserve::BaseHandler> handler_;
 };
 }  // namespace torchscripted
 }  // namespace torchserve
-#endif  // TS_CPP_BACKENDS_TORCH_SCRIPTED_TORCH_SCRIPTED_BACKEND_HH_

@@ -1,16 +1,11 @@
-#ifndef BABYLLAMA_HANDLER_HH_
-#define BABYLLAMA_HANDLER_HH_
-
-#include <folly/FileUtil.h>
-#include <folly/json.h>
+#pragma once
 
 #include <iostream>
 
-// #include "run.c"
-#include "src/backends/torch_scripted/handler/base_handler.hh"
+#include "src/backends/handler/base_handler.hh"
 
 namespace llm {
-class BabyLlamaHandler : public torchserve::torchscripted::BaseHandler {
+class BabyLlamaHandler : public torchserve::BaseHandler {
  public:
   // NOLINTBEGIN(bugprone-exception-escape)
   BabyLlamaHandler() = default;
@@ -43,4 +38,3 @@ class BabyLlamaHandler : public torchserve::torchscripted::BaseHandler {
       override;
 };
 }  // namespace llm
-#endif  // BABYLLAMA_HANDLER_HH_

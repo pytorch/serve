@@ -1,5 +1,4 @@
-#ifndef TS_CPP_BACKENDS_TORCH_SCRIPTED_HANDLER_BASE_HANDLER_HH_
-#define TS_CPP_BACKENDS_TORCH_SCRIPTED_HANDLER_BASE_HANDLER_HH_
+#pragma once
 
 #include <torch/script.h>
 #include <torch/torch.h>
@@ -17,7 +16,6 @@
 #include "src/utils/model_archive.hh"
 
 namespace torchserve {
-namespace torchscripted {
 /**
  * @brief
  * TorchBaseHandler <=> BaseHandler:
@@ -78,6 +76,4 @@ class BaseHandler {
   std::shared_ptr<torchserve::Manifest> manifest_;
   std::string model_dir_;
 };
-}  // namespace torchscripted
 }  // namespace torchserve
-#endif  // TS_CPP_BACKENDS_TORCH_HANDLER_BASE_HANDLER_HH_

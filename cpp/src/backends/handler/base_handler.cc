@@ -1,7 +1,6 @@
-#include "src/backends/torch_scripted/handler/base_handler.hh"
+#include "base_handler.hh"
 
 namespace torchserve {
-namespace torchscripted {
 std::pair<std::shared_ptr<void>, std::shared_ptr<torch::Device>>
 BaseHandler::LoadModel(
     std::shared_ptr<torchserve::LoadModelRequest>& load_model_request) {
@@ -239,5 +238,4 @@ void BaseHandler::Postprocess(
     }
   }
 }
-}  // namespace torchscripted
 }  // namespace torchserve

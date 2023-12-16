@@ -6,16 +6,15 @@
 #include <string>
 
 #include "src/backends/core/backend.hh"
-#include "src/backends/torch_scripted/handler/base_handler.hh"
+#include "src/backends/handler/base_handler.hh"
 
 namespace torchserve {
 namespace torchscripted {
 class ModelInstance final : public torchserve::ModelInstance {
  public:
-  ModelInstance(
-      const std::string& instance_id, std::shared_ptr<void> model,
-      std::shared_ptr<torchserve::torchscripted::BaseHandler>& handler,
-      std::shared_ptr<torch::Device> device)
+  ModelInstance(const std::string& instance_id, std::shared_ptr<void> model,
+                std::shared_ptr<torchserve::BaseHandler>& handler,
+                std::shared_ptr<torch::Device> device)
       : torchserve::ModelInstance(instance_id),
         model_(model),
         handler_(handler),
@@ -28,7 +27,7 @@ class ModelInstance final : public torchserve::ModelInstance {
 
  private:
   std::shared_ptr<void> model_;
-  std::shared_ptr<torchserve::torchscripted::BaseHandler> handler_;
+  std::shared_ptr<torchserve::BaseHandler> handler_;
   std::shared_ptr<torch::Device> device_;
 };
 }  // namespace torchscripted

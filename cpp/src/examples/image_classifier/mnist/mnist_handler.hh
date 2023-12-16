@@ -1,10 +1,9 @@
-#ifndef MNIST_HANDLER_HH_
-#define MNIST_HANDLER_HH_
+#pragma once
 
-#include "src/backends/torch_scripted/handler/base_handler.hh"
+#include "src/backends/handler/base_handler.hh"
 
 namespace mnist {
-class MnistHandler : public torchserve::torchscripted::BaseHandler {
+class MnistHandler : public torchserve::BaseHandler {
  public:
   // NOLINTBEGIN(bugprone-exception-escape)
   MnistHandler() = default;
@@ -18,4 +17,3 @@ class MnistHandler : public torchserve::torchscripted::BaseHandler {
       override;
 };
 }  // namespace mnist
-#endif  // MNIST_HANDLER_HH_

@@ -1,5 +1,8 @@
 #include "src/examples/babyllama/baby_llama_handler.hh"
 
+#include <folly/FileUtil.h>
+#include <folly/json.h>
+
 #include <typeinfo>
 
 #include "src/examples/babyllama/llama2.c/run.c"
@@ -285,11 +288,11 @@ BabyLlamaHandler::~BabyLlamaHandler() noexcept {
 
 #if defined(__linux__) || defined(__APPLE__)
 extern "C" {
-torchserve::torchscripted::BaseHandler* allocatorBabyLlamaHandler() {
+torchserve::BaseHandler* allocatorBabyLlamaHandler() {
   return new llm::BabyLlamaHandler();
 }
 
-void deleterBabyLlamaHandler(torchserve::torchscripted::BaseHandler* p) {
+void deleterBabyLlamaHandler(torchserve::BaseHandler* p) {
   if (p != nullptr) {
     delete static_cast<llm::BabyLlamaHandler*>(p);
   }
