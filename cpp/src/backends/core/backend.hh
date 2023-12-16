@@ -1,5 +1,4 @@
-#ifndef TS_CPP_BACKENDS_CORE_BACKEND_HH_
-#define TS_CPP_BACKENDS_CORE_BACKEND_HH_
+#pragma once
 
 #include <atomic>
 #include <filesystem>
@@ -10,32 +9,11 @@
 #include <tuple>
 #include <utility>
 
+#include "model_instance.hh"
 #include "src/utils/config.hh"
 #include "src/utils/message.hh"
 
 namespace torchserve {
-/**
- *
- * @brief TorchServe ModelInstance Interface
- * ModelInstance <=> Service:
- *  serve/blob/master/ts/service.py#L21
- */
-class ModelInstance {
- public:
-  ModelInstance(const std::string& instance_id) : instance_id_(instance_id){};
-  virtual ~ModelInstance(){};
-
-  virtual std::shared_ptr<torchserve::InferenceResponseBatch> Predict(
-      std::shared_ptr<torchserve::InferenceRequestBatch> batch) = 0;
-
-  const std::string& GetInstanceId() { return instance_id_; };
-
- protected:
-  // instance_id naming convention:
-  // device_type + ":" + device_id (or object id)
-  std::string instance_id_;
-};
-
 /**
  * @brief TorchServe Backend Interface
  * Backend <=> ModelLoader:
@@ -59,7 +37,7 @@ class Backend {
   // NOLINTBEGIN(cppcoreguidelines-pro-type-member-init)
   struct ModelInstanceInfo {
     ModelInstanceStatus status;
-    std::shared_ptr<torchserve::ModelInstance> model_instance;
+    std::shared_ptr<ModelInstance> model_instance;
   };
   // NOLINTEND(cppcoreguidelines-pro-type-member-init)
 
@@ -87,9 +65,9 @@ class Backend {
       const std::string& model_instance_id);
   std::shared_ptr<torchserve::ModelInstance> GetModelInstance();
 
-  void SetModelInstanceInfo(
-      const std::string& model_instance_id, ModelInstanceStatus new_status,
-      std::shared_ptr<torchserve::ModelInstance> new_model_instance);
+  void SetModelInstanceInfo(const std::string& model_instance_id,
+                            ModelInstanceStatus new_status,
+                            std::shared_ptr<ModelInstance> new_model_instance);
 
  protected:
   std::string BuildModelInstanceId(
@@ -110,11 +88,4 @@ class Backend {
 
   std::mt19937 random_generator_;
 };
-
-class ModelWorker {
- public:
-  ModelWorker(){};
-  ~ModelWorker();
-};
 }  // namespace torchserve
-#endif  // TS_CPP_BACKENDS_CORE_BACKEND_HH_

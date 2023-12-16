@@ -1,6 +1,6 @@
 #include "src/backends/torch_scripted/torch_scripted_backend.hh"
 
-#include "src/backends/torch_scripted/model_instance.hh"
+#include "src/backends/core/model_instance.hh"
 
 namespace torchserve {
 namespace torchscripted {
@@ -52,11 +52,11 @@ std::unique_ptr<torchserve::LoadModelResponse> Backend::LoadModelInternal(
         std::shared_ptr<torchserve::ModelInstance>(nullptr)};
 
     auto result = handler_->LoadModel(load_model_request);
-    SetModelInstanceInfo(
-        model_instance_id, torchserve::Backend::ModelInstanceStatus::READY,
-        std::make_shared<torchserve::torchscripted::ModelInstance>(
-            model_instance_id, std::move(result.first), handler_,
-            std::move(result.second)));
+    SetModelInstanceInfo(model_instance_id,
+                         torchserve::Backend::ModelInstanceStatus::READY,
+                         std::make_shared<torchserve::ModelInstance>(
+                             model_instance_id, std::move(result.first),
+                             handler_, std::move(result.second)));
 
     ready_model_instance_ids_.emplace_back(model_instance_id);
     std::string message =

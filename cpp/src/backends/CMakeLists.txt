@@ -24,8 +24,9 @@ install(TARGETS ts_backends_core DESTINATION ${torchserve_cpp_SOURCE_DIR}/_build
 
 # build library ts_backend_torch_scripted
 set(TS_BACKENDS_TORCH_SCRIPTED_SOURCE_FILES "")
-list(APPEND TS_BACKENDS_TORCH_SCRIPTED_SOURCE_FILES ${TS_BACKENDS_TORCH_SCRIPTED_SRC_DIR}/torch_scripted_backend.cc ${TS_BACKENDS_TORCH_SCRIPTED_SRC_DIR}/model_instance.cc)
+list(APPEND TS_BACKENDS_TORCH_SCRIPTED_SOURCE_FILES ${TS_BACKENDS_TORCH_SCRIPTED_SRC_DIR}/torch_scripted_backend.cc)
 list(APPEND TS_BACKENDS_TORCH_SCRIPTED_SOURCE_FILES ${TS_BACKENDS_SRC_DIR}/handler/base_handler.cc)
+list(APPEND TS_BACKENDS_TORCH_SCRIPTED_SOURCE_FILES ${TS_BACKENDS_SRC_DIR}/core/model_instance.cc)
 add_library(ts_backends_torch_scripted SHARED ${TS_BACKENDS_TORCH_SCRIPTED_SOURCE_FILES})
 target_include_directories(ts_backends_torch_scripted PUBLIC
   ${TS_BACKENDS_TORCH_SCRIPTED_SRC_DIR} ${TS_BACKENDS_TORCH_SCRIPTED_SRC_DIR}/handler ${TORCH_INCLUDE_DIRS})
