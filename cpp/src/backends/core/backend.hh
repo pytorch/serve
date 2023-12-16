@@ -18,7 +18,7 @@ namespace torchserve {
  *
  * @brief TorchServe ModelInstance Interface
  * ModelInstance <=> Service:
- *  https://github.com/pytorch/serve/blob/master/ts/service.py#L21
+ *  serve/blob/master/ts/service.py#L21
  */
 class ModelInstance {
  public:
@@ -39,7 +39,7 @@ class ModelInstance {
 /**
  * @brief TorchServe Backend Interface
  * Backend <=> ModelLoader:
- * https://github.com/pytorch/serve/blob/master/ts/model_loader.py#L28
+ * serve/blob/master/ts/model_loader.py#L28
  *
  * Note:
  * Any framework should implement its own backend which includes:
@@ -48,7 +48,6 @@ class ModelInstance {
  * 3. function std::shared_ptr<Backend> CreateBackend()
  *
  * The core idea:
- * - A framework has its own backend in a model server.
  * - A backend has multiple model instances.
  * - A worker is associated with one model instance.
  * - A model instance is one model loaded on CPU or GPU.

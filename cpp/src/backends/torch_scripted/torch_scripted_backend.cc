@@ -1,5 +1,7 @@
 #include "src/backends/torch_scripted/torch_scripted_backend.hh"
 
+#include "src/backends/torch_scripted/model_instance.hh"
+
 namespace torchserve {
 namespace torchscripted {
 bool Backend::Initialize(const std::string& model_dir) {
@@ -70,14 +72,6 @@ std::unique_ptr<torchserve::LoadModelResponse> Backend::LoadModelInternal(
         // TODO: check existing
         500, e.msg());
   }
-}
-
-std::shared_ptr<torchserve::InferenceResponseBatch> ModelInstance::Predict(
-    std::shared_ptr<torchserve::InferenceRequestBatch> request_batch) {
-  auto response_batch = std::make_shared<torchserve::InferenceResponseBatch>();
-  handler_->Handle(model_, device_, request_batch, response_batch);
-
-  return response_batch;
 }
 }  // namespace torchscripted
 }  // namespace torchserve
