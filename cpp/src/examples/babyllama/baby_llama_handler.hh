@@ -19,8 +19,7 @@ class BabyLlamaHandler : public torchserve::torchscripted::BaseHandler {
 
   void initialize_context();
 
-  virtual std::pair<std::shared_ptr<torch::jit::script::Module>,
-                    std::shared_ptr<torch::Device>>
+  virtual std::pair<std::shared_ptr<void>, std::shared_ptr<torch::Device>>
   LoadModel(std::shared_ptr<torchserve::LoadModelRequest>& load_model_request);
 
   std::vector<torch::jit::IValue> Preprocess(
@@ -31,8 +30,7 @@ class BabyLlamaHandler : public torchserve::torchscripted::BaseHandler {
       override;
 
   torch::Tensor Inference(
-      std::shared_ptr<torch::jit::script::Module> model,
-      std::vector<torch::jit::IValue>& inputs,
+      std::shared_ptr<void> model, std::vector<torch::jit::IValue>& inputs,
       std::shared_ptr<torch::Device>& device,
       std::pair<std::string&, std::map<uint8_t, std::string>&>& idx_to_req_id,
       std::shared_ptr<torchserve::InferenceResponseBatch>& response_batch)

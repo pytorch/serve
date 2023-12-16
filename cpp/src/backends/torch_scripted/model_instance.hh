@@ -13,8 +13,7 @@ namespace torchscripted {
 class ModelInstance final : public torchserve::ModelInstance {
  public:
   ModelInstance(
-      const std::string& instance_id,
-      std::shared_ptr<torch::jit::script::Module> model,
+      const std::string& instance_id, std::shared_ptr<void> model,
       std::shared_ptr<torchserve::torchscripted::BaseHandler>& handler,
       std::shared_ptr<torch::Device> device)
       : torchserve::ModelInstance(instance_id),
@@ -28,7 +27,7 @@ class ModelInstance final : public torchserve::ModelInstance {
       override;
 
  private:
-  std::shared_ptr<torch::jit::script::Module> model_;
+  std::shared_ptr<void> model_;
   std::shared_ptr<torchserve::torchscripted::BaseHandler> handler_;
   std::shared_ptr<torch::Device> device_;
 };

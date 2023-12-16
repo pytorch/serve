@@ -11,8 +11,7 @@ Tokenizer tokenizer;
 Sampler sampler;
 int steps = 256;
 
-std::pair<std::shared_ptr<torch::jit::script::Module>,
-          std::shared_ptr<torch::Device>>
+std::pair<std::shared_ptr<void>, std::shared_ptr<torch::Device>>
 BabyLlamaHandler::LoadModel(
     std::shared_ptr<torchserve::LoadModelRequest>& load_model_request) {
   try {
@@ -155,8 +154,7 @@ std::vector<torch::jit::IValue> BabyLlamaHandler::Preprocess(
 }
 
 torch::Tensor BabyLlamaHandler::Inference(
-    std::shared_ptr<torch::jit::script::Module> model,
-    std::vector<torch::jit::IValue>& inputs,
+    std::shared_ptr<void> model, std::vector<torch::jit::IValue>& inputs,
     std::shared_ptr<torch::Device>& device,
     std::pair<std::string&, std::map<uint8_t, std::string>&>& idx_to_req_id,
     std::shared_ptr<torchserve::InferenceResponseBatch>& response_batch) {
