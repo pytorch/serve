@@ -1,6 +1,13 @@
 name: Benchmark torch.compile models nightly
 
 on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+  merge_group:
   # run every day at 9:15pm
   schedule:
     - cron:  '15 21 * * *'
@@ -39,5 +46,8 @@ jobs:
           sudo apt-get update -y
           sudo apt-get install -y apache2-utils
           pip install -r benchmarks/requirements-ab.txt
+          chmod +x install_segment_anything_fast.sh
+          source install_segment_anything_fast.sh
+          export SEGMENT_ANYTHING_FAST_USE_FLASH_4=0
       - name: Benchmark gpu nightly
         run: python benchmarks/auto_benchmark.py --input benchmarks/benchmark_config_torch_compile_gpu.yaml --skip false --nightly True
