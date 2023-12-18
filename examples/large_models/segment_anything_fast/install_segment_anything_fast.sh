@@ -4,6 +4,7 @@
 pip uninstall torchtext torchdata torch torchvision torchaudio -y
 
 # Install nightly PyTorch and torchvision from the specified index URL
+pip install chardet
 pip install --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/cu121 --ignore-installed
 
 # Optional: Display the installed PyTorch and torchvision versions
