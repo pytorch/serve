@@ -191,6 +191,10 @@ class BaseHandler(abc.ABC):
             logger.info("Succesfully setup ort session")
 
         elif self.model_pt_path.endswith(".so") and USE_TORCH_EXPORT:
+            # Set cuda stream to the gpu_id of the backend worker
+            if torch.cuda.is_available() and properties.get("gpu_id") is not None:
+                torch.cuda.set_stream(torch.cuda.Stream(int(properties.get("gpu_id"))))
+
             self.model = self._load_torch_export_aot_compile(self.model_pt_path)
             logger.warning(
                 "torch._export is an experimental feature! Succesfully loaded torch exported model."

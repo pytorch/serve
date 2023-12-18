@@ -1,5 +1,3 @@
-minWorkers: 1
-maxWorkers: 1
 batchSize: 32
 maxBatchDelay: 5000
 responseTimeout: 300

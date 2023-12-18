@@ -86,3 +86,43 @@ def test_torch_export_aot_compile(custom_working_directory):
     labels = list(result[0].keys())
 
     assert labels == EXPECTED_RESULTS
+
+
+@pytest.mark.skipif(PT_220_AVAILABLE == False, reason="torch version is < 2.2.0")
+def test_torch_export_aot_compile_dynamic_batching(custom_working_directory):
+    # Get the path to the custom working directory
+    model_dir = custom_working_directory
+
+    # Construct the path to the Python script to execute
+    script_path = os.path.join(EXAMPLE_ROOT_DIR, "resnet18_torch_export.py")
+
+    # Get the .pt2 file from torch.export
+    cmd = "python " + script_path
+    try_and_handle(cmd)
+
+    # Handler for Image classification
+    handler = ImageClassifier()
+
+    # Context definition
+    ctx = MockContext(
+        model_pt_file=MODEL_SO_FILE,
+        model_dir=model_dir.as_posix(),
+        model_file=None,
+        model_yaml_config_file=MODEL_YAML_CFG_FILE,
+    )
+
+    torch.manual_seed(42 * 42)
+    handler.initialize(ctx)
+    handler.context = ctx
+    handler.mapping = load_label_mapping(MAPPING_DATA)
+
+    data = {}
+    with open(TEST_DATA, "rb") as image:
+        image_file = image.read()
+        byte_array_type = bytearray(image_file)
+        data["body"] = byte_array_type
+
+    # Send a batch of 16 elements
+    result = handler.handle([data for i in range(16)], ctx)
+
+    assert len(result) == 16
