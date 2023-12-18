@@ -136,9 +136,9 @@ def install_torchserve(skip_ts_install, hw, ts_version, nightly):
         return
 
     # git checkout branch if it is needed
-    cmd = "git checkout master && git reset --hard && git clean -dffx . && git pull --rebase"
-    execute(cmd, wait=True)
-    print("successfully reset git")
+    # cmd = "git checkout master && git reset --hard && git clean -dffx . && git pull --rebase"
+    # execute(cmd, wait=True)
+    # print("successfully reset git")
 
     ts_install_cmd = None
     if ts_version.startswith("torchserve==") or ts_version.startswith(
