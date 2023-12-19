@@ -117,13 +117,16 @@ public class GRPCJob extends Job {
             Map<String, String> responseHeaders) {
         ByteString output = ByteString.copyFrom(body);
         WorkerCommands cmd = this.getCmd();
+        Gson gson = new Gson();
+        String jsonResponse = output.toStringUtf8();
+        JsonObject jsonObject = gson.fromJson(jsonResponse, JsonObject.class);
 
         switch (cmd) {
             case PREDICT:
             case STREAMPREDICT:
             case STREAMPREDICT2:
                 // condition for OIP grpc ModelInfer Call
-                if (ConfigManager.getInstance().isOpenInferenceProtocol()) {
+                if (ConfigManager.getInstance().isOpenInferenceProtocol() && isResponseStructureOIP(jsonObject)) {
                     if (((ServerCallStreamObserver<ModelInferResponse>) modelInferResponseObserver)
                             .isCancelled()) {
                         logger.warn(
@@ -131,12 +134,7 @@ public class GRPCJob extends Job {
                                 getPayload().getRequestId());
                         return;
                     }
-        
-                    Gson gson = new Gson();
                     ModelInferResponse.Builder responseBuilder = ModelInferResponse.newBuilder();
-                    String jsonResponse = output.toStringUtf8();
-                    JsonObject jsonObject = gson.fromJson(jsonResponse, JsonObject.class);
-        
                     responseBuilder.setId(jsonObject.get("id").getAsString());
                     responseBuilder.setModelName(jsonObject.get("model_name").getAsString());
                     responseBuilder.setModelVersion(jsonObject.get("model_version").getAsString());
@@ -318,5 +316,15 @@ public class GRPCJob extends Job {
 
         }
         outputBuilder.setContents(inferTensorContents); // set output contents
+    }
+
+    private boolean isResponseStructureOIP(JsonObject jsonObject) {
+        if (jsonObject.has("id") &&
+                jsonObject.has("model_name") &&
+                jsonObject.has("model_version") &&
+                jsonObject.has("outputs")) {
+            return true;
+        }
+        return false;
     }
 }

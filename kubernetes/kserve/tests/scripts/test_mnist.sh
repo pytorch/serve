@@ -49,9 +49,7 @@ function make_cluster_accessible() {
 }
 
 function make_cluster_accessible_for_grpc() {
-    PROTO_FILE_PATH="https://raw.githubusercontent.com/andyi2it/torch-serve/oip-impl/frontend/server/src/main/resources/proto/open_inference_grpc.proto"
-    curl -s -L ${PROTO_FILE_PATH} > open_inference_grpc.proto
-    PROTO_FILE="open_inference_grpc.proto"
+    PROTO_FILE_PATH="./frontend/server/src/main/resources/proto/open_inference_grpc.proto"
     SERVICE_NAME="$1"
     GRPC_METHOD="$2"
     wait_for_inference_service 300 5 "$1"
@@ -59,7 +57,7 @@ function make_cluster_accessible_for_grpc() {
     wait_for_port_forwarding 5
     echo "Make inference request"
 
-    PREDICTION=$(grpcurl -plaintext -d @ -proto ${PROTO_FILE} -authority ${SERVICE_HOSTNAME} ${INGRESS_HOST}:${INGRESS_PORT} ${GRPC_METHOD} < "$3")
+    PREDICTION=$(grpcurl -plaintext -d @ -proto ${PROTO_FILE_PATH} -authority ${SERVICE_HOSTNAME} ${INGRESS_HOST}:${INGRESS_PORT} ${GRPC_METHOD} < "$3")
     PREDICTION=$(echo -n "$PREDICTION" | tr -d '\n[:space:]')
     EXPECTED="$4"
     if [ "${PREDICTION}" = "${EXPECTED}" ]; then

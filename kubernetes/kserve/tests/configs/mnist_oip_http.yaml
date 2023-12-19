@@ -18,5 +18,5 @@ spec:
       ports:
         - containerPort: 8085 # torchserve http port
       env:
-        - name: "INFERENCE_PROTOCOL"
+        - name: "TS_OPEN_INFERENCE_PROTOCOL"
           value: "oip"
