@@ -555,6 +555,19 @@ def generate_csv_output():
         artifacts["Model_p90"] = lines[line90].strip()
         artifacts["Model_p99"] = lines[line99].strip()
 
+    with open(
+        os.path.join(execution_params["tmp_dir"], "benchmark", "waiting_time.txt")
+    ) as f:
+        lines = f.readlines()
+        lines.sort(key=float)
+        num_requests = len(lines)
+        line50 = int(num_requests / 2)
+        line90 = int(num_requests * 9 / 10)
+        line99 = int(num_requests * 99 / 100)
+        artifacts["Queue time p50"] = lines[line50].strip()
+        artifacts["Queue time p90"] = lines[line90].strip()
+        artifacts["Queue time p99"] = lines[line99].strip()
+
     for m in metrics:
         df = pd.read_csv(
             os.path.join(*(execution_params["tmp_dir"], "benchmark", m)),
