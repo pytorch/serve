@@ -1,13 +1,12 @@
 import logging
 import os
-from abc import ABC
 
 import torch
 import torch_neuronx
-from transformers import AutoConfig, AutoModelForCausalLM, AutoTokenizer, LlamaTokenizer
-from transformers_neuronx.generation_utils import HuggingFaceGenerationModelAdapter
+from transformers import AutoModelForCausalLM, AutoTokenizer, LlamaTokenizer
 from transformers_neuronx.llama.model import LlamaForSampling
 from transformers_neuronx.module import save_pretrained_split
+from transformers_neuronx.sampling import select_tokens
 
 from ts.context import Context
 from ts.torch_handler.base_handler import BaseHandler
@@ -15,193 +14,25 @@ from ts.torch_handler.base_handler import BaseHandler
 logger = logging.getLogger(__name__)
 
 
-class NeuronxContinuousBatching:
+class LlamaContinuousBatchingHandler(BaseHandler):
     def __init__(self):
-        self.empty_idx_queue = []
-        self.idx_to_req_id = {}
-        self.decoded_req_id = {}
-        self.batch_store = []
-        self.batch_size = 1
-        for idx, batch_id in enumerate(reversed(range(self.batch_size))):
-            self.empty_idx_queue.append(batch_id)
-            self.batch_store[idx] = {}
-
-    def _get_empty_idx(self):
-        assert len(self.empty_idx_queue) > 0
-        return self.empty_idx_queue.pop()
-
-    def _add_empty_idx(self, idx):
-        self.empty_idx_queue.append(idx)
-
-    def _get_idx(self, req_id):
-        idx = self.decoded_req_id.get(req_id, -1)
-        assert idx > 0
-        return idx
-
-    def _get_req_id(self, idx):
-        req_id = self.idx_to_req_id.get(idx, None)
-        assert req_id is not None
-        return req_id
-
-    def _set_req_id(self, idx, req_id):
-        self.idx_to_req_id[idx] = req_id
-
-    def _init_batch_store(self, batch_encoded):
-        for i in range(batch_encoded.input_ids.size(dim=0)):
-            self.batch_store[i] = {
-                "input_ids": batch_encoded.input_ids[i, :],
-                "attention_mask": batch_encoded.attention_mask[i, :],
-            }
-
-    def _update_batch_store(self, idx, input_ids, attention_mask, length):
-        self.batch_store[idx] = {
-            "input_ids": input_ids[-length:],
-            "attention_mask": attention_mask[-length:],
-        }
-
-    def preprocess(self, batch_requests, ctx):
-        prefill_input_text = []
-        if len(self.decoded_req_id) == 0:
-            prefill_input_text = [""] * self.batch_size
-
-        prefill_req_ids, decode_req_ids, prefill_input = [], [], []
-        for req_id, req_data in zip(ctx.request_ids.values(), batch_requests):
-            # Tokenizer requests which are not prefilled yet
-            if not req_id in self.decoded_req_id:
-                idx = self._get_empty_idx()
-                self._set_req_id(idx, req_id)
-
-                data = req_data["data"]
-                if isinstance(data, (bytes, bytearray)):
-                    data = data.decode("utf-8")
-                    max_new_tokens = int(
-                        req_data.get("max_new_tokens", int(self.max_new_tokens))
-                    )
-                    if len(prefill_input_text) == self.batch_size:
-                        prefill_input_text[idx] = data.strip()
-                    else:
-                        prefill_input_text.append(data.strip())
-
-                    self.batch_store[idx] = {
-                        "req_id": req_id,
-                        "stopping_criteria": self._create_stopping_criteria(
-                            req_id, max_new_tokens
-                        ),
-                    }
-                logger.info(
-                    "Received text: '%s', max_new_token=%d", data, max_new_tokens
-                )
-
-                prefill_req_ids.append(req_id)
-            else:
-                decode_req_ids.append(req_id)
-
-    def prefill(self, prefill_input, prefill_req_ids, decoded_req_ids):
-        if len(self.decoded_req_id) == 0:
-            prefill_input_text = [""] * self.batch_size
-
-        for i, req_id in enumerate(prefill_req_ids):
-            idx = self._get_idx(req_id)
-            input_data = prefill_input[i]
-            prefill_input_text[idx] = input_data["data"]
-            self.context.cache[req_id] = {
-                "batch_idx": idx,
-                "stopping_criteria": self._create_stopping_criteria(
-                    req_id, max_new_tokens=input_data["max_new_tokens"]
-                ),
-            }
-        logger.info(f"_run_tokenizer_batch prefill_input_text={prefill_input_text}")
-
-        batch_encoded = self.tokenizer(
-            prefill_input_text,
-            return_tensors="pt",
-            padding=True,
-            add_special_tokens=True,
-            return_token_type_ids=False,
-            truncation=True,
-        )
-        seq_length = min(batch_encoded.input_ids.shape[-1])
-        for req_id in prefill_req_ids:
-            idx = self.context.cache[req_id]["batch_idx"]
-            encoded = {
-                "input_ids": batch_encoded.input_ids[idx, :seq_length],
-                "attention_mask": batch_encoded.attention_mask[idx, :seq_length],
-            }
-            logger.info(f"encoded={encoded}")
-            self.context.cache[req_id].update(
-                {
-                    "encoded": encoded,
-                    "prompt_length": encoded["input_ids"].shape[0],
-                }
-            )
-
-        ids = prefill_req_ids + decode_req_ids
-        return self._prepare_model_inputs(ids)
-
-    def decode(self):
-        pass
-
-    def clean(self, req_id):
-        pass
-
-    def _create_stopping_criteria(self, req_id, max_new_tokens=25):
-        class StoppingCriteria(object):
-            def __init__(
-                self,
-                cache,
-                batch_empty_ids,
-                req_id,
-                stop_token,
-                max_new_tokens,
-            ):
-                self.req_id = req_id
-                self.cache = cache
-                self.batch_empty_ids = batch_empty_ids
-                self.max_new_tokens = max_new_tokens
-                self.stop_token = stop_token
-
-            def __call__(self, res):
-                self.max_new_tokens -= 1
-
-                if self.max_new_tokens == 0 or res["tokens"][-1] == self.stop_token:
-                    self.clean_up()
-                    return True
-                return False
-
-            def clean_up(self):
-                self.batch_empty_ids.append(self.cache[self.req_id]["batch_idx"])
-                del self.cache[self.req_id]
-
-        return StoppingCriteria(
-            self.context.cache,
-            self.batch_empty_ids,
-            req_id,
-            self.tokenizer.eos_token_id,
-            max_new_tokens,
-        )
-
-
-class LlamaHandler(BaseHandler, ABC):
-    """
-    Transformers handler class for sequence, token classification and question answering.
-    """
-
-    def __init__(self):
-        super(LlamaHandler, self).__init__()
-        self.max_length = None
-        self.max_new_tokens = None
+        super(LlamaContinuousBatchingHandler, self).__init__()
+        # the queue of seq_ids which are available for a new request
+        self.batch_size = 2
+        self.max_new_tokens = 25
+        self.max_length = 100
         self.tokenizer = None
-        self.batch_size = 1
-        self.initialized = False
-        self.batch_empty_ids = []
+        self.decode_next_tokens = None
+        self.decode_cache_ids = None
+        self.decode_seq_ids = None
+        self.empty_seq_ids = []
+        # map seq_id to req_id
+        self.seq_id_to_req_id = {}
 
     def initialize(self, ctx: Context):
-        """In this initialize function, the HF large model is loaded and
-        partitioned using DeepSpeed.
-        Args:
-            ctx (context): It is a JSON Object containing information
-            pertaining to the model artifacts parameters.
-        """
+        super().initialize(ctx)
+        logger.info(f"Initialized {self.__class__}")
+
         model_dir = ctx.system_properties.get("model_dir")
         model_checkpoint_dir = ctx.model_yaml_config.get("handler", {}).get(
             "model_checkpoint_dir", ""
@@ -225,21 +56,24 @@ class LlamaHandler(BaseHandler, ABC):
         os.environ["NEURON_COMPILE_CACHE_URL"] = f"{model_dir}/neuron_cache"
         os.environ["NEURON_CC_FLAGS"] = "-O1 --model-type=transformer"
 
+        self.max_length = int(
+            ctx.model_yaml_config.get("handler", {}).get("max_length", self.max_length)
+        )
+        self.max_new_tokens = int(
+            ctx.model_yaml_config.get("handler", {}).get(
+                "max_new_tokens", self.max_new_tokens
+            )
+        )
+        self.batch_size = int(
+            ctx.model_yaml_config.get("handler", {}).get("batch_size", self.batch_size)
+        )
+
         # settings for model compilation and loading
         amp = ctx.model_yaml_config.get("handler", {}).get("amp", "fp32")
         tp_degree = ctx.model_yaml_config.get("handler", {}).get("tp_degree", 6)
         context_length_estimate = ctx.model_yaml_config.get("handler", {}).get(
-            "context_length_estimate", None
+            "context_length_estimate", self.max_length
         )
-
-        self.max_length = int(ctx.model_yaml_config["handler"]["max_length"])
-        self.max_new_tokens = ctx.model_yaml_config["handler"]["max_new_tokens"]
-        self.batch_size = int(
-            ctx.model_yaml_config.get("handler", {}).get("batch_size", 1)
-        )
-
-        for i in range(self.batch_size):
-            self.batch_empty_ids.append(i)
 
         # allocate "tp_degree" number of neuron cores to the worker process
         os.environ["NEURON_RT_NUM_CORES"] = str(tp_degree)
@@ -269,277 +103,230 @@ class LlamaHandler(BaseHandler, ABC):
             batch_size=self.batch_size,
             amp=amp,
             tp_degree=tp_degree,
-            n_positions=self.max_length if self.max_length > 2048 else 2048,
+            n_positions=self.max_length,
             context_length_estimate=context_length_estimate,
         )
         logger.info("Starting to compile the model")
         self.model.to_neuron()
         logger.info("Model has been successfully compiled")
-        model_config = AutoConfig.from_pretrained(model_checkpoint_path)
-        self.model = HuggingFaceGenerationModelAdapter(model_config, self.model)
+
+        # 1D: [seq_id]
+        # an empty slot if seq_id is -1
+        self.decode_seq_ids = torch.full([self.batch_size], -1)
+        # 2D:[batch_size, next_cache_id]
+        self.decode_cache_ids = torch.zeros(self.batch_size, 1, dtype=torch.int64)
+        # 2D: [batch_size, next_token]
+        self.decode_next_tokens = torch.zeros(self.batch_size, 1, dtype=torch.int64)
+
+        for seq_id, batch_id in enumerate(reversed(range(self.batch_size))):
+            self.empty_seq_ids.append(batch_id)
 
         logger.info("Model %s loaded successfully", ctx.model_name)
         self.initialized = True
 
     def preprocess(self, requests):
-        """
-        Basic text preprocessing, based on the user's choice of application mode.
-        Args:
-            requests (list): A list of dictionaries with a "data" or "body" field, each
-                            containing the input text to be processed.
-        Returns:
-            tuple: A tuple with two tensors: the batch of input ids and the batch of
-                attention masks.
-        """
-        logger.info(f"requests size={len(requests)}")
-
-        prefill_req_ids, decode_req_ids, prefill_input = [], [], []
+        prefill_req_ids, prefill_seq_ids, prefill_input_text, decode_seq_ids = (
+            [],
+            [],
+            [],
+            [],
+        )
         for req_id, req_data in zip(self.context.request_ids.values(), requests):
-            # Tokenizer requests which are not prefilled yet
             if not req_id in self.context.cache:
+                prefill_req_ids.append(req_id)
+                seq_id = self._get_empty_seq_id()
+                prefill_seq_ids.append(seq_id)
+
                 data = req_data["data"]
                 if isinstance(data, (bytes, bytearray)):
                     data = data.decode("utf-8")
                     max_new_tokens = int(
-                        req_data.get("max_new_tokens", str(self.max_new_tokens))
+                        req_data.get("max_new_tokens", self.max_new_tokens)
                     )
-                    prefill_input.append(
-                        {"data": data.strip(), "max_new_tokens": max_new_tokens}
-                    )
-                logger.info(
-                    "Received text: '%s', max_new_token=%d", data, max_new_tokens
-                )
-                prefill_req_ids.append(req_id)
+                    prefill_input_text.append(data.strip())
+
+                    self.context.cache[req_id] = {
+                        "seq_id": seq_id,
+                        "stopping_criteria": self._create_stopping_criteria(
+                            req_id=req_id, seq_id=seq_id, max_new_tokens=max_new_tokens
+                        ),
+                    }
             else:
-                decode_req_ids.append(req_id)
+                decode_seq_ids.append(self.context.cache[req_id]["seq_id"])
 
+        prefill_tokens = None
         if len(prefill_req_ids) > 0:
-            encoded = self._run_tokenize_prefill(
-                prefill_input, prefill_req_ids, decode_req_ids
+            prefill_tokens = self.tokenizer(
+                prefill_input_text, return_tensors="pt", padding=True
             )
-        else:
-            encoded = self._prepare_model_inputs()
+        return prefill_tokens, prefill_seq_ids, decode_seq_ids
 
-        return encoded
-
-    def inference(self, input_batch):
-        """
-        Predicts the class (or classes) of the received text using the serialized transformers
-        checkpoint.
-        Args:
-            input_batch (tuple): A tuple with two tensors: the batch of input ids and the batch
-                                of attention masks, as returned by the preprocess function.
-        Returns:
-            list: A list of strings with the predicted values for each input text in the batch.
-        """
-
-        prefill_req_ids, decode_req_ids, encoded = input_batch
-
+    def inference(self, inputs):
+        prefill_tokens, prefill_seq_ids, req_decode_seq_ids = inputs
         results = {}
-        if prefill_req_ids:
-            # Prefill requests
-            results.update(self._run_prefill(prefill_req_ids + decode_req_ids, encoded))
-        else:
-            # Decode the rest
-            results.update(self._run_decode(decode_req_ids))
+        # Test if this is the beginning of a continuous batching
+        go_to_decode = True if len(req_decode_seq_ids) > 0 else False
+        if len(prefill_seq_ids) > 0:
+            prefill_next_tokens, prefill_cache_ids = self._run_prefill(
+                prefill_tokens, prefill_seq_ids
+            )
+            for i, prefill_seq_id in enumerate(prefill_seq_ids):
+                self._update_results(
+                    results, prefill_seq_id, i, prefill_cache_ids, prefill_next_tokens
+                )
 
-        return [results[i] for i in self.context.request_ids.values()]
+        if go_to_decode:
+            decode_seq_ids = torch.where(self.decode_seq_ids > -1)
+            decode_cache_ids = torch.where(self.decode_cache_ids > 0)
+            decode_next_tokens = torch.where(self.decode_next_tokens > 0)
+            next_tokens = self._run_decode(
+                decode_next_tokens, decode_cache_ids, decode_seq_ids
+            )
+
+            filter_prefill_seq_ids = (
+                torch.isin(decode_seq_ids, torch.as_tensor(prefill_seq_ids))
+                if len(prefill_seq_ids) > 0
+                else torch.full(decode_seq_ids.shape, False)
+            )
+
+            decode_cache_ids = decode_cache_ids + 1
+            for i, is_prefill_seq_id in enumerate(filter_prefill_seq_ids):
+                if not is_prefill_seq_id:
+                    seq_id = decode_seq_ids[i]
+                    if seq_id in req_decode_seq_ids:
+                        self._update_results(
+                            results, seq_id, i, decode_cache_ids, next_tokens
+                        )
+                    else:
+                        req_id = self._get_req_id(seq_id)
+                        logger.warning(
+                            f"Found request id:{req_id} in cache, but not in batch requests. Delete it"
+                        )
+                        self.clean_up(self, seq_id, req_id)
+
+        return results
 
     def postprocess(self, inference_output):
-        """Post Process Function converts the predicted response into Torchserve readable format.
-        Args:
-            inference_output (list): It contains the predicted response of the input text.
-        Returns:
-            (list): Returns a list of the Predictions and Explanations.
-        """
         self.context.stopping_criteria = [
-            self.context.cache[i]["stopping_criteria"]
-            for i in self.context.request_ids.values()
+            self.batch_store[self._get_seq_id(req_id)]["stopping_criteria"](
+                req_id,
+            )
+            for req_id in self.context.request_ids.values()
         ]
 
         return inference_output
 
-    def _run_tokenize_prefill(self, prefill_input, prefill_req_ids, decode_req_ids):
-        # Pad input to match compiled model batch size
-        prefill_input_text = [""] * self.batch_size
-        for i, req_id in enumerate(prefill_req_ids):
-            idx = self.batch_empty_ids.pop()
-            input_data = prefill_input[i]
-            prefill_input_text[idx] = input_data["data"]
-            self.context.cache[req_id] = {
-                "batch_idx": idx,
-                "stopping_criteria": self._create_stopping_criteria(
-                    req_id, max_new_tokens=input_data["max_new_tokens"]
-                ),
-            }
-        logger.info(f"_run_tokenizer_batch prefill_input_text={prefill_input_text}")
+    def _get_empty_seq_id(self):
+        assert len(self.empty_seq_ids) > 0
+        return self.empty_seq_ids.pop()
 
-        batch_encoded = self.tokenizer(
-            prefill_input_text,
-            return_tensors="pt",
-            padding=True,
-            add_special_tokens=True,
-            return_token_type_ids=False,
-            truncation=True,
+    def _add_empty_seq_id(self, seq_id):
+        self.empty_seq_ids.append(seq_id)
+
+    def _get_seq_id(self, req_id):
+        seq_id = None
+        cache = self.context.cache.get(req_id, None)
+        if cache:
+            seq_id = cache["seq_id"]
+        assert seq_id is not None, "{req_id} must have seq_id"
+        return seq_id
+
+    def _get_req_id(self, seq_id):
+        req_id = self.seq_id_to_req_id(seq_id, None)
+        assert req_id is not None
+        return req_id
+
+    def _pad_to_max(self, x):
+        for idx, item in enumerate(x):
+            x[idx] = x[idx] + [0] * (self.max_length - len(x[idx]))
+        return x
+
+    def _run_prefill(self, tokens, seq_ids):
+        input_ids, attention_mask = tokens["input_ids"], tokens["attention_mask"]
+        logger.info(
+            f"before padding: input_ids={input_ids}, attention_mask={attention_mask}"
         )
-        seq_length = min(batch_encoded.input_ids.shape[-1])
-        for req_id in prefill_req_ids:
-            idx = self.context.cache[req_id]["batch_idx"]
-            encoded = {
-                "input_ids": batch_encoded.input_ids[idx, :seq_length],
-                "attention_mask": batch_encoded.attention_mask[idx, :seq_length],
-            }
-            logger.info(f"encoded={encoded}")
-            self.context.cache[req_id].update(
-                {
-                    "encoded": encoded,
-                    "prompt_length": encoded["input_ids"].shape[0],
-                }
+        input_ids = self._pad_to_max(input_ids)
+        attention_mask = self._pad_to_max(attention_mask)
+        logger.info(
+            f"after padding: input_ids={input_ids}, attention_mask={attention_mask}"
+        )
+        n_active_seqs, context_len = input_ids.shape
+        cache_ids = (
+            torch.arange(context_len)
+            .reshape(1, context_len)
+            .expand(n_active_seqs, context_len)
+            .mul(attention_mask)
+        )
+        with torch.inference_mode():
+            logits = self.model(
+                input_ids, cache_ids=self.cache_ids, start_ids=torch.as_tensor(seq_ids)
             )
+        next_tokens = select_tokens(logits)
 
-        ids = prefill_req_ids + decode_req_ids
-        return self._prepare_model_inputs(ids)
+        return next_tokens, cache_ids.max(dim=1, keepdim=True).values + 1
 
-    @torch.no_grad()
-    def _run_prefill(self, prefill_req_ids, prefill_encoded):
-        self.model.reset_generation()
-        return self._generate_token(prefill_req_ids, prefill_encoded)
+    def _run_decode(self, next_tokens, cache_ids, seq_ids):
+        with torch.inference_mode():
+            logits = self.model(next_tokens, cache_ids=cache_ids, start_ids=seq_ids)
+        next_tokens = select_tokens(logits)
+        return next_tokens
 
-    @torch.no_grad()
-    def _run_decode(self, ids):
-        encoded = self._prepare_model_inputs(ids)
-        return self._generate_token(ids, encoded)
-
-    def _generate_token(self, req_ids, encoded):
-        outputs = self.model.generate(
-            encoded["input_ids"],
-            attention_mask=encoded["attention_mask"],
-            max_new_tokens=1,
-            return_dict_in_generate=True,
-            use_cache=True,
+    def clean_up(self, seq_id, req_id):
+        # clean up
+        del self.seq_id_to_req_id[seq_id]
+        del self.context.cache[req_id]
+        self.decode_seq_ids[seq_id] = -1
+        self.decode_cache_ids[seq_id, :] = torch.zeros(
+            1, dtype=torch.int64, device="cpu"
         )
-        outputs_decoded = self.tokenizer.batch_decode(
-            outputs.sequences, skip_special_tokens=True
+        self.decode_next_tokens[seq_id, :] = torch.zeros(
+            1, dtype=torch.int64, device="cpu"
         )
 
-        device = next(iter(self.model.parameters())).device
-        dtype = torch.int64
-        config = {"device": device, "dtype": dtype}
+        # add seq_id back to self.empty_seq_ids
+        self._add_empty_seq_id(seq_id)
 
-        results = {}
-        for req_id in req_ids:
-            idx = self.context.cache[req_id]["batch_idx"]
-            self.context.cache[req_id]["encoded"]["input_ids"] = outputs.sequences[idx]
-            attention_mask = encoded["attention_mask"][idx]
-            attention_mask = torch.concat(
-                (attention_mask, torch.ones((1), **config)), dim=0
-            )
-            self.context.cache[req_id]["encoded"]["attention_mask"] = attention_mask
-            results[req_id] = {
-                "text": outputs_decoded[idx],
-                "tokens": outputs.sequences[idx].tolist(),
-            }
-        return results
-
-    def _prepare_model_inputs(self, req_ids):
-        lengths = [0] * self.batch_size
-        idx_to_req_id = {}
-        for req_id in req_ids:
-            idx = self.context.cache[req_id]["batch_idx"]
-            lengths[idx] = torch.sum(
-                self.context.cache[req_id]["encoded"]["attention_mask"]
-            ).item()
-            idx_to_req_id[idx] = req_id
-
-        max_len = max(lengths)
-        logger.info(f"_prepare_model_inputs lengths={lengths}")
-
-        device = next(iter(self.model.parameters())).device
-        dtype = torch.int64
-        config = {"device": device, "dtype": dtype}
-
-        input_ids = []
-        attention_mask = []
-
-        for idx in range(self.batch_size):
-            seq_len = lengths[idx]
-            if seq_len > 0:
-                req_id = idx_to_req_id[idx]
-                logger.info(f"idx={idx}, seq_len={seq_len}")
-                input_ids.append(self.context.cache[req_id]["encoded"]["input_ids"])
-                attention_mask.append(
-                    self.context.cache[req_id]["encoded"]["attention_mask"]
-                )
-            else:
-                config = {"device": device, "dtype": dtype}
-                input_ids.append(
-                    self.tokenizer.pad_token_id + torch.zeros((max_len), **config)
-                )
-                attention_mask.append(torch.zeros((max_len), **config))
-
-            padded_len = input_ids[-1].size()[-1]
-            logger.info(f"req_id={req_id}, padded_len={padded_len}, max_len={max_len}")
-            if padded_len < max_len:
-                # Apply padding to input_ids, attention_mask and past_key_values
-                n = max_len - seq_len
-                input_ids[-1] = torch.concat(
-                    (
-                        self.tokenizer.pad_token_id + torch.zeros((n), **config),
-                        input_ids[-1],
-                    )
-                )
-                attention_mask[-1] = torch.concat(
-                    (torch.zeros((n), **config), attention_mask[-1])
-                )
-            elif padded_len > max_len:
-                # Truncate padding from input_ids, attention_mask and past_key_values
-                logger.info(f"padded_len shape={input_ids[-1].size()}")
-                input_ids[-1] = input_ids[-1][-max_len:]
-                attention_mask[-1] = attention_mask[-1][-max_len:]
-
-            logger.info(f"input_ids={input_ids}, attention_mask={attention_mask}")
-
-        encoded = {
-            "input_ids": torch.stack(input_ids),
-            "attention_mask": torch.stack(attention_mask),
-            # "input_ids": input_ids,
-            # "attention_mask": attention_mask,
+    def _update_results(self, results, seq_id, idx, cache_ids, next_tokens):
+        self.decode_cache_ids[seq_id, :] = cache_ids[idx, :]
+        self.decode_next_tokens[seq_id, :] = next_tokens[idx, :]
+        req_id = self._get_req_id(seq_id)
+        self.seq_id_to_req_id[seq_id] = req_id
+        results[req_id] = {
+            "text": self.tokenizer.decode(
+                next_tokens[idx, -1], skip_special_tokens=True
+            ),
+            "tokens": [next_tokens[idx, -1].item()],
         }
-        logger.info(f"_prepare_model_inputs encoded={encoded}")
-        return encoded
 
-    def _create_stopping_criteria(self, req_id, max_new_tokens=25):
+    def _create_stopping_criteria(self, req_id, seq_id, max_new_tokens):
         class StoppingCriteria(object):
             def __init__(
                 self,
-                cache,
-                batch_empty_ids,
+                outer,
                 req_id,
+                seq_id,
                 stop_token,
                 max_new_tokens,
             ):
                 self.req_id = req_id
-                self.cache = cache
-                self.batch_empty_ids = batch_empty_ids
+                self.seq_id = seq_id
+                self.outer = outer
                 self.max_new_tokens = max_new_tokens
                 self.stop_token = stop_token
 
             def __call__(self, res):
                 self.max_new_tokens -= 1
 
-                if self.max_new_tokens == 0 or res["tokens"][-1] == self.stop_token:
-                    self.clean_up()
+                if self.max_new_tokens == 0 or res["ids"][-1] == self.stop_token:
+                    self.outer.clean_up(self.req_id, self.seq_id)
                     return True
                 return False
 
-            def clean_up(self):
-                self.batch_empty_ids.append(self.cache[self.req_id]["batch_idx"])
-                del self.cache[self.req_id]
-
         return StoppingCriteria(
-            self.context.cache,
-            self.batch_empty_ids,
-            req_id,
-            self.tokenizer.eos_token_id,
-            max_new_tokens,
+            outer=self,
+            req_id=req_id,
+            seq_id=seq_id,
+            stop_token=self.tokenizer.eos_token_id,
+            max_new_tokens=max_new_tokens,
         )
