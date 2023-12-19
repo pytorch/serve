@@ -38,7 +38,7 @@ class BaseHandler {
   };
 
   virtual std::pair<std::shared_ptr<void>, std::shared_ptr<torch::Device>>
-  LoadModel(std::shared_ptr<torchserve::LoadModelRequest>& load_model_request);
+  LoadModel(std::shared_ptr<LoadModelRequest>& load_model_request) = 0;
 
   virtual std::vector<torch::jit::IValue> Preprocess(
       std::shared_ptr<torch::Device>& device,

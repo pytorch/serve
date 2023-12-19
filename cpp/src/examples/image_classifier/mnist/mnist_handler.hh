@@ -1,9 +1,9 @@
 #pragma once
 
-#include "src/backends/handler/base_handler.hh"
+#include "src/backends/handler/torch_scripted_handler.hh"
 
 namespace mnist {
-class MnistHandler : public torchserve::BaseHandler {
+class MnistHandler : public torchserve::TorchScriptHandler {
  public:
   // NOLINTBEGIN(bugprone-exception-escape)
   MnistHandler() = default;

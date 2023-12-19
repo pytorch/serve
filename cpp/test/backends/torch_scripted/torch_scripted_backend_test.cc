@@ -1,20 +1,17 @@
-#include "src/backends/torch_scripted/torch_scripted_backend.hh"
-
 #include <fmt/format.h>
 #include <gtest/gtest.h>
 
 #include <iostream>
 #include <memory>
 
+#include "src/backends/core/backend.hh"
 #include "src/utils/message.hh"
 #include "src/utils/metrics/registry.hh"
 
 namespace torchserve {
-class TorchScriptedBackendTest : public ::testing::Test {
+class TorchScriptedTest : public ::testing::Test {
  protected:
-  void SetUp() override {
-    backend_ = std::make_shared<torchserve::torchscripted::Backend>();
-  }
+  void SetUp() override { backend_ = std::make_shared<torchserve::Backend>(); }
 
   void LoadPredict(
       std::shared_ptr<torchserve::LoadModelRequest> load_model_request,
@@ -60,7 +57,7 @@ class TorchScriptedBackendTest : public ::testing::Test {
   std::shared_ptr<torchserve::Backend> backend_;
 };
 
-TEST_F(TorchScriptedBackendTest, TestLoadPredictBaseHandler) {
+TEST_F(TorchScriptedTest, TestLoadPredictBaseHandler) {
   this->LoadPredict(std::make_shared<torchserve::LoadModelRequest>(
                         "test/resources/torchscript_model/mnist/mnist_handler",
                         "mnist_scripted_v2", -1, "", "", 1, false),
@@ -69,7 +66,7 @@ TEST_F(TorchScriptedBackendTest, TestLoadPredictBaseHandler) {
                     "mnist_ts", 200);
 }
 
-TEST_F(TorchScriptedBackendTest, TestLoadPredictMnistHandler) {
+TEST_F(TorchScriptedTest, TestLoadPredictMnistHandler) {
   this->LoadPredict(std::make_shared<torchserve::LoadModelRequest>(
                         "test/resources/torchscript_model/mnist/mnist_handler",
                         "mnist_scripted_v2", -1, "", "", 1, false),
@@ -78,7 +75,7 @@ TEST_F(TorchScriptedBackendTest, TestLoadPredictMnistHandler) {
                     "mnist_ts", 200);
 }
 
-TEST_F(TorchScriptedBackendTest, TestLoadPredictBabyLlamaHandler) {
+TEST_F(TorchScriptedTest, TestLoadPredictBabyLlamaHandler) {
   this->LoadPredict(
       std::make_shared<torchserve::LoadModelRequest>(
           "test/resources/torchscript_model/babyllama/babyllama_handler", "llm",
@@ -87,18 +84,18 @@ TEST_F(TorchScriptedBackendTest, TestLoadPredictBabyLlamaHandler) {
       "test/resources/torchscript_model/babyllama/prompt.txt", "llm_ts", 200);
 }
 
-TEST_F(TorchScriptedBackendTest, TestBackendInitWrongModelDir) {
+TEST_F(TorchScriptedTest, TestBackendInitWrongModelDir) {
   auto result = backend_->Initialize("test/resources/torchscript_model/mnist");
   ASSERT_EQ(result, false);
 }
 
-TEST_F(TorchScriptedBackendTest, TestBackendInitWrongHandler) {
+TEST_F(TorchScriptedTest, TestBackendInitWrongHandler) {
   auto result = backend_->Initialize(
       "test/resources/torchscript_model/mnist/wrong_handler");
   ASSERT_EQ(result, false);
 }
 
-TEST_F(TorchScriptedBackendTest, TestLoadModelFailure) {
+TEST_F(TorchScriptedTest, TestLoadModelFailure) {
   backend_->Initialize("test/resources/torchscript_model/mnist/wrong_model");
   auto result =
       backend_->LoadModel(std::make_shared<torchserve::LoadModelRequest>(
@@ -107,7 +104,7 @@ TEST_F(TorchScriptedBackendTest, TestLoadModelFailure) {
   ASSERT_EQ(result->code, 500);
 }
 
-TEST_F(TorchScriptedBackendTest, TestLoadPredictMnistHandlerFailure) {
+TEST_F(TorchScriptedTest, TestLoadPredictMnistHandlerFailure) {
   this->LoadPredict(std::make_shared<torchserve::LoadModelRequest>(
                         "test/resources/torchscript_model/mnist/mnist_handler",
                         "mnist_scripted_v2", -1, "", "", 1, false),

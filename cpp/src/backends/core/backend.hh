@@ -7,10 +7,12 @@
 #include <random>
 #include <stdexcept>
 #include <tuple>
+#include <unordered_map>
 #include <utility>
 
 #include "model_instance.hh"
 #include "src/utils/config.hh"
+#include "src/utils/dl_loader.hh"
 #include "src/utils/message.hh"
 
 namespace torchserve {
@@ -41,36 +43,32 @@ class Backend {
   };
   // NOLINTEND(cppcoreguidelines-pro-type-member-init)
 
-  Backend() = default;
-  virtual ~Backend() = default;
+  Backend();
+  virtual ~Backend();
 
-  virtual bool Initialize(const std::string& model_dir) {
-    random_generator_.seed(time(0));
-    manifest_ = std::make_shared<torchserve::Manifest>();
-    // TODO: windows
-    return manifest_->Initialize(
-        fmt::format("{}/MAR-INF/MANIFEST.json", model_dir));
-  };
+  bool Initialize(const std::string &model_dir);
+
+  ModelInstanceStatus GetModelInstanceStatus(
+      const std::string &model_instance_id);
+
+  std::shared_ptr<torchserve::ModelInstance> GetModelInstance(
+      const std::string &model_instance_id);
+  std::shared_ptr<torchserve::ModelInstance> GetModelInstance();
+
+  void SetModelInstanceInfo(const std::string &model_instance_id,
+                            ModelInstanceStatus new_status,
+                            std::shared_ptr<ModelInstance> new_model_instance);
 
   std::unique_ptr<torchserve::LoadModelResponse> LoadModel(
       std::shared_ptr<torchserve::LoadModelRequest> load_model_request);
 
-  virtual std::unique_ptr<torchserve::LoadModelResponse> LoadModelInternal(
-      std::shared_ptr<torchserve::LoadModelRequest> load_model_request) = 0;
-
-  ModelInstanceStatus GetModelInstanceStatus(
-      const std::string& model_instance_id);
-
-  std::shared_ptr<torchserve::ModelInstance> GetModelInstance(
-      const std::string& model_instance_id);
-  std::shared_ptr<torchserve::ModelInstance> GetModelInstance();
-
-  void SetModelInstanceInfo(const std::string& model_instance_id,
-                            ModelInstanceStatus new_status,
-                            std::shared_ptr<ModelInstance> new_model_instance);
-
  protected:
   std::string BuildModelInstanceId(
+      std::shared_ptr<torchserve::LoadModelRequest> load_model_request);
+
+  void LoadHandler(const std::string &model_dir);
+
+  std::unique_ptr<torchserve::LoadModelResponse> LoadModelInternal(
       std::shared_ptr<torchserve::LoadModelRequest> load_model_request);
 
   std::shared_ptr<torchserve::Manifest> manifest_;
@@ -83,9 +81,10 @@ class Backend {
 
   std::atomic_uint16_t model_instance_count_ = 0;
 
- private:
-  std::size_t Random();
+  std::unique_ptr<DLLoader<BaseHandler>> dl_loader_;
+  std::shared_ptr<BaseHandler> handler_;
 
+  std::size_t Random();
   std::mt19937 random_generator_;
 };
 }  // namespace torchserve

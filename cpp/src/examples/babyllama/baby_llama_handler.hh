@@ -14,8 +14,9 @@ class BabyLlamaHandler : public torchserve::BaseHandler {
 
   void initialize_context();
 
-  virtual std::pair<std::shared_ptr<void>, std::shared_ptr<torch::Device>>
-  LoadModel(std::shared_ptr<torchserve::LoadModelRequest>& load_model_request);
+  std::pair<std::shared_ptr<void>, std::shared_ptr<torch::Device>> LoadModel(
+      std::shared_ptr<torchserve::LoadModelRequest>& load_model_request)
+      override;
 
   std::vector<torch::jit::IValue> Preprocess(
       std::shared_ptr<torch::Device>& device,
