@@ -1,6 +1,13 @@
 name: Benchmark torch.compile models nightly
 
 on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+  merge_group:
   # run every day at 9:15pm
   schedule:
     - cron:  '15 21 * * *'
@@ -23,7 +30,7 @@ jobs:
       - name: Setup Python 3.10
         uses: actions/setup-python@v4
         with:
-          python-version: 3.10.9
+          python-version: "3.10"
           architecture: x64
       - name: Setup Java 17
         uses: actions/setup-java@v3
@@ -39,8 +46,9 @@ jobs:
           sudo apt-get update -y
           sudo apt-get install -y apache2-utils
           pip install -r benchmarks/requirements-ab.txt
-          chmod +x examples/large_models/segment_anything_fast/install_segment_anything_fast.sh
-          source examples/large_models/segment_anything_fast/install_segment_anything_fast.sh
-          export SEGMENT_ANYTHING_FAST_USE_FLASH_4=0
+      - name: Install model-specific dependencies
+        run: |
+          chmod +x benchmarks/benchmark_model_dependencies.sh
+          source benchmarks/benchmark_model_dependencies.sh
       - name: Benchmark gpu nightly
         run: python benchmarks/auto_benchmark.py --input benchmarks/benchmark_config_torch_compile_gpu.yaml --skip false --nightly True
