@@ -9,6 +9,8 @@
 # a list of model configure yaml files defined in benchmarks/models_config
 # or a list of model configure yaml files with full path
 models:
+    - "bert_torch_compile_gpu.yaml"
+    - "resnet50_torch_compile_gpu.yaml"
     - "sam_fast_torch_compile_gpu.yaml"
 
 # benchmark on "cpu" or "gpu".
