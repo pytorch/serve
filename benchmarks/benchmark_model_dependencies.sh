@@ -12,3 +12,6 @@ export SEGMENT_ANYTHING_FAST_USE_FLASH_4=0
 
 echo "Installed dependencies and set environment variables for SAM Fast"
 
+# Install dependencies for GPT Fast
+pip install sentencepiece huggingface_hub
+

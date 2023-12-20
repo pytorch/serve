@@ -1,0 +1,18 @@
+---
+gpt_fast:
+    7b_int4:
+        benchmark_engine: "ab"
+        url: https://torchserve.pytorch.org/mar_files/gpt_fast_7b_int4.mar
+        workers:
+            - 4
+        batch_delay: 100
+        batch_size:
+            - 1
+        input: "./examples/large_models/gpt_fast/request.json"
+        requests: 100
+        concurrency: 4
+        backend_profiling: False
+        exec_env: "local"
+        processors:
+            - "cpu"
+            - "gpus": "all"
