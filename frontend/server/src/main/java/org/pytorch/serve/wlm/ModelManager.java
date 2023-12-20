@@ -30,6 +30,7 @@ import org.pytorch.serve.archive.model.ModelNotFoundException;
 import org.pytorch.serve.archive.model.ModelVersionNotFoundException;
 import org.pytorch.serve.http.ConflictStatusException;
 import org.pytorch.serve.http.InvalidModelVersionException;
+import org.pytorch.serve.http.messages.RegisterModelRequest;
 import org.pytorch.serve.job.Job;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.messages.EnvironmentUtils;
@@ -300,43 +301,47 @@ public final class ModelManager {
             boolean isWorkflowModel) {
         Model model = new Model(archive, configManager.getJobQueueSize());
 
-        if (archive.getModelConfig() != null) {
-            int marBatchSize = archive.getModelConfig().getBatchSize();
-            batchSize =
-                    marBatchSize > 0
-                            ? marBatchSize
-                            : configManager.getJsonIntValue(
-                                    archive.getModelName(),
-                                    archive.getModelVersion(),
-                                    Model.BATCH_SIZE,
-                                    batchSize);
-        } else {
-            batchSize =
-                    configManager.getJsonIntValue(
-                            archive.getModelName(),
-                            archive.getModelVersion(),
-                            Model.BATCH_SIZE,
-                            batchSize);
+        if (batchSize == -1 * RegisterModelRequest.DEFAULT_BATCH_SIZE) {
+            if (archive.getModelConfig() != null) {
+                int marBatchSize = archive.getModelConfig().getBatchSize();
+                batchSize =
+                        marBatchSize > 0
+                                ? marBatchSize
+                                : configManager.getJsonIntValue(
+                                archive.getModelName(),
+                                archive.getModelVersion(),
+                                Model.BATCH_SIZE,
+                                RegisterModelRequest.DEFAULT_BATCH_SIZE);
+            } else {
+                batchSize =
+                        configManager.getJsonIntValue(
+                                archive.getModelName(),
+                                archive.getModelVersion(),
+                                Model.BATCH_SIZE,
+                                RegisterModelRequest.DEFAULT_BATCH_SIZE);
+            }
         }
         model.setBatchSize(batchSize);
 
-        if (archive.getModelConfig() != null) {
-            int marMaxBatchDelay = archive.getModelConfig().getMaxBatchDelay();
-            maxBatchDelay =
-                    marMaxBatchDelay > 0
-                            ? marMaxBatchDelay
-                            : configManager.getJsonIntValue(
-                                    archive.getModelName(),
-                                    archive.getModelVersion(),
-                                    Model.MAX_BATCH_DELAY,
-                                    maxBatchDelay);
-        } else {
-            maxBatchDelay =
-                    configManager.getJsonIntValue(
-                            archive.getModelName(),
-                            archive.getModelVersion(),
-                            Model.MAX_BATCH_DELAY,
-                            maxBatchDelay);
+        if (maxBatchDelay == -1 * RegisterModelRequest.DEFAULT_MAX_BATCH_DELAY) {
+            if (archive.getModelConfig() != null) {
+                int marMaxBatchDelay = archive.getModelConfig().getMaxBatchDelay();
+                maxBatchDelay =
+                        marMaxBatchDelay > 0
+                                ? marMaxBatchDelay
+                                : configManager.getJsonIntValue(
+                                archive.getModelName(),
+                                archive.getModelVersion(),
+                                Model.MAX_BATCH_DELAY,
+                                RegisterModelRequest.DEFAULT_MAX_BATCH_DELAY);
+            } else {
+                maxBatchDelay =
+                        configManager.getJsonIntValue(
+                                archive.getModelName(),
+                                archive.getModelVersion(),
+                                Model.MAX_BATCH_DELAY,
+                                RegisterModelRequest.DEFAULT_MAX_BATCH_DELAY);
+            }
         }
         model.setMaxBatchDelay(maxBatchDelay);
 
