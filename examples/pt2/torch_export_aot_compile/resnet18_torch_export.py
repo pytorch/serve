@@ -12,7 +12,10 @@ with torch.no_grad():
     device = "cuda" if torch.cuda.is_available() else "cpu"
     model = model.to(device=device)
     example_inputs = (torch.randn(2, 3, 224, 224, device=device),)
-    batch_dim = torch.export.Dim("batch", min=2, max=32)
+
+    # Max value is 15 because of https://github.com/pytorch/pytorch/pull/116152
+    # On a CUDA enabled device, we tested batch_size of 32.
+    batch_dim = torch.export.Dim("batch", min=2, max=15)
     so_path = torch._export.aot_compile(
         model,
         example_inputs,

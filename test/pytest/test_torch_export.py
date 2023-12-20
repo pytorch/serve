@@ -123,6 +123,6 @@ def test_torch_export_aot_compile_dynamic_batching(custom_working_directory):
         data["body"] = byte_array_type
 
     # Send a batch of 16 elements
-    result = handler.handle([data for i in range(16)], ctx)
+    result = handler.handle([data for i in range(15)], ctx)
 
-    assert len(result) == 16
+    assert len(result) == 15

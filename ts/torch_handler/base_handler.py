@@ -155,12 +155,6 @@ class BaseHandler(abc.ABC):
             self.map_location = "cpu"
             self.device = torch.device(self.map_location)
 
-        USE_TORCH_EXPORT = False
-        if hasattr(self, "model_yaml_config") and "pt2" in self.model_yaml_config:
-            pt2_value = self.model_yaml_config["pt2"]
-            if pt2_value == "export" and PT220_AVAILABLE:
-                USE_TORCH_EXPORT = True
-
         self.manifest = context.manifest
 
         model_dir = properties.get("model_dir")
@@ -190,15 +184,22 @@ class BaseHandler(abc.ABC):
             self.model = setup_ort_session(self.model_pt_path, self.map_location)
             logger.info("Succesfully setup ort session")
 
-        elif self.model_pt_path.endswith(".so") and USE_TORCH_EXPORT:
-            # Set cuda stream to the gpu_id of the backend worker
-            if torch.cuda.is_available() and properties.get("gpu_id") is not None:
-                torch.cuda.set_stream(torch.cuda.Stream(int(properties.get("gpu_id"))))
+        elif self.model_pt_path.endswith(".so"):
+            if hasattr(self, "model_yaml_config") and "pt2" in self.model_yaml_config:
+                pt2_value = self.model_yaml_config["pt2"]
+                if pt2_value == "export" and PT220_AVAILABLE:
+                    # Set cuda device to the gpu_id of the backend worker
+                    # This is needed as the API for loading the exported model doesn't yet have a device id
+                    if (
+                        torch.cuda.is_available()
+                        and properties.get("gpu_id") is not None
+                    ):
+                        torch.cuda.set_device(self.device)
 
-            self.model = self._load_torch_export_aot_compile(self.model_pt_path)
-            logger.warning(
-                "torch._export is an experimental feature! Succesfully loaded torch exported model."
-            )
+                    self.model = self._load_torch_export_aot_compile(self.model_pt_path)
+                    logger.warning(
+                        "torch._export is an experimental feature! Succesfully loaded torch exported model."
+                    )
         else:
             raise RuntimeError("No model weights could be loaded")
 

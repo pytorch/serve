@@ -1,4 +1,4 @@
-batchSize: 32
+batchSize: 15
 maxBatchDelay: 5000
 responseTimeout: 300
 pt2 : "export"
