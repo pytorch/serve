@@ -50,6 +50,8 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+import java.time.DateTimeException;
+import java.lang.ArrayIndexOutOfBoundsException;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
@@ -150,11 +152,6 @@ public final class ConfigManager {
     private Properties prop;
 
     private boolean snapshotDisabled;
-    private static boolean tokenAuthEnabled;
-    private static String currSecretKey;
-    private static Instant tokenExpires;
-    private static final SecureRandom secureRandom = new SecureRandom(); //threadsafe
-    private static final Base64.Encoder base64Encoder = Base64.getUrlEncoder(); //threadsafe
 
     private static ConfigManager instance;
     private String hostName;
@@ -167,15 +164,6 @@ public final class ConfigManager {
         prop = new Properties();
 
         this.snapshotDisabled = args.isSnapshotDisabled();
-        this.tokenAuthEnabled = args.isTokenEnabled();
-        // if (this.tokenAuthEnabled){
-        //     String key = generateToken();
-        //     System.out.println("-----TEST-----");
-        //     System.out.println("-----KEY------: " + key);
-        //     // this.tokenExpires = Instant.now().plusSeconds(TimeUnit.MINUTES.toSeconds(5));
-        //     // this.currSecretKey = key;
-        //     System.out.println(Instant.now() + " TIME: " + this.tokenExpires);
-        // }
         String version = readFile(getModelServerHome() + "/ts/version.txt");
         if (version != null) {
             version = version.replaceAll("[\\n\\t ]", "");
@@ -277,16 +265,6 @@ public final class ConfigManager {
 
         setModelConfig();
 
-        // Check for token authorization and setup if needed.
-        if (this.tokenAuthEnabled){
-            String key = generateToken();
-            // System.out.println("-----AUTHORIZATION-----");
-            // System.out.println("-----TOKEN------: " + key);
-            // System.out.println("-----AUTHORIZATION-----");
-            // this.tokenExpires = Instant.now().plusSeconds(TimeUnit.MINUTES.toSeconds(5));
-            // this.currSecretKey = key;
-            System.out.println(Instant.now() + " TIME: " + this.tokenExpires);
-        }
 
         // Issue warnining about URLs that can be accessed when loading models
         if (prop.getProperty(TS_ALLOWED_URLS, DEFAULT_TS_ALLOWED_URLS) == DEFAULT_TS_ALLOWED_URLS) {
@@ -747,8 +725,6 @@ public final class ConfigManager {
                 + isSystemMetricsDisabled()
                 + "\nWorkflow Store: "
                 + (getWorkflowStore() == null ? "N/A" : getWorkflowStore())
-                + "\nToken Authorization: "
-                + (isTokenEnabled() == false ? "N/A" : getKey())
                 + "\nModel config: "
                 + prop.getProperty(MODEL_CONFIG, "N/A");
     }
@@ -876,71 +852,79 @@ public final class ConfigManager {
         return snapshotDisabled;
     }
 
-    public boolean isTokenEnabled() {
-        return tokenAuthEnabled;
+
+    public boolean isTokenExpired(Instant expirationTime){
+        return !(Instant.now().isBefore(expirationTime));
     }
 
-    public String getKey(){
-        return currSecretKey;
-    }
-
-    public boolean isTokenExpired(){
-        return !(Instant.now().isBefore(tokenExpires));
-    }
-
-    public String generateToken() {
-        byte[] randomBytes = new byte[6];
-        secureRandom.nextBytes(randomBytes);
-        setTokenExpiration();
-        String key = base64Encoder.encodeToString(randomBytes);
-        this.currSecretKey = key;
-        return key;
-    }
-
-    public void setTokenExpiration(){
-        Integer time = 5;
-        if (prop.getProperty(TS_TOKEN_EXPIRATION_TIME) != null){
-            time = Integer.valueOf(prop.getProperty(TS_TOKEN_EXPIRATION_TIME));
+    public List<String> parseFile(File tsTokenFile) {
+        List<String> parsedTokens = new ArrayList<>();
+        try {
+            InputStream stream = Files.newInputStream(tsTokenFile.toPath());
+            byte[] array = new byte[100];
+            stream.read(array);
+            // Convert byte array into string
+            String data = new String(array);
+            String[] arrOfData = data.split("\n", 2);
+            String[] managementArr = arrOfData[0].split(" ", 3);
+            String[] inferenceArr =  arrOfData[1].split(" ", 7);
+            parsedTokens.add(managementArr[2]);
+            parsedTokens.add(inferenceArr[2]);
+            String[] expirationArr = inferenceArr[6].split("\n", 2);
+            parsedTokens.add(expirationArr[0]);
         }
-        this.tokenExpires = Instant.now().plusSeconds(TimeUnit.MINUTES.toSeconds(time));
+        catch (IOException | ArrayIndexOutOfBoundsException e) {
+            System.out.println("Unable to read key file or key file has been modified");
+            return null;
+        }
+        return parsedTokens;
     }
 
-    public void checkTokenAuthorization(FullHttpRequest req) throws ModelException {
+    public void checkTokenAuthorization(FullHttpRequest req, boolean inferenceRequest) throws ModelException {
         HttpMethod method = req.method();
-        if (isTokenEnabled()){
-            System.out.println("TOKEN AUTHORIZATION IS ENABLED."
-            );
-            // VERIFY IF THE TOKEN IS VALID
-            String tokenBearer = req.headers().get("Authorization");
-            if (tokenBearer == null){
-                throw new InvalidKeyException("NO TOKEN PROVIDED");
-            }
-            String[] arrOfStr = tokenBearer.split(" ", 2);
-            String token = arrOfStr[1];
-            if (token.equals(getKey())){
-                if (isTokenExpired()){
-                    // System.out.println("TOKEN IS EXPIRED");
-                    String newToken = generateToken();
-                    if (!isTokenExpired()){
-                        System.out.println("This worked");
-                    }else {
-                        System.out.println("This did not worked");
-                    }
-                    throw new KeyTimeOutException("THE CURRENT TOKEN IS EXPIRED, NEW TOKEN : " + newToken);
+        // Will change to get file path rather then being set defaulty
+        String filePath = "/home/ubuntu/serve/key_file.txt";
+        if (filePath != null) {
+            File tsTokenFile = new File(filePath);
+            if (tsTokenFile.exists()) {
+                // try (InputStream stream = Files.newInputStream(tsTokenFile.toPath())) {
+                List<String> parsedTokens = parseFile(tsTokenFile);
+                String managementToken = parsedTokens.get(0);
+                String inferenceToken = parsedTokens.get(1);
+                Instant expirationTime = Instant.now();
+                try {
+                    expirationTime = Instant.parse(parsedTokens.get(2));
+                }catch(DateTimeException e){
+                    e.printStackTrace();
+                    System.out.println("{\n\t\"Error\": Key File has been modified \n}\n");
                 }
-                else {
+                String tokenBearer = req.headers().get("Authorization");
+                if (tokenBearer == null){
+                    throw new InvalidKeyException("NO TOKEN PROVIDED");
+                }
+                String[] arrOfStr = tokenBearer.split(" ", 2);
+                if (arrOfStr.length == 1){
+                    throw new InvalidKeyException("NO TOKEN PROVIDED");
+                }
+                String token = arrOfStr[1];
+                String key = managementToken;
+                if (inferenceRequest){
+                    key = inferenceToken;
+                }
+
+                if (token.equals(key)){
+                    if (isTokenExpired(expirationTime) && inferenceRequest){
+                        throw new KeyTimeOutException("THE CURRENT TOKEN IS EXPIRED");
+                    }
                     System.out.println("TOKEN AUTHORIZATION WORKED");
+                } else {
+                    throw new InvalidKeyException("TOKEN IS INCORRECT ");
                 }
             } else {
-                throw new InvalidKeyException("TOKEN IS INCORRECT");
-                // System.out.println("INCORRECT TOKEN");
+                System.out.println("TOKEN AUTHORIZATION IS NOT ENABLED");
             }
-        }else {
-            System.out.println("TOKEN AUTHORIZATION IS NOT ENABLED");
         }
     }
-
-    // FUNCTION THAT RECEIVES A TOKEN AND CHECKS TO SEE IF IT MATCHES SAVED TOKEN
 
     public boolean isSSLEnabled(ConnectorType connectorType) {
         String address = prop.getProperty(TS_INFERENCE_ADDRESS, "http://127.0.0.1:8080");
@@ -1033,7 +1017,6 @@ public final class ConfigManager {
         private String[] models;
         private boolean snapshotDisabled;
         private String workflowStore;
-        private boolean tokenAuthEnabled;
 
         public Arguments() {}
 
@@ -1044,7 +1027,6 @@ public final class ConfigManager {
             models = cmd.getOptionValues("models");
             snapshotDisabled = cmd.hasOption("no-config-snapshot");
             workflowStore = cmd.getOptionValue("workflow-store");
-            tokenAuthEnabled = cmd.hasOption("token");
         }
 
         public static Options getOptions() {
@@ -1090,12 +1072,6 @@ public final class ConfigManager {
                             .argName("WORKFLOW-STORE")
                             .desc("Workflow store location where workflow can be loaded.")
                             .build());
-            options.addOption(
-                    Option.builder("token")
-                            .longOpt("token")
-                            .argName("TOKEN")
-                            .desc("enables token authorization")
-                            .build());
             return options;
         }
 
@@ -1117,10 +1093,6 @@ public final class ConfigManager {
 
         public String getWorkflowStore() {
             return workflowStore;
-        }
-
-        public boolean isTokenEnabled() {
-            return tokenAuthEnabled;
         }
 
         public void setModelStore(String modelStore) {

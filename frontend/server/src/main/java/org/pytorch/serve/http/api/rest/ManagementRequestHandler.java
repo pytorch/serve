@@ -65,7 +65,7 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
             throws ModelException, DownloadArchiveException, WorkflowException,
                     WorkerInitializationException {
         ConfigManager configManager = ConfigManager.getInstance();
-        configManager.checkTokenAuthorization(req);
+        configManager.checkTokenAuthorization(req, false);
         if (isManagementReq(segments)) {
             if (endpointMap.getOrDefault(segments[1], null) != null) {
                 handleCustomEndpoint(ctx, req, segments, decoder);

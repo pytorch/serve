@@ -49,7 +49,7 @@ public class PrometheusMetricsRequestHandler extends HttpRequestHandlerChain {
             throws ModelException, DownloadArchiveException, WorkflowException,
                     WorkerInitializationException {
         ConfigManager configManager = ConfigManager.getInstance();
-        configManager.checkTokenAuthorization(req);
+        configManager.checkTokenAuthorization(req, true);
         if (segments.length >= 2 && "metrics".equals(segments[1])) {
             ByteBuf resBuf = Unpooled.directBuffer();
             List<String> params =

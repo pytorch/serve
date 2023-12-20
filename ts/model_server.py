@@ -48,6 +48,8 @@ def start() -> None:
             try:
                 parent = psutil.Process(pid)
                 parent.terminate()
+                # Will change to get file path rather then being set defaulty
+                os.remove("/home/ubuntu/serve/key_file.txt")
                 if args.foreground:
                     try:
                         parent.wait(timeout=60)
@@ -180,9 +182,6 @@ def start() -> None:
 
         if args.no_config_snapshots:
             cmd.append("-ncs")
-
-        if args.token_auth:
-            cmd.append("-token")
 
         if args.models:
             cmd.append("-m")

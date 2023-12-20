@@ -31,8 +31,6 @@ public class ApiDescriptionRequestHandler extends HttpRequestHandlerChain {
             String[] segments)
             throws ModelException, DownloadArchiveException, WorkflowException,
                     WorkerInitializationException {
-        ConfigManager configManager = ConfigManager.getInstance();
-        configManager.checkTokenAuthorization(req);
         if (isApiDescription(segments)) {
             String path = decoder.path();
             if (("/".equals(path) && HttpMethod.OPTIONS.equals(req.method()))

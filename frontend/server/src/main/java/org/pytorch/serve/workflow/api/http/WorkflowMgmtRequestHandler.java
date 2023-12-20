@@ -66,7 +66,7 @@ public class WorkflowMgmtRequestHandler extends HttpRequestHandlerChain {
                     WorkerInitializationException {
 
         ConfigManager configManager = ConfigManager.getInstance();
-        configManager.checkTokenAuthorization(req);
+        configManager.checkTokenAuthorization(req, false);
         if (isManagementReq(segments)) {
             if (!"workflows".equals(segments[1])) {
                 throw new ResourceNotFoundException();

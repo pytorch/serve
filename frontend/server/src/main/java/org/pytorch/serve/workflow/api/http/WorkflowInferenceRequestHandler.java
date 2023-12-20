@@ -83,7 +83,7 @@ public class WorkflowInferenceRequestHandler extends HttpRequestHandlerChain {
                     WorkerInitializationException {
 
         ConfigManager configManager = ConfigManager.getInstance();
-        configManager.checkTokenAuthorization(req);
+        configManager.checkTokenAuthorization(req, true);
         if ("wfpredict".equalsIgnoreCase(segments[1])) {
             if (segments.length < 3) {
                 throw new ResourceNotFoundException();
