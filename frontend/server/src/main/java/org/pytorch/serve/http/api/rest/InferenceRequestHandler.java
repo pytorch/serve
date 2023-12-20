@@ -63,7 +63,6 @@ public class InferenceRequestHandler extends HttpRequestHandlerChain {
         if (isInferenceReq(segments)) {
             if (endpointMap.getOrDefault(segments[1], null) != null) {
                 configManager.checkTokenAuthorization(req, false);
-                System.out.println("THIS IS A TEST NUMBER 3.1");
                 handleCustomEndpoint(ctx, req, segments, decoder);
             } else {
                 configManager.checkTokenAuthorization(req, true);

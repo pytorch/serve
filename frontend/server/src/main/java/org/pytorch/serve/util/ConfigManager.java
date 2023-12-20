@@ -117,7 +117,6 @@ public final class ConfigManager {
     private static final String TS_INITIAL_WORKER_PORT = "initial_worker_port";
     private static final String TS_INITIAL_DISTRIBUTION_PORT = "initial_distribution_port";
     private static final String TS_WORKFLOW_STORE = "workflow_store";
-    private static final String TS_TOKEN_EXPIRATION_TIME = "token_expiration"; // minutes
 
     // Configuration which are not documented or enabled through environment variables
     private static final String USE_NATIVE_IO = "use_native_io";
