@@ -184,30 +184,20 @@ class BaseHandler(abc.ABC):
             self.model = setup_ort_session(self.model_pt_path, self.map_location)
             logger.info("Succesfully setup ort session")
 
-        elif self.model_pt_path.endswith(".so"):
-            if hasattr(self, "model_yaml_config") and "pt2" in self.model_yaml_config:
-                # Check if torch_export_aot_compile is being used
-                pt2_value = self.model_yaml_config["pt2"]
-                torch_export_aot_compile = False
-                export_value = pt2_value.get("export", None)
-                if isinstance(export_value, dict) and "aot_compile" in export_value:
-                    torch_export_aot_compile = (
-                        True if export_value["aot_compile"] == True else False
-                    )
+        elif (
+            self.model_pt_path.endswith(".so")
+            and self._use_torch_export_aot_compile()
+            and PT220_AVAILABLE
+        ):
+            # Set cuda device to the gpu_id of the backend worker
+            # This is needed as the API for loading the exported model doesn't yet have a device id
+            if torch.cuda.is_available() and properties.get("gpu_id") is not None:
+                torch.cuda.set_device(self.device)
 
-                if torch_export_aot_compile and PT220_AVAILABLE:
-                    # Set cuda device to the gpu_id of the backend worker
-                    # This is needed as the API for loading the exported model doesn't yet have a device id
-                    if (
-                        torch.cuda.is_available()
-                        and properties.get("gpu_id") is not None
-                    ):
-                        torch.cuda.set_device(self.device)
-
-                    self.model = self._load_torch_export_aot_compile(self.model_pt_path)
-                    logger.warning(
-                        "torch._export is an experimental feature! Succesfully loaded torch exported model."
-                    )
+            self.model = self._load_torch_export_aot_compile(self.model_pt_path)
+            logger.warning(
+                "torch._export is an experimental feature! Succesfully loaded torch exported model."
+            )
         else:
             raise RuntimeError("No model weights could be loaded")
 
@@ -320,6 +310,18 @@ class BaseHandler(abc.ABC):
             state_dict = torch.load(model_pt_path, map_location=map_location)
             model.load_state_dict(state_dict)
         return model
+
+    def _use_torch_export_aot_compile(self):
+        torch_export_aot_compile = False
+        if hasattr(self, "model_yaml_config") and "pt2" in self.model_yaml_config:
+            # Check if torch._export.aot_compile is being used
+            pt2_value = self.model_yaml_config["pt2"]
+            export_value = pt2_value.get("export", None)
+            if isinstance(export_value, dict) and "aot_compile" in export_value:
+                torch_export_aot_compile = (
+                    True if export_value["aot_compile"] == True else False
+                )
+        return torch_export_aot_compile
 
     @timed
     def preprocess(self, data):
