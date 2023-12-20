@@ -12,6 +12,7 @@ from pathlib import Path
 from queue import Queue
 from subprocess import PIPE, STDOUT, Popen
 
+import orjson
 import requests
 
 # To help discover margen modules
@@ -123,6 +124,13 @@ def register_model_with_params(params):
 def unregister_model(model_name):
     response = requests.delete("http://localhost:8081/models/{}".format(model_name))
     return response
+
+
+def describe_model(model_name, version):
+    response = requests.get(
+        "http://localhost:8081/models/{}/{}".format(model_name, version)
+    )
+    return orjson.loads(response.content)
 
 
 def delete_mar_file_from_model_store(model_store=None, model_mar=None):
