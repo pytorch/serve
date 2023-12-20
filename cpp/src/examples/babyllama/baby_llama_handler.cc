@@ -19,11 +19,6 @@ BabyLlamaHandler::LoadModel(
     std::shared_ptr<torchserve::LoadModelRequest>& load_model_request) {
   try {
     auto device = GetTorchDevice(load_model_request);
-    // Load dummy model
-    auto module = std::make_shared<torch::jit::script::Module>(
-        torch::jit::load(fmt::format("{}/{}", load_model_request->model_dir,
-                                     manifest_->GetModel().serialized_file),
-                         *device));
 
     const std::string configFilePath =
         fmt::format("{}/{}", load_model_request->model_dir, "config.json");
@@ -61,7 +56,7 @@ BabyLlamaHandler::LoadModel(
     build_sampler(&sampler, transformer.config.vocab_size, temperature, topp,
                   rng_seed);
 
-    return std::make_pair(module, device);
+    return std::make_pair(nullptr, device);
   } catch (const c10::Error& e) {
     TS_LOGF(ERROR, "loading the model: {}, device id: {}, error: {}",
             load_model_request->model_name, load_model_request->gpu_id,

@@ -3,7 +3,6 @@
   "runtime": "LSP",
   "model": {
     "modelName": "babyllama",
-    "serializedFile": "dummy.pt",
     "handler": "libbabyllama_handler:BabyLlamaHandler",
     "modelVersion": "2.0"
   },
