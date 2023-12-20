@@ -1,3 +1,2 @@
 nvgpu; sys_platform != 'win32'
 nvgpu==0.10.0; sys_platform == 'win32'
-ninja==1.11.1.1
