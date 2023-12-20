@@ -308,10 +308,10 @@ public final class ModelManager {
                         marBatchSize > 0
                                 ? marBatchSize
                                 : configManager.getJsonIntValue(
-                                archive.getModelName(),
-                                archive.getModelVersion(),
-                                Model.BATCH_SIZE,
-                                RegisterModelRequest.DEFAULT_BATCH_SIZE);
+                                        archive.getModelName(),
+                                        archive.getModelVersion(),
+                                        Model.BATCH_SIZE,
+                                        RegisterModelRequest.DEFAULT_BATCH_SIZE);
             } else {
                 batchSize =
                         configManager.getJsonIntValue(
@@ -330,10 +330,10 @@ public final class ModelManager {
                         marMaxBatchDelay > 0
                                 ? marMaxBatchDelay
                                 : configManager.getJsonIntValue(
-                                archive.getModelName(),
-                                archive.getModelVersion(),
-                                Model.MAX_BATCH_DELAY,
-                                RegisterModelRequest.DEFAULT_MAX_BATCH_DELAY);
+                                        archive.getModelName(),
+                                        archive.getModelVersion(),
+                                        Model.MAX_BATCH_DELAY,
+                                        RegisterModelRequest.DEFAULT_MAX_BATCH_DELAY);
             } else {
                 maxBatchDelay =
                         configManager.getJsonIntValue(
