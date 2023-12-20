@@ -2,20 +2,11 @@ package org.pytorch.serve.util;
 
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
+import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
-import java.security.Key;
-import java.security.SecureRandom;
-import java.time.Instant;
-import java.util.concurrent.TimeUnit;
-import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.HttpHeaderValues;
-import io.netty.handler.codec.http.HttpMethod;
-import org.pytorch.serve.archive.model.KeyTimeOutException;
-import org.pytorch.serve.archive.model.InvalidKeyException;
-import org.pytorch.serve.archive.model.ModelException;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,6 +27,8 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
+import java.time.DateTimeException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
@@ -50,12 +43,13 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
-import java.time.DateTimeException;
-import java.lang.ArrayIndexOutOfBoundsException;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.io.IOUtils;
+import org.pytorch.serve.archive.model.InvalidKeyException;
+import org.pytorch.serve.archive.model.KeyTimeOutException;
+import org.pytorch.serve.archive.model.ModelException;
 import org.pytorch.serve.metrics.MetricBuilder;
 import org.pytorch.serve.servingsdk.snapshot.SnapshotSerializer;
 import org.pytorch.serve.snapshot.SnapshotSerializerFactory;
@@ -263,7 +257,6 @@ public final class ConfigManager {
         }
 
         setModelConfig();
-
 
         // Issue warnining about URLs that can be accessed when loading models
         if (prop.getProperty(TS_ALLOWED_URLS, DEFAULT_TS_ALLOWED_URLS) == DEFAULT_TS_ALLOWED_URLS) {
@@ -851,8 +844,7 @@ public final class ConfigManager {
         return snapshotDisabled;
     }
 
-
-    public boolean isTokenExpired(Instant expirationTime){
+    public boolean isTokenExpired(Instant expirationTime) {
         return !(Instant.now().isBefore(expirationTime));
     }
 
@@ -866,20 +858,20 @@ public final class ConfigManager {
             String data = new String(array);
             String[] arrOfData = data.split("\n", 2);
             String[] managementArr = arrOfData[0].split(" ", 3);
-            String[] inferenceArr =  arrOfData[1].split(" ", 7);
+            String[] inferenceArr = arrOfData[1].split(" ", 7);
             parsedTokens.add(managementArr[2]);
             parsedTokens.add(inferenceArr[2]);
             String[] expirationArr = inferenceArr[6].split("\n", 2);
             parsedTokens.add(expirationArr[0]);
-        }
-        catch (IOException | ArrayIndexOutOfBoundsException e) {
+        } catch (IOException | ArrayIndexOutOfBoundsException e) {
             System.out.println("Unable to read key file or key file has been modified");
             return null;
         }
         return parsedTokens;
     }
 
-    public void checkTokenAuthorization(FullHttpRequest req, boolean inferenceRequest) throws ModelException {
+    public void checkTokenAuthorization(FullHttpRequest req, boolean inferenceRequest)
+            throws ModelException {
         HttpMethod method = req.method();
         // Will change to get file path rather then being set defaulty
         String filePath = "/home/ubuntu/serve/key_file.txt";
@@ -893,26 +885,26 @@ public final class ConfigManager {
                 Instant expirationTime = Instant.now();
                 try {
                     expirationTime = Instant.parse(parsedTokens.get(2));
-                }catch(DateTimeException e){
+                } catch (DateTimeException e) {
                     e.printStackTrace();
                     System.out.println("{\n\t\"Error\": Key File has been modified \n}\n");
                 }
                 String tokenBearer = req.headers().get("Authorization");
-                if (tokenBearer == null){
+                if (tokenBearer == null) {
                     throw new InvalidKeyException("NO TOKEN PROVIDED");
                 }
                 String[] arrOfStr = tokenBearer.split(" ", 2);
-                if (arrOfStr.length == 1){
+                if (arrOfStr.length == 1) {
                     throw new InvalidKeyException("NO TOKEN PROVIDED");
                 }
                 String token = arrOfStr[1];
                 String key = managementToken;
-                if (inferenceRequest){
+                if (inferenceRequest) {
                     key = inferenceToken;
                 }
 
-                if (token.equals(key)){
-                    if (isTokenExpired(expirationTime) && inferenceRequest){
+                if (token.equals(key)) {
+                    if (isTokenExpired(expirationTime) && inferenceRequest) {
                         throw new KeyTimeOutException("THE CURRENT TOKEN IS EXPIRED");
                     }
                     System.out.println("TOKEN AUTHORIZATION WORKED");

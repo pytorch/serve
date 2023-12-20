@@ -20,7 +20,6 @@ import org.pytorch.serve.http.ResourceNotFoundException;
 import org.pytorch.serve.http.StatusResponse;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.NettyUtils;
-import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.messages.InputParameter;
 import org.pytorch.serve.util.messages.RequestInput;
 import org.pytorch.serve.wlm.WorkerInitializationException;
