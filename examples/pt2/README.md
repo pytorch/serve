@@ -123,6 +123,8 @@ This is an experimental API and needs PyTorch 2.2 nightlies
 To achieve this, add the following config in your `model-config.yaml`
 
 ```yaml
-pt2: "export"
+pt2 :
+  export:
+    aot_compile: true
 ```
 You can find an example [here](./torch_export_aot_compile/README.md)

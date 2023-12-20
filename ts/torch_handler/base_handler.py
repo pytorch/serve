@@ -186,8 +186,16 @@ class BaseHandler(abc.ABC):
 
         elif self.model_pt_path.endswith(".so"):
             if hasattr(self, "model_yaml_config") and "pt2" in self.model_yaml_config:
+                # Check if torch_export_aot_compile is being used
                 pt2_value = self.model_yaml_config["pt2"]
-                if pt2_value == "export" and PT220_AVAILABLE:
+                torch_export_aot_compile = False
+                export_value = pt2_value.get("export", None)
+                if isinstance(export_value, dict) and "aot_compile" in export_value:
+                    torch_export_aot_compile = (
+                        True if export_value["aot_compile"] == True else False
+                    )
+
+                if torch_export_aot_compile and PT220_AVAILABLE:
                     # Set cuda device to the gpu_id of the backend worker
                     # This is needed as the API for loading the exported model doesn't yet have a device id
                     if (
@@ -206,20 +214,23 @@ class BaseHandler(abc.ABC):
         if hasattr(self, "model_yaml_config") and "pt2" in self.model_yaml_config:
             pt2_value = self.model_yaml_config["pt2"]
 
-            # pt2_value can be the backend, passed as a str, or arbitrary kwargs, passed as a dict
-            if isinstance(pt2_value, str):
-                compile_options = dict(backend=pt2_value)
-            elif isinstance(pt2_value, dict):
-                compile_options = pt2_value
+            if "export" in pt2_value:
+                valid_backend = False
             else:
-                raise ValueError("pt2 should be str or dict")
+                # pt2_value can be the backend, passed as a str, or arbitrary kwargs, passed as a dict
+                if isinstance(pt2_value, str):
+                    compile_options = dict(backend=pt2_value)
+                elif isinstance(pt2_value, dict):
+                    compile_options = pt2_value
+                else:
+                    raise ValueError("pt2 should be str or dict")
 
-            # if backend is not provided, compile will use its default, which is valid
-            valid_backend = (
-                check_valid_pt2_backend(compile_options["backend"])
-                if "backend" in compile_options
-                else True
-            )
+                # if backend is not provided, compile will use its default, which is valid
+                valid_backend = (
+                    check_valid_pt2_backend(compile_options["backend"])
+                    if "backend" in compile_options
+                    else True
+                )
         else:
             valid_backend = False
 
