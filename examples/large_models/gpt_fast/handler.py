@@ -18,7 +18,7 @@ from generate import (
 from sentencepiece import SentencePieceProcessor
 
 from ts.handler_utils.timer import timed
-from ts.protocol.otf_message_handler import send_intermediate_predict_response
+from ts.handler_utils.utils import send_intermediate_predict_response
 from ts.torch_handler.base_handler import BaseHandler
 
 logger = logging.getLogger(__name__)

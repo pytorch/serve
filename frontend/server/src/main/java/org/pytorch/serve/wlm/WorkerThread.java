@@ -227,6 +227,9 @@ public class WorkerThread implements Runnable {
                     long begin = System.currentTimeMillis();
                     for (int i = 0; i < repeats; i++) {
                         reply = replies.poll(responseTimeout, TimeUnit.SECONDS);
+                        if (req.getCommand() != WorkerCommands.LOAD) {
+                            break;
+                        }
                     }
 
                     long duration = System.currentTimeMillis() - begin;
