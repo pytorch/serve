@@ -1,0 +1,17 @@
+---
+sam_fast_vit_b:
+    process_batch_size_4:
+        benchmark_engine: "ab"
+        url: https://torchserve.pytorch.org/mar_files/sam-fast-vit-b-process-batch-size-4.tar.gz
+        workers:
+            - 4
+        batch_delay: 100
+        batch_size:
+            - 1
+        input: "./examples/large_models/segment_anything_fast/kitten.jpg"
+        requests: 1000
+        concurrency: 4
+        backend_profiling: False
+        exec_env: "local"
+        processors:
+            - "gpus": "all"

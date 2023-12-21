@@ -53,6 +53,10 @@ else:
     )
     PT2_AVAILABLE = False
 
+if packaging.version.parse(torch.__version__) > packaging.version.parse("2.1.1"):
+    PT220_AVAILABLE = True
+else:
+    PT220_AVAILABLE = False
 
 if os.environ.get("TS_IPEX_ENABLE", "false") == "true":
     try:
@@ -180,26 +184,43 @@ class BaseHandler(abc.ABC):
             self.model = setup_ort_session(self.model_pt_path, self.map_location)
             logger.info("Succesfully setup ort session")
 
+        elif (
+            self.model_pt_path.endswith(".so")
+            and self._use_torch_export_aot_compile()
+            and PT220_AVAILABLE
+        ):
+            # Set cuda device to the gpu_id of the backend worker
+            # This is needed as the API for loading the exported model doesn't yet have a device id
+            if torch.cuda.is_available() and properties.get("gpu_id") is not None:
+                torch.cuda.set_device(self.device)
+
+            self.model = self._load_torch_export_aot_compile(self.model_pt_path)
+            logger.warning(
+                "torch._export is an experimental feature! Succesfully loaded torch exported model."
+            )
         else:
             raise RuntimeError("No model weights could be loaded")
 
         if hasattr(self, "model_yaml_config") and "pt2" in self.model_yaml_config:
             pt2_value = self.model_yaml_config["pt2"]
 
-            # pt2_value can be the backend, passed as a str, or arbitrary kwargs, passed as a dict
-            if isinstance(pt2_value, str):
-                compile_options = dict(backend=pt2_value)
-            elif isinstance(pt2_value, dict):
-                compile_options = pt2_value
+            if "export" in pt2_value:
+                valid_backend = False
             else:
-                raise ValueError("pt2 should be str or dict")
+                # pt2_value can be the backend, passed as a str, or arbitrary kwargs, passed as a dict
+                if isinstance(pt2_value, str):
+                    compile_options = dict(backend=pt2_value)
+                elif isinstance(pt2_value, dict):
+                    compile_options = pt2_value
+                else:
+                    raise ValueError("pt2 should be str or dict")
 
-            # if backend is not provided, compile will use its default, which is valid
-            valid_backend = (
-                check_valid_pt2_backend(compile_options["backend"])
-                if "backend" in compile_options
-                else True
-            )
+                # if backend is not provided, compile will use its default, which is valid
+                valid_backend = (
+                    check_valid_pt2_backend(compile_options["backend"])
+                    if "backend" in compile_options
+                    else True
+                )
         else:
             valid_backend = False
 
@@ -233,6 +254,11 @@ class BaseHandler(abc.ABC):
         self.mapping = load_label_mapping(mapping_file_path)
 
         self.initialized = True
+
+    def _load_torch_export_aot_compile(self, model_so_path):
+        from ts.handler_utils.torch_export.load_model import load_exported_model
+
+        return load_exported_model(model_so_path, self.map_location)
 
     def _load_torchscript_model(self, model_pt_path):
         """Loads the PyTorch model and returns the NN model object.
@@ -284,6 +310,18 @@ class BaseHandler(abc.ABC):
             state_dict = torch.load(model_pt_path, map_location=map_location)
             model.load_state_dict(state_dict)
         return model
+
+    def _use_torch_export_aot_compile(self):
+        torch_export_aot_compile = False
+        if hasattr(self, "model_yaml_config") and "pt2" in self.model_yaml_config:
+            # Check if torch._export.aot_compile is being used
+            pt2_value = self.model_yaml_config["pt2"]
+            export_value = pt2_value.get("export", None)
+            if isinstance(export_value, dict) and "aot_compile" in export_value:
+                torch_export_aot_compile = (
+                    True if export_value["aot_compile"] == True else False
+                )
+        return torch_export_aot_compile
 
     @timed
     def preprocess(self, data):

@@ -28,7 +28,7 @@ Make sure to have PyTorch Nighlies installed.
 ```
 pip3 install --pre torch  --index-url https://download.pytorch.org/whl/nightly/cu118
 
-pip install transformers 
+pip install transformers fire sentencepiece
 
 ```
 
@@ -53,7 +53,7 @@ The script prints the path where the model is downloaded as below.
 
 ### Step 3: Convert the "Meta" checkpoints to PyTorch Distributed compliant checkpoints
 
-Convert the checkpoints to  PT-D compliant checkpoints as follows, note that for 7B `--model_parallel_size 1` for 13B would be `--model_parallel_size 2` and 70B `model_parallel_size 8`, you can also set `--nproc_per_node ` accordingly. PT-D compliant support flexible world_size when loading back the checkpoints into TP(lized) model. 
+Convert the checkpoints to  PT-D compliant checkpoints as follows, note that for 7B `--model_parallel_size 1` for 13B would be `--model_parallel_size 2` and 70B `model_parallel_size 8`, you can also set `--nproc_per_node ` accordingly. PT-D compliant support flexible world_size when loading back the checkpoints into TP(lized) model.
 
 You would be able to use larger number of processes/ TP size when load the model back. For example if you have converted the `13B` checkpoints with `--nproc_per_node 2`, during the inference you can use `--nproc_per_node` be `[2, max_num_available_gpu]` which you are changing the world_size and effectively the TP size. The recommendation here is to keep the TP size as shown above respective to model size, 7B (TP Size =1), 13B (TP Size =2), 70B (TP Size =8), unless your benchmark and your batch size/ compute load compensate for communication cost.
 
@@ -69,7 +69,7 @@ torchrun --nnodes 1 --nproc_per_node 8 convert_checkpoints.py --original_ckpt_di
 
 ### Step 4: set up the configs:
 
-Lets setup configs in `model-config.yaml` 
+Lets setup configs in `model-config.yaml`
 
 ```
 #frontend settings
@@ -97,7 +97,7 @@ handler:
 ```
 
 ### step 5: Create the mar file:
-Create the mar file using the following command here. 
+Create the mar file using the following command here.
 
 ```
 torch-model-archiver --model-name llama --version 1.0 --handler llama-handler.py --config-file model-config.yaml --archive-format no-archive --extra-files "llama2.py,llama2_tokenizer.py,generate.py,checkpoint_converter.py"

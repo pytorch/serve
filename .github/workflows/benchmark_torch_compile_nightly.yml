@@ -1,0 +1,47 @@
+name: Benchmark torch.compile models nightly
+
+on:
+  # run every day at 9:15pm
+  schedule:
+    - cron:  '15 21 * * *'
+
+jobs:
+  nightly:
+    strategy:
+      fail-fast: false
+    runs-on: [self-hosted, gpu]
+    timeout-minutes: 1320
+    steps:
+      - name: Clean up previous run
+        run: |
+          echo "Cleaning up previous run"
+          cd $RUNNER_WORKSPACE
+          pwd
+          cd ..
+          pwd
+          rm -rf _tool
+      - name: Setup Python 3.10
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+          architecture: x64
+      - name: Setup Java 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+      - name: Checkout TorchServe
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+      - name: Install dependencies
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y apache2-utils
+          pip install -r benchmarks/requirements-ab.txt
+      - name: Install model-specific dependencies
+        run: |
+          chmod +x benchmarks/benchmark_model_dependencies.sh
+          source benchmarks/benchmark_model_dependencies.sh
+      - name: Benchmark gpu nightly
+        run: python benchmarks/auto_benchmark.py --input benchmarks/benchmark_config_torch_compile_gpu.yaml --skip false --nightly True

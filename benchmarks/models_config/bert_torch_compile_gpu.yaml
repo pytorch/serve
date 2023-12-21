@@ -1,0 +1,40 @@
+---
+bert:
+    scripted_mode:
+        benchmark_engine: "ab"
+        url: https://torchserve.pytorch.org/mar_files/bert-scripted.mar
+        workers:
+            - 4
+        batch_delay: 100
+        batch_size:
+            - 1
+            - 2
+            - 4
+            - 8
+            - 16
+        input: "./examples/Huggingface_Transformers/Seq_classification_artifacts/sample_text_captum_input.txt"
+        requests: 50000
+        concurrency: 100
+        backend_profiling: False
+        exec_env: "local"
+        processors:
+            - "gpus": "all"
+    torch_compile_default_mode:
+        benchmark_engine: "ab"
+        url: https://torchserve.pytorch.org/mar_files/bert-default.mar
+        workers:
+            - 4
+        batch_delay: 100
+        batch_size:
+            - 1
+            - 2
+            - 4
+            - 8
+            - 16
+        input: "./examples/Huggingface_Transformers/Seq_classification_artifacts/sample_text_captum_input.txt"
+        requests: 50000
+        concurrency: 100
+        backend_profiling: False
+        exec_env: "local"
+        processors:
+            - "gpus": "all"

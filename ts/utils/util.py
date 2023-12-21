@@ -8,6 +8,8 @@ import json
 import logging
 import os
 import re
+from functools import wraps
+from warnings import warn
 
 import yaml
 
@@ -143,3 +145,29 @@ class PredictionException(Exception):
 
     def __str__(self):
         return f"{self.message} : {self.error_code}"
+
+
+def deprecated(version, replacement="", klass=PendingDeprecationWarning):
+    """This is a decorator which can be used to mark functions
+    as deprecated. It will result in a warning being emitted
+    when the function is used.
+
+    Args:
+        version: The version in which the function will be removed.
+        replacement: The replacement function, if any.
+        klass: The category of warning
+    """
+
+    def deprecator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            warn(
+                f"{func.__name__} is deprecated in {version} and moved to {replacement}",
+                klass,
+                stacklevel=2,
+            )
+            return func(*args, **kwargs)
+
+        return wrapper
+
+    return deprecator
