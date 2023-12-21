@@ -18,7 +18,6 @@ bert:
         backend_profiling: False
         exec_env: "local"
         processors:
-            - "cpu"
             - "gpus": "all"
     torch_compile_default_mode:
         benchmark_engine: "ab"
@@ -38,5 +37,4 @@ bert:
         backend_profiling: False
         exec_env: "local"
         processors:
-            - "cpu"
             - "gpus": "all"
