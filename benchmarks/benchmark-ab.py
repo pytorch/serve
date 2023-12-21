@@ -229,7 +229,7 @@ def warm_up():
     click.secho("\n\nExecuting warm-up ...", fg="green")
 
     ab_cmd = (
-        f"ab -c {execution_params['concurrency']} -s 300 -n {execution_params['requests']/10} -k -p "
+        f"ab -c {execution_params['concurrency']} -l -s 300 -n {execution_params['requests']/10} -k -p "
         f"{execution_params['tmp_dir']}/benchmark/input -T  {execution_params['content_type']} "
         f"{execution_params['inference_url']}/{execution_params['inference_model_url']} > "
         f"{execution_params['result_file']}"
@@ -247,7 +247,7 @@ def run_benchmark():
 
     click.secho("\n\nExecuting inference performance tests ...", fg="green")
     ab_cmd = (
-        f"ab -c {execution_params['concurrency']} -s 300 -n {execution_params['requests']} -k -p "
+        f"ab -c {execution_params['concurrency']} -l -s 300 -n {execution_params['requests']} -k -p "
         f"{execution_params['tmp_dir']}/benchmark/input -T  {execution_params['content_type']} "
         f"{execution_params['inference_url']}/{execution_params['inference_model_url']} > "
         f"{execution_params['result_file']}"
