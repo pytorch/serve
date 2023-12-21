@@ -117,7 +117,7 @@ def test_register_model_with_batch_size(mar_file_path, model_store, torchserve):
 
     file_name = Path(mar_file_path).name
 
-    model_name = Path(file_name).stem
+    model_name = Path(file_name).stem + "_b2"
 
     params = (
         ("model_name", model_name),
@@ -131,9 +131,9 @@ def test_register_model_with_batch_size(mar_file_path, model_store, torchserve):
 
     test_utils.register_model_with_params(params)
 
-    describe_resp = test_utils.describe_model(model_name, "1.0")
+    describe_resp_b2 = test_utils.describe_model(model_name, "1.0")
 
-    assert describe_resp[0]["batchSize"] == 2
+    assert describe_resp_b2[0]["batchSize"] == 2
 
     test_utils.unregister_model(model_name)
 
@@ -143,7 +143,7 @@ def test_register_model_without_batch_size(mar_file_path, model_store, torchserv
 
     file_name = Path(mar_file_path).name
 
-    model_name = Path(file_name).stem
+    model_name = Path(file_name).stem + "_b4"
 
     params = (
         ("model_name", model_name),
@@ -154,8 +154,8 @@ def test_register_model_without_batch_size(mar_file_path, model_store, torchserv
 
     test_utils.register_model_with_params(params)
 
-    describe_resp = test_utils.describe_model(model_name, "1.0")
+    describe_resp_b4 = test_utils.describe_model(model_name, "1.0")
 
-    assert describe_resp[0]["batchSize"] == 4
+    assert describe_resp_b4[0]["batchSize"] == 4
 
     test_utils.unregister_model(model_name)
