@@ -14,7 +14,6 @@ sam_fast:
         backend_profiling: False
         exec_env: "local"
         processors:
-            - "cpu"
             - "gpus": "all"
     vit_h:
         benchmark_engine: "ab"
