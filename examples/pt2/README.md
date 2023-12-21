@@ -107,3 +107,24 @@ print(extra_files['foo.txt'])
 # from inference()
 print(ep(torch.randn(5)))
 ```
+
+## torch._export.aot_compile
+
+Using `torch.compile` to wrap your existing eager PyTorch model can result in out of the box speedups. However, `torch.compile` is a JIT compiler. TorchServe has been supporting `torch.compile` since PyTorch 2.0 release. In a production setting, when you have multiple instances of TorchServe, each of of your instances would `torch.compile` the model on the first inference. TorchServe's model archiver is not able to truly guarantee reproducibility because its a JIT compiler.
+
+In addition, the first inference request with `torch.compile` will be slow as the model needs to compile.
+
+To solve this problem, `torch.export` has an experimental API `torch._export.aot_compile` which is able to `torch.export` a torch compilable model if it has no graph breaks and then run it with AOTInductor
+
+You can find more details [here](https://pytorch.org/docs/main/torch.compiler_aot_inductor.html)
+
+
+This is an experimental API and needs PyTorch 2.2 nightlies
+To achieve this, add the following config in your `model-config.yaml`
+
+```yaml
+pt2 :
+  export:
+    aot_compile: true
+```
+You can find an example [here](./torch_export_aot_compile/README.md)
