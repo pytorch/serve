@@ -302,7 +302,6 @@ public final class ModelManager {
             boolean isWorkflowModel) {
         Model model = new Model(archive, configManager.getJobQueueSize());
 
-
         logger.info("createModel input batchSize={}", batchSize);
 
         if (batchSize == -1 * RegisterModelRequest.DEFAULT_BATCH_SIZE) {
