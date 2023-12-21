@@ -28,7 +28,7 @@ python ts_scripts/install_dependencies.py --cuda=cu121 --nightly_torch
 ### Create a Torch exported model with AOTInductor
 
 The model is saved with `.so` extension
-Here we are torch exporting with AOT Inductor with `max_auotune` mode.
+Here we are torch exporting with AOT Inductor with `max_autotune` mode.
 This is also making use of `dynamic_shapes` to support batch size from 1 to 32.
 In the code, the min batch_size is mentioned as 2 instead of 1. Its by design. The code works for batch size 1. You can find an explanation for this [here](https://pytorch.org/docs/main/export.html#expressing-dynamism)
 
