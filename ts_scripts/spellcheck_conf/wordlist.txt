@@ -1147,3 +1147,10 @@ sam
 zlib
 verifier
 fastgen
+reproducibility
+AOTInductor
+aot
+compilable
+nightlies
+torchexportaotcompile
+autotune
