@@ -14,5 +14,4 @@ sam_fast_vit_b:
         backend_profiling: False
         exec_env: "local"
         processors:
-            - "cpu"
             - "gpus": "all"
