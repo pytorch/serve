@@ -113,13 +113,23 @@ def register_model(mar_file_path, model_store, params, torchserve):
 
 
 def test_register_model_with_batch_size(mar_file_path, model_store, torchserve):
+    shutil.copy(mar_file_path, model_store)
+
+    file_name = Path(mar_file_path).name
+
+    model_name = Path(file_name).stem
+
     params = (
+        ("model_name", model_name),
+        ("url", file_name),
         ("initial_workers", "2"),
         ("synchronous", "true"),
         ("batch_size", "2"),
     )
 
-    model_name = register_model(mar_file_path, model_store, params, torchserve)
+    # model_name = register_model(mar_file_path, model_store, params)
+
+    test_utils.register_model_with_params(params)
 
     describe_resp = test_utils.describe_model(model_name, "1.0")
 
@@ -129,11 +139,20 @@ def test_register_model_with_batch_size(mar_file_path, model_store, torchserve):
 
 
 def test_register_model_without_batch_size(mar_file_path, model_store, torchserve):
+    shutil.copy(mar_file_path, model_store)
+
+    file_name = Path(mar_file_path).name
+
+    model_name = Path(file_name).stem
+
     params = (
+        ("model_name", model_name),
+        ("url", file_name),
         ("initial_workers", "2"),
         ("synchronous", "true"),
     )
-    model_name = register_model(mar_file_path, model_store, params, torchserve)
+
+    test_utils.register_model_with_params(params)
 
     describe_resp = test_utils.describe_model(model_name, "1.0")
 
