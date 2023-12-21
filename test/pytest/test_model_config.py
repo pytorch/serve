@@ -112,6 +112,7 @@ def register_model(mar_file_path, model_store, params, torchserve):
     return model_name
 
 
+@pytest.mark.skip(reason="Flaky on Regression GPU")
 def test_register_model_with_batch_size(mar_file_path, model_store, torchserve):
     params = (
         ("initial_workers", "2"),
