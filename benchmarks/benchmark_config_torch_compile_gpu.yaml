@@ -11,7 +11,7 @@
 models:
     - "bert_torch_compile_gpu.yaml"
     - "resnet50_torch_compile_gpu.yaml"
-    - "sam_fast_torch_compile_gpu_best_latency.yaml"
+    - "sam_fast_torch_compile_gpu.yaml"
 
 # benchmark on "cpu" or "gpu".
 # "cpu" is set if "hardware" is not specified
