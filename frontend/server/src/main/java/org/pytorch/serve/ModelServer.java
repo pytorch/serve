@@ -214,11 +214,6 @@ public class ModelServer {
                             if (marMinWorkers > 0 && marMaxWorkers >= marMinWorkers) {
                                 minWorkers = marMinWorkers;
                                 maxWorkers = marMaxWorkers;
-                            } else {
-                                logger.warn(
-                                        "Invalid model config in mar, minWorkers:{}, maxWorkers:{}",
-                                        marMinWorkers,
-                                        marMaxWorkers);
                             }
                         }
                         modelManager.updateModel(
