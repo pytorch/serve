@@ -140,6 +140,7 @@ public final class ModelManager {
                             modelName, url, handler, runtime, defaultModelName, s3SseKms);
         }
 
+        logger.info("modelName={}, batchSize={}", modelName, batchSize);
         Model tempModel =
                 createModel(archive, batchSize, maxBatchDelay, responseTimeout, isWorkflowModel);
 
@@ -301,6 +302,7 @@ public final class ModelManager {
             boolean isWorkflowModel) {
         Model model = new Model(archive, configManager.getJobQueueSize());
 
+        logger.info("modelName={}, batchSize={}", model.getModelName(), batchSize);
         if (batchSize == -1 * RegisterModelRequest.DEFAULT_BATCH_SIZE) {
             if (archive.getModelConfig() != null) {
                 int marBatchSize = archive.getModelConfig().getBatchSize();
