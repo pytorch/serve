@@ -9,6 +9,7 @@ import re
 import shutil
 import tarfile
 import tempfile
+import uuid
 import zipfile
 from io import BytesIO
 from pathlib import Path
@@ -152,7 +153,7 @@ class ModelExportUtils(object):
         :param kwargs: key value pair of files to be copied in archive
         :return:
         """
-        model_path = os.path.join(tempfile.gettempdir(), model_name)
+        model_path = os.path.join(tempfile.gettempdir(), model_name, uuid.uuid4().hex)
         if os.path.exists(model_path):
             shutil.rmtree(model_path)
         ModelExportUtils.make_dir(model_path)
