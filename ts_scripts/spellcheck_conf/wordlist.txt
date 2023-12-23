@@ -1157,3 +1157,10 @@ gcc
 hh
 libmnist
 fastgen
+reproducibility
+AOTInductor
+aot
+compilable
+nightlies
+torchexportaotcompile
+autotune
