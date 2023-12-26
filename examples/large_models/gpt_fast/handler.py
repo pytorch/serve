@@ -50,10 +50,13 @@ class GptHandler(BaseHandler):
         self.local_rank = rank if rank is not None else 0
 
         if torch.cuda.is_available():
-            if "torchrun" not in ctx.model_yaml_config and properties.get("gpu_id") is not None:
+            if (
+                "torchrun" not in ctx.model_yaml_config
+                and properties.get("gpu_id") is not None
+            ):
                 gpu_id = properties.get("gpu_id")
             else:
-                gpu_id = self.local_rank 
+                gpu_id = self.local_rank
             self.map_location = "cuda"
             self.device = torch.device(self.map_location + ":" + str(gpu_id))
 
