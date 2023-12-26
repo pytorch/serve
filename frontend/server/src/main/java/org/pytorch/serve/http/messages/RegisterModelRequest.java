@@ -55,8 +55,7 @@ public class RegisterModelRequest {
                         "initial_workers",
                         ConfigManager.getInstance().getConfiguredDefaultWorkersPerModel());
         synchronous = Boolean.parseBoolean(NettyUtils.getParameter(decoder, "synchronous", "true"));
-        responseTimeout =
-                NettyUtils.getIntParameter(decoder, "response_timeout", -1 * DEFAULT_BATCH_SIZE);
+        responseTimeout = NettyUtils.getIntParameter(decoder, "response_timeout", -1);
         modelUrl = NettyUtils.getParameter(decoder, "url", null);
         s3SseKms = Boolean.parseBoolean(NettyUtils.getParameter(decoder, "s3_sse_kms", "false"));
     }
