@@ -5,12 +5,9 @@ import io.netty.handler.codec.http.QueryStringDecoder;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.GRPCUtils;
 import org.pytorch.serve.util.NettyUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /** Register Model Request for Model server */
 public class RegisterModelRequest {
-    private Logger logger = LoggerFactory.getLogger(RegisterModelRequest.class);
     public static final Integer DEFAULT_BATCH_SIZE = 1;
     public static final Integer DEFAULT_MAX_BATCH_DELAY = 100;
 
@@ -58,10 +55,10 @@ public class RegisterModelRequest {
                         "initial_workers",
                         ConfigManager.getInstance().getConfiguredDefaultWorkersPerModel());
         synchronous = Boolean.parseBoolean(NettyUtils.getParameter(decoder, "synchronous", "true"));
-        responseTimeout = NettyUtils.getIntParameter(decoder, "response_timeout", -1);
+        responseTimeout =
+                NettyUtils.getIntParameter(decoder, "response_timeout", -1 * DEFAULT_BATCH_SIZE);
         modelUrl = NettyUtils.getParameter(decoder, "url", null);
         s3SseKms = Boolean.parseBoolean(NettyUtils.getParameter(decoder, "s3_sse_kms", "false"));
-        logger.info("modelName={}, batchSize={}", modelName, batchSize);
     }
 
     public RegisterModelRequest(org.pytorch.serve.grpc.management.RegisterModelRequest request) {
