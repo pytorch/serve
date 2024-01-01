@@ -4,5 +4,5 @@ click-config-file
 matplotlib
 requests
 pyyaml
-mdutils==1.4.0
+mdutils==1.6.0
 ruamel.yaml
