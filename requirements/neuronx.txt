@@ -2,4 +2,3 @@
 neuronx-cc
 torch-neuronx
 transformers-neuronx
-grpcio-tools
