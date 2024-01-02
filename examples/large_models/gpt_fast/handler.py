@@ -45,22 +45,18 @@ class GptHandler(BaseHandler):
     def initialize(self, ctx):
         self.context = ctx
         properties = self.context.system_properties
+        gpu_id = properties.get("gpu_id")
+        if gpu_id is not None and int(gpu_id) < 0:
+            raise ValueError("Invalid gpu_id")
         rank = maybe_init_dist()
 
-        self.local_rank = rank if rank is not None else 0
+        self.local_rank = rank if rank is not None else int(gpu_id)
 
         if torch.cuda.is_available():
-            if (
-                "torchrun" not in ctx.model_yaml_config
-                and properties.get("gpu_id") is not None
-            ):
-                gpu_id = properties.get("gpu_id")
-            else:
-                gpu_id = self.local_rank
             self.map_location = "cuda"
-            self.device = torch.device(self.map_location + ":" + str(gpu_id))
+            self.device = torch.device(self.map_location + ":" + str(self.local_rank))
 
-            torch.cuda.set_device(gpu_id)
+            torch.cuda.set_device(self.local_rank)
 
         checkpoint_path = Path(ctx.model_yaml_config["handler"]["converted_ckpt_dir"])
         assert checkpoint_path.is_file(), checkpoint_path
