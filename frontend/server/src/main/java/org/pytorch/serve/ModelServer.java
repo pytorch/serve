@@ -83,8 +83,9 @@ public class ModelServer {
             ConfigManager.init(arguments);
             ConfigManager configManager = ConfigManager.getInstance();
             PluginsManager.getInstance().initialize();
-            Map<String, ModelServerEndpoint> plugins = PluginsManager.getInstance().getInferenceEndpoints();
-            if (plugins.containsKey("token")){
+            Map<String, ModelServerEndpoint> plugins =
+                    PluginsManager.getInstance().getInferenceEndpoints();
+            if (plugins.containsKey("token")) {
                 configManager.generateKeyFile();
             }
             MetricCache.init();

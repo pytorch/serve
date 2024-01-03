@@ -854,7 +854,7 @@ public final class ConfigManager {
         return !(Instant.now().isBefore(expirationTime));
     }
 
-    public String generateToken(){
+    public String generateToken() {
         byte[] randomBytes = new byte[6];
         secureRandom.nextBytes(randomBytes);
         return baseEncoder.encodeToString(randomBytes);

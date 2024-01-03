@@ -115,7 +115,7 @@ public class Token extends ModelServerEndpoint {
         }
 
         public void setTokenExpiration() {
-            Integer time = 3;
+            Integer time = 30;
             tokenExpiration = Instant.now().plusSeconds(TimeUnit.MINUTES.toSeconds(time));
         }
     }
