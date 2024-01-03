@@ -4,6 +4,7 @@ import os
 import torch
 import torch_neuronx
 from transformers import AutoModelForCausalLM, AutoTokenizer, LlamaTokenizer
+from transformers_neuronx.config import ContinuousBatchingConfig, NeuronConfig
 from transformers_neuronx.llama.model import LlamaForSampling
 from transformers_neuronx.module import save_pretrained_split
 from transformers_neuronx.sampling import select_tokens
@@ -98,6 +99,11 @@ class LlamaContinuousBatchingHandler(BaseHandler):
         self.tokenizer.pad_token = self.tokenizer.eos_token
         self.tokenizer.pad_token_id = self.tokenizer.eos_token_id
         self.tokenizer.padding_side = "left"
+
+        continuous_batching_config = ContinuousBatchingConfig(
+            batch_size_for_shared_caches=self.batch_size
+        )
+        neuron_config = NeuronConfig(continuous_batching=continuous_batching_config)
         self.model = LlamaForSampling.from_pretrained(
             model_checkpoint_path,
             batch_size=self.batch_size,
@@ -105,6 +111,7 @@ class LlamaContinuousBatchingHandler(BaseHandler):
             tp_degree=tp_degree,
             n_positions=self.max_length,
             context_length_estimate=context_length_estimate,
+            neuron_config=neuron_config,
         )
         logger.info("Starting to compile the model")
         self.model.to_neuron()
