@@ -5,12 +5,11 @@
 # Nightly build will be installed if "ts_version" is not specifiged
 #ts_version:
 #    branch: &ts_version "master"
-ts_version:
-  branch: &ts_version "inf2_dependency_fix"
 
 # a list of model configure yaml files defined in benchmarks/models_config
 # or a list of model configure yaml files with full path
 models:
+  - "bert_neuronx.yaml"
   - "opt_6.7b_neuronx.yaml"
 
 # benchmark on "cpu", "gpu", "neuron" or "neuronx".
