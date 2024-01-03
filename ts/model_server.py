@@ -48,8 +48,7 @@ def start() -> None:
             try:
                 parent = psutil.Process(pid)
                 parent.terminate()
-                # Will change to get file path rather then being set defaulty
-                os.remove("/home/ubuntu/serve/key_file.txt")
+                os.remove(os.getcwd() + "/key_file.txt")
                 if args.foreground:
                     try:
                         parent.wait(timeout=60)

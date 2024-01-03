@@ -22,6 +22,7 @@ import java.security.KeyException;
 import java.security.KeyFactory;
 import java.security.KeyStore;
 import java.security.PrivateKey;
+import java.security.SecureRandom;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
@@ -40,6 +41,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -152,6 +154,10 @@ public final class ConfigManager {
     private String torchrunLogDir;
     private boolean telemetryEnabled;
     private Logger logger = LoggerFactory.getLogger(ConfigManager.class);
+
+    private SecureRandom secureRandom = new SecureRandom();
+    private Base64.Encoder baseEncoder = Base64.getUrlEncoder();
+    public String keyFileLocation;
 
     private ConfigManager(Arguments args) throws IOException {
         prop = new Properties();
@@ -848,13 +854,40 @@ public final class ConfigManager {
         return !(Instant.now().isBefore(expirationTime));
     }
 
+    public String generateToken(){
+        byte[] randomBytes = new byte[6];
+        secureRandom.nextBytes(randomBytes);
+        return baseEncoder.encodeToString(randomBytes);
+    }
+
+    public boolean generateKeyFile() throws IOException {
+        String fileData = " ";
+        String absoluteFilePath = getCanonicalPath(".") + "/key_file.txt";
+        keyFileLocation = absoluteFilePath;
+        File file = new File(absoluteFilePath);
+        if (!file.createNewFile() && !file.exists()) {
+            return false;
+        }
+        Integer timeToExpiration = 30; // in minutes
+        fileData =
+                "Management Key: "
+                        + generateToken()
+                        + "\n"
+                        + "Inference Key: "
+                        + generateToken()
+                        + " --- Expiration time: "
+                        + Instant.now().plusSeconds(TimeUnit.MINUTES.toSeconds(timeToExpiration))
+                        + "\n";
+        Files.write(Paths.get("key_file.txt"), fileData.getBytes());
+        return true;
+    }
+
     public List<String> parseFile(File tsTokenFile) {
         List<String> parsedTokens = new ArrayList<>();
         try {
             InputStream stream = Files.newInputStream(tsTokenFile.toPath());
             byte[] array = new byte[100];
             stream.read(array);
-            // Convert byte array into string
             String data = new String(array);
             String[] arrOfData = data.split("\n", 2);
             String[] managementArr = arrOfData[0].split(" ", 3);
@@ -873,12 +906,10 @@ public final class ConfigManager {
     public void checkTokenAuthorization(FullHttpRequest req, boolean inferenceRequest)
             throws ModelException {
         HttpMethod method = req.method();
-        // Will change to get file path rather then being set defaulty
-        String filePath = "/home/ubuntu/serve/key_file.txt";
+        String filePath = keyFileLocation;
         if (filePath != null) {
             File tsTokenFile = new File(filePath);
             if (tsTokenFile.exists()) {
-                // try (InputStream stream = Files.newInputStream(tsTokenFile.toPath())) {
                 List<String> parsedTokens = parseFile(tsTokenFile);
                 String managementToken = parsedTokens.get(0);
                 String inferenceToken = parsedTokens.get(1);

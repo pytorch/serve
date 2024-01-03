@@ -4,6 +4,7 @@ package org.pytorch.serve.plugins.endpoint;
 import com.google.gson.annotations.SerializedName;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -28,14 +29,10 @@ public class Token extends ModelServerEndpoint {
 
     @Override
     public void doGet(Request req, Response rsp, Context ctx) throws IOException {
-        // Properties prop = ctx.getConfig();
         TokenResponse r = new TokenResponse();
         if (!managementFlag) {
             managementFlag = true;
-            r.setKey();
-            String output = "{\n\t\"Manager Key\": " + r.getKey() + "\n}\n";
-            rsp.getOutputStream().write(output.getBytes(StandardCharsets.UTF_8));
-            managementToken = r.getKey();
+            managementToken = r.findManagementKey();
         }
         String test = "";
         if (r.keyFile(managementToken)) {
@@ -74,19 +71,26 @@ public class Token extends ModelServerEndpoint {
             key = generateKey();
         }
 
-        public boolean keyFile(String managementToken) throws IOException {
-            String fileSeparator = System.getProperty("file.separator");
-            String fileData = " ";
-            // Will change to get file path rather then being set defaulty
-            String absoluteFilePath =
-                    fileSeparator
-                            + "home"
-                            + fileSeparator
-                            + "ubuntu"
-                            + fileSeparator
-                            + "serve/key_file.txt";
-            File file = new File(absoluteFilePath);
+        public String findManagementKey() {
+            String userDirectory = System.getProperty("user.dir");
+            File file = new File(userDirectory + "/key_file.txt");
+            try {
+                InputStream stream = Files.newInputStream(file.toPath());
+                byte[] array = new byte[100];
+                stream.read(array);
+                String data = new String(array);
+                String[] arrOfData = data.split("\n", 2);
+                String[] managementArr = arrOfData[0].split(" ", 3);
+                return managementArr[2];
+            } catch (IOException | ArrayIndexOutOfBoundsException e) {
+                return null;
+            }
+        }
 
+        public boolean keyFile(String managementToken) throws IOException {
+            String fileData = " ";
+            String userDirectory = System.getProperty("user.dir");
+            File file = new File(userDirectory + "/key_file.txt");
             if (!file.createNewFile() && !file.exists()) {
                 return false;
             }
