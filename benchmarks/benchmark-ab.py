@@ -229,7 +229,7 @@ def warm_up():
     click.secho("\n\nExecuting warm-up ...", fg="green")
 
     ab_cmd = (
-        f"ab -c {execution_params['concurrency']}  -n {execution_params['requests']/10} -k -p "
+        f"ab -c {execution_params['concurrency']} -s 300 -n {execution_params['requests']/10} -k -p "
         f"{execution_params['tmp_dir']}/benchmark/input -T  {execution_params['content_type']} "
         f"{execution_params['inference_url']}/{execution_params['inference_model_url']} > "
         f"{execution_params['result_file']}"
@@ -247,7 +247,7 @@ def run_benchmark():
 
     click.secho("\n\nExecuting inference performance tests ...", fg="green")
     ab_cmd = (
-        f"ab -c {execution_params['concurrency']}  -n {execution_params['requests']} -k -p "
+        f"ab -c {execution_params['concurrency']} -s 300 -n {execution_params['requests']} -k -p "
         f"{execution_params['tmp_dir']}/benchmark/input -T  {execution_params['content_type']} "
         f"{execution_params['inference_url']}/{execution_params['inference_model_url']} > "
         f"{execution_params['result_file']}"
@@ -554,6 +554,19 @@ def generate_csv_output():
         artifacts["Model_p50"] = lines[line50].strip()
         artifacts["Model_p90"] = lines[line90].strip()
         artifacts["Model_p99"] = lines[line99].strip()
+
+    with open(
+        os.path.join(execution_params["tmp_dir"], "benchmark", "waiting_time.txt")
+    ) as f:
+        lines = f.readlines()
+        lines.sort(key=float)
+        num_requests = len(lines)
+        line50 = int(num_requests / 2)
+        line90 = int(num_requests * 9 / 10)
+        line99 = int(num_requests * 99 / 100)
+        artifacts["Queue time p50"] = lines[line50].strip()
+        artifacts["Queue time p90"] = lines[line90].strip()
+        artifacts["Queue time p99"] = lines[line99].strip()
 
     for m in metrics:
         df = pd.read_csv(

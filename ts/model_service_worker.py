@@ -181,7 +181,10 @@ class TorchModelServiceWorker(object):
             if cmd == b"I":
                 if service is not None:
                     resp = service.predict(msg)
-                    cl_socket.sendall(resp)
+                    if LOCAL_RANK == 0:
+                        cl_socket.sendall(resp)
+                    else:
+                        logging.info("skip sending response at rank %d", LOCAL_RANK)
                 else:
                     raise RuntimeError(
                         "Received command: {}, but service is not loaded".format(cmd)

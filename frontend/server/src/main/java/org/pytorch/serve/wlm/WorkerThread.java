@@ -80,6 +80,7 @@ public class WorkerThread implements Runnable {
     private WorkerLifeCycle lifeCycle;
     private int responseTimeout;
     private long recoveryStartTS; // 0: default value. no recovery needed, in healthy mode
+    private BaseModelRequest req = null;
 
     public WorkerThread(
             ConfigManager configManager,
@@ -182,7 +183,7 @@ public class WorkerThread implements Runnable {
         Thread thread = Thread.currentThread();
         thread.setName(getWorkerName());
         currentThread.set(thread);
-        BaseModelRequest req = null;
+        req = null;
         int status = HttpURLConnection.HTTP_INTERNAL_ERROR;
 
         try {
@@ -202,12 +203,11 @@ public class WorkerThread implements Runnable {
                 List<CompletableFuture<Void>> futureRequests = new ArrayList<>(repeats);
                 for (int i = 0; backendChannel.size() > 0 && i < repeats; i++) {
                     int idx = i;
-                    BaseModelRequest request = req;
                     futureRequests.add(
                             CompletableFuture.runAsync(
                                     () -> {
                                         try {
-                                            backendChannel.get(idx).writeAndFlush(request).sync();
+                                            backendChannel.get(idx).writeAndFlush(req).sync();
                                         } catch (InterruptedException e) {
                                             logger.error("Failed to send request to backend", e);
                                         }
@@ -227,6 +227,9 @@ public class WorkerThread implements Runnable {
                     long begin = System.currentTimeMillis();
                     for (int i = 0; i < repeats; i++) {
                         reply = replies.poll(responseTimeout, TimeUnit.SECONDS);
+                        if (req.getCommand() != WorkerCommands.LOAD) {
+                            break;
+                        }
                     }
 
                     long duration = System.currentTimeMillis() - begin;

@@ -102,8 +102,12 @@ The result is JSON that tells you that the image is most likely a tabby cat. The
 ```
 * Streaming response via HTTP 1.1 chunked encoding
 TorchServe the inference API support streaming response to allow a sequence of inference responses to be sent over HTTP 1.1 chunked encoding. This new feature is only recommended for use case when the inference latency of the full response is high and the inference intermediate results are sent to client. An example could be LLMs for generative applications, where generating "n" number of tokens can have high latency, in this case user can receive each generated token once ready until the full response completes. To achieve streaming response, backend handler calls "send_intermediate_predict_response" to send one intermediate result to frontend, and return the last result as the existing style. For example,
-```
-from ts.protocol.otf_message_handler import send_intermediate_predict_response
+```python
+from ts.handler_utils.utils import send_intermediate_predict_response
+''' Note: TorchServe v1.0.0 will deprecate
+"from ts.protocol.otf_message_handler import send_intermediate_predict_response".
+Please replace it with "from ts.handler_utils.utils import send_intermediate_predict_response".
+'''
 def handle(data, context):
     if type(data) is list:
         for i in range (3):
