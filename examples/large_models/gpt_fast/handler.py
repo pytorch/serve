@@ -44,9 +44,13 @@ class GptHandler(BaseHandler):
 
     def initialize(self, ctx):
         self.context = ctx
+        properties = self.context.system_properties
+        gpu_id = properties.get("gpu_id")
+        if gpu_id is not None and int(gpu_id) < 0:
+            raise ValueError("Invalid gpu_id")
         rank = maybe_init_dist()
 
-        self.local_rank = rank if rank is not None else 0
+        self.local_rank = rank if rank is not None else int(gpu_id)
 
         if torch.cuda.is_available():
             self.map_location = "cuda"
