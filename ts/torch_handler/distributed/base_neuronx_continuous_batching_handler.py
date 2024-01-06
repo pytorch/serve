@@ -115,7 +115,7 @@ class BaseNeuronXContinuousBatchingHandler(BaseHandler):
         logger.info("Model has been successfully compiled")
 
         # 1D: [seq_id]
-        # an empty slot if seq_id is -1
+        # an empty slot if seq_id is -1, otherwise 0
         self.decode_seq_ids = torch.full([self.batch_size], -1)
         # 2D:[batch_size, next_cache_id]
         self.decode_cache_ids = torch.zeros(self.batch_size, 1, dtype=torch.int64)
@@ -137,7 +137,7 @@ class BaseNeuronXContinuousBatchingHandler(BaseHandler):
             [],
         )
         for req_id, req_data in zip(self.context.request_ids.values(), requests):
-            if not req_id in self.context.cache:
+            if req_id not in self.context.cache:
                 prefill_req_ids.append(req_id)
                 seq_id = self._get_empty_seq_id()
                 self.seq_id_to_req_id[seq_id] = req_id
@@ -192,9 +192,7 @@ class BaseNeuronXContinuousBatchingHandler(BaseHandler):
             local_decode_seq_ids = torch.cat(torch.where(self.decode_seq_ids > -1))
             local_decode_cache_ids = self.decode_cache_ids[local_decode_seq_ids]
             local_decode_next_tokens = self.decode_next_tokens[local_decode_seq_ids]
-            logger.info(
-                f"local_decode_seq_ids={local_decode_seq_ids}, local_decode_cache_ids={local_decode_cache_ids}, local_decode_next_tokens={local_decode_next_tokens}"
-            )
+
             local_next_tokens = self._run_decode(
                 local_decode_next_tokens, local_decode_cache_ids, local_decode_seq_ids
             )
@@ -209,9 +207,7 @@ class BaseNeuronXContinuousBatchingHandler(BaseHandler):
             for i, is_prefill_seq_id in enumerate(filter_prefill_seq_ids):
                 if not is_prefill_seq_id:
                     seq_id = local_decode_seq_ids[i].item()
-                    logger.info(
-                        f"is_prefill_seq_id={is_prefill_seq_id}, seq_id={seq_id}, req_decode_seq_ids={req_decode_seq_ids}"
-                    )
+
                     if seq_id in req_decode_seq_ids:
                         self._update_results(
                             results,
@@ -234,9 +230,6 @@ class BaseNeuronXContinuousBatchingHandler(BaseHandler):
             self.context.cache[req_id]["stopping_criteria"]
             for req_id in self.context.request_ids.values()
         ]
-        logger.info(
-            f"inference_output={inference_output}, stopping_criteria={self.context.stopping_criteria}"
-        )
 
         return inference_output
 
@@ -269,14 +262,10 @@ class BaseNeuronXContinuousBatchingHandler(BaseHandler):
 
     def _run_prefill(self, tokens, seq_ids):
         input_ids, attention_mask = tokens["input_ids"], tokens["attention_mask"]
-        logger.info(
-            f"before padding: input_ids={input_ids}, attention_mask={attention_mask}"
-        )
+
         input_ids = self._pad_to_max(input_ids)
         attention_mask = self._pad_to_max(attention_mask)
-        logger.info(
-            f"after padding: input_ids={input_ids}, attention_mask={attention_mask}"
-        )
+
         n_active_seqs, context_len = input_ids.shape
         cache_ids = (
             torch.arange(context_len)
@@ -289,7 +278,6 @@ class BaseNeuronXContinuousBatchingHandler(BaseHandler):
                 input_ids, cache_ids=cache_ids, start_ids=torch.as_tensor(seq_ids)
             )
         next_tokens = select_tokens(logits)
-        output_tokens = [[t] for t in next_tokens.flatten().tolist()]
 
         return next_tokens, cache_ids.max(dim=1, keepdim=True).values + 1
 
@@ -297,7 +285,7 @@ class BaseNeuronXContinuousBatchingHandler(BaseHandler):
         with torch.inference_mode():
             logits = self.model(next_tokens, cache_ids=cache_ids, start_ids=seq_ids)
         next_tokens = select_tokens(logits)
-        output_tokens = [[t] for t in next_tokens.flatten().tolist()]
+
         return next_tokens
 
     def clean_up(self, seq_id, req_id):
@@ -306,9 +294,6 @@ class BaseNeuronXContinuousBatchingHandler(BaseHandler):
         del self.context.cache[req_id]
         self.decode_seq_ids[seq_id] = -1
         self.decode_cache_ids[seq_id, :] = torch.zeros(1, dtype=torch.int64)
-        # self.decode_next_tokens[seq_id, :] = torch.zeros(
-        #    1, dtype=torch.int64
-        # )
         self.decode_next_tokens[seq_id, :] = torch.tensor(
             [self.tokenizer.eos_token_id], dtype=torch.int64
         )
@@ -325,6 +310,7 @@ class BaseNeuronXContinuousBatchingHandler(BaseHandler):
         prefill_tokens=None,
         prefill_input_text=None,
     ):
+        # 0: this seq_id is used for decoding if this slot is set 0
         self.decode_seq_ids[seq_id] = 0
         self.decode_cache_ids[seq_id, :] = cache_ids[idx, :]
         self.decode_next_tokens[seq_id, :] = next_tokens[idx, :]
