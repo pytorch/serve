@@ -123,8 +123,8 @@ class BaseNeuronXContinuousBatchingHandler(BaseHandler):
         self.decode_next_tokens = torch.zeros(self.batch_size, 1, dtype=torch.int64)
         # self.decode_next_tokens = torch.full(self.batch_size, self.tokenizer.eos_token_id)
 
-        for seq_id, batch_id in enumerate(reversed(range(self.batch_size))):
-            self.empty_seq_ids.append(batch_id)
+        for _, seq_id in enumerate(reversed(range(self.batch_size))):
+            self.empty_seq_ids.append(seq_id)
 
         logger.info("Model %s loaded successfully", ctx.model_name)
         self.initialized = True
@@ -219,9 +219,9 @@ class BaseNeuronXContinuousBatchingHandler(BaseHandler):
                     else:
                         req_id = self._get_req_id(seq_id)
                         logger.warning(
-                            f"Found request id:{req_id} in cache, but not in batch requests. Delete it"
+                            f"Found request id:{req_id} with seq_id:{seq_id} in local_decode_seq_ids, but not in batch requests. Delete it"
                         )
-                        self.clean_up(self, seq_id, req_id)
+                        self._clean_up(seq_id, req_id)
 
         return [results[i] for i in self.context.request_ids.values()]
 
@@ -234,6 +234,10 @@ class BaseNeuronXContinuousBatchingHandler(BaseHandler):
         return inference_output
 
     def _get_empty_seq_id(self):
+        if len(self.empty_seq_ids) == 0:
+            # clean up dead req_ids due to client disconnction
+            self._clean_dead_reqs()
+
         assert len(self.empty_seq_ids) > 0
         return self.empty_seq_ids.pop()
 
@@ -288,7 +292,7 @@ class BaseNeuronXContinuousBatchingHandler(BaseHandler):
 
         return next_tokens
 
-    def clean_up(self, seq_id, req_id):
+    def _clean_up(self, seq_id, req_id):
         # clean up
         del self.seq_id_to_req_id[seq_id]
         del self.context.cache[req_id]
@@ -299,6 +303,14 @@ class BaseNeuronXContinuousBatchingHandler(BaseHandler):
         )
         # add seq_id back to self.empty_seq_ids
         self._add_empty_seq_id(seq_id)
+
+    def _clean_dead_reqs(self):
+        local_decode_seq_ids = torch.cat(torch.where(self.decode_seq_ids > -1))
+        for _, seq_id in enumerate(local_decode_seq_ids):
+            seq_id_value = seq_id.item()
+            req_id = self._get_req_id(seq_id_value)
+            if req_id not in self.context.request_ids:
+                self._clean_up(seq_id_value, req_id)
 
     def _update_results(
         self,
@@ -354,7 +366,7 @@ class BaseNeuronXContinuousBatchingHandler(BaseHandler):
                 self.max_new_tokens -= 1
 
                 if self.max_new_tokens == 0 or res["tokens"][-1] == self.stop_token:
-                    self.outer.clean_up(self.seq_id, self.req_id)
+                    self.outer._clean_up(self.seq_id, self.req_id)
                     return True
                 return False
 
