@@ -1,6 +1,7 @@
 import logging
 import os
 
+import orjson
 import torch
 import torch_neuronx
 from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -147,10 +148,13 @@ class BaseNeuronXContinuousBatchingHandler(BaseHandler):
                 if isinstance(data, (bytes, bytearray)):
                     data = data.decode("utf-8")
 
-                max_new_tokens = int(
-                    req_data.get("max_new_tokens", self.max_new_tokens)
+                data = orjson.loads(data)
+                prompt = data.get("prompt")
+                max_new_tokens = int(data.get("max_new_tokens", self.max_new_tokens))
+                logger.info(
+                    "preprocess prompt={prompt}, max_new_tokens={max_new_tokens}"
                 )
-                prefill_input_text.append(data.strip())
+                prefill_input_text.append(prompt.strip())
 
                 self.context.cache[req_id] = {
                     "seq_id": seq_id,
@@ -334,10 +338,12 @@ class BaseNeuronXContinuousBatchingHandler(BaseHandler):
             else:
                 previous_tokens = prefill_tokens["input_ids"][idx, -1]
 
-            cur_text = self.tokenizer.decode(
+            text = self.tokenizer.decode(
                 torch.cat((torch.tensor([previous_tokens]), next_tokens[idx, :])),
                 skip_special_tokens=False,
-            )[len(cur_text) :]
+            )
+            if text[: -len(cur_text)].endswith(" "):
+                cur_text = " " + cur_text
 
         results[req_id] = {
             "text": cur_text

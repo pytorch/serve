@@ -1,8 +1,10 @@
 import argparse
+import json
 import random
 import threading
 from queue import Queue
 
+import orjson
 import requests
 
 
@@ -14,32 +16,51 @@ class Predictor(threading.Thread):
 
     def run(self):
         for _ in range(self.args.num_requests_per_thread):
-            self._predict(self.args, self.queue)
+            self._predict()
 
     def _predict(self):
-        payload = self._format_payload(self.args)
-        with requests.post(self._get_url(self.args), json=payload) as response:
+        payload = self._format_payload()
+        with requests.post(
+            self._get_url(), json=json.dumps(payload), stream=True
+        ) as response:
             combined_text = ""
             for chunk in response.iter_content(chunk_size=None):
                 if chunk:
-                    data = chunk.decode("utf-8")
+                    data = orjson.loads(chunk)
                     combined_text += data["text"]
-
-        with self.queue.mutex:
-            self.queue.put_nowait(f'prompt={payload["data"]}\n, output={combined_text}')
+        self.queue.put_nowait(f"payload={payload}\n, output={combined_text}\n")
 
     def _get_url(self):
         return f"http://localhost:8080/predictions/{self.args.model}"
 
     def _format_payload(self):
-        prompt_list = self.args.prompt.split(" ")
-        r = random.randint(1, len(prompt_list))
-        cur_prompt_list = prompt_list[:r]
+        prompt = _load_curl_like_data(self.args.prompt_text)
+        prompt_list = prompt.split(" ")
+        rp = len(prompt_list)
+        rt = self.args.max_tokens
+        if self.args.prompt_randomize:
+            rp = random.randint(1, len(prompt_list))
+            rt = random.randint(10, self.args.max_tokens)
+        cur_prompt_list = prompt_list[:rp]
         cur_prompt = " ".join(cur_prompt_list)
         return {
-            "data": cur_prompt,
-            "max_new_token": random.randint(10, self.args.max_tokens),
+            "prompt": cur_prompt,
+            "max_new_tokens": rt,
         }
+
+
+def _load_curl_like_data(text):
+    """
+    Either use the passed string or load from a file if the string is `@filename`
+    """
+    if text.startswith("@"):
+        try:
+            with open(text[1:], "r") as f:
+                return f.read()
+        except Exception as e:
+            raise ValueError(f"Failed to read file {text[1:]}") from e
+    else:
+        return text
 
 
 def parse_args():
@@ -52,22 +73,7 @@ def parse_args():
         help="The model to use for generating text. If not specified we will pick the first model from the service as returned by /v1/models",
     )
     parser.add_argument(
-        "-p",
-        "--prompt-tokens",
-        env_var="PROMPT_TOKENS",
-        type=int,
-        default=512,
-        help="Length of the prompt in tokens. Default 512",
-    )
-    parser.add_argument(
-        "--prompt-chars",
-        env_var="PROMPT_CHARS",
-        type=int,
-        help="Length of the prompt in characters.",
-    )
-    parser.add_argument(
         "--prompt-text",
-        env_var="PROMPT_TEXT",
         type=str,
         help="Prompt text to use instead of generating one. It can be a file reference starting with an ampersand, e.g. `@prompt.txt`",
     )
@@ -80,7 +86,6 @@ def parse_args():
     parser.add_argument(
         "-o",
         "--max-tokens",
-        env_var="MAX_TOKENS",
         type=int,
         default=64,
         help="Max number of tokens to generate.",
@@ -100,8 +105,7 @@ def parse_args():
         help="Execute the number of prediction in each thread",
     )
 
-    args = parser.parse_args()
-    return args
+    return parser.parse_args()
 
 
 def main():
@@ -110,11 +114,13 @@ def main():
     predictors = []
     for i in range(args.num_threads):
         predictor = Predictor(args, queue)
-        predictor.start()
         predictors.append(predictor)
+        predictor.start()
 
     for predictor in predictors:
         predictor.join()
+
+    print("Tasks are completed")
 
     while not queue.empty():
         print(queue.get())
