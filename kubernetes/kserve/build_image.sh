@@ -2,7 +2,7 @@
 
 MACHINE=cpu
 DOCKER_TAG="pytorch/torchserve-kfs:latest"
-BASE_IMAGE="pytorch/torchserve:latest"
+BASE_IMAGE="pytorch/torchserve:latest-cpu"
 DOCKER_FILE="Dockerfile"
 BUILD_NIGHTLY=false
 USE_CUSTOM_TAG=false

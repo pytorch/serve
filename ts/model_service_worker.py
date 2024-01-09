@@ -177,14 +177,19 @@ class TorchModelServiceWorker(object):
             cmd, msg = retrieve_msg(cl_socket)
             if BENCHMARK:
                 pr.enable()
+            # b"I" encodes a model Inference request from frontend
             if cmd == b"I":
                 if service is not None:
                     resp = service.predict(msg)
-                    cl_socket.sendall(resp)
+                    if LOCAL_RANK == 0:
+                        cl_socket.sendall(resp)
+                    else:
+                        logging.info("skip sending response at rank %d", LOCAL_RANK)
                 else:
                     raise RuntimeError(
                         "Received command: {}, but service is not loaded".format(cmd)
                     )
+            # b"I" encodes a model Loading request from frontend
             elif cmd == b"L":
                 service, result, code = self.load_model(msg)
                 resp = bytearray()
