@@ -1154,3 +1154,13 @@ compilable
 nightlies
 torchexportaotcompile
 autotune
+BloomForSampling
+ForSampling
+GPTJForSampling
+GPTNeoXForSampling
+LlamaForSampling
+MistralForSampling
+OPTForSampling
+gptj
+gptneox
+neox
