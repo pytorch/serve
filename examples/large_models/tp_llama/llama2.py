@@ -1,44 +1,39 @@
 # (c) Meta Platforms, Inc. and affiliates. Confidential and proprietary.
 
 import json
-import math
 import logging
 import os
 import sys
 import time
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Optional, Tuple, Union
 
-from torch.distributed._tensor.placement_types import Replicate, Shard
 import torch
 import torch.distributed as dist
 import torch.distributed.checkpoint as dist_cp
-
 import torch.nn.functional as F
 from checkpoint_converter import build_distributed_state_dict_from_consolidated
-from torch import nn
-from torch.distributed.fsdp import FullyShardedDataParallel as FSDP
-from torch.distributed.fsdp.api import StateDictType
-from torch.distributed.fsdp.wrap import ModuleWrapPolicy
 from llama2_tokenizer import Tokenizer
+from torch import nn
 from torch.distributed._tensor import DeviceMesh, DTensor
+from torch.distributed._tensor.placement_types import Replicate
+from torch.distributed.fsdp import FullyShardedDataParallel as FSDP
 from torch.distributed.tensor.parallel import (
-        PairwiseParallel,
-        parallelize_module,
-        ColwiseParallel,
-        RowwiseParallel,
-    )
+    ColwiseParallel,
+    RowwiseParallel,
+    parallelize_module,
+)
 
-from copy import deepcopy
-from dataclasses import dataclass, asdict, fields
 current_working_directory = os.getcwd()
-sys.path.insert(0,current_working_directory)
+sys.path.insert(0, current_working_directory)
 
 log = logging.getLogger(__name__)
 
+
 def dataclass_to_json(dc):
     return json.dumps(asdict(dc))
+
 
 def json_to_dataclass(json_str, dataclass_type):
     data = json.loads(json_str)
@@ -92,17 +87,13 @@ def reshape_for_broadcast(freqs_cis: torch.Tensor, x: torch.Tensor):
 
 
 def apply_rotary_emb(
-    xq: torch.Tensor,
-    xk: torch.Tensor,
+    x: torch.Tensor,
     freqs_cis: torch.Tensor,
 ) -> Tuple[torch.Tensor, torch.Tensor]:
-   
-    xq_ = torch.view_as_complex(xq.float().reshape(*xq.shape[:-1], -1, 2))
-    xk_ = torch.view_as_complex(xk.float().reshape(*xk.shape[:-1], -1, 2))
-    freqs_cis = reshape_for_broadcast(freqs_cis, xq_)
-    xq_out = torch.view_as_real(xq_ * freqs_cis).flatten(3)
-    xk_out = torch.view_as_real(xk_ * freqs_cis).flatten(3)
-    return xq_out.type_as(xq), xk_out.type_as(xk)
+    x_ = torch.view_as_complex(x.float().reshape(*x.shape[:-1], -1, 2))
+    freqs_cis = reshape_for_broadcast(freqs_cis, x_)
+    x_out = torch.view_as_real(x_ * freqs_cis).flatten(3)
+    return x_out.type_as(x)
 
 
 def repeat_kv(x: torch.Tensor, n_rep: int) -> torch.Tensor:
@@ -117,7 +108,6 @@ def repeat_kv(x: torch.Tensor, n_rep: int) -> torch.Tensor:
     )
 
 
-
 class Attention(nn.Module):
     def __init__(
         self,
@@ -130,8 +120,8 @@ class Attention(nn.Module):
         super().__init__()
         tp_degree = int(os.environ["WORLD_SIZE"])
         self.n_kv_heads = n_heads if n_kv_heads is None else n_kv_heads
-        self.n_local_heads = n_heads//tp_degree
-        self.n_local_kv_heads = self.n_kv_heads//tp_degree
+        self.n_local_heads = n_heads // tp_degree
+        self.n_local_kv_heads = self.n_kv_heads // tp_degree
         self.n_rep = self.n_local_heads // self.n_local_kv_heads
         self.head_dim = dim // n_heads
 
@@ -183,15 +173,12 @@ class Attention(nn.Module):
         freqs_cis: torch.Tensor,
         mask: Optional[torch.Tensor],
     ):
-       
         bsz, seqlen, _ = x.shape
         xq, xk, xv = self.wq(x), self.wk(x), self.wv(x)
 
         xq = xq.view(bsz, seqlen, self.n_local_heads, self.head_dim)
         xk = xk.view(bsz, seqlen, self.n_local_kv_heads, self.head_dim)
         xv = xv.view(bsz, seqlen, self.n_local_kv_heads, self.head_dim)
-
-        xq, xk = apply_rotary_emb(xq, xk, freqs_cis=freqs_cis)
 
         self.cache_k = self.cache_k.to(xq)
         self.cache_v = self.cache_v.to(xq)
@@ -202,11 +189,22 @@ class Attention(nn.Module):
         keys = self.cache_k[:bsz, : start_pos + seqlen]
         values = self.cache_v[:bsz, : start_pos + seqlen]
 
+        xq = apply_rotary_emb(xq, freqs_cis=freqs_cis[-seqlen:])
+        keys = apply_rotary_emb(keys, freqs_cis=freqs_cis)
+
         # repeat k/v heads if n_kv_heads < n_heads
         keys = repeat_kv(keys, self.n_rep)  # (bs, seqlen, n_local_heads, head_dim)
         values = repeat_kv(values, self.n_rep)  # (bs, seqlen, n_local_heads, head_dim)
-        #calling PT SDPA to enable using Flash Attention 2 and Xformer memory efficient kernels.
-        output = torch.nn.functional.scaled_dot_product_attention(xq.transpose(1,2), keys.transpose(1,2), values.transpose(1,2), attn_mask=mask, dropout_p=0.0, is_causal=False)
+        # calling PT SDPA to enable using Flash Attention 2 and Xformer memory efficient kernels.
+
+        output = torch.nn.functional.scaled_dot_product_attention(
+            xq.transpose(1, 2),
+            keys.transpose(1, 2),
+            values.transpose(1, 2),
+            attn_mask=mask,
+            dropout_p=0.0,
+            is_causal=False,
+        )
 
         output = output.transpose(1, 2).contiguous().view(bsz, seqlen, -1)
         return self.wo(output)
@@ -232,10 +230,10 @@ class FeedForward(nn.Module):
         self.w3 = nn.Linear(dim, hidden_dim, bias=False)
 
     def forward(self, x):
-        a= self.w1(x)
-        b =F.silu(a)
-        c= self.w3(x)
-        return self.w2(b*c)
+        a = self.w1(x)
+        b = F.silu(a)
+        c = self.w3(x)
+        return self.w2(b * c)
 
 
 class TransformerBlock(nn.Module):
@@ -278,8 +276,8 @@ class TransformerBlock(nn.Module):
         h = x + self.attention(self.attention_norm(x), start_pos, freqs_cis, mask)
         out = h + self.feed_forward(self.ffn_norm(h))
         return out
-    
-   
+
+
 class Transformer(nn.Module):
     """
     LLama2 implementation, free of any coupling to parallelism implementations, heavily drawn from
@@ -332,37 +330,61 @@ class Transformer(nn.Module):
             self.dim // self.n_heads, self.max_seq_len * 2
         )
 
-    def forward(self, tokens: torch.Tensor, start_pos: int):
-        _bsz, seqlen = tokens.shape
+    def forward(
+        self, tokens: torch.Tensor, start_pos: int, padding: torch.Tensor = None
+    ):
+        bsz, seqlen = tokens.shape
         # print(
         #     f"RV: before embedding lookup, input {tokens}, start:{start_pos}",
         #     flush=True,
         # )
         h = self.tok_embeddings(tokens)
         self.freqs_cis = self.freqs_cis.to(h.device)
-        freqs_cis = self.freqs_cis[start_pos : start_pos + seqlen]
+        freqs_cis = self.freqs_cis[: start_pos + seqlen]
 
         mask = None
         if seqlen > 1:
             mask = torch.full(
-                (1, 1, seqlen, seqlen), float("-inf"), device=tokens.device
+                (1, 1, seqlen, seqlen), torch.finfo(h.dtype).min, device=tokens.device
             )
             mask = torch.triu(mask, diagonal=start_pos + 1).type_as(h)
+            if padding is not None:
+                assert padding.size(0) == bsz
+                mask = mask.expand(bsz, 1, seqlen, seqlen).clone()
+                mask_cond = torch.arange(mask.size(-1), device=mask.device)
+                mask.masked_fill_(
+                    mask_cond < (padding).view(-1, 1, 1, 1), torch.finfo(h.dtype).min
+                )
+        elif padding is not None:
+            seqlen_with_past = seqlen + start_pos
+            mask = torch.full(
+                (bsz, 1, 1, seqlen_with_past),
+                torch.finfo(h.dtype).min,
+                device=tokens.device,
+            )
+            mask_cond = torch.arange(mask.size(-1), device=mask.device)
+            # We use -0.1 here for masking as we get different results for
+            # padding and non padding with torch.nn.functional.scaled_dot_product_attention if we use 0
+            # Not reproducible with small example snippet (numerical accumulation through layers?)
+            # TODO: figure out why
+            mask.masked_fill_(mask_cond + 1 > padding.view(-1, 1, 1, 1), -0.1)
 
         for layer in self.layers:
             h = layer(h, start_pos, freqs_cis, mask)
         h = self.norm(h)
         output = self.output(h).float()
         return output
-    
+
     @torch.no_grad()
     def reset_parameters(self):
-       for layer in self.layers:
-           for submodule in layer.modules():
-               for param_name, param in submodule.named_parameters(recurse=False):
+        for layer in self.layers:
+            for submodule in layer.modules():
+                for param_name, param in submodule.named_parameters(recurse=False):
                     if param.is_meta:
                         materialized_param = nn.Parameter(
-                            torch.empty_like(param, dtype=torch.bfloat16, device=torch.device("cuda"))
+                            torch.empty_like(
+                                param, dtype=torch.bfloat16, device=torch.device("cuda")
+                            )
                         )
                         nn.init.uniform_after(materialized_param)
                         setattr(submodule, param_name, materialized_param)
@@ -432,7 +454,6 @@ def _init_local_model(model_args: ModelArgs) -> Transformer:
 def get_consolidated_ckpt_path(
     ckpt_dir: Union[str, Path], mp_rank: int = 0, mp_size: int = 1
 ) -> Union[str, Path]:
-  
     if mp_size == 1:
         assert mp_rank == 0
         filename = "consolidated.00.pth"
@@ -443,27 +464,38 @@ def get_consolidated_ckpt_path(
     else:
         return os.path.join(ckpt_dir, filename)
 
-def _convert_fairscale_checkpoints(meta_model, model_parallel_size: int, original_ckpt_dir: str, save_checkpoint_dir: str):
+
+def _convert_fairscale_checkpoints(
+    meta_model,
+    model_parallel_size: int,
+    original_ckpt_dir: str,
+    save_checkpoint_dir: str,
+):
     mp_group, _ = dist.new_subgroups(group_size=model_parallel_size)
     local_rank = int(os.environ.get("LOCAL_RANK", -1))
     if local_rank == -1:
         raise RuntimeError("Expected local_rank to be set, but it is not!")
     mp_rank = local_rank % model_parallel_size
-    
+
     state_dict_pth = get_consolidated_ckpt_path(
         ckpt_dir=original_ckpt_dir, mp_rank=mp_rank, mp_size=model_parallel_size
     )
     state_dict = torch.load(state_dict_pth)
     dist_state_dict = build_distributed_state_dict_from_consolidated(
-        meta_model, state_dict, model_parallel_world_size=model_parallel_size,use_dtensor=True
+        meta_model,
+        state_dict,
+        model_parallel_world_size=model_parallel_size,
+        use_dtensor=True,
     )
     dist_cp.save_state_dict(
-            state_dict=dist_state_dict,
-            storage_writer=dist_cp.FileSystemWriter(save_checkpoint_dir),
-        )
-    
+        state_dict=dist_state_dict,
+        storage_writer=dist_cp.FileSystemWriter(save_checkpoint_dir),
+    )
 
-def _load_checkpoint(mesh, model, meta_model, model_parallel_size: int, ckpt_dir: str) -> None:
+
+def _load_checkpoint(
+    mesh, model, meta_model, model_parallel_size: int, ckpt_dir: str
+) -> None:
     mp_group, _ = dist.new_subgroups(group_size=model_parallel_size)
     local_rank = int(os.environ.get("LOCAL_RANK", -1))
     if local_rank == -1:
@@ -474,33 +506,37 @@ def _load_checkpoint(mesh, model, meta_model, model_parallel_size: int, ckpt_dir
     )
     state_dict = torch.load(state_dict_pth)
     dist_state_dict = build_distributed_state_dict_from_consolidated(
-        meta_model, state_dict, model_parallel_world_size=model_parallel_size,use_dtensor=True
+        meta_model,
+        state_dict,
+        model_parallel_world_size=model_parallel_size,
+        use_dtensor=True,
     )
-    CHECKPOINT_DIR="converted_checkpoints"
+    CHECKPOINT_DIR = "converted_checkpoints"
     dist_cp.save_state_dict(
-            state_dict=dist_state_dict,
-            storage_writer=dist_cp.FileSystemWriter(CHECKPOINT_DIR),
-        )
-    
-    converting_Dtensor_to_tensor(model,dist_state_dict,mesh )
+        state_dict=dist_state_dict,
+        storage_writer=dist_cp.FileSystemWriter(CHECKPOINT_DIR),
+    )
+
+    converting_Dtensor_to_tensor(model, dist_state_dict, mesh)
     check_dtensor(dist_state_dict)
     log.debug("build distributed_state_dict")
     missing_keys, unexpected_keys = model.load_state_dict(dist_state_dict, strict=False)
     assert not missing_keys
     assert len(unexpected_keys) == 1 and "freqs" in unexpected_keys[0]
 
-def _load_tp_checkpoints(tp_model,CHECKPOINT_DIR):
-    
+
+def _load_tp_checkpoints(tp_model, CHECKPOINT_DIR):
     local_rank = int(os.environ.get("LOCAL_RANK", -1))
     if local_rank == -1:
         raise RuntimeError("Expected local_rank to be set, but it is not!")
     tp_state_dict = tp_model.state_dict()
     dist_cp.load_state_dict(
-            state_dict=tp_state_dict,
-            storage_reader=dist_cp.FileSystemReader(CHECKPOINT_DIR),
-        )
+        state_dict=tp_state_dict,
+        storage_reader=dist_cp.FileSystemReader(CHECKPOINT_DIR),
+    )
     tp_model.load_state_dict(tp_state_dict)
-    
+
+
 def parallelize_llama_MLP_block(model, module_path, mesh):
     block = model.get_submodule(module_path)
     parallelized_block = parallelize_module(
@@ -514,6 +550,7 @@ def parallelize_llama_MLP_block(model, module_path, mesh):
         # tp_mesh_dim=0,
     )
     return parallelized_block
+
 
 def parallelize_llama_attn_block(model, module_path, twod_mesh):
     block = model.get_submodule(module_path)
@@ -530,17 +567,20 @@ def parallelize_llama_attn_block(model, module_path, twod_mesh):
     )
     return parallelized_block
 
+
 def tp_llama(model, mesh):
     for i in range(model.n_layers):
         # print(f" i number of layers {i}*********************")
         block = parallelize_llama_MLP_block(model, f"layers.{i}.feed_forward", mesh)
         block = parallelize_llama_attn_block(model, f"layers.{i}.attention", mesh)
-        
+
+
 def print_submodules(model):
-        for name, module in model.named_modules():
-            print(f"Module name: {name}")
-            # print(module)
-            print()       
+    for name, module in model.named_modules():
+        print(f"Module name: {name}")
+        # print(module)
+        print()
+
 
 def check_dtensor(state_dict):
     for fqn, tensor in state_dict.items():
@@ -548,31 +588,35 @@ def check_dtensor(state_dict):
             is_dtensor = isinstance(tensor, DTensor)
         except:
             is_dtensor = False
-            
+
         print(f"The model FQN: {fqn}, is DTensor {is_dtensor}")
-        
-def converting_Dtensor_to_tensor(model_tp, dist_state_dict, mesh):          
-# Make sure this covers all non DTensor FQNs.
+
+
+def converting_Dtensor_to_tensor(model_tp, dist_state_dict, mesh):
+    # Make sure this covers all non DTensor FQNs.
     # model is the tp_model
     for fqn in model_tp.state_dict():
         if not isinstance(model_tp.state_dict()[fqn], DTensor):
-        # #     # Convert dist_state_dict[fqn] into non-DTensor
-            
+            # #     # Convert dist_state_dict[fqn] into non-DTensor
+
             if isinstance(dist_state_dict[fqn], DTensor):
                 # Not sure best way to materialize full DTensor on each rank Doing it by
                 # redistributing it to a world_size = 1 DeviceMesh, and then to_local.
-                unsharded_dt = dist_state_dict[fqn].redistribute(device_mesh=mesh, placements=[Replicate()])
+                unsharded_dt = dist_state_dict[fqn].redistribute(
+                    device_mesh=mesh, placements=[Replicate()]
+                )
                 dist_state_dict[fqn] = unsharded_dt.to_local()
-                
+
+
 class Llama:
     @staticmethod
     def build(
         model_args: str,
-        converted_ckpt_dir:str,
+        converted_ckpt_dir: str,
         tokenizer_path: str,
     ) -> "Llama":
         """
-        Heavily motivated from https://github.com/facebookresearch/llama/blob/main/llama/generation.py#L51,
+        Heavily motivated from https://github.com/facebookresearch/llama/blob/06faf3aab2971e7931e3d5b41e53c4a614d5bad7/llama/generation.py#L51,
         and adapted for native parallelism APIs.
         """
         start = time.time()
@@ -585,28 +629,27 @@ class Llama:
         # model_args = _build_model_args(ckpt_dir, max_seq_len, max_batch_size)
         # file_path = os.path.join(converted_ckpt_dir, 'model_args.json')
 
-        with open(model_args, 'r') as file:
-          loaded_json = file.read()
+        with open(model_args, "r") as file:
+            loaded_json = file.read()
 
         model_args = json_to_dataclass(loaded_json, ModelArgs)
-        
+
         tokenizer = _create_tokenizer(tokenizer_path=tokenizer_path)
         model_args.vocab_size = tokenizer.n_words
 
         model = _init_local_model(model_args)
-        mesh = (
-        DeviceMesh(
+        mesh = DeviceMesh(
             device_type="cuda",
             mesh=list(range(dist.get_world_size())),
-        ))
-        
+        )
+
         tp_llama(model, mesh)
-        
-        model.to_empty(device='cuda')
+
+        model.to_empty(device="cuda")
         model.reset_parameters()
         log.debug(f"Rank {dist.get_rank()}: created FSDP model {model}")
 
-        _load_tp_checkpoints(model,converted_ckpt_dir)
+        _load_tp_checkpoints(model, converted_ckpt_dir)
         param_numel = sum(p.numel() for p in model.parameters())
         log.debug(
             f"Loaded {param_numel * dist.get_world_size()} params (across all workers) in {time.time() - start:.2f} seconds"
@@ -616,14 +659,14 @@ class Llama:
     @staticmethod
     def convert_checkpoints(
         original_ckpt_dir: str,
-        save_checkpoint_dir:str,
+        save_checkpoint_dir: str,
         tokenizer_path: str,
         max_seq_len: int,
         max_batch_size: int,
         model_parallel_size: int,
     ) -> "Llama":
         """
-        Heavily motivated from https://github.com/facebookresearch/llama/blob/main/llama/generation.py#L51,
+        Heavily motivated from https://github.com/facebookresearch/llama/blob/06faf3aab2971e7931e3d5b41e53c4a614d5bad7/llama/generation.py#L51,
         and adapted for native parallelism APIs.
         """
         start = time.time()
@@ -637,18 +680,22 @@ class Llama:
         tokenizer = _create_tokenizer(tokenizer_path=tokenizer_path)
         model_args.vocab_size = tokenizer.n_words
         json_args = dataclass_to_json(model_args)
-        with open('model_args.json', 'w') as file:
+        with open("model_args.json", "w") as file:
             file.write(json_args)
-            
+
         model = _init_local_model(model_args)
-        
-        _convert_fairscale_checkpoints(model, model_parallel_size=model_parallel_size, original_ckpt_dir=original_ckpt_dir, save_checkpoint_dir=save_checkpoint_dir)
-    
+
+        _convert_fairscale_checkpoints(
+            model,
+            model_parallel_size=model_parallel_size,
+            original_ckpt_dir=original_ckpt_dir,
+            save_checkpoint_dir=save_checkpoint_dir,
+        )
+
         log.debug(
             f"the  checkpoints have been converted to PTD compliant checkpoint and saved in {save_checkpoint_dir}"
         )
 
-    
     def __init__(self, model: Union[FSDP, Transformer], tokenizer: Tokenizer):
         self.model = model
         self.tokenizer = tokenizer

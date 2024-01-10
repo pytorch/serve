@@ -29,6 +29,7 @@ class SegmentAnythingFastHandler(BaseHandler):
             self.device = torch.device(
                 self.map_location + ":" + str(properties.get("gpu_id"))
             )
+            torch.cuda.set_device(self.device)
 
         model_type = ctx.model_yaml_config["handler"]["model_type"]
         sam_checkpoint = ctx.model_yaml_config["handler"]["sam_checkpoint"]

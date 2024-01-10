@@ -18,7 +18,7 @@ from generate import (
 from sentencepiece import SentencePieceProcessor
 
 from ts.handler_utils.timer import timed
-from ts.protocol.otf_message_handler import send_intermediate_predict_response
+from ts.handler_utils.utils import send_intermediate_predict_response
 from ts.torch_handler.base_handler import BaseHandler
 
 logger = logging.getLogger(__name__)
@@ -44,9 +44,13 @@ class GptHandler(BaseHandler):
 
     def initialize(self, ctx):
         self.context = ctx
+        properties = self.context.system_properties
+        gpu_id = properties.get("gpu_id")
+        if gpu_id is not None and int(gpu_id) < 0:
+            raise ValueError("Invalid gpu_id")
         rank = maybe_init_dist()
 
-        self.local_rank = rank if rank is not None else 0
+        self.local_rank = rank if rank is not None else int(gpu_id)
 
         if torch.cuda.is_available():
             self.map_location = "cuda"
