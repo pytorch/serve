@@ -34,6 +34,8 @@ import org.pytorch.serve.util.messages.RequestInput;
 import org.pytorch.serve.util.messages.WorkerCommands;
 import org.pytorch.serve.wlm.Model;
 import org.pytorch.serve.wlm.ModelManager;
+import org.pytorch.serve.wlm.WorkerState;
+import org.pytorch.serve.wlm.WorkerThread;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,7 +63,7 @@ public class OpenInferenceProtocolImpl extends GRPCInferenceServiceImplBase {
                         });
 
         ServerLiveResponse readyResponse = ServerLiveResponse.newBuilder()
-                .setLive(ApiUtils.getTsWorkerStatus())
+                .setLive(true)
                 .build();
         responseObserver.onNext(readyResponse);
         responseObserver.onCompleted();
@@ -80,7 +82,7 @@ public class OpenInferenceProtocolImpl extends GRPCInferenceServiceImplBase {
                         });
 
         ServerReadyResponse readyResponse = ServerReadyResponse.newBuilder()
-                .setReady(ApiUtils.getTsWorkerStatus())
+                .setReady(true)
                 .build();
         responseObserver.onNext(readyResponse);
         responseObserver.onCompleted();
@@ -110,6 +112,7 @@ public class OpenInferenceProtocolImpl extends GRPCInferenceServiceImplBase {
         String modelName = request.getName();
         String modelVersion = request.getVersion();
         ModelManager modelManager = ModelManager.getInstance();
+        boolean isModelReady = false;
         if (modelName == null || "".equals(modelName)) {
             BadRequestException e = new BadRequestException("Parameter name is required.");
             sendErrorResponse(responseObserver, Status.INTERNAL, e, "BadRequestException.()");
@@ -124,8 +127,19 @@ public class OpenInferenceProtocolImpl extends GRPCInferenceServiceImplBase {
             if (model == null) {
                 throw new ModelNotFoundException("Model not found: " + modelName);
             }
+
+            // int numScaled = model.getMinWorkers();
+            // int numHealthy = modelManager.getNumHealthyWorkers(model.getModelVersionName());
+            // isModelReady = numHealthy >= numScaled;
+
+            List<WorkerThread> workers = modelManager.getWorkers(model.getModelVersionName());
+            for (WorkerThread worker : workers) {
+                isModelReady = worker.isRunning() && worker.getState() == WorkerState.WORKER_MODEL_LOADED;
+
+            }
+
             ModelReadyResponse modelReadyResponse = ModelReadyResponse.newBuilder()
-                    .setReady(true)
+                    .setReady(isModelReady)
                     .build();
             responseObserver.onNext(modelReadyResponse);
             responseObserver.onCompleted();

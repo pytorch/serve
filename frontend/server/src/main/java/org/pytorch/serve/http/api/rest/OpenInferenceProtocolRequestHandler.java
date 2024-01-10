@@ -82,12 +82,12 @@ public class OpenInferenceProtocolRequestHandler extends HttpRequestHandlerChain
         if (concatenatedSegments.equals(SERVER_READY_API)) {
             // for serve ready check
             JsonObject response = new JsonObject();
-            response.addProperty("ready", ApiUtils.getTsWorkerStatus());
+            response.addProperty("ready", true);
             NettyUtils.sendJsonResponse(ctx, response);
         } else if (concatenatedSegments.equals(SERVER_LIVE_API)) {
             // for serve live check
             JsonObject response = new JsonObject();
-            response.addProperty("live", ApiUtils.getTsWorkerStatus());
+            response.addProperty("live", true);
             NettyUtils.sendJsonResponse(ctx, response);
         } else if (concatenatedSegments.equals(SERVER_METADATA_API)) {
             // For fetch server metadata
