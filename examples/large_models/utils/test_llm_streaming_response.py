@@ -1,5 +1,4 @@
 import argparse
-import json
 import random
 import threading
 from queue import Queue
@@ -20,9 +19,7 @@ class Predictor(threading.Thread):
 
     def _predict(self):
         payload = self._format_payload()
-        with requests.post(
-            self._get_url(), json=json.dumps(payload), stream=True
-        ) as response:
+        with requests.post(self._get_url(), json=payload, stream=True) as response:
             combined_text = ""
             for chunk in response.iter_content(chunk_size=None):
                 if chunk:

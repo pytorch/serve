@@ -1,7 +1,6 @@
 import logging
 import os
 
-import orjson
 import torch
 import torch_neuronx
 from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -148,7 +147,6 @@ class BaseNeuronXContinuousBatchingHandler(BaseHandler):
                 if isinstance(data, (bytes, bytearray)):
                     data = data.decode("utf-8")
 
-                data = orjson.loads(data)
                 prompt = data.get("prompt")
                 max_new_tokens = int(data.get("max_new_tokens", self.max_new_tokens))
                 logger.info(
