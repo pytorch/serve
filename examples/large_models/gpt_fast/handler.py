@@ -103,7 +103,6 @@ class GptHandler(BaseHandler):
         torch.manual_seed(42 * 42)
 
         self.stream = ctx.model_yaml_config["handler"].get("stream", True)
-        logger.info(f"Stream is {self.stream}")
 
         self.initialized = True
 
@@ -169,8 +168,6 @@ class GptHandler(BaseHandler):
         return y
 
     def postprocess(self, y):
-        logger.info("output is")
-        logger.info(self.tokenizer.decode(y.tolist()[self.prompt_length :]))
         return [
             ""
             if self.stream
