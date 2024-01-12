@@ -3,13 +3,13 @@ name: CI CPU - CPP Build
 on:
   push:
     branches:
-      - cpp_backend
+      - master
   pull_request:
     branches:
-      - cpp_backend
+      - master
 
 concurrency:
-  group: ci-cpu-${{ github.workflow }}-${{ github.ref == 'refs/heads/cpp_backend' && github.run_number || github.ref }}
+  group: ci-cpu-${{ github.workflow }}-${{ github.ref == 'refs/heads/master' && github.run_number || github.ref }}
   cancel-in-progress: true
 
 jobs:
