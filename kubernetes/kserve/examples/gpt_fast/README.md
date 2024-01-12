@@ -2,7 +2,7 @@
 
 [GPT Fast](https://github.com/pytorch-labs/gpt-fast) is a PyTorch native solution of optimized GPT models. We are using GPT Fast version of `llama2-7b-chat-hf`.
 In this example, we show how to serve GPT fast version of Llama 2 with KServe
-We will be serving the model using Kserve deployed using [minikube](https://minikube.sigs.k8s.io/docs/start/) on a single instance. The same solution can be extended to Kubernetes solutions of various cloud providers
+We will be serving the model using KServe deployed using [minikube](https://minikube.sigs.k8s.io/docs/start/) on a single instance. The same solution can be extended to Kubernetes solutions of various cloud providers
 
 The inference service returns the text generated for the given prompt.
 
@@ -13,7 +13,7 @@ Currently, GPT-Fast needs PyTorch >=2.2 nightlies to run. The nightly image publ
 
 #### Build custom KServe image
 
-The Dockerfile takes the nightly TorchServe kserve image and installs PyTorch nightlies on top of that.
+The Dockerfile takes the nightly TorchServe KServe image and installs PyTorch nightlies on top of that.
 
 If your username for dockerhub is `abc`, use the following command
 ```
@@ -36,7 +36,7 @@ You would need to publish the config & the model-store to an accessible bucket.
 
 Now we are ready to start deploying the published model.
 
-## Install kserve
+## Install KServe
 
 Start minikube cluster
 
@@ -44,12 +44,12 @@ Start minikube cluster
 minikube start --gpus all
 ```
 
-Install kserve locally.
+Install KServe locally.
 ```
 curl -s "https://raw.githubusercontent.com/kserve/kserve/release-0.11/hack/quick_install.sh" | bash
 ```
 
-Make sure kserve is installed on minikube cluster using
+Make sure KServe is installed on minikube cluster using
 
 ```
 kubectl get pods -n kserve
@@ -65,7 +65,7 @@ TorchServe supports KServe V1 and V2 protocol. We show how to deploy with v1 for
 
 ## KServe V1 protocol
 
-Deploy `InferenceService` with Kserve V1 protocol
+Deploy `InferenceService` with KServe V1 protocol
 
 ```
 kubectl apply -f llama2_v1_gpu.yaml
