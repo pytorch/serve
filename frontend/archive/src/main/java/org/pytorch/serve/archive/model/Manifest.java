@@ -139,9 +139,7 @@ public class Manifest {
         @SerializedName("python3")
         PYTHON3("python3"),
         @SerializedName("LSP")
-        LSP("LSP"),
-        @SerializedName("LDP")
-        LDP("LDP");
+        LSP("LSP");
 
         String value;
 

@@ -208,8 +208,7 @@
               "enum": [
                 "PYTHON",
                 "PYTHON3",
-                "LSP",
-                "LDP"
+                "LSP"
               ]
             }
           },

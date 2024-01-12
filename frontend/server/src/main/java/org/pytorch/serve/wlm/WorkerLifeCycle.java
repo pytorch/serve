@@ -101,10 +101,6 @@ public class WorkerLifeCycle {
                 logger.info("LSP startWorker");
                 startWorkerCPP(port, "LSP", deviceIds);
                 break;
-            case LDP:
-                logger.info("LDP startWorker");
-                startWorkerCPP(port, "LDP", deviceIds);
-                break;
             default:
                 startWorkerPython(port, deviceIds);
                 break;
@@ -391,14 +387,6 @@ public class WorkerLifeCycle {
                     if (result == null) {
                         break;
                     }
-                    // int metricLogStartSubstringIndex =
-                    // result.indexOf(METRIC_LOG_START_SUBSTRING);
-                    // if (metricLogStartSubstringIndex >= 0) {
-                    //     Metric parsedMetric =
-                    //             Metric.parse(
-                    //                     result.substring(
-                    //                             metricLogStartSubstringIndex
-                    //                                     + METRIC_LOG_START_SUBSTRING.length()));
 
                     Matcher matcher = METRIC_PATTERN.matcher(result);
                     if (matcher.matches()) {
@@ -443,11 +431,6 @@ public class WorkerLifeCycle {
                         continue;
                     }
 
-                    // Matcher matcher = PID_LOG_PATTERN.matcher(result);
-                    // if (result.endsWith("Torch worker started.")) {
-                    //     lifeCycle.setSuccess(true);
-                    // } else if (matcher.matches()) {
-                    //     lifeCycle.setPid(Integer.parseInt(matcher.group(1)));
                     matcher = WORKER_START_PATTERN.matcher(result);
                     if (matcher.matches()) {
                         lifeCycle.setSuccess(true);
