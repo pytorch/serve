@@ -103,6 +103,7 @@ class GptHandler(BaseHandler):
         torch.manual_seed(42 * 42)
 
         self.stream = ctx.model_yaml_config["handler"].get("stream", True)
+        logger.info(f"Stream is {self.stream}")
 
         self.initialized = True
 
@@ -118,7 +119,8 @@ class GptHandler(BaseHandler):
         if isinstance(input_data, (bytes, bytearray)):
             input_data = input_data.decode("utf-8")
 
-        input_data = json.loads(input_data)
+        if isinstance(input_data, str):
+            input_data = json.loads(input_data)
 
         prompt = input_data["prompt"]
 
@@ -167,6 +169,8 @@ class GptHandler(BaseHandler):
         return y
 
     def postprocess(self, y):
+        logger.info("output is")
+        logger.info(self.tokenizer.decode(y.tolist()[self.prompt_length :]))
         return [
             ""
             if self.stream
