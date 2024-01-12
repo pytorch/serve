@@ -53,7 +53,8 @@ LlamacppHandler::LoadModel(
 
     llama_backend_init(params.numa);
     ctx_params = llama_context_default_params();
-    llamamodel = llama_load_model_from_file(params.model.c_str(), ctx_params);
+    model_params = llama_model_default_params();
+    llamamodel = llama_load_model_from_file(params.model.c_str(), model_params);
 
     return std::make_pair(module, device);
   } catch (const c10::Error& e) {
@@ -74,7 +75,6 @@ std::vector<torch::jit::IValue> LlamacppHandler::Preprocess(
     std::pair<std::string&, std::map<uint8_t, std::string>&>& idx_to_req_id,
     std::shared_ptr<torchserve::InferenceRequestBatch>& request_batch,
     std::shared_ptr<torchserve::InferenceResponseBatch>& response_batch) {
-
   initialize_context();
 
   std::vector<torch::jit::IValue> batch_ivalue;
@@ -181,8 +181,7 @@ torch::Tensor LlamacppHandler::Inference(
       // evaluate the transformer
 
       if (llama_eval(llama_ctx, tokens_list.data(), int(tokens_list.size()),
-                     llama_get_kv_cache_token_count(llama_ctx),
-                     params.n_threads)) {
+                     llama_get_kv_cache_token_count(llama_ctx))) {
         std::cout << "Failed to eval\n" << __func__ << std::endl;
         break;
       }
@@ -194,7 +193,7 @@ torch::Tensor LlamacppHandler::Inference(
       llama_token new_token_id = 0;
 
       auto logits = llama_get_logits(llama_ctx);
-      auto n_vocab = llama_n_vocab(llama_ctx);
+      auto n_vocab = llama_n_vocab(llamamodel);
 
       std::vector<llama_token_data> candidates;
       candidates.reserve(n_vocab);
@@ -210,7 +209,7 @@ torch::Tensor LlamacppHandler::Inference(
       new_token_id = llama_sample_token_greedy(llama_ctx, &candidates_p);
 
       // is it an end of stream ?
-      if (new_token_id == llama_token_eos(llama_ctx)) {
+      if (new_token_id == llama_token_eos(llamamodel)) {
         std::cout << "Reached [end of text]\n";
         break;
       }

@@ -13,6 +13,7 @@ namespace llm {
 class LlamacppHandler : public torchserve::torchscripted::BaseHandler {
  private:
   gpt_params params;
+  llama_model_params model_params;
   llama_model* llamamodel;
   llama_context_params ctx_params;
   llama_context* llama_ctx;

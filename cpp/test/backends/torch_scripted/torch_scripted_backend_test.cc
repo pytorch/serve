@@ -84,8 +84,7 @@ TEST_F(TorchScriptedBackendTest, TestLoadPredictLlmHandler) {
           "test/resources/torchscript_model/llamacpp/llamacpp_handler", "llm",
           -1, "", "", 1, false),
       "test/resources/torchscript_model/llamacpp/llamacpp_handler",
-      "test/resources/torchscript_model/llamacpp/prompt.txt", "llm_ts",
-      200);
+      "test/resources/torchscript_model/llamacpp/prompt.txt", "llm_ts", 200);
 }
 
 TEST_F(TorchScriptedBackendTest, TestBackendInitWrongModelDir) {
