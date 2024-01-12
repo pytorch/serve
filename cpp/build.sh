@@ -178,7 +178,7 @@ function build() {
     "$MAYBE_CUDA_COMPILER"                                                                    \
     ..
 
-    if [ "$CUDA" = "cu102" ] || [ "$CUDA" = "cu113" ] || [ "$CUDA" = "cu116" ]; then
+    if [ "$CUDA" = "cu118" ] || [ "$CUDA" = "cu121" ]; then
       export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/cuda/bin/nvcc
     fi
   elif [ "$PLATFORM" = "Mac" ]; then
@@ -254,7 +254,7 @@ INSTALL_DEPENDENCIES=false
 PREFIX=""
 COMPILER_FLAGS=""
 CUDA=""
-USAGE="./build.sh [-j num_jobs] [-g cu102|cu113|cu116] [-q|--with-quic] [-p|--prefix] [-x|--compiler-flags]"
+USAGE="./build.sh [-j num_jobs] [-g cu118|cu121] [-q|--with-quic] [-p|--prefix] [-x|--compiler-flags]"
 while [ "$1" != "" ]; do
   case $1 in
     -j | --jobs ) shift
