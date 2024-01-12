@@ -1,6 +1,6 @@
 # Text generation with GPT Fast using KServe
 
-[GPT Fast](https://github.com/pytorch-labs/gpt-fast) is a PyTorch native solution of optimized GPT models. We are using llama2-7b-chat-hf in this example.
+[GPT Fast](https://github.com/pytorch-labs/gpt-fast) is a PyTorch native solution of optimized GPT models. We are using GPT Fast version of `llama2-7b-chat-hf`.
 In this example, we show how to serve GPT fast version of Llama 2 with KServe
 We will be serving the model using Kserve deployed using [minikube](https://minikube.sigs.k8s.io/docs/start/) on a single instance. The same solution can be extended to Kubernetes solutions of various cloud providers
 
@@ -88,7 +88,7 @@ torchserve-predictor-00001-deployment-8d66f9c-dkdhr   2/2     Running   0       
 We need to set the following
 
 ```
-MODEL_NAME=mnist
+MODEL_NAME=gpt_fast
 SERVICE_HOSTNAME=$(kubectl get inferenceservice torchserve -o jsonpath='{.status.url}' | cut -d "/" -f 3)
 ```
 
