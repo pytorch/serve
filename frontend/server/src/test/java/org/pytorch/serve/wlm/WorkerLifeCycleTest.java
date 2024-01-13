@@ -49,18 +49,24 @@ public class WorkerLifeCycleTest {
         Assert.assertEquals(archiveMnist.getModelVersion(), "1.0");
         WorkerLifeCycle workerLifeCycleMnist = new WorkerLifeCycle(configManager, modelMnist);
         workerLifeCycleMnist.startWorker(configManager.getInitialWorkerPort(), "");
+
+        Assert.assertTrue(workerLifeCycleMnist.getProcess().isAlive());
+
+        workerLifeCycleMnist.exit();
     }
 
     @Test
     public void testStartWorkerCppMnist()
             throws ModelException, IOException, DownloadArchiveException,
                     WorkerInitializationException, InterruptedException {
+        System.out.print("BAAAR: " + configManager.getModelStore());
         ModelArchive archiveMnist =
                 ModelArchive.downloadModel(
                         ALLOWED_URLS_LIST, configManager.getModelStore(), "mnist_scripted_cpp.mar");
         Model modelMnist = new Model(archiveMnist, 100);
-        Assert.assertEquals(archiveMnist.getModelName(), "mnist_scripted");
-        Assert.assertEquals(archiveMnist.getModelVersion(), "1.0");
+        System.out.print("FOOOOO: " + archiveMnist.getModelName());
+        Assert.assertEquals(archiveMnist.getModelName(), "mnist_scripted_v2");
+        Assert.assertEquals(archiveMnist.getModelVersion(), "2.0");
 
         modelMnist.setRuntimeType(
                 configManager.getJsonRuntimeTypeValue(
@@ -71,6 +77,10 @@ public class WorkerLifeCycleTest {
         Assert.assertEquals(modelMnist.getRuntimeType().getValue(), LSP.getValue());
 
         WorkerLifeCycle workerLifeCycleMnist = new WorkerLifeCycle(configManager, modelMnist);
-        // workerLifeCycleMnist.startWorker(configManager.getInitialWorkerPort());
+        workerLifeCycleMnist.startWorker(configManager.getInitialWorkerPort(), "");
+
+        Assert.assertTrue(workerLifeCycleMnist.getProcess().isAlive());
+
+        workerLifeCycleMnist.exit();
     }
 }
