@@ -118,7 +118,8 @@ class GptHandler(BaseHandler):
         if isinstance(input_data, (bytes, bytearray)):
             input_data = input_data.decode("utf-8")
 
-        input_data = json.loads(input_data)
+        if isinstance(input_data, str):
+            input_data = json.loads(input_data)
 
         prompt = input_data["prompt"]
 
