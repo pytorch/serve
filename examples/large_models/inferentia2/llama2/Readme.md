@@ -33,11 +33,6 @@ Follow the steps below to complete package installations
 sudo apt-get update
 sudo apt-get upgrade
 
-# Install Neuron libraries, SDK 2.12.2: https://awsdocs-neuron.readthedocs-hosted.com/en/latest/release-notes/prev/content.html#id8
-sudo apt-get install aws-neuronx-dkms=2.11.9.0
-sudo apt-get install aws-neuronx-collectives=2.15.16.0*
-sudo apt-get install aws-neuronx-runtime-lib=2.15.14.0*
-
 # Activate Python venv
 source /opt/aws_neuron_venv_pytorch/bin/activate
 
@@ -50,9 +45,6 @@ python ts_scripts/install_dependencies.py --neuronx --environment=dev
 
 # Install torchserve and torch-model-archiver
 python ts_scripts/install_from_src.py
-
-# Install additional neuron packages, SDK 2.12.2: https://awsdocs-neuron.readthedocs-hosted.com/en/latest/release-notes/prev/content.html#id8
-python -m pip install neuronx-cc==2.8.0.25 torch-neuronx==1.13.1.1.9.1 transformers-neuronx==0.5.58
 
 # Navigate to `examples/large_models/inferentia2/llama2` directory
 cd examples/large_models/inferentia2/llama2/
