@@ -20,9 +20,8 @@ public class WorkerLifeCycleTest {
 
     @BeforeSuite
     public void beforeSuite() throws IOException {
-        System.setProperty("tsConfigFile", "src/test/resources/config_test_cpp.properties");
         ConfigManager.Arguments args = new ConfigManager.Arguments();
-        // args.setModels(new String[] {"noop_v0.1"});
+        args.setModelStore("../archive/src/test/resources/models");
         args.setSnapshotDisabled(true);
         ConfigManager.init(args);
         configManager = ConfigManager.getInstance();
