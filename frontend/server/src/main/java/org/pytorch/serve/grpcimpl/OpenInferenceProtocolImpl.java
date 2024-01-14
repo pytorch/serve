@@ -247,7 +247,7 @@ public class OpenInferenceProtocolImpl extends GRPCInferenceServiceImplBase {
         try {
             ModelManager modelManager = ModelManager.getInstance();
             inputData.addParameter(new InputParameter("body", byteArray, contentsType));
-            Job job = new GRPCJob(responseObserver, modelName, modelVersion, inputData, WorkerCommands.PREDICT);
+            Job job = new GRPCJob(responseObserver, modelName, modelVersion, inputData, WorkerCommands.OIPPREDICT);
 
             if (!modelManager.addJob(job)) {
                 String responseMessage = ApiUtils.getStreamingInferenceErrorResponseMessage(modelName, modelVersion);

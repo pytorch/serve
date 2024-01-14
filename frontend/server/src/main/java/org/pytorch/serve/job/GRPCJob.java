@@ -117,62 +117,30 @@ public class GRPCJob extends Job {
             Map<String, String> responseHeaders) {
         ByteString output = ByteString.copyFrom(body);
         WorkerCommands cmd = this.getCmd();
-        Gson gson = new Gson();
-        String jsonResponse = output.toStringUtf8();
-        JsonObject jsonObject = gson.fromJson(jsonResponse, JsonObject.class);
 
         switch (cmd) {
             case PREDICT:
             case STREAMPREDICT:
             case STREAMPREDICT2:
-                // condition for OIP grpc ModelInfer Call
-                if (ConfigManager.getInstance().isOpenInferenceProtocol() && isResponseStructureOIP(jsonObject)) {
-                    if (((ServerCallStreamObserver<ModelInferResponse>) modelInferResponseObserver)
-                            .isCancelled()) {
-                        logger.warn(
-                                "grpc client call already cancelled, not able to send this response for requestId: {}",
-                                getPayload().getRequestId());
-                        return;
-                    }
-                    ModelInferResponse.Builder responseBuilder = ModelInferResponse.newBuilder();
-                    responseBuilder.setId(jsonObject.get("id").getAsString());
-                    responseBuilder.setModelName(jsonObject.get("model_name").getAsString());
-                    responseBuilder.setModelVersion(jsonObject.get("model_version").getAsString());
-                    JsonArray jsonOutputs = jsonObject.get("outputs").getAsJsonArray();
-        
-                    for (JsonElement element : jsonOutputs) {
-                        InferOutputTensor.Builder outputBuilder = InferOutputTensor.newBuilder();
-                        outputBuilder.setName(element.getAsJsonObject().get("name").getAsString());
-                        outputBuilder.setDatatype(element.getAsJsonObject().get("datatype").getAsString());
-                        JsonArray shapeArray = element.getAsJsonObject().get("shape").getAsJsonArray();
-                        shapeArray.forEach(shapeElement -> outputBuilder.addShape(shapeElement.getAsLong()));
-                        setOutputContents(element, outputBuilder);
-                        responseBuilder.addOutputs(outputBuilder);
-        
-                    }
-                    modelInferResponseObserver.onNext(responseBuilder.build());
-                    modelInferResponseObserver.onCompleted();
-                } else {
-                    ServerCallStreamObserver<PredictionResponse> responseObserver =
-                            (ServerCallStreamObserver<PredictionResponse>) predictionResponseObserver;
-                    cancelHandler(responseObserver);
-                    PredictionResponse reply =
-                            PredictionResponse.newBuilder().setPrediction(output).build();
-                    responseObserver.onNext(reply);
-                    if (cmd == WorkerCommands.PREDICT
-                            || (cmd == WorkerCommands.STREAMPREDICT
-                                    && responseHeaders
-                                            .get(RequestInput.TS_STREAM_NEXT)
-                                            .equals("false"))) {
-                        responseObserver.onCompleted();
-                        logQueueTime();
-                    } else if (cmd == WorkerCommands.STREAMPREDICT2
-                            && (responseHeaders.get(RequestInput.TS_STREAM_NEXT) == null
-                                    || responseHeaders
-                                            .get(RequestInput.TS_STREAM_NEXT)
-                                            .equals("false"))) {
-                        logQueueTime();
-                    }
+                ServerCallStreamObserver<PredictionResponse> responseObserver =
+                        (ServerCallStreamObserver<PredictionResponse>) predictionResponseObserver;
+                cancelHandler(responseObserver);
+                PredictionResponse reply =
+                        PredictionResponse.newBuilder().setPrediction(output).build();
+                responseObserver.onNext(reply);
+                if (cmd == WorkerCommands.PREDICT
+                        || (cmd == WorkerCommands.STREAMPREDICT
+                                && responseHeaders
+                                        .get(RequestInput.TS_STREAM_NEXT)
+                                        .equals("false"))) {
+                    responseObserver.onCompleted();
+                    logQueueTime();
+                } else if (cmd == WorkerCommands.STREAMPREDICT2
+                        && (responseHeaders.get(RequestInput.TS_STREAM_NEXT) == null
+                                || responseHeaders
+                                        .get(RequestInput.TS_STREAM_NEXT)
+                                        .equals("false"))) {
+                    logQueueTime();
                 }
                 break;
             case DESCRIBE:
@@ -192,6 +160,36 @@ public class GRPCJob extends Job {
                     ManagementImpl.sendErrorResponse(
                             managementResponseObserver, Status.NOT_FOUND, e);
                 }
+                break;
+            case OIPPREDICT:
+                Gson gson = new Gson();
+                String jsonResponse = output.toStringUtf8();
+                JsonObject jsonObject = gson.fromJson(jsonResponse, JsonObject.class);
+                if (((ServerCallStreamObserver<ModelInferResponse>) modelInferResponseObserver)
+                        .isCancelled()) {
+                    logger.warn(
+                            "grpc client call already cancelled, not able to send this response for requestId: {}",
+                            getPayload().getRequestId());
+                    return;
+                }
+                ModelInferResponse.Builder responseBuilder = ModelInferResponse.newBuilder();
+                responseBuilder.setId(jsonObject.get("id").getAsString());
+                responseBuilder.setModelName(jsonObject.get("model_name").getAsString());
+                responseBuilder.setModelVersion(jsonObject.get("model_version").getAsString());
+                JsonArray jsonOutputs = jsonObject.get("outputs").getAsJsonArray();
+    
+                for (JsonElement element : jsonOutputs) {
+                    InferOutputTensor.Builder outputBuilder = InferOutputTensor.newBuilder();
+                    outputBuilder.setName(element.getAsJsonObject().get("name").getAsString());
+                    outputBuilder.setDatatype(element.getAsJsonObject().get("datatype").getAsString());
+                    JsonArray shapeArray = element.getAsJsonObject().get("shape").getAsJsonArray();
+                    shapeArray.forEach(shapeElement -> outputBuilder.addShape(shapeElement.getAsLong()));
+                    setOutputContents(element, outputBuilder);
+                    responseBuilder.addOutputs(outputBuilder);
+    
+                }
+                modelInferResponseObserver.onNext(responseBuilder.build());
+                modelInferResponseObserver.onCompleted();
                 break;
             default:
                 break;
@@ -238,6 +236,14 @@ public class GRPCJob extends Job {
                 break;
             case DESCRIBE:
                 managementResponseObserver.onError(
+                        responseStatus
+                                .withDescription(error)
+                                .augmentDescription(
+                                        "org.pytorch.serve.http.InternalServerException")
+                                .asRuntimeException());
+                break;
+            case OIPPREDICT:
+                modelInferResponseObserver.onError(
                         responseStatus
                                 .withDescription(error)
                                 .augmentDescription(
@@ -316,15 +322,5 @@ public class GRPCJob extends Job {
 
         }
         outputBuilder.setContents(inferTensorContents); // set output contents
-    }
-
-    private boolean isResponseStructureOIP(JsonObject jsonObject) {
-        if (jsonObject.has("id") &&
-                jsonObject.has("model_name") &&
-                jsonObject.has("model_version") &&
-                jsonObject.has("outputs")) {
-            return true;
-        }
-        return false;
     }
 }
