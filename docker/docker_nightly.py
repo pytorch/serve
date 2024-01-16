@@ -39,7 +39,7 @@ if __name__ == "__main__":
     # Build Nightly images and append the date in the name
     try_and_handle(f"./build_image.sh -n -t {organization}/{cpu_version}", dry_run)
     try_and_handle(
-        f"./build_image.sh -g -cv cu121 -t {organization}/{gpu_version}",
+        f"./build_image.sh -g -cv cu121 -n -t {organization}/{gpu_version}",
         dry_run,
     )
 
