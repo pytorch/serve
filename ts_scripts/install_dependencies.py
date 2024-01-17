@@ -95,6 +95,9 @@ class Common:
     def install_numactl(self):
         pass
 
+    def install_neuronx_driver(self):
+        pass
+
 
 class Linux(Common):
     def __init__(self):
@@ -124,6 +127,29 @@ class Linux(Common):
         if os.system("numactl --show") != 0 or args.force:
             os.system(f"{self.sudo_cmd}apt-get install -y numactl")
 
+    def install_neuronx_driver(self):
+        # Configure Linux for Neuron repository updates
+        os.system(
+            ". /etc/os-release\n"
+            + f"{self.sudo_cmd}tee /etc/apt/sources.list.d/neuron.list > /dev/null <<EOF\n"
+            + "deb https://apt.repos.neuron.amazonaws.com ${VERSION_CODENAME} main\n"
+            + "EOF\n"
+            + "wget -qO - https://apt.repos.neuron.amazonaws.com/GPG-PUB-KEY-AMAZON-AWS-NEURON.PUB | sudo apt-key add -"
+        )
+
+        # Update OS packages
+        os.system(f"{self.sudo_cmd}apt-get update -y")
+
+        # Install OS headers
+        os.system(f"{self.sudo_cmd}apt-get install -y linux-headers-$(uname -r)")
+
+        # install Neuron Driver
+        os.system(f"{self.sudo_cmd}apt-get install -y aws-neuronx-dkms")
+
+        # Install Neuron Runtime
+        os.system(f"{self.sudo_cmd}apt-get install -y aws-neuronx-collectives")
+        os.system(f"{self.sudo_cmd}apt-get install -y aws-neuronx-runtime-lib")
+
 
 class Windows(Common):
     def __init__(self):
@@ -140,6 +166,9 @@ class Windows(Common):
         pass
 
     def install_numactl(self):
+        pass
+
+    def install_neuronx_driver(self):
         pass
 
 
@@ -170,6 +199,9 @@ class Darwin(Common):
         if os.system("numactl --show") != 0 or args.force:
             os.system("brew install numactl")
 
+    def install_neuronx_driver(self):
+        pass
+
 
 def install_dependencies(cuda_version=None, nightly=False):
     os_map = {"Linux": Linux, "Windows": Windows, "Darwin": Darwin}
@@ -183,6 +215,9 @@ def install_dependencies(cuda_version=None, nightly=False):
 
     # Sequence of installation to be maintained
     system.install_java()
+
+    if args.neuronx:
+        system.install_neuronx_driver()
 
     requirements_file = "common.txt" if args.environment == "prod" else "developer.txt"
     requirements_file_path = os.path.join("requirements", requirements_file)
