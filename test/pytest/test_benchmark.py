@@ -29,6 +29,7 @@ def test_benchmark_e2e():
 
     assert output_lines[-1].decode("utf-8") == "Test suite execution complete.\n"
 
+    print(output_lines)
     assert len(output_lines) == 67
 
     report = report_file.read_text()
