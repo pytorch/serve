@@ -58,12 +58,10 @@ public class WorkerLifeCycleTest {
     public void testStartWorkerCppMnist()
             throws ModelException, IOException, DownloadArchiveException,
                     WorkerInitializationException, InterruptedException {
-        System.out.print("BAAAR: " + configManager.getModelStore());
         ModelArchive archiveMnist =
                 ModelArchive.downloadModel(
                         ALLOWED_URLS_LIST, configManager.getModelStore(), "mnist_scripted_cpp.mar");
         Model modelMnist = new Model(archiveMnist, 100);
-        System.out.print("FOOOOO: " + archiveMnist.getModelName());
         Assert.assertEquals(archiveMnist.getModelName(), "mnist_scripted_v2");
         Assert.assertEquals(archiveMnist.getModelVersion(), "2.0");
 
