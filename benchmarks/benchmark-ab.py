@@ -189,11 +189,6 @@ def execute(command, wait=False, stdout=None, stderr=None, shell=True):
     return cmd
 
 
-def execute_return_stdout(cmd):
-    proc = execute(cmd, stdout=PIPE)
-    return proc.communicate()[0].strip()
-
-
 def prepare_common_dependency(execution_params):
     input = execution_params["input"]
     shutil.rmtree(
