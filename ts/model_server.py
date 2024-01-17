@@ -48,7 +48,10 @@ def start() -> None:
             try:
                 parent = psutil.Process(pid)
                 parent.terminate()
-                os.remove(os.getcwd() + "/key_file.txt")
+                try:
+                    os.remove(os.getcwd() + "/key_file.txt")
+                except FileNotFoundError:
+                    print("Token authorization not enabled")
                 if args.foreground:
                     try:
                         parent.wait(timeout=60)

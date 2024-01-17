@@ -33,7 +33,7 @@ Torchserve offers various ways to customize the token authorization to allow own
 1. Time to expiration is set to default at 60 minutes but can be changed in the config.properties by adding `token_expiration`. Ex:`token_expiration=30`
 2. The token authorization code is consolidated in the plugin and thus can be changed without impacting the frontend or end result. The only thing the user cannot change is:
     1. The urlPattern for the plugin must be 'token' and the class name must not change
-    2. The `generateKeyFile`, `checkTokenAuthorization`, and `setTime` functions return type and signuture must not change. However, the code in the functions can be modified depending on user necessity.
+    2. The `generateKeyFile`, `checkTokenAuthorization`, and `setTime` functions return type and signature must not change. However, the code in the functions can be modified depending on user necessity.
 
 ## Notes
 1. DO NOT MODIFY THE KEY FILE. Modifying the key file might impact reading and writing to the file thus preventing new keys from properly being displayed in the file.
