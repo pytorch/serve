@@ -8,6 +8,9 @@ import org.pytorch.serve.util.NettyUtils;
 
 /** Register Model Request for Model server */
 public class RegisterModelRequest {
+    public static final Integer DEFAULT_BATCH_SIZE = 1;
+    public static final Integer DEFAULT_MAX_BATCH_DELAY = 100;
+
     @SerializedName("model_name")
     private String modelName;
 
@@ -42,15 +45,18 @@ public class RegisterModelRequest {
         modelName = NettyUtils.getParameter(decoder, "model_name", null);
         runtime = NettyUtils.getParameter(decoder, "runtime", null);
         handler = NettyUtils.getParameter(decoder, "handler", null);
-        batchSize = NettyUtils.getIntParameter(decoder, "batch_size", 1);
-        maxBatchDelay = NettyUtils.getIntParameter(decoder, "max_batch_delay", 100);
+        batchSize = NettyUtils.getIntParameter(decoder, "batch_size", -1 * DEFAULT_BATCH_SIZE);
+        maxBatchDelay =
+                NettyUtils.getIntParameter(
+                        decoder, "max_batch_delay", -1 * DEFAULT_MAX_BATCH_DELAY);
         initialWorkers =
                 NettyUtils.getIntParameter(
                         decoder,
                         "initial_workers",
                         ConfigManager.getInstance().getConfiguredDefaultWorkersPerModel());
         synchronous = Boolean.parseBoolean(NettyUtils.getParameter(decoder, "synchronous", "true"));
-        responseTimeout = NettyUtils.getIntParameter(decoder, "response_timeout", -1);
+        responseTimeout =
+                NettyUtils.getIntParameter(decoder, "response_timeout", -1 * DEFAULT_BATCH_SIZE);
         modelUrl = NettyUtils.getParameter(decoder, "url", null);
         s3SseKms = Boolean.parseBoolean(NettyUtils.getParameter(decoder, "s3_sse_kms", "false"));
     }
@@ -59,8 +65,10 @@ public class RegisterModelRequest {
         modelName = GRPCUtils.getRegisterParam(request.getModelName(), null);
         runtime = GRPCUtils.getRegisterParam(request.getRuntime(), null);
         handler = GRPCUtils.getRegisterParam(request.getHandler(), null);
-        batchSize = GRPCUtils.getRegisterParam(request.getBatchSize(), 1);
-        maxBatchDelay = GRPCUtils.getRegisterParam(request.getMaxBatchDelay(), 100);
+        batchSize = GRPCUtils.getRegisterParam(request.getBatchSize(), -1 * DEFAULT_BATCH_SIZE);
+        maxBatchDelay =
+                GRPCUtils.getRegisterParam(
+                        request.getMaxBatchDelay(), -1 * DEFAULT_MAX_BATCH_DELAY);
         initialWorkers =
                 GRPCUtils.getRegisterParam(
                         request.getInitialWorkers(),
@@ -72,8 +80,8 @@ public class RegisterModelRequest {
     }
 
     public RegisterModelRequest() {
-        batchSize = 1;
-        maxBatchDelay = 100;
+        batchSize = -1 * DEFAULT_BATCH_SIZE;
+        maxBatchDelay = -100 * DEFAULT_MAX_BATCH_DELAY;
         synchronous = true;
         initialWorkers = ConfigManager.getInstance().getConfiguredDefaultWorkersPerModel();
         responseTimeout = -1;

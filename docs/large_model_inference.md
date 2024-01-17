@@ -238,7 +238,11 @@ In this example, a model has 2 workers with job queue size 2. An inference reque
 TorchServe's inference API supports streaming response to allow a sequence of inference responses to be sent over HTTP 1.1 chunked encoding. This feature is only recommended for the use case when the inference latency of the full response is high and the inference intermediate results are sent to the client. An example could be LLMs for generative applications, where generating "n" number of tokens can have high latency. In this case,  the user can receive each generated token once ready until the full response completes. To achieve streaming response, the backend handler calls "send_intermediate_predict_response" to send one intermediate result to the frontend, and returns the last result as the existing style. For example,
 
 ```python
-from ts.protocol.otf_message_handler import send_intermediate_predict_response
+from ts.handler_utils.utils import send_intermediate_predict_response
+''' Note: TorchServe v1.0.0 will deprecate
+"from ts.protocol.otf_message_handler import send_intermediate_predict_response".
+Please replace it with "from ts.handler_utils.utils import send_intermediate_predict_response".
+'''
 def handle(data, context):
     if type(data) is list:
         for i in range (3):
@@ -284,7 +288,12 @@ service InferenceAPIsService {
 ```
 Backend handler calls "send_intermediate_predict_response" to send one intermediate result to frontend, and return the last result as the existing style. For example
 ```python
-from ts.protocol.otf_message_handler import send_intermediate_predict_response
+from ts.handler_utils.utils import send_intermediate_predict_response
+''' Note: TorchServe v1.0.0 will deprecate
+"from ts.protocol.otf_message_handler import send_intermediate_predict_response".
+Please replace it with "from ts.handler_utils.utils import send_intermediate_predict_response".
+'''
+
 
 def handle(data, context):
     if type(data) is list:
