@@ -15,6 +15,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import requests
+from testplans import update_plan_params
 
 default_ab_params = {
     "url": "https://torchserve.pytorch.org/mar_files/resnet-18.mar",
@@ -180,7 +181,7 @@ def benchmark(
     }
 
     # set ab params
-    update_plan_params[test_plan]()
+    update_plan_params[test_plan](execution_params)
     update_exec_params(input_params)
 
     click.secho("Starting AB benchmark suite...", fg="green")
@@ -708,75 +709,6 @@ def stop_torchserve():
         click.secho("*Removing benchmark container 'ts'...", fg="green")
         execute("docker rm -f ts", wait=True)
     click.secho("Apache Bench Execution completed.", fg="green")
-
-
-# Test plans (soak, vgg11_1000r_10c,  vgg11_10000r_100c,...)
-def soak():
-    execution_params["requests"] = 100000
-    execution_params["concurrency"] = 10
-
-
-def vgg11_1000r_10c():
-    execution_params["url"] = "https://torchserve.pytorch.org/mar_files/vgg11.mar"
-    execution_params["requests"] = 1000
-    execution_params["concurrency"] = 10
-
-
-def vgg11_10000r_100c():
-    execution_params["url"] = "https://torchserve.pytorch.org/mar_files/vgg11.mar"
-    execution_params["requests"] = 10000
-    execution_params["concurrency"] = 100
-
-
-def resnet152_batch():
-    execution_params[
-        "url"
-    ] = "https://torchserve.pytorch.org/mar_files/resnet-152-batch.mar"
-    execution_params["requests"] = 1000
-    execution_params["concurrency"] = 10
-    execution_params["batch_size"] = 4
-
-
-def resnet152_batch_docker():
-    execution_params[
-        "url"
-    ] = "https://torchserve.pytorch.org/mar_files/resnet-152-batch.mar"
-    execution_params["requests"] = 1000
-    execution_params["concurrency"] = 10
-    execution_params["batch_size"] = 4
-    execution_params["exec_env"] = "docker"
-
-
-def bert_batch():
-    execution_params[
-        "url"
-    ] = "https://torchserve.pytorch.org/mar_files/BERTSeqClassification.mar"
-    execution_params["requests"] = 1000
-    execution_params["concurrency"] = 10
-    execution_params["batch_size"] = 4
-    execution_params[
-        "input"
-    ] = "../examples/Huggingface_Transformers/Seq_classification_artifacts/sample_text.txt"
-
-
-def workflow_nmt():
-    pass
-
-
-def custom():
-    pass
-
-
-update_plan_params = {
-    "soak": soak,
-    "vgg11_1000r_10c": vgg11_1000r_10c,
-    "vgg11_10000r_100c": vgg11_10000r_100c,
-    "resnet152_batch": resnet152_batch,
-    "resnet152_batch_docker": resnet152_batch_docker,
-    "bert_batch": bert_batch,
-    "workflow_nmt": workflow_nmt,
-    "custom": custom,
-}
 
 
 def failure_exit(msg):
