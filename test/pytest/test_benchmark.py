@@ -34,3 +34,6 @@ def test_benchmark_e2e():
     report = report_file.read_text()
 
     assert report.count(",") == 58
+
+    report.split(",")[7] == "Requests"
+    report.split("\n")[1].split(",")[7] == "10"

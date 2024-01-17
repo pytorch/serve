@@ -17,29 +17,7 @@ import pandas as pd
 import requests
 from testplans import update_plan_params
 
-default_ab_params = {
-    "url": "https://torchserve.pytorch.org/mar_files/resnet-18.mar",
-    "gpus": "",
-    "exec_env": "local",
-    "batch_size": 1,
-    "batch_delay": 200,
-    "workers": 1,
-    "concurrency": 10,
-    "requests": 100,
-    "input": "../examples/image_classifier/kitten.jpg",
-    "content_type": "application/jpg",
-    "image": "",
-    "docker_runtime": "",
-    "backend_profiling": False,
-    "handler_profiling": False,
-    "generate_graphs": False,
-    "config_properties": "config.properties",
-    "inference_model_url": "predictions/benchmark",
-    "report_location": tempfile.gettempdir(),
-    "tmp_dir": tempfile.gettempdir(),
-}
-
-execution_params = default_ab_params.copy()
+execution_params = {}
 
 
 def json_provider(file_path, cmd_name):
@@ -136,49 +114,8 @@ def json_provider(file_path, cmd_name):
 @click_config_file.configuration_option(
     provider=json_provider, implicit=False, help="Read configuration from a JSON file"
 )
-def benchmark(
-    test_plan,
-    url,
-    gpus,
-    exec_env,
-    concurrency,
-    requests,
-    batch_size,
-    batch_delay,
-    input,
-    workers,
-    content_type,
-    image,
-    docker_runtime,
-    backend_profiling,
-    handler_profiling,
-    config_properties,
-    inference_model_url,
-    report_location,
-    tmp_dir,
-    generate_graphs,
-):
-    input_params = {
-        "url": url,
-        "gpus": gpus,
-        "exec_env": exec_env,
-        "batch_size": batch_size,
-        "batch_delay": batch_delay,
-        "workers": workers,
-        "concurrency": concurrency,
-        "requests": requests,
-        "input": input,
-        "content_type": content_type,
-        "image": image,
-        "docker_runtime": docker_runtime,
-        "backend_profiling": backend_profiling,
-        "handler_profiling": handler_profiling,
-        "config_properties": config_properties,
-        "inference_model_url": inference_model_url,
-        "report_location": report_location,
-        "tmp_dir": tmp_dir,
-        "generate_graphs": generate_graphs,
-    }
+def benchmark(test_plan, **input_params):
+    execution_params = input_params.copy()
 
     # set ab params
     update_plan_params[test_plan](execution_params)
@@ -443,9 +380,8 @@ def getAPIS():
 
 
 def update_exec_params(input_param):
-    for k, v in input_param.items():
-        if default_ab_params[k] != input_param[k]:
-            execution_params[k] = input_param[k]
+    execution_params.update(input_param)
+
     execution_params["result_file"] = os.path.join(
         execution_params["tmp_dir"], "benchmark", "result.txt"
     )
