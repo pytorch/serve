@@ -2,6 +2,7 @@ package org.pytorch.serve.wlm;
 
 import static org.pytorch.serve.archive.model.Manifest.RuntimeType.LSP;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
@@ -10,6 +11,7 @@ import org.pytorch.serve.archive.model.ModelArchive;
 import org.pytorch.serve.archive.model.ModelException;
 import org.pytorch.serve.util.ConfigManager;
 import org.testng.Assert;
+import org.testng.SkipException;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 
@@ -57,7 +59,7 @@ public class WorkerLifeCycleTest {
     @Test
     public void testStartWorkerCppMnist()
             throws ModelException, IOException, DownloadArchiveException,
-                    WorkerInitializationException, InterruptedException {
+                    WorkerInitializationException, InterruptedException, SkipException {
         ModelArchive archiveMnist =
                 ModelArchive.downloadModel(
                         ALLOWED_URLS_LIST, configManager.getModelStore(), "mnist_scripted_cpp.mar");
@@ -72,6 +74,13 @@ public class WorkerLifeCycleTest {
                         Model.RUNTIME_TYPE,
                         archiveMnist.getManifest().getRuntime()));
         Assert.assertEquals(modelMnist.getRuntimeType().getValue(), LSP.getValue());
+
+        File workingDir = new File(configManager.getModelServerHome());
+        File workerPath = new File(workingDir, "ts/cpp/bin/model_worker_socket");
+
+        if (!workerPath.exists()) {
+            throw new SkipException("Cpp worker not found. Skipping this test!");
+        }
 
         WorkerLifeCycle workerLifeCycleMnist = new WorkerLifeCycle(configManager, modelMnist);
         workerLifeCycleMnist.startWorker(configManager.getInitialWorkerPort(), "");
