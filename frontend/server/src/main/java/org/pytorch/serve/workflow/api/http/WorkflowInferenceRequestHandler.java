@@ -81,8 +81,6 @@ public class WorkflowInferenceRequestHandler extends HttpRequestHandlerChain {
             throws ModelException, DownloadArchiveException, WorkflowException,
                     WorkerInitializationException {
 
-        ConfigManager configManager = ConfigManager.getInstance();
-        configManager.checkTokenAuthorization(req, true);
         if ("wfpredict".equalsIgnoreCase(segments[1])) {
             if (segments.length < 3) {
                 throw new ResourceNotFoundException();

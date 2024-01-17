@@ -60,12 +60,11 @@ public class InferenceRequestHandler extends HttpRequestHandlerChain {
             throws ModelException, DownloadArchiveException, WorkflowException,
                     WorkerInitializationException {
         ConfigManager configManager = ConfigManager.getInstance();
+        configManager.checkTokenAuthorization(req, 2);
         if (isInferenceReq(segments)) {
             if (endpointMap.getOrDefault(segments[1], null) != null) {
-                configManager.checkTokenAuthorization(req, false);
                 handleCustomEndpoint(ctx, req, segments, decoder);
             } else {
-                configManager.checkTokenAuthorization(req, true);
                 switch (segments[1]) {
                     case "ping":
                         Runnable r =

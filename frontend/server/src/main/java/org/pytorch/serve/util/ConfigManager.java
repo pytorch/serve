@@ -3,13 +3,13 @@ package org.pytorch.serve.util;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.net.InetAddress;
@@ -28,8 +28,6 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
-import java.time.DateTimeException;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
@@ -41,7 +39,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -50,7 +47,6 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.io.IOUtils;
 import org.pytorch.serve.archive.model.InvalidKeyException;
-import org.pytorch.serve.archive.model.KeyTimeOutException;
 import org.pytorch.serve.archive.model.ModelException;
 import org.pytorch.serve.metrics.MetricBuilder;
 import org.pytorch.serve.servingsdk.snapshot.SnapshotSerializer;
@@ -113,6 +109,7 @@ public final class ConfigManager {
     private static final String TS_INITIAL_WORKER_PORT = "initial_worker_port";
     private static final String TS_INITIAL_DISTRIBUTION_PORT = "initial_distribution_port";
     private static final String TS_WORKFLOW_STORE = "workflow_store";
+    private static final String TS_TOKEN_EXPIRATION_TIME = "token_expiration"; // minutes
 
     // Configuration which are not documented or enabled through environment variables
     private static final String USE_NATIVE_IO = "use_native_io";
@@ -157,7 +154,10 @@ public final class ConfigManager {
 
     private SecureRandom secureRandom = new SecureRandom();
     private Base64.Encoder baseEncoder = Base64.getUrlEncoder();
-    public String keyFileLocation;
+    private boolean tokenAuthorizationEnabled;
+    private Class<?> tokenClass;
+    private Object tokenObject;
+    private Integer timeToExpiration = 60;
 
     private ConfigManager(Arguments args) throws IOException {
         prop = new Properties();
@@ -850,100 +850,93 @@ public final class ConfigManager {
         return snapshotDisabled;
     }
 
-    public boolean isTokenExpired(Instant expirationTime) {
-        return !(Instant.now().isBefore(expirationTime));
-    }
-
-    public String generateToken() {
-        byte[] randomBytes = new byte[6];
-        secureRandom.nextBytes(randomBytes);
-        return baseEncoder.encodeToString(randomBytes);
-    }
-
-    public boolean generateKeyFile() throws IOException {
-        String fileData = " ";
-        String absoluteFilePath = getCanonicalPath(".") + "/key_file.txt";
-        keyFileLocation = absoluteFilePath;
-        File file = new File(absoluteFilePath);
-        if (!file.createNewFile() && !file.exists()) {
-            return false;
-        }
-        Integer timeToExpiration = 30; // in minutes
-        fileData =
-                "Management Key: "
-                        + generateToken()
-                        + "\n"
-                        + "Inference Key: "
-                        + generateToken()
-                        + " --- Expiration time: "
-                        + Instant.now().plusSeconds(TimeUnit.MINUTES.toSeconds(timeToExpiration))
-                        + "\n";
-        Files.write(Paths.get("key_file.txt"), fileData.getBytes());
-        return true;
-    }
-
-    public List<String> parseFile(File tsTokenFile) {
-        List<String> parsedTokens = new ArrayList<>();
+    // Imports the token class and sets the expiration time either default or custom
+    // calls generate key file in token api to create 3 keys and logs the result
+    public void setupTokenClass() {
         try {
-            InputStream stream = Files.newInputStream(tsTokenFile.toPath());
-            byte[] array = new byte[100];
-            stream.read(array);
-            String data = new String(array);
-            String[] arrOfData = data.split("\n", 2);
-            String[] managementArr = arrOfData[0].split(" ", 3);
-            String[] inferenceArr = arrOfData[1].split(" ", 7);
-            parsedTokens.add(managementArr[2]);
-            parsedTokens.add(inferenceArr[2]);
-            String[] expirationArr = inferenceArr[6].split("\n", 2);
-            parsedTokens.add(expirationArr[0]);
-        } catch (IOException | ArrayIndexOutOfBoundsException e) {
-            System.out.println("Unable to read key file or key file has been modified");
-            return null;
+            tokenClass = Class.forName("org.pytorch.serve.plugins.endpoint.Token");
+            tokenObject = tokenClass.getDeclaredConstructor().newInstance();
+            Method method = tokenClass.getMethod("setTime", Integer.class);
+            if (prop.getProperty(TS_TOKEN_EXPIRATION_TIME) != null) {
+                timeToExpiration = Integer.valueOf(prop.getProperty(TS_TOKEN_EXPIRATION_TIME));
+            }
+            method.invoke(tokenObject, timeToExpiration);
+            method = tokenClass.getMethod("generateKeyFile", Integer.class);
+            if ((boolean) method.invoke(tokenObject, 0)) {
+                System.out.println("TOKEN CLASS IMPORTED SUCCESSFULLY");
+                dumpKeyLogs();
+            }
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (NoSuchMethodException
+                | IllegalAccessException
+                | InstantiationException
+                | InvocationTargetException e) {
+            e.printStackTrace();
         }
-        return parsedTokens;
+        tokenAuthorizationEnabled = true;
     }
 
-    public void checkTokenAuthorization(FullHttpRequest req, boolean inferenceRequest)
-            throws ModelException {
-        HttpMethod method = req.method();
-        String filePath = keyFileLocation;
-        if (filePath != null) {
-            File tsTokenFile = new File(filePath);
-            if (tsTokenFile.exists()) {
-                List<String> parsedTokens = parseFile(tsTokenFile);
-                String managementToken = parsedTokens.get(0);
-                String inferenceToken = parsedTokens.get(1);
-                Instant expirationTime = Instant.now();
-                try {
-                    expirationTime = Instant.parse(parsedTokens.get(2));
-                } catch (DateTimeException e) {
-                    e.printStackTrace();
-                    System.out.println("{\n\t\"Error\": Key File has been modified \n}\n");
-                }
-                String tokenBearer = req.headers().get("Authorization");
-                if (tokenBearer == null) {
-                    throw new InvalidKeyException("NO TOKEN PROVIDED");
-                }
-                String[] arrOfStr = tokenBearer.split(" ", 2);
-                if (arrOfStr.length == 1) {
-                    throw new InvalidKeyException("NO TOKEN PROVIDED");
-                }
-                String token = arrOfStr[1];
-                String key = managementToken;
-                if (inferenceRequest) {
-                    key = inferenceToken;
-                }
+    public void dumpKeyLogs() {
+        String managementKey = "";
+        String inferenceKey = "";
+        String apiKey = "";
+        try {
+            Method method = tokenClass.getMethod("getManagementKey");
+            managementKey = (String) method.invoke(tokenObject);
+            method = tokenClass.getMethod("getInferenceKey");
+            inferenceKey = (String) method.invoke(tokenObject);
+            method = tokenClass.getMethod("getKey");
+            apiKey = (String) method.invoke(tokenObject);
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            e.printStackTrace();
+        }
 
-                if (token.equals(key)) {
-                    if (isTokenExpired(expirationTime) && inferenceRequest) {
-                        throw new KeyTimeOutException("THE CURRENT TOKEN IS EXPIRED");
-                    }
-                    System.out.println("TOKEN AUTHORIZATION WORKED");
-                } else {
-                    throw new InvalidKeyException("TOKEN IS INCORRECT ");
+        logger.info("KEY FILE PATH: " + System.getProperty("user.dir") + "/key_file.txt");
+        logger.info("MANAGEMENT KEY: " + managementKey);
+        logger.info("INFERNCE KEY: " + inferenceKey);
+        logger.info("API KEY: " + apiKey);
+        logger.info(
+                "MANAGEMENT API Example: curl http://localhost:8081/models/<model> -H \"Authorization: Bearer "
+                        + managementKey
+                        + "\"");
+        logger.info(
+                "INFERNCE API Example: curl http://127.0.0.1:8080/predictions/<model> -T <examples/image_classifier/kitten.jpg> -H \"Authorization: Bearer "
+                        + inferenceKey
+                        + "\"");
+        logger.info(
+                "API API Example: curl localhost:8081/token?type=management -H \"Authorization: Bearer "
+                        + apiKey
+                        + "\"");
+    }
+
+    public boolean isTokenEnabled() {
+        return tokenAuthorizationEnabled;
+    }
+
+    // Calls the checkTokenAuthorization function in the token plugin
+    // expects two inputs: the fullhttpRequest and an integer which is associated with the type
+    // 0: token api
+    // 1: management api
+    // 2: inference api
+    public void checkTokenAuthorization(FullHttpRequest req, Integer requestType)
+            throws ModelException {
+
+        if (tokenAuthorizationEnabled) {
+            try {
+                Method method =
+                        tokenClass.getMethod(
+                                "checkTokenAuthorization",
+                                io.netty.handler.codec.http.FullHttpRequest.class,
+                                Integer.class);
+                boolean result = (boolean) (method.invoke(tokenObject, req, requestType));
+                if (!result) {
+                    throw new InvalidKeyException(
+                            "Token Authenticaation failed. Token either incorrect, expired, or not provided correctly");
                 }
-            } else {
-                System.out.println("TOKEN AUTHORIZATION IS NOT ENABLED");
+                System.out.println("TOKEN AUTHORIZATION WORKED");
+            } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+                e.printStackTrace();
             }
         }
     }

@@ -63,11 +63,14 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
             throws ModelException, DownloadArchiveException, WorkflowException,
                     WorkerInitializationException {
         ConfigManager configManager = ConfigManager.getInstance();
-        configManager.checkTokenAuthorization(req, false);
         if (isManagementReq(segments)) {
             if (endpointMap.getOrDefault(segments[1], null) != null) {
+                if (req.toString().contains("/token")) {
+                    configManager.checkTokenAuthorization(req, 0);
+                }
                 handleCustomEndpoint(ctx, req, segments, decoder);
             } else {
+                configManager.checkTokenAuthorization(req, 1);
                 if (!"models".equals(segments[1])) {
                     throw new ResourceNotFoundException();
                 }
