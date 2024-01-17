@@ -121,47 +121,27 @@ def benchmark(test_plan, **input_params):
     click.secho(f"{execution_params}", fg="blue")
 
     prepare_common_dependency(execution_params)
-    # Setup execution env
-    if execution_params["exec_env"] == "local":
-        click.secho("\n\nPreparing local execution...", fg="green")
-        torchserve = LocalTorchServe(execution_params)
-    else:
-        click.secho("\n\nPreparing docker execution...", fg="green")
-        torchserve = DockerTorchServe(execution_params)
+
+    torchserve = create_system_under_test(execution_params)
 
     torchserve.start()
 
     torchserve.check_health()
+
+    torchserve.register_model()
+
     warm_up_lines = warm_up(execution_params)
     run_benchmark(execution_params)
+
+    torchserve.unregister_model()
+
     torchserve.stop()
     click.secho("Apache Bench Execution completed.", fg="green")
 
     generate_report(execution_params, warm_up_lines=warm_up_lines)
 
 
-def check_torchserve_health(execution_params):
-    attempts = 3
-    retry = 0
-    click.secho("*Testing system health...", fg="green")
-    while retry < attempts:
-        try:
-            resp = requests.get(execution_params["inference_url"] + "/ping")
-            if resp.status_code == 200:
-                click.secho(resp.text)
-                return True
-        except Exception as e:
-            retry += 1
-            time.sleep(3)
-    failure_exit(
-        "Could not connect to Torchserve instance at "
-        + execution_params["inference_url"]
-    )
-
-
 def warm_up(execution_params):
-    register_model(execution_params)
-
     if is_workflow(execution_params["url"]):
         execution_params["inference_model_url"] = "wfpredict/benchmark"
 
@@ -192,49 +172,6 @@ def run_benchmark(execution_params):
         f"{execution_params['result_file']}"
     )
     execute(ab_cmd, wait=True)
-
-    unregister_model(execution_params)
-
-
-def register_model(execution_params):
-    click.secho("*Registering model...", fg="green")
-    if is_workflow(execution_params["url"]):
-        url = execution_params["management_url"] + "/workflows"
-        data = {
-            "workflow_name": "benchmark",
-            "url": execution_params["url"],
-            "batch_delay": execution_params["batch_delay"],
-            "batch_size": execution_params["batch_size"],
-            "initial_workers": execution_params["workers"],
-            "synchronous": "true",
-        }
-    else:
-        url = execution_params["management_url"] + "/models"
-        data = {
-            "model_name": "benchmark",
-            "url": execution_params["url"],
-            "batch_delay": execution_params["batch_delay"],
-            "batch_size": execution_params["batch_size"],
-            "initial_workers": execution_params["workers"],
-            "synchronous": "true",
-        }
-    resp = requests.post(url, params=data)
-    if not resp.status_code == 200:
-        failure_exit(f"Failed to register model.\n{resp.text}")
-    click.secho(resp.text)
-
-
-def unregister_model(execution_params):
-    click.secho("*Unregistering model ...", fg="green")
-    if is_workflow(execution_params["url"]):
-        resp = requests.delete(
-            execution_params["management_url"] + "/workflows/benchmark"
-        )
-    else:
-        resp = requests.delete(execution_params["management_url"] + "/models/benchmark")
-    if not resp.status_code == 200:
-        failure_exit(f"Failed to unregister model. \n {resp.text}")
-    click.secho(resp.text)
 
 
 def execute(command, wait=False, stdout=None, stderr=None, shell=True):
@@ -318,14 +255,14 @@ def update_exec_params(execution_params, input_param):
     getAPIS(execution_params)
 
 
-def failure_exit(msg):
-    click.secho(f"{msg}", fg="red")
-    click.secho("Test suite terminated due to above failure", fg="red")
-    sys.exit()
-
-
-def is_workflow(model_url):
-    return model_url.endswith(".war")
+def create_system_under_test(execution_params):
+    # Setup execution env
+    if execution_params["exec_env"] == "local":
+        click.secho("\n\nPreparing local execution...", fg="green")
+        return LocalTorchServeUnderTest(execution_params)
+    else:
+        click.secho("\n\nPreparing docker execution...", fg="green")
+        return DockerTorchServeUnderTest(execution_params)
 
 
 class SystemUnderTest(ABC):
@@ -337,6 +274,14 @@ class SystemUnderTest(ABC):
         raise NotImplementedError
 
     @abstractmethod
+    def register_model(self):
+        raise NotImplementedError
+
+    @abstractmethod
+    def unregister_model(self):
+        raise NotImplementedError
+
+    @abstractmethod
     def check_health(self):
         raise NotImplementedError
 
@@ -345,10 +290,56 @@ class SystemUnderTest(ABC):
         raise NotImplementedError
 
 
-class LocalTorchServe(SystemUnderTest):
+class TorchServeUnderTest(SystemUnderTest):
     def __init__(self, execution_params):
         self.execution_params = execution_params
 
+    def register_model(self):
+        click.secho("*Registering model...", fg="green")
+        if is_workflow(self.execution_params["url"]):
+            url = self.execution_params["management_url"] + "/workflows"
+            data = {
+                "workflow_name": "benchmark",
+                "url": self.execution_params["url"],
+                "batch_delay": self.execution_params["batch_delay"],
+                "batch_size": self.execution_params["batch_size"],
+                "initial_workers": self.execution_params["workers"],
+                "synchronous": "true",
+            }
+        else:
+            url = self.execution_params["management_url"] + "/models"
+            data = {
+                "model_name": "benchmark",
+                "url": self.execution_params["url"],
+                "batch_delay": self.execution_params["batch_delay"],
+                "batch_size": self.execution_params["batch_size"],
+                "initial_workers": self.execution_params["workers"],
+                "synchronous": "true",
+            }
+        resp = requests.post(url, params=data)
+        if not resp.status_code == 200:
+            failure_exit(f"Failed to register model.\n{resp.text}")
+        click.secho(resp.text)
+
+    def unregister_model(self):
+        click.secho("*Unregistering model ...", fg="green")
+        if is_workflow(self.execution_params["url"]):
+            resp = requests.delete(
+                self.execution_params["management_url"] + "/workflows/benchmark"
+            )
+        else:
+            resp = requests.delete(
+                self.execution_params["management_url"] + "/models/benchmark"
+            )
+        if not resp.status_code == 200:
+            failure_exit(f"Failed to unregister model. \n {resp.text}")
+        click.secho(resp.text)
+
+    def check_health(self):
+        check_torchserve_health(self.execution_params)
+
+
+class LocalTorchServeUnderTest(TorchServeUnderTest):
     def start(self):
         click.secho("*Terminating any existing Torchserve instance ...", fg="green")
         execute("torchserve --stop", wait=True)
@@ -379,9 +370,6 @@ class LocalTorchServe(SystemUnderTest):
         click.secho("*Terminating Torchserve instance...", fg="green")
         execute("torchserve --stop", wait=True)
 
-    def check_health(self):
-        check_torchserve_health(self.execution_params)
-
     def _prepare_local_dependency(self):
         shutil.rmtree(
             os.path.join(self.execution_params["tmp_dir"], "model_store/"),
@@ -400,10 +388,7 @@ class LocalTorchServe(SystemUnderTest):
         )
 
 
-class DockerTorchServe(SystemUnderTest):
-    def __init__(self, execution_params):
-        self.execution_params = execution_params
-
+class DockerTorchServeUnderTest(TorchServeUnderTest):
     def start(self):
         enable_gpu = ""
         if self.execution_params["image"]:
@@ -447,8 +432,34 @@ class DockerTorchServe(SystemUnderTest):
         click.secho("*Removing benchmark container 'ts'...", fg="green")
         execute("docker rm -f ts", wait=True)
 
-    def check_health(self):
-        check_torchserve_health(self.execution_params)
+
+def check_torchserve_health(execution_params):
+    attempts = 3
+    retry = 0
+    click.secho("*Testing system health...", fg="green")
+    while retry < attempts:
+        try:
+            resp = requests.get(execution_params["inference_url"] + "/ping")
+            if resp.status_code == 200:
+                click.secho(resp.text)
+                return True
+        except Exception as e:
+            retry += 1
+            time.sleep(3)
+    failure_exit(
+        "Could not connect to Torchserve instance at "
+        + execution_params["inference_url"]
+    )
+
+
+def failure_exit(msg):
+    click.secho(f"{msg}", fg="red")
+    click.secho("Test suite terminated due to above failure", fg="red")
+    sys.exit()
+
+
+def is_workflow(model_url):
+    return model_url.endswith(".war")
 
 
 if __name__ == "__main__":
