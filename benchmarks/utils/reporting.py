@@ -15,7 +15,6 @@ def generate_report(execution_params, warm_up_lines):
     if execution_params["generate_graphs"]:
         generate_latency_graph(execution_params)
         generate_profile_graph(execution_params)
-    click.secho("\nTest suite execution complete.", fg="green")
 
 
 metrics = {

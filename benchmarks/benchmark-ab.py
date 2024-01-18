@@ -135,10 +135,10 @@ def benchmark(test_plan, **input_params):
 
     torchserve.unregister_model()
     torchserve.stop()
-
     click.secho("Apache Bench Execution completed.", fg="green")
 
     benchmark.generate_report()
+    click.secho("\nTest suite execution complete.", fg="green")
 
 
 def create_system_under_test(execution_params):
