@@ -10,35 +10,11 @@ import pandas as pd
 
 def generate_report(execution_params, warm_up_lines):
     click.secho("\n\nGenerating Reports...", fg="green")
-    extract_metrics(execution_params, warm_up_lines=warm_up_lines)
-    generate_csv_output(execution_params)
+    metrics = extract_metrics(execution_params, warm_up_lines=warm_up_lines)
+    generate_csv_output(execution_params, metrics)
     if execution_params["generate_graphs"]:
         generate_latency_graph(execution_params)
-        generate_profile_graph(execution_params)
-
-
-metrics = {
-    "predict.txt": "PredictionTime",
-    "handler_time.txt": "HandlerTime",
-    "waiting_time.txt": "QueueTime",
-    "worker_thread.txt": "WorkerThreadTime",
-    "cpu_percentage.txt": "CPUUtilization",
-    "memory_percentage.txt": "MemoryUtilization",
-    "gpu_percentage.txt": "GPUUtilization",
-    "gpu_memory_percentage.txt": "GPUMemoryUtilization",
-    "gpu_memory_used.txt": "GPUMemoryUsed",
-}
-
-
-def update_metrics(execution_params):
-    if execution_params["handler_profiling"]:
-        opt_metrics = {
-            "handler_preprocess.txt": "ts_handler_preprocess",
-            "handler_inference.txt": "ts_handler_inference",
-            "handler_postprocess.txt": "ts_handler_postprocess",
-        }
-        metrics.update(opt_metrics)
-    return metrics
+        generate_profile_graph(execution_params, metrics)
 
 
 def extract_metrics(execution_params, warm_up_lines):
@@ -48,7 +24,19 @@ def extract_metrics(execution_params, warm_up_lines):
     click.secho(f"Dropping {warm_up_lines} warmup lines from log", fg="green")
     lines = lines[warm_up_lines:]
 
-    metrics = update_metrics(execution_params)
+    metrics = {
+        "predict.txt": "PredictionTime",
+        "handler_time.txt": "HandlerTime",
+        "waiting_time.txt": "QueueTime",
+        "worker_thread.txt": "WorkerThreadTime",
+        "cpu_percentage.txt": "CPUUtilization",
+        "memory_percentage.txt": "MemoryUtilization",
+        "gpu_percentage.txt": "GPUUtilization",
+        "gpu_memory_percentage.txt": "GPUMemoryUtilization",
+        "gpu_memory_used.txt": "GPUMemoryUsed",
+    }
+
+    update_metrics(execution_params, metrics)
 
     for k, v in metrics.items():
         all_lines = []
@@ -63,8 +51,20 @@ def extract_metrics(execution_params, warm_up_lines):
             all_lines = map(lambda x: x + "\n", all_lines)
             outf.writelines(all_lines)
 
+    return metrics
 
-def generate_csv_output(execution_params):
+
+def update_metrics(execution_params, metrics):
+    if execution_params["handler_profiling"]:
+        opt_metrics = {
+            "handler_preprocess.txt": "ts_handler_preprocess",
+            "handler_inference.txt": "ts_handler_inference",
+            "handler_postprocess.txt": "ts_handler_postprocess",
+        }
+        metrics.update(opt_metrics)
+
+
+def generate_csv_output(execution_params, metrics):
     click.secho("*Generating CSV output...", fg="green")
 
     artifacts = {}
@@ -78,7 +78,7 @@ def generate_csv_output(execution_params):
     artifacts["Requests"] = execution_params["requests"]
 
     benchmark_artifacts = extract_benchmark_artifacts(execution_params)
-    torchserve_artifacts = extract_torchserve_artifacts(execution_params)
+    torchserve_artifacts = extract_torchserve_artifacts(execution_params, metrics)
 
     artifacts.update(benchmark_artifacts)
     artifacts.update(torchserve_artifacts)
@@ -118,7 +118,7 @@ def extract_benchmark_artifacts(execution_params):
     return artifacts
 
 
-def extract_torchserve_artifacts(execution_params):
+def extract_torchserve_artifacts(execution_params, metrics):
     batched_requests = execution_params["requests"] / execution_params["batch_size"]
     line50 = int(batched_requests / 2)
     line90 = int(batched_requests * 9 / 10)
@@ -188,7 +188,7 @@ def generate_latency_graph(execution_params):
     plt.savefig(f"{execution_params['report_location']}/benchmark/predict_latency.png")
 
 
-def generate_profile_graph(execution_params):
+def generate_profile_graph(execution_params, metrics):
     click.secho("*Preparing Profile graphs...", fg="green")
 
     plot_data = {}
