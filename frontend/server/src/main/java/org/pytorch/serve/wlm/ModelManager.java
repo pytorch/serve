@@ -365,6 +365,12 @@ public final class ModelManager {
         }
         model.setResponseTimeout(responseTimeout);
         model.setWorkflowModel(isWorkflowModel);
+        model.setRuntimeType(
+                configManager.getJsonRuntimeTypeValue(
+                        archive.getModelName(),
+                        archive.getModelVersion(),
+                        Model.RUNTIME_TYPE,
+                        archive.getManifest().getRuntime()));
 
         return model;
     }
