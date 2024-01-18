@@ -11,7 +11,7 @@ REPO_ROOT_DIR = CURR_FILE_PATH.parents[1]
 
 def dependencies_available():
     try:
-        pass
+        import click  # noqa
     except:
         return False
     return os.system("ab -V") == 0
