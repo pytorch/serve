@@ -3,13 +3,13 @@ package org.pytorch.serve.util;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.net.InetAddress;
@@ -28,8 +28,6 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
-import java.time.DateTimeException;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
@@ -41,7 +39,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -56,7 +53,6 @@ import org.pytorch.serve.servingsdk.snapshot.SnapshotSerializer;
 import org.pytorch.serve.snapshot.SnapshotSerializerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.reflect.*;
 
 public final class ConfigManager {
     // Variables that can be configured through config.properties and Environment Variables
@@ -162,7 +158,6 @@ public final class ConfigManager {
     private Class<?> tokenClass;
     private Object tokenObject;
     private Integer timeToExpiration = 60;
-
 
     private ConfigManager(Arguments args) throws IOException {
         prop = new Properties();
@@ -855,15 +850,14 @@ public final class ConfigManager {
         return snapshotDisabled;
     }
 
-
     // Imports the token class and sets the expiration time either default or custom
     // calls generate key file in token api to create 3 keys and logs the result
-    public void setupTokenClass(){
+    public void setupTokenClass() {
         try {
             tokenClass = Class.forName("org.pytorch.serve.plugins.endpoint.Token");
             tokenObject = tokenClass.getDeclaredConstructor().newInstance();
             Method method = tokenClass.getMethod("setTime", Integer.class);
-            if (prop.getProperty(TS_TOKEN_EXPIRATION_TIME) != null){
+            if (prop.getProperty(TS_TOKEN_EXPIRATION_TIME) != null) {
                 timeToExpiration = Integer.valueOf(prop.getProperty(TS_TOKEN_EXPIRATION_TIME));
             }
             method.invoke(tokenObject, timeToExpiration);
@@ -872,16 +866,18 @@ public final class ConfigManager {
                 System.out.println("TOKEN CLASS IMPORTED SUCCESSFULLY");
                 dumpKeyLogs();
             }
-        }
-        catch (ClassNotFoundException e) {
+        } catch (ClassNotFoundException e) {
             e.printStackTrace();
-        } catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
+        } catch (NoSuchMethodException
+                | IllegalAccessException
+                | InstantiationException
+                | InvocationTargetException e) {
             e.printStackTrace();
         }
         tokenAuthorizationEnabled = true;
     }
 
-    public void dumpKeyLogs(){
+    public void dumpKeyLogs() {
         String managementKey = "";
         String inferenceKey = "";
         String apiKey = "";
@@ -900,13 +896,21 @@ public final class ConfigManager {
         logger.info("MANAGEMENT KEY: " + managementKey);
         logger.info("INFERNCE KEY: " + inferenceKey);
         logger.info("API KEY: " + apiKey);
-        logger.info("MANAGEMENT API Example: curl http://localhost:8081/models/<model> -H \"Authorization: Bearer " + managementKey+"\"");
-        logger.info("INFERNCE API Example: curl http://127.0.0.1:8080/predictions/<model> -T <examples/image_classifier/kitten.jpg> -H \"Authorization: Bearer " + inferenceKey + "\"");
-        logger.info("API API Example: curl localhost:8081/token?type=management -H \"Authorization: Bearer " + apiKey + "\"");
-
+        logger.info(
+                "MANAGEMENT API Example: curl http://localhost:8081/models/<model> -H \"Authorization: Bearer "
+                        + managementKey
+                        + "\"");
+        logger.info(
+                "INFERNCE API Example: curl http://127.0.0.1:8080/predictions/<model> -T <examples/image_classifier/kitten.jpg> -H \"Authorization: Bearer "
+                        + inferenceKey
+                        + "\"");
+        logger.info(
+                "API API Example: curl localhost:8081/token?type=management -H \"Authorization: Bearer "
+                        + apiKey
+                        + "\"");
     }
 
-    public boolean isTokenEnabled(){
+    public boolean isTokenEnabled() {
         return tokenAuthorizationEnabled;
     }
 
@@ -918,15 +922,20 @@ public final class ConfigManager {
     public void checkTokenAuthorization(FullHttpRequest req, Integer requestType)
             throws ModelException {
 
-        if (tokenAuthorizationEnabled){
+        if (tokenAuthorizationEnabled) {
             try {
-                Method method = tokenClass.getMethod("checkTokenAuthorization", io.netty.handler.codec.http.FullHttpRequest.class, Integer.class);
-                boolean result = (boolean)(method.invoke(tokenObject, req, requestType));
-                if (!result){
-                    throw new InvalidKeyException("Token Authenticaation failed. Token either incorrect, expired, or not provided correctly");
+                Method method =
+                        tokenClass.getMethod(
+                                "checkTokenAuthorization",
+                                io.netty.handler.codec.http.FullHttpRequest.class,
+                                Integer.class);
+                boolean result = (boolean) (method.invoke(tokenObject, req, requestType));
+                if (!result) {
+                    throw new InvalidKeyException(
+                            "Token Authenticaation failed. Token either incorrect, expired, or not provided correctly");
                 }
                 System.out.println("TOKEN AUTHORIZATION WORKED");
-            }catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
                 e.printStackTrace();
             }
         }
