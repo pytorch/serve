@@ -141,6 +141,33 @@ def benchmark(test_plan, **input_params):
     benchmark.generate_report()
 
 
+def create_system_under_test(execution_params):
+    # Setup execution env
+    if execution_params["exec_env"] == "local":
+        click.secho("\n\nPreparing local execution...", fg="green")
+        return LocalTorchServeUnderTest(execution_params)
+    else:
+        click.secho("\n\nPreparing docker execution...", fg="green")
+        return DockerTorchServeUnderTest(execution_params)
+
+
+def create_benchmark(execution_params):
+    return ABBenchmark(execution_params)
+
+
+def update_exec_params(execution_params, input_param):
+    execution_params.update(input_param)
+
+    execution_params["result_file"] = os.path.join(
+        execution_params["tmp_dir"], "benchmark", "result.txt"
+    )
+    execution_params["metric_log"] = os.path.join(
+        execution_params["tmp_dir"], "benchmark", "logs", "model_metrics.log"
+    )
+
+    getAPIS(execution_params)
+
+
 def getAPIS(execution_params):
     MANAGEMENT_API = "http://127.0.0.1:8081"
     INFERENCE_API = "http://127.0.0.1:8080"
@@ -159,33 +186,6 @@ def getAPIS(execution_params):
     execution_params["config_properties_name"] = (
         execution_params["config_properties"].strip().split("/")[-1]
     )
-
-
-def update_exec_params(execution_params, input_param):
-    execution_params.update(input_param)
-
-    execution_params["result_file"] = os.path.join(
-        execution_params["tmp_dir"], "benchmark", "result.txt"
-    )
-    execution_params["metric_log"] = os.path.join(
-        execution_params["tmp_dir"], "benchmark", "logs", "model_metrics.log"
-    )
-
-    getAPIS(execution_params)
-
-
-def create_system_under_test(execution_params):
-    # Setup execution env
-    if execution_params["exec_env"] == "local":
-        click.secho("\n\nPreparing local execution...", fg="green")
-        return LocalTorchServeUnderTest(execution_params)
-    else:
-        click.secho("\n\nPreparing docker execution...", fg="green")
-        return DockerTorchServeUnderTest(execution_params)
-
-
-def create_benchmark(execution_params):
-    return ABBenchmark(execution_params)
 
 
 class SystemUnderTest(ABC):
