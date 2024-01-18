@@ -9,7 +9,17 @@ CURR_FILE_PATH = Path(__file__).parent
 REPO_ROOT_DIR = CURR_FILE_PATH.parents[1]
 
 
-@pytest.mark.skipif(os.system("ab -V") != 0, reason="Dependency not found: ab tool")
+def dependencies_available():
+    try:
+        pass
+    except:
+        return False
+    return os.system("ab -V") == 0
+
+
+@pytest.mark.skipif(
+    not dependencies_available(), reason="Dependency not found: ab tool"
+)
 def test_benchmark_e2e():
     report_file = Path("/tmp/benchmark/ab_report.csv")
 
