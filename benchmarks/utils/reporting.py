@@ -66,18 +66,9 @@ def extract_metrics(execution_params, warm_up_lines):
 
 def generate_csv_output(execution_params):
     click.secho("*Generating CSV output...", fg="green")
-    batched_requests = execution_params["requests"] / execution_params["batch_size"]
-    line50 = int(batched_requests / 2)
-    line90 = int(batched_requests * 9 / 10)
-    line99 = int(batched_requests * 99 / 100)
-
-    click.secho(f"Saving benchmark results to {execution_params['report_location']}")
 
     artifacts = {}
-    with open(execution_params["result_file"]) as f:
-        data = f.readlines()
 
-    artifacts["Benchmark"] = "AB"
     artifacts["Batch size"] = execution_params["batch_size"]
     artifacts["Batch delay"] = execution_params["batch_delay"]
     artifacts["Workers"] = execution_params["workers"]
@@ -85,6 +76,33 @@ def generate_csv_output(execution_params):
     artifacts["Concurrency"] = execution_params["concurrency"]
     artifacts["Input"] = "[input]({})".format(execution_params["input"])
     artifacts["Requests"] = execution_params["requests"]
+
+    benchmark_artifacts = extract_benchmark_artifacts(execution_params)
+    torchserve_artifacts = extract_torchserve_artifacts(execution_params)
+
+    artifacts.update(benchmark_artifacts)
+    artifacts.update(torchserve_artifacts)
+
+    click.secho(f"Saving benchmark results to {execution_params['report_location']}")
+
+    with open(
+        os.path.join(execution_params["report_location"], "benchmark", "ab_report.csv"),
+        "w",
+    ) as csv_file:
+        csvwriter = csv.writer(csv_file)
+        csvwriter.writerow(artifacts.keys())
+        csvwriter.writerow(artifacts.values())
+
+    return artifacts
+
+
+def extract_benchmark_artifacts(execution_params):
+    artifacts = {}
+
+    with open(execution_params["result_file"]) as f:
+        data = f.readlines()
+
+    artifacts["Benchmark"] = "AB"
     artifacts["TS failed requests"] = extract_entity(data, "Failed requests:", -1)
     artifacts["TS throughput"] = extract_entity(data, "Requests per second:", -3)
     artifacts["TS latency P50"] = extract_entity(data, "50%", -1)
@@ -97,6 +115,16 @@ def generate_csv_output(execution_params):
         artifacts["TS error rate"] = (
             int(artifacts["TS failed requests"]) / execution_params["requests"] * 100
         )
+    return artifacts
+
+
+def extract_torchserve_artifacts(execution_params):
+    batched_requests = execution_params["requests"] / execution_params["batch_size"]
+    line50 = int(batched_requests / 2)
+    line90 = int(batched_requests * 9 / 10)
+    line99 = int(batched_requests * 99 / 100)
+
+    artifacts = {}
 
     with open(
         os.path.join(execution_params["tmp_dir"], "benchmark", "predict.txt")
@@ -130,14 +158,6 @@ def generate_csv_output(execution_params):
             artifacts[m.split(".txt")[0] + "_mean"] = 0.0
         else:
             artifacts[m.split(".txt")[0] + "_mean"] = df["data"].values.mean().round(2)
-
-    with open(
-        os.path.join(execution_params["report_location"], "benchmark", "ab_report.csv"),
-        "w",
-    ) as csv_file:
-        csvwriter = csv.writer(csv_file)
-        csvwriter.writerow(artifacts.keys())
-        csvwriter.writerow(artifacts.values())
 
     return artifacts
 
