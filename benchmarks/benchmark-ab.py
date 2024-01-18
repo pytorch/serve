@@ -120,101 +120,25 @@ def benchmark(test_plan, **input_params):
     click.secho("\n\nConfigured execution parameters are:", fg="green")
     click.secho(f"{execution_params}", fg="blue")
 
-    prepare_common_dependency(execution_params)
-
     torchserve = create_system_under_test(execution_params)
 
+    benchmark = create_benchmark(execution_params)
+
+    benchmark.prepare_environment()
+
     torchserve.start()
-
     torchserve.check_health()
-
     torchserve.register_model()
 
-    warm_up_lines = warm_up(execution_params)
-    run_benchmark(execution_params)
+    benchmark.warm_up()
+    benchmark.run()
 
     torchserve.unregister_model()
-
     torchserve.stop()
+
     click.secho("Apache Bench Execution completed.", fg="green")
 
-    generate_report(execution_params, warm_up_lines=warm_up_lines)
-
-
-def warm_up(execution_params):
-    if is_workflow(execution_params["url"]):
-        execution_params["inference_model_url"] = "wfpredict/benchmark"
-
-    click.secho("\n\nExecuting warm-up ...", fg="green")
-
-    ab_cmd = (
-        f"ab -c {execution_params['concurrency']} -s 300 -n {execution_params['requests']/10} -k -p "
-        f"{execution_params['tmp_dir']}/benchmark/input -T  {execution_params['content_type']} "
-        f"{execution_params['inference_url']}/{execution_params['inference_model_url']} > "
-        f"{execution_params['result_file']}"
-    )
-    execute(ab_cmd, wait=True)
-
-    warm_up_lines = sum(1 for _ in open(execution_params["metric_log"]))
-
-    return warm_up_lines
-
-
-def run_benchmark(execution_params):
-    if is_workflow(execution_params["url"]):
-        execution_params["inference_model_url"] = "wfpredict/benchmark"
-
-    click.secho("\n\nExecuting inference performance tests ...", fg="green")
-    ab_cmd = (
-        f"ab -c {execution_params['concurrency']} -s 300 -n {execution_params['requests']} -k -p "
-        f"{execution_params['tmp_dir']}/benchmark/input -T  {execution_params['content_type']} "
-        f"{execution_params['inference_url']}/{execution_params['inference_model_url']} > "
-        f"{execution_params['result_file']}"
-    )
-    execute(ab_cmd, wait=True)
-
-
-def execute(command, wait=False, stdout=None, stderr=None, shell=True):
-    print(command)
-    cmd = Popen(
-        command,
-        shell=shell,
-        close_fds=True,
-        stdout=stdout,
-        stderr=stderr,
-        universal_newlines=True,
-    )
-    if wait:
-        cmd.wait()
-    return cmd
-
-
-def prepare_common_dependency(execution_params):
-    input = execution_params["input"]
-    shutil.rmtree(
-        os.path.join(execution_params["tmp_dir"], "benchmark"), ignore_errors=True
-    )
-    shutil.rmtree(
-        os.path.join(execution_params["report_location"], "benchmark"),
-        ignore_errors=True,
-    )
-    os.makedirs(
-        os.path.join(execution_params["tmp_dir"], "benchmark", "conf"), exist_ok=True
-    )
-    os.makedirs(
-        os.path.join(execution_params["tmp_dir"], "benchmark", "logs"), exist_ok=True
-    )
-    os.makedirs(
-        os.path.join(execution_params["report_location"], "benchmark"), exist_ok=True
-    )
-
-    shutil.copy(
-        execution_params["config_properties"],
-        os.path.join(execution_params["tmp_dir"], "benchmark", "conf"),
-    )
-    shutil.copyfile(
-        input, os.path.join(execution_params["tmp_dir"], "benchmark", "input")
-    )
+    benchmark.generate_report()
 
 
 def getAPIS(execution_params):
@@ -260,10 +184,11 @@ def create_system_under_test(execution_params):
         return DockerTorchServeUnderTest(execution_params)
 
 
-class SystemUnderTest(ABC):
-    def __init__(self):
-        pass
+def create_benchmark(execution_params):
+    return ABBenchmark(execution_params)
 
+
+class SystemUnderTest(ABC):
     @abstractmethod
     def start(self):
         raise NotImplementedError
@@ -331,7 +256,22 @@ class TorchServeUnderTest(SystemUnderTest):
         click.secho(resp.text)
 
     def check_health(self):
-        check_torchserve_health(self.execution_params)
+        attempts = 3
+        retry = 0
+        click.secho("*Testing system health...", fg="green")
+        while retry < attempts:
+            try:
+                resp = requests.get(self.execution_params["inference_url"] + "/ping")
+                if resp.status_code == 200:
+                    click.secho(resp.text)
+                    return True
+            except Exception as e:
+                retry += 1
+                time.sleep(3)
+        failure_exit(
+            "Could not connect to Torchserve instance at "
+            + self.execution_params["inference_url"]
+        )
 
 
 class LocalTorchServeUnderTest(TorchServeUnderTest):
@@ -428,23 +368,87 @@ class DockerTorchServeUnderTest(TorchServeUnderTest):
         execute("docker rm -f ts", wait=True)
 
 
-def check_torchserve_health(execution_params):
-    attempts = 3
-    retry = 0
-    click.secho("*Testing system health...", fg="green")
-    while retry < attempts:
-        try:
-            resp = requests.get(execution_params["inference_url"] + "/ping")
-            if resp.status_code == 200:
-                click.secho(resp.text)
-                return True
-        except Exception as e:
-            retry += 1
-            time.sleep(3)
-    failure_exit(
-        "Could not connect to Torchserve instance at "
-        + execution_params["inference_url"]
-    )
+class Benchmark(ABC):
+    @abstractmethod
+    def warm_up():
+        raise NotImplementedError
+
+    @abstractmethod
+    def run():
+        raise NotImplementedError
+
+    @abstractmethod
+    def generate_report():
+        raise NotImplementedError
+
+    def prepare_environment(self):
+        input = self.execution_params["input"]
+        shutil.rmtree(
+            os.path.join(self.execution_params["tmp_dir"], "benchmark"),
+            ignore_errors=True,
+        )
+        shutil.rmtree(
+            os.path.join(self.execution_params["report_location"], "benchmark"),
+            ignore_errors=True,
+        )
+        os.makedirs(
+            os.path.join(self.execution_params["tmp_dir"], "benchmark", "conf"),
+            exist_ok=True,
+        )
+        os.makedirs(
+            os.path.join(self.execution_params["tmp_dir"], "benchmark", "logs"),
+            exist_ok=True,
+        )
+        os.makedirs(
+            os.path.join(self.execution_params["report_location"], "benchmark"),
+            exist_ok=True,
+        )
+
+        shutil.copy(
+            self.execution_params["config_properties"],
+            os.path.join(self.execution_params["tmp_dir"], "benchmark", "conf"),
+        )
+        shutil.copyfile(
+            input, os.path.join(self.execution_params["tmp_dir"], "benchmark", "input")
+        )
+
+
+class ABBenchmark(Benchmark):
+    def __init__(self, execution_params):
+        self.execution_params = execution_params
+        self.warm_up_lines = 0
+
+    def warm_up(self):
+        if is_workflow(self.execution_params["url"]):
+            self.execution_params["inference_model_url"] = "wfpredict/benchmark"
+
+        click.secho("\n\nExecuting warm-up ...", fg="green")
+
+        ab_cmd = (
+            f"ab -c {self.execution_params['concurrency']} -s 300 -n {self.execution_params['requests']/10} -k -p "
+            f"{self.execution_params['tmp_dir']}/benchmark/input -T  {self.execution_params['content_type']} "
+            f"{self.execution_params['inference_url']}/{self.execution_params['inference_model_url']} > "
+            f"{self.execution_params['result_file']}"
+        )
+        execute(ab_cmd, wait=True)
+
+        self.warm_up_lines = sum(1 for _ in open(self.execution_params["metric_log"]))
+
+    def run(self):
+        if is_workflow(self.execution_params["url"]):
+            self.execution_params["inference_model_url"] = "wfpredict/benchmark"
+
+        click.secho("\n\nExecuting inference performance tests ...", fg="green")
+        ab_cmd = (
+            f"ab -c {self.execution_params['concurrency']} -s 300 -n {self.execution_params['requests']} -k -p "
+            f"{self.execution_params['tmp_dir']}/benchmark/input -T  {self.execution_params['content_type']} "
+            f"{self.execution_params['inference_url']}/{self.execution_params['inference_model_url']} > "
+            f"{self.execution_params['result_file']}"
+        )
+        execute(ab_cmd, wait=True)
+
+    def generate_report(self):
+        generate_report(self.execution_params, self.warm_up_lines)
 
 
 def failure_exit(msg):
@@ -455,6 +459,21 @@ def failure_exit(msg):
 
 def is_workflow(model_url):
     return model_url.endswith(".war")
+
+
+def execute(command, wait=False, stdout=None, stderr=None, shell=True):
+    print(command)
+    cmd = Popen(
+        command,
+        shell=shell,
+        close_fds=True,
+        stdout=stdout,
+        stderr=stderr,
+        universal_newlines=True,
+    )
+    if wait:
+        cmd.wait()
+    return cmd
 
 
 if __name__ == "__main__":
