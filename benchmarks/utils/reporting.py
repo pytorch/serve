@@ -6,15 +6,7 @@ import click
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-
-
-def generate_report(execution_params, warm_up_lines):
-    click.secho("\n\nGenerating Reports...", fg="green")
-    metrics = extract_metrics(execution_params, warm_up_lines=warm_up_lines)
-    generate_csv_output(execution_params, metrics)
-    if execution_params["generate_graphs"]:
-        generate_latency_graph(execution_params)
-        generate_profile_graph(execution_params, metrics)
+from utils.common import is_file_empty
 
 
 def extract_metrics(execution_params, warm_up_lines):
@@ -64,10 +56,8 @@ def update_metrics(execution_params, metrics):
         metrics.update(opt_metrics)
 
 
-def generate_csv_output(execution_params, metrics):
+def generate_csv_output(execution_params, metrics, artifacts):
     click.secho("*Generating CSV output...", fg="green")
-
-    artifacts = {}
 
     artifacts["Batch size"] = execution_params["batch_size"]
     artifacts["Batch delay"] = execution_params["batch_delay"]
@@ -77,10 +67,8 @@ def generate_csv_output(execution_params, metrics):
     artifacts["Input"] = "[input]({})".format(execution_params["input"])
     artifacts["Requests"] = execution_params["requests"]
 
-    benchmark_artifacts = extract_benchmark_artifacts(execution_params)
     torchserve_artifacts = extract_torchserve_artifacts(execution_params, metrics)
 
-    artifacts.update(benchmark_artifacts)
     artifacts.update(torchserve_artifacts)
 
     click.secho(f"Saving benchmark results to {execution_params['report_location']}")
@@ -96,7 +84,7 @@ def generate_csv_output(execution_params, metrics):
     return artifacts
 
 
-def extract_benchmark_artifacts(execution_params):
+def extract_ab_tool_benchmark_artifacts(execution_params):
     artifacts = {}
 
     with open(execution_params["result_file"]) as f:
@@ -205,7 +193,7 @@ def generate_profile_graph(execution_params, metrics):
         sampling = int(execution_params["requests"] / 100)
     else:
         sampling = 1
-    print(f"Working with sampling rate of {sampling}")
+    click.secho(f"Working with sampling rate of {sampling}")
 
     a4_dims = (11.7, 8.27)
     grid = plt.GridSpec(3, 2, wspace=0.2, hspace=0.2)
@@ -270,8 +258,3 @@ def generate_profile_graph(execution_params, metrics):
         f"{execution_params['report_location']}/benchmark/api-profile1.png",
         bbox_inches="tight",
     )
-
-    def is_file_empty(file_path):
-        """Check if file is empty by confirming if its size is 0 bytes"""
-        # Check if file exist and it is empty
-        return os.path.exists(file_path) and os.stat(file_path).st_size == 0

@@ -4,7 +4,13 @@ from abc import ABC, abstractmethod
 
 import click
 from utils.common import execute, is_workflow
-from utils.reporting import generate_report
+from utils.reporting import (
+    extract_ab_tool_benchmark_artifacts,
+    extract_metrics,
+    generate_csv_output,
+    generate_latency_graph,
+    generate_profile_graph,
+)
 
 
 def create_benchmark(execution_params):
@@ -12,6 +18,10 @@ def create_benchmark(execution_params):
 
 
 class Benchmark(ABC):
+    def __init__(self, execution_params):
+        self.execution_params = execution_params
+        self.warm_up_lines = 0
+
     @abstractmethod
     def warm_up():
         raise NotImplementedError
@@ -20,9 +30,20 @@ class Benchmark(ABC):
     def run():
         raise NotImplementedError
 
-    @abstractmethod
-    def generate_report():
-        raise NotImplementedError
+    def generate_report(self):
+        click.secho("\n\nGenerating Reports...", fg="green")
+        metrics = extract_metrics(
+            self.execution_params, warm_up_lines=self.warm_up_lines
+        )
+
+        artifacts = {}
+        benchmark_artifacts = self._extract_benchmark_artifacts()
+        artifacts.update(benchmark_artifacts)
+
+        generate_csv_output(self.execution_params, metrics, benchmark_artifacts)
+        if self.execution_params["generate_graphs"]:
+            generate_latency_graph(self.execution_params)
+            generate_profile_graph(self.execution_params, metrics)
 
     def prepare_environment(self):
         input = self.execution_params["input"]
@@ -55,12 +76,12 @@ class Benchmark(ABC):
             input, os.path.join(self.execution_params["tmp_dir"], "benchmark", "input")
         )
 
+    @abstractmethod
+    def _extract_benchmark_artifacts(self):
+        raise NotImplementedError
+
 
 class ABBenchmark(Benchmark):
-    def __init__(self, execution_params):
-        self.execution_params = execution_params
-        self.warm_up_lines = 0
-
     def warm_up(self):
         if is_workflow(self.execution_params["url"]):
             self.execution_params["inference_model_url"] = "wfpredict/benchmark"
@@ -90,5 +111,5 @@ class ABBenchmark(Benchmark):
         )
         execute(ab_cmd, wait=True)
 
-    def generate_report(self):
-        generate_report(self.execution_params, self.warm_up_lines)
+    def _extract_benchmark_artifacts(self):
+        return extract_ab_tool_benchmark_artifacts(self.execution_params)

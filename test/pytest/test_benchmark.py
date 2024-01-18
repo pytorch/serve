@@ -21,7 +21,7 @@ def test_benchmark_e2e():
     os.chdir(REPO_ROOT_DIR / "benchmarks")
 
     cmd = subprocess.Popen(
-        f"{sys.executable} ./benchmark-ab.py --concurrency 1 --requests 10",
+        f"{sys.executable} ./benchmark-ab.py --concurrency 1 --requests 10 --generate_graphs True",
         shell=True,
         stdout=subprocess.PIPE,
     )
@@ -29,7 +29,7 @@ def test_benchmark_e2e():
 
     assert output_lines[-1].decode("utf-8") == "Test suite execution complete.\n"
 
-    assert len(output_lines) == 67
+    assert len(output_lines) == 70
 
     report = report_file.read_text()
 
