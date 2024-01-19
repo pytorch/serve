@@ -367,7 +367,7 @@ public final class ConfigManager {
         String inferenceProtocol = System.getenv("TS_OPEN_INFERENCE_PROTOCOL");
         if (inferenceProtocol != null && inferenceProtocol != "") {
             return "oip".equals(inferenceProtocol);
-        } 
+        }
         return Boolean.parseBoolean(prop.getProperty(TS_OPEN_INFERENCE_PROTOCOL, "false"));
     }
 

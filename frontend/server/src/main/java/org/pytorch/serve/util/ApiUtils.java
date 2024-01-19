@@ -459,5 +459,4 @@ public final class ApiUtils {
                 "\" has no worker to serve describe request. Please use scale workers API to add workers.";
         return responseMessage;
     }
-
 }

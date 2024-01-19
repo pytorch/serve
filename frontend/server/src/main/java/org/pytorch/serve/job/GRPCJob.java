@@ -1,5 +1,9 @@
 package org.pytorch.serve.job;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.protobuf.Any;
 import com.google.protobuf.ByteString;
 import com.google.rpc.ErrorInfo;
@@ -30,11 +34,6 @@ import org.pytorch.serve.util.messages.RequestInput;
 import org.pytorch.serve.util.messages.WorkerCommands;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 
 public class GRPCJob extends Job {
     private static final Logger logger = LoggerFactory.getLogger(GRPCJob.class);
@@ -67,7 +66,8 @@ public class GRPCJob extends Job {
         super(modelName, version, cmd, input);
         this.modelInferResponseObserver = modelInferResponseObserver;
         this.queueTimeMetric = MetricCache.getInstance().getMetricFrontend("QueueTime");
-        this.queueTimeMetricDimensionValues = Arrays.asList("Host", ConfigManager.getInstance().getHostName());
+        this.queueTimeMetricDimensionValues =
+                Arrays.asList("Host", ConfigManager.getInstance().getHostName());
     }
 
     public GRPCJob(
@@ -177,16 +177,17 @@ public class GRPCJob extends Job {
                 responseBuilder.setModelName(jsonObject.get("model_name").getAsString());
                 responseBuilder.setModelVersion(jsonObject.get("model_version").getAsString());
                 JsonArray jsonOutputs = jsonObject.get("outputs").getAsJsonArray();
-    
+
                 for (JsonElement element : jsonOutputs) {
                     InferOutputTensor.Builder outputBuilder = InferOutputTensor.newBuilder();
                     outputBuilder.setName(element.getAsJsonObject().get("name").getAsString());
-                    outputBuilder.setDatatype(element.getAsJsonObject().get("datatype").getAsString());
+                    outputBuilder.setDatatype(
+                            element.getAsJsonObject().get("datatype").getAsString());
                     JsonArray shapeArray = element.getAsJsonObject().get("shape").getAsJsonArray();
-                    shapeArray.forEach(shapeElement -> outputBuilder.addShape(shapeElement.getAsLong()));
+                    shapeArray.forEach(
+                            shapeElement -> outputBuilder.addShape(shapeElement.getAsLong()));
                     setOutputContents(element, outputBuilder);
                     responseBuilder.addOutputs(outputBuilder);
-    
                 }
                 modelInferResponseObserver.onNext(responseBuilder.build());
                 modelInferResponseObserver.onCompleted();
@@ -282,7 +283,8 @@ public class GRPCJob extends Job {
 
             case "BYTES": // bytesContents
                 List<ByteString> byteContents = new ArrayList<>();
-                jsonData.forEach(data -> byteContents.add(ByteString.copyFromUtf8(data.toString())));
+                jsonData.forEach(
+                        data -> byteContents.add(ByteString.copyFromUtf8(data.toString())));
                 inferTensorContents.addAllBytesContents(byteContents);
                 break;
 
@@ -319,7 +321,6 @@ public class GRPCJob extends Job {
                 break;
             default:
                 break;
-
         }
         outputBuilder.setContents(inferTensorContents); // set output contents
     }

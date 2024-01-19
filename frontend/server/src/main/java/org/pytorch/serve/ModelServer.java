@@ -463,7 +463,8 @@ public class ModelServer {
             s.maxInboundMessageSize(configManager.getMaxRequestSize())
                     .addService(
                             ServerInterceptors.intercept(
-                                    GRPCServiceFactory.getgRPCService(ConnectorType.OPEN_INFERENCE_CONNECTOR),
+                                    GRPCServiceFactory.getgRPCService(
+                                            ConnectorType.OPEN_INFERENCE_CONNECTOR),
                                     new GRPCInterceptor()));
         }
 

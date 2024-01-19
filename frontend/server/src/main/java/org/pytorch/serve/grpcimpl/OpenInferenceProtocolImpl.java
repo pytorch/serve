@@ -1,6 +1,10 @@
-
 package org.pytorch.serve.grpcimpl;
 
+import com.google.gson.Gson;
+import com.google.protobuf.ByteString;
+import io.grpc.Status;
+import io.grpc.stub.ServerCallStreamObserver;
+import io.grpc.stub.StreamObserver;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -8,7 +12,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-
 import org.pytorch.serve.archive.model.ModelNotFoundException;
 import org.pytorch.serve.archive.model.ModelVersionNotFoundException;
 import org.pytorch.serve.grpc.openinference.GRPCInferenceServiceGrpc.GRPCInferenceServiceImplBase;
@@ -34,24 +37,15 @@ import org.pytorch.serve.util.messages.RequestInput;
 import org.pytorch.serve.util.messages.WorkerCommands;
 import org.pytorch.serve.wlm.Model;
 import org.pytorch.serve.wlm.ModelManager;
-import org.pytorch.serve.wlm.WorkerState;
-import org.pytorch.serve.wlm.WorkerThread;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.gson.Gson;
-import com.google.protobuf.ByteString;
-
-// import com.google.protobuf.JsonUtils
-import io.grpc.Status;
-import io.grpc.stub.ServerCallStreamObserver;
-import io.grpc.stub.StreamObserver;
 
 public class OpenInferenceProtocolImpl extends GRPCInferenceServiceImplBase {
     private static final Logger logger = LoggerFactory.getLogger(OpenInferenceProtocolImpl.class);
 
     @Override
-    public void serverLive(ServerLiveRequest request, StreamObserver<ServerLiveResponse> responseObserver) {
+    public void serverLive(
+            ServerLiveRequest request, StreamObserver<ServerLiveResponse> responseObserver) {
         ((ServerCallStreamObserver<ServerLiveResponse>) responseObserver)
                 .setOnCancelHandler(
                         () -> {
@@ -62,15 +56,14 @@ public class OpenInferenceProtocolImpl extends GRPCInferenceServiceImplBase {
                                             .asRuntimeException());
                         });
 
-        ServerLiveResponse readyResponse = ServerLiveResponse.newBuilder()
-                .setLive(true)
-                .build();
+        ServerLiveResponse readyResponse = ServerLiveResponse.newBuilder().setLive(true).build();
         responseObserver.onNext(readyResponse);
         responseObserver.onCompleted();
     }
 
     @Override
-    public void serverReady(ServerReadyRequest request, StreamObserver<ServerReadyResponse> responseObserver) {
+    public void serverReady(
+            ServerReadyRequest request, StreamObserver<ServerReadyResponse> responseObserver) {
         ((ServerCallStreamObserver<ServerReadyResponse>) responseObserver)
                 .setOnCancelHandler(
                         () -> {
@@ -81,15 +74,13 @@ public class OpenInferenceProtocolImpl extends GRPCInferenceServiceImplBase {
                                             .asRuntimeException());
                         });
 
-        ServerReadyResponse readyResponse = ServerReadyResponse.newBuilder()
-                .setReady(true)
-                .build();
+        ServerReadyResponse readyResponse = ServerReadyResponse.newBuilder().setReady(true).build();
         responseObserver.onNext(readyResponse);
         responseObserver.onCompleted();
     }
 
-    private void sendErrorResponse(StreamObserver<?> responseObserver, Status internal,
-            Exception e, String string) {
+    private void sendErrorResponse(
+            StreamObserver<?> responseObserver, Status internal, Exception e, String string) {
         responseObserver.onError(
                 internal.withDescription(e.getMessage())
                         .augmentDescription(
@@ -99,7 +90,8 @@ public class OpenInferenceProtocolImpl extends GRPCInferenceServiceImplBase {
     }
 
     @Override
-    public void modelReady(ModelReadyRequest request, StreamObserver<ModelReadyResponse> responseObserver) {
+    public void modelReady(
+            ModelReadyRequest request, StreamObserver<ModelReadyResponse> responseObserver) {
         ((ServerCallStreamObserver<ModelReadyResponse>) responseObserver)
                 .setOnCancelHandler(
                         () -> {
@@ -128,30 +120,23 @@ public class OpenInferenceProtocolImpl extends GRPCInferenceServiceImplBase {
                 throw new ModelNotFoundException("Model not found: " + modelName);
             }
 
-            // int numScaled = model.getMinWorkers();
-            // int numHealthy = modelManager.getNumHealthyWorkers(model.getModelVersionName());
-            // isModelReady = numHealthy >= numScaled;
+            int numScaled = model.getMinWorkers();
+            int numHealthy = modelManager.getNumHealthyWorkers(model.getModelVersionName());
+            isModelReady = numHealthy >= numScaled;
 
-            List<WorkerThread> workers = modelManager.getWorkers(model.getModelVersionName());
-            for (WorkerThread worker : workers) {
-                isModelReady = worker.isRunning() && worker.getState() == WorkerState.WORKER_MODEL_LOADED;
-
-            }
-
-            ModelReadyResponse modelReadyResponse = ModelReadyResponse.newBuilder()
-                    .setReady(isModelReady)
-                    .build();
+            ModelReadyResponse modelReadyResponse =
+                    ModelReadyResponse.newBuilder().setReady(isModelReady).build();
             responseObserver.onNext(modelReadyResponse);
             responseObserver.onCompleted();
 
         } catch (ModelVersionNotFoundException | ModelNotFoundException e) {
             sendErrorResponse(responseObserver, Status.NOT_FOUND, e, null);
         }
-
     }
 
     @Override
-    public void modelMetadata(ModelMetadataRequest request, StreamObserver<ModelMetadataResponse> responseObserver) {
+    public void modelMetadata(
+            ModelMetadataRequest request, StreamObserver<ModelMetadataResponse> responseObserver) {
         ((ServerCallStreamObserver<ModelMetadataResponse>) responseObserver)
                 .setOnCancelHandler(
                         () -> {
@@ -183,7 +168,9 @@ public class OpenInferenceProtocolImpl extends GRPCInferenceServiceImplBase {
             if (model == null) {
                 throw new ModelNotFoundException("Model not found: " + modelName);
             }
-            modelManager.getAllModelVersions(modelName).forEach(entry -> versions.add(entry.getKey()));
+            modelManager
+                    .getAllModelVersions(modelName)
+                    .forEach(entry -> versions.add(entry.getKey()));
             response.setName(modelName);
             response.addAllVersions(versions);
             response.setPlatform("");
@@ -198,7 +185,8 @@ public class OpenInferenceProtocolImpl extends GRPCInferenceServiceImplBase {
     }
 
     @Override
-    public void modelInfer(ModelInferRequest request, StreamObserver<ModelInferResponse> responseObserver) {
+    public void modelInfer(
+            ModelInferRequest request, StreamObserver<ModelInferResponse> responseObserver) {
         ((ServerCallStreamObserver<ModelInferResponse>) responseObserver)
                 .setOnCancelHandler(
                         () -> {
@@ -247,10 +235,17 @@ public class OpenInferenceProtocolImpl extends GRPCInferenceServiceImplBase {
         try {
             ModelManager modelManager = ModelManager.getInstance();
             inputData.addParameter(new InputParameter("body", byteArray, contentsType));
-            Job job = new GRPCJob(responseObserver, modelName, modelVersion, inputData, WorkerCommands.OIPPREDICT);
+            Job job =
+                    new GRPCJob(
+                            responseObserver,
+                            modelName,
+                            modelVersion,
+                            inputData,
+                            WorkerCommands.OIPPREDICT);
 
             if (!modelManager.addJob(job)) {
-                String responseMessage = ApiUtils.getStreamingInferenceErrorResponseMessage(modelName, modelVersion);
+                String responseMessage =
+                        ApiUtils.getStreamingInferenceErrorResponseMessage(modelName, modelVersion);
                 InternalServerException e = new InternalServerException(responseMessage);
                 sendErrorResponse(
                         responseObserver, Status.INTERNAL, e, "InternalServerException.()");
@@ -258,16 +253,18 @@ public class OpenInferenceProtocolImpl extends GRPCInferenceServiceImplBase {
         } catch (ModelNotFoundException | ModelVersionNotFoundException e) {
             sendErrorResponse(responseObserver, Status.INTERNAL, e, null);
         }
-
     }
 
-    private static void setInputContents(InferInputTensor inferInputTensor, Map<String, Object> inferInputMap) {
+    private static void setInputContents(
+            InferInputTensor inferInputTensor, Map<String, Object> inferInputMap) {
         switch (inferInputTensor.getDatatype()) {
             case "BYTES":
-                List<ByteString> byteStrings = inferInputTensor.getContents().getBytesContentsList();
+                List<ByteString> byteStrings =
+                        inferInputTensor.getContents().getBytesContentsList();
                 List<String> base64Strings = new ArrayList<>();
                 for (ByteString byteString : byteStrings) {
-                    String base64String = Base64.getEncoder().encodeToString(byteString.toByteArray());
+                    String base64String =
+                            Base64.getEncoder().encodeToString(byteString.toByteArray());
                     base64Strings.add(base64String);
                 }
                 inferInputMap.put("data", base64Strings);
@@ -315,5 +312,4 @@ public class OpenInferenceProtocolImpl extends GRPCInferenceServiceImplBase {
                 break;
         }
     }
-
 }

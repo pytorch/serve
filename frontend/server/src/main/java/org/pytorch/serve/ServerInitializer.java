@@ -73,10 +73,10 @@ public class ServerInitializer extends ChannelInitializer<Channel> {
             // Added OIP protocol with inference connector
             if (ConfigManager.getInstance().isOpenInferenceProtocol()) {
                 logger.info("OIP added with handler chain");
-                httpRequestHandlerChain = httpRequestHandlerChain.setNextHandler(
-                        new OpenInferenceProtocolRequestHandler());
+                httpRequestHandlerChain =
+                        httpRequestHandlerChain.setNextHandler(
+                                new OpenInferenceProtocolRequestHandler());
             }
-
         }
         if (ConnectorType.ALL.equals(connectorType)
                 || ConnectorType.MANAGEMENT_CONNECTOR.equals(connectorType)) {
