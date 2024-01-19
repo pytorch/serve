@@ -43,6 +43,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.io.IOUtils;
+import org.pytorch.serve.archive.model.Manifest;
 import org.pytorch.serve.metrics.MetricBuilder;
 import org.pytorch.serve.servingsdk.snapshot.SnapshotSerializer;
 import org.pytorch.serve.snapshot.SnapshotSerializerFactory;
@@ -104,6 +105,7 @@ public final class ConfigManager {
     private static final String TS_INITIAL_WORKER_PORT = "initial_worker_port";
     private static final String TS_INITIAL_DISTRIBUTION_PORT = "initial_distribution_port";
     private static final String TS_WORKFLOW_STORE = "workflow_store";
+    private static final String TS_CPP_LOG_CONFIG = "cpp_log_config";
 
     // Configuration which are not documented or enabled through environment variables
     private static final String USE_NATIVE_IO = "use_native_io";
@@ -214,6 +216,11 @@ public final class ConfigManager {
             prop.setProperty(TS_WORKFLOW_STORE, workflowStore);
         } else if (prop.getProperty(TS_WORKFLOW_STORE) == null) {
             prop.setProperty(TS_WORKFLOW_STORE, prop.getProperty(TS_MODEL_STORE));
+        }
+
+        String cppLogConfigFile = args.getCppLogConfigFile();
+        if (cppLogConfigFile != null) {
+            prop.setProperty(TS_CPP_LOG_CONFIG, cppLogConfigFile);
         }
 
         String[] models = args.getModels();
@@ -506,6 +513,10 @@ public final class ConfigManager {
         return getCanonicalPath(prop.getProperty(TS_WORKFLOW_STORE));
     }
 
+    public String getTsCppLogConfig() {
+        return prop.getProperty(TS_CPP_LOG_CONFIG, null);
+    }
+
     public String getModelSnapshot() {
         return prop.getProperty(MODEL_SNAPSHOT, null);
     }
@@ -710,6 +721,8 @@ public final class ConfigManager {
                 + isSystemMetricsDisabled()
                 + "\nWorkflow Store: "
                 + (getWorkflowStore() == null ? "N/A" : getWorkflowStore())
+                + "\nCPP log config: "
+                + (getTsCppLogConfig() == null ? "N/A" : getTsCppLogConfig())
                 + "\nModel config: "
                 + prop.getProperty(MODEL_CONFIG, "N/A");
     }
@@ -912,6 +925,30 @@ public final class ConfigManager {
         return value;
     }
 
+    public Manifest.RuntimeType getJsonRuntimeTypeValue(
+            String modelName, String version, String element, Manifest.RuntimeType defaultVal) {
+        Manifest.RuntimeType value = defaultVal;
+        if (this.modelConfig.containsKey(modelName)) {
+            Map<String, JsonObject> versionModel = this.modelConfig.get(modelName);
+            JsonObject jsonObject = versionModel.getOrDefault(version, null);
+
+            if (jsonObject != null && jsonObject.get(element) != null) {
+                try {
+                    value = Manifest.RuntimeType.fromValue(jsonObject.get(element).getAsString());
+                } catch (ClassCastException | IllegalStateException | IllegalArgumentException e) {
+                    LoggerFactory.getLogger(ConfigManager.class)
+                            .error(
+                                    "Invalid value for model: {}:{}, parameter: {}",
+                                    modelName,
+                                    version,
+                                    element);
+                    return defaultVal;
+                }
+            }
+        }
+        return value;
+    }
+
     public String getVersion() {
         return prop.getProperty(VERSION);
     }
@@ -928,6 +965,7 @@ public final class ConfigManager {
         private String[] models;
         private boolean snapshotDisabled;
         private String workflowStore;
+        private String cppLogConfigFile;
 
         public Arguments() {}
 
@@ -938,6 +976,7 @@ public final class ConfigManager {
             models = cmd.getOptionValues("models");
             snapshotDisabled = cmd.hasOption("no-config-snapshot");
             workflowStore = cmd.getOptionValue("workflow-store");
+            cppLogConfigFile = cmd.getOptionValue("cpp-log-config");
         }
 
         public static Options getOptions() {
@@ -983,6 +1022,13 @@ public final class ConfigManager {
                             .argName("WORKFLOW-STORE")
                             .desc("Workflow store location where workflow can be loaded.")
                             .build());
+            options.addOption(
+                    Option.builder("clog")
+                            .longOpt("cpp-log-config")
+                            .hasArg()
+                            .argName("CPP-LOG-CONFIG")
+                            .desc("log configuration file for cpp backend.")
+                            .build());
             return options;
         }
 
@@ -1024,6 +1070,14 @@ public final class ConfigManager {
 
         public void setSnapshotDisabled(boolean snapshotDisabled) {
             this.snapshotDisabled = snapshotDisabled;
+        }
+
+        public String getCppLogConfigFile() {
+            return cppLogConfigFile;
+        }
+
+        public void setCppLogConfigFile(String cppLogConfigFile) {
+            this.cppLogConfigFile = cppLogConfigFile;
         }
     }
 }
