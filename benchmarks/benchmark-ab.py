@@ -100,6 +100,13 @@ def json_provider(file_path, cmd_name):
     default=tempfile.gettempdir(),
     help=f"Location for temporal files. Default {tempfile.gettempdir()}",
 )
+@click.option(
+    "--benchmark_backend",
+    "-bb",
+    type=click.Choice(["ab", "locust"], case_sensitive=False),
+    default="ab",
+    help=f"Benchmark backend to use.",
+)
 @click_config_file.configuration_option(
     provider=json_provider, implicit=False, help="Read configuration from a JSON file"
 )

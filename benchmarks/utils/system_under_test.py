@@ -3,7 +3,7 @@ import shutil
 import sys
 import time
 from abc import ABC, abstractmethod
-from subprocess import PIPE, STDOUT, Popen
+from pathlib import Path
 from urllib.parse import urlparse
 
 import click
@@ -119,20 +119,27 @@ class LocalTorchServeUnderTest(TorchServeUnderTest):
             f"torchserve --start --model-store {self.execution_params['tmp_dir']}/model_store "
             f"--workflow-store {self.execution_params['tmp_dir']}/wf_store "
             f"--ts-config {self.execution_params['tmp_dir']}/benchmark/conf/{self.execution_params['config_properties_name']} "
+            f" > {self.execution_params['tmp_dir']}/benchmark/logs/model_metrics.log"
         )
 
-        tee_cmd = (
-            f"tee {self.execution_params['tmp_dir']}/benchmark/logs/model_metrics.log"
-        )
-        click.secho(f"Running: {ts_cmd} | {tee_cmd}")
-        from shlex import split
+        click.secho(f"Running: {ts_cmd}")
+        execute(ts_cmd)
+        n = 0
+        while (
+            not Path(
+                f"{self.execution_params['tmp_dir']}/benchmark/logs/model_metrics.log"
+            ).exists()
+            and n < 30
+        ):
+            time.sleep(0.1)
+            n += 1
 
-        ts_p = Popen(split(ts_cmd), stdin=PIPE, stdout=PIPE, stderr=STDOUT)
-        tee_p = Popen(split(tee_cmd), stdin=ts_p.stdout, stdout=PIPE, stderr=STDOUT)
-
-        for line in tee_p.stdout:
-            if "Model server started" in str(line).strip():
-                break
+        with open(
+            f"{self.execution_params['tmp_dir']}/benchmark/logs/model_metrics.log", "r"
+        ) as f:
+            for line in f.readlines():
+                if "Model server started" in str(line).strip():
+                    break
 
     def stop(self):
         click.secho("*Terminating Torchserve instance...", fg="green")

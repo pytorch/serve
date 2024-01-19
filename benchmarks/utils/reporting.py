@@ -1,4 +1,5 @@
 import csv
+import json
 import os
 import re
 
@@ -103,6 +104,31 @@ def extract_ab_tool_benchmark_artifacts(execution_params):
         artifacts["TS error rate"] = (
             int(artifacts["TS failed requests"]) / execution_params["requests"] * 100
         )
+    return artifacts
+
+
+def extract_locust_tool_benchmark_artifacts(execution_params):
+    with open(execution_params["result_file"], "r") as f:
+        data = json.load(f)[0]
+
+    response_hist = dict(sorted(data["response_times"].items()))
+    keys = [int(k) for k in response_hist.keys()]
+    values = [v for v in response_hist.values()]
+    artifacts = {"Benchmark": "Locust"}
+    artifacts["TS failed requests"] = data["num_failures"]
+    artifacts["TS throughput"] = data["num_requests"] / max(
+        data["last_request_timestamp"] - data["start_time"], 0.1
+    )
+    for p in [50, 90, 99]:
+        idx = min(
+            np.searchsorted(values, np.percentile(values, p), side="left"),
+            len(values) - 1,
+        )
+        p_key = keys[idx]
+        artifacts[f"TS latency P{p}"] = p_key
+    artifacts["TS latency mean"] = np.multiply(keys, values).sum() / np.sum(values)
+    artifacts["TS error rate"] = data["num_failures"] / data["num_requests"] * 100
+
     return artifacts
 
 

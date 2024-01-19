@@ -12,15 +12,24 @@ REPO_ROOT_DIR = CURR_FILE_PATH.parents[1]
 def dependencies_available():
     try:
         import click  # noqa
+        import locust  # noqa
+        import locust_plugins  # noqa
     except:
         return False
-    return os.system("ab -V") == 0
+    return os.system("ab -V") == 0 and os.system("locust -V") == 0
 
 
 @pytest.mark.skipif(
     not dependencies_available(), reason="Dependency not found: ab tool"
 )
-def test_benchmark_e2e():
+@pytest.mark.parametrize(
+    "backend",
+    (
+        "ab",
+        "locust",
+    ),
+)
+def test_benchmark_e2e(backend):
     report_file = Path("/tmp/benchmark/ab_report.csv")
 
     if report_file.exists():
@@ -31,7 +40,7 @@ def test_benchmark_e2e():
     os.chdir(REPO_ROOT_DIR / "benchmarks")
 
     cmd = subprocess.Popen(
-        f"{sys.executable} ./benchmark-ab.py --concurrency 1 --requests 10 --generate_graphs True",
+        f"{sys.executable} ./benchmark-ab.py --concurrency 1 --requests 10 -bb {backend} --generate_graphs True",
         shell=True,
         stdout=subprocess.PIPE,
     )
@@ -39,7 +48,7 @@ def test_benchmark_e2e():
 
     assert output_lines[-1].decode("utf-8") == "Test suite execution complete.\n"
 
-    assert len(output_lines) == 70
+    assert len(output_lines) == 71
 
     report = report_file.read_text()
 
