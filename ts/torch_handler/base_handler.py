@@ -256,9 +256,7 @@ class BaseHandler(abc.ABC):
         self.initialized = True
 
     def _load_torch_export_aot_compile(self, model_so_path):
-        from ts.handler_utils.torch_export.load_model import load_exported_model
-
-        return load_exported_model(model_so_path, self.map_location)
+        return torch._export.aot_load(model_so_path, self.map_location)
 
     def _load_torchscript_model(self, model_pt_path):
         """Loads the PyTorch model and returns the NN model object.
