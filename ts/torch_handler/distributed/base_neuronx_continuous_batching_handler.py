@@ -9,6 +9,7 @@ from transformers_neuronx.module import save_pretrained_split
 from transformers_neuronx.sampling import select_tokens
 
 from ts.context import Context
+from ts.handler_utils.utils import import_class
 from ts.torch_handler.base_handler import BaseHandler
 
 logger = logging.getLogger(__name__)
@@ -101,12 +102,15 @@ class BaseNeuronXContinuousBatchingHandler(BaseHandler):
             batch_size_for_shared_caches=self.batch_size
         )
         neuron_config = NeuronConfig(continuous_batching=continuous_batching_config)
+        self._set_class(ctx)
         kwargs = dict(
             tp_degree=tp_degree,
             amp=amp,
             batch_size=self.batch_size,
             n_positions=[self.max_length],
-            context_length_estimate=[self.max_length],
+            context_length_estimate=ctx.model_yaml_config.get("handler", {}).get(
+                "model_checkpoint_dir", [self.max_length]
+            ),
             neuron_config=neuron_config,
         )
         self.model = self.model_class.from_pretrained(model_checkpoint_path, **kwargs)
@@ -380,4 +384,31 @@ class BaseNeuronXContinuousBatchingHandler(BaseHandler):
             seq_id=seq_id,
             stop_token=self.tokenizer.eos_token_id,
             max_new_tokens=max_new_tokens,
+        )
+
+    def _set_class(self, ctx: Context):
+        model_class_name = ctx.model_yaml_config.get("handler", {}).get(
+            "model_class_name", None
+        )
+        self.assertIsNotNone(model_class_name, "model_class_name is not defined")
+        model_module_prefix = ctx.model_yaml_config.get("handler", {}).get(
+            "model_module_prefix", None
+        )
+        self.model_class = import_class(
+            class_name=model_class_name,
+            module_prefix=model_module_prefix,
+        )
+
+        tokenizer_class_name = ctx.model_yaml_config.get("handler", {}).get(
+            "tokenizer_class_name", None
+        )
+        self.assertIsNotNone(
+            tokenizer_class_name, "tokenizer_class_name is not defined"
+        )
+        tokenizer_module_prefix = ctx.model_yaml_config.get("handler", {}).get(
+            "tokenizer_module_prefix", None
+        )
+
+        self.tokenizer_class = import_class(
+            class_name=tokenizer_class_name, module_prefix=tokenizer_module_prefix
         )
