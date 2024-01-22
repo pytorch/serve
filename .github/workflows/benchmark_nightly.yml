@@ -1,14 +1,16 @@
 name: Benchmark torchserve nightly
 
 on:
-  push
+  # run every day at 2:15am
+  schedule:
+    - cron:  '15 02 * * *'
 
 jobs:
   nightly:
     strategy:
       fail-fast: false
       matrix:
-        hardware: [inf2]
+        hardware: [cpu, gpu, inf2]
     runs-on:
       - self-hosted
       - ${{ matrix.hardware }}
