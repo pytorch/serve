@@ -41,3 +41,7 @@ instances.yaml.backup
 ## Models
 *.pt
 *.onnx
+
+# cpp
+cpp/_build
+cpp/third-party
