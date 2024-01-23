@@ -1,7 +1,7 @@
 
 ## Diffusion-Fast
 
-[Diffusion fast](https://github.com/huggingface/diffusion-fast) is a simple and efficient pytorch-native way of optmizing Stable Diffusion XL (SDXL).
+[Diffusion fast](https://github.com/huggingface/diffusion-fast) is a simple and efficient pytorch-native way of optimizing Stable Diffusion XL (SDXL).
 
 It features:
 * Running with the bfloat16 precision

@@ -1164,3 +1164,6 @@ compilable
 nightlies
 torchexportaotcompile
 autotune
+SDXL
+SDPA
+bfloat
