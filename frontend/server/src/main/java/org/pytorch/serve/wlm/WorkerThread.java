@@ -293,7 +293,9 @@ public class WorkerThread implements Runnable {
                 logger.debug("Shutting down the thread .. Scaling down.");
             } else {
                 logger.debug(
-                        "Backend worker monitoring thread interrupted or backend worker process died.",
+                        "Backend worker monitoring thread interrupted or backend worker process died., responseTimeout:"
+                                + responseTimeout
+                                + "sec",
                         e);
             }
         } catch (WorkerInitializationException e) {
@@ -586,7 +588,8 @@ public class WorkerThread implements Runnable {
             try {
                 replies.offer(msg, responseTimeout, TimeUnit.SECONDS);
             } catch (InterruptedException | NullPointerException e) {
-                logger.error("Failed to offer reply", e);
+                logger.error(
+                        "Failed to offer reply, responseTimeout:" + responseTimeout + "sec", e);
                 throw new IllegalStateException("Reply queue is full.");
             }
         }
