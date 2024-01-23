@@ -228,6 +228,8 @@ public final class ModelManager {
             commandParts.add("pip");
             commandParts.add("install");
             commandParts.add("-U");
+            commandParts.add("--upgrade-strategy");
+            commandParts.add("only-if-needed");
             commandParts.add("-t");
             commandParts.add(dependencyPath.getAbsolutePath());
             commandParts.add("-r");
