@@ -1,33 +1,34 @@
 import logging
 import os
-from abc import ABC
 from pathlib import Path
 
 import numpy as np
 import torch
 from diffusion_fast import DiffusionFast
 
+from ts.handler_utils.timer import timed
 from ts.torch_handler.base_handler import BaseHandler
 
 logger = logging.getLogger(__name__)
 
 
-class DiffusersHandler(BaseHandler, ABC):
+class DiffusionFastHandler(BaseHandler):
     """
-    Diffusers handler class for text to image generation.
+    Diffusion-Fast handler class for text to image generation.
     """
 
     def __init__(self):
+        super().__init__()
         self.initialized = False
 
     def initialize(self, ctx):
-        """In this initialize function, the Stable Diffusion model is loaded and
+        """In this initialize function, the Diffusion Fast model is loaded and
         initialized here.
         Args:
             ctx (context): It is a JSON Object containing information
             pertaining to the model artifacts parameters.
         """
-        logger.info("inita")
+        self.context = ctx
         self.manifest = ctx.manifest
         properties = ctx.system_properties
         model_dir = properties.get("model_dir")
@@ -41,6 +42,8 @@ class DiffusersHandler(BaseHandler, ABC):
         self.num_inference_steps = ctx.model_yaml_config["handler"][
             "num_inference_steps"
         ]
+
+        # Parameters for the model
         compile_unet = ctx.model_yaml_config["handler"]["compile_unet"]
         compile_vae = ctx.model_yaml_config["handler"]["compile_vae"]
         compile_mode = ctx.model_yaml_config["handler"]["compile_mode"]
@@ -50,6 +53,7 @@ class DiffusersHandler(BaseHandler, ABC):
         do_quant = ctx.model_yaml_config["handler"]["do_quant"]
         change_comp_config = ctx.model_yaml_config["handler"]["change_comp_config"]
 
+        # Load model weights
         model_weights = Path(ctx.model_yaml_config["handler"]["model_weights"])
 
         ckpt = os.path.join(model_dir, model_weights)
@@ -68,6 +72,7 @@ class DiffusersHandler(BaseHandler, ABC):
 
         self.initialized = True
 
+    @timed
     def preprocess(self, requests):
         """Basic text preprocessing, of the user's prompt.
         Args:
@@ -76,6 +81,11 @@ class DiffusersHandler(BaseHandler, ABC):
         Returns:
             list : The preprocess function returns a list of prompts.
         """
+
+        assert (
+            len(requests) == 1
+        ), "Diffusion Fast is currently only supported with batch_size=1"
+
         inputs = []
         for _, data in enumerate(requests):
             input_text = data.get("data")
@@ -87,6 +97,7 @@ class DiffusersHandler(BaseHandler, ABC):
             inputs.append(input_text)
         return inputs
 
+    @timed
     def inference(self, inputs):
         """Generates the image relevant to the received text.
         Args:
@@ -102,6 +113,7 @@ class DiffusersHandler(BaseHandler, ABC):
         logger.info("Generated image: '%s'", inferences)
         return inferences
 
+    @timed
     def postprocess(self, inference_output):
         """Post Process Function converts the generated image into Torchserve readable format.
         Args:

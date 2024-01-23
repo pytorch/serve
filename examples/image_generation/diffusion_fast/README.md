@@ -11,7 +11,7 @@ It features:
 * Dynamic int8 quantization
 
 Details about the optimizations and various results can be found in this  [blog](https://pytorch.org/blog/accelerating-generative-ai-3/).
-The examples has been tested on A10, A100 as well as H100.
+The example has been tested on A10, A100 as well as H100.
 
 
 #### Pre-requisites
@@ -26,7 +26,12 @@ pip install accelerate transformers peft
 pip install --no-cache-dir git+https://github.com/pytorch-labs/ao@54bcd5a10d0abbe7b0c045052029257099f83fd9
 pip install pandas matplotlib seaborn
 ```
+### Step 1: Download the Stable diffusion model
 
+```bash
+python Download_model.py
+```
+This saves the model in `Base_Diffusion_model`
 
 ### Step 1: Generate model archive
 At this stage we're creating the model archive which includes the configuration of our model in [model_config.yaml](./model_config.yaml).
@@ -35,7 +40,7 @@ For the single GPU case we can use the default configuration that can be found i
 
 ```
 torch-model-archiver --model-name diffusion_fast --version 1.0 --handler diffusion_fast_handler.py --config-file model_config.yaml --extra-files "diffusion-fast/utils/benchmarking_utils.py,diffusion-fast/utils/pipeline_utils.py,diffusion_fast.py" --archive-format no-archive
-mv diffusion-fast-model diffusion_fast/
+mv Base_Diffusion_model diffusion_fast/
 ```
 
 ### Step 2: Add the model archive to model store
@@ -48,7 +53,7 @@ mv diffusion_fast model_store
 ### Step 3: Start torchserve
 
 ```
-torchserve --start --ncs --model-store model_store --models diffusion_fast --ts-config config.properties
+torchserve --start --ncs --model-store model_store --models diffusion_fast
 ```
 
 ### Step 4: Run inference
