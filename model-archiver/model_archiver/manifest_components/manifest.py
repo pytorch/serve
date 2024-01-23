@@ -10,6 +10,7 @@ from model_archiver import __version__
 class RuntimeType(Enum):
     PYTHON = "python"
     PYTHON3 = "python3"
+    LSP = "LSP"
 
 
 class Manifest(object):

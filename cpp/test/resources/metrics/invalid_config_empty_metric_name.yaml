@@ -1,0 +1,8 @@
+dimensions:
+  - &model model_name
+
+model_metrics:
+  histogram:
+    - name: ""
+      unit: ms
+      dimensions: [*model]

@@ -25,6 +25,7 @@ ts_metrics:
     - name: ts_queue_latency_microseconds
       unit: Microseconds
       dimensions: ["model_name", "model_version", "hostname"]
+
   gauge:
     - name: QueueTime
       unit: Milliseconds

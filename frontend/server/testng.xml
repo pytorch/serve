@@ -11,6 +11,7 @@
       <class name="org.pytorch.serve.ModelServerTest"/>
       <class name="org.pytorch.serve.SnapshotTest"/>
       <class name="org.pytorch.serve.WorkflowTest"/>
+      <class name="org.pytorch.serve.wlm.WorkerLifeCycleTest"/>
       <class name="org.pytorch.serve.metrics.configuration.MetricConfigurationTest"/>
       <class name="org.pytorch.serve.metrics.MetricTest"/>
       <class name="org.pytorch.serve.metrics.MetricCacheTest"/>
