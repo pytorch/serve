@@ -56,7 +56,9 @@ class BaseNeuronXContinuousBatchingHandler(BaseHandler):
 
         os.environ["NEURONX_CACHE"] = "on"
         os.environ["NEURON_COMPILE_CACHE_URL"] = f"{model_dir}/neuron_cache"
-        os.environ["NEURON_CC_FLAGS"] = "-O1 --model-type=transformer"
+        os.environ[
+            "NEURON_CC_FLAGS"
+        ] = "-O1 --model-type=transformer --enable-mixed-precision-accumulation"
 
         self.max_length = int(
             ctx.model_yaml_config.get("handler", {}).get("max_length", self.max_length)
@@ -109,7 +111,7 @@ class BaseNeuronXContinuousBatchingHandler(BaseHandler):
             batch_size=self.batch_size,
             n_positions=[self.max_length],
             context_length_estimate=ctx.model_yaml_config.get("handler", {}).get(
-                "model_checkpoint_dir", [self.max_length]
+                "context_length_estimate", [self.max_length]
             ),
             neuron_config=neuron_config,
         )
