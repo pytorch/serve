@@ -92,7 +92,7 @@ class BaseNeuronXContinuousBatchingHandler(BaseHandler):
             )
 
             raise error
-
+        self._set_class(ctx)
         self.tokenizer = self.tokenizer_class.from_pretrained(
             model_checkpoint_path, return_tensors="pt", padding_side="left"
         )
@@ -104,7 +104,6 @@ class BaseNeuronXContinuousBatchingHandler(BaseHandler):
             batch_size_for_shared_caches=self.batch_size
         )
         neuron_config = NeuronConfig(continuous_batching=continuous_batching_config)
-        self._set_class(ctx)
         kwargs = dict(
             tp_degree=tp_degree,
             amp=amp,
@@ -155,9 +154,6 @@ class BaseNeuronXContinuousBatchingHandler(BaseHandler):
 
                 prompt = data.get("prompt")
                 max_new_tokens = int(data.get("max_new_tokens", self.max_new_tokens))
-                logger.info(
-                    "preprocess prompt={prompt}, max_new_tokens={max_new_tokens}"
-                )
                 prefill_input_text.append(prompt.strip())
 
                 self.context.cache[req_id] = {
@@ -388,11 +384,12 @@ class BaseNeuronXContinuousBatchingHandler(BaseHandler):
             max_new_tokens=max_new_tokens,
         )
 
-    def _set_class(self, ctx: Context):
+    def _set_class(self, ctx):
         model_class_name = ctx.model_yaml_config.get("handler", {}).get(
             "model_class_name", None
         )
-        self.assertIsNotNone(model_class_name, "model_class_name is not defined")
+
+        assert model_class_name is not None
         model_module_prefix = ctx.model_yaml_config.get("handler", {}).get(
             "model_module_prefix", None
         )
@@ -404,9 +401,7 @@ class BaseNeuronXContinuousBatchingHandler(BaseHandler):
         tokenizer_class_name = ctx.model_yaml_config.get("handler", {}).get(
             "tokenizer_class_name", None
         )
-        self.assertIsNotNone(
-            tokenizer_class_name, "tokenizer_class_name is not defined"
-        )
+        assert tokenizer_class_name is not None
         tokenizer_module_prefix = ctx.model_yaml_config.get("handler", {}).get(
             "tokenizer_module_prefix", None
         )
