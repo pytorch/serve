@@ -19,9 +19,9 @@ MODEL_SO_FILE = "resnet18_pt2.so"
 MODEL_YAML_CFG_FILE = EXAMPLE_ROOT_DIR.joinpath("model-config.yaml")
 
 
-PT_220_AVAILABLE = (
+PT_230_AVAILABLE = (
     True
-    if packaging.version.parse(torch.__version__) > packaging.version.parse("2.1.1")
+    if packaging.version.parse(torch.__version__) > packaging.version.parse("2.2.2")
     else False
 )
 
@@ -47,7 +47,7 @@ def custom_working_directory(tmp_path):
     os.chdir(tmp_path)
 
 
-@pytest.mark.skipif(PT_220_AVAILABLE == False, reason="torch version is < 2.2.0")
+@pytest.mark.skipif(PT_230_AVAILABLE == False, reason="torch version is < 2.3.0")
 def test_torch_export_aot_compile(custom_working_directory):
     # Get the path to the custom working directory
     model_dir = custom_working_directory
@@ -88,7 +88,7 @@ def test_torch_export_aot_compile(custom_working_directory):
     assert labels == EXPECTED_RESULTS
 
 
-@pytest.mark.skipif(PT_220_AVAILABLE == False, reason="torch version is < 2.2.0")
+@pytest.mark.skipif(PT_230_AVAILABLE == False, reason="torch version is < 2.3.0")
 def test_torch_export_aot_compile_dynamic_batching(custom_working_directory):
     # Get the path to the custom working directory
     model_dir = custom_working_directory
