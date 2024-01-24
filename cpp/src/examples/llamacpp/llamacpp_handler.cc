@@ -17,8 +17,7 @@ void LlamacppHandler::initialize_context() {
   }
 }
 
-std::pair<std::shared_ptr<torch::jit::script::Module>,
-          std::shared_ptr<torch::Device>>
+std::pair<std::shared_ptr<void>, std::shared_ptr<torch::Device>>
 LlamacppHandler::LoadModel(
     std::shared_ptr<torchserve::LoadModelRequest>& load_model_request) {
   try {
@@ -156,8 +155,7 @@ std::vector<torch::jit::IValue> LlamacppHandler::Preprocess(
 }
 
 torch::Tensor LlamacppHandler::Inference(
-    std::shared_ptr<torch::jit::script::Module> model,
-    std::vector<torch::jit::IValue>& inputs,
+    std::shared_ptr<void> model, std::vector<torch::jit::IValue>& inputs,
     std::shared_ptr<torch::Device>& device,
     std::pair<std::string&, std::map<uint8_t, std::string>&>& idx_to_req_id,
     std::shared_ptr<torchserve::InferenceResponseBatch>& response_batch) {
@@ -290,11 +288,11 @@ LlamacppHandler::~LlamacppHandler() noexcept {
 
 #if defined(__linux__) || defined(__APPLE__)
 extern "C" {
-torchserve::torchscripted::BaseHandler* allocatorLlamacppHandler() {
+torchserve::BaseHandler* allocatorLlamacppHandler() {
   return new llm::LlamacppHandler();
 }
 
-void deleterLlamacppHandler(torchserve::torchscripted::BaseHandler* p) {
+void deleterLlamacppHandler(torchserve::BaseHandler* p) {
   if (p != nullptr) {
     delete static_cast<llm::LlamacppHandler*>(p);
   }

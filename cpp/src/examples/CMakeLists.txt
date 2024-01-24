@@ -14,7 +14,6 @@ add_library(babyllama_handler SHARED ${BABYLLAMA_SOURCE_FILES})
 target_include_directories(babyllama_handler PUBLIC ${BABYLLAMA_SRC_DIR})
 target_link_libraries(babyllama_handler PRIVATE ts_backends_core ts_utils ${TORCH_LIBRARIES})
 target_compile_options(babyllama_handler PRIVATE -Wall -Wextra -Ofast)
-target_link_libraries(mnist_handler PRIVATE ts_backends_torch_scripted ts_utils ${TORCH_LIBRARIES})
 
 set(LLM_SRC_DIR "${torchserve_cpp_SOURCE_DIR}/src/examples/llamacpp")
 set(LLAMACPP_SRC_DIR "/home/ubuntu/llama.cpp")
@@ -23,7 +22,7 @@ list(APPEND LLM_SOURCE_FILES ${LLM_SRC_DIR}/llamacpp_handler.cc)
 add_library(llamacpp_handler SHARED ${LLM_SOURCE_FILES})
 target_include_directories(llamacpp_handler PUBLIC ${LLM_SRC_DIR})
 target_include_directories(llamacpp_handler PUBLIC ${LLAMACPP_SRC_DIR})
-target_link_libraries(llamacpp_handler PRIVATE ts_backends_torch_scripted ts_utils ${TORCH_LIBRARIES})
+target_link_libraries(llamacpp_handler PRIVATE ts_backends_core ts_utils ${TORCH_LIBRARIES})
 
 
 set(MY_OBJECT_FILES
