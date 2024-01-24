@@ -207,7 +207,8 @@
               "type": "string",
               "enum": [
                 "PYTHON",
-                "PYTHON3"
+                "PYTHON3",
+                "LSP"
               ]
             }
           },
