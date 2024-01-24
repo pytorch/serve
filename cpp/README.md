@@ -50,7 +50,7 @@ By default, TorchServe cpp provides a handler for TorchScript [src/backends/hand
  torch-model-archiver --model-name mnist_base --version 1.0 --serialized-file mnist_script.pt --handler TorchScriptHandler --runtime LSP
 ```
 Here is an [example](https://github.com/pytorch/serve/tree/cpp_backend/cpp/test/resources/torchscript_model/mnist/base_handler) of unzipped model mar file.
-##### Using Custom Handelr
+##### Using Custom Handler
 * build customized handler shared lib. For example [Mnist handler](https://github.com/pytorch/serve/blob/cpp_backend/cpp/src/examples/image_classifier/mnist).
 * set runtime as "LSP" in model archiver option [--runtime](https://github.com/pytorch/serve/tree/master/model-archiver#arguments)
 * set handler as "libmnist_handler:MnistHandler" in model archiver option [--handler](https://github.com/pytorch/serve/tree/master/model-archiver#arguments)
@@ -65,7 +65,7 @@ To run the example we need to download the weights as well as tokenizer files:
 wget https://huggingface.co/karpathy/tinyllamas/resolve/main/stories15M.bin
 wget https://github.com/karpathy/llama2.c/raw/master/tokenizer.bin
 ```
-Subsequently, we need toi adjust the paths according to our local file structure in [config.json](https://github.com/pytorch/serve/blob/master/serve/cpp/test/resources/torchscript_model/babyllama/babyllama_handler/config.json).
+Subsequently, we need to adjust the paths according to our local file structure in [config.json](https://github.com/pytorch/serve/blob/master/serve/cpp/test/resources/torchscript_model/babyllama/babyllama_handler/config.json).
 ```bash
 {
 "checkpoint_path" : "/home/ubuntu/serve/cpp/stories15M.bin",
