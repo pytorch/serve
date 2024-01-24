@@ -1,16 +1,16 @@
 """ The torchserve side inference end-points request are handled to
     return a KServe side response """
-import os
-import time
-import requests
 import logging
+import os
 import pathlib
+import time
 from enum import Enum
 from typing import Dict, Union
 
 import grpc
 import inference_pb2_grpc
 import kserve
+import requests
 from gprc_utils import from_ts_grpc, to_ts_grpc
 from inference_pb2 import PredictionResponse
 from kserve.errors import ModelMissingError
@@ -156,47 +156,58 @@ class TorchserveModel(Model):
             raise ModelMissingError(model_path)
 
         num_try = 0
-        model_load_customized = os.environ.get('MODEL_LOAD_CUSTOMIZED', 'false')
-        model_load_max_try = int(os.environ.get('MODEL_LOAD_MAX_TRY', 10))
-        model_load_delay = int(os.environ.get('MODEL_LOAD_DELAY', 30))
-        model_load_timeout = int(os.environ.get('MODEL_LOAD_TIMEOUT', 5))
+        model_load_customized = os.environ.get("MODEL_LOAD_CUSTOMIZED", "false")
+        model_load_max_try = int(os.environ.get("MODEL_LOAD_MAX_TRY", 10))
+        model_load_delay = int(os.environ.get("MODEL_LOAD_DELAY", 30))
+        model_load_timeout = int(os.environ.get("MODEL_LOAD_TIMEOUT", 5))
         while num_try < model_load_max_try and not self.ready:
             num_try = num_try + 1
-            logging.info(f'Loading {self.name} .. {num_try} of {model_load_max_try} tries..')
+            logging.info(
+                f"Loading {self.name} .. {num_try} of {model_load_max_try} tries.."
+            )
 
             try:
                 response = requests.get(
-                    READINESS_URL_FORMAT.format(self.management_address, self.name, model_load_customized),
-                    timeout=model_load_timeout
+                    READINESS_URL_FORMAT.format(
+                        self.management_address, self.name, model_load_customized
+                    ),
+                    timeout=model_load_timeout,
                 ).json()
 
                 default_verison = response[0]
 
-                workers = default_verison['workers']
-                workers_status = [worker['id'] for worker in workers if worker['status']=='READY']
+                workers = default_verison["workers"]
+                workers_status = [
+                    worker["id"] for worker in workers if worker["status"] == "READY"
+                ]
 
                 worker_ready = False
                 if len(workers_status) > 0:
                     worker_ready = True
 
-                self.ready = worker_ready if model_load_customized == 'false' \
-                    else worker_ready and 'customizedMetadata' in default_verison
+                self.ready = (
+                    worker_ready
+                    if model_load_customized == "false"
+                    else worker_ready and "customizedMetadata" in default_verison
+                )
 
-            except (requests.ConnectionError, 
-                    requests.Timeout, 
-                    requests.ConnectTimeout, 
-                    requests.ReadTimeout) as e:
-                logging.info(f'The model {self.name} is not ready')
+            except (
+                requests.ConnectionError,
+                requests.Timeout,
+                requests.ConnectTimeout,
+                requests.ReadTimeout,
+            ) as e:
+                logging.info(f"The model {self.name} is not ready")
 
             except Exception as e:
                 logging.info(e)
-                logging.info(f'Failed loading model {self.name}')
+                logging.info(f"Failed loading model {self.name}")
                 break
 
-            logging.info(f'Sleep {model_load_delay} seconds for load {self.name}..')
+            logging.info(f"Sleep {model_load_delay} seconds for load {self.name}..")
             time.sleep(model_load_delay)
 
         if self.ready:
-            logging.info(f'The model {self.name} is ready')
-        
+            logging.info(f"The model {self.name} is ready")
+
         return self.ready
