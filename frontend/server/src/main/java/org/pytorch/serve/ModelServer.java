@@ -38,6 +38,7 @@ import org.pytorch.serve.archive.model.ModelException;
 import org.pytorch.serve.archive.model.ModelNotFoundException;
 import org.pytorch.serve.grpcimpl.GRPCInterceptor;
 import org.pytorch.serve.grpcimpl.GRPCServiceFactory;
+import org.pytorch.serve.http.messages.RegisterModelRequest;
 import org.pytorch.serve.metrics.MetricCache;
 import org.pytorch.serve.metrics.MetricManager;
 import org.pytorch.serve.servingsdk.ModelServerEndpoint;
@@ -215,11 +216,6 @@ public class ModelServer {
                             if (marMinWorkers > 0 && marMaxWorkers >= marMinWorkers) {
                                 minWorkers = marMinWorkers;
                                 maxWorkers = marMaxWorkers;
-                            } else {
-                                logger.warn(
-                                        "Invalid model config in mar, minWorkers:{}, maxWorkers:{}",
-                                        marMinWorkers,
-                                        marMaxWorkers);
                             }
                         }
                         modelManager.updateModel(
@@ -267,8 +263,8 @@ public class ModelServer {
                                 modelName,
                                 null,
                                 null,
-                                1,
-                                100,
+                                -1 * RegisterModelRequest.DEFAULT_BATCH_SIZE,
+                                -1 * RegisterModelRequest.DEFAULT_MAX_BATCH_DELAY,
                                 configManager.getDefaultResponseTimeout(),
                                 defaultModelName,
                                 false,
