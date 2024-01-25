@@ -69,14 +69,14 @@ LlamacppHandler::LoadModel(
   }
 }
 
-std::vector<torch::jit::IValue> LlamacppHandler::Preprocess(
+c10::IValue LlamacppHandler::Preprocess(
     std::shared_ptr<torch::Device>& device,
     std::pair<std::string&, std::map<uint8_t, std::string>&>& idx_to_req_id,
     std::shared_ptr<torchserve::InferenceRequestBatch>& request_batch,
     std::shared_ptr<torchserve::InferenceResponseBatch>& response_batch) {
   initialize_context();
 
-  std::vector<torch::jit::IValue> batch_ivalue;
+  auto batch_ivalue = c10::impl::GenericList(torch::TensorType::get());
   std::vector<torch::Tensor> batch_tensors;
   uint8_t idx = 0;
   for (auto& request : *request_batch) {
@@ -154,15 +154,15 @@ std::vector<torch::jit::IValue> LlamacppHandler::Preprocess(
   return batch_ivalue;
 }
 
-torch::Tensor LlamacppHandler::Inference(
-    std::shared_ptr<void> model, std::vector<torch::jit::IValue>& inputs,
+c10::IValue LlamacppHandler::Inference(
+    std::shared_ptr<void> model, c10::IValue& inputs,
     std::shared_ptr<torch::Device>& device,
     std::pair<std::string&, std::map<uint8_t, std::string>&>& idx_to_req_id,
     std::shared_ptr<torchserve::InferenceResponseBatch>& response_batch) {
   torch::InferenceMode guard;
   std::vector<torch::Tensor> batch_output_vector;
-  for (const torch::jit::IValue& input : inputs) {
-    torch::Tensor tokens_list_tensor = input.toTensor();
+  for (const auto input : inputs.toTensorList()) {
+    torch::Tensor tokens_list_tensor = input.get().toTensor();
 
     int64_t num_elements = tokens_list_tensor.numel();
 
@@ -236,17 +236,18 @@ torch::Tensor LlamacppHandler::Inference(
 }
 
 void LlamacppHandler::Postprocess(
-    const torch::Tensor& data,
+    c10::IValue& output,
     std::pair<std::string&, std::map<uint8_t, std::string>&>& idx_to_req_id,
     std::shared_ptr<torchserve::InferenceResponseBatch>& response_batch) {
   for (const auto& kv : idx_to_req_id.second) {
+    auto data = output.toTensorList();
     try {
-      int64_t num_elements = data.numel();
+      int64_t num_elements = data[kv.first].get().toTensor().numel();
 
       // Convert the tensor to a vector of long values
       std::stringstream generated_text_stream;
 
-      auto data_ptr = data.data_ptr<int64_t>();
+      auto data_ptr = data[kv.first].get().toTensor().data_ptr<int64_t>();
       for (int64_t i = 0; i < num_elements; ++i) {
         generated_text_stream << llama_token_to_piece(llama_ctx, data_ptr[i]);
       }
