@@ -233,7 +233,6 @@ c10::IValue BabyLlamaHandler::Inference(
   } catch (...) {
     TS_LOG(ERROR, "Failed to run inference on this batch");
   }
-  std::cout << "WOOT?" << std::endl;
   return batch_output_vector;
 }
 
