@@ -16,7 +16,7 @@ target_link_libraries(babyllama_handler PRIVATE ts_backends_core ts_utils ${TORC
 target_compile_options(babyllama_handler PRIVATE -Wall -Wextra -Ofast)
 
 set(LLM_SRC_DIR "${torchserve_cpp_SOURCE_DIR}/src/examples/llamacpp")
-set(LLAMACPP_SRC_DIR "/home/ubuntu/llama.cpp")
+set(LLAMACPP_SRC_DIR "${torchserve_cpp_SOURCE_DIR}/third-party/llama.cpp")
 set(LLM_SOURCE_FILES "")
 list(APPEND LLM_SOURCE_FILES ${LLM_SRC_DIR}/llamacpp_handler.cc)
 add_library(llamacpp_handler SHARED ${LLM_SOURCE_FILES})
