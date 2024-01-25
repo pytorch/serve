@@ -6,7 +6,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -100,6 +99,8 @@ public final class ModelManager {
 
         createVersionedModel(tempModel, versionId);
 
+        setupModelVenv(tempModel);
+
         setupModelDependencies(tempModel);
         if (defaultVersion) {
             modelManager.setDefaultVersion(modelName, versionId);
@@ -153,6 +154,8 @@ public final class ModelManager {
             }
         }
 
+        setupModelVenv(tempModel);
+
         setupModelDependencies(tempModel);
 
         logger.info("Model {} loaded.", tempModel.getModelName());
@@ -205,24 +208,82 @@ public final class ModelManager {
         return archive;
     }
 
+    private void setupModelVenv(Model model)
+            throws IOException, InterruptedException, ModelException {
+        String venvPath = EnvironmentUtils.getPythonVenvPath(model);
+        List<String> commandParts = new ArrayList<>();
+        commandParts.add(EnvironmentUtils.getPythonRunTime(model));
+        commandParts.add("-m");
+        commandParts.add("venv");
+        commandParts.add("--clear");
+        commandParts.add("--system-site-packages");
+        commandParts.add(venvPath);
+
+        ProcessBuilder processBuilder = new ProcessBuilder(commandParts);
+
+        if (isValidVenvPath(venvPath)) {
+            processBuilder.directory(Paths.get(venvPath).toFile().getParentFile());
+        } else {
+            throw new ModelException(
+                    "Invalid python venv path for model " + model.getModelName() + ": " + venvPath);
+        }
+        Map<String, String> environment = processBuilder.environment();
+        String[] envp =
+                EnvironmentUtils.getEnvString(
+                        configManager.getModelServerHome(),
+                        model.getModelDir().getAbsolutePath(),
+                        null);
+        for (String envVar : envp) {
+            String[] parts = envVar.split("=", 2);
+            if (parts.length == 2) {
+                environment.put(parts[0], parts[1]);
+            }
+        }
+        processBuilder.redirectErrorStream(true);
+
+        Process process = processBuilder.start();
+
+        int exitCode = process.waitFor();
+        String line;
+        StringBuilder outputString = new StringBuilder();
+        BufferedReader brdr = new BufferedReader(new InputStreamReader(process.getInputStream()));
+        while ((line = brdr.readLine()) != null) {
+            outputString.append(line);
+        }
+
+        if (exitCode == 0) {
+            logger.info(
+                    "Created virtual environment for model {}:\n{}",
+                    model.getModelName(),
+                    outputString.toString());
+        } else {
+            logger.error(
+                    "Virtual environment creation for model {} failed:\n{}",
+                    model.getModelName(),
+                    outputString.toString());
+            throw new ModelException(
+                    "Virtual environment creation failed for model " + model.getModelName());
+        }
+    }
+
     private void setupModelDependencies(Model model)
             throws IOException, InterruptedException, ModelException {
         String requirementsFile =
                 model.getModelArchive().getManifest().getModel().getRequirementsFile();
 
         if (configManager.getInstallPyDepPerModel() && requirementsFile != null) {
-            Path requirementsFilePath =
-                    Paths.get(model.getModelDir().getAbsolutePath(), requirementsFile);
-
             String pythonRuntime = EnvironmentUtils.getPythonRunTime(model);
-
-            File dependencyPath = model.getModelDir();
-            if (Files.isSymbolicLink(dependencyPath.toPath())) {
-                dependencyPath = dependencyPath.getParentFile();
+            if (!isValidVenvPath(pythonRuntime)) {
+                throw new ModelException(
+                        "Invalid python venv runtime path for model "
+                                + model.getModelName()
+                                + ": "
+                                + pythonRuntime);
             }
 
+            Path requirementsFilePath =
+                    Paths.get(model.getModelDir().getAbsolutePath(), requirementsFile);
             List<String> commandParts = new ArrayList<>();
-
             commandParts.add(pythonRuntime);
             commandParts.add("-m");
             commandParts.add("pip");
@@ -230,26 +291,16 @@ public final class ModelManager {
             commandParts.add("-U");
             commandParts.add("--upgrade-strategy");
             commandParts.add("only-if-needed");
-            commandParts.add("-t");
-            commandParts.add(dependencyPath.getAbsolutePath());
             commandParts.add("-r");
             commandParts.add(requirementsFilePath.toString());
+
+            ProcessBuilder processBuilder = new ProcessBuilder(commandParts);
 
             String[] envp =
                     EnvironmentUtils.getEnvString(
                             configManager.getModelServerHome(),
                             model.getModelDir().getAbsolutePath(),
                             null);
-
-            ProcessBuilder processBuilder = new ProcessBuilder(commandParts);
-            if (isValidDependencyPath(dependencyPath)) {
-                processBuilder.directory(dependencyPath);
-            } else {
-                throw new ModelException(
-                        "Invalid 3rd party package installation path "
-                                + dependencyPath.getCanonicalPath());
-            }
-
             Map<String, String> environment = processBuilder.environment();
             for (String envVar : envp) {
                 String[] parts = envVar.split("=", 2);
@@ -257,37 +308,39 @@ public final class ModelManager {
                     environment.put(parts[0], parts[1]);
                 }
             }
+            processBuilder.directory(
+                    Paths.get(EnvironmentUtils.getPythonVenvPath(model)).toFile().getParentFile());
+            processBuilder.redirectErrorStream(true);
+
             Process process = processBuilder.start();
+
             int exitCode = process.waitFor();
+            String line;
+            StringBuilder outputString = new StringBuilder();
+            BufferedReader brdr =
+                    new BufferedReader(new InputStreamReader(process.getInputStream()));
+            while ((line = brdr.readLine()) != null) {
+                outputString.append(line);
+            }
 
-            if (exitCode != 0) {
-
-                String line;
-                StringBuilder outputString = new StringBuilder();
-                // process's stdout is InputStream for caller process
-                BufferedReader brdr =
-                        new BufferedReader(new InputStreamReader(process.getInputStream()));
-                while ((line = brdr.readLine()) != null) {
-                    outputString.append(line);
-                }
-                StringBuilder errorString = new StringBuilder();
-                // process's stderr is ErrorStream for caller process
-                brdr = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-                while ((line = brdr.readLine()) != null) {
-                    errorString.append(line);
-                }
-
-                logger.error("Dependency installation stderr:\n" + errorString.toString());
-
+            if (exitCode == 0) {
+                logger.info(
+                        "Installed custom dependencies for model {}:\n{}",
+                        model.getModelName(),
+                        outputString.toString());
+            } else {
+                logger.error(
+                        "Failed to install custom dependencies for model {}:\n{}",
+                        model.getModelName(),
+                        outputString.toString());
                 throw new ModelException(
-                        "Custom pip package installation failed for " + model.getModelName());
+                        "Failed to install custom dependencies for model " + model.getModelName());
             }
         }
     }
 
-    private boolean isValidDependencyPath(File dependencyPath) {
-        if (dependencyPath
-                .toPath()
+    private boolean isValidVenvPath(String venvPath) {
+        if (Paths.get(venvPath)
                 .normalize()
                 .startsWith(FileUtils.getTempDirectory().toPath().normalize())) {
             return true;
