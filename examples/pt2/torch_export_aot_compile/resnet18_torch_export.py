@@ -9,7 +9,15 @@ model = resnet18(weights=ResNet18_Weights.DEFAULT)
 model.eval()
 
 with torch.no_grad():
-    device = "cuda" if torch.cuda.is_available() else "cpu"
+    if torch.cuda.is_available():
+        device = "cuda"
+    else:
+        device = "cpu"
+        # The below config is needed for max batch_size = 16
+        # https://github.com/pytorch/pytorch/pull/116152
+        torch.backends.mkldnn.set_flags(False)
+        torch.backends.nnpack.set_flags(False)
+
     model = model.to(device=device)
     example_inputs = (torch.randn(2, 3, 224, 224, device=device),)
 
