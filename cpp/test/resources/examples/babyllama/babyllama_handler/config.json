@@ -2,4 +2,3 @@
 "checkpoint_path" : "/home/ubuntu/serve/cpp/stories15M.bin",
 "tokenizer_path" : "/home/ubuntu/serve/cpp/src/examples/babyllama/tokenizer.bin"
 }
-

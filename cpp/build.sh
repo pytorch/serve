@@ -215,17 +215,17 @@ function build() {
   ./_build/test/torchserve_cpp_test ${COLOR_OFF}"
 
   if [ -f "$DEPS_DIR/../src/examples/libmnist_handler.dylib" ]; then
-    mv $DEPS_DIR/../src/examples/libmnist_handler.dylib $DEPS_DIR/../../test/resources/torchscript_model/mnist/mnist_handler/libmnist_handler.dylib
+    mv $DEPS_DIR/../src/examples/libmnist_handler.dylib $DEPS_DIR/../../test/resources/examples/mnist/mnist_handler/libmnist_handler.dylib
   elif [ -f "$DEPS_DIR/../src/examples/libmnist_handler.so" ]; then
-    mv $DEPS_DIR/../src/examples/libmnist_handler.so $DEPS_DIR/../../test/resources/torchscript_model/mnist/mnist_handler/libmnist_handler.so
+    mv $DEPS_DIR/../src/examples/libmnist_handler.so $DEPS_DIR/../../test/resources/examples/mnist/mnist_handler/libmnist_handler.so
   fi
 
   if [ -f "$DEPS_DIR/../src/examples/libbabyllama_handler.so" ]; then
-    mv $DEPS_DIR/../src/examples/libbabyllama_handler.so $DEPS_DIR/../../test/resources/torchscript_model/babyllama/babyllama_handler/libbabyllama_handler.so
+    mv $DEPS_DIR/../src/examples/libbabyllama_handler.so $DEPS_DIR/../../test/resources/examples/babyllama/babyllama_handler/libbabyllama_handler.so
   fi
 
   if [ -f "$DEPS_DIR/../src/examples/libllamacpp_handler.so" ]; then
-    mv $DEPS_DIR/../src/examples/libllamacpp_handler.so $DEPS_DIR/../../test/resources/torchscript_model/llamacpp/llamacpp_handler/libllamacpp_handler.so
+    mv $DEPS_DIR/../src/examples/libllamacpp_handler.so $DEPS_DIR/../../test/resources/examples/llamacpp/llamacpp_handler/libllamacpp_handler.so
   fi
 
   cd $DEPS_DIR/../..
