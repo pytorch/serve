@@ -96,48 +96,42 @@ def create_mar_file(work_dir, model_archiver, model_name):
     mar_file_path.unlink(missing_ok=True)
 
 
-def register_model(mar_file_path, model_store, params, torchserve):
+@pytest.fixture(scope="module", name="base_model_name")
+def register_model(mar_file_path, model_store, torchserve):
     shutil.copy(mar_file_path, model_store)
 
     file_name = Path(mar_file_path).name
 
-    model_name = Path(file_name).stem
+    base_model_name = Path(file_name).stem
 
-    params = params + (
-        ("model_name", model_name),
+    params = (
+        ("model_name", f"{base_model_name}_b4"),
         ("url", file_name),
+        ("initial_workers", "2"),
+        ("synchronous", "true"),
     )
 
     test_utils.reg_resp = test_utils.register_model_with_params(params)
-    return model_name
 
-
-@pytest.mark.skip(reason="Flaky on Regression GPU")
-def test_register_model_with_batch_size(mar_file_path, model_store, torchserve):
     params = (
+        ("model_name", f"{base_model_name}_b2"),
+        ("url", file_name),
         ("initial_workers", "2"),
         ("synchronous", "true"),
         ("batch_size", "2"),
     )
 
-    model_name = register_model(mar_file_path, model_store, params, torchserve)
+    test_utils.reg_resp = test_utils.register_model_with_params(params)
+    yield base_model_name
 
-    describe_resp = test_utils.describe_model(model_name, "1.0")
+
+def test_register_model_with_batch_size(base_model_name):
+    describe_resp = test_utils.describe_model(f"{base_model_name}_b2", "1.0")
 
     assert describe_resp[0]["batchSize"] == 2
 
-    test_utils.unregister_model(model_name)
 
-
-def test_register_model_without_batch_size(mar_file_path, model_store, torchserve):
-    params = (
-        ("initial_workers", "2"),
-        ("synchronous", "true"),
-    )
-    model_name = register_model(mar_file_path, model_store, params, torchserve)
-
-    describe_resp = test_utils.describe_model(model_name, "1.0")
+def test_register_model_without_batch_size(base_model_name):
+    describe_resp = test_utils.describe_model(f"{base_model_name}_b4", "1.0")
 
     assert describe_resp[0]["batchSize"] == 4
-
-    test_utils.unregister_model(model_name)

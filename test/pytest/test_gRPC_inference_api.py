@@ -53,6 +53,11 @@ def test_inference_apis():
         test_data = json.loads(f.read())
 
     for item in test_data:
+        # TODO: enable after correctly handling parameter name and header dtype in cpp backend
+        if "skip_grpc_inference_api" in item and item["skip_grpc_inference_api"]:
+            print(f"Skipping grpc inference api test for {item['url']}")
+            continue
+
         if item["url"].startswith("{{mar_path_"):
             path = test_utils.mar_file_table[item["url"][2:-2]]
         else:

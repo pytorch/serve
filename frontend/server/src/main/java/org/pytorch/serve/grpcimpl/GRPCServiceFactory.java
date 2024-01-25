@@ -16,6 +16,9 @@ public final class GRPCServiceFactory {
             case INFERENCE_CONNECTOR:
                 torchServeService = new InferenceImpl();
                 break;
+            case OPEN_INFERENCE_CONNECTOR:
+                torchServeService = new OpenInferenceProtocolImpl();
+                break;
             default:
                 break;
         }

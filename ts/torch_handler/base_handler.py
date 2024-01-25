@@ -357,7 +357,7 @@ class BaseHandler(abc.ABC):
         Returns:
             Torch Tensor : The Predicted Torch Tensor is returned in this function.
         """
-        with torch.no_grad():
+        with torch.inference_mode():
             marshalled_data = data.to(self.device)
             results = self.model(marshalled_data, *args, **kwargs)
         return results

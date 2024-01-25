@@ -191,6 +191,15 @@ def start() -> None:
                         print("--model-store is required to load model locally.")
                         sys.exit(1)
 
+        if args.cpp_log_config:
+            cpp_log_config = os.path.realpath(args.cpp_log_config)
+            if not os.path.isfile(cpp_log_config):
+                print("--cpp-log-config file not found: {}".format(cpp_log_config))
+                sys.exit(1)
+
+            cmd.append("-clog")
+            cmd.append(cpp_log_config)
+
         try:
             process = subprocess.Popen(cmd)
             pid = process.pid

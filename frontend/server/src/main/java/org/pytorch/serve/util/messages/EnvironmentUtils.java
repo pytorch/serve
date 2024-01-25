@@ -82,4 +82,41 @@ public final class EnvironmentUtils {
         }
         return pythonRuntime;
     }
+
+    public static String[] getCppEnvString(String libPath) {
+        ArrayList<String> envList = new ArrayList<>();
+        StringBuilder cppPath = new StringBuilder();
+        Pattern blackList = configManager.getBlacklistPattern();
+
+        HashMap<String, String> environment = new HashMap<>(System.getenv());
+        environment.putAll(configManager.getBackendConfiguration());
+
+        cppPath.append(libPath);
+
+        String os = System.getProperty("os.name").toLowerCase();
+        if (os.indexOf("win") >= 0) {
+            if (System.getenv("PATH") != null) {
+                cppPath.append(File.pathSeparatorChar).append(System.getenv("PATH"));
+            }
+            environment.put("PATH", cppPath.toString());
+        } else if (os.indexOf("mac") >= 0) {
+            if (System.getenv("DYLD_LIBRARY_PATH") != null) {
+                cppPath.append(File.pathSeparatorChar).append(System.getenv("DYLD_LIBRARY_PATH"));
+            }
+            environment.put("DYLD_LIBRARY_PATH", cppPath.toString());
+        } else {
+            if (System.getenv("LD_LIBRARY_PATH") != null) {
+                cppPath.append(File.pathSeparatorChar).append(System.getenv("LD_LIBRARY_PATH"));
+            }
+            environment.put("LD_LIBRARY_PATH", cppPath.toString());
+        }
+
+        for (Map.Entry<String, String> entry : environment.entrySet()) {
+            if (!blackList.matcher(entry.getKey()).matches()) {
+                envList.add(entry.getKey() + '=' + entry.getValue());
+            }
+        }
+
+        return envList.toArray(new String[0]); // NOPMD
+    }
 }

@@ -49,17 +49,17 @@ handler:
 MAR_PARAMS = (
     {
         "nproc": 1,
-        "stream": "false",
+        "stream": "true",
         "compile": "false",
     },
     {
         "nproc": 4,
-        "stream": "false",
+        "stream": "true",
         "compile": "false",
     },
     {
         "nproc": 4,
-        "stream": f"false\n    speculate_k: 8\n    draft_checkpoint_path: '{(LLAMA_MODEL_PATH.parents[1] / 'Llama-2-7b-chat-hf' / 'model_int8.pth').as_posix()}'",
+        "stream": f"true\n    speculate_k: 8\n    draft_checkpoint_path: '{(LLAMA_MODEL_PATH.parents[1] / 'Llama-2-7b-chat-hf' / 'model_int8.pth').as_posix()}'",
         "compile": "true",
     },
 )
@@ -72,7 +72,8 @@ PROMPTS = [
 ]
 
 EXPECTED_RESULTS = [
-    ", Paris, is a city of romance, fashion, and art. The city is home to the Eiffel Tower, the Louvre, and the Arc de Triomphe. Paris is also known for its cafes, restaurants",
+    # ", Paris, is a city of romance, fashion, and art. The city is home to the Eiffel Tower, the Louvre, and the Arc de Triomphe. Paris is also known for its cafes, restaurants",
+    " is Paris.\nThe capital of Germany is Berlin.\nThe capital of Italy is Rome.\nThe capital of Spain is Madrid.\nThe capital of the United Kingdom is London.\nThe capital of the European Union is Brussels.\n",
 ]
 
 
@@ -223,19 +224,21 @@ def test_gpt_fast_mar(model_name_and_stdout):
 
     response = requests.post(
         url=f"http://localhost:8080/predictions/{model_name}",
-        data=json.dumps(PROMPTS[0]),
+        data=json.dumps(
+            PROMPTS[0],
+        ),
+        stream=True,
     )
 
     assert response.status_code == 200
 
-    # Streaming currently does not work with tp
-    # assert response.headers["Transfer-Encoding"] == "chunked"
+    assert response.headers["Transfer-Encoding"] == "chunked"
 
-    # prediction = ""
-    # for chunk in response.iter_content(chunk_size=None):
-    #     if chunk:
-    #         prediction += chunk.decode("utf-8")
+    prediction = []
+    for chunk in response.iter_content(chunk_size=None):
+        if chunk:
+            prediction += [chunk.decode("utf-8")]
 
-    # assert prediction == EXPECTED_RESULTS[0]
+    assert len(prediction) > 1
 
-    assert response.text == EXPECTED_RESULTS[0]
+    assert "".join(prediction) == EXPECTED_RESULTS[0]
