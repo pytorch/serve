@@ -3,8 +3,7 @@
   "runtime": "LSP",
   "model": {
     "modelName": "llamacpp",
-    "serializedFile": "dummy.pt",
-    "handler": "libllamacpp_handler:LlamacppHandler",
+    "handler": "libllamacpp_handler:LlamaCppHandler",
     "modelVersion": "2.0"
   },
   "archiverVersion": "0.2.0"

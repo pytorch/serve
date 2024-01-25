@@ -23,7 +23,7 @@ TEST_F(ModelPredictTest, TestLoadPredictLlmHandler) {
 
   this->LoadPredict(std::make_shared<torchserve::LoadModelRequest>(
                         "test/resources/examples/llamacpp/llamacpp_handler",
-                        "llm", -1, "", "", 1, false),
+                        "llamacpp", -1, "", "", 1, false),
                     "test/resources/examples/llamacpp/llamacpp_handler",
                     "test/resources/examples/llamacpp/prompt.txt", "llm_ts",
                     200);

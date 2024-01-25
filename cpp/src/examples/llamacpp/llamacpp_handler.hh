@@ -9,7 +9,7 @@
 #include "src/backends/handler/base_handler.hh"
 
 namespace llm {
-class LlamacppHandler : public torchserve::BaseHandler {
+class LlamaCppHandler : public torchserve::BaseHandler {
  private:
   gpt_params params;
   llama_model_params model_params;
@@ -20,9 +20,9 @@ class LlamacppHandler : public torchserve::BaseHandler {
 
  public:
   // NOLINTBEGIN(bugprone-exception-escape)
-  LlamacppHandler() = default;
+  LlamaCppHandler() = default;
   // NOLINTEND(bugprone-exception-escape)
-  ~LlamacppHandler() noexcept;
+  ~LlamaCppHandler() noexcept;
 
   void initialize_context();
 

@@ -7,7 +7,7 @@
 
 namespace llm {
 
-void LlamacppHandler::initialize_context() {
+void LlamaCppHandler::initialize_context() {
   llama_ctx = llama_new_context_with_model(llamamodel, ctx_params);
 
   if (llama_ctx == nullptr) {
@@ -18,15 +18,10 @@ void LlamacppHandler::initialize_context() {
 }
 
 std::pair<std::shared_ptr<void>, std::shared_ptr<torch::Device>>
-LlamacppHandler::LoadModel(
+LlamaCppHandler::LoadModel(
     std::shared_ptr<torchserve::LoadModelRequest>& load_model_request) {
   try {
     auto device = GetTorchDevice(load_model_request);
-    // Load dummy model
-    auto module = std::make_shared<torch::jit::script::Module>(
-        torch::jit::load(fmt::format("{}/{}", load_model_request->model_dir,
-                                     manifest_->GetModel().serialized_file),
-                         *device));
 
     const std::string configFilePath =
         fmt::format("{}/{}", load_model_request->model_dir, "config.json");
@@ -55,7 +50,7 @@ LlamacppHandler::LoadModel(
     model_params = llama_model_default_params();
     llamamodel = llama_load_model_from_file(params.model.c_str(), model_params);
 
-    return std::make_pair(module, device);
+    return std::make_pair(nullptr, device);
   } catch (const c10::Error& e) {
     TS_LOGF(ERROR, "loading the model: {}, device id: {}, error: {}",
             load_model_request->model_name, load_model_request->gpu_id,
@@ -69,7 +64,7 @@ LlamacppHandler::LoadModel(
   }
 }
 
-c10::IValue LlamacppHandler::Preprocess(
+c10::IValue LlamaCppHandler::Preprocess(
     std::shared_ptr<torch::Device>& device,
     std::pair<std::string&, std::map<uint8_t, std::string>&>& idx_to_req_id,
     std::shared_ptr<torchserve::InferenceRequestBatch>& request_batch,
@@ -154,7 +149,7 @@ c10::IValue LlamacppHandler::Preprocess(
   return batch_ivalue;
 }
 
-c10::IValue LlamacppHandler::Inference(
+c10::IValue LlamaCppHandler::Inference(
     std::shared_ptr<void> model, c10::IValue& inputs,
     std::shared_ptr<torch::Device>& device,
     std::pair<std::string&, std::map<uint8_t, std::string>&>& idx_to_req_id,
@@ -235,7 +230,7 @@ c10::IValue LlamacppHandler::Inference(
   return torch::stack(batch_output_vector);
 }
 
-void LlamacppHandler::Postprocess(
+void LlamaCppHandler::Postprocess(
     c10::IValue& output,
     std::pair<std::string&, std::map<uint8_t, std::string>&>& idx_to_req_id,
     std::shared_ptr<torchserve::InferenceResponseBatch>& response_batch) {
@@ -279,7 +274,7 @@ void LlamacppHandler::Postprocess(
   }
 }
 
-LlamacppHandler::~LlamacppHandler() noexcept {
+LlamaCppHandler::~LlamaCppHandler() noexcept {
   llama_free(llama_ctx);
   llama_free_model(llamamodel);
   llama_backend_free();
@@ -289,13 +284,13 @@ LlamacppHandler::~LlamacppHandler() noexcept {
 
 #if defined(__linux__) || defined(__APPLE__)
 extern "C" {
-torchserve::BaseHandler* allocatorLlamacppHandler() {
-  return new llm::LlamacppHandler();
+torchserve::BaseHandler* allocatorLlamaCppHandler() {
+  return new llm::LlamaCppHandler();
 }
 
-void deleterLlamacppHandler(torchserve::BaseHandler* p) {
+void deleterLlamaCppHandler(torchserve::BaseHandler* p) {
   if (p != nullptr) {
-    delete static_cast<llm::LlamacppHandler*>(p);
+    delete static_cast<llm::LlamaCppHandler*>(p);
   }
 }
 }
