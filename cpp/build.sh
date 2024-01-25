@@ -136,6 +136,14 @@ function install_yaml_cpp() {
   cd "$BWD" || exit
 }
 
+function build_llama_cpp() {
+  BWD=$(pwd)
+  LLAMA_CPP_SRC_DIR=$BASE_DIR/third-party/llama.cpp
+  cd "${LLAMA_CPP_SRC_DIR}"
+  make
+  cd "$BWD" || exit
+}
+
 function build() {
   MAYBE_BUILD_QUIC=""
   if [ "$WITH_QUIC" == true ] ; then
@@ -315,10 +323,13 @@ mkdir -p "$LIBS_DIR"
 # Must execute from the directory containing this script
 cd $BASE_DIR
 
+git submodule update --init --recursive
+
 install_folly
 install_kineto
 install_libtorch
 install_yaml_cpp
+build_llama_cpp
 build
 symlink_torch_libs
 symlink_yaml_cpp_lib
