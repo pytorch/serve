@@ -10,13 +10,17 @@ void BaseHandler::Handle(
   std::map<uint8_t, std::string> map_idx_to_req_id;
   std::pair<std::string&, std::map<uint8_t, std::string>&> idx_to_req_id(
       req_ids, map_idx_to_req_id);
+  std::string just_passed = "";
   try {
     auto start_time = std::chrono::system_clock::now();
     auto inputs =
         Preprocess(device, idx_to_req_id, request_batch, response_batch);
+    just_passed = "Preprocessing";
     auto outputs =
         Inference(model, inputs, device, idx_to_req_id, response_batch);
+    just_passed = "Inference";
     Postprocess(outputs, idx_to_req_id, response_batch);
+    just_passed = "Postprocessing";
     auto stop_time = std::chrono::system_clock::now();
     std::chrono::duration<double, std::milli> duration = stop_time - start_time;
     try {
@@ -44,7 +48,7 @@ void BaseHandler::Handle(
       TS_LOGF(ERROR, "Failed to record PredictionTime metric. {}", e.what());
     }
   } catch (...) {
-    TS_LOG(ERROR, "Failed to handle this batch");
+    TS_LOG(ERROR, "Failed to handle this batch after: {}", just_passed);
   }
 }
 
