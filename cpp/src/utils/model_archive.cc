@@ -18,14 +18,10 @@ bool Manifest::Initialize(const std::string& manifest_json_file_path) {
     }
 
     SetValue(model, torchserve::Manifest::kModel_Handler, model_.handler, true);
-    if (!SetValue(model, torchserve::Manifest::kModel_SerializedFile,
-                  model_.serialized_file, false) &&
-        !SetValue(model, torchserve::Manifest::kModel_ModelFile,
-                  model_.model_file, false)) {
-      TS_LOGF(ERROR, "Item: {} and item : {} not defined in {}",
-              torchserve::Manifest::kModel_SerializedFile,
-              torchserve::Manifest::kModel_ModelFile, manifest_json_file_path);
-    }
+    SetValue(model, torchserve::Manifest::kModel_SerializedFile,
+             model_.serialized_file, false);
+    SetValue(model, torchserve::Manifest::kModel_ModelFile, model_.model_file,
+             false);
 
     SetValue(model, torchserve::Manifest::kModel_ModelName, model_.model_name,
              false);
