@@ -1,7 +1,7 @@
 This example is adapted from https://github.com/karpathy/llama2.c. The handler C++ source code for this examples can be found [here](../../../cpp/src/examples/babyllama/).
 
 ### Setup
-1. Follow the instrictions in [README.md](../../../cpp/README.md) to build the TorchServe C++ backend.
+1. Follow the instructions in [README.md](../../../cpp/README.md) to build the TorchServe C++ backend.
 
 ```
 cd serve/cpp
