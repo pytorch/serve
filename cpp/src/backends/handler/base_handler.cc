@@ -67,7 +67,7 @@ std::shared_ptr<torch::Device> BaseHandler::GetTorchDevice(
                                          load_model_request->gpu_id);
 }
 
-std::vector<torch::jit::IValue> BaseHandler::Preprocess(
+c10::IValue BaseHandler::Preprocess(
     std::shared_ptr<torch::Device>& device,
     std::pair<std::string&, std::map<uint8_t, std::string>&>& idx_to_req_id,
     std::shared_ptr<torchserve::InferenceRequestBatch>& request_batch,
@@ -77,7 +77,8 @@ std::vector<torch::jit::IValue> BaseHandler::Preprocess(
    * Ref:
    * https://github.com/pytorch/serve/blob/be5ff32dab0d81ceb1c2a9d42550ed5904ae9282/ts/torch_handler/vision_handler.py#L33
    */
-  std::vector<torch::jit::IValue> batch_ivalue;
+  auto batch_ivalue = c10::impl::GenericList(c10::TensorType::get());
+
   std::vector<torch::Tensor> batch_tensors;
   uint8_t idx = 0;
   for (auto& request : *request_batch) {
@@ -165,8 +166,8 @@ std::vector<torch::jit::IValue> BaseHandler::Preprocess(
   return batch_ivalue;
 }
 
-torch::Tensor BaseHandler::Inference(
-    std::shared_ptr<void> model, std::vector<torch::jit::IValue>& inputs,
+c10::IValue BaseHandler::Inference(
+    std::shared_ptr<void> model, c10::IValue& inputs,
     std::shared_ptr<torch::Device>& device,
     std::pair<std::string&, std::map<uint8_t, std::string>&>& idx_to_req_id,
     std::shared_ptr<torchserve::InferenceResponseBatch>& response_batch) {
@@ -177,7 +178,9 @@ torch::Tensor BaseHandler::Inference(
     torch::NoGradGuard no_grad;
     std::shared_ptr<torch::jit::Module> jit_model(
         std::static_pointer_cast<torch::jit::Module>(model));
-    return jit_model->forward(inputs).toTensor();
+    std::vector<at::IValue> input_vec(inputs.toList().begin(),
+                                      inputs.toList().end());
+    return jit_model->forward(input_vec).toTensor();
   } catch (const std::runtime_error& e) {
     TS_LOGF(ERROR, "Failed to predict, error: {}", e.what());
     for (auto& kv : idx_to_req_id.second) {
@@ -191,15 +194,16 @@ torch::Tensor BaseHandler::Inference(
 }
 
 void BaseHandler::Postprocess(
-    const torch::Tensor& data,
+    c10::IValue& inputs,
     std::pair<std::string&, std::map<uint8_t, std::string>&>& idx_to_req_id,
     std::shared_ptr<torchserve::InferenceResponseBatch>& response_batch) {
+  auto data = inputs.toTensor();
   for (const auto& kv : idx_to_req_id.second) {
     try {
       auto response = (*response_batch)[kv.second];
       response->SetResponse(200, "data_type",
                             torchserve::PayloadType::kDATA_TYPE_BYTES,
-                            torch::pickle_save(data[kv.first]));
+                            torch::pickle_save(at::IValue(data[kv.first])));
     } catch (const std::runtime_error& e) {
       TS_LOGF(ERROR, "Failed to load tensor for request id: {}, error: {}",
               kv.second, e.what());

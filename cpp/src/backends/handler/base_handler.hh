@@ -40,20 +40,20 @@ class BaseHandler {
   virtual std::pair<std::shared_ptr<void>, std::shared_ptr<torch::Device>>
   LoadModel(std::shared_ptr<LoadModelRequest>& load_model_request) = 0;
 
-  virtual std::vector<torch::jit::IValue> Preprocess(
+  virtual c10::IValue Preprocess(
       std::shared_ptr<torch::Device>& device,
       std::pair<std::string&, std::map<uint8_t, std::string>&>& idx_to_req_id,
       std::shared_ptr<torchserve::InferenceRequestBatch>& request_batch,
       std::shared_ptr<torchserve::InferenceResponseBatch>& response_batch);
 
-  virtual torch::Tensor Inference(
-      std::shared_ptr<void> model, std::vector<torch::jit::IValue>& inputs,
+  virtual c10::IValue Inference(
+      std::shared_ptr<void> model, c10::IValue& inputs,
       std::shared_ptr<torch::Device>& device,
       std::pair<std::string&, std::map<uint8_t, std::string>&>& idx_to_req_id,
       std::shared_ptr<torchserve::InferenceResponseBatch>& response_batch);
 
   virtual void Postprocess(
-      const torch::Tensor& data,
+      c10::IValue& data,
       std::pair<std::string&, std::map<uint8_t, std::string>&>& idx_to_req_id,
       std::shared_ptr<torchserve::InferenceResponseBatch>& response_batch);
 

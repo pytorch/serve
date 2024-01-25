@@ -16,7 +16,7 @@ int steps = 256;
 
 std::pair<std::shared_ptr<void>, std::shared_ptr<torch::Device>>
 BabyLlamaHandler::LoadModel(
-    std::shared_ptr<torchserve::LoadModelRequest>& load_model_request) {
+    std::shared_ptr<torchserve::LoadModelRequest> &load_model_request) {
   try {
     auto device = GetTorchDevice(load_model_request);
 
@@ -42,27 +42,28 @@ BabyLlamaHandler::LoadModel(
       throw;
     }
 
-    build_transformer(&transformer, const_cast<char*>(checkpoint_path.c_str()));
+    build_transformer(&transformer,
+                      const_cast<char *>(checkpoint_path.c_str()));
 
-    build_tokenizer(&tokenizer, const_cast<char*>(tokenizer_path.c_str()),
+    build_tokenizer(&tokenizer, const_cast<char *>(tokenizer_path.c_str()),
                     transformer.config.vocab_size);
 
     float temperature =
         1.0f;  // 0.0 = greedy deterministic. 1.0 = original. don't set higher
     float topp = 0.9f;  // top-p in nucleus sampling. 1.0 = off. 0.9 works well,
                         // but slower
-    unsigned long long rng_seed;
+    unsigned long long rng_seed(0);
     // build the Sampler
     build_sampler(&sampler, transformer.config.vocab_size, temperature, topp,
                   rng_seed);
 
     return std::make_pair(nullptr, device);
-  } catch (const c10::Error& e) {
+  } catch (const c10::Error &e) {
     TS_LOGF(ERROR, "loading the model: {}, device id: {}, error: {}",
             load_model_request->model_name, load_model_request->gpu_id,
             e.msg());
     throw e;
-  } catch (const std::runtime_error& e) {
+  } catch (const std::runtime_error &e) {
     TS_LOGF(ERROR, "loading the model: {}, device id: {}, error: {}",
             load_model_request->model_name, load_model_request->gpu_id,
             e.what());
@@ -70,15 +71,15 @@ BabyLlamaHandler::LoadModel(
   }
 }
 
-std::vector<torch::jit::IValue> BabyLlamaHandler::Preprocess(
-    std::shared_ptr<torch::Device>& device,
-    std::pair<std::string&, std::map<uint8_t, std::string>&>& idx_to_req_id,
-    std::shared_ptr<torchserve::InferenceRequestBatch>& request_batch,
-    std::shared_ptr<torchserve::InferenceResponseBatch>& response_batch) {
-  std::vector<torch::jit::IValue> batch_ivalue;
+c10::IValue BabyLlamaHandler::Preprocess(
+    std::shared_ptr<torch::Device> &device,
+    std::pair<std::string &, std::map<uint8_t, std::string> &> &idx_to_req_id,
+    std::shared_ptr<torchserve::InferenceRequestBatch> &request_batch,
+    std::shared_ptr<torchserve::InferenceResponseBatch> &response_batch) {
+  auto batch_ivalue = c10::impl::GenericList(torch::TensorType::get());
   std::vector<torch::Tensor> batch_tensors;
   uint8_t idx = 0;
-  for (auto& request : *request_batch) {
+  for (auto &request : *request_batch) {
     try {
       (*response_batch)[request.request_id] =
           std::make_shared<torchserve::InferenceResponse>(request.request_id);
@@ -110,8 +111,8 @@ std::vector<torch::jit::IValue> BabyLlamaHandler::Preprocess(
 
       int num_prompt_tokens = 0;
 
-      std::unique_ptr<char[], void (*)(char*)> msgCStr(
-          new char[msg.size() + 1], [](char* ptr) { delete[] ptr; });
+      std::unique_ptr<char[], void (*)(char *)> msgCStr(
+          new char[msg.size() + 1], [](char *ptr) { delete[] ptr; });
 
       std::strcpy(msgCStr.get(), msg.c_str());
 
@@ -126,19 +127,17 @@ std::vector<torch::jit::IValue> BabyLlamaHandler::Preprocess(
         torch::Tensor tensor = torch::tensor(token, torch::kInt64);
         tensor_vector.push_back(tensor);
       }
-      torch::Tensor stacked_tensor = torch::stack(tensor_vector);
-      batch_ivalue.push_back(stacked_tensor);
+      batch_ivalue.emplace_back(torch::stack(tensor_vector));
 
       idx_to_req_id.second[idx++] = request.request_id;
-
-    } catch (const std::runtime_error& e) {
+    } catch (const std::runtime_error &e) {
       TS_LOGF(ERROR, "Failed to load tensor for request id: {}, error: {}",
               request.request_id, e.what());
       auto response = (*response_batch)[request.request_id];
       response->SetResponse(500, "data_type",
                             torchserve::PayloadType::kDATA_TYPE_STRING,
                             "runtime_error, failed to load tensor");
-    } catch (const c10::Error& e) {
+    } catch (const c10::Error &e) {
       TS_LOGF(ERROR, "Failed to load tensor for request id: {}, c10 error:{}",
               request.request_id, e.msg());
       auto response = (*response_batch)[request.request_id];
@@ -151,97 +150,106 @@ std::vector<torch::jit::IValue> BabyLlamaHandler::Preprocess(
   return batch_ivalue;
 }
 
-torch::Tensor BabyLlamaHandler::Inference(
-    std::shared_ptr<void> model, std::vector<torch::jit::IValue>& inputs,
-    std::shared_ptr<torch::Device>& device,
-    std::pair<std::string&, std::map<uint8_t, std::string>&>& idx_to_req_id,
-    std::shared_ptr<torchserve::InferenceResponseBatch>& response_batch) {
+c10::IValue BabyLlamaHandler::Inference(
+    std::shared_ptr<void> model, c10::IValue &inputs,
+    std::shared_ptr<torch::Device> &device,
+    std::pair<std::string &, std::map<uint8_t, std::string> &> &idx_to_req_id,
+    std::shared_ptr<torchserve::InferenceResponseBatch> &response_batch) {
   torch::InferenceMode guard;
-  std::vector<torch::Tensor> batch_output_vector;
+  auto batch_output_vector = c10::impl::GenericList(torch::TensorType::get());
   long batch_token_length = 0;
   long start =
       0;  // used to time our code, only initialized after first iteration
-  for (const torch::jit::IValue& input : inputs) {
-    std::vector<torch::Tensor> tensor_vector;
-    tensor_vector.reserve(steps);
-    torch::Tensor tokens_list_tensor = input.toTensor();
 
-    int64_t num_elements = tokens_list_tensor.numel();
+  try {
+    for (auto input : inputs.toTensorList()) {
+      std::vector<torch::Tensor> tensor_vector;
+      tensor_vector.reserve(steps);
+      torch::Tensor tokens_list_tensor = input.get().toTensor();
 
-    int64_t* data_ptr = tokens_list_tensor.data_ptr<int64_t>();
+      int64_t num_elements = tokens_list_tensor.numel();
 
-    std::unique_ptr<int[]> prompt_tokens(new int[num_elements]);
+      int64_t *data_ptr = tokens_list_tensor.data_ptr<int64_t>();
 
-    for (int64_t i = 0; i < num_elements; ++i) {
-      prompt_tokens[i] = data_ptr[i];
+      std::unique_ptr<int[]> prompt_tokens(new int[num_elements]);
+
+      for (int64_t i = 0; i < num_elements; ++i) {
+        prompt_tokens[i] = data_ptr[i];
+      }
+
+      // start the main loop
+      int next;  // will store the next token in the sequence
+      int token =
+          prompt_tokens[0];  // kick off with the first token in the prompt
+      int pos = 0;           // position in the sequence
+      while (pos < steps) {
+        // forward the transformer to get logits for the next token
+        float *logits = forward(&transformer, token, pos);
+
+        // advance the state state machine
+        if (pos < num_elements - 1) {
+          // if we are still processing the input prompt, force the next prompt
+          // token
+          next = prompt_tokens[pos + 1];
+        } else {
+          // otherwise sample the next token from the logits
+          next = sample(&sampler, logits);
+        }
+        pos++;
+
+        torch::Tensor tensor = torch::tensor(next, torch::kLong);
+        tensor_vector.push_back(tensor);
+
+        // data-dependent terminating condition: the BOS (=1) token delimits
+        // sequences
+        if (next == 1) {
+          break;
+        }
+        token = next;
+
+        // init the timer here because the first iteration can be slower
+        if (start == 0) {
+          start = time_in_ms();
+        }
+      }
+      batch_token_length = batch_token_length + pos - 1;
+
+      torch::Tensor stacked_tensor = torch::stack(tensor_vector);
+
+      batch_output_vector.push_back(stacked_tensor);
     }
 
-    // start the main loop
-    int next;  // will store the next token in the sequence
-    int token =
-        prompt_tokens[0];  // kick off with the first token in the prompt
-    int pos = 0;           // position in the sequence
-    while (pos < steps) {
-      // forward the transformer to get logits for the next token
-      float* logits = forward(&transformer, token, pos);
-
-      // advance the state state machine
-      if (pos < num_elements - 1) {
-        // if we are still processing the input prompt, force the next prompt
-        // token
-        next = prompt_tokens[pos + 1];
-      } else {
-        // otherwise sample the next token from the logits
-        next = sample(&sampler, logits);
-      }
-      pos++;
-
-      torch::Tensor tensor = torch::tensor(next, torch::kLong);
-      tensor_vector.push_back(tensor);
-
-      // data-dependent terminating condition: the BOS (=1) token delimits
-      // sequences
-      if (next == 1) {
-        break;
-      }
-      token = next;
-
-      // init the timer here because the first iteration can be slower
-      if (start == 0) {
-        start = time_in_ms();
-      }
+    std::cout << "Total number of tokens generated: " << batch_token_length
+              << std::endl;
+    if (batch_token_length > 1) {
+      long end = time_in_ms();
+      double token_per_sec = batch_token_length / (double)(end - start) * 1000;
+      std::cout << "Achieved tok per sec: " << token_per_sec << std::endl;
     }
-
-    batch_token_length = batch_token_length + pos - 1;
-
-    torch::Tensor stacked_tensor = torch::stack(tensor_vector);
-
-    batch_output_vector.push_back(stacked_tensor);
+  } catch (std::runtime_error &e) {
+    TS_LOG(ERROR, e.what());
+  } catch (const c10::Error &e) {
+    TS_LOGF(ERROR, "Failed to apply inference on input, c10 error:{}", e.msg());
+  } catch (...) {
+    TS_LOG(ERROR, "Failed to run inference on this batch");
   }
-
-  std::cout << "Total number of tokens generated: " << batch_token_length
-            << std::endl;
-  if (batch_token_length > 1) {
-    long end = time_in_ms();
-    double token_per_sec = batch_token_length / (double)(end - start) * 1000;
-    std::cout << "Achieved tok per sec: " << token_per_sec << std::endl;
-  }
-
-  return torch::stack(batch_output_vector);
+  std::cout << "WOOT?" << std::endl;
+  return batch_output_vector;
 }
 
 void BabyLlamaHandler::Postprocess(
-    const torch::Tensor& data,
-    std::pair<std::string&, std::map<uint8_t, std::string>&>& idx_to_req_id,
-    std::shared_ptr<torchserve::InferenceResponseBatch>& response_batch) {
-  for (const auto& kv : idx_to_req_id.second) {
+    c10::IValue &outputs,
+    std::pair<std::string &, std::map<uint8_t, std::string> &> &idx_to_req_id,
+    std::shared_ptr<torchserve::InferenceResponseBatch> &response_batch) {
+  auto data = outputs.toTensorList();
+  for (const auto &kv : idx_to_req_id.second) {
     try {
-      int64_t num_elements = data.numel();
-      int64_t* data_ptr = data.data_ptr<int64_t>();
+      int64_t num_elements = data[kv.first].get().toTensor().numel();
+      int64_t *data_ptr = data[kv.first].get().toTensor().data_ptr<int64_t>();
       int64_t token = 1;
       std::string concatenated_string;
       for (int64_t i = 0; i < num_elements; ++i) {
-        char* piece = decode(&tokenizer, token, data_ptr[i]);
+        char *piece = decode(&tokenizer, token, data_ptr[i]);
         std::string piece_string(piece);
         token = data_ptr[i];
         concatenated_string += piece_string;
@@ -254,14 +262,14 @@ void BabyLlamaHandler::Postprocess(
       response->SetResponse(200, "data_type",
                             torchserve::PayloadType::kDATA_TYPE_STRING,
                             concatenated_string);
-    } catch (const std::runtime_error& e) {
+    } catch (const std::runtime_error &e) {
       TS_LOGF(ERROR, "Failed to load tensor for request id: {}, error: {}",
               kv.second, e.what());
       auto response = (*response_batch)[kv.second];
       response->SetResponse(500, "data_type",
                             torchserve::PayloadType::kDATA_TYPE_STRING,
                             "runtime_error, failed to postprocess tensor");
-    } catch (const c10::Error& e) {
+    } catch (const c10::Error &e) {
       TS_LOGF(ERROR,
               "Failed to postprocess tensor for request id: {}, error: {}",
               kv.second, e.msg());
@@ -283,13 +291,13 @@ BabyLlamaHandler::~BabyLlamaHandler() noexcept {
 
 #if defined(__linux__) || defined(__APPLE__)
 extern "C" {
-torchserve::BaseHandler* allocatorBabyLlamaHandler() {
+torchserve::BaseHandler *allocatorBabyLlamaHandler() {
   return new llm::BabyLlamaHandler();
 }
 
-void deleterBabyLlamaHandler(torchserve::BaseHandler* p) {
+void deleterBabyLlamaHandler(torchserve::BaseHandler *p) {
   if (p != nullptr) {
-    delete static_cast<llm::BabyLlamaHandler*>(p);
+    delete static_cast<llm::BabyLlamaHandler *>(p);
   }
 }
 }

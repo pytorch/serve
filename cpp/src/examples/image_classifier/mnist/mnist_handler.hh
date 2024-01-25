@@ -11,7 +11,7 @@ class MnistHandler : public torchserve::TorchScriptHandler {
   ~MnistHandler() override = default;
 
   void Postprocess(
-      const torch::Tensor& data,
+      c10::IValue& data,
       std::pair<std::string&, std::map<uint8_t, std::string>&>& idx_to_req_id,
       std::shared_ptr<torchserve::InferenceResponseBatch>& response_batch)
       override;
