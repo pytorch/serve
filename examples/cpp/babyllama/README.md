@@ -65,13 +65,13 @@ curl -v -X POST "http://localhost:8081/models?initial_workers=1&url=llm.mar&batc
 Infer the model using the following command
 
 ```
-curl http://localhost:8080/predictions/llm -T prompt.txt
+curl http://localhost:8080/predictions/llm -T prompt1.txt
 ```
 
 This example supports batching. To run batch prediction, run the following command
 
 ```
-curl http://localhost:8080/predictions/llm -T prompt.txt & curl http://localhost:8080/predictions/llm -T prompt1.txt &
+curl http://localhost:8080/predictions/llm -T prompt1.txt & curl http://localhost:8080/predictions/llm -T prompt2.txt &
 ```
 
 Sample Response
