@@ -4,7 +4,7 @@
   "model": {
     "modelName": "mnist_scripted_v2",
     "serializedFile": "mnist_script.pt",
-    "handler": "BaseHandler",
+    "handler": "TorchScriptHandler",
     "modelVersion": "2.0"
   },
   "archiverVersion": "0.2.0"
