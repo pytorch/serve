@@ -110,7 +110,7 @@ bool SocketServer::CreateBackend(
     const torchserve::Manifest::RuntimeType& runtime_type,
     const std::string& model_dir) {
   if (runtime_type == "LSP") {
-    backend_ = std::make_shared<torchserve::torchscripted::Backend>();
+    backend_ = std::make_shared<torchserve::Backend>();
     return backend_->Initialize(model_dir);
   }
   return false;

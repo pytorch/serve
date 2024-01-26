@@ -1,13 +1,12 @@
-#ifndef TS_CPP_BACKENDS_TORCH_SCRIPTED_HANDLER_HANDLER_FACTORY_HH_
-#define TS_CPP_BACKENDS_TORCH_SCRIPTED_HANDLER_HANDLER_FACTORY_HH_
+#pragma once
 
 #include <map>
 #include <memory>
 
-#include "src/backends/torch_scripted/handler/base_handler.hh"
+#include "src/backends/handler/base_handler.hh"
+#include "src/backends/handler/torch_scripted_handler.hh"
 
 namespace torchserve {
-namespace torchscripted {
 class HandlerFactory {
  public:
   static HandlerFactory GetInstance() {
@@ -27,11 +26,9 @@ class HandlerFactory {
 
  private:
   std::map<std::string, std::shared_ptr<BaseHandler> (*)()> handlers_ = {
-      {"BaseHandler", []() -> std::shared_ptr<BaseHandler> {
-         return std::make_shared<BaseHandler>();
+      {"TorchScriptHandler", []() -> std::shared_ptr<BaseHandler> {
+         return std::make_shared<TorchScriptHandler>();
        }}};
   HandlerFactory(){};
 };
-}  // namespace torchscripted
 }  // namespace torchserve
-#endif  // TS_CPP_BACKENDS_TORCH_SCRIPTED_HANDLER_HANDLER_FACTORY_HH_
