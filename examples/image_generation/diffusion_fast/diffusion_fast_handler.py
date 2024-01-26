@@ -4,7 +4,9 @@ from pathlib import Path
 
 import numpy as np
 import torch
-from diffusion_fast import DiffusionFast
+
+# from diffusion_fast import DiffusionFast
+from pipeline_utils import load_pipeline
 
 from ts.handler_utils.timer import timed
 from ts.torch_handler.base_handler import BaseHandler
@@ -52,12 +54,15 @@ class DiffusionFastHandler(BaseHandler):
         ]
         do_quant = ctx.model_yaml_config["handler"]["do_quant"]
         change_comp_config = ctx.model_yaml_config["handler"]["change_comp_config"]
+        no_sdpa = ctx.model_yaml_config["handler"]["no_sdpa"]
+        no_bf16 = ctx.model_yaml_config["handler"]["no_bf16"]
+        upcast_vae = ctx.model_yaml_config["handler"]["upcast_vae"]
 
         # Load model weights
         model_weights = Path(ctx.model_yaml_config["handler"]["model_weights"])
 
         ckpt = os.path.join(model_dir, model_weights)
-        model = DiffusionFast(
+        self.pipeline = load_pipeline(
             ckpt=ckpt,
             compile_unet=compile_unet,
             compile_vae=compile_vae,
@@ -65,9 +70,11 @@ class DiffusionFastHandler(BaseHandler):
             enable_fused_projections=enable_fused_projections,
             do_quant=do_quant,
             change_comp_config=change_comp_config,
+            no_bf16=no_bf16,
+            no_sdpa=no_sdpa,
+            upcast_vae=upcast_vae,
         )
 
-        self.pipeline = model.pipe
         logger.info("Diffusion Fast model loaded successfully")
 
         self.initialized = True
