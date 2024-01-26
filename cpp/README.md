@@ -49,7 +49,7 @@ By default, TorchServe cpp provides a handler for TorchScript [src/backends/hand
 ```
  torch-model-archiver --model-name mnist_base --version 1.0 --serialized-file mnist_script.pt --handler TorchScriptHandler --runtime LSP
 ```
-Here is an [example](https://github.com/pytorch/serve/tree/cpp_backend/cpp/test/resources/torchscript_model/mnist/base_handler) of unzipped model mar file.
+Here is an [example](https://github.com/pytorch/serve/tree/cpp_backend/cpp/test/resources/examples/mnist/base_handler) of unzipped model mar file.
 ##### Using Custom Handler
 * build customized handler shared lib. For example [Mnist handler](https://github.com/pytorch/serve/blob/cpp_backend/cpp/src/examples/image_classifier/mnist).
 * set runtime as "LSP" in model archiver option [--runtime](https://github.com/pytorch/serve/tree/master/model-archiver#arguments)
@@ -57,7 +57,7 @@ Here is an [example](https://github.com/pytorch/serve/tree/cpp_backend/cpp/test/
 ```
 torch-model-archiver --model-name mnist_handler --version 1.0 --serialized-file mnist_script.pt --handler libmnist_handler:MnistHandler --runtime LSP
 ```
-Here is an [example](https://github.com/pytorch/serve/tree/cpp_backend/cpp/test/resources/torchscript_model/mnist/mnist_handler) of unzipped model mar file.
+Here is an [example](https://github.com/pytorch/serve/tree/cpp_backend/cpp/test/resources/examples/mnist/mnist_handler) of unzipped model mar file.
 ##### BabyLLama Example
 The babyllama example can be found [here](https://github.com/pytorch/serve/blob/master/cpp/src/examples/babyllama/).
 To run the example we need to download the weights as well as tokenizer files:
@@ -65,7 +65,7 @@ To run the example we need to download the weights as well as tokenizer files:
 wget https://huggingface.co/karpathy/tinyllamas/resolve/main/stories15M.bin
 wget https://github.com/karpathy/llama2.c/raw/master/tokenizer.bin
 ```
-Subsequently, we need to adjust the paths according to our local file structure in [config.json](https://github.com/pytorch/serve/blob/master/serve/cpp/test/resources/torchscript_model/babyllama/babyllama_handler/config.json).
+Subsequently, we need to adjust the paths according to our local file structure in [config.json](https://github.com/pytorch/serve/blob/master/serve/cpp/test/resources/examples/babyllama/babyllama_handler/config.json).
 ```bash
 {
 "checkpoint_path" : "/home/ubuntu/serve/cpp/stories15M.bin",
@@ -74,7 +74,7 @@ Subsequently, we need to adjust the paths according to our local file structure 
 ```
 Then we can create the mar file and deploy it with:
 ```bash
-cd serve/cpp/test/resources/torchscript_model/babyllama/babyllama_handler
+cd serve/cpp/test/resources/examples/babyllama/babyllama_handler
 torch-model-archiver --model-name llm --version 1.0 --handler libbabyllama_handler:BabyLlamaHandler --runtime LSP --extra-files config.json
 mkdir model_store && mv llm.mar model_store/
 torchserve --ncs --start --model-store model_store
@@ -85,7 +85,7 @@ The handler name `libbabyllama_handler:BabyLlamaHandler` consists of our shared 
 
 To test the model we can run:
 ```bash
-cd serve/cpp/test/resources/torchscript_model/babyllama/
+cd serve/cpp/test/resources/examples/babyllama/
 curl http://localhost:8080/predictions/llm -T prompt.txt
 ```
 ##### Mnist example

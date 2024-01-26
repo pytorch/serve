@@ -24,7 +24,7 @@ TEST(BackendIntegTest, TestOTFProtocolAndHandler) {
       // model_name length
       .WillOnce(::testing::Return(5))
       // model_path length
-      .WillOnce(::testing::Return(51))
+      .WillOnce(::testing::Return(42))
       // batch_size
       .WillOnce(::testing::Return(1))
       // handler length
@@ -44,9 +44,8 @@ TEST(BackendIntegTest, TestOTFProtocolAndHandler) {
         strncpy(data, "mnist", length);
       }))
       .WillOnce(testing::Invoke([=](size_t length, char* data) {
-        ASSERT_EQ(length, 51);
-        strncpy(data, "test/resources/torchscript_model/mnist/base_handler",
-                length);
+        ASSERT_EQ(length, 42);
+        strncpy(data, "test/resources/examples/mnist/base_handler", length);
       }))
       .WillOnce(testing::Invoke([=](size_t length, char* data) {
         ASSERT_EQ(length, 11);
@@ -60,7 +59,7 @@ TEST(BackendIntegTest, TestOTFProtocolAndHandler) {
   EXPECT_CALL(*client_socket, SendAll(testing::_, testing::_)).Times(1);
   auto load_model_request = OTFMessage::RetrieveLoadMsg(*client_socket);
   ASSERT_EQ(load_model_request->model_dir,
-            "test/resources/torchscript_model/mnist/base_handler");
+            "test/resources/examples/mnist/base_handler");
   ASSERT_EQ(load_model_request->model_name, "mnist");
   ASSERT_EQ(load_model_request->envelope, "");
   ASSERT_EQ(load_model_request->model_name, "mnist");
@@ -71,7 +70,7 @@ TEST(BackendIntegTest, TestOTFProtocolAndHandler) {
   auto backend = std::make_shared<torchserve::Backend>();
   MetricsRegistry::Initialize("test/resources/metrics/default_config.yaml",
                               MetricsContext::BACKEND);
-  backend->Initialize("test/resources/torchscript_model/mnist/base_handler");
+  backend->Initialize("test/resources/examples/mnist/base_handler");
 
   // load the model
   auto load_model_response = backend->LoadModel(load_model_request);
@@ -126,7 +125,7 @@ TEST(BackendIntegTest, TestOTFProtocolAndHandler) {
       .WillOnce(testing::Invoke([=](size_t length, char* data) {
         ASSERT_EQ(length, 3883);
         // strncpy(data, "valu", length);
-        std::ifstream input("test/resources/torchscript_model/mnist/0_png.pt",
+        std::ifstream input("test/resources/examples/mnist/0_png.pt",
                             std::ios::in | std::ios::binary);
         std::vector<char> image((std::istreambuf_iterator<char>(input)),
                                 (std::istreambuf_iterator<char>()));

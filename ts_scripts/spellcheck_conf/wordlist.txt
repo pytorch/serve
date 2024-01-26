@@ -1170,3 +1170,4 @@ BabyLLama
 BabyLlamaHandler
 CMakeLists
 TorchScriptHandler
+libllamacpp
