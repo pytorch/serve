@@ -4,8 +4,6 @@ from pathlib import Path
 
 import numpy as np
 import torch
-
-# from diffusion_fast import DiffusionFast
 from pipeline_utils import load_pipeline
 
 from ts.handler_utils.timer import timed
