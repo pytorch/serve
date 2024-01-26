@@ -39,7 +39,7 @@ It's also the point where we need to decide if we want to deploy our model on a 
 For the single GPU case we can use the default configuration that can be found in [model_config.yaml](./model_config.yaml).
 
 ```
-torch-model-archiver --model-name diffusion_fast --version 1.0 --handler diffusion_fast_handler.py --config-file model_config.yaml --extra-files "diffusion-fast/utils/benchmarking_utils.py,diffusion-fast/utils/pipeline_utils.py,diffusion_fast.py" --archive-format no-archive
+torch-model-archiver --model-name diffusion_fast --version 1.0 --handler diffusion_fast_handler.py --config-file model_config.yaml --extra-files "diffusion-fast/utils/pipeline_utils.py" --archive-format no-archive
 mv Base_Diffusion_model diffusion_fast/
 ```
 
@@ -53,7 +53,7 @@ mv diffusion_fast model_store
 ### Step 3: Start torchserve
 
 ```
-torchserve --start --ncs --model-store model_store --models diffusion_fast
+torchserve --start --ts-config config.properties --model-store model_store --models diffusion_fast
 ```
 
 ### Step 4: Run inference

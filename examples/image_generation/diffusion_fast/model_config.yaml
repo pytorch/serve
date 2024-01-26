@@ -3,7 +3,6 @@ maxWorkers: 1
 maxBatchDelay: 200
 responseTimeout: 3600
 deviceType: "gpu"
-max_response_size: 655350000
 handler:
     model_weights: "./Base_Diffusion_model"
     num_inference_steps: 30
@@ -13,4 +12,7 @@ handler:
     enable_fused_projections: true
     do_quant: "int8dynamic"
     change_comp_config: true
+    no_sdpa: false
+    no_bf16: false
+    upcast_vae: false
     profile: true
