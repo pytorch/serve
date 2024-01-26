@@ -5,7 +5,7 @@
 
 It features:
 * Running with the bfloat16 precision
-* scaled_dot_product_attention (SPDA)
+* scaled_dot_product_attention (SDPA)
 * torch.compile
 * Combining q,k,v projections for attention computation
 * Dynamic int8 quantization
