@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
 
 #include "protocol/mock_socket.hh"
+#include "src/backends/core/backend.hh"
 #include "src/backends/process/model_worker.hh"
-#include "src/backends/torch_scripted/torch_scripted_backend.hh"
 #include "src/utils/metrics/registry.hh"
 
 namespace torchserve {
@@ -68,7 +68,7 @@ TEST(BackendIntegTest, TestOTFProtocolAndHandler) {
   ASSERT_EQ(load_model_request->gpu_id, -1);
 
   // initialize backend
-  auto backend = std::make_shared<torchserve::torchscripted::Backend>();
+  auto backend = std::make_shared<torchserve::Backend>();
   MetricsRegistry::Initialize("test/resources/metrics/default_config.yaml",
                               MetricsContext::BACKEND);
   backend->Initialize("test/resources/torchscript_model/mnist/base_handler");
