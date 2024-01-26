@@ -1,4 +1,4 @@
-#include "src/examples/image_classifier/mnist/mnist_handler.hh"
+#include "mnist_handler.hh"
 
 namespace mnist {
 void MnistHandler::Postprocess(

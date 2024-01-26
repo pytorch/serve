@@ -1,4 +1,4 @@
-#include "src/examples/llamacpp/llamacpp_handler.hh"
+#include "llamacpp_handler.hh"
 
 #include <torch/script.h>
 #include <torch/torch.h>

@@ -214,20 +214,6 @@ function build() {
   echo -e "${COLOR_GREEN}torchserve_cpp build is complete. To run unit test: \
   ./_build/test/torchserve_cpp_test ${COLOR_OFF}"
 
-  if [ -f "$DEPS_DIR/../src/examples/libmnist_handler.dylib" ]; then
-    mv $DEPS_DIR/../src/examples/libmnist_handler.dylib $DEPS_DIR/../../test/resources/examples/mnist/mnist_handler/libmnist_handler.dylib
-  elif [ -f "$DEPS_DIR/../src/examples/libmnist_handler.so" ]; then
-    mv $DEPS_DIR/../src/examples/libmnist_handler.so $DEPS_DIR/../../test/resources/examples/mnist/mnist_handler/libmnist_handler.so
-  fi
-
-  if [ -f "$DEPS_DIR/../src/examples/libbabyllama_handler.so" ]; then
-    mv $DEPS_DIR/../src/examples/libbabyllama_handler.so $DEPS_DIR/../../test/resources/examples/babyllama/babyllama_handler/libbabyllama_handler.so
-  fi
-
-  if [ -f "$DEPS_DIR/../src/examples/libllamacpp_handler.so" ]; then
-    mv $DEPS_DIR/../src/examples/libllamacpp_handler.so $DEPS_DIR/../../test/resources/examples/llamacpp/llamacpp_handler/libllamacpp_handler.so
-  fi
-
   cd $DEPS_DIR/../..
   if [ -f "$DEPS_DIR/../test/torchserve_cpp_test" ]; then
     $DEPS_DIR/../test/torchserve_cpp_test
