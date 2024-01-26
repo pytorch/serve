@@ -155,79 +155,83 @@ c10::IValue LlamaCppHandler::Inference(
     std::pair<std::string&, std::map<uint8_t, std::string>&>& idx_to_req_id,
     std::shared_ptr<torchserve::InferenceResponseBatch>& response_batch) {
   torch::InferenceMode guard;
-  std::vector<torch::Tensor> batch_output_vector;
-  for (const auto input : inputs.toTensorList()) {
-    torch::Tensor tokens_list_tensor = input.get().toTensor();
+  auto batch_output_vector = c10::impl::GenericList(torch::TensorType::get());
+  try {
+    for (const auto input : inputs.toTensorList()) {
+      torch::Tensor tokens_list_tensor = input.get().toTensor();
 
-    int64_t num_elements = tokens_list_tensor.numel();
+      int64_t num_elements = tokens_list_tensor.numel();
 
-    int64_t* data_ptr = tokens_list_tensor.data_ptr<int64_t>();
-    std::vector<llama_token> tokens_list;
+      int64_t* data_ptr = tokens_list_tensor.data_ptr<int64_t>();
+      std::vector<llama_token> tokens_list;
 
-    for (int64_t i = 0; i < num_elements; ++i) {
-      tokens_list.push_back(data_ptr[i]);
-    }
-    const int n_gen = std::min(32, max_context_size);
+      for (int64_t i = 0; i < num_elements; ++i) {
+        tokens_list.push_back(data_ptr[i]);
+      }
+      const int n_gen = std::min(32, max_context_size);
 
-    long pos = 0;
-    while (pos < n_gen) {
-      // evaluate the transformer
+      std::vector<torch::Tensor> tensor_vector;
 
-      if (llama_eval(llama_ctx, tokens_list.data(), int(tokens_list.size()),
-                     llama_get_kv_cache_token_count(llama_ctx))) {
-        std::cout << "Failed to eval\n" << __func__ << std::endl;
-        break;
+      long pos = 0;
+      while (pos < n_gen) {
+        // evaluate the transformer
+
+        int n_past = pos == 0 ? 0 : llama_get_kv_cache_token_count(llama_ctx);
+
+        if (llama_eval(llama_ctx, tokens_list.data(), int(tokens_list.size()),
+                       n_past)) {
+          std::cout << "Failed to eval\n" << __func__ << std::endl;
+          break;
+        }
+
+        tokens_list.clear();
+
+        // sample the next token
+
+        llama_token new_token_id = 0;
+
+        auto logits = llama_get_logits(llama_ctx);
+        auto n_vocab = llama_n_vocab(llamamodel);
+
+        std::vector<llama_token_data> candidates;
+        candidates.reserve(n_vocab);
+
+        for (llama_token token_id = 0; token_id < n_vocab; token_id++) {
+          candidates.emplace_back(
+              llama_token_data{token_id, logits[token_id], 0.0f});
+        }
+
+        llama_token_data_array candidates_p = {candidates.data(),
+                                               candidates.size(), false};
+
+        new_token_id = llama_sample_token_greedy(llama_ctx, &candidates_p);
+
+        // is it an end of stream ?
+        if (new_token_id == llama_token_eos(llamamodel)) {
+          std::cout << "Reached [end of text]\n";
+          break;
+        }
+
+        // print the new token :
+        std::cout << "New Token: "
+                  << llama_token_to_piece(llama_ctx, new_token_id) << std::endl;
+
+        // push this new token for next evaluation
+        tokens_list.push_back(new_token_id);
+        tensor_vector.push_back(torch::tensor(new_token_id, torch::kLong));
+        pos += 1;
       }
 
-      tokens_list.clear();
-
-      // sample the next token
-
-      llama_token new_token_id = 0;
-
-      auto logits = llama_get_logits(llama_ctx);
-      auto n_vocab = llama_n_vocab(llamamodel);
-
-      std::vector<llama_token_data> candidates;
-      candidates.reserve(n_vocab);
-
-      for (llama_token token_id = 0; token_id < n_vocab; token_id++) {
-        candidates.emplace_back(
-            llama_token_data{token_id, logits[token_id], 0.0f});
-      }
-
-      llama_token_data_array candidates_p = {candidates.data(),
-                                             candidates.size(), false};
-
-      new_token_id = llama_sample_token_greedy(llama_ctx, &candidates_p);
-
-      // is it an end of stream ?
-      if (new_token_id == llama_token_eos(llamamodel)) {
-        std::cout << "Reached [end of text]\n";
-        break;
-      }
-
-      // print the new token :
-      std::cout << "New Token: "
-                << llama_token_to_piece(llama_ctx, new_token_id) << std::endl;
-
-      // push this new token for next evaluation
-      tokens_list.push_back(new_token_id);
-      pos += 1;
+      batch_output_vector.push_back(torch::stack(tensor_vector));
     }
 
-    std::vector<torch::Tensor> tensor_vector;
-    for (auto id : tokens_list) {
-      torch::Tensor tensor = torch::tensor(id, torch::kLong);
-      tensor_vector.push_back(tensor);
-    }
-
-    torch::Tensor stacked_tensor = torch::stack(tensor_vector);
-    batch_output_vector.push_back(stacked_tensor);
+    llama_print_timings(llama_ctx);
+  } catch (std::runtime_error& e) {
+    TS_LOG(ERROR, e.what());
+  } catch (const c10::Error& e) {
+    TS_LOGF(ERROR, "Failed to apply inference on input, c10 error:{}", e.msg());
   }
-
-  llama_print_timings(llama_ctx);
-  return torch::stack(batch_output_vector);
+  return batch_output_vector;
 }
 
 void LlamaCppHandler::Postprocess(
