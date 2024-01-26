@@ -99,8 +99,6 @@ public final class ModelManager {
 
         createVersionedModel(tempModel, versionId);
 
-        setupModelVenv(tempModel);
-
         setupModelDependencies(tempModel);
         if (defaultVersion) {
             modelManager.setDefaultVersion(modelName, versionId);
@@ -153,8 +151,6 @@ public final class ModelManager {
                 throw e;
             }
         }
-
-        setupModelVenv(tempModel);
 
         setupModelDependencies(tempModel);
 
@@ -253,13 +249,14 @@ public final class ModelManager {
 
         if (exitCode == 0) {
             logger.info(
-                    "Created virtual environment for model {}:\n{}",
+                    "Created virtual environment for model {}: {}",
                     model.getModelName(),
-                    outputString.toString());
+                    venvPath);
         } else {
             logger.error(
-                    "Virtual environment creation for model {} failed:\n{}",
+                    "Virtual environment creation for model {} at {} failed:\n{}",
                     model.getModelName(),
+                    venvPath,
                     outputString.toString());
             throw new ModelException(
                     "Virtual environment creation failed for model " + model.getModelName());
@@ -272,6 +269,7 @@ public final class ModelManager {
                 model.getModelArchive().getManifest().getModel().getRequirementsFile();
 
         if (configManager.getInstallPyDepPerModel() && requirementsFile != null) {
+            setupModelVenv(model);
             String pythonRuntime = EnvironmentUtils.getPythonRunTime(model);
             if (!isValidVenvPath(pythonRuntime)) {
                 throw new ModelException(
