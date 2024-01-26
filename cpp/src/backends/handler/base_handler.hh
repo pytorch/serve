@@ -1,5 +1,4 @@
-#ifndef TS_CPP_BACKENDS_TORCH_SCRIPTED_HANDLER_BASE_HANDLER_HH_
-#define TS_CPP_BACKENDS_TORCH_SCRIPTED_HANDLER_BASE_HANDLER_HH_
+#pragma once
 
 #include <torch/script.h>
 #include <torch/torch.h>
@@ -17,11 +16,10 @@
 #include "src/utils/model_archive.hh"
 
 namespace torchserve {
-namespace torchscripted {
 /**
  * @brief
  * TorchBaseHandler <=> BaseHandler:
- * https://github.com/pytorch/serve/blob/master/ts/torch_handler/base_handler.py#L37
+ * serve/ts/torch_handler/base_handler.py#L37
  *
  * TorchBaseHandler is not responsible for loading model since it is derived
  * from TorchScritpedModelInstance.
@@ -39,38 +37,35 @@ class BaseHandler {
     manifest_ = manifest;
   };
 
-  virtual std::pair<std::shared_ptr<torch::jit::script::Module>,
-                    std::shared_ptr<torch::Device>>
-  LoadModel(std::shared_ptr<torchserve::LoadModelRequest>& load_model_request);
+  virtual std::pair<std::shared_ptr<void>, std::shared_ptr<torch::Device>>
+  LoadModel(std::shared_ptr<LoadModelRequest>& load_model_request) = 0;
 
-  virtual std::vector<torch::jit::IValue> Preprocess(
+  virtual c10::IValue Preprocess(
       std::shared_ptr<torch::Device>& device,
       std::pair<std::string&, std::map<uint8_t, std::string>&>& idx_to_req_id,
       std::shared_ptr<torchserve::InferenceRequestBatch>& request_batch,
       std::shared_ptr<torchserve::InferenceResponseBatch>& response_batch);
 
-  virtual torch::Tensor Inference(
-      std::shared_ptr<torch::jit::script::Module> model,
-      std::vector<torch::jit::IValue>& inputs,
+  virtual c10::IValue Inference(
+      std::shared_ptr<void> model, c10::IValue& inputs,
       std::shared_ptr<torch::Device>& device,
       std::pair<std::string&, std::map<uint8_t, std::string>&>& idx_to_req_id,
       std::shared_ptr<torchserve::InferenceResponseBatch>& response_batch);
 
   virtual void Postprocess(
-      const torch::Tensor& data,
+      c10::IValue& data,
       std::pair<std::string&, std::map<uint8_t, std::string>&>& idx_to_req_id,
       std::shared_ptr<torchserve::InferenceResponseBatch>& response_batch);
 
   /**
    * @brief
    * function Predict <=> entry point function handle
-   * https://github.com/pytorch/serve/blob/master/ts/torch_handler/base_handler.py#L205
+   * /serve/ts/torch_handler/base_handler.py#L205
    * @param inference_request
    * @return std::shared_ptr<torchserve::InferenceResponse>
    */
   void Handle(
-      std::shared_ptr<torch::jit::script::Module>& model,
-      std::shared_ptr<torch::Device>& device,
+      std::shared_ptr<void> model, std::shared_ptr<torch::Device>& device,
       std::shared_ptr<torchserve::InferenceRequestBatch>& request_batch,
       std::shared_ptr<torchserve::InferenceResponseBatch>& response_batch);
 
@@ -81,6 +76,4 @@ class BaseHandler {
   std::shared_ptr<torchserve::Manifest> manifest_;
   std::string model_dir_;
 };
-}  // namespace torchscripted
 }  // namespace torchserve
-#endif  // TS_CPP_BACKENDS_TORCH_HANDLER_BASE_HANDLER_HH_

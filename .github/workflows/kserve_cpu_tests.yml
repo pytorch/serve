@@ -29,6 +29,10 @@ jobs:
         with:
           python-version: 3.8
           architecture: x64
+      - name: Install grpcurl
+        run: |
+          sudo curl -sSL https://github.com/fullstorydev/grpcurl/releases/download/v1.8.0/grpcurl_1.8.0_linux_x86_64.tar.gz | sudo tar -xz -C /usr/local/bin grpcurl
+          sudo chmod +x /usr/local/bin/grpcurl
       - name: Checkout TorchServe
         uses: actions/checkout@v3
       - name: Checkout kserve repo
@@ -37,5 +41,5 @@ jobs:
           repository: kserve/kserve
           ref: v0.11.1
           path: kserve
-      - name: Validate torchserve-kfs
+      - name: Validate torchserve-kfs and Open Inference Protocol
         run: ./kubernetes/kserve/tests/scripts/test_mnist.sh

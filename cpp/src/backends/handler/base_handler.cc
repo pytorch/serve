@@ -1,48 +1,26 @@
-#include "src/backends/torch_scripted/handler/base_handler.hh"
+#include "base_handler.hh"
 
 namespace torchserve {
-namespace torchscripted {
-std::pair<std::shared_ptr<torch::jit::script::Module>,
-          std::shared_ptr<torch::Device>>
-BaseHandler::LoadModel(
-    std::shared_ptr<torchserve::LoadModelRequest>& load_model_request) {
-  try {
-    auto device = GetTorchDevice(load_model_request);
-    auto module = std::make_shared<torch::jit::script::Module>(torch::jit::load(
-        // TODO: windows
-        fmt::format("{}/{}", load_model_request->model_dir,
-                    manifest_->GetModel().serialized_file),
-        *device));
-    return std::make_pair(module, device);
-  } catch (const c10::Error& e) {
-    TS_LOGF(ERROR, "loading the model: {}, device id: {}, error: {}",
-            load_model_request->model_name, load_model_request->gpu_id,
-            e.msg());
-    throw e;
-  } catch (const std::runtime_error& e) {
-    TS_LOGF(ERROR, "loading the model: {}, device id: {}, error: {}",
-            load_model_request->model_name, load_model_request->gpu_id,
-            e.what());
-    throw e;
-  }
-}
 
 void BaseHandler::Handle(
-    std::shared_ptr<torch::jit::script::Module>& model,
-    std::shared_ptr<torch::Device>& device,
+    std::shared_ptr<void> model, std::shared_ptr<torch::Device>& device,
     std::shared_ptr<torchserve::InferenceRequestBatch>& request_batch,
     std::shared_ptr<torchserve::InferenceResponseBatch>& response_batch) {
   std::string req_ids = "";
   std::map<uint8_t, std::string> map_idx_to_req_id;
   std::pair<std::string&, std::map<uint8_t, std::string>&> idx_to_req_id(
       req_ids, map_idx_to_req_id);
+  std::string just_passed = "";
   try {
     auto start_time = std::chrono::system_clock::now();
     auto inputs =
         Preprocess(device, idx_to_req_id, request_batch, response_batch);
+    just_passed = "Preprocessing";
     auto outputs =
         Inference(model, inputs, device, idx_to_req_id, response_batch);
+    just_passed = "Inference";
     Postprocess(outputs, idx_to_req_id, response_batch);
+    just_passed = "Postprocessing";
     auto stop_time = std::chrono::system_clock::now();
     std::chrono::duration<double, std::milli> duration = stop_time - start_time;
     try {
@@ -70,7 +48,7 @@ void BaseHandler::Handle(
       TS_LOGF(ERROR, "Failed to record PredictionTime metric. {}", e.what());
     }
   } catch (...) {
-    TS_LOG(ERROR, "Failed to handle this batch");
+    TS_LOG(ERROR, "Failed to handle this batch after: {}", just_passed);
   }
 }
 
@@ -89,7 +67,7 @@ std::shared_ptr<torch::Device> BaseHandler::GetTorchDevice(
                                          load_model_request->gpu_id);
 }
 
-std::vector<torch::jit::IValue> BaseHandler::Preprocess(
+c10::IValue BaseHandler::Preprocess(
     std::shared_ptr<torch::Device>& device,
     std::pair<std::string&, std::map<uint8_t, std::string>&>& idx_to_req_id,
     std::shared_ptr<torchserve::InferenceRequestBatch>& request_batch,
@@ -99,7 +77,8 @@ std::vector<torch::jit::IValue> BaseHandler::Preprocess(
    * Ref:
    * https://github.com/pytorch/serve/blob/be5ff32dab0d81ceb1c2a9d42550ed5904ae9282/ts/torch_handler/vision_handler.py#L33
    */
-  std::vector<torch::jit::IValue> batch_ivalue;
+  auto batch_ivalue = c10::impl::GenericList(c10::TensorType::get());
+
   std::vector<torch::Tensor> batch_tensors;
   uint8_t idx = 0;
   for (auto& request : *request_batch) {
@@ -187,9 +166,8 @@ std::vector<torch::jit::IValue> BaseHandler::Preprocess(
   return batch_ivalue;
 }
 
-torch::Tensor BaseHandler::Inference(
-    std::shared_ptr<torch::jit::script::Module> model,
-    std::vector<torch::jit::IValue>& inputs,
+c10::IValue BaseHandler::Inference(
+    std::shared_ptr<void> model, c10::IValue& inputs,
     std::shared_ptr<torch::Device>& device,
     std::pair<std::string&, std::map<uint8_t, std::string>&>& idx_to_req_id,
     std::shared_ptr<torchserve::InferenceResponseBatch>& response_batch) {
@@ -198,7 +176,11 @@ torch::Tensor BaseHandler::Inference(
   }
   try {
     torch::NoGradGuard no_grad;
-    return model->forward(inputs).toTensor();
+    std::shared_ptr<torch::jit::Module> jit_model(
+        std::static_pointer_cast<torch::jit::Module>(model));
+    std::vector<at::IValue> input_vec(inputs.toList().begin(),
+                                      inputs.toList().end());
+    return jit_model->forward(input_vec).toTensor();
   } catch (const std::runtime_error& e) {
     TS_LOGF(ERROR, "Failed to predict, error: {}", e.what());
     for (auto& kv : idx_to_req_id.second) {
@@ -212,15 +194,16 @@ torch::Tensor BaseHandler::Inference(
 }
 
 void BaseHandler::Postprocess(
-    const torch::Tensor& data,
+    c10::IValue& inputs,
     std::pair<std::string&, std::map<uint8_t, std::string>&>& idx_to_req_id,
     std::shared_ptr<torchserve::InferenceResponseBatch>& response_batch) {
+  auto data = inputs.toTensor();
   for (const auto& kv : idx_to_req_id.second) {
     try {
       auto response = (*response_batch)[kv.second];
       response->SetResponse(200, "data_type",
                             torchserve::PayloadType::kDATA_TYPE_BYTES,
-                            torch::pickle_save(data[kv.first]));
+                            torch::pickle_save(at::IValue(data[kv.first])));
     } catch (const std::runtime_error& e) {
       TS_LOGF(ERROR, "Failed to load tensor for request id: {}, error: {}",
               kv.second, e.what());
@@ -239,5 +222,4 @@ void BaseHandler::Postprocess(
     }
   }
 }
-}  // namespace torchscripted
 }  // namespace torchserve
