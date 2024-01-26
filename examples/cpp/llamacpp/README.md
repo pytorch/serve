@@ -76,11 +76,8 @@ curl http://localhost:8080/predictions/llm -T prompt1.txt & curl http://localhos
 Sample Response
 
 ```
-Hello my name is Daisy. Daisy is three years old. She loves to play with her toys.
-One day, Daisy's mommy said, "Daisy, it's time to go to the store." Daisy was so excited! She ran to the store with her mommy.
-At the store, Daisy saw a big, red balloon. She wanted it so badly! She asked her mommy, "Can I have the balloon, please?"
-Mommy said, "No, Daisy. We don't have enough money for that balloon."
-Daisy was sad. She wanted the balloon so much. She started to cry.
-Mommy said, "Daisy, don't cry. We can get the balloon. We can buy it and take it home."
-Daisy smiled. She was so happy. She hugged her mommy and said, "Thank you, mommy!"
+Hello my name is Daisy everybody loves me
+ I am a sweet and loving person
+ I have a big heart and I am always willing to help others
+ I am a good
 ```
