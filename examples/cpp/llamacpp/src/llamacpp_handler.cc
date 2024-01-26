@@ -11,9 +11,9 @@ void LlamaCppHandler::initialize_context() {
   llama_ctx = llama_new_context_with_model(llamamodel, ctx_params);
 
   if (llama_ctx == nullptr) {
-    std::cerr << "Failed to initialize llama context" << std::endl;
+    TS_LOG(ERROR, "Failed to initialize llama context");
   } else {
-    std::cout << "Context initialized successfully" << std::endl;
+    TS_LOG(ERROR, "Context initialized successfully");
   }
 }
 
@@ -27,7 +27,7 @@ LlamaCppHandler::LoadModel(
         fmt::format("{}/{}", load_model_request->model_dir, "config.json");
     std::string jsonContent;
     if (!folly::readFile(configFilePath.c_str(), jsonContent)) {
-      std::cerr << "config.json not found at: " << configFilePath << std::endl;
+      TS_LOGF(ERROR, "config.json not found at: {}", configFilePath);
       throw;
     }
     folly::dynamic json;
@@ -37,8 +37,7 @@ LlamaCppHandler::LoadModel(
     if (json.find("checkpoint_path") != json.items().end()) {
       checkpoint_path = json["checkpoint_path"].asString();
     } else {
-      std::cerr << "Required field 'checkpoint_path' not found in JSON."
-                << std::endl;
+      TS_LOG(ERROR, "Required field 'checkpoint_path' not found in JSON.");
       throw;
     }
     params.model = checkpoint_path;
@@ -113,9 +112,7 @@ c10::IValue LlamaCppHandler::Preprocess(
       const int max_tokens_list_size = max_context_size - 4;
 
       if ((int)tokens_list.size() > max_tokens_list_size) {
-        std::cout << __func__ << ": error: prompt too long ("
-                  << tokens_list.size() << " tokens, max "
-                  << max_tokens_list_size << ")\n";
+        TS_LOGF(ERROR, "{}: error: prompt too long ({} tokens, max {})", __func__, tokens_list.size(),  max_tokens_list_size);
       }
 
       // Print the tokens from the prompt :
@@ -180,7 +177,7 @@ c10::IValue LlamaCppHandler::Inference(
 
         if (llama_eval(llama_ctx, tokens_list.data(), int(tokens_list.size()),
                        n_past)) {
-          std::cout << "Failed to eval\n" << __func__ << std::endl;
+          TS_LOGF(ERROR, "Failed to eval {}", __func__);
           break;
         }
 
@@ -208,13 +205,12 @@ c10::IValue LlamaCppHandler::Inference(
 
         // is it an end of stream ?
         if (new_token_id == llama_token_eos(llamamodel)) {
-          std::cout << "Reached [end of text]\n";
+          TS_LOG(DEBUG, "Reached [end of text]");
           break;
         }
 
         // print the new token :
-        std::cout << "New Token: "
-                  << llama_token_to_piece(llama_ctx, new_token_id) << std::endl;
+        TS_LOGF(DEBUG, "New Token: {}", llama_token_to_piece(llama_ctx, new_token_id));
 
         // push this new token for next evaluation
         tokens_list.push_back(new_token_id);
@@ -252,7 +248,7 @@ void LlamaCppHandler::Postprocess(
       }
 
       std::string generated_text_str = generated_text_stream.str();
-      std::cout << "Generated Text Str: " << generated_text_str << std::endl;
+      TS_LOGF(DEBUG, "Generated Text Str: {}", generated_text_str);
 
       auto response = (*response_batch)[kv.second];
 
