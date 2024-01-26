@@ -1,5 +1,7 @@
 #include "src/utils/model_archive.hh"
 
+#include <iostream>
+
 namespace torchserve {
 bool Manifest::Initialize(const std::string& manifest_json_file_path) {
   try {
@@ -16,14 +18,10 @@ bool Manifest::Initialize(const std::string& manifest_json_file_path) {
     }
 
     SetValue(model, torchserve::Manifest::kModel_Handler, model_.handler, true);
-    if (!SetValue(model, torchserve::Manifest::kModel_SerializedFile,
-                  model_.serialized_file, false) &&
-        !SetValue(model, torchserve::Manifest::kModel_ModelFile,
-                  model_.model_file, false)) {
-      TS_LOGF(ERROR, "Item: {} and item : {} not defined in {}",
-              torchserve::Manifest::kModel_SerializedFile,
-              torchserve::Manifest::kModel_ModelFile, manifest_json_file_path);
-    }
+    SetValue(model, torchserve::Manifest::kModel_SerializedFile,
+             model_.serialized_file, false);
+    SetValue(model, torchserve::Manifest::kModel_ModelFile, model_.model_file,
+             false);
 
     SetValue(model, torchserve::Manifest::kModel_ModelName, model_.model_name,
              false);
@@ -47,14 +45,14 @@ bool Manifest::Initialize(const std::string& manifest_json_file_path) {
     SetValue(val, torchserve::Manifest::kArchiverVersion, archiver_version_,
              false);
     SetValue(val, torchserve::Manifest::kRuntimeType, runtime_type_, false);
+    return true;
   } catch (const std::invalid_argument& e) {
     TS_LOGF(ERROR, "Failed to init Manifest from: {}, error: ",
             manifest_json_file_path, e.what());
-    return false;
   } catch (...) {
     TS_LOGF(ERROR, "Failed to init Manifest from: {}", manifest_json_file_path);
   }
-  return true;
+  return false;
 }
 
 bool Manifest::SetValue(const folly::dynamic& source, const std::string& key,

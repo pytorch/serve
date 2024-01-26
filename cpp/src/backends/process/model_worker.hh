@@ -1,5 +1,4 @@
-#ifndef TS_CPP_BACKENDS_PROCESS_MODEL_WORKER_HH_
-#define TS_CPP_BACKENDS_PROCESS_MODEL_WORKER_HH_
+#pragma once
 
 #include <arpa/inet.h>
 #include <netinet/in.h>
@@ -15,7 +14,6 @@
 
 #include "src/backends/core/backend.hh"
 #include "src/backends/protocol/otf_message.hh"
-#include "src/backends/torch_scripted/torch_scripted_backend.hh"
 #include "src/utils/config.hh"
 #include "src/utils/logging.hh"
 #include "src/utils/model_archive.hh"
@@ -77,4 +75,3 @@ class SocketModelWorker {
   std::shared_ptr<torchserve::Backend> backend_;
 };
 }  // namespace torchserve
-#endif  // TS_CPP_BACKENDS_PROCESS_MODEL_WORKER_HH_

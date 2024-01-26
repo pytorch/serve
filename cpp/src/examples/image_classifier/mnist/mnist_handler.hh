@@ -1,10 +1,9 @@
-#ifndef MNIST_HANDLER_HH_
-#define MNIST_HANDLER_HH_
+#pragma once
 
-#include "src/backends/torch_scripted/handler/base_handler.hh"
+#include "src/backends/handler/torch_scripted_handler.hh"
 
 namespace mnist {
-class MnistHandler : public torchserve::torchscripted::BaseHandler {
+class MnistHandler : public torchserve::TorchScriptHandler {
  public:
   // NOLINTBEGIN(bugprone-exception-escape)
   MnistHandler() = default;
@@ -12,10 +11,9 @@ class MnistHandler : public torchserve::torchscripted::BaseHandler {
   ~MnistHandler() override = default;
 
   void Postprocess(
-      const torch::Tensor& data,
+      c10::IValue& data,
       std::pair<std::string&, std::map<uint8_t, std::string>&>& idx_to_req_id,
       std::shared_ptr<torchserve::InferenceResponseBatch>& response_batch)
       override;
 };
 }  // namespace mnist
-#endif  // MNIST_HANDLER_HH_
