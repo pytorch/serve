@@ -5,7 +5,9 @@
 
 #include <typeinfo>
 
-#include "llama2.c/run.c"
+extern "C" {
+  #include "llama2.c/llama2.h"
+}
 
 namespace llm {
 
