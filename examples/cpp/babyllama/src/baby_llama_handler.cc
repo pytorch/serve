@@ -1,11 +1,13 @@
-#include "src/examples/babyllama/baby_llama_handler.hh"
+#include "baby_llama_handler.hh"
 
 #include <folly/FileUtil.h>
 #include <folly/json.h>
 
 #include <typeinfo>
 
-#include "src/examples/babyllama/llama2.c/run.c"
+extern "C" {
+  #include "llama2.c/llama2.h"
+}
 
 namespace llm {
 
@@ -233,7 +235,6 @@ c10::IValue BabyLlamaHandler::Inference(
   } catch (...) {
     TS_LOG(ERROR, "Failed to run inference on this batch");
   }
-  std::cout << "WOOT?" << std::endl;
   return batch_output_vector;
 }
 

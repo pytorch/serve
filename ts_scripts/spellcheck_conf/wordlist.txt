@@ -1164,9 +1164,11 @@ compilable
 nightlies
 torchexportaotcompile
 autotune
+bb
 babyllama
 libbabyllama
 BabyLLama
 BabyLlamaHandler
 CMakeLists
 TorchScriptHandler
+libllamacpp
