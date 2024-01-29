@@ -1164,6 +1164,7 @@ compilable
 nightlies
 torchexportaotcompile
 autotune
+bb
 babyllama
 libbabyllama
 BabyLLama

@@ -2,13 +2,15 @@
 
 The benchmarks measure the performance of TorchServe on various models and benchmarks. It supports either a number of built-in models or a custom model passed in as a path or URL to the .mar file. It also runs various benchmarks using these models (see benchmarks section below). The benchmarks are executed in the user machine through a python3 script in case of jmeter and a shell script in case of apache benchmark. TorchServe is run on the same machine in a docker instance to avoid network latencies. The benchmark must be run from within `serve/benchmarks`
 
-We currently support benchmarking with JMeter & Apache Bench. One can also profile backend code with snakeviz.
+We currently support benchmarking with JMeter, Apache Bench and Locust. One can also profile backend code with snakeviz.
 
 * [Benchmarking with Apache Bench](#benchmarking-with-apache-bench)
 * [Auto Benchmarking with Apache Bench](#auto-benchmarking-with-apache-bench)
 * [Benchmarking and Profiling with JMeter](jmeter.md)
 
-# Benchmarking with Apache Bench
+⚠️**Please Note**⚠️ In future we will deprecate Apache Bench in favor of locust.
+
+# Benchmarking with Locust/Apache Bench
 
 ## Installation
 
@@ -42,6 +44,8 @@ This command will run the AB benchmark with default parameters. It will start a 
 Refer [parameters section](#benchmark-parameters) for more details on configurable parameters.
 
 `python benchmark-ab.py`
+
+To switch between Apache Bench and Locust you can set the --benchmark-backend/-bb parameter to either "ab" or "locust".
 
 ### Run benchmark using a config file
 The config parameters can be provided using cmd line args and a config json file as well.
