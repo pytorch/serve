@@ -1146,6 +1146,16 @@ SDPA
 sam
 zlib
 verifier
+LSP
+LoadModel
+LoadModelInternal
+MnistHandler
+ModelInstance
+MxNet
+TorchScripted
+gcc
+hh
+libmnist
 fastgen
 reproducibility
 AOTInductor
@@ -1154,3 +1164,9 @@ compilable
 nightlies
 torchexportaotcompile
 autotune
+babyllama
+libbabyllama
+BabyLLama
+BabyLlamaHandler
+CMakeLists
+TorchScriptHandler
