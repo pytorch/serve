@@ -30,6 +30,8 @@ TEST_CASES = [
     ("kitten.jpg", EXPECTED_RESULTS[0]),
 ]
 
+BATCH_SIZE = 32
+
 
 import os
 
@@ -122,7 +124,7 @@ def test_torch_export_aot_compile_dynamic_batching(custom_working_directory):
         byte_array_type = bytearray(image_file)
         data["body"] = byte_array_type
 
-    # Send a batch of 16 elements
-    result = handler.handle([data for i in range(32)], ctx)
+    # Send a batch of BATCH_SIZE elements
+    result = handler.handle([data for i in range(BATCH_SIZE)], ctx)
 
-    assert len(result) == 32
+    assert len(result) == BATCH_SIZE

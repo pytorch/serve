@@ -5,6 +5,8 @@ from torchvision.models import ResNet18_Weights, resnet18
 
 torch.set_float32_matmul_precision("high")
 
+MAX_BATCH_SIZE = 32
+
 model = resnet18(weights=ResNet18_Weights.DEFAULT)
 model.eval()
 
@@ -13,7 +15,8 @@ with torch.no_grad():
         device = "cuda"
     else:
         device = "cpu"
-        # The below config is needed for max batch_size = 16
+        # We need to turn off the below optimizations to support batch_size = 16,
+        # which is treated like a special case
         # https://github.com/pytorch/pytorch/pull/116152
         torch.backends.mkldnn.set_flags(False)
         torch.backends.nnpack.set_flags(False)
@@ -21,9 +24,7 @@ with torch.no_grad():
     model = model.to(device=device)
     example_inputs = (torch.randn(2, 3, 224, 224, device=device),)
 
-    # Max value is 15 because of https://github.com/pytorch/pytorch/pull/116152
-    # On a CUDA enabled device, we tested batch_size of 32.
-    batch_dim = torch.export.Dim("batch", min=2, max=15)
+    batch_dim = torch.export.Dim("batch", min=2, max=MAX_BATCH_SIZE)
     so_path = torch._export.aot_compile(
         model,
         example_inputs,
