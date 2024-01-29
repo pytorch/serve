@@ -244,14 +244,12 @@ public final class ModelManager {
         StringBuilder outputString = new StringBuilder();
         BufferedReader brdr = new BufferedReader(new InputStreamReader(process.getInputStream()));
         while ((line = brdr.readLine()) != null) {
-            outputString.append(line);
+            outputString.append(line + "\n");
         }
 
         if (exitCode == 0) {
             logger.info(
-                    "Created virtual environment for model {}: {}",
-                    model.getModelName(),
-                    venvPath);
+                    "Created virtual environment for model {}: {}", model.getModelName(), venvPath);
         } else {
             logger.error(
                     "Virtual environment creation for model {} at {} failed:\n{}",
@@ -318,21 +316,21 @@ public final class ModelManager {
             BufferedReader brdr =
                     new BufferedReader(new InputStreamReader(process.getInputStream()));
             while ((line = brdr.readLine()) != null) {
-                outputString.append(line);
+                outputString.append(line + "\n");
             }
 
             if (exitCode == 0) {
                 logger.info(
-                        "Installed custom dependencies for model {}:\n{}",
+                        "Installed custom pip packages for model {}:\n{}",
                         model.getModelName(),
                         outputString.toString());
             } else {
                 logger.error(
-                        "Failed to install custom dependencies for model {}:\n{}",
+                        "Custom pip package installation failed for model {}:\n{}",
                         model.getModelName(),
                         outputString.toString());
                 throw new ModelException(
-                        "Failed to install custom dependencies for model " + model.getModelName());
+                        "Custom pip package installation failed for model " + model.getModelName());
             }
         }
     }
