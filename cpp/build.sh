@@ -136,6 +136,14 @@ function install_yaml_cpp() {
   cd "$BWD" || exit
 }
 
+function build_llama_cpp() {
+  BWD=$(pwd)
+  LLAMA_CPP_SRC_DIR=$BASE_DIR/third-party/llama.cpp
+  cd "${LLAMA_CPP_SRC_DIR}"
+  make
+  cd "$BWD" || exit
+}
+
 function build() {
   MAYBE_BUILD_QUIC=""
   if [ "$WITH_QUIC" == true ] ; then
@@ -205,16 +213,6 @@ function build() {
   make install
   echo -e "${COLOR_GREEN}torchserve_cpp build is complete. To run unit test: \
   ./_build/test/torchserve_cpp_test ${COLOR_OFF}"
-
-  if [ -f "$DEPS_DIR/../src/examples/libmnist_handler.dylib" ]; then
-    mv $DEPS_DIR/../src/examples/libmnist_handler.dylib $DEPS_DIR/../../test/resources/torchscript_model/mnist/mnist_handler/libmnist_handler.dylib
-  elif [ -f "$DEPS_DIR/../src/examples/libmnist_handler.so" ]; then
-    mv $DEPS_DIR/../src/examples/libmnist_handler.so $DEPS_DIR/../../test/resources/torchscript_model/mnist/mnist_handler/libmnist_handler.so
-  fi
-
-  if [ -f "$DEPS_DIR/../src/examples/libbabyllama_handler.so" ]; then
-    mv $DEPS_DIR/../src/examples/libbabyllama_handler.so $DEPS_DIR/../../test/resources/torchscript_model/babyllama/babyllama_handler/libbabyllama_handler.so
-  fi
 
   cd $DEPS_DIR/../..
   if [ -f "$DEPS_DIR/../test/torchserve_cpp_test" ]; then
@@ -311,10 +309,13 @@ mkdir -p "$LIBS_DIR"
 # Must execute from the directory containing this script
 cd $BASE_DIR
 
+git submodule update --init --recursive
+
 install_folly
 install_kineto
 install_libtorch
 install_yaml_cpp
+build_llama_cpp
 build
 symlink_torch_libs
 symlink_yaml_cpp_lib

@@ -19,9 +19,9 @@ MODEL_SO_FILE = "resnet18_pt2.so"
 MODEL_YAML_CFG_FILE = EXAMPLE_ROOT_DIR.joinpath("model-config.yaml")
 
 
-PT_220_AVAILABLE = (
+PT_230_AVAILABLE = (
     True
-    if packaging.version.parse(torch.__version__) > packaging.version.parse("2.1.1")
+    if packaging.version.parse(torch.__version__) > packaging.version.parse("2.2.2")
     else False
 )
 
@@ -29,6 +29,8 @@ EXPECTED_RESULTS = ["tabby", "tiger_cat", "Egyptian_cat", "lynx", "bucket"]
 TEST_CASES = [
     ("kitten.jpg", EXPECTED_RESULTS[0]),
 ]
+
+BATCH_SIZE = 32
 
 
 import os
@@ -47,7 +49,7 @@ def custom_working_directory(tmp_path):
     os.chdir(tmp_path)
 
 
-@pytest.mark.skipif(PT_220_AVAILABLE == False, reason="torch version is < 2.2.0")
+@pytest.mark.skipif(PT_230_AVAILABLE == False, reason="torch version is < 2.3.0")
 def test_torch_export_aot_compile(custom_working_directory):
     # Get the path to the custom working directory
     model_dir = custom_working_directory
@@ -88,7 +90,7 @@ def test_torch_export_aot_compile(custom_working_directory):
     assert labels == EXPECTED_RESULTS
 
 
-@pytest.mark.skipif(PT_220_AVAILABLE == False, reason="torch version is < 2.2.0")
+@pytest.mark.skipif(PT_230_AVAILABLE == False, reason="torch version is < 2.3.0")
 def test_torch_export_aot_compile_dynamic_batching(custom_working_directory):
     # Get the path to the custom working directory
     model_dir = custom_working_directory
@@ -122,7 +124,7 @@ def test_torch_export_aot_compile_dynamic_batching(custom_working_directory):
         byte_array_type = bytearray(image_file)
         data["body"] = byte_array_type
 
-    # Send a batch of 16 elements
-    result = handler.handle([data for i in range(15)], ctx)
+    # Send a batch of BATCH_SIZE elements
+    result = handler.handle([data for i in range(BATCH_SIZE)], ctx)
 
-    assert len(result) == 15
+    assert len(result) == BATCH_SIZE

@@ -53,10 +53,10 @@ else:
     )
     PT2_AVAILABLE = False
 
-if packaging.version.parse(torch.__version__) > packaging.version.parse("2.1.1"):
-    PT220_AVAILABLE = True
+if packaging.version.parse(torch.__version__) > packaging.version.parse("2.2.2"):
+    PT230_AVAILABLE = True
 else:
-    PT220_AVAILABLE = False
+    PT230_AVAILABLE = False
 
 if os.environ.get("TS_IPEX_ENABLE", "false") == "true":
     try:
@@ -187,7 +187,7 @@ class BaseHandler(abc.ABC):
         elif (
             self.model_pt_path.endswith(".so")
             and self._use_torch_export_aot_compile()
-            and PT220_AVAILABLE
+            and PT230_AVAILABLE
         ):
             # Set cuda device to the gpu_id of the backend worker
             # This is needed as the API for loading the exported model doesn't yet have a device id
@@ -256,9 +256,15 @@ class BaseHandler(abc.ABC):
         self.initialized = True
 
     def _load_torch_export_aot_compile(self, model_so_path):
-        from ts.handler_utils.torch_export.load_model import load_exported_model
+        """Loads the PyTorch model so and returns a Callable object.
 
-        return load_exported_model(model_so_path, self.map_location)
+        Args:
+            model_pt_path (str): denotes the path of the model file.
+
+        Returns:
+            (Callable Object) : Loads the model object.
+        """
+        return torch._export.aot_load(model_so_path, self.map_location)
 
     def _load_torchscript_model(self, model_pt_path):
         """Loads the PyTorch model and returns the NN model object.
