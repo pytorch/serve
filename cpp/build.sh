@@ -80,19 +80,17 @@ function install_libtorch() {
     cd "$DEPS_DIR" || exit
     if [ "$PLATFORM" = "Linux" ]; then
       echo -e "${COLOR_GREEN}[ INFO ] Install libtorch on Linux ${COLOR_OFF}"
-      if [ "$CUDA" = "cu118" ]; then
-        wget https://download.pytorch.org/libtorch/cu118/libtorch-cxx11-abi-shared-with-deps-2.1.1%2Bcu118.zip
-        unzip libtorch-cxx11-abi-shared-with-deps-2.1.1+cu118.zip
-        rm libtorch-cxx11-abi-shared-with-deps-2.1.1+cu118.zip
-      elif [ "$CUDA" = "cu121" ]; then
-        wget https://download.pytorch.org/libtorch/cu121/libtorch-cxx11-abi-shared-with-deps-2.1.1%2Bcu121.zip
-        unzip libtorch-cxx11-abi-shared-with-deps-2.1.1+cu121.zip
-        rm libtorch-cxx11-abi-shared-with-deps-2.1.1+cu121.zip
+      if [ "$USE_NIGHTLIES" == true ] ; then
+        URL=https://download.pytorch.org/libtorch/nightly/${CUDA}/libtorch-cxx11-abi-shared-with-deps-latest.zip
       else
-        wget https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-2.1.1%2Bcpu.zip
-        unzip libtorch-cxx11-abi-shared-with-deps-2.1.1+cpu.zip
-        rm libtorch-cxx11-abi-shared-with-deps-2.1.1+cpu.zip
+        URL=https://download.pytorch.org/libtorch/${CUDA}/libtorch-cxx11-abi-shared-with-deps-2.1.1%2B${CUDA}.zip
       fi
+      wget $URL
+      ZIP_FILE=$(basename "$URL")
+      ZIP_FILE="${ZIP_FILE//%2B/+}"
+      unzip $ZIP_FILE
+      rm $ZIP_FILE
+
     elif [ "$PLATFORM" = "Windows" ]; then
       echo -e "${COLOR_GREEN}[ INFO ] Install libtorch on Windows ${COLOR_OFF}"
       # TODO: Windows
@@ -142,6 +140,25 @@ function build_llama_cpp() {
   cd "${LLAMA_CPP_SRC_DIR}"
   make
   cd "$BWD" || exit
+}
+
+function prepare_test_files() {
+  local R_DIR="${BASE_DIR}/test/resources/examples/"
+  if [ ! -f "${R_DIR}/babyllama/babyllama_handler/tokenizer.bin" ]; then
+    wget https://github.com/karpathy/llama2.c/raw/master/tokenizer.bin -O "${R_DIR}/babyllama/babyllama_handler/tokenizer.bin"
+  fi
+  if [ ! -f "${R_DIR}/babyllama/babyllama_handler/stories15M.bin" ]; then
+    wget https://huggingface.co/karpathy/tinyllamas/resolve/main/stories15M.bin -O "${R_DIR}/babyllama/babyllama_handler/stories15M.bin"
+  fi
+  if [ ! -f "${R_DIR}/aot_inductor/llama_handler/stories15M.so" ] && [ "$USE_NIGHTLIES" == true ]; then
+    local L_DIR=${R_DIR}/aot_inductor/llama_handler/
+    if [ ! -f "${L_DIR}/stories15M.pt" ]; then
+      wget https://huggingface.co/karpathy/tinyllamas/resolve/main/stories15M.pt?download=true -O "${L_DIR}/stories15M.pt"
+    fi
+    local LLAMA_SO_DIR=${BASE_DIR}/third-party/llama2_so/
+    # touch ${LLAMA_SO_DIR}/llama2_so/__init__.py
+    PYTHONPATH=${LLAMA_SO_DIR}:${PYTHONPATH} python ${BASE_DIR}/../examples/cpp/aot_inductor/compile.py --checkpoint ${L_DIR}/stories15M.pt ${L_DIR}/stories15M.so
+  fi
 }
 
 function build() {
@@ -255,8 +272,8 @@ WITH_QUIC=false
 INSTALL_DEPENDENCIES=false
 PREFIX=""
 COMPILER_FLAGS=""
-CUDA=""
-USAGE="./build.sh [-j num_jobs] [-g cu118|cu121] [-q|--with-quic] [-p|--prefix] [-x|--compiler-flags]"
+CUDA="cpu"
+USAGE="./build.sh [-j num_jobs] [-g cu118|cu121] [-q|--with-quic] [-t|--no-tets] [-p|--prefix] [-x|--compiler-flags] [-n|--nighlies]"
 while [ "$1" != "" ]; do
   case $1 in
     -j | --jobs ) shift
@@ -278,6 +295,9 @@ while [ "$1" != "" ]; do
     -x | --compiler-flags )
                   shift
                   COMPILER_FLAGS=$1
+      ;;
+    -n | --nightlies )
+                  USE_NIGHTLIES=true
       ;;
     * )           echo $USAGE
                   exit 1
@@ -316,6 +336,7 @@ install_kineto
 install_libtorch
 install_yaml_cpp
 build_llama_cpp
+prepare_test_files
 build
 symlink_torch_libs
 symlink_yaml_cpp_lib

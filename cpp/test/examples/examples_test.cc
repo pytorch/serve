@@ -21,6 +21,26 @@ TEST_F(ModelPredictTest, TestLoadPredictBabyLlamaHandler) {
       base_dir + "babyllama_handler", base_dir + "prompt.txt", "llm_ts", 200);
 }
 
+TEST_F(ModelPredictTest, TestLoadPredictAotInductorLlamaHandler) {
+  std::string base_dir = "test/resources/examples/aot_inductor/";
+  std::string file1 = base_dir + "llama_handler/stories15M.so";
+  std::string file2 =
+      "test/resources/examples/babyllama/babyllama_handler/tokenizer.bin";
+
+  std::ifstream f1(file1);
+  std::ifstream f2(file2);
+
+  if (!f1.good() && !f2.good())
+    GTEST_SKIP() << "Skipping TestLoadPredictAotInductorLlamaHandler because "
+                    "of missing files: "
+                 << file1 << " or " << file2;
+
+  this->LoadPredict(
+      std::make_shared<torchserve::LoadModelRequest>(
+          base_dir + "llama_handler", "llama", -1, "", "", 1, false),
+      base_dir + "llama_handler", base_dir + "prompt.txt", "llm_ts", 200);
+}
+
 TEST_F(ModelPredictTest, TestLoadPredictLlmHandler) {
   std::string base_dir = "test/resources/examples/llamacpp/";
   std::string file1 = base_dir + "llamacpp_handler/llama-2-7b-chat.Q5_0.gguf";
