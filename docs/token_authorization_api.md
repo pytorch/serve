@@ -2,7 +2,7 @@
 
 ## Configuration
 1. Enable token authorization by adding the provided plugin at start using the `--plugin-path` command.
-2. Torchserve will enable token authorization if the plugin is provided. In the current working directory a file `key_file.txt` will be generated.
+2. Torchserve will enable token authorization if the plugin is provided. In the current working directory a file `key_file.json` will be generated.
     1. Example key file:
 
     `Management Key: aadJv_R6 --- Expiration time: 2024-01-16T22:23:32.952499Z`

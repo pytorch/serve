@@ -21,7 +21,6 @@ import java.security.KeyException;
 import java.security.KeyFactory;
 import java.security.KeyStore;
 import java.security.PrivateKey;
-import java.security.SecureRandom;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
@@ -149,8 +148,6 @@ public final class ConfigManager {
     private boolean telemetryEnabled;
     private Logger logger = LoggerFactory.getLogger(ConfigManager.class);
 
-    private SecureRandom secureRandom = new SecureRandom();
-    private Base64.Encoder baseEncoder = Base64.getUrlEncoder();
     private boolean tokenAuthorizationEnabled;
     private Class<?> tokenClass;
     private Object tokenObject;
