@@ -32,7 +32,6 @@ import org.pytorch.serve.job.RestJob;
 import org.pytorch.serve.openapi.OpenApiUtils;
 import org.pytorch.serve.servingsdk.ModelServerEndpoint;
 import org.pytorch.serve.util.ApiUtils;
-import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.JsonUtils;
 import org.pytorch.serve.util.NettyUtils;
 import org.pytorch.serve.util.messages.RequestInput;
@@ -62,15 +61,10 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
             String[] segments)
             throws ModelException, DownloadArchiveException, WorkflowException,
                     WorkerInitializationException {
-        ConfigManager configManager = ConfigManager.getInstance();
         if (isManagementReq(segments)) {
             if (endpointMap.getOrDefault(segments[1], null) != null) {
-                if (req.toString().contains("/token")) {
-                    configManager.checkTokenAuthorization(req, 0);
-                }
                 handleCustomEndpoint(ctx, req, segments, decoder);
             } else {
-                configManager.checkTokenAuthorization(req, 1);
                 if (!"models".equals(segments[1])) {
                     throw new ResourceNotFoundException();
                 }

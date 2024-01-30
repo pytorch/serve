@@ -59,8 +59,6 @@ public class InferenceRequestHandler extends HttpRequestHandlerChain {
             String[] segments)
             throws ModelException, DownloadArchiveException, WorkflowException,
                     WorkerInitializationException {
-        ConfigManager configManager = ConfigManager.getInstance();
-        configManager.checkTokenAuthorization(req, 2);
         if (isInferenceReq(segments)) {
             if (endpointMap.getOrDefault(segments[1], null) != null) {
                 handleCustomEndpoint(ctx, req, segments, decoder);

@@ -49,7 +49,7 @@ def start() -> None:
                 parent = psutil.Process(pid)
                 parent.terminate()
                 try:
-                    os.remove(os.getcwd() + "/key_file.txt")
+                    os.remove(os.getcwd() + "/key_file.json")
                 except FileNotFoundError:
                     print("Token authorization not enabled")
                 if args.foreground:

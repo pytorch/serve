@@ -1,18 +1,24 @@
 package org.pytorch.serve.plugins.endpoint;
 
 // import java.util.Properties;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.QueryStringDecoder;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.PosixFilePermission;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.security.SecureRandom;
 import java.time.Instant;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import org.pytorch.serve.servingsdk.Context;
 import org.pytorch.serve.servingsdk.ModelServerEndpoint;
@@ -20,6 +26,8 @@ import org.pytorch.serve.servingsdk.annotations.Endpoint;
 import org.pytorch.serve.servingsdk.annotations.helpers.EndpointTypes;
 import org.pytorch.serve.servingsdk.http.Request;
 import org.pytorch.serve.servingsdk.http.Response;
+
+// import org.pytorch.serve.util.TokenType;
 
 @Endpoint(
         urlPattern = "token",
@@ -29,9 +37,9 @@ public class Token extends ModelServerEndpoint {
     private static String apiKey;
     private static String managementKey;
     private static String inferenceKey;
-    private static Instant managementExpirationTime;
-    private static Instant inferenceExpirationTime;
-    private static Integer timeToExpiration = 30;
+    private static Instant managementExpirationTimeMinutes;
+    private static Instant inferenceExpirationTimeMinutes;
+    private static Integer timeToExpirationMinutes = 60;
     private SecureRandom secureRandom = new SecureRandom();
     private Base64.Encoder baseEncoder = Base64.getUrlEncoder();
 
@@ -70,8 +78,8 @@ public class Token extends ModelServerEndpoint {
         return baseEncoder.encodeToString(randomBytes);
     }
 
-    public Instant generateTokenExpiration(Integer time) {
-        return Instant.now().plusSeconds(TimeUnit.MINUTES.toSeconds(time));
+    public Instant generateTokenExpiration() {
+        return Instant.now().plusSeconds(TimeUnit.MINUTES.toSeconds(timeToExpirationMinutes));
     }
 
     // generates a key file with new keys depending on the parameter provided
@@ -79,8 +87,7 @@ public class Token extends ModelServerEndpoint {
     // 1: generates management key and keeps other 2 the same
     // 2: generates inference key and keeps other 2 the same
     public boolean generateKeyFile(Integer keyCase) throws IOException {
-        String fileData = " ";
-        String userDirectory = System.getProperty("user.dir") + "/key_file.txt";
+        String userDirectory = System.getProperty("user.dir") + "/key_file.json";
         File file = new File(userDirectory);
         if (!file.createNewFile() && !file.exists()) {
             return false;
@@ -91,51 +98,78 @@ public class Token extends ModelServerEndpoint {
         switch (keyCase) {
             case 1:
                 managementKey = generateKey();
-                managementExpirationTime = generateTokenExpiration(timeToExpiration);
+                managementExpirationTimeMinutes = generateTokenExpiration();
                 break;
             case 2:
                 inferenceKey = generateKey();
-                inferenceExpirationTime = generateTokenExpiration(timeToExpiration);
+                inferenceExpirationTimeMinutes = generateTokenExpiration();
                 break;
             default:
                 managementKey = generateKey();
                 inferenceKey = generateKey();
-                inferenceExpirationTime = generateTokenExpiration(timeToExpiration);
-                managementExpirationTime = generateTokenExpiration(timeToExpiration);
+                inferenceExpirationTimeMinutes = generateTokenExpiration();
+                managementExpirationTimeMinutes = generateTokenExpiration();
         }
 
-        fileData =
+        JsonArray jsonArray = new JsonArray();
+        jsonArray.add(
                 "Management Key: "
                         + managementKey
                         + " --- Expiration time: "
-                        + managementExpirationTime
-                        + "\nInference Key: "
+                        + managementExpirationTimeMinutes);
+        jsonArray.add(
+                "Inference Key: "
                         + inferenceKey
                         + " --- Expiration time: "
-                        + inferenceExpirationTime
-                        + "\nAPI Key: "
-                        + apiKey
-                        + "\n";
-        Files.write(Paths.get("key_file.txt"), fileData.getBytes());
+                        + inferenceExpirationTimeMinutes);
+        jsonArray.add("API Key: " + apiKey);
+
+        Files.write(
+                Paths.get("key_file.json"),
+                new GsonBuilder()
+                        .setPrettyPrinting()
+                        .create()
+                        .toJson(jsonArray)
+                        .getBytes(StandardCharsets.UTF_8));
+
+        if (!setFilePermissions()) {
+            try {
+                Files.delete(Paths.get("key_file.txt"));
+            } catch (IOException e) {
+                return false;
+            }
+            return false;
+        }
+        return true;
+    }
+
+    public boolean setFilePermissions() {
+        Path path = Paths.get("key_file.json");
+        try {
+            Set<PosixFilePermission> permissions = PosixFilePermissions.fromString("rw-------");
+            Files.setPosixFilePermissions(path, permissions);
+        } catch (Exception e) {
+            return false;
+        }
         return true;
     }
 
     // checks the token provided in the http with the saved keys depening on parameters
-    public boolean checkTokenAuthorization(FullHttpRequest req, Integer keyCase) {
+    public boolean checkTokenAuthorization(FullHttpRequest req, Integer type) {
         String key;
         Instant expiration;
-        switch (keyCase) {
+        switch (type) {
             case 0:
                 key = apiKey;
                 expiration = null;
                 break;
             case 1:
                 key = managementKey;
-                expiration = managementExpirationTime;
+                expiration = managementExpirationTimeMinutes;
                 break;
             default:
                 key = inferenceKey;
-                expiration = inferenceExpirationTime;
+                expiration = inferenceExpirationTimeMinutes;
         }
 
         String tokenBearer = req.headers().get("Authorization");
@@ -175,14 +209,14 @@ public class Token extends ModelServerEndpoint {
     }
 
     public Instant getInferenceExpirationTime() {
-        return inferenceExpirationTime;
+        return inferenceExpirationTimeMinutes;
     }
 
     public Instant getManagementExpirationTime() {
-        return managementExpirationTime;
+        return managementExpirationTimeMinutes;
     }
 
     public void setTime(Integer time) {
-        timeToExpiration = time;
+        timeToExpirationMinutes = time;
     }
 }

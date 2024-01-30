@@ -1,8 +1,8 @@
 # TorchServe token authorization API
 
-## Customer Use
+## Configuration
 1. Enable token authorization by adding the provided plugin at start using the `--plugin-path` command.
-2. Torchserve will enable token authorization if the plugin is provided. In the model server home folder a file `key_file.txt` will be generated.
+2. Torchserve will enable token authorization if the plugin is provided. In the current working directory a file `key_file.txt` will be generated.
     1. Example key file:
 
     `Management Key: aadJv_R6 --- Expiration time: 2024-01-16T22:23:32.952499Z`
@@ -11,19 +11,19 @@
 
     `API Key: xryL_Vzs`
 3. There are 3 keys and each have a different use.
-    1. Management key: Used for management apis. Example:
+    1. Management key: Used for management APIs. Example:
     `curl http://localhost:8081/models/densenet161 -H "Authorization: Bearer aadJv_R6"`
-    2. Inference key: Used for inference apis. Example:
+    2. Inference key: Used for inference APIs. Example:
     `curl http://127.0.0.1:8080/predictions/densenet161 -T examples/image_classifier/kitten.jpg -H "Authorization: Bearer poZXAlqe"`
-    3. API key: Used for the token authorization api. Check section 4 for api use.
+    3. API key: Used for the token authorization API. Check section 4 for API use.
     4. 3 tokens allow the owner with the most flexibility in use and enables them to adapt the tokens to their use. Owners of the server can provide users with the inference token if users should not mess with models. The owner can also provide owners with the management key if owners want users to add and remove models.
-4. The plugin also includes an api in order to generate a new key to replace either the management or inference key.
+4. The plugin also includes an API in order to generate a new key to replace either the management or inference key.
     1. Management Example:
     `curl localhost:8081/token?type=management -H "Authorization: Bearer xryL_Vzs"` will replace the current management key in the key_file with a new one and will update the expiration time.
     2. Inference example:
     `curl localhost:8081/token?type=inference -H "Authorization: Bearer xryL_Vzs"`
 
-    Users will have to use either one of the apis above.
+    Users will have to use either one of the APIs above.
 
 5. When users shut down the server the key_file will be deleted.
 

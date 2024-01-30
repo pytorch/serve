@@ -2,7 +2,6 @@ package org.pytorch.serve.util;
 
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
-import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
@@ -46,8 +45,6 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.io.IOUtils;
-import org.pytorch.serve.archive.model.InvalidKeyException;
-import org.pytorch.serve.archive.model.ModelException;
 import org.pytorch.serve.metrics.MetricBuilder;
 import org.pytorch.serve.servingsdk.snapshot.SnapshotSerializer;
 import org.pytorch.serve.snapshot.SnapshotSerializerFactory;
@@ -850,95 +847,15 @@ public final class ConfigManager {
         return snapshotDisabled;
     }
 
-    // Imports the token class and sets the expiration time either default or custom
-    // calls generate key file in token api to create 3 keys and logs the result
-    public void setupTokenClass() {
-        try {
-            tokenClass = Class.forName("org.pytorch.serve.plugins.endpoint.Token");
-            tokenObject = tokenClass.getDeclaredConstructor().newInstance();
-            Method method = tokenClass.getMethod("setTime", Integer.class);
-            if (prop.getProperty(TS_TOKEN_EXPIRATION_TIME) != null) {
-                timeToExpiration = Integer.valueOf(prop.getProperty(TS_TOKEN_EXPIRATION_TIME));
-            }
-            method.invoke(tokenObject, timeToExpiration);
-            method = tokenClass.getMethod("generateKeyFile", Integer.class);
-            if ((boolean) method.invoke(tokenObject, 0)) {
-                System.out.println("TOKEN CLASS IMPORTED SUCCESSFULLY");
-                dumpKeyLogs();
-            }
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } catch (NoSuchMethodException
-                | IllegalAccessException
-                | InstantiationException
-                | InvocationTargetException e) {
-            e.printStackTrace();
-        }
-        tokenAuthorizationEnabled = true;
-    }
-
-    public void dumpKeyLogs() {
-        String managementKey = "";
-        String inferenceKey = "";
-        String apiKey = "";
-        try {
-            Method method = tokenClass.getMethod("getManagementKey");
-            managementKey = (String) method.invoke(tokenObject);
-            method = tokenClass.getMethod("getInferenceKey");
-            inferenceKey = (String) method.invoke(tokenObject);
-            method = tokenClass.getMethod("getKey");
-            apiKey = (String) method.invoke(tokenObject);
-        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-            e.printStackTrace();
-        }
-
-        logger.info("KEY FILE PATH: " + System.getProperty("user.dir") + "/key_file.txt");
-        logger.info("MANAGEMENT KEY: " + managementKey);
-        logger.info("INFERNCE KEY: " + inferenceKey);
-        logger.info("API KEY: " + apiKey);
-        logger.info(
-                "MANAGEMENT API Example: curl http://localhost:8081/models/<model> -H \"Authorization: Bearer "
-                        + managementKey
-                        + "\"");
-        logger.info(
-                "INFERNCE API Example: curl http://127.0.0.1:8080/predictions/<model> -T <examples/image_classifier/kitten.jpg> -H \"Authorization: Bearer "
-                        + inferenceKey
-                        + "\"");
-        logger.info(
-                "API API Example: curl localhost:8081/token?type=management -H \"Authorization: Bearer "
-                        + apiKey
-                        + "\"");
-    }
-
     public boolean isTokenEnabled() {
         return tokenAuthorizationEnabled;
     }
 
-    // Calls the checkTokenAuthorization function in the token plugin
-    // expects two inputs: the fullhttpRequest and an integer which is associated with the type
-    // 0: token api
-    // 1: management api
-    // 2: inference api
-    public void checkTokenAuthorization(FullHttpRequest req, Integer requestType)
-            throws ModelException {
-
-        if (tokenAuthorizationEnabled) {
-            try {
-                Method method =
-                        tokenClass.getMethod(
-                                "checkTokenAuthorization",
-                                io.netty.handler.codec.http.FullHttpRequest.class,
-                                Integer.class);
-                boolean result = (boolean) (method.invoke(tokenObject, req, requestType));
-                if (!result) {
-                    throw new InvalidKeyException(
-                            "Token Authenticaation failed. Token either incorrect, expired, or not provided correctly");
-                }
-                System.out.println("TOKEN AUTHORIZATION WORKED");
-            } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-                e.printStackTrace();
-            }
+    public Integer getTimeToExpiration() {
+        if (prop.getProperty(TS_TOKEN_EXPIRATION_TIME) != null) {
+            return Integer.valueOf(prop.getProperty(TS_TOKEN_EXPIRATION_TIME));
         }
+        return 0;
     }
 
     public boolean isSSLEnabled(ConnectorType connectorType) {

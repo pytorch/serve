@@ -83,11 +83,6 @@ public class ModelServer {
             ConfigManager.init(arguments);
             ConfigManager configManager = ConfigManager.getInstance();
             PluginsManager.getInstance().initialize();
-            Map<String, ModelServerEndpoint> plugins =
-                    PluginsManager.getInstance().getManagementEndpoints();
-            if (plugins.containsKey("token")) {
-                configManager.setupTokenClass();
-            }
             MetricCache.init();
             InternalLoggerFactory.setDefaultFactory(Slf4JLoggerFactory.INSTANCE);
             ModelServer modelServer = new ModelServer(configManager);
