@@ -58,7 +58,7 @@ Here is an [example](https://github.com/pytorch/serve/tree/cpp_backend/cpp/test/
 torch-model-archiver --model-name mnist_handler --version 1.0 --serialized-file mnist_script.pt --handler libmnist_handler:MnistHandler --runtime LSP
 ```
 Here is an [example](https://github.com/pytorch/serve/tree/cpp_backend/cpp/test/resources/examples/mnist/mnist_handler) of unzipped model mar file.
-##### BabyLLama Example
+##### BabyLlama Example
 The babyllama example can be found [here](https://github.com/pytorch/serve/blob/master/cpp/src/examples/babyllama/).
 To run the example we need to download the weights as well as tokenizer files:
 ```bash
