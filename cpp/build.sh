@@ -74,28 +74,37 @@ function install_kineto() {
 }
 
 function install_libtorch() {
+  TORCH_VERSION="2.1.1"
   if [ "$PLATFORM" = "Mac" ]; then
     echo -e "${COLOR_GREEN}[ INFO ] Skip install libtorch on Mac ${COLOR_OFF}"
-  elif [ ! -d "$DEPS_DIR/libtorch" ] ; then
-    cd "$DEPS_DIR" || exit
-    if [ "$PLATFORM" = "Linux" ]; then
+  elif [ "$PLATFORM" = "Windows" ]; then
+      echo -e "${COLOR_GREEN}[ INFO ] Install libtorch on Windows ${COLOR_OFF}"
+      # TODO: Windows
+      echo -e "${COLOR_RED}[ ERROR ] Unknown platform: $PLATFORM ${COLOR_OFF}"
+      exit 1
+  else  # Linux
+    if [ -d "$DEPS_DIR/libtorch" ]; then
+      RAW_VERSION=`cat "$DEPS_DIR/libtorch/build-version"`
+      VERSION=`cat "$DEPS_DIR/libtorch/build-version" | cut -d "+" -f 1`
+      if [ "$USE_NIGHTLIES" = "true" ] && [[ ! "${RAW_VERSION}" =~ .*"dev".* ]]; then
+        rm -rf "$DEPS_DIR/libtorch"
+      elif [ "$USE_NIGHTLIES" == "" ] && [ "$VERSION" != "$TORCH_VERSION" ]; then
+        rm -rf "$DEPS_DIR/libtorch"
+      fi
+    fi
+    if [ ! -d "$DEPS_DIR/libtorch" ]; then
+      cd "$DEPS_DIR" || exit
       echo -e "${COLOR_GREEN}[ INFO ] Install libtorch on Linux ${COLOR_OFF}"
-      if [ "$USE_NIGHTLIES" == true ] ; then
+      if [ "$USE_NIGHTLIES" == true ]; then
         URL=https://download.pytorch.org/libtorch/nightly/${CUDA}/libtorch-cxx11-abi-shared-with-deps-latest.zip
       else
-        URL=https://download.pytorch.org/libtorch/${CUDA}/libtorch-cxx11-abi-shared-with-deps-2.1.1%2B${CUDA}.zip
+        URL=https://download.pytorch.org/libtorch/${CUDA}/libtorch-cxx11-abi-shared-with-deps-${TORCH_VERSION}%2B${CUDA}.zip
       fi
       wget $URL
       ZIP_FILE=$(basename "$URL")
       ZIP_FILE="${ZIP_FILE//%2B/+}"
       unzip $ZIP_FILE
       rm $ZIP_FILE
-
-    elif [ "$PLATFORM" = "Windows" ]; then
-      echo -e "${COLOR_GREEN}[ INFO ] Install libtorch on Windows ${COLOR_OFF}"
-      # TODO: Windows
-      echo -e "${COLOR_RED}[ ERROR ] Unknown platform: $PLATFORM ${COLOR_OFF}"
-      exit 1
     fi
     echo -e "${COLOR_GREEN}[ INFO ] libtorch is installed ${COLOR_OFF}"
   fi
@@ -143,21 +152,22 @@ function build_llama_cpp() {
 }
 
 function prepare_test_files() {
-  local R_DIR="${BASE_DIR}/test/resources/examples/"
-  if [ ! -f "${R_DIR}/babyllama/babyllama_handler/tokenizer.bin" ]; then
-    wget https://github.com/karpathy/llama2.c/raw/master/tokenizer.bin -O "${R_DIR}/babyllama/babyllama_handler/tokenizer.bin"
+  echo -e "${COLOR_GREEN}[ INFO ]Preparing test files ${COLOR_OFF}"
+  local EX_DIR="${TR_DIR}/examples/"
+  rsync -a --link-dest=../../test/resources/ ${BASE_DIR}/test/resources/ ${TR_DIR}/
+  if [ ! -f "${EX_DIR}/babyllama/babyllama_handler/tokenizer.bin" ]; then
+    wget https://github.com/karpathy/llama2.c/raw/master/tokenizer.bin -O "${EX_DIR}/babyllama/babyllama_handler/tokenizer.bin"
   fi
-  if [ ! -f "${R_DIR}/babyllama/babyllama_handler/stories15M.bin" ]; then
-    wget https://huggingface.co/karpathy/tinyllamas/resolve/main/stories15M.bin -O "${R_DIR}/babyllama/babyllama_handler/stories15M.bin"
+  if [ ! -f "${EX_DIR}/babyllama/babyllama_handler/stories15M.bin" ]; then
+    wget https://huggingface.co/karpathy/tinyllamas/resolve/main/stories15M.bin -O "${EX_DIR}/babyllama/babyllama_handler/stories15M.bin"
   fi
-  if [ ! -f "${R_DIR}/aot_inductor/llama_handler/stories15M.so" ] && [ "$USE_NIGHTLIES" == true ]; then
-    local L_DIR=${R_DIR}/aot_inductor/llama_handler/
-    if [ ! -f "${L_DIR}/stories15M.pt" ]; then
-      wget https://huggingface.co/karpathy/tinyllamas/resolve/main/stories15M.pt?download=true -O "${L_DIR}/stories15M.pt"
+  if [ ! -f "${EX_DIR}/aot_inductor/llama_handler/stories15M.so" ] && [ "$USE_NIGHTLIES" == true ]; then
+    local HANDLER_DIR=${EX_DIR}/aot_inductor/llama_handler/
+    if [ ! -f "${HANDLER_DIR}/stories15M.pt" ]; then
+      wget https://huggingface.co/karpathy/tinyllamas/resolve/main/stories15M.pt?download=true -O "${HANDLER_DIR}/stories15M.pt"
     fi
-    local LLAMA_SO_DIR=${BASE_DIR}/third-party/llama2_so/
-    # touch ${LLAMA_SO_DIR}/llama2_so/__init__.py
-    PYTHONPATH=${LLAMA_SO_DIR}:${PYTHONPATH} python ${BASE_DIR}/../examples/cpp/aot_inductor/compile.py --checkpoint ${L_DIR}/stories15M.pt ${L_DIR}/stories15M.so
+    local LLAMA_SO_DIR=${BASE_DIR}/third-party/llama2.so/
+    PYTHONPATH=${LLAMA_SO_DIR}:${PYTHONPATH} python ${BASE_DIR}/../examples/cpp/aot_inductor/compile.py --checkpoint ${HANDLER_DIR}/stories15M.pt ${HANDLER_DIR}/stories15M.so
   fi
 }
 
@@ -185,6 +195,11 @@ function build() {
     MAYBE_CUDA_COMPILER='-DCMAKE_CUDA_COMPILER=/usr/local/cuda/bin/nvcc'
   fi
 
+  MAYBE_NIGHTLIES="-Dnightlies=OFF"
+  if [ "$USE_NIGHTLIES" == true ]; then
+    MAYBE_NIGHTLIES="-Dnightlies=ON"
+  fi
+
   # Build torchserve_cpp with cmake
   cd "$BWD" || exit
   YAML_CPP_CMAKE_DIR=$DEPS_DIR/yaml-cpp-build
@@ -201,6 +216,7 @@ function build() {
     "$MAYBE_USE_STATIC_DEPS"                                                                  \
     "$MAYBE_LIB_FUZZING_ENGINE"                                                               \
     "$MAYBE_CUDA_COMPILER"                                                                    \
+    "$MAYBE_NIGHTLIES"                                                                        \
     ..
 
     if [ "$CUDA" = "cu118" ] || [ "$CUDA" = "cu121" ]; then
@@ -216,6 +232,7 @@ function build() {
     "$MAYBE_OVERRIDE_CXX_FLAGS"                                                               \
     "$MAYBE_USE_STATIC_DEPS"                                                                  \
     "$MAYBE_LIB_FUZZING_ENGINE"                                                               \
+    "$MAYBE_NIGHTLIES"                                                                        \
     ..
 
     export LIBRARY_PATH=${LIBRARY_PATH}:/usr/local/opt/icu4c/lib
@@ -323,8 +340,10 @@ cd $BUILD_DIR || exit
 BWD=$(pwd)
 DEPS_DIR=$BWD/_deps
 LIBS_DIR=$BWD/libs
+TR_DIR=$BWD/test/resources/
 mkdir -p "$DEPS_DIR"
 mkdir -p "$LIBS_DIR"
+mkdir -p "$TR_DIR"
 
 # Must execute from the directory containing this script
 cd $BASE_DIR
