@@ -115,6 +115,12 @@ if __name__ == "__main__":
         # By default model.load() is called on first request. Enabling load all
         # model in TS config.properties, all models are loaded at start and the
         # below method sets status to true for the models.
+        # However, even if all preparations related to loading the model (e.g.,
+        # download pretrained models using online storage) are not completed in
+        # torchserve handler, if model.ready=true is set, there may be problems.
+        # Therefore, the ready status is determined using the api provided by
+        # torchserve.
+
         model.load()
         models.append(model)
 
