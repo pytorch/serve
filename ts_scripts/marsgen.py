@@ -105,7 +105,7 @@ def generate_mars(mar_config=MAR_CONFIG_FILE_PATH, model_store_dir=MODEL_STORE_D
             cmd = model_archiver_command_builder(
                 model["model_name"],
                 model["version"],
-                model["model_file"],
+                model.get("model_file", None),
                 serialized_file_path,
                 handler,
                 extra_files,

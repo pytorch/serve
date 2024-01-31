@@ -76,8 +76,8 @@ public final class ModelManager {
                 null,
                 null,
                 null,
-                1,
-                100,
+                -1 * RegisterModelRequest.DEFAULT_BATCH_SIZE,
+                -1 * RegisterModelRequest.DEFAULT_MAX_BATCH_DELAY,
                 configManager.getDefaultResponseTimeout(),
                 defaultModelName,
                 false,
@@ -365,6 +365,12 @@ public final class ModelManager {
         }
         model.setResponseTimeout(responseTimeout);
         model.setWorkflowModel(isWorkflowModel);
+        model.setRuntimeType(
+                configManager.getJsonRuntimeTypeValue(
+                        archive.getModelName(),
+                        archive.getModelVersion(),
+                        Model.RUNTIME_TYPE,
+                        archive.getManifest().getRuntime()));
 
         return model;
     }

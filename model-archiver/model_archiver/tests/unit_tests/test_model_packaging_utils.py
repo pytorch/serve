@@ -277,7 +277,11 @@ def prepare_model_dir(test_name, integ_tests):
     )
     artifact_files = {k.replace("-", "_"): test[k] for k in keys}
 
-    model_path = ModelExportUtils.copy_artifacts(test["model-name"], **artifact_files)
+    runtime = test.get("runtime", "PYTHON")
+
+    model_path = ModelExportUtils.copy_artifacts(
+        test["model-name"], runtime, **artifact_files
+    )
 
     manifest = create_manifest_from_test_json(test)
     return manifest, model_path

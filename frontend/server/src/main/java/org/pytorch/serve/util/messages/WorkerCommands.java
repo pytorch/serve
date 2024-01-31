@@ -16,7 +16,9 @@ public enum WorkerCommands {
     @SerializedName("streampredict")
     STREAMPREDICT("streampredict"),
     @SerializedName("streampredict2")
-    STREAMPREDICT2("streampredict2");
+    STREAMPREDICT2("streampredict2"),
+    @SerializedName("oippredict") // for kserve open inference protocol
+    OIPPREDICT("oippredict");
 
     private String command;
 

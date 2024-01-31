@@ -14,6 +14,7 @@ import org.pytorch.serve.http.TokenAuthorizationHandler;
 import org.pytorch.serve.http.api.rest.ApiDescriptionRequestHandler;
 import org.pytorch.serve.http.api.rest.InferenceRequestHandler;
 import org.pytorch.serve.http.api.rest.ManagementRequestHandler;
+import org.pytorch.serve.http.api.rest.OpenInferenceProtocolRequestHandler;
 import org.pytorch.serve.http.api.rest.PrometheusMetricsRequestHandler;
 import org.pytorch.serve.servingsdk.impl.PluginsManager;
 import org.pytorch.serve.util.ConfigManager;
@@ -21,6 +22,8 @@ import org.pytorch.serve.util.ConnectorType;
 import org.pytorch.serve.util.TokenType;
 import org.pytorch.serve.workflow.api.http.WorkflowInferenceRequestHandler;
 import org.pytorch.serve.workflow.api.http.WorkflowMgmtRequestHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A special {@link io.netty.channel.ChannelInboundHandler} which offers an easy way to initialize a
@@ -31,6 +34,7 @@ public class ServerInitializer extends ChannelInitializer<Channel> {
 
     private ConnectorType connectorType;
     private SslContext sslCtx;
+    private static final Logger logger = LoggerFactory.getLogger(ServerInitializer.class);
 
     /**
      * Creates a new {@code HttpRequestHandler} instance.
@@ -70,6 +74,14 @@ public class ServerInitializer extends ChannelInitializer<Channel> {
                                     PluginsManager.getInstance().getInferenceEndpoints()));
             httpRequestHandlerChain =
                     httpRequestHandlerChain.setNextHandler(new WorkflowInferenceRequestHandler());
+
+            // Added OIP protocol with inference connector
+            if (ConfigManager.getInstance().isOpenInferenceProtocol()) {
+                logger.info("OIP added with handler chain");
+                httpRequestHandlerChain =
+                        httpRequestHandlerChain.setNextHandler(
+                                new OpenInferenceProtocolRequestHandler());
+            }
         }
         if (ConnectorType.ALL.equals(connectorType)
                 || ConnectorType.MANAGEMENT_CONNECTOR.equals(connectorType)) {

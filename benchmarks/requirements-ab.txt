@@ -6,3 +6,5 @@ requests
 pyyaml
 mdutils==1.4.0
 ruamel.yaml
+locust
+locust_plugins
