@@ -4,7 +4,7 @@ maxBatchDelay: 200
 responseTimeout: 3600
 deviceType: "gpu"
 handler:
-    model_weights: "./Base_Diffusion_model"
+    model_path: "Base_Diffusion_model"
     num_inference_steps: 30
     compile_unet: true
     compile_mode: "max-autotune"

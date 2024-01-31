@@ -33,11 +33,14 @@ class DiffusionFastHandler(BaseHandler):
         properties = ctx.system_properties
         model_dir = properties.get("model_dir")
 
-        self.device = torch.device(
-            "cuda:" + str(properties.get("gpu_id"))
-            if torch.cuda.is_available() and properties.get("gpu_id") is not None
-            else "cpu"
-        )
+        if torch.cuda.is_available() and properties.get("gpu_id") is not None:
+            self.map_location = "cuda"
+            self.device = torch.device(
+                self.map_location + ":" + str(properties.get("gpu_id"))
+            )
+        else:
+            self.map_location = "cpu"
+            self.device = torch.device(self.map_location)
 
         self.num_inference_steps = ctx.model_yaml_config["handler"][
             "num_inference_steps"
@@ -57,9 +60,9 @@ class DiffusionFastHandler(BaseHandler):
         upcast_vae = ctx.model_yaml_config["handler"]["upcast_vae"]
 
         # Load model weights
-        model_weights = Path(ctx.model_yaml_config["handler"]["model_weights"])
+        model_path = Path(ctx.model_yaml_config["handler"]["model_path"])
+        ckpt = os.path.join(model_dir, model_path)
 
-        ckpt = os.path.join(model_dir, model_weights)
         self.pipeline = load_pipeline(
             ckpt=ckpt,
             compile_unet=compile_unet,
@@ -98,7 +101,6 @@ class DiffusionFastHandler(BaseHandler):
                 input_text = data.get("body")
             if isinstance(input_text, (bytes, bytearray)):
                 input_text = input_text.decode("utf-8")
-            logger.info("Received text: '%s'", input_text)
             inputs.append(input_text)
         return inputs
 
@@ -115,7 +117,6 @@ class DiffusionFastHandler(BaseHandler):
             inputs, num_inference_steps=self.num_inference_steps, height=768, width=768
         ).images
 
-        logger.info("Generated image: '%s'", inferences)
         return inferences
 
     @timed
