@@ -23,7 +23,7 @@ public class TokenAuthorizationHandler extends HttpRequestHandlerChain {
 
     private static final Logger logger = LoggerFactory.getLogger(TokenAuthorizationHandler.class);
     private static TokenType tokenType;
-    private static Boolean tokenEnabled;
+    private static Boolean tokenEnabled = false;
     private static Class<?> tokenClass;
     private static Object tokenObject;
     private static Integer timeToExpirationMinutes = 60;
