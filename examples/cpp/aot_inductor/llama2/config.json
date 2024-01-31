@@ -1,4 +1,4 @@
 {
-"checkpoint_path" : "/home/ubuntu/serve/examples/cpp/babyllama/stories15M.bin",
-"tokenizer_path" : "/home/ubuntu/serve/cpp/test/resources/examples/babyllama/babyllama_handler/tokenizer.bin"
+"checkpoint_path" : "/home/ubuntu/serve/cpp/_build/test/resources/examples/aot_inductor/llama_handler/stories15M.so",
+"tokenizer_path" : "/home/ubuntu/serve/cpp/_build/test/resources/examples/babyllama/babyllama_handler/tokenizer.bin"
 }
