@@ -44,12 +44,12 @@ public class TokenAuthorizationHandler extends HttpRequestHandlerChain {
         ConfigManager configManager = ConfigManager.getInstance();
         if (tokenType == TokenType.MANAGEMENT) {
             if (req.toString().contains("/token")) {
-                checkTokenAuthorization(req, 0);
+                checkTokenAuthorization(req, "token");
             } else {
-                checkTokenAuthorization(req, 1);
+                checkTokenAuthorization(req, "management");
             }
         } else if (tokenType == TokenType.INFERENCE) {
-            checkTokenAuthorization(req, 2);
+            checkTokenAuthorization(req, "inference");
         }
         chain.handleRequest(ctx, req, decoder, segments);
     }
@@ -64,8 +64,8 @@ public class TokenAuthorizationHandler extends HttpRequestHandlerChain {
                 timeToExpirationMinutes = time;
             }
             method.invoke(tokenObject, timeToExpirationMinutes);
-            method = tokenClass.getMethod("generateKeyFile", Integer.class);
-            if ((boolean) method.invoke(tokenObject, 0)) {
+            method = tokenClass.getMethod("generateKeyFile", String.class);
+            if ((boolean) method.invoke(tokenObject, "token")) {
                 logger.info("TOKEN CLASS IMPORTED SUCCESSFULLY");
             }
         } catch (ClassNotFoundException e) {
@@ -83,7 +83,7 @@ public class TokenAuthorizationHandler extends HttpRequestHandlerChain {
         tokenEnabled = true;
     }
 
-    private void checkTokenAuthorization(FullHttpRequest req, Integer type) throws ModelException {
+    private void checkTokenAuthorization(FullHttpRequest req, String type) throws ModelException {
 
         if (tokenEnabled) {
             try {
@@ -91,16 +91,16 @@ public class TokenAuthorizationHandler extends HttpRequestHandlerChain {
                         tokenClass.getMethod(
                                 "checkTokenAuthorization",
                                 io.netty.handler.codec.http.FullHttpRequest.class,
-                                Integer.class);
+                                String.class);
                 boolean result = (boolean) (method.invoke(tokenObject, req, type));
                 if (!result) {
                     throw new InvalidKeyException(
-                            "Token Authenticaation failed. Token either incorrect, expired, or not provided correctly");
+                            "Token Authentication failed. Token either incorrect, expired, or not provided correctly");
                 }
             } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
                 e.printStackTrace();
                 throw new InvalidKeyException(
-                        "Token Authenticaation failed. Token either incorrect, expired, or not provided correctly");
+                        "Token Authentication failed. Token either incorrect, expired, or not provided correctly");
             }
         }
     }

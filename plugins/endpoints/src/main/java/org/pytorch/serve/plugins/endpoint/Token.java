@@ -48,9 +48,9 @@ public class Token extends ModelServerEndpoint {
         String queryResponse = parseQuery(req);
         String test = "";
         if ("management".equals(queryResponse)) {
-            generateKeyFile(1);
+            generateKeyFile("management");
         } else if ("inference".equals(queryResponse)) {
-            generateKeyFile(2);
+            generateKeyFile("inference");
         } else {
             test = "{\n\t\"Error\": " + queryResponse + "\n}\n";
         }
@@ -83,10 +83,7 @@ public class Token extends ModelServerEndpoint {
     }
 
     // generates a key file with new keys depending on the parameter provided
-    // 0: generates all 3 keys
-    // 1: generates management key and keeps other 2 the same
-    // 2: generates inference key and keeps other 2 the same
-    public boolean generateKeyFile(Integer keyCase) throws IOException {
+    public boolean generateKeyFile(String type) throws IOException {
         String userDirectory = System.getProperty("user.dir") + "/key_file.json";
         File file = new File(userDirectory);
         if (!file.createNewFile() && !file.exists()) {
@@ -95,12 +92,12 @@ public class Token extends ModelServerEndpoint {
         if (apiKey == null) {
             apiKey = generateKey();
         }
-        switch (keyCase) {
-            case 1:
+        switch (type) {
+            case "management":
                 managementKey = generateKey();
                 managementExpirationTimeMinutes = generateTokenExpiration();
                 break;
-            case 2:
+            case "inference":
                 inferenceKey = generateKey();
                 inferenceExpirationTimeMinutes = generateTokenExpiration();
                 break;
@@ -155,15 +152,15 @@ public class Token extends ModelServerEndpoint {
     }
 
     // checks the token provided in the http with the saved keys depening on parameters
-    public boolean checkTokenAuthorization(FullHttpRequest req, Integer type) {
+    public boolean checkTokenAuthorization(FullHttpRequest req, String type) {
         String key;
         Instant expiration;
         switch (type) {
-            case 0:
+            case "token":
                 key = apiKey;
                 expiration = null;
                 break;
-            case 1:
+            case "management":
                 key = managementKey;
                 expiration = managementExpirationTimeMinutes;
                 break;
