@@ -1,7 +1,7 @@
 
-# TorchServe inference with torch.compile of densnet161 model
+# TorchServe inference with torch.compile of densenet161 model
 
-This example shows how to take eager model of `densnet161`, configure TorchServe to use `torch.compile` and run inference using `torch.compile`
+This example shows how to take eager model of `densenet161`, configure TorchServe to use `torch.compile` and run inference using `torch.compile`
 
 
 ### Pre-requisites
