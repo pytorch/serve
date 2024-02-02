@@ -6,7 +6,7 @@ from ts.torch_handler.image_classifier import ImageClassifier
 logger = logging.getLogger(__name__)
 
 
-class FXCacheHandler(ImageClassifier):
+class TorchInductorCacheHandler(ImageClassifier):
     """
     Diffusion-Fast handler class for text to image generation.
     """
