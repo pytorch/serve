@@ -15,7 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A class handling inbound HTTP requests to the inference API.
+ * A class handling token check for all inbound HTTP requests.
  *
  * <p>This class //
  */
@@ -26,7 +26,7 @@ public class TokenAuthorizationHandler extends HttpRequestHandlerChain {
     private static Boolean tokenEnabled = false;
     private static Class<?> tokenClass;
     private static Object tokenObject;
-    private static Integer timeToExpirationMinutes = 60;
+    private static Integer timeToExpirationMinutes = 180;
 
     /** Creates a new {@code InferenceRequestHandler} instance. */
     public TokenAuthorizationHandler(TokenType type) {
@@ -60,7 +60,7 @@ public class TokenAuthorizationHandler extends HttpRequestHandlerChain {
             tokenObject = tokenClass.getDeclaredConstructor().newInstance();
             Method method = tokenClass.getMethod("setTime", Integer.class);
             Integer time = ConfigManager.getInstance().getTimeToExpiration();
-            if (time == 0) {
+            if (time != 0) {
                 timeToExpirationMinutes = time;
             }
             method.invoke(tokenObject, timeToExpirationMinutes);
