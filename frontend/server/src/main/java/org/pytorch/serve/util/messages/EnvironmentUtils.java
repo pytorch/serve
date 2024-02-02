@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 import org.pytorch.serve.archive.model.Manifest;
+import org.pytorch.serve.archive.model.ModelConfig;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.wlm.Model;
 import org.slf4j.Logger;
@@ -79,8 +80,11 @@ public final class EnvironmentUtils {
         Manifest.RuntimeType runtime = model.getModelArchive().getManifest().getRuntime();
         if (runtime == Manifest.RuntimeType.PYTHON) {
             pythonRuntime = configManager.getPythonExecutable();
+            ModelConfig modelConfig = model.getModelArchive().getModelConfig();
             Path pythonVenvRuntime = Paths.get(getPythonVenvPath(model), "bin", "python");
-            if (Files.exists(pythonVenvRuntime)) {
+            if (modelConfig != null
+                    && modelConfig.getUseVenv() == true
+                    && Files.exists(pythonVenvRuntime)) {
                 pythonRuntime = pythonVenvRuntime.toString();
             }
         } else {

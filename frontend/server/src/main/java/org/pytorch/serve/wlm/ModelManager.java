@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -99,6 +100,8 @@ public final class ModelManager {
 
         createVersionedModel(tempModel, versionId);
 
+        setupModelVenv(tempModel);
+
         setupModelDependencies(tempModel);
         if (defaultVersion) {
             modelManager.setDefaultVersion(modelName, versionId);
@@ -151,6 +154,8 @@ public final class ModelManager {
                 throw e;
             }
         }
+
+        setupModelVenv(tempModel);
 
         setupModelDependencies(tempModel);
 
@@ -206,9 +211,16 @@ public final class ModelManager {
 
     private void setupModelVenv(Model model)
             throws IOException, InterruptedException, ModelException {
+        ModelConfig modelConfig = model.getModelArchive().getModelConfig();
+        if (model.getModelArchive().getManifest().getRuntime() != Manifest.RuntimeType.PYTHON
+                || modelConfig == null
+                || modelConfig.getUseVenv() != true) {
+            return;
+        }
+
         String venvPath = EnvironmentUtils.getPythonVenvPath(model);
         List<String> commandParts = new ArrayList<>();
-        commandParts.add(EnvironmentUtils.getPythonRunTime(model));
+        commandParts.add(configManager.getPythonExecutable());
         commandParts.add("-m");
         commandParts.add("venv");
         commandParts.add("--clear");
@@ -217,7 +229,7 @@ public final class ModelManager {
 
         ProcessBuilder processBuilder = new ProcessBuilder(commandParts);
 
-        if (isValidVenvPath(venvPath)) {
+        if (isValidDependencyPath(venvPath)) {
             processBuilder.directory(Paths.get(venvPath).toFile().getParentFile());
         } else {
             throw new ModelException(
@@ -266,10 +278,19 @@ public final class ModelManager {
         String requirementsFile =
                 model.getModelArchive().getManifest().getModel().getRequirementsFile();
 
-        if (configManager.getInstallPyDepPerModel() && requirementsFile != null) {
-            setupModelVenv(model);
-            String pythonRuntime = EnvironmentUtils.getPythonRunTime(model);
-            if (!isValidVenvPath(pythonRuntime)) {
+        if (!configManager.getInstallPyDepPerModel() || requirementsFile == null) {
+            return;
+        }
+
+        ModelConfig modelConfig = model.getModelArchive().getModelConfig();
+        String pythonRuntime = EnvironmentUtils.getPythonRunTime(model);
+        Path requirementsFilePath =
+                Paths.get(model.getModelDir().getAbsolutePath(), requirementsFile);
+        List<String> commandParts = new ArrayList<>();
+        ProcessBuilder processBuilder = new ProcessBuilder();
+
+        if (modelConfig != null && modelConfig.getUseVenv() == true) {
+            if (!isValidDependencyPath(pythonRuntime)) {
                 throw new ModelException(
                         "Invalid python venv runtime path for model "
                                 + model.getModelName()
@@ -277,9 +298,9 @@ public final class ModelManager {
                                 + pythonRuntime);
             }
 
-            Path requirementsFilePath =
-                    Paths.get(model.getModelDir().getAbsolutePath(), requirementsFile);
-            List<String> commandParts = new ArrayList<>();
+            processBuilder.directory(
+                    Paths.get(EnvironmentUtils.getPythonVenvPath(model)).toFile().getParentFile());
+
             commandParts.add(pythonRuntime);
             commandParts.add("-m");
             commandParts.add("pip");
@@ -289,54 +310,72 @@ public final class ModelManager {
             commandParts.add("only-if-needed");
             commandParts.add("-r");
             commandParts.add(requirementsFilePath.toString());
-
-            ProcessBuilder processBuilder = new ProcessBuilder(commandParts);
-
-            String[] envp =
-                    EnvironmentUtils.getEnvString(
-                            configManager.getModelServerHome(),
-                            model.getModelDir().getAbsolutePath(),
-                            null);
-            Map<String, String> environment = processBuilder.environment();
-            for (String envVar : envp) {
-                String[] parts = envVar.split("=", 2);
-                if (parts.length == 2) {
-                    environment.put(parts[0], parts[1]);
-                }
+        } else {
+            File dependencyPath = model.getModelDir();
+            if (Files.isSymbolicLink(dependencyPath.toPath())) {
+                dependencyPath = dependencyPath.getParentFile();
             }
-            processBuilder.directory(
-                    Paths.get(EnvironmentUtils.getPythonVenvPath(model)).toFile().getParentFile());
-            processBuilder.redirectErrorStream(true);
-
-            Process process = processBuilder.start();
-
-            int exitCode = process.waitFor();
-            String line;
-            StringBuilder outputString = new StringBuilder();
-            BufferedReader brdr =
-                    new BufferedReader(new InputStreamReader(process.getInputStream()));
-            while ((line = brdr.readLine()) != null) {
-                outputString.append(line + "\n");
-            }
-
-            if (exitCode == 0) {
-                logger.info(
-                        "Installed custom pip packages for model {}:\n{}",
-                        model.getModelName(),
-                        outputString.toString());
-            } else {
-                logger.error(
-                        "Custom pip package installation failed for model {}:\n{}",
-                        model.getModelName(),
-                        outputString.toString());
+            if (!isValidDependencyPath(dependencyPath.getPath())) {
                 throw new ModelException(
-                        "Custom pip package installation failed for model " + model.getModelName());
+                        "Invalid 3rd party package installation path "
+                                + dependencyPath.getCanonicalPath());
             }
+
+            processBuilder.directory(dependencyPath);
+
+            commandParts.add(pythonRuntime);
+            commandParts.add("-m");
+            commandParts.add("pip");
+            commandParts.add("install");
+            commandParts.add("-U");
+            commandParts.add("-t");
+            commandParts.add(dependencyPath.getAbsolutePath());
+            commandParts.add("-r");
+            commandParts.add(requirementsFilePath.toString());
+        }
+
+        processBuilder.command(commandParts);
+        String[] envp =
+                EnvironmentUtils.getEnvString(
+                        configManager.getModelServerHome(),
+                        model.getModelDir().getAbsolutePath(),
+                        null);
+        Map<String, String> environment = processBuilder.environment();
+        for (String envVar : envp) {
+            String[] parts = envVar.split("=", 2);
+            if (parts.length == 2) {
+                environment.put(parts[0], parts[1]);
+            }
+        }
+        processBuilder.redirectErrorStream(true);
+
+        Process process = processBuilder.start();
+
+        int exitCode = process.waitFor();
+        String line;
+        StringBuilder outputString = new StringBuilder();
+        BufferedReader brdr = new BufferedReader(new InputStreamReader(process.getInputStream()));
+        while ((line = brdr.readLine()) != null) {
+            outputString.append(line + "\n");
+        }
+
+        if (exitCode == 0) {
+            logger.info(
+                    "Installed custom pip packages for model {}:\n{}",
+                    model.getModelName(),
+                    outputString.toString());
+        } else {
+            logger.error(
+                    "Custom pip package installation failed for model {}:\n{}",
+                    model.getModelName(),
+                    outputString.toString());
+            throw new ModelException(
+                    "Custom pip package installation failed for model " + model.getModelName());
         }
     }
 
-    private boolean isValidVenvPath(String venvPath) {
-        if (Paths.get(venvPath)
+    private boolean isValidDependencyPath(String dependencyPath) {
+        if (Paths.get(dependencyPath)
                 .normalize()
                 .startsWith(FileUtils.getTempDirectory().toPath().normalize())) {
             return true;
