@@ -44,7 +44,7 @@ pt2 : {backend: inductor, mode: max-autotune}
 ```
 wget https://download.pytorch.org/models/densenet161-8d451a50.pth
 mkdir model_store
-torch-model-archiver --model-name densenet161 --version 1.0 --model-file ../../image_classifier/densenet_161/model.py --serialized-file densenet161-8d451a50.pth --export-path model_store --extra-files ../../image_classifier/index_to_name.json --handler ./caching_handler.py--config-file model-config-fx-cache.yaml -f
+torch-model-archiver --model-name densenet161 --version 1.0 --model-file ../../image_classifier/densenet_161/model.py --serialized-file densenet161-8d451a50.pth --export-path model_store --extra-files ../../image_classifier/index_to_name.json --handler ./caching_handler.py --config-file model-config-fx-cache.yaml -f
 ```
 
 #### Start TorchServe

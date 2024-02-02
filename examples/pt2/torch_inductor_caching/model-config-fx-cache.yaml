@@ -4,4 +4,4 @@ responseTimeout: 600
 pt2 : {backend: inductor, mode: max-autotune}
 handler:
   torch_inductor_caching:
-    torch_inductor_cache_dir: "/home/ubuntu/serve/examples/pt2/torch_inductor_caching/cache"
+    torch_indictor_fx_graph_cache: "1"
