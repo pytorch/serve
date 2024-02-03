@@ -17,6 +17,7 @@ os.environ["TORCHINDUCTOR_CACHE_DIR"] = "1"
 os.environ["TORCHINDUCTOR_FX_GRAPH_CACHE"] = "/path/to/directory"  # replace with your desired path
 ```
 
+To see the effect of caching on `torch.compile` execution times, we need to have a multi worker setup. In this example, we use 4 workers. Workers 2,3,4 will see the benefit of caching when they execute `torch.compile`
 
 We show below how this can be used with TorchServe
 
