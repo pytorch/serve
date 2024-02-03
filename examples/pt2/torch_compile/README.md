@@ -81,7 +81,7 @@ echo "handler:" >> model-config.yaml && \
 echo "  profile: true" >> model-config.yaml
 ```
 
-Once the `yaml` file is updated, create the model-archieve, start TorchServe and run inference using the steps shown above.
+Once the `yaml` file is updated, create the model-archive, start TorchServe and run inference using the steps shown above.
 `torch.compile` needs a few inferences to warmup. Once warmed up, we see the following
 ```
 2024-02-03T00:56:14,808 [INFO ] W-9000-densenet161_1.0-stdout org.pytorch.serve.wlm.WorkerLifeCycle - result=[METRICS]ts_handler_preprocess.Milliseconds:5.9771199226379395|#ModelName:densenet161,Level:Model|#type:GAUGE|#hostname:ip-172-31-11-40,1706921774,d38601be-6312-46b4-b455-0322150509e5, pattern=[METRICS]
