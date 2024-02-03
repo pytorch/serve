@@ -64,7 +64,7 @@ echo "handler:" > model-config.yaml && \
 echo "  profile: true" >> model-config.yaml
 ```
 
-Once the `yaml` file is updated, create the model-archieve, start TorchServe and run inference using the steps shown above.
+Once the `yaml` file is updated, create the model-archive, start TorchServe and run inference using the steps shown above.
 After a few iterations of warmup, we see the following
 
 ```
