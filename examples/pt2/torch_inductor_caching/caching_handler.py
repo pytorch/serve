@@ -31,12 +31,12 @@ class TorchInductorCacheHandler(ImageClassifier):
             and "torch_inductor_caching" in ctx.model_yaml_config["handler"]
         ):
             if (
-                "torch_indictor_fx_graph_cache"
+                "torch_inductor_fx_graph_cache"
                 in ctx.model_yaml_config["handler"]["torch_inductor_caching"]
             ):
                 os.environ["TORCHINDUCTOR_FX_GRAPH_CACHE"] = ctx.model_yaml_config[
                     "handler"
-                ]["torch_inductor_caching"]["torch_indictor_fx_graph_cache"]
+                ]["torch_inductor_caching"]["torch_inductor_fx_graph_cache"]
             if (
                 "torch_inductor_cache_dir"
                 in ctx.model_yaml_config["handler"]["torch_inductor_caching"]
