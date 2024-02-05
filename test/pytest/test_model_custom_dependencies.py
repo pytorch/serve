@@ -31,6 +31,25 @@ def setup_module(module):
 
 def teardown_module(module):
     test_utils.torchserve_cleanup()
+    # Restore custom model dependencies in base python environment
+    subprocess.run(
+        [
+            "pip",
+            "install",
+            "-r",
+            str(
+                os.path.join(
+                    test_utils.REPO_ROOT,
+                    "test",
+                    "pytest",
+                    "test_data",
+                    "custom_dependencies",
+                    "requirements.txt",
+                )
+            ),
+        ],
+        check=True,
+    )
 
 
 def generate_model_archive(use_requirements=False, use_venv=False):
