@@ -50,4 +50,5 @@ jobs:
       - name: Torchserve Regression Tests
         run: |
           export TS_RUN_IN_DOCKER=False
+          echo "/sbin" >> $GITHUB_PATH
           python test/regression_tests.py
