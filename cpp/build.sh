@@ -74,22 +74,21 @@ function install_kineto() {
 }
 
 function install_libtorch() {
-  if [ "$PLATFORM" = "Mac" ]; then
+  if [ ! -d "$DEPS_DIR/libtorch" ] ; then
     cd "$DEPS_DIR" || exit
-    if [[ $(uname -m) == 'x86_64' ]]; then
-      echo -e "${COLOR_GREEN}[ INFO ] Install libtorch on Mac x86_64 ${COLOR_OFF}"
-      wget https://download.pytorch.org/libtorch/cpu/libtorch-macos-x86_64-2.2.0.zip
-      unzip libtorch-macos-x86_64-2.2.0.zip
-      rm libtorch-macos-x86_64-2.2.0.zip
-    else
-      echo -e "${COLOR_GREEN}[ INFO ] Install libtorch on Mac arm64 ${COLOR_OFF}"
-      wget https://download.pytorch.org/libtorch/cpu/libtorch-macos-arm64-2.2.0.zip
-      unzip libtorch-macos-arm64-2.2.0.zip
-      rm libtorch-macos-arm64-2.2.0.zip
-    fi
-  elif [ ! -d "$DEPS_DIR/libtorch" ] ; then
-    cd "$DEPS_DIR" || exit
-    if [ "$PLATFORM" = "Linux" ]; then
+    if [ "$PLATFORM" = "Mac" ]; then
+      if [[ $(uname -m) == 'x86_64' ]]; then
+        echo -e "${COLOR_GREEN}[ INFO ] Install libtorch on Mac x86_64 ${COLOR_OFF}"
+        wget https://download.pytorch.org/libtorch/cpu/libtorch-macos-x86_64-2.2.0.zip
+        unzip libtorch-macos-x86_64-2.2.0.zip
+        rm libtorch-macos-x86_64-2.2.0.zip
+      else
+        echo -e "${COLOR_GREEN}[ INFO ] Install libtorch on Mac arm64 ${COLOR_OFF}"
+        wget https://download.pytorch.org/libtorch/cpu/libtorch-macos-arm64-2.2.0.zip
+        unzip libtorch-macos-arm64-2.2.0.zip
+        rm libtorch-macos-arm64-2.2.0.zip
+      fi
+    elif [ "$PLATFORM" = "Linux" ]; then
       echo -e "${COLOR_GREEN}[ INFO ] Install libtorch on Linux ${COLOR_OFF}"
       if [ "$CUDA" = "cu118" ]; then
         wget https://download.pytorch.org/libtorch/cu118/libtorch-cxx11-abi-shared-with-deps-2.1.1%2Bcu118.zip
