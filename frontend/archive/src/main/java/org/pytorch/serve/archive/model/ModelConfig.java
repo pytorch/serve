@@ -68,9 +68,9 @@ public class ModelConfig {
     /** continuousBatching is a flag to enable continuous batching. */
     private boolean continuousBatching;
     /**
-     * Create python virtual environment when using python backend to: 1) Install model dependencies
-     * (if enabled globally using install_py_dep_per_model=true) 2) Run workers for model loading
-     * and inference
+     * Create python virtual environment when using python backend to install model dependencies (if
+     * enabled globally using install_py_dep_per_model=true) and run workers for model loading and
+     * inference.
      */
     private boolean useVenv;
 
