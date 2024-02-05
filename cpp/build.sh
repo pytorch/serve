@@ -28,7 +28,7 @@ function install_folly() {
     echo -e "${COLOR_GREEN}[ INFO ] Cloning folly repo ${COLOR_OFF}"
     git clone https://github.com/facebook/folly.git "$FOLLY_SRC_DIR"
     cd $FOLLY_SRC_DIR
-    git checkout tags/v2022.06.27.00
+    git checkout tags/v2024.01.29.00
   fi
 
   if [ ! -d "$FOLLY_BUILD_DIR" ] ; then
@@ -74,11 +74,21 @@ function install_kineto() {
 }
 
 function install_libtorch() {
-  if [ "$PLATFORM" = "Mac" ]; then
-    echo -e "${COLOR_GREEN}[ INFO ] Skip install libtorch on Mac ${COLOR_OFF}"
-  elif [ ! -d "$DEPS_DIR/libtorch" ] ; then
+  if [ ! -d "$DEPS_DIR/libtorch" ] ; then
     cd "$DEPS_DIR" || exit
-    if [ "$PLATFORM" = "Linux" ]; then
+    if [ "$PLATFORM" = "Mac" ]; then
+      if [[ $(uname -m) == 'x86_64' ]]; then
+        echo -e "${COLOR_GREEN}[ INFO ] Install libtorch on Mac x86_64 ${COLOR_OFF}"
+        wget https://download.pytorch.org/libtorch/cpu/libtorch-macos-x86_64-2.2.0.zip
+        unzip libtorch-macos-x86_64-2.2.0.zip
+        rm libtorch-macos-x86_64-2.2.0.zip
+      else
+        echo -e "${COLOR_GREEN}[ INFO ] Install libtorch on Mac arm64 ${COLOR_OFF}"
+        wget https://download.pytorch.org/libtorch/cpu/libtorch-macos-arm64-2.2.0.zip
+        unzip libtorch-macos-arm64-2.2.0.zip
+        rm libtorch-macos-arm64-2.2.0.zip
+      fi
+    elif [ "$PLATFORM" = "Linux" ]; then
       echo -e "${COLOR_GREEN}[ INFO ] Install libtorch on Linux ${COLOR_OFF}"
       if [ "$CUDA" = "cu118" ]; then
         wget https://download.pytorch.org/libtorch/cu118/libtorch-cxx11-abi-shared-with-deps-2.1.1%2Bcu118.zip
@@ -113,7 +123,7 @@ function install_yaml_cpp() {
     echo -e "${COLOR_GREEN}[ INFO ] Cloning yaml-cpp repo ${COLOR_OFF}"
     git clone https://github.com/jbeder/yaml-cpp.git "$YAML_CPP_SRC_DIR"
     cd $YAML_CPP_SRC_DIR
-    git checkout tags/yaml-cpp-0.7.0
+    git checkout tags/0.8.0
   fi
 
   if [ ! -d "$YAML_CPP_BUILD_DIR" ] ; then
@@ -136,11 +146,42 @@ function install_yaml_cpp() {
   cd "$BWD" || exit
 }
 
+function install_sentencepiece() {
+  SENTENCEPIECE_SRC_DIR=$BASE_DIR/third-party/sentencepiece
+  SENTENCEPIECE_BUILD_DIR=$DEPS_DIR/sentencepiece-build
+
+  if [ ! -d "$SENTENCEPIECE_SRC_DIR" ] ; then
+    echo -e "${COLOR_GREEN}[ INFO ] Cloning sentencepiece repo ${COLOR_OFF}"
+    git clone https://github.com/google/sentencepiece.git "$SENTENCEPIECE_SRC_DIR"
+    cd $SENTENCEPIECE_SRC_DIR
+    git checkout tags/v0.1.99
+  fi
+
+  if [ ! -d "$SENTENCEPIECE_BUILD_DIR" ] ; then
+    echo -e "${COLOR_GREEN}[ INFO ] Building sentencepiece ${COLOR_OFF}"
+
+    mkdir $SENTENCEPIECE_BUILD_DIR
+    cd $SENTENCEPIECE_BUILD_DIR
+    cmake $SENTENCEPIECE_SRC_DIR
+    make -i $(nproc)
+    if [ "$PLATFORM" = "Linux" ]; then
+      sudo make install
+      sudo ldconfig -v
+    elif [ "$PLATFORM" = "Mac" ]; then
+      make install
+    fi
+
+    echo -e "${COLOR_GREEN}[ INFO ] sentencepiece is installed ${COLOR_OFF}"
+  fi
+
+  cd "$BWD" || exit
+}
+
 function build_llama_cpp() {
   BWD=$(pwd)
   LLAMA_CPP_SRC_DIR=$BASE_DIR/third-party/llama.cpp
   cd "${LLAMA_CPP_SRC_DIR}"
-  make
+  make LLAMA_METAL=OFF
   cd "$BWD" || exit
 }
 
@@ -191,7 +232,7 @@ function build() {
     fi
   elif [ "$PLATFORM" = "Mac" ]; then
     cmake                                                                                     \
-    -DCMAKE_PREFIX_PATH="$(python -c 'import torch; print(torch.utils.cmake_prefix_path)');$DEPS_DIR;$FOLLY_CMAKE_DIR;$YAML_CPP_CMAKE_DIR"   \
+    -DCMAKE_PREFIX_PATH="$DEPS_DIR;$FOLLY_CMAKE_DIR;$YAML_CPP_CMAKE_DIR;$DEPS_DIR/libtorch"    \
     -DCMAKE_INSTALL_PREFIX="$PREFIX"                                                          \
     "$MAYBE_BUILD_QUIC"                                                                       \
     "$MAYBE_BUILD_TESTS"                                                                      \
@@ -225,7 +266,7 @@ function build() {
 
 function symlink_torch_libs() {
   if [ "$PLATFORM" = "Linux" ]; then
-    ln -sf ${DEPS_DIR}/libtorch/lib/*.so* ${BUILD_DIR}/libs/
+    ln -sf ${DEPS_DIR}/libtorch/lib/*.so* ${LIBS_DIR}
   fi
 }
 
@@ -315,6 +356,7 @@ install_folly
 install_kineto
 install_libtorch
 install_yaml_cpp
+install_sentencepiece
 build_llama_cpp
 build
 symlink_torch_libs
