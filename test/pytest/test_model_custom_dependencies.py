@@ -7,26 +7,6 @@ import test_utils
 
 def setup_module(module):
     test_utils.torchserve_cleanup()
-    # Clean out custom model dependencies in base python environment
-    subprocess.run(
-        [
-            "pip",
-            "uninstall",
-            "-y",
-            "-r",
-            str(
-                os.path.join(
-                    test_utils.REPO_ROOT,
-                    "test",
-                    "pytest",
-                    "test_data",
-                    "custom_dependencies",
-                    "requirements.txt",
-                )
-            ),
-        ],
-        check=True,
-    )
 
 
 def teardown_module(module):
