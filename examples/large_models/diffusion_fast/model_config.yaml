@@ -1,0 +1,18 @@
+minWorkers: 1
+maxWorkers: 1
+maxBatchDelay: 200
+responseTimeout: 3600
+deviceType: "gpu"
+handler:
+    model_path: "Base_Diffusion_model"
+    num_inference_steps: 30
+    compile_unet: true
+    compile_mode: "max-autotune"
+    compile_vae: true
+    enable_fused_projections: true
+    do_quant: "int8dynamic"
+    change_comp_config: true
+    no_sdpa: false
+    no_bf16: false
+    upcast_vae: false
+    profile: true
