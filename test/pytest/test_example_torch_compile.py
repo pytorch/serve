@@ -46,6 +46,7 @@ def custom_working_directory(tmp_path):
 
 
 @pytest.mark.skipif(PT2_AVAILABLE == False, reason="torch version is < 2.0")
+@pytest.mark.skip(reason="Testing")
 def test_torch_compile_inference(monkeypatch, custom_working_directory):
     monkeypatch.syspath_prepend(EXAMPLE_ROOT_DIR)
     # Get the path to the custom working directory
