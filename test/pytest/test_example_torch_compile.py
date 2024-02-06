@@ -18,9 +18,6 @@ MAPPING_DATA = REPO_ROOT_DIR.joinpath(
     "examples", "image_classifier", "index_to_name.json"
 )
 MODEL_PTH_FILE = "densenet161-8d451a50.pth"
-MODEL_FILE = REPO_ROOT_DIR.joinpath(
-    "examples", "image_classifier", "densenet_161", "model.py"
-)
 MODEL_FILE = "model.py"
 MODEL_YAML_CFG_FILE = EXAMPLE_ROOT_DIR.joinpath("model-config.yaml")
 
@@ -46,7 +43,7 @@ def custom_working_directory(tmp_path):
 
 
 @pytest.mark.skipif(PT2_AVAILABLE == False, reason="torch version is < 2.0")
-@pytest.mark.skip(reason="Testing")
+@pytest.mark.skip(reason="Skipping as its causing other testcases to fail")
 def test_torch_compile_inference(monkeypatch, custom_working_directory):
     monkeypatch.syspath_prepend(EXAMPLE_ROOT_DIR)
     # Get the path to the custom working directory
