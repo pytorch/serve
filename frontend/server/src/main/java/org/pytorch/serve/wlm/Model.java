@@ -186,8 +186,7 @@ public class Model {
 
         JsonElement runtime = modelInfo.get(RUNTIME_TYPE);
         String runtime_str = Manifest.RuntimeType.PYTHON.getValue();
-        if(runtime != null)
-            runtime_str = runtime.getAsString();
+        if (runtime != null) runtime_str = runtime.getAsString();
 
         runtimeType = Manifest.RuntimeType.fromValue(runtime_str);
         if (modelInfo.get(PARALLEL_LEVEL) != null) {
