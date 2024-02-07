@@ -2,6 +2,6 @@
 --extra-index-url https://download.pytorch.org/whl/cpu
 -r torch_common.txt
 torch==2.1.0; sys_platform == 'win32'
-torchvision==0.16.0; sys_platform == 'win32'
+torchvision==0.17.0+cu121; sys_platform == 'win32'
 torchtext==0.16.0; sys_platform == 'win32'
 torchaudio==2.1.0; sys_platform == 'win32'

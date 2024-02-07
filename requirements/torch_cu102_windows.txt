@@ -2,6 +2,6 @@
 --find-links https://download.pytorch.org/whl/torch_stable.html
 -r torch_common.txt
 torch==1.10.0+cu102; sys_platform == 'win32'
-torchvision==0.11.1+cu102; sys_platform == 'win32'
+torchvision==0.17.0+cu121; sys_platform == 'win32'
 torchtext==0.11.0; sys_platform == 'win32'
 torchaudio==0.10.0+cu102; sys_platform == 'win32'
