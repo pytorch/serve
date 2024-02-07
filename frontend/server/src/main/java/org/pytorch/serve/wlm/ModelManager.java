@@ -311,9 +311,9 @@ public final class ModelManager {
             commandParts.add("-r");
             commandParts.add(requirementsFilePath.toString());
         } else {
-            File dependencyPath = model.getModelDir().getAbsolutePath();
+            File dependencyPath = model.getModelDir().getAbsoluteFile();
             if (Files.isSymbolicLink(dependencyPath.toPath())) {
-                dependencyPath = dependencyPath.getParentFile();
+                dependencyPath = dependencyPath.getParentFile().getAbsoluteFile();
             }
             if (!isValidDependencyPath(dependencyPath)) {
                 throw new ModelException(
