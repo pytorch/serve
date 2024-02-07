@@ -190,6 +190,7 @@ ARG BRANCH_NAME
 ARG BUILD_WITH_IPEX
 ARG IPEX_VERSION=1.11.0
 ARG IPEX_URL=https://software.intel.com/ipex-whl-stable
+ARG BUILD_CPP
 ENV PYTHONUNBUFFERED TRUE
 RUN --mount=type=cache,target=/var/cache/apt \
     apt-get update && \
@@ -222,6 +223,20 @@ RUN git clone --recursive https://github.com/pytorch/serve.git \
 COPY --from=compile-image /home/venv /home/venv
 ENV PATH="/home/venv/bin:$PATH"
 WORKDIR "serve"
+RUN \
+    if [[ "$BUILD_CPP" == "true" ]]; then \
+        if [[ -n "$USE_CUDA_VERSION" ]]; then \
+            python ./ts_scripts/install_dependencies.py --cpp --cuda=$USE_CUDA_VERSION && \
+            cd cpp && \
+            ./build.sh -g $USE_CUDA_VERSION && \
+            cd ..; \
+        else \
+            python ./ts_scripts/install_dependencies.py --cpp && \
+            cd cpp && \
+            ./build.sh && \
+            cd ..; \
+        fi; \
+    fi
 RUN python -m pip install -U pip setuptools \
     && python -m pip install --no-cache-dir -r requirements/developer.txt \
     && python ts_scripts/install_from_src.py \
