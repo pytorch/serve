@@ -211,29 +211,29 @@ public final class ModelManager {
 
     private void setupModelVenv(Model model)
             throws IOException, InterruptedException, ModelException {
-        ModelConfig modelConfig = model.getModelArchive().getModelConfig();
-        if (model.getModelArchive().getManifest().getRuntime() != Manifest.RuntimeType.PYTHON
-                || modelConfig == null
-                || modelConfig.getUseVenv() != true) {
+        if (model.getRuntimeType() != Manifest.RuntimeType.PYTHON || !model.isUseVenv()) {
             return;
         }
 
-        String venvPath = EnvironmentUtils.getPythonVenvPath(model);
+        File venvPath = EnvironmentUtils.getPythonVenvPath(model);
         List<String> commandParts = new ArrayList<>();
         commandParts.add(configManager.getPythonExecutable());
         commandParts.add("-m");
         commandParts.add("venv");
         commandParts.add("--clear");
         commandParts.add("--system-site-packages");
-        commandParts.add(venvPath);
+        commandParts.add(venvPath.toString());
 
         ProcessBuilder processBuilder = new ProcessBuilder(commandParts);
 
         if (isValidDependencyPath(venvPath)) {
-            processBuilder.directory(Paths.get(venvPath).toFile().getParentFile());
+            processBuilder.directory(venvPath.getParentFile());
         } else {
             throw new ModelException(
-                    "Invalid python venv path for model " + model.getModelName() + ": " + venvPath);
+                    "Invalid python venv path for model "
+                            + model.getModelName()
+                            + ": "
+                            + venvPath.toString());
         }
         Map<String, String> environment = processBuilder.environment();
         String[] envp =
@@ -261,12 +261,14 @@ public final class ModelManager {
 
         if (exitCode == 0) {
             logger.info(
-                    "Created virtual environment for model {}: {}", model.getModelName(), venvPath);
+                    "Created virtual environment for model {}: {}",
+                    model.getModelName(),
+                    venvPath.toString());
         } else {
             logger.error(
                     "Virtual environment creation for model {} at {} failed:\n{}",
                     model.getModelName(),
-                    venvPath,
+                    venvPath.toString(),
                     outputString.toString());
             throw new ModelException(
                     "Virtual environment creation failed for model " + model.getModelName());
@@ -282,15 +284,14 @@ public final class ModelManager {
             return;
         }
 
-        ModelConfig modelConfig = model.getModelArchive().getModelConfig();
         String pythonRuntime = EnvironmentUtils.getPythonRunTime(model);
         Path requirementsFilePath =
-                Paths.get(model.getModelDir().getAbsolutePath(), requirementsFile);
+                Paths.get(model.getModelDir().getAbsolutePath(), requirementsFile).toAbsolutePath();
         List<String> commandParts = new ArrayList<>();
         ProcessBuilder processBuilder = new ProcessBuilder();
 
-        if (modelConfig != null && modelConfig.getUseVenv() == true) {
-            if (!isValidDependencyPath(pythonRuntime)) {
+        if (model.isUseVenv()) {
+            if (!isValidDependencyPath(Paths.get(pythonRuntime).toFile())) {
                 throw new ModelException(
                         "Invalid python venv runtime path for model "
                                 + model.getModelName()
@@ -298,8 +299,7 @@ public final class ModelManager {
                                 + pythonRuntime);
             }
 
-            processBuilder.directory(
-                    Paths.get(EnvironmentUtils.getPythonVenvPath(model)).toFile().getParentFile());
+            processBuilder.directory(EnvironmentUtils.getPythonVenvPath(model).getParentFile());
 
             commandParts.add(pythonRuntime);
             commandParts.add("-m");
@@ -311,14 +311,13 @@ public final class ModelManager {
             commandParts.add("-r");
             commandParts.add(requirementsFilePath.toString());
         } else {
-            File dependencyPath = model.getModelDir();
+            File dependencyPath = model.getModelDir().getAbsolutePath();
             if (Files.isSymbolicLink(dependencyPath.toPath())) {
                 dependencyPath = dependencyPath.getParentFile();
             }
-            if (!isValidDependencyPath(dependencyPath.getPath())) {
+            if (!isValidDependencyPath(dependencyPath)) {
                 throw new ModelException(
-                        "Invalid 3rd party package installation path "
-                                + dependencyPath.getCanonicalPath());
+                        "Invalid 3rd party package installation path " + dependencyPath.toString());
             }
 
             processBuilder.directory(dependencyPath);
@@ -329,7 +328,7 @@ public final class ModelManager {
             commandParts.add("install");
             commandParts.add("-U");
             commandParts.add("-t");
-            commandParts.add(dependencyPath.getAbsolutePath());
+            commandParts.add(dependencyPath.toString());
             commandParts.add("-r");
             commandParts.add(requirementsFilePath.toString());
         }
@@ -374,8 +373,9 @@ public final class ModelManager {
         }
     }
 
-    private boolean isValidDependencyPath(String dependencyPath) {
-        if (Paths.get(dependencyPath)
+    private boolean isValidDependencyPath(File dependencyPath) {
+        if (dependencyPath
+                .toPath()
                 .normalize()
                 .startsWith(FileUtils.getTempDirectory().toPath().normalize())) {
             return true;
