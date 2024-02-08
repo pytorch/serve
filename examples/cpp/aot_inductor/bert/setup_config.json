@@ -8,5 +8,6 @@
  "embedding_name": "bert",
  "FasterTransformer":false,
  "BetterTransformer":false,
- "model_parallel":false
+ "model_parallel":false,
+ "batch_size": "4"
 }
