@@ -123,3 +123,23 @@ pt2 :
     aot_compile: true
 ```
 You can find an example [here](./torch_export_aot_compile/README.md)
+
+## torch.compile GenAI examples
+
+### GPT Fast
+
+GPT-Fast is a simple and efficient pytorch-native transformer text generation which uses `torch.compile`. This model is 10x faster than the baseline llama2 model.
+
+The example can be found [here](../large_models/gpt_fast/README.md)
+
+### Segment Anything Fast
+
+Segment Anything Fast is the optimized version of [Segment Anything](https://github.com/facebookresearch/segment-anything) with 8x performance improvements compared to the original implementation. The improvements were achieved using native PyTorch, primarily `torch.compile`.
+
+The example can be found [here](../large_models/segment_anything_fast/README.md)
+
+### Diffusion Fast
+
+Diffusion Fast is a simple and efficient pytorch-native way of optimizing Stable Diffusion XL (SDXL) with 3x performance improvements compared to the original implementation. This is using `torch.compile`
+
+The example can be found [here](../large_models/diffusion_fast/README.md)
