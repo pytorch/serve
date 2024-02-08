@@ -13,7 +13,7 @@ In general it's hard to optimize models and the easiest approach can be exportin
 
 Starting with PyTorch 2.0, `torch.compile` provides out of the box speed up ( ~1.8x) for a large number of models. You can refer to this [dashboard](https://hud.pytorch.org/benchmark/compilers) which tracks this on a nightly basis.
 
-Models which have been fully optmized with `torch.compile` show performance improvements upto 10x
+Models which have been fully optimized with `torch.compile` show performance improvements up to 10x
 
 You can find all the examples of `torch.compile` with TorchServe [here](../examples/pt2/)
 
