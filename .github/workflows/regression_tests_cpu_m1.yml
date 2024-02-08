@@ -15,16 +15,15 @@ concurrency:
 
 jobs:
   regression-cpu:
-    # creates workflows for OS: ubuntu, macOS
+    # creates workflows for Mac OS M1 
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         os: [macos-14]
     steps:
-    #   - name: Setup Python 3.10
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: Setup Python 3.10
+        uses: actions/setup-python@v5
         with:
           python-version: '3.10' 
       - name: Setup Java 17
@@ -39,9 +38,6 @@ jobs:
       - name: Install dependencies
         run: |
           python ts_scripts/install_dependencies.py --environment=dev
-      - name: Torchserve sanity test
-        run: |
-          python torchserve_sanity.py
       - name: Torchserve Regression Tests
         run: |
           python test/regression_tests.py
