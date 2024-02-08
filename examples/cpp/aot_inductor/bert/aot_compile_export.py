@@ -25,7 +25,7 @@ def transformers_model_dowloader(
     # loading pre-trained model and tokenizer
     if mode == "sequence_classification":
         config = AutoConfig.from_pretrained(
-            pretrained_model_name, num_labels=num_labels, torchscript=torchscript
+            pretrained_model_name, num_labels=num_labels, torchscript=False
         )
         model = AutoModelForSequenceClassification.from_pretrained(
             pretrained_model_name, config=config
@@ -63,7 +63,7 @@ def transformers_model_dowloader(
         inputs = tokenizer.encode_plus(
             dummy_input,
             max_length=int(max_length),
-            pad_to_max_length=True,
+            padding=True,
             add_special_tokens=True,
             return_tensors="pt",
         )
@@ -71,12 +71,13 @@ def transformers_model_dowloader(
         attention_mask = torch.cat([inputs["attention_mask"]] * batch_size, 0).to(
             device
         )
-        batch_dim = torch.export.Dim("batch", min=1, max=batch_size)
+        batch_dim = torch.export.Dim("batch", min=2, max=8)
         torch._C._GLIBCXX_USE_CXX11_ABI = True
         model_so_path = torch._export.aot_compile(
             model,
-            (inputs, attention_mask),
-            dynamic_shapes={"x": {0: batch_dim}},
+            (input_ids, attention_mask),
+            # dynamic_shapes={"input_ids": {0, batch_dim}, "attention_mask": {0, batch_dim}},
+            constraints=[batch_dim],
             options={
                 "aot_inductor.output_path": os.path.join(os.getcwd(), "bert-seq.so"),
                 "max_autotune": True,
