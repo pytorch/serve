@@ -1,6 +1,6 @@
 ## PyTorch 2.x integration
 
-PyTorch 2.0 brings more compiler options to PyTorch, for you that should mean better perf either in the form of lower latency or lower memory consumption. Integrating PyTorch 2.0 is fairly trivial but for now the support will be experimental given that most public benchmarks have focused on training instead of inference.
+PyTorch 2.0 brings more compiler options to PyTorch, for you that should mean better perf either in the form of lower latency or lower memory consumption.
 
 We strongly recommend you leverage newer hardware so for GPUs that would be an Ampere architecture. You'll get even more benefits from using server GPU deployments like A10G and A100 vs consumer cards. But you should expect to see some speedups for any Volta or Ampere architecture.
 
@@ -8,9 +8,10 @@ We strongly recommend you leverage newer hardware so for GPUs that would be an A
 
 Install torchserve and ensure that you're using at least `torch>=2.0.0`
 
+To use the latest nightlies, you can run the following commands
 ```sh
-python ts_scripts/install_dependencies.py --cuda=cu118
-pip install torchserve torch-model-archiver
+python ts_scripts/install_dependencies.py --cuda=cu121 --nightly_torch
+pip install torchserve-nightly torch-model-archiver-nightly
 ```
 
 ## torch.compile
@@ -27,13 +28,7 @@ You can also pass a dictionary with compile options if you need more control ove
 pt2 : {backend: inductor, mode: reduce-overhead}
 ```
 
-As an example let's expand our getting started guide with the only difference being passing in the extra `model_config.yaml` file
-
-```
-mkdir model_store
-torch-model-archiver --model-name densenet161 --version 1.0 --model-file ./serve/examples/image_classifier/densenet_161/model.py --export-path model_store --extra-files ./serve/examples/image_classifier/index_to_name.json --handler image_classifier --config-file model_config.yaml
-torchserve --start --ncs --model-store model_store --models densenet161.mar
-```
+An example of using `torch.compile` can be found [here](./torch_compile/README.md)
 
 The exact same approach works with any other model, what's going on is the below
 
