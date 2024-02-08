@@ -31,13 +31,6 @@
     "handler": "examples/image_classifier/mnist/mnist_handler.py"
   },
   {
-    "model_name": "mnist_custom_cpp",
-    "version": "1.0",
-    "serialized_file_local": "cpp/test/resources/torchscript_model/mnist/mnist_handler/mnist_script.pt",
-    "handler": "cpp/test/resources/torchscript_model/mnist/mnist_handler/libmnist_handler:MnistHandler",
-    "runtime": "LSP"
-  },
-  {
     "model_name": "resnet-152-batch",
     "version": "1.0",
     "model_file": "examples/image_classifier/resnet_152_batch/model.py",

@@ -1,5 +1,6 @@
 package org.pytorch.serve.wlm;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import java.io.File;
 import java.util.Collections;
@@ -182,7 +183,12 @@ public class Model {
         maxBatchDelay = modelInfo.get(MAX_BATCH_DELAY).getAsInt();
         responseTimeout = modelInfo.get(RESPONSE_TIMEOUT).getAsInt();
         batchSize = modelInfo.get(BATCH_SIZE).getAsInt();
-        runtimeType = Manifest.RuntimeType.fromValue(modelInfo.get(RUNTIME_TYPE).getAsString());
+
+        JsonElement runtime = modelInfo.get(RUNTIME_TYPE);
+        String runtime_str = Manifest.RuntimeType.PYTHON.getValue();
+        if (runtime != null) runtime_str = runtime.getAsString();
+
+        runtimeType = Manifest.RuntimeType.fromValue(runtime_str);
         if (modelInfo.get(PARALLEL_LEVEL) != null) {
             parallelLevel = modelInfo.get(PARALLEL_LEVEL).getAsInt();
         }
