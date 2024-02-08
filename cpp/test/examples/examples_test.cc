@@ -32,10 +32,6 @@ TEST_F(ModelPredictTest, TestLoadPredictAotInductorLlamaHandler) {
 
   std::ifstream f1(file1);
   std::ifstream f2(file2);
-  if (TORCH_VERSION_MAJOR < 2 ||
-      (TORCH_VERSION_MAJOR >= 2 && TORCH_VERSION_MINOR < 3))
-    GTEST_SKIP() << "Skipping TestLoadPredictAotInductorLlamaHandler because "
-                    "it needs at least libtorch version >=2.3.0";
 
   if (!f1.good() || !f2.good())
     GTEST_SKIP() << "Skipping TestLoadPredictAotInductorLlamaHandler because "

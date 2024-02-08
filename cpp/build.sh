@@ -74,19 +74,19 @@ function install_kineto() {
 }
 
 function install_libtorch() {
-  TORCH_VERSION="2.1.1"
+  TORCH_VERSION="2.2.0"
   if [ "$PLATFORM" = "Mac" ]; then
     if [ ! -d "$DEPS_DIR/libtorch" ]; then
       if [[ $(uname -m) == 'x86_64' ]]; then
         echo -e "${COLOR_GREEN}[ INFO ] Install libtorch on Mac x86_64 ${COLOR_OFF}"
-        wget https://download.pytorch.org/libtorch/cpu/libtorch-macos-x86_64-2.2.0.zip
-        unzip libtorch-macos-x86_64-2.2.0.zip
-        rm libtorch-macos-x86_64-2.2.0.zip
+        wget https://download.pytorch.org/libtorch/cpu/libtorch-macos-x86_64-${TORCH_VERSION}.zip
+        unzip libtorch-macos-x86_64-${TORCH_VERSION}.zip
+        rm libtorch-macos-x86_64-${TORCH_VERSION}.zip
       else
         echo -e "${COLOR_GREEN}[ INFO ] Install libtorch on Mac arm64 ${COLOR_OFF}"
-        wget https://download.pytorch.org/libtorch/cpu/libtorch-macos-arm64-2.2.0.zip
-        unzip libtorch-macos-arm64-2.2.0.zip
-        rm libtorch-macos-arm64-2.2.0.zip
+        wget https://download.pytorch.org/libtorch/cpu/libtorch-macos-arm64-${TORCH_VERSION}.zip
+        unzip libtorch-macos-arm64-${TORCH_VERSION}.zip
+        rm libtorch-macos-arm64-${TORCH_VERSION}.zip
       fi
     fi
   elif [ "$PLATFORM" = "Windows" ]; then
@@ -190,7 +190,11 @@ function build_llama_cpp() {
   BWD=$(pwd)
   LLAMA_CPP_SRC_DIR=$BASE_DIR/third-party/llama.cpp
   cd "${LLAMA_CPP_SRC_DIR}"
-  make LLAMA_METAL=OFF
+  if [ "$PLATFORM" = "Mac" ]; then
+    make LLAMA_METAL=OFF -j
+  else
+    make -j
+  fi
   cd "$BWD" || exit
 }
 
@@ -204,7 +208,7 @@ function prepare_test_files() {
   if [ ! -f "${EX_DIR}/babyllama/babyllama_handler/stories15M.bin" ]; then
     wget https://huggingface.co/karpathy/tinyllamas/resolve/main/stories15M.bin -O "${EX_DIR}/babyllama/babyllama_handler/stories15M.bin"
   fi
-  if [ ! -f "${EX_DIR}/aot_inductor/llama_handler/stories15M.so" ] && [ "$USE_NIGHTLIES" == true ]; then
+  if [ ! -f "${EX_DIR}/aot_inductor/llama_handler/stories15M.so" ]; then
     local HANDLER_DIR=${EX_DIR}/aot_inductor/llama_handler/
     if [ ! -f "${HANDLER_DIR}/stories15M.pt" ]; then
       wget https://huggingface.co/karpathy/tinyllamas/resolve/main/stories15M.pt?download=true -O "${HANDLER_DIR}/stories15M.pt"

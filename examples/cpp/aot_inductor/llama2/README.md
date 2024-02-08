@@ -4,12 +4,10 @@ The handler C++ source code for this examples can be found [here](src/).
 
 ### Setup
 1. Follow the instructions in [README.md](../../../../cpp/README.md) to build the TorchServe C++ backend.
-Currently, this example required the availability of Pytorch nightlies, so make sure you have that installed.
-To build the cpp backend with the newest nightlies of libtorch on Linux we can add the -n flag to the build script.
 
 ```
 cd serve/cpp
-./builld.sh -n
+./builld.sh
 ```
 
 The build script will already create the necessary artifact for this example.
