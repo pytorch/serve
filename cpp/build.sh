@@ -74,40 +74,49 @@ function install_kineto() {
 }
 
 function install_libtorch() {
-  if [ ! -d "$DEPS_DIR/libtorch" ] ; then
-    cd "$DEPS_DIR" || exit
-    if [ "$PLATFORM" = "Mac" ]; then
+  TORCH_VERSION="2.2.0"
+  if [ "$PLATFORM" = "Mac" ]; then
+    if [ ! -d "$DEPS_DIR/libtorch" ]; then
       if [[ $(uname -m) == 'x86_64' ]]; then
         echo -e "${COLOR_GREEN}[ INFO ] Install libtorch on Mac x86_64 ${COLOR_OFF}"
-        wget https://download.pytorch.org/libtorch/cpu/libtorch-macos-x86_64-2.2.0.zip
-        unzip libtorch-macos-x86_64-2.2.0.zip
-        rm libtorch-macos-x86_64-2.2.0.zip
+        wget https://download.pytorch.org/libtorch/cpu/libtorch-macos-x86_64-${TORCH_VERSION}.zip
+        unzip libtorch-macos-x86_64-${TORCH_VERSION}.zip
+        rm libtorch-macos-x86_64-${TORCH_VERSION}.zip
       else
         echo -e "${COLOR_GREEN}[ INFO ] Install libtorch on Mac arm64 ${COLOR_OFF}"
-        wget https://download.pytorch.org/libtorch/cpu/libtorch-macos-arm64-2.2.0.zip
-        unzip libtorch-macos-arm64-2.2.0.zip
-        rm libtorch-macos-arm64-2.2.0.zip
+        wget https://download.pytorch.org/libtorch/cpu/libtorch-macos-arm64-${TORCH_VERSION}.zip
+        unzip libtorch-macos-arm64-${TORCH_VERSION}.zip
+        rm libtorch-macos-arm64-${TORCH_VERSION}.zip
       fi
-    elif [ "$PLATFORM" = "Linux" ]; then
-      echo -e "${COLOR_GREEN}[ INFO ] Install libtorch on Linux ${COLOR_OFF}"
-      if [ "$CUDA" = "cu118" ]; then
-        wget https://download.pytorch.org/libtorch/cu118/libtorch-cxx11-abi-shared-with-deps-2.1.1%2Bcu118.zip
-        unzip libtorch-cxx11-abi-shared-with-deps-2.1.1+cu118.zip
-        rm libtorch-cxx11-abi-shared-with-deps-2.1.1+cu118.zip
-      elif [ "$CUDA" = "cu121" ]; then
-        wget https://download.pytorch.org/libtorch/cu121/libtorch-cxx11-abi-shared-with-deps-2.1.1%2Bcu121.zip
-        unzip libtorch-cxx11-abi-shared-with-deps-2.1.1+cu121.zip
-        rm libtorch-cxx11-abi-shared-with-deps-2.1.1+cu121.zip
-      else
-        wget https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-2.1.1%2Bcpu.zip
-        unzip libtorch-cxx11-abi-shared-with-deps-2.1.1+cpu.zip
-        rm libtorch-cxx11-abi-shared-with-deps-2.1.1+cpu.zip
-      fi
-    elif [ "$PLATFORM" = "Windows" ]; then
+    fi
+  elif [ "$PLATFORM" = "Windows" ]; then
       echo -e "${COLOR_GREEN}[ INFO ] Install libtorch on Windows ${COLOR_OFF}"
       # TODO: Windows
       echo -e "${COLOR_RED}[ ERROR ] Unknown platform: $PLATFORM ${COLOR_OFF}"
       exit 1
+  else  # Linux
+    if [ -d "$DEPS_DIR/libtorch" ]; then
+      RAW_VERSION=`cat "$DEPS_DIR/libtorch/build-version"`
+      VERSION=`cat "$DEPS_DIR/libtorch/build-version" | cut -d "+" -f 1`
+      if [ "$USE_NIGHTLIES" = "true" ] && [[ ! "${RAW_VERSION}" =~ .*"dev".* ]]; then
+        rm -rf "$DEPS_DIR/libtorch"
+      elif [ "$USE_NIGHTLIES" == "" ] && [ "$VERSION" != "$TORCH_VERSION" ]; then
+        rm -rf "$DEPS_DIR/libtorch"
+      fi
+    fi
+    if [ ! -d "$DEPS_DIR/libtorch" ]; then
+      cd "$DEPS_DIR" || exit
+      echo -e "${COLOR_GREEN}[ INFO ] Install libtorch on Linux ${COLOR_OFF}"
+      if [ "$USE_NIGHTLIES" == true ]; then
+        URL=https://download.pytorch.org/libtorch/nightly/${CUDA}/libtorch-cxx11-abi-shared-with-deps-latest.zip
+      else
+        URL=https://download.pytorch.org/libtorch/${CUDA}/libtorch-cxx11-abi-shared-with-deps-${TORCH_VERSION}%2B${CUDA}.zip
+      fi
+      wget $URL
+      ZIP_FILE=$(basename "$URL")
+      ZIP_FILE="${ZIP_FILE//%2B/+}"
+      unzip $ZIP_FILE
+      rm $ZIP_FILE
     fi
     echo -e "${COLOR_GREEN}[ INFO ] libtorch is installed ${COLOR_OFF}"
   fi
@@ -181,8 +190,32 @@ function build_llama_cpp() {
   BWD=$(pwd)
   LLAMA_CPP_SRC_DIR=$BASE_DIR/third-party/llama.cpp
   cd "${LLAMA_CPP_SRC_DIR}"
-  make LLAMA_METAL=OFF
+  if [ "$PLATFORM" = "Mac" ]; then
+    make LLAMA_METAL=OFF -j
+  else
+    make -j
+  fi
   cd "$BWD" || exit
+}
+
+function prepare_test_files() {
+  echo -e "${COLOR_GREEN}[ INFO ]Preparing test files ${COLOR_OFF}"
+  local EX_DIR="${TR_DIR}/examples/"
+  rsync -a --link-dest=../../test/resources/ ${BASE_DIR}/test/resources/ ${TR_DIR}/
+  if [ ! -f "${EX_DIR}/babyllama/babyllama_handler/tokenizer.bin" ]; then
+    wget https://github.com/karpathy/llama2.c/raw/master/tokenizer.bin -O "${EX_DIR}/babyllama/babyllama_handler/tokenizer.bin"
+  fi
+  if [ ! -f "${EX_DIR}/babyllama/babyllama_handler/stories15M.bin" ]; then
+    wget https://huggingface.co/karpathy/tinyllamas/resolve/main/stories15M.bin -O "${EX_DIR}/babyllama/babyllama_handler/stories15M.bin"
+  fi
+  if [ ! -f "${EX_DIR}/aot_inductor/llama_handler/stories15M.so" ]; then
+    local HANDLER_DIR=${EX_DIR}/aot_inductor/llama_handler/
+    if [ ! -f "${HANDLER_DIR}/stories15M.pt" ]; then
+      wget https://huggingface.co/karpathy/tinyllamas/resolve/main/stories15M.pt?download=true -O "${HANDLER_DIR}/stories15M.pt"
+    fi
+    local LLAMA_SO_DIR=${BASE_DIR}/third-party/llama2.so/
+    PYTHONPATH=${LLAMA_SO_DIR}:${PYTHONPATH} python ${BASE_DIR}/../examples/cpp/aot_inductor/llama2/compile.py --checkpoint ${HANDLER_DIR}/stories15M.pt ${HANDLER_DIR}/stories15M.so
+  fi
 }
 
 function build() {
@@ -209,6 +242,11 @@ function build() {
     MAYBE_CUDA_COMPILER='-DCMAKE_CUDA_COMPILER=/usr/local/cuda/bin/nvcc'
   fi
 
+  MAYBE_NIGHTLIES="-Dnightlies=OFF"
+  if [ "$USE_NIGHTLIES" == true ]; then
+    MAYBE_NIGHTLIES="-Dnightlies=ON"
+  fi
+
   # Build torchserve_cpp with cmake
   cd "$BWD" || exit
   YAML_CPP_CMAKE_DIR=$DEPS_DIR/yaml-cpp-build
@@ -225,6 +263,7 @@ function build() {
     "$MAYBE_USE_STATIC_DEPS"                                                                  \
     "$MAYBE_LIB_FUZZING_ENGINE"                                                               \
     "$MAYBE_CUDA_COMPILER"                                                                    \
+    "$MAYBE_NIGHTLIES"                                                                        \
     ..
 
     if [ "$CUDA" = "cu118" ] || [ "$CUDA" = "cu121" ]; then
@@ -240,6 +279,7 @@ function build() {
     "$MAYBE_OVERRIDE_CXX_FLAGS"                                                               \
     "$MAYBE_USE_STATIC_DEPS"                                                                  \
     "$MAYBE_LIB_FUZZING_ENGINE"                                                               \
+    "$MAYBE_NIGHTLIES"                                                                        \
     ..
 
     export LIBRARY_PATH=${LIBRARY_PATH}:/usr/local/opt/icu4c/lib
@@ -296,8 +336,8 @@ WITH_QUIC=false
 INSTALL_DEPENDENCIES=false
 PREFIX=""
 COMPILER_FLAGS=""
-CUDA=""
-USAGE="./build.sh [-j num_jobs] [-g cu118|cu121] [-q|--with-quic] [-p|--prefix] [-x|--compiler-flags]"
+CUDA="cpu"
+USAGE="./build.sh [-j num_jobs] [-g cu118|cu121] [-q|--with-quic] [-t|--no-tets] [-p|--prefix] [-x|--compiler-flags] [-n|--nighlies]"
 while [ "$1" != "" ]; do
   case $1 in
     -j | --jobs ) shift
@@ -319,6 +359,9 @@ while [ "$1" != "" ]; do
     -x | --compiler-flags )
                   shift
                   COMPILER_FLAGS=$1
+      ;;
+    -n | --nightlies )
+                  USE_NIGHTLIES=true
       ;;
     * )           echo $USAGE
                   exit 1
@@ -344,8 +387,10 @@ cd $BUILD_DIR || exit
 BWD=$(pwd)
 DEPS_DIR=$BWD/_deps
 LIBS_DIR=$BWD/libs
+TR_DIR=$BWD/test/resources/
 mkdir -p "$DEPS_DIR"
 mkdir -p "$LIBS_DIR"
+mkdir -p "$TR_DIR"
 
 # Must execute from the directory containing this script
 cd $BASE_DIR
@@ -358,6 +403,7 @@ install_libtorch
 install_yaml_cpp
 install_sentencepiece
 build_llama_cpp
+prepare_test_files
 build
 symlink_torch_libs
 symlink_yaml_cpp_lib
