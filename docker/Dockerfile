@@ -187,6 +187,7 @@ FROM ${BASE_IMAGE} as dev-image
 # Re-state ARG PYTHON_VERSION to make it active in this build-stage (uses default define at the top)
 ARG PYTHON_VERSION
 ARG BRANCH_NAME
+ARG USE_CUDA_VERSION=""
 ARG BUILD_WITH_IPEX
 ARG IPEX_VERSION=1.11.0
 ARG IPEX_URL=https://software.intel.com/ipex-whl-stable
@@ -224,22 +225,23 @@ COPY --from=compile-image /home/venv /home/venv
 ENV PATH="/home/venv/bin:$PATH"
 WORKDIR "serve"
 RUN \
-    if [[ "$BUILD_CPP" == "true" ]]; then \
-        if [[ -n "$USE_CUDA_VERSION" ]]; then \
-            python ./ts_scripts/install_dependencies.py --cpp --cuda=$USE_CUDA_VERSION && \
-            cd cpp && \
-            ./build.sh -g $USE_CUDA_VERSION && \
-            cd ..; \
+    if [ "$BUILD_CPP" = "true" ]; then \
+        if [ "$USE_CUDA_VERSION" = "" ]; then \
+            python ./ts_scripts/install_dependencies.py --environment=dev --cpp; \
         else \
-            python ./ts_scripts/install_dependencies.py --cpp && \
-            cd cpp && \
-            ./build.sh && \
-            cd ..; \
+            python ./ts_scripts/install_dependencies.py --environment=dev --cpp --cuda=$USE_CUDA_VERSION; \
+        fi && \
+        cd cpp && \
+        ./build.sh && \
+        cd ..; \
+    else \
+        if [ "$USE_CUDA_VERSION" = "" ]; then \
+            python ./ts_scripts/install_dependencies.py --environment=dev; \
+        else \
+            python ./ts_scripts/install_dependencies.py --environment=dev --cuda=$USE_CUDA_VERSION; \
         fi; \
     fi
-RUN python -m pip install -U pip setuptools \
-    && python -m pip install --no-cache-dir -r requirements/developer.txt \
-    && python ts_scripts/install_from_src.py \
+RUN python ts_scripts/install_from_src.py \
     && useradd -m model-server \
     && mkdir -p /home/model-server/tmp \
     && cp docker/dockerd-entrypoint.sh /usr/local/bin/dockerd-entrypoint.sh \
