@@ -1,8 +1,11 @@
 import os
+import pathlib
 import subprocess
 
 import requests
 import test_utils
+from model_archiver import ModelArchiver, ModelArchiverConfig
+from model_archiver.manifest_components.manifest import RuntimeType
 
 
 def setup_module(module):
@@ -27,6 +30,8 @@ def setup_module(module):
         ],
         check=True,
     )
+    # Create model store directory
+    pathlib.Path(test_utils.MODEL_STORE).mkdir(parents=True, exist_ok=True)
 
 
 def teardown_module(module):
@@ -53,9 +58,17 @@ def teardown_module(module):
 
 
 def generate_model_archive(use_requirements=False, use_venv=False):
-    model_archiver_cmd = test_utils.model_archiver_command_builder(
+    config = ModelArchiverConfig(
         model_name="mnist_custom_dependencies",
-        version="1.0",
+        handler=os.path.join(
+            test_utils.REPO_ROOT,
+            "test",
+            "pytest",
+            "test_data",
+            "custom_dependencies",
+            "mnist_custom_dependencies_handler.py",
+        ),
+        runtime=RuntimeType.PYTHON.value,
         model_file=os.path.join(
             test_utils.REPO_ROOT, "examples", "image_classifier", "mnist", "mnist.py"
         ),
@@ -66,14 +79,11 @@ def generate_model_archive(use_requirements=False, use_venv=False):
             "mnist",
             "mnist_cnn.pt",
         ),
-        handler=os.path.join(
-            test_utils.REPO_ROOT,
-            "test",
-            "pytest",
-            "test_data",
-            "custom_dependencies",
-            "mnist_custom_dependencies_handler.py",
-        ),
+        extra_files=None,
+        export_path=test_utils.MODEL_STORE,
+        force=True,
+        archive_format="no-archive",
+        version="1.0",
         requirements_file=os.path.join(
             test_utils.REPO_ROOT,
             "test",
@@ -94,17 +104,15 @@ def generate_model_archive(use_requirements=False, use_venv=False):
         )
         if use_venv
         else None,
-        export_path=test_utils.MODEL_STORE,
-        force=True,
     )
-    model_archiver_cmd = model_archiver_cmd.split(" ")
-    subprocess.run(model_archiver_cmd, check=True)
+
+    ModelArchiver.generate_model_archive(config)
 
 
 def register_model_and_make_inference_request(expect_model_load_failure=False):
     try:
         resp = test_utils.register_model(
-            "mnist_custom_dependencies", "mnist_custom_dependencies.mar"
+            "mnist_custom_dependencies", "mnist_custom_dependencies"
         )
         resp.raise_for_status()
     except Exception as e:

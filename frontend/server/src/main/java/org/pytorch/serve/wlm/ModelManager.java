@@ -211,7 +211,7 @@ public final class ModelManager {
 
     private void setupModelVenv(Model model)
             throws IOException, InterruptedException, ModelException {
-        if (model.getRuntimeType() != Manifest.RuntimeType.PYTHON || !model.isUseVenv()) {
+        if (!model.isUseVenv()) {
             return;
         }
 
@@ -311,10 +311,11 @@ public final class ModelManager {
             commandParts.add("-r");
             commandParts.add(requirementsFilePath.toString());
         } else {
-            File dependencyPath = model.getModelDir().getAbsoluteFile();
+            File dependencyPath = model.getModelDir();
             if (Files.isSymbolicLink(dependencyPath.toPath())) {
-                dependencyPath = dependencyPath.getParentFile().getAbsoluteFile();
+                dependencyPath = dependencyPath.getParentFile();
             }
+            dependencyPath = dependencyPath.getAbsoluteFile();
             if (!isValidDependencyPath(dependencyPath)) {
                 throw new ModelException(
                         "Invalid 3rd party package installation path " + dependencyPath.toString());

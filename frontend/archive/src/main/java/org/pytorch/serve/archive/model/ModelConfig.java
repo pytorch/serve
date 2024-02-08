@@ -69,8 +69,8 @@ public class ModelConfig {
     private boolean continuousBatching;
     /**
      * Create python virtual environment when using python backend to install model dependencies (if
-     * enabled globally using install_py_dep_per_model=true) and run workers for model loading and
-     * inference.
+     * enabled globally using configuration install_py_dep_per_model=true) and run workers for model
+     * loading and inference.
      */
     private boolean useVenv;
 

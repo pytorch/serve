@@ -633,7 +633,11 @@ public class Model {
     }
 
     public boolean isUseVenv() {
-        return useVenv;
+        if (getRuntimeType() == Manifest.RuntimeType.PYTHON) {
+            return useVenv;
+        } else {
+            return false;
+        }
     }
 
     public boolean hasTensorParallel() {
