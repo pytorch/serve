@@ -3,10 +3,10 @@ name: Run Regression Tests on CPU
 on:
   push:
     branches:
-      - M1_changes
+      - master
   pull_request:
     branches:
-      - M1_changes
+      - master
   merge_group:
 
 concurrency:
