@@ -52,6 +52,10 @@ jobs:
   regression-cpu-nightly-binaries-macos-14:
     # Job for macOS-14 with Python 3.10
     runs-on: macos-14
+    strategy:
+      fail-fast: false
+      matrix:
+        binaries: ["pypi", "conda"]
     steps:
       - uses: actions/checkout@v3
         with:
@@ -72,4 +76,4 @@ jobs:
           python ts_scripts/install_dependencies.py --environment=dev
       - name: Validate Torchserve CPU Regression
         run: |
-          python test/regression_tests.py --binaries --nightly
+          python test/regression_tests.py --binaries --${{ matrix.binaries }} --nightly
