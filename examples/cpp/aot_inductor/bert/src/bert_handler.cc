@@ -52,7 +52,7 @@ BertCppHandler::LoadModel(
     }
     */
 
-    std::string model_so_path = folly::parseJson("model_so_path").asString();;
+    std::string model_so_path = GetJsonValue(config_json_, "model_so_path").asString();;
     c10::InferenceMode mode;
 
     if (device->is_cuda()) {
@@ -185,7 +185,7 @@ void BertCppHandler::Postprocess(
 
       response->SetResponse(200, "data_type",
                             torchserve::PayloadType::kDATA_TYPE_STRING,
-                            (*mapping_json_)[predicted_idx].asString());
+                            GetJsonValue(mapping_json_, predicted_idx).asString());
     } catch (const std::runtime_error &e) {
       TS_LOGF(ERROR, "Failed to load tensor for request id: {}, error: {}",
               kv.second, e.what());
