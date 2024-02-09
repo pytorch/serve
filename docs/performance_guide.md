@@ -15,7 +15,9 @@ Starting with PyTorch 2.0, `torch.compile` provides out of the box speed up ( ~1
 
 Models which have been fully optimized with `torch.compile` show performance improvements up to 10x
 
-You can find all the examples of `torch.compile` with TorchServe [here](../examples/pt2/)
+You can find all the examples of `torch.compile` with TorchServe [here](https://github.com/pytorch/serve/tree/master/examples/pt2)
+
+Details regarding `torch.compile` GenAI examples can be found in this [link](https://github.com/pytorch/serve/tree/docs/master/examples/pt2#torchcompile-genai-examples)
 
 <h4>ONNX and ORT support</h4>
 
