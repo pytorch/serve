@@ -42,7 +42,7 @@ By default, TorchServe cpp provides a handler for TorchScript [src/backends/hand
 * [Preprocess](serve/blob/cpp_backend/cpp/src/backends/handler/base_handler.hh#L40)
 * [Inference](serve/blob/cpp_backend/cpp/src/backends/handler/base_handler.hh#L46)
 * [Postprocess](serve/blob/cpp_backend/cpp/src/backends/handler/base_handler.hh#L53)
-#### Example
+#### Usage
 ##### Using TorchScriptHandler
 * set runtime as "LSP" in model archiver option [--runtime](https://github.com/pytorch/serve/tree/master/model-archiver#arguments)
 * set handler as "TorchScriptHandler" in model archiver option [--handler](https://github.com/pytorch/serve/tree/master/model-archiver#arguments)
@@ -58,49 +58,12 @@ Here is an [example](https://github.com/pytorch/serve/tree/cpp_backend/cpp/test/
 torch-model-archiver --model-name mnist_handler --version 1.0 --serialized-file mnist_script.pt --handler libmnist_handler:MnistHandler --runtime LSP
 ```
 Here is an [example](https://github.com/pytorch/serve/tree/cpp_backend/cpp/test/resources/examples/mnist/mnist_handler) of unzipped model mar file.
-##### BabyLLama Example
-The babyllama example can be found [here](https://github.com/pytorch/serve/blob/master/cpp/src/examples/babyllama/).
-To run the example we need to download the weights as well as tokenizer files:
-```bash
-wget https://huggingface.co/karpathy/tinyllamas/resolve/main/stories15M.bin
-wget https://github.com/karpathy/llama2.c/raw/master/tokenizer.bin
-```
-Subsequently, we need to adjust the paths according to our local file structure in [config.json](https://github.com/pytorch/serve/blob/master/serve/cpp/test/resources/examples/babyllama/babyllama_handler/config.json).
-```bash
-{
-"checkpoint_path" : "/home/ubuntu/serve/cpp/stories15M.bin",
-"tokenizer_path" : "/home/ubuntu/serve/cpp/src/examples/babyllama/tokenizer.bin"
-}
-```
-Then we can create the mar file and deploy it with:
-```bash
-cd serve/cpp/test/resources/examples/babyllama/babyllama_handler
-torch-model-archiver --model-name llm --version 1.0 --handler libbabyllama_handler:BabyLlamaHandler --runtime LSP --extra-files config.json
-mkdir model_store && mv llm.mar model_store/
-torchserve --ncs --start --model-store model_store
 
-curl -v -X POST "http://localhost:8081/models?initial_workers=1&url=llm.mar"
-```
-The handler name `libbabyllama_handler:BabyLlamaHandler` consists of our shared library name (as defined in our [CMakeLists.txt](https://github.com/pytorch/serve/blob/master/serve/cpp/src/examples/CMakeLists.txt)) as well as the class name we chose for our [custom handler class](https://github.com/pytorch/serve/blob/master/serve/cpp/src/examples/babyllama/baby_llama_handler.cc) which derives its properties from BaseHandler.
-
-To test the model we can run:
-```bash
-cd serve/cpp/test/resources/examples/babyllama/
-curl http://localhost:8080/predictions/llm -T prompt.txt
-```
-##### Mnist example
-* Transform data on client side. For example:
-```
-import torch
-from PIL import Image
-from torchvision import transforms
-
-image_processing = transforms.Compose([
-        transforms.ToTensor(),
-        transforms.Normalize((0.1307,), (0.3081,))
-    ])
-image = Image.open("examples/image_classifier/mnist/test_data/0.png")
-image = image_processing(image)
-torch.save(image, "0_png.pt")
-```
-* Run model registration and prediction: [Using BaseHandler](serve/cpp/test/backends/torch_scripted/torch_scripted_backend_test.cc#L54) or [Using customized handler](serve/cpp/test/backends/torch_scripted/torch_scripted_backend_test.cc#L72).
+#### Examples
+We have created a couple of examples that can get you started with the C++ backend.
+The examples are all located under serve/examples/cpp and each comes with a detailed description of how to set it up.
+The following examples are available:
+* [AOTInductor Llama](../examples/cpp/aot_inductor/llama2/)
+* [BabyLlama](../examples/cpp/babyllama/)
+* [Llama.cpp](../examples/cpp/llamacpp/)
+* [MNIST](../examples/cpp/mnist/)
