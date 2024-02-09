@@ -1,46 +1,44 @@
-## BabyLlama example
-
-This example is adapted from https://github.com/karpathy/llama2.c. The handler C++ source code for this examples can be found [here](../../../cpp/src/examples/babyllama/).
+This example uses Bert Maher's [llama2.so](https://github.com/bertmaher/llama2.so/) which is a fork of Andrej Karpathy's [llama2.c](https://github.com/karpathy/llama2.c).
+It uses AOTInductor to compile the model into an so file which is then executed using libtorch.
+The handler C++ source code for this examples can be found [here](src/).
 
 ### Setup
-1. Follow the instructions in [README.md](../../../cpp/README.md) to build the TorchServe C++ backend.
+1. Follow the instructions in [README.md](../../../../cpp/README.md) to build the TorchServe C++ backend.
 
 ```
 cd serve/cpp
 ./builld.sh
 ```
 
-2. Download the model and tokenizer using the following command
+The build script will already create the necessary artifact for this example.
+To recreate these by hand you can follow the prepare_test_files function of the [build.sh](../../../../cpp/build.sh) script.
+We will need the handler .so file as well as the stories15M.so file containing the model and weights.
+
+2. Copy the handler file
 
 ```bash
-cd ~/serve/examples/cpp/babyllama
-wget https://huggingface.co/karpathy/tinyllamas/resolve/main/stories15M.bin
-wget https://github.com/karpathy/llama2.c/raw/master/tokenizer.bin
+cd ~/serve/examples/cpp/aot_inductor/llama2
+cp ../../../../cpp/_build/test/resources/examples/aot_inductor/llama_handler/libllama_so_handler.so ./
 ```
+We will leave the model .so file in place and just use its [path](../../../../cpp/_build/test/resources/examples/aot_inductor/llama_handler/stories15M.so) in the next step.
 
 4. Create a [config.json](config.json) with the path of the downloaded model and tokenizer:
 
 ```bash
 echo '{
-"checkpoint_path" : "/home/ubuntu/serve/examples/cpp/babyllama/stories15M.bin",
-"tokenizer_path" : "/home/ubuntu/serve/examples/cpp/babyllama/tokenizer.bin"
+"checkpoint_path" : "/home/ubuntu/serve/cpp/_build/test/resources/examples/aot_inductor/llama_handler/stories15M.so",
+"tokenizer_path" : "/home/ubuntu/serve/cpp/_build/test/resources/examples/babyllama/babyllama_handler/tokenizer.bin"
 }' > config.json
 ```
 
-5. Copy handle .so file
-
-While building the C++ backend the `libbabyllama_handler.so` file is generated in the [babyllama_handler](../../../cpp/test/resources/examples/babyllama/babyllama_handler) folder.
-
-```bash
-cp ../../../cpp/_build/test/resources/examples/babyllama/babyllama_handler/libbabyllama_handler.so ./
-```
+The tokenizer is the same we also use for the babyllama example so we can reuse the file from there.
 
 ### Generate MAR file
 
 Now lets generate the mar file
 
 ```bash
-torch-model-archiver --model-name llm --version 1.0 --handler libbabyllama_handler:BabyLlamaHandler --runtime LSP --extra-files config.json
+torch-model-archiver --model-name llm --version 1.0 --handler libllama_so_handler:LlamaHandler --runtime LSP --extra-files config.json
 ```
 
 Create model store directory and move the mar file
