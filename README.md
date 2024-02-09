@@ -64,17 +64,18 @@ Refer to [torchserve docker](docker/README.md) for details.
   * [Vertex AI](https://cloud.google.com/blog/topics/developers-practitioners/pytorch-google-cloud-how-deploy-pytorch-models-vertex-ai)
   * [Kubernetes](master/kubernetes) with support for [autoscaling](kubernetes#session-affinity-with-multiple-torchserve-pods), session-affinity, monitoring using Grafana works on-prem, AWS EKS, Google GKE, Azure AKS
   * [Kserve](https://kserve.github.io/website/0.8/modelserving/v1beta1/torchserve/): Supports both v1 and v2 API, [autoscaling and canary deployments](kubernetes/kserve/README.md#autoscaling) for A/B testing
-  * [Kubeflow](https://v0-5.kubeflow.org/docs/components/pytorchserving/) 
+  * [Kubeflow](https://v0-5.kubeflow.org/docs/components/pytorchserving/)
   * [MLflow](https://github.com/mlflow/mlflow-torchserve)
 * Export your model for optimized inference. Torchscript out of the box, [PyTorch Compiler](examples/pt2/README.md) preview, [ORT and ONNX](https://github.com/pytorch/serve/blob/master/docs/performance_guide.md), [IPEX](https://github.com/pytorch/serve/tree/master/examples/intel_extension_for_pytorch), [TensorRT](https://github.com/pytorch/serve/blob/master/docs/performance_guide.md), [FasterTransformer](https://github.com/pytorch/serve/tree/master/examples/FasterTransformer_HuggingFace_Bert), FlashAttention (Better Transformers)
 * [Performance Guide](docs/performance_guide.md): builtin support to optimize, benchmark, and profile PyTorch and TorchServe performance
 * [Expressive handlers](CONTRIBUTING.md): An expressive handler architecture that makes it trivial to support inferencing for your use case with [many supported out of the box](https://github.com/pytorch/serve/tree/master/ts/torch_handler)
-* [Metrics API](docs/metrics.md): out-of-the-box support for system-level metrics with [Prometheus exports](https://github.com/pytorch/serve/tree/master/examples/custom_metrics), custom metrics, 
+* [Metrics API](docs/metrics.md): out-of-the-box support for system-level metrics with [Prometheus exports](https://github.com/pytorch/serve/tree/master/examples/custom_metrics), custom metrics,
 * [Large Model Inference Guide](docs/large_model_inference.md): With support for GenAI, LLMs including
+  * [SOTA GenAI performance](https://github.com/pytorch/serve/tree/docs/master/examples/pt2#torchcompile-genai-examples) using `torch.compile`
   * Fast Kernels with FlashAttention v2, continuous batching and streaming response
-  * PyTorch [Tensor Parallel](examples/large_models/tp_llama) preview, [Pipeline Parallel](examples/large_models/Huggingface_pippy) 
-  * Microsoft [DeepSpeed](examples/large_models/deepspeed), [DeepSpeed-Mii](examples/large_models/deepspeed_mii) 
-  * Hugging Face [Accelerate](large_models/Huggingface_accelerate), [Diffusers](examples/diffusers) 
+  * PyTorch [Tensor Parallel](examples/large_models/tp_llama) preview, [Pipeline Parallel](examples/large_models/Huggingface_pippy)
+  * Microsoft [DeepSpeed](examples/large_models/deepspeed), [DeepSpeed-Mii](examples/large_models/deepspeed_mii)
+  * Hugging Face [Accelerate](large_models/Huggingface_accelerate), [Diffusers](examples/diffusers)
   * Running large models on AWS [Sagemaker](https://docs.aws.amazon.com/sagemaker/latest/dg/large-model-inference-tutorials-torchserve.html) and [Inferentia2](https://pytorch.org/blog/high-performance-llama/)
   * Running [Llama 2 Chatbot locally on Mac](examples/LLM/llama2)
 * Monitoring using Grafana and [Datadog](https://www.datadoghq.com/blog/ai-integrations/#model-serving-and-deployment-vertex-ai-amazon-sagemaker-torchserve)
