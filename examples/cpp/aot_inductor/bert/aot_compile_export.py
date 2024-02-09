@@ -25,7 +25,10 @@ def transformers_model_dowloader(
     # loading pre-trained model and tokenizer
     if mode == "sequence_classification":
         config = AutoConfig.from_pretrained(
-            pretrained_model_name, num_labels=num_labels, torchscript=False
+            pretrained_model_name,
+            num_labels=num_labels,
+            torchscript=False,
+            return_dict=False,
         )
         model = AutoModelForSequenceClassification.from_pretrained(
             pretrained_model_name, config=config
@@ -62,7 +65,7 @@ def transformers_model_dowloader(
         dummy_input = "This is a dummy input for torch jit trace"
         inputs = tokenizer.encode_plus(
             dummy_input,
-            max_length=int(max_length),
+            max_length=max_length,
             padding=True,
             add_special_tokens=True,
             return_tensors="pt",
@@ -71,13 +74,16 @@ def transformers_model_dowloader(
         attention_mask = torch.cat([inputs["attention_mask"]] * batch_size, 0).to(
             device
         )
-        batch_dim = torch.export.Dim("batch", min=2, max=8)
+        batch_dim = torch.export.Dim("batch", min=1, max=8)
+        seq_len_dim = torch.export.Dim("seq_len", min=1, max=max_length)
         torch._C._GLIBCXX_USE_CXX11_ABI = True
         model_so_path = torch._export.aot_compile(
             model,
             (input_ids, attention_mask),
-            # dynamic_shapes={"input_ids": {0, batch_dim}, "attention_mask": {0, batch_dim}},
-            constraints=[batch_dim],
+            dynamic_shapes={
+                "input_ids": (batch_dim, seq_len_dim),
+                "attention_mask": (batch_dim, seq_len_dim),
+            },
             options={
                 "aot_inductor.output_path": os.path.join(os.getcwd(), "bert-seq.so"),
                 "max_autotune": True,
@@ -99,7 +105,7 @@ if __name__ == "__main__":
     model_name = settings["model_name"]
     num_labels = int(settings["num_labels"])
     do_lower_case = settings["do_lower_case"]
-    max_length = settings["max_length"]
+    max_length = int(settings["max_length"])
     batch_size = int(settings.get("batch_size", "1"))
 
     transformers_model_dowloader(
