@@ -171,7 +171,7 @@ function install_sentencepiece() {
 
     mkdir $SENTENCEPIECE_BUILD_DIR
     cd $SENTENCEPIECE_BUILD_DIR
-    cmake $SENTENCEPIECE_SRC_DIR
+    cmake -DSPM_ENABLE_TCMALLOC=OFF $SENTENCEPIECE_SRC_DIR
     make -i $(nproc)
     if [ "$PLATFORM" = "Linux" ]; then
       sudo make install
