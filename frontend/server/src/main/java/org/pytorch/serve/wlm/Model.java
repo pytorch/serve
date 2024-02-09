@@ -83,11 +83,13 @@ public class Model {
     private boolean useJobTicket;
     private AtomicInteger numJobTickets;
     private boolean continuousBatching;
+    private boolean useVenv;
 
     public Model(ModelArchive modelArchive, int queueSize) {
         this.modelArchive = modelArchive;
         if (modelArchive != null && modelArchive.getModelConfig() != null) {
             continuousBatching = modelArchive.getModelConfig().isContinuousBatching();
+            useVenv = modelArchive.getModelConfig().getUseVenv();
             if (modelArchive.getModelConfig().getParallelLevel() > 0
                     && modelArchive.getModelConfig().getParallelType()
                             != ModelConfig.ParallelType.NONE) {
@@ -634,6 +636,14 @@ public class Model {
 
     public boolean isContinuousBatching() {
         return continuousBatching;
+    }
+
+    public boolean isUseVenv() {
+        if (getRuntimeType() == Manifest.RuntimeType.PYTHON) {
+            return useVenv;
+        } else {
+            return false;
+        }
     }
 
     public boolean hasTensorParallel() {
