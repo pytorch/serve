@@ -230,16 +230,23 @@ RUN \
             python ./ts_scripts/install_dependencies.py --environment=dev --cpp; \
         else \
             python ./ts_scripts/install_dependencies.py --environment=dev --cpp --cuda=$USE_CUDA_VERSION; \
-        fi && \
-        cd cpp && \
-        ./build.sh && \
-        cd ..; \
+        fi; \
     else \
         if [ "$USE_CUDA_VERSION" = "" ]; then \
             python ./ts_scripts/install_dependencies.py --environment=dev; \
         else \
             python ./ts_scripts/install_dependencies.py --environment=dev --cuda=$USE_CUDA_VERSION; \
         fi; \
+    fi
+RUN \
+    if [ "$BUILD_CPP" = "true" ]; then \
+        cd cpp && \
+        if [ "$USE_CUDA_VERSION" = "" ]; then \
+            ./build.sh; \
+        else \
+            ./build.sh -g $USE_CUDA_VERSION; \
+        fi && \
+        cd ..; \
     fi
 RUN python ts_scripts/install_from_src.py \
     && useradd -m model-server \
