@@ -1,5 +1,6 @@
 import json
 import logging
+import os
 import time
 from pathlib import Path
 
@@ -84,6 +85,9 @@ class GptHandler(BaseHandler):
         self.tokenizer = SentencePieceProcessor(model_file=str(tokenizer_path))
 
         if ctx.model_yaml_config["handler"]["compile"]:
+            if ctx.model_yaml_config["handler"].get("fx_graph_cache", False):
+                os.environ["TORCHINDUCTOR_FX_GRAPH_CACHE"] = "1"
+
             if self.is_speculative and use_tp:
                 torch._inductor.config.triton.cudagraph_trees = (
                     False  # Bug with cudagraph trees in this case
