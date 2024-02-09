@@ -143,9 +143,10 @@ class GptHandler(BaseHandler):
 
         def call_me(x):
             nonlocal period_id, tokenizer
-            text = self.tokenizer.decode([period_id] + x.tolist())[1:]
+            x_list = x.tolist()
+            text = self.tokenizer.decode([period_id] + x_list)[1:]
             send_intermediate_predict_response(
-                [text],
+                [{"text": text, "tokens": x_list}],
                 self.context.request_ids,
                 "Intermediate Prediction success",
                 200,
@@ -172,11 +173,14 @@ class GptHandler(BaseHandler):
         return y
 
     def postprocess(self, y):
-        return [
-            ""
-            if self.stream
-            else self.tokenizer.decode(y.tolist()[self.prompt_length :])
-        ]
+        if self.stream:
+            return [""]
+        else:
+            y_list = y.tolist()
+            return {
+                "text": self.tokenizer.decode(y_list[self.prompt_length :]),
+                "tokens": y_list,
+            }
 
     @torch.no_grad()
     def generate(
@@ -224,10 +228,12 @@ class GptHandler(BaseHandler):
             )
 
         period_id = self.tokenizer.encode(".")[0]
-        text = self.tokenizer.decode([period_id] + next_token.tolist())[1:]
+
+        next_token_list = next_token.tolist()
+        text = self.tokenizer.decode([period_id] + next_token_list)[1:]
         if self.stream:
             send_intermediate_predict_response(
-                [text],
+                [{"text": text, "tokens": next_token_list}],
                 self.context.request_ids,
                 "Intermediate Prediction success",
                 200,
