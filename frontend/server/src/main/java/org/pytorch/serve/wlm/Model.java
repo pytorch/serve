@@ -1,5 +1,6 @@
 package org.pytorch.serve.wlm;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import java.io.File;
 import java.util.Collections;
@@ -82,11 +83,13 @@ public class Model {
     private boolean useJobTicket;
     private AtomicInteger numJobTickets;
     private boolean continuousBatching;
+    private boolean useVenv;
 
     public Model(ModelArchive modelArchive, int queueSize) {
         this.modelArchive = modelArchive;
         if (modelArchive != null && modelArchive.getModelConfig() != null) {
             continuousBatching = modelArchive.getModelConfig().isContinuousBatching();
+            useVenv = modelArchive.getModelConfig().getUseVenv();
             if (modelArchive.getModelConfig().getParallelLevel() > 0
                     && modelArchive.getModelConfig().getParallelType()
                             != ModelConfig.ParallelType.NONE) {
@@ -182,7 +185,12 @@ public class Model {
         maxBatchDelay = modelInfo.get(MAX_BATCH_DELAY).getAsInt();
         responseTimeout = modelInfo.get(RESPONSE_TIMEOUT).getAsInt();
         batchSize = modelInfo.get(BATCH_SIZE).getAsInt();
-        runtimeType = Manifest.RuntimeType.fromValue(modelInfo.get(RUNTIME_TYPE).getAsString());
+
+        JsonElement runtime = modelInfo.get(RUNTIME_TYPE);
+        String runtime_str = Manifest.RuntimeType.PYTHON.getValue();
+        if (runtime != null) runtime_str = runtime.getAsString();
+
+        runtimeType = Manifest.RuntimeType.fromValue(runtime_str);
         if (modelInfo.get(PARALLEL_LEVEL) != null) {
             parallelLevel = modelInfo.get(PARALLEL_LEVEL).getAsInt();
         }
@@ -628,6 +636,14 @@ public class Model {
 
     public boolean isContinuousBatching() {
         return continuousBatching;
+    }
+
+    public boolean isUseVenv() {
+        if (getRuntimeType() == Manifest.RuntimeType.PYTHON) {
+            return useVenv;
+        } else {
+            return false;
+        }
     }
 
     public boolean hasTensorParallel() {
