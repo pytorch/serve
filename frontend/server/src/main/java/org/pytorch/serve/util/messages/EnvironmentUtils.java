@@ -3,6 +3,8 @@ package org.pytorch.serve.util.messages;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -74,13 +76,27 @@ public final class EnvironmentUtils {
 
     public static String getPythonRunTime(Model model) {
         String pythonRuntime;
-        Manifest.RuntimeType runtime = model.getModelArchive().getManifest().getRuntime();
+        Manifest.RuntimeType runtime = model.getRuntimeType();
         if (runtime == Manifest.RuntimeType.PYTHON) {
             pythonRuntime = configManager.getPythonExecutable();
+            Path pythonVenvRuntime =
+                    Paths.get(getPythonVenvPath(model).toString(), "bin", "python");
+            if (model.isUseVenv() && Files.exists(pythonVenvRuntime)) {
+                pythonRuntime = pythonVenvRuntime.toString();
+            }
         } else {
             pythonRuntime = runtime.getValue();
         }
         return pythonRuntime;
+    }
+
+    public static File getPythonVenvPath(Model model) {
+        File modelDir = model.getModelDir();
+        if (Files.isSymbolicLink(modelDir.toPath())) {
+            modelDir = modelDir.getParentFile();
+        }
+        Path venvPath = Paths.get(modelDir.getAbsolutePath(), "venv").toAbsolutePath();
+        return venvPath.toFile();
     }
 
     public static String[] getCppEnvString(String libPath) {
