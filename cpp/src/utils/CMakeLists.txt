@@ -12,7 +12,12 @@ list(APPEND TS_UTILS_SOURCE_FILES ${TS_UTILS_SRC_DIR}/metrics/registry.cc)
 add_library(ts_utils SHARED ${TS_UTILS_SOURCE_FILES})
 target_include_directories(ts_utils PUBLIC ${TS_UTILS_SRC_DIR})
 target_include_directories(ts_utils PRIVATE ${Boost_INCLUDE_DIRS})
-target_link_libraries(ts_utils ${FOLLY_LIBRARIES} ${CMAKE_DL_LIBS} ${Boost_LIBRARIES} yaml-cpp::yaml-cpp)
+if(CMAKE_SYSTEM_NAME MATCHES "Darwin")
+  target_link_libraries(ts_utils ${FOLLY_LIBRARIES} ${CMAKE_DL_LIBS} ${Boost_LIBRARIES} yaml-cpp::yaml-cpp)
+else()
+  target_link_libraries(ts_utils ${FOLLY_LIBRARIES} ${CMAKE_DL_LIBS} ${Boost_LIBRARIES} yaml-cpp)
+endif()
+
 install(TARGETS ts_utils DESTINATION ${torchserve_cpp_SOURCE_DIR}/_build/libs)
 
 list(APPEND FOO_SOURCE_FILES ${TS_UTILS_SRC_DIR}/ifoo.hh)
