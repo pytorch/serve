@@ -17,7 +17,7 @@ Models which have been fully optimized with `torch.compile` show performance imp
 
 You can find all the examples of `torch.compile` with TorchServe [here](https://github.com/pytorch/serve/tree/master/examples/pt2)
 
-Details regarding `torch.compile` GenAI examples can be found in this [link](https://github.com/pytorch/serve/tree/docs/master/examples/pt2#torchcompile-genai-examples)
+Details regarding `torch.compile` GenAI examples can be found in this [link](https://github.com/pytorch/serve/tree/master/examples/pt2#torchcompile-genai-examples)
 
 <h4>ONNX and ORT support</h4>
 
