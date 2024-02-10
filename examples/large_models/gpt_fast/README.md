@@ -9,7 +9,7 @@ It features:
 * No dependencies other than PyTorch and sentencepiece
 * int8/int4 quantization
 * Speculative decoding
-* Tensor parallelism
+* Supports multi-GPU inference through Tensor parallelism
 * Supports Nvidia and AMD GPUs
 
 More details about gpt-fast can be found in this [blog](https://pytorch.org/blog/accelerating-generative-ai-2/).
