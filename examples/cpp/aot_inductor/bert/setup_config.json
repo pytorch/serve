@@ -9,5 +9,7 @@
  "FasterTransformer":false,
  "BetterTransformer":false,
  "model_parallel":false,
- "batch_size": "4"
+ "batch_size": "4",
+ "tokenizer_path": "Transformer_model/model.safetensors",
+ "model_so_path": "bert-seq.so"
 }

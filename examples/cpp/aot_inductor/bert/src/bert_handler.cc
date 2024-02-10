@@ -37,8 +37,8 @@ BertCppHandler::LoadModel(
     max_length_ = static_cast<int>(GetJsonValue(config_json_, "max_length").asInt());
 
     bool lower_case = GetJsonValue(config_json_, "do_lower_case").asBool();
-    std::string tokenizer_path = GetJsonValue(config_json_, "tokenizer_path").asString();
-    auto status = sentence_piece_.Load(tokenizer_path);
+    std::string tokenizer_path = fmt::format("{}/{}", load_model_request->model_dir, GetJsonValue(config_json_, "tokenizer_path").asString());
+    auto status = sentence_piece_.LoadFromSerializedProto(tokenizer_path);
     if (!status.ok()) {
       throw std::runtime_error(fmt::format(
         "loading tokenizer: {}, error: {}", tokenizer_path, status.ToString()
@@ -52,7 +52,7 @@ BertCppHandler::LoadModel(
     }
     */
 
-    std::string model_so_path = GetJsonValue(config_json_, "model_so_path").asString();;
+    std::string model_so_path = fmt::format("{}/{}", load_model_request->model_dir, GetJsonValue(config_json_, "model_so_path").asString());
     c10::InferenceMode mode;
 
     if (device->is_cuda()) {
