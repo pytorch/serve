@@ -155,6 +155,19 @@ function install_yaml_cpp() {
   cd "$BWD" || exit
 }
 
+function install_tokenizer_cpp() {
+  TOKENIZERS_CPP_SRC_DIR=$BASE_DIR/third-party/tokenizers-cpp
+
+  if [ ! -d "$TOKENIZERS_CPP_SRC_DIR" ] ; then
+    echo -e "${COLOR_GREEN}[ INFO ] Cloning sentencepiece repo ${COLOR_OFF}"
+    git clone https://github.com/mlc-ai/tokenizers-cpp.git "$TOKENIZERS_CPP_SRC_DIR"
+    cd $TOKENIZERS_CPP_SRC_DIR
+    git checkout tags/v0.1.0
+  fi
+
+  cd "$BWD" || exit
+}
+
 function build_llama_cpp() {
   BWD=$(pwd)
   LLAMA_CPP_SRC_DIR=$BASE_DIR/third-party/llama.cpp
@@ -379,6 +392,10 @@ install_folly
 install_kineto
 install_libtorch
 install_yaml_cpp
+<<<<<<< HEAD
+=======
+install_tokenizer_cpp
+>>>>>>> bf4aa69a (replace sentenepice with tokenizers-cpp)
 build_llama_cpp
 prepare_test_files
 build

@@ -5,8 +5,7 @@
 #include <folly/json.h>
 #include <fmt/format.h>
 #include <iostream>
-#include <sentencepiece_processor.h>
-#include <sentencepiece_trainer.h>
+#include <tokenizers_cpp.h>
 #include <torch/torch.h>
 #include <torch/csrc/inductor/aoti_model_container_runner.h>
 #include <torch/csrc/inductor/aoti_model_container_runner_cuda.h>
@@ -51,7 +50,7 @@ private:
 
   std::unique_ptr<folly::dynamic> config_json_;
   std::unique_ptr<folly::dynamic> mapping_json_;
-  sentencepiece::SentencePieceProcessor sentence_piece_;
+  tokenizers::Tokenizer tokenizer_;
   int max_length_;
 };
 }  // namespace bert

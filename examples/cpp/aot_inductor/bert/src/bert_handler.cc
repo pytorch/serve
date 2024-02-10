@@ -38,19 +38,8 @@ BertCppHandler::LoadModel(
 
     bool lower_case = GetJsonValue(config_json_, "do_lower_case").asBool();
     std::string tokenizer_path = fmt::format("{}/{}", load_model_request->model_dir, GetJsonValue(config_json_, "tokenizer_path").asString());
-    auto status = sentence_piece_.LoadFromSerializedProto(tokenizer_path);
-    if (!status.ok()) {
-      throw std::runtime_error(fmt::format(
-        "loading tokenizer: {}, error: {}", tokenizer_path, status.ToString()
-      ));
-    }
-    /*
-    if (lower_case) {
-      sentence_piece_.SetNormalizer(
-        std::make_unique<sentencepiece::normalizer::Normalizer>(
-          sentencepiece::SentencePieceTrainer::GetNormalizerSpec("nmt_nfkc_cf")));
-    }
-    */
+    auto tokenizer_blob = LoadJsonFile(tokenizer_path)->asString();
+    tokenizer_ = tokenizers::Tokenizer.FromBlobJSON(tokenizer_blob);
 
     std::string model_so_path = fmt::format("{}/{}", load_model_request->model_dir, GetJsonValue(config_json_, "model_so_path").asString());
     c10::InferenceMode mode;
@@ -116,14 +105,14 @@ c10::IValue BertCppHandler::Preprocess(
 
       // tokenization
       std::vector<int> token_ids;
-      sentence_piece_.Encode(msg, &token_ids);
+      tokenizer_.Encode(msg, &token_ids);
       int cur_token_ids_length = (int)token_ids.size();
 
       if (cur_token_ids_length > max_length_) {
         TS_LOGF(ERROR, "prompt too long ({} tokens, max {})", cur_token_ids_length,  max_length_);
       } else if (cur_token_ids_length < max_length_) {
         // padding token ids
-        token_ids.insert(token_ids.end(), max_length_ - cur_token_ids_length, sentence_piece_.pad_id());
+        token_ids.insert(token_ids.end(), max_length_ - cur_token_ids_length, tokenizer_.TokenToId("<pad>"));
       }
       auto options = torch::TensorOptions().dtype(torch::kInt64);
       batch_ivalue.emplace_back(torch::from_blob(token_ids.data(), max_length_, options));

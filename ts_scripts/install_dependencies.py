@@ -47,6 +47,7 @@ CPP_LINUX_DEPENDENCIES = (
     "clang-format",
     "build-essential",
     "libgoogle-perftools-dev",
+    "rustc",
 )
 
 CPP_DARWIN_DEPENDENCIES = (
