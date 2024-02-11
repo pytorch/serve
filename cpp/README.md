@@ -2,6 +2,7 @@
 ## Requirements
 * C++17
 * GCC version: gcc-9
+* cmake version: 3.18+
 ## Installation and Running TorchServe CPP
 
 ### Install dependencies
