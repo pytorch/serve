@@ -2,6 +2,7 @@ import os
 import pathlib
 import subprocess
 
+import pytest
 import requests
 import test_utils
 from model_archiver import ModelArchiver, ModelArchiverConfig
@@ -230,6 +231,10 @@ def test_disable_install_dependencies_to_target_directory_without_requirements()
         test_utils.delete_all_snapshots()
 
 
+@pytest.mark.skipif(
+    os.environ.get("TS_RUN_IN_DOCKER", False),
+    reason="Test to be run outside docker",
+)
 def test_install_dependencies_to_venv_with_requirements():
     # Torchserve cleanup
     test_utils.stop_torchserve()
