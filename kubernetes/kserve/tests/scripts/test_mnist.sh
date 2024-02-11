@@ -45,6 +45,7 @@ function make_cluster_accessible() {
     EXPECTED="$4"
     if [ "${PREDICTION}" = "${EXPECTED}" ]; then
         echo "✓ SUCCESS"
+        cleanup_port_forwarding
     else
         echo "✘ Test failed: Prediction: ${PREDICTION}, expected ${EXPECTED}."
         delete_minikube_cluster
@@ -75,6 +76,7 @@ function make_cluster_accessible_for_grpc() {
     EXPECTED="$4"
     if [ "${PREDICTION}" = "${EXPECTED}" ]; then
         echo "✓ SUCCESS"
+        cleanup_port_forwarding
     else
         echo "✘ Test failed: Prediction: ${PREDICTION}, expected ${EXPECTED}."
         delete_minikube_cluster
@@ -155,6 +157,11 @@ function wait_for_port_forwarding() {
     INGRESS_GATEWAY_SERVICE=$(kubectl get svc --namespace istio-system --selector="app=istio-ingressgateway" --output jsonpath='{.items[0].metadata.name}')
     kubectl port-forward --namespace istio-system svc/${INGRESS_GATEWAY_SERVICE} 8080:80 &
     sleep "$interval"
+}
+
+function cleanup_port_forwarding() {
+    echo "Clean up port forwarding"
+    pkill kubectl
 }
 
 export INGRESS_HOST=localhost
