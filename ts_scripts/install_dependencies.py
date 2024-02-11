@@ -48,6 +48,7 @@ CPP_LINUX_DEPENDENCIES = (
     "build-essential",
     "libgoogle-perftools-dev",
     "rustc",
+    "cargo",
 )
 
 CPP_DARWIN_DEPENDENCIES = (

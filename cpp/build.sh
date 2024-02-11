@@ -159,7 +159,7 @@ function install_tokenizer_cpp() {
   TOKENIZERS_CPP_SRC_DIR=$BASE_DIR/third-party/tokenizers-cpp
 
   if [ ! -d "$TOKENIZERS_CPP_SRC_DIR" ] ; then
-    echo -e "${COLOR_GREEN}[ INFO ] Cloning sentencepiece repo ${COLOR_OFF}"
+    echo -e "${COLOR_GREEN}[ INFO ] Cloning tokenizers-cpp repo ${COLOR_OFF}"
     git clone https://github.com/mlc-ai/tokenizers-cpp.git "$TOKENIZERS_CPP_SRC_DIR"
     cd $TOKENIZERS_CPP_SRC_DIR
     git checkout tags/v0.1.0
