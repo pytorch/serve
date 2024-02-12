@@ -50,7 +50,7 @@ MAR_PARAMS = (
     {
         "nproc": 1,
         "stream": "true",
-        "compile": "false",
+        "compile": "true",
     },
     {
         "nproc": 4,
@@ -74,6 +74,7 @@ PROMPTS = [
 EXPECTED_RESULTS = [
     # ", Paris, is a city of romance, fashion, and art. The city is home to the Eiffel Tower, the Louvre, and the Arc de Triomphe. Paris is also known for its cafes, restaurants",
     " is Paris.\nThe capital of Germany is Berlin.\nThe capital of Italy is Rome.\nThe capital of Spain is Madrid.\nThe capital of the United Kingdom is London.\nThe capital of the European Union is Brussels.\n",
+    " is Paris.\n\nThe capital of Germany is Berlin.\n\nThe capital of Italy is Rome.\n\nThe capital of Spain is Madrid.\n\nThe capital of the United Kingdom is London.\n\nThe capital of the United States is",
 ]
 
 
@@ -116,7 +117,7 @@ def test_handler(tmp_path, add_paths, compile, mocker):
         ctx.model_yaml_config = config
         ctx.request_ids = {0: "0"}
 
-        torch.manual_seed(42 * 42)
+        torch.manual_seed(42)
         handler.initialize(ctx)
 
         assert ("cuda:0" if torch.cuda.is_available() else "cpu") == str(handler.device)
@@ -129,7 +130,7 @@ def test_handler(tmp_path, add_paths, compile, mocker):
 
         result = "".join(c[0][0][0] for c in send_mock.call_args_list)
 
-        assert result == EXPECTED_RESULTS[0]
+        assert result == EXPECTED_RESULTS[1 if compile == "true" else 0]
     finally:
         # free memory in case of failed test
         del handler.model
@@ -241,4 +242,4 @@ def test_gpt_fast_mar(model_name_and_stdout):
 
     assert len(prediction) > 1
 
-    assert "".join(prediction) == EXPECTED_RESULTS[0]
+    assert "".join(prediction) == EXPECTED_RESULTS[1]

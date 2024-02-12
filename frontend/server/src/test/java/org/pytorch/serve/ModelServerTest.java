@@ -1169,7 +1169,7 @@ public class ModelServerTest {
         Assert.assertEquals(TestUtils.getHttpStatus(), HttpResponseStatus.BAD_REQUEST);
         Assert.assertEquals(
                 resp.getMessage(),
-                "Custom pip package installation failed for custom_invalid_python_dep");
+                "Custom pip package installation failed for model custom_invalid_python_dep");
         TestUtils.setConfiguration(configManager, "install_py_dep_per_model", "false");
         channel.close().sync();
     }

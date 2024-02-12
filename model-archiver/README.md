@@ -161,19 +161,26 @@ For more details refer [default handler documentation](../docs/default_handlers.
 
 ### Config file
 
-A model config yaml file. For example: 
+A model config yaml file. For example:
 
 ```
 # TS frontend parameters
-# See all supported parameters: https://github.com/pytorch/serve/blob/master/frontend/archive/src/main/java/org/pytorch/serve/archive/model/ModelConfig.java#L14 
+# See all supported parameters: https://github.com/pytorch/serve/blob/master/frontend/archive/src/main/java/org/pytorch/serve/archive/model/ModelConfig.java#L14
 minWorkers: 1 # default: #CPU or #GPU
 maxWorkers: 1 # default: #CPU or #GPU
 batchSize: 1 # default: 1
 maxBatchDelay: 100 # default: 100 msec
 responseTimeout: 120 # default: 120 sec
 deviceType: cpu # cpu, gpu, neuron
-deviceIds: [0,1,2,3] # gpu device ids allocated to this model. 
+deviceIds: [0,1,2,3] # gpu device ids allocated to this model.
 parallelType: pp # pp: pipeline parallel; pptp: tensor+pipeline parallel. Default: empty
+useVenv: Create python virtual environment when using python backend to install model dependencies
+         (if enabled globally using install_py_dep_per_model=true) and run workers for model loading
+         and inference. Note that, although creation of virtual environment adds a latency overhead
+         (approx. 2 to 3 seconds) during model load and disk space overhead (approx. 25M), overall
+         it can speed up load time and reduce disk utilization for models with custom dependencies
+         since it enables reusing custom packages(specified in requirements.txt) and their
+         supported dependencies that are already available in the base python environment.
 
 # See torchrun parameters: https://pytorch.org/docs/stable/elastic/run.html
 torchrun:

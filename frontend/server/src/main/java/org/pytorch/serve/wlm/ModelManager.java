@@ -100,6 +100,8 @@ public final class ModelManager {
 
         createVersionedModel(tempModel, versionId);
 
+        setupModelVenv(tempModel);
+
         setupModelDependencies(tempModel);
         if (defaultVersion) {
             modelManager.setDefaultVersion(modelName, versionId);
@@ -153,6 +155,8 @@ public final class ModelManager {
             }
         }
 
+        setupModelVenv(tempModel);
+
         setupModelDependencies(tempModel);
 
         logger.info("Model {} loaded.", tempModel.getModelName());
@@ -205,23 +209,119 @@ public final class ModelManager {
         return archive;
     }
 
+    private void setupModelVenv(Model model)
+            throws IOException, InterruptedException, ModelException {
+        if (!model.isUseVenv()) {
+            return;
+        }
+
+        File venvPath = EnvironmentUtils.getPythonVenvPath(model);
+        List<String> commandParts = new ArrayList<>();
+        commandParts.add(configManager.getPythonExecutable());
+        commandParts.add("-m");
+        commandParts.add("venv");
+        commandParts.add("--clear");
+        commandParts.add("--system-site-packages");
+        commandParts.add(venvPath.toString());
+
+        ProcessBuilder processBuilder = new ProcessBuilder(commandParts);
+
+        if (isValidDependencyPath(venvPath)) {
+            processBuilder.directory(venvPath.getParentFile());
+        } else {
+            throw new ModelException(
+                    "Invalid python venv path for model "
+                            + model.getModelName()
+                            + ": "
+                            + venvPath.toString());
+        }
+        Map<String, String> environment = processBuilder.environment();
+        String[] envp =
+                EnvironmentUtils.getEnvString(
+                        configManager.getModelServerHome(),
+                        model.getModelDir().getAbsolutePath(),
+                        null);
+        for (String envVar : envp) {
+            String[] parts = envVar.split("=", 2);
+            if (parts.length == 2) {
+                environment.put(parts[0], parts[1]);
+            }
+        }
+        processBuilder.redirectErrorStream(true);
+
+        Process process = processBuilder.start();
+
+        int exitCode = process.waitFor();
+        String line;
+        StringBuilder outputString = new StringBuilder();
+        BufferedReader brdr = new BufferedReader(new InputStreamReader(process.getInputStream()));
+        while ((line = brdr.readLine()) != null) {
+            outputString.append(line + "\n");
+        }
+
+        if (exitCode == 0) {
+            logger.info(
+                    "Created virtual environment for model {}: {}",
+                    model.getModelName(),
+                    venvPath.toString());
+        } else {
+            logger.error(
+                    "Virtual environment creation for model {} at {} failed:\n{}",
+                    model.getModelName(),
+                    venvPath.toString(),
+                    outputString.toString());
+            throw new ModelException(
+                    "Virtual environment creation failed for model " + model.getModelName());
+        }
+    }
+
     private void setupModelDependencies(Model model)
             throws IOException, InterruptedException, ModelException {
         String requirementsFile =
                 model.getModelArchive().getManifest().getModel().getRequirementsFile();
 
-        if (configManager.getInstallPyDepPerModel() && requirementsFile != null) {
-            Path requirementsFilePath =
-                    Paths.get(model.getModelDir().getAbsolutePath(), requirementsFile);
+        if (!configManager.getInstallPyDepPerModel() || requirementsFile == null) {
+            return;
+        }
 
-            String pythonRuntime = EnvironmentUtils.getPythonRunTime(model);
+        String pythonRuntime = EnvironmentUtils.getPythonRunTime(model);
+        Path requirementsFilePath =
+                Paths.get(model.getModelDir().getAbsolutePath(), requirementsFile).toAbsolutePath();
+        List<String> commandParts = new ArrayList<>();
+        ProcessBuilder processBuilder = new ProcessBuilder();
 
+        if (model.isUseVenv()) {
+            if (!isValidDependencyPath(Paths.get(pythonRuntime).toFile())) {
+                throw new ModelException(
+                        "Invalid python venv runtime path for model "
+                                + model.getModelName()
+                                + ": "
+                                + pythonRuntime);
+            }
+
+            processBuilder.directory(EnvironmentUtils.getPythonVenvPath(model).getParentFile());
+
+            commandParts.add(pythonRuntime);
+            commandParts.add("-m");
+            commandParts.add("pip");
+            commandParts.add("install");
+            commandParts.add("-U");
+            commandParts.add("--upgrade-strategy");
+            commandParts.add("only-if-needed");
+            commandParts.add("-r");
+            commandParts.add(requirementsFilePath.toString());
+        } else {
             File dependencyPath = model.getModelDir();
             if (Files.isSymbolicLink(dependencyPath.toPath())) {
                 dependencyPath = dependencyPath.getParentFile();
             }
+            dependencyPath = dependencyPath.getAbsoluteFile();
+            if (!isValidDependencyPath(dependencyPath)) {
+                throw new ModelException(
+                        "Invalid 3rd party package installation path " + dependencyPath.toString());
+            }
 
-            List<String> commandParts = new ArrayList<>();
+            processBuilder.directory(dependencyPath);
 
             commandParts.add(pythonRuntime);
             commandParts.add("-m");
@@ -229,57 +329,48 @@ public final class ModelManager {
             commandParts.add("install");
             commandParts.add("-U");
             commandParts.add("-t");
-            commandParts.add(dependencyPath.getAbsolutePath());
+            commandParts.add(dependencyPath.toString());
             commandParts.add("-r");
             commandParts.add(requirementsFilePath.toString());
+        }
 
-            String[] envp =
-                    EnvironmentUtils.getEnvString(
-                            configManager.getModelServerHome(),
-                            model.getModelDir().getAbsolutePath(),
-                            null);
-
-            ProcessBuilder processBuilder = new ProcessBuilder(commandParts);
-            if (isValidDependencyPath(dependencyPath)) {
-                processBuilder.directory(dependencyPath);
-            } else {
-                throw new ModelException(
-                        "Invalid 3rd party package installation path "
-                                + dependencyPath.getCanonicalPath());
+        processBuilder.command(commandParts);
+        String[] envp =
+                EnvironmentUtils.getEnvString(
+                        configManager.getModelServerHome(),
+                        model.getModelDir().getAbsolutePath(),
+                        null);
+        Map<String, String> environment = processBuilder.environment();
+        for (String envVar : envp) {
+            String[] parts = envVar.split("=", 2);
+            if (parts.length == 2) {
+                environment.put(parts[0], parts[1]);
             }
+        }
+        processBuilder.redirectErrorStream(true);
 
-            Map<String, String> environment = processBuilder.environment();
-            for (String envVar : envp) {
-                String[] parts = envVar.split("=", 2);
-                if (parts.length == 2) {
-                    environment.put(parts[0], parts[1]);
-                }
-            }
-            Process process = processBuilder.start();
-            int exitCode = process.waitFor();
+        Process process = processBuilder.start();
 
-            if (exitCode != 0) {
+        int exitCode = process.waitFor();
+        String line;
+        StringBuilder outputString = new StringBuilder();
+        BufferedReader brdr = new BufferedReader(new InputStreamReader(process.getInputStream()));
+        while ((line = brdr.readLine()) != null) {
+            outputString.append(line + "\n");
+        }
 
-                String line;
-                StringBuilder outputString = new StringBuilder();
-                // process's stdout is InputStream for caller process
-                BufferedReader brdr =
-                        new BufferedReader(new InputStreamReader(process.getInputStream()));
-                while ((line = brdr.readLine()) != null) {
-                    outputString.append(line);
-                }
-                StringBuilder errorString = new StringBuilder();
-                // process's stderr is ErrorStream for caller process
-                brdr = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-                while ((line = brdr.readLine()) != null) {
-                    errorString.append(line);
-                }
-
-                logger.error("Dependency installation stderr:\n" + errorString.toString());
-
-                throw new ModelException(
-                        "Custom pip package installation failed for " + model.getModelName());
-            }
+        if (exitCode == 0) {
+            logger.info(
+                    "Installed custom pip packages for model {}:\n{}",
+                    model.getModelName(),
+                    outputString.toString());
+        } else {
+            logger.error(
+                    "Custom pip package installation failed for model {}:\n{}",
+                    model.getModelName(),
+                    outputString.toString());
+            throw new ModelException(
+                    "Custom pip package installation failed for model " + model.getModelName());
         }
     }
 

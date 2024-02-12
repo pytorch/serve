@@ -1,0 +1,10 @@
+{
+  "createdOn": "28/07/2020 06:32:08",
+  "runtime": "LSP",
+  "model": {
+    "modelName": "llama",
+    "handler": "libllama_so_handler:LlamaHandler",
+    "modelVersion": "2.0"
+  },
+  "archiverVersion": "0.2.0"
+}

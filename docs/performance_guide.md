@@ -9,6 +9,16 @@ There are many tricks to optimize PyTorch models for production including but no
 
 In general it's hard to optimize models and the easiest approach can be exporting to some runtime like ORT, TensorRT, IPEX or FasterTransformer. We have many examples for how to integrate these runtimes on the [TorchServe github page](https://github.com/pytorch/serve/tree/master/examples). If your favorite runtime is not supported please feel free to open a PR.
 
+<h4>torch.compile</h4>
+
+Starting with PyTorch 2.0, `torch.compile` provides out of the box speed up ( ~1.8x) for a large number of models. You can refer to this [dashboard](https://hud.pytorch.org/benchmark/compilers) which tracks this on a nightly basis.
+
+Models which have been fully optimized with `torch.compile` show performance improvements up to 10x
+
+You can find all the examples of `torch.compile` with TorchServe [here](https://github.com/pytorch/serve/tree/master/examples/pt2)
+
+Details regarding `torch.compile` GenAI examples can be found in this [link](https://github.com/pytorch/serve/tree/master/examples/pt2#torchcompile-genai-examples)
+
 <h4>ONNX and ORT support</h4>
 
 TorchServe has native support for ONNX models which can be loaded via ORT for both accelerated CPU and GPU inference. ONNX operates a bit differently from a regular PyTorch model in that when you're running the conversion you need to explicitly set and name your input and output dimensions. See [this example](https://github.com/pytorch/serve/blob/master/test/pytest/test_onnx.py).
