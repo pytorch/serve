@@ -133,7 +133,6 @@ function install_yaml_cpp() {
     git clone https://github.com/jbeder/yaml-cpp.git "$YAML_CPP_SRC_DIR"
     cd $YAML_CPP_SRC_DIR
     git checkout tags/0.8.0
-    git submodule update --init --recursive
   fi
 
   if [ ! -d "$YAML_CPP_BUILD_DIR" ] ; then
@@ -163,6 +162,7 @@ function install_tokenizer_cpp() {
     echo -e "${COLOR_GREEN}[ INFO ] Cloning tokenizers-cpp repo ${COLOR_OFF}"
     git clone https://github.com/mlc-ai/tokenizers-cpp.git "$TOKENIZERS_CPP_SRC_DIR"
     cd $TOKENIZERS_CPP_SRC_DIR
+    git submodule update --init --recursive
   fi
 
   cd "$BWD" || exit
