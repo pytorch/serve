@@ -70,8 +70,8 @@ c10::IValue BertCppHandler::Preprocess(
     std::pair<std::string &, std::map<uint8_t, std::string> &> &idx_to_req_id,
     std::shared_ptr<torchserve::InferenceRequestBatch> &request_batch,
     std::shared_ptr<torchserve::InferenceResponseBatch> &response_batch) {
-  auto batch_ivalue = c10::impl::GenericList(torch::TensorType::get());
-  std::vector<torch::Tensor> tokens_ivalue;
+  auto options = torch::TensorOptions().dtype(torch::kInt64);
+  std::vector<torch::Tensor> batch_tokens;
   auto attention_mask = torch::ones({static_cast<long>(request_batch->size()), max_length_}, torch::kI32);
   uint8_t idx = 0;
   for (auto& request : *request_batch) {
@@ -114,8 +114,7 @@ c10::IValue BertCppHandler::Preprocess(
         // padding token ids
         token_ids.insert(token_ids.end(), max_length_ - cur_token_ids_length, tokenizer_->TokenToId("<pad>"));
       }
-      auto options = torch::TensorOptions().dtype(torch::kInt64);
-      tokens_ivalue.emplace_back(torch::from_blob(token_ids.data(), max_length_, options));
+      batch_tokens.emplace_back(torch::from_blob(token_ids.data(), max_length_, options));
       idx_to_req_id.second[idx++] = request.request_id;
     } catch (const std::runtime_error& e) {
       TS_LOGF(ERROR, "Failed to load tensor for request id: {}, error: {}",
@@ -133,7 +132,8 @@ c10::IValue BertCppHandler::Preprocess(
                             "c10 error, failed to load tensor");
     }
   }
-  batch_ivalue.emplace_back(torch::from_blob(tokens_ivalue, {static_cast<long>(request_batch->size()), max_length_}));
+  auto batch_ivalue = c10::impl::GenericList(torch::TensorType::get());
+  batch_ivalue.emplace_back(torch::from_blob(batch_tokens, {static_cast<long>(request_batch->size()), max_length_}, options));
   batch_ivalue.emplace_back(attention_mask);
 
   return batch_ivalue;
