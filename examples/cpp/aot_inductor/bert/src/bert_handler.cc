@@ -72,7 +72,7 @@ c10::IValue BertCppHandler::Preprocess(
     std::shared_ptr<torchserve::InferenceResponseBatch> &response_batch) {
   auto batch_ivalue = c10::impl::GenericList(torch::TensorType::get());
   auto tokens_ivalue = c10::impl::GenericList(torch::TensorType::get());
-  auto attention_mask = torch::ones({request_batch->size(), max_length_}, torch::kI32);
+  auto attention_mask = torch::ones({static_cast<long>(request_batch->size()), max_length_}, torch::kI32);
   uint8_t idx = 0;
   for (auto& request : *request_batch) {
     try {
@@ -105,14 +105,14 @@ c10::IValue BertCppHandler::Preprocess(
       std::string msg = torchserve::Converter::VectorToStr(data_it->second);
 
       // tokenization
-      std::vector<int> token_ids = tokenizer_.Encode(msg);;
+      std::vector<int> token_ids = tokenizer_->Encode(msg);;
       int cur_token_ids_length = (int)token_ids.size();
 
       if (cur_token_ids_length > max_length_) {
         TS_LOGF(ERROR, "prompt too long ({} tokens, max {})", cur_token_ids_length,  max_length_);
       } else if (cur_token_ids_length < max_length_) {
         // padding token ids
-        token_ids.insert(token_ids.end(), max_length_ - cur_token_ids_length, tokenizer_.TokenToId("<pad>"));
+        token_ids.insert(token_ids.end(), max_length_ - cur_token_ids_length, tokenizer_->TokenToId("<pad>"));
       }
       auto options = torch::TensorOptions().dtype(torch::kInt64);
       tokens_ivalue.emplace_back(torch::from_blob(token_ids.data(), max_length_, options));
@@ -133,7 +133,7 @@ c10::IValue BertCppHandler::Preprocess(
                             "c10 error, failed to load tensor");
     }
   }
-  batch_ivalue.emplace_back(torch::from_blob(tokens_ivalue.toTensorVec(), {request_batch->size(), max_length_}));
+  batch_ivalue.emplace_back(torch::from_blob(tokens_ivalue.toTensorVector(), {static_cast<long>(request_batch->size()), max_length_}));
   batch_ivalue.emplace_back(attention_mask);
 
   return batch_ivalue;
