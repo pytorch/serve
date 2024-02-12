@@ -133,7 +133,7 @@ c10::IValue BertCppHandler::Preprocess(
     }
   }
   auto batch_ivalue = c10::impl::GenericList(torch::TensorType::get());
-  batch_ivalue.emplace_back(torch::from_blob(batch_tokens, {static_cast<long>(request_batch->size()), max_length_}, options));
+  batch_ivalue.emplace_back(torch::from_blob(batch_tokens.data(), {static_cast<long>(request_batch->size()), max_length_}, options));
   batch_ivalue.emplace_back(attention_mask);
 
   return batch_ivalue;
