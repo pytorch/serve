@@ -38,7 +38,7 @@ BertCppHandler::LoadModel(
 
     std::string tokenizer_path = fmt::format("{}/{}", load_model_request->model_dir, GetJsonValue(config_json_, "tokenizer_path").asString());
     auto tokenizer_blob = LoadJsonFile(tokenizer_path)->asString();
-    tokenizer_ = tokenizers::Tokenizer.FromBlobJSON(tokenizer_blob);
+    tokenizer_ = tokenizers::Tokenizer::FromBlobJSON(tokenizer_blob);
 
     std::string model_so_path = fmt::format("{}/{}", load_model_request->model_dir, GetJsonValue(config_json_, "model_so_path").asString());
     c10::InferenceMode mode;
@@ -71,7 +71,7 @@ c10::IValue BertCppHandler::Preprocess(
     std::shared_ptr<torchserve::InferenceRequestBatch> &request_batch,
     std::shared_ptr<torchserve::InferenceResponseBatch> &response_batch) {
   auto batch_ivalue = c10::impl::GenericList(torch::TensorType::get());
-  auto tokens_ivalue = c10::impl::GenericList(torch::TensorType::get());
+  std::vector<torch::Tensor> tokens_ivalue;
   auto attention_mask = torch::ones({static_cast<long>(request_batch->size()), max_length_}, torch::kI32);
   uint8_t idx = 0;
   for (auto& request : *request_batch) {
@@ -133,7 +133,7 @@ c10::IValue BertCppHandler::Preprocess(
                             "c10 error, failed to load tensor");
     }
   }
-  batch_ivalue.emplace_back(torch::from_blob(tokens_ivalue.toTensorVector(), {static_cast<long>(request_batch->size()), max_length_}));
+  batch_ivalue.emplace_back(torch::from_blob(tokens_ivalue, {static_cast<long>(request_batch->size()), max_length_}));
   batch_ivalue.emplace_back(attention_mask);
 
   return batch_ivalue;
