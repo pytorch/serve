@@ -36,7 +36,6 @@ BertCppHandler::LoadModel(
     config_json_ = LoadJsonFile(configFilePath);
     max_length_ = static_cast<int>(GetJsonValue(config_json_, "max_length").asInt());
 
-    bool lower_case = GetJsonValue(config_json_, "do_lower_case").asBool();
     std::string tokenizer_path = fmt::format("{}/{}", load_model_request->model_dir, GetJsonValue(config_json_, "tokenizer_path").asString());
     auto tokenizer_blob = LoadJsonFile(tokenizer_path)->asString();
     tokenizer_ = tokenizers::Tokenizer.FromBlobJSON(tokenizer_blob);
@@ -72,6 +71,8 @@ c10::IValue BertCppHandler::Preprocess(
     std::shared_ptr<torchserve::InferenceRequestBatch> &request_batch,
     std::shared_ptr<torchserve::InferenceResponseBatch> &response_batch) {
   auto batch_ivalue = c10::impl::GenericList(torch::TensorType::get());
+  auto tokens_ivalue = c10::impl::GenericList(torch::TensorType::get());
+  auto attention_mask = torch::ones({request_batch->size(), max_length_}, torch::kI32);
   uint8_t idx = 0;
   for (auto& request : *request_batch) {
     try {
@@ -104,8 +105,7 @@ c10::IValue BertCppHandler::Preprocess(
       std::string msg = torchserve::Converter::VectorToStr(data_it->second);
 
       // tokenization
-      std::vector<int> token_ids;
-      tokenizer_.Encode(msg, &token_ids);
+      std::vector<int> token_ids = tokenizer_.Encode(msg);;
       int cur_token_ids_length = (int)token_ids.size();
 
       if (cur_token_ids_length > max_length_) {
@@ -115,7 +115,7 @@ c10::IValue BertCppHandler::Preprocess(
         token_ids.insert(token_ids.end(), max_length_ - cur_token_ids_length, tokenizer_.TokenToId("<pad>"));
       }
       auto options = torch::TensorOptions().dtype(torch::kInt64);
-      batch_ivalue.emplace_back(torch::from_blob(token_ids.data(), max_length_, options));
+      tokens_ivalue.emplace_back(torch::from_blob(token_ids.data(), max_length_, options));
       idx_to_req_id.second[idx++] = request.request_id;
     } catch (const std::runtime_error& e) {
       TS_LOGF(ERROR, "Failed to load tensor for request id: {}, error: {}",
@@ -133,6 +133,8 @@ c10::IValue BertCppHandler::Preprocess(
                             "c10 error, failed to load tensor");
     }
   }
+  batch_ivalue.emplace_back(torch::from_blob(tokens_ivalue.toTensorVec(), {request_batch->size(), max_length_}));
+  batch_ivalue.emplace_back(attention_mask);
 
   return batch_ivalue;
 }

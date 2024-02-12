@@ -15,11 +15,6 @@
 namespace bert {
 class BertCppHandler : public torchserve::BaseHandler {
  public:
-  // NOLINTBEGIN(bugprone-exception-escape)
-  BertCppHandler() = default;
-  // NOLINTEND(bugprone-exception-escape)
-  ~BertCppHandler() noexcept = default;
-
   std::pair<std::shared_ptr<void>, std::shared_ptr<torch::Device>> LoadModel(
       std::shared_ptr<torchserve::LoadModelRequest>& load_model_request)
       override;
@@ -50,7 +45,7 @@ private:
 
   std::unique_ptr<folly::dynamic> config_json_;
   std::unique_ptr<folly::dynamic> mapping_json_;
-  tokenizers::Tokenizer tokenizer_;
+  std::unique_ptr<tokenizers::Tokenizer> tokenizer_;
   int max_length_;
 };
 }  // namespace bert
