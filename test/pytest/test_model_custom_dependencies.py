@@ -141,6 +141,10 @@ def register_model_and_make_inference_request(expect_model_load_failure=False):
         resp.raise_for_status()
 
 
+@pytest.mark.skipif(
+    os.environ.get("TS_RUN_IN_DOCKER", False),
+    reason="Test to be run outside docker",
+)
 def test_install_dependencies_to_target_directory_with_requirements():
     # Torchserve cleanup
     test_utils.stop_torchserve()
@@ -167,6 +171,10 @@ def test_install_dependencies_to_target_directory_with_requirements():
         test_utils.delete_all_snapshots()
 
 
+@pytest.mark.skipif(
+    os.environ.get("TS_RUN_IN_DOCKER", False),
+    reason="Test to be run outside docker",
+)
 def test_install_dependencies_to_target_directory_without_requirements():
     # Torchserve cleanup
     test_utils.stop_torchserve()
@@ -193,6 +201,10 @@ def test_install_dependencies_to_target_directory_without_requirements():
         test_utils.delete_all_snapshots()
 
 
+@pytest.mark.skipif(
+    os.environ.get("TS_RUN_IN_DOCKER", False),
+    reason="Test to be run outside docker",
+)
 def test_disable_install_dependencies_to_target_directory_with_requirements():
     # Torchserve cleanup
     test_utils.stop_torchserve()
@@ -212,6 +224,10 @@ def test_disable_install_dependencies_to_target_directory_with_requirements():
         test_utils.delete_all_snapshots()
 
 
+@pytest.mark.skipif(
+    os.environ.get("TS_RUN_IN_DOCKER", False),
+    reason="Test to be run outside docker",
+)
 def test_disable_install_dependencies_to_target_directory_without_requirements():
     # Torchserve cleanup
     test_utils.stop_torchserve()
@@ -261,6 +277,10 @@ def test_install_dependencies_to_venv_with_requirements():
         test_utils.delete_all_snapshots()
 
 
+@pytest.mark.skipif(
+    os.environ.get("TS_RUN_IN_DOCKER", False),
+    reason="Test to be run outside docker",
+)
 def test_install_dependencies_to_venv_without_requirements():
     # Torchserve cleanup
     test_utils.stop_torchserve()
@@ -287,6 +307,10 @@ def test_install_dependencies_to_venv_without_requirements():
         test_utils.delete_all_snapshots()
 
 
+@pytest.mark.skipif(
+    os.environ.get("TS_RUN_IN_DOCKER", False),
+    reason="Test to be run outside docker",
+)
 def test_disable_install_dependencies_to_venv_with_requirements():
     # Torchserve cleanup
     test_utils.stop_torchserve()
@@ -306,6 +330,10 @@ def test_disable_install_dependencies_to_venv_with_requirements():
         test_utils.delete_all_snapshots()
 
 
+@pytest.mark.skipif(
+    os.environ.get("TS_RUN_IN_DOCKER", False),
+    reason="Test to be run outside docker",
+)
 def test_disable_install_dependencies_to_venv_without_requirements():
     # Torchserve cleanup
     test_utils.stop_torchserve()
