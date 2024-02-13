@@ -3,10 +3,26 @@
 #include <typeinfo>
 
 namespace bert {
+
+std::string BertCppHandler::LoadBytesFromFile(const std::string& path) {
+  std::ifstream fs(path, std::ios::in | std::ios::binary);
+  if (fs.fail()) {
+    TS_LOGF(ERROR, "Cannot open tokenizer file {}", path);
+    throw;
+  }
+  std::string data;
+  fs.seekg(0, std::ios::end);
+  size_t size = static_cast<size_t>(fs.tellg());
+  fs.seekg(0, std::ios::beg);
+  data.resize(size);
+  fs.read(data.data(), size);
+  return data;
+}
+
 std::unique_ptr<folly::dynamic> BertCppHandler::LoadJsonFile(const std::string& file_path) {
   std::string content;
   if (!folly::readFile(file_path.c_str(), content)) {
-    TS_LOGF(ERROR, "{}} not found", file_path);
+    TS_LOGF(ERROR, "{} not found", file_path);
     throw;
   }
   return std::make_unique<folly::dynamic>(folly::parseJson(content));
@@ -25,22 +41,31 @@ std::pair<std::shared_ptr<void>, std::shared_ptr<torch::Device>>
 BertCppHandler::LoadModel(
     std::shared_ptr<torchserve::LoadModelRequest>& load_model_request) {
   try {
+    TS_LOG(INFO, "start LoadModel");
     auto device = GetTorchDevice(load_model_request);
+    TS_LOG(INFO, "Found device id");
 
     const std::string mapFilePath =
         fmt::format("{}/{}", load_model_request->model_dir, "index_to_name.json");
     mapping_json_ = LoadJsonFile(mapFilePath);
+    TS_LOG(INFO, "Load index_to_name.json");
 
     const std::string configFilePath =
         fmt::format("{}/{}", load_model_request->model_dir, "config.json");
     config_json_ = LoadJsonFile(configFilePath);
+    TS_LOG(INFO, "Load config.json");
     max_length_ = static_cast<int>(GetJsonValue(config_json_, "max_length").asInt());
+    TS_LOG(INFO, "Get max_length");
 
     std::string tokenizer_path = fmt::format("{}/{}", load_model_request->model_dir, GetJsonValue(config_json_, "tokenizer_path").asString());
-    auto tokenizer_blob = LoadJsonFile(tokenizer_path)->asString();
+    auto tokenizer_blob = LoadBytesFromFile(tokenizer_path);
+    TS_LOG(INFO, "Load tokenizer");
+
     tokenizer_ = tokenizers::Tokenizer::FromBlobJSON(tokenizer_blob);
 
+
     std::string model_so_path = fmt::format("{}/{}", load_model_request->model_dir, GetJsonValue(config_json_, "model_so_path").asString());
+    TS_LOGF(INFO, "Get model_so_path {}", model_so_path);
     c10::InferenceMode mode;
 
     if (device->is_cuda()) {
@@ -73,6 +98,7 @@ c10::IValue BertCppHandler::Preprocess(
   auto options = torch::TensorOptions().dtype(torch::kInt64);
   std::vector<torch::Tensor> batch_tokens;
   auto attention_mask = torch::ones({static_cast<long>(request_batch->size()), max_length_}, torch::kI32);
+  TS_LOG(INFO, "start Preprocess");
   uint8_t idx = 0;
   for (auto& request : *request_batch) {
     try {
@@ -84,8 +110,10 @@ c10::IValue BertCppHandler::Preprocess(
 
       auto data_it = request.parameters.find(
           torchserve::PayloadType::kPARAMETER_NAME_DATA);
+      TS_LOG(INFO, "get data_it ");
       auto dtype_it =
           request.headers.find(torchserve::PayloadType::kHEADER_NAME_DATA_TYPE);
+      TS_LOG(INFO, "get data_it ");
       if (data_it == request.parameters.end()) {
         data_it = request.parameters.find(
             torchserve::PayloadType::kPARAMETER_NAME_BODY);
@@ -103,10 +131,12 @@ c10::IValue BertCppHandler::Preprocess(
       }
 
       std::string msg = torchserve::Converter::VectorToStr(data_it->second);
+      TS_LOGF(INFO, "receive msg {}", msg);
 
       // tokenization
       std::vector<int> token_ids = tokenizer_->Encode(msg);;
       int cur_token_ids_length = (int)token_ids.size();
+      TS_LOGF(INFO, "cur_token_ids_length {}", cur_token_ids_length);
 
       if (cur_token_ids_length > max_length_) {
         TS_LOGF(ERROR, "prompt too long ({} tokens, max {})", cur_token_ids_length,  max_length_);
@@ -114,7 +144,10 @@ c10::IValue BertCppHandler::Preprocess(
         // padding token ids
         token_ids.insert(token_ids.end(), max_length_ - cur_token_ids_length, tokenizer_->TokenToId("<pad>"));
       }
+      TS_LOG(INFO, "pad token_ids");
       batch_tokens.emplace_back(torch::from_blob(token_ids.data(), max_length_, options));
+      TS_LOG(INFO, "add token_ids to batch_tokens");
+
       idx_to_req_id.second[idx++] = request.request_id;
     } catch (const std::runtime_error& e) {
       TS_LOGF(ERROR, "Failed to load tensor for request id: {}, error: {}",
@@ -133,8 +166,10 @@ c10::IValue BertCppHandler::Preprocess(
     }
   }
   auto batch_ivalue = c10::impl::GenericList(torch::TensorType::get());
-  batch_ivalue.emplace_back(torch::from_blob(batch_tokens.data(), {static_cast<long>(request_batch->size()), max_length_}, options));
-  batch_ivalue.emplace_back(attention_mask);
+  batch_ivalue.emplace_back(torch::from_blob(batch_tokens.data(), {static_cast<long>(request_batch->size()), max_length_}, options).to(*device));
+  TS_LOG(INFO, "add batch tokens to batch_ivalue");
+  batch_ivalue.emplace_back(attention_mask.to(*device));
+  TS_LOG(INFO, "add batch mask to batch_ivalue");
 
   return batch_ivalue;
 }
@@ -146,14 +181,22 @@ c10::IValue BertCppHandler::Inference(
     std::shared_ptr<torchserve::InferenceResponseBatch> &response_batch) {
   c10::InferenceMode mode;
   try {
+    TS_LOG(INFO, "start Inference");
     std::shared_ptr<torch::inductor::AOTIModelContainerRunner> runner;
     if (device->is_cuda()) {
       runner = std::static_pointer_cast<torch::inductor::AOTIModelContainerRunnerCuda>(model);
     } else {
       runner = std::static_pointer_cast<torch::inductor::AOTIModelContainerRunnerCpu>(model);
     }
-
-    auto batch_output_tensor_vector = runner->run(inputs.toTensorVector());
+    TS_LOG(INFO, "cast model to runner");
+    auto vec = inputs.toTensorVector();
+    for (ulong i=0; i < vec.size(); i++) {
+      std::cout << "item " << i << ", tensor:" << vec[i] << std::endl;
+    }
+    TS_LOG(INFO, "convert ivalue to TensorVector");
+    //auto batch_output_tensor_vector = runner->run(inputs.toTensorVector());
+    auto batch_output_tensor_vector = runner->run(vec);
+    TS_LOG(INFO, "get batch_output_tensor_vector");
     return c10::IValue(batch_output_tensor_vector[0]);
   } catch (std::runtime_error& e) {
     TS_LOG(ERROR, e.what());

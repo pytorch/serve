@@ -15,6 +15,11 @@
 namespace bert {
 class BertCppHandler : public torchserve::BaseHandler {
  public:
+  // NOLINTBEGIN(bugprone-exception-escape)
+  BertCppHandler() = default;
+  // NOLINTEND(bugprone-exception-escape)
+  ~BertCppHandler() noexcept = default;
+
   std::pair<std::shared_ptr<void>, std::shared_ptr<torch::Device>> LoadModel(
       std::shared_ptr<torchserve::LoadModelRequest>& load_model_request)
       override;
@@ -40,6 +45,7 @@ class BertCppHandler : public torchserve::BaseHandler {
       override;
 
 private:
+  std::string LoadBytesFromFile(const std::string& path);
   std::unique_ptr<folly::dynamic> LoadJsonFile(const std::string& file_path);
   const folly::dynamic& GetJsonValue(std::unique_ptr<folly::dynamic>& json, const std::string& key);
 
