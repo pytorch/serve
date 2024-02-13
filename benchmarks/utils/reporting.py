@@ -75,7 +75,7 @@ def generate_csv_output(execution_params, metrics, artifacts):
     click.secho(f"Saving benchmark results to {execution_params['report_location']}")
 
     with open(
-        os.path.join(execution_params["report_location"], "benchmark", "ab_report.csv"),
+        execution_params["csv_file"],
         "w",
     ) as csv_file:
         csvwriter = csv.writer(csv_file)
@@ -129,6 +129,37 @@ def extract_locust_tool_benchmark_artifacts(execution_params):
     artifacts["TS latency mean"] = np.multiply(keys, values).sum() / np.sum(values)
     artifacts["TS error rate"] = data["num_failures"] / data["num_requests"] * 100
 
+    return artifacts
+
+
+def extract_locust_tool_llm_benchmark_artifacts(execution_params):
+    with open(execution_params["result_file"], "r") as f:
+        lines = f.readlines()
+
+    summary = lines[
+        lines.index(
+            "=================================== Summary ====================================\n"
+        )
+        + 1 :
+    ]
+    summary = summary[
+        : summary.index(
+            "================================================================================\n"
+        )
+    ]
+
+    summary = {s.split(":")[0].strip(): s.split(":")[1].strip() for s in summary}
+
+    selected_metrics = [
+        "Time To First Token",
+        "Latency Per Token",
+        "Total Latency",
+        "Qps",
+        "Overall Tokens Per Second",
+    ]
+
+    artifacts = {"Benchmark": "LocustLLM"}
+    artifacts.update({k: f"{float(summary[k]):.1f}" for k in selected_metrics})
     return artifacts
 
 

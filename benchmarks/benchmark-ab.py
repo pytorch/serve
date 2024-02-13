@@ -107,6 +107,19 @@ def json_provider(file_path, cmd_name):
     default="ab",
     help=f"Benchmark backend to use.",
 )
+@click.option(
+    "--llm_mode",
+    "-llm",
+    default=False,
+    is_flag=True,
+    help=f"Text generation benchmark. Reports tokens per second and time to first token.",
+)
+@click.option(
+    "--llm_stream",
+    default=True,
+    is_flag=True,
+    help=f"Expect streamed response from server.",
+)
 @click_config_file.configuration_option(
     provider=json_provider, implicit=False, help="Read configuration from a JSON file"
 )
@@ -151,8 +164,26 @@ def update_exec_params(execution_params, input_param):
     execution_params["metric_log"] = os.path.join(
         execution_params["tmp_dir"], "benchmark", "logs", "model_metrics.log"
     )
+    if execution_params["llm_mode"] == True:
+        execution_params["csv_file"] = os.path.join(
+            execution_params["report_location"], "benchmark", "llm_report.csv"
+        )
+    else:
+        execution_params["csv_file"] = os.path.join(
+            execution_params["report_location"], "benchmark", "ab_report.csv"
+        )
 
     getAPIS(execution_params)
+
+    if (
+        execution_params["llm_mode"]
+        and not execution_params["benchmark_backend"] == "locust"
+    ):
+        click.secho(
+            "LLM mode is only compatible with Locust backend. Switching backend to locust...",
+            fg="yellow",
+        )
+        execution_params["benchmark_backend"] = "locust"
 
 
 def getAPIS(execution_params):

@@ -50,7 +50,10 @@ class StreamingHandler(BaseHandler):
         for req_id, req_data in zip(self.context.request_ids.values(), data):
             # Tokenizer requests which are not prefilled yet
             if not req_id in self.context.cache:
-                data = json.loads(req_data["body"])
+                if isinstance(req_data["body"], dict):
+                    data = req_data["body"]
+                else:
+                    data = json.loads(req_data["body"])
                 encoded = self.tokenizer(
                     data["prompt"], return_tensors="pt", return_token_type_ids=False
                 )
@@ -121,7 +124,7 @@ class StreamingHandler(BaseHandler):
             "text": self.tokenizer.decode(
                 output.sequences[0], skip_special_tokens=True
             ),
-            "ids": output.sequences[0].tolist(),
+            "tokens": output.sequences[0].tolist(),
         }
         return result
 
@@ -156,7 +159,7 @@ class StreamingHandler(BaseHandler):
                 "text": self.tokenizer.decode(
                     outputs.sequences[idx][-1], skip_special_tokens=True
                 ),
-                "ids": [outputs.sequences[idx][-1].item()],
+                "tokens": [outputs.sequences[idx][-1].item()],
             }
         del self.context.kv_cache["past_key_values"]
         return results
@@ -270,7 +273,7 @@ class StreamingHandler(BaseHandler):
             def __call__(self, res):
                 self.max_new_tokens -= 1
 
-                if self.max_new_tokens == 0 or res["ids"][-1] == self.stop_token:
+                if self.max_new_tokens == 0 or res["tokens"][-1] == self.stop_token:
                     self.clean_up()
                     return True
                 return False

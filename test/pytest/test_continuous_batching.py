@@ -186,7 +186,7 @@ def test_decoding_stage(monkeypatch):
 
     res = handler._run_decode(["id1"])
 
-    assert len(res["id1"]["ids"]) == 1
+    assert len(res["id1"]["tokens"]) == 1
     assert type(res["id1"]["text"]) == str
 
     assert ctx.cache["id1"]["encoded"]["input_ids"].size()[-1] == 5

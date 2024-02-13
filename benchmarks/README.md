@@ -63,6 +63,16 @@ This command will use all the configuration parameters given in config.json file
   "gpus": "2"
 }
 ```
+
+### Run LLM Benchmark
+The benchmark tools provides a special mode for text generation models using a [modified](https://github.com/lxning/benchmark-locust) locust based [benchmark from Fireworks.ai](https://github.com/fw-ai/benchmark).
+To enable the more add the flag --llm_mode. This will automatically use the locust benchmark suite and provide the following metrics relevant for text generation:
+- Time To First Token
+- Latency Per Token
+- Total Latency
+- Qps
+- Overall Tokens Per Second
+
 ### Benchmark parameters
 The following parameters can be used to run the AB benchmark suite.
 - url: Input model URL. Default: `https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar`
