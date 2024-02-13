@@ -4,4 +4,4 @@ responseTimeout: 600
 pt2 : {backend: inductor, mode: max-autotune}
 handler:
   torch_inductor_caching:
-    torch_inductor_fx_graph_cache: "1"
+    torch_inductor_fx_graph_cache: true

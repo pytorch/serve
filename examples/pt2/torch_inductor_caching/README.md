@@ -8,13 +8,17 @@ There is an experimental feature to cache FX Graph as well. This is not enabled 
 
 ```
 import os
-
 os.environ["TORCHINDUCTOR_FX_GRAPH_CACHE"] = "1"
 ```
 
+This needs to be set before you `import torch`
+
+or
+
 ```
-os.environ["TORCHINDUCTOR_CACHE_DIR"] = "1"
-os.environ["TORCHINDUCTOR_FX_GRAPH_CACHE"] = "/path/to/directory"  # replace with your desired path
+import torch
+
+torch._inductor.config.fx_graph_cache = True
 ```
 
 To see the effect of caching on `torch.compile` execution times, we need to have a multi worker setup. In this example, we use 4 workers. Workers 2,3,4 will see the benefit of caching when they execute `torch.compile`
@@ -24,10 +28,10 @@ We show below how this can be used with TorchServe
 
 ### Pre-requisites
 
-- `PyTorch >= 2.0`
+- `PyTorch >= 2.2`
 
 Change directory to the examples directory
-Ex:  `cd  examples/pt2/torch_compile`
+Ex:  `cd  examples/pt2/torch_inductor_caching`
 
 
 ### torch.compile config
@@ -56,13 +60,31 @@ torchserve --start --ncs --model-store model_store --models densenet161.mar
 #### Run Inference
 
 ```
-curl http://127.0.0.1:8080/predictions/densenet161 -T ../../image_classifier/kitten.jpg
+curl http://127.0.0.1:8080/predictions/densenet161 -T ../../image_classifier/kitten.jpg && curl http://127.0.0.1:8080/predictions/densenet161 -T ../../image_classifier/kitten.jpg && curl http://127.0.0.1:8080/predictions/densenet161 -T ../../image_classifier/kitten.jpg && curl http://127.0.0.1:8080/predictions/densenet161 -T ../../image_classifier/kitten.jpg
 ```
 
 produces the output
 
 ```
 {
+  "tabby": 0.4664836823940277,
+  "tiger_cat": 0.4645617604255676,
+  "Egyptian_cat": 0.06619937717914581,
+  "lynx": 0.0012969186063855886,
+  "plastic_bag": 0.00022856894065625966
+}{
+  "tabby": 0.4664836823940277,
+  "tiger_cat": 0.4645617604255676,
+  "Egyptian_cat": 0.06619937717914581,
+  "lynx": 0.0012969186063855886,
+  "plastic_bag": 0.00022856894065625966
+}{
+  "tabby": 0.4664836823940277,
+  "tiger_cat": 0.4645617604255676,
+  "Egyptian_cat": 0.06619937717914581,
+  "lynx": 0.0012969186063855886,
+  "plastic_bag": 0.00022856894065625966
+}{
   "tabby": 0.4664836823940277,
   "tiger_cat": 0.4645617604255676,
   "Egyptian_cat": 0.06619937717914581,
@@ -91,10 +113,10 @@ We show below how this can be used with TorchServe
 
 ### Pre-requisites
 
-- `PyTorch >= 2.0`
+- `PyTorch >= 2.2`
 
 Change directory to the examples directory
-Ex:  `cd  examples/pt2/torch_compile`
+Ex:  `cd  examples/pt2/torch_inductor_caching`
 
 
 ### torch.compile config
@@ -123,13 +145,31 @@ torchserve --start --ncs --model-store model_store --models densenet161.mar
 #### Run Inference
 
 ```
-curl http://127.0.0.1:8080/predictions/densenet161 -T ../../image_classifier/kitten.jpg
+curl http://127.0.0.1:8080/predictions/densenet161 -T ../../image_classifier/kitten.jpg && curl http://127.0.0.1:8080/predictions/densenet161 -T ../../image_classifier/kitten.jpg && curl http://127.0.0.1:8080/predictions/densenet161 -T ../../image_classifier/kitten.jpg && curl http://127.0.0.1:8080/predictions/densenet161 -T ../../image_classifier/kitten.jpg
 ```
 
 produces the output
 
 ```
 {
+  "tabby": 0.4664836823940277,
+  "tiger_cat": 0.4645617604255676,
+  "Egyptian_cat": 0.06619937717914581,
+  "lynx": 0.0012969186063855886,
+  "plastic_bag": 0.00022856894065625966
+}{
+  "tabby": 0.4664836823940277,
+  "tiger_cat": 0.4645617604255676,
+  "Egyptian_cat": 0.06619937717914581,
+  "lynx": 0.0012969186063855886,
+  "plastic_bag": 0.00022856894065625966
+}{
+  "tabby": 0.4664836823940277,
+  "tiger_cat": 0.4645617604255676,
+  "Egyptian_cat": 0.06619937717914581,
+  "lynx": 0.0012969186063855886,
+  "plastic_bag": 0.00022856894065625966
+}{
   "tabby": 0.4664836823940277,
   "tiger_cat": 0.4645617604255676,
   "Egyptian_cat": 0.06619937717914581,
