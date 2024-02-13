@@ -1,5 +1,5 @@
 
-# TorchInducrtor Caching with TorchServe inference of densenet161 model
+# TorchInductor Caching with TorchServe inference of densenet161 model
 
 `torch.compile()` is a JIT compiler and JIT compilers generally have a startup cost. To handle this, `TorchInductor` already makes use of caching in `/tmp/torchinductor_USERID` of your machine
 
@@ -93,7 +93,7 @@ produces the output
 }
 ```
 
-## TorchInductor Cache Diretcory
+## TorchInductor Cache Directory
 `TorchInductor` already makes use of caching in `/tmp/torchinductor_USERID` of your machine.
 
 Since the default directory is in `/tmp`, the cache is deleted on restart
@@ -177,3 +177,8 @@ produces the output
   "plastic_bag": 0.00022856894065625966
 }
 ```
+
+## Additional links for improving `torch.compile` performance and debugging
+
+- [Compile Threads](https://pytorch.org/blog/training-production-ai-models/#34-controlling-just-in-time-compilation-time)
+- [Profiling torch.compile](https://pytorch.org/docs/stable/torch.compiler_profiling_torch_compile.html)
