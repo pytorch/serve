@@ -1,4 +1,5 @@
 import os
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -30,18 +31,15 @@ def dependencies_available():
         "locust",
     ),
 )
-def test_benchmark_e2e(backend):
-    report_file = Path("/tmp/benchmark/ab_report.csv")
-
-    if report_file.exists():
-        report_file.unlink()
+def test_benchmark_e2e(backend, tmp_path):
+    report_file = Path(f"/{tmp_path}/benchmark/ab_report.csv")
 
     sys.path.append((REPO_ROOT_DIR / "benchmarks").as_posix())
 
     os.chdir(REPO_ROOT_DIR / "benchmarks")
 
     cmd = subprocess.Popen(
-        f"{sys.executable} ./benchmark-ab.py --concurrency 1 --requests 10 -bb {backend} --generate_graphs True",
+        f"{sys.executable} ./benchmark-ab.py --concurrency 1 --requests 10 -bb {backend} --generate_graphs True --report_location {tmp_path} --tmp_dir {tmp_path}",
         shell=True,
         stdout=subprocess.PIPE,
     )
@@ -93,16 +91,16 @@ def mar_file(tmp_path, model_archiver):
 
     assert mar_file_path.exists()
 
-    print(mar_file_path)
-
     yield mar_file_path.as_posix()
 
     # Clean up files
-    mar_file_path.unlink()
+    shutil.rmtree(mar_file_path)
 
 
 def test_llm_benchmark_e2e(mar_file, tmp_path):
-    report_file = Path("/tmp/benchmark/llm_report.csv")
+    benchmark_dir = tmp_path / "benchmark"
+
+    report_file = Path(f"/{benchmark_dir}/benchmark/llm_report.csv")
 
     prompt_file = tmp_path / "prompt.txt"
     prompt_file.write_text("Hello, ")
@@ -115,7 +113,7 @@ def test_llm_benchmark_e2e(mar_file, tmp_path):
     os.chdir(REPO_ROOT_DIR / "benchmarks")
 
     cmd = subprocess.Popen(
-        f"{sys.executable} ./benchmark-ab.py --concurrency 10 --requests 10 --llm_mode -u {mar_file} -i {prompt_file.as_posix()} ",
+        f"{sys.executable} ./benchmark-ab.py --concurrency 10 --requests 10 --llm_mode -u {mar_file} -i {prompt_file.as_posix()}  --report_location {benchmark_dir} --tmp_dir {benchmark_dir}",
         shell=True,
         stdout=subprocess.PIPE,
     )
