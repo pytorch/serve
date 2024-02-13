@@ -51,14 +51,17 @@ torchserve takes care of 4 and 5 for you while the remaining steps are your resp
 
 ### Note
 
-`torch.compile()` is a JIT compiler and JIT compilers generally have a startup cost. If that's an issue for you make sure to populate these two environment variables to improve your warm starts.
+`torch.compile()` is a JIT compiler and JIT compilers generally have a startup cost. To reduce the warm up time, `TorchInductor` already makes use of caching in `/tmp/torchinductor_USERID` of your machine
+
+To persist this cache and /or to make use of additional experimental caching feature, set the following
 
 ```
 import os
 
-os.environ["TORCHINDUCTOR_CACHE_DIR"] = "1"
-os.environ["TORCHINDUCTOR_FX_GRAPH_CACHE"] = "/path/to/directory"  # replace with your desired path
+os.environ["TORCHINDUCTOR_CACHE_DIR"] = "/path/to/directory"  # replace with your desired path
+os.environ["TORCHINDUCTOR_FX_GRAPH_CACHE"] = "1"
 ```
+An example of how to use these with TorchServe is shown [here](./torch_inductor_caching/)
 
 ## torch.export.export
 
