@@ -60,6 +60,6 @@ class TorchInductorCacheHandler(ImageClassifier):
                 counters["inductor"]["fxgraph_cache_miss"],
             )
             logger.info(
-                f"TorchInductor FX Graph cache hit {fx_graph_cache_hit}, FX Graph cache miss {fx_graph_cache_miss}"
+                f'TorchInductor FX Graph cache hit {counters["inductor"]["fxgraph_cache_hit"]}, FX Graph cache miss {counters["inductor"]["fxgraph_cache_miss"]}'
             )
         return results
