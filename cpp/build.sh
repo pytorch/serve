@@ -207,6 +207,7 @@ function prepare_test_files() {
       python aot_compile_export.py
       mv bert-seq.so ${HANDLER_DIR}/bert-seq.so
       mv Transformer_model ${HANDLER_DIR}/Transformer_model
+      export TOKENIZERS_PARALLELISM=""
     fi
   fi
   cd "$BWD" || exit
