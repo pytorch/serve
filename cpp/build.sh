@@ -205,6 +205,14 @@ function prepare_test_files() {
       cd ${HANDLER_DIR}
       python ${BASE_DIR}/../examples/cpp/aot_inductor/resnet/resnet50_torch_export.py
     fi
+    if [ ! -f "${EX_DIR}/aot_inductor/bert_handler/bert-seq.so" ]; then
+      local HANDLER_DIR=${EX_DIR}/aot_inductor/bert_handler/
+      export TOKENIZERS_PARALLELISM=false
+      cd ${BASE_DIR}/../examples/cpp/aot_inductor/bert/
+      python aot_compile_export.py
+      mv bert-seq.so ${HANDLER_DIR}/bert-seq.so
+      mv Transformer_model ${HANDLER_DIR}/Transformer_model
+    fi
   fi
   cd "$BWD" || exit
 }
@@ -392,10 +400,7 @@ install_folly
 install_kineto
 install_libtorch
 install_yaml_cpp
-<<<<<<< HEAD
-=======
 install_tokenizer_cpp
->>>>>>> bf4aa69a (replace sentenepice with tokenizers-cpp)
 build_llama_cpp
 prepare_test_files
 build

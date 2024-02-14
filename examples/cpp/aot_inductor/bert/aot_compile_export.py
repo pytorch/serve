@@ -98,7 +98,7 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         filename = os.path.join(dirname, sys.argv[1])
     else:
-        filename = os.path.join(dirname, "setup_config.json")
+        filename = os.path.join(dirname, "config.json")
     f = open(filename)
     settings = json.load(f)
     mode = settings["mode"]
