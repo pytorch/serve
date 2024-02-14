@@ -107,7 +107,7 @@ public final class ConfigManager {
     private static final String TS_WORKFLOW_STORE = "workflow_store";
     private static final String TS_CPP_LOG_CONFIG = "cpp_log_config";
     private static final String TS_OPEN_INFERENCE_PROTOCOL = "ts_open_inference_protocol";
-    private static final String TS_TOKEN_EXPIRATION_TIME = "token_expiration"; // minutes
+    private static final String TS_TOKEN_EXPIRATION_TIME_MIN = "token_expiration_min";
 
     // Configuration which are not documented or enabled through environment variables
     private static final String USE_NATIVE_IO = "use_native_io";
@@ -861,9 +861,9 @@ public final class ConfigManager {
     }
 
     public Integer getTimeToExpiration() {
-        if (prop.getProperty(TS_TOKEN_EXPIRATION_TIME) != null) {
+        if (prop.getProperty(TS_TOKEN_EXPIRATION_TIME_MIN) != null) {
             try {
-                return Integer.valueOf(prop.getProperty(TS_TOKEN_EXPIRATION_TIME));
+                return Integer.valueOf(prop.getProperty(TS_TOKEN_EXPIRATION_TIME_MIN));
             } catch (NumberFormatException e) {
                 logger.error("Token expiration not a valid integer");
             }

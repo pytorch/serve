@@ -26,7 +26,7 @@ public class TokenAuthorizationHandler extends HttpRequestHandlerChain {
     private static Boolean tokenEnabled = false;
     private static Class<?> tokenClass;
     private static Object tokenObject;
-    private static Integer timeToExpirationMinutes = 180;
+    private static Integer timeToExpirationMinutes = 60;
 
     /** Creates a new {@code InferenceRequestHandler} instance. */
     public TokenAuthorizationHandler(TokenType type) {
@@ -41,15 +41,17 @@ public class TokenAuthorizationHandler extends HttpRequestHandlerChain {
             String[] segments)
             throws ModelException, DownloadArchiveException, WorkflowException,
                     WorkerInitializationException {
-        ConfigManager configManager = ConfigManager.getInstance();
-        if (tokenType == TokenType.MANAGEMENT) {
-            if (req.toString().contains("/token")) {
-                checkTokenAuthorization(req, "token");
-            } else {
-                checkTokenAuthorization(req, "management");
+        if (tokenEnabled) {
+            ConfigManager configManager = ConfigManager.getInstance();
+            if (tokenType == TokenType.MANAGEMENT) {
+                if (req.toString().contains("/token")) {
+                    checkTokenAuthorization(req, "token");
+                } else {
+                    checkTokenAuthorization(req, "management");
+                }
+            } else if (tokenType == TokenType.INFERENCE) {
+                checkTokenAuthorization(req, "inference");
             }
-        } else if (tokenType == TokenType.INFERENCE) {
-            checkTokenAuthorization(req, "inference");
         }
         chain.handleRequest(ctx, req, decoder, segments);
     }
@@ -85,23 +87,21 @@ public class TokenAuthorizationHandler extends HttpRequestHandlerChain {
 
     private void checkTokenAuthorization(FullHttpRequest req, String type) throws ModelException {
 
-        if (tokenEnabled) {
-            try {
-                Method method =
-                        tokenClass.getMethod(
-                                "checkTokenAuthorization",
-                                io.netty.handler.codec.http.FullHttpRequest.class,
-                                String.class);
-                boolean result = (boolean) (method.invoke(tokenObject, req, type));
-                if (!result) {
-                    throw new InvalidKeyException(
-                            "Token Authentication failed. Token either incorrect, expired, or not provided correctly");
-                }
-            } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-                e.printStackTrace();
+        try {
+            Method method =
+                    tokenClass.getMethod(
+                            "checkTokenAuthorization",
+                            io.netty.handler.codec.http.FullHttpRequest.class,
+                            String.class);
+            boolean result = (boolean) (method.invoke(tokenObject, req, type));
+            if (!result) {
                 throw new InvalidKeyException(
                         "Token Authentication failed. Token either incorrect, expired, or not provided correctly");
             }
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            e.printStackTrace();
+            throw new InvalidKeyException(
+                    "Token Authentication failed. Token either incorrect, expired, or not provided correctly");
         }
     }
 }

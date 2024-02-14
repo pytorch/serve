@@ -51,7 +51,7 @@ def start() -> None:
                 try:
                     os.remove(os.getcwd() + "/key_file.json")
                 except FileNotFoundError:
-                    print("Token authorization not enabled")
+                    print("Delete key file if it exists")
                 if args.foreground:
                     try:
                         parent.wait(timeout=60)
