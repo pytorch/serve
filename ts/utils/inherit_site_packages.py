@@ -21,17 +21,18 @@ def inherit_site_packages(venv_path):
         len(target_venv_glob_matches) == 1
     ), f"{__file__} expected to find one supported python version in venv {venv_path} but found: {target_venv_glob_matches}"
 
-    # Create sitecustomize.py in target venv site-packages directory
-    # Ref: https://docs.python.org/3/library/site.html#module-sitecustomize
-    with open(os.path.join(target_venv_glob_matches[0], "sitecustomize.py"), "w") as f:
-        f.write("import site\n\n")
+    # Create a .pth file with site-packages directories to inherit, in the target venv site-packages directory
+    # Ref: https://docs.python.org/3/library/site.html#module-site
+    with open(
+        os.path.join(target_venv_glob_matches[0], "inherited-site-packages.pth"), "w"
+    ) as f:
         for site_packages_dir in site.getsitepackages():
-            f.write(f'site.addsitedir("{site_packages_dir}")\n')
+            f.write(f"{site_packages_dir}\n")
             print(site_packages_dir)
 
 
 if __name__ == "__main__":
     assert (
         len(sys.argv) == 2
-    ), f"{__file__} expects one argument: path to venv that should inherit site-packages of the current venv but got {sys.argv}"
+    ), f"{__file__} expects one argument: path to venv that should inherit site-packages of the current environment but got {sys.argv}"
     inherit_site_packages(sys.argv[1])
