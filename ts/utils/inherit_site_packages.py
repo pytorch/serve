@@ -26,9 +26,16 @@ def inherit_site_packages(venv_path):
     with open(
         os.path.join(target_venv_glob_matches[0], "inherited-site-packages.pth"), "w"
     ) as f:
-        for site_packages_dir in site.getsitepackages():
-            f.write(f"{site_packages_dir}\n")
-            print(site_packages_dir)
+        if site.ENABLE_USER_SITE:
+            user_site_packages_dir = site.getusersitepackages()
+            if os.path.exists(user_site_packages_dir):
+                f.write(f"{user_site_packages_dir}\n")
+                print(user_site_packages_dir)
+
+        for global_site_packages_dir in site.getsitepackages():
+            if os.path.exists(global_site_packages_dir):
+                f.write(f"{global_site_packages_dir}\n")
+                print(global_site_packages_dir)
 
 
 if __name__ == "__main__":
