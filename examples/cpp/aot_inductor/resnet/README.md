@@ -1,0 +1,1 @@
+torch-model-archiver --model-name resnetcppaot --version 1.0 --handler ../../../../cpp/_build/test/resources/examples/aot_inductor/resnet/resnet_handler/libresnet_handler:ResnetCppHandler --runtime LSP --extra-files config.json,index_to_name.json,resnet50_pt2.so --archive-format no-archive
