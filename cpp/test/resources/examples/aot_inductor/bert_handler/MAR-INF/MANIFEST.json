@@ -1,0 +1,10 @@
+{
+  "createdOn": "12/02/2024 21:09:26",
+  "runtime": "LSP",
+  "model": {
+    "modelName": "bertcppaot",
+    "handler": "libbert_handler:BertCppHandler",
+    "modelVersion": "1.0"
+  },
+  "archiverVersion": "0.9.0"
+}

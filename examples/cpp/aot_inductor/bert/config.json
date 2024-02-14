@@ -10,6 +10,6 @@
  "BetterTransformer":false,
  "model_parallel":false,
  "batch_size": "4",
- "tokenizer_path": "Transformer_model/model.safetensors",
+ "tokenizer_path": "Transformer_model/tokenizer.json",
  "model_so_path": "bert-seq.so"
 }

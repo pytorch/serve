@@ -137,8 +137,8 @@ c10::IValue BertCppHandler::Preprocess(
       std::vector<int32_t> token_ids = tokenizer_->Encode(msg);;
       int cur_token_ids_length = (int)token_ids.size();
       for (int i = 0; i < cur_token_ids_length; i++) {
-	TS_LOGF(INFO, "token: {}, id: {}", i, token_ids[i]);
-	attention_mask[idx][i] = 1;
+        TS_LOGF(INFO, "token: {}, id: {}", i, token_ids[i]);
+        attention_mask[idx][i] = 1;
       }
       TS_LOGF(INFO, "cur_token_ids_length {}", cur_token_ids_length);
 
