@@ -208,18 +208,21 @@ function prepare_test_files() {
   if [ ! -f "${EX_DIR}/babyllama/babyllama_handler/stories15M.bin" ]; then
     wget https://huggingface.co/karpathy/tinyllamas/resolve/main/stories15M.bin -O "${EX_DIR}/babyllama/babyllama_handler/stories15M.bin"
   fi
-  if [ ! -f "${EX_DIR}/aot_inductor/llama_handler/stories15M.so" ]; then
-    local HANDLER_DIR=${EX_DIR}/aot_inductor/llama_handler/
-    if [ ! -f "${HANDLER_DIR}/stories15M.pt" ]; then
-      wget https://huggingface.co/karpathy/tinyllamas/resolve/main/stories15M.pt?download=true -O "${HANDLER_DIR}/stories15M.pt"
+  # PT2.2 torch.expport does not support Mac
+  if [ "$PLATFORM" = "Linux" ]; then
+    if [ ! -f "${EX_DIR}/aot_inductor/llama_handler/stories15M.so" ]; then
+      local HANDLER_DIR=${EX_DIR}/aot_inductor/llama_handler/
+      if [ ! -f "${HANDLER_DIR}/stories15M.pt" ]; then
+        wget https://huggingface.co/karpathy/tinyllamas/resolve/main/stories15M.pt?download=true -O "${HANDLER_DIR}/stories15M.pt"
+      fi
+      local LLAMA_SO_DIR=${BASE_DIR}/third-party/llama2.so/
+      PYTHONPATH=${LLAMA_SO_DIR}:${PYTHONPATH} python ${BASE_DIR}/../examples/cpp/aot_inductor/llama2/compile.py --checkpoint ${HANDLER_DIR}/stories15M.pt ${HANDLER_DIR}/stories15M.so
     fi
-    local LLAMA_SO_DIR=${BASE_DIR}/third-party/llama2.so/
-    PYTHONPATH=${LLAMA_SO_DIR}:${PYTHONPATH} python ${BASE_DIR}/../examples/cpp/aot_inductor/llama2/compile.py --checkpoint ${HANDLER_DIR}/stories15M.pt ${HANDLER_DIR}/stories15M.so
-  fi
-  if [ ! -f "${EX_DIR}/aot_inductor/resnet/resnet_handler/resne50_pt2.so" ]; then
-    local HANDLER_DIR=${EX_DIR}/aot_inductor/resnet_handler/
-    cd ${HANDLER_DIR}
-    python ${BASE_DIR}/../examples/cpp/aot_inductor/resnet/resnet50_torch_export.py
+    if [ ! -f "${EX_DIR}/aot_inductor/resnet/resnet_handler/resne50_pt2.so" ]; then
+      local HANDLER_DIR=${EX_DIR}/aot_inductor/resnet_handler/
+      cd ${HANDLER_DIR}
+      python ${BASE_DIR}/../examples/cpp/aot_inductor/resnet/resnet50_torch_export.py
+    fi
   fi
   cd "$BWD" || exit
 }
