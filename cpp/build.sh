@@ -218,7 +218,7 @@ function prepare_test_files() {
       local LLAMA_SO_DIR=${BASE_DIR}/third-party/llama2.so/
       PYTHONPATH=${LLAMA_SO_DIR}:${PYTHONPATH} python ${BASE_DIR}/../examples/cpp/aot_inductor/llama2/compile.py --checkpoint ${HANDLER_DIR}/stories15M.pt ${HANDLER_DIR}/stories15M.so
     fi
-    if [ ! -f "${EX_DIR}/aot_inductor/resnet/resnet_handler/resne50_pt2.so" ]; then
+    if [ ! -f "${EX_DIR}/aot_inductor/resnet_handler/resne50_pt2.so" ]; then
       local HANDLER_DIR=${EX_DIR}/aot_inductor/resnet_handler/
       cd ${HANDLER_DIR}
       python ${BASE_DIR}/../examples/cpp/aot_inductor/resnet/resnet50_torch_export.py
