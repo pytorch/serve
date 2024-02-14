@@ -35,7 +35,7 @@ ResnetCppHandler::LoadModel(
         fmt::format("{}/{}", load_model_request->model_dir, "config.json");
     config_json_ = LoadJsonFile(configFilePath);
 
-    std::string model_so_path = GetJsonValue(config_json_, "model_so_path").asString();;
+    std::string model_so_path = fmt::format("{}/{}", load_model_request->model_dir, GetJsonValue(config_json_, "model_so_path").asString());
     c10::InferenceMode mode;
 
     if (device->is_cuda()) {

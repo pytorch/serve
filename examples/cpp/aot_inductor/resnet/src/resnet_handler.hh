@@ -25,13 +25,6 @@ class ResnetCppHandler : public torchserve::BaseHandler {
       std::shared_ptr<torchserve::LoadModelRequest>& load_model_request)
       override;
 
-  c10::IValue Preprocess(
-      std::shared_ptr<torch::Device>& device,
-      std::pair<std::string&, std::map<uint8_t, std::string>&>& idx_to_req_id,
-      std::shared_ptr<torchserve::InferenceRequestBatch>& request_batch,
-      std::shared_ptr<torchserve::InferenceResponseBatch>& response_batch)
-      override;
-
   c10::IValue Inference(
       std::shared_ptr<void> model, c10::IValue& inputs,
       std::shared_ptr<torch::Device>& device,
@@ -51,6 +44,5 @@ private:
 
   std::unique_ptr<folly::dynamic> config_json_;
   std::unique_ptr<folly::dynamic> mapping_json_;
-  std::unique_ptr<tokenizers::Tokenizer> tokenizer_;
 };
 }  // namespac
