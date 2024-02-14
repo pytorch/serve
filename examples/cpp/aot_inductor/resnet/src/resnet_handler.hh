@@ -51,5 +51,6 @@ private:
 
   std::unique_ptr<folly::dynamic> config_json_;
   std::unique_ptr<folly::dynamic> mapping_json_;
+  std::unique_ptr<tokenizers::Tokenizer> tokenizer_;
 };
 }  // namespac
