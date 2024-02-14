@@ -65,9 +65,14 @@ public class ModelConfig {
     private int maxSequenceJobQueueSize = 1;
     /** the max number of sequences can be accepted. The default value is 1. */
     private int maxNumSequence = 1;
-
     /** continuousBatching is a flag to enable continuous batching. */
     private boolean continuousBatching;
+    /**
+     * Create python virtual environment when using python backend to install model dependencies (if
+     * enabled globally using configuration install_py_dep_per_model=true) and run workers for model
+     * loading and inference.
+     */
+    private boolean useVenv;
 
     public static ModelConfig build(Map<String, Object> yamlMap) {
         ModelConfig modelConfig = new ModelConfig();
@@ -205,6 +210,13 @@ public class ModelConfig {
                                 logger.warn(
                                         "Invalid continuousBatching: {}, should be true or false",
                                         v);
+                            }
+                            break;
+                        case "useVenv":
+                            if (v instanceof Boolean) {
+                                modelConfig.setUseVenv((boolean) v);
+                            } else {
+                                logger.warn("Invalid useVenv: {}, should be true or false", v);
                             }
                             break;
                         default:
@@ -377,6 +389,14 @@ public class ModelConfig {
 
     public void setMaxNumSequence(int maxNumSequence) {
         this.maxNumSequence = Math.max(1, maxNumSequence);
+    }
+
+    public boolean getUseVenv() {
+        return useVenv;
+    }
+
+    public void setUseVenv(boolean useVenv) {
+        this.useVenv = useVenv;
     }
 
     public enum ParallelType {

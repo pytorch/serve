@@ -20,7 +20,7 @@ We will need the handler .so file as well as the stories15M.so file containing t
 cd ~/serve/examples/cpp/aot_inductor/llama2
 cp ../../../../cpp/_build/test/resources/examples/aot_inductor/llama_handler/libllama_so_handler.so ./
 ```
-We will leave the model .so file in place and just use its [path](../../../../cpp/_build/test/resources/examples/aot_inductor/llama_handler/stories15M.so) in the next step.
+We will leave the model .so file in place and just use its absolute path in the next step.
 
 4. Create a [config.json](config.json) with the path of the downloaded model and tokenizer:
 

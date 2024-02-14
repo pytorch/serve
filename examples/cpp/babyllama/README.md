@@ -1,6 +1,6 @@
 ## BabyLlama example
 
-This example is adapted from https://github.com/karpathy/llama2.c. The handler C++ source code for this examples can be found [here](../../../cpp/src/examples/babyllama/).
+This example is adapted from https://github.com/karpathy/llama2.c. The handler C++ source code for this examples can be found [here](./src/).
 
 ### Setup
 1. Follow the instructions in [README.md](../../../cpp/README.md) to build the TorchServe C++ backend.
@@ -29,7 +29,7 @@ echo '{
 
 5. Copy handle .so file
 
-While building the C++ backend the `libbabyllama_handler.so` file is generated in the [babyllama_handler](../../../cpp/test/resources/examples/babyllama/babyllama_handler) folder.
+While building the C++ backend the `libbabyllama_handler.so` file is generated in the [babyllama_handler](../../../cpp/_build/test/resources/examples/babyllama/babyllama_handler/) folder.
 
 ```bash
 cp ../../../cpp/_build/test/resources/examples/babyllama/babyllama_handler/libbabyllama_handler.so ./
