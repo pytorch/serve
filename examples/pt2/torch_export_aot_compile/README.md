@@ -2,7 +2,7 @@
 
 This example shows how to run TorchServe with Torch exported model with AOTInductor
 
-To understand when to use `torch._export.aot_compile`, please refer to this [section](../README.md/#torchexportaotcompile)
+To understand when to use `torch._export.aot_compile`, please refer to this [section](https://github.com/pytorch/serve/tree/master/examples/pt2#torch_exportaot_compile)
 
 
 ### Pre-requisites
