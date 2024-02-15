@@ -155,37 +155,6 @@ function install_yaml_cpp() {
   cd "$BWD" || exit
 }
 
-function install_sentencepiece() {
-  SENTENCEPIECE_SRC_DIR=$BASE_DIR/third-party/sentencepiece
-  SENTENCEPIECE_BUILD_DIR=$DEPS_DIR/sentencepiece-build
-
-  if [ ! -d "$SENTENCEPIECE_SRC_DIR" ] ; then
-    echo -e "${COLOR_GREEN}[ INFO ] Cloning sentencepiece repo ${COLOR_OFF}"
-    git clone https://github.com/google/sentencepiece.git "$SENTENCEPIECE_SRC_DIR"
-    cd $SENTENCEPIECE_SRC_DIR
-    git checkout tags/v0.1.99
-  fi
-
-  if [ ! -d "$SENTENCEPIECE_BUILD_DIR" ] ; then
-    echo -e "${COLOR_GREEN}[ INFO ] Building sentencepiece ${COLOR_OFF}"
-
-    mkdir $SENTENCEPIECE_BUILD_DIR
-    cd $SENTENCEPIECE_BUILD_DIR
-    cmake $SENTENCEPIECE_SRC_DIR
-    make -i $(nproc)
-    if [ "$PLATFORM" = "Linux" ]; then
-      sudo make install
-      sudo ldconfig -v
-    elif [ "$PLATFORM" = "Mac" ]; then
-      make install
-    fi
-
-    echo -e "${COLOR_GREEN}[ INFO ] sentencepiece is installed ${COLOR_OFF}"
-  fi
-
-  cd "$BWD" || exit
-}
-
 function build_llama_cpp() {
   BWD=$(pwd)
   LLAMA_CPP_SRC_DIR=$BASE_DIR/third-party/llama.cpp
@@ -410,7 +379,6 @@ install_folly
 install_kineto
 install_libtorch
 install_yaml_cpp
-install_sentencepiece
 build_llama_cpp
 prepare_test_files
 build
