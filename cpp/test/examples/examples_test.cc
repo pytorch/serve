@@ -76,7 +76,7 @@ TEST_F(ModelPredictTest, TestLoadPredictAotInductorResnetHandler) {
       base_dir + "resnet_handler", "resnet50_aot",
       torch::cuda::is_available() ? 0 : -1, "", "", 1, false),
       base_dir + "resnet_handler",
-      base_dir + "mnist/0_png.pt",
+      base_dir + "resnet_handler/0_png.pt",
       "resnet_ts",
       200);
 }
