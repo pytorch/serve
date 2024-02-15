@@ -58,10 +58,10 @@ class TransformersSeqClassifierHandler(BasePippyHandler, ABC):
             )
 
         skip_init_start = time.perf_counter()
-        with torch.device("meta"):
-            self.model = AutoModelForCausalLM.from_pretrained(
-                model_path, use_cache=False, torch_dtype=dtype
-            )
+        # with torch.device("meta"):
+        self.model = AutoModelForCausalLM.from_pretrained(
+            model_path, use_cache=False, torch_dtype=dtype
+        )
         skip_init_end = time.perf_counter()
         logger.info(
             f" init model time on meta device took {skip_init_end - skip_init_start} seconds"

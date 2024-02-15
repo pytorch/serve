@@ -1,17 +1,17 @@
 import importlib
-import inspect
 import logging
 import os
 
-import pippy
 import torch
 import torch.distributed.rpc as rpc
 
 pippy_installed = importlib.util.find_spec("pippy") is not None
 
 if pippy_installed:
-    from pippy import split_into_equal_size
-    from pippy.hf import PiPPyHFTracer, inject_pipeline_forward
+    from pippy import Pipe, PipelineStage, split_into_equal_size
+
+    # from pippy import split_into_equal_size
+    # from pippy.hf import PiPPyHFTracer, inject_pipeline_forward
 
 
 logger = logging.getLogger(__name__)
@@ -84,51 +84,80 @@ def get_pipeline_driver(model, world_size, ctx):
     except KeyError:
         index_filename = None
 
-    # Check that the index file exists
-    if index_filename is not None:
-        index_file_path = os.path.join(model_path, index_filename)
-        assert os.path.exists(
-            index_file_path
-        ), f"Index file '{index_file_path}' not found"
-    else:
-        index_file_path = None
+    # # Check that the index file exists
+    # if index_filename is not None:
+    #     index_file_path = os.path.join(model_path, index_filename)
+    #     assert os.path.exists(
+    #         index_file_path
+    #     ), f"Index file '{index_file_path}' not found"
+    # else:
+    #     index_file_path = None
 
     checkpoint_prefix = None
     # Set the model to evaluation mode
     model.eval()
 
-    # Extract the concrete arguments for the model's forward method
-    sig = inspect.signature(model.forward)
-    concrete_args = {
-        p.name: p.default for p in sig.parameters.values() if p.name not in input_names
-    }
+    inputs = torch.randint(
+        0, 32000, (8, ctx.model_yaml_config["handler"].get("max_length", 50))
+    )
+    att_mask = torch.ones((8, ctx.model_yaml_config["handler"].get("max_length", 50)))
 
-    logger.info("Initializing the model pipeline")
-
-    # Create a tracer if necessary
-    tracer = PiPPyHFTracer() if model_type == "HF" else None
-
-    # Add deprecated_arguments to concrete_args if necessary
-    if model_type == "HF" and "bloom" in str(model.__class__):
-        concrete_args.setdefault("deprecated_arguments", {})
-
-    # Compile the pipeline using PiPPy
-    split_policy = split_into_equal_size(world_size)
-    pipe_driver, stage_mode = pippy.all_compile(
+    llama_pipe = Pipe.from_tracing(
         model,
-        num_ranks=world_size,
-        num_chunks=chunks,
-        schedule="FillDrain",
-        split_policy=split_policy,
-        tracer=tracer,
-        concrete_args=concrete_args,
-        index_filename=index_file_path,
-        checkpoint_prefix=checkpoint_prefix,
+        world_size,
+        example_args=(
+            inputs,
+            att_mask,
+        ),
+        split_policy=split_into_equal_size(world_size),
     )
 
-    # Inject the pipeline forward method if necessary
-    if model_type == "HF":
-        inject_pipeline_forward(model, pipe_driver)
-        return model
-    else:
-        return pipe_driver
+    rank = int(os.environ["RANK"])
+    world_size = int(os.environ["WORLD_SIZE"])
+
+    device = torch.device(f"cuda:{rank % torch.cuda.device_count()}")
+    model.to(device).eval()
+
+    # Create pipeline stage for each rank
+    torch.distributed.init_process_group(rank=rank, world_size=world_size)
+    stage = PipelineStage(llama_pipe, rank, device=device)
+
+    assert hasattr(stage, "generate")
+
+    return stage
+
+    # # Extract the concrete arguments for the model's forward method
+    # sig = inspect.signature(model.forward)
+    # concrete_args = {
+    #     p.name: p.default for p in sig.parameters.values() if p.name not in input_names
+    # }
+
+    # logger.info("Initializing the model pipeline")
+
+    # # Create a tracer if necessary
+    # tracer = PiPPyHFTracer() if model_type == "HF" else None
+
+    # # Add deprecated_arguments to concrete_args if necessary
+    # if model_type == "HF" and "bloom" in str(model.__class__):
+    #     concrete_args.setdefault("deprecated_arguments", {})
+
+    # # Compile the pipeline using PiPPy
+    # split_policy = split_into_equal_size(world_size)
+    # pipe_driver, stage_mode = pippy.all_compile(
+    #     model,
+    #     num_ranks=world_size,
+    #     num_chunks=chunks,
+    #     schedule="FillDrain",
+    #     split_policy=split_policy,
+    #     tracer=tracer,
+    #     concrete_args=concrete_args,
+    #     index_filename=index_file_path,
+    #     checkpoint_prefix=checkpoint_prefix,
+    # )
+
+    # # Inject the pipeline forward method if necessary
+    # if model_type == "HF":
+    #     inject_pipeline_forward(model, pipe_driver)
+    #     return model
+    # else:
+    #     return pipe_driver
