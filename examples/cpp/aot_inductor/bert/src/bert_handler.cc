@@ -95,9 +95,9 @@ c10::IValue BertCppHandler::Preprocess(
     std::pair<std::string &, std::map<uint8_t, std::string> &> &idx_to_req_id,
     std::shared_ptr<torchserve::InferenceRequestBatch> &request_batch,
     std::shared_ptr<torchserve::InferenceResponseBatch> &response_batch) {
-  auto options = torch::TensorOptions().dtype(torch::kInt32);
-  std::vector<int32_t> batch_tokens;
-  auto attention_mask = torch::zeros({static_cast<long>(request_batch->size()), max_length_}, torch::kInt32);
+  auto options = torch::TensorOptions().dtype(torch::kLong);
+  auto attention_mask = torch::zeros({static_cast<long>(request_batch->size()), max_length_}, torch::kLong);
+  auto batch_tokens = torch::full({static_cast<long>(request_batch->size()), max_length_}, tokenizer_->TokenToId("<pad>"), torch::kLong);
   TS_LOG(INFO, "start Preprocess");
   uint8_t idx = 0;
   for (auto& request : *request_batch) {
@@ -139,17 +139,14 @@ c10::IValue BertCppHandler::Preprocess(
       for (int i = 0; i < cur_token_ids_length; i++) {
         TS_LOGF(INFO, "token: {}, id: {}", i, token_ids[i]);
         attention_mask[idx][i] = 1;
+        batch_tokens[idx][i] = token_ids[i];
       }
       TS_LOGF(INFO, "cur_token_ids_length {}", cur_token_ids_length);
 
       if (cur_token_ids_length > max_length_) {
         TS_LOGF(ERROR, "prompt too long ({} tokens, max {})", cur_token_ids_length,  max_length_);
-      } else if (cur_token_ids_length < max_length_) {
-        // padding token ids
-        token_ids.insert(token_ids.end(), max_length_ - cur_token_ids_length, tokenizer_->TokenToId("<pad>"));
       }
       TS_LOG(INFO, "pad token_ids");
-      batch_tokens.insert(batch_tokens.end(), token_ids.begin(), token_ids.end());
       TS_LOG(INFO, "add token_ids to batch_tokens");
 
       idx_to_req_id.second[idx++] = request.request_id;
@@ -170,8 +167,8 @@ c10::IValue BertCppHandler::Preprocess(
     }
   }
   auto batch_ivalue = c10::impl::GenericList(torch::TensorType::get());
-  std::cout << "batch_tokens.data blob" << torch::from_blob(batch_tokens.data(), {static_cast<long>(request_batch->size()), max_length_}) << std::endl;
-  batch_ivalue.emplace_back(torch::from_blob(batch_tokens.data(), {static_cast<long>(request_batch->size()), max_length_}, options).to(*device));
+  batch_ivalue.emplace_back(batch_tokens.to(*device));
+  std::cout << "input_ids: " << batch_tokens << std::endl;
   TS_LOG(INFO, "add batch tokens to batch_ivalue");
   std::cout << "mask: " << attention_mask << std::endl;
   batch_ivalue.emplace_back(attention_mask.to(*device));
