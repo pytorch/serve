@@ -39,7 +39,7 @@ public class Token extends ModelServerEndpoint {
     private static String inferenceKey;
     private static Instant managementExpirationTimeMinutes;
     private static Instant inferenceExpirationTimeMinutes;
-    private static Integer timeToExpirationMinutes = 60;
+    private static Integer timeToExpirationMinutes;
     private SecureRandom secureRandom = new SecureRandom();
     private Base64.Encoder baseEncoder = Base64.getUrlEncoder();
     private String fileName = "key_file.json";
@@ -58,7 +58,7 @@ public class Token extends ModelServerEndpoint {
         rsp.getOutputStream().write(test.getBytes(StandardCharsets.UTF_8));
     }
 
-    // parses query and either returns "management"/"inference" or a wrong type error
+    // parses query and either returns management/inference or a wrong type error
     public String parseQuery(Request req) {
         QueryStringDecoder decoder = new QueryStringDecoder(req.getRequestURI());
         Map<String, List<String>> parameters = decoder.parameters();

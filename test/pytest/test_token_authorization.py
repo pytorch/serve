@@ -19,7 +19,8 @@ def get_plugin_jar():
     plugin_folder = os.path.join(REPO_ROOT, "plugins")
     os.makedirs(new_folder_path, exist_ok=True)
     os.chdir(plugin_folder)
-    subprocess.run(["./gradlew", "build"])
+    subprocess.run(["./gradlew", "formatJava"])
+    result = subprocess.run(["./gradlew", "build"])
     jar_path = os.path.join(plugin_folder, "endpoints/build/libs")
     jar_file = [file for file in os.listdir(jar_path) if file.endswith(".jar")]
     if jar_file:
@@ -84,6 +85,8 @@ def setup_torchserve():
         "http://localhost:8081/models", params=params, headers=header
     )
     time.sleep(5)
+    print("register reponse")
+    print(response.text)
 
     result = subprocess.run(
         f"cat {REPO_ROOT}/key_file.json",
@@ -101,7 +104,8 @@ def test_managament_api_with_token():
     setup_torchserve()
     key = read_key_file("management")
     header = {"Authorization": f"Bearer {key}"}
-    response = requests.get(f"http://localhost:8081/models/resnet18", headers=header)
+    print(key)
+    response = requests.get("http://localhost:8081/models/resnet18", headers=header)
     time.sleep(5)
     print(response.text)
 
@@ -114,12 +118,6 @@ def test_managament_api_with_incorrect_token():
     header = {"Authorization": "Bearer abcd1234"}
 
     response = requests.get(f"http://localhost:8081/models/resnet18", headers=header)
-    time.sleep(5)
-    print(response.text)
-
-    assert response.status_code == 400, "Token check failed"
-
-    response = requests.get(f"http://localhost:8081/models/resnet18")
     time.sleep(5)
     print(response.text)
 
@@ -138,6 +136,7 @@ def test_inference_api_with_token():
     )
     time.sleep(5)
     print(response.text)
+    print(key)
 
     assert response.status_code == 200, "Token check failed"
 
@@ -162,17 +161,37 @@ def test_inference_api_with_incorrect_token():
 def test_token_inference_api():
     token_key = read_key_file("token")
     inference_key = read_key_file("inference")
-    header = {"Authorization": f"Bearer {token_key}"}
+    header_inference = {"Authorization": f"Bearer {inference_key}"}
+    header_token = {"Authorization": f"Bearer {token_key}"}
     params = {"type": "inference"}
 
+    # check inference works with current token
+    response = requests.post(
+        url="http://localhost:8080/predictions/resnet18",
+        files={"data": open(data_file_kitten, "rb")},
+        headers=header_inference,
+    )
+    time.sleep(5)
+    assert response.status_code == 200, "Token check failed"
+
+    # generate new inference token and check it is different
     response = requests.get(
-        url="http://localhost:8081/token", params=params, headers=header
+        url="http://localhost:8081/token", params=params, headers=header_token
     )
     time.sleep(5)
     print(response.text)
-
+    print(token_key)
     assert response.status_code == 200, "Token check failed"
     assert inference_key != read_key_file("inference"), "Key file not updated"
+
+    # check inference does not works with original token
+    response = requests.post(
+        url="http://localhost:8080/predictions/resnet18",
+        files={"data": open(data_file_kitten, "rb")},
+        headers=header_inference,
+    )
+    time.sleep(5)
+    assert response.status_code == 400, "Token check failed"
 
 
 # Test Token API for regenerating new management key
@@ -186,6 +205,8 @@ def test_token_management_api():
         url="http://localhost:8081/token", params=params, headers=header
     )
     time.sleep(5)
+    print(response.text)
+    print(token_key)
 
     assert management_key != read_key_file("management"), "Key file not updated"
     assert response.status_code == 200, "Token check failed"
