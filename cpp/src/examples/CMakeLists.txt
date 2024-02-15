@@ -9,5 +9,5 @@ add_subdirectory("../../../examples/cpp/mnist/" "${CMAKE_CURRENT_BINARY_DIR}/../
 if(CMAKE_SYSTEM_NAME MATCHES "Linux")
   add_subdirectory("../../../examples/cpp/aot_inductor/llama2/" "${CMAKE_CURRENT_BINARY_DIR}/../../test/resources/examples/aot_inductor/llama_handler/")
 
-  add_subdirectory("../../../examples/cpp/aot_inductor/resnet" "${CMAKE_CURRENT_BINARY_DIR}/../../test/resources/examples/aot_inductor/bert_handler/")
+  add_subdirectory("../../../examples/cpp/aot_inductor/bert" "${CMAKE_CURRENT_BINARY_DIR}/../../test/resources/examples/aot_inductor/bert_handler/")
 endif()
