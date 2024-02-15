@@ -15,7 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A class handling token check for all inbound HTTP requests.
+ * A class handling inbound HTTP requests to the inference API.
  *
  * <p>This class //
  */
@@ -42,7 +42,7 @@ public class TokenAuthorizationHandler extends HttpRequestHandlerChain {
             throws ModelException, DownloadArchiveException, WorkflowException,
                     WorkerInitializationException {
         if (tokenEnabled) {
-            ConfigManager configManager = ConfigManager.getInstance();
+            // ConfigManager configManager = ConfigManager.getInstance();
             if (tokenType == TokenType.MANAGEMENT) {
                 if (req.toString().contains("/token")) {
                     checkTokenAuthorization(req, "token");
@@ -62,7 +62,7 @@ public class TokenAuthorizationHandler extends HttpRequestHandlerChain {
             tokenObject = tokenClass.getDeclaredConstructor().newInstance();
             Method method = tokenClass.getMethod("setTime", Integer.class);
             Integer time = ConfigManager.getInstance().getTimeToExpiration();
-            if (time != 0) {
+            if (time == 0) {
                 timeToExpirationMinutes = time;
             }
             method.invoke(tokenObject, timeToExpirationMinutes);
@@ -70,17 +70,18 @@ public class TokenAuthorizationHandler extends HttpRequestHandlerChain {
             if ((boolean) method.invoke(tokenObject, "token")) {
                 logger.info("TOKEN CLASS IMPORTED SUCCESSFULLY");
             }
-        } catch (ClassNotFoundException e) {
-            logger.error("TOKEN CLASS IMPORTED UNSUCCESSFULLY");
-            e.printStackTrace();
-            return;
+            // } catch (ClassNotFoundException e) {
+            //     logger.error("TOKEN CLASS IMPORTED UNSUCCESSFULLY");
+            //     e.printStackTrace();
+            //     return;
         } catch (NoSuchMethodException
                 | IllegalAccessException
                 | InstantiationException
-                | InvocationTargetException e) {
+                | InvocationTargetException
+                | ClassNotFoundException e) {
             e.printStackTrace();
             logger.error("TOKEN CLASS IMPORTED UNSUCCESSFULLY");
-            return;
+            throw new IllegalStateException("Unable to import token class", e);
         }
         tokenEnabled = true;
     }

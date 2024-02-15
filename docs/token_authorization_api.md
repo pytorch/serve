@@ -16,7 +16,6 @@
     2. Inference key: Used for inference APIs. Example:
     `curl http://127.0.0.1:8080/predictions/densenet161 -T examples/image_classifier/kitten.jpg -H "Authorization: Bearer poZXAlqe"`
     3. API key: Used for the token authorization API. Check section 4 for API use.
-    4. 3 tokens allow the owner with the most flexibility in use and enables them to adapt the tokens to their use. Owners of the server can provide users with the inference token if users should not mess with models. The owner can also provide owners with the management key if owners want users to add and remove models.
 4. The plugin also includes an API in order to generate a new key to replace either the management or inference key.
     1. Management Example:
     `curl localhost:8081/token?type=management -H "Authorization: Bearer xryL_Vzs"` will replace the current management key in the key_file with a new one and will update the expiration time.
@@ -37,3 +36,4 @@ Torchserve offers various ways to customize the token authorization to allow own
 
 ## Notes
 1. DO NOT MODIFY THE KEY FILE. Modifying the key file might impact reading and writing to the file thus preventing new keys from properly being displayed in the file.
+2. 3 tokens allow the owner with the most flexibility in use and enables them to adapt the tokens to their use. Owners of the server can provide users with the inference token if users should not mess with models. The owner can also provide owners with the management key if owners want users to add and remove models.

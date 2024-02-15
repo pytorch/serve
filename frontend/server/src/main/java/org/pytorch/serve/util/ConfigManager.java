@@ -8,6 +8,7 @@ import io.netty.handler.ssl.util.SelfSignedCertificate;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.net.InetAddress;
@@ -149,6 +150,11 @@ public final class ConfigManager {
     private String torchrunLogDir;
     private boolean telemetryEnabled;
     private Logger logger = LoggerFactory.getLogger(ConfigManager.class);
+
+    private boolean tokenAuthorizationEnabled;
+    private Class<?> tokenClass;
+    private Object tokenObject;
+    private Integer timeToExpiration = 60;
 
     private ConfigManager(Arguments args) throws IOException {
         prop = new Properties();
@@ -858,6 +864,10 @@ public final class ConfigManager {
 
     public boolean isSnapshotDisabled() {
         return snapshotDisabled;
+    }
+
+    public boolean isTokenEnabled() {
+        return tokenAuthorizationEnabled;
     }
 
     public Integer getTimeToExpiration() {

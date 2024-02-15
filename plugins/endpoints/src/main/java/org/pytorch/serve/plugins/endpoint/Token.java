@@ -39,9 +39,10 @@ public class Token extends ModelServerEndpoint {
     private static String inferenceKey;
     private static Instant managementExpirationTimeMinutes;
     private static Instant inferenceExpirationTimeMinutes;
-    private static Integer timeToExpirationMinutes;
+    private static Integer timeToExpirationMinutes = 60;
     private SecureRandom secureRandom = new SecureRandom();
     private Base64.Encoder baseEncoder = Base64.getUrlEncoder();
+    private String fileName = "key_file.json";
 
     @Override
     public void doGet(Request req, Response rsp, Context ctx) throws IOException {
@@ -57,7 +58,7 @@ public class Token extends ModelServerEndpoint {
         rsp.getOutputStream().write(test.getBytes(StandardCharsets.UTF_8));
     }
 
-    // parses query and either returns management/inference or a wrong type error
+    // parses query and either returns "management"/"inference" or a wrong type error
     public String parseQuery(Request req) {
         QueryStringDecoder decoder = new QueryStringDecoder(req.getRequestURI());
         Map<String, List<String>> parameters = decoder.parameters();
@@ -84,7 +85,7 @@ public class Token extends ModelServerEndpoint {
 
     // generates a key file with new keys depending on the parameter provided
     public boolean generateKeyFile(String type) throws IOException {
-        String userDirectory = System.getProperty("user.dir") + "/key_file.json";
+        String userDirectory = System.getProperty("user.dir") + "/" + fileName;
         File file = new File(userDirectory);
         if (!file.createNewFile() && !file.exists()) {
             return false;
@@ -122,7 +123,7 @@ public class Token extends ModelServerEndpoint {
         jsonArray.add("API Key: " + apiKey);
 
         Files.write(
-                Paths.get("key_file.json"),
+                Paths.get(fileName),
                 new GsonBuilder()
                         .setPrettyPrinting()
                         .create()
@@ -131,7 +132,7 @@ public class Token extends ModelServerEndpoint {
 
         if (!setFilePermissions()) {
             try {
-                Files.delete(Paths.get("key_file.txt"));
+                Files.delete(Paths.get(fileName));
             } catch (IOException e) {
                 return false;
             }
@@ -141,7 +142,7 @@ public class Token extends ModelServerEndpoint {
     }
 
     public boolean setFilePermissions() {
-        Path path = Paths.get("key_file.json");
+        Path path = Paths.get(fileName);
         try {
             Set<PosixFilePermission> permissions = PosixFilePermissions.fromString("rw-------");
             Files.setPosixFilePermissions(path, permissions);
@@ -175,7 +176,7 @@ public class Token extends ModelServerEndpoint {
         }
         String[] arrOfStr = tokenBearer.split(" ", 2);
         if (arrOfStr.length == 1) {
-            return  false;
+            return false;
         }
         String token = arrOfStr[1];
 
