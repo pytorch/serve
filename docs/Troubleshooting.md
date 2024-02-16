@@ -3,7 +3,7 @@ Refer to this section for common issues faced while deploying your Pytorch model
 
 * [Deployment and config issues](#deployment-and-config-issues)
 * [Snapshot related issues](#snapshot-related-issues)
-* [API related issues](#api-relate-issues)
+* [API related issues](#api-related-issues)
 * [Model-archiver](#model-archiver)
 
 
