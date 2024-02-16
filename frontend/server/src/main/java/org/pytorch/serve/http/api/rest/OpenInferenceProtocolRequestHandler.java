@@ -12,6 +12,7 @@ import org.pytorch.serve.archive.workflow.WorkflowException;
 import org.pytorch.serve.http.HttpRequestHandlerChain;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.NettyUtils;
+import org.pytorch.serve.wlm.ModelManager;
 import org.pytorch.serve.wlm.WorkerInitializationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +30,7 @@ public class OpenInferenceProtocolRequestHandler extends HttpRequestHandlerChain
     private static final String SERVER_METADATA_API = "/v2";
     private static final String SERVER_LIVE_API = "/v2/health/live";
     private static final String SERVER_READY_API = "/v2/health/ready";
+    private static final String MODEL_READY_ENDPOINT_PATTERN = "^/v2/models/([^/]+)(?:/versions/([^/]+))?/ready$";
 
     /** Creates a new {@code OpenInferenceProtocolRequestHandler} instance. */
     public OpenInferenceProtocolRequestHandler() {}
@@ -65,6 +67,22 @@ public class OpenInferenceProtocolRequestHandler extends HttpRequestHandlerChain
             supportedExtensions.add("kubeflow");
             response.add("extenstion", supportedExtensions);
             NettyUtils.sendJsonResponse(ctx, response);
+        } else if (concatenatedSegments.matches(MODEL_READY_ENDPOINT_PATTERN)) {
+            String modelName = segments[3];
+            String modelVersion = null;
+            if (segments.length > 5) {
+                modelVersion = segments[5];
+            }
+
+            ModelManager modelManager = ModelManager.getInstance();
+
+            boolean isModelReady = modelManager.isModelReady(modelName, modelVersion);
+
+            JsonObject response = new JsonObject();
+            response.addProperty("name", modelName);
+            response.addProperty("ready", isModelReady);
+            NettyUtils.sendJsonResponse(ctx, response);
+
         } else if (segments.length > 5 && concatenatedSegments.contains("/versions")) {
             // As of now kserve not implemented versioning, we just throws not implemented.
             JsonObject response = new JsonObject();

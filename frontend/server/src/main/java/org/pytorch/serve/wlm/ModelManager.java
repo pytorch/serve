@@ -680,6 +680,24 @@ public final class ModelManager {
         return model == null || model.getMinWorkers() <= numWorkers;
     }
 
+    public boolean isModelReady(String modelName, String modelVersion)
+        throws ModelVersionNotFoundException, ModelNotFoundException {
+
+    if (modelVersion == null || "".equals(modelVersion)) {
+        modelVersion = null;
+    }
+
+    Model model = getModel(modelName, modelVersion);
+    if (model == null) {
+        throw new ModelNotFoundException("Model not found: " + modelName);
+    }
+
+    int numScaled = model.getMinWorkers();
+    int numHealthy = modelManager.getNumHealthyWorkers(model.getModelVersionName());
+
+    return numHealthy >= numScaled;
+    }
+
     public void submitTask(Runnable runnable) {
         wlm.scheduleAsync(runnable);
     }
