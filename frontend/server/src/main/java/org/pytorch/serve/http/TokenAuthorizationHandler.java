@@ -42,7 +42,6 @@ public class TokenAuthorizationHandler extends HttpRequestHandlerChain {
             throws ModelException, DownloadArchiveException, WorkflowException,
                     WorkerInitializationException {
         if (tokenEnabled) {
-            // ConfigManager configManager = ConfigManager.getInstance();
             if (tokenType == TokenType.MANAGEMENT) {
                 if (req.toString().contains("/token")) {
                     checkTokenAuthorization(req, "token");
@@ -70,10 +69,6 @@ public class TokenAuthorizationHandler extends HttpRequestHandlerChain {
             if ((boolean) method.invoke(tokenObject, "token")) {
                 logger.info("TOKEN CLASS IMPORTED SUCCESSFULLY");
             }
-            // } catch (ClassNotFoundException e) {
-            //     logger.error("TOKEN CLASS IMPORTED UNSUCCESSFULLY");
-            //     e.printStackTrace();
-            //     return;
         } catch (NoSuchMethodException
                 | IllegalAccessException
                 | InstantiationException
