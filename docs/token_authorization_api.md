@@ -5,22 +5,33 @@
 2. Torchserve will enable token authorization if the plugin is provided. In the current working directory a file `key_file.json` will be generated.
     1. Example key file:
 
-    `Management Key: aadJv_R6 --- Expiration time: 2024-01-16T22:23:32.952499Z`
+```python
+    [
+        {
+            "Management Key": "I_J_ItMb",
+            "ExpirationTime": "2024-02-16T01:27:56.749292Z"
+        },
+        {
+            "Inference Key": "FINhR1fj",
+            "ExpirationTime": "2024-02-16T01:27:56.749273Z"
+        },
+        {
+            "API Key": "m4M-5IBY"
+        }
+    ]
+```
 
-    `Inference Key: poZXAlqe --- Expiration time: 2024-01-16T22:23:50.621298Z`
-
-    `API Key: xryL_Vzs`
 3. There are 3 keys and each have a different use.
     1. Management key: Used for management APIs. Example:
-    `curl http://localhost:8081/models/densenet161 -H "Authorization: Bearer aadJv_R6"`
+    `curl http://localhost:8081/models/densenet161 -H "Authorization: Bearer I_J_ItMb"`
     2. Inference key: Used for inference APIs. Example:
-    `curl http://127.0.0.1:8080/predictions/densenet161 -T examples/image_classifier/kitten.jpg -H "Authorization: Bearer poZXAlqe"`
+    `curl http://127.0.0.1:8080/predictions/densenet161 -T examples/image_classifier/kitten.jpg -H "Authorization: Bearer FINhR1fj"`
     3. API key: Used for the token authorization API. Check section 4 for API use.
 4. The plugin also includes an API in order to generate a new key to replace either the management or inference key.
     1. Management Example:
-    `curl localhost:8081/token?type=management -H "Authorization: Bearer xryL_Vzs"` will replace the current management key in the key_file with a new one and will update the expiration time.
+    `curl localhost:8081/token?type=management -H "Authorization: Bearer m4M-5IBY"` will replace the current management key in the key_file with a new one and will update the expiration time.
     2. Inference example:
-    `curl localhost:8081/token?type=inference -H "Authorization: Bearer xryL_Vzs"`
+    `curl localhost:8081/token?type=inference -H "Authorization: Bearer m4M-5IBY"`
 
     Users will have to use either one of the APIs above.
 

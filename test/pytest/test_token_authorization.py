@@ -47,14 +47,13 @@ def read_key_file(type):
     management_key = None
     inference_key = None
     api_key = None
-    for key_string in json_data:
-        if "Management Key" in key_string:
-            management_key = key_string.split(":")[1].strip().split("---")[0].strip()
-        elif "Inference Key" in key_string:
-            inference_key = key_string.split(":")[1].strip().split("---")[0].strip()
-        elif "API Key" in key_string:
-            api_key = key_string.split(":")[1].strip().split("---")[0].strip()
-
+    for item in json_data:
+        if "Management Key" in item:
+            management_key = item["Management Key"]
+        elif "Inference Key" in item:
+            inference_key = item["Inference Key"]
+        elif "API Key" in item:
+            api_key = item["API Key"]
     options = {
         "management": management_key,
         "inference": inference_key,

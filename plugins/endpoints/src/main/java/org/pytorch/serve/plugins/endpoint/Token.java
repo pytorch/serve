@@ -3,6 +3,8 @@ package org.pytorch.serve.plugins.endpoint;
 // import java.util.Properties;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.QueryStringDecoder;
 import java.io.File;
@@ -110,17 +112,19 @@ public class Token extends ModelServerEndpoint {
         }
 
         JsonArray jsonArray = new JsonArray();
-        jsonArray.add(
-                "Management Key: "
-                        + managementKey
-                        + " --- Expiration time: "
-                        + managementExpirationTimeMinutes);
-        jsonArray.add(
-                "Inference Key: "
-                        + inferenceKey
-                        + " --- Expiration time: "
-                        + inferenceExpirationTimeMinutes);
-        jsonArray.add("API Key: " + apiKey);
+        JsonObject managementObject = new JsonObject();
+        managementObject.addProperty("Management Key", managementKey);
+        managementObject.addProperty("ExpirationTime", managementExpirationTimeMinutes.toString());
+        jsonArray.add(managementObject);
+
+        JsonObject inferenceObject = new JsonObject();
+        inferenceObject.addProperty("Inference Key", inferenceKey);
+        inferenceObject.addProperty("ExpirationTime", inferenceExpirationTimeMinutes.toString());
+        jsonArray.add(inferenceObject);
+
+        JsonObject apiKeyObject = new JsonObject();
+        apiKeyObject.addProperty("API Key", apiKey);
+        jsonArray.add(apiKeyObject);
 
         Files.write(
                 Paths.get(fileName),
