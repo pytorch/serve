@@ -259,7 +259,7 @@ public final class ModelManager {
         }
 
         if (exitCode == 0) {
-            logger.info(
+            logger.debug(
                     "Created virtual environment for model {}: {}",
                     model.getModelName(),
                     venvPath.toString());
@@ -311,7 +311,7 @@ public final class ModelManager {
         }
 
         if (exitCode == 0) {
-            logger.info(
+            logger.debug(
                     "Inherited site-packages directories to venv {}:\n{}",
                     venvPath.toString(),
                     outputString.toString());
@@ -410,10 +410,7 @@ public final class ModelManager {
         }
 
         if (exitCode == 0) {
-            logger.info(
-                    "Installed custom pip packages for model {}:\n{}",
-                    model.getModelName(),
-                    outputString.toString());
+            logger.info("Installed custom pip packages for model {}", model.getModelName());
         } else {
             logger.error(
                     "Custom pip package installation failed for model {}:\n{}",
