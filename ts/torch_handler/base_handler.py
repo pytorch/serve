@@ -58,6 +58,13 @@ if packaging.version.parse(torch.__version__) > packaging.version.parse("2.2.2")
 else:
     PT230_AVAILABLE = False
 
+try:
+    import openvino.torch
+    logger.info("OpenVINO backend enabled for torch.compile")
+except ImportError:
+    logger.warning("OpenVINO is not enabled")
+
+
 if os.environ.get("TS_IPEX_ENABLE", "false") == "true":
     try:
         import intel_extension_for_pytorch as ipex

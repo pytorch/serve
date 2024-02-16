@@ -180,6 +180,7 @@ if __name__ == "__main__":
         extras_require={
             "onnx": ["numpy", "onnx", "onnx-runtime"],
             "ipex": ["intel_extension_for_pytorch"],
+            "openvino": ["openvino"],
         },
         entry_points={"console_scripts": ["torchserve=ts.model_server:start"]},
         include_package_data=True,
