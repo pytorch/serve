@@ -2,9 +2,7 @@ package org.pytorch.serve.plugins.endpoint;
 
 // import java.util.Properties;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.QueryStringDecoder;
 import java.io.File;
@@ -111,27 +109,28 @@ public class Token extends ModelServerEndpoint {
                 managementExpirationTimeMinutes = generateTokenExpiration();
         }
 
-        JsonArray jsonArray = new JsonArray();
+        JsonObject parentObject = new JsonObject();
+
         JsonObject managementObject = new JsonObject();
-        managementObject.addProperty("Management Key", managementKey);
-        managementObject.addProperty("ExpirationTime", managementExpirationTimeMinutes.toString());
-        jsonArray.add(managementObject);
+        managementObject.addProperty("key", managementKey);
+        managementObject.addProperty("expiration time", managementExpirationTimeMinutes.toString());
+        parentObject.add("management", managementObject);
 
         JsonObject inferenceObject = new JsonObject();
-        inferenceObject.addProperty("Inference Key", inferenceKey);
-        inferenceObject.addProperty("ExpirationTime", inferenceExpirationTimeMinutes.toString());
-        jsonArray.add(inferenceObject);
+        inferenceObject.addProperty("key", inferenceKey);
+        inferenceObject.addProperty("expiration time", inferenceExpirationTimeMinutes.toString());
+        parentObject.add("inference", inferenceObject);
 
-        JsonObject apiKeyObject = new JsonObject();
-        apiKeyObject.addProperty("API Key", apiKey);
-        jsonArray.add(apiKeyObject);
+        JsonObject apiObject = new JsonObject();
+        apiObject.addProperty("key", apiKey);
+        parentObject.add("API", apiObject);
 
         Files.write(
                 Paths.get(fileName),
                 new GsonBuilder()
                         .setPrettyPrinting()
                         .create()
-                        .toJson(jsonArray)
+                        .toJson(parentObject)
                         .getBytes(StandardCharsets.UTF_8));
 
         if (!setFilePermissions()) {

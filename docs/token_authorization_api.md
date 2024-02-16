@@ -6,19 +6,19 @@
     1. Example key file:
 
 ```python
-    [
-        {
-            "Management Key": "I_J_ItMb",
-            "ExpirationTime": "2024-02-16T01:27:56.749292Z"
-        },
-        {
-            "Inference Key": "FINhR1fj",
-            "ExpirationTime": "2024-02-16T01:27:56.749273Z"
-        },
-        {
-            "API Key": "m4M-5IBY"
-        }
-    ]
+  {
+  "management": {
+    "key": "B-E5KSRM",
+    "expiration time": "2024-02-16T21:12:24.801167Z"
+  },
+  "inference": {
+    "key": "gNRuA7dS",
+    "expiration time": "2024-02-16T21:12:24.801148Z"
+  },
+  "API": {
+    "key": "yv9uQajP"
+  }
+}
 ```
 
 3. There are 3 keys and each have a different use.

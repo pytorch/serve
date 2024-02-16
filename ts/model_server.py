@@ -48,10 +48,7 @@ def start() -> None:
             try:
                 parent = psutil.Process(pid)
                 parent.terminate()
-                try:
-                    os.remove(os.getcwd() + "/key_file.json")
-                except FileNotFoundError:
-                    print("Delete key file if it exists")
+                os.remove(os.getcwd() + "/key_file.json")
                 if args.foreground:
                     try:
                         parent.wait(timeout=60)
