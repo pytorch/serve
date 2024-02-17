@@ -8,6 +8,7 @@
 #include <torch/torch.h>
 #include <torch/csrc/inductor/aoti_model_container_runner.h>
 #include <torch/csrc/inductor/aoti_model_container_runner_cuda.h>
+#include <yaml-cpp/yaml.h>
 
 #include "src/backends/handler/base_handler.hh"
 
@@ -48,7 +49,7 @@ private:
   const folly::dynamic& GetJsonValue(std::unique_ptr<folly::dynamic>& json, const std::string& key);
   std::string MapClassToLabel(const torch::Tensor& classes, const torch::Tensor& probs);
 
-  std::unique_ptr<folly::dynamic> config_json_;
   std::unique_ptr<folly::dynamic> mapping_json_;
+  std::unique_ptr<YAML::Node> model_config_yaml_;
 };
 }  // namespac

@@ -37,15 +37,19 @@ ResnetCppHandler::LoadModel(
   try {
     auto device = GetTorchDevice(load_model_request);
 
+    const std::string modelConfigYamlFilePath =
+        fmt::format("{}/{}", load_model_request->model_dir, "model-config.yaml");
+    model_config_yaml_ = std::make_unique<YAML::Node>(YAML::LoadFile(modelConfigYamlFilePath));
+
     const std::string mapFilePath =
-        fmt::format("{}/{}", load_model_request->model_dir, "index_to_name.json");
+      fmt::format("{}/{}", load_model_request->model_dir,
+        (*model_config_yaml_)["handler"]["mapping"].as<std::string>());
     mapping_json_ = LoadJsonFile(mapFilePath);
 
-    const std::string configFilePath =
-        fmt::format("{}/{}", load_model_request->model_dir, "config.json");
-    config_json_ = LoadJsonFile(configFilePath);
-
-    std::string model_so_path = fmt::format("{}/{}", load_model_request->model_dir, GetJsonValue(config_json_, "model_so_path").asString());
+    std::string model_so_path =
+      fmt::format("{}/{}", load_model_request->model_dir,
+        (*model_config_yaml_)["handler"]["model_so_path"].as<std::string>());
+    mapping_json_ = LoadJsonFile(mapFilePath);
     c10::InferenceMode mode;
 
     if (device->is_cuda()) {
