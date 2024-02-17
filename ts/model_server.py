@@ -3,6 +3,7 @@ File to define the entry point to Model Server
 """
 
 import os
+import pathlib
 import platform
 import re
 import subprocess
@@ -48,7 +49,7 @@ def start() -> None:
             try:
                 parent = psutil.Process(pid)
                 parent.terminate()
-                os.remove(os.getcwd() + "/key_file.json")
+                pathlib.Path("key_file.json").unlink(missing_ok=True)
                 if args.foreground:
                     try:
                         parent.wait(timeout=60)

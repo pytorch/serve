@@ -860,15 +860,15 @@ public final class ConfigManager {
         return snapshotDisabled;
     }
 
-    public Integer getTimeToExpiration() {
+    public Double getTimeToExpiration() {
         if (prop.getProperty(TS_TOKEN_EXPIRATION_TIME_MIN) != null) {
             try {
-                return Integer.valueOf(prop.getProperty(TS_TOKEN_EXPIRATION_TIME_MIN));
+                return Double.valueOf(prop.getProperty(TS_TOKEN_EXPIRATION_TIME_MIN));
             } catch (NumberFormatException e) {
                 logger.error("Token expiration not a valid integer");
             }
         }
-        return 0;
+        return 0.0;
     }
 
     public boolean isSSLEnabled(ConnectorType connectorType) {

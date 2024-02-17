@@ -19,7 +19,6 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import org.pytorch.serve.servingsdk.Context;
 import org.pytorch.serve.servingsdk.ModelServerEndpoint;
 import org.pytorch.serve.servingsdk.annotations.Endpoint;
@@ -39,7 +38,7 @@ public class Token extends ModelServerEndpoint {
     private static String inferenceKey;
     private static Instant managementExpirationTimeMinutes;
     private static Instant inferenceExpirationTimeMinutes;
-    private static Integer timeToExpirationMinutes;
+    private static Double timeToExpirationMinutes;
     private SecureRandom secureRandom = new SecureRandom();
     private Base64.Encoder baseEncoder = Base64.getUrlEncoder();
     private String fileName = "key_file.json";
@@ -80,7 +79,8 @@ public class Token extends ModelServerEndpoint {
     }
 
     public Instant generateTokenExpiration() {
-        return Instant.now().plusSeconds(TimeUnit.MINUTES.toSeconds(timeToExpirationMinutes));
+        long secondsToAdd = (long) (timeToExpirationMinutes * 60);
+        return Instant.now().plusSeconds(secondsToAdd);
     }
 
     // generates a key file with new keys depending on the parameter provided
@@ -217,7 +217,7 @@ public class Token extends ModelServerEndpoint {
         return managementExpirationTimeMinutes;
     }
 
-    public void setTime(Integer time) {
+    public void setTime(Double time) {
         timeToExpirationMinutes = time;
     }
 }

@@ -26,7 +26,7 @@ public class TokenAuthorizationHandler extends HttpRequestHandlerChain {
     private static Boolean tokenEnabled = false;
     private static Class<?> tokenClass;
     private static Object tokenObject;
-    private static Integer timeToExpirationMinutes = 60;
+    private static Double timeToExpirationMinutes = 60.0;
 
     /** Creates a new {@code InferenceRequestHandler} instance. */
     public TokenAuthorizationHandler(TokenType type) {
@@ -59,9 +59,9 @@ public class TokenAuthorizationHandler extends HttpRequestHandlerChain {
         try {
             tokenClass = Class.forName("org.pytorch.serve.plugins.endpoint.Token");
             tokenObject = tokenClass.getDeclaredConstructor().newInstance();
-            Method method = tokenClass.getMethod("setTime", Integer.class);
-            Integer time = ConfigManager.getInstance().getTimeToExpiration();
-            if (time != 0) {
+            Method method = tokenClass.getMethod("setTime", Double.class);
+            Double time = ConfigManager.getInstance().getTimeToExpiration();
+            if (time != 0.0) {
                 timeToExpirationMinutes = time;
             }
             method.invoke(tokenObject, timeToExpirationMinutes);

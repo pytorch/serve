@@ -66,6 +66,8 @@ def setup_torchserve():
     MODEL_STORE = os.path.join(ROOT_DIR, "model_store/")
     PLUGIN_STORE = os.path.join(ROOT_DIR, "plugins-path")
 
+    Path(test_utils.MODEL_STORE).mkdir(parents=True, exist_ok=True)
+
     test_utils.start_torchserve(no_config_snapshots=True, plugin_folder=PLUGIN_STORE)
 
     key = read_key_file("management")
@@ -94,10 +96,10 @@ def setup_torchserve_expiration():
     MODEL_STORE = os.path.join(ROOT_DIR, "model_store/")
     PLUGIN_STORE = os.path.join(ROOT_DIR, "plugins-path")
 
+    Path(test_utils.MODEL_STORE).mkdir(parents=True, exist_ok=True)
+
     test_utils.start_torchserve(
-        snapshot_file=config_file,
-        no_config_snapshots=True,
-        plugin_folder=PLUGIN_STORE,
+        snapshot_file=config_file, no_config_snapshots=True, plugin_folder=PLUGIN_STORE
     )
 
     key = read_key_file("management")
@@ -214,13 +216,14 @@ def test_token_management_api(setup_torchserve):
 
 
 # Test expiration time
+@pytest.mark.module2
 def test_token_expiration_time(setup_torchserve_expiration):
     key = read_key_file("management")
     header = {"Authorization": f"Bearer {key}"}
     response = requests.get("http://localhost:8081/models/resnet18", headers=header)
     assert response.status_code == 200, "Token check failed"
 
-    time.sleep(60)
+    time.sleep(15)
 
     response = requests.get("http://localhost:8081/models/resnet18", headers=header)
     assert response.status_code == 400, "Token check failed"
