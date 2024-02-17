@@ -5,8 +5,6 @@
 #include <folly/json.h>
 #include <fmt/format.h>
 #include <iostream>
-#include <sentencepiece_processor.h>
-#include <sentencepiece_trainer.h>
 #include <torch/torch.h>
 #include <torch/csrc/inductor/aoti_model_container_runner.h>
 #include <torch/csrc/inductor/aoti_model_container_runner_cuda.h>
@@ -25,6 +23,13 @@ class ResnetCppHandler : public torchserve::BaseHandler {
       std::shared_ptr<torchserve::LoadModelRequest>& load_model_request)
       override;
 
+  c10::IValue Preprocess(
+    std::shared_ptr<torch::Device>& device,
+    std::pair<std::string&, std::map<uint8_t, std::string>&>& idx_to_req_id,
+    std::shared_ptr<torchserve::InferenceRequestBatch>& request_batch,
+    std::shared_ptr<torchserve::InferenceResponseBatch>& response_batch)
+    override;
+
   c10::IValue Inference(
       std::shared_ptr<void> model, c10::IValue& inputs,
       std::shared_ptr<torch::Device>& device,
@@ -41,6 +46,7 @@ class ResnetCppHandler : public torchserve::BaseHandler {
 private:
   std::unique_ptr<folly::dynamic> LoadJsonFile(const std::string& file_path);
   const folly::dynamic& GetJsonValue(std::unique_ptr<folly::dynamic>& json, const std::string& key);
+  std::string MapClassToLabel(const torch::Tensor& classes, const torch::Tensor& probs);
 
   std::unique_ptr<folly::dynamic> config_json_;
   std::unique_ptr<folly::dynamic> mapping_json_;

@@ -5,7 +5,7 @@ from torchvision.models import ResNet50_Weights, resnet50
 
 torch.set_float32_matmul_precision("high")
 
-MAX_BATCH_SIZE = 32
+MAX_BATCH_SIZE = 15
 
 model = resnet50(weights=ResNet50_Weights.DEFAULT)
 model.eval()
@@ -15,11 +15,12 @@ with torch.no_grad():
         device = "cuda"
     else:
         device = "cpu"
+        # The max batch size is less than 16. The following setting can only work in PT2.3.
         # We need to turn off the below optimizations to support batch_size = 16,
         # which is treated like a special case
         # https://github.com/pytorch/pytorch/pull/116152
-        torch.backends.mkldnn.set_flags(False)
-        torch.backends.nnpack.set_flags(False)
+        # torch.backends.mkldnn.set_flags(False)
+        # torch.backends.nnpack.set_flags(False)
 
     model = model.to(device=device)
     example_inputs = (torch.randn(2, 3, 224, 224, device=device),)
