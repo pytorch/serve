@@ -22,7 +22,7 @@ list(APPEND BACKEND_SOURCE_FILES ${TS_BACKENDS_SRC_DIR}/handler/base_handler.cc)
 list(APPEND BACKEND_SOURCE_FILES ${TS_BACKENDS_SRC_DIR}/handler/torch_scripted_handler.cc)
 add_library(ts_backends_core SHARED ${BACKEND_SOURCE_FILES})
 target_include_directories(ts_backends_core PUBLIC ${TS_BACKENDS_CORE_SRC_DIR})
-target_link_libraries(ts_backends_core PUBLIC ts_utils ts_backends_protocol ${FOLLY_LIBRARIES})
+target_link_libraries(ts_backends_core PUBLIC ts_utils ts_backends_protocol ${FOLLY_LIBRARIES} ${TORCH_LIBRARIES})
 install(TARGETS ts_backends_core DESTINATION ${torchserve_cpp_SOURCE_DIR}/_build/libs)
 
 # build exe model_worker_socket

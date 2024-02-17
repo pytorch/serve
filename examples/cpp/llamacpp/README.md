@@ -1,5 +1,7 @@
+## Llama.cpp example
+
 This example used [llama.cpp](https://github.com/ggerganov/llama.cpp) to deploy a Llama-2-7B-Chat model using the TorchServe C++ backend.
-The handler C++ source code for this examples can be found [here](../../../cpp/src/examples/llamacpp/).
+The handler C++ source code for this examples can be found [here](./src/).
 
 ### Setup
 1. Follow the instructions in [README.md](../../../cpp/README.md) to build the TorchServe C++ backend.
@@ -26,10 +28,10 @@ echo '{
 
 5. Copy handle .so file
 
-While building the C++ backend the `libllamacpp_handler.so` file is generated in the [llamacpp_handler](../../../cpp/test/resources/examples/llamacpp/llamacpp_handler) folder.
+While building the C++ backend the `libllamacpp_handler.so` file is generated in the [llamacpp_handler](../../../cpp/_build/test/resources/examples/llamacpp/llamacpp_handler) folder.
 
 ```bash
-cp ../../../cpp/test/resources/examples/llamacpp/llamacpp_handler/libllamacpp_handler.so ./
+cp ../../../cpp/_build/test/resources/examples/llamacpp/llamacpp_handler/libllamacpp_handler.so ./
 ```
 
 ### Generate MAR file
