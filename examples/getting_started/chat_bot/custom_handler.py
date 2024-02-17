@@ -87,15 +87,17 @@ class LlamaHandler(BaseHandler, ABC):
                 attention masks.
         """
         input_texts = [data.get("data") or data.get("body") for data in requests]
-        input_ids_batch, attention_mask_batch, params = [], [], []
+        input_ids_batch, attention_mask_batch, params, req_times = [], [], [], []
         for input_text in input_texts:
+            logger.info(input_text)
             input_ids, attention_mask = self.encode_input_text(input_text["prompt"])
             input_ids_batch.append(input_ids)
             attention_mask_batch.append(attention_mask)
             params.append(input_text["params"])
+            req_times.append(input_text["req_time"])
         input_ids_batch = torch.cat(input_ids_batch, dim=0).to(self.model.device)
         attention_mask_batch = torch.cat(attention_mask_batch, dim=0).to(self.device)
-        return input_ids_batch, attention_mask_batch, params
+        return input_ids_batch, attention_mask_batch, params, req_times
 
     def encode_input_text(self, input_text):
         """
@@ -130,9 +132,9 @@ class LlamaHandler(BaseHandler, ABC):
         Returns:
             list: A list of strings with the predicted values for each input text in the batch.
         """
-        input_ids_batch, attention_mask_batch, params = input_batch
+        input_ids_batch, attention_mask_batch, params, req_times = input_batch
         logger.info(
-            f'temperature: {params[0]["temperature"]}, top_p: {params[0]["top_p"]}, max_tokens: {params[0]["max_tokens"]}'
+            f'temperature: {params[0]["temperature"]}, top_p: {params[0]["top_p"]}, max_new_tokens: {params[0]["max_new_tokens"]}'
         )
         input_ids_batch = input_ids_batch.to(self.device)
         # outputs = self.model.generate(
@@ -154,7 +156,7 @@ class LlamaHandler(BaseHandler, ABC):
             inputs=input_ids_batch,
             attention_mask=attention_mask_batch,
             streamer=self.output_streamer,
-            max_length=params[0]["max_tokens"],
+            max_new_tokens=params[0]["max_new_tokens"],
             temperature=params[0]["temperature"],
             top_p=params[0]["top_p"],
         )
