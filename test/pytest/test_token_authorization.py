@@ -32,12 +32,6 @@ def get_plugin_jar():
             os.path.join(new_folder_path, jar_file[0]),
         )
     os.chdir(REPO_ROOT)
-    # result = subprocess.run(
-    #     f"python ts_scripts/install_from_source",
-    #     shell=True,
-    #     capture_output=True,
-    #     text=True,
-    # )
 
 
 # Parse json file and return key
