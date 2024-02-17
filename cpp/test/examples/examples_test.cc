@@ -84,7 +84,7 @@ TEST_F(ModelPredictTest, TestLoadPredictAotInductorResnetHandler) {
 TEST_F(ModelPredictTest, TestLoadPredictAotInductorBertHandler) {
   std::string base_dir = "_build/test/resources/examples/aot_inductor/";
   std::string file1 = base_dir + "bert_handler/bert-seq.so";
-  std::string file2 = base_dir + "bert_handler/Transformer_model/tokenizer.json";
+  std::string file2 = base_dir + "bert_handler/tokenizer.json";
 
   std::ifstream f1(file1);
   std::ifstream f2(file2);

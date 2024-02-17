@@ -206,12 +206,13 @@ function prepare_test_files() {
       python ${BASE_DIR}/../examples/cpp/aot_inductor/resnet/resnet50_torch_export.py
     fi
     if [ ! -f "${EX_DIR}/aot_inductor/bert_handler/bert-seq.so" ]; then
+      pip install transformers
       local HANDLER_DIR=${EX_DIR}/aot_inductor/bert_handler/
       export TOKENIZERS_PARALLELISM=false
       cd ${BASE_DIR}/../examples/cpp/aot_inductor/bert/
       python aot_compile_export.py
       mv bert-seq.so ${HANDLER_DIR}/bert-seq.so
-      mv Transformer_model ${HANDLER_DIR}/Transformer_model
+      mv Transformer_model/tokenizer_config.json ${HANDLER_DIR}/tokenizer_config.json
       export TOKENIZERS_PARALLELISM=""
     fi
   fi
