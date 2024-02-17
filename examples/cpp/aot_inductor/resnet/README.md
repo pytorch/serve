@@ -11,7 +11,7 @@ cd serve/cpp
 
 The build script will create the necessary artifact for this example.
 To recreate these by hand you can follow the prepare_test_files function of the [build.sh](../../../../cpp/build.sh) script.
-We will need the handler .so file as well as the resne50_pt2.so file containing the model and weights.
+We will need the handler .so file as well as the resnet50_pt2.so file containing the model and weights.
 
 2. Create a [model-config.yaml](model-config.yaml)
 
