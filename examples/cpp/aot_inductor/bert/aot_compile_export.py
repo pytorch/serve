@@ -1,8 +1,8 @@
-import json
 import os
 import sys
 
 import torch
+import yaml
 from transformers import (
     AutoConfig,
     AutoModelForSequenceClassification,
@@ -98,14 +98,15 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         filename = os.path.join(dirname, sys.argv[1])
     else:
-        filename = os.path.join(dirname, "config.json")
-    f = open(filename)
-    settings = json.load(f)
-    mode = settings["mode"]
-    model_name = settings["model_name"]
-    num_labels = int(settings["num_labels"])
-    do_lower_case = settings["do_lower_case"]
-    max_length = int(settings["max_length"])
+        filename = os.path.join(dirname, "model-config.yaml")
+    with open(filename, "r") as f:
+        settings = yaml.load(f)
+
+    mode = settings["handler"]["mode"]
+    model_name = settings["handler"]["model_name"]
+    num_labels = int(settings["handler"]["num_labels"])
+    do_lower_case = settings["handler"]["do_lower_case"]
+    max_length = int(settings["handler"]["max_length"])
     batch_size = int(settings.get("batch_size", "1"))
 
     transformers_model_dowloader(

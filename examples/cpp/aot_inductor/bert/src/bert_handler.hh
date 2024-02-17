@@ -9,6 +9,7 @@
 #include <torch/torch.h>
 #include <torch/csrc/inductor/aoti_model_container_runner.h>
 #include <torch/csrc/inductor/aoti_model_container_runner_cuda.h>
+#include <yaml-cpp/yaml.h>
 
 #include "src/backends/handler/base_handler.hh"
 
@@ -49,9 +50,9 @@ private:
   std::unique_ptr<folly::dynamic> LoadJsonFile(const std::string& file_path);
   const folly::dynamic& GetJsonValue(std::unique_ptr<folly::dynamic>& json, const std::string& key);
 
-  std::unique_ptr<folly::dynamic> config_json_;
   std::unique_ptr<folly::dynamic> mapping_json_;
   std::unique_ptr<tokenizers::Tokenizer> tokenizer_;
+  std::unique_ptr<YAML::Node> model_config_yaml_;
   int max_length_;
 };
 }  // namespace bert
