@@ -12,7 +12,7 @@ import test_utils
 
 ROOT_DIR = os.path.join(tempfile.gettempdir(), "workspace")
 REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../")
-data_file_kitten = os.path.join(REPO_ROOT, "test/pytest/test_data/kitten.jpg")
+data_file_zero = os.path.join(REPO_ROOT, "test/pytest/test_data/0.png")
 config_file = os.path.join(REPO_ROOT, "test/resources/config_token.properties")
 
 
@@ -46,11 +46,6 @@ def read_key_file(type):
     with open(json_file_path) as json_file:
         json_data = json.load(json_file)
 
-    # Extract the three keys
-    # management_key =
-    # inference_key = json_data.get("inference", {}).get("key", "NOT_PRESENT")
-    # api_key = json_data.get("API", {}).get("key", "NOT_PRESENT")
-
     options = {
         "management": json_data.get("management", {}).get("key", "NOT_PRESENT"),
         "inference": json_data.get("inference", {}).get("key", "NOT_PRESENT"),
@@ -74,8 +69,8 @@ def setup_torchserve():
     header = {"Authorization": f"Bearer {key}"}
 
     params = (
-        ("model_name", "resnet18"),
-        ("url", "resnet-18.mar"),
+        ("model_name", "mnist"),
+        ("url", "mnist.mar"),
         ("initial_workers", "1"),
         ("synchronous", "true"),
     )
@@ -106,8 +101,8 @@ def setup_torchserve_expiration():
     header = {"Authorization": f"Bearer {key}"}
 
     params = (
-        ("model_name", "resnet18"),
-        ("url", "resnet-18.mar"),
+        ("model_name", "mnist"),
+        ("url", "mnist.mar"),
         ("initial_workers", "1"),
         ("synchronous", "true"),
     )
@@ -126,7 +121,7 @@ def setup_torchserve_expiration():
 def test_managament_api_with_token(setup_torchserve):
     key = read_key_file("management")
     header = {"Authorization": f"Bearer {key}"}
-    response = requests.get("http://localhost:8081/models/resnet18", headers=header)
+    response = requests.get("http://localhost:8081/models/mnist", headers=header)
 
     assert response.status_code == 200, "Token check failed"
 
@@ -135,7 +130,7 @@ def test_managament_api_with_token(setup_torchserve):
 def test_managament_api_with_incorrect_token(setup_torchserve):
     # Using random key
     header = {"Authorization": "Bearer abcd1234"}
-    response = requests.get(f"http://localhost:8081/models/resnet18", headers=header)
+    response = requests.get(f"http://localhost:8081/models/mnist", headers=header)
 
     assert response.status_code == 400, "Token check failed"
 
@@ -146,8 +141,8 @@ def test_inference_api_with_token(setup_torchserve):
     header = {"Authorization": f"Bearer {key}"}
 
     response = requests.post(
-        url="http://localhost:8080/predictions/resnet18",
-        files={"data": open(data_file_kitten, "rb")},
+        url="http://localhost:8080/predictions/mnist",
+        files={"data": open(data_file_zero, "rb")},
         headers=header,
     )
 
@@ -160,8 +155,8 @@ def test_inference_api_with_incorrect_token(setup_torchserve):
     header = {"Authorization": "Bearer abcd1234"}
 
     response = requests.post(
-        url="http://localhost:8080/predictions/resnet18",
-        files={"data": open(data_file_kitten, "rb")},
+        url="http://localhost:8080/predictions/mnist",
+        files={"data": open(data_file_zero, "rb")},
         headers=header,
     )
 
@@ -178,8 +173,8 @@ def test_token_inference_api(setup_torchserve):
 
     # check inference works with current token
     response = requests.post(
-        url="http://localhost:8080/predictions/resnet18",
-        files={"data": open(data_file_kitten, "rb")},
+        url="http://localhost:8080/predictions/mnist",
+        files={"data": open(data_file_zero, "rb")},
         headers=header_inference,
     )
     assert response.status_code == 200, "Token check failed"
@@ -193,8 +188,8 @@ def test_token_inference_api(setup_torchserve):
 
     # check inference does not works with original token
     response = requests.post(
-        url="http://localhost:8080/predictions/resnet18",
-        files={"data": open(data_file_kitten, "rb")},
+        url="http://localhost:8080/predictions/mnist",
+        files={"data": open(data_file_zero, "rb")},
         headers=header_inference,
     )
     assert response.status_code == 400, "Token check failed"
@@ -220,10 +215,10 @@ def test_token_management_api(setup_torchserve):
 def test_token_expiration_time(setup_torchserve_expiration):
     key = read_key_file("management")
     header = {"Authorization": f"Bearer {key}"}
-    response = requests.get("http://localhost:8081/models/resnet18", headers=header)
+    response = requests.get("http://localhost:8081/models/mnist", headers=header)
     assert response.status_code == 200, "Token check failed"
 
     time.sleep(15)
 
-    response = requests.get("http://localhost:8081/models/resnet18", headers=header)
+    response = requests.get("http://localhost:8081/models/mnist", headers=header)
     assert response.status_code == 400, "Token check failed"
