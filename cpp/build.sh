@@ -207,7 +207,7 @@ function prepare_test_files() {
       cd ${BASE_DIR}/../examples/cpp/aot_inductor/bert/
       python aot_compile_export.py
       mv bert-seq.so ${HANDLER_DIR}/bert-seq.so
-      mv Transformer_model/tokenizer_config.json ${HANDLER_DIR}/tokenizer_config.json
+      mv Transformer_model/tokenizer.json ${HANDLER_DIR}/tokenizer.json
       export TOKENIZERS_PARALLELISM=""
     fi
   fi
