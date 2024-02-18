@@ -1,10 +1,11 @@
 import json
+import os
 import time
 
 import requests
 import streamlit as st
 
-MODEL_NAME = "llama2-7b-chat"
+MODEL_NAME = os.environ["MODEL_NAME_1"]
 # MODEL_NAME = "mistral-7b"
 
 # App title
@@ -32,7 +33,8 @@ with st.sidebar:
 
     st.subheader("Model Selection")
     MODEL_NAME = st.select_slider(
-        "Select a model", options=["llama2-7b-chat", "mistral-7b"]
+        "Select a model",
+        options=[os.environ["MODEL_NAME_1"], os.environ["MODEL_NAME_2"]],
     )
     if st.session_state.model_loaded:
         st.success(f"Model selected: {MODEL_NAME}!", icon="👉")

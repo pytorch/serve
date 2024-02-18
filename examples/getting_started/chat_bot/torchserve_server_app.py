@@ -4,8 +4,8 @@ import os
 import requests
 import streamlit as st
 
-MODEL_NAME_1 = "llama2-7b-chat"
-MODEL_NAME_2 = "mistral-7b"
+MODEL_NAME_1 = os.environ["MODEL_NAME_1"]
+MODEL_NAME_2 = os.environ["MODEL_NAME_2"]
 # App title
 st.set_page_config(page_title="TorchServe Server")
 

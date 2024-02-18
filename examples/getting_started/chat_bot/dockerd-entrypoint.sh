@@ -15,7 +15,9 @@ create_model_archive() {
         echo "Model needs to be downloaded"
     fi
     torch-model-archiver --model-name "$MODEL_NAME" --version 1.0 --handler custom_handler.py --config-file $MODEL_CFG -r requirements.txt --archive-format no-archive --export-path /home/model-server/model-store -f
-    mv /home/model-server/model-store/model /home/model-server/model-store/$MODEL_NAME/
+    if [ -d "/home/model-server/model-store/model" ]; then
+        mv /home/model-server/model-store/model /home/model-server/model-store/$MODEL_NAME/
+    fi
 }
 
 download_model() {
@@ -30,12 +32,14 @@ download_model() {
 
 }
 
+HF_MODEL_NAME_1=$(echo "$MODEL_NAME_1" | sed 's/---/\//g')
+HF_MODEL_NAME_2=$(echo "$MODEL_NAME_2" | sed 's/---/\//g')
 if [[ "$1" = "serve" ]]; then
     shift 1
     create_model_archive $MODEL_NAME_1 "model-config-$MODEL_NAME_1.yaml"
-    download_model $MODEL_NAME_1 "mistralai/Mistral-7B-v0.1"
+    download_model $MODEL_NAME_1 $HF_MODEL_NAME_1
     create_model_archive $MODEL_NAME_2 "model-config-$MODEL_NAME_2.yaml"
-    download_model $MODEL_NAME_2 "meta-llama/Llama-2-7b-chat-hf"
+    download_model $MODEL_NAME_2 $HF_MODEL_NAME_2
     streamlit run torchserve_server_app.py --server.port 8084 &
     streamlit run client_app.py --server.port 8085
 else

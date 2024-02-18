@@ -15,13 +15,13 @@ logger = logging.getLogger(__name__)
 logger.info("Transformers version %s", transformers.__version__)
 
 
-class LlamaHandler(BaseHandler, ABC):
+class HFLLMHandler(BaseHandler, ABC):
     """
     Transformers handler class for sequence, token classification and question answering.
     """
 
     def __init__(self):
-        super(LlamaHandler, self).__init__()
+        super(HFLLMHandler, self).__init__()
         self.max_length = None
         self.max_new_tokens = None
         self.tokenizer = None

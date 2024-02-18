@@ -2,28 +2,12 @@
 
 # Check if there are enough arguments
 if [ "$#" -eq 0 ] || [ "$#" -gt 2 ]; then
-  echo "Usage: $0 <arg1> <arg2>"
+  echo "Usage: $0 <HF Model 1> <HF Model 2>"
   exit 1
 fi
 
-## Store arguments in variables
-#args=("$@")
-#
-## Access individual arguments
-#for ((i=0; i<"${#args[@]}"; i++)); do
-#  variable_name="model_$((i+1))"
-#  declare "$variable_name"="${args[i]}"
-#done
-#
-## Example: Print the variables
-#echo "Arguments stored in variables:"
-#for ((i=0; i<"${#args[@]}"; i++)); do
-#  variable_name="model_$((i+1))"
-#  echo "$variable_name: ${!variable_name}"
-#done
-
-MODEL_NAME_1=$1
-MODEL_NAME_2=$2
+MODEL_NAME_1=$(echo "$1" | sed 's/\//---/g')
+MODEL_NAME_2=$(echo "$2" | sed 's/\//---/g')
 echo "Models: " $MODEL_NAME_1 $MODEL_NAME_2
 
 BASE_IMAGE="pytorch/torchserve:latest-gpu"
@@ -51,3 +35,8 @@ cd docker
 cd ..
 
 DOCKER_BUILDKIT=1 docker build --file ${EXAMPLE_DIR}/Dockerfile --build-arg BASE_IMAGE="${BASE_IMAGE}" --build-arg EXAMPLE_DIR="${EXAMPLE_DIR}" --build-arg MODEL_NAME_1="${MODEL_NAME_1}" --build-arg MODEL_NAME_2="${MODEL_NAME_2}" --build-arg HUGGINGFACE_TOKEN -t "${DOCKER_TAG}" .
+
+echo "Run the following command to start the chat bot"
+echo ""
+echo docker run --rm -it --gpus all -p 127.0.0.1:8080:8080 -p 127.0.0.1:8081:8081 -p 127.0.0.1:8082:8082 -p 8084:8084 -p 8085:8085 -v $(pwd)/model_store_1:/home/model-server/model-store $DOCKER_TAG
+echo ""
