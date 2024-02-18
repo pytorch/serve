@@ -12,6 +12,7 @@ from transformers import (
 
 set_seed(1)
 MAX_BATCH_SIZE = 15
+MAX_LENGTH = 1024
 
 
 def transformers_model_dowloader(
@@ -75,8 +76,8 @@ def transformers_model_dowloader(
         attention_mask = torch.cat([inputs["attention_mask"]] * batch_size, 0).to(
             device
         )
-        batch_dim = torch.export.Dim("batch", min=1, max=8)
-        seq_len_dim = torch.export.Dim("seq_len", min=1, max=max_length)
+        batch_dim = torch.export.Dim("batch", min=1, max=MAX_BATCH_SIZE)
+        seq_len_dim = torch.export.Dim("seq_len", min=1, max=MAX_LENGTH)
         torch._C._GLIBCXX_USE_CXX11_ABI = True
         model_so_path = torch._export.aot_compile(
             model,
