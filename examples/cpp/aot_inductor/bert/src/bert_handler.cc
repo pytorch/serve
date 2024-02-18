@@ -177,8 +177,6 @@ c10::IValue BertCppHandler::Inference(
     }
 
     auto batch_output_tensor_vector = runner->run(inputs.toTensorVector());
-    auto batch_output_tensor_vector = runner->run(vec);
-
     return c10::IValue(batch_output_tensor_vector[0]);
   } catch (std::runtime_error& e) {
     TS_LOG(ERROR, e.what());

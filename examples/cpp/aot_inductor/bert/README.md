@@ -34,7 +34,7 @@ handler:
 ### Generate Model Artifact Folder
 
 ```bash
-torch-model-archiver --model-name bertcppaot --version 1.0 --handler ../../../../cpp/_build/test/resources/examples/aot_inductor/bert/libbert_handler:BertCppHandler --runtime LSP --extra-files index_to_name.json,../../../../cpp/_build/test/resources/examples/aot_inductor/bert_handler/bert-seq.so,../../../../cpp/_build/test/resources/examples/aot_inductor/bert_handler/tokenizer.json  --config-file model-config.yaml --archive-format no-archive
+torch-model-archiver --model-name bertcppaot --version 1.0 --handler ../../../../cpp/_build/test/resources/examples/aot_inductor/bert_handler/libbert_handler:BertCppHandler --runtime LSP --extra-files index_to_name.json,../../../../cpp/_build/test/resources/examples/aot_inductor/bert_handler/bert-seq.so,../../../../cpp/_build/test/resources/examples/aot_inductor/bert_handler/tokenizer.json  --config-file model-config.yaml --archive-format no-archive
 ```
 
 Create model store directory and move the folder `bertcppaot`
@@ -56,11 +56,5 @@ Infer the model using the following command
 
 ```
 curl http://localhost:8080/predictions/bertcppaot -T ../../../../cpp/test/resources/examples/aot_inductor/bert_handler/sample_text.txt
-{
-  "lens_cap": 0.0022578993812203407,
-  "lynx": 0.0032067005522549152,
-  "Egyptian_cat": 0.046274684369564056,
-  "tiger_cat": 0.13740436732769012,
-  "tabby": 0.2724998891353607
-}
+Not Accepted
 ```

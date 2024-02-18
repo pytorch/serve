@@ -11,6 +11,7 @@ from transformers import (
 )
 
 set_seed(1)
+MAX_BATCH_SIZE = 15
 
 
 def transformers_model_dowloader(
@@ -100,15 +101,14 @@ if __name__ == "__main__":
     else:
         filename = os.path.join(dirname, "model-config.yaml")
     with open(filename, "r") as f:
-        settings = yaml.load(f)
+        settings = yaml.safe_load(f)
 
     mode = settings["handler"]["mode"]
     model_name = settings["handler"]["model_name"]
     num_labels = int(settings["handler"]["num_labels"])
-    do_lower_case = settings["handler"]["do_lower_case"]
+    do_lower_case = bool(settings["handler"]["do_lower_case"])
     max_length = int(settings["handler"]["max_length"])
-    batch_size = int(settings.get("batch_size", "1"))
-
+    batch_size = int(settings["batchSize"])
     transformers_model_dowloader(
         mode,
         model_name,
