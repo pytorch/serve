@@ -11,8 +11,9 @@ from transformers import (
 )
 
 set_seed(1)
+# PT2.2 has limitation on the max
 MAX_BATCH_SIZE = 15
-MAX_LENGTH = 1024
+MAX_LENGTH = 511
 
 
 def transformers_model_dowloader(
