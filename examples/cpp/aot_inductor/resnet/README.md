@@ -25,15 +25,13 @@ handler:
   mapping: "index_to_name.json"
 ```
 
-### Generate MAR file
-
-Now lets generate the mar file
+### Generate MModel Artifacts Folder
 
 ```bash
 torch-model-archiver --model-name resnetcppaot --version 1.0 --handler ../../../../cpp/_build/test/resources/examples/aot_inductor/resnet_handler/libresnet_handler:ResnetCppHandler --runtime LSP --extra-files index_to_name.json,../../../../cpp/_build/test/resources/examples/aot_inductor/resnet_handler/resnet50_pt2.so --config-file model-config.yaml --archive-format no-archive
 ```
 
-Create model store directory and move the mar file
+Create model store directory and move the folder `resnetcppaot`
 
 ```
 mkdir model_store
@@ -45,18 +43,9 @@ mv resnetcppaot model_store/
 Start torchserve using the following command
 
 ```
-torchserve --ncs --model-store model_store/
+torchserve --ncs --model-store model_store/ --models resnetcppaot
 ```
 
-Register the model using the following command
-
-```
-curl -v -X POST "http://localhost:8081/models?initial_workers=1&url=resnetcppaot&batch_size=2&max_batch_delay=5000"
-
-{
-  "status": "Model \"resnetcppaot\" Version: 1.0 registered with 1 initial workers"
-}
-```
 
 Infer the model using the following command
 
