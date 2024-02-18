@@ -25,7 +25,7 @@ handler:
   mapping: "index_to_name.json"
 ```
 
-### Generate MModel Artifacts Folder
+### Generate Model Artifacts Folder
 
 ```bash
 torch-model-archiver --model-name resnetcppaot --version 1.0 --handler ../../../../cpp/_build/test/resources/examples/aot_inductor/resnet_handler/libresnet_handler:ResnetCppHandler --runtime LSP --extra-files index_to_name.json,../../../../cpp/_build/test/resources/examples/aot_inductor/resnet_handler/resnet50_pt2.so --config-file model-config.yaml --archive-format no-archive
