@@ -4,38 +4,39 @@ import os
 import requests
 import streamlit as st
 
-MODEL_NAME = "llama2-7b-chat"
+MODEL_NAME_1 = "llama2-7b-chat"
+MODEL_NAME_2 = "mistral-7b"
 # App title
-st.set_page_config(page_title="🦙💬 Llama 2 TorchServe Serve")
+st.set_page_config(page_title="TorchServe Server")
 
 
 def start_server():
     os.system("torchserve --start --ts-config /home/model-server/config.properties")
     st.session_state.started = True
     st.session_state.stopped = False
-    st.session_state.registered = False
+    st.session_state.registered = {MODEL_NAME_1: False, MODEL_NAME_2: False}
 
 
 def stop_server():
     os.system("torchserve --stop")
     st.session_state.stopped = True
     st.session_state.started = False
-    st.session_state.registered = False
+    st.session_state.registered = {MODEL_NAME_1: False, MODEL_NAME_2: False}
 
 
-def _register_model(url):
+def _register_model(url, MODEL_NAME):
     res = requests.post(url)
     if res.status_code != 200:
         server_state_container.error("Error registering model", icon="🚫")
         st.session_state.started = True
         return
-    st.session_state.registered = True
-    st.session_state.started = False
+    st.session_state.registered[MODEL_NAME] = True
+    # st.session_state.started = False
     st.session_state.stopped = False
     server_state_container.caption(res.text)
 
 
-def register_model():
+def register_model(MODEL_NAME):
     if not st.session_state.started:
         server_state_container.caption("TorchServe is not running. Start it")
         return
@@ -43,61 +44,68 @@ def register_model():
         f"http://localhost:8081/models?model_name={MODEL_NAME}&url={MODEL_NAME}"
         f"&initial_workers=1&synchronous=true"
     )
-    _register_model(url)
+    _register_model(url, MODEL_NAME)
 
 
 def get_status():
-    if st.session_state.registered:
-        url = f"http://localhost:8081/models/{MODEL_NAME}"
-        res = requests.get(url)
-        if res.status_code != 200:
-            model_state_container.error("Error getting model status", icon="🚫")
-            return
-        status = json.loads(res.text)[0]
-        model_state_container.write(status)
+    for MODEL_NAME in [MODEL_NAME_1, MODEL_NAME_2]:
+        if st.session_state.registered[MODEL_NAME]:
+            url = f"http://localhost:8081/models/{MODEL_NAME}"
+            res = requests.get(url)
+            if res.status_code != 200:
+                model_state_container.error(
+                    f"Error getting model status for {MODEL_NAME}", icon="🚫"
+                )
+                return
+            print(res.text)
+            status = json.loads(res.text)[0]
+            model_state_container.write(status)
 
 
 def scale_workers(workers):
-    if st.session_state.registered:
-        num_workers = st.session_state[workers]
-        url = (
-            f"http://localhost:8081/models/{MODEL_NAME}?min_worker="
-            f"{str(num_workers)}&synchronous=true"
-        )
-        res = requests.put(url)
-        server_state_container.caption(res.text)
+    for MODEL_NAME in [MODEL_NAME_1, MODEL_NAME_2]:
+        if st.session_state.registered[MODEL_NAME]:
+            num_workers = st.session_state[workers]
+            url = (
+                f"http://localhost:8081/models/{MODEL_NAME}?min_worker="
+                f"{str(num_workers)}&synchronous=true"
+            )
+            res = requests.put(url)
+            server_state_container.caption(res.text)
 
 
 def set_batch_size(batch_size):
-    if st.session_state.registered:
-        url = f"http://localhost:8081/models/{MODEL_NAME}/1.0"
-        res = requests.delete(url)
-        server_state_container.caption(res.text)
-        st.session_state.registered = False
+    for MODEL_NAME in [MODEL_NAME_1, MODEL_NAME_2]:
+        if st.session_state.registered[MODEL_NAME]:
+            url = f"http://localhost:8081/models/{MODEL_NAME}/1.0"
+            res = requests.delete(url)
+            server_state_container.caption(res.text)
+            st.session_state.registered[MODEL_NAME] = False
 
-        batch_size = st.session_state[batch_size]
-        url = (
-            f"http://localhost:8081/models?model_name={MODEL_NAME}&url={MODEL_NAME}"
-            f"&batch_size={str(batch_size)}&initial_workers={str(workers)}"
-            f"&synchronous=true&max_batch_delay={str(max_batch_delay)}"
-        )
-        _register_model(url)
+            batch_size = st.session_state[batch_size]
+            url = (
+                f"http://localhost:8081/models?model_name={MODEL_NAME}&url={MODEL_NAME}"
+                f"&batch_size={str(batch_size)}&initial_workers={str(workers)}"
+                f"&synchronous=true&max_batch_delay={str(max_batch_delay)}"
+            )
+            _register_model(url, MODEL_NAME)
 
 
 def set_max_batch_delay(max_batch_delay):
-    if st.session_state.registered:
-        url = f"http://localhost:8081/models/{MODEL_NAME}/1.0"
-        res = requests.delete(url)
-        server_state_container.caption(res.text)
-        st.session_state.registered = False
+    for MODEL_NAME in [MODEL_NAME_1, MODEL_NAME_2]:
+        if st.session_state.registered[MODEL_NAME]:
+            url = f"http://localhost:8081/models/{MODEL_NAME}/1.0"
+            res = requests.delete(url)
+            server_state_container.caption(res.text)
+            st.session_state.registered[MODEL_NAME] = False
 
-        max_batch_delay = st.session_state[max_batch_delay]
-        url = (
-            f"http://localhost:8081/models?model_name={MODEL_NAME}&url="
-            f"{MODEL_NAME}&batch_size={str(batch_size)}&initial_workers="
-            f"{str(workers)}&synchronous=true&max_batch_delay={str(max_batch_delay)}"
-        )
-        _register_model(url)
+            max_batch_delay = st.session_state[max_batch_delay]
+            url = (
+                f"http://localhost:8081/models?model_name={MODEL_NAME}&url="
+                f"{MODEL_NAME}&batch_size={str(batch_size)}&initial_workers="
+                f"{str(workers)}&synchronous=true&max_batch_delay={str(max_batch_delay)}"
+            )
+            _register_model(url, MODEL_NAME)
 
 
 if "started" not in st.session_state:
@@ -105,14 +113,15 @@ if "started" not in st.session_state:
 if "stopped" not in st.session_state:
     st.session_state.stopped = False
 if "registered" not in st.session_state:
-    st.session_state.registered = False
+    st.session_state.registered = {MODEL_NAME_1: False, MODEL_NAME_2: False}
 
 with st.sidebar:
-    st.title("🦙💬 Llama 2 TorchServe Server ")
+    st.title("TorchServe Server ")
 
     st.button("Start Server", on_click=start_server)
     st.button("Stop Server", on_click=stop_server)
-    st.button("Register Llama2", on_click=register_model)
+    st.button("Register Llama2", on_click=register_model, args=(MODEL_NAME_1,))
+    st.button("Register Mistral", on_click=register_model, args=(MODEL_NAME_2,))
     workers = st.sidebar.slider(
         "Num Workers",
         key="Num Workers",
@@ -147,8 +156,11 @@ with st.sidebar:
     if st.session_state.stopped:
         st.success("Stopped TorchServe", icon="✅")
 
-    if st.session_state.registered:
-        st.success("Registered model", icon="✅")
+    if st.session_state.registered[MODEL_NAME_1]:
+        st.success(f"Registered model {MODEL_NAME_1}", icon="✅")
+
+    if st.session_state.registered[MODEL_NAME_2]:
+        st.success(f"Registered model {MODEL_NAME_2}", icon="✅")
 
 st.title("TorchServe Status")
 server_state_container = st.container()
@@ -160,8 +172,11 @@ if st.session_state.started:
 if st.session_state.stopped:
     server_state_container.success("Stopped TorchServe", icon="✅")
 
-if st.session_state.registered:
-    server_state_container.success("Registered model", icon="✅")
+if st.session_state.registered[MODEL_NAME_1]:
+    server_state_container.success(f"Registered model {MODEL_NAME_1}", icon="✅")
+
+if st.session_state.registered[MODEL_NAME_2]:
+    server_state_container.success(f"Registered model {MODEL_NAME_2}", icon="✅")
 
 model_state_container = st.container()
 with model_state_container:

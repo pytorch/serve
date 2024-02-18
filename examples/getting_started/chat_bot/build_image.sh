@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Check if there are enough arguments
-if [ "$#" -eq 0 ] || [ "$#" -gt 1 ]; then
-  echo "Usage: $0 <arg1>"
+if [ "$#" -eq 0 ] || [ "$#" -gt 2 ]; then
+  echo "Usage: $0 <arg1> <arg2>"
   exit 1
 fi
 
@@ -22,8 +22,9 @@ fi
 #  echo "$variable_name: ${!variable_name}"
 #done
 
-MODEL_NAME=$1
-echo $MODEL_NAME
+MODEL_NAME_1=$1
+MODEL_NAME_2=$2
+echo "Models: " $MODEL_NAME_1 $MODEL_NAME_2
 
 BASE_IMAGE="pytorch/torchserve:latest-gpu"
 
@@ -35,7 +36,7 @@ else
     exit 1
 fi
 
-DOCKER_TAG="pytorch/torchserve:${MODEL_NAME}"
+DOCKER_TAG="pytorch/torchserve:${MODEL_NAME_1}_${MODEL_NAME_2}"
 
 # Get relative path of example dir
 EXAMPLE_DIR=$(dirname "$(readlink -f "$0")")
@@ -49,4 +50,4 @@ cd docker
 ./build_image.sh  -bi nvidia/cuda:12.1.0-runtime-ubuntu20.04 -cv cu121 -t pytorch/torchserve:latest-gpu
 cd ..
 
-DOCKER_BUILDKIT=1 docker build --file ${EXAMPLE_DIR}/Dockerfile --build-arg BASE_IMAGE="${BASE_IMAGE}" --build-arg EXAMPLE_DIR="${EXAMPLE_DIR}" --build-arg MODEL_NAME="${MODEL_NAME}" --build-arg HUGGINGFACE_TOKEN -t "${DOCKER_TAG}" .
+DOCKER_BUILDKIT=1 docker build --file ${EXAMPLE_DIR}/Dockerfile --build-arg BASE_IMAGE="${BASE_IMAGE}" --build-arg EXAMPLE_DIR="${EXAMPLE_DIR}" --build-arg MODEL_NAME_1="${MODEL_NAME_1}" --build-arg MODEL_NAME_2="${MODEL_NAME_2}" --build-arg HUGGINGFACE_TOKEN -t "${DOCKER_TAG}" .

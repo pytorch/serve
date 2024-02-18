@@ -5,25 +5,37 @@ import requests
 import streamlit as st
 
 MODEL_NAME = "llama2-7b-chat"
+# MODEL_NAME = "mistral-7b"
 
 # App title
-st.set_page_config(page_title="🦙💬 Llama 2 Chatbot")
+st.set_page_config(page_title="TorchServe Chatbot")
 
 with st.sidebar:
-    st.title("🦙💬 Llama 2 Chatbot")
+    st.title("TorchServe Chatbot")
 
+    st.session_state.model_loaded = False
     try:
         res = requests.get(url="http://localhost:8080/ping")
         res = requests.get(url=f"http://localhost:8081/models/{MODEL_NAME}")
-        status = json.loads(res.text)[0]["workers"][0]["status"]
+        status = "NOT READY"
+        if res.status_code == 200:
+            status = json.loads(res.text)[0]["workers"][0]["status"]
 
         if status == "READY":
+            st.session_state.model_loaded = True
             st.success("Proceed to entering your prompt message!", icon="👉")
         else:
             st.warning("Model not loaded in TorchServe", icon="⚠️")
 
     except requests.ConnectionError:
         st.warning("TorchServe is not up. Try again", icon="⚠️")
+
+    st.subheader("Model Selection")
+    MODEL_NAME = st.select_slider(
+        "Select a model", options=["llama2-7b-chat", "mistral-7b"]
+    )
+    if st.session_state.model_loaded:
+        st.success(f"Model selected: {MODEL_NAME}!", icon="👉")
 
     st.subheader("Model parameters")
     temperature = st.sidebar.slider(
@@ -106,17 +118,17 @@ if st.session_state.messages[-1]["role"] != "assistant":
                     if not first_token:
                         first_token_time = time.time()
                         first_token = True
-                        print("First token")
+                        # print("First token")
                         st.sidebar.write(
                             f"Time to first token : {first_token_time - req_time:.2f} seconds"
                         )
                     data = chunk.decode("utf-8")
-                    print("data is ", data)
+                    # print("data is ", data)
                     full_response += data
                     placeholder.markdown(full_response)
             last_token_time = time.time()
             st.session_state.first_token.append(first_token_time - req_time)
-            print(st.session_state.first_token)
+            # print(st.session_state.first_token)
     message = {"role": "assistant", "content": full_response}
     st.session_state.messages.append(message)
     st.sidebar.write(f"Tokens/sec : {1.0*max_tokens/(last_token_time - req_time):.2f}")
