@@ -106,6 +106,7 @@ public final class ConfigManager {
     private static final String TS_INITIAL_DISTRIBUTION_PORT = "initial_distribution_port";
     private static final String TS_WORKFLOW_STORE = "workflow_store";
     private static final String TS_CPP_LOG_CONFIG = "cpp_log_config";
+    private static final String TS_OPEN_INFERENCE_PROTOCOL = "ts_open_inference_protocol";
 
     // Configuration which are not documented or enabled through environment variables
     private static final String USE_NATIVE_IO = "use_native_io";
@@ -360,6 +361,14 @@ public final class ConfigManager {
             port = prop.getProperty(TS_GRPC_INFERENCE_PORT, "7070");
         }
         return Integer.parseInt(port);
+    }
+
+    public boolean isOpenInferenceProtocol() {
+        String inferenceProtocol = System.getenv("TS_OPEN_INFERENCE_PROTOCOL");
+        if (inferenceProtocol != null && inferenceProtocol != "") {
+            return "oip".equals(inferenceProtocol);
+        }
+        return Boolean.parseBoolean(prop.getProperty(TS_OPEN_INFERENCE_PROTOCOL, "false"));
     }
 
     public boolean isGRPCSSLEnabled() {

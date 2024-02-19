@@ -53,6 +53,7 @@ public abstract class Job {
     public boolean isControlCmd() {
         switch (cmd) {
             case PREDICT:
+            case OIPPREDICT:
             case STREAMPREDICT:
             case STREAMPREDICT2:
             case DESCRIBE:

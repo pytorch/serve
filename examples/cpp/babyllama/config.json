@@ -1,0 +1,4 @@
+{
+"checkpoint_path" : "/home/ubuntu/serve/examples/cpp/babyllama/stories15M.bin",
+"tokenizer_path" : "/home/ubuntu/serve/examples/cpp/babyllama/tokenizer.bin"
+}
