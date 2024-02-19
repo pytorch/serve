@@ -6,10 +6,12 @@ from queue import Queue
 import orjson
 import requests
 
+max_prompt_random_tokens = 20
+
 
 class Predictor(threading.Thread):
     def __init__(self, args, queue):
-        threading.Thread.__init__(self)
+        super().__init__()
         self.args = args
         self.queue = queue
 
@@ -36,10 +38,11 @@ class Predictor(threading.Thread):
         rp = len(prompt_list)
         rt = self.args.max_tokens
         if self.args.prompt_randomize:
-            rp = random.randint(1, len(prompt_list))
-            rt = random.randint(10, self.args.max_tokens)
-        cur_prompt_list = prompt_list[:rp]
-        cur_prompt = " ".join(cur_prompt_list)
+            rp = random.randint(0, max_prompt_random_tokens)
+            rt = rp + self.args.max_tokens
+            for _ in range(rp):
+                prompt_list.insert(0, chr(ord("a") + random.randint(0, 25)))
+        cur_prompt = " ".join(prompt_list)
         return {
             "prompt": cur_prompt,
             "max_new_tokens": rt,
@@ -66,11 +69,13 @@ def parse_args():
     parser.add_argument(
         "-m",
         "--model",
+        required=True,
         type=str,
-        help="The model to use for generating text. If not specified we will pick the first model from the service as returned by /v1/models",
+        help="The model to use for generating text.",
     )
     parser.add_argument(
         "--prompt-text",
+        required=True,
         type=str,
         help="Prompt text to use instead of generating one. It can be a file reference starting with an ampersand, e.g. `@prompt.txt`",
     )
@@ -107,6 +112,14 @@ def parse_args():
 
 def main():
     args = parse_args()
+    if len(args.model) == 0:
+        print("model argument can not be empty.")
+        exit(1)
+
+    if len(args.prompt_text) == 0:
+        print("prompt argument can not be empty.")
+        exit(1)
+
     queue = Queue()
     predictors = []
     for i in range(args.num_threads):

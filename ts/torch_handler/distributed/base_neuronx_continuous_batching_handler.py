@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 class BaseNeuronXContinuousBatchingHandler(BaseHandler):
     def __init__(self):
-        super(BaseNeuronXContinuousBatchingHandler, self).__init__()
+        super().__init__()
 
         self.batch_size = 2
         self.max_new_tokens = 25
@@ -60,21 +60,16 @@ class BaseNeuronXContinuousBatchingHandler(BaseHandler):
             "NEURON_CC_FLAGS"
         ] = "-O1 --model-type=transformer --enable-mixed-precision-accumulation"
 
-        self.max_length = int(
-            ctx.model_yaml_config.get("handler", {}).get("max_length", self.max_length)
-        )
+        handler_config = ctx.model_yaml_config.get("handler", {})
+        self.max_length = int(handler_config.get("max_length", self.max_length))
         self.max_new_tokens = int(
-            ctx.model_yaml_config.get("handler", {}).get(
-                "max_new_tokens", self.max_new_tokens
-            )
+            handler_config.get("max_new_tokens", self.max_new_tokens)
         )
-        self.batch_size = int(
-            ctx.model_yaml_config.get("handler", {}).get("batch_size", self.batch_size)
-        )
+        self.batch_size = int(handler_config.get("batch_size", self.batch_size))
 
         # settings for model compilation and loading
-        amp = ctx.model_yaml_config.get("handler", {}).get("amp", "fp32")
-        tp_degree = ctx.model_yaml_config.get("handler", {}).get("tp_degree", 6)
+        amp = handler_config.get("amp", "fp32")
+        tp_degree = handler_config.get("tp_degree", 6)
 
         # allocate "tp_degree" number of neuron cores to the worker process
         os.environ["NEURON_RT_NUM_CORES"] = str(tp_degree)
@@ -98,7 +93,6 @@ class BaseNeuronXContinuousBatchingHandler(BaseHandler):
         )
         self.tokenizer.pad_token = self.tokenizer.eos_token
         self.tokenizer.pad_token_id = self.tokenizer.eos_token_id
-        self.tokenizer.padding_side = "left"
 
         continuous_batching_config = ContinuousBatchingConfig(
             batch_size_for_shared_caches=self.batch_size
@@ -109,7 +103,7 @@ class BaseNeuronXContinuousBatchingHandler(BaseHandler):
             amp=amp,
             batch_size=self.batch_size,
             n_positions=[self.max_length],
-            context_length_estimate=ctx.model_yaml_config.get("handler", {}).get(
+            context_length_estimate=handler_config.get(
                 "context_length_estimate", [self.max_length]
             ),
             neuron_config=neuron_config,
@@ -128,7 +122,7 @@ class BaseNeuronXContinuousBatchingHandler(BaseHandler):
         self.decode_next_tokens = torch.zeros(self.batch_size, 1, dtype=torch.int64)
         # self.decode_next_tokens = torch.full(self.batch_size, self.tokenizer.eos_token_id)
 
-        for _, seq_id in enumerate(reversed(range(self.batch_size))):
+        for seq_id in reversed(range(self.batch_size)):
             self.empty_seq_ids.append(seq_id)
 
         logger.info("Model %s loaded successfully", ctx.model_name)
@@ -154,7 +148,7 @@ class BaseNeuronXContinuousBatchingHandler(BaseHandler):
 
                 prompt = data.get("prompt")
                 max_new_tokens = int(data.get("max_new_tokens", self.max_new_tokens))
-                prefill_input_text.append(prompt.strip())
+                prefill_input_text.append(prompt)
 
                 self.context.cache[req_id] = {
                     "seq_id": seq_id,
@@ -175,8 +169,7 @@ class BaseNeuronXContinuousBatchingHandler(BaseHandler):
     def inference(self, inputs):
         prefill_input_text, prefill_tokens, prefill_seq_ids, req_decode_seq_ids = inputs
         results = {}
-        # Test if this is the beginning of a continuous batching
-        go_to_decode = True if len(req_decode_seq_ids) > 0 else False
+
         if len(prefill_seq_ids) > 0:
             prefill_next_tokens, prefill_cache_ids = self._run_prefill(
                 prefill_tokens, prefill_seq_ids
@@ -192,7 +185,7 @@ class BaseNeuronXContinuousBatchingHandler(BaseHandler):
                     prefill_input_text=prefill_input_text,
                 )
 
-        if go_to_decode:
+        if len(req_decode_seq_ids) > 0:
             local_decode_seq_ids = torch.cat(torch.where(self.decode_seq_ids > -1))
             local_decode_cache_ids = self.decode_cache_ids[local_decode_seq_ids]
             local_decode_next_tokens = self.decode_next_tokens[local_decode_seq_ids]
