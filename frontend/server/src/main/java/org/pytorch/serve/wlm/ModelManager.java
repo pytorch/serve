@@ -259,7 +259,7 @@ public final class ModelManager {
         }
 
         if (exitCode == 0) {
-            logger.debug(
+            logger.info(
                     "Created virtual environment for model {}: {}",
                     model.getModelName(),
                     venvPath.toString());
