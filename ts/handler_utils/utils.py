@@ -6,6 +6,9 @@ from ts.protocol.otf_message_handler import create_predict_response
 
 
 def import_class(class_name: str, module_prefix=None):
+    if class_name is None or len(class_name) == 0:
+        raise ImportError(f"class name is not defined")
+
     module_name = ""
     arr = class_name.rsplit(".", maxsplit=1)
     if len(arr) == 2:
@@ -13,10 +16,16 @@ def import_class(class_name: str, module_prefix=None):
     else:
         class_name = arr[0]
 
-    if module_prefix is not None:
-        module = importlib.import_module(f"{module_prefix}.{module_name}")
-    else:
+    if module_prefix is not None and len(module_prefix) > 0:
+        module = (
+            importlib.import_module(f"{module_prefix}.{module_name}")
+            if len(module_name) > 0
+            else importlib.import_module(module_prefix)
+        )
+    elif len(module_name) > 0:
         module = importlib.import_module(module_name)
+    else:
+        raise ImportError(f"module name is not defined.")
 
     model_class = getattr(module, class_name, None)
     if model_class is None:
