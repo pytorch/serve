@@ -10,6 +10,7 @@ import org.pytorch.serve.http.ExtendedSSLHandler;
 import org.pytorch.serve.http.HttpRequestHandler;
 import org.pytorch.serve.http.HttpRequestHandlerChain;
 import org.pytorch.serve.http.InvalidRequestHandler;
+import org.pytorch.serve.http.TokenAuthorizationHandler;
 import org.pytorch.serve.http.api.rest.ApiDescriptionRequestHandler;
 import org.pytorch.serve.http.api.rest.InferenceRequestHandler;
 import org.pytorch.serve.http.api.rest.ManagementRequestHandler;
@@ -18,6 +19,7 @@ import org.pytorch.serve.http.api.rest.PrometheusMetricsRequestHandler;
 import org.pytorch.serve.servingsdk.impl.PluginsManager;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.ConnectorType;
+import org.pytorch.serve.util.TokenType;
 import org.pytorch.serve.workflow.api.http.WorkflowInferenceRequestHandler;
 import org.pytorch.serve.workflow.api.http.WorkflowMgmtRequestHandler;
 import org.slf4j.Logger;
@@ -65,6 +67,9 @@ public class ServerInitializer extends ChannelInitializer<Channel> {
                 || ConnectorType.INFERENCE_CONNECTOR.equals(connectorType)) {
             httpRequestHandlerChain =
                     httpRequestHandlerChain.setNextHandler(
+                            new TokenAuthorizationHandler(TokenType.INFERENCE));
+            httpRequestHandlerChain =
+                    httpRequestHandlerChain.setNextHandler(
                             new InferenceRequestHandler(
                                     PluginsManager.getInstance().getInferenceEndpoints()));
             httpRequestHandlerChain =
@@ -80,6 +85,9 @@ public class ServerInitializer extends ChannelInitializer<Channel> {
         }
         if (ConnectorType.ALL.equals(connectorType)
                 || ConnectorType.MANAGEMENT_CONNECTOR.equals(connectorType)) {
+            httpRequestHandlerChain =
+                    httpRequestHandlerChain.setNextHandler(
+                            new TokenAuthorizationHandler(TokenType.MANAGEMENT));
             httpRequestHandlerChain =
                     httpRequestHandlerChain.setNextHandler(
                             new ManagementRequestHandler(
