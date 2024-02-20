@@ -30,7 +30,6 @@ public class ApiDescriptionRequestHandler extends HttpRequestHandlerChain {
             String[] segments)
             throws ModelException, DownloadArchiveException, WorkflowException,
                     WorkerInitializationException {
-
         if (isApiDescription(segments)) {
             String path = decoder.path();
             if (("/".equals(path) && HttpMethod.OPTIONS.equals(req.method()))
