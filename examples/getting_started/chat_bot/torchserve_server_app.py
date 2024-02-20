@@ -6,6 +6,8 @@ import streamlit as st
 
 MODEL_NAME_1 = os.environ["MODEL_NAME_1"]
 MODEL_NAME_2 = os.environ["MODEL_NAME_2"]
+MODEL1 = MODEL_NAME_1.split("---")[1]
+MODEL2 = MODEL_NAME_2.split("---")[1]
 # App title
 st.set_page_config(page_title="TorchServe Server")
 
@@ -120,8 +122,8 @@ with st.sidebar:
 
     st.button("Start Server", on_click=start_server)
     st.button("Stop Server", on_click=stop_server)
-    st.button("Register Llama2", on_click=register_model, args=(MODEL_NAME_1,))
-    st.button("Register Mistral", on_click=register_model, args=(MODEL_NAME_2,))
+    st.button(f"Register {MODEL1}", on_click=register_model, args=(MODEL_NAME_1,))
+    st.button(f"Register {MODEL2}", on_click=register_model, args=(MODEL_NAME_2,))
     workers = st.sidebar.slider(
         "Num Workers",
         key="Num Workers",
@@ -180,7 +182,113 @@ if st.session_state.registered[MODEL_NAME_2]:
 
 model_state_container = st.container()
 with model_state_container:
-    st.subheader("Model  Status")
+    st.subheader("Model Status")
 
 with model_state_container:
     st.button("Model Status", on_click=get_status)
+
+import json
+from datetime import datetime, timedelta
+
+import altair
+import pandas as pd
+import requests
+from numpy import float64
+from pandas import DataFrame, Series, Timestamp
+
+MINUTES_BACK = 60
+DEFAULT_TIME_BACK = timedelta(minutes=-MINUTES_BACK)
+DEFAULT_QUERY = "GPUMemoryUsed"
+STEP_DURATION = "30s"
+
+
+@st.cache_data
+def full_url(url: str, has_time_range: bool = True) -> str:
+    if has_time_range:
+        return f"{url}/api/v1/query_range"  # Range query
+    return f"{url}/api/v1/query"  # Instant query
+
+
+def get_metrics(
+    the_payload: dict[str, any],
+    url: str,
+    start_range: datetime = None,
+    end_range: datetime = None,
+) -> (dict[any, any], int):
+    new_query = {}
+    new_query.update(the_payload)
+    if start_range and end_range:
+        new_query["start"] = start_range.timestamp()
+        new_query["end"] = end_range.timestamp()
+        new_query["step"] = STEP_DURATION
+    print("url=%s, params=%s", url, new_query)
+    response = requests.get(url=url, params=new_query)
+    return response.json(), response.status_code
+
+
+def transform(m_data: dict[any, any]) -> DataFrame:
+    """
+    Convert a Prometheus data structure into a Panda DataFrame
+    :param m_data:
+    :return: DataFrame
+    """
+    df = DataFrame(
+        {
+            mtr["metric"]["__name__"]: Series(
+                data=[float64(vl[1]) for vl in mtr["values"]],
+                index=[Timestamp(vl[0], unit="s") for vl in mtr["values"]],
+                name="GPUMemoryUsed",
+            )
+            for mtr in m_data["data"]["result"]
+        }
+    )
+    print(f"Columns: {df.columns}")
+    print(f"Index: {df.index}")
+    print(f"Index: {df}")
+    print(df.head())
+    return df
+
+
+def display_metrics():
+    code = 0
+    metrics = {}
+    PROM_URL = full_url("http://172.18.0.2:9090", has_time_range=True)
+    query = DEFAULT_QUERY
+    payload = {"query": query}
+    # First query we boostrap with a reasonable time range
+    END: datetime = datetime.now()
+    START = END + DEFAULT_TIME_BACK
+    if payload:
+        metrics, code = get_metrics(
+            url=PROM_URL,
+            the_payload=payload,
+            start_range=START,
+            end_range=END,
+        )
+        data: DataFrame = DataFrame()
+        if code == 200:
+            now = datetime.now()
+            print("metrics is ", metrics)
+            data = transform(m_data=metrics)
+            data = data.reset_index()
+            # data = DataFrame(metrics)
+            data["Time"] = pd.to_datetime(data["index"])
+            print("data is ", data)
+            chart = (
+                altair.Chart(data)
+                .mark_line()
+                .encode(
+                    x="Time",
+                    y="GPUMemoryUsed",
+                )
+            )
+            metrics_container.altair_chart(chart, use_container_width=True)
+
+
+metrics_container = st.container()
+
+with metrics_container:
+    st.subheader("Metrics")
+
+with metrics_container:
+    st.button("Get Prometheus Metrics", on_click=display_metrics)
