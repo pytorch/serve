@@ -11,7 +11,7 @@ dependencies {
     implementation 'software.amazon.awssdk:dynamodb-enhanced'
     implementation 'org.codehaus.groovy:groovy-all:2.3.11'
     testImplementation "org.testng:testng:${testng_version}"
-    testImplementation 'com.amazonaws:DynamoDBLocal:2.2.0'
+    testImplementation 'com.amazonaws:DynamoDBLocal:2.2.1'
 }
 
 project.ext{
