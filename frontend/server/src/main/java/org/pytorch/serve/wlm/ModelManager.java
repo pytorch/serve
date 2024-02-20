@@ -221,7 +221,6 @@ public final class ModelManager {
         commandParts.add("-m");
         commandParts.add("venv");
         commandParts.add("--clear");
-        commandParts.add("--system-site-packages");
         commandParts.add(venvPath.toString());
 
         ProcessBuilder processBuilder = new ProcessBuilder(commandParts);
@@ -272,6 +271,57 @@ public final class ModelManager {
                     outputString.toString());
             throw new ModelException(
                     "Virtual environment creation failed for model " + model.getModelName());
+        }
+
+        // Inherit site-packages directories from the current environment torchserve is running in
+        // to the newly created virtual environment
+        commandParts.clear();
+        commandParts.add(configManager.getPythonExecutable());
+        commandParts.add(
+                Paths.get(
+                                configManager.getModelServerHome(),
+                                "ts",
+                                "utils",
+                                "inherit_site_packages.py")
+                        .toAbsolutePath()
+                        .toString());
+        commandParts.add(venvPath.toString());
+
+        processBuilder = new ProcessBuilder(commandParts);
+        processBuilder.directory(venvPath.getParentFile());
+        environment = processBuilder.environment();
+        envp =
+                EnvironmentUtils.getEnvString(
+                        configManager.getModelServerHome(),
+                        model.getModelDir().getAbsolutePath(),
+                        null);
+        for (String envVar : envp) {
+            String[] parts = envVar.split("=", 2);
+            if (parts.length == 2) {
+                environment.put(parts[0], parts[1]);
+            }
+        }
+        processBuilder.redirectErrorStream(true);
+        process = processBuilder.start();
+        exitCode = process.waitFor();
+        brdr = new BufferedReader(new InputStreamReader(process.getInputStream()));
+        outputString.setLength(0);
+        while ((line = brdr.readLine()) != null) {
+            outputString.append(line + "\n");
+        }
+
+        if (exitCode == 0) {
+            logger.debug(
+                    "Inherited site-packages directories to venv {}:\n{}",
+                    venvPath.toString(),
+                    outputString.toString());
+        } else {
+            logger.error(
+                    "Failed to inherit site-packages directories to venv {}:\n{}",
+                    venvPath.toString(),
+                    outputString.toString());
+            throw new ModelException(
+                    "Failed to inherit site-packages directories to venv " + venvPath.toString());
         }
     }
 
@@ -360,10 +410,7 @@ public final class ModelManager {
         }
 
         if (exitCode == 0) {
-            logger.info(
-                    "Installed custom pip packages for model {}:\n{}",
-                    model.getModelName(),
-                    outputString.toString());
+            logger.info("Installed custom pip packages for model {}", model.getModelName());
         } else {
             logger.error(
                     "Custom pip package installation failed for model {}:\n{}",
