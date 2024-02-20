@@ -9,7 +9,7 @@ It features:
 * No dependencies other than PyTorch and sentencepiece
 * int8/int4 quantization
 * Speculative decoding
-* Tensor parallelism
+* Supports multi-GPU inference through Tensor parallelism
 * Supports Nvidia and AMD GPUs
 
 More details about gpt-fast can be found in this [blog](https://pytorch.org/blog/accelerating-generative-ai-2/).
@@ -81,6 +81,8 @@ cd ..
 At this stage we're creating the model archive which includes the configuration of our model in [model_config.yaml](./model_config.yaml).
 It's also the point where we need to decide if we want to deploy our model on a single or multiple GPUs.
 For the single GPU case we can use the default configuration that can be found in [model_config.yaml](./model_config.yaml).
+All configs enable the current prototyping feature FxGraphCache by setting fx_graph_cache to *true*.
+This feature stores the TorchInductor output in a cache to speed up torch.compile times when rerunning the handler.
 
 ```
 torch-model-archiver --model-name gpt_fast --version 1.0 --handler handler.py --config-file model_config.yaml --extra-files "gpt-fast/generate.py,gpt-fast/model.py,gpt-fast/quantize.py,gpt-fast/tp.py" --archive-format no-archive
