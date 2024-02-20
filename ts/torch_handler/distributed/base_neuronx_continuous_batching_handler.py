@@ -1,5 +1,6 @@
 import logging
 import os
+import pathlib
 
 import torch
 import torch_neuronx
@@ -36,21 +37,23 @@ class BaseNeuronXContinuousBatchingHandler(BaseHandler):
     def initialize(self, ctx: Context):
         ctx.cache = {}
         model_dir = ctx.system_properties.get("model_dir")
-        model_checkpoint_dir = ctx.model_yaml_config.get("handler", {}).get(
-            "model_checkpoint_dir", ""
-        )
-        model_checkpoint_path = f"{model_dir}/{model_checkpoint_dir}"
-        model_path = f'{model_dir}/{ctx.model_yaml_config["handler"]["model_path"]}'
+        handler_config = ctx.model_yaml_config.get("handler", {})
+        model_checkpoint_dir = handler_config.get("model_checkpoint_dir", "")
 
-        if not os.path.exists(model_checkpoint_path):
+        model_checkpoint_path = pathlib.Path(model_dir).joinpath(model_checkpoint_dir)
+        model_path = pathlib.Path(model_dir).joinpath(
+            handler_config.get("model_path", "")
+        )
+
+        if not model_checkpoint_path.exists():
             # Load and save the CPU model
             model_cpu = AutoModelForCausalLM.from_pretrained(
-                model_path, low_cpu_mem_usage=True
+                str(model_path), low_cpu_mem_usage=True
             )
             save_pretrained_split(model_cpu, model_checkpoint_path)
             # Load and save tokenizer for the model
             tokenizer = AutoTokenizer.from_pretrained(
-                model_path, return_tensors="pt", padding_side="left"
+                str(model_path), return_tensors="pt", padding_side="left"
             )
             tokenizer.save_pretrained(model_checkpoint_path)
 
@@ -60,7 +63,6 @@ class BaseNeuronXContinuousBatchingHandler(BaseHandler):
             "NEURON_CC_FLAGS"
         ] = "-O1 --model-type=transformer --enable-mixed-precision-accumulation"
 
-        handler_config = ctx.model_yaml_config.get("handler", {})
         self.max_length = int(handler_config.get("max_length", self.max_length))
         self.max_new_tokens = int(
             handler_config.get("max_new_tokens", self.max_new_tokens)
@@ -120,7 +122,6 @@ class BaseNeuronXContinuousBatchingHandler(BaseHandler):
         self.decode_cache_ids = torch.zeros(self.batch_size, 1, dtype=torch.int64)
         # 2D: [batch_size, next_token]
         self.decode_next_tokens = torch.zeros(self.batch_size, 1, dtype=torch.int64)
-        # self.decode_next_tokens = torch.full(self.batch_size, self.tokenizer.eos_token_id)
 
         for seq_id in reversed(range(self.batch_size)):
             self.empty_seq_ids.append(seq_id)
@@ -378,26 +379,19 @@ class BaseNeuronXContinuousBatchingHandler(BaseHandler):
         )
 
     def _set_class(self, ctx):
-        model_class_name = ctx.model_yaml_config.get("handler", {}).get(
-            "model_class_name", None
-        )
+        handler_config = ctx.model_yaml_config.get("handler", {})
+        model_class_name = handler_config.get("model_class_name", None)
 
         assert model_class_name is not None
-        model_module_prefix = ctx.model_yaml_config.get("handler", {}).get(
-            "model_module_prefix", None
-        )
+        model_module_prefix = handler_config.get("model_module_prefix", None)
         self.model_class = import_class(
             class_name=model_class_name,
             module_prefix=model_module_prefix,
         )
 
-        tokenizer_class_name = ctx.model_yaml_config.get("handler", {}).get(
-            "tokenizer_class_name", None
-        )
+        tokenizer_class_name = handler_config.get("tokenizer_class_name", None)
         assert tokenizer_class_name is not None
-        tokenizer_module_prefix = ctx.model_yaml_config.get("handler", {}).get(
-            "tokenizer_module_prefix", None
-        )
+        tokenizer_module_prefix = handler_config.get("tokenizer_module_prefix", None)
 
         self.tokenizer_class = import_class(
             class_name=tokenizer_class_name, module_prefix=tokenizer_module_prefix
