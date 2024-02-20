@@ -424,7 +424,7 @@ public class WorkflowTest {
         Assert.assertEquals(TestUtils.getHttpStatus(), HttpResponseStatus.INTERNAL_SERVER_ERROR);
         Assert.assertEquals(
                 resp.getMessage(),
-                "Workflow custom_invalid_python_dep has failed to register. Failures: [Workflow Node custom_invalid_python_dep__custom_invalid_python_dep failed to register. Details: Custom pip package installation failed for custom_invalid_python_dep__custom_invalid_python_dep]");
+                "Workflow custom_invalid_python_dep has failed to register. Failures: [Workflow Node custom_invalid_python_dep__custom_invalid_python_dep failed to register. Details: Custom pip package installation failed for model custom_invalid_python_dep__custom_invalid_python_dep]");
         TestUtils.setConfiguration(configManager, "install_py_dep_per_model", "false");
         channel.close().sync();
     }

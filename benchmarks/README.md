@@ -4,7 +4,7 @@ The benchmarks measure the performance of TorchServe on various models and bench
 
 We currently support benchmarking with JMeter, Apache Bench and Locust. One can also profile backend code with snakeviz.
 
-* [Benchmarking with Apache Bench](#benchmarking-with-apache-bench)
+* [Benchmarking with Locust/Apache Bench](#benchmarking-with-locustapache-bench)
 * [Auto Benchmarking with Apache Bench](#auto-benchmarking-with-apache-bench)
 * [Benchmarking and Profiling with JMeter](jmeter.md)
 
