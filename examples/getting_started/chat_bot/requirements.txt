@@ -5,3 +5,4 @@ scipy
 mpi4py
 optimum
 streamlit>=1.26.0
+requests_futures

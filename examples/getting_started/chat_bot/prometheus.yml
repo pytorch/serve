@@ -8,4 +8,4 @@ scrape_configs:
     - targets: ['localhost:9090']
   - job_name: 'torchserve'
     static_configs:
-    - targets: ['0.0.0.0:8082'] #TorchServe metrics endpoint
+    - targets: ['172.18.0.3:8082'] #TorchServe metrics endpoint

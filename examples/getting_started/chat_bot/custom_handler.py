@@ -70,7 +70,7 @@ class HFLLMHandler(BaseHandler, ABC):
 
         self.output_streamer = TextIteratorStreamerBatch(
             self.tokenizer,
-            batch_size=1,
+            batch_size=2,
             skip_special_tokens=True,
         )
         logger.info("Model %s loaded successfully", ctx.model_name)
@@ -88,6 +88,7 @@ class HFLLMHandler(BaseHandler, ABC):
         """
         input_texts = [data.get("data") or data.get("body") for data in requests]
         input_ids_batch, attention_mask_batch, params, req_times = [], [], [], []
+        logger.info(f"Batch size is {len(input_texts)}")
         for input_text in input_texts:
             logger.info(input_text)
             input_ids, attention_mask = self.encode_input_text(input_text["prompt"])
@@ -165,6 +166,7 @@ class HFLLMHandler(BaseHandler, ABC):
 
         for new_text in self.output_streamer:
             logger.debug("send response stream")
+            logger.info(new_text)
             send_intermediate_predict_response(
                 new_text,
                 self.context.request_ids,
@@ -174,8 +176,9 @@ class HFLLMHandler(BaseHandler, ABC):
             )
 
         thread.join()
+        logger.info(f"Length of response is {len(input_ids_batch)}")
 
-        return [""]
+        return [""] * len(input_ids_batch)
 
     def postprocess(self, inference_output):
         """Post Process Function converts the predicted response into Torchserve readable format.

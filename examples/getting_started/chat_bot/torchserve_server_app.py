@@ -42,10 +42,7 @@ def register_model(MODEL_NAME):
     if not st.session_state.started:
         server_state_container.caption("TorchServe is not running. Start it")
         return
-    url = (
-        f"http://localhost:8081/models?model_name={MODEL_NAME}&url={MODEL_NAME}"
-        f"&initial_workers=1&synchronous=true"
-    )
+    url = f"http://localhost:8081/models?model_name={MODEL_NAME}&url={MODEL_NAME}&batch_size=1&max_batch_delay=3000&initial_workers=1&synchronous=true"
     _register_model(url, MODEL_NAME)
 
 
@@ -144,9 +141,9 @@ with st.sidebar:
     max_batch_delay = st.sidebar.slider(
         "Max Batch Delay",
         key="Max Batch Delay",
-        min_value=100,
+        min_value=3000,
         max_value=10000,
-        value=100,
+        value=3000,
         step=100,
         on_change=set_max_batch_delay,
         args=("Max Batch Delay",),
