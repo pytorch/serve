@@ -1,0 +1,30 @@
+2024-02-21T22:34:53,578 [INFO ] W-9000-densenet161_1.0-stdout MODEL_LOG - s_name_part0=/tmp/.ts.sock, s_name_part1=9000, pid=44164
+2024-02-21T22:34:53,579 [INFO ] W-9000-densenet161_1.0-stdout MODEL_LOG - Listening on port: /tmp/.ts.sock.9000
+2024-02-21T22:34:53,589 [INFO ] W-9000-densenet161_1.0-stdout MODEL_LOG - Successfully loaded /opt/conda/lib/python3.10/site-packages/ts/configs/metrics.yaml.
+2024-02-21T22:34:53,589 [INFO ] W-9000-densenet161_1.0-stdout MODEL_LOG - [PID]44164
+2024-02-21T22:34:53,589 [INFO ] W-9000-densenet161_1.0-stdout MODEL_LOG - Torch worker started.
+2024-02-21T22:34:53,590 [INFO ] W-9000-densenet161_1.0-stdout MODEL_LOG - Python runtime: 3.10.9
+2024-02-21T22:34:53,602 [INFO ] W-9000-densenet161_1.0-stdout MODEL_LOG - Connection accepted: /tmp/.ts.sock.9000.
+2024-02-21T22:34:53,640 [INFO ] W-9000-densenet161_1.0-stdout MODEL_LOG - model_name: densenet161, batchSize: 1
+2024-02-21T22:34:54,578 [INFO ] W-9000-densenet161_1.0-stdout MODEL_LOG - ONNX enabled
+2024-02-21T22:34:54,579 [INFO ] W-9000-densenet161_1.0-stdout MODEL_LOG - Torch TensorRT not enabled
+2024-02-21T22:35:14,412 [INFO ] W-9000-densenet161_1.0-stdout MODEL_LOG - s_name_part0=/tmp/.ts.sock, s_name_part1=9000, pid=44363
+2024-02-21T22:35:14,413 [INFO ] W-9000-densenet161_1.0-stdout MODEL_LOG - Listening on port: /tmp/.ts.sock.9000
+2024-02-21T22:35:14,422 [INFO ] W-9000-densenet161_1.0-stdout MODEL_LOG - Successfully loaded /opt/conda/lib/python3.10/site-packages/ts/configs/metrics.yaml.
+2024-02-21T22:35:14,423 [INFO ] W-9000-densenet161_1.0-stdout MODEL_LOG - [PID]44363
+2024-02-21T22:35:14,423 [INFO ] W-9000-densenet161_1.0-stdout MODEL_LOG - Torch worker started.
+2024-02-21T22:35:14,423 [INFO ] W-9000-densenet161_1.0-stdout MODEL_LOG - Python runtime: 3.10.9
+2024-02-21T22:35:14,435 [INFO ] W-9000-densenet161_1.0-stdout MODEL_LOG - Connection accepted: /tmp/.ts.sock.9000.
+2024-02-21T22:35:14,472 [INFO ] W-9000-densenet161_1.0-stdout MODEL_LOG - model_name: densenet161, batchSize: 1
+2024-02-21T22:35:15,445 [INFO ] W-9000-densenet161_1.0-stdout MODEL_LOG - ONNX enabled
+2024-02-21T22:35:15,446 [INFO ] W-9000-densenet161_1.0-stdout MODEL_LOG - Torch TensorRT not enabled
+2024-02-21T22:35:55,064 [INFO ] W-9000-densenet161_1.0-stdout MODEL_LOG - s_name_part0=/tmp/.ts.sock, s_name_part1=9000, pid=44644
+2024-02-21T22:35:55,065 [INFO ] W-9000-densenet161_1.0-stdout MODEL_LOG - Listening on port: /tmp/.ts.sock.9000
+2024-02-21T22:35:55,073 [INFO ] W-9000-densenet161_1.0-stdout MODEL_LOG - Successfully loaded /opt/conda/lib/python3.10/site-packages/ts/configs/metrics.yaml.
+2024-02-21T22:35:55,073 [INFO ] W-9000-densenet161_1.0-stdout MODEL_LOG - [PID]44644
+2024-02-21T22:35:55,074 [INFO ] W-9000-densenet161_1.0-stdout MODEL_LOG - Torch worker started.
+2024-02-21T22:35:55,074 [INFO ] W-9000-densenet161_1.0-stdout MODEL_LOG - Python runtime: 3.10.9
+2024-02-21T22:35:55,094 [INFO ] W-9000-densenet161_1.0-stdout MODEL_LOG - Connection accepted: /tmp/.ts.sock.9000.
+2024-02-21T22:35:55,133 [INFO ] W-9000-densenet161_1.0-stdout MODEL_LOG - model_name: densenet161, batchSize: 1
+2024-02-21T22:35:56,105 [INFO ] W-9000-densenet161_1.0-stdout MODEL_LOG - ONNX enabled
+2024-02-21T22:35:56,105 [INFO ] W-9000-densenet161_1.0-stdout MODEL_LOG - Torch TensorRT not enabled
