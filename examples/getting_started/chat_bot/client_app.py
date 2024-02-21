@@ -71,7 +71,7 @@ def clear_chat_history():
 
 
 st.sidebar.button("Clear Chat History", on_click=clear_chat_history)
-st.sidebar.subheader("Metrics")
+# st.sidebar.subheader("Metrics")
 
 
 # Function for generating LLaMA2 response. Refactored from https://github.com/a16z-infra/llama2-chatbot
@@ -121,9 +121,9 @@ if st.session_state.messages[-1]["role"] != "assistant":
                         first_token_time = time.time()
                         first_token = True
                         # print("First token")
-                        st.sidebar.write(
-                            f"Time to first token : {first_token_time - req_time:.2f} seconds"
-                        )
+                        # st.sidebar.write(
+                        #    f"Time to first token : {first_token_time - req_time:.2f} seconds"
+                        # )
                     data = chunk.decode("utf-8")
                     # print("data is ", data)
                     full_response += data
@@ -133,4 +133,4 @@ if st.session_state.messages[-1]["role"] != "assistant":
             # print(st.session_state.first_token)
     message = {"role": "assistant", "content": full_response}
     st.session_state.messages.append(message)
-    st.sidebar.write(f"Tokens/sec : {1.0*max_tokens/(last_token_time - req_time):.2f}")
+    # st.sidebar.write(f"Tokens/sec : {1.0*max_tokens/(last_token_time - req_time):.2f}")
