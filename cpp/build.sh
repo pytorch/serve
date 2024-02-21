@@ -172,7 +172,7 @@ function install_sentencepiece() {
     mkdir $SENTENCEPIECE_BUILD_DIR
     cd $SENTENCEPIECE_BUILD_DIR
     cmake $SENTENCEPIECE_SRC_DIR
-    make -i $(nproc)
+    make -j $(nproc)
     if [ "$PLATFORM" = "Linux" ]; then
       sudo make install
       sudo ldconfig -v
