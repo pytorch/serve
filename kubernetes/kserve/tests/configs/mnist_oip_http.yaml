@@ -7,7 +7,7 @@ spec:
     pytorch:
       protocolVersion: v2
       storageUri: gs://kfserving-examples/models/torchserve/image_classifier/v2
-      image: sivanantha/torchserve-oip-test:latest
+      image: pytorch/torchserve-kfs-nightly:latest-cpu
       resources:
         limits:
           cpu: "1"
