@@ -49,6 +49,7 @@ CPP_LINUX_DEPENDENCIES = (
     "libgoogle-perftools-dev",
     "rustc",
     "cargo",
+    "rsync",
 )
 
 CPP_DARWIN_DEPENDENCIES = (
@@ -64,6 +65,7 @@ CPP_DARWIN_DEPENDENCIES = (
     "openssl",
     "libsodium",
     "llv",
+    "rsync",
 )
 
 CPP_DARWIN_DEPENDENCIES_LINK = (
@@ -204,6 +206,20 @@ class Linux(Common):
 
     def install_cpp_dependencies(self):
         if os.system("clang-tidy --version") != 0 or args.force:
+            # Enable installation of latest cmake release
+            # Ref: https://apt.kitware.com/
+            os.system(
+                f"{self.sudo_cmd}apt-get install -y ca-certificates gpg lsb-release"
+            )
+            os.system(
+                f"wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | {self.sudo_cmd} tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null"
+            )
+            os.system(
+                f'echo "deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ $(lsb_release -cs) main" | {self.sudo_cmd} tee /etc/apt/sources.list.d/kitware.list >/dev/null'
+            )
+            os.system(f"{self.sudo_cmd}apt-get update")
+
+            # Install dependencies
             os.system(
                 f"{self.sudo_cmd}apt-get install -y {' '.join(CPP_LINUX_DEPENDENCIES)}"
             )

@@ -187,9 +187,11 @@ FROM ${BASE_IMAGE} as dev-image
 # Re-state ARG PYTHON_VERSION to make it active in this build-stage (uses default define at the top)
 ARG PYTHON_VERSION
 ARG BRANCH_NAME
+ARG USE_CUDA_VERSION=""
 ARG BUILD_WITH_IPEX
 ARG IPEX_VERSION=1.11.0
 ARG IPEX_URL=https://software.intel.com/ipex-whl-stable
+ARG BUILD_CPP
 ENV PYTHONUNBUFFERED TRUE
 RUN --mount=type=cache,target=/var/cache/apt \
     apt-get update && \
@@ -222,9 +224,31 @@ RUN git clone --recursive https://github.com/pytorch/serve.git \
 COPY --from=compile-image /home/venv /home/venv
 ENV PATH="/home/venv/bin:$PATH"
 WORKDIR "serve"
-RUN python -m pip install -U pip setuptools \
-    && python -m pip install --no-cache-dir -r requirements/developer.txt \
-    && python ts_scripts/install_from_src.py \
+RUN \
+    if [ "$BUILD_CPP" = "true" ]; then \
+        if [ "$USE_CUDA_VERSION" = "" ]; then \
+            python ./ts_scripts/install_dependencies.py --environment=dev --cpp --force; \
+        else \
+            python ./ts_scripts/install_dependencies.py --environment=dev --cpp --cuda=$USE_CUDA_VERSION --force; \
+        fi; \
+    else \
+        if [ "$USE_CUDA_VERSION" = "" ]; then \
+            python ./ts_scripts/install_dependencies.py --environment=dev --force; \
+        else \
+            python ./ts_scripts/install_dependencies.py --environment=dev --cuda=$USE_CUDA_VERSION --force; \
+        fi; \
+    fi
+RUN \
+    if [ "$BUILD_CPP" = "true" ]; then \
+        cd cpp && \
+        if [ "$USE_CUDA_VERSION" = "" ]; then \
+            ./build.sh; \
+        else \
+            ./build.sh -g $USE_CUDA_VERSION; \
+        fi && \
+        cd ..; \
+    fi
+RUN python ts_scripts/install_from_src.py \
     && useradd -m model-server \
     && mkdir -p /home/model-server/tmp \
     && cp docker/dockerd-entrypoint.sh /usr/local/bin/dockerd-entrypoint.sh \
