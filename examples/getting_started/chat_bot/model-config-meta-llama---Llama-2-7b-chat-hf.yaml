@@ -3,6 +3,9 @@ minWorkers: 1
 maxWorkers: 1
 responseTimeout: 1200
 deviceType: "gpu"
+deviceIds: [0,1]
+torchrun:
+    nproc-per-node: 1
 
 handler:
     model_name: "meta-llama/Llama-2-7b-chat-hf"

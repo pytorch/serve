@@ -7,6 +7,9 @@ import requests
 import streamlit as st
 
 MODEL_NAME = os.environ["MODEL_NAME_1"]
+MODEL1 = os.environ["MODEL_NAME_1"].split("---")[1]
+MODEL2 = os.environ["MODEL_NAME_2"].split("---")[1]
+GPT_FAST = "gpt_fast"
 # MODEL_NAME = "mistral-7b"
 
 # App title
@@ -42,16 +45,19 @@ with st.sidebar:
 
     st.subheader("Model parameters")
     temperature = st.sidebar.slider(
-        "temperature", min_value=0.01, max_value=5.0, value=0.8, step=0.01
+        "temperature", min_value=0.1, max_value=1.0, value=0.5, step=0.1
     )
     top_p = st.sidebar.slider(
-        "top_p", min_value=0.01, max_value=1.0, value=0.95, step=0.01
+        "top_p", min_value=0.1, max_value=1.0, value=0.5, step=0.1
     )
     max_new_tokens = st.sidebar.slider(
         "max_new_tokens", min_value=48, max_value=512, value=50, step=4
     )
-    concurrent_requests = st.sidebar.slider(
-        "concurrent_requests", min_value=1, max_value=8, value=1, step=1
+    # concurrent_requests = st.sidebar.slider(
+    #    "concurrent_requests", min_value=1, max_value=128, value=1, step=1
+    # )
+    concurrent_requests = st.sidebar.select_slider(
+        "concurrent_requests", options=[2**j for j in range(0, 8)]
     )
 
 # Store LLM generated responses
@@ -137,7 +143,7 @@ if st.session_state.messages[-1]["role"] != "assistant":
                                 #    f"Time to first token : {first_token_time - req_time:.2f} seconds"
                                 # )
                             data = chunk.decode("utf-8")
-                            print("data is ", data)
+                            # print("data is ", data)
                             full_response += data
                             placeholder.markdown(full_response)
                     last_token_time = time.time()

@@ -8,6 +8,8 @@ MODEL_NAME_1 = os.environ["MODEL_NAME_1"]
 MODEL_NAME_2 = os.environ["MODEL_NAME_2"]
 MODEL1 = MODEL_NAME_1.split("---")[1]
 MODEL2 = MODEL_NAME_2.split("---")[1]
+MODELNAME = os.environ["MODEL_NAME_1"]
+GPT_FAST = "gpt_fast"
 # App title
 st.set_page_config(page_title="TorchServe Server")
 
@@ -16,14 +18,22 @@ def start_server():
     os.system("torchserve --start --ts-config /home/model-server/config.properties")
     st.session_state.started = True
     st.session_state.stopped = False
-    st.session_state.registered = {MODEL_NAME_1: False, MODEL_NAME_2: False}
+    st.session_state.registered = {
+        MODEL_NAME_1: False,
+        MODEL_NAME_2: False,
+        GPT_FAST: False,
+    }
 
 
 def stop_server():
     os.system("torchserve --stop")
     st.session_state.stopped = True
     st.session_state.started = False
-    st.session_state.registered = {MODEL_NAME_1: False, MODEL_NAME_2: False}
+    st.session_state.registered = {
+        MODEL_NAME_1: False,
+        MODEL_NAME_2: False,
+        GPT_FAST: False,
+    }
 
 
 def _register_model(url, MODEL_NAME):
@@ -32,6 +42,7 @@ def _register_model(url, MODEL_NAME):
         server_state_container.error("Error registering model", icon="🚫")
         st.session_state.started = True
         return
+    print(f"registering {MODEL_NAME}")
     st.session_state.registered[MODEL_NAME] = True
     # st.session_state.started = False
     st.session_state.stopped = False
@@ -47,7 +58,11 @@ def register_model(MODEL_NAME):
 
 
 def get_status():
+    # for MODEL_NAME in [MODEL_NAME_1, MODEL_NAME_2, GPT_FAST]:
     for MODEL_NAME in [MODEL_NAME_1, MODEL_NAME_2]:
+        print(
+            f"registered state for {MODEL_NAME} is {st.session_state.registered[MODEL_NAME]}"
+        )
         if st.session_state.registered[MODEL_NAME]:
             url = f"http://localhost:8081/models/{MODEL_NAME}"
             res = requests.get(url)
@@ -62,9 +77,11 @@ def get_status():
 
 
 def scale_workers(workers):
-    for MODEL_NAME in [MODEL_NAME_1, MODEL_NAME_2]:
+    # for MODEL_NAME in [MODEL_NAME_1, MODEL_NAME_2]:
+    for MODEL_NAME in [MODELNAME]:
         if st.session_state.registered[MODEL_NAME]:
             num_workers = st.session_state[workers]
+            # num_workers = workers
             url = (
                 f"http://localhost:8081/models/{MODEL_NAME}?min_worker="
                 f"{str(num_workers)}&synchronous=true"
@@ -74,12 +91,15 @@ def scale_workers(workers):
 
 
 def set_batch_size(batch_size):
-    for MODEL_NAME in [MODEL_NAME_1, MODEL_NAME_2]:
+    # for MODEL_NAME in [MODEL_NAME_1, MODEL_NAME_2]:
+    for MODEL_NAME in [MODELNAME]:
         if st.session_state.registered[MODEL_NAME]:
             url = f"http://localhost:8081/models/{MODEL_NAME}/1.0"
             res = requests.delete(url)
             server_state_container.caption(res.text)
+            print(f"Unregistering {MODEL_NAME}")
             st.session_state.registered[MODEL_NAME] = False
+            print(f"batch size is {batch_size}")
 
             batch_size = st.session_state[batch_size]
             url = (
@@ -91,11 +111,13 @@ def set_batch_size(batch_size):
 
 
 def set_max_batch_delay(max_batch_delay):
-    for MODEL_NAME in [MODEL_NAME_1, MODEL_NAME_2]:
+    # for MODEL_NAME in [MODEL_NAME_1, MODEL_NAME_2]:
+    for MODEL_NAME in [MODELNAME]:
         if st.session_state.registered[MODEL_NAME]:
             url = f"http://localhost:8081/models/{MODEL_NAME}/1.0"
             res = requests.delete(url)
             server_state_container.caption(res.text)
+            print(f"Unregistering {MODEL_NAME}")
             st.session_state.registered[MODEL_NAME] = False
 
             max_batch_delay = st.session_state[max_batch_delay]
@@ -112,7 +134,11 @@ if "started" not in st.session_state:
 if "stopped" not in st.session_state:
     st.session_state.stopped = False
 if "registered" not in st.session_state:
-    st.session_state.registered = {MODEL_NAME_1: False, MODEL_NAME_2: False}
+    st.session_state.registered = {
+        MODEL_NAME_1: False,
+        MODEL_NAME_2: False,
+        GPT_FAST: False,
+    }
 
 with st.sidebar:
     st.title("TorchServe Server ")
@@ -121,6 +147,15 @@ with st.sidebar:
     st.button("Stop Server", on_click=stop_server)
     st.button(f"Register {MODEL1}", on_click=register_model, args=(MODEL_NAME_1,))
     st.button(f"Register {MODEL2}", on_click=register_model, args=(MODEL_NAME_2,))
+    # st.button(f"Register {GPT_FAST}", on_click=register_model, args=(GPT_FAST,))
+
+    st.subheader("Model Selection")
+    MODELNAME = st.select_slider(
+        "Select a model",
+        options=[os.environ["MODEL_NAME_1"], os.environ["MODEL_NAME_2"]],
+    )
+    st.success(f"Model selected: {MODELNAME}!", icon="👉")
+
     workers = st.sidebar.slider(
         "Num Workers",
         key="Num Workers",
@@ -161,6 +196,9 @@ with st.sidebar:
     if st.session_state.registered[MODEL_NAME_2]:
         st.success(f"Registered model {MODEL_NAME_2}", icon="✅")
 
+    if st.session_state.registered[GPT_FAST]:
+        st.success(f"Registered model {GPT_FAST}", icon="✅")
+
 st.title("TorchServe Status")
 server_state_container = st.container()
 server_state_container.subheader("Server status:")
@@ -176,6 +214,9 @@ if st.session_state.registered[MODEL_NAME_1]:
 
 if st.session_state.registered[MODEL_NAME_2]:
     server_state_container.success(f"Registered model {MODEL_NAME_2}", icon="✅")
+
+if st.session_state.registered[GPT_FAST]:
+    server_state_container.success(f"Registered model {GPT_FAST}", icon="✅")
 
 model_state_container = st.container()
 with model_state_container:
@@ -195,7 +236,7 @@ from pandas import DataFrame, Series, Timestamp
 
 MINUTES_BACK = 60
 DEFAULT_TIME_BACK = timedelta(minutes=-MINUTES_BACK)
-DEFAULT_QUERY = "GPUMemoryUsed"
+DEFAULT_QUERY = "ts_inference_latency_microseconds"
 STEP_DURATION = "30s"
 
 
@@ -276,7 +317,7 @@ def display_metrics():
                 .mark_line()
                 .encode(
                     x="Time",
-                    y="GPUMemoryUsed",
+                    y="ts_inference_latency_microseconds",
                 )
             )
             metrics_container.altair_chart(chart, use_container_width=True)
@@ -284,8 +325,8 @@ def display_metrics():
 
 metrics_container = st.container()
 
-with metrics_container:
-    st.subheader("Metrics")
-
-with metrics_container:
-    st.button("Get Prometheus Metrics", on_click=display_metrics)
+# with metrics_container:
+#    st.subheader("Metrics")
+#
+# with metrics_container:
+#    st.button("Get Prometheus Metrics", on_click=display_metrics)

@@ -18,6 +18,11 @@ RUN --mount=type=cache,id=apt-dev,target=/var/cache/apt \
 
 COPY $EXAMPLE_DIR/requirements.txt /home/model-server/chat_bot/requirements.txt
 RUN pip install -r /home/model-server/chat_bot/requirements.txt && huggingface-cli login --token $HUGGINGFACE_TOKEN
+RUN pip uninstall torchtext torchdata torch torchvision torchaudio -y
+RUN pip install --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/cu121 --ignore-installed
+RUN pip uninstall torchserve torch-model-archiver torch-workflow-archiver -y
+RUN pip install torchserve-nightly torch-model-archiver-nightly torch-workflow-archiver-nightly
+
 COPY $EXAMPLE_DIR  /home/model-server/chat_bot
 COPY $EXAMPLE_DIR/dockerd-entrypoint.sh /usr/local/bin/dockerd-entrypoint.sh
 COPY $EXAMPLE_DIR/config.properties /home/model-server/config.properties

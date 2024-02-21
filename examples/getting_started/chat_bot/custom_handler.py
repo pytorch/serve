@@ -34,6 +34,22 @@ class HFLLMHandler(BaseHandler, ABC):
             ctx (context): It is a JSON Object containing information
             pertaining to the model artifacts parameters.
         """
+        properties = ctx.system_properties
+        gpu_id = properties.get("gpu_id")
+        if gpu_id is not None and int(gpu_id) < 0:
+            raise ValueError("Invalid gpu_id")
+        # rank = maybe_init_dist()
+
+        # self.local_rank = rank if rank is not None else int(gpu_id)
+        logger.info(f"GPU id is {gpu_id}")
+        self.local_rank = int(gpu_id)
+
+        if torch.cuda.is_available():
+            self.map_location = "cuda"
+            self.device = torch.device(self.map_location + ":" + str(self.local_rank))
+
+            torch.cuda.set_device(self.local_rank)
+
         model_dir = ctx.system_properties.get("model_dir")
         self.max_length = int(ctx.model_yaml_config["handler"]["max_length"])
         self.max_new_tokens = int(ctx.model_yaml_config["handler"]["max_new_tokens"])
@@ -70,7 +86,7 @@ class HFLLMHandler(BaseHandler, ABC):
 
         self.output_streamer = TextIteratorStreamerBatch(
             self.tokenizer,
-            batch_size=2,
+            batch_size=1,
             skip_special_tokens=True,
         )
         logger.info("Model %s loaded successfully", ctx.model_name)
@@ -153,6 +169,11 @@ class HFLLMHandler(BaseHandler, ABC):
         # logger.info("Generated text: %s", inferences)
         # return inferences
 
+        self.output_streamer = TextIteratorStreamerBatch(
+            self.tokenizer,
+            batch_size=len(input_ids_batch),
+            skip_special_tokens=True,
+        )
         generation_kwargs = dict(
             inputs=input_ids_batch,
             attention_mask=attention_mask_batch,

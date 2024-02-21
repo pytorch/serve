@@ -4,6 +4,10 @@ maxWorkers: 1
 maxBatchDelay: 3000
 responseTimeout: 1200
 deviceType: "gpu"
+deviceIds: [2,3]
+torchrun:
+    nproc-per-node: 1
+
 
 handler:
     model_name: "mistralai/Mistral-7B-v0.1"
