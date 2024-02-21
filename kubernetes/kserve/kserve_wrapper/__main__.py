@@ -5,7 +5,7 @@ import os
 
 import kserve
 from kserve.model_server import ModelServer
-from TorchserveModel import TorchserveModel
+from TorchserveModel import PredictorProtocol, TorchserveModel
 from TSModelRepository import TSModelRepository
 
 logging.basicConfig(level=kserve.constants.KSERVE_LOGLEVEL)
@@ -99,7 +99,7 @@ if __name__ == "__main__":
         model_dir,
     ) = parse_config()
 
-    protocol = os.environ.get("PROTOCOL_VERSION")
+    protocol = os.environ.get("PROTOCOL_VERSION", PredictorProtocol.REST_V1.value)
 
     models = []
 
