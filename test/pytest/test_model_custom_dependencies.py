@@ -141,9 +141,7 @@ def register_model_and_make_inference_request(expect_model_load_failure=False):
 
 
 def test_install_dependencies_to_target_directory_with_requirements():
-    # Torchserve cleanup
-    test_utils.stop_torchserve()
-    test_utils.delete_all_snapshots()
+    test_utils.torchserve_cleanup()
 
     try:
         generate_model_archive(use_requirements=True, use_venv=False)
@@ -162,14 +160,11 @@ def test_install_dependencies_to_target_directory_with_requirements():
         )
         register_model_and_make_inference_request(expect_model_load_failure=False)
     finally:
-        test_utils.stop_torchserve()
-        test_utils.delete_all_snapshots()
+        test_utils.torchserve_cleanup()
 
 
 def test_install_dependencies_to_target_directory_without_requirements():
-    # Torchserve cleanup
-    test_utils.stop_torchserve()
-    test_utils.delete_all_snapshots()
+    test_utils.torchserve_cleanup()
 
     try:
         generate_model_archive(use_requirements=False, use_venv=False)
@@ -188,14 +183,11 @@ def test_install_dependencies_to_target_directory_without_requirements():
         )
         register_model_and_make_inference_request(expect_model_load_failure=True)
     finally:
-        test_utils.stop_torchserve()
-        test_utils.delete_all_snapshots()
+        test_utils.torchserve_cleanup()
 
 
 def test_disable_install_dependencies_to_target_directory_with_requirements():
-    # Torchserve cleanup
-    test_utils.stop_torchserve()
-    test_utils.delete_all_snapshots()
+    test_utils.torchserve_cleanup()
 
     try:
         generate_model_archive(use_requirements=True, use_venv=False)
@@ -207,14 +199,11 @@ def test_disable_install_dependencies_to_target_directory_with_requirements():
         )
         register_model_and_make_inference_request(expect_model_load_failure=True)
     finally:
-        test_utils.stop_torchserve()
-        test_utils.delete_all_snapshots()
+        test_utils.torchserve_cleanup()
 
 
 def test_disable_install_dependencies_to_target_directory_without_requirements():
-    # Torchserve cleanup
-    test_utils.stop_torchserve()
-    test_utils.delete_all_snapshots()
+    test_utils.torchserve_cleanup()
 
     try:
         generate_model_archive(use_requirements=False, use_venv=False)
@@ -226,14 +215,11 @@ def test_disable_install_dependencies_to_target_directory_without_requirements()
         )
         register_model_and_make_inference_request(expect_model_load_failure=True)
     finally:
-        test_utils.stop_torchserve()
-        test_utils.delete_all_snapshots()
+        test_utils.torchserve_cleanup()
 
 
 def test_install_dependencies_to_venv_with_requirements():
-    # Torchserve cleanup
-    test_utils.stop_torchserve()
-    test_utils.delete_all_snapshots()
+    test_utils.torchserve_cleanup()
 
     try:
         generate_model_archive(use_requirements=True, use_venv=True)
@@ -252,14 +238,11 @@ def test_install_dependencies_to_venv_with_requirements():
         )
         register_model_and_make_inference_request(expect_model_load_failure=False)
     finally:
-        test_utils.stop_torchserve()
-        test_utils.delete_all_snapshots()
+        test_utils.torchserve_cleanup()
 
 
 def test_install_dependencies_to_venv_without_requirements():
-    # Torchserve cleanup
-    test_utils.stop_torchserve()
-    test_utils.delete_all_snapshots()
+    test_utils.torchserve_cleanup()
 
     try:
         generate_model_archive(use_requirements=False, use_venv=True)
@@ -278,14 +261,11 @@ def test_install_dependencies_to_venv_without_requirements():
         )
         register_model_and_make_inference_request(expect_model_load_failure=True)
     finally:
-        test_utils.stop_torchserve()
-        test_utils.delete_all_snapshots()
+        test_utils.torchserve_cleanup()
 
 
 def test_disable_install_dependencies_to_venv_with_requirements():
-    # Torchserve cleanup
-    test_utils.stop_torchserve()
-    test_utils.delete_all_snapshots()
+    test_utils.torchserve_cleanup()
 
     try:
         generate_model_archive(use_requirements=True, use_venv=True)
@@ -297,14 +277,11 @@ def test_disable_install_dependencies_to_venv_with_requirements():
         )
         register_model_and_make_inference_request(expect_model_load_failure=True)
     finally:
-        test_utils.stop_torchserve()
-        test_utils.delete_all_snapshots()
+        test_utils.torchserve_cleanup()
 
 
 def test_disable_install_dependencies_to_venv_without_requirements():
-    # Torchserve cleanup
-    test_utils.stop_torchserve()
-    test_utils.delete_all_snapshots()
+    test_utils.torchserve_cleanup()
 
     try:
         generate_model_archive(use_requirements=False, use_venv=True)
@@ -316,5 +293,4 @@ def test_disable_install_dependencies_to_venv_without_requirements():
         )
         register_model_and_make_inference_request(expect_model_load_failure=True)
     finally:
-        test_utils.stop_torchserve()
-        test_utils.delete_all_snapshots()
+        test_utils.torchserve_cleanup()

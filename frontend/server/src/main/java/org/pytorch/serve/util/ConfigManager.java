@@ -107,6 +107,7 @@ public final class ConfigManager {
     private static final String TS_WORKFLOW_STORE = "workflow_store";
     private static final String TS_CPP_LOG_CONFIG = "cpp_log_config";
     private static final String TS_OPEN_INFERENCE_PROTOCOL = "ts_open_inference_protocol";
+    private static final String TS_TOKEN_EXPIRATION_TIME_MIN = "token_expiration_min";
 
     // Configuration which are not documented or enabled through environment variables
     private static final String USE_NATIVE_IO = "use_native_io";
@@ -857,6 +858,17 @@ public final class ConfigManager {
 
     public boolean isSnapshotDisabled() {
         return snapshotDisabled;
+    }
+
+    public Double getTimeToExpiration() {
+        if (prop.getProperty(TS_TOKEN_EXPIRATION_TIME_MIN) != null) {
+            try {
+                return Double.valueOf(prop.getProperty(TS_TOKEN_EXPIRATION_TIME_MIN));
+            } catch (NumberFormatException e) {
+                logger.error("Token expiration not a valid integer");
+            }
+        }
+        return 0.0;
     }
 
     public boolean isSSLEnabled(ConnectorType connectorType) {

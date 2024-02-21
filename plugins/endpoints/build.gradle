@@ -1,6 +1,7 @@
 dependencies {
     implementation "com.google.code.gson:gson:${gson_version}"
     implementation "org.pytorch:torchserve-plugins-sdk:${torchserve_sdk_version}"
+    implementation "io.netty:netty-all:4.1.53.Final"
 }
 
 project.ext{
@@ -16,4 +17,3 @@ jar {
     exclude "META-INF//LICENSE*"
     exclude "META-INF//NOTICE*"
 }
-
