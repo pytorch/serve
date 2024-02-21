@@ -227,15 +227,15 @@ WORKDIR "serve"
 RUN \
     if [ "$BUILD_CPP" = "true" ]; then \
         if [ "$USE_CUDA_VERSION" = "" ]; then \
-            python ./ts_scripts/install_dependencies.py --environment=dev --cpp; \
+            python ./ts_scripts/install_dependencies.py --environment=dev --cpp --force; \
         else \
-            python ./ts_scripts/install_dependencies.py --environment=dev --cpp --cuda=$USE_CUDA_VERSION; \
+            python ./ts_scripts/install_dependencies.py --environment=dev --cpp --cuda=$USE_CUDA_VERSION --force; \
         fi; \
     else \
         if [ "$USE_CUDA_VERSION" = "" ]; then \
-            python ./ts_scripts/install_dependencies.py --environment=dev; \
+            python ./ts_scripts/install_dependencies.py --environment=dev --force; \
         else \
-            python ./ts_scripts/install_dependencies.py --environment=dev --cuda=$USE_CUDA_VERSION; \
+            python ./ts_scripts/install_dependencies.py --environment=dev --cuda=$USE_CUDA_VERSION --force; \
         fi; \
     fi
 RUN \
