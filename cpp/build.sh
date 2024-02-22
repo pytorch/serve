@@ -258,7 +258,7 @@ function symlink_torch_libs() {
 }
 
 function install_torchserve_cpp() {
-  TARGET_DIR=$BASE_DIR/../ts/cpp/
+  TARGET_DIR=`python -c "import ts; from pathlib import Path; print(Path(ts.__file__).parent / 'cpp')"`
 
   if [ -d $TARGET_DIR ]; then
     rm -rf $TARGET_DIR
