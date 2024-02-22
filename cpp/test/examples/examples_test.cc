@@ -59,3 +59,24 @@ TEST_F(ModelPredictTest, TestLoadPredictLlamaCppHandler) {
           base_dir + "llamacpp_handler", "llamacpp", -1, "", "", 1, false),
       base_dir + "llamacpp_handler", base_dir + "prompt.txt", "llm_ts", 200);
 }
+
+TEST_F(ModelPredictTest, TestLoadPredictAotInductorResnetHandler) {
+  std::string base_dir = "_build/test/resources/examples/aot_inductor/";
+  std::string file1 = base_dir + "resnet_handler/resnet50_pt2.so";
+
+  std::ifstream f1(file1);
+
+  if (!f1.good())
+    GTEST_SKIP() << "Skipping TestLoadPredictAotInductorResnetHandler because "
+                    "of missing files: "
+                 << file1;
+
+  this->LoadPredict(
+    std::make_shared<torchserve::LoadModelRequest>(
+      base_dir + "resnet_handler", "resnet50_aot",
+      torch::cuda::is_available() ? 0 : -1, "", "", 1, false),
+      base_dir + "resnet_handler",
+      base_dir + "resnet_handler/0_png.pt",
+      "resnet_ts",
+      200);
+}
