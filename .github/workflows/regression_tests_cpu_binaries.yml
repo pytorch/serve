@@ -25,13 +25,16 @@ jobs:
         with:
           submodules: recursive
       - name: Setup conda with Python ${{ matrix.python-version }}
-        uses: s-weigand/setup-conda@v1
-        with:
-          update-conda: true
-          python-version: ${{ matrix.python-version }}
-          conda-channels: anaconda, conda-forge
-        condition: |
-          matrix.os == 'macOS-latest' && matrix.python-version == '3.8'
+        run: |
+          if [ "${{ matrix.os }}" == "macOS-latest" ] && [ "${{ matrix.python-version }}" == "3.8" ]; then
+            echo "Skipping setup of conda with Python 3.8 on macOS-latest"
+          else
+            uses: s-weigand/setup-conda@v1
+            with:
+              update-conda: true
+              python-version: ${{ matrix.python-version }}
+              conda-channels: anaconda, conda-forge
+          fi
       - run: conda --version
       - run: python --version
       - name: Setup Java 17
@@ -46,6 +49,8 @@ jobs:
           python ts_scripts/install_dependencies.py --environment=dev
       - name: Validate Torchserve CPU Regression
         run: |
-          python test/regression_tests.py --binaries --${{ matrix.binaries }} --nightly
-        condition: |
-          matrix.os == 'macOS-latest' && matrix.python-version == '3.8'
+          if [ "${{ matrix.os }}" == "macOS-latest" ] && [ "${{ matrix.python-version }}" == "3.8" ]; then
+            echo "Skipping validation for macOS-latest with Python 3.8"
+          else
+            python test/regression_tests.py --binaries --${{ matrix.binaries }} --nightly
+          fi
