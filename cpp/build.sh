@@ -155,37 +155,6 @@ function install_yaml_cpp() {
   cd "$BWD" || exit
 }
 
-function install_sentencepiece() {
-  SENTENCEPIECE_SRC_DIR=$BASE_DIR/third-party/sentencepiece
-  SENTENCEPIECE_BUILD_DIR=$DEPS_DIR/sentencepiece-build
-
-  if [ ! -d "$SENTENCEPIECE_SRC_DIR" ] ; then
-    echo -e "${COLOR_GREEN}[ INFO ] Cloning sentencepiece repo ${COLOR_OFF}"
-    git clone https://github.com/google/sentencepiece.git "$SENTENCEPIECE_SRC_DIR"
-    cd $SENTENCEPIECE_SRC_DIR
-    git checkout tags/v0.1.99
-  fi
-
-  if [ ! -d "$SENTENCEPIECE_BUILD_DIR" ] ; then
-    echo -e "${COLOR_GREEN}[ INFO ] Building sentencepiece ${COLOR_OFF}"
-
-    mkdir $SENTENCEPIECE_BUILD_DIR
-    cd $SENTENCEPIECE_BUILD_DIR
-    cmake $SENTENCEPIECE_SRC_DIR
-    make -i $(nproc)
-    if [ "$PLATFORM" = "Linux" ]; then
-      sudo make install
-      sudo ldconfig -v
-    elif [ "$PLATFORM" = "Mac" ]; then
-      make install
-    fi
-
-    echo -e "${COLOR_GREEN}[ INFO ] sentencepiece is installed ${COLOR_OFF}"
-  fi
-
-  cd "$BWD" || exit
-}
-
 function build_llama_cpp() {
   BWD=$(pwd)
   LLAMA_CPP_SRC_DIR=$BASE_DIR/third-party/llama.cpp
@@ -208,14 +177,23 @@ function prepare_test_files() {
   if [ ! -f "${EX_DIR}/babyllama/babyllama_handler/stories15M.bin" ]; then
     wget https://huggingface.co/karpathy/tinyllamas/resolve/main/stories15M.bin -O "${EX_DIR}/babyllama/babyllama_handler/stories15M.bin"
   fi
-  if [ ! -f "${EX_DIR}/aot_inductor/llama_handler/stories15M.so" ]; then
-    local HANDLER_DIR=${EX_DIR}/aot_inductor/llama_handler/
-    if [ ! -f "${HANDLER_DIR}/stories15M.pt" ]; then
-      wget https://huggingface.co/karpathy/tinyllamas/resolve/main/stories15M.pt?download=true -O "${HANDLER_DIR}/stories15M.pt"
+  # PT2.2 torch.expport does not support Mac
+  if [ "$PLATFORM" = "Linux" ]; then
+    if [ ! -f "${EX_DIR}/aot_inductor/llama_handler/stories15M.so" ]; then
+      local HANDLER_DIR=${EX_DIR}/aot_inductor/llama_handler/
+      if [ ! -f "${HANDLER_DIR}/stories15M.pt" ]; then
+        wget https://huggingface.co/karpathy/tinyllamas/resolve/main/stories15M.pt?download=true -O "${HANDLER_DIR}/stories15M.pt"
+      fi
+      local LLAMA_SO_DIR=${BASE_DIR}/third-party/llama2.so/
+      PYTHONPATH=${LLAMA_SO_DIR}:${PYTHONPATH} python ${BASE_DIR}/../examples/cpp/aot_inductor/llama2/compile.py --checkpoint ${HANDLER_DIR}/stories15M.pt ${HANDLER_DIR}/stories15M.so
     fi
-    local LLAMA_SO_DIR=${BASE_DIR}/third-party/llama2.so/
-    PYTHONPATH=${LLAMA_SO_DIR}:${PYTHONPATH} python ${BASE_DIR}/../examples/cpp/aot_inductor/llama2/compile.py --checkpoint ${HANDLER_DIR}/stories15M.pt ${HANDLER_DIR}/stories15M.so
+    if [ ! -f "${EX_DIR}/aot_inductor/resnet_handler/resne50_pt2.so" ]; then
+      local HANDLER_DIR=${EX_DIR}/aot_inductor/resnet_handler/
+      cd ${HANDLER_DIR}
+      python ${BASE_DIR}/../examples/cpp/aot_inductor/resnet/resnet50_torch_export.py
+    fi
   fi
+  cd "$BWD" || exit
 }
 
 function build() {
@@ -401,7 +379,6 @@ install_folly
 install_kineto
 install_libtorch
 install_yaml_cpp
-install_sentencepiece
 build_llama_cpp
 prepare_test_files
 build
