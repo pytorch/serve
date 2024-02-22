@@ -18,10 +18,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macOS-latest]
+        os: [ubuntu-20.04, macOS-latest]
     steps:
       - name: Checkout TorchServe
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
       - name: Install libtorch - macOS
         if: matrix.os == 'macOS-latest'
         run: |
