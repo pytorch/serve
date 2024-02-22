@@ -46,6 +46,6 @@ def inherit_site_packages(venv_path):
 if __name__ == "__main__":
     assert (
         len(sys.argv) == 2
-    ), f"{__file__} expects one argument: path to venv that should inherit site-packages of the current environment but got {sys.argv}"
+    ), f"{__file__} expects one argument: path to venv that should be created, but got {sys.argv}"
     create_venv(sys.argv[1])
     inherit_site_packages(sys.argv[1])
