@@ -124,8 +124,9 @@ class Common:
 
         # Install PyTorch packages
         if nightly:
+            pt_nightly = "cpu" if not cuda_version else cuda_version
             os.system(
-                f"pip3 install numpy --pre torch torchvision torchtext torchaudio --force-reinstall --extra-index-url https://download.pytorch.org/whl/nightly/{cuda_version}"
+                f"pip3 install numpy --pre torch torchvision torchtext torchaudio --force-reinstall --extra-index-url https://download.pytorch.org/whl/nightly/{pt_nightly}"
             )
         else:
             self.install_torch_packages(cuda_version)
