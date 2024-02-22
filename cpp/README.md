@@ -66,3 +66,13 @@ This will make the TorchServe installation editable and the updated cpp backend 
 ```
 python ts_scripts/install_from_src.py --environment dev
 ```
+
+#### FAQs
+Q: After running ./build.sh TorchServe can not find model_worker_socket
+A:
+1. See if the binary `model_worker_socket` exists by running:
+```bash
+python -c "import ts; from pathlib import Path; print((Path(ts.__file__).parent / 'cpp/bin/model_worker_socket').exists())
+```
+2. Look if ./build.sh was actually successful and if the tests ran without any error at the end. If a test failed the binary will not be copied into the appropriate directory.
+3. Make sure you have the right conda/venv environment activated during building that you're also using to run TorchServe.
