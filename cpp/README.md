@@ -7,7 +7,7 @@
 ### Install dependencies
 ```
 cd serve
-python ts_scripts/install_dependencies.py --cpp [--cuda=cu121|cu118]
+python ts_scripts/install_dependencies.py --cpp --environment dev [--cuda=cu121|cu118]
 ```
 ### Building the backend
 ```
