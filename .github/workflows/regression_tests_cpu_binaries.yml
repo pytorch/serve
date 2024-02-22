@@ -2,9 +2,8 @@ name: Run Regression Tests for CPU nightly binaries
 
 on:
   # run every day at 6:15am
-  #schedule:
-  #  - cron:  '15 6 * * *'
-  push:
+  schedule:
+    - cron:  '15 6 * * *'
 
 concurrency:
   group: ci-cpu-${{ github.workflow }}-${{ github.ref == 'refs/heads/master' && github.run_number || github.ref }}
@@ -25,7 +24,7 @@ jobs:
         - os: macos-latest
           python-version: 3.8
     steps:
-      - uses: actions/checkout@v4.1.1
+      - uses: actions/checkout@v3
         with:
           submodules: recursive
       - name: Setup conda with Python ${{ matrix.python-version }}
