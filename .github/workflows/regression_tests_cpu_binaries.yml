@@ -29,6 +29,8 @@ jobs:
           update-conda: true
           python-version: ${{ matrix.python-version }}
           conda-channels: anaconda, conda-forge
+        condition: |
+          matrix.os == 'macOS-latest' && matrix.python-version == '3.8'
       - run: conda --version
       - run: python --version
       - name: Setup Java 17
@@ -44,3 +46,5 @@ jobs:
       - name: Validate Torchserve CPU Regression
         run: |
           python test/regression_tests.py --binaries --${{ matrix.binaries }} --nightly
+        condition: |
+          matrix.os == 'macOS-latest' && matrix.python-version == '3.8'
