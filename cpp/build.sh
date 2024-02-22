@@ -74,7 +74,7 @@ function install_kineto() {
 }
 
 function install_libtorch() {
-  TORCH_VERSION="2.2.0"
+  TORCH_VERSION="2.2.1"
   if [ "$PLATFORM" = "Mac" ]; then
     if [ ! -d "$DEPS_DIR/libtorch" ]; then
       if [[ $(uname -m) == 'x86_64' ]]; then
