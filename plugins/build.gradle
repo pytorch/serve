@@ -63,12 +63,12 @@ allprojects {
         publications {
             mavenJava(MavenPublication) {
                 groupId = "org.pytorch"
-                artifactId = "endpoint-plugins-sdk"
+                artifactId = "torchserve-endpoint-plugin"
                 version = '0.0.1'
                 from components.java
 
                 pom {
-                    name = 'endpoint-plugins-sdk'
+                    name = 'torchserve-endpoint-plugin'
                     description = 'SDK for PyTorch model server endpoint plugins'
                     url = 'https://github.com/pytorch/serve'
 
