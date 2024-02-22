@@ -124,37 +124,6 @@ function install_libtorch() {
   cd "$BWD" || exit
 }
 
-function install_yaml_cpp() {
-  YAML_CPP_SRC_DIR=$BASE_DIR/third-party/yaml-cpp
-  YAML_CPP_BUILD_DIR=$DEPS_DIR/yaml-cpp-build
-
-  if [ ! -d "$YAML_CPP_SRC_DIR" ] ; then
-    echo -e "${COLOR_GREEN}[ INFO ] Cloning yaml-cpp repo ${COLOR_OFF}"
-    git clone https://github.com/jbeder/yaml-cpp.git "$YAML_CPP_SRC_DIR"
-    cd $YAML_CPP_SRC_DIR
-    git checkout tags/0.8.0
-  fi
-
-  if [ ! -d "$YAML_CPP_BUILD_DIR" ] ; then
-    echo -e "${COLOR_GREEN}[ INFO ] Building yaml-cpp ${COLOR_OFF}"
-
-    if [ "$PLATFORM" = "Linux" ]; then
-      SUDO="sudo"
-    elif [ "$PLATFORM" = "Mac" ]; then
-      SUDO=""
-    fi
-
-    mkdir $YAML_CPP_BUILD_DIR
-    cd $YAML_CPP_BUILD_DIR
-    cmake $YAML_CPP_SRC_DIR -DYAML_BUILD_SHARED_LIBS=ON -DYAML_CPP_BUILD_TESTS=OFF -DCMAKE_CXX_FLAGS="-fPIC"
-    $SUDO make install
-
-    echo -e "${COLOR_GREEN}[ INFO ] yaml-cpp is installed ${COLOR_OFF}"
-  fi
-
-  cd "$BWD" || exit
-}
-
 function build_llama_cpp() {
   BWD=$(pwd)
   LLAMA_CPP_SRC_DIR=$BASE_DIR/third-party/llama.cpp
@@ -288,14 +257,6 @@ function symlink_torch_libs() {
   fi
 }
 
-function symlink_yaml_cpp_lib() {
-  if [ "$PLATFORM" = "Linux" ]; then
-    ln -sf ${DEPS_DIR}/yaml-cpp-build/*.so* ${LIBS_DIR}
-  elif [ "$PLATFORM" = "Mac" ]; then
-    ln -sf ${DEPS_DIR}/yaml-cpp-build/*.dylib* ${LIBS_DIR}
-  fi
-}
-
 function install_torchserve_cpp() {
   TARGET_DIR=$BASE_DIR/../ts/cpp/
 
@@ -378,10 +339,8 @@ git submodule update --init --recursive
 install_folly
 install_kineto
 install_libtorch
-install_yaml_cpp
 build_llama_cpp
 prepare_test_files
 build
 symlink_torch_libs
-symlink_yaml_cpp_lib
 install_torchserve_cpp
