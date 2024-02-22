@@ -15,7 +15,7 @@ target_include_directories(ts_utils PRIVATE ${Boost_INCLUDE_DIRS})
 if(CMAKE_SYSTEM_NAME MATCHES "Darwin")
   target_link_libraries(ts_utils ${FOLLY_LIBRARIES} ${CMAKE_DL_LIBS} ${Boost_LIBRARIES} yaml-cpp::yaml-cpp)
 else()
-  target_link_libraries(ts_utils ${FOLLY_LIBRARIES} ${CMAKE_DL_LIBS} ${Boost_LIBRARIES} yaml-cpp)
+  target_link_libraries(ts_utils ${FOLLY_LIBRARIES} ${CMAKE_DL_LIBS} ${Boost_LIBRARIES} yaml-cpp::yaml-cpp)
 endif()
 
 install(TARGETS ts_utils DESTINATION ${torchserve_cpp_SOURCE_DIR}/_build/libs)
