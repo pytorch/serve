@@ -74,7 +74,17 @@ function install_kineto() {
 }
 
 function install_libtorch() {
+  cd "$DEPS_DIR" || exit
   TORCH_VERSION="2.2.0"
+  if [ -d "$DEPS_DIR/libtorch" ]; then
+    RAW_VERSION=`cat "$DEPS_DIR/libtorch/build-version"`
+    VERSION=`cat "$DEPS_DIR/libtorch/build-version" | cut -d "+" -f 1`
+    if [ "$USE_NIGHTLIES" = "true" ] && [[ ! "${RAW_VERSION}" =~ .*"dev".* ]]; then
+      rm -rf "$DEPS_DIR/libtorch"
+    elif [ "$USE_NIGHTLIES" == "" ] && [ "$VERSION" != "$TORCH_VERSION" ]; then
+      rm -rf "$DEPS_DIR/libtorch"
+    fi
+  fi
   if [ "$PLATFORM" = "Mac" ]; then
     if [ ! -d "$DEPS_DIR/libtorch" ]; then
       if [[ $(uname -m) == 'x86_64' ]]; then
@@ -95,17 +105,7 @@ function install_libtorch() {
       echo -e "${COLOR_RED}[ ERROR ] Unknown platform: $PLATFORM ${COLOR_OFF}"
       exit 1
   else  # Linux
-    if [ -d "$DEPS_DIR/libtorch" ]; then
-      RAW_VERSION=`cat "$DEPS_DIR/libtorch/build-version"`
-      VERSION=`cat "$DEPS_DIR/libtorch/build-version" | cut -d "+" -f 1`
-      if [ "$USE_NIGHTLIES" = "true" ] && [[ ! "${RAW_VERSION}" =~ .*"dev".* ]]; then
-        rm -rf "$DEPS_DIR/libtorch"
-      elif [ "$USE_NIGHTLIES" == "" ] && [ "$VERSION" != "$TORCH_VERSION" ]; then
-        rm -rf "$DEPS_DIR/libtorch"
-      fi
-    fi
     if [ ! -d "$DEPS_DIR/libtorch" ]; then
-      cd "$DEPS_DIR" || exit
       echo -e "${COLOR_GREEN}[ INFO ] Install libtorch on Linux ${COLOR_OFF}"
       if [ "$USE_NIGHTLIES" == true ]; then
         URL=https://download.pytorch.org/libtorch/nightly/${CUDA}/libtorch-cxx11-abi-shared-with-deps-latest.zip
@@ -196,12 +196,11 @@ function build() {
 
   # Build torchserve_cpp with cmake
   cd "$BWD" || exit
-  YAML_CPP_CMAKE_DIR=$DEPS_DIR/yaml-cpp-build
   FOLLY_CMAKE_DIR=$DEPS_DIR/folly-build/installed
   find $FOLLY_CMAKE_DIR -name "lib*.*"  -exec ln -s "{}" $LIBS_DIR/ \;
   if [ "$PLATFORM" = "Linux" ]; then
     cmake                                                                                     \
-    -DCMAKE_PREFIX_PATH="$DEPS_DIR;$FOLLY_CMAKE_DIR;$YAML_CPP_CMAKE_DIR;$DEPS_DIR/libtorch"                       \
+    -DCMAKE_PREFIX_PATH="$DEPS_DIR;$FOLLY_CMAKE_DIR;$DEPS_DIR/libtorch"                       \
     -DCMAKE_INSTALL_PREFIX="$PREFIX"                                                          \
     "$MAYBE_BUILD_QUIC"                                                                       \
     "$MAYBE_BUILD_TESTS"                                                                      \
@@ -218,7 +217,7 @@ function build() {
     fi
   elif [ "$PLATFORM" = "Mac" ]; then
     cmake                                                                                     \
-    -DCMAKE_PREFIX_PATH="$DEPS_DIR;$FOLLY_CMAKE_DIR;$YAML_CPP_CMAKE_DIR;$DEPS_DIR/libtorch"    \
+    -DCMAKE_PREFIX_PATH="$DEPS_DIR;$FOLLY_CMAKE_DIR;$DEPS_DIR/libtorch"                       \
     -DCMAKE_INSTALL_PREFIX="$PREFIX"                                                          \
     "$MAYBE_BUILD_QUIC"                                                                       \
     "$MAYBE_BUILD_TESTS"                                                                      \
