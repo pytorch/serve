@@ -382,7 +382,9 @@ class BaseNeuronXContinuousBatchingHandler(BaseHandler):
         handler_config = ctx.model_yaml_config.get("handler", {})
         model_class_name = handler_config.get("model_class_name", None)
 
-        assert model_class_name is not None
+        assert (
+            model_class_name
+        ), "model_class_name not found in the section of handler in model config yaml file"
         model_module_prefix = handler_config.get("model_module_prefix", None)
         self.model_class = import_class(
             class_name=model_class_name,
@@ -390,7 +392,10 @@ class BaseNeuronXContinuousBatchingHandler(BaseHandler):
         )
 
         tokenizer_class_name = handler_config.get("tokenizer_class_name", None)
-        assert tokenizer_class_name is not None
+        assert (
+            tokenizer_class_name
+        ), "tokenizer_class_name not found in the section of handler in model config yaml file"
+
         tokenizer_module_prefix = handler_config.get("tokenizer_module_prefix", None)
 
         self.tokenizer_class = import_class(
