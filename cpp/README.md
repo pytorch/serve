@@ -7,31 +7,22 @@
 ### Install dependencies
 ```
 cd serve
-python ts_scripts/install_dependencies.py --cpp [--cuda=cu121|cu118]
+python ts_scripts/install_dependencies.py --cpp --environment dev [--cuda=cu121|cu118]
 ```
 ### Building the backend
 ```
 ## Dev Build
-cd serve/cpp
+cd cpp
 ./build.sh [-g cu121|cu118]
 
 ## Install TorchServe from source
-cd serve
+cd ..
 python ts_scripts/install_from_src.py
-```
-### Set Environment Var
-#### On Mac
-```
-export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:$(python -c 'import torch; print(torch.utils.cmake_prefix_path)')/../../lib:$(python -c 'import site; print(site.getsitepackages()[0])')/ts/cpp/lib
-```
-#### On Ubuntu
-```
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(pwd)/cpp/_build/_deps/libtorch/lib:$(python -c 'import site; print(site.getsitepackages()[0])')/ts/cpp/lib
 ```
 ### Run TorchServe
 ```
-cd serve
-torchserve torchserve --ncs --start --model-store model_store
+mkdir model_store
+torchserve --ncs --start --model-store model_store
 ```
 ## Backend
 TorchServe cpp backend can run as a process, which is similar to [TorchServe Python backend](https://github.com/pytorch/serve/tree/master/ts). By default, TorchServe supports torch scripted model in cpp backend. Other platforms such as MxNet, ONNX can be supported through custom handlers following the TorchScript example [src/backends/handler/torch_scripted_handler.hh](https://github.com/pytorch/serve/blob/master/cpp/src/backends/handler/torch_scripted_handler.hh).
@@ -67,3 +58,11 @@ The following examples are available:
 * [BabyLlama](../examples/cpp/babyllama/)
 * [Llama.cpp](../examples/cpp/llamacpp/)
 * [MNIST](../examples/cpp/mnist/)
+
+#### Developing
+When making changes to the cpp backend its inconvenient to reinstall TorchServe using ts_scripts/install_from_src.py after every compilation.
+To automatically update the model_worker_socket located in ts/cpp/bin/ we can install TorchServe once from source with the `--environment dev`.
+This will make the TorchServe installation editable and the updated cpp backend binary is automatically picked up when starting a worker (No restart of TorchServe required).
+```
+python ts_scripts/install_from_src.py --environment dev
+```
