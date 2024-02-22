@@ -4,20 +4,20 @@
 * GCC version: gcc-9
 ## Installation and Running TorchServe CPP
 
+This installation instruction assumes that TorchServe is already installed through pip/conda/source. If this is not the case install it after the `Install dependencies` step through your preferred method.
+
 ### Install dependencies
 ```
 cd serve
 python ts_scripts/install_dependencies.py --cpp --environment dev [--cuda=cu121|cu118]
 ```
 ### Building the backend
+Don't forget to install or update TorchServe at this point if it wasn't previously installed.
 ```
 ## Dev Build
 cd cpp
 ./build.sh [-g cu121|cu118]
 
-## Install TorchServe from source
-cd ..
-python ts_scripts/install_from_src.py
 ```
 ### Run TorchServe
 ```
