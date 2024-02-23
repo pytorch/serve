@@ -1,7 +1,7 @@
 #pip install torch torchvision torchaudio
 --extra-index-url https://download.pytorch.org/whl/cpu
 -r torch_common.txt
-torch==2.2.0; sys_platform == 'darwin'
-torchvision==0.17.0; sys_platform == 'darwin'
-torchtext==0.17.0; sys_platform == 'darwin'
-torchaudio==2.2.0; sys_platform == 'darwin'
+torch==2.2.1; sys_platform == 'darwin'
+torchvision==0.17.1; sys_platform == 'darwin'
+torchtext==0.17.1; sys_platform == 'darwin'
+torchaudio==2.2.1; sys_platform == 'darwin'
