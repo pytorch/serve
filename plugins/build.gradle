@@ -19,16 +19,9 @@ allprojects {
     apply plugin: 'maven-publish'
     apply plugin: 'signing'
 
-    version = '1.0'
-
     repositories {
         mavenLocal()
         jcenter()
-    }
-
-    java {
-        withJavadocJar()
-        withSourcesJar()
     }
 
     idea {
@@ -107,12 +100,12 @@ publishing {
         publications {
             mavenJava(MavenPublication) {
                 groupId = "org.pytorch"
-                artifactId = "torchserve-endpoint-plugin"
+                artifactId = "torchserve-token-plugin"
                 version = '0.0.1'
                 from components.java
 
                 pom {
-                    name = 'torchserve-endpoint-plugin'
+                    name = 'torchserve-token-plugin'
                     description = 'SDK for PyTorch model server endpoint plugins'
                     url = 'https://github.com/pytorch/serve'
 
