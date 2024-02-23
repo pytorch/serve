@@ -86,8 +86,7 @@ RUN \
 # Make sure latest version of torchserve is uploaded before running this
 RUN \
     if echo "$BUILD_NIGHTLY" | grep -q "false"; then \
-        python ts_scripts/install_from_src.py
-        #python -m pip install --no-cache-dir torchserve torch-model-archiver torch-workflow-archiver;\
+        python ts_scripts/install_from_src.py; \
     else \
         python -m pip install --no-cache-dir torchserve-nightly torch-model-archiver-nightly torch-workflow-archiver-nightly;\
     fi
