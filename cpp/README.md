@@ -76,3 +76,10 @@ python -c "import ts; from pathlib import Path; print((Path(ts.__file__).parent 
 ```
 2. Look if ./build.sh was actually successful and if the tests ran without any error at the end. If a test failed the binary will not be copied into the appropriate directory.
 3. Make sure you have the right conda/venv environment activated during building that you're also using to run TorchServe.
+
+Q: Build on Mac fails with `Library not loaded: @rpath/libomp.dylib`
+A:  Install libomp with brew and link in /usr/local/lib 
+```bash
+brew install libomp
+sudo ln -s /opt/homebrew/opt/libomp/lib/libomp.dylib /usr/local/lib/libomp.dylib
+```
