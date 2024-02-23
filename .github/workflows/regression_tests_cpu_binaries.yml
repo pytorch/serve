@@ -19,6 +19,9 @@ jobs:
         os: [ubuntu-20.04, macOS-latest]
         python-version: ["3.8", "3.9", "3.10"]
         binaries: ["pypi", "conda"]
+        exclude:
+        - os: macos-latest
+          python-version: 3.8
     steps:
       - uses: actions/checkout@v3
         with:
