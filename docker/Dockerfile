@@ -30,6 +30,7 @@ ARG PYTHON_VERSION=3.9
 FROM ${BASE_IMAGE} AS compile-image
 ARG BASE_IMAGE=ubuntu:rolling
 ARG PYTHON_VERSION
+ARG BRANCH_NAME
 ARG BUILD_NIGHTLY
 ENV PYTHONUNBUFFERED TRUE
 
@@ -64,7 +65,7 @@ RUN export USE_CUDA=1
 
 ARG CUDA_VERSION=""
 
-RUN git clone --depth 1 https://github.com/pytorch/serve.git
+RUN git clone --depth 1 https://github.com/pytorch/serve.git -b $BRANCH_NAME
 
 WORKDIR "serve"
 
@@ -85,7 +86,8 @@ RUN \
 # Make sure latest version of torchserve is uploaded before running this
 RUN \
     if echo "$BUILD_NIGHTLY" | grep -q "false"; then \
-        python -m pip install --no-cache-dir torchserve torch-model-archiver torch-workflow-archiver;\
+        python ts_scripts/install_from_src.py
+        #python -m pip install --no-cache-dir torchserve torch-model-archiver torch-workflow-archiver;\
     else \
         python -m pip install --no-cache-dir torchserve-nightly torch-model-archiver-nightly torch-workflow-archiver-nightly;\
     fi

@@ -61,29 +61,31 @@ def gpu_utilization(num_of_gpu):
 
     # pylint: disable=wrong-import-position
     # pylint: disable=import-outside-toplevel
-    import nvgpu
-    import pynvml
-    from nvgpu import list_gpus
+    # import nvgpu
+    # import pynvml
+    # from nvgpu import list_gpus
+    import gpustat
 
     # pylint: enable=wrong-import-position
     # pylint: enable=import-outside-toplevel
-
-    info = nvgpu.gpu_info()
-    for value in info:
+    # info = nvgpu.gpu_info()
+    logging.info("using gpustat")
+    gpustats = gpustat.new_query()
+    for stat in gpustats:
         dimension_gpu = [
             Dimension("Level", "Host"),
-            Dimension("device_id", value["index"]),
+            Dimension("device_id", stat.index),
         ]
         system_metrics.append(
             Metric(
                 "GPUMemoryUtilization",
-                value["mem_used_percent"],
+                stat.utilization,
                 "percent",
                 dimension_gpu,
             )
         )
         system_metrics.append(
-            Metric("GPUMemoryUsed", value["mem_used"], "MB", dimension_gpu)
+            Metric("GPUMemoryUsed", stat.memory_used, "MB", dimension_gpu)
         )
 
     try:
