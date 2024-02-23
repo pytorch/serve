@@ -60,6 +60,8 @@ CPP_DARWIN_DEPENDENCIES = (
     "openssl",
     "libsodium",
     "llv",
+    "icu4c",
+    "libomp",
 )
 
 CPP_DARWIN_DEPENDENCIES_LINK = (

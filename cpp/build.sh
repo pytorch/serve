@@ -124,18 +124,6 @@ function install_libtorch() {
   cd "$BWD" || exit
 }
 
-function build_llama_cpp() {
-  BWD=$(pwd)
-  LLAMA_CPP_SRC_DIR=$BASE_DIR/third-party/llama.cpp
-  cd "${LLAMA_CPP_SRC_DIR}"
-  if [ "$PLATFORM" = "Mac" ]; then
-    make LLAMA_METAL=OFF -j
-  else
-    make -j
-  fi
-  cd "$BWD" || exit
-}
-
 function prepare_test_files() {
   echo -e "${COLOR_GREEN}[ INFO ]Preparing test files ${COLOR_OFF}"
   local EX_DIR="${TR_DIR}/examples/"
@@ -216,6 +204,8 @@ function build() {
       export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/cuda/bin/nvcc
     fi
   elif [ "$PLATFORM" = "Mac" ]; then
+    export LIBRARY_PATH=${LIBRARY_PATH}:`brew --prefix icu4c`/lib:`brew --prefix libomp`/lib
+
     cmake                                                                                     \
     -DCMAKE_PREFIX_PATH="$DEPS_DIR;$FOLLY_CMAKE_DIR;$DEPS_DIR/libtorch"                       \
     -DCMAKE_INSTALL_PREFIX="$PREFIX"                                                          \
@@ -228,7 +218,7 @@ function build() {
     "$MAYBE_NIGHTLIES"                                                                        \
     ..
 
-    export LIBRARY_PATH=${LIBRARY_PATH}:/usr/local/opt/icu4c/lib
+    
   else
     # TODO: Windows
     echo -e "${COLOR_RED}[ ERROR ] Unknown platform: $PLATFORM ${COLOR_OFF}"
@@ -338,7 +328,6 @@ git submodule update --init --recursive
 install_folly
 install_kineto
 install_libtorch
-build_llama_cpp
 prepare_test_files
 build
 symlink_torch_libs
