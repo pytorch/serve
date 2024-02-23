@@ -73,7 +73,7 @@ RUN \
     if echo "$BASE_IMAGE" | grep -q "cuda:"; then \
         # Install CUDA version specific binary when CUDA version is specified as a build arg
         if [ "$CUDA_VERSION" ]; then \
-            python ./ts_scripts/install_dependencies.py --cuda $CUDA_VERSION; \
+            python ./ts_scripts/install_dependencies.py --cuda $CUDA_VERSION --environment=dev; \
         # Install the binary with the latest CPU image on a CUDA base image
         else \
             python ./ts_scripts/install_dependencies.py; \

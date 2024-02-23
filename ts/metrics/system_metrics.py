@@ -88,17 +88,17 @@ def gpu_utilization(num_of_gpu):
             Metric("GPUMemoryUsed", stat.memory_used, "MB", dimension_gpu)
         )
 
-    try:
-        statuses = list_gpus.device_statuses()
-    except pynvml.nvml.NVMLError_NotSupported:
-        logging.error("gpu device monitoring not supported")
-        statuses = []
+    # try:
+    #    statuses = list_gpus.device_statuses()
+    # except pynvml.nvml.NVMLError_NotSupported:
+    #    logging.error("gpu device monitoring not supported")
+    #    statuses = []
 
-    for idx, status in enumerate(statuses):
-        dimension_gpu = [Dimension("Level", "Host"), Dimension("device_id", idx)]
-        system_metrics.append(
-            Metric("GPUUtilization", status["utilization"], "percent", dimension_gpu)
-        )
+    # for idx, status in enumerate(statuses):
+    #    dimension_gpu = [Dimension("Level", "Host"), Dimension("device_id", idx)]
+    #    system_metrics.append(
+    #        Metric("GPUUtilization", status["utilization"], "percent", dimension_gpu)
+    #    )
 
 
 def collect_all(mod, num_of_gpu):
