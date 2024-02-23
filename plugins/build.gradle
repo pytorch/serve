@@ -96,6 +96,25 @@ configure(javaProjects()) {
     }
 }
 
+configurations {
+    endpointJar
+}
+
+task javadocJar(type: Jar) {
+    classifier = 'javadoc'
+    from javadoc
+}
+
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+artifacts {
+    endpointJar file("${rootProject.projectDir}/endpoints/build/libs/endpoints.jar")
+    archives javadocJar, sourcesJar
+}
+
 publishing {
         publications {
             mavenJava(MavenPublication) {
@@ -103,6 +122,7 @@ publishing {
                 artifactId = "torchserve-token-plugin"
                 version = '0.0.1'
                 from components.java
+                artifact endpointJar
 
                 pom {
                     name = 'torchserve-token-plugin'
