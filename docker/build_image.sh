@@ -50,7 +50,7 @@ do
           MACHINE=gpu
           DOCKER_TAG="pytorch/torchserve:latest-gpu"
           BASE_IMAGE="nvidia/cuda:11.8.0-base-ubuntu20.04"
-          CUDA_VERSION="cu117"
+          CUDA_VERSION="cu118"
           shift
           ;;
         -bi|--baseimage)
@@ -162,6 +162,26 @@ if [[ $UPDATE_BASE_IMAGE == true && $MACHINE == "gpu" ]];
 then
   echo "Incompatible options: -bi doesn't work with -g option"
   exit 1
+fi
+
+if [ $BUILD_CPP == true ];
+then
+  if [ "$BUILD_TYPE" != "dev" ];
+  then
+    echo "Only dev container build is supported for CPP"
+    exit 1
+  fi
+
+  if [ "${CUDA_VERSION}" == "cu121" ];
+  then
+    BASE_IMAGE="nvidia/cuda:12.1.0-devel-ubuntu20.04"
+  elif [ "${CUDA_VERSION}" == "cu118" ];
+  then
+    BASE_IMAGE="nvidia/cuda:11.8.0-devel-ubuntu20.04"
+  else
+    echo "CUDA version not supported"
+    exit 1
+  fi
 fi
 
 if [ "${BUILD_TYPE}" == "production" ]

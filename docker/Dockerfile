@@ -233,9 +233,9 @@ RUN \
         fi; \
     else \
         if [ "$USE_CUDA_VERSION" = "" ]; then \
-            python ./ts_scripts/install_dependencies.py --environment=dev --force; \
+            python ./ts_scripts/install_dependencies.py --environment=dev; \
         else \
-            python ./ts_scripts/install_dependencies.py --environment=dev --cuda=$USE_CUDA_VERSION --force; \
+            python ./ts_scripts/install_dependencies.py --environment=dev --cuda=$USE_CUDA_VERSION; \
         fi; \
     fi
 RUN \
