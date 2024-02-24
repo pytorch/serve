@@ -31,7 +31,9 @@ FROM ${BASE_IMAGE} AS compile-image
 ARG BASE_IMAGE=ubuntu:rolling
 ARG PYTHON_VERSION
 ARG BUILD_NIGHTLY
+ARG DEBIAN_FRONTEND=noninteractive
 ENV PYTHONUNBUFFERED TRUE
+ENV TZ=Etc/UTC
 
 RUN --mount=type=cache,id=apt-dev,target=/var/cache/apt \
     apt-get update && \
@@ -94,7 +96,9 @@ RUN \
 FROM ${BASE_IMAGE} AS production-image
 # Re-state ARG PYTHON_VERSION to make it active in this build-stage (uses default define at the top)
 ARG PYTHON_VERSION
+ARG DEBIAN_FRONTEND=noninteractive
 ENV PYTHONUNBUFFERED TRUE
+ENV TZ=Etc/UTC
 
 RUN --mount=type=cache,target=/var/cache/apt \
     apt-get update && \
@@ -142,7 +146,9 @@ FROM ${BASE_IMAGE} AS ci-image
 # Re-state ARG PYTHON_VERSION to make it active in this build-stage (uses default define at the top)
 ARG PYTHON_VERSION
 ARG BRANCH_NAME
+ARG DEBIAN_FRONTEND=noninteractive
 ENV PYTHONUNBUFFERED TRUE
+ENV TZ=Etc/UTC
 
 RUN --mount=type=cache,target=/var/cache/apt \
     apt-get update && \
@@ -192,7 +198,9 @@ ARG BUILD_WITH_IPEX
 ARG IPEX_VERSION=1.11.0
 ARG IPEX_URL=https://software.intel.com/ipex-whl-stable
 ARG BUILD_CPP
+ARG DEBIAN_FRONTEND=noninteractive
 ENV PYTHONUNBUFFERED TRUE
+ENV TZ=Etc/UTC
 RUN --mount=type=cache,target=/var/cache/apt \
     apt-get update && \
     apt-get upgrade -y && \
