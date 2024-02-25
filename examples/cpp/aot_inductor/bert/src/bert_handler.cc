@@ -204,7 +204,7 @@ void BertCppHandler::Postprocess(
 
       response->SetResponse(200, "data_type",
                             torchserve::PayloadType::kDATA_TYPE_STRING,
-                            GetJsonValue(mapping_json_, predicted_idx).asString());
+                            torchserve::FileSystem::GetJsonValue(mapping_json_, predicted_idx).asString());
     } catch (const std::runtime_error &e) {
       TS_LOGF(ERROR, "Failed to load tensor for request id: {}, error: {}",
               kv.second, e.what());
