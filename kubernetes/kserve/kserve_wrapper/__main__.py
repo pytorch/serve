@@ -15,7 +15,7 @@ DEFAULT_INFERENCE_ADDRESS = DEFAULT_MANAGEMENT_ADDRESS = "http://127.0.0.1:8085"
 DEFAULT_GRPC_INFERENCE_PORT = "7070"
 
 DEFAULT_MODEL_STORE = "/mnt/models/model-store"
-CONFIG_PATH = "/mnt/models/config/config.properties"
+DEFAULT_CONFIG_PATH = "/mnt/models/config/config.properties"
 
 
 def parse_config():
@@ -29,8 +29,11 @@ def parse_config():
     """
     separator = "="
     keys = {}
+    config_path = os.environ.get("CONFIG_PATH", DEFAULT_CONFIG_PATH)
 
-    with open(CONFIG_PATH) as f:
+    logging.info(f"Wrapper: loading configuration from {config_path}")
+
+    with open(config_path) as f:
         for line in f:
             if separator in line:
                 # Find the name and value by splitting the string
