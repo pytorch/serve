@@ -16,3 +16,6 @@
 [submodule "cpp/third-party/yaml-cpp"]
 	path = cpp/third-party/yaml-cpp
 	url = https://github.com/jbeder/yaml-cpp.git
+[submodule "cpp/third-party/tokenizers-cpp"]
+	path = cpp/third-party/tokenizers-cpp
+	url = https://github.com/mlc-ai/tokenizers-cpp.git
