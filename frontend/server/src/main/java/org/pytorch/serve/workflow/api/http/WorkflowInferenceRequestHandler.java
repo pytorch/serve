@@ -80,6 +80,7 @@ public class WorkflowInferenceRequestHandler extends HttpRequestHandlerChain {
             String[] segments)
             throws ModelException, DownloadArchiveException, WorkflowException,
                     WorkerInitializationException {
+
         if ("wfpredict".equalsIgnoreCase(segments[1])) {
             if (segments.length < 3) {
                 throw new ResourceNotFoundException();

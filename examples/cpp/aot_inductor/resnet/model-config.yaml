@@ -1,0 +1,7 @@
+minWorkers: 1
+maxWorkers: 1
+batchSize: 2
+
+handler:
+  model_so_path: "resnet50_pt2.so"
+  mapping: "index_to_name.json"

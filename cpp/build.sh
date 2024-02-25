@@ -74,7 +74,7 @@ function install_kineto() {
 }
 
 function install_libtorch() {
-  TORCH_VERSION="2.2.0"
+  TORCH_VERSION="2.2.1"
   if [ "$PLATFORM" = "Mac" ]; then
     if [ ! -d "$DEPS_DIR/libtorch" ]; then
       if [[ $(uname -m) == 'x86_64' ]]; then
@@ -209,6 +209,11 @@ function prepare_test_files() {
       mv bert-seq.so ${HANDLER_DIR}/bert-seq.so
       mv Transformer_model/tokenizer.json ${HANDLER_DIR}/tokenizer.json
       export TOKENIZERS_PARALLELISM=""
+    fi
+    if [ ! -f "${EX_DIR}/aot_inductor/resnet_handler/resne50_pt2.so" ]; then
+      local HANDLER_DIR=${EX_DIR}/aot_inductor/resnet_handler/
+      cd ${HANDLER_DIR}
+      python ${BASE_DIR}/../examples/cpp/aot_inductor/resnet/resnet50_torch_export.py
     fi
   fi
   cd "$BWD" || exit
