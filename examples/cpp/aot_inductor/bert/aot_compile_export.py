@@ -65,7 +65,7 @@ def transformers_model_dowloader(
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
         model = model.to(device=device)
-        dummy_input = "This is a dummy input for torch jit trace"
+        dummy_input = "This is a dummy input for torch compile export"
         inputs = tokenizer.encode_plus(
             dummy_input,
             max_length=max_length,

@@ -1,10 +1,15 @@
 #include "bert_handler.hh"
+#include "src/utils/file_system.hh"
 
+#include <fmt/format.h>
+#include <iostream>
+#include <torch/csrc/inductor/aoti_model_container_runner.h>
+#include <torch/csrc/inductor/aoti_model_container_runner_cuda.h>
 #include <typeinfo>
 
 namespace bert {
 
-std::string BertCppHandler::LoadBytesFromFile(const std::string& path) {
+/* std::string BertCppHandler::LoadBytesFromFile(const std::string& path) {
   std::ifstream fs(path, std::ios::in | std::ios::binary);
   if (fs.fail()) {
     TS_LOGF(ERROR, "Cannot open tokenizer file {}", path);
@@ -35,7 +40,7 @@ const folly::dynamic& BertCppHandler::GetJsonValue(std::unique_ptr<folly::dynami
     TS_LOG(ERROR, "Required field {} not found in JSON.", key);
     throw ;
   }
-}
+} */
 
 std::pair<std::shared_ptr<void>, std::shared_ptr<torch::Device>>
 BertCppHandler::LoadModel(
@@ -51,14 +56,14 @@ BertCppHandler::LoadModel(
     const std::string mapFilePath =
         fmt::format("{}/{}", load_model_request->model_dir,
         (*model_config_yaml_)["handler"]["mapping"].as<std::string>());
-    mapping_json_ = LoadJsonFile(mapFilePath);
+    mapping_json_ = torchserve::FileSystem::LoadJsonFile(mapFilePath);
 
     max_length_ = (*model_config_yaml_)["handler"]["max_length"].as<int>();
 
     std::string tokenizer_path =
         fmt::format("{}/{}", load_model_request->model_dir,
         (*model_config_yaml_)["handler"]["tokenizer_path"].as<std::string>());
-    auto tokenizer_blob = LoadBytesFromFile(tokenizer_path);
+    auto tokenizer_blob = torchserve::FileSystem::LoadBytesFromFile(tokenizer_path);
     tokenizer_ = tokenizers::Tokenizer::FromBlobJSON(tokenizer_blob);
 
     std::string model_so_path =

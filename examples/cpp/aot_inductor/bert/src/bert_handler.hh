@@ -2,13 +2,9 @@
 
 #include <folly/FileUtil.h>
 #include <folly/dynamic.h>
-#include <folly/json.h>
-#include <fmt/format.h>
-#include <iostream>
+
 #include <tokenizers_cpp.h>
 #include <torch/torch.h>
-#include <torch/csrc/inductor/aoti_model_container_runner.h>
-#include <torch/csrc/inductor/aoti_model_container_runner_cuda.h>
 #include <yaml-cpp/yaml.h>
 
 #include "src/backends/handler/base_handler.hh"
@@ -46,9 +42,9 @@ class BertCppHandler : public torchserve::BaseHandler {
       override;
 
 private:
-  std::string LoadBytesFromFile(const std::string& path);
-  std::unique_ptr<folly::dynamic> LoadJsonFile(const std::string& file_path);
-  const folly::dynamic& GetJsonValue(std::unique_ptr<folly::dynamic>& json, const std::string& key);
+  // std::string LoadBytesFromFile(const std::string& path);
+  // std::unique_ptr<folly::dynamic> LoadJsonFile(const std::string& file_path);
+  // const folly::dynamic& GetJsonValue(std::unique_ptr<folly::dynamic>& json, const std::string& key);
 
   std::unique_ptr<folly::dynamic> mapping_json_;
   std::unique_ptr<tokenizers::Tokenizer> tokenizer_;
