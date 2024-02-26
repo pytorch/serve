@@ -216,6 +216,7 @@ function build() {
     "$MAYBE_USE_STATIC_DEPS"                                                                  \
     "$MAYBE_LIB_FUZZING_ENGINE"                                                               \
     "$MAYBE_NIGHTLIES"                                                                        \
+    "-DLLAMA_METAL=OFF"                                                                       \
     ..
 
     
