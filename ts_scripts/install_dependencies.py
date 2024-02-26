@@ -49,6 +49,7 @@ CPP_LINUX_DEPENDENCIES = (
     "libgoogle-perftools-dev",
     "rustc",
     "cargo",
+    "libunwind-dev",
 )
 
 CPP_DARWIN_DEPENDENCIES = (

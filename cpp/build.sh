@@ -370,7 +370,7 @@ cd $BASE_DIR
 git submodule update --init --recursive
 
 install_folly
-install_kineto
+#install_kineto
 install_libtorch
 install_yaml_cpp
 build_llama_cpp
