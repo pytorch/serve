@@ -19,3 +19,6 @@
 [submodule "cpp/third-party/tokenizers-cpp"]
 	path = cpp/third-party/tokenizers-cpp
 	url = https://github.com/mlc-ai/tokenizers-cpp.git
+[submodule "cpp/third-party/kineto"]
+	path = cpp/third-party/kineto
+	url = https://github.com/pytorch/kineto.git
