@@ -62,6 +62,7 @@ CPP_DARWIN_DEPENDENCIES = (
     "llv",
     "icu4c",
     "libomp",
+    "llvm",
 )
 
 CPP_DARWIN_DEPENDENCIES_LINK = (
