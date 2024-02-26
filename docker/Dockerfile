@@ -65,7 +65,7 @@ RUN export USE_CUDA=1
 
 ARG CUDA_VERSION=""
 
-RUN git clone --depth 1 https://github.com/pytorch/serve.git -b $BRANCH_NAME
+RUN git clone https://github.com/pytorch/serve.git -b $BRANCH_NAME
 
 WORKDIR "serve"
 
