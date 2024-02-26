@@ -373,7 +373,6 @@ install_folly
 install_kineto
 install_libtorch
 install_yaml_cpp
-install_tokenizer_cpp
 build_llama_cpp
 prepare_test_files
 build

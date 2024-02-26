@@ -31,4 +31,4 @@ jobs:
           python ts_scripts/install_dependencies.py --environment=dev --cpp
       - name: Build
         run: |
-          cd cpp && ./build.sh --install-dependencies
+          cd cpp && ./build.sh
