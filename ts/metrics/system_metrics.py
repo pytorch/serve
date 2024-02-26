@@ -64,30 +64,53 @@ def gpu_utilization(num_of_gpu):
     # import nvgpu
     # import pynvml
     # from nvgpu import list_gpus
-    import gpustat
+    # import gpustat
 
     # pylint: enable=wrong-import-position
     # pylint: enable=import-outside-toplevel
     # info = nvgpu.gpu_info()
-    logging.info("using gpustat")
-    gpustats = gpustat.new_query()
-    for stat in gpustats:
+    # logging.info("using gpustat")
+    # gpustats = gpustat.new_query()
+    # for stat in gpustats:
+    #    dimension_gpu = [
+    #        Dimension("Level", "Host"),
+    #        Dimension("device_id", stat.index),
+    #    ]
+    #    system_metrics.append(
+    #        Metric(
+    #            "GPUMemoryUtilization",
+    #            stat.utilization,
+    #            "percent",
+    #            dimension_gpu,
+    #        )
+    #    )
+    #    system_metrics.append(
+    #        Metric("GPUMemoryUsed", stat.memory_used, "MB", dimension_gpu)
+    #    )
+
+    # Get the number of available GPUs
+    num_gpus = torch.cuda.device_count()
+    # Iterate over all GPUs and print the peak memory allocated
+    for i in range(num_gpus):
+        # Set the current device
+        torch.cuda.set_device(i)
         dimension_gpu = [
             Dimension("Level", "Host"),
-            Dimension("device_id", stat.index),
+            Dimension("device_id", i),
         ]
         system_metrics.append(
             Metric(
                 "GPUMemoryUtilization",
-                stat.utilization,
+                torch.cuda.utilization(i),
                 "percent",
                 dimension_gpu,
             )
         )
         system_metrics.append(
-            Metric("GPUMemoryUsed", stat.memory_used, "MB", dimension_gpu)
+            Metric(
+                "GPUMemoryUsed", torch.cuda.max_memory_allocated(), "MB", dimension_gpu
+            )
         )
-
     # try:
     #    statuses = list_gpus.device_statuses()
     # except pynvml.nvml.NVMLError_NotSupported:
