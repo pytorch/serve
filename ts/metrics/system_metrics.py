@@ -6,6 +6,7 @@ import types
 from builtins import str
 
 import psutil
+import torch
 
 from ts.metrics.dimension import Dimension
 from ts.metrics.metric import Metric
