@@ -8,40 +8,6 @@
 #include <typeinfo>
 
 namespace bert {
-
-/* std::string BertCppHandler::LoadBytesFromFile(const std::string& path) {
-  std::ifstream fs(path, std::ios::in | std::ios::binary);
-  if (fs.fail()) {
-    TS_LOGF(ERROR, "Cannot open tokenizer file {}", path);
-    throw;
-  }
-  std::string data;
-  fs.seekg(0, std::ios::end);
-  size_t size = static_cast<size_t>(fs.tellg());
-  fs.seekg(0, std::ios::beg);
-  data.resize(size);
-  fs.read(data.data(), size);
-  return data;
-}
-
-std::unique_ptr<folly::dynamic> BertCppHandler::LoadJsonFile(const std::string& file_path) {
-  std::string content;
-  if (!folly::readFile(file_path.c_str(), content)) {
-    TS_LOGF(ERROR, "{} not found", file_path);
-    throw;
-  }
-  return std::make_unique<folly::dynamic>(folly::parseJson(content));
-}
-
-const folly::dynamic& BertCppHandler::GetJsonValue(std::unique_ptr<folly::dynamic>& json, const std::string& key) {
-  if (json->find(key) != json->items().end()) {
-    return (*json)[key];
-  } else {
-    TS_LOG(ERROR, "Required field {} not found in JSON.", key);
-    throw ;
-  }
-} */
-
 std::pair<std::shared_ptr<void>, std::shared_ptr<torch::Device>>
 BertCppHandler::LoadModel(
     std::shared_ptr<torchserve::LoadModelRequest>& load_model_request) {

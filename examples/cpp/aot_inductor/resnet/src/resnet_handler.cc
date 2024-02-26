@@ -1,30 +1,17 @@
 #include "resnet_handler.hh"
+#include "src/utils/file_system.hh"
 
+#include <fmt/format.h>
+#include <iostream>
+#include <torch/csrc/inductor/aoti_model_container_runner.h>
+#include <torch/csrc/inductor/aoti_model_container_runner_cuda.h>
 #include <typeinfo>
 
 namespace resnet {
-std::unique_ptr<folly::dynamic> ResnetCppHandler::LoadJsonFile(const std::string& file_path) {
-  std::string content;
-  if (!folly::readFile(file_path.c_str(), content)) {
-    TS_LOGF(ERROR, "{}} not found", file_path);
-    throw;
-  }
-  return std::make_unique<folly::dynamic>(folly::parseJson(content));
-}
-
-const folly::dynamic& ResnetCppHandler::GetJsonValue(std::unique_ptr<folly::dynamic>& json, const std::string& key) {
-  if (json->find(key) != json->items().end()) {
-    return (*json)[key];
-  } else {
-    TS_LOG(ERROR, "Required field {} not found in JSON.", key);
-    throw ;
-  }
-}
-
 std::string ResnetCppHandler::MapClassToLabel(const torch::Tensor& classes, const torch::Tensor& probs) {
   folly::dynamic map = folly::dynamic::object;
   for (int i = 0; i < classes.sizes()[0]; i++) {
-    auto class_value = GetJsonValue(mapping_json_, std::to_string(classes[i].item<long>()));
+    auto class_value = torchserve::FileSystem::GetJsonValue(mapping_json_, std::to_string(classes[i].item<long>()));
     map[class_value[1].asString()] = probs[i].item<float>();
   }
 
@@ -44,12 +31,12 @@ ResnetCppHandler::LoadModel(
     const std::string mapFilePath =
       fmt::format("{}/{}", load_model_request->model_dir,
         (*model_config_yaml_)["handler"]["mapping"].as<std::string>());
-    mapping_json_ = LoadJsonFile(mapFilePath);
+    mapping_json_ = torchserve::FileSystem::LoadJsonFile(mapFilePath);
 
     std::string model_so_path =
       fmt::format("{}/{}", load_model_request->model_dir,
         (*model_config_yaml_)["handler"]["model_so_path"].as<std::string>());
-    mapping_json_ = LoadJsonFile(mapFilePath);
+    mapping_json_ = torchserve::FileSystem::LoadJsonFile(mapFilePath);
     c10::InferenceMode mode;
 
     if (device->is_cuda()) {
