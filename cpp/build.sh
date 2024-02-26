@@ -54,25 +54,6 @@ function install_folly() {
   echo "$FOLLY_BUILD_DIR/installed"
 }
 
-function install_kineto() {
-  if [ "$PLATFORM" = "Linux" ]; then
-    echo -e "${COLOR_GREEN}[ INFO ] Skip install kineto on Linux ${COLOR_OFF}"
-  elif [ "$PLATFORM" = "Mac" ]; then
-    KINETO_SRC_DIR=$BASE_DIR/third-party/kineto
-
-    if [ ! -d "$KINETO_SRC_DIR" ] ; then
-      echo -e "${COLOR_GREEN}[ INFO ] Cloning kineto repo ${COLOR_OFF}"
-      git clone --recursive https://github.com/pytorch/kineto.git "$KINETO_SRC_DIR"
-      cd $KINETO_SRC_DIR/libkineto
-      mkdir build && cd build
-      cmake ..
-      make install
-    fi
-  fi
-
-  cd "$BWD" || exit
-}
-
 function install_libtorch() {
   cd "$DEPS_DIR" || exit
   TORCH_VERSION="2.2.0"
@@ -90,12 +71,12 @@ function install_libtorch() {
       if [[ $(uname -m) == 'x86_64' ]]; then
         echo -e "${COLOR_GREEN}[ INFO ] Install libtorch on Mac x86_64 ${COLOR_OFF}"
         wget https://download.pytorch.org/libtorch/cpu/libtorch-macos-x86_64-${TORCH_VERSION}.zip
-        unzip libtorch-macos-x86_64-${TORCH_VERSION}.zip
+        unzip -q libtorch-macos-x86_64-${TORCH_VERSION}.zip
         rm libtorch-macos-x86_64-${TORCH_VERSION}.zip
       else
         echo -e "${COLOR_GREEN}[ INFO ] Install libtorch on Mac arm64 ${COLOR_OFF}"
         wget https://download.pytorch.org/libtorch/cpu/libtorch-macos-arm64-${TORCH_VERSION}.zip
-        unzip libtorch-macos-arm64-${TORCH_VERSION}.zip
+        unzip -q libtorch-macos-arm64-${TORCH_VERSION}.zip
         rm libtorch-macos-arm64-${TORCH_VERSION}.zip
       fi
     fi
@@ -115,7 +96,7 @@ function install_libtorch() {
       wget $URL
       ZIP_FILE=$(basename "$URL")
       ZIP_FILE="${ZIP_FILE//%2B/+}"
-      unzip $ZIP_FILE
+      unzip -q $ZIP_FILE
       rm $ZIP_FILE
     fi
     echo -e "${COLOR_GREEN}[ INFO ] libtorch is installed ${COLOR_OFF}"
@@ -327,7 +308,6 @@ cd $BASE_DIR
 git submodule update --init --recursive
 
 install_folly
-install_kineto
 install_libtorch
 prepare_test_files
 build
