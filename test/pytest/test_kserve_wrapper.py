@@ -105,8 +105,31 @@ def teardown_module(module):
     shutil.rmtree(MODELS_DIR)
 
 
+@pytest.fixture(name="protobuf")
+def generate_protobuf_code():
+    root_path = CURR_FILE_PATH.parent.parent
+    kserve_wrapper_path = root_path / "kubernetes/kserve/kserve_wrapper"
+    frontend_path = root_path / "frontend/server/src/main/resources/proto"
+    third_party = root_path / "third_party/google/rpc/"
+
+    cmd = [
+        "python",
+        "-m",
+        "grpc_tools.protoc",
+        f"--proto_path={frontend_path}",
+        f"--proto_path={third_party}",
+        f"--python_out={kserve_wrapper_path}",
+        f"--grpc_python_out={kserve_wrapper_path}",
+    ]
+
+    for item in ["inference", "management"]:
+        cmd.append(f"{frontend_path}/{item}.proto")
+
+    subprocess.run(" ".join(cmd), shell=True, check=True)
+
+
 @pytest.fixture
-def kserve_wrapper():
+def kserve_wrapper(protobuf):
     kserve_config = str(CONFIG_DIR / "kserve_config.properties")
     with open(kserve_config, "wt") as config:
         config.write(KSERVE_CONFIG_CONTENT)
