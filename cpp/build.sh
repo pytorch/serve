@@ -56,7 +56,7 @@ function install_folly() {
 
 function install_libtorch() {
   cd "$DEPS_DIR" || exit
-  TORCH_VERSION="2.2.0"
+  TORCH_VERSION="2.2.1"
   if [ -d "$DEPS_DIR/libtorch" ]; then
     RAW_VERSION=`cat "$DEPS_DIR/libtorch/build-version"`
     VERSION=`cat "$DEPS_DIR/libtorch/build-version" | cut -d "+" -f 1`
