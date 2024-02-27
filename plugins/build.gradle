@@ -19,9 +19,16 @@ allprojects {
     apply plugin: 'maven-publish'
     apply plugin: 'signing'
 
+    version = '1.0'
+
     repositories {
         mavenLocal()
         jcenter()
+    }
+
+    java {
+        withJavadocJar()
+        withSourcesJar()
     }
 
     idea {
@@ -96,68 +103,48 @@ configure(javaProjects()) {
     }
 }
 
-configurations {
-    endpointJar
-}
-
-task javadocJar(type: Jar) {
-    classifier = 'javadoc'
-    from javadoc
-}
-
-task sourcesJar(type: Jar) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
-}
-
-artifacts {
-    endpointJar file("${rootProject.projectDir}/endpoints/build/libs/endpoints.jar")
-    archives javadocJar, sourcesJar
-}
-
 publishing {
-        publications {
-            mavenJava(MavenPublication) {
-                groupId = "org.pytorch"
-                artifactId = "torchserve-token-plugin"
-                version = '0.0.1'
-                from components.java
-                artifact endpointJar
+    publications {
+        mavenJava(MavenPublication) {
+            groupId = "org.pytorch"
+            artifactId = "torchserve-endpoint-plugin"
+            version = '0.0.1'
+            from components.java
 
-                pom {
-                    name = 'torchserve-token-plugin'
-                    description = 'SDK for PyTorch model server endpoint plugins'
-                    url = 'https://github.com/pytorch/serve'
+            pom {
+                name = 'torchserve-endpoint-plugin'
+                description = 'SDK for PyTorch model server endpoint plugins'
+                url = 'https://github.com/pytorch/serve'
 
-                    licenses {
-                        license {
-                            name = 'The Apache Software License, Version 2.0'
-                            url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                        }
+                licenses {
+                    license {
+                        name = 'The Apache Software License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
                     }
-                    developers {
-                        developer {
-                            id = 'PyTorch Model Server'
-                            url = 'https://github.com/pytorch/serve'
-                        }
-                    }
-                    scm {
-                        connection = 'scm:git:git://github.com/pytorch/serve.git'
-                        developerConnection = 'scm:git:ssh://github.com:pytorch/serve.git'
+                }
+                developers {
+                    developer {
+                        id = 'PyTorch Model Server'
                         url = 'https://github.com/pytorch/serve'
                     }
                 }
-            }
-        }
-
-        repositories {
-            maven {
-                name = "OSSRH"
-                url = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
-                credentials {
-                    username = ${gpg.keyname}
-                    password = ${gpg.passphrase}
+                scm {
+                    connection = 'scm:git:git://github.com/pytorch/serve.git'
+                    developerConnection = 'scm:git:ssh://github.com:pytorch/serve.git'
+                    url = 'https://github.com/pytorch/serve'
                 }
             }
         }
     }
+
+    repositories {
+        maven {
+            name = "OSSRH"
+            url = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+            credentials {
+                username = ${gpg.keyname}
+                password = ${gpg.passphrase}
+            }
+        }
+    }
+}
