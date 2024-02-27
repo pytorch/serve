@@ -13,7 +13,7 @@ concurrency:
 jobs:
   ci-cpu-cpp:
     # runs-on: ${{ matrix.os }}
-    runs-on: self-hosted
+    runs-on: ci-cpp
     strategy:
       fail-fast: false
       matrix:
