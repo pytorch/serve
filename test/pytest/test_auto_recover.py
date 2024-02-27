@@ -1,13 +1,13 @@
 import json
 import platform
 import shutil
-from argparse import Namespace
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 import requests
 import test_utils
+from model_archiver import ModelArchiverConfig
 
 CURR_FILE_PATH = Path(__file__).parent
 REPO_ROOT_DIR = CURR_FILE_PATH.parent.parent
@@ -97,7 +97,7 @@ def create_mar_file(work_dir, model_archiver, model_name):
     handler_py_file = work_dir / "handler.py"
     handler_py_file.write_text(HANDLER_PY)
 
-    args = Namespace(
+    config = ModelArchiverConfig(
         model_name=model_name,
         version="1.0",
         serialized_file=None,
@@ -112,9 +112,7 @@ def create_mar_file(work_dir, model_archiver, model_name):
         config_file=None,
     )
 
-    mock = MagicMock()
-    mock.parse_args = MagicMock(return_value=args)
-    with patch("archiver.ArgParser.export_model_args_parser", return_value=mock):
+    with patch("archiver.ArgParser.export_model_args_parser", return_value=config):
         model_archiver.generate_model_archive()
 
         assert mar_file_path.exists()

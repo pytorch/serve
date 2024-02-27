@@ -12,6 +12,7 @@ from pathlib import Path
 from queue import Queue
 from subprocess import PIPE, STDOUT, Popen
 
+import orjson
 import requests
 
 # To help discover margen modules
@@ -53,7 +54,11 @@ class Tee(threading.Thread):
 
 
 def start_torchserve(
-    model_store=None, snapshot_file=None, no_config_snapshots=False, gen_mar=True
+    model_store=None,
+    snapshot_file=None,
+    no_config_snapshots=False,
+    gen_mar=True,
+    plugin_folder=None,
 ):
     stop_torchserve()
     crate_mar_file_table()
@@ -62,6 +67,8 @@ def start_torchserve(
     if gen_mar:
         mg.gen_mar(model_store)
     cmd.extend(["--model-store", model_store])
+    if plugin_folder:
+        cmd.extend(["--plugins-path", plugin_folder])
     if snapshot_file:
         cmd.extend(["--ts-config", snapshot_file])
     if no_config_snapshots:
@@ -125,6 +132,13 @@ def unregister_model(model_name):
     return response
 
 
+def describe_model(model_name, version):
+    response = requests.get(
+        "http://localhost:8081/models/{}/{}".format(model_name, version)
+    )
+    return orjson.loads(response.content)
+
+
 def delete_mar_file_from_model_store(model_store=None, model_mar=None):
     model_store = (
         model_store
@@ -160,42 +174,86 @@ def model_archiver_command_builder(
     extra_files=None,
     force=False,
     config_file=None,
+    runtime=None,
+    archive_format=None,
+    requirements_file=None,
+    export_path=None,
 ):
-    # Initialize a list to store the command-line arguments
-    cmd_parts = ["torch-model-archiver"]
+    cmd = "torch-model-archiver"
 
-    # Append arguments to the list
     if model_name:
-        cmd_parts.append(f"--model-name {model_name}")
+        cmd += " --model-name {0}".format(model_name)
 
     if version:
-        cmd_parts.append(f"--version {version}")
+        cmd += " --version {0}".format(version)
 
     if model_file:
-        cmd_parts.append(f"--model-file {model_file}")
+        cmd += " --model-file {0}".format(model_file)
 
     if serialized_file:
-        cmd_parts.append(f"--serialized-file {serialized_file}")
+        cmd += " --serialized-file {0}".format(serialized_file)
 
     if handler:
-        cmd_parts.append(f"--handler {handler}")
+        cmd += " --handler {0}".format(handler)
 
     if extra_files:
-        cmd_parts.append(f"--extra-files {extra_files}")
+        cmd += " --extra-files {0}".format(extra_files)
+
+    if runtime:
+        cmd += " --runtime {0}".format(runtime)
+
+    if archive_format:
+        cmd += " --archive-format {0}".format(archive_format)
+
+    if requirements_file:
+        cmd += " --requirements-file {0}".format(requirements_file)
 
     if config_file:
-        cmd_parts.append(f"--config-file {config_file}")
+        cmd += " --config-file {0}".format(config_file)
+
+    if export_path:
+        cmd += " --export-path {0}".format(export_path)
+    else:
+        cmd += " --export-path {0}".format(MODEL_STORE)
 
     if force:
-        cmd_parts.append("--force")
-
-    # Append the export-path argument to the list
-    cmd_parts.append(f"--export-path {MODEL_STORE}")
-
-    # Convert the list into a string to represent the complete command
-    cmd = " ".join(cmd_parts)
+        cmd += " --force"
 
     return cmd
+
+
+def create_model_artifacts(items: dict, force=False, export_path=None) -> str:
+    cmd = model_archiver_command_builder(
+        model_name=items.get("model_name"),
+        version=items.get("version", "1.0"),
+        model_file=items.get("model_file"),
+        serialized_file=items.get("serialized_file"),
+        handler=items.get("handler"),
+        extra_files=items.get("extra_files"),
+        force=force,
+        config_file=items.get("config_file"),
+        runtime=items.get("runtime"),
+        archive_format=items.get("archive_format"),
+        requirements_file=items.get("requirements_file"),
+        export_path=export_path,
+    )
+
+    print(f"## In directory: {os.getcwd()} | Executing command: {cmd}\n")
+    try:
+        subprocess.check_call(cmd, shell=True)
+        if str(items.get("archive_format")) == "no-archive":
+            model_artifacts = "{0}".format(items.get("model_name"))
+        elif str(items.get("archive_format")) == "tgz":
+            model_artifacts = "{0}.tar.gz".format(items.get("model_name"))
+        else:
+            model_artifacts = "{0}.mar".format(items.get("model_name"))
+        print("## {0} is generated.\n".format(model_artifacts))
+        return model_artifacts
+    except subprocess.CalledProcessError as exc:
+        print(
+            "## {} creation failed !, error: {}\n".format(items.get("model_name"), exc)
+        )
+        return None
 
 
 def load_module_from_py_file(py_file: str) -> object:

@@ -30,6 +30,7 @@ import org.pytorch.serve.archive.model.ModelNotFoundException;
 import org.pytorch.serve.archive.model.ModelVersionNotFoundException;
 import org.pytorch.serve.http.ConflictStatusException;
 import org.pytorch.serve.http.InvalidModelVersionException;
+import org.pytorch.serve.http.messages.RegisterModelRequest;
 import org.pytorch.serve.job.Job;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.messages.EnvironmentUtils;
@@ -75,8 +76,8 @@ public final class ModelManager {
                 null,
                 null,
                 null,
-                1,
-                100,
+                -1 * RegisterModelRequest.DEFAULT_BATCH_SIZE,
+                -1 * RegisterModelRequest.DEFAULT_MAX_BATCH_DELAY,
                 configManager.getDefaultResponseTimeout(),
                 defaultModelName,
                 false,
@@ -98,6 +99,8 @@ public final class ModelManager {
         String versionId = archive.getModelVersion();
 
         createVersionedModel(tempModel, versionId);
+
+        setupModelVenv(tempModel);
 
         setupModelDependencies(tempModel);
         if (defaultVersion) {
@@ -152,6 +155,8 @@ public final class ModelManager {
             }
         }
 
+        setupModelVenv(tempModel);
+
         setupModelDependencies(tempModel);
 
         logger.info("Model {} loaded.", tempModel.getModelName());
@@ -204,23 +209,119 @@ public final class ModelManager {
         return archive;
     }
 
+    private void setupModelVenv(Model model)
+            throws IOException, InterruptedException, ModelException {
+        if (!model.isUseVenv()) {
+            return;
+        }
+
+        File venvPath = EnvironmentUtils.getPythonVenvPath(model);
+        List<String> commandParts = new ArrayList<>();
+        commandParts.add(configManager.getPythonExecutable());
+        commandParts.add(
+                Paths.get(configManager.getModelServerHome(), "ts", "utils", "setup_model_venv.py")
+                        .toAbsolutePath()
+                        .toString());
+        commandParts.add(venvPath.toString());
+
+        ProcessBuilder processBuilder = new ProcessBuilder(commandParts);
+
+        if (isValidDependencyPath(venvPath)) {
+            processBuilder.directory(venvPath.getParentFile());
+        } else {
+            throw new ModelException(
+                    "Invalid python venv path for model "
+                            + model.getModelName()
+                            + ": "
+                            + venvPath.toString());
+        }
+        Map<String, String> environment = processBuilder.environment();
+        String[] envp =
+                EnvironmentUtils.getEnvString(
+                        configManager.getModelServerHome(),
+                        model.getModelDir().getAbsolutePath(),
+                        null);
+        for (String envVar : envp) {
+            String[] parts = envVar.split("=", 2);
+            if (parts.length == 2) {
+                environment.put(parts[0], parts[1]);
+            }
+        }
+        processBuilder.redirectErrorStream(true);
+
+        Process process = processBuilder.start();
+
+        int exitCode = process.waitFor();
+        String line;
+        StringBuilder outputString = new StringBuilder();
+        BufferedReader brdr = new BufferedReader(new InputStreamReader(process.getInputStream()));
+        while ((line = brdr.readLine()) != null) {
+            outputString.append(line + "\n");
+        }
+
+        if (exitCode == 0) {
+            logger.info(
+                    "Created virtual environment for model {}: {}",
+                    model.getModelName(),
+                    venvPath.toString());
+        } else {
+            logger.error(
+                    "Virtual environment creation for model {} at {} failed:\n{}",
+                    model.getModelName(),
+                    venvPath.toString(),
+                    outputString.toString());
+            throw new ModelException(
+                    "Virtual environment creation failed for model " + model.getModelName());
+        }
+    }
+
     private void setupModelDependencies(Model model)
             throws IOException, InterruptedException, ModelException {
         String requirementsFile =
                 model.getModelArchive().getManifest().getModel().getRequirementsFile();
 
-        if (configManager.getInstallPyDepPerModel() && requirementsFile != null) {
-            Path requirementsFilePath =
-                    Paths.get(model.getModelDir().getAbsolutePath(), requirementsFile);
+        if (!configManager.getInstallPyDepPerModel() || requirementsFile == null) {
+            return;
+        }
 
-            String pythonRuntime = EnvironmentUtils.getPythonRunTime(model);
+        String pythonRuntime = EnvironmentUtils.getPythonRunTime(model);
+        Path requirementsFilePath =
+                Paths.get(model.getModelDir().getAbsolutePath(), requirementsFile).toAbsolutePath();
+        List<String> commandParts = new ArrayList<>();
+        ProcessBuilder processBuilder = new ProcessBuilder();
 
+        if (model.isUseVenv()) {
+            if (!isValidDependencyPath(Paths.get(pythonRuntime).toFile())) {
+                throw new ModelException(
+                        "Invalid python venv runtime path for model "
+                                + model.getModelName()
+                                + ": "
+                                + pythonRuntime);
+            }
+
+            processBuilder.directory(EnvironmentUtils.getPythonVenvPath(model).getParentFile());
+
+            commandParts.add(pythonRuntime);
+            commandParts.add("-m");
+            commandParts.add("pip");
+            commandParts.add("install");
+            commandParts.add("-U");
+            commandParts.add("--upgrade-strategy");
+            commandParts.add("only-if-needed");
+            commandParts.add("-r");
+            commandParts.add(requirementsFilePath.toString());
+        } else {
             File dependencyPath = model.getModelDir();
             if (Files.isSymbolicLink(dependencyPath.toPath())) {
                 dependencyPath = dependencyPath.getParentFile();
             }
+            dependencyPath = dependencyPath.getAbsoluteFile();
+            if (!isValidDependencyPath(dependencyPath)) {
+                throw new ModelException(
+                        "Invalid 3rd party package installation path " + dependencyPath.toString());
+            }
 
-            List<String> commandParts = new ArrayList<>();
+            processBuilder.directory(dependencyPath);
 
             commandParts.add(pythonRuntime);
             commandParts.add("-m");
@@ -228,57 +329,45 @@ public final class ModelManager {
             commandParts.add("install");
             commandParts.add("-U");
             commandParts.add("-t");
-            commandParts.add(dependencyPath.getAbsolutePath());
+            commandParts.add(dependencyPath.toString());
             commandParts.add("-r");
             commandParts.add(requirementsFilePath.toString());
+        }
 
-            String[] envp =
-                    EnvironmentUtils.getEnvString(
-                            configManager.getModelServerHome(),
-                            model.getModelDir().getAbsolutePath(),
-                            null);
-
-            ProcessBuilder processBuilder = new ProcessBuilder(commandParts);
-            if (isValidDependencyPath(dependencyPath)) {
-                processBuilder.directory(dependencyPath);
-            } else {
-                throw new ModelException(
-                        "Invalid 3rd party package installation path "
-                                + dependencyPath.getCanonicalPath());
+        processBuilder.command(commandParts);
+        String[] envp =
+                EnvironmentUtils.getEnvString(
+                        configManager.getModelServerHome(),
+                        model.getModelDir().getAbsolutePath(),
+                        null);
+        Map<String, String> environment = processBuilder.environment();
+        for (String envVar : envp) {
+            String[] parts = envVar.split("=", 2);
+            if (parts.length == 2) {
+                environment.put(parts[0], parts[1]);
             }
+        }
+        processBuilder.redirectErrorStream(true);
 
-            Map<String, String> environment = processBuilder.environment();
-            for (String envVar : envp) {
-                String[] parts = envVar.split("=", 2);
-                if (parts.length == 2) {
-                    environment.put(parts[0], parts[1]);
-                }
-            }
-            Process process = processBuilder.start();
-            int exitCode = process.waitFor();
+        Process process = processBuilder.start();
 
-            if (exitCode != 0) {
+        int exitCode = process.waitFor();
+        String line;
+        StringBuilder outputString = new StringBuilder();
+        BufferedReader brdr = new BufferedReader(new InputStreamReader(process.getInputStream()));
+        while ((line = brdr.readLine()) != null) {
+            outputString.append(line + "\n");
+        }
 
-                String line;
-                StringBuilder outputString = new StringBuilder();
-                // process's stdout is InputStream for caller process
-                BufferedReader brdr =
-                        new BufferedReader(new InputStreamReader(process.getInputStream()));
-                while ((line = brdr.readLine()) != null) {
-                    outputString.append(line);
-                }
-                StringBuilder errorString = new StringBuilder();
-                // process's stderr is ErrorStream for caller process
-                brdr = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-                while ((line = brdr.readLine()) != null) {
-                    errorString.append(line);
-                }
-
-                logger.error("Dependency installation stderr:\n" + errorString.toString());
-
-                throw new ModelException(
-                        "Custom pip package installation failed for " + model.getModelName());
-            }
+        if (exitCode == 0) {
+            logger.info("Installed custom pip packages for model {}", model.getModelName());
+        } else {
+            logger.error(
+                    "Custom pip package installation failed for model {}:\n{}",
+                    model.getModelName(),
+                    outputString.toString());
+            throw new ModelException(
+                    "Custom pip package installation failed for model " + model.getModelName());
         }
     }
 
@@ -300,43 +389,47 @@ public final class ModelManager {
             boolean isWorkflowModel) {
         Model model = new Model(archive, configManager.getJobQueueSize());
 
-        if (archive.getModelConfig() != null) {
-            int marBatchSize = archive.getModelConfig().getBatchSize();
-            batchSize =
-                    marBatchSize > 0
-                            ? marBatchSize
-                            : configManager.getJsonIntValue(
-                                    archive.getModelName(),
-                                    archive.getModelVersion(),
-                                    Model.BATCH_SIZE,
-                                    batchSize);
-        } else {
-            batchSize =
-                    configManager.getJsonIntValue(
-                            archive.getModelName(),
-                            archive.getModelVersion(),
-                            Model.BATCH_SIZE,
-                            batchSize);
+        if (batchSize == -1 * RegisterModelRequest.DEFAULT_BATCH_SIZE) {
+            if (archive.getModelConfig() != null) {
+                int marBatchSize = archive.getModelConfig().getBatchSize();
+                batchSize =
+                        marBatchSize > 0
+                                ? marBatchSize
+                                : configManager.getJsonIntValue(
+                                        archive.getModelName(),
+                                        archive.getModelVersion(),
+                                        Model.BATCH_SIZE,
+                                        RegisterModelRequest.DEFAULT_BATCH_SIZE);
+            } else {
+                batchSize =
+                        configManager.getJsonIntValue(
+                                archive.getModelName(),
+                                archive.getModelVersion(),
+                                Model.BATCH_SIZE,
+                                RegisterModelRequest.DEFAULT_BATCH_SIZE);
+            }
         }
         model.setBatchSize(batchSize);
 
-        if (archive.getModelConfig() != null) {
-            int marMaxBatchDelay = archive.getModelConfig().getMaxBatchDelay();
-            maxBatchDelay =
-                    marMaxBatchDelay > 0
-                            ? marMaxBatchDelay
-                            : configManager.getJsonIntValue(
-                                    archive.getModelName(),
-                                    archive.getModelVersion(),
-                                    Model.MAX_BATCH_DELAY,
-                                    maxBatchDelay);
-        } else {
-            maxBatchDelay =
-                    configManager.getJsonIntValue(
-                            archive.getModelName(),
-                            archive.getModelVersion(),
-                            Model.MAX_BATCH_DELAY,
-                            maxBatchDelay);
+        if (maxBatchDelay == -1 * RegisterModelRequest.DEFAULT_MAX_BATCH_DELAY) {
+            if (archive.getModelConfig() != null) {
+                int marMaxBatchDelay = archive.getModelConfig().getMaxBatchDelay();
+                maxBatchDelay =
+                        marMaxBatchDelay > 0
+                                ? marMaxBatchDelay
+                                : configManager.getJsonIntValue(
+                                        archive.getModelName(),
+                                        archive.getModelVersion(),
+                                        Model.MAX_BATCH_DELAY,
+                                        RegisterModelRequest.DEFAULT_MAX_BATCH_DELAY);
+            } else {
+                maxBatchDelay =
+                        configManager.getJsonIntValue(
+                                archive.getModelName(),
+                                archive.getModelVersion(),
+                                Model.MAX_BATCH_DELAY,
+                                RegisterModelRequest.DEFAULT_MAX_BATCH_DELAY);
+            }
         }
         model.setMaxBatchDelay(maxBatchDelay);
 
@@ -360,6 +453,12 @@ public final class ModelManager {
         }
         model.setResponseTimeout(responseTimeout);
         model.setWorkflowModel(isWorkflowModel);
+        model.setRuntimeType(
+                configManager.getJsonRuntimeTypeValue(
+                        archive.getModelName(),
+                        archive.getModelVersion(),
+                        Model.RUNTIME_TYPE,
+                        archive.getManifest().getRuntime()));
 
         return model;
     }

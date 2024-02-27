@@ -1,15 +1,15 @@
 import json
 import shutil
-from argparse import Namespace
 from pathlib import Path
 from queue import Empty
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 from zipfile import ZIP_STORED, ZipFile
 
 import pytest
 import requests
 import test_utils
 import torch
+from model_archiver import ModelArchiverConfig
 from test_data.streaming.stream_handler import StreamingHandler
 
 from ts.torch_handler.unit_tests.test_utils.mock_context import MockContext
@@ -31,7 +31,7 @@ def work_dir(tmp_path_factory, model_name):
 def create_mar_file(work_dir, model_archiver, model_name):
     mar_file_path = Path(work_dir).joinpath(model_name + ".mar")
 
-    args = Namespace(
+    config = ModelArchiverConfig(
         model_name=model_name,
         version="1.0",
         model_file=CURR_FILE_PATH.joinpath(
@@ -52,9 +52,7 @@ def create_mar_file(work_dir, model_archiver, model_name):
         extra_files=None,
     )
 
-    mock = MagicMock()
-    mock.parse_args = MagicMock(return_value=args)
-    with patch("archiver.ArgParser.export_model_args_parser", return_value=mock):
+    with patch("archiver.ArgParser.export_model_args_parser", return_value=config):
         # Using ZIP_STORED instead of ZIP_DEFLATED reduces test runtime from 54 secs to 10 secs
         with patch(
             "model_archiver.model_packaging_utils.zipfile.ZipFile",
@@ -188,8 +186,8 @@ def test_decoding_stage(monkeypatch):
 
     res = handler._run_decode(["id1"])
 
-    assert len(res["id1"]["ids"]) == len(res["id1"]["text"]) == 1
-    # assert res["id1"]["ids"][0] == 62
+    assert len(res["id1"]["ids"]) == 1
+    assert type(res["id1"]["text"]) == str
 
     assert ctx.cache["id1"]["encoded"]["input_ids"].size()[-1] == 5
     assert ctx.cache["id1"]["encoded"]["attention_mask"].size()[-1] == 5

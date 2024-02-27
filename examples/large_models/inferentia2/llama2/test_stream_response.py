@@ -1,3 +1,4 @@
+import orjson
 import requests
 
 response = requests.post(
@@ -9,6 +10,7 @@ response = requests.post(
 for chunk in response.iter_content(chunk_size=None):
     if chunk:
         data = chunk.decode("utf-8")
-        print(data, end="", flush=True)
+        data = orjson.loads(data)
+        print(data["text"], end=" ", flush=True)
 
 print("")

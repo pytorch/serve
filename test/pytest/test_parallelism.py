@@ -1,13 +1,13 @@
 import json
 import platform
 import shutil
-from argparse import Namespace
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 import requests
 import test_utils
+from model_archiver import ModelArchiverConfig
 
 CURR_FILE_PATH = Path(__file__).parent
 REPO_ROOT_DIR = CURR_FILE_PATH.parent.parent
@@ -28,6 +28,7 @@ class Foo(nn.Module):
 HANDLER_PY = """
 import os
 import torch
+from ts.handler_utils.utils import send_intermediate_predict_response
 from ts.torch_handler.base_handler import BaseHandler
 
 class FooHandler(BaseHandler):
@@ -35,9 +36,18 @@ class FooHandler(BaseHandler):
         if not torch.distributed.is_initialized():
             torch.distributed.init_process_group("gloo")
         torch.set_default_device("cpu")
+        self.context = ctx
         super().initialize(ctx)
 
     def preprocess(self, data):
+        send_intermediate_predict_response(
+                ["0"],
+                self.context.request_ids,
+                "Intermediate Prediction success",
+                200,
+                self.context,
+            )
+
         return torch.as_tensor(int(data[0].get('body').decode('utf-8')), device=self.device)
 
     def postprocess(self, x):
@@ -77,7 +87,7 @@ def create_mar_file(work_dir, model_archiver, model_name):
     handler_py_file = work_dir / "handler.py"
     handler_py_file.write_text(HANDLER_PY)
 
-    args = Namespace(
+    config = ModelArchiverConfig(
         model_name=model_name,
         version="1.0",
         serialized_file=None,
@@ -92,9 +102,7 @@ def create_mar_file(work_dir, model_archiver, model_name):
         config_file=model_config_yaml_file.as_posix(),
     )
 
-    mock = MagicMock()
-    mock.parse_args = MagicMock(return_value=args)
-    with patch("archiver.ArgParser.export_model_args_parser", return_value=mock):
+    with patch("archiver.ArgParser.export_model_args_parser", return_value=config):
         model_archiver.generate_model_archive()
 
         assert mar_file_path.exists()
@@ -143,6 +151,14 @@ def test_tp_inference(model_name):
         url=f"http://localhost:8080/predictions/{model_name}", data=json.dumps(42)
     )
 
-    assert int(response.text) == 4 * 42
+    assert response.headers["Transfer-Encoding"] == "chunked"
+
+    prediction = ""
+    for chunk in response.iter_content(chunk_size=None):
+        if chunk:
+            prediction += chunk.decode("utf-8")
+
+    assert prediction == "0" + str(4 * 42)
+    # assert response.text == "0" + str(4 * 42)
 
     assert response.status_code == 200

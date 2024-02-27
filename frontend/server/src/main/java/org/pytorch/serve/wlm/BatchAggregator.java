@@ -2,6 +2,7 @@ package org.pytorch.serve.wlm;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import org.pytorch.serve.job.Job;
 import org.pytorch.serve.util.messages.BaseModelRequest;
 import org.pytorch.serve.util.messages.ModelInferenceRequest;
@@ -28,13 +29,12 @@ public class BatchAggregator {
     }
 
     public BaseModelRequest getRequest(String threadName, WorkerState state)
-            throws InterruptedException {
-        jobs.clear();
+            throws InterruptedException, ExecutionException {
+        cleanJobs();
 
         ModelInferenceRequest req = new ModelInferenceRequest(model.getModelName());
 
-        model.pollBatch(
-                threadName, (state == WorkerState.WORKER_MODEL_LOADED) ? 0 : Long.MAX_VALUE, jobs);
+        pollBatch(threadName, state);
 
         if (model.isUseJobTicket() && jobs.isEmpty()) {
             model.decNumJobTickets();
@@ -56,8 +56,9 @@ public class BatchAggregator {
                 }
                 return new ModelLoadModelRequest(model, gpuId);
             } else {
-                if (j.getCmd() == WorkerCommands.STREAMPREDICT) {
-                    req.setCommand(WorkerCommands.STREAMPREDICT);
+                if (j.getCmd() == WorkerCommands.STREAMPREDICT
+                        || j.getCmd() == WorkerCommands.STREAMPREDICT2) {
+                    req.setCommand(j.getCmd());
                 }
                 j.setScheduled();
                 req.addRequest(j.getPayload());
@@ -94,7 +95,7 @@ public class BatchAggregator {
                                     .get(
                                             org.pytorch.serve.util.messages.RequestInput
                                                     .TS_STREAM_NEXT);
-                    if (streamNext != null && streamNext.equals("true")) {
+                    if ("true".equals(streamNext)) {
                         jobDone = false;
                     }
                 }
@@ -130,7 +131,7 @@ public class BatchAggregator {
             }
         }
         if (jobDone) {
-            jobs.clear();
+            cleanJobs();
         }
         return jobDone;
     }
@@ -153,7 +154,7 @@ public class BatchAggregator {
                 }
             }
             if (!jobs.isEmpty()) {
-                jobs.clear();
+                cleanJobs();
                 logger.error("Not all jobs got an error response.");
             }
         } else {
@@ -167,16 +168,26 @@ public class BatchAggregator {
                 } else {
                     // Data message can be handled by other workers.
                     // If batch has gone past its batch max delay timer?
-                    model.addFirst(job);
+                    handleErrorJob(job);
                 }
             }
         }
-        jobs.clear();
+        cleanJobs();
     }
 
     public void cleanJobs() {
         if (jobs != null) {
             jobs.clear();
         }
+    }
+
+    public void handleErrorJob(Job job) {
+        model.addFirst(job);
+    }
+
+    public void pollBatch(String threadName, WorkerState state)
+            throws InterruptedException, ExecutionException {
+        model.pollBatch(
+                threadName, (state == WorkerState.WORKER_MODEL_LOADED) ? 0 : Long.MAX_VALUE, jobs);
     }
 }
