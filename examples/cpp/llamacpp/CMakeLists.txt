@@ -1,4 +1,5 @@
 set(LLAMACPP_SRC_DIR "${torchserve_cpp_SOURCE_DIR}/third-party/llama.cpp")
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 add_library(llamacpp_handler SHARED src/llamacpp_handler.cc)
 
