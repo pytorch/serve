@@ -1,6 +1,5 @@
 name: CI CPU - CPP Build
 
-runs-on: self-hosted
 on:
   workflow_dispatch:
   push:
@@ -13,7 +12,8 @@ concurrency:
 
 jobs:
   ci-cpu-cpp:
-    runs-on: ${{ matrix.os }}
+    # runs-on: ${{ matrix.os }}
+    runs-on: self-hosted
     strategy:
       fail-fast: false
       matrix:
