@@ -45,6 +45,11 @@ CPP_LINUX_DEPENDENCIES = (
     "ninja-build",
     "clang-tidy",
     "clang-format",
+    "build-essential",
+    "libgoogle-perftools-dev",
+    "rustc",
+    "cargo",
+    "libunwind-dev",
 )
 
 CPP_DARWIN_DEPENDENCIES = (
