@@ -29,12 +29,9 @@ jobs:
       - name: Install dependencies
         run: |
           python ts_scripts/install_dependencies.py --environment=dev --cpp
-      - name: Install from source
+      - name: Install TorchServe
         run: |
-          python ts_scripts/install_from_source.py
+          python ts_scripts/install_from_src.py
       - name: Build
         run: |
           cd cpp && ./build.sh
-      - name: Install TorchServe
-        run: |
-          cd .. && python ts_scripts/install_from_src.py
