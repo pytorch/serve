@@ -13,7 +13,7 @@ from transformers import (
 set_seed(1)
 # PT2.2 has limitation on the max
 MAX_BATCH_SIZE = 15
-MAX_LENGTH = 511
+MAX_SEQ_LENGTH = 511
 
 
 def transformers_model_dowloader(
@@ -78,7 +78,7 @@ def transformers_model_dowloader(
             device
         )
         batch_dim = torch.export.Dim("batch", min=1, max=MAX_BATCH_SIZE)
-        seq_len_dim = torch.export.Dim("seq_len", min=1, max=MAX_LENGTH)
+        seq_len_dim = torch.export.Dim("seq_len", min=1, max=MAX_SEQ_LENGTH)
         torch._C._GLIBCXX_USE_CXX11_ABI = True
         model_so_path = torch._export.aot_compile(
             model,
