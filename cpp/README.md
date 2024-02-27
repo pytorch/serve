@@ -78,8 +78,11 @@ python -c "import ts; from pathlib import Path; print((Path(ts.__file__).parent 
 3. Make sure you have the right conda/venv environment activated during building that you're also using to run TorchServe.
 
 Q: Build on Mac fails with `Library not loaded: @rpath/libomp.dylib`
-A:  Install libomp with brew and link in /usr/local/lib 
+A: Install libomp with brew and link in /usr/local/lib 
 ```bash
 brew install libomp
 sudo ln -s /opt/homebrew/opt/libomp/lib/libomp.dylib /usr/local/lib/libomp.dylib
 ```
+
+Q: When loading a handler which uses a model exported with torch._export.aot_compile the handler dies with "error: Error in dlopen: MODEL.SO : undefined symbol: SOME_SYMBOL".
+A: Make sure that you are using matching libtorch and Pytorch versions for inference and export, respectively.
