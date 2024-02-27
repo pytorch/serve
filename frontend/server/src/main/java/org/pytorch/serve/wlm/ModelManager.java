@@ -1,6 +1,9 @@
 package org.pytorch.serve.wlm;
 
 import com.google.gson.JsonObject;
+
+import io.grpc.Status;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -28,6 +31,9 @@ import org.pytorch.serve.archive.model.ModelConfig;
 import org.pytorch.serve.archive.model.ModelException;
 import org.pytorch.serve.archive.model.ModelNotFoundException;
 import org.pytorch.serve.archive.model.ModelVersionNotFoundException;
+import org.pytorch.serve.grpc.openinference.OpenInferenceGrpc.ModelMetadataResponse;
+import org.pytorch.serve.grpc.openinference.OpenInferenceGrpc.ModelMetadataResponse.TensorMetadata;
+import org.pytorch.serve.http.BadRequestException;
 import org.pytorch.serve.http.ConflictStatusException;
 import org.pytorch.serve.http.InvalidModelVersionException;
 import org.pytorch.serve.http.messages.RegisterModelRequest;
@@ -697,6 +703,38 @@ public final class ModelManager {
 
     return numHealthy >= numScaled;
     }
+
+    public ModelMetadataResponse.Builder modelMetadata(String modelName, String modelVersion)
+        throws ModelVersionNotFoundException, ModelNotFoundException {
+
+        ModelManager modelManager = ModelManager.getInstance();
+        ModelMetadataResponse.Builder response = ModelMetadataResponse.newBuilder();
+        List<TensorMetadata> inputs = new ArrayList<>();
+        List<TensorMetadata> outputs = new ArrayList<>();
+        List<String> versions = new ArrayList<>();
+
+        if (modelVersion == null || "".equals(modelVersion)) {
+            modelVersion = null;
+        }
+
+        Model model = modelManager.getModel(modelName, modelVersion);
+        if (model == null) {
+            throw new ModelNotFoundException("Model not found: " + modelName);
+        }
+        modelManager
+                .getAllModelVersions(modelName)
+                .forEach(entry -> versions.add(entry.getKey()));
+        response.setName(modelName);
+        response.addAllVersions(versions);
+        response.setPlatform("");
+        response.addAllInputs(inputs);
+        response.addAllOutputs(outputs);
+
+        return response;
+
+    }
+
+    // return numHealthy >= numScaled;
 
     public void submitTask(Runnable runnable) {
         wlm.scheduleAsync(runnable);

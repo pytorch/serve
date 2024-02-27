@@ -9,6 +9,7 @@ import io.netty.handler.codec.http.QueryStringDecoder;
 import org.pytorch.serve.archive.DownloadArchiveException;
 import org.pytorch.serve.archive.model.ModelException;
 import org.pytorch.serve.archive.workflow.WorkflowException;
+import org.pytorch.serve.grpc.openinference.OpenInferenceGrpc.ModelMetadataResponse;
 import org.pytorch.serve.http.HttpRequestHandlerChain;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.NettyUtils;
@@ -31,6 +32,7 @@ public class OpenInferenceProtocolRequestHandler extends HttpRequestHandlerChain
     private static final String SERVER_LIVE_API = "/v2/health/live";
     private static final String SERVER_READY_API = "/v2/health/ready";
     private static final String MODEL_READY_ENDPOINT_PATTERN = "^/v2/models/([^/]+)(?:/versions/([^/]+))?/ready$";
+    private static final String MODEL_METADATA_ENDPOINT_PATTERN = "^/v2/models/([^/]+)(?:/versions/([^/]+))?";
 
     /** Creates a new {@code OpenInferenceProtocolRequestHandler} instance. */
     public OpenInferenceProtocolRequestHandler() {}
@@ -82,6 +84,19 @@ public class OpenInferenceProtocolRequestHandler extends HttpRequestHandlerChain
             response.addProperty("name", modelName);
             response.addProperty("ready", isModelReady);
             NettyUtils.sendJsonResponse(ctx, response);
+
+        } else if (concatenatedSegments.matches(MODEL_METADATA_ENDPOINT_PATTERN)) {
+            String modelName = segments[3];
+            String modelVersion = null;
+            if (segments.length > 5) {
+                modelVersion = segments[5];
+            }
+
+            ModelManager modelManager = ModelManager.getInstance();
+
+            ModelMetadataResponse.Builder response = modelManager.modelMetadata(modelName, modelVersion);
+
+            NettyUtils.sendJsonResponse(ctx, response.build());
 
         } else if (segments.length > 5 && concatenatedSegments.contains("/versions")) {
             // As of now kserve not implemented versioning, we just throws not implemented.
