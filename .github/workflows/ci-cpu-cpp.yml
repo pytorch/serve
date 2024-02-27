@@ -29,6 +29,9 @@ jobs:
       - name: Install dependencies
         run: |
           python ts_scripts/install_dependencies.py --environment=dev --cpp
+      - name: Install from source
+        run: |
+          python ts_scripts/install_from_source.py
       - name: Build
         run: |
           cd cpp && ./build.sh
