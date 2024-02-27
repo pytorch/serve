@@ -35,12 +35,7 @@ function install_folly() {
     echo -e "${COLOR_GREEN}[ INFO ] Building Folly ${COLOR_OFF}"
     cd $FOLLY_SRC_DIR
 
-    if [ "$PLATFORM" = "Linux" ]; then
-      SUDO="sudo"
-    elif [ "$PLATFORM" = "Mac" ]; then
-      SUDO=""
-    fi
-    $SUDO ./build/fbcode_builder/getdeps.py install-system-deps --recursive
+    ./build/fbcode_builder/getdeps.py install-system-deps --recursive
 
     ./build/fbcode_builder/getdeps.py build \
     --allow-system-packages \
