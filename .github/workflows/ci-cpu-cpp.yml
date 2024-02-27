@@ -1,5 +1,6 @@
 name: CI CPU - CPP Build
 
+runs-on: self-hosted
 on:
   workflow_dispatch:
   push:
