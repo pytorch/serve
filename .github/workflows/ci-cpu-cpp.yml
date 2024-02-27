@@ -46,7 +46,7 @@ jobs:
             brew install libtorch
       - name: Install dependencies
         run: |
-          python ts_scripts/install_dependencies.py --environment=dev --cpp
+          sudo apt update && python ts_scripts/install_dependencies.py --environment=dev --cpp
       - name: Install TorchServe
         run: |
           python ts_scripts/install_from_src.py
