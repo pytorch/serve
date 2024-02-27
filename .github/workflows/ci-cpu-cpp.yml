@@ -50,6 +50,9 @@ jobs:
       - name: Install TorchServe
         run: |
           python ts_scripts/install_from_src.py
+      - name: Print Env
+        run: |
+          python ts_scripts/print_env_info.py
       - name: Build
         run: |
           cd cpp && ./build.sh
