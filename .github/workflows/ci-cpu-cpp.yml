@@ -16,7 +16,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macOS-latest]
+        os: [ubuntu-20.04, macOS-latest]
     steps:
       - name: Checkout TorchServe
         uses: actions/checkout@v2
@@ -29,4 +29,4 @@ jobs:
           python ts_scripts/install_dependencies.py --environment=dev --cpp
       - name: Build
         run: |
-          cd cpp && ./build.sh --install-dependencies
+          cd cpp && ./build.sh

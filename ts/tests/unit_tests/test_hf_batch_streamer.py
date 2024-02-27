@@ -23,8 +23,8 @@ def test_hf_batch_streamer():
 
     for data in streamer:
         assert len(data) == 2
-        output1 += data[0]
-        output2 += data[1]
+        output1 += data[0]["text"]
+        output2 += data[1]["text"]
 
     assert output1 == input1
     assert output2 == input2

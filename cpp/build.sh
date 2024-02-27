@@ -24,13 +24,6 @@ function install_folly() {
   FOLLY_SRC_DIR=$BASE_DIR/third-party/folly
   FOLLY_BUILD_DIR=$DEPS_DIR/folly-build
 
-  if [ ! -d "$FOLLY_SRC_DIR" ] ; then
-    echo -e "${COLOR_GREEN}[ INFO ] Cloning folly repo ${COLOR_OFF}"
-    git clone https://github.com/facebook/folly.git "$FOLLY_SRC_DIR"
-    cd $FOLLY_SRC_DIR
-    git checkout tags/v2024.01.29.00
-  fi
-
   if [ ! -d "$FOLLY_BUILD_DIR" ] ; then
     echo -e "${COLOR_GREEN}[ INFO ] Building Folly ${COLOR_OFF}"
     cd $FOLLY_SRC_DIR
@@ -60,9 +53,7 @@ function install_kineto() {
   elif [ "$PLATFORM" = "Mac" ]; then
     KINETO_SRC_DIR=$BASE_DIR/third-party/kineto
 
-    if [ ! -d "$KINETO_SRC_DIR" ] ; then
-      echo -e "${COLOR_GREEN}[ INFO ] Cloning kineto repo ${COLOR_OFF}"
-      git clone --recursive https://github.com/pytorch/kineto.git "$KINETO_SRC_DIR"
+    if [ ! -d "$KINETO_SRC_DIR/libkineto/build" ] ; then
       cd $KINETO_SRC_DIR/libkineto
       mkdir build && cd build
       cmake ..
@@ -128,13 +119,6 @@ function install_yaml_cpp() {
   YAML_CPP_SRC_DIR=$BASE_DIR/third-party/yaml-cpp
   YAML_CPP_BUILD_DIR=$DEPS_DIR/yaml-cpp-build
 
-  if [ ! -d "$YAML_CPP_SRC_DIR" ] ; then
-    echo -e "${COLOR_GREEN}[ INFO ] Cloning yaml-cpp repo ${COLOR_OFF}"
-    git clone https://github.com/jbeder/yaml-cpp.git "$YAML_CPP_SRC_DIR"
-    cd $YAML_CPP_SRC_DIR
-    git checkout tags/0.8.0
-  fi
-
   if [ ! -d "$YAML_CPP_BUILD_DIR" ] ; then
     echo -e "${COLOR_GREEN}[ INFO ] Building yaml-cpp ${COLOR_OFF}"
 
@@ -186,6 +170,16 @@ function prepare_test_files() {
       fi
       local LLAMA_SO_DIR=${BASE_DIR}/third-party/llama2.so/
       PYTHONPATH=${LLAMA_SO_DIR}:${PYTHONPATH} python ${BASE_DIR}/../examples/cpp/aot_inductor/llama2/compile.py --checkpoint ${HANDLER_DIR}/stories15M.pt ${HANDLER_DIR}/stories15M.so
+    fi
+    if [ ! -f "${EX_DIR}/aot_inductor/bert_handler/bert-seq.so" ]; then
+      pip install transformers
+      local HANDLER_DIR=${EX_DIR}/aot_inductor/bert_handler/
+      export TOKENIZERS_PARALLELISM=false
+      cd ${BASE_DIR}/../examples/cpp/aot_inductor/bert/
+      python aot_compile_export.py
+      mv bert-seq.so ${HANDLER_DIR}/bert-seq.so
+      mv Transformer_model/tokenizer.json ${HANDLER_DIR}/tokenizer.json
+      export TOKENIZERS_PARALLELISM=""
     fi
     if [ ! -f "${EX_DIR}/aot_inductor/resnet_handler/resne50_pt2.so" ]; then
       local HANDLER_DIR=${EX_DIR}/aot_inductor/resnet_handler/
@@ -376,7 +370,7 @@ cd $BASE_DIR
 git submodule update --init --recursive
 
 install_folly
-install_kineto
+#install_kineto
 install_libtorch
 install_yaml_cpp
 build_llama_cpp
