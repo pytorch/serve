@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.18 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.26.4 FATAL_ERROR)
 project(torchserve_cpp VERSION 0.1)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -30,7 +30,7 @@ find_package(folly REQUIRED)
 find_package(fmt REQUIRED)
 find_package(gflags REQUIRED)
 find_package(Torch REQUIRED)
-find_package(yaml-cpp REQUIRED NO_CMAKE_PATH)
+
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
 
 include_directories(${TORCH_INCLUDE_DIRS})

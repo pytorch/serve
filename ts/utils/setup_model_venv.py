@@ -1,10 +1,15 @@
-# This script enables the virtual environment that is passed in as an argument to inherit
-# site-packages directories of the environment from which this script is run
+# This script enables creation of the model virtual environment whose path is passed in as an argument.
+# The virtual environment inherits the site-packages directories of the environment from which this script is run.
 
 import glob
 import os
 import site
 import sys
+import venv
+
+
+def create_venv(venv_path):
+    venv.create(venv_path, clear=True, with_pip=True)
 
 
 def inherit_site_packages(venv_path):
@@ -41,5 +46,6 @@ def inherit_site_packages(venv_path):
 if __name__ == "__main__":
     assert (
         len(sys.argv) == 2
-    ), f"{__file__} expects one argument: path to venv that should inherit site-packages of the current environment but got {sys.argv}"
+    ), f"{__file__} expects one argument: path to venv that should be created, but got {sys.argv}"
+    create_venv(sys.argv[1])
     inherit_site_packages(sys.argv[1])
