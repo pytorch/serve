@@ -1,0 +1,19 @@
+minWorkers: 1
+maxWorkers: 1
+maxBatchDelay: 0
+batchSize: 8
+responseTimeout: 10800
+jobQueueSize: 500
+continuousBatching: true
+
+handler:
+    model_path: "model/models--meta-llama--Llama-2-70b-hf/snapshots/90052941a64de02075ca800b09fcea1bdaacb939"
+    model_checkpoint_dir: "llama-2-70b-split"
+    model_module_prefix: "transformers_neuronx"
+    model_class_name: "llama.model.LlamaForSampling"
+    tokenizer_class_name: "transformers.LlamaTokenizer"
+    amp: "bf16"
+    tp_degree: 24
+    max_length: 256
+    max_new_tokens: 50
+    batch_size: 8
