@@ -1,1 +1,2 @@
 org.pytorch.serve.plugins.endpoint.ExecutionParameters
+org.pytorch.serve.plugins.endpoint.Token

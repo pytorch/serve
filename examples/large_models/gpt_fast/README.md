@@ -9,7 +9,7 @@ It features:
 * No dependencies other than PyTorch and sentencepiece
 * int8/int4 quantization
 * Speculative decoding
-* Tensor parallelism
+* Supports multi-GPU inference through Tensor parallelism
 * Supports Nvidia and AMD GPUs
 
 More details about gpt-fast can be found in this [blog](https://pytorch.org/blog/accelerating-generative-ai-2/).
@@ -23,9 +23,15 @@ The examples has been tested on A10, A100 as well as H100.
 Install dependencies and upgrade torch to nightly build (currently required)
 ```
 git clone https://github.com/pytorch-labs/gpt-fast/
+git checkout f44ef4eb55b54ec4c452b669eee409421adabd60
 pip install sentencepiece huggingface_hub
 pip uninstall torchtext torchdata torch torchvision torchaudio -y
 pip install --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/cu121 --ignore-installed
+```
+
+You can also install PyTorch nightlies using the below command
+```
+python ./ts_scripts/install_dependencies.py --cuda=cu121 --nightly_torch
 ```
 
 ### Step 1: Download  and convert the weights
@@ -81,6 +87,8 @@ cd ..
 At this stage we're creating the model archive which includes the configuration of our model in [model_config.yaml](./model_config.yaml).
 It's also the point where we need to decide if we want to deploy our model on a single or multiple GPUs.
 For the single GPU case we can use the default configuration that can be found in [model_config.yaml](./model_config.yaml).
+All configs enable the current prototyping feature FxGraphCache by setting fx_graph_cache to *true*.
+This feature stores the TorchInductor output in a cache to speed up torch.compile times when rerunning the handler.
 
 ```
 torch-model-archiver --model-name gpt_fast --version 1.0 --handler handler.py --config-file model_config.yaml --extra-files "gpt-fast/generate.py,gpt-fast/model.py,gpt-fast/quantize.py,gpt-fast/tp.py" --archive-format no-archive

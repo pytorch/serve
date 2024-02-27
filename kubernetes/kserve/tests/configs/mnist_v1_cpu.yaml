@@ -7,3 +7,10 @@ spec:
     pytorch:
       storageUri: gs://kfserving-examples/models/torchserve/image_classifier/v1
       image: pytorch/torchserve-kfs-nightly:latest-cpu
+      resources:
+        limits:
+          cpu: "1"
+          memory: 1Gi
+        requests:
+          cpu: "100m"
+          memory: 256Mi

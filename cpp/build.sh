@@ -28,7 +28,7 @@ function install_folly() {
     echo -e "${COLOR_GREEN}[ INFO ] Cloning folly repo ${COLOR_OFF}"
     git clone https://github.com/facebook/folly.git "$FOLLY_SRC_DIR"
     cd $FOLLY_SRC_DIR
-    git checkout tags/v2022.06.27.00
+    git checkout tags/v2024.01.29.00
   fi
 
   if [ ! -d "$FOLLY_BUILD_DIR" ] ; then
@@ -74,30 +74,49 @@ function install_kineto() {
 }
 
 function install_libtorch() {
+  TORCH_VERSION="2.2.1"
   if [ "$PLATFORM" = "Mac" ]; then
-    echo -e "${COLOR_GREEN}[ INFO ] Skip install libtorch on Mac ${COLOR_OFF}"
-  elif [ ! -d "$DEPS_DIR/libtorch" ] ; then
-    cd "$DEPS_DIR" || exit
-    if [ "$PLATFORM" = "Linux" ]; then
-      echo -e "${COLOR_GREEN}[ INFO ] Install libtorch on Linux ${COLOR_OFF}"
-      if [ "$CUDA" = "cu118" ]; then
-        wget https://download.pytorch.org/libtorch/cu118/libtorch-cxx11-abi-shared-with-deps-2.1.1%2Bcu118.zip
-        unzip libtorch-cxx11-abi-shared-with-deps-2.1.1+cu118.zip
-        rm libtorch-cxx11-abi-shared-with-deps-2.1.1+cu118.zip
-      elif [ "$CUDA" = "cu121" ]; then
-        wget https://download.pytorch.org/libtorch/cu121/libtorch-cxx11-abi-shared-with-deps-2.1.1%2Bcu121.zip
-        unzip libtorch-cxx11-abi-shared-with-deps-2.1.1+cu121.zip
-        rm libtorch-cxx11-abi-shared-with-deps-2.1.1+cu121.zip
+    if [ ! -d "$DEPS_DIR/libtorch" ]; then
+      if [[ $(uname -m) == 'x86_64' ]]; then
+        echo -e "${COLOR_GREEN}[ INFO ] Install libtorch on Mac x86_64 ${COLOR_OFF}"
+        wget https://download.pytorch.org/libtorch/cpu/libtorch-macos-x86_64-${TORCH_VERSION}.zip
+        unzip libtorch-macos-x86_64-${TORCH_VERSION}.zip
+        rm libtorch-macos-x86_64-${TORCH_VERSION}.zip
       else
-        wget https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-2.1.1%2Bcpu.zip
-        unzip libtorch-cxx11-abi-shared-with-deps-2.1.1+cpu.zip
-        rm libtorch-cxx11-abi-shared-with-deps-2.1.1+cpu.zip
+        echo -e "${COLOR_GREEN}[ INFO ] Install libtorch on Mac arm64 ${COLOR_OFF}"
+        wget https://download.pytorch.org/libtorch/cpu/libtorch-macos-arm64-${TORCH_VERSION}.zip
+        unzip libtorch-macos-arm64-${TORCH_VERSION}.zip
+        rm libtorch-macos-arm64-${TORCH_VERSION}.zip
       fi
-    elif [ "$PLATFORM" = "Windows" ]; then
+    fi
+  elif [ "$PLATFORM" = "Windows" ]; then
       echo -e "${COLOR_GREEN}[ INFO ] Install libtorch on Windows ${COLOR_OFF}"
       # TODO: Windows
       echo -e "${COLOR_RED}[ ERROR ] Unknown platform: $PLATFORM ${COLOR_OFF}"
       exit 1
+  else  # Linux
+    if [ -d "$DEPS_DIR/libtorch" ]; then
+      RAW_VERSION=`cat "$DEPS_DIR/libtorch/build-version"`
+      VERSION=`cat "$DEPS_DIR/libtorch/build-version" | cut -d "+" -f 1`
+      if [ "$USE_NIGHTLIES" = "true" ] && [[ ! "${RAW_VERSION}" =~ .*"dev".* ]]; then
+        rm -rf "$DEPS_DIR/libtorch"
+      elif [ "$USE_NIGHTLIES" == "" ] && [ "$VERSION" != "$TORCH_VERSION" ]; then
+        rm -rf "$DEPS_DIR/libtorch"
+      fi
+    fi
+    if [ ! -d "$DEPS_DIR/libtorch" ]; then
+      cd "$DEPS_DIR" || exit
+      echo -e "${COLOR_GREEN}[ INFO ] Install libtorch on Linux ${COLOR_OFF}"
+      if [ "$USE_NIGHTLIES" == true ]; then
+        URL=https://download.pytorch.org/libtorch/nightly/${CUDA}/libtorch-cxx11-abi-shared-with-deps-latest.zip
+      else
+        URL=https://download.pytorch.org/libtorch/${CUDA}/libtorch-cxx11-abi-shared-with-deps-${TORCH_VERSION}%2B${CUDA}.zip
+      fi
+      wget $URL
+      ZIP_FILE=$(basename "$URL")
+      ZIP_FILE="${ZIP_FILE//%2B/+}"
+      unzip $ZIP_FILE
+      rm $ZIP_FILE
     fi
     echo -e "${COLOR_GREEN}[ INFO ] libtorch is installed ${COLOR_OFF}"
   fi
@@ -113,7 +132,7 @@ function install_yaml_cpp() {
     echo -e "${COLOR_GREEN}[ INFO ] Cloning yaml-cpp repo ${COLOR_OFF}"
     git clone https://github.com/jbeder/yaml-cpp.git "$YAML_CPP_SRC_DIR"
     cd $YAML_CPP_SRC_DIR
-    git checkout tags/yaml-cpp-0.7.0
+    git checkout tags/0.8.0
   fi
 
   if [ ! -d "$YAML_CPP_BUILD_DIR" ] ; then
@@ -133,6 +152,47 @@ function install_yaml_cpp() {
     echo -e "${COLOR_GREEN}[ INFO ] yaml-cpp is installed ${COLOR_OFF}"
   fi
 
+  cd "$BWD" || exit
+}
+
+function build_llama_cpp() {
+  BWD=$(pwd)
+  LLAMA_CPP_SRC_DIR=$BASE_DIR/third-party/llama.cpp
+  cd "${LLAMA_CPP_SRC_DIR}"
+  if [ "$PLATFORM" = "Mac" ]; then
+    make LLAMA_METAL=OFF -j
+  else
+    make -j
+  fi
+  cd "$BWD" || exit
+}
+
+function prepare_test_files() {
+  echo -e "${COLOR_GREEN}[ INFO ]Preparing test files ${COLOR_OFF}"
+  local EX_DIR="${TR_DIR}/examples/"
+  rsync -a --link-dest=../../test/resources/ ${BASE_DIR}/test/resources/ ${TR_DIR}/
+  if [ ! -f "${EX_DIR}/babyllama/babyllama_handler/tokenizer.bin" ]; then
+    wget https://github.com/karpathy/llama2.c/raw/master/tokenizer.bin -O "${EX_DIR}/babyllama/babyllama_handler/tokenizer.bin"
+  fi
+  if [ ! -f "${EX_DIR}/babyllama/babyllama_handler/stories15M.bin" ]; then
+    wget https://huggingface.co/karpathy/tinyllamas/resolve/main/stories15M.bin -O "${EX_DIR}/babyllama/babyllama_handler/stories15M.bin"
+  fi
+  # PT2.2 torch.expport does not support Mac
+  if [ "$PLATFORM" = "Linux" ]; then
+    if [ ! -f "${EX_DIR}/aot_inductor/llama_handler/stories15M.so" ]; then
+      local HANDLER_DIR=${EX_DIR}/aot_inductor/llama_handler/
+      if [ ! -f "${HANDLER_DIR}/stories15M.pt" ]; then
+        wget https://huggingface.co/karpathy/tinyllamas/resolve/main/stories15M.pt?download=true -O "${HANDLER_DIR}/stories15M.pt"
+      fi
+      local LLAMA_SO_DIR=${BASE_DIR}/third-party/llama2.so/
+      PYTHONPATH=${LLAMA_SO_DIR}:${PYTHONPATH} python ${BASE_DIR}/../examples/cpp/aot_inductor/llama2/compile.py --checkpoint ${HANDLER_DIR}/stories15M.pt ${HANDLER_DIR}/stories15M.so
+    fi
+    if [ ! -f "${EX_DIR}/aot_inductor/resnet_handler/resne50_pt2.so" ]; then
+      local HANDLER_DIR=${EX_DIR}/aot_inductor/resnet_handler/
+      cd ${HANDLER_DIR}
+      python ${BASE_DIR}/../examples/cpp/aot_inductor/resnet/resnet50_torch_export.py
+    fi
+  fi
   cd "$BWD" || exit
 }
 
@@ -160,6 +220,11 @@ function build() {
     MAYBE_CUDA_COMPILER='-DCMAKE_CUDA_COMPILER=/usr/local/cuda/bin/nvcc'
   fi
 
+  MAYBE_NIGHTLIES="-Dnightlies=OFF"
+  if [ "$USE_NIGHTLIES" == true ]; then
+    MAYBE_NIGHTLIES="-Dnightlies=ON"
+  fi
+
   # Build torchserve_cpp with cmake
   cd "$BWD" || exit
   YAML_CPP_CMAKE_DIR=$DEPS_DIR/yaml-cpp-build
@@ -176,6 +241,7 @@ function build() {
     "$MAYBE_USE_STATIC_DEPS"                                                                  \
     "$MAYBE_LIB_FUZZING_ENGINE"                                                               \
     "$MAYBE_CUDA_COMPILER"                                                                    \
+    "$MAYBE_NIGHTLIES"                                                                        \
     ..
 
     if [ "$CUDA" = "cu118" ] || [ "$CUDA" = "cu121" ]; then
@@ -183,7 +249,7 @@ function build() {
     fi
   elif [ "$PLATFORM" = "Mac" ]; then
     cmake                                                                                     \
-    -DCMAKE_PREFIX_PATH="$(python -c 'import torch; print(torch.utils.cmake_prefix_path)');$DEPS_DIR;$FOLLY_CMAKE_DIR;$YAML_CPP_CMAKE_DIR"   \
+    -DCMAKE_PREFIX_PATH="$DEPS_DIR;$FOLLY_CMAKE_DIR;$YAML_CPP_CMAKE_DIR;$DEPS_DIR/libtorch"    \
     -DCMAKE_INSTALL_PREFIX="$PREFIX"                                                          \
     "$MAYBE_BUILD_QUIC"                                                                       \
     "$MAYBE_BUILD_TESTS"                                                                      \
@@ -191,6 +257,7 @@ function build() {
     "$MAYBE_OVERRIDE_CXX_FLAGS"                                                               \
     "$MAYBE_USE_STATIC_DEPS"                                                                  \
     "$MAYBE_LIB_FUZZING_ENGINE"                                                               \
+    "$MAYBE_NIGHTLIES"                                                                        \
     ..
 
     export LIBRARY_PATH=${LIBRARY_PATH}:/usr/local/opt/icu4c/lib
@@ -206,12 +273,6 @@ function build() {
   echo -e "${COLOR_GREEN}torchserve_cpp build is complete. To run unit test: \
   ./_build/test/torchserve_cpp_test ${COLOR_OFF}"
 
-  if [ -f "$DEPS_DIR/../src/examples/libmnist_handler.dylib" ]; then
-    mv $DEPS_DIR/../src/examples/libmnist_handler.dylib $DEPS_DIR/../../test/resources/torchscript_model/mnist/mnist_handler/libmnist_handler.dylib
-  elif [ -f "$DEPS_DIR/../src/examples/libmnist_handler.so" ]; then
-    mv $DEPS_DIR/../src/examples/libmnist_handler.so $DEPS_DIR/../../test/resources/torchscript_model/mnist/mnist_handler/libmnist_handler.so
-  fi
-
   cd $DEPS_DIR/../..
   if [ -f "$DEPS_DIR/../test/torchserve_cpp_test" ]; then
     $DEPS_DIR/../test/torchserve_cpp_test
@@ -223,7 +284,7 @@ function build() {
 
 function symlink_torch_libs() {
   if [ "$PLATFORM" = "Linux" ]; then
-    ln -sf ${DEPS_DIR}/libtorch/lib/*.so* ${BUILD_DIR}/libs/
+    ln -sf ${DEPS_DIR}/libtorch/lib/*.so* ${LIBS_DIR}
   fi
 }
 
@@ -253,8 +314,8 @@ WITH_QUIC=false
 INSTALL_DEPENDENCIES=false
 PREFIX=""
 COMPILER_FLAGS=""
-CUDA=""
-USAGE="./build.sh [-j num_jobs] [-g cu118|cu121] [-q|--with-quic] [-p|--prefix] [-x|--compiler-flags]"
+CUDA="cpu"
+USAGE="./build.sh [-j num_jobs] [-g cu118|cu121] [-q|--with-quic] [-t|--no-tets] [-p|--prefix] [-x|--compiler-flags] [-n|--nighlies]"
 while [ "$1" != "" ]; do
   case $1 in
     -j | --jobs ) shift
@@ -276,6 +337,9 @@ while [ "$1" != "" ]; do
     -x | --compiler-flags )
                   shift
                   COMPILER_FLAGS=$1
+      ;;
+    -n | --nightlies )
+                  USE_NIGHTLIES=true
       ;;
     * )           echo $USAGE
                   exit 1
@@ -301,16 +365,22 @@ cd $BUILD_DIR || exit
 BWD=$(pwd)
 DEPS_DIR=$BWD/_deps
 LIBS_DIR=$BWD/libs
+TR_DIR=$BWD/test/resources/
 mkdir -p "$DEPS_DIR"
 mkdir -p "$LIBS_DIR"
+mkdir -p "$TR_DIR"
 
 # Must execute from the directory containing this script
 cd $BASE_DIR
+
+git submodule update --init --recursive
 
 install_folly
 install_kineto
 install_libtorch
 install_yaml_cpp
+build_llama_cpp
+prepare_test_files
 build
 symlink_torch_libs
 symlink_yaml_cpp_lib

@@ -1,0 +1,11 @@
+{
+  "createdOn": "14/02/2024 05:57:14",
+  "runtime": "LSP",
+  "model": {
+    "modelName": "resnetcppaot",
+    "handler": "libresnet_handler:ResnetCppHandler",
+    "modelVersion": "1.0",
+    "configFile": "model-config.yaml"
+  },
+  "archiverVersion": "0.9.0"
+}

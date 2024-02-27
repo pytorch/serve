@@ -40,7 +40,7 @@ class TextIteratorStreamerBatch(BaseStreamer):
         values = []
         for iterator in self.streamer_iterators:
             try:
-                values.append(next(iterator))
+                values.append({"text": next(iterator)})
             except StopIteration:
                 values.append(None)
 

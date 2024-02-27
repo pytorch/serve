@@ -13,3 +13,4 @@ handler:
     max_new_tokens: 50
     compile: true
     stream: false
+    fx_graph_cache: True
