@@ -38,7 +38,11 @@ public class MetricCollector implements Runnable {
             args[2] = "--gpu";
 
             // Disable System GPU metrics collection based on config
-            args[3] = String.valueOf(this.configManager.isSystemGPUMetricsDisabled() ? 0 : ConfigManager.getInstance().getNumberOfGpu());
+            args[3] =
+                    String.valueOf(
+                            this.configManager.isSystemGPUMetricsDisabled()
+                                    ? 0
+                                    : ConfigManager.getInstance().getNumberOfGpu());
 
             File workingDir = new File(configManager.getModelServerHome());
 
