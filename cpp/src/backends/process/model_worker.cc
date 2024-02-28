@@ -34,13 +34,13 @@ void SocketServer::Initialize(
       if (port_num.empty()) {
         TS_LOG(FATAL, "Wrong arguments passed. No socket port given.");
       }
-      port_ = htons(stoi(port_num));
+      port_ = stoi(port_num);
     }
   } else {
     TS_LOG(FATAL, "Incomplete data provided");
   }
 
-  TS_LOGF(INFO, "Listening on port: {}", socket_name);
+  TS_LOGF(INFO, "Listening on {}", socket_name_);
   server_socket_ = socket(socket_family, SOCK_STREAM, 0);
   if (server_socket_ == -1) {
     TS_LOGF(FATAL, "Failed to create socket descriptor. errno: {}", errno);
@@ -60,24 +60,25 @@ void SocketServer::Run() {
   }
 
   sockaddr *srv_sock_address = nullptr, client_sock_address{};
+  sockaddr_un sock_addr_un{};
+  sockaddr_in sock_addr_in{};
   socklen_t name_len = 0;
   if (socket_type_ == "unix") {
     TS_LOG(INFO, "Binding to unix socket");
-    sockaddr_un sock_addr{};
-    std::memset(&sock_addr, 0, sizeof(sock_addr));
-    sock_addr.sun_family = AF_UNIX;
-    std::strncpy(sock_addr.sun_path, socket_name_.c_str(),
-                 sizeof(sock_addr.sun_path));
-    srv_sock_address = reinterpret_cast<sockaddr*>(&sock_addr);
-    name_len = SUN_LEN(&sock_addr);
+    std::memset(&sock_addr_un, 0, sizeof(sock_addr_un));
+    sock_addr_un.sun_family = AF_UNIX;
+    std::strncpy(sock_addr_un.sun_path, socket_name_.c_str(),
+                 sizeof(sock_addr_un.sun_path));
+    srv_sock_address = reinterpret_cast<sockaddr*>(&sock_addr_un);
+    name_len = SUN_LEN(&sock_addr_un);
   } else {
     TS_LOG(INFO, "Binding to tcp socket");
-    sockaddr_in sock_addr{};
-    std::memset(&sock_addr, 0, sizeof(sock_addr));
-    sock_addr.sin_family = AF_INET;
-    sock_addr.sin_port = port_;
-    sock_addr.sin_addr.s_addr = inet_addr(socket_name_.c_str());
-    srv_sock_address = reinterpret_cast<sockaddr*>(&sock_addr);
+    std::memset(&sock_addr_in, 0, sizeof(sock_addr_in));
+    sock_addr_in.sin_family = AF_INET;
+    TS_LOGF(INFO, "Listening on port {}", port_);
+    sock_addr_in.sin_port = htons(port_);
+    sock_addr_in.sin_addr.s_addr = inet_addr(socket_name_.c_str());
+    srv_sock_address = reinterpret_cast<sockaddr*>(&sock_addr_in);
     name_len = sizeof(*srv_sock_address);
   }
 
