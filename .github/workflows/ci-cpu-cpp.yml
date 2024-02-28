@@ -36,6 +36,11 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: '17'
+      - name: Setup upterm session
+        uses: lhotari/action-upterm@v1
+        with:
+          limit-access-to-actor: true
+          limit-access-to-users: mreso
       - name: Checkout TorchServe
         uses: actions/checkout@v3
         with:
@@ -56,3 +61,8 @@ jobs:
       - name: Build
         run: |
           cd cpp && ./build.sh
+      - name: Setup upterm session
+        uses: lhotari/action-upterm@v1
+        with:
+          limit-access-to-actor: true
+          limit-access-to-users: mreso
