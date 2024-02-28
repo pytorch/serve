@@ -22,8 +22,8 @@ jar {
     exclude "META-INF/MANIFEST*"
     exclude "META-INF//LICENSE*"
     exclude "META-INF//NOTICE*"
-    exclude "org/pytorch/serve/plugins/endpoint/Ping*" // Comment out if Ping endpoint is needed
     exclude "org/pytorch/serve/plugins/endpoint/ExecutionParameters*" // Comment out if ExecutionParameter endpoint is needed
+    exclude "org/pytorch/serve/plugins/endpoint/Ping*" // Comment out if Ping endpoint is needed
 }
 
 java {
