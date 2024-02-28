@@ -72,6 +72,7 @@ public final class ConfigManager {
     private static final String TS_METRICS_MODE = "metrics_mode";
     private static final String TS_MODEL_METRICS_AUTO_DETECT = "model_metrics_auto_detect";
     private static final String TS_DISABLE_SYSTEM_METRICS = "disable_system_metrics";
+    private static final String TS_DISABLE_SYSTEM_GPU_METRICS = "disable_system_gpu_metrics";
 
     // IPEX config option that can be set at config.properties
     private static final String TS_IPEX_ENABLE = "ipex_enable";
@@ -454,6 +455,10 @@ public final class ConfigManager {
         return Boolean.parseBoolean(getProperty(TS_DISABLE_SYSTEM_METRICS, "false"));
     }
 
+    public boolean isSystemGPUMetricsDisabled() {
+        return Boolean.parseBoolean(getProperty(TS_DISABLE_SYSTEM_GPU_METRICS, "false"));
+    }
+
     public String getTsDefaultServiceHandler() {
         return getProperty(TS_DEFAULT_SERVICE_HANDLER, null);
     }
@@ -729,6 +734,8 @@ public final class ConfigManager {
                 + getMetricsMode()
                 + "\nDisable system metrics: "
                 + isSystemMetricsDisabled()
+                + "\nDisable system GPU metrics: "
+                + isSystemGPUMetricsDisabled()
                 + "\nWorkflow Store: "
                 + (getWorkflowStore() == null ? "N/A" : getWorkflowStore())
                 + "\nCPP log config: "

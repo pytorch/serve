@@ -36,6 +36,11 @@ SYSTEM_METRICS = [
     "GPUMemoryUsed",
     "GPUUtilization",
 ]
+SYSTEM_GPU_METRICS = [
+    "GPUMemoryUtilization",
+    "GPUMemoryUsed",
+    "GPUUtilization",
+]
 BACKEND_METRICS = [
     "HandlerTime",
     "PredictionTime",
@@ -866,5 +871,81 @@ def test_disable_system_metrics_using_environment_variable():
         test_utils.stop_torchserve()
         test_utils.delete_all_snapshots()
         del os.environ["TS_DISABLE_SYSTEM_METRICS"]
+        del os.environ["TS_METRICS_CONFIG"]
+        os.remove(config_file)
+
+
+def test_disable_system_gpu_metrics_using_config_properties():
+    """
+    Validates that system metrics collection is disabled when "disable_system_gpu_metrics"
+    configuration option is set to "true"
+    """
+    # Torchserve cleanup
+    test_utils.stop_torchserve()
+    test_utils.delete_all_snapshots()
+    # Remove existing logs if any
+    for f in glob.glob("logs/*.log"):
+        os.remove(f)
+
+    config_file = os.path.join(test_utils.ROOT_DIR, "config.properties")
+    with open(config_file, "w") as f:
+        f.writelines(
+            ["enable_envvars_config=true\n", "disable_system_gpu_metrics=true"]
+        )
+
+    os.environ["TS_METRICS_CONFIG"] = os.path.join(
+        test_utils.REPO_ROOT, "examples", "custom_metrics", "metrics.yaml"
+    )
+
+    try:
+        test_utils.start_torchserve(
+            model_store=test_utils.MODEL_STORE,
+            snapshot_file=config_file,
+            no_config_snapshots=True,
+            gen_mar=False,
+        )
+        register_model_and_make_inference_request()
+        validate_metrics_log("ts_metrics.log", SYSTEM_GPU_METRICS, False)
+    finally:
+        test_utils.stop_torchserve()
+        test_utils.delete_all_snapshots()
+        del os.environ["TS_METRICS_CONFIG"]
+        os.remove(config_file)
+
+
+def test_disable_system_gpu_metrics_using_environment_variable():
+    """
+    Validates that system gpu metrics collection is disabled when TS_DISABLE_SYSTEM_GPU_METRICS
+    environment variable is set to "true"
+    """
+    # Torchserve cleanup
+    test_utils.stop_torchserve()
+    test_utils.delete_all_snapshots()
+    # Remove existing logs if any
+    for f in glob.glob("logs/*.log"):
+        os.remove(f)
+
+    config_file = os.path.join(test_utils.ROOT_DIR, "config.properties")
+    with open(config_file, "w") as f:
+        f.write("enable_envvars_config=true")
+
+    os.environ["TS_DISABLE_SYSTEM_GPU_METRICS"] = "true"
+    os.environ["TS_METRICS_CONFIG"] = os.path.join(
+        test_utils.REPO_ROOT, "examples", "custom_metrics", "metrics.yaml"
+    )
+
+    try:
+        test_utils.start_torchserve(
+            model_store=test_utils.MODEL_STORE,
+            snapshot_file=config_file,
+            no_config_snapshots=True,
+            gen_mar=False,
+        )
+        register_model_and_make_inference_request()
+        validate_metrics_log("ts_metrics.log", SYSTEM_GPU_METRICS, False)
+    finally:
+        test_utils.stop_torchserve()
+        test_utils.delete_all_snapshots()
+        del os.environ["TS_DISABLE_SYSTEM_GPU_METRICS"]
         del os.environ["TS_METRICS_CONFIG"]
         os.remove(config_file)
