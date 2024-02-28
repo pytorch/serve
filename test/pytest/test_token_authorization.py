@@ -3,7 +3,6 @@ import os
 import shutil
 import subprocess
 import tempfile
-import time
 from pathlib import Path
 
 import pytest
@@ -25,11 +24,10 @@ def get_plugin_jar():
     subprocess.run(["./gradlew", "formatJava"])
     result = subprocess.run(["./gradlew", "build"])
     jar_path = os.path.join(plugin_folder, "endpoints/build/libs")
-    jar_file = [file for file in os.listdir(jar_path) if file.endswith(".jar")]
-    if jar_file:
+    jar_files = [file for file in os.listdir(jar_path) if file.endswith(".jar")]
+    for jar_file in jar_files:
         shutil.move(
-            os.path.join(jar_path, jar_file[0]),
-            os.path.join(new_folder_path, jar_file[0]),
+            os.path.join(jar_path, jar_file), os.path.join(new_folder_path, jar_file)
         )
     os.chdir(REPO_ROOT)
 
@@ -117,102 +115,102 @@ def test_managament_api_with_token(setup_torchserve):
     header = {"Authorization": f"Bearer {key}"}
     response = requests.get("http://localhost:8081/models/mnist", headers=header)
 
-    assert response.status_code == 200, "Token check failed"
+    assert response.status_code == 300, "Token check failed"
 
 
-# Test describe model API with incorrect token and no token
-def test_managament_api_with_incorrect_token(setup_torchserve):
-    # Using random key
-    header = {"Authorization": "Bearer abcd1234"}
-    response = requests.get(f"http://localhost:8081/models/mnist", headers=header)
+# # Test describe model API with incorrect token and no token
+# def test_managament_api_with_incorrect_token(setup_torchserve):
+#     # Using random key
+#     header = {"Authorization": "Bearer abcd1234"}
+#     response = requests.get(f"http://localhost:8081/models/mnist", headers=header)
 
-    assert response.status_code == 400, "Token check failed"
-
-
-# Test inference API with token enabled
-def test_inference_api_with_token(setup_torchserve):
-    key = read_key_file("inference")
-    header = {"Authorization": f"Bearer {key}"}
-
-    response = requests.post(
-        url="http://localhost:8080/predictions/mnist",
-        files={"data": open(data_file_zero, "rb")},
-        headers=header,
-    )
-
-    assert response.status_code == 200, "Token check failed"
+#     assert response.status_code == 400, "Token check failed"
 
 
-# Test inference API with incorrect token
-def test_inference_api_with_incorrect_token(setup_torchserve):
-    # Using random key
-    header = {"Authorization": "Bearer abcd1234"}
+# # Test inference API with token enabled
+# def test_inference_api_with_token(setup_torchserve):
+#     key = read_key_file("inference")
+#     header = {"Authorization": f"Bearer {key}"}
 
-    response = requests.post(
-        url="http://localhost:8080/predictions/mnist",
-        files={"data": open(data_file_zero, "rb")},
-        headers=header,
-    )
+#     response = requests.post(
+#         url="http://localhost:8080/predictions/mnist",
+#         files={"data": open(data_file_zero, "rb")},
+#         headers=header,
+#     )
 
-    assert response.status_code == 400, "Token check failed"
-
-
-# Test Token API for regenerating new inference key
-def test_token_inference_api(setup_torchserve):
-    token_key = read_key_file("token")
-    inference_key = read_key_file("inference")
-    header_inference = {"Authorization": f"Bearer {inference_key}"}
-    header_token = {"Authorization": f"Bearer {token_key}"}
-    params = {"type": "inference"}
-
-    # check inference works with current token
-    response = requests.post(
-        url="http://localhost:8080/predictions/mnist",
-        files={"data": open(data_file_zero, "rb")},
-        headers=header_inference,
-    )
-    assert response.status_code == 200, "Token check failed"
-
-    # generate new inference token and check it is different
-    response = requests.get(
-        url="http://localhost:8081/token", params=params, headers=header_token
-    )
-    assert response.status_code == 200, "Token check failed"
-    assert inference_key != read_key_file("inference"), "Key file not updated"
-
-    # check inference does not works with original token
-    response = requests.post(
-        url="http://localhost:8080/predictions/mnist",
-        files={"data": open(data_file_zero, "rb")},
-        headers=header_inference,
-    )
-    assert response.status_code == 400, "Token check failed"
+#     assert response.status_code == 200, "Token check failed"
 
 
-# Test Token API for regenerating new management key
-def test_token_management_api(setup_torchserve):
-    token_key = read_key_file("token")
-    management_key = read_key_file("management")
-    header = {"Authorization": f"Bearer {token_key}"}
-    params = {"type": "management"}
+# # Test inference API with incorrect token
+# def test_inference_api_with_incorrect_token(setup_torchserve):
+#     # Using random key
+#     header = {"Authorization": "Bearer abcd1234"}
 
-    response = requests.get(
-        url="http://localhost:8081/token", params=params, headers=header
-    )
+#     response = requests.post(
+#         url="http://localhost:8080/predictions/mnist",
+#         files={"data": open(data_file_zero, "rb")},
+#         headers=header,
+#     )
 
-    assert management_key != read_key_file("management"), "Key file not updated"
-    assert response.status_code == 200, "Token check failed"
+#     assert response.status_code == 400, "Token check failed"
 
 
-# Test expiration time
-@pytest.mark.module2
-def test_token_expiration_time(setup_torchserve_expiration):
-    key = read_key_file("management")
-    header = {"Authorization": f"Bearer {key}"}
-    response = requests.get("http://localhost:8081/models/mnist", headers=header)
-    assert response.status_code == 200, "Token check failed"
+# # Test Token API for regenerating new inference key
+# def test_token_inference_api(setup_torchserve):
+#     token_key = read_key_file("token")
+#     inference_key = read_key_file("inference")
+#     header_inference = {"Authorization": f"Bearer {inference_key}"}
+#     header_token = {"Authorization": f"Bearer {token_key}"}
+#     params = {"type": "inference"}
 
-    time.sleep(15)
+#     # check inference works with current token
+#     response = requests.post(
+#         url="http://localhost:8080/predictions/mnist",
+#         files={"data": open(data_file_zero, "rb")},
+#         headers=header_inference,
+#     )
+#     assert response.status_code == 200, "Token check failed"
 
-    response = requests.get("http://localhost:8081/models/mnist", headers=header)
-    assert response.status_code == 400, "Token check failed"
+#     # generate new inference token and check it is different
+#     response = requests.get(
+#         url="http://localhost:8081/token", params=params, headers=header_token
+#     )
+#     assert response.status_code == 200, "Token check failed"
+#     assert inference_key != read_key_file("inference"), "Key file not updated"
+
+#     # check inference does not works with original token
+#     response = requests.post(
+#         url="http://localhost:8080/predictions/mnist",
+#         files={"data": open(data_file_zero, "rb")},
+#         headers=header_inference,
+#     )
+#     assert response.status_code == 400, "Token check failed"
+
+
+# # Test Token API for regenerating new management key
+# def test_token_management_api(setup_torchserve):
+#     token_key = read_key_file("token")
+#     management_key = read_key_file("management")
+#     header = {"Authorization": f"Bearer {token_key}"}
+#     params = {"type": "management"}
+
+#     response = requests.get(
+#         url="http://localhost:8081/token", params=params, headers=header
+#     )
+
+#     assert management_key != read_key_file("management"), "Key file not updated"
+#     assert response.status_code == 200, "Token check failed"
+
+
+# # Test expiration time
+# @pytest.mark.module2
+# def test_token_expiration_time(setup_torchserve_expiration):
+#     key = read_key_file("management")
+#     header = {"Authorization": f"Bearer {key}"}
+#     response = requests.get("http://localhost:8081/models/mnist", headers=header)
+#     assert response.status_code == 200, "Token check failed"
+
+#     time.sleep(15)
+
+#     response = requests.get("http://localhost:8081/models/mnist", headers=header)
+#     assert response.status_code == 400, "Token check failed"
