@@ -12,8 +12,8 @@ concurrency:
 
 jobs:
   ci-cpu-cpp:
-    # runs-on: ${{ matrix.os }}
-    runs-on: ci-cpp
+    runs-on: ${{ matrix.os }}
+    # runs-on: ci-cpp
     strategy:
       fail-fast: false
       matrix:
