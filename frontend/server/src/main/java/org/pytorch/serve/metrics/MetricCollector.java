@@ -36,11 +36,10 @@ public class MetricCollector implements Runnable {
             args[0] = configManager.getPythonExecutable();
             args[1] = "ts/metrics/metric_collector.py";
             args[2] = "--gpu";
-            if (this.configManager.isSystemGPUMetricsDisabled()){
-                args[3] = String.valueOf(0);
-            } else{
-                args[3] = String.valueOf(ConfigManager.getInstance().getNumberOfGpu());
-            }
+
+            // Disable System GPU metrics collection based on config
+            args[3] = String.valueOf(this.configManager.isSystemGPUMetricsDisabled() ? 0 : ConfigManager.getInstance().getNumberOfGpu());
+
             File workingDir = new File(configManager.getModelServerHome());
 
             String[] envp = EnvironmentUtils.getEnvString(workingDir.getAbsolutePath(), null, null);

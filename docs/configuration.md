@@ -297,6 +297,7 @@ e.g. : To allow base URLs `https://s3.amazonaws.com/` and `https://torchserve.py
   * For security reason, `use_env_allowed_urls=true` is required in config.properties to read `allowed_urls` from environment variable.
 * `workflow_store` : Path of workflow store directory. Defaults to model store directory.
 * `disable_system_metrics` : Disable collection of system metrics when set to "true". Default value is "false".
+* `disable_system_gpu_metrics` : Disable collection of system GPU metrics when set to "true". Default value is "false".
 
 **NOTE**
 
