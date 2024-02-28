@@ -57,7 +57,7 @@ class SocketServer {
   int server_socket_ = -1;
   std::string socket_type_;
   std::string socket_name_;
-  ushort port_ = 9000;
+  int port_ = 9000;
   std::shared_ptr<torchserve::Backend> backend_;
 };
 
