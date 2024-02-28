@@ -1210,3 +1210,8 @@ fj
 generateKeyFile
 setTime
 urlPattern
+dlopen
+dylib
+libomp
+rpath
+venv
