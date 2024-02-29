@@ -20,6 +20,16 @@ cd cpp
 cd ..
 python ts_scripts/install_from_src.py
 ```
+### Set Environment Var
+#### On Mac
+```
+export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:$(pwd)/_build/_deps/libtorch/lib
+```
+#### On Ubuntu
+```
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(pwd)/_build/_deps/libtorch/lib
+```
+
 ### Run TorchServe
 ```
 mkdir model_store
@@ -67,3 +77,23 @@ This will make the TorchServe installation editable and the updated cpp backend 
 ```
 python ts_scripts/install_from_src.py --environment dev
 ```
+
+#### FAQs
+Q: After running ./build.sh TorchServe can not find model_worker_socket
+A:
+1. See if the binary `model_worker_socket` exists by running:
+```bash
+python -c "import ts; from pathlib import Path; print((Path(ts.__file__).parent / 'cpp/bin/model_worker_socket').exists())
+```
+2. Look if ./build.sh was actually successful and if the tests ran without any error at the end. If a test failed the binary will not be copied into the appropriate directory.
+3. Make sure you have the right conda/venv environment activated during building that you're also using to run TorchServe.
+
+Q: Build on Mac fails with `Library not loaded: @rpath/libomp.dylib`
+A: Install libomp with brew and link in /usr/local/lib 
+```bash
+brew install libomp
+sudo ln -s /opt/homebrew/opt/libomp/lib/libomp.dylib /usr/local/lib/libomp.dylib
+```
+
+Q: When loading a handler which uses a model exported with torch._export.aot_compile the handler dies with "error: Error in dlopen: MODEL.SO : undefined symbol: SOME_SYMBOL".
+A: Make sure that you are using matching libtorch and Pytorch versions for inference and export, respectively.
