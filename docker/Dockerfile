@@ -71,7 +71,7 @@ WORKDIR "serve"
 RUN \
     if echo "$BASE_IMAGE" | grep -q "cuda:"; then \
         # Install CUDA version specific binary when CUDA version is specified as a build arg
-        if [ "USE_CUDA_VERSION" ]; then \
+        if [ "$USE_CUDA_VERSION" ]; then \
             python ./ts_scripts/install_dependencies.py --cuda $USE_CUDA_VERSION; \
         # Install the binary with the latest CPU image on a CUDA base image
         else \
