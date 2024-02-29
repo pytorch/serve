@@ -195,7 +195,7 @@ function build() {
     "-DLLAMA_METAL=OFF"                                                                       \
     ..
 
-    
+
   else
     # TODO: Windows
     echo -e "${COLOR_RED}[ ERROR ] Unknown platform: $PLATFORM ${COLOR_OFF}"
@@ -286,7 +286,7 @@ if [ ! -d "$BUILD_DIR" ] ; then
   mkdir -p $BUILD_DIR
 fi
 
-set -e nounset
+# set -e nounset
 trap 'cd $BASE_DIR' EXIT
 cd $BUILD_DIR || exit
 BWD=$(pwd)
@@ -303,8 +303,8 @@ cd $BASE_DIR
 git submodule update --init --recursive
 
 install_folly
-install_libtorch
-prepare_test_files
-build
-symlink_torch_libs
-install_torchserve_cpp
+# install_libtorch
+# prepare_test_files
+# build
+# symlink_torch_libs
+# install_torchserve_cpp
