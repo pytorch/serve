@@ -74,7 +74,10 @@ class TorchserveModel(Model):
         self.inference_address = inference_address
         self.management_address = management_address
         self.model_dir = model_dir
-        self.protocol = protocol
+
+        # Validate the protocol value passed otherwise, the default value will be used
+        if protocol is not None:
+            self.protocol = PredictorProtocol(protocol).value
 
         if self.protocol == PredictorProtocol.GRPC_V2.value:
             self.predictor_host = grpc_inference_address
