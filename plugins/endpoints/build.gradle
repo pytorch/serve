@@ -1,3 +1,9 @@
+plugins {
+    id 'java'
+    id 'maven-publish'
+    id 'signing'
+}
+
 dependencies {
     implementation "com.google.code.gson:gson:${gson_version}"
     implementation "org.pytorch:torchserve-plugins-sdk:${torchserve_sdk_version}"
@@ -16,4 +22,61 @@ jar {
     exclude "META-INF/MANIFEST*"
     exclude "META-INF//LICENSE*"
     exclude "META-INF//NOTICE*"
+    exclude "org/pytorch/serve/plugins/endpoint/ExecutionParameters*" // Comment out if ExecutionParameter endpoint is needed
+    exclude "org/pytorch/serve/plugins/endpoint/Ping*" // Comment out if Ping endpoint is needed
+}
+
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            groupId = "org.pytorch"
+            artifactId = "torchserve-endpoint-plugin"
+            version = '0.0.1'
+            from components.java
+
+            pom {
+                name = 'torchserve-endpoint-plugin'
+                description = 'SDK for PyTorch model server endpoint plugins'
+                url = 'https://github.com/pytorch/serve'
+
+                licenses {
+                    license {
+                        name = 'The Apache Software License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'PyTorch Model Server'
+                        url = 'https://github.com/pytorch/serve'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git://github.com/pytorch/serve.git'
+                    developerConnection = 'scm:git:ssh://github.com:pytorch/serve.git'
+                    url = 'https://github.com/pytorch/serve'
+                }
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            name = "OSSRH"
+            url = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+            credentials {
+                username = project.properties["mavenCentralRepositoryUsername"]
+                password = project.properties["mavenCentralRepositoryPassword"]
+            }
+        }
+    }
+}
+
+signing {
+    sign publishing.publications.mavenJava
 }

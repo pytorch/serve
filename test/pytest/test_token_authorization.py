@@ -25,11 +25,10 @@ def get_plugin_jar():
     subprocess.run(["./gradlew", "formatJava"])
     result = subprocess.run(["./gradlew", "build"])
     jar_path = os.path.join(plugin_folder, "endpoints/build/libs")
-    jar_file = [file for file in os.listdir(jar_path) if file.endswith(".jar")]
-    if jar_file:
+    jar_files = [file for file in os.listdir(jar_path) if file.endswith(".jar")]
+    for jar_file in jar_files:
         shutil.move(
-            os.path.join(jar_path, jar_file[0]),
-            os.path.join(new_folder_path, jar_file[0]),
+            os.path.join(jar_path, jar_file), os.path.join(new_folder_path, jar_file)
         )
     os.chdir(REPO_ROOT)
 
