@@ -44,9 +44,15 @@ jobs:
         if: matrix.os == 'macOS-latest'
         run: |
             brew install libtorch
+      - name: Free disk space
+        run: |
+          df -h
       - name: Install dependencies
         run: |
-          sudo apt update && python ts_scripts/install_dependencies.py --environment=dev --cpp
+          sudo apt update && PIP_NO_CACHE_DIR=on python ts_scripts/install_dependencies.py --environment=dev --cpp && sudo apt clean
+      - name: Free disk space
+        run: |
+          df -h
       - name: Install TorchServe
         run: |
           python ts_scripts/install_from_src.py
