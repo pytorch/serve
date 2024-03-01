@@ -4,4 +4,4 @@
 torch==1.10.0+cu102; sys_platform == 'win32'
 torchvision==0.11.1+cu102; sys_platform == 'win32'
 torchtext==0.11.0; sys_platform == 'win32'
-torchaudio==0.10.0+cu102; sys_platform == 'win32'
+torchaudio==2.2.1+cu121; sys_platform == 'win32'

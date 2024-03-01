@@ -3,5 +3,5 @@
 torch==1.13.1+cpu
 torchvision==0.14.1+cpu
 torchtext==0.14.1
-torchaudio==0.13.1+cpu
+torchaudio==2.2.1+cu121
 torchdata==0.5.1

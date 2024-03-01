@@ -4,4 +4,4 @@
 torch==1.13.1+cu116; sys_platform == 'linux'
 torchvision==0.14.1+cu116; sys_platform == 'linux'
 torchtext==0.14.1; sys_platform == 'linux'
-torchaudio==0.13.1+cu116; sys_platform == 'linux'
+torchaudio==2.2.1+cu121; sys_platform == 'linux'
