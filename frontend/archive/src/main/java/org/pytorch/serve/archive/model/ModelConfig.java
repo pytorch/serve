@@ -54,9 +54,25 @@ public class ModelConfig {
      * available workers.
      */
     private boolean useJobTicket;
-
+    /**
+     * the max idle in milliseconds of a sequence inference request of this stateful model. The
+     * default value is 0 (ie. this is not a stateful model.)
+     */
+    private long sequenceMaxIdleMSec;
+    /**
+     * the job queue size of an inference sequence of this stateful model. The default value is 1.
+     */
+    private int maxSequenceJobQueueSize = 1;
+    /** the max number of sequences can be accepted. The default value is 1. */
+    private int maxNumSequence = 1;
     /** continuousBatching is a flag to enable continuous batching. */
     private boolean continuousBatching;
+    /**
+     * Create python virtual environment when using python backend to install model dependencies (if
+     * enabled globally using configuration install_py_dep_per_model=true) and run workers for model
+     * loading and inference.
+     */
+    private boolean useVenv;
 
     public static ModelConfig build(Map<String, Object> yamlMap) {
         ModelConfig modelConfig = new ModelConfig();
@@ -161,6 +177,32 @@ public class ModelConfig {
                                 logger.warn("Invalid useJobTicket: {}, should be true or false", v);
                             }
                             break;
+                        case "sequenceMaxIdleMSec":
+                            if (v instanceof Integer) {
+                                modelConfig.setSequenceMaxIdleMSec(((Integer) v).longValue());
+                            } else {
+                                logger.warn(
+                                        "Invalid sequenceMaxIdleMSec: {}, should be positive int",
+                                        v);
+                            }
+                            break;
+                        case "maxSequenceJobQueueSize":
+                            if (v instanceof Integer) {
+                                modelConfig.setMaxSequenceJobQueueSize((int) v);
+                            } else {
+                                logger.warn(
+                                        "Invalid maxSequenceJobQueueSize: {}, should be positive int",
+                                        v);
+                            }
+                            break;
+                        case "maxNumSequence":
+                            if (v instanceof Integer) {
+                                modelConfig.setMaxNumSequence((int) v);
+                            } else {
+                                logger.warn(
+                                        "Invalid maxNumSequence: {}, should be positive int", v);
+                            }
+                            break;
                         case "continuousBatching":
                             if (v instanceof Boolean) {
                                 modelConfig.setContinuousBatching((boolean) v);
@@ -168,6 +210,13 @@ public class ModelConfig {
                                 logger.warn(
                                         "Invalid continuousBatching: {}, should be true or false",
                                         v);
+                            }
+                            break;
+                        case "useVenv":
+                            if (v instanceof Boolean) {
+                                modelConfig.setUseVenv((boolean) v);
+                            } else {
+                                logger.warn("Invalid useVenv: {}, should be true or false", v);
                             }
                             break;
                         default:
@@ -182,11 +231,7 @@ public class ModelConfig {
     }
 
     public void setMinWorkers(int minWorkers) {
-        if (minWorkers < 0) {
-            logger.warn("Invalid minWorkers:{}", minWorkers);
-            return;
-        }
-        this.minWorkers = minWorkers;
+        this.minWorkers = Math.max(1, minWorkers);
     }
 
     public int getMaxWorkers() {
@@ -206,11 +251,7 @@ public class ModelConfig {
     }
 
     public void setBatchSize(int batchSize) {
-        if (batchSize <= 0) {
-            logger.warn("Invalid batchSize:{}", batchSize);
-            return;
-        }
-        this.batchSize = batchSize;
+        this.batchSize = Math.max(1, batchSize);
     }
 
     public int getMaxBatchDelay() {
@@ -291,9 +332,7 @@ public class ModelConfig {
     }
 
     public void setMaxRetryTimeoutInSec(int maxRetryTimeoutInSec) {
-        if (maxRetryTimeoutInSec > 0) {
-            this.maxRetryTimeoutInSec = maxRetryTimeoutInSec;
-        }
+        this.maxRetryTimeoutInSec = Math.max(0, maxRetryTimeoutInSec);
     }
 
     public long getClientTimeoutInMills() {
@@ -301,9 +340,7 @@ public class ModelConfig {
     }
 
     public void setClientTimeoutInMills(long clientTimeoutInMills) {
-        if (clientTimeoutInMills > 0) {
-            this.clientTimeoutInMills = clientTimeoutInMills;
-        }
+        this.clientTimeoutInMills = Math.max(0, clientTimeoutInMills);
     }
 
     public int getJobQueueSize() {
@@ -311,9 +348,7 @@ public class ModelConfig {
     }
 
     public void setJobQueueSize(int jobQueueSize) {
-        if (jobQueueSize > 0) {
-            this.jobQueueSize = jobQueueSize;
-        }
+        this.jobQueueSize = Math.max(0, jobQueueSize);
     }
 
     public boolean isUseJobTicket() {
@@ -324,12 +359,44 @@ public class ModelConfig {
         this.useJobTicket = useJobTicket;
     }
 
+    public long getSequenceMaxIdleMSec() {
+        return sequenceMaxIdleMSec;
+    }
+
+    public void setSequenceMaxIdleMSec(long sequenceMaxIdleMSec) {
+        this.sequenceMaxIdleMSec = Math.max(0, sequenceMaxIdleMSec);
+    }
+
+    public int getMaxSequenceJobQueueSize() {
+        return maxSequenceJobQueueSize;
+    }
+
+    public void setMaxSequenceJobQueueSize(int maxsequenceJobQueueSize) {
+        this.maxSequenceJobQueueSize = Math.max(1, maxsequenceJobQueueSize);
+    }
+
     public boolean isContinuousBatching() {
         return continuousBatching;
     }
 
     public void setContinuousBatching(boolean continuousBatching) {
         this.continuousBatching = continuousBatching;
+    }
+
+    public int getMaxNumSequence() {
+        return maxNumSequence;
+    }
+
+    public void setMaxNumSequence(int maxNumSequence) {
+        this.maxNumSequence = Math.max(1, maxNumSequence);
+    }
+
+    public boolean getUseVenv() {
+        return useVenv;
+    }
+
+    public void setUseVenv(boolean useVenv) {
+        this.useVenv = useVenv;
     }
 
     public enum ParallelType {

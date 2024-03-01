@@ -43,6 +43,8 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.io.IOUtils;
+import org.pytorch.serve.archive.model.Manifest;
+import org.pytorch.serve.metrics.MetricBuilder;
 import org.pytorch.serve.servingsdk.snapshot.SnapshotSerializer;
 import org.pytorch.serve.snapshot.SnapshotSerializerFactory;
 import org.slf4j.Logger;
@@ -68,6 +70,7 @@ public final class ConfigManager {
     private static final String TS_NUMBER_OF_GPU = "number_of_gpu";
     private static final String TS_METRICS_CONFIG = "metrics_config";
     private static final String TS_METRICS_MODE = "metrics_mode";
+    private static final String TS_MODEL_METRICS_AUTO_DETECT = "model_metrics_auto_detect";
     private static final String TS_DISABLE_SYSTEM_METRICS = "disable_system_metrics";
 
     // IPEX config option that can be set at config.properties
@@ -102,6 +105,9 @@ public final class ConfigManager {
     private static final String TS_INITIAL_WORKER_PORT = "initial_worker_port";
     private static final String TS_INITIAL_DISTRIBUTION_PORT = "initial_distribution_port";
     private static final String TS_WORKFLOW_STORE = "workflow_store";
+    private static final String TS_CPP_LOG_CONFIG = "cpp_log_config";
+    private static final String TS_OPEN_INFERENCE_PROTOCOL = "ts_open_inference_protocol";
+    private static final String TS_TOKEN_EXPIRATION_TIME_MIN = "token_expiration_min";
 
     // Configuration which are not documented or enabled through environment variables
     private static final String USE_NATIVE_IO = "use_native_io";
@@ -141,6 +147,7 @@ public final class ConfigManager {
     private String hostName;
     private Map<String, Map<String, JsonObject>> modelConfig = new HashMap<>();
     private String torchrunLogDir;
+    private boolean telemetryEnabled;
     private Logger logger = LoggerFactory.getLogger(ConfigManager.class);
 
     private ConfigManager(Arguments args) throws IOException {
@@ -194,6 +201,11 @@ public final class ConfigManager {
             }
         }
 
+        if (System.getenv("SM_TELEMETRY_LOG") != null) {
+            telemetryEnabled = true;
+        } else {
+            telemetryEnabled = false;
+        }
         resolveEnvVarVals(prop);
 
         String modelStore = args.getModelStore();
@@ -204,6 +216,13 @@ public final class ConfigManager {
         String workflowStore = args.getWorkflowStore();
         if (workflowStore != null) {
             prop.setProperty(TS_WORKFLOW_STORE, workflowStore);
+        } else if (prop.getProperty(TS_WORKFLOW_STORE) == null) {
+            prop.setProperty(TS_WORKFLOW_STORE, prop.getProperty(TS_MODEL_STORE));
+        }
+
+        String cppLogConfigFile = args.getCppLogConfigFile();
+        if (cppLogConfigFile != null) {
+            prop.setProperty(TS_CPP_LOG_CONFIG, cppLogConfigFile);
         }
 
         String[] models = args.getModels();
@@ -345,6 +364,14 @@ public final class ConfigManager {
         return Integer.parseInt(port);
     }
 
+    public boolean isOpenInferenceProtocol() {
+        String inferenceProtocol = System.getenv("TS_OPEN_INFERENCE_PROTOCOL");
+        if (inferenceProtocol != null && inferenceProtocol != "") {
+            return "oip".equals(inferenceProtocol);
+        }
+        return Boolean.parseBoolean(prop.getProperty(TS_OPEN_INFERENCE_PROTOCOL, "false"));
+    }
+
     public boolean isGRPCSSLEnabled() {
         return Boolean.parseBoolean(getProperty(TS_ENABLE_GRPC_SSL, "false"));
     }
@@ -404,8 +431,23 @@ public final class ConfigManager {
         return torchrunLogDir;
     }
 
-    public String getMetricsMode() {
-        return getProperty(TS_METRICS_MODE, "log");
+    public MetricBuilder.MetricMode getMetricsMode() {
+        String metricsMode = getProperty(TS_METRICS_MODE, "log");
+        try {
+            return MetricBuilder.MetricMode.valueOf(
+                    metricsMode.replaceAll("\\s", "").toUpperCase());
+        } catch (IllegalArgumentException | NullPointerException e) {
+            logger.error(
+                    "Configured metrics mode \"{}\" not supported. Defaulting to \"{}\" mode: {}",
+                    metricsMode,
+                    MetricBuilder.MetricMode.LOG,
+                    e);
+            return MetricBuilder.MetricMode.LOG;
+        }
+    }
+
+    public boolean isModelMetricsAutoDetectEnabled() {
+        return Boolean.parseBoolean(getProperty(TS_MODEL_METRICS_AUTO_DETECT, "false"));
     }
 
     public boolean isSystemMetricsDisabled() {
@@ -479,6 +521,10 @@ public final class ConfigManager {
 
     public String getWorkflowStore() {
         return getCanonicalPath(prop.getProperty(TS_WORKFLOW_STORE));
+    }
+
+    public String getTsCppLogConfig() {
+        return prop.getProperty(TS_CPP_LOG_CONFIG, null);
     }
 
     public String getModelSnapshot() {
@@ -685,6 +731,8 @@ public final class ConfigManager {
                 + isSystemMetricsDisabled()
                 + "\nWorkflow Store: "
                 + (getWorkflowStore() == null ? "N/A" : getWorkflowStore())
+                + "\nCPP log config: "
+                + (getTsCppLogConfig() == null ? "N/A" : getTsCppLogConfig())
                 + "\nModel config: "
                 + prop.getProperty(MODEL_CONFIG, "N/A");
     }
@@ -812,6 +860,17 @@ public final class ConfigManager {
         return snapshotDisabled;
     }
 
+    public Double getTimeToExpiration() {
+        if (prop.getProperty(TS_TOKEN_EXPIRATION_TIME_MIN) != null) {
+            try {
+                return Double.valueOf(prop.getProperty(TS_TOKEN_EXPIRATION_TIME_MIN));
+            } catch (NumberFormatException e) {
+                logger.error("Token expiration not a valid integer");
+            }
+        }
+        return 0.0;
+    }
+
     public boolean isSSLEnabled(ConnectorType connectorType) {
         String address = prop.getProperty(TS_INFERENCE_ADDRESS, "http://127.0.0.1:8080");
         switch (connectorType) {
@@ -887,8 +946,36 @@ public final class ConfigManager {
         return value;
     }
 
+    public Manifest.RuntimeType getJsonRuntimeTypeValue(
+            String modelName, String version, String element, Manifest.RuntimeType defaultVal) {
+        Manifest.RuntimeType value = defaultVal;
+        if (this.modelConfig.containsKey(modelName)) {
+            Map<String, JsonObject> versionModel = this.modelConfig.get(modelName);
+            JsonObject jsonObject = versionModel.getOrDefault(version, null);
+
+            if (jsonObject != null && jsonObject.get(element) != null) {
+                try {
+                    value = Manifest.RuntimeType.fromValue(jsonObject.get(element).getAsString());
+                } catch (ClassCastException | IllegalStateException | IllegalArgumentException e) {
+                    LoggerFactory.getLogger(ConfigManager.class)
+                            .error(
+                                    "Invalid value for model: {}:{}, parameter: {}",
+                                    modelName,
+                                    version,
+                                    element);
+                    return defaultVal;
+                }
+            }
+        }
+        return value;
+    }
+
     public String getVersion() {
         return prop.getProperty(VERSION);
+    }
+
+    public boolean isTelemetryEnabled() {
+        return telemetryEnabled;
     }
 
     public static final class Arguments {
@@ -899,6 +986,7 @@ public final class ConfigManager {
         private String[] models;
         private boolean snapshotDisabled;
         private String workflowStore;
+        private String cppLogConfigFile;
 
         public Arguments() {}
 
@@ -909,6 +997,7 @@ public final class ConfigManager {
             models = cmd.getOptionValues("models");
             snapshotDisabled = cmd.hasOption("no-config-snapshot");
             workflowStore = cmd.getOptionValue("workflow-store");
+            cppLogConfigFile = cmd.getOptionValue("cpp-log-config");
         }
 
         public static Options getOptions() {
@@ -954,6 +1043,13 @@ public final class ConfigManager {
                             .argName("WORKFLOW-STORE")
                             .desc("Workflow store location where workflow can be loaded.")
                             .build());
+            options.addOption(
+                    Option.builder("clog")
+                            .longOpt("cpp-log-config")
+                            .hasArg()
+                            .argName("CPP-LOG-CONFIG")
+                            .desc("log configuration file for cpp backend.")
+                            .build());
             return options;
         }
 
@@ -995,6 +1091,14 @@ public final class ConfigManager {
 
         public void setSnapshotDisabled(boolean snapshotDisabled) {
             this.snapshotDisabled = snapshotDisabled;
+        }
+
+        public String getCppLogConfigFile() {
+            return cppLogConfigFile;
+        }
+
+        public void setCppLogConfigFile(String cppLogConfigFile) {
+            this.cppLogConfigFile = cppLogConfigFile;
         }
     }
 }

@@ -77,7 +77,7 @@ def generate_model(model, model_store_dir):
     cmd = model_archiver_command_builder(
         model["model_name"],
         model["version"],
-        model["model_file"],
+        model.get("model_file", None),
         serialized_file_path,
         handler,
         extra_files,

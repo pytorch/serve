@@ -1,0 +1,45 @@
+name: KServe CPU Nightly Tests
+
+on:
+  workflow_dispatch:
+  # runs everyday  at 5:15am
+  schedule:
+    - cron:  '15 5 * * *'
+
+jobs:
+  kserve-cpu-tests:
+    runs-on: [self-hosted, regression-test-gpu]
+    steps:
+      - name: Clean up previous run
+        run: |
+          echo "Cleaning up previous run"
+          ls -la ./
+          sudo rm -rf ./* || true
+          sudo rm -rf ./.??* || true
+          ls -la ./
+      - name: Install minikube and kubectl
+        run: |
+          curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+          sudo install minikube-linux-amd64 /usr/local/bin/minikube
+          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+          sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+          echo "/usr/local/bin" >> $GITHUB_PATH
+      - name: Setup Python 3.9
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.9
+          architecture: x64
+      - name: Install grpcurl
+        run: |
+          sudo curl -sSL https://github.com/fullstorydev/grpcurl/releases/download/v1.8.0/grpcurl_1.8.0_linux_x86_64.tar.gz | sudo tar -xz -C /usr/local/bin grpcurl
+          sudo chmod +x /usr/local/bin/grpcurl
+      - name: Checkout TorchServe
+        uses: actions/checkout@v3
+      - name: Checkout kserve repo
+        uses: actions/checkout@v4
+        with:
+          repository: kserve/kserve
+          ref: v0.11.1
+          path: kserve
+      - name: Validate torchserve-kfs and Open Inference Protocol
+        run: ./kubernetes/kserve/tests/scripts/test_mnist.sh

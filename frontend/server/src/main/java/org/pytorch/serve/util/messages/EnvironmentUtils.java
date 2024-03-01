@@ -3,6 +3,8 @@ package org.pytorch.serve.util.messages;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -74,12 +76,63 @@ public final class EnvironmentUtils {
 
     public static String getPythonRunTime(Model model) {
         String pythonRuntime;
-        Manifest.RuntimeType runtime = model.getModelArchive().getManifest().getRuntime();
+        Manifest.RuntimeType runtime = model.getRuntimeType();
         if (runtime == Manifest.RuntimeType.PYTHON) {
             pythonRuntime = configManager.getPythonExecutable();
+            Path pythonVenvRuntime =
+                    Paths.get(getPythonVenvPath(model).toString(), "bin", "python");
+            if (model.isUseVenv() && Files.exists(pythonVenvRuntime)) {
+                pythonRuntime = pythonVenvRuntime.toString();
+            }
         } else {
             pythonRuntime = runtime.getValue();
         }
         return pythonRuntime;
+    }
+
+    public static File getPythonVenvPath(Model model) {
+        File modelDir = model.getModelDir();
+        if (Files.isSymbolicLink(modelDir.toPath())) {
+            modelDir = modelDir.getParentFile();
+        }
+        Path venvPath = Paths.get(modelDir.getAbsolutePath(), "venv").toAbsolutePath();
+        return venvPath.toFile();
+    }
+
+    public static String[] getCppEnvString(String libPath) {
+        ArrayList<String> envList = new ArrayList<>();
+        StringBuilder cppPath = new StringBuilder();
+        Pattern blackList = configManager.getBlacklistPattern();
+
+        HashMap<String, String> environment = new HashMap<>(System.getenv());
+        environment.putAll(configManager.getBackendConfiguration());
+
+        cppPath.append(libPath);
+
+        String os = System.getProperty("os.name").toLowerCase();
+        if (os.indexOf("win") >= 0) {
+            if (System.getenv("PATH") != null) {
+                cppPath.append(File.pathSeparatorChar).append(System.getenv("PATH"));
+            }
+            environment.put("PATH", cppPath.toString());
+        } else if (os.indexOf("mac") >= 0) {
+            if (System.getenv("DYLD_LIBRARY_PATH") != null) {
+                cppPath.append(File.pathSeparatorChar).append(System.getenv("DYLD_LIBRARY_PATH"));
+            }
+            environment.put("DYLD_LIBRARY_PATH", cppPath.toString());
+        } else {
+            if (System.getenv("LD_LIBRARY_PATH") != null) {
+                cppPath.append(File.pathSeparatorChar).append(System.getenv("LD_LIBRARY_PATH"));
+            }
+            environment.put("LD_LIBRARY_PATH", cppPath.toString());
+        }
+
+        for (Map.Entry<String, String> entry : environment.entrySet()) {
+            if (!blackList.matcher(entry.getKey()).matches()) {
+                envList.add(entry.getKey() + '=' + entry.getValue());
+            }
+        }
+
+        return envList.toArray(new String[0]); // NOPMD
     }
 }

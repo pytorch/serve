@@ -19,8 +19,13 @@ jobs:
         os: [ubuntu-20.04, macOS-latest]
         python-version: ["3.8", "3.9", "3.10"]
         binaries: ["pypi", "conda"]
+        exclude:
+        - os: macos-latest
+          python-version: 3.8
     steps:
       - uses: actions/checkout@v3
+        with:
+          submodules: recursive
       - name: Setup conda with Python ${{ matrix.python-version }}
         uses: s-weigand/setup-conda@v1
         with:
@@ -39,6 +44,6 @@ jobs:
       - name: Install dependencies
         run: |
           python ts_scripts/install_dependencies.py --environment=dev
-      - name: Torchserve Regression Tests
+      - name: Validate Torchserve CPU Regression
         run: |
           python test/regression_tests.py --binaries --${{ matrix.binaries }} --nightly

@@ -7,14 +7,16 @@ import logging
 import os
 import re
 import shutil
+import sys
 import tarfile
 import tempfile
 import zipfile
 from io import BytesIO
 from pathlib import Path
 
-from .manifest_components.manifest import Manifest
+from .manifest_components.manifest import Manifest, RuntimeType
 from .manifest_components.model import Model
+from .model_archiver_config import ModelArchiverConfig
 from .model_archiver_error import ModelArchiverError
 
 archiving_options = {
@@ -107,29 +109,29 @@ class ModelExportUtils(object):
             )
 
     @staticmethod
-    def generate_model(modelargs):
+    def generate_model(modelcfg: ModelArchiverConfig):
         model = Model(
-            model_name=modelargs.model_name,
-            serialized_file=modelargs.serialized_file,
-            model_file=modelargs.model_file,
-            handler=modelargs.handler,
-            model_version=modelargs.version,
-            requirements_file=modelargs.requirements_file,
-            config_file=modelargs.config_file,
+            model_name=modelcfg.model_name,
+            serialized_file=modelcfg.serialized_file,
+            model_file=modelcfg.model_file,
+            handler=modelcfg.handler,
+            model_version=modelcfg.version,
+            requirements_file=modelcfg.requirements_file,
+            config_file=modelcfg.config_file,
         )
         return model
 
     @staticmethod
-    def generate_manifest_json(args):
+    def generate_manifest_json(config: ModelArchiverConfig) -> str:
         """
         Function to generate manifest as a json string from the inputs provided by the user in the command line
         :param args:
         :return:
         """
 
-        model = ModelExportUtils.generate_model(args)
+        model = ModelExportUtils.generate_model(config)
 
-        manifest = Manifest(runtime=args.runtime, model=model)
+        manifest = Manifest(runtime=config.runtime, model=model)
 
         return str(manifest)
 
@@ -144,7 +146,7 @@ class ModelExportUtils(object):
             os.makedirs(d)
 
     @staticmethod
-    def copy_artifacts(model_name, **kwargs):
+    def copy_artifacts(model_name, runtime, **kwargs):
         """
         copy model artifacts in a common model directory for archiving
         :param model_name: name of model being archived
@@ -158,11 +160,25 @@ class ModelExportUtils(object):
         for file_type, path in kwargs.items():
             if path:
                 if file_type == "handler":
-                    if path in model_handlers.keys():
-                        continue
+                    if (
+                        runtime == RuntimeType.PYTHON.value
+                        or runtime == RuntimeType.PYTHON3.value
+                    ):
+                        if path in model_handlers.keys():
+                            continue
 
-                    if ".py" not in path:
-                        path = (path.split(":")[0] if ":" in path else path) + ".py"
+                        if ".py" not in path:
+                            path = (path.split(":")[0] if ":" in path else path) + ".py"
+                    elif runtime == RuntimeType.LSP.value:
+                        if path == "BaseHandler":
+                            continue
+
+                        if sys.platform.startswith("linux"):
+                            path = (path.split(":")[0] if ":" in path else path) + ".so"
+                        elif sys.platform.startswith("darwin"):
+                            path = (
+                                path.split(":")[0] if ":" in path else path
+                            ) + ".dylib"
 
                 if file_type == "extra_files":
                     for path_or_wildcard in path.split(","):

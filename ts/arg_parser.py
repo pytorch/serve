@@ -59,9 +59,14 @@ class ArgParser(object):
             help="Log4j configuration file for model server",
         )
         parser.add_argument(
+            "--cpp-log-config",
+            dest="cpp_log_config",
+            help="log configuration file for cpp backend",
+        )
+        parser.add_argument(
             "--foreground",
             help="Run the model server in foreground. If this option is disabled, the model server"
-            " will run in the background. In combination with --stop the program wait for the model server to terminate.",
+            " will run in the background.",
             action="store_true",
         )
         parser.add_argument(

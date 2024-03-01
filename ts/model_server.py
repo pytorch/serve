@@ -3,6 +3,7 @@ File to define the entry point to Model Server
 """
 
 import os
+import pathlib
 import platform
 import re
 import subprocess
@@ -10,6 +11,7 @@ import sys
 import tempfile
 from builtins import str
 from typing import Dict
+
 import psutil
 
 from ts.arg_parser import ArgParser
@@ -47,6 +49,7 @@ def start() -> None:
             try:
                 parent = psutil.Process(pid)
                 parent.terminate()
+                pathlib.Path("key_file.json").unlink(missing_ok=True)
                 if args.foreground:
                     try:
                         parent.wait(timeout=60)
@@ -104,8 +107,7 @@ def start() -> None:
                 sys.exit(1)
             ts_conf_file = ts_config
 
-        platform_path_separator = {
-            "Windows": "", "Darwin": ".:", "Linux": ".:"}
+        platform_path_separator = {"Windows": "", "Darwin": ".:", "Linux": ".:"}
         class_path = "{}{}".format(
             platform_path_separator[platform.system()],
             os.path.join(ts_home, "ts", "frontend", "*"),
@@ -177,9 +179,6 @@ def start() -> None:
 
             cmd.append("-w")
             cmd.append(args.workflow_store)
-        else:
-            cmd.append("-w")
-            cmd.append(args.model_store)
 
         if args.no_config_snapshots:
             cmd.append("-ncs")
@@ -193,6 +192,15 @@ def start() -> None:
                     if not pattern.match(model_url) and model_url != "ALL":
                         print("--model-store is required to load model locally.")
                         sys.exit(1)
+
+        if args.cpp_log_config:
+            cpp_log_config = os.path.realpath(args.cpp_log_config)
+            if not os.path.isfile(cpp_log_config):
+                print("--cpp-log-config file not found: {}".format(cpp_log_config))
+                sys.exit(1)
+
+            cmd.append("-clog")
+            cmd.append(cpp_log_config)
 
         try:
             process = subprocess.Popen(cmd)

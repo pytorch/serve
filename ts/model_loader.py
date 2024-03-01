@@ -5,6 +5,7 @@ import importlib
 import json
 import logging
 import os
+import uuid
 from abc import ABCMeta, abstractmethod
 from builtins import str
 from typing import Optional
@@ -89,6 +90,13 @@ class TsModelLoader(ModelLoader):
         :return:
         """
         logging.debug("Loading model - working dir: %s", os.getcwd())
+
+        # Backwards Compatibility with releases <=0.6.0
+        # Request ID is not set for model load requests
+        # TODO: UUID serves as a temporary request ID for model load requests
+        if metrics_cache is not None:
+            metrics_cache.set_request_ids(str(uuid.uuid4()))
+
         manifest_file = os.path.join(model_dir, "MAR-INF", "MANIFEST.json")
         manifest = None
         if os.path.exists(manifest_file):

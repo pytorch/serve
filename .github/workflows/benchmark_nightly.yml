@@ -10,7 +10,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        hardware: [cpu, gpu, inf1, inf2]
+        hardware: [cpu, gpu, inf2]
     runs-on:
       - self-hosted
       - ${{ matrix.hardware }}
@@ -24,10 +24,10 @@ jobs:
           cd ..
           pwd
           rm -rf _tool
-      - name: Setup Python 3.8
-        uses: actions/setup-python@v4
+      - name: Setup Python 3.9
+        uses: actions/setup-python@v5
         with:
-          python-version: 3.8
+          python-version: 3.9
           architecture: x64
       - name: Setup Java 17
         uses: actions/setup-java@v3
@@ -36,6 +36,8 @@ jobs:
           java-version: '17'
       - name: Checkout TorchServe
         uses: actions/checkout@v3
+        with:
+          submodules: recursive
       - name: Install dependencies
         run: |
           sudo apt-get update -y
@@ -47,11 +49,6 @@ jobs:
       - name: Benchmark gpu nightly
         if: ${{ matrix.hardware == 'gpu' }}
         run: python benchmarks/auto_benchmark.py --input benchmarks/benchmark_config_gpu.yaml --skip false
-      - name: Benchmark inf1 nightly
-        if: ${{ matrix.hardware == 'inf1' }}
-        env:
-          NEURON_RT_NUM_CORES: 4
-        run: python benchmarks/auto_benchmark.py --input benchmarks/benchmark_config_neuron.yaml --skip false
       - name: Benchmark inf2 nightly
         if: ${{ matrix.hardware == 'inf2' }}
         env:

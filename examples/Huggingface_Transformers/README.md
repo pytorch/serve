@@ -106,6 +106,9 @@ torchserve --start --model-store model_store --models my_tc=BERTSeqClassificatio
 ### Run an inference
 
 To run an inference: `curl -X POST http://127.0.0.1:8080/predictions/my_tc -T Seq_classification_artifacts/sample_text_captum_input.txt`
+
+The response should be a "Not Accepted" classification.
+
 To get an explanation: `curl -X POST http://127.0.0.1:8080/explanations/my_tc -T Seq_classification_artifacts/sample_text_captum_input.txt`
 
 ## Token Classification
@@ -320,7 +323,7 @@ In the setup_config.json, specify `"BetterTransformer":true,`.
 
 Main speed ups in the Better Transformer comes from kernel fusion in the [TransformerEncoder] (https://pytorch.org/docs/stable/generated/torch.nn.TransformerEncoder.html) and making use of sparsity with [nested tensors](https://pytorch.org/tutorials/prototype/nestedtensor.html) when input sequences are padded to avoid unnecessary computation on padded tensors. We have seen up to 4.5x speed up with distill_bert when used higher batch sizes with padding. Please read more about it in this [blog post](https://medium.com/pytorch/bettertransformer-out-of-the-box-performance-for-huggingface-transformers-3fbe27d50ab2). You get some speedups even with Batch size = 1 and no padding however, major speed ups will show up when running inference with higher batch sizes (8.16,32) with padding.
 
-The Accelerated Transformer integration with HuggingFace also added the support for decoder models, please read more about it [here](https://pytorch.org/blog/out-of-the-box-acceleration/). This adds the native support for Flash Attentions and Xformer Memory Efficient kernels in PyTorch and make it availble on HuggingFace deocder models. This will brings significant speed up and memory savings with just one line of the code as before.
+The Accelerated Transformer integration with HuggingFace also added the support for decoder models, please read more about it [here](https://pytorch.org/blog/out-of-the-box-acceleration/). This adds the native support for Flash Attentions and Xformer Memory Efficient kernels in PyTorch and make it available on HuggingFace deocder models. This will brings significant speed up and memory savings with just one line of the code as before.
 
 
 ## Model Parallelism

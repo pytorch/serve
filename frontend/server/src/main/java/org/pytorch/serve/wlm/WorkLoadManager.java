@@ -207,6 +207,7 @@ public class WorkLoadManager {
             List<WorkerThread> threads, Model model, int count, CompletableFuture<Integer> future) {
         WorkerStateListener listener = new WorkerStateListener(future, count);
         int maxGpu = model.getNumCores();
+        int stride = model.getParallelLevel() > 0 ? model.getParallelLevel() : 1;
         for (int i = 0; i < count; ++i) {
             int gpuId = -1;
 
@@ -215,12 +216,7 @@ public class WorkLoadManager {
                     gpuId =
                             model.getGpuCounter()
                                     .getAndAccumulate(
-                                            maxGpu,
-                                            (prev, maxGpuId) ->
-                                                    (prev + model.getParallelLevel() > 0
-                                                                    ? model.getParallelLevel()
-                                                                    : 1)
-                                                            % maxGpuId);
+                                            stride, (prev, myStride) -> (prev + myStride) % maxGpu);
                     if (model.getParallelLevel() == 0) {
                         gpuId = model.getDeviceIds().get(gpuId);
                     }
@@ -232,11 +228,15 @@ public class WorkLoadManager {
             }
 
             BatchAggregator aggregator;
-            if (model.isContinuousBatching()) {
+
+            if (model.isStateful()) {
+                aggregator = new SequenceBatchAggregator(model);
+            } else if (model.isContinuousBatching()) {
                 aggregator = new ContinuousBatching(model);
             } else {
                 aggregator = new BatchAggregator(model);
             }
+
             int currentPort =
                     model.getParallelLevel() > 0
                             ? configManager.isDebug()

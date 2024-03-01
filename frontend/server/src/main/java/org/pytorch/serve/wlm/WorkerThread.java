@@ -21,12 +21,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
-import org.pytorch.serve.archive.model.ModelConfig;
 import org.pytorch.serve.job.Job;
 import org.pytorch.serve.job.RestJob;
 import org.pytorch.serve.metrics.IMetric;
@@ -80,6 +80,7 @@ public class WorkerThread implements Runnable {
     private WorkerLifeCycle lifeCycle;
     private int responseTimeout;
     private long recoveryStartTS; // 0: default value. no recovery needed, in healthy mode
+    private BaseModelRequest req = null;
 
     public WorkerThread(
             ConfigManager configManager,
@@ -182,48 +183,59 @@ public class WorkerThread implements Runnable {
         Thread thread = Thread.currentThread();
         thread.setName(getWorkerName());
         currentThread.set(thread);
-        BaseModelRequest req = null;
+        req = null;
         int status = HttpURLConnection.HTTP_INTERNAL_ERROR;
-        // in case of retry
-        aggregator.cleanJobs();
 
         try {
             connect();
 
             while (isRunning()) {
                 req = aggregator.getRequest(workerId, state);
+                WorkerCommands workerCmd = req.getCommand();
 
                 long wtStartTime = System.currentTimeMillis();
-                logger.info("Flushing req.cmd {} to backend at: {}", req.getCommand(), wtStartTime);
-                int repeats =
-                        (req.getCommand() == WorkerCommands.LOAD)
-                                        || ((req.getCommand() == WorkerCommands.PREDICT
-                                                        || req.getCommand()
-                                                                == WorkerCommands.STREAMPREDICT)
-                                                && model.getParallelLevel() > 0
-                                                && model.getParallelType()
-                                                        != ModelConfig.ParallelType.PP)
-                                ? model.getParallelLevel() > 0 ? model.getParallelLevel() : 1
-                                : 1;
+                int repeats = getRepeats(workerCmd);
+                logger.debug(
+                        "Flushing req.cmd {} repeats {} to backend at: {}",
+                        workerCmd,
+                        repeats,
+                        wtStartTime);
+                List<CompletableFuture<Void>> futureRequests = new ArrayList<>(repeats);
                 for (int i = 0; backendChannel.size() > 0 && i < repeats; i++) {
-                    backendChannel.get(i).writeAndFlush(req).sync();
+                    int idx = i;
+                    futureRequests.add(
+                            CompletableFuture.runAsync(
+                                    () -> {
+                                        try {
+                                            backendChannel.get(idx).writeAndFlush(req).sync();
+                                        } catch (InterruptedException e) {
+                                            logger.error("Failed to send request to backend", e);
+                                        }
+                                    }));
                 }
+
+                futureRequests.stream().map(CompletableFuture::join);
 
                 ModelWorkerResponse reply = null;
 
                 boolean jobDone = false;
                 long totalDuration = 0;
+
+                logger.info("Looping backend response at: {}", System.currentTimeMillis());
+
                 do {
                     long begin = System.currentTimeMillis();
                     for (int i = 0; i < repeats; i++) {
                         reply = replies.poll(responseTimeout, TimeUnit.SECONDS);
+                        if (req.getCommand() != WorkerCommands.LOAD) {
+                            break;
+                        }
                     }
 
                     long duration = System.currentTimeMillis() - begin;
 
                     if (reply != null) {
                         jobDone = aggregator.sendResponse(reply);
-                        logger.debug("sent a reply, jobdone: {}", jobDone);
                     } else if (req.getCommand() != WorkerCommands.DESCRIBE) {
                         int val = model.incrFailedInfReqs();
                         logger.error("Number or consecutive unsuccessful inference {}", val);
@@ -281,7 +293,9 @@ public class WorkerThread implements Runnable {
                 logger.debug("Shutting down the thread .. Scaling down.");
             } else {
                 logger.debug(
-                        "Backend worker monitoring thread interrupted or backend worker process died.",
+                        "Backend worker monitoring thread interrupted or backend worker process died., responseTimeout:"
+                                + responseTimeout
+                                + "sec",
                         e);
             }
         } catch (WorkerInitializationException e) {
@@ -289,15 +303,17 @@ public class WorkerThread implements Runnable {
         } catch (OutOfMemoryError oom) {
             logger.error("Out of memory error when creating workers", oom);
             status = HttpURLConnection.HTTP_ENTITY_TOO_LARGE;
-            if (java.lang.System.getenv("SM_TELEMETRY_LOG") != null) {
+            if (ConfigManager.getInstance().isTelemetryEnabled()) {
                 loggerTelemetryMetrics.info(
                         "ModelServerError.Count:1|#TorchServe:{},{}:-1",
                         ConfigManager.getInstance().getVersion(),
                         oom.getClass().getCanonicalName());
             }
+        } catch (IllegalStateException e) {
+            logger.error("IllegalStateException error", e);
         } catch (Throwable t) {
             logger.warn("Backend worker thread exception.", t);
-            if (java.lang.System.getenv("SM_TELEMETRY_LOG") != null) {
+            if (ConfigManager.getInstance().isTelemetryEnabled()) {
                 loggerTelemetryMetrics.info(
                         "ModelServerError.Count:1|#TorchServe:{},{}:-1",
                         ConfigManager.getInstance().getVersion(),
@@ -313,6 +329,7 @@ public class WorkerThread implements Runnable {
                     i++) {
                 backendChannel.get(i).disconnect();
             }
+            backendChannel.clear();
             currentThread.set(null);
             Integer exitValue = lifeCycle.getExitValue();
 
@@ -323,6 +340,7 @@ public class WorkerThread implements Runnable {
             if (req != null) {
                 aggregator.sendError(req, "Worker died.", status);
             }
+            aggregator.cleanJobs();
             setState(WorkerState.WORKER_STOPPED, status);
             lifeCycle.exit();
             if (isHealthy()) { // still within maxRetryTimeoutInMill window
@@ -462,6 +480,7 @@ public class WorkerThread implements Runnable {
                 backendChannel.get(i).close();
             }
         }
+        backendChannel.clear();
         lifeCycle.terminateIOStreams();
         Thread thread = currentThread.getAndSet(null);
         if (thread != null) {
@@ -470,6 +489,10 @@ public class WorkerThread implements Runnable {
                     null, "Worker scaled down.", HttpURLConnection.HTTP_INTERNAL_ERROR);
 
             model.removeJobQueue(workerId);
+        }
+        if (aggregator instanceof SequenceBatchAggregator) {
+            ((SequenceBatchAggregator) aggregator).shutdownExecutors();
+            ((SequenceBatchAggregator) aggregator).stopEventDispatcher();
         }
     }
 
@@ -523,6 +546,9 @@ public class WorkerThread implements Runnable {
         if (backoffIdx < BACK_OFF.length - 1) {
             ++backoffIdx;
         }
+        if (aggregator instanceof SequenceBatchAggregator) {
+            ((SequenceBatchAggregator) aggregator).startEventDispatcher();
+        }
         manager.getScheduler()
                 .schedule(() -> manager.submitTask(this), BACK_OFF[backoffIdx], TimeUnit.SECONDS);
         logger.info("Retry worker: {} in {} seconds.", workerId, BACK_OFF[backoffIdx]);
@@ -562,7 +588,8 @@ public class WorkerThread implements Runnable {
             try {
                 replies.offer(msg, responseTimeout, TimeUnit.SECONDS);
             } catch (InterruptedException | NullPointerException e) {
-                logger.error("Failed to offer reply", e);
+                logger.error(
+                        "Failed to offer reply, responseTimeout:" + responseTimeout + "sec", e);
                 throw new IllegalStateException("Reply queue is full.");
             }
         }
@@ -580,5 +607,32 @@ public class WorkerThread implements Runnable {
             }
             ctx.close();
         }
+    }
+
+    private boolean isTensorParallelRequest(WorkerCommands workerCmd) {
+        switch (workerCmd) {
+            case PREDICT:
+            case STREAMPREDICT:
+            case STREAMPREDICT2:
+                if (model.hasTensorParallel()) {
+                    return true;
+                }
+                return false;
+            default:
+                return false;
+        }
+    }
+
+    private boolean isLoadRequest(WorkerCommands workerCmd) {
+        return workerCmd == WorkerCommands.LOAD;
+    }
+
+    private int getRepeats(WorkerCommands workerCmd) {
+        if (isLoadRequest(workerCmd) || isTensorParallelRequest(workerCmd)) {
+            // broadcast the command to all ranks
+            return Math.max(1, model.getParallelLevel());
+        }
+
+        return 1;
     }
 }

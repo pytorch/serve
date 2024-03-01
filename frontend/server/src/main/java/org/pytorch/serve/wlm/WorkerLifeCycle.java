@@ -14,7 +14,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.pytorch.serve.archive.model.ModelConfig;
-import org.pytorch.serve.metrics.Dimension;
 import org.pytorch.serve.metrics.Metric;
 import org.pytorch.serve.metrics.MetricCache;
 import org.pytorch.serve.util.ConfigManager;
@@ -26,6 +25,8 @@ import org.slf4j.LoggerFactory;
 public class WorkerLifeCycle {
 
     private static final Logger logger = LoggerFactory.getLogger(WorkerLifeCycle.class);
+    private static final Pattern PID_LOG_PATTERN = Pattern.compile(".*\\[PID\\](\\d+)$");
+    private static final String METRIC_LOG_START_SUBSTRING = "[METRICS]";
 
     private ConfigManager configManager;
     private ModelManager modelManager = ModelManager.getInstance();
@@ -95,6 +96,19 @@ public class WorkerLifeCycle {
 
     public void startWorker(int port, String deviceIds)
             throws WorkerInitializationException, InterruptedException {
+        switch (model.getRuntimeType()) {
+            case LSP:
+                logger.info("LSP startWorker");
+                startWorkerCPP(port, "LSP", deviceIds);
+                break;
+            default:
+                startWorkerPython(port, deviceIds);
+                break;
+        }
+    }
+
+    private void startWorkerPython(int port, String deviceIds)
+            throws WorkerInitializationException, InterruptedException {
         File workingDir = new File(configManager.getModelServerHome());
         File modelPath;
         setPort(port);
@@ -161,6 +175,81 @@ public class WorkerLifeCycle {
 
             synchronized (this) {
                 process = Runtime.getRuntime().exec(args, envs, modelPath);
+
+                String threadName =
+                        "W-" + port + '-' + model.getModelVersionName().getVersionedModelName();
+                errReader = new ReaderThread(threadName, process.getErrorStream(), true, this);
+                outReader = new ReaderThread(threadName, process.getInputStream(), false, this);
+                errReader.start();
+                outReader.start();
+            }
+
+            if (latch.await(2, TimeUnit.MINUTES)) {
+                if (!success) {
+                    throw new WorkerInitializationException("Backend stream closed.");
+                }
+                return;
+            }
+            throw new WorkerInitializationException("Backend worker startup time out.");
+        } catch (IOException e) {
+            throw new WorkerInitializationException("Failed start worker process", e);
+        } finally {
+            if (!success) {
+                exit();
+            }
+        }
+    }
+
+    private void startWorkerCPP(int port, String runtimeType, String deviceIds)
+            throws WorkerInitializationException, InterruptedException {
+        File workingDir = new File(configManager.getModelServerHome());
+        File modelPath;
+        setPort(port);
+        try {
+            modelPath = model.getModelDir().getCanonicalFile();
+        } catch (IOException e) {
+            throw new WorkerInitializationException("Failed get TS home directory", e);
+        }
+
+        ArrayList<String> argl = new ArrayList<String>();
+
+        File cppBackendBin = new File(workingDir, "ts/cpp/bin/model_worker_socket");
+        File cppBackendLib = new File(workingDir, "ts/cpp/lib");
+        if (!cppBackendBin.exists()) {
+            throw new WorkerInitializationException("model_worker_socket not found");
+        }
+        if (!cppBackendLib.exists()) {
+            throw new WorkerInitializationException("model_worker cpp library not found");
+        }
+
+        argl.add(cppBackendBin.getAbsolutePath());
+        argl.add("--sock_type");
+        argl.add(connector.getSocketType());
+        argl.add(connector.isUds() ? "--sock_name" : "--port");
+        argl.add(connector.getSocketPath());
+        argl.add("--runtime_type");
+        argl.add(runtimeType);
+        argl.add("--model_dir");
+        argl.add(modelPath.getAbsolutePath());
+        argl.add("--logger_config_path");
+        if (ConfigManager.getInstance().getTsCppLogConfig() != null) {
+            argl.add(ConfigManager.getInstance().getTsCppLogConfig());
+        } else {
+            argl.add(configManager.getModelServerHome() + "/ts/cpp/resources/logging.config");
+        }
+        argl.add("--metrics_config_path");
+        argl.add(configManager.getMetricsConfigPath());
+
+        String[] envp = EnvironmentUtils.getCppEnvString(cppBackendLib.getAbsolutePath());
+
+        try {
+            latch = new CountDownLatch(1);
+
+            String[] args = argl.toArray(new String[argl.size()]);
+            logger.debug("Worker cmdline: {}", argl.toString());
+
+            synchronized (this) {
+                process = Runtime.getRuntime().exec(args, envp, modelPath);
 
                 String threadName =
                         "W-" + port + '-' + model.getModelVersionName().getVersionedModelName();
@@ -265,8 +354,9 @@ public class WorkerLifeCycle {
     private static final class ReaderThread extends Thread {
         private static final Pattern METRIC_PATTERN =
                 Pattern.compile("^(INFO > )?(\\[METRICS])(.*)");
+        // TODO: Fix logging format in cpp backend
         private static final Pattern WORKER_START_PATTERN =
-                Pattern.compile("^(INFO > )?(Torch worker started.)$");
+                Pattern.compile("(.*)(INFO > )?(Torch worker started.)$");
         private static final Pattern WORKER_PID_PATTERN =
                 Pattern.compile("^(INFO > )?(\\[PID])(\\d+)$");
         private static final Logger loggerModelOutput =
@@ -301,34 +391,42 @@ public class WorkerLifeCycle {
                     Matcher matcher = METRIC_PATTERN.matcher(result);
                     if (matcher.matches()) {
                         logger.info("result={}, pattern={}", result, matcher.group(2));
+
                         Metric parsedMetric = Metric.parse(matcher.group(3));
-                        if (parsedMetric != null) {
-                            if (this.metricCache.getMetricBackend(parsedMetric.getMetricName())
-                                    != null) {
-                                try {
-                                    List<String> dimensionValues = new ArrayList<String>();
-                                    for (Dimension dimension : parsedMetric.getDimensions()) {
-                                        dimensionValues.add(dimension.getValue());
-                                    }
-                                    // Hostname is added as a dimension by default to backend
-                                    // metrics
-                                    dimensionValues.add(parsedMetric.getHostName());
-                                    this.metricCache
-                                            .getMetricBackend(parsedMetric.getMetricName())
-                                            .addOrUpdate(
-                                                    dimensionValues,
-                                                    parsedMetric.getRequestId(),
-                                                    Double.parseDouble(parsedMetric.getValue()));
-                                } catch (Exception e) {
-                                    logger.error(
-                                            "Failed to update backend metric ",
-                                            parsedMetric.getMetricName(),
-                                            ": ",
-                                            e);
-                                }
-                            }
-                        } else {
+                        if (parsedMetric == null) {
                             logger.error("Failed to parse metrics line: \"{}\".", result);
+                            continue;
+                        }
+
+                        try {
+                            if (this.metricCache.getMetricBackend(parsedMetric.getMetricName())
+                                    == null) {
+                                if (!lifeCycle.configManager.isModelMetricsAutoDetectEnabled()) {
+                                    continue;
+                                }
+
+                                logger.info(
+                                        "Registering auto detected backend metric: {}",
+                                        parsedMetric);
+                                this.metricCache.addAutoDetectMetricBackend(parsedMetric);
+                            }
+
+                            // Hostname is added as a dimension by default to backend metrics
+                            List<String> dimensionValues = parsedMetric.getDimensionValues();
+                            dimensionValues.add(parsedMetric.getHostName());
+
+                            this.metricCache
+                                    .getMetricBackend(parsedMetric.getMetricName())
+                                    .addOrUpdate(
+                                            dimensionValues,
+                                            parsedMetric.getRequestId(),
+                                            Double.parseDouble(parsedMetric.getValue()));
+                        } catch (Exception e) {
+                            logger.error(
+                                    "Failed to update backend metric ",
+                                    parsedMetric.getMetricName(),
+                                    ": ",
+                                    e);
                         }
                         continue;
                     }

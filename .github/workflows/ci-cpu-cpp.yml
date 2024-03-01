@@ -1,0 +1,32 @@
+name: CI CPU - CPP Build
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+
+concurrency:
+  group: ci-cpu-${{ github.workflow }}-${{ github.ref == 'refs/heads/master' && github.run_number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci-cpu-cpp:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-20.04, macOS-latest]
+    steps:
+      - name: Checkout TorchServe
+        uses: actions/checkout@v2
+      - name: Install libtorch - macOS
+        if: matrix.os == 'macOS-latest'
+        run: |
+            brew install libtorch
+      - name: Install dependencies
+        run: |
+          python ts_scripts/install_dependencies.py --environment=dev --cpp
+      - name: Build
+        run: |
+          cd cpp && ./build.sh
