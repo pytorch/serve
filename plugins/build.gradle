@@ -51,6 +51,7 @@ allprojects {
     }
 
     buildSagemaker.onlyIf {project.hasProperty("sagemaker")}
+
 }
 
 def javaProjects() {
@@ -94,4 +95,3 @@ configure(javaProjects()) {
         }
     }
 }
-

@@ -2,6 +2,7 @@
 ## Requirements
 * C++17
 * GCC version: gcc-9
+* cmake version: 3.18+
 ## Installation and Running TorchServe CPP
 
 This installation instruction assumes that TorchServe is already installed through pip/conda/source. If this is not the case install it after the `Install dependencies` step through your preferred method.
@@ -19,6 +20,16 @@ cd cpp
 ./build.sh [-g cu121|cu118]
 
 ```
+### Set Environment Var
+#### On Mac
+```
+export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:$(pwd)/_build/_deps/libtorch/lib
+```
+#### On Ubuntu
+```
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(pwd)/_build/_deps/libtorch/lib
+```
+
 ### Run TorchServe
 ```
 mkdir model_store
@@ -78,7 +89,7 @@ python -c "import ts; from pathlib import Path; print((Path(ts.__file__).parent 
 3. Make sure you have the right conda/venv environment activated during building that you're also using to run TorchServe.
 
 Q: Build on Mac fails with `Library not loaded: @rpath/libomp.dylib`
-A: Install libomp with brew and link in /usr/local/lib 
+A: Install libomp with brew and link in /usr/local/lib
 ```bash
 brew install libomp
 sudo ln -s /opt/homebrew/opt/libomp/lib/libomp.dylib /usr/local/lib/libomp.dylib

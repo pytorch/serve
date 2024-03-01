@@ -63,8 +63,3 @@ jobs:
         run: |
           cd cpp && rm -rf _build && sudo mkdir /mnt/_build && sudo chmod 777 /mnt/_build && mkdir _build && sudo mount --bind /mnt/_build _build
           ./build.sh
-      - name: Setup upterm session
-        uses: lhotari/action-upterm@v1
-        with:
-          limit-access-to-actor: true
-          limit-access-to-users: mreso
