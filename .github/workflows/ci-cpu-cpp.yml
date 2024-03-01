@@ -49,7 +49,7 @@ jobs:
           df -h
       - name: Install dependencies
         run: |
-          sudo apt update && PIP_NO_CACHE_DIR=on python ts_scripts/install_dependencies.py --environment=dev --cpp && sudo apt clean
+          sudo apt update && python ts_scripts/install_dependencies.py --environment=dev --cpp
       - name: Free disk space
         run: |
           df -h
@@ -61,7 +61,7 @@ jobs:
           python ts_scripts/print_env_info.py
       - name: Build
         run: |
-          cd cpp && rm -rf _build && sudo mkdir /mnt/_build && sudo chmod 777 /mnt/_build && ln -s /mnt/_build _build
+          cd cpp && rm -rf _build && sudo mkdir /mnt/_build && sudo chmod 777 /mnt/_build && mkdir _build && sudo mount --bind /mnt/_build _build
           ./build.sh
       - name: Setup upterm session
         uses: lhotari/action-upterm@v1
