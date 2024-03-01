@@ -1,7 +1,7 @@
-#pip install torch==1.8.1+cu101 torchvision==0.9.1+cu101 torchaudio===0.8.1 -f https://download.pytorch.org/whl/torch_stable.html
+#pip install torch==2.2.1+cu121 torchvision==0.9.1+cu101 torchaudio===0.8.1 -f https://download.pytorch.org/whl/torch_stable.html
 --find-links https://download.pytorch.org/whl/torch_stable.html
 -r torch_common.txt
-torch==1.8.1+cu101; sys_platform == 'win32'
+torch==2.2.1+cu121; sys_platform == 'win32'
 torchvision==0.9.1+cu101; sys_platform == 'win32'
 torchtext==0.9.1; sys_platform == 'win32'
 torchaudio==0.8.1; sys_platform == 'win32'
