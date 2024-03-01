@@ -61,7 +61,8 @@ jobs:
           python ts_scripts/print_env_info.py
       - name: Build
         run: |
-          cd cpp && ./build.sh
+          cd cpp && rm -rf _build && mkdir /mnt/_build && ln -s /mnt/_build _build
+          ./build.sh
       - name: Setup upterm session
         uses: lhotari/action-upterm@v1
         with:
