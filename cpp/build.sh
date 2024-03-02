@@ -289,7 +289,7 @@ if [ ! -d "$BUILD_DIR" ] ; then
   mkdir -p $BUILD_DIR
 fi
 
-# set -e nounset
+set -e nounset
 trap 'cd $BASE_DIR' EXIT
 cd $BUILD_DIR || exit
 BWD=$(pwd)
