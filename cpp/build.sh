@@ -58,12 +58,12 @@ function install_libtorch() {
     if [ ! -d "$DEPS_DIR/libtorch" ]; then
       if [[ $(uname -m) == 'x86_64' ]]; then
         echo -e "${COLOR_GREEN}[ INFO ] Install libtorch on Mac x86_64 ${COLOR_OFF}"
-        wget https://download.pytorch.org/libtorch/cpu/libtorch-macos-x86_64-${TORCH_VERSION}.zip
+        wget -q https://download.pytorch.org/libtorch/cpu/libtorch-macos-x86_64-${TORCH_VERSION}.zip
         unzip -q libtorch-macos-x86_64-${TORCH_VERSION}.zip
         rm libtorch-macos-x86_64-${TORCH_VERSION}.zip
       else
         echo -e "${COLOR_GREEN}[ INFO ] Install libtorch on Mac arm64 ${COLOR_OFF}"
-        wget https://download.pytorch.org/libtorch/cpu/libtorch-macos-arm64-${TORCH_VERSION}.zip
+        wget -q https://download.pytorch.org/libtorch/cpu/libtorch-macos-arm64-${TORCH_VERSION}.zip
         unzip -q libtorch-macos-arm64-${TORCH_VERSION}.zip
         rm libtorch-macos-arm64-${TORCH_VERSION}.zip
       fi
@@ -81,7 +81,7 @@ function install_libtorch() {
       else
         URL=https://download.pytorch.org/libtorch/${CUDA}/libtorch-cxx11-abi-shared-with-deps-${TORCH_VERSION}%2B${CUDA}.zip
       fi
-      wget $URL
+      wget -q $URL
       ZIP_FILE=$(basename "$URL")
       ZIP_FILE="${ZIP_FILE//%2B/+}"
       unzip -q $ZIP_FILE
@@ -98,17 +98,17 @@ function prepare_test_files() {
   local EX_DIR="${TR_DIR}/examples/"
   rsync -a --link-dest=../../test/resources/ ${BASE_DIR}/test/resources/ ${TR_DIR}/
   if [ ! -f "${EX_DIR}/babyllama/babyllama_handler/tokenizer.bin" ]; then
-    wget https://github.com/karpathy/llama2.c/raw/master/tokenizer.bin -O "${EX_DIR}/babyllama/babyllama_handler/tokenizer.bin"
+    wget -q https://github.com/karpathy/llama2.c/raw/master/tokenizer.bin -O "${EX_DIR}/babyllama/babyllama_handler/tokenizer.bin"
   fi
   if [ ! -f "${EX_DIR}/babyllama/babyllama_handler/stories15M.bin" ]; then
-    wget https://huggingface.co/karpathy/tinyllamas/resolve/main/stories15M.bin -O "${EX_DIR}/babyllama/babyllama_handler/stories15M.bin"
+    wget -q https://huggingface.co/karpathy/tinyllamas/resolve/main/stories15M.bin -O "${EX_DIR}/babyllama/babyllama_handler/stories15M.bin"
   fi
   # PT2.2 torch.expport does not support Mac
   if [ "$PLATFORM" = "Linux" ]; then
     if [ ! -f "${EX_DIR}/aot_inductor/llama_handler/stories15M.so" ]; then
       local HANDLER_DIR=${EX_DIR}/aot_inductor/llama_handler/
       if [ ! -f "${HANDLER_DIR}/stories15M.pt" ]; then
-        wget https://huggingface.co/karpathy/tinyllamas/resolve/main/stories15M.pt?download=true -O "${HANDLER_DIR}/stories15M.pt"
+        wget -q https://huggingface.co/karpathy/tinyllamas/resolve/main/stories15M.pt?download=true -O "${HANDLER_DIR}/stories15M.pt"
       fi
       local LLAMA_SO_DIR=${BASE_DIR}/third-party/llama2.so/
       PYTHONPATH=${LLAMA_SO_DIR}:${PYTHONPATH} python ${BASE_DIR}/../examples/cpp/aot_inductor/llama2/compile.py --checkpoint ${HANDLER_DIR}/stories15M.pt ${HANDLER_DIR}/stories15M.so
