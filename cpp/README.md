@@ -26,6 +26,13 @@ cd cpp
 mkdir model_store
 torchserve --ncs --start --model-store model_store
 ```
+
+### Clean the build directory
+To clean the build directory in order to rebuild from scratch simply delete the cpp/_build directory with
+```
+rm -rf cpp/_build
+```
+
 ## Backend
 TorchServe cpp backend can run as a process, which is similar to [TorchServe Python backend](https://github.com/pytorch/serve/tree/master/ts). By default, TorchServe supports torch scripted model in cpp backend. Other platforms such as MxNet, ONNX can be supported through custom handlers following the TorchScript example [src/backends/handler/torch_scripted_handler.hh](https://github.com/pytorch/serve/blob/master/cpp/src/backends/handler/torch_scripted_handler.hh).
 ### Custom Handler
