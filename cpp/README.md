@@ -20,15 +20,6 @@ cd cpp
 ./build.sh [-g cu121|cu118]
 
 ```
-### Set Environment Var
-#### On Mac
-```
-export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:$(pwd)/_build/_deps/libtorch/lib
-```
-#### On Ubuntu
-```
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(pwd)/_build/_deps/libtorch/lib
-```
 
 ### Run TorchServe
 ```
