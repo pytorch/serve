@@ -43,7 +43,7 @@ cuda_env = {
 
 npm_env = {"npm_pkg_version": []}
 
-cpp_env = {"LIBRARY_PATH" : ""}
+cpp_env = {"LIBRARY_PATH": ""}
 
 
 def get_nvidia_smi():
@@ -348,7 +348,8 @@ def populate_cuda_env(cuda_available_str):
 
 def populate_npm_env():
     npm_env["npm_pkg_version"] = get_npm_packages()
-    
+
+
 def populate_cpp_env():
     cpp_env["LIBRARY_PATH"] = get_library_path()
 
@@ -375,7 +376,7 @@ def populate_env_info():
 
     if get_platform() == "darwin":
         populate_npm_env()
-        
+
     if get_platform() in ("darwin", "linux"):
         populate_cpp_env()
 
@@ -449,7 +450,7 @@ def get_pretty_env_info(branch_name):
     if get_platform() == "darwin":
         env_dict.update(npm_env)
         env_info_fmt = env_info_fmt + "\n" + npm_info_fmt
-        
+
     if get_platform() in ("darwin", "linux"):
         env_info_fmt = env_info_fmt + "\n" + cpp_env_info_fmt
 
