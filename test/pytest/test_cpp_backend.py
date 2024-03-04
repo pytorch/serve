@@ -38,7 +38,7 @@ def create_mar_file(work_dir, model_archiver, model_name):
         model_name=model_name,
         serialized_file=mnist_scriptes_pt.as_posix(),
         model_file=None,
-        handler="BaseHandler",
+        handler="TorchScriptHandler",
         extra_files=None,
         runtime="LSP",
         export_path=work_dir,
