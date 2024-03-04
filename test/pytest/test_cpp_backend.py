@@ -31,7 +31,7 @@ def create_mar_file(work_dir, model_archiver, model_name):
 
     mnist_scriptes_pt = (
         CURR_FILE_PATH.parents[1]
-        / "cpp/test/resources/torchscript_model/mnist/mnist_handler/mnist_script.pt"
+        / "cpp/_build/test/resources/examples/mnist/mnist_handler/mnist_script.pt"
     )
 
     config = ModelArchiverConfig(
