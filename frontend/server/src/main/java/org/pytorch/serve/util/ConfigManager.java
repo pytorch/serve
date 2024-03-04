@@ -1,5 +1,6 @@
 package org.pytorch.serve.util;
 
+import com.google.common.base.Strings;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import io.netty.handler.ssl.SslContext;
@@ -117,6 +118,7 @@ public final class ConfigManager {
     private static final String MODEL_SNAPSHOT = "model_snapshot";
     private static final String MODEL_CONFIG = "models";
     private static final String VERSION = "version";
+    private static final String SYSTEM_METRICS_CMD = "system_metrics_cmd";
 
     // Configuration default values
     private static final String DEFAULT_TS_ALLOWED_URLS = "file://.*|http(s)?://.*";
@@ -557,6 +559,12 @@ public final class ConfigManager {
 
     public String getCertificateFile() {
         return prop.getProperty(TS_CERTIFICATE_FILE);
+    }
+
+    public String getSystemMetricsCmd() {
+        String defaultCmd = String.format("%s --gpu %s",
+                "ts/metrics/metric_collector.py", String.valueOf(getNumberOfGpu()));
+        return prop.getProperty(SYSTEM_METRICS_CMD, defaultCmd);
     }
 
     public SslContext getSslContext() throws IOException, GeneralSecurityException {
