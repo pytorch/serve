@@ -1,5 +1,8 @@
 #include "socket.hh"
 
+#include <unistd.h>
+#include <cstring>
+
 namespace torchserve {
 Socket::~Socket() {
   if (client_socket_ >= 0) {

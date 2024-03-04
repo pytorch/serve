@@ -1,6 +1,32 @@
 #include "logging.hh"
 
+#include <folly/init/Init.h>
+#include <folly/logging/FileHandlerFactory.h>
+#include <folly/logging/Init.h>
+#include <folly/logging/LogConfigParser.h>
+#include <folly/logging/LoggerDB.h>
+#include <folly/logging/StreamHandlerFactory.h>
+
+
 namespace torchserve {
+folly::LogLevel ConvertTSLogLevelToFollyLogLevel(LogLevel log_level) {
+  switch (log_level) {
+    case LogLevel::TRACE:
+    case LogLevel::DEBUG:
+      return folly::LogLevel::DBG;
+    case LogLevel::INFO:
+      return folly::LogLevel::INFO;
+    case LogLevel::WARN:
+      return folly::LogLevel::WARN;
+    case LogLevel::ERROR:
+      return folly::LogLevel::ERR;
+    case LogLevel::FATAL:
+      return folly::LogLevel::FATAL;
+    default:
+      return folly::LogLevel::INFO;
+  }
+}
+
 void Logger::InitDefaultLogger() {
   std::string logger_config_path("./_build/resources/logging.config");
   InitLogger(logger_config_path);
@@ -28,23 +54,5 @@ void Logger::InitLogger(const std::string& logger_config_path) {
                                 logger_config_path);
   }
   folly::LoggerDB::get().resetConfig(config);
-}
-
-folly::LogLevel Logger::ConvertTSLogLevelToFollyLogLevel(LogLevel log_level) {
-  switch (log_level) {
-    case LogLevel::TRACE:
-    case LogLevel::DEBUG:
-      return folly::LogLevel::DBG;
-    case LogLevel::INFO:
-      return folly::LogLevel::INFO;
-    case LogLevel::WARN:
-      return folly::LogLevel::WARN;
-    case LogLevel::ERROR:
-      return folly::LogLevel::ERR;
-    case LogLevel::FATAL:
-      return folly::LogLevel::FATAL;
-    default:
-      return folly::LogLevel::INFO;
-  }
 }
 }  // namespace torchserve
