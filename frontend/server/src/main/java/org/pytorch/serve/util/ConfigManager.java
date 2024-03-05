@@ -739,7 +739,9 @@ public final class ConfigManager {
                 + "\nCPP log config: "
                 + (getTsCppLogConfig() == null ? "N/A" : getTsCppLogConfig())
                 + "\nModel config: "
-                + prop.getProperty(MODEL_CONFIG, "N/A");
+                + prop.getProperty(MODEL_CONFIG, "N/A")
+                + "\nSystem metrics command: "
+                + (getSystemMetricsCmd().isEmpty() ? "default" : getSystemMetricsCmd());
     }
 
     public boolean useNativeIo() {
