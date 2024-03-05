@@ -26,12 +26,12 @@ jobs:
         if: matrix.os == 'macos-14'
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10' 
+          python-version: '3.10'
       - name: Setup Python for all other OS
         if: matrix.os != 'macos-14'
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
-          python-version: 3.8
+          python-version: 3.9
           architecture: x64
       - name: Setup Java 17
         uses: actions/setup-java@v3

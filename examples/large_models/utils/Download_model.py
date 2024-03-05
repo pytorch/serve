@@ -39,6 +39,13 @@ parser.add_argument(
 parser.add_argument(
     "--model_name", "-m", type=hf_model, required=True, help="HuggingFace model name"
 )
+parser.add_argument(
+    "--use_auth_token",
+    "-t",
+    type=bool,
+    default=False,
+    help="Use HF authentication token",
+)
 parser.add_argument("--revision", "-r", type=str, default="main", help="Revision")
 args = parser.parse_args()
 # Only download pytorch checkpoint files
@@ -49,6 +56,6 @@ snapshot_path = snapshot_download(
     revision=args.revision,
     allow_patterns=allow_patterns,
     cache_dir=args.model_path,
-    use_auth_token=False,
+    use_auth_token=args.use_auth_token,
 )
 print(f"Files for '{args.model_name}' is downloaded to '{snapshot_path}'")

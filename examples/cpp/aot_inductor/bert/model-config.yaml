@@ -1,0 +1,13 @@
+minWorkers: 1
+maxWorkers: 1
+batchSize: 2
+
+handler:
+  model_so_path: "bert-seq.so"
+  tokenizer_path: "tokenizer.json"
+  mapping: "index_to_name.json"
+  model_name: "bert-base-uncased"
+  mode: "sequence_classification"
+  do_lower_case: true
+  num_labels: 2
+  max_length: 150
