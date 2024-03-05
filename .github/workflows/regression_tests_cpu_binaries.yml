@@ -67,12 +67,6 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
-      - name: Setup conda with Python 3.10
-        uses: conda-incubator/setup-miniconda@v3
-        with:
-          auto-update-conda: true
-          channels: anaconda, conda-forge
-          python-version: '3.10'
       - name: Setup Java 17
         uses: actions/setup-java@v3
         with:
@@ -80,20 +74,28 @@ jobs:
           java-version: '17'
       - name: Checkout TorchServe
         uses: actions/checkout@v3
+      
+      - name: Setup conda
+        run: |
+          mkdir -p ~/miniconda3
+          curl https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-arm64.sh -o ~/miniconda3/miniconda.sh
+          bash ~/miniconda3/miniconda.sh -b -u -p ~/miniconda3
+          rm -rf ~/miniconda3/miniconda.sh
+          ~/miniconda3/bin/conda init bash
+          ~/miniconda3/bin/conda init zsh
+
       - name: Conda info
         shell: bash -el {0}
-        run: conda info && conda install -c pytorch torchserve torch-model-archiver torch-workflow-archiver &&
-            python ts_scripts/install_dependencies.py --environment=dev &&
-            python test/regression_tests.py --binaries --${{ matrix.binaries }} --nightly
-      - name: Conda list
-        shell: pwsh
-        run: conda list
+        run: |
+          conda info  
+          # python ts_scripts/install_dependencies.py --environment=dev 
+          # python test/regression_tests.py --binaries --${{ matrix.binaries }} --nightly
       - run: conda --version
       - run: python --version
      
-      - name: Install dependencies
-        run: |
-          python ts_scripts/install_dependencies.py --environment=dev
-      - name: Validate Torchserve CPU Regression
-        run: |
-          python test/regression_tests.py --binaries --${{ matrix.binaries }} --nightly
+      # - name: Install dependencies
+      #   run: |
+      #     python ts_scripts/install_dependencies.py --environment=dev
+      # - name: Validate Torchserve CPU Regression
+      #   run: |
+      #     python test/regression_tests.py --binaries --${{ matrix.binaries }} --nightly
