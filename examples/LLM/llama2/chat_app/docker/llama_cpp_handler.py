@@ -1,14 +1,12 @@
 import logging
 import os
 from abc import ABC
-from threading import Thread
 
 import torch
 from llama_cpp import Llama
 
-from ts.torch_handler.base_handler import BaseHandler
-from ts.handler_utils.hf_batch_streamer import TextIteratorStreamerBatch
 from ts.protocol.otf_message_handler import send_intermediate_predict_response
+from ts.torch_handler.base_handler import BaseHandler
 
 logger = logging.getLogger(__name__)
 
@@ -34,7 +32,6 @@ class LlamaCppHandler(BaseHandler, ABC):
         logger.info(f"Loaded {model_name} model successfully")
 
     def preprocess(self, data):
-
         assert (
             len(data) == 1
         ), "llama-cpp-python is currently only supported with batch_size=1"
@@ -43,7 +40,6 @@ class LlamaCppHandler(BaseHandler, ABC):
             return item
 
     def inference(self, data):
-
         params = data["params"]
         tokens = self.model.tokenize(bytes(data["prompt"], "utf-8"))
         generation_kwargs = dict(

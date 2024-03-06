@@ -1,6 +1,5 @@
 import json
 import os
-import time
 from concurrent.futures import ThreadPoolExecutor
 
 import requests
@@ -105,9 +104,7 @@ if st.session_state.messages[-1]["role"] != "assistant":
     with st.chat_message("assistant"):
         with st.spinner("Thinking..."):
             with ThreadPoolExecutor() as executor:
-                futures, max_tokens = generate_model_response(
-                    prompt, executor
-                )
+                futures, max_tokens = generate_model_response(prompt, executor)
                 placeholder = st.empty()
                 full_response = ""
                 count = 0

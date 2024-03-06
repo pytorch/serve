@@ -12,14 +12,16 @@ GPT_FAST = "gpt_fast"
 # App title
 st.set_page_config(page_title="TorchServe Server")
 
+
 def ping():
-    url= f"localhost:8080/ping"
+    url = f"localhost:8080/ping"
     res = requests.get(url)
     return res.status_code
 
+
 def start_server():
     os.system("torchserve --start --ts-config /home/model-server/config.properties")
-    
+
     time.sleep(2)
 
     st.session_state.started = True
@@ -138,7 +140,6 @@ with st.sidebar:
     st.button("Stop Server", on_click=stop_server)
     st.button(f"Register {MODEL}", on_click=register_model, args=(MODEL_NAME,))
 
-
     workers = st.sidebar.slider(
         "Num Workers",
         key="Num Workers",
@@ -197,4 +198,3 @@ with model_state_container:
 
 with model_state_container:
     st.button("Model Status", on_click=get_status)
-

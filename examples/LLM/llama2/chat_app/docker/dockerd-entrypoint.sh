@@ -50,15 +50,15 @@ quantize_model() {
         echo "Cleaning up previous build of llama-cpp"
         git clone https://github.com/ggerganov/llama.cpp.git build
         cd build
-        make 
+        make
         python -m pip install -r requirements.txt
-  
+
         echo "Convert the 7B model to ggml FP16 format"
         python convert.py $HF_MODEL_SNAPSHOT --outfile ggml-model-f16.gguf
-  
+
         echo "Quantize the model to 4-bits (using q4_0 method)"
         ./quantize ggml-model-f16.gguf $LLAMA2_Q4_MODEL q4_0
-  
+
         cd ..
         echo "Saved quantized model weights to $LLAMA2_Q4_MODEL"
     fi
