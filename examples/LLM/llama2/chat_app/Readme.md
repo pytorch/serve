@@ -28,7 +28,7 @@ In step 3, `<model-store>` is a location where you want the model to be download
 ### What to expect
 This launches two streamlit apps
 1. TorchServe Server app to start/stop TorchServe, load model, scale up/down workers, configure dynamic batch_size ( Currently llama-cpp-python doesn't support batch_size > 1)
-    - Since this app is targetted for macbooks, we load a 4-bit quantized version of llama2 using llama-cpp-python.
+    - Since this app is targeted for Apple M1/M2 laptops, we load a 4-bit quantized version of llama2 using llama-cpp-python.
 2.  Client chat app where you can chat with the model . There is a slider to send concurrent requests to the model. The current app doesn't have a good mechanism to show multiple responses in parallel. You can notice streaming response for the first request followed by a complete response for the next request.
 
 Currently, this launches llama2-7b model with 4-bit quantization running on CPU.
