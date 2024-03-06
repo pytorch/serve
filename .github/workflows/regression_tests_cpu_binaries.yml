@@ -87,6 +87,8 @@ jobs:
       - name: Conda info
         shell: bash -el {0}
         run: |
+          conda create --name myenv
+          conda activate myenv
           conda info  
           python ts_scripts/install_dependencies.py --environment=dev 
           python test/regression_tests.py --binaries --${{ matrix.binaries }} --nightly
