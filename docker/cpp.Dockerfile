@@ -15,9 +15,11 @@
 
 ARG BASE_IMAGE=ubuntu:rolling
 ARG PYTHON_VERSION=3.9
+ARG CMAKE_VERSION=3.26.4
 
 FROM ${BASE_IMAGE} AS cpp-dev-image
 ARG PYTHON_VERSION
+ARG CMAKE_VERSION
 ARG BRANCH_NAME
 ENV PYTHONUNBUFFERED TRUE
 
@@ -34,16 +36,25 @@ RUN --mount=type=cache,id=apt-dev,target=/var/cache/apt \
         curl \
         wget \
         rsync \
+        gpg \
+        ca-certificates \
+        lsb-release \
         python$PYTHON_VERSION \
+        python$PYTHON_VERSION-dev \
         python$PYTHON_VERSION-venv \
     && rm -rf /var/lib/apt/lists/*
 
-# Enable installation of latest cmake release
+# Enable installation of recent cmake release
 # Ref: https://apt.kitware.com/
-RUN apt-get install -y ca-certificates gpg lsb-release
 RUN wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null
 RUN echo "deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/kitware.list >/dev/null
 RUN apt-get update
+RUN test -f /usr/share/doc/kitware-archive-keyring/copyright || sudo rm /usr/share/keyrings/kitware-archive-keyring.gpg
+RUN sudo apt-get install kitware-archive-keyring
+
+# Pin cmake and cmake-data version
+RUN echo "Package: cmake\nPin: version $CMAKE_VERSION*\nPin-Priority: 1001" > /etc/apt/preferences.d/cmake
+RUN echo "Package: cmake-data\nPin: version $CMAKE_VERSION*\nPin-Priority: 1001" > /etc/apt/preferences.d/cmake-data
 
 # Create a virtual environment and "activate" it by adding it first to the path.
 RUN python$PYTHON_VERSION -m venv /home/venv
