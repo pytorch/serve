@@ -53,12 +53,16 @@ RUN test -f /usr/share/doc/kitware-archive-keyring/copyright || sudo rm /usr/sha
 RUN sudo apt-get install kitware-archive-keyring
 
 # Pin cmake and cmake-data version
+# Ref: https://manpages.ubuntu.com/manpages/xenial/man5/apt_preferences.5.html
 RUN echo "Package: cmake\nPin: version $CMAKE_VERSION*\nPin-Priority: 1001" > /etc/apt/preferences.d/cmake
 RUN echo "Package: cmake-data\nPin: version $CMAKE_VERSION*\nPin-Priority: 1001" > /etc/apt/preferences.d/cmake-data
 
 # Create a virtual environment and "activate" it by adding it first to the path.
 RUN python$PYTHON_VERSION -m venv /home/venv
 ENV PATH="/home/venv/bin:$PATH"
+
+# CPP backend binary install depends on "ts" directory being present in python site-packages
+RUN pip install torchserve
 
 RUN git clone --recursive https://github.com/pytorch/serve.git \
     && cd serve \
