@@ -44,7 +44,7 @@ LlamaCppHandler::LoadModel(
     params.main_gpu = 0;
     params.n_gpu_layers = 35;
 
-    llama_backend_init(params.numa);
+    llama_backend_init();
     ctx_params = llama_context_default_params();
     model_params = llama_model_default_params();
     llamamodel = llama_load_model_from_file(params.model.c_str(), model_params);

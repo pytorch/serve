@@ -64,7 +64,9 @@ CPP_DARWIN_DEPENDENCIES = (
     "xz",
     "openssl",
     "libsodium",
-    "llv",
+    "icu4c",
+    "libomp",
+    "llvm",
 )
 
 CPP_DARWIN_DEPENDENCIES_LINK = (
@@ -286,13 +288,13 @@ class Darwin(Common):
             os.system(f"brew install -f {' '.join(CPP_DARWIN_DEPENDENCIES)}")
             os.system(f"brew link {' '.join(CPP_DARWIN_DEPENDENCIES_LINK)}")
             os.system(
-                'ln -s "$(brew --prefix llvm)/bin/clang-format" "/usr/local/bin/clang-format"'
+                f'{self.sudo_cmd} ln -s "$(brew --prefix llvm)/bin/clang-format" "/usr/local/bin/clang-format"'
             )
             os.system(
-                'ln -s "$(brew --prefix llvm)/bin/clang-tidy" "/usr/local/bin/clang-tidy"'
+                f'{self.sudo_cmd} ln -s "$(brew --prefix llvm)/bin/clang-tidy" "/usr/local/bin/clang-tidy"'
             )
             os.system(
-                'ln -s "$(brew --prefix llvm)/bin/clang-apply-replacements" "/usr/local/bin/clang-apply-replacements"'
+                f'{self.sudo_cmd} ln -s "$(brew --prefix llvm)/bin/clang-apply-replacements" "/usr/local/bin/clang-apply-replacements"'
             )
 
     def install_neuronx_driver(self):
