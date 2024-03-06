@@ -88,9 +88,8 @@ jobs:
         shell: bash -el {0}
         run: |
           conda info  
-          # python ts_scripts/install_dependencies.py --environment=dev 
-          # python test/regression_tests.py --binaries --${{ matrix.binaries }} --nightly
-      - run: conda --version
+          python ts_scripts/install_dependencies.py --environment=dev 
+          python test/regression_tests.py --binaries --${{ matrix.binaries }} --nightly
       - run: python --version
      
       # - name: Install dependencies
