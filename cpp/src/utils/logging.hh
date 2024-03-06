@@ -1,13 +1,11 @@
-#ifndef TS_CPP_UTILS_LOGGING_HH_
-#define TS_CPP_UTILS_LOGGING_HH_
+#pragma once
 
 #include <fstream>
 #include <memory>
 #include <stdexcept>
 #include <string>
-#include <vector>
 
-#include <folly/logging/xlog.h>
+#include "spdlog/spdlog.h"
 
 #define TS_LOG(level, ...)                                                 \
   TS_LOG_IMPL(::torchserve::LogLevel::level, __FILE__, __LINE__, __func__, \
@@ -36,7 +34,7 @@ namespace torchserve
     FATAL
   };
 
-  folly::LogLevel ConvertTSLogLevelToFollyLogLevel(LogLevel log_level);
+  spdlog::level::level_enum ConvertTsToSpdLogLevel(LogLevel log_level);
 
   // TorchServe Logger API
   class Logger
@@ -53,10 +51,12 @@ namespace torchserve
     static void Log(LogLevel level, const char *filename, unsigned int linenumber,
                             const char *function_name, Args &&...args)
     {
-      folly::Logger event_logger_(folly::Logger("torchserve"));
-          FB_LOG_RAW(event_logger_, ConvertTSLogLevelToFollyLogLevel(level),
-                     filename, linenumber, function_name,
-                     std::forward<Args>(args)...);
+      if(!Logger::logger)
+        return;
+
+      std::string msg = fmt::format("{}:{}] {}", filename, linenumber, function_name);
+      Logger::logger->log(ConvertTsToSpdLogLevel(level),
+        msg + " {}", std::forward<Args>(args)...);
     }
 
     template <typename Arg, typename... Args>
@@ -64,12 +64,15 @@ namespace torchserve
                             const char *function_name, const char *fmt, Arg &&arg,
                             Args &&...args)
     {
-      folly::Logger event_logger_(folly::Logger("torchserve"));
-      FB_LOGF_RAW(event_logger_, ConvertTSLogLevelToFollyLogLevel(level),
-                  filename, linenumber, function_name, fmt,
-                  std::forward<Arg>(arg), std::forward<Args>(args)...);
+      if(!Logger::logger)
+        return;
+
+      std::string msg = fmt::format("{}:{}] {} {}", filename, linenumber, function_name, fmt);
+      Logger::logger->log(ConvertTsToSpdLogLevel(level),
+        msg, std::forward<Arg>(arg), std::forward<Args>(args)...);
     }
+  protected:
+    static std::shared_ptr<spdlog::logger> logger;
   };
 
 } // namespace torchserve
-#endif // TS_CPP_UTILS_LOGGING_HH_

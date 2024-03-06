@@ -42,6 +42,24 @@ if(NOT yaml-cpp_POPULATED)
   add_subdirectory(${yaml-cpp_SOURCE_DIR} ${yaml-cpp_BINARY_DIR})
 endif()
 
+
+
+FetchContent_Declare(
+  spdlog
+  GIT_REPOSITORY https://github.com/gabime/spdlog
+  GIT_TAG v1.13.0
+)
+FetchContent_GetProperties(spdlog)
+
+if(NOT spdlog_POPULATED)
+  message(STATUS "Fetching spdlog...")
+  FetchContent_Populate(spdlog)
+  add_subdirectory(${spdlog_SOURCE_DIR} ${spdlog_BINARY_DIR})
+  include_directories(${spdlog_SOURCE_DIR})
+endif()
+
+
+
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
 
 include_directories(${TORCH_INCLUDE_DIRS})
@@ -60,4 +78,4 @@ add_subdirectory(src/backends)
 add_subdirectory(src/examples)
 add_subdirectory(test)
 
-FILE(COPY src/resources/logging.config DESTINATION "${CMAKE_INSTALL_PREFIX}/resources")
+FILE(COPY src/resources/logging.yaml DESTINATION "${CMAKE_INSTALL_PREFIX}/resources")
