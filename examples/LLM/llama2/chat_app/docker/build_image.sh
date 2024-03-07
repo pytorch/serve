@@ -19,9 +19,7 @@ ROOT_DIR=${EXAMPLE_DIR}/../../../../..
 ROOT_DIR=$(realpath "$ROOT_DIR")
 EXAMPLE_DIR=$(echo "$EXAMPLE_DIR" | sed "s|$ROOT_DIR|./|")
 
-
-# We need to build TorchServe image with CUDA runtime for using bitsandbytes quantization
-
+# Build docker image for the application
 DOCKER_BUILDKIT=1 docker buildx build --platform=linux/amd64 --file ${EXAMPLE_DIR}/Dockerfile --build-arg BASE_IMAGE="${BASE_IMAGE}" --build-arg EXAMPLE_DIR="${EXAMPLE_DIR}" --build-arg MODEL_NAME="${MODEL_NAME}"  --build-arg HUGGINGFACE_TOKEN -t "${DOCKER_TAG}" .
 
 echo "Run the following command to start the chat bot"

@@ -66,7 +66,6 @@ def clear_chat_history():
 
 
 st.sidebar.button("Clear Chat History", on_click=clear_chat_history)
-# st.sidebar.subheader("Metrics")
 
 
 def generate_model_response(prompt_input, executor):
@@ -115,6 +114,5 @@ if st.session_state.messages[-1]["role"] != "assistant":
                             data = chunk.decode("utf-8")
                             full_response += data
                             placeholder.markdown(full_response)
-                # print(st.session_state.first_token)
     message = {"role": "assistant", "content": full_response}
     st.session_state.messages.append(message)

@@ -7,16 +7,9 @@ import streamlit as st
 
 MODEL_NAME = os.environ["MODEL_NAME"]
 MODEL = MODEL_NAME.split("---")[1]
-MODELNAME = os.environ["MODEL_NAME"]
-GPT_FAST = "gpt_fast"
+
 # App title
 st.set_page_config(page_title="TorchServe Server")
-
-
-def ping():
-    url = f"localhost:8080/ping"
-    res = requests.get(url)
-    return res.status_code
 
 
 def start_server():
