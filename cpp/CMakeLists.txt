@@ -43,7 +43,6 @@ if(NOT yaml-cpp_POPULATED)
 endif()
 
 
-
 FetchContent_Declare(
   spdlog
   GIT_REPOSITORY https://github.com/gabime/spdlog
@@ -55,10 +54,24 @@ if(NOT spdlog_POPULATED)
   message(STATUS "Fetching spdlog...")
   FetchContent_Populate(spdlog)
   add_subdirectory(${spdlog_SOURCE_DIR} ${spdlog_BINARY_DIR})
-  include_directories(${spdlog_SOURCE_DIR})
 endif()
 
 
+FetchContent_Declare(
+  json
+  GIT_REPOSITORY https://github.com/nlohmann/json
+  GIT_TAG v3.11.3
+)
+FetchContent_GetProperties(json)
+
+if(NOT json_POPULATED)
+  message(STATUS "Fetching json...")
+  FetchContent_Populate(json)
+  add_subdirectory(${json_SOURCE_DIR} ${json_BINARY_DIR})
+endif()
+
+include_directories("${json_SOURCE_DIR}/include" "${spdlog_SOURCE_DIR}/include")
+message("json_SOURCE_DIR ${json_SOURCE_DIR}/include")
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
 

@@ -1,11 +1,13 @@
 #include "bert_handler.hh"
-#include "src/utils/file_system.hh"
+
+#include <iostream>
+#include <typeinfo>
 
 #include <fmt/format.h>
-#include <iostream>
 #include <torch/csrc/inductor/aoti_model_container_runner.h>
 #include <torch/csrc/inductor/aoti_model_container_runner_cuda.h>
-#include <typeinfo>
+
+#include "src/utils/file_system.hh"
 
 namespace bert {
 std::pair<std::shared_ptr<void>, std::shared_ptr<torch::Device>>
@@ -22,7 +24,7 @@ BertCppHandler::LoadModel(
     const std::string mapFilePath =
         fmt::format("{}/{}", load_model_request->model_dir,
         (*model_config_yaml_)["handler"]["mapping"].as<std::string>());
-    mapping_json_ = torchserve::FileSystem::LoadJsonFile(mapFilePath);
+    mapping_json_ = std::make_unique<torchserve::Json>(torchserve::Json::ParseJsonFile(mapFilePath));
 
     max_length_ = (*model_config_yaml_)["handler"]["max_length"].as<int>();
 
@@ -170,7 +172,7 @@ void BertCppHandler::Postprocess(
 
       response->SetResponse(200, "data_type",
                             torchserve::PayloadType::kDATA_TYPE_STRING,
-                            torchserve::FileSystem::GetJsonValue(mapping_json_, predicted_idx).asString());
+                            mapping_json_->GetValueAsString(predicted_idx));
     } catch (const std::runtime_error &e) {
       TS_LOGF(ERROR, "Failed to load tensor for request id: {}, error: {}",
               kv.second, e.what());
