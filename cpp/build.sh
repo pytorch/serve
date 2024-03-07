@@ -20,57 +20,6 @@ function detect_platform() {
   echo -e "${COLOR_GREEN}Detected platform: $PLATFORM ${COLOR_OFF}"
 }
 
-function install_libtorch() {
-  cd "$DEPS_DIR" || exit
-  TORCH_VERSION="2.2.1"
-  if [ -d "$DEPS_DIR/libtorch" ]; then
-    RAW_VERSION=`cat "$DEPS_DIR/libtorch/build-version"`
-    VERSION=`cat "$DEPS_DIR/libtorch/build-version" | cut -d "+" -f 1`
-    if [ "$USE_NIGHTLIES" = "true" ] && [[ ! "${RAW_VERSION}" =~ .*"dev".* ]]; then
-      rm -rf "$DEPS_DIR/libtorch"
-    elif [ "$USE_NIGHTLIES" == "" ] && [ "$VERSION" != "$TORCH_VERSION" ]; then
-      rm -rf "$DEPS_DIR/libtorch"
-    fi
-  fi
-  if [ "$PLATFORM" = "Mac" ]; then
-    if [ ! -d "$DEPS_DIR/libtorch" ]; then
-      if [[ $(uname -m) == 'x86_64' ]]; then
-        echo -e "${COLOR_GREEN}[ INFO ] Install libtorch on Mac x86_64 ${COLOR_OFF}"
-        wget -q https://download.pytorch.org/libtorch/cpu/libtorch-macos-x86_64-${TORCH_VERSION}.zip
-        unzip -q libtorch-macos-x86_64-${TORCH_VERSION}.zip
-        rm libtorch-macos-x86_64-${TORCH_VERSION}.zip
-      else
-        echo -e "${COLOR_GREEN}[ INFO ] Install libtorch on Mac arm64 ${COLOR_OFF}"
-        wget -q https://download.pytorch.org/libtorch/cpu/libtorch-macos-arm64-${TORCH_VERSION}.zip
-        unzip -q libtorch-macos-arm64-${TORCH_VERSION}.zip
-        rm libtorch-macos-arm64-${TORCH_VERSION}.zip
-      fi
-    fi
-  elif [ "$PLATFORM" = "Windows" ]; then
-      echo -e "${COLOR_GREEN}[ INFO ] Install libtorch on Windows ${COLOR_OFF}"
-      # TODO: Windows
-      echo -e "${COLOR_RED}[ ERROR ] Unknown platform: $PLATFORM ${COLOR_OFF}"
-      exit 1
-  else  # Linux
-    if [ ! -d "$DEPS_DIR/libtorch" ]; then
-      echo -e "${COLOR_GREEN}[ INFO ] Install libtorch on Linux ${COLOR_OFF}"
-      if [ "$USE_NIGHTLIES" == true ]; then
-        URL=https://download.pytorch.org/libtorch/nightly/${CUDA}/libtorch-cxx11-abi-shared-with-deps-latest.zip
-      else
-        URL=https://download.pytorch.org/libtorch/${CUDA}/libtorch-cxx11-abi-shared-with-deps-${TORCH_VERSION}%2B${CUDA}.zip
-      fi
-      wget -q $URL
-      ZIP_FILE=$(basename "$URL")
-      ZIP_FILE="${ZIP_FILE//%2B/+}"
-      unzip -q $ZIP_FILE
-      rm $ZIP_FILE
-    fi
-    echo -e "${COLOR_GREEN}[ INFO ] libtorch is installed ${COLOR_OFF}"
-  fi
-
-  cd "$BWD" || exit
-}
-
 function prepare_test_files() {
   echo -e "${COLOR_GREEN}[ INFO ]Preparing test files ${COLOR_OFF}"
   local EX_DIR="${TR_DIR}/examples/"
@@ -142,9 +91,15 @@ function build() {
   # Build torchserve_cpp with cmake
   cd "$BWD" || exit
 
+  CMAKE_PREFIX_PATH=`python3 -c 'import torch;print(torch.utils.cmake_prefix_path)'`
+
   if [ "$PLATFORM" = "Linux" ]; then
+    if [ "$CUDA" = "cu118" ] || [ "$CUDA" = "cu121" ]; then
+      NCCL_PATH=`python3 -c 'import torch;from pathlib import Path;print(Path(torch.__file__).parents[1]/"nvidia"/"nccl"/"lib")'`
+      export LD_LIBRARY_PATH=${NCCL_PATH}:${LD_LIBRARY_PATH}
+    fi
     cmake                                                                                     \
-    -DCMAKE_PREFIX_PATH="$DEPS_DIR;$DEPS_DIR/libtorch"                       \
+    -DCMAKE_PREFIX_PATH="$DEPS_DIR;$CMAKE_PREFIX_PATH"                                                           \
     -DCMAKE_INSTALL_PREFIX="$PREFIX"                                                          \
     "$MAYBE_BUILD_QUIC"                                                                       \
     "$MAYBE_BUILD_TESTS"                                                                      \
@@ -156,14 +111,11 @@ function build() {
     "$MAYBE_NIGHTLIES"                                                                        \
     ..
 
-    if [ "$CUDA" = "cu118" ] || [ "$CUDA" = "cu121" ]; then
-      export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/cuda/bin/nvcc
-    fi
   elif [ "$PLATFORM" = "Mac" ]; then
     export LIBRARY_PATH=${LIBRARY_PATH}:`brew --prefix icu4c`/lib:`brew --prefix libomp`/lib
 
     cmake                                                                                     \
-    -DCMAKE_PREFIX_PATH="$DEPS_DIR;$DEPS_DIR/libtorch"                                        \
+    -DCMAKE_PREFIX_PATH="$DEPS_DIR;$CMAKE_PREFIX_PATH"                                        \
     -DCMAKE_INSTALL_PREFIX="$PREFIX"                                                          \
     "$MAYBE_BUILD_QUIC"                                                                       \
     "$MAYBE_BUILD_TESTS"                                                                      \
@@ -194,12 +146,6 @@ function build() {
   else
     echo -e "${COLOR_RED}[ ERROR ] _build/test/torchserve_cpp_test not exist ${COLOR_OFF}"
     exit 1
-  fi
-}
-
-function symlink_torch_libs() {
-  if [ "$PLATFORM" = "Linux" ]; then
-    ln -sf ${DEPS_DIR}/libtorch/lib/*.so* ${LIBS_DIR}
   fi
 }
 
@@ -282,8 +228,6 @@ cd $BASE_DIR
 
 git submodule update --init --recursive
 
-install_libtorch
 prepare_test_files
 build
-symlink_torch_libs
 install_torchserve_cpp

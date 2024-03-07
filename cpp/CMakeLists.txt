@@ -4,7 +4,7 @@ project(torchserve_cpp VERSION 0.1)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_CXX_EXTENSIONS OFF)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -W -Wall -Wextra -fPIC -D_GLIBCXX_USE_CXX11_ABI=1")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -W -Wall -Wextra -fPIC")
 
 find_program(CLANG_TIDY_EXE NAMES "clang-tidy" REQUIRED)
 set(CMAKE_CXX_CLANG_TIDY "${CLANG_TIDY_EXE}")
@@ -22,24 +22,9 @@ endif()
 
 
 find_package(Boost REQUIRED)
-find_package(gflags REQUIRED)
 find_package(Torch REQUIRED)
 
 include(FetchContent)
-
-FetchContent_Declare(
-  yaml-cpp
-  GIT_REPOSITORY https://github.com/jbeder/yaml-cpp.git
-  GIT_TAG 0.8.0 # Can be a tag (yaml-cpp-x.x.x), a commit hash, or a branch name (master)
-)
-FetchContent_GetProperties(yaml-cpp)
-
-if(NOT yaml-cpp_POPULATED)
-  message(STATUS "Fetching yaml-cpp...")
-  FetchContent_Populate(yaml-cpp)
-  add_subdirectory(${yaml-cpp_SOURCE_DIR} ${yaml-cpp_BINARY_DIR})
-endif()
-
 
 FetchContent_Declare(
   spdlog
@@ -66,19 +51,6 @@ if(NOT json_POPULATED)
   message(STATUS "Fetching json...")
   FetchContent_Populate(json)
   add_subdirectory(${json_SOURCE_DIR} ${json_BINARY_DIR})
-endif()
-
-FetchContent_Declare(
-  fmt
-  GIT_REPOSITORY https://github.com/fmtlib/fmt
-  GIT_TAG 10.2.1
-)
-FetchContent_GetProperties(fmt)
-
-if(NOT fmt_POPULATED)
-  message(STATUS "Fetching fmt...")
-  FetchContent_Populate(fmt)
-  add_subdirectory(${fmt_SOURCE_DIR} ${fmt_BINARY_DIR})
 endif()
 
 include_directories("${json_SOURCE_DIR}/include" "${spdlog_SOURCE_DIR}/include")

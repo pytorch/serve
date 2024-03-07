@@ -1,3 +1,17 @@
+FetchContent_Declare(
+  gflags
+  GIT_REPOSITORY https://github.com/gflags/gflags
+  GIT_TAG v2.2.2
+)
+FetchContent_GetProperties(spdlgflagsog)
+
+if(NOT gflags_POPULATED)
+  message(STATUS "Fetching gflags...")
+  FetchContent_Populate(gflags)
+  add_subdirectory(${gflags_SOURCE_DIR} ${gflags_BINARY_DIR})
+endif()
+
+
 set(TS_BACKENDS_SRC_DIR "${torchserve_cpp_SOURCE_DIR}/src/backends")
 set(TS_BACKENDS_CORE_SRC_DIR "${TS_BACKENDS_SRC_DIR}/core")
 set(TS_BACKENDS_PROTOCOL_SRC_DIR "${TS_BACKENDS_SRC_DIR}/protocol")
