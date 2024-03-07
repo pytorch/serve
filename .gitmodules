@@ -1,9 +1,6 @@
 [submodule "third_party/google/rpc"]
 	path = third_party/google/rpc
 	url = https://github.com/googleapis/googleapis.git
-[submodule "cpp/third-party/llama.cpp"]
-	path = cpp/third-party/llama.cpp
-	url = https://github.com/ggerganov/llama.cpp.git
 [submodule "cpp/third-party/llama2.c"]
 	path = cpp/third-party/llama2.c
 	url = https://github.com/karpathy/llama2.c
