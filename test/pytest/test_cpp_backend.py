@@ -1,4 +1,5 @@
 import io
+import os
 import shutil
 from pathlib import Path
 from unittest.mock import patch
@@ -13,6 +14,12 @@ from PIL import Image
 from torchvision import transforms
 
 CURR_FILE_PATH = Path(__file__).parent
+
+TORCH_NCCLE_PATH = (Path(torch.__file__).parent / "lib").as_posix()
+TORCH_NCCLE_PATH += (
+    ":" + (Path(torch.__file__).parents[1] / "nvidia" / "nccl" / "lib").as_posix()
+)
+os.environ["LD_LIBRARY_PATH"] = TORCH_NCCLE_PATH + ":" + os.environ["LD_LIBRARY_PATH"]
 
 
 @pytest.fixture(scope="module")
@@ -71,6 +78,9 @@ def register_model(mar_file_path, model_store, torchserve):
     """
     Register the model in torchserve
     """
+
+    print(os.environ["LD_LIBRARY_PATH"])
+
     shutil.copy(mar_file_path, model_store)
 
     file_name = Path(mar_file_path).name
