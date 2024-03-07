@@ -13,7 +13,7 @@
 #           https://docs.docker.com/develop/develop-images/build_enhancements/
 
 
-ARG BASE_IMAGE=ubuntu:rolling
+ARG BASE_IMAGE=ubuntu:20.04
 ARG PYTHON_VERSION=3.9
 ARG CMAKE_VERSION=3.26.4
 
@@ -39,6 +39,7 @@ RUN --mount=type=cache,id=apt-dev,target=/var/cache/apt \
         gpg \
         ca-certificates \
         lsb-release \
+        openjdk-17-jdk \
         python$PYTHON_VERSION \
         python$PYTHON_VERSION-dev \
         python$PYTHON_VERSION-venv \
@@ -46,11 +47,12 @@ RUN --mount=type=cache,id=apt-dev,target=/var/cache/apt \
 
 # Enable installation of recent cmake release
 # Ref: https://apt.kitware.com/
-RUN wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null
-RUN echo "deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/kitware.list >/dev/null
-RUN apt-get update
-RUN test -f /usr/share/doc/kitware-archive-keyring/copyright || sudo rm /usr/share/keyrings/kitware-archive-keyring.gpg
-RUN sudo apt-get install kitware-archive-keyring
+RUN (wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null) \
+    && (echo "deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/kitware.list >/dev/null) \
+    && apt-get update \
+    && (test -f /usr/share/doc/kitware-archive-keyring/copyright || sudo rm /usr/share/keyrings/kitware-archive-keyring.gpg) \
+    && sudo apt-get install kitware-archive-keyring \
+    && rm -rf /var/lib/apt/lists/*
 
 # Pin cmake and cmake-data version
 # Ref: https://manpages.ubuntu.com/manpages/xenial/man5/apt_preferences.5.html
@@ -61,13 +63,13 @@ RUN echo "Package: cmake-data\nPin: version $CMAKE_VERSION*\nPin-Priority: 1001"
 RUN python$PYTHON_VERSION -m venv /home/venv
 ENV PATH="/home/venv/bin:$PATH"
 
-# CPP backend binary install depends on "ts" directory being present in python site-packages
-RUN pip install torchserve
-
 RUN git clone --recursive https://github.com/pytorch/serve.git \
     && cd serve \
     && git checkout ${BRANCH_NAME}
 
 WORKDIR "serve"
+
+# CPP backend binary install depends on "ts" directory being present in python site-packages
+RUN pip install pygit2 && python ts_scripts/install_from_src.py
 
 EXPOSE 8080 8081 8082 7070 7071
