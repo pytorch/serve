@@ -1,5 +1,6 @@
 import json
 import os
+import subprocess
 import time
 
 import requests
@@ -13,9 +14,20 @@ st.set_page_config(page_title="TorchServe Server")
 
 
 def start_server():
-    os.system("torchserve --start --ts-config /home/model-server/config.properties")
-
-    time.sleep(2)
+    subprocess.run(
+        ["torchserve --start --ts-config /home/model-server/config.properties"],
+        shell=True,
+        check=True,
+    )
+    while True:
+        try:
+            res = requests.get(url="http://localhost:8080/ping")
+            if res.status_code == 200:
+                break
+            else:
+                server_state_container.error("Not able to start TorchServe", icon="🚫")
+        except:
+            time.sleep(0.1)
 
     st.session_state.started = True
     st.session_state.stopped = False
