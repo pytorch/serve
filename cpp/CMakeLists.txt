@@ -22,8 +22,6 @@ endif()
 
 
 find_package(Boost REQUIRED)
-find_package(folly REQUIRED)
-find_package(fmt REQUIRED)
 find_package(gflags REQUIRED)
 find_package(Torch REQUIRED)
 
@@ -70,20 +68,29 @@ if(NOT json_POPULATED)
   add_subdirectory(${json_SOURCE_DIR} ${json_BINARY_DIR})
 endif()
 
+FetchContent_Declare(
+  fmt
+  GIT_REPOSITORY https://github.com/fmtlib/fmt
+  GIT_TAG 10.2.1
+)
+FetchContent_GetProperties(fmt)
+
+if(NOT fmt_POPULATED)
+  message(STATUS "Fetching fmt...")
+  FetchContent_Populate(fmt)
+  add_subdirectory(${fmt_SOURCE_DIR} ${fmt_BINARY_DIR})
+endif()
+
 include_directories("${json_SOURCE_DIR}/include" "${spdlog_SOURCE_DIR}/include")
-message("json_SOURCE_DIR ${json_SOURCE_DIR}/include")
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
 
 include_directories(${TORCH_INCLUDE_DIRS})
-include_directories(${FOLLY_INCLUDE_DIRS})
 include_directories(${GTEST_INCLUDE_DIRS})
 include_directories(${GMOCK_INCLUDE_DIRS})
 
 include_directories("${CMAKE_INSTALL_PREFIX}/_deps")
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-
-set(FOLLY_LIBRARIES Folly::folly)
 
 # add subdirectories in src
 add_subdirectory(src/utils)

@@ -21,50 +21,22 @@ namespace torchserve
             std::ifstream fs(filename);
              auto data = json::parse(fs);
              return Json(data);
-        }catch(std::exception e)
+        }catch(std::exception &e)
         {
             TS_LOGF(ERROR, "Error parsing json file: {} reason {}", filename, e.what());
+            throw e;
         }
     }
 
-    std::string Json::GetValueAsString(const std::string& key)
+    std::string Json::AsString()
     {
-        if(data.contains(key)){
-            return data[key].template get<std::string>();
-        }else{
-            TS_LOGF(ERROR, "Key not found: {}", key);
-            throw std::invalid_argument("Key not found: " + key);
-        }
+        return data.template get<std::string>();
     }
 
-    std::string Json::GetValueAsString(const int key)
-    {
-        if(key < data.size()){
-            return data[key].template get<std::string>();
-        }else{
-            TS_LOGF(ERROR, "Key not found: {}", key);
-            throw std::invalid_argument("Key not found: " + std::to_string(key));
-        }
-    }
 
-    int Json::GetValueAsInt(const std::string& key)
+    int Json::AsInt()
     {
-        if(data.contains(key)){
-            return data[key].template get<int>();
-        }else{
-            TS_LOGF(ERROR, "Key not found: {}", key);
-            throw std::invalid_argument("Key not found: " + key);
-        }
-    }
-
-    int Json::GetValueAsInt(const int key)
-    {
-        if(key < data.size()){
-            return data[key].template get<int>();
-        }else{
-            TS_LOGF(ERROR, "Key not found: {}", key);
-            throw std::invalid_argument("Key not found: " + std::to_string(key));
-        }
+        return data.template get<int>();
     }
 
     Json Json::GetValue(const std::string& key)
@@ -74,6 +46,17 @@ namespace torchserve
         }else{
             TS_LOGF(ERROR, "Key not found: {}", key);
             throw std::invalid_argument("Key not found: " + key);
+        }
+    }
+
+
+    Json Json::GetValue(const unsigned long key)
+    {
+        if(key < data.size()){
+            return data[key];
+        }else{
+            TS_LOGF(ERROR, "Key not found: {}", key);
+            throw std::invalid_argument("Key not found: " + std::to_string(key));
         }
     }
 

@@ -20,28 +20,6 @@ function detect_platform() {
   echo -e "${COLOR_GREEN}Detected platform: $PLATFORM ${COLOR_OFF}"
 }
 
-function install_folly() {
-  FOLLY_SRC_DIR=$BASE_DIR/third-party/folly
-  FOLLY_BUILD_DIR=$DEPS_DIR/folly-build
-
-  if [ ! -d "$FOLLY_BUILD_DIR" ] ; then
-    echo -e "${COLOR_GREEN}[ INFO ] Building Folly ${COLOR_OFF}"
-    cd $FOLLY_SRC_DIR
-
-    ./build/fbcode_builder/getdeps.py install-system-deps --recursive
-
-    ./build/fbcode_builder/getdeps.py build \
-    --allow-system-packages \
-    --scratch-path $FOLLY_BUILD_DIR \
-    --extra-cmake-defines='{"CMAKE_CXX_FLAGS": "-fPIC -D_GLIBCXX_USE_CXX11_ABI=1"}'
-
-    echo -e "${COLOR_GREEN}[ INFO ] Folly is installed ${COLOR_OFF}"
-  fi
-
-  cd "$BWD" || exit
-  echo "$FOLLY_BUILD_DIR/installed"
-}
-
 function install_libtorch() {
   cd "$DEPS_DIR" || exit
   TORCH_VERSION="2.2.1"
@@ -163,11 +141,10 @@ function build() {
 
   # Build torchserve_cpp with cmake
   cd "$BWD" || exit
-  FOLLY_CMAKE_DIR=$DEPS_DIR/folly-build/installed
-  find $FOLLY_CMAKE_DIR -name "lib*.*"  -exec ln -s "{}" $LIBS_DIR/ \;
+
   if [ "$PLATFORM" = "Linux" ]; then
     cmake                                                                                     \
-    -DCMAKE_PREFIX_PATH="$DEPS_DIR;$FOLLY_CMAKE_DIR;$DEPS_DIR/libtorch"                       \
+    -DCMAKE_PREFIX_PATH="$DEPS_DIR;$DEPS_DIR/libtorch"                       \
     -DCMAKE_INSTALL_PREFIX="$PREFIX"                                                          \
     "$MAYBE_BUILD_QUIC"                                                                       \
     "$MAYBE_BUILD_TESTS"                                                                      \
@@ -186,7 +163,7 @@ function build() {
     export LIBRARY_PATH=${LIBRARY_PATH}:`brew --prefix icu4c`/lib:`brew --prefix libomp`/lib
 
     cmake                                                                                     \
-    -DCMAKE_PREFIX_PATH="$DEPS_DIR;$FOLLY_CMAKE_DIR;$DEPS_DIR/libtorch"                       \
+    -DCMAKE_PREFIX_PATH="$DEPS_DIR;$DEPS_DIR/libtorch"                                        \
     -DCMAKE_INSTALL_PREFIX="$PREFIX"                                                          \
     "$MAYBE_BUILD_QUIC"                                                                       \
     "$MAYBE_BUILD_TESTS"                                                                      \
@@ -305,7 +282,6 @@ cd $BASE_DIR
 
 git submodule update --init --recursive
 
-install_folly
 install_libtorch
 prepare_test_files
 build

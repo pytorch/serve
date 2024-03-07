@@ -15,7 +15,7 @@ std::string ResnetCppHandler::MapClassToLabel(const torch::Tensor& classes, cons
   std::unordered_map<std::string, float> map;
   for (int i = 0; i < classes.sizes()[0]; i++) {
     auto class_value = mapping_json_->GetValue(std::to_string(classes[i].item<long>()));
-    map[class_value.GetValueAsString(1)] = probs[i].item<float>();
+    map[class_value.GetValue(1).AsString()] = probs[i].item<float>();
   }
   std::string json_string = "{\n";
   for(auto p : map) {

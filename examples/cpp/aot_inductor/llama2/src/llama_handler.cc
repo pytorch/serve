@@ -28,8 +28,8 @@ LlamaHandler::LoadModel(
     std::string tokenizer_path;
     if (json.HasKey("checkpoint_path") &&
         json.HasKey("tokenizer_path")) {
-      checkpoint_path = json.GetValueAsString("checkpoint_path");
-      tokenizer_path = json.GetValueAsString("tokenizer_path");
+      checkpoint_path = json.GetValue("checkpoint_path").AsString();
+      tokenizer_path = json.GetValue("tokenizer_path").AsString();
     } else {
       std::cerr
           << "Required fields 'model_name' and 'model_path' not found in JSON."

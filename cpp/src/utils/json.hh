@@ -9,12 +9,11 @@ namespace torchserve
     public:
         virtual ~Json();
         static Json ParseJsonFile(const std::string& filename);
-        std::string GetValueAsString(const std::string& key);
-        std::string GetValueAsString(const int key);
-        int GetValueAsInt(const std::string& key);
-        int GetValueAsInt(const int key);
         Json GetValue(const std::string& key);
+        Json GetValue(const unsigned long key);
         bool HasKey(const std::string& key);
+        std::string AsString();
+        int AsInt();
     protected:
         Json(nlohmann::json _data);
         nlohmann::json data;

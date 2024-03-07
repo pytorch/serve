@@ -32,7 +32,7 @@ LlamaCppHandler::LoadModel(
 
     std::string checkpoint_path;
     if (json.HasKey("checkpoint_path")) {
-      checkpoint_path = json.GetValueAsString("checkpoint_path");
+      checkpoint_path = json.GetValue("checkpoint_path").AsString();
     } else {
       TS_LOG(ERROR, "Required field 'checkpoint_path' not found in JSON.");
       throw;
