@@ -10,6 +10,10 @@ jobs:
     steps:
       - name: Setup Conda
         uses: s-weigand/setup-conda@v1
+        with:
+          activate-conda: true
+          update-conda: false
+          python-version: 3.10
       - run: conda --version
       - run: conda install -y conda-build anaconda-client
       - name: Checkout TorchServe
