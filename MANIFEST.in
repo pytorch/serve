@@ -1,7 +1,7 @@
 include ts/frontend/model-server.jar
 include ts/cpp/bin/*
 include ts/cpp/lib/*
-include ts/cpp/resources/logging.config
+include ts/cpp/resources/logging.yaml
 include PyPiDescription.rst
 include ts/configs/*
 include ts/version.txt
