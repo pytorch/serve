@@ -15,11 +15,11 @@ from torchvision import transforms
 
 CURR_FILE_PATH = Path(__file__).parent
 
-TORCH_NCCLE_PATH = (Path(torch.__file__).parent / "lib").as_posix()
-TORCH_NCCLE_PATH += (
+TORCH_NCCL_PATH = (Path(torch.__file__).parent / "lib").as_posix()
+TORCH_NCCL_PATH += (
     ":" + (Path(torch.__file__).parents[1] / "nvidia" / "nccl" / "lib").as_posix()
 )
-os.environ["LD_LIBRARY_PATH"] = TORCH_NCCLE_PATH + ":" + os.environ["LD_LIBRARY_PATH"]
+os.environ["LD_LIBRARY_PATH"] = TORCH_NCCL_PATH + ":" + os.environ.get("LD_LIBRARY_PATH","")
 
 
 @pytest.fixture(scope="module")
