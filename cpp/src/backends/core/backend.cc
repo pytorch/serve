@@ -103,6 +103,7 @@ std::unique_ptr<LoadModelResponse> Backend::LoadModelInternal(
         // TODO: check current response msg content
         200, message);
   } catch (const c10::Error &e) {
+    TS_LOGF(ERROR, "Error during model loading: {}", e.what());
     SetModelInstanceInfo(model_instance_id, ModelInstanceStatus::FAILED,
                          std::shared_ptr<ModelInstance>(nullptr));
     return std::make_unique<LoadModelResponse>(

@@ -4,8 +4,14 @@
 #include <typeinfo>
 
 #include <fmt/format.h>
-#include <torch/csrc/inductor/aoti_model_container_runner.h>
-#include <torch/csrc/inductor/aoti_model_container_runner_cuda.h>
+#include <torch/torch.h>
+#if TORCH_VERSION_MAJOR == 2 && TORCH_VERSION_MINOR == 2
+  #include <torch/csrc/inductor/aoti_model_container_runner.h>
+  #include <torch/csrc/inductor/aoti_model_container_runner_cuda.h>
+#else
+  #include <torch/csrc/inductor/aoti_runner/model_container_runner_cpu.h>
+  #include <torch/csrc/inductor/aoti_runner/model_container_runner_cuda.h>
+#endif
 
 #include "src/utils/file_system.hh"
 
@@ -41,9 +47,12 @@ BertCppHandler::LoadModel(
     c10::InferenceMode mode;
 
     if (device->is_cuda()) {
-      return std::make_pair(
-        std::make_shared<torch::inductor::AOTIModelContainerRunnerCuda>(model_so_path.c_str(), 1, device->str().c_str()),
-        device);
+      #if TORCH_VERSION_MAJOR == 2 && TORCH_VERSION_MINOR == 2
+        auto runner = std::make_shared<torch::inductor::AOTIModelContainerRunnerCuda>(model_so_path.c_str());
+      #else
+        auto runner = std::make_shared<torch::inductor::AOTIModelContainerRunnerCuda>(model_so_path.c_str(), 1, device->str().c_str());
+      #endif
+      return std::make_pair(runner, device);
     } else {
       return std::make_pair(
         std::make_shared<torch::inductor::AOTIModelContainerRunnerCpu>(model_so_path.c_str()),
@@ -148,14 +157,19 @@ c10::IValue BertCppHandler::Inference(
     } else {
       runner = std::static_pointer_cast<torch::inductor::AOTIModelContainerRunnerCpu>(model);
     }
-
-    auto batch_output_tensor_vector = runner->run(inputs.toTensorVector());
+    #if TORCH_VERSION_MAJOR == 2 && TORCH_VERSION_MINOR == 2
+      auto batch_output_tensor_vector = runner->run(inputs.toTensorVector());
+    #else
+      std::vector<torch::Tensor> tmp = inputs.toTensorVector();
+      auto batch_output_tensor_vector = runner->run(tmp);
+    #endif
     return c10::IValue(batch_output_tensor_vector[0]);
   } catch (std::runtime_error& e) {
     TS_LOG(ERROR, e.what());
   } catch (const c10::Error& e) {
     TS_LOGF(ERROR, "Failed to apply inference on input, c10 error:{}", e.msg());
   }
+  return c10::IValue();
 }
 
 void BertCppHandler::Postprocess(

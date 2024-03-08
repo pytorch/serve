@@ -50,7 +50,7 @@ function prepare_test_files() {
       mv Transformer_model/tokenizer.json ${HANDLER_DIR}/tokenizer.json
       export TOKENIZERS_PARALLELISM=""
     fi
-    if [ ! -f "${EX_DIR}/aot_inductor/resnet_handler/resne50_pt2.so" ]; then
+    if [ ! -f "${EX_DIR}/aot_inductor/resnet_handler/resnet50_pt2.so" ]; then
       local HANDLER_DIR=${EX_DIR}/aot_inductor/resnet_handler/
       cd ${HANDLER_DIR}
       python ${BASE_DIR}/../examples/cpp/aot_inductor/resnet/resnet50_torch_export.py
@@ -60,6 +60,7 @@ function prepare_test_files() {
 }
 
 function build() {
+  echo -e "${COLOR_GREEN}[ INFO ]Building backend ${COLOR_OFF}"
   MAYBE_BUILD_QUIC=""
   if [ "$WITH_QUIC" == true ] ; then
     setup_mvfst
@@ -78,26 +79,14 @@ function build() {
     PREFIX=$BWD
   fi
 
-  MAYBE_CUDA_COMPILER=""
-  if [ "$CUDA" != "" ]; then
-    MAYBE_CUDA_COMPILER='-DCMAKE_CUDA_COMPILER=/usr/local/cuda/bin/nvcc'
-  fi
-
-  MAYBE_NIGHTLIES="-Dnightlies=OFF"
-  if [ "$USE_NIGHTLIES" == true ]; then
-    MAYBE_NIGHTLIES="-Dnightlies=ON"
-  fi
-
   # Build torchserve_cpp with cmake
   cd "$BWD" || exit
 
   CMAKE_PREFIX_PATH=`python3 -c 'import torch;print(torch.utils.cmake_prefix_path)'`
 
   if [ "$PLATFORM" = "Linux" ]; then
-    if [ "$CUDA" = "cu118" ] || [ "$CUDA" = "cu121" ]; then
-      NCCL_PATH=`python3 -c 'import torch;from pathlib import Path;print(Path(torch.__file__).parents[1]/"nvidia"/"nccl"/"lib")'`
-      export LD_LIBRARY_PATH=${NCCL_PATH}:${LD_LIBRARY_PATH}
-    fi
+    NCCL_PATH=`python3 -c 'import torch;from pathlib import Path;print(Path(torch.__file__).parents[1]/"nvidia"/"nccl"/"lib")'`
+    export LD_LIBRARY_PATH=${NCCL_PATH}:${LD_LIBRARY_PATH}
     cmake                                                                                     \
     -DCMAKE_PREFIX_PATH="$DEPS_DIR;$CMAKE_PREFIX_PATH"                                                           \
     -DCMAKE_INSTALL_PREFIX="$PREFIX"                                                          \
@@ -107,8 +96,6 @@ function build() {
     "$MAYBE_OVERRIDE_CXX_FLAGS"                                                               \
     "$MAYBE_USE_STATIC_DEPS"                                                                  \
     "$MAYBE_LIB_FUZZING_ENGINE"                                                               \
-    "$MAYBE_CUDA_COMPILER"                                                                    \
-    "$MAYBE_NIGHTLIES"                                                                        \
     ..
 
   elif [ "$PLATFORM" = "Mac" ]; then
@@ -123,7 +110,6 @@ function build() {
     "$MAYBE_OVERRIDE_CXX_FLAGS"                                                               \
     "$MAYBE_USE_STATIC_DEPS"                                                                  \
     "$MAYBE_LIB_FUZZING_ENGINE"                                                               \
-    "$MAYBE_NIGHTLIES"                                                                        \
     "-DLLAMA_METAL=OFF"                                                                       \
     ..
 
@@ -167,15 +153,11 @@ WITH_QUIC=false
 INSTALL_DEPENDENCIES=false
 PREFIX=""
 COMPILER_FLAGS=""
-CUDA="cpu"
-USAGE="./build.sh [-j num_jobs] [-g cu118|cu121] [-q|--with-quic] [-t|--no-tets] [-p|--prefix] [-x|--compiler-flags] [-n|--nighlies]"
+USAGE="./build.sh [-j num_jobs] [-q|--with-quic] [-t|--no-tets] [-p|--prefix] [-x|--compiler-flags]"
 while [ "$1" != "" ]; do
   case $1 in
     -j | --jobs ) shift
                   JOBS=$1
-                  ;;
-    -g | --cuda-version ) shift
-                  CUDA=$1
                   ;;
     -q | --with-quic )
                   WITH_QUIC=true
@@ -190,9 +172,6 @@ while [ "$1" != "" ]; do
     -x | --compiler-flags )
                   shift
                   COMPILER_FLAGS=$1
-      ;;
-    -n | --nightlies )
-                  USE_NIGHTLIES=true
       ;;
     * )           echo $USAGE
                   exit 1

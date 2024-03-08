@@ -5,8 +5,13 @@
 #include <unordered_map>
 
 #include <fmt/format.h>
-#include <torch/csrc/inductor/aoti_model_container_runner.h>
-#include <torch/csrc/inductor/aoti_model_container_runner_cuda.h>
+#if TORCH_VERSION_MAJOR == 2 && TORCH_VERSION_MINOR == 2
+  #include <torch/csrc/inductor/aoti_model_container_runner.h>
+  #include <torch/csrc/inductor/aoti_model_container_runner_cuda.h>
+#else
+  #include <torch/csrc/inductor/aoti_runner/model_container_runner_cpu.h>
+  #include <torch/csrc/inductor/aoti_runner/model_container_runner_cuda.h>
+#endif
 
 #include "src/utils/file_system.hh"
 
@@ -47,15 +52,27 @@ ResnetCppHandler::LoadModel(
         (*model_config_yaml_)["handler"]["model_so_path"].as<std::string>());
     c10::InferenceMode mode;
 
-    if (device->is_cuda()) {
-      return std::make_pair(
-        std::make_shared<torch::inductor::AOTIModelContainerRunnerCuda>(model_so_path.c_str(), 1, device->str().c_str()),
-        device);
-    } else {
-      return std::make_pair(
-        std::make_shared<torch::inductor::AOTIModelContainerRunnerCpu>(model_so_path.c_str()),
-        device);
-    }
+    #if TORCH_VERSION_MAJOR == 2 && TORCH_VERSION_MINOR == 2    
+      if (device->is_cuda()) {
+        return std::make_pair(
+          std::make_shared<torch::inductor::AOTIModelContainerRunnerCuda>(model_so_path.c_str()),
+          device);
+      } else {
+        return std::make_pair(
+          std::make_shared<torch::inductor::AOTIModelContainerRunnerCpu>(model_so_path.c_str()),
+          device);
+      }
+    #else
+      if (device->is_cuda()) {
+        return std::make_pair(
+          std::make_shared<torch::inductor::AOTIModelContainerRunnerCuda>(model_so_path, 1, device->str()),
+          device);
+      } else {
+        return std::make_pair(
+          std::make_shared<torch::inductor::AOTIModelContainerRunnerCpu>(model_so_path),
+          device);
+      }
+    #endif
   } catch (const c10::Error& e) {
     TS_LOGF(ERROR, "loading the model: {}, device id: {}, error: {}",
             load_model_request->model_name, load_model_request->gpu_id,
