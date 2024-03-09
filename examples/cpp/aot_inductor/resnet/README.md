@@ -1,6 +1,8 @@
 This example uses AOTInductor to compile the Resnet50 into an so file which is then executed using libtorch.
 The handler C++ source code for this examples can be found [here](src).
 
+**Note**: Please note that due to an issue in Pytorch 2.2.1 the AOTInductor model can not be placed on a specific GPU through the API. This issue is resolved in the PT 2.3 nightlies. Please install the nightlies if you want to run multiple model worker on different GPUs.
+
 ### Setup
 1. Follow the instructions in [README.md](../../../../cpp/README.md) to build the TorchServe C++ backend.
 

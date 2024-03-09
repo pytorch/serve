@@ -157,12 +157,8 @@ c10::IValue BertCppHandler::Inference(
     } else {
       runner = std::static_pointer_cast<torch::inductor::AOTIModelContainerRunnerCpu>(model);
     }
-    #if TORCH_VERSION_MAJOR == 2 && TORCH_VERSION_MINOR == 2
-      auto batch_output_tensor_vector = runner->run(inputs.toTensorVector());
-    #else
-      std::vector<torch::Tensor> tmp = inputs.toTensorVector();
+      auto tmp = inputs.toTensorVector();
       auto batch_output_tensor_vector = runner->run(tmp);
-    #endif
     return c10::IValue(batch_output_tensor_vector[0]);
   } catch (std::runtime_error& e) {
     TS_LOG(ERROR, e.what());
