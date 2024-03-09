@@ -26,7 +26,6 @@ with torch.no_grad():
     example_inputs = (torch.randn(2, 3, 224, 224, device=device),)
 
     batch_dim = torch.export.Dim("batch", min=1, max=MAX_BATCH_SIZE)
-    torch._C._GLIBCXX_USE_CXX11_ABI = True
     so_path = torch._export.aot_compile(
         model,
         example_inputs,

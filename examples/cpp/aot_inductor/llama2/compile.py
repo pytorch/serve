@@ -30,7 +30,6 @@ if __name__ == "__main__":
     model, config = load_checkpoint(args.checkpoint)
     x = torch.randint(0, config.vocab_size, (1, config.max_seq_len // 2))
     seq_len_dim = torch.export.Dim("seq_len", min=1, max=config.max_seq_len)
-    torch._C._GLIBCXX_USE_CXX11_ABI = True
     so_path = torch._export.aot_compile(
         model,
         (x,),

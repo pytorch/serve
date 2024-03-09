@@ -1,0 +1,8 @@
+{
+    "string": "test",
+    "int": 42,
+    "json":{
+        "string": "test2"
+    },
+    "array": ["element1", "element2"]
+}
