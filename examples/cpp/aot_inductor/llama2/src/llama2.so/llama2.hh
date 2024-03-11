@@ -7,7 +7,13 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/mman.h>
-#include <torch/csrc/inductor/aoti_model_container_runner.h>
+
+#include <torch/torch.h>
+#if TORCH_VERSION_MAJOR == 2 && TORCH_VERSION_MINOR == 2
+  #include <torch/csrc/inductor/aoti_model_container_runner.h>
+#else
+  #include <torch/csrc/inductor/aoti_runner/model_container_runner_cpu.h>
+#endif
 // ----------------------------------------------------------------------------
 // Transformer model
 

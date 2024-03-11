@@ -3,6 +3,7 @@
 #include <memory>
 
 #include "src/backends/handler/handler_factory.hh"
+#include "src/utils/logging.hh"
 
 namespace torchserve {
 Backend::Backend() {}
@@ -17,9 +18,10 @@ Backend::~Backend() {
 bool Backend::Initialize(const std::string &model_dir) {
   random_generator_.seed(time(0));
   manifest_ = std::make_shared<torchserve::Manifest>();
+  auto manifest_file = fmt::format("{}/MAR-INF/MANIFEST.json", model_dir);
   // TODO: windows
-  if (!manifest_->Initialize(
-          fmt::format("{}/MAR-INF/MANIFEST.json", model_dir))) {
+  TS_LOGF(DEBUG, "Initializing from manifest: {}", manifest_file);
+  if (!manifest_->Initialize(manifest_file)) {
     return false;
   }
 
@@ -38,6 +40,7 @@ void Backend::LoadHandler(const std::string &model_dir) {
   const std::string &handler_str = manifest_->GetModel().handler;
   std::size_t delimiter_pos = handler_str.find(manifest_->kHandler_Delimiter);
   if (delimiter_pos != std::string::npos) {
+    TS_LOGF(DEBUG, "Loading custom handler: {}", handler_str);
 #ifdef __APPLE__
     std::string lib_path = fmt::format("{}/{}.dylib", model_dir,
                                        handler_str.substr(0, delimiter_pos));
@@ -54,6 +57,7 @@ void Backend::LoadHandler(const std::string &model_dir) {
     dl_loader_->OpenDL();
     handler_ = dl_loader_->GetInstance();
   } else {
+    TS_LOGF(DEBUG, "Creating handler: {}", handler_str);
     handler_ = HandlerFactory::GetInstance().createHandler(handler_str);
   }
 }
@@ -99,6 +103,7 @@ std::unique_ptr<LoadModelResponse> Backend::LoadModelInternal(
         // TODO: check current response msg content
         200, message);
   } catch (const c10::Error &e) {
+    TS_LOGF(ERROR, "Error during model loading: {}", e.what());
     SetModelInstanceInfo(model_instance_id, ModelInstanceStatus::FAILED,
                          std::shared_ptr<ModelInstance>(nullptr));
     return std::make_unique<LoadModelResponse>(

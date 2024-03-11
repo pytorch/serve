@@ -3,7 +3,9 @@
 * C++17
 * GCC version: gcc-9
 * cmake version: 3.18+
+* Linux
 ## Installation and Running TorchServe CPP
+This installation instruction assumes that TorchServe is already installed through pip/conda/source. If this is not the case install it after the `Install dependencies` step through your preferred method.
 
 ### Install dependencies
 ```
@@ -11,30 +13,31 @@ cd serve
 python ts_scripts/install_dependencies.py --cpp --environment dev [--cuda=cu121|cu118]
 ```
 ### Building the backend
+Don't forget to install or update TorchServe at this point if it wasn't previously installed. E.g. with:
+```
+python ts_scripts/install_from_src.py
+```
+
+Then build the backend:
 ```
 ## Dev Build
 cd cpp
 ./build.sh [-g cu121|cu118]
-
-## Install TorchServe from source
-cd ..
-python ts_scripts/install_from_src.py
-```
-### Set Environment Var
-#### On Mac
-```
-export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:$(pwd)/_build/_deps/libtorch/lib
-```
-#### On Ubuntu
-```
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(pwd)/_build/_deps/libtorch/lib
 ```
 
 ### Run TorchServe
 ```
 mkdir model_store
+export LD_LIBRARY_PATH=`python -c "import torch;from pathlib import Path;p=Path(torch.__file__);print(f\"{(p.parent / 'lib').as_posix()}:{(p.parents[1] / 'nvidia/nccl/lib').as_posix()}\")"`:$LD_LIBRARY_PATH
 torchserve --ncs --start --model-store model_store
 ```
+
+### Clean the build directory
+To clean the build directory in order to rebuild from scratch simply delete the cpp/_build directory with
+```
+rm -rf cpp/_build
+```
+
 ## Backend
 TorchServe cpp backend can run as a process, which is similar to [TorchServe Python backend](https://github.com/pytorch/serve/tree/master/ts). By default, TorchServe supports torch scripted model in cpp backend. Other platforms such as MxNet, ONNX can be supported through custom handlers following the TorchScript example [src/backends/handler/torch_scripted_handler.hh](https://github.com/pytorch/serve/blob/master/cpp/src/backends/handler/torch_scripted_handler.hh).
 ### Custom Handler
@@ -89,7 +92,7 @@ python -c "import ts; from pathlib import Path; print((Path(ts.__file__).parent 
 3. Make sure you have the right conda/venv environment activated during building that you're also using to run TorchServe.
 
 Q: Build on Mac fails with `Library not loaded: @rpath/libomp.dylib`
-A: Install libomp with brew and link in /usr/local/lib 
+A: Install libomp with brew and link in /usr/local/lib
 ```bash
 brew install libomp
 sudo ln -s /opt/homebrew/opt/libomp/lib/libomp.dylib /usr/local/lib/libomp.dylib

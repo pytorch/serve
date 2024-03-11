@@ -1,0 +1,4 @@
+config:
+  loglevel: INFO
+  logfile: "test/utils/metrics/metrics_test.log"
+  async: false

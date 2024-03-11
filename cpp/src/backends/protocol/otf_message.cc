@@ -1,5 +1,7 @@
 #include "src/backends/protocol/otf_message.hh"
 
+#include <cstring>
+
 static const std::string CONTENT_TYPE_SUFFIX = ":contentType";
 static constexpr char NULL_CHAR = '\0';
 

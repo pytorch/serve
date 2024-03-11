@@ -79,7 +79,6 @@ def transformers_model_dowloader(
         )
         batch_dim = torch.export.Dim("batch", min=1, max=MAX_BATCH_SIZE)
         seq_len_dim = torch.export.Dim("seq_len", min=1, max=MAX_SEQ_LENGTH)
-        torch._C._GLIBCXX_USE_CXX11_ABI = True
         model_so_path = torch._export.aot_compile(
             model,
             (input_ids, attention_mask),
