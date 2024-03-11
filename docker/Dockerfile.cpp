@@ -19,7 +19,7 @@ ARG CMAKE_VERSION=3.26.4
 ARG BRANCH_NAME="master"
 ARG USE_CUDA_VERSION=""
 
-FROM ${BASE_IMAGE} AS cpp-dev-image
+FROM ${BASE_IMAGE} AS dev-image
 ARG BASE_IMAGE
 ARG PYTHON_VERSION
 ARG CMAKE_VERSION
@@ -89,3 +89,60 @@ WORKDIR "serve"
 RUN pip install pygit2 && python ts_scripts/install_from_src.py
 
 EXPOSE 8080 8081 8082 7070 7071
+
+
+FROM dev-image AS compile-image
+ARG USE_CUDA_VERSION=""
+ENV PYTHONUNBUFFERED TRUE
+
+RUN if [ "$USE_CUDA_VERSION" != "" ]; then \
+        python ts_scripts/install_dependencies.py --environment=dev --cpp --cuda=$USE_CUDA_VERSION; \
+    else \
+        python ts_scripts/install_dependencies.py --environment=dev --cpp; \
+    fi
+
+RUN cd cpp \
+    && ./build.sh \
+    && cd ..
+
+
+FROM ${BASE_IMAGE} AS production-image
+ARG PYTHON_VERSION
+ENV PYTHONUNBUFFERED TRUE
+
+RUN --mount=type=cache,target=/var/cache/apt \
+    apt-get update && \
+    apt-get install software-properties-common -y && \
+    add-apt-repository -y ppa:deadsnakes/ppa && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
+    python$PYTHON_VERSION \
+    python3-distutils \
+    python$PYTHON_VERSION-dev \
+    python$PYTHON_VERSION-venv \
+    openjdk-17-jdk \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/* \
+    && cd /tmp
+
+RUN useradd -m model-server \
+    && mkdir -p /home/model-server/tmp
+
+COPY --chown=model-server --from=compile-image /home/venv /home/venv
+
+ENV PATH="/home/venv/bin:$PATH"
+
+COPY dockerd-entrypoint.sh /usr/local/bin/dockerd-entrypoint.sh
+
+RUN chmod +x /usr/local/bin/dockerd-entrypoint.sh \
+    && chown -R model-server /home/model-server
+
+COPY config.properties /home/model-server/config.properties
+RUN mkdir /home/model-server/model-store && chown -R model-server /home/model-server/model-store
+
+EXPOSE 8080 8081 8082 7070 7071
+
+USER model-server
+WORKDIR /home/model-server
+ENV TEMP=/home/model-server/tmp
+ENTRYPOINT ["/usr/local/bin/dockerd-entrypoint.sh"]
+CMD ["serve"]
