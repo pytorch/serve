@@ -29,10 +29,8 @@ ENV PYTHONUNBUFFERED TRUE
 
 RUN --mount=type=cache,id=apt-dev,target=/var/cache/apt \
     apt-get update && \
-    apt-get upgrade -y && \
     apt-get install software-properties-common -y && \
     add-apt-repository -y ppa:deadsnakes/ppa && \
-    apt remove python-pip  python3-pip && \
     DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
         sudo \
         vim \
@@ -46,7 +44,8 @@ RUN --mount=type=cache,id=apt-dev,target=/var/cache/apt \
         openjdk-17-jdk \
         python$PYTHON_VERSION \
         python$PYTHON_VERSION-dev \
-        python$PYTHON_VERSION-venv
+        python$PYTHON_VERSION-venv \
+    && rm -rf /var/lib/apt/lists/*
 
 # Create a virtual environment and "activate" it by adding it first to the path.
 RUN python$PYTHON_VERSION -m venv /home/venv
@@ -58,7 +57,8 @@ RUN (wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/nu
     && (echo "deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/kitware.list >/dev/null) \
     && apt-get update \
     && (test -f /usr/share/doc/kitware-archive-keyring/copyright || sudo rm /usr/share/keyrings/kitware-archive-keyring.gpg) \
-    && sudo apt-get install kitware-archive-keyring
+    && sudo apt-get install kitware-archive-keyring \
+    && rm -rf /var/lib/apt/lists/*
 
 # Pin cmake and cmake-data version
 # Ref: https://manpages.ubuntu.com/manpages/xenial/man5/apt_preferences.5.html
@@ -66,7 +66,7 @@ RUN echo "Package: cmake\nPin: version $CMAKE_VERSION*\nPin-Priority: 1001" > /e
 RUN echo "Package: cmake-data\nPin: version $CMAKE_VERSION*\nPin-Priority: 1001" > /etc/apt/preferences.d/cmake-data
 
 # Install CUDA toolkit to enable "libtorch" build with GPU support
-RUN \
+RUN apt-get update && \
     if echo "$BASE_IMAGE" | grep -q "cuda:"; then \
         if [ "$USE_CUDA_VERSION" = "cu121" ]; then \
             apt-get -y install cuda-toolkit-12-1; \
@@ -76,10 +76,8 @@ RUN \
             echo "Cuda version not supported by CPP backend: $USE_CUDA_VERSION"; \
             exit 1; \
         fi; \
-    fi
-
-# Clean up apt/lists
-RUN rm -rf /var/lib/apt/lists/*
+    fi \
+    && rm -rf /var/lib/apt/lists/*
 
 RUN git clone --recursive https://github.com/pytorch/serve.git \
     && cd serve \
