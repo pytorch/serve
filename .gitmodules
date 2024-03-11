@@ -7,9 +7,6 @@
 [submodule "cpp/third-party/llama2.so"]
 	path = cpp/third-party/llama2.so
 	url = https://github.com/mreso/llama2.so.git
-[submodule "cpp/third-party/folly"]
-	path = cpp/third-party/folly
-	url = https://github.com/facebook/folly.git
 [submodule "cpp/third-party/yaml-cpp"]
 	path = cpp/third-party/yaml-cpp
 	url = https://github.com/jbeder/yaml-cpp.git
