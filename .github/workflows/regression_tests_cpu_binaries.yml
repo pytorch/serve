@@ -22,24 +22,19 @@ jobs:
         exclude:
         - os: macos-latest
           python-version: 3.8
+        - os: macos-14
+          python-version: 3.8
+        - os: macos-14
+          python-version: 3.9
     steps:
       - uses: actions/checkout@v3
         with:
           submodules: recursive
-      - name: Setup Conda for M1
-        if: matrix.os == 'macos-14'
-        uses: s-weigand/setup-conda@v1
-        with:
-          update-conda: true
-          python-version: '3.10'
-          conda-channels: anaconda, conda-forge
-      - name: Setup Conda for Other OS
-        if: matrix.os != 'macos-14'
+      - name: Setup conda with Python ${{ matrix.python-version }}
         uses: s-weigand/setup-conda@v1
         with:
           update-conda: true
           python-version: ${{ matrix.python-version }}
-          conda-channels: anaconda, conda-forge
       - run: conda --version
       - run: python --version
       - name: Setup Java 17
