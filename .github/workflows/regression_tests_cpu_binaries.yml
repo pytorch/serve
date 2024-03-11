@@ -47,3 +47,41 @@ jobs:
       - name: Validate Torchserve CPU Regression
         run: |
           python test/regression_tests.py --binaries --${{ matrix.binaries }} --nightly
+          
+  regression-cpu-nightly-binaries-macos-14:
+    # Job for macOS-14 with Python 3.10
+    runs-on: macos-14
+    strategy:
+      fail-fast: false
+      matrix:
+        binaries: ["pypi", "conda"]
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+      - name: Setup Python for M1
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10' 
+      - name: Setup conda with Python 3.10
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          auto-update-conda: true
+          python-version: '3.10'
+      - name: Setup Java 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+      - name: Checkout TorchServe
+        uses: actions/checkout@v3
+      - name: Conda info
+        shell: bash -el {0}
+        run: conda info &&
+            python ts_scripts/install_dependencies.py --environment=dev &&
+            python test/regression_tests.py --binaries --${{ matrix.binaries }} --nightly
+      - name: Conda list
+        shell: pwsh
+        run: conda list
+      - run: conda --version
+      - run: python --version
