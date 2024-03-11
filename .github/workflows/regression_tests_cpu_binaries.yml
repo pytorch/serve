@@ -1,72 +1,39 @@
 name: Run Regression Tests for CPU nightly binaries
 
-# on:
-#   # run every day at 6:15am
-#   schedule:
-#     - cron: '15 6 * * *'
 on:
-  push:
-    branches:
-      - m1
+  # run every day at 6:15am
+  schedule:
+    - cron:  '15 6 * * *'
 
 concurrency:
   group: ci-cpu-${{ github.workflow }}-${{ github.ref == 'refs/heads/master' && github.run_number || github.ref }}
   cancel-in-progress: true
 
 jobs:
-  # regression-cpu-nightly-binaries:
-  #   # creates workflows for OS: ubuntu, macOS
-  #   runs-on: ${{ matrix.os }}
-  #   strategy:
-  #     fail-fast: false
-  #     matrix:
-  #       os: [ubuntu-20.04, macOS-latest]
-  #       python-version: ["3.8", "3.9", "3.10"]
-  #       binaries: ["pypi", "conda"]
-  #       exclude:
-  #       - os: macos-latest
-  #         python-version: 3.8
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #       with:
-  #         submodules: recursive
-  #     - name: Setup conda with Python ${{ matrix.python-version }}
-  #       uses: s-weigand/setup-conda@v1
-  #       with:
-  #         update-conda: true
-  #         python-version: ${{ matrix.python-version }}
-  #         conda-channels: anaconda, conda-forge
-  #     - run: conda --version
-  #     - run: python --version
-  #     - name: Setup Java 17
-  #       uses: actions/setup-java@v3
-  #       with:
-  #         distribution: 'zulu'
-  #         java-version: '17'
-  #     - name: Checkout TorchServe
-  #       uses: actions/checkout@v3
-  #     - name: Install dependencies
-  #       run: |
-  #         python ts_scripts/install_dependencies.py --environment=dev
-  #     - name: Validate Torchserve CPU Regression
-  #       run: |
-  #         python test/regression_tests.py --binaries --${{ matrix.binaries }} --nightly
-
-  regression-cpu-nightly-binaries-macos-14:
-    # Job for macOS-14 with Python 3.10
-    runs-on: macos-14
+  regression-cpu-nightly-binaries:
+    # creates workflows for OS: ubuntu, macOS
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
+        os: [ubuntu-20.04, macOS-latest]
+        python-version: ["3.8", "3.9", "3.10"]
         binaries: ["pypi", "conda"]
+        exclude:
+        - os: macos-latest
+          python-version: 3.8
     steps:
       - uses: actions/checkout@v3
         with:
           submodules: recursive
-      - name: Setup Python for M1
-        uses: actions/setup-python@v5
+      - name: Setup conda with Python ${{ matrix.python-version }}
+        uses: s-weigand/setup-conda@v1
         with:
-          python-version: '3.10'
+          update-conda: true
+          python-version: ${{ matrix.python-version }}
+          conda-channels: anaconda, conda-forge
+      - run: conda --version
+      - run: python --version
       - name: Setup Java 17
         uses: actions/setup-java@v3
         with:
@@ -74,29 +41,9 @@ jobs:
           java-version: '17'
       - name: Checkout TorchServe
         uses: actions/checkout@v3
-      
-      - name: Setup conda
+      - name: Install dependencies
         run: |
-          mkdir -p ~/miniconda3
-          curl https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-arm64.sh -o ~/miniconda3/miniconda.sh
-          bash ~/miniconda3/miniconda.sh -b -u -p ~/miniconda3
-          rm -rf ~/miniconda3/miniconda.sh
-          ~/miniconda3/bin/conda init bash
-          ~/miniconda3/bin/conda init zsh
-
-      - name: Conda info
-        shell: bash -el {0}
+          python ts_scripts/install_dependencies.py --environment=dev
+      - name: Validate Torchserve CPU Regression
         run: |
-          conda create --name myenv
-          conda activate myenv
-          conda info  
-          python ts_scripts/install_dependencies.py --environment=dev 
           python test/regression_tests.py --binaries --${{ matrix.binaries }} --nightly
-      - run: python --version
-     
-      # - name: Install dependencies
-      #   run: |
-      #     python ts_scripts/install_dependencies.py --environment=dev
-      # - name: Validate Torchserve CPU Regression
-      #   run: |
-      #     python test/regression_tests.py --binaries --${{ matrix.binaries }} --nightly
