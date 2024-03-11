@@ -1,6 +1,6 @@
 # syntax = docker/dockerfile:experimental
 #
-# This file can build images for CPU with CPP backend support.
+# This file can build images for CPU & GPU with CPP backend support.
 #
 # Following comments have been shamelessly copied from https://github.com/pytorch/pytorch/blob/master/Dockerfile
 #
