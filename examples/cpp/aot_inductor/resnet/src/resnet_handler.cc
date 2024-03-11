@@ -1,21 +1,35 @@
 #include "resnet_handler.hh"
-#include "src/utils/file_system.hh"
+
+#include <iostream>
+#include <typeinfo>
+#include <unordered_map>
 
 #include <fmt/format.h>
-#include <iostream>
-#include <torch/csrc/inductor/aoti_model_container_runner.h>
-#include <torch/csrc/inductor/aoti_model_container_runner_cuda.h>
-#include <typeinfo>
+#if TORCH_VERSION_MAJOR == 2 && TORCH_VERSION_MINOR == 2
+  #include <torch/csrc/inductor/aoti_model_container_runner.h>
+  #include <torch/csrc/inductor/aoti_model_container_runner_cuda.h>
+#else
+  #include <torch/csrc/inductor/aoti_runner/model_container_runner_cpu.h>
+  #include <torch/csrc/inductor/aoti_runner/model_container_runner_cuda.h>
+#endif
+
+#include "src/utils/file_system.hh"
 
 namespace resnet {
 std::string ResnetCppHandler::MapClassToLabel(const torch::Tensor& classes, const torch::Tensor& probs) {
-  folly::dynamic map = folly::dynamic::object;
+  std::unordered_map<std::string, float> map;
   for (int i = 0; i < classes.sizes()[0]; i++) {
-    auto class_value = torchserve::FileSystem::GetJsonValue(mapping_json_, std::to_string(classes[i].item<long>()));
-    map[class_value[1].asString()] = probs[i].item<float>();
+    auto class_value = mapping_json_->GetValue(std::to_string(classes[i].item<long>()));
+    map[class_value.GetValue(1).AsString()] = probs[i].item<float>();
   }
+  std::string json_string = "{\n";
+  for(auto p : map) {
+    json_string += fmt::format("{}:{},\n", p.first, p.second);
+  }
+  json_string.pop_back();
+  json_string.pop_back();
 
-  return folly::toJson(map);
+  return json_string + "\n}";
 }
 
 std::pair<std::shared_ptr<void>, std::shared_ptr<torch::Device>>
@@ -31,23 +45,34 @@ ResnetCppHandler::LoadModel(
     const std::string mapFilePath =
       fmt::format("{}/{}", load_model_request->model_dir,
         (*model_config_yaml_)["handler"]["mapping"].as<std::string>());
-    mapping_json_ = torchserve::FileSystem::LoadJsonFile(mapFilePath);
+    mapping_json_ = std::make_unique<torchserve::Json>(torchserve::Json::ParseJsonFile(mapFilePath));
 
     std::string model_so_path =
       fmt::format("{}/{}", load_model_request->model_dir,
         (*model_config_yaml_)["handler"]["model_so_path"].as<std::string>());
-    mapping_json_ = torchserve::FileSystem::LoadJsonFile(mapFilePath);
     c10::InferenceMode mode;
 
-    if (device->is_cuda()) {
-      return std::make_pair(
-        std::make_shared<torch::inductor::AOTIModelContainerRunnerCuda>(model_so_path.c_str(), 1, device->str().c_str()),
-        device);
-    } else {
-      return std::make_pair(
-        std::make_shared<torch::inductor::AOTIModelContainerRunnerCpu>(model_so_path.c_str()),
-        device);
-    }
+    #if TORCH_VERSION_MAJOR == 2 && TORCH_VERSION_MINOR == 2    
+      if (device->is_cuda()) {
+        return std::make_pair(
+          std::make_shared<torch::inductor::AOTIModelContainerRunnerCuda>(model_so_path.c_str()),
+          device);
+      } else {
+        return std::make_pair(
+          std::make_shared<torch::inductor::AOTIModelContainerRunnerCpu>(model_so_path.c_str()),
+          device);
+      }
+    #else
+      if (device->is_cuda()) {
+        return std::make_pair(
+          std::make_shared<torch::inductor::AOTIModelContainerRunnerCuda>(model_so_path, 1, device->str()),
+          device);
+      } else {
+        return std::make_pair(
+          std::make_shared<torch::inductor::AOTIModelContainerRunnerCpu>(model_so_path),
+          device);
+      }
+    #endif
   } catch (const c10::Error& e) {
     TS_LOGF(ERROR, "loading the model: {}, device id: {}, error: {}",
             load_model_request->model_name, load_model_request->gpu_id,

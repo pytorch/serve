@@ -1,11 +1,19 @@
 #include "bert_handler.hh"
-#include "src/utils/file_system.hh"
+
+#include <iostream>
+#include <typeinfo>
 
 #include <fmt/format.h>
-#include <iostream>
-#include <torch/csrc/inductor/aoti_model_container_runner.h>
-#include <torch/csrc/inductor/aoti_model_container_runner_cuda.h>
-#include <typeinfo>
+#include <torch/torch.h>
+#if TORCH_VERSION_MAJOR == 2 && TORCH_VERSION_MINOR == 2
+  #include <torch/csrc/inductor/aoti_model_container_runner.h>
+  #include <torch/csrc/inductor/aoti_model_container_runner_cuda.h>
+#else
+  #include <torch/csrc/inductor/aoti_runner/model_container_runner_cpu.h>
+  #include <torch/csrc/inductor/aoti_runner/model_container_runner_cuda.h>
+#endif
+
+#include "src/utils/file_system.hh"
 
 namespace bert {
 std::pair<std::shared_ptr<void>, std::shared_ptr<torch::Device>>
@@ -22,7 +30,7 @@ BertCppHandler::LoadModel(
     const std::string mapFilePath =
         fmt::format("{}/{}", load_model_request->model_dir,
         (*model_config_yaml_)["handler"]["mapping"].as<std::string>());
-    mapping_json_ = torchserve::FileSystem::LoadJsonFile(mapFilePath);
+    mapping_json_ = std::make_unique<torchserve::Json>(torchserve::Json::ParseJsonFile(mapFilePath));
 
     max_length_ = (*model_config_yaml_)["handler"]["max_length"].as<int>();
 
@@ -39,9 +47,12 @@ BertCppHandler::LoadModel(
     c10::InferenceMode mode;
 
     if (device->is_cuda()) {
-      return std::make_pair(
-        std::make_shared<torch::inductor::AOTIModelContainerRunnerCuda>(model_so_path.c_str(), 1, device->str().c_str()),
-        device);
+      #if TORCH_VERSION_MAJOR == 2 && TORCH_VERSION_MINOR == 2
+        auto runner = std::make_shared<torch::inductor::AOTIModelContainerRunnerCuda>(model_so_path.c_str());
+      #else
+        auto runner = std::make_shared<torch::inductor::AOTIModelContainerRunnerCuda>(model_so_path.c_str(), 1, device->str().c_str());
+      #endif
+      return std::make_pair(runner, device);
     } else {
       return std::make_pair(
         std::make_shared<torch::inductor::AOTIModelContainerRunnerCpu>(model_so_path.c_str()),
@@ -146,14 +157,15 @@ c10::IValue BertCppHandler::Inference(
     } else {
       runner = std::static_pointer_cast<torch::inductor::AOTIModelContainerRunnerCpu>(model);
     }
-
-    auto batch_output_tensor_vector = runner->run(inputs.toTensorVector());
+      auto tmp = inputs.toTensorVector();
+      auto batch_output_tensor_vector = runner->run(tmp);
     return c10::IValue(batch_output_tensor_vector[0]);
   } catch (std::runtime_error& e) {
     TS_LOG(ERROR, e.what());
   } catch (const c10::Error& e) {
     TS_LOGF(ERROR, "Failed to apply inference on input, c10 error:{}", e.msg());
   }
+  return c10::IValue();
 }
 
 void BertCppHandler::Postprocess(
@@ -170,7 +182,7 @@ void BertCppHandler::Postprocess(
 
       response->SetResponse(200, "data_type",
                             torchserve::PayloadType::kDATA_TYPE_STRING,
-                            torchserve::FileSystem::GetJsonValue(mapping_json_, predicted_idx).asString());
+                            mapping_json_->GetValue(predicted_idx).AsString());
     } catch (const std::runtime_error &e) {
       TS_LOGF(ERROR, "Failed to load tensor for request id: {}, error: {}",
               kv.second, e.what());
