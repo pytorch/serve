@@ -5,7 +5,7 @@
 * cmake version: 3.26.4+
 * Linux
 
-For convenience, a docker container can be used as the development environment to build and install Torchserve CPP
+For convenience, a [docker container](../docker/README.md#create-torchserve-docker-image) can be used as the development environment to build and install Torchserve CPP
 ```
 cd serve/docker
 # For CPU support
