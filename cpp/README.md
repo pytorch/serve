@@ -3,8 +3,26 @@
 * C++17
 * GCC version: gcc-9
 * cmake version: 3.18+
-## Installation and Running TorchServe CPP
+* Linux
 
+For convenience, a docker container can be used as the development environment to build and install Torchserve CPP
+```
+cd serve/docker
+# For CPU support
+./build_image.sh -bt dev -cpp
+# For GPU support
+./build_image.sh -bt dev -g [-cv cu121|cu118] -cpp
+```
+
+Start the container and optionally bind mount a build directory into the container to persist build artifacts across container runs
+```
+# For CPU support
+docker run [-v /path/to/build/dir:/serve/cpp/_build] -it pytorch/torchserve:cpp-dev-cpu /bin/bash
+# For GPU support
+docker run --gpus all [-v /path/to/build/dir:/serve/cpp/_build] -it pytorch/torchserve:cpp-dev-gpu /bin/bash
+```
+
+## Installation and Running TorchServe CPP
 This installation instruction assumes that TorchServe is already installed through pip/conda/source. If this is not the case install it after the `Install dependencies` step through your preferred method.
 
 ### Install dependencies
@@ -13,17 +31,22 @@ cd serve
 python ts_scripts/install_dependencies.py --cpp --environment dev [--cuda=cu121|cu118]
 ```
 ### Building the backend
-Don't forget to install or update TorchServe at this point if it wasn't previously installed.
+Don't forget to install or update TorchServe at this point if it wasn't previously installed. E.g. with:
+```
+python ts_scripts/install_from_src.py
+```
+
+Then build the backend:
 ```
 ## Dev Build
 cd cpp
-./build.sh [-g cu121|cu118]
-
+./build.sh
 ```
 
 ### Run TorchServe
 ```
 mkdir model_store
+export LD_LIBRARY_PATH=`python -c "import torch;from pathlib import Path;p=Path(torch.__file__);print(f\"{(p.parent / 'lib').as_posix()}:{(p.parents[1] / 'nvidia/nccl/lib').as_posix()}\")"`:$LD_LIBRARY_PATH
 torchserve --ncs --start --model-store model_store
 ```
 

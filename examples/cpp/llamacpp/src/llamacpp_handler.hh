@@ -1,8 +1,5 @@
 #pragma once
 
-#include <folly/FileUtil.h>
-#include <folly/json.h>
-
 #include "common/common.h"
 #include "ggml.h"
 #include "llama.h"

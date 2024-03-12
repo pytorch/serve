@@ -1,9 +1,11 @@
 #include "llamacpp_handler.hh"
 
+#include <typeinfo>
+
 #include <torch/script.h>
 #include <torch/torch.h>
+#include <src/utils/json.hh>
 
-#include <typeinfo>
 
 namespace llm {
 
@@ -25,17 +27,12 @@ LlamaCppHandler::LoadModel(
 
     const std::string configFilePath =
         fmt::format("{}/{}", load_model_request->model_dir, "config.json");
-    std::string jsonContent;
-    if (!folly::readFile(configFilePath.c_str(), jsonContent)) {
-      TS_LOGF(ERROR, "config.json not found at: {}", configFilePath);
-      throw;
-    }
-    folly::dynamic json;
-    json = folly::parseJson(jsonContent);
+
+    auto json = torchserve::Json::ParseJsonFile(configFilePath);
 
     std::string checkpoint_path;
-    if (json.find("checkpoint_path") != json.items().end()) {
-      checkpoint_path = json["checkpoint_path"].asString();
+    if (json.HasKey("checkpoint_path")) {
+      checkpoint_path = json.GetValue("checkpoint_path").AsString();
     } else {
       TS_LOG(ERROR, "Required field 'checkpoint_path' not found in JSON.");
       throw;

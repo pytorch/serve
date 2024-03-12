@@ -1,4 +1,5 @@
 import io
+import os
 import shutil
 from pathlib import Path
 from unittest.mock import patch
@@ -13,6 +14,14 @@ from PIL import Image
 from torchvision import transforms
 
 CURR_FILE_PATH = Path(__file__).parent
+
+TORCH_NCCL_PATH = (Path(torch.__file__).parent / "lib").as_posix()
+TORCH_NCCL_PATH += (
+    ":" + (Path(torch.__file__).parents[1] / "nvidia" / "nccl" / "lib").as_posix()
+)
+os.environ["LD_LIBRARY_PATH"] = (
+    TORCH_NCCL_PATH + ":" + os.environ.get("LD_LIBRARY_PATH", "")
+)
 
 
 @pytest.fixture(scope="module")
@@ -31,14 +40,14 @@ def create_mar_file(work_dir, model_archiver, model_name):
 
     mnist_scriptes_pt = (
         CURR_FILE_PATH.parents[1]
-        / "cpp/test/resources/torchscript_model/mnist/mnist_handler/mnist_script.pt"
+        / "cpp/_build/test/resources/examples/mnist/mnist_handler/mnist_script.pt"
     )
 
     config = ModelArchiverConfig(
         model_name=model_name,
         serialized_file=mnist_scriptes_pt.as_posix(),
         model_file=None,
-        handler="BaseHandler",
+        handler="TorchScriptHandler",
         extra_files=None,
         runtime="LSP",
         export_path=work_dir,
@@ -71,6 +80,9 @@ def register_model(mar_file_path, model_store, torchserve):
     """
     Register the model in torchserve
     """
+
+    print(os.environ["LD_LIBRARY_PATH"])
+
     shutil.copy(mar_file_path, model_store)
 
     file_name = Path(mar_file_path).name

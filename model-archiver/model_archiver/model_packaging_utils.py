@@ -170,7 +170,7 @@ class ModelExportUtils(object):
                         if ".py" not in path:
                             path = (path.split(":")[0] if ":" in path else path) + ".py"
                     elif runtime == RuntimeType.LSP.value:
-                        if path == "BaseHandler":
+                        if path in ["BaseHandler", "TorchScriptHandler"]:
                             continue
 
                         if sys.platform.startswith("linux"):

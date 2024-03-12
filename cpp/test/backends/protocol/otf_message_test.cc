@@ -2,6 +2,8 @@
 
 #include "mock_socket.hh"
 
+#include <cstring>
+
 namespace torchserve {
 TEST(OTFMessageTest, TestRetieveCmd) {
   auto client_socket = std::make_shared<MockSocket>();
