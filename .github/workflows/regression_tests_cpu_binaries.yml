@@ -61,16 +61,16 @@ jobs:
           java-version: '17'
       - name: Checkout TorchServe
         uses: actions/checkout@v3
-      - name: Run install dependencies and regression test
-        shell: bash -el {0}
-        run: |
-          conda info 
-          python ts_scripts/install_dependencies.py --environment=dev 
-          python test/regression_tests.py --binaries --${{ matrix.binaries }} --nightly
-      # - name: Install dependencies
+      # - name: Run install dependencies and regression test
+      #   shell: bash -el {0}
       #   run: |
-      #     python ts_scripts/install_dependencies.py --environment=dev
-      # - name: Validate Torchserve CPU Regression
-      #   run: |
+      #     conda info 
+      #     python ts_scripts/install_dependencies.py --environment=dev 
       #     python test/regression_tests.py --binaries --${{ matrix.binaries }} --nightly
+      - name: Install dependencies
+        run: |
+          python ts_scripts/install_dependencies.py --environment=dev
+      - name: Validate Torchserve CPU Regression
+        run: |
+          python test/regression_tests.py --binaries --${{ matrix.binaries }} --nightly
           
