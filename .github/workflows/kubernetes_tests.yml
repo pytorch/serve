@@ -8,7 +8,7 @@ on:
   #  - cron:  '15 6 * * *'
 
 jobs:
-  kserve-cpu-tests:
+  kubernetes-tests:
     runs-on: [self-hosted, regression-test-gpu]
     steps:
       - name: Clean up previous run
@@ -33,4 +33,4 @@ jobs:
       - name: Checkout TorchServe
         uses: actions/checkout@v3
       - name: Validate TorchServe
-        run: /kubernetes/tests/scripts/test_mnist.sh
+        run: ./kubernetes/tests/scripts/test_mnist.sh
