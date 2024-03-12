@@ -1,13 +1,9 @@
 name: Run Regression Tests for CPU nightly binaries
 
-# on:
-#   # run every day at 6:15am
-#   schedule:
-#     - cron: '15 6 * * *'
 on:
-  push:
-    branches:
-      - m1
+  # run every day at 6:15am
+  schedule:
+    - cron: '15 6 * * *'
 
 concurrency:
   group: ci-cpu-${{ github.workflow }}-${{ github.ref == 'refs/heads/master' && github.run_number || github.ref }}
@@ -34,10 +30,6 @@ jobs:
       - uses: actions/checkout@v3
         with:
           submodules: recursive
-      # - name: Setup Python 
-      #   uses: actions/setup-python@v5
-      #   with:
-      #     python-version: ${{ matrix.python-version }}
       - name: Setup conda with Python ${{ matrix.python-version }}
         if: matrix.os == 'macos-14'
         uses: conda-incubator/setup-miniconda@v3
@@ -52,8 +44,6 @@ jobs:
           update-conda: true
           python-version: ${{ matrix.python-version }}
           conda-channels: anaconda, conda-forge
-      # - run: conda --version
-      # - run: python --version
       - name: Setup Java 17
         uses: actions/setup-java@v3
         with:
