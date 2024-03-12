@@ -95,18 +95,6 @@ function build() {
   fi
 }
 
-function install_torchserve_cpp() {
-  TARGET_DIR=`python -c "import ts; from pathlib import Path; print(Path(ts.__file__).parent / 'cpp')"`
-
-  if [ -d $TARGET_DIR ]; then
-    rm -rf $TARGET_DIR
-  fi
-  mkdir $TARGET_DIR
-  cp -rp $BASE_DIR/_build/bin $TARGET_DIR/bin
-  cp -rp $BASE_DIR/_build/libs $TARGET_DIR/lib
-  cp -rp $BASE_DIR/_build/resources $TARGET_DIR/resources
-}
-
 # Parse args
 JOBS=8
 WITH_QUIC=false
@@ -168,4 +156,3 @@ cd $BASE_DIR
 git submodule update --init --recursive
 
 build
-install_torchserve_cpp

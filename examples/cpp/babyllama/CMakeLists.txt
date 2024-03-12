@@ -16,7 +16,7 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(tokenizer_bin stories15M_bin)
 
-add_library(llama2_c STATIC ../../../cpp/third-party/llama2.c/run.c)
+add_library(llama2_c STATIC ${CMAKE_CURRENT_SOURCE_DIR}/../../../cpp/third-party/llama2.c/run.c)
 target_compile_options(llama2_c PRIVATE -Wall -Wextra -Ofast -fPIC)
 
 add_library(babyllama_handler SHARED src/baby_llama_handler.cc)
