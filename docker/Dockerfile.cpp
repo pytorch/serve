@@ -27,13 +27,15 @@ ARG CMAKE_VERSION
 ARG GCC_VERSION
 ARG BRANCH_NAME
 ARG USE_CUDA_VERSION
+ARG DEBIAN_FRONTEND=noninteractive
 ENV PYTHONUNBUFFERED TRUE
+ENV TZ=Etc/UTC
 
 RUN --mount=type=cache,id=apt-dev,target=/var/cache/apt \
     apt-get update && \
     apt-get install software-properties-common -y && \
     add-apt-repository -y ppa:deadsnakes/ppa && \
-    DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
+    apt-get install --no-install-recommends -y \
         sudo \
         vim \
         git \
