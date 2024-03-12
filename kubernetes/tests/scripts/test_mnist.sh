@@ -15,7 +15,7 @@ function start_minikube_cluster() {
     echo "Removing any previous Kubernetes cluster"
     minikube delete
     echo "Starting Kubernetes cluster"
-    minikube start --gpus  all --mount-string="$GITHUB_WORKSPACE/serve:/host" --mount
+    minikube start --gpus  all --mount-string="$GITHUB_WORKSPACE:/host" --mount
     minikube addons enable metrics-server
 }
 
