@@ -16,12 +16,16 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-20.04, macOS-latest]
+        os: [ubuntu-20.04, macOS-latest, macos-14]
         python-version: ["3.8", "3.9", "3.10"]
         binaries: ["pypi", "conda"]
         exclude:
         - os: macos-latest
           python-version: 3.8
+        - os: macos-14
+          python-version: 3.8
+        - os: macos-14
+          python-version: 3.9
     steps:
       - uses: actions/checkout@v3
         with:
@@ -47,3 +51,4 @@ jobs:
       - name: Validate Torchserve CPU Regression
         run: |
           python test/regression_tests.py --binaries --${{ matrix.binaries }} --nightly
+          
