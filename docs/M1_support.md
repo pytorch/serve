@@ -58,5 +58,17 @@ CPP log config: N/A
 Model config: N/A
 System metrics command: default
 ...
+2024-03-12T15:58:54,702 [INFO ] main org.pytorch.serve.wlm.ModelManager - Model densenet161 loaded.
+2024-03-12T15:58:54,702 [DEBUG] main org.pytorch.serve.wlm.ModelManager - updateModel: densenet161, count: 10
 Model server started.
+...
+(myenv3) serve % curl http://127.0.0.1:8080/predictions/densenet161 -T examples/image_classifier/kitten.jpg 
+
+{
+  "tabby": 0.46661922335624695,
+  "tiger_cat": 0.46449029445648193,
+  "Egyptian_cat": 0.0661405548453331,
+  "lynx": 0.001292439759708941,
+  "plastic_bag": 0.00022909720428287983
+}
 ```
