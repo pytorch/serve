@@ -61,16 +61,19 @@ jobs:
           java-version: '17'
       - name: Checkout TorchServe
         uses: actions/checkout@v3
-      # - name: Run install dependencies and regression test
-      #   shell: bash -el {0}
-      #   run: |
-      #     conda info 
-      #     python ts_scripts/install_dependencies.py --environment=dev 
-      #     python test/regression_tests.py --binaries --${{ matrix.binaries }} --nightly
+      - name: Run install dependencies and regression test
+        if: matrix.os == 'macos-14'
+        shell: bash -el {0}
+        run: |
+          conda info 
+          python ts_scripts/install_dependencies.py --environment=dev 
+          python test/regression_tests.py --binaries --${{ matrix.binaries }} --nightly
       - name: Install dependencies
+        if: matrix.os != 'macos-14'
         run: |
           python ts_scripts/install_dependencies.py --environment=dev
       - name: Validate Torchserve CPU Regression
+        if: matrix.os != 'macos-14'
         run: |
           python test/regression_tests.py --binaries --${{ matrix.binaries }} --nightly
           
