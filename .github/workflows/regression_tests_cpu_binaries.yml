@@ -39,17 +39,19 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - name: Setup conda with Python ${{ matrix.python-version }}
+        if: matrix.os == 'macos-14'
         uses: conda-incubator/setup-miniconda@v3
         with:
           auto-update-conda: true
           channels: anaconda, conda-forge
           python-version: ${{ matrix.python-version }}
-      # - name: Setup conda with Python ${{ matrix.python-version }}
-      #   uses: s-weigand/setup-conda@v1
-      #   with:
-      #     update-conda: true
-      #     python-version: ${{ matrix.python-version }}
-      #     conda-channels: anaconda, conda-forge
+      - name: Setup conda with Python ${{ matrix.python-version }}
+        if: matrix.os != 'macos-14'
+        uses: s-weigand/setup-conda@v1
+        with:
+          update-conda: true
+          python-version: ${{ matrix.python-version }}
+          conda-channels: anaconda, conda-forge
       # - run: conda --version
       # - run: python --version
       - name: Setup Java 17
@@ -63,7 +65,7 @@ jobs:
         shell: bash -el {0}
         run: |
           conda info 
-          /usr/local/miniconda/envs/test/bin/python ts_scripts/install_dependencies.py --environment=dev 
+          python ts_scripts/install_dependencies.py --environment=dev 
           python test/regression_tests.py --binaries --${{ matrix.binaries }} --nightly
       # - name: Install dependencies
       #   run: |
