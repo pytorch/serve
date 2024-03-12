@@ -83,7 +83,8 @@ function check_cpu_cores {
       sleep 60
       break
     fi
-    if (( current_time - start_time >= max_wait_time )); then
+    current_time=$(date +%s)
+    if (( current_time - start_time >= $2 )); then
             echo "Timeout waiting for metrics information to be available"
             delete_minikube_cluster
             exit 1
@@ -135,7 +136,7 @@ get_model_archive "https://torchserve.pytorch.org/mar_files/mnist_v2.mar" "mnist
 deploy_cluster "./kubernetes/tests/configs/deployment.yaml" "ts-def"
 
 echo "CPU usage test"
-check_cpu_cores "ts-def"
+check_cpu_cores "ts-def" 180
 
 echo "MNIST test inference"
 make_cluster_accessible "kubernetes/examples/mnist/service.yaml" 5
