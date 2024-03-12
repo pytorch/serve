@@ -129,9 +129,9 @@ fi
 }
 
 # Setup
-#start_minikube_cluster
-#build_docker_image
-#get_model_archive "https://torchserve.pytorch.org/mar_files/mnist_v2.mar" "mnist"
+start_minikube_cluster
+build_docker_image
+get_model_archive "https://torchserve.pytorch.org/mar_files/mnist_v2.mar" "mnist"
 deploy_cluster "./kubernetes/tests/configs/deployment.yaml" "ts-def"
 
 echo "CPU usage test"
@@ -142,4 +142,4 @@ make_cluster_accessible "kubernetes/examples/mnist/service.yaml" 5
 make_prediction "mnist"  "examples/image_classifier/mnist/test_data/0.png" "0"
 
 # Clean up
-#delete_minikube_cluster
+delete_minikube_cluster
