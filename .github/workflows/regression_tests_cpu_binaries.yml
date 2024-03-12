@@ -63,7 +63,7 @@ jobs:
         shell: bash -el {0}
         run: |
           conda info 
-          python ts_scripts/install_dependencies.py --environment=dev 
+          /usr/local/miniconda/envs/test/bin/python ts_scripts/install_dependencies.py --environment=dev 
           python test/regression_tests.py --binaries --${{ matrix.binaries }} --nightly
       # - name: Install dependencies
       #   run: |
