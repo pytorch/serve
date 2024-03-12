@@ -65,20 +65,6 @@ RUN (wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/nu
     && echo "Package: cmake-data\nPin: version $CMAKE_VERSION*\nPin-Priority: 1001" > /etc/apt/preferences.d/cmake-data \
     && rm -rf /var/lib/apt/lists/*
 
-# Install CUDA toolkit to enable "libtorch" build with GPU support
-RUN apt-get update && \
-    if echo "$BASE_IMAGE" | grep -q "cuda:"; then \
-        if [ "$USE_CUDA_VERSION" = "cu121" ]; then \
-            apt-get -y install cuda-toolkit-12-1; \
-        elif [ "$USE_CUDA_VERSION" = "cu118" ]; then \
-            apt-get -y install cuda-toolkit-11-8; \
-        else \
-            echo "Cuda version not supported by CPP backend: $USE_CUDA_VERSION"; \
-            exit 1; \
-        fi; \
-    fi \
-    && rm -rf /var/lib/apt/lists/*
-
 RUN git clone --recursive https://github.com/pytorch/serve.git \
     && cd serve \
     && git checkout ${BRANCH_NAME}
