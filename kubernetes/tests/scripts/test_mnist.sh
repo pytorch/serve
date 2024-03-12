@@ -37,7 +37,6 @@ function get_model_archive() {
 
 function deploy_cluster() {
     echo "Deploying the cluster"
-    #cd $GITHUB_WORKSPACE
     kubectl apply -f "$1"
     echo "Waiting for pod to come up..."
     wait_for_pod_running "$2" 300
@@ -137,7 +136,7 @@ build_docker_image
 get_model_archive "https://torchserve.pytorch.org/mar_files/mnist_v2.mar" "mnist"
 deploy_cluster "./kubernetes/tests/configs/deployment.yaml" "ts-def"
 
-echo "CPU usage test"
+echo "No model loaded CPU usage test"
 check_cpu_cores "ts-def" 180
 
 echo "MNIST test inference"
