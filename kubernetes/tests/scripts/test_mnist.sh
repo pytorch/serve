@@ -15,7 +15,7 @@ function start_minikube_cluster() {
     echo "Removing any previous Kubernetes cluster"
     minikube delete
     echo "Starting Kubernetes cluster"
-    minikube start --gpus  all --mount-string="$HOME/serve:/host" --mount
+    minikube start --gpus  all --mount-string="$GITHUB_WORKSPACE/serve:/host" --mount
     minikube addons enable metrics-server
 }
 
@@ -31,6 +31,8 @@ function get_model_archive() {
     echo "Downloading archive for $2"
     mkdir model_store -p
     wget $1 -O model_store/"$2".mar
+    pwd
+    echo $GITHUB_WORKSPACE
 }
 
 function deploy_cluster() {
