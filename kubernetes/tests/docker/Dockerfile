@@ -1,0 +1,6 @@
+FROM pytorch/torchserve-nightly:latest-gpu
+ARG EXAMPLE_DIR
+
+RUN apt-get install jq -y
+
+COPY $EXAMPLE_DIR/../docker/config.properties /home/model-server/config.properties
