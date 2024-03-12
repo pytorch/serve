@@ -2,7 +2,7 @@
 ## Requirements
 * C++17
 * GCC version: gcc-9
-* cmake version: 3.18+
+* cmake version: 3.26.4+
 * Linux
 
 For convenience, a docker container can be used as the development environment to build and install Torchserve CPP

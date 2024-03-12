@@ -16,6 +16,7 @@
 ARG BASE_IMAGE=ubuntu:20.04
 ARG PYTHON_VERSION=3.9
 ARG CMAKE_VERSION=3.26.4
+ARG GCC_VERSION=9
 ARG BRANCH_NAME="master"
 ARG USE_CUDA_VERSION=""
 
@@ -23,6 +24,7 @@ FROM ${BASE_IMAGE} AS cpp-dev-image
 ARG BASE_IMAGE
 ARG PYTHON_VERSION
 ARG CMAKE_VERSION
+ARG GCC_VERSION
 ARG BRANCH_NAME
 ARG USE_CUDA_VERSION
 ENV PYTHONUNBUFFERED TRUE
@@ -39,6 +41,7 @@ RUN --mount=type=cache,id=apt-dev,target=/var/cache/apt \
         wget \
         rsync \
         gpg \
+        gcc-$GCC_VERSION \
         ca-certificates \
         lsb-release \
         openjdk-17-jdk \
@@ -51,19 +54,16 @@ RUN --mount=type=cache,id=apt-dev,target=/var/cache/apt \
 RUN python$PYTHON_VERSION -m venv /home/venv
 ENV PATH="/home/venv/bin:$PATH"
 
-# Enable installation of recent cmake release
+# Enable installation of recent cmake release and pin cmake & cmake-data version
 # Ref: https://apt.kitware.com/
 RUN (wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null) \
     && (echo "deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/kitware.list >/dev/null) \
     && apt-get update \
     && (test -f /usr/share/doc/kitware-archive-keyring/copyright || sudo rm /usr/share/keyrings/kitware-archive-keyring.gpg) \
     && sudo apt-get install kitware-archive-keyring \
+    && echo "Package: cmake\nPin: version $CMAKE_VERSION*\nPin-Priority: 1001" > /etc/apt/preferences.d/cmake \
+    && echo "Package: cmake-data\nPin: version $CMAKE_VERSION*\nPin-Priority: 1001" > /etc/apt/preferences.d/cmake-data \
     && rm -rf /var/lib/apt/lists/*
-
-# Pin cmake and cmake-data version
-# Ref: https://manpages.ubuntu.com/manpages/xenial/man5/apt_preferences.5.html
-RUN echo "Package: cmake\nPin: version $CMAKE_VERSION*\nPin-Priority: 1001" > /etc/apt/preferences.d/cmake
-RUN echo "Package: cmake-data\nPin: version $CMAKE_VERSION*\nPin-Priority: 1001" > /etc/apt/preferences.d/cmake-data
 
 # Install CUDA toolkit to enable "libtorch" build with GPU support
 RUN apt-get update && \
