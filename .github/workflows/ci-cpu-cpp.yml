@@ -47,7 +47,7 @@ jobs:
           sudo apt update && python ts_scripts/install_dependencies.py --environment=dev --cpp
       - name: Install TorchServe
         run: |
-          python ts_scripts/install_from_src.py
+          python ts_scripts/install_from_src.py --environment=dev
       - name: Print Env
         run: |
           python ts_scripts/print_env_info.py
@@ -57,4 +57,4 @@ jobs:
           ./build.sh
       - name: Run test
         run: |
-          cd .. && pytest test/pytest/test_cpp_backend.py
+          pytest test/pytest/test_cpp_backend.py
