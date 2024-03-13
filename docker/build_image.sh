@@ -12,6 +12,7 @@ USE_CUSTOM_TAG=false
 CUDA_VERSION=""
 USE_LOCAL_SERVE_FOLDER=false
 BUILD_WITH_IPEX=false
+BUILD_CPP=false
 BUILD_NIGHTLY=false
 PYTHON_VERSION=3.9
 
@@ -29,6 +30,7 @@ do
           echo "-t, --tag specify tag name for docker image"
           echo "-lf, --use-local-serve-folder specify this option for the benchmark image if the current 'serve' folder should be used during automated benchmarks"
           echo "-ipex, --build-with-ipex specify to build with intel_extension_for_pytorch"
+          echo "-cpp, --build-cpp specify to build TorchServe CPP"
           echo "-py, --pythonversion specify to python version to use: Possible values: 3.8 3.9 3.10"
           echo "-n, --nightly specify to build with TorchServe nightly"
           exit 0
@@ -74,6 +76,10 @@ do
           ;;
         -ipex|--build-with-ipex)
           BUILD_WITH_IPEX=true
+          shift
+          ;;
+        -cpp|--build-cpp)
+          BUILD_CPP=true
           shift
           ;;
         -n|--nightly)
@@ -139,7 +145,12 @@ fi
 
 if [ "${BUILD_TYPE}" == "dev" ] && ! $USE_CUSTOM_TAG ;
 then
-  DOCKER_TAG="pytorch/torchserve:dev-$MACHINE"
+  if [ "${BUILD_CPP}" == "true" ]
+  then
+    DOCKER_TAG="pytorch/torchserve:cpp-dev-$MACHINE"
+  else
+    DOCKER_TAG="pytorch/torchserve:dev-$MACHINE"
+  fi
 fi
 
 if [ "$USE_CUSTOM_TAG" = true ]
@@ -153,6 +164,24 @@ then
   exit 1
 fi
 
+if [ "$BUILD_CPP" == "true" ];
+then
+  if [ "$BUILD_TYPE" != "dev" ];
+  then
+    echo "Only dev container build is supported for CPP"
+    exit 1
+  fi
+
+  if [[ "${MACHINE}" == "gpu" || "${CUDA_VERSION}" != "" ]];
+  then
+    if [[ "${CUDA_VERSION}" != "cu121" && "${CUDA_VERSION}" != "cu118" ]];
+    then
+      echo "Only cuda versions 12.1 and 11.8 are supported for CPP"
+      exit 1
+    fi
+  fi
+fi
+
 if [ "${BUILD_TYPE}" == "production" ]
 then
   DOCKER_BUILDKIT=1 docker build --file Dockerfile --build-arg BASE_IMAGE="${BASE_IMAGE}" --build-arg USE_CUDA_VERSION="${CUDA_VERSION}"  --build-arg PYTHON_VERSION="${PYTHON_VERSION}" --build-arg BUILD_NIGHTLY="${BUILD_NIGHTLY}" -t "${DOCKER_TAG}" --target production-image  .
@@ -160,5 +189,10 @@ elif [ "${BUILD_TYPE}" == "ci" ]
 then
   DOCKER_BUILDKIT=1 docker build --file Dockerfile --build-arg BASE_IMAGE="${BASE_IMAGE}" --build-arg USE_CUDA_VERSION="${CUDA_VERSION}"  --build-arg PYTHON_VERSION="${PYTHON_VERSION}" --build-arg BUILD_NIGHTLY="${BUILD_NIGHTLY}" --build-arg BRANCH_NAME="${BRANCH_NAME}"  -t "${DOCKER_TAG}" --target ci-image  .
 else
-  DOCKER_BUILDKIT=1 docker build --file Dockerfile --build-arg BASE_IMAGE="${BASE_IMAGE}" --build-arg USE_CUDA_VERSION="${CUDA_VERSION}"  --build-arg PYTHON_VERSION="${PYTHON_VERSION}" --build-arg BUILD_NIGHTLY="${BUILD_NIGHTLY}" --build-arg BRANCH_NAME="${BRANCH_NAME}" --build-arg BUILD_WITH_IPEX="${BUILD_WITH_IPEX}"  -t "${DOCKER_TAG}" --target dev-image  .
+  if [ "${BUILD_CPP}" == "true" ]
+  then
+    DOCKER_BUILDKIT=1 docker build --file Dockerfile.cpp --build-arg BASE_IMAGE="${BASE_IMAGE}" --build-arg USE_CUDA_VERSION="${CUDA_VERSION}" --build-arg PYTHON_VERSION="${PYTHON_VERSION}" --build-arg BRANCH_NAME="${BRANCH_NAME}" -t "${DOCKER_TAG}" --target cpp-dev-image .
+  else
+    DOCKER_BUILDKIT=1 docker build --file Dockerfile --build-arg BASE_IMAGE="${BASE_IMAGE}" --build-arg USE_CUDA_VERSION="${CUDA_VERSION}"  --build-arg PYTHON_VERSION="${PYTHON_VERSION}" --build-arg BUILD_NIGHTLY="${BUILD_NIGHTLY}" --build-arg BRANCH_NAME="${BRANCH_NAME}" --build-arg BUILD_WITH_IPEX="${BUILD_WITH_IPEX}"  -t "${DOCKER_TAG}" --target dev-image  .
+  fi
 fi
