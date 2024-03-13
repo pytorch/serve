@@ -7,6 +7,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -W -Wall -Wextra -fPIC")
+set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_BINARY_DIR})
 
 find_program(CLANG_TIDY_EXE NAMES "clang-tidy" REQUIRED)
 set(CMAKE_CXX_CLANG_TIDY "${CLANG_TIDY_EXE}")
@@ -22,9 +23,24 @@ if(CLANG_FORMAT_EXE)
 
 endif()
 
+execute_process(COMMAND python -c "import importlib; print(importlib.util.find_spec('nvidia') is not None)"
+                OUTPUT_VARIABLE NVIDIA_AVAILABLE
+                OUTPUT_STRIP_TRAILING_WHITESPACE)
+if(${NVIDIA_AVAILABLE} STREQUAL "True")
+  execute_process(COMMAND python -c "import nvidia;from pathlib import Path;print(Path(nvidia.__file__).parent/'nccl'/'lib')"
+                  OUTPUT_VARIABLE NCCL_PATH
+                  OUTPUT_STRIP_TRAILING_WHITESPACE)
+  list(APPEND CMAKE_FIND_LIBRARY_SUFFIXES ".so.2")
+endif()
+
+execute_process(COMMAND python -c "import torch;print(torch.utils.cmake_prefix_path)"
+                OUTPUT_VARIABLE TORCH_CMAKE_PREFIX_PATH
+                OUTPUT_STRIP_TRAILING_WHITESPACE)
+list(APPEND CMAKE_PREFIX_PATH ${TORCH_CMAKE_PREFIX_PATH})
 
 find_package(Boost REQUIRED)
 find_package(Torch REQUIRED)
+find_library(NCCL_LIBRARY nccl HINTS ${NCCL_PATH})
 
 include(FetchContent)
 
