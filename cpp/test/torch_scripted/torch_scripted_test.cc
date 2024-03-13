@@ -9,10 +9,10 @@
 
 TEST_F(ModelPredictTest, TestLoadPredictBaseHandler) {
   this->LoadPredict(std::make_shared<torchserve::LoadModelRequest>(
-                        "_build/test/resources/examples/mnist/mnist_handler",
+                        "../test/resources/examples/mnist/mnist_handler",
                         "mnist_scripted_v2", -1, "", "", 1, false),
-                    "_build/test/resources/examples/mnist/base_handler",
-                    "_build/test/resources/examples/mnist/0_png.pt", "mnist_ts",
+                    "../test/resources/examples/mnist/base_handler",
+                    "../test/resources/examples/mnist/0_png.pt", "mnist_ts",
                     200);
 }
 
