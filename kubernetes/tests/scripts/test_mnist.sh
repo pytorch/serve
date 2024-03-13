@@ -5,7 +5,8 @@ set -o errexit -o nounset -o pipefail
 ACCEPTABLE_CPU_CORE_USAGE=2
 DOCKER_IMAGE=pytorch/torchserve-nightly:latest-gpu
 
-# Get relative path of example dir
+# Get relative path of example dir with respect to root
+# Ex: if ROOT_DIR is ~/serve , EXAMPLE_DIR is ./kubernetes/tests/scripts
 EXAMPLE_DIR=$(dirname "$(readlink -f "$0")")
 ROOT_DIR=${EXAMPLE_DIR}/../../../
 ROOT_DIR=$(realpath "$ROOT_DIR")
