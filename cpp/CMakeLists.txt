@@ -73,3 +73,5 @@ add_subdirectory(test)
 FILE(COPY src/resources/logging.yaml DESTINATION "${CMAKE_INSTALL_PREFIX}/resources")
 
 install(SCRIPT "install.cmake")
+
+enable_testing()
