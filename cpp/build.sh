@@ -57,16 +57,12 @@ function build() {
 
   make -j "$JOBS"
   make install
-  echo -e "${COLOR_GREEN}torchserve_cpp build is complete. To run unit test: \
-  ./_build/test/torchserve_cpp_test ${COLOR_OFF}"
+  echo -e "${COLOR_GREEN}torchserve_cpp build is complete. ${COLOR_OFF}"
 
-  # cd $DEPS_DIR/../..
-  # if [ -f "$DEPS_DIR/../test/torchserve_cpp_test" ]; then
-  #   $DEPS_DIR/../test/torchserve_cpp_test
-  # else
-  #   echo -e "${COLOR_RED}[ ERROR ] _build/test/torchserve_cpp_test not exist ${COLOR_OFF}"
-  #   exit 1
-  # fi
+
+  if [ -z "$NO_BUILD_TESTS" ]; then
+    make test
+  fi
 }
 
 # Parse args
