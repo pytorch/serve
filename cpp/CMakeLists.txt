@@ -40,7 +40,11 @@ list(APPEND CMAKE_PREFIX_PATH ${TORCH_CMAKE_PREFIX_PATH})
 
 find_package(Boost REQUIRED)
 find_package(Torch REQUIRED)
+
 find_library(NCCL_LIBRARY nccl HINTS ${NCCL_PATH})
+if("${NCCL_LIBRARY}" STREQUAL "NOTFOUND")
+  set(NCCL_LIBRARY "")
+endif()
 
 include(FetchContent)
 
