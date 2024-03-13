@@ -42,7 +42,7 @@ find_package(Boost REQUIRED)
 find_package(Torch REQUIRED)
 
 find_library(NCCL_LIBRARY nccl HINTS ${NCCL_PATH})
-if("${NCCL_LIBRARY}" STREQUAL "NOTFOUND")
+if("${NCCL_LIBRARY}" STREQUAL "NCCL_LIBRARY-NOTFOUND")
   set(NCCL_LIBRARY "")
 endif()
 
