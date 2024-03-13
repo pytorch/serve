@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.26.4 FATAL_ERROR)
 project(torchserve_cpp VERSION 0.1)
 
+enable_testing()
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -73,5 +75,3 @@ add_subdirectory(test)
 FILE(COPY src/resources/logging.yaml DESTINATION "${CMAKE_INSTALL_PREFIX}/resources")
 
 install(SCRIPT "install.cmake")
-
-enable_testing()
