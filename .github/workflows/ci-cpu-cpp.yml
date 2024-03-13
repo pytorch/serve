@@ -47,7 +47,7 @@ jobs:
           sudo apt update && python ts_scripts/install_dependencies.py --environment=dev --cpp
       - name: Install TorchServe
         run: |
-          python ts_scripts/install_from_src.py --environment=dev
+          python ts_scripts/install_from_src.py
       - name: Print Env
         run: |
           python ts_scripts/print_env_info.py
@@ -55,11 +55,6 @@ jobs:
         run: |
           cd cpp && rm -rf _build && sudo mkdir /mnt/_build && sudo chmod 777 /mnt/_build && mkdir _build && sudo mount --bind /mnt/_build _build
           ./build.sh
-      - name: Setup upterm session
-        uses: lhotari/action-upterm@v1
-        with:
-          limit-access-to-actor: true
-          limit-access-to-users: mreso
       - name: Run test
         run: |
-          pytest test/pytest/test_cpp_backend.py
+          cd test && pytest pytest/test_cpp_backend.py
