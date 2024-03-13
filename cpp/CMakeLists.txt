@@ -23,7 +23,7 @@ if(CLANG_FORMAT_EXE)
 
 endif()
 
-execute_process(COMMAND python -c "import importlib; print(importlib.util.find_spec('nvidia') is not None)"
+execute_process(COMMAND python -c "import importlib.util; print(importlib.util.find_spec('nvidia') is not None)"
                 OUTPUT_VARIABLE NVIDIA_AVAILABLE
                 OUTPUT_STRIP_TRAILING_WHITESPACE)
 if(${NVIDIA_AVAILABLE} STREQUAL "True")
