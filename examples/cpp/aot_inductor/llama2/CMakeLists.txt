@@ -1,5 +1,16 @@
 
 FetchContent_Declare(
+  llama2_so
+  GIT_REPOSITORY https://github.com/mreso/llama2.so.git
+  GIT_TAG 370154d
+)
+
+if(NOT llama2_so_POPULATED)
+  message(STATUS "Fetching llama2.so...")
+  FetchContent_Populate(llama2_so)
+endif()
+
+FetchContent_Declare(
   stories15M_pt
   URL      https://huggingface.co/karpathy/tinyllamas/resolve/main/stories15M.pt?download=true
   DOWNLOAD_NO_EXTRACT TRUE
@@ -16,7 +27,7 @@ add_custom_command(
 )
 
 
-add_library(llama2_so STATIC ../../../../cpp/third-party/llama2.so/run.cpp)
+add_library(llama2_so STATIC ${llama2_so_SOURCE_DIR}/run.cpp)
 target_compile_options(llama2_so PRIVATE -Wall -Wextra -Ofast -fpermissive)
 
 add_library(llama_so_handler SHARED src/llama_handler.cc stories15M.so)
