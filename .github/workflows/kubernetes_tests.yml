@@ -1,0 +1,35 @@
+name: Kubernetes Nightly Tests
+
+on:
+  workflow_dispatch:
+   runs everyday  at 6:15am
+  schedule:
+    - cron:  '15 6 * * *'
+
+jobs:
+  kubernetes-tests:
+    runs-on: [self-hosted, regression-test-gpu]
+    steps:
+      - name: Clean up previous run
+        run: |
+          echo "Cleaning up previous run"
+          ls -la ./
+          sudo rm -rf ./* || true
+          sudo rm -rf ./.??* || true
+          ls -la ./
+      - name: Install minikube and kubectl
+        run: |
+          curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+          sudo install minikube-linux-amd64 /usr/local/bin/minikube
+          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+          sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+          echo "/usr/local/bin" >> $GITHUB_PATH
+      - name: Setup Python 3.9
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.9
+          architecture: x64
+      - name: Checkout TorchServe
+        uses: actions/checkout@v3
+      - name: Validate TorchServe
+        run: ./kubernetes/tests/scripts/test_mnist.sh
