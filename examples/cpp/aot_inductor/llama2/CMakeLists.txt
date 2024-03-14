@@ -22,7 +22,7 @@ FetchContent_MakeAvailable(stories15M_pt)
 
 add_custom_command(
     OUTPUT stories15M.so
-    COMMAND PYTHONPATH=${CMAKE_CURRENT_SOURCE_DIR}/../../../../cpp/third-party/llama2.so/ python ${CMAKE_CURRENT_SOURCE_DIR}/compile.py --checkpoint ${CMAKE_CURRENT_BINARY_DIR}/\'stories15M.pt?download=true\' ${CMAKE_CURRENT_BINARY_DIR}/stories15M.so
+    COMMAND PYTHONPATH=${llama2_so_SOURCE_DIR} python ${CMAKE_CURRENT_SOURCE_DIR}/compile.py --checkpoint ${CMAKE_CURRENT_BINARY_DIR}/\'stories15M.pt?download=true\' ${CMAKE_CURRENT_BINARY_DIR}/stories15M.so
     DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/compile.py
 )
 
