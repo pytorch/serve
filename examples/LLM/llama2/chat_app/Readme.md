@@ -9,6 +9,33 @@ We are using [llama-cpp-python](https://github.com/abetlen/llama-cpp-python) in 
 You can run this example on your laptop to understand how to use TorchServe
 
 
+## Quick Start Guide
+
+To get started with TorchServe, you need to run the following
+
+```
+# 1: Set HF Token as Env variable
+export HUGGINGFACE_TOKEN=<Token> # get this from your HuggingFace account
+
+# 2: Build TorchServe Image for Serving llama2-7b model with 4-bit quantization
+./examples/llm/llama2/chat_app/docker/build_image.sh meta-llama/Llama-2-7b-chat-hf
+
+# 3: Launch the streamlit app for server & client
+docker run --rm -it --platform linux/amd64 -p 127.0.0.1:8080:8080 -p 127.0.0.1:8081:8081 -p 127.0.0.1:8082:8082 -p 127.0.0.1:8084:8084 -p 127.0.0.1:8085:8085 -v <model-store>:/home/model-server/model-store pytorch/torchserve:meta-llama---Llama-2-7b-chat-hf
+```
+In step 3, `<model-store>` is a location where you want the model to be downloaded
+
+### What to expect
+This launches two streamlit apps
+1. TorchServe Server app to start/stop TorchServe, load model, scale up/down workers, configure dynamic batch_size ( Currently llama-cpp-python doesn't support batch_size > 1)
+    - Since this app is targeted for Apple M1/M2 laptops, we load a 4-bit quantized version of llama2 using llama-cpp-python.
+2.  Client chat app where you can chat with the model . There is a slider to send concurrent requests to the model. The current app doesn't have a good mechanism to show multiple responses in parallel. You can notice streaming response for the first request followed by a complete response for the next request.
+
+Currently, this launches llama2-7b model with 4-bit quantization running on CPU.
+
+To make use of M1/M2 GPU, you can follow the below guide to do a standalone TorchServe installation.
+
+
 ## Architecture
 
 ![Chatbot Architecture](./screenshots/architecture.png)
