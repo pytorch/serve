@@ -149,4 +149,4 @@ The example can be found [here](../large_models/diffusion_fast/README.md)
 
 ## C++ AOTInductor examples
 
-AOTInductor is the Ahead-of-time-compiler, a specialized version of TorchInductor, designed to process exported PyTorch models, optimize them, and produce shared libraries as well as other relevant artifacts. These compiled artifacts are specifically crafted for deployment in non-Python environments. You can find the AOTInductor C++ examples [here](../cpp/aot_inductor)
+AOTInductor is the Ahead-of-time-compiler, a specialized version of `TorchInductor`, designed to process exported PyTorch models, optimize them, and produce shared libraries as well as other relevant artifacts. These compiled artifacts are specifically crafted for deployment in non-Python environments. You can find the AOTInductor C++ examples [here](../cpp/aot_inductor)
