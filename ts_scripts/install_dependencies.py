@@ -133,7 +133,10 @@ class Common:
         if nightly:
             pt_nightly = "cpu" if not cuda_version else cuda_version
             os.system(
-                f"pip3 install numpy --pre torch torchvision torchtext torchaudio --force-reinstall --index-url https://download.pytorch.org/whl/nightly/{pt_nightly}"
+                f"pip3 install numpy --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/{pt_nightly}"
+            )
+            os.system(
+                f"pip3 install --pre torchtext --index-url https://download.pytorch.org/whl/nightly/cpu"
             )
         else:
             self.install_torch_packages(cuda_version)
@@ -206,10 +209,9 @@ class Linux(Common):
             os.system(f"{self.sudo_cmd}apt-get install -y numactl")
 
     def install_cpp_dependencies(self):
-        if os.system("clang-tidy --version") != 0 or args.force:
-            os.system(
-                f"{self.sudo_cmd}apt-get install -y {' '.join(CPP_LINUX_DEPENDENCIES)}"
-            )
+        os.system(
+            f"{self.sudo_cmd}apt-get install -y {' '.join(CPP_LINUX_DEPENDENCIES)}"
+        )
 
     def install_neuronx_driver(self):
         # Configure Linux for Neuron repository updates

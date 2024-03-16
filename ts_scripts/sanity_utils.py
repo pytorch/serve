@@ -11,7 +11,6 @@ import torch
 from ts_scripts import marsgen as mg
 from ts_scripts import tsutils as ts
 from ts_scripts import utils
-from ts_scripts.tsutils import generate_grpc_client_stubs
 
 REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 sys.path.append(REPO_ROOT)
@@ -204,51 +203,18 @@ def run_rest_test(model, register_model=True, unregister_model=True):
 
 
 def test_sanity():
-    generate_grpc_client_stubs()
+    # Execute python tests
+    print("## Started TorchServe sanity pytests")
+    test_dir = os.path.join("test", "pytest", "sanity")
+    coverage_dir = os.path.join("ts")
+    report_output_dir = os.path.join(test_dir, "coverage.xml")
 
-    print("## Started sanity tests")
+    ts_test_cmd = f"python -m pytest --cov-report xml:{report_output_dir} --cov={coverage_dir} {test_dir}"
+    print(f"## In directory: {os.getcwd()} | Executing command: {ts_test_cmd}")
+    ts_test_error_code = os.system(ts_test_cmd)
 
-    models_to_validate = load_model_to_validate()
-
-    test_gpu_setup()
-
-    ts_log_file = os.path.join("logs", "ts_console.log")
-
-    os.makedirs("model_store", exist_ok=True)
-    os.makedirs("logs", exist_ok=True)
-
-    mg.mar_set = set(os.listdir("model_store"))
-    started = ts.start_torchserve(log_file=ts_log_file, gen_mar=False)
-    if not started:
-        sys.exit(1)
-
-    resnet18_model = models_to_validate["resnet-18"]
-
-    models_to_validate = {
-        k: v for k, v in models_to_validate.items() if k != "resnet-18"
-    }
-
-    for _, model in models_to_validate.items():
-        run_grpc_test(model)
-        run_rest_test(model)
-
-    run_rest_test(resnet18_model, unregister_model=False)
-
-    stopped = ts.stop_torchserve()
-    if not stopped:
-        sys.exit(1)
-
-    # Restarting torchserve
-    # This should restart with the generated snapshot and resnet-18 model should be automatically registered
-    started = ts.start_torchserve(log_file=ts_log_file, gen_mar=False)
-    if not started:
-        sys.exit(1)
-
-    run_rest_test(resnet18_model, register_model=False)
-
-    stopped = ts.stop_torchserve()
-    if not stopped:
-        sys.exit(1)
+    if ts_test_error_code != 0:
+        sys.exit("## TorchServe sanity test failed !")
 
 
 def test_workflow_sanity():

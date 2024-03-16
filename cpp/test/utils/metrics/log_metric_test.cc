@@ -12,11 +12,19 @@
 #include "src/utils/logging.hh"
 
 namespace torchserve {
+
+class TestLogger : public Logger {
+    public:
+    TestLogger(){};
+    virtual ~TestLogger(){};
+    void flush() { return Logger::logger->flush(); }
+};
+
 class TSLogMetricTest : public ::testing::Test {
  protected:
   const std::string logfile_path{"test/utils/metrics/metrics_test.log"};
   const std::string logger_config_path_str{
-      "test/resources/metrics/log_to_file.config"};
+      "test/resources/metrics/log_to_file.yaml"};
   const std::string metric_name{"test_metric"};
   const std::vector<std::string> metric_dimension_names{"level", "model_name"};
   const std::vector<std::string> metric_dimension_values{"model", "test_model"};
@@ -83,6 +91,8 @@ TEST_F(TSLogMetricTest, TestCounterMetric) {
       std::invalid_argument);
   test_metric.AddOrUpdate(metric_dimension_values, metric_request_id, 3.5);
   const std::vector<double> expected_metric_values{1.0, 3.5};
+  TestLogger logger;
+  logger.flush();
   ASSERT_EQ(GetMetricValuesFromLogs(), expected_metric_values);
 }
 
@@ -96,6 +106,10 @@ TEST_F(TSLogMetricTest, TestGaugeMetric) {
   test_metric.AddOrUpdate(metric_dimension_values, metric_request_id, 3.5);
   test_metric.AddOrUpdate(metric_dimension_values, metric_request_id, -4.0);
   const std::vector<double> expected_metric_values{1.0, -2.0, 3.5, -4.0};
+
+  TestLogger logger;
+  logger.flush();
+
   ASSERT_EQ(GetMetricValuesFromLogs(), expected_metric_values);
 }
 
@@ -109,6 +123,10 @@ TEST_F(TSLogMetricTest, TestHistogramMetric) {
   test_metric.AddOrUpdate(metric_dimension_values, metric_request_id, 3.5);
   test_metric.AddOrUpdate(metric_dimension_values, metric_request_id, -4.0);
   const std::vector<double> expected_metric_values{1.0, -2.0, 3.5, -4.0};
+
+  TestLogger logger;
+  logger.flush();
+
   ASSERT_EQ(GetMetricValuesFromLogs(), expected_metric_values);
 }
 
@@ -116,6 +134,8 @@ TEST_F(TSLogMetricTest, TestTSLogMetricEmitWithRequestId) {
   TSLogMetric test_metric(MetricType::COUNTER, metric_name, "ms",
                           metric_dimension_names);
   test_metric.AddOrUpdate(metric_dimension_values, metric_request_id, 1.5);
+  TestLogger logger;
+  logger.flush();
   const std::vector<std::string> metric_logs = GetMetricLogs();
   ASSERT_EQ(metric_logs.size(), 1);
 
@@ -134,6 +154,8 @@ TEST_F(TSLogMetricTest, TestTSLogMetricEmitWithoutRequestId) {
   TSLogMetric test_metric(MetricType::COUNTER, metric_name, "ms",
                           metric_dimension_names);
   test_metric.AddOrUpdate(metric_dimension_values, 1.5);
+  TestLogger logger;
+  logger.flush();
   const std::vector<std::string> metric_logs = GetMetricLogs();
   ASSERT_EQ(metric_logs.size(), 1);
 
