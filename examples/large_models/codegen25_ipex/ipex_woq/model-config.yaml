@@ -13,11 +13,8 @@ handler:
     ipex_weight_only_quantization: true
     woq_dtype: "INT8"
     lowp_mode: "BF16"
+    amp_enabled: true
     act_quant_mode: "PER_IC_BLOCK"
     group_size: -1
-    token_latency: true
-    benchmark: true 
-    num_warmup: 2
-    num_iter: 10 
     greedy: true
     

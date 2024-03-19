@@ -22,6 +22,8 @@ EXAMPLE_INPUTS_MODE = {
 
 
 logger = logging.getLogger(__name__)
+logger.info("PyTorch version %s", torch.__version__)
+logger.info("IPEX version %s", ipex.__version__)
 logger.info("Transformers version %s", transformers.__version__)
 
 class CodeGenHandler(BaseHandler, ABC):
@@ -47,14 +49,9 @@ class CodeGenHandler(BaseHandler, ABC):
         self.ipex_weight_only_quantization = ctx.model_yaml_config["handler"]["ipex_weight_only_quantization"]
         self.woq_dtype = ctx.model_yaml_config["handler"]["woq_dtype"]
         self.lowp_mode = ctx.model_yaml_config["handler"]["lowp_mode"]
+        self.amp_enabled = ctx.model_yaml_config["handler"]["amp_enabled"]
         self.act_quant_mode = ctx.model_yaml_config["handler"]["act_quant_mode"] # This is only relevant for INT4x2 quantization
         self.group_size = ctx.model_yaml_config["handler"]["group_size"]
-        
-        # runtime params 
-        self.benchmark = ctx.model_yaml_config["handler"]["benchmark"]
-        self.token_latency = ctx.model_yaml_config["handler"]["token_latency"]
-        self.num_warmup = ctx.model_yaml_config["handler"]["num_warmup"]
-        self.num_iter = ctx.model_yaml_config["handler"]["num_iter"]
         
         # decoding parameters 
         self.greedy = ctx.model_yaml_config["handler"]["greedy"]
@@ -67,11 +64,9 @@ class CodeGenHandler(BaseHandler, ABC):
             pass
 
         # amp datatype 
-        if self.lowp_mode == "BF16":
-            self.amp_enabled = True
+        if self.amp_enabled:
             self.amp_dtype = torch.bfloat16
         else:
-            self.amp_enabled = False
             self.amp_dtype = torch.float32
 
         # generate args: using greedy for now
@@ -96,9 +91,6 @@ class CodeGenHandler(BaseHandler, ABC):
             config.text_max_length = int(self.max_length)
         
         # load model and tokenizer
-        #model = CodeGen25Config(model_name)
-        #self.user_model = model.get_user_model(config, self.benchmark)
-        #self.tokenizer = model.get_tokenizer() 
         self.user_model = AutoModelForCausalLM.from_pretrained(model_name, config=config, low_cpu_mem_usage=True, torch_dtype=torch.float)
         self.tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code = True)
         logger.info("Data type of the model: %s", self.user_model.dtype)
@@ -193,82 +185,17 @@ class CodeGenHandler(BaseHandler, ABC):
         # set PAD token
         if self.tokenizer.pad_token is None:
             self.tokenizer.pad_token=self.tokenizer.eos_token
-        
-
-        if self.benchmark:
-            print("Loading the quantized model")
-            # Quantizing the model may be needed before loading the quantized jit 
-
-            try:
-                self_jit = torch.jit.load(self.quantized_model_path)
-                self_jit = torch.jit.freeze(self_jit.eval())
-                print(self_jit)
-            except Exception as e:
-                logger.error("Error: loading the model failed.", e)
-                exit(0)
-        
-            setattr(self.user_model, "trace_graph", self_jit)
-            logger.info("Successfully loaded the Model %s with Intel® Extension for PyTorch*", ctx.model_name)
-
-
-            if self.token_latency:
-                if not hasattr(self.user_model.config, "token_latency"):
-                    self.user_model.config.token_latency = True
-
-        
-            # set min token count for exact number of token generation    
-            benchmark_generate_kwargs = dict(do_sample=False, temperature=0.9, num_beams=self.num_beams, max_new_tokens=self.max_new_tokens, min_new_tokens=self.max_new_tokens)
-            import time
-            total_time = 0.0
-            total_list = []
-            num_iter = self.num_iter
-            num_warmup = self.num_warmup
             
-            input_size = self.max_length - self.max_new_tokens
-            input_ids = torch.randint(1, 10000, (self.batch_size, input_size)).to(torch.long)
-
-            logger.info("Prompt size: %i", input_size)
-            
-            with torch.inference_mode(), torch.no_grad(), torch.autocast(
-                device_type="cpu",
-                enabled=self.amp_enabled,
-                dtype=self.amp_dtype,
-            ):
-                for i in range(num_iter):
-                    tic = time.time()
-                    output = self.user_model.generate(input_ids, **benchmark_generate_kwargs)
-                    gen_ids = output[0] if self.token_latency else output
-                    gen_text = self.tokenizer.decode(gen_ids[0], skip_special_tokens=True)
-                    toc = time.time()
-                    
-                    logger.info("Iteration: %d, Time: %.6f sec" % (i, toc - tic))
-                    if i >= num_warmup:
-                        total_time += toc - tic
-                        if self.token_latency:
-                            total_list.append(output[1])
-
-            latency = total_time / (num_iter - num_warmup)
-            logger.info("Average Query Latency: %.3f sec." % latency)
-
-            if self.token_latency:
-                import numpy as np
-                from itertools import chain
-                first_latency = np.mean([x[0] for x in total_list])
-                average_2n = list(chain(*[x[1:] for x in total_list]))
-                average_2n.sort()
-                average_2n_latency = np.mean(average_2n)
-                p90_latency = average_2n[int(len(average_2n)*0.9)]
-                p99_latency = average_2n[int(len(average_2n)*0.99)]
-
-                logger.info("Average first token latency: %.3f sec." % first_latency)
-                logger.info("Average second token latency: %.3f sec." % average_2n_latency)
-                logger.info("P90 second token latency: %.3f sec." % p90_latency)
-                logger.info("P99 second token latency: %.3f sec." % p99_latency)
-
-            self.benchmark = False
-            self.user_model.config.token_latency = False
-
-        logger.info("Successfully benchmarked the model, ready to take prompts")
+        logger.info("Loading the IPEX quantized model")
+        try:
+            self_jit = torch.jit.load(self.quantized_model_path)
+            self_jit = torch.jit.freeze(self_jit.eval())
+        except Exception as e:
+            logger.error("Error: loading the quantized  model failed.", e)
+            exit(0)
+        
+        setattr(self.user_model, "trace_graph", self_jit)
+        logger.info("Successfully loaded the Model %s with Intel® Extension for PyTorch*", ctx.model_name)
         
     # Different model need to have their inputs supplied in different order unless we pass dict 
     # For torchserve sending dict is not always possible
@@ -356,7 +283,6 @@ class CodeGenHandler(BaseHandler, ABC):
                                         )
             
             input_ids = inputs["input_ids"]
-            logger.info(f"The shape of received batch input ids is {input_ids.shape}")
             attention_mask = inputs["attention_mask"]
             # making a batch out of the recieved requests
             if input_ids.shape is not None:
@@ -380,7 +306,6 @@ class CodeGenHandler(BaseHandler, ABC):
         ):
             outputs = self.user_model.generate(input_ids_batch, attention_mask=attention_mask_batch, **self.generate_kwargs)
             for i, x in enumerate(outputs):
-                logger.info(f"The output shape is {outputs[i].shape}")
                 inferences.append(self.tokenizer.decode(outputs[i], skip_special_tokens=True))
 
         return inferences
