@@ -1,0 +1,3 @@
+minWorkers: 1
+maxWorkers: 1
+pt2 : {backend: "openvino"}
