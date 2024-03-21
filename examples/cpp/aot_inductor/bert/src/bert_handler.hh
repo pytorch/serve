@@ -1,13 +1,11 @@
 #pragma once
 
-#include <folly/FileUtil.h>
-#include <folly/dynamic.h>
-
 #include <tokenizers_cpp.h>
 #include <torch/torch.h>
 #include <yaml-cpp/yaml.h>
 
 #include "src/backends/handler/base_handler.hh"
+#include "src/utils/json.hh"
 
 namespace bert {
 class BertCppHandler : public torchserve::BaseHandler {
@@ -42,7 +40,7 @@ class BertCppHandler : public torchserve::BaseHandler {
       override;
 
 private:
-  std::unique_ptr<folly::dynamic> mapping_json_;
+  std::unique_ptr<torchserve::Json> mapping_json_;
   std::unique_ptr<tokenizers::Tokenizer> tokenizer_;
   std::unique_ptr<YAML::Node> model_config_yaml_;
   int max_length_;

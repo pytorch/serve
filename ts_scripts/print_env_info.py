@@ -43,6 +43,8 @@ cuda_env = {
 
 npm_env = {"npm_pkg_version": []}
 
+cpp_env = {"LIBRARY_PATH": ""}
+
 
 def get_nvidia_smi():
     # Note: nvidia-smi is currently available only on Windows and Linux
@@ -284,6 +286,16 @@ def get_torch_model_archiver():
     return version
 
 
+def get_library_path():
+    platform = get_platform()
+    if platform == "darwin":
+        return os.environ.get("DYLD_LIBRARY_PATH", "")
+    elif platform == "linux":
+        return os.environ.get("LD_LIBRARY_PATH", "")
+    else:
+        return ""
+
+
 def populate_torchserve_env(torch_pkg):
     for pkg in torch_pkg:
         if pkg.split("==")[0] == "torch":
@@ -338,6 +350,10 @@ def populate_npm_env():
     npm_env["npm_pkg_version"] = get_npm_packages()
 
 
+def populate_cpp_env():
+    cpp_env["LIBRARY_PATH"] = get_library_path()
+
+
 def populate_env_info():
     # torchserve packages
     _, torch_list_output = get_pip_packages("torch")
@@ -360,6 +376,9 @@ def populate_env_info():
 
     if get_platform() == "darwin":
         populate_npm_env()
+
+    if get_platform() in ("darwin", "linux"):
+        populate_cpp_env()
 
 
 env_info_fmt = """
@@ -403,11 +422,17 @@ Versions of npm installed packages:
 {npm_pkg_version}
 """
 
+cpp_env_info_fmt = """
+Environment:
+library_path (LD_/DYLD_): {LIBRARY_PATH}
+"""
+
 
 def get_pretty_env_info(branch_name):
     global env_info_fmt
     global cuda_info_fmt
     global npm_info_fmt
+    global cpp_env_info_fmt
     populate_env_info()
     env_dict = {
         **torchserve_env,
@@ -415,6 +440,7 @@ def get_pretty_env_info(branch_name):
         **java_env,
         **os_info,
         "torchserve_branch": branch_name,
+        **cpp_env,
     }
 
     if TORCH_AVAILABLE and torch.cuda.is_available():
@@ -424,6 +450,9 @@ def get_pretty_env_info(branch_name):
     if get_platform() == "darwin":
         env_dict.update(npm_env)
         env_info_fmt = env_info_fmt + "\n" + npm_info_fmt
+
+    if get_platform() in ("darwin", "linux"):
+        env_info_fmt = env_info_fmt + "\n" + cpp_env_info_fmt
 
     return env_info_fmt.format(**env_dict)
 

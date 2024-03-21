@@ -231,11 +231,9 @@ public class WorkerLifeCycle {
         argl.add(runtimeType);
         argl.add("--model_dir");
         argl.add(modelPath.getAbsolutePath());
-        argl.add("--logger_config_path");
         if (ConfigManager.getInstance().getTsCppLogConfig() != null) {
+            argl.add("--logger_config_path");
             argl.add(ConfigManager.getInstance().getTsCppLogConfig());
-        } else {
-            argl.add(configManager.getModelServerHome() + "/ts/cpp/resources/logging.config");
         }
         argl.add("--metrics_config_path");
         argl.add(configManager.getMetricsConfigPath());

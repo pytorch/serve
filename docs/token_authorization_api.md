@@ -1,8 +1,12 @@
 # TorchServe token authorization API
 
+## Setup
+1. Download the jar files from [Maven](https://mvnrepository.com/artifact/org.pytorch/torchserve-endpoint-plugin) 
+2. Enable token authorization by adding the `--plugins-path /path/to/the/jar/files` flag at start up with the path leading to the downloaded jar files.
+
 ## Configuration
-1. Enable token authorization by adding the provided plugin at start using the `--plugins-path` command.
-2. Torchserve will enable token authorization if the plugin is provided. In the current working directory a file `key_file.json` will be generated.
+1. Torchserve will enable token authorization if the plugin is provided. Expected log statement `[INFO ] main org.pytorch.serve.servingsdk.impl.PluginsManager - Loading plugin for endpoint token`
+2. In the current working directory a file `key_file.json` will be generated.
     1. Example key file:
 
 ```python

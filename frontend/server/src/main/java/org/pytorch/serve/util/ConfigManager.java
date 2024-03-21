@@ -117,6 +117,7 @@ public final class ConfigManager {
     private static final String MODEL_SNAPSHOT = "model_snapshot";
     private static final String MODEL_CONFIG = "models";
     private static final String VERSION = "version";
+    private static final String SYSTEM_METRICS_CMD = "system_metrics_cmd";
 
     // Configuration default values
     private static final String DEFAULT_TS_ALLOWED_URLS = "file://.*|http(s)?://.*";
@@ -559,6 +560,10 @@ public final class ConfigManager {
         return prop.getProperty(TS_CERTIFICATE_FILE);
     }
 
+    public String getSystemMetricsCmd() {
+        return prop.getProperty(SYSTEM_METRICS_CMD, "");
+    }
+
     public SslContext getSslContext() throws IOException, GeneralSecurityException {
         List<String> supportedCiphers =
                 Arrays.asList(
@@ -734,7 +739,9 @@ public final class ConfigManager {
                 + "\nCPP log config: "
                 + (getTsCppLogConfig() == null ? "N/A" : getTsCppLogConfig())
                 + "\nModel config: "
-                + prop.getProperty(MODEL_CONFIG, "N/A");
+                + prop.getProperty(MODEL_CONFIG, "N/A")
+                + "\nSystem metrics command: "
+                + (getSystemMetricsCmd().isEmpty() ? "default" : getSystemMetricsCmd());
     }
 
     public boolean useNativeIo() {

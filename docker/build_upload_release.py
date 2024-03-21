@@ -37,6 +37,14 @@ if __name__ == "__main__":
         dry_run,
     )
     try_and_handle(
+        f"./build_image.sh -bt dev -cpp -t {organization}/torchserve:latest-cpp-dev-cpu",
+        dry_run,
+    )
+    try_and_handle(
+        f"./build_image.sh -bt dev -g -cv cu121 -cpp -t {organization}/torchserve:latest-cpp-dev-gpu",
+        dry_run,
+    )
+    try_and_handle(
         f"docker tag {organization}/torchserve:latest {organization}/torchserve:latest-cpu",
         dry_run,
     )
@@ -48,13 +56,25 @@ if __name__ == "__main__":
         f"docker tag {organization}/torchserve:latest-gpu {organization}/torchserve:{check_ts_version()}-gpu",
         dry_run,
     )
+    try_and_handle(
+        f"docker tag {organization}/torchserve:latest-cpp-dev-cpu {organization}/torchserve:{check_ts_version()}-cpp-dev-cpu",
+        dry_run,
+    )
+    try_and_handle(
+        f"docker tag {organization}/torchserve:latest-cpp-dev-gpu {organization}/torchserve:{check_ts_version()}-cpp-dev-gpu",
+        dry_run,
+    )
 
     for image in [
         f"{organization}/torchserve:latest",
         f"{organization}/torchserve:latest-cpu",
         f"{organization}/torchserve:latest-gpu",
+        f"{organization}/torchserve:latest-cpp-dev-cpu",
+        f"{organization}/torchserve:latest-cpp-dev-gpu",
         f"{organization}/torchserve:{check_ts_version()}-cpu",
         f"{organization}/torchserve:{check_ts_version()}-gpu",
+        f"{organization}/torchserve:{check_ts_version()}-cpp-dev-cpu",
+        f"{organization}/torchserve:{check_ts_version()}-cpp-dev-gpu",
     ]:
         try_and_handle(f"docker push {image}", dry_run)
 
