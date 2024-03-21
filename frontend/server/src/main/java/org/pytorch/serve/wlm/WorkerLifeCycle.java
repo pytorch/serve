@@ -380,9 +380,9 @@ public class WorkerLifeCycle {
         @Override
         public void run() {
             try (Scanner scanner = new Scanner(is, StandardCharsets.UTF_8.name())) {
-                while (isRunning.get() && scanner.hasNext()) {
+                while (scanner.hasNext()) {
                     String result = scanner.nextLine();
-                    if (result == null) {
+                    if (result == null && !isRunning.get()) {
                         break;
                     }
 
