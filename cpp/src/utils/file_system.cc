@@ -1,9 +1,6 @@
 #include "src/utils/file_system.hh"
 #include "src/utils/logging.hh"
 
-#include <folly/FileUtil.h>
-#include <folly/json.h>
-
 namespace torchserve {
 std::unique_ptr<std::istream> FileSystem::GetStream(
     const std::string& file_path) {
@@ -28,23 +25,5 @@ std::string FileSystem::LoadBytesFromFile(const std::string& path) {
   data.resize(size);
   fs.read(data.data(), size);
   return data;
-}
-
-std::unique_ptr<folly::dynamic> FileSystem::LoadJsonFile(const std::string& file_path) {
-  std::string content;
-  if (!folly::readFile(file_path.c_str(), content)) {
-    TS_LOGF(ERROR, "{} not found", file_path);
-    throw;
-  }
-  return std::make_unique<folly::dynamic>(folly::parseJson(content));
-}
-
-const folly::dynamic& FileSystem::GetJsonValue(std::unique_ptr<folly::dynamic>& json, const std::string& key) {
-  if (json->find(key) != json->items().end()) {
-    return (*json)[key];
-  } else {
-    TS_LOG(ERROR, "Required field {} not found in JSON.", key);
-    throw ;
-  }
 }
 }  // namespace torchserve

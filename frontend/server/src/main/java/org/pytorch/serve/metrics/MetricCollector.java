@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.io.IOUtils;
@@ -32,16 +33,23 @@ public class MetricCollector implements Runnable {
     public void run() {
         try {
             // Collect System level Metrics
-            String[] args = new String[4];
-            args[0] = configManager.getPythonExecutable();
-            args[1] = "ts/metrics/metric_collector.py";
-            args[2] = "--gpu";
-            args[3] = String.valueOf(ConfigManager.getInstance().getNumberOfGpu());
+            List<String> args = new ArrayList<>();
+            args.add(configManager.getPythonExecutable());
+            String systemMetricsCmd = configManager.getSystemMetricsCmd();
+            if (systemMetricsCmd.isEmpty()) {
+                systemMetricsCmd =
+                        String.format(
+                                "%s --gpu %s",
+                                "ts/metrics/metric_collector.py",
+                                String.valueOf(configManager.getNumberOfGpu()));
+            }
+            args.addAll(Arrays.asList(systemMetricsCmd.split("\\s+")));
             File workingDir = new File(configManager.getModelServerHome());
 
             String[] envp = EnvironmentUtils.getEnvString(workingDir.getAbsolutePath(), null, null);
-
-            final Process p = Runtime.getRuntime().exec(args, envp, workingDir); // NOPMD
+            final Process p =
+                    Runtime.getRuntime()
+                            .exec(args.toArray(new String[0]), envp, workingDir); // NOPMD
             ModelManager modelManager = ModelManager.getInstance();
             Map<Integer, WorkerThread> workerMap = modelManager.getWorkers();
             try (OutputStream os = p.getOutputStream()) {
