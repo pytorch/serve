@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ts-def
+  labels:
+    app: ts-def
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ts-def
+  template:
+    metadata:
+      labels:
+        app: ts-def
+    spec:
+      volumes:
+        - name: model-store
+          hostPath:
+            path: /host/model_store
+      containers:
+        - name: torchserve
+          image: pytorch/torchserve-nightly:latest-gpu
+          ports:
+            - containerPort: 8080
+            - containerPort: 8081
+          volumeMounts:
+          - name: model-store
+            mountPath: /home/model-server/model-store

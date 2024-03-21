@@ -2,10 +2,10 @@
 ## Requirements
 * C++17
 * GCC version: gcc-9
-* cmake version: 3.18+
+* cmake version: 3.26.4+
 * Linux
 
-For convenience, a docker container can be used as the development environment to build and install Torchserve CPP
+For convenience, a [docker container](../docker/README.md#create-torchserve-docker-image) can be used as the development environment to build and install Torchserve CPP
 ```
 cd serve/docker
 # For CPU support
@@ -21,6 +21,7 @@ docker run [-v /path/to/build/dir:/serve/cpp/_build] -it pytorch/torchserve:cpp-
 # For GPU support
 docker run --gpus all [-v /path/to/build/dir:/serve/cpp/_build] -it pytorch/torchserve:cpp-dev-gpu /bin/bash
 ```
+`Warning`: The dev docker container does not install all necessary dependencies or build Torchserve CPP. Please follow the steps below after starting the container.
 
 ## Installation and Running TorchServe CPP
 This installation instruction assumes that TorchServe is already installed through pip/conda/source. If this is not the case install it after the `Install dependencies` step through your preferred method.

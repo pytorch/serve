@@ -20,45 +20,6 @@ function detect_platform() {
   echo -e "${COLOR_GREEN}Detected platform: $PLATFORM ${COLOR_OFF}"
 }
 
-function prepare_test_files() {
-  echo -e "${COLOR_GREEN}[ INFO ]Preparing test files ${COLOR_OFF}"
-  local EX_DIR="${TR_DIR}/examples/"
-  rsync -a --link-dest=../../test/resources/ ${BASE_DIR}/test/resources/ ${TR_DIR}/
-  if [ ! -f "${EX_DIR}/babyllama/babyllama_handler/tokenizer.bin" ]; then
-    wget -q https://github.com/karpathy/llama2.c/raw/master/tokenizer.bin -O "${EX_DIR}/babyllama/babyllama_handler/tokenizer.bin"
-  fi
-  if [ ! -f "${EX_DIR}/babyllama/babyllama_handler/stories15M.bin" ]; then
-    wget -q https://huggingface.co/karpathy/tinyllamas/resolve/main/stories15M.bin -O "${EX_DIR}/babyllama/babyllama_handler/stories15M.bin"
-  fi
-  # PT2.2 torch.expport does not support Mac
-  if [ "$PLATFORM" = "Linux" ]; then
-    if [ ! -f "${EX_DIR}/aot_inductor/llama_handler/stories15M.so" ]; then
-      local HANDLER_DIR=${EX_DIR}/aot_inductor/llama_handler/
-      if [ ! -f "${HANDLER_DIR}/stories15M.pt" ]; then
-        wget -q https://huggingface.co/karpathy/tinyllamas/resolve/main/stories15M.pt?download=true -O "${HANDLER_DIR}/stories15M.pt"
-      fi
-      local LLAMA_SO_DIR=${BASE_DIR}/third-party/llama2.so/
-      PYTHONPATH=${LLAMA_SO_DIR}:${PYTHONPATH} python ${BASE_DIR}/../examples/cpp/aot_inductor/llama2/compile.py --checkpoint ${HANDLER_DIR}/stories15M.pt ${HANDLER_DIR}/stories15M.so
-    fi
-    if [ ! -f "${EX_DIR}/aot_inductor/bert_handler/bert-seq.so" ]; then
-      pip install transformers
-      local HANDLER_DIR=${EX_DIR}/aot_inductor/bert_handler/
-      export TOKENIZERS_PARALLELISM=false
-      cd ${BASE_DIR}/../examples/cpp/aot_inductor/bert/
-      python aot_compile_export.py
-      mv bert-seq.so ${HANDLER_DIR}/bert-seq.so
-      mv Transformer_model/tokenizer.json ${HANDLER_DIR}/tokenizer.json
-      export TOKENIZERS_PARALLELISM=""
-    fi
-    if [ ! -f "${EX_DIR}/aot_inductor/resnet_handler/resnet50_pt2.so" ]; then
-      local HANDLER_DIR=${EX_DIR}/aot_inductor/resnet_handler/
-      cd ${HANDLER_DIR}
-      python ${BASE_DIR}/../examples/cpp/aot_inductor/resnet/resnet50_torch_export.py
-    fi
-  fi
-  cd "$BWD" || exit
-}
-
 function build() {
   echo -e "${COLOR_GREEN}[ INFO ]Building backend ${COLOR_OFF}"
   MAYBE_BUILD_QUIC=""
@@ -121,7 +82,6 @@ function build() {
   fi
 
   make -j "$JOBS"
-  make format
   make install
   echo -e "${COLOR_GREEN}torchserve_cpp build is complete. To run unit test: \
   ./_build/test/torchserve_cpp_test ${COLOR_OFF}"
@@ -207,6 +167,5 @@ cd $BASE_DIR
 
 git submodule update --init --recursive
 
-prepare_test_files
 build
 install_torchserve_cpp

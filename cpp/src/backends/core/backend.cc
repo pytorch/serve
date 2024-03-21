@@ -22,12 +22,14 @@ bool Backend::Initialize(const std::string &model_dir) {
   // TODO: windows
   TS_LOGF(DEBUG, "Initializing from manifest: {}", manifest_file);
   if (!manifest_->Initialize(manifest_file)) {
+    TS_LOGF(ERROR, "Could not initialize from manifest: {}", manifest_file);
     return false;
   }
 
   LoadHandler(model_dir);
 
   if (!handler_) {
+    TS_LOG(ERROR, "Could not load handler");
     return false;
   }
 

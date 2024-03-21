@@ -5,6 +5,7 @@
 ![Benchmark Nightly](https://github.com/pytorch/serve/actions/workflows/benchmark_nightly.yml/badge.svg)
 ![Docker Regression Nightly](https://github.com/pytorch/serve/actions/workflows/regression_tests_docker.yml/badge.svg)
 ![KServe Regression Nightly](https://github.com/pytorch/serve/actions/workflows/kserve_cpu_tests.yml/badge.svg)
+![Kubernetes Regression Nightly](https://github.com/pytorch/serve/actions/workflows/kubernetes_tests.yml/badge.svg)
 
 TorchServe is a flexible and easy-to-use tool for serving and scaling PyTorch models in production.
 

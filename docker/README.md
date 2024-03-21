@@ -41,6 +41,7 @@ Use `build_image.sh` script to build the docker images. The script builds the `p
 |-t, --tag|Tag name for image. If not specified, script uses torchserve default tag names.|
 |-cv, --cudaversion| Specify to cuda version to use. Supported values `cu92`, `cu101`, `cu102`, `cu111`, `cu113`, `cu116`, `cu117`, `cu118`. `cu121`, Default `cu121`|
 |-ipex, --build-with-ipex| Specify to build with intel_extension_for_pytorch. If not specified, script builds without intel_extension_for_pytorch.|
+|-cpp, --build-cpp specify to build TorchServe CPP|
 |-n, --nightly| Specify to build with TorchServe nightly.|
 |-py, --pythonversion| Specify the python version to use. Supported values `3.8`, `3.9`, `3.10`, `3.11`. Default `3.9`|
 
@@ -145,6 +146,16 @@ Creates a docker image with `torchserve` and `torch-model-archiver` installed fr
 
 ```bash
 ./build_image.sh -bt dev -ipex -t torchserve-ipex:1.0
+```
+
+ - For creating image to build Torchserve CPP with CPU support:
+```bash
+./build_image.sh -bt dev -cpp
+```
+
+- For creating image to build Torchserve CPP with GPU support:
+```bash
+./build_image.sh -bt dev -g [-cv cu121|cu118] -cpp
 ```
 
 

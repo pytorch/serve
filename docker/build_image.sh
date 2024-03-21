@@ -174,9 +174,14 @@ then
 
   if [[ "${MACHINE}" == "gpu" || "${CUDA_VERSION}" != "" ]];
   then
-    if [[ "${CUDA_VERSION}" != "cu121" && "${CUDA_VERSION}" != "cu118" ]];
+    if [ "${CUDA_VERSION}" == "cu121" ];
     then
-      echo "Only cuda versions 12.1 and 11.8 are supported for CPP"
+      BASE_IMAGE="nvidia/cuda:12.1.1-devel-ubuntu20.04"
+    elif [ "${CUDA_VERSION}" == "cu118" ];
+    then
+      BASE_IMAGE="nvidia/cuda:11.8.0-devel-ubuntu20.04"
+    else
+      echo "Cuda version $CUDA_VERSION is not supported for CPP"
       exit 1
     fi
   fi

@@ -5,6 +5,7 @@
 | Version | Supported          |
 |---------| ------------------ |
 | 0.9.0   | :white_check_mark: |
+| 0.10.0  | :white_check_mark: |
 
 
 ## How we do security
@@ -36,6 +37,7 @@ TorchServe as much as possible relies on automated tools to do security scanning
     2. Using private-key/certificate files
 
     You can find more details in the [configuration guide](https://pytorch.org/serve/configuration.html#enable-ssl)
+6. TorchServe supports token authorization: check [documentation](https://github.com/pytorch/serve/blob/master/docs/token_authorization_api.md) for more information. 
 
 
 

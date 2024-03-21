@@ -11,6 +11,10 @@ jobs:
     steps:
       - name: Setup Conda
         uses: s-weigand/setup-conda@v1
+        with:
+          activate-conda: true
+          update-conda: false
+          python-version: "3.9"
       - name: Setup Anaconda
         run: |
           conda --version

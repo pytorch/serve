@@ -1,4 +1,6 @@
 
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/../../test/resources/ DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/../../test/resources/)
+
 add_subdirectory("../../../examples/cpp/babyllama/" "${CMAKE_CURRENT_BINARY_DIR}/../../test/resources/examples/babyllama/babyllama_handler/")
 
 add_subdirectory("../../../examples/cpp/llamacpp/" "${CMAKE_CURRENT_BINARY_DIR}/../../test/resources/examples/llamacpp/llamacpp_handler/")
@@ -10,6 +12,6 @@ if(CMAKE_SYSTEM_NAME MATCHES "Linux")
   add_subdirectory("../../../examples/cpp/aot_inductor/llama2/" "${CMAKE_CURRENT_BINARY_DIR}/../../test/resources/examples/aot_inductor/llama_handler/")
 
   add_subdirectory("../../../examples/cpp/aot_inductor/bert" "${CMAKE_CURRENT_BINARY_DIR}/../../test/resources/examples/aot_inductor/bert_handler/")
-  
+
   add_subdirectory("../../../examples/cpp/aot_inductor/resnet" "${CMAKE_CURRENT_BINARY_DIR}/../../test/resources/examples/aot_inductor/resnet_handler/")
 endif()
