@@ -1,1 +1,2 @@
-sentencepiece
+transformers==4.36.2
+sentencepiece==0.1.99

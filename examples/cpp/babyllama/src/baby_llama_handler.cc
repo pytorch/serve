@@ -1,9 +1,8 @@
 #include "baby_llama_handler.hh"
 
-#include <folly/FileUtil.h>
-#include <folly/json.h>
-
 #include <typeinfo>
+
+#include "src/utils/json.hh"
 
 extern "C" {
   #include "llama2.c/llama2.h"
@@ -24,19 +23,16 @@ BabyLlamaHandler::LoadModel(
 
     const std::string configFilePath =
         fmt::format("{}/{}", load_model_request->model_dir, "config.json");
-    std::string jsonContent;
-    if (!folly::readFile(configFilePath.c_str(), jsonContent)) {
-      std::cerr << "config.json not found at: " << configFilePath << std::endl;
-      throw;
-    }
-    folly::dynamic json;
-    json = folly::parseJson(jsonContent);
+
+    auto json = torchserve::Json::ParseJsonFile(configFilePath);
+
+
     std::string checkpoint_path;
     std::string tokenizer_path;
-    if (json.find("checkpoint_path") != json.items().end() &&
-        json.find("tokenizer_path") != json.items().end()) {
-      checkpoint_path = json["checkpoint_path"].asString();
-      tokenizer_path = json["tokenizer_path"].asString();
+    if (json.HasKey("checkpoint_path") &&
+        json.HasKey("tokenizer_path")) {
+      checkpoint_path = json.GetValue("checkpoint_path").AsString();
+      tokenizer_path = json.GetValue("tokenizer_path").AsString();
     } else {
       std::cerr
           << "Required fields 'model_name' and 'model_path' not found in JSON."

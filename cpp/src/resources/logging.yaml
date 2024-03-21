@@ -1,0 +1,3 @@
+config:
+    loglevel: INFO
+    async: false

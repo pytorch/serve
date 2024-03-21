@@ -1,11 +1,10 @@
 #pragma once
 
-#include <folly/FileUtil.h>
-#include <folly/dynamic.h>
 #include <torch/torch.h>
 #include <yaml-cpp/yaml.h>
 
 #include "src/backends/handler/base_handler.hh"
+#include "src/utils/json.hh"
 
 namespace resnet {
 class ResnetCppHandler : public torchserve::BaseHandler {
@@ -42,7 +41,7 @@ class ResnetCppHandler : public torchserve::BaseHandler {
 private:
   std::string MapClassToLabel(const torch::Tensor& classes, const torch::Tensor& probs);
 
-  std::unique_ptr<folly::dynamic> mapping_json_;
+  std::unique_ptr<torchserve::Json> mapping_json_;
   std::unique_ptr<YAML::Node> model_config_yaml_;
 };
 }  // namespac
