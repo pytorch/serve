@@ -134,7 +134,6 @@ class LLMHandler(BaseHandler, ABC):
         micro_batch_idx = self.handle.get_micro_batch_idx()
         micro_batch_req_id_map = self.get_micro_batch_req_id_map(micro_batch_idx)
         for new_text in self.output_streamer:
-            logger.debug("send response stream")
             send_intermediate_predict_response(
                 new_text[: len(micro_batch_req_id_map)],
                 micro_batch_req_id_map,
