@@ -37,18 +37,15 @@ class BaseNeuronXContinuousBatchingHandler(BaseHandler):
         handler_config = ctx.model_yaml_config.get("handler", {})
 
         # micro batching initialization
-        micro_batching_parallelism = handler_config.get("micro_batching", {}).get(
-            "parallelism", None
-        )
+        micro_batch_config = ctx.model_yaml_config.get("micro_batching", {})
+        micro_batching_parallelism = micro_batch_config.get("parallelism", None)
         if micro_batching_parallelism:
             logger.info(
                 f"Setting micro batching parallelism  from model_config_yaml: {micro_batching_parallelism}"
             )
             self.micro_batching_handle.parallelism = micro_batching_parallelism
 
-        micro_batch_size = handler_config.get("micro_batching", {}).get(
-            "micro_batch_size", 1
-        )
+        micro_batch_size = micro_batch_config.get("micro_batch_size", 1)
         logger.info(f"Setting micro batching size: {micro_batch_size}")
 
         self.micro_batching_handle.micro_batch_size = micro_batch_size
