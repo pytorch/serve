@@ -380,10 +380,15 @@ public class WorkerLifeCycle {
         @Override
         public void run() {
             try (Scanner scanner = new Scanner(is, StandardCharsets.UTF_8.name())) {
-                while (scanner.hasNext()) {
+                while (scanner.hasNextLine()) {
                     String result = scanner.nextLine();
-                    if (result == null && !isRunning.get()) {
-                        break;
+                    if (result == null) {
+                        if (isRunning.get()) {
+                            continue;
+                        }
+                        else {
+                            break;
+                        }
                     }
 
                     Matcher matcher = METRIC_PATTERN.matcher(result);
