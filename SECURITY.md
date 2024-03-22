@@ -42,4 +42,4 @@ TorchServe as much as possible relies on automated tools to do security scanning
 
 ## Reporting a Vulnerability
 
-If you find a serious vulnerability please report it to opensource@meta.com and torchserve@amazon.com
+If you find a serious vulnerability please report it to https://www.facebook.com/whitehat and torchserve@amazon.com
