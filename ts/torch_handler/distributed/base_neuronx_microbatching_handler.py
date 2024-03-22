@@ -82,7 +82,6 @@ class BaseNeuronXContinuousBatchingHandler(BaseHandler):
         self.max_new_tokens = int(
             handler_config.get("max_new_tokens", self.max_new_tokens)
         )
-        self.batch_size = int(handler_config.get("batch_size", self.batch_size))
 
         # settings for model compilation and loading
         amp = handler_config.get("amp", "fp32")
