@@ -151,7 +151,9 @@ class BaseNeuronXContinuousBatchingHandler(BaseHandler):
             )
 
         # Pad input to match compiled model batch size
-        inputs.extend([""] * (self.handle.micro_batch_size - len(inputs)))
+        inputs.extend(
+            [""] * (self.micro_batching_handle.micro_batch_size - len(inputs))
+        )
 
         return self.tokenizer(inputs, return_tensors="pt", padding=True)
 
@@ -165,7 +167,7 @@ class BaseNeuronXContinuousBatchingHandler(BaseHandler):
         thread = Thread(target=self.model.generate, kwargs=generation_kwargs)
         thread.start()
 
-        micro_batch_idx = self.handle.get_micro_batch_idx()
+        micro_batch_idx = self.micro_batching_handle.get_micro_batch_idx()
         micro_batch_req_id_map = self.get_micro_batch_req_id_map(micro_batch_idx)
         for new_text in self.output_streamer:
             send_intermediate_predict_response(
