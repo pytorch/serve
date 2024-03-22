@@ -184,11 +184,13 @@ class BaseNeuronXContinuousBatchingHandler(BaseHandler):
         return inference_output
 
     def get_micro_batch_req_id_map(self, micro_batch_idx: int):
-        start_idx = micro_batch_idx * self.handle.micro_batch_size
+        start_idx = micro_batch_idx * self.micro_batching_handle.micro_batch_size
         micro_batch_req_id_map = {
             index: self.context.request_ids[batch_index]
             for index, batch_index in enumerate(
-                range(start_idx, start_idx + self.handle.micro_batch_size)
+                range(
+                    start_idx, start_idx + self.micro_batching_handle.micro_batch_size
+                )
             )
             if batch_index in self.context.request_ids
         }
