@@ -385,8 +385,7 @@ public class WorkerLifeCycle {
                     if (result == null) {
                         if (isRunning.get()) {
                             continue;
-                        }
-                        else {
+                        } else {
                             break;
                         }
                     }
