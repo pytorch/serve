@@ -29,7 +29,7 @@ class BaseNeuronXContinuousBatchingHandler(BaseHandler):
         self.tokenizer_class = None
         self.output_streamer = None
         # enable micro batching
-        self.micro_batching_handle = MicroBatching(self)
+        self.handle = MicroBatching(self)
 
     def initialize(self, ctx: Context):
         ctx.cache = {}
@@ -43,12 +43,12 @@ class BaseNeuronXContinuousBatchingHandler(BaseHandler):
             logger.info(
                 f"Setting micro batching parallelism  from model_config_yaml: {micro_batching_parallelism}"
             )
-            self.micro_batching_handle.parallelism = micro_batching_parallelism
+            self.handle.parallelism = micro_batching_parallelism
 
         micro_batch_size = micro_batch_config.get("micro_batch_size", 1)
         logger.info(f"Setting micro batching size: {micro_batch_size}")
 
-        self.micro_batching_handle.micro_batch_size = micro_batch_size
+        self.handle.micro_batch_size = micro_batch_size
 
         model_checkpoint_dir = handler_config.get("model_checkpoint_dir", "")
 
@@ -111,7 +111,7 @@ class BaseNeuronXContinuousBatchingHandler(BaseHandler):
         kwargs = dict(
             tp_degree=tp_degree,
             amp=amp,
-            batch_size=self.micro_batching_handle.micro_batch_size,
+            batch_size=self.handle.micro_batch_size,
             n_positions=[self.max_length],
             context_length_estimate=handler_config.get(
                 "context_length_estimate", [self.max_length]
@@ -127,7 +127,7 @@ class BaseNeuronXContinuousBatchingHandler(BaseHandler):
         self.model = HuggingFaceGenerationModelAdapter(model_config, self.model)
         self.output_streamer = TextIteratorStreamerBatch(
             self.tokenizer,
-            batch_size=self.micro_batching_handle.micro_batch_size,
+            batch_size=self.handle.micro_batch_size,
             skip_special_tokens=True,
         )
 
@@ -145,15 +145,13 @@ class BaseNeuronXContinuousBatchingHandler(BaseHandler):
             inputs.append(prompt)
 
         # Ensure the compiled model can handle the input received
-        if len(inputs) > self.micro_batching_handle.micro_batch_size:
+        if len(inputs) > self.handle.micro_batch_size:
             raise ValueError(
-                f"Model is compiled for batch size {self.micro_batching_handle.micro_batch_size} but received input of size {len(inputs)}"
+                f"Model is compiled for batch size {self.handle.micro_batch_size} but received input of size {len(inputs)}"
             )
 
         # Pad input to match compiled model batch size
-        inputs.extend(
-            [""] * (self.micro_batching_handle.micro_batch_size - len(inputs))
-        )
+        inputs.extend([""] * (self.handle.micro_batch_size - len(inputs)))
 
         return self.tokenizer(inputs, return_tensors="pt", padding=True)
 
@@ -167,7 +165,7 @@ class BaseNeuronXContinuousBatchingHandler(BaseHandler):
         thread = Thread(target=self.model.generate, kwargs=generation_kwargs)
         thread.start()
 
-        micro_batch_idx = self.micro_batching_handle.get_micro_batch_idx()
+        micro_batch_idx = self.handle.get_micro_batch_idx()
         micro_batch_req_id_map = self.get_micro_batch_req_id_map(micro_batch_idx)
         for new_text in self.output_streamer:
             send_intermediate_predict_response(
@@ -186,13 +184,11 @@ class BaseNeuronXContinuousBatchingHandler(BaseHandler):
         return inference_output
 
     def get_micro_batch_req_id_map(self, micro_batch_idx: int):
-        start_idx = micro_batch_idx * self.micro_batching_handle.micro_batch_size
+        start_idx = micro_batch_idx * self.handle.micro_batch_size
         micro_batch_req_id_map = {
             index: self.context.request_ids[batch_index]
             for index, batch_index in enumerate(
-                range(
-                    start_idx, start_idx + self.micro_batching_handle.micro_batch_size
-                )
+                range(start_idx, start_idx + self.handle.micro_batch_size)
             )
             if batch_index in self.context.request_ids
         }
