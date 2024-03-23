@@ -55,6 +55,20 @@ docker pull pytorch/torchserve-nightly
 
 Refer to [torchserve docker](docker/README.md) for details.
 
+### 🚀 Quick Start Example
+
+```bash
+
+./examples/getting_started/build_image.sh vit
+
+docker run --rm -it --env TORCH_COMPILE=false --env MODEL_NAME=vit --platform linux/amd64 -p 127.0.0.1:8080:8080 -v /home/ubuntu/serve/model_store:/home/model-server/model-store pytorch/torchserve:demo
+
+# In another terminal, run the following command for inference
+curl http://127.0.0.1:8080/predictions/vit -T ./examples/image_classifier/kitten.jpg
+```
+
+Refer to [TorchServe Quick Start Example](https://github.com/pytorch/serve/blob/master/examples/getting_started/README.md) for details.
+
 ## ⚡ Why TorchServe
 * Write once, run anywhere, on-prem, on-cloud, supports inference on CPUs, GPUs, AWS Inf1/Inf2/Trn1, Google Cloud TPUs, [Nvidia MPS](docs/nvidia_mps.md)
 * [Model Management API](docs/management_api.md): multi model management with optimized worker to model allocation

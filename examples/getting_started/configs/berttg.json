@@ -1,0 +1,11 @@
+{
+ "model_name":"gpt2",
+ "mode":"text_generation",
+ "do_lower_case":true,
+ "num_labels":"0",
+ "save_mode":"pretrained",
+ "max_length":"50",
+ "captum_explanation":true,
+ "embedding_name": "gpt2",
+ "model_parallel": false
+}

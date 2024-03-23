@@ -1,0 +1,11 @@
+{
+ "model_name":"distilbert-base-cased-distilled-squad",
+ "mode":"question_answering",
+ "do_lower_case":true,
+ "num_labels":"0",
+ "save_mode":"pretrained",
+ "max_length":50,
+ "captum_explanation":true,
+ "embedding_name": "distilbert",
+ "model_parallel": false
+}
