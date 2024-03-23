@@ -59,7 +59,7 @@ Refer to [torchserve docker](docker/README.md) for details.
 
 ```bash
 
-./examples/getting_started/build_image.sh vit
+./examples/getting_started/build_image.sh vit  # optional arg --torch.compile
 
 docker run --rm -it --env TORCH_COMPILE=false --env MODEL_NAME=vit --platform linux/amd64 -p 127.0.0.1:8080:8080 -v /home/ubuntu/serve/model_store:/home/model-server/model-store pytorch/torchserve:demo
 
