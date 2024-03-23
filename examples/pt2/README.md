@@ -49,7 +49,7 @@ opt_mod = torch.compile(mod)
 
 torchserve takes care of 4 and 5 for you while the remaining steps are your responsibility. You can do the exact same thing on the vast majority of TIMM or HuggingFace models.
 
-### Note
+### Compiler Cache
 
 `torch.compile()` is a JIT compiler and JIT compilers generally have a startup cost. To reduce the warm up time, `TorchInductor` already makes use of caching in `/tmp/torchinductor_USERID` of your machine
 
@@ -146,3 +146,7 @@ The example can be found [here](../large_models/segment_anything_fast/README.md)
 Diffusion Fast is a simple and efficient pytorch-native way of optimizing Stable Diffusion XL (SDXL) with 3x performance improvements compared to the original implementation. This is using `torch.compile`
 
 The example can be found [here](../large_models/diffusion_fast/README.md)
+
+## C++ AOTInductor examples
+
+AOTInductor is the Ahead-of-time-compiler, a specialized version of `TorchInductor`, designed to process exported PyTorch models, optimize them, and produce shared libraries as well as other relevant artifacts. These compiled artifacts are specifically crafted for deployment in non-Python environments. You can find the AOTInductor C++ examples [here](../cpp/aot_inductor)

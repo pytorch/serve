@@ -32,6 +32,8 @@ jobs:
           architecture: x64
       - name: Checkout TorchServe
         uses: actions/checkout@v3
+        with:
+          submodules: recursive
       - name: Login to Docker
         env:
           DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
