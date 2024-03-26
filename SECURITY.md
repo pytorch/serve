@@ -4,7 +4,7 @@
 
 | Version | Supported          |
 |---------| ------------------ |
-| 0.9.0   | :white_check_mark: |
+| 0.10.0   | :white_check_mark: |
 
 
 ## How we do security
@@ -44,6 +44,7 @@ TorchServe as much as possible relies on automated tools to do security scanning
         - Encoding: Convert special characters into safe representations.
         - Verification: Run tooling that identifies potential script injections (e.g. [models that detect prompt injection attempts](https://python.langchain.com/docs/guides/safety/hugging_face_prompt_injection)).
 7. If you intend to run multiple models in parallel with shared memory, it is your responsibility to ensure the models do not interact or access each other's data. The primary areas of concern are tenant isolation, resource allocation, model sharing and hardware attacks.
+8. TorchServe supports token authorization: check [documentation](https://github.com/pytorch/serve/blob/master/docs/token_authorization_api.md) for more information. 
 
 
 
