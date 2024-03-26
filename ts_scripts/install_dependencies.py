@@ -209,10 +209,9 @@ class Linux(Common):
             os.system(f"{self.sudo_cmd}apt-get install -y numactl")
 
     def install_cpp_dependencies(self):
-        if os.system("clang-tidy --version") != 0 or args.force:
-            os.system(
-                f"{self.sudo_cmd}apt-get install -y {' '.join(CPP_LINUX_DEPENDENCIES)}"
-            )
+        os.system(
+            f"{self.sudo_cmd}apt-get install -y {' '.join(CPP_LINUX_DEPENDENCIES)}"
+        )
 
     def install_neuronx_driver(self):
         # Configure Linux for Neuron repository updates
