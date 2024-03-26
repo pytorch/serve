@@ -5,7 +5,7 @@ responseTimeout: 10800
 batchSize: 16
 
 handler:
-    model_path: "model/models--meta-llama--Llama-2-70b-hf/snapshots/90052941a64de02075ca800b09fcea1bdaacb939"
+    model_path: "model/models--meta-llama--Llama-2-70b-hf/snapshots/97a63a0ef386379ab4175785da8352fbe338c6c5"
     model_checkpoint_dir: "llama-2-70b-split"
     model_module_prefix: "transformers_neuronx"
     model_class_name: "llama.model.LlamaForSampling"
