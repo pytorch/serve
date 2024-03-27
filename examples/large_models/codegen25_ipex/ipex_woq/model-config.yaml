@@ -1,0 +1,20 @@
+minWorkers: 1
+maxWorkers: 1
+responseTimeout: 1500
+
+handler:
+    model_name: "Salesforce/codegen25-7b-multi"
+    quantized_model_path: "best_model.pt"
+    example_inputs_mode: "MASK_KV_POS"
+    to_channels_last: false
+    batch_size: 1
+    max_length: 2048 
+    max_new_tokens: 128 
+    ipex_weight_only_quantization: true
+    woq_dtype: "INT8"
+    lowp_mode: "BF16"
+    amp_enabled: true
+    act_quant_mode: "PER_IC_BLOCK"
+    group_size: -1
+    greedy: true
+    
