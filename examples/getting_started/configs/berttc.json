@@ -1,0 +1,11 @@
+{
+ "model_name":"bert-base-uncased",
+ "mode":"token_classification",
+ "do_lower_case":true,
+ "num_labels":"9",
+ "save_mode":"pretrained",
+ "max_length":"150",
+ "captum_explanation":true,
+ "embedding_name": "bert",
+ "model_parallel": false
+}
