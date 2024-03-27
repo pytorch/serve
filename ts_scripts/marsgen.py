@@ -43,7 +43,7 @@ def gen_mar(model_store=None):
                 print(f"## Symlink {src}, {dst} successfully.")
 
 
-def generate_model(model, model_store_dir, mps):
+def generate_model(model, model_store_dir, mps=False):
     serialized_file_path = None
     if model.get("serialized_file_remote", None):
         if model.get("gen_scripted_file_path", None):
