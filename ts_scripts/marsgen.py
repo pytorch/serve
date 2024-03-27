@@ -43,7 +43,7 @@ def gen_mar(model_store=None):
                 print(f"## Symlink {src}, {dst} successfully.")
 
 
-def generate_model(model, model_store_dir):
+def generate_model(model, model_store_dir, mps):
     serialized_file_path = None
     if model.get("serialized_file_remote", None):
         if model.get("gen_scripted_file_path", None):
@@ -74,6 +74,10 @@ def generate_model(model, model_store_dir):
 
     export_path = model.get("export_path", model_store_dir)
 
+    config_file = None
+    if mps:
+        config_file = os.path.join(REPO_ROOT, "test","resources","model-config.yaml")
+
     cmd = model_archiver_command_builder(
         model["model_name"],
         model["version"],
@@ -85,6 +89,7 @@ def generate_model(model, model_store_dir):
         archive_format,
         requirements_file,
         export_path,
+        config_file=config_file,
     )
     print(f"## In directory: {os.getcwd()} | Executing command: {cmd}\n")
     try:
@@ -101,7 +106,7 @@ def generate_model(model, model_store_dir):
         os.remove(serialized_file_path)
 
 
-def generate_mars(mar_config=MAR_CONFIG_FILE_PATH, model_store_dir=MODEL_STORE_DIR):
+def generate_mars(mar_config=MAR_CONFIG_FILE_PATH, model_store_dir=MODEL_STORE_DIR, mps=False):
     """
     By default generate_mars reads ts_scripts/mar_config.json and outputs mar files in dir model_store_gen
     - mar_config.json defines a list of models' mar file parameters. They are:
@@ -125,7 +130,7 @@ def generate_mars(mar_config=MAR_CONFIG_FILE_PATH, model_store_dir=MODEL_STORE_D
         models = json.loads(f.read())
 
         for model in models:
-            generate_model(model, model_store_dir)
+            generate_model(model, model_store_dir, mps)
     os.chdir(cwd)
 
 
@@ -141,6 +146,7 @@ def model_archiver_command_builder(
     requirements_file=None,
     export_path=None,
     force=True,
+    config_file=None,
 ):
     cmd = "torch-model-archiver"
 
@@ -176,6 +182,9 @@ def model_archiver_command_builder(
 
     if force:
         cmd += " --force"
+  
+    if config_file:
+        cmd += " --config-file {0}".format(config_file)
 
     return cmd
 
