@@ -149,6 +149,8 @@ class BaseHandler(abc.ABC):
             self.device = torch.device(
                 self.map_location + ":" + str(properties.get("gpu_id"))
             )
+        elif hasattr(self, "model_yaml_config") and "mps" in self.model_yaml_config and self.model_yaml_config["mps"] == "enable":
+            self.device = torch.device("mps")
         elif XLA_AVAILABLE:
             self.device = xm.xla_device()
         else:
