@@ -92,7 +92,7 @@ pt2: {backend: openvino}" > model-config.yaml
 ```
 
 Once the `yaml` file is updated, create the model-archive, start TorchServe and run inference using the steps shown above.
-`torch.compile` needs a few inferences to warmup. Once warmed up, we see the following
+`torch.compile` needs a few inferences to warmup. Once warmed up, you can observe better performance.
 
 
 ### Conclusion
