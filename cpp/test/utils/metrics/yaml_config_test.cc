@@ -16,7 +16,7 @@ TEST(YAMLConfigTest, TestLoadValidConfigFrontendContext) {
   ASSERT_TRUE(config_handler.GetModelMetrics().empty());
 
   const std::string config_file_path =
-      "test/resources/metrics/valid_config.yaml";
+      "resources/metrics/valid_config.yaml";
   config_handler.LoadConfiguration(config_file_path, MetricsContext::FRONTEND);
 
   ASSERT_EQ(config_handler.GetMode(), MetricsMode::PROMETHEUS);
@@ -69,7 +69,7 @@ TEST(YAMLConfigTest, TestLoadValidConfigBackendContext) {
   ASSERT_TRUE(config_handler.GetModelMetrics().empty());
 
   const std::string config_file_path =
-      "test/resources/metrics/valid_config.yaml";
+      "resources/metrics/valid_config.yaml";
   config_handler.LoadConfiguration(config_file_path, MetricsContext::BACKEND);
 
   std::set<std::string> expected_dimension_names = {"model_name", "host_name",
@@ -102,7 +102,7 @@ TEST(YAMLConfigTest, TestLoadMinimalValidConfig) {
   YAMLMetricsConfigurationHandler config_handler =
       YAMLMetricsConfigurationHandler();
   const std::string config_file_path =
-      "test/resources/metrics/minimal_valid_config.yaml";
+      "resources/metrics/minimal_valid_config.yaml";
   config_handler.LoadConfiguration(config_file_path, MetricsContext::FRONTEND);
 
   ASSERT_EQ(config_handler.GetMode(), MetricsMode::LOG);
@@ -119,7 +119,7 @@ TEST(YAMLConfigTest, TestLoadInvalidConfigWithDuplicateDimension) {
   YAMLMetricsConfigurationHandler config_handler =
       YAMLMetricsConfigurationHandler();
   const std::string config_file_path =
-      "test/resources/metrics/invalid_config_duplicate_dimension.yaml";
+      "resources/metrics/invalid_config_duplicate_dimension.yaml";
   ASSERT_THROW(config_handler.LoadConfiguration(config_file_path,
                                                 MetricsContext::FRONTEND),
                std::invalid_argument);
@@ -134,7 +134,7 @@ TEST(YAMLConfigTest, TestLoadInvalidConfigWithEmptyDimension) {
   YAMLMetricsConfigurationHandler config_handler =
       YAMLMetricsConfigurationHandler();
   const std::string config_file_path =
-      "test/resources/metrics/invalid_config_empty_dimension.yaml";
+      "resources/metrics/invalid_config_empty_dimension.yaml";
   ASSERT_THROW(config_handler.LoadConfiguration(config_file_path,
                                                 MetricsContext::FRONTEND),
                std::invalid_argument);
@@ -149,7 +149,7 @@ TEST(YAMLConfigTest, TestLoadInvalidConfigWithUndefinedDimension) {
   YAMLMetricsConfigurationHandler config_handler =
       YAMLMetricsConfigurationHandler();
   const std::string config_file_path =
-      "test/resources/metrics/invalid_config_undefined_dimension.yaml";
+      "resources/metrics/invalid_config_undefined_dimension.yaml";
   ASSERT_THROW(config_handler.LoadConfiguration(config_file_path,
                                                 MetricsContext::FRONTEND),
                std::invalid_argument);
@@ -164,7 +164,7 @@ TEST(YAMLConfigTest, TestLoadInvalidConfigWithDuplicateMetricDimension) {
   YAMLMetricsConfigurationHandler config_handler =
       YAMLMetricsConfigurationHandler();
   const std::string config_file_path =
-      "test/resources/metrics/"
+      "resources/metrics/"
       "invalid_config_duplicate_metric_dimension.yaml";
   ASSERT_THROW(config_handler.LoadConfiguration(config_file_path,
                                                 MetricsContext::FRONTEND),
@@ -180,7 +180,7 @@ TEST(YAMLConfigTest, TestLoadInvalidConfigWithMissingMetricName) {
   YAMLMetricsConfigurationHandler config_handler =
       YAMLMetricsConfigurationHandler();
   const std::string config_file_path =
-      "test/resources/metrics/"
+      "resources/metrics/"
       "invalid_config_missing_metric_name.yaml";
   ASSERT_THROW(config_handler.LoadConfiguration(config_file_path,
                                                 MetricsContext::FRONTEND),
@@ -196,7 +196,7 @@ TEST(YAMLConfigTest, TestLoadInvalidConfigWithEmptyMetricName) {
   YAMLMetricsConfigurationHandler config_handler =
       YAMLMetricsConfigurationHandler();
   const std::string config_file_path =
-      "test/resources/metrics/"
+      "resources/metrics/"
       "invalid_config_empty_metric_name.yaml";
   ASSERT_THROW(config_handler.LoadConfiguration(config_file_path,
                                                 MetricsContext::FRONTEND),
@@ -212,7 +212,7 @@ TEST(YAMLConfigTest, TestLoadInvalidConfigWithDuplicateMetricName) {
   YAMLMetricsConfigurationHandler config_handler =
       YAMLMetricsConfigurationHandler();
   const std::string config_file_path =
-      "test/resources/metrics/"
+      "resources/metrics/"
       "invalid_config_duplicate_metric_name.yaml";
   ASSERT_THROW(config_handler.LoadConfiguration(config_file_path,
                                                 MetricsContext::FRONTEND),

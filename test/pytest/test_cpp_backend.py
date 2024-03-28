@@ -13,6 +13,8 @@ from model_archiver import ModelArchiverConfig
 from PIL import Image
 from torchvision import transforms
 
+import ts
+
 CURR_FILE_PATH = Path(__file__).parent
 
 TORCH_NCCL_PATH = (Path(torch.__file__).parent / "lib").as_posix()
@@ -40,7 +42,7 @@ def create_mar_file(work_dir, model_archiver, model_name):
 
     mnist_scriptes_pt = (
         CURR_FILE_PATH.parents[1]
-        / "cpp/_build/test/resources/examples/mnist/mnist_handler/mnist_script.pt"
+        / "cpp/build/test/resources/examples/mnist/mnist_handler/mnist_script.pt"
     )
 
     config = ModelArchiverConfig(
@@ -107,9 +109,7 @@ def register_model(mar_file_path, model_store, torchserve):
 
 
 @pytest.mark.skipif(
-    not (
-        CURR_FILE_PATH.parents[1] / "ts" / "cpp" / "bin" / "model_worker_socket"
-    ).exists(),
+    not (Path(ts.__file__).parent / "cpp" / "bin" / "model_worker_socket").exists(),
     reason="CPP backend not found",
 )
 def test_cpp_mnist(model_name_and_stdout):

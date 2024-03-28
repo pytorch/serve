@@ -15,7 +15,7 @@ class ModelPredictTest : public ::testing::Test {
       const std::string& inference_request_id_prefix,
       int inference_expect_code) {
     torchserve::MetricsRegistry::Initialize(
-        "test/resources/metrics/default_config.yaml",
+        "resources/metrics/default_config.yaml",
         torchserve::MetricsContext::BACKEND);
     backend_->Initialize(model_dir);
     auto result = backend_->LoadModel(std::move(load_model_request));

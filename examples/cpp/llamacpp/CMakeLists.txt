@@ -3,6 +3,10 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 add_library(llamacpp_handler SHARED src/llamacpp_handler.cc)
 
+if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+  set(LLAMA_METAL OFF)
+endif()
+
 FetchContent_Declare(
   llama.cpp
   GIT_REPOSITORY https://github.com/ggerganov/llama.cpp

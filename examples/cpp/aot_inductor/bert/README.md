@@ -7,13 +7,8 @@ Then, this example loads model and runs prediction using libtorch. The handler C
 ### Setup
 1. Follow the instructions in [README.md](../../../../cpp/README.md) to build the TorchServe C++ backend.
 
-```
-cd serve/cpp
-./builld.sh
-```
-
-The build script will create the necessary artifact for this example.
-To recreate these by hand you can follow the prepare_test_files function of the [build.sh](../../../../cpp/build.sh) script.
+The build process will create the necessary artifact for this example.
+To recreate these by hand you can follow the the [CMakeLists.txt](./CMakeLists.txt) file.
 We will need the handler .so file as well as the bert-seq.so and tokenizer.json.
 
 2. Create a [model-config.yaml](model-config.yaml)
@@ -37,7 +32,7 @@ handler:
 ### Generate Model Artifact Folder
 
 ```bash
-torch-model-archiver --model-name bertcppaot --version 1.0 --handler ../../../../cpp/_build/test/resources/examples/aot_inductor/bert_handler/libbert_handler:BertCppHandler --runtime LSP --extra-files index_to_name.json,../../../../cpp/_build/test/resources/examples/aot_inductor/bert_handler/bert-seq.so,../../../../cpp/_build/test/resources/examples/aot_inductor/bert_handler/tokenizer.json  --config-file model-config.yaml --archive-format no-archive
+torch-model-archiver --model-name bertcppaot --version 1.0 --handler ../../../../cpp/build/test/resources/examples/aot_inductor/bert_handler/libbert_handler:BertCppHandler --runtime LSP --extra-files index_to_name.json,../../../../cpp/build/test/resources/examples/aot_inductor/bert_handler/bert-seq.so,../../../../cpp/build/test/resources/examples/aot_inductor/bert_handler/tokenizer.json  --config-file model-config.yaml --archive-format no-archive
 ```
 
 Create model store directory and move the folder `bertcppaot`

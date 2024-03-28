@@ -11,7 +11,7 @@ namespace torchserve {
 class TSLogMetricsCacheTest : public ::testing::Test {
  protected:
   const std::string config_file_path{
-      "test/resources/metrics/valid_config.yaml"};
+      "resources/metrics/valid_config.yaml"};
   MetricsConfigurationHandler* config_handler{nullptr};
   LogMetricsCache* cache{nullptr};
 

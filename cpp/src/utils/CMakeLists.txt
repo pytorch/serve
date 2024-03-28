@@ -47,7 +47,7 @@ else()
   target_link_libraries(ts_utils ${CMAKE_DL_LIBS} ${Boost_LIBRARIES} yaml-cpp nlohmann_json fmt)
 endif()
 
-install(TARGETS ts_utils DESTINATION ${torchserve_cpp_SOURCE_DIR}/_build/libs)
+install(TARGETS ts_utils DESTINATION ${CMAKE_INSTALL_PREFIX}/libs)
 
 list(APPEND FOO_SOURCE_FILES ${TS_UTILS_SRC_DIR}/ifoo.hh)
 list(APPEND FOO_SOURCE_FILES ${TS_UTILS_SRC_DIR}/foo.hh)

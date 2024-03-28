@@ -22,9 +22,9 @@ class TestLogger : public Logger {
 
 class TSLogMetricTest : public ::testing::Test {
  protected:
-  const std::string logfile_path{"test/utils/metrics/metrics_test.log"};
+  const std::string logfile_path{"utils/metrics/metrics_test.log"};
   const std::string logger_config_path_str{
-      "test/resources/metrics/log_to_file.yaml"};
+      "resources/metrics/log_to_file.yaml"};
   const std::string metric_name{"test_metric"};
   const std::vector<std::string> metric_dimension_names{"level", "model_name"};
   const std::vector<std::string> metric_dimension_values{"model", "test_model"};

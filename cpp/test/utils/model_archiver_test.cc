@@ -6,7 +6,7 @@ namespace torchserve {
 TEST(ManifestTest, TestInitialize) {
   torchserve::Manifest manifest;
   manifest.Initialize(
-      "test/resources/examples/mnist/base_handler/MAR-INF/"
+      "resources/examples/mnist/base_handler/MAR-INF/"
       "MANIFEST.json");
   ASSERT_EQ(manifest.GetCreatOn(), "28/07/2020 06:32:08");
   ASSERT_EQ(manifest.GetArchiverVersion(), "0.2.0");

@@ -5,7 +5,7 @@
 #include "test/utils/common.hh"
 
 TEST_F(ModelPredictTest, TestLoadPredictBabyLlamaHandler) {
-  std::string base_dir = "_build/test/resources/examples/babyllama/";
+  std::string base_dir = "resources/examples/babyllama/";
   std::string file1 = base_dir + "babyllama_handler/stories15M.bin";
   std::string file2 = base_dir + "babyllama_handler/tokenizer.bin";
 
@@ -24,10 +24,10 @@ TEST_F(ModelPredictTest, TestLoadPredictBabyLlamaHandler) {
 }
 
 TEST_F(ModelPredictTest, TestLoadPredictAotInductorLlamaHandler) {
-  std::string base_dir = "_build/test/resources/examples/aot_inductor/";
+  std::string base_dir = "resources/examples/aot_inductor/";
   std::string file1 = base_dir + "llama_handler/stories15M.so";
   std::string file2 =
-      "_build/test/resources/examples/babyllama/babyllama_handler/"
+      "resources/examples/babyllama/babyllama_handler/"
       "tokenizer.bin";
 
   std::ifstream f1(file1);
@@ -45,7 +45,7 @@ TEST_F(ModelPredictTest, TestLoadPredictAotInductorLlamaHandler) {
 }
 
 TEST_F(ModelPredictTest, TestLoadPredictLlamaCppHandler) {
-  std::string base_dir = "_build/test/resources/examples/llamacpp/";
+  std::string base_dir = "resources/examples/llamacpp/";
   std::string file1 = base_dir + "llamacpp_handler/llama-2-7b-chat.Q5_0.gguf";
   std::ifstream f(file1);
 
@@ -61,7 +61,7 @@ TEST_F(ModelPredictTest, TestLoadPredictLlamaCppHandler) {
 }
 
 TEST_F(ModelPredictTest, TestLoadPredictAotInductorBertHandler) {
-  std::string base_dir = "_build/test/resources/examples/aot_inductor/";
+  std::string base_dir = "resources/examples/aot_inductor/";
   std::string file1 = base_dir + "bert_handler/bert-seq.so";
   std::string file2 = base_dir + "bert_handler/tokenizer.json";
 
@@ -84,7 +84,7 @@ TEST_F(ModelPredictTest, TestLoadPredictAotInductorBertHandler) {
 }
 
 TEST_F(ModelPredictTest, TestLoadPredictAotInductorResnetHandler) {
-  std::string base_dir = "_build/test/resources/examples/aot_inductor/";
+  std::string base_dir = "resources/examples/aot_inductor/";
   std::string file1 = base_dir + "resnet_handler/resnet50_pt2.so";
 
   std::ifstream f1(file1);

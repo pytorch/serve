@@ -1,6 +1,3 @@
-
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/../../test/resources/ DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/../../test/resources/)
-
 add_subdirectory("../../../examples/cpp/babyllama/" "${CMAKE_CURRENT_BINARY_DIR}/../../test/resources/examples/babyllama/babyllama_handler/")
 
 add_subdirectory("../../../examples/cpp/llamacpp/" "${CMAKE_CURRENT_BINARY_DIR}/../../test/resources/examples/llamacpp/llamacpp_handler/")

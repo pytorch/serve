@@ -13,9 +13,9 @@ class DLLoaderTest : public ::testing::Test {
  protected:
   void SetUp() override {
 #ifdef __APPLE__
-    lib_path_ = "./_build/src/utils/libfoo.dylib";
+    lib_path_ = "../src/utils/libfoo.dylib";
 #elif __linux__
-    lib_path_ = "./_build/src/utils/libfoo.so";
+    lib_path_ = "../src/utils/libfoo.so";
 #endif
 
     dl_loader_ = new torchserve::DLLoader<IFoo>(lib_path_);

@@ -23,16 +23,16 @@ void Cleanup(const std::string& logfile_path) {
 }
 
 TEST(LoggingTest, TestIncorrectLogInitialization) {
-  std::string logger_config_path_str = "test/resources/logging/invalid.yaml";
+  std::string logger_config_path_str = "resources/logging/invalid.yaml";
   EXPECT_THROW(torchserve::Logger::InitLogger(logger_config_path_str),
                std::invalid_argument);
 }
 
 
 TEST(LoggingTest, TestFileLogInitialization) {
-  std::string logfile_path = "test/resources/logging/test.log";
+  std::string logfile_path = "resources/logging/test.log";
   std::string logger_config_path_str =
-      "test/resources/logging/log_to_file.yaml";
+      "resources/logging/log_to_file.yaml";
   torchserve::Logger::InitLogger(logger_config_path_str);
   std::string log_line("Test");
   TS_LOG(INFO, log_line);

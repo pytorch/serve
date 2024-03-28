@@ -6,13 +6,8 @@ The handler C++ source code for this examples can be found [here](src).
 ### Setup
 1. Follow the instructions in [README.md](../../../../cpp/README.md) to build the TorchServe C++ backend.
 
-```
-cd serve/cpp
-./builld.sh
-```
-
-The build script will create the necessary artifact for this example.
-To recreate these by hand you can follow the prepare_test_files function of the [build.sh](../../../../cpp/build.sh) script.
+The build process will create the necessary artifact for this example.
+To recreate these by hand you can follow the the [CMakeLists.txt](./CMakeLists.txt) file.
 We will need the handler .so file as well as the resnet50_pt2.so file containing the model and weights.
 
 2. Create a [model-config.yaml](model-config.yaml)
@@ -30,7 +25,7 @@ handler:
 ### Generate Model Artifacts Folder
 
 ```bash
-torch-model-archiver --model-name resnetcppaot --version 1.0 --handler ../../../../cpp/_build/test/resources/examples/aot_inductor/resnet_handler/libresnet_handler:ResnetCppHandler --runtime LSP --extra-files index_to_name.json,../../../../cpp/_build/test/resources/examples/aot_inductor/resnet_handler/resnet50_pt2.so --config-file model-config.yaml --archive-format no-archive
+torch-model-archiver --model-name resnetcppaot --version 1.0 --handler ../../../../cpp/build/test/resources/examples/aot_inductor/resnet_handler/libresnet_handler:ResnetCppHandler --runtime LSP --extra-files index_to_name.json,../../../../cpp/build/test/resources/examples/aot_inductor/resnet_handler/resnet50_pt2.so --config-file model-config.yaml --archive-format no-archive
 ```
 
 Create model store directory and move the folder `resnetcppaot`
