@@ -251,9 +251,8 @@ COPY myr.txt /home/model-server/
 RUN pip install -r /home/model-server/myr.txt
 
 ARG CACHEBUST=1
-#COPY server-1.0.jar /serve/frontend/server/build/libs/
-#COPY server-1.0.jar /serve/ts/frontend/model-server.jar
-python ts_scripts/install_from_src.py
+COPY server-1.0.jar /serve/frontend/server/build/libs/
+COPY server-1.0.jar /serve/ts/frontend/model-server.jar
 COPY config.properties /home/model-server/config.properties
 COPY toy-ranker.mar /home/model-server/model-store
 COPY custom_handler /home/model-server/

@@ -4,7 +4,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.JSONObject;
+import org.pytorch.serve.util.JsonUtils;
 
 public class DescribeModelResponse {
 
@@ -23,7 +23,7 @@ public class DescribeModelResponse {
     private List<Worker> workers;
     private Metrics metrics;
     private JobQueueStatus jobQueueStatus;
-    private JSONObject customizedMetadata;
+    private String customizedMetadata;
 
     public DescribeModelResponse() {
         workers = new ArrayList<>();
@@ -161,10 +161,10 @@ public class DescribeModelResponse {
     }
 
     public void setCustomizedMetadata(byte[] customizedMetadata) {
-        this.customizedMetadata = new JSONObject(new String(customizedMetadata, Charset.forName("UTF-8")));
+        this.customizedMetadata = JsonUtils.GSON_PRETTY.toJson(new String(customizedMetadata, Charset.forName("UTF-8")));
     }
 
-    public JSONObject getCustomizedMetadata() {
+    public String getCustomizedMetadata() {
         return customizedMetadata;
     }
 
