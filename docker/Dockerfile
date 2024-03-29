@@ -216,6 +216,8 @@ RUN --mount=type=cache,target=/var/cache/apt \
     numactl \
     && if [ "$BUILD_WITH_IPEX" = "true" ]; then apt-get update && apt-get install -y libjemalloc-dev libgoogle-perftools-dev libomp-dev && ln -s /usr/lib/x86_64-linux-gnu/libjemalloc.so /usr/lib/libjemalloc.so && ln -s /usr/lib/x86_64-linux-gnu/libtcmalloc.so /usr/lib/libtcmalloc.so && ln -s /usr/lib/x86_64-linux-gnu/libiomp5.so /usr/lib/libiomp5.so; fi \
     && rm -rf /var/lib/apt/lists/*
+
+ARG CACHEBUST=1
 RUN git clone --recursive https://github.com/harshita-meena/serve.git \
     && cd serve \
     && git checkout patch-2
@@ -225,8 +227,9 @@ WORKDIR "serve"
 
 RUN python -m pip install -U pip setuptools \
     && python -m pip install --no-cache-dir -r requirements/developer.txt \
-    && python ts_scripts/install_from_src.py \
-    && useradd -m model-server \
+    && python ts_scripts/install_from_src.py
+
+RUN useradd -m model-server \
     && mkdir -p /home/model-server/tmp \
     && cp docker/dockerd-entrypoint.sh /usr/local/bin/dockerd-entrypoint.sh \
     && chmod +x /usr/local/bin/dockerd-entrypoint.sh \
@@ -250,6 +253,7 @@ RUN pip install -r /home/model-server/myr.txt
 ARG CACHEBUST=1
 #COPY server-1.0.jar /serve/frontend/server/build/libs/
 #COPY server-1.0.jar /serve/ts/frontend/model-server.jar
+python ts_scripts/install_from_src.py
 COPY config.properties /home/model-server/config.properties
 COPY toy-ranker.mar /home/model-server/model-store
 COPY custom_handler /home/model-server/
