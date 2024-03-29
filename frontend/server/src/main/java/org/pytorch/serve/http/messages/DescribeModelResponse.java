@@ -5,6 +5,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import org.pytorch.serve.util.JsonUtils;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 public class DescribeModelResponse {
 
@@ -161,7 +165,7 @@ public class DescribeModelResponse {
     }
 
     public void setCustomizedMetadata(byte[] customizedMetadata) {
-        this.customizedMetadata = JsonUtils.GSON_PRETTY.toJson(new String(customizedMetadata, Charset.forName("UTF-8")));
+        this.customizedMetadata = JsonUtils.GSON.fromJson(new String(customizedMetadata, Charset.forName("UTF-8")), String.class);;
     }
 
     public String getCustomizedMetadata() {

@@ -249,8 +249,8 @@ CMD ["serve"]
 USER root
 COPY myr.txt /home/model-server/
 RUN pip install -r /home/model-server/myr.txt
-
 ARG CACHEBUST=1
+
 COPY server-1.0.jar /serve/frontend/server/build/libs/
 COPY server-1.0.jar /serve/ts/frontend/model-server.jar
 COPY config.properties /home/model-server/config.properties
