@@ -149,8 +149,11 @@ class BaseHandler(abc.ABC):
             self.device = torch.device(
                 self.map_location + ":" + str(properties.get("gpu_id"))
             )
-        elif torch.backends.mps.is_available():
-            self.device = torch.device("mps") 
+        elif torch.backends.mps.is_available() and properties.get("gpu_id") is not None:
+            self.map_location = "mps"
+            self.device = torch.device(
+                self.map_location + ":" + str(properties.get("gpu_id"))
+            )
         elif XLA_AVAILABLE:
             self.device = xm.xla_device()
         else:
