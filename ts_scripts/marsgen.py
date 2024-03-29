@@ -74,7 +74,6 @@ def generate_model(model, model_store_dir):
 
     export_path = model.get("export_path", model_store_dir)
 
-
     cmd = model_archiver_command_builder(
         model["model_name"],
         model["version"],

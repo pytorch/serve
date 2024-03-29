@@ -8,7 +8,6 @@ import io.netty.handler.ssl.util.SelfSignedCertificate;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.net.InetAddress;
@@ -836,24 +835,22 @@ public final class ConfigManager {
                 for (String id : ids) {
                     gpuIds.add(Integer.parseInt(id));
                 }
-            } else if (System.getProperty("os.name").startsWith("Mac")){
-                Process process = 
-                        Runtime.getRuntime().exec("system_profiler SPDisplaysDataType");
+            } else if (System.getProperty("os.name").startsWith("Mac")) {
+                Process process = Runtime.getRuntime().exec("system_profiler SPDisplaysDataType");
                 int ret = process.waitFor();
                 if (ret != 0) {
                     return 0;
                 }
                 List<String> list =
                         IOUtils.readLines(process.getInputStream(), StandardCharsets.UTF_8);
-                if (list.isEmpty() ) {
+                if (list.isEmpty()) {
                     throw new AssertionError("Unexpected response.");
                 }
                 String input = list.get(7);
                 String[] parts = input.split(":");
                 String numberString = parts[1].trim();
                 return (Integer.parseInt(numberString));
-            }
-            else {
+            } else {
                 Process process =
                         Runtime.getRuntime().exec("nvidia-smi --query-gpu=index --format=csv");
                 int ret = process.waitFor();

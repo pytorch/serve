@@ -82,7 +82,6 @@ if __name__ == "__main__":
         required=False,
         help="Run regression tests using conda",
     )
-    
 
     args = parser.parse_args()
 
