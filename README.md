@@ -1,4 +1,4 @@
-# TorchServe
+# TorchServ
 
 ![Nightly build](https://github.com/pytorch/serve/actions/workflows/torchserve-nightly-build.yml/badge.svg)
 ![Docker Nightly build](https://github.com/pytorch/serve/actions/workflows/docker-nightly-build.yml/badge.svg)
