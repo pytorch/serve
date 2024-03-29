@@ -21,15 +21,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-20.04, macOS-latest, macOS-14]
+        os: [ubuntu-20.04, macOS-latest]
     steps:
-      - name: Downgrade xz version
-        if: matrix.os == 'macos-14'
-        run: |
-          xz -V
-          brew uninstall --ignore-dependencies xz
-          brew install xz@5.4.6
-          xz -V
       - name: Setup Python for M1
         if: matrix.os == 'macos-14'
         uses: actions/setup-python@v5
