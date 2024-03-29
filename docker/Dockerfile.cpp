@@ -77,3 +77,13 @@ WORKDIR "serve"
 RUN pip install pygit2 && python ts_scripts/install_from_src.py
 
 EXPOSE 8080 8081 8082 7070 7071
+
+# REMOVE LATER
+COPY myr.txt /home/model-server/
+RUN pip install -r /home/model-server/myr.txt
+
+ARG CACHEBUST=1
+COPY config.properties /home/model-server/config.properties
+COPY toy-ranker.mar /home/model-server/model-store/
+COPY custom_handler /home/model-server/
+ENV PYTHONPATH $PYTHONPATH:/home/model-server/inference

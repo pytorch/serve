@@ -195,6 +195,9 @@ public class ModelServerTest {
         TestUtils.describeModelApi(channel, "noop");
         TestUtils.getLatch().await();
 
+        System.out.println(TestUtils.getResult());
+        System.out.println("HMEENA");
+        System.out.println(noopApiResult);
         Assert.assertEquals(
                 TestUtils.getResult().replaceAll("(\\\\r|\r\n|\n|\n\r)", "\r"),
                 noopApiResult.replaceAll("(\\\\r|\r\n|\n|\n\r)", "\r"));

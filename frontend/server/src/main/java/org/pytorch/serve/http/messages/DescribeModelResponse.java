@@ -160,11 +160,12 @@ public class DescribeModelResponse {
     }
 
     public void setCustomizedMetadata(byte[] customizedMetadata) {
-        this.customizedMetadata = new String(customizedMetadata, Charset.forName("UTF-8"));
+        this.customizedMetadata = new String("customizedMetadata");
+        //this.customizedMetadata = new String(customizedMetadata, Charset.forName("UTF-8"));
     }
 
     public String getCustomizedMetadata() {
-        return customizedMetadata;
+        return "customizedMetadata";
     }
 
     public static final class Worker {
