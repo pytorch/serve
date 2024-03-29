@@ -15,7 +15,7 @@ from ts_scripts.regression_utils import test_regression
 from ts_scripts.utils import check_python_version, try_and_handle
 
 
-def regression_tests(binaries, pypi, conda, nightly, mps):
+def regression_tests(binaries, pypi, conda, nightly):
     now = datetime.datetime.now()
     print("Current date and time : " + now.strftime("%Y-%m-%d %H:%M:%S"))
 
@@ -39,10 +39,7 @@ def regression_tests(binaries, pypi, conda, nightly, mps):
         install_from_src()
 
     # Generate mar file
-    if mps:
-        mg.generate_mars(mps=True)
-    else:
-        mg.generate_mars()
+    mg.generate_mars()
 
     # Run newman api tests
     test_api(
@@ -86,13 +83,7 @@ if __name__ == "__main__":
         help="Run regression tests using conda",
     )
     
-    parser.add_argument(
-        "--mps",
-        action="store_true",
-        required=False,
-        help="Run regression tests using mps",
-    )
 
     args = parser.parse_args()
 
-    regression_tests(args.binaries, args.pypi, args.conda, args.nightly, args.mps)
+    regression_tests(args.binaries, args.pypi, args.conda, args.nightly)
