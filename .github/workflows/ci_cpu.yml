@@ -21,17 +21,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-20.04, macOS-latest, macos-14]
+        os: [ubuntu-20.04, macOS-latest]
     steps:
       - name: Setup Python for M1
         if: matrix.os == 'macos-14'
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
-      - name: Check xz version
-        if: matrix.os == 'macos-14'
-        run: |
-          xz -V
       - name: Setup Python for all other OS
         if: matrix.os != 'macos-14'
         uses: actions/setup-python@v5
