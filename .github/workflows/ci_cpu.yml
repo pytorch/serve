@@ -28,7 +28,7 @@ jobs:
         run: |
           xz -V
           brew uninstall --ignore-dependencies xz
-          brew install xz@5.4.4
+          brew install xz@5.4.6
           xz -V
       - name: Setup Python for M1
         if: matrix.os == 'macos-14'
