@@ -144,6 +144,11 @@ class BaseHandler(abc.ABC):
             self.model_yaml_config = context.model_yaml_config
 
         properties = context.system_properties
+        print("--------TEST 1------")
+        obj_dict = context.__dict__
+        print(obj_dict)
+        print("--------TEST 2------")
+        print(properties)
         if torch.cuda.is_available() and properties.get("gpu_id") is not None:
             self.map_location = "cuda"
             self.device = torch.device(
@@ -154,6 +159,7 @@ class BaseHandler(abc.ABC):
             self.device = torch.device(
                 self.map_location + ":" + str(properties.get("gpu_id"))
             )
+            # self.device = torch.device("mps")
         elif XLA_AVAILABLE:
             self.device = xm.xla_device()
         else:
