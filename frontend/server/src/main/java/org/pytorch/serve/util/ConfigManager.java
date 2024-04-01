@@ -5,7 +5,6 @@ import com.google.gson.reflect.TypeToken;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -844,15 +843,14 @@ public final class ConfigManager {
                 if (ret != 0) {
                     return 0;
                 }
-                // List<String> list =
-                //         IOUtils.readLines(process.getInputStream(), StandardCharsets.UTF_8);
-                // if (list.isEmpty()) {
-                //     throw new AssertionError("Unexpected response.");
-                // }
-                
-                BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+
+                BufferedReader reader =
+                        new BufferedReader(new InputStreamReader(process.getInputStream()));
                 String line;
                 while ((line = reader.readLine()) != null) {
+                    if (line.contains("Chipset Model:") && !line.contains("Apple M1")) {
+                        return 0;
+                    }
                     if (line.contains("Total Number of Cores:")) {
                         String[] parts = line.split(":");
                         if (parts.length >= 2) {
@@ -860,14 +858,7 @@ public final class ConfigManager {
                         }
                     }
                 }
-                return 0;
-                // throw new AssertionError("Unexpected response.");
-            
-
-                // String input = list.get(7);
-                // String[] parts = input.split(":");
-                // String numberString = parts[1].trim();
-                // return (Integer.parseInt(numberString));
+                throw new AssertionError("Unexpected response.");
             } else {
                 Process process =
                         Runtime.getRuntime().exec("nvidia-smi --query-gpu=index --format=csv");
