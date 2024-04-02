@@ -2,6 +2,7 @@ package org.pytorch.serve.grpcimpl;
 
 import com.google.gson.Gson;
 import com.google.protobuf.ByteString;
+import com.google.gson.JsonObject;
 import io.grpc.Status;
 import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
@@ -29,9 +30,11 @@ import org.pytorch.serve.grpc.openinference.OpenInferenceGrpc.ServerReadyRequest
 import org.pytorch.serve.grpc.openinference.OpenInferenceGrpc.ServerReadyResponse;
 import org.pytorch.serve.http.BadRequestException;
 import org.pytorch.serve.http.InternalServerException;
+import org.pytorch.serve.http.messages.DescribeModelResponse;
 import org.pytorch.serve.job.GRPCJob;
 import org.pytorch.serve.job.Job;
 import org.pytorch.serve.util.ApiUtils;
+import org.pytorch.serve.util.JsonUtils;
 import org.pytorch.serve.util.messages.InputParameter;
 import org.pytorch.serve.util.messages.RequestInput;
 import org.pytorch.serve.util.messages.WorkerCommands;
@@ -149,6 +152,7 @@ public class OpenInferenceProtocolImpl extends GRPCInferenceServiceImplBase {
         String modelName = request.getName();
         String modelVersion = request.getVersion();
         ModelManager modelManager = ModelManager.getInstance();
+        RequestInput inputData = new RequestInput(UUID.randomUUID().toString());
         ModelMetadataResponse.Builder response = ModelMetadataResponse.newBuilder();
         List<TensorMetadata> inputs = new ArrayList<>();
         List<TensorMetadata> outputs = new ArrayList<>();
@@ -168,7 +172,16 @@ public class OpenInferenceProtocolImpl extends GRPCInferenceServiceImplBase {
             if (model == null) {
                 throw new ModelNotFoundException("Model not found: " + modelName);
             }
-            modelManager
+            //ArrayList<DescribeModelResponse> resp = ApiUtils.getModelDescription(modelName, modelVersion);
+            Job job = new GRPCJob(responseObserver, modelName, modelVersion);
+            if (!modelManager.addJob(job)) {
+                String responseMessage =
+                        ApiUtils.getStreamingInferenceErrorResponseMessage(modelName, modelVersion);
+                InternalServerException e = new InternalServerException(responseMessage);
+                sendErrorResponse(
+                        responseObserver, Status.INTERNAL, e, "InternalServerException.()");
+            }
+            /*modelManager
                     .getAllModelVersions(modelName)
                     .forEach(entry -> versions.add(entry.getKey()));
             response.setName(modelName);
@@ -177,7 +190,7 @@ public class OpenInferenceProtocolImpl extends GRPCInferenceServiceImplBase {
             response.addAllInputs(inputs);
             response.addAllOutputs(outputs);
             responseObserver.onNext(response.build());
-            responseObserver.onCompleted();
+            responseObserver.onCompleted();*/
 
         } catch (ModelVersionNotFoundException | ModelNotFoundException e) {
             sendErrorResponse(responseObserver, Status.NOT_FOUND, e, null);

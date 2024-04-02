@@ -54,6 +54,7 @@ public abstract class Job {
         switch (cmd) {
             case PREDICT:
             case OIPPREDICT:
+            case OIPMETADATA:
             case STREAMPREDICT:
             case STREAMPREDICT2:
             case DESCRIBE:

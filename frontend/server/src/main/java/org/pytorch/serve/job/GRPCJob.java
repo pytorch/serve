@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import org.pytorch.serve.archive.model.ModelNotFoundException;
 import org.pytorch.serve.archive.model.ModelVersionNotFoundException;
@@ -22,6 +23,8 @@ import org.pytorch.serve.grpc.management.ManagementResponse;
 import org.pytorch.serve.grpc.openinference.OpenInferenceGrpc.InferTensorContents;
 import org.pytorch.serve.grpc.openinference.OpenInferenceGrpc.ModelInferResponse;
 import org.pytorch.serve.grpc.openinference.OpenInferenceGrpc.ModelInferResponse.InferOutputTensor;
+import org.pytorch.serve.grpc.openinference.OpenInferenceGrpc.ModelMetadataResponse;
+import org.pytorch.serve.grpc.openinference.OpenInferenceGrpc.ModelMetadataResponse.TensorMetadata;
 import org.pytorch.serve.grpcimpl.ManagementImpl;
 import org.pytorch.serve.http.messages.DescribeModelResponse;
 import org.pytorch.serve.metrics.IMetric;
@@ -43,6 +46,7 @@ public class GRPCJob extends Job {
     private StreamObserver<PredictionResponse> predictionResponseObserver;
     private StreamObserver<ManagementResponse> managementResponseObserver;
     private StreamObserver<ModelInferResponse> modelInferResponseObserver;
+    private StreamObserver<ModelMetadataResponse> modelMetadataResponseStreamObserver;
 
     public GRPCJob(
             StreamObserver<PredictionResponse> predictionResponseObserver,
@@ -71,6 +75,17 @@ public class GRPCJob extends Job {
     }
 
     public GRPCJob(
+            StreamObserver<ModelMetadataResponse> modelMetadataResponseStreamObserver,
+            String modelName,
+            String version) {
+        super(modelName, version, WorkerCommands.OIPMETADATA, generateDescribeInput());
+        this.modelMetadataResponseStreamObserver = modelMetadataResponseStreamObserver;
+        this.queueTimeMetric = MetricCache.getInstance().getMetricFrontend("QueueTime");
+        this.queueTimeMetricDimensionValues =
+                Arrays.asList("Host", ConfigManager.getInstance().getHostName());
+    }
+
+    public GRPCJob(
             StreamObserver<ManagementResponse> managementResponseObserver,
             String modelName,
             String version,
@@ -80,6 +95,12 @@ public class GRPCJob extends Job {
         this.queueTimeMetric = MetricCache.getInstance().getMetricFrontend("QueueTime");
         this.queueTimeMetricDimensionValues =
                 Arrays.asList("Host", ConfigManager.getInstance().getHostName());
+    }
+
+    private static RequestInput generateDescribeInput() {
+        RequestInput input = new RequestInput(UUID.randomUUID().toString());
+        input.updateHeaders("describe", "True");
+        return input;
     }
 
     private void cancelHandler(ServerCallStreamObserver<PredictionResponse> responseObserver) {
@@ -151,6 +172,8 @@ public class GRPCJob extends Job {
                     if (!output.isEmpty() && respList != null && respList.size() == 1) {
                         respList.get(0).setCustomizedMetadata(body);
                     }
+                    logger.info("HMEENA");
+                    logger.info(respList.get(0).getCustomizedMetadata().toString());
                     String resp = JsonUtils.GSON_PRETTY.toJson(respList);
                     ManagementResponse mgmtReply =
                             ManagementResponse.newBuilder().setMsg(resp).build();
@@ -159,6 +182,53 @@ public class GRPCJob extends Job {
                 } catch (ModelNotFoundException | ModelVersionNotFoundException e) {
                     ManagementImpl.sendErrorResponse(
                             managementResponseObserver, Status.NOT_FOUND, e);
+                }
+                break;
+            case OIPMETADATA:
+                try {
+                    ArrayList<DescribeModelResponse> respList =
+                            ApiUtils.getModelDescription(
+                                    this.getModelName(), this.getModelVersion());
+                    if (!output.isEmpty() && respList != null && respList.size() == 1) {
+                        respList.get(0).setCustomizedMetadata(body);
+                    }
+                    logger.info("HMEENA");
+                    logger.info(respList.get(0).getCustomizedMetadata().toString());
+                    JsonObject metadata = respList.get(0).getCustomizedMetadata();
+                    ModelMetadataResponse.Builder responseBuilder = ModelMetadataResponse.newBuilder();
+                    responseBuilder.setName(metadata.get("name").getAsString());
+                    //responseBuilder.setVersions(metadata.get("version").getAsString());
+                    JsonArray jsonOutputs = metadata.get("outputs").getAsJsonArray();
+                    JsonArray jsonInputs = metadata.get("inputs").getAsJsonArray();
+
+                    for (JsonElement element : jsonOutputs) {
+                        TensorMetadata.Builder outputBuilder = TensorMetadata.newBuilder();
+                        outputBuilder.setName(element.getAsJsonObject().get("name").getAsString());
+                        outputBuilder.setDatatype(
+                                element.getAsJsonObject().get("datatype").getAsString());
+                        JsonArray shapeArray = element.getAsJsonObject().get("shape").getAsJsonArray();
+                        shapeArray.forEach(
+                                shapeElement -> outputBuilder.addShape(shapeElement.getAsLong()));
+                        responseBuilder.addOutputs(outputBuilder);
+                    }
+
+                    for (JsonElement element : jsonInputs) {
+                        TensorMetadata.Builder inputBuilder = TensorMetadata.newBuilder();
+                        inputBuilder.setName(element.getAsJsonObject().get("name").getAsString());
+                        inputBuilder.setDatatype(
+                                element.getAsJsonObject().get("datatype").getAsString());
+                        JsonArray shapeArray = element.getAsJsonObject().get("shape").getAsJsonArray();
+                        shapeArray.forEach(
+                                shapeElement -> inputBuilder.addShape(shapeElement.getAsLong()));
+                        responseBuilder.addInputs(inputBuilder);
+                    }
+
+                    responseBuilder.setPlatform(metadata.get("platform").getAsString());
+                    modelMetadataResponseStreamObserver.onNext(responseBuilder.build());
+                    modelMetadataResponseStreamObserver.onCompleted();
+                } catch (ModelNotFoundException | ModelVersionNotFoundException e) {
+                    ManagementImpl.sendErrorResponse(
+                            modelMetadataResponseStreamObserver, Status.NOT_FOUND, e);
                 }
                 break;
             case OIPPREDICT:
@@ -237,6 +307,14 @@ public class GRPCJob extends Job {
                 break;
             case DESCRIBE:
                 managementResponseObserver.onError(
+                        responseStatus
+                                .withDescription(error)
+                                .augmentDescription(
+                                        "org.pytorch.serve.http.InternalServerException")
+                                .asRuntimeException());
+                break;
+            case OIPMETADATA:
+                modelMetadataResponseStreamObserver.onError(
                         responseStatus
                                 .withDescription(error)
                                 .augmentDescription(
