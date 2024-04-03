@@ -5,14 +5,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.pytorch.serve.ModelServer;
 import org.pytorch.serve.util.JsonUtils;
 import com.google.gson.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class DescribeModelResponse {
-    private Logger logger = LoggerFactory.getLogger(ModelServer.class);
+    private Logger logger = LoggerFactory.getLogger(DescribeModelResponse.class);
 
     private String modelName;
     private String modelVersion;
