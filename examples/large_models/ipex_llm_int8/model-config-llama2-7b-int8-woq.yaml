@@ -1,0 +1,29 @@
+minWorkers: 1
+maxWorkers: 1
+responseTimeout: 1500
+
+handler:
+    model_name: "meta-llama/Llama-2-7b-hf"
+    quantized_model_path: "best_model.pt"
+    example_inputs_mode: "MASK_KV_POS"
+    to_channels_last: false
+
+    # generation params 
+    batch_size: 1
+    max_context_length: 2048
+    input_tokens: 1024 
+    max_new_tokens: 128 
+    
+    # Use INT8 bf16 mix
+    quant_with_amp: true
+    
+    # Woq params
+    ipex_weight_only_quantization: true 
+    woq_dtype: "INT8"
+    lowp_mode: "BF16"
+    act_quant_mode: "PER_IC_BLOCK"
+    group_size: -1
+
+    # decoding technique 
+    greedy: true
+    
