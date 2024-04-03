@@ -1,6 +1,6 @@
 # TorchServe on linux aarch64
 
-TorchServe has been tested to be working on linux aarch64. Tested this on Amazon Graviton 3 instance(m7g.4x.large)
+TorchServe has been tested to be working on linux aarch64 for some of the examples. Regression tests have not been tested. Tested this on Amazon Graviton 3 instance(m7g.4x.large)
 
 ## Installation
 
