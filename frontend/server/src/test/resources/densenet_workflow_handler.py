@@ -1,13 +1,12 @@
 import io
+import itertools
+import json
 import logging
 import os
 
-from PIL import Image
-import torch.nn.functional as F
 import torch
-import itertools
-import json
-
+import torch.nn.functional as F
+from PIL import Image
 from torchvision import transforms
 
 logger = logging.getLogger(__name__)
