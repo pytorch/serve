@@ -56,7 +56,9 @@ class TextHandler(BaseHandler, ABC):
             # Backward compatibility
             self.source_vocab = torch.load(source_vocab, weights_only=True)
         else:
-            self.source_vocab = torch.load(self.get_source_vocab_path(context), weights_only=True)
+            self.source_vocab = torch.load(
+                self.get_source_vocab_path(context), weights_only=True
+            )
         # Captum initialization
         self.lig = LayerIntegratedGradients(self.model, self.model.embedding)
         self.initialized = True

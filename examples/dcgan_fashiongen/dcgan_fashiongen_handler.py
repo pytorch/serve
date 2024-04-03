@@ -1,8 +1,10 @@
 import os
 import zipfile
-import torch
 from io import BytesIO
+
+import torch
 from torchvision.utils import save_image
+
 from ts.torch_handler.base_handler import BaseHandler
 
 MODELSZIP = "models.zip"
@@ -10,7 +12,6 @@ CHECKPOINT = "DCGAN_fashionGen.pth"
 
 
 class ModelHandler(BaseHandler):
-
     def __init__(self):
         self.initialized = False
         self.map_location = None
@@ -28,9 +29,11 @@ class ModelHandler(BaseHandler):
         model_dir = properties.get("model_dir")
         gpu_id = properties.get("gpu_id")
 
-        self.map_location, self.device, self.use_gpu = \
-            ("cuda", torch.device("cuda:"+str(gpu_id)), True) if torch.cuda.is_available() else \
-            ("cpu", torch.device("cpu"), False)
+        self.map_location, self.device, self.use_gpu = (
+            ("cuda", torch.device("cuda:" + str(gpu_id)), True)
+            if torch.cuda.is_available()
+            else ("cpu", torch.device("cpu"), False)
+        )
 
         # If not already extracted, Extract model source code
         if not os.path.exists(os.path.join(model_dir, "models")):
@@ -39,8 +42,13 @@ class ModelHandler(BaseHandler):
 
         # Load Model
         from models.DCGAN import DCGAN
+
         self.dcgan_model = DCGAN(useGPU=self.use_gpu, storeAVG=self.store_avg)
-        state_dict = torch.load(os.path.join(model_dir, CHECKPOINT), map_location=self.map_location, weights_only=True)
+        state_dict = torch.load(
+            os.path.join(model_dir, CHECKPOINT),
+            map_location=self.map_location,
+            weights_only=True,
+        )
         self.dcgan_model.load_state_dict(state_dict)
 
         self.initialized = True
@@ -51,16 +59,25 @@ class ModelHandler(BaseHandler):
         """
         preprocessed_data = []
         for req in requests:
-            data = req.get("data") if req.get("data") is not None else req.get("body", {})
+            data = (
+                req.get("data") if req.get("data") is not None else req.get("body", {})
+            )
 
-            number_of_images = data.get("number_of_images", self.default_number_of_images)
-            labels = {ky: "b'{}'".format(vl) for ky, vl in data.items() if ky not in ["number_of_images"]}
+            number_of_images = data.get(
+                "number_of_images", self.default_number_of_images
+            )
+            labels = {
+                ky: "b'{}'".format(vl)
+                for ky, vl in data.items()
+                if ky not in ["number_of_images"]
+            }
 
-            noise = self.dcgan_model.buildNoiseDataWithConstraints(number_of_images, labels)
-            preprocessed_data.append({
-                "number_of_images": number_of_images,
-                "input": noise
-            })
+            noise = self.dcgan_model.buildNoiseDataWithConstraints(
+                number_of_images, labels
+            )
+            preprocessed_data.append(
+                {"number_of_images": number_of_images, "input": noise}
+            )
         return preprocessed_data
 
     def inference(self, preprocessed_data, *args, **kwargs):
@@ -70,7 +87,9 @@ class ModelHandler(BaseHandler):
         input_batch = torch.cat(tuple(map(lambda d: d["input"], preprocessed_data)), 0)
         with torch.no_grad():
             image_tensor = self.dcgan_model.test(input_batch, getAvG=True, toCPU=True)
-        output_batch = torch.split(image_tensor, tuple(map(lambda d: d["number_of_images"], preprocessed_data)))
+        output_batch = torch.split(
+            image_tensor, tuple(map(lambda d: d["number_of_images"], preprocessed_data))
+        )
         return output_batch
 
     def postprocess(self, output_batch):

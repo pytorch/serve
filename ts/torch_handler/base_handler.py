@@ -313,7 +313,9 @@ class BaseHandler(abc.ABC):
             map_location = (
                 None if (XLA_AVAILABLE and self.map_location is None) else self.device
             )
-            state_dict = torch.load(model_pt_path, map_location=map_location, weights_only=True)
+            state_dict = torch.load(
+                model_pt_path, map_location=map_location, weights_only=True
+            )
             model.load_state_dict(state_dict)
         return model
 

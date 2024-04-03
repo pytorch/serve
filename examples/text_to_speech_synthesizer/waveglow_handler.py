@@ -41,8 +41,9 @@ class WaveGlowSpeechSynthesizer(BaseHandler):
         from PyTorch.SpeechSynthesis.Tacotron2.tacotron2.text import text_to_sequence
 
         tacotron2_checkpoint = torch.load(
-            os.path.join(model_dir, "nvidia_tacotron2pyt_fp32_20190427.pth"), 
-        weights_only=True)
+            os.path.join(model_dir, "nvidia_tacotron2pyt_fp32_20190427.pth"),
+            weights_only=True,
+        )
         tacotron2_state_dict = self._unwrap_distributed(
             tacotron2_checkpoint["state_dict"]
         )
@@ -65,8 +66,9 @@ class WaveGlowSpeechSynthesizer(BaseHandler):
             zip_ref.extractall(model_dir)
 
         waveglow_checkpoint = torch.load(
-            os.path.join(model_dir, "nvidia_waveglowpyt_fp32_20190427.pth"), 
-        weights_only=True)
+            os.path.join(model_dir, "nvidia_waveglowpyt_fp32_20190427.pth"),
+            weights_only=True,
+        )
         waveglow_state_dict = self._unwrap_distributed(
             waveglow_checkpoint["state_dict"]
         )

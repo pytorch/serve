@@ -1,12 +1,13 @@
 """
 Module for image classification default handler
 """
+import importlib.util
 import inspect
+import io
 import logging
 import os
-import importlib.util
 import time
-import io
+
 import torch
 
 logger = logging.getLogger(__name__)
@@ -30,7 +31,11 @@ class DenseNetHandler:
         """First try to load torchscript else load eager mode state_dict based model"""
 
         properties = context.system_properties
-        self.map_location = "cuda" if torch.cuda.is_available() and properties.get("gpu_id") is not None else "cpu"
+        self.map_location = (
+            "cuda"
+            if torch.cuda.is_available() and properties.get("gpu_id") is not None
+            else "cpu"
+        )
         self.device = torch.device(
             self.map_location + ":" + str(properties.get("gpu_id"))
             if torch.cuda.is_available() and properties.get("gpu_id") is not None
@@ -80,7 +85,9 @@ class DenseNetHandler:
             )
 
         model_class = model_class_definitions[0]
-        state_dict = torch.load(model_pt_path, map_location=self.map_location, weights_only=True)
+        state_dict = torch.load(
+            model_pt_path, map_location=self.map_location, weights_only=True
+        )
         model = model_class()
         model.load_state_dict(state_dict)
         return model
