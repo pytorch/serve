@@ -20,7 +20,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-20.04, macOS-latest, macos-14]
+        os: [ubuntu-20.04, macOS-latest]
     steps:
       - name: Setup Python for M1
         if: matrix.os == 'macos-14'
