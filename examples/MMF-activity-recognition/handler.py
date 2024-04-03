@@ -79,7 +79,7 @@ class MMFHandler(BaseHandler):
         self.processor = build_processors(
             config.dataset_config["charades"].processors
         )
-        state_dict = torch.load(serialized_file, map_location=self.device)
+        state_dict = torch.load(serialized_file, map_location=self.device, weights_only=True)
         self.model.load_state_dict(state_dict)
         self.model.to(self.device)
         self.model.eval()

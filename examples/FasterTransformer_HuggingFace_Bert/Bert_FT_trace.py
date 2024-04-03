@@ -125,7 +125,7 @@ def main():
             from utils.encoder import EncoderWeights, CustomEncoder
             weights = EncoderWeights(
                 model.config.num_hidden_layers, model.config.hidden_size,
-                torch.load(os.path.join(checkpoint, 'pytorch_model.bin'), map_location='cpu'))
+                torch.load(os.path.join(checkpoint, 'pytorch_model.bin'), map_location='cpu', weights_only=True))
             weights.to_cuda()
             if args.data_type == 'fp16':
                 weights.to_half()

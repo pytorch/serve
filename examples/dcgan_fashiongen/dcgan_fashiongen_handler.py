@@ -40,7 +40,7 @@ class ModelHandler(BaseHandler):
         # Load Model
         from models.DCGAN import DCGAN
         self.dcgan_model = DCGAN(useGPU=self.use_gpu, storeAVG=self.store_avg)
-        state_dict = torch.load(os.path.join(model_dir, CHECKPOINT), map_location=self.map_location)
+        state_dict = torch.load(os.path.join(model_dir, CHECKPOINT), map_location=self.map_location, weights_only=True)
         self.dcgan_model.load_state_dict(state_dict)
 
         self.initialized = True

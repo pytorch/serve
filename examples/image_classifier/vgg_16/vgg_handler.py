@@ -24,7 +24,7 @@ class VGGImageClassifier(ImageClassifier):
                 model_class_definitions))
 
         model_class = model_class_definitions[0]
-        state_dict = torch.load(model_pt_path)
+        state_dict = torch.load(model_pt_path, weights_only=True)
         model = model_class()
         model.load_state_dict(state_dict)
         return model

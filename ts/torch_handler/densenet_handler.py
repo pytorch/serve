@@ -80,7 +80,7 @@ class DenseNetHandler:
             )
 
         model_class = model_class_definitions[0]
-        state_dict = torch.load(model_pt_path, map_location=self.map_location)
+        state_dict = torch.load(model_pt_path, map_location=self.map_location, weights_only=True)
         model = model_class()
         model.load_state_dict(state_dict)
         return model
@@ -111,7 +111,7 @@ class DenseNetHandler:
         values = []
         for row in data:
             image = row.get("data") or row.get("body")
-            tensor = torch.load(io.BytesIO(image))
+            tensor = torch.load(io.BytesIO(image), weights_only=True)
             values.append(tensor)
         data = self.inference(torch.stack(values))
 

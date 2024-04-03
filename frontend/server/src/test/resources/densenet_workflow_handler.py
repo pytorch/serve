@@ -43,7 +43,7 @@ def post_processing(data, context):
         if isinstance(data, list):
             data = data[0]
         data = data.get("data") or data.get("body")
-        data = torch.load(io.BytesIO(data))
+        data = torch.load(io.BytesIO(data), weights_only=True)
 
         properties = context.system_properties
         model_dir = properties.get("model_dir")
