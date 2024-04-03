@@ -1,6 +1,6 @@
 # Text to Speech synthesis with SpeechT5 
 
-This is an example showing text to speech synthesis using SpeechT5 model.
+This is an example showing text to speech synthesis using SpeechT5 model. This has been verified to work on (linux-aarch64) Graviton 3 instance
 
 While  running this model on `linux-aarch64`, you can enable these optimizations
 
