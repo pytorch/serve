@@ -82,7 +82,7 @@ public class OpenInferenceProtocolImpl extends GRPCInferenceServiceImplBase {
         responseObserver.onCompleted();
     }
 
-    private void sendErrorResponse(
+    public static void sendErrorResponse(
             StreamObserver<?> responseObserver, Status internal, Exception e, String string) {
         responseObserver.onError(
                 internal.withDescription(e.getMessage())

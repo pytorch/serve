@@ -26,6 +26,7 @@ import org.pytorch.serve.grpc.openinference.OpenInferenceGrpc.ModelInferResponse
 import org.pytorch.serve.grpc.openinference.OpenInferenceGrpc.ModelMetadataResponse;
 import org.pytorch.serve.grpc.openinference.OpenInferenceGrpc.ModelMetadataResponse.TensorMetadata;
 import org.pytorch.serve.grpcimpl.ManagementImpl;
+import org.pytorch.serve.grpcimpl.OpenInferenceProtocolImpl;
 import org.pytorch.serve.http.messages.DescribeModelResponse;
 import org.pytorch.serve.metrics.IMetric;
 import org.pytorch.serve.metrics.MetricCache;
@@ -227,8 +228,8 @@ public class GRPCJob extends Job {
                     modelMetadataResponseStreamObserver.onNext(responseBuilder.build());
                     modelMetadataResponseStreamObserver.onCompleted();
                 } catch (ModelNotFoundException | ModelVersionNotFoundException e) {
-                    ManagementImpl.sendErrorResponse(
-                            modelMetadataResponseStreamObserver, Status.NOT_FOUND, e);
+                    OpenInferenceProtocolImpl.sendErrorResponse(
+                            modelMetadataResponseStreamObserver, Status.NOT_FOUND, e, "ModelMetadataResponse Failed.()");
                 }
                 break;
             case OIPPREDICT:
