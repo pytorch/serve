@@ -72,5 +72,5 @@ produces the output
 ```
 What is the difference between cricket and baseball?
 
-- Cricket is a bat-and-ball game played between two teams of eleven players each on a field at the centre of which is a rectangular 22-yard-long pitch. Each team takes its turn to bat,
+- Cricket is a bat-and-ball game played between two teams of eleven players each on a field at the center of which is a rectangular 22-yard-long pitch. Each team takes its turn to bat,
 ```
