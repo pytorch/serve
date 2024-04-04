@@ -1,13 +1,13 @@
-
 import logging
 import os
-import torch
 import uuid
-from ts.torch_handler.base_handler import BaseHandler
 
 import soundfile as sf
-from transformers import SpeechT5Processor, SpeechT5ForTextToSpeech, SpeechT5HifiGan
+import torch
 from datasets import load_from_disk
+from transformers import SpeechT5ForTextToSpeech, SpeechT5HifiGan, SpeechT5Processor
+
+from ts.torch_handler.base_handler import BaseHandler
 
 logger = logging.getLogger(__name__)
 
@@ -18,9 +18,8 @@ class SpeechT5_TTS(BaseHandler):
         self.processor = None
         self.vocoder = None
         self.speaker_embeddings = None
-    
-    def initialize(self, ctx):
 
+    def initialize(self, ctx):
         properties = ctx.system_properties
         model_dir = properties.get("model_dir")
 
@@ -35,13 +34,12 @@ class SpeechT5_TTS(BaseHandler):
 
         # load xvector containing speaker's voice characteristics from a dataset
         embeddings_dataset = load_from_disk(embeddings_dataset)
-        self.speaker_embeddings = torch.tensor(embeddings_dataset[7306]["xvector"]).unsqueeze(0)
+        self.speaker_embeddings = torch.tensor(
+            embeddings_dataset[7306]["xvector"]
+        ).unsqueeze(0)
 
     def preprocess(self, requests):
-
-        assert (
-            len(requests) == 1
-        ), "This is currently supported with batch_size=1"
+        assert len(requests) == 1, "This is currently supported with batch_size=1"
         req_data = requests[0]
 
         input_data = req_data.get("data") or req_data.get("body")
@@ -54,10 +52,10 @@ class SpeechT5_TTS(BaseHandler):
         return inputs
 
     def inference(self, inputs):
-
-        output = self.model.generate_speech(inputs["input_ids"], self.speaker_embeddings, vocoder=self.vocoder)
+        output = self.model.generate_speech(
+            inputs["input_ids"], self.speaker_embeddings, vocoder=self.vocoder
+        )
         return output
-
 
     def postprocess(self, inference_output):
         path = "/tmp/{}.wav".format(uuid.uuid4().hex)
