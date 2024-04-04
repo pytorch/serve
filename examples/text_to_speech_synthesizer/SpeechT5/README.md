@@ -1,4 +1,4 @@
-# Text to Speech synthesis with SpeechT5 
+# Text to Speech synthesis with SpeechT5
 
 This is an example showing text to speech synthesis using SpeechT5 model. This has been verified to work on (linux-aarch64) Graviton 3 instance
 
@@ -11,7 +11,7 @@ export LRU_CACHE_CAPACITY=1024
 More details can be found in this [blog](https://pytorch.org/blog/optimized-pytorch-w-graviton/)
 
 
-## Pre-requesites
+## Pre-requisites
 ```
 chmod +x setup.sh
 ./setup.sh
