@@ -1,12 +1,11 @@
 package org.pytorch.serve.http.messages;
 
+import com.google.gson.JsonObject;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
 import org.pytorch.serve.util.JsonUtils;
-import com.google.gson.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -169,7 +168,7 @@ public class DescribeModelResponse {
         String stringMetadata = new String(customizedMetadata, Charset.forName("UTF-8"));
         try {
             this.customizedMetadata = JsonUtils.GSON.fromJson(stringMetadata, JsonObject.class);
-        } catch(com.google.gson.JsonSyntaxException ex) {
+        } catch (com.google.gson.JsonSyntaxException ex) {
             logger.warn("Customized metadata should be a dictionary.");
             this.customizedMetadata = new JsonObject();
         }
