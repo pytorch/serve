@@ -30,10 +30,10 @@ logger.info("PyTorch version %s", torch.__version__)
 logger.info("IPEX version %s", ipex.__version__)
 logger.info("Transformers version %s", transformers.__version__)
 
-class CodeGenHandler(BaseHandler, ABC):
+class IpexLLMHandler(BaseHandler, ABC):
 
     def __init__(self):
-        super(CodeGenHandler, self).__init__()
+        super(IpexLLMHandler, self).__init__()
         
         # for streaming the generated texts back to client
         self.output_streamer = None
