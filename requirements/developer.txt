@@ -2,9 +2,9 @@
 mock==5.1.0
 pytest==7.3.1
 pylint==3.0.3
-pytest-mock==3.12.0
+pytest-mock==3.14.0
 pytest-cov==4.1.0
-grpcio==1.60.0
+grpcio==1.62.1
 protobuf==4.25.1
 grpcio-tools==1.60.0
 transformers>=4.34.0

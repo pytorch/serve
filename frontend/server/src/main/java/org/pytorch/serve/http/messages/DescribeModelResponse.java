@@ -1,11 +1,16 @@
 package org.pytorch.serve.http.messages;
 
+import com.google.gson.JsonObject;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import org.pytorch.serve.util.JsonUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DescribeModelResponse {
+    private static final Logger logger = LoggerFactory.getLogger(DescribeModelResponse.class);
 
     private String modelName;
     private String modelVersion;
@@ -22,7 +27,7 @@ public class DescribeModelResponse {
     private List<Worker> workers;
     private Metrics metrics;
     private JobQueueStatus jobQueueStatus;
-    private String customizedMetadata;
+    private JsonObject customizedMetadata;
 
     public DescribeModelResponse() {
         workers = new ArrayList<>();
@@ -160,10 +165,16 @@ public class DescribeModelResponse {
     }
 
     public void setCustomizedMetadata(byte[] customizedMetadata) {
-        this.customizedMetadata = new String(customizedMetadata, Charset.forName("UTF-8"));
+        String stringMetadata = new String(customizedMetadata, Charset.forName("UTF-8"));
+        try {
+            this.customizedMetadata = JsonUtils.GSON.fromJson(stringMetadata, JsonObject.class);
+        } catch (com.google.gson.JsonSyntaxException ex) {
+            logger.warn("Customized metadata should be a dictionary.");
+            this.customizedMetadata = new JsonObject();
+        }
     }
 
-    public String getCustomizedMetadata() {
+    public JsonObject getCustomizedMetadata() {
         return customizedMetadata;
     }
 
