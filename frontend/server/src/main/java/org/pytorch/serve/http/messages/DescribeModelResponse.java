@@ -11,7 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class DescribeModelResponse {
-    private Logger logger = LoggerFactory.getLogger(DescribeModelResponse.class);
+    private static final Logger logger = LoggerFactory.getLogger(DescribeModelResponse.class);
 
     private String modelName;
     private String modelVersion;
