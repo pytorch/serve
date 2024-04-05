@@ -1,6 +1,9 @@
-# TorchServe on linux aarch64
+# TorchServe on linux aarch64 - Experimental
 
-TorchServe has been tested to be working on linux aarch64 for some of the examples. Regression tests have not been tested. Tested this on Amazon Graviton 3 instance(m7g.4x.large)
+TorchServe has been tested to be working on linux aarch64 for some of the examples.
+- CI is not implemented yet.
+- Regression tests have not been run.
+- Tested this on Amazon Graviton 3 instance(m7g.4x.large)
 
 ## Installation
 
@@ -22,5 +25,3 @@ export LRU_CACHE_CAPACITY=1024
 ## Example
 
 This [example](https://github.com/pytorch/serve/tree/master/examples/text_to_speech_synthesizer/SpeechT5) on Text to Speech synthesis was verified to be working on Graviton 3
-
-
