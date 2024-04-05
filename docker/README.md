@@ -44,7 +44,7 @@ Use `build_image.sh` script to build the docker images. The script builds the `p
 |-cpp, --build-cpp specify to build TorchServe CPP|
 |-n, --nightly| Specify to build with TorchServe nightly.|
 |-s, --source| Specify to build with TorchServe from source|
-|-l, --local| Specify to use local changes|
+|-r, --remote| Specify to use github remote repo|
 |-py, --pythonversion| Specify the python version to use. Supported values `3.8`, `3.9`, `3.10`, `3.11`. Default `3.9`|
 
 

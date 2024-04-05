@@ -15,7 +15,7 @@ BUILD_WITH_IPEX=false
 BUILD_CPP=false
 BUILD_NIGHTLY=false
 BUILD_FROM_SRC=false
-LOCAL_CHANGES=false
+LOCAL_CHANGES=true
 PYTHON_VERSION=3.9
 
 for arg in "$@"
@@ -105,8 +105,8 @@ do
           BUILD_FROM_SRC=true
           shift
           ;;
-        -l|--local)
-          LOCAL_CHANGES=true
+        -r|--remote)
+          LOCAL_CHANGES=false
           shift
           ;;
         # With default ubuntu version 20.04
