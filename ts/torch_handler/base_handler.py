@@ -113,7 +113,7 @@ class BaseHandler(abc.ABC):
     Base default handler to load torchscript or eager mode [state_dict] models
     Also, provides handle method per torch serve custom model specification
     """
-
+    
     def __init__(self):
         self.model = None
         self.mapping = None
@@ -144,7 +144,7 @@ class BaseHandler(abc.ABC):
             self.model_yaml_config = context.model_yaml_config
 
         properties = context.system_properties
-        
+
         if torch.cuda.is_available() and properties.get("gpu_id") is not None:
             self.map_location = "cuda"
             self.device = torch.device(
@@ -152,10 +152,7 @@ class BaseHandler(abc.ABC):
             )
         elif torch.backends.mps.is_available() and properties.get("gpu_id") is not None:
             self.map_location = "mps"
-            self.device = torch.device(
-                self.map_location + ":" + str(properties.get("gpu_id"))
-            )
-            # self.device = torch.device("mps")
+            self.device = torch.device("mps")
         elif XLA_AVAILABLE:
             self.device = xm.xla_device()
         else:
@@ -531,3 +528,11 @@ class BaseHandler(abc.ABC):
         # pylint: disable=unnecessary-pass
         pass
         # pylint: enable=unnecessary-pass
+        
+    def get_device(self):
+        """Get device 
+
+        Returns:
+            string : self device
+        """
+        return self.device
