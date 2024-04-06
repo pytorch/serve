@@ -1,3 +1,12 @@
+"""
+Functions which have been copied from TorchText to remove TorchServe's
+dependency on TorchText
+
+from torchtext.data.utils import ngrams_iterator, get_tokenizer
+
+"""
+
+
 def ngrams_iterator(token_list, ngrams):
     """Return an iterator that yields the given tokens and their ngrams.
 
@@ -19,6 +28,39 @@ def ngrams_iterator(token_list, ngrams):
     for n in range(2, ngrams + 1):
         for x in _get_ngrams(n):
             yield " ".join(x)
+
+
+_patterns = [
+    r"\'",
+    r"\"",
+    r"\.",
+    r"<br \/>",
+    r",",
+    r"\(",
+    r"\)",
+    r"\!",
+    r"\?",
+    r"\;",
+    r"\:",
+    r"\s+",
+]
+
+_replacements = [
+    " '  ",
+    "",
+    " . ",
+    " ",
+    " , ",
+    " ( ",
+    " ) ",
+    " ! ",
+    " ? ",
+    " ",
+    " ",
+    " ",
+]
+
+_patterns_dict = list((re.compile(p), r) for p, r in zip(_patterns, _replacements))
 
 
 def _basic_english_normalize(line):
