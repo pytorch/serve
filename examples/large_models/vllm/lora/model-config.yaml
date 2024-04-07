@@ -1,0 +1,15 @@
+# TorchServe frontend parameters
+minWorkers: 1
+maxWorkers: 1
+batchSize: 16
+maxBatchDelay: 100
+responseTimeout: 1200
+deviceType: "gpu"
+continuousBatching: true
+
+handler:
+    model: huggyllama/llama-7b
+    tensor_parallel_size: 4
+    enable_lora: true
+    max_loras: 4
+    max_cpu_loras: 4
