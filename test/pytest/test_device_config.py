@@ -156,7 +156,7 @@ def test_m1_device(model_name, model_config_name):
 
     print("-----TEST-----")
     print(response.content)
-    assert response.status_code == 200, "Describe worked"
+    assert response.status_code == 200, "Describe Failed"
 
 
 @pytest.mark.skipif(platform.machine() != "arm64", reason="Skip on Mac M1")
@@ -167,7 +167,7 @@ def test_m1_device_cpu(model_name, model_config_name):
 
     print("-----TEST-----")
     print(response.content)
-    assert response.status_code == 404, "Describe worked"
+    assert response.status_code == 404, "Describe Worked"
 
 
 @pytest.mark.skipif(platform.machine() != "arm64", reason="Skip on Mac M1")
@@ -178,4 +178,4 @@ def test_m1_device_default(model_name, model_config_name):
 
     print("-----TEST-----")
     print(response.content)
-    assert response.status_code == 200, "Describe worked"
+    assert response.status_code == 200, "Describe Failed"
