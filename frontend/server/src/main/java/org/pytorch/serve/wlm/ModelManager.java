@@ -1,9 +1,6 @@
 package org.pytorch.serve.wlm;
 
 import com.google.gson.JsonObject;
-
-import io.grpc.Status;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -142,11 +139,13 @@ public final class ModelManager {
             File f = new File(handler.substring(0, handler.lastIndexOf(':')));
             archive = new ModelArchive(manifest, url, f.getParentFile(), true);
         } else {
-            archive = createModelArchive(
+            archive =
+                      createModelArchive(
                     modelName, url, handler, runtime, defaultModelName, s3SseKms);
         }
 
-        Model tempModel = createModel(archive, batchSize, maxBatchDelay, responseTimeout, isWorkflowModel);
+        Model tempModel =
+                  createModel(archive, batchSize, maxBatchDelay, responseTimeout, isWorkflowModel);
 
         String versionId = archive.getModelVersion();
 
@@ -176,7 +175,8 @@ public final class ModelManager {
             boolean s3SseKms)
             throws ModelException, IOException, DownloadArchiveException {
 
-        ModelArchive archive = ModelArchive.downloadModel(
+        ModelArchive archive =
+                  ModelArchive.downloadModel(
                 configManager.getAllowedUrls(),
                 configManager.getModelStore(),
                 url,
@@ -238,7 +238,8 @@ public final class ModelManager {
                             + venvPath.toString());
         }
         Map<String, String> environment = processBuilder.environment();
-        String[] envp = EnvironmentUtils.getEnvString(
+        String[] envp =
+                  EnvironmentUtils.getEnvString(
                 configManager.getModelServerHome(),
                 model.getModelDir().getAbsolutePath(),
                 null);
@@ -278,14 +279,16 @@ public final class ModelManager {
 
     private void setupModelDependencies(Model model)
             throws IOException, InterruptedException, ModelException {
-        String requirementsFile = model.getModelArchive().getManifest().getModel().getRequirementsFile();
+        String requirementsFile =
+                  model.getModelArchive().getManifest().getModel().getRequirementsFile();
 
         if (!configManager.getInstallPyDepPerModel() || requirementsFile == null) {
             return;
         }
 
         String pythonRuntime = EnvironmentUtils.getPythonRunTime(model);
-        Path requirementsFilePath = Paths.get(model.getModelDir().getAbsolutePath(), requirementsFile).toAbsolutePath();
+        Path requirementsFilePath =
+                  Paths.get(model.getModelDir().getAbsolutePath(), requirementsFile).toAbsolutePath();
         List<String> commandParts = new ArrayList<>();
         ProcessBuilder processBuilder = new ProcessBuilder();
 
@@ -334,7 +337,8 @@ public final class ModelManager {
         }
 
         processBuilder.command(commandParts);
-        String[] envp = EnvironmentUtils.getEnvString(
+        String[] envp =
+                  EnvironmentUtils.getEnvString(
                 configManager.getModelServerHome(),
                 model.getModelDir().getAbsolutePath(),
                 null);
@@ -390,7 +394,8 @@ public final class ModelManager {
         if (batchSize == -1 * RegisterModelRequest.DEFAULT_BATCH_SIZE) {
             if (archive.getModelConfig() != null) {
                 int marBatchSize = archive.getModelConfig().getBatchSize();
-                batchSize = marBatchSize > 0
+                batchSize =
+                          marBatchSize > 0
                         ? marBatchSize
                         : configManager.getJsonIntValue(
                                 archive.getModelName(),
@@ -398,7 +403,8 @@ public final class ModelManager {
                                 Model.BATCH_SIZE,
                                 RegisterModelRequest.DEFAULT_BATCH_SIZE);
             } else {
-                batchSize = configManager.getJsonIntValue(
+                batchSize =
+                          configManager.getJsonIntValue(
                         archive.getModelName(),
                         archive.getModelVersion(),
                         Model.BATCH_SIZE,
@@ -410,7 +416,8 @@ public final class ModelManager {
         if (maxBatchDelay == -1 * RegisterModelRequest.DEFAULT_MAX_BATCH_DELAY) {
             if (archive.getModelConfig() != null) {
                 int marMaxBatchDelay = archive.getModelConfig().getMaxBatchDelay();
-                maxBatchDelay = marMaxBatchDelay > 0
+                maxBatchDelay =
+                          marMaxBatchDelay > 0
                         ? marMaxBatchDelay
                         : configManager.getJsonIntValue(
                                 archive.getModelName(),
@@ -418,7 +425,8 @@ public final class ModelManager {
                                 Model.MAX_BATCH_DELAY,
                                 RegisterModelRequest.DEFAULT_MAX_BATCH_DELAY);
             } else {
-                maxBatchDelay = configManager.getJsonIntValue(
+                maxBatchDelay =
+                          configManager.getJsonIntValue(
                         archive.getModelName(),
                         archive.getModelVersion(),
                         Model.MAX_BATCH_DELAY,
@@ -429,7 +437,8 @@ public final class ModelManager {
 
         if (archive.getModelConfig() != null) {
             int marResponseTimeout = archive.getModelConfig().getResponseTimeout();
-            responseTimeout = marResponseTimeout > 0
+            responseTimeout =
+                      marResponseTimeout > 0
                     ? marResponseTimeout
                     : configManager.getJsonIntValue(
                             archive.getModelName(),
@@ -437,7 +446,8 @@ public final class ModelManager {
                             Model.RESPONSE_TIMEOUT,
                             responseTimeout);
         } else {
-            responseTimeout = configManager.getJsonIntValue(
+            responseTimeout =
+                      configManager.getJsonIntValue(
                     archive.getModelName(),
                     archive.getModelVersion(),
                     Model.RESPONSE_TIMEOUT,
@@ -572,8 +582,7 @@ public final class ModelManager {
         }
         if (model.getParallelLevel() > 0 && model.getDeviceType() == ModelConfig.DeviceType.GPU) {
             /**
-             * Current capacity check for LMI is based on single node. TODO: multiple nodes
-             * check
+             * Current capacity check for LMI is based on single node. TODO: multiple nodes check
              * will be based on --proc-per-node + numCores.
              */
             int capacity = model.getNumCores() / model.getParallelLevel();
@@ -708,9 +717,7 @@ public final class ModelManager {
         if (model == null) {
             throw new ModelNotFoundException("Model not found: " + modelName);
         }
-        modelManager
-                .getAllModelVersions(modelName)
-                .forEach(entry -> versions.add(entry.getKey()));
+        modelManager.getAllModelVersions(modelName).forEach(entry -> versions.add(entry.getKey()));
         response.setName(modelName);
         response.addAllVersions(versions);
         response.setPlatform("");
@@ -718,7 +725,6 @@ public final class ModelManager {
         response.addAllOutputs(outputs);
 
         return response;
-
     }
 
     // return numHealthy >= numScaled;
