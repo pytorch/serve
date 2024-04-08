@@ -113,7 +113,7 @@ class BaseHandler(abc.ABC):
     Base default handler to load torchscript or eager mode [state_dict] models
     Also, provides handle method per torch serve custom model specification
     """
-    
+
     def __init__(self):
         self.model = None
         self.mapping = None
@@ -528,9 +528,9 @@ class BaseHandler(abc.ABC):
         # pylint: disable=unnecessary-pass
         pass
         # pylint: enable=unnecessary-pass
-        
+
     def get_device(self):
-        """Get device 
+        """Get device
 
         Returns:
             string : self device
