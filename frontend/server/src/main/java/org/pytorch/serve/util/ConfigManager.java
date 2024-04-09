@@ -5,9 +5,11 @@ import com.google.gson.reflect.TypeToken;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.net.InetAddress;
@@ -835,6 +837,28 @@ public final class ConfigManager {
                 for (String id : ids) {
                     gpuIds.add(Integer.parseInt(id));
                 }
+            } else if (System.getProperty("os.name").startsWith("Mac")) {
+                Process process = Runtime.getRuntime().exec("system_profiler SPDisplaysDataType");
+                int ret = process.waitFor();
+                if (ret != 0) {
+                    return 0;
+                }
+
+                BufferedReader reader =
+                        new BufferedReader(new InputStreamReader(process.getInputStream()));
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    if (line.contains("Chipset Model:") && !line.contains("Apple M1")) {
+                        return 0;
+                    }
+                    if (line.contains("Total Number of Cores:")) {
+                        String[] parts = line.split(":");
+                        if (parts.length >= 2) {
+                            return (Integer.parseInt(parts[1].trim()));
+                        }
+                    }
+                }
+                throw new AssertionError("Unexpected response.");
             } else {
                 Process process =
                         Runtime.getRuntime().exec("nvidia-smi --query-gpu=index --format=csv");
