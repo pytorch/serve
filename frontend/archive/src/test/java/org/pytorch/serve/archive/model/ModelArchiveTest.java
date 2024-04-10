@@ -189,18 +189,20 @@ public class ModelArchiveTest {
         FileUtils.copyFile(sourceFile, destinationFile);
 
         String fileUrl = "file:///" + parent + "/archive/../archive/mnist1.mar";
-        try{
-                ModelArchive archive = ModelArchive.downloadModel(ALLOWED_URLS_LIST, modelStore, fileUrl);
-        } catch (ModelNotFoundException e){
-                String expectedMessagePattern = "Relative path is not allowed in url: " + fileUrl;
-                Assert.assertTrue(e.getMessage().matches(expectedMessagePattern), "Exception message does not match the expected pattern.");
+        try {
+            ModelArchive archive =
+                    ModelArchive.downloadModel(ALLOWED_URLS_LIST, modelStore, fileUrl);
+        } catch (ModelNotFoundException e) {
+            String expectedMessagePattern = "Relative path is not allowed in url: " + fileUrl;
+            Assert.assertTrue(
+                    e.getMessage().matches(expectedMessagePattern),
+                    "Exception message does not match the expected pattern.");
         }
 
         // Verify the file doesn't exist
         File modelLocation = new File(modelStore + "/mnist1.mar");
         Assert.assertFalse(modelLocation.exists());
     }
-
 
     @Test(
             expectedExceptions = ModelNotFoundException.class,

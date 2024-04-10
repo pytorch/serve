@@ -68,8 +68,6 @@ public class ModelArchive {
             throw new ModelNotFoundException(e.getMessage()); // NOPMD
         }
 
-
-
         if (modelLocation.isFile()) {
             try (InputStream is = Files.newInputStream(modelLocation.toPath())) {
                 File unzipDir;
