@@ -105,4 +105,18 @@ public class ConfigManagerTest {
                 workingDir + "/frontend/archive/src/test/resources/models",
                 configManager.getWorkflowStore());
     }
+
+    @Test
+    public void testNumGpuM1() throws ReflectiveOperationException, IOException {
+        System.setProperty("tsConfigFile", "src/test/resources/config_test_env.properties");
+        ConfigManager.Arguments args = new ConfigManager.Arguments();
+        args.setModels(new String[] {"noop_v0.1"});
+        args.setSnapshotDisabled(true);
+        ConfigManager.init(args);
+        ConfigManager configManager = ConfigManager.getInstance();
+        String arch = System.getProperty("os.arch");
+        if (arch.equals("aarch64")) {
+            Assert.assertTrue(configManager.getNumberOfGpu() > 0);
+        }
+    }
 }

@@ -4,7 +4,7 @@
 
 | Version | Supported          |
 |---------| ------------------ |
-| 0.9.0   | :white_check_mark: |
+| 0.10.0   | :white_check_mark: |
 
 
 ## How we do security
@@ -36,10 +36,19 @@ TorchServe as much as possible relies on automated tools to do security scanning
     2. Using private-key/certificate files
 
     You can find more details in the [configuration guide](https://pytorch.org/serve/configuration.html#enable-ssl)
+6. Prepare your model against bad inputs and prompt injections. Some recommendations:
+    1. Pre-analysis: check how the model performs by default when exposed to prompt injection (e.g. using [fuzzing for prompt injection](https://github.com/FonduAI/awesome-prompt-injection?tab=readme-ov-file#tools)).
+    2. Input Sanitation: Before feeding data to the model, sanitize inputs rigorously. This involves techniques such as:
+        - Validation: Enforce strict rules on allowed characters and data types.
+        - Filtering: Remove potentially malicious scripts or code fragments.
+        - Encoding: Convert special characters into safe representations.
+        - Verification: Run tooling that identifies potential script injections (e.g. [models that detect prompt injection attempts](https://python.langchain.com/docs/guides/safety/hugging_face_prompt_injection)).
+7. If you intend to run multiple models in parallel with shared memory, it is your responsibility to ensure the models do not interact or access each other's data. The primary areas of concern are tenant isolation, resource allocation, model sharing and hardware attacks.
+8. TorchServe supports token authorization: check [documentation](https://github.com/pytorch/serve/blob/master/docs/token_authorization_api.md) for more information.
 
 
 
 
 ## Reporting a Vulnerability
 
-If you find a serious vulnerability please report it to opensource@meta.com and torchserve@amazon.com
+If you find a serious vulnerability please report it to https://www.facebook.com/whitehat and aws-security@amazon.com
