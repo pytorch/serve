@@ -175,7 +175,7 @@ public class ModelArchiveTest {
     }
 
     @Test
-    public void testRelativePath2() throws ModelException, IOException, DownloadArchiveException {
+    public void testRelativePathFileExists() throws ModelException, IOException, DownloadArchiveException {
         String modelStore = "src/test/resources/models";
         String curDir = System.getProperty("user.dir");
         File curDirFile = new File(curDir);
