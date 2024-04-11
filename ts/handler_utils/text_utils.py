@@ -6,6 +6,8 @@ from torchtext.data.utils import ngrams_iterator, get_tokenizer
 
 """
 
+import re
+
 
 def ngrams_iterator(token_list, ngrams):
     """Return an iterator that yields the given tokens and their ngrams.
