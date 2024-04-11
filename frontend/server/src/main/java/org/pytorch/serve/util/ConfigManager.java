@@ -359,20 +359,27 @@ public final class ConfigManager {
         return Connector.parse(binding, connectorType);
     }
 
-    public InetAddress getGRPCAddress(ConnectorType connectorType) throws UnknownHostException {
+    public InetAddress getGRPCAddress(ConnectorType connectorType)
+            throws UnknownHostException, IllegalArgumentException {
         if (connectorType == ConnectorType.MANAGEMENT_CONNECTOR) {
             return InetAddress.getByName(prop.getProperty(TS_GRPC_MANAGEMENT_ADDRESS, "127.0.0.1"));
-        } else {
+        } else if (connectorType == ConnectorType.INFERENCE_CONNECTOR) {
             return InetAddress.getByName(prop.getProperty(TS_GRPC_INFERENCE_ADDRESS, "127.0.0.1"));
+        } else {
+            throw new IllegalArgumentException(
+                    "Connector type not supporte dy gRPC: " + connectorType);
         }
     }
 
-    public int getGRPCPort(ConnectorType connectorType) {
+    public int getGRPCPort(ConnectorType connectorType) throws IllegalArgumentException {
         String port;
         if (connectorType == ConnectorType.MANAGEMENT_CONNECTOR) {
             port = prop.getProperty(TS_GRPC_MANAGEMENT_PORT, "7071");
-        } else {
+        } else if (connectorType == ConnectorType.INFERENCE_CONNECTOR) {
             port = prop.getProperty(TS_GRPC_INFERENCE_PORT, "7070");
+        } else {
+            throw new IllegalArgumentException(
+                    "Connector type not supporte dy gRPC: " + connectorType);
         }
         return Integer.parseInt(port);
     }
