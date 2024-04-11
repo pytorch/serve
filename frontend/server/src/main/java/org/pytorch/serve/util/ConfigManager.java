@@ -367,7 +367,7 @@ public final class ConfigManager {
             return InetAddress.getByName(prop.getProperty(TS_GRPC_INFERENCE_ADDRESS, "127.0.0.1"));
         } else {
             throw new IllegalArgumentException(
-                    "Connector type not supporte dy gRPC: " + connectorType);
+                    "Connector type not supported by gRPC: " + connectorType);
         }
     }
 
@@ -379,7 +379,7 @@ public final class ConfigManager {
             port = prop.getProperty(TS_GRPC_INFERENCE_PORT, "7070");
         } else {
             throw new IllegalArgumentException(
-                    "Connector type not supporte dy gRPC: " + connectorType);
+                    "Connector type not supported by gRPC: " + connectorType);
         }
         return Integer.parseInt(port);
     }
