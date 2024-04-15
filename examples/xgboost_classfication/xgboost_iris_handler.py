@@ -13,10 +13,7 @@ logger = logging.getLogger(__name__)
 
 class XGBIrisHandler(BaseHandler):
     def __init__(self):
-        self.manifest = None
-        self.model = None
-        self.mapping = None
-        self.initialized = False
+        super().__init__()
 
     def initialize(self, context):
         # Set device type
@@ -41,7 +38,6 @@ class XGBIrisHandler(BaseHandler):
         self.initialized = True
 
     def preprocess(self, requests):
-        logger.info(requests)
         inputs = []
         for row in requests:
             input = row.get("data") or row.get("body")

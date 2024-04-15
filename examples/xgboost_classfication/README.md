@@ -1,4 +1,4 @@
-# XGBoost Classifier for Iris DataSet
+# XGBoost Classifier for Iris dataset
 
 This example shows how to serve an XGBoost classifier model using TorchServe.
 Here we train a model to classify iris dataset
