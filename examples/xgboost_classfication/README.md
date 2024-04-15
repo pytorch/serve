@@ -3,11 +3,12 @@
 This example shows how to serve an XGBoost classifier model using TorchServe.
 Here we train a model to classify iris dataset
 
-## Pre-requsites
+## Pre-requisites
 
 Train an XGBoost classifier model for Iris dataset
 
 ```
+pip install -r requirements.txt
 python xgboost_train.py
 ```
 
