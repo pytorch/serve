@@ -59,9 +59,10 @@ class BaseNeuronXContinuousBatchingHandler(BaseHandler):
 
         os.environ["NEURONX_CACHE"] = "on"
         os.environ["NEURON_COMPILE_CACHE_URL"] = f"{model_dir}/neuron_cache"
-        os.environ[
-            "NEURON_CC_FLAGS"
-        ] = "-O1 --model-type=transformer --enable-mixed-precision-accumulation --enable-saturate-infinity"
+        os.environ["NEURON_CC_FLAGS"] = handler_config.get(
+            "neuron_cc_flag",
+            "-O1 --model-type=transformer --enable-mixed-precision-accumulation --enable-saturate-infinity",
+        )
 
         self.max_length = int(handler_config.get("max_length", self.max_length))
         self.max_new_tokens = int(
