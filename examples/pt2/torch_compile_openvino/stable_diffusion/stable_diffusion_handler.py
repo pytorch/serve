@@ -56,23 +56,24 @@ class StableDiffusionHandler(BaseHandler):
         compile_mode = ctx.model_yaml_config["handler"]["compile_mode"]
         change_comp_config = ctx.model_yaml_config["handler"]["change_comp_config"]
 
+        compile_options = {}
         if "pt2" in ctx.model_yaml_config:
             pt2_value = ctx.model_yaml_config["pt2"]
 
-        if isinstance(pt2_value, str):
-            compile_options = dict(backend=pt2_value)
-        elif isinstance(pt2_value, dict):
-            compile_options = pt2_value
-        else:
-            raise ValueError("pt2 should be str or dict")
+            if isinstance(pt2_value, str):
+                compile_options = dict(backend=pt2_value)
+            elif isinstance(pt2_value, dict):
+                compile_options = pt2_value
+            else:
+                raise ValueError("pt2 should be str or dict")
 
-        valid_backend = (
-            check_valid_pt2_backend(compile_options["backend"])
-            if "backend" in compile_options
-            else True
-        )
-        if not valid_backend:
-            raise ValueError("Invalid backend specified in config")
+            valid_backend = (
+                check_valid_pt2_backend(compile_options["backend"])
+                if "backend" in compile_options
+                else True
+            )
+            if not valid_backend:
+                raise ValueError("Invalid backend specified in config")
 
         # Load model weights
         model_path = Path(ctx.model_yaml_config["handler"]["model_path"])
