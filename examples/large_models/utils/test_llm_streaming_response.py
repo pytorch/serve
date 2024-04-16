@@ -29,7 +29,7 @@ class Predictor(threading.Thread):
                 if chunk:
                     data = orjson.loads(chunk)
                     if self.args.demo_streaming:
-                        print(data["text"], flush=True)
+                        print(data["text"], end="", flush=True)
                     else:
                         combined_text += data["text"]
         if not self.args.demo_streaming:
