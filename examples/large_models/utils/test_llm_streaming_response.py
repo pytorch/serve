@@ -32,9 +32,7 @@ class Predictor(threading.Thread):
                         print(f'{data["text"]}')
                     else:
                         combined_text += data["text"]
-        if self.args.demo_streaming:
-            print("\n")
-        else:
+        if not self.args.demo_streaming:
             self.queue.put_nowait(f"payload={payload}\n, output={combined_text}\n")
 
     def _get_url(self):
