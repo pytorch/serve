@@ -30,7 +30,7 @@ class BaseVLLMHandler(BaseHandler):
     def preprocess(self, requests):
         for req_id, req_data in zip(self.context.request_ids.values(), requests):
             if req_id not in self.context.cache:
-                data = req_data.get("data") or request.get("body")
+                data = req_data.get("data") or req_data.get("body")
                 if isinstance(data, (bytes, bytearray)):
                     data = data.decode("utf-8")
 
