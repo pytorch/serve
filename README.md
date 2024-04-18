@@ -103,6 +103,9 @@ Refer to [torchserve docker](docker/README.md) for details.
 
 For [more examples](examples/README.md)
 
+## 🛡️ TorchServe Security Policy
+[SECURITY.md](SECURITY.md)
+
 ## 🤓 Learn More
 https://pytorch.org/serve
 
