@@ -5,7 +5,7 @@
 namespace torchserve {
 
 TEST(JsonTest, TestParsingAndGetValue) {
-  std::string json_file = "test/resources/test.json";
+  std::string json_file = "resources/test.json";
   auto data = Json::ParseJsonFile(json_file);
 
   EXPECT_TRUE(data.GetValue("string").AsString().compare("test") == 0);
