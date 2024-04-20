@@ -15,12 +15,14 @@ class BaseVLLMHandler(BaseHandler):
 
         self.vllm_engine = None
         self.model = None
+        self.model_dir = None
         self.lora_ids = {}
         self.context = None
         self.initialized = False
 
     def initialize(self, ctx):
         self.context = ctx
+        self.model_dir = self.context.system_properties.get("model_dir")
         vllm_engine_config = self._get_vllm_engine_config(
             ctx.model_yaml_config.get("handler", {})
         )
@@ -30,7 +32,7 @@ class BaseVLLMHandler(BaseHandler):
     def preprocess(self, requests):
         for req_id, req_data in zip(self.context.request_ids.values(), requests):
             if req_id not in self.context.cache:
-                data = req_data.get("data") or req_data.get("body")
+                data = req_data.get("data") or request.get("body")
                 if isinstance(data, (bytes, bytearray)):
                     data = data.decode("utf-8")
 
@@ -73,7 +75,16 @@ class BaseVLLMHandler(BaseHandler):
 
     def _get_vllm_engine_config(self, handler_config: dict):
         vllm_engine_params = handler_config.get("vllm_engine_config", {})
-        vllm_engine_config = EngineArgs()
+        model = vllm_engine_params.get("model", {})
+        if len(model) == 0:
+            model_path = handler_config.get("model_path", {})
+            assert (
+                len(model_path) > 0
+            ), "please define model in vllm_engine_config or model_path in handler"
+            model = str(pathlib.Path(self.model_dir).joinpath(model_path))
+            logger.info(f"vllm_engine_params model={model}")
+        logger.info(f"EngineArgs model={model}")
+        vllm_engine_config = EngineArgs(model=model)
         self._set_attr_value(vllm_engine_config, vllm_engine_params)
         return vllm_engine_config
 
@@ -87,10 +98,11 @@ class BaseVLLMHandler(BaseHandler):
         lora_request_params = req_data.get("adapter", None)
 
         if lora_request_params:
-            lora_name = lora_request_params.get("name", None)
-            lora_path = lora_request_params.get("path", None)
-            if lora_name and lora_path:
+            lora_name = lora_request_params.get("name", {})
+            lora_path = lora_request_params.get("path", {})
+            if len(lora_name) > 0 and len(lora_path) > 0:
                 lora_id = self.lora_ids.get(lora_name, len(self.lora_ids) + 1)
+                lora_path = str(pathlib.Path(self.model_dir).joinpath(lora_path))
                 return LoRARequest(lora_name, lora_id, lora_path)
             else:
                 logger.error(f"request_id={req_id} missed adapter name or path")
@@ -113,10 +125,6 @@ class BaseVLLMHandler(BaseHandler):
 
     def _set_attr_value(self, obj, config: dict):
         items = vars(obj).items()
-        for k, v in config:
+        for k, v in config.items():
             if k in items:
                 setattr(obj, k, v)
-            elif k == "model_path":
-                model_dir = self.context.system_properties.get("model_dir")
-                model_path = pathlib.Path(model_dir).joinpath(v)
-                setattr(obj, "model", model_path)
