@@ -10,7 +10,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Security Policy &mdash; PyTorch/Serve master documentation</title>
+  <title>Apple Silicon Support &mdash; PyTorch/Serve master documentation</title>
   
 
   
@@ -35,8 +35,6 @@
   <link rel="stylesheet" href="_static/katex-math.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="FAQ’S" href="FAQs.html" />
-    <link rel="prev" title="Serving large models with Torchserve" href="large_model_inference.html" />
   <!-- Google Tag Manager -->
     <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
     new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -262,7 +260,7 @@
             
             
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul class="current">
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="index.html">TorchServe</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Troubleshooting.html">Troubleshooting Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="performance_guide.html">Performance Guide</a></li>
@@ -283,7 +281,7 @@
 <li class="toctree-l1"><a class="reference internal" href="use_cases.html">Torchserve Use Cases</a></li>
 <li class="toctree-l1"><a class="reference internal" href="workflows.html">TorchServe Workflows</a></li>
 <li class="toctree-l1"><a class="reference internal" href="large_model_inference.html">Serving large models with Torchserve</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Security Policy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Security.html">Security Policy</a></li>
 <li class="toctree-l1"><a class="reference internal" href="FAQs.html">FAQ’S</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Service APIs:</span></p>
@@ -345,13 +343,13 @@
       </li>
 
         
-      <li>Security Policy</li>
+      <li>Apple Silicon Support</li>
     
     
       <li class="pytorch-breadcrumbs-aside">
         
             
-            <a href="_sources/Security.md.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg"></a>
+            <a href="_sources/apple_silicon_support.md.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg"></a>
           
         
       </li>
@@ -381,98 +379,151 @@
             <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
-  <section id="security-policy">
-<h1>Security Policy<a class="headerlink" href="#security-policy" title="Permalink to this heading">¶</a></h1>
-<section id="supported-versions">
-<h2>Supported Versions<a class="headerlink" href="#supported-versions" title="Permalink to this heading">¶</a></h2>
-<table border="1" class="docutils">
-<thead>
-<tr>
-<th>Version</th>
-<th>Supported</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>0.10.0</td>
-<td>:white_check_mark:</td>
-</tr>
-</tbody>
-</table></section>
-<section id="how-we-do-security">
-<h2>How we do security<a class="headerlink" href="#how-we-do-security" title="Permalink to this heading">¶</a></h2>
-<p>TorchServe as much as possible relies on automated tools to do security scanning, in particular we support</p>
-<ol class="simple">
-<li><p>Dependency Analysis: Using Dependabot</p></li>
-<li><p>Docker Scanning: Using Snyk</p></li>
-<li><p>Code Analysis: Using CodeQL</p></li>
-</ol>
+  <section id="apple-silicon-support">
+<h1>Apple Silicon Support<a class="headerlink" href="#apple-silicon-support" title="Permalink to this heading">¶</a></h1>
+<section id="what-is-supported">
+<h2>What is supported<a class="headerlink" href="#what-is-supported" title="Permalink to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>TorchServe CI jobs now include M1 hardware in order to ensure support, <a class="reference external" href="https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners/about-github-hosted-runners#standard-github-hosted-runners-for-public-repositories">documentation</a> on github M1 hardware.</p>
+<ul>
+<li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/.github/workflows/regression_tests_cpu.yml">Regression Tests</a></p></li>
+<li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/.github/workflows/regression_tests_cpu_binaries.yml">Regression binaries Test</a></p></li>
+</ul>
+</li>
+<li><p>For <a class="reference external" href="https://docs.docker.com/desktop/install/mac-install/">Docker</a> ensure Docker for Apple silicon is installed then follow <a class="reference external" href="https://github.com/pytorch/serve/tree/master/docker">setup steps</a></p></li>
+</ul>
 </section>
-<section id="important-security-guidelines">
-<h2>Important Security Guidelines<a class="headerlink" href="#important-security-guidelines" title="Permalink to this heading">¶</a></h2>
-<ol>
-<li><p>TorchServe listens on the following ports</p>
-<ol class="simple">
-<li><p>HTTP - <code class="docutils literal notranslate"><span class="pre">8080</span></code>, <code class="docutils literal notranslate"><span class="pre">8081</span></code>, <code class="docutils literal notranslate"><span class="pre">8082</span></code></p></li>
-<li><p>gRPC - <code class="docutils literal notranslate"><span class="pre">7070</span></code>, <code class="docutils literal notranslate"><span class="pre">7071</span></code></p></li>
-</ol>
-<p>These ports are accessible to <code class="docutils literal notranslate"><span class="pre">localhost</span></code> by default.  The addresses can be configured by following the guides for
-<a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/configuration.md#configure-torchserve-listening-address-and-port">HTTP</a> and
-<a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/configuration.md#configure-torchserve-grpc-listening-addresses-and-ports">gRPC</a>.
-TorchServe does not prevent users from configuring the address to be any value, including the wildcard address <code class="docutils literal notranslate"><span class="pre">0.0.0.0</span></code>.
-Please be aware of the security risks of configuring the address to be <code class="docutils literal notranslate"><span class="pre">0.0.0.0</span></code>, this will give all addresses(including publicly accessible addresses, if any)
-on the host, access to the TorchServer endpoints listening on the ports shown above.</p>
-</li>
-<li><p>TorchServe’s Docker image is configured to expose the ports <code class="docutils literal notranslate"><span class="pre">8080</span></code>, <code class="docutils literal notranslate"><span class="pre">8081</span></code>, <code class="docutils literal notranslate"><span class="pre">8082</span></code>, <code class="docutils literal notranslate"><span class="pre">7070</span></code>, <code class="docutils literal notranslate"><span class="pre">7071</span></code> to the host by <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docker/Dockerfile">default</a>. When starting the container,
-make sure to map the ports exposed by the container to <code class="docutils literal notranslate"><span class="pre">localhost</span></code> ports or a specific IP address as shown in this <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docker/README.md#security-guideline">security guideline</a>.</p></li>
-<li><p>Be sure to validate the authenticity of the <code class="docutils literal notranslate"><span class="pre">.mar</span></code> file being used with TorchServe.</p>
-<ol class="simple">
-<li><p>A <code class="docutils literal notranslate"><span class="pre">.mar</span></code> file being downloaded from the internet from an untrustworthy source may have malicious code, compromising the integrity of your application.</p></li>
-<li><p>TorchServe executes arbitrary python code packaged in the <code class="docutils literal notranslate"><span class="pre">mar</span></code> file. Make sure that you’ve either audited that the code you’re using is safe and/or is from a source that you trust.</p></li>
-<li><p>Torchserve supports custom <a class="reference external" href="https://github.com/pytorch/serve/tree/master/plugins">plugins</a> and <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/custom_service">handlers</a>.
-These can be utilized to extend TorchServe functionality to perform runtime security scanning using tools such as:</p>
+<section id="experimental-support">
+<h2>Experimental Support<a class="headerlink" href="#experimental-support" title="Permalink to this heading">¶</a></h2>
 <ul class="simple">
-<li><p>Clamd: https://pypi.org/project/clamd/</p></li>
-<li><p>VirusTotal: https://virustotal.github.io/vt-py/</p></li>
-<li><p>Fickling: https://github.com/trailofbits/fickling</p></li>
+<li><p>For GPU jobs on Apple Silicon, <a class="reference external" href="https://pytorch.org/docs/master/notes/mps.html">MPS</a> is now auto detected and enabled. To prevent TorchServe from using MPS, users have to set <code class="docutils literal notranslate"><span class="pre">deviceType:</span> <span class="pre">&quot;cpu&quot;</span></code> in model-config.yaml.</p>
+<ul>
+<li><p>This is an experimental feature and NOT ALL models are guaranteed to work.</p></li>
 </ul>
 </li>
-<li><p>Running Torchserve inside a container environment and loading an untrusted <code class="docutils literal notranslate"><span class="pre">.mar</span></code> file does not guarantee isolation from a security perspective.</p></li>
-</ol>
-</li>
-<li><p>By default TorchServe allows you to register models from all URLs. Make sure to set <code class="docutils literal notranslate"><span class="pre">allowed_urls</span></code> parameter in config.properties to restrict this. You can find more details in the <a class="reference external" href="https://pytorch.org/serve/configuration.html#other-properties">configuration guide</a>.</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">use_env_allowed_urls=true</span></code> is required in config.properties to read <code class="docutils literal notranslate"><span class="pre">allowed_urls</span></code> from environment variable.</p></li>
+<li><p>Number of GPUs now reports GPUs on Apple Silicon</p></li>
 </ul>
-</li>
-<li><p>Enable SSL:</p>
-<p>TorchServe supports two ways to configure SSL:</p>
-<ol class="simple">
-<li><p>Using a keystore</p></li>
-<li><p>Using private-key/certificate files</p></li>
-</ol>
-<p>You can find more details in the <a class="reference external" href="https://pytorch.org/serve/configuration.html#enable-ssl">configuration guide</a>.</p>
-</li>
-<li><p>Prepare your model against bad inputs and prompt injections. Some recommendations:</p>
-<ol class="simple">
-<li><p>Pre-analysis: check how the model performs by default when exposed to prompt injection (e.g. using <a class="reference external" href="https://github.com/FonduAI/awesome-prompt-injection?tab=readme-ov-file#tools">fuzzing for prompt injection</a>).</p></li>
-<li><p>Input Sanitation: Before feeding data to the model, sanitize inputs rigorously. This involves techniques such as:</p>
+<section id="testing">
+<h3>Testing<a class="headerlink" href="#testing" title="Permalink to this heading">¶</a></h3>
 <ul class="simple">
-<li><p>Validation: Enforce strict rules on allowed characters and data types.</p></li>
-<li><p>Filtering: Remove potentially malicious scripts or code fragments.</p></li>
-<li><p>Encoding: Convert special characters into safe representations.</p></li>
-<li><p>Verification: Run tooling that identifies potential script injections (e.g. <a class="reference external" href="https://python.langchain.com/docs/guides/safety/hugging_face_prompt_injection">models that detect prompt injection attempts</a>).</p></li>
+<li><p><a class="reference external" href="https://github.com/pytorch/serve/tree/master/test/pytest/test_device_config.py">Pytests</a> that checks for MPS on MacOS M1 devices</p></li>
+<li><p>Models that have been tested and work: Resnet-18, Densenet161, Alexnet</p></li>
+<li><p>Models that have been tested and DO NOT work: MNIST</p></li>
 </ul>
-</li>
-</ol>
-</li>
-<li><p>If you intend to run multiple models in parallel with shared memory, it is your responsibility to ensure the models do not interact or access each other’s data. The primary areas of concern are tenant isolation, resource allocation, model sharing and hardware attacks.</p></li>
-<li><p>TorchServe supports token authorization: check <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/token_authorization_api">documentation</a> for more information.</p></li>
-</ol>
+<section id="example-resnet-18-using-mps-on-mac-m1-pro">
+<h4>Example Resnet-18 Using MPS On Mac M1 Pro<a class="headerlink" href="#example-resnet-18-using-mps-on-mac-m1-pro" title="Permalink to this heading">¶</a></h4>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>serve % torchserve --start --model-store model_store_gen --models resnet-18=resnet-18.mar --ncs
+
+Torchserve version: 0.10.0
+Number of GPUs: 16
+Number of CPUs: 10
+Max heap size: 8192 M
+Python executable: /Library/Frameworks/Python.framework/Versions/3.11/bin/python3.11
+Config file: N/A
+Inference address: http://127.0.0.1:8080
+Management address: http://127.0.0.1:8081
+Metrics address: http://127.0.0.1:8082
+Model Store: 
+Initial Models: resnet-18=resnet-18.mar
+Log dir: 
+Metrics dir: 
+Netty threads: 0
+Netty client threads: 0
+Default workers per model: 16
+Blacklist Regex: N/A
+Maximum Response Size: 6553500
+Maximum Request Size: 6553500
+Limit Maximum Image Pixels: true
+Prefer direct buffer: false
+Allowed Urls: [file://.*|http(s)?://.*]
+Custom python dependency for model allowed: false
+Enable metrics API: true
+Metrics mode: LOG
+Disable system metrics: false
+Workflow Store: 
+CPP log config: N/A
+Model config: N/A
+024-04-08T14:18:02,380 [INFO ] main org.pytorch.serve.servingsdk.impl.PluginsManager -  Loading snapshot serializer plugin...
+2024-04-08T14:18:02,391 [INFO ] main org.pytorch.serve.ModelServer - Loading initial models: resnet-18.mar
+2024-04-08T14:18:02,699 [DEBUG] main org.pytorch.serve.wlm.ModelVersionedRefs - Adding new version 1.0 for model resnet-18
+2024-04-08T14:18:02,699 [INFO ] main org.pytorch.serve.wlm.ModelManager - Model resnet-18 loaded.
+2024-04-08T14:18:02,699 [DEBUG] main org.pytorch.serve.wlm.ModelManager - updateModel: resnet-18, count: 16
+...
+...
+serve % curl http://127.0.0.1:8080/predictions/resnet-18 -T ./examples/image_classifier/kitten.jpg
+...
+{
+  &quot;tabby&quot;: 0.40966302156448364,
+  &quot;tiger_cat&quot;: 0.3467046618461609,
+  &quot;Egyptian_cat&quot;: 0.1300288736820221,
+  &quot;lynx&quot;: 0.02391958422958851,
+  &quot;bucket&quot;: 0.011532187461853027
+}
+...
+</pre></div>
+</div>
 </section>
-<section id="reporting-a-vulnerability">
-<h2>Reporting a Vulnerability<a class="headerlink" href="#reporting-a-vulnerability" title="Permalink to this heading">¶</a></h2>
-<p>If you find a serious vulnerability please report it to https://www.facebook.com/whitehat and aws-security&#64;amazon.com</p>
+<section id="conda-example">
+<h4>Conda Example<a class="headerlink" href="#conda-example" title="Permalink to this heading">¶</a></h4>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>(myenv) serve % pip list | grep torch                                                                   
+torch                     2.2.1
+torchaudio                2.2.1
+torchdata                 0.7.1
+torchtext                 0.17.1
+torchvision               0.17.1
+(myenv3) serve % conda install -c pytorch-nightly torchserve torch-model-archiver torch-workflow-archiver
+(myenv3) serve % pip list | grep torch                                                                   
+torch                     2.2.1
+torch-model-archiver      0.10.0b20240312
+torch-workflow-archiver   0.2.12b20240312
+torchaudio                2.2.1
+torchdata                 0.7.1
+torchserve                0.10.0b20240312
+torchtext                 0.17.1
+torchvision               0.17.1
+(myenv3) serve % torchserve --start --ncs  --models densenet161.mar --model-store ./model_store_gen/
+Torchserve version: 0.10.0
+Number of GPUs: 0
+Number of CPUs: 10
+Max heap size: 8192 M
+Config file: N/A
+Inference address: http://127.0.0.1:8080
+Management address: http://127.0.0.1:8081
+Metrics address: http://127.0.0.1:8082
+Initial Models: densenet161.mar
+Netty threads: 0
+Netty client threads: 0
+Default workers per model: 10
+Blacklist Regex: N/A
+Maximum Response Size: 6553500
+Maximum Request Size: 6553500
+Limit Maximum Image Pixels: true
+Prefer direct buffer: false
+Allowed Urls: [file://.*|http(s)?://.*]
+Custom python dependency for model allowed: false
+Enable metrics API: true
+Metrics mode: LOG
+Disable system metrics: false
+CPP log config: N/A
+Model config: N/A
+System metrics command: default
+...
+2024-03-12T15:58:54,702 [INFO ] main org.pytorch.serve.wlm.ModelManager - Model densenet161 loaded.
+2024-03-12T15:58:54,702 [DEBUG] main org.pytorch.serve.wlm.ModelManager - updateModel: densenet161, count: 10
+Model server started.
+...
+(myenv3) serve % curl http://127.0.0.1:8080/predictions/densenet161 -T examples/image_classifier/kitten.jpg 
+{
+  &quot;tabby&quot;: 0.46661922335624695,
+  &quot;tiger_cat&quot;: 0.46449029445648193,
+  &quot;Egyptian_cat&quot;: 0.0661405548453331,
+  &quot;lynx&quot;: 0.001292439759708941,
+  &quot;plastic_bag&quot;: 0.00022909720428287983
+}
+</pre></div>
+</div>
+</section>
+</section>
 </section>
 </section>
 
@@ -481,15 +532,6 @@ These can be utilized to extend TorchServe functionality to perform runtime secu
              
             </div>
             <footer>
-  
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="FAQs.html" class="btn btn-neutral float-right" title="FAQ’S" accesskey="n" rel="next">Next <img src="_static/images/chevron-right-orange.svg" class="next-page"></a>
-      
-      
-        <a href="large_model_inference.html" class="btn btn-neutral" title="Serving large models with Torchserve" accesskey="p" rel="prev"><img src="_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
-      
-    </div>
   
 
   
@@ -519,11 +561,16 @@ These can be utilized to extend TorchServe functionality to perform runtime secu
           <div class="pytorch-right-menu" id="pytorch-right-menu">
             <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
               <ul>
-<li><a class="reference internal" href="#">Security Policy</a><ul>
-<li><a class="reference internal" href="#supported-versions">Supported Versions</a></li>
-<li><a class="reference internal" href="#how-we-do-security">How we do security</a></li>
-<li><a class="reference internal" href="#important-security-guidelines">Important Security Guidelines</a></li>
-<li><a class="reference internal" href="#reporting-a-vulnerability">Reporting a Vulnerability</a></li>
+<li><a class="reference internal" href="#">Apple Silicon Support</a><ul>
+<li><a class="reference internal" href="#what-is-supported">What is supported</a></li>
+<li><a class="reference internal" href="#experimental-support">Experimental Support</a><ul>
+<li><a class="reference internal" href="#testing">Testing</a><ul>
+<li><a class="reference internal" href="#example-resnet-18-using-mps-on-mac-m1-pro">Example Resnet-18 Using MPS On Mac M1 Pro</a></li>
+<li><a class="reference internal" href="#conda-example">Conda Example</a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>

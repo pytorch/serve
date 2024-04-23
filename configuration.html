@@ -478,9 +478,14 @@ See <a class="reference external" href="#enable-ssl">Enable SSL</a> to configure
 </pre></div>
 </div>
 </section>
-<section id="configure-torchserve-grpc-listening-ports">
-<h3>Configure TorchServe gRPC listening ports<a class="headerlink" href="#configure-torchserve-grpc-listening-ports" title="Permalink to this heading">¶</a></h3>
-<p>The inference gRPC API is listening on port 7070, and the management gRPC API is listening on port 7071 by default.</p>
+<section id="configure-torchserve-grpc-listening-addresses-and-ports">
+<h3>Configure TorchServe gRPC listening addresses and ports<a class="headerlink" href="#configure-torchserve-grpc-listening-addresses-and-ports" title="Permalink to this heading">¶</a></h3>
+<p>The inference gRPC API is listening on port 7070, and the management gRPC API is listening on port 7071 on localhost by default.</p>
+<p>To configure different addresses use following properties</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">grpc_inference_address</span></code>: Inference gRPC API IP address. Default: 127.0.0.1</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">grpc_management_address</span></code>: Management gRPC API IP address. Default: 127.0.0.1</p></li>
+</ul>
 <p>To configure different ports use following properties</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">grpc_inference_port</span></code>: Inference gRPC API binding port. Default: 7070</p></li>
@@ -687,6 +692,7 @@ e.g. : To allow base URLs <code class="docutils literal notranslate"><span class
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">workflow_store</span></code> : Path of workflow store directory. Defaults to model store directory.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">disable_system_metrics</span></code> : Disable collection of system metrics when set to “true”. Default value is “false”.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">system_metrics_cmd</span></code>: The customized system metrics python script name with arguments. For example:<code class="docutils literal notranslate"><span class="pre">ts/metrics/metric_collector.py</span> <span class="pre">--gpu</span> <span class="pre">0</span></code>. Default: empty which means TorchServe collects system metrics via “ts/metrics/metric_collector.py –gpu $CUDA_VISIBLE_DEVICES”.</p></li>
 </ul>
 <p><strong>NOTE</strong></p>
 <p>All the above config properties can be set using environment variable as follows.</p>
@@ -752,7 +758,7 @@ e.g. : To allow base URLs <code class="docutils literal notranslate"><span class
 <li><a class="reference internal" href="#customize-jvm-options">Customize JVM options</a></li>
 <li><a class="reference internal" href="#load-models-at-startup">Load models at startup</a></li>
 <li><a class="reference internal" href="#configure-torchserve-listening-address-and-port">Configure TorchServe listening address and port</a></li>
-<li><a class="reference internal" href="#configure-torchserve-grpc-listening-ports">Configure TorchServe gRPC listening ports</a></li>
+<li><a class="reference internal" href="#configure-torchserve-grpc-listening-addresses-and-ports">Configure TorchServe gRPC listening addresses and ports</a></li>
 <li><a class="reference internal" href="#enable-ssl">Enable SSL</a><ul>
 <li><a class="reference internal" href="#examples">Examples</a></li>
 </ul>

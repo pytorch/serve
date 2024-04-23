@@ -407,8 +407,8 @@
 </ul>
 </li>
 </ul>
-<p>By default, TorchServe listens on port 7070 for the gRPC Inference API and 7071 for the gRPC Management API.
-To configure gRPC APIs on different ports refer <a class="reference internal" href="configuration.html"><span class="doc">configuration documentation</span></a></p>
+<p>By default, TorchServe listens on port 7070 for the gRPC Inference API and 7071 for the gRPC Management API on localhost.
+To configure gRPC APIs on different addresses and ports refer <a class="reference internal" href="configuration.html"><span class="doc">configuration documentation</span></a></p>
 <section id="python-client-example-for-grpc-apis">
 <h2>Python client example for gRPC APIs<a class="headerlink" href="#python-client-example-for-grpc-apis" title="Permalink to this heading">¶</a></h2>
 <p>Run following commands to Register, run inference and unregister, densenet161 model from <a class="reference internal" href="model_zoo.html"><span class="doc">TorchServe model zoo</span></a> using <a class="reference external" href="https://github.com/pytorch/serve/blob/master/ts_scripts/torchserve_grpc_client.py">gRPC python client</a>.</p>

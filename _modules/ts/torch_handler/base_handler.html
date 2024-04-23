@@ -432,6 +432,10 @@
     <span class="p">)</span>
     <span class="n">PT2_AVAILABLE</span> <span class="o">=</span> <span class="kc">False</span>
 
+<span class="k">if</span> <span class="n">packaging</span><span class="o">.</span><span class="n">version</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">packaging</span><span class="o">.</span><span class="n">version</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="s2">&quot;2.2.2&quot;</span><span class="p">):</span>
+    <span class="n">PT230_AVAILABLE</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">PT230_AVAILABLE</span> <span class="o">=</span> <span class="kc">False</span>
 
 <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;TS_IPEX_ENABLE&quot;</span><span class="p">,</span> <span class="s2">&quot;false&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;true&quot;</span><span class="p">:</span>
     <span class="k">try</span><span class="p">:</span>
@@ -559,27 +563,61 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">setup_ort_session</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_pt_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_location</span><span class="p">)</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Succesfully setup ort session&quot;</span><span class="p">)</span>
 
+        <span class="k">elif</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model_pt_path</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.so&quot;</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_use_torch_export_aot_compile</span><span class="p">()</span>
+            <span class="ow">and</span> <span class="n">PT230_AVAILABLE</span>
+        <span class="p">):</span>
+            <span class="c1"># Set cuda device to the gpu_id of the backend worker</span>
+            <span class="c1"># This is needed as the API for loading the exported model doesn&#39;t yet have a device id</span>
+            <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="ow">and</span> <span class="n">properties</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;gpu_id&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">set_device</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_torch_export_aot_compile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_pt_path</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;torch._export is an experimental feature! Succesfully loaded torch exported model.&quot;</span>
+            <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;No model weights could be loaded&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;model_yaml_config&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">&quot;pt2&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_yaml_config</span><span class="p">:</span>
-            <span class="n">pt2_backend</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_yaml_config</span><span class="p">[</span><span class="s2">&quot;pt2&quot;</span><span class="p">]</span>
-            <span class="n">valid_backend</span> <span class="o">=</span> <span class="n">check_valid_pt2_backend</span><span class="p">(</span><span class="n">pt2_backend</span><span class="p">)</span>
+            <span class="n">pt2_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_yaml_config</span><span class="p">[</span><span class="s2">&quot;pt2&quot;</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="s2">&quot;export&quot;</span> <span class="ow">in</span> <span class="n">pt2_value</span><span class="p">:</span>
+                <span class="n">valid_backend</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># pt2_value can be the backend, passed as a str, or arbitrary kwargs, passed as a dict</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pt2_value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                    <span class="n">compile_options</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">backend</span><span class="o">=</span><span class="n">pt2_value</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pt2_value</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                    <span class="n">compile_options</span> <span class="o">=</span> <span class="n">pt2_value</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;pt2 should be str or dict&quot;</span><span class="p">)</span>
+
+                <span class="c1"># if backend is not provided, compile will use its default, which is valid</span>
+                <span class="n">valid_backend</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">check_valid_pt2_backend</span><span class="p">(</span><span class="n">compile_options</span><span class="p">[</span><span class="s2">&quot;backend&quot;</span><span class="p">])</span>
+                    <span class="k">if</span> <span class="s2">&quot;backend&quot;</span> <span class="ow">in</span> <span class="n">compile_options</span>
+                    <span class="k">else</span> <span class="kc">True</span>
+                <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">valid_backend</span> <span class="o">=</span> <span class="kc">False</span>
 
         <span class="c1"># PT 2.0 support is opt in</span>
         <span class="k">if</span> <span class="n">PT2_AVAILABLE</span> <span class="ow">and</span> <span class="n">valid_backend</span><span class="p">:</span>
+            <span class="n">compile_options_str</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">compile_options</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span>
+            <span class="p">)</span>
             <span class="c1"># Compilation will delay your model initialization</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span>
-                    <span class="n">backend</span><span class="o">=</span><span class="n">pt2_backend</span><span class="p">,</span>
+                    <span class="o">**</span><span class="n">compile_options</span><span class="p">,</span>
                 <span class="p">)</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Compiled model with backend </span><span class="si">{</span><span class="n">pt2_backend</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Compiled model with </span><span class="si">{</span><span class="n">compile_options_str</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Compiling model model with backend </span><span class="si">{</span><span class="n">pt2_backend</span><span class="si">}</span><span class="s2"> has failed </span><span class="se">\n</span><span class="s2"> Proceeding without compilation&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;Compiling model model with </span><span class="si">{</span><span class="n">compile_options_str</span><span class="si">}</span><span class="s2"> has failed </span><span class="se">\n</span><span class="s2"> Proceeding without compilation&quot;</span>
                 <span class="p">)</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
 
@@ -595,6 +633,17 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">mapping</span> <span class="o">=</span> <span class="n">load_label_mapping</span><span class="p">(</span><span class="n">mapping_file_path</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">initialized</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+    <span class="k">def</span> <span class="nf">_load_torch_export_aot_compile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_so_path</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Loads the PyTorch model so and returns a Callable object.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            model_pt_path (str): denotes the path of the model file.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            (Callable Object) : Loads the model object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">_export</span><span class="o">.</span><span class="n">aot_load</span><span class="p">(</span><span class="n">model_so_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_location</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_load_torchscript_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_pt_path</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Loads the PyTorch model and returns the NN model object.</span>
@@ -647,6 +696,18 @@
             <span class="n">model</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">state_dict</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">model</span>
 
+    <span class="k">def</span> <span class="nf">_use_torch_export_aot_compile</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">torch_export_aot_compile</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;model_yaml_config&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">&quot;pt2&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_yaml_config</span><span class="p">:</span>
+            <span class="c1"># Check if torch._export.aot_compile is being used</span>
+            <span class="n">pt2_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_yaml_config</span><span class="p">[</span><span class="s2">&quot;pt2&quot;</span><span class="p">]</span>
+            <span class="n">export_value</span> <span class="o">=</span> <span class="n">pt2_value</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;export&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">export_value</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">&quot;aot_compile&quot;</span> <span class="ow">in</span> <span class="n">export_value</span><span class="p">:</span>
+                <span class="n">torch_export_aot_compile</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="kc">True</span> <span class="k">if</span> <span class="n">export_value</span><span class="p">[</span><span class="s2">&quot;aot_compile&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="kc">True</span> <span class="k">else</span> <span class="kc">False</span>
+                <span class="p">)</span>
+        <span class="k">return</span> <span class="n">torch_export_aot_compile</span>
+
     <span class="nd">@timed</span>
     <span class="k">def</span> <span class="nf">preprocess</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -675,7 +736,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            Torch Tensor : The Predicted Torch Tensor is returned in this function.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
+        <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">inference_mode</span><span class="p">():</span>
             <span class="n">marshalled_data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
             <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="n">marshalled_data</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">results</span>

@@ -556,14 +556,19 @@
             <span class="n">cmd</span><span class="p">,</span> <span class="n">msg</span> <span class="o">=</span> <span class="n">retrieve_msg</span><span class="p">(</span><span class="n">cl_socket</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">BENCHMARK</span><span class="p">:</span>
                 <span class="n">pr</span><span class="o">.</span><span class="n">enable</span><span class="p">()</span>
+            <span class="c1"># b&quot;I&quot; encodes a model Inference request from frontend</span>
             <span class="k">if</span> <span class="n">cmd</span> <span class="o">==</span> <span class="sa">b</span><span class="s2">&quot;I&quot;</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">service</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="n">resp</span> <span class="o">=</span> <span class="n">service</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
-                    <span class="n">cl_socket</span><span class="o">.</span><span class="n">sendall</span><span class="p">(</span><span class="n">resp</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">LOCAL_RANK</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">cl_socket</span><span class="o">.</span><span class="n">sendall</span><span class="p">(</span><span class="n">resp</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;skip sending response at rank </span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">LOCAL_RANK</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
                         <span class="s2">&quot;Received command: </span><span class="si">{}</span><span class="s2">, but service is not loaded&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
                     <span class="p">)</span>
+            <span class="c1"># b&quot;I&quot; encodes a model Loading request from frontend</span>
             <span class="k">elif</span> <span class="n">cmd</span> <span class="o">==</span> <span class="sa">b</span><span class="s2">&quot;L&quot;</span><span class="p">:</span>
                 <span class="n">service</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="n">code</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_model</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
                 <span class="n">resp</span> <span class="o">=</span> <span class="nb">bytearray</span><span class="p">()</span>

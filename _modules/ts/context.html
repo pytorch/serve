@@ -496,7 +496,12 @@
     <span class="c1"># TODO: Should we add &quot;add_header()&quot; interface, to have multiple values for a single header. EG: Accept headers.</span>
 
     <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Context</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="vm">__dict__</span></div>
+        <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Context</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="vm">__dict__</span>
+
+<div class="viewcode-block" id="Context.get_sequence_id"><a class="viewcode-back" href="../../api/ts.html#ts.context.Context.get_sequence_id">[docs]</a>    <span class="k">def</span> <span class="nf">get_sequence_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_request_processor</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">get_request_property</span><span class="p">(</span>
+            <span class="s2">&quot;ts_request_sequence_id&quot;</span>
+        <span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="RequestProcessor"><a class="viewcode-back" href="../../api/ts.html#ts.context.RequestProcessor">[docs]</a><span class="k">class</span> <span class="nc">RequestProcessor</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>

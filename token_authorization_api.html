@@ -10,7 +10,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Security Policy &mdash; PyTorch/Serve master documentation</title>
+  <title>TorchServe token authorization API &mdash; PyTorch/Serve master documentation</title>
   
 
   
@@ -35,8 +35,6 @@
   <link rel="stylesheet" href="_static/katex-math.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="FAQ’S" href="FAQs.html" />
-    <link rel="prev" title="Serving large models with Torchserve" href="large_model_inference.html" />
   <!-- Google Tag Manager -->
     <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
     new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -262,7 +260,7 @@
             
             
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul class="current">
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="index.html">TorchServe</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Troubleshooting.html">Troubleshooting Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="performance_guide.html">Performance Guide</a></li>
@@ -283,7 +281,7 @@
 <li class="toctree-l1"><a class="reference internal" href="use_cases.html">Torchserve Use Cases</a></li>
 <li class="toctree-l1"><a class="reference internal" href="workflows.html">TorchServe Workflows</a></li>
 <li class="toctree-l1"><a class="reference internal" href="large_model_inference.html">Serving large models with Torchserve</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Security Policy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Security.html">Security Policy</a></li>
 <li class="toctree-l1"><a class="reference internal" href="FAQs.html">FAQ’S</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Service APIs:</span></p>
@@ -345,13 +343,13 @@
       </li>
 
         
-      <li>Security Policy</li>
+      <li>TorchServe token authorization API</li>
     
     
       <li class="pytorch-breadcrumbs-aside">
         
             
-            <a href="_sources/Security.md.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg"></a>
+            <a href="_sources/token_authorization_api.md.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg"></a>
           
         
       </li>
@@ -381,98 +379,81 @@
             <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
-  <section id="security-policy">
-<h1>Security Policy<a class="headerlink" href="#security-policy" title="Permalink to this heading">¶</a></h1>
-<section id="supported-versions">
-<h2>Supported Versions<a class="headerlink" href="#supported-versions" title="Permalink to this heading">¶</a></h2>
-<table border="1" class="docutils">
-<thead>
-<tr>
-<th>Version</th>
-<th>Supported</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>0.10.0</td>
-<td>:white_check_mark:</td>
-</tr>
-</tbody>
-</table></section>
-<section id="how-we-do-security">
-<h2>How we do security<a class="headerlink" href="#how-we-do-security" title="Permalink to this heading">¶</a></h2>
-<p>TorchServe as much as possible relies on automated tools to do security scanning, in particular we support</p>
+  <section id="torchserve-token-authorization-api">
+<h1>TorchServe token authorization API<a class="headerlink" href="#torchserve-token-authorization-api" title="Permalink to this heading">¶</a></h1>
+<section id="setup">
+<h2>Setup<a class="headerlink" href="#setup" title="Permalink to this heading">¶</a></h2>
 <ol class="simple">
-<li><p>Dependency Analysis: Using Dependabot</p></li>
-<li><p>Docker Scanning: Using Snyk</p></li>
-<li><p>Code Analysis: Using CodeQL</p></li>
+<li><p>Download the jar files from <a class="reference external" href="https://mvnrepository.com/artifact/org.pytorch/torchserve-endpoint-plugin">Maven</a></p></li>
+<li><p>Enable token authorization by adding the <code class="docutils literal notranslate"><span class="pre">--plugins-path</span> <span class="pre">/path/to/the/jar/files</span></code> flag at start up with the path leading to the downloaded jar files.</p></li>
 </ol>
 </section>
-<section id="important-security-guidelines">
-<h2>Important Security Guidelines<a class="headerlink" href="#important-security-guidelines" title="Permalink to this heading">¶</a></h2>
+<section id="configuration">
+<h2>Configuration<a class="headerlink" href="#configuration" title="Permalink to this heading">¶</a></h2>
+<ol class="simple">
+<li><p>Torchserve will enable token authorization if the plugin is provided. Expected log statement <code class="docutils literal notranslate"><span class="pre">[INFO</span> <span class="pre">]</span> <span class="pre">main</span> <span class="pre">org.pytorch.serve.servingsdk.impl.PluginsManager</span> <span class="pre">-</span> <span class="pre">Loading</span> <span class="pre">plugin</span> <span class="pre">for</span> <span class="pre">endpoint</span> <span class="pre">token</span></code></p></li>
+<li><p>In the current working directory a file <code class="docutils literal notranslate"><span class="pre">key_file.json</span></code> will be generated.</p>
+<ol class="simple">
+<li><p>Example key file:</p></li>
+</ol>
+</li>
+</ol>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>  <span class="p">{</span>
+  <span class="s2">&quot;management&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;key&quot;</span><span class="p">:</span> <span class="s2">&quot;B-E5KSRM&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;expiration time&quot;</span><span class="p">:</span> <span class="s2">&quot;2024-02-16T21:12:24.801167Z&quot;</span>
+  <span class="p">},</span>
+  <span class="s2">&quot;inference&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;key&quot;</span><span class="p">:</span> <span class="s2">&quot;gNRuA7dS&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;expiration time&quot;</span><span class="p">:</span> <span class="s2">&quot;2024-02-16T21:12:24.801148Z&quot;</span>
+  <span class="p">},</span>
+  <span class="s2">&quot;API&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;key&quot;</span><span class="p">:</span> <span class="s2">&quot;yv9uQajP&quot;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
 <ol>
-<li><p>TorchServe listens on the following ports</p>
+<li><p>There are 3 keys and each have a different use.</p>
 <ol class="simple">
-<li><p>HTTP - <code class="docutils literal notranslate"><span class="pre">8080</span></code>, <code class="docutils literal notranslate"><span class="pre">8081</span></code>, <code class="docutils literal notranslate"><span class="pre">8082</span></code></p></li>
-<li><p>gRPC - <code class="docutils literal notranslate"><span class="pre">7070</span></code>, <code class="docutils literal notranslate"><span class="pre">7071</span></code></p></li>
-</ol>
-<p>These ports are accessible to <code class="docutils literal notranslate"><span class="pre">localhost</span></code> by default.  The addresses can be configured by following the guides for
-<a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/configuration.md#configure-torchserve-listening-address-and-port">HTTP</a> and
-<a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/configuration.md#configure-torchserve-grpc-listening-addresses-and-ports">gRPC</a>.
-TorchServe does not prevent users from configuring the address to be any value, including the wildcard address <code class="docutils literal notranslate"><span class="pre">0.0.0.0</span></code>.
-Please be aware of the security risks of configuring the address to be <code class="docutils literal notranslate"><span class="pre">0.0.0.0</span></code>, this will give all addresses(including publicly accessible addresses, if any)
-on the host, access to the TorchServer endpoints listening on the ports shown above.</p>
-</li>
-<li><p>TorchServe’s Docker image is configured to expose the ports <code class="docutils literal notranslate"><span class="pre">8080</span></code>, <code class="docutils literal notranslate"><span class="pre">8081</span></code>, <code class="docutils literal notranslate"><span class="pre">8082</span></code>, <code class="docutils literal notranslate"><span class="pre">7070</span></code>, <code class="docutils literal notranslate"><span class="pre">7071</span></code> to the host by <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docker/Dockerfile">default</a>. When starting the container,
-make sure to map the ports exposed by the container to <code class="docutils literal notranslate"><span class="pre">localhost</span></code> ports or a specific IP address as shown in this <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docker/README.md#security-guideline">security guideline</a>.</p></li>
-<li><p>Be sure to validate the authenticity of the <code class="docutils literal notranslate"><span class="pre">.mar</span></code> file being used with TorchServe.</p>
-<ol class="simple">
-<li><p>A <code class="docutils literal notranslate"><span class="pre">.mar</span></code> file being downloaded from the internet from an untrustworthy source may have malicious code, compromising the integrity of your application.</p></li>
-<li><p>TorchServe executes arbitrary python code packaged in the <code class="docutils literal notranslate"><span class="pre">mar</span></code> file. Make sure that you’ve either audited that the code you’re using is safe and/or is from a source that you trust.</p></li>
-<li><p>Torchserve supports custom <a class="reference external" href="https://github.com/pytorch/serve/tree/master/plugins">plugins</a> and <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/custom_service">handlers</a>.
-These can be utilized to extend TorchServe functionality to perform runtime security scanning using tools such as:</p>
-<ul class="simple">
-<li><p>Clamd: https://pypi.org/project/clamd/</p></li>
-<li><p>VirusTotal: https://virustotal.github.io/vt-py/</p></li>
-<li><p>Fickling: https://github.com/trailofbits/fickling</p></li>
-</ul>
-</li>
-<li><p>Running Torchserve inside a container environment and loading an untrusted <code class="docutils literal notranslate"><span class="pre">.mar</span></code> file does not guarantee isolation from a security perspective.</p></li>
+<li><p>Management key: Used for management APIs. Example:
+<code class="docutils literal notranslate"><span class="pre">curl</span> <span class="pre">http://localhost:8081/models/densenet161</span> <span class="pre">-H</span> <span class="pre">&quot;Authorization:</span> <span class="pre">Bearer</span> <span class="pre">I_J_ItMb&quot;</span></code></p></li>
+<li><p>Inference key: Used for inference APIs. Example:
+<code class="docutils literal notranslate"><span class="pre">curl</span> <span class="pre">http://127.0.0.1:8080/predictions/densenet161</span> <span class="pre">-T</span> <span class="pre">examples/image_classifier/kitten.jpg</span> <span class="pre">-H</span> <span class="pre">&quot;Authorization:</span> <span class="pre">Bearer</span> <span class="pre">FINhR1fj&quot;</span></code></p></li>
+<li><p>API key: Used for the token authorization API. Check section 4 for API use.</p></li>
 </ol>
 </li>
-<li><p>By default TorchServe allows you to register models from all URLs. Make sure to set <code class="docutils literal notranslate"><span class="pre">allowed_urls</span></code> parameter in config.properties to restrict this. You can find more details in the <a class="reference external" href="https://pytorch.org/serve/configuration.html#other-properties">configuration guide</a>.</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">use_env_allowed_urls=true</span></code> is required in config.properties to read <code class="docutils literal notranslate"><span class="pre">allowed_urls</span></code> from environment variable.</p></li>
-</ul>
-</li>
-<li><p>Enable SSL:</p>
-<p>TorchServe supports two ways to configure SSL:</p>
+<li><p>The plugin also includes an API in order to generate a new key to replace either the management or inference key.</p>
 <ol class="simple">
-<li><p>Using a keystore</p></li>
-<li><p>Using private-key/certificate files</p></li>
+<li><p>Management Example:
+<code class="docutils literal notranslate"><span class="pre">curl</span> <span class="pre">localhost:8081/token?type=management</span> <span class="pre">-H</span> <span class="pre">&quot;Authorization:</span> <span class="pre">Bearer</span> <span class="pre">m4M-5IBY&quot;</span></code> will replace the current management key in the key_file with a new one and will update the expiration time.</p></li>
+<li><p>Inference example:
+<code class="docutils literal notranslate"><span class="pre">curl</span> <span class="pre">localhost:8081/token?type=inference</span> <span class="pre">-H</span> <span class="pre">&quot;Authorization:</span> <span class="pre">Bearer</span> <span class="pre">m4M-5IBY&quot;</span></code></p></li>
 </ol>
-<p>You can find more details in the <a class="reference external" href="https://pytorch.org/serve/configuration.html#enable-ssl">configuration guide</a>.</p>
+<p>Users will have to use either one of the APIs above.</p>
 </li>
-<li><p>Prepare your model against bad inputs and prompt injections. Some recommendations:</p>
-<ol class="simple">
-<li><p>Pre-analysis: check how the model performs by default when exposed to prompt injection (e.g. using <a class="reference external" href="https://github.com/FonduAI/awesome-prompt-injection?tab=readme-ov-file#tools">fuzzing for prompt injection</a>).</p></li>
-<li><p>Input Sanitation: Before feeding data to the model, sanitize inputs rigorously. This involves techniques such as:</p>
-<ul class="simple">
-<li><p>Validation: Enforce strict rules on allowed characters and data types.</p></li>
-<li><p>Filtering: Remove potentially malicious scripts or code fragments.</p></li>
-<li><p>Encoding: Convert special characters into safe representations.</p></li>
-<li><p>Verification: Run tooling that identifies potential script injections (e.g. <a class="reference external" href="https://python.langchain.com/docs/guides/safety/hugging_face_prompt_injection">models that detect prompt injection attempts</a>).</p></li>
-</ul>
-</li>
-</ol>
-</li>
-<li><p>If you intend to run multiple models in parallel with shared memory, it is your responsibility to ensure the models do not interact or access each other’s data. The primary areas of concern are tenant isolation, resource allocation, model sharing and hardware attacks.</p></li>
-<li><p>TorchServe supports token authorization: check <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/token_authorization_api">documentation</a> for more information.</p></li>
+<li><p>When users shut down the server the key_file will be deleted.</p></li>
 </ol>
 </section>
-<section id="reporting-a-vulnerability">
-<h2>Reporting a Vulnerability<a class="headerlink" href="#reporting-a-vulnerability" title="Permalink to this heading">¶</a></h2>
-<p>If you find a serious vulnerability please report it to https://www.facebook.com/whitehat and aws-security&#64;amazon.com</p>
+<section id="customization">
+<h2>Customization<a class="headerlink" href="#customization" title="Permalink to this heading">¶</a></h2>
+<p>Torchserve offers various ways to customize the token authorization to allow owners to reach the desired result.</p>
+<ol class="simple">
+<li><p>Time to expiration is set to default at 60 minutes but can be changed in the config.properties by adding <code class="docutils literal notranslate"><span class="pre">token_expiration_min</span></code>. Ex:<code class="docutils literal notranslate"><span class="pre">token_expiration_min=30</span></code></p></li>
+<li><p>The token authorization code is consolidated in the plugin and thus can be changed without impacting the frontend or end result. The only thing the user cannot change is:</p>
+<ol class="simple">
+<li><p>The urlPattern for the plugin must be ‘token’ and the class name must not change</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">generateKeyFile</span></code>, <code class="docutils literal notranslate"><span class="pre">checkTokenAuthorization</span></code>, and <code class="docutils literal notranslate"><span class="pre">setTime</span></code> functions return type and signature must not change. However, the code in the functions can be modified depending on user necessity.</p></li>
+</ol>
+</li>
+</ol>
+</section>
+<section id="notes">
+<h2>Notes<a class="headerlink" href="#notes" title="Permalink to this heading">¶</a></h2>
+<ol class="simple">
+<li><p>DO NOT MODIFY THE KEY FILE. Modifying the key file might impact reading and writing to the file thus preventing new keys from properly being displayed in the file.</p></li>
+<li><p>3 tokens allow the owner with the most flexibility in use and enables them to adapt the tokens to their use. Owners of the server can provide users with the inference token if users should not mess with models. The owner can also provide owners with the management key if owners want users to add and remove models.</p></li>
+</ol>
 </section>
 </section>
 
@@ -481,15 +462,6 @@ These can be utilized to extend TorchServe functionality to perform runtime secu
              
             </div>
             <footer>
-  
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="FAQs.html" class="btn btn-neutral float-right" title="FAQ’S" accesskey="n" rel="next">Next <img src="_static/images/chevron-right-orange.svg" class="next-page"></a>
-      
-      
-        <a href="large_model_inference.html" class="btn btn-neutral" title="Serving large models with Torchserve" accesskey="p" rel="prev"><img src="_static/images/chevron-right-orange.svg" class="previous-page"> Previous</a>
-      
-    </div>
   
 
   
@@ -519,11 +491,11 @@ These can be utilized to extend TorchServe functionality to perform runtime secu
           <div class="pytorch-right-menu" id="pytorch-right-menu">
             <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
               <ul>
-<li><a class="reference internal" href="#">Security Policy</a><ul>
-<li><a class="reference internal" href="#supported-versions">Supported Versions</a></li>
-<li><a class="reference internal" href="#how-we-do-security">How we do security</a></li>
-<li><a class="reference internal" href="#important-security-guidelines">Important Security Guidelines</a></li>
-<li><a class="reference internal" href="#reporting-a-vulnerability">Reporting a Vulnerability</a></li>
+<li><a class="reference internal" href="#">TorchServe token authorization API</a><ul>
+<li><a class="reference internal" href="#setup">Setup</a></li>
+<li><a class="reference internal" href="#configuration">Configuration</a></li>
+<li><a class="reference internal" href="#customization">Customization</a></li>
+<li><a class="reference internal" href="#notes">Notes</a></li>
 </ul>
 </li>
 </ul>

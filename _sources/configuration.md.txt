@@ -93,8 +93,13 @@ inference_address=https://127.0.0.1:8443
 inference_address=https://172.16.1.10:8080
 ```
 
-### Configure TorchServe gRPC listening ports
-The inference gRPC API is listening on port 7070, and the management gRPC API is listening on port 7071 by default.
+### Configure TorchServe gRPC listening addresses and ports
+The inference gRPC API is listening on port 7070, and the management gRPC API is listening on port 7071 on localhost by default.
+
+To configure different addresses use following properties
+
+* `grpc_inference_address`: Inference gRPC API IP address. Default: 127.0.0.1
+* `grpc_management_address`: Management gRPC API IP address. Default: 127.0.0.1
 
 To configure different ports use following properties
 
@@ -297,6 +302,7 @@ e.g. : To allow base URLs `https://s3.amazonaws.com/` and `https://torchserve.py
   * For security reason, `use_env_allowed_urls=true` is required in config.properties to read `allowed_urls` from environment variable.
 * `workflow_store` : Path of workflow store directory. Defaults to model store directory.
 * `disable_system_metrics` : Disable collection of system metrics when set to "true". Default value is "false".
+* `system_metrics_cmd`: The customized system metrics python script name with arguments. For example:`ts/metrics/metric_collector.py --gpu 0`. Default: empty which means TorchServe collects system metrics via "ts/metrics/metric_collector.py --gpu $CUDA_VISIBLE_DEVICES".
 
 **NOTE**
 
