@@ -45,6 +45,7 @@ jobs:
         run: |
           sudo apt-get update -y
           sudo apt-get install -y apache2-utils
+          pip install sentencepiece huggingface_hub
           pip install -r benchmarks/requirements-ab.txt
       - name: Benchmark cpu nightly
         if: ${{ matrix.hardware == 'cpu' }}
