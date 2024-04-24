@@ -18,9 +18,12 @@ The examples has been tested on A10, A100 as well as H100.
 
 #### Pre-requisites
 
+- PyTorch 2.3
+- CUDA >= 11.8
+
 `cd` to the example folder `examples/large_models/gpt_fast`
 
-Install dependencies and upgrade torch to nightly build (currently required)
+Install dependencies
 ```
 git clone https://github.com/pytorch-labs/gpt-fast/
 cd gpt-fast
