@@ -1,3 +1,4 @@
+import os
 import shutil
 from pathlib import Path
 from unittest.mock import patch
@@ -157,6 +158,10 @@ def register_model(mar_file_path, model_store, torchserve):
 
 
 @pytest.mark.timeout(60)
+@pytest.mark.skipif(
+    os.environ.get("TS_RUN_IN_DOCKER", False),
+    reason="Test to be run outside docker",
+)
 def test_handler_traceback_logging(model_name):
     """
     Full circle test with torchserve
