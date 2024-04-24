@@ -1218,6 +1218,7 @@ venv
 TorchInductor
 Pytests
 deviceType
+XGBoost
 Clamd
 Fickling
 TorchServer

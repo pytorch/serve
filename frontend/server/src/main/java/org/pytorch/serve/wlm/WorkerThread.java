@@ -481,7 +481,6 @@ public class WorkerThread implements Runnable {
             }
         }
         backendChannel.clear();
-        lifeCycle.terminateIOStreams();
         Thread thread = currentThread.getAndSet(null);
         if (thread != null) {
             thread.interrupt();
