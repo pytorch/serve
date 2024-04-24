@@ -1,18 +1,3 @@
 [submodule "third_party/google/rpc"]
 	path = third_party/google/rpc
 	url = https://github.com/googleapis/googleapis.git
-[submodule "cpp/third-party/llama2.c"]
-	path = cpp/third-party/llama2.c
-	url = https://github.com/karpathy/llama2.c
-[submodule "cpp/third-party/llama2.so"]
-	path = cpp/third-party/llama2.so
-	url = https://github.com/mreso/llama2.so.git
-[submodule "cpp/third-party/yaml-cpp"]
-	path = cpp/third-party/yaml-cpp
-	url = https://github.com/jbeder/yaml-cpp.git
-[submodule "cpp/third-party/tokenizers-cpp"]
-	path = cpp/third-party/tokenizers-cpp
-	url = https://github.com/mlc-ai/tokenizers-cpp.git
-[submodule "cpp/third-party/kineto"]
-	path = cpp/third-party/kineto
-	url = https://github.com/pytorch/kineto.git
