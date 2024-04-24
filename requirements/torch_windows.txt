@@ -1,7 +1,7 @@
 #pip install torch torchvision torchaudio
 --extra-index-url https://download.pytorch.org/whl/cpu
 -r torch_common.txt
-torch==2.2.1; sys_platform == 'win32'
-torchvision==0.17.1; sys_platform == 'win32'
-torchtext==0.17.1; sys_platform == 'win32'
-torchaudio==2.2.1; sys_platform == 'win32'
+torch==2.3.0; sys_platform == 'win32'
+torchvision==0.18.0; sys_platform == 'win32'
+torchtext==0.18.0; sys_platform == 'win32'
+torchaudio==2.3.0; sys_platform == 'win32'
