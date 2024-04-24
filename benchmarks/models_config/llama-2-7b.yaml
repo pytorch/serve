@@ -10,7 +10,7 @@ llama-2-7b:
       - 1
     input: "./examples/large_models/gpt_fast/request.json"
     requests: 100
-    concurrency: 4
+    concurrency: 1
     backend_profiling: False
     exec_env: "local"
     processors:
