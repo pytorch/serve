@@ -26,7 +26,7 @@ class Predictor(threading.Thread):
             for chunk in response.iter_content(chunk_size=None):
                 if chunk:
                     data = orjson.loads(chunk)
-                    combined_text += data["text"]
+                    combined_text += data.get("text", "")
         self.queue.put_nowait(f"payload={payload}\n, output={combined_text}\n")
 
     def _get_url(self):
@@ -34,7 +34,7 @@ class Predictor(threading.Thread):
 
     def _format_payload(self):
         prompt_input = _load_curl_like_data(self.args.prompt_text)
-        if self.args.prompt_json_file:
+        if self.args.prompt_json:
             prompt_input = orjson.loads(prompt_input)
             prompt = prompt_input.get("prompt", None)
             assert prompt is not None
