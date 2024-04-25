@@ -14,8 +14,8 @@ models:
     # - "bert_multi_gpu_no_better_transformer.yaml"
     # - "fastrcnn.yaml"
     # - "mnist.yaml"
-    # - "vgg16.yaml"
-   - "llama-2-7b.yaml"
+   - "vgg16.yaml"
+  # - "llama-2-7b.yaml"
 #    - "wf_dog_breed.yaml"
 
 # benchmark on "cpu" or "gpu".
@@ -46,7 +46,7 @@ hardware: &hardware "gpu"
 #    - "today()" is a keyword to apply current date in the path
 #      For example, the dest path in the following example is
 #      s3://torchserve-model-serving/benchmark/2022-03-18/gpu
-report_cmd:
-    - "cmd": "aws s3 cp --recursive"
-    - "source": '/tmp/ts_benchmark/'
-    - "dest": ['s3://torchserve-benchmark/llama-test', "today()", *hardware]
+# report_cmd:
+#     - "cmd": "aws s3 cp --recursive"
+#     - "source": '/tmp/ts_benchmark/'
+#     - "dest": ['s3://torchserve-benchmark/llama-test', "today()", *hardware]
