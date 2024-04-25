@@ -5,11 +5,11 @@ llama-2-7b:
     url: https://torchserve.s3.amazonaws.com/mar_files/llama2-7b-chat/llama-2.mar
     workers:
       - 4
-    batch_delay: 200
+    batch_delay: 100
     batch_size:
       - 1
     input: "./examples/large_models/gpt_fast/request.json"
-    requests: 100
+    requests: 10
     concurrency: 2
     backend_profiling: False
     exec_env: "local"
