@@ -2,7 +2,7 @@ import torch
 import openvino.torch
 import logging
 
-from diffusers import DiffusionPipeline, DPMSolverMultistepScheduler
+from diffusers import StableDiffusionXLPipeline, DPMSolverMultistepScheduler
 
 logger = logging.getLogger(__name__)
 PROMPT = "ghibli style, a fantasy landscape with castles"
@@ -25,17 +25,17 @@ def load_pipeline(
     logger.info(f"Compiled model with {compile_options_str}")
 
     if ckpt != "runwayml/stable-diffusion-v1-5":
-        pipe = DiffusionPipeline.from_pretrained(ckpt, torch_dtype=dtype, use_safetensors=True)
+        pipe = StableDiffusionXLPipeline.from_pretrained(ckpt, torch_dtype=dtype, use_safetensors=True)
     else:
-        pipe = DiffusionPipeline.from_pretrained(ckpt, torch_dtype=dtype, use_safetensors=True, safety_checker=None)
+        pipe = StableDiffusionXLPipeline.from_pretrained(ckpt, torch_dtype=dtype, use_safetensors=True, safety_checker=None)
         # As the default scheduler of SD v1-5 doesn't have sigmas device placement
         # (https://github.com/huggingface/diffusers/pull/6174)
         pipe.scheduler = DPMSolverMultistepScheduler.from_config(pipe.scheduler.config)
 
     if compile_unet:
         print("Compile UNet.")
-        pipe.unet.to(memory_format=torch.channels_last)
         if compile_mode == "max-autotune" and change_comp_config:
+            pipe.unet.to(memory_format=torch.channels_last)
             torch._inductor.config.conv_1x1_as_mm = True
             torch._inductor.config.coordinate_descent_tuning = True
             torch._inductor.config.epilogue_fusion = False
@@ -45,8 +45,8 @@ def load_pipeline(
 
     if compile_vae:
         print("Compile VAE.")
-        pipe.vae.to(memory_format=torch.channels_last)
         if compile_mode == "max-autotune" and change_comp_config:
+            pipe.vae.to(memory_format=torch.channels_last)
             torch._inductor.config.conv_1x1_as_mm = True
             torch._inductor.config.coordinate_descent_tuning = True
             torch._inductor.config.epilogue_fusion = False
