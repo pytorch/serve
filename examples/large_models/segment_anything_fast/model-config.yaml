@@ -2,5 +2,5 @@ responseTimeout: 300
 handler:
     profile: true
     model_type: "vit_h"
-    sam_checkpoint: "/home/ubuntu/serve/examples/large_models/segment_anything_fast/sam_vit_h_4b8939.pth"
+    sam_checkpoint: "sam_vit_h_4b8939.pth"
     process_batch_size: 8
