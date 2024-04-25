@@ -13,7 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        hardware: [lmi-test] #[cpu, gpu, inf2]
+        hardware: [lmi] #[cpu, gpu, inf2]
     runs-on:
       - self-hosted
       - ${{ matrix.hardware }}
@@ -56,7 +56,7 @@ jobs:
         if: ${{ matrix.hardware == 'gpu' }}
         run: python benchmarks/auto_benchmark.py --input benchmarks/benchmark_config_gpu.yaml --skip false
       - name: Benchmark lmi nightly
-        if: ${{ matrix.hardware == 'lmi-test' }}
+        if: ${{ matrix.hardware == 'lmi' }}
         run: python benchmarks/auto_benchmark.py --input benchmarks/benchmark_config_gpu.yaml --skip false
       - name: Benchmark inf2 nightly
         if: ${{ matrix.hardware == 'inf2' }}
