@@ -105,7 +105,7 @@ class ABBenchmark(Benchmark):
     def run(self):
         click.secho("\n\nExecuting inference performance tests ...", fg="green")
         ab_cmd = (
-            f"ab -c {self.execution_params['concurrency']} -s 3000 -r -n {self.execution_params['requests']} -k -p "
+            f"ab -c {self.execution_params['concurrency']} -s 300 -r -n {self.execution_params['requests']} -k -p "
             f"{self.execution_params['tmp_dir']}/benchmark/input -T  {self.execution_params['content_type']} "
             f"{self.execution_params['inference_url']}/{self.execution_params['inference_model_url']} > "
             f"{self.execution_params['result_file']}"
