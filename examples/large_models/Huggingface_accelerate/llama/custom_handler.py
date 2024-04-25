@@ -1,9 +1,10 @@
 import logging
 from abc import ABC
+from typing import Dict
 
 import torch
 import transformers
-from transformers import AutoModelForCausalLM, AutoTokenizer
+from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 
 from ts.context import Context
 from ts.torch_handler.base_handler import BaseHandler
@@ -39,32 +40,30 @@ class LlamaHandler(BaseHandler, ABC):
         seed = int(ctx.model_yaml_config["handler"]["manual_seed"])
         torch.manual_seed(seed)
 
-        logger.info("Model %s loading tokenizer", ctx.model_name)
+        self.tokenizer = AutoTokenizer.from_pretrained(model_path)
+        self.tokenizer.pad_token = self.tokenizer.eos_token
+        self.tokenizer.padding_side = "left"
+        logger.info("Model %s loaded tokenizer successfully", ctx.model_name)
+
+        if self.tokenizer.vocab_size >= 128000:
+            quant_config = BitsAndBytesConfig(
+                load_in_4bit=True,
+                bnb_4bit_use_double_quant=True,
+                bnb_4bit_quant_type="nf4",
+                bnb_4bit_compute_dtype=torch.bfloat16,
+            )
+        else:
+            quant_config = BitsAndBytesConfig(load_in_8bit=True)
+
         self.model = AutoModelForCausalLM.from_pretrained(
             model_path,
             device_map="balanced",
             low_cpu_mem_usage=True,
             torch_dtype=torch.float16,
-            load_in_8bit=True,
+            quantization_config=quant_config,
             trust_remote_code=True,
         )
-        if ctx.model_yaml_config["handler"]["fast_kernels"]:
-            from optimum.bettertransformer import BetterTransformer
-
-            try:
-                self.model = BetterTransformer.transform(self.model)
-            except RuntimeError as error:
-                logger.warning(
-                    "HuggingFace Optimum is not supporting this model,for the list of supported models, please refer to this doc,https://huggingface.co/docs/optimum/bettertransformer/overview"
-                )
-        self.tokenizer = AutoTokenizer.from_pretrained(model_path)
-        self.tokenizer.add_special_tokens(
-            {
-                "pad_token": "<PAD>",
-            }
-        )
-        self.model.resize_token_embeddings(self.model.config.vocab_size + 1)
-
+        self.device = next(iter(self.model.parameters())).device
         logger.info("Model %s loaded successfully", ctx.model_name)
         self.initialized = True
 
@@ -78,38 +77,31 @@ class LlamaHandler(BaseHandler, ABC):
             tuple: A tuple with two tensors: the batch of input ids and the batch of
                 attention masks.
         """
-        input_texts = [data.get("data") or data.get("body") for data in requests]
-        input_ids_batch, attention_mask_batch = [], []
-        for input_text in input_texts:
-            input_ids, attention_mask = self.encode_input_text(input_text)
-            input_ids_batch.append(input_ids)
-            attention_mask_batch.append(attention_mask)
-        input_ids_batch = torch.cat(input_ids_batch, dim=0).to(self.model.device)
-        attention_mask_batch = torch.cat(attention_mask_batch, dim=0).to(self.device)
-        return input_ids_batch, attention_mask_batch
+        input_texts = [self.preprocess_requests(r) for r in requests]
 
-    def encode_input_text(self, input_text):
-        """
-        Encodes a single input text using the tokenizer.
-        Args:
-            input_text (str): The input text to be encoded.
-        Returns:
-            tuple: A tuple with two tensors: the encoded input ids and the attention mask.
-        """
-        if isinstance(input_text, (bytes, bytearray)):
-            input_text = input_text.decode("utf-8")
-        logger.info("Received text: '%s'", input_text)
-        inputs = self.tokenizer.encode_plus(
-            input_text,
+        logger.info("Received texts: '%s'", input_texts)
+        inputs = self.tokenizer(
+            input_texts,
             max_length=self.max_length,
             padding=True,
             add_special_tokens=True,
             return_tensors="pt",
             truncation=True,
-        )
-        input_ids = inputs["input_ids"]
-        attention_mask = inputs["attention_mask"]
-        return input_ids, attention_mask
+        ).to(self.device)
+        return inputs
+
+    def preprocess_requests(self, request: Dict):
+        """
+        Preprocess request
+        Args:
+            request (Dict): Request to be decoded.
+        Returns:
+            str: Decoded input text
+        """
+        input_text = request.get("data") or request.get("body")
+        if isinstance(input_text, (bytes, bytearray)):
+            input_text = input_text.decode("utf-8")
+        return input_text
 
     def inference(self, input_batch):
         """
@@ -121,11 +113,8 @@ class LlamaHandler(BaseHandler, ABC):
         Returns:
             list: A list of strings with the predicted values for each input text in the batch.
         """
-        input_ids_batch, attention_mask_batch = input_batch
-        input_ids_batch = input_ids_batch.to(self.device)
         outputs = self.model.generate(
-            input_ids_batch,
-            attention_mask=attention_mask_batch,
+            **input_batch,
             max_length=self.max_new_tokens,
         )
 

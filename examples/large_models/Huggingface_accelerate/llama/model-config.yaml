@@ -6,9 +6,8 @@ responseTimeout: 1200
 deviceType: "gpu"
 
 handler:
-    model_name: "meta-llama/Llama-2-70b-chat-hf"
-    model_path: "model/models--meta-llama--Llama-2-70b-chat-hf/snapshots/9ff8b00464fc439a64bb374769dec3dd627be1c2"
+    model_name: "meta-llama/Meta-Llama-3-70B-Instruct"
+    model_path: "model/models--meta-llama--Meta-Llama-3-70B-Instruct/snapshots/5fcb2901844dde3111159f24205b71c25900ffbd"
     max_length: 50
     max_new_tokens: 50
     manual_seed: 40
-    fast_kernels: True

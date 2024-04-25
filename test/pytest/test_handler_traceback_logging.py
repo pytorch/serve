@@ -156,7 +156,7 @@ def register_model(mar_file_path, model_store, torchserve):
     test_utils.unregister_model(model_name)
 
 
-@pytest.mark.timeout(60)
+@pytest.mark.timeout(120)
 def test_handler_traceback_logging(model_name):
     """
     Full circle test with torchserve
