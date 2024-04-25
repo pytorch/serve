@@ -18,5 +18,5 @@ torchpippy==0.1.1
 intel_extension_for_pytorch==2.2.0; sys_platform != 'win32' and sys_platform != 'darwin'
 onnxruntime==1.17.1
 googleapis-common-protos
-onnx==1.14.1
+onnx==1.16.0
 orjson
