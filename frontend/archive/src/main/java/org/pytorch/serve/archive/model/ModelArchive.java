@@ -56,15 +56,16 @@ public class ModelArchive {
 
         String marFileName = ArchiveUtils.getFilenameFromUrl(url);
         File modelLocation = new File(modelStore, marFileName);
+
+        if (url.contains("..")) {
+            throw new ModelNotFoundException("Relative path is not allowed in url: " + url);
+        }
+
         try {
             ArchiveUtils.downloadArchive(
                     allowedUrls, modelLocation, marFileName, url, s3SseKmsEnabled);
         } catch (InvalidArchiveURLException e) {
             throw new ModelNotFoundException(e.getMessage()); // NOPMD
-        }
-
-        if (url.contains("..")) {
-            throw new ModelNotFoundException("Relative path is not allowed in url: " + url);
         }
 
         if (modelLocation.isFile()) {

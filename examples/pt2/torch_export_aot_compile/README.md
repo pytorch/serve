@@ -7,23 +7,11 @@ To understand when to use `torch._export.aot_compile`, please refer to this [sec
 
 ### Pre-requisites
 
-- `PyTorch >= 2.3.0` (or PyTorch nightlies)
-- `CUDA 12.1`
+- `PyTorch >= 2.3.0`
+- `CUDA  >= 11.8`
 
 Change directory to the examples directory
 Ex:  `cd  examples/pt2/torch_export_aot_compile`
-
-Install PyTorch 2.3 nightlies by running
-```
-chmod +x install_pytorch_nightlies.sh
-source install_pytorch_nightlies.sh
-```
-
-You can also achieve this by installing TorchServe dependencies with the `nightly_torch` flag
-```
-python ts_scripts/install_dependencies.py --cuda=cu121 --nightly_torch
-```
-
 
 ### Create a Torch exported model with AOTInductor
 

@@ -9,47 +9,47 @@
 
 TEST_F(ModelPredictTest, TestLoadPredictBaseHandler) {
   this->LoadPredict(std::make_shared<torchserve::LoadModelRequest>(
-                        "_build/test/resources/examples/mnist/mnist_handler",
+                        "resources/examples/mnist/mnist_handler",
                         "mnist_scripted_v2", -1, "", "", 1, false),
-                    "_build/test/resources/examples/mnist/base_handler",
-                    "_build/test/resources/examples/mnist/0_png.pt", "mnist_ts",
+                    "resources/examples/mnist/base_handler",
+                    "resources/examples/mnist/0_png.pt", "mnist_ts",
                     200);
 }
 
 TEST_F(ModelPredictTest, TestLoadPredictMnistHandler) {
   this->LoadPredict(std::make_shared<torchserve::LoadModelRequest>(
-                        "_build/test/resources/examples/mnist/mnist_handler",
+                        "resources/examples/mnist/mnist_handler",
                         "mnist_scripted_v2", -1, "", "", 1, false),
-                    "_build/test/resources/examples/mnist/mnist_handler",
-                    "_build/test/resources/examples/mnist/0_png.pt", "mnist_ts",
+                    "resources/examples/mnist/mnist_handler",
+                    "resources/examples/mnist/0_png.pt", "mnist_ts",
                     200);
 }
 
 TEST_F(ModelPredictTest, TestBackendInitWrongModelDir) {
-  auto result = backend_->Initialize("_build/test/resources/examples/mnist");
+  auto result = backend_->Initialize("resources/examples/mnist");
   ASSERT_EQ(result, false);
 }
 
 TEST_F(ModelPredictTest, TestBackendInitWrongHandler) {
   auto result = backend_->Initialize(
-      "_build/test/resources/examples/mnist/wrong_handler");
+      "resources/examples/mnist/wrong_handler");
   ASSERT_EQ(result, false);
 }
 
 TEST_F(ModelPredictTest, TestLoadModelFailure) {
-  backend_->Initialize("_build/test/resources/examples/mnist/wrong_model");
+  backend_->Initialize("resources/examples/mnist/wrong_model");
   auto result =
       backend_->LoadModel(std::make_shared<torchserve::LoadModelRequest>(
-          "_build/test/resources/examples/mnist/wrong_model",
+          "resources/examples/mnist/wrong_model",
           "mnist_scripted_v2", -1, "", "", 1, false));
   ASSERT_EQ(result->code, 500);
 }
 
 TEST_F(ModelPredictTest, TestLoadPredictMnistHandlerFailure) {
   this->LoadPredict(std::make_shared<torchserve::LoadModelRequest>(
-                        "_build/test/resources/examples/mnist/mnist_handler",
+                        "resources/examples/mnist/mnist_handler",
                         "mnist_scripted_v2", -1, "", "", 1, false),
-                    "_build/test/resources/examples/mnist/mnist_handler",
-                    "_build/test/resources/examples/mnist/0.png", "mnist_ts",
+                    "resources/examples/mnist/mnist_handler",
+                    "resources/examples/mnist/0.png", "mnist_ts",
                     500);
 }

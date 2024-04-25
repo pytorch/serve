@@ -7,6 +7,9 @@ on:
 jobs:
   build_docs_job:
     runs-on: ubuntu-20.04
+    permissions:
+      # Grant write permission here so that the doc can be pushed to gh-pages branch
+      contents: write
     steps:
     - name: Setup Python 3.9
       uses: actions/setup-python@v5

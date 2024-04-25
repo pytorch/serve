@@ -1,6 +1,6 @@
 ## PyTorch 2.x integration
 
-PyTorch 2.0 brings more compiler options to PyTorch, for you that should mean better perf either in the form of lower latency or lower memory consumption.
+PyTorch 2.x brings more compiler options to PyTorch, for you that should mean better perf either in the form of lower latency or lower memory consumption.
 
 We strongly recommend you leverage newer hardware so for GPUs that would be an Ampere architecture. You'll get even more benefits from using server GPU deployments like A10G and A100 vs consumer cards. But you should expect to see some speedups for any Volta or Ampere architecture.
 
@@ -16,7 +16,7 @@ pip install torchserve-nightly torch-model-archiver-nightly
 
 ## torch.compile
 
-PyTorch 2.0 supports several compiler backends and you pick which one you want by passing in an optional file `model_config.yaml` during your model packaging
+PyTorch 2.x supports several compiler backends and you pick which one you want by passing in an optional file `model_config.yaml` during your model packaging
 
 ```yaml
 pt2: "inductor"
