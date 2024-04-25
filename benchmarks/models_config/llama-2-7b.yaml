@@ -2,9 +2,9 @@
 llama-2-7b:
   eager-mode:
     benchmark_engine: "ab"
-    url: https://torchserve.s3.amazonaws.com/mar_files/llama2-7b-chat/gpt_fast.mar
+    url: https://torchserve.s3.amazonaws.com/mar_files/llama2-7b-chat/llama-2.mar
     workers:
-      - 2
+      - 4
     batch_delay: 200
     batch_size:
       - 1
