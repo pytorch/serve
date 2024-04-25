@@ -14,8 +14,8 @@ models:
     # - "bert_multi_gpu_no_better_transformer.yaml"
     # - "fastrcnn.yaml"
     # - "mnist.yaml"
-   - "vgg16.yaml"
-  # - "llama-2-7b.yaml"
+   #- "vgg16.yaml"
+   - "llama-2-7b.yaml"
 #    - "wf_dog_breed.yaml"
 
 # benchmark on "cpu" or "gpu".
