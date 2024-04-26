@@ -31,12 +31,14 @@ To use torch.compile with OpenVINO backend, add the following line to the model_
 echo "pt2 : {backend: "openvino"} >> model_config.yaml
 ```
 
-We can also add additional options like model_caching, device and many more OpenVINO specific configs as well in options. For more information, refer to https://docs.openvino.ai/2024/openvino-workflow/torch-compile.html#options
+We can also add additional options like model_caching, device and many more OpenVINO specific configs in options. For more information, refer to https://docs.openvino.ai/torchcompile#options
 
 #### For Example:
 ```
 pt2: {backend: "openvino", options: {"model_caching" : True, "device": "GPU"}}
 ```
+model_caching will enable caching the model after the initial run. This will reduce the first inference latency for subsequent runs of the same model.
+The device option enables running the application on a specific hardware device.
 
 Create the model archive
 
@@ -63,7 +65,7 @@ torchserve --start --ts-config config.properties --model-store model_store --mod
 ```
 python query.py --url "http://localhost:8080/predictions/diffusion_fast" --prompt "a photo of an astronaut riding a horse on mars"
 ```
-The image generated will be written to a file `output-<>.jpg`
+The image generated will be written to a file with name `output-<timestamp>.jpg` by default or can be set by the user with the --filename parameter to query.py.
 
 ### Performance improvement from using `torch.compile` with OpenVINO backend
 
@@ -110,7 +112,7 @@ After a few iterations of warmup, we see the following
 2024-04-25T07:12:51,955 [INFO ] W-9000-diffusion_fast_1.0-stdout org.pytorch.serve.wlm.WorkerLifeCycle - result=[METRICS]ts_handler_postprocess.Milliseconds:287.31536865234375|#ModelName:diffusion_fast,Level:Model|#type:GAUGE|#hostname:MDSATSM002ARC,1714029171,2d8c54ac-1c6f-43d7-93b0-bb205a9a06ee, pattern=[METRICS]
 ```
 
-#### Measure inference time with `torch.compile` OpenVINO backend on dGPU
+#### Measure inference time with `torch.compile` OpenVINO backend on Intel Discrete GPU
 
 To run inference with `torch.compile` OpenVINO backend on a machine enabled with Intel Discrete GPUs, run the following
 
@@ -130,4 +132,4 @@ After a few iterations of warmup, we see the following
 
 ### Conclusion
 
-`torch.compile` OpenVINO backend reduces the infer time from 59s to about 15s when compared to Inductor backend and further reduces the infer time to about 7s if a Intel Discrete GPU is used.
+`torch.compile` OpenVINO backend reduces the infer time from 59s to about 15s when compared to Inductor backend on CPU (Intel Xeon Platinum 8469 CPU) and further reduces the infer time to about 7s if a Intel Discrete GPU (Intel GPU Flex 170) is used.
