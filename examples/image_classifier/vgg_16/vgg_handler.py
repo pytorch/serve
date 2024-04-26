@@ -1,6 +1,8 @@
 import importlib
 import os
+
 import torch
+
 from ts.torch_handler.image_classifier import ImageClassifier
 from ts.utils.util import list_classes_from_module
 
@@ -20,12 +22,14 @@ class VGGImageClassifier(ImageClassifier):
         module = importlib.import_module(model_file.split(".")[0])
         model_class_definitions = list_classes_from_module(module)
         if len(model_class_definitions) != 1:
-            raise ValueError("Expected only one class as model definition. {}".format(
-                model_class_definitions))
+            raise ValueError(
+                "Expected only one class as model definition. {}".format(
+                    model_class_definitions
+                )
+            )
 
         model_class = model_class_definitions[0]
-        state_dict = torch.load(model_pt_path)
+        state_dict = torch.load(model_pt_path, weights_only=True)
         model = model_class()
         model.load_state_dict(state_dict)
         return model
-

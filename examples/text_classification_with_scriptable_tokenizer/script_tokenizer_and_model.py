@@ -56,7 +56,6 @@ class TokenizerModelAdapter(nn.Module):
 
 
 def main(args):
-
     # Chain preprocessing steps as defined during training.
     text_transform = T.Sequential(
         T.SentencePieceTokenizer(XLMR_SPM_MODEL_PATH),
@@ -76,7 +75,9 @@ def main(args):
     model = XLMR_BASE_ENCODER.get_model(head=classifier_head)
 
     # Load trained parameters and load them into the model
-    model.load_state_dict(torch.load(args.input_file, map_location=torch.device("cpu")))
+    model.load_state_dict(
+        torch.load(args.input_file, map_location=torch.device("cpu"), weights_only=True)
+    )
 
     # Chain the tokenizer, the adapter and the model
     combi_model = T.Sequential(

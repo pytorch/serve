@@ -480,7 +480,7 @@ def _convert_fairscale_checkpoints(
     state_dict_pth = get_consolidated_ckpt_path(
         ckpt_dir=original_ckpt_dir, mp_rank=mp_rank, mp_size=model_parallel_size
     )
-    state_dict = torch.load(state_dict_pth)
+    state_dict = torch.load(state_dict_pth, weights_only=True)
     dist_state_dict = build_distributed_state_dict_from_consolidated(
         meta_model,
         state_dict,
@@ -504,7 +504,7 @@ def _load_checkpoint(
     state_dict_pth = get_consolidated_ckpt_path(
         ckpt_dir=ckpt_dir, mp_rank=mp_rank, mp_size=model_parallel_size
     )
-    state_dict = torch.load(state_dict_pth)
+    state_dict = torch.load(state_dict_pth, weights_only=True)
     dist_state_dict = build_distributed_state_dict_from_consolidated(
         meta_model,
         state_dict,

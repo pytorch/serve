@@ -7,7 +7,7 @@ from model import ModelArgs, Transformer
 
 def load_checkpoint(checkpoint):
     # load the provided model checkpoint
-    checkpoint_dict = torch.load(checkpoint, map_location="cpu")
+    checkpoint_dict = torch.load(checkpoint, map_location="cpu", weights_only=True)
     gptconf = ModelArgs(**checkpoint_dict["model_args"])
     model = Transformer(gptconf)
     state_dict = checkpoint_dict["model"]

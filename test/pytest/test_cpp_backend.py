@@ -137,4 +137,7 @@ def test_cpp_mnist(model_name_and_stdout):
 
         assert response.status_code == 200
 
-        assert torch.load(io.BytesIO(response.content)).argmax().item() == n
+        assert (
+            torch.load(io.BytesIO(response.content), weights_only=True).argmax().item()
+            == n
+        )

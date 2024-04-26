@@ -1,13 +1,12 @@
 import io
+import itertools
+import json
 import logging
 import os
 
-from PIL import Image
-import torch.nn.functional as F
 import torch
-import itertools
-import json
-
+import torch.nn.functional as F
+from PIL import Image
 from torchvision import transforms
 
 logger = logging.getLogger(__name__)
@@ -43,7 +42,7 @@ def post_processing(data, context):
         if isinstance(data, list):
             data = data[0]
         data = data.get("data") or data.get("body")
-        data = torch.load(io.BytesIO(data))
+        data = torch.load(io.BytesIO(data), weights_only=True)
 
         properties = context.system_properties
         model_dir = properties.get("model_dir")
