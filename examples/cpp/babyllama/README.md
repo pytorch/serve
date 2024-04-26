@@ -55,6 +55,7 @@ mv llm.mar model_store/
 Start torchserve using the following command
 
 ```
+export LD_LIBRARY_PATH=`python -c "import torch;from pathlib import Path;p=Path(torch.__file__);print(f\"{(p.parent / 'lib').as_posix()}:{(p.parents[1] / 'nvidia/nccl/lib').as_posix()}\")"`:$LD_LIBRARY_PATH
 torchserve --ncs --model-store model_store/
 ```
 

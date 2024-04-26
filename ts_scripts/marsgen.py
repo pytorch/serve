@@ -43,6 +43,64 @@ def gen_mar(model_store=None):
                 print(f"## Symlink {src}, {dst} successfully.")
 
 
+def generate_model(model, model_store_dir):
+    serialized_file_path = None
+    if model.get("serialized_file_remote", None):
+        if model.get("gen_scripted_file_path", None):
+            subprocess.run(["python", model["gen_scripted_file_path"]])
+        else:
+            serialized_model_file_url = (
+                f"https://download.pytorch.org/models/{model['serialized_file_remote']}"
+            )
+            urllib.request.urlretrieve(
+                serialized_model_file_url,
+                f'{model_store_dir}/{model["serialized_file_remote"]}',
+            )
+        serialized_file_path = os.path.join(
+            model_store_dir, model["serialized_file_remote"]
+        )
+    elif model.get("serialized_file_local", None):
+        serialized_file_path = model["serialized_file_local"]
+
+    handler = model.get("handler", None)
+
+    extra_files = model.get("extra_files", None)
+
+    runtime = model.get("runtime", None)
+
+    archive_format = model.get("archive_format", "zip-store")
+
+    requirements_file = model.get("requirements_file", None)
+
+    export_path = model.get("export_path", model_store_dir)
+
+    cmd = model_archiver_command_builder(
+        model["model_name"],
+        model["version"],
+        model.get("model_file", None),
+        serialized_file_path,
+        handler,
+        extra_files,
+        runtime,
+        archive_format,
+        requirements_file,
+        export_path,
+    )
+    print(f"## In directory: {os.getcwd()} | Executing command: {cmd}\n")
+    try:
+        subprocess.check_call(cmd, shell=True)
+        marfile = "{}.mar".format(model["model_name"])
+        print("## {} is generated.\n".format(marfile))
+        mar_set.add(marfile)
+    except subprocess.CalledProcessError as exc:
+        print("## {} creation failed !, error: {}\n".format(model["model_name"], exc))
+
+    if model.get("serialized_file_remote", None) and os.path.exists(
+        serialized_file_path
+    ):
+        os.remove(serialized_file_path)
+
+
 def generate_mars(mar_config=MAR_CONFIG_FILE_PATH, model_store_dir=MODEL_STORE_DIR):
     """
     By default generate_mars reads ts_scripts/mar_config.json and outputs mar files in dir model_store_gen
@@ -67,72 +125,7 @@ def generate_mars(mar_config=MAR_CONFIG_FILE_PATH, model_store_dir=MODEL_STORE_D
         models = json.loads(f.read())
 
         for model in models:
-            serialized_file_path = None
-            if model.get("serialized_file_remote") and model["serialized_file_remote"]:
-                if (
-                    model.get("gen_scripted_file_path")
-                    and model["gen_scripted_file_path"]
-                ):
-                    subprocess.run(["python", model["gen_scripted_file_path"]])
-                else:
-                    serialized_model_file_url = (
-                        "https://download.pytorch.org/models/{}".format(
-                            model["serialized_file_remote"]
-                        )
-                    )
-                    urllib.request.urlretrieve(
-                        serialized_model_file_url,
-                        f'{model_store_dir}/{model["serialized_file_remote"]}',
-                    )
-                serialized_file_path = os.path.join(
-                    model_store_dir, model["serialized_file_remote"]
-                )
-            elif model.get("serialized_file_local") and model["serialized_file_local"]:
-                serialized_file_path = model["serialized_file_local"]
-
-            handler = model.get("handler", None)
-
-            extra_files = model.get("extra_files", None)
-
-            runtime = model.get("runtime", None)
-
-            archive_format = model.get("archive_format", "zip-store")
-
-            requirements_file = model.get("requirements_file", None)
-
-            export_path = model.get("export_path", model_store_dir)
-
-            cmd = model_archiver_command_builder(
-                model["model_name"],
-                model["version"],
-                model.get("model_file", None),
-                serialized_file_path,
-                handler,
-                extra_files,
-                runtime,
-                archive_format,
-                requirements_file,
-                export_path,
-            )
-            print(f"## In directory: {os.getcwd()} | Executing command: {cmd}\n")
-            try:
-                subprocess.check_call(cmd, shell=True)
-                marfile = "{}.mar".format(model["model_name"])
-                print("## {} is generated.\n".format(marfile))
-                mar_set.add(marfile)
-            except subprocess.CalledProcessError as exc:
-                print(
-                    "## {} creation failed !, error: {}\n".format(
-                        model["model_name"], exc
-                    )
-                )
-
-            if (
-                model.get("serialized_file_remote")
-                and model["serialized_file_remote"]
-                and os.path.exists(serialized_file_path)
-            ):
-                os.remove(serialized_file_path)
+            generate_model(model, model_store_dir)
     os.chdir(cwd)
 
 

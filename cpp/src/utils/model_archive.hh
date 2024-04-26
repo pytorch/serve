@@ -2,8 +2,7 @@
 #define TS_CPP_UTILS_MODEL_ARCHIVE_HH_
 
 #include <fmt/format.h>
-#include <folly/dynamic.h>
-#include <folly/json.h>
+#include <nlohmann/json.hpp>
 
 #include <map>
 #include <memory>
@@ -69,7 +68,7 @@ class Manifest {
   void SetHandler(const std::string& handler) { model_.handler = handler; }
 
  private:
-  bool SetValue(const folly::dynamic& source, const std::string& key,
+  bool SetValue(const nlohmann::json& source, const std::string& key,
                 std::string& dest, bool required);
 
   std::string create_on_;

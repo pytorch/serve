@@ -5,9 +5,11 @@ import com.google.gson.reflect.TypeToken;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.net.InetAddress;
@@ -99,6 +101,8 @@ public final class ConfigManager {
     private static final String TS_ALLOWED_URLS = "allowed_urls";
     private static final String TS_INSTALL_PY_DEP_PER_MODEL = "install_py_dep_per_model";
     private static final String TS_ENABLE_METRICS_API = "enable_metrics_api";
+    private static final String TS_GRPC_INFERENCE_ADDRESS = "grpc_inference_address";
+    private static final String TS_GRPC_MANAGEMENT_ADDRESS = "grpc_management_address";
     private static final String TS_GRPC_INFERENCE_PORT = "grpc_inference_port";
     private static final String TS_GRPC_MANAGEMENT_PORT = "grpc_management_port";
     private static final String TS_ENABLE_GRPC_SSL = "enable_grpc_ssl";
@@ -107,6 +111,7 @@ public final class ConfigManager {
     private static final String TS_WORKFLOW_STORE = "workflow_store";
     private static final String TS_CPP_LOG_CONFIG = "cpp_log_config";
     private static final String TS_OPEN_INFERENCE_PROTOCOL = "ts_open_inference_protocol";
+    private static final String TS_TOKEN_EXPIRATION_TIME_MIN = "token_expiration_min";
 
     // Configuration which are not documented or enabled through environment variables
     private static final String USE_NATIVE_IO = "use_native_io";
@@ -116,6 +121,7 @@ public final class ConfigManager {
     private static final String MODEL_SNAPSHOT = "model_snapshot";
     private static final String MODEL_CONFIG = "models";
     private static final String VERSION = "version";
+    private static final String SYSTEM_METRICS_CMD = "system_metrics_cmd";
 
     // Configuration default values
     private static final String DEFAULT_TS_ALLOWED_URLS = "file://.*|http(s)?://.*";
@@ -353,12 +359,27 @@ public final class ConfigManager {
         return Connector.parse(binding, connectorType);
     }
 
-    public int getGRPCPort(ConnectorType connectorType) {
+    public InetAddress getGRPCAddress(ConnectorType connectorType)
+            throws UnknownHostException, IllegalArgumentException {
+        if (connectorType == ConnectorType.MANAGEMENT_CONNECTOR) {
+            return InetAddress.getByName(prop.getProperty(TS_GRPC_MANAGEMENT_ADDRESS, "127.0.0.1"));
+        } else if (connectorType == ConnectorType.INFERENCE_CONNECTOR) {
+            return InetAddress.getByName(prop.getProperty(TS_GRPC_INFERENCE_ADDRESS, "127.0.0.1"));
+        } else {
+            throw new IllegalArgumentException(
+                    "Connector type not supported by gRPC: " + connectorType);
+        }
+    }
+
+    public int getGRPCPort(ConnectorType connectorType) throws IllegalArgumentException {
         String port;
         if (connectorType == ConnectorType.MANAGEMENT_CONNECTOR) {
             port = prop.getProperty(TS_GRPC_MANAGEMENT_PORT, "7071");
-        } else {
+        } else if (connectorType == ConnectorType.INFERENCE_CONNECTOR) {
             port = prop.getProperty(TS_GRPC_INFERENCE_PORT, "7070");
+        } else {
+            throw new IllegalArgumentException(
+                    "Connector type not supported by gRPC: " + connectorType);
         }
         return Integer.parseInt(port);
     }
@@ -558,6 +579,10 @@ public final class ConfigManager {
         return prop.getProperty(TS_CERTIFICATE_FILE);
     }
 
+    public String getSystemMetricsCmd() {
+        return prop.getProperty(SYSTEM_METRICS_CMD, "");
+    }
+
     public SslContext getSslContext() throws IOException, GeneralSecurityException {
         List<String> supportedCiphers =
                 Arrays.asList(
@@ -733,7 +758,9 @@ public final class ConfigManager {
                 + "\nCPP log config: "
                 + (getTsCppLogConfig() == null ? "N/A" : getTsCppLogConfig())
                 + "\nModel config: "
-                + prop.getProperty(MODEL_CONFIG, "N/A");
+                + prop.getProperty(MODEL_CONFIG, "N/A")
+                + "\nSystem metrics command: "
+                + (getSystemMetricsCmd().isEmpty() ? "default" : getSystemMetricsCmd());
     }
 
     public boolean useNativeIo() {
@@ -827,6 +854,28 @@ public final class ConfigManager {
                 for (String id : ids) {
                     gpuIds.add(Integer.parseInt(id));
                 }
+            } else if (System.getProperty("os.name").startsWith("Mac")) {
+                Process process = Runtime.getRuntime().exec("system_profiler SPDisplaysDataType");
+                int ret = process.waitFor();
+                if (ret != 0) {
+                    return 0;
+                }
+
+                BufferedReader reader =
+                        new BufferedReader(new InputStreamReader(process.getInputStream()));
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    if (line.contains("Chipset Model:") && !line.contains("Apple M1")) {
+                        return 0;
+                    }
+                    if (line.contains("Total Number of Cores:")) {
+                        String[] parts = line.split(":");
+                        if (parts.length >= 2) {
+                            return (Integer.parseInt(parts[1].trim()));
+                        }
+                    }
+                }
+                throw new AssertionError("Unexpected response.");
             } else {
                 Process process =
                         Runtime.getRuntime().exec("nvidia-smi --query-gpu=index --format=csv");
@@ -857,6 +906,17 @@ public final class ConfigManager {
 
     public boolean isSnapshotDisabled() {
         return snapshotDisabled;
+    }
+
+    public Double getTimeToExpiration() {
+        if (prop.getProperty(TS_TOKEN_EXPIRATION_TIME_MIN) != null) {
+            try {
+                return Double.valueOf(prop.getProperty(TS_TOKEN_EXPIRATION_TIME_MIN));
+            } catch (NumberFormatException e) {
+                logger.error("Token expiration not a valid integer");
+            }
+        }
+        return 0.0;
     }
 
     public boolean isSSLEnabled(ConnectorType connectorType) {

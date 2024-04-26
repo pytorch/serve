@@ -218,10 +218,10 @@ public final class ModelManager {
         File venvPath = EnvironmentUtils.getPythonVenvPath(model);
         List<String> commandParts = new ArrayList<>();
         commandParts.add(configManager.getPythonExecutable());
-        commandParts.add("-m");
-        commandParts.add("venv");
-        commandParts.add("--clear");
-        commandParts.add("--system-site-packages");
+        commandParts.add(
+                Paths.get(configManager.getModelServerHome(), "ts", "utils", "setup_model_venv.py")
+                        .toAbsolutePath()
+                        .toString());
         commandParts.add(venvPath.toString());
 
         ProcessBuilder processBuilder = new ProcessBuilder(commandParts);
@@ -360,10 +360,7 @@ public final class ModelManager {
         }
 
         if (exitCode == 0) {
-            logger.info(
-                    "Installed custom pip packages for model {}:\n{}",
-                    model.getModelName(),
-                    outputString.toString());
+            logger.info("Installed custom pip packages for model {}", model.getModelName());
         } else {
             logger.error(
                     "Custom pip package installation failed for model {}:\n{}",

@@ -231,11 +231,9 @@ public class WorkerLifeCycle {
         argl.add(runtimeType);
         argl.add("--model_dir");
         argl.add(modelPath.getAbsolutePath());
-        argl.add("--logger_config_path");
         if (ConfigManager.getInstance().getTsCppLogConfig() != null) {
+            argl.add("--logger_config_path");
             argl.add(ConfigManager.getInstance().getTsCppLogConfig());
-        } else {
-            argl.add(configManager.getModelServerHome() + "/ts/cpp/resources/logging.config");
         }
         argl.add("--metrics_config_path");
         argl.add(configManager.getMetricsConfigPath());
@@ -308,22 +306,10 @@ public class WorkerLifeCycle {
         argl.add(String.valueOf(1));
     }
 
-    public synchronized void terminateIOStreams() {
-        if (errReader != null) {
-            logger.warn("terminateIOStreams() threadName={}", errReader.getName());
-            errReader.terminate();
-        }
-        if (outReader != null) {
-            logger.warn("terminateIOStreams() threadName={}", outReader.getName());
-            outReader.terminate();
-        }
-    }
-
     public synchronized void exit() {
         if (process != null) {
             process.destroyForcibly();
             connector.clean();
-            terminateIOStreams();
         }
     }
 
@@ -375,19 +361,11 @@ public class WorkerLifeCycle {
             this.metricCache = MetricCache.getInstance();
         }
 
-        public void terminate() {
-            isRunning.set(false);
-        }
-
         @Override
         public void run() {
             try (Scanner scanner = new Scanner(is, StandardCharsets.UTF_8.name())) {
-                while (isRunning.get() && scanner.hasNext()) {
+                while (scanner.hasNextLine()) {
                     String result = scanner.nextLine();
-                    if (result == null) {
-                        break;
-                    }
-
                     Matcher matcher = METRIC_PATTERN.matcher(result);
                     if (matcher.matches()) {
                         logger.info("result={}, pattern={}", result, matcher.group(2));

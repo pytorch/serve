@@ -45,6 +45,11 @@ CPP_LINUX_DEPENDENCIES = (
     "ninja-build",
     "clang-tidy",
     "clang-format",
+    "build-essential",
+    "libgoogle-perftools-dev",
+    "rustc",
+    "cargo",
+    "libunwind-dev",
 )
 
 CPP_DARWIN_DEPENDENCIES = (
@@ -59,7 +64,9 @@ CPP_DARWIN_DEPENDENCIES = (
     "xz",
     "openssl",
     "libsodium",
-    "llv",
+    "icu4c",
+    "libomp",
+    "llvm",
 )
 
 CPP_DARWIN_DEPENDENCIES_LINK = (
@@ -124,8 +131,12 @@ class Common:
 
         # Install PyTorch packages
         if nightly:
+            pt_nightly = "cpu" if not cuda_version else cuda_version
             os.system(
-                f"pip3 install numpy --pre torch torchvision torchtext torchaudio --force-reinstall --extra-index-url https://download.pytorch.org/whl/nightly/{cuda_version}"
+                f"pip3 install numpy --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/{pt_nightly}"
+            )
+            os.system(
+                f"pip3 install --pre torchtext --index-url https://download.pytorch.org/whl/nightly/cpu"
             )
         else:
             self.install_torch_packages(cuda_version)
@@ -198,10 +209,9 @@ class Linux(Common):
             os.system(f"{self.sudo_cmd}apt-get install -y numactl")
 
     def install_cpp_dependencies(self):
-        if os.system("clang-tidy --version") != 0 or args.force:
-            os.system(
-                f"{self.sudo_cmd}apt-get install -y {' '.join(CPP_LINUX_DEPENDENCIES)}"
-            )
+        os.system(
+            f"{self.sudo_cmd}apt-get install -y {' '.join(CPP_LINUX_DEPENDENCIES)}"
+        )
 
     def install_neuronx_driver(self):
         # Configure Linux for Neuron repository updates
@@ -280,13 +290,13 @@ class Darwin(Common):
             os.system(f"brew install -f {' '.join(CPP_DARWIN_DEPENDENCIES)}")
             os.system(f"brew link {' '.join(CPP_DARWIN_DEPENDENCIES_LINK)}")
             os.system(
-                'ln -s "$(brew --prefix llvm)/bin/clang-format" "/usr/local/bin/clang-format"'
+                f'{self.sudo_cmd} ln -s "$(brew --prefix llvm)/bin/clang-format" "/usr/local/bin/clang-format"'
             )
             os.system(
-                'ln -s "$(brew --prefix llvm)/bin/clang-tidy" "/usr/local/bin/clang-tidy"'
+                f'{self.sudo_cmd} ln -s "$(brew --prefix llvm)/bin/clang-tidy" "/usr/local/bin/clang-tidy"'
             )
             os.system(
-                'ln -s "$(brew --prefix llvm)/bin/clang-apply-replacements" "/usr/local/bin/clang-apply-replacements"'
+                f'{self.sudo_cmd} ln -s "$(brew --prefix llvm)/bin/clang-apply-replacements" "/usr/local/bin/clang-apply-replacements"'
             )
 
     def install_neuronx_driver(self):

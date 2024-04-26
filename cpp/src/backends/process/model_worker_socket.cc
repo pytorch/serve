@@ -22,18 +22,7 @@ DEFINE_string(metrics_config_path, "", "Metrics config file path");
 int main(int argc, char* argv[]) {
   try {
     gflags::ParseCommandLineFlags(&argc, &argv, true);
-    // Default logging file path is relative to the program invocation path
-    // in the build artifacts. No way of knowing before args are parsed
-    // Setting it once the args are parsed
-    if (FLAGS_logger_config_path.empty()) {
-      FLAGS_logger_config_path =
-          std::string() +
-          std::filesystem::canonical(gflags::ProgramInvocationName())
-              .parent_path()
-              .c_str() +
-          PATH_SEPARATOR + ".." + PATH_SEPARATOR + "resources" +
-          PATH_SEPARATOR + "logging.config";
-    }
+
     torchserve::Logger::InitLogger(FLAGS_logger_config_path);
 
     if (FLAGS_metrics_config_path.empty()) {

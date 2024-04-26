@@ -2,6 +2,8 @@
 
 #include <iostream>
 
+using json = nlohmann::json;
+
 namespace torchserve {
 bool Manifest::Initialize(const std::string& manifest_json_file_path) {
   try {
@@ -10,7 +12,7 @@ bool Manifest::Initialize(const std::string& manifest_json_file_path) {
     std::string str((std::istreambuf_iterator<char>(*manifest_stream)),
                     std::istreambuf_iterator<char>());
 
-    auto val = folly::parseJson(str);
+    auto val = json::parse(str);
     auto model = val[torchserve::Manifest::kModel];
     if (model == NULL) {
       TS_LOGF(ERROR, "Item: model is not defined in {}",
@@ -55,17 +57,15 @@ bool Manifest::Initialize(const std::string& manifest_json_file_path) {
   return false;
 }
 
-bool Manifest::SetValue(const folly::dynamic& source, const std::string& key,
+bool Manifest::SetValue(const json& source, const std::string& key,
                         std::string& dest, bool required) {
-  try {
-    dest = source[key].asString();
-  } catch (const std::out_of_range& e) {
-    if (required) {
-      TS_LOGF(ERROR, "Item: {} not defined. error: {}", key, e.what());
-    } else {
-      return false;
-    }
+  if(source.contains(key)) {
+    dest = source[key].template get<std::string>();
+    return true;
+  }else{
+    if(required)
+      TS_LOGF(ERROR, "Item: {} not defined.", key);
+    return false;
   }
-  return true;
 }
 }  // namespace torchserve

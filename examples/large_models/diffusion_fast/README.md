@@ -21,8 +21,7 @@ The example has been tested on A10, A100 as well as H100.
 Install dependencies and upgrade torch to nightly build (currently required)
 ```
 git clone https://github.com/huggingface/diffusion-fast.git
-pip install --pre torch --index-url https://download.pytorch.org/whl/nightly/cu121 --ignore-installed -y
-pip install accelerate transformers peft
+pip install accelerate transformers diffusers peft
 pip install --no-cache-dir git+https://github.com/pytorch-labs/ao@54bcd5a10d0abbe7b0c045052029257099f83fd9
 pip install pandas matplotlib seaborn
 ```

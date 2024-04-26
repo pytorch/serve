@@ -1,0 +1,13 @@
+# TorchServe frontend parameters
+minWorkers: 1
+maxWorkers: 1
+maxBatchDelay: 100
+responseTimeout: 1200
+deviceType: "gpu"
+
+handler:
+    model_name: "meta-llama/Meta-Llama-3-70B-Instruct"
+    model_path: "model/models--meta-llama--Meta-Llama-3-70B-Instruct/snapshots/5fcb2901844dde3111159f24205b71c25900ffbd"
+    max_length: 50
+    max_new_tokens: 50
+    manual_seed: 40

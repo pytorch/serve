@@ -7,11 +7,11 @@ repositories {
 dependencies {
     implementation "com.google.code.gson:gson:${gson_version}"
     implementation "org.pytorch:torchserve-plugins-sdk:${torchserve_sdk_version}"
-    implementation platform('software.amazon.awssdk:bom:2.22.9')
+    implementation platform('software.amazon.awssdk:bom:2.23.15')
     implementation 'software.amazon.awssdk:dynamodb-enhanced'
     implementation 'org.codehaus.groovy:groovy-all:2.3.11'
     testImplementation "org.testng:testng:${testng_version}"
-    testImplementation 'com.amazonaws:DynamoDBLocal:2.2.0'
+    testImplementation 'com.amazonaws:DynamoDBLocal:2.2.1'
 }
 
 project.ext{

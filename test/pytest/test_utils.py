@@ -54,7 +54,11 @@ class Tee(threading.Thread):
 
 
 def start_torchserve(
-    model_store=None, snapshot_file=None, no_config_snapshots=False, gen_mar=True
+    model_store=None,
+    snapshot_file=None,
+    no_config_snapshots=False,
+    gen_mar=True,
+    plugin_folder=None,
 ):
     stop_torchserve()
     crate_mar_file_table()
@@ -63,6 +67,8 @@ def start_torchserve(
     if gen_mar:
         mg.gen_mar(model_store)
     cmd.extend(["--model-store", model_store])
+    if plugin_folder:
+        cmd.extend(["--plugins-path", plugin_folder])
     if snapshot_file:
         cmd.extend(["--ts-config", snapshot_file])
     if no_config_snapshots:

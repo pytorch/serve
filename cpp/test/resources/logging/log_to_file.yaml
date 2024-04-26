@@ -1,0 +1,4 @@
+config:
+  loglevel: INFO
+  logfile: "resources/logging/test.log"
+  async: false
