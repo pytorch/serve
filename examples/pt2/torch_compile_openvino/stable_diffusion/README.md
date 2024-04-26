@@ -130,4 +130,4 @@ After a few iterations of warmup, we see the following
 
 ### Conclusion
 
-`torch.compile` OpenVINO backend reduces the infer time from 59s to 15s when compared to Inductor backend and further reduces the infer time to 7s if a Intel Discrete GPU is used.
+`torch.compile` OpenVINO backend reduces the infer time from 59s to about 15s when compared to Inductor backend and further reduces the infer time to about 7s if a Intel Discrete GPU is used.
