@@ -13,7 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        hardware: [lmi] #[cpu, gpu, inf2]
+        hardware: [lmi] #[cpu, gpu, inf2, lmi]
     runs-on:
       - self-hosted
       - ${{ matrix.hardware }}
@@ -47,8 +47,6 @@ jobs:
           sudo apt-get install -y apache2-utils
           pip install sentencepiece huggingface_hub
           pip install -r benchmarks/requirements-ab.txt
-          pip uninstall torchtext torchdata torch torchvision torchaudio -y
-          pip install --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/cu121 --ignore-installed
       - name: Benchmark cpu nightly
         if: ${{ matrix.hardware == 'cpu' }}
         run: python benchmarks/auto_benchmark.py --input benchmarks/benchmark_config_cpu.yaml --skip false
@@ -57,7 +55,7 @@ jobs:
         run: python benchmarks/auto_benchmark.py --input benchmarks/benchmark_config_gpu.yaml --skip false
       - name: Benchmark lmi nightly
         if: ${{ matrix.hardware == 'lmi' }}
-        run: python benchmarks/auto_benchmark.py --input benchmarks/benchmark_config_gpu.yaml --skip false
+        run: python benchmarks/auto_benchmark.py --input benchmarks/benchmark_config_lmi.yaml --skip false
       - name: Benchmark inf2 nightly
         if: ${{ matrix.hardware == 'inf2' }}
         env:
