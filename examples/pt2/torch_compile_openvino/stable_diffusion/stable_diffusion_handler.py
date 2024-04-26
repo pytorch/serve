@@ -55,6 +55,7 @@ class StableDiffusionHandler(BaseHandler):
         compile_vae = ctx.model_yaml_config["handler"]["compile_vae"]
         compile_mode = ctx.model_yaml_config["handler"]["compile_mode"]
         change_comp_config = ctx.model_yaml_config["handler"]["change_comp_config"]
+        is_xl = ctx.model_yaml_config["handler"]["is_xl"]
 
         compile_options = {}
         if "pt2" in ctx.model_yaml_config:
@@ -86,6 +87,7 @@ class StableDiffusionHandler(BaseHandler):
             compile_mode=compile_mode,
             change_comp_config=change_comp_config,
             compile_options=compile_options,
+            is_xl=is_xl,
         )
 
         logger.info("Stable Diffusion model loaded successfully")

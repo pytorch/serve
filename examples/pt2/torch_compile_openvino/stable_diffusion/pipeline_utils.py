@@ -2,7 +2,7 @@ import torch
 import openvino.torch
 import logging
 
-from diffusers import StableDiffusionXLPipeline, DPMSolverMultistepScheduler
+from diffusers import StableDiffusionXLPipeline, StableDiffusionPipeline, DPMSolverMultistepScheduler
 
 logger = logging.getLogger(__name__)
 PROMPT = "ghibli style, a fantasy landscape with castles"
@@ -13,7 +13,8 @@ def load_pipeline(
     compile_vae: bool,
     compile_mode: str,
     change_comp_config: bool,
-    compile_options: str
+    compile_options: str,
+    is_xl: str,
 ):
     """Loads the SDXL pipeline."""
 
@@ -24,13 +25,11 @@ def load_pipeline(
     )
     logger.info(f"Compiled model with {compile_options_str}")
 
-    if ckpt != "runwayml/stable-diffusion-v1-5":
+    if is_xl:
         pipe = StableDiffusionXLPipeline.from_pretrained(ckpt, torch_dtype=dtype, use_safetensors=True)
     else:
-        pipe = StableDiffusionXLPipeline.from_pretrained(ckpt, torch_dtype=dtype, use_safetensors=True, safety_checker=None)
-        # As the default scheduler of SD v1-5 doesn't have sigmas device placement
-        # (https://github.com/huggingface/diffusers/pull/6174)
-        pipe.scheduler = DPMSolverMultistepScheduler.from_config(pipe.scheduler.config)
+        pipe = StableDiffusionPipeline.from_pretrained(ckpt, torch_dtype=dtype, use_safetensors=True, safety_checker=None)
+    pipe.scheduler = DPMSolverMultistepScheduler.from_config(pipe.scheduler.config)
 
     if compile_unet:
         print("Compile UNet.")
