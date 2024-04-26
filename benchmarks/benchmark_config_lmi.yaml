@@ -13,7 +13,7 @@ models:
 
 # benchmark on "cpu" or "gpu".
 # "cpu" is set if "hardware" is not specified
-hardware: &hardware "lmi"
+hardware: &hardware "gpu"
 
 # load prometheus metrics report to remote storage or local different path if "metrics_cmd" is set.
 # the command line to load prometheus metrics report to remote system.
@@ -42,4 +42,4 @@ hardware: &hardware "lmi"
 report_cmd:
     - "cmd": "aws s3 cp --recursive"
     - "source": '/tmp/ts_benchmark/'
-    - "dest": ['s3://torchserve-benchmark/nightly', "today()", *hardware]
+    - "dest": ['s3://torchserve-benchmark/nightly', "today()", "lmi"] #*hardware]
