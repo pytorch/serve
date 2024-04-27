@@ -111,9 +111,6 @@ def create_mar_file(work_dir, model_archiver, model_name, request):
     config = ModelArchiverConfig(
         model_name=model_name,
         version="1.0",
-        model_file=CURR_FILE_PATH.joinpath(
-            "test_data", "streaming", "fake_streaming_model.py"
-        ).as_posix(),
         handler=(VLLM_PATH / "base_vllm_handler.py").as_posix(),
         serialized_file=None,
         export_path=work_dir,
@@ -125,6 +122,8 @@ def create_mar_file(work_dir, model_archiver, model_name, request):
     )
 
     model_archiver.generate_model_archive(config)
+    shutil.move(LORA_SRC_PATH / "model", mar_file_path)
+    shutil.move(LORA_SRC_PATH / "adapters", mar_file_path)
 
     assert mar_file_path.exists()
 
