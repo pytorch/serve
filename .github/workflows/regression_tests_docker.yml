@@ -1,6 +1,9 @@
 name: Run Regression Tests on Docker
 
 on:
+  push:
+    tags:
+      - docker
   workflow_dispatch:
   # run every day at 5:15am
   schedule:

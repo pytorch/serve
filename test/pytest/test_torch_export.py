@@ -49,6 +49,10 @@ def custom_working_directory(tmp_path):
     os.chdir(tmp_path)
 
 
+@pytest.mark.skipif(
+    os.environ.get("TS_RUN_IN_DOCKER", False),
+    reason="Test to be run outside docker",
+)
 @pytest.mark.skipif(PT_230_AVAILABLE == False, reason="torch version is < 2.3.0")
 def test_torch_export_aot_compile(custom_working_directory):
     # Get the path to the custom working directory
@@ -90,6 +94,10 @@ def test_torch_export_aot_compile(custom_working_directory):
     assert labels == EXPECTED_RESULTS
 
 
+@pytest.mark.skipif(
+    os.environ.get("TS_RUN_IN_DOCKER", False),
+    reason="Test to be run outside docker",
+)
 @pytest.mark.skipif(PT_230_AVAILABLE == False, reason="torch version is < 2.3.0")
 def test_torch_export_aot_compile_dynamic_batching(custom_working_directory):
     # Get the path to the custom working directory

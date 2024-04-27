@@ -5,7 +5,7 @@ maxBatchDelay: 200
 responseTimeout: 300
 deviceType: "gpu"
 handler:
-    converted_ckpt_dir: "checkpoints/meta-llama/Llama-2-7b-hf/model.pth"
+    converted_ckpt_dir: "checkpoints/meta-llama/Llama-2-7b-chat-hf/model.pth"
     max_new_tokens: 50
     compile: true
     fx_graph_cache: True
