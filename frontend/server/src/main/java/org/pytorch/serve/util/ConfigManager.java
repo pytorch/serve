@@ -105,6 +105,8 @@ public final class ConfigManager {
     private static final String TS_GRPC_MANAGEMENT_ADDRESS = "grpc_management_address";
     private static final String TS_GRPC_INFERENCE_PORT = "grpc_inference_port";
     private static final String TS_GRPC_MANAGEMENT_PORT = "grpc_management_port";
+    private static final String TS_GRPC_MAX_CONNECTION_AGE_MILLISECONDS = "grpc_max_connection_age_milliseconds";
+    private static final String TS_GRPC_MAX_CONNECTION_AGE_GRACE_MILLISECONDS = "grpc_max_connection_age_grace_milliseconds";
     private static final String TS_ENABLE_GRPC_SSL = "enable_grpc_ssl";
     private static final String TS_INITIAL_WORKER_PORT = "initial_worker_port";
     private static final String TS_INITIAL_DISTRIBUTION_PORT = "initial_distribution_port";
@@ -382,6 +384,14 @@ public final class ConfigManager {
                     "Connector type not supported by gRPC: " + connectorType);
         }
         return Integer.parseInt(port);
+    }
+
+    public long getGRPCMaxConnectionAge() {
+        return Long.parseLong(getProperty(TS_GRPC_MAX_CONNECTION_AGE_MILLISECONDS, "Long.MAX_VALUE"));
+    }
+
+    public long getGRPCMaxConnectionAgeGrace() {
+        return Long.parseLong(getProperty(TS_GRPC_MAX_CONNECTION_AGE_GRACE_MILLISECONDS, "Long.MAX_VALUE"));
     }
 
     public boolean isOpenInferenceProtocol() {
