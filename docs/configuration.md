@@ -106,12 +106,15 @@ To configure different ports use following properties
 * `grpc_inference_port`: Inference gRPC API binding port. Default: 7070
 * `grpc_management_port`: management gRPC API binding port. Default: 7071
 
-To configure max connection age
+To configure max connection age (milliseconds)
 
-* `grpc_max_connection_age_milliseconds`: gRPC max connection age. Default: Infinite
-* `grpc_max_connection_age_grace_milliseconds`: gRPC max connection age grace. Default: Infinite
+* `grpc_inference_max_connection_age_ms`: Inference gRPC max connection age. Default: Infinite
+* `grpc_management_max_connection_age_ms`: Management gRPC max connection age. Default: Infinite
 
-Here are a couple of examples:
+To configure max connection age grace (milliseconds)
+
+* `grpc_inference_max_connection_age_grace_ms`: Inference gRPC max connection age grace. Default: Infinite
+* `grpc_management_max_connection_age_grace_ms`: Management gRPC max connection age grace. Default: Infinite
 
 ### Enable SSL
 
