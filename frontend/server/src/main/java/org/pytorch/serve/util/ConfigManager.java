@@ -395,11 +395,9 @@ public final class ConfigManager {
     public long getGRPCMaxConnectionAge(ConnectorType connectorType)
             throws IllegalArgumentException {
         if (connectorType == ConnectorType.MANAGEMENT_CONNECTOR) {
-            return Long.parseLong(
-                    getProperty(TS_GRPC_MANAGEMENT_MAX_CONNECTION_AGE_MS, "Long.MAX_VALUE"));
+            return getLongProperty(TS_GRPC_MANAGEMENT_MAX_CONNECTION_AGE_MS, Long.MAX_VALUE);
         } else if (connectorType == ConnectorType.INFERENCE_CONNECTOR) {
-            return Long.parseLong(
-                    getProperty(TS_GRPC_INFERENCE_MAX_CONNECTION_AGE_MS, "Long.MAX_VALUE"));
+            return getLongProperty(TS_GRPC_INFERENCE_MAX_CONNECTION_AGE_MS, Long.MAX_VALUE);
         } else {
             throw new IllegalArgumentException(
                     "Connector type not supported by gRPC: " + connectorType);
@@ -409,11 +407,9 @@ public final class ConfigManager {
     public long getGRPCMaxConnectionAgeGrace(ConnectorType connectorType)
             throws IllegalArgumentException {
         if (connectorType == ConnectorType.MANAGEMENT_CONNECTOR) {
-            return Long.parseLong(
-                    getProperty(TS_GRPC_MANAGEMENT_MAX_CONNECTION_AGE_GRACE_MS, "Long.MAX_VALUE"));
+            return getLongProperty(TS_GRPC_MANAGEMENT_MAX_CONNECTION_AGE_GRACE_MS, Long.MAX_VALUE);
         } else if (connectorType == ConnectorType.INFERENCE_CONNECTOR) {
-            return Long.parseLong(
-                    getProperty(TS_GRPC_INFERENCE_MAX_CONNECTION_AGE_GRACE_MS, "Long.MAX_VALUE"));
+            return getLongProperty(TS_GRPC_INFERENCE_MAX_CONNECTION_AGE_GRACE_MS, Long.MAX_VALUE);
         } else {
             throw new IllegalArgumentException(
                     "Connector type not supported by gRPC: " + connectorType);
@@ -829,6 +825,14 @@ public final class ConfigManager {
             return def;
         }
         return Integer.parseInt(value);
+    }
+
+    private long getLongProperty(String key, long def) {
+        String value = prop.getProperty(key);
+        if (value == null) {
+            return def;
+        }
+        return Long.parseLong(value);
     }
 
     public int getDefaultResponseTimeout() {
