@@ -122,7 +122,7 @@ class BaseVLLMHandler(BaseHandler):
         return StoppingCriteria(outer=self, req_id=req_id)
 
     def _set_attr_value(self, obj, config: dict):
-        items = vars(obj).items()
+        items = vars(obj)
         for k, v in config.items():
             if k in items:
                 setattr(obj, k, v)
