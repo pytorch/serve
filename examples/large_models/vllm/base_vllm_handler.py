@@ -42,6 +42,7 @@ class BaseVLLMHandler(BaseHandler):
                 sampling_params = self._get_sampling_params(req_data)
                 lora_request = self._get_lora_request(req_data)
                 self.context.cache[req_id] = {
+                    "text_len": 0,
                     "stopping_criteria": self._create_stopping_criteria(req_id),
                 }
                 self.vllm_engine.add_request(
@@ -57,10 +58,13 @@ class BaseVLLMHandler(BaseHandler):
         for output in inference_outputs:
             req_id = output.request_id
             results[req_id] = {
-                "text": output.outputs[0].text,
+                "text": output.outputs[0].text[
+                    self.context.cache[req_id]["text_len"] :
+                ],
                 "tokens": output.outputs[0].token_ids[-1],
                 "finished": output.finished,
             }
+            self.context.cache[req_id]["text_len"] = len(output.outputs[0].text)
 
         return [results[i] for i in self.context.request_ids.values()]
 
