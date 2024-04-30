@@ -12,9 +12,9 @@ huggingface-cli login --token $HUGGINGFACE_TOKEN
 ```
 
 ```bash
-python ../../utils/Download_model.py --model_path model --model_name meta-llama/Llama-2-7b-chat-hf
+python ../../utils/Download_model.py --model_path model --model_name meta-llama/Llama-2-7b-chat-hf --use_auth_token True
 mkdir adapters && cd adapters
-python ../../../utils/Download_model.py --model_path model --model_name yard1/llama-2-7b-sql-lora-test
+python ../../../utils/Download_model.py --model_path model --model_name yard1/llama-2-7b-sql-lora-test --use_auth_token True
 cd ..
 ```
 

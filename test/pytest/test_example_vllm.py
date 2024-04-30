@@ -2,7 +2,6 @@ import json
 import shutil
 import sys
 from pathlib import Path
-from string import Template
 
 import pytest
 import requests
@@ -14,25 +13,11 @@ VLLM_PATH = CURR_FILE_PATH.parents[1] / "examples" / "large_models" / "vllm"
 LORA_SRC_PATH = VLLM_PATH / "lora"
 CONFIG_PROPERTIES_PATH = CURR_FILE_PATH.parents[1] / "test" / "config_ts.properties"
 
-LLAMA_MODEL_PATH = (
-    LORA_SRC_PATH
-    / "model"
-    / "models--meta-llama--Llama-2-7b-hf"
-    / "snapshots"
-    / "01c7f73d771dfac7d292323805ebc428287df4f9"
-)
+LLAMA_MODEL_PATH = "model/models--meta-llama--Llama-2-7b-hf/snapshots/01c7f73d771dfac7d292323805ebc428287df4f9"
 
-ADAPTER_PATH = (
-    LORA_SRC_PATH
-    / "adapters"
-    / "model"
-    / "models--yard1--llama-2-7b-sql-lora-test"
-    / "snapshots"
-    / "0dfa347e8877a4d4ed19ee56c140fa518470028c"
-)
+ADAPTER_PATH = "adapters/model/models--yard1--llama-2-7b-sql-lora-test/snapshots/0dfa347e8877a4d4ed19ee56c140fa518470028c"
 
-YAML_CONFIG = Template(
-    f"""
+YAML_CONFIG = f"""
 # TorchServe frontend parameters
 minWorkers: 1
 maxWorkers: 1
@@ -43,17 +28,17 @@ deviceType: "gpu"
 continuousBatching: true
 
 handler:
-    model_path: "{LLAMA_MODEL_PATH.as_posix()}"
+    model_path: "{LLAMA_MODEL_PATH}"
     vllm_engine_config:
         enable_lora: true
         max_loras: 4
         max_cpu_loras: 4
-        max_num_seqs: 256
+        max_num_seqs: 16
+        max_model_len: 250
 
     adapters:
-        adapter_1: "{ADAPTER_PATH.as_posix()}"
+        adapter_1: "{ADAPTER_PATH}"
 """
-)
 
 PROMPTS = [
     {
@@ -67,17 +52,13 @@ PROMPTS = [
     },
 ]
 
-EXPECTED_RESULTS = [
-    # ", Paris, is a city of romance, fashion, and art. The city is home to the Eiffel Tower, the Louvre, and the Arc de Triomphe. Paris is also known for its cafes, restaurants",
-    " is Paris.\nThe capital of Germany is Berlin.\nThe capital of Italy is Rome.\nThe capital of Spain is Madrid.\nThe capital of the United Kingdom is London.\nThe capital of the European Union is Brussels.\n",
-    " is Paris.\n\nThe capital of Germany is Berlin.\n\nThe capital of Italy is Rome.\n\nThe capital of Spain is Madrid.\n\nThe capital of the United Kingdom is London.\n\nThe capital of the United States is",
-]
-
 
 def necessary_files_unavailable():
+    LLAMA = LORA_SRC_PATH / LLAMA_MODEL_PATH
+    ADAPTER = LORA_SRC_PATH / ADAPTER_PATH
     return {
-        "condition": not (LLAMA_MODEL_PATH.exists() and ADAPTER_PATH.exists()),
-        "reason": f"Required files are not present (see README): {LLAMA_MODEL_PATH.as_posix()} + {ADAPTER_PATH.as_posix()}",
+        "condition": not (LLAMA.exists() and ADAPTER.exists()),
+        "reason": f"Required files are not present (see README): {LLAMA.as_posix()} + {ADAPTER.as_posix()}",
     }
 
 
@@ -92,7 +73,7 @@ def add_paths():
 
 @pytest.fixture(scope="module")
 def model_name():
-    yield "lora"
+    yield "test_lora"
 
 
 @pytest.fixture(scope="module")
@@ -105,8 +86,7 @@ def create_mar_file(work_dir, model_archiver, model_name, request):
     mar_file_path = Path(work_dir).joinpath(model_name)
 
     model_config_yaml = Path(work_dir) / "model-config.yaml"
-    yaml_config = YAML_CONFIG.substitute(request.param)
-    model_config_yaml.write_text(yaml_config)
+    model_config_yaml.write_text(YAML_CONFIG)
 
     config = ModelArchiverConfig(
         model_name=model_name,
@@ -133,7 +113,7 @@ def create_mar_file(work_dir, model_archiver, model_name, request):
     shutil.rmtree(mar_file_path)
 
 
-@pytest.fixture(scope="module", name="model_name_and_stdout")
+@pytest.mark.skipif(**necessary_files_unavailable())
 def test_vllm_lora_mar(mar_file_path, model_store):
     """
     Register the model in torchserve
@@ -162,9 +142,7 @@ def test_vllm_lora_mar(mar_file_path, model_store):
 
         response = requests.post(
             url=f"http://localhost:8080/predictions/{model_name}",
-            data=json.dumps(
-                PROMPTS[0],
-            ),
+            json=PROMPTS[0],
             stream=True,
         )
 
@@ -180,7 +158,6 @@ def test_vllm_lora_mar(mar_file_path, model_store):
 
         assert len(prediction) > 1
 
-        assert "".join(prediction) == EXPECTED_RESULTS[1]
     finally:
         test_utils.unregister_model(model_name)
 

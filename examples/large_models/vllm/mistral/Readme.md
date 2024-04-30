@@ -12,7 +12,7 @@ huggingface-cli login --token $HUGGINGFACE_TOKEN
 ```
 
 ```bash
-python ../../utils/Download_model.py --model_path model --model_name mistralai/Mistral-7B-v0.1 --use_auth_token $HUGGINGFACE_TOKEN
+python ../../utils/Download_model.py --model_path model --model_name mistralai/Mistral-7B-v0.1 --use_auth_token True
 ```
 
 ### Step 2: Generate model artifacts
