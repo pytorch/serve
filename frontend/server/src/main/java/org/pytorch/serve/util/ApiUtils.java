@@ -403,7 +403,7 @@ public final class ApiUtils {
         resp.setModelVersion(manifest.getModel().getModelVersion());
         resp.setRuntime(manifest.getRuntime().getValue());
         resp.setResponseTimeout(model.getResponseTimeout());
-        resp.setMaxRetryTimeoutInSec(model.getMaxRetryTimeoutInMill()/1000);
+        resp.setMaxRetryTimeoutInSec(model.getMaxRetryTimeoutInMill() / 1000);
         resp.setClientTimeoutInMills(model.getClientTimeoutInMills());
         resp.setParallelType(model.getParallelType().getParallelType());
         resp.setParallelLevel(model.getParallelLevel());
