@@ -18,20 +18,18 @@ The examples has been tested on A10, A100 as well as H100.
 
 #### Pre-requisites
 
+- PyTorch 2.3
+- CUDA >= 11.8
+
 `cd` to the example folder `examples/large_models/gpt_fast`
 
-Install dependencies and upgrade torch to nightly build (currently required)
+Install dependencies
 ```
 git clone https://github.com/pytorch-labs/gpt-fast/
+cd gpt-fast
 git checkout f44ef4eb55b54ec4c452b669eee409421adabd60
 pip install sentencepiece huggingface_hub
-pip uninstall torchtext torchdata torch torchvision torchaudio -y
-pip install --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/cu121 --ignore-installed
-```
-
-You can also install PyTorch nightlies using the below command
-```
-python ./ts_scripts/install_dependencies.py --cuda=cu121 --nightly_torch
+cd ..
 ```
 
 ### Step 1: Download  and convert the weights
