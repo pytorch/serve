@@ -9,7 +9,9 @@
 
 ## How we do security
 
+
 As much as possible, TorchServe relies on automated tools to do security scanning. In particular, we support:
+
 1. Dependency Analysis: Using Dependabot
 2. Docker Scanning: Using Snyk
 3. Code Analysis: Using CodeQL
