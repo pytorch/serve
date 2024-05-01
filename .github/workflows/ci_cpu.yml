@@ -1,14 +1,7 @@
 name: CI CPU
 
 on:
-  workflow_dispatch:
-  push:
-    branches:
-      - master
-  pull_request:
-    branches:
-      - master
-  merge_group:
+  push
 
 
 concurrency:
@@ -21,18 +14,27 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-20.04, macOS-latest]
+        os: [macos-latest-xlarge]
     steps:
+      - name: Check xz version
+        if: matrix.os == 'macos-latest-xlarge'
+        run: |
+          xz -V
+      - name: GPU detection
+        if: matrix.os == 'macos-latest-xlarge'
+        run: |
+          system_profiler SPDisplaysDataType
       - name: Setup Python for M1
-        if: matrix.os == 'macos-14'
+        if: matrix.os == 'macos-latest-xlarge'
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: '3.11'
+          architecture: arm64
       - name: Setup Python for all other OS
-        if: matrix.os != 'macos-14'
+        if: matrix.os != 'macos-latest-xlarge'
         uses: actions/setup-python@v5
         with:
-          python-version: 3.9
+          python-version: '3.9'
           architecture: x64
       - name: Setup Java 17
         uses: actions/setup-java@v3

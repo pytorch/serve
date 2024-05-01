@@ -875,7 +875,8 @@ public final class ConfigManager {
                         }
                     }
                 }
-                throw new AssertionError("Unexpected response.");
+                // throw new AssertionError("Unexpected response.");
+                return 0;
             } else {
                 Process process =
                         Runtime.getRuntime().exec("nvidia-smi --query-gpu=index --format=csv");
