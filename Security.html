@@ -401,7 +401,7 @@
 </table></section>
 <section id="how-we-do-security">
 <h2>How we do security<a class="headerlink" href="#how-we-do-security" title="Permalink to this heading">¶</a></h2>
-<p>TorchServe, as much as possible, relies on automated tools to do security scanning. In particular we support:</p>
+<p>As much as possible, TorchServe relies on automated tools to do security scanning. In particular, we support:</p>
 <ol class="simple">
 <li><p>Dependency Analysis: Using Dependabot</p></li>
 <li><p>Docker Scanning: Using Snyk</p></li>
@@ -419,17 +419,17 @@
 <p>These ports are accessible to <code class="docutils literal notranslate"><span class="pre">localhost</span></code> by default.  The addresses can be configured by following the guides for
 <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/configuration.md#configure-torchserve-listening-address-and-port">HTTP</a> and
 <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/configuration.md#configure-torchserve-grpc-listening-addresses-and-ports">gRPC</a>.
-TorchServe does not prevent users from configuring the address to be any value, including the wildcard address <code class="docutils literal notranslate"><span class="pre">0.0.0.0</span></code>.
+TorchServe does not prevent users from configuring the address to be of any value, including the wildcard address <code class="docutils literal notranslate"><span class="pre">0.0.0.0</span></code>.
 Please be aware of the security risks of configuring the address to be <code class="docutils literal notranslate"><span class="pre">0.0.0.0</span></code>, this will give all addresses(including publicly accessible addresses, if any)
-on the host, access to the TorchServer endpoints listening on the ports shown above.</p>
+on the host, access to the TorchServe endpoints listening on the ports shown above.</p>
 </li>
-<li><p>TorchServe’s Docker image is configured to expose the ports <code class="docutils literal notranslate"><span class="pre">8080</span></code>, <code class="docutils literal notranslate"><span class="pre">8081</span></code>, <code class="docutils literal notranslate"><span class="pre">8082</span></code>, <code class="docutils literal notranslate"><span class="pre">7070</span></code>, <code class="docutils literal notranslate"><span class="pre">7071</span></code> to the host by <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docker/Dockerfile">default</a>. When starting the container,
-make sure to map the ports exposed by the container to <code class="docutils literal notranslate"><span class="pre">localhost</span></code> ports or a specific IP address as shown in this <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docker/README.md#security-guideline">security guideline</a>.</p></li>
+<li><p>By <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docker/Dockerfile">default</a>, TorchServe’s Docker image is configured to expose the ports <code class="docutils literal notranslate"><span class="pre">8080</span></code>, <code class="docutils literal notranslate"><span class="pre">8081</span></code>, <code class="docutils literal notranslate"><span class="pre">8082</span></code>, <code class="docutils literal notranslate"><span class="pre">7070</span></code>, <code class="docutils literal notranslate"><span class="pre">7071</span></code> to the host. When starting the container,
+map the ports exposed by the container to <code class="docutils literal notranslate"><span class="pre">localhost</span></code> ports or a specific IP address, as shown in this <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docker/README.md#security-guideline">security guideline</a>.</p></li>
 <li><p>Be sure to validate the authenticity of the <code class="docutils literal notranslate"><span class="pre">.mar</span></code> file being used with TorchServe.</p>
 <ol class="simple">
 <li><p>A <code class="docutils literal notranslate"><span class="pre">.mar</span></code> file being downloaded from the internet from an untrustworthy source may have malicious code, compromising the integrity of your application.</p></li>
-<li><p>TorchServe executes arbitrary python code packaged in the <code class="docutils literal notranslate"><span class="pre">mar</span></code> file. Make sure that you’ve either audited that the code you’re using is safe and/or is from a source that you trust.</p></li>
-<li><p>Torchserve supports custom <a class="reference external" href="https://github.com/pytorch/serve/tree/master/plugins">plugins</a> and <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/custom_service">handlers</a>.
+<li><p>TorchServe executes the arbitrary python code packaged in the <code class="docutils literal notranslate"><span class="pre">mar</span></code> file. Make sure that you’ve either audited that the code you’re using is safe and/or is from a source that you trust.</p></li>
+<li><p>TorchServe supports custom <a class="reference external" href="https://github.com/pytorch/serve/tree/master/plugins">plugins</a> and <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/custom_service">handlers</a>.
 These can be utilized to extend TorchServe functionality to perform runtime security scanning using tools such as:</p>
 <ul class="simple">
 <li><p>Clamd: https://pypi.org/project/clamd/</p></li>
@@ -437,10 +437,10 @@ These can be utilized to extend TorchServe functionality to perform runtime secu
 <li><p>Fickling: https://github.com/trailofbits/fickling</p></li>
 </ul>
 </li>
-<li><p>Running Torchserve inside a container environment and loading an untrusted <code class="docutils literal notranslate"><span class="pre">.mar</span></code> file does not guarantee isolation from a security perspective.</p></li>
+<li><p>Running TorchServe inside a container environment and loading an untrusted <code class="docutils literal notranslate"><span class="pre">.mar</span></code> file does not guarantee isolation from a security perspective.</p></li>
 </ol>
 </li>
-<li><p>By default TorchServe allows you to register models from all URLs. Make sure to set <code class="docutils literal notranslate"><span class="pre">allowed_urls</span></code> parameter in config.properties to restrict this. You can find more details in the <a class="reference external" href="https://pytorch.org/serve/configuration.html#other-properties">configuration guide</a>.</p>
+<li><p>By default, TorchServe allows you to register models from all URLs. Make sure to set <code class="docutils literal notranslate"><span class="pre">allowed_urls</span></code> parameter in config.properties to restrict this. You can find more details in the <a class="reference external" href="https://pytorch.org/serve/configuration.html#other-properties">configuration guide</a>.</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">use_env_allowed_urls=true</span></code> is required in config.properties to read <code class="docutils literal notranslate"><span class="pre">allowed_urls</span></code> from environment variable.</p></li>
 </ul>
@@ -472,7 +472,7 @@ These can be utilized to extend TorchServe functionality to perform runtime secu
 </section>
 <section id="reporting-a-vulnerability">
 <h2>Reporting a Vulnerability<a class="headerlink" href="#reporting-a-vulnerability" title="Permalink to this heading">¶</a></h2>
-<p>If you find a serious vulnerability please report it to https://www.facebook.com/whitehat and aws-security&#64;amazon.com</p>
+<p>If you find a strike vulnerability please report it to https://www.facebook.com/whitehat and aws-security&#64;amazon.com</p>
 </section>
 </section>
 
