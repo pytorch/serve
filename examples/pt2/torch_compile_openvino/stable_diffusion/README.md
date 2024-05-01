@@ -12,6 +12,11 @@ Install the latest OpenVINO package from Pypi
 pip install openvino
 ```
 
+Install requriements
+```
+pip install -r requirements.txt
+```
+
 `cd` to the example folder `examples/pt2/torch_compile_openvino/stable_diffusion`
 
 ### Step 1: Download the Stable diffusion model
@@ -69,7 +74,7 @@ The image generated will be written to a file with name `output-<timestamp>.jpg`
 
 ### Performance improvement from using `torch.compile` with OpenVINO backend
 
-To measure the handler `prepocess`, `inference`, `postprocess` times, make sure profiling is enabled by adding the following to the model_config.yaml file.
+To measure the handler `preprocess`, `inference`, `postprocess` times, make sure profiling is enabled by adding the following to the model_config.yaml file.
 
 ```
 echo "  profile: true" >> model-config.yaml
