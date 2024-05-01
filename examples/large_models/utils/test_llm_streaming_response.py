@@ -21,13 +21,19 @@ class Predictor(threading.Thread):
 
     def _predict(self):
         payload = self._format_payload()
+        if self.args.demo_streaming:
+            print(f"payload={payload}\n, output=")
         with requests.post(self._get_url(), json=payload, stream=True) as response:
             combined_text = ""
             for chunk in response.iter_content(chunk_size=None):
                 if chunk:
                     data = orjson.loads(chunk)
-                    combined_text += data["text"]
-        self.queue.put_nowait(f"payload={payload}\n, output={combined_text}\n")
+                    if self.args.demo_streaming:
+                        print(data["text"], end="", flush=True)
+                    else:
+                        combined_text += data["text"]
+        if not self.args.demo_streaming:
+            self.queue.put_nowait(f"payload={payload}\n, output={combined_text}\n")
 
     def _get_url(self):
         return f"http://localhost:8080/predictions/{self.args.model}"
@@ -106,6 +112,12 @@ def parse_args():
         default=1,
         help="Execute the number of prediction in each thread",
     )
+    parser.add_argument(
+        "--demo-streaming",
+        action=argparse.BooleanOptionalAction,
+        default=False,
+        help="Demo streaming response, force num-requests-per-thread=1 and num-threads=1",
+    )
 
     return parser.parse_args()
 
@@ -119,6 +131,10 @@ def main():
     if len(args.prompt_text) == 0:
         print("prompt argument can not be empty.")
         exit(1)
+
+    if args.demo_streaming:
+        args.num_threads = 1
+        args.num_requests_per_thread = 1
 
     queue = Queue()
     predictors = []
