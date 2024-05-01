@@ -20,6 +20,7 @@ from ..utils.util import (
     load_label_mapping,
 )
 
+
 if packaging.version.parse(torch.__version__) >= packaging.version.parse("1.8.1"):
     from torch.profiler import ProfilerActivity, profile, record_function
 
@@ -61,8 +62,11 @@ else:
 if os.environ.get("TS_IPEX_ENABLE", "false") == "true":
     try:
         import intel_extension_for_pytorch as ipex
-
+        print("Succesfully imported ipex")
         IPEX_AVAILABLE = True
+        if torch.xpu.is_available():
+            IPEX_GPU = True
+            logger.info("Torch support for Intel GPU enabled")
     except ImportError as error:
         logger.warning(
             "IPEX is enabled but intel-extension-for-pytorch is not installed. Proceeding without IPEX."
@@ -71,7 +75,7 @@ if os.environ.get("TS_IPEX_ENABLE", "false") == "true":
 else:
     IPEX_AVAILABLE = False
 
-
+    
 try:
     import onnxruntime as ort
     import psutil
@@ -139,7 +143,7 @@ class BaseHandler(abc.ABC):
             RuntimeError: Raises the Runtime error when the model.py is missing
 
         """
-
+        
         if context is not None and hasattr(context, "model_yaml_config"):
             self.model_yaml_config = context.model_yaml_config
 
@@ -248,6 +252,9 @@ class BaseHandler(abc.ABC):
 
         elif IPEX_AVAILABLE:
             self.model = self.model.to(memory_format=torch.channels_last)
+            if IPEX_GPU:
+                self.model = self.model.to("xpu") # IPEX GPU
+                logger.info("Model loaded on GPU")
             self.model = ipex.optimize(self.model)
             logger.info(f"Compiled model with ipex")
 
@@ -362,7 +369,12 @@ class BaseHandler(abc.ABC):
             Torch Tensor : The Predicted Torch Tensor is returned in this function.
         """
         with torch.inference_mode():
-            marshalled_data = data.to(self.device)
+            if IPEX_AVAILABLE and IPEX_GPU: # IPEX GPU
+                logger.info("GPU Enabled")
+                marshalled_data = data.to("xpu")
+                # print(marshalled_data, "Data on Device")
+            else:
+                marshalled_data = data.to(self.device)
             results = self.model(marshalled_data, *args, **kwargs)
         return results
 

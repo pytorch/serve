@@ -235,12 +235,14 @@ public final class ConfigManager {
             prop.setProperty(TS_LOAD_MODELS, String.join(",", models));
         }
 
+
         prop.setProperty(
                 TS_NUMBER_OF_GPU,
                 String.valueOf(
                         Integer.min(
                                 getAvailableGpu(),
                                 getIntProperty(TS_NUMBER_OF_GPU, Integer.MAX_VALUE))));
+
 
         String pythonExecutable = args.getPythonExecutable();
         if (pythonExecutable != null) {
@@ -429,8 +431,9 @@ public final class ConfigManager {
     }
 
     public int getNumberOfGpu() {
+        // return 1;
         return getIntProperty(TS_NUMBER_OF_GPU, 0);
-    }
+    } 
 
     public String getMetricsConfigPath() {
         String path = getCanonicalPath(prop.getProperty(TS_METRICS_CONFIG));
@@ -582,7 +585,7 @@ public final class ConfigManager {
     public String getSystemMetricsCmd() {
         return prop.getProperty(SYSTEM_METRICS_CMD, "");
     }
-
+ 
     public SslContext getSslContext() throws IOException, GeneralSecurityException {
         List<String> supportedCiphers =
                 Arrays.asList(
@@ -846,58 +849,85 @@ public final class ConfigManager {
     }
 
     private static int getAvailableGpu() {
-        try {
-            List<Integer> gpuIds = new ArrayList<>();
-            String visibleCuda = System.getenv("CUDA_VISIBLE_DEVICES");
-            if (visibleCuda != null && !visibleCuda.isEmpty()) {
-                String[] ids = visibleCuda.split(",");
-                for (String id : ids) {
-                    gpuIds.add(Integer.parseInt(id));
-                }
-            } else if (System.getProperty("os.name").startsWith("Mac")) {
-                Process process = Runtime.getRuntime().exec("system_profiler SPDisplaysDataType");
-                int ret = process.waitFor();
-                if (ret != 0) {
-                    return 0;
-                }
+            try {
+                System.out.println("getAvailableGpu 1");
 
-                BufferedReader reader =
-                        new BufferedReader(new InputStreamReader(process.getInputStream()));
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    if (line.contains("Chipset Model:") && !line.contains("Apple M1")) {
+                List<Integer> gpuIds = new ArrayList<>();
+                String visibleCuda = System.getenv("CUDA_VISIBLE_DEVICES");
+                if (visibleCuda != null && !visibleCuda.isEmpty()) {
+                    String[] ids = visibleCuda.split(",");
+                    for (String id : ids) {
+                        gpuIds.add(Integer.parseInt(id));
+                    }
+                } else if (System.getProperty("os.name").startsWith("Mac")) {
+                    Process process = Runtime.getRuntime().exec("system_profiler SPDisplaysDataType");
+                    int ret = process.waitFor();
+                    if (ret != 0) {
                         return 0;
                     }
-                    if (line.contains("Total Number of Cores:")) {
-                        String[] parts = line.split(":");
-                        if (parts.length >= 2) {
-                            return (Integer.parseInt(parts[1].trim()));
+
+                    BufferedReader reader =
+                            new BufferedReader(new InputStreamReader(process.getInputStream()));
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        if (line.contains("Chipset Model:") && !line.contains("Apple M1")) {
+                            return 0;
+                        }
+                        if (line.contains("Total Number of Cores:")) {
+                            String[] parts = line.split(":");
+                            if (parts.length >= 2) {
+                                return (Integer.parseInt(parts[1].trim()));
+                            }
                         }
                     }
-                }
-                throw new AssertionError("Unexpected response.");
-            } else {
-                Process process =
-                        Runtime.getRuntime().exec("nvidia-smi --query-gpu=index --format=csv");
-                int ret = process.waitFor();
-                if (ret != 0) {
-                    return 0;
-                }
-                List<String> list =
-                        IOUtils.readLines(process.getInputStream(), StandardCharsets.UTF_8);
-                if (list.isEmpty() || !"index".equals(list.get(0))) {
-                    throw new AssertionError("Unexpected nvidia-smi response.");
-                }
-                for (int i = 1; i < list.size(); i++) {
-                    gpuIds.add(Integer.parseInt(list.get(i)));
-                }
-            }
+                    throw new AssertionError("Unexpected response.");
+                } else {
 
-            return gpuIds.size();
-        } catch (IOException | InterruptedException e) {
-            return 0;
+                    System.out.println("getAvailableGpu 2");
+                    
+                    try {
+                        Process process =
+                            Runtime.getRuntime().exec("nvidia-smi --query-gpu=index --format=csv");
+                    int ret = process.waitFor();
+                    if (ret != 0) {
+                        return 0;
+                    }
+                    List<String> list =
+                            IOUtils.readLines(process.getInputStream(), StandardCharsets.UTF_8);
+                    if (list.isEmpty() || !"index".equals(list.get(0))) {
+                        throw new AssertionError("Unexpected nvidia-smi response.");
+                    }
+                    for (int i = 1; i < list.size(); i++) {
+                        gpuIds.add(Integer.parseInt(list.get(i)));
+                    }
+                    }catch (IOException | InterruptedException e) {
+                    System.out.println("nvidia-smi not available or failed: " + e.getMessage());
+                    }
+                    System.out.println("getAvailableGpu 3");
+                    Process process = Runtime.getRuntime().exec("xpu-smi discovery --dump 1");
+                    int ret = process.waitFor();
+                        if (ret != 0) {
+                            return 0;
+                        }
+                    System.out.println("Checking for Intel GPUs");  
+                    List<String> list =
+                            IOUtils.readLines(process.getInputStream(), StandardCharsets.UTF_8);
+                    if (list.isEmpty() || !list.get(0).contains("Device ID")) {
+                        throw new AssertionError("Unexpected xpu-smi response.");
+                    }
+                    for (int i = 1; i < list.size(); i++) {
+                        gpuIds.add(Integer.parseInt(list.get(i)));
+                    }
+
+                    
+               
+                }
+                System.out.println("Number of GPUs found :"+ gpuIds.size());
+                return gpuIds.size();
+            } catch (IOException | InterruptedException e) {
+                return 0;
+            }
         }
-    }
 
     public List<String> getAllowedUrls() {
         String allowedURL = prop.getProperty(TS_ALLOWED_URLS, DEFAULT_TS_ALLOWED_URLS);
