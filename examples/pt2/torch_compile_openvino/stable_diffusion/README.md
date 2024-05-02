@@ -12,7 +12,7 @@ Install the latest OpenVINO package from Pypi
 pip install openvino
 ```
 
-Install requriements
+Install pre-requisites
 ```
 pip install -r requirements.txt
 ```

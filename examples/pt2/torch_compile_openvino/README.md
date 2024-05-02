@@ -8,9 +8,9 @@ This example has been tested on Intel Xeon Platinum 8469 CPU.
 ### Pre-requisites
 - `PyTorch >= 2.1.0`
 
-Install the latest OpenVINO package from Pypi
+Install the latest `OpenVINO` package from Pypi
 ```
-pip install openvino
+pip install -r requirements.txt
 ```
 
 Change directory to the examples directory
