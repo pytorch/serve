@@ -2,10 +2,15 @@ import torch
 import openvino.torch
 import logging
 
-from diffusers import StableDiffusionXLPipeline, StableDiffusionPipeline, DPMSolverMultistepScheduler
+from diffusers import (
+    StableDiffusionXLPipeline,
+    StableDiffusionPipeline,
+    DPMSolverMultistepScheduler,
+)
 
 logger = logging.getLogger(__name__)
 PROMPT = "ghibli style, a fantasy landscape with castles"
+
 
 def load_pipeline(
     ckpt: str,
@@ -20,15 +25,17 @@ def load_pipeline(
 
     dtype = torch.float32
     logger.info(f"Using dtype: {dtype}")
-    compile_options_str = ", ".join(
-        [f"{k} {v}" for k, v in compile_options.items()]
-    )
+    compile_options_str = ", ".join([f"{k} {v}" for k, v in compile_options.items()])
     logger.info(f"Compiled model with {compile_options_str}")
 
     if is_xl:
-        pipe = StableDiffusionXLPipeline.from_pretrained(ckpt, torch_dtype=dtype, use_safetensors=True)
+        pipe = StableDiffusionXLPipeline.from_pretrained(
+            ckpt, torch_dtype=dtype, use_safetensors=True
+        )
     else:
-        pipe = StableDiffusionPipeline.from_pretrained(ckpt, torch_dtype=dtype, use_safetensors=True, safety_checker=None)
+        pipe = StableDiffusionPipeline.from_pretrained(
+            ckpt, torch_dtype=dtype, use_safetensors=True, safety_checker=None
+        )
     pipe.scheduler = DPMSolverMultistepScheduler.from_config(pipe.scheduler.config)
 
     if compile_unet:
@@ -56,4 +63,3 @@ def load_pipeline(
 
     pipe.set_progress_bar_config(disable=True)
     return pipe
-
