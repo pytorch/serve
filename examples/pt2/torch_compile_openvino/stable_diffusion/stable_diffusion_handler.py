@@ -10,7 +10,6 @@ from ts.handler_utils.timer import timed
 from ts.torch_handler.base_handler import BaseHandler
 from ts.utils.util import check_valid_pt2_backend
 
-
 logger = logging.getLogger(__name__)
 
 
