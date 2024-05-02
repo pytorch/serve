@@ -62,11 +62,14 @@ else:
 if os.environ.get("TS_IPEX_ENABLE", "false") == "true":
     try:
         import intel_extension_for_pytorch as ipex
-        print("Succesfully imported ipex")
+        # print("Succesfully imported ipex TS_IPEX_GPU_ENABLE :", os.environ.get("TS_IPEX_GPU_ENABLE", "false"))
         IPEX_AVAILABLE = True
+        if torch.xpu.is_available() and os.environ.get("TS_IPEX_GPU_ENABLE", "false") == "true":
         if torch.xpu.is_available():
             IPEX_GPU = True
             logger.info("Torch support for Intel GPU enabled")
+        else:
+            IPEX_GPU = False
     except ImportError as error:
         logger.warning(
             "IPEX is enabled but intel-extension-for-pytorch is not installed. Proceeding without IPEX."

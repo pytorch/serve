@@ -79,6 +79,7 @@ public final class ConfigManager {
     private static final String TS_IPEX_ENABLE = "ipex_enable";
     private static final String TS_CPU_LAUNCHER_ENABLE = "cpu_launcher_enable";
     private static final String TS_CPU_LAUNCHER_ARGS = "cpu_launcher_args";
+    private static final String TS_IPEX_GPU_ENABLE = "ipex_gpu_enable";
 
     private static final String TS_ASYNC_LOGGING = "async_logging";
     private static final String TS_CORS_ALLOWED_ORIGIN = "cors_allowed_origin";
@@ -144,7 +145,7 @@ public final class ConfigManager {
     private static Pattern pattern = Pattern.compile("\\$\\$([^$]+[^$])\\$\\$");
 
     private Pattern blacklistPattern;
-    private Properties prop;
+    private Properties prop; 
 
     private boolean snapshotDisabled;
 
@@ -417,6 +418,11 @@ public final class ConfigManager {
     public String getCPULauncherArgs() {
         return getProperty(TS_CPU_LAUNCHER_ARGS, null);
     }
+
+    public boolean isIPEXGpuEnabled() {
+        return Boolean.parseBoolean(getProperty(TS_IPEX_GPU_ENABLE, "false"));
+    }
+
 
     public int getNettyThreads() {
         return getIntProperty(TS_NUMBER_OF_NETTY_THREADS, 0);
@@ -830,6 +836,7 @@ public final class ConfigManager {
         // Append properties used by backend worker here
         config.put("TS_DECODE_INPUT_REQUEST", prop.getProperty(TS_DECODE_INPUT_REQUEST, "true"));
         config.put("TS_IPEX_ENABLE", prop.getProperty(TS_IPEX_ENABLE, "false"));
+        config.put("TS_IPEX_GPU_ENABLE", prop.getProperty(TS_IPEX_GPU_ENABLE, "false"));
         return config;
     }
 
