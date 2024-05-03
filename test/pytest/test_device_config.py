@@ -191,6 +191,7 @@ def register_model(mar_file_path, model_store, torchserve):
     reason="Skip if running only on MAC CPU",
 )
 @pytest.mark.parametrize("model_config_name", ["gpu"], indirect=True)
+@pytest.mark.parametrize("handler_py", ["gpu"], indirect=True)
 def test_m1_device(model_name, model_config_name):
     response = requests.get(f"http://localhost:8081/models/{model_name}")
     assert response.status_code == 200, "Describe Failed"
@@ -198,6 +199,7 @@ def test_m1_device(model_name, model_config_name):
 
 @pytest.mark.skipif(platform.machine() != "arm64", reason="Skip on non Mac M1")
 @pytest.mark.parametrize("model_config_name", ["cpu"], indirect=True)
+@pytest.mark.parametrize("handler_py", ["cpu"], indirect=True)
 def test_m1_device_cpu(model_name, model_config_name):
     response = requests.get(f"http://localhost:8081/models/{model_name}")
     assert response.status_code == 200, "Describe Failed"
@@ -205,6 +207,7 @@ def test_m1_device_cpu(model_name, model_config_name):
 
 @pytest.mark.skipif(platform.machine() != "arm64", reason="Skip on non Mac M1")
 @pytest.mark.parametrize("model_config_name", ["default"], indirect=True)
+@pytest.mark.parametrize("handler_py", ["default"], indirect=True)
 def test_m1_device_default(model_name, model_config_name):
     response = requests.get(f"http://localhost:8081/models/{model_name}")
     assert response.status_code == 200, "Describe Failed"
