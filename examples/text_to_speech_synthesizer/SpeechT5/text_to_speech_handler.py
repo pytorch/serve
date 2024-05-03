@@ -18,6 +18,7 @@ class SpeechT5_TTS(BaseHandler):
         self.processor = None
         self.vocoder = None
         self.speaker_embeddings = None
+        self.output_dir = "/tmp"
 
     def initialize(self, ctx):
         properties = ctx.system_properties
@@ -27,6 +28,7 @@ class SpeechT5_TTS(BaseHandler):
         model = ctx.model_yaml_config["handler"]["model"]
         vocoder = ctx.model_yaml_config["handler"]["vocoder"]
         embeddings_dataset = ctx.model_yaml_config["handler"]["speaker_embeddings"]
+        self.output_dir = ctx.model_yaml_config["handler"]["output_dir"]
 
         self.processor = SpeechT5Processor.from_pretrained(processor)
         self.model = SpeechT5ForTextToSpeech.from_pretrained(model)
@@ -58,7 +60,7 @@ class SpeechT5_TTS(BaseHandler):
         return output
 
     def postprocess(self, inference_output):
-        path = "/tmp/{}.wav".format(uuid.uuid4().hex)
+        path = self.output_dir + "/{}.wav".format(uuid.uuid4().hex)
         sf.write(path, inference_output.numpy(), samplerate=16000)
         with open(path, "rb") as output:
             data = output.read()

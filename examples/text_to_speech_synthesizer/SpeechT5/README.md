@@ -30,9 +30,9 @@ python download_model.py
 ```
 mkdir model_store
 
-torch-model-archiver --model-name SpeechT5-TTS --version 1.0 --handler text_to_speech_handler.py --config-file model-config.yaml --archive-format no-archive --export-path model_store
+torch-model-archiver --model-name SpeechT5-TTS --version 1.0 --handler text_to_speech_handler.py --config-file model-config.yaml --archive-format no-archive --export-path model_store -f
 
-mv model_artifacts model_store/SpeechT5-TTS/
+mv model_artifacts/* model_store/SpeechT5-TTS/
 ```
 
 ## Start TorchServe
@@ -46,3 +46,5 @@ torchserve --start --ncs --model-store model_store --models SpeechT5-TTS
 ```
 curl http://127.0.0.1:8080/predictions/SpeechT5-TTS -T sample_input.txt  -o speech.wav
 ```
+
+This generates an audio file `speech.wav` corresponding to the text in `sample_input.txt`
