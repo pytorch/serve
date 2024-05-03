@@ -9,29 +9,21 @@ concurrency:
 
 jobs:
   regression-cpu:
-    # creates workflows for OS: ubuntu, macOS, macOS M1
+    # creates workflows for OS: ubuntu, macOS M1
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-latest-xlarge]
+        os: [macos-latest]
     steps:
-      - name: Check xz version
-        if: matrix.os == 'macos-latest-xlarge'
-        run: |
-          xz -V
-      - name: GPU detection
-        if: matrix.os == 'macos-latest-xlarge'
-        run: |
-          system_profiler SPDisplaysDataType
       - name: Setup Python for M1
-        if: matrix.os == 'macos-latest-xlarge'
+        if: matrix.os == 'macos-latest'
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: '3.10'
           architecture: arm64
       - name: Setup Python for all other OS
-        if: matrix.os != 'macos-latest-xlarge'
+        if: matrix.os != 'macos-latest'
         uses: actions/setup-python@v5
         with:
           python-version: '3.9'
@@ -48,6 +40,10 @@ jobs:
       - name: Install dependencies
         run: |
           python ts_scripts/install_dependencies.py --environment=dev
+      - name: Disable MPS tests on MAC github runners
+        if: matrix.os == 'macos-latest'
+        run: |
+          export TS_MAC_ARM64_CPU_ONLY=True
       - name: Torchserve Regression Tests
         run: |
           python test/regression_tests.py

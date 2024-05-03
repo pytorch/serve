@@ -875,7 +875,7 @@ public final class ConfigManager {
                         }
                     }
                 }
-                // throw new AssertionError("Unexpected response.");
+                // No MPS devices detected
                 return 0;
             } else {
                 Process process =
