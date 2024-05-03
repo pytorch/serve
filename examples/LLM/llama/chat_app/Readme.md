@@ -1,7 +1,7 @@
 
-# TorchServe Llama 2 Chatapp
+# TorchServe Llama Chatapp
 
-This is an example showing how to deploy a llama2 chat app using TorchServe.
+This is an example showing how to deploy a Llama chat app using TorchServe.
 We use [streamlit](https://github.com/streamlit/streamlit) to create the app
 
 We are using [llama-cpp-python](https://github.com/abetlen/llama-cpp-python) in this example
@@ -17,21 +17,21 @@ To get started with TorchServe, you need to run the following
 # 1: Set HF Token as Env variable
 export HUGGINGFACE_TOKEN=<Token> # get this from your HuggingFace account
 
-# 2: Build TorchServe Image for Serving llama2-7b model with 4-bit quantization
-./examples/llm/llama2/chat_app/docker/build_image.sh meta-llama/Llama-2-7b-chat-hf
+# 2: Build TorchServe Chat Bot Image for Serving
+./examples/LLM/llama/chat_app/docker/build_image.sh
 
 # 3: Launch the streamlit app for server & client
-docker run --rm -it --platform linux/amd64 -p 127.0.0.1:8080:8080 -p 127.0.0.1:8081:8081 -p 127.0.0.1:8082:8082 -p 127.0.0.1:8084:8084 -p 127.0.0.1:8085:8085 -v <model-store>:/home/model-server/model-store pytorch/torchserve:meta-llama---Llama-2-7b-chat-hf
+docker run --rm -it --platform linux/amd64 -p 127.0.0.1:8080:8080 -p 127.0.0.1:8081:8081 -p 127.0.0.1:8082:8082 -p 127.0.0.1:8084:8084 -p 127.0.0.1:8085:8085 -v <model-store>:/home/model-server/model-store -e MODEL_NAME=meta-llama/Meta-Llama-3-8B-Instruct pytorch/torchserve:chat_bot
 ```
 In step 3, `<model-store>` is a location where you want the model to be downloaded
 
 ### What to expect
 This launches two streamlit apps
 1. TorchServe Server app to start/stop TorchServe, load model, scale up/down workers, configure dynamic batch_size ( Currently llama-cpp-python doesn't support batch_size > 1)
-    - Since this app is targeted for Apple M1/M2 laptops, we load a 4-bit quantized version of llama2 using llama-cpp-python.
+    - Since this app is targeted for Apple M1/M2 laptops, we load a 4-bit quantized version of llama using llama-cpp-python.
 2.  Client chat app where you can chat with the model . There is a slider to send concurrent requests to the model. The current app doesn't have a good mechanism to show multiple responses in parallel. You can notice streaming response for the first request followed by a complete response for the next request.
 
-Currently, this launches llama2-7b model with 4-bit quantization running on CPU.
+Currently, this launches Meta-Llama-3-8B-Instruct with 4-bit quantization running on CPU.
 
 To make use of M1/M2 GPU, you can follow the below guide to do a standalone TorchServe installation.
 
@@ -55,8 +55,8 @@ javac 17.0.8
 You can download it from [java](https://www.oracle.com/java/technologies/downloads/#jdk17-mac)
 2) Install conda with support for arm64
 
-3) Since we are running this example on Mac, we will use the 7B llama2 model.
-Download llama2-7b weights by following instructions [here](https://github.com/pytorch/serve/tree/master/examples/large_models/Huggingface_accelerate/llama2#step-1-download-model-permission)
+3) Since we are running this example on Mac, we will use the Meta-Llama-3-8B-Instruct model.
+Download Meta-Llama-3-8B-Instruct weights by following instructions [here](https://github.com/pytorch/serve/tree/master/examples/large_models/Huggingface_accelerate/llama#step-1-download-model-permission)
 
 4) Install streamlit with
 
@@ -80,9 +80,9 @@ pip install torchserve torch-model-archiver torch-workflow-archiver
 Run this script to create `llamacpp.tar.gz` to be loaded in TorchServe
 
 ```
-source package_llama.sh <path to llama2 snapshot folder>
+source package_llama.sh <path to llama snapshot folder>
 ```
-This creates the quantized weights in `$LLAMA2_WEIGHTS`
+This creates the quantized weights in `$LLAMA_WEIGHTS`
 
 For subsequent runs, we don't need to regenerate these weights. We only need to package the handler, model-config.yaml in the tar file.
 
@@ -97,7 +97,7 @@ You might need to run the below command if the script output indicates it.
 sudo xcodebuild -license
 ```
 
-The script is setting an env variable `LLAMA2_Q4_MODEL` and using this in the handler. In an actual use-case, you would set the path to the weights in `model-config.yaml`
+The script is setting an env variable `LLAMA_Q4_MODEL` and using this in the handler. In an actual use-case, you would set the path to the weights in `model-config.yaml`
 
 ```
 handler:
