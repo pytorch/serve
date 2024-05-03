@@ -69,7 +69,7 @@ mv diffusion_fast model_store
 
 Start the TorchServe server using the following command:
 
-```
+```bash
 torchserve --start --ts-config config.properties --model-store model_store --models diffusion_fast
 ```
 
@@ -77,7 +77,7 @@ torchserve --start --ts-config config.properties --model-store model_store --mod
 
 Execute the model using the following command to generate an image based on your specified prompt:
 
-```
+```bash
 python query.py --url "http://localhost:8080/predictions/diffusion_fast" --prompt "a photo of an astronaut riding a horse on mars"
 ```
 
@@ -87,7 +87,7 @@ By default, the generated image is saved to a file named `output-<timestamp>.jpg
 ### 5. Stop the server
 Stop TorchServe with the following command:
 
-```
+```bash
 torchserve --stop
 ```
 
