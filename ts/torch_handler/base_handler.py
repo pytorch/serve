@@ -62,12 +62,11 @@ else:
 if os.environ.get("TS_IPEX_ENABLE", "false") == "true":
     try:
         import intel_extension_for_pytorch as ipex
-        # print("Succesfully imported ipex TS_IPEX_GPU_ENABLE :", os.environ.get("TS_IPEX_GPU_ENABLE", "false"))
         IPEX_AVAILABLE = True
         if torch.xpu.is_available() and os.environ.get("TS_IPEX_GPU_ENABLE", "false") == "true":
         if torch.xpu.is_available():
             IPEX_GPU = True
-            logger.info("Torch support for Intel GPU enabled")
+            logger.info("Torchserve support for Intel GPU enabled")
         else:
             IPEX_GPU = False
     except ImportError as error:
@@ -257,7 +256,6 @@ class BaseHandler(abc.ABC):
             self.model = self.model.to(memory_format=torch.channels_last)
             if IPEX_GPU:
                 self.model = self.model.to("xpu") # IPEX GPU
-                logger.info("Model loaded on GPU")
             self.model = ipex.optimize(self.model)
             logger.info(f"Compiled model with ipex")
 
@@ -373,9 +371,7 @@ class BaseHandler(abc.ABC):
         """
         with torch.inference_mode():
             if IPEX_AVAILABLE and IPEX_GPU: # IPEX GPU
-                logger.info("GPU Enabled")
                 marshalled_data = data.to("xpu")
-                # print(marshalled_data, "Data on Device")
             else:
                 marshalled_data = data.to(self.device)
             results = self.model(marshalled_data, *args, **kwargs)

@@ -857,7 +857,6 @@ public final class ConfigManager {
 
     private static int getAvailableGpu() {
             try {
-                System.out.println("getAvailableGpu 1");
 
                 List<Integer> gpuIds = new ArrayList<>();
                 String visibleCuda = System.getenv("CUDA_VISIBLE_DEVICES");
@@ -890,7 +889,6 @@ public final class ConfigManager {
                     throw new AssertionError("Unexpected response.");
                 } else {
 
-                    System.out.println("getAvailableGpu 2");
                     
                     try {
                         Process process =
@@ -910,13 +908,12 @@ public final class ConfigManager {
                     }catch (IOException | InterruptedException e) {
                     System.out.println("nvidia-smi not available or failed: " + e.getMessage());
                     }
-                    System.out.println("getAvailableGpu 3");
+                    try {
                     Process process = Runtime.getRuntime().exec("xpu-smi discovery --dump 1");
                     int ret = process.waitFor();
                         if (ret != 0) {
                             return 0;
                         }
-                    System.out.println("Checking for Intel GPUs");  
                     List<String> list =
                             IOUtils.readLines(process.getInputStream(), StandardCharsets.UTF_8);
                     if (list.isEmpty() || !list.get(0).contains("Device ID")) {
@@ -925,11 +922,13 @@ public final class ConfigManager {
                     for (int i = 1; i < list.size(); i++) {
                         gpuIds.add(Integer.parseInt(list.get(i)));
                     }
+                    }catch (IOException | InterruptedException e) {
+                    System.out.println("xpu-smi not available or failed: " + e.getMessage());
+                    }
 
                     
                
                 }
-                System.out.println("Number of GPUs found :"+ gpuIds.size());
                 return gpuIds.size();
             } catch (IOException | InterruptedException e) {
                 return 0;
