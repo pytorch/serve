@@ -64,7 +64,6 @@ if os.environ.get("TS_IPEX_ENABLE", "false") == "true":
         import intel_extension_for_pytorch as ipex
         IPEX_AVAILABLE = True
         if torch.xpu.is_available() and os.environ.get("TS_IPEX_GPU_ENABLE", "false") == "true":
-        if torch.xpu.is_available():
             IPEX_GPU = True
             logger.info("Torchserve support for Intel GPU enabled")
         else:
