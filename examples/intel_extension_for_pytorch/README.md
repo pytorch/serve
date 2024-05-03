@@ -98,16 +98,23 @@ TorchServe can also leverage Intel GPU for acceleration, providing additional pe
 
 
 ### Installation and Setup for Intel GPU Support
-**Install Intel oneAPI Base Kit:** Follow the installation instructions for your operating system from the [Intel oneAPI Basekit Installation](https://www.intel.com/content/www/us/en/developer/tools/oneapi/base-toolkit-download.htm).
+**Install Intel oneAPI Base Kit:** 
+Follow the installation instructions for your operating system from the [Intel oneAPI Basekit Installation](https://www.intel.com/content/www/us/en/developer/tools/oneapi/base-toolkit-download.htm).
 
-**Install the ipex GPU package to enable TorchServe to utilize Intel GPU for acceleration:** Follow the installation instructions for your operating system from the [ Intel® Extension for PyTorch* XPU/GPU Installation](https://intel.github.io/intel-extension-for-pytorch/index.html#installation?platform=gpu).
+**Install the ipex GPU package to enable TorchServe to utilize Intel GPU for acceleration:** 
+Follow the installation instructions for your operating system from the [ Intel® Extension for PyTorch* XPU/GPU Installation](https://intel.github.io/intel-extension-for-pytorch/index.html#installation?platform=gpu).
 
-**Activate the Intel oneAPI Base Kit:** Activate the Intel oneAPI Base Kit using the following command:
+**Activate the Intel oneAPI Base Kit:** 
+Activate the Intel oneAPI Base Kit using the following command:
    ```bash
    source /path/to/oneapi/setvars.sh
    ```
 
-**Enable Intel GPU Support in TorchServe:** To enable TorchServe to use Intel GPUs, set the following configuration in `config.properties`:
+**Install xpu-smi:**
+Install xpu-smi to let torchserve detect the number of Intel GPU devices present. xpu-smi provides information about the Intel GPU, including temperature, utilization, and other metrics.[xpu-smi Installation Guide](https://dgpu-docs.intel.com/driver/installation.html#ubuntu-package-repository)
+
+**Enable Intel GPU Support in TorchServe:** 
+To enable TorchServe to use Intel GPUs, set the following configuration in `config.properties`:
    ```
    ipex_enable=true
    ipex_gpu_enable=true
