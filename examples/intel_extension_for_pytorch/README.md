@@ -9,6 +9,7 @@ Here we show how to use TorchServe with Intel® Extension for PyTorch*.
 * [Install Intel® Extension for PyTorch*](https://github.com/pytorch/serve/blob/master/examples/intel_extension_for_pytorch/README.md#install-intel-extension-for-pytorch)
 * [Serving model with Intel® Extension for PyTorch*](https://github.com/pytorch/serve/blob/master/examples/intel_extension_for_pytorch/README.md#serving-model-with-intel-extension-for-pytorch)
 * [TorchServe with Launcher](#torchserve-with-launcher)
+* [TorchServe with Intel® Extension for PyTorch* and Intel GPUs](#torchserve-with-intel®-extension-for-pytorch-and-intel-gpus)
 * [Creating and Exporting INT8 model for Intel® Extension for PyTorch*](https://github.com/pytorch/serve/blob/master/examples/intel_extension_for_pytorch/README.md#creating-and-exporting-int8-model-for-intel-extension-for-pytorch)
 * [Benchmarking with Launcher](#benchmarking-with-launcher)
 * [Performance Boost with Intel® Extension for PyTorch* and Launcher](https://github.com/pytorch/serve/blob/master/examples/intel_extension_for_pytorch/README.md#performance-boost-with-intel-extension-for-pytorch-and-launcher)
@@ -73,6 +74,7 @@ CPU usage is shown below. 4 main worker threads were launched, each launching 14
 ![26](https://user-images.githubusercontent.com/93151422/170373651-fd8a0363-febf-4528-bbae-e1ddef119358.gif)
 
 
+
 #### Scaling workers
 Additionally when dynamically [scaling the number of workers](https://pytorch.org/serve/management_api.html#scale-workers), cores that were pinned to killed workers by the launcher could be left unutilized. To address this problem, launcher internally restarts the workers to re-distribute cores that were pinned to killed workers to the remaining, alive workers. This is taken care internally, so users do not have to worry about this. 
 
@@ -89,6 +91,29 @@ Add the following lines in `config.properties` to use launcher with its default 
 ```
 cpu_launcher_enable=true
 ```
+
+## TorchServe with Intel® Extension for PyTorch* and Intel GPUs
+
+TorchServe can also leverage Intel GPU for acceleration, providing additional performance benefits. To use TorchServe with Intel GPU, the machine must have the latest oneAPI Base Kit installed, activated, and ipex GPU installed.
+
+
+### Installation and Setup for Intel GPU Support
+**Install Intel oneAPI Base Kit:** Follow the installation instructions for your operating system from the [Intel oneAPI Basekit Installation](https://www.intel.com/content/www/us/en/developer/tools/oneapi/base-toolkit-download.htm).
+
+**Install the ipex GPU package to enable TorchServe to utilize Intel GPU for acceleration:** Follow the installation instructions for your operating system from the [ Intel® Extension for PyTorch* XPU/GPU Installation](https://intel.github.io/intel-extension-for-pytorch/index.html#installation?platform=gpu).
+
+**Activate the Intel oneAPI Base Kit:** Activate the Intel oneAPI Base Kit using the following command:
+   ```bash
+   source /path/to/oneapi/setvars.sh
+   ```
+
+**Enable Intel GPU Support in TorchServe:** To enable TorchServe to use Intel GPUs, set the following configuration in `config.properties`:
+   ```
+   ipex_enable=true
+   ipex_gpu_enable=true
+   ```
+
+
 
 ## Creating and Exporting INT8 model for Intel® Extension for PyTorch*
 Intel® Extension for PyTorch* supports both eager and torchscript mode. In this section, we show how to deploy INT8 model for Intel® Extension for PyTorch*. Refer to [here](https://github.com/intel/intel-extension-for-pytorch/blob/master/docs/tutorials/features/int8_overview.md) for more details on Intel® Extension for PyTorch* optimizations for quantization.
