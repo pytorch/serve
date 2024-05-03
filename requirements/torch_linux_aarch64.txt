@@ -1,0 +1,6 @@
+#pip3 install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cpu
+--extra-index-url https://download.pytorch.org/whl/cpu
+-r torch_common.txt
+torch==2.2.1; sys_platform == 'linux' and platform_machine == 'aarch64'
+torchvision==0.17.1; sys_platform == 'linux' and platform_machine == 'aarch64'
+torchaudio==2.2.1; sys_platform == 'linux' and platform_machine == 'aarch64'
