@@ -1,6 +1,7 @@
 import base64
 import io
 import logging
+import os
 import pickle
 
 import cv2
@@ -23,6 +24,7 @@ class SegmentAnythingFastHandler(BaseHandler):
 
     def initialize(self, ctx):
         properties = ctx.system_properties
+        model_dir = properties.get("model_dir")
         self.device = "cpu"
         if torch.cuda.is_available() and properties.get("gpu_id") is not None:
             self.map_location = "cuda"
@@ -32,7 +34,9 @@ class SegmentAnythingFastHandler(BaseHandler):
             torch.cuda.set_device(self.device)
 
         model_type = ctx.model_yaml_config["handler"]["model_type"]
-        sam_checkpoint = ctx.model_yaml_config["handler"]["sam_checkpoint"]
+        sam_checkpoint = os.path.join(
+            model_dir, ctx.model_yaml_config["handler"]["sam_checkpoint"]
+        )
         process_batch_size = ctx.model_yaml_config["handler"]["process_batch_size"]
 
         self.model = sam_model_fast_registry[model_type](checkpoint=sam_checkpoint)

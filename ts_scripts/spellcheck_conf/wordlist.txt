@@ -1222,8 +1222,17 @@ linux
 SpeechT
 Pytests
 deviceType
+XGBoost
 Clamd
 Fickling
 TorchServer
 VirusTotal
 untrusted
+mpi
+LoRA
+EngineArgs
+LLMEngine
+SamplingParams
+lora
+vllm
+sql
