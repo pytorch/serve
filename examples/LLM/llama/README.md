@@ -1,13 +1,13 @@
-# Llama 2: Next generation of Meta's Language Model
-![Llama 2](./images/llama.png)
+# Meta Llama: Next generation of Meta's Language Model
+![Llama](./images/llama.png)
 
-TorchServe supports serving Llama 2 in a number of ways. The examples covered in this document range from someone new to TorchServe learning how to serve Llama 2 with an app, to an advanced user of TorchServe using micro batching and streaming response with Llama 2
+TorchServe supports serving Meta Llama in a number of ways. The examples covered in this document range from someone new to TorchServe learning how to serve Meta Llama with an app, to an advanced user of TorchServe using micro batching and streaming response with Meta Llama.
 
-## 🦙💬 Llama 2 Chatbot
+## 🦙💬 Meta Llama Chatbot
 
-### [Example Link](https://github.com/pytorch/serve/tree/master/examples/LLM/llama2/chat_app)
+### [Example Link](https://github.com/pytorch/serve/tree/master/examples/LLM/llama/chat_app)
 
-This example shows how to deploy a llama2 chat app using TorchServe.
+This example shows how to deploy a llama chat app using TorchServe.
 We use [streamlit](https://github.com/streamlit/streamlit) to create the app
 
 This example is  using [llama-cpp-python](https://github.com/abetlen/llama-cpp-python).
@@ -16,11 +16,11 @@ You can run this example on your laptop to understand how to use TorchServe, how
 
 ![Chatbot Architecture](./chat_app/screenshots/architecture.png)
 
-## Llama 2 with HuggingFace
+## Meta Llama with HuggingFace
 
-### [Example Link](https://github.com/pytorch/serve/tree/master/examples/large_models/Huggingface_accelerate/llama2)
+### [Example Link](https://github.com/pytorch/serve/tree/master/examples/large_models/Huggingface_accelerate/llama)
 
-This example shows how to serve Llama 2 - 70b model with limited resource using [HuggingFace](https://huggingface.co/meta-llama/Llama-2-70b-chat-hf). It shows the following optimizations
+This example shows how to serve meta-llama/Meta-Llama-3-70B-Instruct model with limited resource using [HuggingFace](https://huggingface.co/meta-llama/Meta-Llama-3-70B-Instruct). It shows the following optimizations
     1) HuggingFace `accelerate`. This option can be activated with `low_cpu_mem_usage=True`.
     2) Quantization from [`bitsandbytes`](https://github.com/TimDettmers/bitsandbytes)  using `load_in_8bit=True`
 The model is first created on the Meta device (with empty weights) and the state dict is then loaded inside it (shard by shard in the case of a sharded checkpoint).
