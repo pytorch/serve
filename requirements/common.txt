@@ -1,4 +1,4 @@
-psutil==5.9.5
+psutil==5.9.8
 requests==2.31.0
 captum==0.6.0
 packaging==23.2
