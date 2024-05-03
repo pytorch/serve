@@ -122,4 +122,5 @@ def collect_all(mod, num_of_gpu):
 
     for met in system_metrics:
         logging.info(str(met))
+
     logging.info("")
