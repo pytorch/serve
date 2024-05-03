@@ -47,6 +47,7 @@ snapshot_path = snapshot_download(
     revision=args.revision,
     cache_dir=args.model_path,
     use_auth_token=True,
-    ignore_patterns=["original/*", "pytorch_model*.bin"]
+    ignore_patterns=["original/*", "pytorch_model*.bin"],
 )
+
 print(f"Files for '{args.model_name}' is downloaded to '{snapshot_path}'")
