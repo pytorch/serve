@@ -59,9 +59,10 @@ class BaseNeuronXContinuousBatchingHandler(BaseHandler):
 
         os.environ["NEURONX_CACHE"] = "on"
         os.environ["NEURON_COMPILE_CACHE_URL"] = f"{model_dir}/neuron_cache"
-        os.environ[
-            "NEURON_CC_FLAGS"
-        ] = "-O1 --model-type=transformer --enable-mixed-precision-accumulation"
+        os.environ["NEURON_CC_FLAGS"] = handler_config.get(
+            "neuron_cc_flag",
+            "-O1 --model-type=transformer --enable-mixed-precision-accumulation --enable-saturate-infinity",
+        )
 
         self.max_length = int(handler_config.get("max_length", self.max_length))
         self.max_new_tokens = int(
@@ -72,6 +73,7 @@ class BaseNeuronXContinuousBatchingHandler(BaseHandler):
         # settings for model compilation and loading
         amp = handler_config.get("amp", "fp32")
         tp_degree = handler_config.get("tp_degree", 6)
+        n_positions = handler_config.get("n_positions", [self.max_length])
 
         # allocate "tp_degree" number of neuron cores to the worker process
         os.environ["NEURON_RT_NUM_CORES"] = str(tp_degree)
@@ -104,7 +106,7 @@ class BaseNeuronXContinuousBatchingHandler(BaseHandler):
             tp_degree=tp_degree,
             amp=amp,
             batch_size=self.batch_size,
-            n_positions=[self.max_length],
+            n_positions=n_positions,
             context_length_estimate=handler_config.get(
                 "context_length_estimate", [self.max_length]
             ),
