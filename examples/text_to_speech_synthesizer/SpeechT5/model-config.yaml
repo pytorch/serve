@@ -1,0 +1,8 @@
+minWorkers: 1
+maxWorkers: 1
+handler:
+  model: "model"
+  vocoder: "vocoder"
+  processor: "processor"
+  speaker_embeddings: "speaker_embeddings"
+  output_dir: "/tmp"
