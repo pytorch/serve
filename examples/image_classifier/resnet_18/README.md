@@ -11,6 +11,43 @@ torchserve --start --model-store model_store --models resnet-18=resnet-18.mar
 curl http://127.0.0.1:8080/predictions/resnet-18 -T ./examples/image_classifier/kitten.jpg
 ```
 
+#### TorchServe inference with torch.compile of Resnet18 model
+This example shows how to take eager model of `Resnet18`, configure TorchServe to use `torch.compile` and run inference using `torch.compile`.
+
+Change directory to the examples directory
+Ex:  `cd  examples/image_classifier/resnet_18`
+
+##### torch.compile config
+`torch.compile` supports a variety of config and the performance you get can vary based on the config. You can find the various options [here](https://pytorch.org/docs/stable/generated/torch.compile.html).
+
+In this example , we use the following config
+
+```
+echo "pt2 : {backend: inductor, mode: reduce-overhead}" > model-config.yaml
+```
+
+##### Sample commands to create a Resnet18 torch.compile model archive, register it on TorchServe and run image prediction
+
+```bash
+wget https://download.pytorch.org/models/resnet18-f37072fd.pth
+torch-model-archiver --model-name resnet-18 --version 1.0 --model-file model.py --serialized-file resnet18-f37072fd.pth --handler image_classifier --extra-files ../index_to_name.json --config-file model-config.yaml
+mkdir model_store
+mv resnet-18.mar model_store/
+torchserve --start --model-store model_store --models resnet-18=resnet-18.mar
+curl http://127.0.0.1:8080/predictions/resnet-18 -T ../kitten.jpg
+```
+
+produces the output
+```
+{
+  "tabby": 0.40966343879699707,
+  "tiger_cat": 0.346704363822937,
+  "Egyptian_cat": 0.13002890348434448,
+  "lynx": 0.023919545114040375,
+  "bucket": 0.011532172560691833
+}
+```
+
 #### TorchScript example using Resnet18 image classifier:
 
 * Save the Resnet18 model in as an executable script module or a traced script:
