@@ -7,6 +7,7 @@ import requests
 import streamlit as st
 
 MODEL_NAME = os.environ["MODEL_NAME"]
+MODEL_NAME = MODEL_NAME.replace("/", "---")
 MODEL = MODEL_NAME.split("---")[1]
 
 # App title
