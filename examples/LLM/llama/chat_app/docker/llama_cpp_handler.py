@@ -23,7 +23,7 @@ class LlamaCppHandler(BaseHandler, ABC):
             ctx (context): It is a JSON Object containing information
             pertaining to the model artifacts parameters.
         """
-        model_path = os.environ["LLAMA2_Q4_MODEL"]
+        model_path = os.environ["LLAMA_Q4_MODEL"]
         model_name = ctx.model_yaml_config["handler"]["model_name"]
         seed = int(ctx.model_yaml_config["handler"]["manual_seed"])
         torch.manual_seed(seed)

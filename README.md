@@ -79,7 +79,7 @@ Refer to [torchserve docker](docker/README.md) for details.
   * Microsoft [DeepSpeed](examples/large_models/deepspeed), [DeepSpeed-Mii](examples/large_models/deepspeed_mii)
   * Hugging Face [Accelerate](examples/large_models/Huggingface_accelerate), [Diffusers](examples/diffusers)
   * Running large models on AWS [Sagemaker](https://docs.aws.amazon.com/sagemaker/latest/dg/large-model-inference-tutorials-torchserve.html) and [Inferentia2](https://pytorch.org/blog/high-performance-llama/)
-  * Running [Llama 2 Chatbot locally on Mac](examples/LLM/llama2)
+  * Running [Meta Llama Chatbot locally on Mac](examples/LLM/llama)
 * Monitoring using Grafana and [Datadog](https://www.datadoghq.com/blog/ai-integrations/#model-serving-and-deployment-vertex-ai-amazon-sagemaker-torchserve)
 
 
@@ -90,8 +90,8 @@ Refer to [torchserve docker](docker/README.md) for details.
 
 
 ## 🏆 Highlighted Examples
-* [Serving Llama 2 with TorchServe](examples/LLM/llama2/README.md)
-* [Chatbot with Llama 2 on Mac 🦙💬](examples/LLM/llama2/chat_app)
+* [Serving Meta Llama with TorchServe](examples/LLM/llama/README.md)
+* [Chatbot with Meta Llama on Mac 🦙💬](examples/LLM/llama/chat_app)
 * [🤗 HuggingFace Transformers](examples/Huggingface_Transformers) with a [Better Transformer Integration/ Flash Attention & Xformer Memory Efficient ](examples/Huggingface_Transformers#Speed-up-inference-with-Better-Transformer)
 * [Stable Diffusion](examples/diffusers)
 * [Model parallel inference](examples/Huggingface_Transformers#model-parallelism)
