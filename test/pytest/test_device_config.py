@@ -26,7 +26,7 @@ class deviceHandler(BaseHandler):
 
     def initialize(self, context):
         super().initialize(context)
-        if torch.backends.mps.is_available():
+        if torch.backends.mps.is_available() && context.system_properties.get("gpu_id") is not None:
             assert self.get_device().type == "mps"
         else:
             assert self.get_device().type == "cpu"
