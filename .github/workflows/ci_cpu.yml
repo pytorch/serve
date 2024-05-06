@@ -1,7 +1,14 @@
 name: CI CPU
 
 on:
-  push
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+  merge_group:
 
 
 concurrency:
@@ -14,7 +21,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-latest]
+        os: [ubuntu-20.04, macos-latest]
     steps:
       - name: Setup Python for M1
         if: matrix.os == 'macos-latest'
