@@ -19,6 +19,7 @@ config_file = os.path.join(REPO_ROOT, "test/resources/config_token.properties")
 mnist_scriptes_py = os.path.join(REPO_ROOT, "examples/image_classifier/mnist/mnist.py")
 
 HANDLER_PY = """
+import torch
 from ts.torch_handler.base_handler import BaseHandler
 
 class deviceHandler(BaseHandler):
