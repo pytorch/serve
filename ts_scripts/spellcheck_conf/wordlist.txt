@@ -1229,6 +1229,7 @@ TorchServer
 VirusTotal
 untrusted
 mpi
+OpenVINO
 LoRA
 EngineArgs
 LLMEngine
