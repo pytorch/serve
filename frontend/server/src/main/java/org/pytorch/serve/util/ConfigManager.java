@@ -851,6 +851,7 @@ public final class ConfigManager {
                     if (line.contains("Chipset Model:") && !line.contains("Apple M1")) {
                         return 0;
                     }
+                    return 4;
                     if (line.contains("Total Number of Cores:")) {
                         String[] parts = line.split(":");
                         if (parts.length >= 2) {
