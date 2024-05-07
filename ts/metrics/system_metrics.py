@@ -100,81 +100,105 @@ def gpu_utilization(num_of_gpu):
     #     )
 
     logging.info(f"XPU Utillization: {num_of_gpu}")
-    start_time = time.time()
-    timeout = 1
-    try:
-        # Run the xpu-smi command to get GPU metrics
-        process = subprocess.Popen(
-            ["xpu-smi", "dump", "-d", "0", "-m", "0,5"],
-            stdout=subprocess.PIPE,
-            text=True  # Ensures that output is in text form
+
+    from intel_gpu import list_gpu_info
+    info = list_gpu_info(num_of_gpu)
+    for line in info[1:]:
+        dimension_gpu = [
+            Dimension("Level", "Host"),
+            Dimension("device_id", line[1]),
+        ]
+        system_metrics.append(
+            Metric("GPUUtilization", line[2], "percent", dimension_gpu)
         )
-        output_lines = []
-        while True:
-            current_time = time.time()
-            if current_time - start_time > timeout:
-                break
-            
-            # Try to read a line of output
-            lines = process.stdout.readline()
-            if not lines:
-                break
-            output_lines.append(lines.strip())
-
-            # You can process lines here or later
-            print(lines.strip())  # Example of processing output in real-time
-
-        # Parse the output to extract GPU metrics
-        headers = output_lines[0].split(', ')
-        data_lines = output_lines[1:]
-        for line in data_lines:
-            values = line.split(', ')
-            if len(values) != len(headers):
-                logging.error(f"Data format error in line: {line}")
-                continue
-
-            # Create a dictionary for easy access to each column
-            data_dict = dict(zip(headers, values))
-
-            # Extract necessary data
-            timestamp = data_dict["Timestamp"]
-            device_id = data_dict["DeviceId"]
-            gpu_utilization = data_dict["GPU Utilization (%)"] 
-            memory_utilization = data_dict["GPU Memory Utilization (%)"]
-
-            # Create dimensions
-            dimensions = [
-                Dimension("Level", "Host"),
-                Dimension("DeviceId", device_id)
-            ]
-
-            # Append GPU Utilization Metric
-            system_metrics.append(
-                Metric(
-                    "GPUUtilization",
-                    gpu_utilization,
-                    "percent",
-                    dimensions
-                )
+        system_metrics.append(
+            Metric(
+                "GPUMemoryUtilization",
+                line[3],
+                "percent",
+                dimension_gpu,
             )
+        )
+        system_metrics.append(
+            Metric("GPUMemoryUsed", line[4], "MB", dimension_gpu)
+        )
 
-            # Append GPU Memory Utilization Metric
-            system_metrics.append(
-                Metric(
-                    "GPUMemoryUtilization",
-                    memory_utilization,
-                    "percent",
-                    dimensions
-                )
-            )
-        # logging.info(f"Added metric: {system_metrics[-1]}")
-        # logging.info(f"Added metric: {system_metrics[-2]}")
-
-
-    except FileNotFoundError:
-        logging.error("xpu-smi command not found. Cannot collect Intel GPU metrics.")
-    except subprocess.CalledProcessError as e:
-        logging.error("Error running xpu-smi command: %s", e)
+    # start_time = time.time()
+    # timeout = 1
+    # try:
+    #     # Run the xpu-smi command to get GPU metrics
+    #     process = subprocess.Popen(
+    #         ["xpu-smi", "dump", "-d", "0", "-m", "0,5"],
+    #         stdout=subprocess.PIPE,
+    #         text=True  # Ensures that output is in text form
+    #     )
+    #     output_lines = []
+    #     while True:
+    #         current_time = time.time()
+    #         if current_time - start_time > timeout:
+    #             break
+    #
+    #         # Try to read a line of output
+    #         lines = process.stdout.readline()
+    #         if not lines:
+    #             break
+    #         output_lines.append(lines.strip())
+    #
+    #         # You can process lines here or later
+    #         print(lines.strip())  # Example of processing output in real-time
+    #
+    #     # Parse the output to extract GPU metrics
+    #     headers = output_lines[0].split(', ')
+    #     data_lines = output_lines[1:]
+    #     print(data_lines)
+    #     for line in data_lines:
+    #         values = line.split(', ')
+    #         if len(values) != len(headers):
+    #             logging.error(f"Data format error in line: {line}")
+    #             continue
+    #
+    #         # Create a dictionary for easy access to each column
+    #         data_dict = dict(zip(headers, values))
+    #
+    #         # Extract necessary data
+    #         timestamp = data_dict["Timestamp"]
+    #         device_id = data_dict["DeviceId"]
+    #         gpu_utilization = data_dict["GPU Utilization (%)"]
+    #         memory_utilization = data_dict["GPU Memory Utilization (%)"]
+    #
+    #         # Create dimensions
+    #         dimensions = [
+    #             Dimension("Level", "Host"),
+    #             Dimension("DeviceId", device_id)
+    #         ]
+    #         logging.info(f"created dimension level host, device: {device_id}")
+    #         # Append GPU Utilization Metric
+    #         system_metrics.append(
+    #             Metric(
+    #                 "GPUUtilization",
+    #                 gpu_utilization,
+    #                 "percent",
+    #                 dimensions
+    #             )
+    #         )
+    #
+    #         # Append GPU Memory Utilization Metric
+    #         system_metrics.append(
+    #             Metric(
+    #                 "GPUMemoryUtilization",
+    #                 memory_utilization,
+    #                 "percent",
+    #                 dimensions
+    #             )
+    #         )
+    #     # logging.info(f"Added metric: {system_metrics[-1]}")
+    #     # logging.info(f"Added metric: {system_metrics[-2]}")
+    #
+    #
+    # except FileNotFoundError:
+    #     logging.error("xpu-smi command not found. Cannot collect Intel GPU metrics.")
+    # except subprocess.CalledProcessError as e:
+    #     logging.error("Error running xpu-smi command: %s", e)
 
 
 def collect_all(mod, num_of_gpu):
