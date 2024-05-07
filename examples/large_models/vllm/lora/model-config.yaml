@@ -1,0 +1,20 @@
+# TorchServe frontend parameters
+minWorkers: 1
+maxWorkers: 1
+batchSize: 16
+maxBatchDelay: 100
+responseTimeout: 1200
+deviceType: "gpu"
+continuousBatching: true
+
+handler:
+    model_path: "model/models--meta-llama--Llama-2-7b-hf/snapshots/01c7f73d771dfac7d292323805ebc428287df4f9"
+    vllm_engine_config:
+        enable_lora: true
+        max_loras: 4
+        max_cpu_loras: 4
+        max_num_seqs: 16
+        max_model_len: 250
+
+    adapters:
+        adapter_1: "adapters/model/models--yard1--llama-2-7b-sql-lora-test/snapshots/0dfa347e8877a4d4ed19ee56c140fa518470028c/"

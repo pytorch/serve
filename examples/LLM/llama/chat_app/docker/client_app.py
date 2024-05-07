@@ -6,6 +6,7 @@ import requests
 import streamlit as st
 
 MODEL_NAME = os.environ["MODEL_NAME"]
+MODEL_NAME = MODEL_NAME.replace("/", "---")
 
 # App title
 st.set_page_config(page_title="TorchServe Chatbot")
