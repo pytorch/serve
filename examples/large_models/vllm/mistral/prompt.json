@@ -1,0 +1,8 @@
+{
+  "prompt": "A robot may not injure a human being",
+  "max_new_tokens": 50,
+  "temperature": 0.8,
+  "logprobs": 1,
+  "prompt_logprobs": 1,
+  "max_tokens": 128
+}

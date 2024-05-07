@@ -5,10 +5,17 @@ responseTimeout: 10800
 batchSize: 16
 
 handler:
-    model_checkpoint_dir: "llama-2-13b-split"
+    model_path: "model/models--meta-llama--Llama-2-70b-hf/snapshots/97a63a0ef386379ab4175785da8352fbe338c6c5"
+    model_checkpoint_dir: "llama-2-70b-split"
+    model_module_prefix: "transformers_neuronx"
+    model_class_name: "llama.model.LlamaForSampling"
+    tokenizer_class_name: "transformers.LlamaTokenizer"
+    # see https://awsdocs-neuron.readthedocs-hosted.com/en/latest/release-notes/torch/transformers-neuronx/index.html#known-issues-and-limitations for llama2-13b
+    # neuron_cc_flag: "-O1 --model-type=transformer --enable-mixed-precision-accumulation --enable-saturate-infinity"
     amp: "bf16"
-    tp_degree: 6
-    max_length: 100
+    tp_degree: 24
+    max_length: 256
+    max_new_tokens: 50
 
 micro_batching:
     micro_batch_size: 4

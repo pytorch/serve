@@ -890,7 +890,7 @@ public class ModelServerTest {
         DescribeModelResponse[] resp =
                 JsonUtils.GSON.fromJson(TestUtils.getResult(), DescribeModelResponse[].class);
         Assert.assertEquals(
-                resp[0].getCustomizedMetadata(), "{\n  \"data1\": \"1\",\n  \"data2\": \"2\"\n}");
+                resp[0].getCustomizedMetadata().toString(), "{\"data1\":\"1\",\"data2\":\"2\"}");
 
         testUnregisterModel("noop-customized", "1.0");
     }

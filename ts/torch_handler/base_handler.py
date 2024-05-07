@@ -58,6 +58,14 @@ if packaging.version.parse(torch.__version__) > packaging.version.parse("2.2.2")
 else:
     PT230_AVAILABLE = False
 
+try:
+    import openvino.torch
+
+    logger.info("OpenVINO backend enabled for torch.compile")
+except ImportError:
+    logger.warning("OpenVINO is not enabled")
+
+
 if os.environ.get("TS_IPEX_ENABLE", "false") == "true":
     try:
         import intel_extension_for_pytorch as ipex
@@ -144,11 +152,15 @@ class BaseHandler(abc.ABC):
             self.model_yaml_config = context.model_yaml_config
 
         properties = context.system_properties
+
         if torch.cuda.is_available() and properties.get("gpu_id") is not None:
             self.map_location = "cuda"
             self.device = torch.device(
                 self.map_location + ":" + str(properties.get("gpu_id"))
             )
+        elif torch.backends.mps.is_available() and properties.get("gpu_id") is not None:
+            self.map_location = "mps"
+            self.device = torch.device("mps")
         elif XLA_AVAILABLE:
             self.device = xm.xla_device()
         else:
@@ -456,9 +468,9 @@ class BaseHandler(abc.ABC):
                 logging.debug("Model name not found in config")
 
             result_path = os.path.join(result_path, dir_name)
-            self.profiler_args[
-                "on_trace_ready"
-            ] = torch.profiler.tensorboard_trace_handler(result_path)
+            self.profiler_args["on_trace_ready"] = (
+                torch.profiler.tensorboard_trace_handler(result_path)
+            )
             logger.info("Saving chrome trace to : %s", result_path)
 
         with profile(**self.profiler_args) as prof:
@@ -524,3 +536,11 @@ class BaseHandler(abc.ABC):
         # pylint: disable=unnecessary-pass
         pass
         # pylint: enable=unnecessary-pass
+
+    def get_device(self):
+        """Get device
+
+        Returns:
+            string : self device
+        """
+        return self.device
