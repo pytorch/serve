@@ -2,12 +2,12 @@
 # Check if the argument is empty or unset
 if [ -z "$1" ]; then
   echo "Missing Mandatory argument: Path to llama weights"
-  echo "Usage: ./package_llama.sh ./model/models--meta-llama--Llama-2-7b-chat-hf/snapshots/08751db2aca9bf2f7f80d2e516117a53d7450235"
+  echo "Usage: ./package_llama.sh ./models--meta-llama--Meta-Llama-3-8B-Instruct/snapshots/e5e23bbe8e749ef0efcf16cad411a7d23bd23298"
   exit 1
 fi
 
 MODEL_GENERATION="true"
-LLAMA2_WEIGHTS="$1"
+LLAMA_WEIGHTS="$1"
 
 if [ -n "$2" ]; then
   MODEL_GENERATION="$2"
@@ -20,18 +20,22 @@ if [ "$MODEL_GENERATION" = "true" ]; then
   rm -rf build
   git clone https://github.com/ggerganov/llama.cpp.git build
   cd build
-  make 
+  make
   python -m pip install -r requirements.txt
-  
-  echo "Convert the 7B model to ggml FP16 format"
-  python convert.py $LLAMA2_WEIGHTS --outfile ggml-model-f16.gguf
-  
+
+  echo "Convert the model to ggml FP16 format"
+  if [[ $MODEL_NAME == *"Meta-Llama-3"* ]]; then
+      python convert.py $HF_MODEL_SNAPSHOT --vocab-type bpe,hfft --outfile ggml-model-f16.gguf
+  else
+      python convert.py $HF_MODEL_SNAPSHOT --outfile ggml-model-f16.gguf
+  fi
+
   echo "Quantize the model to 4-bits (using q4_0 method)"
   ./quantize ggml-model-f16.gguf ../ggml-model-q4_0.gguf q4_0
-  
+
   cd ..
-  export LLAMA2_Q4_MODEL=$PWD/ggml-model-q4_0.gguf
-  echo "Saved quantized model weights to $LLAMA2_Q4_MODEL"
+  export LLAMA_Q4_MODEL=$PWD/ggml-model-q4_0.gguf
+  echo "Saved quantized model weights to $LLAMA_Q4_MODEL"
 fi
 
 echo "Creating torchserve model archive"
@@ -43,4 +47,3 @@ if [ "$MODEL_GENERATION" = "true" ]; then
   echo "Cleaning up build of llama-cpp"
   rm -rf build
 fi
-
