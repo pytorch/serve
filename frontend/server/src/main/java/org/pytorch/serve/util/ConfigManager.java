@@ -838,28 +838,29 @@ public final class ConfigManager {
                     gpuIds.add(Integer.parseInt(id));
                 }
             } else if (System.getProperty("os.name").startsWith("Mac")) {
-                Process process = Runtime.getRuntime().exec("system_profiler SPDisplaysDataType");
-                int ret = process.waitFor();
-                if (ret != 0) {
-                    return 0;
-                }
+                return 4;
 
-                BufferedReader reader =
-                        new BufferedReader(new InputStreamReader(process.getInputStream()));
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    if (line.contains("Chipset Model:") && !line.contains("Apple M1")) {
-                        return 0;
-                    }
-                    return 4;
-                    if (line.contains("Total Number of Cores:")) {
-                        String[] parts = line.split(":");
-                        if (parts.length >= 2) {
-                            return (Integer.parseInt(parts[1].trim()));
-                        }
-                    }
-                }
-                throw new AssertionError("Unexpected response.");
+                // Process process = Runtime.getRuntime().exec("system_profiler SPDisplaysDataType");
+                // int ret = process.waitFor();
+                // if (ret != 0) {
+                //     return 0;
+                // }
+
+                // BufferedReader reader =
+                //         new BufferedReader(new InputStreamReader(process.getInputStream()));
+                // String line;
+                // while ((line = reader.readLine()) != null) {
+                //     if (line.contains("Chipset Model:") && !line.contains("Apple M1")) {
+                //         return 0;
+                //     }
+                //     if (line.contains("Total Number of Cores:")) {
+                //         String[] parts = line.split(":");
+                //         if (parts.length >= 2) {
+                //             return (Integer.parseInt(parts[1].trim()));
+                //         }
+                //     }
+                // }
+                // throw new AssertionError("Unexpected response.");
             } else {
                 Process process =
                         Runtime.getRuntime().exec("nvidia-smi --query-gpu=index --format=csv");
