@@ -7,11 +7,10 @@ jobQueueSize: 500
 continuousBatching: true
 
 handler:
-    model_path: "model/models--meta-llama--Llama-2-70b-hf/snapshots/90052941a64de02075ca800b09fcea1bdaacb939"
-    model_checkpoint_dir: "llama-2-70b-split"
+    model_path: "model/models--meta-llama--Meta-Llama-3-70B/snapshots/b33784c5adf6e4b1a60d041da74e83fd438d67cd"
+    model_checkpoint_dir: "llama-3-70b-split"
     model_module_prefix: "transformers_neuronx"
     model_class_name: "llama.model.LlamaForSampling"
-    tokenizer_class_name: "transformers.LlamaTokenizer"
     # see https://awsdocs-neuron.readthedocs-hosted.com/en/latest/release-notes/torch/transformers-neuronx/index.html#known-issues-and-limitations for llama2-13b
     # neuron_cc_flag: "-O1 --model-type=transformer --enable-mixed-precision-accumulation --enable-saturate-infinity"
     amp: "bf16"
