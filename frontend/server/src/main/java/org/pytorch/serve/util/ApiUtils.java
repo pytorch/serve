@@ -428,6 +428,10 @@ public final class ApiUtils {
     public static RestJob addRESTInferenceJob(
             ChannelHandlerContext ctx, String modelName, String version, RequestInput input)
             throws ModelNotFoundException, ModelVersionNotFoundException {
+        String sequenceId = input.getHeaders().get(ConfigManager.getInstance().getTsHeaderKeySequenceId());
+        if (sequenceId != null) {
+            input.setSequenceId(sequenceId);
+        }
         RestJob job = new RestJob(ctx, modelName, version, WorkerCommands.PREDICT, input);
         if (!ModelManager.getInstance().addJob(job)) {
             String responseMessage = getStreamingInferenceErrorResponseMessage(modelName, version);
