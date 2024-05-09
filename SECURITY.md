@@ -61,4 +61,4 @@ As much as possible, TorchServe relies on automated tools to do security scannin
 
 ## Reporting a Vulnerability
 
-If you find a strike vulnerability please report it to https://www.facebook.com/whitehat and aws-security@amazon.com
+If you find a vulnerability please report it to https://www.facebook.com/whitehat and aws-security@amazon.com
