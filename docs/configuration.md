@@ -106,12 +106,12 @@ To configure different ports use following properties
 * `grpc_inference_port`: Inference gRPC API binding port. Default: 7070
 * `grpc_management_port`: management gRPC API binding port. Default: 7071
 
-To configure max connection age (milliseconds)
+To configure [max connection age](https://grpc.github.io/grpc-java/javadoc/io/grpc/netty/NettyServerBuilder.html#maxConnectionAge(long,java.util.concurrent.TimeUnit)) (milliseconds)
 
 * `grpc_inference_max_connection_age_ms`: Inference gRPC max connection age. Default: Infinite
 * `grpc_management_max_connection_age_ms`: Management gRPC max connection age. Default: Infinite
 
-To configure max connection age grace (milliseconds)
+To configure [max connection age grace](https://grpc.github.io/grpc-java/javadoc/io/grpc/netty/NettyServerBuilder.html#maxConnectionAgeGrace(long,java.util.concurrent.TimeUnit)) (milliseconds)
 
 * `grpc_inference_max_connection_age_grace_ms`: Inference gRPC max connection age grace. Default: Infinite
 * `grpc_management_max_connection_age_grace_ms`: Management gRPC max connection age grace. Default: Infinite
