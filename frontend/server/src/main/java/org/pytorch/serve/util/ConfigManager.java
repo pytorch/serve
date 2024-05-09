@@ -112,6 +112,7 @@ public final class ConfigManager {
     private static final String TS_CPP_LOG_CONFIG = "cpp_log_config";
     private static final String TS_OPEN_INFERENCE_PROTOCOL = "ts_open_inference_protocol";
     private static final String TS_TOKEN_EXPIRATION_TIME_MIN = "token_expiration_min";
+    private static final String TS_HEADER_KEY_SEQUENCE_ID = "ts_header_key_sequence_id";
 
     // Configuration which are not documented or enabled through environment variables
     private static final String USE_NATIVE_IO = "use_native_io";
@@ -917,6 +918,10 @@ public final class ConfigManager {
             }
         }
         return 0.0;
+    }
+
+    public String getTsHeaderKeySequenceId() {
+        return prop.getProperty(TS_HEADER_KEY_SEQUENCE_ID, "sequence_id");
     }
 
     public boolean isSSLEnabled(ConnectorType connectorType) {
