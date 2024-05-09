@@ -64,7 +64,7 @@ Ensure that you have `python3` installed, and the user has access to the site-pa
 
 Run the following script from the top of the source directory.
 
-NOTE: This script force reinstalls `torchserve`, `torch-model-archiver` and `torch-workflow-archiver` if existing installations are found
+NOTE: This script force re-installs `torchserve`, `torch-model-archiver` and `torch-workflow-archiver` if existing installations are found
 
 #### For Debian Based Systems/ MacOS
 
