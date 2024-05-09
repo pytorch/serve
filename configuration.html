@@ -478,8 +478,8 @@ See <a class="reference external" href="#enable-ssl">Enable SSL</a> to configure
 </pre></div>
 </div>
 </section>
-<section id="configure-torchserve-grpc-listening-addresses-and-ports">
-<h3>Configure TorchServe gRPC listening addresses and ports<a class="headerlink" href="#configure-torchserve-grpc-listening-addresses-and-ports" title="Permalink to this heading">¶</a></h3>
+<section id="configure-torchserve-grpc-listening-addresses-ports-and-max-connection-age">
+<h3>Configure TorchServe gRPC listening addresses, ports and max connection age<a class="headerlink" href="#configure-torchserve-grpc-listening-addresses-ports-and-max-connection-age" title="Permalink to this heading">¶</a></h3>
 <p>The inference gRPC API is listening on port 7070, and the management gRPC API is listening on port 7071 on localhost by default.</p>
 <p>To configure different addresses use following properties</p>
 <ul class="simple">
@@ -491,7 +491,16 @@ See <a class="reference external" href="#enable-ssl">Enable SSL</a> to configure
 <li><p><code class="docutils literal notranslate"><span class="pre">grpc_inference_port</span></code>: Inference gRPC API binding port. Default: 7070</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">grpc_management_port</span></code>: management gRPC API binding port. Default: 7071</p></li>
 </ul>
-<p>Here are a couple of examples:</p>
+<p>To configure <a class="reference external" href="https://grpc.github.io/grpc-java/javadoc/io/grpc/netty/NettyServerBuilder.html#maxConnectionAge(long,java.util.concurrent.TimeUnit)">max connection age</a> (milliseconds)</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">grpc_inference_max_connection_age_ms</span></code>: Inference gRPC max connection age. Default: Infinite</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">grpc_management_max_connection_age_ms</span></code>: Management gRPC max connection age. Default: Infinite</p></li>
+</ul>
+<p>To configure <a class="reference external" href="https://grpc.github.io/grpc-java/javadoc/io/grpc/netty/NettyServerBuilder.html#maxConnectionAgeGrace(long,java.util.concurrent.TimeUnit)">max connection age grace</a> (milliseconds)</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">grpc_inference_max_connection_age_grace_ms</span></code>: Inference gRPC max connection age grace. Default: Infinite</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">grpc_management_max_connection_age_grace_ms</span></code>: Management gRPC max connection age grace. Default: Infinite</p></li>
+</ul>
 </section>
 <section id="enable-ssl">
 <h3>Enable SSL<a class="headerlink" href="#enable-ssl" title="Permalink to this heading">¶</a></h3>
@@ -758,7 +767,7 @@ e.g. : To allow base URLs <code class="docutils literal notranslate"><span class
 <li><a class="reference internal" href="#customize-jvm-options">Customize JVM options</a></li>
 <li><a class="reference internal" href="#load-models-at-startup">Load models at startup</a></li>
 <li><a class="reference internal" href="#configure-torchserve-listening-address-and-port">Configure TorchServe listening address and port</a></li>
-<li><a class="reference internal" href="#configure-torchserve-grpc-listening-addresses-and-ports">Configure TorchServe gRPC listening addresses and ports</a></li>
+<li><a class="reference internal" href="#configure-torchserve-grpc-listening-addresses-ports-and-max-connection-age">Configure TorchServe gRPC listening addresses, ports and max connection age</a></li>
 <li><a class="reference internal" href="#enable-ssl">Enable SSL</a><ul>
 <li><a class="reference internal" href="#examples">Examples</a></li>
 </ul>
