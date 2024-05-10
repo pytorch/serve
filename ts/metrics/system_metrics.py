@@ -102,7 +102,6 @@ def gpu_utilization(num_of_gpu):
                 Metric("GPUUtilization", status["utilization"], "percent", dimension_gpu)
             )
     else:
-        logging.info(f"XPU Utillization: {num_of_gpu}")
 
         from intel_gpu import list_gpu_info
         info = list_gpu_info(num_of_gpu)
