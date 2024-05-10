@@ -115,8 +115,13 @@ public class ConfigManagerTest {
         ConfigManager.init(args);
         ConfigManager configManager = ConfigManager.getInstance();
         String arch = System.getProperty("os.arch");
+        String mac_arm64_cpu_only = System.getenv().getOrDefault("TS_MAC_ARM64_CPU_ONLY", "False");
         if (arch.equals("aarch64")) {
-            Assert.assertTrue(configManager.getNumberOfGpu() > 0);
+            if (mac_arm64_cpu_only.equals("True")) {
+                Assert.assertEquals(configManager.getNumberOfGpu(), 0);
+            } else {
+                Assert.assertTrue(configManager.getNumberOfGpu() > 0);
+            }
         }
     }
 }

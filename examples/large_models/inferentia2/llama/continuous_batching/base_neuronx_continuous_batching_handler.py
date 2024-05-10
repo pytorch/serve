@@ -5,7 +5,12 @@ import pathlib
 import torch
 import torch_neuronx
 from transformers import AutoModelForCausalLM, AutoTokenizer
-from transformers_neuronx.config import ContinuousBatchingConfig, NeuronConfig
+from transformers_neuronx.config import (
+    ContinuousBatchingConfig,
+    GenerationConfig,
+    NeuronConfig,
+)
+from transformers_neuronx.constants import GQA
 from transformers_neuronx.module import save_pretrained_split
 from transformers_neuronx.sampling import select_tokens
 
@@ -32,7 +37,6 @@ class BaseNeuronXContinuousBatchingHandler(BaseHandler):
         # map seq_id to req_id
         self.seq_id_to_req_id = {}
         self.model_class = None
-        self.tokenizer_class = None
 
     def initialize(self, ctx: Context):
         ctx.cache = {}
@@ -92,7 +96,7 @@ class BaseNeuronXContinuousBatchingHandler(BaseHandler):
 
             raise error
         self._set_class(ctx)
-        self.tokenizer = self.tokenizer_class.from_pretrained(
+        self.tokenizer = AutoTokenizer.from_pretrained(
             model_checkpoint_path, return_tensors="pt", padding_side="left"
         )
         self.tokenizer.pad_token = self.tokenizer.eos_token
@@ -110,6 +114,9 @@ class BaseNeuronXContinuousBatchingHandler(BaseHandler):
             context_length_estimate=handler_config.get(
                 "context_length_estimate", [self.max_length]
             ),
+            attention_layout="BSH",
+            group_query_attention=GQA.REPLICATED_HEADS,
+            on_device_generation=GenerationConfig(do_sample=True),
             neuron_config=neuron_config,
         )
         self.model = self.model_class.from_pretrained(model_checkpoint_path, **kwargs)
@@ -391,15 +398,4 @@ class BaseNeuronXContinuousBatchingHandler(BaseHandler):
         self.model_class = import_class(
             class_name=model_class_name,
             module_prefix=model_module_prefix,
-        )
-
-        tokenizer_class_name = handler_config.get("tokenizer_class_name", None)
-        assert (
-            tokenizer_class_name
-        ), "tokenizer_class_name not found in the section of handler in model config yaml file"
-
-        tokenizer_module_prefix = handler_config.get("tokenizer_module_prefix", None)
-
-        self.tokenizer_class = import_class(
-            class_name=tokenizer_class_name, module_prefix=tokenizer_module_prefix
         )
