@@ -11,6 +11,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.pytorch.serve.job.Job;
 import org.pytorch.serve.job.JobGroup;
+import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.messages.BaseModelRequest;
 import org.pytorch.serve.util.messages.ModelWorkerResponse;
 import org.slf4j.Logger;
@@ -212,6 +213,14 @@ public class SequenceBatchAggregator extends BatchAggregator {
                 // intent to add new job groups.
                 eventJobGroupIds.add("");
             } else {
+                if (Boolean.parseBoolean(
+                        job.getPayload()
+                                .getHeaders()
+                                .getOrDefault(
+                                        ConfigManager.getInstance().getTsHeaderKeySequenceEnd(),
+                                        "false"))) {
+                    jobGroup.setGroupEnd(true);
+                }
                 jobsQueue.add(job);
             }
         }

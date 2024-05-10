@@ -248,9 +248,8 @@ public class WorkerThread implements Runnable {
 
                 switch (req.getCommand()) {
                     case PREDICT:
-                        model.resetFailedInfReqs();
-                        break;
                     case STREAMPREDICT:
+                    case STREAMPREDICT2:
                         model.resetFailedInfReqs();
                         break;
                     case LOAD:

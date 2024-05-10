@@ -9,6 +9,8 @@ import java.util.Map;
 public class RequestInput {
     public static final String TS_STREAM_NEXT = "ts_stream_next";
     public static final String TS_REQUEST_SEQUENCE_ID = "ts_request_sequence_id";
+    public static final String TS_REQUEST_SEQUENCE_START = "ts_request_sequence_start";
+    public static final String TS_REQUEST_SEQUENCE_END = "ts_request_sequence_end";
     private String requestId;
     private String sequenceId;
     private Map<String, String> headers;

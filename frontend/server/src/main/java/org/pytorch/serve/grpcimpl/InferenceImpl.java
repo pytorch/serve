@@ -39,6 +39,7 @@ import org.slf4j.LoggerFactory;
 
 public class InferenceImpl extends InferenceAPIsServiceImplBase {
     private static final Logger logger = LoggerFactory.getLogger(InferenceImpl.class);
+    private static final ByteString strFalse = ByteString.copyFromUtf8("false");
 
     @Override
     public void ping(Empty request, StreamObserver<TorchServeHealthResponse> responseObserver) {
@@ -102,9 +103,14 @@ public class InferenceImpl extends InferenceAPIsServiceImplBase {
 
             @Override
             public void onNext(PredictionsRequest value) {
-                String sequenceId = value.getSequenceId();
-
-                if ("".equals(sequenceId)) {
+                if ("".equals(value.getSequenceId())
+                        && !Boolean.parseBoolean(
+                                value.getInputOrDefault(
+                                                ConfigManager.getInstance()
+                                                        .getTsHeaderKeySequenceId(),
+                                                strFalse)
+                                        .toString()
+                                        .toLowerCase())) {
                     BadRequestException e =
                             new BadRequestException("Parameter sequenceId is required.");
                     sendErrorResponse(
@@ -219,7 +225,24 @@ public class InferenceImpl extends InferenceAPIsServiceImplBase {
                         new InputParameter(entry.getKey(), entry.getValue().toByteArray()));
             }
             if (workerCmd == WorkerCommands.STREAMPREDICT2) {
-                inputData.setSequenceId(request.getSequenceId());
+                String sequenceId = request.getSequenceId();
+                if ("".equals(sequenceId)) {
+                    sequenceId = String.format("ts-%s", UUID.randomUUID());
+                    inputData.updateHeaders(
+                            ConfigManager.getInstance().getTsHeaderKeySequenceStart(), "true");
+                }
+                inputData.setSequenceId(sequenceId);
+                inputData.updateHeaders(
+                        ConfigManager.getInstance().getTsHeaderKeySequenceId(), sequenceId);
+                if (!Boolean.parseBoolean(
+                        request.getInputOrDefault(
+                                        ConfigManager.getInstance().getTsHeaderKeySequenceEnd(),
+                                        strFalse)
+                                .toString()
+                                .toLowerCase())) {
+                    inputData.updateHeaders(
+                            ConfigManager.getInstance().getTsHeaderKeySequenceEnd(), "true");
+                }
             }
 
             IMetric inferenceRequestsTotalMetric =

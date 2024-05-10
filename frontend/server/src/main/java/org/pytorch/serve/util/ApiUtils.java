@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
@@ -428,6 +429,22 @@ public final class ApiUtils {
     public static RestJob addRESTInferenceJob(
             ChannelHandlerContext ctx, String modelName, String version, RequestInput input)
             throws ModelNotFoundException, ModelVersionNotFoundException {
+        String sequenceId =
+                input.getHeaders().get(ConfigManager.getInstance().getTsHeaderKeySequenceId());
+        String sequenceStart;
+        if (sequenceId != null) {
+            input.setSequenceId(sequenceId);
+        } else if ((sequenceStart =
+                        input.getHeaders()
+                                .get(ConfigManager.getInstance().getTsHeaderKeySequenceStart()))
+                != null) {
+            if (Boolean.parseBoolean(sequenceStart.toLowerCase())) {
+                sequenceId = String.format("ts-%s", UUID.randomUUID());
+                input.setSequenceId(sequenceId);
+                input.updateHeaders(
+                        ConfigManager.getInstance().getTsHeaderKeySequenceId(), sequenceId);
+            }
+        }
         RestJob job = new RestJob(ctx, modelName, version, WorkerCommands.PREDICT, input);
         if (!ModelManager.getInstance().addJob(job)) {
             String responseMessage = getStreamingInferenceErrorResponseMessage(modelName, version);
