@@ -107,7 +107,7 @@ public class InferenceImpl extends InferenceAPIsServiceImplBase {
                         && !Boolean.parseBoolean(
                                 value.getInputOrDefault(
                                                 ConfigManager.getInstance()
-                                                        .getTsHeaderKeySequenceId(),
+                                                        .getTsHeaderKeySequenceStart(),
                                                 strFalse)
                                         .toString()
                                         .toLowerCase())) {
