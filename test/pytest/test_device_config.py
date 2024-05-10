@@ -19,6 +19,20 @@ config_file = os.path.join(REPO_ROOT, "test/resources/config_token.properties")
 mnist_scriptes_py = os.path.join(REPO_ROOT, "examples/image_classifier/mnist/mnist.py")
 
 HANDLER_PY = """
+import torch
+from ts.torch_handler.base_handler import BaseHandler
+
+class deviceHandler(BaseHandler):
+
+    def initialize(self, context):
+        super().initialize(context)
+        if torch.backends.mps.is_available() and context.system_properties.get("gpu_id") is not None:
+            assert self.get_device().type == "mps"
+        else:
+            assert self.get_device().type == "cpu"
+"""
+
+HANDLER_PY_GPU = """
 from ts.torch_handler.base_handler import BaseHandler
 
 class deviceHandler(BaseHandler):
@@ -26,6 +40,16 @@ class deviceHandler(BaseHandler):
     def initialize(self, context):
         super().initialize(context)
         assert self.get_device().type == "mps"
+"""
+
+HANDLER_PY_CPU = """
+from ts.torch_handler.base_handler import BaseHandler
+
+class deviceHandler(BaseHandler):
+
+    def initialize(self, context):
+        super().initialize(context)
+        assert self.get_device().type == "cpu"
 """
 
 MODEL_CONFIG_YAML = """
@@ -78,8 +102,23 @@ def model_config_name(request):
     return get_config(request.param)
 
 
+@pytest.fixture(scope="module")
+def handler_py(request):
+    def get_handler(param):
+        if param == "cpu":
+            return HANDLER_PY_CPU
+        elif param == "gpu":
+            return HANDLER_PY_GPU
+        else:
+            return HANDLER_PY
+
+    return get_handler(request.param)
+
+
 @pytest.fixture(scope="module", name="mar_file_path")
-def create_mar_file(work_dir, model_archiver, model_name, model_config_name):
+def create_mar_file(
+    work_dir, model_archiver, model_name, model_config_name, handler_py
+):
     mar_file_path = work_dir.joinpath(model_name + ".mar")
 
     model_config_yaml_file = work_dir / "model_config.yaml"
@@ -90,7 +129,7 @@ def create_mar_file(work_dir, model_archiver, model_name, model_config_name):
     model_py_file.write_text(mnist_scriptes_py)
 
     handler_py_file = work_dir / "handler.py"
-    handler_py_file.write_text(HANDLER_PY)
+    handler_py_file.write_text(handler_py)
 
     config = ModelArchiverConfig(
         model_name=model_name,
@@ -147,22 +186,29 @@ def register_model(mar_file_path, model_store, torchserve):
     test_utils.unregister_model(model_name)
 
 
-@pytest.mark.skipif(platform.machine() != "arm64", reason="Skip on Mac M1")
+@pytest.mark.skipif(platform.machine() != "arm64", reason="Skip on non Mac M1")
+@pytest.mark.skipif(
+    os.environ.get("TS_MAC_ARM64_CPU_ONLY", "False") == "True",
+    reason="Skip if running only on MAC CPU",
+)
 @pytest.mark.parametrize("model_config_name", ["gpu"], indirect=True)
+@pytest.mark.parametrize("handler_py", ["gpu"], indirect=True)
 def test_m1_device(model_name, model_config_name):
     response = requests.get(f"http://localhost:8081/models/{model_name}")
     assert response.status_code == 200, "Describe Failed"
 
 
-@pytest.mark.skipif(platform.machine() != "arm64", reason="Skip on Mac M1")
+@pytest.mark.skipif(platform.machine() != "arm64", reason="Skip on non Mac M1")
 @pytest.mark.parametrize("model_config_name", ["cpu"], indirect=True)
+@pytest.mark.parametrize("handler_py", ["cpu"], indirect=True)
 def test_m1_device_cpu(model_name, model_config_name):
     response = requests.get(f"http://localhost:8081/models/{model_name}")
-    assert response.status_code == 404, "Describe Worked"
+    assert response.status_code == 200, "Describe Failed"
 
 
-@pytest.mark.skipif(platform.machine() != "arm64", reason="Skip on Mac M1")
+@pytest.mark.skipif(platform.machine() != "arm64", reason="Skip on non Mac M1")
 @pytest.mark.parametrize("model_config_name", ["default"], indirect=True)
+@pytest.mark.parametrize("handler_py", ["default"], indirect=True)
 def test_m1_device_default(model_name, model_config_name):
     response = requests.get(f"http://localhost:8081/models/{model_name}")
     assert response.status_code == 200, "Describe Failed"
