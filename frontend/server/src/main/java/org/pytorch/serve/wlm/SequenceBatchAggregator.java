@@ -56,7 +56,6 @@ public class SequenceBatchAggregator extends BatchAggregator {
     }
 
     public void stopEventDispatcher() {
-        this.eventDispatcher.setRunning(false);
         this.eventDispatcher.interrupt();
     }
 
