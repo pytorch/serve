@@ -36,6 +36,7 @@ public class SequenceBatchAggregator extends BatchAggregator {
     // back to eventJobGroupIds once their jobs are processed by a batch.
     private LinkedList<String> currentJobGroupIds;
     private int localCapacity;
+    private AtomicBoolean running = new AtomicBoolean(true);
 
     public SequenceBatchAggregator(Model model) {
         super(model);
@@ -55,6 +56,7 @@ public class SequenceBatchAggregator extends BatchAggregator {
     }
 
     public void stopEventDispatcher() {
+        this.eventDispatcher.setRunning(false);
         this.eventDispatcher.interrupt();
     }
 
@@ -172,10 +174,14 @@ public class SequenceBatchAggregator extends BatchAggregator {
         }
     }
 
+    public void setRunning(boolean running) {
+        this.running.set(running);
+    }
+
     class EventDispatcher implements Runnable {
         @Override
         public void run() {
-            while (true) {
+            while (running.get()) {
                 try {
                     String jobGroupId =
                             eventJobGroupIds.poll(model.getMaxBatchDelay(), TimeUnit.MILLISECONDS);

@@ -18,7 +18,7 @@ minWorkers: 2
 maxWorkers: 2
 batchSize: 4
 maxNumSequence: 4
-sequenceMaxIdleMSec: 10
+sequenceMaxIdleMSec: 5000
 maxSequenceJobQueueSize: 10
 sequenceBatch: true
 
@@ -144,7 +144,6 @@ def test_stateful_mar(mar_file_path, model_store):
 
 def __infer_stateful(model_name, sequence_id, expected):
     headers = {
-        "Content-Type": "text/plain",
         "ts_request_sequence_id": sequence_id,
     }
     prediction = []
@@ -152,7 +151,7 @@ def __infer_stateful(model_name, sequence_id, expected):
         response = requests.post(
             url=f"http://localhost:8080/predictions/{model_name}",
             headers=headers,
-            json={"data": idx},
+            data=str(idx + 1).encode(),
         )
         prediction.append(response.text)
 

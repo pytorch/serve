@@ -470,6 +470,11 @@ public class WorkerThread implements Runnable {
 
     public void shutdown() {
         running.set(false);
+        if (aggregator instanceof SequenceBatchAggregator) {
+            ((SequenceBatchAggregator) aggregator).setRunning(false);
+            ((SequenceBatchAggregator) aggregator).shutdownExecutors();
+            ((SequenceBatchAggregator) aggregator).stopEventDispatcher();
+        }
         setState(WorkerState.WORKER_SCALED_DOWN, HttpURLConnection.HTTP_OK);
         for (int i = 0;
                 backendChannel.size() > 0
@@ -487,10 +492,6 @@ public class WorkerThread implements Runnable {
                     null, "Worker scaled down.", HttpURLConnection.HTTP_INTERNAL_ERROR);
 
             model.removeJobQueue(workerId);
-        }
-        if (aggregator instanceof SequenceBatchAggregator) {
-            ((SequenceBatchAggregator) aggregator).shutdownExecutors();
-            ((SequenceBatchAggregator) aggregator).stopEventDispatcher();
         }
     }
 
