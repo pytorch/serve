@@ -402,6 +402,20 @@ public final class ApiUtils {
         Manifest manifest = model.getModelArchive().getManifest();
         resp.setModelVersion(manifest.getModel().getModelVersion());
         resp.setRuntime(manifest.getRuntime().getValue());
+        resp.setResponseTimeout(model.getResponseTimeout());
+        resp.setMaxRetryTimeoutInSec(model.getMaxRetryTimeoutInMill() / 1000);
+        resp.setClientTimeoutInMills(model.getClientTimeoutInMills());
+        resp.setParallelType(model.getParallelType().getParallelType());
+        resp.setParallelLevel(model.getParallelLevel());
+        resp.setDeviceType(model.getDeviceType().getDeviceType());
+        resp.setDeviceIds(model.getDeviceIds());
+        resp.setContinuousBatching(model.isContinuousBatching());
+        resp.setUseJobTicket(model.isUseJobTicket());
+        resp.setUseVenv(model.isUseVenv());
+        resp.setStateful(model.isStateful());
+        resp.setSequenceMaxIdleMSec(model.getSequenceMaxIdleMSec());
+        resp.setMaxNumSequence(model.getMaxNumSequence());
+        resp.setMaxSequenceJobQueueSize(model.getMaxSequenceJobQueueSize());
 
         List<WorkerThread> workers = modelManager.getWorkers(model.getModelVersionName());
         for (WorkerThread worker : workers) {

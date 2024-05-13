@@ -1216,6 +1216,10 @@ libomp
 rpath
 venv
 TorchInductor
+Graviton
+aarch
+linux
+SpeechT
 Pytests
 deviceType
 XGBoost
@@ -1225,3 +1229,13 @@ TorchServer
 VirusTotal
 untrusted
 mpi
+OpenVINO
+LoRA
+EngineArgs
+LLMEngine
+SamplingParams
+lora
+vllm
+sql
+TimeUnit
+Aopen

@@ -105,6 +105,14 @@ public final class ConfigManager {
     private static final String TS_GRPC_MANAGEMENT_ADDRESS = "grpc_management_address";
     private static final String TS_GRPC_INFERENCE_PORT = "grpc_inference_port";
     private static final String TS_GRPC_MANAGEMENT_PORT = "grpc_management_port";
+    private static final String TS_GRPC_INFERENCE_MAX_CONNECTION_AGE_MS =
+            "grpc_inference_max_connection_age_ms";
+    private static final String TS_GRPC_MANAGEMENT_MAX_CONNECTION_AGE_MS =
+            "grpc_management_max_connection_age_ms";
+    private static final String TS_GRPC_INFERENCE_MAX_CONNECTION_AGE_GRACE_MS =
+            "grpc_inference_max_connection_age_grace_ms";
+    private static final String TS_GRPC_MANAGEMENT_MAX_CONNECTION_AGE_GRACE_MS =
+            "grpc_management_max_connection_age_grace_ms";
     private static final String TS_ENABLE_GRPC_SSL = "enable_grpc_ssl";
     private static final String TS_INITIAL_WORKER_PORT = "initial_worker_port";
     private static final String TS_INITIAL_DISTRIBUTION_PORT = "initial_distribution_port";
@@ -382,6 +390,30 @@ public final class ConfigManager {
                     "Connector type not supported by gRPC: " + connectorType);
         }
         return Integer.parseInt(port);
+    }
+
+    public long getGRPCMaxConnectionAge(ConnectorType connectorType)
+            throws IllegalArgumentException {
+        if (connectorType == ConnectorType.MANAGEMENT_CONNECTOR) {
+            return getLongProperty(TS_GRPC_MANAGEMENT_MAX_CONNECTION_AGE_MS, Long.MAX_VALUE);
+        } else if (connectorType == ConnectorType.INFERENCE_CONNECTOR) {
+            return getLongProperty(TS_GRPC_INFERENCE_MAX_CONNECTION_AGE_MS, Long.MAX_VALUE);
+        } else {
+            throw new IllegalArgumentException(
+                    "Connector type not supported by gRPC: " + connectorType);
+        }
+    }
+
+    public long getGRPCMaxConnectionAgeGrace(ConnectorType connectorType)
+            throws IllegalArgumentException {
+        if (connectorType == ConnectorType.MANAGEMENT_CONNECTOR) {
+            return getLongProperty(TS_GRPC_MANAGEMENT_MAX_CONNECTION_AGE_GRACE_MS, Long.MAX_VALUE);
+        } else if (connectorType == ConnectorType.INFERENCE_CONNECTOR) {
+            return getLongProperty(TS_GRPC_INFERENCE_MAX_CONNECTION_AGE_GRACE_MS, Long.MAX_VALUE);
+        } else {
+            throw new IllegalArgumentException(
+                    "Connector type not supported by gRPC: " + connectorType);
+        }
     }
 
     public boolean isOpenInferenceProtocol() {
@@ -795,6 +827,14 @@ public final class ConfigManager {
         return Integer.parseInt(value);
     }
 
+    private long getLongProperty(String key, long def) {
+        String value = prop.getProperty(key);
+        if (value == null) {
+            return def;
+        }
+        return Long.parseLong(value);
+    }
+
     public int getDefaultResponseTimeout() {
         return Integer.parseInt(prop.getProperty(TS_DEFAULT_RESPONSE_TIMEOUT, "120"));
     }
@@ -875,7 +915,8 @@ public final class ConfigManager {
                         }
                     }
                 }
-                throw new AssertionError("Unexpected response.");
+                // No MPS devices detected
+                return 0;
             } else {
                 Process process =
                         Runtime.getRuntime().exec("nvidia-smi --query-gpu=index --format=csv");
