@@ -152,7 +152,6 @@ class BaseHandler(abc.ABC):
             self.model_yaml_config = context.model_yaml_config
 
         properties = context.system_properties
-        print("gpuId BaseHandler" , properties.get("gpu_id")) 
         if torch.cuda.is_available() and properties.get("gpu_id") is not None:
             self.map_location = "cuda"
             self.device = torch.device(
