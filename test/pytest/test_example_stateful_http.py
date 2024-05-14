@@ -126,7 +126,7 @@ def test_stateful_mar(mar_file_path, model_store):
             args=(
                 model_name,
                 "seq_1",
-                "1 3 6",
+                "1 3 6 10 15",
             ),
         )
 
@@ -147,7 +147,7 @@ def __infer_stateful(model_name, sequence_id, expected):
         "ts_request_sequence_id": sequence_id,
     }
     prediction = []
-    for idx in range(3):
+    for idx in range(5):
         response = requests.post(
             url=f"http://localhost:8080/predictions/{model_name}",
             headers=headers,
