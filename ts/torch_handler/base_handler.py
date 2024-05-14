@@ -71,11 +71,6 @@ if os.environ.get("TS_IPEX_ENABLE", "false") == "true":
     try:
         import intel_extension_for_pytorch as ipex
         IPEX_AVAILABLE = True
-        if torch.xpu.is_available() and os.environ.get("TS_IPEX_GPU_ENABLE", "false") == "true":
-            IPEX_GPU = True
-            logger.info("Torchserve support for Intel GPU enabled")
-        else:
-            IPEX_GPU = False
     except ImportError as error:
         logger.warning(
             "IPEX is enabled but intel-extension-for-pytorch is not installed. Proceeding without IPEX."
@@ -157,9 +152,14 @@ class BaseHandler(abc.ABC):
             self.model_yaml_config = context.model_yaml_config
 
         properties = context.system_properties
-
+        print("gpuId BaseHandler" , properties.get("gpu_id")) 
         if torch.cuda.is_available() and properties.get("gpu_id") is not None:
             self.map_location = "cuda"
+            self.device = torch.device(
+                self.map_location + ":" + str(properties.get("gpu_id"))
+            )
+        elif torch.xpu.is_available() and properties.get("gpu_id") is not None and os.environ.get("TS_IPEX_GPU_ENABLE", "false") == "true":
+            self.map_location = "xpu"
             self.device = torch.device(
                 self.map_location + ":" + str(properties.get("gpu_id"))
             )
@@ -261,8 +261,7 @@ class BaseHandler(abc.ABC):
 
         elif IPEX_AVAILABLE:
             self.model = self.model.to(memory_format=torch.channels_last)
-            if IPEX_GPU:
-                self.model = self.model.to("xpu") # IPEX GPU
+            self.model = self.model.to(self.device)
             self.model = ipex.optimize(self.model)
             logger.info(f"Compiled model with ipex")
 
@@ -377,10 +376,7 @@ class BaseHandler(abc.ABC):
             Torch Tensor : The Predicted Torch Tensor is returned in this function.
         """
         with torch.inference_mode():
-            if IPEX_AVAILABLE and IPEX_GPU: # IPEX GPU
-                marshalled_data = data.to("xpu")
-            else:
-                marshalled_data = data.to(self.device)
+            marshalled_data = data.to(self.device)
             results = self.model(marshalled_data, *args, **kwargs)
         return results
 
