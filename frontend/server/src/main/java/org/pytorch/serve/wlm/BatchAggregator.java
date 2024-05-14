@@ -186,4 +186,8 @@ public class BatchAggregator {
         model.pollBatch(
                 threadName, (state == WorkerState.WORKER_MODEL_LOADED) ? 0 : Long.MAX_VALUE, jobs);
     }
+
+    public void shutdown() {
+        return;
+    }
 }

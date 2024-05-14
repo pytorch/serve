@@ -163,6 +163,13 @@ public class SequenceBatchAggregator extends BatchAggregator {
         }
     }
 
+    @Override
+    public void shutdown() {
+        this.setRunning(false);
+        this.shutdownExecutors();
+        this.stopEventDispatcher();
+    }
+
     public void shutdownExecutors() {
         this.pollExecutors.shutdown();
     }
@@ -224,7 +231,7 @@ public class SequenceBatchAggregator extends BatchAggregator {
                                 .getOrDefault(
                                         ConfigManager.getInstance().getTsHeaderKeySequenceEnd(),
                                         "false"))) {
-                    jobGroup.setGroupEnd(true);
+                    jobGroup.setFinished(true);
                 }
                 jobsQueue.add(job);
             }

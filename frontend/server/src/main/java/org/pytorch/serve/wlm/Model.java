@@ -90,7 +90,7 @@ public class Model {
         this.modelArchive = modelArchive;
         if (modelArchive != null && modelArchive.getModelConfig() != null) {
             continuousBatching = modelArchive.getModelConfig().isContinuousBatching();
-            sequenceBatch = modelArchive.getModelConfig().isSequenceBatch();
+            sequenceBatch = modelArchive.getModelConfig().isSequenceBatching();
             useVenv = modelArchive.getModelConfig().getUseVenv();
             if (modelArchive.getModelConfig().getParallelLevel() > 0
                     && modelArchive.getModelConfig().getParallelType()
@@ -634,7 +634,7 @@ public class Model {
         return continuousBatching;
     }
 
-    public boolean isSequenceBatch() {
+    public boolean isSequenceBatching() {
         return sequenceBatch;
     }
 

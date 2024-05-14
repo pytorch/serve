@@ -82,7 +82,7 @@ maxWorkers: 2
 batchSize: 4
 sequenceMaxIdleMSec: 60000
 maxSequenceJobQueueSize: 10
-sequenceBatch: true
+sequenceBatching: true
 
 handler:
   cache:

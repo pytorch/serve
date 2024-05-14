@@ -470,11 +470,7 @@ public class WorkerThread implements Runnable {
 
     public void shutdown() {
         running.set(false);
-        if (aggregator instanceof SequenceBatchAggregator) {
-            ((SequenceBatchAggregator) aggregator).setRunning(false);
-            ((SequenceBatchAggregator) aggregator).shutdownExecutors();
-            ((SequenceBatchAggregator) aggregator).stopEventDispatcher();
-        }
+        aggregator.shutdown();
         setState(WorkerState.WORKER_SCALED_DOWN, HttpURLConnection.HTTP_OK);
         for (int i = 0;
                 backendChannel.size() > 0

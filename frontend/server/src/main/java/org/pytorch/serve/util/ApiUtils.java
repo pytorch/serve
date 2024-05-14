@@ -413,7 +413,7 @@ public final class ApiUtils {
         resp.setContinuousBatching(model.isContinuousBatching());
         resp.setUseJobTicket(model.isUseJobTicket());
         resp.setUseVenv(model.isUseVenv());
-        resp.setStateful(model.isSequenceBatch());
+        resp.setStateful(model.isSequenceBatching());
         resp.setSequenceMaxIdleMSec(model.getSequenceMaxIdleMSec());
         resp.setMaxNumSequence(model.getMaxNumSequence());
         resp.setMaxSequenceJobQueueSize(model.getMaxSequenceJobQueueSize());
@@ -443,18 +443,13 @@ public final class ApiUtils {
     public static RestJob addRESTInferenceJob(
             ChannelHandlerContext ctx, String modelName, String version, RequestInput input)
             throws ModelNotFoundException, ModelVersionNotFoundException {
-        String sequenceId =
-                input.getHeaders().get(ConfigManager.getInstance().getTsHeaderKeySequenceId());
         String sequenceStart;
-        if (sequenceId != null) {
-            input.setSequenceId(sequenceId);
-        } else if ((sequenceStart =
+        if ((sequenceStart =
                         input.getHeaders()
                                 .get(ConfigManager.getInstance().getTsHeaderKeySequenceStart()))
                 != null) {
             if (Boolean.parseBoolean(sequenceStart.toLowerCase())) {
-                sequenceId = String.format("ts-%s", UUID.randomUUID());
-                input.setSequenceId(sequenceId);
+                String sequenceId = String.format("ts-%s", UUID.randomUUID());
                 input.updateHeaders(
                         ConfigManager.getInstance().getTsHeaderKeySequenceId(), sequenceId);
             }

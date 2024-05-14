@@ -49,7 +49,6 @@ import org.pytorch.serve.archive.model.Manifest;
 import org.pytorch.serve.metrics.MetricBuilder;
 import org.pytorch.serve.servingsdk.snapshot.SnapshotSerializer;
 import org.pytorch.serve.snapshot.SnapshotSerializerFactory;
-import org.pytorch.serve.util.messages.RequestInput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -148,6 +147,10 @@ public final class ConfigManager {
     public static final String METRIC_FORMAT_PROMETHEUS = "prometheus";
 
     public static final String PYTHON_EXECUTABLE = "python";
+
+    public static final String DEFAULT_REQUEST_SEQUENCE_ID = "ts_request_sequence_id";
+    public static final String DEFAULT_REQUEST_SEQUENCE_START = "ts_request_sequence_start";
+    public static final String DEFAULT_REQUEST_SEQUENCE_END = "ts_request_sequence_end";
 
     public static final Pattern ADDRESS_PATTERN =
             Pattern.compile(
@@ -977,7 +980,7 @@ public final class ConfigManager {
 
     public void setTsHeaderKeySequenceId() {
         this.headerKeySequenceId =
-                prop.getProperty(TS_HEADER_KEY_SEQUENCE_ID, RequestInput.TS_REQUEST_SEQUENCE_ID);
+                prop.getProperty(TS_HEADER_KEY_SEQUENCE_ID, DEFAULT_REQUEST_SEQUENCE_ID);
     }
 
     public String getTsHeaderKeySequenceStart() {
@@ -986,8 +989,7 @@ public final class ConfigManager {
 
     public void setTsHeaderKeySequenceStart() {
         this.headerKeySequenceStart =
-                prop.getProperty(
-                        TS_HEADER_KEY_SEQUENCE_START, RequestInput.TS_REQUEST_SEQUENCE_START);
+                prop.getProperty(TS_HEADER_KEY_SEQUENCE_START, DEFAULT_REQUEST_SEQUENCE_START);
     }
 
     public String getTsHeaderKeySequenceEnd() {
@@ -996,7 +998,7 @@ public final class ConfigManager {
 
     public void setTsHeaderKeySequenceEnd() {
         this.headerKeySequenceEnd =
-                prop.getProperty(TS_HEADER_KEY_SEQUENCE_END, RequestInput.TS_REQUEST_SEQUENCE_END);
+                prop.getProperty(TS_HEADER_KEY_SEQUENCE_END, DEFAULT_REQUEST_SEQUENCE_END);
     }
 
     public boolean isSSLEnabled(ConnectorType connectorType) {

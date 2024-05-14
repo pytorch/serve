@@ -73,8 +73,8 @@ public class ModelConfig {
      * loading and inference.
      */
     private boolean useVenv;
-    /** sequenceBatch is a flag to enable https://github.com/pytorch/serve/issues/2743 */
-    private boolean sequenceBatch;
+    /** sequenceBatching is a flag to enable https://github.com/pytorch/serve/issues/2743 */
+    private boolean sequenceBatching;
 
     public static ModelConfig build(Map<String, Object> yamlMap) {
         ModelConfig modelConfig = new ModelConfig();
@@ -214,12 +214,12 @@ public class ModelConfig {
                                         v);
                             }
                             break;
-                        case "sequenceBatch":
+                        case "sequenceBatching":
                             if (v instanceof Boolean) {
-                                modelConfig.setSequenceBatch((boolean) v);
+                                modelConfig.setSequenceBatching((boolean) v);
                             } else {
                                 logger.warn(
-                                        "Invalid sequenceBatch: {}, should be true or false", v);
+                                        "Invalid sequenceBatching: {}, should be true or false", v);
                             }
                             break;
                         case "useVenv":
@@ -393,12 +393,12 @@ public class ModelConfig {
         this.continuousBatching = continuousBatching;
     }
 
-    public boolean isSequenceBatch() {
-        return sequenceBatch;
+    public boolean isSequenceBatching() {
+        return sequenceBatching;
     }
 
-    public void setSequenceBatch(boolean sequenceBatch) {
-        this.sequenceBatch = sequenceBatch;
+    public void setSequenceBatching(boolean sequenceBatching) {
+        this.sequenceBatching = sequenceBatching;
     }
 
     public int getMaxNumSequence() {

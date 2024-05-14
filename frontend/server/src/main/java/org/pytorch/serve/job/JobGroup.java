@@ -10,13 +10,13 @@ public class JobGroup {
     String groupId;
     LinkedBlockingDeque<Job> jobs;
     int maxJobQueueSize;
-    boolean groupEnd;
+    boolean finished;
 
     public JobGroup(String groupId, int maxJobQueueSize) {
         this.groupId = groupId;
         this.maxJobQueueSize = maxJobQueueSize;
         this.jobs = new LinkedBlockingDeque<>(maxJobQueueSize);
-        this.groupEnd = false;
+        this.finished = false;
     }
 
     public boolean appendJob(Job job) {
@@ -24,7 +24,7 @@ public class JobGroup {
     }
 
     public Job pollJob(long timeout) {
-        if (groupEnd) {
+        if (finished) {
             return null;
         }
         try {
@@ -39,11 +39,11 @@ public class JobGroup {
         return groupId;
     }
 
-    public void setGroupEnd(boolean sequenceEnd) {
-        this.groupEnd = sequenceEnd;
+    public void setFinished(boolean sequenceEnd) {
+        this.finished = sequenceEnd;
     }
 
-    public boolean isGroupEnd() {
-        return this.groupEnd;
+    public boolean isFinished() {
+        return this.finished;
     }
 }

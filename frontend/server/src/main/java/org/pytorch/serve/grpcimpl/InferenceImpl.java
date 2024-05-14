@@ -103,14 +103,16 @@ public class InferenceImpl extends InferenceAPIsServiceImplBase {
 
             @Override
             public void onNext(PredictionsRequest value) {
-                if ("".equals(value.getSequenceId())
-                        && !Boolean.parseBoolean(
+                boolean not_has_seq_id = "".equals(value.getSequenceId());
+                boolean has_seq_in_header =
+                        !Boolean.parseBoolean(
                                 value.getInputOrDefault(
                                                 ConfigManager.getInstance()
                                                         .getTsHeaderKeySequenceStart(),
                                                 strFalse)
                                         .toString()
-                                        .toLowerCase())) {
+                                        .toLowerCase());
+                if (not_has_seq_id && has_seq_in_header) {
                     BadRequestException e =
                             new BadRequestException("Parameter sequenceId is required.");
                     sendErrorResponse(
@@ -231,7 +233,6 @@ public class InferenceImpl extends InferenceAPIsServiceImplBase {
                     inputData.updateHeaders(
                             ConfigManager.getInstance().getTsHeaderKeySequenceStart(), "true");
                 }
-                inputData.setSequenceId(sequenceId);
                 inputData.updateHeaders(
                         ConfigManager.getInstance().getTsHeaderKeySequenceId(), sequenceId);
                 if (!Boolean.parseBoolean(
