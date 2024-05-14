@@ -67,6 +67,8 @@ public class ModelConfig {
     private int maxNumSequence = 1;
     /** continuousBatching is a flag to enable continuous batching. */
     private boolean continuousBatching;
+    /** asyncCommunication is a flag to enable async communication. */
+    private boolean asyncCommunication;
     /**
      * Create python virtual environment when using python backend to install model dependencies (if
      * enabled globally using configuration install_py_dep_per_model=true) and run workers for model
@@ -220,6 +222,15 @@ public class ModelConfig {
                             } else {
                                 logger.warn(
                                         "Invalid sequenceBatching: {}, should be true or false", v);
+                            }
+                            break;
+                        case "asyncCommunication":
+                            if (v instanceof Boolean) {
+                                modelConfig.setAsyncCommunication((boolean) v);
+                            } else {
+                                logger.warn(
+                                        "Invalid asyncCommunication: {}, should be true or false",
+                                        v);
                             }
                             break;
                         case "useVenv":
@@ -389,6 +400,10 @@ public class ModelConfig {
         return continuousBatching;
     }
 
+    public boolean isAsyncCommunication() {
+        return asyncCommunication;
+    }
+
     public void setContinuousBatching(boolean continuousBatching) {
         this.continuousBatching = continuousBatching;
     }
@@ -399,6 +414,10 @@ public class ModelConfig {
 
     public void setSequenceBatching(boolean sequenceBatching) {
         this.sequenceBatching = sequenceBatching;
+    }
+    
+    public void setAsyncCommunication(boolean asyncCommunication) {
+        this.asyncCommunication = asyncCommunication;
     }
 
     public int getMaxNumSequence() {

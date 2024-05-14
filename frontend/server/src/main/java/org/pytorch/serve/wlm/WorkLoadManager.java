@@ -245,8 +245,22 @@ public class WorkLoadManager {
                                     ? distributionPort.get()
                                     : distributionPort.getAndAdd(model.getParallelLevel())
                             : configManager.isDebug() ? port.get() : port.getAndIncrement();
-            WorkerThread thread =
-                    new WorkerThread(
+
+            WorkerThread thread;
+            if (model.isAsyncCommunication()) {
+                logger.info("Creating AsyncWorkerThread!!!");
+                thread = new  AsyncWorkerThread(
+                    configManager,
+                            backendGroup,
+                            currentPort,
+                            gpuId,
+                            model,
+                            aggregator,
+                            listener
+                            );
+            } else {
+                logger.info("Creating WorkerThread!!!");
+                 thread = new WorkerThread(
                             configManager,
                             backendGroup,
                             currentPort,
@@ -254,6 +268,7 @@ public class WorkLoadManager {
                             model,
                             aggregator,
                             listener);
+            }
             threads.add(thread);
             threadPool.submit(thread);
         }
