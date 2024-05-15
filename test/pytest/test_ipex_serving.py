@@ -108,7 +108,7 @@ def start_torchserve(ts_config_file):
     )
 
 
-LLAMA_DEFAULT_CONFIG = f"""
+DEFAULT_CONFIG = f"""
     minWorkers: 1
     maxWorkers: 1
     responseTimeout: 1500
@@ -116,7 +116,7 @@ LLAMA_DEFAULT_CONFIG = f"""
     maxBatchDelay: 100
     
     handler:
-        model_name: "meta-llama/Llama-2-7b-hf"
+        model_name: "baichuan-inc/Baichuan2-7B-Chat"
         clear_cache_dir: true
         quantized_model_path: "best_model.pt"
         example_inputs_mode: "MASK_KV_POS"
@@ -135,7 +135,7 @@ LLAMA_DEFAULT_CONFIG = f"""
 
     """
 
-LLAMA_CONFIG_WOQ = f"""
+CONFIG_WOQ = f"""
     minWorkers: 1
     maxWorkers: 1
     responseTimeout: 1500
@@ -143,7 +143,7 @@ LLAMA_CONFIG_WOQ = f"""
     maxBatchDelay: 100
     
     handler:
-        model_name: "meta-llama/Llama-2-7b-hf"
+        model_name: "baichuan-inc/Baichuan2-7B-Chat"
         clear_cache_dir: true
         quantized_model_path: "best_model.pt"
         example_inputs_mode: "MASK_KV_POS"
@@ -168,7 +168,7 @@ LLAMA_CONFIG_WOQ = f"""
         greedy: true
     """
 
-LLAMA_CONFIG_SQ = f"""
+CONFIG_SQ = f"""
     minWorkers: 1
     maxWorkers: 1
     responseTimeout: 1500
@@ -176,7 +176,7 @@ LLAMA_CONFIG_SQ = f"""
     maxBatchDelay: 100
     
     handler:
-        model_name: "meta-llama/Llama-2-7b-hf"
+        model_name: "baichuan-inc/Baichuan2-7B-Chat"
         clear_cache_dir: true
         quantized_model_path: "best_model.pt"
         example_inputs_mode: "MASK_KV_POS"
@@ -215,7 +215,7 @@ def test_handler_default_pytorch(work_dir, model_archiver):
     test_utils.torchserve_cleanup()
     # create_mar_file(work_dir, model_archiver, model_name, model_config_yaml_file):
     model_config_yaml = work_dir / "model-config.yaml"
-    model_config_yaml.write_text(LLAMA_DEFAULT_CONFIG)
+    model_config_yaml.write_text(DEFAULT_CONFIG)
 
     # Create mar file 
     model_name = "llama2_no_ipex"
@@ -233,7 +233,7 @@ def test_handler_default_pytorch(work_dir, model_archiver):
     # query model info
     model_url = f"{MANAGEMENT_API}/models/{model_name}"
     response = requests.get(model_url)
-    assert response.status_code == 200, "The Model failed the with default Pytorch"
+    assert response.status_code == 200, "The default PyTorch Model failed to load"
     
     # send prompts to the model
     model_url = f"{INFERENCE_API}/predictions/{model_name}"
@@ -252,7 +252,7 @@ def test_handler_ipex_bf16(work_dir, model_archiver):
     test_utils.torchserve_cleanup()
     # create_mar_file(work_dir, model_archiver, model_name, model_config_yaml_file):
     model_config_yaml = work_dir / "model-config.yaml"
-    model_config_yaml.write_text(LLAMA_DEFAULT_CONFIG)
+    model_config_yaml.write_text(DEFAULT_CONFIG)
 
     # Create mar file 
     model_name = "llama2_ipex_bf16"
@@ -270,7 +270,7 @@ def test_handler_ipex_bf16(work_dir, model_archiver):
     # query model info
     model_url = f"{MANAGEMENT_API}/models/{model_name}"
     response = requests.get(model_url)
-    assert response.status_code == 200, "The Model failed the with default Pytorch"
+    assert response.status_code == 200, "The IPEX bFloat16 model failed to initialize"
     
     # send prompts to the model
     model_url = f"{INFERENCE_API}/predictions/{model_name}"
@@ -289,7 +289,7 @@ def test_handler_ipex_int8_woq(work_dir, model_archiver):
     test_utils.torchserve_cleanup()
     # create_mar_file(work_dir, model_archiver, model_name, model_config_yaml_file):
     model_config_yaml = work_dir / "model-config.yaml"
-    model_config_yaml.write_text(LLAMA_CONFIG_WOQ)
+    model_config_yaml.write_text(CONFIG_WOQ)
 
     # Create mar file 
     model_name = "llama2_ipex_int8_woq"
@@ -307,7 +307,7 @@ def test_handler_ipex_int8_woq(work_dir, model_archiver):
     # query model info
     model_url = f"{MANAGEMENT_API}/models/{model_name}"
     response = requests.get(model_url)
-    assert response.status_code == 200, "The Model failed the with default Pytorch"
+    assert response.status_code == 200, "The IPEX weight-only quantization Model failed to initialize"
     
     # send prompts to the model
     model_url = f"{INFERENCE_API}/predictions/{model_name}"
@@ -326,7 +326,7 @@ def test_handler_ipex_int8_sq(work_dir, model_archiver):
     test_utils.torchserve_cleanup()
     # create_mar_file(work_dir, model_archiver, model_name, model_config_yaml_file):
     model_config_yaml = work_dir / "model-config.yaml"
-    model_config_yaml.write_text(LLAMA_CONFIG_SQ)
+    model_config_yaml.write_text(CONFIG_SQ)
 
     # Create mar file 
     model_name = "llama2_ipex_int8_sq"
@@ -344,7 +344,7 @@ def test_handler_ipex_int8_sq(work_dir, model_archiver):
     # query model info
     model_url = f"{MANAGEMENT_API}/models/{model_name}"
     response = requests.get(model_url)
-    assert response.status_code == 200, "The Model failed the with default Pytorch"
+    assert response.status_code == 200, "The IPEX smoothquant quantized Model failed to load"
     
     # send prompts to the model
     model_url = f"{INFERENCE_API}/predictions/{model_name}"
