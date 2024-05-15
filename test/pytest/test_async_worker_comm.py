@@ -10,7 +10,10 @@ from model_archiver import ModelArchiverConfig
 CURR_FILE_PATH = Path(__file__).parent
 REPO_ROOT_DIR = CURR_FILE_PATH.parents[1]
 config_file = REPO_ROOT_DIR / "test/resources/config_token.properties"
-data_file_zero = REPO_ROOT_DIR / "test/pytest/test_data/0.png"
+data_files = [
+    REPO_ROOT_DIR / f"examples/image_classifier/mnist/test_data/{i}.png"
+    for i in range(10)
+]
 handler_py_file = REPO_ROOT_DIR / "examples/image_classifier/mnist/mnist_handler.py"
 model_py_file = REPO_ROOT_DIR / "examples/image_classifier/mnist/mnist.py"
 model_pt_file = REPO_ROOT_DIR / "examples/image_classifier/mnist/mnist_cnn.pt"
@@ -112,9 +115,23 @@ def test_mnist_template(model_name):
     response = requests.get(f"http://localhost:8081/models/{model_name}")
     assert response.status_code == 200, "Describe Failed"
 
-    with open(data_file_zero, "rb") as f:
-        response = requests.post(
-            f"http://localhost:8080/predictions/{model_name}", data=f
-        )
+    responses = []
+    for i, df in enumerate(data_files):
+        with open(df, "rb") as f:
+            responses += [
+                requests.post(
+                    f"http://localhost:8080/predictions/{model_name}",
+                    data=f,
+                    stream=True,
+                )
+            ]
 
-    assert response.content.decode("utf-8") == "0", "Wrong prediction"
+    for i, r in enumerate(responses):
+        prediction = "".join(
+            [
+                chunk.decode("utf-8")
+                for chunk in r.iter_content(chunk_size=None)
+                if chunk
+            ]
+        )
+        assert prediction == str(i), "Wrong prediction"

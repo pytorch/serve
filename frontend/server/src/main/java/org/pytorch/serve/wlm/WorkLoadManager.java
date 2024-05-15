@@ -235,6 +235,9 @@ public class WorkLoadManager {
                 aggregator = new SequenceBatching(model);
             } else if (model.isContinuousBatching()) {
                 aggregator = new ContinuousBatching(model);
+            } else if (model.isAsyncCommunication()) {
+                logger.info("Creating AsyncBatchAggregator with model: {}", model);
+                aggregator = new AsyncBatchAggregator(model);
             } else {
                 aggregator = new BatchAggregator(model);
             }
