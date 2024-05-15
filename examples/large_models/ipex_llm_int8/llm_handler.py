@@ -38,7 +38,7 @@ if os.environ.get("TS_IPEX_ENABLE", "false") == "true":
 else:
     logger.warning("IPEX is not enabled, consider enabling it for best performance on Intel hardware")
 
-class IpexLLMHandler(BaseHandler, ABC):
+class IpexLLMHandler(BaseHandler):
 
     def __init__(self):
         super(IpexLLMHandler, self).__init__()
@@ -50,42 +50,39 @@ class IpexLLMHandler(BaseHandler, ABC):
     def initialize(self, ctx: Context):
         model_name = ctx.model_yaml_config["handler"]["model_name"]
         # path to quantized model, if we are quantizing on the fly, we'll use this path to save the model
-        self.clear_cache_dir = ctx.model_yaml_config["handler"]["clear_cache_dir"]
-        self.quantized_model_path = ctx.model_yaml_config["handler"]["quantized_model_path"]
-        self.example_inputs_mode = ctx.model_yaml_config["handler"]["example_inputs_mode"]
-        self.to_channels_last = ctx.model_yaml_config["handler"]["to_channels_last"]
+        self.clear_cache_dir = ctx.model_yaml_config["handler"].get("clear_cache_dir", False)
+        self.quantized_model_path = ctx.model_yaml_config["handler"].get("quantized_model_path", "best_model.pt")
+        self.example_inputs_mode = ctx.model_yaml_config["handler"].get("example_inputs_mode", "MASK_KV_POS")
+        self.to_channels_last = ctx.model_yaml_config["handler"].get("to_channels_last", False)
         
         # generation params
-        self.batch_size = int(ctx.model_yaml_config["handler"]["batch_size"])
-        self.input_tokens = int(ctx.model_yaml_config["handler"]["input_tokens"])
-        self.max_new_tokens = int(ctx.model_yaml_config["handler"]["max_new_tokens"])
+        self.batch_size = int(ctx.model_yaml_config["handler"].get("batch_size", "1"))
+        self.input_tokens = int(ctx.model_yaml_config["handler"].get("input_tokens", "1024"))
+        self.max_new_tokens = int(ctx.model_yaml_config["handler"].get("max_new_tokens", "128"))
         
         # use int8 bf16 mix 
-        self.quant_with_amp = ctx.model_yaml_config["handler"]["quant_with_amp"]
+        self.quant_with_amp = ctx.model_yaml_config["handler"].get("quant_with_amp", True)
         
         # WoQ related optimization params 
-        if "ipex_weight_only_quantization" in ctx.model_yaml_config["handler"]:
-            self.ipex_weight_only_quantization = ctx.model_yaml_config["handler"]["ipex_weight_only_quantization"]
-            self.woq_dtype = ctx.model_yaml_config["handler"]["woq_dtype"]
-            self.lowp_mode = ctx.model_yaml_config["handler"]["lowp_mode"]
-            self.act_quant_mode = ctx.model_yaml_config["handler"]["act_quant_mode"] # This is only relevant for INT4x2 quantization
-            self.group_size = ctx.model_yaml_config["handler"]["group_size"]
-        else:
-            self.ipex_weight_only_quantization = False
+        self.ipex_weight_only_quantization = ctx.model_yaml_config["handler"].get("ipex_weight_only_quantization", False)
+        if self.ipex_weight_only_quantization:
+            self.woq_dtype = ctx.model_yaml_config["handler"].get("woq_dtype", "INT8")
+            self.lowp_mode = ctx.model_yaml_config["handler"].get("lowp_mode", "BF16")
+            self.act_quant_mode = ctx.model_yaml_config["handler"].get("act_quant_mode", "PER_IC_BLOCK") # This is only relevant for INT4x2 quantization
+            self.group_size = int(ctx.model_yaml_config["handler"].get("group_size", "-1"))
 
         # SQ related optimization params 
-        if "ipex_smooth_quantization" in ctx.model_yaml_config["handler"]:
-            self.ipex_smooth_quantization = ctx.model_yaml_config["handler"]["ipex_smooth_quantization"]
-            self.calib_dataset = ctx.model_yaml_config["handler"]["calibration_dataset"]
-            self.calib_split = ctx.model_yaml_config["handler"]["calibration_split"]
-            self.num_calib_iters = int(ctx.model_yaml_config["handler"]["num_calibration_iters"])
-            self.alpha = float(ctx.model_yaml_config["handler"]["alpha"])
-        else:
-            self.ipex_smooth_quantization = False
+        self.ipex_smooth_quantization = ctx.model_yaml_config["handler"].get("ipex_smooth_quantization", False)
+        if self.ipex_smooth_quantization:
+            self.num_calib_iters = int(ctx.model_yaml_config["handler"].get("num_calibration_iters", 32))
+            self.alpha = float(ctx.model_yaml_config["handler"].get("alpha", 0.9))
         
+        # Keeping outside because we want to use it for tracing as well
+        self.calib_dataset = ctx.model_yaml_config["handler"].get("calibration_dataset", "NeelNanda/pile-10k")
+        self.calib_split = ctx.model_yaml_config["handler"].get("calibration_split", "train")
 
         # decoding parameters 
-        self.greedy = ctx.model_yaml_config["handler"]["greedy"]
+        self.greedy = ctx.model_yaml_config["handler"].get("greedy", False)
 
         # amp datatype 
         if self.quant_with_amp: 
@@ -121,7 +118,7 @@ class IpexLLMHandler(BaseHandler, ABC):
         # load model and tokenizer,
         # We need special provision for t5 because it's seq2seq model, and can not be loaded with AutoModelForCausalLM
         if re.search("t5", config.architectures[0], re.IGNORECASE):
-            self.user_model = T5ForConditionalGeneration.from_pretrained(model_name, config=config, trust_remote_code=True, low_cpu_mem_usage=True, torch_dtype=torch.float)
+            self.user_model = T5ForConditionalGeneration.from_pretrained(model_name, config=config, low_cpu_mem_usage=True, torch_dtype=torch.float)
             input_ids = torch.ones(32).to(torch.long).unsqueeze(0)
             attention_mask = torch.ones_like(input_ids)
             dummy_inputs = self.user_model.prepare_inputs_for_generation(input_ids, attention_mask=attention_mask)
@@ -151,7 +148,7 @@ class IpexLLMHandler(BaseHandler, ABC):
                 if hasattr(self.user_model.config, n):
                     return getattr(self.user_model.config, n)
             logger.error(f"Not found target {names[0]}")
-            exit(0)
+            exit(1)
 
         num_heads_names = ["num_attention_heads", "n_head", "num_heads", "n_heads"]
         num_layers_names = ["num_hidden_layers", "n_layer", "num_layers", "n_layers"]
@@ -171,6 +168,176 @@ class IpexLLMHandler(BaseHandler, ABC):
         ]
 
         logger.info(f"num_attention_heads: {n_heads}, num_hidden_layers: {n_layers}, hidden size: {hidden_size}, head_dim: {head_dim}")
+                
+        logger.info("Preparing the dataset for calibration and tracing")
+        class Evaluator:
+            def __init__(self,
+                    user_model, 
+                    example_inputs_mode, 
+                    global_past_key_value, 
+                    dataset, tokenizer, 
+                    batch_size=1, 
+                    num_beams=1, 
+                    pad_val=1, 
+                    pad_max=512):
+                self.user_model = user_model
+                self.example_inputs_mode = example_inputs_mode
+                self.global_past_key_value = global_past_key_value
+                self.dataset = dataset
+                self.tokenizer = tokenizer
+                self.batch_size = batch_size
+                self.num_beams = num_beams
+
+
+                self.pad_val = pad_val
+                self.pad_max = pad_max 
+                self.dataset = self.dataset.map(self.tokenize_function, batched=True)
+                self.dataset.set_format(type="torch", columns=["input_ids"])  
+
+            @torch.no_grad()
+            def tokenize_function(self, examples):
+                if "text" in examples:
+                    example = self.tokenizer(examples["text"])
+                elif "prompt" in examples:
+                    example = self.tokenizer(examples["prompt"])
+                elif "code" in examples:
+                    example = self.tokenizer(examples["code"])
+                return example
+
+
+            @torch.no_grad()
+            def collate_batch(self, batch):
+                position_ids_padded = []
+                input_ids_padded = []
+                last_ind = []
+                attention_mask_padded = []
+
+                for text in batch:
+                    input_ids = text["input_ids"]
+                    last_ind.append(input_ids.shape[0] - 1)
+                    attention_mask = torch.ones(len(input_ids))
+                    position_ids = torch.arange(len(input_ids))
+
+                    input_ids_padded.append(input_ids)
+                    attention_mask_padded.append(attention_mask)
+                    position_ids_padded.append(position_ids)
+
+                if self.example_inputs_mode == "MASK_POS_KV":
+                    model_inputs = (
+                        torch.vstack(input_ids_padded),
+                        torch.vstack(attention_mask_padded),
+                        torch.vstack(position_ids_padded),
+                        tuple(self.global_past_key_value),
+                    )
+                elif self.example_inputs_mode == "MASK_KV_POS":
+                    model_inputs = (
+                        torch.vstack(input_ids_padded),
+                        torch.vstack(attention_mask_padded),
+                        tuple(self.global_past_key_value),
+                        torch.vstack(position_ids_padded),
+                    )
+                elif self.example_inputs_mode == "KV_MASK":
+                    model_inputs = (
+                        torch.vstack(input_ids_padded),
+                        tuple(self.global_past_key_value),
+                        torch.vstack(attention_mask_padded),
+                    )
+                elif self.example_inputs_mode == "MASK_KV":
+                    model_inputs = (
+                        torch.vstack(input_ids_padded),
+                        torch.vstack(attention_mask_padded),
+                        tuple(self.global_past_key_value),
+                    )
+                elif self.example_inputs_mode == "MASK_KV_ENC":
+                    model_kwargs = {
+                        "attention_mask": torch.vstack(attention_mask_padded),
+                    }
+                    model_kwargs = self.user_model._prepare_encoder_decoder_kwargs_for_generation(
+                        torch.vstack(input_ids_padded), model_kwargs, "input_ids"
+                    )
+                    input_ids, example_inputs = self.user_model._expand_inputs_for_generation(
+                        input_ids=torch.vstack(input_ids_padded),
+                        expand_size=self.num_beams,
+                        is_encoder_decoder=True,
+                        **model_kwargs,
+                    )
+        
+                    # need to recompute these
+                    def _get_target_nums(names):
+                        for n in names:
+                            if hasattr(self.user_model.config, n):
+                                return getattr(self.user_model.config, n)
+                        logger.error(f"Not found target {names[0]}")
+                        exit(1)
+
+                    num_heads_names = ["num_attention_heads", "n_head", "num_heads", "n_heads"]
+                    num_layers_names = ["num_hidden_layers", "n_layer", "num_layers", "n_layers"]
+                    hidden_size_names = ["hidden_size", "n_embd"]
+                    n_heads = _get_target_nums(num_heads_names)
+                    n_layers = _get_target_nums(num_layers_names)
+                    hidden_size = _get_target_nums(hidden_size_names)
+                    head_dim = int(hidden_size / n_heads)
+                    
+                    # lets get the inputs
+                    beam_idx_tmp = torch.zeros((2048, int(self.batch_size * self.num_beams)), dtype=torch.long).contiguous() 
+                    input_bs = int(self.batch_size * self.num_beams)
+                    last_hidden_state = example_inputs["encoder_outputs"]["last_hidden_state"]
+                    global_past_key_value = tuple(
+                        [
+                            (
+                                torch.zeros(1, 0, 0, 1, dtype=torch.long).contiguous(),
+                                torch.zeros([1, n_heads, 1, head_dim]).contiguous(),
+                                torch.zeros([1, n_heads, 1, head_dim]).contiguous(),
+                                beam_idx_tmp,
+                                torch.zeros(1, 0, 0, 1, dtype=torch.long).contiguous(),
+                                self.user_model.decoder.block[i].layer[1].EncDecAttention.k(last_hidden_state).view(input_bs, -1, n_heads, head_dim).transpose(0, 1),
+                                self.user_model.decoder.block[i].layer[1].EncDecAttention.v(last_hidden_state).view(input_bs, -1, n_heads, head_dim).transpose(0, 1),
+                                beam_idx_tmp,
+                            )
+                            for i in range(n_layers)
+                        ]
+                    )
+
+                    decoder_input_ids = (torch.zeros(input_bs).to(torch.long).unsqueeze(1))
+                    model_inputs = (
+                        decoder_input_ids,
+                        torch.vstack(attention_mask_padded),
+                        tuple(global_past_key_value),
+                        (last_hidden_state,),
+                    )
+                else:
+                    raise RuntimeError("Your model does not match existing example inputs used in ipex smooth quant, exiting...")
+                
+                # Some models require extra inputs 
+                if re.search("chatglm", self.user_model.config.architectures[0], re.IGNORECASE):
+                    extra_inputs = (torch.tensor(True),)
+                    model_inputs = model_inputs + extra_inputs
+
+                return (model_inputs, last_ind)
+
+
+
+        calib_dataset = load_dataset(self.calib_dataset, split=self.calib_split)
+        logger.info(f"Dataset loaded: {calib_dataset}")
+        calib_evaluator = Evaluator(
+            self.user_model,
+            self.example_inputs_mode,
+            self.global_past_key_value,
+            calib_dataset, 
+            self.tokenizer, 
+            batch_size=self.batch_size, 
+            num_beams = self.num_beams, 
+            pad_max = int(self.input_tokens) if re.search("t5", config.architectures[0], re.IGNORECASE) else 512
+        )
+        logger.info(f"Evaluator built: {calib_evaluator}")
+
+        self.calib_dataloader = DataLoader(
+            calib_evaluator.dataset,
+            batch_size=1,
+            shuffle=False,
+            collate_fn=calib_evaluator.collate_batch,
+        )
+        logger.info("Dataloader is built successfully!")
 
         if IPEX_ENABLE:
             """
@@ -180,6 +347,19 @@ class IpexLLMHandler(BaseHandler, ABC):
             (3) ipex bfloat16 optimization if neither is quantization is enabled 
             (4) throws error if both 1 and 2 are enabled 
             """
+            
+            def trace_and_export(model):
+                example_inputs = self.get_example_inputs()
+
+                with torch.no_grad(), torch.cpu.amp.autocast(
+                    enabled=self.amp_enabled,
+                    dtype=self.amp_dtype
+                ):
+                    self_jit = torch.jit.trace(model.eval(), example_inputs, strict=False, check_trace=False)
+                    self_jit = torch.jit.freeze(self_jit.eval())
+
+                    self_jit.save(self.quantized_model_path)
+            
             if self.ipex_smooth_quantization and self.ipex_weight_only_quantization:
                 logger.error("Can't enable both SQ and WoQ, enable only one of them")
                 exit(1)
@@ -232,175 +412,12 @@ class IpexLLMHandler(BaseHandler, ABC):
                     deployment_mode=False,
                 )
                 logger.info("The model conversion completed, now tracing the quantized model")
-
-                example_inputs = self.get_example_inputs()
-
-                with torch.no_grad(), torch.cpu.amp.autocast(
-                    enabled=self.amp_enabled,
-                    dtype=self.amp_dtype
-                ):
-                    self_jit = torch.jit.trace(self.user_model.eval(), example_inputs, strict=False, check_trace=False)
-                    self_jit = torch.jit.freeze(self_jit.eval())
-
-                    self_jit.save(self.quantized_model_path)
+                
+                trace_and_export(self.user_model)
 
                 logger.info("The IPEX Weight only quantization has been completed successfully")
 
             elif self.ipex_smooth_quantization:
-                class Evaluator:
-                    def __init__(self, example_inputs_mode, global_past_key_value, dataset, tokenizer, batch_size=1, num_beams=1, pad_val=1, pad_max=512):
-                        self.example_inputs_mode = example_inputs_mode
-                        self.global_past_key_value = global_past_key_value
-                        self.dataset = dataset
-                        self.tokenizer = tokenizer
-                        self.batch_size = batch_size
-                        self.num_beams = num_beams
-
-
-                        self.pad_val = pad_val
-                        self.pad_max = pad_max 
-                        self.dataset = self.dataset.map(self.tokenize_function, batched = True, num_proc=2)
-                        self.dataset.set_format(type="torch", columns=["input_ids"])  
-
-                    @torch.no_grad()
-                    def tokenize_function(self, examples):
-                        if "prompt" in examples:
-                            example = self.tokenizer(examples["prompt"])
-                        elif "text" in examples:
-                            example = self.tokenizer(examples["text"])
-                        elif "code" in examples:
-                            example = self.tokenizer(examples["code"])
-                        return example
-
-
-                    @torch.no_grad()
-                    def collate_batch(self, batch):
-                        position_ids_padded = []
-                        input_ids_padded = []
-                        last_ind = []
-                        attention_mask_padded = []
-
-                        for text in batch:
-                            input_ids = text["input_ids"]
-                            last_ind.append(input_ids.shape[0] - 1)
-                            attention_mask = torch.ones(len(input_ids))
-                            position_ids = torch.arange(len(input_ids))
-
-                            input_ids_padded.append(input_ids)
-                            attention_mask_padded.append(attention_mask)
-                            position_ids_padded.append(position_ids)
-
-                        if self.example_inputs_mode == "MASK_POS_KV":
-                            model_inputs = (
-                                torch.vstack(input_ids_padded),
-                                torch.vstack(attention_mask_padded),
-                                torch.vstack(position_ids_padded),
-                                tuple(self.global_past_key_value),
-                            )
-                        elif self.example_inputs_mode == "MASK_KV_POS":
-                            model_inputs = (
-                                torch.vstack(input_ids_padded),
-                                torch.vstack(attention_mask_padded),
-                                tuple(self.global_past_key_value),
-                                torch.vstack(position_ids_padded),
-                            )
-                        elif self.example_inputs_mode == "KV_MASK":
-                            model_inputs = (
-                                torch.vstack(input_ids_padded),
-                                tuple(self.global_past_key_value),
-                                torch.vstack(attention_mask_padded),
-                            )
-                        elif self.example_inputs_mode == "MASK_KV":
-                            model_inputs = (
-                                torch.vstack(input_ids_padded),
-                                torch.vstack(attention_mask_padded),
-                                tuple(self.global_past_key_value),
-                            )
-                        elif self.example_inputs_mode == "MASK_KV_ENC":
-                            model_kwargs = {
-                                "attention_mask": torch.vstack(attention_mask_padded),
-                            }
-                            model_kwargs = user_model._prepare_encoder_decoder_kwargs_for_generation(
-                                torch.vstack(input_ids_padded), model_kwargs, "input_ids"
-                            )
-                            input_ids, example_inputs = user_model._expand_inputs_for_generation(
-                                input_ids=torch.vstack(input_ids_padded),
-                                expand_size=self.num_beams,
-                                is_encoder_decoder=True,
-                                **model_kwargs,
-                            )
-                
-                            # need to recompute these
-                            def _get_target_nums(names):
-                                for n in names:
-                                    if hasattr(self.user_model.config, n):
-                                        return getattr(self.user_model.config, n)
-                                logger.error(f"Not found target {names[0]}")
-                                exit(0)
-
-                            num_heads_names = ["num_attention_heads", "n_head", "num_heads", "n_heads"]
-                            num_layers_names = ["num_hidden_layers", "n_layer", "num_layers", "n_layers"]
-                            hidden_size_names = ["hidden_size", "n_embd"]
-                            n_heads = _get_target_nums(num_heads_names)
-                            n_layers = _get_target_nums(num_layers_names)
-                            hidden_size = _get_target_nums(hidden_size_names)
-                            head_dim = int(hidden_size / n_heads)
-                            
-                            # lets get the inputs
-                            input_bs = int(self.batch_size * self.num_beams)
-                            last_hidden_state = example_inputs["encoder_outputs"]["last_hidden_state"]
-                            global_past_key_value = tuple(
-                                [
-                                    (
-                                        torch.zeros(1, 0, 0, 1, dtype=torch.long).contiguous(),
-                                        torch.zeros([1, n_heads, 1, head_dim]).contiguous(),
-                                        torch.zeros([1, n_heads, 1, head_dim]).contiguous(),
-                                        self.beam_idx_tmp,
-                                        torch.zeros(1, 0, 0, 1, dtype=torch.long).contiguous(),
-                                        user_model.decoder.block[i].layer[1].EncDecAttention.k(last_hidden_state).view(input_bs, -1, n_heads, head_dim).transpose(0, 1),
-                                        user_model.decoder.block[i].layer[1].EncDecAttention.v(last_hidden_state).view(input_bs, -1, n_heads, head_dim).transpose(0, 1),
-                                        self.beam_idx_tmp,
-                                    )
-                                    for i in range(n_layers)
-                                ]
-                            )
-
-                            decoder_input_ids = (torch.zeros(input_bs).to(torch.long).unsqueeze(1))
-                            model_inputs = (
-                                decoder_input_ids,
-                                torch.vstack(attention_mask_padded),
-                                tuple(global_past_key_value),
-                                (last_hidden_state,),
-                            )
-                        else:
-                            raise RuntimeError("Your model does not match existing example inputs used in ipex smooth quant, exiting...")
-
-                        return (model_inputs, last_ind)
-
-
-
-                calib_dataset = load_dataset(self.calib_dataset, split=self.calib_split)
-                logger.info(f"Dataset loaded: {calib_dataset}")
-                calib_evaluator = Evaluator(
-                    self.example_inputs_mode,
-                    self.global_past_key_value,
-                    calib_dataset, 
-                    self.tokenizer, 
-                    batch_size=self.batch_size, 
-                    num_beams = self.num_beams, 
-                    pad_max = int(self.input_tokens) if re.search("t5", config.architectures[0], re.IGNORECASE) else 512
-                )
-                logger.info(f"Evaluator built: {calib_evaluator}")
-
-                calib_dataloader = DataLoader(
-                    calib_evaluator.dataset,
-                    batch_size=1,
-                    shuffle=False,
-                    collate_fn=calib_evaluator.collate_batch,
-                )
-                logger.info("Dataloader ready")
-
-
                 from intel_extension_for_pytorch.quantization import prepare, convert
                 example_inputs = self.get_example_inputs()
                 qconfig = ipex.quantization.get_smooth_quant_qconfig_mapping(alpha=self.alpha)
@@ -416,7 +433,7 @@ class IpexLLMHandler(BaseHandler, ABC):
                 logger.info("Model prepared for quantization, observers inserted")
 
 
-                for i, (model_inputs, last_ind) in enumerate(calib_dataloader):
+                for i, (model_inputs, last_ind) in enumerate(self.calib_dataloader):
                     if i == self.num_calib_iters:
                         break
                     prepared_model(*model_inputs)
@@ -424,16 +441,9 @@ class IpexLLMHandler(BaseHandler, ABC):
 
                 converted_model = convert(prepared_model.eval(), inplace=True).eval()
                 logger.info("Model converted successfully, exporting the trace")
+
+                trace_and_export(converted_model)
                 
-                with torch.no_grad(), torch.cpu.amp.autocast(
-                    enabled=self.amp_enabled,
-                    dtype=self.amp_dtype
-                ):
-                    self_jit = torch.jit.trace(converted_model.eval(), example_inputs, strict=False, check_trace=False)
-                    self_jit = torch.jit.freeze(self_jit.eval())
-
-                    self_jit.save(self.quantized_model_path)
-
                 logger.info("IPEX Smooth Quantization has completed successfully")
 
             else:
@@ -445,16 +455,8 @@ class IpexLLMHandler(BaseHandler, ABC):
                     inplace=True,
                     deployment_mode=False,
                 )
-                
-                with torch.no_grad(), torch.cpu.amp.autocast(
-                    enabled=self.amp_enabled,
-                    dtype=self.amp_dtype
-                ):
-                    self_jit = torch.jit.trace(self.user_model.eval(), example_inputs, strict=False, check_trace=False)
-                    self_jit = torch.jit.freeze(self_jit.eval())
-
-                    self_jit.save(self.quantized_model_path)
-
+               
+                trace_and_export(self.user_model)
                 logger.info("IPEX bf16 optimization is applied successfully")
         
             logger.info("Loading the IPEX quantized model")
@@ -482,86 +484,10 @@ class IpexLLMHandler(BaseHandler, ABC):
 
             
         
-    # Different model need to have their inputs supplied in different order unless we pass dict 
-    # For torchserve sending dict is not always possible
-    # This function reorders the input ids, masks, and kv cache based on models 
+    # we are going to use data collator we built to generate example input  
     def get_example_inputs(self):
-        example_inputs = None
-        input_ids = torch.ones(32).to(torch.long)
-        attention_mask = torch.ones(len(input_ids))
-        if self.example_inputs_mode == "MASK_POS_KV":
-            position_ids = torch.arange(len(input_ids))
-            example_inputs = (
-                input_ids.unsqueeze(0),
-                attention_mask.unsqueeze(0),
-                position_ids.unsqueeze(0),
-                tuple(self.global_past_key_value),
-            )
-        elif self.example_inputs_mode == "MASK_KV_POS":
-            position_ids = torch.arange(len(input_ids))
-            example_inputs = (
-                input_ids.unsqueeze(0),
-                attention_mask.unsqueeze(0),
-                tuple(self.global_past_key_value),
-                position_ids.unsqueeze(0),
-            )
-        elif self.example_inputs_mode == "KV_MASK":
-            example_inputs = (
-                input_ids.unsqueeze(0),
-                tuple(self.global_past_key_value),
-                attention_mask.unsqueeze(0),
-            )
-        elif self.example_inputs_mode == "MASK_KV":
-            example_inputs = (
-                input_ids.unsqueeze(0),
-                attention_mask.unsqueeze(0),
-                tuple(self.global_past_key_value),
-            )
-        elif self.example_inputs_mode == "MASK_KV_ENC":
-            last_hidden_state = torch.rand([1, 32, 2048])
-            
-            #need to recompute these
-            def _get_target_nums(names):
-                for n in names:
-                    if hasattr(self.user_model.config, n):
-                        return getattr(self.user_model.config, n)
-                logger.error(f"Not found target {names[0]}")
-                exit(0)
-
-            num_heads_names = ["num_attention_heads", "n_head", "num_heads", "n_heads"]
-            num_layers_names = ["num_hidden_layers", "n_layer", "num_layers", "n_layers"]
-            hidden_size_names = ["hidden_size", "n_embd"]
-            n_heads = _get_target_nums(num_heads_names)
-            n_layers = _get_target_nums(num_layers_names)
-            hidden_size = _get_target_nums(hidden_size_names)
-            head_dim = int(hidden_size / n_heads)
-            
-            global_past_key_value = [
-                (
-                    torch.zeros(1, 0, 0, 1, dtype=torch.long).contiguous(),
-                    torch.zeros([1, n_heads, 1, head_dim]).contiguous(),
-                    torch.zeros([1, n_heads, 1, head_dim]).contiguous(),
-                    self.beam_idx_tmp,
-                    torch.zeros(1, 0, 0, 1, dtype=torch.long).contiguous(),
-                    torch.zeros([32, 1, n_heads, head_dim]).contiguous(),
-                    torch.zeros([32, 1, n_heads, head_dim]).contiguous(),
-                    self.beam_idx_tmp,
-                )
-                for i in range(n_layers)
-            ]
-            example_inputs = (
-                torch.ones(1).to(torch.long).unsqueeze(0),
-                attention_mask.unsqueeze(0),
-                tuple(global_past_key_value),
-                (last_hidden_state,),
-            )
-        else:
-            raise RuntimeError("Your model does not match existing example inputs used in ipex quantization, exiting...")
-        # TODO: Figure out how to provide the extra inputs from config 
-        if re.search("chatglm", self.user_model.config.architectures[0], re.IGNORECASE):
-            extra_inputs = (torch.tensor(True),)
-            example_inputs = example_inputs + extra_inputs
-        return example_inputs
+        (model_inputs, last_ind) = next(iter(self.calib_dataloader))
+        return model_inputs
 
     def preprocess(self, requests):
         input_ids_batch = None

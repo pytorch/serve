@@ -2,6 +2,7 @@ import os
 import sys
 import json
 from pathlib import Path
+import shutil
 import subprocess
 import yaml
 
@@ -23,6 +24,7 @@ from ts.torch_handler.unit_tests.test_utils.mock_context import MockContext
 
 REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../")
 snapshot_file_ipex = os.path.join(REPO_ROOT, "test/config_ipex.properties")
+default_ts_config = os.path.join(REPO_ROOT, "test/config_ts.properties")
 prompt_file = os.path.join(REPO_ROOT, "examples/large_models/ipex_llm_int8/sample_text_0.txt")
 
 #CURR_FILE_PATH = Path(__file__).parent
@@ -53,12 +55,57 @@ if r.returncode == 0:
 
 ipex_xeon_run_available = xeon_run_cpu_available and ipex_available
 
+@pytest.fixture(scope="module")
+def model_name():
+    yield "llama2"
 
 
-# TODO: download each model we want to serve inside this folder (Change with model name)
+@pytest.fixture(scope="module")
+def work_dir(tmp_path_factory, model_name):
+    return Path(tmp_path_factory.mktemp(model_name))
 
-# MODEL_FILE_PATH=HANDLER_PATH/"llama_2"
+# @pytest.fixture(scope="module", name="mar_file_path")
+def create_mar_file(work_dir, model_archiver, model_name, model_config_yaml_file):
+    mar_file_path = work_dir.joinpath(model_name + ".mar")
 
+    handler_file = os.path.join(HANDLER_PATH, "llm_handler.py")
+    assert(Path(handler_file).exists())
+    
+    config = ModelArchiverConfig(
+        model_name=model_name,
+        version="1.0",
+        serialized_file=None,
+        model_file=None,
+        handler=handler_file,
+        extra_files=None,
+        export_path=work_dir,
+        requirements_file=None,
+        runtime="python",
+        force=False,
+        archive_format="default",
+        config_file=model_config_yaml_file.as_posix(),
+    )
+
+    with patch("archiver.ArgParser.export_model_args_parser", return_value=config):
+        model_archiver.generate_model_archive()
+
+        assert mar_file_path.exists()
+
+        return mar_file_path.as_posix()
+
+def run_inference_with_prompt(prompt_file, model_name):
+    model_url = f"{INFERENCE_API}/predictions/{model_name}"
+    response = run_inference_using_url_with_data(model_url, prompt_file)
+    return response
+
+def start_torchserve(ts_config_file):
+    
+    # start the torchserve 
+    test_utils.start_torchserve(
+        model_store=test_utils.MODEL_STORE, 
+        snapshot_file=ts_config_file, 
+        gen_mar=False
+    )
 
 
 LLAMA_DEFAULT_CONFIG = f"""
@@ -88,68 +135,225 @@ LLAMA_DEFAULT_CONFIG = f"""
 
     """
 
-def test_handler_no_ipex(tmp_path, mocker):
-    try:
-        from llm_handler import IpexLLMHandler
+LLAMA_CONFIG_WOQ = f"""
+    minWorkers: 1
+    maxWorkers: 1
+    responseTimeout: 1500
+    batchSize: 4
+    maxBatchDelay: 100
+    
+    handler:
+        model_name: "meta-llama/Llama-2-7b-hf"
+        clear_cache_dir: true
+        quantized_model_path: "best_model.pt"
+        example_inputs_mode: "MASK_KV_POS"
+        to_channels_last: false
+    
+        # generation params
+        batch_size: 1
+        input_tokens: 1024
+        max_new_tokens: 128
+    
+        # Use INT8 bf16 mix
+        quant_with_amp: true
+    
+        # Woq params
+        ipex_weight_only_quantization: true
+        woq_dtype: "INT8"
+        lowp_mode: "BF16"
+        act_quant_mode: "PER_IC_BLOCK"
+        group_size: -1
+    
+        # decoding technique
+        greedy: true
+    """
 
-        handler = IpexLLMHandler()
-        ctx = MockContext()
+LLAMA_CONFIG_SQ = f"""
+    minWorkers: 1
+    maxWorkers: 1
+    responseTimeout: 1500
+    batchSize: 4
+    maxBatchDelay: 100
+    
+    handler:
+        model_name: "meta-llama/Llama-2-7b-hf"
+        clear_cache_dir: true
+        quantized_model_path: "best_model.pt"
+        example_inputs_mode: "MASK_KV_POS"
+        to_channels_last: false
+    
+        # generation params
+        batch_size: 1
+        input_tokens: 1024
+        max_new_tokens: 128
+    
+        # use bf16-int8 mix
+        quant_with_amp: true
+    
+        # SQ quantization params
+        ipex_smooth_quantization: true
+        calibration_dataset: "NeelNanda/pile-10k"
+        calibration_split: "train"
+        num_calibration_iters: 32
+        alpha: 0.9
+    
+        # decoding technique
+        greedy: true
 
-        model_config_yaml = tmp_path/"model-config.yaml"
-        #config = LLAMA_DEFAULT_CONFIG.substitute(
-        #        {"nproc": "1", "stream": "true", "compile": compile, "ipex_enable":"false"}
-        #)
-        model_config_yaml.write_text(LLAMA_DEFAULT_CONFIG)
-        os.environ["TS_IPEX_ENABLE"] = "false"
+    """
 
-        with open(model_config_yaml, "r") as f:
-            config = yaml.safe_load(f)
+"""
+outline of the tests:
+    1. edit the config 
+    2. create mar file 
+    3. start torchserve 
+    4. test connection
+    5. test response correctness
+"""
 
-        ctx.model_yaml_config = config
+def test_handler_default_pytorch(work_dir, model_archiver):
+    test_utils.torchserve_cleanup()
+    # create_mar_file(work_dir, model_archiver, model_name, model_config_yaml_file):
+    model_config_yaml = work_dir / "model-config.yaml"
+    model_config_yaml.write_text(LLAMA_DEFAULT_CONFIG)
 
-        torch.manual_seed(42)
-        handler.initialize(ctx)
+    # Create mar file 
+    model_name = "llama2_no_ipex"
+    mar_file_path = create_mar_file(work_dir, model_archiver, model_name, model_config_yaml)
+    os.makedirs(os.path.dirname(test_utils.MODEL_STORE), exist_ok=True)
+    shutil.move(mar_file_path, test_utils.MODEL_STORE)
 
-        # The model with default ipex routine won't have "trace_graph" attribute
-        assert hasattr(handler.user_model, "trace_graph") == False, "The default Pytorch module must not have 'trace_graph' attribute"
+    # start torchserve server
+    start_torchserve(default_ts_config)
 
-        x = handler.preprocess([{"data": json.dumps(PROMPTS[0])}])
-        x = handler.inference(x)
-        x = handler.postprocess(x)
-        assert "Paris" in x[0], f"The Answer doesn't seem to be correct!"
+    # load the model
+    model_url = f"{MANAGEMENT_API}/models?url={model_name}.mar"
+    requests.post(model_url)
+    
+    # query model info
+    model_url = f"{MANAGEMENT_API}/models/{model_name}"
+    response = requests.get(model_url)
+    assert response.status_code == 200, "The Model failed the with default Pytorch"
+    
+    # send prompts to the model
+    model_url = f"{INFERENCE_API}/predictions/{model_name}"
+    response = requests.post(url=model_url, 
+                            data=json.dumps(PROMPTS[0],),
+                            )
+    
+    assert response.status_code == 200, "The model failed to generate text from prompt!"
+    assert "Paris" in response.text, "The response doesn't seem to be correct!"
+    
 
-    finally:
-        del handler.user_model
-        del handler
+    test_utils.torchserve_cleanup()
 
-def test_handler_ipex_bf16(tmp_path, mocker):
-    try:
-        os.environ["TS_IPEX_ENABLE"] = "true"
-        from llm_handler import IpexLLMHandler
 
-        handler = IpexLLMHandler()
-        ctx = MockContext()
+def test_handler_ipex_bf16(work_dir, model_archiver):
+    test_utils.torchserve_cleanup()
+    # create_mar_file(work_dir, model_archiver, model_name, model_config_yaml_file):
+    model_config_yaml = work_dir / "model-config.yaml"
+    model_config_yaml.write_text(LLAMA_DEFAULT_CONFIG)
 
-        model_config_yaml = tmp_path/"model-config.yaml"
-        #config = LLAMA_DEFAULT_CONFIG.substitute(
-        #        {"nproc": "1", "stream": "true", "compile": compile, "ipex_enable":"false"}
-        #)
-        model_config_yaml.write_text(LLAMA_DEFAULT_CONFIG)
+    # Create mar file 
+    model_name = "llama2_ipex_bf16"
+    mar_file_path = create_mar_file(work_dir, model_archiver, model_name, model_config_yaml)
+    os.makedirs(os.path.dirname(test_utils.MODEL_STORE), exist_ok=True)
+    shutil.move(mar_file_path, test_utils.MODEL_STORE)
 
-        with open(model_config_yaml, "r") as f:
-            config = yaml.safe_load(f)
+    # start torchserve server
+    start_torchserve(snapshot_file_ipex)
 
-        ctx.model_yaml_config = config
+    # load the model
+    model_url = f"{MANAGEMENT_API}/models?url={model_name}.mar"
+    requests.post(model_url)
+    
+    # query model info
+    model_url = f"{MANAGEMENT_API}/models/{model_name}"
+    response = requests.get(model_url)
+    assert response.status_code == 200, "The Model failed the with default Pytorch"
+    
+    # send prompts to the model
+    model_url = f"{INFERENCE_API}/predictions/{model_name}"
+    response = requests.post(url=model_url, 
+                            data=json.dumps(PROMPTS[0],),
+                            )
+    
+    assert response.status_code == 200, "The model failed to generate text from prompt!"
+    assert "Paris" in response.text, "The response doesn't seem to be correct!"
+    
 
-        torch.manual_seed(42)
-        handler.initialize(ctx)
-        assert hasattr(handler.user_model, "trace_graph") == True, "IPEX optimized bf16 module must have 'trace_graph' attribute"
+    test_utils.torchserve_cleanup()
 
-        x = handler.preprocess([{"data": json.dumps(PROMPTS[0])}])
-        x = handler.inference(x)
-        x = handler.postprocess(x)
-        assert "Paris" in x[0], f"The Answer doesn't seem to be correct!"
 
-    finally:
-        del handler.user_model
-        del handler
+def test_handler_ipex_int8_woq(work_dir, model_archiver):
+    test_utils.torchserve_cleanup()
+    # create_mar_file(work_dir, model_archiver, model_name, model_config_yaml_file):
+    model_config_yaml = work_dir / "model-config.yaml"
+    model_config_yaml.write_text(LLAMA_CONFIG_WOQ)
+
+    # Create mar file 
+    model_name = "llama2_ipex_int8_woq"
+    mar_file_path = create_mar_file(work_dir, model_archiver, model_name, model_config_yaml)
+    os.makedirs(os.path.dirname(test_utils.MODEL_STORE), exist_ok=True)
+    shutil.move(mar_file_path, test_utils.MODEL_STORE)
+
+    # start torchserve server
+    start_torchserve(snapshot_file_ipex)
+
+    # load the model
+    model_url = f"{MANAGEMENT_API}/models?url={model_name}.mar"
+    requests.post(model_url)
+    
+    # query model info
+    model_url = f"{MANAGEMENT_API}/models/{model_name}"
+    response = requests.get(model_url)
+    assert response.status_code == 200, "The Model failed the with default Pytorch"
+    
+    # send prompts to the model
+    model_url = f"{INFERENCE_API}/predictions/{model_name}"
+    response = requests.post(url=model_url, 
+                            data=json.dumps(PROMPTS[0],),
+                            )
+    
+    assert response.status_code == 200, "The model failed to generate text from prompt!"
+    assert "Paris" in response.text, "The response doesn't seem to be correct!"
+    
+
+    test_utils.torchserve_cleanup()
+
+
+def test_handler_ipex_int8_sq(work_dir, model_archiver):
+    test_utils.torchserve_cleanup()
+    # create_mar_file(work_dir, model_archiver, model_name, model_config_yaml_file):
+    model_config_yaml = work_dir / "model-config.yaml"
+    model_config_yaml.write_text(LLAMA_CONFIG_SQ)
+
+    # Create mar file 
+    model_name = "llama2_ipex_int8_sq"
+    mar_file_path = create_mar_file(work_dir, model_archiver, model_name, model_config_yaml)
+    os.makedirs(os.path.dirname(test_utils.MODEL_STORE), exist_ok=True)
+    shutil.move(mar_file_path, test_utils.MODEL_STORE)
+
+    # start torchserve server
+    start_torchserve(snapshot_file_ipex)
+
+    # load the model
+    model_url = f"{MANAGEMENT_API}/models?url={model_name}.mar"
+    requests.post(model_url)
+    
+    # query model info
+    model_url = f"{MANAGEMENT_API}/models/{model_name}"
+    response = requests.get(model_url)
+    assert response.status_code == 200, "The Model failed the with default Pytorch"
+    
+    # send prompts to the model
+    model_url = f"{INFERENCE_API}/predictions/{model_name}"
+    response = requests.post(url=model_url, 
+                            data=json.dumps(PROMPTS[0],),
+                            )
+    
+    assert response.status_code == 200, "The model failed to generate text from prompt!"
+    assert "Paris" in response.text, "The response doesn't seem to be correct!"
+    
+
+    test_utils.torchserve_cleanup()
