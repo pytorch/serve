@@ -21,6 +21,20 @@ public class DescribeModelResponse {
     private int maxWorkers;
     private int batchSize;
     private int maxBatchDelay;
+    private int responseTimeout;
+    private long maxRetryTimeoutInSec;
+    private long clientTimeoutInMills;
+    private String parallelType;
+    private int parallelLevel;
+    private String deviceType;
+    private List<Integer> deviceIds;
+    private boolean continuousBatching;
+    private boolean useJobTicket;
+    private boolean useVenv;
+    private boolean stateful;
+    private long sequenceMaxIdleMSec;
+    private int maxNumSequence;
+    private int maxSequenceJobQueueSize;
     private String status;
     private boolean loadedAtStartup;
 
@@ -111,6 +125,118 @@ public class DescribeModelResponse {
 
     public void setMaxBatchDelay(int maxBatchDelay) {
         this.maxBatchDelay = maxBatchDelay;
+    }
+
+    public int getResponseTimeout() {
+        return responseTimeout;
+    }
+
+    public void setResponseTimeout(int responseTimeout) {
+        this.responseTimeout = responseTimeout;
+    }
+
+    public long getMaxRetryTimeoutInSec() {
+        return maxRetryTimeoutInSec;
+    }
+
+    public void setMaxRetryTimeoutInSec(long maxRetryTimeoutInSec) {
+        this.maxRetryTimeoutInSec = maxRetryTimeoutInSec;
+    }
+
+    public long getClientTimeoutInMills() {
+        return clientTimeoutInMills;
+    }
+
+    public void setClientTimeoutInMills(long clientTimeoutInMills) {
+        this.clientTimeoutInMills = clientTimeoutInMills;
+    }
+
+    public String getParallelType() {
+        return parallelType;
+    }
+
+    public void setParallelType(String parallelType) {
+        this.parallelType = parallelType;
+    }
+
+    public int getParallelLevel() {
+        return parallelLevel;
+    }
+
+    public void setParallelLevel(int parallelLevel) {
+        this.parallelLevel = parallelLevel;
+    }
+
+    public String getDeviceType() {
+        return deviceType;
+    }
+
+    public void setDeviceType(String deviceType) {
+        this.deviceType = deviceType;
+    }
+
+    public List<Integer> getDeviceIds() {
+        return deviceIds;
+    }
+
+    public void setDeviceIds(List<Integer> deviceIds) {
+        this.deviceIds = deviceIds;
+    }
+
+    public boolean getContinuousBatching() {
+        return continuousBatching;
+    }
+
+    public void setContinuousBatching(boolean continuousBatching) {
+        this.continuousBatching = continuousBatching;
+    }
+
+    public boolean getUseJobTicket() {
+        return useJobTicket;
+    }
+
+    public void setUseJobTicket(boolean useJobTicket) {
+        this.useJobTicket = useJobTicket;
+    }
+
+    public boolean getUseVenv() {
+        return useVenv;
+    }
+
+    public void setUseVenv(boolean useVenv) {
+        this.useVenv = useVenv;
+    }
+
+    public boolean getStateful() {
+        return stateful;
+    }
+
+    public void setStateful(boolean stateful) {
+        this.stateful = stateful;
+    }
+
+    public long getSequenceMaxIdleMSec() {
+        return sequenceMaxIdleMSec;
+    }
+
+    public void setSequenceMaxIdleMSec(long sequenceMaxIdleMSec) {
+        this.sequenceMaxIdleMSec = sequenceMaxIdleMSec;
+    }
+
+    public int getMaxNumSequence() {
+        return maxNumSequence;
+    }
+
+    public void setMaxNumSequence(int maxNumSequence) {
+        this.maxNumSequence = maxNumSequence;
+    }
+
+    public int getMaxSequenceJobQueueSize() {
+        return maxSequenceJobQueueSize;
+    }
+
+    public void setMaxSequenceJobQueueSize(int maxSequenceJobQueueSize) {
+        this.maxSequenceJobQueueSize = maxSequenceJobQueueSize;
     }
 
     public String getStatus() {

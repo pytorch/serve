@@ -83,12 +83,14 @@ public class Model {
     private boolean useJobTicket;
     private AtomicInteger numJobTickets;
     private boolean continuousBatching;
+    private boolean sequenceBatch;
     private boolean useVenv;
 
     public Model(ModelArchive modelArchive, int queueSize) {
         this.modelArchive = modelArchive;
         if (modelArchive != null && modelArchive.getModelConfig() != null) {
             continuousBatching = modelArchive.getModelConfig().isContinuousBatching();
+            sequenceBatch = modelArchive.getModelConfig().isSequenceBatching();
             useVenv = modelArchive.getModelConfig().getUseVenv();
             if (modelArchive.getModelConfig().getParallelLevel() > 0
                     && modelArchive.getModelConfig().getParallelType()
@@ -131,10 +133,11 @@ public class Model {
                         Math.max(
                                 modelArchive.getModelConfig().getMaxNumSequence(),
                                 batchSize * maxWorkers);
-                jobGroups = new ConcurrentHashMap<>(maxNumSequence);
-                pendingJobGroups = new LinkedBlockingDeque<>(maxNumSequence);
-                jobGroupLock = new ReentrantLock();
-                stateful = true;
+                if (sequenceBatch) {
+                    jobGroups = new ConcurrentHashMap<>(maxNumSequence);
+                    pendingJobGroups = new LinkedBlockingDeque<>(maxNumSequence);
+                    jobGroupLock = new ReentrantLock();
+                }
             }
         } else {
             batchSize = 1;
@@ -288,7 +291,7 @@ public class Model {
             logger.info("There are no job tickets available");
             return false;
         }
-        if (job.getGroupId() != null) {
+        if (sequenceBatch && job.getGroupId() != null) {
             return addJobInGroup(job);
         }
         return jobsDb.get(DEFAULT_DATA_QUEUE).offer(job);
@@ -460,9 +463,8 @@ public class Model {
             logger.trace("get first job: {}", Objects.requireNonNull(j).getJobId());
 
             jobsRepo.put(j.getJobId(), j);
-            // batch size always is 1 for describe request job and stream prediction request job
-            if (j.getCmd() == WorkerCommands.DESCRIBE
-                    || j.getCmd() == WorkerCommands.STREAMPREDICT) {
+            // batch size always is 1 for describe request job
+            if (j.getCmd() == WorkerCommands.DESCRIBE) {
                 return;
             }
             long begin = System.currentTimeMillis();
@@ -472,10 +474,8 @@ public class Model {
                     break;
                 }
                 long end = System.currentTimeMillis();
-                // job batch size always is 1 when request is
-                // describe or stream prediction
-                if (j.getCmd() == WorkerCommands.DESCRIBE
-                        || j.getCmd() == WorkerCommands.STREAMPREDICT) {
+                // job batch size always is 1 when request is describe
+                if (j.getCmd() == WorkerCommands.DESCRIBE) {
                     // Add the job back into the jobsQueue
                     jobsQueue.addFirst(j);
                     break;
@@ -610,10 +610,6 @@ public class Model {
         this.sequenceMaxIdleMSec = sequenceMaxIdleMSec;
     }
 
-    public boolean isStateful() {
-        return stateful;
-    }
-
     public int getMaxSequenceJobQueueSize() {
         return maxSequenceJobQueueSize;
     }
@@ -636,6 +632,10 @@ public class Model {
 
     public boolean isContinuousBatching() {
         return continuousBatching;
+    }
+
+    public boolean isSequenceBatching() {
+        return sequenceBatch;
     }
 
     public boolean isUseVenv() {

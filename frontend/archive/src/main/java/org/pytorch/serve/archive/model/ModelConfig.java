@@ -56,7 +56,7 @@ public class ModelConfig {
     private boolean useJobTicket;
     /**
      * the max idle in milliseconds of a sequence inference request of this stateful model. The
-     * default value is 0 (ie. this is not a stateful model.)
+     * default value is 0.
      */
     private long sequenceMaxIdleMSec;
     /**
@@ -73,6 +73,8 @@ public class ModelConfig {
      * loading and inference.
      */
     private boolean useVenv;
+    /** sequenceBatching is a flag to enable https://github.com/pytorch/serve/issues/2743 */
+    private boolean sequenceBatching;
 
     public static ModelConfig build(Map<String, Object> yamlMap) {
         ModelConfig modelConfig = new ModelConfig();
@@ -210,6 +212,14 @@ public class ModelConfig {
                                 logger.warn(
                                         "Invalid continuousBatching: {}, should be true or false",
                                         v);
+                            }
+                            break;
+                        case "sequenceBatching":
+                            if (v instanceof Boolean) {
+                                modelConfig.setSequenceBatching((boolean) v);
+                            } else {
+                                logger.warn(
+                                        "Invalid sequenceBatching: {}, should be true or false", v);
                             }
                             break;
                         case "useVenv":
@@ -381,6 +391,14 @@ public class ModelConfig {
 
     public void setContinuousBatching(boolean continuousBatching) {
         this.continuousBatching = continuousBatching;
+    }
+
+    public boolean isSequenceBatching() {
+        return sequenceBatching;
+    }
+
+    public void setSequenceBatching(boolean sequenceBatching) {
+        this.sequenceBatching = sequenceBatching;
     }
 
     public int getMaxNumSequence() {
