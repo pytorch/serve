@@ -118,7 +118,7 @@ def test_stateful_mar(mar_file_path, model_store):
             args=(
                 model_name,
                 "seq_0",
-                "1 3 6 10 15",
+                "1 4 9 16 25",
             ),
         )
         t1 = threading.Thread(
@@ -126,7 +126,7 @@ def test_stateful_mar(mar_file_path, model_store):
             args=(
                 model_name,
                 "seq_1",
-                "1 3 6 10 15",
+                "2 6 12 20 30",
             ),
         )
 
@@ -148,6 +148,10 @@ def __infer_stateful(model_name, sequence_id, expected):
     }
     prediction = []
     for idx in range(5):
+        if sequence_id == "seq_0":
+            idx = 2 * idx
+        elif sequence_id == "seq_1":
+            idx = 2 * idx + 1
         response = requests.post(
             url=f"http://localhost:8080/predictions/{model_name}",
             headers=headers,
