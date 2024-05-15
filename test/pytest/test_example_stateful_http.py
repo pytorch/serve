@@ -118,7 +118,7 @@ def test_stateful_mar(mar_file_path, model_store):
             args=(
                 model_name,
                 "seq_0",
-                "1 3 6",
+                "1 3 6 10 15",
             ),
         )
         t1 = threading.Thread(
