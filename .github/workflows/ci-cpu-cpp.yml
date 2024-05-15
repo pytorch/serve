@@ -53,5 +53,10 @@ jobs:
           python ts_scripts/print_env_info.py
       - name: Build
         run: |
-          cd cpp && rm -rf _build && sudo mkdir /mnt/_build && sudo chmod 777 /mnt/_build && mkdir _build && sudo mount --bind /mnt/_build _build
-          ./build.sh
+          cd cpp && rm -rf _build && sudo mkdir /mnt/_build && sudo chmod 777 /mnt/_build && mkdir build && sudo mount --bind /mnt/_build build
+          cd build && cmake ..
+          make -j && make install
+          make test
+      - name: Run test
+        run: |
+          cd test && pytest pytest/test_cpp_backend.py

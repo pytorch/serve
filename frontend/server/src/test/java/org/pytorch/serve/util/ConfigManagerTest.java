@@ -105,4 +105,23 @@ public class ConfigManagerTest {
                 workingDir + "/frontend/archive/src/test/resources/models",
                 configManager.getWorkflowStore());
     }
+
+    @Test
+    public void testNumGpuM1() throws ReflectiveOperationException, IOException {
+        System.setProperty("tsConfigFile", "src/test/resources/config_test_env.properties");
+        ConfigManager.Arguments args = new ConfigManager.Arguments();
+        args.setModels(new String[] {"noop_v0.1"});
+        args.setSnapshotDisabled(true);
+        ConfigManager.init(args);
+        ConfigManager configManager = ConfigManager.getInstance();
+        String arch = System.getProperty("os.arch");
+        String mac_arm64_cpu_only = System.getenv().getOrDefault("TS_MAC_ARM64_CPU_ONLY", "False");
+        if (arch.equals("aarch64")) {
+            if (mac_arm64_cpu_only.equals("True")) {
+                Assert.assertEquals(configManager.getNumberOfGpu(), 0);
+            } else {
+                Assert.assertTrue(configManager.getNumberOfGpu() > 0);
+            }
+        }
+    }
 }

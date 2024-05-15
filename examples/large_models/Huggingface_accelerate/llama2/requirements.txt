@@ -1,6 +1,0 @@
-transformers==4.36.0
-accelerate
-bitsandbytes
-scipy
-mpi4py
-optimum

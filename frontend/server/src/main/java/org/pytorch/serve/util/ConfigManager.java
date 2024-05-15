@@ -5,9 +5,11 @@ import com.google.gson.reflect.TypeToken;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.net.InetAddress;
@@ -99,8 +101,18 @@ public final class ConfigManager {
     private static final String TS_ALLOWED_URLS = "allowed_urls";
     private static final String TS_INSTALL_PY_DEP_PER_MODEL = "install_py_dep_per_model";
     private static final String TS_ENABLE_METRICS_API = "enable_metrics_api";
+    private static final String TS_GRPC_INFERENCE_ADDRESS = "grpc_inference_address";
+    private static final String TS_GRPC_MANAGEMENT_ADDRESS = "grpc_management_address";
     private static final String TS_GRPC_INFERENCE_PORT = "grpc_inference_port";
     private static final String TS_GRPC_MANAGEMENT_PORT = "grpc_management_port";
+    private static final String TS_GRPC_INFERENCE_MAX_CONNECTION_AGE_MS =
+            "grpc_inference_max_connection_age_ms";
+    private static final String TS_GRPC_MANAGEMENT_MAX_CONNECTION_AGE_MS =
+            "grpc_management_max_connection_age_ms";
+    private static final String TS_GRPC_INFERENCE_MAX_CONNECTION_AGE_GRACE_MS =
+            "grpc_inference_max_connection_age_grace_ms";
+    private static final String TS_GRPC_MANAGEMENT_MAX_CONNECTION_AGE_GRACE_MS =
+            "grpc_management_max_connection_age_grace_ms";
     private static final String TS_ENABLE_GRPC_SSL = "enable_grpc_ssl";
     private static final String TS_INITIAL_WORKER_PORT = "initial_worker_port";
     private static final String TS_INITIAL_DISTRIBUTION_PORT = "initial_distribution_port";
@@ -355,14 +367,53 @@ public final class ConfigManager {
         return Connector.parse(binding, connectorType);
     }
 
-    public int getGRPCPort(ConnectorType connectorType) {
+    public InetAddress getGRPCAddress(ConnectorType connectorType)
+            throws UnknownHostException, IllegalArgumentException {
+        if (connectorType == ConnectorType.MANAGEMENT_CONNECTOR) {
+            return InetAddress.getByName(prop.getProperty(TS_GRPC_MANAGEMENT_ADDRESS, "127.0.0.1"));
+        } else if (connectorType == ConnectorType.INFERENCE_CONNECTOR) {
+            return InetAddress.getByName(prop.getProperty(TS_GRPC_INFERENCE_ADDRESS, "127.0.0.1"));
+        } else {
+            throw new IllegalArgumentException(
+                    "Connector type not supported by gRPC: " + connectorType);
+        }
+    }
+
+    public int getGRPCPort(ConnectorType connectorType) throws IllegalArgumentException {
         String port;
         if (connectorType == ConnectorType.MANAGEMENT_CONNECTOR) {
             port = prop.getProperty(TS_GRPC_MANAGEMENT_PORT, "7071");
-        } else {
+        } else if (connectorType == ConnectorType.INFERENCE_CONNECTOR) {
             port = prop.getProperty(TS_GRPC_INFERENCE_PORT, "7070");
+        } else {
+            throw new IllegalArgumentException(
+                    "Connector type not supported by gRPC: " + connectorType);
         }
         return Integer.parseInt(port);
+    }
+
+    public long getGRPCMaxConnectionAge(ConnectorType connectorType)
+            throws IllegalArgumentException {
+        if (connectorType == ConnectorType.MANAGEMENT_CONNECTOR) {
+            return getLongProperty(TS_GRPC_MANAGEMENT_MAX_CONNECTION_AGE_MS, Long.MAX_VALUE);
+        } else if (connectorType == ConnectorType.INFERENCE_CONNECTOR) {
+            return getLongProperty(TS_GRPC_INFERENCE_MAX_CONNECTION_AGE_MS, Long.MAX_VALUE);
+        } else {
+            throw new IllegalArgumentException(
+                    "Connector type not supported by gRPC: " + connectorType);
+        }
+    }
+
+    public long getGRPCMaxConnectionAgeGrace(ConnectorType connectorType)
+            throws IllegalArgumentException {
+        if (connectorType == ConnectorType.MANAGEMENT_CONNECTOR) {
+            return getLongProperty(TS_GRPC_MANAGEMENT_MAX_CONNECTION_AGE_GRACE_MS, Long.MAX_VALUE);
+        } else if (connectorType == ConnectorType.INFERENCE_CONNECTOR) {
+            return getLongProperty(TS_GRPC_INFERENCE_MAX_CONNECTION_AGE_GRACE_MS, Long.MAX_VALUE);
+        } else {
+            throw new IllegalArgumentException(
+                    "Connector type not supported by gRPC: " + connectorType);
+        }
     }
 
     public boolean isOpenInferenceProtocol() {
@@ -776,6 +827,14 @@ public final class ConfigManager {
         return Integer.parseInt(value);
     }
 
+    private long getLongProperty(String key, long def) {
+        String value = prop.getProperty(key);
+        if (value == null) {
+            return def;
+        }
+        return Long.parseLong(value);
+    }
+
     public int getDefaultResponseTimeout() {
         return Integer.parseInt(prop.getProperty(TS_DEFAULT_RESPONSE_TIMEOUT, "120"));
     }
@@ -835,6 +894,29 @@ public final class ConfigManager {
                 for (String id : ids) {
                     gpuIds.add(Integer.parseInt(id));
                 }
+            } else if (System.getProperty("os.name").startsWith("Mac")) {
+                Process process = Runtime.getRuntime().exec("system_profiler SPDisplaysDataType");
+                int ret = process.waitFor();
+                if (ret != 0) {
+                    return 0;
+                }
+
+                BufferedReader reader =
+                        new BufferedReader(new InputStreamReader(process.getInputStream()));
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    if (line.contains("Chipset Model:") && !line.contains("Apple M1")) {
+                        return 0;
+                    }
+                    if (line.contains("Total Number of Cores:")) {
+                        String[] parts = line.split(":");
+                        if (parts.length >= 2) {
+                            return (Integer.parseInt(parts[1].trim()));
+                        }
+                    }
+                }
+                // No MPS devices detected
+                return 0;
             } else {
                 Process process =
                         Runtime.getRuntime().exec("nvidia-smi --query-gpu=index --format=csv");
