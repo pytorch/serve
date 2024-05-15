@@ -545,3 +545,4 @@ class IpexLLMHandler(BaseHandler):
 
     def postprocess(self, inference_output):
         return inference_output
+
