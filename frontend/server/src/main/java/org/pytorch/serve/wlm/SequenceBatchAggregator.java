@@ -210,7 +210,9 @@ public class SequenceBatchAggregator extends BatchAggregator {
                                 pollExecutors);
                     }
                 } catch (InterruptedException e) {
-                    logger.error("EventDispatcher failed to get jobGroup", e);
+                    if (running.get()) {
+                        logger.error("EventDispatcher failed to get jobGroup", e);
+                    }
                 }
             }
         }
