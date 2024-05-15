@@ -103,7 +103,6 @@ class IpexLLMHandler(BaseHandler):
             temperature=0.9, 
             num_beams=self.num_beams, 
             max_new_tokens=self.max_new_tokens,
-            min_new_tokens=self.max_new_tokens,
         ) 
         
         # device 
