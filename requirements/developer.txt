@@ -20,3 +20,4 @@ onnxruntime==1.17.1
 googleapis-common-protos
 onnx==1.16.0
 orjson
+datasets
