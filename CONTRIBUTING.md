@@ -40,7 +40,21 @@ Your contributions will fall into two categories:
 
 Once you finish implementing a feature or bug-fix, please send a Pull Request to https://github.com/pytorch/serve.
 
-For more non-technical guidance about how to contribute to PyTorch, see the Contributing Guide.
+New features should always be covered by at least one integration test.
+For guidance please have a look at our [current suite of pytest tests](https://github.com/pytorch/serve/tree/master/test/pytest) and orient yourself on a test that covers a similar use case as your new feature.
+A simplified version of an example test can be found in the [mnist template test](https://github.com/pytorch/serve/blob/master/test/pytest/test_mnist_template.py) which shows how to create a mar file on the fly and register it with TorchServe from within a test.
+You can run most tests by simply executing:
+```bash
+pytest test/pytest/test_mnist_template.py
+```
+To have a look at the TorchServe and/or test output add `-s` like this:
+```bash
+pytest -s test/pytest/test_mnist_template.py
+```
+To run only a subset or a single test from a file use `-k` like this:
+```bash
+pytest -k  test/pytest/test_mnist_template.py
+```
 
 ### Install TorchServe for development
 
@@ -50,7 +64,7 @@ Ensure that you have `python3` installed, and the user has access to the site-pa
 
 Run the following script from the top of the source directory.
 
-NOTE: This script force reinstalls `torchserve`, `torch-model-archiver` and `torch-workflow-archiver` if existing installations are found
+NOTE: This script force re-installs `torchserve`, `torch-model-archiver` and `torch-workflow-archiver` if existing installations are found
 
 #### For Debian Based Systems/ MacOS
 

@@ -1,0 +1,19 @@
+minWorkers: 1
+maxWorkers: 1
+maxBatchDelay: 200
+responseTimeout: 3600
+deviceType: "cpu"
+pt2 : {backend: "openvino"}
+handler:
+    model_path: "Base_Diffusion_model"
+    num_inference_steps: 30
+    compile_unet: true
+    compile_mode: "max-autotune"
+    compile_vae: true
+    enable_fused_projections: true
+    do_quant: false
+    change_comp_config: true
+    no_bf16: true
+    no_sdpa: false
+    upcast_vae: false
+    is_xl: true
