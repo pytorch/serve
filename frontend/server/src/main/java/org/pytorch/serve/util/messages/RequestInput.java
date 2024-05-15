@@ -5,10 +5,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.pytorch.serve.util.ConfigManager;
 
 public class RequestInput {
     public static final String TS_STREAM_NEXT = "ts_stream_next";
-    public static final String TS_REQUEST_SEQUENCE_ID = "ts_request_sequence_id";
     private String requestId;
     private String sequenceId;
     private Map<String, String> headers;
@@ -75,6 +75,11 @@ public class RequestInput {
     }
 
     public String getSequenceId() {
+        if (sequenceId == null) {
+            sequenceId =
+                    headers.getOrDefault(
+                            ConfigManager.getInstance().getTsHeaderKeySequenceId(), null);
+        }
         return sequenceId;
     }
 

@@ -1,7 +1,7 @@
 """
 Context object of incoming request
 """
-
+import os
 from typing import Dict, Optional, Tuple
 
 
@@ -40,6 +40,15 @@ class Context(object):
         self.metrics = metrics
         self.model_yaml_config = model_yaml_config
         self.stopping_criteria = None
+        self.header_key_sequence_id = os.getenv(
+            "TS_REQUEST_SEQUENCE_ID", "ts_request_sequence_id"
+        )
+        self.header_key_sequence_start = os.getenv(
+            "TS_REQUEST_SEQUENCE_START", "ts_request_sequence_start"
+        )
+        self.header_key_sequence_end = os.getenv(
+            "TS_REQUEST_SEQUENCE_END", "ts_request_sequence_end"
+        )
 
     @property
     def system_properties(self):
@@ -121,7 +130,7 @@ class Context(object):
 
     def get_sequence_id(self, idx: int) -> str:
         return self._request_processor[idx].get_request_property(
-            "ts_request_sequence_id"
+            self.header_key_sequence_id
         )
 
 

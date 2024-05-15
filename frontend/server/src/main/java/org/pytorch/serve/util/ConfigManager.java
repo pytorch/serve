@@ -120,6 +120,9 @@ public final class ConfigManager {
     private static final String TS_CPP_LOG_CONFIG = "cpp_log_config";
     private static final String TS_OPEN_INFERENCE_PROTOCOL = "ts_open_inference_protocol";
     private static final String TS_TOKEN_EXPIRATION_TIME_MIN = "token_expiration_min";
+    private static final String TS_HEADER_KEY_SEQUENCE_ID = "ts_header_key_sequence_id";
+    private static final String TS_HEADER_KEY_SEQUENCE_START = "ts_header_key_sequence_start";
+    private static final String TS_HEADER_KEY_SEQUENCE_END = "ts_header_key_sequence_end";
 
     // Configuration which are not documented or enabled through environment variables
     private static final String USE_NATIVE_IO = "use_native_io";
@@ -145,6 +148,10 @@ public final class ConfigManager {
 
     public static final String PYTHON_EXECUTABLE = "python";
 
+    public static final String DEFAULT_REQUEST_SEQUENCE_ID = "ts_request_sequence_id";
+    public static final String DEFAULT_REQUEST_SEQUENCE_START = "ts_request_sequence_start";
+    public static final String DEFAULT_REQUEST_SEQUENCE_END = "ts_request_sequence_end";
+
     public static final Pattern ADDRESS_PATTERN =
             Pattern.compile(
                     "((https|http)://([^:^/]+)(:([0-9]+))?)|(unix:(/.*))",
@@ -161,6 +168,10 @@ public final class ConfigManager {
     private Map<String, Map<String, JsonObject>> modelConfig = new HashMap<>();
     private String torchrunLogDir;
     private boolean telemetryEnabled;
+    private String headerKeySequenceId;
+    private String headerKeySequenceStart;
+    private String headerKeySequenceEnd;
+
     private Logger logger = LoggerFactory.getLogger(ConfigManager.class);
 
     private ConfigManager(Arguments args) throws IOException {
@@ -272,6 +283,9 @@ public final class ConfigManager {
         }
 
         setModelConfig();
+        setTsHeaderKeySequenceId();
+        setTsHeaderKeySequenceStart();
+        setTsHeaderKeySequenceEnd();
 
         // Issue warnining about URLs that can be accessed when loading models
         if (prop.getProperty(TS_ALLOWED_URLS, DEFAULT_TS_ALLOWED_URLS) == DEFAULT_TS_ALLOWED_URLS) {
@@ -958,6 +972,33 @@ public final class ConfigManager {
             }
         }
         return 0.0;
+    }
+
+    public String getTsHeaderKeySequenceId() {
+        return this.headerKeySequenceId;
+    }
+
+    public void setTsHeaderKeySequenceId() {
+        this.headerKeySequenceId =
+                prop.getProperty(TS_HEADER_KEY_SEQUENCE_ID, DEFAULT_REQUEST_SEQUENCE_ID);
+    }
+
+    public String getTsHeaderKeySequenceStart() {
+        return this.headerKeySequenceStart;
+    }
+
+    public void setTsHeaderKeySequenceStart() {
+        this.headerKeySequenceStart =
+                prop.getProperty(TS_HEADER_KEY_SEQUENCE_START, DEFAULT_REQUEST_SEQUENCE_START);
+    }
+
+    public String getTsHeaderKeySequenceEnd() {
+        return this.headerKeySequenceEnd;
+    }
+
+    public void setTsHeaderKeySequenceEnd() {
+        this.headerKeySequenceEnd =
+                prop.getProperty(TS_HEADER_KEY_SEQUENCE_END, DEFAULT_REQUEST_SEQUENCE_END);
     }
 
     public boolean isSSLEnabled(ConnectorType connectorType) {
