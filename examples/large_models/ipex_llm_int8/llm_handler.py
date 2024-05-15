@@ -59,6 +59,9 @@ class IpexLLMHandler(BaseHandler):
         self.batch_size = int(ctx.model_yaml_config["handler"].get("batch_size", "1"))
         self.input_tokens = int(ctx.model_yaml_config["handler"].get("input_tokens", "1024"))
         self.max_new_tokens = int(ctx.model_yaml_config["handler"].get("max_new_tokens", "128"))
+
+        # enable auto mix precision
+        self.auto_mixed_precision = ctx.model_yaml_config["handler"].get("auto_mixed_precision", True)
         
         # use int8 bf16 mix 
         self.quant_with_amp = ctx.model_yaml_config["handler"].get("quant_with_amp", True)
@@ -85,7 +88,7 @@ class IpexLLMHandler(BaseHandler):
         self.greedy = ctx.model_yaml_config["handler"].get("greedy", False)
 
         # amp datatype 
-        if self.quant_with_amp: 
+        if self.quant_with_amp or self.auto_mixed_precision: 
             self.amp_enabled = True
             self.amp_dtype = torch.bfloat16
         else:
