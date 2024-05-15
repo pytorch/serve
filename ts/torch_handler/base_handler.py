@@ -150,7 +150,7 @@ class BaseHandler(abc.ABC):
         
         if context is not None and hasattr(context, "model_yaml_config"):
             self.model_yaml_config = context.model_yaml_config
-
+        
         properties = context.system_properties
         if torch.cuda.is_available() and properties.get("gpu_id") is not None:
             self.map_location = "cuda"
@@ -162,6 +162,7 @@ class BaseHandler(abc.ABC):
             self.device = torch.device(
                 self.map_location + ":" + str(properties.get("gpu_id"))
             )
+            torch.xpu.device(self.device)        
         elif torch.backends.mps.is_available() and properties.get("gpu_id") is not None:
             self.map_location = "mps"
             self.device = torch.device("mps")
