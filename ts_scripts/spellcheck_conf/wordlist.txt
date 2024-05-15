@@ -1239,3 +1239,11 @@ vllm
 sql
 TimeUnit
 Aopen
+Smoothquant
+iters
+lowp
+precisions
+quant
+quantizing
+smoothquant
+woq
