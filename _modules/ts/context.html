@@ -30,7 +30,7 @@
   <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" type="text/css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/katex-math.css" type="text/css" />
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -418,7 +418,7 @@
 <span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Context object of incoming request</span>
 <span class="sd">&quot;&quot;&quot;</span>
-
+<span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
 
 
@@ -457,6 +457,15 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">metrics</span> <span class="o">=</span> <span class="n">metrics</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">model_yaml_config</span> <span class="o">=</span> <span class="n">model_yaml_config</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">stopping_criteria</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">header_key_sequence_id</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span>
+            <span class="s2">&quot;TS_REQUEST_SEQUENCE_ID&quot;</span><span class="p">,</span> <span class="s2">&quot;ts_request_sequence_id&quot;</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">header_key_sequence_start</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span>
+            <span class="s2">&quot;TS_REQUEST_SEQUENCE_START&quot;</span><span class="p">,</span> <span class="s2">&quot;ts_request_sequence_start&quot;</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">header_key_sequence_end</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span>
+            <span class="s2">&quot;TS_REQUEST_SEQUENCE_END&quot;</span><span class="p">,</span> <span class="s2">&quot;ts_request_sequence_end&quot;</span>
+        <span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">system_properties</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -538,7 +547,7 @@
 
 <div class="viewcode-block" id="Context.get_sequence_id"><a class="viewcode-back" href="../../api/ts.html#ts.context.Context.get_sequence_id">[docs]</a>    <span class="k">def</span> <span class="nf">get_sequence_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_request_processor</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">get_request_property</span><span class="p">(</span>
-            <span class="s2">&quot;ts_request_sequence_id&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">header_key_sequence_id</span>
         <span class="p">)</span></div></div>
 
 
