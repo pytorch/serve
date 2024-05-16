@@ -1,4 +1,5 @@
 import shutil
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from unittest.mock import patch
 
@@ -115,23 +116,21 @@ def test_mnist_template(model_name):
     response = requests.get(f"http://localhost:8081/models/{model_name}")
     assert response.status_code == 200, "Describe Failed"
 
-    responses = []
-    for i, df in enumerate(data_files):
-        with open(df, "rb") as f:
-            responses += [
-                requests.post(
-                    f"http://localhost:8080/predictions/{model_name}",
-                    data=f,
-                    stream=True,
-                )
-            ]
+    with ThreadPoolExecutor(max_workers=10) as e:
+        futures = []
+        for i, df in enumerate(data_files):
 
-    for i, r in enumerate(responses):
-        prediction = "".join(
-            [
-                chunk.decode("utf-8")
-                for chunk in r.iter_content(chunk_size=None)
-                if chunk
-            ]
-        )
-        assert prediction == str(i), "Wrong prediction"
+            def send_file(file):
+                print(f"Sending request with: {df}")
+                with open(df, "rb") as f:
+                    return requests.post(
+                        f"http://localhost:8080/predictions/{model_name}", data=f
+                    )
+
+            # futures += [e.submit(send_file, df)]
+            prediction = send_file(df)
+
+            # for i, f in enumerate(futures):
+            # prediction = f.result()
+            print(prediction.content.decode("utf-8"))
+            assert prediction.content.decode("utf-8") == str(i), "Wrong prediction"
