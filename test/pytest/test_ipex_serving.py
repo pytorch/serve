@@ -12,6 +12,12 @@ import requests
 import test_utils
 from model_archiver.model_archiver_config import ModelArchiverConfig
 
+ACCELERATE_UNAVAILABLE = False
+try:
+    import accelerate  # nopycln: import
+except ImportError:
+    ACCELERATE_UNAVAILABLE = True
+
 REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../")
 snapshot_file_ipex = os.path.join(REPO_ROOT, "test/config_ipex.properties")
 default_ts_config = os.path.join(REPO_ROOT, "test/config_ts.properties")
@@ -198,6 +204,9 @@ CONFIG_SQ = f"""
     """
 
 
+@pytest.mark.skipif(
+    ACCELERATE_UNAVAILABLE, reason="HF accelerate library not available"
+)
 def test_handler_default_pytorch(work_dir, model_archiver):
     test_utils.torchserve_cleanup()
     # create_mar_file(work_dir, model_archiver, model_name, model_config_yaml_file):
@@ -239,6 +248,9 @@ def test_handler_default_pytorch(work_dir, model_archiver):
     test_utils.torchserve_cleanup()
 
 
+@pytest.mark.skipif(
+    ACCELERATE_UNAVAILABLE, reason="HF accelerate library not available"
+)
 def test_handler_ipex_bf16(work_dir, model_archiver):
     test_utils.torchserve_cleanup()
     # create_mar_file(work_dir, model_archiver, model_name, model_config_yaml_file):
@@ -280,6 +292,9 @@ def test_handler_ipex_bf16(work_dir, model_archiver):
     test_utils.torchserve_cleanup()
 
 
+@pytest.mark.skipif(
+    ACCELERATE_UNAVAILABLE, reason="HF accelerate library not available"
+)
 def test_handler_ipex_int8_woq(work_dir, model_archiver):
     test_utils.torchserve_cleanup()
     # create_mar_file(work_dir, model_archiver, model_name, model_config_yaml_file):
@@ -323,6 +338,9 @@ def test_handler_ipex_int8_woq(work_dir, model_archiver):
     test_utils.torchserve_cleanup()
 
 
+@pytest.mark.skipif(
+    ACCELERATE_UNAVAILABLE, reason="HF accelerate library not available"
+)
 def test_handler_ipex_int8_sq(work_dir, model_archiver):
     test_utils.torchserve_cleanup()
     # create_mar_file(work_dir, model_archiver, model_name, model_config_yaml_file):
