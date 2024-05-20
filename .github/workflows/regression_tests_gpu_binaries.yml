@@ -38,17 +38,17 @@ jobs:
         with:
           miniconda-version: "latest"
           python-version: ${{ matrix.python-version }}
-      # - name: Setup Python ${{ matrix.python-version }}
-      #   uses: actions/setup-python@v4
-      #   with:
-      #     python-version: ${{ matrix.python-version }}
-      #     architecture: x64
-      - name: Setup Conda
-        uses: s-weigand/setup-conda@v1
+      - name: Setup Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
         with:
-          update-conda: true
           python-version: ${{ matrix.python-version }}
-          conda-channels: anaconda, conda-forge
+          architecture: x64
+      # - name: Setup Conda
+      #   uses: s-weigand/setup-conda@v1
+      #   with:
+      #     update-conda: true
+      #     python-version: ${{ matrix.python-version }}
+      #     conda-channels: anaconda, conda-forge
       - run: python --version
       - run: conda --version
       - name: Setup Java 17
