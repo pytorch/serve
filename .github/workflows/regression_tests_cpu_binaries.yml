@@ -1,9 +1,12 @@
 name: Run Regression Tests for CPU nightly binaries
 
 on:
+  push:
+    branches:
+      - ci_fixes
   # run every day at 6:15am
-  schedule:
-    - cron: '15 6 * * *'
+  # schedule:
+  #   - cron: '15 6 * * *'
 
 concurrency:
   group: ci-cpu-${{ github.workflow }}-${{ github.ref == 'refs/heads/master' && github.run_number || github.ref }}
@@ -30,13 +33,13 @@ jobs:
       - uses: actions/checkout@v3
         with:
           submodules: recursive
-      - name: Setup conda with Python ${{ matrix.python-version }}
-        if: matrix.os == 'macos-14'
-        uses: conda-incubator/setup-miniconda@v3
-        with:
-          auto-update-conda: true
-          channels: anaconda, conda-forge
-          python-version: ${{ matrix.python-version }}
+      # - name: Setup conda with Python ${{ matrix.python-version }}
+      #   if: matrix.os == 'macos-14'
+      #   uses: conda-incubator/setup-miniconda@v3
+      #   with:
+      #     auto-update-conda: true
+      #     channels: anaconda, conda-forge
+      #     python-version: ${{ matrix.python-version }}
       - name: Setup conda with Python ${{ matrix.python-version }}
         if: matrix.os != 'macos-14'
         uses: s-weigand/setup-conda@v1
@@ -51,18 +54,35 @@ jobs:
           java-version: '17'
       - name: Checkout TorchServe
         uses: actions/checkout@v3
-      - name: Run install dependencies and regression test
-        if: matrix.os == 'macos-14'
+      - name: Install dependencies
         shell: bash -el {0}
         run: |
-          conda info
+          echo "=====CHECK ENV AND PYTHON VERSION===="
+          /home/ubuntu/actions-runner/_work/serve/serve/3/condabin/conda info --envs
+          python --version
+          echo "=====RUN INSTALL DEPENDENCIES===="
           python ts_scripts/install_dependencies.py --environment=dev
-          python test/regression_tests.py --binaries --${{ matrix.binaries }} --nightly
-      - name: Install dependencies
-        if: matrix.os != 'macos-14'
+      - name: Torchserve Regression Tests
+        shell: bash -el {0}
         run: |
-          python ts_scripts/install_dependencies.py --environment=dev
-      - name: Validate Torchserve CPU Regression
-        if: matrix.os != 'macos-14'
-        run: |
+          echo "=====CHECK ENV AND PYTHON VERSION===="
+          /home/ubuntu/actions-runner/_work/serve/serve/3/condabin/conda info --envs
+          python --version
+          echo "=====RUN REGRESSION TESTS===="
           python test/regression_tests.py --binaries --${{ matrix.binaries }} --nightly
+
+      # - name: Run install dependencies and regression test
+      #   if: matrix.os == 'macos-14'
+      #   shell: bash -el {0}
+      #   run: |
+      #     conda info
+      #     python ts_scripts/install_dependencies.py --environment=dev
+      #     python test/regression_tests.py --binaries --${{ matrix.binaries }} --nightly
+      # - name: Install dependencies
+      #   if: matrix.os != 'macos-14'
+      #   run: |
+      #     python ts_scripts/install_dependencies.py --environment=dev
+      # - name: Validate Torchserve CPU Regression
+      #   if: matrix.os != 'macos-14'
+      #   run: |
+      #     python test/regression_tests.py --binaries --${{ matrix.binaries }} --nightly
