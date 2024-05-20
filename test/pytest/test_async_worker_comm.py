@@ -121,16 +121,15 @@ def test_mnist_template(model_name):
         for i, df in enumerate(data_files):
 
             def send_file(file):
-                print(f"Sending request with: {df}")
-                with open(df, "rb") as f:
+                print(f"Sending request with: {file}")
+                with open(file, "rb") as f:
                     return requests.post(
                         f"http://localhost:8080/predictions/{model_name}", data=f
                     )
 
-            # futures += [e.submit(send_file, df)]
-            prediction = send_file(df)
+            futures += [e.submit(send_file, df)]
 
-            # for i, f in enumerate(futures):
-            # prediction = f.result()
+        for i, f in enumerate(futures):
+            prediction = f.result()
             print(prediction.content.decode("utf-8"))
             assert prediction.content.decode("utf-8") == str(i), "Wrong prediction"

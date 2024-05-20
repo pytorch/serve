@@ -4,7 +4,6 @@ Communication message format: binary encoding
 """
 
 # pylint: disable=redefined-builtin
-
 import logging
 import os
 import platform
