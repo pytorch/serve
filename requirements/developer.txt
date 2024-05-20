@@ -8,7 +8,7 @@ pytest-timeout==2.3.1
 grpcio==1.62.1
 protobuf==4.25.1
 grpcio-tools==1.60.0
-transformers>=4.34.0
+transformers==4.40.2
 pyspelling==2.8.2
 pygit2==1.13.3
 pre-commit==3.3.2
