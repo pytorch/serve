@@ -57,7 +57,7 @@ jobs:
         shell: bash -el {0}
         run: |
           echo "=====CHECK ENV AND PYTHON VERSION===="
-          /home/ubuntu/actions-runner/_work/serve/serve/3/condabin/conda info --envs
+          conda info --envs
           python --version
           echo "=====RUN INSTALL DEPENDENCIES===="
           python ts_scripts/install_dependencies.py --environment=dev
@@ -65,7 +65,7 @@ jobs:
         shell: bash -el {0}
         run: |
           echo "=====CHECK ENV AND PYTHON VERSION===="
-          /home/ubuntu/actions-runner/_work/serve/serve/3/condabin/conda info --envs
+          conda info --envs
           python --version
           echo "=====RUN REGRESSION TESTS===="
           python test/regression_tests.py --binaries --${{ matrix.binaries }} --nightly
