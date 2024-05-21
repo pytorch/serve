@@ -1,13 +1,9 @@
 name: Run Regression Tests for GPU nightly binaries
 
 on:
-  push:
-    branches:
-      - ci_fixes
-
-  # # run every day at 6:15am
-  # schedule:
-  #   - cron:  '15 6 * * *'
+  # run every day at 6:15am
+  schedule:
+    - cron:  '15 6 * * *'
 
 concurrency:
   group: ci-cpu-${{ github.workflow }}-${{ github.ref == 'refs/heads/master' && github.run_number || github.ref }}
@@ -43,12 +39,6 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           architecture: x64
-      # - name: Setup Conda
-      #   uses: s-weigand/setup-conda@v1
-      #   with:
-      #     update-conda: true
-      #     python-version: ${{ matrix.python-version }}
-      #     conda-channels: anaconda, conda-forge
       - run: python --version
       - run: conda --version
       - name: Setup Java 17
