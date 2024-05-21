@@ -1,0 +1,11 @@
+#frontend settings
+minWorkers: 1
+maxWorkers: 1
+maxBatchDelay: 200
+responseTimeout: 300
+deviceType: "gpu"
+handler:
+    converted_ckpt_dir: "checkpoints/mistralai/Mixtral-8x7B-v0.1/model_int8.pth"
+    max_new_tokens: 50
+    compile: true
+    fx_graph_cache: True
