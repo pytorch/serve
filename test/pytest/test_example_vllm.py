@@ -13,7 +13,7 @@ VLLM_PATH = CURR_FILE_PATH.parents[1] / "examples" / "large_models" / "vllm"
 LORA_SRC_PATH = VLLM_PATH / "lora"
 CONFIG_PROPERTIES_PATH = CURR_FILE_PATH.parents[1] / "test" / "config_ts.properties"
 
-LLAMA_MODEL_PATH = "model/models--meta-llama--Llama-2-7b-hf/snapshots/01c7f73d771dfac7d292323805ebc428287df4f9"
+LLAMA_MODEL_PATH = "model/models--meta-llama--Llama-2-7b-chat-hf/snapshots/f5db02db724555f92da89c216ac04704f23d4590/"
 
 ADAPTER_PATH = "adapters/model/models--yard1--llama-2-7b-sql-lora-test/snapshots/0dfa347e8877a4d4ed19ee56c140fa518470028c"
 
@@ -28,7 +28,7 @@ deviceType: "gpu"
 continuousBatching: true
 
 handler:
-    model_path: "{LLAMA_MODEL_PATH}"
+    model_path: "{(LORA_SRC_PATH / LLAMA_MODEL_PATH).as_posix()}"
     vllm_engine_config:
         enable_lora: true
         max_loras: 4
@@ -37,7 +37,7 @@ handler:
         max_model_len: 250
 
     adapters:
-        adapter_1: "{ADAPTER_PATH}"
+        adapter_1: "{(LORA_SRC_PATH / ADAPTER_PATH).as_posix()}"
 """
 
 PROMPTS = [
@@ -52,13 +52,20 @@ PROMPTS = [
     },
 ]
 
+try:
+    import vllm  # noqa
+
+    VLLM_MISSING = False
+except ImportError:
+    VLLM_MISSING = True
+
 
 def necessary_files_unavailable():
     LLAMA = LORA_SRC_PATH / LLAMA_MODEL_PATH
     ADAPTER = LORA_SRC_PATH / ADAPTER_PATH
     return {
-        "condition": not (LLAMA.exists() and ADAPTER.exists()),
-        "reason": f"Required files are not present (see README): {LLAMA.as_posix()} + {ADAPTER.as_posix()}",
+        "condition": not (LLAMA.exists() and ADAPTER.exists() or VLLM_MISSING),
+        "reason": f"Required files are not present or vllm is not installed (see README): {LLAMA.as_posix()} + {ADAPTER.as_posix()}",
     }
 
 
@@ -94,7 +101,7 @@ def create_mar_file(work_dir, model_archiver, model_name, request):
         handler=(VLLM_PATH / "base_vllm_handler.py").as_posix(),
         serialized_file=None,
         export_path=work_dir,
-        requirements_file=(VLLM_PATH / "requirements.txt").as_posix(),
+        requirements_file=None,
         runtime="python",
         force=False,
         config_file=model_config_yaml.as_posix(),
@@ -102,8 +109,6 @@ def create_mar_file(work_dir, model_archiver, model_name, request):
     )
 
     model_archiver.generate_model_archive(config)
-    shutil.move(LORA_SRC_PATH / "model", mar_file_path)
-    shutil.move(LORA_SRC_PATH / "adapters", mar_file_path)
 
     assert mar_file_path.exists()
 
@@ -114,7 +119,7 @@ def create_mar_file(work_dir, model_archiver, model_name, request):
 
 
 @pytest.mark.skipif(**necessary_files_unavailable())
-def test_vllm_lora_mar(mar_file_path, model_store):
+def test_vllm_lora_mar(mar_file_path, model_store, torchserve):
     """
     Register the model in torchserve
     """
@@ -131,10 +136,6 @@ def test_vllm_lora_mar(mar_file_path, model_store):
         ("initial_workers", "1"),
         ("synchronous", "true"),
         ("batch_size", "1"),
-    )
-
-    test_utils.start_torchserve(
-        model_store=model_store, snapshot_file=CONFIG_PROPERTIES_PATH, gen_mar=False
     )
 
     try:
@@ -155,7 +156,6 @@ def test_vllm_lora_mar(mar_file_path, model_store):
             if chunk:
                 data = json.loads(chunk)
                 prediction += [data.get("text", "")]
-
         assert len(prediction) > 1
 
     finally:
