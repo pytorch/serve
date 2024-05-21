@@ -155,7 +155,7 @@ then
   exit 1
 fi
 
-if [ "${BUILD_TYPE}" == "prod" ] && ! $USE_CUSTOM_TAG ;
+if [ "${BUILD_TYPE}" == "production" ] && ! $USE_CUSTOM_TAG ;
 then
   if [ "${BUILD_CPP}" == "true" ]
   then
