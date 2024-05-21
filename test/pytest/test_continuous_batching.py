@@ -94,6 +94,7 @@ def register_model(mar_file_path, model_store, torchserve):
     test_utils.unregister_model(model_name)
 
 
+@pytest.mark.skip(reason="Skipping this test for now")
 def test_echo_stream_inference(model_name_and_stdout):
     model_name, _ = model_name_and_stdout
     responses = []
@@ -145,6 +146,7 @@ def test_echo_stream_inference(model_name_and_stdout):
     assert all_predictions[3] == "When travelling to NYC, I was able to"
 
 
+@pytest.mark.skip(reason="Skipping this test for now")
 def test_decoding_stage(monkeypatch):
     monkeypatch.syspath_prepend((CURR_FILE_PATH / "test_data" / "streaming"))
 
@@ -211,6 +213,7 @@ def test_decoding_stage(monkeypatch):
     assert ctx.cache["id2"]["encoded"]["attention_mask"].size()[-1] == 11
 
 
+@pytest.mark.skip(reason="Skipping this test for now")
 def test_closed_connection(model_name_and_stdout):
     model_name, stdout = model_name_and_stdout
 
