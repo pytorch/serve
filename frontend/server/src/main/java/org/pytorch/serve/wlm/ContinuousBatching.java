@@ -9,7 +9,6 @@ import org.pytorch.serve.util.messages.ModelLoadModelRequest;
 import org.pytorch.serve.util.messages.ModelWorkerResponse;
 import org.pytorch.serve.util.messages.Predictions;
 import org.pytorch.serve.util.messages.RequestInput;
-import org.pytorch.serve.util.messages.WorkerCommands;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,9 +47,7 @@ public class ContinuousBatching extends BatchAggregator {
                 }
                 return new ModelLoadModelRequest(model, gpuId);
             } else {
-                if (j.getCmd() == WorkerCommands.STREAMPREDICT) {
-                    req.setCommand(WorkerCommands.STREAMPREDICT);
-                }
+                req.setCommand(j.getCmd());
                 j.setScheduled();
                 req.addRequest(j.getPayload());
             }

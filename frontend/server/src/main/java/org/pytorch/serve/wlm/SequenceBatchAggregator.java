@@ -11,6 +11,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.pytorch.serve.job.Job;
 import org.pytorch.serve.job.JobGroup;
+import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.messages.BaseModelRequest;
 import org.pytorch.serve.util.messages.ModelWorkerResponse;
 import org.slf4j.Logger;
@@ -35,6 +36,7 @@ public class SequenceBatchAggregator extends BatchAggregator {
     // back to eventJobGroupIds once their jobs are processed by a batch.
     private LinkedList<String> currentJobGroupIds;
     private int localCapacity;
+    private AtomicBoolean running = new AtomicBoolean(true);
 
     public SequenceBatchAggregator(Model model) {
         super(model);
@@ -161,6 +163,13 @@ public class SequenceBatchAggregator extends BatchAggregator {
         }
     }
 
+    @Override
+    public void shutdown() {
+        this.setRunning(false);
+        this.shutdownExecutors();
+        this.stopEventDispatcher();
+    }
+
     public void shutdownExecutors() {
         this.pollExecutors.shutdown();
     }
@@ -171,10 +180,14 @@ public class SequenceBatchAggregator extends BatchAggregator {
         }
     }
 
+    public void setRunning(boolean running) {
+        this.running.set(running);
+    }
+
     class EventDispatcher implements Runnable {
         @Override
         public void run() {
-            while (true) {
+            while (running.get()) {
                 try {
                     String jobGroupId =
                             eventJobGroupIds.poll(model.getMaxBatchDelay(), TimeUnit.MILLISECONDS);
@@ -197,7 +210,9 @@ public class SequenceBatchAggregator extends BatchAggregator {
                                 pollExecutors);
                     }
                 } catch (InterruptedException e) {
-                    logger.error("EventDispatcher failed to get jobGroup", e);
+                    if (running.get()) {
+                        logger.error("EventDispatcher failed to get jobGroup", e);
+                    }
                 }
             }
         }
@@ -212,6 +227,14 @@ public class SequenceBatchAggregator extends BatchAggregator {
                 // intent to add new job groups.
                 eventJobGroupIds.add("");
             } else {
+                if (Boolean.parseBoolean(
+                        job.getPayload()
+                                .getHeaders()
+                                .getOrDefault(
+                                        ConfigManager.getInstance().getTsHeaderKeySequenceEnd(),
+                                        "false"))) {
+                    jobGroup.setFinished(true);
+                }
                 jobsQueue.add(job);
             }
         }
