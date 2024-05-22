@@ -49,7 +49,12 @@ Now let's cover the details on using the CLI tool: `model-archiver`.
 Here is an example usage with the densenet161 model archive following the example in the [examples README](../examples/README.md):
 
 ```bash
-torch-model-archiver --model-name densenet161 --version 1.0 --model-file examples/image_classifier/densenet_161/model.py --serialized-file densenet161-8d451a50.pth --extra-files examples/image_classifier/index_to_name.json --handler image_classifier
+torch-model-archiver --model-name densenet161 \
+    --version 1.0 \
+    --model-file examples/image_classifier/densenet_161/model.py \
+    --serialized-file densenet161-8d451a50.pth \
+    --extra-files examples/image_classifier/index_to_name.json \
+    --handler image_classifier
 ```
 
 ### Arguments
