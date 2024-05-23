@@ -47,6 +47,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.io.IOUtils;
 import org.pytorch.serve.archive.model.Manifest;
 import org.pytorch.serve.metrics.MetricBuilder;
+import org.pytorch.serve.http.TokenAuthorizationHandler;
 import org.pytorch.serve.servingsdk.snapshot.SnapshotSerializer;
 import org.pytorch.serve.snapshot.SnapshotSerializerFactory;
 import org.slf4j.Logger;
@@ -123,6 +124,7 @@ public final class ConfigManager {
     private static final String TS_HEADER_KEY_SEQUENCE_ID = "ts_header_key_sequence_id";
     private static final String TS_HEADER_KEY_SEQUENCE_START = "ts_header_key_sequence_start";
     private static final String TS_HEADER_KEY_SEQUENCE_END = "ts_header_key_sequence_end";
+    private static final String TS_DISABLE_TOKEN_ATHORIZATION = "disable_token_authorization";
 
     // Configuration which are not documented or enabled through environment variables
     private static final String USE_NATIVE_IO = "use_native_io";
@@ -280,6 +282,11 @@ public final class ConfigManager {
         if (Boolean.parseBoolean(getEnableEnvVarsConfig())) {
             // Environment variables have higher precedence over the config file variables
             setSystemVars();
+        }
+
+        boolean disable_token_authorization = getDisableTokenAuthorization();
+        if (!disable_token_authorization) {
+            TokenAuthorizationHandler.setupTokenClass();
         }
 
         setModelConfig();
@@ -460,6 +467,10 @@ public final class ConfigManager {
 
     public String getCPULauncherArgs() {
         return getProperty(TS_CPU_LAUNCHER_ARGS, null);
+    }
+
+    public boolean getDisableTokenAuthorization() {
+        return Boolean.parseBoolean(getProperty(TS_DISABLE_TOKEN_ATHORIZATION, "false"));
     }
 
     public int getNettyThreads() {
