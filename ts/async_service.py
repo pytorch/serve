@@ -4,6 +4,7 @@ import logging
 import time
 import types
 from asyncio.queues import Queue as AsyncQueue
+from concurrent.futures.thread import ThreadPoolExecutor
 from queue import Empty, Queue
 from threading import Thread
 
@@ -38,7 +39,7 @@ async def predict(self, batch):
 
     # noinspection PyBroadException
     try:
-        ret = self._entry_point(input_batch, context)
+        ret = await self._entry_point(input_batch, context)
     except MemoryError:
         logger.error("System out of memory", exc_info=True)
         return create_predict_response(None, req_id_map, "Out of resources", 507)
@@ -90,19 +91,18 @@ class AsyncService(object):
         self.service.predict = types.MethodType(predict, self.service)
         self.in_queue = Queue()
         self.out_queue = AsyncQueue()
-        self.executor = None
         self.loop = None
 
     def receive_requests(self):
         while True:
-            logging.info("Waiting for new message")
+            logging.debug("Waiting for new message")
             cmd, msg = retrieve_msg(self.service.cl_socket)
 
             if cmd == b"I":
-                logging.info(f"Putting msg in queue: {msg}")
+                logging.debug(f"Putting msg in queue: {msg}")
                 self.in_queue.put(msg)
             else:
-                logging.info(f"Unexpected request: {cmd}")
+                logging.debug(f"Unexpected request: {cmd}")
 
     async def call_predict(self, batch):
         response = await self.service.predict(batch)
@@ -110,14 +110,14 @@ class AsyncService(object):
 
     def fetch_batches(self):
         MAX_WAIT = 0.1
-        BATCH_SIZE = 8
+        BATCH_SIZE = 1
         while True:
             st = time.time()
             batch = []
             try:
-                logging.info(f"Waiting for INF")
+                logging.debug(f"Waiting for INF")
                 request = self.in_queue.get()
-                logging.info(f"Got an INF")
+                logging.debug(f"Got an INF")
                 batch += request
                 while len(batch) < BATCH_SIZE and (time.time() - st) < MAX_WAIT:
                     timeout = max(0, MAX_WAIT - (time.time() - st))
@@ -126,11 +126,8 @@ class AsyncService(object):
             except Empty:
                 pass
 
-            logging.info(f"Call predict with batch_size: {len(batch)}")
-            future = asyncio.run_coroutine_threadsafe(
-                self.call_predict(batch), self.loop
-            )
-            future.result()
+            logging.debug(f"Call predict with batch_size: {len(batch)}")
+            asyncio.run_coroutine_threadsafe(self.call_predict(batch), self.loop)
 
     def send_responses(self):
         while True:
@@ -138,9 +135,8 @@ class AsyncService(object):
             self.service.cl_socket.sendall(future.result())
 
     def run(self):
-        with asyncio.Runner() as runner:
-            self.loop = runner.get_loop()
-
+        async def main():
+            self.loop = asyncio.get_running_loop()
             fetch = Thread(target=self.fetch_batches)
             fetch.start()
             receive = Thread(target=self.receive_requests)
@@ -148,6 +144,9 @@ class AsyncService(object):
             send = Thread(target=self.send_responses)
             send.start()
 
-            logging.info("Running async run")
-            # runner.run(self.async_main())
-            self.loop.run_forever()
+            logging.debug("Running async run")
+
+            with ThreadPoolExecutor(1) as executor:
+                await asyncio.get_event_loop().run_in_executor(executor, send.join)
+
+        asyncio.run(main())

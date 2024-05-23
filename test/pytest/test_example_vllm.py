@@ -25,7 +25,8 @@ batchSize: 16
 maxBatchDelay: 100
 responseTimeout: 1200
 deviceType: "gpu"
-continuousBatching: true
+asyncCommunication: true
+stream: true
 
 handler:
     model_path: "{(LORA_SRC_PATH / LLAMA_MODEL_PATH).as_posix()}"
@@ -140,23 +141,30 @@ def test_vllm_lora_mar(mar_file_path, model_store, torchserve):
 
     try:
         test_utils.reg_resp = test_utils.register_model_with_params(params)
+        responses = []
 
-        response = requests.post(
-            url=f"http://localhost:8080/predictions/{model_name}",
-            json=PROMPTS[0],
-            stream=True,
-        )
+        for _ in range(10):
+            response = requests.post(
+                url=f"http://localhost:8080/predictions/{model_name}",
+                json=PROMPTS[0],
+                stream=True,
+            )
 
-        assert response.status_code == 200
+            assert response.status_code == 200
 
-        assert response.headers["Transfer-Encoding"] == "chunked"
+            assert response.headers["Transfer-Encoding"] == "chunked"
+            responses += [response]
 
-        prediction = []
-        for chunk in response.iter_content(chunk_size=None):
-            if chunk:
-                data = json.loads(chunk)
-                prediction += [data.get("text", "")]
-        assert len(prediction) > 1
+        predictions = []
+        for response in responses:
+            prediction = []
+            for chunk in response.iter_content(chunk_size=None):
+                if chunk:
+                    data = json.loads(chunk)
+                    prediction += [data.get("text", "")]
+            predictions += [prediction]
+        assert all(len(p) > 1 for p in predictions)
+        assert all("".join(p).startswith(" or, through inaction") for p in predictions)
 
     finally:
         test_utils.unregister_model(model_name)

@@ -107,15 +107,15 @@ public class AsyncBatchAggregator extends BatchAggregator {
                             "Drop response for inference request {} due to client timeout",
                             job.getPayload().getRequestId());
                 }
-                // String streamNext =
-                //         prediction
-                //                 .getHeaders()
-                //                 .get(
-                //                         org.pytorch.serve.util.messages.RequestInput
-                //                                 .TS_STREAM_NEXT);
-                // if ("false".equals(streamNext)) {
-                jobs_in_backend.remove(jobId);
-                // }
+                String streamNext =
+                        prediction
+                                .getHeaders()
+                                .get(
+                                        org.pytorch.serve.util.messages.RequestInput
+                                                .TS_STREAM_NEXT);
+                if ("false".equals(streamNext)) {
+                    jobs_in_backend.remove(jobId);
+                }
             }
 
         } else {
