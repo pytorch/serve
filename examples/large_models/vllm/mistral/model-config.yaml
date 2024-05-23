@@ -1,18 +1,15 @@
 # TorchServe frontend parameters
 minWorkers: 1
 maxWorkers: 1
-batchSize: 2
+batchSize: 16
 maxBatchDelay: 100
 responseTimeout: 1200
 deviceType: "gpu"
-# example of user specified GPU deviceIds
-deviceIds: [0,1,2,3] # seting CUDA_VISIBLE_DEVICES
-
-torchrun:
-    nproc-per-node: 4
+continuousBatching: true
 
 handler:
-    model_name: "mistralai/Mistral-7B-v0.1"
-    model_path: "/home/ubuntu/serve/examples/large_models/vllm/mistral/model/models--mistralai--Mistral-7B-v0.1/snapshots/5e9c98b96d071dce59368012254c55b0ec6f8658"
-    max_new_tokens: 100
-    manual_seed: 40
+    model_path: "model/models--mistralai--Mistral-7B-v0.1/snapshots/26bca36bde8333b5d7f72e9ed20ccda6a618af24"
+    vllm_engine_config:
+        max_model_len: 250
+        max_num_seqs: 16
+        tensor_parallel_size: 4

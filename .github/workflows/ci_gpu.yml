@@ -45,7 +45,7 @@ jobs:
         run: |
           python ts_scripts/install_dependencies.py --environment=dev --cuda=cu121
       - name: Torchserve Sanity
-        uses: nick-fields/retry@v2
+        uses: nick-fields/retry@v3
         with:
           timeout_minutes: 60
           retry_on: error

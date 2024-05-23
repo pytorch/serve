@@ -229,7 +229,7 @@ public class WorkLoadManager {
 
             BatchAggregator aggregator;
 
-            if (model.isStateful()) {
+            if (model.isSequenceBatching()) {
                 aggregator = new SequenceBatchAggregator(model);
             } else if (model.isContinuousBatching()) {
                 aggregator = new ContinuousBatching(model);

@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
@@ -452,6 +453,12 @@ public class ModelServer {
                                 new InetSocketAddress(
                                         configManager.getGRPCAddress(connectorType),
                                         configManager.getGRPCPort(connectorType)))
+                        .maxConnectionAge(
+                                configManager.getGRPCMaxConnectionAge(connectorType),
+                                TimeUnit.MILLISECONDS)
+                        .maxConnectionAgeGrace(
+                                configManager.getGRPCMaxConnectionAgeGrace(connectorType),
+                                TimeUnit.MILLISECONDS)
                         .maxInboundMessageSize(configManager.getMaxRequestSize())
                         .addService(
                                 ServerInterceptors.intercept(

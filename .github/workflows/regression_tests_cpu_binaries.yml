@@ -16,7 +16,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-20.04, macOS-latest]
+        os: [ubuntu-20.04, macos-latest]
         python-version: ["3.8", "3.9", "3.10"]
         binaries: ["pypi", "conda"]
         exclude:
@@ -31,19 +31,11 @@ jobs:
         with:
           submodules: recursive
       - name: Setup conda with Python ${{ matrix.python-version }}
-        if: matrix.os == 'macos-14'
         uses: conda-incubator/setup-miniconda@v3
         with:
           auto-update-conda: true
           channels: anaconda, conda-forge
           python-version: ${{ matrix.python-version }}
-      - name: Setup conda with Python ${{ matrix.python-version }}
-        if: matrix.os != 'macos-14'
-        uses: s-weigand/setup-conda@v1
-        with:
-          update-conda: true
-          python-version: ${{ matrix.python-version }}
-          conda-channels: anaconda, conda-forge
       - name: Setup Java 17
         uses: actions/setup-java@v3
         with:
@@ -51,18 +43,21 @@ jobs:
           java-version: '17'
       - name: Checkout TorchServe
         uses: actions/checkout@v3
-      - name: Run install dependencies and regression test
-        if: matrix.os == 'macos-14'
+      - name: Install dependencies
         shell: bash -el {0}
         run: |
-          conda info
+          echo "=====CHECK ENV AND PYTHON VERSION===="
+          conda info --envs
+          python --version
+          echo "=====RUN INSTALL DEPENDENCIES===="
           python ts_scripts/install_dependencies.py --environment=dev
-          python test/regression_tests.py --binaries --${{ matrix.binaries }} --nightly
-      - name: Install dependencies
-        if: matrix.os != 'macos-14'
+      - name: Torchserve Regression Tests
+        shell: bash -el {0}
+        env:
+          TS_MAC_ARM64_CPU_ONLY: ${{ matrix.os == 'macos-latest' && 'True' || 'False' }}
         run: |
-          python ts_scripts/install_dependencies.py --environment=dev
-      - name: Validate Torchserve CPU Regression
-        if: matrix.os != 'macos-14'
-        run: |
+          echo "=====CHECK ENV AND PYTHON VERSION===="
+          conda info --envs
+          python --version
+          echo "=====RUN REGRESSION TESTS===="
           python test/regression_tests.py --binaries --${{ matrix.binaries }} --nightly

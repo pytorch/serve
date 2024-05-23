@@ -118,9 +118,14 @@ class Common:
                 f"{sys.executable} -m pip install -U -r {torch_neuronx_requirements_file}"
             )
         else:
-            os.system(
-                f"{sys.executable} -m pip install -U -r requirements/torch_{platform.system().lower()}.txt"
-            )
+            if platform.machine() == "aarch64":
+                os.system(
+                    f"{sys.executable} -m pip install -U -r requirements/torch_{platform.system().lower()}_{platform.machine()}.txt"
+                )
+            else:
+                os.system(
+                    f"{sys.executable} -m pip install -U -r requirements/torch_{platform.system().lower()}.txt"
+                )
 
     def install_python_packages(self, cuda_version, requirements_file_path, nightly):
         check = "where" if platform.system() == "Windows" else "which"
@@ -141,7 +146,6 @@ class Common:
         else:
             self.install_torch_packages(cuda_version)
 
-        os.system(f"{sys.executable} -m pip install -U pip setuptools")
         # developer.txt also installs packages from common.txt
         os.system(f"{sys.executable} -m pip install -U -r {requirements_file_path}")
 

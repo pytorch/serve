@@ -248,9 +248,8 @@ public class WorkerThread implements Runnable {
 
                 switch (req.getCommand()) {
                     case PREDICT:
-                        model.resetFailedInfReqs();
-                        break;
                     case STREAMPREDICT:
+                    case STREAMPREDICT2:
                         model.resetFailedInfReqs();
                         break;
                     case LOAD:
@@ -471,6 +470,7 @@ public class WorkerThread implements Runnable {
 
     public void shutdown() {
         running.set(false);
+        aggregator.shutdown();
         setState(WorkerState.WORKER_SCALED_DOWN, HttpURLConnection.HTTP_OK);
         for (int i = 0;
                 backendChannel.size() > 0
@@ -488,10 +488,6 @@ public class WorkerThread implements Runnable {
                     null, "Worker scaled down.", HttpURLConnection.HTTP_INTERNAL_ERROR);
 
             model.removeJobQueue(workerId);
-        }
-        if (aggregator instanceof SequenceBatchAggregator) {
-            ((SequenceBatchAggregator) aggregator).shutdownExecutors();
-            ((SequenceBatchAggregator) aggregator).stopEventDispatcher();
         }
     }
 

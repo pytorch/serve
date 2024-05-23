@@ -1,0 +1,3 @@
+transformers==4.40.0
+tokenizers==0.19.1
+sentencepiece
