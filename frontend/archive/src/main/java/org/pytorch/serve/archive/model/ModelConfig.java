@@ -75,6 +75,11 @@ public class ModelConfig {
     private boolean useVenv;
     /** sequenceBatching is a flag to enable https://github.com/pytorch/serve/issues/2743 */
     private boolean sequenceBatching;
+    /**
+     * sequenceContinuousBatching is a flag to enable continouous batching in sequenceBatching
+     * streaming use case
+     */
+    private boolean sequenceContinuousBatching;
 
     public static ModelConfig build(Map<String, Object> yamlMap) {
         ModelConfig modelConfig = new ModelConfig();
@@ -220,6 +225,15 @@ public class ModelConfig {
                             } else {
                                 logger.warn(
                                         "Invalid sequenceBatching: {}, should be true or false", v);
+                            }
+                            break;
+                        case "sequenceContinuousBatching":
+                            if (v instanceof Boolean) {
+                                modelConfig.setSequenceContinuousBatching((boolean) v);
+                            } else {
+                                logger.warn(
+                                        "Invalid sequenceContinuousBatching: {}, should be true or false",
+                                        v);
                             }
                             break;
                         case "useVenv":
@@ -399,6 +413,15 @@ public class ModelConfig {
 
     public void setSequenceBatching(boolean sequenceBatching) {
         this.sequenceBatching = sequenceBatching;
+    }
+
+    public boolean isSequenceContinuousBatchingBatching() {
+        return sequenceContinuousBatching;
+    }
+
+    public void setSequenceContinuousBatching(boolean sequenceContinuousBatching) {
+        this.sequenceBatching = sequenceContinuousBatching;
+        this.sequenceContinuousBatching = sequenceContinuousBatching;
     }
 
     public int getMaxNumSequence() {
