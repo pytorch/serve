@@ -3,7 +3,6 @@ package org.pytorch.serve.http;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.QueryStringDecoder;
-import java.lang.reflect.*;
 import org.pytorch.serve.archive.DownloadArchiveException;
 import org.pytorch.serve.archive.model.InvalidKeyException;
 import org.pytorch.serve.archive.model.ModelException;
@@ -32,12 +31,6 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.pytorch.serve.servingsdk.Context;
-import org.pytorch.serve.servingsdk.ModelServerEndpoint;
-import org.pytorch.serve.servingsdk.annotations.Endpoint;
-import org.pytorch.serve.servingsdk.annotations.helpers.EndpointTypes;
-import org.pytorch.serve.servingsdk.http.Request;
-import org.pytorch.serve.servingsdk.http.Response;
 
 
 /**

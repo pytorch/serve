@@ -1,7 +1,5 @@
 import json
 import os
-import shutil
-import subprocess
 import tempfile
 import time
 from pathlib import Path
@@ -14,23 +12,6 @@ ROOT_DIR = os.path.join(tempfile.gettempdir(), "workspace")
 REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../")
 data_file_zero = os.path.join(REPO_ROOT, "test/pytest/test_data/0.png")
 config_file = os.path.join(REPO_ROOT, "test/resources/config_token.properties")
-
-
-# Set up token plugin
-def get_plugin_jar():
-    new_folder_path = os.path.join(ROOT_DIR, "plugins-path")
-    plugin_folder = os.path.join(REPO_ROOT, "plugins")
-    os.makedirs(new_folder_path, exist_ok=True)
-    os.chdir(plugin_folder)
-    subprocess.run(["./gradlew", "formatJava"])
-    result = subprocess.run(["./gradlew", "build"])
-    jar_path = os.path.join(plugin_folder, "endpoints/build/libs")
-    jar_files = [file for file in os.listdir(jar_path) if file.endswith(".jar")]
-    for jar_file in jar_files:
-        shutil.move(
-            os.path.join(jar_path, jar_file), os.path.join(new_folder_path, jar_file)
-        )
-    os.chdir(REPO_ROOT)
 
 
 # Parse json file and return key
@@ -50,13 +31,12 @@ def read_key_file(type):
 
 @pytest.fixture(scope="module")
 def setup_torchserve():
-    get_plugin_jar()
     MODEL_STORE = os.path.join(ROOT_DIR, "model_store/")
     PLUGIN_STORE = os.path.join(ROOT_DIR, "plugins-path")
 
     Path(test_utils.MODEL_STORE).mkdir(parents=True, exist_ok=True)
 
-    test_utils.start_torchserve(no_config_snapshots=True, plugin_folder=PLUGIN_STORE)
+    test_utils.start_torchserve(no_config_snapshots=True, token=True)
 
     key = read_key_file("management")
     header = {"Authorization": f"Bearer {key}"}
@@ -80,14 +60,13 @@ def setup_torchserve():
 
 @pytest.fixture(scope="module")
 def setup_torchserve_expiration():
-    get_plugin_jar()
     MODEL_STORE = os.path.join(ROOT_DIR, "model_store/")
     PLUGIN_STORE = os.path.join(ROOT_DIR, "plugins-path")
 
     Path(test_utils.MODEL_STORE).mkdir(parents=True, exist_ok=True)
 
     test_utils.start_torchserve(
-        snapshot_file=config_file, no_config_snapshots=True, plugin_folder=PLUGIN_STORE
+        snapshot_file=config_file, no_config_snapshots=True, token=True
     )
 
     key = read_key_file("management")
