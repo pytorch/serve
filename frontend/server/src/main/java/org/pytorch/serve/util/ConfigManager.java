@@ -943,10 +943,7 @@ public final class ConfigManager {
                 // No MPS devices detected
                 return 0;
             } else {
-
-                
-                try {
-                    Process process =
+                Process process =
                         Runtime.getRuntime().exec("nvidia-smi --query-gpu=index --format=csv");
                 int ret = process.waitFor();
                 if (ret != 0) {
@@ -960,30 +957,8 @@ public final class ConfigManager {
                 for (int i = 1; i < list.size(); i++) {
                     gpuIds.add(Integer.parseInt(list.get(i)));
                 }
-                }catch (IOException | InterruptedException e) {
-                System.out.println("nvidia-smi not available or failed: " + e.getMessage());
-                }
-                try {
-                Process process = Runtime.getRuntime().exec("xpu-smi discovery --dump 1");
-                int ret = process.waitFor();
-                    if (ret != 0) {
-                        return 0;
-                    }
-                List<String> list =
-                        IOUtils.readLines(process.getInputStream(), StandardCharsets.UTF_8);
-                if (list.isEmpty() || !list.get(0).contains("Device ID")) {
-                    throw new AssertionError("Unexpected xpu-smi response.");
-                }
-                for (int i = 1; i < list.size(); i++) {
-                    gpuIds.add(Integer.parseInt(list.get(i)));
-                }
-                }catch (IOException | InterruptedException e) {
-                System.out.println("xpu-smi not available or failed: " + e.getMessage());
-                }
-
-                
-            
             }
+            
             return gpuIds.size();
         } catch (IOException | InterruptedException e) {
             return 0;
