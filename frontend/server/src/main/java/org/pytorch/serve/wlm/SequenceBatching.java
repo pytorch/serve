@@ -28,7 +28,7 @@ public class SequenceBatching extends BatchAggregator {
     protected LinkedBlockingDeque<String> eventJobGroupIds;
     // A queue holds jobs ready for this aggregator to add into a batch. Each job of this queue is
     // from distinct jobGroup. jobs
-    private LinkedBlockingDeque<Job> jobsQueue;
+    protected LinkedBlockingDeque<Job> jobsQueue;
     private Thread eventDispatcher;
     private AtomicBoolean isPollJobGroup;
     // A list of jobGroupIds which are added into current batch. These jobGroupIds need to be added
@@ -83,7 +83,7 @@ public class SequenceBatching extends BatchAggregator {
         isPollJobGroup.set(false);
     }
 
-    private void pollInferJob() throws InterruptedException {
+    protected void pollInferJob() throws InterruptedException {
         model.pollInferJob(jobs, model.getBatchSize(), jobsQueue);
 
         for (Job job : jobs.values()) {

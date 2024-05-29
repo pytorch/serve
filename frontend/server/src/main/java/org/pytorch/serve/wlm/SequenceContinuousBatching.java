@@ -116,6 +116,18 @@ public class SequenceContinuousBatching extends SequenceBatching {
         }
     }
 
+    @Override
+    protected void pollInferJob() throws InterruptedException {
+        // TBD: Temporarily hard code the continuous batch size is 2 * batchSize
+        model.pollInferJob(jobs, model.getBatchSize() * 2 - jobs.size(), jobsQueue);
+
+        for (Job job : jobs.values()) {
+            if (job.getGroupId() != null) {
+                currentJobGroupIds.add(job.getGroupId());
+            }
+        }
+    }
+
     private void resetCurrentJobGroupIds() {
         if (!currentJobGroupIds.isEmpty()) {
             eventJobGroupIds.addAll(currentJobGroupIds);

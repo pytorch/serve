@@ -60,7 +60,7 @@ public class ModelConfig {
      */
     private long sequenceMaxIdleMSec;
     /**
-     * the job queue size of an inference sequence of this stateful model. The default value is 1.
+     * the job queue size of one inference sequence of this stateful model. The default value is 1.
      */
     private int maxSequenceJobQueueSize = 1;
     /** the max number of sequences can be accepted. The default value is 1. */
@@ -76,8 +76,8 @@ public class ModelConfig {
     /** sequenceBatching is a flag to enable https://github.com/pytorch/serve/issues/2743 */
     private boolean sequenceBatching;
     /**
-     * sequenceContinuousBatching is a flag to enable continouous batching in sequenceBatching
-     * streaming use case
+     * sequenceContinuousBatching is a flag to enable continuous batching in sequenceBatching
+     * streaming use case so that a new inference request from the same sequence can be processed.
      */
     private boolean sequenceContinuousBatching;
 
