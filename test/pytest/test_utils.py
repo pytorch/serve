@@ -59,6 +59,7 @@ def start_torchserve(
     no_config_snapshots=False,
     gen_mar=True,
     plugin_folder=None,
+    token=False,
 ):
     stop_torchserve()
     crate_mar_file_table()
@@ -73,6 +74,8 @@ def start_torchserve(
         cmd.extend(["--ts-config", snapshot_file])
     if no_config_snapshots:
         cmd.extend(["--no-config-snapshots"])
+    if not token:
+        cmd.append("--disable-token")
     print(cmd)
 
     p = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=STDOUT)

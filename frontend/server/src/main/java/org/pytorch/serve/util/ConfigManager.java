@@ -124,7 +124,7 @@ public final class ConfigManager {
     private static final String TS_HEADER_KEY_SEQUENCE_ID = "ts_header_key_sequence_id";
     private static final String TS_HEADER_KEY_SEQUENCE_START = "ts_header_key_sequence_start";
     private static final String TS_HEADER_KEY_SEQUENCE_END = "ts_header_key_sequence_end";
-    private static final String TS_DISABLE_TOKEN_ATHORIZATION = "disable_token_authorization";
+    private static final String TS_DISABLE_TOKEN_AUTHORIZATION = "disable_token_authorization";
 
     // Configuration which are not documented or enabled through environment variables
     private static final String USE_NATIVE_IO = "use_native_io";
@@ -202,6 +202,11 @@ public final class ConfigManager {
 
         String filePath = System.getenv("TS_CONFIG_FILE");
         Properties snapshotConfig = null;
+
+        String tokenDisabled = args.isTokenDisabled();
+        if (tokenDisabled != null){
+            prop.setProperty(TS_DISABLE_TOKEN_AUTHORIZATION, tokenDisabled);
+        }
 
         if (filePath == null) {
             filePath = args.getTsConfigFile();
@@ -475,7 +480,7 @@ public final class ConfigManager {
     }
 
     public boolean getDisableTokenAuthorization() {
-        return Boolean.parseBoolean(getProperty(TS_DISABLE_TOKEN_ATHORIZATION, "false"));
+        return Boolean.parseBoolean(getProperty(TS_DISABLE_TOKEN_AUTHORIZATION, "false"));
     }
 
     public int getNettyThreads() {
@@ -1133,6 +1138,7 @@ public final class ConfigManager {
         private boolean snapshotDisabled;
         private String workflowStore;
         private String cppLogConfigFile;
+        private boolean tokenAuthEnabled;
 
         public Arguments() {}
 
@@ -1144,6 +1150,7 @@ public final class ConfigManager {
             snapshotDisabled = cmd.hasOption("no-config-snapshot");
             workflowStore = cmd.getOptionValue("workflow-store");
             cppLogConfigFile = cmd.getOptionValue("cpp-log-config");
+            tokenAuthEnabled = cmd.hasOption("disable-token");
         }
 
         public static Options getOptions() {
@@ -1196,6 +1203,12 @@ public final class ConfigManager {
                             .argName("CPP-LOG-CONFIG")
                             .desc("log configuration file for cpp backend.")
                             .build());
+            options.addOption(
+                    Option.builder("dt")
+                            .longOpt("disable-token")
+                            .argName("TOKEN")
+                            .desc("disables token authorization")
+                            .build());
             return options;
         }
 
@@ -1217,6 +1230,13 @@ public final class ConfigManager {
 
         public String getWorkflowStore() {
             return workflowStore;
+        }
+
+        public String isTokenDisabled() {
+            if (tokenAuthEnabled){
+                return "true";
+            }
+            return "false";
         }
 
         public void setModelStore(String modelStore) {

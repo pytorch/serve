@@ -1,5 +1,4 @@
 import os
-import subprocess
 import sys
 import tempfile
 import urllib.request
@@ -64,17 +63,11 @@ def run_pytest():
         print("Could not generate gRPC client stubs")
         sys.exit(1)
 
-    my_env = os.environ.copy()
-    my_env["TS_DISABLE_TOKEN_ATHORIZATION"] = "true"
-
     cmd = "python -m pytest -v ./ --ignore=sanity"
     print(f"## In directory: {os.getcwd()} | Executing command: {cmd}")
-    # status = os.system(cmd)
-    # rm_file("*_pb2*.py", True)
-    # return status
-    result = subprocess.run(cmd, shell=True, env=my_env)
+    status = os.system(cmd)
     rm_file("*_pb2*.py", True)
-    return result.returncode
+    return status
 
 
 def test_regression():
