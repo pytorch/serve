@@ -137,8 +137,11 @@ def trigger_management_tests():
 
 def trigger_inference_tests():
     """Return exit code of newman execution of inference collection"""
+
+    print("-----HERE2----")
+
     config_file = open("config.properties", "w")
-    config_file.write("metrics_mode=prometheus")
+    config_file.write("metrics_mode=prometheus\n")
     config_file.write("disable_token_authorization=true")
     config_file.close()
 
@@ -205,7 +208,7 @@ def trigger_workflow_inference_tests():
 def trigger_explanation_tests():
     """Return exit code of newman execution of inference collection"""
     config_file = open("config.properties", "w")
-    config_file.write("metrics_mode=prometheus")
+    config_file.write("metrics_mode=prometheus\n")
     config_file.write("disable_token_authorization=true")
     config_file.close()
 
@@ -231,7 +234,7 @@ def trigger_incr_timeout_inference_tests():
     # Configuration with increased timeout
     config_file = open("config.properties", "w")
     config_file.write("default_response_timeout=300\n")
-    config_file.write("metrics_mode=prometheus")
+    config_file.write("metrics_mode=prometheus\n")
     config_file.write("disable_token_authorization=true")
     config_file.close()
 
@@ -274,7 +277,7 @@ def trigger_management_tests_kf():
     """Return exit code of newman execution of management collection"""
 
     config_file = open("config.properties", "w")
-    config_file.write("service_envelope=kserve")
+    config_file.write("service_envelope=kserve\n")
     config_file.write("disable_token_authorization=true")
     config_file.close()
 
@@ -299,7 +302,7 @@ def trigger_inference_tests_kf():
 
     config_file = open("config.properties", "w")
     config_file.write("service_envelope=kserve\n")
-    config_file.write("metrics_mode=prometheus")
+    config_file.write("metrics_mode=prometheus\n")
     config_file.write("disable_token_authorization=true")
     config_file.close()
 
@@ -341,7 +344,7 @@ def trigger_inference_tests_kfv2():
 
     config_file = open("config.properties", "w")
     config_file.write("service_envelope=kservev2\n")
-    config_file.write("metrics_mode=prometheus")
+    config_file.write("metrics_mode=prometheus\n")
     config_file.write("disable_token_authorization=true")
     config_file.close()
 
@@ -379,17 +382,17 @@ def trigger_https_tests_kfv2():
 
 
 def trigger_all():
-    # exit_code1 = trigger_management_tests()
+    exit_code1 = trigger_management_tests()
     exit_code2 = trigger_inference_tests()
-    # exit_code3 = trigger_incr_timeout_inference_tests()
-    # exit_code4 = trigger_https_tests()
-    # exit_code5 = trigger_management_tests_kf()
-    # exit_code6 = trigger_inference_tests_kf()
-    # exit_code7 = trigger_https_tests_kf()
-    # exit_code8 = trigger_inference_tests_kfv2()
-    # exit_code9 = trigger_https_tests_kfv2()
-    # exit_code10 = trigger_explanation_tests()
-    # exit_code11 = trigger_workflow_tests()
+    exit_code3 = trigger_incr_timeout_inference_tests()
+    exit_code4 = trigger_https_tests()
+    exit_code5 = trigger_management_tests_kf()
+    exit_code6 = trigger_inference_tests_kf()
+    exit_code7 = trigger_https_tests_kf()
+    exit_code8 = trigger_inference_tests_kfv2()
+    exit_code9 = trigger_https_tests_kfv2()
+    exit_code10 = trigger_explanation_tests()
+    exit_code11 = trigger_workflow_tests()
     # Skipping as this test is flaky
     # exit_code12 = trigger_workflow_inference_tests()
     return (
