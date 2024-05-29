@@ -49,5 +49,6 @@ jobs:
       - name: Torchserve Regression Tests
         env:
           TS_MAC_ARM64_CPU_ONLY: ${{ matrix.os == 'macos-latest' && 'True' || 'False' }}
+          TS_DISABLE_TOKEN_ATHORIZATION: 'true'
         run: |
           python test/regression_tests.py
