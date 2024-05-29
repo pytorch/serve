@@ -72,7 +72,6 @@ public class TokenAuthorizationHandler extends HttpRequestHandlerChain {
                 if (req.toString().contains("/token")) {
                     try{
                         checkTokenAuthorization(req, "token");
-                        System.out.println("REACHED HERE--- 9");
                         String resp = tokenClass.testFunction(req);
                         NettyUtils.sendJsonResponse(ctx, resp);
                         return;
@@ -93,6 +92,7 @@ public class TokenAuthorizationHandler extends HttpRequestHandlerChain {
             if (tokenType == TokenType.MANAGEMENT && req.toString().contains("/token")) {
                 throw new ResourceNotFoundException();
             }
+            chain.handleRequest(ctx, req, decoder, segments);
         }
         // chain.handleRequest(ctx, req, decoder, segments);
     }
