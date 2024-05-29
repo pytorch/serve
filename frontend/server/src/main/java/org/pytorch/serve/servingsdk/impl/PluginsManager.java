@@ -31,9 +31,6 @@ public final class PluginsManager {
         logger.info("Initializing plugins manager...");
         inferenceEndpoints = initInferenceEndpoints();
         managementEndpoints = initManagementEndpoints();
-        if (managementEndpoints.containsKey("token")) {
-            TokenAuthorizationHandler.setupTokenClass();
-        }
     }
 
     private boolean validateEndpointPlugin(Annotation a, EndpointTypes type) {
