@@ -2,11 +2,13 @@ import json
 import shutil
 import time
 from pathlib import Path
+from string import Template
 from unittest.mock import patch
 
 import pytest
 import requests
 import test_utils
+import yaml
 from model_archiver import ModelArchiverConfig
 
 CURR_FILE_PATH = Path(__file__).parent
@@ -16,6 +18,7 @@ data_file_zero = REPO_ROOT_DIR / "test/pytest/test_data/0.png"
 handler_py_file = REPO_ROOT_DIR / "test/pytest/test_data/session_handler.py"
 model_py_file = REPO_ROOT_DIR / "examples/image_classifier/mnist/mnist.py"
 model_pt_file = REPO_ROOT_DIR / "examples/image_classifier/mnist/mnist_cnn.pt"
+metrics_yaml_file = REPO_ROOT_DIR / "ts/configs/metrics.yaml"
 
 
 HANDLER_PY = """
@@ -29,9 +32,12 @@ class customHandler(BaseHandler):
 """
 
 
-METRIC_COLLECTOR = """
+METRIC_COLLECTOR = Template(
+    """
 import logging
 import sys
+from pathlib import Path
+from torch.distributed import FileStore
 
 from ts.metrics.dimension import Dimension
 from ts.metrics.metric import Metric
@@ -39,10 +45,16 @@ from ts.metrics.metric import Metric
 if __name__ == '__main__':
     logging.basicConfig(stream=sys.stdout, format="%(message)s", level=logging.INFO)
 
+    store_path = Path("/tmp") / "${MODEL_NAME}_store"
+    store = FileStore(store_path.as_posix(), -1)
+
+    open_sessions_num = len(store.get("open_sessions").decode("utf-8").split(";"))
+
     dimension = [Dimension("Level", "Host")]
-    logging.info(str(Metric("CPUUtilization", 750, "percent", dimension)))
+    logging.info(str(Metric("OpenSessions", open_sessions_num, "count", dimension)))
     logging.info("")
 """
+)
 
 MODEL_CONFIG_YAML = """
     #frontend settings
@@ -100,7 +112,7 @@ def create_mar_file(work_dir, model_archiver, model_name):
 
 
 @pytest.fixture(scope="module", name="model_name")
-def register_model(mar_file_path, model_store, work_dir, torchserve):
+def register_model(mar_file_path, model_store, work_dir, model_name, torchserve):
     """
     Register the model in torchserve
     """
@@ -119,10 +131,21 @@ def register_model(mar_file_path, model_store, work_dir, torchserve):
     )
 
     COLLECTOR_PY = work_dir / "metric_collector.py"
-    COLLECTOR_PY.write_text(METRIC_COLLECTOR)
+    COLLECTOR_PY.write_text(METRIC_COLLECTOR.substitute({"MODEL_NAME": model_name}))
+
+    with open(metrics_yaml_file) as f:
+        metrics_config = yaml.safe_load(f)
+    metrics_config["ts_metrics"]["counter"] += [
+        {"name": "OpenSessions", "unit": "Count", "dimensions": ["hostname"]}
+    ]
+
+    METRICS_YAML = work_dir / "metrics.yaml"
+    with open(METRICS_YAML, "w") as f:
+        yaml.safe_dump(metrics_config, f)
 
     CONFIG_PROPERTIES = f"""
     system_metrics_cmd={COLLECTOR_PY.as_posix()}
+    metrics_config={METRICS_YAML.as_posix()}
     """
 
     config_properties_file = work_dir / "config.properties"

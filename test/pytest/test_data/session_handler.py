@@ -76,7 +76,7 @@ class CancelHandler(BaseHandler):
         return inference_output
 
     def update_session_activity(self, session_id):
-        self.store.set(f"{session_id}{LAST_ACTIVE}", struct.pack("f", time.time()))
+        self.store.set(f"{session_id}{LAST_ACTIVE}", struct.pack("d", time.time()))
 
     def open_session(self):
         session_id = str(uuid.uuid4())
@@ -100,6 +100,7 @@ class CancelHandler(BaseHandler):
 
     def close_session(self, session_id):
         ret = self.store.compare_set(OPEN_SESSION, session_id, "").decode("utf-8")
+        print(f"Closing {session_id=} Sessions open: {ret=}")
         if ret != "":
             # This session was not the only session
             if ret == session_id:
@@ -109,7 +110,6 @@ class CancelHandler(BaseHandler):
 
             success = False
             while not success:
-                print(f"Closing {session_id=} Sessions open: {ret=}")
                 if session_id not in ret:
                     # The session was already closed through a different worker, maybe through timeout
                     return False
@@ -139,7 +139,9 @@ class CancelHandler(BaseHandler):
             if last_active == "DOES NOT EXIST":
                 # Was already cleaned up
                 continue
-            last_active = float(struct.unpack("f", last_active)[0])
-            if now - last_active > TIMEOUT and self.close_session(session_id):
-                timed_out_sessions += [session_id]
+            last_active = float(struct.unpack("d", last_active)[0])
+            if now - last_active > TIMEOUT:
+                print(f"Timeout: {session_id=} {now=} {last_active=}")
+                if self.close_session(session_id):
+                    timed_out_sessions += [session_id]
         return timed_out_sessions
