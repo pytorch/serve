@@ -1,20 +1,8 @@
 package org.pytorch.serve.http;
 
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.QueryStringDecoder;
-import org.pytorch.serve.archive.DownloadArchiveException;
-import org.pytorch.serve.archive.model.InvalidKeyException;
-import org.pytorch.serve.archive.model.ModelException;
-import org.pytorch.serve.archive.workflow.WorkflowException;
-import org.pytorch.serve.util.ConfigManager;
-import org.pytorch.serve.util.NettyUtils;
-import org.pytorch.serve.util.TokenType;
-import org.pytorch.serve.wlm.WorkerInitializationException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.QueryStringDecoder;
 import java.io.File;
@@ -31,7 +19,16 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
+import org.pytorch.serve.archive.DownloadArchiveException;
+import org.pytorch.serve.archive.model.InvalidKeyException;
+import org.pytorch.serve.archive.model.ModelException;
+import org.pytorch.serve.archive.workflow.WorkflowException;
+import org.pytorch.serve.util.ConfigManager;
+import org.pytorch.serve.util.NettyUtils;
+import org.pytorch.serve.util.TokenType;
+import org.pytorch.serve.wlm.WorkerInitializationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A class handling token check for all inbound HTTP requests
@@ -63,16 +60,16 @@ public class TokenAuthorizationHandler extends HttpRequestHandlerChain {
         if (tokenEnabled) {
             if (tokenType == TokenType.MANAGEMENT) {
                 if (req.toString().contains("/token")) {
-                    try{
+                    try {
                         checkTokenAuthorization(req, "token");
                         String resp = tokenClass.testFunction(req);
                         NettyUtils.sendJsonResponse(ctx, resp);
                         return;
-                    }
-                    catch (Exception e) {
+                    } catch (Exception e) {
                         logger.error("TOKEN CLASS IMPORTED UNSUCCESSFULLY");
                         throw new InvalidKeyException(
-                                            "Token Authentication failed. Token either incorrect, expired, or not provided correctly");                    }
+                                "Token Authentication failed. Token either incorrect, expired, or not provided correctly");
+                    }
                 } else {
                     checkTokenAuthorization(req, "management");
                     chain.handleRequest(ctx, req, decoder, segments);
@@ -81,7 +78,7 @@ public class TokenAuthorizationHandler extends HttpRequestHandlerChain {
                 checkTokenAuthorization(req, "inference");
                 chain.handleRequest(ctx, req, decoder, segments);
             }
-        }else {
+        } else {
             if (tokenType == TokenType.MANAGEMENT && req.toString().contains("/token")) {
                 throw new ResourceNotFoundException();
             }
@@ -94,6 +91,10 @@ public class TokenAuthorizationHandler extends HttpRequestHandlerChain {
         try {
             tokenClass = new Token();
             Double time = ConfigManager.getInstance().getTimeToExpiration();
+            String home = ConfigManager.getInstance().getModelServerHome();
+            tokenClass.setFilePath(home);
+            System.out.println("=====TEST====2");
+            System.out.println(home);
             if (time != 0.0) {
                 timeToExpirationMinutes = time;
             }
@@ -124,7 +125,6 @@ public class TokenAuthorizationHandler extends HttpRequestHandlerChain {
     }
 }
 
-
 class Token {
     private static String apiKey;
     private static String managementKey;
@@ -135,7 +135,7 @@ class Token {
     private SecureRandom secureRandom = new SecureRandom();
     private Base64.Encoder baseEncoder = Base64.getUrlEncoder();
     private String fileName = "key_file.json";
-
+    private String filePath = "";
 
     public String testFunction(FullHttpRequest req) throws IOException {
         String queryResponse = parseQuery(req);
@@ -177,9 +177,13 @@ class Token {
         return Instant.now().plusSeconds(secondsToAdd);
     }
 
+    public void setFilePath(String path) {
+        filePath = path;
+    }
+
     // generates a key file with new keys depending on the parameter provided
     public boolean generateKeyFile(String type) throws IOException {
-        String userDirectory = System.getProperty("user.dir") + "/" + fileName;
+        String userDirectory = filePath + "/" + fileName;
         File file = new File(userDirectory);
         if (!file.createNewFile() && !file.exists()) {
             return false;

@@ -46,8 +46,8 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.io.IOUtils;
 import org.pytorch.serve.archive.model.Manifest;
-import org.pytorch.serve.metrics.MetricBuilder;
 import org.pytorch.serve.http.TokenAuthorizationHandler;
+import org.pytorch.serve.metrics.MetricBuilder;
 import org.pytorch.serve.servingsdk.snapshot.SnapshotSerializer;
 import org.pytorch.serve.snapshot.SnapshotSerializerFactory;
 import org.slf4j.Logger;
@@ -204,7 +204,7 @@ public final class ConfigManager {
         Properties snapshotConfig = null;
 
         String tokenDisabled = args.isTokenDisabled();
-        if (tokenDisabled != null){
+        if (tokenDisabled != null) {
             prop.setProperty(TS_DISABLE_TOKEN_AUTHORIZATION, tokenDisabled);
         }
 
@@ -288,8 +288,6 @@ public final class ConfigManager {
             // Environment variables have higher precedence over the config file variables
             setSystemVars();
         }
-
-
 
         setModelConfig();
         setTsHeaderKeySequenceId();
@@ -447,7 +445,7 @@ public final class ConfigManager {
         return Boolean.parseBoolean(prop.getProperty(TS_OPEN_INFERENCE_PROTOCOL, "false"));
     }
 
-    public boolean setupToken(){
+    public boolean setupToken() {
         boolean disable_token_authorization = getDisableTokenAuthorization();
         if (!disable_token_authorization) {
             TokenAuthorizationHandler.setupTokenClass();
@@ -1233,7 +1231,7 @@ public final class ConfigManager {
         }
 
         public String isTokenDisabled() {
-            if (tokenAuthEnabled){
+            if (tokenAuthEnabled) {
                 return "true";
             }
             return "false";
