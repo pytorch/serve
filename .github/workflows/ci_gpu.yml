@@ -46,6 +46,8 @@ jobs:
           python ts_scripts/install_dependencies.py --environment=dev --cuda=cu121
       - name: Torchserve Sanity
         uses: nick-fields/retry@v3
+        env:
+          TS_DISABLE_TOKEN_ATHORIZATION: 'true'
         with:
           timeout_minutes: 60
           retry_on: error
