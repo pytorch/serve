@@ -59,7 +59,7 @@ else:
     PT230_AVAILABLE = False
 
 try:
-    import openvino.torch
+    import openvino.torch # pylint: disable=unused-import
     logger.info("OpenVINO backend enabled for torch.compile")
 except ImportError:
     logger.warning("OpenVINO is not enabled")
