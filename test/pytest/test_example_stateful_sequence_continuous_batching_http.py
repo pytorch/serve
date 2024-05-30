@@ -245,8 +245,6 @@ def __infer_stateful(model_name, sequence_id, expected):
     start = True
     prediction = []
     for idx in range(5):
-        if idx > 0:
-            start = False
         if sequence_id == "seq_0":
             idx = 2 * idx
         elif sequence_id == "seq_1":
@@ -256,17 +254,14 @@ def __infer_stateful(model_name, sequence_id, expected):
                 url=f"http://localhost:8080/predictions/{model_name}",
                 data=str(idx + 1).encode(),
             )
+            s_id = response.headers.get("ts_request_sequence_id")
             if sequence_id == "seq_0":
                 headers_seq_0 = {
-                    "ts_request_sequence_id": response.headers.get(
-                        "ts_request_sequence_id"
-                    ),
+                    "ts_request_sequence_id": s_id,
                 }
             elif sequence_id == "seq_1":
                 headers_seq_1 = {
-                    "ts_request_sequence_id": response.headers.get(
-                        "ts_request_sequence_id"
-                    ),
+                    "ts_request_sequence_id": s_id,
                 }
             start = False
         else:
@@ -286,9 +281,7 @@ def __infer_stateful_end(model_name, sequence_id, expected):
     start = True
     end = False
     for idx in range(5):
-        if idx == 0:
-            start = False
-        elif idx == 4:
+        if idx == 4:
             end = True
         if sequence_id == "seq_0":
             idx = 2 * idx
@@ -302,17 +295,14 @@ def __infer_stateful_end(model_name, sequence_id, expected):
                 url=f"http://localhost:8080/predictions/{model_name}",
                 data=str(idx + 1).encode(),
             )
+            s_id = response.headers.get("ts_request_sequence_id")
             if sequence_id == "seq_0":
                 headers_seq_0 = {
-                    "ts_request_sequence_id": response.headers.get(
-                        "ts_request_sequence_id"
-                    ),
+                    "ts_request_sequence_id": s_id,
                 }
             elif sequence_id == "seq_1":
                 headers_seq_1 = {
-                    "ts_request_sequence_id": response.headers.get(
-                        "ts_request_sequence_id"
-                    ),
+                    "ts_request_sequence_id": s_id,
                 }
             start = False
         else:
@@ -332,9 +322,7 @@ def __infer_stateful_cancel(model_name, sequence_id, expected):
     start = True
     cancel = False
     for idx in range(5):
-        if idx > 0:
-            start = False
-        elif idx == 2:
+        if idx == 2:
             cancel = True
         if sequence_id == "seq_0":
             idx = 2 * idx
@@ -344,7 +332,7 @@ def __infer_stateful_cancel(model_name, sequence_id, expected):
         if cancel is True and sequence_id == "seq_0":
             response = requests.post(
                 url=f"http://localhost:8080/predictions/{model_name}",
-                headers=headers,
+                headers=headers_seq_0,
                 data=str(-1).encode(),
             )
         elif cancel is False or sequence_id == "seq_1":
@@ -353,17 +341,14 @@ def __infer_stateful_cancel(model_name, sequence_id, expected):
                     url=f"http://localhost:8080/predictions/{model_name}",
                     data=str(idx + 1).encode(),
                 )
+                s_id = response.headers.get("ts_request_sequence_id")
                 if sequence_id == "seq_0":
                     headers_seq_0 = {
-                        "ts_request_sequence_id": response.headers.get(
-                            "ts_request_sequence_id"
-                        ),
+                        "ts_request_sequence_id": s_id,
                     }
                 elif sequence_id == "seq_1":
                     headers_seq_1 = {
-                        "ts_request_sequence_id": response.headers.get(
-                            "ts_request_sequence_id"
-                        ),
+                        "ts_request_sequence_id": s_id,
                     }
                 start = False
             else:
