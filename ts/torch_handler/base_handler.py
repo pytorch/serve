@@ -215,8 +215,10 @@ class BaseHandler(abc.ABC):
         if hasattr(self, "model_yaml_config") and "pt2" in self.model_yaml_config:
             pt2_value = self.model_yaml_config["pt2"]
 
+            print("Checking for compile")
             if "compile" in pt2_value:
                 compile_options = pt2_value["compile"]
+                print("Checking enable for compile")
                 if compile_options["enable"] == True:
                     del compile_options["enable"]
 
@@ -226,6 +228,7 @@ class BaseHandler(abc.ABC):
                         if "backend" in compile_options
                         else True
                     )
+                    print(valid_backend, compile_options)
                 else:
                     valid_backend = False
             elif "export" in pt2_value:
@@ -264,6 +267,7 @@ class BaseHandler(abc.ABC):
                     **compile_options,
                 )
                 logger.info(f"Compiled model with {compile_options_str}")
+                print(f"Compiled model with {compile_options_str}")
             except Exception as e:
                 logger.warning(
                     f"Compiling model model with {compile_options_str} has failed \n Proceeding without compilation"
