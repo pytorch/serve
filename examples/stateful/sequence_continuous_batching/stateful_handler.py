@@ -23,13 +23,13 @@ class StatefulHandler(BaseHandler, ABC):
 
         ctx.cache = {}
         if ctx.model_yaml_config["handler"] is not None:
-            try:
-                self.cache = LRU(
-                    int(ctx.model_yaml_config["handler"]["cache"]["capacity"])
+            self.cache = LRU(
+                int(
+                    ctx.model_yaml_config["handler"]
+                    .get("cache", {})
+                    .get("capacity", StatefulHandler.DEFAULT_CAPACITY)
                 )
-            except KeyError:
-                logger.error("No cache capacity was set! Using default value.")
-                self.cache = LRU(StatefulHandler.DEFAULT_CAPACITY)
+            )
 
         self.initialized = True
 
@@ -49,6 +49,8 @@ class StatefulHandler(BaseHandler, ABC):
 
         for idx, row in enumerate(data):
             sequence_id = self.context.get_sequence_id(idx)
+            # SageMaker sticky router relies on response header to identify the sessions
+            # The sequence_id from request headers must be set in response headers
             self.context.set_response_header(
                 idx, self.context.header_key_sequence_id, sequence_id
             )
@@ -74,7 +76,7 @@ class StatefulHandler(BaseHandler, ABC):
                 self.context.cache[sequence_id] = {
                     req_id: {
                         "stopping_criteria": self._create_stopping_criteria(
-                            req_id=req_id, seq_id=sequence_id, cache=self.context.cache
+                            req_id=req_id, seq_id=sequence_id
                         )
                     },
                 }
@@ -131,22 +133,24 @@ class StatefulHandler(BaseHandler, ABC):
         if seq_id in self.context.cache:
             del self.context.cache[seq_id][req_id]
 
-    def _create_stopping_criteria(self, req_id, seq_id, cache):
+    def _create_stopping_criteria(self, req_id, seq_id):
         class StoppingCriteria(object):
-            def __init__(self, outer, req_id, seq_id, cache):
+            def __init__(self, outer, req_id, seq_id):
                 self.req_id = req_id
                 self.seq_id = seq_id
-                self.cache = cache
                 self.outer = outer
                 self.counter = 5
 
             def __call__(self, res):
                 # sequence end
-                if self.cache[seq_id][req_id]["end"]:
+                if self.outer.context.cache[seq_id][req_id]["end"]:
                     self.outer.clean_up_seq(self.seq_id)
                     return True
                 # cancel
-                elif self.cache[seq_id][req_id]["cancel"] or self.counter == 0:
+                elif (
+                    self.outer.context.cache[seq_id][req_id]["cancel"]
+                    or self.counter == 0
+                ):
                     self.outer.clean_up_seq(self.seq_id, self.req_id)
                     return True
                 else:
@@ -154,4 +158,4 @@ class StatefulHandler(BaseHandler, ABC):
 
                 return False
 
-        return StoppingCriteria(outer=self, req_id=req_id, seq_id=seq_id, cache=cache)
+        return StoppingCriteria(outer=self, req_id=req_id, seq_id=seq_id)
