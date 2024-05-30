@@ -179,6 +179,7 @@ class BaseHandler(abc.ABC):
 
         if model_file:
             logger.debug("Loading eager model")
+            print("Loading eager model")
             self.model = self._load_pickled_model(
                 model_dir, model_file, self.model_pt_path
             )
@@ -265,6 +266,7 @@ class BaseHandler(abc.ABC):
             # try:
             logger.info(f"Compiling model with {compile_options_str}")
             print(f"Compiling model with {compile_options_str}")
+            print(self.model)
             self.model = torch.compile(
                 self.model,
                 **compile_options,
