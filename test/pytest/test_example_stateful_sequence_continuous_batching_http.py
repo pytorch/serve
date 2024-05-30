@@ -245,19 +245,29 @@ def __infer_stateful(model_name, sequence_id, expected):
     headers = {
         "ts_request_sequence_id": sequence_id,
     }
+    start = True
     prediction = []
     for idx in range(5):
+        if idx > 0:
+            start = False
         if sequence_id == "seq_0":
             idx = 2 * idx
         elif sequence_id == "seq_1":
             idx = 2 * idx + 1
-        response = requests.post(
-            url=f"http://localhost:8080/predictions/{model_name}",
-            headers=headers,
-            data=str(idx + 1).encode(),
-        )
+        if start is True:
+            response = requests.post(
+                url=f"http://localhost:8080/predictions/{model_name}",
+                data=str(idx + 1).encode(),
+            )
+        else:
+            response = requests.post(
+                url=f"http://localhost:8080/predictions/{model_name}",
+                headers=headers,
+                data=str(idx + 1).encode(),
+            )
         prediction.append(response.text)
 
+    print(f"infer_stateful prediction={str(' '.join(prediction))}")
     assert str(" ".join(prediction)) == expected
 
 
@@ -266,22 +276,34 @@ def __infer_stateful_end(model_name, sequence_id, expected):
         "ts_request_sequence_id": sequence_id,
     }
     prediction = []
+    start = True
+    end = False
     for idx in range(5):
-        if idx == 4:
+        if idx == 0:
+            start = False
+        elif idx == 4:
             end = True
         if sequence_id == "seq_0":
             idx = 2 * idx
         elif sequence_id == "seq_1":
             idx = 2 * idx + 1
-        if end:
+        if end is True:
             idx = -1
-        response = requests.post(
-            url=f"http://localhost:8080/predictions/{model_name}",
-            headers=headers,
-            data=str(idx + 1).encode(),
-        )
+
+        if start is True:
+            response = requests.post(
+                url=f"http://localhost:8080/predictions/{model_name}",
+                data=str(idx + 1).encode(),
+            )
+        else:
+            response = requests.post(
+                url=f"http://localhost:8080/predictions/{model_name}",
+                headers=headers,
+                data=str(idx + 1).encode(),
+            )
         prediction.append(response.text)
 
+    print(f"infer_stateful_end prediction={str(' '.join(prediction))}")
     assert str(" ".join(prediction)) == expected
 
 
@@ -290,26 +312,37 @@ def __infer_stateful_cancel(model_name, sequence_id, expected):
         "ts_request_sequence_id": sequence_id,
     }
     prediction = []
+    start = True
+    cancel = False
     for idx in range(5):
-        if idx == 2:
+        if idx > 0:
+            start = False
+        elif idx == 2:
             cancel = True
         if sequence_id == "seq_0":
             idx = 2 * idx
         elif sequence_id == "seq_1":
             idx = 2 * idx + 1
 
-        if cancel and sequence_id == "seq_0":
+        if cancel is True and sequence_id == "seq_0":
             response = requests.post(
                 url=f"http://localhost:8080/predictions/{model_name}",
                 headers=headers,
                 data=str(-1).encode(),
             )
-        elif not cancel or sequence_id == "seq_1":
-            response = requests.post(
-                url=f"http://localhost:8080/predictions/{model_name}",
-                headers=headers,
-                data=str(idx + 1).encode(),
-            )
+        elif cancel is False or sequence_id == "seq_1":
+            if start is True:
+                response = requests.post(
+                    url=f"http://localhost:8080/predictions/{model_name}",
+                    data=str(idx + 1).encode(),
+                )
+            else:
+                response = requests.post(
+                    url=f"http://localhost:8080/predictions/{model_name}",
+                    headers=headers,
+                    data=str(idx + 1).encode(),
+                )
         prediction.append(response.text)
 
+    print(f"infer_stateful_cancel prediction={str(' '.join(prediction))}")
     assert str(" ".join(prediction)) == expected

@@ -57,6 +57,11 @@ class StatefulHandler(BaseHandler, ABC):
                 prev = int(0)
             elif self.cache.has_key(sequence_id):
                 prev = int(self.cache[sequence_id])
+            else:
+                prev = None
+                logger.error(
+                    f"Not received sequence_start request for sequence_id:{sequence_id} before"
+                )
 
             request = row.get("data") or row.get("body")
             if isinstance(request, (bytes, bytearray)):
@@ -76,6 +81,14 @@ class StatefulHandler(BaseHandler, ABC):
                 for r_id in self.context.cache[sequence_id].keys():
                     self.context.cache[sequence_id][r_id]["cancel"] = True
                 results.append(int(request))
+            elif prev is None:
+                logger.info(
+                    f"Close the sequence:{sequence_id} without open session request"
+                )
+                self.context.cache[sequence_id][req_id]["end"] = True
+                self.context.set_response_header(
+                    idx, self.context.header_key_sequence_end, sequence_id
+                )
             else:
                 val = prev + int(request)
                 self.cache[sequence_id] = val
@@ -111,8 +124,8 @@ class StatefulHandler(BaseHandler, ABC):
 
     def clean_up_req(self, seq_id, req_id):
         # clean up
-        del self.cache[seq_id]
-        del self.context.cache[seq_id][req_id]
+        if seq_id in self.context.cache:
+            del self.context.cache[seq_id][req_id]
 
     def _create_stopping_criteria(self, req_id, seq_id, cache):
         class StoppingCriteria(object):
