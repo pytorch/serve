@@ -1231,10 +1231,7 @@ public final class ConfigManager {
         }
 
         public String isTokenDisabled() {
-            if (tokenAuthEnabled) {
-                return "true";
-            }
-            return "false";
+            return tokenAuthEnabled ? "true" : "false";
         }
 
         public void setModelStore(String modelStore) {

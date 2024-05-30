@@ -62,11 +62,11 @@ public class TokenAuthorizationHandler extends HttpRequestHandlerChain {
                 if (req.toString().contains("/token")) {
                     try {
                         checkTokenAuthorization(req, "token");
-                        String resp = tokenClass.testFunction(req);
+                        String resp = tokenClass.updateKeyFile(req);
                         NettyUtils.sendJsonResponse(ctx, resp);
                         return;
                     } catch (Exception e) {
-                        logger.error("TOKEN CLASS IMPORTED UNSUCCESSFULLY");
+                        logger.error("TOKEN CLASS UPDATED UNSUCCESSFULLY");
                         throw new InvalidKeyException(
                                 "Token Authentication failed. Token either incorrect, expired, or not provided correctly");
                     }
@@ -84,7 +84,6 @@ public class TokenAuthorizationHandler extends HttpRequestHandlerChain {
             }
             chain.handleRequest(ctx, req, decoder, segments);
         }
-        // chain.handleRequest(ctx, req, decoder, segments);
     }
 
     public static void setupTokenClass() {
@@ -93,8 +92,6 @@ public class TokenAuthorizationHandler extends HttpRequestHandlerChain {
             Double time = ConfigManager.getInstance().getTimeToExpiration();
             String home = ConfigManager.getInstance().getModelServerHome();
             tokenClass.setFilePath(home);
-            System.out.println("=====TEST====2");
-            System.out.println(home);
             if (time != 0.0) {
                 timeToExpirationMinutes = time;
             }
@@ -137,7 +134,7 @@ class Token {
     private String fileName = "key_file.json";
     private String filePath = "";
 
-    public String testFunction(FullHttpRequest req) throws IOException {
+    public String updateKeyFile(FullHttpRequest req) throws IOException {
         String queryResponse = parseQuery(req);
         String test = "";
         if ("management".equals(queryResponse)) {
@@ -147,7 +144,6 @@ class Token {
         } else {
             test = "{\n\t\"Error\": " + queryResponse + "\n}\n";
         }
-        // rsp.getOutputStream().write(test.getBytes(StandardCharsets.UTF_8));
         return test;
     }
 

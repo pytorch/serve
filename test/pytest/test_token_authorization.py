@@ -9,7 +9,6 @@ import requests
 import test_utils
 
 ROOT_DIR = os.path.join(tempfile.gettempdir(), "workspace")
-# REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../")
 REPO_ROOT = os.path.dirname(os.path.abspath(__file__))
 data_file_zero = os.path.join(REPO_ROOT, "test_data/0.png")
 config_file = os.path.join(REPO_ROOT, "../resources/config_token.properties")

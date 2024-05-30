@@ -137,9 +137,6 @@ def trigger_management_tests():
 
 def trigger_inference_tests():
     """Return exit code of newman execution of inference collection"""
-
-    print("-----HERE2----")
-
     config_file = open("config.properties", "w")
     config_file.write("metrics_mode=prometheus\n")
     config_file.write("disable_token_authorization=true")

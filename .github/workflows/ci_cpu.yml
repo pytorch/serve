@@ -50,7 +50,6 @@ jobs:
       - name: Torchserve Sanity
         env:
           TS_MAC_ARM64_CPU_ONLY: ${{ matrix.os == 'macos-latest' && 'True' || 'False' }}
-          TS_DISABLE_TOKEN_ATHORIZATION: 'true'
         uses: nick-fields/retry@v3
         with:
           timeout_minutes: 60

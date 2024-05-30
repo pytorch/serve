@@ -1,11 +1,14 @@
 # TorchServe token authorization API
 
-## Setup
-1. Download the jar files from [Maven](https://mvnrepository.com/artifact/org.pytorch/torchserve-endpoint-plugin) 
-2. Enable token authorization by adding the `--plugins-path /path/to/the/jar/files` flag at start up with the path leading to the downloaded jar files.
+Torchserve now supports token authorization by default.
+
+## How to disable Token Authorization
+1. Set global environment variable `TS_DISABLE_TOKEN_AUTHORIZATION=true`
+2. Add `--disable-token` to command line when running TorchServe.
+3. Add `disable_token_authorization=true` to config.properties file
 
 ## Configuration
-1. Torchserve will enable token authorization if the plugin is provided. Expected log statement `[INFO ] main org.pytorch.serve.servingsdk.impl.PluginsManager - Loading plugin for endpoint token`
+1. Torchserve will enable token authorization by default. Expected log statement `main org.pytorch.serve.http.TokenAuthorizationHandler - TOKEN CLASS IMPORTED SUCCESSFULLY`
 2. In the current working directory a file `key_file.json` will be generated.
     1. Example key file:
 
@@ -45,9 +48,7 @@
 ## Customization
 Torchserve offers various ways to customize the token authorization to allow owners to reach the desired result.
 1. Time to expiration is set to default at 60 minutes but can be changed in the config.properties by adding `token_expiration_min`. Ex:`token_expiration_min=30`
-2. The token authorization code is consolidated in the plugin and thus can be changed without impacting the frontend or end result. The only thing the user cannot change is:
-    1. The urlPattern for the plugin must be 'token' and the class name must not change
-    2. The `generateKeyFile`, `checkTokenAuthorization`, and `setTime` functions return type and signature must not change. However, the code in the functions can be modified depending on user necessity.
+
 
 ## Notes
 1. DO NOT MODIFY THE KEY FILE. Modifying the key file might impact reading and writing to the file thus preventing new keys from properly being displayed in the file.
