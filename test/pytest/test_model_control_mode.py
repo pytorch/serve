@@ -22,7 +22,9 @@ def setup_torchserve():
 
     Path(test_utils.MODEL_STORE).mkdir(parents=True, exist_ok=True)
 
-    test_utils.start_torchserve(no_config_snapshots=True, models="mnist=mnist.mar")
+    test_utils.start_torchserve(
+        no_config_snapshots=True, models="mnist=mnist.mar", mode="none"
+    )
 
     yield "test"
 
@@ -75,7 +77,7 @@ def test_delete_model_failing(setup_torchserve):
 
 # Test register a model after startup - Model control mode: explicit
 @pytest.mark.module2
-def test_token_expiration_time(setup_torchserve_explicit_mode):
+def test_register_model(setup_torchserve_explicit_mode):
     response = requests.get("http://localhost:8081/models/mnist")
     assert response.status_code == 200, "management check failed"
     params = (
