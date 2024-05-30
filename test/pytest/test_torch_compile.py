@@ -3,12 +3,16 @@ import json
 import os
 import platform
 import subprocess
+import sys
 import time
 from pathlib import Path
 
 import pytest
 import torch
 from pkg_resources import packaging
+from test_data.torch_compile.compile_handler import CompileHandler
+
+from ts.torch_handler.unit_tests.test_utils.mock_context import MockContext
 
 PT_2_AVAILABLE = (
     True
@@ -24,11 +28,21 @@ MODEL_FILE = os.path.join(TEST_DATA_DIR, "model.py")
 HANDLER_FILE = os.path.join(TEST_DATA_DIR, "compile_handler.py")
 YAML_CONFIG_STR = os.path.join(TEST_DATA_DIR, "pt2.yaml")  # backend as string
 YAML_CONFIG_DICT = os.path.join(TEST_DATA_DIR, "pt2_dict.yaml")  # arbitrary kwargs dict
+YAML_CONFIG_ENABLE = os.path.join(
+    TEST_DATA_DIR, "pt2_enable_true.yaml"
+)  # arbitrary kwargs dict
+YAML_CONFIG_ENABLE_FALSE = os.path.join(
+    TEST_DATA_DIR, "pt2_enable_false.yaml"
+)  # arbitrary kwargs dict
+YAML_CONFIG_ENABLE_DEFAULT = os.path.join(
+    TEST_DATA_DIR, "pt2_enable_default.yaml"
+)  # arbitrary kwargs dict
 
 
 SERIALIZED_FILE = os.path.join(TEST_DATA_DIR, "model.pt")
 MODEL_STORE_DIR = os.path.join(TEST_DATA_DIR, "model_store")
 MODEL_NAME = "half_plus_two"
+EXPECTED_RESULT = 3.5
 
 
 @pytest.mark.skipif(
@@ -146,3 +160,102 @@ class TestTorchCompile:
                 "Compiled model with backend inductor, mode reduce-overhead"
                 in model_log
             )
+
+    def test_compile_inference_enable_true_default(self, monkeypatch):
+        # Reset dynamo
+        torch._dynamo.reset()
+
+        # Change the current working directory to TEST_DATA_DIR to load model.py
+        monkeypatch.chdir(TEST_DATA_DIR)
+        sys.path.append(TEST_DATA_DIR)
+
+        # Handler
+        handler = CompileHandler()
+
+        # Context definition
+        ctx = MockContext(
+            model_pt_file=SERIALIZED_FILE,
+            model_dir=TEST_DATA_DIR,
+            model_file="model.py",
+            model_yaml_config_file=YAML_CONFIG_ENABLE_DEFAULT,
+        )
+
+        torch.manual_seed(42 * 42)
+        handler.initialize(ctx)
+        handler.context = ctx
+
+        # Check that model is compiled using dynamo
+        assert type(handler.model) == torch._dynamo.OptimizedModule
+
+        # Data for testing
+        data = {"body": {"instances": [[1.0], [2.0], [3.0]]}}
+
+        result = handler.handle([data], ctx)
+
+        assert result[0] == EXPECTED_RESULT
+
+    def test_compile_inference_enable_true(self, monkeypatch):
+        # Reset dynamo
+        torch._dynamo.reset()
+
+        # Change the current working directory to TEST_DATA_DIR to load model.py
+        monkeypatch.chdir(TEST_DATA_DIR)
+        sys.path.append(TEST_DATA_DIR)
+
+        # Handler
+        handler = CompileHandler()
+
+        # Context definition
+        ctx = MockContext(
+            model_pt_file=SERIALIZED_FILE,
+            model_dir=TEST_DATA_DIR,
+            model_file="model.py",
+            model_yaml_config_file=YAML_CONFIG_ENABLE,
+        )
+
+        torch.manual_seed(42 * 42)
+        handler.initialize(ctx)
+        handler.context = ctx
+
+        # Check that model is compiled using dynamo
+        assert type(handler.model) == torch._dynamo.OptimizedModule
+
+        # Data for testing
+        data = {"body": {"instances": [[1.0], [2.0], [3.0]]}}
+
+        result = handler.handle([data], ctx)
+
+        assert result[0] == EXPECTED_RESULT
+
+    def test_compile_inference_enable_false(self, monkeypatch):
+        # Reset dynamo
+        torch._dynamo.reset()
+
+        # Change the current working directory to TEST_DATA_DIR to load model.py
+        monkeypatch.chdir(TEST_DATA_DIR)
+        sys.path.append(TEST_DATA_DIR)
+
+        # Handler
+        handler = CompileHandler()
+
+        # Context definition
+        ctx = MockContext(
+            model_pt_file=SERIALIZED_FILE,
+            model_dir=TEST_DATA_DIR,
+            model_file="model.py",
+            model_yaml_config_file=YAML_CONFIG_ENABLE_FALSE,
+        )
+
+        torch.manual_seed(42 * 42)
+        handler.initialize(ctx)
+        handler.context = ctx
+
+        # Check that model is eager
+        assert type(handler.model) != torch._dynamo.OptimizedModule
+
+        # Data for testing
+        data = {"body": {"instances": [[1.0], [2.0], [3.0]]}}
+
+        result = handler.handle([data], ctx)
+
+        assert result[0] == EXPECTED_RESULT

@@ -59,8 +59,6 @@ else:
     PT230_AVAILABLE = False
 
 try:
-    import openvino.torch
-
     logger.info("OpenVINO backend enabled for torch.compile")
 except ImportError:
     logger.warning("OpenVINO is not enabled")
@@ -216,7 +214,20 @@ class BaseHandler(abc.ABC):
         if hasattr(self, "model_yaml_config") and "pt2" in self.model_yaml_config:
             pt2_value = self.model_yaml_config["pt2"]
 
-            if "export" in pt2_value:
+            if "compile" in pt2_value:
+                compile_options = pt2_value["compile"]
+                if compile_options["enable"] == True:
+                    del compile_options["enable"]
+
+                    # if backend is not provided, compile will use its default, which is valid
+                    valid_backend = (
+                        check_valid_pt2_backend(compile_options["backend"])
+                        if "backend" in compile_options
+                        else True
+                    )
+                else:
+                    valid_backend = False
+            elif "export" in pt2_value:
                 valid_backend = False
             else:
                 # pt2_value can be the backend, passed as a str, or arbitrary kwargs, passed as a dict
@@ -232,6 +243,10 @@ class BaseHandler(abc.ABC):
                     check_valid_pt2_backend(compile_options["backend"])
                     if "backend" in compile_options
                     else True
+                )
+
+                logger.warning(
+                    "This approach of specifying torch.compile() options is deprecated. The new standard approach is mentioned in https://github.com/pytorch/serve/issues/3164"
                 )
         else:
             valid_backend = False
@@ -468,9 +483,9 @@ class BaseHandler(abc.ABC):
                 logging.debug("Model name not found in config")
 
             result_path = os.path.join(result_path, dir_name)
-            self.profiler_args["on_trace_ready"] = (
-                torch.profiler.tensorboard_trace_handler(result_path)
-            )
+            self.profiler_args[
+                "on_trace_ready"
+            ] = torch.profiler.tensorboard_trace_handler(result_path)
             logger.info("Saving chrome trace to : %s", result_path)
 
         with profile(**self.profiler_args) as prof:

@@ -19,7 +19,7 @@ Ex:  `cd  examples/pt2/torch_compile`
 In this example , we use the following config
 
 ```
-echo "pt2 : {backend: inductor, mode: reduce-overhead}" > model-config.yaml
+echo "pt2:\n  compile:\n    enable: True" > model-config.yaml
 ```
 
 ### Create model archive
@@ -76,7 +76,7 @@ After a few iterations of warmup, we see the following
 #### Measure inference time with `torch.compile`
 
 ```
-echo "pt2: {backend: inductor, mode: reduce-overhead}" > model-config.yaml && \
+echo "pt2:\n  compile:\n    enable: True\n    backend: inductor\n    mode: reduce-overhead" > model-config.yaml && \
 echo "handler:" >> model-config.yaml && \
 echo "  profile: true" >> model-config.yaml
 ```
