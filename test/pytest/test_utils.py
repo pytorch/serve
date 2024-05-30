@@ -59,6 +59,8 @@ def start_torchserve(
     no_config_snapshots=False,
     gen_mar=True,
     plugin_folder=None,
+    models=None,
+    mode=None,
 ):
     stop_torchserve()
     crate_mar_file_table()
@@ -73,6 +75,10 @@ def start_torchserve(
         cmd.extend(["--ts-config", snapshot_file])
     if no_config_snapshots:
         cmd.extend(["--no-config-snapshots"])
+    if models:
+        cmd.extend(["--models", models])
+    if not mode:
+        cmd.extend(["--model-mode-explicit"])
     print(cmd)
 
     p = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=STDOUT)

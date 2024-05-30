@@ -255,6 +255,11 @@ public final class ConfigManager {
             prop.setProperty(TS_LOAD_MODELS, String.join(",", models));
         }
 
+        boolean mode = args.isModeExplicit();
+        if (mode == true) {
+            prop.setProperty(MODEL_CONTROL_MODE, "explicit");
+        }
+
         prop.setProperty(
                 TS_NUMBER_OF_GPU,
                 String.valueOf(
@@ -815,7 +820,9 @@ public final class ConfigManager {
                 + "\nModel config: "
                 + prop.getProperty(MODEL_CONFIG, "N/A")
                 + "\nSystem metrics command: "
-                + (getSystemMetricsCmd().isEmpty() ? "default" : getSystemMetricsCmd());
+                + (getSystemMetricsCmd().isEmpty() ? "default" : getSystemMetricsCmd())
+                + "\nModel control mode: "
+                + (getModelControlMode().equals("none") ? "default" : getModelControlMode()); // getModelControlMode();
     }
 
     public boolean useNativeIo() {
@@ -1126,6 +1133,7 @@ public final class ConfigManager {
         private boolean snapshotDisabled;
         private String workflowStore;
         private String cppLogConfigFile;
+        private boolean modelExplicit;
 
         public Arguments() {}
 
@@ -1137,6 +1145,7 @@ public final class ConfigManager {
             snapshotDisabled = cmd.hasOption("no-config-snapshot");
             workflowStore = cmd.getOptionValue("workflow-store");
             cppLogConfigFile = cmd.getOptionValue("cpp-log-config");
+            modelExplicit = cmd.hasOption("model-mode-explicit");
         }
 
         public static Options getOptions() {
@@ -1189,6 +1198,12 @@ public final class ConfigManager {
                             .argName("CPP-LOG-CONFIG")
                             .desc("log configuration file for cpp backend.")
                             .build());
+            options.addOption(
+                    Option.builder("mmexplicit")
+                            .longOpt("model-mode-explicit")
+                            .argName("MODEL-MODE-EXPLICIT")
+                            .desc("sets model mode to explicit")
+                            .build());
             return options;
         }
 
@@ -1222,6 +1237,10 @@ public final class ConfigManager {
 
         public void setModels(String[] models) {
             this.models = models.clone();
+        }
+
+        public boolean isModeExplicit(){
+            return modelExplicit;
         }
 
         public boolean isSnapshotDisabled() {

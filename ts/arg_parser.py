@@ -82,6 +82,13 @@ class ArgParser(object):
             dest="plugins_path",
             help="plugin jars to be included in torchserve class path",
         )
+        parser.add_argument(
+            "--model-mode-explicit",
+            "--mmexplicit",
+            dest="model_mode",
+            help="sets the model mode to explicit",
+            action="store_true",
+        )
 
         return parser
 
