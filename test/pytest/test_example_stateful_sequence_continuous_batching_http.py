@@ -23,7 +23,7 @@ batchSize: 1
 maxNumSequence: 2
 sequenceMaxIdleMSec: 5000
 maxSequenceJobQueueSize: 10
-sequenceBatching: true
+sequenceContinuousBatching: true
 
 handler:
   cache:

@@ -229,12 +229,10 @@ public class WorkLoadManager {
 
             BatchAggregator aggregator;
 
-            if (model.isSequenceBatching()) {
-                if (model.isSequenceContinuousBatch()) {
-                    aggregator = new SequenceContinuousBatching(model);
-                } else {
-                    aggregator = new SequenceBatching(model);
-                }
+            if (model.isSequenceContinuousBatch()) {
+                aggregator = new SequenceContinuousBatching(model);
+            } else if (model.isSequenceContinuousBatch()) {
+                aggregator = new SequenceBatching(model);
             } else if (model.isContinuousBatching()) {
                 aggregator = new ContinuousBatching(model);
             } else {
