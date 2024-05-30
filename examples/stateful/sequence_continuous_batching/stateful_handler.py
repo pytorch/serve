@@ -49,7 +49,10 @@ class StatefulHandler(BaseHandler, ABC):
 
         for idx, row in enumerate(data):
             sequence_id = self.context.get_sequence_id(idx)
-            req_id = self.context.get_request_id(idx)
+            self.context.set_response_header()
+            req_id = self.context.get_request_id(
+                idx, self.context.header_key_sequence_id, sequence_id
+            )
 
             if self.context.get_request_header(
                 idx, self.context.header_key_sequence_start
