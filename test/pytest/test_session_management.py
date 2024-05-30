@@ -2,13 +2,11 @@ import json
 import shutil
 import time
 from pathlib import Path
-from string import Template
 from unittest.mock import patch
 
 import pytest
 import requests
 import test_utils
-import yaml
 from model_archiver import ModelArchiverConfig
 
 CURR_FILE_PATH = Path(__file__).parent
@@ -19,6 +17,7 @@ handler_py_file = REPO_ROOT_DIR / "test/pytest/test_data/session_handler.py"
 model_py_file = REPO_ROOT_DIR / "examples/image_classifier/mnist/mnist.py"
 model_pt_file = REPO_ROOT_DIR / "examples/image_classifier/mnist/mnist_cnn.pt"
 metrics_yaml_file = REPO_ROOT_DIR / "ts/configs/metrics.yaml"
+session_py_file = REPO_ROOT_DIR / "ts/metrics/sessions.py"
 
 
 HANDLER_PY = """
@@ -30,31 +29,6 @@ class customHandler(BaseHandler):
     def initialize(self, context):
         super().initialize(context)
 """
-
-
-METRIC_COLLECTOR = Template(
-    """
-import logging
-import sys
-from pathlib import Path
-from torch.distributed import FileStore
-
-from ts.metrics.dimension import Dimension
-from ts.metrics.metric import Metric
-
-if __name__ == '__main__':
-    logging.basicConfig(stream=sys.stdout, format="%(message)s", level=logging.INFO)
-
-    store_path = Path("/tmp") / "${MODEL_NAME}_store"
-    store = FileStore(store_path.as_posix(), -1)
-
-    open_sessions_num = len(store.get("open_sessions").decode("utf-8").split(";"))
-
-    dimension = [Dimension("Level", "Host")]
-    logging.info(str(Metric("OpenSessions", open_sessions_num, "count", dimension)))
-    logging.info("")
-"""
-)
 
 MODEL_CONFIG_YAML = """
     #frontend settings
@@ -130,28 +104,16 @@ def register_model(mar_file_path, model_store, work_dir, model_name, torchserve)
         ("batch_size", "1"),
     )
 
-    COLLECTOR_PY = work_dir / "metric_collector.py"
-    COLLECTOR_PY.write_text(METRIC_COLLECTOR.substitute({"MODEL_NAME": model_name}))
-
-    with open(metrics_yaml_file) as f:
-        metrics_config = yaml.safe_load(f)
-    metrics_config["ts_metrics"]["counter"] += [
-        {"name": "OpenSessions", "unit": "Count", "dimensions": ["hostname"]}
-    ]
-
-    METRICS_YAML = work_dir / "metrics.yaml"
-    with open(METRICS_YAML, "w") as f:
-        yaml.safe_dump(metrics_config, f)
-
     CONFIG_PROPERTIES = f"""
-    system_metrics_cmd={COLLECTOR_PY.as_posix()}
-    metrics_config={METRICS_YAML.as_posix()}
+    system_metrics_cmd={session_py_file.as_posix()} --model_name {model_name} --timeout 2
+    metrics_config={metrics_yaml_file.as_posix()}
+    metric_time_interval=1
     """
 
     config_properties_file = work_dir / "config.properties"
     config_properties_file.write_text(CONFIG_PROPERTIES)
 
-    test_utils.start_torchserve(
+    stdout = test_utils.start_torchserve(
         model_store=model_store,
         snapshot_file=config_properties_file.as_posix(),
         gen_mar=False,
@@ -159,7 +121,7 @@ def register_model(mar_file_path, model_store, work_dir, model_name, torchserve)
 
     test_utils.reg_resp = test_utils.register_model_with_params(params)
 
-    yield model_name
+    yield model_name, stdout
 
     test_utils.unregister_model(model_name)
 
@@ -167,13 +129,15 @@ def register_model(mar_file_path, model_store, work_dir, model_name, torchserve)
 
 
 def test_open_close(model_name):
+    model_name, stdout = model_name
     # Open two sessions
-    # Try closing session 2 twice
-    # Wait for session 1 to timeout, then open sesison 3
-    # Try closing session 1 but it should have been closed during opening of 3
+    # Opening the second session will close the first (checked through OpenSession metric)
+    # Waiting timeout will close session two as well
+
     response = requests.get(f"http://localhost:8081/models/{model_name}")
     assert response.status_code == 200, "Describe Failed"
 
+    # Open session 1
     response_open_1 = requests.post(
         f"http://localhost:8080/predictions/{model_name}",
         data=json.dumps({"request_type": "open_session"}),
@@ -183,6 +147,7 @@ def test_open_close(model_name):
     res_1 = json.loads(response_open_1.content)
     assert "session_id" in res_1 and "msg" in res_1
 
+    # Open session 2
     response_open_2 = requests.post(
         f"http://localhost:8080/predictions/{model_name}",
         data=json.dumps({"request_type": "open_session"}),
@@ -192,51 +157,25 @@ def test_open_close(model_name):
     res_2 = json.loads(response_open_2.content)
     assert "session_id" in res_2 and "msg" in res_2
 
-    response_close_2 = requests.post(
-        f"http://localhost:8080/predictions/{model_name}",
-        data=json.dumps(
-            {"request_type": "close_session", "session_id": res_2["session_id"]}
-        ),
-    )
-    assert response_close_2.status_code == 200, "Close 2 Failed"
+    time.sleep(1)
+    open_session_metric_output = []
+    # Empty queue
+    while not stdout.empty():
+        out = stdout.get_nowait()
+        if "OpenSession" in out:
+            open_session_metric_output += [out]
 
-    response_double_close_2 = requests.post(
-        f"http://localhost:8080/predictions/{model_name}",
-        data=json.dumps(
-            {"request_type": "close_session", "session_id": res_2["session_id"]}
-        ),
-    )
-    assert response_double_close_2.status_code == 200, "Double close 2 Failed"
-
-    res_3 = json.loads(response_double_close_2.content)
-    assert "session_id" in res_3 and "msg" in res_3
-    assert res_3["msg"] == "Session was already closed"
-
-    response_close_1 = requests.post(
-        f"http://localhost:8080/predictions/{model_name}",
-        data=json.dumps(
-            {"request_type": "close_session", "session_id": res_1["session_id"]}
-        ),
-    )
-    assert response_close_1.status_code == 200, "Close 2 Failed"
-
-    time.sleep(3)
-
-    response_open_3 = requests.post(
-        f"http://localhost:8080/predictions/{model_name}",
-        data=json.dumps({"request_type": "open_session"}),
-    )
-    assert response_open_3.status_code == 200, "Open 3 Failed"
-
-    response_close__after_timeout_1 = requests.post(
-        f"http://localhost:8080/predictions/{model_name}",
-        data=json.dumps(
-            {"request_type": "close_session", "session_id": res_1["session_id"]}
-        ),
-    )
+    assert len(open_session_metric_output), "No metric output"
     assert (
-        response_close__after_timeout_1.status_code == 200
-    ), "Close 1 after timeout Failed"
-    res_4 = json.loads(response_close__after_timeout_1.content)
-    assert "session_id" in res_4 and "msg" in res_4
-    assert res_4["msg"] == "Session was already closed"
+        "0.0" in open_session_metric_output[0]
+    ), "Open session was not 0 at the beginning"
+    assert "1.0" in open_session_metric_output[-1], "Currently open sessions is not 1"
+
+    time.sleep(2)
+    while not stdout.empty():
+        out = stdout.get_nowait()
+        if "OpenSession" in out:
+            open_session_metric_output += [out]
+    assert (
+        "0.0" in open_session_metric_output[-1]
+    ), "Last session should have been timed out"
