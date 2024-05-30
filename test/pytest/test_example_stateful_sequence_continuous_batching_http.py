@@ -268,6 +268,7 @@ def __infer_stateful(model_name, sequence_id, expected):
                         "ts_request_sequence_id"
                     ),
                 }
+            start = False
         else:
             response = requests.post(
                 url=f"http://localhost:8080/predictions/{model_name}",
@@ -313,6 +314,7 @@ def __infer_stateful_end(model_name, sequence_id, expected):
                         "ts_request_sequence_id"
                     ),
                 }
+            start = False
         else:
             response = requests.post(
                 url=f"http://localhost:8080/predictions/{model_name}",
@@ -363,6 +365,7 @@ def __infer_stateful_cancel(model_name, sequence_id, expected):
                             "ts_request_sequence_id"
                         ),
                     }
+                start = False
             else:
                 response = requests.post(
                     url=f"http://localhost:8080/predictions/{model_name}",
