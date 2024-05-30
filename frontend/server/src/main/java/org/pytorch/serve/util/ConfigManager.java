@@ -133,6 +133,7 @@ public final class ConfigManager {
     private static final String MODEL_CONFIG = "models";
     private static final String VERSION = "version";
     private static final String SYSTEM_METRICS_CMD = "system_metrics_cmd";
+    private static final String MODEL_CONTROL_MODE = "model_control_mode";
 
     // Configuration default values
     private static final String DEFAULT_TS_ALLOWED_URLS = "file://.*|http(s)?://.*";
@@ -476,6 +477,14 @@ public final class ConfigManager {
 
     public int getNumberOfGpu() {
         return getIntProperty(TS_NUMBER_OF_GPU, 0);
+    }
+
+    public String getModelControlMode(){
+        String mode = getProperty(MODEL_CONTROL_MODE, "none");
+        if (!mode.equals("explicit")){
+            return "none";
+        }
+        return mode;
     }
 
     public String getMetricsConfigPath() {
