@@ -59,7 +59,8 @@ else:
     PT230_AVAILABLE = False
 
 try:
-    import openvino.torch
+    import openvino.torch  # nopycln: import
+
     logger.info("OpenVINO backend enabled for torch.compile")
 except ImportError:
     logger.warning("OpenVINO is not enabled")
@@ -261,18 +262,20 @@ class BaseHandler(abc.ABC):
                 [f"{k} {v}" for k, v in compile_options.items()]
             )
             # Compilation will delay your model initialization
-            try:
-                self.model = torch.compile(
-                    self.model,
-                    **compile_options,
-                )
-                logger.info(f"Compiled model with {compile_options_str}")
-                print(f"Compiled model with {compile_options_str}")
-            except Exception as e:
-                logger.warning(
-                    f"Compiling model model with {compile_options_str} has failed \n Proceeding without compilation"
-                )
-                logger.warning(e)
+            # try:
+            logger.info(f"Compiling model with {compile_options_str}")
+            print(f"Compiling model with {compile_options_str}")
+            self.model = torch.compile(
+                self.model,
+                **compile_options,
+            )
+            logger.info(f"Compiled model with {compile_options_str}")
+            print(f"Compiled model with {compile_options_str}")
+            # except Exception as e:
+            #    logger.warning(
+            #        f"Compiling model model with {compile_options_str} has failed \n Proceeding without compilation"
+            #    )
+            #    logger.warning(e)
 
         elif IPEX_AVAILABLE:
             self.model = self.model.to(memory_format=torch.channels_last)
