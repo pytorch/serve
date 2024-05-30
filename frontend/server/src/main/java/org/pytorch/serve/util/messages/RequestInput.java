@@ -42,6 +42,9 @@ public class RequestInput {
 
     public void updateHeaders(String key, String val) {
         headers.put(key, val);
+        if (ConfigManager.getInstance().getTsHeaderKeySequenceId().equals(key)) {
+            setSequenceId(val);
+        }
     }
 
     public List<InputParameter> getParameters() {
