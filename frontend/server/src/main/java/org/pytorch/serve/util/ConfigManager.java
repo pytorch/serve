@@ -484,9 +484,9 @@ public final class ConfigManager {
         return getIntProperty(TS_NUMBER_OF_GPU, 0);
     }
 
-    public String getModelControlMode(){
+    public String getModelControlMode() {
         String mode = getProperty(MODEL_CONTROL_MODE, "none");
-        if (!mode.equals("explicit")){
+        if (!mode.equals("explicit")) {
             return "none";
         }
         return mode;
@@ -822,7 +822,9 @@ public final class ConfigManager {
                 + "\nSystem metrics command: "
                 + (getSystemMetricsCmd().isEmpty() ? "default" : getSystemMetricsCmd())
                 + "\nModel control mode: "
-                + (getModelControlMode().equals("none") ? "default" : getModelControlMode()); // getModelControlMode();
+                + (getModelControlMode().equals("none")
+                        ? "default"
+                        : getModelControlMode()); // getModelControlMode();
     }
 
     public boolean useNativeIo() {
@@ -1239,7 +1241,7 @@ public final class ConfigManager {
             this.models = models.clone();
         }
 
-        public boolean isModeExplicit(){
+        public boolean isModeExplicit() {
             return modelExplicit;
         }
 

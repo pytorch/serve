@@ -130,7 +130,7 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
                 || endpointMap.containsKey(segments[1]);
     }
 
-    private boolean checkModelControl(){
+    private boolean checkModelControl() {
         ConfigManager configManager = ConfigManager.getInstance();
         return (configManager.getModelControlMode().equals("explicit"));
     }
