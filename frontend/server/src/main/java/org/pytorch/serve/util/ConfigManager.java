@@ -203,11 +203,6 @@ public final class ConfigManager {
         String filePath = System.getenv("TS_CONFIG_FILE");
         Properties snapshotConfig = null;
 
-        String tokenDisabled = args.isTokenDisabled();
-        if (tokenDisabled != null) {
-            prop.setProperty(TS_DISABLE_TOKEN_AUTHORIZATION, tokenDisabled);
-        }
-
         if (filePath == null) {
             filePath = args.getTsConfigFile();
             if (filePath == null) {
@@ -259,6 +254,11 @@ public final class ConfigManager {
         String[] models = args.getModels();
         if (models != null) {
             prop.setProperty(TS_LOAD_MODELS, String.join(",", models));
+        }
+
+        String tokenDisabled = args.isTokenDisabled();
+        if (tokenDisabled != null) {
+            prop.setProperty(TS_DISABLE_TOKEN_AUTHORIZATION, tokenDisabled);
         }
 
         prop.setProperty(
