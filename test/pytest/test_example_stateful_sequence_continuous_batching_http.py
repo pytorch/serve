@@ -217,7 +217,7 @@ def test_infer_stateful_cancel(mar_file_path, model_store):
             args=(
                 model_name,
                 "seq_0",
-                "1 4 -1",
+                "1 4 -1 -1 -1",
             ),
         )
         t1 = threading.Thread(
