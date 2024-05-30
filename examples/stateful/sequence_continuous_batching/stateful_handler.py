@@ -49,10 +49,10 @@ class StatefulHandler(BaseHandler, ABC):
 
         for idx, row in enumerate(data):
             sequence_id = self.context.get_sequence_id(idx)
-            self.context.set_response_header()
-            req_id = self.context.get_request_id(
+            self.context.set_response_header(
                 idx, self.context.header_key_sequence_id, sequence_id
             )
+            req_id = self.context.get_request_id(idx)
 
             if self.context.get_request_header(
                 idx, self.context.header_key_sequence_start
@@ -70,7 +70,7 @@ class StatefulHandler(BaseHandler, ABC):
             if isinstance(request, (bytes, bytearray)):
                 request = request.decode("utf-8")
 
-            if sequence_id not in self.context.cache:
+            if not self.context.cache.get(sequence_id, {}).get(req_id, {}):
                 self.context.cache[sequence_id] = {
                     req_id: {
                         "stopping_criteria": self._create_stopping_criteria(
@@ -92,6 +92,7 @@ class StatefulHandler(BaseHandler, ABC):
                 self.context.set_response_header(
                     idx, self.context.header_key_sequence_end, sequence_id
                 )
+                results.append(int(request))
             else:
                 val = prev + int(request)
                 self.cache[sequence_id] = val

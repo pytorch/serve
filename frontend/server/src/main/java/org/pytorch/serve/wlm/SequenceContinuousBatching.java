@@ -58,7 +58,6 @@ public class SequenceContinuousBatching extends SequenceBatching {
                             "Drop response for inference request {} due to client timeout",
                             job.getPayload().getRequestId());
                 }
-                setJobGroupFinished(prediction);
                 String streamNext =
                         prediction
                                 .getHeaders()
@@ -73,6 +72,7 @@ public class SequenceContinuousBatching extends SequenceBatching {
                 } else {
                     job.getPayload().setCachedInBackend(true);
                 }
+                setJobGroupFinished(prediction);
             }
         } else {
             for (Map.Entry<String, Job> j : jobs.entrySet()) {

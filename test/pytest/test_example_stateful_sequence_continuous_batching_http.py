@@ -171,7 +171,7 @@ def test_infer_stateful_end(mar_file_path, model_store):
             args=(
                 model_name,
                 "seq_1",
-                "2 6 12 20 20",
+                "2 6 12 20 30",
             ),
         )
 
