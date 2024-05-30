@@ -257,7 +257,7 @@ public final class ConfigManager {
         }
 
         String tokenDisabled = args.isTokenDisabled();
-        if (tokenDisabled != null) {
+        if (tokenDisabled.equals("true")) {
             prop.setProperty(TS_DISABLE_TOKEN_AUTHORIZATION, tokenDisabled);
         }
 
