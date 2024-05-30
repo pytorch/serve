@@ -242,9 +242,6 @@ def test_infer_stateful_cancel(mar_file_path, model_store):
 
 
 def __infer_stateful(model_name, sequence_id, expected):
-    headers = {
-        "ts_request_sequence_id": sequence_id,
-    }
     start = True
     prediction = []
     for idx in range(5):
@@ -259,10 +256,22 @@ def __infer_stateful(model_name, sequence_id, expected):
                 url=f"http://localhost:8080/predictions/{model_name}",
                 data=str(idx + 1).encode(),
             )
+            if sequence_id == "seq_0":
+                headers_seq_0 = {
+                    "ts_request_sequence_id": response.headers.get(
+                        "ts_request_sequence_id"
+                    ),
+                }
+            elif sequence_id == "seq_1":
+                headers_seq_1 = {
+                    "ts_request_sequence_id": response.headers.get(
+                        "ts_request_sequence_id"
+                    ),
+                }
         else:
             response = requests.post(
                 url=f"http://localhost:8080/predictions/{model_name}",
-                headers=headers,
+                headers=headers_seq_0 if sequence_id == "seq_0" else headers_seq_1,
                 data=str(idx + 1).encode(),
             )
         prediction.append(response.text)
@@ -272,9 +281,6 @@ def __infer_stateful(model_name, sequence_id, expected):
 
 
 def __infer_stateful_end(model_name, sequence_id, expected):
-    headers = {
-        "ts_request_sequence_id": sequence_id,
-    }
     prediction = []
     start = True
     end = False
@@ -295,10 +301,22 @@ def __infer_stateful_end(model_name, sequence_id, expected):
                 url=f"http://localhost:8080/predictions/{model_name}",
                 data=str(idx + 1).encode(),
             )
+            if sequence_id == "seq_0":
+                headers_seq_0 = {
+                    "ts_request_sequence_id": response.headers.get(
+                        "ts_request_sequence_id"
+                    ),
+                }
+            elif sequence_id == "seq_1":
+                headers_seq_1 = {
+                    "ts_request_sequence_id": response.headers.get(
+                        "ts_request_sequence_id"
+                    ),
+                }
         else:
             response = requests.post(
                 url=f"http://localhost:8080/predictions/{model_name}",
-                headers=headers,
+                headers=headers_seq_0 if sequence_id == "seq_0" else headers_seq_1,
                 data=str(idx + 1).encode(),
             )
         prediction.append(response.text)
@@ -308,9 +326,6 @@ def __infer_stateful_end(model_name, sequence_id, expected):
 
 
 def __infer_stateful_cancel(model_name, sequence_id, expected):
-    headers = {
-        "ts_request_sequence_id": sequence_id,
-    }
     prediction = []
     start = True
     cancel = False
@@ -336,10 +351,22 @@ def __infer_stateful_cancel(model_name, sequence_id, expected):
                     url=f"http://localhost:8080/predictions/{model_name}",
                     data=str(idx + 1).encode(),
                 )
+                if sequence_id == "seq_0":
+                    headers_seq_0 = {
+                        "ts_request_sequence_id": response.headers.get(
+                            "ts_request_sequence_id"
+                        ),
+                    }
+                elif sequence_id == "seq_1":
+                    headers_seq_1 = {
+                        "ts_request_sequence_id": response.headers.get(
+                            "ts_request_sequence_id"
+                        ),
+                    }
             else:
                 response = requests.post(
                     url=f"http://localhost:8080/predictions/{model_name}",
-                    headers=headers,
+                    headers=headers_seq_0 if sequence_id == "seq_0" else headers_seq_1,
                     data=str(idx + 1).encode(),
                 )
         prediction.append(response.text)
