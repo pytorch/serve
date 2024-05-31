@@ -59,7 +59,8 @@ else:
     PT230_AVAILABLE = False
 
 try:
-    import openvino.torch
+    import openvino.torch  # nopycln: import
+
     logger.info("OpenVINO backend enabled for torch.compile")
 except ImportError:
     logger.warning("OpenVINO is not enabled")

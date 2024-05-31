@@ -133,7 +133,6 @@ class TestTorchCompile:
         os.environ.get("TS_RUN_IN_DOCKER", False),
         reason="Test to be run outside docker",
     )
-    @pytest.mark.skip(reason="Test failing on regression runner")
     def test_serve_inference(self):
         request_data = {"instances": [[1.0], [2.0], [3.0]]}
         request_json = json.dumps(request_data)
