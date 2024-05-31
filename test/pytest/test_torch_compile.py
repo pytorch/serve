@@ -166,7 +166,7 @@ class TestTorchCompile:
 
         # Change the current working directory to TEST_DATA_DIR to load model.py
         monkeypatch.chdir(TEST_DATA_DIR)
-        sys.path.append(TEST_DATA_DIR)
+        monkeypatch.syspath_prepend(TEST_DATA_DIR)
 
         # Handler
         handler = CompileHandler()
@@ -199,7 +199,7 @@ class TestTorchCompile:
 
         # Change the current working directory to TEST_DATA_DIR to load model.py
         monkeypatch.chdir(TEST_DATA_DIR)
-        sys.path.append(TEST_DATA_DIR)
+        monkeypatch.syspath_prepend(TEST_DATA_DIR)
 
         # Handler
         handler = CompileHandler()
