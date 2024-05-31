@@ -2,10 +2,12 @@
 
 Torchserve now supports token authorization by default.
 
-## How to disable Token Authorization
-1. Set global environment variable `TS_DISABLE_TOKEN_AUTHORIZATION=true`
+## 3 ways to disable Token Authorization
+1. Set global environment variable `TS_DISABLE_TOKEN_AUTHORIZATION=true`. Note that `enable_envvars_config=true` must be set in config.properties for global environment variables to be used
 2. Add `--disable-token` to command line when running TorchServe.
-3. Add `disable_token_authorization=true` to config.properties file
+3. Add `disable_token_authorization=true` to config.properties file.
+
+Priority between env variables, cmd, and config file follows the following [TorchServer standard](https://github.com/pytorch/serve/blob/c74a29e8144bc12b84196775076b0e8cf3c5a6fc/docs/configuration.md#advanced-configuration)
 
 ## Configuration
 1. Torchserve will enable token authorization by default. Expected log statement `main org.pytorch.serve.http.TokenAuthorizationHandler - TOKEN CLASS IMPORTED SUCCESSFULLY`
@@ -44,12 +46,7 @@ Torchserve now supports token authorization by default.
 
 5. When users shut down the server the key_file will be deleted.
 
-
-## Customization
-Torchserve offers various ways to customize the token authorization to allow owners to reach the desired result.
-1. Time to expiration is set to default at 60 minutes but can be changed in the config.properties by adding `token_expiration_min`. Ex:`token_expiration_min=30`
-
-
 ## Notes
 1. DO NOT MODIFY THE KEY FILE. Modifying the key file might impact reading and writing to the file thus preventing new keys from properly being displayed in the file.
-2. 3 tokens allow the owner with the most flexibility in use and enables them to adapt the tokens to their use. Owners of the server can provide users with the inference token if users should not mess with models. The owner can also provide owners with the management key if owners want users to add and remove models.
+2. Time to expiration is set to default at 60 minutes but can be changed in the config.properties by adding `token_expiration_min`. Ex:`token_expiration_min=30`
+3. 3 tokens allow the owner with the most flexibility in use and enables them to adapt the tokens to their use. Owners of the server can provide users with the inference token if users should not mess with models. The owner can also provide owners with the management key if owners want users to add and remove models.
