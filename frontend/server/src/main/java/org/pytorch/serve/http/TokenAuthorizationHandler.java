@@ -72,17 +72,14 @@ public class TokenAuthorizationHandler extends HttpRequestHandlerChain {
                     }
                 } else {
                     checkTokenAuthorization(req, "management");
-                    // chain.handleRequest(ctx, req, decoder, segments);
                 }
             } else if (tokenType == TokenType.INFERENCE) {
                 checkTokenAuthorization(req, "inference");
-                // chain.handleRequest(ctx, req, decoder, segments);
             }
         } else {
             if (tokenType == TokenType.MANAGEMENT && req.toString().contains("/token")) {
                 throw new ResourceNotFoundException();
             }
-            // chain.handleRequest(ctx, req, decoder, segments);
         }
         chain.handleRequest(ctx, req, decoder, segments);
     }
