@@ -193,13 +193,15 @@ class TestTorchCompile:
 
         assert result[0] == EXPECTED_RESULT
 
-    def test_compile_inference_enable_true(self, monkeypatch):
-        # Reset dynamo
-        torch._dynamo.reset()
-
+    @pytest.fixture(scope="function")
+    def chdir_test_data(monkeypatch):
         # Change the current working directory to TEST_DATA_DIR to load model.py
         monkeypatch.chdir(TEST_DATA_DIR)
         monkeypatch.syspath_prepend(TEST_DATA_DIR)
+
+    def test_compile_inference_enable_true(self, chdir_test_data):
+        # Reset dynamo
+        torch._dynamo.reset()
 
         # Handler
         handler = CompileHandler()
