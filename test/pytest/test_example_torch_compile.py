@@ -32,7 +32,7 @@ EXPECTED_RESULTS = ["tabby", "tiger_cat", "Egyptian_cat", "lynx", "plastic_bag"]
 
 
 @pytest.mark.skipif(PT2_AVAILABLE == False, reason="torch version is < 2.0")
-def test_torch_compile_inference(monkeypatch, custom_working_directory):
+def test_torch_compile_inference(monkeypatch):
     # Change directory to example directory
     monkeypatch.chdir(EXAMPLE_ROOT_DIR)
     monkeypatch.syspath_prepend(EXAMPLE_ROOT_DIR)
