@@ -151,7 +151,7 @@ class StatefulHandler(BaseHandler, ABC):
                     self.outer.context.cache[seq_id][req_id]["cancel"]
                     or self.counter == 0
                 ):
-                    self.outer.clean_up_seq(self.seq_id, self.req_id)
+                    self.outer.clean_up_req(self.seq_id, self.req_id)
                     return True
                 else:
                     self.counter -= 1

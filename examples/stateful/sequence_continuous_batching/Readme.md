@@ -83,6 +83,7 @@ batchSize: 4
 sequenceMaxIdleMSec: 60000
 maxSequenceJobQueueSize: 10
 sequenceBatching: true
+continuousBatching: true
 
 handler:
   cache:

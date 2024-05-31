@@ -413,7 +413,6 @@ public final class ApiUtils {
         resp.setUseJobTicket(model.isUseJobTicket());
         resp.setUseVenv(model.isUseVenv());
         resp.setStateful(model.isSequenceBatching());
-        resp.setStateful(model.isSequenceContinuousBatch());
         resp.setSequenceMaxIdleMSec(model.getSequenceMaxIdleMSec());
         resp.setMaxNumSequence(model.getMaxNumSequence());
         resp.setMaxSequenceJobQueueSize(model.getMaxSequenceJobQueueSize());
