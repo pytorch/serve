@@ -47,22 +47,24 @@ class StatefulHandler(BaseHandler, ABC):
         """
 
         results = []
-
         for idx, row in enumerate(data):
-            start = False
             sequence_id = self.context.get_sequence_id(idx)
             # SageMaker sticky router relies on response header to identify the sessions
             # The sequence_id from request headers must be set in response headers
             self.context.set_response_header(
                 idx, self.context.header_key_sequence_id, sequence_id
             )
-            req_id = self.context.get_request_id(idx)
 
             if self.context.get_request_header(
                 idx, self.context.header_key_sequence_start
             ):
                 prev = int(0)
-                start = True
+                self.context.cache[sequence_id] = {
+                    "start": True,
+                    "cancel": False,
+                    "end": False,
+                    "num_requests": 0,
+                }
             elif self.cache.has_key(sequence_id):
                 prev = int(self.cache[sequence_id])
             else:
@@ -75,26 +77,16 @@ class StatefulHandler(BaseHandler, ABC):
             if isinstance(request, (bytes, bytearray)):
                 request = request.decode("utf-8")
 
-            if not self.context.cache.get(sequence_id, {}).get(req_id, {}):
-                self.context.cache[sequence_id] = {
-                    req_id: {
-                        "start": start,
-                        "stopping_criteria": self._create_stopping_criteria(
-                            req_id=req_id, seq_id=sequence_id
-                        ),
-                    },
-                }
-
             # -1: cancel
             if int(request) == -1:
-                for r_id in self.context.cache[sequence_id].keys():
-                    self.context.cache[sequence_id][r_id]["cancel"] = True
+                self.context.cache[sequence_id]["cancel"] = True
                 results.append(int(request))
             elif prev is None:
                 logger.info(
                     f"Close the sequence:{sequence_id} without open session request"
                 )
-                self.context.cache[sequence_id][req_id]["end"] = True
+                self.context.cache[sequence_id]["end"] = True
+                self.context.cache[req_id]["end"] = True
                 self.context.set_response_header(
                     idx, self.context.header_key_sequence_end, sequence_id
                 )
@@ -104,7 +96,6 @@ class StatefulHandler(BaseHandler, ABC):
                 self.cache[sequence_id] = val
                 # 0: end
                 if int(request) == 0:
-                    self.context.cache[sequence_id][req_id]["end"] = True
                     self.context.set_response_header(
                         idx, self.context.header_key_sequence_end, sequence_id
                     )
@@ -113,6 +104,16 @@ class StatefulHandler(BaseHandler, ABC):
                     time.sleep(1)
 
                 results.append(val)
+
+            req_id = self.context.get_request_id(idx)
+            if req_id not in self.context.cache:
+                self.context.cache[req_id] = {
+                    "stopping_criteria": self._create_stopping_criteria(
+                        req_id=req_id, seq_id=sequence_id
+                    ),
+                }
+
+                self.context.cache[sequence_id]["num_requests"] += 1
 
         return results
 
@@ -130,15 +131,12 @@ class StatefulHandler(BaseHandler, ABC):
 
         return data
 
-    def clean_up_seq(self, seq_id):
+    def clean_up(self, seq_id, req_id, del_seq):
         # clean up
-        del self.cache[seq_id]
-        del self.context.cache[seq_id]
-
-    def clean_up_req(self, seq_id, req_id):
-        # clean up
-        if seq_id in self.context.cache:
-            del self.context.cache[seq_id][req_id]
+        self.context.cache[seq_id]["num_requests"] -= 1
+        if self.context.cache[seq_id]["num_requests"] == 0 and del_seq:
+            del self.context.cache[seq_id]
+        del self.context.cache[req_id]
 
     def _create_stopping_criteria(self, req_id, seq_id):
         class StoppingCriteria(object):
@@ -150,16 +148,12 @@ class StatefulHandler(BaseHandler, ABC):
 
             def __call__(self, res):
                 # sequence end
-                if self.outer.context.cache[seq_id][req_id]["end"]:
-                    self.outer.clean_up_seq(self.seq_id)
+                if self.outer.context.cache[seq_id]["end"]:
+                    self.outer.clean_up(self.seq_id, self.req_id, True)
                     return True
                 # cancel
-                elif (
-                    self.outer.context.cache[seq_id][req_id]["cancel"]
-                    or self.outer.context.cache[seq_id][req_id]["start"]
-                    or self.counter == 0
-                ):
-                    self.outer.clean_up_req(self.seq_id, self.req_id)
+                elif self.outer.context.cache[seq_id]["cancel"] or self.counter == 0:
+                    self.outer.clean_up(self.seq_id, self.req_id, False)
                     return True
                 else:
                     self.counter -= 1
