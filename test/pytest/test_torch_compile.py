@@ -3,7 +3,6 @@ import json
 import os
 import platform
 import subprocess
-import sys
 import time
 from pathlib import Path
 
@@ -160,13 +159,15 @@ class TestTorchCompile:
                 in model_log
             )
 
-    def test_compile_inference_enable_true_default(self, monkeypatch):
-        # Reset dynamo
-        torch._dynamo.reset()
-
+    @pytest.fixture(scope="function")
+    def chdir_test_data(self, monkeypatch):
         # Change the current working directory to TEST_DATA_DIR to load model.py
         monkeypatch.chdir(TEST_DATA_DIR)
         monkeypatch.syspath_prepend(TEST_DATA_DIR)
+
+    def test_compile_inference_enable_true_default(self, chdir_test_data):
+        # Reset dynamo
+        torch._dynamo.reset()
 
         # Handler
         handler = CompileHandler()
@@ -192,12 +193,6 @@ class TestTorchCompile:
         result = handler.handle([data], ctx)
 
         assert result[0] == EXPECTED_RESULT
-
-    @pytest.fixture(scope="function")
-    def chdir_test_data(monkeypatch):
-        # Change the current working directory to TEST_DATA_DIR to load model.py
-        monkeypatch.chdir(TEST_DATA_DIR)
-        monkeypatch.syspath_prepend(TEST_DATA_DIR)
 
     def test_compile_inference_enable_true(self, chdir_test_data):
         # Reset dynamo
@@ -228,13 +223,9 @@ class TestTorchCompile:
 
         assert result[0] == EXPECTED_RESULT
 
-    def test_compile_inference_enable_false(self, monkeypatch):
+    def test_compile_inference_enable_false(self, chdir_test_data):
         # Reset dynamo
         torch._dynamo.reset()
-
-        # Change the current working directory to TEST_DATA_DIR to load model.py
-        monkeypatch.chdir(TEST_DATA_DIR)
-        sys.path.append(TEST_DATA_DIR)
 
         # Handler
         handler = CompileHandler()
