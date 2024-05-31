@@ -31,15 +31,15 @@ PT2_AVAILABLE = (
 EXPECTED_RESULTS = ["tabby", "tiger_cat", "Egyptian_cat", "lynx", "plastic_bag"]
 
 
-@pytest.fixture
-def custom_working_directory(tmp_path):
-    # Set the custom working directory
-    custom_dir = tmp_path / "model_dir"
-    custom_dir.mkdir()
-    os.chdir(custom_dir)
-    yield custom_dir
-    # Clean up and return to the original working directory
-    os.chdir(tmp_path)
+#@pytest.fixture
+#def custom_working_directory(tmp_path):
+#    # Set the custom working directory
+#    custom_dir = tmp_path / "model_dir"
+#    custom_dir.mkdir()
+#    os.chdir(custom_dir)
+#    yield custom_dir
+#    # Clean up and return to the original working directory
+#    os.chdir(tmp_path)
 
 
 @pytest.mark.skipif(PT2_AVAILABLE == False, reason="torch version is < 2.0")
