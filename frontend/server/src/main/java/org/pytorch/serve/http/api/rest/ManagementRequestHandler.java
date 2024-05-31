@@ -75,7 +75,7 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
                     if (HttpMethod.GET.equals(method)) {
                         handleListModels(ctx, decoder);
                         return;
-                    } else if (HttpMethod.POST.equals(method) && checkModelControl()) {
+                    } else if (HttpMethod.POST.equals(method) && isModeExplicit()) {
                         handleRegisterModel(ctx, decoder, req);
                         return;
                     }
@@ -94,7 +94,7 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
                     } else {
                         handleScaleModel(ctx, decoder, segments[2], modelVersion);
                     }
-                } else if (HttpMethod.DELETE.equals(method) && checkModelControl()) {
+                } else if (HttpMethod.DELETE.equals(method) && isModeExplicit()) {
                     handleUnregisterModel(ctx, segments[2], modelVersion);
                 } else if (HttpMethod.OPTIONS.equals(method)) {
                     ModelManager modelManager = ModelManager.getInstance();
@@ -130,9 +130,9 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
                 || endpointMap.containsKey(segments[1]);
     }
 
-    private boolean checkModelControl() {
+    private boolean isModeExplicit() {
         ConfigManager configManager = ConfigManager.getInstance();
-        return (configManager.getModelControlMode().equals("explicit"));
+        return (configManager.getModelControlMode());
     }
 
     private boolean isKFV1ManagementReq(String[] segments) {

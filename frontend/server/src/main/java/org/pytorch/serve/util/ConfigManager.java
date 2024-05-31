@@ -484,12 +484,9 @@ public final class ConfigManager {
         return getIntProperty(TS_NUMBER_OF_GPU, 0);
     }
 
-    public String getModelControlMode() {
+    public boolean getModelControlMode() {
         String mode = getProperty(MODEL_CONTROL_MODE, "none");
-        if (!mode.equals("explicit")) {
-            return "none";
-        }
-        return mode;
+        return mode.equals("explicit") ? true : false;
     }
 
     public String getMetricsConfigPath() {
@@ -822,9 +819,7 @@ public final class ConfigManager {
                 + "\nSystem metrics command: "
                 + (getSystemMetricsCmd().isEmpty() ? "default" : getSystemMetricsCmd())
                 + "\nModel control mode: "
-                + (getModelControlMode().equals("none")
-                        ? "default"
-                        : getModelControlMode()); // getModelControlMode();
+                + (getModelControlMode() ? "explicit" : "default");
     }
 
     public boolean useNativeIo() {
