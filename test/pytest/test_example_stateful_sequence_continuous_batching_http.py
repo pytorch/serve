@@ -232,7 +232,7 @@ def test_infer_stateful_cancel(mar_file_path, model_store):
             ),
         )
         t1 = threading.Thread(
-            target=__infer_stateful,
+            target=__infer_stateful_cancel,
             args=(
                 model_name,
                 True,

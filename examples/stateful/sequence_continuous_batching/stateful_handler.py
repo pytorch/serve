@@ -49,6 +49,7 @@ class StatefulHandler(BaseHandler, ABC):
         results = []
 
         for idx, row in enumerate(data):
+            start = False
             sequence_id = self.context.get_sequence_id(idx)
             # SageMaker sticky router relies on response header to identify the sessions
             # The sequence_id from request headers must be set in response headers
@@ -61,7 +62,7 @@ class StatefulHandler(BaseHandler, ABC):
                 idx, self.context.header_key_sequence_start
             ):
                 prev = int(0)
-                self.context.cache[sequence_id][req_id]["start"] = True
+                start = True
             elif self.cache.has_key(sequence_id):
                 prev = int(self.cache[sequence_id])
             else:
@@ -77,9 +78,10 @@ class StatefulHandler(BaseHandler, ABC):
             if not self.context.cache.get(sequence_id, {}).get(req_id, {}):
                 self.context.cache[sequence_id] = {
                     req_id: {
+                        "start": start,
                         "stopping_criteria": self._create_stopping_criteria(
                             req_id=req_id, seq_id=sequence_id
-                        )
+                        ),
                     },
                 }
 
@@ -106,6 +108,7 @@ class StatefulHandler(BaseHandler, ABC):
                     self.context.set_response_header(
                         idx, self.context.header_key_sequence_end, sequence_id
                     )
+                # -3: test streaming
                 elif int(request) == -3:
                     time.sleep(1)
 
