@@ -1,4 +1,5 @@
 import logging
+import time
 from abc import ABC
 
 from lru import LRU
@@ -60,6 +61,7 @@ class StatefulHandler(BaseHandler, ABC):
                 idx, self.context.header_key_sequence_start
             ):
                 prev = int(0)
+                self.context.cache[sequence_id][req_id]["start"] = True
             elif self.cache.has_key(sequence_id):
                 prev = int(self.cache[sequence_id])
             else:
@@ -104,6 +106,8 @@ class StatefulHandler(BaseHandler, ABC):
                     self.context.set_response_header(
                         idx, self.context.header_key_sequence_end, sequence_id
                     )
+                elif int(request) == -3:
+                    time.sleep(1)
 
                 results.append(val)
 
@@ -149,6 +153,7 @@ class StatefulHandler(BaseHandler, ABC):
                 # cancel
                 elif (
                     self.outer.context.cache[seq_id][req_id]["cancel"]
+                    or self.outer.context.cache[seq_id][req_id]["start"]
                     or self.counter == 0
                 ):
                     self.outer.clean_up_req(self.seq_id, self.req_id)

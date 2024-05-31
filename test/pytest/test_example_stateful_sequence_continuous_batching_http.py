@@ -1,6 +1,7 @@
 import shutil
 import sys
 import threading
+import time
 from pathlib import Path
 
 import pytest
@@ -212,21 +213,31 @@ def test_infer_stateful_cancel(mar_file_path, model_store):
 
     try:
         test_utils.reg_resp = test_utils.register_model_with_params(params)
+        response = requests.post(
+            url=f"http://localhost:8080/predictions/{model_name}",
+            data=str(1).encode(),
+        )
+        s_id = response.headers.get("ts_request_sequence_id")
+        headers = {
+            "ts_request_sequence_id": s_id,
+        }
 
         t0 = threading.Thread(
             target=__infer_stateful_cancel,
             args=(
                 model_name,
-                "seq_0",
-                "1 4 -1 -1 -1",
+                False,
+                headers,
+                "-1",
             ),
         )
         t1 = threading.Thread(
             target=__infer_stateful,
             args=(
                 model_name,
-                "seq_1",
-                "2 6 12 20 30",
+                True,
+                headers,
+                "-1",
             ),
         )
 
@@ -318,47 +329,28 @@ def __infer_stateful_end(model_name, sequence_id, expected):
     assert str(" ".join(prediction)) == expected
 
 
-def __infer_stateful_cancel(model_name, sequence_id, expected):
+def __infer_stateful_cancel(model_name, is_cancel, headers, expected):
     prediction = []
-    start = True
-    cancel = False
-    for idx in range(5):
-        if idx == 2:
-            cancel = True
-        if sequence_id == "seq_0":
-            idx = 2 * idx
-        elif sequence_id == "seq_1":
-            idx = 2 * idx + 1
-
-        if cancel is True and sequence_id == "seq_0":
-            response = requests.post(
-                url=f"http://localhost:8080/predictions/{model_name}",
-                headers=headers_seq_0,
-                data=str(-1).encode(),
-            )
-        elif cancel is False or sequence_id == "seq_1":
-            if start is True:
-                response = requests.post(
-                    url=f"http://localhost:8080/predictions/{model_name}",
-                    data=str(idx + 1).encode(),
-                )
-                s_id = response.headers.get("ts_request_sequence_id")
-                if sequence_id == "seq_0":
-                    headers_seq_0 = {
-                        "ts_request_sequence_id": s_id,
-                    }
-                elif sequence_id == "seq_1":
-                    headers_seq_1 = {
-                        "ts_request_sequence_id": s_id,
-                    }
-                start = False
-            else:
-                response = requests.post(
-                    url=f"http://localhost:8080/predictions/{model_name}",
-                    headers=headers_seq_0 if sequence_id == "seq_0" else headers_seq_1,
-                    data=str(idx + 1).encode(),
-                )
+    if is_cancel:
+        time.sleep(0.5)
+        response = requests.post(
+            url=f"http://localhost:8080/predictions/{model_name}",
+            headers=headers,
+            data=str(-1).encode(),
+        )
         prediction.append(response.text)
+        print(f"infer_stateful_cancel prediction={str(' '.join(prediction))}")
+        assert str(" ".join(prediction)) == expected
+    else:
+        response = requests.post(
+            url=f"http://localhost:8080/predictions/{model_name}",
+            headers=headers,
+            data=str(-3).encode(),
+            stream=True,
+        )
+        assert response.headers["Transfer-Encoding"] == "chunked"
+        for chunk in response.iter_content(chunk_size=None):
+            if chunk:
+                prediction += [chunk.decode("utf-8")]
 
-    print(f"infer_stateful_cancel prediction={str(' '.join(prediction))}")
-    assert str(" ".join(prediction)) == expected
+        print(f"infer_stateful_cancel prediction={str(' '.join(prediction))}")
