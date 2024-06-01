@@ -1,5 +1,4 @@
 import logging
-import time
 from abc import ABC
 
 from lru import LRU
@@ -55,6 +54,7 @@ class StatefulHandler(BaseHandler, ABC):
                 idx, self.context.header_key_sequence_id, sequence_id
             )
 
+            # check if sequence_id exists
             if self.context.get_request_header(
                 idx, self.context.header_key_sequence_start
             ):
@@ -73,47 +73,54 @@ class StatefulHandler(BaseHandler, ABC):
                     f"Not received sequence_start request for sequence_id:{sequence_id} before"
                 )
 
-            request = row.get("data") or row.get("body")
-            if isinstance(request, (bytes, bytearray)):
-                request = request.decode("utf-8")
-
-            # -1: cancel
-            if int(request) == -1:
-                self.context.cache[sequence_id]["cancel"] = True
-                results.append(int(request))
-            elif prev is None:
-                logger.info(
-                    f"Close the sequence:{sequence_id} without open session request"
-                )
-                self.context.cache[sequence_id]["end"] = True
-                self.context.cache[req_id]["end"] = True
-                self.context.set_response_header(
-                    idx, self.context.header_key_sequence_end, sequence_id
-                )
-                results.append(int(request))
-            else:
-                val = prev + int(request)
-                self.cache[sequence_id] = val
-                # 0: end
-                if int(request) == 0:
-                    self.context.set_response_header(
-                        idx, self.context.header_key_sequence_end, sequence_id
-                    )
-                # -3: test streaming
-                elif int(request) == -3:
-                    time.sleep(1)
-
-                results.append(val)
-
             req_id = self.context.get_request_id(idx)
+            # process a new request
             if req_id not in self.context.cache:
+                request = row.get("data") or row.get("body")
+                if isinstance(request, (bytes, bytearray)):
+                    request = request.decode("utf-8")
+
                 self.context.cache[req_id] = {
                     "stopping_criteria": self._create_stopping_criteria(
                         req_id=req_id, seq_id=sequence_id
                     ),
+                    "stream": True,
                 }
-
                 self.context.cache[sequence_id]["num_requests"] += 1
+
+                # -1: cancel
+                if int(request) == -1:
+                    self.context.cache[sequence_id]["cancel"] = True
+                    self.context.cache[req_id]["stream"] = False
+                    results.append(int(request))
+                elif prev is None:
+                    logger.info(
+                        f"Close the sequence:{sequence_id} without open session request"
+                    )
+                    self.context.cache[sequence_id]["end"] = True
+                    self.context.cache[req_id]["stream"] = False
+                    self.context.set_response_header(
+                        idx, self.context.header_key_sequence_end, sequence_id
+                    )
+                    results.append(int(request))
+                else:
+                    val = prev + int(request)
+                    self.cache[sequence_id] = val
+                    # 0: end
+                    if int(request) == 0:
+                        self.context.cache[sequence_id]["end"] = True
+                        self.context.cache[req_id]["stream"] = False
+                        self.context.set_response_header(
+                            idx, self.context.header_key_sequence_end, sequence_id
+                        )
+                    # non stream input:
+                    elif int(request) % 2 == 0:
+                        self.context.cache[req_id]["stream"] = False
+
+                    results.append(val)
+            else:
+                # continue processing stream
+                results.append(prev)
 
         return results
 
@@ -155,19 +162,32 @@ class StatefulHandler(BaseHandler, ABC):
                 if self.outer.context.cache[seq_id]["end"]:
                     self.outer.clean_up(self.seq_id, self.req_id, True)
                     logger.info(f"end sequence_id={self.seq_id}")
-                    return True
+                    if self.outer.context.cache[req_id]["stream"]:
+                        return True
+                    else:
+                        return None
                 # cancel
                 elif self.outer.context.cache[seq_id]["cancel"]:
                     self.outer.clean_up(self.seq_id, self.req_id, False)
                     logger.info(
                         f"cancel sequence_id={self.seq_id}, request_id={self.req_id}"
                     )
-                    return None
+                    if self.outer.context.cache[req_id]["stream"]:
+                        return True
+                    else:
+                        return None
                 # start
                 elif self.outer.context.cache[seq_id]["start"]:
                     self.outer.clean_up(self.seq_id, self.req_id, False)
                     logger.info(
                         f"start sequence_id={self.seq_id}, request_id={self.req_id}"
+                    )
+                    return None
+                # non stream
+                elif not self.outer.context.cache[req_id]["stream"]:
+                    self.outer.clean_up(self.seq_id, self.req_id, False)
+                    logger.info(
+                        f"test non stream sequence_id={self.seq_id}, request_id={self.req_id}"
                     )
                     return None
                 # stream complete
