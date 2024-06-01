@@ -160,22 +160,17 @@ class StatefulHandler(BaseHandler, ABC):
             def __call__(self, res):
                 # sequence end
                 if self.outer.context.cache[seq_id]["end"]:
+                    ret = True if self.outer.context.cache[req_id]["stream"] else None
                     self.outer.clean_up(self.seq_id, self.req_id, True)
                     logger.info(f"end sequence_id={self.seq_id}")
-                    if self.outer.context.cache[req_id]["stream"]:
-                        return True
-                    else:
-                        return None
+                    return ret
                 # cancel
                 elif self.outer.context.cache[seq_id]["cancel"]:
+                    ret = True if self.outer.context.cache[req_id]["stream"] else None
                     self.outer.clean_up(self.seq_id, self.req_id, False)
                     logger.info(
                         f"cancel sequence_id={self.seq_id}, request_id={self.req_id}"
                     )
-                    if self.outer.context.cache[req_id]["stream"]:
-                        return True
-                    else:
-                        return None
                 # start
                 elif self.outer.context.cache[seq_id]["start"]:
                     self.outer.clean_up(self.seq_id, self.req_id, False)

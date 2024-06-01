@@ -111,7 +111,7 @@ def test_infer_stateful(mar_file_path, model_store):
             args=(
                 model_name,
                 "seq_0",
-                "1 4 9 16 25",
+                "2 6 12 20 30",
             ),
         )
         t1 = threading.Thread(
@@ -119,7 +119,7 @@ def test_infer_stateful(mar_file_path, model_store):
             args=(
                 model_name,
                 "seq_1",
-                "2 6 12 20 30",
+                "4 12 24 40 60",
             ),
         )
 
@@ -165,7 +165,7 @@ def test_infer_stateful_end(mar_file_path, model_store):
             args=(
                 model_name,
                 "seq_0",
-                "1 4 9 16 16",
+                "2 6 12 20 30",
             ),
         )
         t1 = threading.Thread(
@@ -173,7 +173,7 @@ def test_infer_stateful_end(mar_file_path, model_store):
             args=(
                 model_name,
                 "seq_1",
-                "2 6 12 20 30",
+                "4 12 24 40 60",
             ),
         )
 
@@ -285,7 +285,7 @@ def __infer_stateful(model_name, sequence_id, expected):
         prediction.append(response.text)
 
     print(f"infer_stateful prediction={str(' '.join(prediction))}")
-    # assert str(" ".join(prediction)) == expected
+    assert str(" ".join(prediction)) == expected
 
 
 def __infer_stateful_end(model_name, sequence_id, expected):
