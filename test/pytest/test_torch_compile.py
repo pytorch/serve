@@ -162,9 +162,6 @@ class TestTorchCompile:
             )
 
     def test_compile_inference_enable_true_default(self, monkeypatch):
-        # Reset dynamo
-        torch._dynamo.reset()
-
         # Change the current working directory to TEST_DATA_DIR to load model.py
         monkeypatch.chdir(TEST_DATA_DIR)
         monkeypatch.syspath_prepend(TEST_DATA_DIR)
@@ -197,9 +194,6 @@ class TestTorchCompile:
         monkeypatch.undo()
 
     def test_compile_inference_enable_true(self, monkeypatch):
-        # Reset dynamo
-        torch._dynamo.reset()
-
         # Change the current working directory to TEST_DATA_DIR to load model.py
         monkeypatch.chdir(TEST_DATA_DIR)
         monkeypatch.syspath_prepend(TEST_DATA_DIR)
@@ -232,9 +226,6 @@ class TestTorchCompile:
         monkeypatch.undo()
 
     def test_compile_inference_enable_false(self, monkeypatch):
-        # Reset dynamo
-        torch._dynamo.reset()
-
         # Change the current working directory to TEST_DATA_DIR to load model.py
         monkeypatch.chdir(TEST_DATA_DIR)
         monkeypatch.syspath_prepend(TEST_DATA_DIR)
