@@ -54,6 +54,34 @@ class TestTorchCompile:
         subprocess.run("torchserve --stop", shell=True, check=True)
         time.sleep(10)
 
+    def test_archive_model_artifacts(self):
+        assert len(glob.glob(MODEL_FILE)) == 1
+        assert len(glob.glob(YAML_CONFIG_STR)) == 1
+        assert len(glob.glob(YAML_CONFIG_DICT)) == 1
+        subprocess.run(
+            f"cd {TEST_DATA_DIR} && python toy_model.py", shell=True, check=True
+        )
+        subprocess.run(f"mkdir -p {MODEL_STORE_DIR}", shell=True, check=True)
+
+        # register 2 models, one with the backend as str config, the other with the kwargs as dict config
+        subprocess.run(
+            f"torch-model-archiver --model-name {MODEL_NAME}_str --version 1.0 --model-file {MODEL_FILE} --serialized-file {SERIALIZED_FILE} --config-file {YAML_CONFIG_STR} --export-path {MODEL_STORE_DIR} --handler {HANDLER_FILE} -f",
+            shell=True,
+            check=True,
+        )
+        subprocess.run(
+            f"torch-model-archiver --model-name {MODEL_NAME}_dict --version 1.0 --model-file {MODEL_FILE} --serialized-file {SERIALIZED_FILE} --config-file {YAML_CONFIG_DICT} --export-path {MODEL_STORE_DIR} --handler {HANDLER_FILE} -f",
+            shell=True,
+            check=True,
+        )
+        assert len(glob.glob(SERIALIZED_FILE)) == 1
+        assert (
+            len(glob.glob(os.path.join(MODEL_STORE_DIR, f"{MODEL_NAME}_str.mar"))) == 1
+        )
+        assert (
+            len(glob.glob(os.path.join(MODEL_STORE_DIR, f"{MODEL_NAME}_dict.mar"))) == 1
+        )
+
     def test_compile_inference_enable_true_default(self, monkeypatch):
         # Change the current working directory to TEST_DATA_DIR to load model.py
         monkeypatch.chdir(TEST_DATA_DIR)
@@ -155,34 +183,6 @@ class TestTorchCompile:
         assert result[0] == EXPECTED_RESULT
 
         monkeypatch.undo()
-
-    def test_archive_model_artifacts(self):
-        assert len(glob.glob(MODEL_FILE)) == 1
-        assert len(glob.glob(YAML_CONFIG_STR)) == 1
-        assert len(glob.glob(YAML_CONFIG_DICT)) == 1
-        subprocess.run(
-            f"cd {TEST_DATA_DIR} && python toy_model.py", shell=True, check=True
-        )
-        subprocess.run(f"mkdir -p {MODEL_STORE_DIR}", shell=True, check=True)
-
-        # register 2 models, one with the backend as str config, the other with the kwargs as dict config
-        subprocess.run(
-            f"torch-model-archiver --model-name {MODEL_NAME}_str --version 1.0 --model-file {MODEL_FILE} --serialized-file {SERIALIZED_FILE} --config-file {YAML_CONFIG_STR} --export-path {MODEL_STORE_DIR} --handler {HANDLER_FILE} -f",
-            shell=True,
-            check=True,
-        )
-        subprocess.run(
-            f"torch-model-archiver --model-name {MODEL_NAME}_dict --version 1.0 --model-file {MODEL_FILE} --serialized-file {SERIALIZED_FILE} --config-file {YAML_CONFIG_DICT} --export-path {MODEL_STORE_DIR} --handler {HANDLER_FILE} -f",
-            shell=True,
-            check=True,
-        )
-        assert len(glob.glob(SERIALIZED_FILE)) == 1
-        assert (
-            len(glob.glob(os.path.join(MODEL_STORE_DIR, f"{MODEL_NAME}_str.mar"))) == 1
-        )
-        assert (
-            len(glob.glob(os.path.join(MODEL_STORE_DIR, f"{MODEL_NAME}_dict.mar"))) == 1
-        )
 
     def test_start_torchserve(self):
         cmd = f"torchserve --start --ncs --models {MODEL_NAME}_str.mar,{MODEL_NAME}_dict.mar --model-store {MODEL_STORE_DIR}"
