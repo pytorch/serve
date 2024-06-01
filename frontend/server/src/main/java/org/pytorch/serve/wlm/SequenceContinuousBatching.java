@@ -1,11 +1,17 @@
 package org.pytorch.serve.wlm;
 
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+
 import org.pytorch.serve.job.Job;
 import org.pytorch.serve.job.JobGroup;
 import org.pytorch.serve.util.ConfigManager;
+import org.pytorch.serve.util.messages.BaseModelRequest;
+import org.pytorch.serve.util.messages.ModelInferenceRequest;
+import org.pytorch.serve.util.messages.ModelLoadModelRequest;
 import org.pytorch.serve.util.messages.ModelWorkerResponse;
 import org.pytorch.serve.util.messages.Predictions;
+import org.pytorch.serve.util.messages.RequestInput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,6 +20,42 @@ public class SequenceContinuousBatching extends SequenceBatching {
 
     public SequenceContinuousBatching(Model model) {
         super(model);
+    }
+
+    @Override
+    public BaseModelRequest getRequest(String threadName, WorkerState state)
+            throws InterruptedException, ExecutionException {
+
+        ModelInferenceRequest req = new ModelInferenceRequest(model.getModelName());
+
+        pollBatch(threadName, state);
+
+        if (model.isUseJobTicket() && jobs.isEmpty()) {
+            model.decNumJobTickets();
+            return req;
+        }
+
+        for (Job j : jobs.values()) {
+            if (j.isControlCmd()) {
+                if (jobs.size() > 1) {
+                    throw new IllegalStateException(
+                            "Received more than 1 control command. "
+                                    + "Control messages should be processed/retrieved one at a time.");
+                }
+                RequestInput input = j.getPayload();
+                int gpuId = -1;
+                String gpu = input.getStringParameter("gpu");
+                if (gpu != null) {
+                    gpuId = Integer.parseInt(gpu);
+                }
+                return new ModelLoadModelRequest(model, gpuId);
+            } else {
+                req.setCommand(j.getCmd());
+                j.setScheduled();
+                req.addRequest(j.getPayload());
+            }
+        }
+        return req;
     }
 
     /**

@@ -215,7 +215,7 @@ def test_infer_stateful_cancel(mar_file_path, model_store):
         test_utils.reg_resp = test_utils.register_model_with_params(params)
         response = requests.post(
             url=f"http://localhost:8080/predictions/{model_name}",
-            data=str(1).encode(),
+            data=str(2).encode(),
         )
         s_id = response.headers.get("ts_request_sequence_id")
         headers = {
@@ -228,7 +228,7 @@ def test_infer_stateful_cancel(mar_file_path, model_store):
                 model_name,
                 False,
                 headers,
-                "-1",
+                "2",
             ),
         )
         t1 = threading.Thread(
@@ -345,7 +345,7 @@ def __infer_stateful_cancel(model_name, is_cancel, headers, expected):
         response = requests.post(
             url=f"http://localhost:8080/predictions/{model_name}",
             headers=headers,
-            data=str(1).encode(),
+            data=str(3).encode(),
             stream=True,
         )
         assert response.headers["Transfer-Encoding"] == "chunked"
