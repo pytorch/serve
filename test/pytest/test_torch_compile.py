@@ -81,85 +81,7 @@ class TestTorchCompile:
             len(glob.glob(os.path.join(MODEL_STORE_DIR, f"{MODEL_NAME}_dict.mar"))) == 1
         )
 
-    def test_start_torchserve(self):
-        cmd = f"torchserve --start --ncs --models {MODEL_NAME}_str.mar,{MODEL_NAME}_dict.mar --model-store {MODEL_STORE_DIR}"
-        subprocess.run(
-            cmd,
-            shell=True,
-            check=True,
-        )
-        time.sleep(10)
-        assert len(glob.glob("logs/access_log.log")) == 1
-        assert len(glob.glob("logs/model_log.log")) == 1
-        assert len(glob.glob("logs/ts_log.log")) == 1
-
-    @pytest.mark.skipif(
-        os.environ.get("TS_RUN_IN_DOCKER", False),
-        reason="Test to be run outside docker",
-    )
-    def test_server_status(self):
-        result = subprocess.run(
-            "curl http://localhost:8080/ping",
-            shell=True,
-            capture_output=True,
-            check=True,
-        )
-        expected_server_status_str = '{"status": "Healthy"}'
-        expected_server_status = json.loads(expected_server_status_str)
-        assert json.loads(result.stdout) == expected_server_status
-
-    @pytest.mark.skipif(
-        os.environ.get("TS_RUN_IN_DOCKER", False),
-        reason="Test to be run outside docker",
-    )
-    def test_registered_model(self):
-        result = subprocess.run(
-            "curl http://localhost:8081/models",
-            shell=True,
-            capture_output=True,
-            check=True,
-        )
-
-        def _response_to_tuples(response_str):
-            models = json.loads(response_str)["models"]
-            return {(k, v) for d in models for k, v in d.items()}
-
-        # transform to set of tuples so order won't cause inequality
-        expected_registered_model_str = '{"models": [{"modelName": "half_plus_two_str", "modelUrl": "half_plus_two_str.mar"}, {"modelName": "half_plus_two_dict", "modelUrl": "half_plus_two_dict.mar"}]}'
-        assert _response_to_tuples(result.stdout) == _response_to_tuples(
-            expected_registered_model_str
-        )
-
-    @pytest.mark.skipif(
-        os.environ.get("TS_RUN_IN_DOCKER", False),
-        reason="Test to be run outside docker",
-    )
-    def test_serve_inference(self):
-        request_data = {"instances": [[1.0], [2.0], [3.0]]}
-        request_json = json.dumps(request_data)
-
-        for model_name in [f"{MODEL_NAME}_str", f"{MODEL_NAME}_dict"]:
-            result = subprocess.run(
-                f"curl -s -X POST -H \"Content-Type: application/json;\" http://localhost:8080/predictions/{model_name} -d '{request_json}'",
-                shell=True,
-                capture_output=True,
-                check=True,
-            )
-
-            string_result = result.stdout.decode("utf-8")
-            float_result = float(string_result)
-            expected_result = 3.5
-
-            assert float_result == expected_result
-
-        model_log_path = glob.glob("logs/model_log.log")[0]
-        with open(model_log_path, "rt") as model_log_file:
-            model_log = model_log_file.read()
-            assert "Compiled model with backend inductor\n" in model_log
-            assert (
-                "Compiled model with backend inductor, mode reduce-overhead"
-                in model_log
-            )
+    
 
     @pytest.fixture(scope="function")
     def chdir_test_data(self, monkeypatch):
@@ -262,3 +184,83 @@ class TestTorchCompile:
 
         assert result[0] == EXPECTED_RESULT
         monkeypatch.undo()
+
+    def test_start_torchserve(self):
+        cmd = f"torchserve --start --ncs --models {MODEL_NAME}_str.mar,{MODEL_NAME}_dict.mar --model-store {MODEL_STORE_DIR}"
+        subprocess.run(
+            cmd,
+            shell=True,
+            check=True,
+        )
+        time.sleep(10)
+        assert len(glob.glob("logs/access_log.log")) == 1
+        assert len(glob.glob("logs/model_log.log")) == 1
+        assert len(glob.glob("logs/ts_log.log")) == 1
+
+    @pytest.mark.skipif(
+        os.environ.get("TS_RUN_IN_DOCKER", False),
+        reason="Test to be run outside docker",
+    )
+    def test_server_status(self):
+        result = subprocess.run(
+            "curl http://localhost:8080/ping",
+            shell=True,
+            capture_output=True,
+            check=True,
+        )
+        expected_server_status_str = '{"status": "Healthy"}'
+        expected_server_status = json.loads(expected_server_status_str)
+        assert json.loads(result.stdout) == expected_server_status
+
+    @pytest.mark.skipif(
+        os.environ.get("TS_RUN_IN_DOCKER", False),
+        reason="Test to be run outside docker",
+    )
+    def test_registered_model(self):
+        result = subprocess.run(
+            "curl http://localhost:8081/models",
+            shell=True,
+            capture_output=True,
+            check=True,
+        )
+
+        def _response_to_tuples(response_str):
+            models = json.loads(response_str)["models"]
+            return {(k, v) for d in models for k, v in d.items()}
+
+        # transform to set of tuples so order won't cause inequality
+        expected_registered_model_str = '{"models": [{"modelName": "half_plus_two_str", "modelUrl": "half_plus_two_str.mar"}, {"modelName": "half_plus_two_dict", "modelUrl": "half_plus_two_dict.mar"}]}'
+        assert _response_to_tuples(result.stdout) == _response_to_tuples(
+            expected_registered_model_str
+        )
+
+    @pytest.mark.skipif(
+        os.environ.get("TS_RUN_IN_DOCKER", False),
+        reason="Test to be run outside docker",
+    )
+    def test_serve_inference(self):
+        request_data = {"instances": [[1.0], [2.0], [3.0]]}
+        request_json = json.dumps(request_data)
+
+        for model_name in [f"{MODEL_NAME}_str", f"{MODEL_NAME}_dict"]:
+            result = subprocess.run(
+                f"curl -s -X POST -H \"Content-Type: application/json;\" http://localhost:8080/predictions/{model_name} -d '{request_json}'",
+                shell=True,
+                capture_output=True,
+                check=True,
+            )
+
+            string_result = result.stdout.decode("utf-8")
+            float_result = float(string_result)
+            expected_result = 3.5
+
+            assert float_result == expected_result
+
+        model_log_path = glob.glob("logs/model_log.log")[0]
+        with open(model_log_path, "rt") as model_log_file:
+            model_log = model_log_file.read()
+            assert "Compiled model with backend inductor\n" in model_log
+            assert (
+                "Compiled model with backend inductor, mode reduce-overhead"
+                in model_log
+            )
