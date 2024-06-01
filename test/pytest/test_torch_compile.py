@@ -3,7 +3,6 @@ import json
 import os
 import platform
 import subprocess
-import sys
 import time
 from pathlib import Path
 
@@ -24,7 +23,7 @@ PT_2_AVAILABLE = (
 CURR_FILE_PATH = Path(__file__).parent
 TEST_DATA_DIR = os.path.join(CURR_FILE_PATH, "test_data", "torch_compile")
 
-MODEL_FILE = os.path.join(TEST_DATA_DIR, "model.py")
+MODEL_FILE = os.path.join(TEST_DATA_DIR, "toy_model.py")
 HANDLER_FILE = os.path.join(TEST_DATA_DIR, "compile_handler.py")
 YAML_CONFIG_STR = os.path.join(TEST_DATA_DIR, "pt2.yaml")  # backend as string
 YAML_CONFIG_DICT = os.path.join(TEST_DATA_DIR, "pt2_dict.yaml")  # arbitrary kwargs dict
@@ -58,7 +57,9 @@ class TestTorchCompile:
         assert len(glob.glob(MODEL_FILE)) == 1
         assert len(glob.glob(YAML_CONFIG_STR)) == 1
         assert len(glob.glob(YAML_CONFIG_DICT)) == 1
-        subprocess.run(f"cd {TEST_DATA_DIR} && python model.py", shell=True, check=True)
+        subprocess.run(
+            f"cd {TEST_DATA_DIR} && python toy_model.py", shell=True, check=True
+        )
         subprocess.run(f"mkdir -p {MODEL_STORE_DIR}", shell=True, check=True)
 
         # register 2 models, one with the backend as str config, the other with the kwargs as dict config
@@ -193,6 +194,8 @@ class TestTorchCompile:
 
         assert result[0] == EXPECTED_RESULT
 
+        monkeypatch.undo()
+
     def test_compile_inference_enable_true(self, monkeypatch):
         # Reset dynamo
         torch._dynamo.reset()
@@ -226,13 +229,15 @@ class TestTorchCompile:
 
         assert result[0] == EXPECTED_RESULT
 
+        monkeypatch.undo()
+
     def test_compile_inference_enable_false(self, monkeypatch):
         # Reset dynamo
         torch._dynamo.reset()
 
         # Change the current working directory to TEST_DATA_DIR to load model.py
         monkeypatch.chdir(TEST_DATA_DIR)
-        sys.path.append(TEST_DATA_DIR)
+        monkeypatch.syspath_prepend(TEST_DATA_DIR)
 
         # Handler
         handler = CompileHandler()
@@ -258,3 +263,5 @@ class TestTorchCompile:
         result = handler.handle([data], ctx)
 
         assert result[0] == EXPECTED_RESULT
+
+        monkeypatch.undo()

@@ -69,3 +69,5 @@ def test_torch_compile_inference(monkeypatch):
     labels = list(result[0].keys())
 
     assert labels == EXPECTED_RESULTS
+
+    monkeypatch.undo()
