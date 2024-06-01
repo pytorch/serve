@@ -33,6 +33,7 @@ collect_ignore.append("test_parallelism.py")
 collect_ignore.append("test_gRPC_management_apis.py")
 collect_ignore.append("test_mnist_template.py")
 collect_ignore.append("test_ipex_serving.py")
+collect_ignore.append("test_handler_traceback_logging.py")
 collect_ignore.append("test_send_intermediate_prediction_response.py")
 
 

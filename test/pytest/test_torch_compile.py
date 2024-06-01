@@ -57,7 +57,9 @@ class TestTorchCompile:
         assert len(glob.glob(MODEL_FILE)) == 1
         assert len(glob.glob(YAML_CONFIG_STR)) == 1
         assert len(glob.glob(YAML_CONFIG_DICT)) == 1
-        subprocess.run(f"cd {TEST_DATA_DIR} && python model.py", shell=True, check=True)
+        subprocess.run(
+            f"cd {TEST_DATA_DIR} && python toy_model.py", shell=True, check=True
+        )
         subprocess.run(f"mkdir -p {MODEL_STORE_DIR}", shell=True, check=True)
 
         # register 2 models, one with the backend as str config, the other with the kwargs as dict config
