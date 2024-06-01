@@ -23,7 +23,7 @@ PT_2_AVAILABLE = (
 CURR_FILE_PATH = Path(__file__).parent
 TEST_DATA_DIR = os.path.join(CURR_FILE_PATH, "test_data", "torch_compile")
 
-MODEL_FILE = os.path.join(TEST_DATA_DIR, "model.py")
+MODEL_FILE = os.path.join(TEST_DATA_DIR, "toy_model.py")
 HANDLER_FILE = os.path.join(TEST_DATA_DIR, "compile_handler.py")
 YAML_CONFIG_STR = os.path.join(TEST_DATA_DIR, "pt2.yaml")  # backend as string
 YAML_CONFIG_DICT = os.path.join(TEST_DATA_DIR, "pt2_dict.yaml")  # arbitrary kwargs dict
@@ -178,7 +178,7 @@ class TestTorchCompile:
         ctx = MockContext(
             model_pt_file=SERIALIZED_FILE,
             model_dir=TEST_DATA_DIR,
-            model_file="model.py",
+            model_file="toy_model.py",
             model_yaml_config_file=YAML_CONFIG_ENABLE_DEFAULT,
         )
 
@@ -210,7 +210,7 @@ class TestTorchCompile:
         ctx = MockContext(
             model_pt_file=SERIALIZED_FILE,
             model_dir=TEST_DATA_DIR,
-            model_file="model.py",
+            model_file="toy_model.py",
             model_yaml_config_file=YAML_CONFIG_ENABLE,
         )
 
@@ -242,7 +242,7 @@ class TestTorchCompile:
         ctx = MockContext(
             model_pt_file=SERIALIZED_FILE,
             model_dir=TEST_DATA_DIR,
-            model_file="model.py",
+            model_file="toy_model.py",
             model_yaml_config_file=YAML_CONFIG_ENABLE_FALSE,
         )
 
