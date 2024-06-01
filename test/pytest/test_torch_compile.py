@@ -165,7 +165,9 @@ class TestTorchCompile:
         monkeypatch.chdir(TEST_DATA_DIR)
         monkeypatch.syspath_prepend(TEST_DATA_DIR)
 
-    def test_compile_inference_enable_true_default(self, chdir_test_data):
+    def test_compile_inference_enable_true_default(self, monkeypatch):
+        monkeypatch.chdir(TEST_DATA_DIR)
+        monkeypatch.syspath_prepend(TEST_DATA_DIR)
         # Reset dynamo
         torch._dynamo.reset()
 
@@ -193,8 +195,11 @@ class TestTorchCompile:
         result = handler.handle([data], ctx)
 
         assert result[0] == EXPECTED_RESULT
+        monkeypatch.undo()
 
-    def test_compile_inference_enable_true(self, chdir_test_data):
+    def test_compile_inference_enable_true(self, monkeypatch):
+        monkeypatch.chdir(TEST_DATA_DIR)
+        monkeypatch.syspath_prepend(TEST_DATA_DIR)
         # Reset dynamo
         torch._dynamo.reset()
 
@@ -222,8 +227,11 @@ class TestTorchCompile:
         result = handler.handle([data], ctx)
 
         assert result[0] == EXPECTED_RESULT
+        monkeypatch.undo()
 
-    def test_compile_inference_enable_false(self, chdir_test_data):
+    def test_compile_inference_enable_false(self, monkeypatch):
+        monkeypatch.chdir(TEST_DATA_DIR)
+        monkeypatch.syspath_prepend(TEST_DATA_DIR)
         # Reset dynamo
         torch._dynamo.reset()
 
@@ -251,3 +259,4 @@ class TestTorchCompile:
         result = handler.handle([data], ctx)
 
         assert result[0] == EXPECTED_RESULT
+        monkeypatch.undo()

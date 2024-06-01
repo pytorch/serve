@@ -38,7 +38,9 @@ def chdir_example(monkeypatch):
 
 
 @pytest.mark.skipif(PT2_AVAILABLE == False, reason="torch version is < 2.0")
-def test_torch_compile_inference(chdir_example):
+def test_torch_compile_inference(monkeypatch):
+    monkeypatch.chdir(EXAMPLE_ROOT_DIR)
+    monkeypatch.syspath_prepend(EXAMPLE_ROOT_DIR)
     if not os.path.isfile(EXAMPLE_ROOT_DIR.joinpath(MODEL_PTH_FILE)):
         try_and_handle(
             f"wget https://download.pytorch.org/models/{MODEL_PTH_FILE} -P {EXAMPLE_ROOT_DIR}"
@@ -71,3 +73,5 @@ def test_torch_compile_inference(chdir_example):
     labels = list(result[0].keys())
 
     assert labels == EXPECTED_RESULTS
+
+    monkeypatch.undo()
