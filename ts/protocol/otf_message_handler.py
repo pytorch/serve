@@ -94,7 +94,10 @@ def create_predict_response(
         else:
             if ts_stream_next is True:
                 context.set_response_header(idx, "ts_stream_next", "true")
-            elif context.stopping_criteria:
+            elif (
+                context.stopping_criteria
+                and context.stopping_criteria[idx](ret[idx]) is not None
+            ):
                 ts_stream_next = (
                     "false" if context.stopping_criteria[idx](ret[idx]) else "true"
                 )

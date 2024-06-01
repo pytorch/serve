@@ -128,6 +128,10 @@ class StatefulHandler(BaseHandler, ABC):
         Returns:
             List: The post process function returns a list of the predicted output.
         """
+        self.context.stopping_criteria = [
+            self.context.cache[req_id]["stopping_criteria"]
+            for req_id in self.context.request_ids.values()
+        ]
 
         return data
 
@@ -150,11 +154,30 @@ class StatefulHandler(BaseHandler, ABC):
                 # sequence end
                 if self.outer.context.cache[seq_id]["end"]:
                     self.outer.clean_up(self.seq_id, self.req_id, True)
+                    logger.info(f"end sequence_id={self.seq_id}")
                     return True
                 # cancel
-                elif self.outer.context.cache[seq_id]["cancel"] or self.counter == 0:
+                elif self.outer.context.cache[seq_id]["cancel"]:
                     self.outer.clean_up(self.seq_id, self.req_id, False)
+                    logger.info(
+                        f"cancel sequence_id={self.seq_id}, request_id={self.req_id}"
+                    )
+                    return None
+                # start
+                elif self.outer.context.cache[seq_id]["start"]:
+                    self.outer.clean_up(self.seq_id, self.req_id, False)
+                    logger.info(
+                        f"start sequence_id={self.seq_id}, request_id={self.req_id}"
+                    )
+                    return None
+                # stream complete
+                elif self.counter == 0:
+                    self.outer.clean_up(self.seq_id, self.req_id, False)
+                    logger.info(
+                        f"finish sequence_id={self.seq_id}, request_id={self.req_id}"
+                    )
                     return True
+                # stream running
                 else:
                     self.counter -= 1
 
