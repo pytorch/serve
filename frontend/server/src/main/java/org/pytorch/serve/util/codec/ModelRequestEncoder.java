@@ -75,18 +75,23 @@ public class ModelRequestEncoder extends MessageToByteEncoder<BaseModelRequest> 
         byte[] buf = req.getRequestId().getBytes(StandardCharsets.UTF_8);
         out.writeInt(buf.length);
         out.writeBytes(buf);
-
+/*
         if (req.isCachedInBackend()) {
             out.writeInt(-1); // End of List
             out.writeInt(-1); // End of List
             return;
         }
-
+*/
         for (Map.Entry<String, String> entry : req.getHeaders().entrySet()) {
             encodeField(entry.getKey(), out);
             encodeField(entry.getValue(), out);
         }
         out.writeInt(-1); // End of List
+
+        if (req.isCachedInBackend()) {
+            out.writeInt(-1); // End of List
+            return;
+        }
 
         for (InputParameter input : req.getParameters()) {
             encodeParameter(input, out);
