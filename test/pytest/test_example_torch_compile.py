@@ -36,6 +36,11 @@ def chdir_example(monkeypatch):
     TEST_DIR = REPO_ROOT_DIR.joinpath("examples", "pt2", "torch_compile")
     monkeypatch.chdir(TEST_DIR)
     monkeypatch.syspath_prepend(TEST_DIR)
+    yield
+    print(monkeypatch._savesyspath)
+    monkeypatch.undo()
+    print(monkeypatch._savesyspath)
+
 
 
 @pytest.mark.skipif(PT2_AVAILABLE == False, reason="torch version is < 2.0")
