@@ -97,9 +97,7 @@ def create_predict_response(
             elif context.stopping_criteria:
                 is_stop = context.stopping_criteria[idx](ret[idx])
                 if is_stop is not None:
-                    ts_stream_next = (
-                        "false" if context.stopping_criteria[idx](ret[idx]) else "true"
-                    )
+                    ts_stream_next = "false" if is_stop else "true"
                     context.set_response_header(idx, "ts_stream_next", ts_stream_next)
             elif "true" == context.get_response_headers(idx).get("ts_stream_next"):
                 context.set_response_header(idx, "ts_stream_next", "false")

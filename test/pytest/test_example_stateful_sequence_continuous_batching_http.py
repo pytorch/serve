@@ -1,8 +1,8 @@
-import concurrent.futures
 import json
 import shutil
 import sys
 import threading
+import time
 from pathlib import Path
 
 import pytest
@@ -218,18 +218,39 @@ def test_infer_stateful_cancel(mar_file_path, model_store):
 
     try:
         test_utils.reg_resp = test_utils.register_model_with_params(params)
-        response = requests.post(
+        with requests.post(
             url=f"http://localhost:8080/predictions/{model_name}",
             data=str(2).encode(),
-        )
-        s_id = response.headers.get("ts_request_sequence_id")
-        headers = {
-            "ts_request_sequence_id": s_id,
-        }
+        ) as response:
+            s_id = response.headers.get("ts_request_sequence_id")
+            headers = {
+                "ts_request_sequence_id": s_id,
+            }
 
-        with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
-            executor.submit(__infer_stateful_cancel, model_name, False, headers, "5")
-            executor.submit(__infer_stateful_cancel, model_name, True, headers, "-1")
+        t0 = threading.Thread(
+            target=__infer_stateful_cancel,
+            args=(
+                model_name,
+                False,
+                headers,
+                "5",
+            ),
+        )
+        t1 = threading.Thread(
+            target=__infer_stateful,
+            args=(
+                model_name,
+                True,
+                headers,
+                "-1",
+            ),
+        )
+
+        t0.start()
+        t1.start()
+
+        t0.join()
+        t1.join()
     finally:
         test_utils.unregister_model(model_name)
 
@@ -246,27 +267,27 @@ def __infer_stateful(model_name, sequence_id, expected):
         elif sequence_id == "seq_1":
             idx = 4 * (idx + 1)
         if start is True:
-            response = requests.post(
+            with requests.post(
                 url=f"http://localhost:8080/predictions/{model_name}",
                 data=str(idx).encode(),
-            )
-            s_id = response.headers.get("ts_request_sequence_id")
-            if sequence_id == "seq_0":
-                headers_seq_0 = {
-                    "ts_request_sequence_id": s_id,
-                }
-            elif sequence_id == "seq_1":
-                headers_seq_1 = {
-                    "ts_request_sequence_id": s_id,
-                }
-            start = False
+            ) as response:
+                s_id = response.headers.get("ts_request_sequence_id")
+                if sequence_id == "seq_0":
+                    headers_seq_0 = {
+                        "ts_request_sequence_id": s_id,
+                    }
+                elif sequence_id == "seq_1":
+                    headers_seq_1 = {
+                        "ts_request_sequence_id": s_id,
+                    }
+                start = False
         else:
-            response = requests.post(
+            with requests.post(
                 url=f"http://localhost:8080/predictions/{model_name}",
                 headers=headers_seq_0 if sequence_id == "seq_0" else headers_seq_1,
                 data=str(idx).encode(),
-            )
-        prediction.append(response.text)
+            ) as response:
+                prediction.append(response.text)
 
     print(f"infer_stateful prediction={str(' '.join(prediction))}")
     assert str(" ".join(prediction)) == expected
@@ -287,35 +308,36 @@ def __infer_stateful_end(model_name, sequence_id, expected):
             idx = 0
 
         if start is True:
-            response = requests.post(
+            with requests.post(
                 url=f"http://localhost:8080/predictions/{model_name}",
                 data=str(idx).encode(),
-            )
-            s_id = response.headers.get("ts_request_sequence_id")
-            if sequence_id == "seq_0":
-                headers_seq_0 = {
-                    "ts_request_sequence_id": s_id,
-                }
-            elif sequence_id == "seq_1":
-                headers_seq_1 = {
-                    "ts_request_sequence_id": s_id,
-                }
-            start = False
+            ) as response:
+                s_id = response.headers.get("ts_request_sequence_id")
+                if sequence_id == "seq_0":
+                    headers_seq_0 = {
+                        "ts_request_sequence_id": s_id,
+                    }
+                elif sequence_id == "seq_1":
+                    headers_seq_1 = {
+                        "ts_request_sequence_id": s_id,
+                    }
+                start = False
         else:
-            response = requests.post(
+            with requests.post(
                 url=f"http://localhost:8080/predictions/{model_name}",
                 headers=headers_seq_0 if sequence_id == "seq_0" else headers_seq_1,
                 data=str(idx).encode(),
-            )
-        prediction.append(response.text)
+            ) as response:
+                prediction.append(response.text)
 
     print(f"infer_stateful_end prediction={str(' '.join(prediction))}")
-    # assert str(" ".join(prediction)) == expected
+    assert str(" ".join(prediction)) == expected
 
 
 def __infer_stateful_cancel(model_name, is_cancel, headers, expected):
     prediction = []
     if is_cancel:
+        time.sleep(1)
         with requests.post(
             url=f"http://localhost:8080/predictions/{model_name}",
             headers=headers,

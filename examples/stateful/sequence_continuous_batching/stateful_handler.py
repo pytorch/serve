@@ -77,7 +77,7 @@ class StatefulHandler(BaseHandler, ABC):
             req_id = self.context.get_request_id(idx)
             # process a new request
             if req_id not in self.context.cache:
-                logger.debug(
+                logger.info(
                     f"received a new request sequence_id={sequence_id}, request_id={req_id}"
                 )
                 request = row.get("data") or row.get("body")
@@ -101,7 +101,7 @@ class StatefulHandler(BaseHandler, ABC):
                     self.context.cache[req_id]["stream"] = False
                     results.append(int(request))
                 elif prev is None:
-                    logger.debug(
+                    logger.info(
                         f"Close the sequence:{sequence_id} without open session request"
                     )
                     self.context.cache[sequence_id]["end"] = True
@@ -127,7 +127,7 @@ class StatefulHandler(BaseHandler, ABC):
                     results.append(val)
             else:
                 # continue processing stream
-                logger.debug(
+                logger.info(
                     f"received continuous request sequence_id={sequence_id}, request_id={req_id}"
                 )
                 time.sleep(1)
@@ -173,13 +173,13 @@ class StatefulHandler(BaseHandler, ABC):
                 if self.outer.context.cache[seq_id]["end"]:
                     ret = True if self.outer.context.cache[req_id]["stream"] else None
                     self.outer.clean_up(self.seq_id, self.req_id, True)
-                    logger.debug(f"end sequence_id={self.seq_id}, ret={ret}")
+                    logger.info(f"end sequence_id={self.seq_id}, ret={ret}")
                     return ret
                 # cancel
                 elif self.outer.context.cache[seq_id]["cancel"]:
                     ret = True if self.outer.context.cache[req_id]["stream"] else None
                     self.outer.clean_up(self.seq_id, self.req_id, False)
-                    logger.debug(
+                    logger.info(
                         f"cancel sequence_id={self.seq_id}, request_id={self.req_id}, ret={ret}"
                     )
                     if self.outer.context.cache[seq_id]["num_requests"] == 0:
@@ -188,7 +188,7 @@ class StatefulHandler(BaseHandler, ABC):
                 # start
                 elif self.outer.context.cache[seq_id]["start"]:
                     self.outer.clean_up(self.seq_id, self.req_id, False)
-                    logger.debug(
+                    logger.info(
                         f"start sequence_id={self.seq_id}, request_id={self.req_id}, ret=None"
                     )
                     self.outer.context.cache[seq_id]["start"] = False
@@ -196,21 +196,21 @@ class StatefulHandler(BaseHandler, ABC):
                 # non stream
                 elif not self.outer.context.cache[req_id]["stream"]:
                     self.outer.clean_up(self.seq_id, self.req_id, False)
-                    logger.debug(
+                    logger.info(
                         f"test non stream sequence_id={self.seq_id}, request_id={self.req_id}, ret=None"
                     )
                     return None
                 # stream complete
                 elif self.counter == 0:
                     self.outer.clean_up(self.seq_id, self.req_id, False)
-                    logger.debug(
+                    logger.info(
                         f"finish sequence_id={self.seq_id}, request_id={self.req_id}, ret=True"
                     )
                     return True
                 # stream running
                 else:
                     self.counter -= 1
-                    logger.debug(
+                    logger.info(
                         f"continue sequence_id={self.seq_id}, request_id={self.req_id}, ret=False"
                     )
 
