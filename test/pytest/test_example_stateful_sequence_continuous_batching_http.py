@@ -1,7 +1,8 @@
+import concurrent.futures
+import json
 import shutil
 import sys
 import threading
-import time
 from pathlib import Path
 
 import pytest
@@ -31,6 +32,10 @@ handler:
   cache:
     capacity: 4
 """
+
+JSON_INPUT = {
+    "input": 3,
+}
 
 
 @pytest.fixture
@@ -222,30 +227,9 @@ def test_infer_stateful_cancel(mar_file_path, model_store):
             "ts_request_sequence_id": s_id,
         }
 
-        t0 = threading.Thread(
-            target=__infer_stateful_cancel,
-            args=(
-                model_name,
-                False,
-                headers,
-                "2",
-            ),
-        )
-        t1 = threading.Thread(
-            target=__infer_stateful_cancel,
-            args=(
-                model_name,
-                True,
-                headers,
-                "-1",
-            ),
-        )
-
-        t0.start()
-        t1.start()
-
-        t0.join()
-        t1.join()
+        with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
+            executor.submit(__infer_stateful_cancel, model_name, False, headers, "5")
+            executor.submit(__infer_stateful_cancel, model_name, True, headers, "-1")
     finally:
         test_utils.unregister_model(model_name)
 
@@ -332,25 +316,27 @@ def __infer_stateful_end(model_name, sequence_id, expected):
 def __infer_stateful_cancel(model_name, is_cancel, headers, expected):
     prediction = []
     if is_cancel:
-        time.sleep(0.5)
-        response = requests.post(
+        with requests.post(
             url=f"http://localhost:8080/predictions/{model_name}",
             headers=headers,
             data=str(-1).encode(),
-        )
-        prediction.append(response.text)
-        print(f"infer_stateful_cancel prediction={str(' '.join(prediction))}")
-        # assert str(" ".join(prediction)) == expected
+        ) as response:
+            prediction.append(response.text)
+            print(f"infer_stateful_cancel prediction={str(' '.join(prediction))}")
+            assert str(" ".join(prediction)) == expected
     else:
-        response = requests.post(
+        with requests.post(
             url=f"http://localhost:8080/predictions/{model_name}",
             headers=headers,
-            data=str(3).encode(),
+            json=JSON_INPUT,
             stream=True,
-        )
-        assert response.headers["Transfer-Encoding"] == "chunked"
-        for chunk in response.iter_content(chunk_size=None):
-            if chunk:
-                prediction += [chunk.decode("utf-8")]
+        ) as response:
+            assert response.headers["Transfer-Encoding"] == "chunked"
+            for chunk in response.iter_content(chunk_size=None):
+                if chunk:
+                    data = json.loads(chunk)
+                    prediction += [data.get("output", "")]
 
-        print(f"infer_stateful_cancel prediction={str(' '.join(prediction))}")
+            print(f"infer_stateful_cancel prediction={str(' '.join(prediction))}")
+            assert prediction[0] == 5
+            assert len(prediction) < 5

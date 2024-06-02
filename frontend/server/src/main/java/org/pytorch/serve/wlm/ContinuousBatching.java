@@ -100,7 +100,7 @@ public class ContinuousBatching extends BatchAggregator {
                         prediction
                                 .getHeaders()
                                 .get(org.pytorch.serve.util.messages.RequestInput.TS_STREAM_NEXT);
-                if (streamNext != null && streamNext.equals("false")) {
+                if (streamNext == null || (streamNext != null && streamNext.equals("false"))) {
                     jobs.remove(jobId);
                 } else if (!job.isOpen()) {
                     jobs.remove(job.getJobId());

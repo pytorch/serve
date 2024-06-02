@@ -1,4 +1,5 @@
 import logging
+import time
 from abc import ABC
 
 from lru import LRU
@@ -91,13 +92,16 @@ class StatefulHandler(BaseHandler, ABC):
                 }
                 self.context.cache[sequence_id]["num_requests"] += 1
 
+                if type(request) is dict and "input" in request:
+                    request = request.get("input")
+
                 # -1: cancel
                 if int(request) == -1:
                     self.context.cache[sequence_id]["cancel"] = True
                     self.context.cache[req_id]["stream"] = False
                     results.append(int(request))
                 elif prev is None:
-                    logger.info(
+                    logger.debug(
                         f"Close the sequence:{sequence_id} without open session request"
                     )
                     self.context.cache[sequence_id]["end"] = True
@@ -123,9 +127,10 @@ class StatefulHandler(BaseHandler, ABC):
                     results.append(val)
             else:
                 # continue processing stream
-                logger.info(
+                logger.debug(
                     f"received continuous request sequence_id={sequence_id}, request_id={req_id}"
                 )
+                time.sleep(1)
                 results.append(prev)
 
         return results
@@ -177,6 +182,8 @@ class StatefulHandler(BaseHandler, ABC):
                     logger.debug(
                         f"cancel sequence_id={self.seq_id}, request_id={self.req_id}, ret={ret}"
                     )
+                    if self.outer.context.cache[seq_id]["num_requests"] == 0:
+                        self.outer.context.cache[seq_id]["cancel"] = False
                     return ret
                 # start
                 elif self.outer.context.cache[seq_id]["start"]:
@@ -184,6 +191,7 @@ class StatefulHandler(BaseHandler, ABC):
                     logger.debug(
                         f"start sequence_id={self.seq_id}, request_id={self.req_id}, ret=None"
                     )
+                    self.outer.context.cache[seq_id]["start"] = False
                     return None
                 # non stream
                 elif not self.outer.context.cache[req_id]["stream"]:

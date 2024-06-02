@@ -2,7 +2,6 @@ package org.pytorch.serve.wlm;
 
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
-
 import org.pytorch.serve.job.Job;
 import org.pytorch.serve.job.JobGroup;
 import org.pytorch.serve.util.ConfigManager;
@@ -104,7 +103,7 @@ public class SequenceContinuousBatching extends SequenceBatching {
                         prediction
                                 .getHeaders()
                                 .get(org.pytorch.serve.util.messages.RequestInput.TS_STREAM_NEXT);
-                if (streamNext != null && streamNext.equals("false")) {
+                if (streamNext == null || (streamNext != null && streamNext.equals("false"))) {
                     jobs.remove(jobId);
                 } else if (!job.isOpen()) {
                     jobs.remove(job.getJobId());
