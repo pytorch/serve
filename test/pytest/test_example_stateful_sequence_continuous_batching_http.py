@@ -1,4 +1,3 @@
-import json
 import shutil
 import sys
 import threading
@@ -237,7 +236,7 @@ def test_infer_stateful_cancel(mar_file_path, model_store):
             ),
         )
         t1 = threading.Thread(
-            target=__infer_stateful,
+            target=__infer_stateful_cancel,
             args=(
                 model_name,
                 True,
@@ -356,9 +355,8 @@ def __infer_stateful_cancel(model_name, is_cancel, headers, expected):
             assert response.headers["Transfer-Encoding"] == "chunked"
             for chunk in response.iter_content(chunk_size=None):
                 if chunk:
-                    data = json.loads(chunk)
-                    prediction += [data.get("output", "")]
+                    prediction += [chunk.decode("utf-8")]
 
             print(f"infer_stateful_cancel prediction={str(' '.join(prediction))}")
-            assert prediction[0] == 5
-            assert len(prediction) < 5
+            assert prediction[0] == expected
+            assert len(prediction) < 11

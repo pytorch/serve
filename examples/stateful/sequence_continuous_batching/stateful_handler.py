@@ -166,7 +166,7 @@ class StatefulHandler(BaseHandler, ABC):
                 self.req_id = req_id
                 self.seq_id = seq_id
                 self.outer = outer
-                self.counter = 5
+                self.counter = 10
 
             def __call__(self, res):
                 # sequence end
