@@ -22,6 +22,13 @@ class StatefulHandler(BaseHandler, ABC):
         Loads the model and Initializes the necessary artifacts
         """
 
+        # context cache includes 2 types of keys
+        # key1: sequence_id
+        # value is a dict which records the sequence's status: start, end, cancel, number of the requests in this batch.
+        #
+        # key2: request_id
+        # value is a dict which records a request's streaming status:
+        # None(ie. non response streaming request), True or False (ie. streaming complete or not)
         ctx.cache = {}
         if ctx.model_yaml_config["handler"] is not None:
             self.cache = LRU(
