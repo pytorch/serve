@@ -122,6 +122,11 @@ class TestTorchCompile:
         monkeypatch.undo()
 
     def test_compile_inference_enable_true(self, monkeypatch):
+        import sys
+        print(sys.path)
+        print(monkeypatch._savesyspath)
+        monkeypatch.undo()
+        print(monkeypatch._savesyspath)
         monkeypatch.chdir(TEST_DATA_DIR)
         monkeypatch.syspath_prepend(TEST_DATA_DIR)
         # Reset dynamo
