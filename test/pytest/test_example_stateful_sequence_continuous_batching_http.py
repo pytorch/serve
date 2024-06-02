@@ -169,7 +169,7 @@ def test_infer_stateful_end(mar_file_path, model_store):
             args=(
                 model_name,
                 "seq_0",
-                "2 6 12 20 30",
+                "2 6 12 20 20",
             ),
         )
         t1 = threading.Thread(
@@ -280,6 +280,7 @@ def __infer_stateful(model_name, sequence_id, expected):
                         "ts_request_sequence_id": s_id,
                     }
                 start = False
+                prediction.append(response.text)
         else:
             with requests.post(
                 url=f"http://localhost:8080/predictions/{model_name}",
@@ -321,6 +322,7 @@ def __infer_stateful_end(model_name, sequence_id, expected):
                         "ts_request_sequence_id": s_id,
                     }
                 start = False
+                prediction.append(response.text)
         else:
             with requests.post(
                 url=f"http://localhost:8080/predictions/{model_name}",
