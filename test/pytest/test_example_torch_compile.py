@@ -33,14 +33,14 @@ EXPECTED_RESULTS = ["tabby", "tiger_cat", "Egyptian_cat", "lynx", "plastic_bag"]
 
 @pytest.fixture(scope="function")
 def chdir_example(monkeypatch):
-    monkeypatch.chdir(EXAMPLE_ROOT_DIR)
-    monkeypatch.syspath_prepend(EXAMPLE_ROOT_DIR)
+    TEST_DIR = REPO_ROOT_DIR.joinpath("examples", "pt2", "torch_compile")
+    monkeypatch.chdir(TEST_DIR)
+    monkeypatch.syspath_prepend(TEST_DIR)
 
 
 @pytest.mark.skipif(PT2_AVAILABLE == False, reason="torch version is < 2.0")
-def test_torch_compile_inference(monkeypatch):
-    monkeypatch.chdir(REPO_ROOT_DIR.joinpath("examples", "pt2", "torch_compile"))
-    monkeypatch.syspath_prepend(REPO_ROOT_DIR.joinpath("examples", "pt2", "torch_compile"))
+def test_torch_compile_inference(chdir_example):
+    
     if not os.path.isfile(EXAMPLE_ROOT_DIR.joinpath(MODEL_PTH_FILE)):
         try_and_handle(
             f"wget https://download.pytorch.org/models/{MODEL_PTH_FILE} -P {EXAMPLE_ROOT_DIR}"
@@ -74,4 +74,3 @@ def test_torch_compile_inference(monkeypatch):
 
     assert labels == EXPECTED_RESULTS
 
-    monkeypatch.undo()
