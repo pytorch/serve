@@ -179,6 +179,7 @@ class BaseHandler(abc.ABC):
 
         if model_file:
             logger.debug("Loading eager model")
+            print(f"Base handler: model_dir {model_dir} , model_file {model_file} , model_pt_path {self.model_pt_path}")
             self.model = self._load_pickled_model(
                 model_dir, model_file, self.model_pt_path
             )
