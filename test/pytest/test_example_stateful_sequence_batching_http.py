@@ -131,6 +131,7 @@ def test_stateful_mar(mar_file_path, model_store):
 
         # Clean up files
         shutil.rmtree(Path(model_store) / model_name)
+        test_utils.stop_torchserve()
 
 
 def __infer_stateful(model_name, sequence_id, expected):

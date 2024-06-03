@@ -137,6 +137,7 @@ def test_infer_stateful(mar_file_path, model_store):
 
         # Clean up files
         shutil.rmtree(Path(model_store) / model_name)
+        test_utils.stop_torchserve()
 
 
 def test_infer_stateful_end(mar_file_path, model_store):
@@ -191,6 +192,7 @@ def test_infer_stateful_end(mar_file_path, model_store):
 
         # Clean up files
         shutil.rmtree(Path(model_store) / model_name)
+        test_utils.stop_torchserve()
 
 
 def test_infer_stateful_cancel(mar_file_path, model_store):
@@ -255,6 +257,7 @@ def test_infer_stateful_cancel(mar_file_path, model_store):
 
         # Clean up files
         shutil.rmtree(Path(model_store) / model_name)
+        test_utils.stop_torchserve()
 
 
 def __infer_stateful(model_name, sequence_id, expected):
