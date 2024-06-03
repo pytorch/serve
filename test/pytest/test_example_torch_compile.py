@@ -1,4 +1,5 @@
 import os
+import sys
 from pathlib import Path
 
 import pytest
@@ -31,12 +32,25 @@ PT2_AVAILABLE = (
 EXPECTED_RESULTS = ["tabby", "tiger_cat", "Egyptian_cat", "lynx", "plastic_bag"]
 
 
-@pytest.mark.skipif(PT2_AVAILABLE == False, reason="torch version is < 2.0")
-def test_torch_compile_inference(monkeypatch):
+@pytest.fixture(scope="function")
+def chdir_example(monkeypatch):
     # Change directory to example directory
     monkeypatch.chdir(EXAMPLE_ROOT_DIR)
     monkeypatch.syspath_prepend(EXAMPLE_ROOT_DIR)
+    yield
 
+    # Teardown
+    monkeypatch.undo()
+
+    # Delete imported model
+    model = MODEL_FILE.split(".")[0]
+    if model in sys.modules:
+        del sys.modules[model]
+
+
+@pytest.mark.skipif(PT2_AVAILABLE == False, reason="torch version is < 2.0")
+def test_torch_compile_inference(chdir_example):
+    # Download weights
     if not os.path.isfile(EXAMPLE_ROOT_DIR.joinpath(MODEL_PTH_FILE)):
         try_and_handle(
             f"wget https://download.pytorch.org/models/{MODEL_PTH_FILE} -P {EXAMPLE_ROOT_DIR}"
@@ -69,5 +83,3 @@ def test_torch_compile_inference(monkeypatch):
     labels = list(result[0].keys())
 
     assert labels == EXPECTED_RESULTS
-
-    monkeypatch.undo()
