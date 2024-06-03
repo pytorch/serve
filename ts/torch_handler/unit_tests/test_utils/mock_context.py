@@ -25,6 +25,8 @@ class MockContext:
         model_name="mnist",
         model_yaml_config_file=None,
     ):
+        print("Mock cwd ", os.getcwd())
+        print("files :", os.listdir(os.getcwd()))
         self.manifest = {"model": {}}
         if model_pt_file:
             self.manifest["model"]["serializedFile"] = model_pt_file
