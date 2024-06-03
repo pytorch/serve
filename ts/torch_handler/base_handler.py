@@ -325,6 +325,7 @@ class BaseHandler(abc.ABC):
             serialized model file: Returns the pickled pytorch model file
         """
         model_def_path = os.path.join(model_dir, model_file)
+        print(os.system("cat model.py"))
         if not os.path.isfile(model_def_path):
             raise RuntimeError("Missing the model.py file")
 
@@ -339,6 +340,7 @@ class BaseHandler(abc.ABC):
 
         model_class = model_class_definitions[0]
         model = model_class()
+        print("Model is : " , model)
         if model_pt_path:
             map_location = (
                 None if (XLA_AVAILABLE and self.map_location is None) else self.device
