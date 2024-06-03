@@ -1,6 +1,6 @@
 # Text Classification using a Scriptable Tokenizer
 
-## Depraction Warning!
+## Deprecation Warning!
 This example requires TorchText which is deprecated. Please use version <= 0.11.0 of TorchServe for this example
 
 TorchScript is a way to serialize and optimize your PyTorch models.
