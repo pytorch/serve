@@ -20,15 +20,15 @@ stateful_handler.py is an example of stateful handler. It creates a cache `self.
         Loads the model and Initializes the necessary artifacts
         """
 
-        super().initialize(ctx)
-        if self.context.model_yaml_config["handler"] is not None:
-            try:
-                self.cache = LRU(
-                    int(self.context.model_yaml_config["handler"]["cache"]["capacity"]))
-            except KeyError:
-                logger.warn("No cache capacity was set! Using default value.")
-                self.cache = LRU(StatefulHandler.DEFAULT_CAPACITY)
-
+        ctx.cache = {}
+        if ctx.model_yaml_config["handler"] is not None:
+            self.cache = LRU(
+                int(
+                    ctx.model_yaml_config["handler"]
+                    .get("cache", {})
+                    .get("capacity", StatefulHandler.DEFAULT_CAPACITY)
+                )
+            )
         self.initialized = True
 ```
 
@@ -47,22 +47,92 @@ Handler uses sequenceId (ie., `sequence_id = self.context.get_sequence_id(idx)`)
             tensor: Returns the tensor data of the input
         """
 
-        self.sequence_ids = {}
         results = []
         for idx, row in enumerate(data):
             sequence_id = self.context.get_sequence_id(idx)
+            # SageMaker sticky router relies on response header to identify the sessions
+            # The sequence_id from request headers must be set in response headers
+            self.context.set_response_header(
+                idx, self.context.header_key_sequence_id, sequence_id
+            )
 
-            prev = int(0)
-            if self.cache.has_key(sequence_id):
+            # check if sequence_id exists
+            if self.context.get_request_header(
+                idx, self.context.header_key_sequence_start
+            ):
+                prev = int(0)
+                self.context.cache[sequence_id] = {
+                    "start": True,
+                    "cancel": False,
+                    "end": False,
+                    "num_requests": 0,
+                }
+            elif self.cache.has_key(sequence_id):
                 prev = int(self.cache[sequence_id])
+            else:
+                prev = None
+                logger.error(
+                    f"Not received sequence_start request for sequence_id:{sequence_id} before"
+                )
 
-            request = row.get("data") or row.get("body")
-            if isinstance(request, (bytes, bytearray)):
-                request = request.decode("utf-8")
+            req_id = self.context.get_request_id(idx)
+            # process a new request
+            if req_id not in self.context.cache:
+                logger.info(
+                    f"received a new request sequence_id={sequence_id}, request_id={req_id}"
+                )
+                request = row.get("data") or row.get("body")
+                if isinstance(request, (bytes, bytearray)):
+                    request = request.decode("utf-8")
 
-            val = prev + int(request)
-            self.cache[sequence_id] = val
-            results.append(val)
+                self.context.cache[req_id] = {
+                    "stopping_criteria": self._create_stopping_criteria(
+                        req_id=req_id, seq_id=sequence_id
+                    ),
+                    "stream": True,
+                }
+                self.context.cache[sequence_id]["num_requests"] += 1
+
+                if type(request) is dict and "input" in request:
+                    request = request.get("input")
+
+                # -1: cancel
+                if int(request) == -1:
+                    self.context.cache[sequence_id]["cancel"] = True
+                    self.context.cache[req_id]["stream"] = False
+                    results.append(int(request))
+                elif prev is None:
+                    logger.info(
+                        f"Close the sequence:{sequence_id} without open session request"
+                    )
+                    self.context.cache[sequence_id]["end"] = True
+                    self.context.cache[req_id]["stream"] = False
+                    self.context.set_response_header(
+                        idx, self.context.header_key_sequence_end, sequence_id
+                    )
+                    results.append(int(request))
+                else:
+                    val = prev + int(request)
+                    self.cache[sequence_id] = val
+                    # 0: end
+                    if int(request) == 0:
+                        self.context.cache[sequence_id]["end"] = True
+                        self.context.cache[req_id]["stream"] = False
+                        self.context.set_response_header(
+                            idx, self.context.header_key_sequence_end, sequence_id
+                        )
+                    # non stream input:
+                    elif int(request) % 2 == 0:
+                        self.context.cache[req_id]["stream"] = False
+
+                    results.append(val)
+            else:
+                # continue processing stream
+                logger.info(
+                    f"received continuous request sequence_id={sequence_id}, request_id={req_id}"
+                )
+                time.sleep(1)
+                results.append(prev)
 
         return results
 ```
