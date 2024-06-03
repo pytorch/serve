@@ -10,6 +10,9 @@ from model_archiver.model_archiver_config import ModelArchiverConfig
 
 CURR_FILE_PATH = Path(__file__).parent
 STATEFUL_PATH = CURR_FILE_PATH.parents[1] / "examples" / "stateful"
+STATEFUL_SEQUENCE_PATH = (
+    CURR_FILE_PATH.parents[1] / "examples" / "stateful" / "sequence_batching"
+)
 CONFIG_PROPERTIES_PATH = CURR_FILE_PATH.parents[1] / "test" / "config_ts.properties"
 
 YAML_CONFIG = f"""
@@ -27,22 +30,10 @@ handler:
     capacity: 4
 """
 
-PROMPTS = [
-    {
-        "prompt": "A robot may not injure a human being",
-        "max_new_tokens": 50,
-        "temperature": 0.8,
-        "logprobs": 1,
-        "prompt_logprobs": 1,
-        "max_tokens": 128,
-        "adapter": "adapter_1",
-    },
-]
-
 
 @pytest.fixture
 def add_paths():
-    sys.path.append(STATEFUL_PATH.as_posix())
+    sys.path.append(STATEFUL_SEQUENCE_PATH.as_posix())
     yield
     sys.path.pop()
 
@@ -67,7 +58,7 @@ def create_mar_file(work_dir, model_archiver, model_name, request):
     config = ModelArchiverConfig(
         model_name=model_name,
         version="1.0",
-        handler=(STATEFUL_PATH / "stateful_handler.py").as_posix(),
+        handler=(STATEFUL_SEQUENCE_PATH / "stateful_handler.py").as_posix(),
         serialized_file=(STATEFUL_PATH / "model_cnn.pt").as_posix(),
         model_file=(STATEFUL_PATH / "model.py").as_posix(),
         export_path=work_dir,
@@ -140,6 +131,7 @@ def test_stateful_mar(mar_file_path, model_store):
 
         # Clean up files
         shutil.rmtree(Path(model_store) / model_name)
+        test_utils.stop_torchserve()
 
 
 def __infer_stateful(model_name, sequence_id, expected):
