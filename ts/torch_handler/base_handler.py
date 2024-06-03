@@ -325,7 +325,10 @@ class BaseHandler(abc.ABC):
             serialized model file: Returns the pickled pytorch model file
         """
         model_def_path = os.path.join(model_dir, model_file)
-        print(os.system("cat model.py"))
+        #print(os.system("cat model.py"))
+        with open(model_file, 'r') as f:
+            print(f.read())
+            f.close()
         if not os.path.isfile(model_def_path):
             raise RuntimeError("Missing the model.py file")
 
