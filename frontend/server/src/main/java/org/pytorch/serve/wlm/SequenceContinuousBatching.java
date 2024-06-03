@@ -3,6 +3,8 @@ package org.pytorch.serve.wlm;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import org.pytorch.serve.job.Job;
+import org.pytorch.serve.job.JobGroup;
+import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.messages.BaseModelRequest;
 import org.pytorch.serve.util.messages.ModelInferenceRequest;
 import org.pytorch.serve.util.messages.ModelLoadModelRequest;
@@ -12,21 +14,20 @@ import org.pytorch.serve.util.messages.RequestInput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ContinuousBatching extends BatchAggregator {
-    private static final Logger logger = LoggerFactory.getLogger(ContinuousBatching.class);
+public class SequenceContinuousBatching extends SequenceBatching {
+    private static final Logger logger = LoggerFactory.getLogger(SequenceContinuousBatching.class);
 
-    public ContinuousBatching(Model model) {
+    public SequenceContinuousBatching(Model model) {
         super(model);
     }
 
     @Override
     public BaseModelRequest getRequest(String threadName, WorkerState state)
             throws InterruptedException, ExecutionException {
-        int batchQuota = model.getBatchSize() - jobs.size();
 
         ModelInferenceRequest req = new ModelInferenceRequest(model.getModelName());
 
-        pollBatch(threadName, state, batchQuota);
+        pollBatch(threadName, state);
 
         if (model.isUseJobTicket() && jobs.isEmpty()) {
             model.decNumJobTickets();
@@ -59,7 +60,9 @@ public class ContinuousBatching extends BatchAggregator {
     /**
      * @param message: a response of a batch inference requests
      * @return - true: either a non-stream response or last stream response is sent - false: a
-     *     stream response (not include the last stream) is sent
+     *     stream response (not include the last stream) is sent This is a copy of sendResponse from
+     *     ContinuousBatching + 1. setJobGroupFinished: handle a list of jobGroups end. 2.
+     *     resetCurrentJobGroupIds
      */
     @Override
     public boolean sendResponse(ModelWorkerResponse message) {
@@ -110,6 +113,7 @@ public class ContinuousBatching extends BatchAggregator {
                 } else {
                     job.getPayload().setCachedInBackend(true);
                 }
+                setJobGroupFinished(prediction);
             }
         } else {
             for (Map.Entry<String, Job> j : jobs.entrySet()) {
@@ -130,22 +134,46 @@ public class ContinuousBatching extends BatchAggregator {
             cleanJobs();
         }
 
+        resetCurrentJobGroupIds();
+
         return true;
     }
 
-    private void pollBatch(String threadName, WorkerState state, int batchSize)
-            throws InterruptedException, ExecutionException {
-        boolean pollMgmtJobStatus = false;
-        if (jobs.isEmpty()) {
-            pollMgmtJobStatus =
-                    model.pollMgmtJob(
-                            threadName,
-                            (state == WorkerState.WORKER_MODEL_LOADED) ? 0 : Long.MAX_VALUE,
-                            jobs);
+    private void setJobGroupFinished(Predictions prediction) {
+        String val =
+                prediction
+                        .getHeaders()
+                        .getOrDefault(
+                                ConfigManager.getInstance().getTsHeaderKeySequenceEnd(), null);
+        if (val != null) {
+            String[] jobGroupIds = val.split(";");
+            for (String j : jobGroupIds) {
+                String jobGroupId = j.trim();
+                JobGroup jobGroup = model.getJobGroup(jobGroupId);
+                if (jobGroup != null) {
+                    jobGroup.setFinished(true);
+                }
+            }
         }
+    }
 
-        if (!pollMgmtJobStatus && state == WorkerState.WORKER_MODEL_LOADED) {
-            model.pollInferJob(jobs, batchSize);
+    @Override
+    protected void pollInferJob() throws InterruptedException {
+        // TBD: Temporarily hard code the continuous batch size is 2 * batchSize
+        model.pollInferJob(jobs, model.getBatchSize() * 2 - jobs.size(), jobsQueue);
+
+        for (Job job : jobs.values()) {
+            if (job.getGroupId() != null) {
+                currentJobGroupIds.add(job.getGroupId());
+            }
         }
+    }
+
+    private void resetCurrentJobGroupIds() {
+        if (!currentJobGroupIds.isEmpty()) {
+            eventJobGroupIds.addAll(currentJobGroupIds);
+            currentJobGroupIds.clear();
+        }
+        return;
     }
 }

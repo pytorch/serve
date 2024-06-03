@@ -190,4 +190,8 @@ public class BatchAggregator {
     public void shutdown() {
         return;
     }
+
+    public void startEventDispatcher() {
+        return;
+    }
 }
