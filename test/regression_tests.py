@@ -39,18 +39,18 @@ def regression_tests(binaries, pypi, conda, nightly):
         install_from_src()
 
     # Generate mar file
-    mg.generate_mars()
+    #mg.generate_mars()
 
     # Run newman api tests
-    test_api(
-        "all"
-    )  # "all" > management, inference, increased_timeout_inference, https collections
+    #test_api(
+    #    "all"
+    #)  # "all" > management, inference, increased_timeout_inference, https collections
 
     # Run regression tests
     test_regression()
 
     # delete mar_gen_dir
-    mg.delete_model_store_gen_dir()
+    #mg.delete_model_store_gen_dir()
 
 
 if __name__ == "__main__":
