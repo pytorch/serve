@@ -188,7 +188,7 @@ class TestTorchCompile:
         ctx = MockContext(
             model_pt_file=SERIALIZED_FILE,
             model_dir=TEST_DATA_DIR,
-            model_file="toy_model.py",
+            model_file=MODEL,
             model_yaml_config_file=YAML_CONFIG_ENABLE_DEFAULT,
         )
 
@@ -217,7 +217,7 @@ class TestTorchCompile:
         ctx = MockContext(
             model_pt_file=SERIALIZED_FILE,
             model_dir=TEST_DATA_DIR,
-            model_file="toy_model.py",
+            model_file=MODEL,
             model_yaml_config_file=YAML_CONFIG_ENABLE,
         )
 
@@ -246,7 +246,7 @@ class TestTorchCompile:
         ctx = MockContext(
             model_pt_file=SERIALIZED_FILE,
             model_dir=TEST_DATA_DIR,
-            model_file="toy_model.py",
+            model_file=MODEL,
             model_yaml_config_file=YAML_CONFIG_ENABLE_FALSE,
         )
 
