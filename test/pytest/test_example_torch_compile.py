@@ -42,11 +42,11 @@ def chdir_example(monkeypatch):
     monkeypatch.undo()
     print("cleanup ", monkeypatch._savesyspath)
     import sys
-    for k, v in sys.modules.items():
-        print(k)
+    #for k, v in sys.modules.items():
+    #    print(k)
     print("sys modules: ", sys.modules)
     if 'model' in sys.modules:
-        print(deleting)
+        print("deleting")
         del sys.modules["model"]
 
 
