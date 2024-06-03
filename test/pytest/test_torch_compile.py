@@ -91,12 +91,13 @@ class TestTorchCompile:
 
     def test_compile_inference_enable_true_default(self, monkeypatch):
         import sys
-        print(sys.path)
-        print(monkeypatch._savesyspath)
+        print("sys path: ", sys.path)
+        print("before save path: ", monkeypatch._savesyspath)
         monkeypatch.undo()
-        print(monkeypatch._savesyspath)
+        print("after undo save path: ", monkeypatch._savesyspath)
         monkeypatch.chdir(TEST_DATA_DIR)
         monkeypatch.syspath_prepend(TEST_DATA_DIR)
+        print("after prepend sys path: ", sys.path)
         # Reset dynamo
         torch._dynamo.reset()
 
