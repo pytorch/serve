@@ -2,6 +2,7 @@ package org.pytorch.serve.job;
 
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,13 +11,13 @@ public class JobGroup {
     String groupId;
     LinkedBlockingDeque<Job> jobs;
     int maxJobQueueSize;
-    boolean finished;
+    AtomicBoolean finished;
 
     public JobGroup(String groupId, int maxJobQueueSize) {
         this.groupId = groupId;
         this.maxJobQueueSize = maxJobQueueSize;
         this.jobs = new LinkedBlockingDeque<>(maxJobQueueSize);
-        this.finished = false;
+        this.finished = new AtomicBoolean(false);
     }
 
     public boolean appendJob(Job job) {
@@ -24,7 +25,7 @@ public class JobGroup {
     }
 
     public Job pollJob(long timeout) {
-        if (finished) {
+        if (finished.get()) {
             return null;
         }
         try {
@@ -40,10 +41,10 @@ public class JobGroup {
     }
 
     public void setFinished(boolean sequenceEnd) {
-        this.finished = sequenceEnd;
+        this.finished.set(sequenceEnd);
     }
 
     public boolean isFinished() {
-        return this.finished;
+        return this.finished.get();
     }
 }

@@ -382,7 +382,8 @@ public class Model {
         }
 
         long begin = System.currentTimeMillis();
-        for (int i = 0; i < batchSize - 1; ++i) {
+        batchSize = pollNoWait ? batchSize : batchSize - 1;
+        for (int i = 0; i < batchSize; ++i) {
             if (pollNoWait) {
                 j = jobsQueue.poll();
             } else {
