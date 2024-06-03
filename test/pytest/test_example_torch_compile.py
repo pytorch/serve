@@ -36,13 +36,17 @@ def chdir_example(monkeypatch):
     TEST_DIR = REPO_ROOT_DIR.joinpath("examples", "pt2", "torch_compile")
     monkeypatch.chdir(TEST_DIR)
     monkeypatch.syspath_prepend(TEST_DIR)
+    print("before ", monkeypatch._savesyspath)
     yield
-    print(monkeypatch._savesyspath)
+    
     monkeypatch.undo()
-    print(monkeypatch._savesyspath)
+    print("cleanup ", monkeypatch._savesyspath)
     import sys
+    for k, v in sys.modules.item():
+        print(k)
     print("sys modules: ", sys.modules)
-    if 'model' in sys.modules:  
+    if 'model' in sys.modules:
+        print(deleting)
         del sys.modules["model"]
 
 
