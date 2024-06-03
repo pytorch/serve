@@ -40,6 +40,10 @@ def chdir_example(monkeypatch):
     print(monkeypatch._savesyspath)
     monkeypatch.undo()
     print(monkeypatch._savesyspath)
+    import sys
+    print("sys modules: ", sys.modules)
+    if 'model' in sys.modules:  
+        del sys.modules["model"]
 
 
 
