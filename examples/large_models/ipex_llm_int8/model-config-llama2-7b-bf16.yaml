@@ -1,0 +1,24 @@
+minWorkers: 1
+maxWorkers: 1
+responseTimeout: 1500
+BatchSize: 4
+maxBatchDelay: 100
+
+handler:
+    model_name: "meta-llama/Llama-2-7b-hf"
+    clear_cache_dir: true # removes the quantized model if it already exists
+    quantized_model_path: "best_model.pt"
+    example_inputs_mode: "MASK_KV_POS"
+    to_channels_last: false
+
+    # generation params 
+    batch_size: 1
+    input_tokens: 1024 
+    max_new_tokens: 128 
+    
+    # Use INT8+bf16 mix
+    quant_with_amp: true
+    
+    # decoding technique 
+    greedy: true
+    

@@ -40,20 +40,20 @@ body:
         Did you install torchserve from source? Are you using Docker?
       placeholder: |
         Install torchserve from source: No
-        Are you using Docker: Yes I ran ./build_image.sh     
+        Are you using Docker: Yes I ran ./build_image.sh
     validations:
       required: true
-    
+
   - type: textarea
     attributes:
-      label: Model Packaing
+      label: Model Packaging
       description: |
         Please describe how you packaged your model
       placeholder: |
         Link to builtin handler or example you used or link to a repo or gist with your custom handler or step by step instructions with torch-model-archiver
     validations:
       required: true
-  
+
   - type: textarea
     attributes:
       label: config.properties
@@ -86,7 +86,7 @@ body:
         torchserve --start
         ```
     validations:
-      required: true 
+      required: true
 
   - type: textarea
     attributes:

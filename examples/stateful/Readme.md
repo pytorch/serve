@@ -82,6 +82,7 @@ maxWorkers: 2
 batchSize: 4
 sequenceMaxIdleMSec: 60000
 maxSequenceJobQueueSize: 10
+sequenceBatching: true
 
 handler:
   cache:
@@ -122,8 +123,14 @@ cd -
 torchserve --ncs --start --model-store models --model stateful.mar --ts-config config.properties
 ```
 
-* Run sequence inference
+* Run sequence inference via GRPC client
 ```bash
 cd ../../
 python ts_scripts/torchserve_grpc_client.py  infer_stream2 stateful seq_0 examples/stateful/sample/sample1.txt,examples/stateful/sample/sample2.txt,examples/stateful/sample/sample3.txt
+```
+
+* Run sequence inference via HTTP
+```bash
+cd ../../
+curl -H "ts_request_sequence_id: seq_0" http://localhost:8080/predictions/stateful -T examples/stateful/sample/sample1.txt
 ```

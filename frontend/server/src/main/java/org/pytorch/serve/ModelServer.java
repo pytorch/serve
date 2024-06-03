@@ -17,6 +17,7 @@ import io.netty.util.internal.logging.Slf4JLoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
+import java.net.InetSocketAddress;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,6 +27,7 @@ import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
@@ -447,7 +449,16 @@ public class ModelServer {
     private Server startGRPCServer(ConnectorType connectorType) throws IOException {
 
         ServerBuilder<?> s =
-                NettyServerBuilder.forPort(configManager.getGRPCPort(connectorType))
+                NettyServerBuilder.forAddress(
+                                new InetSocketAddress(
+                                        configManager.getGRPCAddress(connectorType),
+                                        configManager.getGRPCPort(connectorType)))
+                        .maxConnectionAge(
+                                configManager.getGRPCMaxConnectionAge(connectorType),
+                                TimeUnit.MILLISECONDS)
+                        .maxConnectionAgeGrace(
+                                configManager.getGRPCMaxConnectionAgeGrace(connectorType),
+                                TimeUnit.MILLISECONDS)
                         .maxInboundMessageSize(configManager.getMaxRequestSize())
                         .addService(
                                 ServerInterceptors.intercept(

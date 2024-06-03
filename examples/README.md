@@ -124,7 +124,7 @@ Following are the steps to create a torch-model-archive (.mar) to execute an eag
 
 ## Creating mar file for torchscript mode model
 
-Following are the steps to create a torch-model-archive (.mar) to execute an eager mode torch model in TorchServe :
+Following are the steps to create a torch-model-archive (.mar) to execute a torchscript mode torch model in TorchServe :
 
 * Pre-requisites to create a torch model archive (.mar) :
     * serialized-file (.pt) : This file represents the state_dict in case of eager mode model or an executable `ScriptModule` in case of TorchScript.

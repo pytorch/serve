@@ -10,7 +10,6 @@ import org.pytorch.serve.util.messages.ModelLoadModelRequest;
 import org.pytorch.serve.util.messages.ModelWorkerResponse;
 import org.pytorch.serve.util.messages.Predictions;
 import org.pytorch.serve.util.messages.RequestInput;
-import org.pytorch.serve.util.messages.WorkerCommands;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,10 +55,7 @@ public class BatchAggregator {
                 }
                 return new ModelLoadModelRequest(model, gpuId);
             } else {
-                if (j.getCmd() == WorkerCommands.STREAMPREDICT
-                        || j.getCmd() == WorkerCommands.STREAMPREDICT2) {
-                    req.setCommand(j.getCmd());
-                }
+                req.setCommand(j.getCmd());
                 j.setScheduled();
                 req.addRequest(j.getPayload());
             }
@@ -189,5 +185,9 @@ public class BatchAggregator {
             throws InterruptedException, ExecutionException {
         model.pollBatch(
                 threadName, (state == WorkerState.WORKER_MODEL_LOADED) ? 0 : Long.MAX_VALUE, jobs);
+    }
+
+    public void shutdown() {
+        return;
     }
 }
