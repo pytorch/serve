@@ -108,22 +108,25 @@ def gpu_utilization(num_of_gpu):
         for line in info[1:]:
             dimension_gpu = [
                 Dimension("Level", "Host"),
-                Dimension("device_id", line[1]),
+                Dimension("device_id", int(line[1])),
             ]
-            system_metrics.append(
-                Metric("GPUUtilization", line[2], "percent", dimension_gpu)
-            )
-            system_metrics.append(
-                Metric(
-                    "GPUMemoryUtilization",
-                    line[3],
-                    "percent",
-                    dimension_gpu,
+            if line[2] != 'N/A':
+                system_metrics.append(
+                    Metric("GPUUtilization", float(line[2]), "percent", dimension_gpu)
                 )
-            )
-            system_metrics.append(
-                Metric("GPUMemoryUsed", line[4], "MB", dimension_gpu)
-            )
+            if line[3] != 'N/A':
+                system_metrics.append(
+                    Metric(
+                        "GPUMemoryUtilization",
+                        float(line[3]),
+                        "percent",
+                        dimension_gpu,
+                    )
+                )
+            if line[4] != 'N/A':
+                system_metrics.append(
+                    Metric("GPUMemoryUsed", float(line[4]), "MB", dimension_gpu)
+                )
 
 
 def collect_all(mod, num_of_gpu):
