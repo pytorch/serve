@@ -15,7 +15,8 @@ Details on how this is achieved can be found in this [blog](https://pytorch.org/
 
 #### Pre-requisites
 
-Needs python 3.10
+- Needs python 3.10
+- PyTorch >= 2.3.0
 
 `cd` to the example folder `examples/large_models/segment_anything_fast`
 
@@ -24,8 +25,6 @@ Install `Segment Anything Fast` by running
 chmod +x install_segment_anything_fast.sh
 source install_segment_anything_fast.sh
 ```
-Segment Anything Fast needs the nightly version of PyTorch. Hence the script is uninstalling PyTorch, its domain libraries and installing the nightly version of PyTorch.
-
 
 ### Step 1: Download the weights
 
@@ -47,26 +46,21 @@ Example:
   - For `A100` : `process_batch_size=16`
 
 
-### Step 2: Generate mar or tgz file
-
-```
-torch-model-archiver --model-name sam-fast --version 1.0 --handler custom_handler.py --config-file model-config.yaml --archive-format tgz
-```
-
-### Step 3: Add the tgz file to model store
+### Step 2: Generate model archive
 
 ```
 mkdir model_store
-mv sam-fast.tar.gz model_store
+torch-model-archiver --model-name sam-fast --version 1.0 --handler custom_handler.py --config-file model-config.yaml --archive-format no-archive  --export-path model_store -f
+mv sam_vit_h_4b8939.pth model_store/sam-fast/
 ```
 
-### Step 4: Start torchserve
+### Step 3: Start torchserve
 
 ```
-torchserve --start --ncs --model-store model_store --models sam-fast.tar.gz
+torchserve --start --ncs --model-store model_store --models sam-fast
 ```
 
-### Step 5: Run inference
+### Step 4: Run inference
 
 ```
 python inference.py

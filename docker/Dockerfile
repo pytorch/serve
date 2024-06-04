@@ -31,6 +31,9 @@ FROM ${BASE_IMAGE} AS compile-image
 ARG BASE_IMAGE=ubuntu:rolling
 ARG PYTHON_VERSION
 ARG BUILD_NIGHTLY
+ARG BUILD_FROM_SRC
+ARG LOCAL_CHANGES
+ARG BRANCH_NAME
 ENV PYTHONUNBUFFERED TRUE
 
 RUN --mount=type=cache,id=apt-dev,target=/var/cache/apt \
@@ -64,7 +67,14 @@ RUN export USE_CUDA=1
 
 ARG USE_CUDA_VERSION=""
 
-RUN git clone --depth 1 --recursive https://github.com/pytorch/serve.git
+COPY ./ serve
+
+RUN \
+    if echo "$LOCAL_CHANGES" | grep -q "false"; then \
+        rm -rf serve;\
+        git clone --recursive https://github.com/pytorch/serve.git -b $BRANCH_NAME; \
+    fi
+
 
 WORKDIR "serve"
 
@@ -72,10 +82,10 @@ RUN \
     if echo "$BASE_IMAGE" | grep -q "cuda:"; then \
         # Install CUDA version specific binary when CUDA version is specified as a build arg
         if [ "$USE_CUDA_VERSION" ]; then \
-            python ./ts_scripts/install_dependencies.py --cuda $USE_CUDA_VERSION; \
+            python ./ts_scripts/install_dependencies.py --cuda $USE_CUDA_VERSION;\
         # Install the binary with the latest CPU image on a CUDA base image
         else \
-            python ./ts_scripts/install_dependencies.py; \
+            python ./ts_scripts/install_dependencies.py;\
         fi; \
     # Install the CPU binary
     else \
@@ -84,7 +94,10 @@ RUN \
 
 # Make sure latest version of torchserve is uploaded before running this
 RUN \
-    if echo "$BUILD_NIGHTLY" | grep -q "false"; then \
+    if echo "$BUILD_FROM_SRC" | grep -q "true"; then \
+        python -m pip install -r requirements/developer.txt;\
+        python ts_scripts/install_from_src.py;\
+    elif echo "$BUILD_NIGHTLY" | grep -q "false"; then \
         python -m pip install --no-cache-dir torchserve torch-model-archiver torch-workflow-archiver;\
     else \
         python -m pip install --no-cache-dir torchserve-nightly torch-model-archiver-nightly torch-workflow-archiver-nightly;\
@@ -121,12 +134,12 @@ COPY --chown=model-server --from=compile-image /home/venv /home/venv
 
 ENV PATH="/home/venv/bin:$PATH"
 
-COPY dockerd-entrypoint.sh /usr/local/bin/dockerd-entrypoint.sh
+COPY docker/dockerd-entrypoint.sh /usr/local/bin/dockerd-entrypoint.sh
 
 RUN chmod +x /usr/local/bin/dockerd-entrypoint.sh \
     && chown -R model-server /home/model-server
 
-COPY config.properties /home/model-server/config.properties
+COPY docker/config.properties /home/model-server/config.properties
 RUN mkdir /home/model-server/model-store && chown -R model-server /home/model-server/model-store
 
 EXPOSE 8080 8081 8082 7070 7071
@@ -187,6 +200,8 @@ FROM ${BASE_IMAGE} as dev-image
 # Re-state ARG PYTHON_VERSION to make it active in this build-stage (uses default define at the top)
 ARG PYTHON_VERSION
 ARG BRANCH_NAME
+ARG BUILD_FROM_SRC
+ARG LOCAL_CHANGES
 ARG BUILD_WITH_IPEX
 ARG IPEX_VERSION=1.11.0
 ARG IPEX_URL=https://software.intel.com/ipex-whl-stable
@@ -216,9 +231,15 @@ RUN --mount=type=cache,target=/var/cache/apt \
     numactl \
     && if [ "$BUILD_WITH_IPEX" = "true" ]; then apt-get update && apt-get install -y libjemalloc-dev libgoogle-perftools-dev libomp-dev && ln -s /usr/lib/x86_64-linux-gnu/libjemalloc.so /usr/lib/libjemalloc.so && ln -s /usr/lib/x86_64-linux-gnu/libtcmalloc.so /usr/lib/libtcmalloc.so && ln -s /usr/lib/x86_64-linux-gnu/libiomp5.so /usr/lib/libiomp5.so; fi \
     && rm -rf /var/lib/apt/lists/*
-RUN git clone --recursive https://github.com/pytorch/serve.git \
-    && cd serve \
-    && git checkout ${BRANCH_NAME}
+
+COPY ./ serve
+
+RUN \
+    if echo "$LOCAL_CHANGES" | grep -q "false"; then \
+        rm -rf serve;\
+        git clone --recursive https://github.com/pytorch/serve.git -b $BRANCH_NAME; \
+    fi
+
 COPY --from=compile-image /home/venv /home/venv
 ENV PATH="/home/venv/bin:$PATH"
 WORKDIR "serve"

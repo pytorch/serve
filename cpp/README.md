@@ -17,9 +17,9 @@ cd serve/docker
 Start the container and optionally bind mount a build directory into the container to persist build artifacts across container runs
 ```
 # For CPU support
-docker run [-v /path/to/build/dir:/serve/cpp/_build] -it pytorch/torchserve:cpp-dev-cpu /bin/bash
+docker run [-v /path/to/build/dir:/serve/cpp/build] -it pytorch/torchserve:cpp-dev-cpu /bin/bash
 # For GPU support
-docker run --gpus all [-v /path/to/build/dir:/serve/cpp/_build] -it pytorch/torchserve:cpp-dev-gpu /bin/bash
+docker run --gpus all [-v /path/to/build/dir:/serve/cpp/build] -it pytorch/torchserve:cpp-dev-gpu /bin/bash
 ```
 `Warning`: The dev docker container does not install all necessary dependencies or build Torchserve CPP. Please follow the steps below after starting the container.
 
@@ -41,7 +41,12 @@ Then build the backend:
 ```
 ## Dev Build
 cd cpp
-./build.sh
+mkdir build && cd build
+# Optionally, you can skip building the tests by adding: -DBUILD_TESTS=OFF
+cmake ..
+make -j && make install
+## Optionally, you can run the tests with
+make test
 ```
 
 ### Run TorchServe

@@ -49,7 +49,10 @@ public class ManagementImpl extends ManagementAPIsServiceImplBase {
         String requestId = UUID.randomUUID().toString();
         RequestInput input = new RequestInput(requestId);
         String modelName = request.getModelName();
-        String modelVersion = request.getModelVersion();
+        String modelVersion = null;
+        if (!request.getModelVersion().isEmpty()) {
+            modelVersion = request.getModelVersion();
+        }
         boolean customized = request.getCustomized();
 
         if ("all".equals(modelVersion) || !customized) {

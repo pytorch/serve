@@ -20,18 +20,6 @@ public abstract class Job {
         this.modelVersion = version;
         begin = System.nanoTime();
         scheduled = begin;
-
-        switch (cmd) {
-            case STREAMPREDICT:
-                input.updateHeaders(RequestInput.TS_STREAM_NEXT, "true");
-                break;
-            case STREAMPREDICT2:
-                input.updateHeaders(RequestInput.TS_STREAM_NEXT, "true");
-                input.updateHeaders(RequestInput.TS_REQUEST_SEQUENCE_ID, input.getSequenceId());
-                break;
-            default:
-                break;
-        }
     }
 
     public String getJobId() {

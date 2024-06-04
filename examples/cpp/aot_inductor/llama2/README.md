@@ -5,20 +5,15 @@ The handler C++ source code for this examples can be found [here](src/).
 ### Setup
 1. Follow the instructions in [README.md](../../../../cpp/README.md) to build the TorchServe C++ backend.
 
-```
-cd serve/cpp
-./builld.sh
-```
-
-The build script will already create the necessary artifact for this example.
-To recreate these by hand you can follow the prepare_test_files function of the [build.sh](../../../../cpp/build.sh) script.
+The build process will create the necessary artifact for this example.
+To recreate these by hand you can follow the the [CMakeLists.txt](./CMakeLists.txt) file.
 We will need the handler .so file as well as the stories15M.so file containing the model and weights.
 
 2. Copy the handler file
 
 ```bash
 cd ~/serve/examples/cpp/aot_inductor/llama2
-cp ../../../../cpp/_build/test/resources/examples/aot_inductor/llama_handler/libllama_so_handler.so ./
+cp ../../../../cpp/build/test/resources/examples/aot_inductor/llama_handler/libllama_so_handler.so ./
 ```
 We will leave the model .so file in place and just use its absolute path in the next step.
 
@@ -26,8 +21,8 @@ We will leave the model .so file in place and just use its absolute path in the 
 
 ```bash
 echo '{
-"checkpoint_path" : "/home/ubuntu/serve/cpp/_build/test/resources/examples/aot_inductor/llama_handler/stories15M.so",
-"tokenizer_path" : "/home/ubuntu/serve/cpp/_build/test/resources/examples/babyllama/babyllama_handler/tokenizer.bin"
+"checkpoint_path" : "/home/ubuntu/serve/cpp/build/test/resources/examples/aot_inductor/llama_handler/stories15M.so",
+"tokenizer_path" : "/home/ubuntu/serve/cpp/build/test/resources/examples/babyllama/babyllama_handler/tokenizer.bin"
 }' > config.json
 ```
 

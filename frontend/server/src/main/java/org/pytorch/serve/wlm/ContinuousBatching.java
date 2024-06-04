@@ -9,7 +9,6 @@ import org.pytorch.serve.util.messages.ModelLoadModelRequest;
 import org.pytorch.serve.util.messages.ModelWorkerResponse;
 import org.pytorch.serve.util.messages.Predictions;
 import org.pytorch.serve.util.messages.RequestInput;
-import org.pytorch.serve.util.messages.WorkerCommands;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,6 +19,7 @@ public class ContinuousBatching extends BatchAggregator {
         super(model);
     }
 
+    @Override
     public BaseModelRequest getRequest(String threadName, WorkerState state)
             throws InterruptedException, ExecutionException {
         int batchQuota = model.getBatchSize() - jobs.size();
@@ -48,9 +48,7 @@ public class ContinuousBatching extends BatchAggregator {
                 }
                 return new ModelLoadModelRequest(model, gpuId);
             } else {
-                if (j.getCmd() == WorkerCommands.STREAMPREDICT) {
-                    req.setCommand(WorkerCommands.STREAMPREDICT);
-                }
+                req.setCommand(j.getCmd());
                 j.setScheduled();
                 req.addRequest(j.getPayload());
             }
@@ -63,6 +61,7 @@ public class ContinuousBatching extends BatchAggregator {
      * @return - true: either a non-stream response or last stream response is sent - false: a
      *     stream response (not include the last stream) is sent
      */
+    @Override
     public boolean sendResponse(ModelWorkerResponse message) {
         // TODO: Handle prediction level code
         if (message.getCode() == 200) {
@@ -101,7 +100,7 @@ public class ContinuousBatching extends BatchAggregator {
                         prediction
                                 .getHeaders()
                                 .get(org.pytorch.serve.util.messages.RequestInput.TS_STREAM_NEXT);
-                if (streamNext != null && streamNext.equals("false")) {
+                if (streamNext == null || (streamNext != null && streamNext.equals("false"))) {
                     jobs.remove(jobId);
                 } else if (!job.isOpen()) {
                     jobs.remove(job.getJobId());

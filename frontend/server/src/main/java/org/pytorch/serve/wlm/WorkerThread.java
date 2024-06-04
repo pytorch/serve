@@ -248,9 +248,8 @@ public class WorkerThread implements Runnable {
 
                 switch (req.getCommand()) {
                     case PREDICT:
-                        model.resetFailedInfReqs();
-                        break;
                     case STREAMPREDICT:
+                    case STREAMPREDICT2:
                         model.resetFailedInfReqs();
                         break;
                     case LOAD:
@@ -471,6 +470,7 @@ public class WorkerThread implements Runnable {
 
     public void shutdown() {
         running.set(false);
+        aggregator.shutdown();
         setState(WorkerState.WORKER_SCALED_DOWN, HttpURLConnection.HTTP_OK);
         for (int i = 0;
                 backendChannel.size() > 0
@@ -481,7 +481,6 @@ public class WorkerThread implements Runnable {
             }
         }
         backendChannel.clear();
-        lifeCycle.terminateIOStreams();
         Thread thread = currentThread.getAndSet(null);
         if (thread != null) {
             thread.interrupt();
@@ -489,10 +488,6 @@ public class WorkerThread implements Runnable {
                     null, "Worker scaled down.", HttpURLConnection.HTTP_INTERNAL_ERROR);
 
             model.removeJobQueue(workerId);
-        }
-        if (aggregator instanceof SequenceBatchAggregator) {
-            ((SequenceBatchAggregator) aggregator).shutdownExecutors();
-            ((SequenceBatchAggregator) aggregator).stopEventDispatcher();
         }
     }
 
@@ -546,9 +541,8 @@ public class WorkerThread implements Runnable {
         if (backoffIdx < BACK_OFF.length - 1) {
             ++backoffIdx;
         }
-        if (aggregator instanceof SequenceBatchAggregator) {
-            ((SequenceBatchAggregator) aggregator).startEventDispatcher();
-        }
+        aggregator.startEventDispatcher();
+
         manager.getScheduler()
                 .schedule(() -> manager.submitTask(this), BACK_OFF[backoffIdx], TimeUnit.SECONDS);
         logger.info("Retry worker: {} in {} seconds.", workerId, BACK_OFF[backoffIdx]);

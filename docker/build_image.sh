@@ -14,6 +14,8 @@ USE_LOCAL_SERVE_FOLDER=false
 BUILD_WITH_IPEX=false
 BUILD_CPP=false
 BUILD_NIGHTLY=false
+BUILD_FROM_SRC=false
+LOCAL_CHANGES=true
 PYTHON_VERSION=3.9
 
 for arg in "$@"
@@ -33,6 +35,8 @@ do
           echo "-cpp, --build-cpp specify to build TorchServe CPP"
           echo "-py, --pythonversion specify to python version to use: Possible values: 3.8 3.9 3.10"
           echo "-n, --nightly specify to build with TorchServe nightly"
+          echo "-s, --source specify to build with TorchServe from source"
+          echo "-l, --local specify to use local TorchServe"
           exit 0
           ;;
         -b|--branch_name)
@@ -95,6 +99,14 @@ do
             exit 1
           fi
           shift
+          shift
+          ;;
+        -s|--source)
+          BUILD_FROM_SRC=true
+          shift
+          ;;
+        -r|--remote)
+          LOCAL_CHANGES=false
           shift
           ;;
         # With default ubuntu version 20.04
@@ -189,15 +201,15 @@ fi
 
 if [ "${BUILD_TYPE}" == "production" ]
 then
-  DOCKER_BUILDKIT=1 docker build --file Dockerfile --build-arg BASE_IMAGE="${BASE_IMAGE}" --build-arg USE_CUDA_VERSION="${CUDA_VERSION}"  --build-arg PYTHON_VERSION="${PYTHON_VERSION}" --build-arg BUILD_NIGHTLY="${BUILD_NIGHTLY}" -t "${DOCKER_TAG}" --target production-image  .
+  DOCKER_BUILDKIT=1 docker build --file Dockerfile --build-arg BASE_IMAGE="${BASE_IMAGE}" --build-arg USE_CUDA_VERSION="${CUDA_VERSION}"  --build-arg PYTHON_VERSION="${PYTHON_VERSION}" --build-arg BUILD_NIGHTLY="${BUILD_NIGHTLY}" --build-arg BRANCH_NAME="${BRANCH_NAME}" --build-arg BUILD_FROM_SRC="${BUILD_FROM_SRC}" --build-arg LOCAL_CHANGES="${LOCAL_CHANGES}" -t "${DOCKER_TAG}" --target production-image  ../
 elif [ "${BUILD_TYPE}" == "ci" ]
 then
-  DOCKER_BUILDKIT=1 docker build --file Dockerfile --build-arg BASE_IMAGE="${BASE_IMAGE}" --build-arg USE_CUDA_VERSION="${CUDA_VERSION}"  --build-arg PYTHON_VERSION="${PYTHON_VERSION}" --build-arg BUILD_NIGHTLY="${BUILD_NIGHTLY}" --build-arg BRANCH_NAME="${BRANCH_NAME}"  -t "${DOCKER_TAG}" --target ci-image  .
+  DOCKER_BUILDKIT=1 docker build --file Dockerfile --build-arg BASE_IMAGE="${BASE_IMAGE}" --build-arg USE_CUDA_VERSION="${CUDA_VERSION}"  --build-arg PYTHON_VERSION="${PYTHON_VERSION}" --build-arg BUILD_NIGHTLY="${BUILD_NIGHTLY}" --build-arg BRANCH_NAME="${BRANCH_NAME}" --build-arg BUILD_FROM_SRC="${BUILD_FROM_SRC}" --build-arg LOCAL_CHANGES="${LOCAL_CHANGES}" -t "${DOCKER_TAG}" --target ci-image  ../
 else
   if [ "${BUILD_CPP}" == "true" ]
   then
     DOCKER_BUILDKIT=1 docker build --file Dockerfile.cpp --build-arg BASE_IMAGE="${BASE_IMAGE}" --build-arg USE_CUDA_VERSION="${CUDA_VERSION}" --build-arg PYTHON_VERSION="${PYTHON_VERSION}" --build-arg BRANCH_NAME="${BRANCH_NAME}" -t "${DOCKER_TAG}" --target cpp-dev-image .
   else
-    DOCKER_BUILDKIT=1 docker build --file Dockerfile --build-arg BASE_IMAGE="${BASE_IMAGE}" --build-arg USE_CUDA_VERSION="${CUDA_VERSION}"  --build-arg PYTHON_VERSION="${PYTHON_VERSION}" --build-arg BUILD_NIGHTLY="${BUILD_NIGHTLY}" --build-arg BRANCH_NAME="${BRANCH_NAME}" --build-arg BUILD_WITH_IPEX="${BUILD_WITH_IPEX}"  -t "${DOCKER_TAG}" --target dev-image  .
+    DOCKER_BUILDKIT=1 docker build --file Dockerfile --build-arg BASE_IMAGE="${BASE_IMAGE}" --build-arg USE_CUDA_VERSION="${CUDA_VERSION}"  --build-arg PYTHON_VERSION="${PYTHON_VERSION}" --build-arg BUILD_NIGHTLY="${BUILD_NIGHTLY}" --build-arg BRANCH_NAME="${BRANCH_NAME}" --build-arg BUILD_FROM_SRC="${BUILD_FROM_SRC}" --build-arg LOCAL_CHANGES="${LOCAL_CHANGES}" --build-arg BUILD_WITH_IPEX="${BUILD_WITH_IPEX}"  -t "${DOCKER_TAG}" --target dev-image  ../
   fi
 fi
