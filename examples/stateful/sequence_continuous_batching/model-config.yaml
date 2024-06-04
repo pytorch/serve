@@ -1,0 +1,12 @@
+minWorkers: 2
+maxWorkers: 2
+batchSize: 4
+maxNumSequence: 4
+sequenceMaxIdleMSec: 10
+maxSequenceJobQueueSize: 10
+sequenceBatching: true
+continuousBatching: true
+
+handler:
+  cache:
+    capacity: 4
