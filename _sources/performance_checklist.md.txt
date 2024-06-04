@@ -21,6 +21,8 @@ As this [example](https://colab.research.google.com/drive/1NMaLS8PG0eYhbd8IxQAaj
 
 Start model inference optimization only after other factors, the “low-hanging fruit”, have been extensively evaluated and addressed.
 
+- Using `with torch.inference_mode()` context before calling forward pass on your model or `@torch.inference_mode()` decorator on your `inference()` method improves inference performance. This is achieved by [disabling](https://pytorch.org/docs/stable/generated/torch.autograd.grad_mode.inference_mode.html) view tracking and version counter bumps.
+
 - Use fp16 for GPU inference.  The speed will most likely more than double on newer GPUs with tensor cores, with negligible accuracy degradation.  Technically fp16 is a type of quantization but since it seldom suffers from loss of accuracy for inference it should always be explored. As shown in this [article](https://docs.nvidia.com/deeplearning/performance/mixed-precision-training/index.html#abstract), use of fp16 offers speed up in large neural network applications.
 
 - Use model quantization (i.e. int8) for CPU inference.  Explore different quantization options: dynamic quantization, static quantization, and quantization aware training, as well as tools such as Intel Neural Compressor that provide more sophisticated quantization methods. It is worth noting that quantization comes with some loss in accuracy and might not always offer significant speed up on some hardware thus this might not always be the right approach.
