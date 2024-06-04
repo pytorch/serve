@@ -229,7 +229,7 @@ public class InferenceImpl extends InferenceAPIsServiceImplBase {
             if (workerCmd == WorkerCommands.STREAMPREDICT2) {
                 String sequenceId = request.getSequenceId();
                 if ("".equals(sequenceId)) {
-                    sequenceId = String.format("ts-%s", UUID.randomUUID());
+                    sequenceId = String.format("ts-seq-%s", UUID.randomUUID());
                     inputData.updateHeaders(
                             ConfigManager.getInstance().getTsHeaderKeySequenceStart(), "true");
                 }
