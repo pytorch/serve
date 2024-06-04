@@ -7,7 +7,7 @@ import requests
 import test_utils
 
 ROOT_DIR = os.path.join(tempfile.gettempdir(), "workspace")
-REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../")
+REPO_ROOT = os.path.dirname(os.path.abspath(__file__))
 
 expected_output = {
     "code": 405,
@@ -76,7 +76,6 @@ def test_delete_model_failing(setup_torchserve):
 
 
 # Test register a model after startup - Model control mode: explicit
-@pytest.mark.module2
 def test_register_model(setup_torchserve_explicit_mode):
     response = requests.get("http://localhost:8081/models/mnist")
     assert response.status_code == 200, "management check failed"
@@ -91,3 +90,26 @@ def test_register_model(setup_torchserve_explicit_mode):
     assert response.status_code == 200, "model control check failed"
     response = requests.get("http://localhost:8081/models/resnet-18")
     assert response.status_code == 200, "management check failed"
+
+
+# Test priority between config.properties and cmd
+# config sets mode to default and cmd sets to explicit
+# Priority falls to cmd
+def test_priority():
+    MODEL_STORE = os.path.join(ROOT_DIR, "model_store/")
+    Path(test_utils.MODEL_STORE).mkdir(parents=True, exist_ok=True)
+
+    config_file_priority = os.path.join(
+        REPO_ROOT, "../resources/config_model_mode.properties"
+    )
+    test_utils.start_torchserve(
+        snapshot_file=config_file_priority,
+        no_config_snapshots=True,
+        models="mnist=mnist.mar",
+    )
+
+    response = requests.delete("http://localhost:8081/models/mnist")
+
+    test_utils.stop_torchserve()
+
+    assert response.status_code == 200, "model control check failed"

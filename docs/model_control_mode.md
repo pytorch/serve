@@ -2,11 +2,23 @@
 
 TorchServe now supports model control mode with two settings "none"(default) and "explicit"
 
-## Two ways to set Model Control to explicit
-1. Add `--model-mode-explicit` to command line when running TorchServe.
-2. Add `model_control_mode=explicit` to config.properties file
+## Two ways to set Model Control
+1. Add `--model-mode-explicit` to command line when running TorchServe to switch from none to explicit mode. Command line cannot be used to set mode to none, can only be used to set to explicit
+2. Add `model_control_mode=explicit` or `model_control_mode=none` to config.properties file
 
 Priority between cmd and config file follows the following [TorchServer standard](https://github.com/pytorch/serve/blob/c74a29e8144bc12b84196775076b0e8cf3c5a6fc/docs/configuration.md#advanced-configuration)
+* Example 1:
+  * Config file: `model_control_mode=none`
+
+    cmd line: `torchserve --start --ncs --model-store model_store --model-mode-explicit`
+
+    Result: Explicit mode enabled
+* Example 2:
+  * Config file: `model_control_mode=explicit`
+
+    cmd line: `torchserve --start --ncs --model-store model_store`
+
+    Result: Mode is explicit (no way to enable "none" through cmd)
 
 ## Model Control Mode Default
 At startup TorchServe loads only those models specified explicitly with the `--models` command-line option. After startup users will be unable to register or delete models in this mode.

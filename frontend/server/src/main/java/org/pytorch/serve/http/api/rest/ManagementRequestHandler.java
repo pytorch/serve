@@ -49,6 +49,8 @@ import org.pytorch.serve.wlm.WorkerThread;
  */
 public class ManagementRequestHandler extends HttpRequestHandlerChain {
 
+    private Boolean Modelmode = null;
+
     /** Creates a new {@code ManagementRequestHandler} instance. */
     public ManagementRequestHandler(Map<String, ModelServerEndpoint> ep) {
         endpointMap = ep;
@@ -131,8 +133,11 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
     }
 
     private boolean isModeExplicit() {
-        ConfigManager configManager = ConfigManager.getInstance();
-        return (configManager.getModelControlMode());
+        if (Modelmode == null) {
+            ConfigManager configManager = ConfigManager.getInstance();
+            Modelmode = configManager.getModelControlMode();
+        }
+        return Modelmode;
     }
 
     private boolean isKFV1ManagementReq(String[] segments) {
