@@ -11,6 +11,7 @@ CWD = os.getcwd()
 MODEL_JSON_CONFIG_PATH = CWD + "/model_json_config"
 BENCHMARK_TMP_PATH = "/tmp/benchmark"
 BENCHMARK_REPORT_PATH = "/tmp/ts_benchmark"
+BENCHMARK_REPORT_PATH_TEST = "/tmp/ts_benchmark/fail"
 TS_LOGS_PATH = CWD + "/logs"
 MODEL_STORE = "/tmp/model_store"
 WF_STORE = "/tmp/wf_store"
@@ -212,18 +213,20 @@ def run_benchmark(bm_config):
             # generate stats metrics from ab_report.csv
             bm_model = model_json_config[0 : -len(".json")]
 
-            bm_model_log_path = "{}/{}".format(BENCHMARK_REPORT_PATH, bm_model)
-            os.makedirs(bm_model_log_path, exist_ok=True)
-
-            cmd = "tar -cvzf {}/logs.tar.gz {}".format(bm_model_log_path, TS_LOGS_PATH)
-            execute(cmd, wait=True)
-
             try:
                 gen_metrics_json.gen_metric(
                     "{}/ab_report.csv".format(BENCHMARK_TMP_PATH),
                     "{}/logs/stats_metrics.json".format(BENCHMARK_TMP_PATH),
                 )
             except Exception as e:
+                bm_model_log_path = "{}/{}".format(BENCHMARK_REPORT_PATH_TEST, bm_model)
+                os.makedirs(bm_model_log_path, exist_ok=True)
+
+                cmd = "tar -cvzf {}/logs.tar.gz {}".format(
+                    bm_model_log_path, TS_LOGS_PATH
+                )
+                execute(cmd, wait=True)
+
                 print(f"An error occurred: {e}")
                 if "report_cmd" in bm_config:
                     execute(bm_config["report_cmd"], wait=True)
@@ -233,8 +236,8 @@ def run_benchmark(bm_config):
                 execute(bm_config["metrics_cmd"], wait=True)
 
             # cp benchmark logs to local
-            # bm_model_log_path = "{}/{}".format(BENCHMARK_REPORT_PATH, bm_model)
-            # os.makedirs(bm_model_log_path, exist_ok=True)
+            bm_model_log_path = "{}/{}".format(BENCHMARK_REPORT_PATH, bm_model)
+            os.makedirs(bm_model_log_path, exist_ok=True)
             csv_file = "{}/ab_report.csv".format(BENCHMARK_TMP_PATH)
             if os.path.exists(csv_file):
                 shutil.move(csv_file, bm_model_log_path)
@@ -243,8 +246,8 @@ def run_benchmark(bm_config):
             )
             execute(cmd, wait=True)
 
-            # cmd = "tar -cvzf {}/logs.tar.gz {}".format(bm_model_log_path, TS_LOGS_PATH)
-            # execute(cmd, wait=True)
+            cmd = "tar -cvzf {}/logs.tar.gz {}".format(bm_model_log_path, TS_LOGS_PATH)
+            execute(cmd, wait=True)
             print("finish benchmark {}".format(bm_model))
 
     # generate final report
