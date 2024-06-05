@@ -218,10 +218,15 @@ def run_benchmark(bm_config):
             cmd = "tar -cvzf {}/logs.tar.gz {}".format(bm_model_log_path, TS_LOGS_PATH)
             execute(cmd, wait=True)
 
-            gen_metrics_json.gen_metric(
-                "{}/ab_report.csv".format(BENCHMARK_TMP_PATH),
-                "{}/logs/stats_metrics.json".format(BENCHMARK_TMP_PATH),
-            )
+            try:
+                gen_metrics_json.gen_metric(
+                    "{}/ab_report.csv".format(BENCHMARK_TMP_PATH),
+                    "{}/logs/stats_metrics.json".format(BENCHMARK_TMP_PATH),
+                )
+            except Exception as e:
+                print(f"An error occurred: {e}")
+                if "report_cmd" in bm_config:
+                    execute(bm_config["report_cmd"], wait=True)
 
             # load stats metrics to remote metrics storage
             if "metrics_cmd" in bm_config:
