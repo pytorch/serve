@@ -15,6 +15,8 @@ Starting with PyTorch 2.0, `torch.compile` provides out of the box speed up ( ~1
 
 Models which have been fully optimized with `torch.compile` show performance improvements up to 10x
 
+When using smaller batch sizes, using `mode="reduce-overhead"` with `torch.compile` can give improved performance as it makes use of CUDA graphs
+
 You can find all the examples of `torch.compile` with TorchServe [here](https://github.com/pytorch/serve/tree/master/examples/pt2)
 
 Details regarding `torch.compile` GenAI examples can be found in this [link](https://github.com/pytorch/serve/tree/master/examples/pt2#torchcompile-genai-examples)
@@ -30,13 +32,13 @@ At a high level what TorchServe allows you to do is
 
 To use ONNX with GPU on TorchServe Docker, we need to build an image with [NVIDIA CUDA runtime](https://github.com/NVIDIA/nvidia-docker/wiki/CUDA) as the base image as shown [here](https://github.com/pytorch/serve/blob/master/docker/README.md#create-torchserve-docker-image)
 
- <h4>TensorRT<h4>
+ <h4>TensorRT</h4>
 
 TorchServe also supports models optimized via TensorRT. To leverage the TensorRT runtime you can convert your model by [following these instructions](https://github.com/pytorch/TensorRT) and once you're done you'll have serialized weights which you can load with [`torch.jit.load()`](https://pytorch.org/TensorRT/getting_started/getting_started_with_python_api.html#getting-started-with-python-api).
 
 After a conversion there is no difference in how PyTorch treats a Torchscript model vs a TensorRT model.
 
- <h4>Better Transformer<h4>
+ <h4>Better Transformer</h4>
 
 Better Transformer from PyTorch implements a backwards-compatible fast path of `torch.nn.TransformerEncoder` for Transformer Encoder Inference and does not require model authors to modify their models. BetterTransformer improvements can exceed 2x in speedup and throughput for many common execution scenarios.
 You can find more information on Better Transformer [here](https://pytorch.org/blog/a-better-transformer-for-fast-transformer-encoder-inference/) and [here](https://github.com/pytorch/serve/tree/master/examples/Huggingface_Transformers#speed-up-inference-with-better-transformer).
