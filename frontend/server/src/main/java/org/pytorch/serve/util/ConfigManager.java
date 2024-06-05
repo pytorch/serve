@@ -172,6 +172,7 @@ public final class ConfigManager {
     private String headerKeySequenceId;
     private String headerKeySequenceStart;
     private String headerKeySequenceEnd;
+    private Boolean modelMode = null;
 
     private Logger logger = LoggerFactory.getLogger(ConfigManager.class);
 
@@ -486,7 +487,10 @@ public final class ConfigManager {
 
     public boolean getModelControlMode() {
         String mode = getProperty(MODEL_CONTROL_MODE, "none");
-        return mode.equals("explicit") ? true : false;
+        if (modelMode == null) {
+            modelMode = mode.equals("explicit") ? true : false;
+        }
+        return modelMode;
     }
 
     public String getMetricsConfigPath() {

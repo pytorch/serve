@@ -92,6 +92,15 @@ def test_register_model(setup_torchserve_explicit_mode):
     assert response.status_code == 200, "management check failed"
 
 
+# Test delete a model after startup - Model control mode: explicit
+def test_delete_model(setup_torchserve_explicit_mode):
+    response = requests.get("http://localhost:8081/models/mnist")
+    assert response.status_code == 200, "management check failed"
+
+    response = requests.delete("http://localhost:8081/models/mnist")
+    assert response.status_code == 200, "model control check failed"
+
+
 # Test priority between config.properties and cmd
 # config sets mode to default and cmd sets to explicit
 # Priority falls to cmd
