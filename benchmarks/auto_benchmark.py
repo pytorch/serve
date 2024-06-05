@@ -212,11 +212,11 @@ def run_benchmark(bm_config):
             # generate stats metrics from ab_report.csv
             bm_model = model_json_config[0 : -len(".json")]
 
-            # bm_model_log_path = "{}/{}".format(BENCHMARK_REPORT_PATH, bm_model)
-            # os.makedirs(bm_model_log_path, exist_ok=True)
+            bm_model_log_path = "{}/{}".format(BENCHMARK_REPORT_PATH, bm_model)
+            os.makedirs(bm_model_log_path, exist_ok=True)
 
-            # cmd = "tar -cvzf {}/logs.tar.gz {}".format(bm_model_log_path, TS_LOGS_PATH)
-            # execute(cmd, wait=True)
+            cmd = "tar -cvzf {}/logs.tar.gz {}".format(bm_model_log_path, TS_LOGS_PATH)
+            execute(cmd, wait=True)
 
             gen_metrics_json.gen_metric(
                 "{}/ab_report.csv".format(BENCHMARK_TMP_PATH),
@@ -228,8 +228,8 @@ def run_benchmark(bm_config):
                 execute(bm_config["metrics_cmd"], wait=True)
 
             # cp benchmark logs to local
-            bm_model_log_path = "{}/{}".format(BENCHMARK_REPORT_PATH, bm_model)
-            os.makedirs(bm_model_log_path, exist_ok=True)
+            # bm_model_log_path = "{}/{}".format(BENCHMARK_REPORT_PATH, bm_model)
+            # os.makedirs(bm_model_log_path, exist_ok=True)
             csv_file = "{}/ab_report.csv".format(BENCHMARK_TMP_PATH)
             if os.path.exists(csv_file):
                 shutil.move(csv_file, bm_model_log_path)
@@ -238,8 +238,8 @@ def run_benchmark(bm_config):
             )
             execute(cmd, wait=True)
 
-            cmd = "tar -cvzf {}/logs.tar.gz {}".format(bm_model_log_path, TS_LOGS_PATH)
-            execute(cmd, wait=True)
+            # cmd = "tar -cvzf {}/logs.tar.gz {}".format(bm_model_log_path, TS_LOGS_PATH)
+            # execute(cmd, wait=True)
             print("finish benchmark {}".format(bm_model))
 
     # generate final report
