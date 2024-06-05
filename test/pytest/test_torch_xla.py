@@ -6,7 +6,7 @@ import time
 from pathlib import Path
 
 import pytest
-from pkg_resources import packaging
+import packaging
 
 try:
     import torch_xla

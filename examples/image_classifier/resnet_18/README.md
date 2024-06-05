@@ -127,7 +127,7 @@ debugging_backend/test_handler.py .                                             
 ==================================================================================== warnings summary ====================================================================================
 ../../../../anaconda3/envs/torchserve/lib/python3.8/site-packages/ts/torch_handler/base_handler.py:13
   /home/ubuntu/anaconda3/envs/torchserve/lib/python3.8/site-packages/ts/torch_handler/base_handler.py:13: DeprecationWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html
-    from pkg_resources import packaging
+    import packaging
 
 ../../../../anaconda3/envs/torchserve/lib/python3.8/site-packages/pkg_resources/__init__.py:2871
   /home/ubuntu/anaconda3/envs/torchserve/lib/python3.8/site-packages/pkg_resources/__init__.py:2871: DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('mpl_toolkits')`.

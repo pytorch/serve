@@ -10,7 +10,7 @@ import os
 import time
 
 import torch
-from pkg_resources import packaging
+import packaging
 
 from ts.handler_utils.timer import timed
 
