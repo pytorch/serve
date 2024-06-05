@@ -2,7 +2,7 @@
 opt_6.7b_neuronx_batch_1:
   scripted_mode:
     benchmark_engine: "ab"
-    url: https://torchserve.pytorch.org/mar_files/opt_6.7b_neuronx_batch_1.tar.gz
+    url: https://torchserve.s3.amazonaws.com/mar_files/opt_6.7b_neuronx_batch_1.tar.gz
     workers:
       - 1
     batch_delay: 100
@@ -19,7 +19,7 @@ opt_6.7b_neuronx_batch_1:
 opt_6.7b_neuronx_batch_2:
   scripted_mode:
     benchmark_engine: "ab"
-    url: https://torchserve.pytorch.org/mar_files/opt_6.7b_neuronx_batch_2.tar.gz
+    url: https://torchserve.s3.amazonaws.com/mar_files/opt_6.7b_neuronx_batch_2.tar.gz
     workers:
       - 1
     batch_delay: 100
@@ -36,7 +36,7 @@ opt_6.7b_neuronx_batch_2:
 opt_6.7b_neuronx_batch_4:
   scripted_mode:
     benchmark_engine: "ab"
-    url: https://torchserve.pytorch.org/mar_files/opt_6.7b_neuronx_batch_4.tar.gz
+    url: https://torchserve.s3.amazonaws.com/mar_files/opt_6.7b_neuronx_batch_4.tar.gz
     workers:
       - 1
     batch_delay: 100
@@ -53,7 +53,7 @@ opt_6.7b_neuronx_batch_4:
 opt_6.7b_neuronx_batch_8:
   scripted_mode:
     benchmark_engine: "ab"
-    url: https://torchserve.pytorch.org/mar_files/opt_6.7b_neuronx_batch_8.tar.gz
+    url: https://torchserve.s3.amazonaws.com/mar_files/opt_6.7b_neuronx_batch_8.tar.gz
     workers:
       - 1
     batch_delay: 100
