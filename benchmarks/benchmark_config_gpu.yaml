@@ -3,18 +3,18 @@
 #  - nightly: "2022.3.16"
 #  - release: "0.5.3"
 # Nightly build will be installed if "ts_version" is not specifiged
-#ts_version:
-#    branch: &ts_version "master"
+ts_version:
+   branch: &ts_version "ci_logs"
 
 # a list of model configure yaml files defined in benchmarks/models_config
 # or a list of model configure yaml files with full path
 models:
     - "bert_multi_gpu.yaml"
     - "bert_multi_gpu_better_transformer.yaml"
-    - "bert_multi_gpu_no_better_transformer.yaml"
-    - "fastrcnn.yaml"
-    - "mnist.yaml"
-    - "vgg16.yaml"
+    # - "bert_multi_gpu_no_better_transformer.yaml"
+    # - "fastrcnn.yaml"
+    # - "mnist.yaml"
+    # - "vgg16.yaml"
 #    - "wf_dog_breed.yaml"
 
 # benchmark on "cpu" or "gpu".
@@ -28,11 +28,11 @@ hardware: &hardware "gpu"
 #    - keep the values order as the same as the command definition.
 #    - set up the command before enabling `metrics_cmd`.
 #      For example, aws client and AWS credentials need to be setup before trying this example.
-metrics_cmd:
-    - "cmd": "aws cloudwatch put-metric-data"
-    - "--namespace": ["torchserve_benchmark_nightly_", *hardware]
-    - "--region": "us-east-2"
-    - "--metric-data": 'file:///tmp/benchmark/logs/stats_metrics.json'
+# metrics_cmd:
+#     - "cmd": "aws cloudwatch put-metric-data"
+#     - "--namespace": ["torchserve_benchmark_nightly_", *hardware]
+#     - "--region": "us-east-2"
+#     - "--metric-data": 'file:///tmp/benchmark/logs/stats_metrics.json'
 
 # load report to remote storage or local different path if "report_cmd" is set.
 # the command line to load report to remote storage.
@@ -48,5 +48,4 @@ metrics_cmd:
 report_cmd:
     - "cmd": "aws s3 cp --recursive"
     - "source": '/tmp/ts_benchmark/'
-    - "dest": ['s3://torchserve-benchmark/nightly', "today()", *hardware]
-
+    - "dest": ['s3://torchserve-benchmark/nightly', "today()", "test", *hardware]

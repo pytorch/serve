@@ -212,6 +212,12 @@ def run_benchmark(bm_config):
             # generate stats metrics from ab_report.csv
             bm_model = model_json_config[0 : -len(".json")]
 
+            # bm_model_log_path = "{}/{}".format(BENCHMARK_REPORT_PATH, bm_model)
+            # os.makedirs(bm_model_log_path, exist_ok=True)
+
+            # cmd = "tar -cvzf {}/logs.tar.gz {}".format(bm_model_log_path, TS_LOGS_PATH)
+            # execute(cmd, wait=True)
+
             gen_metrics_json.gen_metric(
                 "{}/ab_report.csv".format(BENCHMARK_TMP_PATH),
                 "{}/logs/stats_metrics.json".format(BENCHMARK_TMP_PATH),
