@@ -2,7 +2,7 @@
 bert_neuronx_batch_1:
     scripted_mode:
         benchmark_engine: "ab"
-        url: https://torchserve.s3.amazonaws.com/mar_files/BERTSeqClassification_torchscript_neuronx_batch_1.mar
+        url: https://torchserve.pytorch.org/mar_files/BERTSeqClassification_torchscript_neuronx_batch_1.mar
         workers:
             - 2
         batch_delay: 100
@@ -19,7 +19,7 @@ bert_neuronx_batch_1:
 bert_neuronx_batch_2:
     scripted_mode:
         benchmark_engine: "ab"
-        url: https://torchserve.s3.amazonaws.com/mar_files/BERTSeqClassification_torchscript_neuronx_batch_2.mar
+        url: https://torchserve.pytorch.org/mar_files/BERTSeqClassification_torchscript_neuronx_batch_2.mar
         workers:
             - 2
         batch_delay: 100
@@ -36,7 +36,7 @@ bert_neuronx_batch_2:
 bert_neuronx_batch_4:
     scripted_mode:
         benchmark_engine: "ab"
-        url: https://torchserve.s3.amazonaws.com/mar_files/BERTSeqClassification_torchscript_neuronx_batch_4.mar
+        url: https://torchserve.pytorch.org/mar_files/BERTSeqClassification_torchscript_neuronx_batch_4.mar
         workers:
             - 2
         batch_delay: 100
@@ -53,7 +53,7 @@ bert_neuronx_batch_4:
 bert_neuronx_batch_8:
     scripted_mode:
         benchmark_engine: "ab"
-        url: https://torchserve.s3.amazonaws.com/mar_files/BERTSeqClassification_torchscript_neuronx_batch_8.mar
+        url: https://torchserve.pytorch.org/mar_files/BERTSeqClassification_torchscript_neuronx_batch_8.mar
         workers:
             - 2
         batch_delay: 100
