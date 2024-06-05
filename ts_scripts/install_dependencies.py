@@ -322,7 +322,6 @@ def install_dependencies(cuda_version=None, nightly=False):
 
     if args.neuronx:
         system.install_neuronx_driver()
-        os.system("pip install -U pip")
 
     requirements_file = "common.txt" if args.environment == "prod" else "developer.txt"
     requirements_file_path = os.path.join("requirements", requirements_file)
