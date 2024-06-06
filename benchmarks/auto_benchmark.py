@@ -159,10 +159,6 @@ def install_torchserve(skip_ts_install, hw, ts_version, nightly):
         cmd = "python ts_scripts/install_dependencies.py --environment dev"
     if nightly:
         cmd += " --nightly_torch"
-
-    print("-------------TESTTTTT------")
-    print(cmd)
-
     execute(cmd, wait=True)
 
     print("successfully install install_dependencies.py")
@@ -338,7 +334,9 @@ def main():
         else False
     )
     bm_config = load_benchmark_config(arguments.input, skip_ts_config, skip_upload)
+    print("-------------TESTTTTT------")
     benchmark_env_setup(bm_config, skip_ts_config, nightly)
+    print("-------------TESTTTTT 3------")
     run_benchmark(bm_config)
     clean_up_benchmark_env(bm_config)
     print("benchmark_serving.sh finished successfully.")
