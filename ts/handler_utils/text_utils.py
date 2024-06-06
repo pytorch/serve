@@ -93,6 +93,10 @@ def _basic_english_normalize(line):
     return line.split()
 
 
+def _split_tokenizer(x):  # noqa: F821
+    return x.split()
+
+
 def get_tokenizer(tokenizer, language="en"):
     r"""
     Generate tokenizer function for a string sentence.
