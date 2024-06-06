@@ -10,7 +10,7 @@ ts_version:
 # or a list of model configure yaml files with full path
 models:
     - "bert_multi_gpu.yaml"
-    # - "bert_multi_gpu_better_transformer.yaml"
+    - "bert_multi_gpu_better_transformer.yaml"
     # - "bert_multi_gpu_no_better_transformer.yaml"
     # - "fastrcnn.yaml"
     # - "mnist.yaml"

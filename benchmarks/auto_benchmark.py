@@ -159,7 +159,12 @@ def install_torchserve(skip_ts_install, hw, ts_version, nightly):
         cmd = "python ts_scripts/install_dependencies.py --environment dev"
     if nightly:
         cmd += " --nightly_torch"
+
+    print("-------------TESTTTTT------")
+    print(cmd)
+
     execute(cmd, wait=True)
+
     print("successfully install install_dependencies.py")
 
     # install torchserve

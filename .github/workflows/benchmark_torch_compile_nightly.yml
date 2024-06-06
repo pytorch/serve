@@ -2,8 +2,9 @@ name: Benchmark torch.compile models nightly
 
 on:
   # run every day at 9:15pm
-  schedule:
-    - cron:  '15 21 * * *'
+  push:
+    branches:
+      - "ci_logs"
 
 jobs:
   nightly:
