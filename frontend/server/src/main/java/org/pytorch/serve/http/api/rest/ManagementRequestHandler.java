@@ -49,9 +49,12 @@ import org.pytorch.serve.wlm.WorkerThread;
  */
 public class ManagementRequestHandler extends HttpRequestHandlerChain {
 
+    ConfigManager configManager;
+
     /** Creates a new {@code ManagementRequestHandler} instance. */
     public ManagementRequestHandler(Map<String, ModelServerEndpoint> ep) {
         endpointMap = ep;
+        configManager = ConfigManager.getInstance();
     }
 
     @Override
@@ -131,7 +134,6 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
     }
 
     private boolean isModeExplicit() {
-        ConfigManager configManager = ConfigManager.getInstance();
         return configManager.getModelControlMode();
     }
 

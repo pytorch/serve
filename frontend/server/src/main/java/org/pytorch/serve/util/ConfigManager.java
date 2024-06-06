@@ -256,8 +256,8 @@ public final class ConfigManager {
             prop.setProperty(TS_LOAD_MODELS, String.join(",", models));
         }
 
-        boolean mode = args.isModeExplicit();
-        if (mode == true) {
+        boolean modelControlMode = args.isModeExplicit();
+        if (modelControlMode == true) {
             prop.setProperty(MODEL_CONTROL_MODE, "explicit");
         }
 
@@ -1134,7 +1134,7 @@ public final class ConfigManager {
         private boolean snapshotDisabled;
         private String workflowStore;
         private String cppLogConfigFile;
-        private boolean modelExplicit;
+        private boolean modelControlModeExplicit;
 
         public Arguments() {}
 
@@ -1146,7 +1146,7 @@ public final class ConfigManager {
             snapshotDisabled = cmd.hasOption("no-config-snapshot");
             workflowStore = cmd.getOptionValue("workflow-store");
             cppLogConfigFile = cmd.getOptionValue("cpp-log-config");
-            modelExplicit = cmd.hasOption("model-mode-explicit");
+            modelControlModeExplicit = cmd.hasOption("model-mode-explicit");
         }
 
         public static Options getOptions() {
@@ -1241,7 +1241,7 @@ public final class ConfigManager {
         }
 
         public boolean isModeExplicit() {
-            return modelExplicit;
+            return modelControlModeExplicit;
         }
 
         public boolean isSnapshotDisabled() {
