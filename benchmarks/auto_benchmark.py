@@ -137,8 +137,8 @@ def install_torchserve(skip_ts_install, hw, ts_version, nightly):
         return
 
     # git checkout branch if it is needed
-    cmd = "git checkout master && git reset --hard && git clean -dffx . && git pull --rebase"
-    execute(cmd, wait=True)
+    # cmd = "git checkout master && git reset --hard && git clean -dffx . && git pull --rebase"
+    # execute(cmd, wait=True)
     print("successfully reset git")
 
     ts_install_cmd = None
@@ -334,9 +334,7 @@ def main():
         else False
     )
     bm_config = load_benchmark_config(arguments.input, skip_ts_config, skip_upload)
-    print("-------------TESTTTTT------")
     benchmark_env_setup(bm_config, skip_ts_config, nightly)
-    print("-------------TESTTTTT 3------")
     run_benchmark(bm_config)
     clean_up_benchmark_env(bm_config)
     print("benchmark_serving.sh finished successfully.")
