@@ -45,4 +45,4 @@ jobs:
           chmod +x benchmarks/benchmark_model_dependencies.sh
           source benchmarks/benchmark_model_dependencies.sh
       - name: Benchmark gpu nightly
-        run: python benchmarks/auto_benchmark.py --input benchmarks/benchmark_config_torch_compile_gpu.yaml --skip false #--nightly True
+        run: python benchmarks/auto_benchmark.py --input benchmarks/benchmark_config_torch_compile_gpu.yaml --skip false --nightly True

@@ -141,7 +141,7 @@ class Common:
                 f"pip3 install numpy --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/{pt_nightly}"
             )
             os.system(
-                f"pip3 install --pre torchtext --index-url https://download.pytorch.org/whl/nightly/cpu"
+                f"pip3 install --pre torchtext --index-url https://download.pytorch.org/whl/nightly/cpu --no-deps"
             )
         else:
             self.install_torch_packages(cuda_version)
