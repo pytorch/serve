@@ -49,7 +49,7 @@ import org.pytorch.serve.wlm.WorkerThread;
  */
 public class ManagementRequestHandler extends HttpRequestHandlerChain {
 
-    ConfigManager configManager;
+    private ConfigManager configManager;
 
     /** Creates a new {@code ManagementRequestHandler} instance. */
     public ManagementRequestHandler(Map<String, ModelServerEndpoint> ep) {
