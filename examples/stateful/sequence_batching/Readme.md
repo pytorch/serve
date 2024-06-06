@@ -6,9 +6,9 @@ Within this context, TorchServe offers a mechanism known as sequence batching. T
 
 The following picture show the workflow of stateful inference. A job group has a job queue which stores incoming inference requests from a streaming. The max capacity of a job queue is defined by `maxSequenceJobQueueSize`. A sequence batch aggregator polls an inference request from each job group. A batch of requests is sent to backend.
 
-![sequence batch](../../docs/images/stateful_batch.jpg)
+![sequence batch](../../../docs/images/stateful_batch.jpg)
 
-This example serves as a practical showcase of employing stateful inference. Underneath the surface, the backend leverages an [LRU dictionary](https://github.com/amitdev/lru-dict), functioning as a caching layer. Users can choose different caching library in the handler implementation based on their own use cases.
+This example serves as a practical showcase of employing stateful inference via sequence batching. Underneath the surface, the backend leverages an [LRU dictionary](https://github.com/amitdev/lru-dict), functioning as a caching layer. Users can choose different caching library in the handler implementation based on their own use cases.
 
 ### Step 1: Implement handler
 
@@ -92,16 +92,10 @@ handler:
 ### Step 3: Generate mar or tgz file
 
 ```bash
-torch-model-archiver --model-name stateful --version 1.0 --model-file model.py --serialized-file model_cnn.pt --handler stateful_handler.py -r requirements.txt --config-file model-config.yaml
+torch-model-archiver --model-name stateful --version 1.0 --model-file model.py --serialized-file model_cnn.pt --handler stateful_handler.py -r ../requirements.txt --config-file model-config.yaml
 ```
 
-### Step 4: Start torchserve
-
-```bash
-torchserve --start --ncs --model-store model_store --models stateful.mar
-```
-
-### Step 6: Build GRPC Client
+### Step 4: Build GRPC Client
 The details can be found at [here](https://github.com/pytorch/serve/blob/master/docs/grpc_api.md).
 * Install gRPC python dependencies
 ```bash
@@ -111,26 +105,23 @@ pip install -U grpcio protobuf grpcio-tools googleapis-common-protos
 
 * Generate python gRPC client stub using the proto files
 ```bash
-cd ../..
+cd ../../..
 python -m grpc_tools.protoc -I third_party/google/rpc --proto_path=frontend/server/src/main/resources/proto/ --python_out=ts_scripts --grpc_python_out=ts_scripts frontend/server/src/main/resources/proto/inference.proto frontend/server/src/main/resources/proto/management.proto
-cd -
 ```
 
-### Step 7: Run inference
+### Step 5: Run inference
 * Start TorchServe
 
 ```bash
-torchserve --ncs --start --model-store models --model stateful.mar --ts-config config.properties
+torchserve --ncs --start --model-store models --model stateful.mar --ts-config examples/stateful/config.properties
 ```
 
 * Run sequence inference via GRPC client
 ```bash
-cd ../../
 python ts_scripts/torchserve_grpc_client.py  infer_stream2 stateful seq_0 examples/stateful/sample/sample1.txt,examples/stateful/sample/sample2.txt,examples/stateful/sample/sample3.txt
 ```
 
 * Run sequence inference via HTTP
 ```bash
-cd ../../
 curl -H "ts_request_sequence_id: seq_0" http://localhost:8080/predictions/stateful -T examples/stateful/sample/sample1.txt
 ```
