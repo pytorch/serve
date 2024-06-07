@@ -1,7 +1,7 @@
 # TorchServe
 
 ## Security Changes
-TorchServe now supports token authorization and model mode control by default. Check the following documentation for more information: [Token Authorization](https://github.com/pytorch/serve/blob/master/docs/token_authorization_api.md), [Model mode control](https://github.com/pytorch/serve/blob/master/docs/model_control_mode.md.md)
+TorchServe now supports token authorization and model mode control by default. Check the following documentation for more information: [Token Authorization](https://github.com/pytorch/serve/blob/master/docs/token_authorization_api.md), [Model mode control](https://github.com/pytorch/serve/blob/master/docs/model_control_mode.md)
 
 ![Nightly build](https://github.com/pytorch/serve/actions/workflows/torchserve-nightly-build.yml/badge.svg)
 ![Docker Nightly build](https://github.com/pytorch/serve/actions/workflows/docker-nightly-build.yml/badge.svg)
