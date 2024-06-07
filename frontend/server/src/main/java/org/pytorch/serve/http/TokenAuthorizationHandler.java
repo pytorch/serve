@@ -95,7 +95,7 @@ public class TokenAuthorizationHandler extends HttpRequestHandlerChain {
             }
             tokenClass.setTime(timeToExpirationMinutes);
             if (tokenClass.generateKeyFile("token")) {
-                logger.info("TOKEN CLASS IMPORTED SUCCESSFULLY");
+                logger.info("Token Authorization Enabled");
             }
         } catch (Exception e) {
             e.printStackTrace();

@@ -13,16 +13,16 @@ Priority between env variables, cmd, and config file follows the following [Torc
 
     cmd line: `torchserve --start --ncs --model-store model_store --disable-token`
 
-    Result: Token authorization disabled
+    Result: Token authorization disabled through command line but enabled through config file, resulting in token authorization being disabled. Command line takes precedence
 * Example 2:
   * Config file: `disable_token_authorization=true`
 
     cmd line: `torchserve --start --ncs --model-store model_store`
 
-    Result: Token authorization disable (no way to enable through cmd)
+    Result: Token authorization disable disabled through config file but not configured through command line, resulting in token authorization being disabled.
 
 ## Configuration
-1. Torchserve will enable token authorization by default. Expected log statement `main org.pytorch.serve.http.TokenAuthorizationHandler - TOKEN CLASS IMPORTED SUCCESSFULLY`
+1. Torchserve will enable token authorization by default. Expected log statement `main org.pytorch.serve.http.TokenAuthorizationHandler - Token Authorization Enabled`
 2. In the current working directory a file `key_file.json` will be generated.
     1. Example key file:
 
@@ -61,4 +61,4 @@ Priority between env variables, cmd, and config file follows the following [Torc
 ## Notes
 1. DO NOT MODIFY THE KEY FILE. Modifying the key file might impact reading and writing to the file thus preventing new keys from properly being displayed in the file.
 2. Time to expiration is set to default at 60 minutes but can be changed in the config.properties by adding `token_expiration_min`. Ex:`token_expiration_min=30`
-3. 3 tokens allow the owner with the most flexibility in use and enables them to adapt the tokens to their use. Owners of the server can provide users with the inference token if users should not mess with models. The owner can also provide owners with the management key if owners want users to add and remove models.
+3. 3 tokens allow the owner with the most flexibility in use and enables them to adapt the tokens to their use. Owners of the server can provide users with the inference token if users should only be able to run inferences against models that have already been loaded. The owner can also provide owners with the management key if owners want users to add and remove models.
