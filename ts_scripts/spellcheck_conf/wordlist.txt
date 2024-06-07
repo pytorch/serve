@@ -1248,3 +1248,4 @@ quantizing
 smoothquant
 woq
 TokenAuthorizationHandler
+TorchText
