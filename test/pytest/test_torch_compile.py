@@ -8,7 +8,7 @@ from pathlib import Path
 
 import pytest
 import torch
-import packaging
+import packaging.version
 
 PT_2_AVAILABLE = (
     True
