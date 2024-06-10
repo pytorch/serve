@@ -65,7 +65,7 @@ def start_torchserve(
     if config_file:
         cmd.append(f"--ts-config={config_file}")
     if not mode:
-        cmd.extend(["--model-mode-explicit"])
+        cmd.extend(["--model-api-enabled"])
     if log_file:
         print(f"## Console logs redirected to file: {log_file}")
     print(f"## In directory: {os.getcwd()} | Executing command: {' '.join(cmd)}")
