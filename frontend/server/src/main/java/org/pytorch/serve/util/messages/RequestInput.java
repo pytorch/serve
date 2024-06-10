@@ -21,6 +21,7 @@ public class RequestInput {
         headers = new HashMap<>();
         parameters = new ArrayList<>();
         clientExpireTS = Long.MAX_VALUE; // default(never expire): Long.MAX_VALUE
+        sequenceId = "";
     }
 
     public String getRequestId() {
@@ -41,6 +42,9 @@ public class RequestInput {
 
     public void updateHeaders(String key, String val) {
         headers.put(key, val);
+        if (ConfigManager.getInstance().getTsHeaderKeySequenceId().equals(key)) {
+            setSequenceId(val);
+        }
     }
 
     public List<InputParameter> getParameters() {
@@ -75,10 +79,10 @@ public class RequestInput {
     }
 
     public String getSequenceId() {
-        if (sequenceId == null) {
+        if (sequenceId.isEmpty()) {
             sequenceId =
                     headers.getOrDefault(
-                            ConfigManager.getInstance().getTsHeaderKeySequenceId(), null);
+                            ConfigManager.getInstance().getTsHeaderKeySequenceId(), "");
         }
         return sequenceId;
     }
