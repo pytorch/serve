@@ -32,7 +32,7 @@ def setup_torchserve():
 
 
 @pytest.fixture(scope="module")
-def setup_torchserve_explicit_mode():
+def setup_torchserve_api_enabled():
     MODEL_STORE = os.path.join(ROOT_DIR, "model_store/")
 
     Path(test_utils.MODEL_STORE).mkdir(parents=True, exist_ok=True)
@@ -75,8 +75,8 @@ def test_delete_model_failing(setup_torchserve):
     assert response.status_code == 200, "management check failed"
 
 
-# Test register a model after startup - Model control mode: explicit
-def test_register_model(setup_torchserve_explicit_mode):
+# Test register a model after startup - Model control mode: api enabled
+def test_register_model(setup_torchserve_api_enabled):
     response = requests.get("http://localhost:8081/models/mnist")
     assert response.status_code == 200, "management check failed"
     params = (
@@ -92,8 +92,8 @@ def test_register_model(setup_torchserve_explicit_mode):
     assert response.status_code == 200, "management check failed"
 
 
-# Test delete a model after startup - Model control mode: explicit
-def test_delete_model(setup_torchserve_explicit_mode):
+# Test delete a model after startup - Model control mode: api enabled
+def test_delete_model(setup_torchserve_api_enabled):
     response = requests.get("http://localhost:8081/models/mnist")
     assert response.status_code == 200, "management check failed"
 
@@ -102,7 +102,7 @@ def test_delete_model(setup_torchserve_explicit_mode):
 
 
 # Test priority between config.properties and cmd
-# config sets mode to default and cmd sets to explicit
+# config sets mode to default and cmd sets to api enabled
 # Priority falls to cmd
 def test_priority():
     MODEL_STORE = os.path.join(ROOT_DIR, "model_store/")

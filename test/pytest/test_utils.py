@@ -78,7 +78,7 @@ def start_torchserve(
     if models:
         cmd.extend(["--models", models])
     if not mode:
-        cmd.extend(["--model-mode-explicit"])
+        cmd.extend(["--model-api-enabled"])
     print(cmd)
 
     p = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=STDOUT)

@@ -184,7 +184,7 @@ def start() -> None:
             cmd.append("-ncs")
 
         if args.model_mode:
-            cmd.append("-mmexplicit")
+            cmd.append("--model-api-enabled")
 
         if args.models:
             cmd.append("-m")

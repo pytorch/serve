@@ -78,7 +78,7 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
                     if (HttpMethod.GET.equals(method)) {
                         handleListModels(ctx, decoder);
                         return;
-                    } else if (HttpMethod.POST.equals(method) && isModeExplicit()) {
+                    } else if (HttpMethod.POST.equals(method) && isModeEnabled()) {
                         handleRegisterModel(ctx, decoder, req);
                         return;
                     }
@@ -97,7 +97,7 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
                     } else {
                         handleScaleModel(ctx, decoder, segments[2], modelVersion);
                     }
-                } else if (HttpMethod.DELETE.equals(method) && isModeExplicit()) {
+                } else if (HttpMethod.DELETE.equals(method) && isModeEnabled()) {
                     handleUnregisterModel(ctx, segments[2], modelVersion);
                 } else if (HttpMethod.OPTIONS.equals(method)) {
                     ModelManager modelManager = ModelManager.getInstance();
@@ -133,7 +133,7 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
                 || endpointMap.containsKey(segments[1]);
     }
 
-    private boolean isModeExplicit() {
+    private boolean isModeEnabled() {
         return configManager.getModelControlMode();
     }
 

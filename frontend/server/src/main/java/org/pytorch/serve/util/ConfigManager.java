@@ -256,9 +256,9 @@ public final class ConfigManager {
             prop.setProperty(TS_LOAD_MODELS, String.join(",", models));
         }
 
-        boolean modelControlMode = args.isModeExplicit();
+        boolean modelControlMode = args.isModelEnabled();
         if (modelControlMode == true) {
-            prop.setProperty(MODEL_CONTROL_MODE, "explicit");
+            prop.setProperty(MODEL_CONTROL_MODE, "enabled");
         }
 
         prop.setProperty(
@@ -486,9 +486,9 @@ public final class ConfigManager {
     }
 
     public boolean getModelControlMode() {
-        String mode = getProperty(MODEL_CONTROL_MODE, "none");
         if (modelMode == null) {
-            modelMode = mode.equals("explicit") ? true : false;
+            String mode = getProperty(MODEL_CONTROL_MODE, "none");
+            modelMode = mode.equals("enabled") ? true : false;
         }
         return modelMode;
     }
@@ -823,7 +823,7 @@ public final class ConfigManager {
                 + "\nSystem metrics command: "
                 + (getSystemMetricsCmd().isEmpty() ? "default" : getSystemMetricsCmd())
                 + "\nModel control mode: "
-                + (getModelControlMode() ? "explicit" : "default");
+                + (getModelControlMode() ? "enabled" : "default");
     }
 
     public boolean useNativeIo() {
@@ -1134,7 +1134,7 @@ public final class ConfigManager {
         private boolean snapshotDisabled;
         private String workflowStore;
         private String cppLogConfigFile;
-        private boolean modelControlModeExplicit;
+        private boolean modelApiEnabled;
 
         public Arguments() {}
 
@@ -1146,7 +1146,7 @@ public final class ConfigManager {
             snapshotDisabled = cmd.hasOption("no-config-snapshot");
             workflowStore = cmd.getOptionValue("workflow-store");
             cppLogConfigFile = cmd.getOptionValue("cpp-log-config");
-            modelControlModeExplicit = cmd.hasOption("model-mode-explicit");
+            modelApiEnabled = cmd.hasOption("model-api-enabled");
         }
 
         public static Options getOptions() {
@@ -1200,10 +1200,10 @@ public final class ConfigManager {
                             .desc("log configuration file for cpp backend.")
                             .build());
             options.addOption(
-                    Option.builder("mmexplicit")
-                            .longOpt("model-mode-explicit")
-                            .argName("MODEL-MODE-EXPLICIT")
-                            .desc("sets model mode to explicit")
+                    Option.builder("mapi")
+                            .longOpt("model-api-enabled")
+                            .argName("MODEL-API-ENABLED")
+                            .desc("sets model apis to enabled")
                             .build());
             return options;
         }
@@ -1240,8 +1240,8 @@ public final class ConfigManager {
             this.models = models.clone();
         }
 
-        public boolean isModeExplicit() {
-            return modelControlModeExplicit;
+        public boolean isModelEnabled() {
+            return modelApiEnabled;
         }
 
         public boolean isSnapshotDisabled() {

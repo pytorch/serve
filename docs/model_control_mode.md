@@ -1,24 +1,24 @@
 # Model Control Mode
 
-TorchServe now supports model control mode with two settings "none"(default) and "explicit"
+TorchServe now supports model control mode with two settings "none"(default) and "enabled"
 
 ## Two ways to set Model Control
-1. Add `--model-mode-explicit` to command line when running TorchServe to switch from none to explicit mode. Command line cannot be used to set mode to none, can only be used to set to explicit
-2. Add `model_control_mode=explicit` or `model_control_mode=none` to config.properties file
+1. Add `--model-api-enabled` to command line when running TorchServe to switch from none to enabled mode. Command line cannot be used to set mode to none, can only be used to set to enabled
+2. Add `model_control_mode=enabled` or `model_control_mode=none` to config.properties file
 
 Priority between cmd and config file follows the following [TorchServer standard](https://github.com/pytorch/serve/blob/c74a29e8144bc12b84196775076b0e8cf3c5a6fc/docs/configuration.md#advanced-configuration)
 * Example 1:
   * Config file: `model_control_mode=none`
 
-    cmd line: `torchserve --start --ncs --model-store model_store --model-mode-explicit`
+    cmd line: `torchserve --start --ncs --model-store model_store --model-api-enabled`
 
-    Result: Explicit mode enabled
+    Result: Model api mode enabled
 * Example 2:
-  * Config file: `model_control_mode=explicit`
+  * Config file: `model_control_mode=enabled`
 
     cmd line: `torchserve --start --ncs --model-store model_store`
 
-    Result: Mode is explicit (no way to enable "none" through cmd)
+    Result: Mode is enabled (no way to enable "none" through cmd)
 
 ## Model Control Mode Default
 At startup TorchServe loads only those models specified explicitly with the `--models` command-line option. After startup users will be unable to register or delete models in this mode.
@@ -37,12 +37,12 @@ ubuntu@ip-172-31-11-32:~/serve$ curl -X POST  "http://localhost:8081/models?url=
 }
 ```
 
-## Model Control Mode EXPLICIT
-Setting model control to `explicit` allows users to load and unload models using the model load APIs.
+## Model Control API Enabled
+Setting model control to `enabled` allows users to load and unload models using the model load APIs.
 
-### Example using cmd line to set mode to explicit
+### Example using cmd line to set mode to enabled
 ```
-ubuntu@ip-172-31-11-32:~/serve$ torchserve --start --ncs --model-store model_store --models resnet-18=resnet-18.mar --ts-config config.properties --model-mode-explicit
+ubuntu@ip-172-31-11-32:~/serve$ torchserve --start --ncs --model-store model_store --models resnet-18=resnet-18.mar --ts-config config.properties --model-api-enabled
 
 ubuntu@ip-172-31-11-32:~/serve$ curl -X POST  "http://localhost:8081/models?url=https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar"
 {
