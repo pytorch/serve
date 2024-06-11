@@ -177,19 +177,28 @@ class TestTorchCompile:
                 in model_log
             )
 
-    def test_compile_inference_enable_true_default(self, chdir_example):
+    @pytest.mark.parametrize(("compile"), ("disabled", "enabled", "enabled_reduce_overhead"))
+    def test_compile_inference_enable_options(self, chdir_example, compile):
         # Reset dynamo
         torch._dynamo.reset()
 
         # Handler
         handler = CompileHandler()
 
+        if compile == "enabled":
+            model_yaml_config_file = YAML_CONFIG_ENABLE_DEFAULT
+        elif compile == "disabled":
+            model_yaml_config_file = YAML_CONFIG_ENABLE_FALSE
+        elif compile == "enabled_reduce_overhead":
+            model_yaml_config_file = YAML_CONFIG_ENABLE
+
+
         # Context definition
         ctx = MockContext(
             model_pt_file=SERIALIZED_FILE,
             model_dir=TEST_DATA_DIR,
             model_file=MODEL,
-            model_yaml_config_file=YAML_CONFIG_ENABLE_DEFAULT,
+            model_yaml_config_file=model_yaml_config_file,
         )
 
         torch.manual_seed(42 * 42)
@@ -197,66 +206,11 @@ class TestTorchCompile:
         handler.context = ctx
 
         # Check that model is compiled using dynamo
-        assert type(handler.model) == torch._dynamo.OptimizedModule
-
-        # Data for testing
-        data = {"body": {"instances": [[1.0], [2.0], [3.0]]}}
-
-        result = handler.handle([data], ctx)
-
-        assert result[0] == EXPECTED_RESULT
-
-    def test_compile_inference_enable_true(self, chdir_example):
-        # Reset dynamo
-        torch._dynamo.reset()
-
-        # Handler
-        handler = CompileHandler()
-
-        # Context definition
-        ctx = MockContext(
-            model_pt_file=SERIALIZED_FILE,
-            model_dir=TEST_DATA_DIR,
-            model_file=MODEL,
-            model_yaml_config_file=YAML_CONFIG_ENABLE,
-        )
-
-        torch.manual_seed(42 * 42)
-        handler.initialize(ctx)
-        handler.context = ctx
-
-        # Check that model is compiled using dynamo
-        assert type(handler.model) == torch._dynamo.OptimizedModule
-
-        # Data for testing
-        data = {"body": {"instances": [[1.0], [2.0], [3.0]]}}
-
-        result = handler.handle([data], ctx)
-
-        assert result[0] == EXPECTED_RESULT
-
-    def test_compile_inference_enable_false(self, chdir_example):
-        # Reset dynamo
-        torch._dynamo.reset()
-
-        # Handler
-        handler = CompileHandler()
-
-        # Context definition
-        ctx = MockContext(
-            model_pt_file=SERIALIZED_FILE,
-            model_dir=TEST_DATA_DIR,
-            model_file=MODEL,
-            model_yaml_config_file=YAML_CONFIG_ENABLE_FALSE,
-        )
-
-        torch.manual_seed(42 * 42)
-        handler.initialize(ctx)
-        handler.context = ctx
-
-        # Check that model is eager
-        assert type(handler.model) != torch._dynamo.OptimizedModule
-
+        if compile == "enabled" or compile == "enabled_reduce_overhead":
+            assert isinstance(handler.model, torch._dynamo.OptimizedModule)
+        else:
+            assert not isinstance(handler.model, torch._dynamo.OptimizedModule)
+        
         # Data for testing
         data = {"body": {"instances": [[1.0], [2.0], [3.0]]}}
 
