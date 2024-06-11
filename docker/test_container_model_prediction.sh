@@ -32,7 +32,7 @@ docker run --rm -d -it --name "${CONTAINER}" -p 127.0.0.1:8080:8080 -p 127.0.0.1
     /bin/bash test-entrypoint.sh
 
 echo "Waiting 10s for container to come up..."
-sleep 10
+sleep 20
 
 assert_expected() {
     PREDICTION=$1
