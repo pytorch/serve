@@ -2,9 +2,9 @@
 
 This folder contains multiple demonstrations showcasing the integration of [vLLM Engine](https://github.com/vllm-project/vllm) with TorchServe, running inference with continuous batching.
 vLLM achieves high throughput using PagedAttention. More details can be found [here](https://vllm.ai/).
-The vLLM integration uses our new asyncronous worker communication mode which decoupled communication between frontend and backend from running the actual inference.
-By using this new feature TorchServe is capable to feed incomming requests into the vLLM engine while asyncronously running the engine in the backend.
-As long as a single request is inside the engine it will continue to run and asyncronously stream out the results until the request is finished.
+The vLLM integration uses our new asynchronous worker communication mode which decoupled communication between frontend and backend from running the actual inference.
+By using this new feature TorchServe is capable to feed incoming requests into the vLLM engine while asynchronously running the engine in the backend.
+As long as a single request is inside the engine it will continue to run and asynchronously stream out the results until the request is finished.
 New requests are added to the engine in a continuous fashion similar to the continuous batching mode shown in other examples.
 
 - demo1: [Meta-Llama3](llama3)
