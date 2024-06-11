@@ -4,21 +4,23 @@ TorchServe now supports model control mode with two settings "none"(default) and
 
 ## Two ways to set Model Control
 1. Add `--model-api-enabled` to command line when running TorchServe to switch from none to enabled mode. Command line cannot be used to set mode to none, can only be used to set to enabled
-2. Add `model_control_mode=enabled` or `model_control_mode=none` to config.properties file
+2. Add `model_api_enabled=false` or `model_api_enabled=true` to config.properties file
+    * `model_api_enabled=false` is default and prevents users from registering or deleting models once TorchServe is running
+    * `model_api_enabled=true` is not default and allows users to register and delete models using the TorchServe model load APIs
 
 Priority between cmd and config file follows the following [TorchServer standard](https://github.com/pytorch/serve/blob/c74a29e8144bc12b84196775076b0e8cf3c5a6fc/docs/configuration.md#advanced-configuration)
 * Example 1:
-  * Config file: `model_control_mode=none`
+  * Config file: `model_api_enabled=false`
 
     cmd line: `torchserve --start --ncs --model-store model_store --model-api-enabled`
 
     Result: Model api mode enabled
 * Example 2:
-  * Config file: `model_control_mode=enabled`
+  * Config file: `model_api_enabled=true`
 
     cmd line: `torchserve --start --ncs --model-store model_store`
 
-    Result: Mode is enabled (no way to enable "none" through cmd)
+    Result: Mode is enabled (no way to disable api mode through cmd)
 
 ## Model Control Mode Default
 At startup TorchServe loads only those models specified explicitly with the `--models` command-line option. After startup users will be unable to register or delete models in this mode.

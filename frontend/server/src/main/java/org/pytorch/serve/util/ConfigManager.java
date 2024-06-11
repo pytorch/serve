@@ -133,7 +133,7 @@ public final class ConfigManager {
     private static final String MODEL_CONFIG = "models";
     private static final String VERSION = "version";
     private static final String SYSTEM_METRICS_CMD = "system_metrics_cmd";
-    private static final String MODEL_CONTROL_MODE = "model_control_mode";
+    private static final String MODEL_CONTROL_MODE = "model_api_enabled";
 
     // Configuration default values
     private static final String DEFAULT_TS_ALLOWED_URLS = "file://.*|http(s)?://.*";
@@ -172,7 +172,6 @@ public final class ConfigManager {
     private String headerKeySequenceId;
     private String headerKeySequenceStart;
     private String headerKeySequenceEnd;
-    private Boolean modelMode = null;
 
     private Logger logger = LoggerFactory.getLogger(ConfigManager.class);
 
@@ -256,9 +255,8 @@ public final class ConfigManager {
             prop.setProperty(TS_LOAD_MODELS, String.join(",", models));
         }
 
-        boolean modelControlMode = args.isModelEnabled();
-        if (modelControlMode == true) {
-            prop.setProperty(MODEL_CONTROL_MODE, "enabled");
+        if (args.isModelEnabled().equals("true")) {
+            prop.setProperty(MODEL_CONTROL_MODE, args.isModelEnabled());
         }
 
         prop.setProperty(
@@ -486,11 +484,7 @@ public final class ConfigManager {
     }
 
     public boolean getModelControlMode() {
-        if (modelMode == null) {
-            String mode = getProperty(MODEL_CONTROL_MODE, "none");
-            modelMode = mode.equals("enabled") ? true : false;
-        }
-        return modelMode;
+        return Boolean.parseBoolean(getProperty(MODEL_CONTROL_MODE, "false"));
     }
 
     public String getMetricsConfigPath() {
@@ -822,8 +816,8 @@ public final class ConfigManager {
                 + prop.getProperty(MODEL_CONFIG, "N/A")
                 + "\nSystem metrics command: "
                 + (getSystemMetricsCmd().isEmpty() ? "default" : getSystemMetricsCmd())
-                + "\nModel control mode: "
-                + (getModelControlMode() ? "enabled" : "default");
+                + "\nModel API enabled: "
+                + (getModelControlMode() ? "true" : "false");
     }
 
     public boolean useNativeIo() {
@@ -1240,8 +1234,8 @@ public final class ConfigManager {
             this.models = models.clone();
         }
 
-        public boolean isModelEnabled() {
-            return modelApiEnabled;
+        public String isModelEnabled() {
+            return String.valueOf(modelApiEnabled);
         }
 
         public boolean isSnapshotDisabled() {
