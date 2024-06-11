@@ -3,12 +3,16 @@ import json
 import os
 import platform
 import subprocess
+import sys
 import time
 from pathlib import Path
 
 import pytest
 import torch
 from pkg_resources import packaging
+from test_data.torch_compile.compile_handler import CompileHandler
+
+from ts.torch_handler.unit_tests.test_utils.mock_context import MockContext
 
 PT_2_AVAILABLE = (
     True
@@ -20,15 +24,42 @@ PT_2_AVAILABLE = (
 CURR_FILE_PATH = Path(__file__).parent
 TEST_DATA_DIR = os.path.join(CURR_FILE_PATH, "test_data", "torch_compile")
 
-MODEL_FILE = os.path.join(TEST_DATA_DIR, "model.py")
+MODEL = "model.py"
+MODEL_FILE = os.path.join(TEST_DATA_DIR, MODEL)
 HANDLER_FILE = os.path.join(TEST_DATA_DIR, "compile_handler.py")
 YAML_CONFIG_STR = os.path.join(TEST_DATA_DIR, "pt2.yaml")  # backend as string
 YAML_CONFIG_DICT = os.path.join(TEST_DATA_DIR, "pt2_dict.yaml")  # arbitrary kwargs dict
+YAML_CONFIG_ENABLE = os.path.join(
+    TEST_DATA_DIR, "pt2_enable_true.yaml"
+)  # arbitrary kwargs dict
+YAML_CONFIG_ENABLE_FALSE = os.path.join(
+    TEST_DATA_DIR, "pt2_enable_false.yaml"
+)  # arbitrary kwargs dict
+YAML_CONFIG_ENABLE_DEFAULT = os.path.join(
+    TEST_DATA_DIR, "pt2_enable_default.yaml"
+)  # arbitrary kwargs dict
 
 
 SERIALIZED_FILE = os.path.join(TEST_DATA_DIR, "model.pt")
 MODEL_STORE_DIR = os.path.join(TEST_DATA_DIR, "model_store")
 MODEL_NAME = "half_plus_two"
+EXPECTED_RESULT = 3.5
+
+
+@pytest.fixture(scope="function")
+def chdir_example(monkeypatch):
+    # Change directory to example directory
+    monkeypatch.chdir(TEST_DATA_DIR)
+    monkeypatch.syspath_prepend(TEST_DATA_DIR)
+    yield
+
+    # Teardown
+    monkeypatch.undo()
+
+    # Delete imported model
+    model = MODEL.split(".")[0]
+    if model in sys.modules:
+        del sys.modules[model]
 
 
 @pytest.mark.skipif(
@@ -119,7 +150,6 @@ class TestTorchCompile:
         os.environ.get("TS_RUN_IN_DOCKER", False),
         reason="Test to be run outside docker",
     )
-    @pytest.mark.skip(reason="Test failing on regression runner")
     def test_serve_inference(self):
         request_data = {"instances": [[1.0], [2.0], [3.0]]}
         request_json = json.dumps(request_data)
@@ -146,3 +176,45 @@ class TestTorchCompile:
                 "Compiled model with backend inductor, mode reduce-overhead"
                 in model_log
             )
+
+    @pytest.mark.parametrize(
+        ("compile"), ("disabled", "enabled", "enabled_reduce_overhead")
+    )
+    def test_compile_inference_enable_options(self, chdir_example, compile):
+        # Reset dynamo
+        torch._dynamo.reset()
+
+        # Handler
+        handler = CompileHandler()
+
+        if compile == "enabled":
+            model_yaml_config_file = YAML_CONFIG_ENABLE_DEFAULT
+        elif compile == "disabled":
+            model_yaml_config_file = YAML_CONFIG_ENABLE_FALSE
+        elif compile == "enabled_reduce_overhead":
+            model_yaml_config_file = YAML_CONFIG_ENABLE
+
+        # Context definition
+        ctx = MockContext(
+            model_pt_file=SERIALIZED_FILE,
+            model_dir=TEST_DATA_DIR,
+            model_file=MODEL,
+            model_yaml_config_file=model_yaml_config_file,
+        )
+
+        torch.manual_seed(42 * 42)
+        handler.initialize(ctx)
+        handler.context = ctx
+
+        # Check that model is compiled using dynamo
+        if compile == "enabled" or compile == "enabled_reduce_overhead":
+            assert isinstance(handler.model, torch._dynamo.OptimizedModule)
+        else:
+            assert not isinstance(handler.model, torch._dynamo.OptimizedModule)
+
+        # Data for testing
+        data = {"body": {"instances": [[1.0], [2.0], [3.0]]}}
+
+        result = handler.handle([data], ctx)
+
+        assert result[0] == EXPECTED_RESULT
