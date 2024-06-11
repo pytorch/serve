@@ -166,8 +166,7 @@ public class WorkerLifeCycle {
         argl.add("--metrics-config");
         argl.add(configManager.getMetricsConfigPath());
 
-        if(model.isAsyncCommunication())
-            argl.add("--async");
+        if (model.isAsyncCommunication()) argl.add("--async");
 
         try {
             latch = new CountDownLatch(model.getParallelLevel() > 0 ? model.getParallelLevel() : 1);

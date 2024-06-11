@@ -48,7 +48,7 @@ public class WorkerThread implements Runnable {
     protected static final Logger logger = LoggerFactory.getLogger(WorkerThread.class);
     protected static final Logger loggerTelemetryMetrics =
             LoggerFactory.getLogger(ConfigManager.MODEL_SERVER_TELEMETRY_LOGGER);
-            protected static final int[] BACK_OFF = {
+    protected static final int[] BACK_OFF = {
         0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610, 987, 1597
     };
     protected static final long WORKER_TIMEOUT = 2L;

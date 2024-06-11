@@ -640,7 +640,7 @@ public class Model {
     public boolean isSequenceBatching() {
         return sequenceBatch;
     }
-    
+
     public boolean isAsyncCommunication() {
         return asyncCommunication;
     }

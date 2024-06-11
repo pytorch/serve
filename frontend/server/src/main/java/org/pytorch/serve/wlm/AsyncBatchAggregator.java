@@ -18,6 +18,7 @@ public class AsyncBatchAggregator extends BatchAggregator {
     protected Map<String, Job> jobs_in_backend;
 
     private static final Logger logger = LoggerFactory.getLogger(BatchAggregator.class);
+
     public AsyncBatchAggregator() {
         super();
     }
@@ -110,9 +111,7 @@ public class AsyncBatchAggregator extends BatchAggregator {
                 String streamNext =
                         prediction
                                 .getHeaders()
-                                .get(
-                                        org.pytorch.serve.util.messages.RequestInput
-                                                .TS_STREAM_NEXT);
+                                .get(org.pytorch.serve.util.messages.RequestInput.TS_STREAM_NEXT);
                 if ("false".equals(streamNext)) {
                     jobs_in_backend.remove(jobId);
                 }
@@ -187,7 +186,9 @@ public class AsyncBatchAggregator extends BatchAggregator {
             throws InterruptedException, ExecutionException {
         Map<String, Job> newJobs = new LinkedHashMap<>();
         model.pollBatch(
-                threadName, (state == WorkerState.WORKER_MODEL_LOADED) ? 0 : Long.MAX_VALUE, newJobs);
+                threadName,
+                (state == WorkerState.WORKER_MODEL_LOADED) ? 0 : Long.MAX_VALUE,
+                newJobs);
         for (Job job : newJobs.values()) {
             jobs.put(job.getJobId(), job);
             logger.info("Adding job to jobs: {}", job.getJobId());

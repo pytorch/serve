@@ -3,34 +3,6 @@ package org.pytorch.serve.wlm;
 import static org.pytorch.serve.wlm.WorkerThread.logger;
 import static org.pytorch.serve.wlm.WorkerThread.loggerTelemetryMetrics;
 
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.SocketAddress;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.ConcurrentHashMap;
-
-import org.pytorch.serve.grpc.inference.PredictionResponse;
-import org.pytorch.serve.job.Job;
-import org.pytorch.serve.job.RestJob;
-import org.pytorch.serve.metrics.IMetric;
-import org.pytorch.serve.metrics.MetricCache;
-import org.pytorch.serve.util.ConfigManager;
-import org.pytorch.serve.util.Connector;
-import org.pytorch.serve.util.codec.ModelResponseDecoder;
-import org.pytorch.serve.util.messages.InputParameter;
-import org.pytorch.serve.util.messages.ModelWorkerResponse;
-import org.pytorch.serve.util.messages.Predictions;
-import org.pytorch.serve.util.messages.RequestInput;
-import org.pytorch.serve.util.messages.WorkerCommands;
-import org.pytorch.serve.util.messages.ModelInferenceRequest;
-
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
@@ -40,8 +12,26 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.SimpleChannelInboundHandler;
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.SocketAddress;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import org.pytorch.serve.job.Job;
+import org.pytorch.serve.job.RestJob;
+import org.pytorch.serve.util.ConfigManager;
+import org.pytorch.serve.util.Connector;
+import org.pytorch.serve.util.codec.ModelResponseDecoder;
+import org.pytorch.serve.util.messages.InputParameter;
+import org.pytorch.serve.util.messages.ModelWorkerResponse;
+import org.pytorch.serve.util.messages.RequestInput;
+import org.pytorch.serve.util.messages.WorkerCommands;
 
-public class AsyncWorkerThread extends WorkerThread{
+public class AsyncWorkerThread extends WorkerThread {
     // protected ConcurrentHashMap requestsInBackend;
     protected boolean loadingFinished;
 
@@ -312,8 +302,7 @@ public class AsyncWorkerThread extends WorkerThread{
                     }
                 }
             } catch (NullPointerException e) {
-                logger.error(
-                        "Failed to send response", e);
+                logger.error("Failed to send response", e);
                 throw new IllegalStateException("Message was empty");
             }
         }
@@ -332,5 +321,4 @@ public class AsyncWorkerThread extends WorkerThread{
             ctx.close();
         }
     }
-
 }

@@ -252,25 +252,26 @@ public class WorkLoadManager {
             WorkerThread thread;
             if (model.isAsyncCommunication()) {
                 logger.info("Creating AsyncWorkerThread!!!");
-                thread = new  AsyncWorkerThread(
-                    configManager,
-                            backendGroup,
-                            currentPort,
-                            gpuId,
-                            model,
-                            aggregator,
-                            listener
-                            );
+                thread =
+                        new AsyncWorkerThread(
+                                configManager,
+                                backendGroup,
+                                currentPort,
+                                gpuId,
+                                model,
+                                aggregator,
+                                listener);
             } else {
                 logger.info("Creating WorkerThread!!!");
-                 thread = new WorkerThread(
-                            configManager,
-                            backendGroup,
-                            currentPort,
-                            gpuId,
-                            model,
-                            aggregator,
-                            listener);
+                thread =
+                        new WorkerThread(
+                                configManager,
+                                backendGroup,
+                                currentPort,
+                                gpuId,
+                                model,
+                                aggregator,
+                                listener);
             }
             threads.add(thread);
             threadPool.submit(thread);

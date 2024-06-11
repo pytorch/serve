@@ -415,7 +415,7 @@ public class ModelConfig {
     public void setSequenceBatching(boolean sequenceBatching) {
         this.sequenceBatching = sequenceBatching;
     }
-    
+
     public void setAsyncCommunication(boolean asyncCommunication) {
         this.asyncCommunication = asyncCommunication;
     }
