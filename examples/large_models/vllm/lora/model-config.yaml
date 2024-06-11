@@ -1,11 +1,10 @@
 # TorchServe frontend parameters
 minWorkers: 1
 maxWorkers: 1
-batchSize: 16
 maxBatchDelay: 100
 responseTimeout: 1200
 deviceType: "gpu"
-continuousBatching: true
+asyncCommunication: true
 
 handler:
     model_path: "model/models--meta-llama--Llama-2-7b-chat-hf/snapshots/f5db02db724555f92da89c216ac04704f23d4590/"
