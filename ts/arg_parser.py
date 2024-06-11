@@ -82,6 +82,12 @@ class ArgParser(object):
             dest="plugins_path",
             help="plugin jars to be included in torchserve class path",
         )
+        parser.add_argument(
+            "--model-api-enabled",
+            dest="model_mode",
+            help="enables model control apis",
+            action="store_true",
+        )
 
         return parser
 

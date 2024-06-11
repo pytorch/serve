@@ -12,7 +12,8 @@ from abc import ABC
 import torch
 import torch.nn.functional as F
 from captum.attr import LayerIntegratedGradients
-from torchtext.data.utils import get_tokenizer
+
+from ts.handler_utils.text_utils import get_tokenizer
 
 from ..utils.util import CLEANUP_REGEX
 from .base_handler import BaseHandler

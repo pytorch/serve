@@ -41,7 +41,11 @@ Ex:  `cd  examples/pt2/torch_inductor_caching`
 In this example , we use the following config
 
 ```yaml
-pt2 : {backend: inductor, mode: max-autotune}
+pt2:
+  compile:
+    enable: True
+    backend: inductor
+    mode: max-autotune
 ```
 
 ### Create model archive
@@ -126,7 +130,11 @@ Ex:  `cd  examples/pt2/torch_inductor_caching`
 In this example , we use the following config
 
 ```yaml
-pt2 : {backend: inductor, mode: max-autotune}
+pt2:
+  compile:
+    enable: True
+    backend: inductor
+    mode: max-autotune
 ```
 
 ### Create model archive

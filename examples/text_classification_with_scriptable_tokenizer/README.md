@@ -1,5 +1,8 @@
 # Text Classification using a Scriptable Tokenizer
 
+## Deprecation Warning!
+This example requires TorchText which is deprecated. Please use version <= 0.11.0 of TorchServe for this example
+
 TorchScript is a way to serialize and optimize your PyTorch models.
 A scriptable tokenizer is a special tokenizer which is compatible with [TorchScript's compiler](https://pytorch.org/docs/stable/jit.html) so that it can be jointly serialized with a PyTorch model.
 When deploying an NLP model it is important to use the same tokenizer during training and inference to achieve the same model accuracy in both phases of the model live cycle.
