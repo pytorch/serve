@@ -177,7 +177,9 @@ class TestTorchCompile:
                 in model_log
             )
 
-    @pytest.mark.parametrize(("compile"), ("disabled", "enabled", "enabled_reduce_overhead"))
+    @pytest.mark.parametrize(
+        ("compile"), ("disabled", "enabled", "enabled_reduce_overhead")
+    )
     def test_compile_inference_enable_options(self, chdir_example, compile):
         # Reset dynamo
         torch._dynamo.reset()
@@ -191,7 +193,6 @@ class TestTorchCompile:
             model_yaml_config_file = YAML_CONFIG_ENABLE_FALSE
         elif compile == "enabled_reduce_overhead":
             model_yaml_config_file = YAML_CONFIG_ENABLE
-
 
         # Context definition
         ctx = MockContext(
@@ -210,7 +211,7 @@ class TestTorchCompile:
             assert isinstance(handler.model, torch._dynamo.OptimizedModule)
         else:
             assert not isinstance(handler.model, torch._dynamo.OptimizedModule)
-        
+
         # Data for testing
         data = {"body": {"instances": [[1.0], [2.0], [3.0]]}}
 
