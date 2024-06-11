@@ -260,7 +260,7 @@ public final class ConfigManager {
         if (args.isModelEnabled().equals("true")) {
             prop.setProperty(MODEL_CONTROL_MODE, args.isModelEnabled());
         }
-      
+
         String tokenDisabled = args.isTokenDisabled();
         if (tokenDisabled.equals("true")) {
             prop.setProperty(TS_DISABLE_TOKEN_AUTHORIZATION, tokenDisabled);
