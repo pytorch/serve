@@ -57,7 +57,7 @@ class BaseVLLMHandler(BaseHandler):
 
             prompt = data.get("prompt")
             sampling_params = self._get_sampling_params(data)
-            logger.info(f"{sampling_params=}")
+            logger.debug(f"Sampling params: {sampling_params=}")
             lora_request = self._get_lora_request(data)
             input_batch += [(prompt, sampling_params, lora_request)]
         return input_batch
@@ -92,7 +92,7 @@ class BaseVLLMHandler(BaseHandler):
                 len(model_path) > 0
             ), "please define model in vllm_engine_config or model_path in handler"
             model = str(pathlib.Path(self.model_dir).joinpath(model_path))
-        logger.info(f"EngineArgs model={model}")
+        logger.debug(f"EngineArgs model: {model}")
         vllm_engine_config = AsyncEngineArgs(model=model)
         self._set_attr_value(vllm_engine_config, vllm_engine_params)
         return vllm_engine_config
@@ -111,7 +111,7 @@ class BaseVLLMHandler(BaseHandler):
             assert len(adapter_path) > 0, f"{adapter_name} misses adapter path"
             lora_id = self.lora_ids.setdefault(adapter_name, len(self.lora_ids) + 1)
             adapter_path = str(pathlib.Path(self.model_dir).joinpath(adapter_path))
-            logger.info(f"adapter_path=${adapter_path}")
+            logger.debug(f"Adapter path: {adapter_path}")
             return LoRARequest(adapter_name, lora_id, adapter_path)
 
         return None

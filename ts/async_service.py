@@ -115,9 +115,7 @@ class AsyncService(object):
             st = time.time()
             batch = []
             try:
-                logging.debug(f"Waiting for INF")
                 request = self.in_queue.get()
-                logging.debug(f"Got an INF")
                 batch += request
                 while len(batch) < BATCH_SIZE and (time.time() - st) < MAX_WAIT:
                     timeout = max(0, MAX_WAIT - (time.time() - st))
@@ -126,7 +124,6 @@ class AsyncService(object):
             except Empty:
                 pass
 
-            logging.debug(f"Call predict with batch_size: {len(batch)}")
             asyncio.run_coroutine_threadsafe(self.call_predict(batch), self.loop)
 
     def send_responses(self):

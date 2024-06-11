@@ -214,7 +214,7 @@ public class AsyncWorkerThread extends WorkerThread {
                                         ChannelPipeline p = ch.pipeline();
                                         p.addLast(ENCODER);
                                         p.addLast(new ModelResponseDecoder(responseBufferSize));
-                                        p.addLast(new WorkerHandler());
+                                        p.addLast(new AsyncWorkerHandler());
                                     }
                                 });
 
@@ -283,13 +283,11 @@ public class AsyncWorkerThread extends WorkerThread {
     }
 
     @ChannelHandler.Sharable
-    protected class WorkerHandler extends SimpleChannelInboundHandler<ModelWorkerResponse> {
+    protected class AsyncWorkerHandler extends SimpleChannelInboundHandler<ModelWorkerResponse> {
 
         @Override
         public void channelRead0(ChannelHandlerContext ctx, ModelWorkerResponse msg) {
             try {
-                logger.info("MSG: {}", msg.getMessage());
-                logger.info("Return code: {}", msg.getCode());
                 aggregator.sendResponse(msg);
                 if (!loadingFinished) {
                     if (msg.getCode() == 200) {

@@ -83,13 +83,12 @@ public class AsyncBatchAggregator extends BatchAggregator {
                 // this is from initial load.
                 logger.info("Predictions is empty. This is from initial load....");
                 jobs.clear();
+                // jobs_in_backend.clear();
                 return true;
             }
             for (Predictions prediction : message.getPredictions()) {
                 String jobId = prediction.getRequestId();
                 Job job = jobs_in_backend.get(jobId);
-
-                logger.info("Sending response for jobId {}", jobId);
 
                 if (job == null) {
                     throw new IllegalStateException(
@@ -191,7 +190,7 @@ public class AsyncBatchAggregator extends BatchAggregator {
                 newJobs);
         for (Job job : newJobs.values()) {
             jobs.put(job.getJobId(), job);
-            logger.info("Adding job to jobs: {}", job.getJobId());
+            logger.debug("Adding job to jobs: {}", job.getJobId());
         }
     }
 }
