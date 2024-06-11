@@ -49,15 +49,16 @@ class BaseVLLMHandler(BaseHandler):
 
     async def preprocess(self, requests):
         input_batch = []
-        assert len(requests), "Expecting batch_size = 1"
+        assert len(requests) == 1, "Expecting batch_size = 1"
         for req_data in requests:
             data = req_data.get("data") or req_data.get("body")
             if isinstance(data, (bytes, bytearray)):
                 data = data.decode("utf-8")
 
             prompt = data.get("prompt")
-            sampling_params = self._get_sampling_params(req_data)
-            lora_request = self._get_lora_request(req_data)
+            sampling_params = self._get_sampling_params(data)
+            logger.info(f"{sampling_params=}")
+            lora_request = self._get_lora_request(data)
             input_batch += [(prompt, sampling_params, lora_request)]
         return input_batch
 

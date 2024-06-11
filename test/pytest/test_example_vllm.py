@@ -1,4 +1,5 @@
 import json
+import random
 import shutil
 import sys
 from pathlib import Path
@@ -51,6 +52,20 @@ PROMPTS = [
         "max_tokens": 128,
         "adapter": "adapter_1",
     },
+    {
+        "prompt": "Paris is, ",
+        "max_new_tokens": 50,
+        "logprobs": 1,
+        "prompt_logprobs": 1,
+        "max_tokens": 128,
+        "temperature": 0.0,
+        "top_k": 1,
+        "adapter": "adapter_1",
+    },
+]
+EXPECTED = [
+    " or, through inaction",
+    "1900.\n\nThe city is bathed",
 ]
 
 try:
@@ -144,27 +159,32 @@ def test_vllm_lora_mar(mar_file_path, model_store, torchserve):
         responses = []
 
         for _ in range(10):
+            idx = random.randint(0, 1)
             response = requests.post(
                 url=f"http://localhost:8080/predictions/{model_name}",
-                json=PROMPTS[0],
+                json=PROMPTS[idx],
                 stream=True,
             )
 
             assert response.status_code == 200
 
             assert response.headers["Transfer-Encoding"] == "chunked"
-            responses += [response]
+            responses += [(response, EXPECTED[idx])]
 
         predictions = []
-        for response in responses:
+        expected_result = []
+        for response, expected in responses:
             prediction = []
             for chunk in response.iter_content(chunk_size=None):
                 if chunk:
                     data = json.loads(chunk)
                     prediction += [data.get("text", "")]
             predictions += [prediction]
+            expected_result += [expected]
         assert all(len(p) > 1 for p in predictions)
-        assert all("".join(p).startswith(" or, through inaction") for p in predictions)
+        assert all(
+            "".join(p).startswith(e) for p, e in zip(predictions, expected_result)
+        )
 
     finally:
         test_utils.unregister_model(model_name)
