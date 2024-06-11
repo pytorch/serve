@@ -22,12 +22,11 @@ YAML_CONFIG = f"""
 # TorchServe frontend parameters
 minWorkers: 1
 maxWorkers: 1
-batchSize: 16
+batchSize: 1
 maxBatchDelay: 100
 responseTimeout: 1200
 deviceType: "gpu"
 asyncCommunication: true
-stream: true
 
 handler:
     model_path: "{(LORA_SRC_PATH / LLAMA_MODEL_PATH).as_posix()}"
