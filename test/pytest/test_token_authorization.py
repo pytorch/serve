@@ -182,7 +182,7 @@ def test_token_management_api(setup_torchserve):
     assert response.status_code == 200, "Token check failed"
 
 
-# Test expiration time
+# Test expiration time and regenerating new management and inference keys
 def test_token_expiration_time(setup_torchserve_expiration):
     key = read_key_file("management")
     header = {"Authorization": f"Bearer {key}"}
@@ -193,6 +193,26 @@ def test_token_expiration_time(setup_torchserve_expiration):
 
     response = requests.get("http://localhost:8081/models/mnist", headers=header)
     assert response.status_code == 400, "Token check failed"
+
+    token_key = read_key_file("token")
+    header = {"Authorization": f"Bearer {token_key}"}
+    params = {"type": "management"}
+
+    response = requests.get(
+        url="http://localhost:8081/token", params=params, headers=header
+    )
+
+    assert key != read_key_file("management"), "Key file not updated"
+    assert response.status_code == 200, "Token check failed"
+
+    inference_key = read_key_file("inference")
+    params = {"type": "inference"}
+
+    response = requests.get(
+        url="http://localhost:8081/token", params=params, headers=header
+    )
+    assert response.status_code == 200, "Token check failed"
+    assert inference_key != read_key_file("inference"), "Key file not updated"
 
 
 # Test priority between config.properties and cmd
@@ -215,3 +235,58 @@ def test_priority():
     test_utils.stop_torchserve()
 
     assert response.status_code == 200, "Token check failed"
+
+
+# Test priority between env variable, config.properties, and cmd
+# Env sets disable_token to true
+# config sets disable_token to false
+# cmd sets disable_token to false
+# Priority falls to env hence token authorization is disabled
+def test_priority_env(monkeypatch):
+    test_var_name = "TS_DISABLE_TOKEN_AUTHORIZATION"
+    test_var_value = "true"
+    monkeypatch.setenv(test_var_name, test_var_value)
+
+    MODEL_STORE = os.path.join(ROOT_DIR, "model_store/")
+    PLUGIN_STORE = os.path.join(ROOT_DIR, "plugins-path")
+
+    Path(test_utils.MODEL_STORE).mkdir(parents=True, exist_ok=True)
+    config_file_priority = os.path.join(
+        REPO_ROOT, "../resources/config_token_priority.properties"
+    )
+    test_utils.start_torchserve(
+        snapshot_file=config_file_priority, no_config_snapshots=True, token=True
+    )
+
+    response = requests.get(f"http://localhost:8081/models")
+
+    test_utils.stop_torchserve()
+
+    assert response.status_code == 200, "Token check failed"
+
+
+# Test priority between env variable and cmd
+# Env sets disable_token to false
+# cmd sets disable_token to true
+# Priority falls to env hence token authorization is enabled
+def test_priority_env_cmd(monkeypatch):
+    test_var_name = "TS_DISABLE_TOKEN_AUTHORIZATION"
+    test_var_value = "false"
+    monkeypatch.setenv(test_var_name, test_var_value)
+
+    MODEL_STORE = os.path.join(ROOT_DIR, "model_store/")
+    PLUGIN_STORE = os.path.join(ROOT_DIR, "plugins-path")
+
+    Path(test_utils.MODEL_STORE).mkdir(parents=True, exist_ok=True)
+    config_file_priority = os.path.join(
+        REPO_ROOT, "../resources/config_token_priority2.properties"
+    )
+    test_utils.start_torchserve(
+        snapshot_file=config_file_priority, no_config_snapshots=True
+    )
+
+    response = requests.get(f"http://localhost:8081/models")
+
+    test_utils.stop_torchserve()
+
+    assert response.status_code == 400, "Token check failed"
