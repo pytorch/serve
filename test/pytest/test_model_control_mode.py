@@ -23,7 +23,7 @@ def setup_torchserve():
     Path(test_utils.MODEL_STORE).mkdir(parents=True, exist_ok=True)
 
     test_utils.start_torchserve(
-        no_config_snapshots=True, models="mnist=mnist.mar", mode="none"
+        no_config_snapshots=True, models="mnist=mnist.mar", model_api_enabled=False
     )
 
     yield "test"

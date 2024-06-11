@@ -60,7 +60,7 @@ def start_torchserve(
     gen_mar=True,
     plugin_folder=None,
     models=None,
-    mode=None,
+    model_api_enabled=True,
 ):
     stop_torchserve()
     crate_mar_file_table()
@@ -77,7 +77,7 @@ def start_torchserve(
         cmd.extend(["--no-config-snapshots"])
     if models:
         cmd.extend(["--models", models])
-    if not mode:
+    if model_api_enabled:
         cmd.extend(["--model-api-enabled"])
     print(cmd)
 
