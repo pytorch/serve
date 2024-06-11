@@ -1247,3 +1247,4 @@ quant
 quantizing
 smoothquant
 woq
+TorchText
