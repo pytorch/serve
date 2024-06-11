@@ -60,6 +60,8 @@ def start_torchserve(
     gen_mar=True,
     plugin_folder=None,
     token=False,
+    models=None,
+    model_api_enabled=True,
 ):
     stop_torchserve()
     crate_mar_file_table()
@@ -76,6 +78,10 @@ def start_torchserve(
         cmd.extend(["--no-config-snapshots"])
     if not token:
         cmd.append("--disable-token")
+    if models:
+        cmd.extend(["--models", models])
+    if model_api_enabled:
+        cmd.extend(["--model-api-enabled"])
     print(cmd)
 
     p = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=STDOUT)

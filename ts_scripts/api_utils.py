@@ -117,7 +117,8 @@ def move_logs(log_file, artifact_dir):
 def trigger_management_tests():
     """Return exit code of newman execution of management collection"""
     config_file = open("config.properties", "w")
-    config_file.write("disable_token_authorization=true")
+    config_file.write("disable_token_authorization=true\n")
+    config_file.write("model_api_enabled=true")
     config_file.close()
 
     ts.start_torchserve(
@@ -139,7 +140,8 @@ def trigger_inference_tests():
     """Return exit code of newman execution of inference collection"""
     config_file = open("config.properties", "w")
     config_file.write("metrics_mode=prometheus\n")
-    config_file.write("disable_token_authorization=true")
+    config_file.write("disable_token_authorization=true\n")
+    config_file.write("model_api_enabled=true")
     config_file.close()
 
     ts.start_torchserve(
@@ -206,7 +208,8 @@ def trigger_explanation_tests():
     """Return exit code of newman execution of inference collection"""
     config_file = open("config.properties", "w")
     config_file.write("metrics_mode=prometheus\n")
-    config_file.write("disable_token_authorization=true")
+    config_file.write("disable_token_authorization=true\n")
+    config_file.write("model_api_enabled=true")
     config_file.close()
 
     ts.start_torchserve(
@@ -232,7 +235,8 @@ def trigger_incr_timeout_inference_tests():
     config_file = open("config.properties", "w")
     config_file.write("default_response_timeout=300\n")
     config_file.write("metrics_mode=prometheus\n")
-    config_file.write("disable_token_authorization=true")
+    config_file.write("disable_token_authorization=true\n")
+    config_file.write("model_api_enabled=true")
     config_file.close()
 
     ts.start_torchserve(
@@ -274,8 +278,9 @@ def trigger_management_tests_kf():
     """Return exit code of newman execution of management collection"""
 
     config_file = open("config.properties", "w")
-    config_file.write("service_envelope=kserve\n")
-    config_file.write("disable_token_authorization=true")
+    config_file.write("disable_token_authorization=true\n")
+    config_file.write("model_api_enabled=true\n")
+    config_file.write("service_envelope=kserve")
     config_file.close()
 
     ts.start_torchserve(
@@ -300,7 +305,8 @@ def trigger_inference_tests_kf():
     config_file = open("config.properties", "w")
     config_file.write("service_envelope=kserve\n")
     config_file.write("metrics_mode=prometheus\n")
-    config_file.write("disable_token_authorization=true")
+    config_file.write("disable_token_authorization=true\n")
+    config_file.write("model_api_enabled=true\n")
     config_file.close()
 
     ts.start_torchserve(
@@ -342,7 +348,8 @@ def trigger_inference_tests_kfv2():
     config_file = open("config.properties", "w")
     config_file.write("service_envelope=kservev2\n")
     config_file.write("metrics_mode=prometheus\n")
-    config_file.write("disable_token_authorization=true")
+    config_file.write("disable_token_authorization=true\n")
+    config_file.write("model_api_enabled=true\n")
     config_file.close()
 
     ts.start_torchserve(

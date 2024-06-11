@@ -185,6 +185,9 @@ def start() -> None:
 
         if args.token_auth:
             cmd.append("--disable-token")
+            
+        if args.model_mode:
+            cmd.append("--model-api-enabled")
 
         if args.models:
             cmd.append("-m")
