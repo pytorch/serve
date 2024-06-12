@@ -236,7 +236,6 @@ public class WorkLoadManager {
             } else if (model.isContinuousBatching()) {
                 aggregator = new ContinuousBatching(model);
             } else if (model.isAsyncCommunication()) {
-                logger.info("Creating AsyncBatchAggregator with model: {}", model);
                 aggregator = new AsyncBatchAggregator(model);
             } else {
                 aggregator = new BatchAggregator(model);
@@ -251,7 +250,6 @@ public class WorkLoadManager {
 
             WorkerThread thread;
             if (model.isAsyncCommunication()) {
-                logger.info("Creating AsyncWorkerThread!!!");
                 thread =
                         new AsyncWorkerThread(
                                 configManager,
@@ -262,7 +260,6 @@ public class WorkLoadManager {
                                 aggregator,
                                 listener);
             } else {
-                logger.info("Creating WorkerThread!!!");
                 thread =
                         new WorkerThread(
                                 configManager,
