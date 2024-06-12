@@ -36,3 +36,8 @@ handler:
         ...
         tensor_parallel_size: 4
 ```
+
+### Multi-worker Note:
+While this example in theory works with multiple workers it would distribute the incoming requests in a round robin fashion which might lead to non optimal worker/hardware utilization.
+It is therefore advised to only use a single worker per engine and utilize tensor parallelism to distribute the model over multiple GPUs as described in the previous section.
+This will result in better hardware utilization and inference performance.
