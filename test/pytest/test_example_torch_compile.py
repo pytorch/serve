@@ -1,4 +1,5 @@
 import os
+import sys
 from pathlib import Path
 
 import pytest
@@ -31,34 +32,36 @@ PT2_AVAILABLE = (
 EXPECTED_RESULTS = ["tabby", "tiger_cat", "Egyptian_cat", "lynx", "plastic_bag"]
 
 
-@pytest.fixture
-def custom_working_directory(tmp_path):
-    # Set the custom working directory
-    custom_dir = tmp_path / "model_dir"
-    custom_dir.mkdir()
-    os.chdir(custom_dir)
-    yield custom_dir
-    # Clean up and return to the original working directory
-    os.chdir(tmp_path)
+@pytest.fixture(scope="function")
+def chdir_example(monkeypatch):
+    # Change directory to example directory
+    monkeypatch.chdir(EXAMPLE_ROOT_DIR)
+    monkeypatch.syspath_prepend(EXAMPLE_ROOT_DIR)
+    yield
+
+    # Teardown
+    monkeypatch.undo()
+
+    # Delete imported model
+    model = MODEL_FILE.split(".")[0]
+    if model in sys.modules:
+        del sys.modules[model]
 
 
 @pytest.mark.skipif(PT2_AVAILABLE == False, reason="torch version is < 2.0")
-@pytest.mark.skip(reason="Skipping as its causing other testcases to fail")
-def test_torch_compile_inference(monkeypatch, custom_working_directory):
-    monkeypatch.syspath_prepend(EXAMPLE_ROOT_DIR)
-    # Get the path to the custom working directory
-    model_dir = custom_working_directory
-
-    try_and_handle(
-        f"wget https://download.pytorch.org/models/{MODEL_PTH_FILE} -P {model_dir}"
-    )
+def test_torch_compile_inference(chdir_example):
+    # Download weights
+    if not os.path.isfile(EXAMPLE_ROOT_DIR.joinpath(MODEL_PTH_FILE)):
+        try_and_handle(
+            f"wget https://download.pytorch.org/models/{MODEL_PTH_FILE} -P {EXAMPLE_ROOT_DIR}"
+        )
 
     # Handler for Image classification
     handler = ImageClassifier()
 
     # Context definition
     ctx = MockContext(
-        model_pt_file=model_dir.joinpath(MODEL_PTH_FILE),
+        model_pt_file=MODEL_PTH_FILE,
         model_dir=EXAMPLE_ROOT_DIR.as_posix(),
         model_file=MODEL_FILE,
         model_yaml_config_file=MODEL_YAML_CFG_FILE,
