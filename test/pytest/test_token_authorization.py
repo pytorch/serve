@@ -1,7 +1,5 @@
 import json
 import os
-import shutil
-import subprocess
 import tempfile
 import time
 from pathlib import Path
@@ -11,26 +9,9 @@ import requests
 import test_utils
 
 ROOT_DIR = os.path.join(tempfile.gettempdir(), "workspace")
-REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../")
-data_file_zero = os.path.join(REPO_ROOT, "test/pytest/test_data/0.png")
-config_file = os.path.join(REPO_ROOT, "test/resources/config_token.properties")
-
-
-# Set up token plugin
-def get_plugin_jar():
-    new_folder_path = os.path.join(ROOT_DIR, "plugins-path")
-    plugin_folder = os.path.join(REPO_ROOT, "plugins")
-    os.makedirs(new_folder_path, exist_ok=True)
-    os.chdir(plugin_folder)
-    subprocess.run(["./gradlew", "formatJava"])
-    result = subprocess.run(["./gradlew", "build"])
-    jar_path = os.path.join(plugin_folder, "endpoints/build/libs")
-    jar_files = [file for file in os.listdir(jar_path) if file.endswith(".jar")]
-    for jar_file in jar_files:
-        shutil.move(
-            os.path.join(jar_path, jar_file), os.path.join(new_folder_path, jar_file)
-        )
-    os.chdir(REPO_ROOT)
+REPO_ROOT = os.path.dirname(os.path.abspath(__file__))
+data_file_zero = os.path.join(REPO_ROOT, "test_data/0.png")
+config_file = os.path.join(REPO_ROOT, "../resources/config_token.properties")
 
 
 # Parse json file and return key
@@ -50,13 +31,12 @@ def read_key_file(type):
 
 @pytest.fixture(scope="module")
 def setup_torchserve():
-    get_plugin_jar()
     MODEL_STORE = os.path.join(ROOT_DIR, "model_store/")
     PLUGIN_STORE = os.path.join(ROOT_DIR, "plugins-path")
 
     Path(test_utils.MODEL_STORE).mkdir(parents=True, exist_ok=True)
 
-    test_utils.start_torchserve(no_config_snapshots=True, plugin_folder=PLUGIN_STORE)
+    test_utils.start_torchserve(no_config_snapshots=True, token=True)
 
     key = read_key_file("management")
     header = {"Authorization": f"Bearer {key}"}
@@ -80,14 +60,13 @@ def setup_torchserve():
 
 @pytest.fixture(scope="module")
 def setup_torchserve_expiration():
-    get_plugin_jar()
     MODEL_STORE = os.path.join(ROOT_DIR, "model_store/")
     PLUGIN_STORE = os.path.join(ROOT_DIR, "plugins-path")
 
     Path(test_utils.MODEL_STORE).mkdir(parents=True, exist_ok=True)
 
     test_utils.start_torchserve(
-        snapshot_file=config_file, no_config_snapshots=True, plugin_folder=PLUGIN_STORE
+        snapshot_file=config_file, no_config_snapshots=True, token=True
     )
 
     key = read_key_file("management")
@@ -203,8 +182,7 @@ def test_token_management_api(setup_torchserve):
     assert response.status_code == 200, "Token check failed"
 
 
-# Test expiration time
-@pytest.mark.module2
+# Test expiration time and regenerating new management and inference keys
 def test_token_expiration_time(setup_torchserve_expiration):
     key = read_key_file("management")
     header = {"Authorization": f"Bearer {key}"}
@@ -214,4 +192,101 @@ def test_token_expiration_time(setup_torchserve_expiration):
     time.sleep(15)
 
     response = requests.get("http://localhost:8081/models/mnist", headers=header)
+    assert response.status_code == 400, "Token check failed"
+
+    token_key = read_key_file("token")
+    header = {"Authorization": f"Bearer {token_key}"}
+    params = {"type": "management"}
+
+    response = requests.get(
+        url="http://localhost:8081/token", params=params, headers=header
+    )
+
+    assert key != read_key_file("management"), "Key file not updated"
+    assert response.status_code == 200, "Token check failed"
+
+    inference_key = read_key_file("inference")
+    params = {"type": "inference"}
+
+    response = requests.get(
+        url="http://localhost:8081/token", params=params, headers=header
+    )
+    assert response.status_code == 200, "Token check failed"
+    assert inference_key != read_key_file("inference"), "Key file not updated"
+
+
+# Test priority between config.properties and cmd
+# config sets token authorization to true and cmd sets to false
+# Priority falls to cmd
+def test_priority():
+    MODEL_STORE = os.path.join(ROOT_DIR, "model_store/")
+    PLUGIN_STORE = os.path.join(ROOT_DIR, "plugins-path")
+
+    Path(test_utils.MODEL_STORE).mkdir(parents=True, exist_ok=True)
+    config_file_priority = os.path.join(
+        REPO_ROOT, "../resources/config_token_priority.properties"
+    )
+    test_utils.start_torchserve(
+        snapshot_file=config_file_priority, no_config_snapshots=True
+    )
+
+    response = requests.get(f"http://localhost:8081/models")
+
+    test_utils.stop_torchserve()
+
+    assert response.status_code == 200, "Token check failed"
+
+
+# Test priority between env variable, config.properties, and cmd
+# Env sets disable_token to true
+# config sets disable_token to false
+# cmd sets disable_token to false
+# Priority falls to env hence token authorization is disabled
+def test_priority_env(monkeypatch):
+    test_var_name = "TS_DISABLE_TOKEN_AUTHORIZATION"
+    test_var_value = "true"
+    monkeypatch.setenv(test_var_name, test_var_value)
+
+    MODEL_STORE = os.path.join(ROOT_DIR, "model_store/")
+    PLUGIN_STORE = os.path.join(ROOT_DIR, "plugins-path")
+
+    Path(test_utils.MODEL_STORE).mkdir(parents=True, exist_ok=True)
+    config_file_priority = os.path.join(
+        REPO_ROOT, "../resources/config_token_priority.properties"
+    )
+    test_utils.start_torchserve(
+        snapshot_file=config_file_priority, no_config_snapshots=True, token=True
+    )
+
+    response = requests.get(f"http://localhost:8081/models")
+
+    test_utils.stop_torchserve()
+
+    assert response.status_code == 200, "Token check failed"
+
+
+# Test priority between env variable and cmd
+# Env sets disable_token to false
+# cmd sets disable_token to true
+# Priority falls to env hence token authorization is enabled
+def test_priority_env_cmd(monkeypatch):
+    test_var_name = "TS_DISABLE_TOKEN_AUTHORIZATION"
+    test_var_value = "false"
+    monkeypatch.setenv(test_var_name, test_var_value)
+
+    MODEL_STORE = os.path.join(ROOT_DIR, "model_store/")
+    PLUGIN_STORE = os.path.join(ROOT_DIR, "plugins-path")
+
+    Path(test_utils.MODEL_STORE).mkdir(parents=True, exist_ok=True)
+    config_file_priority = os.path.join(
+        REPO_ROOT, "../resources/config_token_priority2.properties"
+    )
+    test_utils.start_torchserve(
+        snapshot_file=config_file_priority, no_config_snapshots=True
+    )
+
+    response = requests.get(f"http://localhost:8081/models")
+
+    test_utils.stop_torchserve()
+
     assert response.status_code == 400, "Token check failed"

@@ -83,6 +83,13 @@ class ArgParser(object):
             help="plugin jars to be included in torchserve class path",
         )
         parser.add_argument(
+            "--disable-token",
+            "--dt",
+            dest="token_auth",
+            help="if this option is set then token authorization is disabled",
+            action="store_true",
+        )
+        parser.add_argument(
             "--model-api-enabled",
             dest="model_mode",
             help="enables model control apis",
