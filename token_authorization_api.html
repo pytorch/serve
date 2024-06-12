@@ -419,17 +419,38 @@
               
   <section id="torchserve-token-authorization-api">
 <h1>TorchServe token authorization API<a class="headerlink" href="#torchserve-token-authorization-api" title="Permalink to this heading">¶</a></h1>
-<section id="setup">
-<h2>Setup<a class="headerlink" href="#setup" title="Permalink to this heading">¶</a></h2>
-<ol class="simple">
-<li><p>Download the jar files from <a class="reference external" href="https://mvnrepository.com/artifact/org.pytorch/torchserve-endpoint-plugin">Maven</a></p></li>
-<li><p>Enable token authorization by adding the <code class="docutils literal notranslate"><span class="pre">--plugins-path</span> <span class="pre">/path/to/the/jar/files</span></code> flag at start up with the path leading to the downloaded jar files.</p></li>
-</ol>
+<p>Torchserve now supports token authorization by default.</p>
+<section id="how-to-set-and-disable-token-authorization">
+<h2>How to set and disable Token Authorization<a class="headerlink" href="#how-to-set-and-disable-token-authorization" title="Permalink to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Global environment variable: use <code class="docutils literal notranslate"><span class="pre">TS_DISABLE_TOKEN_AUTHORIZATION</span></code> and set to <code class="docutils literal notranslate"><span class="pre">true</span></code> to disable and <code class="docutils literal notranslate"><span class="pre">false</span></code> to enable token authorization. Note that <code class="docutils literal notranslate"><span class="pre">enable_envvars_config=true</span></code> must be set in config.properties for global environment variables to be used</p></li>
+<li><p>Command line: Command line can only be used to disable token authorization by adding the <code class="docutils literal notranslate"><span class="pre">--disable-token</span></code> flag.</p></li>
+<li><p>Config properties file: use <code class="docutils literal notranslate"><span class="pre">disable_token_authorization</span></code> and set to <code class="docutils literal notranslate"><span class="pre">true</span></code> to disable and <code class="docutils literal notranslate"><span class="pre">false</span></code> to enable token authorization.</p></li>
+</ul>
+<p>Priority between env variables, cmd, and config file follows the following <a class="reference external" href="https://github.com/pytorch/serve/blob/c74a29e8144bc12b84196775076b0e8cf3c5a6fc/docs/configuration.md#advanced-configuration">TorchServer standard</a></p>
+<ul>
+<li><p>Example 1:</p>
+<ul>
+<li><p>Config file: <code class="docutils literal notranslate"><span class="pre">disable_token_authorization=false</span></code></p>
+<p>cmd line: <code class="docutils literal notranslate"><span class="pre">torchserve</span> <span class="pre">--start</span> <span class="pre">--ncs</span> <span class="pre">--model-store</span> <span class="pre">model_store</span> <span class="pre">--disable-token</span></code></p>
+<p>Result: Token authorization disabled through command line but enabled through config file, resulting in token authorization being disabled. Command line takes precedence</p>
+</li>
+</ul>
+</li>
+<li><p>Example 2:</p>
+<ul>
+<li><p>Config file: <code class="docutils literal notranslate"><span class="pre">disable_token_authorization=true</span></code></p>
+<p>cmd line: <code class="docutils literal notranslate"><span class="pre">torchserve</span> <span class="pre">--start</span> <span class="pre">--ncs</span> <span class="pre">--model-store</span> <span class="pre">model_store</span></code></p>
+<p>Result: Token authorization disable disabled through config file but not configured through command line, resulting in token authorization being disabled.</p>
+</li>
+</ul>
+</li>
+</ul>
 </section>
 <section id="configuration">
 <h2>Configuration<a class="headerlink" href="#configuration" title="Permalink to this heading">¶</a></h2>
 <ol class="simple">
-<li><p>Torchserve will enable token authorization if the plugin is provided. Expected log statement <code class="docutils literal notranslate"><span class="pre">[INFO</span> <span class="pre">]</span> <span class="pre">main</span> <span class="pre">org.pytorch.serve.servingsdk.impl.PluginsManager</span> <span class="pre">-</span> <span class="pre">Loading</span> <span class="pre">plugin</span> <span class="pre">for</span> <span class="pre">endpoint</span> <span class="pre">token</span></code></p></li>
+<li><p>Torchserve will enable token authorization by default. Expected log statement <code class="docutils literal notranslate"><span class="pre">main</span> <span class="pre">org.pytorch.serve.http.TokenAuthorizationHandler</span> <span class="pre">-</span> <span class="pre">Token</span> <span class="pre">Authorization</span> <span class="pre">Enabled</span></code></p></li>
 <li><p>In the current working directory a file <code class="docutils literal notranslate"><span class="pre">key_file.json</span></code> will be generated.</p>
 <ol class="simple">
 <li><p>Example key file:</p></li>
@@ -473,24 +494,12 @@
 <li><p>When users shut down the server the key_file will be deleted.</p></li>
 </ol>
 </section>
-<section id="customization">
-<h2>Customization<a class="headerlink" href="#customization" title="Permalink to this heading">¶</a></h2>
-<p>Torchserve offers various ways to customize the token authorization to allow owners to reach the desired result.</p>
-<ol class="simple">
-<li><p>Time to expiration is set to default at 60 minutes but can be changed in the config.properties by adding <code class="docutils literal notranslate"><span class="pre">token_expiration_min</span></code>. Ex:<code class="docutils literal notranslate"><span class="pre">token_expiration_min=30</span></code></p></li>
-<li><p>The token authorization code is consolidated in the plugin and thus can be changed without impacting the frontend or end result. The only thing the user cannot change is:</p>
-<ol class="simple">
-<li><p>The urlPattern for the plugin must be ‘token’ and the class name must not change</p></li>
-<li><p>The <code class="docutils literal notranslate"><span class="pre">generateKeyFile</span></code>, <code class="docutils literal notranslate"><span class="pre">checkTokenAuthorization</span></code>, and <code class="docutils literal notranslate"><span class="pre">setTime</span></code> functions return type and signature must not change. However, the code in the functions can be modified depending on user necessity.</p></li>
-</ol>
-</li>
-</ol>
-</section>
 <section id="notes">
 <h2>Notes<a class="headerlink" href="#notes" title="Permalink to this heading">¶</a></h2>
 <ol class="simple">
 <li><p>DO NOT MODIFY THE KEY FILE. Modifying the key file might impact reading and writing to the file thus preventing new keys from properly being displayed in the file.</p></li>
-<li><p>3 tokens allow the owner with the most flexibility in use and enables them to adapt the tokens to their use. Owners of the server can provide users with the inference token if users should not mess with models. The owner can also provide owners with the management key if owners want users to add and remove models.</p></li>
+<li><p>Time to expiration is set to default at 60 minutes but can be changed in the config.properties by adding <code class="docutils literal notranslate"><span class="pre">token_expiration_min</span></code>. Ex:<code class="docutils literal notranslate"><span class="pre">token_expiration_min=30</span></code></p></li>
+<li><p>3 tokens allow the owner with the most flexibility in use and enables them to adapt the tokens to their use. Owners of the server can provide users with the inference token if users should only be able to run inferences against models that have already been loaded. The owner can also provide owners with the management key if owners want users to add and remove models.</p></li>
 </ol>
 </section>
 </section>
@@ -530,9 +539,8 @@
             <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
               <ul>
 <li><a class="reference internal" href="#">TorchServe token authorization API</a><ul>
-<li><a class="reference internal" href="#setup">Setup</a></li>
+<li><a class="reference internal" href="#how-to-set-and-disable-token-authorization">How to set and disable Token Authorization</a></li>
 <li><a class="reference internal" href="#configuration">Configuration</a></li>
-<li><a class="reference internal" href="#customization">Customization</a></li>
 <li><a class="reference internal" href="#notes">Notes</a></li>
 </ul>
 </li>
