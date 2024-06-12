@@ -15,19 +15,43 @@ data_files = [
     REPO_ROOT_DIR / f"examples/image_classifier/mnist/test_data/{i}.png"
     for i in range(10)
 ]
-handler_py_file = REPO_ROOT_DIR / "examples/image_classifier/mnist/mnist_handler.py"
 model_py_file = REPO_ROOT_DIR / "examples/image_classifier/mnist/mnist.py"
 model_pt_file = REPO_ROOT_DIR / "examples/image_classifier/mnist/mnist_cnn.pt"
 
 
 HANDLER_PY = """
+import time
 import torch
-from ts.torch_handler.base_handler import BaseHandler
+from torchvision import transforms
+from ts.torch_handler.image_classifier import ImageClassifier
 
-class customHandler(BaseHandler):
+class customHandler(ImageClassifier):
+
+    image_processing = transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Normalize((0.1307,), (0.3081,))
+    ])
 
     def initialize(self, context):
         super().initialize(context)
+
+    async def handle(self, data, context):
+        start_time = time.time()
+
+        metrics = context.metrics
+
+        data_preprocess = self.preprocess(data)
+        output = self.inference(data_preprocess)
+        output = self.postprocess(output)
+
+        stop_time = time.time()
+        metrics.add_time(
+            "HandlerTime", round((stop_time - start_time) * 1000, 2), None, "ms"
+        )
+        return output
+
+    def postprocess(self, data):
+        return data.argmax(1).tolist()
 """
 
 MODEL_CONFIG_YAML = """
@@ -56,6 +80,9 @@ def create_mar_file(work_dir, model_archiver, model_name):
 
     model_config_yaml_file = work_dir / "model_config.yaml"
     model_config_yaml_file.write_text(MODEL_CONFIG_YAML)
+
+    handler_py_file = work_dir / "handler.py"
+    handler_py_file.write_text(HANDLER_PY)
 
     config = ModelArchiverConfig(
         model_name=model_name,

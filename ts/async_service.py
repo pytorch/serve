@@ -39,6 +39,7 @@ async def predict(self, batch):
 
     # noinspection PyBroadException
     try:
+        print(f"{self._entry_point=}")
         ret = await self._entry_point(input_batch, context)
     except MemoryError:
         logger.error("System out of memory", exc_info=True)
