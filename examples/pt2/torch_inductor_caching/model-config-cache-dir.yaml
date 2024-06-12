@@ -1,7 +1,11 @@
 minWorkers: 4
 maxWorkers: 4
 responseTimeout: 600
-pt2 : {backend: inductor, mode: max-autotune}
+pt2:
+  compile:
+    enable: True
+    backend: inductor
+    mode: max-autotune
 handler:
   torch_inductor_caching:
     torch_inductor_cache_dir: "/home/ubuntu/serve/examples/pt2/torch_inductor_caching/cache"

@@ -36,7 +36,10 @@ In this example, we use the following config:
 ```bash
 echo "minWorkers: 1
 maxWorkers: 2
-pt2: {backend: openvino}" > model-config.yaml
+pt2:
+  compile:
+    enable: True
+    backend: openvino" > model-config.yaml
 ```
 
 If you want to measure the handler `preprocess`, `inference`, `postprocess` times, use the following config:
@@ -44,7 +47,10 @@ If you want to measure the handler `preprocess`, `inference`, `postprocess` time
 ```bash
 echo "minWorkers: 1
 maxWorkers: 2
-pt2: {backend: openvino}
+pt2:
+  compile:
+    enable: True
+    backend: openvino
 handler:
   profile: true" > model-config.yaml
 ```
@@ -132,7 +138,11 @@ Update the model-config.yaml file to specify the Inductor backend:
 ```bash
 echo "minWorkers: 1
 maxWorkers: 2
-pt2: {backend: inductor, mode: reduce-overhead}
+pt2:
+  compile:
+    enable: True
+    backend: inductor
+    mode: reduce-overhead
 handler:
   profile: true" > model-config.yaml
 ```
@@ -153,7 +163,10 @@ Update the model-config.yaml file to specify the OpenVINO backend:
 ```bash
 echo "minWorkers: 1
 maxWorkers: 2
-pt2: {backend: openvino}
+pt2:
+  compile:
+    enable: True
+    backend: openvino
 handler:
   profile: true" > model-config.yaml
 ```
