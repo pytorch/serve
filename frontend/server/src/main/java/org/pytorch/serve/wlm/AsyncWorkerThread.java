@@ -15,10 +15,7 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.SocketAddress;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import org.pytorch.serve.job.Job;
@@ -145,7 +142,7 @@ public class AsyncWorkerThread extends WorkerThread {
     protected void connect() throws WorkerInitializationException, InterruptedException {
         if (!configManager.isDebug()) {
             String ids = getDeviceIds();
-            logger.debug("Device Ids: "+ ids);
+            logger.debug("Device Ids: " + ids);
             lifeCycle.startWorker(port, ids);
         }
 
@@ -181,9 +178,7 @@ public class AsyncWorkerThread extends WorkerThread {
                                     future -> {
                                         latch.countDown();
                                         logger.info(
-                                                "{} Worker disconnected. {}",
-                                                getWorkerId(),
-                                                state);
+                                                "{} Worker disconnected. {}", getWorkerId(), state);
                                         Thread thread = currentThread.getAndSet(null);
                                         if (thread != null) {
                                             thread.interrupt();
@@ -199,8 +194,7 @@ public class AsyncWorkerThread extends WorkerThread {
                                         // use gpu, batch size in load model command
                                         if (latch.getCount() == 1) {
                                             RequestInput input =
-                                                    new RequestInput(
-                                                            UUID.randomUUID().toString());
+                                                    new RequestInput(UUID.randomUUID().toString());
                                             if (gpuId >= 0) {
                                                 input.addParameter(
                                                         new InputParameter(

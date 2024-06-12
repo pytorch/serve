@@ -137,8 +137,7 @@ public class ModelConfig {
                             if (v instanceof Integer) {
                                 modelConfig.setParallelLevel((int) v);
                             } else {
-                                logger.warn(
-                                        "Invalid parallelLevel: {}, should be integer", v);
+                                logger.warn("Invalid parallelLevel: {}, should be integer", v);
                             }
                             break;
                         case "deviceIds":

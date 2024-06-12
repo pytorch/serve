@@ -131,9 +131,9 @@ public class WorkerLifeCycle {
                                 model.getModelArchive().getManifest().getModel().getHandler())));
 
         if (model.getParallelLevel() > 0) {
-            if(model.getParallelType() != ParallelType.CUSTOM){
+            if (model.getParallelType() != ParallelType.CUSTOM) {
                 attachRunner(argl, envp, port, deviceIds);
-            }else{
+            } else {
                 if (deviceIds != null) {
                     envp.add("CUDA_VISIBLE_DEVICES=" + deviceIds);
                 }
@@ -177,7 +177,12 @@ public class WorkerLifeCycle {
         if (model.isAsyncCommunication()) argl.add("--async");
 
         try {
-            latch = new CountDownLatch(model.getParallelLevel() > 0 && model.getParallelType() != ParallelType.CUSTOM ? model.getParallelLevel() : 1);
+            latch =
+                    new CountDownLatch(
+                            model.getParallelLevel() > 0
+                                            && model.getParallelType() != ParallelType.CUSTOM
+                                    ? model.getParallelLevel()
+                                    : 1);
 
             String[] args = argl.toArray(new String[argl.size()]);
             String[] envs = envp.toArray(new String[envp.size()]);

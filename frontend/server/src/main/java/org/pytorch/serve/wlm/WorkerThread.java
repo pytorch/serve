@@ -469,7 +469,7 @@ public class WorkerThread implements Runnable {
         running.set(false);
         aggregator.shutdown();
         setState(WorkerState.WORKER_SCALED_DOWN, HttpURLConnection.HTTP_OK);
-        for (int i = 0; i< backendChannel.size(); i++) {
+        for (int i = 0; i < backendChannel.size(); i++) {
             if (backendChannel.get(i) != null) {
                 backendChannel.get(i).close();
             }
