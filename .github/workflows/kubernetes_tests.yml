@@ -3,11 +3,8 @@ name: Kubernetes Nightly Tests
 on:
   workflow_dispatch:
   # runs everyday  at 6:15am
-  # schedule:
-  #   - cron:  '15 6 * * *'
-  push:
-    branches:
-      - model_update
+  schedule:
+    - cron:  '15 6 * * *'
 
 jobs:
   kubernetes-tests:
