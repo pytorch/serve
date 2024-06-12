@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 public class AsyncBatchAggregator extends BatchAggregator {
     protected Map<String, Job> jobs_in_backend;
 
-    private static final Logger logger = LoggerFactory.getLogger(BatchAggregator.class);
+    private static final Logger logger = LoggerFactory.getLogger(AsyncBatchAggregator.class);
 
     public AsyncBatchAggregator() {
         super();

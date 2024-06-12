@@ -30,9 +30,13 @@ import org.pytorch.serve.util.messages.InputParameter;
 import org.pytorch.serve.util.messages.ModelWorkerResponse;
 import org.pytorch.serve.util.messages.RequestInput;
 import org.pytorch.serve.util.messages.WorkerCommands;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AsyncWorkerThread extends WorkerThread {
     // protected ConcurrentHashMap requestsInBackend;
+    protected static final Logger logger = LoggerFactory.getLogger(AsyncWorkerThread.class);
+
     protected boolean loadingFinished;
 
     public AsyncWorkerThread(
@@ -70,63 +74,14 @@ public class AsyncWorkerThread extends WorkerThread {
                         workerCmd,
                         repeats,
                         wtStartTime);
-                List<CompletableFuture<Void>> futureRequests = new ArrayList<>(repeats);
-                // for (int i = 0; backendChannel.size() > 0 && i < repeats; i++) {
-                int idx = 0;
-                futureRequests.add(
-                        CompletableFuture.runAsync(
-                                () -> {
-                                    try {
-                                        backendChannel.get(idx).writeAndFlush(req).sync();
-                                    } catch (InterruptedException e) {
-                                        logger.error("Failed to send request to backend", e);
-                                    }
-                                }));
-                // }
 
-                futureRequests.stream().map(CompletableFuture::join);
-
-                // ModelWorkerResponse reply = null;
-
-                // boolean jobDone = false;
-                // long totalDuration = 0;
-
-                // logger.info("Looping backend response at: {}", System.currentTimeMillis());
-
-                // do {
-                //     long begin = System.currentTimeMillis();
-                //     for (int i = 0; i < repeats; i++) {
-                //         reply = replies.poll(responseTimeout, TimeUnit.SECONDS);
-                //         if (req.getCommand() != WorkerCommands.LOAD) {
-                //             break;
-                //         }
-                //     }
-
-                //     long duration = System.currentTimeMillis() - begin;
-
-                //     if (reply != null) {
-                //         jobDone = aggregator.sendResponse(reply);
-                //     } else if (req.getCommand() != WorkerCommands.DESCRIBE) {
-                //         int val = model.incrFailedInfReqs();
-                //         logger.error("Number or consecutive unsuccessful inference {}", val);
-                //         throw new WorkerInitializationException(
-                //                 "Backend worker did not respond in given time");
-                //     }
-                //     totalDuration += duration;
-                // } while (!jobDone);
-                // logger.info("Backend response time: {}", totalDuration);
-
-                // req = null;
-                // double workerThreadTime =
-                //         (System.currentTimeMillis() - wtStartTime) - totalDuration;
-                // if (this.workerThreadTimeMetric != null) {
-                //     try {
-                //         this.workerThreadTimeMetric.addOrUpdate(
-                //                 this.workerThreadTimeMetricDimensionValues, workerThreadTime);
-                //     } catch (Exception e) {
-                //         logger.error("Failed to update frontend metric WorkerThreadTime: ", e);
-                //     }
-                // }
+                try {
+                    backendChannel.get(0).writeAndFlush(req).sync();
+                    logger.debug("Successfully flushed req");
+                } catch (InterruptedException e) {
+                    logger.error("Failed to send request to backend", e);
+                }
+                req = null;
             }
         } catch (InterruptedException e) {
             logger.debug("System state is : " + state);
@@ -164,10 +119,7 @@ public class AsyncWorkerThread extends WorkerThread {
             // WorkerThread is running in thread pool, the thread will be assigned to next
             // Runnable once this worker is finished. If currentThread keep holding the reference
             // of the thread, currentThread.interrupt() might kill next worker.
-            for (int i = 0;
-                    backendChannel.size() > 0
-                            && i < (model.getParallelLevel() > 0 ? model.getParallelLevel() : 1);
-                    i++) {
+            for (int i = 0; i < backendChannel.size(); i++) {
                 backendChannel.get(i).disconnect();
             }
             backendChannel.clear();
@@ -192,81 +144,80 @@ public class AsyncWorkerThread extends WorkerThread {
 
     protected void connect() throws WorkerInitializationException, InterruptedException {
         if (!configManager.isDebug()) {
-            lifeCycle.startWorker(port, getDeviceIds());
+            String ids = getDeviceIds();
+            logger.debug("Device Ids: "+ ids);
+            lifeCycle.startWorker(port, ids);
         }
 
         String modelName = model.getModelName();
         String modelVersion = model.getVersion();
         setState(WorkerState.WORKER_STARTED, HttpURLConnection.HTTP_OK);
-        final int parallelLevel = model.getParallelLevel() > 0 ? model.getParallelLevel() : 1;
-        final CountDownLatch latch = new CountDownLatch(parallelLevel);
+        final CountDownLatch latch = new CountDownLatch(1);
         final int responseBufferSize = configManager.getMaxResponseSize();
         try {
-            for (int i = 0; i < parallelLevel; i++) {
-                Connector connector = new Connector(port + i);
-                Bootstrap b = new Bootstrap();
-                b.group(backendEventGroup)
-                        .channel(connector.getClientChannel())
-                        .handler(
-                                new ChannelInitializer<Channel>() {
-                                    @Override
-                                    public void initChannel(Channel ch) {
-                                        ChannelPipeline p = ch.pipeline();
-                                        p.addLast(ENCODER);
-                                        p.addLast(new ModelResponseDecoder(responseBufferSize));
-                                        p.addLast(new AsyncWorkerHandler());
-                                    }
-                                });
+            Connector connector = new Connector(port);
+            Bootstrap b = new Bootstrap();
+            b.group(backendEventGroup)
+                    .channel(connector.getClientChannel())
+                    .handler(
+                            new ChannelInitializer<Channel>() {
+                                @Override
+                                public void initChannel(Channel ch) {
+                                    ChannelPipeline p = ch.pipeline();
+                                    p.addLast(ENCODER);
+                                    p.addLast(new ModelResponseDecoder(responseBufferSize));
+                                    p.addLast(new AsyncWorkerHandler());
+                                }
+                            });
 
-                SocketAddress address = connector.getSocketAddress();
-                logger.info("Connecting to: {}", address);
-                backendChannel.add(b.connect(address).sync().channel());
-                backendChannel
-                        .get(i)
-                        .closeFuture()
-                        .addListener(
-                                (ChannelFutureListener)
-                                        future -> {
-                                            latch.countDown();
-                                            logger.info(
-                                                    "{} Worker disconnected. {}",
-                                                    getWorkerId(),
-                                                    state);
-                                            Thread thread = currentThread.getAndSet(null);
-                                            if (thread != null) {
-                                                thread.interrupt();
+            SocketAddress address = connector.getSocketAddress();
+            logger.info("Connecting to: {}", address);
+            backendChannel.add(b.connect(address).sync().channel());
+            backendChannel
+                    .get(0)
+                    .closeFuture()
+                    .addListener(
+                            (ChannelFutureListener)
+                                    future -> {
+                                        latch.countDown();
+                                        logger.info(
+                                                "{} Worker disconnected. {}",
+                                                getWorkerId(),
+                                                state);
+                                        Thread thread = currentThread.getAndSet(null);
+                                        if (thread != null) {
+                                            thread.interrupt();
+                                        }
+                                    });
+            backendChannel
+                    .get(0)
+                    .newSucceededFuture()
+                    .addListener(
+                            (ChannelFutureListener)
+                                    future -> {
+                                        // TODO:
+                                        // use gpu, batch size in load model command
+                                        if (latch.getCount() == 1) {
+                                            RequestInput input =
+                                                    new RequestInput(
+                                                            UUID.randomUUID().toString());
+                                            if (gpuId >= 0) {
+                                                input.addParameter(
+                                                        new InputParameter(
+                                                                "gpu", String.valueOf(gpuId)));
                                             }
-                                        });
-                backendChannel
-                        .get(i)
-                        .newSucceededFuture()
-                        .addListener(
-                                (ChannelFutureListener)
-                                        future -> {
-                                            // TODO:
-                                            // use gpu, batch size in load model command
-                                            if (latch.getCount() == 1) {
-                                                RequestInput input =
-                                                        new RequestInput(
-                                                                UUID.randomUUID().toString());
-                                                if (gpuId >= 0) {
-                                                    input.addParameter(
-                                                            new InputParameter(
-                                                                    "gpu", String.valueOf(gpuId)));
-                                                }
 
-                                                Job job =
-                                                        new RestJob(
-                                                                null,
-                                                                modelName,
-                                                                modelVersion,
-                                                                WorkerCommands.LOAD,
-                                                                input);
-                                                model.addJob(workerId, job);
-                                            }
-                                            latch.countDown();
-                                        });
-            }
+                                            Job job =
+                                                    new RestJob(
+                                                            null,
+                                                            modelName,
+                                                            modelVersion,
+                                                            WorkerCommands.LOAD,
+                                                            input);
+                                            model.addJob(workerId, job);
+                                        }
+                                        latch.countDown();
+                                    });
 
             if (!latch.await(WORKER_TIMEOUT, TimeUnit.MINUTES)) {
                 throw new WorkerInitializationException(

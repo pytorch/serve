@@ -29,6 +29,7 @@ class BaseVLLMHandler(BaseHandler):
             ctx.model_yaml_config.get("handler", {})
         )
         self.adapters = ctx.model_yaml_config.get("handler", {}).get("adapters", {})
+
         self.vllm_engine = AsyncLLMEngine.from_engine_args(vllm_engine_config)
         self.initialized = True
 
@@ -57,12 +58,12 @@ class BaseVLLMHandler(BaseHandler):
 
             prompt = data.get("prompt")
             sampling_params = self._get_sampling_params(data)
-            logger.debug(f"Sampling params: {sampling_params=}")
             lora_request = self._get_lora_request(data)
             input_batch += [(prompt, sampling_params, lora_request)]
         return input_batch
 
     async def inference(self, input_batch, context):
+        logger.debug(f"Inputs: {input_batch[0]}")
         prompt, params, lora = input_batch[0]
         generator = self.vllm_engine.generate(
             prompt, params, context.request_ids[0], lora
@@ -111,7 +112,6 @@ class BaseVLLMHandler(BaseHandler):
             assert len(adapter_path) > 0, f"{adapter_name} misses adapter path"
             lora_id = self.lora_ids.setdefault(adapter_name, len(self.lora_ids) + 1)
             adapter_path = str(pathlib.Path(self.model_dir).joinpath(adapter_path))
-            logger.debug(f"Adapter path: {adapter_path}")
             return LoRARequest(adapter_name, lora_id, adapter_path)
 
         return None

@@ -322,10 +322,7 @@ public class WorkerThread implements Runnable {
             // WorkerThread is running in thread pool, the thread will be assigned to next
             // Runnable once this worker is finished. If currentThread keep holding the reference
             // of the thread, currentThread.interrupt() might kill next worker.
-            for (int i = 0;
-                    backendChannel.size() > 0
-                            && i < (model.getParallelLevel() > 0 ? model.getParallelLevel() : 1);
-                    i++) {
+            for (int i = 0; i < backendChannel.size(); i++) {
                 backendChannel.get(i).disconnect();
             }
             backendChannel.clear();
@@ -472,10 +469,7 @@ public class WorkerThread implements Runnable {
         running.set(false);
         aggregator.shutdown();
         setState(WorkerState.WORKER_SCALED_DOWN, HttpURLConnection.HTTP_OK);
-        for (int i = 0;
-                backendChannel.size() > 0
-                        && i < (model.getParallelLevel() > 0 ? model.getParallelLevel() : 1);
-                i++) {
+        for (int i = 0; i< backendChannel.size(); i++) {
             if (backendChannel.get(i) != null) {
                 backendChannel.get(i).close();
             }

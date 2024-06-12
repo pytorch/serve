@@ -133,6 +133,14 @@ public class ModelConfig {
                                         "Invalid parallelType: {}, should be pp, tp,or pptp", v);
                             }
                             break;
+                        case "parallelLevel":
+                            if (v instanceof Integer) {
+                                modelConfig.setParallelLevel((int) v);
+                            } else {
+                                logger.warn(
+                                        "Invalid parallelLevel: {}, should be integer", v);
+                            }
+                            break;
                         case "deviceIds":
                             if (v instanceof List<?>) {
                                 modelConfig.setDeviceIds((List<?>) v);
@@ -440,7 +448,8 @@ public class ModelConfig {
         NONE(""),
         PP("pp"),
         TP("tp"),
-        PPTP("pptp");
+        PPTP("pptp"),
+        CUSTOM("custom");
 
         private String type;
 

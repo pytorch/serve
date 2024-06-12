@@ -1,6 +1,7 @@
 # Example showing inference with vLLM on Mistral model
 
 This is an example showing how to integrate [vLLM](https://github.com/vllm-project/vllm) with TorchServe and run inference on model `mistralai/Mistral-7B-v0.1` with continuous batching.
+This examples supports distributed inference by following [this instruction](../Readme.md#distributed-inference)
 
 ### Step 1: Download Model from HuggingFace
 
