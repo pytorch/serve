@@ -46,6 +46,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.io.IOUtils;
 import org.pytorch.serve.archive.model.Manifest;
+import org.pytorch.serve.http.TokenAuthorizationHandler;
 import org.pytorch.serve.metrics.MetricBuilder;
 import org.pytorch.serve.servingsdk.snapshot.SnapshotSerializer;
 import org.pytorch.serve.snapshot.SnapshotSerializerFactory;
@@ -123,6 +124,7 @@ public final class ConfigManager {
     private static final String TS_HEADER_KEY_SEQUENCE_ID = "ts_header_key_sequence_id";
     private static final String TS_HEADER_KEY_SEQUENCE_START = "ts_header_key_sequence_start";
     private static final String TS_HEADER_KEY_SEQUENCE_END = "ts_header_key_sequence_end";
+    private static final String TS_DISABLE_TOKEN_AUTHORIZATION = "disable_token_authorization";
 
     // Configuration which are not documented or enabled through environment variables
     private static final String USE_NATIVE_IO = "use_native_io";
@@ -257,6 +259,11 @@ public final class ConfigManager {
 
         if (args.isModelEnabled().equals("true")) {
             prop.setProperty(MODEL_CONTROL_MODE, args.isModelEnabled());
+        }
+
+        String tokenDisabled = args.isTokenDisabled();
+        if (tokenDisabled.equals("true")) {
+            prop.setProperty(TS_DISABLE_TOKEN_AUTHORIZATION, tokenDisabled);
         }
 
         prop.setProperty(
@@ -443,6 +450,14 @@ public final class ConfigManager {
         return Boolean.parseBoolean(prop.getProperty(TS_OPEN_INFERENCE_PROTOCOL, "false"));
     }
 
+    public boolean setupToken() {
+        boolean disable_token_authorization = getDisableTokenAuthorization();
+        if (!disable_token_authorization) {
+            TokenAuthorizationHandler.setupTokenClass();
+        }
+        return true;
+    }
+
     public boolean isGRPCSSLEnabled() {
         return Boolean.parseBoolean(getProperty(TS_ENABLE_GRPC_SSL, "false"));
     }
@@ -465,6 +480,10 @@ public final class ConfigManager {
 
     public String getCPULauncherArgs() {
         return getProperty(TS_CPU_LAUNCHER_ARGS, null);
+    }
+
+    public boolean getDisableTokenAuthorization() {
+        return Boolean.parseBoolean(getProperty(TS_DISABLE_TOKEN_AUTHORIZATION, "false"));
     }
 
     public int getNettyThreads() {
@@ -1128,6 +1147,7 @@ public final class ConfigManager {
         private boolean snapshotDisabled;
         private String workflowStore;
         private String cppLogConfigFile;
+        private boolean tokenAuthEnabled;
         private boolean modelApiEnabled;
 
         public Arguments() {}
@@ -1140,6 +1160,7 @@ public final class ConfigManager {
             snapshotDisabled = cmd.hasOption("no-config-snapshot");
             workflowStore = cmd.getOptionValue("workflow-store");
             cppLogConfigFile = cmd.getOptionValue("cpp-log-config");
+            tokenAuthEnabled = cmd.hasOption("disable-token");
             modelApiEnabled = cmd.hasOption("model-api-enabled");
         }
 
@@ -1194,6 +1215,12 @@ public final class ConfigManager {
                             .desc("log configuration file for cpp backend.")
                             .build());
             options.addOption(
+                    Option.builder("dt")
+                            .longOpt("disable-token")
+                            .argName("TOKEN")
+                            .desc("disables token authorization")
+                            .build());
+            options.addOption(
                     Option.builder("mapi")
                             .longOpt("model-api-enabled")
                             .argName("MODEL-API-ENABLED")
@@ -1220,6 +1247,10 @@ public final class ConfigManager {
 
         public String getWorkflowStore() {
             return workflowStore;
+        }
+
+        public String isTokenDisabled() {
+            return tokenAuthEnabled ? "true" : "false";
         }
 
         public void setModelStore(String modelStore) {

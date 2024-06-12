@@ -48,6 +48,7 @@ def start_torchserve(
     config_file="",
     log_file="",
     gen_mar=True,
+    token=False,
     mode=None,
 ):
     if gen_mar:
@@ -62,6 +63,8 @@ def start_torchserve(
         cmd.append(f"--workflow-store={workflow_store}")
     if ncs:
         cmd.append("--ncs")
+    if not token:
+        cmd.append("--disable-token")
     if config_file:
         cmd.append(f"--ts-config={config_file}")
     if not mode:

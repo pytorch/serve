@@ -59,6 +59,7 @@ def start_torchserve(
     no_config_snapshots=False,
     gen_mar=True,
     plugin_folder=None,
+    token=False,
     models=None,
     model_api_enabled=True,
 ):
@@ -75,6 +76,8 @@ def start_torchserve(
         cmd.extend(["--ts-config", snapshot_file])
     if no_config_snapshots:
         cmd.extend(["--no-config-snapshots"])
+    if not token:
+        cmd.append("--disable-token")
     if models:
         cmd.extend(["--models", models])
     if model_api_enabled:
