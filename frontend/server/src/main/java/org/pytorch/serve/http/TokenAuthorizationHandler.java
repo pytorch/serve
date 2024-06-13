@@ -81,7 +81,7 @@ public class TokenAuthorizationHandler extends HttpRequestHandlerChain {
     }
 
     public static void setupToken() {
-        if (!ConfigManager.getInstance().getDisableTokenAuthorization()){
+        if (!ConfigManager.getInstance().getDisableTokenAuthorization()) {
             try {
                 token = new Token();
                 if (token.generateKeyFile("token")) {
@@ -269,5 +269,4 @@ class Token {
     public boolean isTokenExpired(Instant expirationTime) {
         return !(Instant.now().isBefore(expirationTime));
     }
-
 }
