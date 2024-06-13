@@ -16,16 +16,22 @@ pip install torchserve-nightly torch-model-archiver-nightly
 
 ## torch.compile
 
-PyTorch 2.x supports several compiler backends and you pick which one you want by passing in an optional file `model_config.yaml` during your model packaging
+PyTorch 2.x supports several compiler backends and you pick which one you want by passing in an optional file `model_config.yaml` during your model packaging. The default backend with the below minimum config is `inductor`
 
 ```yaml
-pt2: "inductor"
+pt2:
+  compile:
+    enable: True
 ```
 
-You can also pass a dictionary with compile options if you need more control over torch.compile:
+You can also pass various compile options if you need more control over torch.compile:
 
 ```yaml
-pt2 : {backend: inductor, mode: reduce-overhead}
+pt2:
+  compile:
+    enable: True
+    backend: inductor
+    mode: reduce-overhead
 ```
 
 An example of using `torch.compile` can be found [here](./torch_compile/README.md)
