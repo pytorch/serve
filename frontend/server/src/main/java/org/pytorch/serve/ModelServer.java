@@ -88,7 +88,6 @@ public class ModelServer {
             ConfigManager.init(arguments);
             ConfigManager configManager = ConfigManager.getInstance();
             TokenAuthorizationHandler.setupToken();
-            // configManager.setupToken();
             PluginsManager.getInstance().initialize();
             MetricCache.init();
             InternalLoggerFactory.setDefaultFactory(Slf4JLoggerFactory.INSTANCE);
