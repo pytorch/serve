@@ -419,7 +419,7 @@
               
   <section id="torchserve-token-authorization-api">
 <h1>TorchServe token authorization API<a class="headerlink" href="#torchserve-token-authorization-api" title="Permalink to this heading">¶</a></h1>
-<p>Torchserve now supports token authorization by default.</p>
+<p>TorchServe now enforces token authorization by default</p>
 <section id="how-to-set-and-disable-token-authorization">
 <h2>How to set and disable Token Authorization<a class="headerlink" href="#how-to-set-and-disable-token-authorization" title="Permalink to this heading">¶</a></h2>
 <ul class="simple">
@@ -427,7 +427,7 @@
 <li><p>Command line: Command line can only be used to disable token authorization by adding the <code class="docutils literal notranslate"><span class="pre">--disable-token</span></code> flag.</p></li>
 <li><p>Config properties file: use <code class="docutils literal notranslate"><span class="pre">disable_token_authorization</span></code> and set to <code class="docutils literal notranslate"><span class="pre">true</span></code> to disable and <code class="docutils literal notranslate"><span class="pre">false</span></code> to enable token authorization.</p></li>
 </ul>
-<p>Priority between env variables, cmd, and config file follows the following <a class="reference external" href="https://github.com/pytorch/serve/blob/c74a29e8144bc12b84196775076b0e8cf3c5a6fc/docs/configuration.md#advanced-configuration">TorchServer standard</a></p>
+<p>Priority between env variables, cmd, and config file follows the following <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/configuration">TorchServer standard</a></p>
 <ul>
 <li><p>Example 1:</p>
 <ul>
@@ -482,7 +482,7 @@
 <li><p>API key: Used for the token authorization API. Check section 4 for API use.</p></li>
 </ol>
 </li>
-<li><p>The plugin also includes an API in order to generate a new key to replace either the management or inference key.</p>
+<li><p>API in order to generate a new key to replace either the management or inference key.</p>
 <ol class="simple">
 <li><p>Management Example:
 <code class="docutils literal notranslate"><span class="pre">curl</span> <span class="pre">localhost:8081/token?type=management</span> <span class="pre">-H</span> <span class="pre">&quot;Authorization:</span> <span class="pre">Bearer</span> <span class="pre">m4M-5IBY&quot;</span></code> will replace the current management key in the key_file with a new one and will update the expiration time.</p></li>
@@ -499,7 +499,7 @@
 <ol class="simple">
 <li><p>DO NOT MODIFY THE KEY FILE. Modifying the key file might impact reading and writing to the file thus preventing new keys from properly being displayed in the file.</p></li>
 <li><p>Time to expiration is set to default at 60 minutes but can be changed in the config.properties by adding <code class="docutils literal notranslate"><span class="pre">token_expiration_min</span></code>. Ex:<code class="docutils literal notranslate"><span class="pre">token_expiration_min=30</span></code></p></li>
-<li><p>3 tokens allow the owner with the most flexibility in use and enables them to adapt the tokens to their use. Owners of the server can provide users with the inference token if users should only be able to run inferences against models that have already been loaded. The owner can also provide owners with the management key if owners want users to add and remove models.</p></li>
+<li><p>Three tokens allow the owner with the most flexibility in use and enables them to adapt the tokens to their use. Owners of the server can provide users with the inference token if users should only be able to run inferences against models that have already been loaded. The owner can also provide owners with the management key if owners want users to add and remove models.</p></li>
 </ol>
 </section>
 </section>
