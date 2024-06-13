@@ -14,7 +14,6 @@ data_file_zero = os.path.join(CURR_DIR, "test_data/0.png")
 config_file = os.path.join(CURR_DIR, "../resources/config_token.properties")
 
 
-
 # Parse json file and return key
 def read_key_file(type):
     json_file_path = os.path.join(CURR_DIR, "key_file.json")
@@ -67,7 +66,7 @@ def setup_torchserve_expiration():
     Path(test_utils.MODEL_STORE).mkdir(parents=True, exist_ok=True)
 
     test_utils.start_torchserve(
-      snapshot_file=config_file, no_config_snapshots=True, disable_token=False
+        snapshot_file=config_file, no_config_snapshots=True, disable_token=False
     )
 
     key = read_key_file("management")
