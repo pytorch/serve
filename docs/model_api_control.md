@@ -1,9 +1,9 @@
-# Model Control Mode
+# Model API Control
 
-TorchServe now supports model control mode with two settings "none"(default) and "enabled"
+TorchServe now supports model API control with two settings enabled and disabled(default). Default prevents users from registering or deleting models once TorchServe is running
 
 ## Two ways to set Model Control
-1. Add `--model-api-enabled` to command line when running TorchServe to switch from none to enabled mode. Command line cannot be used to set mode to none, can only be used to set to enabled
+1. Add `--model-api-enabled` to command line when running TorchServe to switch from disabled to enabled. Command line cannot be used to disabled, can only be used to enabled
 2. Add `model_api_enabled=false` or `model_api_enabled=true` to config.properties file
     * `model_api_enabled=false` is default and prevents users from registering or deleting models once TorchServe is running
     * `model_api_enabled=true` is not default and allows users to register and delete models using the TorchServe model load APIs
@@ -22,7 +22,7 @@ Priority between cmd and config file follows the following [TorchServer standard
 
     Result: Mode is enabled (no way to disable api mode through cmd)
 
-## Model Control Mode Default
+## Model API Control Default
 At startup TorchServe loads only those models specified explicitly with the `--models` command-line option. After startup users will be unable to register or delete models in this mode.
 
 ### Example default
@@ -40,7 +40,7 @@ ubuntu@ip-172-31-11-32:~/serve$ curl -X POST  "http://localhost:8081/models?url=
 ```
 
 ## Model Control API Enabled
-Setting model control to `enabled` allows users to load and unload models using the model load APIs.
+Setting model API to `enabled` allows users to load and unload models using the model load APIs.
 
 ### Example using cmd line to set mode to enabled
 ```

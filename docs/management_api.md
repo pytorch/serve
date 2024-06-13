@@ -22,6 +22,8 @@ Alternatively, if you want to use KServe, TorchServe supports both v1 and v2 API
 
 This API follows the [ManagementAPIsService.RegisterModel](https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/proto/management.proto) gRPC API.
 
+To use this API after TorchServe starts, model API control has to be enabled. For more details see [model API control](./model_api_control.md)
+
 `POST /models`
 
 * `url` - Model archive download url. Supports the following locations:
@@ -443,6 +445,8 @@ print(customizedMetadata)
 ## Unregister a model
 
 This API follows the [ManagementAPIsService.UnregisterModel](https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/proto/management.proto) gRPC API. It returns the status of a model in the ModelServer.
+
+To use this API after TorchServe starts, model API control has to be enabled. For more details see [model API control](./model_api_control.md)
 
 `DELETE /models/{model_name}/{version}`
 
