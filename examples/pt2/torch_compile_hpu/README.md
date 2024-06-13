@@ -34,10 +34,13 @@ cd examples/pt2/torch_compile_hpu
 
 In this example, we use the following config that is provided in `model-config.yaml` file:
 
-```yaml
-minWorkers: 1
+```bash
+echo "minWorkers: 1
 maxWorkers: 1
-pt2: {backend: "hpu_backend"}
+pt2:
+  compile:
+    enable: True
+    backend: hpu_backend" > model-config.yaml
 ```
 `pt2: {backend: "hpu_backend"}` - this line enables compile mode, if you remove it from the config file, the model will run in eager mode.
 
@@ -52,6 +55,8 @@ PT_HPU_LAZY_MODE=0 torch-model-archiver --model-name resnet-50 --version 1.0 --m
   --extra-files ../../image_classifier/index_to_name.json --handler hpu_image_classifier.py \
   --config-file model-config.yaml
 ```
+
+`PT_HPU_LAZY_MODE=0` selects `eager+torch.compile` mode. Gaudi integration with PyTorch supports officially 2 modes of operation: `lazy` and `eager+torch.compile (beta state)`. Currently the first one is default, therefore it is necessary to use this flag for compile mode until `eager+torch.compile` mode is set as default. [More information](https://docs.habana.ai/en/latest/PyTorch/Reference/Runtime_Flags.html#pytorch-runtime-flags)
 
 ### 3. Start TorchServe
 
