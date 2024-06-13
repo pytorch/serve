@@ -86,6 +86,7 @@ public class ModelServer {
             ConfigManager.Arguments arguments = new ConfigManager.Arguments(cmd);
             ConfigManager.init(arguments);
             ConfigManager configManager = ConfigManager.getInstance();
+            configManager.setupToken();
             PluginsManager.getInstance().initialize();
             MetricCache.init();
             InternalLoggerFactory.setDefaultFactory(Slf4JLoggerFactory.INSTANCE);
