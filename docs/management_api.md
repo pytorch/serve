@@ -8,8 +8,11 @@ TorchServe provides the following APIs that allows you to manage models at runti
 4. [Unregister a model](#unregister-a-model)
 5. [List registered models](#list-models)
 6. [Set default version of a model](#set-default-version)
+7. [Refresh tokens for token authorization](#token-authorization-api)
 
 The Management API listens on port 8081 and is only accessible from localhost by default. To change the default setting, see [TorchServe Configuration](./configuration.md).
+
+For all Management API requests, TorchServe requires the correct Management token to be included. For more details see [token authorization documentation](./token_authorization_api.md)
 
 Similar to the [Inference API](inference_api.md), the Management API provides a [API description](#api-description) to describe management APIs with the OpenAPI 3.0 specification.
 
@@ -522,3 +525,21 @@ curl -v -X PUT http://localhost:8081/models/noop/2.0/set-default
 ```
 
 The out is OpenAPI 3.0.1 json format. You use it to generate client code, see [swagger codegen](https://swagger.io/swagger-codegen/) for detail.
+
+## Token Authorization API
+
+TorchServe now enforces token authorization by default. Check the following documentation for more information: [Token Authorization](https://github.com/pytorch/serve/blob/master/docs/token_authorization_api.md).
+
+This API is used in order to generate a new key to replace either the management or inference key.
+
+Management Example:
+```
+curl localhost:8081/token?type=management -H "Authorization: Bearer {API Token}"
+```
+will replace the current management key in the key_file with a new one and will update the expiration time.
+
+Inference example:
+```
+curl localhost:8081/token?type=inference -H "Authorization: Bearer {API Token}"
+```
+will replace the current inference key in the key_file with a new one and will update the expiration time.
