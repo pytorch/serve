@@ -41,6 +41,7 @@ import org.pytorch.serve.archive.model.ModelNotFoundException;
 import org.pytorch.serve.grpcimpl.GRPCInterceptor;
 import org.pytorch.serve.grpcimpl.GRPCServiceFactory;
 import org.pytorch.serve.http.messages.RegisterModelRequest;
+import org.pytorch.serve.http.TokenAuthorizationHandler;
 import org.pytorch.serve.metrics.MetricCache;
 import org.pytorch.serve.metrics.MetricManager;
 import org.pytorch.serve.servingsdk.ModelServerEndpoint;
@@ -86,7 +87,8 @@ public class ModelServer {
             ConfigManager.Arguments arguments = new ConfigManager.Arguments(cmd);
             ConfigManager.init(arguments);
             ConfigManager configManager = ConfigManager.getInstance();
-            configManager.setupToken();
+            TokenAuthorizationHandler.setupToken();
+            // configManager.setupToken();
             PluginsManager.getInstance().initialize();
             MetricCache.init();
             InternalLoggerFactory.setDefaultFactory(Slf4JLoggerFactory.INSTANCE);
