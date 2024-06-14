@@ -40,9 +40,8 @@ public class TokenAuthorizationHandler extends HttpRequestHandlerChain {
     private static final Logger logger = LoggerFactory.getLogger(TokenAuthorizationHandler.class);
     private static TokenType tokenType;
     private static Boolean tokenEnabled = false;
-    private static Token tokenClass;
+    private static Token token;
     private static Object tokenObject;
-    private static Double timeToExpirationMinutes = 60.0;
 
     /** Creates a new {@code InferenceRequestHandler} instance. */
     public TokenAuthorizationHandler(TokenType type) {
@@ -62,11 +61,12 @@ public class TokenAuthorizationHandler extends HttpRequestHandlerChain {
                 if (req.toString().contains("/token")) {
                     try {
                         checkTokenAuthorization(req, "token");
-                        String resp = tokenClass.updateKeyFile(req);
+                        String queryResponse = parseQuery(req);
+                        String resp = token.updateKeyFile(queryResponse);
                         NettyUtils.sendJsonResponse(ctx, resp);
                         return;
                     } catch (Exception e) {
-                        logger.error("TOKEN CLASS UPDATED UNSUCCESSFULLY");
+                        logger.error("Key file updated unsuccessfully");
                         throw new InvalidKeyException(
                                 "Token Authentication failed. Token either incorrect, expired, or not provided correctly");
                     }
@@ -76,77 +76,48 @@ public class TokenAuthorizationHandler extends HttpRequestHandlerChain {
             } else if (tokenType == TokenType.INFERENCE) {
                 checkTokenAuthorization(req, "inference");
             }
-        } else {
-            if (tokenType == TokenType.MANAGEMENT && req.toString().contains("/token")) {
-                throw new ResourceNotFoundException();
-            }
         }
         chain.handleRequest(ctx, req, decoder, segments);
     }
 
-    public static void setupTokenClass() {
-        try {
-            tokenClass = new Token();
-            Double time = ConfigManager.getInstance().getTimeToExpiration();
-            String home = ConfigManager.getInstance().getModelServerHome();
-            tokenClass.setFilePath(home);
-            if (time != 0.0) {
-                timeToExpirationMinutes = time;
+    public static void setupToken() {
+        if (!ConfigManager.getInstance().getDisableTokenAuthorization()) {
+            try {
+                token = new Token();
+                if (token.generateKeyFile("token")) {
+                    logger.info("Token Authorization Enabled");
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                logger.error("Token Authorization setup unsuccessfully");
+                throw new IllegalStateException("Token Authorization setup unsuccessfully", e);
             }
-            tokenClass.setTime(timeToExpirationMinutes);
-            if (tokenClass.generateKeyFile("token")) {
-                logger.info("Token Authorization Enabled");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            logger.error("TOKEN CLASS IMPORTED UNSUCCESSFULLY");
-            throw new IllegalStateException("Unable to import token class", e);
+            tokenEnabled = true;
         }
-        tokenEnabled = true;
     }
 
     private void checkTokenAuthorization(FullHttpRequest req, String type) throws ModelException {
+        String tokenBearer = req.headers().get("Authorization");
+        if (tokenBearer == null) {
+            throw new InvalidKeyException(
+                    "Token Authentication failed. Token either incorrect, expired, or not provided correctly");
+        }
+        String[] arrOfStr = tokenBearer.split(" ", 2);
+        if (arrOfStr.length == 1) {
+            throw new InvalidKeyException(
+                    "Token Authentication failed. Token either incorrect, expired, or not provided correctly");
+        }
+        String currToken = arrOfStr[1];
 
-        try {
-            boolean result = tokenClass.checkTokenAuthorization(req, type);
-            if (!result) {
-                throw new InvalidKeyException(
-                        "Token Authentication failed. Token either incorrect, expired, or not provided correctly");
-            }
-        } catch (Exception e) {
+        boolean result = token.checkTokenAuthorization(currToken, type);
+        if (!result) {
             throw new InvalidKeyException(
                     "Token Authentication failed. Token either incorrect, expired, or not provided correctly");
         }
     }
-}
-
-class Token {
-    private static String apiKey;
-    private static String managementKey;
-    private static String inferenceKey;
-    private static Instant managementExpirationTimeMinutes;
-    private static Instant inferenceExpirationTimeMinutes;
-    private static Double timeToExpirationMinutes;
-    private SecureRandom secureRandom = new SecureRandom();
-    private Base64.Encoder baseEncoder = Base64.getUrlEncoder();
-    private String fileName = "key_file.json";
-    private String filePath = "";
-
-    public String updateKeyFile(FullHttpRequest req) throws IOException {
-        String queryResponse = parseQuery(req);
-        String test = "";
-        if ("management".equals(queryResponse)) {
-            generateKeyFile("management");
-        } else if ("inference".equals(queryResponse)) {
-            generateKeyFile("inference");
-        } else {
-            test = "{\n\t\"Error\": " + queryResponse + "\n}\n";
-        }
-        return test;
-    }
 
     // parses query and either returns management/inference or a wrong type error
-    public String parseQuery(FullHttpRequest req) {
+    private String parseQuery(FullHttpRequest req) {
         QueryStringDecoder decoder = new QueryStringDecoder(req.uri());
         Map<String, List<String>> parameters = decoder.parameters();
         List<String> values = parameters.get("type");
@@ -159,6 +130,30 @@ class Token {
         }
         return "NO TYPE PROVIDED";
     }
+}
+
+class Token {
+    private static String apiKey;
+    private static String managementKey;
+    private static String inferenceKey;
+    private static Instant managementExpirationTimeMinutes;
+    private static Instant inferenceExpirationTimeMinutes;
+    private SecureRandom secureRandom = new SecureRandom();
+    private Base64.Encoder baseEncoder = Base64.getUrlEncoder();
+    private String fileName = "key_file.json";
+    private String filePath = ConfigManager.getInstance().getModelServerHome();
+
+    public String updateKeyFile(String queryResponse) throws IOException {
+        String test = "";
+        if ("management".equals(queryResponse)) {
+            generateKeyFile("management");
+        } else if ("inference".equals(queryResponse)) {
+            generateKeyFile("inference");
+        } else {
+            test = "{\n\t\"Error\": " + queryResponse + "\n}\n";
+        }
+        return test;
+    }
 
     public String generateKey() {
         byte[] randomBytes = new byte[6];
@@ -167,12 +162,8 @@ class Token {
     }
 
     public Instant generateTokenExpiration() {
-        long secondsToAdd = (long) (timeToExpirationMinutes * 60);
+        long secondsToAdd = (long) (ConfigManager.getInstance().getTimeToExpiration() * 60);
         return Instant.now().plusSeconds(secondsToAdd);
-    }
-
-    public void setFilePath(String path) {
-        filePath = path;
     }
 
     // generates a key file with new keys depending on the parameter provided
@@ -248,7 +239,7 @@ class Token {
     }
 
     // checks the token provided in the http with the saved keys depening on parameters
-    public boolean checkTokenAuthorization(FullHttpRequest req, String type) {
+    public boolean checkTokenAuthorization(String token, String type) {
         String key;
         Instant expiration;
         switch (type) {
@@ -265,16 +256,6 @@ class Token {
                 expiration = inferenceExpirationTimeMinutes;
         }
 
-        String tokenBearer = req.headers().get("Authorization");
-        if (tokenBearer == null) {
-            return false;
-        }
-        String[] arrOfStr = tokenBearer.split(" ", 2);
-        if (arrOfStr.length == 1) {
-            return false;
-        }
-        String token = arrOfStr[1];
-
         if (token.equals(key)) {
             if (expiration != null && isTokenExpired(expiration)) {
                 return false;
@@ -287,29 +268,5 @@ class Token {
 
     public boolean isTokenExpired(Instant expirationTime) {
         return !(Instant.now().isBefore(expirationTime));
-    }
-
-    public String getManagementKey() {
-        return managementKey;
-    }
-
-    public String getInferenceKey() {
-        return inferenceKey;
-    }
-
-    public String getKey() {
-        return apiKey;
-    }
-
-    public Instant getInferenceExpirationTime() {
-        return inferenceExpirationTimeMinutes;
-    }
-
-    public Instant getManagementExpirationTime() {
-        return managementExpirationTimeMinutes;
-    }
-
-    public void setTime(Double time) {
-        timeToExpirationMinutes = time;
     }
 }
