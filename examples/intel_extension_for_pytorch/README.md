@@ -160,7 +160,7 @@ This test is performed on a server containing Intel(R) Core (TM) i5-9600K CPU + 
 It is recommended to use only 1 worker per GPU, more than 1 worker per GPU is not validated and may cause performance degradation due to context switching.
 
 
-| Model | Batch size | CPU Throughput | GPU Throughput | CPU TS Latency mean | GPU TS Latency mean | Throughput speed up ratio | Latency speed up ratio |
+| Model | Batch size | CPU Throughput(img/sec) | GPU Throughput(img/sec) | CPU TS Latency mean(ms) | GPU TS Latency mean(ms) | Throughput speedup ratio | Latency speedup ratio |
 |:-----:|:----------:|:--------------:|:--------------:|:-------------------:|:-------------------:|:-------------------------:|:----------------------:|
 | FastRCNN_FP32 | 1 | 15.74 | 2.89 | 6352.388 | 34636.68 | 5.45 | 5.45 |
 |  | 2 | 17.69 | 2.67 | 5651.999 | 37520.781 | 6.63 | 6.64 |
