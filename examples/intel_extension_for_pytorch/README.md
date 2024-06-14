@@ -10,6 +10,7 @@ Here we show how to use TorchServe with Intel® Extension for PyTorch*.
 * [Serving model with Intel® Extension for PyTorch*](https://github.com/pytorch/serve/blob/master/examples/intel_extension_for_pytorch/README.md#serving-model-with-intel-extension-for-pytorch)
 * [TorchServe with Launcher](#torchserve-with-launcher)
 * [TorchServe with Intel® Extension for PyTorch* and Intel GPUs](#torchserve-with-intel®-extension-for-pytorch-and-intel-gpus)
+* [Performance Gain with Intel® Extension for PyTorch* and Intel GPU](https://github.com/pytorch/serve/blob/master/examples/intel_extension_for_pytorch/README.md#performance-gain-with-intel-extension-for-pytorch-and-intel-gpu)
 * [Creating and Exporting INT8 model for Intel® Extension for PyTorch*](https://github.com/pytorch/serve/blob/master/examples/intel_extension_for_pytorch/README.md#creating-and-exporting-int8-model-for-intel-extension-for-pytorch)
 * [Benchmarking with Launcher](#benchmarking-with-launcher)
 * [Performance Boost with Intel® Extension for PyTorch* and Launcher](https://github.com/pytorch/serve/blob/master/examples/intel_extension_for_pytorch/README.md#performance-boost-with-intel-extension-for-pytorch-and-launcher)
@@ -120,6 +121,61 @@ To enable TorchServe to use Intel GPUs, set the following configuration in `conf
    ipex_gpu_enable=true
    ```
 
+## Performance Gain with Intel® Extension for PyTorch* and Intel GPU
+
+To understand the performance gain using Intel GPU, Torchserve recommended [apache benchmark](https://github.com/pytorch/serve/tree/master/benchmarks#benchmarking-with-apache-bench) is executed on FastRCNN FP32 model.
+
+A `model_config.json` file is created, and the following parameters are added:
+
+```
+{
+  "url": "https://torchserve.pytorch.org/mar_files/fastrcnn.mar",
+  "requests": "10000",
+  "concurrency": "100",
+  "workers": "1",
+  "batch_delay": "100",
+  "batch_size": "1",
+  "input": "../examples/image_classifier/kitten.jpg",
+  "backend_profiling": "FALSE",
+  "exec_env": "local"
+}
+```
+
+Batch size can be changed according to the requirement.
+
+Following lines are added to the `config.properties` to utilize IPEX and Intel GPU:
+
+```
+ipex_enable=true
+ipex_gpu_enable=true
+```
+
+To reproduce the test, use the following command:
+
+```
+python benchmark-ab.py --config model_config.json --config_properties config.properties
+```
+
+This test is performed on a server containing Intel(R) Core (TM) i5-9600K CPU + Intel(R) Arc(TM) A770 Graphics and is compared with a Intel(R) Xeon(R) Gold 6438Y CPU server.
+It is recommended to use only 1 worker per GPU, more than 1 worker per GPU is not validated and may cause performance degradation due to context switching.
+
+
+| Model | Batch size | CPU Throughput | GPU Throughput | CPU TS Latency mean | GPU TS Latency mean | Throughput speed up ratio | Latency speed up ratio |
+|:-----:|:----------:|:--------------:|:--------------:|:-------------------:|:-------------------:|:-------------------------:|:----------------------:|
+| FastRCNN_FP32 | 1 | 15.74 | 2.89 | 6352.388 | 34636.68 | 5.45 | 5.45 |
+|  | 2 | 17.69 | 2.67 | 5651.999 | 37520.781 | 6.63 | 6.64 |
+|  | 4 | 18.57 | 2.39 | 5385.389 | 41886.902 | 7.77 | 7.78 |
+|  | 8 | 18.68 | 2.32 | 5354.58 | 43146.797 | 8.05 | 8.06 |
+|  | 16 | 19.26 | 2.39 | 5193.307 | 41903.752 | 8.06 | 8.07 |
+|  | 32 | 19.06 | 2.49 | 5245.912 | 40172.39 | 7.65 | 7.66 |
+
+<p align="center">
+  <img src="https://github.com/pytorch/serve/assets/113945574/c30aeacc-9825-42b1-bde8-2d9dca09bb8a" />
+</p>
+Above graph shows the speedup ratio of throughput and latency while using Intel GPU. The speedup ratio is increasing steadily reaching almost 8x till batch size 8 and gives diminishing returns after. Further increasing the batch size to 64 results in `RuntimeError: Native API failed. Native API returns: -5 (PI_ERROR_OUT_OF_RESOURCES)` error as GPU is overloaded.
+
+Note: The optimal configuration will vary depending on the hardware used.
+```
 
 
 ## Creating and Exporting INT8 model for Intel® Extension for PyTorch*
