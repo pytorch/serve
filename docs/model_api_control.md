@@ -1,6 +1,8 @@
 # Model API Control
 
-TorchServe now supports model API control with two settings enabled and disabled(default). Default prevents users from registering or deleting models once TorchServe is running
+TorchServe now supports model API control with two settings enabled and disabled(default).
+
+TorchServe introduces a new feature called model-api-control which allow users to prevent registering and deleting models once the servers are running. This is a security feature which address the concern of unwanted registering and deleting of models once the TorchServe servers have started. This is applicable in the scenario where a user may upload malicious code to the model server in the form of a model or where a user may delete a model that is being used. The default behavior prevents users from registering or deleting models once TorchServe is running, and then you can enable the model APIs to allow users to register and delete models whenever using the TorchServe model load APIs.
 
 ## Two ways to set Model Control
 1. Add `--model-api-enabled` to command line when running TorchServe to switch from disabled to enabled. Command line cannot be used to disabled, can only be used to enabled
