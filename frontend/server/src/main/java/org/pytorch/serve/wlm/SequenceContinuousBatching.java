@@ -145,12 +145,14 @@ public class SequenceContinuousBatching extends SequenceBatching {
                         .getHeaders()
                         .getOrDefault(
                                 ConfigManager.getInstance().getTsHeaderKeySequenceEnd(), null);
+        logger.info("setJobGroupFinished got header key sequence end: {}", val);
         if (val != null) {
             String[] jobGroupIds = val.split(";");
             for (String j : jobGroupIds) {
                 String jobGroupId = j.trim();
                 JobGroup jobGroup = model.getJobGroup(jobGroupId);
                 if (jobGroup != null) {
+                    logger.info("setJobGroupFinished setting job group as finished: {}", jobGroupId);
                     jobGroup.setFinished(true);
                 }
             }
