@@ -175,8 +175,6 @@ It is recommended to use only 1 worker per GPU, more than 1 worker per GPU is no
 Above graph shows the speedup ratio of throughput and latency while using Intel GPU. The speedup ratio is increasing steadily reaching almost 8x till batch size 8 and gives diminishing returns after. Further increasing the batch size to 64 results in `RuntimeError: Native API failed. Native API returns: -5 (PI_ERROR_OUT_OF_RESOURCES)` error as GPU is overloaded.
 
 Note: The optimal configuration will vary depending on the hardware used.
-```
-
 
 ## Creating and Exporting INT8 model for Intel® Extension for PyTorch*
 Intel® Extension for PyTorch* supports both eager and torchscript mode. In this section, we show how to deploy INT8 model for Intel® Extension for PyTorch*. Refer to [here](https://github.com/intel/intel-extension-for-pytorch/blob/master/docs/tutorials/features/int8_overview.md) for more details on Intel® Extension for PyTorch* optimizations for quantization.
