@@ -4,6 +4,8 @@ from io import TextIOWrapper
 from queue import Full, Queue
 from subprocess import PIPE, STDOUT, Popen
 
+import requests
+
 from ts_scripts import marsgen as mg
 
 
@@ -86,3 +88,18 @@ def start(
     print_thread.start()
 
     return splitter.queue2
+
+
+def register_model_with_params(params):
+    response = requests.post("http://localhost:8081/models", params=params)
+    return response
+
+
+def register_model(model_name, url):
+    params = (
+        ("model_name", model_name),
+        ("url", url),
+        ("initial_workers", "1"),
+        ("synchronous", "true"),
+    )
+    return register_model_with_params(params)

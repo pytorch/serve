@@ -47,21 +47,6 @@ def torchserve_cleanup():
     delete_all_snapshots()
 
 
-def register_model(model_name, url):
-    params = (
-        ("model_name", model_name),
-        ("url", url),
-        ("initial_workers", "1"),
-        ("synchronous", "true"),
-    )
-    return register_model_with_params(params)
-
-
-def register_model_with_params(params):
-    response = requests.post("http://localhost:8081/models", params=params)
-    return response
-
-
 def unregister_model(model_name):
     response = requests.delete("http://localhost:8081/models/{}".format(model_name))
     return response
