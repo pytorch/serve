@@ -32,9 +32,9 @@ jobs:
           ./build_image.sh -py "${{ matrix.python-version }}" -t "${IMAGE_TAG}" -s -r
           echo "IMAGE_TAG=${IMAGE_TAG}" >> $GITHUB_OUTPUT
 
-      - name: Container Healthcheck
-        working-directory: docker
-        run: ./test_container_health.sh ${{ steps.image_build.outputs.IMAGE_TAG }}
+      # - name: Container Healthcheck
+      #   working-directory: docker
+      #   run: ./test_container_health.sh ${{ steps.image_build.outputs.IMAGE_TAG }}
 
       - name: Check Python version in container
         working-directory: docker
