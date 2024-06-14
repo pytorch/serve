@@ -5,12 +5,8 @@ import os
 import subprocess
 import sys
 import tempfile
-import threading
-from io import TextIOWrapper
 from os import path
 from pathlib import Path
-from queue import Queue
-from subprocess import PIPE, STDOUT, Popen
 
 import orjson
 import requests
@@ -18,88 +14,12 @@ import requests
 # To help discover margen modules
 REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../")
 sys.path.append(REPO_ROOT)
-from ts_scripts import marsgen as mg
+from ts.launcher import start
+from ts.launcher import stop as stop_torchserve
 
 ROOT_DIR = os.path.join(tempfile.gettempdir(), "workspace")
 MODEL_STORE = path.join(ROOT_DIR, "model_store/")
 CODEBUILD_WD = path.abspath(path.join(__file__, "../../.."))
-
-
-class PrintTillTheEnd(threading.Thread):
-    def __init__(self, queue):
-        super().__init__()
-        self._queue = queue
-
-    def run(self):
-        while True:
-            line = self._queue.get()
-            if not line:
-                break
-            print(line.strip())
-
-
-class Tee(threading.Thread):
-    def __init__(self, reader):
-        super().__init__()
-        self.reader = reader
-        self.queue1 = Queue()
-        self.queue2 = Queue()
-
-    def run(self):
-        for line in self.reader:
-            self.queue1.put(line)
-            self.queue2.put(line)
-        self.queue1.put(None)
-        self.queue2.put(None)
-
-
-def start_torchserve(
-    model_store=None,
-    snapshot_file=None,
-    no_config_snapshots=False,
-    gen_mar=True,
-    plugin_folder=None,
-    disable_token=True,
-    models=None,
-    model_api_enabled=True,
-):
-    stop_torchserve()
-    crate_mar_file_table()
-    cmd = ["torchserve", "--start"]
-    model_store = model_store if model_store else MODEL_STORE
-    if gen_mar:
-        mg.gen_mar(model_store)
-    cmd.extend(["--model-store", model_store])
-    if plugin_folder:
-        cmd.extend(["--plugins-path", plugin_folder])
-    if snapshot_file:
-        cmd.extend(["--ts-config", snapshot_file])
-    if no_config_snapshots:
-        cmd.extend(["--no-config-snapshots"])
-    if disable_token:
-        cmd.append("--disable-token")
-    if models:
-        cmd.extend(["--models", models])
-    if model_api_enabled:
-        cmd.extend(["--model-api-enabled"])
-    print(cmd)
-
-    p = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=STDOUT)
-    for line in p.stdout:
-        print(line.decode("utf8").strip())
-        if "Model server started" in str(line).strip():
-            break
-
-    splitter = Tee(TextIOWrapper(p.stdout))
-    splitter.start()
-    print_thread = PrintTillTheEnd(splitter.queue1)
-    print_thread.start()
-
-    return splitter.queue2
-
-
-def stop_torchserve():
-    subprocess.run(["torchserve", "--stop", "--foreground"])
 
 
 def delete_all_snapshots():
@@ -113,6 +33,12 @@ def delete_model_store(model_store=None):
     model_store = model_store if model_store else MODEL_STORE
     for f in glob.glob(model_store + "/*.mar"):
         os.remove(f)
+
+
+def start_torchserve(*args, **kwargs):
+    create_mar_file_table()
+    kwargs.update({"model_store": kwargs.get("model_store", MODEL_STORE)})
+    return start(*args, **kwargs)
 
 
 def torchserve_cleanup():
@@ -163,7 +89,7 @@ environment_json = "../postman/environment.json"
 mar_file_table = {}
 
 
-def crate_mar_file_table():
+def create_mar_file_table():
     if not mar_file_table:
         with open(
             os.path.join(os.path.dirname(__file__), *environment_json.split("/")), "rb"
