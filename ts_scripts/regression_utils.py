@@ -62,6 +62,7 @@ def run_pytest():
     if status != 0:
         print("Could not generate gRPC client stubs")
         sys.exit(1)
+
     cmd = "python -m pytest -v ./ --ignore=sanity"
     print(f"## In directory: {os.getcwd()} | Executing command: {cmd}")
     status = os.system(cmd)
