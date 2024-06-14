@@ -1,6 +1,7 @@
 import asyncio
 import copy
 import logging
+import sys
 import time
 import types
 from asyncio.queues import Queue as AsyncQueue
@@ -91,7 +92,7 @@ class AsyncService(object):
         self.service = service
         self.service.predict = types.MethodType(predict, self.service)
         self.in_queue = Queue()
-        self.out_queue = AsyncQueue()
+        self.out_queue = None
         self.loop = None
 
     def receive_requests(self):
@@ -135,6 +136,11 @@ class AsyncService(object):
     def run(self):
         async def main():
             self.loop = asyncio.get_running_loop()
+            self.out_queue = (
+                AsyncQueue(loop=self.loop)
+                if sys.version_info <= (3, 9)
+                else AsyncQueue()
+            )
             fetch = Thread(target=self.fetch_batches)
             fetch.start()
             receive = Thread(target=self.receive_requests)
