@@ -1,0 +1,7 @@
+# TorchServe frontend parameters
+responseTimeout: 1200
+
+handler:
+    model_name: "llama-cpp"
+    model_path: "/Users/agunapal/Documents/experiments/llama/ggml-model-q4_0.gguf"
+    manual_seed: 40
