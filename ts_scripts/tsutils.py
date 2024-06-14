@@ -48,7 +48,8 @@ def start_torchserve(
     config_file="",
     log_file="",
     gen_mar=True,
-    mode=None,
+    disable_token=True,
+    model_api_enabled=True,
 ):
     if gen_mar:
         mg.gen_mar(model_store)
@@ -62,9 +63,11 @@ def start_torchserve(
         cmd.append(f"--workflow-store={workflow_store}")
     if ncs:
         cmd.append("--ncs")
+    if disable_token:
+        cmd.append("--disable-token")
     if config_file:
         cmd.append(f"--ts-config={config_file}")
-    if not mode:
+    if model_api_enabled:
         cmd.extend(["--model-api-enabled"])
     if log_file:
         print(f"## Console logs redirected to file: {log_file}")
