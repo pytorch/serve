@@ -139,7 +139,7 @@ def register_model(mar_file_path, model_store, torchserve):
     test_utils.unregister_model(model_name)
 
 
-def test_mnist_template(model_name):
+def test_async_worker_comm(model_name):
     response = requests.get(f"http://localhost:8081/models/{model_name}")
     assert response.status_code == 200, "Describe Failed"
 
