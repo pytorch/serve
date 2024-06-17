@@ -152,6 +152,8 @@ public class SequenceContinuousBatching extends SequenceBatching {
                 JobGroup jobGroup = model.getJobGroup(jobGroupId);
                 if (jobGroup != null) {
                     jobGroup.setFinished(true);
+                    // Add sequence end job back to job group
+                    // to signal poll executors to clean up job group
                     jobGroup.appendJob(job);
                 }
             }
