@@ -152,7 +152,8 @@ public class SequenceContinuousBatching extends SequenceBatching {
                 String jobGroupId = j.trim();
                 JobGroup jobGroup = model.getJobGroup(jobGroupId);
                 if (jobGroup != null) {
-                    logger.info("setJobGroupFinished setting job group as finished: {}", jobGroupId);
+                    logger.info(
+                            "setJobGroupFinished setting job group as finished: {}", jobGroupId);
                     jobGroup.setFinished(true);
                     jobGroup.appendJob(job);
                 }
@@ -174,7 +175,10 @@ public class SequenceContinuousBatching extends SequenceBatching {
 
     private void resetCurrentJobGroupIds() {
         if (!currentJobGroupIds.isEmpty()) {
-            logger.info("Resetting current job group Ids\ncurrentJobGroupIds: {}\neventJobGroupIds: {}", currentJobGroupIds, eventJobGroupIds);
+            logger.info(
+                    "Resetting current job group Ids\ncurrentJobGroupIds: {}\neventJobGroupIds: {}",
+                    currentJobGroupIds,
+                    eventJobGroupIds);
             eventJobGroupIds.addAll(currentJobGroupIds);
             currentJobGroupIds.clear();
         }

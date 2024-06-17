@@ -222,7 +222,9 @@ public class SequenceBatching extends BatchAggregator {
             JobGroup jobGroup = model.getJobGroup(jobGroupId);
             Job job = null;
             if (!jobGroup.isFinished()) {
-                logger.info("pollJobFromJobGroup is polling for new job from job group: {}", jobGroupId);
+                logger.info(
+                        "pollJobFromJobGroup is polling for new job from job group: {}",
+                        jobGroupId);
                 job = jobGroup.pollJob(model.getSequenceMaxIdleMSec());
             }
             if (job == null || jobGroup.isFinished()) {
@@ -231,7 +233,9 @@ public class SequenceBatching extends BatchAggregator {
                 // intent to add new job groups.
                 eventJobGroupIds.add("");
             } else {
-                logger.info("pollJobFromJobGroup is adding now job to queue for job group: {}", jobGroupId);
+                logger.info(
+                        "pollJobFromJobGroup is adding now job to queue for job group: {}",
+                        jobGroupId);
                 jobsQueue.add(job);
             }
         }
