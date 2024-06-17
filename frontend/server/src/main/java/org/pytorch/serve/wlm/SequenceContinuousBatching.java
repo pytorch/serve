@@ -174,11 +174,7 @@ public class SequenceContinuousBatching extends SequenceBatching {
     private void resetCurrentJobGroupIds() {
         if (!currentJobGroupIds.isEmpty()) {
             logger.info("Resetting current job group Ids\ncurrentJobGroupIds: {}\neventJobGroupIds: {}", currentJobGroupIds, eventJobGroupIds);
-            for (String job : currentJobGroupIds) {
-                if(!jobs.containsKey(job)) {
-                    eventJobGroupIds.add(job);
-                }
-            }
+            eventJobGroupIds.addAll(currentJobGroupIds);
             currentJobGroupIds.clear();
         }
         return;
