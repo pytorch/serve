@@ -155,7 +155,7 @@ public class SequenceContinuousBatching extends SequenceBatching {
                     logger.info(
                             "setJobGroupFinished setting job group as finished: {}", jobGroupId);
                     jobGroup.setFinished(true);
-                    jobGroup.appendJob(job);
+                    //jobGroup.appendJob(job);
                 }
             }
         }
