@@ -154,6 +154,7 @@ public class SequenceContinuousBatching extends SequenceBatching {
                 if (jobGroup != null) {
                     logger.info("setJobGroupFinished setting job group as finished: {}", jobGroupId);
                     jobGroup.setFinished(true);
+                    model.removeJobGroup(jobGroupId);
                 }
             }
         }
