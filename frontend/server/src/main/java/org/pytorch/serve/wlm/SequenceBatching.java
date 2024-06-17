@@ -195,6 +195,7 @@ public class SequenceBatching extends BatchAggregator {
                         CompletableFuture.runAsync(
                                 () -> {
                                     try {
+                                        logger.info("eventJobGroupIds before pollJobGroup: {}", eventJobGroupIds.toString());
                                         pollJobGroup();
                                     } catch (InterruptedException e) {
                                         logger.error("Failed to poll a job group", e);
@@ -205,6 +206,7 @@ public class SequenceBatching extends BatchAggregator {
 
                         CompletableFuture.runAsync(
                                 () -> {
+                                    logger.info("eventJobGroupIds before pollJobFromJobGroup: {}", eventJobGroupIds.toString());
                                     pollJobFromJobGroup(jobGroupId);
                                 },
                                 pollExecutors);
