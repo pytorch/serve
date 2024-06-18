@@ -1,7 +1,10 @@
 package org.pytorch.serve.wlm;
 
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -36,6 +39,8 @@ public class SequenceBatching extends BatchAggregator {
     protected LinkedList<String> currentJobGroupIds;
     private int localCapacity;
     private AtomicBoolean running = new AtomicBoolean(true);
+    // Thread safe HashSet tracking queues that have corresponding poll tasks in the executor queue
+    private Set<String> pollQueueTasks = Collections.synchronizedSet(new HashSet<String>());
 
     public SequenceBatching(Model model) {
         super(model);
@@ -192,20 +197,31 @@ public class SequenceBatching extends BatchAggregator {
                     String jobGroupId =
                             eventJobGroupIds.poll(model.getMaxBatchDelay(), TimeUnit.MILLISECONDS);
                     if (jobGroupId == null || jobGroupId.isEmpty()) {
+                        // Avoid duplicate poll tasks in the executor queue
+                        if (pollQueueTasks.contains("pendingJobGroups")) {
+                            continue;
+                        }
                         CompletableFuture.runAsync(
                                 () -> {
                                     try {
+                                        pollQueueTasks.add("pendingJobGroups");
                                         pollJobGroup();
+                                        pollQueueTasks.remove("pendingJobGroups");
                                     } catch (InterruptedException e) {
                                         logger.error("Failed to poll a job group", e);
                                     }
                                 },
                                 pollExecutors);
                     } else {
-
+                        // Avoid duplicate poll tasks in the executor queue
+                        if (pollQueueTasks.contains(jobGroupId)) {
+                            continue;
+                        }
                         CompletableFuture.runAsync(
                                 () -> {
+                                    pollQueueTasks.add(jobGroupId);
                                     pollJobFromJobGroup(jobGroupId);
+                                    pollQueueTasks.remove(jobGroupId);
                                 },
                                 pollExecutors);
                     }
@@ -224,7 +240,7 @@ public class SequenceBatching extends BatchAggregator {
             if (!jobGroup.isFinished()) {
                 job = jobGroup.pollJob(model.getSequenceMaxIdleMSec());
             }
-            if (job == null || jobGroup.isFinished()) {
+            if (job == null) {
                 // JobGroup expired, clean it.
                 cleanJobGroup(jobGroupId);
                 // intent to add new job groups.

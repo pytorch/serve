@@ -113,7 +113,7 @@ public class SequenceContinuousBatching extends SequenceBatching {
                 } else {
                     job.getPayload().setCachedInBackend(true);
                 }
-                setJobGroupFinished(job, prediction);
+                setJobGroupFinished(prediction);
             }
         } else {
             for (Map.Entry<String, Job> j : jobs.entrySet()) {
@@ -139,7 +139,7 @@ public class SequenceContinuousBatching extends SequenceBatching {
         return true;
     }
 
-    private void setJobGroupFinished(Job job, Predictions prediction) {
+    private void setJobGroupFinished(Predictions prediction) {
         String val =
                 prediction
                         .getHeaders()
@@ -152,9 +152,6 @@ public class SequenceContinuousBatching extends SequenceBatching {
                 JobGroup jobGroup = model.getJobGroup(jobGroupId);
                 if (jobGroup != null) {
                     jobGroup.setFinished(true);
-                    // Add sequence end job back to job group
-                    // to signal poll executors to clean up job group
-                    jobGroup.appendJob(job);
                 }
             }
         }
