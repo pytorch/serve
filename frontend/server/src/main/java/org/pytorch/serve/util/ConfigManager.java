@@ -46,7 +46,6 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.io.IOUtils;
 import org.pytorch.serve.archive.model.Manifest;
-import org.pytorch.serve.http.TokenAuthorizationHandler;
 import org.pytorch.serve.metrics.MetricBuilder;
 import org.pytorch.serve.servingsdk.snapshot.SnapshotSerializer;
 import org.pytorch.serve.snapshot.SnapshotSerializerFactory;
@@ -448,14 +447,6 @@ public final class ConfigManager {
             return "oip".equals(inferenceProtocol);
         }
         return Boolean.parseBoolean(prop.getProperty(TS_OPEN_INFERENCE_PROTOCOL, "false"));
-    }
-
-    public boolean setupToken() {
-        boolean disable_token_authorization = getDisableTokenAuthorization();
-        if (!disable_token_authorization) {
-            TokenAuthorizationHandler.setupTokenClass();
-        }
-        return true;
     }
 
     public boolean isGRPCSSLEnabled() {
@@ -1001,7 +992,7 @@ public final class ConfigManager {
                 logger.error("Token expiration not a valid integer");
             }
         }
-        return 0.0;
+        return 60.0;
     }
 
     public String getTsHeaderKeySequenceId() {

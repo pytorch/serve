@@ -9,14 +9,14 @@ import requests
 import test_utils
 
 ROOT_DIR = os.path.join(tempfile.gettempdir(), "workspace")
-REPO_ROOT = os.path.dirname(os.path.abspath(__file__))
-data_file_zero = os.path.join(REPO_ROOT, "test_data/0.png")
-config_file = os.path.join(REPO_ROOT, "../resources/config_token.properties")
+CURR_DIR = os.path.dirname(os.path.abspath(__file__))
+data_file_zero = os.path.join(CURR_DIR, "test_data/0.png")
+config_file = os.path.join(CURR_DIR, "../resources/config_token.properties")
 
 
 # Parse json file and return key
 def read_key_file(type):
-    json_file_path = os.path.join(REPO_ROOT, "key_file.json")
+    json_file_path = os.path.join(CURR_DIR, "key_file.json")
     with open(json_file_path) as json_file:
         json_data = json.load(json_file)
 
@@ -36,7 +36,7 @@ def setup_torchserve():
 
     Path(test_utils.MODEL_STORE).mkdir(parents=True, exist_ok=True)
 
-    test_utils.start_torchserve(no_config_snapshots=True, token=True)
+    test_utils.start_torchserve(no_config_snapshots=True, disable_token=False)
 
     key = read_key_file("management")
     header = {"Authorization": f"Bearer {key}"}
@@ -50,7 +50,7 @@ def setup_torchserve():
     response = requests.post(
         "http://localhost:8081/models", params=params, headers=header
     )
-    file_content = Path(f"{REPO_ROOT}/key_file.json").read_text()
+    file_content = Path(f"{CURR_DIR}/key_file.json").read_text()
     print(file_content)
 
     yield "test"
@@ -66,7 +66,7 @@ def setup_torchserve_expiration():
     Path(test_utils.MODEL_STORE).mkdir(parents=True, exist_ok=True)
 
     test_utils.start_torchserve(
-        snapshot_file=config_file, no_config_snapshots=True, token=True
+        snapshot_file=config_file, no_config_snapshots=True, disable_token=False
     )
 
     key = read_key_file("management")
@@ -81,7 +81,7 @@ def setup_torchserve_expiration():
     response = requests.post(
         "http://localhost:8081/models", params=params, headers=header
     )
-    file_content = Path(f"{REPO_ROOT}/key_file.json").read_text()
+    file_content = Path(f"{CURR_DIR}/key_file.json").read_text()
     print(file_content)
 
     yield "test"
@@ -224,7 +224,7 @@ def test_priority():
 
     Path(test_utils.MODEL_STORE).mkdir(parents=True, exist_ok=True)
     config_file_priority = os.path.join(
-        REPO_ROOT, "../resources/config_token_priority.properties"
+        CURR_DIR, "../resources/config_token_priority.properties"
     )
     test_utils.start_torchserve(
         snapshot_file=config_file_priority, no_config_snapshots=True
@@ -252,10 +252,12 @@ def test_priority_env(monkeypatch):
 
     Path(test_utils.MODEL_STORE).mkdir(parents=True, exist_ok=True)
     config_file_priority = os.path.join(
-        REPO_ROOT, "../resources/config_token_priority.properties"
+        CURR_DIR, "../resources/config_token_priority.properties"
     )
     test_utils.start_torchserve(
-        snapshot_file=config_file_priority, no_config_snapshots=True, token=True
+        snapshot_file=config_file_priority,
+        no_config_snapshots=True,
+        disable_token=False,
     )
 
     response = requests.get(f"http://localhost:8081/models")
@@ -279,7 +281,7 @@ def test_priority_env_cmd(monkeypatch):
 
     Path(test_utils.MODEL_STORE).mkdir(parents=True, exist_ok=True)
     config_file_priority = os.path.join(
-        REPO_ROOT, "../resources/config_token_priority2.properties"
+        CURR_DIR, "../resources/config_token_priority2.properties"
     )
     test_utils.start_torchserve(
         snapshot_file=config_file_priority, no_config_snapshots=True
