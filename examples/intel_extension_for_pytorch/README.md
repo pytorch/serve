@@ -120,6 +120,10 @@ To enable TorchServe to use Intel GPUs, set the following configuration in `conf
    ipex_enable=true
    ipex_gpu_enable=true
    ```
+To enable metric reading, additionally set:
+   ```
+   system_metrics_cmd=ts/metrics/intel_gpu_metric_collector.py --gpu ${Number of GPUs}
+   ```
 
 ## Performance Gain with Intel® Extension for PyTorch* and Intel GPU
 
