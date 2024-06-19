@@ -1,12 +1,12 @@
 minWorkers: 1
-maxWorkers: 1
+maxWorkers: 4
 maxBatchDelay: 200
 responseTimeout: 3600
 deviceType: "cpu"
-pt2 : {backend: "openvino"}
+pt2 : {backend: "openvino", options: {'model_caching' : True}}
 handler:
     model_path: "model"
-    num_inference_steps: 30
+    num_inference_steps: 10
     compile_unet: true
     compile_mode: "max-autotune"
     compile_vae: true

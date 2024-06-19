@@ -4,119 +4,138 @@ from concurrent.futures import ThreadPoolExecutor
 
 import requests
 import streamlit as st
+import asyncio
+import aiohttp
+import time
 
-MODEL_NAME_LLM = os.environ["MODEL_NAME_LLM"]
-MODEL_NAME_LLM = MODEL_NAME_LLM.replace("/", "---")
+import numpy as np
+from PIL import Image
+
+# MODEL_NAME_LLM = os.environ["MODEL_NAME_LLM"]
+# MODEL_NAME_LLM = MODEL_NAME_LLM.replace("/", "---")
 
 MODEL_NAME_SD = os.environ["MODEL_NAME_SD"]
 MODEL_NAME_SD = MODEL_NAME_SD.replace("/", "---")
 
 # App title
-st.set_page_config(page_title="TorchServe Chatbot")
+st.set_page_config(page_title="Image Generation with SDXL and OpenVino")
 
 with st.sidebar:
-    st.title("TorchServe Chatbot")
+    st.title("Image Generation with SDXL and OpenVino")
 
-    st.session_state.model_loaded = False
+    st.session_state.model_sd_loaded = False
+
     try:
         res = requests.get(url="http://localhost:8080/ping")
-        res = requests.get(url=f"http://localhost:8081/models/{MODEL_NAME_LLM}")
+        res = requests.get(url=f"http://localhost:8081/models/{MODEL_NAME_SD}")
         status = "NOT READY"
         if res.status_code == 200:
             status = json.loads(res.text)[0]["workers"][0]["status"]
 
         if status == "READY":
-            st.session_state.model_loaded = True
-            st.success("Proceed to entering your prompt message!", icon="👉")
+            st.session_state.model_sd_loaded = True
+            st.success("Proceed to entering your prompt input!", icon="👉")
         else:
-            st.warning("Model not loaded in TorchServe", icon="⚠️")
-
+            st.warning(
+                f"Model {MODEL_NAME_SD} not loaded in TorchServe", icon="⚠️")
     except requests.ConnectionError:
         st.warning("TorchServe is not up. Try again", icon="⚠️")
 
-    if st.session_state.model_loaded:
-        st.success(f"Model loaded: {MODEL_NAME_LLM}!", icon="👉")
+    if st.session_state.model_sd_loaded:
+        st.success(f"Model loaded: {MODEL_NAME_SD}", icon="👉")
 
-    st.subheader("Model parameters")
-    temperature = st.sidebar.slider(
-        "temperature", min_value=0.1, max_value=1.0, value=0.5, step=0.1
+    st.subheader("SD Model parameters")
+    num_inference_steps = st.sidebar.slider(
+        "steps", min_value=1, max_value=150, value=10, step=1
     )
-    top_p = st.sidebar.slider(
-        "top_p", min_value=0.1, max_value=1.0, value=0.5, step=0.1
+    guidance_scale = st.sidebar.slider(
+        "guidance_scale", min_value=1.0, max_value=30.0, value=5.0, step=0.5
     )
-    max_new_tokens = st.sidebar.slider(
-        "max_new_tokens", min_value=48, max_value=512, value=50, step=4
+    height = st.sidebar.slider(
+        "height", min_value=256, max_value=2048, value=512, step=8
     )
-    concurrent_requests = st.sidebar.select_slider(
-        "concurrent_requests", options=[2**j for j in range(0, 8)]
+    width = st.sidebar.slider(
+        "max_tokens", min_value=256, max_value=2048, value=512, step=8
     )
 
-# Store LLM generated responses
-if "messages" not in st.session_state.keys():
-    st.session_state.messages = [
-        {"role": "assistant", "content": "How may I assist you today?"}
-    ]
 
-# Display or clear chat messages
-for message in st.session_state.messages:
-    with st.chat_message(message["role"]):
-        st.write(message["content"])
+prompt = st.text_input("Text Prompt", "An astronaut riding a horse")
 
-
-def clear_chat_history():
-    st.session_state.messages = [
-        {"role": "assistant", "content": "How may I assist you today?"}
-    ]
+# TODO: For Tests, delete when LLM added
+prompt = [prompt,
+          "A robot playing a violin",
+          "A dragon flying over the mountains",
+          "A mermaid painting sunset on the beach"
+          ]
 
 
-st.sidebar.button("Clear Chat History", on_click=clear_chat_history)
+def generate_sd_response_v1(prompt_input):
+    url = f"http://127.0.0.1:8080/predictions/{MODEL_NAME_SD}"
+    response = []
+    for pr in prompt_input:
+        data_input = json.dumps(
+            {
+                "prompt": pr,
+                "guidance_scale": guidance_scale,
+                "num_inference_steps": num_inference_steps,
+                "height": height,
+                "width": width,
+            }
+        )
+        response.append(requests.post(url=url, data=data_input).text)
+    return response
 
 
-def generate_model_response(prompt_input, executor):
-    string_dialogue = (
-        "Question: What are the names of the planets in the solar system? Answer: "
-    )
-    headers = {"Content-type": "application/json", "Accept": "text/plain"}
-    url = f"http://127.0.0.1:8080/predictions/{MODEL_NAME_LLM}"
-    data = json.dumps(
+async def send_inference_request(session, prompt_input):
+    url = f"http://127.0.0.1:8080/predictions/{MODEL_NAME_SD}"
+
+    data_input = json.dumps(
         {
             "prompt": prompt_input,
-            "params": {
-                "max_new_tokens": max_new_tokens,
-                "top_p": top_p,
-                "temperature": temperature,
-            },
+            "guidance_scale": guidance_scale,
+            "num_inference_steps": num_inference_steps,
+            "height": height,
+            "width": width,
         }
     )
-    res = [
-        executor.submit(requests.post, url=url, data=data, headers=headers, stream=True)
-        for i in range(concurrent_requests)
-    ]
 
-    return res, max_new_tokens
+    async with session.post(url, data=data_input) as response:
+        assert response.status == 200
+        resp_text = await response.text()
+        return resp_text
 
 
-# User-provided prompt
-if prompt := st.chat_input():
-    st.session_state.messages.append({"role": "user", "content": prompt})
-    with st.chat_message("user"):
-        st.write(prompt)
+async def generate_sd_response_v2(prompts):
+    async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=None)) as session:
+        tasks = []
+        for prompt in prompts:
+            tasks.append(send_inference_request(session, prompt))
 
-# Generate a new response if last message is not from assistant
-if st.session_state.messages[-1]["role"] != "assistant":
-    with st.chat_message("assistant"):
-        with st.spinner("Thinking..."):
-            with ThreadPoolExecutor() as executor:
-                futures, max_tokens = generate_model_response(prompt, executor)
-                placeholder = st.empty()
-                full_response = ""
-                count = 0
-                for future in futures:
-                    response = future.result()
-                    for chunk in response.iter_content(chunk_size=None):
-                        if chunk:
-                            data = chunk.decode("utf-8")
-                            full_response += data
-                            placeholder.markdown(full_response)
-    message = {"role": "assistant", "content": full_response}
-    st.session_state.messages.append(message)
+        return await asyncio.gather(*tasks)
+
+
+def response_postprocess(response):
+    return [Image.fromarray(np.array(json.loads(text), dtype="uint8")) for text in response]
+
+# if st.button("Generate Images"):
+#     with st.spinner('Generating images...'):
+#         start_time = time.time()
+#         res = generate_sd_response_v1(prompt)
+#         inference_time = time.time() - start_time
+
+#         images = response_postprocess(res)
+
+#         st.write(f"Inference time: {inference_time:.2f} seconds")
+#         st.image(images, caption=["Generated Image"] * len(images), use_column_width=True)
+
+
+if st.button("Generate Images"):
+    with st.spinner('Generating images...'):
+        start_time = time.time()
+        res = asyncio.run(generate_sd_response_v2(prompt))
+        inference_time = time.time() - start_time
+
+        images = response_postprocess(res)
+
+        st.write(f"Inference time: {inference_time:.2f} seconds")
+        st.image(images, caption=prompt, use_column_width=True)

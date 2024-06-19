@@ -127,7 +127,7 @@ class StableDiffusionHandler(BaseHandler):
         """
         # Handling inference for sequence_classification.
         inferences = self.pipeline(
-            inputs, num_inference_steps=self.num_inference_steps, height=768, width=768
+            inputs, num_inference_steps=self.num_inference_steps, height=512, width=512
         ).images
 
         return inferences
