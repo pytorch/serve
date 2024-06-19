@@ -9,8 +9,8 @@ import logging
 import os
 import time
 
+import packaging.version
 import torch
-from pkg_resources import packaging
 
 from ts.handler_utils.timer import timed
 
