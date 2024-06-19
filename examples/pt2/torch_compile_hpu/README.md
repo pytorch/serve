@@ -93,3 +93,50 @@ Stop TorchServe with the following command:
 ```bash
 torchserve --stop
 ```
+
+### 6. Performance improvement from using `torch.compile`
+
+To measure the handler `preprocess`, `inference`, `postprocess` times, run the following
+
+#### Measure inference time with PyTorch eager
+
+```bash
+echo "minWorkers: 1
+maxWorkers: 1
+handler:
+  profile: true" > model-config.yaml
+```
+
+Once the `yaml` file is updated, create the model-archive, start TorchServe and run inference using the steps shown above.
+After a few iterations of warmup, we see the following
+
+```bash
+[INFO ] W-9000-resnet-50_1.0-stdout org.pytorch.serve.wlm.WorkerLifeCycle - result=[METRICS]ts_handler_preprocess.Milliseconds:6.921529769897461|#ModelName:resnet-50,Level:Model|#type:GAUGE|###,1718265363,fe1dcea2-854d-4847-848e-a05e922d456c, pattern=[METRICS]
+[INFO ] W-9000-resnet-50_1.0-stdout org.pytorch.serve.wlm.WorkerLifeCycle - result=[METRICS]ts_handler_inference.Milliseconds:5.218982696533203|#ModelName:resnet-50,Level:Model|#type:GAUGE|###,1718265363,fe1dcea2-854d-4847-848e-a05e922d456c, pattern=[METRICS]
+[INFO ] W-9000-resnet-50_1.0-stdout org.pytorch.serve.wlm.WorkerLifeCycle - result=[METRICS]ts_handler_postprocess.Milliseconds:8.724212646484375|#ModelName:resnet-50,Level:Model|#type:GAUGE|###,1718265363,fe1dcea2-854d-4847-848e-a05e922d456c, pattern=[METRICS]
+```
+
+#### Measure inference time with `torch.compile`
+
+```bash
+echo "minWorkers: 1
+maxWorkers: 1
+pt2:
+  compile:
+    enable: True
+    backend: hpu_backend
+handler:
+  profile: true" > model-config.yaml
+```
+
+Once the `yaml` file is updated, create the model-archive, start TorchServe and run inference using the steps shown above.
+`torch.compile` needs a few inferences to warmup. Once warmed up, we see the following
+```bash
+[INFO ] W-9000-resnet-50_1.0-stdout org.pytorch.serve.wlm.WorkerLifeCycle - result=[METRICS]ts_handler_preprocess.Milliseconds:6.833314895629883|#ModelName:resnet-50,Level:Model|#type:GAUGE|###,1718265582,53da9032-4ad3-49df-8cd4-2d499eea7691, pattern=[METRICS]
+[INFO ] W-9000-resnet-50_1.0-stdout org.pytorch.serve.wlm.WorkerLifeCycle - result=[METRICS]ts_handler_inference.Milliseconds:0.7846355438232422|#ModelName:resnet-50,Level:Model|#type:GAUGE|###,1718265582,53da9032-4ad3-49df-8cd4-2d499eea7691, pattern=[METRICS]
+[INFO ] W-9000-resnet-50_1.0-stdout org.pytorch.serve.wlm.WorkerLifeCycle - result=[METRICS]ts_handler_postprocess.Milliseconds:1.9681453704833984|#ModelName:resnet-50,Level:Model|#type:GAUGE|###,1718265582,53da9032-4ad3-49df-8cd4-2d499eea7691, pattern=[METRICS]
+```
+
+### Conclusion
+
+`torch.compile` reduces the inference time from 5.22ms to 0.78ms
