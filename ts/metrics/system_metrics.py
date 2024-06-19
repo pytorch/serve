@@ -2,13 +2,11 @@
 Module to collect system metrics for front-end
 """
 import logging
-import os
 import types
 from builtins import str
-import time
 
 import psutil
-import subprocess
+
 from ts.metrics.dimension import Dimension
 from ts.metrics.metric import Metric
 
@@ -61,72 +59,44 @@ def gpu_utilization(num_of_gpu):
     if num_of_gpu <= 0:
         return
 
-    if os.environ.get("TS_IPEX_GPU_ENABLE", "false") != "true":
+    # pylint: disable=wrong-import-position
+    # pylint: disable=import-outside-toplevel
+    import nvgpu
+    import pynvml
+    from nvgpu import list_gpus
 
-        # pylint: disable=wrong-import-position
-        # pylint: disable=import-outside-toplevel
-        import nvgpu
-        import pynvml
-        from nvgpu import list_gpus
+    # pylint: enable=wrong-import-position
+    # pylint: enable=import-outside-toplevel
 
-        # pylint: enable=wrong-import-position
-        # pylint: enable=import-outside-toplevel
-
-        info = nvgpu.gpu_info()
-        for value in info:
-            dimension_gpu = [
-                Dimension("Level", "Host"),
-                Dimension("device_id", value["index"]),
-            ]
-            system_metrics.append(
-                Metric(
-                    "GPUMemoryUtilization",
-                    value["mem_used_percent"],
-                    "percent",
-                    dimension_gpu,
-                )
+    info = nvgpu.gpu_info()
+    for value in info:
+        dimension_gpu = [
+            Dimension("Level", "Host"),
+            Dimension("device_id", value["index"]),
+        ]
+        system_metrics.append(
+            Metric(
+                "GPUMemoryUtilization",
+                value["mem_used_percent"],
+                "percent",
+                dimension_gpu,
             )
-            system_metrics.append(
-                Metric("GPUMemoryUsed", value["mem_used"], "MB", dimension_gpu)
-            )
+        )
+        system_metrics.append(
+            Metric("GPUMemoryUsed", value["mem_used"], "MB", dimension_gpu)
+        )
 
-        try:
-            statuses = list_gpus.device_statuses()
-        except pynvml.nvml.NVMLError_NotSupported:
-            logging.error("gpu device monitoring not supported")
-            statuses = []
+    try:
+        statuses = list_gpus.device_statuses()
+    except pynvml.nvml.NVMLError_NotSupported:
+        logging.error("gpu device monitoring not supported")
+        statuses = []
 
-        for idx, status in enumerate(statuses):
-            dimension_gpu = [Dimension("Level", "Host"), Dimension("device_id", idx)]
-            system_metrics.append(
-                Metric("GPUUtilization", status["utilization"], "percent", dimension_gpu)
-            )
-    else:
-
-        from intel_gpu import list_gpu_info
-        info = list_gpu_info(num_of_gpu)
-        for line in info[1:]:
-            dimension_gpu = [
-                Dimension("Level", "Host"),
-                Dimension("device_id", int(line[1])),
-            ]
-            if line[2] != 'N/A':
-                system_metrics.append(
-                    Metric("GPUUtilization", float(line[2]), "percent", dimension_gpu)
-                )
-            if line[3] != 'N/A':
-                system_metrics.append(
-                    Metric(
-                        "GPUMemoryUtilization",
-                        float(line[3]),
-                        "percent",
-                        dimension_gpu,
-                    )
-                )
-            if line[4] != 'N/A':
-                system_metrics.append(
-                    Metric("GPUMemoryUsed", float(line[4]), "MB", dimension_gpu)
-                )
+    for idx, status in enumerate(statuses):
+        dimension_gpu = [Dimension("Level", "Host"), Dimension("device_id", idx)]
+        system_metrics.append(
+            Metric("GPUUtilization", status["utilization"], "percent", dimension_gpu)
+        )
 
 
 def collect_all(mod, num_of_gpu):
