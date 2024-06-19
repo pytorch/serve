@@ -4,7 +4,7 @@
 This guide provides steps on how to optimize a ResNet50 model using `torch.compile` with [HPU backend](https://docs.habana.ai/en/latest/PyTorch/Inference_on_PyTorch/Getting_Started_with_Inference.html), aiming to enhance inference performance when deployed through TorchServe. `torch.compile` allows for ahead-of-time compilation of PyTorch models.
 
 ### Prerequisites and installation
-Fisrt install `Intel® Gaudi® AI accelerator software for PyTorch` - Go to [Installation_Guide](https://docs.habana.ai/en/latest/Installation_Guide/index.html) which covers installation procedures, including software verification and subsequent steps for software installation and management.
+First install `Intel® Gaudi® AI accelerator software for PyTorch` - Go to [Installation_Guide](https://docs.habana.ai/en/latest/Installation_Guide/index.html) which covers installation procedures, including software verification and subsequent steps for software installation and management.
 
 Then install the dependencies with the `--skip_torch_install` flag so as not to overwrite habana torch, which you should already have installed. Then install torchserve, torch-model-archiver torch-workflow-archiver as in the example below.
 
@@ -42,7 +42,7 @@ pt2:
     enable: True
     backend: hpu_backend" > model-config.yaml
 ```
-`pt2: {backend: "hpu_backend"}` - this line enables compile mode, if you remove it from the config file, the model will run in eager mode.
+Using this configuration will activate the compile mode. Eager mode can be enabled by setting `enable: False` or removing the whole `pt2:` section.
 
 ### 2. Create model archive
 
