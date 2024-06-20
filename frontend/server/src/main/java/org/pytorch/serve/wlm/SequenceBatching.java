@@ -10,6 +10,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.pytorch.serve.job.Job;
 import org.pytorch.serve.job.JobGroup;
 import org.pytorch.serve.util.messages.BaseModelRequest;
@@ -35,7 +36,7 @@ public class SequenceBatching extends BatchAggregator {
     // A list of jobGroupIds which are added into current batch. These jobGroupIds need to be added
     // back to eventJobGroupIds once their jobs are processed by a batch.
     protected LinkedList<String> currentJobGroupIds;
-    private int localCapacity;
+    private AtomicInteger localCapacity;
     private AtomicBoolean running = new AtomicBoolean(true);
     // A HashMap to track queue poll request tasks in the executor queue
     private ConcurrentHashMap<String, CompletableFuture<Void>> pollQueueTasks =
@@ -43,11 +44,11 @@ public class SequenceBatching extends BatchAggregator {
 
     public SequenceBatching(Model model) {
         super(model);
+        this.localCapacity = new AtomicInteger(model.getMaxNumSequence() / model.getMinWorkers());
         this.currentJobGroupIds = new LinkedList<>();
-        this.pollExecutors = Executors.newFixedThreadPool(model.getMaxNumSequence() + 1);
+        this.pollExecutors = Executors.newFixedThreadPool(localCapacity.get() + 1);
         this.jobsQueue = new LinkedBlockingDeque<>();
         this.isPollJobGroup = new AtomicBoolean(false);
-        this.localCapacity = model.getMaxNumSequence() / model.getMinWorkers();
         this.eventJobGroupIds = new LinkedBlockingDeque<>();
         this.eventJobGroupIds.add("");
         this.eventDispatcher = new Thread(new EventDispatcher());
@@ -74,7 +75,7 @@ public class SequenceBatching extends BatchAggregator {
 
             int quota =
                     Math.min(
-                            this.localCapacity - jobsQueue.size(),
+                            this.localCapacity.get(),
                             model.getPendingJobGroups().size() / model.getMaxWorkers());
             if (quota > 0 && model.getPendingJobGroups().size() > 0) {
                 model.getPendingJobGroups().drainTo(tmpJobGroups, quota);
@@ -124,6 +125,8 @@ public class SequenceBatching extends BatchAggregator {
         logger.debug("Clean jobGroup: {}", jobGroupId);
         if (jobGroupId != null) {
             model.removeJobGroup(jobGroupId);
+            pollQueueTasks.remove(jobGroupId);
+            localCapacity.incrementAndGet();
         }
     }
 
@@ -180,6 +183,7 @@ public class SequenceBatching extends BatchAggregator {
 
     private void addJobGroup(String jobGroupId) {
         if (jobGroupId != null) {
+            localCapacity.decrementAndGet();
             eventJobGroupIds.add(jobGroupId);
         }
     }
@@ -196,6 +200,10 @@ public class SequenceBatching extends BatchAggregator {
                     String jobGroupId =
                             eventJobGroupIds.poll(model.getMaxBatchDelay(), TimeUnit.MILLISECONDS);
                     if (jobGroupId == null || jobGroupId.isEmpty()) {
+                        // Skip fetching new jobGroup to work on when no capacity is available
+                        if (localCapacity.get() <= 0) {
+                            continue;
+                        }
                         // Avoid duplicate poll tasks in the executor queue
                         if (pollQueueTasks.containsKey("pendingJobGroups")
                                 && !pollQueueTasks.get("pendingJobGroups").isDone()) {
@@ -244,7 +252,6 @@ public class SequenceBatching extends BatchAggregator {
             if (job == null || jobGroup.isFinished()) {
                 // JobGroup expired, clean it.
                 cleanJobGroup(jobGroupId);
-                pollQueueTasks.remove(jobGroupId);
                 // intent to add new job groups.
                 eventJobGroupIds.add("");
             } else {
