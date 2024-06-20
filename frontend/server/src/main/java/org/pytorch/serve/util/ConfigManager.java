@@ -123,6 +123,7 @@ public final class ConfigManager {
     private static final String TS_HEADER_KEY_SEQUENCE_ID = "ts_header_key_sequence_id";
     private static final String TS_HEADER_KEY_SEQUENCE_START = "ts_header_key_sequence_start";
     private static final String TS_HEADER_KEY_SEQUENCE_END = "ts_header_key_sequence_end";
+    private static final String TS_DISABLE_TOKEN_AUTHORIZATION = "disable_token_authorization";
 
     // Configuration which are not documented or enabled through environment variables
     private static final String USE_NATIVE_IO = "use_native_io";
@@ -133,6 +134,7 @@ public final class ConfigManager {
     private static final String MODEL_CONFIG = "models";
     private static final String VERSION = "version";
     private static final String SYSTEM_METRICS_CMD = "system_metrics_cmd";
+    private static final String MODEL_CONTROL_MODE = "model_api_enabled";
 
     // Configuration default values
     private static final String DEFAULT_TS_ALLOWED_URLS = "file://.*|http(s)?://.*";
@@ -252,6 +254,15 @@ public final class ConfigManager {
         String[] models = args.getModels();
         if (models != null) {
             prop.setProperty(TS_LOAD_MODELS, String.join(",", models));
+        }
+
+        if (args.isModelEnabled().equals("true")) {
+            prop.setProperty(MODEL_CONTROL_MODE, args.isModelEnabled());
+        }
+
+        String tokenDisabled = args.isTokenDisabled();
+        if (tokenDisabled.equals("true")) {
+            prop.setProperty(TS_DISABLE_TOKEN_AUTHORIZATION, tokenDisabled);
         }
 
         prop.setProperty(
@@ -462,6 +473,10 @@ public final class ConfigManager {
         return getProperty(TS_CPU_LAUNCHER_ARGS, null);
     }
 
+    public boolean getDisableTokenAuthorization() {
+        return Boolean.parseBoolean(getProperty(TS_DISABLE_TOKEN_AUTHORIZATION, "false"));
+    }
+
     public int getNettyThreads() {
         return getIntProperty(TS_NUMBER_OF_NETTY_THREADS, 0);
     }
@@ -476,6 +491,10 @@ public final class ConfigManager {
 
     public int getNumberOfGpu() {
         return getIntProperty(TS_NUMBER_OF_GPU, 0);
+    }
+
+    public boolean getModelControlMode() {
+        return Boolean.parseBoolean(getProperty(MODEL_CONTROL_MODE, "false"));
     }
 
     public String getMetricsConfigPath() {
@@ -806,7 +825,9 @@ public final class ConfigManager {
                 + "\nModel config: "
                 + prop.getProperty(MODEL_CONFIG, "N/A")
                 + "\nSystem metrics command: "
-                + (getSystemMetricsCmd().isEmpty() ? "default" : getSystemMetricsCmd());
+                + (getSystemMetricsCmd().isEmpty() ? "default" : getSystemMetricsCmd())
+                + "\nModel API enabled: "
+                + (getModelControlMode() ? "true" : "false");
     }
 
     public boolean useNativeIo() {
@@ -971,7 +992,7 @@ public final class ConfigManager {
                 logger.error("Token expiration not a valid integer");
             }
         }
-        return 0.0;
+        return 60.0;
     }
 
     public String getTsHeaderKeySequenceId() {
@@ -1117,6 +1138,8 @@ public final class ConfigManager {
         private boolean snapshotDisabled;
         private String workflowStore;
         private String cppLogConfigFile;
+        private boolean tokenAuthEnabled;
+        private boolean modelApiEnabled;
 
         public Arguments() {}
 
@@ -1128,6 +1151,8 @@ public final class ConfigManager {
             snapshotDisabled = cmd.hasOption("no-config-snapshot");
             workflowStore = cmd.getOptionValue("workflow-store");
             cppLogConfigFile = cmd.getOptionValue("cpp-log-config");
+            tokenAuthEnabled = cmd.hasOption("disable-token");
+            modelApiEnabled = cmd.hasOption("model-api-enabled");
         }
 
         public static Options getOptions() {
@@ -1180,6 +1205,18 @@ public final class ConfigManager {
                             .argName("CPP-LOG-CONFIG")
                             .desc("log configuration file for cpp backend.")
                             .build());
+            options.addOption(
+                    Option.builder("dt")
+                            .longOpt("disable-token")
+                            .argName("TOKEN")
+                            .desc("disables token authorization")
+                            .build());
+            options.addOption(
+                    Option.builder("mapi")
+                            .longOpt("model-api-enabled")
+                            .argName("MODEL-API-ENABLED")
+                            .desc("sets model apis to enabled")
+                            .build());
             return options;
         }
 
@@ -1203,6 +1240,10 @@ public final class ConfigManager {
             return workflowStore;
         }
 
+        public String isTokenDisabled() {
+            return tokenAuthEnabled ? "true" : "false";
+        }
+
         public void setModelStore(String modelStore) {
             this.modelStore = modelStore;
         }
@@ -1213,6 +1254,10 @@ public final class ConfigManager {
 
         public void setModels(String[] models) {
             this.models = models.clone();
+        }
+
+        public String isModelEnabled() {
+            return String.valueOf(modelApiEnabled);
         }
 
         public boolean isSnapshotDisabled() {
