@@ -4,7 +4,7 @@
 #  - release: "0.5.3"
 # Nightly build will be installed if "ts_version" is not specifiged
 # ts_version:
-#     branch: &ts_version "nightly_fix"
+#     branch: &ts_version "master"
 
 # a list of model configure yaml files defined in benchmarks/models_config
 # or a list of model configure yaml files with full path
