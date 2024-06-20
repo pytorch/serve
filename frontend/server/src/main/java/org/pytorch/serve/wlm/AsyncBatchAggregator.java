@@ -162,7 +162,7 @@ public class AsyncBatchAggregator extends BatchAggregator {
             // Send the error message to all the jobs
             for (Map.Entry<String, Job> j : jobs_in_backend.entrySet()) {
                 String jobsId = j.getValue().getJobId();
-                Job job = jobs_in_backend.get(jobsId);
+                Job job = jobs_in_backend.remove(jobsId);
 
                 if (job.isControlCmd()) {
                     job.sendError(status, error);
