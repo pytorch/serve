@@ -51,4 +51,3 @@ def list_gpu_info(num_gpus):
 if __name__ == '__main__':
     print(count_gpus())
     print(list_gpu_info(1))
-    # print(list_gpu_info(2))

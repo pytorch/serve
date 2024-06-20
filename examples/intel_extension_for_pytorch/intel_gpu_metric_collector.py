@@ -1,15 +1,12 @@
 import argparse
-import logging
 import sys
 
 from ts.metrics.process_memory_metric import check_process_mem_usage
 
 import logging
-import os
 import types
 from builtins import str
 
-import psutil
 from intel_gpu import list_gpu_info
 from ts.metrics.dimension import Dimension
 from ts.metrics.metric import Metric
