@@ -2,7 +2,6 @@
 import json
 import logging
 import os
-import subprocess
 
 import kserve
 from kserve.model_server import ModelServer
@@ -31,17 +30,6 @@ def parse_config():
     separator = "="
     ts_configuration = {}
     config_path = os.environ.get("CONFIG_PATH", DEFAULT_CONFIG_PATH)
-
-    commands = [
-        f'echo "model_api_enabled=true" >> {config_path}',
-        f'echo "disable_token_authorization=true" >> {config_path}',
-    ]
-
-    for command in commands:
-        result = subprocess.run(command, shell=True, capture_output=True, text=True)
-        if result.returncode != 0:
-            print(f"Error executing command: {command}")
-            print(f"Error message: {result.stderr}")
 
     logging.info(f"Wrapper: loading configuration from {config_path}")
 
