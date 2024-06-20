@@ -38,13 +38,14 @@ public class SequenceBatching extends BatchAggregator {
     protected LinkedList<String> currentJobGroupIds;
     private AtomicInteger localCapacity;
     private AtomicBoolean running = new AtomicBoolean(true);
-    // A HashMap to track queue poll request tasks in the executor queue
+    // HashMap to track poll queue tasks in the executor queue
     private ConcurrentHashMap<String, CompletableFuture<Void>> pollQueueTasks =
             new ConcurrentHashMap<String, CompletableFuture<Void>>();
 
     public SequenceBatching(Model model) {
         super(model);
-        this.localCapacity = new AtomicInteger(model.getMaxNumSequence() / model.getMinWorkers());
+        this.localCapacity =
+                new AtomicInteger(Math.max(1, model.getMaxNumSequence() / model.getMinWorkers()));
         this.currentJobGroupIds = new LinkedList<>();
         this.pollExecutors = Executors.newFixedThreadPool(localCapacity.get() + 1);
         this.jobsQueue = new LinkedBlockingDeque<>();
@@ -76,7 +77,8 @@ public class SequenceBatching extends BatchAggregator {
             int quota =
                     Math.min(
                             this.localCapacity.get(),
-                            model.getPendingJobGroups().size() / model.getMaxWorkers());
+                            Math.max(
+                                    1, model.getPendingJobGroups().size() / model.getMaxWorkers()));
             if (quota > 0 && model.getPendingJobGroups().size() > 0) {
                 model.getPendingJobGroups().drainTo(tmpJobGroups, quota);
             }
@@ -200,13 +202,12 @@ public class SequenceBatching extends BatchAggregator {
                     String jobGroupId =
                             eventJobGroupIds.poll(model.getMaxBatchDelay(), TimeUnit.MILLISECONDS);
                     if (jobGroupId == null || jobGroupId.isEmpty()) {
-                        // Skip fetching new jobGroup to work on when no capacity is available
+                        // Skip fetching new job groups when no capacity is available
                         if (localCapacity.get() <= 0) {
                             continue;
                         }
                         // Avoid duplicate poll tasks in the executor queue
-                        if (pollQueueTasks.containsKey("pendingJobGroups")
-                                && !pollQueueTasks.get("pendingJobGroups").isDone()) {
+                        if (pollQueueTasks.containsKey("") && !pollQueueTasks.get("").isDone()) {
                             continue;
                         }
                         CompletableFuture<Void> pollTask =
@@ -219,7 +220,7 @@ public class SequenceBatching extends BatchAggregator {
                                             }
                                         },
                                         pollExecutors);
-                        pollQueueTasks.put("pendingJobGroups", pollTask);
+                        pollQueueTasks.put("", pollTask);
                     } else {
                         // Avoid duplicate poll tasks in the executor queue
                         if (pollQueueTasks.containsKey(jobGroupId)
