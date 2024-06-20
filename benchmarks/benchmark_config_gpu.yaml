@@ -10,11 +10,11 @@
 # or a list of model configure yaml files with full path
 models:
     - "bert_multi_gpu.yaml"
-    - "bert_multi_gpu_better_transformer.yaml"
-    - "bert_multi_gpu_no_better_transformer.yaml"
-    - "fastrcnn.yaml"
-    - "mnist.yaml"
-    - "vgg16.yaml"
+    # - "bert_multi_gpu_better_transformer.yaml"
+    # - "bert_multi_gpu_no_better_transformer.yaml"
+    # - "fastrcnn.yaml"
+    # - "mnist.yaml"
+    # - "vgg16.yaml"
 #    - "wf_dog_breed.yaml"
 
 # benchmark on "cpu" or "gpu".
@@ -49,4 +49,3 @@ report_cmd:
     - "cmd": "aws s3 cp --recursive"
     - "source": '/tmp/ts_benchmark/'
     - "dest": ['s3://torchserve-benchmark/nightly', "today()", *hardware]
-
