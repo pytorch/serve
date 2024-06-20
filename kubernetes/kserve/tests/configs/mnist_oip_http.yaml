@@ -20,6 +20,6 @@ spec:
       env:
         - name: "TS_OPEN_INFERENCE_PROTOCOL"
           value: "oip"
-      args:
-      - --disable-token
-      - --model-api-enabled
+      # args:
+      # - --disable-token
+      # - --model-api-enabled
