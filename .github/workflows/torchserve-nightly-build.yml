@@ -2,11 +2,8 @@ name: Push torchserve nightly
 
 on:
   # run every day at 11:15am
-  # schedule:
-  #   - cron:  '15 11 * * *'
-  push:
-    branches:
-    - nightly_fix
+  schedule:
+    - cron:  '15 11 * * *'
 
 jobs:
   nightly:
