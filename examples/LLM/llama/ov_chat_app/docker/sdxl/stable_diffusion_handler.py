@@ -5,10 +5,12 @@ from pathlib import Path
 import numpy as np
 import torch
 from pipeline_utils import load_pipeline
+import json
 
 from ts.handler_utils.timer import timed
 from ts.torch_handler.base_handler import BaseHandler
 from ts.utils.util import check_valid_pt2_backend
+
 
 logger = logging.getLogger(__name__)
 
@@ -107,18 +109,12 @@ class StableDiffusionHandler(BaseHandler):
             len(requests) == 1
         ), "Stable Diffusion is currently only supported with batch_size=1"
 
-        inputs = []
-        for _, data in enumerate(requests):
-            input_text = data.get("data")
-            if input_text is None:
-                input_text = data.get("body")
-            if isinstance(input_text, (bytes, bytearray)):
-                input_text = input_text.decode("utf-8")
-            inputs.append(input_text)
-        return inputs
+        data = requests[0]
+        input_text = data.get("data") or data.get("body")
+        return input_text
 
     @timed
-    def inference(self, inputs):
+    def inference(self, model_inputs):
         """Generates the image relevant to the received text.
         Args:
             input_batch (list): List of Text from the pre-process function is passed here
@@ -126,8 +122,13 @@ class StableDiffusionHandler(BaseHandler):
             list : It returns a list of the generate images for the input text
         """
         # Handling inference for sequence_classification.
+        model_inputs = json.loads(model_inputs)
+        guidance_scale = model_inputs.get("guidance_scale") or 5.0
+        num_inference_steps = model_inputs.get("num_inference_steps") or 30
+        height = model_inputs.get("height") or 512
+        width = model_inputs.get("width") or 512
         inferences = self.pipeline(
-            inputs, num_inference_steps=self.num_inference_steps, height=512, width=512
+            model_inputs["prompt"], num_inference_steps=num_inference_steps, guidance_scale=guidance_scale, height=height, width=width
         ).images
 
         return inferences
