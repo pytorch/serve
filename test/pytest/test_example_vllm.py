@@ -139,8 +139,7 @@ def create_mar_file(work_dir, model_archiver, model_name, request):
     shutil.rmtree(mar_file_path)
 
 
-# @pytest.mark.skipif(**necessary_files_unavailable())
-@pytest.mark.skip(reason="Debug CI Issue")
+@pytest.mark.skipif(**necessary_files_unavailable())
 def test_vllm_lora_mar(mar_file_path, model_store, torchserve):
     """
     Register the model in torchserve
