@@ -1,6 +1,7 @@
 import json
 import os
 import sys
+import yaml
 
 import torch
 import transformers
@@ -151,9 +152,10 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         filename = os.path.join(dirname, sys.argv[1])
     else:
-        filename = os.path.join(dirname, "setup_config.json")
+        filename = os.path.join(dirname, "model-config.yaml")
     f = open(filename)
-    settings = json.load(f)
+    model_yaml_config = yaml.safe_load(f)
+    settings = model_yaml_config["handler"]
     mode = settings["mode"]
     model_name = settings["model_name"]
     num_labels = int(settings["num_labels"])
