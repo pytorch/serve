@@ -1,10 +1,9 @@
-import json
 import os
 import sys
-import yaml
 
 import torch
 import transformers
+import yaml
 from transformers import (
     AutoConfig,
     AutoModelForCausalLM,
