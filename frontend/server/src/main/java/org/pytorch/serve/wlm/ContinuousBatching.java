@@ -19,6 +19,7 @@ public class ContinuousBatching extends BatchAggregator {
         super(model);
     }
 
+    @Override
     public BaseModelRequest getRequest(String threadName, WorkerState state)
             throws InterruptedException, ExecutionException {
         int batchQuota = model.getBatchSize() - jobs.size();
@@ -60,6 +61,7 @@ public class ContinuousBatching extends BatchAggregator {
      * @return - true: either a non-stream response or last stream response is sent - false: a
      *     stream response (not include the last stream) is sent
      */
+    @Override
     public boolean sendResponse(ModelWorkerResponse message) {
         // TODO: Handle prediction level code
         if (message.getCode() == 200) {
@@ -98,7 +100,7 @@ public class ContinuousBatching extends BatchAggregator {
                         prediction
                                 .getHeaders()
                                 .get(org.pytorch.serve.util.messages.RequestInput.TS_STREAM_NEXT);
-                if (streamNext != null && streamNext.equals("false")) {
+                if (streamNext == null || (streamNext != null && streamNext.equals("false"))) {
                     jobs.remove(jobId);
                 } else if (!job.isOpen()) {
                     jobs.remove(job.getJobId());

@@ -541,9 +541,8 @@ public class WorkerThread implements Runnable {
         if (backoffIdx < BACK_OFF.length - 1) {
             ++backoffIdx;
         }
-        if (aggregator instanceof SequenceBatchAggregator) {
-            ((SequenceBatchAggregator) aggregator).startEventDispatcher();
-        }
+        aggregator.startEventDispatcher();
+
         manager.getScheduler()
                 .schedule(() -> manager.submitTask(this), BACK_OFF[backoffIdx], TimeUnit.SECONDS);
         logger.info("Retry worker: {} in {} seconds.", workerId, BACK_OFF[backoffIdx]);

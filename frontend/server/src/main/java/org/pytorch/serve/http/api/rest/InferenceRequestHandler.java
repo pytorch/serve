@@ -13,6 +13,7 @@ import java.net.HttpURLConnection;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import org.pytorch.serve.archive.DownloadArchiveException;
 import org.pytorch.serve.archive.model.ModelException;
 import org.pytorch.serve.archive.model.ModelNotFoundException;
@@ -255,6 +256,15 @@ public class InferenceRequestHandler extends HttpRequestHandlerChain {
             throw new ModelNotFoundException("Model not found: " + modelName);
         }
         input.setClientExpireTS(model.getClientTimeoutInMills());
+        if (model.isSequenceBatching()) {
+            String sequenceId = input.getSequenceId();
+            if ("".equals(sequenceId)) {
+                sequenceId = String.format("ts-seq-%s", UUID.randomUUID());
+                input.updateHeaders(
+                        ConfigManager.getInstance().getTsHeaderKeySequenceStart(), "true");
+            }
+            input.updateHeaders(ConfigManager.getInstance().getTsHeaderKeySequenceId(), sequenceId);
+        }
 
         if (HttpMethod.OPTIONS.equals(req.method())) {
             String resp = OpenApiUtils.getModelApi(model);
