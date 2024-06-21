@@ -233,21 +233,6 @@ class TorchModelServiceWorker(object):
 
         service.run()
 
-        # while True:
-        #     if BENCHMARK:
-        #         pr.disable()
-        #         pr.dump_stats("/tmp/tsPythonProfile.prof")
-        #     cmd, msg = retrieve_msg(cl_socket)
-        #     if BENCHMARK:
-        #         pr.enable()
-        #     # b"I" encodes a model Inference request from frontend
-        #     if cmd == b"I":
-        #         resp = service.predict(msg)
-        #         if LOCAL_RANK == 0:
-        #             cl_socket.sendall(resp)
-        #         else:
-        #             logging.info("skip sending response at rank %d", LOCAL_RANK)
-
     def run_server(self):
         """
         Run the backend worker process and listen on a socket
