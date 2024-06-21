@@ -24,7 +24,7 @@ cd ..
 Add the downloaded path to "model_path:" and "adapter_1:" in `model-config.yaml` and run the following.
 
 ```bash
-torch-model-archiver --model-name llama-7b-lora --version 1.0 --handler ../base_vllm_handler.py --config-file model-config.yaml -r ../requirements.txt --archive-format no-archive
+torch-model-archiver --model-name llama-7b-lora --version 1.0 --handler vllm_handler --config-file model-config.yaml --archive-format no-archive
 mv model llama-7b-lora
 mv adapters llama-7b-lora
 ```

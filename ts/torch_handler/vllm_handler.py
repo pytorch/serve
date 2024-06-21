@@ -12,7 +12,7 @@ from ts.torch_handler.base_handler import BaseHandler
 logger = logging.getLogger(__name__)
 
 
-class BaseVLLMHandler(BaseHandler):
+class VLLMHandler(BaseHandler):
     def __init__(self):
         super().__init__()
 
