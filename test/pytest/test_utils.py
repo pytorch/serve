@@ -14,7 +14,7 @@ import requests
 # To help discover margen modules
 REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../")
 sys.path.append(REPO_ROOT)
-from ts.launcher import start
+from ts.launcher import register_model, register_model_with_params, start  # noqa
 from ts.launcher import stop as stop_torchserve
 
 ROOT_DIR = os.path.join(tempfile.gettempdir(), "workspace")
