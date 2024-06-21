@@ -496,7 +496,6 @@ public final class ConfigManager {
     }
 
     public int getNumberOfGpu() {
-        // return 1;
         return getIntProperty(TS_NUMBER_OF_GPU, 0);
     } 
 
