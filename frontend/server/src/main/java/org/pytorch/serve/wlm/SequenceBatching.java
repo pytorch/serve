@@ -16,27 +16,28 @@ import org.pytorch.serve.util.messages.ModelWorkerResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SequenceBatchAggregator extends BatchAggregator {
+public class SequenceBatching extends BatchAggregator {
 
-    private static final Logger logger = LoggerFactory.getLogger(SequenceBatchAggregator.class);
+    private static final Logger logger = LoggerFactory.getLogger(SequenceBatching.class);
     private ExecutorService pollExecutors;
     /**
-     * eventJobGroupIds is an queue in EventDispatcher. It's item has 2 cases. - empty string:
-     * trigger EventDispatcher to fetch new job groups. - job group id: trigger EventDispatcher to
+     * eventJobGroupIds is an queue in EventDispatcher. It's item has 2 cases. 1) empty string:
+     * trigger EventDispatcher to fetch new job groups. 2) job group id: trigger EventDispatcher to
      * fetch a new job from this jobGroup.
      */
-    private LinkedBlockingDeque<String> eventJobGroupIds;
+    protected LinkedBlockingDeque<String> eventJobGroupIds;
     // A queue holds jobs ready for this aggregator to add into a batch. Each job of this queue is
-    // from distinct jobGroup.
-    private LinkedBlockingDeque<Job> jobsQueue;
+    // from distinct jobGroup. jobs
+    protected LinkedBlockingDeque<Job> jobsQueue;
     private Thread eventDispatcher;
     private AtomicBoolean isPollJobGroup;
     // A list of jobGroupIds which are added into current batch. These jobGroupIds need to be added
     // back to eventJobGroupIds once their jobs are processed by a batch.
-    private LinkedList<String> currentJobGroupIds;
+    protected LinkedList<String> currentJobGroupIds;
     private int localCapacity;
+    private AtomicBoolean running = new AtomicBoolean(true);
 
-    public SequenceBatchAggregator(Model model) {
+    public SequenceBatching(Model model) {
         super(model);
         this.currentJobGroupIds = new LinkedList<>();
         this.pollExecutors = Executors.newFixedThreadPool(model.getBatchSize() + 1);
@@ -49,6 +50,7 @@ public class SequenceBatchAggregator extends BatchAggregator {
         this.eventDispatcher.start();
     }
 
+    @Override
     public void startEventDispatcher() {
         this.eventDispatcher.start();
     }
@@ -81,7 +83,7 @@ public class SequenceBatchAggregator extends BatchAggregator {
         isPollJobGroup.set(false);
     }
 
-    private void pollInferJob() throws InterruptedException {
+    protected void pollInferJob() throws InterruptedException {
         model.pollInferJob(jobs, model.getBatchSize(), jobsQueue);
 
         for (Job job : jobs.values()) {
@@ -161,6 +163,13 @@ public class SequenceBatchAggregator extends BatchAggregator {
         }
     }
 
+    @Override
+    public void shutdown() {
+        this.setRunning(false);
+        this.shutdownExecutors();
+        this.stopEventDispatcher();
+    }
+
     public void shutdownExecutors() {
         this.pollExecutors.shutdown();
     }
@@ -171,10 +180,14 @@ public class SequenceBatchAggregator extends BatchAggregator {
         }
     }
 
+    public void setRunning(boolean running) {
+        this.running.set(running);
+    }
+
     class EventDispatcher implements Runnable {
         @Override
         public void run() {
-            while (true) {
+            while (running.get()) {
                 try {
                     String jobGroupId =
                             eventJobGroupIds.poll(model.getMaxBatchDelay(), TimeUnit.MILLISECONDS);
@@ -197,7 +210,9 @@ public class SequenceBatchAggregator extends BatchAggregator {
                                 pollExecutors);
                     }
                 } catch (InterruptedException e) {
-                    logger.error("EventDispatcher failed to get jobGroup", e);
+                    if (running.get()) {
+                        logger.error("EventDispatcher failed to get jobGroup", e);
+                    }
                 }
             }
         }
@@ -205,7 +220,10 @@ public class SequenceBatchAggregator extends BatchAggregator {
         private void pollJobFromJobGroup(String jobGroupId) {
             // Poll a job from a jobGroup
             JobGroup jobGroup = model.getJobGroup(jobGroupId);
-            Job job = jobGroup.pollJob(model.getSequenceMaxIdleMSec());
+            Job job = null;
+            if (!jobGroup.isFinished()) {
+                job = jobGroup.pollJob(model.getSequenceMaxIdleMSec());
+            }
             if (job == null) {
                 // JobGroup expired, clean it.
                 cleanJobGroup(jobGroupId);

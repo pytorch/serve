@@ -22,6 +22,8 @@ function start_minikube_cluster() {
 
 function build_docker_image() {
     eval $(minikube docker-env)
+    echo "model_api_enabled=true" >> $ROOT_DIR/$EXAMPLE_DIR/../docker/config.properties
+    echo "disable_token_authorization=true" >> $ROOT_DIR/$EXAMPLE_DIR/../docker/config.properties
     docker system prune -f
     docker build -t $DOCKER_IMAGE --file $ROOT_DIR/$EXAMPLE_DIR/../docker/Dockerfile --build-arg EXAMPLE_DIR="${EXAMPLE_DIR}" .
     eval $(minikube docker-env -u)

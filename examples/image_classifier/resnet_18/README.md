@@ -23,7 +23,11 @@ Ex:  `cd  examples/image_classifier/resnet_18`
 In this example , we use the following config
 
 ```
-echo "pt2 : {backend: inductor, mode: reduce-overhead}" > model-config.yaml
+echo "pt2:
+  compile:
+    enable: True
+    backend: inductor
+    mode: reduce-overhead" > model-config.yaml
 ```
 
 ##### Sample commands to create a Resnet18 torch.compile model archive, register it on TorchServe and run image prediction
