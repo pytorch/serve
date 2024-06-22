@@ -162,7 +162,7 @@ public final class ConfigManager {
     private static Pattern pattern = Pattern.compile("\\$\\$([^$]+[^$])\\$\\$");
 
     private Pattern blacklistPattern;
-    private Properties prop; 
+    private Properties prop;
 
     private boolean snapshotDisabled;
 
@@ -272,7 +272,6 @@ public final class ConfigManager {
                         Integer.min(
                                 getAvailableGpu(),
                                 getIntProperty(TS_NUMBER_OF_GPU, Integer.MAX_VALUE))));
-
 
         String pythonExecutable = args.getPythonExecutable();
         if (pythonExecutable != null) {
@@ -497,7 +496,7 @@ public final class ConfigManager {
 
     public int getNumberOfGpu() {
         return getIntProperty(TS_NUMBER_OF_GPU, 0);
-    } 
+    }
 
     public boolean getModelControlMode() {
         return Boolean.parseBoolean(getProperty(MODEL_CONTROL_MODE, "false"));
@@ -653,7 +652,7 @@ public final class ConfigManager {
     public String getSystemMetricsCmd() {
         return prop.getProperty(SYSTEM_METRICS_CMD, "");
     }
- 
+
     public SslContext getSslContext() throws IOException, GeneralSecurityException {
         List<String> supportedCiphers =
                 Arrays.asList(
@@ -962,51 +961,47 @@ public final class ConfigManager {
                 return 0;
             } else {
 
-                
                 try {
                     Process process =
-                        Runtime.getRuntime().exec("nvidia-smi --query-gpu=index --format=csv");
-                int ret = process.waitFor();
-                if (ret != 0) {
-                    return 0;
-                }
-                List<String> list =
-                        IOUtils.readLines(process.getInputStream(), StandardCharsets.UTF_8);
-                if (list.isEmpty() || !"index".equals(list.get(0))) {
-                    throw new AssertionError("Unexpected nvidia-smi response.");
-                }
-                for (int i = 1; i < list.size(); i++) {
-                    gpuIds.add(Integer.parseInt(list.get(i)));
-                }
-                }catch (IOException | InterruptedException e) {
-                System.out.println("nvidia-smi not available or failed: " + e.getMessage());
-                }
-                try {
-                Process process = Runtime.getRuntime().exec("xpu-smi discovery --dump 1");
-                int ret = process.waitFor();
+                            Runtime.getRuntime().exec("nvidia-smi --query-gpu=index --format=csv");
+                    int ret = process.waitFor();
                     if (ret != 0) {
                         return 0;
                     }
-                List<String> list =
-                        IOUtils.readLines(process.getInputStream(), StandardCharsets.UTF_8);
-                if (list.isEmpty() || !list.get(0).contains("Device ID")) {
-                    throw new AssertionError("Unexpected xpu-smi response.");
+                    List<String> list =
+                            IOUtils.readLines(process.getInputStream(), StandardCharsets.UTF_8);
+                    if (list.isEmpty() || !"index".equals(list.get(0))) {
+                        throw new AssertionError("Unexpected nvidia-smi response.");
+                    }
+                    for (int i = 1; i < list.size(); i++) {
+                        gpuIds.add(Integer.parseInt(list.get(i)));
+                    }
+                } catch (IOException | InterruptedException e) {
+                    System.out.println("nvidia-smi not available or failed: " + e.getMessage());
                 }
-                for (int i = 1; i < list.size(); i++) {
-                    gpuIds.add(Integer.parseInt(list.get(i)));
+                try {
+                    Process process = Runtime.getRuntime().exec("xpu-smi discovery --dump 1");
+                    int ret = process.waitFor();
+                    if (ret != 0) {
+                        return 0;
+                    }
+                    List<String> list =
+                            IOUtils.readLines(process.getInputStream(), StandardCharsets.UTF_8);
+                    if (list.isEmpty() || !list.get(0).contains("Device ID")) {
+                        throw new AssertionError("Unexpected xpu-smi response.");
+                    }
+                    for (int i = 1; i < list.size(); i++) {
+                        gpuIds.add(Integer.parseInt(list.get(i)));
+                    }
+                } catch (IOException | InterruptedException e) {
+                    System.out.println("xpu-smi not available or failed: " + e.getMessage());
                 }
-                }catch (IOException | InterruptedException e) {
-                System.out.println("xpu-smi not available or failed: " + e.getMessage());
-                }
-
-                
-            
             }
             return gpuIds.size();
         } catch (IOException | InterruptedException e) {
             return 0;
         }
-        }
+    }
 
     public List<String> getAllowedUrls() {
         String allowedURL = prop.getProperty(TS_ALLOWED_URLS, DEFAULT_TS_ALLOWED_URLS);
