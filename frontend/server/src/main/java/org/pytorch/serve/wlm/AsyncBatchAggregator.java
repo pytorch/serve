@@ -1,6 +1,8 @@
 package org.pytorch.serve.wlm;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import org.pytorch.serve.job.Job;
@@ -160,7 +162,8 @@ public class AsyncBatchAggregator extends BatchAggregator {
             }
         } else {
             // Send the error message to all the jobs
-            for (Map.Entry<String, Job> j : jobs_in_backend.entrySet()) {
+            List<Map.Entry<String, Job>> entries = new ArrayList<>(jobs_in_backend.entrySet());
+            for (Map.Entry<String, Job> j : entries) {
                 String jobsId = j.getValue().getJobId();
                 Job job = jobs_in_backend.remove(jobsId);
 
