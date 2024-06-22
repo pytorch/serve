@@ -1,0 +1,8 @@
+FROM pytorch/torchserve-nightly:latest-gpu as server
+ARG HUGGINGFACE_TOKEN
+
+USER root
+
+RUN pip install vllm
+
+ENTRYPOINT [ "/bin/bash" ]
