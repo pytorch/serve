@@ -3,9 +3,11 @@ import copy
 import logging
 import sys
 import time
+import traceback
 import types
 from asyncio.queues import Queue as AsyncQueue
 from concurrent.futures.thread import ThreadPoolExecutor
+from functools import partial
 from queue import Empty, Queue
 from threading import Thread
 
@@ -93,6 +95,7 @@ class AsyncService(object):
         self.service.predict = types.MethodType(predict, self.service)
         self.in_queue = Queue()
         self.out_queue = None
+        self.exception_queue = Queue()
         self.loop = None
 
     def receive_requests(self):
@@ -141,16 +144,34 @@ class AsyncService(object):
                 if sys.version_info <= (3, 9)
                 else AsyncQueue()
             )
-            fetch = Thread(target=self.fetch_batches)
-            fetch.start()
-            receive = Thread(target=self.receive_requests)
-            receive.start()
-            send = Thread(target=self.send_responses)
-            send.start()
+
+            def catch_all(func):
+                try:
+                    func()
+                except Exception as e:
+                    self.exception_queue.put(str(traceback.format_exc()))
+
+            threads = []
+            threads.append(Thread(target=partial(catch_all, self.fetch_batches)))
+            threads[-1].start()
+            threads.append(Thread(target=partial(catch_all, self.receive_requests)))
+            threads[-1].start()
+            threads.append(Thread(target=partial(catch_all, self.send_responses)))
+            threads[-1].start()
 
             logging.debug("Running async run")
 
-            with ThreadPoolExecutor(1) as executor:
-                await asyncio.get_event_loop().run_in_executor(executor, send.join)
+            def check_threads():
+                while True:
+                    if not all(t.is_alive() for t in threads):
+                        return
+                    time.sleep(1)
 
-        asyncio.run(main())
+            with ThreadPoolExecutor(1) as executor:
+                await asyncio.get_event_loop().run_in_executor(executor, check_threads)
+
+        asyncio.get_event_loop().run_until_complete(main())
+        if not self.exception_queue.empty():
+            return self.exception_queue.get()
+        else:
+            return None

@@ -231,7 +231,9 @@ class TorchModelServiceWorker(object):
 
         service = AsyncService(service)
 
-        service.run()
+        error = service.run()
+        if error:
+            raise RuntimeError(f"Error in AsyncService:\n {error}")
 
     def run_server(self):
         """
