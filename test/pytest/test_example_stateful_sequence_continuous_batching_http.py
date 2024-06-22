@@ -22,7 +22,7 @@ minWorkers: 2
 maxWorkers: 2
 batchSize: 1
 maxNumSequence: 2
-sequenceMaxIdleMSec: 5000
+sequenceMaxIdleMSec: 60000
 maxSequenceJobQueueSize: 10
 sequenceBatching: true
 continuousBatching: true
@@ -219,39 +219,51 @@ def test_infer_stateful_cancel(mar_file_path, model_store):
 
     try:
         test_utils.reg_resp = test_utils.register_model_with_params(params)
-        with requests.post(
-            url=f"http://localhost:8080/predictions/{model_name}",
-            data=str(2).encode(),
-        ) as response:
-            s_id = response.headers.get("ts_request_sequence_id")
-            headers = {
-                "ts_request_sequence_id": s_id,
-            }
 
-        t0 = threading.Thread(
-            target=__infer_stateful_cancel,
-            args=(
-                model_name,
-                False,
-                headers,
-                "5",
-            ),
-        )
-        t1 = threading.Thread(
-            target=__infer_stateful_cancel,
-            args=(
-                model_name,
-                True,
-                headers,
-                "-1",
-            ),
-        )
+        # Open and close sesions multiple times(>maxNumSequence) to test session clean up after stream response
+        for _ in range(4):
+            with requests.post(
+                url=f"http://localhost:8080/predictions/{model_name}",
+                data=str(2).encode(),
+            ) as response:
+                s_id = response.headers.get("ts_request_sequence_id")
+                headers = {
+                    "ts_request_sequence_id": s_id,
+                }
 
-        t0.start()
-        t1.start()
+            t0 = threading.Thread(
+                target=__infer_stateful_cancel,
+                args=(
+                    model_name,
+                    False,
+                    headers,
+                    "5",
+                ),
+            )
+            t1 = threading.Thread(
+                target=__infer_stateful_cancel,
+                args=(
+                    model_name,
+                    True,
+                    headers,
+                    "-1",
+                ),
+            )
 
-        t0.join()
-        t1.join()
+            t0.start()
+            t1.start()
+
+            t0.join()
+            t1.join()
+
+            # Close session after cancellation request to free up session capacity
+            with requests.post(
+                url=f"http://localhost:8080/predictions/{model_name}",
+                headers=headers,
+                data=str(0).encode(),
+            ) as response:
+                assert response.status_code == 200
+
     finally:
         test_utils.unregister_model(model_name)
 
