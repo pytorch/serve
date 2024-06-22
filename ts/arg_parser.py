@@ -146,6 +146,14 @@ class ArgParser(object):
             help="Metrics configuration file",
         )
 
+        parser.add_argument(
+            "--async",
+            default=False,
+            dest="async_comm",
+            action="store_true",
+            help="Run async communication worker",
+        )
+
         return parser
 
     @staticmethod
