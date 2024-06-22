@@ -85,7 +85,7 @@ def necessary_files_unavailable():
     LLAMA = LORA_SRC_PATH / LLAMA_MODEL_PATH
     ADAPTER = LORA_SRC_PATH / ADAPTER_PATH
     return {
-        "condition": not (LLAMA.exists() and ADAPTER.exists() or VLLM_MISSING),
+        "condition": not (LLAMA.exists() and ADAPTER.exists()) or VLLM_MISSING,
         "reason": f"Required files are not present or vllm is not installed (see README): {LLAMA.as_posix()} + {ADAPTER.as_posix()}",
     }
 
