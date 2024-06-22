@@ -128,7 +128,7 @@ class TransformersSeqClassifierHandler(BaseHandler):
                 compile_options = pt2_value["compile"]
                 if compile_options["enable"] == True:
                     del compile_options["enable"]
-                    
+
                     compile_options_str = ", ".join(
                         [f"{k} {v}" for k, v in compile_options.items()]
                     )
@@ -333,7 +333,11 @@ class TransformersSeqClassifierHandler(BaseHandler):
                 input_ids_batch = input_ids_batch.to("cuda:0")
             with torch.inference_mode():
                 outputs = self.model.generate(
-                    input_ids_batch, max_new_tokens=self.setup_config["max_length"], do_sample=True, top_p=0.95, top_k=60
+                    input_ids_batch,
+                    max_new_tokens=self.setup_config["max_length"],
+                    do_sample=True,
+                    top_p=0.95,
+                    top_k=60,
                 )
             for i, x in enumerate(outputs):
                 inferences.append(

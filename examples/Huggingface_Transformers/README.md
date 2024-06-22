@@ -142,7 +142,7 @@ handler:
   embedding_name: bert
   BetterTransformer: false
   model_parallel: false
-```  
+```
 
 ```
 rm -r Transformer_model
@@ -200,7 +200,7 @@ torch-model-archiver --model-name BERTQA --version 1.0 --serialized-file Transfo
 
 ### Create model archive Torchscript mode
 ```
-torch-model-archiver --model-name BERTQA --version 1.0 --serialized-file Transformer_model/traced_model.pt --handler ./Transformer_handler_generalized.py --config-file model-config.yaml 
+torch-model-archiver --model-name BERTQA --version 1.0 --serialized-file Transformer_model/traced_model.pt --handler ./Transformer_handler_generalized.py --config-file model-config.yaml
 ```
 
 ### Register the model
@@ -356,7 +356,7 @@ handler:
   captum_explanation: true
   embedding_name: gpt2
   BetterTransformer: false
-  model_parallel: true 
+  model_parallel: true
 ```
 
 ```
