@@ -425,6 +425,7 @@
 This page is split into the following sections:</p>
 <ul class="simple">
 <li><p><a class="reference external" href="#how-it-works">How it works</a></p></li>
+<li><p><a class="reference external" href="#pippy-pytorch-native-solution-for-large-model-inference">Large Model Inference with vLLM</a></p></li>
 <li><p><a class="reference external" href="#pippy-pytorch-native-solution-for-large-model-inference">Large Model Inference with PiPPy</a></p></li>
 <li><p><a class="reference external" href="#deepspeed">Large Model Inference with Deep Speed</a></p></li>
 <li><p><a class="reference external" href="#deepspeed-mii">Deep Speed MII</a></p></li>
@@ -433,10 +434,32 @@ This page is split into the following sections:</p>
 </ul>
 <section id="how-it-works">
 <h2>How it works?<a class="headerlink" href="#how-it-works" title="Permalink to this heading">¶</a></h2>
-<p>During deployment a worker of a large model, TorchServe utilizes <a class="reference external" href="https://pytorch.org/docs/stable/elastic/run.html">torchrun</a> to set up the distributed environment for model parallel processing. TorchServe has the capability to support multiple workers for a large model. By default, TorchServe uses a round-robin algorithm to assign GPUs to a worker on a host. In case of large models inference GPUs assigned to each worker is automatically calculated based on number of GPUs specified in the model_config.yaml. CUDA_VISIBLE_DEVICES is set based this number.</p>
-<p>For instance, suppose there are eight GPUs on a node and one worker needs 4 GPUs (ie, nproc-per-node=4) on a node. In this case, TorchServe would assign CUDA_VISIBLE_DEVICES=”0,1,2,3” to worker1 and CUDA_VISIBLE_DEVICES=”4,5,6,7” to worker2.</p>
-<p>In addition to this default behavior, TorchServe provides the flexibility for users to specify GPUs for a worker. For instance, if the user sets “deviceIds: [2,3,4,5]” in the <a class="reference external" href="https://github.com/pytorch/serve/blob/5ee02e4f050c9b349025d87405b246e970ee710b/model-archiver/README.md?plain=1#L164">model config YAML file</a>, and nproc-per-node is set to 2, then TorchServe would assign CUDA_VISIBLE_DEVICES=”2,3” to worker1 and CUDA_VISIBLE_DEVICES=”4,5” to worker2.</p>
-<p>Using Pippy integration as an example, the image below illustrates the internals of the TorchServe large model inference.</p>
+<p>For GPU inference of smaller models TorchServe executes a single process per worker which gets assigned a single GPU.
+For large model inference the model needs to be split over multiple GPUs.
+There are different modes to achieve this split which usually include pipeline parallel (PP), tensor parallel or a combination of these.
+Which mode is selected and how the split is implemented depends on the implementation in the utilized framework.
+TorchServe allows users to utilize any framework for their model deployment and tries to accommodate the needs of the frameworks through flexible configurations.
+Some frameworks require to execute a separate process for each of the GPUs (PiPPy, Deep Speed) while others require a single process which get assigned all GPUs (vLLM).
+In case multiple processes are required TorchServe utilizes <a class="reference external" href="https://pytorch.org/docs/stable/elastic/run.html">torchrun</a> to set up the distributed environment for the worker.
+During the setup <code class="docutils literal notranslate"><span class="pre">torchrun</span></code> will start a new process for each GPU assigned to the worker.
+If torchrun is utilized or not depends on the parameter parallelType which can be set in the <code class="docutils literal notranslate"><span class="pre">model-config.yaml</span></code> to one of the following options:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">pp</span></code> - for pipeline parallel</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">tp</span></code> - for tensor parallel</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pptp</span></code> - for pipeline + tensor parallel</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">custom</span></code></p></li>
+</ul>
+<p>The first three options setup the environment using torchrun while the “custom” option leaves the way of parallelization to the user and assigned the GPUs assigned to a worker to a single process.
+The number of assigned GPUs is determined either by the number of processes started by torchrun i.e. configured through nproc-per-node OR the parameter parallelLevel.
+Meaning that the parameter parallelLevel should NOT be set if nproc-per-node is set and vice versa.</p>
+<p>By default, TorchServe uses a round-robin algorithm to assign GPUs to a worker on a host.
+In case of large models inference GPUs assigned to each worker is automatically calculated based on the number of GPUs specified in the model_config.yaml.
+CUDA_VISIBLE_DEVICES is set based this number.</p>
+<p>For instance, suppose there are eight GPUs on a node and one worker needs 4 GPUs (ie, nproc-per-node=4 OR parallelLevel=4) on a node.
+In this case, TorchServe would assign CUDA_VISIBLE_DEVICES=”0,1,2,3” to worker1 and CUDA_VISIBLE_DEVICES=”4,5,6,7” to worker2.</p>
+<p>In addition to this default behavior, TorchServe provides the flexibility for users to specify GPUs for a worker. For instance, if the user sets “deviceIds: [2,3,4,5]” in the <a class="reference external" href="https://github.com/pytorch/serve/blob/5ee02e4f050c9b349025d87405b246e970ee710b/model-archiver/README.md?plain=1#L164">model config YAML file</a>, and nproc-per-node (OR parallelLevel) is set to 2, then TorchServe would assign CUDA_VISIBLE_DEVICES=”2,3” to worker1 and CUDA_VISIBLE_DEVICES=”4,5” to worker2.</p>
+<p>Using Pippy integration as an example, the image below illustrates the internals of the TorchServe large model inference.
+For an example using vLLM see <a class="reference external" href="../examples/large_models/vllm/">this example</a>.</p>
 <p><img alt="ts-lmi-internal" src="https://raw.githubusercontent.com/pytorch/serve/master/docs/images/ts-lmi-internal.png" /></p>
 </section>
 <section id="pippy-pytorch-native-solution-for-large-model-inference">
