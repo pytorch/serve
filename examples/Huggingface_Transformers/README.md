@@ -40,7 +40,7 @@ pt2:
     backend: inductor
     mode: reduce-overhead
 ```
-When batch_size is 1, for BERT models, the operations are memory bound. Hence, we make use of `reduce-overhead` mode to make use of CUDAGraphs and get better performance.
+When batch_size is 1, for BERT models, the operations are memory bound. Hence, we make use of `reduce-overhead` mode to make use of CUDAGraph and get better performance.
 
 To use PyTorch Eager or TorchScript, you can remove the above config.
 
@@ -337,7 +337,7 @@ In the `model-config.yaml`, specify `"BetterTransformer":true,`.
 
 Main speed ups in the Better Transformer comes from kernel fusion in the [TransformerEncoder] (https://pytorch.org/docs/stable/generated/torch.nn.TransformerEncoder.html) and making use of sparsity with [nested tensors](https://pytorch.org/tutorials/prototype/nestedtensor.html) when input sequences are padded to avoid unnecessary computation on padded tensors. We have seen up to 4.5x speed up with distill_bert when used higher batch sizes with padding. Please read more about it in this [blog post](https://medium.com/pytorch/bettertransformer-out-of-the-box-performance-for-huggingface-transformers-3fbe27d50ab2). You get some speedups even with Batch size = 1 and no padding however, major speed ups will show up when running inference with higher batch sizes (8.16,32) with padding.
 
-The Accelerated Transformer integration with HuggingFace also added the support for decoder models, please read more about it [here](https://pytorch.org/blog/out-of-the-box-acceleration/). This adds the native support for Flash Attentions and Xformer Memory Efficient kernels in PyTorch and make it available on HuggingFace deocder models. This will brings significant speed up and memory savings with just one line of the code as before.
+The Accelerated Transformer integration with HuggingFace also added the support for decoder models, please read more about it [here](https://pytorch.org/blog/out-of-the-box-acceleration/). This adds the native support for Flash Attentions and Xformer Memory Efficient kernels in PyTorch and make it available on HuggingFace decoder models. This will brings significant speed up and memory savings with just one line of the code as before.
 
 
 ## Model Parallelism

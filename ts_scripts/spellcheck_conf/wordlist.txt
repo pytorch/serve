@@ -1249,3 +1249,5 @@ smoothquant
 woq
 TokenAuthorizationHandler
 TorchText
+safetensors
+CUDAGraph
