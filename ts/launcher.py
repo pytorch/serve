@@ -6,8 +6,6 @@ from subprocess import PIPE, STDOUT, Popen
 
 import requests
 
-from ts_scripts import marsgen as mg
-
 
 def stop():
     subprocess.run(["torchserve", "--stop", "--foreground"])
@@ -52,7 +50,6 @@ def start(
     model_store=None,
     snapshot_file=None,
     no_config_snapshots=False,
-    gen_mar=True,
     plugin_folder=None,
     disable_token=True,
     models=None,
@@ -60,8 +57,6 @@ def start(
 ):
     stop()
     cmd = ["torchserve", "--start"]
-    if gen_mar:
-        mg.gen_mar(model_store)
     cmd.extend(["--model-store", model_store])
     if plugin_folder:
         cmd.extend(["--plugins-path", plugin_folder])
@@ -75,7 +70,6 @@ def start(
         cmd.extend(["--models", models])
     if model_api_enabled:
         cmd.extend(["--model-api-enabled"])
-
     p = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=STDOUT)
     for line in p.stdout:
         print(line.decode("utf8").strip())

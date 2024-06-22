@@ -11,6 +11,8 @@ from pathlib import Path
 import orjson
 import requests
 
+from ts_scripts import marsgen as mg
+
 # To help discover margen modules
 REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../")
 sys.path.append(REPO_ROOT)
@@ -38,6 +40,8 @@ def delete_model_store(model_store=None):
 def start_torchserve(*args, **kwargs):
     create_mar_file_table()
     kwargs.update({"model_store": kwargs.get("model_store", MODEL_STORE)})
+    if kwargs.get("gen_mar", True):
+        mg.gen_mar(kwargs.get("model_store"))
     return start(*args, **kwargs)
 
 
