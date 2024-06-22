@@ -16,7 +16,7 @@ For GPU inference of smaller models TorchServe executes a single process per wor
 For large model inference the model needs to be split over multiple GPUs.
 There are different modes to achieve this split which usually include pipeline parallel (PP), tensor parallel or a combination of these.
 Which mode is selected and how the split is implemented depends on the implementation in the utilized framework.
-TorchServe allows users to utilize any framework for their model deployment and tries to accomodate the needs of the frameworks through flexible configurations.
+TorchServe allows users to utilize any framework for their model deployment and tries to accommodate the needs of the frameworks through flexible configurations.
 Some frameworks require to execute a separate process for each of the GPUs (PiPPy, Deep Speed) while others require a single process which get assigned all GPUs (vLLM).
 In case multiple processes are required TorchServe utilizes [torchrun](https://pytorch.org/docs/stable/elastic/run.html) to set up the distributed environment for the worker.
 During the setup `torchrun` will start a new process for each GPU assigned to the worker.
