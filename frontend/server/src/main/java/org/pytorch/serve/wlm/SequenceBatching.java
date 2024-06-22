@@ -207,7 +207,7 @@ public class SequenceBatching extends BatchAggregator {
                             continue;
                         }
                         // Avoid duplicate poll tasks in the executor queue
-                        if (pollQueueTasks.containsKey("") && !pollQueueTasks.get("").isDone()) {
+                        if (pollQueueTasks.containsKey("pollJobGroup") && !pollQueueTasks.get("pollJobGroup").isDone()) {
                             continue;
                         }
                         CompletableFuture<Void> pollTask =
@@ -220,7 +220,7 @@ public class SequenceBatching extends BatchAggregator {
                                             }
                                         },
                                         pollExecutors);
-                        pollQueueTasks.put("", pollTask);
+                        pollQueueTasks.put("pollJobGroup", pollTask);
                     } else {
                         // Avoid duplicate poll tasks in the executor queue
                         if (pollQueueTasks.containsKey(jobGroupId)
