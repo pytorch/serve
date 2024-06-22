@@ -14,6 +14,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.pytorch.serve.archive.model.ModelConfig;
+import org.pytorch.serve.archive.model.ModelConfig.ParallelType;
 import org.pytorch.serve.metrics.Metric;
 import org.pytorch.serve.metrics.MetricCache;
 import org.pytorch.serve.util.ConfigManager;
@@ -130,7 +131,14 @@ public class WorkerLifeCycle {
                                 model.getModelArchive().getManifest().getModel().getHandler())));
 
         if (model.getParallelLevel() > 0) {
-            attachRunner(argl, envp, port, deviceIds);
+            if (model.getParallelType() != ParallelType.CUSTOM) {
+                attachRunner(argl, envp, port, deviceIds);
+            } else {
+                if (deviceIds != null) {
+                    envp.add("CUDA_VISIBLE_DEVICES=" + deviceIds);
+                }
+                argl.add(EnvironmentUtils.getPythonRunTime(model));
+            }
         } else if (model.getParallelLevel() == 0) {
             argl.add(EnvironmentUtils.getPythonRunTime(model));
         }
@@ -166,8 +174,15 @@ public class WorkerLifeCycle {
         argl.add("--metrics-config");
         argl.add(configManager.getMetricsConfigPath());
 
+        if (model.isAsyncCommunication()) argl.add("--async");
+
         try {
-            latch = new CountDownLatch(model.getParallelLevel() > 0 ? model.getParallelLevel() : 1);
+            latch =
+                    new CountDownLatch(
+                            model.getParallelLevel() > 0
+                                            && model.getParallelType() != ParallelType.CUSTOM
+                                    ? model.getParallelLevel()
+                                    : 1);
 
             String[] args = argl.toArray(new String[argl.size()]);
             String[] envs = envp.toArray(new String[envp.size()]);
