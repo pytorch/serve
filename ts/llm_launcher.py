@@ -13,6 +13,11 @@ from ts.launcher import start, stop
 
 
 def get_model_config(args):
+    download_dir = getattr(args, "vllm_engine.download_dir")
+    download_dir = (
+        Path(download_dir).resolve().as_posix() if download_dir else download_dir
+    )
+
     model_config = {
         "minWorkers": 1,
         "maxWorkers": 1,
@@ -30,6 +35,7 @@ def get_model_config(args):
                 "max_cpu_loras": 4,
                 "max_num_seqs": getattr(args, "vllm_engine.max_num_seqs"),
                 "max_model_len": getattr(args, "vllm_engine.max_model_len"),
+                "download_dir": download_dir,
             }
             # ,
             # "adapters": {
@@ -131,6 +137,13 @@ if __name__ == "__main__":
         type=int,
         default=None,
         help="Model context length",
+    )
+
+    parser.add_argument(
+        "--vllm_engine.download_dir",
+        type=str,
+        default="/data",
+        help="Cache dir",
     )
 
     args = parser.parse_args()

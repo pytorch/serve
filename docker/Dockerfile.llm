@@ -1,8 +1,9 @@
 FROM pytorch/torchserve-nightly:latest-gpu as server
-ARG HUGGINGFACE_TOKEN
 
 USER root
 
-RUN pip install vllm
+RUN mkdir /data && chown -R model-server /data
 
-ENTRYPOINT [ "/bin/bash" ]
+USER model-server
+
+ENTRYPOINT [ "python", "-m", "ts.llm_launcher", "--vllm_engine.download_dir", "/data" ]
