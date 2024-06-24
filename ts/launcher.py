@@ -7,8 +7,11 @@ from subprocess import PIPE, STDOUT, Popen
 import requests
 
 
-def stop():
-    subprocess.run(["torchserve", "--stop", "--foreground"])
+def stop(wait=True):
+    cmd = ["torchserve", "--stop"]
+    if wait:
+        cmd += ["--foreground"]
+    subprocess.run(cmd)
 
 
 class Tee(threading.Thread):
