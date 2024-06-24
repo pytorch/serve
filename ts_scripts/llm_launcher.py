@@ -1,41 +1,17 @@
+import argparse
 import contextlib
 import importlib
 import os
 import shutil
 import sys
-import time
 from pathlib import Path
+from signal import pause
 
+import torch
 import yaml
 from model_archiver import ModelArchiverConfig
 
 from ts.launcher import start, stop
-
-model_name = "SOME_MODEL"
-model_store = "/home/ubuntu/serve/model_store"
-work_dir = "/home/ubuntu/serve/data"
-
-model_config = {
-    "minWorkers": 1,
-    "maxWorkers": 1,
-    "maxBatchDelay": 100,
-    "responseTimeout": 1200,
-    "deviceType": "gpu",
-    "asyncCommunication": True,
-    "handler": {
-        "model_path": "model/models--meta-llama--Llama-2-7b-chat-hf/snapshots/f5db02db724555f92da89c216ac04704f23d4590/",
-        "vllm_engine_config": {
-            "enable_lora": True,
-            "max_loras": 4,
-            "max_cpu_loras": 4,
-            "max_num_seqs": 16,
-            "max_model_len": 250,
-        },
-        "adapters": {
-            "adapter_1": "adapters/model/models--yard1--llama-2-7b-sql-lora-test/snapshots/0dfa347e8877a4d4ed19ee56c140fa518470028c/",
-        },
-    },
-}
 
 
 @contextlib.contextmanager
@@ -61,20 +37,48 @@ def model_archiver():
     del sys.modules["archiver"]
 
 
-@contextlib.contextmanager
-def create_mar_file():
-    mar_file_path = Path(model_store).joinpath(model_name)
+def get_model_config(args):
+    model_config = {
+        "minWorkers": 1,
+        "maxWorkers": 1,
+        "batchSize": 1,
+        "maxBatchDelay": 100,
+        "responseTimeout": 1200,
+        "deviceType": "gpu",
+        "asyncCommunication": True,
+        "parallelLevel": torch.cuda.device_count() if torch.cuda.is_available else 1,
+        "handler": {
+            "model_path": args.model_id,
+            "vllm_engine_config": {
+                "enable_lora": True,
+                "max_loras": 4,
+                "max_cpu_loras": 4,
+                "max_num_seqs": getattr(args, "vllm_engine.max_num_seqs"),
+                "max_model_len": getattr(args, "vllm_engine.max_model_len"),
+            }
+            # ,
+            # "adapters": {
+            #     "adapter_1": "adapters/model/models--yard1--llama-2-7b-sql-lora-test/snapshots/0dfa347e8877a4d4ed19ee56c140fa518470028c/",
+            # },
+        },
+    }
+    return model_config
 
-    model_config_yaml = Path(model_store) / "model-config.yaml"
+
+@contextlib.contextmanager
+def create_mar_file(args):
+    mar_file_path = Path(args.model_store).joinpath(args.model_name)
+
+    model_config_yaml = Path(args.model_store) / "model-config.yaml"
     with model_config_yaml.open("w") as f:
-        yaml.dump(model_config, f)
+        yaml.dump(get_model_config(args), f)
 
     config = ModelArchiverConfig(
-        model_name=model_name,
+        model_name=args.model_name,
         version="1.0",
         handler="vllm_handler",
         serialized_file=None,
-        export_path=model_store,
+        export_path=args.model_store,
         requirements_file=None,
         runtime="python",
         force=False,
@@ -94,28 +98,64 @@ def create_mar_file():
     shutil.rmtree(mar_file_path)
 
 
-def main():
+def main(args):
     """
     Register the model in torchserve
     """
 
-    params = (
-        ("model_name", model_name),
-        ("url", Path(model_store) / model_name),
-        ("initial_workers", "1"),
-        ("synchronous", "true"),
-        ("batch_size", "1"),
-    )
+    with create_mar_file(args):
+        try:
+            start(
+                model_store=args.model_store,
+                no_config_snapshots=True,
+                models=args.model_name,
+            )
 
-    try:
-        with create_mar_file():
-            start(model_store=model_store, no_config_snapshots=True, models=model_name)
+            pause()
 
-        time.sleep(10)
-
-    finally:
-        stop()
+        except KeyboardInterrupt:
+            pass
+        finally:
+            stop()
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--model_name",
+        type=str,
+        default="model",
+        help="Model name",
+    )
+
+    parser.add_argument(
+        "--model_store",
+        type=str,
+        default="model_store",
+        help="Model store",
+    )
+
+    parser.add_argument(
+        "--model_id",
+        type=str,
+        default="meta-llama/Meta-Llama-3-8B-Instruct",
+        help="Model id",
+    )
+
+    parser.add_argument(
+        "--vllm_engine.max_num_seqs",
+        type=int,
+        default=16,
+        help="Max sequences in vllm engine",
+    )
+
+    parser.add_argument(
+        "--vllm_engine.max_model_len",
+        type=int,
+        default=None,
+        help="Model context length",
+    )
+
+    args = parser.parse_args()
+
+    main(args)
