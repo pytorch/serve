@@ -1,40 +1,15 @@
 import argparse
 import contextlib
-import importlib
-import os
 import shutil
-import sys
 from pathlib import Path
 from signal import pause
 
 import torch
 import yaml
 from model_archiver import ModelArchiverConfig
+from model_archiver.model_packaging import generate_model_archive
 
 from ts.launcher import start, stop
-
-
-@contextlib.contextmanager
-def model_archiver():
-    loader = importlib.machinery.SourceFileLoader(
-        "archiver",
-        os.path.join(
-            "/home/ubuntu/serve/",
-            "model-archiver",
-            "model_archiver",
-            "model_packaging.py",
-        ),
-    )
-    spec = importlib.util.spec_from_loader("archiver", loader)
-    archiver = importlib.util.module_from_spec(spec)
-
-    sys.modules["archiver"] = archiver
-
-    loader.exec_module(archiver)
-
-    yield archiver
-
-    del sys.modules["archiver"]
 
 
 def get_model_config(args):
@@ -67,7 +42,10 @@ def get_model_config(args):
 
 @contextlib.contextmanager
 def create_mar_file(args):
-    mar_file_path = Path(args.model_store).joinpath(args.model_name)
+    model_store_path = Path(args.model_store)
+    model_store_path.mkdir(parents=True, exist_ok=True)
+
+    mar_file_path = model_store_path / args.model_name
 
     model_config_yaml = Path(args.model_store) / "model-config.yaml"
     with model_config_yaml.open("w") as f:
@@ -86,8 +64,7 @@ def create_mar_file(args):
         archive_format="no-archive",
     )
 
-    with model_archiver() as ma:
-        ma.generate_model_archive(config)
+    generate_model_archive(config)
 
     model_config_yaml.unlink()
 
@@ -116,7 +93,7 @@ def main(args):
         except KeyboardInterrupt:
             pass
         finally:
-            stop()
+            stop(wait=False)
 
 
 if __name__ == "__main__":
