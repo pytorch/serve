@@ -92,7 +92,12 @@ class VLLMHandler(BaseHandler):
             assert (
                 len(model_path) > 0
             ), "please define model in vllm_engine_config or model_path in handler"
-            model = str(pathlib.Path(self.model_dir).joinpath(model_path))
+            model = pathlib.Path(self.model_dir).joinpath(model_path)
+            if not model.exists():
+                logger.debug(
+                    f"Model path ({model}) does not exist locally. Trying to give without model_dir as prefix."
+                )
+                model = model_path
         logger.debug(f"EngineArgs model: {model}")
         vllm_engine_config = AsyncEngineArgs(model=model)
         self._set_attr_value(vllm_engine_config, vllm_engine_params)
