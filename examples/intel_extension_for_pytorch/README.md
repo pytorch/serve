@@ -100,7 +100,7 @@ TorchServe can also leverage Intel GPU for acceleration, providing additional pe
 
 ### Installation and Setup for Intel GPU Support
 **Install Intel oneAPI Base Kit:** 
-Follow the installation instructions for your operating system from the [Intel oneAPI Basekit Installation](https://www.intel.com/content/www/us/en/developer/tools/oneapi/base-toolkit-download.htm).
+Follow the installation instructions for your operating system from the [Intel oneAPI Base kit Installation](https://www.intel.com/content/www/us/en/developer/tools/oneapi/base-toolkit-download.htm).
 
 **Install the ipex GPU package to enable TorchServe to utilize Intel GPU for acceleration:** 
 Follow the installation instructions for your operating system from the [ Intel® Extension for PyTorch* XPU/GPU Installation](https://intel.github.io/intel-extension-for-pytorch/index.html#installation?platform=gpu).
