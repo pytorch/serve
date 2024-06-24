@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 public class AsyncWorkerThread extends WorkerThread {
     // protected ConcurrentHashMap requestsInBackend;
     protected static final Logger logger = LoggerFactory.getLogger(AsyncWorkerThread.class);
+    protected static final long MODEL_LOAD_TIMEOUT = 10L;
 
     protected boolean loadingFinished;
     protected CountDownLatch latch;
@@ -79,8 +80,8 @@ public class AsyncWorkerThread extends WorkerThread {
 
                     if (loadingFinished == false) {
                         latch = new CountDownLatch(1);
-                        if (!latch.await(2, TimeUnit.MINUTES)) {
-                            throw new WorkerInitializationException("Worker did not load the model within" + WORKER_TIMEOUT + " mins");
+                        if (!latch.await(MODEL_LOAD_TIMEOUT, TimeUnit.MINUTES)) {
+                            throw new WorkerInitializationException("Worker did not load the model within" + MODEL_LOAD_TIMEOUT + " mins");
                         }
                     }
 
