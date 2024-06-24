@@ -4,7 +4,6 @@ This example shows how to run TorchServe inference with [Torch-TensorRT](https:/
 
 ### Pre-requisites
 
-- Install CUDA and cuDNN. Verified with CUDA 11.7 and cuDNN 8.9.3.28
 - Verified to be working with `torch-tensorrt==2.3.0`
 
 Change directory to examples directory `cd examples/torch_tensorrt/torchcompile`
