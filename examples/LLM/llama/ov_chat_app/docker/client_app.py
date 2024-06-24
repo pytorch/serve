@@ -76,16 +76,16 @@ with st.sidebar:
         "max_tokens", min_value=256, max_value=2048, value=512, step=8
     )
 
-    # st.subheader("LLM Model parameters")
-    # temperature = st.sidebar.slider(
-    #     "temperature", min_value=0.1, max_value=1.0, value=0.5, step=0.1
-    # )
-    # top_p = st.sidebar.slider(
-    #     "top_p", min_value=0.1, max_value=1.0, value=0.5, step=0.1
-    # )
-    # max_new_tokens = st.sidebar.slider(
-    #     "max_new_tokens", min_value=48, max_value=512, value=50, step=4
-    # )
+    st.subheader("LLM Model parameters")
+    temperature = st.sidebar.slider(
+        "temperature", min_value=0.1, max_value=1.0, value=0.5, step=0.1
+    )
+    top_p = st.sidebar.slider(
+        "top_p", min_value=0.1, max_value=1.0, value=0.5, step=0.1
+    )
+    max_new_tokens = st.sidebar.slider(
+        "max_new_tokens", min_value=48, max_value=512, value=50, step=4
+    )
     # concurrent_requests = st.sidebar.select_slider(
     #     "concurrent_requests", options=[2**j for j in range(0, 8)]
     # )
@@ -151,7 +151,7 @@ def sd_response_postprocess(response):
 
 
 def preprocess_llm_input(input_prompt):
-    return f"Generate 3 prompts similar to the \"{input_prompt}\", return as plain text without numeration, prompts should be divided by \";\" symbol, first prompt should be original one."
+    return f"Generate 3 prompts similar to the \"{input_prompt}\", return as plain text without numeration, prompts should be divided by \";\" symbol."
 
 def generate_llm_model_response(prompt_input):
     headers = {"Content-type": "application/json", "Accept": "text/plain"}
@@ -159,20 +159,29 @@ def generate_llm_model_response(prompt_input):
     data = json.dumps(
         {
             "prompt": prompt_input,
-            # "params": {
-            #     "max_new_tokens": max_new_tokens,
-            #     "top_p": top_p,
-            #     "temperature": temperature,
-            # },
+            "params": {
+                "max_new_tokens": max_new_tokens,
+                "top_p": top_p,
+                "temperature": temperature,
+            },
         }
     )
-    res = requests.post(url=url, data=data,).text
-    print('!!!!!!!!!!!!!!!!!!!!', res)
-    return res
+    res = requests.post(url=url, data=data, headers=headers, stream=True)
+    assert res.status_code == 200
+
+    prompts = [item.strip() for item in res.text.split(";")]
+    prompts.insert(0, prompt_input)
+
+    print('1111111111111111111111', prompts)
+
+    return prompts
 
 
 def llm_response_postprocess(generated_prompts):
-    return [item.strip() for item in generated_prompts.split(";")]
+    prompts = [item.strip() for item in generated_prompts.split(";")]
+    assert len(prompt) == 4
+
+    return prompts
 
 
 # if st.button("Generate Images"):
