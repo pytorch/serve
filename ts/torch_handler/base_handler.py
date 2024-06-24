@@ -20,7 +20,6 @@ from ..utils.util import (
     load_label_mapping,
 )
 
-
 if packaging.version.parse(torch.__version__) >= packaging.version.parse("1.8.1"):
     from torch.profiler import ProfilerActivity, profile, record_function
 
@@ -70,6 +69,7 @@ except ImportError:
 if os.environ.get("TS_IPEX_ENABLE", "false") == "true":
     try:
         import intel_extension_for_pytorch as ipex
+
         IPEX_AVAILABLE = True
     except ImportError as error:
         logger.warning(
@@ -79,7 +79,7 @@ if os.environ.get("TS_IPEX_ENABLE", "false") == "true":
 else:
     IPEX_AVAILABLE = False
 
-    
+
 try:
     import onnxruntime as ort
     import psutil
@@ -147,22 +147,26 @@ class BaseHandler(abc.ABC):
             RuntimeError: Raises the Runtime error when the model.py is missing
 
         """
-        
+
         if context is not None and hasattr(context, "model_yaml_config"):
             self.model_yaml_config = context.model_yaml_config
-        
+
         properties = context.system_properties
         if torch.cuda.is_available() and properties.get("gpu_id") is not None:
             self.map_location = "cuda"
             self.device = torch.device(
                 self.map_location + ":" + str(properties.get("gpu_id"))
             )
-        elif torch.xpu.is_available() and properties.get("gpu_id") is not None and os.environ.get("TS_IPEX_GPU_ENABLE", "false") == "true":
+        elif (
+            torch.xpu.is_available()
+            and properties.get("gpu_id") is not None
+            and os.environ.get("TS_IPEX_GPU_ENABLE", "false") == "true"
+        ):
             self.map_location = "xpu"
             self.device = torch.device(
                 self.map_location + ":" + str(properties.get("gpu_id"))
             )
-            torch.xpu.device(self.device)        
+            torch.xpu.device(self.device)
         elif torch.backends.mps.is_available() and properties.get("gpu_id") is not None:
             self.map_location = "mps"
             self.device = torch.device("mps")
