@@ -40,16 +40,12 @@ class LlamaCppHandler(BaseHandler, ABC):
             return item
 
     def inference(self, data):
-        params = data["params"]
+        max_new_tokens = 50
         tokens = self.model.tokenize(bytes(data["prompt"], "utf-8"))
-        generation_kwargs = dict(
-            tokens=tokens,
-            temp=params["temperature"],
-            top_p=params["top_p"],
-        )
+        generation_kwargs = dict(tokens=tokens)
         count = 0
         for token in self.model.generate(**generation_kwargs):
-            if count >= params["max_new_tokens"]:
+            if count >= max_new_tokens:
                 break
 
             count += 1
