@@ -1,7 +1,7 @@
-# TorchServe
+# ❗ANNOUNCEMENT: Security Changes❗
+TorchServe now enforces token authorization enabled and model API control disbaled at start. These security features are designed to address the concern of unwanted API calls and to prevent potential malicious code from being introduced to the model server. Check the following documentation for more information: [Token Authorization](https://github.com/pytorch/serve/blob/master/docs/token_authorization_api.md), [Model API control](https://github.com/pytorch/serve/blob/master/docs/model_api_control.md)
 
-## Security Changes
-TorchServe now enforces token authorization and model API control by default. Check the following documentation for more information: [Token Authorization](https://github.com/pytorch/serve/blob/master/docs/token_authorization_api.md), [Model API control](https://github.com/pytorch/serve/blob/master/docs/model_api_control.md)
+# TorchServe
 
 
 TorchServe is a performant, flexible and easy to use tool for serving PyTorch eager mode and torchscripted models.

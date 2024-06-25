@@ -12,7 +12,9 @@ TorchServe provides the following APIs that allows you to manage models at runti
 
 The Management API listens on port 8081 and is only accessible from localhost by default. To change the default setting, see [TorchServe Configuration](./configuration.md).
 
-For all Management API requests, TorchServe requires the correct Management token to be included. For more details see [token authorization documentation](./token_authorization_api.md)
+Management API for registering and deleting models is disabled by default. Add `--model-api-enabled` to command line when running TorchServe to enable the use of these APIs. For more details and ways to enable see [Model API control](https://github.com/pytorch/serve/blob/master/docs/model_api_control.md)
+
+For all Management API requests, TorchServe requires the correct Management token to be included or token authorization must be disabled. For more details see [token authorization documentation](./token_authorization_api.md)
 
 Similar to the [Inference API](inference_api.md), the Management API provides a [API description](#api-description) to describe management APIs with the OpenAPI 3.0 specification.
 
@@ -22,7 +24,7 @@ Alternatively, if you want to use KServe, TorchServe supports both v1 and v2 API
 
 This API follows the [ManagementAPIsService.RegisterModel](https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/proto/management.proto) gRPC API.
 
-To use this API after TorchServe starts, model API control has to be enabled. For more details see [model API control](./model_api_control.md)
+To use this API after TorchServe starts, model API control has to be enabled. Add `--model-api-enabled` to command line when running TorchServe to enable the use of this API. For more details see [model API control](./model_api_control.md)
 
 `POST /models`
 
@@ -446,7 +448,7 @@ print(customizedMetadata)
 
 This API follows the [ManagementAPIsService.UnregisterModel](https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/proto/management.proto) gRPC API. It returns the status of a model in the ModelServer.
 
-To use this API after TorchServe starts, model API control has to be enabled. For more details see [model API control](./model_api_control.md)
+To use this API after TorchServe starts, model API control has to be enabled. Add `--model-api-enabled` to command line when running TorchServe to enable the use of this API. For more details see [model API control](./model_api_control.md)
 
 `DELETE /models/{model_name}/{version}`
 

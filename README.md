@@ -1,7 +1,8 @@
+# ❗ANNOUNCEMENT: Security Changes❗
+TorchServe now enforces token authorization enabled and model API control disbaled at start. These security features are designed to address the concern of unwanted API calls and to prevent potential malicious code from being introduced to the model server. Check the following documentation for more information: [Token Authorization](https://github.com/pytorch/serve/blob/master/docs/token_authorization_api.md), [Model API control](https://github.com/pytorch/serve/blob/master/docs/model_api_control.md)
+
 # TorchServe
 
-## Security Changes
-TorchServe now enforces token authorization and model API control by default. Check the following documentation for more information: [Token Authorization](https://github.com/pytorch/serve/blob/master/docs/token_authorization_api.md), [Model API control](https://github.com/pytorch/serve/blob/master/docs/model_api_control.md)
 
 ![Nightly build](https://github.com/pytorch/serve/actions/workflows/torchserve-nightly-build.yml/badge.svg)
 ![Docker Nightly build](https://github.com/pytorch/serve/actions/workflows/docker-nightly-build.yml/badge.svg)

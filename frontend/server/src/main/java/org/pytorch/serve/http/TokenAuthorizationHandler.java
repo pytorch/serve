@@ -85,7 +85,13 @@ public class TokenAuthorizationHandler extends HttpRequestHandlerChain {
             try {
                 token = new Token();
                 if (token.generateKeyFile("token")) {
-                    logger.info("Token Authorization Enabled");
+                    String loggingMessage = "######\n" +
+                         "TorchServe now enforces token authorization by default.\n" +
+                         "This requires the correct token to be provided when calling an API.\n" +
+                         "Key file located at " + ConfigManager.getInstance().getModelServerHome() + "\n" +
+                         "Check token authorization documenation for information: https://github.com/pytorch/serve/blob/master/docs/token_authorization_api.md \n" +
+                         "######\n";
+                    logger.info(loggingMessage);
                 }
             } catch (IOException e) {
                 e.printStackTrace();
