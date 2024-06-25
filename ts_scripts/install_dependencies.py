@@ -140,6 +140,8 @@ class Common:
             os.system(
                 f"pip3 install numpy --pre torch torchvision torchaudio torchtext --index-url https://download.pytorch.org/whl/nightly/{pt_nightly}"
             )
+        elif args.skip_torch_install:
+            print("Skipping Torch installation")
         else:
             self.install_torch_packages(cuda_version)
 
@@ -377,6 +379,12 @@ if __name__ == "__main__":
         "--nightly_torch",
         action="store_true",
         help="Install nightly version of torch package",
+    )
+
+    parser.add_argument(
+        "--skip_torch_install",
+        action="store_true",
+        help="Skip Torch installation",
     )
 
     parser.add_argument(

@@ -28,6 +28,7 @@ class PT2Backend(str, enum.Enum):
     TORCHXLA_TRACE_ONCE = "torchxla_trace_once"
     OPENVINO = "openvino"
     TENSORRT = "tensorrt"
+    HPU_BACKEND = "hpu_backend"
 
 
 logger = logging.getLogger(__name__)
