@@ -16,6 +16,7 @@ torchvision
 ul
 usecase
 CUDA
+XPU
 JDK
 NVIDIA
 WSL
