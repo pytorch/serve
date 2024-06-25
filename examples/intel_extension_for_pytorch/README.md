@@ -9,6 +9,8 @@ Here we show how to use TorchServe with Intel® Extension for PyTorch*.
 * [Install Intel® Extension for PyTorch*](https://github.com/pytorch/serve/blob/master/examples/intel_extension_for_pytorch/README.md#install-intel-extension-for-pytorch)
 * [Serving model with Intel® Extension for PyTorch*](https://github.com/pytorch/serve/blob/master/examples/intel_extension_for_pytorch/README.md#serving-model-with-intel-extension-for-pytorch)
 * [TorchServe with Launcher](#torchserve-with-launcher)
+* [TorchServe with Intel® Extension for PyTorch* and Intel GPUs](#torchserve-with-intel®-extension-for-pytorch-and-intel-gpus)
+* [Performance Gain with Intel® Extension for PyTorch* and Intel GPU](https://github.com/pytorch/serve/blob/master/examples/intel_extension_for_pytorch/README.md#performance-gain-with-intel-extension-for-pytorch-and-intel-gpu)
 * [Creating and Exporting INT8 model for Intel® Extension for PyTorch*](https://github.com/pytorch/serve/blob/master/examples/intel_extension_for_pytorch/README.md#creating-and-exporting-int8-model-for-intel-extension-for-pytorch)
 * [Benchmarking with Launcher](#benchmarking-with-launcher)
 * [Performance Boost with Intel® Extension for PyTorch* and Launcher](https://github.com/pytorch/serve/blob/master/examples/intel_extension_for_pytorch/README.md#performance-boost-with-intel-extension-for-pytorch-and-launcher)
@@ -73,6 +75,7 @@ CPU usage is shown below. 4 main worker threads were launched, each launching 14
 ![26](https://user-images.githubusercontent.com/93151422/170373651-fd8a0363-febf-4528-bbae-e1ddef119358.gif)
 
 
+
 #### Scaling workers
 Additionally when dynamically [scaling the number of workers](https://pytorch.org/serve/management_api.html#scale-workers), cores that were pinned to killed workers by the launcher could be left unutilized. To address this problem, launcher internally restarts the workers to re-distribute cores that were pinned to killed workers to the remaining, alive workers. This is taken care internally, so users do not have to worry about this. 
 
@@ -89,6 +92,93 @@ Add the following lines in `config.properties` to use launcher with its default 
 ```
 cpu_launcher_enable=true
 ```
+
+## TorchServe with Intel® Extension for PyTorch* and Intel GPUs
+
+TorchServe can also leverage Intel GPU for acceleration, providing additional performance benefits. To use TorchServe with Intel GPU, the machine must have the latest oneAPI Base Kit installed, activated, and ipex GPU installed.
+
+
+### Installation and Setup for Intel GPU Support
+**Install Intel oneAPI Base Kit:** 
+Follow the installation instructions for your operating system from the [Intel oneAPI Base kit Installation](https://www.intel.com/content/www/us/en/developer/tools/oneapi/base-toolkit-download.htm).
+
+**Install the ipex GPU package to enable TorchServe to utilize Intel GPU for acceleration:** 
+Follow the installation instructions for your operating system from the [ Intel® Extension for PyTorch* XPU/GPU Installation](https://intel.github.io/intel-extension-for-pytorch/index.html#installation?platform=gpu).
+
+**Activate the Intel oneAPI Base Kit:** 
+Activate the Intel oneAPI Base Kit using the following command:
+   ```bash
+   source /path/to/oneapi/setvars.sh
+   ```
+
+**Install xpu-smi:**
+Install xpu-smi to let torchserve detect the number of Intel GPU devices present. xpu-smi provides information about the Intel GPU, including temperature, utilization, and other metrics.[xpu-smi Installation Guide](https://dgpu-docs.intel.com/driver/installation.html#ubuntu-package-repository)
+
+**Enable Intel GPU Support in TorchServe:** 
+To enable TorchServe to use Intel GPUs, set the following configuration in `config.properties`:
+   ```
+   ipex_enable=true
+   ipex_gpu_enable=true
+   ```
+To enable metric reading, additionally set:
+   ```
+   system_metrics_cmd=${PATH to examples/intel_extension_for_pytorch/intel_gpu_metric_collector.py} --gpu ${Number of GPUs}
+   ```
+
+## Performance Gain with Intel® Extension for PyTorch* and Intel GPU
+
+To understand the performance gain using Intel GPU, Torchserve recommended [apache benchmark](https://github.com/pytorch/serve/tree/master/benchmarks#benchmarking-with-apache-bench) is executed on FastRCNN FP32 model.
+
+A `model_config.json` file is created, and the following parameters are added:
+
+```
+{
+  "url": "https://torchserve.pytorch.org/mar_files/fastrcnn.mar",
+  "requests": "10000",
+  "concurrency": "100",
+  "workers": "1",
+  "batch_delay": "100",
+  "batch_size": "1",
+  "input": "../examples/image_classifier/kitten.jpg",
+  "backend_profiling": "FALSE",
+  "exec_env": "local"
+}
+```
+
+Batch size can be changed according to the requirement.
+
+Following lines are added to the `config.properties` to utilize IPEX and Intel GPU:
+
+```
+ipex_enable=true
+ipex_gpu_enable=true
+```
+
+To reproduce the test, use the following command:
+
+```
+python benchmark-ab.py --config model_config.json --config_properties config.properties
+```
+
+This test is performed on a server containing Intel(R) Core (TM) i5-9600K CPU + Intel(R) Arc(TM) A770 Graphics and is compared with a Intel(R) Xeon(R) Gold 6438Y CPU server.
+It is recommended to use only 1 worker per GPU, more than 1 worker per GPU is not validated and may cause performance degradation due to context switching.
+
+
+| Model | Batch size | CPU Throughput(img/sec) | GPU Throughput(img/sec) | CPU TS Latency mean(ms) | GPU TS Latency mean(ms) | Throughput speedup ratio | Latency speedup ratio |
+|:-----:|:----------:|:--------------:|:--------------:|:-------------------:|:-------------------:|:-------------------------:|:----------------------:|
+| FastRCNN_FP32 | 1 | 15.74 | 2.89 | 6352.388 | 34636.68 | 5.45 | 5.45 |
+|  | 2 | 17.69 | 2.67 | 5651.999 | 37520.781 | 6.63 | 6.64 |
+|  | 4 | 18.57 | 2.39 | 5385.389 | 41886.902 | 7.77 | 7.78 |
+|  | 8 | 18.68 | 2.32 | 5354.58 | 43146.797 | 8.05 | 8.06 |
+|  | 16 | 19.26 | 2.39 | 5193.307 | 41903.752 | 8.06 | 8.07 |
+|  | 32 | 19.06 | 2.49 | 5245.912 | 40172.39 | 7.65 | 7.66 |
+
+<p align="center">
+  <img src="https://github.com/pytorch/serve/assets/113945574/c30aeacc-9825-42b1-bde8-2d9dca09bb8a" />
+</p>
+Above graph shows the speedup ratio of throughput and latency while using Intel GPU. The speedup ratio is increasing steadily reaching almost 8x till batch size 8 and gives diminishing returns after. Further increasing the batch size to 64 results in `RuntimeError: Native API failed. Native API returns: -5 (PI_ERROR_OUT_OF_RESOURCES)` error as GPU is overloaded.
+
+Note: The optimal configuration will vary depending on the hardware used.
 
 ## Creating and Exporting INT8 model for Intel® Extension for PyTorch*
 Intel® Extension for PyTorch* supports both eager and torchscript mode. In this section, we show how to deploy INT8 model for Intel® Extension for PyTorch*. Refer to [here](https://github.com/intel/intel-extension-for-pytorch/blob/master/docs/tutorials/features/int8_overview.md) for more details on Intel® Extension for PyTorch* optimizations for quantization.
