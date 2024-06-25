@@ -152,12 +152,21 @@ class BaseHandler(abc.ABC):
             self.model_yaml_config = context.model_yaml_config
 
         properties = context.system_properties
-
         if torch.cuda.is_available() and properties.get("gpu_id") is not None:
             self.map_location = "cuda"
             self.device = torch.device(
                 self.map_location + ":" + str(properties.get("gpu_id"))
             )
+        elif (
+            torch.xpu.is_available()
+            and properties.get("gpu_id") is not None
+            and os.environ.get("TS_IPEX_GPU_ENABLE", "false") == "true"
+        ):
+            self.map_location = "xpu"
+            self.device = torch.device(
+                self.map_location + ":" + str(properties.get("gpu_id"))
+            )
+            torch.xpu.device(self.device)
         elif torch.backends.mps.is_available() and properties.get("gpu_id") is not None:
             self.map_location = "mps"
             self.device = torch.device("mps")
@@ -273,6 +282,7 @@ class BaseHandler(abc.ABC):
 
         elif IPEX_AVAILABLE:
             self.model = self.model.to(memory_format=torch.channels_last)
+            self.model = self.model.to(self.device)
             self.model = ipex.optimize(self.model)
             logger.info(f"Compiled model with ipex")
 
