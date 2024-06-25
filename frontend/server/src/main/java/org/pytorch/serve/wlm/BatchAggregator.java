@@ -74,11 +74,14 @@ public class BatchAggregator {
         if (message.getCode() == 200) {
             if (jobs.isEmpty()) {
                 // this is from initial load.
+                logger.info("Jobs is empty. This is from initial load....");
                 return true;
             }
             for (Predictions prediction : message.getPredictions()) {
                 String jobId = prediction.getRequestId();
                 Job job = jobs.get(jobId);
+
+                logger.info("Sending response for jobId {}", jobId);
 
                 if (job == null) {
                     throw new IllegalStateException(
@@ -188,6 +191,10 @@ public class BatchAggregator {
     }
 
     public void shutdown() {
+        return;
+    }
+
+    public void startEventDispatcher() {
         return;
     }
 }

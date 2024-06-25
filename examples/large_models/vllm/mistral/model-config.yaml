@@ -1,11 +1,10 @@
 # TorchServe frontend parameters
 minWorkers: 1
 maxWorkers: 1
-batchSize: 16
 maxBatchDelay: 100
 responseTimeout: 1200
 deviceType: "gpu"
-continuousBatching: true
+asyncCommunication: true
 
 handler:
     model_path: "model/models--mistralai--Mistral-7B-v0.1/snapshots/26bca36bde8333b5d7f72e9ed20ccda6a618af24"

@@ -165,7 +165,7 @@ A model config yaml file. For example:
 
 ```
 # TS frontend parameters
-# See all supported parameters: https://github.com/pytorch/serve/blob/master/frontend/archive/src/main/java/org/pytorch/serve/archive/model/ModelConfig.java#L14
+# See all supported parameters: https://github.com/pytorch/serve/blob/688f09ebb8527c184d63bd66ee6265a4609ac194/frontend/archive/src/main/java/org/pytorch/serve/archive/model/ModelConfig.java#L14
 minWorkers: 1 # default: #CPU or #GPU
 maxWorkers: 1 # default: #CPU or #GPU
 batchSize: 1 # default: 1
@@ -173,7 +173,8 @@ maxBatchDelay: 100 # default: 100 msec
 responseTimeout: 120 # default: 120 sec
 deviceType: cpu # cpu, gpu, neuron
 deviceIds: [0,1,2,3] # gpu device ids allocated to this model.
-parallelType: pp # pp: pipeline parallel; pptp: tensor+pipeline parallel. Default: empty
+parallelType: pp # pp: pipeline parallel; pptp: tensor+pipeline parallel; custom: user defined parallelism. Default: empty
+# parallelLevel: 1 # number of GPUs assigned to a the worker process if parallelType is custom (do NOT set if torchrun is used, see below)
 useVenv: Create python virtual environment when using python backend to install model dependencies
          (if enabled globally using install_py_dep_per_model=true) and run workers for model loading
          and inference. Note that, although creation of virtual environment adds a latency overhead

@@ -5,4 +5,4 @@ packaging==23.2
 pynvml==11.5.0
 pyyaml==6.0
 ninja==1.11.1.1
-setuptools==69.5.1
+setuptools

@@ -32,6 +32,7 @@ import org.pytorch.serve.job.RestJob;
 import org.pytorch.serve.openapi.OpenApiUtils;
 import org.pytorch.serve.servingsdk.ModelServerEndpoint;
 import org.pytorch.serve.util.ApiUtils;
+import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.JsonUtils;
 import org.pytorch.serve.util.NettyUtils;
 import org.pytorch.serve.util.messages.RequestInput;
@@ -48,9 +49,12 @@ import org.pytorch.serve.wlm.WorkerThread;
  */
 public class ManagementRequestHandler extends HttpRequestHandlerChain {
 
+    private ConfigManager configManager;
+
     /** Creates a new {@code ManagementRequestHandler} instance. */
     public ManagementRequestHandler(Map<String, ModelServerEndpoint> ep) {
         endpointMap = ep;
+        configManager = ConfigManager.getInstance();
     }
 
     @Override
@@ -74,7 +78,7 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
                     if (HttpMethod.GET.equals(method)) {
                         handleListModels(ctx, decoder);
                         return;
-                    } else if (HttpMethod.POST.equals(method)) {
+                    } else if (HttpMethod.POST.equals(method) && isModeEnabled()) {
                         handleRegisterModel(ctx, decoder, req);
                         return;
                     }
@@ -93,7 +97,7 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
                     } else {
                         handleScaleModel(ctx, decoder, segments[2], modelVersion);
                     }
-                } else if (HttpMethod.DELETE.equals(method)) {
+                } else if (HttpMethod.DELETE.equals(method) && isModeEnabled()) {
                     handleUnregisterModel(ctx, segments[2], modelVersion);
                 } else if (HttpMethod.OPTIONS.equals(method)) {
                     ModelManager modelManager = ModelManager.getInstance();
@@ -127,6 +131,10 @@ public class ManagementRequestHandler extends HttpRequestHandlerChain {
                 || ((segments.length >= 2 && segments.length <= 4) && segments[1].equals("models"))
                 || (segments.length == 5 && "set-default".equals(segments[4]))
                 || endpointMap.containsKey(segments[1]);
+    }
+
+    private boolean isModeEnabled() {
+        return configManager.getModelControlMode();
     }
 
     private boolean isKFV1ManagementReq(String[] segments) {

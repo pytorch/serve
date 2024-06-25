@@ -82,6 +82,19 @@ class ArgParser(object):
             dest="plugins_path",
             help="plugin jars to be included in torchserve class path",
         )
+        parser.add_argument(
+            "--disable-token",
+            "--dt",
+            dest="token_auth",
+            help="if this option is set then token authorization is disabled",
+            action="store_true",
+        )
+        parser.add_argument(
+            "--model-api-enabled",
+            dest="model_mode",
+            help="enables model control apis",
+            action="store_true",
+        )
 
         return parser
 
@@ -131,6 +144,14 @@ class ArgParser(object):
             dest="metrics_config",
             type=str,
             help="Metrics configuration file",
+        )
+
+        parser.add_argument(
+            "--async",
+            default=False,
+            dest="async_comm",
+            action="store_true",
+            help="Run async communication worker",
         )
 
         return parser

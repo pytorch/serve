@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.ServiceLoader;
 import org.pytorch.serve.http.InvalidPluginException;
-import org.pytorch.serve.http.TokenAuthorizationHandler;
 import org.pytorch.serve.servingsdk.ModelServerEndpoint;
 import org.pytorch.serve.servingsdk.annotations.Endpoint;
 import org.pytorch.serve.servingsdk.annotations.helpers.EndpointTypes;
@@ -31,9 +30,6 @@ public final class PluginsManager {
         logger.info("Initializing plugins manager...");
         inferenceEndpoints = initInferenceEndpoints();
         managementEndpoints = initManagementEndpoints();
-        if (managementEndpoints.containsKey("token")) {
-            TokenAuthorizationHandler.setupTokenClass();
-        }
     }
 
     private boolean validateEndpointPlugin(Annotation a, EndpointTypes type) {

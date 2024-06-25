@@ -21,7 +21,7 @@ bert:
             - "gpus": "all"
     torch_compile_default_mode:
         benchmark_engine: "ab"
-        url: https://torchserve.pytorch.org/mar_files/bert-default.mar
+        url: https://torchserve.pytorch.org/mar_files/bert-compile.mar
         workers:
             - 4
         batch_delay: 100

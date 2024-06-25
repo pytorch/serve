@@ -1,11 +1,30 @@
 # TorchServe token authorization API
 
-## Setup
-1. Download the jar files from [Maven](https://mvnrepository.com/artifact/org.pytorch/torchserve-endpoint-plugin) 
-2. Enable token authorization by adding the `--plugins-path /path/to/the/jar/files` flag at start up with the path leading to the downloaded jar files.
+TorchServe now enforces token authorization by default
+
+
+## How to set and disable Token Authorization
+* Global environment variable: use `TS_DISABLE_TOKEN_AUTHORIZATION` and set to `true` to disable and `false` to enable token authorization. Note that `enable_envvars_config=true` must be set in config.properties for global environment variables to be used
+* Command line: Command line can only be used to disable token authorization by adding the `--disable-token` flag.
+* Config properties file: use `disable_token_authorization` and set to `true` to disable and `false` to enable token authorization.
+
+Priority between env variables, cmd, and config file follows the following [TorchServer standard](https://github.com/pytorch/serve/blob/master/docs/configuration.md)
+
+* Example 1:
+  * Config file: `disable_token_authorization=false`
+
+    cmd line: `torchserve --start --ncs --model-store model_store --disable-token`
+
+    Result: Token authorization disabled through command line but enabled through config file, resulting in token authorization being disabled. Command line takes precedence
+* Example 2:
+  * Config file: `disable_token_authorization=true`
+
+    cmd line: `torchserve --start --ncs --model-store model_store`
+
+    Result: Token authorization disable disabled through config file but not configured through command line, resulting in token authorization being disabled.
 
 ## Configuration
-1. Torchserve will enable token authorization if the plugin is provided. Expected log statement `[INFO ] main org.pytorch.serve.servingsdk.impl.PluginsManager - Loading plugin for endpoint token`
+1. Torchserve will enable token authorization by default. Expected log statement `main org.pytorch.serve.http.TokenAuthorizationHandler - Token Authorization Enabled`
 2. In the current working directory a file `key_file.json` will be generated.
     1. Example key file:
 
@@ -31,7 +50,7 @@
     2. Inference key: Used for inference APIs. Example:
     `curl http://127.0.0.1:8080/predictions/densenet161 -T examples/image_classifier/kitten.jpg -H "Authorization: Bearer FINhR1fj"`
     3. API key: Used for the token authorization API. Check section 4 for API use.
-4. The plugin also includes an API in order to generate a new key to replace either the management or inference key.
+4. API in order to generate a new key to replace either the management or inference key.
     1. Management Example:
     `curl localhost:8081/token?type=management -H "Authorization: Bearer m4M-5IBY"` will replace the current management key in the key_file with a new one and will update the expiration time.
     2. Inference example:
@@ -41,14 +60,7 @@
 
 5. When users shut down the server the key_file will be deleted.
 
-
-## Customization
-Torchserve offers various ways to customize the token authorization to allow owners to reach the desired result.
-1. Time to expiration is set to default at 60 minutes but can be changed in the config.properties by adding `token_expiration_min`. Ex:`token_expiration_min=30`
-2. The token authorization code is consolidated in the plugin and thus can be changed without impacting the frontend or end result. The only thing the user cannot change is:
-    1. The urlPattern for the plugin must be 'token' and the class name must not change
-    2. The `generateKeyFile`, `checkTokenAuthorization`, and `setTime` functions return type and signature must not change. However, the code in the functions can be modified depending on user necessity.
-
 ## Notes
 1. DO NOT MODIFY THE KEY FILE. Modifying the key file might impact reading and writing to the file thus preventing new keys from properly being displayed in the file.
-2. 3 tokens allow the owner with the most flexibility in use and enables them to adapt the tokens to their use. Owners of the server can provide users with the inference token if users should not mess with models. The owner can also provide owners with the management key if owners want users to add and remove models.
+2. Time to expiration is set to default at 60 minutes but can be changed in the config.properties by adding `token_expiration_min`. Ex:`token_expiration_min=30`
+3. Three tokens allow the owner with the most flexibility in use and enables them to adapt the tokens to their use. Owners of the server can provide users with the inference token if users should only be able to run inferences against models that have already been loaded. The owner can also provide owners with the management key if owners want users to add and remove models.

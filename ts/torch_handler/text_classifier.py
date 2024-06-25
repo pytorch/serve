@@ -9,7 +9,8 @@ import logging
 import torch
 import torch.nn.functional as F
 from captum.attr import TokenReferenceBase
-from torchtext.data.utils import ngrams_iterator
+
+from ts.handler_utils.text_utils import ngrams_iterator
 
 from ..utils.util import map_class_to_label
 from .text_handler import TextHandler
