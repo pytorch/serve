@@ -1,0 +1,6 @@
+minWorkers: 1
+maxWorkers: 1
+pt2:
+  compile:
+    enable: True
+    backend: hpu_backend

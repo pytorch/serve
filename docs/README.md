@@ -41,6 +41,7 @@ TorchServe is a performant, flexible and easy to use tool for serving PyTorch ea
      - [TorchServe Integrations](../examples/README.md#torchserve-integrations)
      - [TorchServe UseCases](../examples/README.md#usecases)
 * [Workflow Examples](https://github.com/pytorch/serve/tree/master/examples/Workflows) - Examples of how to compose models in a workflow with TorchServe
+* [Resnet50 HPU compile](../examples/pt2/torch_compile_hpu/README.md) - An example of how to run the model in compile mode with the HPU device
 
 ## Advanced Features
 
