@@ -1,16 +1,14 @@
 import argparse
-import sys
-
-from ts.metrics.process_memory_metric import check_process_mem_usage
-
 import logging
+import sys
 import types
 from builtins import str
 
 from intel_gpu import list_gpu_info
+
 from ts.metrics.dimension import Dimension
 from ts.metrics.metric import Metric
-
+from ts.metrics.process_memory_metric import check_process_mem_usage
 
 intel_gpu_system_metrics = []
 dimension = [Dimension("Level", "Host")]
@@ -32,11 +30,11 @@ def gpu_utilization(num_of_gpu):
             Dimension("Level", "Host"),
             Dimension("device_id", int(line[1])),
         ]
-        if line[2] != 'N/A':
+        if line[2] != "N/A":
             intel_gpu_system_metrics.append(
                 Metric("GPUUtilization", float(line[2]), "percent", dimension_gpu)
             )
-        if line[3] != 'N/A':
+        if line[3] != "N/A":
             intel_gpu_system_metrics.append(
                 Metric(
                     "GPUMemoryUtilization",
@@ -45,7 +43,7 @@ def gpu_utilization(num_of_gpu):
                     dimension_gpu,
                 )
             )
-        if line[4] != 'N/A':
+        if line[4] != "N/A":
             intel_gpu_system_metrics.append(
                 Metric("GPUMemoryUsed", float(line[4]), "MB", dimension_gpu)
             )
@@ -81,20 +79,14 @@ def collect_all(mod, num_of_gpu):
     logging.info("")
 
 
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
-    parser.add_argument(
-        "--gpu",
-        action="store",
-        help="number of GPU",
-        type=int
-    )
+    parser.add_argument("--gpu", action="store", help="number of GPU", type=int)
     arguments = parser.parse_args()
 
     logging.basicConfig(stream=sys.stdout, format="%(message)s", level=logging.INFO)
 
-    collect_all(sys.modules['ts.metrics.system_metrics'], arguments.gpu)
+    collect_all(sys.modules["ts.metrics.system_metrics"], arguments.gpu)
 
     check_process_mem_usage(sys.stdin)
