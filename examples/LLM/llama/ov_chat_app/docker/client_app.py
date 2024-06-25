@@ -155,9 +155,10 @@ def get_prompts_string(input_string):
     else:
         return None
 
-def llm_response_postprocess(generated_prompts):
+def llm_response_postprocess(original_prompt, generated_prompts):
     prompts = get_prompts_string(generated_prompts)
     prompts = [item.strip() for item in prompts.split(";")]
+    prompts[0] = original_prompt
     assert len(prompts) == 4
 
     return prompts
@@ -180,7 +181,7 @@ def generate_llm_model_response(input_prompt):
     res = requests.post(url=url, data=data, headers=headers, stream=True)
     assert res.status_code == 200
 
-    return llm_response_postprocess(res.text)
+    return llm_response_postprocess(input_prompt, res.text)
 
 
 # def llm_response_postprocess(generated_prompts):
@@ -201,6 +202,16 @@ def generate_llm_model_response(input_prompt):
 #         st.write(f"Inference time: {inference_time:.2f} seconds")
 #         st.image(images, caption=["Generated Image"] * len(images), use_column_width=True
 
+if 'gen_images' not in st.session_state:
+    st.session_state.gen_images = []
+if 'gen_captions' not in st.session_state:
+    st.session_state.gen_captions = []
+
+def display_images_in_grid(images, captions):
+    cols = st.columns(2)
+    for i, (img, caption) in enumerate(zip(images, captions)):
+        col = cols[i % 2]
+        col.image(img, caption=caption, use_column_width=True)
 
 if st.button("Generate Images"):
     with st.spinner('Generating images...'):
@@ -212,4 +223,10 @@ if st.button("Generate Images"):
         images = sd_response_postprocess(sd_res)
         inference_time = time.time() - start_time
         st.write(f"Inference time: {inference_time:.2f} seconds")
-        st.image(images, caption=llm_res, use_column_width=True)
+
+        st.session_state.gen_images[:0] = images
+        st.session_state.gen_captions[:0] = llm_res
+
+        # st.image(images, caption=llm_res, use_column_width=True)
+
+display_images_in_grid(st.session_state.gen_images, st.session_state.gen_captions)
