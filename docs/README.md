@@ -3,7 +3,6 @@ TorchServe now enforces token authorization enabled and model API control disabl
 
 # TorchServe
 
-
 TorchServe is a performant, flexible and easy to use tool for serving PyTorch eager mode and torchscripted models.
 
 ## Basic Features

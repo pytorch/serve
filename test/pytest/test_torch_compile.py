@@ -98,7 +98,7 @@ class TestTorchCompile:
         )
 
     def test_start_torchserve(self):
-        cmd = f"torchserve --start --ncs --models {MODEL_NAME}_str.mar,{MODEL_NAME}_dict.mar --model-store {MODEL_STORE_DIR} --model-api-enabled --disable-token"
+        cmd = f"torchserve --start --ncs --models {MODEL_NAME}_str.mar,{MODEL_NAME}_dict.mar --model-store {MODEL_STORE_DIR} --enable-model-api --disable-token-auth"
         subprocess.run(
             cmd,
             shell=True,

@@ -64,11 +64,11 @@ def start_torchserve(
     if ncs:
         cmd.append("--ncs")
     if disable_token:
-        cmd.append("--disable-token")
+        cmd.append("--disable-token-auth")
     if config_file:
         cmd.append(f"--ts-config={config_file}")
     if model_api_enabled:
-        cmd.extend(["--model-api-enabled"])
+        cmd.extend(["--enable-model-api"])
     if log_file:
         print(f"## Console logs redirected to file: {log_file}")
     print(f"## In directory: {os.getcwd()} | Executing command: {' '.join(cmd)}")

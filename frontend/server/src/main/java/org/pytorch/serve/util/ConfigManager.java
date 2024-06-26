@@ -124,6 +124,7 @@ public final class ConfigManager {
     private static final String TS_HEADER_KEY_SEQUENCE_START = "ts_header_key_sequence_start";
     private static final String TS_HEADER_KEY_SEQUENCE_END = "ts_header_key_sequence_end";
     private static final String TS_DISABLE_TOKEN_AUTHORIZATION = "disable_token_authorization";
+    private static final String TS_ENABLE_MODEL_API = "enabled_model_api";
 
     // Configuration which are not documented or enabled through environment variables
     private static final String USE_NATIVE_IO = "use_native_io";
@@ -134,7 +135,6 @@ public final class ConfigManager {
     private static final String MODEL_CONFIG = "models";
     private static final String VERSION = "version";
     private static final String SYSTEM_METRICS_CMD = "system_metrics_cmd";
-    private static final String MODEL_CONTROL_MODE = "model_api_enabled";
 
     // Configuration default values
     private static final String DEFAULT_TS_ALLOWED_URLS = "file://.*|http(s)?://.*";
@@ -257,7 +257,7 @@ public final class ConfigManager {
         }
 
         if (args.isModelEnabled().equals("true")) {
-            prop.setProperty(MODEL_CONTROL_MODE, args.isModelEnabled());
+            prop.setProperty(TS_ENABLE_MODEL_API, args.isModelEnabled());
         }
 
         String tokenDisabled = args.isTokenDisabled();
@@ -494,7 +494,7 @@ public final class ConfigManager {
     }
 
     public boolean getModelControlMode() {
-        return Boolean.parseBoolean(getProperty(MODEL_CONTROL_MODE, "false"));
+        return Boolean.parseBoolean(getProperty(TS_ENABLE_MODEL_API, "false"));
     }
 
     public String getMetricsConfigPath() {
@@ -1151,8 +1151,8 @@ public final class ConfigManager {
             snapshotDisabled = cmd.hasOption("no-config-snapshot");
             workflowStore = cmd.getOptionValue("workflow-store");
             cppLogConfigFile = cmd.getOptionValue("cpp-log-config");
-            tokenAuthEnabled = cmd.hasOption("disable-token");
-            modelApiEnabled = cmd.hasOption("model-api-enabled");
+            tokenAuthEnabled = cmd.hasOption("disable-token-auth");
+            modelApiEnabled = cmd.hasOption("enable-model-api");
         }
 
         public static Options getOptions() {
@@ -1207,14 +1207,14 @@ public final class ConfigManager {
                             .build());
             options.addOption(
                     Option.builder("dt")
-                            .longOpt("disable-token")
+                            .longOpt("disable-token-auth")
                             .argName("TOKEN")
                             .desc("disables token authorization")
                             .build());
             options.addOption(
                     Option.builder("mapi")
-                            .longOpt("model-api-enabled")
-                            .argName("MODEL-API-ENABLED")
+                            .longOpt("enable-model-api")
+                            .argName("ENABLE-MODEL-API")
                             .desc("sets model apis to enabled")
                             .build());
             return options;

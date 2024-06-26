@@ -77,11 +77,11 @@ def start_torchserve(
     if no_config_snapshots:
         cmd.extend(["--no-config-snapshots"])
     if disable_token:
-        cmd.append("--disable-token")
+        cmd.extend(["--disable-token-auth"])
     if models:
         cmd.extend(["--models", models])
     if model_api_enabled:
-        cmd.extend(["--model-api-enabled"])
+        cmd.extend(["--enable-model-api"])
     print(cmd)
 
     p = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=STDOUT)

@@ -6,7 +6,7 @@ TorchServe enforces the feature of token authorization which requires the correc
 
 ## How to set and disable Token Authorization
 * Global environment variable: use `TS_DISABLE_TOKEN_AUTHORIZATION` and set to `true` to disable and `false` to enable token authorization. Note that `enable_envvars_config=true` must be set in config.properties for global environment variables to be used
-* Command line: Command line can only be used to disable token authorization by adding the `--disable-token` flag.
+* Command line: Command line can only be used to disable token authorization by adding the `--disable-token-auth` flag.
 * Config properties file: use `disable_token_authorization` and set to `true` to disable and `false` to enable token authorization.
 
 Priority between env variables, cmd, and config file follows the following [TorchServer standard](https://github.com/pytorch/serve/blob/master/docs/configuration.md)
@@ -14,7 +14,7 @@ Priority between env variables, cmd, and config file follows the following [Torc
 * Example 1:
   * Config file: `disable_token_authorization=false`
 
-    cmd line: `torchserve --start --ncs --model-store model_store --disable-token`
+    cmd line: `torchserve --start --ncs --model-store model_store --disable-token-auth`
 
     Result: Token authorization disabled through command line but enabled through config file, resulting in token authorization being disabled. Command line takes precedence
 * Example 2:

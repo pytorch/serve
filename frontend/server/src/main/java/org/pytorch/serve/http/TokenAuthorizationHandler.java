@@ -86,7 +86,7 @@ public class TokenAuthorizationHandler extends HttpRequestHandlerChain {
                 token = new Token();
                 if (token.generateKeyFile("token")) {
                     String loggingMessage =
-                            "######\n"
+                            "\n######\n"
                                     + "TorchServe now enforces token authorization by default.\n"
                                     + "This requires the correct token to be provided when calling an API.\n"
                                     + "Key file located at "
