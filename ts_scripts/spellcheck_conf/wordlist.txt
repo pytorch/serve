@@ -16,6 +16,7 @@ torchvision
 ul
 usecase
 CUDA
+XPU
 JDK
 NVIDIA
 WSL
@@ -1253,3 +1254,4 @@ parallelLevel
 parallelType
 parallelization
 pptp
+torchcompile
