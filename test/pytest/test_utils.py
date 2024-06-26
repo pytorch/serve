@@ -42,6 +42,8 @@ def start_torchserve(*args, **kwargs):
     kwargs.update({"model_store": kwargs.get("model_store", MODEL_STORE)})
     if kwargs.get("gen_mar", True):
         mg.gen_mar(kwargs.get("model_store"))
+    kwargs.update({"disable_token": kwargs.get("disable_token", True)})
+    kwargs.update({"model_api_enabled": kwargs.get("model_api_enabled", True)})
     return start(*args, **kwargs)
 
 

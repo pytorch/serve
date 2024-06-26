@@ -54,9 +54,9 @@ def start(
     snapshot_file=None,
     no_config_snapshots=False,
     plugin_folder=None,
-    disable_token=True,
+    disable_token=False,
     models=None,
-    model_api_enabled=True,
+    model_api_enabled=False,
 ):
     stop()
     cmd = ["torchserve", "--start"]
