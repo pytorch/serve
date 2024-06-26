@@ -23,7 +23,7 @@ def setup_torchserve():
     Path(test_utils.MODEL_STORE).mkdir(parents=True, exist_ok=True)
 
     test_utils.start_torchserve(
-        no_config_snapshots=True, models="mnist=mnist.mar", model_api_enabled=False
+        no_config_snapshots=True, models="mnist=mnist.mar", enable_model_api=False
     )
 
     yield "test"
@@ -144,7 +144,7 @@ def test_priority_env(monkeypatch):
     test_utils.start_torchserve(
         snapshot_file=config_file_priority,
         no_config_snapshots=True,
-        model_api_enabled=False,
+        enable_model_api=False,
     )
 
     params = (

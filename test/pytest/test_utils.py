@@ -61,7 +61,7 @@ def start_torchserve(
     plugin_folder=None,
     disable_token=True,
     models=None,
-    model_api_enabled=True,
+    enable_model_api=True,
 ):
     stop_torchserve()
     crate_mar_file_table()
@@ -80,7 +80,7 @@ def start_torchserve(
         cmd.extend(["--disable-token-auth"])
     if models:
         cmd.extend(["--models", models])
-    if model_api_enabled:
+    if enable_model_api:
         cmd.extend(["--enable-model-api"])
     print(cmd)
 
