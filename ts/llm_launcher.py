@@ -30,19 +30,23 @@ def get_model_config(args):
         "handler": {
             "model_path": args.model_id,
             "vllm_engine_config": {
-                "enable_lora": True,
-                "max_loras": 4,
-                "max_cpu_loras": 4,
                 "max_num_seqs": getattr(args, "vllm_engine.max_num_seqs"),
                 "max_model_len": getattr(args, "vllm_engine.max_model_len"),
                 "download_dir": download_dir,
-            }
-            # ,
-            # "adapters": {
-            #     "adapter_1": "adapters/model/models--yard1--llama-2-7b-sql-lora-test/snapshots/0dfa347e8877a4d4ed19ee56c140fa518470028c/",
-            # },
+            },
         },
     }
+
+    if hasattr(args, "lora_adapter_ids"):
+        raise NotImplementedError("Lora setting needs to be implemented")
+        lora_adapter_ids = args.lora_adapter_ids.split(";")
+
+        model_config["handler"]["vllm_engine_config"].update(
+            {
+                "enable_lora": True,
+            }
+        )
+
     return model_config
 
 
@@ -126,6 +130,13 @@ if __name__ == "__main__":
     )
 
     parser.add_argument(
+        "--diable_token",
+        type=str,
+        default="meta-llama/Meta-Llama-3-8B-Instruct",
+        help="Model id",
+    )
+
+    parser.add_argument(
         "--vllm_engine.max_num_seqs",
         type=int,
         default=16,
@@ -142,7 +153,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--vllm_engine.download_dir",
         type=str,
-        default="/data",
+        default=None,
         help="Cache dir",
     )
 
