@@ -2,9 +2,9 @@ import os
 import sys
 from pathlib import Path
 
+import packaging.version
 import pytest
 import torch
-from pkg_resources import packaging
 
 from ts.torch_handler.image_classifier import ImageClassifier
 from ts.torch_handler.unit_tests.test_utils.mock_context import MockContext

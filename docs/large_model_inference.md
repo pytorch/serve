@@ -3,6 +3,7 @@
 This document explain how Torchserve supports large model serving, here large model refers to the models that are not able to fit into one gpu so they need be split in multiple partitions over multiple gpus.
 This page is split into the following sections:
 - [How it works](#how-it-works)
+- [Large Model Inference with vLLM](#pippy-pytorch-native-solution-for-large-model-inference)
 - [Large Model Inference with PiPPy](#pippy-pytorch-native-solution-for-large-model-inference)
 - [Large Model Inference with Deep Speed](#deepspeed)
 - [Deep Speed MII](#deepspeed-mii)
@@ -11,13 +12,36 @@ This page is split into the following sections:
 
 ## How it works?
 
-During deployment a worker of a large model, TorchServe utilizes [torchrun](https://pytorch.org/docs/stable/elastic/run.html) to set up the distributed environment for model parallel processing. TorchServe has the capability to support multiple workers for a large model. By default, TorchServe uses a round-robin algorithm to assign GPUs to a worker on a host. In case of large models inference GPUs assigned to each worker is automatically calculated based on number of GPUs specified in the model_config.yaml. CUDA_VISIBLE_DEVICES is set based this number.
+For GPU inference of smaller models TorchServe executes a single process per worker which gets assigned a single GPU.
+For large model inference the model needs to be split over multiple GPUs.
+There are different modes to achieve this split which usually include pipeline parallel (PP), tensor parallel or a combination of these.
+Which mode is selected and how the split is implemented depends on the implementation in the utilized framework.
+TorchServe allows users to utilize any framework for their model deployment and tries to accommodate the needs of the frameworks through flexible configurations.
+Some frameworks require to execute a separate process for each of the GPUs (PiPPy, Deep Speed) while others require a single process which get assigned all GPUs (vLLM).
+In case multiple processes are required TorchServe utilizes [torchrun](https://pytorch.org/docs/stable/elastic/run.html) to set up the distributed environment for the worker.
+During the setup `torchrun` will start a new process for each GPU assigned to the worker.
+If torchrun is utilized or not depends on the parameter parallelType which can be set in the `model-config.yaml` to one of the following options:
 
-For instance, suppose there are eight GPUs on a node and one worker needs 4 GPUs (ie, nproc-per-node=4) on a node. In this case, TorchServe would assign CUDA_VISIBLE_DEVICES="0,1,2,3" to worker1 and CUDA_VISIBLE_DEVICES="4,5,6,7" to worker2.
+* `pp` - for pipeline parallel
+* `tp` - for tensor parallel
+* `pptp` - for pipeline + tensor parallel
+* `custom`
 
-In addition to this default behavior, TorchServe provides the flexibility for users to specify GPUs for a worker. For instance, if the user sets "deviceIds: [2,3,4,5]" in the [model config YAML file](https://github.com/pytorch/serve/blob/5ee02e4f050c9b349025d87405b246e970ee710b/model-archiver/README.md?plain=1#L164), and nproc-per-node is set to 2, then TorchServe would assign CUDA_VISIBLE_DEVICES="2,3" to worker1 and CUDA_VISIBLE_DEVICES="4,5" to worker2.
+The first three options setup the environment using torchrun while the "custom" option leaves the way of parallelization to the user and assigned the GPUs assigned to a worker to a single process.
+The number of assigned GPUs is determined either by the number of processes started by torchrun i.e. configured through nproc-per-node OR the parameter parallelLevel.
+Meaning that the parameter parallelLevel should NOT be set if nproc-per-node is set and vice versa.
+
+By default, TorchServe uses a round-robin algorithm to assign GPUs to a worker on a host.
+In case of large models inference GPUs assigned to each worker is automatically calculated based on the number of GPUs specified in the model_config.yaml.
+CUDA_VISIBLE_DEVICES is set based this number.
+
+For instance, suppose there are eight GPUs on a node and one worker needs 4 GPUs (ie, nproc-per-node=4 OR parallelLevel=4) on a node.
+In this case, TorchServe would assign CUDA_VISIBLE_DEVICES="0,1,2,3" to worker1 and CUDA_VISIBLE_DEVICES="4,5,6,7" to worker2.
+
+In addition to this default behavior, TorchServe provides the flexibility for users to specify GPUs for a worker. For instance, if the user sets "deviceIds: [2,3,4,5]" in the [model config YAML file](https://github.com/pytorch/serve/blob/5ee02e4f050c9b349025d87405b246e970ee710b/model-archiver/README.md?plain=1#L164), and nproc-per-node (OR parallelLevel) is set to 2, then TorchServe would assign CUDA_VISIBLE_DEVICES="2,3" to worker1 and CUDA_VISIBLE_DEVICES="4,5" to worker2.
 
 Using Pippy integration as an example, the image below illustrates the internals of the TorchServe large model inference.
+For an example using vLLM see [this example](../examples/large_models/vllm/).
 
 ![ts-lmi-internal](https://raw.githubusercontent.com/pytorch/serve/master/docs/images/ts-lmi-internal.png)
 

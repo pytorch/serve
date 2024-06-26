@@ -108,7 +108,7 @@ class Service(object):
         return headers, input_batch, req_to_id_map
 
     def set_cl_socket(self, cl_socket):
-        self.context.cl_socket = cl_socket
+        self.cl_socket = cl_socket
 
     def predict(self, batch):
         """
@@ -126,6 +126,7 @@ class Service(object):
         self.context.request_processor = headers
         metrics = self.context.metrics
         metrics.request_ids = req_id_map
+        self.context.cl_socket = self.cl_socket
 
         start_time = time.time()
 
@@ -143,10 +144,14 @@ class Service(object):
                 # Handles Case A: CUDA error: CUBLAS_STATUS_NOT_INITIALIZED (Close to OOM) &
                 # Case B: CUDA out of memory (OOM)
                 logger.error("CUDA out of memory", exc_info=True)
-                return create_predict_response(None, req_id_map, "Out of resources", 507)
+                return create_predict_response(
+                    None, req_id_map, "Out of resources", 507
+                )
             else:
                 logger.warning("Invoking custom service failed.", exc_info=True)
-                return create_predict_response(None, req_id_map, "Prediction failed", 503)
+                return create_predict_response(
+                    None, req_id_map, "Prediction failed", 503
+                )
 
         if not isinstance(ret, list):
             logger.warning(

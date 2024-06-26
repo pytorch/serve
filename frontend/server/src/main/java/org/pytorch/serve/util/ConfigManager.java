@@ -79,6 +79,7 @@ public final class ConfigManager {
     private static final String TS_IPEX_ENABLE = "ipex_enable";
     private static final String TS_CPU_LAUNCHER_ENABLE = "cpu_launcher_enable";
     private static final String TS_CPU_LAUNCHER_ARGS = "cpu_launcher_args";
+    private static final String TS_IPEX_GPU_ENABLE = "ipex_gpu_enable";
 
     private static final String TS_ASYNC_LOGGING = "async_logging";
     private static final String TS_CORS_ALLOWED_ORIGIN = "cors_allowed_origin";
@@ -471,6 +472,10 @@ public final class ConfigManager {
 
     public String getCPULauncherArgs() {
         return getProperty(TS_CPU_LAUNCHER_ARGS, null);
+    }
+
+    public boolean isIPEXGpuEnabled() {
+        return Boolean.parseBoolean(getProperty(TS_IPEX_GPU_ENABLE, "false"));
     }
 
     public boolean getDisableTokenAuthorization() {
@@ -902,6 +907,7 @@ public final class ConfigManager {
         // Append properties used by backend worker here
         config.put("TS_DECODE_INPUT_REQUEST", prop.getProperty(TS_DECODE_INPUT_REQUEST, "true"));
         config.put("TS_IPEX_ENABLE", prop.getProperty(TS_IPEX_ENABLE, "false"));
+        config.put("TS_IPEX_GPU_ENABLE", prop.getProperty(TS_IPEX_GPU_ENABLE, "false"));
         return config;
     }
 
@@ -922,6 +928,7 @@ public final class ConfigManager {
 
     private static int getAvailableGpu() {
         try {
+
             List<Integer> gpuIds = new ArrayList<>();
             String visibleCuda = System.getenv("CUDA_VISIBLE_DEVICES");
             if (visibleCuda != null && !visibleCuda.isEmpty()) {
@@ -953,22 +960,43 @@ public final class ConfigManager {
                 // No MPS devices detected
                 return 0;
             } else {
-                Process process =
-                        Runtime.getRuntime().exec("nvidia-smi --query-gpu=index --format=csv");
-                int ret = process.waitFor();
-                if (ret != 0) {
-                    return 0;
+
+                try {
+                    Process process =
+                            Runtime.getRuntime().exec("nvidia-smi --query-gpu=index --format=csv");
+                    int ret = process.waitFor();
+                    if (ret != 0) {
+                        return 0;
+                    }
+                    List<String> list =
+                            IOUtils.readLines(process.getInputStream(), StandardCharsets.UTF_8);
+                    if (list.isEmpty() || !"index".equals(list.get(0))) {
+                        throw new AssertionError("Unexpected nvidia-smi response.");
+                    }
+                    for (int i = 1; i < list.size(); i++) {
+                        gpuIds.add(Integer.parseInt(list.get(i)));
+                    }
+                } catch (IOException | InterruptedException e) {
+                    System.out.println("nvidia-smi not available or failed: " + e.getMessage());
                 }
-                List<String> list =
-                        IOUtils.readLines(process.getInputStream(), StandardCharsets.UTF_8);
-                if (list.isEmpty() || !"index".equals(list.get(0))) {
-                    throw new AssertionError("Unexpected nvidia-smi response.");
-                }
-                for (int i = 1; i < list.size(); i++) {
-                    gpuIds.add(Integer.parseInt(list.get(i)));
+                try {
+                    Process process = Runtime.getRuntime().exec("xpu-smi discovery --dump 1");
+                    int ret = process.waitFor();
+                    if (ret != 0) {
+                        return 0;
+                    }
+                    List<String> list =
+                            IOUtils.readLines(process.getInputStream(), StandardCharsets.UTF_8);
+                    if (list.isEmpty() || !list.get(0).contains("Device ID")) {
+                        throw new AssertionError("Unexpected xpu-smi response.");
+                    }
+                    for (int i = 1; i < list.size(); i++) {
+                        gpuIds.add(Integer.parseInt(list.get(i)));
+                    }
+                } catch (IOException | InterruptedException e) {
+                    System.out.println("xpu-smi not available or failed: " + e.getMessage());
                 }
             }
-
             return gpuIds.size();
         } catch (IOException | InterruptedException e) {
             return 0;

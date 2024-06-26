@@ -235,6 +235,8 @@ public class WorkLoadManager {
                 aggregator = new SequenceBatching(model);
             } else if (model.isContinuousBatching()) {
                 aggregator = new ContinuousBatching(model);
+            } else if (model.isAsyncCommunication()) {
+                aggregator = new AsyncBatchAggregator(model);
             } else {
                 aggregator = new BatchAggregator(model);
             }
@@ -245,15 +247,29 @@ public class WorkLoadManager {
                                     ? distributionPort.get()
                                     : distributionPort.getAndAdd(model.getParallelLevel())
                             : configManager.isDebug() ? port.get() : port.getAndIncrement();
-            WorkerThread thread =
-                    new WorkerThread(
-                            configManager,
-                            backendGroup,
-                            currentPort,
-                            gpuId,
-                            model,
-                            aggregator,
-                            listener);
+
+            WorkerThread thread;
+            if (model.isAsyncCommunication()) {
+                thread =
+                        new AsyncWorkerThread(
+                                configManager,
+                                backendGroup,
+                                currentPort,
+                                gpuId,
+                                model,
+                                aggregator,
+                                listener);
+            } else {
+                thread =
+                        new WorkerThread(
+                                configManager,
+                                backendGroup,
+                                currentPort,
+                                gpuId,
+                                model,
+                                aggregator,
+                                listener);
+            }
             threads.add(thread);
             threadPool.submit(thread);
         }
