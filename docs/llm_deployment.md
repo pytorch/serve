@@ -25,6 +25,8 @@ You can then go ahead and launch a TorchServe instance serving your selected mod
 docker run --rm -ti --gpus all -e HUGGING_FACE_HUB_TOKEN=$token -p 8080:8080 -v data:/data ts/llm --model_id meta-llama/Meta-Llama-3-8B-Instruct --disable_token
 ```
 
+
+
 To change the model you just need to exchange the identifier fo the `--model_id` parameter.
 You can test the model with:
 ```bash
@@ -46,6 +48,17 @@ python -m ts.llm_launcher --disable_token
 ```
 
 Please note that the launcher script as well as the docker command will automatically run on all available GPUs so make sure to restrict the visible number of device by setting CUDA_VISIBLE_DEVICES.
+
+## Supported models
+The quickstart launcher should allow to launch any model which is [supported by VLLM](https://docs.vllm.ai/en/latest/models/supported_models.html).
+Here is a list of model identifiers tested by the TorchServe team:
+
+* meta-llama/Meta-Llama-3-8B
+* meta-llama/Meta-Llama-3-8B-Instruct
+* meta-llama/Llama-2-7b-hf
+* meta-llama/Llama-2-7b-chat-hf
+* mistralai/Mistral-7B-v0.1
+* mistralai/Mistral-7B-Instruct-v0.1
 
 ## Other ways to deploy LLMs with TorchServe
 
