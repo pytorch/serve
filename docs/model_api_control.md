@@ -6,20 +6,20 @@ TorchServe disables the ability to register and delete models using API calls on
 
 ## Two ways to set Model Control
 1. Global environment variable: use `TS_ENABLE_MODEL_API` and set to `true` to enable and `false` to disable model API use. Note that `enable_envvars_config=true` must be set in config.properties for global environment variables to be used
-2. Add `--enabled-model-api` to command line when running TorchServe to switch from disabled to enabled. Command line cannot be used to disabled, can only be used to enabled
-3. Add `enabled-model-api=false` or `enabled-model-api=true` to config.properties file
-    * `enabled-model-api=false` is default and prevents users from registering or deleting models once TorchServe is running
-    * `enabled-model-api=true` is not default and allows users to register and delete models using the TorchServe model load APIs
+2. Add `--enable-model-api` to command line when running TorchServe to switch from disabled to enabled. Command line cannot be used to disabled, can only be used to enabled
+3. Add `enable-model-api=false` or `enable-model-api=true` to config.properties file
+    * `enable-model-api=false` is default and prevents users from registering or deleting models once TorchServe is running
+    * `enable-model-api=true` is not default and allows users to register and delete models using the TorchServe model load APIs
 
 Priority follows the following [TorchServer standard](https://github.com/pytorch/serve/blob/c74a29e8144bc12b84196775076b0e8cf3c5a6fc/docs/configuration.md#advanced-configuration)
 * Example 1:
-  * Config file: `enabled-model-api=false`
+  * Config file: `enable-model-api=false`
 
-    cmd line: `torchserve --start --ncs --model-store model_store --enabled-model-api`
+    cmd line: `torchserve --start --ncs --model-store model_store --enable-model-api`
 
     Result: Model api mode enabled
 * Example 2:
-  * Config file: `enabled-model-api=true`
+  * Config file: `enable-model-api=true`
 
     cmd line: `torchserve --start --ncs --model-store model_store`
 
@@ -47,7 +47,7 @@ Setting model API to `enabled` allows users to load and unload models using the 
 
 ### Example using cmd line to set mode to enabled
 ```
-ubuntu@ip-172-31-11-32:~/serve$ torchserve --start --ncs --model-store model_store --models resnet-18=resnet-18.mar --ts-config config.properties --enabled-model-api
+ubuntu@ip-172-31-11-32:~/serve$ torchserve --start --ncs --model-store model_store --models resnet-18=resnet-18.mar --ts-config config.properties --enable-model-api
 
 ubuntu@ip-172-31-11-32:~/serve$ curl -X POST  "http://localhost:8081/models?url=https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar"
 {

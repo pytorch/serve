@@ -16,4 +16,4 @@ spec:
           memory: 256Mi
       args:
         - --disable-token-auth
-        - --enabled-model-api
+        - --enable-model-api
