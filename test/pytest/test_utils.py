@@ -11,13 +11,13 @@ from pathlib import Path
 import orjson
 import requests
 
-from ts_scripts import marsgen as mg
-
 # To help discover margen modules
 REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../")
 sys.path.append(REPO_ROOT)
+
 from ts.launcher import register_model, register_model_with_params, start  # noqa
 from ts.launcher import stop as stop_torchserve
+from ts_scripts import marsgen as mg
 
 ROOT_DIR = os.path.join(tempfile.gettempdir(), "workspace")
 MODEL_STORE = path.join(ROOT_DIR, "model_store/")
