@@ -96,6 +96,7 @@ def main(args):
                 model_store=args.model_store,
                 no_config_snapshots=True,
                 models=args.model_name,
+                disable_token=args.disable_token,
             )
 
             pause()
@@ -130,10 +131,9 @@ if __name__ == "__main__":
     )
 
     parser.add_argument(
-        "--diable_token",
-        type=str,
-        default="meta-llama/Meta-Llama-3-8B-Instruct",
-        help="Model id",
+        "--disable_token",
+        action="store_true",
+        help="Disable token authentication",
     )
 
     parser.add_argument(
