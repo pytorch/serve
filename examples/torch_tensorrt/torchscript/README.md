@@ -1,6 +1,6 @@
-# TorchServe inference with torch tensorrt model
+# TorchServe inference with torch tensorrt (using TorchScript) model
 
-This example shows how to run TorchServe inference with [Torch-TensorRT](https://github.com/pytorch/TensorRT) model
+This example shows how to run TorchServe inference with [Torch-TensorRT](https://github.com/pytorch/TensorRT) model using TorchScript. This is the legacy way of using TensorRT with PyTorch. We recommend using torch.compile for new deployments (see [../README.md](../README.md)). TorchScript is in maintenance mode.
 
 ### Pre-requisites
 
