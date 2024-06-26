@@ -24,7 +24,8 @@ def timed(func):
     def wrap_func(self, *args, **kwargs):
         # Measure time if config specified in model_yaml_config
         if (
-            "handler" in self.context.model_yaml_config
+            self.context
+            and "handler" in self.context.model_yaml_config
             and "profile" in self.context.model_yaml_config["handler"]
         ):
             if self.context.model_yaml_config["handler"]["profile"]:

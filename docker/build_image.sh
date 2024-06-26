@@ -36,7 +36,7 @@ do
           echo "-py, --pythonversion specify to python version to use: Possible values: 3.8 3.9 3.10"
           echo "-n, --nightly specify to build with TorchServe nightly"
           echo "-s, --source specify to build with TorchServe from source"
-          echo "-l, --local specify to use local TorchServe"
+          echo "-r, --remote specify to use local TorchServe"
           exit 0
           ;;
         -b|--branch_name)

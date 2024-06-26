@@ -9,8 +9,8 @@ import logging
 import os
 import time
 
+import packaging.version
 import torch
-from pkg_resources import packaging
 
 from ts.handler_utils.timer import timed
 
@@ -59,7 +59,7 @@ else:
     PT230_AVAILABLE = False
 
 try:
-    import openvino.torch
+    import openvino.torch  # nopycln: import
 
     logger.info("OpenVINO backend enabled for torch.compile")
 except ImportError:
@@ -152,12 +152,21 @@ class BaseHandler(abc.ABC):
             self.model_yaml_config = context.model_yaml_config
 
         properties = context.system_properties
-
         if torch.cuda.is_available() and properties.get("gpu_id") is not None:
             self.map_location = "cuda"
             self.device = torch.device(
                 self.map_location + ":" + str(properties.get("gpu_id"))
             )
+        elif (
+            torch.xpu.is_available()
+            and properties.get("gpu_id") is not None
+            and os.environ.get("TS_IPEX_GPU_ENABLE", "false") == "true"
+        ):
+            self.map_location = "xpu"
+            self.device = torch.device(
+                self.map_location + ":" + str(properties.get("gpu_id"))
+            )
+            torch.xpu.device(self.device)
         elif torch.backends.mps.is_available() and properties.get("gpu_id") is not None:
             self.map_location = "mps"
             self.device = torch.device("mps")
@@ -216,7 +225,20 @@ class BaseHandler(abc.ABC):
         if hasattr(self, "model_yaml_config") and "pt2" in self.model_yaml_config:
             pt2_value = self.model_yaml_config["pt2"]
 
-            if "export" in pt2_value:
+            if "compile" in pt2_value:
+                compile_options = pt2_value["compile"]
+                if compile_options["enable"] == True:
+                    del compile_options["enable"]
+
+                    # if backend is not provided, compile will use its default, which is valid
+                    valid_backend = (
+                        check_valid_pt2_backend(compile_options["backend"])
+                        if "backend" in compile_options
+                        else True
+                    )
+                else:
+                    valid_backend = False
+            elif "export" in pt2_value:
                 valid_backend = False
             else:
                 # pt2_value can be the backend, passed as a str, or arbitrary kwargs, passed as a dict
@@ -232,6 +254,10 @@ class BaseHandler(abc.ABC):
                     check_valid_pt2_backend(compile_options["backend"])
                     if "backend" in compile_options
                     else True
+                )
+
+                logger.warning(
+                    "This approach of specifying torch.compile() options is deprecated. The new standard approach is mentioned in https://github.com/pytorch/serve/issues/3164"
                 )
         else:
             valid_backend = False
@@ -256,6 +282,7 @@ class BaseHandler(abc.ABC):
 
         elif IPEX_AVAILABLE:
             self.model = self.model.to(memory_format=torch.channels_last)
+            self.model = self.model.to(self.device)
             self.model = ipex.optimize(self.model)
             logger.info(f"Compiled model with ipex")
 
@@ -468,9 +495,9 @@ class BaseHandler(abc.ABC):
                 logging.debug("Model name not found in config")
 
             result_path = os.path.join(result_path, dir_name)
-            self.profiler_args["on_trace_ready"] = (
-                torch.profiler.tensorboard_trace_handler(result_path)
-            )
+            self.profiler_args[
+                "on_trace_ready"
+            ] = torch.profiler.tensorboard_trace_handler(result_path)
             logger.info("Saving chrome trace to : %s", result_path)
 
         with profile(**self.profiler_args) as prof:

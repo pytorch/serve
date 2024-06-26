@@ -1,6 +1,7 @@
 # Example showing inference with vLLM on LoRA model
 
 This is an example showing how to integrate [vLLM](https://github.com/vllm-project/vllm) with TorchServe and run inference on model `Llama-2-7b-hf` + LoRA model `llama-2-7b-sql-lora-test` with continuous batching.
+This examples supports distributed inference by following [this instruction](../Readme.md#distributed-inference)
 
 ### Step 1: Download Model from HuggingFace
 
