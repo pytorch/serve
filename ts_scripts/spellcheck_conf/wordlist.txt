@@ -16,6 +16,7 @@ torchvision
 ul
 usecase
 CUDA
+XPU
 JDK
 NVIDIA
 WSL
@@ -1247,4 +1248,10 @@ quant
 quantizing
 smoothquant
 woq
+TokenAuthorizationHandler
 TorchText
+parallelLevel
+parallelType
+parallelization
+pptp
+torchcompile

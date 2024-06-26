@@ -4,7 +4,6 @@ Communication message format: binary encoding
 """
 
 # pylint: disable=redefined-builtin
-
 import logging
 import os
 import platform
@@ -13,6 +12,7 @@ import sys
 from typing import Optional
 
 from ts.arg_parser import ArgParser
+from ts.async_service import AsyncService
 from ts.metrics.metric_cache_yaml_impl import MetricsCacheYamlImpl
 from ts.model_loader import ModelLoaderFactory
 from ts.protocol.otf_message_handler import create_load_model_response, retrieve_msg
@@ -39,6 +39,7 @@ class TorchModelServiceWorker(object):
         host_addr: Optional[str] = None,
         port_num: Optional[int] = None,
         metrics_config: Optional[str] = None,
+        async_comm: Optional[bool] = False,
     ):
         self.sock_type = s_type
 
@@ -80,6 +81,7 @@ class TorchModelServiceWorker(object):
             raise RuntimeError(
                 f"Failed to initialize metrics from file {metrics_config}"
             )
+        self.async_comm = async_comm
 
     def load_model(self, load_model_request):
         """
@@ -201,6 +203,38 @@ class TorchModelServiceWorker(object):
             else:
                 raise ValueError("Received unknown command: {}".format(cmd))
 
+    def handle_connection_async(self, cl_socket):
+        """
+        Handle socket connection.
+
+        :param cl_socket:
+        :return:
+        """
+        service = None
+
+        logging.info("handle_connection_async")
+
+        while not service:
+            cmd, msg = retrieve_msg(cl_socket)
+            if cmd == b"L":
+                service, result, code = self.load_model(msg)
+                resp = bytearray()
+                resp += create_load_model_response(code, result)
+                cl_socket.sendall(resp)
+                if code != 200:
+                    raise RuntimeError("{} - {}".format(code, result))
+                service.set_cl_socket(cl_socket)
+            else:
+                raise ValueError(
+                    "Unexpected command (Only expecting LOAD command): {}".format(cmd)
+                )
+
+        service = AsyncService(service)
+
+        error = service.run()
+        if error:
+            raise RuntimeError(f"Error in AsyncService:\n {error}")
+
     def run_server(self):
         """
         Run the backend worker process and listen on a socket
@@ -228,7 +262,10 @@ class TorchModelServiceWorker(object):
             cl_socket.setblocking(True)
 
             logging.info("Connection accepted: %s.", cl_socket.getsockname())
-            self.handle_connection(cl_socket)
+            if self.async_comm:
+                self.handle_connection_async(cl_socket)
+            else:
+                self.handle_connection(cl_socket)
 
 
 if __name__ == "__main__":
@@ -248,6 +285,7 @@ if __name__ == "__main__":
         sock_type = args.sock_type
         host = args.host
         port = args.port
+        async_comm = args.async_comm
         metrics_config = args.metrics_config
 
         if BENCHMARK:
@@ -258,7 +296,7 @@ if __name__ == "__main__":
             pr.dump_stats("/tmp/tsPythonProfile.prof")
 
         worker = TorchModelServiceWorker(
-            sock_type, socket_name, host, port, metrics_config
+            sock_type, socket_name, host, port, metrics_config, async_comm
         )
         worker.run_server()
         if BENCHMARK:
