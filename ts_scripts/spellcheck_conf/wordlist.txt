@@ -1255,6 +1255,6 @@ parallelType
 parallelization
 pptp
 torchcompile
-HPC
-hpc
+HPU
+hpu
 llm
