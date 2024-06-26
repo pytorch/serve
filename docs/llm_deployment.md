@@ -49,6 +49,8 @@ python -m ts.llm_launcher --disable_token
 
 Please note that the launcher script as well as the docker command will automatically run on all available GPUs so make sure to restrict the visible number of device by setting CUDA_VISIBLE_DEVICES.
 
+For further customization of the handler and add 3rd party dependencies you can have a look at out [VLLM example](https://github.com/pytorch/serve/tree/master/examples/large_models/vllm).
+
 ## Supported models
 The quickstart launcher should allow to launch any model which is [supported by VLLM](https://docs.vllm.ai/en/latest/models/supported_models.html).
 Here is a list of model identifiers tested by the TorchServe team:
