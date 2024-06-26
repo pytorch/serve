@@ -80,4 +80,6 @@ If we disable `torch.compile` and use PyTorch eager, we see the following
 2024-06-22T18:42:32,546 [INFO ] W-9000-res50-trt_1.0-stdout org.pytorch.serve.wlm.WorkerLifeCycle - result=[METRICS]ts_handler_postprocess.Milliseconds:0.16128000617027283|#ModelName:res50-trt,Level:Model|#type:GAUGE|#hostname:ip-172-31-4-205,1719081752,1eb885cf-c857-4d9e-b2f8-27ec70311e32, pattern=[METRICS]
 ```
 
-We see that `torch.compile` with `tensorrt` backend reduces model inference from `5.56 ms` to `1.6 ms`
+We see that `torch.compile` with `tensorrt` backend reduces model inference from `5.56 ms` to `1.6 ms`.
+Please note that `torch.compile` is a JIT compiler and it takes a few iterations (1-3) to warmup before you see the speedup
+
