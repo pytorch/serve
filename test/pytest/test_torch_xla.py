@@ -5,8 +5,8 @@ import subprocess
 import time
 from pathlib import Path
 
+import packaging.version
 import pytest
-from pkg_resources import packaging
 
 try:
     import torch_xla
