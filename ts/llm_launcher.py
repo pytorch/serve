@@ -33,6 +33,9 @@ def get_model_config(args):
                 "max_num_seqs": getattr(args, "vllm_engine.max_num_seqs"),
                 "max_model_len": getattr(args, "vllm_engine.max_model_len"),
                 "download_dir": download_dir,
+                "tensor_parallel_size": torch.cuda.device_count()
+                if torch.cuda.is_available
+                else 1,
             },
         },
     }
