@@ -40,8 +40,11 @@ class TransformersSeqClassifierHandler(BaseHandler):
             pertaining to the model artifacts parameters.
         """
         self.manifest = ctx.manifest
-        if ctx is not None and hasattr(ctx, "model_yaml_config"):
-            self.model_yaml_config = ctx.model_yaml_config
+        self.model_yaml_config = (
+            ctx.model_yaml_config
+            if ctx is not None and hasattr(ctx, "model_yaml_config")
+            else {}
+        )
         properties = ctx.system_properties
         model_dir = properties.get("model_dir")
         serialized_file = self.manifest["model"]["serializedFile"]
@@ -54,9 +57,8 @@ class TransformersSeqClassifierHandler(BaseHandler):
         )
 
         # read configs for the mode, model_name, etc. from the handler config
-        if hasattr(self, "model_yaml_config") and "handler" in self.model_yaml_config:
-            self.setup_config = self.model_yaml_config["handler"]
-        else:
+        self.setup_config = self.model_yaml_config.get("handler", {})
+        if not self.setup_config:
             logger.warning("Missing the handler config")
 
         # Loading the model and tokenizer from checkpoint and config files based on the user's choice of mode
@@ -121,22 +123,20 @@ class TransformersSeqClassifierHandler(BaseHandler):
 
         self.model.eval()
 
-        if hasattr(self, "model_yaml_config") and "pt2" in self.model_yaml_config:
-            pt2_value = self.model_yaml_config["pt2"]
+        pt2_value = self.model_yaml_config.get("pt2", {})
+        if "compile" in pt2_value:
+            compile_options = pt2_value["compile"]
+            if compile_options["enable"] == True:
+                del compile_options["enable"]
 
-            if "compile" in pt2_value:
-                compile_options = pt2_value["compile"]
-                if compile_options["enable"] == True:
-                    del compile_options["enable"]
-
-                    compile_options_str = ", ".join(
-                        [f"{k} {v}" for k, v in compile_options.items()]
-                    )
-                    self.model = torch.compile(
-                        self.model,
-                        **compile_options,
-                    )
-                    logger.info(f"Compiled model with {compile_options_str}")
+                compile_options_str = ", ".join(
+                    [f"{k} {v}" for k, v in compile_options.items()]
+                )
+                self.model = torch.compile(
+                    self.model,
+                    **compile_options,
+                )
+                logger.info(f"Compiled model with {compile_options_str}")
         logger.info("Transformer model from path %s loaded successfully", model_dir)
 
         # Read the mapping file, index to object name
@@ -228,6 +228,7 @@ class TransformersSeqClassifierHandler(BaseHandler):
                     )
         return (input_ids_batch, attention_mask_batch)
 
+    @torch.inference_mode
     def inference(self, input_batch):
         """Predict the class (or classes) of the received text using the
         serialized transformers checkpoint.
@@ -240,8 +241,7 @@ class TransformersSeqClassifierHandler(BaseHandler):
         inferences = []
         # Handling inference for sequence_classification.
         if self.setup_config["mode"] == "sequence_classification":
-            with torch.inference_mode():
-                predictions = self.model(input_ids_batch, attention_mask_batch)
+            predictions = self.model(input_ids_batch, attention_mask_batch)
             print(
                 "This the output size from the Seq classification model",
                 predictions[0].size(),
@@ -259,15 +259,13 @@ class TransformersSeqClassifierHandler(BaseHandler):
             # the output should be only answer_start and answer_end
             # we are outputing the words just for demonstration.
             if self.setup_config["save_mode"] == "pretrained":
-                with torch.inference_mode():
-                    outputs = self.model(input_ids_batch, attention_mask_batch)
+                outputs = self.model(input_ids_batch, attention_mask_batch)
                 answer_start_scores = outputs.start_logits
                 answer_end_scores = outputs.end_logits
             else:
-                with torch.inference_mode():
-                    answer_start_scores, answer_end_scores = self.model(
-                        input_ids_batch, attention_mask_batch
-                    )
+                answer_start_scores, answer_end_scores = self.model(
+                    input_ids_batch, attention_mask_batch
+                )
             print(
                 "This the output size for answer start scores from the question answering model",
                 answer_start_scores.size(),
@@ -301,8 +299,7 @@ class TransformersSeqClassifierHandler(BaseHandler):
             logger.info("Model predicted: '%s'", prediction)
         # Handling inference for token_classification.
         elif self.setup_config["mode"] == "token_classification":
-            with torch.inference_mode():
-                outputs = self.model(input_ids_batch, attention_mask_batch)[0]
+            outputs = self.model(input_ids_batch, attention_mask_batch)[0]
             print(
                 "This the output size from the token classification model",
                 outputs.size(),
@@ -331,14 +328,13 @@ class TransformersSeqClassifierHandler(BaseHandler):
                 # Need to move the first device, as the trasnformer model has been placed there
                 # https://github.com/huggingface/transformers/blob/v4.17.0/src/transformers/models/gpt2/modeling_gpt2.py#L970
                 input_ids_batch = input_ids_batch.to("cuda:0")
-            with torch.inference_mode():
-                outputs = self.model.generate(
-                    input_ids_batch,
-                    max_new_tokens=self.setup_config["max_length"],
-                    do_sample=True,
-                    top_p=0.95,
-                    top_k=60,
-                )
+            outputs = self.model.generate(
+                input_ids_batch,
+                max_new_tokens=self.setup_config["max_length"],
+                do_sample=True,
+                top_p=0.95,
+                top_k=60,
+            )
             for i, x in enumerate(outputs):
                 inferences.append(
                     self.tokenizer.decode(outputs[i], skip_special_tokens=True)
