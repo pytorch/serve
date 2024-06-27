@@ -38,14 +38,14 @@ class Tee(threading.Thread):
         try:
             if self.queue1.full():
                 while not self.queue1.empty():
-                    self.queue1.queue.get(False)
+                    self.queue1.get(False)
         except Empty:
             pass
 
         try:
             if self.queue2.full():
                 while not self.queue2.empty():
-                    self.queue2.queue.get(False)
+                    self.queue2.get(False)
         except Empty:
             pass
 
