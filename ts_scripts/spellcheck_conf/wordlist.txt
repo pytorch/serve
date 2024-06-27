@@ -1250,6 +1250,8 @@ smoothquant
 woq
 TokenAuthorizationHandler
 TorchText
+safetensors
+CUDAGraph
 parallelLevel
 parallelType
 parallelization
