@@ -46,7 +46,7 @@ To use PyTorch Eager or TorchScript, you can remove the above config.
 
 For Torchscript support, check out [torchscript.md](torchscript.md)
 
-#### Setting the  handler config in model-config.yaml
+#### Setting the handler config in model-config.yaml
 
 In `model-config.yaml`  :
 
