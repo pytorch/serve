@@ -81,7 +81,10 @@ public class AsyncWorkerThread extends WorkerThread {
                     if (loadingFinished == false) {
                         latch = new CountDownLatch(1);
                         if (!latch.await(MODEL_LOAD_TIMEOUT, TimeUnit.MINUTES)) {
-                            throw new WorkerInitializationException("Worker did not load the model within" + MODEL_LOAD_TIMEOUT + " mins");
+                            throw new WorkerInitializationException(
+                                    "Worker did not load the model within"
+                                            + MODEL_LOAD_TIMEOUT
+                                            + " mins");
                         }
                     }
 
