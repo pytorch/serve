@@ -1,0 +1,6 @@
+{
+    "resnet": "https://download.pytorch.org/models/resnet18-f37072fd.pth",
+    "densenet": "https://download.pytorch.org/models/densenet161-8d451a50.pth",
+    "vit": "https://download.pytorch.org/models/vit_b_16-c867db91.pth",
+    "fasterrcnn": "https://download.pytorch.org/models/fasterrcnn_resnet50_fpn_v2_coco-dd69338a.pth"
+}
