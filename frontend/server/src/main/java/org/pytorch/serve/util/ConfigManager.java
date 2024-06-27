@@ -125,7 +125,7 @@ public final class ConfigManager {
     private static final String TS_HEADER_KEY_SEQUENCE_START = "ts_header_key_sequence_start";
     private static final String TS_HEADER_KEY_SEQUENCE_END = "ts_header_key_sequence_end";
     private static final String TS_DISABLE_TOKEN_AUTHORIZATION = "disable_token_authorization";
-    private static final String TS_ENABLE_MODEL_API = "enable-model-api";
+    private static final String TS_ENABLE_MODEL_API = "enable_model_api";
 
     // Configuration which are not documented or enabled through environment variables
     private static final String USE_NATIVE_IO = "use_native_io";
