@@ -1,7 +1,7 @@
 import subprocess
 import threading
 from io import TextIOWrapper
-from queue import Full, Queue
+from queue import Empty, Full, Queue
 from subprocess import PIPE, STDOUT, Popen
 
 import requests
@@ -31,6 +31,23 @@ class Tee(threading.Thread):
                 self.queue2.put_nowait(line)
             except Full:
                 pass
+
+        # If queues are full, clear them out and send None
+        # This is probably not necessary as the runner consuming the queue will have presumably died
+        # But we want to avoid a confusing additional exception if there is any error
+        try:
+            if self.queue1.full():
+                while not self.queue1.empty():
+                    self.queue1.queue.get(False)
+        except Empty:
+            pass
+
+        try:
+            if self.queue2.full():
+                while not self.queue2.empty():
+                    self.queue2.queue.get(False)
+        except Empty:
+            pass
 
         self.queue1.put_nowait(None)
         self.queue2.put_nowait(None)

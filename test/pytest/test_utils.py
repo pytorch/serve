@@ -39,7 +39,9 @@ def delete_model_store(model_store=None):
 
 def start_torchserve(*args, **kwargs):
     create_mar_file_table()
-    kwargs.update({"model_store": kwargs.get("model_store", MODEL_STORE)})
+    # In case someone uses model_store as positional argument
+    if len(args) == 0:
+        kwargs.update({"model_store": kwargs.get("model_store", MODEL_STORE)})
     if kwargs.get("gen_mar", True):
         mg.gen_mar(kwargs.get("model_store"))
     if "gen_mar" in kwargs:
