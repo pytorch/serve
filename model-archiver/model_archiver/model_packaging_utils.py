@@ -34,6 +34,7 @@ model_handlers = {
     "object_detector": "vision",
     "image_segmenter": "vision",
     "dali_image_classifier": "vision",
+    "vllm_handler": "text",
 }
 
 MODEL_SERVER_VERSION = "1.0"
