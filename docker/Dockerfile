@@ -78,6 +78,8 @@ RUN \
 
 WORKDIR "serve"
 
+RUN cp docker/dockerd-entrypoint.sh /usr/local/bin/dockerd-entrypoint.sh
+
 RUN \
     if echo "$BASE_IMAGE" | grep -q "cuda:"; then \
         # Install CUDA version specific binary when CUDA version is specified as a build arg
@@ -131,10 +133,8 @@ RUN useradd -m model-server \
     && mkdir -p /home/model-server/tmp
 
 COPY --chown=model-server --from=compile-image /home/venv /home/venv
-
+COPY --from=compile-image /usr/local/bin/dockerd-entrypoint.sh /usr/local/bin/dockerd-entrypoint.sh
 ENV PATH="/home/venv/bin:$PATH"
-
-COPY docker/dockerd-entrypoint.sh /usr/local/bin/dockerd-entrypoint.sh
 
 RUN chmod +x /usr/local/bin/dockerd-entrypoint.sh \
     && chown -R model-server /home/model-server
