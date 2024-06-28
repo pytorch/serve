@@ -28,7 +28,7 @@ RUN git clone https://github.com/ggerganov/llama.cpp.git build && \
     python -m pip install -r requirements.txt
 
 COPY $EXAMPLE_DIR  /home/model-server/chat_bot
-RUN cd sdxl && pip install -r requirements.txt
+RUN cd sd && pip install -r requirements.txt
 
 COPY $EXAMPLE_DIR/dockerd-entrypoint.sh /usr/local/bin/dockerd-entrypoint.sh
 COPY $EXAMPLE_DIR/config.properties /home/model-server/config.properties

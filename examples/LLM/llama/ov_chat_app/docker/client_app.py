@@ -63,6 +63,11 @@ with st.sidebar:
     except requests.ConnectionError:
         st.warning("TorchServe is not up. Try again", icon="⚠️")
 
+    st.subheader("Number of images to generate")
+    images_num = st.sidebar.slider(
+        "num_of_img", min_value=1, max_value=4, value=2, step=1
+    )
+
     st.subheader("SD Model parameters")
     num_inference_steps = st.sidebar.slider(
         "steps", min_value=1, max_value=150, value=30, step=1
@@ -71,10 +76,10 @@ with st.sidebar:
         "guidance_scale", min_value=1.0, max_value=30.0, value=5.0, step=0.5
     )
     height = st.sidebar.slider(
-        "height", min_value=256, max_value=2048, value=768, step=8
+        "height", min_value=256, max_value=2048, value=512, step=8
     )
     width = st.sidebar.slider(
-        "width", min_value=256, max_value=2048, value=768, step=8
+        "width", min_value=256, max_value=2048, value=512, step=8
     )
 
     # st.subheader("LLM Model parameters")
@@ -93,6 +98,7 @@ with st.sidebar:
 
 
 prompt = st.text_input("Text Prompt")
+
 
 def generate_sd_response_v1(prompt_input):
     url = f"http://127.0.0.1:8080/predictions/{MODEL_NAME_SD}"
@@ -143,45 +149,46 @@ def sd_response_postprocess(response):
     return [Image.fromarray(np.array(json.loads(text), dtype="uint8")) for text in response]
 
 
-def preprocess_llm_input(input_prompt):
-    return f"Generate 4 prompts in English similar to \"{input_prompt}\". Prompts should be divided by \";\" symbol and included  in \"[\"\"]\" brackets. \
-             Return only prompts as plain text without numeration, any extra symbols or notes."
+def preprocess_llm_input(input_prompt, images_num = 2):
+    return f"Generate {images_num} prompts similar to \"{input_prompt}\". Add \";\" symbol between the prompts. \
+             Generated string of prompts should be included in \"[\"\"]\" brackets. \
+             Return only prompts as plain text without numeration or notes."
 
 
 def get_prompts_string(input_string):
-    match = re.search(r'\[(.*?)\]', input_string)
-    if match:
-        return match.group(1)
-    else:
-        return None
+    return re.search(r'\[(.*)\]', input_string).group(1)
 
-def llm_response_postprocess(original_prompt, generated_prompts):
+
+def trim_prompt(s):
+    return re.sub(r'^[^a-zA-Z0-9]+|[^a-zA-Z0-9]+$', '', s)
+
+
+def postprocess_llm_response(generated_prompts, original_prompt=None):
+    print('111111111111111111111111', generated_prompts)
     prompts = get_prompts_string(generated_prompts)
-    prompts = [item.strip() for item in prompts.split(";")]
-    prompts[0] = original_prompt
-    assert len(prompts) == 4
+    prompts = [trim_prompt(item) for item in prompts.split(";")]
+    prompts = list(filter(None, prompts))
+
+    if original_prompt:
+        prompts[0] = original_prompt
+
+    print('222222222222222222222222', prompts)
+
+    assert len(prompts) == images_num
+
 
     return prompts
+
 
 def generate_llm_model_response(input_prompt):
     headers = {"Content-type": "application/json", "Accept": "text/plain"}
     url = f"http://127.0.0.1:8080/predictions/{MODEL_NAME_LLM}"
+    data = json.dumps({"prompt": prompt_input})
 
-    prompt_input = preprocess_llm_input(input_prompt)
-    data = json.dumps(
-        {
-            "prompt": prompt_input,
-            # "params": {
-            #     "max_new_tokens": max_new_tokens,
-            #     "top_p": top_p,
-            #     "temperature": temperature,
-            # },
-        }
-    )
     res = requests.post(url=url, data=data, headers=headers, stream=True)
     assert res.status_code == 200
 
-    return llm_response_postprocess(input_prompt, res.text)
+    return res.text
 
 
 # def llm_response_postprocess(generated_prompts):
@@ -207,26 +214,35 @@ if 'gen_images' not in st.session_state:
 if 'gen_captions' not in st.session_state:
     st.session_state.gen_captions = []
 
+
 def display_images_in_grid(images, captions):
     cols = st.columns(2)
     for i, (img, caption) in enumerate(zip(images, captions)):
         col = cols[i % 2]
         col.image(img, caption=caption, use_column_width=True)
 
+
 if st.button("Generate Images"):
     with st.spinner('Generating images...'):
+        prompt_input = preprocess_llm_input(prompt, images_num)
+
         start_time = time.time()
-        llm_res = generate_llm_model_response(prompt)
-        sd_res = asyncio.run(generate_sd_response_v2(llm_res))
-        inference_time = time.time() - start_time
+        llm_res = generate_llm_model_response(prompt_input)
+        llm_inference_time = time.time() - start_time
 
-        images = sd_response_postprocess(sd_res)
-        inference_time = time.time() - start_time
-        st.write(f"Inference time: {inference_time:.2f} seconds")
-
-        st.session_state.gen_images[:0] = images
+        llm_res = postprocess_llm_response(llm_res, prompt)
         st.session_state.gen_captions[:0] = llm_res
 
-        # st.image(images, caption=llm_res, use_column_width=True)
+        start_time = time.time()
+        sd_res = asyncio.run(generate_sd_response_v2(llm_res))
+        sd_inference_time = time.time() - start_time
 
-display_images_in_grid(st.session_state.gen_images, st.session_state.gen_captions)
+        images = sd_response_postprocess(sd_res)
+        st.session_state.gen_images[:0] = images
+
+        st.write(f"LLM inference time: {llm_inference_time:.2f} seconds")
+        st.write(f"SD inference time: {sd_inference_time:.2f} seconds")
+
+
+display_images_in_grid(st.session_state.gen_images,
+                       st.session_state.gen_captions)

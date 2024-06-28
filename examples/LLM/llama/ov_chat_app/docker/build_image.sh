@@ -33,7 +33,7 @@ echo "docker run --rm -it --platform linux/amd64 \\
 -p 127.0.0.1:8085:8085 \\
 -v ${PWD}/model-store-local:/home/model-server/model-store \\
 -e MODEL_NAME_LLM=meta-llama/Meta-Llama-3-8B-Instruct \\
--e MODEL_NAME_SD=stabilityai/stable-diffusion-xl-base-1.0 \\
+-e MODEL_NAME_SD=stabilityai/stable-diffusion-2-1 \\
 $DOCKER_TAG"
 echo ""
 echo "Note: You can replace the model identifier as needed"

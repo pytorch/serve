@@ -72,11 +72,11 @@ quantize_model() {
     fi
 }
 
-setup_sdxl() {
+setup_sd() {
     
     echo -e "\nPreparing $MODEL_NAME_SD"
     
-    pushd sdxl
+    pushd sd
 
     if [ -d "/home/model-server/model-store/$MODEL_DIR_SD/model" ]; then
         echo "Model $MODEL_NAME_SD already downloaded"
@@ -110,7 +110,7 @@ if [[ "$1" = "serve" ]]; then
     create_model_archive $MODEL_DIR_LLM
     download_model $MODEL_DIR_LLM $MODEL_NAME_LLM
     quantize_model
-    setup_sdxl
+    setup_sd
     streamlit run torchserve_server_app.py --server.port 8084 &
     streamlit run client_app.py --server.port 8085
 else

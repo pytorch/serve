@@ -101,6 +101,26 @@ def scale_workers(workers):
         res = requests.put(url)
         server_state_container.caption(res.text)
 
+def scale_sd_workers(workers):
+    if st.session_state.registered[MODEL_NAME_SD]:
+        num_workers = st.session_state[workers]
+        url = (
+            f"http://localhost:8081/models/{MODEL_NAME_SD}?min_worker="
+            f"{str(num_workers)}&synchronous=true"
+        )
+        res = requests.put(url)
+        server_state_container.caption(res.text)
+
+def update_is_xl(is_xl):
+    if st.session_state.registered[MODEL_NAME_SD]:
+        is_xl = st.session_state[is_xl]
+        url = (
+            f"http://localhost:8081/models/{MODEL_NAME_SD}?is_xl="
+            f"{str(is_xl)}&synchronous=true"
+        )
+        res = requests.put(url)
+        server_state_container.caption(res.text)
+
 
 def set_batch_size(batch_size):
     if st.session_state.registered[MODEL_NAME_LLM]:
@@ -155,15 +175,36 @@ with st.sidebar:
     st.button(f"Register {MODEL_NAME_LLM}", on_click=register_model, args=(MODEL_NAME_LLM,))
     st.button(f"Register {MODEL_SD}", on_click=register_model, args=(MODEL_NAME_SD,))
 
+    st.subheader("SD Model parameters")
+    is_xl = st.checkbox(
+        "SDXL model", 
+        value=False, 
+        key="SDXL model",
+        on_change=update_is_xl,
+        args=("SDXL model",),
+    )
+
+    workers_sd = st.sidebar.slider(
+        "Num Workers SD",
+        key="Num Workers SD",
+        min_value=1,
+        max_value=4,
+        value=2,
+        step=1,
+        on_change=scale_sd_workers,
+        args=("Num Workers SD",),
+    )
+
+    st.subheader("LLM Model parameters")
     workers = st.sidebar.slider(
-        "Num Workers",
-        key="Num Workers",
+        "Num Workers LLM",
+        key="Num Workers LLM",
         min_value=1,
         max_value=4,
         value=1,
         step=1,
         on_change=scale_workers,
-        args=("Num Workers",),
+        args=("Num Workers LLM",),
     )
     batch_size = st.sidebar.select_slider(
         "Batch Size",
@@ -181,7 +222,26 @@ with st.sidebar:
         step=100,
         on_change=set_max_batch_delay,
         args=("Max Batch Delay",),
-    )
+        )
+    
+    
+    # batch_size_sd = st.sidebar.select_slider(
+    #     "Batch Size",
+    #     key="Batch Size",
+    #     options=[2**j for j in range(0, 8)],
+    #     on_change=set_batch_size,
+    #     args=("Batch Size",),
+    # )
+    # max_batch_delay_sd = st.sidebar.slider(
+    #     "Max Batch Delay",
+    #     key="Max Batch Delay",
+    #     min_value=3000,
+    #     max_value=10000,
+    #     value=3000,
+    #     step=100,
+    #     on_change=set_max_batch_delay,
+    #     args=("Max Batch Delay",),
+    # )
 
     if st.session_state.started:
         st.success("Started TorchServe", icon="✅")
