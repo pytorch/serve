@@ -23,6 +23,7 @@ ROOT_DIR = os.path.join(tempfile.gettempdir(), "workspace")
 MODEL_STORE = path.join(ROOT_DIR, "model_store/")
 CODEBUILD_WD = path.abspath(path.join(__file__, "../../.."))
 
+
 def delete_all_snapshots():
     for f in glob.glob("logs/config/*"):
         os.remove(f)
@@ -46,7 +47,7 @@ def start_torchserve(*args, **kwargs):
     if "gen_mar" in kwargs:
         del kwargs["gen_mar"]
     kwargs.update({"disable_token": kwargs.get("disable_token", True)})
-    kwargs.update({"model_api_enabled": kwargs.get("model_api_enabled", True)})
+    kwargs.update({"model_api_enabled": kwargs.get("enable_model_api", True)})
     return start(*args, **kwargs)
 
 
