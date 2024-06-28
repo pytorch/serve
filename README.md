@@ -56,6 +56,19 @@ docker pull pytorch/torchserve-nightly
 
 Refer to [torchserve docker](docker/README.md) for details.
 
+### 🤖 Quick Start LLM Deployment
+
+```bash
+#export token=<HUGGINGFACE_HUB_TOKEN>
+docker build . -f docker/Dockerfile.llm -t ts/llm
+
+docker run --rm -ti --gpus all -e HUGGING_FACE_HUB_TOKEN=$token -p 8080:8080 -v data:/data ts/llm --model_id meta-llama/Meta-Llama-3-8B-Instruct --disable_token
+
+curl -X POST -d '{"prompt":"Hello, my name is", "max_new_tokens": 50}' --header "Content-Type: application/json" "http://localhost:8080/predictions/model"
+```
+
+Refer to [LLM deployment][docs/llm_deployment.md] for details and other methods.
+
 ## ⚡ Why TorchServe
 * Write once, run anywhere, on-prem, on-cloud, supports inference on CPUs, GPUs, AWS Inf1/Inf2/Trn1, Google Cloud TPUs, [Nvidia MPS](docs/nvidia_mps.md)
 * [Model Management API](docs/management_api.md): multi model management with optimized worker to model allocation
