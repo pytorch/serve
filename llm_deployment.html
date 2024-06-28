@@ -10,7 +10,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>TorchServe &mdash; PyTorch/Serve master documentation</title>
+  <title>LLM Deployment with TorchServe &mdash; PyTorch/Serve master documentation</title>
   
 
   
@@ -381,13 +381,13 @@
       </li>
 
         
-      <li>TorchServe</li>
+      <li>LLM Deployment with TorchServe</li>
     
     
       <li class="pytorch-breadcrumbs-aside">
         
             
-            <a href="_sources/README.md.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg"></a>
+            <a href="_sources/llm_deployment.md.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg"></a>
           
         
       </li>
@@ -417,71 +417,71 @@
             <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
-  <section id="torchserve">
-<h1>TorchServe<a class="headerlink" href="#torchserve" title="Permalink to this heading">¶</a></h1>
-<p>TorchServe is a performant, flexible and easy to use tool for serving PyTorch eager mode and torchscripted models.</p>
-<section id="basic-features">
-<h2>Basic Features<a class="headerlink" href="#basic-features" title="Permalink to this heading">¶</a></h2>
+  <section id="llm-deployment-with-torchserve">
+<h1>LLM Deployment with TorchServe<a class="headerlink" href="#llm-deployment-with-torchserve" title="Permalink to this heading">¶</a></h1>
+<p>This document describes how to easily serve large language models (LLM) like Meta-Llama3 with TorchServe.
+Besides a quick start guide using our VLLM integration we also provide a list of examples which describe other methods to deploy LLMs with TorchServe.</p>
+<section id="quickstart-llm-deployment">
+<h2>Quickstart LLM Deployment<a class="headerlink" href="#quickstart-llm-deployment" title="Permalink to this heading">¶</a></h2>
+<p>TorchServe offers easy LLM deployment through its VLLM integration.
+Through the integration of our <a class="reference external" href="https://github.com/pytorch/serve/blob/7a9b145204b4d7cfbb114fe737cf980221e6181e/ts/llm_launcher.py">LLM launcher script</a> users are able to deploy any model supported by VLLM with a single command.
+The launcher can either be used standalone or in combination with our provided TorchServe GPU docker image.</p>
+<p>To launch the docker we first need to build it:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span>build<span class="w"> </span>.<span class="w"> </span>-f<span class="w"> </span>docker/Dockerfile.llm<span class="w"> </span>-t<span class="w"> </span>ts/llm
+</pre></div>
+</div>
+<p>Models are usually loaded from the HuggingFace hub and are cached in a <a class="reference external" href="https://docs.docker.com/storage/volumes/">docker volume</a> for faster reload.
+If you want to access gated models like the Meta-Llama3 model you need to provide a HuggingFace hub token:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">token</span><span class="o">=</span>&lt;HUGGINGFACE_HUB_TOKEN&gt;
+</pre></div>
+</div>
+<p>You can then go ahead and launch a TorchServe instance serving your selected model:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>-ti<span class="w"> </span>--gpus<span class="w"> </span>all<span class="w"> </span>-e<span class="w"> </span><span class="nv">HUGGING_FACE_HUB_TOKEN</span><span class="o">=</span><span class="nv">$token</span><span class="w"> </span>-p<span class="w"> </span><span class="m">8080</span>:8080<span class="w"> </span>-v<span class="w"> </span>data:/data<span class="w"> </span>ts/llm<span class="w"> </span>--model_id<span class="w"> </span>meta-llama/Meta-Llama-3-8B-Instruct<span class="w"> </span>--disable_token
+</pre></div>
+</div>
+<p>To change the model you just need to exchange the identifier given to the <code class="docutils literal notranslate"><span class="pre">--model_id</span></code> parameter.
+You can test the model with:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>-d<span class="w"> </span><span class="s1">&#39;{&quot;prompt&quot;:&quot;Hello, my name is&quot;, &quot;max_new_tokens&quot;: 50}&#39;</span><span class="w"> </span>--header<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="s2">&quot;http://localhost:8080/predictions/model&quot;</span>
+</pre></div>
+</div>
+<p>You can change any of the sampling argument for the request by using the <a class="reference external" href="https://docs.vllm.ai/en/stable/dev/sampling_params.html#vllm.SamplingParams">VLLM SamplingParams keywords</a>.
+E.g. for setting the sampling temperature to 0 we can do:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>-d<span class="w"> </span><span class="s1">&#39;{&quot;prompt&quot;:&quot;Hello, my name is&quot;, &quot;max_new_tokens&quot;: 50, &quot;temperature&quot;: 0}&#39;</span><span class="w"> </span>--header<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="s2">&quot;http://localhost:8080/predictions/model&quot;</span>
+</pre></div>
+</div>
+<p>TorchServe’s LLM launcher scripts offers some customization options as well.
+To rename the model endpoint from <code class="docutils literal notranslate"><span class="pre">predictions/model</span></code> to something else you can add <code class="docutils literal notranslate"><span class="pre">--model_name</span> <span class="pre">&lt;SOME_NAME&gt;</span></code> to the <code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">run</span></code> command.</p>
+<p>The launcher script can also be used outside a docker container by calling this after installing TorchServe following the <a class="reference external" href="https://github.com/pytorch/serve/blob/feature/single_cmd_llm_deployment/README.md#-quick-start-with-torchserve">installation instruction</a>.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>ts.llm_launcher<span class="w"> </span>--disable_token
+</pre></div>
+</div>
+<p>Please note that the launcher script as well as the docker command will automatically run on all available GPUs so make sure to restrict the visible number of device by setting CUDA_VISIBLE_DEVICES.</p>
+<p>For further customization of the handler and adding 3rd party dependencies you can have a look at out <a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/large_models/vllm">VLLM example</a>.</p>
+</section>
+<section id="supported-models">
+<h2>Supported models<a class="headerlink" href="#supported-models" title="Permalink to this heading">¶</a></h2>
+<p>The quickstart launcher should allow to launch any model which is <a class="reference external" href="https://docs.vllm.ai/en/latest/models/supported_models.html">supported by VLLM</a>.
+Here is a list of model identifiers tested by the TorchServe team:</p>
 <ul class="simple">
-<li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/README.md#serve-a-model">Serving Quick Start</a> - Basic server usage tutorial</p></li>
-<li><p><a class="reference external" href="https://github.com/pytorch/serve/tree/master/model-archiver#creating-a-model-archive">Model Archive Quick Start</a> - Tutorial that shows you how to package a model archive file.</p></li>
-<li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/README.md#install-torchserve">Installation</a> - Installation procedures</p></li>
-<li><p><a class="reference internal" href="model_loading.html"><span class="doc">Model loading</span></a> - How to load a model in TorchServe?</p></li>
-<li><p><a class="reference internal" href="server.html"><span class="doc">Serving Models</span></a> - Explains how to use TorchServe</p></li>
-<li><p><a class="reference internal" href="rest_api.html"><span class="doc">REST API</span></a> - Specification on the API endpoint for TorchServe</p></li>
-<li><p><a class="reference internal" href="grpc_api.html"><span class="doc">gRPC API</span></a> - TorchServe supports gRPC APIs for both inference and management calls</p></li>
-<li><p><a class="reference external" href="https://github.com/pytorch/serve/tree/master/model-archiver#torch-model-archiver-for-torchserve">Packaging Model Archive</a> - Explains how to package model archive file, use <code class="docutils literal notranslate"><span class="pre">model-archiver</span></code>.</p></li>
-<li><p><a class="reference internal" href="inference_api.html"><span class="doc">Inference API</span></a> - How to check for the health of a deployed model and get inferences</p></li>
-<li><p><a class="reference internal" href="management_api.html"><span class="doc">Management API</span></a> - How to manage and scale models</p></li>
-<li><p><a class="reference internal" href="logging.html"><span class="doc">Logging</span></a> - How to configure logging</p></li>
-<li><p><a class="reference internal" href="metrics.html"><span class="doc">Metrics</span></a> - How to configure metrics</p></li>
-<li><p><a class="reference internal" href="metrics_api.html"><span class="doc">Prometheus and Grafana metrics</span></a> - How to configure metrics API with Prometheus formatted metrics in a Grafana dashboard</p></li>
-<li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/examples/captum/Captum_visualization_for_bert.ipynb">Captum Explanations</a> - Built in support for Captum explanations for both text and images</p></li>
-<li><p><a class="reference internal" href="batch_inference_with_ts.html"><span class="doc">Batch inference with TorchServe</span></a> - How to create and serve a model with batch inference in TorchServe</p></li>
-<li><p><a class="reference internal" href="workflows.html"><span class="doc">Workflows</span></a> - How to create workflows to compose Pytorch models and Python functions in sequential and parallel pipelines</p></li>
+<li><p>meta-llama/Meta-Llama-3-8B</p></li>
+<li><p>meta-llama/Meta-Llama-3-8B-Instruct</p></li>
+<li><p>meta-llama/Llama-2-7b-hf</p></li>
+<li><p>meta-llama/Llama-2-7b-chat-hf</p></li>
+<li><p>mistralai/Mistral-7B-v0.1</p></li>
+<li><p>mistralai/Mistral-7B-Instruct-v0.1</p></li>
 </ul>
 </section>
-<section id="default-handlers">
-<h2>Default Handlers<a class="headerlink" href="#default-handlers" title="Permalink to this heading">¶</a></h2>
+<section id="other-ways-to-deploy-llms-with-torchserve">
+<h2>Other ways to deploy LLMs with TorchServe<a class="headerlink" href="#other-ways-to-deploy-llms-with-torchserve" title="Permalink to this heading">¶</a></h2>
+<p>TorchServe offers a variety of example on how to deploy large models.
+Here is a list of the current examples:</p>
 <ul class="simple">
-<li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/ts/torch_handler/image_classifier.py">Image Classifier</a> - This handler takes an image and returns the name of object in that image</p></li>
-<li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/ts/torch_handler/text_classifier.py">Text Classifier</a> - This handler takes a text (string) as input and returns the classification text based on the model vocabulary</p></li>
-<li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/ts/torch_handler/object_detector.py">Object Detector</a> - This handler takes an image and returns list of detected classes and bounding boxes respectively</p></li>
-<li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/ts/torch_handler/image_segmenter.py">Image Segmenter</a>- This handler takes an image and returns output shape as [CL H W], CL - number of classes, H - height and W - width</p></li>
-</ul>
-</section>
-<section id="examples">
-<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this heading">¶</a></h2>
-<ul class="simple">
-<li><p><a class="reference internal" href="llm_deployment.html"><span class="doc">Deploying LLMs</span></a> - How to easily deploy LLMs using TorchServe</p></li>
-<li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/examples/Huggingface_Transformers/Transformer_handler_generalized.py">HuggingFace Language Model</a> - This handler takes an input sentence and can return sequence classifications, token classifications or Q&amp;A answers</p></li>
-<li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/examples/MMF-activity-recognition/handler.py">Multi Modal Framework</a> - Build and deploy a classifier that combines text, audio and video input data</p></li>
-<li><p><a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/Workflows/nmt_transformers_pipeline">Dual Translation Workflow</a> -</p></li>
-<li><p><a class="reference internal" href="model_zoo.html"><span class="doc">Model Zoo</span></a> - List of pre-trained model archives ready to be served for inference with TorchServe.</p></li>
-<li><p><a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples">Examples</a> - Many examples of how to package and deploy models with TorchServe</p>
-<ul>
-<li><p><a class="reference external" href="../examples/README.md#torchserve-internals">TorchServe Internals</a></p></li>
-<li><p><a class="reference external" href="../examples/README.md#torchserve-integrations">TorchServe Integrations</a></p></li>
-<li><p><a class="reference external" href="../examples/README.md#usecases">TorchServe UseCases</a></p></li>
-</ul>
-</li>
-<li><p><a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/Workflows">Workflow Examples</a> - Examples of how to compose models in a workflow with TorchServe</p></li>
-<li><p><a class="reference external" href="../examples/pt2/torch_compile_hpu/README">Resnet50 HPU compile</a> - An example of how to run the model in compile mode with the HPU device</p></li>
-</ul>
-</section>
-<section id="advanced-features">
-<h2>Advanced Features<a class="headerlink" href="#advanced-features" title="Permalink to this heading">¶</a></h2>
-<ul class="simple">
-<li><p><a class="reference internal" href="configuration.html"><span class="doc">Advanced configuration</span></a> - Describes advanced TorchServe configurations.</p></li>
-<li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/use_cases.md#serve-models-for-ab-testing">A/B test models</a> - A/B test your models for regressions before shipping them to production</p></li>
-<li><p><a class="reference internal" href="custom_service.html"><span class="doc">Custom Service</span></a> - Describes how to develop custom inference services.</p></li>
-<li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/management_api.md#encrypted-model-serving">Encrypted model serving</a> - S3 server side model encryption via KMS</p></li>
-<li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/plugins/docs/ddb_endpoint">Snapshot serialization</a> - Serialize model artifacts to AWS Dynamo DB</p></li>
-<li><p><a class="reference external" href="https://github.com/pytorch/serve/tree/master/benchmarks#torchserve-model-server-benchmarking">Benchmarking and Profiling</a> - Use JMeter or Apache Bench to benchmark your models and TorchServe itself</p></li>
-<li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/kubernetes/README.md#torchserve-on-kubernetes">TorchServe on Kubernetes</a> -  Demonstrates a Torchserve deployment in Kubernetes using Helm Chart supported in both Azure Kubernetes Service and Google Kubernetes service</p></li>
-<li><p><a class="reference external" href="https://github.com/mlflow/mlflow-torchserve">mlflow-torchserve</a> - Deploy mlflow pipeline models into TorchServe</p></li>
-<li><p><a class="reference external" href="https://github.com/kubeflow/pipelines/tree/master/samples/contrib/pytorch-samples">Kubeflow pipelines</a> - Kubeflow pipelines and Google Vertex AI Managed pipelines</p></li>
-<li><p><a class="reference internal" href="nvidia_mps.html"><span class="doc">NVIDIA MPS</span></a> - Use NVIDIA MPS to optimize multi-worker deployment on a single GPU</p></li>
+<li><p><a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/LLM/llama">Llama 2/3 chat bot</a></p></li>
+<li><p><a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/large_models/gpt_fast">GPT-fast</a></p></li>
+<li><p><a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/large_models/inferentia2">Inferentia2</a></p></li>
+<li><p><a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/large_models/ipex_llm_int8">IPEX optimized</a></p></li>
+<li><p><a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/large_models/tp_llama">Tensor Parallel Llama</a></p></li>
+<li><p><a class="reference external" href="https://github.com/pytorch/serve/tree/master/examples/large_models/vllm">VLLM Integration</a></p></li>
 </ul>
 </section>
 </section>
@@ -520,11 +520,10 @@
           <div class="pytorch-right-menu" id="pytorch-right-menu">
             <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
               <ul>
-<li><a class="reference internal" href="#">TorchServe</a><ul>
-<li><a class="reference internal" href="#basic-features">Basic Features</a></li>
-<li><a class="reference internal" href="#default-handlers">Default Handlers</a></li>
-<li><a class="reference internal" href="#examples">Examples</a></li>
-<li><a class="reference internal" href="#advanced-features">Advanced Features</a></li>
+<li><a class="reference internal" href="#">LLM Deployment with TorchServe</a><ul>
+<li><a class="reference internal" href="#quickstart-llm-deployment">Quickstart LLM Deployment</a></li>
+<li><a class="reference internal" href="#supported-models">Supported models</a></li>
+<li><a class="reference internal" href="#other-ways-to-deploy-llms-with-torchserve">Other ways to deploy LLMs with TorchServe</a></li>
 </ul>
 </li>
 </ul>

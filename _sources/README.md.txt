@@ -32,6 +32,7 @@ TorchServe is a performant, flexible and easy to use tool for serving PyTorch ea
 
 ## Examples
 
+* [Deploying LLMs](./llm_deployment.md) - How to easily deploy LLMs using TorchServe
 * [HuggingFace Language Model](https://github.com/pytorch/serve/blob/master/examples/Huggingface_Transformers/Transformer_handler_generalized.py) - This handler takes an input sentence and can return sequence classifications, token classifications or Q&A answers
 * [Multi Modal Framework](https://github.com/pytorch/serve/blob/master/examples/MMF-activity-recognition/handler.py) - Build and deploy a classifier that combines text, audio and video input data
 * [Dual Translation Workflow](https://github.com/pytorch/serve/tree/master/examples/Workflows/nmt_transformers_pipeline) -
