@@ -544,7 +544,7 @@ public class WorkerThread implements Runnable {
 
     protected String getDeviceIds() {
         List<Integer> deviceIds;
-        if (gpuId == -1 || model.getParallelLevel() == 0) {
+        if (gpuId == -1) {
             return null;
         } else if (model.isHasCfgDeviceIds()) {
             return model.getDeviceIds().subList(gpuId, gpuId + model.getParallelLevel()).stream()
@@ -552,8 +552,12 @@ public class WorkerThread implements Runnable {
                     .collect(Collectors.joining(","));
         } else {
             deviceIds = new ArrayList<>(model.getParallelLevel());
-            for (int i = gpuId; i < gpuId + model.getParallelLevel(); i++) {
-                deviceIds.add(i);
+            if (model.getParallelLevel() > 0) {
+                for (int i = gpuId; i < gpuId + model.getParallelLevel(); i++) {
+                    deviceIds.add(i);
+                }
+            } else {
+                deviceIds.add(gpuId);
             }
             return deviceIds.stream().map(String::valueOf).collect(Collectors.joining(","));
         }
