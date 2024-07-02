@@ -19,7 +19,7 @@ public class JobGroup {
         this.maxJobQueueSize = maxJobQueueSize;
         this.jobs = new LinkedBlockingDeque<>(maxJobQueueSize);
         this.finished = new AtomicBoolean(false);
-        this.pooling = new AtomicBoolean(false);
+        this.polling = new AtomicBoolean(false);
     }
 
     public boolean appendJob(Job job) {
