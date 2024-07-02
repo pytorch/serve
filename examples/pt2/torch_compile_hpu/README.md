@@ -6,14 +6,26 @@ This guide provides steps on how to optimize a ResNet50 model using `torch.compi
 ### Prerequisites and installation
 First install `Intel® Gaudi® AI accelerator software for PyTorch` - Go to [Installation_Guide](https://docs.habana.ai/en/latest/Installation_Guide/index.html) which covers installation procedures, including software verification and subsequent steps for software installation and management.
 
-Then install the dependencies with the `--skip_torch_install` flag so as not to overwrite habana torch, which you should already have installed. Then install torchserve, torch-model-archiver torch-workflow-archiver as in the example below.
+Then install the dependencies with the `--skip_torch_install` flag so as not to overwrite habana torch, which you should already have installed. Then install torch-model-archiver, torch-workflow-archiver and torchserve as in the example below.
 
 ```bash
+git clone https://github.com/pytorch/serve.git
+cd serve
 python ./ts_scripts/install_dependencies.py --skip_torch_install
-
-# Latest release
-python install -c torchserve torch-model-archiver torch-workflow-archiver
+pip install torch-model-archiver torch-workflow-archiver
 ```
+Then install torchserve:
+
+- Latest release
+``` bash
+pip install torchserve
+```
+- Build from source
+``` bash
+python ./ts_scripts/install_dependencies.py --skip_torch_install --environment=dev
+python ./ts_scripts/install_from_src.py
+```
+
 
 ## Workflow
 1. Configure torch.compile.
@@ -62,8 +74,9 @@ PT_HPU_LAZY_MODE=0 torch-model-archiver --model-name resnet-50 --version 1.0 --m
 
 Start the TorchServe server using the following command:
 ```bash
-PT_HPU_LAZY_MODE=0 torchserve --start --ncs --model-store model_store --models resnet-50.mar
+PT_HPU_LAZY_MODE=0 torchserve --start --ncs --disable-token --model-store model_store --models resnet-50.mar
 ```
+`--disable-token` - this is an option that disables token authorization. This option is used here only for example purposes. Please refer to the torchserve [documentation](https://github.com/pytorch/serve/blob/master/docs/token_authorization_api.md), which describes the process of serving the model using tokens.
 
 ### 4. Run Inference
 
