@@ -91,7 +91,7 @@ public class TokenAuthorizationHandler extends HttpRequestHandlerChain {
                                     + "This requires the correct token to be provided when calling an API.\n"
                                     + "Key file located at "
                                     + ConfigManager.getInstance().getModelServerHome()
-                                    + "\n"
+                                    + "/key_file.json\n"
                                     + "Check token authorization documenation for information: https://github.com/pytorch/serve/blob/master/docs/token_authorization_api.md \n"
                                     + "######\n";
                     logger.info(loggingMessage);
