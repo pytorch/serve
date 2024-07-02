@@ -158,9 +158,9 @@ class BaseHandler(abc.ABC):
                 self.map_location + ":" + str(properties.get("gpu_id"))
             )
         elif (
-            torch.xpu.is_available()
+            os.environ.get("TS_IPEX_GPU_ENABLE", "false") == "true"
             and properties.get("gpu_id") is not None
-            and os.environ.get("TS_IPEX_GPU_ENABLE", "false") == "true"
+            and torch.xpu.is_available()
         ):
             self.map_location = "xpu"
             self.device = torch.device(
