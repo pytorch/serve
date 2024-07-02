@@ -1,5 +1,5 @@
 ## Security Changes
-TorchServe now enforces token authorization and model API control by default. Check the following documentation for more information: [Token Authorization](https://github.com/pytorch/serve/blob/master/docs/token_authorization_api.md), [Model API control](https://github.com/pytorch/serve/blob/master/docs/model_api_control.md)
+TorchServe now enforces token authorization enabled and model API control disabled by default. Refer the following documentation for more information: [Token Authorization](https://github.com/pytorch/serve/blob/master/docs/token_authorization_api.md), [Model API control](https://github.com/pytorch/serve/blob/master/docs/model_api_control.md)
 
 ### Deprecation notice:
 [Dockerfile.neuron.dev](https://github.com/pytorch/serve/blob/master/docker/Dockerfile.neuron.dev) has been deprecated. Please refer to [deep learning containers](https://github.com/aws/deep-learning-containers/blob/master/available_images.md) repository for neuron torchserve containers.

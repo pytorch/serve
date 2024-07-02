@@ -2,7 +2,7 @@
 
 TorchServe now enforces token authorization by default
 
-TorchServe enforces the feature of token authorization which requires the correct token to be provided when calling an API. This is a security feature which addresses the concern of unwanted API calls. This is applicable in the scenario where an unauthorized user may try to access a running TorchServe server. The default behavior is to enable this feature which creates a key file with the appropriate tokens to be used for API calls. Users can disable this feature to prevent token authorization from being required for API calls ([how to disable](#how-to-set-and-disable-token-authorization)), however users are warned that this will open up the server to potential unwanted API calls.
+TorchServe enforces token authorization by default which requires the correct token to be provided when calling an API. This is a security feature which addresses the concern of unauthorized API calls. This is applicable in the scenario where an unauthorized user may try to access a running TorchServe instance. The default behavior is to enable this feature which creates a key file with the appropriate tokens to be used for API calls. Users can disable this feature to prevent token authorization from being required for API calls ([how to disable](#how-to-set-and-disable-token-authorization)), however users are warned that this will open up TorchServe to potential unauthorized API calls.
 
 ## How to set and disable Token Authorization
 * Global environment variable: use `TS_DISABLE_TOKEN_AUTHORIZATION` and set to `true` to disable and `false` to enable token authorization. Note that `enable_envvars_config=true` must be set in config.properties for global environment variables to be used
