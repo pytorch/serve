@@ -2,7 +2,7 @@
 
 set -o errexit -o nounset -o pipefail
 
-IMAGE_TAG=$1
+IMAGE_TAG="test"
 CONTAINER="test-container-${IMAGE_TAG}"
 
 FILES_PATH="$(realpath "$(pwd)/..")/examples/image_classifier/mnist"
@@ -19,7 +19,7 @@ torch-model-archiver \
     --handler=/home/model-server/mnist_handler.py \
     --export-path=/home/model-server/model-store
 
-torchserve --start --ts-config=/home/model-server/config.properties --models mnist=mnist.mar --disable-token-auth --enable-model-api
+torchserve --start --ts-config=/home/model-server/config.properties --models mnist=mnist.mar --disable-token
 EOF
 
 echo "Starting container ${CONTAINER}"
