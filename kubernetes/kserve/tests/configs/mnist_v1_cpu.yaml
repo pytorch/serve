@@ -15,5 +15,5 @@ spec:
           cpu: "100m"
           memory: 256Mi
       args:
-        - --disable-token
-        - --model-api-enabled
+        - --disable-token-auth
+        - --enable-model-api

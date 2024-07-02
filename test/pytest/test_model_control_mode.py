@@ -23,7 +23,7 @@ def setup_torchserve():
     Path(test_utils.MODEL_STORE).mkdir(parents=True, exist_ok=True)
 
     test_utils.start_torchserve(
-        no_config_snapshots=True, models="mnist=mnist.mar", model_api_enabled=False
+        no_config_snapshots=True, models="mnist=mnist.mar", enable_model_api=False
     )
 
     yield "test"
@@ -118,6 +118,42 @@ def test_priority():
     )
 
     response = requests.delete("http://localhost:8081/models/mnist")
+
+    test_utils.stop_torchserve()
+
+    assert response.status_code == 200, "model control check failed"
+
+
+# Test priority between env variable, config.properties, and cmd
+# Env sets enable_model_api to true
+# config sets enable_model_api to false
+# cmd sets enable_model_api to false
+# Priority falls to env hence enable_model_api is true
+def test_priority_env(monkeypatch):
+    test_var_name = "TS_ENABLE_MODEL_API"
+    test_var_value = "true"
+    monkeypatch.setenv(test_var_name, test_var_value)
+
+    MODEL_STORE = os.path.join(ROOT_DIR, "model_store/")
+    PLUGIN_STORE = os.path.join(ROOT_DIR, "plugins-path")
+
+    Path(test_utils.MODEL_STORE).mkdir(parents=True, exist_ok=True)
+    config_file_priority = os.path.join(
+        REPO_ROOT, "../resources/config_model_mode.properties"
+    )
+    test_utils.start_torchserve(
+        snapshot_file=config_file_priority,
+        no_config_snapshots=True,
+        enable_model_api=False,
+    )
+
+    params = (
+        ("model_name", "resnet-18"),
+        ("url", "resnet-18.mar"),
+        ("initial_workers", "1"),
+        ("synchronous", "true"),
+    )
+    response = requests.post("http://localhost:8081/models", params=params)
 
     test_utils.stop_torchserve()
 

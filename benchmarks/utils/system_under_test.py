@@ -116,7 +116,7 @@ class LocalTorchServeUnderTest(TorchServeUnderTest):
         click.secho("*Starting local Torchserve instance...", fg="green")
 
         ts_cmd = (
-            f"torchserve --start --model-store {self.execution_params['tmp_dir']}/model_store --model-api-enabled --disable-token "
+            f"torchserve --start --model-store {self.execution_params['tmp_dir']}/model_store --enable-model-api --disable-token-auth "
             f"--workflow-store {self.execution_params['tmp_dir']}/wf_store "
             f"--ts-config {self.execution_params['tmp_dir']}/benchmark/conf/{self.execution_params['config_properties_name']} "
             f" > {self.execution_params['tmp_dir']}/benchmark/logs/model_metrics.log"
@@ -195,7 +195,7 @@ class DockerTorchServeUnderTest(TorchServeUnderTest):
             f"docker run {self.execution_params['docker_runtime']} {backend_profiling} --name ts --user root -p "
             f"127.0.0.1:{inference_port}:{inference_port} -p 127.0.0.1:{management_port}:{management_port} "
             f"-v {self.execution_params['tmp_dir']}:/tmp {enable_gpu} -itd {docker_image} "
-            f'"torchserve --start --model-store /home/model-server/model-store --model-api-enabled --disable-token '
+            f'"torchserve --start --model-store /home/model-server/model-store --enable-model-api --disable-token-auth '
             f"\--workflow-store /home/model-server/wf-store "
             f"--ts-config /tmp/benchmark/conf/{self.execution_params['config_properties_name']} > "
             f'/tmp/benchmark/logs/model_metrics.log"'
