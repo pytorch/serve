@@ -2,7 +2,7 @@
 
 set -o errexit -o nounset -o pipefail
 
-IMAGE_TAG="test"
+IMAGE_TAG=$1
 CONTAINER="test-container-${IMAGE_TAG}"
 
 FILES_PATH="$(realpath "$(pwd)/..")/examples/image_classifier/mnist"
