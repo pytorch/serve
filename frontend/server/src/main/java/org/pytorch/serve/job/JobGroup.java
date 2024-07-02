@@ -12,12 +12,14 @@ public class JobGroup {
     LinkedBlockingDeque<Job> jobs;
     int maxJobQueueSize;
     AtomicBoolean finished;
+    AtomicBoolean polling;
 
     public JobGroup(String groupId, int maxJobQueueSize) {
         this.groupId = groupId;
         this.maxJobQueueSize = maxJobQueueSize;
         this.jobs = new LinkedBlockingDeque<>(maxJobQueueSize);
         this.finished = new AtomicBoolean(false);
+        this.pooling = new AtomicBoolean(false);
     }
 
     public boolean appendJob(Job job) {
@@ -29,7 +31,11 @@ public class JobGroup {
             return null;
         }
         try {
-            return jobs.poll(timeout, TimeUnit.MILLISECONDS);
+            if (!polling.getAndSet(true)) {
+                Job job = jobs.poll(timeout, TimeUnit.MILLISECONDS);
+                polling.set(false);
+                return job;
+            }
         } catch (InterruptedException e) {
             logger.error("Failed to poll a job from group {}", groupId, e);
         }
