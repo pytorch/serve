@@ -24,15 +24,6 @@ jobs:
         working-directory: docker
         run: ./test_build_image_tagging.sh ${{ matrix.python-version }}
 
-      - name: Determine the branch name
-        id: branch-name
-        run: |
-          if [[ "${GITHUB_REF}" == refs/heads/* ]]; then
-            BRANCH_NAME=${GITHUB_REF#refs/heads/}
-          elif [[ "${GITHUB_REF}" == refs/pull/*/merge ]]; then
-            BRANCH_NAME=$(echo ${GITHUB_HEAD_REF})
-          fi
-
       - name: Build Image for container test
         id: image_build
         working-directory: docker
