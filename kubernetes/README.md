@@ -1,7 +1,7 @@
 # Torchserve on Kubernetes
 
 ## Security Changes
-TorchServe now enforces token authorization and model API control by default. Check the following documentation for more information: [Token Authorization](https://github.com/pytorch/serve/blob/master/docs/token_authorization_api.md), [Model API control](https://github.com/pytorch/serve/blob/master/docs/model_api_control.md)
+TorchServe now enforces token authorization and model API control by default. Refer the following documentation for more information: [Token Authorization](https://github.com/pytorch/serve/blob/master/docs/token_authorization_api.md), [Model API control](https://github.com/pytorch/serve/blob/master/docs/model_api_control.md)
 
 ## Overview
 
