@@ -130,16 +130,13 @@ public class WorkerLifeCycle {
                                 modelPath.getAbsolutePath(),
                                 model.getModelArchive().getManifest().getModel().getHandler())));
 
-        if (model.getParallelLevel() > 0) {
-            if (model.getParallelType() != ParallelType.CUSTOM) {
-                attachRunner(argl, envp, port, deviceIds);
-            } else {
-                if (deviceIds != null) {
-                    envp.add("CUDA_VISIBLE_DEVICES=" + deviceIds);
-                }
-                argl.add(EnvironmentUtils.getPythonRunTime(model));
-            }
-        } else if (model.getParallelLevel() == 0) {
+        if (deviceIds != null) {
+            envp.add("CUDA_VISIBLE_DEVICES=" + deviceIds);
+        }
+
+        if (model.getParallelLevel() > 0 && model.getParallelType() != ParallelType.CUSTOM) {
+            attachRunner(argl, envp, port, deviceIds);
+        } else {
             argl.add(EnvironmentUtils.getPythonRunTime(model));
         }
 
@@ -291,9 +288,6 @@ public class WorkerLifeCycle {
     private void attachRunner(
             ArrayList<String> argl, List<String> envp, int port, String deviceIds) {
         envp.add("LOGLEVEL=INFO");
-        if (deviceIds != null) {
-            envp.add("CUDA_VISIBLE_DEVICES=" + deviceIds);
-        }
         ModelConfig.TorchRun torchRun = model.getModelArchive().getModelConfig().getTorchRun();
         envp.add(String.format("OMP_NUM_THREADS=%d", torchRun.getOmpNumberThreads()));
         argl.add("torchrun");
