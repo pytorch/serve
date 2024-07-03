@@ -29,7 +29,7 @@ mv yolov8n.mar model_store/.
 
 
 ```
-torchserve --start --model-store model_store --ncs
+torchserve --start --model-store model_store --ncs --disable-token-auth  --enable-model-api
 curl -X POST "localhost:8081/models?model_name=yolov8n&url=yolov8n.mar&initial_workers=4&batch_size=2"
 ```
 

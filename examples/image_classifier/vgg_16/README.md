@@ -12,7 +12,7 @@ wget https://download.pytorch.org/models/vgg16-397923af.pth
 torch-model-archiver --model-name vgg16 --version 1.0 --model-file ./examples/image_classifier/vgg_16/model.py --serialized-file vgg16-397923af.pth --handler ./examples/image_classifier/vgg_16/vgg_handler.py --extra-files ./examples/image_classifier/index_to_name.json --config-file ./examples/image_classifier/vgg_16/model-config.yaml -f
 mkdir model_store
 mv vgg16.mar model_store/vgg16_compiled.mar
-torchserve --start --model-store model_store --models vgg16=vgg16_compiled.mar
+torchserve --start --model-store model_store --models vgg16=vgg16_compiled.mar --disable-token-auth  --enable-model-api
 ```
 
 Now in another terminal, run
@@ -42,7 +42,7 @@ wget https://download.pytorch.org/models/vgg16-397923af.pth
 torch-model-archiver --model-name vgg16 --version 1.0 --model-file ./examples/image_classifier/vgg_16/model.py --serialized-file vgg16-397923af.pth --handler ./examples/image_classifier/vgg_16/vgg_handler.py --extra-files ./examples/image_classifier/index_to_name.json
 mkdir model_store
 mv vgg16.mar model_store/
-torchserve --start --model-store model_store --models vgg16=vgg16.mar
+torchserve --start --model-store model_store --models vgg16=vgg16.mar --disable-token-auth  --enable-model-api
 curl http://127.0.0.1:8080/predictions/vgg16 -T ./examples/image_classifier/kitten.jpg
 ```
 
@@ -70,14 +70,14 @@ curl http://127.0.0.1:8080/predictions/vgg16 -T ./examples/image_classifier/kitt
    example_input = torch.rand(1, 3, 224, 224)
    traced_script_module = torch.jit.trace(model, example_input)
    traced_script_module.save("vgg16.pt")
-   ```  
- 
+   ```
+
 * Use following commands to register vgg16 torchscript model on TorchServe and run image prediction
 
     ```bash
     torch-model-archiver --model-name vgg16 --version 1.0  --serialized-file vgg16.pt --extra-files ./examples/image_classifier/index_to_name.json --handler ./examples/image_classifier/vgg_16/vgg_handler.py
     mkdir model_store
     mv vgg16.mar model_store/
-    torchserve --start --model-store model_store --models vgg16=vgg16.mar
+    torchserve --start --model-store model_store --models vgg16=vgg16.mar --disable-token-auth  --enable-model-api
     curl http://127.0.0.1:8080/predictions/vgg16 -T ./serve/examples/image_classifier/kitten.jpg
     ```

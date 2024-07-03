@@ -34,7 +34,7 @@ mv res18-pt2.mar model_store/.
 
 #### Start TorchServe
 ```
-torchserve --start --model-store model_store --models res18-pt2=res18-pt2.mar --ncs
+torchserve --start --model-store model_store --models res18-pt2=res18-pt2.mar --ncs --disable-token-auth  --enable-model-api
 ```
 
 #### Run Inference
