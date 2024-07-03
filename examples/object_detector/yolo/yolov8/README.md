@@ -6,7 +6,7 @@ Install `ultralytics` using
 python -m pip install -r requirements.txt
 ```
 
-In this example, we are using the YOLOv8 Nano model from ultralytics.Downlaod the pretrained weights from [Ultralytics](https://docs.ultralytics.com/models/yolov8/#supported-modes)
+In this example, we are using the YOLOv8 Nano model from ultralytics. Download the pretrained weights from [Ultralytics](https://docs.ultralytics.com/models/yolov8/#supported-modes)
 
 ```
 wget https://github.com/ultralytics/assets/releases/download/v0.0.0/yolov8n.pt
