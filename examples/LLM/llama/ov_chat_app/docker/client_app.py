@@ -76,10 +76,10 @@ with st.sidebar:
         "guidance_scale", min_value=1.0, max_value=30.0, value=5.0, step=0.5
     )
     height = st.sidebar.slider(
-        "height", min_value=256, max_value=2048, value=512, step=8
+        "height", min_value=256, max_value=2048, value=768, step=8
     )
     width = st.sidebar.slider(
-        "width", min_value=256, max_value=2048, value=512, step=8
+        "width", min_value=256, max_value=2048, value=768, step=8
     )
 
     # st.subheader("LLM Model parameters")
@@ -98,7 +98,6 @@ with st.sidebar:
 
 
 prompt = st.text_input("Text Prompt")
-
 
 def generate_sd_response_v1(prompt_input):
     url = f"http://127.0.0.1:8080/predictions/{MODEL_NAME_SD}"
@@ -119,7 +118,6 @@ def generate_sd_response_v1(prompt_input):
 
 async def send_inference_request(session, prompt_input):
     url = f"http://127.0.0.1:8080/predictions/{MODEL_NAME_SD}"
-
     data_input = json.dumps(
         {
             "prompt": prompt_input,
@@ -162,7 +160,6 @@ def get_prompts_string(input_string):
 def trim_prompt(s):
     return re.sub(r'^[^a-zA-Z0-9]+|[^a-zA-Z0-9]+$', '', s)
 
-
 def postprocess_llm_response(generated_prompts, original_prompt=None):
     print('111111111111111111111111', generated_prompts)
     prompts = get_prompts_string(generated_prompts)
@@ -171,11 +168,7 @@ def postprocess_llm_response(generated_prompts, original_prompt=None):
 
     if original_prompt:
         prompts[0] = original_prompt
-
-    print('222222222222222222222222', prompts)
-
     assert len(prompts) == images_num
-
 
     return prompts
 
@@ -225,14 +218,15 @@ def display_images_in_grid(images, captions):
 if st.button("Generate Images"):
     print('00000000000000000', images_num)
     with st.spinner('Generating images...'):
-        llm_res = prompt
+        total_start_time = time.time()
 
+        llm_res = [prompt]
         if images_num > 1:
             prompt_input = preprocess_llm_input(prompt, images_num)
 
-            start_time = time.time()
+            # start_time = time.time()
             llm_res = generate_llm_model_response(prompt_input)
-            llm_inference_time = time.time() - start_time
+            # llm_inference_time = time.time() - start_time
 
             llm_res = postprocess_llm_response(llm_res, prompt)
         
@@ -245,9 +239,13 @@ if st.button("Generate Images"):
         images = sd_response_postprocess(sd_res)
         st.session_state.gen_images[:0] = images
 
-        if images_num > 1:
-            st.write(f"LLM inference time: {llm_inference_time:.2f} seconds")
+        # if images_num > 1:
+        #     st.write(f"LLM inference time: {llm_inference_time:.2f} seconds")
 
         st.write(f"SD inference time: {sd_inference_time:.2f} seconds")
 
         display_images_in_grid(st.session_state.gen_images, st.session_state.gen_captions)
+
+        total_time = time.time() - total_start_time
+        st.write(f"Total time: {sd_inference_time:.2f} seconds")
+        print('TOTAL APP TIME: ', total_time)
