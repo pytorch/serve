@@ -73,7 +73,7 @@ def start(
     plugin_folder=None,
     disable_token=False,
     models=None,
-    model_api_enabled=False,
+    enable_model_api=False,
 ):
     stop()
     cmd = ["torchserve", "--start"]
@@ -85,11 +85,11 @@ def start(
     if no_config_snapshots:
         cmd.extend(["--no-config-snapshots"])
     if disable_token:
-        cmd.append("--disable-token")
+        cmd.append("--disable-token-auth")
     if models:
         cmd.extend(["--models", models])
-    if model_api_enabled:
-        cmd.extend(["--model-api-enabled"])
+    if enable_model_api:
+        cmd.extend(["--enable-model-api"])
     p = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=STDOUT)
     for line in p.stdout:
         print(line.decode("utf8").strip())

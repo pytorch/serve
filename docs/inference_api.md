@@ -2,6 +2,8 @@
 
 Inference API is listening on port 8080 and only accessible from localhost by default. To change the default setting, see [TorchServe Configuration](configuration.md).
 
+For all Inference API requests, TorchServe requires the correct Inference token to be included or token authorization must be disable. For more details see [token authorization documentation](./token_authorization_api.md)
+
 The TorchServe server supports the following APIs:
 
 * [API Description](#api-description) - Gets a list of available APIs and options
