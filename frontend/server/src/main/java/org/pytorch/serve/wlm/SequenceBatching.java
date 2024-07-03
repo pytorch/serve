@@ -224,7 +224,7 @@ public class SequenceBatching extends BatchAggregator {
             if (!jobGroup.isFinished()) {
                 job = jobGroup.pollJob(model.getSequenceMaxIdleMSec());
             }
-            if (job == null || jobGroup.isFinished()) {
+            if (job == null) {
                 // JobGroup expired, clean it.
                 cleanJobGroup(jobGroupId);
                 // intent to add new job groups.
