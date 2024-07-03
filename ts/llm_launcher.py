@@ -134,7 +134,7 @@ if __name__ == "__main__":
     )
 
     parser.add_argument(
-        "--disable_token",
+        "--disable_token-auth",
         action="store_true",
         help="Disable token authentication",
     )
