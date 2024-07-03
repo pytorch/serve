@@ -67,7 +67,7 @@ docker run --rm -ti --gpus all -e HUGGING_FACE_HUB_TOKEN=$token -p 8080:8080 -v 
 curl -X POST -d '{"prompt":"Hello, my name is", "max_new_tokens": 50}' --header "Content-Type: application/json" "http://localhost:8080/predictions/model"
 ```
 
-Refer to [LLM deployment][docs/llm_deployment.md] for details and other methods.
+Refer to [LLM deployment](docs/llm_deployment.md) for details and other methods.
 
 ## ⚡ Why TorchServe
 * Write once, run anywhere, on-prem, on-cloud, supports inference on CPUs, GPUs, AWS Inf1/Inf2/Trn1, Google Cloud TPUs, [Nvidia MPS](docs/nvidia_mps.md)
