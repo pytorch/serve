@@ -19,7 +19,7 @@ Alternatively, you can directly [download the dcgan_fashiongen.mar](https://torc
 ```
 mkdir modelstore
 mv dcgan_fashiongen.mar modelstore/
-torchserve --start --ncs --model-store ./modelstore --models dcgan_fashiongen.mar --disable-token-auth  --enable-model-api
+torchserve --start --ncs --model-store ./modelstore --models dcgan_fashiongen.mar --disable-token-auth --enable-model-api
 ```
 
 ### 3. Generate Images

@@ -40,7 +40,7 @@ mv resnet-18.mar model_store/
 ### Start the torchserve
 
 ```bash
-torchserve --start --model-store model_store --models resnet=resnet-18.mar --disable-token-auth  --enable-model-api
+torchserve --start --model-store model_store --models resnet=resnet-18.mar --disable-token-auth --enable-model-api
 ```
 
 ### Run Inference

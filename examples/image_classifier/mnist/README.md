@@ -38,7 +38,7 @@ Run the commands given in following steps from the parent directory of the root 
     ```bash
     mkdir model_store
     mv mnist.mar model_store/
-    torchserve --start --model-store model_store --models mnist=mnist.mar --ts-config config.properties --disable-token-auth  --enable-model-api
+    torchserve --start --model-store model_store --models mnist=mnist.mar --ts-config config.properties --disable-token-auth --enable-model-api
     curl http://127.0.0.1:8080/predictions/mnist -T examples/image_classifier/mnist/test_data/0.png
     ```
 
