@@ -202,14 +202,12 @@ public class SequenceBatching extends BatchAggregator {
                                     }
                                 },
                                 pollExecutors);
-                        logger.info("call pollJobGroup");
                     } else {
                         CompletableFuture.runAsync(
                                 () -> {
                                     pollJobFromJobGroup(jobGroupId);
                                 },
                                 pollExecutors);
-                        logger.info("call pollJobFromJobGroup {}", jobGroupId);
                     }
                 } catch (InterruptedException e) {
                     if (running.get()) {
