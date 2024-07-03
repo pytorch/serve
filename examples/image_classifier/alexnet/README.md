@@ -32,7 +32,7 @@ wget https://download.pytorch.org/models/alexnet-owt-7be5be79.pth
 mkdir model_store
 torch-model-archiver --model-name alexnet --version 1.0 --model-file model.py --serialized-file alexnet-owt-7be5be79.pth --handler image_classifier --extra-files ../index_to_name.json --config-file model-config.yaml
 mv alexnet.mar model_store/
-torchserve --start --model-store model_store --models alexnet=alexnet.mar
+torchserve --start --model-store model_store --models alexnet=alexnet.mar --disable-token-auth --enable-model-api
 ```
 
 ##### Run Inference
