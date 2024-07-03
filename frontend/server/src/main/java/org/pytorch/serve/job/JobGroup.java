@@ -31,11 +31,7 @@ public class JobGroup {
             return null;
         }
         try {
-            if (!polling.getAndSet(true)) {
-                Job job = jobs.poll(timeout, TimeUnit.MILLISECONDS);
-                polling.set(false);
-                return job;
-            }
+            return jobs.poll(timeout, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
             logger.error("Failed to poll a job from group {}", groupId, e);
         }
@@ -52,5 +48,9 @@ public class JobGroup {
 
     public boolean isFinished() {
         return this.finished.get();
+    }
+
+    public AtomicBoolean getPolling() {
+        return this.polling;
     }
 }

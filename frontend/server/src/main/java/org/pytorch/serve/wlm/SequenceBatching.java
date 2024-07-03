@@ -221,8 +221,14 @@ public class SequenceBatching extends BatchAggregator {
             // Poll a job from a jobGroup
             JobGroup jobGroup = model.getJobGroup(jobGroupId);
             Job job = null;
+            AtomicBoolean isPolling = jobGroup.getPolling();
             if (!jobGroup.isFinished()) {
-                job = jobGroup.pollJob(model.getSequenceMaxIdleMSec());
+                if (!isPolling.getAndSet(true)) {
+                    job = jobGroup.pollJob(model.getSequenceMaxIdleMSec());
+                    isPolling.set(false);
+                } else {
+                    return;
+                }
             }
             if (job == null) {
                 // JobGroup expired, clean it.
