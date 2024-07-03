@@ -117,7 +117,7 @@ public class SequenceBatching extends BatchAggregator {
         }
     }
 
-    private void cleanJobGroup(String jobGroupId) {
+    protected void cleanJobGroup(String jobGroupId) {
         logger.debug("Clean jobGroup: {}", jobGroupId);
         if (jobGroupId != null) {
             model.removeJobGroup(jobGroupId);
@@ -202,12 +202,14 @@ public class SequenceBatching extends BatchAggregator {
                                     }
                                 },
                                 pollExecutors);
+                        logger.info("call pollJobGroup");
                     } else {
                         CompletableFuture.runAsync(
                                 () -> {
                                     pollJobFromJobGroup(jobGroupId);
                                 },
                                 pollExecutors);
+                        logger.info("call pollJobFromJobGroup {}", jobGroupId);
                     }
                 } catch (InterruptedException e) {
                     if (running.get()) {
