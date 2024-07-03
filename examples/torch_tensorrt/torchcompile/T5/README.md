@@ -4,7 +4,7 @@ This example shows how to run TorchServe inference with T5 [Torch-TensorRT](http
 
 
 
-[T5](https://huggingface.co/docs/transformers/en/model_doc/t5#inference) is an encode-decoder model used for a variety of text tasks out of the box by preprending a different text corresponding to each task. In this example, we use T5 for translation from English to German.
+[T5](https://huggingface.co/docs/transformers/en/model_doc/t5#inference) is an encode-decoder model used for a variety of text tasks out of the box by prepending a different text corresponding to each task. In this example, we use T5 for translation from English to German.
 
 ### Pre-requisites
 

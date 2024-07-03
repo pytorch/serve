@@ -6,7 +6,7 @@ This example shows how to run TorchServe inference with [Torch-TensorRT](https:/
 
 - Verified to be working with `torch-tensorrt==2.3.0`
 
-Change directory to examples directory `cd examples/torch_tensorrt/torchcompile`
+Change directory to examples directory `cd examples/torch_tensorrt/resnet50/torchcompile`
 
 ### torch.compile config
 
@@ -82,4 +82,3 @@ If we disable `torch.compile` and use PyTorch eager, we see the following
 
 We see that `torch.compile` with `tensorrt` backend reduces model inference from `5.56 ms` to `1.6 ms`.
 Please note that `torch.compile` is a JIT compiler and it takes a few iterations (1-3) to warmup before you see the speedup
-
