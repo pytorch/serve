@@ -10,7 +10,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Model Control Mode &mdash; PyTorch/Serve master documentation</title>
+  <title>Model API Control &mdash; PyTorch/Serve master documentation</title>
   
 
   
@@ -381,13 +381,13 @@
       </li>
 
         
-      <li>Model Control Mode</li>
+      <li>Model API Control</li>
     
     
       <li class="pytorch-breadcrumbs-aside">
         
             
-            <a href="_sources/model_control_mode.md.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg"></a>
+            <a href="_sources/model_api_control.md.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg"></a>
           
         
       </li>
@@ -417,33 +417,35 @@
             <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
-  <section id="model-control-mode">
-<h1>Model Control Mode<a class="headerlink" href="#model-control-mode" title="Permalink to this heading">¶</a></h1>
-<p>TorchServe now supports model control mode with two settings “none”(default) and “enabled”</p>
-<section id="two-ways-to-set-model-control">
-<h2>Two ways to set Model Control<a class="headerlink" href="#two-ways-to-set-model-control" title="Permalink to this heading">¶</a></h2>
+  <section id="model-api-control">
+<h1>Model API Control<a class="headerlink" href="#model-api-control" title="Permalink to this heading">¶</a></h1>
+<p>TorchServe now disables the use of model API (specifically registering and deleting models) by default. The use of these APIs can be enabled through command line or config.properties file.</p>
+<p>TorchServe disables the ability to register and delete models using API calls by default once TorchServe is running. This is a security feature which addresses the concern of unintended registration and deletion of models once TorchServe has started. This is applicable in the scenario where a user may upload malicious code to the model server in the form of a model or where a user may delete a model that is being used. The default behavior prevents users from registering or deleting models once TorchServe is running. Model API control can be enabled to allow users to register and delete models using the TorchServe model load and delete APIs.</p>
+<section id="three-ways-to-set-model-api-control">
+<h2>Three ways to set Model API Control<a class="headerlink" href="#three-ways-to-set-model-api-control" title="Permalink to this heading">¶</a></h2>
 <ol class="simple">
-<li><p>Add <code class="docutils literal notranslate"><span class="pre">--model-api-enabled</span></code> to command line when running TorchServe to switch from none to enabled mode. Command line cannot be used to set mode to none, can only be used to set to enabled</p></li>
-<li><p>Add <code class="docutils literal notranslate"><span class="pre">model_api_enabled=false</span></code> or <code class="docutils literal notranslate"><span class="pre">model_api_enabled=true</span></code> to config.properties file</p>
+<li><p>Environment variable: use <code class="docutils literal notranslate"><span class="pre">TS_ENABLE_MODEL_API</span></code> and set to <code class="docutils literal notranslate"><span class="pre">true</span></code> to enable and <code class="docutils literal notranslate"><span class="pre">false</span></code> to disable model API use. Note that <code class="docutils literal notranslate"><span class="pre">enable_envvars_config=true</span></code> must be set in config.properties to use environment variables configuration</p></li>
+<li><p>Add <code class="docutils literal notranslate"><span class="pre">--enable-model-api</span></code> to command line when starting TorchServe to switch from disabled to enabled. Command line cannot be used to disable, can only be used to enable</p></li>
+<li><p>Add <code class="docutils literal notranslate"><span class="pre">enable_model_api=false</span></code> or <code class="docutils literal notranslate"><span class="pre">enable_model_api=true</span></code> to config.properties file</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">model_api_enabled=false</span></code> is default and prevents users from registering or deleting models once TorchServe is running</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">model_api_enabled=true</span></code> is not default and allows users to register and delete models using the TorchServe model load APIs</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">enable_model_api=false</span></code> is default and prevents users from registering or deleting models once TorchServe is running</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">enable_model_api=true</span></code> is not default and allows users to register and delete models using the TorchServe model APIs</p></li>
 </ul>
 </li>
 </ol>
-<p>Priority between cmd and config file follows the following <a class="reference external" href="https://github.com/pytorch/serve/blob/c74a29e8144bc12b84196775076b0e8cf3c5a6fc/docs/configuration.md#advanced-configuration">TorchServer standard</a></p>
+<p>Priority follows the following <a class="reference external" href="https://github.com/pytorch/serve/blob/c74a29e8144bc12b84196775076b0e8cf3c5a6fc/docs/configuration.md#advanced-configuration">TorchServe standard</a></p>
 <ul>
 <li><p>Example 1:</p>
 <ul>
-<li><p>Config file: <code class="docutils literal notranslate"><span class="pre">model_api_enabled=false</span></code></p>
-<p>cmd line: <code class="docutils literal notranslate"><span class="pre">torchserve</span> <span class="pre">--start</span> <span class="pre">--ncs</span> <span class="pre">--model-store</span> <span class="pre">model_store</span> <span class="pre">--model-api-enabled</span></code></p>
+<li><p>Config file: <code class="docutils literal notranslate"><span class="pre">enable_model_api=false</span></code></p>
+<p>cmd line: <code class="docutils literal notranslate"><span class="pre">torchserve</span> <span class="pre">--start</span> <span class="pre">--ncs</span> <span class="pre">--model-store</span> <span class="pre">model_store</span> <span class="pre">--enable-model-api</span></code></p>
 <p>Result: Model api mode enabled</p>
 </li>
 </ul>
 </li>
 <li><p>Example 2:</p>
 <ul>
-<li><p>Config file: <code class="docutils literal notranslate"><span class="pre">model_api_enabled=true</span></code></p>
+<li><p>Config file: <code class="docutils literal notranslate"><span class="pre">enable_model_api=true</span></code></p>
 <p>cmd line: <code class="docutils literal notranslate"><span class="pre">torchserve</span> <span class="pre">--start</span> <span class="pre">--ncs</span> <span class="pre">--model-store</span> <span class="pre">model_store</span></code></p>
 <p>Result: Mode is enabled (no way to disable api mode through cmd)</p>
 </li>
@@ -451,8 +453,8 @@
 </li>
 </ul>
 </section>
-<section id="model-control-mode-default">
-<h2>Model Control Mode Default<a class="headerlink" href="#model-control-mode-default" title="Permalink to this heading">¶</a></h2>
+<section id="model-api-control-default">
+<h2>Model API Control Default<a class="headerlink" href="#model-api-control-default" title="Permalink to this heading">¶</a></h2>
 <p>At startup TorchServe loads only those models specified explicitly with the <code class="docutils literal notranslate"><span class="pre">--models</span></code> command-line option. After startup users will be unable to register or delete models in this mode.</p>
 <section id="example-default">
 <h3>Example default<a class="headerlink" href="#example-default" title="Permalink to this heading">¶</a></h3>
@@ -472,10 +474,10 @@ ubuntu@ip-172-31-11-32:~/serve$ curl -X POST  &quot;http://localhost:8081/models
 </section>
 <section id="model-control-api-enabled">
 <h2>Model Control API Enabled<a class="headerlink" href="#model-control-api-enabled" title="Permalink to this heading">¶</a></h2>
-<p>Setting model control to <code class="docutils literal notranslate"><span class="pre">enabled</span></code> allows users to load and unload models using the model load APIs.</p>
+<p>Setting model API to <code class="docutils literal notranslate"><span class="pre">enabled</span></code> allows users to load and unload models using the model load APIs.</p>
 <section id="example-using-cmd-line-to-set-mode-to-enabled">
 <h3>Example using cmd line to set mode to enabled<a class="headerlink" href="#example-using-cmd-line-to-set-mode-to-enabled" title="Permalink to this heading">¶</a></h3>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>ubuntu@ip-172-31-11-32:~/serve$ torchserve --start --ncs --model-store model_store --models resnet-18=resnet-18.mar --ts-config config.properties --model-api-enabled
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>ubuntu@ip-172-31-11-32:~/serve$ torchserve --start --ncs --model-store model_store --models resnet-18=resnet-18.mar --ts-config config.properties --enable-model-api
 
 ubuntu@ip-172-31-11-32:~/serve$ curl -X POST  &quot;http://localhost:8081/models?url=https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar&quot;
 {
@@ -538,9 +540,9 @@ TorchServe has stopped.
           <div class="pytorch-right-menu" id="pytorch-right-menu">
             <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
               <ul>
-<li><a class="reference internal" href="#">Model Control Mode</a><ul>
-<li><a class="reference internal" href="#two-ways-to-set-model-control">Two ways to set Model Control</a></li>
-<li><a class="reference internal" href="#model-control-mode-default">Model Control Mode Default</a><ul>
+<li><a class="reference internal" href="#">Model API Control</a><ul>
+<li><a class="reference internal" href="#three-ways-to-set-model-api-control">Three ways to set Model API Control</a></li>
+<li><a class="reference internal" href="#model-api-control-default">Model API Control Default</a><ul>
 <li><a class="reference internal" href="#example-default">Example default</a></li>
 </ul>
 </li>

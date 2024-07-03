@@ -431,13 +431,17 @@
 <li><p><a class="reference external" href="#unregister-a-model">Unregister a model</a></p></li>
 <li><p><a class="reference external" href="#list-models">List registered models</a></p></li>
 <li><p><a class="reference external" href="#set-default-version">Set default version of a model</a></p></li>
+<li><p><a class="reference external" href="#token-authorization-api">Refresh tokens for token authorization</a></p></li>
 </ol>
 <p>The Management API listens on port 8081 and is only accessible from localhost by default. To change the default setting, see <a class="reference internal" href="configuration.html"><span class="doc">TorchServe Configuration</span></a>.</p>
+<p>Management API for registering and deleting models is disabled by default. Add <code class="docutils literal notranslate"><span class="pre">--enable-model-api</span></code> to command line when running TorchServe to enable the use of these APIs. For more details and ways to enable see <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/model_api_control">Model API control</a></p>
+<p>For all Management API requests, TorchServe requires the correct Management token to be included or token authorization must be disabled. For more details see <a class="reference internal" href="token_authorization_api.html"><span class="doc">token authorization documentation</span></a></p>
 <p>Similar to the <a class="reference internal" href="inference_api.html"><span class="doc">Inference API</span></a>, the Management API provides a <a class="reference external" href="#api-description">API description</a> to describe management APIs with the OpenAPI 3.0 specification.</p>
 <p>Alternatively, if you want to use KServe, TorchServe supports both v1 and v2 API. For more details please look into this <a class="reference external" href="https://github.com/pytorch/serve/tree/master/kubernetes/kserve">kserve documentation</a></p>
 <section id="register-a-model">
 <h2>Register a model<a class="headerlink" href="#register-a-model" title="Permalink to this heading">¶</a></h2>
 <p>This API follows the <a class="reference external" href="https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/proto/management.proto">ManagementAPIsService.RegisterModel</a> gRPC API.</p>
+<p>To use this API after TorchServe starts, model API control has to be enabled. Add <code class="docutils literal notranslate"><span class="pre">--enable-model-api</span></code> to command line when starting TorchServe to enable the use of this API. For more details see <a class="reference internal" href="model_api_control.html"><span class="doc">model API control</span></a></p>
 <p><code class="docutils literal notranslate"><span class="pre">POST</span> <span class="pre">/models</span></code></p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">url</span></code> - Model archive download url. Supports the following locations:</p>
@@ -844,6 +848,7 @@ or
 <section id="unregister-a-model">
 <h2>Unregister a model<a class="headerlink" href="#unregister-a-model" title="Permalink to this heading">¶</a></h2>
 <p>This API follows the <a class="reference external" href="https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/proto/management.proto">ManagementAPIsService.UnregisterModel</a> gRPC API. It returns the status of a model in the ModelServer.</p>
+<p>To use this API after TorchServe starts, model API control has to be enabled. Add <code class="docutils literal notranslate"><span class="pre">--enable-model-api</span></code> to command line when starting TorchServe to enable the use of this API. For more details see <a class="reference internal" href="model_api_control.html"><span class="doc">model API control</span></a></p>
 <p><code class="docutils literal notranslate"><span class="pre">DELETE</span> <span class="pre">/models/{model_name}/{version}</span></code></p>
 <p>Use the Unregister Model API to free up system resources by unregistering specific version of a model from TorchServe:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl<span class="w"> </span>-X<span class="w"> </span>DELETE<span class="w"> </span>http://localhost:8081/models/noop/1.0
@@ -913,6 +918,21 @@ curl<span class="w"> </span>-X<span class="w"> </span>OPTIONS<span class="w"> </
 </div>
 <p>The out is OpenAPI 3.0.1 json format. You use it to generate client code, see <a class="reference external" href="https://swagger.io/swagger-codegen/">swagger codegen</a> for detail.</p>
 </section>
+<section id="token-authorization-api">
+<h2>Token Authorization API<a class="headerlink" href="#token-authorization-api" title="Permalink to this heading">¶</a></h2>
+<p>TorchServe now enforces token authorization by default. Check the following documentation for more information: <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/token_authorization_api">Token Authorization</a>.</p>
+<p>This API is used in order to generate a new key to replace either the management or inference key.</p>
+<p>Management Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>curl localhost:8081/token?type=management -H &quot;Authorization: Bearer {API Token}&quot;
+</pre></div>
+</div>
+<p>will replace the current management key in the key_file with a new one and will update the expiration time.</p>
+<p>Inference example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>curl localhost:8081/token?type=inference -H &quot;Authorization: Bearer {API Token}&quot;
+</pre></div>
+</div>
+<p>will replace the current inference key in the key_file with a new one and will update the expiration time.</p>
+</section>
 </section>
 
 
@@ -969,6 +989,7 @@ curl<span class="w"> </span>-X<span class="w"> </span>OPTIONS<span class="w"> </
 <li><a class="reference internal" href="#list-models">List models</a></li>
 <li><a class="reference internal" href="#api-description">API Description</a></li>
 <li><a class="reference internal" href="#set-default-version">Set Default Version</a></li>
+<li><a class="reference internal" href="#token-authorization-api">Token Authorization API</a></li>
 </ul>
 </li>
 </ul>

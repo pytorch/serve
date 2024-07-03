@@ -420,11 +420,12 @@
   <section id="torchserve-token-authorization-api">
 <h1>TorchServe token authorization API<a class="headerlink" href="#torchserve-token-authorization-api" title="Permalink to this heading">¶</a></h1>
 <p>TorchServe now enforces token authorization by default</p>
+<p>TorchServe enforces token authorization by default which requires the correct token to be provided when calling an API. This is a security feature which addresses the concern of unauthorized API calls. This is applicable in the scenario where an unauthorized user may try to access a running TorchServe instance. The default behavior is to enable this feature which creates a key file with the appropriate tokens to be used for API calls. Users can disable this feature to prevent token authorization from being required for API calls (<a class="reference external" href="#how-to-set-and-disable-token-authorization">how to disable</a>), however users are warned that this will open up TorchServe to potential unauthorized API calls.</p>
 <section id="how-to-set-and-disable-token-authorization">
 <h2>How to set and disable Token Authorization<a class="headerlink" href="#how-to-set-and-disable-token-authorization" title="Permalink to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Global environment variable: use <code class="docutils literal notranslate"><span class="pre">TS_DISABLE_TOKEN_AUTHORIZATION</span></code> and set to <code class="docutils literal notranslate"><span class="pre">true</span></code> to disable and <code class="docutils literal notranslate"><span class="pre">false</span></code> to enable token authorization. Note that <code class="docutils literal notranslate"><span class="pre">enable_envvars_config=true</span></code> must be set in config.properties for global environment variables to be used</p></li>
-<li><p>Command line: Command line can only be used to disable token authorization by adding the <code class="docutils literal notranslate"><span class="pre">--disable-token</span></code> flag.</p></li>
+<li><p>Command line: Command line can only be used to disable token authorization by adding the <code class="docutils literal notranslate"><span class="pre">--disable-token-auth</span></code> flag.</p></li>
 <li><p>Config properties file: use <code class="docutils literal notranslate"><span class="pre">disable_token_authorization</span></code> and set to <code class="docutils literal notranslate"><span class="pre">true</span></code> to disable and <code class="docutils literal notranslate"><span class="pre">false</span></code> to enable token authorization.</p></li>
 </ul>
 <p>Priority between env variables, cmd, and config file follows the following <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/configuration">TorchServer standard</a></p>
@@ -432,7 +433,7 @@
 <li><p>Example 1:</p>
 <ul>
 <li><p>Config file: <code class="docutils literal notranslate"><span class="pre">disable_token_authorization=false</span></code></p>
-<p>cmd line: <code class="docutils literal notranslate"><span class="pre">torchserve</span> <span class="pre">--start</span> <span class="pre">--ncs</span> <span class="pre">--model-store</span> <span class="pre">model_store</span> <span class="pre">--disable-token</span></code></p>
+<p>cmd line: <code class="docutils literal notranslate"><span class="pre">torchserve</span> <span class="pre">--start</span> <span class="pre">--ncs</span> <span class="pre">--model-store</span> <span class="pre">model_store</span> <span class="pre">--disable-token-auth</span></code></p>
 <p>Result: Token authorization disabled through command line but enabled through config file, resulting in token authorization being disabled. Command line takes precedence</p>
 </li>
 </ul>
