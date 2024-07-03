@@ -152,7 +152,7 @@ public class SequenceContinuousBatching extends SequenceBatching {
                 JobGroup jobGroup = model.getJobGroup(jobGroupId);
                 if (jobGroup != null) {
                     jobGroup.setFinished(true);
-                    // JobGroup expired, clean it.
+                    // JobGroup finished, clean it.
                     cleanJobGroup(jobGroupId);
                     // intent to add new job groups.
                     eventJobGroupIds.add("");
