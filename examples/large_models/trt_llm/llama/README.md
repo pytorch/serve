@@ -7,8 +7,9 @@
 TRT-LLM requires Python 3.10
 Once TorchServe is installed, install TensorRT-LLM using the following.
 This will downgrade the versions of PyTorch & Triton but this doesn't cause any issue.
+
 ```
-pip install tensorrt_llm  --extra-index-url https://pypi.nvidia.com
+pip install tensorrt_llm==0.10.0 --extra-index-url https://pypi.nvidia.com
 python -c "import tensorrt_llm"
 ```
 shows
@@ -42,7 +43,7 @@ python TensorRT-LLM/examples/llama/convert_checkpoint.py --model_dir model/model
 trtllm-build --checkpoint_dir tllm_checkpoint_1gpu_bf16 --gemm_plugin bfloat16 --gpt_attention_plugin bfloat16 --output_dir ./llama-3-8b-engine
 ```
 
-You can test if TensortRT-LLM Engine has been compiled correctly by running the following
+You can test if TensorRT-LLM Engine has been compiled correctly by running the following
 ```
 python TensorRT-LLM/examples/run.py --engine_dir ./llama-3-8b-engine  --max_output_len 100 --tokenizer_dir model/models--meta-llama--Meta-Llama-3-8B-Instruct/snapshots/e1945c40cd546c78e41f1151f4db032b271faeaa/ --input_text "How do I count to nine in French?"
 ```
