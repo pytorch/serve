@@ -53,7 +53,7 @@ mv opt.tar.gz model_store
 ### Step 4: Start torchserve
 
 ```bash
-torchserve --start --ncs --model-store model_store --models opt.tar.gz
+torchserve --start --ncs --model-store model_store --models opt.tar.gz --disable-token-auth  --enable-model-api
 ```
 
 ### Step 5: Run inference

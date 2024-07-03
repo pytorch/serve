@@ -19,7 +19,7 @@ wget https://download.pytorch.org/models/resnet18-f37072fd.pth
 torch-model-archiver --model-name resnet-18 --version 1.0 --model-file ./examples/image_classifier/resnet_18/model.py --serialized-file resnet18-f37072fd.pth --handler image_classifier --extra-files ./examples/image_classifier/index_to_name.json
 mkdir model_store
 mv resnet-18.mar model_store/
-torchserve --start --model-store model_store --models resnet-18=resnet-18.mar --ts-config config.properties
+torchserve --start --model-store model_store --models resnet-18=resnet-18.mar --ts-config config.properties --disable-token-auth  --enable-model-api
 
 ```
 

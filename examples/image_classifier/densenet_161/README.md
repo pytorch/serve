@@ -12,7 +12,7 @@ Sample command to start torchserve with torch.compile:
 wget https://download.pytorch.org/models/densenet161-8d451a50.pth
 mkdir model_store
 torch-model-archiver --model-name densenet161 --version 1.0 --model-file model.py --serialized-file densenet161-8d451a50.pth --export-path model_store --extra-files ../../image_classifier/index_to_name.json --handler image_classifier --config-file model-config.yaml -f
-torchserve --start --ncs --model-store model_store --models densenet161.mar
+torchserve --start --ncs --model-store model_store --models densenet161.mar --disable-token-auth  --enable-model-api
 curl http://127.0.0.1:8080/predictions/densenet161 -T ../../image_classifier/kitten.jpg
 ```
 
@@ -38,7 +38,7 @@ wget https://download.pytorch.org/models/densenet161-8d451a50.pth
 torch-model-archiver --model-name densenet161 --version 1.0 --model-file examples/image_classifier/densenet_161/model.py --serialized-file densenet161-8d451a50.pth --handler image_classifier --extra-files examples/image_classifier/index_to_name.json
 mkdir model_store
 mv densenet161.mar model_store/
-torchserve --start --model-store model_store --models densenet161=densenet161.mar
+torchserve --start --model-store model_store --models densenet161=densenet161.mar --disable-token-auth  --enable-model-api
 curl http://127.0.0.1:8080/predictions/densenet161 -T examples/image_classifier/kitten.jpg
 ```
 
@@ -74,6 +74,6 @@ traced_script_module.save("densenet161.pt")
 torch-model-archiver --model-name densenet161_ts --version 1.0  --serialized-file densenet161.pt --extra-files examples/image_classifier/index_to_name.json --handler image_classifier
 mkdir model_store
 mv densenet161_ts.mar model_store/
-torchserve --start --model-store model_store --models densenet161=densenet161_ts.mar
+torchserve --start --model-store model_store --models densenet161=densenet161_ts.mar --disable-token-auth  --enable-model-api
 curl http://127.0.0.1:8080/predictions/densenet161 -T examples/image_classifier/kitten.jpg
 ```

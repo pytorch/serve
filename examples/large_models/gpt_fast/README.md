@@ -115,7 +115,7 @@ mv gpt_fast model_store
 ### Step 4: Start torchserve
 
 ```
-torchserve --start --ncs --model-store model_store --models gpt_fast
+torchserve --start --ncs --model-store model_store --models gpt_fast --disable-token-auth  --enable-model-api
 ```
 
 ### Step 5: Run inference

@@ -79,6 +79,7 @@ public final class ConfigManager {
     private static final String TS_IPEX_ENABLE = "ipex_enable";
     private static final String TS_CPU_LAUNCHER_ENABLE = "cpu_launcher_enable";
     private static final String TS_CPU_LAUNCHER_ARGS = "cpu_launcher_args";
+    private static final String TS_IPEX_GPU_ENABLE = "ipex_gpu_enable";
 
     private static final String TS_ASYNC_LOGGING = "async_logging";
     private static final String TS_CORS_ALLOWED_ORIGIN = "cors_allowed_origin";
@@ -124,6 +125,7 @@ public final class ConfigManager {
     private static final String TS_HEADER_KEY_SEQUENCE_START = "ts_header_key_sequence_start";
     private static final String TS_HEADER_KEY_SEQUENCE_END = "ts_header_key_sequence_end";
     private static final String TS_DISABLE_TOKEN_AUTHORIZATION = "disable_token_authorization";
+    private static final String TS_ENABLE_MODEL_API = "enable_model_api";
 
     // Configuration which are not documented or enabled through environment variables
     private static final String USE_NATIVE_IO = "use_native_io";
@@ -134,7 +136,6 @@ public final class ConfigManager {
     private static final String MODEL_CONFIG = "models";
     private static final String VERSION = "version";
     private static final String SYSTEM_METRICS_CMD = "system_metrics_cmd";
-    private static final String MODEL_CONTROL_MODE = "model_api_enabled";
 
     // Configuration default values
     private static final String DEFAULT_TS_ALLOWED_URLS = "file://.*|http(s)?://.*";
@@ -257,7 +258,7 @@ public final class ConfigManager {
         }
 
         if (args.isModelEnabled().equals("true")) {
-            prop.setProperty(MODEL_CONTROL_MODE, args.isModelEnabled());
+            prop.setProperty(TS_ENABLE_MODEL_API, args.isModelEnabled());
         }
 
         String tokenDisabled = args.isTokenDisabled();
@@ -473,6 +474,10 @@ public final class ConfigManager {
         return getProperty(TS_CPU_LAUNCHER_ARGS, null);
     }
 
+    public boolean isIPEXGpuEnabled() {
+        return Boolean.parseBoolean(getProperty(TS_IPEX_GPU_ENABLE, "false"));
+    }
+
     public boolean getDisableTokenAuthorization() {
         return Boolean.parseBoolean(getProperty(TS_DISABLE_TOKEN_AUTHORIZATION, "false"));
     }
@@ -494,7 +499,7 @@ public final class ConfigManager {
     }
 
     public boolean getModelControlMode() {
-        return Boolean.parseBoolean(getProperty(MODEL_CONTROL_MODE, "false"));
+        return Boolean.parseBoolean(getProperty(TS_ENABLE_MODEL_API, "false"));
     }
 
     public String getMetricsConfigPath() {
@@ -902,6 +907,7 @@ public final class ConfigManager {
         // Append properties used by backend worker here
         config.put("TS_DECODE_INPUT_REQUEST", prop.getProperty(TS_DECODE_INPUT_REQUEST, "true"));
         config.put("TS_IPEX_ENABLE", prop.getProperty(TS_IPEX_ENABLE, "false"));
+        config.put("TS_IPEX_GPU_ENABLE", prop.getProperty(TS_IPEX_GPU_ENABLE, "false"));
         return config;
     }
 
@@ -922,6 +928,7 @@ public final class ConfigManager {
 
     private static int getAvailableGpu() {
         try {
+
             List<Integer> gpuIds = new ArrayList<>();
             String visibleCuda = System.getenv("CUDA_VISIBLE_DEVICES");
             if (visibleCuda != null && !visibleCuda.isEmpty()) {
@@ -953,22 +960,43 @@ public final class ConfigManager {
                 // No MPS devices detected
                 return 0;
             } else {
-                Process process =
-                        Runtime.getRuntime().exec("nvidia-smi --query-gpu=index --format=csv");
-                int ret = process.waitFor();
-                if (ret != 0) {
-                    return 0;
+
+                try {
+                    Process process =
+                            Runtime.getRuntime().exec("nvidia-smi --query-gpu=index --format=csv");
+                    int ret = process.waitFor();
+                    if (ret != 0) {
+                        return 0;
+                    }
+                    List<String> list =
+                            IOUtils.readLines(process.getInputStream(), StandardCharsets.UTF_8);
+                    if (list.isEmpty() || !"index".equals(list.get(0))) {
+                        throw new AssertionError("Unexpected nvidia-smi response.");
+                    }
+                    for (int i = 1; i < list.size(); i++) {
+                        gpuIds.add(Integer.parseInt(list.get(i)));
+                    }
+                } catch (IOException | InterruptedException e) {
+                    System.out.println("nvidia-smi not available or failed: " + e.getMessage());
                 }
-                List<String> list =
-                        IOUtils.readLines(process.getInputStream(), StandardCharsets.UTF_8);
-                if (list.isEmpty() || !"index".equals(list.get(0))) {
-                    throw new AssertionError("Unexpected nvidia-smi response.");
-                }
-                for (int i = 1; i < list.size(); i++) {
-                    gpuIds.add(Integer.parseInt(list.get(i)));
+                try {
+                    Process process = Runtime.getRuntime().exec("xpu-smi discovery --dump 1");
+                    int ret = process.waitFor();
+                    if (ret != 0) {
+                        return 0;
+                    }
+                    List<String> list =
+                            IOUtils.readLines(process.getInputStream(), StandardCharsets.UTF_8);
+                    if (list.isEmpty() || !list.get(0).contains("Device ID")) {
+                        throw new AssertionError("Unexpected xpu-smi response.");
+                    }
+                    for (int i = 1; i < list.size(); i++) {
+                        gpuIds.add(Integer.parseInt(list.get(i)));
+                    }
+                } catch (IOException | InterruptedException e) {
+                    System.out.println("xpu-smi not available or failed: " + e.getMessage());
                 }
             }
-
             return gpuIds.size();
         } catch (IOException | InterruptedException e) {
             return 0;
@@ -1151,8 +1179,8 @@ public final class ConfigManager {
             snapshotDisabled = cmd.hasOption("no-config-snapshot");
             workflowStore = cmd.getOptionValue("workflow-store");
             cppLogConfigFile = cmd.getOptionValue("cpp-log-config");
-            tokenAuthEnabled = cmd.hasOption("disable-token");
-            modelApiEnabled = cmd.hasOption("model-api-enabled");
+            tokenAuthEnabled = cmd.hasOption("disable-token-auth");
+            modelApiEnabled = cmd.hasOption("enable-model-api");
         }
 
         public static Options getOptions() {
@@ -1207,14 +1235,14 @@ public final class ConfigManager {
                             .build());
             options.addOption(
                     Option.builder("dt")
-                            .longOpt("disable-token")
+                            .longOpt("disable-token-auth")
                             .argName("TOKEN")
                             .desc("disables token authorization")
                             .build());
             options.addOption(
                     Option.builder("mapi")
-                            .longOpt("model-api-enabled")
-                            .argName("MODEL-API-ENABLED")
+                            .longOpt("enable-model-api")
+                            .argName("ENABLE-MODEL-API")
                             .desc("sets model apis to enabled")
                             .build());
             return options;

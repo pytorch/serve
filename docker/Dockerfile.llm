@@ -1,0 +1,9 @@
+FROM pytorch/torchserve-nightly:latest-gpu as server
+
+USER root
+
+RUN mkdir /data && chown -R model-server /data
+
+USER model-server
+
+ENTRYPOINT [ "python", "-m", "ts.llm_launcher", "--vllm_engine.download_dir", "/data" ]

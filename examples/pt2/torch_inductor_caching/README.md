@@ -58,7 +58,7 @@ torch-model-archiver --model-name densenet161 --version 1.0 --model-file ../../i
 
 #### Start TorchServe
 ```
-torchserve --start --ncs --model-store model_store --models densenet161.mar
+torchserve --start --ncs --model-store model_store --models densenet161.mar --disable-token-auth  --enable-model-api
 ```
 
 #### Run Inference
@@ -147,7 +147,7 @@ torch-model-archiver --model-name densenet161 --version 1.0 --model-file ../../i
 
 #### Start TorchServe
 ```
-torchserve --start --ncs --model-store model_store --models densenet161.mar
+torchserve --start --ncs --model-store model_store --models densenet161.mar --disable-token-auth  --enable-model-api
 ```
 
 #### Run Inference

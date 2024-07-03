@@ -61,7 +61,7 @@ Third, we move the MAR file to our model_store and start TorchServe.
 ```bash
 $ mkdir model_store
 $ mv resnet-18_mb.mar model_store/
-$ torchserve --start --ncs --model-store model_store --models resnet-18_mb.mar
+$ torchserve --start --ncs --model-store model_store --models resnet-18_mb.mar --disable-token-auth --enable-model-api
 ```
 
 Finally, we test the registered model with a request:
