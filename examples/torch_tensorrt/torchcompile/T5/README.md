@@ -49,10 +49,8 @@ torchserve --start --ncs --ts-config config.properties --model-store model_store
 curl -X POST http://127.0.0.1:8080/predictions/t5-translation -T sample_text.txt
 ```
 
-results in 
+results in
 
 ```
 Das Haus ist wunderbar
 ```
-
-

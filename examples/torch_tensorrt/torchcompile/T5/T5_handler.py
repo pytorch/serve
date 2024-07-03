@@ -1,13 +1,12 @@
-
 import logging
+
 import torch
-from torch.utils._pytree import tree_map
-import transformers
-from transformers import T5Tokenizer, T5ForConditionalGeneration
+from transformers import T5ForConditionalGeneration, T5Tokenizer
 
 from ts.torch_handler.base_handler import BaseHandler
 
 logger = logging.getLogger(__name__)
+
 
 class T5Handler(BaseHandler):
     """
@@ -85,7 +84,7 @@ class T5Handler(BaseHandler):
             inputs: A batched tensor of inputs: the batch of input ids and
                 attention masks.
         """
-        
+
         # Prefix for translation from English to German
         task_prefix = "translate English to German: "
         input_texts = [task_prefix + self.preprocess_requests(r) for r in requests]
@@ -115,9 +114,9 @@ class T5Handler(BaseHandler):
     @torch.inference_mode()
     def inference(self, input_batch):
         """
-        Generates the translated text for the given input 
+        Generates the translated text for the given input
         Args:
-            input_batch : A tensors: the batch of input ids and attention masks, as returned by the 
+            input_batch : A tensors: the batch of input ids and attention masks, as returned by the
             preprocess function.
         Returns:
             list: A list of strings with the translated text for each input text in the batch.
@@ -132,7 +131,7 @@ class T5Handler(BaseHandler):
 
         logger.debug("Generated text: %s", inferences)
         return inferences
-        
+
     def postprocess(self, inference_output):
         """Post Process Function converts the predicted response into Torchserve readable format.
         Args:
