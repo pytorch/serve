@@ -3,14 +3,12 @@ package org.pytorch.serve.wlm;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 import org.pytorch.serve.job.Job;
 import org.pytorch.serve.job.JobGroup;
 import org.pytorch.serve.util.messages.BaseModelRequest;
@@ -36,18 +34,14 @@ public class SequenceBatching extends BatchAggregator {
     // A list of jobGroupIds which are added into current batch. These jobGroupIds need to be added
     // back to eventJobGroupIds once their jobs are processed by a batch.
     protected LinkedList<String> currentJobGroupIds;
-    private AtomicInteger localCapacity;
+    private int localCapacity;
     private AtomicBoolean running = new AtomicBoolean(true);
-    // HashMap to track poll queue tasks in the executor queue
-    private ConcurrentHashMap<String, CompletableFuture<Void>> pollQueueTasks =
-            new ConcurrentHashMap<String, CompletableFuture<Void>>();
 
     public SequenceBatching(Model model) {
         super(model);
-        this.localCapacity =
-                new AtomicInteger(Math.max(1, model.getMaxNumSequence() / model.getMinWorkers()));
+        this.localCapacity = Math.max(1, model.getMaxNumSequence() / model.getMinWorkers());
         this.currentJobGroupIds = new LinkedList<>();
-        this.pollExecutors = Executors.newFixedThreadPool(localCapacity.get() + 1);
+        this.pollExecutors = Executors.newFixedThreadPool(model.getBatchSize() + 1);
         this.jobsQueue = new LinkedBlockingDeque<>();
         this.isPollJobGroup = new AtomicBoolean(false);
         this.eventJobGroupIds = new LinkedBlockingDeque<>();
@@ -76,7 +70,7 @@ public class SequenceBatching extends BatchAggregator {
 
             int quota =
                     Math.min(
-                            this.localCapacity.get(),
+                            this.localCapacity - jobsQueue.size(),
                             Math.max(
                                     1, model.getPendingJobGroups().size() / model.getMaxWorkers()));
             if (quota > 0 && model.getPendingJobGroups().size() > 0) {
@@ -123,12 +117,10 @@ public class SequenceBatching extends BatchAggregator {
         }
     }
 
-    private void cleanJobGroup(String jobGroupId) {
+    protected void cleanJobGroup(String jobGroupId) {
         logger.debug("Clean jobGroup: {}", jobGroupId);
         if (jobGroupId != null) {
             model.removeJobGroup(jobGroupId);
-            pollQueueTasks.remove(jobGroupId);
-            localCapacity.incrementAndGet();
         }
     }
 
@@ -185,7 +177,6 @@ public class SequenceBatching extends BatchAggregator {
 
     private void addJobGroup(String jobGroupId) {
         if (jobGroupId != null) {
-            localCapacity.decrementAndGet();
             eventJobGroupIds.add(jobGroupId);
         }
     }
@@ -202,39 +193,21 @@ public class SequenceBatching extends BatchAggregator {
                     String jobGroupId =
                             eventJobGroupIds.poll(model.getMaxBatchDelay(), TimeUnit.MILLISECONDS);
                     if (jobGroupId == null || jobGroupId.isEmpty()) {
-                        // Skip fetching new job groups when no capacity is available
-                        if (localCapacity.get() <= 0) {
-                            continue;
-                        }
-                        // Avoid duplicate poll tasks in the executor queue
-                        if (pollQueueTasks.containsKey("pollJobGroup")
-                                && !pollQueueTasks.get("pollJobGroup").isDone()) {
-                            continue;
-                        }
-                        CompletableFuture<Void> pollTask =
-                                CompletableFuture.runAsync(
-                                        () -> {
-                                            try {
-                                                pollJobGroup();
-                                            } catch (InterruptedException e) {
-                                                logger.error("Failed to poll a job group", e);
-                                            }
-                                        },
-                                        pollExecutors);
-                        pollQueueTasks.put("pollJobGroup", pollTask);
+                        CompletableFuture.runAsync(
+                                () -> {
+                                    try {
+                                        pollJobGroup();
+                                    } catch (InterruptedException e) {
+                                        logger.error("Failed to poll a job group", e);
+                                    }
+                                },
+                                pollExecutors);
                     } else {
-                        // Avoid duplicate poll tasks in the executor queue
-                        if (pollQueueTasks.containsKey(jobGroupId)
-                                && !pollQueueTasks.get(jobGroupId).isDone()) {
-                            continue;
-                        }
-                        CompletableFuture<Void> pollTask =
-                                CompletableFuture.runAsync(
-                                        () -> {
-                                            pollJobFromJobGroup(jobGroupId);
-                                        },
-                                        pollExecutors);
-                        pollQueueTasks.put(jobGroupId, pollTask);
+                        CompletableFuture.runAsync(
+                                () -> {
+                                    pollJobFromJobGroup(jobGroupId);
+                                },
+                                pollExecutors);
                     }
                 } catch (InterruptedException e) {
                     if (running.get()) {
@@ -248,10 +221,16 @@ public class SequenceBatching extends BatchAggregator {
             // Poll a job from a jobGroup
             JobGroup jobGroup = model.getJobGroup(jobGroupId);
             Job job = null;
+            AtomicBoolean isPolling = jobGroup.getPolling();
             if (!jobGroup.isFinished()) {
-                job = jobGroup.pollJob(model.getSequenceMaxIdleMSec());
+                if (!isPolling.getAndSet(true)) {
+                    job = jobGroup.pollJob(model.getSequenceMaxIdleMSec());
+                    isPolling.set(false);
+                } else {
+                    return;
+                }
             }
-            if (job == null || jobGroup.isFinished()) {
+            if (job == null) {
                 // JobGroup expired, clean it.
                 cleanJobGroup(jobGroupId);
                 // intent to add new job groups.

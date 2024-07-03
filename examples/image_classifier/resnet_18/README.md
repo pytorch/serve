@@ -7,7 +7,7 @@ wget https://download.pytorch.org/models/resnet18-f37072fd.pth
 torch-model-archiver --model-name resnet-18 --version 1.0 --model-file ./examples/image_classifier/resnet_18/model.py --serialized-file resnet18-f37072fd.pth --handler image_classifier --extra-files ./examples/image_classifier/index_to_name.json
 mkdir model_store
 mv resnet-18.mar model_store/
-torchserve --start --model-store model_store --models resnet-18=resnet-18.mar
+torchserve --start --model-store model_store --models resnet-18=resnet-18.mar --disable-token-auth  --enable-model-api
 curl http://127.0.0.1:8080/predictions/resnet-18 -T ./examples/image_classifier/kitten.jpg
 ```
 
@@ -37,7 +37,7 @@ wget https://download.pytorch.org/models/resnet18-f37072fd.pth
 torch-model-archiver --model-name resnet-18 --version 1.0 --model-file model.py --serialized-file resnet18-f37072fd.pth --handler image_classifier --extra-files ../index_to_name.json --config-file model-config.yaml
 mkdir model_store
 mv resnet-18.mar model_store/
-torchserve --start --model-store model_store --models resnet-18=resnet-18.mar
+torchserve --start --model-store model_store --models resnet-18=resnet-18.mar --disable-token-auth  --enable-model-api
 curl http://127.0.0.1:8080/predictions/resnet-18 -T ../kitten.jpg
 ```
 
@@ -84,7 +84,7 @@ produces the output
     torch-model-archiver --model-name resnet-18 --version 1.0  --serialized-file resnet-18.pt --extra-files ./serve/examples/image_classifier/index_to_name.json --handler image_classifier
     mkdir model_store
     mv resnet-18.mar model_store/
-    torchserve --start --model-store model_store --models resnet-18=resnet-18.mar
+    torchserve --start --model-store model_store --models resnet-18=resnet-18.mar --disable-token-auth  --enable-model-api
     curl http://127.0.0.1:8080/predictions/resnet-18 -T ./serve/examples/image_classifier/kitten.jpg
     ```
 

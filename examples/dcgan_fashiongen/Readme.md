@@ -1,6 +1,6 @@
 # GAN(Generative Adversarial Networks) models using TorchServe
 - In this example we will demonstrate how to serve a GAN model using TorchServe.
-- We have used a pretrained DCGAN model from [facebookresearch/pytorch_GAN_zoo](https://github.com/facebookresearch/pytorch_GAN_zoo)  
+- We have used a pretrained DCGAN model from [facebookresearch/pytorch_GAN_zoo](https://github.com/facebookresearch/pytorch_GAN_zoo)
   (Introduction to [DCGAN on FashionGen](https://pytorch.org/hub/facebookresearch_pytorch-gan-zoo_dcgan/))
 
 ### 1. Create a Torch Model Archive
@@ -13,13 +13,13 @@ The [create_mar.sh](create_mar.sh) script does the following :
 - Download a checkpoint file [DCGAN_fashionGen-1d67302.pth](https://dl.fbaipublicfiles.com/gan_zoo/DCGAN_fashionGen-1d67302.pth).  (`--serialized-file`)
 - Provide a custom handler - [dcgan_fashiongen_handler.py](dcgan_fashiongen_handler.py). (`--handler`)
 
-Alternatively, you can directly [download the dcgan_fashiongen.mar](https://torchserve.s3.amazonaws.com/mar_files/dcgan_fashiongen.mar)  
+Alternatively, you can directly [download the dcgan_fashiongen.mar](https://torchserve.s3.amazonaws.com/mar_files/dcgan_fashiongen.mar)
 
 ### 2. Start TorchServe and Register Model
 ```
 mkdir modelstore
 mv dcgan_fashiongen.mar modelstore/
-torchserve --start --ncs --model-store ./modelstore --models dcgan_fashiongen.mar
+torchserve --start --ncs --model-store ./modelstore --models dcgan_fashiongen.mar --disable-token-auth --enable-model-api
 ```
 
 ### 3. Generate Images
@@ -34,19 +34,19 @@ Invoke the predictions API and pass following payload(JSON)
    ```
    curl -X POST -d '{"number_of_images":1}' -H "Content-Type: application/json" http://localhost:8080/predictions/dcgan_fashiongen -o img1.jpg
    ```
-   > Result image should be similar to the one below -  
+   > Result image should be similar to the one below -
    > ![Sample Image 1](sample-output/img1.jpg)
 
 2. **Create '64' images of 'Men' wearing 'Shirts' in 'id_gridfs_1' pose**
    ```
    curl -X POST -d '{"number_of_images":64, "input_gender":"Men", "input_category":"SHIRTS", "input_pose":"id_gridfs_1"}' -H "Content-Type: application/json" http://localhost:8080/predictions/dcgan_fashiongen -o img2.jpg
    ```
-   > Result image should be similar to the one below -  
+   > Result image should be similar to the one below -
    > ![Sample Image 2](sample-output/img2.jpg)
 
 3. **Create '32' images of 'Women' wearing 'Dresses' in 'id_gridfs_3' pose**
    ```
    curl -X POST -d '{"number_of_images":32, "input_gender":"Women", "input_category":"DRESSES", "input_pose":"id_gridfs_3"}' -H "Content-Type: application/json" http://localhost:8080/predictions/dcgan_fashiongen -o img3.jpg
    ```
-   > Result image should be similar to the one below -  
+   > Result image should be similar to the one below -
    > ![Sample Image 3](sample-output/img3.jpg)

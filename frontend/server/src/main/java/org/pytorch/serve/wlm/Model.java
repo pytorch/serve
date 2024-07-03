@@ -311,9 +311,10 @@ public class Model {
                     logger.info("added jobGroup for sequenceId:{}", job.getGroupId());
                 } else {
                     logger.warn(
-                            "Skip the requestId: {} for sequence: {} due to exceeding maxNumSequence: {}",
+                            "Skip the requestId: {} for sequence: {} due to jobGroups size: {} exceeding maxNumSequence: {}",
                             job.getJobId(),
                             job.getGroupId(),
+                            jobGroups.size(),
                             maxNumSequence);
                     return false;
                 }

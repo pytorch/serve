@@ -184,10 +184,10 @@ def start() -> None:
             cmd.append("-ncs")
 
         if args.token_auth:
-            cmd.append("--disable-token")
+            cmd.append("--disable-token-auth")
 
         if args.model_mode:
-            cmd.append("--model-api-enabled")
+            cmd.append("--enable-model-api")
 
         if args.models:
             cmd.append("-m")

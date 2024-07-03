@@ -20,31 +20,31 @@ Run the commands given in following steps from the parent directory of the root 
  * Step - 2: Train a MNIST digit recognition model using https://github.com/pytorch/examples/blob/master/mnist/main.py and save the state dict of model. We have added the pre-created [state dict](mnist_cnn.pt) of this model.
  * Step - 3: Write a custom handler to run the inference on your model. In this example, we have added a [custom_handler](mnist_handler.py) which runs the inference on the input grayscale images using the above model and recognizes the digit in the image.
  * Step - 4: Create a torch model archive using the torch-model-archiver utility to archive the above files.
- 
+
     ```bash
     torch-model-archiver --model-name mnist --version 1.0 --model-file examples/image_classifier/mnist/mnist.py --serialized-file examples/image_classifier/mnist/mnist_cnn.pt --handler  examples/image_classifier/mnist/mnist_handler.py
     ```
-   
+
   Step 5 is optional. Perform this step to use pytorch profiler
-       
+
   * Step - 5: To enable pytorch profiler, set the following environment variable.
-  
+
         ```
         export ENABLE_TORCH_PROFILER=true
         ```
-   
+
  * Step - 6: Register the model on TorchServe using the above model archive file and run digit recognition inference
-   
+
     ```bash
     mkdir model_store
     mv mnist.mar model_store/
-    torchserve --start --model-store model_store --models mnist=mnist.mar --ts-config config.properties
+    torchserve --start --model-store model_store --models mnist=mnist.mar --ts-config config.properties --disable-token-auth --enable-model-api
     curl http://127.0.0.1:8080/predictions/mnist -T examples/image_classifier/mnist/test_data/0.png
     ```
 
 # Profiling inference output
 
-The profiler information is printed in the torchserve logs / console 
+The profiler information is printed in the torchserve logs / console
 
 ![Profiler Stats](screenshots/mnist_profiler_stats.png)
 
@@ -52,7 +52,7 @@ By default the pytorch profiler trace files are generated under "/tmp/pytorch_pr
 
 The path can be overridden by setting `on_trace_ready` parameter in `profiler_args` - [Example here](../../../test/pytest/profiler_utils/resnet_profiler_override.py)
 
-And the trace files can be loaded in tensorboard using torch-tb-profiler. Check the following link for more information - https://github.com/pytorch/kineto/tree/main/tb_plugin 
+And the trace files can be loaded in tensorboard using torch-tb-profiler. Check the following link for more information - https://github.com/pytorch/kineto/tree/main/tb_plugin
 
 Install torch-tb-profiler and run the following command to view the results in UI
 
