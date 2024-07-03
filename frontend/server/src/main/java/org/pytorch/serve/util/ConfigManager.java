@@ -126,6 +126,7 @@ public final class ConfigManager {
     private static final String TS_HEADER_KEY_SEQUENCE_END = "ts_header_key_sequence_end";
     private static final String TS_DISABLE_TOKEN_AUTHORIZATION = "disable_token_authorization";
     private static final String TS_ENABLE_MODEL_API = "enable_model_api";
+    private static final String TS_SYSTEM_METRICS_CMD = "system_metrics_cmd";
 
     // Configuration which are not documented or enabled through environment variables
     private static final String USE_NATIVE_IO = "use_native_io";
@@ -135,7 +136,6 @@ public final class ConfigManager {
     private static final String MODEL_SNAPSHOT = "model_snapshot";
     private static final String MODEL_CONFIG = "models";
     private static final String VERSION = "version";
-    private static final String SYSTEM_METRICS_CMD = "system_metrics_cmd";
 
     // Configuration default values
     private static final String DEFAULT_TS_ALLOWED_URLS = "file://.*|http(s)?://.*";
@@ -650,7 +650,7 @@ public final class ConfigManager {
     }
 
     public String getSystemMetricsCmd() {
-        return prop.getProperty(SYSTEM_METRICS_CMD, "");
+        return prop.getProperty(TS_SYSTEM_METRICS_CMD, "");
     }
 
     public SslContext getSslContext() throws IOException, GeneralSecurityException {
