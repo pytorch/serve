@@ -114,7 +114,7 @@ To register the model on TorchServe using the above model archive file, we run t
 ```
 mkdir model_store
 mv BERTSeqClassification.mar model_store/
-torchserve --start --model-store model_store --models my_tc=BERTSeqClassification.mar --disable-token --ncs
+torchserve --start --model-store model_store --models my_tc=BERTSeqClassification.mar --disable-token --ncs --disable-token-auth  --enable-model-api
 
 ```
 
@@ -164,7 +164,7 @@ torch-model-archiver --model-name BERTTokenClassification --version 1.0 --serial
 ```
 mkdir model_store
 mv BERTTokenClassification.mar model_store
-torchserve --start --model-store model_store --models my_tc=BERTTokenClassification.mar --disable-token --ncs
+torchserve --start --model-store model_store --models my_tc=BERTTokenClassification.mar --disable-token --ncs --disable-token-auth  --enable-model-api
 ```
 
 ### Run an inference
@@ -208,7 +208,7 @@ torch-model-archiver --model-name BERTQA --version 1.0 --serialized-file Transfo
 ```
 mkdir model_store
 mv BERTQA.mar model_store
-torchserve --start --model-store model_store --models my_tc=BERTQA.mar --disable-token --ncs
+torchserve --start --model-store model_store --models my_tc=BERTQA.mar --disable-token --ncs --disable-token-auth  --enable-model-api
 ```
 ### Run an inference
 To run an inference: `curl -X POST http://127.0.0.1:8080/predictions/my_tc -T QA_artifacts/sample_text_captum_input.txt`
@@ -255,7 +255,7 @@ To register the model on TorchServe using the above model archive file, we run t
 ```
 mkdir model_store
 mv Textgeneration.mar model_store/
-torchserve --start --model-store model_store --models my_tc=Textgeneration.mar --disable-token --ncs
+torchserve --start --model-store model_store --models my_tc=Textgeneration.mar --disable-token --ncs --disable-token-auth  --enable-model-api
 ```
 
 ### Run an inference
@@ -272,7 +272,7 @@ For batch inference the main difference is that you need set the batch size whil
     ```
     mkdir model_store
     mv BERTSeqClassification.mar model_store/
-    torchserve --start --model-store model_store --disable-token --ncs
+    torchserve --start --model-store model_store --disable-token --ncs --disable-token-auth  --enable-model-api
 
     curl -X POST "localhost:8081/models?model_name=BERTSeqClassification&url=BERTSeqClassification.mar&batch_size=4&max_batch_delay=5000&initial_workers=3&synchronous=true"
     ```
@@ -297,7 +297,7 @@ For batch inference the main difference is that you need set the batch size whil
      ```
     mkdir model_store
     mv BERTSeqClassification.mar model_store/
-    torchserve --start --model-store model_store --ts-config config.properties --models BERTSeqClassification= BERTSeqClassification.mar
+    torchserve --start --model-store model_store --ts-config config.properties --models BERTSeqClassification= BERTSeqClassification.mar --disable-token-auth  --enable-model-api
 
     ```
 Now to run the batch inference following command can be used:
@@ -377,7 +377,7 @@ To register the model on TorchServe using the above model archive file, we run t
 ```
 mkdir model_store
 mv Textgeneration.mar model_store/
-torchserve --start --model-store model_store --disable-token
+torchserve --start --model-store model_store --disable-token --disable-token-auth  --enable-model-api
 curl -X POST "localhost:8081/models?model_name=Textgeneration&url=Textgeneration.mar&batch_size=1&max_batch_delay=5000&initial_workers=1&synchronous=true"
 ```
 

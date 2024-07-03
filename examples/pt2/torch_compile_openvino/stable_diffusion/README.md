@@ -70,7 +70,7 @@ mv diffusion_fast model_store
 Start the TorchServe server using the following command:
 
 ```bash
-torchserve --start --ts-config config.properties --model-store model_store --models diffusion_fast
+torchserve --start --ts-config config.properties --model-store model_store --models diffusion_fast --disable-token-auth  --enable-model-api
 ```
 
 ### 4. Run inference

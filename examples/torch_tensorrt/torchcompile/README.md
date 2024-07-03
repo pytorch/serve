@@ -35,7 +35,7 @@ torch-model-archiver --model-name res50-trt --handler image_classifier --version
 
 #### Start TorchServe
 ```
-torchserve --start --model-store model_store --models res50-trt=res50-trt.mar --disable-token --ncs
+torchserve --start --model-store model_store --models res50-trt=res50-trt.mar --disable-token --ncs --disable-token-auth  --enable-model-api
 ```
 
 #### Run Inference
@@ -82,4 +82,3 @@ If we disable `torch.compile` and use PyTorch eager, we see the following
 
 We see that `torch.compile` with `tensorrt` backend reduces model inference from `5.56 ms` to `1.6 ms`.
 Please note that `torch.compile` is a JIT compiler and it takes a few iterations (1-3) to warmup before you see the speedup
-

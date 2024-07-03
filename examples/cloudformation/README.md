@@ -176,7 +176,7 @@ conda init bash
 # IMPORTANT: You may need to close and restart your shell after running 'conda init'.
 conda activate torchserve
 torchserve --stop
-torchserve --start --model-store ./model_store --ts-config /etc/torchserve/config.properties
+torchserve --start --model-store ./model_store --ts-config /etc/torchserve/config.properties --disable-token-auth  --enable-model-api
 ```
 
 * To terminate the instance and delete the stack you can run `aws cloudformation delete-stack --stack-name <stack-name>`

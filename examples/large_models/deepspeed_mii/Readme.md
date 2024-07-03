@@ -62,7 +62,7 @@ Increase `max_response_size` for image response.
 Refer: https://github.com/pytorch/serve/blob/master/docs/configuration.md#other-properties
 
 ```bash
-torchserve --start --ts-config config.properties
+torchserve --start --ts-config config.properties --disable-token-auth  --enable-model-api
 ```
 
 ### Step 5: Run inference

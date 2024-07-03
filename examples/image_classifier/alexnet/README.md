@@ -7,7 +7,7 @@ wget https://download.pytorch.org/models/alexnet-owt-7be5be79.pth
 torch-model-archiver --model-name alexnet --version 1.0 --model-file ./serve/examples/image_classifier/alexnet/model.py --serialized-file alexnet-owt-7be5be79.pth --handler image_classifier --extra-files ./serve/examples/image_classifier/index_to_name.json
 mkdir model_store
 mv alexnet.mar model_store/
-torchserve --start --model-store model_store --models alexnet=alexnet.mar
+torchserve --start --model-store model_store --models alexnet=alexnet.mar --disable-token-auth  --enable-model-api
 curl http://127.0.0.1:8080/predictions/alexnet -T ./serve/examples/image_classifier/kitten.jpg
 ```
 
@@ -35,14 +35,14 @@ curl http://127.0.0.1:8080/predictions/alexnet -T ./serve/examples/image_classif
    example_input = torch.rand(1, 3, 224, 224)
    traced_script_module = torch.jit.trace(model, example_input)
    traced_script_module.save("alexnet.pt")
-   ```  
- 
+   ```
+
 * Use following commands to register alexnet torchscript model on TorchServe and run image prediction
 
     ```bash
     torch-model-archiver --model-name alexnet --version 1.0  --serialized-file alexnet.pt --extra-files ./serve/examples/image_classifier/index_to_name.json --handler image_classifier
     mkdir model_store
     mv alexnet.mar model_store/
-    torchserve --start --model-store model_store --models alexnet=alexnet.mar
+    torchserve --start --model-store model_store --models alexnet=alexnet.mar --disable-token-auth  --enable-model-api
     curl http://127.0.0.1:8080/predictions/alexnet -T ./serve/examples/image_classifier/kitten.jpg
     ```
