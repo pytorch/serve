@@ -111,15 +111,15 @@ def scale_sd_workers(workers):
         res = requests.put(url)
         server_state_container.caption(res.text)
 
-def update_is_xl(is_xl):
-    if st.session_state.registered[MODEL_NAME_SD]:
-        is_xl = st.session_state[is_xl]
-        url = (
-            f"http://localhost:8081/models/{MODEL_NAME_SD}?is_xl="
-            f"{str(is_xl)}&synchronous=true"
-        )
-        res = requests.put(url)
-        server_state_container.caption(res.text)
+# def update_is_xl(is_xl):
+#     if st.session_state.registered[MODEL_NAME_SD]:
+#         is_xl = st.session_state[is_xl]
+        # url = (
+        #     f"http://localhost:/models/{MODEL_NAME_SD}?="
+        #     f"{str(is_xl)}&synchronous=true"
+        # )
+        # res = requests.put(url)
+        # server_state_container.caption(res.text)
 
 
 def set_batch_size(batch_size):
@@ -176,13 +176,13 @@ with st.sidebar:
     st.button(f"Register {MODEL_SD}", on_click=register_model, args=(MODEL_NAME_SD,))
 
     st.subheader("SD Model parameters")
-    is_xl = st.checkbox(
-        "SDXL model", 
-        value=False, 
-        key="SDXL model",
-        on_change=update_is_xl,
-        args=("SDXL model",),
-    )
+    # is_xl = st.checkbox(
+    #     "SDXL model", 
+    #     value=False, 
+    #     key="SDXL model",
+    #     on_change=update_is_xl,
+    #     args=("SDXL model",),
+    # )
 
     workers_sd = st.sidebar.slider(
         "Num Workers SD",

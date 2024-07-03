@@ -151,8 +151,8 @@ def sd_response_postprocess(response):
 
 def preprocess_llm_input(input_prompt, images_num = 2):
     return f"Generate {images_num} prompts similar to \"{input_prompt}\". Add \";\" symbol between the prompts. \
-             Generated string of prompts should be included in \"[\"\"]\" brackets. \
-             Return only prompts as plain text without numeration or notes."
+            Generated string of prompts should be included in \"[\"\"]\" brackets. \
+            Return only prompts as plain text without numeration or notes."
 
 
 def get_prompts_string(input_string):
@@ -223,14 +223,19 @@ def display_images_in_grid(images, captions):
 
 
 if st.button("Generate Images"):
+    print('00000000000000000', images_num)
     with st.spinner('Generating images...'):
-        prompt_input = preprocess_llm_input(prompt, images_num)
+        llm_res = prompt
 
-        start_time = time.time()
-        llm_res = generate_llm_model_response(prompt_input)
-        llm_inference_time = time.time() - start_time
+        if images_num > 1:
+            prompt_input = preprocess_llm_input(prompt, images_num)
 
-        llm_res = postprocess_llm_response(llm_res, prompt)
+            start_time = time.time()
+            llm_res = generate_llm_model_response(prompt_input)
+            llm_inference_time = time.time() - start_time
+
+            llm_res = postprocess_llm_response(llm_res, prompt)
+        
         st.session_state.gen_captions[:0] = llm_res
 
         start_time = time.time()
@@ -240,9 +245,9 @@ if st.button("Generate Images"):
         images = sd_response_postprocess(sd_res)
         st.session_state.gen_images[:0] = images
 
-        st.write(f"LLM inference time: {llm_inference_time:.2f} seconds")
+        if images_num > 1:
+            st.write(f"LLM inference time: {llm_inference_time:.2f} seconds")
+
         st.write(f"SD inference time: {sd_inference_time:.2f} seconds")
 
-
-display_images_in_grid(st.session_state.gen_images,
-                       st.session_state.gen_captions)
+        display_images_in_grid(st.session_state.gen_images, st.session_state.gen_captions)
