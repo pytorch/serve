@@ -49,6 +49,8 @@ then
   BASE_IMAGE="pytorch/torchserve-nightly:latest-cpu"
 fi
 
+BASE_IMAGE="udaij12/torchserve-kserve-test:udai-test"
+
 if [ "$USE_CUSTOM_TAG" = true ]
 then
   DOCKER_TAG=${CUSTOM_TAG}

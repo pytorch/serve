@@ -10,7 +10,7 @@
 #       For reference:
 #           https://docs.docker.com/develop/develop-images/build_enhancements
 
-ARG BASE_IMAGE=pytorch/torchserve:latest
+ARG BASE_IMAGE=udaij12/torchserve-test:udai-test3
 FROM ${BASE_IMAGE}
 
 USER root
