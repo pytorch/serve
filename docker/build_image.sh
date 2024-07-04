@@ -43,6 +43,7 @@ do
           if test $
           then
             BRANCH_NAME="$2"
+            LOCAL_CHANGES=false
             shift
           else
             echo "Error! branch_name not provided"

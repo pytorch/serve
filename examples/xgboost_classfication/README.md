@@ -29,7 +29,7 @@ torch-model-archiver --model-name xgb_iris --version 1.0 --serialized-file iris_
 ## Start TorchServe
 
 ```
-torchserve --start --ncs --model-store model_store --models xgb_iris=xgb_iris.mar
+torchserve --start --ncs --model-store model_store --models xgb_iris=xgb_iris.mar --disable-token-auth  --enable-model-api
 ```
 
 ## Inference request

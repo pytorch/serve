@@ -1,3 +1,6 @@
+# ❗ANNOUNCEMENT: Security Changes❗
+TorchServe now enforces token authorization enabled and model API control disabled by default. These security features are intended to address the concern of unauthorized API calls and to prevent potential malicious code from being introduced to the model server. Refer the following documentation for more information: [Token Authorization](https://github.com/pytorch/serve/blob/master/docs/token_authorization_api.md), [Model API control](https://github.com/pytorch/serve/blob/master/docs/model_api_control.md)
+
 # TorchServe
 
 TorchServe is a performant, flexible and easy to use tool for serving PyTorch eager mode and torchscripted models.
@@ -32,6 +35,7 @@ TorchServe is a performant, flexible and easy to use tool for serving PyTorch ea
 
 ## Examples
 
+* [Deploying LLMs](./llm_deployment.md) - How to easily deploy LLMs using TorchServe
 * [HuggingFace Language Model](https://github.com/pytorch/serve/blob/master/examples/Huggingface_Transformers/Transformer_handler_generalized.py) - This handler takes an input sentence and can return sequence classifications, token classifications or Q&A answers
 * [Multi Modal Framework](https://github.com/pytorch/serve/blob/master/examples/MMF-activity-recognition/handler.py) - Build and deploy a classifier that combines text, audio and video input data
 * [Dual Translation Workflow](https://github.com/pytorch/serve/tree/master/examples/Workflows/nmt_transformers_pipeline) -

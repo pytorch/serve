@@ -21,7 +21,7 @@ python ../../utils/Download_model.py --model_path model --model_name mistralai/M
 Add the downloaded path to "model_path:" in `model-config.yaml` and run the following.
 
 ```bash
-torch-model-archiver --model-name mistral --version 1.0 --handler ../base_vllm_handler.py --config-file model-config.yaml -r ../requirements.txt --archive-format no-archive
+torch-model-archiver --model-name mistral --version 1.0 --handler vllm_handler --config-file model-config.yaml --archive-format no-archive
 mv model mistral
 ```
 
@@ -35,7 +35,7 @@ mv mistral model_store
 ### Step 4: Start torchserve
 
 ```bash
-torchserve --start --ncs --ts-config ../config.properties --model-store model_store --models mistral
+torchserve --start --ncs --ts-config ../config.properties --model-store model_store --models mistral --disable-token-auth --enable-model-api
 ```
 
 ### Step 5: Run inference

@@ -33,8 +33,10 @@ import org.slf4j.LoggerFactory;
 public class AsyncWorkerThread extends WorkerThread {
     // protected ConcurrentHashMap requestsInBackend;
     protected static final Logger logger = LoggerFactory.getLogger(AsyncWorkerThread.class);
+    protected static final long MODEL_LOAD_TIMEOUT = 10L;
 
     protected boolean loadingFinished;
+    protected CountDownLatch latch;
 
     public AsyncWorkerThread(
             ConfigManager configManager,
@@ -75,6 +77,17 @@ public class AsyncWorkerThread extends WorkerThread {
                 try {
                     backendChannel.get(0).writeAndFlush(req).sync();
                     logger.debug("Successfully flushed req");
+
+                    if (loadingFinished == false) {
+                        latch = new CountDownLatch(1);
+                        if (!latch.await(MODEL_LOAD_TIMEOUT, TimeUnit.MINUTES)) {
+                            throw new WorkerInitializationException(
+                                    "Worker did not load the model within"
+                                            + MODEL_LOAD_TIMEOUT
+                                            + " mins");
+                        }
+                    }
+
                 } catch (InterruptedException e) {
                     logger.error("Failed to send request to backend", e);
                 }
@@ -240,6 +253,7 @@ public class AsyncWorkerThread extends WorkerThread {
                         setState(WorkerState.WORKER_MODEL_LOADED, HttpURLConnection.HTTP_OK);
                         backoffIdx = 0;
                         loadingFinished = true;
+                        latch.countDown();
                     } else {
                         setState(WorkerState.WORKER_ERROR, msg.getCode());
                     }
