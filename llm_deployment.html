@@ -436,7 +436,7 @@ If you want to access gated models like the Meta-Llama3 model you need to provid
 </pre></div>
 </div>
 <p>You can then go ahead and launch a TorchServe instance serving your selected model:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>-ti<span class="w"> </span>--gpus<span class="w"> </span>all<span class="w"> </span>-e<span class="w"> </span><span class="nv">HUGGING_FACE_HUB_TOKEN</span><span class="o">=</span><span class="nv">$token</span><span class="w"> </span>-p<span class="w"> </span><span class="m">8080</span>:8080<span class="w"> </span>-v<span class="w"> </span>data:/data<span class="w"> </span>ts/llm<span class="w"> </span>--model_id<span class="w"> </span>meta-llama/Meta-Llama-3-8B-Instruct<span class="w"> </span>--disable_token
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>-ti<span class="w"> </span>--shm-size<span class="w"> </span>1g<span class="w"> </span>--gpus<span class="w"> </span>all<span class="w"> </span>-e<span class="w"> </span><span class="nv">HUGGING_FACE_HUB_TOKEN</span><span class="o">=</span><span class="nv">$token</span><span class="w"> </span>-p<span class="w"> </span><span class="m">8080</span>:8080<span class="w"> </span>-v<span class="w"> </span>data:/data<span class="w"> </span>ts/llm<span class="w"> </span>--model_id<span class="w"> </span>meta-llama/Meta-Llama-3-8B-Instruct<span class="w"> </span>--disable_token_auth
 </pre></div>
 </div>
 <p>To change the model you just need to exchange the identifier given to the <code class="docutils literal notranslate"><span class="pre">--model_id</span></code> parameter.
@@ -452,7 +452,7 @@ E.g. for setting the sampling temperature to 0 we can do:</p>
 <p>TorchServe’s LLM launcher scripts offers some customization options as well.
 To rename the model endpoint from <code class="docutils literal notranslate"><span class="pre">predictions/model</span></code> to something else you can add <code class="docutils literal notranslate"><span class="pre">--model_name</span> <span class="pre">&lt;SOME_NAME&gt;</span></code> to the <code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">run</span></code> command.</p>
 <p>The launcher script can also be used outside a docker container by calling this after installing TorchServe following the <a class="reference external" href="https://github.com/pytorch/serve/blob/feature/single_cmd_llm_deployment/README.md#-quick-start-with-torchserve">installation instruction</a>.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>ts.llm_launcher<span class="w"> </span>--disable_token
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>ts.llm_launcher<span class="w"> </span>--disable_token_auth
 </pre></div>
 </div>
 <p>Please note that the launcher script as well as the docker command will automatically run on all available GPUs so make sure to restrict the visible number of device by setting CUDA_VISIBLE_DEVICES.</p>
