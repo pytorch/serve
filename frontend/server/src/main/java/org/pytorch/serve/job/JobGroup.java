@@ -12,12 +12,14 @@ public class JobGroup {
     LinkedBlockingDeque<Job> jobs;
     int maxJobQueueSize;
     AtomicBoolean finished;
+    AtomicBoolean polling;
 
     public JobGroup(String groupId, int maxJobQueueSize) {
         this.groupId = groupId;
         this.maxJobQueueSize = maxJobQueueSize;
         this.jobs = new LinkedBlockingDeque<>(maxJobQueueSize);
         this.finished = new AtomicBoolean(false);
+        this.polling = new AtomicBoolean(false);
     }
 
     public boolean appendJob(Job job) {
@@ -46,5 +48,9 @@ public class JobGroup {
 
     public boolean isFinished() {
         return this.finished.get();
+    }
+
+    public AtomicBoolean getPolling() {
+        return this.polling;
     }
 }

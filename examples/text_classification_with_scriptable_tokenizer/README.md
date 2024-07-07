@@ -57,7 +57,7 @@ python script_tokenizer_and_model.py model.pt model_jit.pt
     ```bash
     mkdir model_store
     mv scriptable_tokenizer.mar model_store/
-    torchserve --start --model-store model_store --models my_tc=scriptable_tokenizer.mar
+    torchserve --start --model-store model_store --models my_tc=scriptable_tokenizer.mar --disable-token-auth  --enable-model-api
     curl http://127.0.0.1:8080/predictions/my_tc -T sample_text.txt
     ```
  * Expected Output:

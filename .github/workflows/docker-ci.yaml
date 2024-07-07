@@ -29,7 +29,7 @@ jobs:
         working-directory: docker
         run: |
           IMAGE_TAG=test-image-${{ matrix.python-version }}
-          ./build_image.sh -py "${{ matrix.python-version }}" -t "${IMAGE_TAG}" -s -r
+          ./build_image.sh -py "${{ matrix.python-version }}" -t "${IMAGE_TAG}" -b ${GITHUB_HEAD_REF} -s
           echo "IMAGE_TAG=${IMAGE_TAG}" >> $GITHUB_OUTPUT
 
       - name: Container Healthcheck

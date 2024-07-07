@@ -45,7 +45,7 @@ mv model model_store/llama3-70b-instruct
 Update config.properties and start torchserve
 
 ```bash
-torchserve --start --ncs --ts-config config.properties --model-store model_store --models llama3-70b-instruct
+torchserve --start --ncs --ts-config config.properties --model-store model_store --models llama3-70b-instruct --disable-token-auth  --enable-model-api
 ```
 
 ### Step 4: Run inference
