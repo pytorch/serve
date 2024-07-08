@@ -6,7 +6,7 @@ spec:
   predictor:
     pytorch:
       storageUri: gs://kfserving-examples/models/torchserve/image_classifier/v1
-      image: udaij12/torchserv:udai-test1 #pytorch/torchserve-kfs-nightly:latest-cpu
+      image: udaij12/torchserv:udai-test2 #pytorch/torchserve-kfs-nightly:latest-cpu
       resources:
         limits:
           cpu: "1"
