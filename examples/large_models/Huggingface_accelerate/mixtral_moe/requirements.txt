@@ -1,4 +1,0 @@
-transformers>=4.39.3
-optimum>=1.18.0
-accelerate>=0.28.0
-bitsandbytes>=0.43.0
