@@ -3,11 +3,8 @@ name: KServe CPU Nightly Tests
 on:
   workflow_dispatch:
   # runs everyday  at 5:15am
-  # schedule:
-  #   - cron:  '15 5 * * *'
-  push:
-    branches:
-      - kserve_fix
+  schedule:
+    - cron:  '15 5 * * *'
 
 jobs:
   kserve-cpu-tests:
