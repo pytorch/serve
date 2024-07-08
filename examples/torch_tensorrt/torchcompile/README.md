@@ -35,7 +35,7 @@ torch-model-archiver --model-name res50-trt --handler image_classifier --version
 
 #### Start TorchServe
 ```
-torchserve --start --model-store model_store --models res50-trt=res50-trt.mar --disable-token --ncs --disable-token-auth  --enable-model-api
+torchserve --start --model-store model_store --models res50-trt=res50-trt.mar --ncs --disable-token-auth --enable-model-api
 ```
 
 #### Run Inference
