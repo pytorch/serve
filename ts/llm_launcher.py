@@ -99,7 +99,7 @@ def main(args):
                 model_store=args.model_store,
                 no_config_snapshots=True,
                 models=args.model_name,
-                disable_token=args.disable_token,
+                disable_token=args.disable_token_auth,
             )
 
             pause()
@@ -134,7 +134,7 @@ if __name__ == "__main__":
     )
 
     parser.add_argument(
-        "--disable_token-auth",
+        "--disable_token_auth",
         action="store_true",
         help="Disable token authentication",
     )
