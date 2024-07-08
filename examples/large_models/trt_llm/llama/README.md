@@ -10,6 +10,7 @@ This will downgrade the versions of PyTorch & Triton but this doesn't cause any 
 
 ```
 pip install tensorrt_llm==0.10.0 --extra-index-url https://pypi.nvidia.com
+pip install tensorrt-cu12==10.1.0
 python -c "import tensorrt_llm"
 ```
 shows
@@ -80,6 +81,5 @@ torchserve --start --ncs --model-store model_store --models llama3-8b --disable-
 
 ## Run Inference
 ```
-pip install orjson
-python3 ../../utils/test_llm_streaming_response.py -o 50 -t 2 -n 4 -m llama3-8b --prompt-text "@prompt.json" --prompt-json
+python ../../utils/test_llm_streaming_response.py -o 50 -t 2 -n 4 -m llama3-8b --prompt-text "@prompt.json" --prompt-json
 ```

@@ -1,0 +1,11 @@
+# TorchServe frontend parameters
+minWorkers: 1
+maxWorkers: 1
+responseTimeout: 1200
+deviceType: "gpu"
+
+handler:
+    model_name: "mistralai/Mixtral-8x7B-v0.1"
+    model_path: "model/models--mistralai--Mixtral-8x7B-v0.1/snapshots/985aa055896a8f943d4a9f2572e6ea1341823841"
+    max_length: 50
+    manual_seed: 40

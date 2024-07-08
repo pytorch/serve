@@ -96,30 +96,23 @@ class TRTLLMHandler(BaseHandler):
                 streaming=True,
                 return_dict=True,
             )
-        torch.cuda.synchronize()
         return outputs, input_ids_batch
 
     async def postprocess(self, inference_outputs, input_batch, context):
-        result = []
         for inference_output in inference_outputs:
             output_ids = inference_output["output_ids"]
             sequence_lengths = inference_output["sequence_lengths"]
 
-            batch_size, num_beams, _ = output_ids.size()
-            input_lengths = [x.size(0) for x in input_batch]
+            batch_size, _, _ = output_ids.size()
             for batch_idx in range(batch_size):
-                for beam in range(num_beams):
-                    output_begin = input_lengths[batch_idx]
-                    output_end = sequence_lengths[batch_idx][beam]
-                    outputs = output_ids[batch_idx][beam][
-                        output_end - 1 : output_end
-                    ].tolist()
-                    output_text = self.tokenizer.decode(outputs)
-                    send_intermediate_predict_response(
-                        [json.dumps({"text": output_text})],
-                        context.request_ids,
-                        "Result",
-                        200,
-                        context,
-                    )
+                output_end = sequence_lengths[batch_idx][0]
+                outputs = output_ids[batch_idx][0][output_end - 1 : output_end].tolist()
+                output_text = self.tokenizer.decode(outputs)
+                send_intermediate_predict_response(
+                    [json.dumps({"text": output_text})],
+                    context.request_ids,
+                    "Result",
+                    200,
+                    context,
+                )
         return [""] * len(input_batch)
