@@ -66,7 +66,7 @@ Refer to [torchserve docker](docker/README.md) for details.
 #export token=<HUGGINGFACE_HUB_TOKEN>
 docker build . -f docker/Dockerfile.llm -t ts/llm
 
-docker run --rm -ti --gpus all -e HUGGING_FACE_HUB_TOKEN=$token -p 8080:8080 -v data:/data ts/llm --model_id meta-llama/Meta-Llama-3-8B-Instruct --disable_token
+docker run --rm -ti --shm-size 1g --gpus all -e HUGGING_FACE_HUB_TOKEN=$token -p 8080:8080 -v data:/data ts/llm --model_id meta-llama/Meta-Llama-3-8B-Instruct --disable_token_auth
 
 curl -X POST -d '{"prompt":"Hello, my name is", "max_new_tokens": 50}' --header "Content-Type: application/json" "http://localhost:8080/predictions/model"
 ```
