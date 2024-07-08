@@ -74,7 +74,7 @@ PT_HPU_LAZY_MODE=0 torch-model-archiver --model-name resnet-50 --version 1.0 --m
 
 Start the TorchServe server using the following command:
 ```bash
-PT_HPU_LAZY_MODE=0 torchserve --start --ncs --disable-token --model-store model_store --models resnet-50.mar --disable-token-auth  --enable-model-api
+PT_HPU_LAZY_MODE=0 torchserve --start --ncs --model-store model_store --models resnet-50.mar --disable-token-auth --enable-model-api
 ```
 `--disable-token` - this is an option that disables token authorization. This option is used here only for example purposes. Please refer to the torchserve [documentation](https://github.com/pytorch/serve/blob/master/docs/token_authorization_api.md), which describes the process of serving the model using tokens.
 
