@@ -76,7 +76,7 @@ mv llama-3-8b-engine model_store/llama3-8b/.
 
 ## Start TorchServe
 ```
-torchserve --start --ncs --model-store model_store --models llama3-8b --disable-token
+torchserve --start --ncs --model-store model_store --models llama3-8b --disable-token-auth
 ```
 
 ## Run Inference
