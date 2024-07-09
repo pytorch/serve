@@ -13,7 +13,9 @@ import io.netty.util.CharsetUtil;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import io.netty.util.internal.logging.Slf4JLoggerFactory;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
 import java.util.concurrent.CountDownLatch;
 import org.apache.commons.io.FileUtils;
@@ -33,6 +35,10 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
+
 public class WorkflowTest2 {
 
      static {
@@ -41,6 +47,7 @@ public class WorkflowTest2 {
 
     private ConfigManager configManager;
     private ModelServer server;
+    private static final String CURR_DIR = System.getProperty("user.dir");
 
     @BeforeClass
     public void beforeClass()
@@ -76,7 +83,8 @@ public class WorkflowTest2 {
         Channel channel = TestUtils.getManagementChannel(configManager);
         TestUtils.setResult(null);
         TestUtils.setLatch(new CountDownLatch(1));
-        TestUtils.registerWorkflow(channel, url, workflowName, false);
+        String managementKey = readManagementKey();
+        TestUtils.registerWorkflowToken(channel, url, workflowName, false, managementKey);
         TestUtils.getLatch().await();
 
         StatusResponse resp = JsonUtils.GSON.fromJson(TestUtils.getResult(), StatusResponse.class);
@@ -84,5 +92,25 @@ public class WorkflowTest2 {
                 resp.getStatus(),
                 "Workflow " + workflowName + " has been registered and scaled successfully.");
     }
+
+    public static String readManagementKey() {
+        String jsonFilePath = Paths.get(CURR_DIR, "key_file.json").toString();
+        try (FileReader reader = new FileReader(jsonFilePath)) {
+            JsonElement jsonElement = JsonParser.parseReader(reader);
+            if (jsonElement.isJsonObject()) {
+                JsonObject jsonData = jsonElement.getAsJsonObject();
+                return getJsonValue(jsonData, "management", "key");
+            }
+        } catch (IOException | JsonSyntaxException e) {
+            e.printStackTrace();
+        }
+        return "Error reading file";
+    }
+
+    private static String getJsonValue(JsonObject jsonObject, String primaryKey, String secondaryKey) {
+        JsonObject primaryObject = jsonObject.has(primaryKey) ? jsonObject.getAsJsonObject(primaryKey) : null;
+        return primaryObject != null && primaryObject.has(secondaryKey) ? primaryObject.get(secondaryKey).getAsString() : "NOT_PRESENT";
+    }
+
 
 }

@@ -226,6 +226,24 @@ public final class TestUtils {
         }
     }
 
+    public static void registerWorkflowToken(
+            Channel channel, String url, String workflowName, boolean syncChannel, String authToken)
+            throws InterruptedException {
+        String requestURL = "/workflows?url=" + url + "&workflow_name=" + workflowName;
+
+        HttpRequest req =
+                new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, requestURL);
+
+        req.headers().set(HttpHeaders.Names.AUTHORIZATION, "Bearer: " + authToken);
+
+        if (syncChannel) {
+            channel.writeAndFlush(req).sync();
+            channel.closeFuture().sync();
+        } else {
+            channel.writeAndFlush(req);
+        }
+    }
+
     public static void scaleModel(
             Channel channel, String modelName, String version, int minWorker, boolean sync) {
         String requestURL = "/models/" + modelName;
