@@ -6,7 +6,7 @@ This example shows how to run TorchServe inference with [Torch-TensorRT](https:/
 
 - Verified to be working with `torch-tensorrt==2.3.0`
 
-Change directory to examples directory `cd examples/torch_tensorrt/torchcompile`
+Change directory to examples directory `cd examples/torch_tensorrt/resnet50/torchcompile`
 
 ### torch.compile config
 
