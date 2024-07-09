@@ -44,7 +44,7 @@ class T5Handler(BaseHandler):
         # read configs for the mode, model_name, etc. from the handler config
         model_path = self.model_yaml_config.get("handler", {}).get("model_path", None)
         if not model_path:
-            logger.warning("Missing model path")
+            logger.error("Missing model path")
 
         self.tokenizer = T5Tokenizer.from_pretrained(model_path)
         self.model = T5ForConditionalGeneration.from_pretrained(model_path)
