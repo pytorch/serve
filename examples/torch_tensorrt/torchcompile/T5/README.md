@@ -40,7 +40,7 @@ mv model model_store/t5-translation/.
 ### Start TorchServe
 
 ```
-torchserve --start --ncs --ts-config config.properties --model-store model_store --models t5-translation --disable-token
+torchserve --start --ncs --ts-config config.properties --model-store model_store --models t5-translation --disable-token-auth
 ```
 
 ### Run Inference
