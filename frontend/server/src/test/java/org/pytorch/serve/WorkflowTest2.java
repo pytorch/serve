@@ -37,6 +37,7 @@ import org.testng.annotations.Test;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 
 public class WorkflowTest2 {
@@ -96,7 +97,8 @@ public class WorkflowTest2 {
     public static String readManagementKey() {
         String jsonFilePath = Paths.get(CURR_DIR, "key_file.json").toString();
         try (FileReader reader = new FileReader(jsonFilePath)) {
-            JsonElement jsonElement = JsonParser.parseReader(reader);
+            JsonParser parser = new JsonParser(); // Ensure this line is correct for your version of Gson
+            JsonElement jsonElement = parser.parse(reader);
             if (jsonElement.isJsonObject()) {
                 JsonObject jsonData = jsonElement.getAsJsonObject();
                 return getJsonValue(jsonData, "management", "key");
