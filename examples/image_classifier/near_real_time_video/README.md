@@ -41,7 +41,7 @@ Run the commands given in following steps from the parent directory of the root 
 ```bash
 python examples/image_classifier/near_real_time_video/create_mar_file.py
 
-torchserve --start --model-store model_store --models resnet-18=resnet-18.mar --ts-config examples/image_classifier/near_real_time_video/config.properties
+torchserve --start --model-store model_store --models resnet-18=resnet-18.mar --ts-config examples/image_classifier/near_real_time_video/config.properties --disable-token-auth  --enable-model-api
 
 python examples/image_classifier/near_real_time_video/request.py
 ```
@@ -95,7 +95,7 @@ Run the commands given in following steps from the parent directory of the root 
 ```bash
 python examples/image_classifier/near_real_time_video/create_mar_file.py --client-batching
 
-torchserve --start --model-store model_store --models resnet-18=resnet-18.mar
+torchserve --start --model-store model_store --models resnet-18=resnet-18.mar --disable-token-auth  --enable-model-api
 
 python examples/image_classifier/near_real_time_video/request.py --client-batching
 ```

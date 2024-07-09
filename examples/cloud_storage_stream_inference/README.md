@@ -65,7 +65,7 @@ torch-model-archiver --model-name BERTSeqClassification --version 1.0 --serializ
 ```
 mkdir model_store
 mv BERTSeqClassification.mar model_store/
-torchserve --start --model-store model_store --models my_tc=BERTSeqClassification.mar --ts-config=config.properties --ncs
+torchserve --start --model-store model_store --models my_tc=BERTSeqClassification.mar --ts-config=config.properties --ncs --disable-token-auth  --enable-model-api
 ```
 
 15) To check if the model is running

@@ -47,7 +47,7 @@ def start_torchserve(*args, **kwargs):
     if "gen_mar" in kwargs:
         del kwargs["gen_mar"]
     kwargs.update({"disable_token": kwargs.get("disable_token", True)})
-    kwargs.update({"model_api_enabled": kwargs.get("model_api_enabled", True)})
+    kwargs.update({"enable_model_api": kwargs.get("enable_model_api", True)})
     return start(*args, **kwargs)
 
 

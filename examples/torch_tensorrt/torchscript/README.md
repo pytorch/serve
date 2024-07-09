@@ -30,7 +30,7 @@ mv res50-trt-fp16.mar model_store/.
 
 #### Start TorchServe
 ```
-torchserve --start --model-store model_store --models res50-trt-fp16=res50-trt-fp16.mar --ncs
+torchserve --start --model-store model_store --models res50-trt-fp16=res50-trt-fp16.mar --ncs --disable-token-auth  --enable-model-api
 ```
 
 #### Run Inference
