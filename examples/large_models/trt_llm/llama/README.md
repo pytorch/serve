@@ -5,6 +5,7 @@
 ## Pre-requisites
 
 TRT-LLM requires Python 3.10
+This example is tested with CUDA 12.1
 Once TorchServe is installed, install TensorRT-LLM using the following.
 This will downgrade the versions of PyTorch & Triton but this doesn't cause any issue.
 
