@@ -33,6 +33,7 @@ jobs:
             GITHUB_BRANCH=${GITHUB_HEAD_REF}
           fi
           echo "GITHUB_BRANCH=${GITHUB_BRANCH}" >> $GITHUB_ENV
+          echo ${GITHUB_BRANCH}
 
       - name: Build Image for container test
         id: image_build
