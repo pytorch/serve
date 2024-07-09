@@ -1256,6 +1256,7 @@ parallelLevel
 parallelType
 parallelization
 pptp
+TRT
 torchcompile
 HPU
 hpu
