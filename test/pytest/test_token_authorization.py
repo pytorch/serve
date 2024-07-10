@@ -194,7 +194,7 @@ def test_workflow(setup_torchserve):
     key = read_key_file("management")
     header = {"Authorization": f"Bearer {key}"}
 
-    response = requests.get(
+    response = requests.post(
         url="http://localhost:8081/workflows?url=smtest.war&workflow_name=smtest",
         headers=header,
     )
@@ -205,15 +205,6 @@ def test_workflow(setup_torchserve):
 def test_workflow_inference(setup_torchserve):
     key = read_key_file("inference")
     header = {"Authorization": f"Bearer {key}"}
-
-    mankey = read_key_file("management")
-    test = {"Authorization": f"Bearer {mankey}"}
-
-    response = requests.post(
-        url="http://localhost:8081/workflows?url=smtest.war&workflow_name=smtest",
-        headers=test,
-    )
-    print("Response Text:", response.text)
 
     response = requests.post(
         url="http://localhost:8080/wfpredict/smtest",
