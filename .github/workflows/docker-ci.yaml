@@ -27,6 +27,7 @@ jobs:
       - name: Determine the branch name
         id: branch-name
         run: |
+          git fetch --all
           if [[ "${GITHUB_REF}" == refs/heads/* ]]; then
             GITHUB_BRANCH=${GITHUB_REF#refs/heads/}
           elif [[ "${GITHUB_REF}" == refs/pull/*/merge ]]; then
