@@ -12,6 +12,9 @@ ROOT_DIR = os.path.join(tempfile.gettempdir(), "workspace")
 CURR_DIR = os.path.dirname(os.path.abspath(__file__))
 data_file_zero = os.path.join(CURR_DIR, "test_data/0.png")
 config_file = os.path.join(CURR_DIR, "../resources/config_token.properties")
+config_file_workflow = os.path.join(
+    CURR_DIR, "../resources/config_token_workflow.properties"
+)
 
 
 # Parse json file and return key
@@ -36,7 +39,11 @@ def setup_torchserve():
 
     Path(test_utils.MODEL_STORE).mkdir(parents=True, exist_ok=True)
 
-    test_utils.start_torchserve(no_config_snapshots=True, disable_token=False)
+    test_utils.start_torchserve(
+        snapshot_file=config_file_workflow,
+        no_config_snapshots=True,
+        disable_token=False,
+    )
 
     key = read_key_file("management")
     header = {"Authorization": f"Bearer {key}"}
@@ -179,6 +186,41 @@ def test_token_management_api(setup_torchserve):
     )
 
     assert management_key != read_key_file("management"), "Key file not updated"
+    assert response.status_code == 200, "Token check failed"
+
+
+# Test to register workflow using managment token
+def test_workflow(setup_torchserve):
+    key = read_key_file("management")
+    header = {"Authorization": f"Bearer {key}"}
+
+    response = requests.get(
+        url="http://localhost:8081/workflows?url=smtest.war&workflow_name=smtest",
+        headers=header,
+    )
+
+    assert response.status_code == 200, "Token check failed"
+
+
+def test_workflow_inference(setup_torchserve):
+    key = read_key_file("inference")
+    header = {"Authorization": f"Bearer {key}"}
+
+    mankey = read_key_file("management")
+    test = {"Authorization": f"Bearer {mankey}"}
+
+    response = requests.post(
+        url="http://localhost:8081/workflows?url=smtest.war&workflow_name=smtest",
+        headers=test,
+    )
+    print("Response Text:", response.text)
+
+    response = requests.post(
+        url="http://localhost:8080/wfpredict/smtest",
+        files={"data": open(data_file_zero, "rb")},
+        headers=header,
+    )
+
     assert response.status_code == 200, "Token check failed"
 
 
