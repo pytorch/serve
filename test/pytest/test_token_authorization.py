@@ -202,6 +202,7 @@ def test_workflow(setup_torchserve):
     assert response.status_code == 200, "Token check failed"
 
 
+# Test workflow inference using inference token
 def test_workflow_inference(setup_torchserve):
     key = read_key_file("inference")
     header = {"Authorization": f"Bearer {key}"}
