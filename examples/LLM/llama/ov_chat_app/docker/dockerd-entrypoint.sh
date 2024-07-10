@@ -55,12 +55,12 @@ quantize_model() {
     if [ ! -f "$LLAMA_Q4_MODEL" ]; then
         tmp_model_name=$(echo "$MODEL_DIR_LLM" | sed 's/---/--/g')
         directory_path=/home/model-server/model-store/$MODEL_DIR_LLM/model/models--$tmp_model_name/snapshots/
-        HF_MODEL_SNAPSHOT=$(find $directory_path -type d -mindepth 1)
+        HF_MODEL_SNAPSHOT=$(find $directory_path -mindepth 1 -type d)
 
         cd build
 
         echo "Convert the model to ggml FP16 format"
-        python convert-hf-to-gguf.py $HF_MODEL_SNAPSHOT --outfile ggml-model-f16.gguf
+        python convert_hf_to_gguf.py $HF_MODEL_SNAPSHOT --outfile ggml-model-f16.gguf
         
         echo "Quantize the model to 4-bits (using q4_0 method)"
         ./llama-quantize ggml-model-f16.gguf $LLAMA_Q4_MODEL q4_0

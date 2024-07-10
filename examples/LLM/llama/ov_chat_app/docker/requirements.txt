@@ -4,3 +4,4 @@ streamlit>=1.26.0
 requests_futures
 asyncio
 aiohttp
+accelerate

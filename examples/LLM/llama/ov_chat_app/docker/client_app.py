@@ -190,18 +190,6 @@ def generate_llm_model_response(input_prompt):
 
 #     return prompts
 
-
-# if st.button("Generate Images"):
-#     with st.spinner('Generating images...'):
-#         start_time = time.time()
-#         res = generate_sd_response_v1(prompt)
-#         inference_time = time.time() - start_time
-
-#         images = sd_response_postprocess(res)
-
-#         st.write(f"Inference time: {inference_time:.2f} seconds")
-#         st.image(images, caption=["Generated Image"] * len(images), use_column_width=True
-
 if 'gen_images' not in st.session_state:
     st.session_state.gen_images = []
 if 'gen_captions' not in st.session_state:
@@ -233,11 +221,13 @@ if st.button("Generate Images"):
         st.session_state.gen_captions[:0] = llm_res
 
         start_time = time.time()
+        # sd_res = generate_sd_response_v1(llm_res)
         sd_res = asyncio.run(generate_sd_response_v2(llm_res))
         sd_inference_time = time.time() - start_time
 
         images = sd_response_postprocess(sd_res)
         st.session_state.gen_images[:0] = images
+
 
         # if images_num > 1:
         #     st.write(f"LLM inference time: {llm_inference_time:.2f} seconds")
@@ -247,5 +237,5 @@ if st.button("Generate Images"):
         display_images_in_grid(st.session_state.gen_images, st.session_state.gen_captions)
 
         total_time = time.time() - total_start_time
-        st.write(f"Total time: {sd_inference_time:.2f} seconds")
-        print('TOTAL APP TIME: ', total_time)
+        st.write(f"Total time: {total_time:.2f} seconds")
+        print(f'TOTAL APP TIME: {total_time:.2f}')
