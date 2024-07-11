@@ -1,0 +1,3 @@
+{"prompt": "How is the climate in San Francisco?",
+ "temperature":0.5,
+ "max_new_tokens": 200}

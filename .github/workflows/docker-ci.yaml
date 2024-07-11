@@ -24,12 +24,22 @@ jobs:
         working-directory: docker
         run: ./test_build_image_tagging.sh ${{ matrix.python-version }}
 
+      - name: Determine the branch name
+        id: branch-name
+        run: |
+          if [[ "${GITHUB_REF}" == refs/heads/* ]]; then
+            GITHUB_BRANCH=${GITHUB_REF#refs/heads/}
+          elif [[ "${GITHUB_REF}" == refs/pull/*/merge ]]; then
+            GITHUB_BRANCH=${GITHUB_HEAD_REF}
+          fi
+          echo "GITHUB_BRANCH=${GITHUB_BRANCH}" >> $GITHUB_OUTPUT
+
       - name: Build Image for container test
         id: image_build
         working-directory: docker
         run: |
           IMAGE_TAG=test-image-${{ matrix.python-version }}
-          ./build_image.sh -py "${{ matrix.python-version }}" -t "${IMAGE_TAG}" -b ${GITHUB_HEAD_REF} -s
+          ./build_image.sh -py "${{ matrix.python-version }}" -t "${IMAGE_TAG}" -b ${{ steps.branch-name.outputs.GITHUB_BRANCH }} -s
           echo "IMAGE_TAG=${IMAGE_TAG}" >> $GITHUB_OUTPUT
 
       - name: Container Healthcheck
