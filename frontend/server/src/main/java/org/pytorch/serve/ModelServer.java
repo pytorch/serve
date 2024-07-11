@@ -465,7 +465,7 @@ public class ModelServer {
                         .addService(
                                 ServerInterceptors.intercept(
                                         GRPCServiceFactory.getgRPCService(connectorType),
-                                        new GRPCInterceptor()));
+                                        new GRPCInterceptor(connectorType)));
 
         if (connectorType == ConnectorType.INFERENCE_CONNECTOR
                 && ConfigManager.getInstance().isOpenInferenceProtocol()) {
@@ -474,7 +474,7 @@ public class ModelServer {
                             ServerInterceptors.intercept(
                                     GRPCServiceFactory.getgRPCService(
                                             ConnectorType.OPEN_INFERENCE_CONNECTOR),
-                                    new GRPCInterceptor()));
+                                    new GRPCInterceptor(connectorType)));
         }
 
         if (configManager.isGRPCSSLEnabled()) {
