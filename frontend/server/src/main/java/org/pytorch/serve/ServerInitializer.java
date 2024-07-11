@@ -19,7 +19,7 @@ import org.pytorch.serve.http.api.rest.PrometheusMetricsRequestHandler;
 import org.pytorch.serve.servingsdk.impl.PluginsManager;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.ConnectorType;
-import org.pytorch.serve.util.TokenType;
+import org.pytorch.serve.util.TokenAuthorization.TokenType;
 import org.pytorch.serve.workflow.api.http.WorkflowInferenceRequestHandler;
 import org.pytorch.serve.workflow.api.http.WorkflowMgmtRequestHandler;
 import org.slf4j.Logger;
