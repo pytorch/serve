@@ -15,6 +15,7 @@ config_file = os.path.join(CURR_DIR, "../resources/config_token.properties")
 config_file_workflow = os.path.join(
     CURR_DIR, "../resources/config_token_workflow.properties"
 )
+config_file_https = os.path.join(CURR_DIR, "../resources/config_https.properties")
 
 
 # Parse json file and return key
@@ -87,6 +88,39 @@ def setup_torchserve_expiration():
     )
     response = requests.post(
         "http://localhost:8081/models", params=params, headers=header
+    )
+    file_content = Path(f"{CURR_DIR}/key_file.json").read_text()
+    print(file_content)
+
+    yield "test"
+
+    test_utils.stop_torchserve()
+
+
+@pytest.fixture(scope="module")
+def setup_torchserve_https():
+    MODEL_STORE = os.path.join(ROOT_DIR, "model_store/")
+    PLUGIN_STORE = os.path.join(ROOT_DIR, "plugins-path")
+
+    Path(test_utils.MODEL_STORE).mkdir(parents=True, exist_ok=True)
+
+    test_utils.start_torchserve(
+        snapshot_file=config_file_https,
+        no_config_snapshots=True,
+        disable_token=False,
+    )
+
+    key = read_key_file("management")
+    header = {"Authorization": f"Bearer {key}"}
+
+    params = (
+        ("model_name", "mnist"),
+        ("url", "mnist.mar"),
+        ("initial_workers", "1"),
+        ("synchronous", "true"),
+    )
+    response = requests.post(
+        "https://localhost:8081/models", params=params, headers=header, verify=False
     )
     file_content = Path(f"{CURR_DIR}/key_file.json").read_text()
     print(file_content)
@@ -345,3 +379,40 @@ def test_priority_env_cmd(monkeypatch):
     test_utils.stop_torchserve()
 
     assert response.status_code == 400, "Token check failed"
+
+
+# Test https management api
+def test_management_api_https(setup_torchserve_https):
+    key = read_key_file("management")
+    header = {"Authorization": f"Bearer {key}"}
+    response = requests.get(
+        "https://localhost:8081/models/mnist", headers=header, verify=False
+    )
+
+    assert response.status_code == 200, "Token check failed"
+
+
+# Test https describe model API with incorrect token and no token
+def test_managament_api_with_incorrect_token_https(setup_torchserve_https):
+    # Using random key
+    header = {"Authorization": "Bearer abcd1234"}
+    response = requests.get(
+        f"https://localhost:8081/models/mnist", headers=header, verify=False
+    )
+
+    assert response.status_code == 400, "Token check failed"
+
+
+# Test https inference API with token enabled
+def test_inference_api_with_token_https(setup_torchserve_https):
+    key = read_key_file("inference")
+    header = {"Authorization": f"Bearer {key}"}
+
+    response = requests.post(
+        url="https://localhost:8080/predictions/mnist",
+        files={"data": open(data_file_zero, "rb")},
+        headers=header,
+        verify=False,
+    )
+
+    assert response.status_code == 200, "Token check failed"
