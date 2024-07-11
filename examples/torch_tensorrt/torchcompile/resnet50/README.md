@@ -6,7 +6,7 @@ This example shows how to run TorchServe inference with [Torch-TensorRT](https:/
 
 - Verified to be working with `torch-tensorrt==2.3.0`
 
-Change directory to examples directory `cd examples/torch_tensorrt/torchcompile`
+Change directory to examples directory `cd examples/torch_tensorrt/resnet50/torchcompile`
 
 ### torch.compile config
 
@@ -35,7 +35,7 @@ torch-model-archiver --model-name res50-trt --handler image_classifier --version
 
 #### Start TorchServe
 ```
-torchserve --start --model-store model_store --models res50-trt=res50-trt.mar --disable-token --ncs --disable-token-auth  --enable-model-api
+torchserve --start --model-store model_store --models res50-trt=res50-trt.mar --ncs --disable-token-auth --enable-model-api
 ```
 
 #### Run Inference

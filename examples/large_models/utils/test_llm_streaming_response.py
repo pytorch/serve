@@ -1,9 +1,9 @@
 import argparse
+import json
 import random
 import threading
 from queue import Queue
 
-import orjson
 import requests
 
 max_prompt_random_tokens = 20
@@ -27,7 +27,7 @@ class Predictor(threading.Thread):
             combined_text = ""
             for chunk in response.iter_content(chunk_size=None):
                 if chunk:
-                    data = orjson.loads(chunk)
+                    data = json.loads(chunk)
                     if self.args.demo_streaming:
                         print(data["text"], end="", flush=True)
                     else:
@@ -41,7 +41,7 @@ class Predictor(threading.Thread):
     def _format_payload(self):
         prompt_input = _load_curl_like_data(self.args.prompt_text)
         if self.args.prompt_json:
-            prompt_input = orjson.loads(prompt_input)
+            prompt_input = json.loads(prompt_input)
             prompt = prompt_input.get("prompt", None)
             assert prompt is not None
             prompt_list = prompt.split(" ")
