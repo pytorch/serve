@@ -202,6 +202,15 @@ def test_workflow(setup_torchserve):
     assert response.status_code == 200, "Token check failed"
 
 
+# Test workflow register without token so it fails
+def test_workflow_fail(setup_torchserve):
+    response = requests.post(
+        url="http://localhost:8081/workflows?url=smtest.war&workflow_name=smtest"
+    )
+
+    assert response.status_code == 400, "Token check failed"
+
+
 # Test workflow inference using inference token
 def test_workflow_inference(setup_torchserve):
     key = read_key_file("inference")
@@ -214,6 +223,16 @@ def test_workflow_inference(setup_torchserve):
     )
 
     assert response.status_code == 200, "Token check failed"
+
+
+# Test workflow inference without token so it fails
+def test_workflow_inference_fail(setup_torchserve):
+    response = requests.post(
+        url="http://localhost:8080/wfpredict/smtest",
+        files={"data": open(data_file_zero, "rb")},
+    )
+
+    assert response.status_code == 400, "Token check failed"
 
 
 # Test expiration time and regenerating new management and inference keys
