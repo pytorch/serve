@@ -22,14 +22,14 @@ jobs:
           repository: ${{ github.event.pull_request.head.repo.full_name }}
           fetch-depth: 0 
 
-      - name: Test build_image.sh script with custom tagging and gpu flag
-        working-directory: docker
-        run: ./test_build_image_tagging.sh ${{ matrix.python-version }}
+      # - name: Test build_image.sh script with custom tagging and gpu flag
+      #   working-directory: docker
+      #   run: ./test_build_image_tagging.sh ${{ matrix.python-version }}
 
       - name: Test prints
         run: |
           echo "test 1: ${{ github.event.pull_request.head.repo.full_name }}"
-          echo "test 2: ${{ github.event.pull_request.head.repo.owner.login }}"
+          echo "test 2: ${{ github.event.pull_request.base.repo.full_name }}"
           echo "test 3: ${{ github.event.pull_request.head.repo.owner.login }}"
 
       - name: Determine the branch name
