@@ -8,6 +8,7 @@ import test_utils
 
 ROOT_DIR = os.path.join(tempfile.gettempdir(), "workspace")
 REPO_ROOT = os.path.dirname(os.path.abspath(__file__))
+config_file_https = os.path.join(REPO_ROOT, "../resources/config_https.properties")
 
 expected_output = {
     "code": 405,
@@ -38,6 +39,35 @@ def setup_torchserve_api_enabled():
     Path(test_utils.MODEL_STORE).mkdir(parents=True, exist_ok=True)
 
     test_utils.start_torchserve(no_config_snapshots=True, models="mnist=mnist.mar")
+
+    yield "test"
+
+    test_utils.stop_torchserve()
+
+
+@pytest.fixture(scope="module")
+def setup_torchserve_https():
+    MODEL_STORE = os.path.join(ROOT_DIR, "model_store/")
+    PLUGIN_STORE = os.path.join(ROOT_DIR, "plugins-path")
+
+    Path(test_utils.MODEL_STORE).mkdir(parents=True, exist_ok=True)
+
+    test_utils.start_torchserve(
+        snapshot_file=config_file_https,
+        models="mnist=mnist.mar",
+        no_config_snapshots=True,
+        enable_model_api=False,
+    )
+
+    params = (
+        ("model_name", "mnist"),
+        ("url", "mnist.mar"),
+        ("initial_workers", "1"),
+        ("synchronous", "true"),
+    )
+    response = requests.post(
+        "https://localhost:8081/models", params=params, verify=False
+    )
 
     yield "test"
 
@@ -158,3 +188,36 @@ def test_priority_env(monkeypatch):
     test_utils.stop_torchserve()
 
     assert response.status_code == 200, "model control check failed"
+
+
+# Test register a model after startup - Model control mode: default
+def test_register_model_failing_https(setup_torchserve_https):
+    response = requests.get("https://localhost:8081/models/mnist", verify=False)
+    assert response.status_code == 200, "management check failed"
+    params = (
+        ("model_name", "resnet-18"),
+        ("url", "resnet-18.mar"),
+        ("initial_workers", "1"),
+        ("synchronous", "true"),
+    )
+    response = requests.post(
+        "https://localhost:8081/models", params=params, verify=False
+    )
+
+    assert response.status_code == 405, "model control check failed"
+    assert response.json() == expected_output, "unexpected exception"
+    response = requests.get("https://localhost:8081/models/resnet-18", verify=False)
+    assert response.status_code == 404, "management check failed"
+
+
+# Test deleting a model after startup - Model control mode: default
+def test_delete_model_failing_https(setup_torchserve_https):
+    response = requests.get("https://localhost:8081/models/mnist", verify=False)
+    assert response.status_code == 200, "management check failed"
+
+    response = requests.delete("https://localhost:8081/models/mnist", verify=False)
+
+    assert response.status_code == 405, "model control check failed"
+    assert response.json() == expected_output, "unexpected exception"
+    response = requests.get("https://localhost:8081/models/mnist", verify=False)
+    assert response.status_code == 200, "management check failed"
