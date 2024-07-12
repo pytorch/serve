@@ -46,7 +46,7 @@ public class GRPCInterceptor implements ServerInterceptor {
             if (!headers.containsKey(tokenAuthHeaderKey)
                     || !checkTokenAuthorization(headers.get(tokenAuthHeaderKey))) {
                 call.close(
-                        Status.CANCELLED.withDescription(
+                        Status.PERMISSION_DENIED.withDescription(
                                 "Token Authorization failed. Token either incorrect, expired, or not provided correctly"),
                         new Metadata());
                 return new ServerCall.Listener<ReqT>() {};

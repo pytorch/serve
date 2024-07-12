@@ -498,7 +498,7 @@ public final class ConfigManager {
         return getIntProperty(TS_NUMBER_OF_GPU, 0);
     }
 
-    public boolean getModelControlMode() {
+    public boolean isModelApiEnabled() {
         return Boolean.parseBoolean(getProperty(TS_ENABLE_MODEL_API, "false"));
     }
 
@@ -832,7 +832,7 @@ public final class ConfigManager {
                 + "\nSystem metrics command: "
                 + (getSystemMetricsCmd().isEmpty() ? "default" : getSystemMetricsCmd())
                 + "\nModel API enabled: "
-                + (getModelControlMode() ? "true" : "false");
+                + (isModelApiEnabled() ? "true" : "false");
     }
 
     public boolean useNativeIo() {
