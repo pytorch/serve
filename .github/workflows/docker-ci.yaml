@@ -26,6 +26,12 @@ jobs:
         working-directory: docker
         run: ./test_build_image_tagging.sh ${{ matrix.python-version }}
 
+      - name: Test prints
+        run: |
+        echo "test 1: ${{ github.event.pull_request.head.repo.full_name }}"
+        echo "test 2: ${{ github.event.pull_request.head.repo.owner.login }}"
+        echo "test 3: ${{ github.event.pull_request.head.repo.owner.login }}"
+
       - name: Determine the branch name
         id: branch-name
         run: |
