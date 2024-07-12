@@ -231,11 +231,10 @@ if st.button("Generate Images"):
 
         # if images_num > 1:
         #     st.write(f"LLM inference time: {llm_inference_time:.2f} seconds")
-
-        st.write(f"SD inference time: {sd_inference_time:.2f} seconds")
+        # st.write(f"SD inference time: {sd_inference_time:.2f} seconds")
 
         display_images_in_grid(st.session_state.gen_images, st.session_state.gen_captions)
 
         total_time = time.time() - total_start_time
-        st.write(f"Total time: {total_time:.2f} seconds")
+        # st.write(f"Total time: {total_time:.2f} seconds")
         print(f'TOTAL APP TIME: {total_time:.2f}')
