@@ -3,6 +3,7 @@ import os
 
 import inference_pb2
 import management_pb2
+import pytest
 import test_gRPC_utils
 import test_utils
 
@@ -75,11 +76,8 @@ def test_grpc_api_with_token_auth():
 
     # register model with incorrect authorization token
     metadata = (("protocol", "gRPC"), ("authorization", f"Bearer incorrect-token"))
-    try:
+    with pytest.raises(Exception, match=r".*Token Authorization failed.*"):
         register(management_stub, "densenet161", metadata)
-        assert False, "Model registration expected to fail but didn't"
-    except Exception:
-        pass
 
     # register model with correct authorization token
     metadata = (("protocol", "gRPC"), ("authorization", f"Bearer {management_key}"))
@@ -87,16 +85,13 @@ def test_grpc_api_with_token_auth():
 
     # make inference request with incorrect auth token
     metadata = (("protocol", "gRPC"), ("authorization", f"Bearer incorrect-token"))
-    try:
+    with pytest.raises(Exception, match=r".*Token Authorization failed.*"):
         infer(
             inference_stub,
             "densenet161",
             os.path.join(test_utils.REPO_ROOT, "examples/image_classifier/kitten.jpg"),
             metadata,
         )
-        assert False, "Model inference expected to fail but didn't"
-    except Exception:
-        pass
 
     # make inference request with correct auth token
     metadata = (("protocol", "gRPC"), ("authorization", f"Bearer {inference_key}"))
@@ -109,11 +104,8 @@ def test_grpc_api_with_token_auth():
 
     # unregister model with incorrect authorization token
     metadata = (("protocol", "gRPC"), ("authorization", f"Bearer incorrect-token"))
-    try:
+    with pytest.raises(Exception, match=r".*Token Authorization failed.*"):
         unregister(management_stub, "densenet161", metadata)
-        assert False, "Model unregistration expected to fail but didn't"
-    except Exception:
-        pass
 
     # unregister model with correct authorization token
     metadata = (("protocol", "gRPC"), ("authorization", f"Bearer {management_key}"))
