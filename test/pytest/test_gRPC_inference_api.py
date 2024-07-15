@@ -24,7 +24,7 @@ def setup_module(module):
 def teardown_module(module):
     test_utils.torchserve_cleanup()
     if os.path.exists(config_file):
-        os.remve(config_file)
+        os.remove(config_file)
 
 
 def __get_change(current, previous):
