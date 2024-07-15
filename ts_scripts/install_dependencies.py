@@ -134,14 +134,17 @@ class Common:
             # as it may reinstall the packages with different versions
             os.system("conda install -y conda-build")
 
+        if args.hpu:
+            hpu_requirements_file = os.path.join("requirements", "hpu.txt")
+            os.system(f"{sys.executable} -m pip install -U -r {hpu_requirements_file}")
+            return
+
         # Install PyTorch packages
         if nightly:
             pt_nightly = "cpu" if not cuda_version else cuda_version
             os.system(
                 f"pip3 install numpy --pre torch torchvision torchaudio torchtext --index-url https://download.pytorch.org/whl/nightly/{pt_nightly}"
             )
-        elif args.skip_torch_install:
-            print("Skipping Torch installation")
         else:
             self.install_torch_packages(cuda_version)
 
@@ -364,6 +367,11 @@ if __name__ == "__main__":
         help="Install dependencies for inferentia2 support",
     )
     parser.add_argument(
+        "--hpu",
+        action="store_true",
+        help="Install dependencies for gaudi support",
+    )
+    parser.add_argument(
         "--cpp",
         action="store_true",
         help="Install dependencies for cpp backend",
@@ -379,12 +387,6 @@ if __name__ == "__main__":
         "--nightly_torch",
         action="store_true",
         help="Install nightly version of torch package",
-    )
-
-    parser.add_argument(
-        "--skip_torch_install",
-        action="store_true",
-        help="Skip Torch installation",
     )
 
     parser.add_argument(
