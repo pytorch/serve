@@ -88,7 +88,7 @@ public class TokenAuthorization {
         return status;
     }
 
-    // checks the token provided in the http with the saved keys depening on parameters
+    // checks the token provided in the authrization header with the saved keys depening on parameters
     public static boolean checkTokenAuthorization(String token, TokenType tokenType) {
         String key;
         Instant expiration;
