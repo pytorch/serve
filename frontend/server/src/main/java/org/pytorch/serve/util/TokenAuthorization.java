@@ -88,7 +88,6 @@ public class TokenAuthorization {
         return status;
     }
 
-    // checks the token provided in the authrization header with the saved keys depening on parameters
     public static boolean checkTokenAuthorization(String token, TokenType tokenType) {
         String key;
         Instant expiration;
@@ -137,7 +136,6 @@ public class TokenAuthorization {
         return Instant.now().plusSeconds(secondsToAdd);
     }
 
-    // generates a key file with new keys depending on the parameter provided
     private static boolean generateKeyFile(TokenType tokenType) throws IOException {
         File file = new File(keyFilePath);
         if (!file.createNewFile() && !file.exists()) {
