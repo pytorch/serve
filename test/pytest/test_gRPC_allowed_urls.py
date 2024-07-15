@@ -1,21 +1,26 @@
+import os
+
 import management_pb2
 import pytest
 import test_gRPC_utils
 import test_utils
 
+CONFIG_FILE = test_utils.ROOT_DIR + "/config.properties"
+
 
 def setup_module(module):
     test_utils.torchserve_cleanup()
-    config_file = test_utils.ROOT_DIR + "/config.properties"
-    with open(config_file, "w") as f:
+    with open(CONFIG_FILE, "w") as f:
         f.write(
             "allowed_urls=https://torchserve.s3.amazonaws.com/mar_files/densenet161.mar"
         )
-    test_utils.start_torchserve(snapshot_file=config_file, gen_mar=False)
+    test_utils.start_torchserve(snapshot_file=CONFIG_FILE, gen_mar=False)
 
 
 def teardown_module(module):
     test_utils.torchserve_cleanup()
+    if os.path.exists(CONFIG_FILE):
+        os.remove(CONFIG_FILE)
 
 
 def register(stub, model_url, model_name, metadata):
