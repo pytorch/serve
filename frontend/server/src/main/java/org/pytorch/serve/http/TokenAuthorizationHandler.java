@@ -71,15 +71,8 @@ public class TokenAuthorizationHandler extends HttpRequestHandlerChain {
             throw new InvalidKeyException(
                     "Token Authorization failed. Token either incorrect, expired, or not provided correctly");
         }
-        String[] arrOfStr = tokenBearer.split(" ", 2);
-        if (arrOfStr.length == 1) {
-            throw new InvalidKeyException(
-                    "Token Authorization failed. Token either incorrect, expired, or not provided correctly");
-        }
-        String currToken = arrOfStr[1];
-
-        boolean result = TokenAuthorization.checkTokenAuthorization(currToken, tokenType);
-        if (!result) {
+        String token = TokenAuthorization.parseTokenFromBearerTokenHeader(tokenBearer);
+        if (!TokenAuthorization.checkTokenAuthorization(token, tokenType)) {
             throw new InvalidKeyException(
                     "Token Authorization failed. Token either incorrect, expired, or not provided correctly");
         }

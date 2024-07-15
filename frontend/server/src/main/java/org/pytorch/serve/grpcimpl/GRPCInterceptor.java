@@ -69,11 +69,7 @@ public class GRPCInterceptor implements ServerInterceptor {
         if (tokenAuthHeaderValue == null) {
             return false;
         }
-        String[] arrOfStr = tokenAuthHeaderValue.split(" ", 2);
-        if (arrOfStr.length == 1) {
-            return false;
-        }
-        String token = arrOfStr[1];
+        String token = TokenAuthorization.parseTokenFromBearerTokenHeader(tokenAuthHeaderValue);
 
         return TokenAuthorization.checkTokenAuthorization(token, tokenType);
     }

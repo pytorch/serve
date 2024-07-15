@@ -14,6 +14,8 @@ import java.security.SecureRandom;
 import java.time.Instant;
 import java.util.Base64;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,6 +29,7 @@ public class TokenAuthorization {
     private static String keyFilePath;
     private static final SecureRandom secureRandom = new SecureRandom();
     private static final Base64.Encoder baseEncoder = Base64.getUrlEncoder();
+    private static final Pattern bearerTokenHeaderPattern = Pattern.compile("^Bearer\\s+(\\S+)$");
     private static final Logger logger = LoggerFactory.getLogger(TokenAuthorization.class);
 
     public enum TokenType {
@@ -111,6 +114,16 @@ public class TokenAuthorization {
             return false;
         }
         return true;
+    }
+
+    public static String parseTokenFromBearerTokenHeader(String bearerTokenHeader) {
+        String token = "";
+        Matcher matcher = bearerTokenHeaderPattern.matcher(bearerTokenHeader);
+        if (matcher.matches()) {
+            token = matcher.group(1);
+        }
+
+        return token;
     }
 
     private static String generateKey() {
