@@ -115,7 +115,7 @@ RUN --mount=type=cache,target=/var/cache/apt \
     apt-get update && \
     apt-get upgrade -y && \
     apt-get install software-properties-common -y && \
-    add-apt-repository -y ppa:deadsnakes/ppa && \
+    add-apt-repository ppa:deadsnakes/ppa -y && \
     apt remove python-pip  python3-pip && \
     DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
     python$PYTHON_VERSION \
