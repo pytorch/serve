@@ -1,11 +1,7 @@
-import os
-
 import management_pb2
 import pytest
 import test_gRPC_utils
 import test_utils
-
-CURR_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 def teardown_module(module):
