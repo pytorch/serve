@@ -175,7 +175,7 @@ public final class ConfigManager {
     private String headerKeySequenceStart;
     private String headerKeySequenceEnd;
 
-    private Logger logger = LoggerFactory.getLogger(ConfigManager.class);
+    private static final Logger logger = LoggerFactory.getLogger(ConfigManager.class);
 
     private ConfigManager(Arguments args) throws IOException {
         prop = new Properties();
@@ -994,7 +994,7 @@ public final class ConfigManager {
                         gpuIds.add(Integer.parseInt(list.get(i)));
                     }
                 } catch (IOException | InterruptedException e) {
-                    System.out.println("xpu-smi not available or failed: " + e.getMessage());
+                    logger.debug("xpu-smi not available or failed: " + e.getMessage());
                 }
             }
             return gpuIds.size();
