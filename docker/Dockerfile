@@ -34,6 +34,7 @@ ARG BUILD_NIGHTLY
 ARG BUILD_FROM_SRC
 ARG LOCAL_CHANGES
 ARG BRANCH_NAME
+ARG FORK_NAME
 ENV PYTHONUNBUFFERED TRUE
 
 RUN --mount=type=cache,id=apt-dev,target=/var/cache/apt \
@@ -71,8 +72,13 @@ COPY ./ serve
 
 RUN \
     if echo "$LOCAL_CHANGES" | grep -q "false"; then \
-        rm -rf serve;\
-        git clone --recursive https://github.com/pytorch/serve.git -b $BRANCH_NAME; \
+        if 
+            rm -rf serve;\
+            git clone --recursive https://github.com/pytorch/$FORK_NAME -b BRANCH_NAME; \
+        else 
+            rm -rf serve;\
+            git clone --recursive https://github.com/pytorch/serve.git -b $BRANCH_NAME; \
+        fi
     fi
 
 

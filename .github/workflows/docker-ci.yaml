@@ -26,11 +26,13 @@ jobs:
       #   working-directory: docker
       #   run: ./test_build_image_tagging.sh ${{ matrix.python-version }}
 
-      - name: Test prints
+      - name: Check if fork
         run: |
-          echo "test 1: ${{ github.event.pull_request.head.repo.full_name }}"
-          echo "test 2: ${{ github.event.pull_request.base.repo.full_name }}"
-          echo "test 3: ${{ github.event.pull_request.head.repo.owner.login }}"
+          CURR_HEAD = ${{ github.event.pull_request.head.repo.full_name }}
+          BASE_HEAD = ${{ github.event.pull_request.base.repo.full_name }}
+          if [ "$CURR_HEAD" != "$BASE_HEAD" ]; then
+            echo "FORK=$CURR_HEAD" >> $GITHUB_ENV
+          fi
 
       - name: Determine the branch name
         id: branch-name
@@ -48,7 +50,11 @@ jobs:
         working-directory: docker
         run: |
           IMAGE_TAG=test-image-${{ matrix.python-version }}
-          ./build_image.sh -py "${{ matrix.python-version }}" -t "${IMAGE_TAG}" -b ${{ steps.branch-name.outputs.GITHUB_BRANCH }} -s
+          if [[ env.FORK_OWNER == '' ]];
+            ./build_image.sh -py "${{ matrix.python-version }}" -t "${IMAGE_TAG}" -b ${{ steps.branch-name.outputs.GITHUB_BRANCH }} -s
+          else
+            ./build_image.sh -py "${{ matrix.python-version }}" -t "${IMAGE_TAG}" -b ${{ steps.branch-name.outputs.GITHUB_BRANCH }} -s -f env.FORK_OWNER
+          fi
           echo "IMAGE_TAG=${IMAGE_TAG}" >> $GITHUB_OUTPUT
 
       - name: Container Healthcheck
