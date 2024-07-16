@@ -4,6 +4,7 @@ on:
   # run every day at 1:15pm
   schedule:
     - cron: "15 13 * * *"
+  workflow_dispatch:
 jobs:
   nightly:
     runs-on: [self-hosted, ci-gpu]
