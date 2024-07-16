@@ -22,9 +22,9 @@ jobs:
           repository: ${{ github.event.pull_request.head.repo.full_name }}
           fetch-depth: 0 
 
-      # - name: Test build_image.sh script with custom tagging and gpu flag
-      #   working-directory: docker
-      #   run: ./test_build_image_tagging.sh ${{ matrix.python-version }}
+      - name: Test build_image.sh script with custom tagging and gpu flag
+        working-directory: docker
+        run: ./test_build_image_tagging.sh ${{ matrix.python-version }}
 
       - name: Check if fork
         run: |
