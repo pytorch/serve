@@ -3,4 +3,5 @@
 -r torch_common.txt
 torch==2.3.1; sys_platform == 'darwin'
 torchvision==0.18.1; sys_platform == 'darwin'
+torchtext; sys_platform == 'darwin'
 torchaudio==2.3.1; sys_platform == 'darwin'

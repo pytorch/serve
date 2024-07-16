@@ -3,4 +3,5 @@
 -r torch_common.txt
 torch==2.3.1+cu121; sys_platform == 'linux'
 torchvision==0.18.1+cu121; sys_platform == 'linux'
+torchtext; sys_platform == 'linux'
 torchaudio==2.3.1+cu121; sys_platform == 'linux'
