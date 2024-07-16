@@ -28,8 +28,8 @@ jobs:
 
       - name: Check if fork
         run: |
-          CURR_HEAD = ${{ github.event.pull_request.head.repo.full_name }}
-          BASE_HEAD = ${{ github.event.pull_request.base.repo.full_name }}
+          CURR_HEAD=${{ github.event.pull_request.head.repo.full_name }}
+          BASE_HEAD=${{ github.event.pull_request.base.repo.full_name }}
           if [ "${CURR_HEAD}" != "${BASE_HEAD}" ]; then
             echo "FORK=${CURR_HEAD}" >> $GITHUB_ENV
           fi
