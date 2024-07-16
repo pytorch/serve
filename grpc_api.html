@@ -434,6 +434,9 @@
 <li><p><strong>StreamPredictions</strong> : Gets server side streaming predictions from the saved model</p></li>
 </ul>
 </li>
+</ul>
+<p>For all Inference API requests, TorchServe requires the correct Inference token to be included or token authorization must be disable. For more details see <a class="reference internal" href="token_authorization_api.html"><span class="doc">token authorization documentation</span></a></p>
+<ul class="simple">
 <li><p><a class="reference external" href="https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/proto/management.proto">Management API</a></p>
 <ul>
 <li><p><strong>RegisterModel</strong> : Serve a model/model-version on TorchServe</p></li>
@@ -445,6 +448,7 @@
 </ul>
 </li>
 </ul>
+<p>For all Management API requests, TorchServe requires the correct Management token to be included or token authorization must be disabled. For more details see <a class="reference internal" href="token_authorization_api.html"><span class="doc">token authorization documentation</span></a></p>
 <p>By default, TorchServe listens on port 7070 for the gRPC Inference API and 7071 for the gRPC Management API on localhost.
 To configure gRPC APIs on different addresses and ports refer <a class="reference internal" href="configuration.html"><span class="doc">configuration documentation</span></a></p>
 <section id="python-client-example-for-grpc-apis">
@@ -468,7 +472,7 @@ To configure gRPC APIs on different addresses and ports refer <a class="referenc
 <li><p>Start torchServe</p></li>
 </ul>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mkdir<span class="w"> </span>models
-torchserve<span class="w"> </span>--start<span class="w"> </span>--model-store<span class="w"> </span>models/
+torchserve<span class="w"> </span>--start<span class="w"> </span>--disable-token-auth<span class="w"> </span>--enable-model-api<span class="w"> </span>--model-store<span class="w"> </span>models/
 </pre></div>
 </div>
 <ul class="simple">
@@ -480,19 +484,36 @@ torchserve<span class="w"> </span>--start<span class="w"> </span>--model-store<s
 <ul class="simple">
 <li><p>Register densenet161 model</p></li>
 </ul>
+<p><strong>Note</strong>: To use this API after TorchServe starts, model API control has to be enabled. Add <code class="docutils literal notranslate"><span class="pre">--enable-model-api</span></code> to command line when starting TorchServe to enable the use of this API. For more details see <a class="reference internal" href="model_api_control.html"><span class="doc">model API control</span></a></p>
+<p>If token authorization is disabled, use:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>ts_scripts/torchserve_grpc_client.py<span class="w"> </span>register<span class="w"> </span>densenet161
+</pre></div>
+</div>
+<p>If token authorization is enabled, use:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>ts_scripts/torchserve_grpc_client.py<span class="w"> </span>register<span class="w"> </span>densenet161<span class="w"> </span>--auth-token<span class="w"> </span>&lt;management-token&gt;
 </pre></div>
 </div>
 <ul class="simple">
 <li><p>Run inference using</p></li>
 </ul>
+<p>If token authorization is disabled, use:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>ts_scripts/torchserve_grpc_client.py<span class="w"> </span>infer<span class="w"> </span>densenet161<span class="w"> </span>examples/image_classifier/kitten.jpg
+</pre></div>
+</div>
+<p>If token authorization is enabled, use:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>ts_scripts/torchserve_grpc_client.py<span class="w"> </span>infer<span class="w"> </span>densenet161<span class="w"> </span>examples/image_classifier/kitten.jpg<span class="w"> </span>--auth-token<span class="w"> </span>&lt;inference-token&gt;
 </pre></div>
 </div>
 <ul class="simple">
 <li><p>Unregister densenet161 model</p></li>
 </ul>
+<p><strong>Note</strong>: To use this API after TorchServe starts, model API control has to be enabled. Add <code class="docutils literal notranslate"><span class="pre">--enable-model-api</span></code> to command line when starting TorchServe to enable the use of this API. For more details see <a class="reference internal" href="model_api_control.html"><span class="doc">model API control</span></a></p>
+<p>If token authorization is disabled, use:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>ts_scripts/torchserve_grpc_client.py<span class="w"> </span>unregister<span class="w"> </span>densenet161
+</pre></div>
+</div>
+<p>If token authorization is enabled, use:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>ts_scripts/torchserve_grpc_client.py<span class="w"> </span>unregister<span class="w"> </span>densenet161<span class="w"> </span>--auth-token<span class="w"> </span>&lt;management-token&gt;
 </pre></div>
 </div>
 </section>
