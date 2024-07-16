@@ -72,10 +72,10 @@ COPY ./ serve
 
 RUN \
     if echo "$LOCAL_CHANGES" | grep -q "false"; then \
-        if 
+        if [ -n "$FORK_NAME" ]; then
             rm -rf serve;\
             git clone --recursive https://github.com/pytorch/$FORK_NAME -b BRANCH_NAME; \
-        else 
+        else \
             rm -rf serve;\
             git clone --recursive https://github.com/pytorch/serve.git -b $BRANCH_NAME; \
         fi
