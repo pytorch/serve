@@ -40,7 +40,6 @@ import org.pytorch.serve.archive.model.ModelException;
 import org.pytorch.serve.archive.model.ModelNotFoundException;
 import org.pytorch.serve.grpcimpl.GRPCInterceptor;
 import org.pytorch.serve.grpcimpl.GRPCServiceFactory;
-import org.pytorch.serve.http.TokenAuthorizationHandler;
 import org.pytorch.serve.http.messages.RegisterModelRequest;
 import org.pytorch.serve.metrics.MetricCache;
 import org.pytorch.serve.metrics.MetricManager;
@@ -54,6 +53,7 @@ import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.Connector;
 import org.pytorch.serve.util.ConnectorType;
 import org.pytorch.serve.util.ServerGroups;
+import org.pytorch.serve.util.TokenAuthorization;
 import org.pytorch.serve.wlm.Model;
 import org.pytorch.serve.wlm.ModelManager;
 import org.pytorch.serve.wlm.WorkLoadManager;
@@ -87,7 +87,7 @@ public class ModelServer {
             ConfigManager.Arguments arguments = new ConfigManager.Arguments(cmd);
             ConfigManager.init(arguments);
             ConfigManager configManager = ConfigManager.getInstance();
-            TokenAuthorizationHandler.setupToken();
+            TokenAuthorization.init();
             PluginsManager.getInstance().initialize();
             MetricCache.init();
             InternalLoggerFactory.setDefaultFactory(Slf4JLoggerFactory.INSTANCE);
@@ -465,7 +465,7 @@ public class ModelServer {
                         .addService(
                                 ServerInterceptors.intercept(
                                         GRPCServiceFactory.getgRPCService(connectorType),
-                                        new GRPCInterceptor()));
+                                        new GRPCInterceptor(connectorType)));
 
         if (connectorType == ConnectorType.INFERENCE_CONNECTOR
                 && ConfigManager.getInstance().isOpenInferenceProtocol()) {
@@ -474,7 +474,7 @@ public class ModelServer {
                             ServerInterceptors.intercept(
                                     GRPCServiceFactory.getgRPCService(
                                             ConnectorType.OPEN_INFERENCE_CONNECTOR),
-                                    new GRPCInterceptor()));
+                                    new GRPCInterceptor(connectorType)));
         }
 
         if (configManager.isGRPCSSLEnabled()) {

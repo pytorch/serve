@@ -54,12 +54,12 @@ public class ModelArchive {
             throw new ModelNotFoundException("empty url");
         }
 
-        String marFileName = ArchiveUtils.getFilenameFromUrl(url);
-        File modelLocation = new File(modelStore, marFileName);
-
         if (url.contains("..")) {
             throw new ModelNotFoundException("Relative path is not allowed in url: " + url);
         }
+
+        String marFileName = ArchiveUtils.getFilenameFromUrl(url);
+        File modelLocation = new File(modelStore, marFileName);
 
         try {
             ArchiveUtils.downloadArchive(

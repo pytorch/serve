@@ -23,6 +23,7 @@ import org.pytorch.serve.http.StatusResponse;
 import org.pytorch.serve.job.GRPCJob;
 import org.pytorch.serve.job.Job;
 import org.pytorch.serve.util.ApiUtils;
+import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.GRPCUtils;
 import org.pytorch.serve.util.JsonUtils;
 import org.pytorch.serve.util.messages.RequestInput;
@@ -32,7 +33,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ManagementImpl extends ManagementAPIsServiceImplBase {
+    private ConfigManager configManager;
     private static final Logger logger = LoggerFactory.getLogger(ManagementImpl.class);
+
+    public ManagementImpl() {
+        configManager = ConfigManager.getInstance();
+    }
 
     @Override
     public void describeModel(
@@ -117,6 +123,13 @@ public class ManagementImpl extends ManagementAPIsServiceImplBase {
 
         StatusResponse statusResponse;
         try {
+            if (!configManager.isModelApiEnabled()) {
+                sendErrorResponse(
+                        responseObserver,
+                        Status.PERMISSION_DENIED,
+                        new ModelException("Model API disabled"));
+                return;
+            }
             statusResponse = ApiUtils.registerModel(registerModelRequest);
             sendStatusResponse(responseObserver, statusResponse);
         } catch (InternalServerException e) {
@@ -205,6 +218,13 @@ public class ManagementImpl extends ManagementAPIsServiceImplBase {
                                             .asRuntimeException());
                         });
         try {
+            if (!configManager.isModelApiEnabled()) {
+                sendErrorResponse(
+                        responseObserver,
+                        Status.PERMISSION_DENIED,
+                        new ModelException("Model API disabled"));
+                return;
+            }
             String modelName = request.getModelName();
             if (modelName == null || ("").equals(modelName)) {
                 sendErrorResponse(
