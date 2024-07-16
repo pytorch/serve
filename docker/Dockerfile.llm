@@ -1,8 +1,9 @@
 FROM pytorch/torchserve-nightly:latest-gpu as server
 
-RUN pip install vllm==0.5.2
-
 USER root
+
+COPY examples/large_models/vllm/requirements.txt /
+RUN pip install -r /requirements.txt
 
 RUN mkdir /data && chown -R model-server /data
 
