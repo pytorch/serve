@@ -1,5 +1,4 @@
 kserve[storage]==0.13.0
-ray[serve]>=2.32.0
 transformers
 captum
 grpcio
