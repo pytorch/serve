@@ -30,7 +30,7 @@ pip install librosa --user
     ```bash
     mkdir model_store
     mv waveglow_synthesizer.mar model_store/
-    torchserve --start --model-store model_store --models waveglow_synthesizer.mar
+    torchserve --start --model-store model_store --models waveglow_synthesizer.mar --disable-token-auth  --enable-model-api
     ```
   * Run inference and download audio output using curl command :
     ```bash

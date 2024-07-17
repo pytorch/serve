@@ -19,21 +19,21 @@ The above command generated the model's state dict as model.pt and the vocab use
 # Serve the text classification model on TorchServe
 
  * Create a torch model archive using the torch-model-archiver utility to archive the above files.
- 
+
     ```bash
     torch-model-archiver --model-name my_text_classifier --version 1.0 --model-file model.py --serialized-file model.pt  --handler text_classifier --extra-files "index_to_name.json,source_vocab.pt"
     ```
-    
-    NOTE - `run_script.sh` has generated `source_vocab.pt` and it is a mandatory file for this handler. 
+
+    NOTE - `run_script.sh` has generated `source_vocab.pt` and it is a mandatory file for this handler.
            If you are planning to override or use custom source vocab. then name it as `source_vocab.pt` and provide it as `--extra-files` as per above example.
            Other option is to extend `TextHandler` and override `get_source_vocab_path` function in your custom handler. Refer [custom handler](../../docs/custom_service.md) for detail
-   
+
  * Register the model on TorchServe using the above model archive file and run digit recognition inference
-   
+
     ```bash
     mkdir model_store
     mv my_text_classifier.mar model_store/
-    torchserve --start --model-store model_store --models my_tc=my_text_classifier.mar
+    torchserve --start --model-store model_store --models my_tc=my_text_classifier.mar --disable-token-auth  --enable-model-api
     curl http://127.0.0.1:8080/predictions/my_tc -T examples/text_classification/sample_text.txt
     ```
 To make a captum explanations request on the Torchserve side, use the below command:
@@ -62,7 +62,7 @@ Captum/Explain doesn't support batching.
 
 1. The handlers should initialize.
 ```python
-self.lig = LayerIntegratedGradients(captum_sequence_forward, self.model.bert.embeddings) 
+self.lig = LayerIntegratedGradients(captum_sequence_forward, self.model.bert.embeddings)
 ```
 in the initialize function for the captum to work.
 

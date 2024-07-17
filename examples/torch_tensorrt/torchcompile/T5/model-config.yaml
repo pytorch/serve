@@ -1,0 +1,8 @@
+minWorkers: 1
+maxWorkers: 1
+handler:
+   model_path: model/models--google-t5--t5-small/snapshots/df1b051c49625cf57a3d0d8d3863ed4d13564fe4
+pt2:
+  compile:
+    enable: True
+    backend: tensorrt

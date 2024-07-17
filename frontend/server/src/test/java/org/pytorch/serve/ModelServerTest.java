@@ -46,6 +46,7 @@ import org.pytorch.serve.snapshot.InvalidSnapshotException;
 import org.pytorch.serve.util.ConfigManager;
 import org.pytorch.serve.util.ConnectorType;
 import org.pytorch.serve.util.JsonUtils;
+import org.pytorch.serve.util.TokenAuthorization;
 import org.pytorch.serve.wlm.Model;
 import org.testng.Assert;
 import org.testng.SkipException;
@@ -77,7 +78,9 @@ public class ModelServerTest {
                     InvalidSnapshotException {
         ConfigManager.init(new ConfigManager.Arguments());
         configManager = ConfigManager.getInstance();
+        configManager.setProperty("disable_token_authorization", "true");
         configManager.setProperty("metrics_mode", "prometheus");
+        TokenAuthorization.init();
         PluginsManager.getInstance().initialize();
         MetricCache.init();
 

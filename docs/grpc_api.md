@@ -11,6 +11,8 @@ TorchServe provides following gRPCs apis
   - **Predictions** : Gets predictions from the served model
   - **StreamPredictions** : Gets server side streaming predictions from the saved model
 
+For all Inference API requests, TorchServe requires the correct Inference token to be included or token authorization must be disable. For more details see [token authorization documentation](./token_authorization_api.md)
+
 * [Management API](https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/proto/management.proto)
   - **RegisterModel** : Serve a model/model-version on TorchServe
   - **UnregisterModel** : Free up system resources by unregistering specific version of a model from TorchServe
@@ -18,6 +20,8 @@ TorchServe provides following gRPCs apis
   - **ListModels** : Query default versions of current registered models
   - **DescribeModel** : Get detail runtime status of default version of a model
   - **SetDefault** : Set any registered version of a model as default version
+
+For all Management API requests, TorchServe requires the correct Management token to be included or token authorization must be disabled. For more details see [token authorization documentation](./token_authorization_api.md)
 
 By default, TorchServe listens on port 7070 for the gRPC Inference API and 7071 for the gRPC Management API on localhost.
 To configure gRPC APIs on different addresses and ports refer [configuration documentation](configuration.md)
@@ -45,7 +49,7 @@ pip install -U grpcio protobuf grpcio-tools googleapis-common-protos
 
 ```bash
 mkdir models
-torchserve --start --model-store models/
+torchserve --start --disable-token-auth --enable-model-api --model-store models/
 ```
 
  - Generate python gRPC client stub using the proto files
@@ -56,21 +60,44 @@ python -m grpc_tools.protoc -I third_party/google/rpc --proto_path=frontend/serv
 
  - Register densenet161 model
 
+__Note__: To use this API after TorchServe starts, model API control has to be enabled. Add `--enable-model-api` to command line when starting TorchServe to enable the use of this API. For more details see [model API control](./model_api_control.md)
+
+If token authorization is disabled, use:
 ```bash
 python ts_scripts/torchserve_grpc_client.py register densenet161
 ```
 
+If token authorization is enabled, use:
+```bash
+python ts_scripts/torchserve_grpc_client.py register densenet161 --auth-token <management-token>
+```
+
  - Run inference using
 
+If token authorization is disabled, use:
 ```bash
 python ts_scripts/torchserve_grpc_client.py infer densenet161 examples/image_classifier/kitten.jpg
 ```
 
+If token authorization is enabled, use:
+```bash
+python ts_scripts/torchserve_grpc_client.py infer densenet161 examples/image_classifier/kitten.jpg --auth-token <inference-token>
+```
+
  - Unregister densenet161 model
 
+__Note__: To use this API after TorchServe starts, model API control has to be enabled. Add `--enable-model-api` to command line when starting TorchServe to enable the use of this API. For more details see [model API control](./model_api_control.md)
+
+If token authorization is disabled, use:
 ```bash
 python ts_scripts/torchserve_grpc_client.py unregister densenet161
 ```
+
+If token authorization is enabled, use:
+```bash
+python ts_scripts/torchserve_grpc_client.py unregister densenet161 --auth-token <management-token>
+```
+
 ## GRPC Server Side Streaming
 TorchServe GRPC APIs adds a server side streaming of the inference API "StreamPredictions" to allow a sequence of inference responses to be sent over the same GRPC stream. This new API is only recommended for use case when the inference latency of the full response is high and the inference intermediate results are sent to client. An example could be LLMs for generative applications, where generating "n" number of tokens can have high latency, in this case user can receive each generated token once ready until the full response completes. This new API automatically forces the batchSize to be one.
 

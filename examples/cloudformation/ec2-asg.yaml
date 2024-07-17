@@ -620,7 +620,7 @@ Resources:
           /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackId} --resource TorchServeASG --region ${AWS::Region}
           # Start torchserve
           export LOG_LOCATION="/var/log/torchserve"
-          torchserve --start --ts-config /etc/torchserve/config.properties
+          torchserve --start --ts-config /etc/torchserve/config.properties --disable-token-auth --enable-model-api
     CreationPolicy:
       ResourceSignal:
         Timeout: PT30M

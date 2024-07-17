@@ -419,7 +419,7 @@ Resources:
           # Start torchserve
           mkdir model_store
           export LOG_LOCATION="/var/log/torchserve"
-          torchserve --start --model-store ./model_store --ts-config /etc/torchserve/config.properties
+          torchserve --start --model-store ./model_store --ts-config /etc/torchserve/config.properties --disable-token-auth --enable-model-api
     CreationPolicy:
       ResourceSignal:
         Timeout: PT30M

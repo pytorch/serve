@@ -57,7 +57,7 @@ mv sam_vit_h_4b8939.pth model_store/sam-fast/
 ### Step 3: Start torchserve
 
 ```
-torchserve --start --ncs --model-store model_store --models sam-fast
+torchserve --start --ncs --model-store model_store --models sam-fast --disable-token-auth  --enable-model-api
 ```
 
 ### Step 4: Run inference

@@ -22,7 +22,7 @@ export token=<HUGGINGFACE_HUB_TOKEN>
 
 You can then go ahead and launch a TorchServe instance serving your selected model:
 ```bash
-docker run --rm -ti --gpus all -e HUGGING_FACE_HUB_TOKEN=$token -p 8080:8080 -v data:/data ts/llm --model_id meta-llama/Meta-Llama-3-8B-Instruct --disable_token
+docker run --rm -ti --shm-size 1g --gpus all -e HUGGING_FACE_HUB_TOKEN=$token -p 8080:8080 -v data:/data ts/llm --model_id meta-llama/Meta-Llama-3-8B-Instruct --disable_token_auth
 ```
 
 To change the model you just need to exchange the identifier given to the `--model_id` parameter.
@@ -42,7 +42,7 @@ To rename the model endpoint from `predictions/model` to something else you can 
 
 The launcher script can also be used outside a docker container by calling this after installing TorchServe following the [installation instruction](https://github.com/pytorch/serve/blob/feature/single_cmd_llm_deployment/README.md#-quick-start-with-torchserve).
 ```bash
-python -m ts.llm_launcher --disable_token
+python -m ts.llm_launcher --disable_token_auth
 ```
 
 Please note that the launcher script as well as the docker command will automatically run on all available GPUs so make sure to restrict the visible number of device by setting CUDA_VISIBLE_DEVICES.

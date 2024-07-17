@@ -1,0 +1,8 @@
+minWorkers: 1
+maxWorkers: 1
+pt2:
+  compile:
+    enable: true
+    backend: tensorrt
+handler:
+  profile: true

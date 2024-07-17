@@ -71,7 +71,7 @@ torch-model-archiver --model-name resnet-50 --version 1.0 --model-file model.py 
 
 Start the TorchServe server using the following command:
 ```bash
-torchserve --start --ncs --model-store model_store --models resnet-50.mar
+torchserve --start --ncs --model-store model_store --models resnet-50.mar --disable-token-auth  --enable-model-api
 ```
 
 ### 4. Run Inference
