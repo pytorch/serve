@@ -4,7 +4,7 @@
 
 | Version | Supported          |
 |---------| ------------------ |
-| 0.11.0   | :white_check_mark: |
+| 0.11.1   | :white_check_mark: |
 
 
 ## How we do security
