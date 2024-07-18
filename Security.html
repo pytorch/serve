@@ -432,7 +432,7 @@
 </thead>
 <tbody>
 <tr>
-<td>0.11.0</td>
+<td>0.11.1</td>
 <td>:white_check_mark:</td>
 </tr>
 </tbody>
@@ -505,7 +505,8 @@ These can be utilized to extend TorchServe functionality to perform runtime secu
 </ol>
 </li>
 <li><p>If you intend to run multiple models in parallel with shared memory, it is your responsibility to ensure the models do not interact or access each other’s data. The primary areas of concern are tenant isolation, resource allocation, model sharing and hardware attacks.</p></li>
-<li><p>TorchServe supports token authorization: check <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/token_authorization_api">documentation</a> for more information.</p></li>
+<li><p>TorchServe enforces token authorization by default: check <a class="reference external" href="https://github.com/pytorch/serve/blob/master/docs/token_authorization_api">documentation</a> for more information.</p></li>
+<li><p>By default, TorchServe prevents you from registering and deleting models after startup. Check out Model API control <a class="reference external" href="./docs/model_api_control">documentation</a> for more information.</p></li>
 </ol>
 </section>
 <section id="reporting-a-vulnerability">

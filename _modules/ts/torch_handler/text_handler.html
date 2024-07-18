@@ -429,7 +429,8 @@
 <span class="kn">import</span> <span class="nn">torch</span>
 <span class="kn">import</span> <span class="nn">torch.nn.functional</span> <span class="k">as</span> <span class="nn">F</span>
 <span class="kn">from</span> <span class="nn">captum.attr</span> <span class="kn">import</span> <span class="n">LayerIntegratedGradients</span>
-<span class="kn">from</span> <span class="nn">torchtext.data.utils</span> <span class="kn">import</span> <span class="n">get_tokenizer</span>
+
+<span class="kn">from</span> <span class="nn">ts.handler_utils.text_utils</span> <span class="kn">import</span> <span class="n">get_tokenizer</span>
 
 <span class="kn">from</span> <span class="nn">..utils.util</span> <span class="kn">import</span> <span class="n">CLEANUP_REGEX</span>
 <span class="kn">from</span> <span class="nn">.base_handler</span> <span class="kn">import</span> <span class="n">BaseHandler</span>

@@ -421,7 +421,6 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="c1"># pylint: disable=redefined-builtin</span>
-
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">platform</span>
@@ -430,6 +429,7 @@
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
 
 <span class="kn">from</span> <span class="nn">ts.arg_parser</span> <span class="kn">import</span> <span class="n">ArgParser</span>
+<span class="kn">from</span> <span class="nn">ts.async_service</span> <span class="kn">import</span> <span class="n">AsyncService</span>
 <span class="kn">from</span> <span class="nn">ts.metrics.metric_cache_yaml_impl</span> <span class="kn">import</span> <span class="n">MetricsCacheYamlImpl</span>
 <span class="kn">from</span> <span class="nn">ts.model_loader</span> <span class="kn">import</span> <span class="n">ModelLoaderFactory</span>
 <span class="kn">from</span> <span class="nn">ts.protocol.otf_message_handler</span> <span class="kn">import</span> <span class="n">create_load_model_response</span><span class="p">,</span> <span class="n">retrieve_msg</span>
@@ -456,6 +456,7 @@
         <span class="n">host_addr</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">port_num</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">metrics_config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">async_comm</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sock_type</span> <span class="o">=</span> <span class="n">s_type</span>
 
@@ -497,6 +498,7 @@
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;Failed to initialize metrics from file </span><span class="si">{</span><span class="n">metrics_config</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">async_comm</span> <span class="o">=</span> <span class="n">async_comm</span>
 
 <div class="viewcode-block" id="TorchModelServiceWorker.load_model"><a class="viewcode-back" href="../../api/ts.html#ts.model_service_worker.TorchModelServiceWorker.load_model">[docs]</a>    <span class="k">def</span> <span class="nf">load_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">load_model_request</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -618,6 +620,38 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Received unknown command: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cmd</span><span class="p">))</span></div>
 
+<div class="viewcode-block" id="TorchModelServiceWorker.handle_connection_async"><a class="viewcode-back" href="../../api/ts.html#ts.model_service_worker.TorchModelServiceWorker.handle_connection_async">[docs]</a>    <span class="k">def</span> <span class="nf">handle_connection_async</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cl_socket</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Handle socket connection.</span>
+
+<span class="sd">        :param cl_socket:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">service</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;handle_connection_async&quot;</span><span class="p">)</span>
+
+        <span class="k">while</span> <span class="ow">not</span> <span class="n">service</span><span class="p">:</span>
+            <span class="n">cmd</span><span class="p">,</span> <span class="n">msg</span> <span class="o">=</span> <span class="n">retrieve_msg</span><span class="p">(</span><span class="n">cl_socket</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">cmd</span> <span class="o">==</span> <span class="sa">b</span><span class="s2">&quot;L&quot;</span><span class="p">:</span>
+                <span class="n">service</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="n">code</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_model</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+                <span class="n">resp</span> <span class="o">=</span> <span class="nb">bytearray</span><span class="p">()</span>
+                <span class="n">resp</span> <span class="o">+=</span> <span class="n">create_load_model_response</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span>
+                <span class="n">cl_socket</span><span class="o">.</span><span class="n">sendall</span><span class="p">(</span><span class="n">resp</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">code</span> <span class="o">!=</span> <span class="mi">200</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> - </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="n">result</span><span class="p">))</span>
+                <span class="n">service</span><span class="o">.</span><span class="n">set_cl_socket</span><span class="p">(</span><span class="n">cl_socket</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;Unexpected command (Only expecting LOAD command): </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
+                <span class="p">)</span>
+
+        <span class="n">service</span> <span class="o">=</span> <span class="n">AsyncService</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
+
+        <span class="n">error</span> <span class="o">=</span> <span class="n">service</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">error</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error in AsyncService:</span><span class="se">\n</span><span class="s2"> </span><span class="si">{</span><span class="n">error</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="TorchModelServiceWorker.run_server"><a class="viewcode-back" href="../../api/ts.html#ts.model_service_worker.TorchModelServiceWorker.run_server">[docs]</a>    <span class="k">def</span> <span class="nf">run_server</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Run the backend worker process and listen on a socket</span>
@@ -645,7 +679,10 @@
             <span class="n">cl_socket</span><span class="o">.</span><span class="n">setblocking</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
 
             <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Connection accepted: </span><span class="si">%s</span><span class="s2">.&quot;</span><span class="p">,</span> <span class="n">cl_socket</span><span class="o">.</span><span class="n">getsockname</span><span class="p">())</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">handle_connection</span><span class="p">(</span><span class="n">cl_socket</span><span class="p">)</span></div></div>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">async_comm</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">handle_connection_async</span><span class="p">(</span><span class="n">cl_socket</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">handle_connection</span><span class="p">(</span><span class="n">cl_socket</span><span class="p">)</span></div></div>
 
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
@@ -665,6 +702,7 @@
         <span class="n">sock_type</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">sock_type</span>
         <span class="n">host</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">host</span>
         <span class="n">port</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">port</span>
+        <span class="n">async_comm</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">async_comm</span>
         <span class="n">metrics_config</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">metrics_config</span>
 
         <span class="k">if</span> <span class="n">BENCHMARK</span><span class="p">:</span>
@@ -675,7 +713,7 @@
             <span class="n">pr</span><span class="o">.</span><span class="n">dump_stats</span><span class="p">(</span><span class="s2">&quot;/tmp/tsPythonProfile.prof&quot;</span><span class="p">)</span>
 
         <span class="n">worker</span> <span class="o">=</span> <span class="n">TorchModelServiceWorker</span><span class="p">(</span>
-            <span class="n">sock_type</span><span class="p">,</span> <span class="n">socket_name</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">metrics_config</span>
+            <span class="n">sock_type</span><span class="p">,</span> <span class="n">socket_name</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">metrics_config</span><span class="p">,</span> <span class="n">async_comm</span>
         <span class="p">)</span>
         <span class="n">worker</span><span class="o">.</span><span class="n">run_server</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">BENCHMARK</span><span class="p">:</span>

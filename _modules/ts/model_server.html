@@ -600,6 +600,12 @@
         <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">no_config_snapshots</span><span class="p">:</span>
             <span class="n">cmd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;-ncs&quot;</span><span class="p">)</span>
 
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">token_auth</span><span class="p">:</span>
+            <span class="n">cmd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;--disable-token-auth&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">model_mode</span><span class="p">:</span>
+            <span class="n">cmd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;--enable-model-api&quot;</span><span class="p">)</span>
+
         <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">models</span><span class="p">:</span>
             <span class="n">cmd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;-m&quot;</span><span class="p">)</span>
             <span class="n">cmd</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">models</span><span class="p">)</span>

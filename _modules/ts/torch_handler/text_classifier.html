@@ -426,7 +426,8 @@
 <span class="kn">import</span> <span class="nn">torch</span>
 <span class="kn">import</span> <span class="nn">torch.nn.functional</span> <span class="k">as</span> <span class="nn">F</span>
 <span class="kn">from</span> <span class="nn">captum.attr</span> <span class="kn">import</span> <span class="n">TokenReferenceBase</span>
-<span class="kn">from</span> <span class="nn">torchtext.data.utils</span> <span class="kn">import</span> <span class="n">ngrams_iterator</span>
+
+<span class="kn">from</span> <span class="nn">ts.handler_utils.text_utils</span> <span class="kn">import</span> <span class="n">ngrams_iterator</span>
 
 <span class="kn">from</span> <span class="nn">..utils.util</span> <span class="kn">import</span> <span class="n">map_class_to_label</span>
 <span class="kn">from</span> <span class="nn">.text_handler</span> <span class="kn">import</span> <span class="n">TextHandler</span>
