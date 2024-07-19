@@ -1,6 +1,6 @@
 datasets==2.18.0
 intel_extension_for_pytorch==2.4.0+gite2d4be3
 torch==2.4.0.dev20240328+cpu
-torchserve==0.10.0
+torchserve==0.11.0
 transformers==4.38.2
 accelerate
