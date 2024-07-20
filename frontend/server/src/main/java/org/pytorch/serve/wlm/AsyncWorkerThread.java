@@ -53,6 +53,7 @@ public class AsyncWorkerThread extends WorkerThread {
     @Override
     public void run() {
         responseTimeout = model.getResponseTimeout();
+        startupTimeout = model.getStartupTimeout();
         Thread thread = Thread.currentThread();
         thread.setName(getWorkerName());
         currentThread.set(thread);

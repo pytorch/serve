@@ -22,6 +22,7 @@ public class DescribeModelResponse {
     private int batchSize;
     private int maxBatchDelay;
     private int responseTimeout;
+    private int startupTimeout;
     private long maxRetryTimeoutInSec;
     private long clientTimeoutInMills;
     private String parallelType;
@@ -131,8 +132,16 @@ public class DescribeModelResponse {
         return responseTimeout;
     }
 
+    public int getStartupTimeout() {
+        return startupTimeout;
+    }
+
     public void setResponseTimeout(int responseTimeout) {
         this.responseTimeout = responseTimeout;
+    }
+
+    public void setStartupTimeout(int startupTimeout){
+        this.startupTimeout = startupTimeout;
     }
 
     public long getMaxRetryTimeoutInSec() {
