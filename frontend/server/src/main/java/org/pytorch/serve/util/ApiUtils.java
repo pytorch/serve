@@ -127,7 +127,7 @@ public final class ApiUtils {
         if (responseTimeout == -1) {
             responseTimeout = ConfigManager.getInstance().getDefaultResponseTimeout();
         }
-        if (startupTimeout == -1){
+        if (startupTimeout == -1) {
             startupTimeout = ConfigManager.getInstance().getDefaultStartupTimeout();
         }
 

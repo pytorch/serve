@@ -320,7 +320,7 @@ public class ModelConfig {
     }
 
     public void setStartupTimeout(int startupTimeout) {
-        if (startupTimeout <= 0){
+        if (startupTimeout <= 0) {
             logger.warn("Invalid startupTimeout:{}", startupTimeout);
             return;
         }

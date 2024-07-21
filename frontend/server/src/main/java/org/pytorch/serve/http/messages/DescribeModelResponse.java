@@ -140,7 +140,7 @@ public class DescribeModelResponse {
         this.responseTimeout = responseTimeout;
     }
 
-    public void setStartupTimeout(int startupTimeout){
+    public void setStartupTimeout(int startupTimeout) {
         this.startupTimeout = startupTimeout;
     }
 

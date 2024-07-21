@@ -103,9 +103,14 @@ public final class WorkflowManager {
     }
 
     public StatusResponse registerWorkflow(
-            String workflowName, String url, int responseTimeout, int startupTimeout, boolean synchronous)
+            String workflowName,
+            String url,
+            int responseTimeout,
+            int startupTimeout,
+            boolean synchronous)
             throws WorkflowException {
-        return registerWorkflow(workflowName, url, responseTimeout, startupTimeout, synchronous, false);
+        return registerWorkflow(
+                workflowName, url, responseTimeout, startupTimeout, synchronous, false);
     }
 
     public StatusResponse registerWorkflow(
@@ -150,7 +155,12 @@ public final class WorkflowManager {
 
                 futures.add(
                         executorCompletionService.submit(
-                                () -> registerModelWrapper(wfm, responseTimeout, startupTimeout, synchronous)));
+                                () ->
+                                        registerModelWrapper(
+                                                wfm,
+                                                responseTimeout,
+                                                startupTimeout,
+                                                synchronous)));
             }
 
             int i = 0;

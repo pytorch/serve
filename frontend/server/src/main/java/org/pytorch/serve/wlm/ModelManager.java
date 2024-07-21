@@ -145,7 +145,13 @@ public final class ModelManager {
         }
 
         Model tempModel =
-                createModel(archive, batchSize, maxBatchDelay, responseTimeout, startupTimeout, isWorkflowModel);
+                createModel(
+                        archive,
+                        batchSize,
+                        maxBatchDelay,
+                        responseTimeout,
+                        startupTimeout,
+                        isWorkflowModel);
 
         String versionId = archive.getModelVersion();
 
