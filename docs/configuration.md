@@ -245,6 +245,7 @@ A model's parameters are defined in [model source code](https://github.com/pytor
 * `maxWorkers`: the maximum number of workers of a model
 * `batchSize`: the batch size of a model
 * `maxBatchDelay`: the maximum delay in msec of a batch of a model
+* `startupTimeout`: the timeout in sec of a specific model's startup. This setting takes priority over `default_startup_timeout` which is a default timeout over all models
 * `responseTimeout`: the timeout in sec of a specific model's response. This setting takes priority over `default_response_timeout` which is a default timeout over all models
 * `defaultVersion`: the default version of a model
 * `marName`: the mar file name of a model
@@ -295,6 +296,7 @@ Most of the following properties are designed for performance tuning. Adjusting 
 * `job_queue_size`: Number inference jobs that frontend will queue before backend can serve. Default: 100.
 * `async_logging`: Enable asynchronous logging for higher throughput, log output may be delayed if this is enabled. Default: false.
 * `default_response_timeout`: Timeout, in seconds, used for all models backend workers before they are deemed unresponsive and rebooted. Default: 120 seconds.
+* `default_startup_timeout`: Specifies the maximum time, in seconds, allowed for model backend workers to initialize and become ready. If a worker fails to start within this timeframe, it is considered unresponsive and will be restarted. Default: 120 seconds.
 * `unregister_model_timeout`: Timeout, in seconds, used when handling an unregister model request when cleaning a process before it is deemed unresponsive and an error response is sent. Default: 120 seconds.
 * `decode_input_request`: Configuration to let backend workers to decode requests, when the content type is known.
 If this is set to "true", backend workers do "Bytearray to JSON object" conversion when the content type is "application/json" and
