@@ -462,7 +462,7 @@ public final class ModelManager {
                             archive.getModelVersion(),
                             Model.RESPONSE_TIMEOUT,
                             responseTimeout);
-            startupTimeout = 
+            startupTimeout =
                     configManager.getJsonIntValue(
                             archive.getModelName(),
                             archive.getModelVersion(),
