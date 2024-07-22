@@ -60,6 +60,10 @@ public class ModelConfig {
      */
     private long sequenceMaxIdleMSec;
     /**
+     * the timeout of a sequence inference request of this stateful model. The default value is 0.
+     */
+    private long sequenceTimeoutMSec;
+    /**
      * the job queue size of one inference sequence of this stateful model. The default value is 1.
      */
     private int maxSequenceJobQueueSize = 1;
@@ -194,6 +198,15 @@ public class ModelConfig {
                             } else {
                                 logger.warn(
                                         "Invalid sequenceMaxIdleMSec: {}, should be positive int",
+                                        v);
+                            }
+                            break;
+                        case "sequenceTimeoutMSec":
+                            if (v instanceof Integer) {
+                                modelConfig.setSequenceTimeoutMSec(((Integer) v).longValue());
+                            } else {
+                                logger.warn(
+                                        "Invalid sequenceTimeoutMSec: {}, should be positive int",
                                         v);
                             }
                             break;
@@ -393,6 +406,14 @@ public class ModelConfig {
 
     public void setSequenceMaxIdleMSec(long sequenceMaxIdleMSec) {
         this.sequenceMaxIdleMSec = Math.max(0, sequenceMaxIdleMSec);
+    }
+
+    public long getSequenceTimeoutMSec() {
+        return sequenceTimeoutMSec;
+    }
+
+    public void setSequenceTimeoutMSec(long sequenceTimeoutMSec) {
+        this.sequenceTimeoutMSec = Math.max(0, sequenceTimeoutMSec);
     }
 
     public int getMaxSequenceJobQueueSize() {

@@ -58,6 +58,7 @@ public class Model {
     private ReentrantLock jobGroupLock;
     private int responseTimeout;
     private long sequenceMaxIdleMSec;
+    private long sequenceTimeoutMSec;
     private int maxNumSequence;
     private int maxSequenceJobQueueSize;
     private boolean stateful;
@@ -129,6 +130,7 @@ public class Model {
             useJobTicket = modelArchive.getModelConfig().isUseJobTicket();
             if (modelArchive.getModelConfig().getSequenceMaxIdleMSec() > 0) {
                 sequenceMaxIdleMSec = modelArchive.getModelConfig().getSequenceMaxIdleMSec();
+                sequenceTimeoutMSec = modelArchive.getModelConfig().getSequenceTimeoutMSec();
                 maxSequenceJobQueueSize =
                         modelArchive.getModelConfig().getMaxSequenceJobQueueSize();
                 maxNumSequence =
@@ -305,7 +307,9 @@ public class Model {
             JobGroup jobGroup = jobGroups.get(job.getGroupId());
             if (jobGroup == null) {
                 if (jobGroups.size() < maxNumSequence) {
-                    jobGroup = new JobGroup(job.getGroupId(), maxSequenceJobQueueSize);
+                    jobGroup =
+                            new JobGroup(
+                                    job.getGroupId(), maxSequenceJobQueueSize, sequenceTimeoutMSec);
                     jobGroups.put(job.getGroupId(), jobGroup);
                     pendingJobGroups.offer(job.getGroupId());
                     logger.info("added jobGroup for sequenceId:{}", job.getGroupId());
@@ -612,6 +616,14 @@ public class Model {
 
     public void setSequenceMaxIdleMSec(long sequenceMaxIdleMSec) {
         this.sequenceMaxIdleMSec = sequenceMaxIdleMSec;
+    }
+
+    public long getSequenceTimeoutMSec() {
+        return sequenceTimeoutMSec;
+    }
+
+    public void setSequenceTimeoutMSec(long sequenceTimeoutMSec) {
+        this.sequenceTimeoutMSec = sequenceTimeoutMSec;
     }
 
     public int getMaxSequenceJobQueueSize() {
