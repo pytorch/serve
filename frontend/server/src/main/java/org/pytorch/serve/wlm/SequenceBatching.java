@@ -247,7 +247,9 @@ public class SequenceBatching extends BatchAggregator {
             Instant currentTimestamp = Instant.now();
             Instant expiryTimestamp = jobGroup.getExpiryTimestamp();
 
-            if (currentTimestamp.isBefore(expiryTimestamp)) {
+            if (expiryTimestamp == Instant.MAX) {
+                pollTimeout = model.getSequenceMaxIdleMSec();
+            } else if (currentTimestamp.isBefore(expiryTimestamp)) {
                 long remainingPollDuration =
                         Duration.between(currentTimestamp, expiryTimestamp).toMillis();
                 pollTimeout = Math.min(model.getSequenceMaxIdleMSec(), remainingPollDuration);
