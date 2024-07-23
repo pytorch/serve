@@ -229,8 +229,8 @@ def run_benchmark(bm_config):
                 execute(cmd, wait=True)
 
                 print(f"An error occurred: {e}")
-                if "error_report_cmd" in bm_config:
-                    execute(bm_config["error_report_cmd"], wait=True)
+                if "report_cmd" in bm_config:
+                    execute(bm_config["report_cmd"], wait=True)
 
                 continue
 
