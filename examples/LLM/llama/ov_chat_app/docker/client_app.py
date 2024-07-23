@@ -76,25 +76,11 @@ with st.sidebar:
         "guidance_scale", min_value=1.0, max_value=30.0, value=5.0, step=0.5
     )
     height = st.sidebar.slider(
-        "height", min_value=256, max_value=2048, value=768, step=8
+        "height", min_value=256, max_value=2048, value=512, step=8
     )
     width = st.sidebar.slider(
-        "width", min_value=256, max_value=2048, value=768, step=8
+        "width", min_value=256, max_value=2048, value=512, step=8
     )
-
-    # st.subheader("LLM Model parameters")
-    # temperature = st.sidebar.slider(
-    #     "temperature", min_value=0.1, max_value=1.0, value=0.5, step=0.1
-    # )
-    # top_p = st.sidebar.slider(
-    #     "top_p", min_value=0.1, max_value=1.0, value=0.5, step=0.1
-    # )
-    # max_new_tokens = st.sidebar.slider(
-    #     "max_new_tokens", min_value=48, max_value=512, value=50, step=4
-    # )
-    # concurrent_requests = st.sidebar.select_slider(
-    #     "concurrent_requests", options=[2**j for j in range(0, 8)]
-    # )
 
 
 prompt = st.text_input("Text Prompt")
@@ -161,7 +147,6 @@ def trim_prompt(s):
     return re.sub(r'^[^a-zA-Z0-9]+|[^a-zA-Z0-9]+$', '', s)
 
 def postprocess_llm_response(generated_prompts, original_prompt=None):
-    print('111111111111111111111111', generated_prompts)
     prompts = get_prompts_string(generated_prompts)
     prompts = [trim_prompt(item) for item in prompts.split(";")]
     prompts = list(filter(None, prompts))
@@ -170,13 +155,15 @@ def postprocess_llm_response(generated_prompts, original_prompt=None):
         prompts[0] = original_prompt
     assert len(prompts) == images_num
 
+    print('!!!!!!!!!!! Prompts: ', prompts)
+
     return prompts
 
 
 def generate_llm_model_response(input_prompt):
     headers = {"Content-type": "application/json", "Accept": "text/plain"}
     url = f"http://127.0.0.1:8080/predictions/{MODEL_NAME_LLM}"
-    data = json.dumps({"prompt": prompt_input})
+    data = json.dumps({"prompt": input_prompt})
 
     res = requests.post(url=url, data=data, headers=headers, stream=True)
     assert res.status_code == 200

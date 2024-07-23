@@ -17,4 +17,4 @@ handler:
     no_bf16: true
     no_sdpa: false
     upcast_vae: false
-    is_xl: false
+    is_xl: true

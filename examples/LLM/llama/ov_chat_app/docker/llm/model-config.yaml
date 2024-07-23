@@ -1,0 +1,10 @@
+# TorchServe frontend parameters
+minWorkers: 1
+maxWorkers: 1
+responseTimeout: 1200
+
+pt2 : {backend: "inductor"}
+handler:
+    model_path: "model"
+    model_name: "meta-llama/Meta-Llama-3-8B-Instruct"
+    manual_seed: 40

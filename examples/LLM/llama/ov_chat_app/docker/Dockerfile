@@ -11,6 +11,7 @@ ARG NO_PROXY
 ENV http_proxy=$HTTP_PROXY
 ENV https_proxy=$HTTPS_PROXY
 ENV no_proxy=$NO_PROXY
+ENV TS_DISABLE_TOKEN_AUTHORIZATION=true
 
 USER root
 
@@ -20,12 +21,14 @@ RUN --mount=type=cache,id=apt-dev,target=/var/cache/apt \
 
 COPY $EXAMPLE_DIR/requirements.txt /home/model-server/chat_bot/requirements.txt
 RUN pip install -r /home/model-server/chat_bot/requirements.txt && huggingface-cli login --token $HUGGINGFACE_TOKEN
+# TODO: fix with latest torchserve
+RUN pip install torchserve==0.11.0
 
 WORKDIR /home/model-server/chat_bot
-RUN git clone https://github.com/ggerganov/llama.cpp.git build && \
-    cd build && \
-    make && \
-    python -m pip install -r requirements.txt
+# RUN git clone https://github.com/ggerganov/llama.cpp.git build && \
+#     cd build && \
+#     make && \
+#     python -m pip install -r requirements.txt
 
 COPY $EXAMPLE_DIR  /home/model-server/chat_bot
 RUN cd sd && pip install -r requirements.txt
