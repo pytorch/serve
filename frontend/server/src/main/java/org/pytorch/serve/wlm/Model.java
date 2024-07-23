@@ -84,6 +84,7 @@ public class Model {
     private AtomicInteger numJobTickets;
     private boolean continuousBatching;
     private boolean sequenceBatch;
+    private boolean asyncCommunication;
     private boolean useVenv;
 
     public Model(ModelArchive modelArchive, int queueSize) {
@@ -91,6 +92,7 @@ public class Model {
         if (modelArchive != null && modelArchive.getModelConfig() != null) {
             continuousBatching = modelArchive.getModelConfig().isContinuousBatching();
             sequenceBatch = modelArchive.getModelConfig().isSequenceBatching();
+            asyncCommunication = modelArchive.getModelConfig().isAsyncCommunication();
             useVenv = modelArchive.getModelConfig().getUseVenv();
             if (modelArchive.getModelConfig().getParallelLevel() > 0
                     && modelArchive.getModelConfig().getParallelType()
@@ -309,9 +311,10 @@ public class Model {
                     logger.info("added jobGroup for sequenceId:{}", job.getGroupId());
                 } else {
                     logger.warn(
-                            "Skip the requestId: {} for sequence: {} due to exceeding maxNumSequence: {}",
+                            "Skip the requestId: {} for sequence: {} due to jobGroups size: {} exceeding maxNumSequence: {}",
                             job.getJobId(),
                             job.getGroupId(),
+                            jobGroups.size(),
                             maxNumSequence);
                     return false;
                 }
@@ -637,6 +640,10 @@ public class Model {
 
     public boolean isSequenceBatching() {
         return sequenceBatch;
+    }
+
+    public boolean isAsyncCommunication() {
+        return asyncCommunication;
     }
 
     public boolean isUseVenv() {

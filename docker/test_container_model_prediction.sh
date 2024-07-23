@@ -19,7 +19,7 @@ torch-model-archiver \
     --handler=/home/model-server/mnist_handler.py \
     --export-path=/home/model-server/model-store
 
-torchserve --start --ts-config=/home/model-server/config.properties --models mnist=mnist.mar --disable-token
+torchserve --start --ts-config=/home/model-server/config.properties --models mnist=mnist.mar --disable-token-auth
 EOF
 
 echo "Starting container ${CONTAINER}"

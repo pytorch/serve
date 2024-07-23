@@ -38,7 +38,7 @@ mv model_artifacts/* model_store/SpeechT5-TTS/
 ## Start TorchServe
 
 ```
-torchserve --start --ncs --model-store model_store --models SpeechT5-TTS
+torchserve --start --ncs --model-store model_store --models SpeechT5-TTS --disable-token-auth  --enable-model-api
 ```
 
 ## Send Inference request

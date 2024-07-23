@@ -78,6 +78,8 @@ RUN \
 
 WORKDIR "serve"
 
+RUN cp docker/dockerd-entrypoint.sh /usr/local/bin/dockerd-entrypoint.sh
+
 RUN \
     if echo "$BASE_IMAGE" | grep -q "cuda:"; then \
         # Install CUDA version specific binary when CUDA version is specified as a build arg
@@ -113,7 +115,7 @@ RUN --mount=type=cache,target=/var/cache/apt \
     apt-get update && \
     apt-get upgrade -y && \
     apt-get install software-properties-common -y && \
-    add-apt-repository -y ppa:deadsnakes/ppa && \
+    add-apt-repository ppa:deadsnakes/ppa -y && \
     apt remove python-pip  python3-pip && \
     DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
     python$PYTHON_VERSION \
@@ -131,10 +133,8 @@ RUN useradd -m model-server \
     && mkdir -p /home/model-server/tmp
 
 COPY --chown=model-server --from=compile-image /home/venv /home/venv
-
+COPY --from=compile-image /usr/local/bin/dockerd-entrypoint.sh /usr/local/bin/dockerd-entrypoint.sh
 ENV PATH="/home/venv/bin:$PATH"
-
-COPY docker/dockerd-entrypoint.sh /usr/local/bin/dockerd-entrypoint.sh
 
 RUN chmod +x /usr/local/bin/dockerd-entrypoint.sh \
     && chown -R model-server /home/model-server

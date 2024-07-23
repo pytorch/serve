@@ -45,42 +45,42 @@ import org.slf4j.LoggerFactory;
 
 public class WorkerThread implements Runnable {
 
-    private static final Logger logger = LoggerFactory.getLogger(WorkerThread.class);
-    private static final Logger loggerTelemetryMetrics =
+    protected static final Logger logger = LoggerFactory.getLogger(WorkerThread.class);
+    protected static final Logger loggerTelemetryMetrics =
             LoggerFactory.getLogger(ConfigManager.MODEL_SERVER_TELEMETRY_LOGGER);
-    private static final int[] BACK_OFF = {
+    protected static final int[] BACK_OFF = {
         0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610, 987, 1597
     };
-    private static final long WORKER_TIMEOUT = 2L;
-    private static final ModelRequestEncoder ENCODER =
+    protected static final long WORKER_TIMEOUT = 2L;
+    protected static final ModelRequestEncoder ENCODER =
             new ModelRequestEncoder(ConfigManager.getInstance().getPreferDirectBuffer());
-    private final IMetric workerThreadTimeMetric;
-    private final IMetric workerLoadTimeMetric;
-    private final List<String> workerThreadTimeMetricDimensionValues;
-    private final List<String> workerLoadTimeMetricDimensionValues;
-    private ConfigManager configManager;
-    private EventLoopGroup backendEventGroup;
-    private int port;
-    private Model model;
+    protected final IMetric workerThreadTimeMetric;
+    protected final IMetric workerLoadTimeMetric;
+    protected final List<String> workerThreadTimeMetricDimensionValues;
+    protected final List<String> workerLoadTimeMetricDimensionValues;
+    protected ConfigManager configManager;
+    protected EventLoopGroup backendEventGroup;
+    protected int port;
+    protected Model model;
 
-    private ArrayList<Channel> backendChannel = new ArrayList<>();
-    private AtomicBoolean running = new AtomicBoolean(true);
+    protected ArrayList<Channel> backendChannel = new ArrayList<>();
+    protected AtomicBoolean running = new AtomicBoolean(true);
 
-    private int backoffIdx;
+    protected int backoffIdx;
 
-    private BatchAggregator aggregator;
-    private WorkerStateListener listener;
-    private ArrayBlockingQueue<ModelWorkerResponse> replies;
-    private int gpuId;
-    private long memory;
-    private long startTime;
-    private AtomicReference<Thread> currentThread = new AtomicReference<>();
-    private String workerId;
-    private WorkerState state;
-    private WorkerLifeCycle lifeCycle;
-    private int responseTimeout;
-    private long recoveryStartTS; // 0: default value. no recovery needed, in healthy mode
-    private BaseModelRequest req = null;
+    protected BatchAggregator aggregator;
+    protected WorkerStateListener listener;
+    protected ArrayBlockingQueue<ModelWorkerResponse> replies;
+    protected int gpuId;
+    protected long memory;
+    protected long startTime;
+    protected AtomicReference<Thread> currentThread = new AtomicReference<>();
+    protected String workerId;
+    protected WorkerState state;
+    protected WorkerLifeCycle lifeCycle;
+    protected int responseTimeout;
+    protected long recoveryStartTS; // 0: default value. no recovery needed, in healthy mode
+    protected BaseModelRequest req = null;
 
     public WorkerThread(
             ConfigManager configManager,
@@ -322,10 +322,7 @@ public class WorkerThread implements Runnable {
             // WorkerThread is running in thread pool, the thread will be assigned to next
             // Runnable once this worker is finished. If currentThread keep holding the reference
             // of the thread, currentThread.interrupt() might kill next worker.
-            for (int i = 0;
-                    backendChannel.size() > 0
-                            && i < (model.getParallelLevel() > 0 ? model.getParallelLevel() : 1);
-                    i++) {
+            for (int i = 0; i < backendChannel.size(); i++) {
                 backendChannel.get(i).disconnect();
             }
             backendChannel.clear();
@@ -360,7 +357,7 @@ public class WorkerThread implements Runnable {
         this.memory = memory;
     }
 
-    private void connect() throws WorkerInitializationException, InterruptedException {
+    protected void connect() throws WorkerInitializationException, InterruptedException {
         if (!configManager.isDebug()) {
             lifeCycle.startWorker(port, getDeviceIds());
         }
@@ -472,10 +469,7 @@ public class WorkerThread implements Runnable {
         running.set(false);
         aggregator.shutdown();
         setState(WorkerState.WORKER_SCALED_DOWN, HttpURLConnection.HTTP_OK);
-        for (int i = 0;
-                backendChannel.size() > 0
-                        && i < (model.getParallelLevel() > 0 ? model.getParallelLevel() : 1);
-                i++) {
+        for (int i = 0; i < backendChannel.size(); i++) {
             if (backendChannel.get(i) != null) {
                 backendChannel.get(i).close();
             }
@@ -491,7 +485,7 @@ public class WorkerThread implements Runnable {
         }
     }
 
-    private String getWorkerName() {
+    protected String getWorkerName() {
         String modelName = model.getModelVersionName().getVersionedModelName();
         return "W-" + port + '-' + modelName;
     }
@@ -548,7 +542,7 @@ public class WorkerThread implements Runnable {
         logger.info("Retry worker: {} in {} seconds.", workerId, BACK_OFF[backoffIdx]);
     }
 
-    private String getDeviceIds() {
+    protected String getDeviceIds() {
         List<Integer> deviceIds;
         if (gpuId == -1 || model.getParallelLevel() == 0) {
             return null;
@@ -575,7 +569,7 @@ public class WorkerThread implements Runnable {
     }
 
     @ChannelHandler.Sharable
-    private class WorkerHandler extends SimpleChannelInboundHandler<ModelWorkerResponse> {
+    protected class WorkerHandler extends SimpleChannelInboundHandler<ModelWorkerResponse> {
 
         @Override
         public void channelRead0(ChannelHandlerContext ctx, ModelWorkerResponse msg) {
@@ -603,7 +597,7 @@ public class WorkerThread implements Runnable {
         }
     }
 
-    private boolean isTensorParallelRequest(WorkerCommands workerCmd) {
+    protected boolean isTensorParallelRequest(WorkerCommands workerCmd) {
         switch (workerCmd) {
             case PREDICT:
             case STREAMPREDICT:
@@ -617,11 +611,11 @@ public class WorkerThread implements Runnable {
         }
     }
 
-    private boolean isLoadRequest(WorkerCommands workerCmd) {
+    protected boolean isLoadRequest(WorkerCommands workerCmd) {
         return workerCmd == WorkerCommands.LOAD;
     }
 
-    private int getRepeats(WorkerCommands workerCmd) {
+    protected int getRepeats(WorkerCommands workerCmd) {
         if (isLoadRequest(workerCmd) || isTensorParallelRequest(workerCmd)) {
             // broadcast the command to all ranks
             return Math.max(1, model.getParallelLevel());

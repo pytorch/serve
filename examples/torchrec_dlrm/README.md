@@ -34,7 +34,7 @@ mv dlrm.mar model_store
 Then we can start TorchServe with:
 
 ```
-torchserve --start --model-store model_store --models dlrm=dlrm.mar
+torchserve --start --model-store model_store --models dlrm=dlrm.mar --disable-token-auth --enable-model-api
 ```
 
 To query the model we can then run:
@@ -61,7 +61,7 @@ The output should look like this:
 We start TorchServe with:
 
 ```
-torchserve --start --model-store model_store
+torchserve --start --model-store model_store --disable-token-auth  --enable-model-api
 curl -X POST "localhost:8081/models?model_name=dlrm&url=dlrm.mar&batch_size=4&max_batch_delay=5000&initial_workers=1&synchronous=true"
 ```
 

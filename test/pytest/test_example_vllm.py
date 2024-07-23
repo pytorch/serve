@@ -1,4 +1,5 @@
 import json
+import random
 import shutil
 import sys
 from pathlib import Path
@@ -6,6 +7,7 @@ from pathlib import Path
 import pytest
 import requests
 import test_utils
+import torch
 from model_archiver.model_archiver_config import ModelArchiverConfig
 
 CURR_FILE_PATH = Path(__file__).parent
@@ -13,7 +15,7 @@ VLLM_PATH = CURR_FILE_PATH.parents[1] / "examples" / "large_models" / "vllm"
 LORA_SRC_PATH = VLLM_PATH / "lora"
 CONFIG_PROPERTIES_PATH = CURR_FILE_PATH.parents[1] / "test" / "config_ts.properties"
 
-LLAMA_MODEL_PATH = "model/models--meta-llama--Llama-2-7b-hf/snapshots/01c7f73d771dfac7d292323805ebc428287df4f9"
+LLAMA_MODEL_PATH = "model/models--meta-llama--Llama-2-7b-chat-hf/snapshots/f5db02db724555f92da89c216ac04704f23d4590/"
 
 ADAPTER_PATH = "adapters/model/models--yard1--llama-2-7b-sql-lora-test/snapshots/0dfa347e8877a4d4ed19ee56c140fa518470028c"
 
@@ -21,23 +23,26 @@ YAML_CONFIG = f"""
 # TorchServe frontend parameters
 minWorkers: 1
 maxWorkers: 1
-batchSize: 16
+batchSize: 1
 maxBatchDelay: 100
 responseTimeout: 1200
 deviceType: "gpu"
-continuousBatching: true
+asyncCommunication: true
+parallelType: "custom"
+parallelLevel: {torch.cuda.device_count()}
 
 handler:
-    model_path: "{LLAMA_MODEL_PATH}"
+    model_path: "{(LORA_SRC_PATH / LLAMA_MODEL_PATH).as_posix()}"
     vllm_engine_config:
         enable_lora: true
         max_loras: 4
         max_cpu_loras: 4
         max_num_seqs: 16
         max_model_len: 250
+        tensor_parallel_size: {torch.cuda.device_count()}
 
     adapters:
-        adapter_1: "{ADAPTER_PATH}"
+        adapter_1: "{(LORA_SRC_PATH / ADAPTER_PATH).as_posix()}"
 """
 
 PROMPTS = [
@@ -50,15 +55,38 @@ PROMPTS = [
         "max_tokens": 128,
         "adapter": "adapter_1",
     },
+    {
+        "prompt": "Paris is, ",
+        "max_new_tokens": 50,
+        "logprobs": 1,
+        "prompt_logprobs": 1,
+        "max_tokens": 128,
+        "temperature": 0.0,
+        "top_k": 1,
+        "top_p": 0,
+        "adapter": "adapter_1",
+        "seed": 42,
+    },
 ]
+EXPECTED = [
+    " or, ",  # through inaction", # edit to pass see https://github.com/vllm-project/vllm/issues/5404
+    "1900.\n\nThe city is",  # bathed",
+]
+
+try:
+    import vllm  # noqa
+
+    VLLM_MISSING = False
+except ImportError:
+    VLLM_MISSING = True
 
 
 def necessary_files_unavailable():
     LLAMA = LORA_SRC_PATH / LLAMA_MODEL_PATH
     ADAPTER = LORA_SRC_PATH / ADAPTER_PATH
     return {
-        "condition": not (LLAMA.exists() and ADAPTER.exists()),
-        "reason": f"Required files are not present (see README): {LLAMA.as_posix()} + {ADAPTER.as_posix()}",
+        "condition": not (LLAMA.exists() and ADAPTER.exists()) or VLLM_MISSING,
+        "reason": f"Required files are not present or vllm is not installed (see README): {LLAMA.as_posix()} + {ADAPTER.as_posix()}",
     }
 
 
@@ -94,7 +122,7 @@ def create_mar_file(work_dir, model_archiver, model_name, request):
         handler=(VLLM_PATH / "base_vllm_handler.py").as_posix(),
         serialized_file=None,
         export_path=work_dir,
-        requirements_file=(VLLM_PATH / "requirements.txt").as_posix(),
+        requirements_file=None,
         runtime="python",
         force=False,
         config_file=model_config_yaml.as_posix(),
@@ -102,8 +130,6 @@ def create_mar_file(work_dir, model_archiver, model_name, request):
     )
 
     model_archiver.generate_model_archive(config)
-    shutil.move(LORA_SRC_PATH / "model", mar_file_path)
-    shutil.move(LORA_SRC_PATH / "adapters", mar_file_path)
 
     assert mar_file_path.exists()
 
@@ -114,7 +140,7 @@ def create_mar_file(work_dir, model_archiver, model_name, request):
 
 
 @pytest.mark.skipif(**necessary_files_unavailable())
-def test_vllm_lora_mar(mar_file_path, model_store):
+def test_vllm_lora_mar(mar_file_path, model_store, torchserve):
     """
     Register the model in torchserve
     """
@@ -133,30 +159,37 @@ def test_vllm_lora_mar(mar_file_path, model_store):
         ("batch_size", "1"),
     )
 
-    test_utils.start_torchserve(
-        model_store=model_store, snapshot_file=CONFIG_PROPERTIES_PATH, gen_mar=False
-    )
-
     try:
         test_utils.reg_resp = test_utils.register_model_with_params(params)
+        responses = []
 
-        response = requests.post(
-            url=f"http://localhost:8080/predictions/{model_name}",
-            json=PROMPTS[0],
-            stream=True,
+        for _ in range(10):
+            idx = random.randint(0, 1)
+            response = requests.post(
+                url=f"http://localhost:8080/predictions/{model_name}",
+                json=PROMPTS[idx],
+                stream=True,
+            )
+
+            assert response.status_code == 200
+
+            assert response.headers["Transfer-Encoding"] == "chunked"
+            responses += [(response, EXPECTED[idx])]
+
+        predictions = []
+        expected_result = []
+        for response, expected in responses:
+            prediction = []
+            for chunk in response.iter_content(chunk_size=None):
+                if chunk:
+                    data = json.loads(chunk)
+                    prediction += [data.get("text", "")]
+            predictions += [prediction]
+            expected_result += [expected]
+        assert all(len(p) > 1 for p in predictions)
+        assert all(
+            "".join(p).startswith(e) for p, e in zip(predictions, expected_result)
         )
-
-        assert response.status_code == 200
-
-        assert response.headers["Transfer-Encoding"] == "chunked"
-
-        prediction = []
-        for chunk in response.iter_content(chunk_size=None):
-            if chunk:
-                data = json.loads(chunk)
-                prediction += [data.get("text", "")]
-
-        assert len(prediction) > 1
 
     finally:
         test_utils.unregister_model(model_name)

@@ -10,7 +10,9 @@ st.set_page_config(page_title="🦙💬 Llama 2 TorchServe Serve")
 
 
 def start_server():
-    os.system("torchserve --start --model-store model_store --ncs")
+    os.system(
+        "torchserve --start --model-store model_store --ncs --disable-token-auth --enable-model-api"
+    )
     st.session_state.started = True
     st.session_state.stopped = False
     st.session_state.registered = False
