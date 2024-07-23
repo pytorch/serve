@@ -69,8 +69,9 @@ Handler uses sequenceId (ie., `sequence_id = self.context.get_sequence_id(idx)`)
 
 ### Step 2: Model configuration
 
-Stateful inference has two parameters. TorchServe is able to process (maxWorkers * batchSize) sequences of inference requests of a model in parallel.
-* sequenceMaxIdleMSec: the max idle in milliseconds of a sequence inference request of this stateful model. The default value is 0 (ie. this is not a stateful model.) TorchServe does not process the new inference request if the max idle timeout.
+Stateful inference has three parameters. TorchServe is able to process (maxWorkers * batchSize) sequences of inference requests of a model in parallel.
+* sequenceMaxIdleMSec: the max idle in milliseconds of a sequence inference request of this stateful model. The default value is 0 (i.e. this is not a stateful model.) TorchServe does not process the new inference request if the max idle timeout.
+* sequenceTimeoutMSec: the max duration in milliseconds of a sequence inference request of this stateful model. The default value is 0 (i.e. there is effectively no sequence timeout and the sequence does not expire). TorchServe does not process a new inference request if the sequence timeout is exceeded.
 * maxSequenceJobQueueSize: the job queue size of an inference sequence of this stateful model. The default value is 1.
 
 

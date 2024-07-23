@@ -1,5 +1,6 @@
 package org.pytorch.serve.job;
 
+import java.time.Instant;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -13,13 +14,18 @@ public class JobGroup {
     int maxJobQueueSize;
     AtomicBoolean finished;
     AtomicBoolean polling;
+    Instant expiryTimestamp;
 
-    public JobGroup(String groupId, int maxJobQueueSize) {
+    public JobGroup(String groupId, int maxJobQueueSize, long sequenceTimeoutMSec) {
         this.groupId = groupId;
         this.maxJobQueueSize = maxJobQueueSize;
         this.jobs = new LinkedBlockingDeque<>(maxJobQueueSize);
         this.finished = new AtomicBoolean(false);
         this.polling = new AtomicBoolean(false);
+        this.expiryTimestamp =
+                sequenceTimeoutMSec > 0
+                        ? Instant.now().plusMillis(sequenceTimeoutMSec)
+                        : Instant.MAX;
     }
 
     public boolean appendJob(Job job) {
@@ -52,5 +58,9 @@ public class JobGroup {
 
     public AtomicBoolean getPolling() {
         return this.polling;
+    }
+
+    public Instant getExpiryTimestamp() {
+        return this.expiryTimestamp;
     }
 }

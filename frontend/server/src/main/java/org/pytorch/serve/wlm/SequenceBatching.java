@@ -1,5 +1,7 @@
 package org.pytorch.serve.wlm;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.concurrent.CompletableFuture;
@@ -224,7 +226,7 @@ public class SequenceBatching extends BatchAggregator {
             AtomicBoolean isPolling = jobGroup.getPolling();
             if (!jobGroup.isFinished()) {
                 if (!isPolling.getAndSet(true)) {
-                    job = jobGroup.pollJob(model.getSequenceMaxIdleMSec());
+                    job = jobGroup.pollJob(getPollJobGroupTimeoutMSec(jobGroup));
                     isPolling.set(false);
                 } else {
                     return;
@@ -238,6 +240,22 @@ public class SequenceBatching extends BatchAggregator {
             } else {
                 jobsQueue.add(job);
             }
+        }
+
+        private long getPollJobGroupTimeoutMSec(JobGroup jobGroup) {
+            long pollTimeout = 0;
+            Instant currentTimestamp = Instant.now();
+            Instant expiryTimestamp = jobGroup.getExpiryTimestamp();
+
+            if (expiryTimestamp == Instant.MAX) {
+                pollTimeout = model.getSequenceMaxIdleMSec();
+            } else if (currentTimestamp.isBefore(expiryTimestamp)) {
+                long remainingPollDuration =
+                        Duration.between(currentTimestamp, expiryTimestamp).toMillis();
+                pollTimeout = Math.min(model.getSequenceMaxIdleMSec(), remainingPollDuration);
+            }
+
+            return pollTimeout;
         }
     }
 }
