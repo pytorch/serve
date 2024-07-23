@@ -11,6 +11,7 @@ CWD = os.getcwd()
 MODEL_JSON_CONFIG_PATH = CWD + "/model_json_config"
 BENCHMARK_TMP_PATH = "/tmp/benchmark"
 BENCHMARK_REPORT_PATH = "/tmp/ts_benchmark"
+BENCHMARK_REPORT_PATH_TEST = "/tmp/ts_benchmark/fail"
 TS_LOGS_PATH = CWD + "/logs"
 MODEL_STORE = "/tmp/model_store"
 WF_STORE = "/tmp/wf_store"
@@ -219,7 +220,7 @@ def run_benchmark(bm_config):
                     "{}/logs/stats_metrics.json".format(BENCHMARK_TMP_PATH),
                 )
             except Exception as e:
-                bm_model_log_path = "{}/{}".format(BENCHMARK_REPORT_PATH, bm_model)
+                bm_model_log_path = "{}/{}".format(BENCHMARK_REPORT_PATH_TEST, bm_model)
                 os.makedirs(bm_model_log_path, exist_ok=True)
 
                 cmd = "tar -cvzf {}/logs.tar.gz {}".format(
