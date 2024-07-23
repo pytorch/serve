@@ -1128,6 +1128,7 @@ interdependencies
 maxSequenceJobQueueSize
 sequenceId
 sequenceMaxIdleMSec
+sequenceTimeoutMSec
 stateful
 tgz
 bitsandbytes

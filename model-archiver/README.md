@@ -170,7 +170,7 @@ A model config yaml file. For example:
 
 ```
 # TS frontend parameters
-# See all supported parameters: https://github.com/pytorch/serve/blob/688f09ebb8527c184d63bd66ee6265a4609ac194/frontend/archive/src/main/java/org/pytorch/serve/archive/model/ModelConfig.java#L14
+# See all supported parameters: https://github.com/pytorch/serve/blob/master/frontend/archive/src/main/java/org/pytorch/serve/archive/model/ModelConfig.java#L14
 minWorkers: 1 # default: #CPU or #GPU
 maxWorkers: 1 # default: #CPU or #GPU
 batchSize: 1 # default: 1
