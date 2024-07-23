@@ -292,8 +292,8 @@ def test_infer_stateful_idle_timeout(mar_file_path, model_store):
         test_utils.reg_resp = test_utils.register_model_with_params(params)
 
         response = requests.post(
-                url=f"http://localhost:8080/predictions/{model_name}",
-                data=str(2).encode()) 
+            url=f"http://localhost:8080/predictions/{model_name}", data=str(2).encode()
+        )
         response.raise_for_status()
 
         # Idle for a duration greater than the max session idle time
@@ -303,8 +303,13 @@ def test_infer_stateful_idle_timeout(mar_file_path, model_store):
         with pytest.raises(requests.exceptions.HTTPError):
             response = requests.post(
                 url=f"http://localhost:8080/predictions/{model_name}",
-                headers = {"ts_request_sequence_id": response.headers.get("ts_request_sequence_id")},
-                data=str(2).encode())
+                headers={
+                    "ts_request_sequence_id": response.headers.get(
+                        "ts_request_sequence_id"
+                    )
+                },
+                data=str(2).encode(),
+            )
             response.raise_for_status()
 
     finally:
@@ -334,8 +339,8 @@ def test_infer_stateful_session_timeout(mar_file_path, model_store):
         test_utils.reg_resp = test_utils.register_model_with_params(params)
 
         response = requests.post(
-                url=f"http://localhost:8080/predictions/{model_name}",
-                data=str(2).encode()) 
+            url=f"http://localhost:8080/predictions/{model_name}", data=str(2).encode()
+        )
         response.raise_for_status()
 
         # Idle for a duration greater than the max session timeout
@@ -343,8 +348,13 @@ def test_infer_stateful_session_timeout(mar_file_path, model_store):
         while (time.time() - start) < 60:
             response = requests.post(
                 url=f"http://localhost:8080/predictions/{model_name}",
-                headers = {"ts_request_sequence_id": response.headers.get("ts_request_sequence_id")},
-                data=str(2).encode())
+                headers={
+                    "ts_request_sequence_id": response.headers.get(
+                        "ts_request_sequence_id"
+                    )
+                },
+                data=str(2).encode(),
+            )
             response.raise_for_status()
             time.sleep(2)
 
@@ -352,8 +362,13 @@ def test_infer_stateful_session_timeout(mar_file_path, model_store):
         with pytest.raises(requests.exceptions.HTTPError):
             response = requests.post(
                 url=f"http://localhost:8080/predictions/{model_name}",
-                headers = {"ts_request_sequence_id": response.headers.get("ts_request_sequence_id")},
-                data=str(2).encode())
+                headers={
+                    "ts_request_sequence_id": response.headers.get(
+                        "ts_request_sequence_id"
+                    )
+                },
+                data=str(2).encode(),
+            )
             response.raise_for_status()
 
     finally:
