@@ -10,8 +10,8 @@ ts_version:
 # or a list of model configure yaml files with full path
 models:
     - "bert_torch_compile_gpu.yaml"
-    - "resnet50_torch_compile_gpu.yaml"
-    - "sam_fast_torch_compile_gpu_best_latency.yaml"
+    # - "resnet50_torch_compile_gpu.yaml"
+    # - "sam_fast_torch_compile_gpu_best_latency.yaml"
 
 # benchmark on "cpu" or "gpu".
 # "cpu" is set if "hardware" is not specified
@@ -24,11 +24,11 @@ hardware: &hardware "gpu"
 #    - keep the values order as the same as the command definition.
 #    - set up the command before enabling `metrics_cmd`.
 #      For example, aws client and AWS credentials need to be setup before trying this example.
-metrics_cmd:
-    - "cmd": "aws cloudwatch put-metric-data"
-    - "--namespace": ["torchserve_benchmark_nightly_torch_compile_", *hardware]
-    - "--region": "us-east-2"
-    - "--metric-data": 'file:///tmp/benchmark/logs/stats_metrics.json'
+# metrics_cmd:
+#     - "cmd": "aws cloudwatch put-metric-data"
+#     - "--namespace": ["torchserve_benchmark_nightly_torch_compile_", *hardware]
+#     - "--region": "us-east-2"
+#     - "--metric-data": 'file:///tmp/benchmark/logs/stats_metrics.json'
 
 # load report to remote storage or local different path if "report_cmd" is set.
 # the command line to load report to remote storage.

@@ -2,11 +2,11 @@ name: Benchmark torchserve nightly
 
 on:
   # run every day at 2:15am
-  schedule:
-    - cron:  '15 02 * * *'
-  # push:
-  #   branches:
-  #     - "ci_logs"
+  # schedule:
+  #   - cron:  '15 02 * * *'
+  push:
+    branches:
+      - "ci_logs"
 
 jobs:
   nightly:
