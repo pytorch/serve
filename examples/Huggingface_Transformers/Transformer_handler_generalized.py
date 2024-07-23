@@ -2,7 +2,6 @@ import ast
 import json
 import logging
 import os
-from abc import ABC
 
 import torch
 import transformers
@@ -22,13 +21,14 @@ logger = logging.getLogger(__name__)
 logger.info("Transformers version %s", transformers.__version__)
 
 
-class TransformersSeqClassifierHandler(BaseHandler, ABC):
+class TransformersSeqClassifierHandler(BaseHandler):
     """
     Transformers handler class for sequence, token classification and question answering.
     """
 
     def __init__(self):
         super(TransformersSeqClassifierHandler, self).__init__()
+        self.setup_config = None
         self.initialized = False
 
     def initialize(self, ctx):
@@ -40,6 +40,11 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
             pertaining to the model artifacts parameters.
         """
         self.manifest = ctx.manifest
+        self.model_yaml_config = (
+            ctx.model_yaml_config
+            if ctx is not None and hasattr(ctx, "model_yaml_config")
+            else {}
+        )
         properties = ctx.system_properties
         model_dir = properties.get("model_dir")
         serialized_file = self.manifest["model"]["serializedFile"]
@@ -50,20 +55,12 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
             if torch.cuda.is_available() and properties.get("gpu_id") is not None
             else "cpu"
         )
-        # read configs for the mode, model_name, etc. from setup_config.json
-        setup_config_path = os.path.join(model_dir, "setup_config.json")
-        if os.path.isfile(setup_config_path):
-            with open(setup_config_path) as setup_config_file:
-                self.setup_config = json.load(setup_config_file)
-        else:
-            logger.warning("Missing the setup_config.json file.")
 
-        # Loading the shared object of compiled Faster Transformer Library if Faster Transformer is set
-        if self.setup_config["FasterTransformer"]:
-            faster_transformer_complied_path = os.path.join(
-                model_dir, "libpyt_fastertransformer.so"
-            )
-            torch.classes.load_library(faster_transformer_complied_path)
+        # read configs for the mode, model_name, etc. from the handler config
+        self.setup_config = self.model_yaml_config.get("handler", {})
+        if not self.setup_config:
+            logger.warning("Missing the handler config")
+
         # Loading the model and tokenizer from checkpoint and config files based on the user's choice of mode
         # further setup config can be added.
         if self.setup_config["save_mode"] == "torchscript":
@@ -125,6 +122,21 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
             )
 
         self.model.eval()
+
+        pt2_value = self.model_yaml_config.get("pt2", {})
+        if "compile" in pt2_value:
+            compile_options = pt2_value["compile"]
+            if compile_options["enable"] == True:
+                del compile_options["enable"]
+
+                compile_options_str = ", ".join(
+                    [f"{k} {v}" for k, v in compile_options.items()]
+                )
+                self.model = torch.compile(
+                    self.model,
+                    **compile_options,
+                )
+                logger.info(f"Compiled model with {compile_options_str}")
         logger.info("Transformer model from path %s loaded successfully", model_dir)
 
         # Read the mapping file, index to object name
@@ -216,6 +228,7 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
                     )
         return (input_ids_batch, attention_mask_batch)
 
+    @torch.inference_mode
     def inference(self, input_batch):
         """Predict the class (or classes) of the received text using the
         serialized transformers checkpoint.
@@ -316,7 +329,11 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
                 # https://github.com/huggingface/transformers/blob/v4.17.0/src/transformers/models/gpt2/modeling_gpt2.py#L970
                 input_ids_batch = input_ids_batch.to("cuda:0")
             outputs = self.model.generate(
-                input_ids_batch, max_length=50, do_sample=True, top_p=0.95, top_k=60
+                input_ids_batch,
+                max_new_tokens=self.setup_config["max_length"],
+                do_sample=True,
+                top_p=0.95,
+                top_k=60,
             )
             for i, x in enumerate(outputs):
                 inferences.append(

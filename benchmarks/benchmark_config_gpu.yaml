@@ -6,6 +6,7 @@
 ts_version:
    branch: &ts_version "ci_logs"
 
+
 # a list of model configure yaml files defined in benchmarks/models_config
 # or a list of model configure yaml files with full path
 models:
@@ -49,3 +50,4 @@ report_cmd:
     - "cmd": "aws s3 cp --recursive"
     - "source": '/tmp/ts_benchmark/'
     - "dest": ['s3://torchserve-benchmark/nightly', "today()", "test", *hardware]
+

@@ -8,8 +8,13 @@ TorchServe provides the following APIs that allows you to manage models at runti
 4. [Unregister a model](#unregister-a-model)
 5. [List registered models](#list-models)
 6. [Set default version of a model](#set-default-version)
+7. [Refresh tokens for token authorization](#token-authorization-api)
 
 The Management API listens on port 8081 and is only accessible from localhost by default. To change the default setting, see [TorchServe Configuration](./configuration.md).
+
+Management API for registering and deleting models is disabled by default. Add `--enable-model-api` to command line when running TorchServe to enable the use of these APIs. For more details and ways to enable see [Model API control](https://github.com/pytorch/serve/blob/master/docs/model_api_control.md)
+
+For all Management API requests, TorchServe requires the correct Management token to be included or token authorization must be disabled. For more details see [token authorization documentation](./token_authorization_api.md)
 
 Similar to the [Inference API](inference_api.md), the Management API provides a [API description](#api-description) to describe management APIs with the OpenAPI 3.0 specification.
 
@@ -18,6 +23,8 @@ Alternatively, if you want to use KServe, TorchServe supports both v1 and v2 API
 ## Register a model
 
 This API follows the [ManagementAPIsService.RegisterModel](https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/proto/management.proto) gRPC API.
+
+To use this API after TorchServe starts, model API control has to be enabled. Add `--enable-model-api` to command line when starting TorchServe to enable the use of this API. For more details see [model API control](./model_api_control.md)
 
 `POST /models`
 
@@ -441,6 +448,8 @@ print(customizedMetadata)
 
 This API follows the [ManagementAPIsService.UnregisterModel](https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/proto/management.proto) gRPC API. It returns the status of a model in the ModelServer.
 
+To use this API after TorchServe starts, model API control has to be enabled. Add `--enable-model-api` to command line when starting TorchServe to enable the use of this API. For more details see [model API control](./model_api_control.md)
+
 `DELETE /models/{model_name}/{version}`
 
 Use the Unregister Model API to free up system resources by unregistering specific version of a model from TorchServe:
@@ -522,3 +531,21 @@ curl -v -X PUT http://localhost:8081/models/noop/2.0/set-default
 ```
 
 The out is OpenAPI 3.0.1 json format. You use it to generate client code, see [swagger codegen](https://swagger.io/swagger-codegen/) for detail.
+
+## Token Authorization API
+
+TorchServe now enforces token authorization by default. Check the following documentation for more information: [Token Authorization](https://github.com/pytorch/serve/blob/master/docs/token_authorization_api.md).
+
+This API is used in order to generate a new key to replace either the management or inference key.
+
+Management Example:
+```
+curl localhost:8081/token?type=management -H "Authorization: Bearer {API Token}"
+```
+will replace the current management key in the key_file with a new one and will update the expiration time.
+
+Inference example:
+```
+curl localhost:8081/token?type=inference -H "Authorization: Bearer {API Token}"
+```
+will replace the current inference key in the key_file with a new one and will update the expiration time.

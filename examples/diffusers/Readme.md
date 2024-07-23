@@ -39,7 +39,7 @@ torch-model-archiver --model-name stable-diffusion --version 1.0 --handler stabl
 Update config.properties and start torchserve
 
 ```bash
-torchserve --start --ts-config config.properties
+torchserve --start --ts-config config.properties --disable-token-auth  --enable-model-api
 ```
 
 ### Step 5: Run inference

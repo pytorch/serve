@@ -58,7 +58,7 @@ mv bloom.mar model_store
 Update config.properties and start torchserve
 
 ```bash
-torchserve --start --ncs --ts-config config.properties
+torchserve --start --ncs --ts-config config.properties --disable-token-auth  --enable-model-api
 ```
 
 ### Step 5: Run inference
@@ -66,8 +66,3 @@ torchserve --start --ncs --ts-config config.properties
 ```bash
 curl -v "http://localhost:8080/predictions/bloom" -T sample_text.txt
 ```
-
-
-
-
-

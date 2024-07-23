@@ -57,7 +57,7 @@ def infer_stream(stub, model_name, model_input, metadata):
         exit(1)
 
 
-def infer_stream2(model_name, sequence_id, input_files):
+def infer_stream2(model_name, sequence_id, input_files, metadata):
     response_queue = queue.Queue()
     process_response_func = partial(
         InferStream2.default_process_response, response_queue
@@ -69,6 +69,7 @@ def infer_stream2(model_name, sequence_id, input_files):
             model_name=model_name,
             sequence_id=sequence_id,
             process_response=process_response_func,
+            metadata=metadata,
         )
         sequence = input_files.split(",")
 
@@ -89,7 +90,7 @@ def infer_stream2(model_name, sequence_id, input_files):
         client.stop()
 
 
-def register(stub, model_name, mar_set_str):
+def register(stub, model_name, mar_set_str, metadata):
     mar_set = set()
     if mar_set_str:
         mar_set = set(mar_set_str.split(","))
@@ -108,7 +109,9 @@ def register(stub, model_name, mar_set_str):
         "model_name": model_name,
     }
     try:
-        response = stub.RegisterModel(management_pb2.RegisterModelRequest(**params))
+        response = stub.RegisterModel(
+            management_pb2.RegisterModelRequest(**params), metadata=metadata
+        )
         print(f"Model {model_name} registered successfully")
     except grpc.RpcError as e:
         print(f"Failed to register model {model_name}.")
@@ -116,10 +119,11 @@ def register(stub, model_name, mar_set_str):
         exit(1)
 
 
-def unregister(stub, model_name):
+def unregister(stub, model_name, metadata):
     try:
         response = stub.UnregisterModel(
-            management_pb2.UnregisterModelRequest(model_name=model_name)
+            management_pb2.UnregisterModelRequest(model_name=model_name),
+            metadata=metadata,
         )
         print(f"Model {model_name} unregistered successfully")
     except grpc.RpcError as e:
@@ -170,13 +174,16 @@ class InferStream2:
         self._handler.start()
         print("InferStream2 started")
 
-    def enqueue_request(self, model_input):
+    def enqueue_request(self, model_input, metadata):
         with open(model_input, "rb") as f:
             data = f.read()
 
         input_data = {"data": data}
         request = inference_pb2.PredictionsRequest(
-            model_name=self._model_name, sequence_id=self._sequence_id, input=input_data
+            model_name=self._model_name,
+            sequence_id=self._sequence_id,
+            input=input_data,
+            metadata=metadata,
         )
         if self._alive:
             self._request_queue.put(request)
@@ -233,7 +240,9 @@ class InferStream2SimpleClient:
         self._channel = grpc.insecure_channel("localhost:7070")
         self._stub = inference_pb2_grpc.InferenceAPIsServiceStub(self._channel)
 
-    def start_stream(self, model_name: str, sequence_id: str, process_response):
+    def start_stream(
+        self, model_name: str, sequence_id: str, process_response, metadata
+    ):
         if self._stream is not None:
             raise RuntimeError(
                 "Cannot start InferStream2SimpleClient since "
@@ -247,7 +256,7 @@ class InferStream2SimpleClient:
         )
         try:
             response_iterator = self._stub.StreamPredictions2(
-                RequestIterator(self._stream)
+                RequestIterator(self._stream), metadata=metadata
             )
             self._stream.init_handler(response_iterator)
         except grpc.RpcError as e:
@@ -275,6 +284,14 @@ if __name__ == "__main__":
         type=str,
         default=None,
         help="Name of the model used.",
+    )
+    parent_parser.add_argument(
+        "--auth-token",
+        dest="auth_token",
+        type=str,
+        default=None,
+        required=False,
+        help="Authorization token",
     )
 
     parser = argparse.ArgumentParser(
@@ -333,16 +350,22 @@ if __name__ == "__main__":
     )
 
     args = parser.parse_args()
-
-    metadata = (("protocol", "gRPC"), ("session_id", "12345"))
+    if args.auth_token:
+        metadata = (
+            ("protocol", "gRPC"),
+            ("session_id", "12345"),
+            ("authorization", f"Bearer {args.auth_token}"),
+        )
+    else:
+        metadata = (("protocol", "gRPC"), ("session_id", "12345"))
 
     if args.action == "infer":
         infer(get_inference_stub(), args.model_name, args.model_input, metadata)
     elif args.action == "infer_stream":
-        infer_stream(get_inference_stub(), args.model_name, args.model_input)
+        infer_stream(get_inference_stub(), args.model_name, args.model_input, metadata)
     elif args.action == "infer_stream2":
-        infer_stream2(args.model_name, args.sequence_id, args.input_files)
+        infer_stream2(args.model_name, args.sequence_id, args.input_files, metadata)
     elif args.action == "register":
-        register(get_management_stub(), args.model_name, args.mar_set)
+        register(get_management_stub(), args.model_name, args.mar_set, metadata)
     elif args.action == "unregister":
-        unregister(get_management_stub(), args.model_name)
+        unregister(get_management_stub(), args.model_name, metadata)

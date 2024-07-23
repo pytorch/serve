@@ -1,0 +1,18 @@
+minWorkers: 1
+maxWorkers: 1
+handler:
+  model_name: bert-base-uncased
+  mode: sequence_classification
+  do_lower_case: true
+  num_labels: 2
+  save_mode: pretrained
+  max_length: 150
+  captum_explanation: true
+  embedding_name: bert
+  BetterTransformer: false
+  model_parallel: false
+pt2:
+  compile:
+    enable: True
+    backend: inductor
+    mode: reduce-overhead

@@ -1,8 +1,8 @@
-## Faster Transformer 
+## Faster Transformer
 
 Batch inferencing with Transformers faces two challenges
 
-- Large batch sizes suffer from higher latency and small or medium-sized batches this will become kernel latency launch bound. 
+- Large batch sizes suffer from higher latency and small or medium-sized batches this will become kernel latency launch bound.
 - Padding wastes a lot of compute, (batchsize, seq_length) requires to pad the sequence to (batchsize, max_length) where difference between avg_length and max_length results in a considerable waste of computation, increasing the batch size worsen this situation.
 
 [Faster Transformers](https://github.com/NVIDIA/FasterTransformer/blob/main/examples/pytorch/bert/run_glue.py) (FT) from Nvidia along with [Efficient Transformers](https://github.com/bytedance/effective_transformer) (EFFT) that is built on top of FT address the above two challenges, by fusing the CUDA kernels and dynamically removing padding during computations. The current implementation from [Faster Transformers](https://github.com/NVIDIA/FasterTransformer/blob/main/examples/pytorch/bert/run_glue.py) support BERT like encoder and decoder layers. In this example, we show how to get a Torchscripted (traced) EFFT variant of Bert models from HuggingFace (HF) for sequence classification and question answering and serve it.
@@ -10,7 +10,7 @@ Batch inferencing with Transformers faces two challenges
 
 ### How to get a Torchscripted (Traced) EFFT of HF Bert model and serving it
 
-**Requirements** 
+**Requirements**
 
 Running Faster Transformer at this point is recommended through [NVIDIA docker and NGC container](https://github.com/NVIDIA/FasterTransformer#requirements), also it requires [Volta](https://www.nvidia.com/en-us/data-center/volta-gpu-architecture/) or [Turing](https://www.nvidia.com/en-us/geforce/turing/) or [Ampere](https://www.nvidia.com/en-us/data-center/nvidia-ampere-gpu-architecture/) based GPU. For this example we have used a **g4dn.2xlarge** EC2 instance that has a T4 GPU.
 
@@ -34,9 +34,9 @@ mkdir -p build
 
 cd build
 
-cmake -DSM=75 -DCMAKE_BUILD_TYPE=Release -DBUILD_PYT=ON ..   # -DSM = 70 for V100 gpu ------- 60 (P40) or 61 (P4) or 70 (V100) or 75(T4) or 80 (A100), 
+cmake -DSM=75 -DCMAKE_BUILD_TYPE=Release -DBUILD_PYT=ON ..   # -DSM = 70 for V100 gpu ------- 60 (P40) or 61 (P4) or 70 (V100) or 75(T4) or 80 (A100),
 
-make 
+make
 
 pip install transformers==2.5.1
 
@@ -45,8 +45,8 @@ cd /workspace
 # clone Torchserve to access examples
 git clone https://github.com/pytorch/serve.git
 
-# install torchserve 
-cd serve 
+# install torchserve
+cd serve
 
 pip install -r requirements/common.txt
 
@@ -99,7 +99,7 @@ mkdir model_store
 
 mv BERTSeqClassification.mar model_store/
 
-torchserve --start --model-store model_store --models my_tc=BERTSeqClassification.mar --ncs
+torchserve --start --model-store model_store --models my_tc=BERTSeqClassification.mar --ncs --disable-token-auth  --enable-model-api
 
 curl -X POST http://127.0.0.1:8080/predictions/my_tc -T ../Huggingface_Transformers/Seq_classification_artifacts/sample_text_captum_input.txt
 
@@ -132,7 +132,7 @@ cd /workspace/FasterTransformer/build/
 # --data_type can be fp16 or fp32
 python pytorch/Bert_FT_trace.py --mode question_answering --model_name_or_path "/workspace/serve/Transformer_model" --tokenizer_name "bert-base-uncased" --batch_size 1 --data_type fp16 --model_type thsext
 
-cd - 
+cd -
 
 # make sure to change the ../Huggingface_Transformers/setup_config.json "save_mode":"torchscript"
 
@@ -142,10 +142,10 @@ mkdir model_store
 
 mv BERTQA.mar model_store/
 
-torchserve --start --model-store model_store --models my_tc=BERTQA.mar --ncs
+torchserve --start --model-store model_store --models my_tc=BERTQA.mar --ncs --disable-token-auth  --enable-model-api
 
 curl -X POST http://127.0.0.1:8080/predictions/my_tc -T ../Huggingface_Transformers/QA_artifacts/sample_text_captum_input.txt
 
 ```
 
-#### 
+####

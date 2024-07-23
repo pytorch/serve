@@ -31,7 +31,7 @@ $ mkdir model_store wf_store
 $ mv $TORCH_SERVE_DIR/examples/nmt_transformer/model_store/*.mar model_store/
 $ torch-workflow-archiver -f --workflow-name nmt_wf_dual --spec-file nmt_workflow_dualtranslation.yaml --handler nmt_workflow_handler_dualtranslation.py --export-path wf_store/
 $ torch-workflow-archiver -f --workflow-name nmt_wf_re --spec-file nmt_workflow_retranslation.yaml --handler nmt_workflow_handler_retranslation.py --export-path wf_store/
-$ torchserve --start --model-store model_store/ --workflow-store wf_store/ --ncs --ts-config config.properties
+$ torchserve --start --model-store model_store/ --workflow-store wf_store/ --ncs --ts-config config.properties --disable-token-auth  --enable-model-api
 ```
 
 ## Serve the workflow

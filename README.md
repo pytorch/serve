@@ -1,4 +1,8 @@
+# ❗ANNOUNCEMENT: Security Changes❗
+TorchServe now enforces token authorization enabled and model API control disabled by default. These security features are intended to address the concern of unauthorized API calls and to prevent potential malicious code from being introduced to the model server. Refer the following documentation for more information: [Token Authorization](https://github.com/pytorch/serve/blob/master/docs/token_authorization_api.md), [Model API control](https://github.com/pytorch/serve/blob/master/docs/model_api_control.md)
+
 # TorchServe
+
 
 ![Nightly build](https://github.com/pytorch/serve/actions/workflows/torchserve-nightly-build.yml/badge.svg)
 ![Docker Nightly build](https://github.com/pytorch/serve/actions/workflows/docker-nightly-build.yml/badge.svg)
@@ -55,6 +59,19 @@ docker pull pytorch/torchserve-nightly
 ```
 
 Refer to [torchserve docker](docker/README.md) for details.
+
+### 🤖 Quick Start LLM Deployment
+
+```bash
+#export token=<HUGGINGFACE_HUB_TOKEN>
+docker build --pull . -f docker/Dockerfile.llm -t ts/llm
+
+docker run --rm -ti --shm-size 10g --gpus all -e HUGGING_FACE_HUB_TOKEN=$token -p 8080:8080 -v data:/data ts/llm --model_id meta-llama/Meta-Llama-3-8B-Instruct --disable_token_auth
+
+curl -X POST -d '{"prompt":"Hello, my name is", "max_new_tokens": 50}' --header "Content-Type: application/json" "http://localhost:8080/predictions/model"
+```
+
+Refer to [LLM deployment](docs/llm_deployment.md) for details and other methods.
 
 ## ⚡ Why TorchServe
 * Write once, run anywhere, on-prem, on-cloud, supports inference on CPUs, GPUs, AWS Inf1/Inf2/Trn1, Google Cloud TPUs, [Nvidia MPS](docs/nvidia_mps.md)

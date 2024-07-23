@@ -39,11 +39,11 @@ public class SequenceBatching extends BatchAggregator {
 
     public SequenceBatching(Model model) {
         super(model);
+        this.localCapacity = Math.max(1, model.getMaxNumSequence() / model.getMinWorkers());
         this.currentJobGroupIds = new LinkedList<>();
         this.pollExecutors = Executors.newFixedThreadPool(model.getBatchSize() + 1);
         this.jobsQueue = new LinkedBlockingDeque<>();
         this.isPollJobGroup = new AtomicBoolean(false);
-        this.localCapacity = model.getMaxNumSequence() / model.getMinWorkers();
         this.eventJobGroupIds = new LinkedBlockingDeque<>();
         this.eventJobGroupIds.add("");
         this.eventDispatcher = new Thread(new EventDispatcher());
@@ -71,7 +71,8 @@ public class SequenceBatching extends BatchAggregator {
             int quota =
                     Math.min(
                             this.localCapacity - jobsQueue.size(),
-                            model.getPendingJobGroups().size() / model.getMaxWorkers());
+                            Math.max(
+                                    1, model.getPendingJobGroups().size() / model.getMaxWorkers()));
             if (quota > 0 && model.getPendingJobGroups().size() > 0) {
                 model.getPendingJobGroups().drainTo(tmpJobGroups, quota);
             }
@@ -116,7 +117,7 @@ public class SequenceBatching extends BatchAggregator {
         }
     }
 
-    private void cleanJobGroup(String jobGroupId) {
+    protected void cleanJobGroup(String jobGroupId) {
         logger.debug("Clean jobGroup: {}", jobGroupId);
         if (jobGroupId != null) {
             model.removeJobGroup(jobGroupId);
@@ -202,7 +203,6 @@ public class SequenceBatching extends BatchAggregator {
                                 },
                                 pollExecutors);
                     } else {
-
                         CompletableFuture.runAsync(
                                 () -> {
                                     pollJobFromJobGroup(jobGroupId);
@@ -221,8 +221,14 @@ public class SequenceBatching extends BatchAggregator {
             // Poll a job from a jobGroup
             JobGroup jobGroup = model.getJobGroup(jobGroupId);
             Job job = null;
+            AtomicBoolean isPolling = jobGroup.getPolling();
             if (!jobGroup.isFinished()) {
-                job = jobGroup.pollJob(model.getSequenceMaxIdleMSec());
+                if (!isPolling.getAndSet(true)) {
+                    job = jobGroup.pollJob(model.getSequenceMaxIdleMSec());
+                    isPolling.set(false);
+                } else {
+                    return;
+                }
             }
             if (job == null) {
                 // JobGroup expired, clean it.

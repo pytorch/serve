@@ -4,6 +4,7 @@ on:
   # run every day at 11:15am
   schedule:
     - cron:  '15 11 * * *'
+  workflow_dispatch:
 jobs:
   nightly:
     runs-on: ubuntu-20.04

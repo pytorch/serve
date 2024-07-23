@@ -14,10 +14,10 @@ wget https://download.pytorch.org/models/fasterrcnn_resnet50_fpn_coco-258fb6c6.p
     torch-model-archiver --model-name fastrcnn --version 1.0 --model-file examples/object_detector/fast-rcnn/model.py --serialized-file fasterrcnn_resnet50_fpn_coco-258fb6c6.pth --handler object_detector --extra-files examples/object_detector/index_to_name.json
     mkdir model_store
     mv fastrcnn.mar model_store/
-    torchserve --start --model-store model_store --models fastrcnn=fastrcnn.mar
+    torchserve --start --model-store model_store --models fastrcnn=fastrcnn.mar --disable-token-auth  --enable-model-api
     curl http://127.0.0.1:8080/predictions/fastrcnn -T examples/object_detector/persons.jpg
     ```
-* Note : The objects detected have scores greater than "0.5". This threshold value is set in object_detector handler. 
+* Note : The objects detected have scores greater than "0.5". This threshold value is set in object_detector handler.
 
 * Output
 

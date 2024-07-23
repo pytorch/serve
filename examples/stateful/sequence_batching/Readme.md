@@ -113,7 +113,7 @@ python -m grpc_tools.protoc -I third_party/google/rpc --proto_path=frontend/serv
 * Start TorchServe
 
 ```bash
-torchserve --ncs --start --model-store models --model stateful.mar --ts-config examples/stateful/config.properties
+torchserve --ncs --start --disable-token-auth --model-store models --model stateful.mar --ts-config examples/stateful/config.properties
 ```
 
 * Run sequence inference via GRPC client

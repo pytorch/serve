@@ -16,7 +16,7 @@ class LauncherPlugin implements Plugin<Project> {
                 }
 
                 def list = []
-                list.addAll(project.configurations.runtime.getFiles())
+                list.addAll(project.configurations.runtimeClasspath.getFiles())
                 list.add(project.jar.outputs.files.singleFile)
                 String cp = CollectionUtils.join(File.pathSeparator, list)
                 String jvmPath = Jvm.current().getJavaExecutable()

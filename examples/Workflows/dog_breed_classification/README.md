@@ -24,7 +24,7 @@ $ torch-workflow-archiver -f --workflow-name dog_breed_wf --spec-file workflow_d
 
 ## Serve the workflow
 ```
-$ torchserve --start --model-store model_store/ --workflow-store wf_store/ --ncs
+$ torchserve --start --model-store model_store/ --workflow-store wf_store/ --ncs --disable-token-auth  --enable-model-api
 $ curl -X POST "http://127.0.0.1:8081/workflows?url=dog_breed_wf.war"
 {
   "status": "Workflow dog_breed_wf has been registered and scaled successfully."
