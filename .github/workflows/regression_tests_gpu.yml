@@ -4,10 +4,10 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - master
+      - graviton_test
   pull_request:
     branches:
-      - master
+      - graviton_test
   merge_group:
 
 concurrency:
@@ -17,7 +17,7 @@ concurrency:
 jobs:
   regression-gpu:
     # creates workflows on self hosted runner
-    runs-on: [self-hosted, regression-test-gpu]
+    runs-on: [self-hosted, graviton-test]
     steps:
       - name: Clean up previous run
         run: |
