@@ -50,8 +50,3 @@ report_cmd:
     - "cmd": "aws s3 cp --recursive"
     - "source": '/tmp/ts_benchmark/'
     - "dest": ['s3://torchserve-benchmark/nightly', "today()", "test", *hardware]
-
-error_report_cmd:
-    - "cmd": "aws s3 cp --recursive"
-    - "source": '/tmp/ts_benchmark/'
-    - "dest": ['s3://torchserve-benchmark/nightly', "today()", "failure", *hardware]

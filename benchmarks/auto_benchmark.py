@@ -232,8 +232,6 @@ def run_benchmark(bm_config):
                 if "report_cmd" in bm_config:
                     execute(bm_config["report_cmd"], wait=True)
 
-                continue
-
             # load stats metrics to remote metrics storage
             if "metrics_cmd" in bm_config:
                 execute(bm_config["metrics_cmd"], wait=True)
