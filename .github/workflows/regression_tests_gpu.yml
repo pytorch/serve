@@ -46,8 +46,8 @@ jobs:
           submodules: recursive
       - name: Install dependencies
         run: |
-          python3 ts_scripts/install_dependencies.py --environment=dev --cuda=cu121
+          python ts_scripts/install_dependencies.py --environment=dev --cuda=cu121
       - name: Torchserve Regression Tests
         run: |
           export TS_RUN_IN_DOCKER=False
-          python3 test/regression_tests.py
+          python test/regression_tests.py
