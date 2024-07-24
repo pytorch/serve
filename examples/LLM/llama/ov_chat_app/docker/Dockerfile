@@ -21,8 +21,6 @@ RUN --mount=type=cache,id=apt-dev,target=/var/cache/apt \
 
 COPY $EXAMPLE_DIR/requirements.txt /home/model-server/chat_bot/requirements.txt
 RUN pip install -r /home/model-server/chat_bot/requirements.txt && huggingface-cli login --token $HUGGINGFACE_TOKEN
-# TODO: fix with latest torchserve
-RUN pip install torchserve==0.11.0
 
 WORKDIR /home/model-server/chat_bot
 # RUN git clone https://github.com/ggerganov/llama.cpp.git build && \

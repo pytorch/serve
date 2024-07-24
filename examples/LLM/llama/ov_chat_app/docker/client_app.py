@@ -65,7 +65,7 @@ with st.sidebar:
 
     st.subheader("Number of images to generate")
     images_num = st.sidebar.slider(
-        "num_of_img", min_value=1, max_value=4, value=2, step=1
+        "num_of_img", min_value=1, max_value=4, value=4, step=1
     )
 
     st.subheader("SD Model parameters")
@@ -191,7 +191,6 @@ def display_images_in_grid(images, captions):
 
 
 if st.button("Generate Images"):
-    print('00000000000000000', images_num)
     with st.spinner('Generating images...'):
         total_start_time = time.time()
 

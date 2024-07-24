@@ -20,7 +20,7 @@ st.set_page_config(page_title="TorchServe Server")
 
 def start_server():
     subprocess.run(
-        ["torchserve --start --ts-config /home/model-server/config.properties"],
+        ["torchserve --start --ts-config /home/model-server/config.properties --disable-token-auth --enable-model-api"],
         shell=True,
         check=True,
     )
@@ -68,9 +68,11 @@ def register_model(MODEL_NAME):
     if not st.session_state.started:
         server_state_container.caption("TorchServe is not running. Start it")
         return
-    url = f"http://localhost:8081/models?model_name={MODEL_NAME}&url={MODEL_NAME}&batch_size=1&max_batch_delay=3000&initial_workers=1&synchronous=true"
+    url = f"http://127.0.0.1:8081/models?model_name={MODEL_NAME}&url={MODEL_NAME}&batch_size=1&max_batch_delay=3000&initial_workers=1&synchronous=true&disable_token_authorization=true"
     _register_model(url, MODEL_NAME)
 
+def register_models(models: list):
+    for model in models: register_model(model)
 
 def get_status():
     for MODEL_NAME in [MODEL_NAME_LLM, MODEL_NAME_SD]:
@@ -90,17 +92,6 @@ def get_status():
             model_state_container.write(status)
 
 
-def scale_workers(workers):
-    if st.session_state.registered[MODEL_NAME_LLM]:
-        num_workers = st.session_state[workers]
-        # num_workers = workers
-        url = (
-            f"http://localhost:8081/models/{MODEL_NAME_LLM}?min_worker="
-            f"{str(num_workers)}&synchronous=true"
-        )
-        res = requests.put(url)
-        server_state_container.caption(res.text)
-
 def scale_sd_workers(workers):
     if st.session_state.registered[MODEL_NAME_SD]:
         num_workers = st.session_state[workers]
@@ -111,6 +102,7 @@ def scale_sd_workers(workers):
         res = requests.put(url)
         server_state_container.caption(res.text)
 
+
 # def update_is_xl(is_xl):
 #     if st.session_state.registered[MODEL_NAME_SD]:
 #         is_xl = st.session_state[is_xl]
@@ -120,41 +112,6 @@ def scale_sd_workers(workers):
         # )
         # res = requests.put(url)
         # server_state_container.caption(res.text)
-
-
-def set_batch_size(batch_size):
-    if st.session_state.registered[MODEL_NAME_LLM]:
-        url = f"http://localhost:8081/models/{MODEL_NAME_LLM}/1.0"
-        res = requests.delete(url)
-        server_state_container.caption(res.text)
-        print(f"Unregistering {MODEL_NAME_LLM}")
-        st.session_state.registered[MODEL_NAME_LLM] = False
-        print(f"batch size is {batch_size}")
-
-        batch_size = st.session_state[batch_size]
-        url = (
-            f"http://localhost:8081/models?model_name={MODEL_NAME_LLM}&url={MODEL_NAME_LLM}"
-            f"&batch_size={str(batch_size)}&initial_workers={str(workers)}"
-            f"&synchronous=true&max_batch_delay={str(max_batch_delay)}"
-        )
-        _register_model(url, MODEL_NAME_LLM)
-
-
-def set_max_batch_delay(max_batch_delay):
-    if st.session_state.registered[MODEL_NAME_LLM]:
-        url = f"http://localhost:8081/models/{MODEL_NAME_LLM}/1.0"
-        res = requests.delete(url)
-        server_state_container.caption(res.text)
-        print(f"Unregistering {MODEL_NAME_LLM}")
-        st.session_state.registered[MODEL_NAME_LLM] = False
-
-        max_batch_delay = st.session_state[max_batch_delay]
-        url = (
-            f"http://localhost:8081/models?model_name={MODEL_NAME_LLM}&url="
-            f"{MODEL_NAME_LLM}&batch_size={str(batch_size)}&initial_workers="
-            f"{str(workers)}&synchronous=true&max_batch_delay={str(max_batch_delay)}"
-        )
-        _register_model(url, MODEL_NAME_LLM)
 
 
 if "started" not in st.session_state:
@@ -172,8 +129,7 @@ with st.sidebar:
 
     st.button("Start Server", on_click=start_server)
     st.button("Stop Server", on_click=stop_server)
-    st.button(f"Register {MODEL_NAME_LLM}", on_click=register_model, args=(MODEL_NAME_LLM,))
-    st.button(f"Register {MODEL_SD}", on_click=register_model, args=(MODEL_NAME_SD,))
+    st.button(f"Register models", on_click=register_models, args=([MODEL_NAME_LLM, MODEL_NAME_SD],))
 
     st.subheader("SD Model parameters")
     # is_xl = st.checkbox(
@@ -194,54 +150,6 @@ with st.sidebar:
         on_change=scale_sd_workers,
         args=("Num Workers SD",),
     )
-
-    st.subheader("LLM Model parameters")
-    workers = st.sidebar.slider(
-        "Num Workers LLM",
-        key="Num Workers LLM",
-        min_value=1,
-        max_value=4,
-        value=1,
-        step=1,
-        on_change=scale_workers,
-        args=("Num Workers LLM",),
-    )
-    batch_size = st.sidebar.select_slider(
-        "Batch Size",
-        key="Batch Size",
-        options=[2**j for j in range(0, 8)],
-        on_change=set_batch_size,
-        args=("Batch Size",),
-    )
-    max_batch_delay = st.sidebar.slider(
-        "Max Batch Delay",
-        key="Max Batch Delay",
-        min_value=3000,
-        max_value=10000,
-        value=3000,
-        step=100,
-        on_change=set_max_batch_delay,
-        args=("Max Batch Delay",),
-        )
-    
-    
-    # batch_size_sd = st.sidebar.select_slider(
-    #     "Batch Size",
-    #     key="Batch Size",
-    #     options=[2**j for j in range(0, 8)],
-    #     on_change=set_batch_size,
-    #     args=("Batch Size",),
-    # )
-    # max_batch_delay_sd = st.sidebar.slider(
-    #     "Max Batch Delay",
-    #     key="Max Batch Delay",
-    #     min_value=3000,
-    #     max_value=10000,
-    #     value=3000,
-    #     step=100,
-    #     on_change=set_max_batch_delay,
-    #     args=("Max Batch Delay",),
-    # )
 
     if st.session_state.started:
         st.success("Started TorchServe", icon="✅")
