@@ -82,12 +82,14 @@ public class GRPCJob extends Job {
                 Arrays.asList("Host", ConfigManager.getInstance().getHostName());
     }
 
-    private void cancelHandler(ServerCallStreamObserver<PredictionResponse> responseObserver) {
+    private boolean cancelHandler(ServerCallStreamObserver<PredictionResponse> responseObserver) {
         if (responseObserver.isCancelled()) {
             logger.warn(
                     "grpc client call already cancelled, not able to send this response for requestId: {}",
                     getPayload().getRequestId());
+            return true;
         }
+        return false;
     }
 
     private void logQueueTime() {
@@ -124,7 +126,9 @@ public class GRPCJob extends Job {
             case STREAMPREDICT2:
                 ServerCallStreamObserver<PredictionResponse> responseObserver =
                         (ServerCallStreamObserver<PredictionResponse>) predictionResponseObserver;
-                cancelHandler(responseObserver);
+                if (cancelHandler(responseObserver)) {
+                    return;
+                }
                 PredictionResponse reply =
                         PredictionResponse.newBuilder().setPrediction(output).build();
                 responseObserver.onNext(reply);
@@ -208,7 +212,9 @@ public class GRPCJob extends Job {
             case STREAMPREDICT2:
                 ServerCallStreamObserver<PredictionResponse> responseObserver =
                         (ServerCallStreamObserver<PredictionResponse>) predictionResponseObserver;
-                cancelHandler(responseObserver);
+                if (cancelHandler(responseObserver)) {
+                    return;
+                }
                 if (cmd == WorkerCommands.PREDICT || cmd == WorkerCommands.STREAMPREDICT) {
                     responseObserver.onError(
                             responseStatus
