@@ -4,10 +4,10 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - graviton_test
+      - master
   pull_request:
     branches:
-      - graviton_test
+      - master
   merge_group:
 
 
