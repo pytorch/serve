@@ -127,6 +127,8 @@ public class GRPCJob extends Job {
                 ServerCallStreamObserver<PredictionResponse> responseObserver =
                         (ServerCallStreamObserver<PredictionResponse>) predictionResponseObserver;
                 if (cancelHandler(responseObserver)) {
+                    // issue #3087: Leave response early as the request has been canceled.
+                    // Note: trying to continue wil trigger an exception when calling `onNext`.
                     return;
                 }
                 PredictionResponse reply =
@@ -213,6 +215,8 @@ public class GRPCJob extends Job {
                 ServerCallStreamObserver<PredictionResponse> responseObserver =
                         (ServerCallStreamObserver<PredictionResponse>) predictionResponseObserver;
                 if (cancelHandler(responseObserver)) {
+                    // issue #3087: Leave response early as the request has been canceled.
+                    // Note: trying to continue wil trigger an exception when calling `onNext`.
                     return;
                 }
                 if (cmd == WorkerCommands.PREDICT || cmd == WorkerCommands.STREAMPREDICT) {
