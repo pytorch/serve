@@ -113,6 +113,7 @@ public class SequenceContinuousBatching extends SequenceBatching {
                 } else {
                     job.getPayload().setCachedInBackend(true);
                 }
+                setJobGroupFinished(prediction);
             }
         } else {
             for (Map.Entry<String, Job> j : jobs.entrySet()) {
@@ -131,12 +132,6 @@ public class SequenceContinuousBatching extends SequenceBatching {
                 }
             }
             cleanJobs();
-        }
-
-        if (!message.getPredictions().isEmpty()) {
-            for (Predictions prediction : message.getPredictions()) {
-                setJobGroupFinished(prediction);
-            }
         }
 
         resetCurrentJobGroupIds();
