@@ -194,7 +194,6 @@ public class WorkerThread implements Runnable {
             while (isRunning()) {
                 req = aggregator.getRequest(workerId, state);
                 WorkerCommands workerCmd = req.getCommand();
-                logger.info("WORKER COMMAND IS {}", workerCmd);
                 // depending on type of worker command we determine which timeout we should use
                 int timeout = (workerCmd == WorkerCommands.LOAD) ? startupTimeout : responseTimeout;
 
