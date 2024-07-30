@@ -12,13 +12,13 @@ config.freezing = True
 class CustomEmbedding(HuggingFaceEmbeddings):
     tokenizer: Any
 
-    def __init__(self, model_name: str, compile=True):
+    def __init__(self, model_path: str, compile=True):
         """Initialize the sentence_transformer."""
         super().__init__()
 
         # Load model from HuggingFace Hub
-        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
-        self.client = AutoModel.from_pretrained(model_name)
+        self.tokenizer = AutoTokenizer.from_pretrained(model_path)
+        self.client = AutoModel.from_pretrained(model_path)
 
         if compile:
             self.client = torch.compile(self.client)

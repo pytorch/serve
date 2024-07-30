@@ -33,7 +33,7 @@ class RAGHandler(BaseHandler):
         url = ctx.model_yaml_config["handler"]["url_to_scrape"]
         chunk_size = ctx.model_yaml_config["handler"]["chunk_size"]
         chunk_overlap = ctx.model_yaml_config["handler"]["chunk_overlap"]
-        embedding_model = ctx.model_yaml_config["handler"]["embedding_model"]
+        model_path = ctx.model_yaml_config["handler"]["model_path"]
 
         loader = RecursiveUrlLoader(
             url=url, max_depth=3, extractor=lambda x: Soup(x, "html.parser").text
@@ -48,7 +48,7 @@ class RAGHandler(BaseHandler):
 
         # Store the document into a vector store with a specific embedding model
         self.vectorstore = FAISS.from_documents(
-            all_splits, CustomEmbedding(model_name=embedding_model)
+            all_splits, CustomEmbedding(model_path=model_path)
         )
 
     def preprocess(self, requests):
