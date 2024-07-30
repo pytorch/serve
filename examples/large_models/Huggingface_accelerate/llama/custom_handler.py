@@ -122,7 +122,7 @@ class LlamaHandler(BaseHandler, ABC):
         """
         outputs = self.model.generate(
             **input_batch,
-            max_length=self.max_new_tokens,
+            max_new_tokens=self.max_new_tokens,
         )
 
         if not self.return_full_text:

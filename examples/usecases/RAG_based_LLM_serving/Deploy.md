@@ -8,6 +8,12 @@
     * [Start TorchServe](#start-torchserve)
     * [Query Llama](#query-llama)
 * [Deploy RAG](#deploy-rag)
+    * [Download embedding model](#download-embedding-model)
+    * [Generate MAR file](#generate-mar-file-1)
+    * [Add MAR to model store](#add-the-mar-file-to-model-store-1)
+    * [Start TorchServe](#start-torchserve-1)
+    * [Query Llama](#query-rag)
+* [End-to-End](#)
 
 ### Deploy Llama
 
@@ -72,6 +78,7 @@ torch-model-archiver --model-name rag --version 1.0 --handler rag_handler.py --c
 ### Add the mar file to model store
 
 ```bash
+mkdir -p model_store
 mv rag model_store
 mv model model_store/rag
 ```
@@ -82,7 +89,16 @@ torchserve --start --ncs --ts-config config.properties --model-store model_store
 
 ```
 
+### Query RAG
+
+```bash
+python query_rag.py
 ```
-mkdir model_store
-torch-model-archiver --model-name rag --version 1.0 --handler rag_handler.py --config-file rag-config.yaml -r requirements.txt --archive-format no-archive --export-path model_store -f
+
+### RAG + LLM
+
+Send the query to RAG to get the context, send the response to Llama to get more accurate results
+
+```bash
+python query_rag_llama.py
 ```
