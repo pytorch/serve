@@ -9,13 +9,13 @@ Consider this simple design of a user querying a TorchServe endpoint serving Lla
 
 
 
-![LLM Deployment](assets/llm_ep.png "LLM Deployment")
+![LLM Deployment](https://raw.githubusercontent.com/pytorch/serve/master/examples/usecases/RAG_based_LLM_serving/assets/llm_ep.png "LLM Deployment")
 
 
-Suppose we want to find out what’s new with Llama 3, we send the following query to the TorchServe Llama endpoint. 
+Suppose we want to find out what’s new with Llama 3, we send the following query to the TorchServe Llama endpoint.
 
 
-```
+```bash
 Question: What's new with Llama 3.1?
 ```
 
@@ -23,7 +23,7 @@ Question: What's new with Llama 3.1?
 The response returned by the model talks about a data visualization tool called Llama 3.1 and is not what we expect.
 
 
-```
+```bash
 Question: What's new with Llama 3.1?
 Answer:  (Updated)
 We've been busy bees in the Llama office, and we're excited to share the latest updates with you!
@@ -39,7 +39,7 @@ Llama 3.1 brings a bunch of new features and improvements to make your workflow 
 
 ## Retrieval Augmented Generation
 
-Large Language Models (LLMs) such as Llama are good at performing many complex text generation tasks. However, when using LLMs for a specific domain,  they do suffer from limitations such 
+Large Language Models (LLMs) such as Llama are good at performing many complex text generation tasks. However, when using LLMs for a specific domain,  they do suffer from limitations such
 
 
 
@@ -48,7 +48,7 @@ Large Language Models (LLMs) such as Llama are good at performing many complex t
 
 Retrieval Augmented Generation (RAG) is a technique used to address these limitations. RAG enhances the accuracy of an LLM by augmenting the LLM with up-to-date, relevant information given the query. RAG achieves this by splitting the data sources into chunks of the specified size, indexing these chunks, & retrieving the relevant chunks based on the query. The information obtained is used as context to augment the query sent to the LLM.
 
-[LangChain](https://python.langchain.com/v0.2/docs/introduction/) is a popular framework for building LLM applications with RAG. An example of how to use RAG with Llama 3 can be found in [llama-recipes](https://github.com/meta-llama/llama-recipes/blob/main/recipes/use_cases/RAG/HelloLlamaCloud.ipynb). 
+[LangChain](https://python.langchain.com/v0.2/docs/introduction/) is a popular framework for building LLM applications with RAG. An example of how to use RAG with Llama 3 can be found in [llama-recipes](https://github.com/meta-llama/llama-recipes/blob/main/recipes/use_cases/RAG/HelloLlamaCloud.ipynb).
 
 While LLM inference demands expensive ML accelerators, RAG endpoint can be deployed on cost-effective CPUs still meeting the use case latency requirements. Additionally, offloading the RAG endpoint to CPUs allows one to achieve microservice architecture that decouples the LLM and business infrastructure and scale them independently. In the below sections, we demonstrate how you can deploy RAG on linux-aarch64 based AWS Graviton. Further, we also show how you can get improved throughput from your RAG endpoint using` torch.compile. `There are 2 steps in a basic RAG workflow
 
@@ -58,7 +58,7 @@ While LLM inference demands expensive ML accelerators, RAG endpoint can be deplo
 The context being provided in this example is a web [URL](https://huggingface.co/blog/llama3). We load the content in the URL, also recursively including the child pages. The documents are split into smaller chunks for efficient processing. These chunks are encoded using an embedding model and stored in a vector database, thereby enabling efficient search and retrieval. We use `torch.compile` on the embedding model to speed up inference. You can read more about using `torch.compile` with AWS Graviton [here](https://pytorch.org/blog/accelerated-pytorch-inference/)
 
 
-```
+```python
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain.text_splitter import RecursiveCharacterTextSplitter
@@ -72,7 +72,7 @@ config.freezing=True
 
 class CustomEmbedding(HuggingFaceEmbeddings):
     tokenizer: Any
-    
+
     def __init__(self, tokenizer: Any, **kwargs: Any):
         """Initialize the sentence_transformer."""
         super().__init__(**kwargs)
@@ -85,7 +85,7 @@ class CustomEmbedding(HuggingFaceEmbeddings):
         arbitrary_types_allowed = True
 
 
-    
+
     def embed_documents(self, texts: List[str]) -> List[List[float]]:
         """Compute doc embeddings using a HuggingFace transformer model.
 
@@ -101,7 +101,7 @@ class CustomEmbedding(HuggingFaceEmbeddings):
 
         # Tokenize sentences
         encoded_input = self.tokenizer(texts, padding=True, truncation=True, return_tensors='pt')
-        
+
         embeddings = self.client(
            **encoded_input
         )
@@ -114,7 +114,7 @@ class CustomEmbedding(HuggingFaceEmbeddings):
 url="https://huggingface.co/blog/llama3"
 loader = RecursiveUrlLoader(
     url=url, max_depth=3, extractor=lambda x: Soup(x, "html.parser").text
-)       
+)
 docs = loader.load()
 
 # 2. Split the document into chunks with a specified chunk size
@@ -135,7 +135,7 @@ vectorstore = FAISS.from_documents(all_splits, model)
 For every query sent by the user , we do a similarity search for the query in the vector database and get the N (here N=5) closest chunks of documents.
 
 
-```
+```python
 docs = vectorstore.similarity_search(query, k=5)
 ```
 
@@ -143,14 +143,14 @@ docs = vectorstore.similarity_search(query, k=5)
 
 ### Prompt Engineering
 
-Typical implementations of RAG with LLM , use langchain to chain RAG and LLM pipeline and call an invoke method on the chain with the query. 
+Typical implementations of RAG with LLM , use langchain to chain RAG and LLM pipeline and call an invoke method on the chain with the query.
 
 The published example of  Llama endpoint with TorchServe expects a text prompt as the input and uses [HuggingFace](https://huggingface.co/) APIs to process the query. To make the design compatible, we need to return a text prompt from the RAG endpoint.
 
-This section describes how we can engineer the prompt Llama endpoint expects that includes the relevant context. Under the hood, LangChain has a [PromptTemplate](https://api.python.langchain.com/en/latest/prompts/langchain_core.prompts.prompt.PromptTemplate.html) for Llama . By executing the llama-recipes notebook mentioned above, with the following debug statements, we can determine the prompt being sent to Llama. 
+This section describes how we can engineer the prompt Llama endpoint expects that includes the relevant context. Under the hood, LangChain has a [PromptTemplate](https://api.python.langchain.com/en/latest/prompts/langchain_core.prompts.prompt.PromptTemplate.html) for Llama . By executing the llama-recipes notebook mentioned above, with the following debug statements, we can determine the prompt being sent to Llama.
 
 
-```
+```python
 import langchain
 langchain.debug = True
 ```
@@ -159,7 +159,7 @@ langchain.debug = True
 We extract the text from the docs returned in the retrieval section and prompt engineer the final prompt to Llama as follows
 
 
-```
+```python
 from langchain.prompts import PromptTemplate
 from langchain_core.prompts import format_document
 question="What's new with Llama 3?"
@@ -178,10 +178,10 @@ prompt = f"Use the following pieces of context to answer the question at the end
 
 ### AWS Graviton specific optimizations
 
-To take advantage of the performance optimizations on AWS Graviton for RAG, we can set the following optimizations; details on the optimizations are mentioned in [this blog](https://pytorch.org/blog/optimized-pytorch-w-graviton/) . 
+To take advantage of the performance optimizations on AWS Graviton for RAG, we can set the following optimizations; details on the optimizations are mentioned in [this blog](https://pytorch.org/blog/optimized-pytorch-w-graviton/) .
 
 
-```
+```bash
 export TORCH_MKLDNN_MATMUL_MIN_DIM=1024
 export LRU_CACHE_CAPACITY=1024
 export THP_MEM_ALLOC_ENABLE=1
@@ -189,10 +189,10 @@ export DNNL_DEFAULT_FPMATH_MODE=BF16
 ```
 
 
-To accurately measure the performance gain using torch.compile compared to PyTorch eager, we also set 
+To accurately measure the performance gain using torch.compile compared to PyTorch eager, we also set
 
 
-```
+```bash
 export OMP_NUM_THREADS=1
 ```
 
@@ -227,7 +227,7 @@ This can be used along with` install_py_dep_per_model=true` in` config.propertie
 We pass the parameters used for indexing and retrieval in `rag-config.yaml `which is used to create the MAR file. By making these parameters configurable, we can have multiple RAG endpoints for different tasks by using different yaml files.
 
 
-```
+```yaml
 # TorchServe frontend parameters
 minWorkers: 1
 maxWorkers: 1
@@ -244,10 +244,10 @@ handler:
 
 * rag_handler.py
 
-We define a handler file with a class which derives from the `BaseHandler`. This class needs to define four methods: `initialize`, `preprocess`, `inference` and `postprocess`. The indexing portion is defined in the `initialize` method. The retrieval portion is in the `inference` method and the prompt engineering portion in the `postprocess` method. We use the timed function to determine the time taken to process each of these methods. 
+We define a handler file with a class which derives from the `BaseHandler`. This class needs to define four methods: `initialize`, `preprocess`, `inference` and `postprocess`. The indexing portion is defined in the `initialize` method. The retrieval portion is in the `inference` method and the prompt engineering portion in the `postprocess` method. We use the timed function to determine the time taken to process each of these methods.
 
 
-```
+```python
 import torch
 import transformers
 from bs4 import BeautifulSoup as Soup
@@ -325,11 +325,11 @@ class RAGHandler(BaseHandler):
         return [prompt]
 ```
 
-### Benchmarking Performance 
+### Benchmarking Performance
 
 We use ab tool to measure the performance of the RAG endpoint
 
-```
+```bash
 python benchmarks/auto_benchmark.py --input /home/ubuntu/serve/examples/usecases/RAG_based_LLM_serving
 benchmark_profile.yaml --skip true
 ```
@@ -342,27 +342,27 @@ We repeat the runs with combinations of OMP_NUM_THREADS and PyTorch Eager/ torch
 
 We observe the following throughput on the AWS EC2  `m7g.4xlarge` instance
 
-![RAG Throughput](assets/rag_perf.png "RAG Throughput")
+![RAG Throughput](https://raw.githubusercontent.com/pytorch/serve/master/examples/usecases/RAG_based_LLM_serving/assets/rag_perf.png "RAG Throughput")
 
 
 We observe that using `torch.compile` improves the RAG endpoint throughput by 35%. The scale of the throughput (Eager or Compile) shows that deploying RAG on a CPU device is practical for use with a LLM deployed on a GPU instance. The RAG endpoint is not going to be a bottleneck in an LLM deployment,
 
 
-## RAG + LLM Deployment 
+## RAG + LLM Deployment
 
-The system architecture for the end-to-end solution using RAG based LLM serving is shown in Figure 2. 
-
-
-
-![RAG + LLM Deployment](assets/rag_llm.png "RAG + LLM Deployment")
+The system architecture for the end-to-end solution using RAG based LLM serving is shown in Figure 2.
 
 
-The steps for full deployment are mentioned in [Deploy.md](Deploy.md)
+
+![RAG + LLM Deployment](https://raw.githubusercontent.com/pytorch/serve/master/examples/usecases/RAG_based_LLM_serving/assets/rag_llm.png "RAG + LLM Deployment")
+
+
+The steps for full deployment are mentioned in [Deploy.md](https://github.com/pytorch/serve/blob/master/examples/usecases/RAG_based_LLM_serving/Deploy.md)
 
 The code snippet which can chain the RAG endpoint with Llama endpoint is shown below
 
 
-```
+```python
 import requests
 
 prompt="What's new with Llama 3.1?"
@@ -382,21 +382,21 @@ print(f"Answer: {response.text}")
 ### Sample Outputs
 
 
-```
+```bash
 Question: What's new with Llama 3.1?
 ```
 
-```
+```bash
 Question: What's new with Llama 3.1?
 Answer:  Llama 3.1 has a large context length of 128K tokens, multilingual capabilities, tool usage capabilities, a very large dense model of 405 billion parameters, and a more permissive license. It also introduces six new open LLM models based on the Llama 3 architecture, and continues to use Grouped-Query Attention (GQA) for efficient representation. The new tokenizer expands the vocabulary size to 128,256, and the 8B version of the model now uses GQA. The license allows using model outputs to improve other LLMs.
 ```
 
 
-```
+```bash
 Question: What's new with Llama 2?
 ```
 
-```
+```bash
 Question: What's new with Llama 2?
 Answer:  There is no mention of Llama 2 in the provided context. The text only discusses Llama 3.1 and its features. Therefore, it is not possible to determine what is new with Llama 2. I don't know.
 
@@ -408,4 +408,3 @@ Answer:  There is no mention of Llama 2 in the provided context. The text only d
 
 In this blog, we show how to deploy a RAG Endpoint using TorchServe and improve the response generated by the Llama Endpoint. Using the architecture described in Figure 2, we can reduce hallucinations of the LLM.  \
 We also show how the RAG endpoint can be deployed on CPU using AWS Graviton, while the Llama endpoint is still deployed on a GPU. This kind of microservices-based RAG solution efficiently utilizes compute resources, resulting in potential cost savings for customers.
-
