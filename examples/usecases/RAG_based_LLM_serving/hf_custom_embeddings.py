@@ -5,6 +5,7 @@ import torch._inductor.config as config
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from transformers import AutoModel, AutoTokenizer
 
+# Enable AWS Graviton specific torch.compile optimizations
 config.cpp.weight_prepack = True
 config.freezing = True
 

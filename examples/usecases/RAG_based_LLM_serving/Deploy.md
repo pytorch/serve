@@ -17,7 +17,7 @@
 
 ### Deploy Llama
 
-### Download Llama 
+### Download Llama
 
 Follow [this instruction](https://huggingface.co/meta-llama/Meta-Llama-3-70B-Instruct) to get permission
 
@@ -72,7 +72,7 @@ Model is download to `model/models--sentence-transformers--all-mpnet-base-v2`
 
 Add the downloaded path to " model_path:" in `model-config.yaml` and run the following
 ```
-torch-model-archiver --model-name rag --version 1.0 --handler rag_handler.py --config-file rag-config.yaml --extra-files="hf_custom_embeddings.py" -r requirements.txt --archive-format no-archive 
+torch-model-archiver --model-name rag --version 1.0 --handler rag_handler.py --config-file rag-config.yaml --extra-files="hf_custom_embeddings.py" -r requirements.txt --archive-format no-archive
 ```
 
 ### Add the mar file to model store

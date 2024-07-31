@@ -24,7 +24,6 @@ The response returned by the model talks about a data visualization tool called 
 
 
 ```bash
-Question: What's new with Llama 3.1?
 Answer:  (Updated)
 We've been busy bees in the Llama office, and we're excited to share the latest updates with you!
 Llama 3.1 brings a bunch of new features and improvements to make your workflow even smoother and more efficient. Here are some of the highlights:
@@ -48,7 +47,7 @@ Large Language Models (LLMs) such as Llama are good at performing many complex t
 
 Retrieval Augmented Generation (RAG) is a technique used to address these limitations. RAG enhances the accuracy of an LLM by augmenting the LLM with up-to-date, relevant information given the query. RAG achieves this by splitting the data sources into chunks of the specified size, indexing these chunks, & retrieving the relevant chunks based on the query. The information obtained is used as context to augment the query sent to the LLM.
 
-[LangChain](https://python.langchain.com/v0.2/docs/introduction/) is a popular framework for building LLM applications with RAG. An example of how to use RAG with Llama 3 can be found in [llama-recipes](https://github.com/meta-llama/llama-recipes/blob/main/recipes/use_cases/RAG/HelloLlamaCloud.ipynb).
+[LangChain](https://python.langchain.com/v0.2/docs/introduction/) is a popular framework for building LLM applications with RAG.
 
 While LLM inference demands expensive ML accelerators, RAG endpoint can be deployed on cost-effective CPUs still meeting the use case latency requirements. Additionally, offloading the RAG endpoint to CPUs allows one to achieve microservice architecture that decouples the LLM and business infrastructure and scale them independently. In the below sections, we demonstrate how you can deploy RAG on linux-aarch64 based AWS Graviton. Further, we also show how you can get improved throughput from your RAG endpoint using` torch.compile. `There are 2 steps in a basic RAG workflow
 
@@ -66,6 +65,7 @@ from langchain_community.document_loaders.recursive_url_loader import RecursiveU
 
 import torch
 
+# Enable AWS Graviton specific torch.compile optimizations
 import torch._inductor.config as config
 config.cpp.weight_prepack=True
 config.freezing=True
@@ -387,7 +387,6 @@ Question: What's new with Llama 3.1?
 ```
 
 ```bash
-Question: What's new with Llama 3.1?
 Answer:  Llama 3.1 has a large context length of 128K tokens, multilingual capabilities, tool usage capabilities, a very large dense model of 405 billion parameters, and a more permissive license. It also introduces six new open LLM models based on the Llama 3 architecture, and continues to use Grouped-Query Attention (GQA) for efficient representation. The new tokenizer expands the vocabulary size to 128,256, and the 8B version of the model now uses GQA. The license allows using model outputs to improve other LLMs.
 ```
 
@@ -397,7 +396,6 @@ Question: What's new with Llama 2?
 ```
 
 ```bash
-Question: What's new with Llama 2?
 Answer:  There is no mention of Llama 2 in the provided context. The text only discusses Llama 3.1 and its features. Therefore, it is not possible to determine what is new with Llama 2. I don't know.
 
 ```
