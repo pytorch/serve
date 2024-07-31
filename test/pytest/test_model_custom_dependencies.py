@@ -4,6 +4,7 @@ import subprocess
 import platform
 
 import requests
+import pytest
 import test_utils
 from model_archiver import ModelArchiver, ModelArchiverConfig
 from model_archiver.manifest_components.manifest import RuntimeType
