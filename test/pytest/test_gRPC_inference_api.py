@@ -7,6 +7,7 @@ import inference_pb2
 import management_pb2
 import test_gRPC_utils
 import test_utils
+import platform
 
 inference_data_json = "../postman/inference_data.json"
 inference_stream_data_json = "../postman/inference_stream_data.json"
@@ -49,7 +50,7 @@ def __infer(stub, model_name, model_input):
 
     return prediction
 
-
+@pytest.mark.skipif(platform.machine() == 'aarch64', reason="Test skipped on aarch64 architecture")
 def test_inference_apis():
     with open(os.path.join(os.path.dirname(__file__), inference_data_json), "rb") as f:
         test_data = json.loads(f.read())

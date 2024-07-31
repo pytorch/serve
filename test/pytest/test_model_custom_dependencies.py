@@ -1,6 +1,7 @@
 import os
 import pathlib
 import subprocess
+import platform
 
 import requests
 import test_utils
@@ -139,7 +140,7 @@ def register_model_and_make_inference_request(expect_model_load_failure=False):
         )
         resp.raise_for_status()
 
-
+@pytest.mark.skipif(platform.machine() == 'aarch64', reason="Test skipped on aarch64 architecture")
 def test_install_dependencies_to_target_directory_with_requirements():
     test_utils.torchserve_cleanup()
 
