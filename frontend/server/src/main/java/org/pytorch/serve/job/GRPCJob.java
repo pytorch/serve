@@ -139,6 +139,9 @@ public class GRPCJob extends Job {
                                 && responseHeaders
                                         .get(RequestInput.TS_STREAM_NEXT)
                                         .equals("false"))) {
+                    if (cancelHandler(responseObserver)) {
+                        return;
+                    }
                     responseObserver.onCompleted();
                     logQueueTime();
                 } else if (cmd == WorkerCommands.STREAMPREDICT2
