@@ -178,7 +178,7 @@ prompt = f"Use the following pieces of context to answer the question at the end
 
 ### AWS Graviton specific optimizations
 
-To take advantage of the performance optimizations on AWS Graviton for RAG, we can set the following optimizations; details on the optimizations are mentioned in [this blog](https://pytorch.org/blog/optimized-pytorch-w-graviton/) .
+To take advantage of the performance optimizations on AWS Graviton for RAG, we can set the following optimizations; details on the optimizations are mentioned in [this blog](https://pytorch.org/blog/optimized-pytorch-w-graviton/) . There is also a [tutorial](https://pytorch.org/tutorials/recipes/inference_tuning_on_aws_graviton.html) which talks about these optimizations
 
 
 ```bash
