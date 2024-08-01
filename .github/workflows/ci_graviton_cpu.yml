@@ -1,4 +1,4 @@
-name: CI CPU
+name: CI CPU Graviton
 
 on:
   workflow_dispatch:
@@ -23,7 +23,7 @@ jobs:
       matrix:
         os: [self-hosted, graviton-test]
     steps:
-      - name: Setup Python 
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
@@ -48,4 +48,3 @@ jobs:
           retry_on: error
           command: |
             python torchserve_sanity.py
-     
