@@ -38,11 +38,11 @@ Llama 3.1 brings a bunch of new features and improvements to make your workflow 
 
 ## Retrieval Augmented Generation
 
-Large Language Models (LLMs) such as Llama are good at performing many complex text generation tasks. However, when using LLMs for a specific domain,  they do suffer from limitations such
+Large Language Models (LLMs) such as Llama are good at performing many complex text generation tasks. However, when using LLMs for a specific domain, they do suffer from limitations such as
 
 
 
-* Outdated information: There can be advances in the domain which the model is not aware of since it was trained at an earlier date.
+* Outdated information: There can be advances in the domain which the model is not aware of since it was trained at an earlier date (a.k.a knowledge cutoff date).
 * Lack of knowledge of the specific domain: When using LLMs for a specific domain task, LLMs may give inaccurate answers since the domain specific knowledge may not be readily available.
 
 Retrieval Augmented Generation (RAG) is a technique used to address these limitations. RAG enhances the accuracy of an LLM by augmenting the LLM with up-to-date, relevant information given the query. RAG achieves this by splitting the data sources into chunks of the specified size, indexing these chunks, & retrieving the relevant chunks based on the query. The information obtained is used as context to augment the query sent to the LLM.
