@@ -10,7 +10,7 @@ rag:
             - 1
         input: "./examples/usecases/RAG_based_LLM_serving/sample_text.txt"
         requests: 1000
-        concurrency: 16
+        concurrency: 24
         backend_profiling: False
         exec_env: "local"
         processors:

@@ -52,6 +52,7 @@ class RAGHandler(BaseHandler):
         )
 
     def preprocess(self, requests):
+        assert len(requests) == 1, "Expecting batch_size = 1"
         inputs = []
         for request in requests:
             input_text = request.get("data") or request.get("body")

@@ -5,7 +5,7 @@ Previously, it has been [demonstrated](https://pytorch.org/blog/high-performance
 
 ## Problem
 
-Consider this simple design of a user querying a TorchServe endpoint serving Llama 3 ([Llama3-8b-instruct](https://huggingface.co/meta-llama/Meta-Llama-3-8B-Instruct)), as shown in Figure 1. Instructions to deploy this endpoint can be found in this link. This model was deployed without quantization on NVIDIA GPU (A10Gx4) which is available as `g5.12xlarge `instance on AWS.
+Consider this simple design of a user querying a TorchServe endpoint serving Llama 3 ([Llama3-8b-instruct](https://huggingface.co/meta-llama/Meta-Llama-3-8B-Instruct)), as shown in Figure 1. Instructions to deploy this endpoint can be found in this [link](https://github.com/pytorch/serve/blob/master/examples/large_models/Huggingface_accelerate/llama/Readme.md). This model was deployed without quantization on NVIDIA GPU (A10Gx4) which is available as `g5.12xlarge `instance on AWS.
 
 
 
@@ -58,6 +58,7 @@ The context being provided in this example is a web [URL](https://huggingface.co
 
 
 ```python
+from bs4 import BeautifulSoup as Soup
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain.text_splitter import RecursiveCharacterTextSplitter
@@ -145,9 +146,9 @@ docs = vectorstore.similarity_search(query, k=5)
 
 Typical implementations of RAG with LLM , use langchain to chain RAG and LLM pipeline and call an invoke method on the chain with the query.
 
-The published example of  Llama endpoint with TorchServe expects a text prompt as the input and uses [HuggingFace](https://huggingface.co/) APIs to process the query. To make the design compatible, we need to return a text prompt from the RAG endpoint.
+The published example of  Llama endpoint with TorchServe expects a text prompt as the input and uses [HuggingFace](https://huggingface.co/) APIs to process the query. To make the RAG design compatible, we need to return a text prompt from the RAG endpoint.
 
-This section describes how we can engineer the prompt Llama endpoint expects that includes the relevant context. Under the hood, LangChain has a [PromptTemplate](https://api.python.langchain.com/en/latest/prompts/langchain_core.prompts.prompt.PromptTemplate.html) for Llama . By executing the llama-recipes notebook mentioned above, with the following debug statements, we can determine the prompt being sent to Llama.
+This section describes how we can engineer the prompt that the Llama endpoint expects, including the relevant context. Under the hood, LangChain has a [PromptTemplate](https://api.python.langchain.com/en/latest/prompts/langchain_core.prompts.prompt.PromptTemplate.html) for Llama . By executing the code above with the following debug statements, we can determine the prompt being sent to Llama.
 
 
 ```python
@@ -297,6 +298,7 @@ class RAGHandler(BaseHandler):
         )
 
     def preprocess(self, requests):
+        assert len(requests) == 1, "Expecting batch_size = 1"
         inputs = []
         for request in requests:
             input_text = request.get("data") or request.get("body")
