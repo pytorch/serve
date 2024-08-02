@@ -206,6 +206,18 @@ URL="http://${INGRESS_HOST}:${INGRESS_PORT}/v2/health/live"
 EXPECTED_OUTPUT='{"live":true}'
 make_cluster_accessible ${SERVICE_NAME} ${URL} "" ${EXPECTED_OUTPUT}
 
+# ModelReady
+echo "HTTP ModelReady method call"
+URL="http://${INGRESS_HOST}:${INGRESS_PORT}/v2/models/${MODEL_NAME}/ready"
+EXPECTED_OUTPUT='{"name":"mnist","ready":true}'
+make_cluster_accessible ${SERVICE_NAME} ${URL} "" ${EXPECTED_OUTPUT}
+
+# ModelMetadata
+echo "HTTP ModelMetadata method call"
+URL="http://${INGRESS_HOST}:${INGRESS_PORT}/v2/models/${MODEL_NAME}"
+EXPECTED_OUTPUT='{"name_":"mnist","versions_":["1.0"],"platform_":"","inputs_":[],"outputs_":[],"memoizedIsInitialized":1,"unknownFields":{"fields":{}},"memoizedSize":-1,"memoizedHashCode":0}'
+make_cluster_accessible ${SERVICE_NAME} ${URL} "" ${EXPECTED_OUTPUT}
+
 # delete oip http isvc
 kubectl delete inferenceservice ${SERVICE_NAME}
 
