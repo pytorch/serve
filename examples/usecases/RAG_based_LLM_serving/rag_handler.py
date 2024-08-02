@@ -69,7 +69,7 @@ class RAGHandler(BaseHandler):
         docs, question = data[0], data[1]
         doc_prompt = PromptTemplate.from_template("{page_content}")
         context = ""
-        for _, doc in enumerate(docs):
+        for doc in docs:
             context += f"\n{format_document(doc, doc_prompt)}\n"
 
         prompt = (

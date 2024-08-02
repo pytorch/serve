@@ -166,7 +166,7 @@ question="What's new with Llama 3?"
 
 doc_prompt = PromptTemplate.from_template("{page_content}")
 context = ""
-for i, doc in enumerate(docs):
+for doc in docs:
     context += f"\n{format_document(doc, doc_prompt)}\n"
 
 prompt = f"Use the following pieces of context to answer the question at the end. If you don't know the answer, just say that you don't know, don't try to make up an answer."\
@@ -314,7 +314,7 @@ class RAGHandler(BaseHandler):
         docs, question = data[0], data[1]
         doc_prompt = PromptTemplate.from_template("{page_content}")
         context = ""
-        for _, doc in enumerate(docs):
+        for doc in docs:
             context += f"\n{format_document(doc, doc_prompt)}\n"
 
         prompt = (
@@ -368,7 +368,7 @@ import requests
 prompt="What's new with Llama 3.1?"
 
 RAG_EP = "http://<RAG Endpoint IP Address>:8080/predictions/rag"
-LLAMA_EP = "http://<RAG Endpoint IP Address>:8080/predictions/llama3"
+LLAMA_EP = "http://<LLAMA Endpoint IP Address>:8080/predictions/llama3-8b-instruct"
 # Get response from RAG
 response = requests.post(url=RAG_EP, data=prompt)
 # Get response from Llama

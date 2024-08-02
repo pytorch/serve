@@ -28,7 +28,7 @@ huggingface-cli login
 huggingface-cli login --token $HUGGINGFACE_TOKEN
 
 ```bash
-python ../Download_model.py --model_path model --model_name meta-llama/Meta-Llama-3-8B-Instruct
+python ../../large_models/Huggingface_accelerate/Download_model.py --model_path model --model_name meta-llama/Meta-Llama-3-8B-Instruct
 ```
 Model will be saved in the following path, `model/models--meta-llama--Meta-Llama-3-8B-Instruct`.
 
@@ -70,7 +70,7 @@ Model is download to `model/models--sentence-transformers--all-mpnet-base-v2`
 
 ### Generate MAR file
 
-Add the downloaded path to " model_path:" in `model-config.yaml` and run the following
+Add the downloaded path to " model_path:" in `rag-config.yaml` and run the following
 ```
 torch-model-archiver --model-name rag --version 1.0 --handler rag_handler.py --config-file rag-config.yaml --extra-files="hf_custom_embeddings.py" -r requirements.txt --archive-format no-archive
 ```
