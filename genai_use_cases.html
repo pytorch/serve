@@ -6,10 +6,11 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  
+  <meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>ts.metrics.system_metrics &mdash; PyTorch/Serve master documentation</title>
+  <title>TorchServe GenAI use cases and showcase &mdash; PyTorch/Serve master documentation</title>
   
 
   
@@ -25,15 +26,15 @@
 
   
 
-  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
-  <!-- <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" /> -->
-  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!-- <link rel="stylesheet" href="_static/pygments.css" type="text/css" /> -->
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css" type="text/css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/katex-math.css" type="text/css" />
-    <link rel="index" title="Index" href="../../../genindex.html" />
-    <link rel="search" title="Search" href="../../../search.html" />
+  <link rel="stylesheet" href="_static/katex-math.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
   <!-- Google Tag Manager -->
     <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
     new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -44,16 +45,16 @@
   
 
   
-  <script src="../../../_static/js/modernizr.min.js"></script>
+  <script src="_static/js/modernizr.min.js"></script>
 
   <!-- Preload the theme fonts -->
 
-<link rel="preload" href="../../../_static/fonts/FreightSans/freight-sans-book.woff2" as="font" type="font/woff2" crossorigin="anonymous">
-<link rel="preload" href="../../../_static/fonts/FreightSans/freight-sans-medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
-<link rel="preload" href="../../../_static/fonts/IBMPlexMono/IBMPlexMono-Medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
-<link rel="preload" href="../../../_static/fonts/FreightSans/freight-sans-bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
-<link rel="preload" href="../../../_static/fonts/FreightSans/freight-sans-medium-italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
-<link rel="preload" href="../../../_static/fonts/IBMPlexMono/IBMPlexMono-SemiBold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-book.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/IBMPlexMono/IBMPlexMono-Medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/FreightSans/freight-sans-medium-italic.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+<link rel="preload" href="_static/fonts/IBMPlexMono/IBMPlexMono-SemiBold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
 
 <!-- Preload the katex fonts -->
 
@@ -280,7 +281,7 @@
 
 
 <div role="search">
-  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search Docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
@@ -298,47 +299,47 @@
             
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../index.html">TorchServe</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../Troubleshooting.html">Troubleshooting Guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../performance_guide.html">Performance Guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../batch_inference_with_ts.html">Batch Inference with TorchServe</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../code_coverage.html">Code Coverage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../configuration.html">Advanced configuration</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../custom_service.html">Custom Service</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../default_handlers.html">TorchServe default inference handlers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../logging.html">Logging in Torchserve</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../metrics.html">TorchServe Metrics</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../model_zoo.html">Model Zoo</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../request_envelopes.html">Request Envelopes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../server.html">Running TorchServe</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../nvidia_mps.html">Running TorchServe with NVIDIA MPS</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../snapshot.html">TorchServe model snapshot</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../torchserve_on_win_native.html">TorchServe on Windows</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../torchserve_on_wsl.html">TorchServe on Windows Subsystem for Linux (WSL)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../use_cases.html">Torchserve Use Cases</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../workflows.html">TorchServe Workflows</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../large_model_inference.html">Serving large models with Torchserve</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../FAQs.html">FAQ’S</a></li>
+<li class="toctree-l1"><a class="reference internal" href="index.html">TorchServe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Troubleshooting.html">Troubleshooting Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="performance_guide.html">Performance Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="batch_inference_with_ts.html">Batch Inference with TorchServe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="code_coverage.html">Code Coverage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Advanced configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom_service.html">Custom Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="default_handlers.html">TorchServe default inference handlers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="logging.html">Logging in Torchserve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics.html">TorchServe Metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="model_zoo.html">Model Zoo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="request_envelopes.html">Request Envelopes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="server.html">Running TorchServe</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nvidia_mps.html">Running TorchServe with NVIDIA MPS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="snapshot.html">TorchServe model snapshot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torchserve_on_win_native.html">TorchServe on Windows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="torchserve_on_wsl.html">TorchServe on Windows Subsystem for Linux (WSL)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="use_cases.html">Torchserve Use Cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workflows.html">TorchServe Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="large_model_inference.html">Serving large models with Torchserve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="FAQs.html">FAQ’S</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Service APIs:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../grpc_api.html">TorchServe gRPC API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../inference_api.html">Inference API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../management_api.html">Management API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../metrics_api.html">Metrics API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../rest_api.html">TorchServe REST API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../workflow_inference_api.html">Workflow Inference API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../workflow_management_api.html">Management API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="grpc_api.html">TorchServe gRPC API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="inference_api.html">Inference API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="management_api.html">Management API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metrics_api.html">Metrics API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rest_api.html">TorchServe REST API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workflow_inference_api.html">Workflow Inference API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workflow_management_api.html">Management API</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Developer APIs:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../api/ts.html">ts package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../api/ts.torch_handler.request_envelope.html">ts.torch_handler.request_envelope package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../api/ts.torch_handler.html">ts.torch_handler package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../api/ts.metrics.html">ts.metrics package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../api/ts.model_service.html">ts.model_service package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../api/ts.protocol.html">ts.protocol package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">serve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/ts.html">ts package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/ts.torch_handler.request_envelope.html">ts.torch_handler.request_envelope package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/ts.torch_handler.html">ts.torch_handler package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/ts.metrics.html">ts.metrics package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/ts.model_service.html">ts.model_service package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/ts.protocol.html">ts.protocol package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/modules.html">serve</a></li>
 </ul>
 
             
@@ -371,7 +372,7 @@
   <ul class="pytorch-breadcrumbs">
     
       <li>
-        <a href="../../../contents.html">
+        <a href="contents.html">
           
             Docs
           
@@ -379,12 +380,14 @@
       </li>
 
         
-          <li><a href="../../index.html">Module code</a> &gt;</li>
-        
-      <li>ts.metrics.system_metrics</li>
+      <li>TorchServe GenAI use cases and showcase</li>
     
     
       <li class="pytorch-breadcrumbs-aside">
+        
+            
+            <a href="_sources/genai_use_cases.md.txt" rel="nofollow"><img src="_static/images/view-page-source-icon.svg"></a>
+          
         
       </li>
     
@@ -413,134 +416,15 @@
             <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
              <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
               
-  <h1>Source code for ts.metrics.system_metrics</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Module to collect system metrics for front-end</span>
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">types</span>
-<span class="kn">from</span> <span class="nn">builtins</span> <span class="kn">import</span> <span class="nb">str</span>
+  <section id="torchserve-genai-use-cases-and-showcase">
+<h1>TorchServe GenAI use cases and showcase<a class="headerlink" href="#torchserve-genai-use-cases-and-showcase" title="Permalink to this heading">¶</a></h1>
+<p>This document shows interesting usecases with TorchServe for Gen AI deployments.</p>
+<section id="enhancing-llm-serving-with-torch-compiled-rag-on-aws-graviton">
+<h2><a class="reference external" href="https://pytorch.org/serve/enhancing_llm_serving_compile_rag.html">Enhancing LLM Serving with Torch Compiled RAG on AWS Graviton</a><a class="headerlink" href="#enhancing-llm-serving-with-torch-compiled-rag-on-aws-graviton" title="Permalink to this heading">¶</a></h2>
+<p>In this blog, we show how to deploy a RAG Endpoint using TorchServe, increase throughput using <code class="docutils literal notranslate"><span class="pre">torch.compile</span></code> and improve the response generated by the Llama Endpoint. We also show how the RAG endpoint can be deployed on CPU using AWS Graviton, while the Llama endpoint is still deployed on a GPU. This kind of microservices-based RAG solution efficiently utilizes compute resources, resulting in potential cost savings for customers.</p>
+</section>
+</section>
 
-<span class="kn">import</span> <span class="nn">psutil</span>
-
-<span class="kn">from</span> <span class="nn">ts.metrics.dimension</span> <span class="kn">import</span> <span class="n">Dimension</span>
-<span class="kn">from</span> <span class="nn">ts.metrics.metric</span> <span class="kn">import</span> <span class="n">Metric</span>
-
-<span class="n">system_metrics</span> <span class="o">=</span> <span class="p">[]</span>
-<span class="n">dimension</span> <span class="o">=</span> <span class="p">[</span><span class="n">Dimension</span><span class="p">(</span><span class="s2">&quot;Level&quot;</span><span class="p">,</span> <span class="s2">&quot;Host&quot;</span><span class="p">)]</span>
-
-
-<div class="viewcode-block" id="cpu_utilization"><a class="viewcode-back" href="../../../api/ts.metrics.html#ts.metrics.system_metrics.cpu_utilization">[docs]</a><span class="k">def</span> <span class="nf">cpu_utilization</span><span class="p">():</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="n">psutil</span><span class="o">.</span><span class="n">cpu_percent</span><span class="p">()</span>
-    <span class="n">system_metrics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Metric</span><span class="p">(</span><span class="s2">&quot;CPUUtilization&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="s2">&quot;percent&quot;</span><span class="p">,</span> <span class="n">dimension</span><span class="p">))</span></div>
-
-
-<div class="viewcode-block" id="memory_used"><a class="viewcode-back" href="../../../api/ts.metrics.html#ts.metrics.system_metrics.memory_used">[docs]</a><span class="k">def</span> <span class="nf">memory_used</span><span class="p">():</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="n">psutil</span><span class="o">.</span><span class="n">virtual_memory</span><span class="p">()</span><span class="o">.</span><span class="n">used</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">)</span>  <span class="c1"># in MB</span>
-    <span class="n">system_metrics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Metric</span><span class="p">(</span><span class="s2">&quot;MemoryUsed&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="s2">&quot;MB&quot;</span><span class="p">,</span> <span class="n">dimension</span><span class="p">))</span></div>
-
-
-<div class="viewcode-block" id="memory_available"><a class="viewcode-back" href="../../../api/ts.metrics.html#ts.metrics.system_metrics.memory_available">[docs]</a><span class="k">def</span> <span class="nf">memory_available</span><span class="p">():</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="n">psutil</span><span class="o">.</span><span class="n">virtual_memory</span><span class="p">()</span><span class="o">.</span><span class="n">available</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">)</span>  <span class="c1"># in MB</span>
-    <span class="n">system_metrics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Metric</span><span class="p">(</span><span class="s2">&quot;MemoryAvailable&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="s2">&quot;MB&quot;</span><span class="p">,</span> <span class="n">dimension</span><span class="p">))</span></div>
-
-
-<div class="viewcode-block" id="memory_utilization"><a class="viewcode-back" href="../../../api/ts.metrics.html#ts.metrics.system_metrics.memory_utilization">[docs]</a><span class="k">def</span> <span class="nf">memory_utilization</span><span class="p">():</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="n">psutil</span><span class="o">.</span><span class="n">virtual_memory</span><span class="p">()</span><span class="o">.</span><span class="n">percent</span>
-    <span class="n">system_metrics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Metric</span><span class="p">(</span><span class="s2">&quot;MemoryUtilization&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="s2">&quot;percent&quot;</span><span class="p">,</span> <span class="n">dimension</span><span class="p">))</span></div>
-
-
-<div class="viewcode-block" id="disk_used"><a class="viewcode-back" href="../../../api/ts.metrics.html#ts.metrics.system_metrics.disk_used">[docs]</a><span class="k">def</span> <span class="nf">disk_used</span><span class="p">():</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="n">psutil</span><span class="o">.</span><span class="n">disk_usage</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">used</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">)</span>  <span class="c1"># in GB</span>
-    <span class="n">system_metrics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Metric</span><span class="p">(</span><span class="s2">&quot;DiskUsage&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="s2">&quot;GB&quot;</span><span class="p">,</span> <span class="n">dimension</span><span class="p">))</span></div>
-
-
-<div class="viewcode-block" id="disk_utilization"><a class="viewcode-back" href="../../../api/ts.metrics.html#ts.metrics.system_metrics.disk_utilization">[docs]</a><span class="k">def</span> <span class="nf">disk_utilization</span><span class="p">():</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="n">psutil</span><span class="o">.</span><span class="n">disk_usage</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">percent</span>
-    <span class="n">system_metrics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Metric</span><span class="p">(</span><span class="s2">&quot;DiskUtilization&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="s2">&quot;percent&quot;</span><span class="p">,</span> <span class="n">dimension</span><span class="p">))</span></div>
-
-
-<div class="viewcode-block" id="disk_available"><a class="viewcode-back" href="../../../api/ts.metrics.html#ts.metrics.system_metrics.disk_available">[docs]</a><span class="k">def</span> <span class="nf">disk_available</span><span class="p">():</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="n">psutil</span><span class="o">.</span><span class="n">disk_usage</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">free</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">)</span>  <span class="c1"># in GB</span>
-    <span class="n">system_metrics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Metric</span><span class="p">(</span><span class="s2">&quot;DiskAvailable&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="s2">&quot;GB&quot;</span><span class="p">,</span> <span class="n">dimension</span><span class="p">))</span></div>
-
-
-<div class="viewcode-block" id="gpu_utilization"><a class="viewcode-back" href="../../../api/ts.metrics.html#ts.metrics.system_metrics.gpu_utilization">[docs]</a><span class="k">def</span> <span class="nf">gpu_utilization</span><span class="p">(</span><span class="n">num_of_gpu</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Collect gpu metrics.</span>
-
-<span class="sd">    :param num_of_gpu:</span>
-<span class="sd">    :return:</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">num_of_gpu</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">return</span>
-
-    <span class="c1"># pylint: disable=wrong-import-position</span>
-    <span class="c1"># pylint: disable=import-outside-toplevel</span>
-    <span class="kn">import</span> <span class="nn">nvgpu</span>
-    <span class="kn">import</span> <span class="nn">pynvml</span>
-    <span class="kn">from</span> <span class="nn">nvgpu</span> <span class="kn">import</span> <span class="n">list_gpus</span>
-
-    <span class="c1"># pylint: enable=wrong-import-position</span>
-    <span class="c1"># pylint: enable=import-outside-toplevel</span>
-
-    <span class="n">info</span> <span class="o">=</span> <span class="n">nvgpu</span><span class="o">.</span><span class="n">gpu_info</span><span class="p">()</span>
-    <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">info</span><span class="p">:</span>
-        <span class="n">dimension_gpu</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">Dimension</span><span class="p">(</span><span class="s2">&quot;Level&quot;</span><span class="p">,</span> <span class="s2">&quot;Host&quot;</span><span class="p">),</span>
-            <span class="n">Dimension</span><span class="p">(</span><span class="s2">&quot;device_id&quot;</span><span class="p">,</span> <span class="n">value</span><span class="p">[</span><span class="s2">&quot;index&quot;</span><span class="p">]),</span>
-        <span class="p">]</span>
-        <span class="n">system_metrics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-            <span class="n">Metric</span><span class="p">(</span>
-                <span class="s2">&quot;GPUMemoryUtilization&quot;</span><span class="p">,</span>
-                <span class="n">value</span><span class="p">[</span><span class="s2">&quot;mem_used_percent&quot;</span><span class="p">],</span>
-                <span class="s2">&quot;percent&quot;</span><span class="p">,</span>
-                <span class="n">dimension_gpu</span><span class="p">,</span>
-            <span class="p">)</span>
-        <span class="p">)</span>
-        <span class="n">system_metrics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-            <span class="n">Metric</span><span class="p">(</span><span class="s2">&quot;GPUMemoryUsed&quot;</span><span class="p">,</span> <span class="n">value</span><span class="p">[</span><span class="s2">&quot;mem_used&quot;</span><span class="p">],</span> <span class="s2">&quot;MB&quot;</span><span class="p">,</span> <span class="n">dimension_gpu</span><span class="p">)</span>
-        <span class="p">)</span>
-
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">statuses</span> <span class="o">=</span> <span class="n">list_gpus</span><span class="o">.</span><span class="n">device_statuses</span><span class="p">()</span>
-    <span class="k">except</span> <span class="n">pynvml</span><span class="o">.</span><span class="n">nvml</span><span class="o">.</span><span class="n">NVMLError_NotSupported</span><span class="p">:</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;gpu device monitoring not supported&quot;</span><span class="p">)</span>
-        <span class="n">statuses</span> <span class="o">=</span> <span class="p">[]</span>
-
-    <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">status</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">statuses</span><span class="p">):</span>
-        <span class="n">dimension_gpu</span> <span class="o">=</span> <span class="p">[</span><span class="n">Dimension</span><span class="p">(</span><span class="s2">&quot;Level&quot;</span><span class="p">,</span> <span class="s2">&quot;Host&quot;</span><span class="p">),</span> <span class="n">Dimension</span><span class="p">(</span><span class="s2">&quot;device_id&quot;</span><span class="p">,</span> <span class="n">idx</span><span class="p">)]</span>
-        <span class="n">system_metrics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-            <span class="n">Metric</span><span class="p">(</span><span class="s2">&quot;GPUUtilization&quot;</span><span class="p">,</span> <span class="n">status</span><span class="p">[</span><span class="s2">&quot;utilization&quot;</span><span class="p">],</span> <span class="s2">&quot;percent&quot;</span><span class="p">,</span> <span class="n">dimension_gpu</span><span class="p">)</span>
-        <span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="collect_all"><a class="viewcode-back" href="../../../api/ts.metrics.html#ts.metrics.system_metrics.collect_all">[docs]</a><span class="k">def</span> <span class="nf">collect_all</span><span class="p">(</span><span class="n">mod</span><span class="p">,</span> <span class="n">num_of_gpu</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Collect all system metrics.</span>
-
-<span class="sd">    :param mod:</span>
-<span class="sd">    :param num_of_gpu:</span>
-<span class="sd">    :return:</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">members</span> <span class="o">=</span> <span class="nb">dir</span><span class="p">(</span><span class="n">mod</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">members</span><span class="p">:</span>
-        <span class="n">value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">mod</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">types</span><span class="o">.</span><span class="n">FunctionType</span><span class="p">)</span> <span class="ow">and</span> <span class="n">value</span><span class="o">.</span><span class="vm">__name__</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span>
-            <span class="s2">&quot;collect_all&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;log_msg&quot;</span><span class="p">,</span>
-        <span class="p">):</span>
-            <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;gpu_utilization&quot;</span><span class="p">:</span>
-                <span class="n">value</span><span class="p">(</span><span class="n">num_of_gpu</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">value</span><span class="p">()</span>
-
-    <span class="k">for</span> <span class="n">met</span> <span class="ow">in</span> <span class="n">system_metrics</span><span class="p">:</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">met</span><span class="p">))</span>
-
-    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span></div>
-</pre></div>
 
              </article>
              
@@ -574,7 +458,13 @@
         <div class="pytorch-content-right" id="pytorch-content-right">
           <div class="pytorch-right-menu" id="pytorch-right-menu">
             <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
-              
+              <ul>
+<li><a class="reference internal" href="#">TorchServe GenAI use cases and showcase</a><ul>
+<li><a class="reference internal" href="#enhancing-llm-serving-with-torch-compiled-rag-on-aws-graviton">Enhancing LLM Serving with Torch Compiled RAG on AWS Graviton</a></li>
+</ul>
+</li>
+</ul>
+
             </div>
           </div>
         </div>
@@ -587,23 +477,23 @@
   
 
      
-       <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-         <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-         <script src="../../../_static/jquery.js"></script>
-         <script src="../../../_static/underscore.js"></script>
-         <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-         <script src="../../../_static/doctools.js"></script>
-         <script src="../../../_static/katex.min.js"></script>
-         <script src="../../../_static/auto-render.min.js"></script>
-         <script src="../../../_static/katex_autorenderer.js"></script>
+       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+         <script src="_static/jquery.js"></script>
+         <script src="_static/underscore.js"></script>
+         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+         <script src="_static/doctools.js"></script>
+         <script src="_static/katex.min.js"></script>
+         <script src="_static/auto-render.min.js"></script>
+         <script src="_static/katex_autorenderer.js"></script>
      
 
   
 
-  <script type="text/javascript" src="../../../_static/js/vendor/popper.min.js"></script>
-  <script type="text/javascript" src="../../../_static/js/vendor/bootstrap.min.js"></script>
+  <script type="text/javascript" src="_static/js/vendor/popper.min.js"></script>
+  <script type="text/javascript" src="_static/js/vendor/bootstrap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
-  <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  <script type="text/javascript" src="_static/js/theme.js"></script>
 
   <script type="text/javascript">
       jQuery(function () {
@@ -708,7 +598,7 @@
   <div class="cookie-banner-wrapper">
   <div class="container">
     <p class="gdpr-notice">To analyze traffic and optimize your experience, we serve cookies on this site. By clicking or navigating, you agree to allow our usage of cookies. As the current maintainers of this site, Facebook’s Cookies Policy applies. Learn more, including about available controls: <a href="https://www.facebook.com/policies/cookies/">Cookies Policy</a>.</p>
-    <img class="close-button" src="../../../_static/images/pytorch-x.svg">
+    <img class="close-button" src="_static/images/pytorch-x.svg">
   </div>
 </div>
 
@@ -841,7 +731,7 @@
 
   <!-- End Mobile Menu -->
 
-  <script type="text/javascript" src="../../../_static/js/vendor/anchor.min.js"></script>
+  <script type="text/javascript" src="_static/js/vendor/anchor.min.js"></script>
 
   <script type="text/javascript">
     $(document).ready(function() {
