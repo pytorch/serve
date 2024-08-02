@@ -38,7 +38,7 @@ Llama 3.1 brings a bunch of new features and improvements to make your workflow 
 
 ## Retrieval Augmented Generation
 
-Large Language Models (LLMs) such as Llama are good at performing many complex text generation tasks. However, when using LLMs for a specific domain,  they do suffer from limitations such
+Large Language Models (LLMs) such as Llama are good at performing many complex text generation tasks. However, when using LLMs for a specific domain, they do suffer from limitations such as
 
 
 
