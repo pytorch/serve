@@ -1,0 +1,17 @@
+---
+rag:
+    compile_mode:
+        benchmark_engine: "ab"
+        url: "/home/ubuntu/serve/examples/usecases/RAG_based_LLM_serving/model_store/rag"
+        workers:
+            - 16
+        batch_delay: 100
+        batch_size:
+            - 1
+        input: "./examples/usecases/RAG_based_LLM_serving/sample_text.txt"
+        requests: 1000
+        concurrency: 24
+        backend_profiling: False
+        exec_env: "local"
+        processors:
+            - "cpu"

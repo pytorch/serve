@@ -41,9 +41,6 @@ cd examples/pt2/torch_compile_hpu
 
 ### 1. Configure torch.compile
 
-`torch.compile` allows various configurations that can influence performance outcomes. Explore different options in the [official PyTorch documentation](https://pytorch.org/docs/stable/generated/torch.compile.html)
-
-
 In this example, we use the following config that is provided in `model-config.yaml` file:
 
 ```bash

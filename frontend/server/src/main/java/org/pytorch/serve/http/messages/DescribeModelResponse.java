@@ -34,6 +34,7 @@ public class DescribeModelResponse {
     private boolean useVenv;
     private boolean stateful;
     private long sequenceMaxIdleMSec;
+    private long sequenceTimeoutMSec;
     private int maxNumSequence;
     private int maxSequenceJobQueueSize;
     private String status;
@@ -230,6 +231,14 @@ public class DescribeModelResponse {
 
     public void setSequenceMaxIdleMSec(long sequenceMaxIdleMSec) {
         this.sequenceMaxIdleMSec = sequenceMaxIdleMSec;
+    }
+
+    public long getSequenceTimeoutMSec() {
+        return sequenceTimeoutMSec;
+    }
+
+    public void setSequenceTimeoutMSec(long sequenceTimeoutMSec) {
+        this.sequenceTimeoutMSec = sequenceTimeoutMSec;
     }
 
     public int getMaxNumSequence() {

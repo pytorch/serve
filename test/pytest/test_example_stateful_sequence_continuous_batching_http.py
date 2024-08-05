@@ -22,7 +22,8 @@ minWorkers: 2
 maxWorkers: 2
 batchSize: 1
 maxNumSequence: 2
-sequenceMaxIdleMSec: 60000
+sequenceMaxIdleMSec: 30000
+sequenceTimeoutMSec: 60000
 maxSequenceJobQueueSize: 10
 sequenceBatching: true
 continuousBatching: true
@@ -263,6 +264,112 @@ def test_infer_stateful_cancel(mar_file_path, model_store):
                 data=str(0).encode(),
             ) as response:
                 assert response.status_code == 200
+
+    finally:
+        test_utils.unregister_model(model_name)
+
+        # Clean up files
+        shutil.rmtree(Path(model_store) / model_name)
+        test_utils.stop_torchserve()
+
+
+def test_infer_stateful_idle_timeout(mar_file_path, model_store):
+    file_name = Path(mar_file_path).name
+    model_name = Path(file_name).stem
+    shutil.copytree(mar_file_path, Path(model_store) / model_name)
+    params = (
+        ("model_name", model_name),
+        ("url", Path(model_store) / model_name),
+        ("initial_workers", "2"),
+        ("synchronous", "true"),
+    )
+
+    test_utils.start_torchserve(
+        model_store=model_store, snapshot_file=CONFIG_PROPERTIES_PATH, gen_mar=False
+    )
+
+    try:
+        test_utils.reg_resp = test_utils.register_model_with_params(params)
+
+        response = requests.post(
+            url=f"http://localhost:8080/predictions/{model_name}", data=str(2).encode()
+        )
+        response.raise_for_status()
+
+        # Idle for a duration greater than the max session idle time
+        time.sleep(31)
+
+        # Ensure that the session has been automatically cleand up
+        with pytest.raises(requests.exceptions.HTTPError):
+            response = requests.post(
+                url=f"http://localhost:8080/predictions/{model_name}",
+                headers={
+                    "ts_request_sequence_id": response.headers.get(
+                        "ts_request_sequence_id"
+                    )
+                },
+                data=str(2).encode(),
+            )
+            response.raise_for_status()
+
+    finally:
+        test_utils.unregister_model(model_name)
+
+        # Clean up files
+        shutil.rmtree(Path(model_store) / model_name)
+        test_utils.stop_torchserve()
+
+
+def test_infer_stateful_session_timeout(mar_file_path, model_store):
+    file_name = Path(mar_file_path).name
+    model_name = Path(file_name).stem
+    shutil.copytree(mar_file_path, Path(model_store) / model_name)
+    params = (
+        ("model_name", model_name),
+        ("url", Path(model_store) / model_name),
+        ("initial_workers", "2"),
+        ("synchronous", "true"),
+    )
+
+    test_utils.start_torchserve(
+        model_store=model_store, snapshot_file=CONFIG_PROPERTIES_PATH, gen_mar=False
+    )
+
+    try:
+        test_utils.reg_resp = test_utils.register_model_with_params(params)
+
+        response = requests.post(
+            url=f"http://localhost:8080/predictions/{model_name}", data=str(2).encode()
+        )
+        response.raise_for_status()
+
+        # Idle for a duration greater than the max session timeout
+        start = time.time()
+        while (time.time() - start) < 60:
+            response = requests.post(
+                url=f"http://localhost:8080/predictions/{model_name}",
+                headers={
+                    "ts_request_sequence_id": response.headers.get(
+                        "ts_request_sequence_id"
+                    )
+                },
+                data=str(2).encode(),
+            )
+            response.raise_for_status()
+            time.sleep(2)
+
+        # Ensure that the session has been automatically cleand up
+        with pytest.raises(requests.exceptions.HTTPError):
+            response = requests.post(
+                url=f"http://localhost:8080/predictions/{model_name}",
+                headers={
+                    "ts_request_sequence_id": response.headers.get(
+                        "ts_request_sequence_id"
+                    )
+                },
+                data=str(2).encode(),
+            )
+            response.raise_for_status()
 
     finally:
         test_utils.unregister_model(model_name)
