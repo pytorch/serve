@@ -42,6 +42,7 @@ public class DescribeModelResponse {
     private List<Worker> workers;
     private Metrics metrics;
     private JobQueueStatus jobQueueStatus;
+    private SequenceStatus sequenceStatus;
     private JsonObject customizedMetadata;
 
     public DescribeModelResponse() {
@@ -299,6 +300,14 @@ public class DescribeModelResponse {
         this.jobQueueStatus = jobQueueStatus;
     }
 
+    public SequenceStatus getSequenceStatus() {
+        return sequenceStatus;
+    }
+
+    public void setSequenceStatus(SequenceStatus sequenceStatus) {
+        this.sequenceStatus = sequenceStatus;
+    }
+
     public void setCustomizedMetadata(byte[] customizedMetadata) {
         String stringMetadata = new String(customizedMetadata, Charset.forName("UTF-8"));
         try {
@@ -432,6 +441,18 @@ public class DescribeModelResponse {
 
         public void setPendingRequests(int pendingRequests) {
             this.pendingRequests = pendingRequests;
+        }
+    }
+
+    public static final class SequenceStatus {
+        private int sequenceCount;
+
+        public int getSequenceCount() {
+            return sequenceCount;
+        }
+
+        public void setSequenceCount(int sequenceCount) {
+            this.sequenceCount = sequenceCount;
         }
     }
 }

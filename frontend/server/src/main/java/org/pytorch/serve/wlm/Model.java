@@ -638,6 +638,14 @@ public class Model {
         return pendingJobGroups;
     }
 
+    public int getJobGroupCount() {
+        if (jobGroups != null) {
+            return jobGroups.size();
+        }
+
+        return 0;
+    }
+
     public JobGroup getJobGroup(String groupId) {
         return jobGroups.get(groupId);
     }
