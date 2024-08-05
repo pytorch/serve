@@ -1,0 +1,10 @@
+# TorchServe frontend parameters
+minWorkers: 1
+maxWorkers: 1
+responseTimeout: 120
+
+handler:
+    url_to_scrape: "https://huggingface.co/blog/llama3"
+    chunk_size: 1000
+    chunk_overlap: 0
+    model_path: "model/models--sentence-transformers--all-mpnet-base-v2/snapshots/84f2bcc00d77236f9e89c8a360a00fb1139bf47d"

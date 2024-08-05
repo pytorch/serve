@@ -56,6 +56,13 @@ What's going on in TorchServe?
    :tags: Examples
 
 .. customcarditem::
+   :header: TorchServe GenAI Use Cases
+   :card_description: Showcasing GenAI deployment scenarios and use cases
+   :image: https://raw.githubusercontent.com/pytorch/serve/master/examples/LLM/llama/images/llama.png
+   :link: genai_use_cases.html
+   :tags: Use Cases
+
+.. customcarditem::
    :header: Performance
    :card_description: Guides and best practices on how to improve perfromance when working with TorchServe
    :image: https://raw.githubusercontent.com/pytorch/serve/master/benchmarks/predict_latency.png

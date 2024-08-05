@@ -1,0 +1,16 @@
+# Torchserve version is to be installed. It can be one of the options
+#  - branch : "master"
+#  - nightly: "2022.3.16"
+#  - release: "0.5.3"
+# Nightly build will be installed if "ts_version" is not specifiged
+#ts_version:
+#    branch: &ts_version "master"
+
+# a list of model configure yaml files defined in benchmarks/models_config
+# or a list of model configure yaml files with full path
+models:
+    - "/home/ubuntu/serve/examples/usecases/RAG_based_LLM_serving/rag.yaml"
+
+# benchmark on "cpu" or "gpu".
+# "cpu" is set if "hardware" is not specified
+hardware: &hardware "cpu"
