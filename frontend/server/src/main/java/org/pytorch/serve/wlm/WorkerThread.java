@@ -296,11 +296,19 @@ public class WorkerThread implements Runnable {
             if (state == WorkerState.WORKER_SCALED_DOWN || state == WorkerState.WORKER_STOPPED) {
                 logger.debug("Shutting down the thread .. Scaling down.");
             } else {
-                logger.debug(
+                if (state == WorkerState.WORKER_STARTED){
+                    logger.debug(
                         "Backend worker monitoring thread interrupted or backend worker process died., startupTimeout:"
                                 + startupTimeout
                                 + "sec",
                         e);
+                } else {
+                    logger.debug(
+                        "Backend worker monitoring thread interrupted or backend worker process died., responseTimeout:"
+                                + responseTimeout
+                                + "sec",
+                        e);
+                }
             }
         } catch (WorkerInitializationException e) {
             logger.error("Backend worker error", e);
