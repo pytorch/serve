@@ -355,6 +355,7 @@ if __name__ == "__main__":
             "cu117",
             "cu118",
             "cu121",
+            "cu125",
         ],
         help="CUDA version for torch",
     )
