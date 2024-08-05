@@ -111,13 +111,12 @@ def test_startup_timeout(register_model):
         while "Backend worker error" not in torchserve.get():
             continue
         error_message = torchserve.get()
-        if expected_error not in error_message:
-            raise ValueError(
-                "Unexpected error message, expected model to timeout during startup"
-            )
-        else:
-            return
-    #
+        assert (
+            expected_error in error_message
+        ), "Unexpected error message, expected model to timeout during startup"
+        return
+    # If startup timeout is set to 30 then we expect model to startup, even though
+    # response timeout is set to 1
     while (time.time() - start_time) < max_wait:
         response = requests.get(f"http://localhost:8081/models/{model_name}")
         if response.status_code == 200:
