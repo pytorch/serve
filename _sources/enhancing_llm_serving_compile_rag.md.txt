@@ -359,7 +359,7 @@ The system architecture for the end-to-end solution using RAG based LLM serving 
 ![RAG + LLM Deployment](https://raw.githubusercontent.com/pytorch/serve/master/examples/usecases/RAG_based_LLM_serving/assets/rag_llm.png "RAG + LLM Deployment")
 
 
-The steps for full deployment are mentioned in [Deploy.md](https://github.com/pytorch/serve/blob/master/examples/usecases/RAG_based_LLM_serving/Deploy.md)
+The steps for full deployment are mentioned in [Deployment Guide](https://github.com/pytorch/serve/blob/master/examples/usecases/RAG_based_LLM_serving/Deploy.md#Deploy-Llama-&-RAG-using-TorchServe)
 
 The code snippet which can chain the RAG endpoint with Llama endpoint is shown below
 
