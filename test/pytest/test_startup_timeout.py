@@ -102,6 +102,7 @@ def register_model(mar_file_path, model_store, torchserve, request):
 def test_startup_timeout(register_model):
     model_name, torchserve, startup_timeout = register_model
 
+    model_status = "LOADING"
     max_wait = 30
     start_time = time.time()
 
