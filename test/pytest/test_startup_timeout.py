@@ -105,12 +105,18 @@ def test_startup_timeout(register_model):
     max_wait = 30
     start_time = time.time()
 
-    # We expect model to timeout in this case, since in handler we set time.sleep(10)
+    # We expect model to timeout in this case, since in handler initialization we set time.sleep(10)
     if startup_timeout == 5:
         expected_error = "org.pytorch.serve.wlm.WorkerInitializationException: Backend worker did not respond in given time"
-        while "Backend worker error" not in torchserve.get():
-            continue
-        error_message = torchserve.get()
+        while (time.time() - start_time) < max_wait:
+            output = torchserve.get()
+            if "Backend worker error" in output:
+                error_message = torchserve.get()
+                break
+        else:
+            assert (
+                False
+            ), f"Timeout waiting for 'Backend worker error' (waited {max_wait} seconds)"
         assert (
             expected_error in error_message
         ), "Unexpected error message, expected model to timeout during startup"
