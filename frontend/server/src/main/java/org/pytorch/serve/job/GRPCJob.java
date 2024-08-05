@@ -82,12 +82,14 @@ public class GRPCJob extends Job {
                 Arrays.asList("Host", ConfigManager.getInstance().getHostName());
     }
 
-    private void cancelHandler(ServerCallStreamObserver<PredictionResponse> responseObserver) {
+    private boolean cancelHandler(ServerCallStreamObserver<PredictionResponse> responseObserver) {
         if (responseObserver.isCancelled()) {
             logger.warn(
                     "grpc client call already cancelled, not able to send this response for requestId: {}",
                     getPayload().getRequestId());
+            return true;
         }
+        return false;
     }
 
     private void logQueueTime() {
@@ -124,7 +126,11 @@ public class GRPCJob extends Job {
             case STREAMPREDICT2:
                 ServerCallStreamObserver<PredictionResponse> responseObserver =
                         (ServerCallStreamObserver<PredictionResponse>) predictionResponseObserver;
-                cancelHandler(responseObserver);
+                if (cancelHandler(responseObserver)) {
+                    // issue #3087: Leave response early as the request has been canceled.
+                    // Note: trying to continue wil trigger an exception when calling `onNext`.
+                    return;
+                }
                 PredictionResponse reply =
                         PredictionResponse.newBuilder().setPrediction(output).build();
                 responseObserver.onNext(reply);
@@ -133,6 +139,9 @@ public class GRPCJob extends Job {
                                 && responseHeaders
                                         .get(RequestInput.TS_STREAM_NEXT)
                                         .equals("false"))) {
+                    if (cancelHandler(responseObserver)) {
+                        return;
+                    }
                     responseObserver.onCompleted();
                     logQueueTime();
                 } else if (cmd == WorkerCommands.STREAMPREDICT2
@@ -208,7 +217,11 @@ public class GRPCJob extends Job {
             case STREAMPREDICT2:
                 ServerCallStreamObserver<PredictionResponse> responseObserver =
                         (ServerCallStreamObserver<PredictionResponse>) predictionResponseObserver;
-                cancelHandler(responseObserver);
+                if (cancelHandler(responseObserver)) {
+                    // issue #3087: Leave response early as the request has been canceled.
+                    // Note: trying to continue wil trigger an exception when calling `onNext`.
+                    return;
+                }
                 if (cmd == WorkerCommands.PREDICT || cmd == WorkerCommands.STREAMPREDICT) {
                     responseObserver.onError(
                             responseStatus
