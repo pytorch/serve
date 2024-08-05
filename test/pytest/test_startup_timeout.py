@@ -28,11 +28,11 @@ class CustomHandler(BaseHandler):
         return ["Dummy response"]
 """
 
-MODEL_CONFIG_YAML = """
+MODEL_CONFIG_YAML_TEMPLATE = """
 minWorkers: 1
 maxWorkers: 1
 responseTimeout: 1
-startupTimeout: 120
+startupTimeout: {startup_timeout}
 """
 
 
@@ -46,16 +46,20 @@ def work_dir(tmp_path_factory):
     return tmp_path_factory.mktemp("startup_timeout_test")
 
 
-@pytest.fixture(scope="module", name="mar_file_path")
-def create_mar_file(work_dir, model_archiver, model_name):
-    print("WORK DIR IS ", work_dir)
+@pytest.fixture(scope="module", name="mar_file_path", params=[30, 5])
+def create_mar_file(work_dir, model_archiver, model_name, request):
+    startup_timeout = request.param
+    model_name = model_name + f"_{startup_timeout}"
     mar_file_path = work_dir / f"{model_name}.mar"
 
-    handler_file = work_dir / "handler.py"
+    handler_file = work_dir / f"handler_{startup_timeout}.py"
     handler_file.write_text(HANDLER_PY)
 
-    model_config_file = work_dir / "model_config.yaml"
-    model_config_file.write_text(MODEL_CONFIG_YAML)
+    model_config_file = work_dir / f"model_config_{startup_timeout}.yaml"
+    model_config_yaml = MODEL_CONFIG_YAML_TEMPLATE.format(
+        startup_timeout=startup_timeout
+    )
+    model_config_file.write_text(model_config_yaml)
 
     config = ModelArchiverConfig(
         model_name=model_name,
@@ -74,10 +78,11 @@ def create_mar_file(work_dir, model_archiver, model_name):
     return str(mar_file_path)
 
 
-@pytest.fixture(scope="module")
-def register_model(mar_file_path, model_store, torchserve):
+@pytest.fixture(scope="function")
+def register_model(mar_file_path, model_store, torchserve, request):
     shutil.copy(mar_file_path, model_store)
     model_name = Path(mar_file_path).stem
+    startup_timeout = request.node.callspec.params["mar_file_path"]
 
     params = (
         ("model_name", model_name),
@@ -89,17 +94,30 @@ def register_model(mar_file_path, model_store, torchserve):
     response = test_utils.register_model_with_params(params)
     assert response.status_code == 202, "Model registration failed"
 
-    yield model_name
+    yield model_name, torchserve, startup_timeout
 
     test_utils.unregister_model(model_name)
 
 
 def test_startup_timeout(register_model):
-    model_name = register_model
+    model_name, torchserve, startup_timeout = register_model
 
     max_wait = 30
     start_time = time.time()
 
+    # We expect model to timeout in this case, since in handler we set time.sleep(10)
+    if startup_timeout == 5:
+        expected_error = "org.pytorch.serve.wlm.WorkerInitializationException: Backend worker did not respond in given time"
+        while "Backend worker error" not in torchserve.get():
+            continue
+        error_message = torchserve.get()
+        if expected_error not in error_message:
+            raise ValueError(
+                "Unexpected error message, expected model to timeout during startup"
+            )
+        else:
+            return
+    #
     while (time.time() - start_time) < max_wait:
         response = requests.get(f"http://localhost:8081/models/{model_name}")
         if response.status_code == 200:
