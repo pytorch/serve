@@ -1,0 +1,22 @@
+apiVersion: serving.kserve.io/v1beta1
+kind: InferenceService
+metadata:
+  name: "torchserve-mnist-v2"
+spec:
+  predictor:
+    pytorch:
+      protocolVersion: v2
+      storageUri: gs://kfserving-examples/models/torchserve/image_classifier/v2
+      image: pytorch/torchserve-kfs-nightly:latest-gpu
+      resources:
+        limits:
+          cpu: "1"
+          memory: 1Gi
+          nvidia.com/gpu: 1
+        requests:
+          cpu: "100m"
+          memory: 256Mi
+          nvidia.com/gpu: 1
+      args:
+      - --disable-token-auth
+      - --enable-model-api
