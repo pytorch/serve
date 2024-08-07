@@ -1,0 +1,5 @@
+langchain
+langchain_community
+sentence-transformers
+faiss-cpu
+bs4

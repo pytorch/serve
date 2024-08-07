@@ -24,6 +24,8 @@ class LlamaHandler(BaseHandler, ABC):
         self.max_new_tokens = None
         self.tokenizer = None
         self.initialized = False
+        self.quant_config = None
+        self.return_full_text = True
 
     def initialize(self, ctx: Context):
         """In this initialize function, the HF large model is loaded and
@@ -37,6 +39,10 @@ class LlamaHandler(BaseHandler, ABC):
         self.max_new_tokens = int(ctx.model_yaml_config["handler"]["max_new_tokens"])
         model_name = ctx.model_yaml_config["handler"]["model_name"]
         model_path = f'{model_dir}/{ctx.model_yaml_config["handler"]["model_path"]}'
+        self.return_full_text = ctx.model_yaml_config["handler"].get(
+            "return_full_text", True
+        )
+        quantization = ctx.model_yaml_config["handler"].get("quantization", True)
         seed = int(ctx.model_yaml_config["handler"]["manual_seed"])
         torch.manual_seed(seed)
 
@@ -45,22 +51,23 @@ class LlamaHandler(BaseHandler, ABC):
         self.tokenizer.padding_side = "left"
         logger.info("Model %s loaded tokenizer successfully", ctx.model_name)
 
-        if self.tokenizer.vocab_size >= 128000:
-            quant_config = BitsAndBytesConfig(
-                load_in_4bit=True,
-                bnb_4bit_use_double_quant=True,
-                bnb_4bit_quant_type="nf4",
-                bnb_4bit_compute_dtype=torch.bfloat16,
-            )
-        else:
-            quant_config = BitsAndBytesConfig(load_in_8bit=True)
+        if quantization:
+            if self.tokenizer.vocab_size >= 128000:
+                self.quant_config = BitsAndBytesConfig(
+                    load_in_4bit=True,
+                    bnb_4bit_use_double_quant=True,
+                    bnb_4bit_quant_type="nf4",
+                    bnb_4bit_compute_dtype=torch.bfloat16,
+                )
+            else:
+                self.quant_config = BitsAndBytesConfig(load_in_8bit=True)
 
         self.model = AutoModelForCausalLM.from_pretrained(
             model_path,
             device_map="balanced",
             low_cpu_mem_usage=True,
             torch_dtype=torch.float16,
-            quantization_config=quant_config,
+            quantization_config=self.quant_config,
             trust_remote_code=True,
         )
         self.device = next(iter(self.model.parameters())).device
@@ -115,8 +122,11 @@ class LlamaHandler(BaseHandler, ABC):
         """
         outputs = self.model.generate(
             **input_batch,
-            max_length=self.max_new_tokens,
+            max_new_tokens=self.max_new_tokens,
         )
+
+        if not self.return_full_text:
+            outputs = outputs[:, input_batch["input_ids"].shape[1] :]
 
         inferences = self.tokenizer.batch_decode(
             outputs, skip_special_tokens=True, clean_up_tokenization_spaces=False
