@@ -6,7 +6,7 @@ MACHINE=cpu
 BRANCH_NAME="master"
 DOCKER_TAG="pytorch/torchserve:latest-cpu"
 BUILD_TYPE="production"
-BASE_IMAGE="ubuntu:20.04"
+BASE_IMAGE="ubuntu:22.04"
 UPDATE_BASE_IMAGE=false
 USE_CUSTOM_TAG=false
 CUDA_VERSION=""
@@ -16,7 +16,7 @@ BUILD_CPP=false
 BUILD_NIGHTLY=false
 BUILD_FROM_SRC=false
 LOCAL_CHANGES=true
-PYTHON_VERSION=3.9
+PYTHON_VERSION=3.12
 
 for arg in "$@"
 do
@@ -54,7 +54,7 @@ do
         -g|--gpu)
           MACHINE=gpu
           DOCKER_TAG="pytorch/torchserve:latest-gpu"
-          BASE_IMAGE="nvidia/cuda:12.1.1-base-ubuntu20.04"
+          BASE_IMAGE="nvidia/cuda:12.1.1-base-ubuntu22.04"
           CUDA_VERSION="cu121"
           shift
           ;;
@@ -110,27 +110,30 @@ do
           LOCAL_CHANGES=false
           shift
           ;;
-        # With default ubuntu version 20.04
+        # With default ubuntu version 22.04
         -cv|--cudaversion)
           CUDA_VERSION="$2"
-          if [ "${CUDA_VERSION}" == "cu121" ];
+          if [ "${CUDA_VERSION}" == "cu125" ];
           then
-            BASE_IMAGE="nvidia/cuda:12.1.0-base-ubuntu20.04"
+            BASE_IMAGE="nvidia/cuda:12.5.1-runtime-ubuntu24.04"
+          elif [ "${CUDA_VERSION}" == "cu121" ];
+          then
+            BASE_IMAGE="nvidia/cuda:12.1.0-base-ubuntu22.04"
           elif [ "${CUDA_VERSION}" == "cu118" ];
           then
-            BASE_IMAGE="nvidia/cuda:11.8.0-base-ubuntu20.04"
+            BASE_IMAGE="nvidia/cuda:11.8.0-base-ubuntu22.04"
           elif [ "${CUDA_VERSION}" == "cu117" ];
           then
-            BASE_IMAGE="nvidia/cuda:11.7.1-base-ubuntu20.04"
+            BASE_IMAGE="nvidia/cuda:11.7.1-base-ubuntu22.04"
           elif [ "${CUDA_VERSION}" == "cu116" ];
           then
-            BASE_IMAGE="nvidia/cuda:11.6.0-cudnn8-runtime-ubuntu20.04"
+            BASE_IMAGE="nvidia/cuda:11.6.0-cudnn8-runtime-ubuntu22.04"
           elif [ "${CUDA_VERSION}" == "cu113" ];
           then
-            BASE_IMAGE="nvidia/cuda:11.3.0-cudnn8-runtime-ubuntu20.04"
+            BASE_IMAGE="nvidia/cuda:11.3.0-cudnn8-runtime-ubuntu22.04"
           elif [ "${CUDA_VERSION}" == "cu111" ];
           then
-            BASE_IMAGE="nvidia/cuda:11.1.1-cudnn8-runtime-ubuntu20.04"
+            BASE_IMAGE="nvidia/cuda:11.1.1-cudnn8-runtime-ubuntu22.04"
           elif [ "${CUDA_VERSION}" == "cu102" ];
           then
             BASE_IMAGE="nvidia/cuda:10.2-cudnn8-runtime-ubuntu18.04"
@@ -189,10 +192,10 @@ then
   then
     if [ "${CUDA_VERSION}" == "cu121" ];
     then
-      BASE_IMAGE="nvidia/cuda:12.1.1-devel-ubuntu20.04"
+      BASE_IMAGE="nvidia/cuda:12.1.1-devel-ubuntu22.04"
     elif [ "${CUDA_VERSION}" == "cu118" ];
     then
-      BASE_IMAGE="nvidia/cuda:11.8.0-devel-ubuntu20.04"
+      BASE_IMAGE="nvidia/cuda:11.8.0-devel-ubuntu22.04"
     else
       echo "Cuda version $CUDA_VERSION is not supported for CPP"
       exit 1

@@ -100,6 +100,11 @@ Creates a docker image with `torchserve` and `torch-model-archiver` installed fr
 ./build_image.sh -bt dev -b my_branch
 ```
 
+- For creating GPU based image with cuda version 12.5:
+
+```bash
+./build_image.sh -bt dev -g -cv cu125
+```
 
 - For creating GPU based image with cuda version 11.3:
 

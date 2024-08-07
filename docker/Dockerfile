@@ -16,7 +16,7 @@
 #           https://docs.docker.com/develop/develop-images/build_enhancements/
 
 
-ARG BASE_IMAGE=ubuntu:rolling
+ARG BASE_IMAGE=ubuntu:24.04
 
 # Note:
 # Define here the default python version to be used in all later build-stages as default.
@@ -25,10 +25,10 @@ ARG BASE_IMAGE=ubuntu:rolling
 # that don't let the build fail, but break current version handling logic and result
 # in images with wrong python version. To fix that, we will restate the ARG PYTHON_VERSION
 # on each build-stage.
-ARG PYTHON_VERSION=3.9
+ARG PYTHON_VERSION=3.12
 
 FROM ${BASE_IMAGE} AS compile-image
-ARG BASE_IMAGE=ubuntu:rolling
+ARG BASE_IMAGE=ubuntu:24.04
 ARG PYTHON_VERSION
 ARG BUILD_NIGHTLY
 ARG BUILD_FROM_SRC
@@ -45,7 +45,6 @@ RUN --mount=type=cache,id=apt-dev,target=/var/cache/apt \
     DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
         ca-certificates \
         g++ \
-        python3-distutils \
         python$PYTHON_VERSION \
         python$PYTHON_VERSION-dev \
         python$PYTHON_VERSION-venv \
@@ -79,6 +78,7 @@ RUN \
 WORKDIR "serve"
 
 RUN cp docker/dockerd-entrypoint.sh /usr/local/bin/dockerd-entrypoint.sh
+#RUN cp dockerd-entrypoint.sh /usr/local/bin/dockerd-entrypoint.sh
 
 RUN \
     if echo "$BASE_IMAGE" | grep -q "cuda:"; then \
@@ -119,7 +119,6 @@ RUN --mount=type=cache,target=/var/cache/apt \
     apt remove python-pip  python3-pip && \
     DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
     python$PYTHON_VERSION \
-    python3-distutils \
     python$PYTHON_VERSION-dev \
     python$PYTHON_VERSION-venv \
     # using openjdk-17-jdk due to circular dependency(ca-certificates) bug in openjdk-17-jre-headless debian package
@@ -165,7 +164,6 @@ RUN --mount=type=cache,target=/var/cache/apt \
     apt remove python-pip  python3-pip && \
     DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
     python$PYTHON_VERSION \
-    python3-distutils \
     python$PYTHON_VERSION-dev \
     python$PYTHON_VERSION-venv \
     # using openjdk-17-jdk due to circular dependency(ca-certificates) bug in openjdk-17-jre-headless debian package
@@ -220,7 +218,6 @@ RUN --mount=type=cache,target=/var/cache/apt \
     git \
     python$PYTHON_VERSION \
     python$PYTHON_VERSION-dev \
-    python3-distutils \
     python$PYTHON_VERSION-venv \
     # using openjdk-17-jdk due to circular dependency(ca-certificates) bug in openjdk-17-jre-headless debian package
     # https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1009905
