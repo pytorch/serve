@@ -122,9 +122,13 @@ public final class ApiUtils {
         int maxBatchDelay = registerModelRequest.getMaxBatchDelay();
         int initialWorkers = registerModelRequest.getInitialWorkers();
         int responseTimeout = registerModelRequest.getResponseTimeout();
+        int startupTimeout = registerModelRequest.getStartupTimeout();
         boolean s3SseKms = registerModelRequest.getS3SseKms();
         if (responseTimeout == -1) {
             responseTimeout = ConfigManager.getInstance().getDefaultResponseTimeout();
+        }
+        if (startupTimeout == -1) {
+            startupTimeout = ConfigManager.getInstance().getDefaultStartupTimeout();
         }
 
         Manifest.RuntimeType runtimeType = null;
@@ -144,6 +148,7 @@ public final class ApiUtils {
                 batchSize,
                 maxBatchDelay,
                 responseTimeout,
+                startupTimeout,
                 initialWorkers,
                 registerModelRequest.getSynchronous(),
                 false,
@@ -158,6 +163,7 @@ public final class ApiUtils {
             int batchSize,
             int maxBatchDelay,
             int responseTimeout,
+            int startupTimeout,
             int initialWorkers,
             boolean isSync,
             boolean isWorkflowModel,
@@ -177,6 +183,7 @@ public final class ApiUtils {
                             batchSize,
                             maxBatchDelay,
                             responseTimeout,
+                            startupTimeout,
                             null,
                             false,
                             isWorkflowModel,
@@ -403,6 +410,7 @@ public final class ApiUtils {
         resp.setModelVersion(manifest.getModel().getModelVersion());
         resp.setRuntime(manifest.getRuntime().getValue());
         resp.setResponseTimeout(model.getResponseTimeout());
+        resp.setStartupTimeout(model.getStartupTimeout());
         resp.setMaxRetryTimeoutInSec(model.getMaxRetryTimeoutInMill() / 1000);
         resp.setClientTimeoutInMills(model.getClientTimeoutInMills());
         resp.setParallelType(model.getParallelType().getParallelType());

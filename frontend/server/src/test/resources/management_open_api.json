@@ -244,6 +244,16 @@
           },
           {
             "in": "query",
+            "name": "startup_timeout",
+            "description": "Maximum time, in seconds, the TorchServe waits for the model to startup/initialize, default: 120.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": "120"
+            }
+          },
+          {
+            "in": "query",
             "name": "initial_workers",
             "description": "Number of initial workers, default: 0.",
             "required": false,

@@ -79,6 +79,7 @@ public class WorkerThread implements Runnable {
     protected WorkerState state;
     protected WorkerLifeCycle lifeCycle;
     protected int responseTimeout;
+    protected int startupTimeout;
     protected long recoveryStartTS; // 0: default value. no recovery needed, in healthy mode
     protected BaseModelRequest req = null;
 
@@ -180,6 +181,7 @@ public class WorkerThread implements Runnable {
     @Override
     public void run() {
         responseTimeout = model.getResponseTimeout();
+        startupTimeout = model.getStartupTimeout();
         Thread thread = Thread.currentThread();
         thread.setName(getWorkerName());
         currentThread.set(thread);
@@ -192,6 +194,8 @@ public class WorkerThread implements Runnable {
             while (isRunning()) {
                 req = aggregator.getRequest(workerId, state);
                 WorkerCommands workerCmd = req.getCommand();
+                // depending on type of worker command we determine which timeout we should use
+                int timeout = (workerCmd == WorkerCommands.LOAD) ? startupTimeout : responseTimeout;
 
                 long wtStartTime = System.currentTimeMillis();
                 int repeats = getRepeats(workerCmd);
@@ -225,8 +229,9 @@ public class WorkerThread implements Runnable {
 
                 do {
                     long begin = System.currentTimeMillis();
+
                     for (int i = 0; i < repeats; i++) {
-                        reply = replies.poll(responseTimeout, TimeUnit.SECONDS);
+                        reply = replies.poll(timeout, TimeUnit.SECONDS);
                         if (req.getCommand() != WorkerCommands.LOAD) {
                             break;
                         }
@@ -291,11 +296,19 @@ public class WorkerThread implements Runnable {
             if (state == WorkerState.WORKER_SCALED_DOWN || state == WorkerState.WORKER_STOPPED) {
                 logger.debug("Shutting down the thread .. Scaling down.");
             } else {
-                logger.debug(
-                        "Backend worker monitoring thread interrupted or backend worker process died., responseTimeout:"
-                                + responseTimeout
-                                + "sec",
-                        e);
+                if (state == WorkerState.WORKER_STARTED) {
+                    logger.debug(
+                            "Backend worker monitoring thread interrupted or backend worker process died., startupTimeout:"
+                                    + startupTimeout
+                                    + "sec",
+                            e);
+                } else {
+                    logger.debug(
+                            "Backend worker monitoring thread interrupted or backend worker process died., responseTimeout:"
+                                    + responseTimeout
+                                    + "sec",
+                            e);
+                }
             }
         } catch (WorkerInitializationException e) {
             logger.error("Backend worker error", e);

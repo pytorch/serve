@@ -270,6 +270,7 @@ public class ModelServer {
                                 -1 * RegisterModelRequest.DEFAULT_BATCH_SIZE,
                                 -1 * RegisterModelRequest.DEFAULT_MAX_BATCH_DELAY,
                                 configManager.getDefaultResponseTimeout(),
+                                configManager.getDefaultStartupTimeout(),
                                 defaultModelName,
                                 false,
                                 false,

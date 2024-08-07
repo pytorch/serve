@@ -233,7 +233,8 @@ To reduce model latency we recommend:
 #### Tune [model config YAML file](https://github.com/pytorch/serve/blob/5ee02e4f050c9b349025d87405b246e970ee710b/model-archiver/README.md)
 
  You can tune the model config YAML file to get better performance in the following ways:
-* Update the [responseTimeout](https://github.com/pytorch/serve/blob/5ee02e4f050c9b349025d87405b246e970ee710b/docs/configuration.md?plain=1#L216) if high model loading or inference latency causes response timeout.
+* Update the [responseTimeout](https://github.com/pytorch/serve/blob/5ee02e4f050c9b349025d87405b246e970ee710b/docs/configuration.md?plain=1#L216) if high model inference latency causes response timeout.
+* Update the [startupTimeout](https://github.com/pytorch/serve/blob/5ee02e4f050c9b349025d87405b246e970ee710b/docs/configuration.md?plain=1#L216) if high model loading latency causes startup timeout.
 * Tune the [torchrun parameters](https://github.com/pytorch/serve/blob/2f1f52f553e83703b5c380c2570a36708ee5cafa/model-archiver/README.md?plain=1#L179). The supported parameters are defined at [here](https://github.com/pytorch/serve/blob/2f1f52f553e83703b5c380c2570a36708ee5cafa/frontend/archive/src/main/java/org/pytorch/serve/archive/model/ModelConfig.java#L329). For example, by default, `OMP_NUMBER_THREADS` is 1. This can be modified in the YAML file.
 ```yaml
 #frontend settings

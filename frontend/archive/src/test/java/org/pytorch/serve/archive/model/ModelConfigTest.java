@@ -21,6 +21,7 @@ public class ModelConfigTest {
         Assert.assertEquals(modelConfig.getBatchSize(), 1);
         Assert.assertEquals(modelConfig.getMaxBatchDelay(), 100);
         Assert.assertEquals(modelConfig.getResponseTimeout(), 120);
+        Assert.assertEquals(modelConfig.getStartupTimeout(), 120);
         Assert.assertEquals(modelConfig.getDeviceType(), ModelConfig.DeviceType.GPU);
         Assert.assertEquals(modelConfig.getParallelLevel(), 4);
         Assert.assertEquals(modelConfig.getParallelType(), ModelConfig.ParallelType.PP);
@@ -42,6 +43,7 @@ public class ModelConfigTest {
         Assert.assertEquals(modelConfig.getBatchSize(), 1);
         Assert.assertEquals(modelConfig.getMaxBatchDelay(), 100);
         Assert.assertEquals(modelConfig.getResponseTimeout(), 120);
+        Assert.assertEquals(modelConfig.getStartupTimeout(), 120);
         Assert.assertNotEquals(modelConfig.getDeviceType(), ModelConfig.DeviceType.GPU);
         Assert.assertEquals(modelConfig.getParallelLevel(), 0);
         Assert.assertNotEquals(modelConfig.getParallelType(), ModelConfig.ParallelType.PPTP);

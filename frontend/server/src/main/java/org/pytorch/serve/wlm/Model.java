@@ -32,6 +32,7 @@ public class Model {
     public static final String BATCH_SIZE = "batchSize";
     public static final String MAX_BATCH_DELAY = "maxBatchDelay";
     public static final String RESPONSE_TIMEOUT = "responseTimeout";
+    public static final String STARTUP_TIMEOUT = "startupTimeout";
     public static final String PARALLEL_LEVEL = "parallelLevel";
     public static final String DEFAULT_VERSION = "defaultVersion";
     public static final String MAR_NAME = "marName";
@@ -57,6 +58,7 @@ public class Model {
     private ReentrantLock lock;
     private ReentrantLock jobGroupLock;
     private int responseTimeout;
+    private int startupTimeout;
     private long sequenceMaxIdleMSec;
     private long sequenceTimeoutMSec;
     private int maxNumSequence;
@@ -178,6 +180,7 @@ public class Model {
         modelInfo.addProperty(BATCH_SIZE, getBatchSize());
         modelInfo.addProperty(MAX_BATCH_DELAY, getMaxBatchDelay());
         modelInfo.addProperty(RESPONSE_TIMEOUT, getResponseTimeout());
+        modelInfo.addProperty(STARTUP_TIMEOUT, getStartupTimeout());
         modelInfo.addProperty(RUNTIME_TYPE, getRuntimeType().getValue());
         if (parallelLevel > 0) {
             modelInfo.addProperty(PARALLEL_LEVEL, parallelLevel);
@@ -191,6 +194,7 @@ public class Model {
         maxWorkers = modelInfo.get(MAX_WORKERS).getAsInt();
         maxBatchDelay = modelInfo.get(MAX_BATCH_DELAY).getAsInt();
         responseTimeout = modelInfo.get(RESPONSE_TIMEOUT).getAsInt();
+        startupTimeout = modelInfo.get(STARTUP_TIMEOUT).getAsInt();
         batchSize = modelInfo.get(BATCH_SIZE).getAsInt();
 
         JsonElement runtime = modelInfo.get(RUNTIME_TYPE);
@@ -537,8 +541,16 @@ public class Model {
         return ConfigManager.getInstance().isDebug() ? Integer.MAX_VALUE : responseTimeout;
     }
 
+    public int getStartupTimeout() {
+        return ConfigManager.getInstance().isDebug() ? Integer.MAX_VALUE : startupTimeout;
+    }
+
     public void setResponseTimeout(int responseTimeout) {
         this.responseTimeout = responseTimeout;
+    }
+
+    public void setStartupTimeout(int startupTimeout) {
+        this.startupTimeout = startupTimeout;
     }
 
     public List<Integer> getDeviceIds() {
