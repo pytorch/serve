@@ -4,6 +4,7 @@ set -o errexit -o nounset -o pipefail
 
 MACHINE=cpu
 BRANCH_NAME="master"
+FORK_NAME=""
 DOCKER_TAG="pytorch/torchserve:latest-cpu"
 BUILD_TYPE="production"
 BASE_IMAGE="ubuntu:20.04"
@@ -37,6 +38,7 @@ do
           echo "-n, --nightly specify to build with TorchServe nightly"
           echo "-s, --source specify to build with TorchServe from source"
           echo "-r, --remote specify to use local TorchServe"
+          echo "-f, --fork specify a fork to use"
           exit 0
           ;;
         -b|--branch_name)
@@ -108,6 +110,18 @@ do
           ;;
         -r|--remote)
           LOCAL_CHANGES=false
+          shift
+          ;;
+        -f|--fork)
+          if test $
+          then
+            FORK_NAME="$2"
+            LOCAL_CHANGES=false
+            shift
+          else
+            echo "Error! fork_name not provided"
+            exit 1
+          fi
           shift
           ;;
         # With default ubuntu version 20.04
@@ -202,15 +216,15 @@ fi
 
 if [ "${BUILD_TYPE}" == "production" ]
 then
-  DOCKER_BUILDKIT=1 docker build --file Dockerfile --build-arg BASE_IMAGE="${BASE_IMAGE}" --build-arg USE_CUDA_VERSION="${CUDA_VERSION}"  --build-arg PYTHON_VERSION="${PYTHON_VERSION}" --build-arg BUILD_NIGHTLY="${BUILD_NIGHTLY}" --build-arg BRANCH_NAME="${BRANCH_NAME}" --build-arg BUILD_FROM_SRC="${BUILD_FROM_SRC}" --build-arg LOCAL_CHANGES="${LOCAL_CHANGES}" -t "${DOCKER_TAG}" --target production-image  ../
+  DOCKER_BUILDKIT=1 docker build --file Dockerfile --build-arg BASE_IMAGE="${BASE_IMAGE}" --build-arg USE_CUDA_VERSION="${CUDA_VERSION}"  --build-arg PYTHON_VERSION="${PYTHON_VERSION}" --build-arg BUILD_NIGHTLY="${BUILD_NIGHTLY}" --build-arg BRANCH_NAME="${BRANCH_NAME}" --build-arg BUILD_FROM_SRC="${BUILD_FROM_SRC}" --build-arg LOCAL_CHANGES="${LOCAL_CHANGES}" --build-arg FORK_NAME="${FORK_NAME}" -t "${DOCKER_TAG}" --target production-image  ../
 elif [ "${BUILD_TYPE}" == "ci" ]
 then
-  DOCKER_BUILDKIT=1 docker build --file Dockerfile --build-arg BASE_IMAGE="${BASE_IMAGE}" --build-arg USE_CUDA_VERSION="${CUDA_VERSION}"  --build-arg PYTHON_VERSION="${PYTHON_VERSION}" --build-arg BUILD_NIGHTLY="${BUILD_NIGHTLY}" --build-arg BRANCH_NAME="${BRANCH_NAME}" --build-arg BUILD_FROM_SRC="${BUILD_FROM_SRC}" --build-arg LOCAL_CHANGES="${LOCAL_CHANGES}" -t "${DOCKER_TAG}" --target ci-image  ../
+  DOCKER_BUILDKIT=1 docker build --file Dockerfile --build-arg BASE_IMAGE="${BASE_IMAGE}" --build-arg USE_CUDA_VERSION="${CUDA_VERSION}"  --build-arg PYTHON_VERSION="${PYTHON_VERSION}" --build-arg BUILD_NIGHTLY="${BUILD_NIGHTLY}" --build-arg BRANCH_NAME="${BRANCH_NAME}" --build-arg BUILD_FROM_SRC="${BUILD_FROM_SRC}" --build-arg LOCAL_CHANGES="${LOCAL_CHANGES}" --build-arg FORK_NAME="${FORK_NAME}" -t "${DOCKER_TAG}" --target ci-image  ../
 else
   if [ "${BUILD_CPP}" == "true" ]
   then
-    DOCKER_BUILDKIT=1 docker build --file Dockerfile.cpp --build-arg BASE_IMAGE="${BASE_IMAGE}" --build-arg USE_CUDA_VERSION="${CUDA_VERSION}" --build-arg PYTHON_VERSION="${PYTHON_VERSION}" --build-arg BRANCH_NAME="${BRANCH_NAME}" -t "${DOCKER_TAG}" --target cpp-dev-image .
+    DOCKER_BUILDKIT=1 docker build --file Dockerfile.cpp --build-arg BASE_IMAGE="${BASE_IMAGE}" --build-arg USE_CUDA_VERSION="${CUDA_VERSION}" --build-arg PYTHON_VERSION="${PYTHON_VERSION}" --build-arg BRANCH_NAME="${BRANCH_NAME}" --build-arg FORK_NAME="${FORK_NAME}" -t "${DOCKER_TAG}" --target cpp-dev-image .
   else
-    DOCKER_BUILDKIT=1 docker build --file Dockerfile --build-arg BASE_IMAGE="${BASE_IMAGE}" --build-arg USE_CUDA_VERSION="${CUDA_VERSION}"  --build-arg PYTHON_VERSION="${PYTHON_VERSION}" --build-arg BUILD_NIGHTLY="${BUILD_NIGHTLY}" --build-arg BRANCH_NAME="${BRANCH_NAME}" --build-arg BUILD_FROM_SRC="${BUILD_FROM_SRC}" --build-arg LOCAL_CHANGES="${LOCAL_CHANGES}" --build-arg BUILD_WITH_IPEX="${BUILD_WITH_IPEX}"  -t "${DOCKER_TAG}" --target dev-image  ../
+    DOCKER_BUILDKIT=1 docker build --file Dockerfile --build-arg BASE_IMAGE="${BASE_IMAGE}" --build-arg USE_CUDA_VERSION="${CUDA_VERSION}"  --build-arg PYTHON_VERSION="${PYTHON_VERSION}" --build-arg BUILD_NIGHTLY="${BUILD_NIGHTLY}" --build-arg BRANCH_NAME="${BRANCH_NAME}" --build-arg BUILD_FROM_SRC="${BUILD_FROM_SRC}" --build-arg LOCAL_CHANGES="${LOCAL_CHANGES}" --build-arg BUILD_WITH_IPEX="${BUILD_WITH_IPEX}" --build-arg FORK_NAME="${FORK_NAME}" -t "${DOCKER_TAG}" --target dev-image  ../
   fi
 fi

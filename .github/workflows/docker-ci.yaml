@@ -19,14 +19,25 @@ jobs:
       - uses: actions/checkout@v3
         with:
           submodules: recursive
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          fetch-depth: 0 
 
       - name: Test build_image.sh script with custom tagging and gpu flag
         working-directory: docker
         run: ./test_build_image_tagging.sh ${{ matrix.python-version }}
 
+      - name: Check if fork
+        run: |
+          CURR_HEAD=${{ github.event.pull_request.head.repo.full_name }}
+          BASE_HEAD=${{ github.event.pull_request.base.repo.full_name }}
+          if [ "${CURR_HEAD}" != "${BASE_HEAD}" ]; then
+            echo "FORK=${CURR_HEAD}" >> $GITHUB_ENV
+          fi
+
       - name: Determine the branch name
         id: branch-name
         run: |
+          git fetch --all
           if [[ "${GITHUB_REF}" == refs/heads/* ]]; then
             GITHUB_BRANCH=${GITHUB_REF#refs/heads/}
           elif [[ "${GITHUB_REF}" == refs/pull/*/merge ]]; then
@@ -39,7 +50,11 @@ jobs:
         working-directory: docker
         run: |
           IMAGE_TAG=test-image-${{ matrix.python-version }}
-          ./build_image.sh -py "${{ matrix.python-version }}" -t "${IMAGE_TAG}" -b ${{ steps.branch-name.outputs.GITHUB_BRANCH }} -s
+          if [[ -z "${{ env.FORK }}" ]]; then
+            ./build_image.sh -py "${{ matrix.python-version }}" -t "${IMAGE_TAG}" -b "${{ steps.branch-name.outputs.GITHUB_BRANCH }}" -s
+          else
+            ./build_image.sh -py "${{ matrix.python-version }}" -t "${IMAGE_TAG}" -b "${{ steps.branch-name.outputs.GITHUB_BRANCH }}" -s -f "${{ env.FORK }}"
+          fi
           echo "IMAGE_TAG=${IMAGE_TAG}" >> $GITHUB_OUTPUT
 
       - name: Container Healthcheck
