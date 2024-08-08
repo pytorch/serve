@@ -10,6 +10,7 @@ import shutil
 import subprocess
 
 import pytest
+import platform
 import requests
 
 import test_utils
@@ -33,6 +34,7 @@ DEFAULT_OUTPUT_DIR = "/tmp/pytorch_profiler/resnet-152-batch"
 
 
 @pytest.fixture
+@pytest.mark.skipif(platform.machine() == 'aarch64', reason="Test skipped on aarch64 architecture")
 def set_custom_handler(handler_name):
     """
     This method downloads resnet serialized file, creates mar file and sets up a custom handler
@@ -94,6 +96,7 @@ def set_custom_handler(handler_name):
     "handler_name",
     [os.path.join(profiler_utils, "resnet_custom.py"), "image_classifier"],
 )
+@pytest.mark.skipif(platform.machine() == 'aarch64', reason="Test skipped on aarch64 architecture")
 def test_profiler_default_and_custom_handler(set_custom_handler, handler_name):
     """
     Tests pytorch profiler integration with default and custom handler
@@ -112,6 +115,7 @@ def test_profiler_default_and_custom_handler(set_custom_handler, handler_name):
     "handler_name",
     [os.path.join(profiler_utils, "resnet_profiler_override.py")],
 )
+@pytest.mark.skipif(platform.machine() == 'aarch64', reason="Test skipped on aarch64 architecture")
 def test_profiler_arguments_override(set_custom_handler, handler_name):
     """
     Tests pytorch profiler integration when user overrides the profiler arguments
@@ -133,6 +137,7 @@ def test_profiler_arguments_override(set_custom_handler, handler_name):
     "handler_name",
     [os.path.join(profiler_utils, "resnet_profiler_override.py")],
 )
+@pytest.mark.skipif(platform.machine() == 'aarch64', reason="Test skipped on aarch64 architecture")
 def test_batch_input(set_custom_handler, handler_name):
     """
     Tests pytorch profiler integration with batch inference
