@@ -68,7 +68,7 @@ You can also create model stores to store your archived models.
 1. Download a trained model.
 
     ```bash
-    wget https://download.pytorch.org/models/densenet161-8d451a50.pth
+    curl -O https://download.pytorch.org/models/densenet161-8d451a50.pth
     ```
 
 1. Archive the model by using the model archiver. The `extra-files` param uses a file from the `TorchServe` repo, so update the path if necessary.
