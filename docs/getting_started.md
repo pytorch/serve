@@ -95,29 +95,6 @@ After you execute the `torchserve` command above, TorchServe runs on your host, 
 
 To test the model server, send a request to the server's `predictions` API. TorchServe supports all [inference](./inference_api.md) and [management](./management_api.md) apis through both [gRPC](./grpc_api.md) and [HTTP/REST](./rest_api.md).
 
-#### Using gRPC APIs
-
- - Install grpc python dependencies :
-
-    ```bash
-    pip install --upgrade grpcio-tools grpcio-status
-    ```
-
- - Generate inference client using proto files
-
-    ```bash
-    SITE_PROTO_FILES=$( python -c 'import site; print(site.getsitepackages()[0])' )
-    python -m grpc_tools.protoc --proto_path=$SITE_PROTO_FILES --proto_path=./serve/frontend/server/src/main/resources/proto/ --python_out=./serve/ts_scripts --grpc_python_out=./serve/ts_scripts ./serve/frontend/server/src/main/resources/proto/inference.proto ./serve/frontend/server/src/main/resources/proto/management.proto
-    ```
-
- - Run inference using a sample client [gRPC python client](https://github.com/pytorch/serve/blob/master/ts_scripts/torchserve_grpc_client.py)
-
-    ```bash
-    python ./serve/ts_scripts/torchserve_grpc_client.py infer densenet161 kitten_small.jpg
-    ```
-
-#### Using REST APIs
-
 As an example we'll download the below cute kitten with:
 
 ![kitten](images/kitten_small.jpg)
@@ -126,7 +103,30 @@ As an example we'll download the below cute kitten with:
 curl -O https://raw.githubusercontent.com/pytorch/serve/master/docs/images/kitten_small.jpg
 ```
 
-Call the prediction endpoint:
+#### Using gRPC APIs
+
+1. Install gRPC python dependencies:
+
+    ```bash
+    pip install --upgrade grpcio-tools grpcio-status
+    ```
+
+1. Generate inference client using proto files
+
+    ```bash
+    SITE_PROTO_FILES=$( python -c 'import site; print(site.getsitepackages()[0])' )
+    python -m grpc_tools.protoc --proto_path=$SITE_PROTO_FILES --proto_path=./serve/frontend/server/src/main/resources/proto/ --python_out=./serve/ts_scripts --grpc_python_out=./serve/ts_scripts ./serve/frontend/server/src/main/resources/proto/inference.proto ./serve/frontend/server/src/main/resources/proto/management.proto
+    ```
+
+1. Run inference using a sample client [gRPC python client](https://github.com/pytorch/serve/blob/master/ts_scripts/torchserve_grpc_client.py)
+
+    ```bash
+    python ./serve/ts_scripts/torchserve_grpc_client.py infer densenet161 kitten_small.jpg
+    ```
+
+#### Using REST APIs
+
+1. Call the prediction endpoint:
 
 ```bash
 curl http://127.0.0.1:8080/predictions/densenet161 -T kitten_small.jpg
