@@ -133,25 +133,16 @@ curl http://127.0.0.1:8080/predictions/densenet161 -T kitten_small.jpg
 
 Which will return the following JSON object
 
-```json
-[
-  {
-    "tiger_cat": 0.46933549642562866
-  },
-  {
-    "tabby": 0.4633878469467163
-  },
-  {
-    "Egyptian_cat": 0.06456148624420166
-  },
-  {
-    "lynx": 0.0012828214094042778
-  },
-  {
-    "plastic_bag": 0.00023323034110944718
-  }
-]
-```
+
+    ```json
+    {
+      "tabby": 0.4781671166419983,
+      "lynx": 0.20013409852981567,
+      "tiger_cat": 0.16822904348373413,
+      "tiger": 0.061912745237350464,
+      "Egyptian_cat": 0.051136091351509094
+    }
+    ```
 
 All interactions with the endpoint will be logged in the `logs/` directory, so make sure to check it out!
 
