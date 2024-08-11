@@ -40,38 +40,41 @@ The rest of this topic focuses on serving model files without much discussion on
 
 ```bash
 $ torchserve --help
-usage: torchserve [-h] [-v | --version]
-                          [--start]
-                          [--stop]
-                          [--ts-config TS_CONFIG]
-                          [--model-store MODEL_STORE]
-                          [--workflow-store WORKFLOW_STORE]
-                          [--models MODEL_PATH1 MODEL_NAME=MODEL_PATH2... [MODEL_PATH1 MODEL_NAME=MODEL_PATH2... ...]]
-                          [--log-config LOG_CONFIG]
+usage: torchserve [-h] [-v | --start | --stop] [--ts-config TS_CONFIG] [--model-store MODEL_STORE]
+                  [--workflow-store WORKFLOW_STORE]
+                  [--models MODEL_PATH1 MODEL_NAME=MODEL_PATH2... [MODEL_PATH1 MODEL_NAME=MODEL_PATH2... ...]]
+                  [--log-config LOG_CONFIG] [--cpp-log-config CPP_LOG_CONFIG] [--foreground] [--no-config-snapshots]
+                  [--plugins-path PLUGINS_PATH] [--disable-token-auth] [--enable-model-api]
 
-torchserve
+A PyTorch model server
 
-optional arguments:
+options:
   -h, --help            show this help message and exit
-  -v, --version         Return TorchServe Version
-  --start               Start the model-server
-  --stop                Stop the model-server
+  -v, --version         Return the torchserve version
+  --start               Start the model server
+  --stop                Stop the model server
   --ts-config TS_CONFIG
-                        Configuration file for TorchServe
-  --model-store         MODEL_STORE
-                        Model store location where models can be loaded.
-                        It is required if "model_store" is not defined in config.properties.
-  --models MODEL_PATH1 MODEL_NAME=MODEL_PATH2... [MODEL_PATH1 MODEL_NAME=MODEL_PATH2... ...]
-                        Models to be loaded using [model_name=]model_location
-                        format. Location can be a HTTP URL, a model archive
-                        file or directory contains model archive files in
-                        MODEL_STORE.
-  --log-config LOG_CONFIG
-                        Log4j configuration file for TorchServe
-  --ncs, --no-config-snapshots
-                        Disable snapshot feature
+                        Configuration file for the model server
+  --model-store MODEL_STORE
+                        Model store location from where local or default models can be loaded
   --workflow-store WORKFLOW_STORE
-                        Workflow store location where workflow can be loaded. Defaults to model-store
+                        Workflow store location from where local or default workflows can be loaded
+  --models MODEL_PATH1 MODEL_NAME=MODEL_PATH2... [MODEL_PATH1 MODEL_NAME=MODEL_PATH2... ...]
+                        Models to be loaded using '[model_name=]model_location' format.'model_location' can be an HTTP URL or
+                        a model archive file in MODEL_STORE
+  --log-config LOG_CONFIG
+                        Log4j configuration file for the model server
+  --cpp-log-config CPP_LOG_CONFIG
+                        Log configuration file for the cpp backend
+  --foreground          Run the model server in foreground. If this option is disabled, the model server will run in the
+                        background
+  --no-config-snapshots, --ncs
+                        Prevents the model server from storing configuration snapshot files
+  --plugins-path PLUGINS_PATH, --ppath PLUGINS_PATH
+                        Plugin jars to be included in torchserve class path
+  --disable-token-auth, --dt
+                        Disable the use of token authorization by the model server APIs
+  --enable-model-api    Enable the Model API
 ```
 
 #### Arguments:
