@@ -74,7 +74,14 @@ You can also create model stores to store your archived models.
 1. Archive the model by using the model archiver. The `extra-files` param uses a file from the `TorchServe` repo, so update the path if necessary.
 
     ```bash
-    torch-model-archiver --model-name densenet161 --version 1.0 --model-file ./serve/examples/image_classifier/densenet_161/model.py --serialized-file densenet161-8d451a50.pth --export-path model_store --extra-files ./serve/examples/image_classifier/index_to_name.json --handler image_classifier
+    torch-model-archiver \
+      --model-name densenet161 \
+      --version 1.0 \
+      --serialized-file densenet161-8d451a50.pth \
+      --export-path model_store \
+      --model-file ./serve/examples/image_classifier/densenet_161/model.py \
+      --extra-files ./serve/examples/image_classifier/index_to_name.json \
+      --handler image_classifier
     ```
 
 For more information about the model archiver, see [Torch Model archiver for TorchServe](https://github.com/pytorch/serve/tree/master/model-archiver/README.md)
@@ -84,7 +91,12 @@ For more information about the model archiver, see [Torch Model archiver for Tor
 After you archive and store the model, use the `torchserve` command to serve the model:
 
 ```bash
-torchserve --start --disable-token-auth --no-config-snapshots --model-store model_store --models densenet161.mar
+torchserve \
+  --start \
+  --disable-token-auth \
+  --no-config-snapshots \
+  --model-store model_store \
+  --models densenet161.mar
 ```
 
 After you execute the `torchserve` command above, TorchServe runs on your host, listening for inference requests.
