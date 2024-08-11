@@ -106,13 +106,14 @@ pip install --upgrade grpcio-tools grpcio-status
  - Generate inference client using proto files
 
 ```bash
-python -m grpc_tools.protoc --proto_path=frontend/server/src/main/resources/proto/ --python_out=ts_scripts --grpc_python_out=ts_scripts frontend/server/src/main/resources/proto/inference.proto frontend/server/src/main/resources/proto/management.proto
+SITE_PROTO_FILES=$( python -c 'import site; print(site.getsitepackages()[0])' )
+python -m grpc_tools.protoc --proto_path=$SITE_PROTO_FILES --proto_path=./serve/frontend/server/src/main/resources/proto/ --python_out=./serve/ts_scripts --grpc_python_out=./serve/ts_scripts ./serve/frontend/server/src/main/resources/proto/inference.proto ./serve/frontend/server/src/main/resources/proto/management.proto
 ```
 
  - Run inference using a sample client [gRPC python client](https://github.com/pytorch/serve/blob/master/ts_scripts/torchserve_grpc_client.py)
 
 ```bash
-python ts_scripts/torchserve_grpc_client.py infer densenet161 examples/image_classifier/kitten.jpg
+python ./serve/ts_scripts/torchserve_grpc_client.py infer densenet161 kitten_small.jpg
 ```
 
 #### Using REST APIs
