@@ -100,7 +100,7 @@ To test the model server, send a request to the server's `predictions` API. Torc
  - Install grpc python dependencies :
 
 ```bash
-pip install -U grpcio protobuf grpcio-tools
+pip install --upgrade grpcio-tools grpcio-status
 ```
 
  - Generate inference client using proto files
