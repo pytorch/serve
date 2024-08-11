@@ -54,6 +54,13 @@ git clone https://github.com/pytorch/serve.git
 Then run the following steps from the parent directory of the root of the repository.
 For example, if you cloned the repository into `/home/my_path/serve`, run the steps from `/home/my_path`.
 
+
+### Install dependencies for this model
+
+```bash
+pip install -r ./serve/examples/image_classifier/requirements.txt
+```
+
 ### Store a model
 
 To serve a model with TorchServe, first archive the model as a MAR file. You can use the model archiver to package a model.
