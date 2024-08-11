@@ -84,7 +84,7 @@ For more information about the model archiver, see [Torch Model archiver for Tor
 After you archive and store the model, use the `torchserve` command to serve the model.
 
 ```bash
-torchserve --start --ncs --model-store model_store --models densenet161.mar
+torchserve --start --no-config-snapshots --model-store model_store --models densenet161.mar
 ```
 
 After you execute the `torchserve` command above, TorchServe runs on your host, listening for inference requests.
