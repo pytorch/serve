@@ -158,7 +158,7 @@ if __name__ == "__main__":
 
     print(f"-- {name} building version: {version}")
 
-    requirements = ["Pillow", "psutil", "packaging", "wheel"]
+    requirements = ["Pillow", "psutil", "packaging", "wheel", "PyYAML"]
 
     setup(
         name=name,
