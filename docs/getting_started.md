@@ -54,7 +54,7 @@ git clone https://github.com/pytorch/serve.git
 Then run the following steps from the parent directory of the root of the repository.
 For example, if you cloned the repository into `/home/my_path/serve`, run the steps from `/home/my_path`.
 
-### Store a Model
+### Store a model
 
 To serve a model with TorchServe, first archive the model as a MAR file. You can use the model archiver to package a model.
 You can also create model stores to store your archived models.
@@ -81,7 +81,7 @@ For more information about the model archiver, see [Torch Model archiver for Tor
 
 ### Start TorchServe to serve the model
 
-After you archive and store the model, use the `torchserve` command to serve the model.
+After you archive and store the model, use the `torchserve` command to serve the model:
 
 ```bash
 torchserve --start --disable-token-auth --no-config-snapshots --model-store model_store --models densenet161.mar
@@ -95,7 +95,7 @@ After you execute the `torchserve` command above, TorchServe runs on your host, 
 
 To test the model server, send a request to the server's `predictions` API. TorchServe supports all [inference](./inference_api.md) and [management](./management_api.md) apis through both [gRPC](./grpc_api.md) and [HTTP/REST](./rest_api.md).
 
-#### Using GRPC APIs through python client
+#### Using gRPC APIs
 
  - Install grpc python dependencies :
 
@@ -118,7 +118,7 @@ To test the model server, send a request to the server's `predictions` API. Torc
 
 #### Using REST APIs
 
-As an example we'll download the below cute kitten with
+As an example we'll download the below cute kitten with:
 
 ![kitten](images/kitten_small.jpg)
 
@@ -126,14 +126,13 @@ As an example we'll download the below cute kitten with
 curl -O https://raw.githubusercontent.com/pytorch/serve/master/docs/images/kitten_small.jpg
 ```
 
-And then call the prediction endpoint
+Call the prediction endpoint:
 
 ```bash
 curl http://127.0.0.1:8080/predictions/densenet161 -T kitten_small.jpg
 ```
 
-Which will return the following JSON object
-
+Which will return the following JSON object:
 
 ```json
 {
@@ -151,18 +150,19 @@ Now you've seen how easy it can be to serve a deep learning model with TorchServ
 
 ### Stop TorchServe
 
-To stop the currently running TorchServe instance, run:
+Stop the currently running TorchServe instance:
 
 ```bash
 torchserve --stop
 ```
 
 ### Inspect the logs
+
 All the logs you've seen as output to stdout related to model registration, management, inference are recorded in the `/logs` folder.
 
 High level performance data like Throughput or Percentile Precision can be generated with [Benchmark](https://github.com/pytorch/serve/tree/master/benchmarks/README.md) and visualized in a report.
 
-## Debugging Handler Code
+## Debugging handler code
 
 If you want to debug your handler code, you can run TorchServe with just the backend and hence use any python debugger. You can refer to an example defined [here](../examples/image_classifier/resnet_18/README.md#debug-torchserve-backend)
 
