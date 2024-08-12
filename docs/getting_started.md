@@ -179,7 +179,7 @@ torchserve --stop
 
 All the logs you've seen as output to stdout related to model registration, management, inference are recorded in the `/logs` folder.
 
-High level performance data like Throughput or Percentile Precision can be generated with [Benchmark](https://github.com/pytorch/serve/tree/master/benchmarks/README.md) and visualized in a report.
+High level performance data like Throughput or Percentile Precision can be generated with [Benchmark](https://github.com/pytorch/serve/blob/master/benchmarks/README.md) and visualized in a report.
 
 ## Debugging handler code
 
