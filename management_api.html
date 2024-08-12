@@ -457,6 +457,7 @@
 <li><p><code class="docutils literal notranslate"><span class="pre">initial_workers</span></code> - the number of initial workers to create. The default value is <code class="docutils literal notranslate"><span class="pre">0</span></code>. TorchServe will not run inference until there is at least one work assigned.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">synchronous</span></code> - whether or not the creation of worker is synchronous. The default value is false. TorchServe will create new workers without waiting for acknowledgement that the previous worker is online.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">response_timeout</span></code> - If the model’s backend worker doesn’t respond with inference response within this timeout period, the worker will be deemed unresponsive and rebooted. The units is seconds. The default value is 120 seconds.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">startup_timeout</span></code> - If the model’s backend worker doesn’t load the model within this timeout period, the worker will be deemed unresponsive and rebooted. The units is seconds. The default value is 120 seconds.</p></li>
 </ul>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w">  </span><span class="s2">&quot;http://localhost:8081/models?url=https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar&quot;</span>
 
