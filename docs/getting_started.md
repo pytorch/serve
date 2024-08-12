@@ -127,20 +127,21 @@ curl -O https://raw.githubusercontent.com/pytorch/serve/master/docs/images/kitte
 1. Install gRPC python dependencies:
 
     ```bash
-    pip install --upgrade grpcio-tools grpcio-status
+    pip install --upgrade grpcio-tools protobuf googleapis-common-protos
     ```
 
 1. Generate inference client using proto files
 
     ```bash
-    SITE_PROTO_FILES=$( python -c 'import site; print(site.getsitepackages()[0])' )
-    python -m grpc_tools.protoc --proto_path=$SITE_PROTO_FILES --proto_path=./serve/frontend/server/src/main/resources/proto/ --python_out=./serve/ts_scripts --grpc_python_out=./serve/ts_scripts ./serve/frontend/server/src/main/resources/proto/inference.proto ./serve/frontend/server/src/main/resources/proto/management.proto
+    cd serve
+    git submodule update --init
+    python -m grpc_tools.protoc --proto_path=./third_party/google/rpc --proto_path=./frontend/server/src/main/resources/proto/ --python_out=./ts_scripts --grpc_python_out=./ts_scripts ./frontend/server/src/main/resources/proto/inference.proto ./frontend/server/src/main/resources/proto/management.proto
     ```
 
 1. Run inference using a sample client [gRPC python client](https://github.com/pytorch/serve/blob/master/ts_scripts/torchserve_grpc_client.py)
 
     ```bash
-    python ./serve/ts_scripts/torchserve_grpc_client.py infer densenet161 kitten_small.jpg
+    python ./ts_scripts/torchserve_grpc_client.py infer densenet161 ../kitten_small.jpg
     ```
 
 #### Using REST APIs

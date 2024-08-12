@@ -42,7 +42,7 @@ cd serve
  - Install gRPC python dependencies
 
 ```bash
-pip install -U grpcio protobuf grpcio-tools googleapis-common-protos
+pip install --upgrade grpcio-tools protobuf googleapis-common-protos
 ```
 
  - Start torchServe
@@ -55,7 +55,7 @@ torchserve --start --disable-token-auth --no-config-snapshots --enable-model-api
  - Generate python gRPC client stub using the proto files
 
 ```bash
-python -m grpc_tools.protoc -I third_party/google/rpc --proto_path=frontend/server/src/main/resources/proto/ --python_out=ts_scripts --grpc_python_out=ts_scripts frontend/server/src/main/resources/proto/inference.proto frontend/server/src/main/resources/proto/management.proto
+python -m grpc_tools.protoc --proto_path=third_party/google/rpc --proto_path=frontend/server/src/main/resources/proto/ --python_out=ts_scripts --grpc_python_out=ts_scripts frontend/server/src/main/resources/proto/inference.proto frontend/server/src/main/resources/proto/management.proto
 ```
 
  - Register densenet161 model
