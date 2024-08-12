@@ -2,7 +2,7 @@
 
 set -o errexit -o nounset -o pipefail
 
-device = $1
+device=$1
 
 if [ "$device" = "gpu" ]; then
     TEST_GPU="true"
