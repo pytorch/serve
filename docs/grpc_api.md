@@ -49,7 +49,7 @@ pip install -U grpcio protobuf grpcio-tools googleapis-common-protos
 
 ```bash
 mkdir models
-torchserve --start --disable-token-auth --enable-model-api --model-store models/
+torchserve --start --disable-token-auth --no-config-snapshots --enable-model-api --model-store models/
 ```
 
  - Generate python gRPC client stub using the proto files
