@@ -1,4 +1,4 @@
-name: KServe CPU Nightly Tests
+name: KServe GPU Nightly Tests
 
 on:
   workflow_dispatch:
@@ -7,7 +7,7 @@ on:
     - cron:  '15 5 * * *'
 
 jobs:
-  kserve-cpu-tests:
+  kserve-gpu-tests:
     # runs-on: [self-hosted, regression-test-gpu
     steps:
       - name: Clean up previous run

@@ -10,6 +10,28 @@ else
     TEST_GPU="false"
 fi
 
+function validate_gpu_memory_usage() {
+    echo "Validating GPU memory usage..."
+    memory_usage=$(nvidia-smi --query-gpu=memory.used --format=csv,noheader,nounits)
+
+    # Check if any GPU memory usage is above zero
+    memory_above_zero=false
+    while IFS= read -r usage; do
+        if [ "$usage" -gt 0 ]; then
+            memory_above_zero=true
+            break
+        fi
+    done <<< "$memory_usage"
+
+    if [ "$memory_above_zero" = true ]; then
+        echo "GPU memory usage is greater than 0, proceeding with the tests."
+    else
+        echo "✘ GPU memory usage is 0, indicating no GPU activity. Test failed."
+        delete_minikube_cluster
+        exit 1
+    fi
+}
+
 function start_minikube_cluster() {
     echo "Removing any previous Kubernetes cluster"
     minikube delete
@@ -182,6 +204,7 @@ install_kserve
 echo "MNIST KServe V2 test begin"
 if [ "$TEST_GPU" = "true" ]; then
     deploy_cluster "kubernetes/kserve/tests/configs/mnist_v2_gpu.yaml" "torchserve-mnist-v2-predictor"
+    validate_gpu_memory_usage
 else
     deploy_cluster "kubernetes/kserve/tests/configs/mnist_v2_cpu.yaml" "torchserve-mnist-v2-predictor"
 fi
