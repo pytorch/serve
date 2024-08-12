@@ -8,7 +8,7 @@ on:
 
 jobs:
   kserve-gpu-tests:
-    # runs-on: [self-hosted, regression-test-gpu
+    runs-on: [self-hosted, regression-test-gpu]
     steps:
       - name: Clean up previous run
         run: |
