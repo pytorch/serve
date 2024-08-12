@@ -11,7 +11,7 @@ TorchServe provides following gRPCs apis
   - **Predictions** : Gets predictions from the served model
   - **StreamPredictions** : Gets server side streaming predictions from the saved model
 
-For all Inference API requests, TorchServe requires the correct Inference token to be included or token authorization must be disable. For more details see [token authorization documentation](./token_authorization_api.md)
+For all Inference API requests, TorchServe requires the correct Inference token to be included or token authorization must be disabled. For more details see [token authorization documentation](./token_authorization_api.md)
 
 * [Management API](https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/proto/management.proto)
   - **RegisterModel** : Serve a model/model-version on TorchServe
@@ -24,15 +24,15 @@ For all Inference API requests, TorchServe requires the correct Inference token 
 For all Management API requests, TorchServe requires the correct Management token to be included or token authorization must be disabled. For more details see [token authorization documentation](./token_authorization_api.md)
 
 By default, TorchServe listens on port 7070 for the gRPC Inference API and 7071 for the gRPC Management API on localhost.
-To configure gRPC APIs on different addresses and ports refer [configuration documentation](configuration.md)
+To configure gRPC APIs on different addresses and ports refer to [configuration documentation](configuration.md)
 
 ## Python client example for gRPC APIs
 
-Run following commands to Register, run inference and unregister, densenet161 model from [TorchServe model zoo](model_zoo.md) using [gRPC python client](https://github.com/pytorch/serve/blob/master/ts_scripts/torchserve_grpc_client.py).
+Run the following commands to register, run inference with, and unregister the `densenet161` model from [TorchServe model zoo](model_zoo.md) using [gRPC python client](https://github.com/pytorch/serve/blob/master/ts_scripts/torchserve_grpc_client.py).
 
  - [Install TorchServe](../README.md)
 
- - Clone serve repo to run this example
+ - Clone the `serve` repo to run this example
 
 ```bash
 git clone --recurse-submodules https://github.com/pytorch/serve
@@ -60,7 +60,7 @@ python -m grpc_tools.protoc -I third_party/google/rpc --proto_path=frontend/serv
 
  - Register densenet161 model
 
-__Note__: To use this API after TorchServe starts, model API control has to be enabled. Add `--enable-model-api` to command line when starting TorchServe to enable the use of this API. For more details see [model API control](./model_api_control.md)
+__Note__: To use this API after TorchServe has been started, the Model API has to be enabled. Add `--enable-model-api` to the command line when starting TorchServe to enable the use of this API. For more details see the [Model API](./model_api.md)
 
 If token authorization is disabled, use:
 ```bash
@@ -86,7 +86,7 @@ python ts_scripts/torchserve_grpc_client.py infer densenet161 examples/image_cla
 
  - Unregister densenet161 model
 
-__Note__: To use this API after TorchServe starts, model API control has to be enabled. Add `--enable-model-api` to command line when starting TorchServe to enable the use of this API. For more details see [model API control](./model_api_control.md)
+__Note__: To use this API after TorchServe has been started, the Model API has to be enabled. Add `--enable-model-api` to the command line when starting TorchServe to enable the use of this API. For more details see the [Model API](./model_api.md)
 
 If token authorization is disabled, use:
 ```bash
