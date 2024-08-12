@@ -21,7 +21,7 @@ Provide a custom script to:
 Following is applicable to all types of custom handlers
 * **data** - The input data from the incoming request
 * **context** - Is the TorchServe [context](https://github.com/pytorch/serve/blob/master/ts/context.py). You can use following information for customization
-model_name, model_dir, manifest, batch_size, gpu etc.
+`model_name`, `model_dir`, `manifest`, `batch_size`, `gpu`, etc.
 
 ### Start with BaseHandler!
 [BaseHandler](https://github.com/pytorch/serve/blob/master/ts/torch_handler/base_handler.py) implements most of the functionality you need. You can derive a new class from it, as shown in the examples and default handlers. Most of the time, you'll only need to override `preprocess` or `postprocess`.
@@ -84,7 +84,7 @@ You can create custom handler by having class with any name, but it must have an
 
 NOTE - If you plan to have multiple classes in same python module/file then make sure that handler class is the first in the list
 
-The signature of a entry point class and functions is:
+The signature of an entry point class and functions is:
 
 ```python
 class ModelHandler(object):
