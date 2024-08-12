@@ -153,6 +153,7 @@ public class WorkflowMgmtRequestHandler extends HttpRequestHandlerChain {
                                 registerWFRequest.getWorkflowName(),
                                 registerWFRequest.getWorkflowUrl(),
                                 registerWFRequest.getResponseTimeout(),
+                                registerWFRequest.getStartupTimeout(),
                                 true,
                                 registerWFRequest.getS3SseKms());
 

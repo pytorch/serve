@@ -296,6 +296,12 @@ public final class OpenApiUtils {
                         "Maximum time, in seconds, the TorchServe waits for a response from the model inference code, default: 120."));
         operation.addParameter(
                 new QueryParameter(
+                        "startup_timeout",
+                        "integer",
+                        "120",
+                        "Maximum time, in seconds, the TorchServe waits for the model to startup/initialize, default: 120."));
+        operation.addParameter(
+                new QueryParameter(
                         "initial_workers",
                         "integer",
                         "0",
