@@ -119,7 +119,7 @@ def create_mar_file(work_dir, model_archiver, model_name, request):
     config = ModelArchiverConfig(
         model_name=model_name,
         version="1.0",
-        handler=(VLLM_PATH / "base_vllm_handler.py").as_posix(),
+        handler="vllm_handler",
         serialized_file=None,
         export_path=work_dir,
         requirements_file=None,

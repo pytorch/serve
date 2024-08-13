@@ -38,7 +38,7 @@ class VLLMHandler(BaseHandler):
 
         metrics = context.metrics
 
-        data_preprocess = await self.preprocess(data)
+        data_preprocess = await self.preprocess(data, context)
         output = await self.inference(data_preprocess, context)
         output = await self.postprocess(output)
 
@@ -48,19 +48,15 @@ class VLLMHandler(BaseHandler):
         )
         return output
 
-    async def preprocess(self, requests):
-        input_batch = []
+    async def preprocess(self, requests, context):
         assert len(requests) == 1, "Expecting batch_size = 1"
-        for req_data in requests:
-            data = req_data.get("data") or req_data.get("body")
-            if isinstance(data, (bytes, bytearray)):
-                data = data.decode("utf-8")
+        req_data = requests[0]
+        logger.info(context.get_request_header(0, "url_path"))
+        data = req_data.get("data") or req_data.get("body")
+        if isinstance(data, (bytes, bytearray)):
+            data = data.decode("utf-8")
 
-            prompt = data.get("prompt")
-            sampling_params = self._get_sampling_params(data)
-            lora_request = self._get_lora_request(data)
-            input_batch += [(prompt, sampling_params, lora_request)]
-        return input_batch
+        return [self.prepare_completion_request(data)]
 
     async def inference(self, input_batch, context):
         logger.debug(f"Inputs: {input_batch[0]}")
@@ -83,6 +79,12 @@ class VLLMHandler(BaseHandler):
 
     async def postprocess(self, inference_outputs):
         return inference_outputs
+
+    def prepare_completion_request(self, request):
+        prompt = request.get("prompt")
+        sampling_params = self._get_sampling_params(request)
+        lora_request = self._get_lora_request(request)
+        return prompt, sampling_params, lora_request
 
     def _get_vllm_engine_config(self, handler_config: dict):
         vllm_engine_params = handler_config.get("vllm_engine_config", {})
