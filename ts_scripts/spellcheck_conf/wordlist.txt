@@ -218,6 +218,8 @@ preflight
 readthedocs
 req
 responseTimeout
+startupTimeout
+timeframe
 scalability
 storepass
 storetype
@@ -1294,3 +1296,4 @@ StableDiffusionXL
 photorealistic
 miniconda
 torchaudio
+ln

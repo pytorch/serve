@@ -56,6 +56,9 @@ message RegisterModelRequest {
 
     // Decides whether S3 SSE KMS enabled or not, default: false.
     bool s3_sse_kms = 10; //optional
+
+    // Maximum time, in seconds, the TorchServe waits for a model to startup, default: 120.
+    int32 startup_timeout = 11; //optional
 }
 
 message ScaleWorkerRequest {

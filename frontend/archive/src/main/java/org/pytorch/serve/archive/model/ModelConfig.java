@@ -21,6 +21,8 @@ public class ModelConfig {
     private int maxBatchDelay;
     /** the timeout in sec of a specific model's response. */
     private int responseTimeout = 120; // unit: sec
+    /** the timeout in sec of a specific model's startup. */
+    private int startupTimeout = 120; // unit: sec
     /**
      * the device type where the model is loaded. It can be gpu, cpu. The model is loaded on CPU if
      * deviceType: "cpu" is set on a GPU host.
@@ -120,6 +122,13 @@ public class ModelConfig {
                                 modelConfig.setResponseTimeout((int) v);
                             } else {
                                 logger.warn("Invalid responseTimeout: {}, should be integer", v);
+                            }
+                            break;
+                        case "startupTimeout":
+                            if (v instanceof Integer) {
+                                modelConfig.setStartupTimeout((int) v);
+                            } else {
+                                logger.warn("Invalid startupTimeout: {}, should be integer", v);
                             }
                             break;
                         case "deviceType":
@@ -317,6 +326,18 @@ public class ModelConfig {
             return;
         }
         this.responseTimeout = responseTimeout;
+    }
+
+    public int getStartupTimeout() {
+        return startupTimeout;
+    }
+
+    public void setStartupTimeout(int startupTimeout) {
+        if (startupTimeout <= 0) {
+            logger.warn("Invalid startupTimeout:{}", startupTimeout);
+            return;
+        }
+        this.startupTimeout = startupTimeout;
     }
 
     public List<Integer> getDeviceIds() {

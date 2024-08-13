@@ -200,17 +200,17 @@
   },
   {
     "type": "register",
-    "test": "Register Model with Additional Params and response_timeout as 0",
+    "test": "Register Model with Additional Params and startup_timeout as 0",
     "METHOD": "POST",
-    "path": "models?url={{mar_path_squeezenet1_1}}&model_name=squeezenet1_1&batch_size=3&initial_workers=3&response_timeout=0",
+    "path": "models?url={{mar_path_squeezenet1_1}}&model_name=squeezenet1_1&batch_size=3&initial_workers=3&startup_timeout=0",
     "status_code": 500,
     "grpc_status_code": 13
   },
   {
     "type": "register",
-    "test": "Register Model with response_timeout as 0",
+    "test": "Register Model with startup_timeout as 0",
     "METHOD": "POST",
-    "path": "models?url={{mar_path_squeezenet1_1}}&model_name=squeezenet1_1&response_timeout=0"
+    "path": "models?url={{mar_path_squeezenet1_1}}&model_name=squeezenet1_1&startup_timeout=0"
   },
   {
     "type": "unregister",

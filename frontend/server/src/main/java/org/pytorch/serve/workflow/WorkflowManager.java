@@ -103,15 +103,21 @@ public final class WorkflowManager {
     }
 
     public StatusResponse registerWorkflow(
-            String workflowName, String url, int responseTimeout, boolean synchronous)
+            String workflowName,
+            String url,
+            int responseTimeout,
+            int startupTimeout,
+            boolean synchronous)
             throws WorkflowException {
-        return registerWorkflow(workflowName, url, responseTimeout, synchronous, false);
+        return registerWorkflow(
+                workflowName, url, responseTimeout, startupTimeout, synchronous, false);
     }
 
     public StatusResponse registerWorkflow(
             String workflowName,
             String url,
             int responseTimeout,
+            int startupTimeout,
             boolean synchronous,
             boolean s3SseKms)
             throws WorkflowException {
@@ -149,7 +155,12 @@ public final class WorkflowManager {
 
                 futures.add(
                         executorCompletionService.submit(
-                                () -> registerModelWrapper(wfm, responseTimeout, synchronous)));
+                                () ->
+                                        registerModelWrapper(
+                                                wfm,
+                                                responseTimeout,
+                                                startupTimeout,
+                                                synchronous)));
             }
 
             int i = 0;
@@ -225,7 +236,7 @@ public final class WorkflowManager {
     }
 
     public ModelRegistrationResult registerModelWrapper(
-            WorkflowModel wfm, int responseTimeout, boolean synchronous) {
+            WorkflowModel wfm, int responseTimeout, int startupTimeout, boolean synchronous) {
         StatusResponse status = new StatusResponse();
         try {
             status =
@@ -237,6 +248,7 @@ public final class WorkflowManager {
                             wfm.getBatchSize(),
                             wfm.getMaxBatchDelay(),
                             responseTimeout,
+                            startupTimeout,
                             wfm.getMaxWorkers(),
                             synchronous,
                             true,

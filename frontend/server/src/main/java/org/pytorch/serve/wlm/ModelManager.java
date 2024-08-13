@@ -79,6 +79,7 @@ public final class ModelManager {
                 -1 * RegisterModelRequest.DEFAULT_BATCH_SIZE,
                 -1 * RegisterModelRequest.DEFAULT_MAX_BATCH_DELAY,
                 configManager.getDefaultResponseTimeout(),
+                configManager.getDefaultStartupTimeout(),
                 defaultModelName,
                 false,
                 false,
@@ -120,6 +121,7 @@ public final class ModelManager {
             int batchSize,
             int maxBatchDelay,
             int responseTimeout,
+            int startupTimeout,
             String defaultModelName,
             boolean ignoreDuplicate,
             boolean isWorkflowModel,
@@ -143,7 +145,13 @@ public final class ModelManager {
         }
 
         Model tempModel =
-                createModel(archive, batchSize, maxBatchDelay, responseTimeout, isWorkflowModel);
+                createModel(
+                        archive,
+                        batchSize,
+                        maxBatchDelay,
+                        responseTimeout,
+                        startupTimeout,
+                        isWorkflowModel);
 
         String versionId = archive.getModelVersion();
 
@@ -386,6 +394,7 @@ public final class ModelManager {
             int batchSize,
             int maxBatchDelay,
             int responseTimeout,
+            int startupTimeout,
             boolean isWorkflowModel) {
         Model model = new Model(archive, configManager.getJobQueueSize());
 
@@ -435,6 +444,7 @@ public final class ModelManager {
 
         if (archive.getModelConfig() != null) {
             int marResponseTimeout = archive.getModelConfig().getResponseTimeout();
+            int marStartupTimeout = archive.getModelConfig().getStartupTimeout();
             responseTimeout =
                     marResponseTimeout > 0
                             ? marResponseTimeout
@@ -443,6 +453,14 @@ public final class ModelManager {
                                     archive.getModelVersion(),
                                     Model.RESPONSE_TIMEOUT,
                                     responseTimeout);
+            startupTimeout =
+                    marStartupTimeout > 0
+                            ? marStartupTimeout
+                            : configManager.getJsonIntValue(
+                                    archive.getModelName(),
+                                    archive.getModelVersion(),
+                                    Model.STARTUP_TIMEOUT,
+                                    startupTimeout);
         } else {
             responseTimeout =
                     configManager.getJsonIntValue(
@@ -450,8 +468,15 @@ public final class ModelManager {
                             archive.getModelVersion(),
                             Model.RESPONSE_TIMEOUT,
                             responseTimeout);
+            startupTimeout =
+                    configManager.getJsonIntValue(
+                            archive.getModelName(),
+                            archive.getModelVersion(),
+                            Model.STARTUP_TIMEOUT,
+                            startupTimeout);
         }
         model.setResponseTimeout(responseTimeout);
+        model.setStartupTimeout(startupTimeout);
         model.setWorkflowModel(isWorkflowModel);
         model.setRuntimeType(
                 configManager.getJsonRuntimeTypeValue(

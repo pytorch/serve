@@ -2,6 +2,36 @@
 
 set -o errexit -o nounset -o pipefail
 
+device=$1
+
+if [ "$device" = "gpu" ]; then
+    TEST_GPU="true"
+else
+    TEST_GPU="false"
+fi
+
+function validate_gpu_memory_usage() {
+    echo "Validating GPU memory usage..."
+    memory_usage=$(nvidia-smi --query-gpu=memory.used --format=csv,noheader,nounits)
+
+    # Check if any GPU memory usage is above zero
+    memory_above_zero=false
+    while IFS= read -r usage; do
+        if [ "$usage" -gt 0 ]; then
+            memory_above_zero=true
+            break
+        fi
+    done <<< "$memory_usage"
+
+    if [ "$memory_above_zero" = true ]; then
+        echo "GPU memory usage is greater than 0, proceeding with the tests."
+    else
+        echo "✘ GPU memory usage is 0, indicating no GPU activity. Test failed."
+        delete_minikube_cluster
+        exit 1
+    fi
+}
+
 function start_minikube_cluster() {
     echo "Removing any previous Kubernetes cluster"
     minikube delete
@@ -172,16 +202,30 @@ start_minikube_cluster
 install_kserve
 
 echo "MNIST KServe V2 test begin"
-deploy_cluster "kubernetes/kserve/tests/configs/mnist_v2_cpu.yaml" "torchserve-mnist-v2-predictor"
+if [ "$TEST_GPU" = "true" ]; then
+    deploy_cluster "kubernetes/kserve/tests/configs/mnist_v2_gpu.yaml" "torchserve-mnist-v2-predictor"
+    validate_gpu_memory_usage
+else
+    deploy_cluster "kubernetes/kserve/tests/configs/mnist_v2_cpu.yaml" "torchserve-mnist-v2-predictor"
+fi
 URL="http://${INGRESS_HOST}:${INGRESS_PORT}/v2/models/${MODEL_NAME}/infer"
 make_cluster_accessible "torchserve-mnist-v2" ${URL} "./kubernetes/kserve/kf_request_json/v2/mnist/mnist_v2_tensor.json" '{"model_name":"mnist","model_version":"1.0","id":"d3b15cad-50a2-4eaf-80ce-8b0a428bd298","parameters":null,"outputs":[{"name":"input-0","shape":[1],"datatype":"INT64","parameters":null,"data":[1]}]}'
 kubectl delete inferenceservice torchserve-mnist-v2
 
 echo "MNIST KServe V1 test begin"
-deploy_cluster "kubernetes/kserve/tests/configs/mnist_v1_cpu.yaml" "torchserve-predictor"
+if [ "$TEST_GPU" = "true" ]; then
+    deploy_cluster "kubernetes/kserve/tests/configs/mnist_v1_gpu.yaml" "torchserve-predictor"
+else
+    deploy_cluster "kubernetes/kserve/tests/configs/mnist_v1_cpu.yaml" "torchserve-predictor"
+fi
 URL="http://${INGRESS_HOST}:${INGRESS_PORT}/v1/models/${MODEL_NAME}:predict"
 make_cluster_accessible "torchserve" ${URL} "./kubernetes/kserve/kf_request_json/v1/mnist.json" '{"predictions":[2]}'
 kubectl delete inferenceservice torchserve
+
+if [ "$TEST_GPU" = "true" ]; then
+    delete_minikube_cluster
+    exit 0
+fi
 
 # OIP HTTP method calls
 echo "MNIST Torchserve Open Inference Protocol HTTP"
