@@ -162,9 +162,16 @@ public class InferenceRequestHandler extends HttpRequestHandlerChain {
 
         String modelVersion = null;
 
-        if (segments.length == 4) {
+        if (segments.length >= 4) {
             modelVersion = segments[3];
         }
+        req.headers().add("url_path", "");
+        if (segments.length > 4) {
+            String joinedSegments =
+                    String.join("/", Arrays.copyOfRange(segments, 4, segments.length));
+            req.headers().add("url_path", joinedSegments);
+        }
+
         req.headers().add("explain", "False");
         if (explain) {
             req.headers().add("explain", "True");
