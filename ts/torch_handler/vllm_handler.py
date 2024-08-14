@@ -4,6 +4,11 @@ import pathlib
 import time
 
 from vllm import AsyncEngineArgs, AsyncLLMEngine, SamplingParams
+from vllm.entrypoints.openai.protocol import (
+    CompletionResponse,
+    CompletionResponseChoice,
+    UsageInfo,
+)
 from vllm.lora.request import LoRARequest
 
 from ts.handler_utils.utils import send_intermediate_predict_response
@@ -60,21 +65,48 @@ class VLLMHandler(BaseHandler):
 
     async def inference(self, input_batch, context):
         logger.debug(f"Inputs: {input_batch[0]}")
-        prompt, params, lora = input_batch[0]
+        prompt, stream, params, lora = input_batch[0]
         generator = self.vllm_engine.generate(
             prompt, params, context.request_ids[0], lora
         )
         text_len = 0
         async for output in generator:
-            result = {
-                "text": output.outputs[0].text[text_len:],
-                "tokens": output.outputs[0].token_ids[-1],
-            }
-            text_len = len(output.outputs[0].text)
-            if not output.finished:
+            if not output.finished and stream:
+                result = {
+                    "text": output.outputs[0].text[text_len:],
+                    "tokens": output.outputs[0].token_ids[-1],
+                }
+                text_len = len(output.outputs[0].text)
                 send_intermediate_predict_response(
                     [json.dumps(result)], context.request_ids, "Result", 200, context
                 )
+        if not stream:
+            # result = {
+            #         "text": output.outputs[0].text,
+            #         "tokens": output.outputs[0].token_ids,
+            #     }
+            choices = [
+                CompletionResponseChoice(
+                    index=0,
+                    text=output.outputs[0].text,
+                    logprobs=None,
+                )
+            ]
+
+            usage = UsageInfo(
+                prompt_tokens=0,
+                completion_tokens=0,
+                total_tokens=0,
+            )
+
+            result = CompletionResponse(
+                id=context.request_ids[0],
+                created=int(time.time()),
+                model="model_name",
+                choices=choices,
+                usage=usage,
+            )
+            return [result.model_dump_json()]
         return [json.dumps(result)]
 
     async def postprocess(self, inference_outputs):
@@ -82,9 +114,10 @@ class VLLMHandler(BaseHandler):
 
     def prepare_completion_request(self, request):
         prompt = request.get("prompt")
+        stream = request.get("stream", False)
         sampling_params = self._get_sampling_params(request)
         lora_request = self._get_lora_request(request)
-        return prompt, sampling_params, lora_request
+        return prompt, stream, sampling_params, lora_request
 
     def _get_vllm_engine_config(self, handler_config: dict):
         vllm_engine_params = handler_config.get("vllm_engine_config", {})

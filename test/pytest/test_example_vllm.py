@@ -54,6 +54,7 @@ PROMPTS = [
         "prompt_logprobs": 1,
         "max_tokens": 128,
         "adapter": "adapter_1",
+        "stream": True,
     },
     {
         "prompt": "Paris is, ",
@@ -66,6 +67,7 @@ PROMPTS = [
         "top_p": 0,
         "adapter": "adapter_1",
         "seed": 42,
+        "stream": True,
     },
 ]
 EXPECTED = [
@@ -80,14 +82,37 @@ try:
 except ImportError:
     VLLM_MISSING = True
 
+try:
+    from openai import OpenAI  # noqa
 
-def necessary_files_unavailable():
+    OPENAI_MISSING = False
+except ImportError:
+    OPENAI_MISSING = True
+
+
+def necessary_files_unavailable(profile=None):
     LLAMA = LORA_SRC_PATH / LLAMA_MODEL_PATH
     ADAPTER = LORA_SRC_PATH / ADAPTER_PATH
-    return {
-        "condition": not (LLAMA.exists() and ADAPTER.exists()) or VLLM_MISSING,
-        "reason": f"Required files are not present or vllm is not installed (see README): {LLAMA.as_posix()} + {ADAPTER.as_posix()}",
-    }
+    if not (LLAMA.exists() and ADAPTER.exists()):
+        return {
+            "condition": True,
+            "reason": f"Required files are not present (see README): {LLAMA.as_posix()} + {ADAPTER.as_posix()}",
+        }
+    elif VLLM_MISSING:
+        return {
+            "condition": True,
+            "reason": f"VLLM is not installed",
+        }
+    elif profile == "openai" and OPENAI_MISSING:
+        return {
+            "condition": True,
+            "reason": f"OpenAI client is not installed",
+        }
+    else:
+        return {
+            "condition": False,
+            "reason": "None",
+        }
 
 
 @pytest.fixture
@@ -139,60 +164,89 @@ def create_mar_file(work_dir, model_archiver, model_name, request):
     shutil.rmtree(mar_file_path)
 
 
-@pytest.mark.skipif(**necessary_files_unavailable())
-def test_vllm_lora_mar(mar_file_path, model_store, torchserve):
+@pytest.fixture(scope="module", name="model_name")
+def register_model(mar_file_path, model_store, torchserve):
     """
     Register the model in torchserve
     """
-
     file_name = Path(mar_file_path).name
-
     model_name = Path(file_name).stem
 
-    shutil.copytree(mar_file_path, Path(model_store) / model_name)
+    shutil.copytree(mar_file_path, model_store + f"/{model_name}")
 
     params = (
         ("model_name", model_name),
-        ("url", Path(model_store) / model_name),
+        ("url", file_name),
         ("initial_workers", "1"),
         ("synchronous", "true"),
         ("batch_size", "1"),
     )
 
-    try:
-        test_utils.reg_resp = test_utils.register_model_with_params(params)
-        responses = []
+    test_utils.reg_resp = test_utils.register_model_with_params(params)
 
-        for _ in range(10):
-            idx = random.randint(0, 1)
-            response = requests.post(
-                url=f"http://localhost:8080/predictions/{model_name}",
-                json=PROMPTS[idx],
-                stream=True,
-            )
+    yield model_name
 
-            assert response.status_code == 200
+    test_utils.unregister_model(model_name)
 
-            assert response.headers["Transfer-Encoding"] == "chunked"
-            responses += [(response, EXPECTED[idx])]
+    # Clean up files
+    shutil.rmtree(Path(model_store) / model_name)
 
-        predictions = []
-        expected_result = []
-        for response, expected in responses:
-            prediction = []
-            for chunk in response.iter_content(chunk_size=None):
-                if chunk:
-                    data = json.loads(chunk)
-                    prediction += [data.get("text", "")]
-            predictions += [prediction]
-            expected_result += [expected]
-        assert all(len(p) > 1 for p in predictions)
-        assert all(
-            "".join(p).startswith(e) for p, e in zip(predictions, expected_result)
+
+@pytest.mark.skipif(**necessary_files_unavailable())
+def test_vllm_lora_mar(model_name):
+    """
+    Register the model in torchserve
+    """
+
+    responses = []
+
+    for _ in range(10):
+        idx = random.randint(0, 1)
+        response = requests.post(
+            url=f"http://localhost:8080/predictions/{model_name}",
+            json=PROMPTS[idx],
+            stream=True,
         )
 
-    finally:
-        test_utils.unregister_model(model_name)
+        assert response.status_code == 200
 
-        # Clean up files
-        shutil.rmtree(Path(model_store) / model_name)
+        assert response.headers["Transfer-Encoding"] == "chunked"
+        responses += [(response, EXPECTED[idx])]
+
+    predictions = []
+    expected_result = []
+    for response, expected in responses:
+        prediction = []
+        for chunk in response.iter_content(chunk_size=None):
+            if chunk:
+                data = json.loads(chunk)
+                prediction += [data.get("text", "")]
+        predictions += [prediction]
+        expected_result += [expected]
+    assert all(len(p) > 1 for p in predictions)
+    assert all("".join(p).startswith(e) for p, e in zip(predictions, expected_result))
+
+
+@pytest.mark.skipif(**necessary_files_unavailable("openai"))
+def test_openai_api(model_name):
+    from openai import OpenAI
+    from openai.types.completion import Completion
+
+    openai_api_key = "EMPTY"
+    openai_api_base = f"http://localhost:8080/predictions/{model_name}/1.0/v1"
+
+    client = OpenAI(
+        api_key=openai_api_key,
+        base_url=openai_api_base,
+    )
+
+    response = client.completions.create(
+        model=model_name, prompt="Hello world", temperature=0.0
+    )
+
+    assert isinstance(response, Completion)
+
+    assert (
+        response.choices[0].text
+        == "! I'm a new member of the community and I'm excited to"
+    )
