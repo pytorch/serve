@@ -72,6 +72,42 @@ class VLLMHandler(BaseHandler):
         request_header = context.get_all_request_header(0)
         use_openai = request_header.get("url_path", "").startswith("v1/completions")
 
+        from vllm.entrypoints.openai.protocol import CompletionRequest
+        from vllm.entrypoints.openai.serving_completion import OpenAIServingCompletion
+
+        completion_service = OpenAIServingCompletion(
+            self.vllm_engine,
+            await self.vllm_engine.get_model_config(),
+            [
+                "/home/ubuntu/serve/examples/large_models/vllm/lora/model/models--meta-llama--Llama-2-7b-chat-hf/snapshots/f5db02db724555f92da89c216ac04704f23d4590"
+            ],
+            lora_modules=None,
+            prompt_adapters=None,
+            request_logger=None,
+        )
+
+        r = CompletionRequest.model_validate(
+            {
+                "model": "/home/ubuntu/serve/examples/large_models/vllm/lora/model/models--meta-llama--Llama-2-7b-chat-hf/snapshots/f5db02db724555f92da89c216ac04704f23d4590",
+                "prompt": prompt,
+            }
+        )
+        from unittest.mock import MagicMock
+
+        rr = MagicMock()
+        rr.headers = {}
+
+        async def isd():
+            return False
+
+        rr.is_disconnected = isd
+        g = await completion_service.create_completion(
+            r,
+            rr,
+        )
+
+        print(f"{g.model_dump()=}")
+
         text_len = 0
         async for output in generator:
             if stream:
