@@ -5,12 +5,15 @@ import time
 
 from vllm import AsyncEngineArgs, AsyncLLMEngine, SamplingParams
 from vllm.entrypoints.openai.protocol import (
+    CompletionRequest,
     CompletionResponse,
     CompletionResponseChoice,
     CompletionResponseStreamChoice,
     CompletionStreamResponse,
     UsageInfo,
 )
+from vllm.entrypoints.openai.serving_completion import OpenAIServingCompletion
+from vllm.entrypoints.openai.serving_engine import LoRAModulePath
 from vllm.lora.request import LoRARequest
 
 from ts.handler_utils.utils import send_intermediate_predict_response
@@ -24,7 +27,7 @@ class VLLMHandler(BaseHandler):
         super().__init__()
 
         self.vllm_engine = None
-        self.model = None
+        self.model_name = None
         self.model_dir = None
         self.lora_ids = {}
         self.adapters = None
@@ -35,9 +38,26 @@ class VLLMHandler(BaseHandler):
         vllm_engine_config = self._get_vllm_engine_config(
             ctx.model_yaml_config.get("handler", {})
         )
-        self.adapters = ctx.model_yaml_config.get("handler", {}).get("adapters", {})
 
         self.vllm_engine = AsyncLLMEngine.from_engine_args(vllm_engine_config)
+
+        self.adapters = ctx.model_yaml_config.get("handler", {}).get("adapters", {})
+        lora_modules = [LoRAModulePath(n, p) for n, p in self.adapters.items()]
+
+        try:
+            served_model_name = vllm_engine_config.served_model_name
+        except (KeyError, TypeError):
+            served_model_name = [vllm_engine_config.model]
+
+        self.completion_service = OpenAIServingCompletion(
+            self.vllm_engine,
+            vllm_engine_config,
+            served_model_name,
+            lora_modules=lora_modules,
+            prompt_adapters=None,
+            request_logger=None,
+        )
+
         self.initialized = True
 
     async def handle(self, data, context):
@@ -66,47 +86,33 @@ class VLLMHandler(BaseHandler):
 
     async def inference(self, input_batch, context):
         logger.debug(f"Inputs: {input_batch[0]}")
-        prompt, stream, params, lora = input_batch[0]
+        request, params, lora = input_batch[0]
+        prompt = request.prompt
+        stream = request.stream
         request_id = context.request_ids[0]
         generator = self.vllm_engine.generate(prompt, params, request_id, lora)
         request_header = context.get_all_request_header(0)
         use_openai = request_header.get("url_path", "").startswith("v1/completions")
 
-        from vllm.entrypoints.openai.protocol import CompletionRequest
-        from vllm.entrypoints.openai.serving_completion import OpenAIServingCompletion
-
-        completion_service = OpenAIServingCompletion(
-            self.vllm_engine,
-            await self.vllm_engine.get_model_config(),
-            [
-                "/home/ubuntu/serve/examples/large_models/vllm/lora/model/models--meta-llama--Llama-2-7b-chat-hf/snapshots/f5db02db724555f92da89c216ac04704f23d4590"
-            ],
-            lora_modules=None,
-            prompt_adapters=None,
-            request_logger=None,
-        )
-
-        r = CompletionRequest.model_validate(
-            {
-                "model": "/home/ubuntu/serve/examples/large_models/vllm/lora/model/models--meta-llama--Llama-2-7b-chat-hf/snapshots/f5db02db724555f92da89c216ac04704f23d4590",
-                "prompt": prompt,
-            }
-        )
         from unittest.mock import MagicMock
 
-        rr = MagicMock()
-        rr.headers = {}
+        raw_request = MagicMock()
+        raw_request.headers = {}
 
         async def isd():
             return False
 
-        rr.is_disconnected = isd
-        g = await completion_service.create_completion(
-            r,
-            rr,
+        raw_request.is_disconnected = isd
+        g = await self.completion_service.create_completion(
+            request,
+            raw_request,
         )
 
-        print(f"{g.model_dump()=}")
+        try:
+            async for obj in g:
+                print(f"{obj=}")
+        except:
+            print(f"{g.model_dump()=}")
 
         text_len = 0
         async for output in generator:
@@ -185,12 +191,11 @@ class VLLMHandler(BaseHandler):
     async def postprocess(self, inference_outputs):
         return inference_outputs
 
-    def prepare_completion_request(self, request):
-        prompt = request.get("prompt")
-        stream = request.get("stream", False)
-        sampling_params = self._get_sampling_params(request)
-        lora_request = self._get_lora_request(request)
-        return prompt, stream, sampling_params, lora_request
+    def prepare_completion_request(self, request_data):
+        lora_request = self._get_lora_request(request_data)
+        sampling_params = self._get_sampling_params(request_data)
+        request = CompletionRequest.model_validate(request_data)
+        return request, sampling_params, lora_request
 
     def _get_vllm_engine_config(self, handler_config: dict):
         vllm_engine_params = handler_config.get("vllm_engine_config", {})
@@ -206,6 +211,8 @@ class VLLMHandler(BaseHandler):
                     f"Model path ({model}) does not exist locally. Trying to give without model_dir as prefix."
                 )
                 model = model_path
+            else:
+                model = model.as_posix()
         logger.debug(f"EngineArgs model: {model}")
         vllm_engine_config = AsyncEngineArgs(model=model)
         self._set_attr_value(vllm_engine_config, vllm_engine_params)
@@ -231,6 +238,8 @@ class VLLMHandler(BaseHandler):
 
     def _set_attr_value(self, obj, config: dict):
         items = vars(obj)
-        for k, v in config.items():
+        keys = list(config.keys())
+        for k in keys:
             if k in items:
-                setattr(obj, k, v)
+                setattr(obj, k, config[k])
+                del config[k]

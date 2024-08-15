@@ -40,6 +40,8 @@ handler:
         max_num_seqs: 16
         max_model_len: 250
         tensor_parallel_size: {torch.cuda.device_count()}
+        served_model_name:
+            - "Llama-2-7b-chat-hf"
 
     adapters:
         adapter_1: "{(LORA_SRC_PATH / ADAPTER_PATH).as_posix()}"
@@ -48,24 +50,24 @@ handler:
 PROMPTS = [
     {
         "prompt": "A robot may not injure a human being",
-        "max_new_tokens": 50,
         "temperature": 0.8,
         "logprobs": 1,
-        "prompt_logprobs": 1,
+        # "prompt_logprobs": 1,
         "max_tokens": 128,
-        "adapter": "adapter_1",
+        "model": "Llama-2-7b-chat-hf",
+        # "model": "adapter_1",
         "stream": True,
     },
     {
         "prompt": "Paris is, ",
-        "max_new_tokens": 50,
         "logprobs": 1,
-        "prompt_logprobs": 1,
+        # "prompt_logprobs": 1,
         "max_tokens": 128,
         "temperature": 0.0,
         "top_k": 1,
         "top_p": 0,
-        "adapter": "adapter_1",
+        "model": "Llama-2-7b-chat-hf",
+        "model": "adapter_1",
         "seed": 42,
         "stream": True,
     },
@@ -126,7 +128,7 @@ def add_paths():
 
 @pytest.fixture(scope="module")
 def model_name():
-    yield "test_lora"
+    yield "Llama-2-7b-chat-hf"
 
 
 @pytest.fixture(scope="module")
