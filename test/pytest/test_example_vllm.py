@@ -228,8 +228,9 @@ def test_vllm_lora_mar(model_name):
 
 
 @pytest.mark.skipif(**necessary_files_unavailable("openai"))
-def test_openai_api(model_name):
-    from openai import OpenAI
+@pytest.mark.parametrize("stream", [True, False])
+def test_openai_api(model_name, stream):
+    from openai import OpenAI, Stream
     from openai.types.completion import Completion
 
     openai_api_key = "EMPTY"
@@ -241,12 +242,27 @@ def test_openai_api(model_name):
     )
 
     response = client.completions.create(
-        model=model_name, prompt="Hello world", temperature=0.0
+        model=model_name, prompt="Hello world", temperature=0.0, stream=stream
     )
 
-    assert isinstance(response, Completion)
+    if stream:
+        assert isinstance(response, Stream)
 
-    assert (
-        response.choices[0].text
-        == "! I'm a new member of the community and I'm excited to"
-    )
+        assert response.response.headers["Transfer-Encoding"] == "chunked"
+
+        EXPECTED = "! I'm a new member of the community and I'm excited to"
+        i = 0
+
+        for chunk in response:
+            assert isinstance(chunk, Completion)
+            text = chunk.choices[0].text
+            assert text == EXPECTED[i : i + len(text)]
+            i += len(text)
+
+    else:
+        assert isinstance(response, Completion)
+
+        assert (
+            response.choices[0].text
+            == "! I'm a new member of the community and I'm excited to"
+        )

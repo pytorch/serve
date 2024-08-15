@@ -7,6 +7,8 @@ from vllm import AsyncEngineArgs, AsyncLLMEngine, SamplingParams
 from vllm.entrypoints.openai.protocol import (
     CompletionResponse,
     CompletionResponseChoice,
+    CompletionResponseStreamChoice,
+    CompletionStreamResponse,
     UsageInfo,
 )
 from vllm.lora.request import LoRARequest
@@ -56,7 +58,6 @@ class VLLMHandler(BaseHandler):
     async def preprocess(self, requests, context):
         assert len(requests) == 1, "Expecting batch_size = 1"
         req_data = requests[0]
-        logger.info(context.get_request_header(0, "url_path"))
         data = req_data.get("data") or req_data.get("body")
         if isinstance(data, (bytes, bytearray)):
             data = data.decode("utf-8")
@@ -66,48 +67,84 @@ class VLLMHandler(BaseHandler):
     async def inference(self, input_batch, context):
         logger.debug(f"Inputs: {input_batch[0]}")
         prompt, stream, params, lora = input_batch[0]
-        generator = self.vllm_engine.generate(
-            prompt, params, context.request_ids[0], lora
-        )
+        request_id = context.request_ids[0]
+        generator = self.vllm_engine.generate(prompt, params, request_id, lora)
+        request_header = context.get_all_request_header(0)
+        use_openai = request_header.get("url_path", "").startswith("v1/completions")
+
         text_len = 0
         async for output in generator:
-            if not output.finished and stream:
-                result = {
-                    "text": output.outputs[0].text[text_len:],
-                    "tokens": output.outputs[0].token_ids[-1],
-                }
+            if stream:
+                if not use_openai:
+                    result = {
+                        "text": output.outputs[0].text[text_len:],
+                        "tokens": output.outputs[0].token_ids[-1],
+                    }
+                    result = json.dumps(result)
+                else:
+                    choices = [
+                        CompletionResponseStreamChoice(
+                            index=0,
+                            text=output.outputs[0].text[text_len:],
+                            logprobs=None,
+                            finish_reason=output.outputs[0].finish_reason,
+                            stop_reason=output.outputs[0].stop_reason,
+                        )
+                    ]
+
+                    usage = UsageInfo(
+                        prompt_tokens=0,
+                        completion_tokens=0,
+                        total_tokens=0,
+                    )
+
+                    result = CompletionStreamResponse(
+                        id=request_id,
+                        created=int(time.time()),
+                        model="model_name",
+                        choices=choices,
+                        usage=usage,
+                    )
+                    result = f"data: {result.model_dump_json()}\n\n"
+
+                if not output.finished:
+                    send_intermediate_predict_response(
+                        [result], context.request_ids, "Result", 200, context
+                    )
                 text_len = len(output.outputs[0].text)
-                send_intermediate_predict_response(
-                    [json.dumps(result)], context.request_ids, "Result", 200, context
-                )
+
         if not stream:
-            # result = {
-            #         "text": output.outputs[0].text,
-            #         "tokens": output.outputs[0].token_ids,
-            #     }
-            choices = [
-                CompletionResponseChoice(
-                    index=0,
-                    text=output.outputs[0].text,
-                    logprobs=None,
+            if not use_openai:
+                result = {
+                    "text": output.outputs[0].text,
+                    "tokens": output.outputs[0].token_ids,
+                }
+                result = json.dumps(result)
+            else:
+                choices = [
+                    CompletionResponseChoice(
+                        index=0,
+                        text=output.outputs[0].text,
+                        logprobs=None,
+                    )
+                ]
+
+                usage = UsageInfo(
+                    prompt_tokens=0,
+                    completion_tokens=0,
+                    total_tokens=0,
                 )
-            ]
 
-            usage = UsageInfo(
-                prompt_tokens=0,
-                completion_tokens=0,
-                total_tokens=0,
-            )
+                result = CompletionResponse(
+                    id=request_id,
+                    created=int(time.time()),
+                    model="model_name",
+                    choices=choices,
+                    usage=usage,
+                )
+                result = result.model_dump_json()
 
-            result = CompletionResponse(
-                id=context.request_ids[0],
-                created=int(time.time()),
-                model="model_name",
-                choices=choices,
-                usage=usage,
-            )
-            return [result.model_dump_json()]
-        return [json.dumps(result)]
+        return [result]
 
     async def postprocess(self, inference_outputs):
         return inference_outputs
