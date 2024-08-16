@@ -134,25 +134,23 @@ def sd_response_postprocess(response):
 
 
 def preprocess_llm_input(input_prompt, images_num = 2):
-    return f"Generate {images_num} prompts similar to \"{input_prompt}\". Add \";\" symbol between the prompts. \
-            Generated string of prompts should be included in \"[\"\"]\" brackets. \
-            Return only prompts as plain text without numeration or notes."
-
-
-def get_prompts_string(input_string):
-    return re.search(r'\[(.*)\]', input_string).group(1)
+    return f"Generate {images_num} different unique prompts similar to: {input_prompt}. \
+             Add semicolon between the prompts. \
+             Generated string of prompts should be included in square brackets. E.g.:"
 
 
 def trim_prompt(s):
     return re.sub(r'^[^a-zA-Z0-9]+|[^a-zA-Z0-9]+$', '', s)
 
-def postprocess_llm_response(generated_prompts, original_prompt=None):
-    prompts = get_prompts_string(generated_prompts)
+def postprocess_llm_response(prompts, original_prompt=None, images_num=2):
+
     prompts = [trim_prompt(item) for item in prompts.split(";")]
     prompts = list(filter(None, prompts))
-
+    
     if original_prompt:
-        prompts[0] = original_prompt
+        prompts.insert(0, original_prompt)
+
+    prompts = prompts[:images_num]
     assert len(prompts) == images_num
 
     print('!!!!!!!!!!! Prompts: ', prompts)
@@ -160,22 +158,16 @@ def postprocess_llm_response(generated_prompts, original_prompt=None):
     return prompts
 
 
-def generate_llm_model_response(input_prompt):
+def generate_llm_model_response(input_prompt, max_new_tokens=50):
     headers = {"Content-type": "application/json", "Accept": "text/plain"}
     url = f"http://127.0.0.1:8080/predictions/{MODEL_NAME_LLM}"
-    data = json.dumps({"prompt": input_prompt})
+    data = json.dumps({"prompt": input_prompt, "max_new_tokens": max_new_tokens})
 
     res = requests.post(url=url, data=data, headers=headers, stream=True)
     assert res.status_code == 200
 
     return res.text
 
-
-# def llm_response_postprocess(generated_prompts):
-#     prompts = [item.strip() for item in generated_prompts.split(";")]
-#     assert len(prompt) == 4
-
-#     return prompts
 
 if 'gen_images' not in st.session_state:
     st.session_state.gen_images = []
@@ -202,8 +194,8 @@ if st.button("Generate Images"):
             llm_res = generate_llm_model_response(prompt_input)
             # llm_inference_time = time.time() - start_time
 
-            llm_res = postprocess_llm_response(llm_res, prompt)
-        
+            llm_res = postprocess_llm_response(llm_res, prompt, images_num)
+
         st.session_state.gen_captions[:0] = llm_res
 
         start_time = time.time()
@@ -214,7 +206,6 @@ if st.button("Generate Images"):
         images = sd_response_postprocess(sd_res)
         st.session_state.gen_images[:0] = images
 
-
         # if images_num > 1:
         #     st.write(f"LLM inference time: {llm_inference_time:.2f} seconds")
         # st.write(f"SD inference time: {sd_inference_time:.2f} seconds")
@@ -222,5 +213,4 @@ if st.button("Generate Images"):
         display_images_in_grid(st.session_state.gen_images, st.session_state.gen_captions)
 
         total_time = time.time() - total_start_time
-        # st.write(f"Total time: {total_time:.2f} seconds")
         print(f'TOTAL APP TIME: {total_time:.2f}')

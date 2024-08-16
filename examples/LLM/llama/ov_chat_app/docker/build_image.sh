@@ -32,7 +32,7 @@ echo "docker run --rm -it --platform linux/amd64 \\
 -p 127.0.0.1:8084:8084 \\
 -p 127.0.0.1:8085:8085 \\
 -v ${PWD}/model-store-local:/home/model-server/model-store \\
--e MODEL_NAME_LLM=meta-llama/Meta-Llama-3-8B-Instruct \\
+-e MODEL_NAME_LLM=meta-llama/Meta-Llama-3-8B \\
 -e MODEL_NAME_SD=stabilityai/stable-diffusion-xl-base-1.0  \\
 $DOCKER_TAG"
 echo ""

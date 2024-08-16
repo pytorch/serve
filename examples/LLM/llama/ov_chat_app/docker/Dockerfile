@@ -20,13 +20,13 @@ RUN --mount=type=cache,id=apt-dev,target=/var/cache/apt \
     apt-get install libopenmpi-dev git -y
 
 COPY $EXAMPLE_DIR/requirements.txt /home/model-server/chat_bot/requirements.txt
-RUN pip install -r /home/model-server/chat_bot/requirements.txt && huggingface-cli login --token $HUGGINGFACE_TOKEN
+RUN pip install -r /home/model-server/chat_bot/requirements.txt
+RUN huggingface-cli login --token $HUGGINGFACE_TOKEN
 
 WORKDIR /home/model-server/chat_bot
-# RUN git clone https://github.com/ggerganov/llama.cpp.git build && \
-#     cd build && \
-#     make && \
-#     python -m pip install -r requirements.txt
+RUN git clone -b int4_cpu_fix https://github.com/likholat/gpt-fast.git && \
+    cd gpt-fast && \
+    python -m pip install -r requirements.txt
 
 COPY $EXAMPLE_DIR  /home/model-server/chat_bot
 RUN cd sd && pip install -r requirements.txt

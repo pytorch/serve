@@ -1,10 +1,11 @@
-# TorchServe frontend parameters
+#frontend settings
 minWorkers: 1
-maxWorkers: 1
+maxWorkers: 4
+maxBatchDelay: 200
 responseTimeout: 1200
-
-pt2 : {backend: "inductor"}
+deviceType: "cpu"
 handler:
-    model_path: "model"
-    model_name: "meta-llama/Meta-Llama-3-8B-Instruct"
-    manual_seed: 40
+    converted_ckpt_dir: "checkpoints/meta-llama/Meta-Llama-3-8B/model_int4.g32.pth"
+    max_new_tokens: 50
+    compile: true
+    fx_graph_cache: True

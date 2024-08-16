@@ -1,83 +1,164 @@
+import json
 import logging
 import os
-from abc import ABC
+import time
 from pathlib import Path
+import re
+
 
 import torch
-from transformers import LlamaForCausalLM, AutoTokenizer
+from generate import (
+    generate,
+    _load_model,
+    decode_one_token,
+    encode_tokens,
+    model_forward,
+    prefill,
+)
+from tp import maybe_init_dist
 
+from ts.handler_utils.timer import timed
 from ts.torch_handler.base_handler import BaseHandler
-from ts.utils.util import check_valid_pt2_backend
+from tokenizer import get_tokenizer
 
 
 logger = logging.getLogger(__name__)
 
 
-class LlamaCppHandler(BaseHandler, ABC):
+class GptHandler(BaseHandler):
     def __init__(self):
-        super(LlamaCppHandler, self).__init__()
+        super().__init__()
+
+        self.model = None
+        self.tokenizer = None
+        self.context = None
+        self.prefill = prefill
+        self.decode_one_token = decode_one_token
         self.initialized = False
+        self.device = "cpu"
+        self.prompt_length = 0
+        self.local_rank = 0
+        self.stream = False
+        self.is_speculative = False
+        self.draft_model = None
+        self.speculate_k = 0
 
     def initialize(self, ctx):
-        """In this initialize function, the HF large model is loaded and
-        partitioned using DeepSpeed.
-        Args:
-            ctx (context): It is a JSON Object containing information
-            pertaining to the model artifacts parameters.
-        """
         self.context = ctx
-        self.manifest = ctx.manifest
-        properties = ctx.system_properties
-        model_dir = properties.get("model_dir")
+        rank = maybe_init_dist()
 
-        model_path = Path(ctx.model_yaml_config["handler"]["model_path"])
-        model_name = ctx.model_yaml_config["handler"]["model_name"]
-        seed = int(ctx.model_yaml_config["handler"]["manual_seed"])
-        torch.manual_seed(seed)
 
-        if "pt2" in ctx.model_yaml_config:
-            pt2_value = ctx.model_yaml_config["pt2"]
+        checkpoint_path = Path(ctx.model_yaml_config["handler"]["converted_ckpt_dir"])
+        assert checkpoint_path.is_file(), checkpoint_path
 
-            if isinstance(pt2_value, str):
-                compile_options = dict(backend=pt2_value)
-            elif isinstance(pt2_value, dict):
-                compile_options = pt2_value
-            else:
-                raise ValueError("pt2 should be str or dict")
+        tokenizer_path = checkpoint_path.parent / "tokenizer.model"
+        assert tokenizer_path.is_file(), tokenizer_path
 
-            valid_backend = (
-                check_valid_pt2_backend(compile_options["backend"])
-                if "backend" in compile_options
-                else True
+        logger.info("Loading model ...")
+        t0 = time.time()
+        use_tp = rank is not None
+        self.model = _load_model(checkpoint_path, self.device, torch.bfloat16, use_tp)
+        logger.info(f"Time to load model: {time.time() - t0:.02f} seconds")
+
+        draft_checkpoint_path = ctx.model_yaml_config["handler"].get(
+            "draft_checkpoint_path", None
+        )
+        self.is_speculative = draft_checkpoint_path is not None
+        if self.is_speculative:
+            self.draft_model = _load_model(
+                Path(draft_checkpoint_path), self.device, torch.bfloat16, use_tp
             )
-            if not valid_backend:
-                raise ValueError("Invalid backend specified in config")
+            self.speculate_k = ctx.model_yaml_config["handler"].get("speculate_k", 8)
+        else:
+            self.draft_model = None
 
-         # Load model weights
-        ckpt = os.path.join(model_dir, model_path)
+        self.tokenizer = get_tokenizer(tokenizer_path, checkpoint_path)
 
-        self.model = LlamaForCausalLM.from_pretrained(ckpt)
-        self.model = self.model.eval()
-        self.model = torch.compile(self.model, **compile_options)
+        if ctx.model_yaml_config["handler"]["compile"]:
+            if ctx.model_yaml_config["handler"].get("fx_graph_cache", False):
+                os.environ["TORCHINDUCTOR_FX_GRAPH_CACHE"] = "1"
 
-        self.tokenizer = AutoTokenizer.from_pretrained(ckpt)
-        
-        logger.info(f"Loaded {model_name} model successfully")
+            if self.is_speculative and use_tp:
+                torch._inductor.config.triton.cudagraph_trees = (
+                    False  # Bug with cudagraph trees in this case
+                )
 
-    def preprocess(self, data):
+            if self.is_speculative:
+                global model_forward
+                model_forward = torch.compile(
+                    model_forward, mode="reduce-overhead", fullgraph=True
+                )
+
+            self.decode_one_token = torch.compile(
+                self.decode_one_token, mode="reduce-overhead", fullgraph=True
+            )
+            self.prefill = torch.compile(self.prefill, fullgraph=True, dynamic=True)
+
+        torch.manual_seed(42 * 42)
+
+        self.stream = ctx.model_yaml_config["handler"].get("stream", True)
+
+        self.initialized = True
+
+    @timed
+    def preprocess(self, requests):
         assert (
-            len(data) == 1
-        ), "llama-cpp-python is currently only supported with batch_size=1"
-        for row in data:
-            item = row.get("body")
-            return item
+            len(requests) == 1
+        ), "GPT fast is currently only supported with batch_size=1"
+        req_data = requests[0]
 
-    def inference(self, data):
-        input_ids = self.tokenizer(data["prompt"], return_tensors="pt").input_ids
-        output = self.model.generate(input_ids, max_length=100)
-        output_text = self.tokenizer.decode(output[0], skip_special_tokens=True)
+        input_data = req_data.get("data") or req_data.get("body")
 
-        return [output_text]
+        if isinstance(input_data, (bytes, bytearray)):
+            input_data = input_data.decode("utf-8")
 
-    def postprocess(self, output):
-        return output
+        if isinstance(input_data, str):
+            input_data = json.loads(input_data)
+
+        prompt = input_data["prompt"]
+        encoded = encode_tokens(self.tokenizer, prompt, bos=True, device=self.device)
+
+        self.prompt_length = encoded.size(0)
+
+        # DoTo: max_new_tokens
+        return {
+            "encoded": encoded,
+            "max_new_tokens": input_data.get("max_new_tokens", 50),
+        }
+
+    @timed
+    def inference(self, input_data):
+        y, metrics = generate(
+                self.model,
+                input_data["encoded"],
+                max_new_tokens=input_data["max_new_tokens"],
+                draft_model=self.draft_model,
+                interactive=False,
+                callback=lambda x: x,
+                temperature=0.8,
+                top_k=1,
+            )
+
+
+        if self.is_speculative:
+            counts_aggregated = [sum(i) for i in zip(*[metrics["accept_counts"]])]
+            acceptance_probs = [i / sum(counts_aggregated) for i in counts_aggregated]
+            logger.info(f"Acceptance probs: {acceptance_probs}")
+            logger.info(
+                f"Mean Accepted: {sum([idx * i for idx, i in enumerate(counts_aggregated)])/sum(counts_aggregated)}"
+            )
+
+        return y
+
+
+    def postprocess(self, y):
+        period_id = self.tokenizer.encode(".")[0]
+        generated_prompts = self.tokenizer.decode([period_id] + y.tolist())[1:]
+        prompts = get_prompts_string(generated_prompts)
+
+        return [prompts]
+
+
+def get_prompts_string(input_string):
+    res = re.search(r'(?:E\.g\.:\s*|Example\s*)(.*?)([.\]])', input_string)
+    return res.group(1)

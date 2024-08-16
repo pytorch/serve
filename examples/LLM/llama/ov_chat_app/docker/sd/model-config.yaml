@@ -7,7 +7,7 @@ pt2 : {backend: "openvino", options: {'model_caching' : False, 'aot_autograd' : 
 handler:
     profile: true
     model_path: "model"
-    num_inference_steps: 10
+    num_inference_steps: 30
     compile_unet: true
     compile_mode: "max-autotune"
     compile_vae: true

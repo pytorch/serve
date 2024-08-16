@@ -55,13 +55,16 @@ def stop_server():
 def _register_model(url, MODEL_NAME):
     res = requests.post(url)
     if res.status_code != 200:
-        server_state_container.error("Error registering model", icon="🚫")
+        server_state_container.error(f"Error registering model: {MODEL_NAME}", icon="🚫")
         st.session_state.started = True
-        return
+        return False
+
     print(f"registering {MODEL_NAME}")
     st.session_state.registered[MODEL_NAME] = True
     st.session_state.stopped = False
     server_state_container.caption(res.text)
+
+    return True
 
 
 def register_model(MODEL_NAME):
@@ -69,10 +72,12 @@ def register_model(MODEL_NAME):
         server_state_container.caption("TorchServe is not running. Start it")
         return
     url = f"http://127.0.0.1:8081/models?model_name={MODEL_NAME}&url={MODEL_NAME}&batch_size=1&max_batch_delay=3000&initial_workers=1&synchronous=true&disable_token_authorization=true"
-    _register_model(url, MODEL_NAME)
+    return _register_model(url, MODEL_NAME)
 
 def register_models(models: list):
-    for model in models: register_model(model)
+    for model in models: 
+        if not register_model(model):
+            return
 
 def get_status():
     for MODEL_NAME in [MODEL_NAME_LLM, MODEL_NAME_SD]:
@@ -103,17 +108,6 @@ def scale_sd_workers(workers):
         server_state_container.caption(res.text)
 
 
-# def update_is_xl(is_xl):
-#     if st.session_state.registered[MODEL_NAME_SD]:
-#         is_xl = st.session_state[is_xl]
-        # url = (
-        #     f"http://localhost:/models/{MODEL_NAME_SD}?="
-        #     f"{str(is_xl)}&synchronous=true"
-        # )
-        # res = requests.put(url)
-        # server_state_container.caption(res.text)
-
-
 if "started" not in st.session_state:
     st.session_state.started = False
 if "stopped" not in st.session_state:
@@ -132,13 +126,6 @@ with st.sidebar:
     st.button(f"Register models", on_click=register_models, args=([MODEL_NAME_LLM, MODEL_NAME_SD],))
 
     st.subheader("SD Model parameters")
-    # is_xl = st.checkbox(
-    #     "SDXL model", 
-    #     value=False, 
-    #     key="SDXL model",
-    #     on_change=update_is_xl,
-    #     args=("SDXL model",),
-    # )
 
     workers_sd = st.sidebar.slider(
         "Num Workers SD",
