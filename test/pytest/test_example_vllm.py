@@ -15,9 +15,9 @@ VLLM_PATH = CURR_FILE_PATH.parents[1] / "examples" / "large_models" / "vllm"
 LORA_SRC_PATH = VLLM_PATH / "lora"
 CONFIG_PROPERTIES_PATH = CURR_FILE_PATH.parents[1] / "test" / "config_ts.properties"
 
-LLAMA_MODEL_PATH = "model/models--meta-llama--Llama-2-7b-chat-hf/snapshots/f5db02db724555f92da89c216ac04704f23d4590/"
+LLAMA_MODEL_PATH = "model/models--meta-llama--Meta-Llama-3.1-8B/snapshots/48d6d0fc4e02fb1269b36940650a1b7233035cbb"
 
-ADAPTER_PATH = "adapters/model/models--yard1--llama-2-7b-sql-lora-test/snapshots/0dfa347e8877a4d4ed19ee56c140fa518470028c"
+ADAPTER_PATH = "adapters/model/models--llama-duo--llama3.1-8b-summarize-gpt4o-128k/snapshots/4ba83353f24fa38946625c8cc49bf21c80a22825"
 
 YAML_CONFIG = f"""
 # TorchServe frontend parameters
@@ -36,12 +36,13 @@ handler:
     vllm_engine_config:
         enable_lora: true
         max_loras: 4
+        max_lora_rank: 32
         max_cpu_loras: 4
         max_num_seqs: 16
         max_model_len: 250
         tensor_parallel_size: {torch.cuda.device_count()}
         served_model_name:
-            - "Llama-2-7b-chat-hf"
+            - "Meta-Llama-31-8B"
 
     adapters:
         adapter_1: "{(LORA_SRC_PATH / ADAPTER_PATH).as_posix()}"
@@ -50,31 +51,37 @@ handler:
 PROMPTS = [
     {
         "prompt": "A robot may not injure a human being",
-        "temperature": 0.8,
+        "temperature": 0.0,
         "logprobs": 1,
-        # "prompt_logprobs": 1,
-        "max_tokens": 128,
-        "model": "Llama-2-7b-chat-hf",
-        # "model": "adapter_1",
+        "max_tokens": 20,
+        "model": "Meta-Llama-31-8B",
         "stream": True,
     },
     {
-        "prompt": "Paris is, ",
+        "prompt": "Paris is,",
         "logprobs": 1,
-        # "prompt_logprobs": 1,
-        "max_tokens": 128,
+        "max_tokens": 20,
         "temperature": 0.0,
-        "top_k": 1,
-        "top_p": 0,
-        "model": "Llama-2-7b-chat-hf",
+        "top_p": 0.1,
+        "model": "Meta-Llama-31-8B",
+        "seed": 42,
+        "stream": True,
+    },
+    {
+        "prompt": "Paris is,",
+        "logprobs": 1,
+        "max_tokens": 20,
+        "temperature": 0.0,
+        "top_p": 0.1,
         "model": "adapter_1",
         "seed": 42,
         "stream": True,
     },
 ]
 EXPECTED = [
-    " or, ",  # through inaction", # edit to pass see https://github.com/vllm-project/vllm/issues/5404
-    "1900.\n\nThe city is",  # bathed",
+    " or, through inaction, allow a human being to come to harm.\nA robot must obey the",
+    " without a doubt, one of the most beautiful cities in the world. It is a city that is",
+    " without a doubt, one of the most beautiful cities in the world. Its rich history, stunning architecture",
 ]
 
 try:
@@ -92,7 +99,7 @@ except ImportError:
     OPENAI_MISSING = True
 
 
-def necessary_files_unavailable(profile=None):
+def necessary_files_unavailable():
     LLAMA = LORA_SRC_PATH / LLAMA_MODEL_PATH
     ADAPTER = LORA_SRC_PATH / ADAPTER_PATH
     if not (LLAMA.exists() and ADAPTER.exists()):
@@ -104,11 +111,6 @@ def necessary_files_unavailable(profile=None):
         return {
             "condition": True,
             "reason": f"VLLM is not installed",
-        }
-    elif profile == "openai" and OPENAI_MISSING:
-        return {
-            "condition": True,
-            "reason": f"OpenAI client is not installed",
         }
     else:
         return {
@@ -128,7 +130,7 @@ def add_paths():
 
 @pytest.fixture(scope="module")
 def model_name():
-    yield "Llama-2-7b-chat-hf"
+    yield "Meta-Llama-31-8B"
 
 
 @pytest.fixture(scope="module")
@@ -194,21 +196,30 @@ def register_model(mar_file_path, model_store, torchserve):
     shutil.rmtree(Path(model_store) / model_name)
 
 
+def extract_text(chunk):
+    if not isinstance(chunk, str):
+        chunk = chunk.decode("utf-8")
+    if chunk.startswith("data:"):
+        chunk = chunk[len("data:") :].split("\n")[0].strip()
+        if chunk.startswith("[DONE]"):
+            return ""
+    return json.loads(chunk)["choices"][0]["text"]
+
+
 @pytest.mark.skipif(**necessary_files_unavailable())
-def test_vllm_lora_mar(model_name):
+def test_vllm_lora(model_name):
     """
     Register the model in torchserve
     """
 
+    base_url = f"http://localhost:8080/predictions/{model_name}/1.0/v1"
+
     responses = []
 
     for _ in range(10):
-        idx = random.randint(0, 1)
-        response = requests.post(
-            url=f"http://localhost:8080/predictions/{model_name}",
-            json=PROMPTS[idx],
-            stream=True,
-        )
+        idx = random.randint(0, len(PROMPTS) - 1)
+
+        response = requests.post(base_url, json=PROMPTS[idx], stream=True)
 
         assert response.status_code == 200
 
@@ -218,53 +229,48 @@ def test_vllm_lora_mar(model_name):
     predictions = []
     expected_result = []
     for response, expected in responses:
-        prediction = []
+        prediction = ""
         for chunk in response.iter_content(chunk_size=None):
             if chunk:
-                data = json.loads(chunk)
-                prediction += [data.get("text", "")]
+                prediction += extract_text(chunk)
         predictions += [prediction]
         expected_result += [expected]
+
     assert all(len(p) > 1 for p in predictions)
-    assert all("".join(p).startswith(e) for p, e in zip(predictions, expected_result))
+    assert all("".join(p) == e for p, e in zip(predictions, expected_result))
 
 
-@pytest.mark.skipif(**necessary_files_unavailable("openai"))
+@pytest.mark.skipif(**necessary_files_unavailable())
 @pytest.mark.parametrize("stream", [True, False])
-def test_openai_api(model_name, stream):
-    from openai import OpenAI, Stream
-    from openai.types.completion import Completion
+def test_openai_api_streaming(model_name, stream):
+    base_url = f"http://localhost:8080/predictions/{model_name}/1.0/v1"
 
-    openai_api_key = "EMPTY"
-    openai_api_base = f"http://localhost:8080/predictions/{model_name}/1.0/v1"
+    data = {
+        "model": model_name,
+        "prompt": "Hello world",
+        "temperature": 0.0,
+        "stream": stream,
+    }
 
-    client = OpenAI(
-        api_key=openai_api_key,
-        base_url=openai_api_base,
-    )
-
-    response = client.completions.create(
-        model=model_name, prompt="Hello world", temperature=0.0, stream=stream
-    )
+    response = requests.post(base_url, json=data, stream=stream)
 
     if stream:
-        assert isinstance(response, Stream)
+        assert response.headers["Transfer-Encoding"] == "chunked"
 
-        assert response.response.headers["Transfer-Encoding"] == "chunked"
-
-        EXPECTED = "! I'm a new member of the community and I'm excited to"
+        EXPECTED = (
+            "! I’m a new blogger and I’m excited to share my thoughts and experiences"
+        )
         i = 0
 
-        for chunk in response:
-            assert isinstance(chunk, Completion)
-            text = chunk.choices[0].text
-            assert text == EXPECTED[i : i + len(text)]
-            i += len(text)
+        for chunk in response.iter_content(chunk_size=None):
+            if chunk:
+                text = extract_text(chunk)
+                assert text == EXPECTED[i : i + len(text)]
+                i += len(text)
+        assert i > 0
 
     else:
-        assert isinstance(response, Completion)
-
         assert (
-            response.choices[0].text
-            == "! I'm a new member of the community and I'm excited to"
+            extract_text(response.text)
+            == "! I’m a new blogger and I’m excited to share my thoughts and experiences"
         )

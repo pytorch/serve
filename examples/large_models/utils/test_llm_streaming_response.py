@@ -27,16 +27,31 @@ class Predictor(threading.Thread):
             combined_text = ""
             for chunk in response.iter_content(chunk_size=None):
                 if chunk:
-                    data = json.loads(chunk)
+                    text = self._extract_text(chunk)
                     if self.args.demo_streaming:
-                        print(data["text"], end="", flush=True)
+                        print(text, end="", flush=True)
                     else:
-                        combined_text += data.get("text", "")
+                        combined_text += text
         if not self.args.demo_streaming:
             self.queue.put_nowait(f"payload={payload}\n, output={combined_text}\n")
 
+    def _extract_text(self, chunk):
+        if self.args.openai_api:
+            chunk = chunk.decode("utf-8")
+            if chunk.startswith("data:"):
+                chunk = chunk[len("data:") :].split("\n")[0].strip()
+                if chunk.startswith("[DONE]"):
+                    return ""
+            return json.loads(chunk)["choices"][0]["text"]
+
+        else:
+            return json.loads(chunk).get("text", "")
+
     def _get_url(self):
-        return f"http://localhost:8080/predictions/{self.args.model}"
+        if self.args.openai_api:
+            return f"http://localhost:8080/predictions/{self.args.model}/{self.args.model_version}/v1/"
+        else:
+            return f"http://localhost:8080/predictions/{self.args.model}"
 
     def _format_payload(self):
         prompt_input = _load_curl_like_data(self.args.prompt_text)
@@ -45,7 +60,7 @@ class Predictor(threading.Thread):
             prompt = prompt_input.get("prompt", None)
             assert prompt is not None
             prompt_list = prompt.split(" ")
-            rt = int(prompt_input.get("max_new_tokens", self.args.max_tokens))
+            rt = int(prompt_input.get("max_tokens", self.args.max_tokens))
         else:
             prompt_list = prompt_input.split(" ")
             rt = self.args.max_tokens
@@ -58,13 +73,15 @@ class Predictor(threading.Thread):
         cur_prompt = " ".join(prompt_list)
         if self.args.prompt_json:
             prompt_input["prompt"] = cur_prompt
-            prompt_input["max_new_tokens"] = rt
-            return prompt_input
+            prompt_input["max_tokens"] = rt
         else:
-            return {
+            prompt_input = {
                 "prompt": cur_prompt,
-                "max_new_tokens": rt,
+                "max_tokens": rt,
             }
+        if self.args.demo_streaming and self.args.openai_api:
+            prompt_input["stream"] = True
+        return prompt_input
 
 
 def _load_curl_like_data(text):
@@ -135,6 +152,18 @@ def parse_args():
         action=argparse.BooleanOptionalAction,
         default=False,
         help="Demo streaming response, force num-requests-per-thread=1 and num-threads=1",
+    )
+    parser.add_argument(
+        "--openai-api",
+        action=argparse.BooleanOptionalAction,
+        default=False,
+        help="Use OpenAI compatible API",
+    )
+    parser.add_argument(
+        "--model-version",
+        type=str,
+        default="1.0",
+        help="Model vesion. Default: 1.0",
     )
 
     return parser.parse_args()
