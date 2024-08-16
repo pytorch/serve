@@ -6,6 +6,9 @@
     - [Regression binaries Test](https://github.com/pytorch/serve/blob/master/.github/workflows/regression_tests_cpu_binaries.yml) 
 * For [Docker](https://docs.docker.com/desktop/install/mac-install/) ensure Docker for Apple silicon is installed then follow [setup steps](https://github.com/pytorch/serve/tree/master/docker)
 
+## What is not supported
+* GPU utilization metrics
+
 ## Experimental Support
 
 * For GPU jobs on Apple Silicon, [MPS](https://pytorch.org/docs/master/notes/mps.html) is now auto detected and enabled. To prevent TorchServe from using MPS, users have to set `deviceType: "cpu"` in model-config.yaml. 
