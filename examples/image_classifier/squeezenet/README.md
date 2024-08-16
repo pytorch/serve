@@ -3,7 +3,7 @@
 Run the commands given in following steps from the parent directory of the root of the repository. For example, if you cloned the repository into /home/my_path/serve, run the steps from /home/my_path/serve
 
 ```bash
-wget https://download.pytorch.org/models/squeezenet1_1-b8a52dc0.pth
+curl -O https://download.pytorch.org/models/squeezenet1_1-b8a52dc0.pth
 torch-model-archiver --model-name squeezenet1_1 --version 1.0 --model-file examples/image_classifier/squeezenet/model.py --serialized-file squeezenet1_1-b8a52dc0.pth --handler image_classifier --extra-files examples/image_classifier/index_to_name.json
 mkdir model_store
 mv squeezenet1_1.mar model_store/
@@ -29,7 +29,7 @@ echo "pt2 : {backend: inductor, mode: reduce-overhead}" > model-config.yaml
 ##### Sample commands to create a Squeezenet torch.compile model archive, register it on TorchServe and run image prediction
 
 ```bash
-wget https://download.pytorch.org/models/squeezenet1_1-b8a52dc0.pth
+curl -O https://download.pytorch.org/models/squeezenet1_1-b8a52dc0.pth
 torch-model-archiver --model-name squeezenet --version 1.0 --model-file model.py --serialized-file squeezenet1_1-b8a52dc0.pth --handler image_classifier --extra-files ../index_to_name.json --config-file model-config.yaml
 mkdir model_store
 mv squeezenet.mar model_store/
