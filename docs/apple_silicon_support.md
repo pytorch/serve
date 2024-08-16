@@ -129,3 +129,4 @@ Model server started.
   "lynx": 0.001292439759708941,
   "plastic_bag": 0.00022909720428287983
 }
+```
