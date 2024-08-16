@@ -226,13 +226,14 @@ TorchServe enables the [handler](https://github.com/pytorch/serve/blob/master/do
 **Example with custom handler showing [usage of custom metrics APIs](https://github.com/pytorch/serve/blob/master/examples/custom_metrics)**.
 
 The [custom handler](../docs/custom_service.md) code is provided with a [context](https://github.com/pytorch/serve/blob/master/ts/context.py) of the current request consisting of a `metrics` object:
+
 ```python
 # Access metrics object in context as follows
 def initialize(self, context):
     metrics = context.metrics
 ```
 
-**Note:** The custom metrics API is not to be confused with the [metrics API endpoint](metrics_api.md) which is a HTTP API that is used to fetch metrics in the prometheus format.
+**Note:** The custom metrics API is not to be confused with the [metrics API endpoint](metrics_api.md) which is an HTTP API that serves metrics in the prometheus format.
 
 ### Default Dimensions
 
