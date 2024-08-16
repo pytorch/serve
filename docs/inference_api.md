@@ -29,7 +29,7 @@ The output is in the OpenAPI 3.0.1 json format. You can use it to generate clien
 
 This API follows the [InferenceAPIsService.Ping](https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/proto/inference.proto) gRPC API.
 
-TorchServe supports a `ping` API that you can call to check the health status of a running TorchServe server:
+TorchServe supports a `ping` endpoint that you can call to check the health status of a running TorchServe server:
 
 ```bash
 curl http://localhost:8080/ping
@@ -43,7 +43,7 @@ If the server is running, the response is:
 }
 ```
 
-"maxRetryTimeoutInSec" (default: 5MIN) can be defined in a model's config yaml file(e.g model-config.yaml). It is the maximum time window of recovering a dead backend worker. A healthy worker can be in the state: WORKER_STARTED, WORKER_MODEL_LOADED, or WORKER_STOPPED within maxRetryTimeoutInSec window. "Ping" endpoint"
+"maxRetryTimeoutInSec" (default: 5MIN) can be defined in a model's config yaml file (e.g `model-config.yaml`). It is the maximum time window of recovering a dead backend worker. A healthy worker can be in the state: WORKER_STARTED, WORKER_MODEL_LOADED, or WORKER_STOPPED within maxRetryTimeoutInSec window. "Ping" endpoint"
 * return 200 + json message "healthy": for any model, the number of active workers is equal or larger than the configured minWorkers.
 * return 500 + json message "unhealthy": for any model, the number of active workers is less than the configured minWorkers.
 
@@ -63,21 +63,24 @@ curl -O https://raw.githubusercontent.com/pytorch/serve/master/docs/images/kitte
 
 curl http://localhost:8080/predictions/resnet-18 -T kitten_small.jpg
 
-or:
+# Or:
 
 curl http://localhost:8080/predictions/resnet-18 -F "data=@kitten_small.jpg"
 ```
 
-To get predictions from the loaded model which expects multiple inputs
+To get predictions from the loaded model which expects multiple inputs:
+
 ```bash
 curl http://localhost:8080/predictions/squeezenet1_1 -F 'data=@docs/images/dogs-before.jpg' -F 'data=@docs/images/kitten_small.jpg'
+```
 
-or:
+Or:
 
+```python
 import requests
-
 res = requests.post("http://localhost:8080/predictions/squeezenet1_1", files={'data': open('docs/images/dogs-before.jpg', 'rb'), 'data': open('docs/images/kitten_small.jpg', 'rb')})
 ```
+
 To get predictions from a specific version of each loaded model, make a REST call to `/predictions/{model_name}/{version}`:
 
 * POST /predictions/{model_name}/{version}
@@ -89,7 +92,7 @@ curl -O https://raw.githubusercontent.com/pytorch/serve/master/docs/images/kitte
 
 curl http://localhost:8080/predictions/resnet-18/2.0 -T kitten_small.jpg
 
-or:
+# Or:
 
 curl http://localhost:8080/predictions/resnet-18/2.0 -F "data=@kitten_small.jpg"
 ```
@@ -102,8 +105,10 @@ The result is JSON that tells you that the image is most likely a tabby cat. The
     "probability": 0.42514491081237793
 }
 ```
+
 * Streaming response via HTTP 1.1 chunked encoding
 TorchServe the inference API support streaming response to allow a sequence of inference responses to be sent over HTTP 1.1 chunked encoding. This new feature is only recommended for use case when the inference latency of the full response is high and the inference intermediate results are sent to client. An example could be LLMs for generative applications, where generating "n" number of tokens can have high latency, in this case user can receive each generated token once ready until the full response completes. To achieve streaming response, backend handler calls "send_intermediate_predict_response" to send one intermediate result to frontend, and return the last result as the existing style. For example,
+
 ```python
 from ts.handler_utils.utils import send_intermediate_predict_response
 ''' Note: TorchServe v1.0.0 will deprecate
@@ -116,7 +121,9 @@ def handle(data, context):
             send_intermediate_predict_response(["intermediate_response"], context.request_ids, "Intermediate Prediction success", 200, context)
         return ["hello world "]
 ```
+
 Client side receives the chunked data.
+
 ```
 def test_echo_stream_inference():
     test_utils.start_torchserve(no_config_snapshots=True, gen_mar=False)
@@ -160,9 +167,6 @@ The result is a json that gives you the explanations for the input image
           0.008999274832810742,
           0.009673474804303854,
           0.007599905146155397,
-          ,
-	        ,
-
         ]
       ]
     ]
@@ -218,11 +222,9 @@ The result is a json that gives you the explanations for the input json
           0.008999274832810742,
           0.009673474804303854,
           0.007599905146155397,
-          ,
-          ,
-	        ,
         ]
       ]
     ]
   ]
 }
+```
