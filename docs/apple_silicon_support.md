@@ -21,7 +21,8 @@
 * [Pytests](https://github.com/pytorch/serve/tree/master/test/pytest/test_device_config.py) that checks for MPS on MacOS M1 devices
 
 #### Example Resnet-18 Using MPS On Mac M1 Pro
-```
+
+```console
 serve % torchserve --start --model-store model_store_gen --models resnet-18=resnet-18.mar --ncs
 
 Torchserve version: 0.10.0
@@ -71,9 +72,10 @@ serve % curl http://127.0.0.1:8080/predictions/resnet-18 -T ./examples/image_cla
 }
 ...
 ```
+
 #### Conda Example
 
-```
+```console
 (myenv) serve % pip list | grep torch
 torch                     2.2.1
 torchaudio                2.2.1
