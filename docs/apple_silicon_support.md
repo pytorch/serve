@@ -12,9 +12,9 @@
 * Models: MNIST
 
 ## Experimental Support
-
-* For GPU jobs on Apple Silicon, [MPS](https://pytorch.org/docs/master/notes/mps.html) is now auto detected and enabled. To prevent TorchServe from using MPS, users have to set `deviceType: "cpu"` in model-config.yaml. 
-    * This is an experimental feature and NOT ALL models are guaranteed to work.  
+* For GPU jobs on Apple Silicon, [MPS](https://pytorch.org/docs/master/notes/mps.html) is now auto detected and enabled.
+    * To prevent TorchServe from using MPS, set `deviceType: "cpu"` in model-config.yaml.
+    * This is an experimental feature and NOT ALL models are guaranteed to work.
 * Number of GPUs now reports GPUs on Apple Silicon
 
 ### Testing 
