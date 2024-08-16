@@ -5,9 +5,11 @@
     - [Regression Tests](https://github.com/pytorch/serve/blob/master/.github/workflows/regression_tests_cpu.yml)  
     - [Regression binaries Test](https://github.com/pytorch/serve/blob/master/.github/workflows/regression_tests_cpu_binaries.yml) 
 * For [Docker](https://docs.docker.com/desktop/install/mac-install/) ensure Docker for Apple silicon is installed then follow [setup steps](https://github.com/pytorch/serve/tree/master/docker)
+* Models: Resnet-18, Densenet161, Alexnet
 
 ## What is not supported
 * GPU utilization metrics
+* Models: MNIST
 
 ## Experimental Support
 
@@ -17,9 +19,6 @@
 
 ### Testing 
 * [Pytests](https://github.com/pytorch/serve/tree/master/test/pytest/test_device_config.py) that checks for MPS on MacOS M1 devices 
-* Models that have been tested and work: Resnet-18, Densenet161, Alexnet
-* Models that have been tested and DO NOT work: MNIST
-
 
 #### Example Resnet-18 Using MPS On Mac M1 Pro
 ```
