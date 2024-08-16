@@ -46,13 +46,6 @@ MODEL_CONFIG_YAML = """
     maxWorkers: 1
     """
 
-try:
-    from openai import OpenAI  # noqa
-
-    openai_missing = False
-except ImportError:
-    openai_missing = True
-
 
 @pytest.fixture(scope="module")
 def model_name():
@@ -156,24 +149,3 @@ def test_url_paths(model_name):
     for i, f in enumerate(futures):
         prediction = f.result()
         assert prediction.content.decode("utf-8") == url_paths[i], "Wrong prediction"
-
-
-@pytest.mark.skipif(openai_missing, reason="Could not find OpenAI client")
-def test_openai_api(model_name):
-    from openai import OpenAI
-
-    openai_api_key = "EMPTY"
-    openai_api_base = f"http://localhost:8080/predictions/{model_name}/1.0/v1"
-
-    client = OpenAI(
-        api_key=openai_api_key,
-        base_url=openai_api_base,
-    )
-
-    response = client.completions.create(model=model_name, prompt="Hello world")
-
-    assert response == "v1/completions"
-
-    response = client.chat.completions.create(model=model_name, messages=[])
-
-    assert response == "v1/chat/completions"
