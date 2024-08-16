@@ -1,11 +1,12 @@
 # Metrics API
 
-Metrics API is a http API that is used to fetch metrics in the prometheus format. It is listening on port 8082 and only accessible from localhost by default. To change the default setting, see [TorchServe Configuration](configuration.md). The metrics endpoint is enabled by default and returns Prometheus formatted metrics when [metrics_mode](https://github.com/pytorch/serve/blob/master/docs/metrics.md) configuration is set to `prometheus`. You can query metrics using curl requests or point a [Prometheus Server](#prometheus-server) to the endpoint and use [Grafana](#grafana) for dashboards.
+Metrics API is an HTTP API that serves metrics in the prometheus format. By default it is enabled on localhost port 8082, although it only returns data if [`metrics_mode`](https://github.com/pytorch/serve/blob/master/docs/metrics.md) is set to `prometheus`.
 
-By default these APIs are enabled however it can be disabled by setting `enable_metrics_api=false` in torchserve config.properties file.
-For details refer [Torchserve config](configuration.md) docs.
+It can be disabled by setting `enable_metrics_api=false` in the config.properties file.  For configuration details refer to [Torchserve config](configuration.md).
 
-**Note** This is not to be confused with torch serve's [custom metrics API](metrics.md). The custom metrics API is used to collect custom backend metrics based on the configured `metrics_mode` (log or prometheus). More information on this api can be found [here](metrics.md).
+You can query metrics using curl requests or point a [Prometheus Server](#prometheus-server) to the endpoint and use [Grafana](#grafana) for dashboards.
+
+**Note** This is not to be confused with TorchServe's [custom metrics API](metrics.md), which a handler may use to add metrics.
 
 
 ```console
