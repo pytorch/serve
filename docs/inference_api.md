@@ -27,7 +27,7 @@ The output is in the OpenAPI 3.0.1 json format. You can use it to generate clien
 
 ## Health check API
 
-This API follows the [InferenceAPIsService.Ping](https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/proto/inference.proto) gRPC API. It returns the status of a model in the ModelServer.
+This API follows the [InferenceAPIsService.Ping](https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/proto/inference.proto) gRPC API.
 
 TorchServe supports a `ping` API that you can call to check the health status of a running TorchServe server:
 
@@ -50,7 +50,7 @@ If the server is running, the response is:
 
 ## Predictions API
 
-This API follows the [InferenceAPIsService.Predictions](https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/proto/inference.proto) gRPC API. It returns the status of a model in the ModelServer.
+This API follows the [InferenceAPIsService.Predictions](https://github.com/pytorch/serve/blob/master/frontend/server/src/main/resources/proto/inference.proto) gRPC API.
 
 To get predictions from the default version of each loaded model, make a REST call to `/predictions/{model_name}`:
 
