@@ -61,6 +61,11 @@ def gpu_utilization(num_of_gpu):
 
     # pylint: disable=wrong-import-position
     # pylint: disable=import-outside-toplevel
+
+    import torch
+    if not torch.cuda.is_available():
+        return
+
     import nvgpu
     import pynvml
     from nvgpu import list_gpus
