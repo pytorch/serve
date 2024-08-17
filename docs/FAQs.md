@@ -1,4 +1,4 @@
-# FAQ'S
+# FAQs
 Contents of this document.
 * [General](#general)
 * [Performance](#performance)
@@ -11,8 +11,8 @@ Contents of this document.
 Relevant documents.
 - [Torchserve readme](https://github.com/pytorch/serve#torchserve)
 
-### Does Torchserve API's follow some REST API standard?
-Torchserve API's are compliant with the [OpenAPI specification 3.0](https://swagger.io/specification/).
+### Do Torchserve APIs follow a REST API standard?
+Torchserve APIs are compliant with the [OpenAPI specification 3.0](https://swagger.io/specification/).
 
 ### How to use Torchserve in production?
 Depending on your use case, you will be able to deploy torchserve in production using following mechanisms.
@@ -25,7 +25,7 @@ Torchserve's main purpose is to serve models via http REST APIs, Torchserve is n
 
 Relevant issues: [[581](https://github.com/pytorch/serve/issues/581),[569](https://github.com/pytorch/serve/issues/569)]
 
-### Are there any sample Models available?
+### Are there any sample models available?
 Various models are provided in Torchserve out of the box. Checkout out Torchserve [Model Zoo](model_zoo.md) for list of all available models. You can also check out the [examples](https://github.com/pytorch/serve/tree/master/examples) folder.
 
 ### Does Torchserve support other models based on programming languages other than python?
@@ -150,16 +150,16 @@ Refer to [default handlers](default_handlers.md) for more details.
 Yes, you can deploy Hugging Face models using a custom handler.
 Refer to [HuggingFace_Transformers](https://github.com/pytorch/serve/blob/master/examples/Huggingface_Transformers/README.md#huggingface-transformers) for example.
 
-## Model-archiver
- Relevant documents
- - [Model-archiver ](https://github.com/pytorch/serve/blob/master/model-archiver/README.md#torch-model-archiver-for-torchserve)
+## The torch model archiver
+Relevant documents
+ - [Model archiver ](https://github.com/pytorch/serve/blob/master/model-archiver/README.md#torch-model-archiver-for-torchserve)
  - [Docker Readme](https://github.com/pytorch/serve/blob/master/docker/README.md#docker-readme)
 
 ### What is a mar file?
-A mar file is a zip file consisting of all model artifacts with the ".mar" extension. The cmd-line utility `torch-model-archiver` is used to create a mar file.
+A `mar` file is a zip file consisting of all model artifacts with the ".mar" extension. The cmd-line utility `torch-model-archiver` is used to create a mar file.
 
 ### How can create mar file using Torchserve docker container?
-Yes, you create your mar file using a Torchserve container. Follow the steps given [here](https://github.com/pytorch/serve/blob/master/docker/README.md#create-torch-model-archiver-from-container).
+Yes, you create your `mar` file using a Torchserve container. Follow the steps given [here](https://github.com/pytorch/serve/blob/master/docker/README.md#create-torch-model-archiver-from-container).
 
 ### Can I add multiple serialized files in single mar file?
 Currently `torch-model-archiver` allows supplying only one serialized file with `--serialized-file` parameter while creating the mar. However, you can supply any number and any type of file with `--extra-files` flag. All the files supplied in the mar file are available in `model_dir` location which can be accessed through the context object supplied to the handler's entry point.
@@ -170,7 +170,8 @@ Sample code snippet:
 properties = context.system_properties
 model_dir = properties.get("model_dir")
 ```
-Refer [Torch model archiver cli](https://github.com/pytorch/serve/blob/master/model-archiver/README.md#torch-model-archiver-command-line-interface) for more details.
+
+Refer to [Torch model archiver cli](https://github.com/pytorch/serve/blob/master/model-archiver/README.md#torch-model-archiver-command-line-interface) for more details.
 Relevant issues: [[#633](https://github.com/pytorch/serve/issues/633)]
 
 ### Can I download and register model using s3 presigned v4 url?
@@ -179,15 +180,15 @@ Note: For v4 type replace `&` characters in model url with its URL encoding char
 
 Relevant issues: [[#669](https://github.com/pytorch/serve/issues/669)]
 
-### Can I host a model on s3
+### Can I host a model on s3?
 A mar file can be used either locally or be publicly available via http. An S3 URI starting with s3:// will not work but that very same file can be made public and available in the s3 console or aws cli to instead get a public object URL starting with https://
 
 ### How to set a model's batch size on SageMaker?  Key parameters for TorchServe performance tuning.
 [TorchServe performance tuning example](https://github.com/lxning/torchserve_perf/blob/master/torchserve_perf.ipynb)
 
 ## Why is my model initialization so slow?
-There's a few reasons why model initialization can be slow
+There are a few reasons why model initialization can be slow:
 1. `torch.load()` overhead - not something we can improve, this will be more dramatic for larger models
 2. CUDA context launch overhead - not something we can control
-3. install_py_dep_per_model=true is intended for local development or sagemaker deployments, in other production environment you should pre install your dependencies
+3. `install_py_dep_per_model=true` is intended for local development or sagemaker deployments, in other production environment you should pre install your dependencies
 4. The model archiver has an overhead to compress and decompress models, the compression is on by default because historically torchserve came out of sagemaker needs which involve loading and unloading tons of models stored in cloud buckets. But for users with smaller deployments choosing `torch-model-archiver --no-archive` is a good bet
