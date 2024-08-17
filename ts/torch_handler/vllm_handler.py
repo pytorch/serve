@@ -4,11 +4,17 @@ import time
 from unittest.mock import MagicMock
 
 from vllm import AsyncEngineArgs, AsyncLLMEngine
-from vllm.entrypoints.openai.protocol import CompletionRequest, ErrorResponse
+from vllm.entrypoints.openai.protocol import (
+    ChatCompletionRequest,
+    CompletionRequest,
+    ErrorResponse,
+)
+from vllm.entrypoints.openai.serving_chat import OpenAIServingChat
 from vllm.entrypoints.openai.serving_completion import OpenAIServingCompletion
 from vllm.entrypoints.openai.serving_engine import LoRAModulePath
 
 from ts.handler_utils.utils import send_intermediate_predict_response
+from ts.service import PredictionException
 from ts.torch_handler.base_handler import BaseHandler
 
 logger = logging.getLogger(__name__)
@@ -23,6 +29,9 @@ class VLLMHandler(BaseHandler):
         self.model_dir = None
         self.lora_ids = {}
         self.adapters = None
+        self.chat_completion_service = None
+        self.completion_service = None
+        self.raw_request = None
         self.initialized = False
 
     def initialize(self, ctx):
@@ -41,6 +50,10 @@ class VLLMHandler(BaseHandler):
         else:
             served_model_name = [vllm_engine_config.model]
 
+        chat_template = ctx.model_yaml_config.get("handler", {}).get(
+            "chat_template", None
+        )
+
         self.completion_service = OpenAIServingCompletion(
             self.vllm_engine,
             vllm_engine_config,
@@ -49,6 +62,24 @@ class VLLMHandler(BaseHandler):
             prompt_adapters=None,
             request_logger=None,
         )
+
+        self.chat_completion_service = OpenAIServingChat(
+            self.vllm_engine,
+            vllm_engine_config,
+            served_model_name,
+            "assistant",
+            lora_modules=lora_modules,
+            prompt_adapters=None,
+            request_logger=None,
+            chat_template=chat_template,
+        )
+
+        async def isd():
+            return False
+
+        self.raw_request = MagicMock()
+        self.raw_request.headers = {}
+        self.raw_request.is_disconnected = isd
 
         self.initialized = True
 
@@ -74,21 +105,32 @@ class VLLMHandler(BaseHandler):
         if isinstance(data, (bytes, bytearray)):
             data = data.decode("utf-8")
 
-        return [self.prepare_completion_request(data)]
+        return [data]
 
     async def inference(self, input_batch, context):
-        request = input_batch[0]
+        directory = {
+            "v1/completions": (
+                CompletionRequest,
+                self.completion_service,
+                "create_completion",
+            ),
+            "v1/chat/completions": (
+                ChatCompletionRequest,
+                self.chat_completion_service,
+                "create_chat_completion",
+            ),
+        }
+        url_path = context.get_request_header(0, "url_path")
 
-        raw_request = MagicMock()
-        raw_request.headers = {}
+        RequestType, service, func = directory.get(url_path, (None, None, None))
 
-        async def isd():
-            return False
+        if RequestType is None:
+            raise PredictionException(f"Unknown API endpoint: {url_path}", 404)
 
-        raw_request.is_disconnected = isd
-        g = await self.completion_service.create_completion(
+        request = RequestType.model_validate(input_batch[0])
+        g = await getattr(service, func)(
             request,
-            raw_request,
+            self.raw_request,
         )
 
         if isinstance(g, ErrorResponse):
@@ -105,10 +147,6 @@ class VLLMHandler(BaseHandler):
 
     async def postprocess(self, inference_outputs):
         return inference_outputs
-
-    def prepare_completion_request(self, request_data):
-        request = CompletionRequest.model_validate(request_data)
-        return request  # , sampling_params, lora_request
 
     def _get_vllm_engine_config(self, handler_config: dict):
         vllm_engine_params = handler_config.get("vllm_engine_config", {})

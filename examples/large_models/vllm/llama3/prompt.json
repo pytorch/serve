@@ -3,5 +3,5 @@
   "temperature": 0.8,
   "logprobs": 1,
   "max_tokens": 128,
-  "adapter": "adapter_1"
+  "model": "llama3-8b"
 }

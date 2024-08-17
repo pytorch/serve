@@ -35,26 +35,54 @@ class Predictor(threading.Thread):
         if not self.args.demo_streaming:
             self.queue.put_nowait(f"payload={payload}\n, output={combined_text}\n")
 
+    def _extract_completion(self, chunk):
+        chunk = chunk.decode("utf-8")
+        if chunk.startswith("data:"):
+            chunk = chunk[len("data:") :].split("\n")[0].strip()
+            if chunk.startswith("[DONE]"):
+                return ""
+        return json.loads(chunk)["choices"][0]["text"]
+
+    def _extract_chat(self, chunk):
+        chunk = chunk.decode("utf-8")
+        if chunk.startswith("data:"):
+            chunk = chunk[len("data:") :].split("\n")[0].strip()
+            if chunk.startswith("[DONE]"):
+                return ""
+        try:
+            return json.loads(chunk)["choices"][0].get("message", {})["content"]
+        except KeyError:
+            return json.loads(chunk)["choices"][0].get("delta", {}).get("content", "")
+
     def _extract_text(self, chunk):
         if self.args.openai_api:
-            chunk = chunk.decode("utf-8")
-            if chunk.startswith("data:"):
-                chunk = chunk[len("data:") :].split("\n")[0].strip()
-                if chunk.startswith("[DONE]"):
-                    return ""
-            return json.loads(chunk)["choices"][0]["text"]
-
+            if "chat" in self.args.api_endpoint:
+                return self._extract_chat(chunk)
+            else:
+                return self._extract_completion(chunk)
         else:
             return json.loads(chunk).get("text", "")
 
     def _get_url(self):
         if self.args.openai_api:
-            return f"http://localhost:8080/predictions/{self.args.model}/{self.args.model_version}/v1/"
+            return f"http://localhost:8080/predictions/{self.args.model}/{self.args.model_version}/{self.args.api_endpoint}"
         else:
             return f"http://localhost:8080/predictions/{self.args.model}"
 
     def _format_payload(self):
         prompt_input = _load_curl_like_data(self.args.prompt_text)
+        if "chat" in self.args.api_endpoint:
+            assert self.args.prompt_json, "Use prompt json file for chat interface"
+            assert self.args.openai_api, "Chat only work with openai api"
+            prompt_input = json.loads(prompt_input)
+            messages = prompt_input.get("messages", None)
+            assert messages is not None
+            rt = int(prompt_input.get("max_tokens", self.args.max_tokens))
+            prompt_input["max_tokens"] = rt
+            if self.args.demo_streaming:
+                prompt_input["stream"] = True
+            breakpoint()
+            return prompt_input
         if self.args.prompt_json:
             prompt_input = json.loads(prompt_input)
             prompt = prompt_input.get("prompt", None)
@@ -158,6 +186,12 @@ def parse_args():
         action=argparse.BooleanOptionalAction,
         default=False,
         help="Use OpenAI compatible API",
+    )
+    parser.add_argument(
+        "--api-endpoint",
+        type=str,
+        default="v1/completions",
+        help="OpenAI endpoint suffix",
     )
     parser.add_argument(
         "--model-version",
