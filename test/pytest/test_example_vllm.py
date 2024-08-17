@@ -334,3 +334,18 @@ def test_openai_api_chat_complations(model_name, stream):
 
     else:
         assert extract_chat(response.text).startswith(EXPECTED)
+
+
+@pytest.mark.skipif(**necessary_files_unavailable())
+def test_openai_api_models(model_name):
+    base_url = f"http://localhost:8080/predictions/{model_name}/1.0/v1/models"
+
+    response = requests.post(base_url)
+
+    data = json.loads(response.text)
+
+    models = [m["id"] for m in data["data"]]
+
+    assert model_name in models
+
+    assert "adapter_1" in models

@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import pathlib
 import time
@@ -46,18 +47,21 @@ class VLLMHandler(BaseHandler):
         lora_modules = [LoRAModulePath(n, p) for n, p in self.adapters.items()]
 
         if vllm_engine_config.served_model_name:
-            served_model_name = vllm_engine_config.served_model_name
+            served_model_names = vllm_engine_config.served_model_name
         else:
-            served_model_name = [vllm_engine_config.model]
+            served_model_names = [vllm_engine_config.model]
 
         chat_template = ctx.model_yaml_config.get("handler", {}).get(
             "chat_template", None
         )
 
+        loop = asyncio.get_event_loop()
+        model_config = loop.run_until_complete(self.vllm_engine.get_model_config())
+
         self.completion_service = OpenAIServingCompletion(
             self.vllm_engine,
-            vllm_engine_config,
-            served_model_name,
+            model_config,
+            served_model_names,
             lora_modules=lora_modules,
             prompt_adapters=None,
             request_logger=None,
@@ -65,8 +69,8 @@ class VLLMHandler(BaseHandler):
 
         self.chat_completion_service = OpenAIServingChat(
             self.vllm_engine,
-            vllm_engine_config,
-            served_model_name,
+            model_config,
+            served_model_names,
             "assistant",
             lora_modules=lora_modules,
             prompt_adapters=None,
@@ -108,6 +112,12 @@ class VLLMHandler(BaseHandler):
         return [data]
 
     async def inference(self, input_batch, context):
+        url_path = context.get_request_header(0, "url_path")
+
+        if url_path == "v1/models":
+            models = await self.chat_completion_service.show_available_models()
+            return [models.model_dump()]
+
         directory = {
             "v1/completions": (
                 CompletionRequest,
@@ -120,7 +130,6 @@ class VLLMHandler(BaseHandler):
                 "create_chat_completion",
             ),
         }
-        url_path = context.get_request_header(0, "url_path")
 
         RequestType, service, func = directory.get(url_path, (None, None, None))
 
