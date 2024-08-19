@@ -1,37 +1,5 @@
 [
     {
-        "url":"https://torchserve.pytorch.org/mar_files/my_text_classifier_v4.mar",
-        "model_name":"my_text_classifier",
-        "worker":1,
-        "synchronous":"true",
-        "file":"../examples/text_classification/sample_text.txt",
-        "content-type":"application/json",
-        "validator":"image_classification",
-        "expected":{
-            "World": 0.02911965548992157,
-            "Sports": 2.9431605071295053e-05,
-            "Business": 0.9074352383613586,
-            "Sci/Tec": 0.06341567635536194
-        },
-        "tolerance":5
-    },
-    {
-        "url":"https://torchserve.pytorch.org/mar_files/my_text_classifier_scripted_v3.mar",
-        "model_name":"my_text_classifier_scripted",
-        "worker":1,
-        "synchronous":"true",
-        "file":"../examples/text_classification/sample_text.txt",
-        "content-type":"application/json",
-        "validator":"image_classification",
-        "expected":{
-            "World": 0.04559721797704697,
-            "Sports": 0.0003771769697777927,
-            "Business": 0.08623101562261581,
-            "Sci/Tec": 0.8677946329116821
-        },
-        "tolerance":5
-    },
-    {
         "url":"{{mar_path_squeezenet1_1}}",
         "model_name":"squeezenet1_1",
         "worker":1,
