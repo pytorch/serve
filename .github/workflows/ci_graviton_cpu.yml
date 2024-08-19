@@ -21,7 +21,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [self-hosted, graviton-test]
+        os: [graviton-test]
     steps:
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -42,6 +42,8 @@ jobs:
           python ts_scripts/install_dependencies.py --environment=dev
       - name: Torchserve Sanity
         uses: nick-fields/retry@v3
+        env:
+          TS_MAC_ARM64_CPU_ONLY: 'True'
         with:
           timeout_minutes: 60
           max_attempts: 3
