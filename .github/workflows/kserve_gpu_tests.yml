@@ -1,4 +1,4 @@
-name: KServe CPU Nightly Tests
+name: KServe GPU Nightly Tests
 
 on:
   workflow_dispatch:
@@ -7,7 +7,7 @@ on:
     - cron:  '15 5 * * *'
 
 jobs:
-  kserve-cpu-tests:
+  kserve-gpu-tests:
     runs-on: [self-hosted, regression-test-gpu]
     steps:
       - name: Clean up previous run
@@ -42,4 +42,4 @@ jobs:
           ref: v0.12.1
           path: kserve
       - name: Validate torchserve-kfs and Open Inference Protocol
-        run: ./kubernetes/kserve/tests/scripts/test_mnist.sh cpu
+        run: ./kubernetes/kserve/tests/scripts/test_mnist.sh gpu

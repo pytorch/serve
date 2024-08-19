@@ -35,6 +35,7 @@ def __get_query_params(parsed_url):
             "batch_size",
             "max_batch_delay",
             "response_timeout",
+            "startup_timeout",
             "limit",
             "next_page_token",
         ]:

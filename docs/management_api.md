@@ -39,6 +39,7 @@ To use this API after TorchServe starts, model API control has to be enabled. Ad
 * `initial_workers` - the number of initial workers to create. The default value is `0`. TorchServe will not run inference until there is at least one work assigned.
 * `synchronous` - whether or not the creation of worker is synchronous. The default value is false. TorchServe will create new workers without waiting for acknowledgement that the previous worker is online.
 * `response_timeout` - If the model's backend worker doesn't respond with inference response within this timeout period, the worker will be deemed unresponsive and rebooted. The units is seconds. The default value is 120 seconds.
+* `startup_timeout` - If the model's backend worker doesn't load the model within this timeout period, the worker will be deemed unresponsive and rebooted. The units is seconds. The default value is 120 seconds.
 
 ```bash
 curl -X POST  "http://localhost:8081/models?url=https://torchserve.pytorch.org/mar_files/squeezenet1_1.mar"
