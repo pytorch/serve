@@ -60,7 +60,8 @@ options:
   --workflow-store WORKFLOW_STORE
                         Workflow store location from where local or default workflows can be loaded
   --models MODEL_PATH1 MODEL_NAME=MODEL_PATH2... [MODEL_PATH1 MODEL_NAME=MODEL_PATH2... ...]
-                        Models to be loaded using '[model_name=]model_location' format.'model_location' can be an HTTP URL or
+                        Models to be loaded using '[model_name=]model_location' format.
+                        'model_location' can be an HTTP URL or
                         a model archive file in MODEL_STORE
   --log-config LOG_CONFIG
                         Log4j configuration file for the model server

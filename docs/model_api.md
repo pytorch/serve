@@ -2,7 +2,9 @@
 
 The Model API permits users to register and delete models using the TorchServe model load and delete APIs.
 
-By default, TorchServe disables the Model API.  This is a security feature which addresses the concern of unintended registration and deletion of models once TorchServe has started.  It prevents a user from uploading malicious code to the model server in the form of a model, or by deleting a model in use.
+By default, TorchServe disables the Model API.
+This is a security feature which addresses the concern of unintended registration and deletion of models once TorchServe has started.
+It prevents a user from uploading malicious code to the model server in the form of a model, or by deleting a model in use.
 
 The API can be enabled through the command line or a `config.properties` file.
 

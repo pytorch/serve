@@ -1,6 +1,7 @@
 # Metrics API
 
-Metrics API is an HTTP API that serves metrics in the prometheus format. By default it is enabled on localhost port 8082, although it only returns data if [`metrics_mode`](https://github.com/pytorch/serve/blob/master/docs/metrics.md) is set to `prometheus`.
+Metrics API is an HTTP API that serves metrics in the prometheus format.
+By default it is enabled on localhost port 8082, although it only returns data if [`metrics_mode`](https://github.com/pytorch/serve/blob/master/docs/metrics.md) is set to `prometheus`.
 
 It can be disabled by setting `enable_metrics_api=false` in the config.properties file.  For configuration details refer to [Torchserve config](configuration.md).
 
