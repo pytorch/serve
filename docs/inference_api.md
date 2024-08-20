@@ -74,7 +74,7 @@ To get predictions from the loaded model which expects multiple inputs:
 curl http://localhost:8080/predictions/squeezenet1_1 -F 'data=@docs/images/dogs-before.jpg' -F 'data=@docs/images/kitten_small.jpg'
 ```
 
-Or:
+# Requests Example
 
 ```python
 import requests
