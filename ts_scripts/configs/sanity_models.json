@@ -15,25 +15,11 @@
         "handler": "image_segmenter"
     },
     {
-        "name": "my_text_classifier_v4",
-        "inputs": [
-            "examples/text_classification/sample_text.txt"
-        ],
-        "handler": "text_classification"
-    },
-    {
         "name": "resnet-18",
         "inputs": [
             "examples/image_classifier/kitten.jpg"
         ],
         "handler": "image_classifier"
-    },
-    {
-        "name": "my_text_classifier_scripted_v3",
-        "inputs": [
-            "examples/text_classification/sample_text.txt"
-        ],
-        "handler": "text_classification"
     },
     {
         "name": "alexnet_scripted",
