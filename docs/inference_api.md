@@ -92,7 +92,7 @@ curl -O https://raw.githubusercontent.com/pytorch/serve/master/docs/images/kitte
 
 curl http://localhost:8080/predictions/resnet-18/2.0 -T kitten_small.jpg
 
-# Or:
+# Requests Example
 
 curl http://localhost:8080/predictions/resnet-18/2.0 -F "data=@kitten_small.jpg"
 ```
