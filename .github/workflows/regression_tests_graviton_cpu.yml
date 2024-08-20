@@ -17,7 +17,7 @@ jobs:
   regression-cpu:
     runs-on: [self-hosted, graviton-test]
     steps:
-      - name: Setup Python 
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
@@ -37,6 +37,6 @@ jobs:
           pip install torchtext --no-deps
       - name: Torchserve Regression Tests
         env:
-          TS_MAC_ARM64_CPU_ONLY: 'False' 
+          TS_MAC_ARM64_CPU_ONLY: 'True'
         run: |
           python test/regression_tests.py
