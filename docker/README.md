@@ -38,6 +38,7 @@ Use `build_image.sh` script to build the docker images. The script builds the `p
 |------|------|
 |-h, --help|Show script help|
 |-b, --branch_name|Specify a branch name to use. Default: master |
+|-repo, --repo_url|Specify the repository url to use. Default: https://github.com/pytorch/serve |
 |-g, --gpu|Build image with GPU based ubuntu base image|
 |-bi, --baseimage specify base docker image. Example: nvidia/cuda:11.8.0-cudnn8-runtime-ubuntu20.04|
 |-bt, --buildtype|Which type of docker image to build. Can be one of : production, dev, ci|
