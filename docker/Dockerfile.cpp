@@ -26,6 +26,7 @@ ARG PYTHON_VERSION
 ARG CMAKE_VERSION
 ARG GCC_VERSION
 ARG BRANCH_NAME
+ARG REPO_URL=https://github.com/pytorch/serve.git
 ARG USE_CUDA_VERSION
 ARG DEBIAN_FRONTEND=noninteractive
 ENV PYTHONUNBUFFERED TRUE
@@ -67,7 +68,7 @@ RUN (wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/nu
     && echo "Package: cmake-data\nPin: version $CMAKE_VERSION*\nPin-Priority: 1001" > /etc/apt/preferences.d/cmake-data \
     && rm -rf /var/lib/apt/lists/*
 
-RUN git clone --recursive https://github.com/pytorch/serve.git \
+RUN git clone --recursive $REPO_URL \
     && cd serve \
     && git checkout ${BRANCH_NAME}
 

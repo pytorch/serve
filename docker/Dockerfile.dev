@@ -16,6 +16,7 @@ FROM ${BASE_IMAGE} AS compile-image
 
 ARG BASE_IMAGE
 ARG BRANCH_NAME=master
+ARG REPO_URL=https://github.com/pytorch/serve.git
 ARG MACHINE_TYPE=cpu
 ARG CUDA_VERSION
 
@@ -62,7 +63,7 @@ FROM compile-image AS dev-image
 ARG MACHINE_TYPE=cpu
 ARG CUDA_VERSION
 RUN if [ "$MACHINE_TYPE" = "gpu" ]; then export USE_CUDA=1; fi \
-    && git clone https://github.com/pytorch/serve.git \
+    && git clone $REPO_URL \
     && cd serve \
     && git checkout ${BRANCH_NAME} \
     && python$PYTHON_VERSION -m venv /home/venv
