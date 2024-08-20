@@ -52,7 +52,7 @@ function deploy_cluster() {
     cd $GITHUB_WORKSPACE
     kubectl apply -f "$1"
     echo "Waiting for pod to come up..."
-    wait_for_pod_running "$2" 300
+    wait_for_pod_running "$2" 600
     echo "Check status of the pod"
     kubectl get pods
     kubectl describe pod "$2"
