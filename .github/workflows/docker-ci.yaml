@@ -20,11 +20,6 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Dump github context
-        run:   echo "$GITHUB_CONTEXT"
-        shell: bash
-        env:
-          GITHUB_CONTEXT: ${{ toJson(github) }}
       - name: Test build_image.sh script with custom tagging and gpu flag
         working-directory: docker
         run: ./test_build_image_tagging.sh ${{ matrix.python-version }}
@@ -44,11 +39,7 @@ jobs:
         working-directory: docker
         run: |
           IMAGE_TAG=test-image-${{ matrix.python-version }}
-          if [[ -z "${{ env.FORK }}" ]]; then
-            REPO_URL="https://github.com/pytorch/serve.git"
-          else
-            REPO_URL="https://github.com/${{ env.FORK }}"
-          fi
+          REPO_URL=${{ github.event.pull_request.head.repo.clone_url }}
           ./build_image.sh -py "${{ matrix.python-version }}" -t "${IMAGE_TAG}" -b "${{ steps.branch-name.outputs.GITHUB_BRANCH }}" -repo ${REPO_URL} -s
           echo "IMAGE_TAG=${IMAGE_TAG}" >> $GITHUB_OUTPUT
 
