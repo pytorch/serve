@@ -1,5 +1,8 @@
 # Text Classification using TorchServe's default text_classifier handler
 
+## !!!Deprecation Warning!!!
+This example requires TorchText which is deprecated. Please use version <= 0.11.1 of TorchServe for this example
+
 This is an example to create a text classification dataset and train a sentiment model. We have used the following torchtext example to train the model.
 
 https://github.com/pytorch/text/tree/master/examples/text_classification

@@ -1,7 +1,6 @@
 #pip3 install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cpu
 --extra-index-url https://download.pytorch.org/whl/cpu
 -r torch_common.txt
-torch==2.3.0+cpu; sys_platform == 'linux'
-torchvision==0.18.0+cpu; sys_platform == 'linux'
-torchtext==0.18.0; sys_platform == 'linux'
-torchaudio==2.3.0+cpu; sys_platform == 'linux'
+torch==2.4.0+cpu; sys_platform == 'linux'
+torchvision==0.19.0+cpu; sys_platform == 'linux'
+torchaudio==2.4.0+cpu; sys_platform == 'linux'

@@ -19,6 +19,7 @@ What's going on in TorchServe?
 * `Walmart Search: Serving Models at a Scale on TorchServe <https://medium.com/walmartglobaltech/search-model-serving-using-pytorch-and-torchserve-6caf9d1c5f4d>`__
 * `Scaling inference on CPU with TorchServe <https://www.youtube.com/watch?v=066_Jd6cwZg>`__
 * `TorchServe C++ backend <https://www.youtube.com/watch?v=OSmGGDpaesc>`__
+* `TorchServe with Intel® Extension for PyTorch* <https://github.com/pytorch/serve/tree/master/examples/intel_extension_for_pytorch>`__
 * `Grokking Intel CPU PyTorch performance from first principles: a TorchServe case study <https://pytorch.org/tutorials/intermediate/torchserve_with_ipex.html>`__
 * `Grokking Intel CPU PyTorch performance from first principles( Part 2): a TorchServe case study <https://pytorch.org/tutorials/intermediate/torchserve_with_ipex_2.html>`__
 * `Case Study: Amazon Ads Uses PyTorch and AWS Inferentia to Scale Models for Ads Processing <https://pytorch.org/blog/amazon-ads-case-study/>`__
