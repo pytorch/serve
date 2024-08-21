@@ -20,6 +20,11 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Dump github context
+        run:   echo "$GITHUB_CONTEXT"
+        shell: bash
+        env:
+        GITHUB_CONTEXT: ${{ toJson(github) }}
       - name: Test build_image.sh script with custom tagging and gpu flag
         working-directory: docker
         run: ./test_build_image_tagging.sh ${{ matrix.python-version }}
