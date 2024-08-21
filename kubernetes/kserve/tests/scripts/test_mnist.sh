@@ -61,7 +61,7 @@ function deploy_cluster() {
 function make_cluster_accessible() {
     SERVICE_NAME="$1"
     URL="$2"
-    wait_for_inference_service 600 5 "$1"
+    wait_for_inference_service 600 10 "$1"
     SERVICE_HOSTNAME=$(kubectl get inferenceservice ${SERVICE_NAME} -o jsonpath='{.status.url}' | cut -d "/" -f 3)
     wait_for_port_forwarding 5
     echo "Make inference request"
