@@ -17,11 +17,7 @@ concurrency:
 
 jobs:
   ci-cpu:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [graviton-test]
+    runs-on: [self-hosted, graviton-test]
     steps:
       - name: Setup Python
         uses: actions/setup-python@v5
