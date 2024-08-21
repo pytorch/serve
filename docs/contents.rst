@@ -18,6 +18,7 @@
   server
   nvidia_mps
   snapshot
+  intel_extension_for_pytorch <https://github.com/pytorch/serve/tree/master/examples/intel_extension_for_pytorch>
   torchserve_on_win_native
   torchserve_on_wsl
   use_cases
