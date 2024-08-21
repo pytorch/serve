@@ -81,7 +81,6 @@ class Predictor(threading.Thread):
             prompt_input["max_tokens"] = rt
             if self.args.demo_streaming:
                 prompt_input["stream"] = True
-            breakpoint()
             return prompt_input
         if self.args.prompt_json:
             prompt_input = json.loads(prompt_input)
