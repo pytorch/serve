@@ -162,9 +162,21 @@ public class InferenceRequestHandler extends HttpRequestHandlerChain {
 
         String modelVersion = null;
 
-        if (segments.length == 4) {
+        if (segments.length >= 4) {
             modelVersion = segments[3];
         }
+        req.headers().add("url_path", "");
+        /**
+         * If url provides more segments as model_name/version we provide these as url_path in the
+         * request header This way users can leverage them in the custom handler to e.g. influence
+         * handler behavior
+         */
+        if (segments.length > 4) {
+            String joinedSegments =
+                    String.join("/", Arrays.copyOfRange(segments, 4, segments.length));
+            req.headers().add("url_path", joinedSegments);
+        }
+
         req.headers().add("explain", "False");
         if (explain) {
             req.headers().add("explain", "True");
