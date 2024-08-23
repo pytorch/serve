@@ -63,7 +63,7 @@ Refer to [torchserve docker](docker/README.md) for details.
 ### 🤖 Quick Start LLM Deployment
 
 ```bash
-# Make sure to install torchserve with pip or conda as described above and log into with `huggingface-cli login`
+# Make sure to install torchserve with pip or conda as described above and login with `huggingface-cli login`
 python -m ts.llm_launcher --model_id meta-llama/Meta-Llama-3-8B-Instruct --disable_token_auth
 
 # Try it out
