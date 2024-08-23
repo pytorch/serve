@@ -7,7 +7,10 @@ deviceType: "gpu"
 asyncCommunication: true
 
 handler:
-    model_path: "model/models--meta-llama--Meta-Llama-3-8B-Instruct/snapshots/e1945c40cd546c78e41f1151f4db032b271faeaa/"
+    model_path: "model/models--meta-llama--Meta-Llama-3.1-8B-Instruct/snapshots/8c22764a7e3675c50d4c7c9a4edb474456022b16"
     vllm_engine_config:
         max_num_seqs: 16
         max_model_len: 250
+        served_model_name:
+            - "meta-llama/Meta-Llama-3.1-8B"
+            - "llama3-8b"
