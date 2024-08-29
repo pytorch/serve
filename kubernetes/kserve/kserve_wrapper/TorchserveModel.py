@@ -91,6 +91,9 @@ class TorchserveModel(Model):
         logging.info("Predict URL set to %s", self.predictor_host)
         logging.info("Explain URL set to %s", self.explainer_host)
         logging.info("Protocol version is %s", self.protocol)
+        logging.info(
+            "Torchserve auth is %s", "enabled" if self.ts_auth_enabled else "disabled"
+        )
 
     def grpc_client(self):
         if self._grpc_client_stub is None:
