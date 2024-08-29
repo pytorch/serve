@@ -68,6 +68,18 @@ with st.sidebar:
         "num_of_img", min_value=1, max_value=4, value=4, step=1
     )
 
+    st.subheader("Llama Model parameters")
+    max_new_tokens = st.sidebar.slider(
+        "max_new_tokens", min_value=30, max_value=250, value=50, step=10
+    )
+    temperature = st.sidebar.slider(
+        "temperature", min_value=0.0, max_value=2.0, value=0.8, step=0.1
+    )
+    top_k = st.sidebar.slider(
+        "top_k", min_value=1, max_value=200, value=200, step=1
+    )
+
+
     st.subheader("SD Model parameters")
     num_inference_steps = st.sidebar.slider(
         "steps", min_value=1, max_value=150, value=30, step=1
@@ -76,10 +88,10 @@ with st.sidebar:
         "guidance_scale", min_value=1.0, max_value=30.0, value=5.0, step=0.5
     )
     height = st.sidebar.slider(
-        "height", min_value=256, max_value=2048, value=512, step=8
+        "height", min_value=256, max_value=2048, value=768, step=8
     )
     width = st.sidebar.slider(
-        "width", min_value=256, max_value=2048, value=512, step=8
+        "width", min_value=256, max_value=2048, value=768, step=8
     )
 
 
@@ -151,17 +163,22 @@ def postprocess_llm_response(prompts, original_prompt=None, images_num=2):
         prompts.insert(0, original_prompt)
 
     prompts = prompts[:images_num]
-    assert len(prompts) == images_num
-
-    print('!!!!!!!!!!! Prompts: ', prompts)
+    assert len(prompts) == images_num, "Llama Model generated too few prompts!"
 
     return prompts
 
 
-def generate_llm_model_response(input_prompt, max_new_tokens=50):
+def generate_llm_model_response(input_prompt):
     headers = {"Content-type": "application/json", "Accept": "text/plain"}
     url = f"http://127.0.0.1:8080/predictions/{MODEL_NAME_LLM}"
-    data = json.dumps({"prompt": input_prompt, "max_new_tokens": max_new_tokens})
+    data = json.dumps(
+        {
+            "prompt": input_prompt,
+            "max_new_tokens": max_new_tokens,
+            "temperature": temperature,
+            "top_k": top_k,
+        }
+    )
 
     res = requests.post(url=url, data=data, headers=headers, stream=True)
     assert res.status_code == 200

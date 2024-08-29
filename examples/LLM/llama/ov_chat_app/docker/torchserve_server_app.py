@@ -132,7 +132,7 @@ with st.sidebar:
         key="Num Workers SD",
         min_value=1,
         max_value=4,
-        value=2,
+        value=1,
         step=1,
         on_change=scale_sd_workers,
         args=("Num Workers SD",),

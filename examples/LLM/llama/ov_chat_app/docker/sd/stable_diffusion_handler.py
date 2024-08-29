@@ -125,8 +125,8 @@ class StableDiffusionHandler(BaseHandler):
         model_inputs = json.loads(model_inputs)
         guidance_scale = model_inputs.get("guidance_scale") or 5.0
         num_inference_steps = model_inputs.get("num_inference_steps") or 30
-        height = model_inputs.get("height") or 512
-        width = model_inputs.get("width") or 512
+        height = model_inputs.get("height") or 768
+        width = model_inputs.get("width") or 768
         inferences = self.pipeline(
             model_inputs["prompt"], num_inference_steps=num_inference_steps, guidance_scale=guidance_scale, height=height, width=width
         ).images

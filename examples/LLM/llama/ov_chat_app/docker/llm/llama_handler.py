@@ -1,12 +1,15 @@
 import json
 import logging
-import os
 import time
-from pathlib import Path
 import re
-
-
 import torch
+
+from pathlib import Path
+from tp import maybe_init_dist
+from ts.handler_utils.timer import timed
+from ts.torch_handler.base_handler import BaseHandler
+from tokenizer import get_tokenizer
+
 from generate import (
     generate,
     _load_model,
@@ -15,11 +18,6 @@ from generate import (
     model_forward,
     prefill,
 )
-from tp import maybe_init_dist
-
-from ts.handler_utils.timer import timed
-from ts.torch_handler.base_handler import BaseHandler
-from tokenizer import get_tokenizer
 
 
 logger = logging.getLogger(__name__)
@@ -41,12 +39,11 @@ class GptHandler(BaseHandler):
         self.stream = False
         self.is_speculative = False
         self.draft_model = None
-        self.speculate_k = 0
+        self.speculate_k = 5
+        self.draft_checkpoint_path =None
 
     def initialize(self, ctx):
         self.context = ctx
-        rank = maybe_init_dist()
-
 
         checkpoint_path = Path(ctx.model_yaml_config["handler"]["converted_ckpt_dir"])
         assert checkpoint_path.is_file(), checkpoint_path
@@ -54,30 +51,38 @@ class GptHandler(BaseHandler):
         tokenizer_path = checkpoint_path.parent / "tokenizer.model"
         assert tokenizer_path.is_file(), tokenizer_path
 
-        logger.info("Loading model ...")
-        t0 = time.time()
+        rank = maybe_init_dist()
         use_tp = rank is not None
-        self.model = _load_model(checkpoint_path, self.device, torch.bfloat16, use_tp)
-        logger.info(f"Time to load model: {time.time() - t0:.02f} seconds")
+        if use_tp:
+            if rank != 0:
+                # only print on rank 0
+                print = lambda *args, **kwargs: None
 
-        draft_checkpoint_path = ctx.model_yaml_config["handler"].get(
+        self.device = ctx.model_yaml_config["deviceType"]
+
+        logger.info(f"Using device={self.device}")
+        precision = torch.bfloat16
+        self.draft_checkpoint_path = ctx.model_yaml_config["handler"].get(
             "draft_checkpoint_path", None
         )
-        self.is_speculative = draft_checkpoint_path is not None
+        self.is_speculative = self.draft_checkpoint_path is not None
+
+        logger.info("Loading model ...")
+        t0 = time.time()
+        self.model = _load_model(checkpoint_path, self.device, precision, use_tp)
+        logger.info(f"Time to load model: {time.time() - t0:.02f} seconds")
+
         if self.is_speculative:
             self.draft_model = _load_model(
-                Path(draft_checkpoint_path), self.device, torch.bfloat16, use_tp
+                Path(self.draft_checkpoint_path), self.device, precision, use_tp
             )
-            self.speculate_k = ctx.model_yaml_config["handler"].get("speculate_k", 8)
+            self.speculate_k = ctx.model_yaml_config["handler"].get("speculate_k", 5)
         else:
             self.draft_model = None
 
         self.tokenizer = get_tokenizer(tokenizer_path, checkpoint_path)
 
         if ctx.model_yaml_config["handler"]["compile"]:
-            if ctx.model_yaml_config["handler"].get("fx_graph_cache", False):
-                os.environ["TORCHINDUCTOR_FX_GRAPH_CACHE"] = "1"
-
             if self.is_speculative and use_tp:
                 torch._inductor.config.triton.cudagraph_trees = (
                     False  # Bug with cudagraph trees in this case
@@ -94,10 +99,7 @@ class GptHandler(BaseHandler):
             )
             self.prefill = torch.compile(self.prefill, fullgraph=True, dynamic=True)
 
-        torch.manual_seed(42 * 42)
-
         self.stream = ctx.model_yaml_config["handler"].get("stream", True)
-
         self.initialized = True
 
     @timed
@@ -119,25 +121,23 @@ class GptHandler(BaseHandler):
         encoded = encode_tokens(self.tokenizer, prompt, bos=True, device=self.device)
 
         self.prompt_length = encoded.size(0)
+        input_data["encoded"] = encoded
 
-        # DoTo: max_new_tokens
-        return {
-            "encoded": encoded,
-            "max_new_tokens": input_data.get("max_new_tokens", 50),
-        }
+        return input_data
 
     @timed
     def inference(self, input_data):
+
         y, metrics = generate(
                 self.model,
                 input_data["encoded"],
-                max_new_tokens=input_data["max_new_tokens"],
+                max_new_tokens=input_data.get("max_new_tokens", 50),
                 draft_model=self.draft_model,
                 interactive=False,
                 callback=lambda x: x,
-                temperature=0.8,
-                top_k=1,
-            )
+                temperature=input_data.get("temperature", 0.8),
+                top_k=input_data.get("top_k", 200),
+        )
 
 
         if self.is_speculative:
@@ -154,6 +154,7 @@ class GptHandler(BaseHandler):
     def postprocess(self, y):
         period_id = self.tokenizer.encode(".")[0]
         generated_prompts = self.tokenizer.decode([period_id] + y.tolist())[1:]
+        logger.info(f"Generated prompt: {generated_prompts}")
         prompts = get_prompts_string(generated_prompts)
 
         return [prompts]
