@@ -1,7 +1,5 @@
 import json
 import os
-from concurrent.futures import ThreadPoolExecutor
-
 import requests
 import streamlit as st
 import asyncio
@@ -94,8 +92,8 @@ with st.sidebar:
         "width", min_value=256, max_value=2048, value=768, step=8
     )
 
-
 prompt = st.text_input("Text Prompt")
+
 
 def generate_sd_response_v1(prompt_input):
     url = f"http://127.0.0.1:8080/predictions/{MODEL_NAME_SD}"
@@ -114,18 +112,17 @@ def generate_sd_response_v1(prompt_input):
     return response
 
 
-async def send_inference_request(session, prompt_input):
+async def send_inference_request(session, input_prompt):
     url = f"http://127.0.0.1:8080/predictions/{MODEL_NAME_SD}"
     data_input = json.dumps(
         {
-            "prompt": prompt_input,
+            "prompt": input_prompt,
             "guidance_scale": guidance_scale,
             "num_inference_steps": num_inference_steps,
             "height": height,
             "width": width,
         }
     )
-
     async with session.post(url, data=data_input) as response:
         assert response.status == 200
         resp_text = await response.text()
@@ -134,11 +131,10 @@ async def send_inference_request(session, prompt_input):
 
 async def generate_sd_response_v2(prompts):
     async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=None)) as session:
-        tasks = []
-        for prompt in prompts:
-            tasks.append(send_inference_request(session, prompt))
+        tasks = [send_inference_request(session, prompt) for prompt in prompts]
+        results = await asyncio.gather(*tasks)
 
-        return await asyncio.gather(*tasks)
+        return results
 
 
 def sd_response_postprocess(response):
@@ -154,13 +150,16 @@ def preprocess_llm_input(input_prompt, images_num = 2):
 def trim_prompt(s):
     return re.sub(r'^[^a-zA-Z0-9]+|[^a-zA-Z0-9]+$', '', s)
 
-def postprocess_llm_response(prompts, original_prompt=None, images_num=2):
 
+def postprocess_llm_response(prompts, original_prompt=None, images_num=2):
     prompts = [trim_prompt(item) for item in prompts.split(";")]
     prompts = list(filter(None, prompts))
     
     if original_prompt:
-        prompts.insert(0, original_prompt)
+        if len(prompts) == images_num - 1:
+            prompts.insert(0, original_prompt)
+        else:
+            prompts[0] = original_prompt
 
     prompts = prompts[:images_num]
     assert len(prompts) == images_num, "Llama Model generated too few prompts!"

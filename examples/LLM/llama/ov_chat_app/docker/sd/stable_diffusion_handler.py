@@ -109,9 +109,16 @@ class StableDiffusionHandler(BaseHandler):
             len(requests) == 1
         ), "Stable Diffusion is currently only supported with batch_size=1"
 
-        data = requests[0]
-        input_text = data.get("data") or data.get("body")
-        return input_text
+        req_data = requests[0]
+        input_data = req_data.get("data") or req_data.get("body")
+
+        if isinstance(input_data, (bytes, bytearray)):
+            input_data = input_data.decode("utf-8")
+
+        if isinstance(input_data, str):
+            input_data = json.loads(input_data)
+
+        return input_data
 
     @timed
     def inference(self, model_inputs):
@@ -122,7 +129,6 @@ class StableDiffusionHandler(BaseHandler):
             list : It returns a list of the generate images for the input text
         """
         # Handling inference for sequence_classification.
-        model_inputs = json.loads(model_inputs)
         guidance_scale = model_inputs.get("guidance_scale") or 5.0
         num_inference_steps = model_inputs.get("num_inference_steps") or 30
         height = model_inputs.get("height") or 768

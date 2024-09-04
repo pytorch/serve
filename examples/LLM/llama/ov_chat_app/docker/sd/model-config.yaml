@@ -1,5 +1,5 @@
-minWorkers: 1
-maxWorkers: 1
+minWorkers: 4
+maxWorkers: 4
 maxBatchDelay: 200
 responseTimeout: 3600
 deviceType: "cpu"
