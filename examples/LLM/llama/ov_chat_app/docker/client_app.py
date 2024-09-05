@@ -205,7 +205,7 @@ if 'llm_prompts' not in st.session_state:
 if 'llm_time' not in st.session_state:
     st.session_state.llm_time = 0
 
-if st.button("Generate Prompt"):
+if st.button("Generate Prompts"):
     with st.spinner('Generating prompts...'):
         llm_start_time = time.time()
 
@@ -217,17 +217,19 @@ if st.button("Generate Prompt"):
 
         st.session_state.llm_time = time.time() - llm_start_time
 
-        st.session_state.gen_captions[:0] = st.session_state.llm_prompts
-
         st.write(f"Generated prompts:")
         for pr in st.session_state.llm_prompts:
             st.write(pr)
 
 if not st.session_state.llm_prompts:
-            st.write(f"You need to generate prompts at first!")
-            pass
+    st.write(f"You need to generate prompts at first!")
+    pass
+elif len(st.session_state.llm_prompts) != images_num:
+    st.write(f"Generate the prompts again!")
+    pass
 elif st.button("Generate Images"):
     with st.spinner('Generating images...'):
+        st.session_state.gen_captions[:0] = st.session_state.llm_prompts
         sd_start_time = time.time()
         # sd_res = generate_sd_response_v1(llm_prompts)
         sd_res = asyncio.run(generate_sd_response_v2(st.session_state.llm_prompts))
