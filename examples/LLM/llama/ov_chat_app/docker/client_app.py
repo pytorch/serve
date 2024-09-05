@@ -190,43 +190,49 @@ if 'gen_images' not in st.session_state:
 if 'gen_captions' not in st.session_state:
     st.session_state.gen_captions = []
 
-
 def display_images_in_grid(images, captions):
     cols = st.columns(2)
     for i, (img, caption) in enumerate(zip(images, captions)):
         col = cols[i % 2]
         col.image(img, caption=caption, use_column_width=True)
 
+# gen_prompt = st.button("Generate Prompt")
+# col1, col2 = st.columns([1,1])
 
-if st.button("Generate Images"):
-    with st.spinner('Generating images...'):
-        total_start_time = time.time()
+if 'llm_prompts' not in st.session_state:
+    st.session_state.llm_prompts = None
 
-        llm_res = [prompt]
+if 'llm_time' not in st.session_state:
+    st.session_state.llm_time = 0
+
+if st.button("Generate Prompt"):
+    with st.spinner('Generating prompts...'):
+        llm_start_time = time.time()
+
+        st.session_state.llm_prompts = [prompt]
         if images_num > 1:
             prompt_input = preprocess_llm_input(prompt, images_num)
+            llm_prompts = generate_llm_model_response(prompt_input)
+            st.session_state.llm_prompts = postprocess_llm_response(llm_prompts, prompt, images_num)
 
-            # start_time = time.time()
-            llm_res = generate_llm_model_response(prompt_input)
-            # llm_inference_time = time.time() - start_time
+        st.session_state.llm_time = time.time() - llm_start_time
 
-            llm_res = postprocess_llm_response(llm_res, prompt, images_num)
+        st.session_state.gen_captions[:0] = llm_prompts
+        st.write(f"Generated prompts:\n {llm_prompts}")
 
-        st.session_state.gen_captions[:0] = llm_res
-
-        start_time = time.time()
-        # sd_res = generate_sd_response_v1(llm_res)
-        sd_res = asyncio.run(generate_sd_response_v2(llm_res))
-        sd_inference_time = time.time() - start_time
+if not st.session_state.llm_prompts:
+            st.write(f"You need to generate prompts at first!")
+            pass
+elif st.button("Generate Images"):
+    with st.spinner('Generating images...'):
+        sd_start_time = time.time()
+        # sd_res = generate_sd_response_v1(llm_prompts)
+        sd_res = asyncio.run(generate_sd_response_v2(st.session_state.llm_prompts))
 
         images = sd_response_postprocess(sd_res)
         st.session_state.gen_images[:0] = images
 
-        # if images_num > 1:
-        #     st.write(f"LLM inference time: {llm_inference_time:.2f} seconds")
-        # st.write(f"SD inference time: {sd_inference_time:.2f} seconds")
-
         display_images_in_grid(st.session_state.gen_images, st.session_state.gen_captions)
 
-        total_time = time.time() - total_start_time
-        print(f'TOTAL APP TIME: {total_time:.2f}')
+        sd_time = time.time() - sd_start_time
+        print(f'TOTAL APP TIME: {(sd_time + st.session_state.llm_time):.2f}')
