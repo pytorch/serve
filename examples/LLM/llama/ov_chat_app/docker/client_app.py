@@ -217,8 +217,11 @@ if st.button("Generate Prompt"):
 
         st.session_state.llm_time = time.time() - llm_start_time
 
-        st.session_state.gen_captions[:0] = llm_prompts
-        st.write(f"Generated prompts:\n {llm_prompts}")
+        st.session_state.gen_captions[:0] = st.session_state.llm_prompts
+
+        st.write(f"Generated prompts:")
+        for pr in st.session_state.llm_prompts:
+            st.write(pr)
 
 if not st.session_state.llm_prompts:
             st.write(f"You need to generate prompts at first!")
