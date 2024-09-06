@@ -1,4 +1,4 @@
-# Llama TensorRT-LLM Engine integration with TorchServe
+# Llama TensorRT-LLM Engine + LoRA model integration with TorchServe
 
 [TensorRT-LLM](https://github.com/NVIDIA/TensorRT-LLM) provides users with an option to build TensorRT engines for LLMs that contain state-of-the-art optimizations to perform inference efficiently on NVIDIA GPUs.
 
