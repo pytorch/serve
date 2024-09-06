@@ -12,7 +12,7 @@ This will downgrade the versions of PyTorch & Triton but this doesn't cause any 
 
 ```
 pip install tensorrt_llm -U --pre --extra-index-url https://pypi.nvidia.com
-pip install trasnformers>=4.44.2
+pip install transformers>=4.44.2
 python -c "import tensorrt_llm"
 ```
 shows
