@@ -51,8 +51,8 @@ class TRTLLMHandler(BaseHandler):
         metrics = context.metrics
 
         data_preprocess = await self.preprocess(data)
-        output, input_batch, streaming = await self.inference(data_preprocess, context)
-        output = await self.postprocess(output, input_batch, streaming, context)
+        output, data = await self.inference(data_preprocess, context)
+        output = await self.postprocess(output, data, context)
 
         stop_time = time.time()
         metrics.add_time(
@@ -61,44 +61,38 @@ class TRTLLMHandler(BaseHandler):
         return output
 
     async def preprocess(self, requests):
-        input_batch = []
+        
         assert len(requests) == 1, "Expecting batch_size = 1"
-        for req_data in requests:
-            data = req_data.get("data") or req_data.get("body")
-            if isinstance(data, (bytes, bytearray)):
-                data = data.decode("utf-8")
+        req_data = requests[0]
+        data = req_data.get("data") or req_data.get("body")
+        if isinstance(data, (bytes, bytearray)):
+            data = data.decode("utf-8")
 
-            prompt = data.get("prompt")
-            temperature = data.get("temperature", 1.0)
-            max_new_tokens = data.get("max_new_tokens", 50)
-            streaming = data.get("streaming", False)
-            input_ids = self.tokenizer.encode(
-                prompt, add_special_tokens=True, truncation=True
-            )
-            input_batch.append(input_ids)
+        prompt = data.get("prompt")
+        input_ids = self.tokenizer.encode(
+            prompt, add_special_tokens=True, truncation=True
+        )
+        del data["prompt"]
+        batch_input_ids = torch.tensor([input_ids], dtype=torch.int32)
+        data.update({"batch_input_ids": batch_input_ids})
 
-        input_batch = [torch.tensor(x, dtype=torch.int32) for x in input_batch]
+        return data
 
-        return (input_batch, temperature, max_new_tokens, streaming)
-
-    async def inference(self, input_batch, context):
-        input_ids_batch, temperature, max_new_tokens, streaming = input_batch
+    async def inference(self, data, context):
+        generate_kwargs = {
+        "end_id": self.tokenizer.eos_token_id,
+        "pad_id" : self.tokenizer.pad_token_id,
+        "output_sequence_lengths": True,
+        "return_dict": True
+        }
+        generate_kwargs.update(data)
 
         with torch.no_grad():
-            outputs = self.trt_llm_engine.generate(
-                batch_input_ids=input_ids_batch,
-                temperature=temperature,
-                max_new_tokens=max_new_tokens,
-                end_id=self.tokenizer.eos_token_id,
-                pad_id=self.tokenizer.pad_token_id,
-                output_sequence_lengths=True,
-                streaming=streaming,
-                return_dict=True,
-            )
-        return outputs, input_ids_batch, streaming
+            outputs = self.trt_llm_engine.generate(**generate_kwargs)
+        return outputs, data
 
-    async def postprocess(self, inference_outputs, input_batch, streaming, context):
-        if not streaming:
+    async def postprocess(self, inference_outputs, data, context):
+        if not data.get("streaming", False):
             output_ids = inference_outputs["output_ids"]
             sequence_lengths = inference_outputs["sequence_lengths"]
 

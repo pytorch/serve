@@ -126,7 +126,7 @@ def create_mar_file(args, model_snapshot_path=None):
         export_path=args.model_store,
         requirements_file=None,
         runtime="python",
-        force=False,
+        force=True,
         config_file=model_config_yaml.as_posix(),
         archive_format="no-archive",
     )
