@@ -20,8 +20,6 @@ class TRTLLMHandler(BaseHandler):
         self.tokenizer = None
         self.model = None
         self.model_dir = None
-        self.lora_ids = {}
-        self.adapters = None
         self.initialized = False
 
     def initialize(self, ctx):
@@ -53,8 +51,8 @@ class TRTLLMHandler(BaseHandler):
         metrics = context.metrics
 
         data_preprocess = await self.preprocess(data)
-        output, input_batch = await self.inference(data_preprocess, context)
-        output = await self.postprocess(output, input_batch, context)
+        output, input_batch, streaming = await self.inference(data_preprocess, context)
+        output = await self.postprocess(output, input_batch, streaming, context)
 
         stop_time = time.time()
         metrics.add_time(
@@ -73,6 +71,7 @@ class TRTLLMHandler(BaseHandler):
             prompt = data.get("prompt")
             temperature = data.get("temperature", 1.0)
             max_new_tokens = data.get("max_new_tokens", 50)
+            streaming = data.get("streaming", False)
             input_ids = self.tokenizer.encode(
                 prompt, add_special_tokens=True, truncation=True
             )
@@ -80,10 +79,10 @@ class TRTLLMHandler(BaseHandler):
 
         input_batch = [torch.tensor(x, dtype=torch.int32) for x in input_batch]
 
-        return (input_batch, temperature, max_new_tokens)
+        return (input_batch, temperature, max_new_tokens, streaming)
 
     async def inference(self, input_batch, context):
-        input_ids_batch, temperature, max_new_tokens = input_batch
+        input_ids_batch, temperature, max_new_tokens, streaming = input_batch
 
         with torch.no_grad():
             outputs = self.trt_llm_engine.generate(
@@ -93,12 +92,22 @@ class TRTLLMHandler(BaseHandler):
                 end_id=self.tokenizer.eos_token_id,
                 pad_id=self.tokenizer.pad_token_id,
                 output_sequence_lengths=True,
-                streaming=True,
+                streaming=streaming,
                 return_dict=True,
             )
-        return outputs, input_ids_batch
+        return outputs, input_ids_batch, streaming
 
-    async def postprocess(self, inference_outputs, input_batch, context):
+    async def postprocess(self, inference_outputs, input_batch, streaming, context):
+        if not streaming:
+            output_ids = inference_outputs["output_ids"]
+            sequence_lengths = inference_outputs["sequence_lengths"]
+
+            output_end = sequence_lengths[0]
+            outputs = output_ids[0][0].tolist()
+            output_text = self.tokenizer.decode(outputs)
+            return [output_text]
+
+        # Streaming output
         for inference_output in inference_outputs:
             output_ids = inference_output["output_ids"]
             sequence_lengths = inference_output["sequence_lengths"]
