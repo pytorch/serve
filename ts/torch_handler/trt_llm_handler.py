@@ -61,7 +61,6 @@ class TRTLLMHandler(BaseHandler):
         return output
 
     async def preprocess(self, requests):
-        
         assert len(requests) == 1, "Expecting batch_size = 1"
         req_data = requests[0]
         data = req_data.get("data") or req_data.get("body")
@@ -80,10 +79,10 @@ class TRTLLMHandler(BaseHandler):
 
     async def inference(self, data, context):
         generate_kwargs = {
-        "end_id": self.tokenizer.eos_token_id,
-        "pad_id" : self.tokenizer.pad_token_id,
-        "output_sequence_lengths": True,
-        "return_dict": True
+            "end_id": self.tokenizer.eos_token_id,
+            "pad_id": self.tokenizer.pad_token_id,
+            "output_sequence_lengths": True,
+            "return_dict": True,
         }
         generate_kwargs.update(data)
 
