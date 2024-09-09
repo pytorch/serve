@@ -3,17 +3,17 @@ maxWorkers: 4
 maxBatchDelay: 200
 responseTimeout: 3600
 deviceType: "cpu"
-pt2 : {backend: "openvino", options: {'model_caching' : False, 'aot_autograd' : False}}
+pt2 : {backend: "openvino"}
 handler:
     profile: true
     model_path: "model"
-    num_inference_steps: 30
+    num_inference_steps: 5
     compile_unet: true
     compile_mode: "max-autotune"
     compile_vae: true
     enable_fused_projections: true
     do_quant: false
-    change_comp_config: true
+    change_comp_config: false
     no_bf16: true
     no_sdpa: false
     upcast_vae: false
