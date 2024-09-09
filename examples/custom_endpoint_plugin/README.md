@@ -1,6 +1,6 @@
 # Torchserve custom endpoint plugin
 
-In this example, we demonstrate how to create a custom HTTP API endpoint plugin for TorchServe. Endpoint plugins enable us to dynamically add custom functionality to TorchServe at start time, without having to rebuild the entire TorchServe codebase. For more details on endpoint plugins and TorchServe SDK, refer to the following links:
+In this example, we demonstrate how to create a custom HTTP API endpoint plugin for TorchServe. Endpoint plugins enable us to dynamically add custom functionality to TorchServe at start time, without having to rebuild TorchServe. For more details on endpoint plugins and TorchServe SDK, refer to the following links:
 - [Plugins Readme](https://github.com/pytorch/serve/tree/master/plugins)
 - [TorchServe SDK source](https://github.com/pytorch/serve/tree/master/serving-sdk)
 
