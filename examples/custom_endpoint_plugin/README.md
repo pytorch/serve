@@ -54,26 +54,37 @@ Run the commands given in the following steps from the root directory of the rep
   $ cd ..
   ``` 
 
-- Step 6: Create an example model archive to test the plugin with
+- Step 6: Create two example model archives to test the plugin with
 
   ```bash
-  $ torch-model-archiver --model-name mnist --version 1.0 --model-file examples/image_classifier/mnist/mnist.py --serialized-file examples/image_classifier/mnist/mnist_cnn.pt --handler  examples/image_classifier/mnist/mnist_handler.py
   $ mkdir -p model_store
-  $ cp mnist.mar ./model_store 
+  $ torch-model-archiver --model-name mnist --version 1.0 --model-file examples/image_classifier/mnist/mnist.py --serialized-file examples/image_classifier/mnist/mnist_cnn.pt --handler  examples/image_classifier/mnist/mnist_handler.py
+  $ mv mnist.mar ./model_store 
   ```
 
-- Step 7: Start Torchserve with the appropriate plugins path containing the JAR we just built
+  ```bash 
+  $ wget https://download.pytorch.org/models/resnet18-f37072fd.pth
+  $ torch-model-archiver --model-name resnet-18 --version 1.0 --model-file ./examples/image_classifier/resnet_18/model.py --serialized-file resnet18-f37072fd.pth --handler image_classifier --extra-files ./examples/image_classifier/index_to_name.json
+  $ mv resnet-18.mar ./model_store
+  ```
 
+- Step 7: Start Torchserve with the appropriate plugins path containing the JAR we just built.
+  The plugin JAR will be contained in the `plugins/endpoints/build/libs` directory. For Ex: `plugins/endpoints/build/libs/endpoints-1.0.jar`
   ```bash
   $ torchserve --ncs --start --model-store ./model_store --disable-token-auth --enable-model-api --plugins-path ./plugins/endpoints/build/libs
   ```
 
-- Step 8: Register the model and test the custom endpoint
+- Step 8: Register the models and test the custom endpoint
 
   ```bash
   $ curl -X POST  "http://localhost:8081/models?url=mnist.mar"
   {
     "status": "Model \"mnist\" Version: 1.0 registered with 0 initial workers. Use scale workers API to add workers for the model."
+  }
+
+  $ curl -X POST  "http://localhost:8081/models?url=resnet-18.mar"
+  {
+    "status": "Model \"resnet-18\" Version: 1.0 registered with 0 initial workers. Use scale workers API to add workers for the model."
   }
   ```
 
@@ -84,9 +95,9 @@ Run the commands given in the following steps from the root directory of the rep
   }
   ```
 
-  The `model-ready` endpoint reports that the model is not ready since there are no workers that have loaded the model and ready to serve inference requests.
+  The `model-ready` endpoint reports that the models are not ready since there are no workers that have loaded the models and ready to serve inference requests.
 
-- Step 9: Scale up workers and test the custom endpoint again
+- Step 9: Scale up workers for one of the models and test the custom endpoint
   
   ```bash
   $ curl -X PUT "http://localhost:8081/models/mnist?min_worker=1&synchronous=true"
@@ -98,14 +109,36 @@ Run the commands given in the following steps from the root directory of the rep
   ```bash
   $ curl -X GET http://localhost:8080/model-ready
   {
+    "Status": "Model/s not ready"
+  }
+  ```
+
+  The `model-ready` endpoint reports that the models are not ready since not all registered models have atleast one worker ready to serve inference requests.
+
+- Step 10: Scale up workers for both models and test the custom endpoint
+
+  ```bash
+  $ curl -X PUT "http://localhost:8081/models/mnist?min_worker=1&synchronous=true"
+  {
+    "status": "Workers scaled to 1 for model: mnist"
+  }
+
+  $ curl -X PUT "http://localhost:8081/models/resnet-18?min_worker=1&synchronous=true"
+  {
+    "status": "Workers scaled to 1 for model: resnet-18"
+  }
+  ```
+
+  ```bash
+  $ curl -X GET http://localhost:8080/model-ready
+  {
     "Status": "Model/s ready"
   }
   ```
 
-  The `model-ready` endpoint reports that the model is now ready since there is atleast one worker that has loaded the model and is ready to serve inference requests.
+  The `model-ready` endpoint reports that the models are now ready since there is atleast one worker per registered model that is ready to serve inference requests.
 
-- Step 10: Stop TorchServe
-
+- Step 11: Stop TorchServe
   ```bash
   $ torchserve --stop
   ```
