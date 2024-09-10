@@ -154,7 +154,7 @@ class TransformersSeqClassifierHandler(BaseHandler):
         self.initialized = True
 
     def preprocess(self, requests):
-        """Basic text preprocessing, based on the user's chocie of application mode.
+        """Basic text preprocessing, based on the user's choice of application mode.
         Args:
             requests (str): The Input data in the form of text is passed on to the preprocess
             function.
@@ -193,14 +193,14 @@ class TransformersSeqClassifierHandler(BaseHandler):
 
             # preprocessing text for question_answering.
             elif self.setup_config["mode"] == "question_answering":
-                # TODO Reading the context from a pickeled file or other fromats that
+                # TODO Reading the context from a pickled file or other formats that
                 # fits the requirements of the task in hand. If this is done then need to
                 # modify the following preprocessing accordingly.
 
                 # the sample text for question_answering in the current version
-                # should be formated as dictionary with question and text as keys
+                # should be formatted as dictionary with question and text as keys
                 # and related text as values.
-                # we use this format here seperate question and text for encoding.
+                # we use this format here separate question and text for encoding.
 
                 question_context = ast.literal_eval(input_text)
                 question = question_context["question"]
@@ -215,7 +215,7 @@ class TransformersSeqClassifierHandler(BaseHandler):
                 )
             input_ids = inputs["input_ids"].to(self.device)
             attention_mask = inputs["attention_mask"].to(self.device)
-            # making a batch out of the recieved requests
+            # making a batch out of the received requests
             # attention masks are passed for cases where input tokens are padded.
             if input_ids.shape is not None:
                 if input_ids_batch is None:
@@ -486,7 +486,7 @@ def captum_sequence_forward(inputs, attention_mask=None, position=0, model=None)
 
 
 def summarize_attributions(attributions):
-    """Summarises the attribution across multiple runs
+    """Summarizes the attribution across multiple runs
     Args:
         attributions ([list): attributions from the Layer Integrated Gradients
     Returns:
