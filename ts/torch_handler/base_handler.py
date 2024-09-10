@@ -97,6 +97,13 @@ try:
 except ImportError:
     logger.warning("Torch TensorRT not enabled")
 
+try:
+    import torchao  # nopycln: import
+
+    logger.info("torchao enabled")
+except ImportError:
+    logger.warning("torchao not enabled")
+
 
 def setup_ort_session(model_pt_path, map_location):
     providers = (
@@ -267,6 +274,7 @@ class BaseHandler(abc.ABC):
             compile_options_str = ", ".join(
                 [f"{k} {v}" for k, v in compile_options.items()]
             )
+
             # Compilation will delay your model initialization
             try:
                 self.model = torch.compile(
@@ -279,6 +287,42 @@ class BaseHandler(abc.ABC):
                     f"Compiling model model with {compile_options_str} has failed \n Proceeding without compilation"
                 )
                 logger.warning(e)
+
+        # Check for torchao optimizations
+        if PT2_AVAILABLE and "ao" in pt2_value:
+            ao_options = pt2_value["ao"]
+            if ao_options.get("enable", False) == True:
+                if "autoquant" in ao_options:
+                    autoquant_options = ao_options.get("autoquant")
+                    if autoquant_options.get("enable", False) == True:
+                        del autoquant_options["enable"]
+
+                        if "qtensor_class_list" in autoquant_options:
+                            qtensor_class_list = getattr(
+                                torchao.quantization,
+                                autoquant_options["qtensor_class_list"],
+                            )
+                            autoquant_options.update(
+                                {"qtensor_class_list": qtensor_class_list}
+                            )
+
+                        self.model = torchao.autoquant(self.model, **autoquant_options)
+                        logger.info(f"torchao autoquant with {autoquant_options}")
+                if "quantize" in ao_options:
+                    quantize_options = ao_options.get("quantize")
+                    if quantize_options.get("enable", False) == True:
+                        if "quant_api" in quantize_options:
+                            quant_api = getattr(
+                                torchao.quantization.quant_api,
+                                quantize_options["quant_api"],
+                            )
+
+                        torchao.quantization.quant_api.quantize_(
+                            self.model, quant_api()
+                        )
+                        logger.info(
+                            f"torchao quantize with {quantize_options['quant_api']}"
+                        )
 
         elif IPEX_AVAILABLE:
             self.model = self.model.to(memory_format=torch.channels_last)

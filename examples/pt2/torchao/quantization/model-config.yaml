@@ -1,0 +1,14 @@
+minWorkers: 1
+maxWorkers: 1
+responseTimeout: 600
+handler:
+  profile: True
+pt2:
+  compile:
+    enable: True
+    backend: inductor
+    mode: max-autotune
+  ao:
+    enable: True
+    autoquant:
+      enable: True
