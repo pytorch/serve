@@ -58,6 +58,11 @@ if packaging.version.parse(torch.__version__) > packaging.version.parse("2.2.2")
 else:
     PT230_AVAILABLE = False
 
+if packaging.version.parse(torch.__version__) > packaging.version.parse("2.4.0"):
+    PT240_AVAILABLE = True
+else:
+    PT240_AVAILABLE = False
+
 try:
     import openvino.torch  # nopycln: import
 
@@ -289,7 +294,7 @@ class BaseHandler(abc.ABC):
                 logger.warning(e)
 
         # Check for torchao optimizations
-        if PT2_AVAILABLE and "ao" in pt2_value:
+        if PT240_AVAILABLE and "ao" in pt2_value:
             ao_options = pt2_value["ao"]
             if ao_options.get("enable", False) == True:
                 if "autoquant" in ao_options:
