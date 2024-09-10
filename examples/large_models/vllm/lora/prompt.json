@@ -1,9 +1,7 @@
 {
+  "model": "adapter_1",
   "prompt": "A robot may not injure a human being",
-  "max_new_tokens": 50,
-  "temperature": 0.8,
+  "temperature": 0.0,
   "logprobs": 1,
-  "prompt_logprobs": 1,
-  "max_tokens": 128,
-  "adapter": "adapter_1"
+  "max_tokens": 128
 }

@@ -7,13 +7,17 @@ deviceType: "gpu"
 asyncCommunication: true
 
 handler:
-    model_path: "model/models--meta-llama--Llama-2-7b-chat-hf/snapshots/f5db02db724555f92da89c216ac04704f23d4590/"
+    model_path: "model/models--meta-llama--Meta-Llama-3.1-8B/snapshots/48d6d0fc4e02fb1269b36940650a1b7233035cbb"
     vllm_engine_config:
         enable_lora: true
         max_loras: 4
         max_cpu_loras: 4
+        max_lora_rank: 32
         max_num_seqs: 16
         max_model_len: 250
+        served_model_name:
+            - "meta-llama/Meta-Llama-3.1-8B"
+            - "llama-8b-lora"
 
     adapters:
-        adapter_1: "adapters/model/models--yard1--llama-2-7b-sql-lora-test/snapshots/0dfa347e8877a4d4ed19ee56c140fa518470028c/"
+        adapter_1: "adapters/model/models--llama-duo--llama3.1-8b-summarize-gpt4o-128k/snapshots/4ba83353f24fa38946625c8cc49bf21c80a22825"

@@ -49,5 +49,5 @@ torchserve --start --ncs --ts-config ../config.properties --model-store model_st
 ### Step 5: Run inference
 
 ```bash
-python ../../utils/test_llm_streaming_response.py -m mistral -o 50 -t 2 -n 4 --prompt-text "@prompt.json" --prompt-json
+python ../../utils/test_llm_streaming_response.py -m mistral -o 50 -t 2 -n 4 --prompt-text "@prompt.json" --prompt-json --openai-api
 ```

@@ -63,12 +63,23 @@ Refer to [torchserve docker](docker/README.md) for details.
 ### 🤖 Quick Start LLM Deployment
 
 ```bash
+# Make sure to install torchserve with pip or conda as described above and login with `huggingface-cli login`
+python -m ts.llm_launcher --model_id meta-llama/Meta-Llama-3-8B-Instruct --disable_token_auth
+
+# Try it out
+curl -X POST -d '{"model":"meta-llama/Meta-Llama-3-8B-Instruct", "prompt":"Hello, my name is", "max_tokens": 200}' --header "Content-Type: application/json" "http://localhost:8080/predictions/model/1.0/v1/completions"
+```
+
+### 🚢 Quick Start LLM Deployment with Docker
+
+```bash
 #export token=<HUGGINGFACE_HUB_TOKEN>
 docker build --pull . -f docker/Dockerfile.llm -t ts/llm
 
 docker run --rm -ti --shm-size 10g --gpus all -e HUGGING_FACE_HUB_TOKEN=$token -p 8080:8080 -v data:/data ts/llm --model_id meta-llama/Meta-Llama-3-8B-Instruct --disable_token_auth
 
-curl -X POST -d '{"prompt":"Hello, my name is", "max_new_tokens": 50}' --header "Content-Type: application/json" "http://localhost:8080/predictions/model"
+# Try it out
+curl -X POST -d '{"model":"meta-llama/Meta-Llama-3-8B-Instruct", "prompt":"Hello, my name is", "max_tokens": 200}' --header "Content-Type: application/json" "http://localhost:8080/predictions/model/1.0/v1/completions"
 ```
 
 Refer to [LLM deployment](docs/llm_deployment.md) for details and other methods.

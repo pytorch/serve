@@ -1,6 +1,6 @@
 # Example showing inference with vLLM on LoRA model
 
-This is an example showing how to integrate [vLLM](https://github.com/vllm-project/vllm) with TorchServe and run inference on model `meta-llama/Meta-Llama-3-8B-Instruct` with continuous batching.
+This is an example showing how to integrate [vLLM](https://github.com/vllm-project/vllm) with TorchServe and run inference on model `meta-llama/Meta-Llama-3.1-8B-Instruct` with continuous batching.
 This examples supports distributed inference by following [this instruction](../Readme.md#distributed-inference)
 
 ### Step 0: Install vLLM
@@ -21,7 +21,7 @@ huggingface-cli login --token $HUGGINGFACE_TOKEN
 ```
 
 ```bash
-python ../../utils/Download_model.py --model_path model --model_name meta-llama/Meta-Llama-3-8B-Instruct --use_auth_token True
+python ../../utils/Download_model.py --model_path model --model_name meta-llama/Meta-Llama-3.1-8B-Instruct --use_auth_token True
 ```
 
 ### Step 2: Generate model artifacts
@@ -47,7 +47,12 @@ torchserve --start --ncs --ts-config ../config.properties --model-store model_st
 ```
 
 ### Step 5: Run inference
-
+Run a text completion:
 ```bash
-python ../../utils/test_llm_streaming_response.py -o 50 -t 2 -n 4 --prompt-text "@prompt.json" --prompt-json
+python ../../utils/test_llm_streaming_response.py -m llama3-8b -o 50 -t 2 -n 4 --prompt-text "@prompt.json" --prompt-json --openai-api
+```
+
+Or use the chat interface:
+```bash
+python ../../utils/test_llm_streaming_response.py -m llama3-8b -o 50 -t 2 -n 4 --prompt-text "@chat.json" --prompt-json --openai-api --demo-streaming --api-endpoint "v1/chat/completions"
 ```
