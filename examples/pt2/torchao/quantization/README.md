@@ -16,7 +16,7 @@ Ex:  `cd  examples/pt2/torchao/quantization`
 
 ## torchao autoquant API
 
-`torchao.autoquant` first identifies the shapes of the activations that the different linear layers see, it then benchmarks these shapes across different types of quantized and non-quantized layers in order to pick the fastest one, attempting to take into account fusions where possible. Finally once the best class is found for each layer, it swaps the linear. You can find addtional details [here](https://github.com/pytorch/ao/blob/main/torchao/quantization/README.md#autoquantization)
+`torchao.autoquant` first identifies the shapes of the activations that the different linear layers see, it then benchmarks these shapes across different types of quantized and non-quantized layers in order to pick the fastest one, attempting to take into account fusions where possible. Finally once the best class is found for each layer, it swaps the linear. You can find additional details [here](https://github.com/pytorch/ao/blob/main/torchao/quantization/README.md#autoquantization)
 
 In this example , we use the following config
 
@@ -71,17 +71,17 @@ produces the output
 
 ```
 {
-  "tabby": 0.4664836823940277,
-  "tiger_cat": 0.4645617604255676,
-  "Egyptian_cat": 0.06619937717914581,
-  "lynx": 0.0012969186063855886,
-  "plastic_bag": 0.00022856894065625966
+  "tabby": 0.2691785991191864,
+  "tiger_cat": 0.13622364401817322,
+  "Egyptian_cat": 0.04588942974805832,
+  "lynx": 0.0032150563783943653,
+  "lens_cap": 0.0023105053696781397
 }
 ```
 
-## torchao affine quantization
+## torchao Affine Quantization
 
-Affine quantization refers to the type of quantization that maps from high precision floating point numbers to quantized numbers (low precision integer or floating point dtypes) with an affine transformation. You can find addtional details [here](https://github.com/pytorch/ao/blob/main/torchao/quantization/README.md#affine-quantization) In the example below, we use `int8_weight_only` quantization
+Affine Quantization refers to the type of quantization that maps from high precision floating point numbers to quantized numbers (low precision integer or floating point dtype) with an affine transformation. You can find addtional details [here](https://github.com/pytorch/ao/blob/main/torchao/quantization/README.md#affine-quantization) In the example below, we use `int8_weight_only` quantization
 
 In this example , we use the following config
 
