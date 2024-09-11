@@ -41,7 +41,7 @@ class VLLMHandler(BaseHandler):
         vllm_engine_config = self._get_vllm_engine_config(
             ctx.model_yaml_config.get("handler", {})
         )
-        
+
         os.environ["VLLM_WORKER_MULTIPROC_METHOD"] = "spawn"
 
         self.vllm_engine = AsyncLLMEngine.from_engine_args(vllm_engine_config)
