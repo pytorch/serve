@@ -53,7 +53,7 @@ pt2:
 ```
 wget https://download.pytorch.org/models/resnet50-11ad3fa6.pth
 mkdir model_store
-torch-model-archiver --model-name resnet-50 --version 1.0 --model-file model.py   --serialized-file resnet50-11ad3fa6.pth --export-path model_store   --extra-files ../../image_classifier/index_to_name.json --handler image_classifier   --config-file model-config.yaml -f
+torch-model-archiver --model-name resnet-50 --version 1.0 --model-file model.py   --serialized-file resnet50-11ad3fa6.pth --export-path model_store   --extra-files ../../../image_classifier/index_to_name.json --handler image_classifier   --config-file model-config.yaml -f
 ```
 
 #### Start TorchServe
