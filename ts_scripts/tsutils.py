@@ -3,8 +3,7 @@ import platform
 import sys
 import threading
 from pathlib import Path
-from subprocess import PIPE, STDOUT, Popen
-
+import subprocess
 import requests
 
 from ts_scripts import marsgen as mg
@@ -72,7 +71,7 @@ def start_torchserve(
     if log_file:
         print(f"## Console logs redirected to file: {log_file}")
     print(f"## In directory: {os.getcwd()} | Executing command: {' '.join(cmd)}")
-    p = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=STDOUT)
+    p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     if log_file:
         Path(log_file).parent.absolute().mkdir(parents=True, exist_ok=True)
         with open(log_file, "a") as f:
@@ -101,7 +100,7 @@ def stop_torchserve():
     cmd = [f"{torchserve_command[platform.system()]}"]
     cmd.append("--stop")
     print(f"## In directory: {os.getcwd()} | Executing command: {cmd}")
-    p = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=STDOUT)
+    p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
     status = p.wait()
     if status == 0:
@@ -150,13 +149,17 @@ def unregister_model(model_name, protocol="http", host="localhost", port="8081")
 
 def generate_grpc_client_stubs():
     print("## Started generating gRPC clinet stubs")
-    cmd = (
-        "python -m grpc_tools.protoc -I third_party/google/rpc --proto_path=frontend/server/src/main/resources/proto/ --python_out=ts_scripts "
-        "--grpc_python_out=ts_scripts frontend/server/src/main/resources/proto/inference.proto "
+    cmd = [
+        "python", "-m", "grpc_tools.protoc",
+        "-I", "third_party/google/rpc",
+        "--proto_path", "frontend/server/src/main/resources/proto/",
+        "--python_out=ts_scripts",
+        "--grpc_python_out=ts_scripts",
+        "frontend/server/src/main/resources/proto/inference.proto",
         "frontend/server/src/main/resources/proto/management.proto"
-    )
-    status = os.system(cmd)
-    if status != 0:
+    ]
+    result = subprocess.run(cmd, capture_output=True, text=True)
+    if result.returncode != 0:
         print("Could not generate gRPC client stubs")
         sys.exit(1)
 

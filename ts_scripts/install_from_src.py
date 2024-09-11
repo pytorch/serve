@@ -1,6 +1,7 @@
 import argparse
 import os
 import sys
+import subprocess
 
 # To help discover local modules
 REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
@@ -13,12 +14,17 @@ from ts_scripts.utils import check_python_version
 def install_from_src(dev=False):
     for binary in [".", "model-archiver/.", "workflow-archiver/."]:
         cmd = (
-            f"pip install --force-reinstall -e {binary}"
+            ["pip", "install", "--force-reinstall", "-e", binary]
             if dev
-            else f"pip install --force-reinstall {binary}"
+            else ["pip", "install", "--force-reinstall", binary]
         )
         print(f"## In directory {os.getcwd()} | Executing command {cmd}")
-        os.system(cmd)
+        subprocess.run(
+                cmd,
+                capture_output=True,
+                text=True,
+                check=True
+            )
 
 
 if __name__ == "__main__":

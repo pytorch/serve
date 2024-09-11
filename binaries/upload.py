@@ -3,6 +3,7 @@ import argparse
 import glob
 import os
 import sys
+import subprocess
 
 # To help discover local modules
 REPO_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
@@ -44,11 +45,17 @@ def upload_conda_packages(args, PACKAGES, CONDA_PACKAGES_PATH):
                 "tar.bz2"
             ):
                 print(f"Uploading to anaconda package: {name}")
-                anaconda_upload_command = f"anaconda upload {file_path} --force"
-                exit_code = os.system(anaconda_upload_command)
-                if exit_code != 0:
-                    print(f"Anaconda package upload failed for package {name}")
-                    return exit_code
+                anaconda_upload_command = ["anaconda", "upload", file_path, "--force"]
+
+                try:
+                    subprocess.run(
+                        anaconda_upload_command,
+                        check=True,
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.PIPE
+                    )
+                except subprocess.CalledProcessError as e:
+                    return e.returncode
     print(f"All packages uploaded to anaconda successfully")
 
 
