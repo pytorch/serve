@@ -1,5 +1,6 @@
 import os
 import platform
+import shlex
 import subprocess
 import sys
 
@@ -48,8 +49,10 @@ def check_ts_version():
 def try_and_handle(cmd, dry_run=False):
     if dry_run:
         print(f"Executing command: {cmd}")
+    if isinstance(cmd, str):
+        cmd = shlex.split(cmd)
     else:
         try:
-            subprocess.run([cmd], shell=True, check=True)
+            subprocess.run(cmd, check=True)
         except subprocess.CalledProcessError as e:
             raise (e)

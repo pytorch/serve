@@ -1,6 +1,7 @@
 import argparse
 import datetime
 import os
+import shlex
 import shutil
 from subprocess import Popen
 
@@ -259,9 +260,13 @@ def clean_up_benchmark_env(bm_config):
 
 def execute(command, wait=False, stdout=None, stderr=None, shell=True):
     print("execute: {}".format(command))
+    
+    # Split the command into a list of arguments
+    if isinstance(command, str):
+        command = shlex.split(command)
+
     cmd = Popen(
         command,
-        shell=shell,
         close_fds=True,
         stdout=stdout,
         stderr=stderr,
