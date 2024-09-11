@@ -234,6 +234,7 @@ class BaseHandler(abc.ABC):
         else:
             raise RuntimeError("No model weights could be loaded")
 
+        pt2_value = None
         if hasattr(self, "model_yaml_config") and "pt2" in self.model_yaml_config:
             pt2_value = self.model_yaml_config["pt2"]
 
@@ -293,6 +294,12 @@ class BaseHandler(abc.ABC):
                 )
                 logger.warning(e)
 
+        elif IPEX_AVAILABLE:
+            self.model = self.model.to(memory_format=torch.channels_last)
+            self.model = self.model.to(self.device)
+            self.model = ipex.optimize(self.model)
+            logger.info(f"Compiled model with ipex")
+
         # Check for torchao optimizations
         if PT240_AVAILABLE and "ao" in pt2_value:
             ao_options = pt2_value["ao"]
@@ -328,12 +335,6 @@ class BaseHandler(abc.ABC):
                         logger.info(
                             f"torchao quantize with {quantize_options['quant_api']}"
                         )
-
-        elif IPEX_AVAILABLE:
-            self.model = self.model.to(memory_format=torch.channels_last)
-            self.model = self.model.to(self.device)
-            self.model = ipex.optimize(self.model)
-            logger.info(f"Compiled model with ipex")
 
         logger.debug("Model file %s loaded successfully", self.model_pt_path)
 
