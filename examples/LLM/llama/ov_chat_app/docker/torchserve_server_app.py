@@ -205,7 +205,7 @@ with image_container:
     This Streamlit app is designed to generate multiple images based on a provided text prompt.
     It leverages **TorchServe** for efficient model serving and management, and utilizes **LLaMA3** 
     with **GPT-FAST** and **4-bit weight compression** for prompt generation, and **Stable Diffusion** 
-    with **latent-consistency/lcm-sdxl** and **Torch.compilen** using **OpenVINO backend** for image generation.
+    with **latent-consistency/lcm-sdxl** and **Torch.compile** using **OpenVINO backend** for image generation.
     """)
     st.image("workflow-1.png")
     
