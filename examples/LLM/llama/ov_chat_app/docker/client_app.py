@@ -17,10 +17,10 @@ MODEL_NAME_SD = os.environ["MODEL_NAME_SD"]
 MODEL_NAME_SD = MODEL_NAME_SD.replace("/", "---")
 
 # App title
-st.set_page_config(page_title="Image Generation with SDXL and OpenVino")
+st.set_page_config(page_title="Image Generation with SDXL and OpenVINO")
 
 with st.sidebar:
-    st.title("Image Generation with SDXL and OpenVino")
+    st.title("Image Generation with SDXL and OpenVINO")
 
     st.session_state.model_sd_loaded = False
 
@@ -62,37 +62,40 @@ with st.sidebar:
         st.warning("TorchServe is not up. Try again", icon="⚠️")
 
     st.subheader("Number of images to generate")
-    images_num = st.sidebar.slider(
-        "num_of_img", min_value=1, max_value=4, value=4, step=1
+    images_num = st.sidebar.number_input(
+        "num_of_img", min_value=1, max_value=6, value=2, step=1
     )
 
     st.subheader("Llama Model parameters")
-    max_new_tokens = st.sidebar.slider(
+    max_new_tokens = st.sidebar.number_input(
         "max_new_tokens", min_value=30, max_value=250, value=50, step=10
     )
-    temperature = st.sidebar.slider(
+
+    temperature = st.sidebar.number_input(
         "temperature", min_value=0.0, max_value=2.0, value=0.8, step=0.1
     )
-    top_k = st.sidebar.slider(
+
+    top_k = st.sidebar.number_input(
         "top_k", min_value=1, max_value=200, value=200, step=1
     )
 
 
     st.subheader("SD Model parameters")
-    num_inference_steps = st.sidebar.slider(
-        "steps", min_value=1, max_value=150, value=30, step=1
-    )
-    guidance_scale = st.sidebar.slider(
-        "guidance_scale", min_value=1.0, max_value=30.0, value=5.0, step=0.5
-    )
-    height = st.sidebar.slider(
-        "height", min_value=256, max_value=2048, value=768, step=8
-    )
-    width = st.sidebar.slider(
-        "width", min_value=256, max_value=2048, value=768, step=8
+    num_inference_steps = st.sidebar.number_input(
+        "steps", min_value=1, max_value=100, value=5, step=1
     )
 
-prompt = st.text_input("Text Prompt")
+    guidance_scale = st.sidebar.number_input(
+        "guidance_scale", min_value=1.0, max_value=30.0, value=5.0, step=0.5
+    )
+
+    height = st.sidebar.number_input(
+        "height", min_value=256, max_value=2048, value=768, step=8
+    )
+
+    width = st.sidebar.number_input(
+        "width", min_value=256, max_value=2048, value=768, step=8
+    )
 
 
 def generate_sd_response_v1(prompt_input):
@@ -146,12 +149,12 @@ def preprocess_llm_input(input_prompt, images_num = 2):
              Add semicolon between the prompts. \
              Generated string of prompts should be included in square brackets. E.g.:"
 
-
 def trim_prompt(s):
     return re.sub(r'^[^a-zA-Z0-9]+|[^a-zA-Z0-9]+$', '', s)
 
 
 def postprocess_llm_response(prompts, original_prompt=None, images_num=2):
+    
     prompts = [trim_prompt(item) for item in prompts.split(";")]
     prompts = list(filter(None, prompts))
     
@@ -179,11 +182,38 @@ def generate_llm_model_response(input_prompt):
         }
     )
 
-    res = requests.post(url=url, data=data, headers=headers, stream=True)
-    assert res.status_code == 200
+    try:
+        res = requests.post(url=url, data=data, headers=headers, stream=True)
+        
+        if res.status_code == 200:
+            response_text = res.text
+        else:
+            response_text = "Sorry, there was an issue generating prompts. Please try again !"
 
-    return res.text
+    except requests.RequestException:
+        response_text = "Sorry, there was an error connecting to the server. Please try again !"
 
+    return response_text
+    
+
+# Client Page UI
+st.title("Multi-Image Generation App with TorchServe and OpenVINO")
+intro_container = st.container()
+with intro_container:
+    st.markdown("""
+        The multi-image generation use case enhances user prompts using **LLaMA3**, which is optimized with 
+        GPT-FAST and 4-bit weight compression, to generate four similar prompts with additional context.
+        These refined prompts are then processed in parallel by **Stable Diffusion**, which is optimized 
+        using the latent-consistency/lcm-sdxl model and accelerated with **Torch.compile** using the 
+        **OpenVINO** backend. This approach enables efficient and high-quality image generation, 
+        offering users a selection of interpretations to choose from.
+    """)
+    st.image("workflow-2.png")
+    
+prompt = st.text_input("Enter Text Prompt:")
+
+prompt_container = st.container()
+image_container = st.container()
 
 if 'gen_images' not in st.session_state:
     st.session_state.gen_images = []
@@ -191,21 +221,23 @@ if 'gen_captions' not in st.session_state:
     st.session_state.gen_captions = []
 
 def display_images_in_grid(images, captions):
-    cols = st.columns(2)
+    cols = image_container.columns(2)
     for i, (img, caption) in enumerate(zip(images, captions)):
         col = cols[i % 2]
         col.image(img, caption=caption, use_column_width=True)
 
-# gen_prompt = st.button("Generate Prompt")
-# col1, col2 = st.columns([1,1])
-
+def display_prompts():
+    prompt_container.write(f"Generated prompts:")
+    for pr in st.session_state.llm_prompts:
+        prompt_container.write(pr)
+        
 if 'llm_prompts' not in st.session_state:
     st.session_state.llm_prompts = None
 
 if 'llm_time' not in st.session_state:
     st.session_state.llm_time = 0
 
-if st.button("Generate Prompts"):
+if prompt_container.button("Generate Prompts"):
     with st.spinner('Generating prompts...'):
         llm_start_time = time.time()
 
@@ -216,28 +248,36 @@ if st.button("Generate Prompts"):
             st.session_state.llm_prompts = postprocess_llm_response(llm_prompts, prompt, images_num)
 
         st.session_state.llm_time = time.time() - llm_start_time
+        display_prompts()
 
-        st.write(f"Generated prompts:")
-        for pr in st.session_state.llm_prompts:
-            st.write(pr)
 
 if not st.session_state.llm_prompts:
-    st.write(f"You need to generate prompts at first!")
+    prompt_container.write(f"You need to generate prompts at first!")
     pass
 elif len(st.session_state.llm_prompts) != images_num:
-    st.write(f"Generate the prompts again!")
+    prompt_container.write(f"Generate the prompts again!")
     pass
-elif st.button("Generate Images"):
+else:
     with st.spinner('Generating images...'):
-        st.session_state.gen_captions[:0] = st.session_state.llm_prompts
-        sd_start_time = time.time()
-        # sd_res = generate_sd_response_v1(llm_prompts)
-        sd_res = asyncio.run(generate_sd_response_v2(st.session_state.llm_prompts))
+        if image_container.button("Generate Images"):
+            st.session_state.gen_captions[:0] = st.session_state.llm_prompts
+            sd_start_time = time.time()
+            
+            sd_res = asyncio.run(generate_sd_response_v2(st.session_state.llm_prompts))
 
-        images = sd_response_postprocess(sd_res)
-        st.session_state.gen_images[:0] = images
+            images = sd_response_postprocess(sd_res)
+            st.session_state.gen_images[:0] = images
 
-        display_images_in_grid(st.session_state.gen_images, st.session_state.gen_captions)
+            display_images_in_grid(st.session_state.gen_images, st.session_state.gen_captions)
 
-        sd_time = time.time() - sd_start_time
-        print(f'TOTAL APP TIME: {(sd_time + st.session_state.llm_time):.2f}')
+            sd_time = time.time() - sd_start_time
+            
+            e2e_time = sd_time + st.session_state.llm_time
+            
+            timing_info = f"""Time Taken: {e2e_time:.2f} sec.
+            LLM time: {st.session_state.llm_time:.2f} sec.
+            SD time: {sd_time:.2f} sec."""
+            
+            print(timing_info)
+            display_prompts()
+            prompt_container.write(timing_info)

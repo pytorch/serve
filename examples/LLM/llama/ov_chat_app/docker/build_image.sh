@@ -4,6 +4,9 @@ BASE_IMAGE="pytorch/torchserve:latest-cpu"
 
 DOCKER_TAG="pytorch/torchserve:ov_chat_bot"
 
+LLM_HF_ID=meta-llama/Meta-Llama-3-8B
+SD_HF_ID=stabilityai/stable-diffusion-xl-base-1.0
+
 # Get relative path of example dir
 EXAMPLE_DIR=$(dirname "$(readlink -f "$0")")
 ROOT_DIR=${EXAMPLE_DIR}/../../../../..
@@ -32,8 +35,8 @@ echo "docker run --rm -it --platform linux/amd64 \\
 -p 127.0.0.1:8084:8084 \\
 -p 127.0.0.1:8085:8085 \\
 -v ${PWD}/model-store-local:/home/model-server/model-store \\
--e MODEL_NAME_LLM=meta-llama/Meta-Llama-3-8B \\
--e MODEL_NAME_SD=stabilityai/stable-diffusion-xl-base-1.0  \\
+-e MODEL_NAME_LLM=${LLM_HF_ID} \\
+-e MODEL_NAME_SD=${SD_HF_ID}  \\
 $DOCKER_TAG"
 echo ""
 echo "Note: You can replace the model identifier as needed"

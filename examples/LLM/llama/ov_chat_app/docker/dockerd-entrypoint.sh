@@ -23,7 +23,7 @@ setup_llm() {
     MODEL_DIR_LLM=$1
     MODEL_NAME_LLM=$2
     if [ -f "/home/model-server/model-store/$MODEL_DIR_LLM/checkpoints/$MODEL_NAME_LLM/model_int4.g32.pth" ]; then
-        echo "Model $MODEL_NAME_LLM already downloaded"
+        echo "Model $MODEL_NAME_LLM already downloaded."
     else
         echo "Downloading  model $MODEL_NAME_LLM"
         ./scripts/prepare.sh "$MODEL_NAME_LLM"
@@ -34,10 +34,10 @@ setup_llm() {
 
     pushd llm
 
-    echo "Create model archive for ${MODEL_DIR_LLM} if it doesn't already exist"
     if [ -d "/home/model-server/model-store/$MODEL_DIR_LLM/MAR-INF" ]; then
         echo "Model archive for $MODEL_DIR_LLM exists."
     else
+        echo "Creating model archive for ${MODEL_DIR_LLM} ..."
         # Create model archive
         torch-model-archiver --model-name "$MODEL_DIR_LLM" --version 1.0 \
         --handler llama_handler.py --config-file model-config.yaml \
@@ -67,10 +67,10 @@ setup_sd() {
         python Download_model.py --model_path /home/model-server/model-store/$MODEL_DIR_SD/model --model_name $MODEL_NAME_SD
     fi
 
-    echo "Create model archive for ${MODEL_DIR_SD} if it doesn't already exist"
     if [ -d "/home/model-server/model-store/$MODEL_DIR_SD/MAR-INF" ]; then
         echo "Model archive for $MODEL_DIR_SD exists."
     else
+        echo "Creating model archive for ${MODEL_DIR_SD} ..."
         # Create model archive
         torch-model-archiver --model-name "$MODEL_DIR_SD" --version 1.0 \
         --handler stable_diffusion_handler.py --config-file model-config.yaml \

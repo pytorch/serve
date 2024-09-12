@@ -11,9 +11,7 @@ from ts.handler_utils.timer import timed
 from ts.torch_handler.base_handler import BaseHandler
 from ts.utils.util import check_valid_pt2_backend
 
-
 logger = logging.getLogger(__name__)
-
 
 class StableDiffusionHandler(BaseHandler):
     """
@@ -57,6 +55,7 @@ class StableDiffusionHandler(BaseHandler):
         compile_mode = ctx.model_yaml_config["handler"]["compile_mode"]
         change_comp_config = ctx.model_yaml_config["handler"]["change_comp_config"]
         is_xl = ctx.model_yaml_config["handler"]["is_xl"]
+        is_lcm = ctx.model_yaml_config["handler"]["is_lcm"]
 
         compile_options = {}
         if "pt2" in ctx.model_yaml_config:
@@ -89,6 +88,7 @@ class StableDiffusionHandler(BaseHandler):
             change_comp_config=change_comp_config,
             compile_options=compile_options,
             is_xl=is_xl,
+            is_lcm=is_lcm,
         )
 
         logger.info("Stable Diffusion model loaded successfully")
@@ -130,7 +130,7 @@ class StableDiffusionHandler(BaseHandler):
         """
         # Handling inference for sequence_classification.
         guidance_scale = model_inputs.get("guidance_scale") or 5.0
-        num_inference_steps = model_inputs.get("num_inference_steps") or 30
+        num_inference_steps = model_inputs.get("num_inference_steps") or 5
         height = model_inputs.get("height") or 768
         width = model_inputs.get("width") or 768
         inferences = self.pipeline(

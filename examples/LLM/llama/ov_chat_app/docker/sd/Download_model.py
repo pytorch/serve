@@ -53,5 +53,7 @@ pipeline = DiffusionPipeline.from_pretrained(
     variant="fp16",
 )
 pipeline.save_pretrained(args.model_path)
+unet.save_pretrained(f"{args.model_path}/lcm")
+
 
 print(f"\nFiles for '{args.model_name}' is downloaded to '{args.model_path}'")

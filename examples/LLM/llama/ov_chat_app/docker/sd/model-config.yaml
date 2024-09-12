@@ -18,3 +18,4 @@ handler:
     no_sdpa: false
     upcast_vae: false
     is_xl: true
+    is_lcm: true
