@@ -2,8 +2,7 @@ import json
 import logging
 import time
 
-import torch
-from tensorrt_llm.runtime import ModelRunner
+from tensorrt_llm.hlapi import LLM, KvCacheConfig, SamplingParams
 from transformers import AutoTokenizer
 
 from ts.handler_utils.utils import send_intermediate_predict_response
@@ -25,9 +24,8 @@ class TRTLLMHandler(BaseHandler):
     def initialize(self, ctx):
         self.model_dir = ctx.system_properties.get("model_dir")
 
-        trt_llm_engine_config = ctx.model_yaml_config.get("handler").get(
-            "trt_llm_engine_config"
-        )
+        engine_dir = ctx.model_yaml_config.get("handler").get("engine_dir")
+        kv_cache_cfg = ctx.model_yaml_config.get("handler").get("kv_cache_config", {})
 
         tokenizer_dir = ctx.model_yaml_config.get("handler").get("tokenizer_dir")
         self.tokenizer = AutoTokenizer.from_pretrained(
@@ -42,7 +40,11 @@ class TRTLLMHandler(BaseHandler):
         if self.tokenizer.pad_token_id is None:
             self.tokenizer.pad_token_id = self.tokenizer.eos_token_id
 
-        self.trt_llm_engine = ModelRunner.from_dir(**trt_llm_engine_config)
+        kv_cache_config = KvCacheConfig(**kv_cache_cfg)
+
+        self.trt_llm_engine = LLM(
+            model=engine_dir, tokenizer=self.tokenizer, kv_cache_config=kv_cache_config
+        )
         self.initialized = True
 
     async def handle(self, data, context):
@@ -51,8 +53,8 @@ class TRTLLMHandler(BaseHandler):
         metrics = context.metrics
 
         data_preprocess = await self.preprocess(data)
-        output, data = await self.inference(data_preprocess, context)
-        output = await self.postprocess(output, data, context)
+        output, streaming, data = await self.inference(data_preprocess, context)
+        output = await self.postprocess(output, streaming, data, context)
 
         stop_time = time.time()
         metrics.add_time(
@@ -66,50 +68,36 @@ class TRTLLMHandler(BaseHandler):
         data = req_data.get("data") or req_data.get("body")
         if isinstance(data, (bytes, bytearray)):
             data = data.decode("utf-8")
-
-        prompt = data.get("prompt")
-        input_ids = self.tokenizer.encode(
-            prompt, add_special_tokens=True, truncation=True
-        )
-        del data["prompt"]
-        batch_input_ids = torch.tensor([input_ids], dtype=torch.int32)
-        data.update({"batch_input_ids": batch_input_ids})
-
         return data
 
     async def inference(self, data, context):
         generate_kwargs = {
             "end_id": self.tokenizer.eos_token_id,
             "pad_id": self.tokenizer.pad_token_id,
-            "output_sequence_lengths": True,
-            "return_dict": True,
         }
+        prompt = data.get("prompt")
+        streaming = data.get("streaming", False)
+        del data["prompt"]
+        if "streaming" in data:
+            del data["streaming"]
         generate_kwargs.update(data)
+        sampling_params = SamplingParams(**generate_kwargs)
 
-        with torch.no_grad():
-            outputs = self.trt_llm_engine.generate(**generate_kwargs)
-        return outputs, data
+        outputs = self.trt_llm_engine.generate_async(
+            prompt, streaming=streaming, sampling_params=sampling_params
+        )
+        return outputs, streaming, data
 
-    async def postprocess(self, inference_outputs, data, context):
-        if not data.get("streaming", False):
-            output_ids = inference_outputs["output_ids"]
-            sequence_lengths = inference_outputs["sequence_lengths"]
-
-            output_end = sequence_lengths[0]
-            outputs = output_ids[0][0].tolist()
-            output_text = self.tokenizer.decode(outputs)
-            return [output_text]
-
-        # Streaming output
-        for inference_output in inference_outputs:
-            output_ids = inference_output["output_ids"]
-            sequence_lengths = inference_output["sequence_lengths"]
-
-            batch_size, _, _ = output_ids.size()
-            for batch_idx in range(batch_size):
-                output_end = sequence_lengths[batch_idx][0]
-                outputs = output_ids[batch_idx][0][output_end - 1 : output_end].tolist()
-                output_text = self.tokenizer.decode(outputs)
+    async def postprocess(self, outputs, streaming, data, context):
+        for output in outputs:
+            output_text, output_ids = (
+                output.outputs[0].text,
+                output.outputs[0].token_ids,
+            )
+            if not streaming:
+                return [output_text]
+            else:
+                output_text = self.tokenizer.decode([output_ids[-1]])
                 send_intermediate_predict_response(
                     [json.dumps({"text": output_text})],
                     context.request_ids,
@@ -117,4 +105,4 @@ class TRTLLMHandler(BaseHandler):
                     200,
                     context,
                 )
-        return [""] * len(input_batch)
+        return [""]

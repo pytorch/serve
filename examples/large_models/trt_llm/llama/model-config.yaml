@@ -8,5 +8,6 @@ asyncCommunication: true
 
 handler:
     tokenizer_dir: "model/models--meta-llama--Meta-Llama-3.1-8B-Instruct/snapshots/5206a32e0bd3067aef1ce90f5528ade7d866253f/"
-    trt_llm_engine_config:
-        engine_dir: "llama-3.1-8b-engine"
+    engine_dir: "llama-3.1-8b-engine"
+    kv_cache_config:
+        free_gpu_memory_fraction: 0.1
