@@ -20,6 +20,10 @@ public class ModelReady extends ModelServerEndpoint {
     private boolean modelsLoaded(Context ctx) {
         Map<String, Model> modelMap = ctx.getModels();
 
+        if (modelMap.isEmpty()) {
+            return false;
+        }
+
         for (Map.Entry<String, Model> entry : modelMap.entrySet()) {
             boolean workerReady = false;
             for (Worker w : entry.getValue().getModelWorkers()) {

@@ -21,7 +21,7 @@ Run the commands given in the following steps from the root directory of the rep
   ```bash
   $ cp examples/custom_endpoint_plugin/ModelReady.java plugins/endpoints/src/main/java/org/pytorch/serve/plugins/endpoint
   ```
-  Review the utilization of the [TorchServe SDK API](https://github.com/pytorch/serve/tree/master/serving-sdk) in [ModelReady.java](ModelReady.java) to implement the necessary functionality for the HTTP API endpoint.
+  For reference on implemeting your own custom plugin, review the utilization of the [TorchServe SDK API](https://github.com/pytorch/serve/tree/master/serving-sdk/src/main/java/org/pytorch/serve/servingsdk) and its corresponding [implementation](https://github.com/pytorch/serve/tree/master/frontend/server/src/main/java/org/pytorch/serve/servingsdk/impl) in [ModelReady.java](ModelReady.java).
 
 - Step 3: Copy [org.pytorch.serve.servingsdk.ModelServerEndpoint](org.pytorch.serve.servingsdk.ModelServerEndpoint) to the plugins service provider configuration directory
 
