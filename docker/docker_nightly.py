@@ -65,7 +65,7 @@ if __name__ == "__main__":
         dry_run,
     )
     try_and_handle(
-        f"docker tag {organization}/{gpu_version} {organization}/{project}:latest-gpu",
+        f"docker buildx imagetools create --tag {organization}/{project}:latest-gpu {organization}/{gpu_version}",
         dry_run,
     )
     # try_and_handle(
