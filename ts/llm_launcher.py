@@ -16,9 +16,9 @@ from ts.utils.hf_utils import download_model
 
 
 def create_tensorrt_llm_engine(model_store, model_name, dtype, snapshot_path):
-    if not os.path.exists("TensorRT-LLM"):
+    if not Path("TensorRT-LLM").exists:
         subprocess.run(["git", "clone", "https://github.com/NVIDIA/TensorRT-LLM.git"])
-    if not os.path.exists(f"{model_store}/{model_name}/tllm_checkpoint_1gpu_bf16"):
+    if not Path(f"{model_store}/{model_name}/tllm_checkpoint_1gpu_bf16").exists:
         subprocess.run(
             [
                 "python",
@@ -31,7 +31,7 @@ def create_tensorrt_llm_engine(model_store, model_name, dtype, snapshot_path):
                 dtype,
             ]
         )
-    if not os.path.exists(f"{model_store}/{model_name}/{model_name}-engine"):
+    if not Path(f"{model_store}/{model_name}/{model_name}-engine").exists:
         subprocess.run(
             [
                 "trtllm-build",
@@ -131,7 +131,7 @@ def create_mar_file(args, model_snapshot_path=None):
         archive_format="no-archive",
     )
 
-    if not os.path.exists(mar_file_path):
+    if not mar_file_path.exists:
         generate_model_archive(config)
 
     model_config_yaml.unlink()

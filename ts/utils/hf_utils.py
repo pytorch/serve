@@ -16,6 +16,7 @@ def download_model(
         "*.model",
         "*.pth",
         "*.safetensors",
+        "original/*",
     ]
 
     snapshot_path = snapshot_download(
