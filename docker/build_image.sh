@@ -18,7 +18,8 @@ BUILD_NIGHTLY=false
 BUILD_FROM_SRC=false
 LOCAL_CHANGES=true
 PYTHON_VERSION=3.9
-ARCH="linux/amd64"
+ARCH="linux/amd64,linux/arm64"
+MULTI=false
 
 for arg in "$@"
 do
@@ -40,7 +41,6 @@ do
           echo "-n, --nightly specify to build with TorchServe nightly"
           echo "-s, --source specify to build with TorchServe from source"
           echo "-r, --remote specify to use local TorchServe"
-          echo "-a, --arch to arm64"
           exit 0
           ;;
         -b|--branch_name)
@@ -103,8 +103,8 @@ do
           BUILD_CPP=true
           shift
           ;;
-        -a|--arch)
-          ARCH="linux/arm64"
+        -m|--multi)
+          MULTI=true
           shift
           ;;
         -n|--nightly)
@@ -221,10 +221,15 @@ then
 fi
 
 if [ "${BUILD_TYPE}" == "production" ]
-then
-  DOCKER_BUILDKIT=1 docker build --file Dockerfile --build-arg BASE_IMAGE="${BASE_IMAGE}" --build-arg USE_CUDA_VERSION="${CUDA_VERSION}"  --build-arg PYTHON_VERSION="${PYTHON_VERSION}"\
-  --build-arg BUILD_NIGHTLY="${BUILD_NIGHTLY}" --build-arg BRANCH_NAME="${BRANCH_NAME}" --build-arg REPO_URL="${REPO_URL}" --build-arg BUILD_FROM_SRC="${BUILD_FROM_SRC}"\
-  --build-arg LOCAL_CHANGES="${LOCAL_CHANGES}" -t "${DOCKER_TAG}" --platform "${ARCH}" --target production-image  ../
+  if [ "${MULTI}" == "true"]
+  then
+    DOCKER_BUILDKIT=1 docker buildx build --file Dockerfile --build-arg BASE_IMAGE="${BASE_IMAGE}" --build-arg USE_CUDA_VERSION="${CUDA_VERSION}"  --build-arg PYTHON_VERSION="${PYTHON_VERSION}"\
+    --build-arg BUILD_NIGHTLY="${BUILD_NIGHTLY}" --build-arg BRANCH_NAME="${BRANCH_NAME}" --build-arg REPO_URL="${REPO_URL}" --build-arg BUILD_FROM_SRC="${BUILD_FROM_SRC}"\
+    --build-arg LOCAL_CHANGES="${LOCAL_CHANGES}" -t "${DOCKER_TAG}" --platform "${ARCH}" --target production-image  ../ --push
+  else
+    DOCKER_BUILDKIT=1 docker buildx build --file Dockerfile --build-arg BASE_IMAGE="${BASE_IMAGE}" --build-arg USE_CUDA_VERSION="${CUDA_VERSION}"  --build-arg PYTHON_VERSION="${PYTHON_VERSION}"\
+    --build-arg BUILD_NIGHTLY="${BUILD_NIGHTLY}" --build-arg BRANCH_NAME="${BRANCH_NAME}" --build-arg REPO_URL="${REPO_URL}" --build-arg BUILD_FROM_SRC="${BUILD_FROM_SRC}"\
+    --build-arg LOCAL_CHANGES="${LOCAL_CHANGES}" -t "${DOCKER_TAG}" --target production-image  ../
 elif [ "${BUILD_TYPE}" == "ci" ]
 then
   DOCKER_BUILDKIT=1 docker build --file Dockerfile --build-arg BASE_IMAGE="${BASE_IMAGE}" --build-arg USE_CUDA_VERSION="${CUDA_VERSION}"  --build-arg PYTHON_VERSION="${PYTHON_VERSION}"\

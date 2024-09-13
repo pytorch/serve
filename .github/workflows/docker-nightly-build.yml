@@ -2,9 +2,11 @@ name: Push Docker Nightly
 
 on:
   # Run every day at 1:15pm
-  schedule:
-    - cron: "15 13 * * *"
-  workflow_dispatch:
+  # schedule:
+  #   - cron: "15 13 * * *"
+  # workflow_dispatch:
+  push:
+    branches: "docker_aarch"
 
 jobs:
   nightly:
@@ -28,49 +30,21 @@ jobs:
           submodules: recursive
       - name: Login to Docker
         env:
-          DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
-        run: docker login --username pytorchbot --password "$DOCKER_PASSWORD"
+          DOCKER_PASSWORD: ${{secrets.UDAI_TEST}}
+        run: docker login --username udaij12 --password "$DOCKER_PASSWORD"
       - name: Push Docker Nightly
         run: |
           cd docker
           python docker_nightly.py --cleanup
-      - name: Push KServe Docker Nightly
-        run: |
-          cd kubernetes/kserve
-          python docker_nightly.py --cleanup
-      - name: Open issue on failure
-        if: ${{ failure() && github.event_name  == 'schedule' }}
-        uses: dacbd/create-issue-action@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          title: Nightly Docker build failed
-          body: Commit ${{ github.sha }} daily scheduled [CI run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) failed, please check why
-          assignees: ""
-
-  graviton_job:
-    runs-on: [graviton-test]
-    steps:
-      - name: Clean up previous run on Graviton
-        run: |
-          echo "Cleaning up previous Graviton"
-          ls -la ./
-          sudo rm -rf ./* || true
-          sudo rm -rf ./.??* || true
-          ls -la ./
-      - name: Setup Python 3.9 on Graviton
-        uses: actions/setup-python@v5
-        with:
-          python-version: 3.9
-          architecture: aarch64
-      - name: Checkout TorchServe
-        uses: actions/checkout@v3
-        with:
-          submodules: recursive
-      - name: Login to Docker
-        env:
-          DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
-        run: docker login --username pytorchbot --password "$DOCKER_PASSWORD"
-      - name: Push Docker Nightly
-        run: |
-          cd docker
-          python docker_nightly.py --cleanup --arm
+      # - name: Push KServe Docker Nightly
+      #   run: |
+      #     cd kubernetes/kserve
+      #     python docker_nightly.py --cleanup
+      # - name: Open issue on failure
+      #   if: ${{ failure() && github.event_name  == 'schedule' }}
+      #   uses: dacbd/create-issue-action@v1
+      #   with:
+      #     token: ${{ secrets.GITHUB_TOKEN }}
+      #     title: Nightly Docker build failed
+      #     body: Commit ${{ github.sha }} daily scheduled [CI run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) failed, please check why
+      #     assignees: ""
