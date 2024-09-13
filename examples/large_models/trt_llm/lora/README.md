@@ -19,7 +19,7 @@ shows
 [TensorRT-LLM] TensorRT-LLM version: 0.13.0.dev2024090300
 ```
 
-## Download Base model  & LoRA adapter from HuggingFace
+## Download Base model & LoRA adapter from Hugging Face
 ```
 huggingface-cli login
 # or using an environment variable
