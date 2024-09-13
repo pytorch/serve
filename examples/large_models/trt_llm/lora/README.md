@@ -8,7 +8,6 @@
 - TRT-LLM works well with python venv (vs conda)
 This example is tested with CUDA 12.1
 Once TorchServe is installed, install TensorRT-LLM using the following.
-This will downgrade the versions of PyTorch & Triton but this doesn't cause any issue.
 
 ```
 pip install tensorrt_llm -U --pre --extra-index-url https://pypi.nvidia.com
