@@ -24,6 +24,7 @@ def get_model_config(args):
         "batchSize": 1,
         "maxBatchDelay": 100,
         "responseTimeout": 1200,
+        "startupTimeout": args.startup_timeout,
         "deviceType": "gpu",
         "asyncCommunication": True,
         "parallelLevel": torch.cuda.device_count() if torch.cuda.is_available else 1,
@@ -142,7 +143,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--vllm_engine.max_num_seqs",
         type=int,
-        default=16,
+        default=256,
         help="Max sequences in vllm engine",
     )
 
@@ -158,6 +159,13 @@ if __name__ == "__main__":
         type=str,
         default=None,
         help="Cache dir",
+    )
+
+    parser.add_argument(
+        "--startup_timeout",
+        type=int,
+        default=1200,
+        help="Model startup timeout in seconds",
     )
 
     args = parser.parse_args()
