@@ -35,7 +35,7 @@ jobs:
       - name: Push Docker Nightly
         run: |
           cd docker
-          docker buildx create --name multibuilder --use
+          docker buildx use multibuilder
           python docker_nightly.py --cleanup
       # - name: Push KServe Docker Nightly
       #   run: |
