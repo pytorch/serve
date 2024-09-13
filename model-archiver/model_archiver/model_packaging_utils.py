@@ -183,11 +183,21 @@ class ModelExportUtils(object):
 
                 if file_type == "extra_files":
                     for path_or_wildcard in path.split(","):
-                        if not Path(path_or_wildcard).exists():
+                        maybe_wildcard = "*" in path_or_wildcard
+                        maybe_wildcard |= "?" in path_or_wildcard
+                        maybe_wildcard |= (
+                            "[" in path_or_wildcard and "]" in path_or_wildcard
+                        )
+                        if not (maybe_wildcard or Path(path_or_wildcard).exists()):
                             raise FileNotFoundError(
                                 f"File does not exist: {path_or_wildcard}"
                             )
-                        for file in glob.glob(path_or_wildcard.strip()):
+                        files = glob.glob(path_or_wildcard.strip())
+                        if maybe_wildcard and len(files) == 0:
+                            logging.warning(
+                                f"Given wildcard pattern did not match any file: {path_or_wildcard}"
+                            )
+                        for file in files:
                             if os.path.isfile(file):
                                 shutil.copy2(file, model_path)
                             elif os.path.isdir(file) and file != model_path:
