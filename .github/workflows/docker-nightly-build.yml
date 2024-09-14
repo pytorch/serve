@@ -10,7 +10,7 @@ on:
 
 jobs:
   nightly:
-    runs-on: [self-hosted, ci-gpu]
+    runs-on: [self-hosted, multi-test]
     steps:
       - name: Clean up previous run
         run: |
