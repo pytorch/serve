@@ -16,13 +16,22 @@ from ts.utils.hf_utils import download_model
 
 
 def create_tensorrt_llm_engine(model_store, model_name, dtype, snapshot_path):
-    if not Path("TensorRT-LLM").exists:
-        subprocess.run(["git", "clone", "https://github.com/NVIDIA/TensorRT-LLM.git"])
-    if not Path(f"{model_store}/{model_name}/tllm_checkpoint_1gpu_bf16").exists:
+    if not Path("/tmp/TensorRT-LLM").exists():
+        subprocess.run(
+            [
+                "git",
+                "clone",
+                "https://github.com/NVIDIA/TensorRT-LLM.git",
+                "-b",
+                "v0.12.0",
+                "/tmp/TensorRT-LLM",
+            ]
+        )
+    if not Path(f"{model_store}/{model_name}/tllm_checkpoint_1gpu_bf16").exists():
         subprocess.run(
             [
                 "python",
-                "TensorRT-LLM/examples/llama/convert_checkpoint.py",
+                "/tmp/TensorRT-LLM/examples/llama/convert_checkpoint.py",
                 "--model_dir",
                 snapshot_path,
                 "--output_dir",
@@ -31,7 +40,7 @@ def create_tensorrt_llm_engine(model_store, model_name, dtype, snapshot_path):
                 dtype,
             ]
         )
-    if not Path(f"{model_store}/{model_name}/{model_name}-engine").exists:
+    if not Path(f"{model_store}/{model_name}/{model_name}-engine").exists():
         subprocess.run(
             [
                 "trtllm-build",
@@ -41,6 +50,8 @@ def create_tensorrt_llm_engine(model_store, model_name, dtype, snapshot_path):
                 dtype,
                 "--gpt_attention_plugin",
                 dtype,
+                "--max_batch_size",
+                "1",
                 "--output_dir",
                 f"{model_store}/{model_name}/{model_name}-engine",
             ]
@@ -98,8 +109,9 @@ def get_model_config(args, model_snapshot_path=None):
             {
                 "handler": {
                     "tokenizer_dir": os.path.join(os.getcwd(), model_snapshot_path),
-                    "trt_llm_engine_config": {
-                        "engine_dir": f"{args.model_name}-engine",
+                    "engine_dir": f"{args.model_name}-engine",
+                    "kv_cache_config": {
+                        "free_gpu_memory_fraction": 0.1,
                     },
                 }
             }
@@ -131,7 +143,7 @@ def create_mar_file(args, model_snapshot_path=None):
         archive_format="no-archive",
     )
 
-    if not mar_file_path.exists:
+    if not mar_file_path.exists():
         generate_model_archive(config)
 
     model_config_yaml.unlink()
