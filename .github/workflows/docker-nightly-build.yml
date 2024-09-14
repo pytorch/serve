@@ -36,7 +36,6 @@ jobs:
         run: |
           cd docker
           sudo apt-get update
-          sudo apt-get install --reinstall python3.9 python3-distutils python3.9-dev python3.9-venv -y
           docker buildx rm multibuilder
           docker buildx create --name multibuilder --use --driver docker-container --bootstrap
           python docker_nightly.py --cleanup
