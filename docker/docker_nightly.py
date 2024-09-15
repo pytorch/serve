@@ -39,7 +39,6 @@ if __name__ == "__main__":
     cpp_dev_gpu_version = f"{project}:cpp-dev-gpu-{get_nightly_version()}"
 
     # Build Nightly images and append the date in the name
-
     try_and_handle(f"./build_image.sh -m -n -t {organization}/{cpu_version}", dry_run)
     try_and_handle(
         f"./build_image.sh -g -cv cu121 -n -t {organization}/{gpu_version}",
@@ -78,8 +77,6 @@ if __name__ == "__main__":
     # )
 
     # Push images with latest tag
-    # try_and_handle(f"docker push {organization}/{project}:latest-gpu", dry_run)
-
     # try_and_handle(
     #     f"docker push {organization}/{project}:latest-cpp-dev-cpu", dry_run
     # )
