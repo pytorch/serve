@@ -224,7 +224,7 @@ if [ "${BUILD_TYPE}" == "production" ]; then
   if [ "${MULTI}" == "true" ]; then
     DOCKER_BUILDKIT=1 docker buildx build --file Dockerfile --build-arg BASE_IMAGE="${BASE_IMAGE}" --build-arg USE_CUDA_VERSION="${CUDA_VERSION}" --build-arg PYTHON_VERSION="${PYTHON_VERSION}"\
     --build-arg BUILD_NIGHTLY="${BUILD_NIGHTLY}" --build-arg BRANCH_NAME="${BRANCH_NAME}" --build-arg REPO_URL="${REPO_URL}" --build-arg BUILD_FROM_SRC="${BUILD_FROM_SRC}"\
-    --build-arg LOCAL_CHANGES="${LOCAL_CHANGES}" -t "${DOCKER_TAG}" --platform linux/amd64,linux/arm64 --target production-image ../ --push
+    --build-arg LOCAL_CHANGES="${LOCAL_CHANGES}" -t "${DOCKER_TAG}" --platform linux/arm64 --target production-image ../ --push
   else
     DOCKER_BUILDKIT=1 docker buildx build --file Dockerfile --build-arg BASE_IMAGE="${BASE_IMAGE}" --build-arg USE_CUDA_VERSION="${CUDA_VERSION}" --build-arg PYTHON_VERSION="${PYTHON_VERSION}"\
     --build-arg BUILD_NIGHTLY="${BUILD_NIGHTLY}" --build-arg BRANCH_NAME="${BRANCH_NAME}" --build-arg REPO_URL="${REPO_URL}" --build-arg BUILD_FROM_SRC="${BUILD_FROM_SRC}"\

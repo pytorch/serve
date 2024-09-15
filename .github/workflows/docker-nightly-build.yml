@@ -36,7 +36,6 @@ jobs:
         run: |
           cd docker
           sudo apt-get update
-          docker buildx rm multibuilder
           docker buildx create --name multibuilder --use --driver docker-container --bootstrap
           python docker_nightly.py --cleanup
       # - name: Push KServe Docker Nightly
