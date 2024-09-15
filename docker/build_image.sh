@@ -18,7 +18,7 @@ BUILD_NIGHTLY=false
 BUILD_FROM_SRC=false
 LOCAL_CHANGES=true
 PYTHON_VERSION=3.9
-ARCH="linux/arm64"
+ARCH="linux/arm64,linux/amd64"
 MULTI=false
 
 for arg in "$@"
