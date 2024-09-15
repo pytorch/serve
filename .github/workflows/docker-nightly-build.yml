@@ -2,11 +2,9 @@ name: Push Docker Nightly
 
 on:
   # Run every day at 1:15pm
-  # schedule:
-  #   - cron: "15 13 * * *"
-  # workflow_dispatch:
-  push:
-    branches: "docker_aarch"
+  schedule:
+    - cron: "15 13 * * *"
+  workflow_dispatch:
 
 jobs:
   nightly:
@@ -30,23 +28,23 @@ jobs:
           submodules: recursive
       - name: Login to Docker
         env:
-          DOCKER_PASSWORD: ${{secrets.UDAI_TEST}}
-        run: docker login --username udaij12 --password "$DOCKER_PASSWORD"
+          DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+        run: docker login --username pytorchbot --password "$DOCKER_PASSWORD"
       - name: Push Docker Nightly
         run: |
           cd docker
           sudo apt-get update
           docker buildx use multibuilder
           python docker_nightly.py --cleanup
-      # - name: Push KServe Docker Nightly
-      #   run: |
-      #     cd kubernetes/kserve
-      #     python docker_nightly.py --cleanup
-      # - name: Open issue on failure
-      #   if: ${{ failure() && github.event_name  == 'schedule' }}
-      #   uses: dacbd/create-issue-action@v1
-      #   with:
-      #     token: ${{ secrets.GITHUB_TOKEN }}
-      #     title: Nightly Docker build failed
-      #     body: Commit ${{ github.sha }} daily scheduled [CI run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) failed, please check why
-      #     assignees: ""
+      - name: Push KServe Docker Nightly
+        run: |
+          cd kubernetes/kserve
+          python docker_nightly.py --cleanup
+      - name: Open issue on failure
+        if: ${{ failure() && github.event_name  == 'schedule' }}
+        uses: dacbd/create-issue-action@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          title: Nightly Docker build failed
+          body: Commit ${{ github.sha }} daily scheduled [CI run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) failed, please check why
+          assignees: ""

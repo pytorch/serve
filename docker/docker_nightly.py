@@ -15,7 +15,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--organization",
         type=str,
-        default="udaij12",
+        default="pytorch",
         help="The name of the Dockerhub organization where the images will be pushed",
     )
     parser.add_argument(
