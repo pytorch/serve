@@ -78,7 +78,7 @@ if __name__ == "__main__":
     # )
 
     # Push images with latest tag
-    try_and_handle(f"docker push {organization}/{project}:latest-gpu", dry_run)
+    # try_and_handle(f"docker push {organization}/{project}:latest-gpu", dry_run)
 
     # try_and_handle(
     #     f"docker push {organization}/{project}:latest-cpp-dev-cpu", dry_run
