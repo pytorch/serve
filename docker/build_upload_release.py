@@ -13,7 +13,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--organization",
         type=str,
-        default="udaij12",
+        default="pytorch",
         help="The name of the Dockerhub organization where the images will be pushed",
     )
     parser.add_argument(
@@ -44,10 +44,6 @@ if __name__ == "__main__":
         f"./build_image.sh -bt dev -g -cv cu121 -cpp -t {organization}/torchserve:latest-cpp-dev-gpu",
         dry_run,
     )
-    # try_and_handle(
-    #     f"docker tag {organization}/torchserve:latest {organization}/torchserve:latest-cpu",
-    #     dry_run,
-    # )
 
     try_and_handle(
         f"docker buildx imagetools create --tag {organization}/torchserve:latest-cpu {organization}/torchserve:latest",
@@ -59,10 +55,6 @@ if __name__ == "__main__":
         dry_run,
     )
 
-    # try_and_handle(
-    #     f"docker tag {organization}/torchserve:latest {organization}/torchserve:{check_ts_version()}-cpu",
-    #     dry_run,
-    # )
     try_and_handle(
         f"docker tag {organization}/torchserve:latest-gpu {organization}/torchserve:{check_ts_version()}-gpu",
         dry_run,
@@ -77,12 +69,9 @@ if __name__ == "__main__":
     )
 
     for image in [
-        # f"{organization}/torchserve:latest",
-        # f"{organization}/torchserve:latest-cpu",
         f"{organization}/torchserve:latest-gpu",
         f"{organization}/torchserve:latest-cpp-dev-cpu",
         f"{organization}/torchserve:latest-cpp-dev-gpu",
-        # f"{organization}/torchserve:{check_ts_version()}-cpu",
         f"{organization}/torchserve:{check_ts_version()}-gpu",
         f"{organization}/torchserve:{check_ts_version()}-cpp-dev-cpu",
         f"{organization}/torchserve:{check_ts_version()}-cpp-dev-gpu",
