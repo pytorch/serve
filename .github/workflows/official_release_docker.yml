@@ -1,16 +1,18 @@
 name: Make an official Release of Docker Images
 
 on:
-  workflow_dispatch:
-    inputs:
-          upload_docker:
-            description: 'Upload TorchServe Docker Images?'
-            required: true
-            default: 'no'
-          upload_kfs:
-            description: 'Upload TorchServe-kfs Docker Images?'
-            required: true
-            default: 'no'
+  # workflow_dispatch:
+  #   inputs:
+  #         upload_docker:
+  #           description: 'Upload TorchServe Docker Images?'
+  #           required: true
+  #           default: 'no'
+  #         upload_kfs:
+  #           description: 'Upload TorchServe-kfs Docker Images?'
+  #           required: true
+  #           default: 'no'
+  push:
+    -branches: "docker_aarch"
 
 jobs:
   official-release-docker:
@@ -36,12 +38,13 @@ jobs:
           submodules: recursive
       - name: Login to Docker
         env:
-          DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+          DOCKER_PASSWORD: ${{secrets.UDAI_TEST}}
         run: docker login --username pytorchbot --password "$DOCKER_PASSWORD"
       - name: Build & Upload pytorch/torchserve Docker images
         if: github.event.inputs.upload_docker == 'yes'
         run: |
           cd docker
+          docker buildx use multibuilder
           python build_upload_release.py --cleanup
       - name: Build & Upload pytorch/torchserve-kfs Docker images
         if: github.event.inputs.upload_kfs == 'yes'
