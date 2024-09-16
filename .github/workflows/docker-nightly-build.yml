@@ -39,6 +39,7 @@ jobs:
       - name: Push KServe Docker Nightly
         run: |
           cd kubernetes/kserve
+          docker buildx use multibuilder
           python docker_nightly.py --cleanup
       - name: Open issue on failure
         if: ${{ failure() && github.event_name  == 'schedule' }}
