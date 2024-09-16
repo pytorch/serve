@@ -350,8 +350,8 @@ public final class OpenApiUtils {
             operationId = "version_unregisterModel";
         } else {
             operationDescription =
-                    "Unregister the default version of a model from TorchServe if it is the only version available."
-                            + "This is a asynchronous call by default. Caller can call listModels to confirm model is unregistered";
+                    "Unregister the default version of a model from TorchServe if it is the only version available. "
+                            + "This is an asynchronous call by default. Caller can call listModels to confirm model is unregistered.";
             operationId = "unregisterModel";
         }
         Operation operation = new Operation(operationId, operationDescription);
@@ -482,12 +482,12 @@ public final class OpenApiUtils {
         if (version) {
             operationDescription =
                     "Configure number of workers for a specified version of a model. "
-                            + "This is a asynchronous call by default. Caller need to call describeModel to check if the model workers has been changed.";
+                            + "This is an asynchronous call by default. Caller need to call describeModel to check if the model workers has been changed.";
             operationId = "version_setAutoScale";
         } else {
             operationDescription =
-                    "Configure number of workers for a default version of a model."
-                            + "This is a asynchronous call by default. Caller need to call describeModel to check if the model workers has been changed.";
+                    "Configure number of workers for a default version of a model. "
+                            + "This is an asynchronous call by default. Caller need to call describeModel to check if the model workers has been changed.";
             operationId = "setAutoScale";
         }
 
