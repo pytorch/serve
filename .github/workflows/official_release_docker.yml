@@ -48,4 +48,5 @@ jobs:
         if: github.event.inputs.upload_kfs == 'yes'
         run: |
           cd kubernetes/kserve
+          docker buildx use multibuilder
           python build_upload_release.py --cleanup

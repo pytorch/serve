@@ -6,6 +6,8 @@ BASE_IMAGE="pytorch/torchserve:latest-cpu"
 DOCKER_FILE="Dockerfile"
 BUILD_NIGHTLY=false
 USE_CUSTOM_TAG=false
+ARCH="linux/arm64,linux/amd64"
+MULTI=false
 
 for arg in "$@"
 do
@@ -38,6 +40,10 @@ do
           shift
           shift
           ;;
+        -m|--multi)
+          MULTI=true
+          shift
+          ;;
     esac
 done
 
@@ -57,4 +63,8 @@ fi
 cp ../../frontend/server/src/main/resources/proto/*.proto .
 cp -r ../../third_party .
 
-DOCKER_BUILDKIT=1 docker build --file "$DOCKER_FILE" --build-arg BASE_IMAGE=$BASE_IMAGE -t "$DOCKER_TAG" .
+if [ "${MULTI}" == "true" ]; then
+  DOCKER_BUILDKIT=1 docker buildx build --file "$DOCKER_FILE" --build-arg BASE_IMAGE=$BASE_IMAGE --platform "${ARCH}" -t "$DOCKER_TAG" --push
+else
+  DOCKER_BUILDKIT=1 docker buildx build --file "$DOCKER_FILE" --build-arg BASE_IMAGE=$BASE_IMAGE -t "$DOCKER_TAG" --load
+fi
