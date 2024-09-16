@@ -76,8 +76,8 @@ Relevant issues: [[#566](https://github.com/pytorch/serve/issues/566)]
 #### How can I resolve model specific python dependency?
 You can provide a requirements.txt while creating a mar file using "--requirements-file/ -r" flag. You can refer to the [waveglow text-to-speech-synthesizer](https://github.com/pytorch/serve/tree/master/examples/text_to_speech_synthesizer) example
 
--   [waveglow mar creation script](https://github.com/pytorch/serve/blob/master/examples/text_to_speech_synthesizer/create_mar.sh)
--   [waveglow handler](https://github.com/pytorch/serve/blob/2d9c7ccc316f592374943a1963c1057bbe232c9e/examples/text_to_speech_synthesizer/waveglow_handler.py#L49)
+-   [waveglow mar creation script](https://github.com/pytorch/serve/blob/master/examples/text_to_speech_synthesizer/WaveGlow/create_mar.sh)
+-   [waveglow handler](https://github.com/pytorch/serve/blob/2d9c7ccc316f592374943a1963c1057bbe232c9e/examples/text_to_speech_synthesizer/WaveGlow/waveglow_handler.py#L49)
 
 Relevant issues: [[#566](https://github.com/pytorch/serve/issues/566)]
 Refer [Torch model archiver cli](https://github.com/pytorch/serve/blob/master/model-archiver/README.md#torch-model-archiver-command-line-interface) for more details.
