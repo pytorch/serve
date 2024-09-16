@@ -36,18 +36,16 @@ if __name__ == "__main__":
     cpu_version = f"{project}:cpu-{get_nightly_version()}"
     gpu_version = f"{project}:gpu-{get_nightly_version()}"
 
-    # Build Nightly images and append the date in the name
-    try_and_handle(f"./build_image.sh -n -t {organization}/{cpu_version}", dry_run)
+    # Build and push Nightly images and append the date in the name
+    try_and_handle(
+        f"./build_image.sh -n -t {organization}/{cpu_version}",
+        dry_run)
     try_and_handle(
         f"./build_image.sh -g -n -t {organization}/{gpu_version}",
         dry_run,
     )
 
-    # Push Nightly images to official PyTorch Dockerhub account
-    try_and_handle(f"docker push {organization}/{cpu_version}", dry_run)
-    try_and_handle(f"docker push {organization}/{gpu_version}", dry_run)
-
-    # Tag nightly images with latest
+    # Build and push Nightly images with latest
     try_and_handle(
         f"docker tag {organization}/{cpu_version} {organization}/{project}:latest-cpu",
         dry_run,
@@ -56,10 +54,6 @@ if __name__ == "__main__":
         f"docker tag {organization}/{gpu_version} {organization}/{project}:latest-gpu",
         dry_run,
     )
-
-    # Push images with latest tag
-    try_and_handle(f"docker push {organization}/{project}:latest-cpu", dry_run)
-    try_and_handle(f"docker push {organization}/{project}:latest-gpu", dry_run)
 
     # Cleanup built images
     if args.cleanup:

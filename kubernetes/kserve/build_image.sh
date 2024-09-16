@@ -57,4 +57,5 @@ fi
 cp ../../frontend/server/src/main/resources/proto/*.proto .
 cp -r ../../third_party .
 
-DOCKER_BUILDKIT=1 docker build --file "$DOCKER_FILE" --build-arg BASE_IMAGE=$BASE_IMAGE -t "$DOCKER_TAG" .
+docker buildx create --name mybuilder --use --bootstrap
+docker buildx build --file "$DOCKER_FILE" --build-arg BASE_IMAGE=$BASE_IMAGE --platform linux/amd64,linux/arm64 --push -t "$DOCKER_TAG" .
