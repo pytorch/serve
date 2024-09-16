@@ -250,7 +250,7 @@ class ModelHandler(BaseHandler):
 
 ```
 
-Refer [waveglow_handler](https://github.com/pytorch/serve/blob/master/examples/text_to_speech_synthesizer/waveglow_handler.py) for more details.
+Refer [waveglow_handler](https://github.com/pytorch/serve/blob/master/examples/text_to_speech_synthesizer/WaveGlow/waveglow_handler.py) for more details.
 
 #### Captum explanations for custom handler
 
@@ -362,7 +362,7 @@ class CustomImageClassifier(ImageClassifier):
 For more details refer following examples :
 - [mnist digit classifier handler](https://github.com/pytorch/serve/tree/master/examples/image_classifier)
 - [Huggingface transformer generalized handler](https://github.com/pytorch/serve/blob/master/examples/Huggingface_Transformers/Transformer_handler_generalized.py)
-- [Waveglow text to speech synthesizer](https://github.com/pytorch/serve/blob/master/examples/text_to_speech_synthesizer/waveglow_handler.py)
+- [Waveglow text to speech synthesizer](https://github.com/pytorch/serve/blob/master/examples/text_to_speech_synthesizer/WaveGlow/waveglow_handler.py)
 
 ## Creating a model archive with an entry point
 
