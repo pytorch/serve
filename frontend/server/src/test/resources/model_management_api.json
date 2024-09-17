@@ -211,7 +211,7 @@
         }
       },
       "put": {
-        "description": "Configure number of workers for a default version of a model.This is a asynchronous call by default. Caller need to call describeModel to check if the model workers has been changed.",
+        "description": "Configure number of workers for a default version of a model. This is an asynchronous call by default. Caller need to call describeModel to check if the model workers has been changed.",
         "operationId": "setAutoScale",
         "parameters": [
           {
@@ -422,7 +422,7 @@
         }
       },
       "delete": {
-        "description": "Unregister the default version of a model from TorchServe if it is the only version available.This is a asynchronous call by default. Caller can call listModels to confirm model is unregistered",
+        "description": "Unregister the default version of a model from TorchServe if it is the only version available. This is an asynchronous call by default. Caller can call listModels to confirm model is unregistered.",
         "operationId": "unregisterModel",
         "parameters": [
           {
@@ -799,7 +799,7 @@
         }
       },
       "put": {
-        "description": "Configure number of workers for a specified version of a model. This is a asynchronous call by default. Caller need to call describeModel to check if the model workers has been changed.",
+        "description": "Configure number of workers for a specified version of a model. This is an asynchronous call by default. Caller need to call describeModel to check if the model workers has been changed.",
         "operationId": "version_setAutoScale",
         "parameters": [
           {

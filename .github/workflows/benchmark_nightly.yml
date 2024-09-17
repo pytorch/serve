@@ -55,7 +55,7 @@ jobs:
           NEURON_RT_NUM_CORES: 1
         run: python benchmarks/auto_benchmark.py --input benchmarks/benchmark_config_neuronx.yaml --skip false
       - name: Save benchmark artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: nightly ${{ matrix.hardware }} artifact
           path: /tmp/ts_benchmark
@@ -72,7 +72,7 @@ jobs:
       - name: Update benchmark artifacts for auto validation
         run: python benchmarks/utils/update_artifacts.py --output /tmp/ts_artifacts/${{ matrix.hardware }}_benchmark_validation
       - name: Upload the updated benchmark artifacts for auto validation
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.hardware }}_benchmark_validation
           path: /tmp/ts_artifacts
