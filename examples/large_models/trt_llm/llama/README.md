@@ -45,7 +45,7 @@ python TensorRT-LLM/examples/llama/convert_checkpoint.py --model_dir model/model
 ```
 trtllm-build --checkpoint_dir tllm_checkpoint_1gpu_bf16 --gemm_plugin bfloat16 --gpt_attention_plugin bfloat16 --max_batch_size 4  --output_dir ./llama-3.1-8b-engine
 ```
-If you have nough GPU memory, you can try increasing the `max_batch_size`
+If you have enough GPU memory, you can try increasing the `max_batch_size`
 
 You can test if TensorRT-LLM Engine has been compiled correctly by running the following
 ```
