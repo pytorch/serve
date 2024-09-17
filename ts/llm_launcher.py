@@ -15,7 +15,9 @@ from ts.launcher import start, stop
 from ts.utils.hf_utils import download_model
 
 
-def create_tensorrt_llm_engine(model_store, model_name, dtype, snapshot_path):
+def create_tensorrt_llm_engine(
+    model_store, model_name, dtype, snapshot_path, max_batch_size
+):
     if not Path("/tmp/TensorRT-LLM").exists():
         subprocess.run(
             [
@@ -51,7 +53,7 @@ def create_tensorrt_llm_engine(model_store, model_name, dtype, snapshot_path):
                 "--gpt_attention_plugin",
                 dtype,
                 "--max_batch_size",
-                "1",
+                f"{max_batch_size}",
                 "--output_dir",
                 f"{model_store}/{model_name}/{model_name}-engine",
             ]
@@ -111,7 +113,9 @@ def get_model_config(args, model_snapshot_path=None):
                     "tokenizer_dir": os.path.join(os.getcwd(), model_snapshot_path),
                     "engine_dir": f"{args.model_name}-engine",
                     "kv_cache_config": {
-                        "free_gpu_memory_fraction": 0.1,
+                        "free_gpu_memory_fraction": getattr(
+                            args, "trt_llm_engine.kv_cache_free_gpu_memory_fraction"
+                        ),
                     },
                 }
             }
@@ -169,7 +173,11 @@ def main(args):
     with create_mar_file(args, model_snapshot_path):
         if args.engine == "trt_llm":
             create_tensorrt_llm_engine(
-                args.model_store, args.model_name, args.dtype, model_snapshot_path
+                args.model_store,
+                args.model_name,
+                args.dtype,
+                model_snapshot_path,
+                getattr(args, "trt_llm_engine.max_batch_size"),
             )
         try:
             start(
@@ -249,6 +257,20 @@ if __name__ == "__main__":
         type=str,
         default="bfloat16",
         help="Data type",
+    )
+
+    parser.add_argument(
+        "--trt_llm_engine.max_batch_size",
+        type=int,
+        default=4,
+        help="Max batch size",
+    )
+
+    parser.add_argument(
+        "--trt_llm_engine.kv_cache_free_gpu_memory_fraction",
+        type=int,
+        default=0.1,
+        help="KV Cache free gpu memory fraction",
     )
     args = parser.parse_args()
 

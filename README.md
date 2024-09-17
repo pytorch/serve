@@ -78,7 +78,7 @@ curl -X POST -d '{"model":"meta-llama/Meta-Llama-3.1-8B-Instruct", "prompt":"Hel
 python -m ts.llm_launcher --model_id meta-llama/Meta-Llama-3.1-8B-Instruct --engine trt_llm --disable_token_auth
 
 # Try it out
-curl -X POST -d '{"prompt":"count from 1 to 9 in french ", "max_new_tokens": 100}' --header "Content-Type: application/json" "http://localhost:8080/predictions/model"
+curl -X POST -d '{"prompt":"count from 1 to 9 in french ", "max_tokens": 100}' --header "Content-Type: application/json" "http://localhost:8080/predictions/model"
 ```
 
 ### 🚢 Quick Start LLM Deployment with Docker

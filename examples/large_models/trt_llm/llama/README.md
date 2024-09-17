@@ -45,11 +45,13 @@ python TensorRT-LLM/examples/llama/convert_checkpoint.py --model_dir model/model
 ```
 trtllm-build --checkpoint_dir tllm_checkpoint_1gpu_bf16 --gemm_plugin bfloat16 --gpt_attention_plugin bfloat16 --max_batch_size 4  --output_dir ./llama-3.1-8b-engine
 ```
+If you have nough GPU memory, you can try increasing the `max_batch_size`
 
 You can test if TensorRT-LLM Engine has been compiled correctly by running the following
 ```
 python TensorRT-LLM/examples/run.py --engine_dir ./llama-3.1-8b-engine  --max_output_len 100 --tokenizer_dir model/models--meta-llama--Meta-Llama-3.1-8B-Instruct/snapshots/5206a32e0bd3067aef1ce90f5528ade7d866253f/ --input_text "How do I count to nine in French?"
 ```
+If you are running into OOM, try reducing `kv_cache_free_gpu_memory_fraction`
 
 You should see an output as follows
 ```

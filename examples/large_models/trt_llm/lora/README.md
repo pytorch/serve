@@ -46,11 +46,13 @@ python TensorRT-LLM/examples/llama/convert_checkpoint.py --model_dir model/model
 ```
 trtllm-build --checkpoint_dir tllm_checkpoint_1gpu_bf16 --gemm_plugin bfloat16 --gpt_attention_plugin bfloat16 --output_dir ./llama-3.1-8b-engine-lora --max_batch_size 4 --lora_dir model/models--llama-duo--llama3.1-8b-summarize-gpt4o-128k/snapshots/4ba83353f24fa38946625c8cc49bf21c80a22825 --lora_plugin bfloat16
 ```
+If you have nough GPU memory, you can try increasing the `max_batch_size`
 
 You can test if TensorRT-LLM Engine has been compiled correctly by running the following
 ```
 python TensorRT-LLM/examples/run.py --engine_dir ./llama-3.1-8b-engine-lora  --max_output_len 100 --tokenizer_dir model/models--llama-duo--llama3.1-8b-summarize-gpt4o-128k/snapshots/4ba83353f24fa38946625c8cc49bf21c80a22825 --input_text "Amanda: I baked  cookies. Do you want some?\nJerry: Sure \nAmanda: I will bring you tomorrow :-)\n\nSummarize the dialog:" --lora_dir model/models--llama-duo--llama3.1-8b-summarize-gpt4o-128k/snapshots/4ba83353f24fa38946625c8cc49bf21c80a22825 --kv_cache_free_gpu_memory_fraction 0.3 --use_py_session
 ```
+If you are running into OOM, try reducing `kv_cache_free_gpu_memory_fraction`
 
 You should see an output as follows
 ```
