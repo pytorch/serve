@@ -44,7 +44,7 @@ python TensorRT-LLM/examples/llama/convert_checkpoint.py --model_dir model/model
 ```
 
 ```
-trtllm-build --checkpoint_dir tllm_checkpoint_1gpu_bf16 --gemm_plugin bfloat16 --gpt_attention_plugin bfloat16 --output_dir ./llama-3.1-8b-engine-lora --max_batch_size 1 --lora_dir model/models--llama-duo--llama3.1-8b-summarize-gpt4o-128k/snapshots/4ba83353f24fa38946625c8cc49bf21c80a22825 --lora_plugin bfloat16
+trtllm-build --checkpoint_dir tllm_checkpoint_1gpu_bf16 --gemm_plugin bfloat16 --gpt_attention_plugin bfloat16 --output_dir ./llama-3.1-8b-engine-lora --max_batch_size 4 --lora_dir model/models--llama-duo--llama3.1-8b-summarize-gpt4o-128k/snapshots/4ba83353f24fa38946625c8cc49bf21c80a22825 --lora_plugin bfloat16
 ```
 
 You can test if TensorRT-LLM Engine has been compiled correctly by running the following

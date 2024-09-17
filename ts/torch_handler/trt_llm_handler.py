@@ -53,8 +53,8 @@ class TRTLLMHandler(BaseHandler):
         metrics = context.metrics
 
         data_preprocess = await self.preprocess(data)
-        output, streaming, data = await self.inference(data_preprocess, context)
-        output = await self.postprocess(output, streaming, data, context)
+        output = await self.inference(data_preprocess, context)
+        output = await self.postprocess(output)
 
         stop_time = time.time()
         metrics.add_time(
@@ -86,10 +86,8 @@ class TRTLLMHandler(BaseHandler):
         outputs = self.trt_llm_engine.generate_async(
             prompt, streaming=streaming, sampling_params=sampling_params
         )
-        return outputs, streaming, data
 
-    async def postprocess(self, outputs, streaming, data, context):
-        for output in outputs:
+        async for output in outputs:
             output_text, output_ids = (
                 output.outputs[0].text,
                 output.outputs[0].token_ids,
@@ -106,3 +104,6 @@ class TRTLLMHandler(BaseHandler):
                     context,
                 )
         return [""]
+
+    async def postprocess(self, outputs):
+        return outputs
