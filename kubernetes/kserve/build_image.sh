@@ -64,7 +64,7 @@ cp ../../frontend/server/src/main/resources/proto/*.proto .
 cp -r ../../third_party .
 
 if [ "${MULTI}" == "true" ]; then
-  DOCKER_BUILDKIT=1 docker buildx build --file "$DOCKER_FILE" --build-arg BASE_IMAGE=$BASE_IMAGE --platform "${ARCH}" -t "$DOCKER_TAG" --push
+  DOCKER_BUILDKIT=1 docker buildx build --file "$DOCKER_FILE" --build-arg BASE_IMAGE=$BASE_IMAGE --platform "${ARCH}" -t "$DOCKER_TAG" --push .
 else
-  DOCKER_BUILDKIT=1 docker buildx build --file "$DOCKER_FILE" --build-arg BASE_IMAGE=$BASE_IMAGE -t "$DOCKER_TAG" --load
+  DOCKER_BUILDKIT=1 docker buildx build --file "$DOCKER_FILE" --build-arg BASE_IMAGE=$BASE_IMAGE -t "$DOCKER_TAG" --load .
 fi
