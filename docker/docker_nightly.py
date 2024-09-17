@@ -39,7 +39,7 @@ if __name__ == "__main__":
     cpp_dev_gpu_version = f"{project}:cpp-dev-gpu-{get_nightly_version()}"
 
     # Build Nightly images and append the date in the name
-    try_and_handle(f"./build_image.sh -n -t {organization}/{cpu_version}", dry_run)
+    try_and_handle(f"./build_image.sh -m -n -t {organization}/{cpu_version}", dry_run)
     try_and_handle(
         f"./build_image.sh -g -cv cu121 -n -t {organization}/{gpu_version}",
         dry_run,
@@ -54,18 +54,17 @@ if __name__ == "__main__":
     )
 
     # Push Nightly images to official PyTorch Dockerhub account
-    try_and_handle(f"docker push {organization}/{cpu_version}", dry_run)
     try_and_handle(f"docker push {organization}/{gpu_version}", dry_run)
     try_and_handle(f"docker push {organization}/{cpp_dev_cpu_version}", dry_run)
     try_and_handle(f"docker push {organization}/{cpp_dev_gpu_version}", dry_run)
 
     # Tag nightly images with latest
     try_and_handle(
-        f"docker tag {organization}/{cpu_version} {organization}/{project}:latest-cpu",
+        f"docker buildx imagetools create --tag {organization}/{project}:latest-cpu {organization}/{cpu_version}",
         dry_run,
     )
     try_and_handle(
-        f"docker tag {organization}/{gpu_version} {organization}/{project}:latest-gpu",
+        f"docker buildx imagetools create --tag {organization}/{project}:latest-gpu {organization}/{gpu_version}",
         dry_run,
     )
     try_and_handle(
@@ -78,8 +77,6 @@ if __name__ == "__main__":
     )
 
     # Push images with latest tag
-    try_and_handle(f"docker push {organization}/{project}:latest-cpu", dry_run)
-    try_and_handle(f"docker push {organization}/{project}:latest-gpu", dry_run)
     try_and_handle(f"docker push {organization}/{project}:latest-cpp-dev-cpu", dry_run)
     try_and_handle(f"docker push {organization}/{project}:latest-cpp-dev-gpu", dry_run)
 

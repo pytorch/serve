@@ -7,7 +7,7 @@ deviceType: "gpu"
 asyncCommunication: true
 
 handler:
-    tokenizer_dir: "model/models--meta-llama--Meta-Llama-3.1-8B-Instruct/snapshots/5206a32e0bd3067aef1ce90f5528ade7d866253f/"
-    engine_dir: "llama-3.1-8b-engine"
+    tokenizer_dir: "model/models--llama-duo--llama3.1-8b-summarize-gpt4o-128k/snapshots/4ba83353f24fa38946625c8cc49bf21c80a22825"
+    engine_dir: "llama-3.1-8b-engine-lora"
     kv_cache_config:
         free_gpu_memory_fraction: 0.1

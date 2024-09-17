@@ -1,10 +1,11 @@
 name: Push Docker Nightly
 
 on:
-  # run every day at 1:15pm
+  # Run every day at 1:15pm
   schedule:
     - cron: "15 13 * * *"
   workflow_dispatch:
+
 jobs:
   nightly:
     runs-on: [self-hosted, ci-gpu]
@@ -32,12 +33,14 @@ jobs:
       - name: Push Docker Nightly
         run: |
           cd docker
+          sudo apt-get update
+          docker buildx use multibuilder
           python docker_nightly.py --cleanup
       - name: Push KServe Docker Nightly
         run: |
           cd kubernetes/kserve
+          docker buildx use multibuilder
           python docker_nightly.py --cleanup
-
       - name: Open issue on failure
         if: ${{ failure() && github.event_name  == 'schedule' }}
         uses: dacbd/create-issue-action@v1
