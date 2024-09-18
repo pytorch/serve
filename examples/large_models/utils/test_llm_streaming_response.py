@@ -196,7 +196,7 @@ def parse_args():
         "--model-version",
         type=str,
         default="1.0",
-        help="Model vesion. Default: 1.0",
+        help="Model version. Default: 1.0",
     )
 
     return parser.parse_args()

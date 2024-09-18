@@ -1216,7 +1216,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Default vesion succsesfully updated for model",
+            "description": "Default version successfully updated for model",
             "content": {
               "application/json": {
                 "schema": {
