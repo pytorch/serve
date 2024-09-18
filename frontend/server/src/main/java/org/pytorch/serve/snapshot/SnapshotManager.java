@@ -112,8 +112,9 @@ public final class SnapshotManager {
     }
 
     public void restore(String modelSnapshot) throws InvalidSnapshotException, IOException {
-        logger.info("Started restoring models from snapshot {}", modelSnapshot);
-        Snapshot snapshot = snapshotSerializer.getSnapshot(modelSnapshot);
+        String result = modelSnapshot.substring(0, modelSnapshot.length() - 1) + ",\n \"startupTimeout\": 120 }";
+        logger.info("Started restoring models from snapshot {}", result);
+        Snapshot snapshot = snapshotSerializer.getSnapshot(result);
         // Validate snapshot
         validate(snapshot);
         // Init. models
