@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
 public class AsyncWorkerThread extends WorkerThread {
     // protected ConcurrentHashMap requestsInBackend;
     protected static final Logger logger = LoggerFactory.getLogger(AsyncWorkerThread.class);
-    protected static final long MODEL_LOAD_TIMEOUT = 10L;
+    protected static final long WORKER_TIMEOUT = 2L;
 
     protected boolean loadingFinished;
     protected CountDownLatch latch;
@@ -53,6 +53,7 @@ public class AsyncWorkerThread extends WorkerThread {
     @Override
     public void run() {
         responseTimeout = model.getResponseTimeout();
+        startupTimeout = model.getStartupTimeout();
         Thread thread = Thread.currentThread();
         thread.setName(getWorkerName());
         currentThread.set(thread);
@@ -80,11 +81,11 @@ public class AsyncWorkerThread extends WorkerThread {
 
                     if (loadingFinished == false) {
                         latch = new CountDownLatch(1);
-                        if (!latch.await(MODEL_LOAD_TIMEOUT, TimeUnit.MINUTES)) {
+                        if (!latch.await(startupTimeout, TimeUnit.SECONDS)) {
                             throw new WorkerInitializationException(
-                                    "Worker did not load the model within"
-                                            + MODEL_LOAD_TIMEOUT
-                                            + " mins");
+                                    "Worker did not load the model within "
+                                            + startupTimeout
+                                            + " seconds");
                         }
                     }
 
@@ -99,7 +100,7 @@ public class AsyncWorkerThread extends WorkerThread {
                 logger.debug("Shutting down the thread .. Scaling down.");
             } else {
                 logger.debug(
-                        "Backend worker monitoring thread interrupted or backend worker process died., responseTimeout:"
+                        "Backend worker monitoring thread interrupted or backend worker process died. responseTimeout:"
                                 + responseTimeout
                                 + "sec",
                         e);
