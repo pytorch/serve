@@ -127,8 +127,11 @@ public class ModelConfig {
                         case "startupTimeout":
                             if (v instanceof Integer) {
                                 modelConfig.setStartupTimeout((int) v);
-                            } else {
+                            } else if {
                                 logger.warn("Invalid startupTimeout: {}, should be integer", v);
+                            }
+                            else {
+                                modelConfig.setStartupTimeout(startupTimeout);
                             }
                             break;
                         case "deviceType":
