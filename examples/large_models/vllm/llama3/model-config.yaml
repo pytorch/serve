@@ -2,7 +2,7 @@
 minWorkers: 1
 maxWorkers: 1
 maxBatchDelay: 100
-responseTimeout: 1200
+startupTimeout: 1200
 deviceType: "gpu"
 asyncCommunication: true
 
