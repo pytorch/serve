@@ -4,19 +4,19 @@
 
 ## Pre-requisites
 
-TRT-LLM requires Python 3.10
+- TRT-LLM requires Python 3.10
+- TRT-LLM works well with python venv (vs conda)
 This example is tested with CUDA 12.1
 Once TorchServe is installed, install TensorRT-LLM using the following.
-This will downgrade the versions of PyTorch & Triton but this doesn't cause any issue.
 
 ```
-pip install tensorrt_llm==0.10.0 --extra-index-url https://pypi.nvidia.com
-pip install tensorrt-cu12==10.1.0
+pip install tensorrt_llm -U --pre --extra-index-url https://pypi.nvidia.com
+pip install transformers>=4.44.2
 python -c "import tensorrt_llm"
 ```
 shows
 ```
-[TensorRT-LLM] TensorRT-LLM version: 0.10.0
+[TensorRT-LLM] TensorRT-LLM version: 0.13.0.dev2024090300
 ```
 
 ## Download model from HuggingFace
@@ -26,29 +26,32 @@ huggingface-cli login
 huggingface-cli login --token $HUGGINGFACE_TOKEN
 ```
 ```
-python ../../utils/Download_model.py --model_path model --model_name meta-llama/Meta-Llama-3-8B-Instruct
+python ../../utils/Download_model.py --model_path model --model_name meta-llama/Meta-Llama-3.1-8B-Instruct --use_auth_token True
 ```
 
 ## Create TensorRT-LLM Engine
 Clone TensorRT-LLM which will be used to create the TensorRT-LLM Engine
 
 ```
-git clone -b v0.10.0 https://github.com/NVIDIA/TensorRT-LLM.git
+git clone https://github.com/NVIDIA/TensorRT-LLM.git
 ```
 
 Compile the model into a TensorRT engine with model weights and a model definition written in the TensorRT-LLM Python API.
 
 ```
-python TensorRT-LLM/examples/llama/convert_checkpoint.py --model_dir model/models--meta-llama--Meta-Llama-3-8B-Instruct/snapshots/e1945c40cd546c78e41f1151f4db032b271faeaa/ --output_dir ./tllm_checkpoint_1gpu_bf16 --dtype bfloat16
+python TensorRT-LLM/examples/llama/convert_checkpoint.py --model_dir model/models--meta-llama--Meta-Llama-3.1-8B-Instruct/snapshots/5206a32e0bd3067aef1ce90f5528ade7d866253f/ --output_dir ./tllm_checkpoint_1gpu_bf16 --dtype bfloat16
 ```
+
 ```
-trtllm-build --checkpoint_dir tllm_checkpoint_1gpu_bf16 --gemm_plugin bfloat16 --gpt_attention_plugin bfloat16 --output_dir ./llama-3-8b-engine
+trtllm-build --checkpoint_dir tllm_checkpoint_1gpu_bf16 --gemm_plugin bfloat16 --gpt_attention_plugin bfloat16 --max_batch_size 4  --output_dir ./llama-3.1-8b-engine
 ```
+If you have enough GPU memory, you can try increasing the `max_batch_size`
 
 You can test if TensorRT-LLM Engine has been compiled correctly by running the following
 ```
-python TensorRT-LLM/examples/run.py --engine_dir ./llama-3-8b-engine  --max_output_len 100 --tokenizer_dir model/models--meta-llama--Meta-Llama-3-8B-Instruct/snapshots/e1945c40cd546c78e41f1151f4db032b271faeaa/ --input_text "How do I count to nine in French?"
+python TensorRT-LLM/examples/run.py --engine_dir ./llama-3.1-8b-engine  --max_output_len 100 --tokenizer_dir model/models--meta-llama--Meta-Llama-3.1-8B-Instruct/snapshots/5206a32e0bd3067aef1ce90f5528ade7d866253f/ --input_text "How do I count to nine in French?"
 ```
+If you are running into OOM, try reducing `kv_cache_free_gpu_memory_fraction`
 
 You should see an output as follows
 ```
@@ -70,17 +73,17 @@ That's it! You can now count to nine in French. Just remember that the numbers o
 
 ```
 mkdir model_store
-torch-model-archiver --model-name llama3-8b --version 1.0 --handler trt_llm_handler.py --config-file model-config.yaml --archive-format no-archive --export-path model_store -f
-mv model model_store/llama3-8b/.
-mv llama-3-8b-engine model_store/llama3-8b/.
+torch-model-archiver --model-name llama3.1-8b --version 1.0 --handler trt_llm_handler --config-file model-config.yaml --archive-format no-archive --export-path model_store -f
+mv model model_store/llama3.1-8b/.
+mv llama-3.1-8b-engine model_store/llama3.1-8b/.
 ```
 
 ## Start TorchServe
 ```
-torchserve --start --ncs --model-store model_store --models llama3-8b --disable-token-auth
+torchserve --start --ncs --model-store model_store --models llama3.1-8b --disable-token-auth
 ```
 
 ## Run Inference
 ```
-python ../../utils/test_llm_streaming_response.py -o 50 -t 2 -n 4 -m llama3-8b --prompt-text "@prompt.json" --prompt-json
+python ../../utils/test_llm_streaming_response.py -o 50 -t 2 -n 4 -m llama3.1-8b --prompt-text "@prompt.json" --prompt-json
 ```
