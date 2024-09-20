@@ -73,7 +73,7 @@ COPY ./ serve
 RUN \
     if echo "$LOCAL_CHANGES" | grep -q "false"; then \
         rm -rf serve;\
-        git clone --recursive $REPO_URL -b $BRANCH_NAME; \
+        git clone --recursive $REPO_URL -b $BRANCH_NAME serve; \
     fi
 
 
@@ -238,7 +238,7 @@ COPY ./ serve
 RUN \
     if echo "$LOCAL_CHANGES" | grep -q "false"; then \
         rm -rf serve;\
-        git clone --recursive $REPO_URL -b $BRANCH_NAME; \
+        git clone --recursive $REPO_URL -b $BRANCH_NAME serve; \
     fi
 
 COPY --from=compile-image /home/venv /home/venv
