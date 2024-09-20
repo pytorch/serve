@@ -113,6 +113,7 @@ class LocalTorchServeUnderTest(TorchServeUnderTest):
         execute("torchserve --stop", wait=True)
         click.secho("*Setting up model store...", fg="green")
         self._prepare_local_dependency()
+        self._clear_neuron_cache_if_exists()
         click.secho("*Starting local Torchserve instance...", fg="green")
 
         ts_cmd = (
@@ -140,6 +141,31 @@ class LocalTorchServeUnderTest(TorchServeUnderTest):
             for line in f.readlines():
                 if "Model server started" in str(line).strip():
                     break
+
+    def _clear_neuron_cache_if_exists(self):
+        cache_dir = "/var/tmp/neuron-compile-cache/"
+
+        # Check if the directory exists
+        if os.path.exists(cache_dir) and os.path.isdir(cache_dir):
+            click.secho(
+                f"Directory {cache_dir} exists. Clearing contents...", fg="green"
+            )
+
+            # Remove the directory contents
+            for filename in os.listdir(cache_dir):
+                file_path = os.path.join(cache_dir, filename)
+                try:
+                    if os.path.isfile(file_path) or os.path.islink(file_path):
+                        os.unlink(file_path)
+                    elif os.path.isdir(file_path):
+                        shutil.rmtree(file_path)
+                except Exception as e:
+                    click.secho(f"Failed to delete {file_path}. Reason: {e}", fg="red")
+            click.secho(f"Cache cleared: {cache_dir}", fg="green")
+        else:
+            click.secho(
+                f"Directory {cache_dir} does not exist. No action taken.", fg="green"
+            )
 
     def stop(self):
         click.secho("*Terminating Torchserve instance...", fg="green")
