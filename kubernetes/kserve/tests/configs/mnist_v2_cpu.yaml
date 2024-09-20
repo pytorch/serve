@@ -7,7 +7,7 @@ spec:
     pytorch:
       protocolVersion: v2
       storageUri: gs://kfserving-examples/models/torchserve/image_classifier/v2
-      image: udaij12/torchserve-kfs-nightly:latest-cpu
+      image: udaij12/torchserve-kfs-nightly@sha256:d82f45d338f09ad0376703ae00637c8cdb9647783001600e6b3436284205a4df
       resources:
         limits:
           cpu: "1"
