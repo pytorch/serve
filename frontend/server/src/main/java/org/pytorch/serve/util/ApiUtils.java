@@ -98,7 +98,7 @@ public final class ApiUtils {
         ModelManager modelManager = ModelManager.getInstance();
         modelManager.setDefaultVersion(modelName, newModelVersion);
         String msg =
-                "Default vesion succsesfully updated for model \""
+                "Default version successfully updated for model \""
                         + modelName
                         + "\" to \""
                         + newModelVersion
