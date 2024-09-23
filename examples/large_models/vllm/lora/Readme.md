@@ -55,7 +55,7 @@ The vllm integration uses an OpenAI compatible interface which lets you perform 
 
 Curl:
 ```bash
-curl --header "Content-Type: application/json"   --request POST   --data @prompt.json http://localhost:8080/predictions/llama-8b-lora/1.0/v1
+curl --header "Content-Type: application/json"   --request POST   --data @prompt.json http://localhost:8080/predictions/llama-8b-lora/1.0/v1/completions
 ```
 
 Python + Request:

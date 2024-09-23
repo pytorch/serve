@@ -203,7 +203,7 @@ public final class OpenApiUtils {
         MediaType error = getErrorResponse();
 
         operation.addResponse(
-                new Response("200", "Default vesion succsesfully updated for model", status));
+                new Response("200", "Default version successfully updated for model", status));
         operation.addResponse(
                 new Response("404", "Model not found or Model version not found", error));
         operation.addResponse(new Response("500", "Internal Server Error", error));

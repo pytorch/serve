@@ -67,6 +67,7 @@ def get_model_config(args, model_snapshot_path=None):
         "batchSize": 1,
         "maxBatchDelay": 100,
         "responseTimeout": 1200,
+        "startupTimeout": args.startup_timeout,
         "deviceType": "gpu",
         "asyncCommunication": True,
     }
@@ -227,7 +228,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--vllm_engine.max_num_seqs",
         type=int,
-        default=16,
+        default=256,
         help="Max sequences in vllm engine",
     )
 
@@ -243,6 +244,13 @@ if __name__ == "__main__":
         type=str,
         default=None,
         help="Cache dir",
+    )
+
+    parser.add_argument(
+        "--startup_timeout",
+        type=int,
+        default=1200,
+        help="Model startup timeout in seconds",
     )
 
     parser.add_argument(
@@ -272,6 +280,7 @@ if __name__ == "__main__":
         default=0.1,
         help="KV Cache free gpu memory fraction",
     )
+
     args = parser.parse_args()
 
     main(args)
