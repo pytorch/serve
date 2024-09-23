@@ -193,9 +193,17 @@ public class Model {
         minWorkers = modelInfo.get(MIN_WORKERS).getAsInt();
         maxWorkers = modelInfo.get(MAX_WORKERS).getAsInt();
         maxBatchDelay = modelInfo.get(MAX_BATCH_DELAY).getAsInt();
-        responseTimeout = modelInfo.get(RESPONSE_TIMEOUT).getAsInt();
-        startupTimeout = modelInfo.get(STARTUP_TIMEOUT).getAsInt();
         batchSize = modelInfo.get(BATCH_SIZE).getAsInt();
+        responseTimeout =
+                modelInfo.has(RESPONSE_TIMEOUT) && !modelInfo.get(RESPONSE_TIMEOUT).isJsonNull()
+                        ? modelInfo.get(RESPONSE_TIMEOUT).getAsInt()
+                        : modelArchive.getModelConfig()
+                                .defaultResponseTimeout; // default value for responseTimeout
+        startupTimeout =
+                modelInfo.has(STARTUP_TIMEOUT) && !modelInfo.get(STARTUP_TIMEOUT).isJsonNull()
+                        ? modelInfo.get(STARTUP_TIMEOUT).getAsInt()
+                        : modelArchive.getModelConfig()
+                                .defaultStartupTimeout; // default value for startupTimeout
 
         JsonElement runtime = modelInfo.get(RUNTIME_TYPE);
         String runtime_str = Manifest.RuntimeType.PYTHON.getValue();
