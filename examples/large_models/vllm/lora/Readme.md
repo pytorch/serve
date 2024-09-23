@@ -9,7 +9,7 @@ To leverage the power of vLLM we fist need to install it using pip in out develo
 ```bash
 python -m pip install -r ../requirements.txt
 ```
-For later deployments we can make vLLM part of the deployment environment by adding the requirements.txt while building the model archive in step 2 (see [here](../../../../model-archiver/README.md#model-specific-custom-python-requirements) for details) or we can make it part of a docker image like [here](../../../../docker/Dockerfile.llm).
+For later deployments we can make vLLM part of the deployment environment by adding the requirements.txt while building the model archive in step 2 (see [here](../../../../model-archiver/README.md#model-specific-custom-python-requirements) for details) or we can make it part of a docker image like [here](../../../../docker/Dockerfile.vllm).
 
 ### Step 1: Download Model from HuggingFace
 
