@@ -11,13 +11,13 @@ import org.slf4j.LoggerFactory;
 public class ModelConfig {
     private static final Logger logger = LoggerFactory.getLogger(ModelConfig.class);
 
-    public static final int defaultMinWorkers;
+    public static final int defaultMinWorkers = 1;
     public static final int defaultBatchSize = 1;
     public static final int defaultStartupTimeout = 120; // unit: sec
     public static final int defaultResponseTimeout = 120; // unit: sec
 
     /** the minimum number of workers of a model */
-    private int minWorkers = defaultMinWorkers;
+    private int minWorkers;
     /** the maximum number of workers of a model */
     private int maxWorkers;
     /** the batch size of a model */
