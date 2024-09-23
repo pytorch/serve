@@ -11,18 +11,23 @@ import org.slf4j.LoggerFactory;
 public class ModelConfig {
     private static final Logger logger = LoggerFactory.getLogger(ModelConfig.class);
 
+    public static final int defaultMinWorkers = 1;
+    public static final int defaultBatchSize = 1;
+    public static final int defaultStartupTimeout = 120; // unit: sec
+    public static final int defaultResponseTimeout = 120; // unit: sec
+
     /** the minimum number of workers of a model */
-    private int minWorkers;
+    private int minWorkers = defaultMinWorkers;
     /** the maximum number of workers of a model */
     private int maxWorkers;
     /** the batch size of a model */
-    private int batchSize;
+    private int batchSize = defaultBatchSize;
     /** the maximum delay in msec of a batch of a model */
     private int maxBatchDelay;
     /** the timeout in sec of a specific model's response. */
-    private int responseTimeout = 120; // unit: sec
+    private int responseTimeout = defaultResponseTimeout;
     /** the timeout in sec of a specific model's startup. */
-    private int startupTimeout = 120; // unit: sec
+    private int startupTimeout = defaultStartupTimeout;
     /**
      * the device type where the model is loaded. It can be gpu, cpu. The model is loaded on CPU if
      * deviceType: "cpu" is set on a GPU host.
