@@ -193,21 +193,25 @@ public class Model {
         minWorkers =
                 modelInfo.has(MIN_WORKERS) && !modelInfo.get(MIN_WORKERS).isJsonNull()
                         ? modelInfo.get(MIN_WORKERS).getAsInt()
-                        : modelArchive.getModelConfig().defaultMinWorkers; // default value for minWorkers
+                        : modelArchive.getModelConfig()
+                                .defaultMinWorkers; // default value for minWorkers
         maxWorkers = modelInfo.get(MAX_WORKERS).getAsInt();
         maxBatchDelay = modelInfo.get(MAX_BATCH_DELAY).getAsInt();
         responseTimeout =
                 modelInfo.has(RESPONSE_TIMEOUT) && !modelInfo.get(RESPONSE_TIMEOUT).isJsonNull()
                         ? modelInfo.get(RESPONSE_TIMEOUT).getAsInt()
-                        : modelArchive.getModelConfig().defaultResponseTimeout; // default value for responseTimeout
+                        : modelArchive.getModelConfig()
+                                .defaultResponseTimeout; // default value for responseTimeout
         startupTimeout =
                 modelInfo.has(STARTUP_TIMEOUT) && !modelInfo.get(STARTUP_TIMEOUT).isJsonNull()
                         ? modelInfo.get(STARTUP_TIMEOUT).getAsInt()
-                        : modelArchive.getModelConfig().defaultStartupTimeout; // default value for startupTimeout
+                        : modelArchive.getModelConfig()
+                                .defaultStartupTimeout; // default value for startupTimeout
         batchSize =
                 modelInfo.has(BATCH_SIZE) && !modelInfo.get(BATCH_SIZE).isJsonNull()
                         ? modelInfo.get(BATCH_SIZE).getAsInt()
-                        : modelArchive.getModelConfig().defaultBatchSize; // default value for batchSize
+                        : modelArchive.getModelConfig()
+                                .defaultBatchSize; // default value for batchSize
 
         JsonElement runtime = modelInfo.get(RUNTIME_TYPE);
         String runtime_str = Manifest.RuntimeType.PYTHON.getValue();
